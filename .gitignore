@@ -140,3 +140,9 @@ vite.config.ts.timestamp-*
 
 # SPecifc to this project
 pages/
+
+# Ignore wiki pages directory
+pages/
+logs/
+
+

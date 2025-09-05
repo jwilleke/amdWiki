@@ -1,0 +1,326 @@
+<%- include('header') %>
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Editing: <%= pageName %></h1>
+</div>
+
+<form action="/wiki/<%= pageName %>" method="POST">
+    <div class="d-flex mb-3" style="gap: 1rem;">
+        <div class="form-group mr-3">
+            <label for="category-select" style="font-weight:bold;">Category (MUST Select One)</label>
+            <select class="form-control" id="category-select" name="category" required>
+                <option value="" disabled <%= !selectedCategory ? 'selected' : '' %>>-- Select Category --</option>
+                <% categories.forEach(category => { %>
+                    <option value="<%= category %>" <%= category === selectedCategory ? 'selected' : '' %>><%= category %></option>
+                <% }); %>
+            </select>
+        </div>
+        <div class="form-group">
+            <label style="font-weight:bold;">User-Keywords (max 3):</label>
+            <div id="user-keywords-checkboxes">
+                <% userKeywords.forEach(keyword => { %>
+                    <div class="form-check">
+                        <input class="form-check-input user-keyword-checkbox" type="checkbox" name="userKeywords[]" value="<%= keyword %>" id="user-keyword-<%= keyword %>" <%= selectedUserKeywords.includes(keyword) ? 'checked' : '' %>>
+                        <label class="form-check-label" for="user-keyword-<%= keyword %>"><%= keyword %></label>
+                    </div>
+                <% }); %>
+            </div>
+        </div>
+    </div>
+
+<form action="/save/<%= pageName %>" method="POST">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <textarea class="form-control" id="content" name="content" rows="20"><%= content %></textarea>
+                <div id="wiki-link-dropdown" style="display:none; position:absolute; z-index:1000; background:#fff; border:1px solid #ccc; max-height:200px; overflow-y:auto;"></div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    Preview
+                </div>
+                <div class="card-body markdown-body" id="preview">
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="d-flex" style="gap: 1rem;">
+        <button type="submit" class="btn btn-primary" id="save-btn">Save</button>
+        <a href="/wiki/<%= pageName %>" class="btn btn-secondary">Cancel</a>
+        <form action="/delete/<%= pageName %>" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this page?');">
+            <button type="submit" class="btn btn-danger">Delete Page</button>
+        </form>
+    </div>
+</form>
+
+<% if (metadata) { %>
+<div class="card mt-4">
+    <div class="card-header">
+        Metadata
+    </div>
+    <div class="card-body">
+        <pre><%= JSON.stringify(metadata, null, 2) %></pre>
+    </div>
+</div>
+<% } %>
+
+<script>
+    // Prevent saving if no category is selected
+    document.getElementById('save-btn').addEventListener('click', function(e) {
+        const categorySelect = document.getElementById('category-select');
+        if (!categorySelect.value) {
+            alert('You must select a category before saving.');
+            e.preventDefault();
+        }
+        // Prevent saving if more than 3 user-keywords are checked
+        const userKeywordCheckboxes = document.querySelectorAll('.user-keyword-checkbox');
+        let checkedCount = 0;
+        userKeywordCheckboxes.forEach(cb => { if (cb.checked) checkedCount++; });
+        if (checkedCount > 3) {
+            alert('You can select up to 3 User-Keywords only.');
+            e.preventDefault();
+        }
+    });
+
+    // Limit User-Keywords checkbox selection to 3
+    const userKeywordCheckboxes = document.querySelectorAll('.user-keyword-checkbox');
+    function updateUserKeywordCheckboxes() {
+        const checked = Array.from(userKeywordCheckboxes).filter(cb => cb.checked);
+        if (checked.length >= 3) {
+            userKeywordCheckboxes.forEach(cb => {
+                if (!cb.checked) cb.disabled = true;
+            });
+        } else {
+            userKeywordCheckboxes.forEach(cb => {
+                cb.disabled = false;
+            });
+        }
+    }
+    userKeywordCheckboxes.forEach(cb => {
+        cb.addEventListener('change', updateUserKeywordCheckboxes);
+    });
+    updateUserKeywordCheckboxes();
+    const content = document.getElementById('content');
+    const preview = document.getElementById('preview');
+
+    const updatePreview = () => {
+        const markdown = content.value;
+        fetch('/api/preview', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ content: markdown, pageName: '<%= pageName %>' })
+        })
+        .then(response => response.json())
+        .then(data => {
+            preview.innerHTML = data.html;
+        });
+    };
+
+    content.addEventListener('input', updatePreview);
+    updatePreview(); // Initial preview
+</script>
+
+
+<script>
+    // User-Keywords add logic
+    const userKeywordsSelect = document.getElementById('user-keywords-select');
+    const newUserKeywordInput = document.getElementById('new-user-keyword');
+    const addUserKeywordBtn = document.getElementById('add-user-keyword');
+
+    addUserKeywordBtn.addEventListener('click', () => {
+        const newKeyword = newUserKeywordInput.value.trim();
+        if (!newKeyword) return;
+        // Limit to 3 selections
+        if (userKeywordsSelect.selectedOptions.length >= 3) {
+            alert('Limit is 3 keywords.');
+            return;
+        }
+        // Add to dropdown if not present
+        let exists = false;
+        for (let i = 0; i < userKeywordsSelect.options.length; i++) {
+            if (userKeywordsSelect.options[i].value.toLowerCase() === newKeyword.toLowerCase()) {
+                exists = true;
+                userKeywordsSelect.options[i].selected = true;
+                break;
+            }
+        }
+        if (!exists) {
+            const opt = document.createElement('option');
+            opt.value = newKeyword;
+            opt.textContent = newKeyword;
+            opt.selected = true;
+            userKeywordsSelect.appendChild(opt);
+        }
+        newUserKeywordInput.value = '';
+    });
+        updatePageList(pageList);
+
+        // Position the list near the cursor
+        const coordinates = getCursorCoordinates(contentTextArea, position);
+        listContainer.style.left = coordinates.x + 'px';
+        listContainer.style.top = coordinates.y + 'px';
+
+        input.focus();
+
+    function hidePageList() {
+        const listContainer = document.getElementById('page-list-container');
+        if (listContainer) {
+            listContainer.remove();
+        }
+    }
+
+    function updatePageList(pages) {
+        const listElement = document.getElementById('page-list');
+        listElement.innerHTML = '';
+        pages.forEach(page => {
+            const listItem = document.createElement('li');
+            listItem.style.padding = '5px';
+            listItem.style.cursor = 'pointer';
+            listItem.textContent = page;
+            listItem.addEventListener('mouseover', () => {
+                listItem.style.background = '#f0f0f0';
+            });
+            listItem.addEventListener('mouseout', () => {
+                listItem.style.background = 'white';
+            });
+            listItem.addEventListener('click', () => {
+                insertPageLink(page);
+            });
+            listElement.appendChild(listItem);
+        });
+    }
+
+    function filterPageList() {
+        const filter = document.getElementById('page-list-input').value.toLowerCase();
+        const filteredPages = pageList.filter(page => page.toLowerCase().includes(filter));
+        updatePageList(filteredPages);
+    }
+
+    function insertPageLink(pageName) {
+        const text = contentTextArea.value;
+        const cursorPos = contentTextArea.selectionStart;
+        const textBefore = text.substring(0, cursorPos - 1); // up to the '['
+        const textAfter = text.substring(cursorPos);
+        contentTextArea.value = textBefore + `[${pageName}]` + textAfter;
+        hidePageList();
+        contentTextArea.focus();
+        // Move cursor after the inserted link
+        contentTextArea.selectionEnd = contentTextArea.selectionStart = (textBefore + `[${pageName}]`).length;
+    }
+
+    // This is a helper to get cursor coordinates. It's not perfect but works for simple cases.
+    function getCursorCoordinates(textarea, position) {
+        const { offsetLeft, offsetTop } = textarea;
+        const text = textarea.value.substring(0, position);
+        const dummy = document.createElement('div');
+        const style = getComputedStyle(textarea);
+
+        // Copy textarea styles to the dummy element
+        [
+            'fontFamily',
+            'fontSize',
+            'fontWeight',
+            'fontStyle',
+            'letterSpacing',
+            'lineHeight',
+            'textTransform',
+            'wordSpacing',
+            'padding',
+            'border'
+        ].forEach(prop => {
+            dummy.style[prop] = style[prop];
+        });
+
+        dummy.style.position = 'absolute';
+        dummy.style.visibility = 'hidden';
+        dummy.style.whiteSpace = 'pre-wrap';
+        dummy.style.wordWrap = 'break-word';
+        dummy.style.top = '-9999px';
+        dummy.style.left = '-9999px';
+        dummy.style.width = textarea.clientWidth + 'px';
+
+        dummy.textContent = text;
+        document.body.appendChild(dummy);
+
+        const span = document.createElement('span');
+        span.textContent = textarea.value.substring(position - 1, position);
+        dummy.appendChild(span);
+
+        const { offsetLeft: spanLeft, offsetTop: spanTop, offsetHeight: spanHeight } = span;
+        const { scrollLeft, scrollTop } = textarea;
+
+        document.body.removeChild(dummy);
+
+        return {
+            x: offsetLeft + spanLeft - scrollLeft,
+            y: offsetTop + spanTop + spanHeight - scrollTop
+        };
+    }
+
+    // Hide the list if the user clicks outside of it
+    document.addEventListener('click', (e) => {
+        const listContainer = document.getElementById('page-list-container');
+        if (listContainer && !listContainer.contains(e.target) && e.target !== contentTextArea) {
+            hidePageList();
+        }
+    });
+
+    let pageNames = [];
+    fetch('/api/page-names')
+      .then(res => res.json())
+      .then(data => {
+        pageNames = data;
+        console.log('Loaded pageNames:', pageNames);
+      });
+
+    const wikiLinkDropdown = document.getElementById('wiki-link-dropdown');
+    content.addEventListener('keyup', function(e) {
+      console.log('Keyup event:', e.key, 'Value:', content.value);
+      const cursorPos = content.selectionStart;
+      const text = content.value.substring(0, cursorPos);
+      const match = text.match(/\[([^\]]*)$/);
+      if (match) {
+        const typed = match[1].toLowerCase();
+        const matches = typed
+          ? pageNames.filter(p => p.toLowerCase().includes(typed))
+          : pageNames; // Show all if nothing typed
+        console.log('Dropdown matches:', matches, 'Typed:', typed, 'PageNames:', pageNames);
+        if (matches.length > 0) {
+          wikiLinkDropdown.innerHTML = matches.map(p => `<div class='wiki-link-option' style='padding:4px; cursor:pointer;'>${p}</div>`).join('');
+          wikiLinkDropdown.style.display = 'block';
+          // Position dropdown below textarea
+          const rect = content.getBoundingClientRect();
+          wikiLinkDropdown.style.left = rect.left + window.scrollX + 'px';
+          wikiLinkDropdown.style.top = rect.bottom + window.scrollY + 'px';
+          wikiLinkDropdown.style.width = rect.width + 'px';
+        } else {
+          wikiLinkDropdown.style.display = 'none';
+          alert('No wiki page matches found for: ' + typed);
+        }
+      } else {
+        wikiLinkDropdown.style.display = 'none';
+      }
+    });
+
+    wikiLinkDropdown.addEventListener('mousedown', function(e) {
+      if (e.target.classList.contains('wiki-link-option')) {
+        const selected = e.target.textContent;
+        const cursorPos = content.selectionStart;
+        const text = content.value;
+        const before = text.substring(0, cursorPos).replace(/\[[^\]]*$/, `[${selected}]`);
+        const after = text.substring(cursorPos);
+        content.value = before + after;
+        wikiLinkDropdown.style.display = 'none';
+        content.focus();
+        updatePreview();
+      }
+    });
+</script>
+
+<%- include('footer') %>
