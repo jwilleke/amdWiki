@@ -1,0 +1,25 @@
+{
+  "name": "amdwiki",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "body-parser": "^2.2.0",
+    "ejs": "^3.1.10",
+    "express": "^5.1.0",
+    "fs-extra": "^11.3.1",
+    "gray-matter": "^4.0.3",
+    "lunr": "^2.3.9",
+    "markdownlint": "^0.38.0",
+    "showdown": "^2.1.0",
+    "uuid": "^9.0.0",
+    "winston": "^3.17.0"
+  }
+}
