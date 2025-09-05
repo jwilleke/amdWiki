@@ -138,11 +138,7 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 
-# SPecifc to this project
+# SSpecific to this project
 pages/
-
-# Ignore wiki pages directory
-pages/
-logs/
 
 
