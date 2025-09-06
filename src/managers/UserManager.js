@@ -228,6 +228,7 @@ class UserManager extends BaseManager {
       roles: ['admin'],
       isActive: true,
       isSystem: true,
+      isExternal: false, // Local account
       createdAt: new Date().toISOString(),
       lastLogin: null,
       loginCount: 0,
@@ -238,6 +239,54 @@ class UserManager extends BaseManager {
     await this.saveUsers();
     
     console.log('👤 Created default admin user (username: admin, password: admin123)');
+  }
+
+  /**
+   * Create or update external user from OAuth/JWT token
+   * @param {Object} externalUserData - User data from external provider
+   * @returns {Object} User object
+   */
+  async createOrUpdateExternalUser(externalUserData) {
+    const { username, email, displayName, roles = ['reader'], provider } = externalUserData;
+    
+    let user = this.users.get(username);
+    
+    if (!user) {
+      // Create new external user
+      user = {
+        username,
+        email,
+        displayName: displayName || username,
+        password: null, // No password for external users
+        roles,
+        isActive: true,
+        isSystem: false,
+        isExternal: true,
+        provider: provider, // OAuth provider (google, github, etc.)
+        createdAt: new Date().toISOString(),
+        lastLogin: new Date().toISOString(),
+        loginCount: 1,
+        preferences: {}
+      };
+      
+      this.users.set(username, user);
+      console.log(`👤 Created external user: ${username} (${provider})`);
+    } else {
+      // Update existing external user
+      user.email = email;
+      user.displayName = displayName || user.displayName;
+      user.roles = roles;
+      user.lastLogin = new Date().toISOString();
+      user.loginCount = (user.loginCount || 0) + 1;
+      
+      console.log(`👤 Updated external user: ${username} (${provider})`);
+    }
+    
+    await this.saveUsers();
+    
+    // Return user without password
+    const { password: _, ...userWithoutPassword } = user;
+    return userWithoutPassword;
   }
 
   /**
@@ -262,8 +311,9 @@ class UserManager extends BaseManager {
     user.loginCount = (user.loginCount || 0) + 1;
     await this.saveUsers();
     
-    // Return user without password
+    // Return user without password but with authentication flag
     const { password: _, ...userWithoutPassword } = user;
+    userWithoutPassword.isAuthenticated = true;
     return userWithoutPassword;
   }
 
@@ -369,13 +419,13 @@ class UserManager extends BaseManager {
    * @returns {Object} Created user (without password)
    */
   async createUser(userData) {
-    const { username, email, displayName, password, roles = ['reader'] } = userData;
+    const { username, email, displayName, password, roles = ['reader'], isExternal = false } = userData;
     
     if (this.users.has(username)) {
       throw new Error('Username already exists');
     }
     
-    const hashedPassword = await bcrypt.hash(password, this.saltRounds);
+    const hashedPassword = isExternal ? null : this.hashPassword(password);
     
     const user = {
       username,
@@ -385,6 +435,7 @@ class UserManager extends BaseManager {
       roles,
       isActive: true,
       isSystem: false,
+      isExternal: isExternal, // Flag to indicate OAuth/external user
       createdAt: new Date().toISOString(),
       lastLogin: null,
       loginCount: 0,
@@ -394,7 +445,7 @@ class UserManager extends BaseManager {
     this.users.set(username, user);
     await this.saveUsers();
     
-    console.log(`👤 Created user: ${username}`);
+    console.log(`👤 Created user: ${username} (${isExternal ? 'External' : 'Local'})`);
     
     // Return user without password
     const { password: _, ...userWithoutPassword } = user;
@@ -412,15 +463,19 @@ class UserManager extends BaseManager {
       throw new Error('User not found');
     }
     
-    // Handle password updates
+    // Handle password updates - only for local users
     if (updates.password) {
-      updates.password = await bcrypt.hash(updates.password, this.saltRounds);
+      if (user.isExternal) {
+        throw new Error('Cannot change password for external OAuth users');
+      }
+      updates.password = this.hashPassword(updates.password);
     }
     
     Object.assign(user, updates);
     await this.saveUsers();
     
     console.log(`👤 Updated user: ${username}`);
+    return true;
   }
 
   /**
@@ -530,7 +585,10 @@ class UserManager extends BaseManager {
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const token = authHeader.substring(7);
       const user = this.validateJwtToken(token);
-      if (user) return user;
+      if (user) {
+        user.isAuthenticated = true;
+        return user;
+      }
     }
     
     // Check for session-based auth
@@ -540,7 +598,12 @@ class UserManager extends BaseManager {
     }
     
     const session = this.getSession(sessionId);
-    return session ? session.user : null;
+    if (session && session.user) {
+      session.user.isAuthenticated = true;
+      return session.user;
+    }
+    
+    return null;
   }
 
   /**
