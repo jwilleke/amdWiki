@@ -1,0 +1,152 @@
+<%- include('header') %>
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Create New Page</h1>
+</div>
+
+<form action="/create" method="POST">
+    <div class="row">
+        <div class="col-md-8">
+            <!-- Page Name -->
+            <div class="form-group mb-3">
+                <label for="pageName" style="font-weight:bold;">Page Name *</label>
+                <input type="text" class="form-control" id="pageName" name="pageName" value="<%= pageName %>" required placeholder="Enter page name">
+            </div>
+
+            <!-- Template Selection -->
+            <div class="form-group mb-3">
+                <label style="font-weight:bold;">Choose Template *</label>
+                <div class="template-selector">
+                    <% templates.forEach((template, index) => { %>
+                        <div class="template-option">
+                            <input type="radio" id="template-<%= template.name %>" name="templateName" value="<%= template.name %>" <%= index === 0 ? 'checked' : '' %> required>
+                            <label for="template-<%= template.name %>">
+                                <strong><%= template.name.charAt(0).toUpperCase() + template.name.slice(1) %></strong>
+                                <% if (template.name === 'default') { %>
+                                    - Basic page template with overview and content sections
+                                <% } else if (template.name === 'documentation') { %>
+                                    - Documentation template with instructions and examples
+                                <% } else if (template.name === 'category') { %>
+                                    - Category page template for organizing related pages
+                                <% } else if (template.name === 'meeting-notes') { %>
+                                    - Meeting notes template with agenda and action items
+                                <% } %>
+                            </label>
+                        </div>
+                    <% }); %>
+                </div>
+            </div>
+
+            <!-- Category Selection -->
+            <div class="form-group mb-3">
+                <label for="category-select" style="font-weight:bold;">Category *</label>
+                <select class="form-control" id="category-select" name="category" required>
+                    <option value="" disabled selected>-- Select Category --</option>
+                    <% categories.forEach(category => { %>
+                        <option value="<%= category %>"><%= category %></option>
+                    <% }); %>
+                </select>
+            </div>
+
+            <!-- User Keywords -->
+            <div class="form-group mb-3">
+                <label style="font-weight:bold;">User-Keywords (optional, max 3):</label>
+                <div id="user-keywords-checkboxes">
+                    <% userKeywords.forEach(keyword => { %>
+                        <div class="form-check">
+                            <input class="form-check-input user-keyword-checkbox" type="checkbox" name="userKeywords[]" value="<%= keyword %>" id="create-keyword-<%= keyword %>">
+                            <label class="form-check-label" for="create-keyword-<%= keyword %>"><%= keyword %></label>
+                        </div>
+                    <% }); %>
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">Create Page</button>
+                <a href="/" class="btn btn-secondary ml-2">Cancel</a>
+            </div>
+        </div>
+        
+        <!-- Template Preview -->
+        <div class="col-md-4">
+            <div class="template-preview-container">
+                <label style="font-weight:bold;">Template Preview:</label>
+                <div id="template-preview" class="template-preview">
+                    <em>Select a template to see preview</em>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script>
+// Limit user keywords to 3
+document.addEventListener('DOMContentLoaded', function() {
+    const checkboxes = document.querySelectorAll('.user-keyword-checkbox');
+    const maxKeywords = 3;
+    
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const checkedBoxes = document.querySelectorAll('.user-keyword-checkbox:checked');
+            if (checkedBoxes.length > maxKeywords) {
+                this.checked = false;
+                alert(`You can select a maximum of ${maxKeywords} keywords.`);
+            }
+        });
+    });
+    
+    // Template preview functionality
+    const templateRadios = document.querySelectorAll('input[name="templateName"]');
+    const preview = document.getElementById('template-preview');
+    
+    // Template descriptions for preview
+    const templatePreviews = {
+        'default': `<h1>Page Name</h1>
+<h2>Overview</h2>
+<p>Page Name is...</p>
+<h2>Content</h2>
+<p>Add your content here.</p>
+<h2>More Information</h2>
+<p>Referring pages will be listed here.</p>`,
+        
+        'documentation': `<h1>Page Name</h1>
+<h2>Purpose</h2>
+<p>This document describes...</p>
+<h2>Instructions</h2>
+<ol><li>Step one</li><li>Step two</li></ol>
+<h2>Examples</h2>
+<p>Code examples here...</p>`,
+        
+        'category': `<h1>Page Name</h1>
+<h2>Overview</h2>
+<p>Page Name contains pages related to...</p>
+<h2>Subcategories</h2>
+<ul><li>Subcategory 1</li><li>Subcategory 2</li></ul>`,
+        
+        'meeting-notes': `<h1>Page Name</h1>
+<p><strong>Date:</strong> Current Date</p>
+<p><strong>Attendees:</strong></p>
+<h2>Agenda</h2>
+<ol><li>Item 1</li><li>Item 2</li></ol>
+<h2>Action Items</h2>
+<ul><li>☐ Action item 1</li></ul>`
+    };
+    
+    function updatePreview() {
+        const selectedTemplate = document.querySelector('input[name="templateName"]:checked');
+        if (selectedTemplate && templatePreviews[selectedTemplate.value]) {
+            preview.innerHTML = templatePreviews[selectedTemplate.value];
+        }
+    }
+    
+    templateRadios.forEach(radio => {
+        radio.addEventListener('change', updatePreview);
+    });
+    
+    // Initial preview
+    updatePreview();
+});
+</script>
+
+<%- include('footer') %>
