@@ -1,4 +1,9 @@
-<%- include('header', { title: title || 'Error' }) %>
+<%- include('header', { 
+  title: title || 'Error',
+  pages: pages || [],
+  appName: appName || 'amdWiki',
+  currentUser: currentUser || null
+}) %>
 
 <div class="container">
   <div class="row justify-content-center">

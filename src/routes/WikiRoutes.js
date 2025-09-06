@@ -53,7 +53,11 @@ class WikiRoutes {
       for (const line of lines) {
         const match = line.match(/^\* (.+?) \(/);
         if (match) {
-          categories.push(match[1]);
+          const category = match[1];
+          // Exclude admin-only categories from regular user dropdown
+          if (category !== 'System/Admin') {
+            categories.push(category);
+          }
         }
       }
       
@@ -61,6 +65,41 @@ class WikiRoutes {
     } catch (err) {
       console.error('Error loading categories:', err);
       return ['General', 'Documentation'];
+    }
+  }
+
+  /**
+   * Get all categories including admin-only categories
+   */
+  async getAllCategories() {
+    try {
+      const pageManager = this.engine.getManager('PageManager');
+      const categoriesPage = await pageManager.getPage('Categories');
+      
+      if (!categoriesPage) {
+        return ['General', 'Documentation', 'System/Admin'];
+      }
+      
+      // Extract all categories from the content (lines that start with *)
+      const categories = [];
+      const lines = categoriesPage.content.split('\n');
+      
+      for (const line of lines) {
+        const match = line.match(/^\* (.+?) \(/);
+        if (match) {
+          categories.push(match[1]);
+        }
+      }
+      
+      // Ensure System/Admin category is always available
+      if (!categories.includes('System/Admin')) {
+        categories.push('System/Admin');
+      }
+      
+      return categories.length > 0 ? categories : ['General', 'Documentation', 'System/Admin'];
+    } catch (err) {
+      console.error('Error loading all categories:', err);
+      return ['General', 'Documentation', 'System/Admin'];
     }
   }
 
@@ -95,6 +134,49 @@ class WikiRoutes {
   }
 
   /**
+   * Render error page with consistent template data
+   */
+  async renderError(req, res, status, title, message) {
+    try {
+      const commonData = await this.getCommonTemplateDataWithUser(req);
+      return res.status(status).render('error', {
+        ...commonData,
+        title: title,
+        message: message,
+        error: { status: status }
+      });
+    } catch (err) {
+      console.error('Error rendering error page:', err);
+      return res.status(status).send(`${title}: ${message}`);
+    }
+  }
+
+  /**
+   * Check if a page is a required page (admin-only edit)
+   * This checks both hardcoded required pages and pages with System/Admin category
+   */
+  async isRequiredPage(pageName) {
+    // Hardcoded required pages (for backward compatibility)
+    const hardcodedRequiredPages = ['Categories', 'Wiki Documentation'];
+    if (hardcodedRequiredPages.includes(pageName)) {
+      return true;
+    }
+    
+    // Check if page has System/Admin category
+    try {
+      const pageManager = this.engine.getManager('PageManager');
+      const pageData = await pageManager.getPage(pageName);
+      if (pageData && pageData.metadata && pageData.metadata.category === 'System/Admin') {
+        return true;
+      }
+    } catch (err) {
+      console.error('Error checking page category:', err);
+    }
+    
+    return false;
+  }
+
+  /**
    * Display a wiki page
    */
   async viewPage(req, res) {
@@ -108,11 +190,7 @@ class WikiRoutes {
       
       // Check read permission
       if (!userManager.hasPermission(currentUser.username, 'page:read')) {
-        return res.status(403).render('error', {
-          title: 'Access Denied',
-          message: 'You do not have permission to view pages',
-          error: { status: 403 }
-        });
+        return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to view pages');
       }
       
       // Get common template data with user
@@ -253,12 +331,32 @@ class WikiRoutes {
     try {
       const pageName = req.params.page;
       const pageManager = this.engine.getManager('PageManager');
+      const userManager = this.engine.getManager('UserManager');
+      
+      // Get current user
+      const currentUser = await userManager.getCurrentUser(req);
+      
+      // Check if this is a required page that needs admin access
+      if (await this.isRequiredPage(pageName)) {
+        if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+          return await this.renderError(req, res, 403, 'Access Denied', 'Only administrators can edit this page');
+        }
+      } else {
+        // Check regular edit permission for non-required pages
+        if (!currentUser || !userManager.hasPermission(currentUser.username, 'page:edit')) {
+          return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to edit pages');
+        }
+      }
       
       // Get common template data with user context
       const commonData = await this.getCommonTemplateDataWithUser(req);
       
-      // Get categories and keywords
-      const categories = await this.getCategories();
+      // Get categories and keywords - use all categories for admin editing required pages
+      const isAdmin = currentUser && userManager.hasPermission(currentUser.username, 'admin:system');
+      const isRequired = await this.isRequiredPage(pageName);
+      const categories = (isRequired && isAdmin) ? 
+        await this.getAllCategories() : 
+        await this.getCategories();
       const userKeywords = await this.getUserKeywords();
       
       let pageData = await pageManager.getPage(pageName);
@@ -301,13 +399,32 @@ class WikiRoutes {
       const pageManager = this.engine.getManager('PageManager');
       const renderingManager = this.engine.getManager('RenderingManager');
       const searchManager = this.engine.getManager('SearchManager');
+      const userManager = this.engine.getManager('UserManager');
       
-      // Prepare metadata
+      // Get current user
+      const currentUser = await userManager.getCurrentUser(req);
+      
+      // Prepare metadata first to check the category
       const metadata = {
         title: title || pageName,
         category: category || '',
         'user-keywords': Array.isArray(userKeywords) ? userKeywords : (userKeywords ? [userKeywords] : [])
       };
+      
+      // Check if this is or will become a required page that needs admin access
+      const isCurrentlyRequired = await this.isRequiredPage(pageName);
+      const willBeRequired = await pageManager.isRequiredPage(pageName, metadata);
+      
+      if (isCurrentlyRequired || willBeRequired) {
+        if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+          return await this.renderError(req, res, 403, 'Access Denied', 'Only administrators can edit this page or assign System/Admin category');
+        }
+      } else {
+        // Check regular edit permission for non-required pages
+        if (!currentUser || !userManager.hasPermission(currentUser.username, 'page:edit')) {
+          return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to edit pages');
+        }
+      }
       
       // Save the page
       await pageManager.savePage(pageName, content, metadata);
@@ -909,18 +1026,23 @@ class WikiRoutes {
       const currentUser = await userManager.getCurrentUser(req);
       
       if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
-        const commonData = await this.getCommonTemplateDataWithUser(req);
-        return res.status(403).render('error', {
-          ...commonData,
-          title: 'Access Denied',
-          message: 'You do not have permission to access the admin dashboard',
-          error: { status: 403 }
-        });
+        return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to access the admin dashboard');
       }
       
       const commonData = await this.getCommonTemplateDataWithUser(req);
       const users = userManager.getUsers();
       const roles = userManager.getRoles();
+      
+      // Get all required pages for the admin dashboard
+      const pageManager = this.engine.getManager('PageManager');
+      const allPageNames = await pageManager.getPageNames();
+      const requiredPages = [];
+      
+      for (const pageName of allPageNames) {
+        if (await this.isRequiredPage(pageName)) {
+          requiredPages.push(pageName);
+        }
+      }
       
       // Gather system statistics
       const stats = {
@@ -943,7 +1065,8 @@ class WikiRoutes {
         userCount: users.length,
         roleCount: roles.length,
         stats: stats,
-        recentActivity: recentActivity
+        recentActivity: recentActivity,
+        requiredPages: requiredPages
       };
       
       res.render('admin-dashboard', templateData);
@@ -963,13 +1086,7 @@ class WikiRoutes {
       const currentUser = await userManager.getCurrentUser(req);
       
       if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:users')) {
-        const commonData = await this.getCommonTemplateDataWithUser(req);
-        return res.status(403).render('error', {
-          ...commonData,
-          title: 'Access Denied',
-          message: 'You do not have permission to access user management',
-          error: { status: 403 }
-        });
+        return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to access user management');
       }
       
       const commonData = await this.getCommonTemplateDataWithUser(req);
