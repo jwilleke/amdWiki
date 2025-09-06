@@ -1,0 +1,42 @@
+<%- include('header', { title: title || 'Error' }) %>
+
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card border-danger">
+        <div class="card-header bg-danger text-white">
+          <h4 class="mb-0">
+            <i class="fas fa-exclamation-triangle"></i>
+            Error <%= error.status %>
+          </h4>
+        </div>
+        <div class="card-body">
+          <h5 class="card-title"><%= title %></h5>
+          <p class="card-text"><%= message %></p>
+          
+          <% if (error.status === 403) { %>
+            <div class="alert alert-warning">
+              <strong>Access Denied:</strong> You need to be logged in with appropriate permissions to access this page.
+            </div>
+            <a href="/login" class="btn btn-primary">
+              <i class="fas fa-sign-in-alt"></i> Login
+            </a>
+          <% } else if (error.status === 404) { %>
+            <div class="alert alert-info">
+              <strong>Not Found:</strong> The page you're looking for doesn't exist.
+            </div>
+            <a href="/" class="btn btn-primary">
+              <i class="fas fa-home"></i> Go Home
+            </a>
+          <% } else { %>
+            <a href="/" class="btn btn-primary">
+              <i class="fas fa-home"></i> Go Home
+            </a>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('footer') %>

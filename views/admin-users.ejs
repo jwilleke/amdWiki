@@ -1,0 +1,135 @@
+<%- include('header', { title: 'User Management' }) %>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>
+          <i class="fas fa-users"></i>
+          User Management
+        </h2>
+        <a href="/admin" class="btn btn-secondary">
+          <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+      </div>
+
+      <!-- User Statistics -->
+      <div class="row mb-4">
+        <div class="col-md-3">
+          <div class="card bg-primary text-white">
+            <div class="card-body">
+              <h5 class="card-title">Total Users</h5>
+              <h3><%= users.length %></h3>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card bg-success text-white">
+            <div class="card-body">
+              <h5 class="card-title">Active Users</h5>
+              <h3><%= users.filter(u => u.isActive).length %></h3>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card bg-info text-white">
+            <div class="card-body">
+              <h5 class="card-title">Admin Users</h5>
+              <h3><%= users.filter(u => u.roles.includes('admin')).length %></h3>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card bg-warning text-white">
+            <div class="card-body">
+              <h5 class="card-title">System Users</h5>
+              <h3><%= users.filter(u => u.isSystem).length %></h3>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Users Table -->
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">All Users</h5>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Username</th>
+                  <th>Display Name</th>
+                  <th>Email</th>
+                  <th>Roles</th>
+                  <th>Status</th>
+                  <th>Last Login</th>
+                  <th>Login Count</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% users.forEach(user => { %>
+                <tr>
+                  <td>
+                    <strong><%= user.username %></strong>
+                    <% if (user.isSystem) { %>
+                      <span class="badge badge-warning">System</span>
+                    <% } %>
+                  </td>
+                  <td><%= user.displayName || user.username %></td>
+                  <td><%= user.email || 'Not set' %></td>
+                  <td>
+                    <% user.roles.forEach(role => { %>
+                      <span class="badge badge-<%= role === 'admin' ? 'danger' : 'secondary' %>">
+                        <%= role %>
+                      </span>
+                    <% }); %>
+                  </td>
+                  <td>
+                    <% if (user.isActive) { %>
+                      <span class="badge badge-success">Active</span>
+                    <% } else { %>
+                      <span class="badge badge-danger">Inactive</span>
+                    <% } %>
+                  </td>
+                  <td>
+                    <% if (user.lastLogin) { %>
+                      <%= new Date(user.lastLogin).toLocaleDateString() %>
+                    <% } else { %>
+                      Never
+                    <% } %>
+                  </td>
+                  <td><%= user.loginCount || 0 %></td>
+                  <td>
+                    <div class="btn-group btn-group-sm">
+                      <button class="btn btn-outline-primary" title="Edit User">
+                        <i class="fas fa-edit"></i>
+                      </button>
+                      <% if (!user.isSystem) { %>
+                        <button class="btn btn-outline-danger" title="Delete User">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      <% } %>
+                    </div>
+                  </td>
+                </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Create New User Button -->
+      <div class="mt-4">
+        <button class="btn btn-primary">
+          <i class="fas fa-plus"></i> Create New User
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('footer') %>
