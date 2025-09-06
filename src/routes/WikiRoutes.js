@@ -906,28 +906,47 @@ class WikiRoutes {
   async adminDashboard(req, res) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = userManager.getCurrentUser(req);
+      const currentUser = await userManager.getCurrentUser(req);
       
       if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+        const commonData = await this.getCommonTemplateDataWithUser(req);
         return res.status(403).render('error', {
+          ...commonData,
           title: 'Access Denied',
           message: 'You do not have permission to access the admin dashboard',
           error: { status: 403 }
         });
       }
       
-      const commonData = await this.getCommonTemplateData();
+      const commonData = await this.getCommonTemplateDataWithUser(req);
       const users = userManager.getUsers();
       const roles = userManager.getRoles();
       
-      res.render('admin-dashboard', {
+      // Gather system statistics
+      const stats = {
+        totalUsers: users.length,
+        uptime: Math.floor(process.uptime()) + ' seconds',
+        version: '1.0.0'
+      };
+      
+      // Mock recent activity (in a real implementation, this would come from logs)
+      const recentActivity = [
+        { timestamp: new Date().toLocaleString(), description: 'User logged in: ' + currentUser.username },
+        { timestamp: new Date(Date.now() - 60000).toLocaleString(), description: 'System started' }
+      ];
+      
+      const templateData = {
         ...commonData,
         title: 'Admin Dashboard',
         users: users,
         roles: roles,
         userCount: users.length,
-        roleCount: roles.length
-      });
+        roleCount: roles.length,
+        stats: stats,
+        recentActivity: recentActivity
+      };
+      
+      res.render('admin-dashboard', templateData);
       
     } catch (err) {
       console.error('Error loading admin dashboard:', err);
@@ -941,13 +960,19 @@ class WikiRoutes {
   async adminUsers(req, res) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = userManager.getCurrentUser(req);
+      const currentUser = await userManager.getCurrentUser(req);
       
       if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:users')) {
-        return res.status(403).send('Access denied');
+        const commonData = await this.getCommonTemplateDataWithUser(req);
+        return res.status(403).render('error', {
+          ...commonData,
+          title: 'Access Denied',
+          message: 'You do not have permission to access user management',
+          error: { status: 403 }
+        });
       }
       
-      const commonData = await this.getCommonTemplateData();
+      const commonData = await this.getCommonTemplateDataWithUser(req);
       const users = userManager.getUsers();
       const roles = userManager.getRoles();
       

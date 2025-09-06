@@ -138,8 +138,6 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 
-# SSpecific to this project
+# Specific to this project
 pages/
-
-
-users/users.json
+users/
