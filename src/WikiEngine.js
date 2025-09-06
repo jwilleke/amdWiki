@@ -74,6 +74,9 @@ class WikiEngine extends Engine {
     const PluginManager = require('./managers/PluginManager');
     const RenderingManager = require('./managers/RenderingManager');
     const SearchManager = require('./managers/SearchManager');
+    const TemplateManager = require('./managers/TemplateManager');
+    const AttachmentManager = require('./managers/AttachmentManager');
+    const ExportManager = require('./managers/ExportManager');
     
     try {
       console.log('📄 Registering PageManager...');
@@ -85,8 +88,17 @@ class WikiEngine extends Engine {
       console.log('🎨 Registering RenderingManager...');
       this.registerManager('RenderingManager', new RenderingManager(this));
       
-      console.log('� Registering SearchManager...');
+      console.log('🔍 Registering SearchManager...');
       this.registerManager('SearchManager', new SearchManager(this));
+      
+      console.log('📋 Registering TemplateManager...');
+      this.registerManager('TemplateManager', new TemplateManager(this));
+      
+      console.log('📎 Registering AttachmentManager...');
+      this.registerManager('AttachmentManager', new AttachmentManager(this));
+      
+      console.log('📦 Registering ExportManager...');
+      this.registerManager('ExportManager', new ExportManager(this));
       
       // Initialize in dependency order
       console.log('🚀 Initializing PageManager...');
@@ -100,6 +112,15 @@ class WikiEngine extends Engine {
       
       console.log('🚀 Initializing SearchManager...');
       await this.getManager('SearchManager').initialize();
+      
+      console.log('🚀 Initializing TemplateManager...');
+      await this.getManager('TemplateManager').initialize();
+      
+      console.log('🚀 Initializing AttachmentManager...');
+      await this.getManager('AttachmentManager').initialize();
+      
+      console.log('🚀 Initializing ExportManager...');
+      await this.getManager('ExportManager').initialize();
       
       console.log('✅ All managers initialized successfully');
     } catch (err) {
