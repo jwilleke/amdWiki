@@ -67,45 +67,45 @@ class WikiEngine extends Engine {
    * Initialize all managers based on configuration
    */
   async initializeManagers() {
-    console.log('🔧 Initializing managers...');
+    console.log('🔧 Starting manager initialization...');
     
-    // Defensive check #3: Verify config before using it
-    if (!this.config || typeof this.config.get !== 'function') {
-      throw new Error('Config instance is invalid in initializeManagers()');
-    }
-
-    const managersConfig = this.config.get('managers', {});
-    console.log(`📋 Managers config: ${Object.keys(managersConfig).join(', ')}`);
-
-    // Initialize PageManager
-    if (managersConfig.pageManager?.enabled) {
-      console.log('📄 Initializing PageManager...');
-      const pageManager = new PageManager(this);
-      await pageManager.initialize({
-        pagesDir: this.config.get('wiki.pagesDir')
-      });
-      this.registerManager('PageManager', pageManager);
-      console.log('✅ PageManager initialized');
-    }
-
-    // Initialize PluginManager
-    if (managersConfig.pluginManager?.enabled) {
-      console.log('🔌 Initializing PluginManager...');
-      const pluginManager = new PluginManager(this);
-      await pluginManager.initialize({
-        searchPaths: managersConfig.pluginManager.searchPaths || ['./plugins']
-      });
-      this.registerManager('PluginManager', pluginManager);
-      console.log('✅ PluginManager initialized');
-    }
-
-    // TODO: Initialize other managers as they are created
-    // - RenderingManager
-    // - SearchManager
-    // - TemplateManager
-    // - AttachmentManager
+    // Register and initialize managers in dependency order
+    const PageManager = require('./managers/PageManager');
+    const PluginManager = require('./managers/PluginManager');
+    const RenderingManager = require('./managers/RenderingManager');
+    const SearchManager = require('./managers/SearchManager');
     
-    console.log('✅ All managers initialized successfully');
+    try {
+      console.log('📄 Registering PageManager...');
+      this.registerManager('PageManager', new PageManager(this));
+      
+      console.log('🔌 Registering PluginManager...');
+      this.registerManager('PluginManager', new PluginManager(this));
+      
+      console.log('🎨 Registering RenderingManager...');
+      this.registerManager('RenderingManager', new RenderingManager(this));
+      
+      console.log('� Registering SearchManager...');
+      this.registerManager('SearchManager', new SearchManager(this));
+      
+      // Initialize in dependency order
+      console.log('🚀 Initializing PageManager...');
+      await this.getManager('PageManager').initialize();
+      
+      console.log('🚀 Initializing PluginManager...');
+      await this.getManager('PluginManager').initialize();
+      
+      console.log('🚀 Initializing RenderingManager...');
+      await this.getManager('RenderingManager').initialize();
+      
+      console.log('🚀 Initializing SearchManager...');
+      await this.getManager('SearchManager').initialize();
+      
+      console.log('✅ All managers initialized successfully');
+    } catch (err) {
+      console.error('❌ Manager initialization failed:', err);
+      throw err;
+    }
   }
 
   /**
