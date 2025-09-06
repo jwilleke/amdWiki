@@ -1,0 +1,70 @@
+{
+  "applicationName": "amdWiki",
+  "version": "1.0.0",
+  "server": {
+    "port": 3000,
+    "host": "localhost"
+  },
+  "wiki": {
+    "pagesDir": "./pages",
+    "templatesDir": "./wiki.conf/templates",
+    "resourcesDir": "./resources",
+    "workDir": "./",
+    "encoding": "UTF-8",
+    "frontPage": "Welcome"
+  },
+  "managers": {
+    "pageManager": {
+      "enabled": true,
+      "class": "PageManager"
+    },
+    "pluginManager": {
+      "enabled": true,
+      "class": "PluginManager",
+      "searchPaths": ["./plugins"]
+    },
+    "renderingManager": {
+      "enabled": true,
+      "class": "RenderingManager"
+    },
+    "searchManager": {
+      "enabled": true,
+      "class": "SearchManager"
+    },
+    "templateManager": {
+      "enabled": true,
+      "class": "TemplateManager"
+    }
+  },
+  "plugins": {
+    "searchPath": "./plugins",
+    "enabled": true
+  },
+  "features": {
+    "export": {
+      "html": true,
+      "pdf": false,
+      "odt": false
+    },
+    "llm": {
+      "enabled": false,
+      "endpoint": "http://localhost:11434",
+      "model": "llama2"
+    },
+    "attachments": {
+      "enabled": true,
+      "maxSize": "10MB",
+      "allowedTypes": ["image/*", "text/*", "application/pdf"]
+    }
+  },
+  "search": {
+    "indexDir": "./search-index",
+    "enabled": true
+  },
+  "logging": {
+    "level": "info",
+    "dir": "./logs",
+    "maxSize": "1MB",
+    "maxFiles": 5
+  }
+}
