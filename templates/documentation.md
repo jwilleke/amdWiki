@@ -3,11 +3,9 @@ uuid: {{uuid}}
 category: Wiki Documentation (Documentation and Hints for this Wiki)
 user-keywords: []
 ---
-# {{pageName}}
+# Overview
 
-## Purpose
-
-This document describes...
+[{$pagename}] describes...
 
 ## Instructions
 

@@ -3,11 +3,9 @@ uuid: {{uuid}}
 category: {{category}}
 user-keywords: {{userKeywords}}
 ---
-# {{pageName}}
+# Overview
 
-## Overview
-
-{{pageName}} is...
+[{$pagename}] is...
 
 ## Content
 

@@ -6,6 +6,29 @@
 * Able to be locally hosted.
 * Architectural overview: Use node.js
 
+## Next Iteration Opportunities
+
+### High Priority
+
+* User Authentication System - Login/permissions
+* Page History & Versioning - Track changes over time
+* Advanced Search Filters - Category/keyword/date filtering
+* Attachment UI Integration - Upload widgets in edit pages
+
+### Medium Priority
+
+* Page Comments System - Discussion functionality
+* Notification System - Changes/mentions alerts
+* Advanced Export Options - PDF generation, batch exports
+* Plugin Development - More wiki functionality plugins
+
+### Low Priority
+
+* Theme System - Multiple UI themes
+* Mobile Optimization - Responsive design improvements
+* Performance Monitoring - Analytics and metrics
+* Backup/Restore - Automated backup system
+
 ## Technical details
 
 All code is at /Volumes/hd3/GitHub/amdWiki and Will be on GitHub
