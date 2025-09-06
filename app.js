@@ -6,11 +6,17 @@ const lunr = require('lunr');
 const { v4: uuidv4 } = require('uuid');
 const matter = require('gray-matter');
 const express = require('express');
+const session = require('express-session');
+const cookieParser = require('cookie-parser');
 app = express();
 const showdown = require('showdown');
 
 const { lint } = require('markdownlint/sync');
 const logger = require('./logger');
+
+// Wiki Engine imports
+const WikiEngine = require('./src/WikiEngine');
+const WikiRoutes = require('./src/routes/WikiRoutes');
 
 const port = 3000;
 
@@ -21,6 +27,49 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(cookieParser());
+
+// Session middleware for authentication
+app.use(session({
+  secret: 'amdwiki-session-secret-change-in-production',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: false, // Set to true in production with HTTPS
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
+}));
+
+// Initialize WikiEngine and Routes
+async function initializeWikiEngine() {
+  const engine = new WikiEngine();
+  await engine.initialize({
+    applicationName: 'amdWiki',
+    baseUrl: 'http://localhost:3000',
+    pagesDirectory: path.join(__dirname, 'pages'),
+    attachmentsDirectory: path.join(__dirname, 'attachments'),
+    exportsDirectory: path.join(__dirname, 'exports'),
+    usersDirectory: path.join(__dirname, 'users'),
+    templatesDirectory: path.join(__dirname, 'templates')
+  });
+  
+  const wikiRoutes = new WikiRoutes(engine);
+  wikiRoutes.registerRoutes(app);
+  
+  console.log('✅ WikiEngine and routes initialized');
+  return engine;
+}
+
+// Initialize the WikiEngine
+let wikiEngine;
+initializeWikiEngine().then(engine => {
+  wikiEngine = engine;
+}).catch(err => {
+  console.error('Failed to initialize WikiEngine:', err);
+  process.exit(1);
+});
+
 // ...existing code...
 // Place this after app is initialized and all imports
 // (Moved below app initialization)

@@ -1,0 +1,17 @@
+{
+  "admin": {
+    "username": "admin",
+    "email": "admin@localhost",
+    "displayName": "Administrator",
+    "password": "baf753d7c5fc92878c695e500e97d5afe080da54ff962cfe9041327242b9a85d",
+    "roles": [
+      "admin"
+    ],
+    "isActive": true,
+    "isSystem": true,
+    "createdAt": "2025-09-06T17:58:06.867Z",
+    "lastLogin": "2025-09-06T18:03:53.219Z",
+    "loginCount": 1,
+    "preferences": {}
+  }
+}
