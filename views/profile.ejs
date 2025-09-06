@@ -1,0 +1,176 @@
+<%- include('header') %>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h4><i class="fas fa-user"></i> User Profile</h4>
+                </div>
+                <div class="card-body">
+                    <% if (error) { %>
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle"></i> <%= error %>
+                        </div>
+                    <% } %>
+                    
+                    <% if (success) { %>
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle"></i> <%= success %>
+                        </div>
+                    <% } %>
+                    
+                    <!-- User Information Display -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-header">
+                                    <h6><i class="fas fa-info-circle"></i> Account Information</h6>
+                                </div>
+                                <div class="card-body">
+                                    <p><strong>Username:</strong> <%= user.username %></p>
+                                    <p><strong>Email:</strong> <%= user.email %></p>
+                                    <p><strong>Display Name:</strong> <%= user.displayName %></p>
+                                    <p><strong>Account Type:</strong> 
+                                        <% if (user.isExternal) { %>
+                                            <span class="badge bg-info">OAuth/External</span>
+                                        <% } else { %>
+                                            <span class="badge bg-primary">Local Account</span>
+                                        <% } %>
+                                    </p>
+                                    <p><strong>Roles:</strong> 
+                                        <% user.roles.forEach(role => { %>
+                                            <span class="badge bg-secondary me-1"><%= role %></span>
+                                        <% }) %>
+                                    </p>
+                                    <p><strong>Member Since:</strong> <%= new Date(user.createdAt).toLocaleDateString() %></p>
+                                    <% if (user.lastLogin) { %>
+                                        <p><strong>Last Login:</strong> <%= new Date(user.lastLogin).toLocaleString() %></p>
+                                    <% } %>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-header">
+                                    <h6><i class="fas fa-shield-alt"></i> Permissions</h6>
+                                </div>
+                                <div class="card-body" style="max-height: 200px; overflow-y: auto;">
+                                    <% if (permissions && permissions.length > 0) { %>
+                                        <% permissions.forEach(permission => { %>
+                                            <span class="badge bg-success me-1 mb-1"><%= permission %></span>
+                                        <% }) %>
+                                    <% } else { %>
+                                        <p class="text-muted">No specific permissions assigned</p>
+                                    <% } %>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Profile Update Form -->
+                    <form action="/profile" method="POST">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5><i class="fas fa-edit"></i> Update Profile</h5>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="displayName">Display Name:</label>
+                                    <input type="text" class="form-control" id="displayName" name="displayName" 
+                                           value="<%= user.displayName %>" required>
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="email">Email:</label>
+                                    <input type="email" class="form-control" id="email" name="email" 
+                                           value="<%= user.email %>" required>
+                                </div>
+                            </div>
+                            
+                            <!-- Password Change Section - Only for Local Users -->
+                            <% if (!user.isExternal) { %>
+                            <div class="col-md-6">
+                                <h5><i class="fas fa-key"></i> Change Password</h5>
+                                <p class="text-muted small">Leave blank to keep current password</p>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="currentPassword">Current Password:</label>
+                                    <input type="password" class="form-control" id="currentPassword" name="currentPassword"
+                                           placeholder="Enter current password">
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="newPassword">New Password:</label>
+                                    <input type="password" class="form-control" id="newPassword" name="newPassword"
+                                           placeholder="Enter new password" minlength="6">
+                                </div>
+                                
+                                <div class="form-group mb-3">
+                                    <label for="confirmPassword">Confirm New Password:</label>
+                                    <input type="password" class="form-control" id="confirmPassword" name="confirmPassword"
+                                           placeholder="Confirm new password">
+                                </div>
+                            </div>
+                            <% } else { %>
+                            <div class="col-md-6">
+                                <div class="alert alert-info">
+                                    <h5><i class="fas fa-info-circle"></i> OAuth Account</h5>
+                                    <p class="mb-0">Your account is managed by an external OAuth provider. 
+                                    Password changes must be made through your OAuth provider's system.</p>
+                                </div>
+                            </div>
+                            <% } %>
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="d-flex justify-content-between">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Update Profile
+                            </button>
+                            
+                            <a href="/" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Back to Wiki
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Client-side password confirmation validation
+document.getElementById('confirmPassword')?.addEventListener('input', function() {
+    const newPassword = document.getElementById('newPassword').value;
+    const confirmPassword = this.value;
+    
+    if (newPassword && confirmPassword && newPassword !== confirmPassword) {
+        this.setCustomValidity('Passwords do not match');
+    } else {
+        this.setCustomValidity('');
+    }
+});
+
+// Clear password fields if one is filled but not the others
+document.getElementById('newPassword')?.addEventListener('input', function() {
+    const currentPassword = document.getElementById('currentPassword');
+    const confirmPassword = document.getElementById('confirmPassword');
+    
+    if (this.value && !currentPassword.value) {
+        currentPassword.setCustomValidity('Current password required when changing password');
+    } else {
+        currentPassword.setCustomValidity('');
+    }
+});
+
+document.getElementById('currentPassword')?.addEventListener('input', function() {
+    if (this.value) {
+        this.setCustomValidity('');
+    }
+});
+</script>
+
+<%- include('footer') %>
