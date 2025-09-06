@@ -23,18 +23,18 @@ class WikiRoutes {
   /**
    * Get common template data with current user
    */
-  async getCommonTemplateDataWithUser(req) {
-    const baseData = await this.getCommonTemplateData();
-    const userManager = this.engine.getManager('UserManager');
-    const currentUser = userManager.getCurrentUser(req);
-    
-    return {
-      ...baseData,
-      currentUser: currentUser
-    };
-  }
+    async getCommonTemplateDataWithUser(req) {
+        const baseData = await this.getCommonTemplateData();
+        const userManager = this.engine.getManager('UserManager');
+        const currentUser = req.user ? req.user : await userManager.getCurrentUser(req);
+        
+        return {
+            ...baseData,
+            currentUser
+        };
+    }
 
-  /**
+    /**
    * Extract categories from Categories page
    */
   async getCategories() {
@@ -171,8 +171,8 @@ class WikiRoutes {
       const pageName = req.query.name || '';
       const templateManager = this.engine.getManager('TemplateManager');
       
-      // Get common template data
-      const commonData = await this.getCommonTemplateData();
+      // Get common template data with user context
+      const commonData = await this.getCommonTemplateDataWithUser(req);
       
       // Get available templates
       const templates = templateManager.getTemplates();
@@ -254,8 +254,8 @@ class WikiRoutes {
       const pageName = req.params.page;
       const pageManager = this.engine.getManager('PageManager');
       
-      // Get common template data
-      const commonData = await this.getCommonTemplateData();
+      // Get common template data with user context
+      const commonData = await this.getCommonTemplateDataWithUser(req);
       
       // Get categories and keywords
       const categories = await this.getCategories();
@@ -378,8 +378,8 @@ class WikiRoutes {
       const query = req.query.q || '';
       const searchManager = this.engine.getManager('SearchManager');
       
-      // Get common template data
-      const commonData = await this.getCommonTemplateData();
+      // Get common template data with user context
+      const commonData = await this.getCommonTemplateDataWithUser(req);
       
       let results = [];
       if (query.trim()) {
@@ -442,8 +442,8 @@ class WikiRoutes {
       const pageManager = this.engine.getManager('PageManager');
       const renderingManager = this.engine.getManager('RenderingManager');
       
-      // Get common template data
-      const commonData = await this.getCommonTemplateData();
+      // Get common template data with user context
+      const commonData = await this.getCommonTemplateDataWithUser(req);
       
       // Try to load Welcome page, or show page list
       let welcomePage = await pageManager.getPage('Welcome');
@@ -803,7 +803,8 @@ class WikiRoutes {
         email,
         displayName: displayName || username,
         password,
-        roles: ['reader'] // Default role
+        roles: ['reader'], // Default role
+        isExternal: false // Local user
       });
       
       console.log(`👤 User registered: ${username}`);
@@ -864,10 +865,10 @@ class WikiRoutes {
       if (displayName) updates.displayName = displayName;
       if (email) updates.email = email;
       
-      // Handle password change
-      if (newPassword) {
+      // Handle password change for local users only
+      if (newPassword && !currentUser.isExternal) {
         if (!currentPassword) {
-          return res.redirect('/profile?error=Current password required');
+          return res.redirect('/profile?error=Current password required to change password');
         }
         
         if (newPassword !== confirmPassword) {
@@ -878,15 +879,15 @@ class WikiRoutes {
           return res.redirect('/profile?error=Password must be at least 6 characters');
         }
         
-        // Verify current password for internal users
-        if (!currentUser.isExternal) {
-          const isValid = await userManager.authenticateUser(currentUser.username, currentPassword);
-          if (!isValid) {
-            return res.redirect('/profile?error=Current password is incorrect');
-          }
+        // Verify current password
+        const isValidPassword = await userManager.authenticateUser(currentUser.username, currentPassword);
+        if (!isValidPassword) {
+          return res.redirect('/profile?error=Current password is incorrect');
         }
         
         updates.password = newPassword;
+      } else if (newPassword && currentUser.isExternal) {
+        return res.redirect('/profile?error=Cannot change password for OAuth accounts');
       }
       
       await userManager.updateUser(currentUser.username, updates);

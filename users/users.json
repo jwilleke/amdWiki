@@ -3,15 +3,15 @@
     "username": "admin",
     "email": "admin@localhost",
     "displayName": "Administrator",
-    "password": "baf753d7c5fc92878c695e500e97d5afe080da54ff962cfe9041327242b9a85d",
+    "password": "75420cdbc88194a1e32517f120e4db25ecbaf16e33727e25533a7e70a71e8d07",
     "roles": [
       "admin"
     ],
     "isActive": true,
     "isSystem": true,
     "createdAt": "2025-09-06T17:58:06.867Z",
-    "lastLogin": "2025-09-06T18:03:53.219Z",
-    "loginCount": 1,
+    "lastLogin": "2025-09-06T18:42:24.390Z",
+    "loginCount": 17,
     "preferences": {}
   }
 }
