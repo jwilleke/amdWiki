@@ -46,7 +46,11 @@ class PluginManager extends BaseManager {
    */
   async loadPlugin(pluginPath) {
     try {
-      const plugin = require(pluginPath);
+      // Resolve absolute path
+      const path = require('path');
+      const absolutePath = path.resolve(pluginPath);
+      
+      const plugin = require(absolutePath);
       const pluginName = plugin.name || path.parse(pluginPath).name;
       
       // Initialize plugin if it has an initialize method
@@ -57,7 +61,7 @@ class PluginManager extends BaseManager {
       this.plugins.set(pluginName, plugin);
       console.log(`Loaded plugin: ${pluginName}`);
     } catch (err) {
-      console.error(`Failed to load plugin ${pluginPath}:`, err);
+      console.error(`Failed to load plugin ${pluginPath}:`, err.message);
     }
   }
 

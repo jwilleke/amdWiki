@@ -20,8 +20,10 @@ class Engine {
       throw new Error('Engine already initialized');
     }
 
-    // Store configuration
-    this.config = config;
+    // Store configuration - DON'T overwrite this.config if it's already set
+    if (!this.config) {
+      this.config = config;
+    }
     this.properties = new Map(Object.entries(config));
     
     // Initialize managers in order
