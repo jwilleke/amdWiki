@@ -124,41 +124,6 @@
                 </div>
             </div>
             <% } %>
-
-            <!-- Page metadata -->
-            <div class="row mt-4">
-                <div class="col-md-6">
-                    <div class="card">
-                        <div class="card-header">
-                            <h6 class="mb-0">Page Information</h6>
-                        </div>
-                        <div class="card-body">
-                            <table class="table table-sm">
-                                <% if (metadata) { %>
-                                    <% if (metadata.category) { %>
-                                    <tr>
-                                        <td><strong>Category:</strong></td>
-                                        <td><%= metadata.category %></td>
-                                    </tr>
-                                    <% } %>
-                                    <% if (metadata.lastModified) { %>
-                                    <tr>
-                                        <td><strong>Last Modified:</strong></td>
-                                        <td><%= new Date(metadata.lastModified).toLocaleString() %></td>
-                                    </tr>
-                                    <% } %>
-                                    <% if (metadata.uuid) { %>
-                                    <tr>
-                                        <td><strong>Page ID:</strong></td>
-                                        <td><code><%= metadata.uuid.substring(0, 8) %>...</code></td>
-                                    </tr>
-                                    <% } %>
-                                <% } %>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </main>
     </div>
 </div>

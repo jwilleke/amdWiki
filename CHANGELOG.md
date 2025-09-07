@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Footer Content**: Cleaned up footer to show only essential information without explanatory text
 - **Documentation**: Streamlined System Variables documentation
+- **Page Layout**: Removed "Page Information" metadata section from page view for cleaner appearance
 
 ## [1.2.0] - 2025-09-07
 
