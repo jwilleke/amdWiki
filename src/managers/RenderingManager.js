@@ -282,11 +282,60 @@ class RenderingManager extends BaseManager {
       // Get all existing page names (this should be cached in practice)
       const pageNames = this.cachedPageNames || [];
       
-      return content.replace(/\[([a-zA-Z0-9_\- ]+)\]/g, (match, pageName) => {
-        if (pageNames.includes(pageName)) {
-          return `<a href="/wiki/${pageName}" class="wikipage">${pageName}</a>`;
+      // Process wiki links with extended pipe syntax [DisplayText|Target|Parameters] and simple links [PageName]
+      return content.replace(/\[([a-zA-Z0-9_\- ]+)(?:\|([a-zA-Z0-9_\-\/ .:?=&]+))?(?:\|([^|\]]+))?\]/g, (match, displayText, target, params) => {
+        // Parse parameters if provided
+        let linkAttributes = '';
+        if (params) {
+          // Parse target='_blank' and other attributes
+          const targetMatch = params.match(/target=['"]([^'"]+)['"]/);
+          if (targetMatch) {
+            linkAttributes += ` target="${targetMatch[1]}"`;
+            // Add rel="noopener noreferrer" for security when opening in new tab
+            if (targetMatch[1] === '_blank') {
+              linkAttributes += ' rel="noopener noreferrer"';
+            }
+          }
+          
+          // Parse other potential attributes (class, title, etc.)
+          const classMatch = params.match(/class=['"]([^'"]+)['"]/);
+          if (classMatch) {
+            linkAttributes += ` class="${classMatch[1]}"`;
+          }
+          
+          const titleMatch = params.match(/title=['"]([^'"]+)['"]/);
+          if (titleMatch) {
+            linkAttributes += ` title="${titleMatch[1]}"`;
+          }
         }
-        return match; // Return unchanged if page doesn't exist
+        
+        // If no target specified, it's a simple wiki link
+        if (!target) {
+          const pageName = displayText;
+          if (pageNames.includes(pageName)) {
+            return `<a href="/wiki/${encodeURIComponent(pageName)}" class="wikipage"${linkAttributes}>${pageName}</a>`;
+          }
+          // Red link for non-existent pages
+          return `<a href="/edit/${encodeURIComponent(pageName)}" style="color: red;" class="redlink"${linkAttributes}>${pageName}</a>`;
+        }
+        
+        // Handle pipe syntax [DisplayText|Target|Parameters]
+        // Check if target is a URL (contains :// or starts with /)
+        if (target.includes('://') || target.startsWith('/')) {
+          // External URL or absolute path
+          const baseClass = linkAttributes.includes('class=') ? '' : ' class="external-link"';
+          return `<a href="${target}"${baseClass}${linkAttributes}>${displayText}</a>`;
+        } else if (target.toLowerCase() === 'search') {
+          // Special case for Search functionality
+          return `<a href="/search" class="nav-link"${linkAttributes}>${displayText}</a>`;
+        } else {
+          // Wiki page target
+          if (pageNames.includes(target)) {
+            return `<a href="/wiki/${encodeURIComponent(target)}" class="wikipage"${linkAttributes}>${displayText}</a>`;
+          }
+          // Red link for non-existent page target
+          return `<a href="/edit/${encodeURIComponent(target)}" style="color: red;" class="redlink"${linkAttributes}>${displayText}</a>`;
+        }
       });
     } catch (err) {
       console.error('Wiki link processing failed:', err);
@@ -332,15 +381,20 @@ class RenderingManager extends BaseManager {
           }
         }
 
-        // Find wiki-style links
-        const simpleLinkRegex = /\[([a-zA-Z0-9\s_-]+)\]/g;
+        // Find wiki-style links including extended pipe syntax
+        const simpleLinkRegex = /\[([a-zA-Z0-9\s_-]+)(?:\|([a-zA-Z0-9\s_\-\/ .:?=&]+))?(?:\|([^|\]]+))?\]/g;
         while ((match = simpleLinkRegex.exec(content)) !== null) {
-          const linkedPage = match[1];
-          if (!newLinkGraph[linkedPage]) {
-            newLinkGraph[linkedPage] = [];
-          }
-          if (!newLinkGraph[linkedPage].includes(pageName)) {
-            newLinkGraph[linkedPage].push(pageName);
+          // For pipe syntax [DisplayText|Target|Parameters], use the target; otherwise use the display text
+          const linkedPage = match[2] || match[1];
+          
+          // Only add to link graph if it's a wiki page (not external URLs or special pages)
+          if (!linkedPage.includes('://') && !linkedPage.startsWith('/') && linkedPage.toLowerCase() !== 'search') {
+            if (!newLinkGraph[linkedPage]) {
+              newLinkGraph[linkedPage] = [];
+            }
+            if (!newLinkGraph[linkedPage].includes(pageName)) {
+              newLinkGraph[linkedPage].push(pageName);
+            }
           }
         }
       }

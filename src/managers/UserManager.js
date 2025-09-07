@@ -385,8 +385,8 @@ class UserManager extends BaseManager {
       return anonymousRole && anonymousRole.permissions.includes(permission);
     }
     
-    // Handle unauthenticated user (has session cookie but expired/invalid)
-    if (username === 'unauthenticated') {
+    // Handle asserted user (has session cookie but expired/invalid)
+    if (username === 'asserted') {
       const readerRole = this.roles.get('reader');
       return readerRole && readerRole.permissions.includes(permission);
     }
@@ -419,8 +419,8 @@ class UserManager extends BaseManager {
       return anonymousRole ? anonymousRole.permissions : [];
     }
     
-    // Handle unauthenticated user (has session cookie but expired/invalid)
-    if (username === 'unauthenticated') {
+    // Handle asserted user (has session cookie but expired/invalid)
+    if (username === 'asserted') {
       const readerRole = this.roles.get('reader');
       return readerRole ? readerRole.permissions : [];
     }
@@ -677,9 +677,9 @@ class UserManager extends BaseManager {
     }
     
     // If user has a session cookie but session is invalid/expired,
-    // treat as unauthenticated user (different from anonymous)
+    // treat as asserted user (different from anonymous)
     if (sessionId) {
-      return this.getUnauthenticatedUser();
+      return this.getAssertedUser();
     }
     
     return null;
@@ -896,14 +896,14 @@ class UserManager extends BaseManager {
   }
 
   /**
-   * Unauthenticated user with session cookie (expired or invalid session)
+   * Asserted user with session cookie (expired or invalid session)
    * Different from anonymous - they've attempted to authenticate before
-   * @returns {Object} Unauthenticated user object
+   * @returns {Object} Asserted user object
    */
-  getUnauthenticatedUser() {
+  getAssertedUser() {
     return {
-      username: 'unauthenticated',
-      displayName: 'Unauthenticated User',
+      username: 'asserted',
+      displayName: 'Asserted User',
       roles: ['reader'], // Give reader role instead of anonymous
       isAuthenticated: false,
       hasSessionCookie: true

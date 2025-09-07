@@ -150,8 +150,8 @@ class ACLManager extends BaseManager {
         return true; 
       }
       
-      // Unauthenticated user (has session cookie but not authenticated)
-      if (p === 'unauthenticated' && user && user.username === 'unauthenticated') {
+      // Asserted user (has session cookie but not authenticated)
+      if (p === 'asserted' && user && user.username === 'asserted') {
         return true;
       }
       
@@ -160,9 +160,9 @@ class ACLManager extends BaseManager {
         return true; 
       }
 
-      // If user is not available or not authenticated, can only match anonymous/unauthenticated
+      // If user is not available or not authenticated, can only match anonymous/asserted
       if (!user || !user.isAuthenticated) {
-        // Check role membership for unauthenticated users
+        // Check role membership for asserted users
         if (user && user.roles && user.roles.includes(principal)) {
           return true;
         }

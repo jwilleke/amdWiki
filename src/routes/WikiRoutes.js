@@ -253,6 +253,7 @@ class WikiRoutes {
           content: `<h1>Page Not Found</h1><p>The page "${pageName}" does not exist.</p>${canCreate ? `<p><a href="/create?name=${encodeURIComponent(pageName)}" class="btn btn-primary">Create Page</a></p>` : ''}`,
           pageName: pageName,
           leftMenuContent: leftMenuContent,
+          referringPages: [], // Add missing referringPages
           exists: false,
           canCreate: canCreate
         });
@@ -292,8 +293,8 @@ class WikiRoutes {
         referringPages: referringPages,
         leftMenuContent: leftMenuContent,
         exists: true,
-        canEdit: userManager.hasPermission(currentUser.username, 'page:edit'),
-        canDelete: userManager.hasPermission(currentUser.username, 'page:delete')
+        canEdit: currentUser ? userManager.hasPermission(currentUser.username, 'page:edit') : false,
+        canDelete: currentUser ? userManager.hasPermission(currentUser.username, 'page:delete') : false
       });
       
     } catch (err) {
@@ -306,6 +307,7 @@ class WikiRoutes {
         content: '<h1>Error</h1><p>An error occurred while loading the page.</p>',
         pageName: req.params.page,
         leftMenuContent: leftMenuContent,
+        referringPages: [], // Add missing referringPages
         exists: false
       });
     }
@@ -681,39 +683,8 @@ class WikiRoutes {
    * Home page - show main index
    */
   async homePage(req, res) {
-    try {
-      const pageManager = this.engine.getManager('PageManager');
-      const renderingManager = this.engine.getManager('RenderingManager');
-      
-      // Get common template data with user context
-      const commonData = await this.getCommonTemplateDataWithUser(req);
-      
-      // Try to load Welcome page, or show page list
-      let welcomePage = await pageManager.getPage('Welcome');
-      
-      if (welcomePage) {
-        const renderedContent = renderingManager.renderMarkdown(welcomePage.content, 'Welcome');
-        res.render('index', {
-          ...commonData,
-          title: 'Welcome',
-          content: renderedContent,
-          showWelcome: true
-        });
-      } else {
-        // Show page list
-        const pageNames = await pageManager.getPageNames();
-        res.render('index', {
-          ...commonData,
-          title: 'amdWiki',
-          pageNames: pageNames,
-          showWelcome: false
-        });
-      }
-      
-    } catch (err) {
-      console.error('Error loading home page:', err);
-      res.status(500).send('Error loading home page');
-    }
+    // Redirect to Welcome page instead of rendering a separate home page
+    res.redirect('/wiki/Welcome');
   }
 
   /**
@@ -1018,7 +989,7 @@ class WikiRoutes {
         sessionExpired: sessionId && !session,
         userType: !currentUser ? 'No User/Anonymous' : 
                  currentUser.username === 'anonymous' ? 'Anonymous' :
-                 currentUser.username === 'unauthenticated' ? 'Unauthenticated (has cookie)' :
+                 currentUser.username === 'asserted' ? 'Asserted (has cookie)' :
                  currentUser.isAuthenticated ? 'Authenticated' : 'Unknown',
         hasSessionCookie: !!sessionId,
         permissions: currentUser ? userManager.getUserPermissions(currentUser.username) : 

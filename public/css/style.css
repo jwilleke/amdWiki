@@ -224,3 +224,42 @@ main[role="main"] {
     border: 1px solid #dee2e6;
     border-radius: .25rem;
 }
+
+/* Wiki link styles */
+.wikipage {
+    color: #0056b3;
+    text-decoration: none;
+}
+
+.wikipage:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
+
+/* Red link styles for non-existent pages */
+.redlink {
+    color: #dc3545 !important;
+    text-decoration: none;
+}
+
+.redlink:hover {
+    color: #dc3545 !important;
+    text-decoration: underline;
+}
+
+/* External link styles */
+.external-link {
+    color: #6f42c1;
+    text-decoration: none;
+}
+
+.external-link:hover {
+    color: #6f42c1;
+    text-decoration: underline;
+}
+
+.external-link::after {
+    content: " ↗";
+    font-size: 0.8em;
+    color: #6c757d;
+}
