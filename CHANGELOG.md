@@ -46,6 +46,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Restricted access only for system/admin pages
   - Edit button visibility based on actual user permissions
   - Proper role-based permission checking for all actions
+- **JSPWiki-Style Table Support**: Complete table rendering system with advanced styling
+  - Enhanced Showdown markdown converter with table support
+  - JSPWiki Table plugin syntax: `[{Table param:value}]`
+  - Advanced styling parameters: style, dataStyle, headerStyle, evenRowStyle, oddRowStyle
+  - Row numbering support with configurable start value
+  - Automatic conversion of JSPWiki table syntax to styled HTML tables
 - **Dynamic Markdown Footer**: Footer content now loaded from editable `Footer.md` page
 - **Version System Variables**: Added `[{$version}]` and `[{$year}]` system variables
 - **Footer Styling**: Professional footer styling with responsive design
