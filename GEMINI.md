@@ -76,6 +76,19 @@ Parameters
 * username - Inserts the current user name: For example, you are now logged in as 174.105.183.192.
 * loginstatus - Shows how the current user has logged in. For example, you are anonymous.
 
+### Plugin Escaping
+
+JSPWiki-style plugins and system variables support proper escaping:
+
+* **Code Blocks**: Plugins in ```code blocks``` are NOT expanded
+* **Inline Code**: Plugins in `inline code` are NOT expanded  
+* **Escaped Syntax**: Use [[{$variable}] (double brackets) to prevent expansion and show literal text
+
+Examples:
+* Normal: [{$pagename}] → expands to page name
+* Escaped: [[{$pagename}] → shows literal [{$pagename}]
+* Code: `[{$pagename}]` → shows literal [{$pagename}]
+
 ### Configuration
 
 * wiki.conf folder should store configuration data
@@ -149,10 +162,6 @@ Attachments should be able to be added as tow different methods.
 Attachments thta are NOT Links will be stored wwithin /resources folder.
 
 When they Attachments is "inline with text" we should be able to perform a refresh on loading the page.
-
-### 
-
-LeftMenu - see LeftMenu.md
 
 
 
