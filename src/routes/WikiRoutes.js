@@ -1348,14 +1348,16 @@ class WikiRoutes {
   async adminCreateUser(req, res) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = userManager.getCurrentUser(req);
+      const currentUser = await userManager.getCurrentUser(req);
       
-      if (!userManager.hasPermission(currentUser, 'admin:users')) {
+      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:users')) {
         return res.status(403).send('Access denied');
       }
       
       const { username, email, displayName, password, roles } = req.body;
-      const success = await userManager.createUser(username, {
+      
+      const success = await userManager.createUser({
+        username,
         email,
         displayName,
         password,
