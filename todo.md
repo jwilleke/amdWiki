@@ -132,6 +132,15 @@ This gives you the professional JSPWiki aesthetic without the complexity of full
 - [ ] Port JSPWiki typography system to our current CSS
 - [ ] Implement JSPWiki-style sidebar navigation
 - [ ] Add JSPWiki-inspired form styling
+- [ ] **Implement JSPWiki TablePlugin Row Styling Features**:
+  - [ ] `rowNumber`: Starting row number for counting (default: 0)
+  - [ ] `style`: CSS styling for the entire table
+  - [ ] `dataStyle`: CSS formatting for all data cells (single pipe |)
+  - [ ] `headerStyle`: CSS formatting for header cells (double pipe ||)
+  - [ ] `evenRowStyle`: CSS formatting for even rows
+  - [ ] `oddRowStyle`: CSS formatting for odd rows
+  - [ ] Support `%%table-striped` syntax for theme-based alternating rows
+  - [ ] Implement `|#` syntax for automatic row numbering
 
 ### Medium Priority  
 - [ ] Port JSPWiki button and component styling

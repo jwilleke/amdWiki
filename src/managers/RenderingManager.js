@@ -15,8 +15,15 @@ class RenderingManager extends BaseManager {
   async initialize(config = {}) {
     await super.initialize(config);
     
-    // Initialize Showdown converter
-    this.converter = new showdown.Converter();
+    // Initialize Showdown converter with table support
+    this.converter = new showdown.Converter({
+      tables: true,
+      strikethrough: true,
+      tasklists: true,
+      simpleLineBreaks: true,
+      openLinksInNewWindow: false,
+      backslashEscapesHTMLTags: true
+    });
     
     // Build initial link graph
     await this.buildLinkGraph();
@@ -36,13 +43,245 @@ class RenderingManager extends BaseManager {
     // Step 1: Expand macros
     let expandedContent = this.expandMacros(content, pageName);
     
-    // Step 2: Process wiki-style links
+    // Step 2: Process JSPWiki-style tables
+    expandedContent = this.processJSPWikiTables(expandedContent);
+    
+    // Step 3: Process wiki-style links
     expandedContent = this.processWikiLinks(expandedContent);
     
-    // Step 3: Convert to HTML
+    // Step 4: Convert to HTML
     const html = this.converter.makeHtml(expandedContent);
     
-    return html;
+    // Step 5: Post-process tables with styling
+    const finalHtml = this.postProcessTables(html);
+    
+    return finalHtml;
+  }
+
+  /**
+   * Process JSPWiki-style table syntax with styling parameters
+   * @param {string} content - Content with JSPWiki table syntax
+   * @returns {string} Content with processed tables
+   */
+  processJSPWikiTables(content) {
+    // First, process %%table-striped syntax
+    content = this.processTableStripedSyntax(content);
+    
+    // Then process [{Table}] plugin syntax
+    const tablePluginRegex = /\[\{Table\s+([^}]+)\}\]\s*\n((?:(?:\|\|?[^|\n]*)+\|?\s*\n?)+)/gi;
+    
+    return content.replace(tablePluginRegex, (match, params, tableContent) => {
+      // Parse parameters
+      const tableParams = this.parseTableParameters(params);
+      
+      // Generate unique ID for this table
+      const tableId = `table_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      
+      // Add table metadata as HTML comment for post-processing
+      const tableMetadata = `<!-- TABLE_METADATA:${JSON.stringify({...tableParams, id: tableId})} -->`;
+      
+      // Convert JSPWiki table syntax to markdown
+      const markdownTable = this.convertJSPWikiTableToMarkdown(tableContent, tableParams);
+      
+      return tableMetadata + '\n' + markdownTable;
+    });
+  }
+
+  /**
+   * Process %%table-striped syntax for theme-based alternating rows
+   * @param {string} content - Content with %%table-striped syntax
+   * @returns {string} Content with processed tables
+   */
+  processTableStripedSyntax(content) {
+    // Match %%table-striped ... /% syntax
+    const stripedTableRegex = /%%table-striped\s*\n((?:(?:\|\|?[^|\n]*)+\|?\s*\n?)+)\s*\/%/gi;
+    
+    return content.replace(stripedTableRegex, (match, tableContent) => {
+      // Generate unique ID for this table
+      const tableId = `table_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      
+      // Create parameters for striped table
+      const tableParams = {
+        id: tableId,
+        style: '',
+        dataStyle: '',
+        headerStyle: '',
+        evenRowStyle: 'background-color: var(--bs-table-striped-bg, rgba(0,0,0,.05));',
+        oddRowStyle: '',
+        rowNumber: 0,
+        isStriped: true
+      };
+      
+      // Add table metadata as HTML comment for post-processing
+      const tableMetadata = `<!-- TABLE_METADATA:${JSON.stringify(tableParams)} -->`;
+      
+      // Convert to markdown table
+      const markdownTable = this.convertJSPWikiTableToMarkdown(tableContent, tableParams);
+      
+      return tableMetadata + '\n' + markdownTable;
+    });
+  }
+
+  /**
+   * Parse table parameters from JSPWiki Table plugin syntax
+   * @param {string} paramString - Parameter string
+   * @returns {Object} Parsed parameters
+   */
+  parseTableParameters(paramString) {
+    const params = {
+      rowNumber: 0,
+      style: '',
+      dataStyle: '',
+      headerStyle: '',
+      evenRowStyle: '',
+      oddRowStyle: ''
+    };
+    
+    // Parse param:value pairs
+    const paramRegex = /(\w+)\s*:\s*['"](.*?)['"]|(\w+)\s*:\s*([^,\s]+)/g;
+    let match;
+    
+    while ((match = paramRegex.exec(paramString)) !== null) {
+      const key = match[1] || match[3];
+      const value = match[2] || match[4];
+      
+      if (params.hasOwnProperty(key)) {
+        params[key] = value;
+      }
+    }
+    
+    return params;
+  }
+
+  /**
+   * Convert JSPWiki table syntax to markdown table syntax
+   * @param {string} tableContent - JSPWiki table content
+   * @param {Object} params - Table parameters
+   * @returns {string} Markdown table
+   */
+  convertJSPWikiTableToMarkdown(tableContent, params) {
+    const lines = tableContent.trim().split('\n');
+    const markdownLines = [];
+    let isFirstRow = true;
+    let currentRowNumber = parseInt(params.rowNumber) || 0;
+    
+    for (const line of lines) {
+      const trimmedLine = line.trim();
+      if (!trimmedLine) continue;
+      
+      // Convert JSPWiki table row to markdown
+      let markdownLine = trimmedLine;
+      
+      // Handle row numbering syntax |# -> convert to current row number
+      if (markdownLine.includes('|#')) {
+        // For data rows, increment and use the row number
+        if (!trimmedLine.startsWith('||')) {
+          currentRowNumber++;
+          markdownLine = markdownLine.replace(/\|#/g, `|${currentRowNumber}`);
+        } else {
+          // For header rows, replace with "Nr" or similar
+          markdownLine = markdownLine.replace(/\|\|#/g, '||Nr');
+        }
+      }
+      
+      // Handle double pipes (headers) - convert to single pipes for markdown
+      if (trimmedLine.startsWith('||')) {
+        markdownLine = markdownLine.replace(/\|\|/g, '|');
+        // Ensure proper markdown header format
+        if (!markdownLine.endsWith('|')) {
+          markdownLine += '|';
+        }
+        markdownLines.push(markdownLine);
+        
+        // Add markdown table separator after header
+        const headerCount = (markdownLine.match(/\|/g) || []).length - 1;
+        const separator = '|' + '---|'.repeat(headerCount);
+        markdownLines.push(separator);
+        
+        isFirstRow = false;
+      } else if (trimmedLine.startsWith('|')) {
+        // Regular data row
+        if (!markdownLine.endsWith('|')) {
+          markdownLine += '|';
+        }
+        markdownLines.push(markdownLine);
+      }
+    }
+    
+    return markdownLines.join('\n');
+  }
+
+  /**
+   * Post-process rendered HTML tables to apply JSPWiki styling
+   * @param {string} html - Rendered HTML
+   * @returns {string} HTML with styled tables
+   */
+  postProcessTables(html) {
+    // Find table metadata comments and apply styling
+    const metadataRegex = /<!--\s*TABLE_METADATA:(.*?)\s*-->\s*<table>/g;
+    
+    return html.replace(metadataRegex, (match, metadataJson) => {
+      try {
+        const metadata = JSON.parse(metadataJson);
+        return this.generateStyledTable(metadata);
+      } catch (e) {
+        console.error('Error parsing table metadata:', e);
+        return '<table>';
+      }
+    });
+  }
+
+  /**
+   * Generate styled table HTML with CSS
+   * @param {Object} metadata - Table styling metadata
+   * @returns {string} Styled table opening tag with CSS
+   */
+  generateStyledTable(metadata) {
+    const { id, style, dataStyle, headerStyle, evenRowStyle, oddRowStyle, rowNumber, isStriped } = metadata;
+    
+    let css = '';
+    let tableStyle = style || '';
+    let tableClasses = 'table';
+    
+    // Add Bootstrap striped class if this is a striped table
+    if (isStriped) {
+      tableClasses += ' table-striped';
+    }
+    
+    // Generate CSS for the table
+    if (dataStyle || headerStyle || evenRowStyle || oddRowStyle) {
+      css += `<style>`;
+      
+      if (headerStyle) {
+        css += `#${id} th { ${headerStyle} }`;
+      }
+      
+      if (dataStyle) {
+        css += `#${id} td { ${dataStyle} }`;
+      }
+      
+      if (evenRowStyle) {
+        // For striped tables, we need to target the right rows
+        // Bootstrap striped tables style odd rows (1st, 3rd, 5th...)
+        if (isStriped) {
+          css += `#${id} tbody tr:nth-child(odd) { ${evenRowStyle} }`;
+        } else {
+          css += `#${id} tr:nth-child(even) { ${evenRowStyle} }`;
+        }
+      }
+      
+      if (oddRowStyle) {
+        if (isStriped) {
+          css += `#${id} tbody tr:nth-child(even) { ${oddRowStyle} }`;
+        } else {
+          css += `#${id} tr:nth-child(odd) { ${oddRowStyle} }`;
+        }
+      }
+      
+      css += `</style>`;
+    }
+    
+    return `${css}<table id="${id}" class="${tableClasses}"${tableStyle ? ` style="${tableStyle}"` : ''}>`;
   }
 
   /**
