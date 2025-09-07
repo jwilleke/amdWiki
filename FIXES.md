@@ -66,3 +66,32 @@ This fix ensures that page files are only created when users actually save conte
 - Proper page titles
 
 This improves page organization, searchability, and enables proper categorization within the wiki system.
+
+## JSPWiki Security Analysis (2025-09-07)
+
+**Evaluated JSPWiki Security Features**: Analyzed [JSPWiki Security Documentation](https://jspwiki-wiki.apache.org/Wiki.jsp?page=Wiki.Admin.Security) for compatibility with amdWiki.
+
+**Key JSPWiki Security Features**:
+
+- **Multi-level Authentication**: Anonymous → Asserted → Authenticated → Admin levels
+- **Access Control Lists (ACLs)**: Page-level access using `[{ALLOW action user,role,group}]` syntax  
+- **Wiki Groups**: User-created groups for access control
+- **Security Policy Framework**: Java 2 policy-based default permissions
+- **Container Integration**: LDAP, OAuth, database authentication support
+
+**amdWiki Compatibility Assessment**:
+
+✅ **Already Compatible**:
+
+- Multi-level authentication (Anonymous, Authenticated, Admin roles)
+- Role-based permissions system via UserManager
+- OAuth/JWT authentication support
+- Extensible user database design
+
+🔄 **Enhancement Opportunities**:
+
+- **Page-level ACLs**: Enable `[{ALLOW view admin,editors}]` syntax for fine-grained access
+- **Wiki Groups**: User-created groups beyond admin-defined roles
+- **Container Auth**: LDAP/Active Directory integration
+
+**Recommendation**: JSPWiki's security model is excellent and largely compatible with our architecture. Consider implementing page-level ACLs as next security enhancement.
