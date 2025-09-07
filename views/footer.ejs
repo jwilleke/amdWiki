@@ -1,4 +1,11 @@
 
+            <!-- Dynamic Footer from Footer.md -->
+            <% if (typeof footerContent !== 'undefined' && footerContent) { %>
+                <div class="footer-content mt-4 pt-3 border-top">
+                    <%- footerContent %>
+                </div>
+            <% } %>
+            
             </main>
         </div>
     </div>

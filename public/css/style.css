@@ -339,3 +339,42 @@ main[role="main"] {
 .me-2 {
     margin-right: 0.5rem !important;
 }
+
+/* Footer Styles */
+.footer-content {
+    background-color: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+    margin-top: 2rem;
+    padding: 1rem;
+}
+
+.footer-content .text-muted {
+    color: #6c757d !important;
+}
+
+.footer-content a {
+    color: #6c757d !important;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.footer-content a:hover {
+    color: #007bff !important;
+    text-decoration: underline;
+}
+
+.footer-content small {
+    font-size: 0.875rem;
+}
+
+/* Responsive footer adjustments */
+@media (max-width: 576px) {
+    .footer-content {
+        padding: 0.75rem;
+        font-size: 0.8rem;
+    }
+    
+    .footer-content small {
+        font-size: 0.75rem;
+    }
+}

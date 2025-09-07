@@ -14,9 +14,30 @@ class WikiRoutes {
     const pageManager = this.engine.getManager('PageManager');
     const pages = await pageManager.getPageNames();
     
+    // Load footer content from Footer.md
+    let footerContent = null;
+    try {
+      const footerPage = await pageManager.getPage('Footer');
+      if (footerPage && footerPage.content) {
+        const renderingManager = this.engine.getManager('RenderingManager');
+        const aclManager = this.engine.getManager('ACLManager');
+        
+        // Remove ACL markup and render footer content
+        const cleanContent = aclManager.removeACLMarkup(footerPage.content);
+        footerContent = renderingManager.renderMarkdown(cleanContent, 'Footer');
+      }
+    } catch (error) {
+      console.warn('Could not load footer content:', error.message);
+      // Fallback footer content
+      footerContent = `<div class="text-center text-muted">
+        <small>amdWiki v1.2.0 | Copyright © amdWiki ${new Date().getFullYear()}</small>
+      </div>`;
+    }
+    
     return {
       pages: pages,
-      appName: this.engine.getApplicationName()
+      appName: this.engine.getApplicationName(),
+      footerContent: footerContent
     };
   }
 
