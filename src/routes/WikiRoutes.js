@@ -34,10 +34,27 @@ class WikiRoutes {
       </div>`;
     }
     
+    // Load left menu content from LeftMenu.md
+    let leftMenuContent = null;
+    try {
+      const leftMenuPage = await pageManager.getPage('LeftMenu');
+      if (leftMenuPage && leftMenuPage.content) {
+        const renderingManager = this.engine.getManager('RenderingManager');
+        const aclManager = this.engine.getManager('ACLManager');
+        
+        // Remove ACL markup and render left menu content
+        const cleanContent = aclManager.removeACLMarkup(leftMenuPage.content);
+        leftMenuContent = renderingManager.renderMarkdown(cleanContent, 'LeftMenu');
+      }
+    } catch (error) {
+      console.warn('Could not load left menu content:', error.message);
+    }
+    
     return {
       pages: pages,
       appName: this.engine.getApplicationName(),
-      footerContent: footerContent
+      footerContent: footerContent,
+      leftMenuContent: leftMenuContent
     };
   }
 
