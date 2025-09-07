@@ -35,6 +35,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Complete form validation (password matching, role selection)
   - Bootstrap 5 modal with responsive design
   - Success/error message handling
+- **Edit User Modal**: Complete user editing functionality for admin panel
+  - Pre-populated form with current user data
+  - Role management with checkbox interface
+  - Optional password updating (leave blank to keep current)
+  - User status toggle (active/inactive)
+  - Form validation and AJAX submission
 - **Dynamic Markdown Footer**: Footer content now loaded from editable `Footer.md` page
 - **Version System Variables**: Added `[{$version}]` and `[{$year}]` system variables
 - **Footer Styling**: Professional footer styling with responsive design
@@ -65,6 +71,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Fixed success/error message display system
   - Fixed async/await bug in adminCreateUser method causing "Access denied" errors
   - Fixed user creation parameter mismatch causing users to be created with undefined usernames
+  - Fixed async/await bug in adminUpdateUser method for proper permission checking
 - **Navigation Dropdown Issues**: Resolved all dropdown menu problems
   - Fixed Info, Edit, and More dropdown menus not opening
   - Corrected Bootstrap 5 dropdown toggle attributes
