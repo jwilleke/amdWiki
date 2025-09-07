@@ -18,12 +18,57 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added (Since 1.2.0)
 
+- **JSPWiki-Style Action Buttons**: Implemented authentic JSPWiki navigation with Info, Edit, and More dropdowns
+  - **Info Dropdown**: Page Information modal, Page History, Page Statistics, Recent Changes
+  - **Edit Button**: Direct edit access with permission checking
+  - **More Dropdown**: View Page Source, Show Reader View, Export, System Variables, Search Help
+- **Page Source Dialog**: Professional modal for viewing and copying raw markdown content
+  - One-click copy to clipboard with visual feedback
+  - Syntax highlighting and scrollable content
+  - Responsive design for mobile devices
+- **Reader View**: Distraction-free reading experience
+  - Clean typography-focused design
+  - Floating action buttons (Exit, Print, Copy Content)
+  - Keyboard shortcuts (Escape to exit, Ctrl/Cmd+P to print)
+  - Mobile-responsive layout
+- **Create User Modal**: Professional user creation interface for admin panel
+  - Complete form validation (password matching, role selection)
+  - Bootstrap 5 modal with responsive design
+  - Success/error message handling
 - **Dynamic Markdown Footer**: Footer content now loaded from editable `Footer.md` page
 - **Version System Variables**: Added `[{$version}]` and `[{$year}]` system variables
 - **Footer Styling**: Professional footer styling with responsive design
 - **Version Management**: Automatic version display in footer from package.json
 
 ### Changed (Since 1.2.0)
+
+- **Bootstrap 5 Migration**: Complete migration from Bootstrap 4 to Bootstrap 5
+  - Updated all dropdown toggles (`data-toggle` → `data-bs-toggle`)
+  - Migrated badge classes (`badge-*` → `bg-*`)
+  - Updated margin/padding classes (`ml-*` → `ms-*`)
+  - Modernized modal and form components
+- **Navigation Structure**: Simplified and cleaned navigation
+  - Removed redundant navigation pills (News, WikiEtiquette, Find pages, About this Wiki, Create)
+  - Context-aware action buttons (only show on relevant pages)
+  - Minimalist design focusing on page-specific actions
+
+### Fixed
+
+- **Bootstrap 5 Migration Issues**: Resolved all compatibility problems from Bootstrap 4 to 5 upgrade
+  - Fixed admin dropdown menu not working (data-toggle → data-bs-toggle)
+  - Updated badge classes (badge-secondary → badge-secondary bg-secondary)
+  - Corrected margin classes (mr-2 → me-2)
+  - Fixed modal initialization and event handling
+- **Admin Panel Functionality**: Restored complete admin user management
+  - Fixed non-functional "Create User" button
+  - Restored modal form validation and submission
+  - Fixed success/error message display system
+- **Navigation Dropdown Issues**: Resolved all dropdown menu problems
+  - Fixed Info, Edit, and More dropdown menus not opening
+  - Corrected Bootstrap 5 dropdown toggle attributes
+  - Ensured proper JavaScript event binding
+
+### Changed
 
 - **JSPWiki-Style Navigation**: Completely redesigned navbar to match Apache JSPWiki layout
   - Two-tier navigation with header bar and tab navigation
