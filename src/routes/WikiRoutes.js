@@ -1362,12 +1362,14 @@ class WikiRoutes {
       }
       
       const commonData = await this.getCommonTemplateDataWithUser(req);
+      const leftMenuContent = await this.getLeftMenu();
       const roles = userManager.getRoles();
       const permissions = userManager.getPermissions();
       
       res.render('admin-roles', {
         ...commonData,
         title: 'Security Policy Management',
+        leftMenuContent: leftMenuContent,
         roles: Array.from(roles.values()),
         permissions: Array.from(permissions.entries()).map(([key, desc]) => ({ key, description: desc }))
       });
@@ -1410,6 +1412,44 @@ class WikiRoutes {
     } catch (err) {
       console.error('Error updating role:', err);
       res.status(500).json({ success: false, message: 'Error updating role' });
+    }
+  }
+
+  /**
+   * Admin settings page
+   */
+  async adminSettings(req, res) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = await userManager.getCurrentUser(req);
+      
+      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+        return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to access system settings');
+      }
+      
+      const commonData = await this.getCommonTemplateDataWithUser(req);
+      const leftMenuContent = await this.getLeftMenu();
+      
+      // System configuration settings (you can expand this)
+      const settings = {
+        systemName: 'amdWiki',
+        version: '1.0.0',
+        theme: 'default',
+        maxFileSize: '10MB',
+        allowRegistration: true,
+        sessionTimeout: '24 hours'
+      };
+      
+      res.render('admin-settings', {
+        ...commonData,
+        title: 'System Settings',
+        leftMenuContent: leftMenuContent,
+        settings: settings
+      });
+      
+    } catch (err) {
+      console.error('Error loading admin settings:', err);
+      res.status(500).send('Error loading system settings');
     }
   }
 
@@ -1463,6 +1503,7 @@ class WikiRoutes {
     app.delete('/admin/users/:username', this.adminDeleteUser.bind(this));
     app.get('/admin/roles', this.adminRoles.bind(this));
     app.post('/admin/roles/:roleName', this.adminUpdateRole.bind(this));
+    app.get('/admin/settings', this.adminSettings.bind(this)); // Add missing settings route
     
     console.log('✅ Wiki routes registered');
   }
