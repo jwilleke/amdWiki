@@ -1,0 +1,210 @@
+<%- include('header') %>
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Left Menu -->
+        <div class="col-md-3">
+            <%- leftMenuContent %>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-md-9">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>Security Policy Management</h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/admin">Admin</a></li>
+                        <li class="breadcrumb-item active">Security Policy</li>
+                    </ol>
+                </nav>
+            </div>
+            
+            <div class="alert alert-info">
+                <strong>Wiki-Wide Security Policy:</strong> Define what permissions each role has across the entire wiki. 
+                Page-level ACLs can further restrict access but cannot grant more permissions than defined here.
+            </div>
+            
+            <!-- Role Management -->
+            <div class="row">
+                <% roles.forEach(role => { %>
+                <div class="col-lg-6 mb-4">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">
+                                <span class="badge <%= role.isSystem ? 'bg-primary' : 'bg-secondary' %> me-2">
+                                    <%= role.isSystem ? 'System' : 'Custom' %>
+                                </span>
+                                <%= role.displayName %>
+                            </h5>
+                            <small class="text-muted"><%= role.name %></small>
+                        </div>
+                        <div class="card-body">
+                            <form class="role-form" data-role="<%= role.name %>">
+                                <div class="mb-3">
+                                    <label class="form-label">Display Name</label>
+                                    <input type="text" class="form-control" name="displayName" 
+                                           value="<%= role.displayName %>" <%= role.isSystem ? 'readonly' : '' %>>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Description</label>
+                                    <textarea class="form-control" name="description" rows="2" 
+                                              <%= role.isSystem ? 'readonly' : '' %>><%= role.description %></textarea>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Permissions</label>
+                                    <div class="permissions-grid" style="max-height: 200px; overflow-y: auto;">
+                                        <% permissions.forEach(perm => { %>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" 
+                                                   name="permissions" value="<%= perm.key %>"
+                                                   id="<%= role.name %>_<%= perm.key %>"
+                                                   <%= role.permissions.includes(perm.key) ? 'checked' : '' %>>
+                                            <label class="form-check-label" for="<%= role.name %>_<%= perm.key %>">
+                                                <code><%= perm.key %></code>
+                                                <small class="text-muted d-block"><%= perm.description %></small>
+                                            </label>
+                                        </div>
+                                        <% }); %>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i> Update Role
+                                    </button>
+                                    <% if (!role.isSystem) { %>
+                                    <button type="button" class="btn btn-outline-danger btn-sm" 
+                                            onclick="deleteRole('<%= role.name %>')">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                    <% } %>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="card-footer">
+                            <small class="text-muted">
+                                <strong><%= role.permissions.length %></strong> permissions assigned
+                                <% if (role.lastModified) { %>
+                                | Last modified: <%= new Date(role.lastModified).toLocaleDateString() %>
+                                <% } %>
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                <% }); %>
+            </div>
+            
+            <!-- Security Policy Summary -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5>Security Policy Summary</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Permission</th>
+                                    <% roles.forEach(role => { %>
+                                    <th class="text-center"><%= role.displayName %></th>
+                                    <% }); %>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% permissions.forEach(perm => { %>
+                                <tr>
+                                    <td>
+                                        <code><%= perm.key %></code>
+                                        <br><small class="text-muted"><%= perm.description %></small>
+                                    </td>
+                                    <% roles.forEach(role => { %>
+                                    <td class="text-center">
+                                        <% if (role.permissions.includes(perm.key)) { %>
+                                        <i class="fas fa-check text-success"></i>
+                                        <% } else { %>
+                                        <i class="fas fa-times text-muted"></i>
+                                        <% } %>
+                                    </td>
+                                    <% }); %>
+                                </tr>
+                                <% }); %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Handle role form submissions
+document.querySelectorAll('.role-form').forEach(form => {
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const roleName = form.dataset.role;
+        const formData = new FormData(form);
+        
+        // Get all checked permissions
+        const permissions = Array.from(form.querySelectorAll('input[name="permissions"]:checked'))
+            .map(cb => cb.value);
+        
+        const data = {
+            permissions: permissions,
+            displayName: formData.get('displayName'),
+            description: formData.get('description')
+        };
+        
+        try {
+            const response = await fetch(`/admin/roles/${roleName}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                // Show success message
+                showAlert('success', `Role "${roleName}" updated successfully`);
+            } else {
+                showAlert('danger', result.message || 'Failed to update role');
+            }
+        } catch (err) {
+            console.error('Error updating role:', err);
+            showAlert('danger', 'Error updating role');
+        }
+    });
+});
+
+function showAlert(type, message) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    const container = document.querySelector('.container-fluid');
+    container.insertBefore(alertDiv, container.firstChild);
+    
+    // Auto-dismiss after 3 seconds
+    setTimeout(() => {
+        alertDiv.remove();
+    }, 3000);
+}
+
+function deleteRole(roleName) {
+    if (confirm(`Are you sure you want to delete the role "${roleName}"?`)) {
+        // Implement delete functionality
+        console.log('Delete role:', roleName);
+    }
+}
+</script>
+
+<%- include('footer') %>

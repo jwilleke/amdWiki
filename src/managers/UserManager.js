@@ -178,20 +178,25 @@ class UserManager extends BaseManager {
 
   /**
    * Save roles to disk
+   * @param {boolean} includeSystemRoles - Whether to save system roles (for security policy management)
    */
-  async saveRoles() {
+  async saveRoles(includeSystemRoles = false) {
     try {
       const rolesFile = path.join(this.usersDirectory, 'roles.json');
-      const customRoles = {};
+      const rolesToSave = {};
       
-      // Only save non-system roles
+      // Save custom roles, and optionally system roles for security policy
       for (const [roleName, role] of this.roles.entries()) {
-        if (!role.isSystem) {
-          customRoles[roleName] = role;
+        if (!role.isSystem || includeSystemRoles) {
+          rolesToSave[roleName] = {
+            ...role,
+            lastModified: role.lastModified || new Date().toISOString()
+          };
         }
       }
       
-      await fs.writeFile(rolesFile, JSON.stringify(customRoles, null, 2));
+      await fs.writeFile(rolesFile, JSON.stringify(rolesToSave, null, 2));
+      console.log(`💾 Saved ${Object.keys(rolesToSave).length} roles to disk`);
     } catch (err) {
       console.error('Error saving roles:', err);
     }
@@ -540,6 +545,14 @@ class UserManager extends BaseManager {
   }
 
   /**
+   * Get all permissions
+   * @returns {Map} Map of permissions
+   */
+  getPermissions() {
+    return this.permissions;
+  }
+
+  /**
    * Get role by name
    * @param {string} roleName - Role name
    * @returns {Object|null} Role object
@@ -572,6 +585,42 @@ class UserManager extends BaseManager {
     await this.saveRoles();
     
     console.log(`👤 Created role: ${name}`);
+  }
+
+  /**
+   * Update role permissions (for admin security policy management)
+   * @param {string} roleName - Role name to update
+   * @param {Object} updates - Updates to apply
+   * @returns {boolean} Success status
+   */
+  async updateRolePermissions(roleName, updates) {
+    try {
+      const role = this.roles.get(roleName);
+      if (!role) {
+        console.error(`Role not found: ${roleName}`);
+        return false;
+      }
+
+      // Create updated role object
+      const updatedRole = {
+        ...role,
+        permissions: updates.permissions || role.permissions,
+        displayName: updates.displayName || role.displayName,
+        description: updates.description || role.description,
+        lastModified: new Date().toISOString()
+      };
+
+      this.roles.set(roleName, updatedRole);
+      
+      // Save to disk (include system roles for security policy management)
+      await this.saveRoles(true);
+      
+      console.log(`👤 Updated role permissions: ${roleName}`);
+      return true;
+    } catch (err) {
+      console.error('Error updating role permissions:', err);
+      return false;
+    }
   }
 
   /**
