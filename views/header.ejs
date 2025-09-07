@@ -111,16 +111,10 @@
                         </div>
 
                         <!-- Edit Button -->
-                        <% if (typeof pageName !== 'undefined' && pageName) { %>
-                            <% 
-                                // Simple permission check - assume user has edit permission if they can view
-                                const canEdit = true; // You can implement actual permission logic here
-                            %>
-                            <% if (canEdit) { %>
-                                <a href="/edit/<%= encodeURIComponent(pageName) %>" class="btn btn-outline-primary btn-sm">
-                                    <i class="fas fa-edit"></i> Edit
-                                </a>
-                            <% } %>
+                        <% if (typeof pageName !== 'undefined' && pageName && typeof canEdit !== 'undefined' && canEdit) { %>
+                            <a href="/edit/<%= encodeURIComponent(pageName) %>" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
                         <% } %>
 
                         <!-- More Dropdown -->

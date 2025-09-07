@@ -58,10 +58,10 @@ class ACLManager extends BaseManager {
   }
 
   /**
-   * Check if user has permission for a specific page action
+   * Check page permission with default read access policy
    * @param {string} pageName - Name of the page
    * @param {string} action - Action to check (view, edit, delete, rename, upload)
-   * @param {Object} user - User object from UserManager
+   * @param {Object} user - User object (null for anonymous)
    * @param {string} pageContent - Page content to parse ACL from
    * @returns {boolean} True if permission granted
    */
@@ -79,21 +79,56 @@ class ACLManager extends BaseManager {
     // Parse ACL from page content
     const acl = this.parseACL(pageContent);
     
-    // If no ACL exists, fall back to default role-based permissions
-    if (!acl) {
-      return this.checkDefaultPermission(action, user);
+    // If ACL exists, use ACL rules
+    if (acl) {
+      const allowedPrincipals = acl[action.toLowerCase()] || [];
+      
+      // If specific ACL for this action exists, check it
+      if (allowedPrincipals.length > 0) {
+        return this.userMatchesPrincipals(user, allowedPrincipals);
+      }
     }
 
-    // Check ACL for specific action
-    const allowedPrincipals = acl[action.toLowerCase()] || [];
+    // Default policy: Allow read access to all pages unless it's a system/admin page
+    if (action.toLowerCase() === 'view') {
+      // Check if this is a system/admin page that should be restricted
+      if (this.isSystemOrAdminPage(pageName)) {
+        // System/admin pages require proper permissions
+        return this.checkDefaultPermission(action, user);
+      }
+      // Regular pages are readable by everyone (including anonymous)
+      return true;
+    }
     
-    // If no specific ACL for this action, fall back to default permissions
-    if (allowedPrincipals.length === 0) {
-      return this.checkDefaultPermission(action, user);
-    }
+    // For non-view actions (edit, delete, etc.), check role-based permissions
+    return this.checkDefaultPermission(action, user);
+  }
 
-    // Check if user matches any allowed principal
-    return this.userMatchesPrincipals(user, allowedPrincipals);
+  /**
+   * Check if a page is a system or admin page that should have restricted access
+   * @param {string} pageName - Name of the page
+   * @returns {boolean} True if this is a system/admin page
+   */
+  isSystemOrAdminPage(pageName) {
+    if (!pageName) return false;
+    
+    const systemPages = [
+      'admin', 'users', 'roles', 'permissions', 'system', 'config', 'settings',
+      'user-manager', 'role-manager', 'permission-manager', 'acl-manager'
+    ];
+    
+    const pageNameLower = pageName.toLowerCase();
+    
+    // Check if page name starts with admin/ or system/
+    if (pageNameLower.startsWith('admin/') || pageNameLower.startsWith('system/')) {
+      return true;
+    }
+    
+    // Check if page name is in system pages list
+    return systemPages.some(sysPage => 
+      pageNameLower === sysPage || 
+      pageNameLower.includes(sysPage)
+    );
   }
 
   /**
