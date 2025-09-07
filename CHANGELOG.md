@@ -25,6 +25,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed (Since 1.2.0)
 
+- **JSPWiki-Style Navigation**: Completely redesigned navbar to match Apache JSPWiki layout
+  - Two-tier navigation with header bar and tab navigation
+  - Prominent search bar in header center
+  - Cleaner tab-based navigation (Home, Find, Create, Tools)
+  - Improved sidebar with page icons and better organization
+- **Simplified Page Headers**: Removed complex flexbox wrapper divs for cleaner, simpler page layouts
 - **Footer Content**: Cleaned up footer to show only essential information without explanatory text
 - **Documentation**: Streamlined System Variables documentation
 - **Page Layout**: Removed "Page Information" metadata section from page view for cleaner appearance

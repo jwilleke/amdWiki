@@ -10,93 +10,126 @@
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
-        <a class="navbar-brand" href="/">
-            <i class="fas fa-book"></i> amdWiki
-        </a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+    <!-- JSPWiki-style header -->
+    <div class="jspwiki-header bg-light border-bottom">
+        <div class="container-fluid">
+            <div class="row align-items-center py-2">
+                <div class="col-md-3">
+                    <a class="navbar-brand text-dark" href="/">
+                        <i class="fas fa-book text-primary"></i> <strong>amdWiki</strong>
+                    </a>
+                </div>
+                <div class="col-md-6">
+                    <form class="form-inline justify-content-center" action="/search" method="GET">
+                        <div class="input-group">
+                            <input class="form-control" type="search" placeholder="Search pages..." aria-label="Search" name="q" style="min-width: 300px;">
+                            <div class="input-group-append">
+                                <button class="btn btn-primary" type="submit">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="col-md-3 text-right">
+                    <% if (typeof currentUser !== 'undefined' && currentUser && currentUser.isAuthenticated) { %>
+                        <div class="dropdown d-inline">
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="userDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-user"></i> <%= currentUser.displayName || currentUser.username %>
+                                <% if (currentUser.roles && currentUser.roles.includes('admin')) { %>
+                                    <span class="badge badge-warning ml-1">Admin</span>
+                                <% } %>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
+                                <a class="dropdown-item" href="/profile">
+                                    <i class="fas fa-user-cog"></i> Profile
+                                </a>
+                                <% if (currentUser.roles && (currentUser.roles.includes('admin') || currentUser.roles.includes('editor'))) { %>
+                                    <div class="dropdown-divider"></div>
+                                    <h6 class="dropdown-header">Management</h6>
+                                    <% if (currentUser.roles.includes('admin')) { %>
+                                        <a class="dropdown-item" href="/admin">
+                                            <i class="fas fa-cogs"></i> Admin Dashboard
+                                        </a>
+                                        <a class="dropdown-item" href="/admin/users">
+                                            <i class="fas fa-users"></i> User Management
+                                        </a>
+                                    <% } %>
+                                <% } %>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="/logout">
+                                    <i class="fas fa-sign-out-alt"></i> Logout
+                                </a>
+                            </div>
+                        </div>
+                    <% } else { %>
+                        <a class="btn btn-outline-primary btn-sm mr-2" href="/login">
+                            <i class="fas fa-sign-in-alt"></i> Login
+                        </a>
+                        <a class="btn btn-primary btn-sm" href="/register">
+                            <i class="fas fa-user-plus"></i> Register
+                        </a>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav mr-auto">
+    <!-- JSPWiki-style navigation tabs -->
+    <nav class="jspwiki-tabs bg-white border-bottom">
+        <div class="container-fluid">
+            <ul class="nav nav-tabs border-0">
                 <li class="nav-item">
-                    <a class="nav-link" href="/">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/search">
-                        <i class="fas fa-search"></i> Search
+                    <a class="nav-link" href="/">
+                        <i class="fas fa-home"></i> Home
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/create">Create Page</a>
+                    <a class="nav-link" href="/search">
+                        <i class="fas fa-search"></i> Find
+                    </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/export">Export</a>
+                    <a class="nav-link" href="/create">
+                        <i class="fas fa-plus"></i> Create
+                    </a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="toolsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-tools"></i> Tools
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="toolsDropdown">
+                        <a class="dropdown-item" href="/export">
+                            <i class="fas fa-download"></i> Export
+                        </a>
+                        <a class="dropdown-item" href="/view/System%20Variables">
+                            <i class="fas fa-cog"></i> System Variables
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="/view/Search%20Documentation">
+                            <i class="fas fa-question-circle"></i> Search Help
+                        </a>
+                    </div>
                 </li>
             </ul>
-            
-            <ul class="navbar-nav ml-auto">
-                <% if (typeof currentUser !== 'undefined' && currentUser && currentUser.isAuthenticated) { %>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="fas fa-user"></i> <%= currentUser.displayName || currentUser.username %>
-                            <% if (currentUser.roles && currentUser.roles.includes('admin')) { %>
-                                <span class="badge badge-warning">Admin</span>
-                            <% } %>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
-                            <a class="dropdown-item" href="/profile">
-                                <i class="fas fa-user-cog"></i> Profile
-                            </a>
-                            <% if (currentUser.roles && (currentUser.roles.includes('admin') || currentUser.roles.includes('editor'))) { %>
-                                <div class="dropdown-divider"></div>
-                                <h6 class="dropdown-header">Management</h6>
-                                <% if (currentUser.roles.includes('admin')) { %>
-                                    <a class="dropdown-item" href="/admin">
-                                        <i class="fas fa-cogs"></i> Admin Dashboard
-                                    </a>
-                                    <a class="dropdown-item" href="/admin/users">
-                                        <i class="fas fa-users"></i> User Management
-                                    </a>
-                                <% } %>
-                            <% } %>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="/logout">
-                                <i class="fas fa-sign-out-alt"></i> Logout
-                            </a>
-                        </div>
-                    </li>
-                <% } else { %>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/login">
-                            <i class="fas fa-sign-in-alt"></i> Login
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/register">
-                            <i class="fas fa-user-plus"></i> Register
-                        </a>
-                    </li>
-                <% } %>
-            </ul>
-            
-            <form class="form-inline my-2 my-lg-0 ml-3" action="/search" method="GET">
-                <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="q">
-                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-            </form>
         </div>
     </nav>
 
     <div class="container-fluid">
         <div class="row">
-            <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+            <nav class="col-md-2 d-none d-md-block bg-light sidebar jspwiki-sidebar">
                 <div class="sidebar-sticky">
+                    <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                        <span>Pages</span>
+                        <a class="d-flex align-items-center text-muted" href="/create" title="Create new page">
+                            <i class="fas fa-plus"></i>
+                        </a>
+                    </h6>
                     <ul class="nav flex-column">
-                        <hr>
                         <% pages.forEach(page => { %>
                             <li class="nav-item">
-                                <a class="nav-link" href="/wiki/<%= page %>">
+                                <a class="nav-link" href="/view/<%= encodeURIComponent(page) %>">
+                                    <i class="fas fa-file-alt text-muted mr-2"></i>
                                     <%= page %>
                                 </a>
                             </li>
@@ -105,7 +138,7 @@
                 </div>
             </nav>
 
-            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4 jspwiki-content">
 
 <script>
     function createNewPage() {
@@ -114,4 +147,20 @@
             window.location.href = `/edit/${pageName}`;
         }
     }
+    
+    // Highlight active navigation tab
+    document.addEventListener('DOMContentLoaded', function() {
+        const currentPath = window.location.pathname;
+        const navLinks = document.querySelectorAll('.jspwiki-tabs .nav-link');
+        
+        navLinks.forEach(link => {
+            const href = link.getAttribute('href');
+            if (href && (currentPath === href || 
+                        (href === '/' && currentPath === '/') ||
+                        (href === '/search' && currentPath.startsWith('/search')) ||
+                        (href === '/create' && currentPath.startsWith('/create')))) {
+                link.classList.add('active');
+            }
+        });
+    });
 </script>
