@@ -145,16 +145,27 @@ class ACLManager extends BaseManager {
         return true; // Everyone allowed
       }
       
-      if (p === 'anonymous' && !user) {
-        return true; // Anonymous user
+      // Anonymous user (no session cookie)
+      if (p === 'anonymous' && (!user || user.username === 'anonymous')) {
+        return true; 
       }
       
-      if (p === 'authenticated' && user) {
-        return true; // Any authenticated user
+      // Unauthenticated user (has session cookie but not authenticated)
+      if (p === 'unauthenticated' && user && user.username === 'unauthenticated') {
+        return true;
+      }
+      
+      // Authenticated user (valid session)
+      if (p === 'authenticated' && user && user.isAuthenticated) {
+        return true; 
       }
 
-      // If user is not authenticated, can't match user-specific principals
-      if (!user) {
+      // If user is not available or not authenticated, can only match anonymous/unauthenticated
+      if (!user || !user.isAuthenticated) {
+        // Check role membership for unauthenticated users
+        if (user && user.roles && user.roles.includes(principal)) {
+          return true;
+        }
         continue;
       }
 
@@ -165,7 +176,7 @@ class ACLManager extends BaseManager {
         return true;
       }
 
-      // Check role membership
+      // Check role membership for authenticated users
       if (userManager.hasRole(user.username, principal)) {
         return true;
       }

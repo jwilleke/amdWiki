@@ -374,11 +374,23 @@ class UserManager extends BaseManager {
 
   /**
    * Check if user has permission
-   * @param {string} username - Username
+   * @param {string} username - Username (null for anonymous)
    * @param {string} permission - Permission to check
    * @returns {boolean} True if user has permission
    */
   hasPermission(username, permission) {
+    // Handle anonymous user (no session cookie)
+    if (!username || username === 'anonymous') {
+      const anonymousRole = this.roles.get('anonymous');
+      return anonymousRole && anonymousRole.permissions.includes(permission);
+    }
+    
+    // Handle unauthenticated user (has session cookie but expired/invalid)
+    if (username === 'unauthenticated') {
+      const readerRole = this.roles.get('reader');
+      return readerRole && readerRole.permissions.includes(permission);
+    }
+
     const user = this.users.get(username);
     if (!user || !user.isActive) {
       return false;
@@ -397,10 +409,22 @@ class UserManager extends BaseManager {
 
   /**
    * Get user's effective permissions
-   * @param {string} username - Username
+   * @param {string} username - Username (null for anonymous)
    * @returns {Array} Array of permissions
    */
   getUserPermissions(username) {
+    // Handle anonymous user (no session cookie)
+    if (!username || username === 'anonymous') {
+      const anonymousRole = this.roles.get('anonymous');
+      return anonymousRole ? anonymousRole.permissions : [];
+    }
+    
+    // Handle unauthenticated user (has session cookie but expired/invalid)
+    if (username === 'unauthenticated') {
+      const readerRole = this.roles.get('reader');
+      return readerRole ? readerRole.permissions : [];
+    }
+
     const user = this.users.get(username);
     if (!user || !user.isActive) {
       return [];
@@ -652,6 +676,12 @@ class UserManager extends BaseManager {
       return session.user;
     }
     
+    // If user has a session cookie but session is invalid/expired,
+    // treat as unauthenticated user (different from anonymous)
+    if (sessionId) {
+      return this.getUnauthenticatedUser();
+    }
+    
     return null;
   }
 
@@ -862,6 +892,21 @@ class UserManager extends BaseManager {
       displayName: 'Anonymous User',
       roles: ['anonymous'],
       isAuthenticated: false
+    };
+  }
+
+  /**
+   * Unauthenticated user with session cookie (expired or invalid session)
+   * Different from anonymous - they've attempted to authenticate before
+   * @returns {Object} Unauthenticated user object
+   */
+  getUnauthenticatedUser() {
+    return {
+      username: 'unauthenticated',
+      displayName: 'Unauthenticated User',
+      roles: ['reader'], // Give reader role instead of anonymous
+      isAuthenticated: false,
+      hasSessionCookie: true
     };
   }
 }

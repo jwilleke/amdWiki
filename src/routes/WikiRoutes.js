@@ -1002,6 +1002,38 @@ class WikiRoutes {
   }
 
   /**
+   * User info debug page (shows current user state)
+   */
+  async userInfo(req, res) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = await userManager.getCurrentUser(req);
+      const sessionId = req.cookies?.sessionId;
+      const session = sessionId ? userManager.getSession(sessionId) : null;
+      
+      const info = {
+        currentUser: currentUser,
+        sessionId: sessionId,
+        sessionExists: !!session,
+        sessionExpired: sessionId && !session,
+        userType: !currentUser ? 'No User/Anonymous' : 
+                 currentUser.username === 'anonymous' ? 'Anonymous' :
+                 currentUser.username === 'unauthenticated' ? 'Unauthenticated (has cookie)' :
+                 currentUser.isAuthenticated ? 'Authenticated' : 'Unknown',
+        hasSessionCookie: !!sessionId,
+        permissions: currentUser ? userManager.getUserPermissions(currentUser.username) : 
+                    userManager.hasPermission(null, 'page:read') ? ['anonymous permissions'] : []
+      };
+      
+      res.json(info);
+      
+    } catch (err) {
+      console.error('Error getting user info:', err);
+      res.status(500).json({ error: err.message });
+    }
+  }
+
+  /**
    * Registration page
    */
   async registerPage(req, res) {
@@ -1417,6 +1449,7 @@ class WikiRoutes {
     app.get('/login', this.loginPage.bind(this));
     app.post('/login', this.processLogin.bind(this));
     app.get('/logout', this.processLogout.bind(this));
+    app.get('/user-info', this.userInfo.bind(this)); // Debug route to show current user state
     app.get('/register', this.registerPage.bind(this));
     app.post('/register', this.processRegister.bind(this));
     app.get('/profile', this.profilePage.bind(this));
