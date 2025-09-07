@@ -23,6 +23,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Footer Styling**: Professional footer styling with responsive design
 - **Version Management**: Automatic version display in footer from package.json
 
+### Changed (Since 1.2.0)
+
+- **Footer Content**: Cleaned up footer to show only essential information without explanatory text
+- **Documentation**: Streamlined System Variables documentation
+
 ## [1.2.0] - 2025-09-07
 
 **Version Type**: MINOR - New features with backward compatibility
