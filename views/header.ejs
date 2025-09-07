@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Markdown Wiki</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
@@ -75,35 +75,86 @@
         </div>
     </div>
 
-    <!-- JSPWiki-style navigation tabs -->
-    <nav class="jspwiki-tabs bg-white border-bottom">
+    <!-- JSPWiki-style navigation -->
+    <div class="navigation" role="navigation">
         <div class="container-fluid">
-            <ul class="nav nav-tabs border-0">
-                <li class="nav-item">
-                    <a class="nav-link" href="/create">
-                        <i class="fas fa-plus"></i> Create
-                    </a>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="toolsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="fas fa-tools"></i> Tools
-                    </a>
-                    <div class="dropdown-menu" aria-labelledby="toolsDropdown">
-                        <a class="dropdown-item" href="/export">
-                            <i class="fas fa-download"></i> Export
-                        </a>
-                        <a class="dropdown-item" href="/view/System%20Variables">
-                            <i class="fas fa-cog"></i> System Variables
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="/view/Search%20Documentation">
-                            <i class="fas fa-question-circle"></i> Search Help
-                        </a>
+            <div class="row">
+                <div class="col-8">
+                    <% if (typeof pageName !== 'undefined' && pageName) { %>
+                        <ul class="nav nav-pills">
+                            <li class="nav-item"><a class="nav-link" href="/wiki/Welcome">Main page</a></li>
+                        </ul>
+                    <% } %>
+                </div>
+                <div class="col-4">
+                    <div class="btn-group float-end" role="group">
+                        <!-- Info Dropdown -->
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-info-circle"></i> Info
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#" onclick="showPageInfo()">
+                                    <i class="fas fa-info"></i> Page Information
+                                </a></li>
+                                <li><a class="dropdown-item" href="#" onclick="showPageHistory()">
+                                    <i class="fas fa-history"></i> Page History
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#" onclick="showPageStats()">
+                                    <i class="fas fa-chart-bar"></i> Page Statistics
+                                </a></li>
+                                <li><a class="dropdown-item" href="/wiki/Recent%20Changes">
+                                    <i class="fas fa-clock"></i> Recent Changes
+                                </a></li>
+                            </ul>
+                        </div>
+
+                        <!-- Edit Button -->
+                        <% if (typeof pageName !== 'undefined' && pageName) { %>
+                            <% 
+                                // Simple permission check - assume user has edit permission if they can view
+                                const canEdit = true; // You can implement actual permission logic here
+                            %>
+                            <% if (canEdit) { %>
+                                <a href="/edit/<%= encodeURIComponent(pageName) %>" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
+                            <% } %>
+                        <% } %>
+
+                        <!-- More Dropdown -->
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-ellipsis-h"></i> More
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="#" onclick="showPageSource()">
+                                    <i class="fas fa-code"></i> View Page Source
+                                </a></li>
+                                <% if (typeof pageName !== 'undefined' && pageName) { %>
+                                    <li><a class="dropdown-item" href="/wiki/<%= encodeURIComponent(pageName) %>?view=reader">
+                                        <i class="fas fa-book-reader"></i> Show Reader View
+                                    </a></li>
+                                <% } %>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="/export">
+                                    <i class="fas fa-download"></i> Export
+                                </a></li>
+                                <li><a class="dropdown-item" href="/wiki/System%20Variables">
+                                    <i class="fas fa-cog"></i> System Variables
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="/wiki/Search%20Documentation">
+                                    <i class="fas fa-question-circle"></i> Search Help
+                                </a></li>
+                            </ul>
+                        </div>
                     </div>
-                </li>
-            </ul>
+                </div>
+            </div>
         </div>
-    </nav>
+    </div>
 
     <div class="container-fluid">
         <div class="row">
@@ -119,17 +170,17 @@
                         <ul class="nav flex-column">
                             <li class="nav-item">
                                 <a class="nav-link" href="/">
-                                    <i class="fas fa-home text-muted mr-2"></i> Home
+                                    <i class="fas fa-home text-muted me-2"></i> Home
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="/search">
-                                    <i class="fas fa-search text-muted mr-2"></i> Search
+                                    <i class="fas fa-search text-muted me-2"></i> Search
                                 </a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="/create">
-                                    <i class="fas fa-plus text-muted mr-2"></i> Create
+                                    <i class="fas fa-plus text-muted me-2"></i> Create
                                 </a>
                             </li>
                         </ul>
@@ -137,7 +188,7 @@
                 </div>
             </nav>
 
-            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4 jspwiki-content">
+            <main role="main" class="col-md-9 ms-sm-auto col-lg-10 px-4 jspwiki-content">
 
 <script>
     function createNewPage() {
@@ -147,14 +198,154 @@
         }
     }
     
-    // Highlight active navigation tab
+    // JSPWiki-style Info dropdown functions
+    function showPageInfo() {
+        const currentPage = window.location.pathname.split('/wiki/')[1] || 'Unknown';
+        const decodedPage = decodeURIComponent(currentPage);
+        
+        const infoModal = `
+            <div class="modal fade" id="pageInfoModal" tabindex="-1">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">
+                                <i class="fas fa-info-circle"></i> Page Information: ${decodedPage}
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <table class="table table-bordered">
+                                <tr><td><strong>Page Name:</strong></td><td>${decodedPage}</td></tr>
+                                <tr><td><strong>URL:</strong></td><td>${window.location.href}</td></tr>
+                                <tr><td><strong>Last Modified:</strong></td><td>Recently</td></tr>
+                                <tr><td><strong>Version:</strong></td><td>Current</td></tr>
+                                <tr><td><strong>Size:</strong></td><td>Calculating...</td></tr>
+                            </table>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Remove existing modal if any
+        const existingModal = document.getElementById('pageInfoModal');
+        if (existingModal) existingModal.remove();
+        
+        // Add modal to DOM and show
+        document.body.insertAdjacentHTML('beforeend', infoModal);
+        new bootstrap.Modal(document.getElementById('pageInfoModal')).show();
+    }
+    
+    function showPageHistory() {
+        alert('Page History feature coming soon!');
+    }
+    
+    function showPageStats() {
+        alert('Page Statistics feature coming soon!');
+    }
+    
+    // View Page Source functionality
+    function showPageSource() {
+        const currentPage = window.location.pathname.split('/wiki/')[1];
+        if (!currentPage) {
+            alert('No page selected for source view');
+            return;
+        }
+        
+        // Fetch the raw markdown content
+        fetch(`/api/page-source/${encodeURIComponent(currentPage)}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch page source');
+                }
+                return response.text();
+            })
+            .then(sourceContent => {
+                showSourceModal(sourceContent, decodeURIComponent(currentPage));
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Fallback - try to get content from current page
+                const contentElement = document.querySelector('.page-content, .wiki-content, main');
+                const fallbackContent = contentElement ? contentElement.textContent : 'Could not retrieve page source';
+                showSourceModal(fallbackContent, decodeURIComponent(currentPage || 'Unknown'));
+            });
+    }
+    
+    function showSourceModal(sourceContent, pageName) {
+        const sourceModal = `
+            <div class="modal fade" id="pageSourceModal" tabindex="-1">
+                <div class="modal-dialog modal-xl">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">
+                                <i class="fas fa-code"></i> Page Source: ${pageName}
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <button class="btn btn-outline-primary btn-sm" onclick="copySourceToClipboard()">
+                                    <i class="fas fa-copy"></i> Copy to Clipboard
+                                </button>
+                            </div>
+                            <pre id="sourceContent" class="bg-light p-3 border rounded" style="max-height: 500px; overflow-y: auto; white-space: pre-wrap;">${escapeHtml(sourceContent)}</pre>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Remove existing modal if any
+        const existingModal = document.getElementById('pageSourceModal');
+        if (existingModal) existingModal.remove();
+        
+        // Add modal to DOM and show
+        document.body.insertAdjacentHTML('beforeend', sourceModal);
+        new bootstrap.Modal(document.getElementById('pageSourceModal')).show();
+    }
+    
+    function copySourceToClipboard() {
+        const sourceContent = document.getElementById('sourceContent').textContent;
+        navigator.clipboard.writeText(sourceContent).then(() => {
+            // Show success feedback
+            const btn = event.target.closest('button');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+            btn.classList.remove('btn-outline-primary');
+            btn.classList.add('btn-success');
+            
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.classList.remove('btn-success');
+                btn.classList.add('btn-outline-primary');
+            }, 2000);
+        }).catch(err => {
+            console.error('Failed to copy: ', err);
+            alert('Failed to copy to clipboard');
+        });
+    }
+    
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    // Highlight active navigation links
     document.addEventListener('DOMContentLoaded', function() {
         const currentPath = window.location.pathname;
-        const navLinks = document.querySelectorAll('.jspwiki-tabs .nav-link');
+        const navLinks = document.querySelectorAll('.navigation .nav-link');
         
         navLinks.forEach(link => {
             const href = link.getAttribute('href');
-            if (href && (href === '/create' && currentPath.startsWith('/create'))) {
+            if (href && currentPath.includes(href) && href !== '/') {
                 link.classList.add('active');
             }
         });

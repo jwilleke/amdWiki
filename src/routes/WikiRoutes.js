@@ -322,7 +322,11 @@ class WikiRoutes {
       // Get left menu content
       const leftMenuContent = await this.getLeftMenu();
       
-      res.render('view', {
+      // Check if reader view is requested
+      const isReaderView = req.query.view === 'reader';
+      const viewTemplate = isReaderView ? 'reader' : 'view';
+      
+      res.render(viewTemplate, {
         ...commonData,
         title: pageData.metadata.title || pageName,
         content: renderedContent,
@@ -332,7 +336,8 @@ class WikiRoutes {
         leftMenuContent: leftMenuContent,
         exists: true,
         canEdit: currentUser ? userManager.hasPermission(currentUser.username, 'page:edit') : false,
-        canDelete: currentUser ? userManager.hasPermission(currentUser.username, 'page:delete') : false
+        canDelete: currentUser ? userManager.hasPermission(currentUser.username, 'page:delete') : false,
+        isReaderView: isReaderView
       });
       
     } catch (err) {
@@ -1544,6 +1549,7 @@ class WikiRoutes {
     app.get('/api/suggestions', this.searchSuggestions.bind(this));
     app.post('/api/preview', this.previewPage.bind(this));
     app.get('/api/page-names', this.getPageNames.bind(this));
+    app.get('/api/page-source/:page', this.getPageSource.bind(this));
     
     // Attachment routes
     app.post('/attachments/upload/:page', this.uploadAttachment.bind(this));
@@ -1578,6 +1584,29 @@ class WikiRoutes {
     app.get('/admin/settings', this.adminSettings.bind(this)); // Add missing settings route
     
     console.log('✅ Wiki routes registered');
+  }
+
+  /**
+   * Get raw page source (markdown content) for viewing/copying
+   */
+  async getPageSource(req, res) {
+    try {
+      const pageName = decodeURIComponent(req.params.page);
+      const pageManager = this.engine.getManager('PageManager');
+      
+      const page = await pageManager.getPage(pageName);
+      if (!page) {
+        return res.status(404).send('Page not found');
+      }
+      
+      // Return the raw markdown content
+      res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+      res.send(page.content || '');
+      
+    } catch (error) {
+      console.error('Error retrieving page source:', error);
+      res.status(500).send('Error retrieving page source');
+    }
   }
 }
 

@@ -1,27 +1,5 @@
 
-<%- include('header') %>
-
-<!-- Page header with actions -->
-<h1 class="h2"><%= pageName %></h1>
-<div class="btn-toolbar mb-3">
-    <div class="btn-group mr-2">
-        <% if (currentUser && currentUser.isAuthenticated) { %>
-            <% if (canEdit) { %>
-                <a href="/edit/<%= pageName %>" class="btn btn-sm btn-outline-primary">
-                    <i class="fas fa-edit"></i> Edit
-                </a>
-            <% } %>
-            <% if (canDelete) { %>
-                <button class="btn btn-sm btn-outline-danger" onclick="deletePage('<%= pageName %>')">
-                    <i class="fas fa-trash"></i> Delete
-                </button>
-            <% } %>
-        <% } %>
-        <a href="/wiki/<%= pageName %>" class="btn btn-sm btn-outline-secondary">
-            <i class="fas fa-info-circle"></i> Info
-        </a>
-    </div>
-</div>
+<%- include('header', { pageName: pageName }) %>
 
 <!-- Page content -->
 <div class="markdown-body mb-4">
