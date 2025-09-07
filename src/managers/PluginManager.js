@@ -13,8 +13,9 @@ class PluginManager extends BaseManager {
 
   async initialize(config = {}) {
     await super.initialize(config);
-    this.searchPaths = config.searchPaths || ['./plugins'];
+    this.searchPaths = config.searchPaths || ['./plugins', './src/plugins'];
     await this.registerPlugins();
+    console.log('🚀 Initializing PluginManager...');
   }
 
   /**
@@ -69,7 +70,7 @@ class PluginManager extends BaseManager {
    * Execute a plugin
    * @param {string} pluginName - Name of the plugin
    * @param {string} pageName - Current page name
-   * @param {string} params - Plugin parameters
+   * @param {Object} params - Plugin parameters (parsed object)
    * @param {Object} context - Additional context
    * @returns {string} Plugin output
    */
@@ -79,12 +80,25 @@ class PluginManager extends BaseManager {
       return `Plugin '${pluginName}' not found`;
     }
 
-    if (typeof plugin !== 'function') {
-      return `Plugin '${pluginName}' is not executable`;
-    }
-
     try {
-      return plugin(pageName, params, context.linkGraph || {});
+      // Create JSPWiki-style context object
+      const wikiContext = {
+        engine: context.engine || this.engine,
+        pageName: pageName,
+        linkGraph: context.linkGraph || {}
+      };
+
+      // Check if it's a new-style plugin with execute method
+      if (plugin.execute && typeof plugin.execute === 'function') {
+        return plugin.execute(wikiContext, params);
+      }
+      
+      // Check if it's an old-style function plugin
+      if (typeof plugin === 'function') {
+        return plugin(pageName, params, context.linkGraph || {});
+      }
+
+      return `Plugin '${pluginName}' is not executable`;
     } catch (err) {
       console.error(`Plugin '${pluginName}' execution failed:`, err);
       return `Plugin '${pluginName}' error: ${err.message}`;

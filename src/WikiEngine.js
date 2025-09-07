@@ -13,6 +13,7 @@ class WikiEngine extends Engine {
   constructor() {
     super();
     this.config = null;
+    this.startTime = Date.now(); // Track when the engine was started
   }
 
   /**

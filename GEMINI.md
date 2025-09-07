@@ -150,6 +150,12 @@ Attachments thta are NOT Links will be stored wwithin /resources folder.
 
 When they Attachments is "inline with text" we should be able to perform a refresh on loading the page.
 
+### 
+
+LeftMenu - see LeftMenu.md
+
+
+
 ## More Information
 
 There might be more information for this subject on one of the following:
