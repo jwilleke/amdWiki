@@ -1381,10 +1381,10 @@ class WikiRoutes {
   async adminUpdateUser(req, res) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = userManager.getCurrentUser(req);
+      const currentUser = await userManager.getCurrentUser(req);
       
-      if (!userManager.hasPermission(currentUser, 'admin:users')) {
-        return res.status(403).send('Access denied');
+      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:users')) {
+        return res.status(403).json({ success: false, message: 'Access denied' });
       }
       
       const username = req.params.username;
