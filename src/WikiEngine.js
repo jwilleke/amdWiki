@@ -48,18 +48,25 @@ class WikiEngine extends Engine {
     // Store the config instance before calling super.initialize()
     const configInstance = this.config;
     
-    // Initialize base engine with plain object to avoid overwriting
-    await super.initialize(this.config.getAll());
+    // Initialize base engine properties only (don't call initializeManagers twice)
+    if (this.initialized) {
+      throw new Error('Engine already initialized');
+    }
+
+    // Store configuration - don't overwrite this.config if it's already set
+    this.properties = new Map(Object.entries(this.config.getAll()));
     
     // Defensive check #2: Restore config instance if it was overwritten
     if (!this.config || typeof this.config.get !== 'function') {
-      console.warn('⚠️  Config instance was overwritten by super.initialize(), restoring...');
+      console.warn('⚠️  Config instance was overwritten, restoring...');
       this.config = configInstance;
     }
-    console.log('✅ Config instance verified after super.initialize()');
+    console.log('✅ Config instance verified after initialization');
 
-    // Initialize and register managers
+    // Initialize and register managers (only once)
     await this.initializeManagers();
+    
+    this.initialized = true;
 
     console.log(`✅ ${this.getApplicationName()} initialized successfully`);
   }
