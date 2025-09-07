@@ -177,6 +177,54 @@ class WikiRoutes {
   }
 
   /**
+   * Get and format left menu content from LeftMenu page
+   */
+  async getLeftMenu() {
+    try {
+      const pageManager = this.engine.getManager('PageManager');
+      const renderingManager = this.engine.getManager('RenderingManager');
+      
+      // Try to get LeftMenu page
+      const leftMenuPage = await pageManager.getPage('LeftMenu');
+      if (!leftMenuPage) {
+        return null; // Return null to use fallback
+      }
+      
+      // Render markdown to HTML (this will automatically expand system variables)
+      const renderedContent = renderingManager.renderMarkdown(leftMenuPage.content, 'LeftMenu');
+      
+      // Format for Bootstrap navigation
+      return this.formatLeftMenuContent(renderedContent);
+      
+    } catch (err) {
+      console.error('Error loading left menu:', err);
+      return null; // Return null to use fallback
+    }
+  }
+
+  /**
+   * Format left menu content for Bootstrap navigation
+   */
+  formatLeftMenuContent(content) {
+    // Convert basic markdown list to Bootstrap nav structure
+    content = content.replace(/<ul>/g, '<ul class="nav flex-column">');
+    content = content.replace(/<li>/g, '<li class="nav-item">');
+    content = content.replace(/<a href="([^"]*)">/g, '<a class="nav-link" href="$1">');
+    
+    // Add icons to common menu items
+    content = content.replace(/(<a class="nav-link"[^>]*>)Main page/g, '$1<i class="fas fa-home"></i> Main page');
+    content = content.replace(/(<a class="nav-link"[^>]*>)About/g, '$1<i class="fas fa-info-circle"></i> About');
+    content = content.replace(/(<a class="nav-link"[^>]*>)Find pages/g, '$1<i class="fas fa-search"></i> Find pages');
+    content = content.replace(/(<a class="nav-link"[^>]*>)Search/g, '$1<i class="fas fa-search"></i> Search');
+    content = content.replace(/(<a class="nav-link"[^>]*>)News/g, '$1<i class="fas fa-newspaper"></i> News');
+    content = content.replace(/(<a class="nav-link"[^>]*>)Recent Changes/g, '$1<i class="fas fa-history"></i> Recent Changes');
+    content = content.replace(/(<a class="nav-link"[^>]*>)Page Index/g, '$1<i class="fas fa-list"></i> Page Index');
+    content = content.replace(/(<a class="nav-link"[^>]*>)SystemInfo/g, '$1<i class="fas fa-server"></i> SystemInfo');
+    
+    return content;
+  }
+
+  /**
    * Display a wiki page
    */
   async viewPage(req, res) {
@@ -200,11 +248,13 @@ class WikiRoutes {
       const pageData = await pageManager.getPage(pageName);
       if (!pageData) {
         const canCreate = userManager.hasPermission(currentUser.username, 'page:create');
+        const leftMenuContent = await this.getLeftMenu();
         return res.status(404).render('view', {
           ...commonData,
           title: 'Page Not Found',
           content: `<h1>Page Not Found</h1><p>The page "${pageName}" does not exist.</p>${canCreate ? `<p><a href="/create?name=${encodeURIComponent(pageName)}" class="btn btn-primary">Create Page</a></p>` : ''}`,
           pageName: pageName,
+          leftMenuContent: leftMenuContent,
           exists: false,
           canCreate: canCreate
         });
@@ -216,6 +266,9 @@ class WikiRoutes {
       // Get referring pages for context
       const referringPages = renderingManager.getReferringPages(pageName);
       
+      // Get left menu content
+      const leftMenuContent = await this.getLeftMenu();
+      
       res.render('view', {
         ...commonData,
         title: pageData.metadata.title || pageName,
@@ -223,6 +276,7 @@ class WikiRoutes {
         pageName: pageName,
         metadata: pageData.metadata,
         referringPages: referringPages,
+        leftMenuContent: leftMenuContent,
         exists: true,
         canEdit: userManager.hasPermission(currentUser.username, 'page:edit'),
         canDelete: userManager.hasPermission(currentUser.username, 'page:delete')
@@ -231,11 +285,13 @@ class WikiRoutes {
     } catch (err) {
       console.error('Error viewing page:', err);
       const commonData = await this.getCommonTemplateDataWithUser(req);
+      const leftMenuContent = await this.getLeftMenu();
       res.status(500).render('view', {
         ...commonData,
         title: 'Error',
         content: '<h1>Error</h1><p>An error occurred while loading the page.</p>',
         pageName: req.params.page,
+        leftMenuContent: leftMenuContent,
         exists: false
       });
     }
