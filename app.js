@@ -159,11 +159,58 @@ function renderMarkdown(content, pageName) {
     const files = fs.readdirSync(pagesDir);
     const pageNames = files.map(f => f.replace(/\.md$/, ''));
     
-    expandedContent = expandedContent.replace(/\[([a-zA-Z0-9\s_-]+)\]/g, (match, linkText) => {
-      if (pageNames.includes(linkText)) {
-        return `<a href="/wiki/${linkText}">${linkText}</a>`;
+    // Wiki-style link rendering with extended pipe syntax: [DisplayText|Target|Parameters] and simple links [PageName]
+    expandedContent = expandedContent.replace(/\[([a-zA-Z0-9\s_-]+)(?:\|([a-zA-Z0-9\s_\-\/ .:?=&]+))?(?:\|([^|\]]+))?\]/g, (match, displayText, target, params) => {
+      // Parse parameters if provided
+      let linkAttributes = '';
+      if (params) {
+        // Parse target='_blank' and other attributes
+        const targetMatch = params.match(/target=['"]([^'"]+)['"]/);
+        if (targetMatch) {
+          linkAttributes += ` target="${targetMatch[1]}"`;
+          // Add rel="noopener noreferrer" for security when opening in new tab
+          if (targetMatch[1] === '_blank') {
+            linkAttributes += ' rel="noopener noreferrer"';
+          }
+        }
+        
+        // Parse other potential attributes
+        const classMatch = params.match(/class=['"]([^'"]+)['"]/);
+        if (classMatch) {
+          linkAttributes += ` class="${classMatch[1]}"`;
+        }
+        
+        const titleMatch = params.match(/title=['"]([^'"]+)['"]/);
+        if (titleMatch) {
+          linkAttributes += ` title="${titleMatch[1]}"`;
+        }
+      }
+      
+      // If no target specified, it's a simple wiki link
+      if (!target) {
+        const pageName = displayText;
+        if (pageNames.includes(pageName)) {
+          return `<a href="/wiki/${encodeURIComponent(pageName)}"${linkAttributes}>${pageName}</a>`;
+        } else {
+          return `<a href="/edit/${encodeURIComponent(pageName)}" style="color: red;"${linkAttributes}>${pageName}</a>`;
+        }
+      }
+      
+      // Handle pipe syntax [DisplayText|Target|Parameters]
+      // Check if target is a URL (contains :// or starts with /)
+      if (target.includes('://') || target.startsWith('/')) {
+        // External URL or absolute path
+        return `<a href="${target}"${linkAttributes}>${displayText}</a>`;
+      } else if (target.toLowerCase() === 'search') {
+        // Special case for Search functionality
+        return `<a href="/search"${linkAttributes}>${displayText}</a>`;
       } else {
-        return `<a href="/edit/${linkText}" style="color: red;">${linkText}</a>`;
+        // Wiki page target
+        if (pageNames.includes(target)) {
+          return `<a href="/wiki/${encodeURIComponent(target)}"${linkAttributes}>${displayText}</a>`;
+        } else {
+          return `<a href="/edit/${encodeURIComponent(target)}" style="color: red;"${linkAttributes}>${displayText}</a>`;
+        }
       }
     });
   } catch (err) {

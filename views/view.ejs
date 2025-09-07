@@ -125,7 +125,7 @@
             </div>
             <% } %>
 
-            <!-- Page metadata and system info -->
+            <!-- Page metadata -->
             <div class="row mt-4">
                 <div class="col-md-6">
                     <div class="card">
@@ -154,29 +154,6 @@
                                     </tr>
                                     <% } %>
                                 <% } %>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="card">
-                        <div class="card-header">
-                            <h6 class="mb-0">System Information</h6>
-                        </div>
-                        <div class="card-body">
-                            <table class="table table-sm">
-                                <tr>
-                                    <td><strong>Active Sessions:</strong></td>
-                                    <td>1</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Uptime:</strong></td>
-                                    <td><%= Math.floor(process.uptime() / 3600) %>h <%= Math.floor((process.uptime() % 3600) / 60) %>m</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Number of pages:</strong></td>
-                                    <td><%= pages.length %></td>
-                                </tr>
                             </table>
                         </div>
                     </div>

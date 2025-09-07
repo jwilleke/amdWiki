@@ -14,6 +14,8 @@ lastModified: '2025-09-07T10:20:05.739Z'
 * [Password Management]
 * [Bug Fixes and Improvements]
 * [Access Control Lists]
+* [Authentication States Implementation]
+  * [User States Test]
 
 ## Security Documentation
 
