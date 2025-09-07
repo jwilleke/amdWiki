@@ -1,10 +1,18 @@
 {
   "name": "amdwiki",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "version": "1.2.0",
+  "description": "JSPWiki-style wiki with advanced search capabilities",
+  "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node app.js",
+    "dev": "node app.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "version": "echo $npm_package_version",
+    "version:show": "node version.js",
+    "version:patch": "node version.js patch",
+    "version:minor": "node version.js minor",
+    "version:major": "node version.js major",
+    "version:help": "node version.js help"
   },
   "keywords": [],
   "author": "",

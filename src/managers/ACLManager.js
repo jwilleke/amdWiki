@@ -3,7 +3,7 @@ const BaseManager = require('./BaseManager');
 /**
  * ACLManager - Access Control List Manager
  * Parses and evaluates page-level access control using JSPWiki-style syntax
- * Integrates with role-based permissions from UserManager
+ * Integrates with permissions from UserManager
  */
 class ACLManager extends BaseManager {
   constructor(engine) {
@@ -191,7 +191,10 @@ class ACLManager extends BaseManager {
    * @returns {string} Content with ACL markup removed
    */
   removeACLMarkup(content) {
-    if (!content) return content;
+    // Handle null, undefined, or non-string content
+    if (!content || typeof content !== 'string') {
+      return '';
+    }
     
     // Remove ACL markup but preserve other content
     const aclRegex = /\[\{(ALLOW|DENY)\s+(view|edit|delete|rename|upload)\s+([^}]+)\}\]\s*/gi;
