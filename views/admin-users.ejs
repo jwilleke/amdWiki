@@ -198,15 +198,21 @@
           <div class="mb-3">
             <label class="form-label">Roles *</label>
             <div class="form-check">
-              <input class="form-check-input" type="checkbox" value="user" id="roleUser" name="roles" checked>
-              <label class="form-check-label" for="roleUser">
-                User (Basic access)
+              <input class="form-check-input" type="checkbox" value="reader" id="roleReader" name="roles" checked>
+              <label class="form-check-label" for="roleReader">
+                Reader (Read-only access)
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="contributor" id="roleContributor" name="roles">
+              <label class="form-check-label" for="roleContributor">
+                Contributor (Can edit and create pages)
               </label>
             </div>
             <div class="form-check">
               <input class="form-check-input" type="checkbox" value="editor" id="roleEditor" name="roles">
               <label class="form-check-label" for="roleEditor">
-                Editor (Can edit and create pages)
+                Editor (Can edit and create pages, and delete)
               </label>
             </div>
             <div class="form-check">
@@ -269,15 +275,21 @@
           <div class="mb-3">
             <label class="form-label">Roles</label>
             <div class="form-check">
-              <input class="form-check-input" type="checkbox" value="user" id="editRoleUser" name="roles">
-              <label class="form-check-label" for="editRoleUser">
-                User (Basic access)
+              <input class="form-check-input" type="checkbox" value="reader" id="editRoleReader" name="roles">
+              <label class="form-check-label" for="editRoleReader">
+                Reader (Read-only access)
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="contributor" id="editRoleContributor" name="roles">
+              <label class="form-check-label" for="editRoleContributor">
+                Contributor (Can edit and create pages)
               </label>
             </div>
             <div class="form-check">
               <input class="form-check-input" type="checkbox" value="editor" id="editRoleEditor" name="roles">
               <label class="form-check-label" for="editRoleEditor">
-                Editor (Can edit and create pages)
+                Editor (Can edit and create pages, and delete)
               </label>
             </div>
             <div class="form-check">
@@ -372,7 +384,8 @@ document.addEventListener('DOMContentLoaded', function() {
       document.getElementById('editIsActive').checked = isActive;
       
       // Clear all role checkboxes first
-      document.getElementById('editRoleUser').checked = false;
+      document.getElementById('editRoleReader').checked = false;
+      document.getElementById('editRoleContributor').checked = false;
       document.getElementById('editRoleEditor').checked = false;
       document.getElementById('editRoleAdmin').checked = false;
       
