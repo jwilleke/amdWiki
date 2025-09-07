@@ -417,9 +417,9 @@ class WikiRoutes {
       
       let pageData = await pageManager.getPage(pageName);
       
-      // If page doesn't exist, create from template
+      // If page doesn't exist, generate template data without saving
       if (!pageData) {
-        pageData = await pageManager.createPageFromTemplate(pageName);
+        pageData = await pageManager.generateTemplateData(pageName);
       }
 
       // Extract current category and keywords from metadata
