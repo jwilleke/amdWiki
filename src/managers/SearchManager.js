@@ -37,12 +37,27 @@ class SearchManager extends BaseManager {
       
       // Prepare documents for indexing
       pages.forEach(page => {
+        // Extract metadata fields
+        const metadata = page.metadata || {};
+        const category = metadata.category || '';
+        const userKeywords = Array.isArray(metadata['user-keywords']) ? 
+          metadata['user-keywords'].join(' ') : 
+          (metadata['user-keywords'] || '');
+        const tags = Array.isArray(metadata.tags) ? 
+          metadata.tags.join(' ') : 
+          (metadata.tags || '');
+
         documents[page.name] = {
           id: page.name,
           title: page.name,
           content: page.content,
           body: page.content,
-          tags: page.metadata?.tags || []
+          category: category,
+          userKeywords: userKeywords,
+          tags: tags,
+          keywords: `${userKeywords} ${tags}`, // Combined keywords field
+          lastModified: metadata.lastModified || '',
+          uuid: metadata.uuid || ''
         };
       });
 
@@ -53,7 +68,10 @@ class SearchManager extends BaseManager {
         this.ref('id');
         this.field('title', { boost: 10 });
         this.field('content');
+        this.field('category', { boost: 8 });
+        this.field('userKeywords', { boost: 6 });
         this.field('tags', { boost: 5 });
+        this.field('keywords', { boost: 4 });
 
         Object.values(documents).forEach(doc => {
           this.add(doc);
@@ -256,6 +274,181 @@ class SearchManager extends BaseManager {
   }
 
   /**
+   * Advanced search with filters
+   * @param {Object} searchOptions - Advanced search options
+   * @returns {Array<Object>} Search results
+   */
+  advancedSearch(searchOptions = {}) {
+    const {
+      query = '',
+      category = '',
+      userKeywords = '',
+      searchIn = 'all', // 'title', 'content', 'category', 'keywords', 'all'
+      maxResults = 20
+    } = searchOptions;
+
+    if (!this.searchIndex) {
+      return [];
+    }
+
+    try {
+      let searchQuery = '';
+      let results = [];
+
+      // Build search query based on filters
+      if (searchIn === 'all' && query) {
+        searchQuery = query;
+      } else if (searchIn === 'title' && query) {
+        searchQuery = `title:${query}`;
+      } else if (searchIn === 'content' && query) {
+        searchQuery = `content:${query}`;
+      } else if (searchIn === 'category' && query) {
+        searchQuery = `category:${query}`;
+      } else if (searchIn === 'keywords' && query) {
+        searchQuery = `keywords:${query}`;
+      } else if (query) {
+        searchQuery = query;
+      }
+
+      // Perform search
+      if (searchQuery) {
+        results = this.searchIndex.search(searchQuery);
+      } else {
+        // If no text query, return all documents for filtering
+        results = Object.keys(this.documents).map(id => ({ ref: id, score: 1 }));
+      }
+
+      // Apply filters
+      let filteredResults = results.map(result => {
+        const doc = this.documents[result.ref];
+        return {
+          ...result,
+          doc: doc
+        };
+      });
+
+      // Filter by category
+      if (category) {
+        filteredResults = filteredResults.filter(result => 
+          result.doc.category.toLowerCase().includes(category.toLowerCase()));
+      }
+
+      // Filter by user keywords
+      if (userKeywords) {
+        filteredResults = filteredResults.filter(result => 
+          result.doc.userKeywords.toLowerCase().includes(userKeywords.toLowerCase()));
+      }
+
+      // Format results
+      return filteredResults.slice(0, maxResults).map(result => {
+        const doc = result.doc;
+        const snippet = this.generateSnippet(doc.content, query || category || userKeywords);
+        
+        return {
+          name: result.ref,
+          title: doc.title,
+          score: result.score,
+          snippet: snippet,
+          metadata: {
+            wordCount: doc.content.split(/\s+/).length,
+            category: doc.category,
+            userKeywords: doc.userKeywords.split(' ').filter(k => k.trim()),
+            tags: doc.tags.split(' ').filter(t => t.trim()),
+            lastModified: doc.lastModified
+          }
+        };
+      });
+
+    } catch (err) {
+      console.error('Advanced search failed:', err);
+      return [];
+    }
+  }
+
+  /**
+   * Get all unique categories from indexed documents
+   * @returns {Array<string>} List of categories
+   */
+  getAllCategories() {
+    const categories = new Set();
+    Object.values(this.documents).forEach(doc => {
+      if (doc.category && doc.category.trim()) {
+        categories.add(doc.category.trim());
+      }
+    });
+    return Array.from(categories).sort();
+  }
+
+  /**
+   * Get all unique user keywords from indexed documents
+   * @returns {Array<string>} List of user keywords
+   */
+  getAllUserKeywords() {
+    const keywords = new Set();
+    Object.values(this.documents).forEach(doc => {
+      if (doc.userKeywords && doc.userKeywords.trim()) {
+        doc.userKeywords.split(/[,\s]+/).forEach(keyword => {
+          const clean = keyword.trim();
+          if (clean) {
+            keywords.add(clean);
+          }
+        });
+      }
+    });
+    return Array.from(keywords).sort();
+  }
+
+  /**
+   * Search by category only
+   * @param {string} category - Category to search for
+   * @returns {Array<Object>} Pages in category
+   */
+  searchByCategory(category) {
+    if (!category) return [];
+    
+    return Object.values(this.documents)
+      .filter(doc => doc.category.toLowerCase().includes(category.toLowerCase()))
+      .map(doc => ({
+        name: doc.id,
+        title: doc.title,
+        score: 1,
+        snippet: this.generateSnippet(doc.content, category),
+        metadata: {
+          wordCount: doc.content.split(/\s+/).length,
+          category: doc.category,
+          userKeywords: doc.userKeywords.split(' ').filter(k => k.trim()),
+          tags: doc.tags.split(' ').filter(t => t.trim()),
+          lastModified: doc.lastModified
+        }
+      }));
+  }
+
+  /**
+   * Search by user keywords only
+   * @param {string} keyword - Keyword to search for
+   * @returns {Array<Object>} Pages with keyword
+   */
+  searchByUserKeywords(keyword) {
+    if (!keyword) return [];
+    
+    return Object.values(this.documents)
+      .filter(doc => doc.userKeywords.toLowerCase().includes(keyword.toLowerCase()))
+      .map(doc => ({
+        name: doc.id,
+        title: doc.title,
+        score: 1,
+        snippet: this.generateSnippet(doc.content, keyword),
+        metadata: {
+          wordCount: doc.content.split(/\s+/).length,
+          category: doc.category,
+          userKeywords: doc.userKeywords.split(' ').filter(k => k.trim()),
+          tags: doc.tags.split(' ').filter(t => t.trim()),
+          lastModified: doc.lastModified
+        }
+      }));
+  }
+
+  /**
    * Get search statistics
    * @returns {Object} Search statistics
    */
@@ -264,8 +457,18 @@ class SearchManager extends BaseManager {
       totalDocuments: Object.keys(this.documents).length,
       indexSize: this.searchIndex ? JSON.stringify(this.searchIndex).length : 0,
       averageDocumentLength: Object.values(this.documents).reduce((sum, doc) => 
-        sum + doc.content.length, 0) / Object.keys(this.documents).length
+        sum + doc.content.length, 0) / Object.keys(this.documents).length,
+      totalCategories: this.getAllCategories().length,
+      totalUserKeywords: this.getAllUserKeywords().length
     };
+  }
+
+  /**
+   * Get the total number of indexed documents
+   * @returns {number} Number of documents
+   */
+  getDocumentCount() {
+    return Object.keys(this.documents).length;
   }
 }
 

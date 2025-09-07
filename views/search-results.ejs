@@ -1,39 +1,317 @@
 <%- include('header') %>
 
+<div class="search-page">
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <h1 class="h2">Search Results for: "<%= query %>"</h1>
+    <h1 class="h2"><i class="fas fa-search"></i> Search</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <span class="badge bg-info">
+            <%= count %> result<%= count === 1 ? '' : 's' %>
+        </span>
+    </div>
 </div>
 
-<form action="/search" method="GET">
-    <div class="input-group mb-3">
-        <input type="text" class="form-control" name="q" value="<%= query %>" placeholder="Search...">
-        <select class="form-select" name="category">
-            <option value="">All Categories</option>
-            <% categories.forEach(category => { %>
-                <option value="<%= category %>" <%= selectedCategory === category ? 'selected' : '' %>><%= category %></option>
-            <% }); %>
-        </select>
-        <select class="form-select" name="keyword">
-            <option value="">All Keywords</option>
-            <% keywords.forEach(keyword => { %>
-                <option value="<%= keyword %>" <%= selectedKeyword === keyword ? 'selected' : '' %>><%= keyword %></option>
-            <% }); %>
-        </select>
-        <button class="btn btn-outline-secondary" type="submit">Search</button>
+<!-- Advanced Search Form -->
+<div class="card mb-4 shadow-sm">
+    <div class="card-header bg-light">
+        <h5 class="mb-0 d-flex justify-content-between align-items-center">
+            <span><i class="fas fa-cog me-2"></i>Search Options</span>
+            <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#searchOptions">
+                <i class="fas fa-chevron-down"></i> Toggle
+            </button>
+        </h5>
     </div>
-</form>
+    <div class="collapse show" id="searchOptions">
+        <div class="card-body bg-white">
+            <form action="/search" method="GET" class="row g-3">
+                <!-- Text Search -->
+                <div class="col-md-6">
+                    <label for="query" class="form-label fw-bold">
+                        <i class="fas fa-search me-1"></i>Search Text
+                    </label>
+                    <input type="text" class="form-control" id="query" name="q" value="<%= query %>" 
+                           placeholder="Enter search terms...">
+                </div>
+                
+                <!-- Search In -->
+                <div class="col-md-3">
+                    <label for="searchIn" class="form-label fw-bold">
+                        <i class="fas fa-filter me-1"></i>Search In
+                    </label>
+                    <select class="form-select" id="searchIn" name="searchIn">
+                        <option value="all" <%= searchIn === 'all' ? 'selected' : '' %>>All Fields</option>
+                        <option value="title" <%= searchIn === 'title' ? 'selected' : '' %>>Page Titles</option>
+                        <option value="content" <%= searchIn === 'content' ? 'selected' : '' %>>Page Content</option>
+                        <option value="category" <%= searchIn === 'category' ? 'selected' : '' %>>Categories</option>
+                        <option value="keywords" <%= searchIn === 'keywords' ? 'selected' : '' %>>Keywords</option>
+                    </select>
+                </div>
+                
+                <!-- Search Button -->
+                <div class="col-md-3 d-flex align-items-end">
+                    <button class="btn btn-primary w-100" type="submit">
+                        <i class="fas fa-search me-1"></i>Search
+                    </button>
+                </div>
+                
+                <!-- Category Filter -->
+                <div class="col-md-6">
+                    <label for="category" class="form-label fw-bold">
+                        <i class="fas fa-folder me-1"></i>Category
+                    </label>
+                    <select class="form-select" id="category" name="category">
+                        <option value="">All Categories</option>
+                        <% availableCategories.forEach(cat => { %>
+                            <option value="<%= cat %>" <%= category === cat ? 'selected' : '' %>><%= cat %></option>
+                        <% }); %>
+                    </select>
+                </div>
+                
+                <!-- Keywords Filter -->
+                <div class="col-md-6">
+                    <label for="keywords" class="form-label fw-bold">
+                        <i class="fas fa-tags me-1"></i>User Keywords
+                    </label>
+                    <select class="form-select" id="keywords" name="keywords">
+                        <option value="">All Keywords</option>
+                        <% availableKeywords.forEach(keyword => { %>
+                            <option value="<%= keyword %>" <%= userKeywords === keyword ? 'selected' : '' %>><%= keyword %></option>
+                        <% }); %>
+                    </select>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
-<% if (results.length > 0) { %>
-    <ul class="list-group">
-        <% results.forEach(result => { %>
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-                <a href="/wiki/<%= result.name %>"><%= result.name %></a>
-                <span class="badge bg-primary rounded-pill"><%= result.score.toFixed(2) %></span>
-            </li>
-        <% }); %>
-    </ul>
+<!-- Search Results -->
+<% if (query || category || userKeywords) { %>
+    <div class="row">
+        <div class="col-md-9">
+            <% if (results.length > 0) { %>
+                <div class="mb-3">
+                    <small class="text-muted">
+                        Showing <%= results.length %> result<%= results.length === 1 ? '' : 's' %>
+                        <% if (searchType === 'category') { %>
+                            for category "<%= category %>"
+                        <% } else if (searchType === 'keywords') { %>
+                            for keyword "<%= userKeywords %>"
+                        <% } else if (query) { %>
+                            for "<%= query %>"
+                            <% if (category) { %> in category "<%= category %>"<% } %>
+                            <% if (userKeywords) { %> with keyword "<%= userKeywords %>"<% } %>
+                        <% } %>
+                    </small>
+                </div>
+
+                <div class="list-group search-results">
+                    <% results.forEach((result, index) => { %>
+                        <div class="list-group-item search-result-enter">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">
+                                    <a href="/wiki/<%= encodeURIComponent(result.name) %>" class="text-decoration-none">
+                                        <i class="fas fa-file-alt"></i> <%= result.title %>
+                                    </a>
+                                    <small class="text-muted">(Score: <%= result.score.toFixed(3) %>)</small>
+                                </h6>
+                            </div>
+                            
+                            <% if (result.snippet) { %>
+                                <p class="mb-2 text-muted"><%= result.snippet %>...</p>
+                            <% } %>
+                            
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <% if (result.metadata.category) { %>
+                                        <span class="badge bg-primary me-2">
+                                            <i class="fas fa-folder me-1"></i><%= result.metadata.category %>
+                                        </span>
+                                    <% } %>
+                                    
+                                    <% if (result.metadata.userKeywords && result.metadata.userKeywords.length > 0) { %>
+                                        <% result.metadata.userKeywords.slice(0, 3).forEach(keyword => { %>
+                                            <span class="badge bg-info me-1">
+                                                <i class="fas fa-tag me-1"></i><%= keyword %>
+                                            </span>
+                                        <% }); %>
+                                        <% if (result.metadata.userKeywords.length > 3) { %>
+                                            <span class="badge bg-light text-dark">+<%= result.metadata.userKeywords.length - 3 %> more</span>
+                                        <% } %>
+                                    <% } %>
+                                </div>
+                                
+                                <small class="text-muted">
+                                    <%= result.metadata.wordCount %> words
+                                    <% if (result.metadata.lastModified) { %>
+                                        • Modified: <%= new Date(result.metadata.lastModified).toLocaleDateString() %>
+                                    <% } %>
+                                </small>
+                            </div>
+                        </div>
+                    <% }); %>
+                </div>
+            <% } else { %>
+                <div class="alert alert-info">
+                    <h5><i class="fas fa-info-circle"></i> No Results Found</h5>
+                    <p class="mb-0">
+                        No pages found matching your search criteria. Try:
+                    </p>
+                    <ul class="mb-0">
+                        <li>Using different search terms</li>
+                        <li>Checking your spelling</li>
+                        <li>Using broader categories or keywords</li>
+                        <li>Searching in all fields instead of specific ones</li>
+                    </ul>
+                </div>
+            <% } %>
+        </div>
+        
+        <!-- Search Statistics Sidebar -->
+        <div class="col-md-3">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Search Statistics</h6>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm table-borderless">
+                        <tr>
+                            <td><i class="fas fa-file-alt text-primary me-2"></i><strong>Total Pages:</strong></td>
+                            <td><span class="badge bg-primary"><%= stats.totalDocuments %></span></td>
+                        </tr>
+                        <tr>
+                            <td><i class="fas fa-folder text-secondary me-2"></i><strong>Categories:</strong></td>
+                            <td><span class="badge bg-secondary"><%= stats.totalCategories %></span></td>
+                        </tr>
+                        <tr>
+                            <td><i class="fas fa-tags text-info me-2"></i><strong>Keywords:</strong></td>
+                            <td><span class="badge bg-info"><%= stats.totalUserKeywords %></span></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="card mt-3 shadow-sm">
+                <div class="card-header bg-warning text-dark">
+                    <h6 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Search Tips</h6>
+                </div>
+                <div class="card-body">
+                    <div class="small">
+                        <ul class="list-unstyled mb-0">
+                            <li class="mb-2"><strong>Exact phrase:</strong> <code>"your phrase"</code></li>
+                            <li class="mb-2"><strong>Required word:</strong> <code>+required</code></li>
+                            <li class="mb-2"><strong>Excluded word:</strong> <code>-excluded</code></li>
+                            <li class="mb-2"><strong>Wildcard:</strong> <code>word*</code></li>
+                            <li class="mb-0"><strong>Field search:</strong> <code>title:word</code></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 <% } else { %>
-    <p>No pages found matching your query.</p>
+    <!-- Empty search state -->
+    <div class="text-center py-5">
+        <i class="fas fa-search fa-3x text-muted mb-3"></i>
+        <h4>Search the Wiki</h4>
+        <p class="text-muted">
+            Enter search terms above to find pages, or use the filters to browse by category and keywords.
+        </p>
+        
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h6 class="mb-0"><i class="fas fa-folder"></i> Browse by Category</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex flex-wrap gap-2 browse-buttons">
+                            <% availableCategories.slice(0, 8).forEach(cat => { %>
+                                <a href="/search?category=<%= encodeURIComponent(cat) %>" 
+                                   class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-folder-open"></i> <%= cat %>
+                                </a>
+                            <% }); %>
+                            <% if (availableCategories.length > 8) { %>
+                                <small class="text-muted align-self-center">
+                                    +<%= availableCategories.length - 8 %> more categories...
+                                </small>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h6 class="mb-0"><i class="fas fa-tags"></i> Browse by Keywords</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex flex-wrap gap-2 browse-buttons">
+                            <% availableKeywords.slice(0, 10).forEach(keyword => { %>
+                                <a href="/search?keywords=<%= encodeURIComponent(keyword) %>" 
+                                   class="btn btn-outline-info btn-sm">
+                                    <i class="fas fa-tag"></i> <%= keyword %>
+                                </a>
+                            <% }); %>
+                            <% if (availableKeywords.length > 10) { %>
+                                <small class="text-muted align-self-center">
+                                    +<%= availableKeywords.length - 10 %> more keywords...
+                                </small>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-4">
+            <div class="col-md-8 offset-md-2">
+                <div class="card border-light">
+                    <div class="card-body">
+                        <h6><i class="fas fa-lightbulb text-warning"></i> Quick Search Tips</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ul class="list-unstyled small">
+                                    <li><code>"exact phrase"</code> - Search for exact phrases</li>
+                                    <li><code>+required</code> - Require specific words</li>
+                                    <li><code>-excluded</code> - Exclude specific words</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul class="list-unstyled small">
+                                    <li><code>word*</code> - Wildcard matching</li>
+                                    <li><code>title:word</code> - Search in titles only</li>
+                                    <li>Use categories and keywords for filtering</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 <% } %>
+
+<script>
+// Auto-submit form when filters change
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const selects = document.querySelectorAll('select');
+    
+    selects.forEach(select => {
+        select.addEventListener('change', function() {
+            // Only auto-submit if there's already a search query or filter
+            const hasQuery = document.getElementById('query').value.trim();
+            const hasCategory = document.getElementById('category').value;
+            const hasKeywords = document.getElementById('keywords').value;
+            
+            if (hasQuery || hasCategory || hasKeywords) {
+                form.submit();
+            }
+        });
+    });
+});
+</script>
+
+</div> <!-- Close search-page div -->
 
 <%- include('footer') %>

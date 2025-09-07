@@ -263,3 +263,79 @@ main[role="main"] {
     font-size: 0.8em;
     color: #6c757d;
 }
+
+/* Search page improvements */
+.search-page .card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.search-page .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.search-results .list-group-item {
+    border-left: 4px solid transparent;
+    transition: border-left-color 0.2s ease;
+}
+
+.search-results .list-group-item:hover {
+    border-left-color: #007bff;
+    background-color: #f8f9fa;
+}
+
+.search-badge-group {
+    gap: 0.25rem;
+}
+
+.search-stats .badge {
+    font-size: 0.8em;
+}
+
+.search-tips code {
+    background-color: #f8f9fa;
+    color: #495057;
+    padding: 0.125rem 0.25rem;
+    border-radius: 0.25rem;
+    font-size: 0.875em;
+}
+
+/* Browse buttons styling */
+.browse-buttons .btn {
+    margin: 0.25rem;
+    transition: all 0.2s ease;
+}
+
+.browse-buttons .btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Search result highlight animations */
+.search-result-enter {
+    animation: slideInUp 0.3s ease-out;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Improved gap utility for better browser support */
+.gap-2 {
+    gap: 0.5rem !important;
+}
+
+.me-1 {
+    margin-right: 0.25rem !important;
+}
+
+.me-2 {
+    margin-right: 0.5rem !important;
+}
