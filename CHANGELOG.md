@@ -41,6 +41,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Optional password updating (leave blank to keep current)
   - User status toggle (active/inactive)
   - Form validation and AJAX submission
+- **Improved Access Control System**: Enhanced page access control with sensible defaults
+  - Default read access for all regular pages (including anonymous users)
+  - Restricted access only for system/admin pages
+  - Edit button visibility based on actual user permissions
+  - Proper role-based permission checking for all actions
 - **Dynamic Markdown Footer**: Footer content now loaded from editable `Footer.md` page
 - **Version System Variables**: Added `[{$version}]` and `[{$year}]` system variables
 - **Footer Styling**: Professional footer styling with responsive design
@@ -73,6 +78,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Fixed user creation parameter mismatch causing users to be created with undefined usernames
   - Fixed async/await bug in adminUpdateUser method for proper permission checking
   - Fixed invalid "user" role in user creation forms - replaced with proper system roles (reader, contributor, editor, admin)
+- **Access Control System**: Fixed overly restrictive page access
+  - Regular pages now readable by all users (including anonymous) by default
+  - System/admin pages properly restricted to authorized users only
+  - Edit button visibility now based on actual user permissions instead of hardcoded values
 - **Navigation Dropdown Issues**: Resolved all dropdown menu problems
   - Fixed Info, Edit, and More dropdown menus not opening
   - Corrected Bootstrap 5 dropdown toggle attributes
