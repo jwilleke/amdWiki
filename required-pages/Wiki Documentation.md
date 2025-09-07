@@ -14,6 +14,11 @@ lastModified: '2025-09-07T10:20:05.739Z'
 * [Password Management]
 * [Bug Fixes and Improvements]
 
+## Security Documentation
+
+* [Password Management] - User account and password management
+* JSPWiki Security Analysis - See [Bug Fixes and Improvements] for security feature evaluation
+
 ## Linking
 
 ```
