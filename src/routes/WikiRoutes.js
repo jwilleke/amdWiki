@@ -1323,10 +1323,10 @@ class WikiRoutes {
   async adminRoles(req, res) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = userManager.getCurrentUser(req);
+      const currentUser = await userManager.getCurrentUser(req);
       
-      if (!userManager.hasPermission(currentUser, 'admin:roles')) {
-        return res.status(403).send('Access denied');
+      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:roles')) {
+        return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to manage roles');
       }
       
       const commonData = await this.getCommonTemplateDataWithUser(req);
@@ -1335,14 +1335,49 @@ class WikiRoutes {
       
       res.render('admin-roles', {
         ...commonData,
-        title: 'Role Management',
-        roles: roles,
-        permissions: permissions
+        title: 'Security Policy Management',
+        roles: Array.from(roles.values()),
+        permissions: Array.from(permissions.entries()).map(([key, desc]) => ({ key, description: desc }))
       });
       
     } catch (err) {
       console.error('Error loading admin roles:', err);
       res.status(500).send('Error loading role management');
+    }
+  }
+
+  /**
+   * Update role permissions (admin only)
+   */
+  async adminUpdateRole(req, res) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = await userManager.getCurrentUser(req);
+      
+      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:roles')) {
+        return res.status(403).json({ success: false, message: 'Access denied' });
+      }
+      
+      const { roleName, permissions, displayName, description } = req.body;
+      
+      if (!roleName) {
+        return res.status(400).json({ success: false, message: 'Role name required' });
+      }
+      
+      const success = await userManager.updateRolePermissions(roleName, {
+        permissions: permissions || [],
+        displayName: displayName || roleName,
+        description: description || ''
+      });
+      
+      if (success) {
+        res.json({ success: true, message: 'Role updated successfully' });
+      } else {
+        res.status(400).json({ success: false, message: 'Failed to update role' });
+      }
+    } catch (err) {
+      console.error('Error updating role:', err);
+      res.status(500).json({ success: false, message: 'Error updating role' });
     }
   }
 
@@ -1394,6 +1429,7 @@ class WikiRoutes {
     app.put('/admin/users/:username', this.adminUpdateUser.bind(this));
     app.delete('/admin/users/:username', this.adminDeleteUser.bind(this));
     app.get('/admin/roles', this.adminRoles.bind(this));
+    app.post('/admin/roles/:roleName', this.adminUpdateRole.bind(this));
     
     console.log('✅ Wiki routes registered');
   }
