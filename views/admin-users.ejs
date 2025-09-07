@@ -13,6 +13,21 @@
         </a>
       </div>
 
+      <!-- Success/Error Messages -->
+      <% if (successMessage) { %>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+          <i class="fas fa-check-circle"></i> <%= successMessage %>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      <% } %>
+      
+      <% if (errorMessage) { %>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+          <i class="fas fa-exclamation-circle"></i> <%= errorMessage %>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      <% } %>
+
       <!-- User Statistics -->
       <div class="row mb-4">
         <div class="col-md-3">
@@ -75,23 +90,23 @@
                   <td>
                     <strong><%= user.username %></strong>
                     <% if (user.isSystem) { %>
-                      <span class="badge badge-warning">System</span>
+                      <span class="badge bg-warning text-dark">System</span>
                     <% } %>
                   </td>
                   <td><%= user.displayName || user.username %></td>
                   <td><%= user.email || 'Not set' %></td>
                   <td>
                     <% user.roles.forEach(role => { %>
-                      <span class="badge badge-<%= role === 'admin' ? 'danger' : 'secondary' %>">
+                      <span class="badge bg-<%= role === 'admin' ? 'danger' : 'secondary' %>">
                         <%= role %>
                       </span>
                     <% }); %>
                   </td>
                   <td>
                     <% if (user.isActive) { %>
-                      <span class="badge badge-success">Active</span>
+                      <span class="badge bg-success">Active</span>
                     <% } else { %>
-                      <span class="badge badge-danger">Inactive</span>
+                      <span class="badge bg-danger">Inactive</span>
                     <% } %>
                   </td>
                   <td>
@@ -124,12 +139,130 @@
 
       <!-- Create New User Button -->
       <div class="mt-4">
-        <button class="btn btn-primary">
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createUserModal">
           <i class="fas fa-plus"></i> Create New User
         </button>
       </div>
     </div>
   </div>
 </div>
+
+<!-- Create User Modal -->
+<div class="modal fade" id="createUserModal" tabindex="-1" aria-labelledby="createUserModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="createUserModalLabel">
+          <i class="fas fa-user-plus"></i> Create New User
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form action="/admin/users" method="POST">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="username" class="form-label">Username *</label>
+            <input type="text" class="form-control" id="username" name="username" required>
+            <div class="form-text">Must be unique and contain only letters, numbers, and underscores.</div>
+          </div>
+          
+          <div class="mb-3">
+            <label for="displayName" class="form-label">Display Name</label>
+            <input type="text" class="form-control" id="displayName" name="displayName">
+            <div class="form-text">Optional: Full name or preferred display name.</div>
+          </div>
+          
+          <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" class="form-control" id="email" name="email">
+            <div class="form-text">Optional: Email address for notifications.</div>
+          </div>
+          
+          <div class="mb-3">
+            <label for="password" class="form-label">Password *</label>
+            <input type="password" class="form-control" id="password" name="password" required>
+            <div class="form-text">Minimum 6 characters.</div>
+          </div>
+          
+          <div class="mb-3">
+            <label for="confirmPassword" class="form-label">Confirm Password *</label>
+            <input type="password" class="form-control" id="confirmPassword" required>
+            <div class="form-text">Must match the password above.</div>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label">Roles *</label>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="user" id="roleUser" name="roles" checked>
+              <label class="form-check-label" for="roleUser">
+                User (Basic access)
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="editor" id="roleEditor" name="roles">
+              <label class="form-check-label" for="roleEditor">
+                Editor (Can edit and create pages)
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="admin" id="roleAdmin" name="roles">
+              <label class="form-check-label" for="roleAdmin">
+                Admin (Full administrative access)
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-user-plus"></i> Create User
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+// Form validation
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.querySelector('#createUserModal form');
+  const password = document.getElementById('password');
+  const confirmPassword = document.getElementById('confirmPassword');
+  
+  form.addEventListener('submit', function(e) {
+    // Check password match
+    if (password.value !== confirmPassword.value) {
+      e.preventDefault();
+      confirmPassword.setCustomValidity('Passwords do not match');
+      confirmPassword.reportValidity();
+      return false;
+    }
+    
+    // Check password length
+    if (password.value.length < 6) {
+      e.preventDefault();
+      password.setCustomValidity('Password must be at least 6 characters');
+      password.reportValidity();
+      return false;
+    }
+    
+    // Check at least one role is selected
+    const roles = document.querySelectorAll('input[name="roles"]:checked');
+    if (roles.length === 0) {
+      e.preventDefault();
+      alert('Please select at least one role for the user.');
+      return false;
+    }
+  });
+  
+  // Clear custom validity on input
+  confirmPassword.addEventListener('input', function() {
+    this.setCustomValidity('');
+  });
+  
+  password.addEventListener('input', function() {
+    this.setCustomValidity('');
+  });
+});</script>
 
 <%- include('footer') %>

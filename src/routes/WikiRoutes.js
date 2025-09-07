@@ -1331,7 +1331,9 @@ class WikiRoutes {
         ...commonData,
         title: 'User Management',
         users: users,
-        roles: roles
+        roles: roles,
+        successMessage: req.query.success || null,
+        errorMessage: req.query.error || null
       });
       
     } catch (err) {
