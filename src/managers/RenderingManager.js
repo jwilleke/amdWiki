@@ -147,6 +147,8 @@ class RenderingManager extends BaseManager {
           return this.formatUptime(this.getUptime());
         case '$applicationname':
           return 'amdWiki';
+        case '$version':
+          return this.getApplicationVersion();
         case '$baseurl':
           return this.getBaseUrl();
         case '$timestamp':
@@ -155,6 +157,8 @@ class RenderingManager extends BaseManager {
           return new Date().toLocaleDateString();
         case '$time':
           return new Date().toLocaleTimeString();
+        case '$year':
+          return new Date().getFullYear().toString();
         default:
           console.warn(`Unknown system variable: ${variable}`);
           return `[{${variable}}]`; // Return unchanged if unknown
@@ -191,6 +195,28 @@ class RenderingManager extends BaseManager {
   getUptime() {
     const startTime = this.engine.startTime || Date.now();
     return Math.floor((Date.now() - startTime) / 1000);
+  }
+
+  /**
+   * Get application version from package.json
+   * @returns {string} Application version
+   */
+  getApplicationVersion() {
+    try {
+      const fs = require('fs');
+      const path = require('path');
+      const packageJsonPath = path.join(process.cwd(), 'package.json');
+      
+      if (fs.existsSync(packageJsonPath)) {
+        const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+        return packageJson.version || '1.0.0';
+      }
+      
+      return '1.0.0';
+    } catch (err) {
+      console.warn('Could not read version from package.json:', err);
+      return '1.0.0';
+    }
   }
 
   /**

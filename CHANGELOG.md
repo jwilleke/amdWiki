@@ -7,12 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [Unreleased]
+
 ### Planned
 
 - Unit test implementation
 - Performance optimization for large page sets
 - Mobile UI enhancements
 - Export/import functionality
+
+### Added (Since 1.2.0)
+
+- **Dynamic Markdown Footer**: Footer content now loaded from editable `Footer.md` page
+- **Version System Variables**: Added `[{$version}]` and `[{$year}]` system variables
+- **Footer Styling**: Professional footer styling with responsive design
+- **Version Management**: Automatic version display in footer from package.json
 
 ## [1.2.0] - 2025-09-07
 
