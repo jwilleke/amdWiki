@@ -118,23 +118,32 @@
     <div class="container-fluid">
         <div class="row">
             <nav class="col-md-2 d-none d-md-block bg-light sidebar jspwiki-sidebar">
-                <div class="sidebar-sticky">
-                    <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-                        <span>Pages</span>
-                        <a class="d-flex align-items-center text-muted" href="/create" title="Create new page">
-                            <i class="fas fa-plus"></i>
-                        </a>
-                    </h6>
-                    <ul class="nav flex-column">
-                        <% pages.forEach(page => { %>
+                <div class="sidebar-sticky px-3 pt-3">
+                    <% if (typeof leftMenuContent !== 'undefined' && leftMenuContent) { %>
+                        <div class="leftmenu-content">
+                            <%- leftMenuContent %>
+                        </div>
+                    <% } else { %>
+                        <!-- Fallback if LeftMenu.md not available -->
+                        <h6 class="sidebar-heading text-muted mb-3">Navigation</h6>
+                        <ul class="nav flex-column">
                             <li class="nav-item">
-                                <a class="nav-link" href="/view/<%= encodeURIComponent(page) %>">
-                                    <i class="fas fa-file-alt text-muted mr-2"></i>
-                                    <%= page %>
+                                <a class="nav-link" href="/">
+                                    <i class="fas fa-home text-muted mr-2"></i> Home
                                 </a>
                             </li>
-                        <% }); %>
-                    </ul>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/search">
+                                    <i class="fas fa-search text-muted mr-2"></i> Search
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/create">
+                                    <i class="fas fa-plus text-muted mr-2"></i> Create
+                                </a>
+                            </li>
+                        </ul>
+                    <% } %>
                 </div>
             </nav>
 

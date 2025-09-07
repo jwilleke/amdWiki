@@ -1,79 +1,54 @@
 
 <%- include('header') %>
 
-<div class="container-fluid">
-    <div class="row">
-        <!-- Left Sidebar Navigation -->
-        <nav class="col-md-2 d-none d-md-block bg-light sidebar">
-            <div class="sidebar-sticky pt-3">
-                <% if (leftMenuContent) { %>
-                    <%- leftMenuContent %>
-                <% } else { %>
-                    <!-- Fallback navigation -->
-                    <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-                        <span>Navigation</span>
-                    </h6>
-                    <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <a class="nav-link" href="/">
-                                <i class="fas fa-home"></i> Main page
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/wiki/Welcome">
-                                <i class="fas fa-info-circle"></i> About
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/search">
-                                <i class="fas fa-search"></i> Find pages
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/wiki/Categories">
-                                <i class="fas fa-tags"></i> Categories
-                            </a>
-                        </li>
-                    </ul>
+<!-- Page header with actions -->
+<h1 class="h2"><%= pageName %></h1>
+<div class="btn-toolbar mb-3">
+    <div class="btn-group mr-2">
+        <% if (currentUser && currentUser.isAuthenticated) { %>
+            <% if (canEdit) { %>
+                <a href="/edit/<%= pageName %>" class="btn btn-sm btn-outline-primary">
+                    <i class="fas fa-edit"></i> Edit
+                </a>
+            <% } %>
+            <% if (canDelete) { %>
+                <button class="btn btn-sm btn-outline-danger" onclick="deletePage('<%= pageName %>')">
+                    <i class="fas fa-trash"></i> Delete
+                </button>
+            <% } %>
+        <% } %>
+        <a href="/wiki/<%= pageName %>" class="btn btn-sm btn-outline-secondary">
+            <i class="fas fa-info-circle"></i> Info
+        </a>
+    </div>
+</div>
 
-                    <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-                        <span>Recent Pages</span>
-                    </h6>
-                    <ul class="nav flex-column">
-                        <% pages.slice(0, 5).forEach(page => { %>
-                            <li class="nav-item">
-                                <a class="nav-link" href="/wiki/<%= page %>">
-                                    <i class="fas fa-file-alt"></i> <%= page %>
-                                </a>
-                            </li>
-                        <% }); %>
-                    </ul>
+<!-- Page content -->
+<div class="markdown-body mb-4">
+    <%- content %>
+</div>
 
-                    <% if (currentUser && currentUser.isAuthenticated) { %>
-                    <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-                        <span>Tools</span>
-                    </h6>
-                    <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <a class="nav-link" href="/create">
-                                <i class="fas fa-plus"></i> Create Page
-                            </a>
-                        </li>
-                        <% if (currentUser.roles && currentUser.roles.includes('admin')) { %>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/admin">
-                                <i class="fas fa-cog"></i> Admin Dashboard
-                            </a>
-                        </li>
-                        <% } %>
-                    </ul>
-                    <% } %>
-                <% } %>
-            </div>
-        </nav>
-
-        <!-- Main content -->
-        <main role="main" class="col-md-10 ml-sm-auto px-4">
+<!-- More Information section (similar to JSPWiki) -->
+<% if (referringPages && referringPages.length > 0) { %>
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="fas fa-sitemap"></i> More Information
+        </h5>
+    </div>
+    <div class="card-body">
+        <p class="text-muted">There might be more information for this subject on one of the following:</p>
+        <ul class="list-unstyled">
+            <% referringPages.forEach(page => { %>
+                <li class="mb-1">
+                    <i class="fas fa-link"></i> 
+                    <a href="/wiki/<%= page %>"><%= page %></a>
+                </li>
+            <% }); %>
+        </ul>
+    </div>
+</div>
+<% } %>
             <!-- Page header with actions -->
             <h1 class="h2"><%= pageName %></h1>
             <div class="btn-toolbar mb-3">
@@ -122,10 +97,6 @@
                 </div>
             </div>
             <% } %>
-        </main>
-    </div>
-</div>
-
 <script>
 function deletePage(pageName) {
     if (confirm('Are you sure you want to delete this page?')) {
