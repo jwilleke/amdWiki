@@ -79,6 +79,7 @@ class WikiEngine extends Engine {
     const AttachmentManager = require('./managers/AttachmentManager');
     const ExportManager = require('./managers/ExportManager');
     const UserManager = require('./managers/UserManager');
+    const ACLManager = require('./managers/ACLManager');
     
     try {
       console.log('📄 Registering PageManager...');
@@ -105,6 +106,9 @@ class WikiEngine extends Engine {
       console.log('👤 Registering UserManager...');
       this.registerManager('UserManager', new UserManager(this));
       
+      console.log('🔒 Registering ACLManager...');
+      this.registerManager('ACLManager', new ACLManager(this));
+      
       // Initialize in dependency order
       console.log('🚀 Initializing PageManager...');
       await this.getManager('PageManager').initialize();
@@ -129,6 +133,9 @@ class WikiEngine extends Engine {
       
       console.log('🚀 Initializing UserManager...');
       await this.getManager('UserManager').initialize();
+      
+      console.log('🚀 Initializing ACLManager...');
+      await this.getManager('ACLManager').initialize();
       
       console.log('✅ All managers initialized successfully');
     } catch (err) {
