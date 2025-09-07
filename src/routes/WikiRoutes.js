@@ -616,27 +616,66 @@ class WikiRoutes {
   }
 
   /**
-   * Search pages
+   * Search pages with advanced options
    */
   async searchPages(req, res) {
     try {
       const query = req.query.q || '';
+      const category = req.query.category || '';
+      const userKeywords = req.query.keywords || '';
+      const searchIn = req.query.searchIn || 'all';
+      
       const searchManager = this.engine.getManager('SearchManager');
       
       // Get common template data with user context
       const commonData = await this.getCommonTemplateDataWithUser(req);
       
       let results = [];
-      if (query.trim()) {
-        results = searchManager.search(query, { maxResults: 20 });
+      let searchType = 'text';
+
+      // Determine search type and perform search
+      if (query.trim() || category || userKeywords) {
+        if (category && !query && !userKeywords) {
+          // Category-only search
+          results = searchManager.searchByCategory(category);
+          searchType = 'category';
+        } else if (userKeywords && !query && !category) {
+          // Keywords-only search
+          results = searchManager.searchByUserKeywords(userKeywords);
+          searchType = 'keywords';
+        } else {
+          // Advanced search with multiple criteria
+          results = searchManager.advancedSearch({
+            query: query,
+            category: category,
+            userKeywords: userKeywords,
+            searchIn: searchIn,
+            maxResults: 50
+          });
+          searchType = 'advanced';
+        }
       }
+
+      // Get available categories and keywords for dropdowns
+      const availableCategories = searchManager.getAllCategories();
+      const availableKeywords = searchManager.getAllUserKeywords();
       
+      // Get search statistics
+      const stats = searchManager.getStatistics();
+
       res.render('search-results', {
         ...commonData,
-        title: `Search Results for "${query}"`,
+        title: 'Search Results',
         query: query,
+        category: category,
+        userKeywords: userKeywords,
+        searchIn: searchIn,
         results: results,
-        count: results.length
+        count: results.length,
+        searchType: searchType,
+        availableCategories: availableCategories,
+        availableKeywords: availableKeywords,
+        stats: stats
       });
       
     } catch (err) {
@@ -1438,6 +1477,7 @@ class WikiRoutes {
     app.get('/create', this.createPage.bind(this)); // New page creation form
     app.post('/create', this.createPageFromTemplate.bind(this)); // Create from template
     app.get('/search', this.searchPages.bind(this));
+    app.get('/Search', this.searchPages.bind(this)); // JSPWiki-style uppercase Search page
     
     // API routes
     app.get('/api/suggestions', this.searchSuggestions.bind(this));
