@@ -163,6 +163,20 @@ Attachments thta are NOT Links will be stored wwithin /resources folder.
 
 When they Attachments is "inline with text" we should be able to perform a refresh on loading the page.
 
+## Security Within Wiki
+
+Implement the following default User State
+
+- anybody
+  - readonly
+- anonymous
+  - readonly
+- asserted (Those we have a cookie on but have not authenticated)
+  - readonly
+- authenticated
+- 
+- admin
+  - all permisions
 
 
 ## More Information
