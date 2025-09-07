@@ -189,6 +189,33 @@ class PageManager extends BaseManager {
   }
 
   /**
+   * Generate template data without saving to disk
+   * @param {string} pageName - Name of the new page
+   * @param {string} templateName - Name of the template to use
+   * @returns {Object} Template page object (not saved)
+   */
+  async generateTemplateData(pageName, templateName = 'default') {
+    const templateManager = this.engine.getManager('TemplateManager');
+    if (!templateManager) {
+      throw new Error('TemplateManager not available');
+    }
+
+    const templateContent = await templateManager.getTemplate(templateName);
+    const metadata = {
+      uuid: uuidv4(),
+      created: new Date().toISOString(),
+      category: 'Uncategorized'
+    };
+
+    return {
+      title: pageName,
+      content: templateContent,
+      metadata: metadata,
+      exists: false // Flag to indicate this is template data, not a saved page
+    };
+  }
+
+  /**
    * Create page from template
    * @param {string} pageName - Name of the new page
    * @param {string} templateName - Name of the template to use
