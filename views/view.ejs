@@ -75,26 +75,24 @@
         <!-- Main content -->
         <main role="main" class="col-md-10 ml-sm-auto px-4">
             <!-- Page header with actions -->
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                <h1 class="h2"><%= pageName %></h1>
-                <div class="btn-toolbar mb-2 mb-md-0">
-                    <div class="btn-group mr-2">
-                        <% if (currentUser && currentUser.isAuthenticated) { %>
-                            <% if (canEdit) { %>
-                                <a href="/edit/<%= pageName %>" class="btn btn-sm btn-outline-primary">
-                                    <i class="fas fa-edit"></i> Edit
-                                </a>
-                            <% } %>
-                            <% if (canDelete) { %>
-                                <button class="btn btn-sm btn-outline-danger" onclick="deletePage('<%= pageName %>')">
-                                    <i class="fas fa-trash"></i> Delete
-                                </button>
-                            <% } %>
+            <h1 class="h2"><%= pageName %></h1>
+            <div class="btn-toolbar mb-3">
+                <div class="btn-group mr-2">
+                    <% if (currentUser && currentUser.isAuthenticated) { %>
+                        <% if (canEdit) { %>
+                            <a href="/edit/<%= pageName %>" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
                         <% } %>
-                        <a href="/wiki/<%= pageName %>" class="btn btn-sm btn-outline-secondary">
-                            <i class="fas fa-info-circle"></i> Info
-                        </a>
-                    </div>
+                        <% if (canDelete) { %>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deletePage('<%= pageName %>')">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        <% } %>
+                    <% } %>
+                    <a href="/wiki/<%= pageName %>" class="btn btn-sm btn-outline-secondary">
+                        <i class="fas fa-info-circle"></i> Info
+                    </a>
                 </div>
             </div>
 
