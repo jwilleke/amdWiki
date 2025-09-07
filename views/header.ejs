@@ -80,16 +80,6 @@
         <div class="container-fluid">
             <ul class="nav nav-tabs border-0">
                 <li class="nav-item">
-                    <a class="nav-link" href="/">
-                        <i class="fas fa-home"></i> Home
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/search">
-                        <i class="fas fa-search"></i> Find
-                    </a>
-                </li>
-                <li class="nav-item">
                     <a class="nav-link" href="/create">
                         <i class="fas fa-plus"></i> Create
                     </a>
@@ -164,10 +154,7 @@
         
         navLinks.forEach(link => {
             const href = link.getAttribute('href');
-            if (href && (currentPath === href || 
-                        (href === '/' && currentPath === '/') ||
-                        (href === '/search' && currentPath.startsWith('/search')) ||
-                        (href === '/create' && currentPath.startsWith('/create')))) {
+            if (href && (href === '/create' && currentPath.startsWith('/create'))) {
                 link.classList.add('active');
             }
         });

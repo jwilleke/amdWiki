@@ -223,8 +223,6 @@ function renderMarkdown(content, pageName) {
 // Start the server and store the server instance
 const server = app.listen(port, () => {
   logger.info(`Wiki app listening at http://localhost:${port}`);
-  buildLinkGraph();
-  buildSearchIndex();
 });
 
 // Graceful shutdown endpoint
