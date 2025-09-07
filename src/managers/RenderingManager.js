@@ -54,10 +54,32 @@ class RenderingManager extends BaseManager {
   expandMacros(content, pageName) {
     let expandedContent = content;
 
-    // Expand [{$pagename}] to the current page title
-    expandedContent = expandedContent.replace(/\[\{\$pagename\}\]/g, pageName);
+    // Step 1: Protect code blocks and escaped syntax
+    const protectedAreas = [];
+    let protectionIndex = 0;
 
-    // Expand JSPWiki-style plugins and system variables using PluginManager
+    // Protect code blocks (```code```)
+    expandedContent = expandedContent.replace(/```[\s\S]*?```/g, (match) => {
+      const placeholder = `__PROTECTED_${protectionIndex++}__`;
+      protectedAreas[placeholder] = match;
+      return placeholder;
+    });
+
+    // Protect inline code (`code`)
+    expandedContent = expandedContent.replace(/`[^`]*`/g, (match) => {
+      const placeholder = `__PROTECTED_${protectionIndex++}__`;
+      protectedAreas[placeholder] = match;
+      return placeholder;
+    });
+
+    // Protect escaped plugins/variables ([[{...}])
+    expandedContent = expandedContent.replace(/\[\[\{([^}]+)\}\]/g, (match, content) => {
+      const placeholder = `__PROTECTED_${protectionIndex++}__`;
+      protectedAreas[placeholder] = `[{${content}}]`; // Remove one set of brackets
+      return placeholder;
+    });
+
+    // Step 2: Expand JSPWiki-style plugins and system variables using PluginManager
     const pluginManager = this.engine.getManager('PluginManager');
     if (pluginManager) {
       // Handle system variables (${variable}) and plugins ({PluginName params})
@@ -98,6 +120,11 @@ class RenderingManager extends BaseManager {
     } else {
       // Fallback: just handle system variables directly
       expandedContent = this.expandSystemVariables(expandedContent);
+    }
+
+    // Step 3: Restore protected areas
+    for (const [placeholder, originalContent] of Object.entries(protectedAreas)) {
+      expandedContent = expandedContent.replace(placeholder, originalContent);
     }
 
     return expandedContent;
