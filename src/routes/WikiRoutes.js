@@ -621,9 +621,21 @@ class WikiRoutes {
   async searchPages(req, res) {
     try {
       const query = req.query.q || '';
-      const category = req.query.category || '';
-      const userKeywords = req.query.keywords || '';
-      const searchIn = req.query.searchIn || 'all';
+      
+      // Handle multiple categories and keywords
+      let categories = req.query.category || [];
+      if (typeof categories === 'string') categories = [categories];
+      categories = categories.filter(cat => cat.trim() !== '');
+      
+      let userKeywords = req.query.keywords || [];
+      if (typeof userKeywords === 'string') userKeywords = [userKeywords];
+      userKeywords = userKeywords.filter(kw => kw.trim() !== '');
+      
+      // Handle multiple searchIn values
+      let searchIn = req.query.searchIn || ['all'];
+      if (typeof searchIn === 'string') searchIn = [searchIn];
+      searchIn = searchIn.filter(si => si.trim() !== '');
+      if (searchIn.length === 0) searchIn = ['all'];
       
       const searchManager = this.engine.getManager('SearchManager');
       
@@ -634,20 +646,24 @@ class WikiRoutes {
       let searchType = 'text';
 
       // Determine search type and perform search
-      if (query.trim() || category || userKeywords) {
-        if (category && !query && !userKeywords) {
+      if (query.trim() || categories.length > 0 || userKeywords.length > 0) {
+        if (categories.length > 0 && !query && userKeywords.length === 0) {
           // Category-only search
-          results = searchManager.searchByCategory(category);
+          results = searchManager.searchByCategories ? 
+                   searchManager.searchByCategories(categories) : 
+                   searchManager.searchByCategory(categories[0]);
           searchType = 'category';
-        } else if (userKeywords && !query && !category) {
+        } else if (userKeywords.length > 0 && !query && categories.length === 0) {
           // Keywords-only search
-          results = searchManager.searchByUserKeywords(userKeywords);
+          results = searchManager.searchByUserKeywordsList ? 
+                   searchManager.searchByUserKeywordsList(userKeywords) : 
+                   searchManager.searchByUserKeywords(userKeywords[0]);
           searchType = 'keywords';
         } else {
           // Advanced search with multiple criteria
           results = searchManager.advancedSearch({
             query: query,
-            category: category,
+            categories: categories,
             userKeywords: userKeywords,
             searchIn: searchIn,
             maxResults: 50
@@ -667,9 +683,11 @@ class WikiRoutes {
         ...commonData,
         title: 'Search Results',
         query: query,
-        category: category,
-        userKeywords: userKeywords,
-        searchIn: searchIn,
+        category: categories.length === 1 ? categories[0] : '', // For backward compatibility
+        categories: categories,
+        userKeywords: userKeywords.length === 1 ? userKeywords[0] : '', // For backward compatibility
+        userKeywordsList: userKeywords,
+        searchIn: searchIn.length === 1 ? searchIn[0] : searchIn,
         results: results,
         count: results.length,
         searchType: searchType,

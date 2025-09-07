@@ -24,7 +24,7 @@
         <div class="card-body bg-white">
             <form action="/search" method="GET" class="row g-3">
                 <!-- Text Search -->
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <label for="query" class="form-label fw-bold">
                         <i class="fas fa-search me-1"></i>Search Text
                     </label>
@@ -33,50 +33,82 @@
                 </div>
                 
                 <!-- Search In -->
-                <div class="col-md-3">
-                    <label for="searchIn" class="form-label fw-bold">
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">
                         <i class="fas fa-filter me-1"></i>Search In
                     </label>
-                    <select class="form-select" id="searchIn" name="searchIn">
-                        <option value="all" <%= searchIn === 'all' ? 'selected' : '' %>>All Fields</option>
-                        <option value="title" <%= searchIn === 'title' ? 'selected' : '' %>>Page Titles</option>
-                        <option value="content" <%= searchIn === 'content' ? 'selected' : '' %>>Page Content</option>
-                        <option value="category" <%= searchIn === 'category' ? 'selected' : '' %>>Categories</option>
-                        <option value="keywords" <%= searchIn === 'keywords' ? 'selected' : '' %>>Keywords</option>
-                    </select>
+                    <div class="border rounded p-2" style="max-height: 120px; overflow-y: auto;">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="searchIn_all" name="searchIn" value="all" 
+                                   <%= (Array.isArray(searchIn) ? searchIn.includes('all') : searchIn === 'all') || !searchIn ? 'checked' : '' %>>
+                            <label class="form-check-label" for="searchIn_all">All Fields</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="searchIn_title" name="searchIn" value="title"
+                                   <%= (Array.isArray(searchIn) ? searchIn.includes('title') : searchIn === 'title') ? 'checked' : '' %>>
+                            <label class="form-check-label" for="searchIn_title">Page Titles</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="searchIn_content" name="searchIn" value="content"
+                                   <%= (Array.isArray(searchIn) ? searchIn.includes('content') : searchIn === 'content') ? 'checked' : '' %>>
+                            <label class="form-check-label" for="searchIn_content">Page Content</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="searchIn_category" name="searchIn" value="category"
+                                   <%= (Array.isArray(searchIn) ? searchIn.includes('category') : searchIn === 'category') ? 'checked' : '' %>>
+                            <label class="form-check-label" for="searchIn_category">Categories</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="searchIn_keywords" name="searchIn" value="keywords"
+                                   <%= (Array.isArray(searchIn) ? searchIn.includes('keywords') : searchIn === 'keywords') ? 'checked' : '' %>>
+                            <label class="form-check-label" for="searchIn_keywords">Keywords</label>
+                        </div>
+                    </div>
                 </div>
                 
                 <!-- Search Button -->
-                <div class="col-md-3 d-flex align-items-end">
+                <div class="col-md-4 d-flex align-items-end">
                     <button class="btn btn-primary w-100" type="submit">
                         <i class="fas fa-search me-1"></i>Search
                     </button>
                 </div>
                 
-                <!-- Category Filter -->
+                <!-- Include Categories -->
                 <div class="col-md-6">
-                    <label for="category" class="form-label fw-bold">
-                        <i class="fas fa-folder me-1"></i>Category
+                    <label class="form-label fw-bold">
+                        <i class="fas fa-folder me-1"></i>Include Categories
                     </label>
-                    <select class="form-select" id="category" name="category">
-                        <option value="">All Categories</option>
+                    <div class="border rounded p-2" style="max-height: 150px; overflow-y: auto;">
                         <% availableCategories.forEach(cat => { %>
-                            <option value="<%= cat %>" <%= category === cat ? 'selected' : '' %>><%= cat %></option>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="category_<%= cat.replace(/[^a-zA-Z0-9]/g, '_') %>" 
+                                       name="category" value="<%= cat %>" 
+                                       <%= (Array.isArray(categories) ? categories.includes(cat) : category === cat) ? 'checked' : '' %>>
+                                <label class="form-check-label" for="category_<%= cat.replace(/[^a-zA-Z0-9]/g, '_') %>">
+                                    <%= cat %>
+                                </label>
+                            </div>
                         <% }); %>
-                    </select>
+                    </div>
                 </div>
                 
-                <!-- Keywords Filter -->
+                <!-- Include User Keywords -->
                 <div class="col-md-6">
-                    <label for="keywords" class="form-label fw-bold">
-                        <i class="fas fa-tags me-1"></i>User Keywords
+                    <label class="form-label fw-bold">
+                        <i class="fas fa-tags me-1"></i>Include User Keywords
                     </label>
-                    <select class="form-select" id="keywords" name="keywords">
-                        <option value="">All Keywords</option>
+                    <div class="border rounded p-2" style="max-height: 150px; overflow-y: auto;">
                         <% availableKeywords.forEach(keyword => { %>
-                            <option value="<%= keyword %>" <%= userKeywords === keyword ? 'selected' : '' %>><%= keyword %></option>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="keyword_<%= keyword.replace(/[^a-zA-Z0-9]/g, '_') %>" 
+                                       name="keywords" value="<%= keyword %>" 
+                                       <%= (Array.isArray(userKeywordsList) ? userKeywordsList.includes(keyword) : userKeywords === keyword) ? 'checked' : '' %>>
+                                <label class="form-check-label" for="keyword_<%= keyword.replace(/[^a-zA-Z0-9]/g, '_') %>">
+                                    <%= keyword %>
+                                </label>
+                            </div>
                         <% }); %>
-                    </select>
+                    </div>
                 </div>
             </form>
         </div>
@@ -92,13 +124,21 @@
                     <small class="text-muted">
                         Showing <%= results.length %> result<%= results.length === 1 ? '' : 's' %>
                         <% if (searchType === 'category') { %>
-                            for category "<%= category %>"
+                            for categor<%= categories && categories.length > 1 ? 'ies' : 'y' %> 
+                            "<%= Array.isArray(categories) ? categories.join('", "') : category %>"
                         <% } else if (searchType === 'keywords') { %>
-                            for keyword "<%= userKeywords %>"
+                            for keyword<%= userKeywordsList && userKeywordsList.length > 1 ? 's' : '' %> 
+                            "<%= Array.isArray(userKeywordsList) ? userKeywordsList.join('", "') : userKeywords %>"
                         <% } else if (query) { %>
                             for "<%= query %>"
-                            <% if (category) { %> in category "<%= category %>"<% } %>
-                            <% if (userKeywords) { %> with keyword "<%= userKeywords %>"<% } %>
+                            <% if (categories && (Array.isArray(categories) ? categories.length > 0 : category)) { %>
+                                in categor<%= (Array.isArray(categories) ? categories.length > 1 : false) ? 'ies' : 'y' %> 
+                                "<%= Array.isArray(categories) ? categories.join('", "') : category %>"
+                            <% } %>
+                            <% if (userKeywordsList && (Array.isArray(userKeywordsList) ? userKeywordsList.length > 0 : userKeywords)) { %>
+                                with keyword<%= (Array.isArray(userKeywordsList) ? userKeywordsList.length > 1 : false) ? 's' : '' %> 
+                                "<%= Array.isArray(userKeywordsList) ? userKeywordsList.join('", "') : userKeywords %>"
+                            <% } %>
                         <% } %>
                     </small>
                 </div>
@@ -231,11 +271,27 @@
                                 </a>
                             <% }); %>
                             <% if (availableCategories.length > 8) { %>
-                                <small class="text-muted align-self-center">
+                                <button class="btn btn-outline-secondary btn-sm" type="button" 
+                                        onclick="toggleMoreCategories()" id="moreCategoriesBtn">
                                     +<%= availableCategories.length - 8 %> more categories...
-                                </small>
+                                </button>
                             <% } %>
                         </div>
+                        <% if (availableCategories.length > 8) { %>
+                            <div id="moreCategories" class="d-none mt-2">
+                                <div class="d-flex flex-wrap gap-2 browse-buttons">
+                                    <% availableCategories.slice(8).forEach(cat => { %>
+                                        <a href="/search?category=<%= encodeURIComponent(cat) %>" 
+                                           class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-folder-open"></i> <%= cat %>
+                                        </a>
+                                    <% }); %>
+                                </div>
+                                <button class="btn btn-link btn-sm p-0 mt-2" onclick="toggleMoreCategories()">
+                                    <i class="fas fa-chevron-up"></i> Show fewer
+                                </button>
+                            </div>
+                        <% } %>
                     </div>
                 </div>
             </div>
@@ -253,11 +309,27 @@
                                 </a>
                             <% }); %>
                             <% if (availableKeywords.length > 10) { %>
-                                <small class="text-muted align-self-center">
+                                <button class="btn btn-outline-secondary btn-sm" type="button" 
+                                        onclick="toggleMoreKeywords()" id="moreKeywordsBtn">
                                     +<%= availableKeywords.length - 10 %> more keywords...
-                                </small>
+                                </button>
                             <% } %>
                         </div>
+                        <% if (availableKeywords.length > 10) { %>
+                            <div id="moreKeywords" class="d-none mt-2">
+                                <div class="d-flex flex-wrap gap-2 browse-buttons">
+                                    <% availableKeywords.slice(10).forEach(keyword => { %>
+                                        <a href="/search?keywords=<%= encodeURIComponent(keyword) %>" 
+                                           class="btn btn-outline-info btn-sm">
+                                            <i class="fas fa-tag"></i> <%= keyword %>
+                                        </a>
+                                    <% }); %>
+                                </div>
+                                <button class="btn btn-link btn-sm p-0 mt-2" onclick="toggleMoreKeywords()">
+                                    <i class="fas fa-chevron-up"></i> Show fewer
+                                </button>
+                            </div>
+                        <% } %>
                     </div>
                 </div>
             </div>
@@ -284,6 +356,11 @@
                                 </ul>
                             </div>
                         </div>
+                        <div class="text-center mt-2">
+                            <a href="/wiki/Search%20Documentation" class="btn btn-outline-info btn-sm">
+                                <i class="fas fa-book me-1"></i>Complete Search Documentation
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -295,21 +372,61 @@
 // Auto-submit form when filters change
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.querySelector('form');
-    const selects = document.querySelectorAll('select');
+    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
     
-    selects.forEach(select => {
-        select.addEventListener('change', function() {
+    // Handle multi-select checkboxes
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
             // Only auto-submit if there's already a search query or filter
             const hasQuery = document.getElementById('query').value.trim();
-            const hasCategory = document.getElementById('category').value;
-            const hasKeywords = document.getElementById('keywords').value;
+            const hasCategory = document.querySelector('input[name="category"]:checked');
+            const hasKeywords = document.querySelector('input[name="keywords"]:checked');
             
             if (hasQuery || hasCategory || hasKeywords) {
                 form.submit();
             }
         });
     });
+    
+    // Handle Search In checkboxes - only allow one selection
+    const searchInCheckboxes = document.querySelectorAll('input[name="searchIn"]');
+    searchInCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            if (this.checked) {
+                searchInCheckboxes.forEach(cb => {
+                    if (cb !== this) cb.checked = false;
+                });
+            }
+        });
+    });
 });
+
+// Toggle functions for expandable sections
+function toggleMoreKeywords() {
+    const moreSection = document.getElementById('moreKeywords');
+    const btn = document.getElementById('moreKeywordsBtn');
+    
+    if (moreSection.classList.contains('d-none')) {
+        moreSection.classList.remove('d-none');
+        btn.style.display = 'none';
+    } else {
+        moreSection.classList.add('d-none');
+        btn.style.display = 'inline-block';
+    }
+}
+
+function toggleMoreCategories() {
+    const moreSection = document.getElementById('moreCategories');
+    const btn = document.getElementById('moreCategoriesBtn');
+    
+    if (moreSection.classList.contains('d-none')) {
+        moreSection.classList.remove('d-none');
+        btn.style.display = 'none';
+    } else {
+        moreSection.classList.add('d-none');
+        btn.style.display = 'inline-block';
+    }
+}
 </script>
 
 </div> <!-- Close search-page div -->

@@ -274,95 +274,114 @@ class SearchManager extends BaseManager {
   }
 
   /**
-   * Advanced search with filters
-   * @param {Object} searchOptions - Advanced search options
-   * @returns {Array<Object>} Search results
+   * Search by multiple categories
+   * @param {Array} categories - Array of category names to search
+   * @returns {Array} Search results
    */
-  advancedSearch(searchOptions = {}) {
-    const {
-      query = '',
-      category = '',
-      userKeywords = '',
-      searchIn = 'all', // 'title', 'content', 'category', 'keywords', 'all'
-      maxResults = 20
-    } = searchOptions;
-
-    if (!this.searchIndex) {
-      return [];
-    }
-
-    try {
-      let searchQuery = '';
-      let results = [];
-
-      // Build search query based on filters
-      if (searchIn === 'all' && query) {
-        searchQuery = query;
-      } else if (searchIn === 'title' && query) {
-        searchQuery = `title:${query}`;
-      } else if (searchIn === 'content' && query) {
-        searchQuery = `content:${query}`;
-      } else if (searchIn === 'category' && query) {
-        searchQuery = `category:${query}`;
-      } else if (searchIn === 'keywords' && query) {
-        searchQuery = `keywords:${query}`;
-      } else if (query) {
-        searchQuery = query;
-      }
-
-      // Perform search
-      if (searchQuery) {
-        results = this.searchIndex.search(searchQuery);
-      } else {
-        // If no text query, return all documents for filtering
-        results = Object.keys(this.documents).map(id => ({ ref: id, score: 1 }));
-      }
-
-      // Apply filters
-      let filteredResults = results.map(result => {
-        const doc = this.documents[result.ref];
-        return {
-          ...result,
-          doc: doc
-        };
+  searchByCategories(categories) {
+    if (!categories || categories.length === 0) return [];
+    
+    const results = [];
+    const seenPages = new Set();
+    
+    categories.forEach(category => {
+      const categoryResults = this.searchByCategory(category);
+      categoryResults.forEach(result => {
+        if (!seenPages.has(result.name)) {
+          seenPages.add(result.name);
+          results.push(result);
+        }
       });
+    });
+    
+    // Sort by score descending
+    return results.sort((a, b) => b.score - a.score);
+  }
 
-      // Filter by category
-      if (category) {
-        filteredResults = filteredResults.filter(result => 
-          result.doc.category.toLowerCase().includes(category.toLowerCase()));
-      }
-
-      // Filter by user keywords
-      if (userKeywords) {
-        filteredResults = filteredResults.filter(result => 
-          result.doc.userKeywords.toLowerCase().includes(userKeywords.toLowerCase()));
-      }
-
-      // Format results
-      return filteredResults.slice(0, maxResults).map(result => {
-        const doc = result.doc;
-        const snippet = this.generateSnippet(doc.content, query || category || userKeywords);
-        
-        return {
-          name: result.ref,
-          title: doc.title,
-          score: result.score,
-          snippet: snippet,
-          metadata: {
-            wordCount: doc.content.split(/\s+/).length,
-            category: doc.category,
-            userKeywords: doc.userKeywords.split(' ').filter(k => k.trim()),
-            tags: doc.tags.split(' ').filter(t => t.trim()),
-            lastModified: doc.lastModified
-          }
-        };
+  /**
+   * Search by multiple user keywords
+   * @param {Array} keywords - Array of user keywords to search
+   * @returns {Array} Search results
+   */
+  searchByUserKeywordsList(keywords) {
+    if (!keywords || keywords.length === 0) return [];
+    
+    const results = [];
+    const seenPages = new Set();
+    
+    keywords.forEach(keyword => {
+      const keywordResults = this.searchByUserKeywords(keyword);
+      keywordResults.forEach(result => {
+        if (!seenPages.has(result.name)) {
+          seenPages.add(result.name);
+          results.push(result);
+        }
       });
+    });
+    
+    // Sort by score descending
+    return results.sort((a, b) => b.score - a.score);
+  }
 
-    } catch (err) {
-      console.error('Advanced search failed:', err);
-      return [];
+  /**
+   * Advanced search with multiple criteria support
+   * @param {Object} options - Search options
+   * @param {string} options.query - Text query
+   * @param {Array|string} options.categories - Categories to search (supports arrays)
+   * @param {Array|string} options.userKeywords - User keywords to search (supports arrays)
+   * @param {Array|string} options.searchIn - Fields to search in (supports arrays)
+   * @param {number} options.maxResults - Maximum number of results
+   * @returns {Array} Search results
+   */
+  advancedSearch(options = {}) {
+    const { 
+      query = '', 
+      categories = [], 
+      userKeywords = [], 
+      searchIn = ['all'], 
+      maxResults = 50 
+    } = options;
+    
+    // Normalize arrays
+    const categoryList = Array.isArray(categories) ? categories : (categories ? [categories] : []);
+    const keywordList = Array.isArray(userKeywords) ? userKeywords : (userKeywords ? [userKeywords] : []);
+    const searchFields = Array.isArray(searchIn) ? searchIn : [searchIn];
+    
+    let results = [];
+    
+    if (query.trim()) {
+      // Start with text search
+      const searchOptions = { searchIn: searchFields.includes('all') ? 'all' : searchFields[0] };
+      results = this.search(query, searchOptions);
+    } else {
+      // No text query, get all documents
+      results = Object.keys(this.documents).map(name => ({
+        name,
+        title: this.documents[name].title || name,
+        score: 1.0,
+        snippet: this.documents[name].content.substring(0, 150),
+        metadata: this.documents[name]
+      }));
     }
+    
+    // Filter by categories if specified
+    if (categoryList.length > 0) {
+      results = results.filter(result => {
+        const docCategory = result.metadata.category;
+        return docCategory && categoryList.includes(docCategory);
+      });
+    }
+    
+    // Filter by user keywords if specified
+    if (keywordList.length > 0) {
+      results = results.filter(result => {
+        const docKeywords = result.metadata.userKeywords || [];
+        return keywordList.some(keyword => docKeywords.includes(keyword));
+      });
+    }
+    
+    // Limit results
+    return results.slice(0, maxResults);
   }
 
   /**
