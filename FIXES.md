@@ -95,3 +95,49 @@ This improves page organization, searchability, and enables proper categorizatio
 - **Container Auth**: LDAP/Active Directory integration
 
 **Recommendation**: JSPWiki's security model is excellent and largely compatible with our architecture. Consider implementing page-level ACLs as next security enhancement.
+
+## Page-Level Access Control Lists (ACLs) Implementation (2025-09-07)
+
+**Implemented JSPWiki-style page-level access control**: Added comprehensive ACL system with role-based permissions.
+
+**Features Implemented**:
+
+- **JSPWiki Syntax**: `[{ALLOW action role1,role2,user}]` markup in page content
+- **Supported Actions**: view, edit, delete, rename, upload
+- **Role Integration**: Works with existing admin, editor, contributor roles
+- **User Support**: Individual usernames, built-in roles (anonymous, authenticated, all)
+- **ACL Manager**: New dedicated manager for parsing and evaluating ACLs
+- **Security Integration**: Integrated with existing UserManager permission system
+
+**Files Created/Modified**:
+
+- `/src/managers/ACLManager.js`: New ACL parsing and permission checking
+- `/src/WikiEngine.js`: Registered ACLManager in engine initialization
+- `/src/routes/WikiRoutes.js`: Added ACL checks to viewPage, editPage, savePage, deletePage
+- `/pages/ACL Test Page.md`: Example page demonstrating ACL functionality
+
+**ACL Syntax Examples**:
+
+```markdown
+[{ALLOW view admin,editor}]        # Only admin and editor can view
+[{ALLOW edit admin}]               # Only admin can edit
+[{ALLOW view authenticated}]       # Any logged-in user can view
+[{ALLOW view all}]                 # Everyone can view
+```
+
+**Security Model**:
+
+- **Deny by Default**: No ACL means fallback to role-based permissions
+- **No DENY Rules**: Following JSPWiki philosophy for simpler security
+- **Admin Override**: admin:system permission bypasses all ACLs
+- **Content Cleaning**: ACL markup removed from rendered content
+
+**Testing**:
+
+- ✅ ACL parsing from page content
+- ✅ Permission checking integrated with routes
+- ✅ Role-based permission fallback
+- ✅ Admin override functionality
+- ✅ ACL markup removal for display
+
+This implementation provides fine-grained page-level security while maintaining compatibility with our existing role-based architecture.

@@ -233,21 +233,19 @@ class WikiRoutes {
       const pageManager = this.engine.getManager('PageManager');
       const renderingManager = this.engine.getManager('RenderingManager');
       const userManager = this.engine.getManager('UserManager');
+      const aclManager = this.engine.getManager('ACLManager');
       
-      const currentUser = userManager.getCurrentUser(req) || userManager.getAnonymousUser();
+      const currentUser = await userManager.getCurrentUser(req);
       
-      // Check read permission
-      if (!userManager.hasPermission(currentUser.username, 'page:read')) {
-        return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to view pages');
-      }
-      
-      // Get common template data with user
-      const commonData = await this.getCommonTemplateDataWithUser(req);
-      
-      // Get page data
+      // Get page data first (needed for ACL checking)
       const pageData = await pageManager.getPage(pageName);
       if (!pageData) {
-        const canCreate = userManager.hasPermission(currentUser.username, 'page:create');
+        // Check if user can create pages
+        const canCreate = currentUser ? 
+          userManager.hasPermission(currentUser.username, 'page:create') : 
+          userManager.hasPermission(null, 'page:create');
+        
+        const commonData = await this.getCommonTemplateDataWithUser(req);
         const leftMenuContent = await this.getLeftMenu();
         return res.status(404).render('view', {
           ...commonData,
@@ -260,8 +258,24 @@ class WikiRoutes {
         });
       }
 
+      // Check ACL permission for viewing this page
+      const hasViewPermission = await aclManager.checkPagePermission(
+        pageName, 'view', currentUser, pageData.content
+      );
+      
+      if (!hasViewPermission) {
+        return await this.renderError(req, res, 403, 'Access Denied', 
+          'You do not have permission to view this page');
+      }
+      
+      // Get common template data with user
+      const commonData = await this.getCommonTemplateDataWithUser(req);
+
+      // Remove ACL markup from content before rendering
+      const cleanContent = aclManager.removeACLMarkup(pageData.content);
+      
       // Render the markdown content
-      const renderedContent = renderingManager.renderMarkdown(pageData.content, pageName);
+      const renderedContent = renderingManager.renderMarkdown(cleanContent, pageName);
       
       // Get referring pages for context
       const referringPages = renderingManager.getReferringPages(pageName);
@@ -388,9 +402,13 @@ class WikiRoutes {
       const pageName = req.params.page;
       const pageManager = this.engine.getManager('PageManager');
       const userManager = this.engine.getManager('UserManager');
+      const aclManager = this.engine.getManager('ACLManager');
       
       // Get current user
       const currentUser = await userManager.getCurrentUser(req);
+      
+      // Get page data to check ACL (if page exists)
+      let pageData = await pageManager.getPage(pageName);
       
       // Check if this is a required page that needs admin access
       if (await this.isRequiredPage(pageName)) {
@@ -398,9 +416,21 @@ class WikiRoutes {
           return await this.renderError(req, res, 403, 'Access Denied', 'Only administrators can edit this page');
         }
       } else {
-        // Check regular edit permission for non-required pages
-        if (!currentUser || !userManager.hasPermission(currentUser.username, 'page:edit')) {
-          return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to edit pages');
+        // For existing pages, check ACL edit permission
+        if (pageData) {
+          const hasEditPermission = await aclManager.checkPagePermission(
+            pageName, 'edit', currentUser, pageData.content
+          );
+          
+          if (!hasEditPermission) {
+            return await this.renderError(req, res, 403, 'Access Denied', 
+              'You do not have permission to edit this page');
+          }
+        } else {
+          // For new pages, check general page creation permission
+          if (!currentUser || !userManager.hasPermission(currentUser.username, 'page:create')) {
+            return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to create pages');
+          }
         }
       }
       
@@ -415,12 +445,14 @@ class WikiRoutes {
         await this.getCategories();
       const userKeywords = await this.getUserKeywords();
       
-      let pageData = await pageManager.getPage(pageName);
-      
       // If page doesn't exist, generate template data without saving
       if (!pageData) {
         pageData = await pageManager.generateTemplateData(pageName);
       }
+
+      // Remove ACL markup from content for editing
+      const cleanContent = aclManager.removeACLMarkup(pageData.content);
+      pageData.content = cleanContent;
 
       // Extract current category and keywords from metadata
       const selectedCategory = pageData.metadata?.category || '';
@@ -456,9 +488,13 @@ class WikiRoutes {
       const renderingManager = this.engine.getManager('RenderingManager');
       const searchManager = this.engine.getManager('SearchManager');
       const userManager = this.engine.getManager('UserManager');
+      const aclManager = this.engine.getManager('ACLManager');
       
       // Get current user
       const currentUser = await userManager.getCurrentUser(req);
+      
+      // Get existing page data for ACL checking
+      const existingPage = await pageManager.getPage(pageName);
       
       // Prepare metadata first to check the category
       const metadata = {
@@ -476,9 +512,21 @@ class WikiRoutes {
           return await this.renderError(req, res, 403, 'Access Denied', 'Only administrators can edit this page or assign System/Admin category');
         }
       } else {
-        // Check regular edit permission for non-required pages
-        if (!currentUser || !userManager.hasPermission(currentUser.username, 'page:edit')) {
-          return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to edit pages');
+        // For existing pages, check ACL edit permission
+        if (existingPage) {
+          const hasEditPermission = await aclManager.checkPagePermission(
+            pageName, 'edit', currentUser, existingPage.content
+          );
+          
+          if (!hasEditPermission) {
+            return await this.renderError(req, res, 403, 'Access Denied', 
+              'You do not have permission to edit this page');
+          }
+        } else {
+          // For new pages, check general page creation permission
+          if (!currentUser || !userManager.hasPermission(currentUser.username, 'page:create')) {
+            return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to create pages');
+          }
         }
       }
       
@@ -508,12 +556,34 @@ class WikiRoutes {
       const pageManager = this.engine.getManager('PageManager');
       const renderingManager = this.engine.getManager('RenderingManager');
       const searchManager = this.engine.getManager('SearchManager');
+      const userManager = this.engine.getManager('UserManager');
+      const aclManager = this.engine.getManager('ACLManager');
+      
+      // Get current user
+      const currentUser = await userManager.getCurrentUser(req);
       
       // Check if page exists
       const pageData = await pageManager.getPage(pageName);
       if (!pageData) {
         console.log(`❌ Page not found: ${pageName}`);
         return res.status(404).send('Page not found');
+      }
+      
+      // Check if this is a required page that needs admin access
+      if (await this.isRequiredPage(pageName)) {
+        if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+          return await this.renderError(req, res, 403, 'Access Denied', 'Only administrators can delete this page');
+        }
+      } else {
+        // Check ACL delete permission
+        const hasDeletePermission = await aclManager.checkPagePermission(
+          pageName, 'delete', currentUser, pageData.content
+        );
+        
+        if (!hasDeletePermission) {
+          return await this.renderError(req, res, 403, 'Access Denied', 
+            'You do not have permission to delete this page');
+        }
       }
       
       console.log(`✅ Page found, proceeding to delete: ${pageName}`);

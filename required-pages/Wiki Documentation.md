@@ -13,11 +13,14 @@ lastModified: '2025-09-07T10:20:05.739Z'
 * [Plugin System Documentation]
 * [Password Management]
 * [Bug Fixes and Improvements]
+* [Access Control Lists]
 
 ## Security Documentation
 
 * [Password Management] - User account and password management
+* [Access Control Lists] - Page-level access control using JSPWiki-style ACLs
 * JSPWiki Security Analysis - See [Bug Fixes and Improvements] for security feature evaluation
+* Page-Level Access Control Lists (ACLs) - See [Bug Fixes and Improvements] for ACL implementation details
 
 ## Linking
 
