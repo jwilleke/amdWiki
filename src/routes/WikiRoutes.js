@@ -452,6 +452,11 @@ class WikiRoutes {
         pageData = await pageManager.generateTemplateData(pageName);
       }
 
+      // Ensure content is a string for ACL processing
+      if (!pageData.content || typeof pageData.content !== 'string') {
+        pageData.content = '';
+      }
+
       // Remove ACL markup from content for editing
       const cleanContent = aclManager.removeACLMarkup(pageData.content);
       pageData.content = cleanContent;
