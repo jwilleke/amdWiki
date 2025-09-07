@@ -72,6 +72,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Fixed async/await bug in adminCreateUser method causing "Access denied" errors
   - Fixed user creation parameter mismatch causing users to be created with undefined usernames
   - Fixed async/await bug in adminUpdateUser method for proper permission checking
+  - Fixed invalid "user" role in user creation forms - replaced with proper system roles (reader, contributor, editor, admin)
 - **Navigation Dropdown Issues**: Resolved all dropdown menu problems
   - Fixed Info, Edit, and More dropdown menus not opening
   - Corrected Bootstrap 5 dropdown toggle attributes
