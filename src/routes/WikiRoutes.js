@@ -375,17 +375,24 @@ class WikiRoutes {
     console.log('=== createPage method called ===');
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.session?.user || null;
+      const currentUser = req.user ? req.user : await userManager.getCurrentUser(req);
+      
+      console.log('DEBUG: Session cookie:', req.cookies?.sessionId);
+      console.log('DEBUG: Current user:', currentUser);
       
       // Check if user is authenticated
       if (!currentUser) {
+        console.log('DEBUG: No current user, redirecting to login');
         return res.redirect('/login?redirect=' + encodeURIComponent('/create'));
       }
       
       // Check if user has permission to create pages
       if (!userManager.hasPermission(currentUser.username, 'page:create')) {
+        console.log('DEBUG: User lacks page:create permission');
         return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to create pages. Please contact an administrator.');
       }
+      
+      console.log('DEBUG: User authenticated and authorized, proceeding...');
       
       const pageName = req.query.name || '';
       const templateManager = this.engine.getManager('TemplateManager');
@@ -419,12 +426,52 @@ class WikiRoutes {
   }
 
   /**
+   * Handle /edit route without page parameter
+   */
+  async editPageIndex(req, res) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = req.user ? req.user : await userManager.getCurrentUser(req);
+      
+      // Check if user is authenticated
+      if (!currentUser) {
+        return res.redirect('/login?redirect=' + encodeURIComponent('/edit'));
+      }
+      
+      // Check if user has permission to edit pages
+      if (!userManager.hasPermission(currentUser.username, 'page:edit')) {
+        return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to edit pages. Please contact an administrator.');
+      }
+      
+      // Get all pages for selection
+      const pageManager = this.engine.getManager('PageManager');
+      const allPages = await pageManager.getAllPages();
+      
+      // Sort pages alphabetically
+      const sortedPages = allPages.sort((a, b) => a.localeCompare(b));
+      
+      // Get common template data with user context
+      const commonData = await this.getCommonTemplateDataWithUser(req);
+      
+      res.render('edit-index', {
+        ...commonData,
+        title: 'Select Page to Edit',
+        pages: sortedPages
+      });
+      
+    } catch (err) {
+      console.error('Error loading edit page index:', err);
+      res.status(500).send('Error loading edit page selector');
+    }
+  }
+
+  /**
    * Create a new page from template
    */
   async createPageFromTemplate(req, res) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.session?.user || null;
+      const currentUser = req.user ? req.user : await userManager.getCurrentUser(req);
       
       // Check if user is authenticated
       if (!currentUser) {
@@ -1075,21 +1122,29 @@ class WikiRoutes {
       const { username, password, redirect = '/' } = req.body;
       const userManager = this.engine.getManager('UserManager');
       
+      console.log('DEBUG: Login attempt for:', username);
+      console.log('DEBUG: Redirect parameter:', redirect);
+      
       const user = await userManager.authenticateUser(username, password);
       if (!user) {
+        console.log('DEBUG: Authentication failed for:', username);
         return res.redirect('/login?error=Invalid username or password&redirect=' + encodeURIComponent(redirect));
       }
       
       const sessionId = userManager.createSession(user);
+      console.log('DEBUG: Created session:', sessionId);
       
       // Set session cookie
       res.cookie('sessionId', sessionId, {
         httpOnly: true,
         secure: false, // Set to true in production with HTTPS
-        maxAge: 24 * 60 * 60 * 1000 // 24 hours
+        maxAge: 24 * 60 * 60 * 1000, // 24 hours
+        path: '/',
+        sameSite: 'lax'
       });
       
       console.log(`👤 User logged in: ${username}`);
+      console.log('DEBUG: Redirecting to:', redirect);
       res.redirect(redirect);
       
     } catch (err) {
@@ -1587,6 +1642,7 @@ class WikiRoutes {
     app.post('/create', this.createPageFromTemplate.bind(this)); // Create from template
     app.get('/search', this.searchPages.bind(this));
     app.get('/Search', this.searchPages.bind(this)); // JSPWiki-style uppercase Search page
+    app.get('/edit', this.editPageIndex.bind(this)); // Edit page selector
     app.get('/edit/:page', this.editPage.bind(this));
     app.post('/edit/:page', this.savePage.bind(this)); // Alternative save route
     app.post('/delete/:page', this.deletePage.bind(this)); // Delete page

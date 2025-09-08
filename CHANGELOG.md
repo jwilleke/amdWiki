@@ -9,6 +9,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **User Keywords Dropdown Interface**: Enhanced Create New Page form with professional dropdown
+  - **Checkbox dropdown**: Replaced individual checkboxes with clean Bootstrap dropdown interface
+  - **3-keyword limit enforcement**: Auto-disable functionality when maximum selections reached
+  - **Visual feedback**: Button color changes, disabled states, and smooth transitions
+  - **Dynamic loading**: Keywords populated from User Keywords.md file content
+  - **Responsive design**: Works seamlessly on desktop and mobile devices
+- **Edit Page Authentication & Interface**: Comprehensive security and UX improvements for editing
+  - **Authentication protection**: `/edit` route now requires login and proper permissions
+  - **Permission enforcement**: Users must have `page:edit` permission to access
+  - **Page selection interface**: Professional page browser with search functionality
+  - **Live search filtering**: Real-time page list filtering with visual feedback
+  - **Proper redirects**: Seamless login flow with return-to-page functionality
+- **Authentication System Fixes**: Resolved redirect loop issues and improved session handling
+  - **Session consistency**: Fixed mismatch between session creation and validation methods
+  - **Cookie configuration**: Enhanced cookie settings with proper path and SameSite attributes
+  - **Permission updates**: Updated user roles to ensure proper page creation access
+  - **Debug logging**: Added comprehensive debugging for authentication troubleshooting
 - **Markdownlint Configuration**: Added `.markdownlint.json` to disable MD025 rule
   - **Multiple H1 headings support**: Allows frontmatter `title` and `# Overview` in same document
   - **Document structure flexibility**: Maintains other linting rules while accommodating wiki page format
@@ -24,9 +41,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Route ordering issue**: Fixed critical bug preventing Create New Page form from loading dynamic content
+  - **Wildcard route conflict**: Moved `/create` before `/wiki/:page` to prevent interception
+  - **Dynamic form population**: Categories and keywords now properly load from required-pages files
+  - **Authentication redirects**: Resolved infinite redirect loops on login
+- **Anonymous access vulnerability**: Secured Create New Page functionality
+  - **Authentication required**: Anonymous users redirected to login page
+  - **Permission validation**: Users without `page:create` permission get proper error messages
+  - **Security enforcement**: Both GET and POST routes for page creation now protected
+- **Edit route accessibility**: Fixed "Cannot GET /edit" error
+  - **Missing route handler**: Added `/edit` route with authentication protection
+  - **User experience**: Anonymous users get proper redirect instead of 404 error
+  - **Permission checks**: Same security model as create page functionality
 - **App startup issue**: Fixed broken require path for logger after project reorganization
   - **Updated path**: Changed `require('./logger')` to `require('./src/utils/logger')`
   - **Clean startup**: App now starts without module not found errors
+
+### Security
+
+- **Authentication system hardening**: Multiple security improvements across the application
+  - **Route protection**: All page creation and editing routes now require authentication
+  - **Permission enforcement**: Role-based access control properly implemented
+  - **Session security**: Enhanced cookie configuration and session management
+  - **Redirect safety**: Proper redirect parameter handling to prevent attacks
 
 ### Planned
 

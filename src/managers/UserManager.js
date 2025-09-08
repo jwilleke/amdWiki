@@ -666,11 +666,17 @@ class UserManager extends BaseManager {
     
     // Check for session-based auth
     const sessionId = req.session?.sessionId || req.cookies?.sessionId;
+    console.log('DEBUG UserManager: Looking for sessionId:', sessionId);
+    console.log('DEBUG UserManager: Available cookies:', req.cookies);
+    
     if (!sessionId) {
+      console.log('DEBUG UserManager: No sessionId found');
       return null;
     }
     
     const session = this.getSession(sessionId);
+    console.log('DEBUG UserManager: Session lookup result:', session ? 'found' : 'not found');
+    
     if (session && session.user) {
       session.user.isAuthenticated = true;
       return session.user;
