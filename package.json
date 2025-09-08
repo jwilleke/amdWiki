@@ -1,6 +1,6 @@
 {
   "name": "amdwiki",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "JSPWiki-style wiki with advanced search capabilities",
   "main": "app.js",
   "scripts": {
