@@ -7,6 +7,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Planned
+- Future enhancements
+
+## [1.3.0] - 2025-09-08
+
+### Added
+- **JSPWiki Table Functionality**: Complete implementation of JSPWiki-style table rendering
+  - **`%%table-striped` syntax**: Bootstrap-compatible striped tables with theme-aware styling
+  - **`[{Table}]` plugin syntax**: Advanced table styling with comprehensive parameter support
+  - **Row styling parameters**: `evenRowStyle`, `oddRowStyle`, `headerStyle`, `dataStyle`, `style`
+  - **Automatic row numbering**: `|#` syntax with customizable starting numbers via `rowNumber` parameter
+  - **Theme integration**: Seamless Bootstrap 5 compatibility with CSS custom properties
+- **Project Structure Reorganization**: Complete restructuring for better maintainability
+  - **Cleaned root directory**: Only essential files (app.js, README.md, package.json, etc.)
+  - **Organized code structure**: Moved JS files to `src/` subdirectories (legacy/, tests/, utils/)
+  - **System documentation**: Consolidated development docs in `required-pages/`
+  - **Category system**: Implemented `categories: [System, Documentation, Test]` metadata structure
+- **Enhanced .gitignore**: Improved user content exclusion patterns
+  - **VS Code compatibility**: Fixed patterns for proper IDE integration
+  - **User content isolation**: Pages, users, attachments, logs properly excluded from git
+- **Documentation Consolidation**: Combined and organized project documentation
+  - **Project Tasks and TODO**: Merged Tasks.md and todo.md with prioritization
+  - **Project Overview and Vision**: Consolidated project goals and technical architecture
+  - **JSPWiki Table Documentation**: Comprehensive usage examples and implementation details
+
+### Changed
+- **Category system**: Replaced single `category` with array-based `categories` for better organization
+- **File organization**: Moved utility files (logger.js, version.js) to `src/utils/`
+- **Test organization**: Moved test files to `src/tests/`
+- **Legacy code**: Moved old app versions to `src/legacy/`
+
+### Fixed
+- **Git ignore patterns**: Resolved VS Code showing user content as untracked files
+- **Table rendering**: Complete JSPWiki TablePlugin compatibility with all styling parameters
+- **Project structure**: Clean separation between system files and user content
+
 ## [Unreleased]
 
 ### Planned
