@@ -20,6 +20,9 @@ class PageManager extends BaseManager {
     this.requiredPagesDir = config.requiredPagesDir || path.join(process.cwd(), 'required-pages');
     await fs.ensureDir(this.pagesDir);
     await fs.ensureDir(this.requiredPagesDir);
+    
+    // Generate/update PageIndex on startup
+    await this.updatePageIndex();
   }
 
   /**
@@ -154,6 +157,11 @@ class PageManager extends BaseManager {
     const newContent = matter.stringify(content, metadata);
     await fs.writeFile(filePath, newContent);
 
+    // Update PageIndex if this isn't the PageIndex itself
+    if (pageName !== 'PageIndex') {
+      await this.updatePageIndex();
+    }
+
     return { name: pageName, content, metadata, filePath };
   }
 
@@ -162,12 +170,134 @@ class PageManager extends BaseManager {
    * @param {string} pageName - Name of the page to delete
    */
   async deletePage(pageName) {
-    const filePath = path.join(this.pagesDir, `${pageName}.md`);
-    if (await fs.pathExists(filePath)) {
-      await fs.remove(filePath);
-      return true;
+    let deleted = false;
+    
+    // Try deleting from pages directory
+    const regularPath = path.join(this.pagesDir, `${pageName}.md`);
+    if (await fs.pathExists(regularPath)) {
+      await fs.remove(regularPath);
+      deleted = true;
     }
-    return false;
+    
+    // Try deleting from required-pages directory
+    const requiredPath = path.join(this.requiredPagesDir, `${pageName}.md`);
+    if (await fs.pathExists(requiredPath)) {
+      await fs.remove(requiredPath);
+      deleted = true;
+    }
+    
+    // Update PageIndex if this isn't the PageIndex itself and something was deleted
+    if (deleted && pageName !== 'PageIndex') {
+      await this.updatePageIndex();
+    }
+    
+    return deleted;
+  }
+
+  /**
+   * Update the PageIndex.md file with current page list
+   */
+  async updatePageIndex() {
+    try {
+      // Get all pages from both directories
+      const regularFiles = await fs.readdir(this.pagesDir);
+      const requiredFiles = await fs.readdir(this.requiredPagesDir);
+      
+      const regularPages = regularFiles
+        .filter(file => file.endsWith('.md'))
+        .map(file => path.parse(file).name)
+        .sort();
+        
+      const requiredPages = requiredFiles
+        .filter(file => file.endsWith('.md') && path.parse(file).name !== 'PageIndex')
+        .map(file => path.parse(file).name)
+        .sort();
+
+      // Generate the PageIndex content
+      const timestamp = new Date().toISOString();
+      const content = this.generatePageIndexContent(regularPages, requiredPages);
+      
+      // Create metadata for PageIndex
+      const metadata = {
+        title: 'PageIndex',
+        category: 'System',
+        categories: ['System', 'Navigation', 'Index'],
+        'user-keywords': [],
+        uuid: 'pageindex-system-generated',
+        lastModified: timestamp
+      };
+
+      // Write the PageIndex file
+      const pageIndexPath = path.join(this.requiredPagesDir, 'PageIndex.md');
+      const pageIndexContent = matter.stringify(content, metadata);
+      await fs.writeFile(pageIndexPath, pageIndexContent);
+      
+    } catch (err) {
+      console.error('Error updating PageIndex:', err);
+    }
+  }
+
+  /**
+   * Generate the content for PageIndex.md
+   * @param {Array<string>} regularPages - Pages from pages directory
+   * @param {Array<string>} requiredPages - Pages from required-pages directory
+   * @returns {string} Generated content
+   */
+  generatePageIndexContent(regularPages, requiredPages) {
+    const totalPages = regularPages.length + requiredPages.length + 1; // +1 for PageIndex itself
+    
+    let content = `# Page Index
+
+This page contains an alphabetical listing of all pages in this wiki.
+
+*This page is automatically updated when pages are created, modified, or deleted.*
+
+---
+
+## All Pages ([{$totalpages}] total)
+
+`;
+
+    // Add pages directory section
+    if (regularPages.length > 0) {
+      content += `### Pages Directory
+
+`;
+      for (const page of regularPages) {
+        const encodedPage = encodeURIComponent(page);
+        content += `- [${page}](../pages/${encodedPage})\n`;
+      }
+      content += '\n';
+    }
+
+    // Add required pages directory section
+    if (requiredPages.length > 0) {
+      content += `### Required Pages Directory
+
+`;
+      for (const page of requiredPages) {
+        const encodedPage = encodeURIComponent(page);
+        content += `- [${page}](${encodedPage})\n`;
+      }
+      // Add PageIndex reference
+      content += `- [PageIndex](PageIndex) *(this page)*\n`;
+      content += '\n';
+    }
+
+    content += `---
+
+## Statistics
+
+- **Total Pages**: [{$totalpages}]
+- **Last Updated**: [{$timestamp}]
+- **Categories Available**: See [Categories](Categories) page
+- **System Variables**: [{$uptime}] uptime
+
+---
+
+*Note: This index is automatically maintained and reflects the current state of the wiki.*`;
+
+    return content;
   }
 
   /**
