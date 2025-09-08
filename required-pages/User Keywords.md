@@ -1,7 +1,7 @@
 ---
 uuid: e3bc8a66-9a68-47bb-af14-d6f8b611a3b2
 categories: [System]
-user-keywords: [medicine, keywords, user-defined]
+user-keywords: []
 title: User Keywords
 lastModified: '2025-09-08T15:35:00.000Z'
 ---

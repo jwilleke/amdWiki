@@ -1,7 +1,7 @@
 ---
 title: JSPWiki Table Functionality
-categories: [System, Documentation, Test]
-user-keywords: [tables, JSPWiki, styling, testing]
+categories: [System, Test]
+user-keywords: []
 uuid: table-functionality-doc
 lastModified: '2025-09-08T22:00:00.000Z'
 ---
