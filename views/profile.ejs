@@ -160,6 +160,16 @@
                                                         <option value="long" <%= (user.preferences && user.preferences['display.dateformat'] === 'long') ? 'selected' : '' %>>Long Format</option>
                                                     </select>
                                                 </div>
+                                                
+                                                <div class="form-group mb-3">
+                                                    <label for="siteTheme" class="form-label"><strong>Site Theme</strong></label>
+                                                    <select class="form-control" id="siteTheme" name="display.theme">
+                                                        <option value="system" <%= (user.preferences && user.preferences['display.theme'] === 'system') ? 'selected' : '' %>>System Preference</option>
+                                                        <option value="light" <%= (user.preferences && user.preferences['display.theme'] === 'light') ? 'selected' : '' %>>Light</option>
+                                                        <option value="dark" <%= (user.preferences && user.preferences['display.theme'] === 'dark') ? 'selected' : '' %>>Dark</option>
+                                                    </select>
+                                                    <small class="form-text text-muted">Choose your preferred site theme</small>
+                                                </div>
                                             </div>
                                         </div>
                                         
@@ -297,8 +307,34 @@ function resetPreferences() {
         document.getElementById('editorTheme').value = 'default';
         document.getElementById('pageSize').value = '25';
         document.getElementById('dateFormat').value = 'default';
+        document.getElementById('siteTheme').value = 'system';
     }
 }
+
+// Theme preference integration
+document.addEventListener('DOMContentLoaded', function() {
+    const siteThemeSelect = document.getElementById('siteTheme');
+    
+    if (siteThemeSelect && window.themeManager) {
+        // Set initial value from theme manager
+        const currentTheme = window.themeManager.currentTheme || 'system';
+        siteThemeSelect.value = currentTheme;
+        
+        // Listen for changes and apply immediately
+        siteThemeSelect.addEventListener('change', function() {
+            if (window.themeManager) {
+                window.themeManager.setTheme(this.value);
+            }
+        });
+        
+        // Listen for theme changes from other sources (like the toggle button)
+        window.addEventListener('themeChanged', function(e) {
+            if (e.detail && e.detail.theme !== siteThemeSelect.value) {
+                siteThemeSelect.value = e.detail.theme;
+            }
+        });
+    }
+});
 
 // Smart pairs demonstration
 document.getElementById('smartPairs')?.addEventListener('change', function() {

@@ -220,6 +220,12 @@ class UserPreferences {
    * Apply display preferences to the page
    */
   applyDisplayPreferences() {
+    // Apply theme preference
+    const theme = this.get('display.theme', 'system');
+    if (window.themeManager && window.themeManager.currentTheme !== theme) {
+      window.themeManager.setTheme(theme);
+    }
+
     // Apply tooltips setting
     if (this.get('display.tooltips')) {
       this.enableTooltips();

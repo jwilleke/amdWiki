@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Dark Mode Theme System**: Comprehensive dark mode implementation with system preference detection
+  - **CSS Variables**: Complete theming system with light/dark color schemes for all components
+  - **System preference detection**: Automatically follows OS dark mode setting via media queries
+  - **Theme toggle button**: Floating button for instant theme switching (light/dark/system)
+  - **User preference integration**: Theme choice saved in user profile preferences
+  - **Bootstrap compatibility**: All Bootstrap components styled for dark mode support
+  - **Smooth transitions**: CSS transitions for seamless theme switching experience
+  - **Theme manager**: JavaScript class for programmatic theme control and state management
 - **JSPWiki WikiVariables System**: Comprehensive variable expansion support for dynamic content
   - **User context variables**: [{$username}] and [{$loginstatus}] display current user state
   - **System variables**: [{$totalpages}] shows total page count dynamically
@@ -17,7 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **User Preferences System**: Complete JSPWiki-style user preference management
   - **Profile page**: Comprehensive user profile with account info, permissions, and preferences
   - **Editor preferences**: Smart typing pairs, auto-indent, line numbers, and theme selection
-  - **Display preferences**: Page size, tooltips, reader mode, and date format options
+  - **Display preferences**: Page size, tooltips, reader mode, date format, and site theme options
   - **Smart typing pairs**: Auto-pairing of brackets, quotes, and other characters
   - **Real-time application**: Preferences applied immediately via client-side library
   - **Persistent storage**: All settings saved to user profile and loaded correctly

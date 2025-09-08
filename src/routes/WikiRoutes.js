@@ -1398,6 +1398,7 @@ class WikiRoutes {
       preferences['display.tooltips'] = req.body['display.tooltips'] === 'on';
       preferences['display.readermode'] = req.body['display.readermode'] === 'on';
       preferences['display.dateformat'] = req.body['display.dateformat'] || 'default';
+      preferences['display.theme'] = req.body['display.theme'] || 'system';
       
       console.log('DEBUG: updatePreferences - preferences to save:', preferences);
       
