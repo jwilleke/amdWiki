@@ -7,7 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Markdownlint Configuration**: Added `.markdownlint.json` to disable MD025 rule
+  - **Multiple H1 headings support**: Allows frontmatter `title` and `# Overview` in same document
+  - **Document structure flexibility**: Maintains other linting rules while accommodating wiki page format
+
 ### Planned
+
 - Future enhancements
 
 ## [1.3.0] - 2025-09-08
