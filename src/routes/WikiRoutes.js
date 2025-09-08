@@ -374,6 +374,19 @@ class WikiRoutes {
   async createPage(req, res) {
     console.log('=== createPage method called ===');
     try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = req.session?.user || null;
+      
+      // Check if user is authenticated
+      if (!currentUser) {
+        return res.redirect('/login?redirect=' + encodeURIComponent('/create'));
+      }
+      
+      // Check if user has permission to create pages
+      if (!userManager.hasPermission(currentUser.username, 'page:create')) {
+        return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to create pages. Please contact an administrator.');
+      }
+      
       const pageName = req.query.name || '';
       const templateManager = this.engine.getManager('TemplateManager');
       
@@ -410,6 +423,19 @@ class WikiRoutes {
    */
   async createPageFromTemplate(req, res) {
     try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = req.session?.user || null;
+      
+      // Check if user is authenticated
+      if (!currentUser) {
+        return res.redirect('/login?redirect=' + encodeURIComponent('/create'));
+      }
+      
+      // Check if user has permission to create pages
+      if (!userManager.hasPermission(currentUser.username, 'page:create')) {
+        return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to create pages. Please contact an administrator.');
+      }
+      
       const { pageName, templateName, category, userKeywords } = req.body;
       
       if (!pageName || !templateName) {
