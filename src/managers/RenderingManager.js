@@ -422,9 +422,30 @@ class RenderingManager extends BaseManager {
   getTotalPagesCount() {
     try {
       const pageManager = this.engine.getManager('PageManager');
-      if (pageManager && pageManager.getAllPages) {
-        const pages = pageManager.getAllPages();
-        return Array.isArray(pages) ? pages.length : 0;
+      if (pageManager && pageManager.pagesDir && pageManager.requiredPagesDir) {
+        const fs = require('fs-extra');
+        const path = require('path');
+        
+        // Count .md files in both directories synchronously
+        let count = 0;
+        
+        try {
+          const regularFiles = fs.readdirSync(pageManager.pagesDir)
+            .filter(file => file.endsWith('.md'));
+          count += regularFiles.length;
+        } catch (err) {
+          // Pages directory might not exist
+        }
+        
+        try {
+          const requiredFiles = fs.readdirSync(pageManager.requiredPagesDir)
+            .filter(file => file.endsWith('.md'));
+          count += requiredFiles.length;
+        } catch (err) {
+          // Required pages directory might not exist
+        }
+        
+        return count;
       }
       return 0;
     } catch (err) {
