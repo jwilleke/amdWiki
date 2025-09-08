@@ -1,6 +1,7 @@
 ---
 title: Footer
 categories: [System]
+categories: [System, Documentation]
 keywords: [footer, copyright, version]
 user_keywords: [system, footer]
 tags: [system]
