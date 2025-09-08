@@ -1273,13 +1273,21 @@ class WikiRoutes {
    * User profile page
    */
   async profilePage(req, res) {
+    console.log('DEBUG: profilePage accessed');
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = userManager.getCurrentUser(req);
       
+      console.log('DEBUG: currentUser from userManager:', currentUser ? currentUser.username : 'null');
+      
       if (!currentUser) {
+        console.log('DEBUG: No current user, redirecting to login');
         return res.redirect('/login?redirect=/profile');
       }
+      
+      // Get fresh user data from database to ensure we have latest preferences
+      const freshUser = userManager.getUser(currentUser.username);
+      console.log('DEBUG: profilePage - fresh user preferences:', freshUser ? freshUser.preferences : 'no fresh user');
       
       const commonData = await this.getCommonTemplateData();
       const userPermissions = userManager.getUserPermissions(currentUser.username);
@@ -1287,7 +1295,7 @@ class WikiRoutes {
       res.render('profile', {
         ...commonData,
         title: 'Profile',
-        user: currentUser,
+        user: freshUser || currentUser, // Use fresh user data if available
         permissions: userPermissions,
         error: req.query.error,
         success: req.query.success
@@ -1349,6 +1357,59 @@ class WikiRoutes {
     } catch (err) {
       console.error('Error updating profile:', err);
       res.redirect('/profile?error=Failed to update profile');
+    }
+  }
+
+  /**
+   * Update user preferences
+   */
+  async updatePreferences(req, res) {
+    console.log('=== updatePreferences method called ===');
+    try {
+      console.log('DEBUG: Request body:', req.body);
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = userManager.getCurrentUser(req);
+      
+      console.log('DEBUG: Current user:', currentUser ? currentUser.username : 'null');
+      
+      if (!currentUser) {
+        console.log('DEBUG: No current user, redirecting to login');
+        return res.redirect('/login');
+      }
+      
+      console.log('DEBUG: updatePreferences - req.body:', req.body);
+      console.log('DEBUG: updatePreferences - currentUser:', currentUser.username);
+      
+      // Get current user's existing preferences
+      const currentPreferences = currentUser.preferences || {};
+      console.log('DEBUG: updatePreferences - current preferences:', currentPreferences);
+      
+      // Extract preference values from form and merge with existing
+      const preferences = { ...currentPreferences };
+      
+      // Editor preferences
+      preferences['editor.plain.smartpairs'] = req.body['editor.plain.smartpairs'] === 'on';
+      preferences['editor.autoindent'] = req.body['editor.autoindent'] === 'on';
+      preferences['editor.linenumbers'] = req.body['editor.linenumbers'] === 'on';
+      preferences['editor.theme'] = req.body['editor.theme'] || 'default';
+      
+      // Display preferences
+      preferences['display.pagesize'] = req.body['display.pagesize'] || '25';
+      preferences['display.tooltips'] = req.body['display.tooltips'] === 'on';
+      preferences['display.readermode'] = req.body['display.readermode'] === 'on';
+      preferences['display.dateformat'] = req.body['display.dateformat'] || 'default';
+      
+      console.log('DEBUG: updatePreferences - preferences to save:', preferences);
+      
+      // Update user with new preferences
+      await userManager.updateUser(currentUser.username, { preferences });
+      
+      console.log('DEBUG: updatePreferences - preferences saved successfully');
+      res.redirect('/profile?success=Preferences saved successfully');
+      
+    } catch (err) {
+      console.error('Error updating preferences:', err);
+      res.redirect('/profile?error=Failed to save preferences');
     }
   }
 
@@ -1682,6 +1743,7 @@ class WikiRoutes {
     app.post('/register', this.processRegister.bind(this));
     app.get('/profile', this.profilePage.bind(this));
     app.post('/profile', this.updateProfile.bind(this));
+    app.post('/profile/preferences', this.updatePreferences.bind(this));
     
     // Admin routes
     app.get('/admin', this.adminDashboard.bind(this));

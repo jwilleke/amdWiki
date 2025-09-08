@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **JSPWiki WikiVariables System**: Comprehensive variable expansion support for dynamic content
+  - **User context variables**: [{$username}] and [{$loginstatus}] display current user state
+  - **System variables**: [{$totalpages}] shows total page count dynamically
+  - **Authentication awareness**: Variables reflect logged-in vs anonymous user states
+  - **RenderingManager integration**: Seamless variable expansion in page content
+- **User Preferences System**: Complete JSPWiki-style user preference management
+  - **Profile page**: Comprehensive user profile with account info, permissions, and preferences
+  - **Editor preferences**: Smart typing pairs, auto-indent, line numbers, and theme selection
+  - **Display preferences**: Page size, tooltips, reader mode, and date format options
+  - **Smart typing pairs**: Auto-pairing of brackets, quotes, and other characters
+  - **Real-time application**: Preferences applied immediately via client-side library
+  - **Persistent storage**: All settings saved to user profile and loaded correctly
+  - **Form state management**: Fixed checkbox and dropdown state persistence after saves
 - **User Keywords Dropdown Interface**: Enhanced Create New Page form with professional dropdown
   - **Checkbox dropdown**: Replaced individual checkboxes with clean Bootstrap dropdown interface
   - **3-keyword limit enforcement**: Auto-disable functionality when maximum selections reached
@@ -41,6 +54,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **User preference form state**: Fixed issue where saved preferences weren't reflected in form controls
+  - **Cached user data**: Profile page now fetches fresh user data from database instead of session cache
+  - **Checkbox persistence**: Form checkboxes correctly show checked/unchecked state after saves
+  - **Select persistence**: Dropdown selections properly reflect saved preference values
+  - **Form reload accuracy**: All preference form fields now accurately display current user settings
 - **Route ordering issue**: Fixed critical bug preventing Create New Page form from loading dynamic content
   - **Wildcard route conflict**: Moved `/create` before `/wiki/:page` to prevent interception
   - **Dynamic form population**: Categories and keywords now properly load from required-pages files

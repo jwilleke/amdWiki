@@ -69,6 +69,117 @@
                         </div>
                     </div>
                     
+                    <!-- User Preferences Section -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="card bg-light">
+                                <div class="card-header">
+                                    <h6><i class="fas fa-cogs"></i> User Preferences</h6>
+                                </div>
+                                <div class="card-body">
+                                    <form action="/profile/preferences" method="POST">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <h6><i class="fas fa-edit"></i> Editor Settings</h6>
+                                                
+                                                <div class="form-check mb-3">
+                                                    <input class="form-check-input" type="checkbox" id="smartPairs" name="editor.plain.smartpairs" 
+                                                           <%= (user.preferences && user.preferences['editor.plain.smartpairs']) ? 'checked' : '' %>>
+                                                    <label class="form-check-label" for="smartPairs">
+                                                        <strong>Smart Typing Pairs</strong>
+                                                        <br><small class="text-muted">Auto pairing of () [] {} &lt;&gt; "" ''</small>
+                                                    </label>
+                                                </div>
+                                                
+                                                <div class="form-check mb-3">
+                                                    <input class="form-check-input" type="checkbox" id="autoIndent" name="editor.autoindent" 
+                                                           <%= (user.preferences && user.preferences['editor.autoindent']) ? 'checked' : '' %>>
+                                                    <label class="form-check-label" for="autoIndent">
+                                                        <strong>Auto Indent</strong>
+                                                        <br><small class="text-muted">Automatically indent new lines</small>
+                                                    </label>
+                                                </div>
+                                                
+                                                <div class="form-check mb-3">
+                                                    <input class="form-check-input" type="checkbox" id="lineNumbers" name="editor.linenumbers" 
+                                                           <%= (user.preferences && user.preferences['editor.linenumbers']) ? 'checked' : '' %>>
+                                                    <label class="form-check-label" for="lineNumbers">
+                                                        <strong>Show Line Numbers</strong>
+                                                        <br><small class="text-muted">Display line numbers in editor</small>
+                                                    </label>
+                                                </div>
+                                                
+                                                <div class="form-group mb-3">
+                                                    <label for="editorTheme" class="form-label"><strong>Editor Theme</strong></label>
+                                                    <select class="form-control" id="editorTheme" name="editor.theme">
+                                                        <option value="default" <%= (user.preferences && user.preferences['editor.theme'] === 'default') ? 'selected' : '' %>>Default</option>
+                                                        <option value="dark" <%= (user.preferences && user.preferences['editor.theme'] === 'dark') ? 'selected' : '' %>>Dark</option>
+                                                        <option value="monokai" <%= (user.preferences && user.preferences['editor.theme'] === 'monokai') ? 'selected' : '' %>>Monokai</option>
+                                                        <option value="solarized" <%= (user.preferences && user.preferences['editor.theme'] === 'solarized') ? 'selected' : '' %>>Solarized</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="col-md-6">
+                                                <h6><i class="fas fa-eye"></i> Display Settings</h6>
+                                                
+                                                <div class="form-group mb-3">
+                                                    <label for="pageSize" class="form-label"><strong>Pages Per List</strong></label>
+                                                    <select class="form-control" id="pageSize" name="display.pagesize">
+                                                        <option value="10" <%= (user.preferences && user.preferences['display.pagesize'] === '10') ? 'selected' : '' %>>10</option>
+                                                        <option value="25" <%= (user.preferences && user.preferences['display.pagesize'] === '25') ? 'selected' : '' %>>25</option>
+                                                        <option value="50" <%= (user.preferences && user.preferences['display.pagesize'] === '50') ? 'selected' : '' %>>50</option>
+                                                        <option value="100" <%= (user.preferences && user.preferences['display.pagesize'] === '100') ? 'selected' : '' %>>100</option>
+                                                    </select>
+                                                </div>
+                                                
+                                                <div class="form-check mb-3">
+                                                    <input class="form-check-input" type="checkbox" id="showToolTips" name="display.tooltips" 
+                                                           <%= (user.preferences && user.preferences['display.tooltips']) ? 'checked' : '' %>>
+                                                    <label class="form-check-label" for="showToolTips">
+                                                        <strong>Show Tooltips</strong>
+                                                        <br><small class="text-muted">Display helpful tooltips on hover</small>
+                                                    </label>
+                                                </div>
+                                                
+                                                <div class="form-check mb-3">
+                                                    <input class="form-check-input" type="checkbox" id="readerMode" name="display.readermode" 
+                                                           <%= (user.preferences && user.preferences['display.readermode']) ? 'checked' : '' %>>
+                                                    <label class="form-check-label" for="readerMode">
+                                                        <strong>Default Reader Mode</strong>
+                                                        <br><small class="text-muted">Open pages in reader mode by default</small>
+                                                    </label>
+                                                </div>
+                                                
+                                                <div class="form-group mb-3">
+                                                    <label for="dateFormat" class="form-label"><strong>Date Format</strong></label>
+                                                    <select class="form-control" id="dateFormat" name="display.dateformat">
+                                                        <option value="default" <%= (user.preferences && user.preferences['display.dateformat'] === 'default') ? 'selected' : '' %>>Default (MM/DD/YYYY)</option>
+                                                        <option value="iso" <%= (user.preferences && user.preferences['display.dateformat'] === 'iso') ? 'selected' : '' %>>ISO (YYYY-MM-DD)</option>
+                                                        <option value="european" <%= (user.preferences && user.preferences['display.dateformat'] === 'european') ? 'selected' : '' %>>European (DD/MM/YYYY)</option>
+                                                        <option value="long" <%= (user.preferences && user.preferences['display.dateformat'] === 'long') ? 'selected' : '' %>>Long Format</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <hr>
+                                        
+                                        <div class="d-flex justify-content-between">
+                                            <button type="submit" class="btn btn-success">
+                                                <i class="fas fa-save"></i> Save Preferences
+                                            </button>
+                                            
+                                            <button type="button" class="btn btn-outline-secondary" onclick="resetPreferences()">
+                                                <i class="fas fa-undo"></i> Reset to Defaults
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <!-- Profile Update Form -->
                     <form action="/profile" method="POST">
                         <div class="row">
@@ -169,6 +280,32 @@ document.getElementById('newPassword')?.addEventListener('input', function() {
 document.getElementById('currentPassword')?.addEventListener('input', function() {
     if (this.value) {
         this.setCustomValidity('');
+    }
+});
+
+// Reset preferences to defaults
+function resetPreferences() {
+    if (confirm('Are you sure you want to reset all preferences to their default values?')) {
+        // Uncheck all checkboxes
+        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            if (checkbox.name.startsWith('editor.') || checkbox.name.startsWith('display.')) {
+                checkbox.checked = false;
+            }
+        });
+        
+        // Reset select boxes to default values
+        document.getElementById('editorTheme').value = 'default';
+        document.getElementById('pageSize').value = '25';
+        document.getElementById('dateFormat').value = 'default';
+    }
+}
+
+// Smart pairs demonstration
+document.getElementById('smartPairs')?.addEventListener('change', function() {
+    const demo = document.getElementById('smartPairsDemo');
+    if (demo) {
+        demo.textContent = this.checked ? 'Smart pairs enabled!' : 'Smart pairs disabled';
+        demo.className = this.checked ? 'text-success' : 'text-muted';
     }
 });
 </script>
