@@ -38,8 +38,8 @@ class ExportManager extends BaseManager {
       throw new Error(`Page '${pageName}' not found`);
     }
     
-    // Render the page content
-    const renderedContent = renderingManager.renderMarkdown(page.content, pageName);
+    // Render the page content (without user context for exports)
+    const renderedContent = renderingManager.renderMarkdown(page.content, pageName, null);
     
     // Create full HTML document
     const html = `<!DOCTYPE html>
@@ -133,7 +133,7 @@ class ExportManager extends BaseManager {
     for (const pageName of pageNames) {
       const page = await pageManager.getPage(pageName);
       if (page) {
-        const renderedContent = renderingManager.renderMarkdown(page.content, pageName);
+        const renderedContent = renderingManager.renderMarkdown(page.content, pageName, null);
         combinedContent += `
           <div class="page-section" id="page-${pageName.replace(/[^a-zA-Z0-9]/g, '-')}">
             <h1>${pageName}</h1>

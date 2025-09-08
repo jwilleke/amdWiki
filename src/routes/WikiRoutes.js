@@ -9,8 +9,9 @@ class WikiRoutes {
 
   /**
    * Get common template data that all pages need
+   * @param {object} userContext - User context for rendering variables
    */
-  async getCommonTemplateData() {
+  async getCommonTemplateData(userContext = null) {
     const pageManager = this.engine.getManager('PageManager');
     const pages = await pageManager.getPageNames();
     
@@ -22,9 +23,9 @@ class WikiRoutes {
         const renderingManager = this.engine.getManager('RenderingManager');
         const aclManager = this.engine.getManager('ACLManager');
         
-        // Remove ACL markup and render footer content
+        // Remove ACL markup and render footer content with user context
         const cleanContent = aclManager.removeACLMarkup(footerPage.content);
-        footerContent = renderingManager.renderMarkdown(cleanContent, 'Footer');
+        footerContent = renderingManager.renderMarkdown(cleanContent, 'Footer', userContext);
       }
     } catch (error) {
       console.warn('Could not load footer content:', error.message);
@@ -42,9 +43,9 @@ class WikiRoutes {
         const renderingManager = this.engine.getManager('RenderingManager');
         const aclManager = this.engine.getManager('ACLManager');
         
-        // Remove ACL markup and render left menu content
+        // Remove ACL markup and render left menu content with user context
         const cleanContent = aclManager.removeACLMarkup(leftMenuPage.content);
-        leftMenuContent = renderingManager.renderMarkdown(cleanContent, 'LeftMenu');
+        leftMenuContent = renderingManager.renderMarkdown(cleanContent, 'LeftMenu', userContext);
       }
     } catch (error) {
       console.warn('Could not load left menu content:', error.message);
@@ -62,13 +63,16 @@ class WikiRoutes {
    * Get common template data with current user
    */
     async getCommonTemplateDataWithUser(req) {
-        const baseData = await this.getCommonTemplateData();
         const userManager = this.engine.getManager('UserManager');
         const currentUser = req.user ? req.user : await userManager.getCurrentUser(req);
         
+        // Get base data with user context for rendering
+        const baseData = await this.getCommonTemplateData(currentUser);
+        
         return {
             ...baseData,
-            currentUser
+            currentUser,
+            user: currentUser  // Add user alias for consistency
         };
     }
 
@@ -229,7 +233,7 @@ class WikiRoutes {
   /**
    * Get and format left menu content from LeftMenu page
    */
-  async getLeftMenu() {
+  async getLeftMenu(userContext = null) {
     try {
       const pageManager = this.engine.getManager('PageManager');
       const renderingManager = this.engine.getManager('RenderingManager');
@@ -240,8 +244,8 @@ class WikiRoutes {
         return null; // Return null to use fallback
       }
       
-      // Render markdown to HTML (this will automatically expand system variables)
-      const renderedContent = renderingManager.renderMarkdown(leftMenuPage.content, 'LeftMenu');
+      // Render markdown to HTML with user context (this will automatically expand system variables)
+      const renderedContent = renderingManager.renderMarkdown(leftMenuPage.content, 'LeftMenu', userContext);
       
       // Format for Bootstrap navigation
       return this.formatLeftMenuContent(renderedContent);
@@ -325,14 +329,14 @@ class WikiRoutes {
       // Remove ACL markup from content before rendering
       const cleanContent = aclManager.removeACLMarkup(pageData.content);
       
-      // Render the markdown content
-      const renderedContent = renderingManager.renderMarkdown(cleanContent, pageName);
+      // Render the markdown content with user context
+      const renderedContent = renderingManager.renderMarkdown(cleanContent, pageName, commonData.user);
       
       // Get referring pages for context
       const referringPages = renderingManager.getReferringPages(pageName);
       
-      // Get left menu content
-      const leftMenuContent = await this.getLeftMenu();
+      // Get left menu content with user context
+      const leftMenuContent = await this.getLeftMenu(commonData.user);
       
       // Check if reader view is requested
       const isReaderView = req.query.view === 'reader';

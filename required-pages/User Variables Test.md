@@ -1,0 +1,61 @@
+---
+uuid: user-variables-test-001
+categories: [System, Test]
+user-keywords: []
+title: User Variables Test
+lastModified: '2025-09-08T22:30:00.000Z'
+---
+
+# User Variables Test Page
+
+This page demonstrates the new authentication-aware system variables that show different content based on the current user's authentication state.
+
+## Current User Information
+
+- **Username**: [{$username}]
+- **Login Status**: [{$loginstatus}]
+- **Current Page**: [{$pagename}]
+
+## Authentication Status Explanation
+
+The `[{$loginstatus}]` variable shows one of three states:
+
+1. **Anonymous** - User is not logged in
+2. **Asserted** - User has a session cookie but is not authenticated
+3. **Authenticated** - User is properly logged in with credentials
+
+## User Display Names
+
+The `[{$username}]` variable shows:
+
+- "Anonymous" for non-authenticated users
+- Display name (if available) or username for authenticated users
+- "Asserted User" or display name for asserted users
+
+## Live Test
+
+Refresh this page after logging in or out to see how the variables change!
+
+**Current Status**: You are currently [{$loginstatus}] as [{$username}].
+
+## Technical Details
+
+These variables are implemented in the RenderingManager and are context-aware:
+
+- They work in all page content (pages, footer, left menu)
+- They respect the current request's authentication state
+- They are safely handled when user context is not available
+
+## Other System Variables
+
+For comparison, here are some non-authentication variables:
+
+- **Application**: [{$applicationname}]
+- **Version**: [{$version}]
+- **Date**: [{$date}]
+- **Time**: [{$time}]
+- **Total Pages**: [{$totalpages}]
+
+---
+
+*Last modified: [{$timestamp}]*

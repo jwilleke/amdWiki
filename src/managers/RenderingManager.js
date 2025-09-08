@@ -35,13 +35,14 @@ class RenderingManager extends BaseManager {
    * Render markdown content to HTML
    * @param {string} content - Markdown content
    * @param {string} pageName - Current page name
+   * @param {object} userContext - User context for authentication variables
    * @returns {string} Rendered HTML
    */
-  renderMarkdown(content, pageName) {
+  renderMarkdown(content, pageName, userContext = null) {
     if (!content) return '';
 
     // Step 1: Expand macros
-    let expandedContent = this.expandMacros(content, pageName);
+    let expandedContent = this.expandMacros(content, pageName, userContext);
     
     // Step 2: Process JSPWiki-style tables
     expandedContent = this.processJSPWikiTables(expandedContent);
@@ -288,9 +289,10 @@ class RenderingManager extends BaseManager {
    * Expand macros in content
    * @param {string} content - Content with macros
    * @param {string} pageName - Current page name
+   * @param {object} userContext - User context for authentication variables
    * @returns {string} Content with expanded macros
    */
-  expandMacros(content, pageName) {
+  expandMacros(content, pageName, userContext = null) {
     let expandedContent = content;
 
     // Step 1: Protect code blocks and escaped syntax
@@ -326,7 +328,7 @@ class RenderingManager extends BaseManager {
         try {
           // Check if it's a system variable (starts with $)
           if (content.startsWith('$')) {
-            return this.expandSystemVariable(content, pageName);
+            return this.expandSystemVariable(content, pageName, userContext);
           }
           
           // Parse plugin call: PluginName param1=value1 param2=value2
@@ -373,9 +375,10 @@ class RenderingManager extends BaseManager {
    * Expand a single JSPWiki-style system variable
    * @param {string} variable - The variable name (including $)
    * @param {string} pageName - Current page name
+   * @param {object} userContext - User context for authentication variables
    * @returns {string} Expanded value
    */
-  expandSystemVariable(variable, pageName) {
+  expandSystemVariable(variable, pageName, userContext = null) {
     try {
       switch (variable) {
         case '$pagename':
@@ -398,6 +401,10 @@ class RenderingManager extends BaseManager {
           return new Date().toLocaleTimeString();
         case '$year':
           return new Date().getFullYear().toString();
+        case '$username':
+          return this.getUserName(userContext);
+        case '$loginstatus':
+          return this.getLoginStatus(userContext);
         default:
           console.warn(`Unknown system variable: ${variable}`);
           return `[{${variable}}]`; // Return unchanged if unknown
@@ -699,10 +706,53 @@ class RenderingManager extends BaseManager {
    * Render page preview
    * @param {string} content - Markdown content
    * @param {string} pageName - Page name for context
+   * @param {object} userContext - User context for authentication variables
    * @returns {string} Rendered HTML preview
    */
-  renderPreview(content, pageName) {
-    return this.renderMarkdown(content, pageName);
+  renderPreview(content, pageName, userContext = null) {
+    return this.renderMarkdown(content, pageName, userContext);
+  }
+
+  /**
+   * Get current username from user context
+   * @param {object} userContext - User context object
+   * @returns {string} Username or "Anonymous"
+   */
+  getUserName(userContext) {
+    if (!userContext || !userContext.username) {
+      return 'Anonymous';
+    }
+    
+    // Handle special authentication states
+    switch (userContext.username) {
+      case 'anonymous':
+        return 'Anonymous';
+      case 'asserted':
+        return userContext.displayName || 'Asserted User';
+      default:
+        return userContext.displayName || userContext.username;
+    }
+  }
+
+  /**
+   * Get current login status from user context
+   * @param {object} userContext - User context object
+   * @returns {string} Login status description
+   */
+  getLoginStatus(userContext) {
+    if (!userContext || !userContext.username) {
+      return 'Anonymous';
+    }
+    
+    // Handle authentication states as defined in Authentication States Implementation
+    switch (userContext.username) {
+      case 'anonymous':
+        return 'Anonymous';
+      case 'asserted':
+        return 'Asserted';
+      default:
+        return 'Authenticated';
+    }
   }
 }
 

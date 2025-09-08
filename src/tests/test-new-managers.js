@@ -27,7 +27,7 @@ This is a test with a [{$pagename}] macro and a [Welcome] wiki link.
 
 Here's a plugin macro: [{referringPagesPlugin page="Categories"}]`;
 
-    const renderedHtml = renderingManager.renderMarkdown(testContent, 'Test Page');
+    const renderedHtml = renderingManager.renderMarkdown(testContent, 'Test Page', null);
     console.log('   Rendered HTML preview:');
     console.log('   ' + renderedHtml.substring(0, 200) + '...\n');
 

@@ -32,6 +32,10 @@ System variables use the format: `[{$variablename}]`
 - `[{$uptime}]` - Server uptime in human-readable format
 - `[{$baseurl}]` - Base URL of the application
 
+### User Authentication
+- `[{$username}]` - Current user's display name or username (Anonymous for non-authenticated users)
+- `[{$loginstatus}]` - Current authentication status (Anonymous, Asserted, or Authenticated)
+
 ## Examples
 
 ### Basic Usage
@@ -47,16 +51,31 @@ Copyright © [{$applicationname}] [{$year}]
 
 ### Footer Example
 ```markdown
+### Footer Example
+```markdown
 ---
-<div class="text-center">
+<div class="text-center text-muted">
   <small>
-    **[{$applicationname}] v[{$version}]** | 
-    Copyright © [{$applicationname}] [{$year}] |
-    Total Pages: [{$totalpages}] |
+    [{$applicationname}] v[{$version}] | Copyright © [{$year}] | 
     Uptime: [{$uptime}]
   </small>
 </div>
 ---
+```
+
+### User Information
+```markdown
+Welcome [{$username}]! 
+Your authentication status: [{$loginstatus}]
+Current page: [{$pagename}]
+```
+
+### Authentication-Aware Content
+```markdown
+<!-- Different content based on authentication status -->
+[{$loginstatus}] users can access this content.
+Logged in as: [{$username}]
+```
 ```
 
 ## Code Protection
