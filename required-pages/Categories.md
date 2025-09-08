@@ -1,9 +1,9 @@
 ---
 uuid: 44343afc-73ab-4dc0-8a7e-05f9fbda23b3
-category: System/Admin
+categories: [System]
 user-keywords: []
 title: Categories
-lastModified: '2025-09-06T22:25:37.204Z'
+lastModified: '2025-09-08T22:25:37.204Z'
 ---
 # Overview
 
