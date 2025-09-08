@@ -715,3 +715,48 @@ main[role="main"] {
         max-width: 100%;
     }
 }
+
+/* Keyword Dropdown Styles */
+.dropdown-item-checkbox {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.dropdown-item-checkbox:hover {
+    background-color: #f8f9fa;
+}
+
+.dropdown-item-checkbox.text-muted {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.dropdown-item-checkbox.text-muted:hover {
+    background-color: transparent;
+}
+
+.dropdown-item-checkbox .form-check {
+    margin-bottom: 0;
+}
+
+.dropdown-item-checkbox .form-check-input:disabled {
+    opacity: 0.4;
+}
+
+.dropdown-item-checkbox .form-check-label {
+    cursor: pointer;
+    width: 100%;
+    margin-bottom: 0;
+}
+
+.dropdown-item-checkbox .form-check-label:hover {
+    color: #007bff;
+}
+
+#selectedKeywordsText {
+    font-weight: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 300px;
+}

@@ -81,7 +81,7 @@ class WikiRoutes {
       const categoriesPage = await pageManager.getPage('Categories');
       
       if (!categoriesPage) {
-        return ['General', 'Documentation'];
+        return ['General', 'Documentation', 'Project', 'Reference'];
       }
       
       // Extract categories from the content (lines that start with *)
@@ -99,10 +99,10 @@ class WikiRoutes {
         }
       }
       
-      return categories.length > 0 ? categories : ['General', 'Documentation'];
+      return categories.length > 0 ? categories : ['General', 'Documentation', 'Project', 'Reference'];
     } catch (err) {
       console.error('Error loading categories:', err);
-      return ['General', 'Documentation'];
+      return ['General', 'Documentation', 'Project', 'Reference'];
     }
   }
 
@@ -145,29 +145,41 @@ class WikiRoutes {
    * Extract user keywords from User-Keywords page
    */
   async getUserKeywords() {
+    console.log('=== getUserKeywords method called ===');
     try {
       const pageManager = this.engine.getManager('PageManager');
-      const keywordsPage = await pageManager.getPage('User-Keywords');
+      const keywordsPage = await pageManager.getPage('User Keywords');
+      
+      console.log('User Keywords page loaded:', !!keywordsPage);
       
       if (!keywordsPage) {
-        return ['General', 'Important', 'Reference'];
+        console.log('No User Keywords page found, returning defaults');
+        return ['medicine', 'geology', 'test'];
       }
       
       // Extract keywords from the content (lines that start with *)
       const keywords = [];
       const lines = keywordsPage.content.split('\n');
       
+      console.log('Processing', lines.length, 'lines from User Keywords page');
+      
       for (const line of lines) {
         const trimmed = line.trim();
         if (trimmed.startsWith('* ') && !trimmed.includes('(') && trimmed.length > 2) {
-          keywords.push(trimmed.substring(2));
+          // Convert to lowercase and clean up the keyword
+          const keyword = trimmed.substring(2).toLowerCase().trim();
+          if (keyword && !keywords.includes(keyword)) {
+            keywords.push(keyword);
+            console.log('Added keyword:', keyword);
+          }
         }
       }
       
-      return keywords.length > 0 ? keywords : ['General', 'Important', 'Reference'];
+      console.log('Final getUserKeywords result:', keywords);
+      return keywords.length > 0 ? keywords : ['medicine', 'geology', 'test'];
     } catch (err) {
       console.error('Error loading user keywords:', err);
-      return ['General', 'Important', 'Reference'];
+      return ['medicine', 'geology', 'test'];
     }
   }
 
@@ -360,6 +372,7 @@ class WikiRoutes {
    * Display create new page form with template selection
    */
   async createPage(req, res) {
+    console.log('=== createPage method called ===');
     try {
       const pageName = req.query.name || '';
       const templateManager = this.engine.getManager('TemplateManager');
@@ -373,6 +386,9 @@ class WikiRoutes {
       // Get categories and keywords for the form
       const categories = await this.getCategories();
       const userKeywords = await this.getUserKeywords();
+      
+      console.log('DEBUG: Categories returned:', categories);
+      console.log('DEBUG: User keywords returned:', userKeywords);
       
       res.render('create', {
         ...commonData,
@@ -1539,15 +1555,19 @@ class WikiRoutes {
   registerRoutes(app) {
     // Main routes
     app.get('/', this.homePage.bind(this));
-    app.get('/wiki/:page', this.viewPage.bind(this));
-    app.post('/wiki/:page', this.savePage.bind(this)); // Handle form submissions
-    app.get('/edit/:page', this.editPage.bind(this));
-    app.post('/edit/:page', this.savePage.bind(this)); // Alternative save route
-    app.post('/delete/:page', this.deletePage.bind(this)); // Delete page
+    
+    // Specific routes that must come BEFORE wildcard routes
     app.get('/create', this.createPage.bind(this)); // New page creation form
     app.post('/create', this.createPageFromTemplate.bind(this)); // Create from template
     app.get('/search', this.searchPages.bind(this));
     app.get('/Search', this.searchPages.bind(this)); // JSPWiki-style uppercase Search page
+    app.get('/edit/:page', this.editPage.bind(this));
+    app.post('/edit/:page', this.savePage.bind(this)); // Alternative save route
+    app.post('/delete/:page', this.deletePage.bind(this)); // Delete page
+    
+    // Wildcard routes (must come AFTER specific routes)
+    app.get('/wiki/:page', this.viewPage.bind(this));
+    app.post('/wiki/:page', this.savePage.bind(this)); // Handle form submissions
     
     // API routes
     app.get('/api/suggestions', this.searchSuggestions.bind(this));

@@ -49,13 +49,22 @@
             <!-- User Keywords -->
             <div class="form-group mb-3">
                 <label style="font-weight:bold;">User-Keywords (optional, max 3):</label>
-                <div id="user-keywords-checkboxes">
-                    <% userKeywords.forEach(keyword => { %>
-                        <div class="form-check">
-                            <input class="form-check-input user-keyword-checkbox" type="checkbox" name="userKeywords[]" value="<%= keyword %>" id="create-keyword-<%= keyword %>">
-                            <label class="form-check-label" for="create-keyword-<%= keyword %>"><%= keyword %></label>
-                        </div>
-                    <% }); %>
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button" id="keywordsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span id="selectedKeywordsText">Select keywords...</span>
+                    </button>
+                    <ul class="dropdown-menu w-100" aria-labelledby="keywordsDropdown" style="max-height: 300px; overflow-y: auto;">
+                        <% userKeywords.forEach(keyword => { %>
+                            <li>
+                                <div class="dropdown-item-checkbox px-3 py-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input user-keyword-checkbox" type="checkbox" name="userKeywords[]" value="<%= keyword %>" id="dropdown-keyword-<%= keyword %>">
+                                        <label class="form-check-label ms-2" for="dropdown-keyword-<%= keyword %>"><%= keyword %></label>
+                                    </div>
+                                </div>
+                            </li>
+                        <% }); %>
+                    </ul>
                 </div>
             </div>
 
@@ -79,20 +88,64 @@
 </form>
 
 <script>
-// Limit user keywords to 3
+// Dropdown and keyword selection functionality
 document.addEventListener('DOMContentLoaded', function() {
     const checkboxes = document.querySelectorAll('.user-keyword-checkbox');
     const maxKeywords = 3;
+    const selectedKeywordsText = document.getElementById('selectedKeywordsText');
+    const dropdown = document.getElementById('keywordsDropdown');
     
+    // Update the dropdown button text and disable/enable checkboxes
+    function updateKeywordDisplay() {
+        const checkedBoxes = document.querySelectorAll('.user-keyword-checkbox:checked');
+        const selectedKeywords = Array.from(checkedBoxes).map(cb => cb.value);
+        
+        // Update button text
+        if (selectedKeywords.length === 0) {
+            selectedKeywordsText.textContent = 'Select keywords...';
+            dropdown.classList.remove('btn-primary');
+            dropdown.classList.add('btn-outline-secondary');
+        } else {
+            selectedKeywordsText.textContent = selectedKeywords.join(', ');
+            dropdown.classList.remove('btn-outline-secondary');
+            dropdown.classList.add('btn-primary');
+        }
+        
+        // Disable unchecked boxes if we've reached the limit
+        checkboxes.forEach(checkbox => {
+            if (!checkbox.checked && checkedBoxes.length >= maxKeywords) {
+                checkbox.disabled = true;
+                checkbox.parentElement.parentElement.classList.add('text-muted');
+            } else {
+                checkbox.disabled = false;
+                checkbox.parentElement.parentElement.classList.remove('text-muted');
+            }
+        });
+    }
+    
+    // Add event listeners to checkboxes
     checkboxes.forEach(checkbox => {
         checkbox.addEventListener('change', function() {
             const checkedBoxes = document.querySelectorAll('.user-keyword-checkbox:checked');
+            
             if (checkedBoxes.length > maxKeywords) {
                 this.checked = false;
                 alert(`You can select a maximum of ${maxKeywords} keywords.`);
             }
+            
+            updateKeywordDisplay();
         });
     });
+    
+    // Prevent dropdown from closing when clicking on checkboxes
+    document.querySelectorAll('.dropdown-item-checkbox').forEach(item => {
+        item.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+    });
+    
+    // Initialize display
+    updateKeywordDisplay();
     
     // Template preview functionality
     const templateRadios = document.querySelectorAll('input[name="templateName"]');
