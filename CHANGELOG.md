@@ -12,6 +12,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Markdownlint Configuration**: Added `.markdownlint.json` to disable MD025 rule
   - **Multiple H1 headings support**: Allows frontmatter `title` and `# Overview` in same document
   - **Document structure flexibility**: Maintains other linting rules while accommodating wiki page format
+- **Create New Page Menu Item**: Added "Create New Page" option to More dropdown
+  - **Role-based visibility**: Only visible to Admin, Editor, and Contributor roles
+  - **Quick access**: Provides easy access to page creation from any page
+  - **Proper permissions**: Links to existing `/create` route with permission checks
+- **Metadata Standardization**: Comprehensive cleanup of page metadata
+  - **System foundation files**: Created System Keywords.md and User Keywords.md in required-pages
+  - **Missing metadata fixed**: Added proper metadata to all table test files and system pages
+  - **Consistent format**: Standardized all pages to use `categories: []` and `user-keywords: []` format
+  - **Duplicate resolution**: Consolidated User-Keywords.md into required-pages structure
+
+### Fixed
+
+- **App startup issue**: Fixed broken require path for logger after project reorganization
+  - **Updated path**: Changed `require('./logger')` to `require('./src/utils/logger')`
+  - **Clean startup**: App now starts without module not found errors
 
 ### Planned
 

@@ -12,7 +12,7 @@ app = express();
 const showdown = require('showdown');
 
 const { lint } = require('markdownlint/sync');
-const logger = require('./logger');
+const logger = require('./src/utils/logger');
 
 // Wiki Engine imports
 const WikiEngine = require('./src/WikiEngine');

@@ -123,6 +123,12 @@
                                 <i class="fas fa-ellipsis-h"></i> More
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
+                                <% if (typeof currentUser !== 'undefined' && currentUser && currentUser.isAuthenticated && currentUser.roles && (currentUser.roles.includes('admin') || currentUser.roles.includes('editor') || currentUser.roles.includes('contributor'))) { %>
+                                    <li><a class="dropdown-item" href="/create">
+                                        <i class="fas fa-plus"></i> Create New Page
+                                    </a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                <% } %>
                                 <li><a class="dropdown-item" href="#" onclick="showPageSource()">
                                     <i class="fas fa-code"></i> View Page Source
                                 </a></li>
