@@ -1,9 +1,9 @@
 ---
 title: Wiki Documentation
-category: System/Admin
+categories: [System, Documentation]
 user-keywords: []
 uuid: 9e4cc61d-be63-41b2-b0e8-982fff52dc15
-lastModified: '2025-09-07T10:20:05.739Z'
+lastModified: '2025-09-08T10:20:05.739Z'
 ---
 # Overview
 

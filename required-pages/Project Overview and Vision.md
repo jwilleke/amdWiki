@@ -1,0 +1,70 @@
+---
+title: Project Overview and Vision
+categories: [System, Documentation]
+user-keywords: [gemini, vision, roadmap, architecture]
+uuid: project-overview-vision
+lastModified: '2025-09-08T22:35:00.000Z'
+---
+
+# Project Overview and Vision
+
+## Project Overview
+
+* **Purpose**: A Wiki that basically mimics [JSPWiki](https://github.com/apache/jspwiki) functionality using Markdown
+* **Hosting**: Able to be locally hosted
+* **Architecture**: Node.js-based implementation
+
+## Next Iteration Opportunities
+
+### High Priority
+
+* User Authentication System - Login/permissions
+* Page History & Versioning - Track changes over time
+* Advanced Search Filters - Category/keyword/date filtering
+* Attachment UI Integration - Upload widgets in edit pages
+
+### Medium Priority
+
+* Page Comments System - Discussion functionality
+* Real-time Collaboration - Multiple users editing simultaneously
+* Plugin System Extension - Custom plugins for specialized content
+* Advanced Export Options - Better PDF/ODT formatting
+
+### Low Priority
+
+* Mobile App Companion - Native mobile access
+* API Documentation - REST API for external integrations
+* Performance Optimization - Caching and indexing improvements
+* Multi-language Support - Internationalization features
+
+## Technical Architecture
+
+### Core Components
+- **Rendering Engine**: Markdown processing with JSPWiki-style extensions
+- **Search System**: Full-text search with faceted filtering
+- **User Management**: Role-based access control
+- **Plugin System**: Extensible functionality framework
+
+### Technology Stack
+- **Backend**: Node.js with Express
+- **Frontend**: Bootstrap 5 with vanilla JavaScript
+- **Storage**: File-based with JSON metadata
+- **Search**: FlexSearch or similar lightweight solution
+
+## Development Philosophy
+
+1. **Local-First**: Prioritize offline/local network operation
+2. **JSPWiki Compatibility**: Maintain familiar wiki patterns and syntax
+3. **Modern Tools**: Use contemporary web technologies while keeping simplicity
+4. **User Experience**: Focus on intuitive editing and navigation
+
+## Success Metrics
+
+- **Functionality Parity**: Match core JSPWiki features
+- **Performance**: Fast page loading and search
+- **Usability**: Intuitive interface for non-technical users
+- **Maintainability**: Clean, documented codebase
+
+---
+
+**Note**: This document evolves as the project develops. Check the Project Tasks and TODO page for current development status.

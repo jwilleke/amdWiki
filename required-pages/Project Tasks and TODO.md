@@ -1,0 +1,155 @@
+---
+title: Project Tasks and TODO
+categories: [System, Documentation]
+user-keywords: [tasks, todo, development, planning]
+uuid: project-tasks-todo
+lastModified: '2025-09-08T22:30:00.000Z'
+---
+
+# Project Tasks and TODO
+
+## 🎯 Current Development Tasks
+
+### Completed ✅
+- [x] JSPWiki-style table functionality with row styling
+- [x] `%%table-striped` syntax for theme-based alternating rows
+- [x] `[{Table}]` plugin with full parameter support
+- [x] Automatic row numbering with `|#` syntax
+- [x] Project structure reorganization
+
+### High Priority
+- [ ] Extract JSPWiki color palette and implement as CSS custom properties
+- [ ] Port JSPWiki typography system to our current CSS
+- [ ] Implement JSPWiki-style sidebar navigation
+- [ ] Add JSPWiki-inspired form styling
+- [ ] Preview on Right side
+- [ ] Prompt for pagename when creating "new-page"
+
+### Medium Priority  
+- [ ] Port JSPWiki button and component styling
+- [ ] Implement JSPWiki-style search interface
+- [ ] Add JSPWiki-inspired page layout patterns
+- [ ] Create JSPWiki-style plugin components (TOC, etc.)
+
+### Low Priority
+- [ ] Full Bootstrap 3→5 migration analysis
+- [ ] Custom icon font integration
+- [ ] Advanced dynamic components
+- [ ] Cross-browser compatibility testing
+
+## 🔧 Technical Implementation Tasks
+
+### Macro/Plugin System
+- [ ] Implement JSPWiki-style plugins similar to [ReferringPagesPlugin](https://jspwiki-wiki.apache.org/Wiki.jsp?page=ReferringPagesPlugin)
+- [ ] Support WikiVariable expansion like `[{$pagename}]`
+- [ ] Add `[{ReferringPagesPlugin before='*' after='\n' }]` functionality
+
+### Link System
+- [ ] Normal wiki links `[new-page]` should render as links to page named "new-page"
+- [ ] Auto-complete for page names when typing `[]` during editing
+- [ ] Page name type-down search functionality
+
+### UUID Implementation
+- [ ] Implement UUID for page tracking and versions even after renaming
+- [ ] Store globally unique identifier in YAML frontmatter
+- [ ] Prevent editing of UUID section in frontmatter
+
+### Category and Keyword System
+- [ ] **Category**: Single top-level container per page (dropdown selection in editor)
+- [ ] **Keywords**: Auto-generate 3 keywords using LLM (Ollama) at indexing time
+- [ ] **User-Keywords**: Allow custom tags (3 max, multi-select dropdown in editor)
+- [ ] Store all metadata in YAML frontmatter (non-editable section)
+
+### Search Features
+- [ ] **Title Search**: Map to filename minus extension
+- [ ] **Category/Keyword Search**: Faceted search by category, keywords, user-keywords
+- [ ] **Full Content Search**: Index entire markdown body with relevance scoring
+- [ ] Consider FlexSearch, Elastic, or MongoDB for search engine
+
+### Export Functionality
+- [ ] Export markdown to HTML
+- [ ] Export to ODT format
+- [ ] Export to PDF
+- [ ] Export tables to ODS format
+
+### Quality Assurance
+- [ ] Integrate markdownlint library for document validation
+- [ ] Auto-lint markdown on save/preview
+
+## 📋 JSPWiki Styles Analysis
+
+### 🏗️ Architecture Overview
+
+JSPWiki uses a sophisticated LESS-based build system with:
+
+1. **Modular Bootstrap 3.3.7 Integration**: Custom theme built on Bootstrap foundation
+2. **Comprehensive LESS Structure**: 
+   - `haddock/` main theme directory
+   - `bootstrap/` - Custom Bootstrap 3 variant  
+   - `default/` - JSPWiki-specific components
+   - `fontjspwiki/` - Custom icon fonts
+
+3. **Component-Based Organization**:
+   - Core styling (type, variables, scaffolding)
+   - Template-specific styles (View, Edit, Search, etc.)
+   - Plugin-specific styles (TOC, Index, Weblog, etc.)
+   - Dynamic components (Tabs, Accordion, Carousel, etc.)
+
+### 🎯 Implementation Assessment
+
+**Recommended Approach**: JSPWiki-inspired design system with modern tools
+
+#### ✅ Advantages:
+- Professional, battle-tested visual language
+- Component modularity for selective implementation
+- Built-in responsive design and accessibility
+- Familiar UI patterns for wiki users
+
+#### ⚠️ Considerations:
+- Bootstrap 3 → 5 migration needed
+- LESS → SCSS preferred for modern tooling
+- Adapt Java-specific components for Node.js
+
+### 🛠️ Implementation Phases
+
+#### Phase 1: Foundation (2 weeks)
+- Extract JSPWiki color palette and typography
+- Migrate essential components to Bootstrap 5
+- Set up modern build tools (Sass, PostCSS)
+
+#### Phase 2: Core Components (3 weeks)
+- Port navigation and layout patterns
+- Implement form styling and buttons
+- Add JSPWiki-specific component styles
+
+#### Phase 3: Advanced Features (3 weeks)
+- Plugin integration styling
+- Dynamic interactive components
+- Mobile responsiveness polish
+
+## 🔍 Research Tasks
+- [ ] Analyze JSPWiki's responsive breakpoints
+- [ ] Study JSPWiki's accessibility patterns
+- [ ] Review JSPWiki's dark theme implementation
+- [ ] Investigate JSPWiki's print stylesheet approach
+
+## 📚 Reference Links
+
+- [JSPWiki Core Plugins](https://jspwiki-wiki.apache.org/Wiki.jsp?page=JSPWikiCorePlugins)
+- [JSPWiki Styles Repository](https://github.com/apache/jspwiki/tree/master/jspwiki-war/src/main/styles)
+- [JSPWiki Haddock Theme](https://github.com/apache/jspwiki/tree/master/jspwiki-war/src/main/styles/haddock)
+- [Bootstrap 5 Migration Guide](https://getbootstrap.com/docs/5.0/migration/)
+- [WikiVariable Documentation](https://jspwiki-wiki.apache.org/Wiki.jsp?page=WikiVariable)
+
+## 💭 Development Notes
+
+- Current implementation uses Bootstrap 5 - good foundation
+- Page Source Dialog already excellent - JSPWiki quality
+- Navigation structure clean and minimal - matches JSPWiki philosophy
+- Table functionality implementation complete and working
+- Project structure reorganized for better maintainability
+
+---
+
+**Last Updated**: September 8, 2025  
+**Status**: Active development with table functionality complete

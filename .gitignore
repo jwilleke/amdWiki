@@ -138,6 +138,11 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 
-# Specific to this project
-pages/
-users/
+# amdWiki - User content and runtime data (not tracked in git)
+pages/              # User-created wiki pages
+users/              # User accounts and data
+attachments/        # User-uploaded files
+exports/            # Generated export files
+logs/               # Application logs
+
+# Keep required-pages/ tracked (system pages)
