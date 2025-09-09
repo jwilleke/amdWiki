@@ -2,6 +2,7 @@
 title: Plugin Escaping Test
 category: System/Admin
 user-keywords: [plugins, escaping, code]
+categories: [System, Documentation]
 uuid: 335e8400-e29b-41d4-a716-446655440002
 lastModified: '2025-09-07T09:20:00.000Z'
 ---

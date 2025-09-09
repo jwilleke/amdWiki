@@ -1,4 +1,4 @@
-const WikiEngine = require('./src/WikiEngine');
+const WikiEngine = require('../WikiEngine');
 
 async function testNewManagers() {
   console.log('🧪 Testing new managers functionality...\n');

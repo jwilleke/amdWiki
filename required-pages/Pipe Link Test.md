@@ -2,6 +2,7 @@
 title: Pipe Link Test
 category: System/Admin
 user-keywords: [test, links, pipe]
+categories: [System, Documentation]
 uuid: b1c2d3e4-f5g6-7890-hijk-lmnopqrstuvw
 lastModified: '2025-09-07T11:30:00.000Z'
 ---
