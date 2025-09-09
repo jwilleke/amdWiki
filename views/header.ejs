@@ -462,9 +462,9 @@ class SimpleThemeManager {
         
         // Show a brief visual feedback
         if (this.toggleButton) {
-            this.toggleButton.style.transform = 'scale(1.2)';
+            this.toggleButton.style.background = 'var(--bg-tertiary)';
             setTimeout(() => {
-                this.toggleButton.style.transform = 'scale(1)';
+                this.toggleButton.style.background = 'var(--card-bg)';
             }, 200);
         }
     }
@@ -472,24 +472,8 @@ class SimpleThemeManager {
     createThemeToggle() {
         const toggle = document.createElement('div');
         toggle.id = 'theme-toggle';
-        toggle.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 9999;
-            background: #ffffff;
-            border: 2px solid #007bff;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            transition: all 0.3s ease;
-        `;
-        toggle.innerHTML = '<i class="fas fa-palette" style="color: #007bff; font-size: 1.2rem;"></i>';
+        toggle.className = 'theme-toggle';
+        toggle.innerHTML = '<i class="fas fa-palette"></i>';
         toggle.title = 'Toggle Theme';
         
         toggle.addEventListener('click', () => {
@@ -498,11 +482,11 @@ class SimpleThemeManager {
         });
         
         toggle.addEventListener('mouseenter', () => {
-            toggle.style.transform = 'scale(1.1)';
+            toggle.style.background = 'var(--bg-tertiary)';
         });
         
         toggle.addEventListener('mouseleave', () => {
-            toggle.style.transform = 'scale(1)';
+            toggle.style.background = 'var(--card-bg)';
         });
         
         document.body.appendChild(toggle);
@@ -518,29 +502,14 @@ class SimpleThemeManager {
         switch (this.currentTheme) {
             case 'light':
                 icon.className = 'fas fa-sun';
-                this.toggleButton.style.background = '#ffffff';
-                this.toggleButton.style.borderColor = '#007bff';
-                icon.style.color = '#007bff';
                 this.toggleButton.title = 'Theme: Light (click for Dark)';
                 break;
             case 'dark':
                 icon.className = 'fas fa-moon';
-                this.toggleButton.style.background = '#2d2d2d';
-                this.toggleButton.style.borderColor = '#66b3ff';
-                icon.style.color = '#66b3ff';
                 this.toggleButton.title = 'Theme: Dark (click for System)';
                 break;
             case 'system':
                 icon.className = 'fas fa-adjust';
-                if (effectiveTheme === 'dark') {
-                    this.toggleButton.style.background = '#2d2d2d';
-                    this.toggleButton.style.borderColor = '#66b3ff';
-                    icon.style.color = '#66b3ff';
-                } else {
-                    this.toggleButton.style.background = '#ffffff';
-                    this.toggleButton.style.borderColor = '#007bff';
-                    icon.style.color = '#007bff';
-                }
                 this.toggleButton.title = `Theme: System (${effectiveTheme}) (click for Light)`;
                 break;
         }
