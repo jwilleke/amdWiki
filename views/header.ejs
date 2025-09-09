@@ -88,8 +88,21 @@
                 </div>
                 <div class="col-4">
                     <div class="btn-group float-end" role="group">
+                        <!-- Edit Page Actions (only show in edit mode) -->
+                        <% if (typeof title !== 'undefined' && title && title.startsWith('Edit ')) { %>
+                            <button type="button" class="btn btn-outline-success btn-sm me-2" onclick="saveEditForm()">
+                                <i class="fas fa-save"></i> Save Page
+                            </button>
+                            <a href="/wiki/<%= encodeURIComponent(pageName) %>" class="btn btn-outline-secondary btn-sm me-2">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                            <button type="button" class="btn btn-outline-danger btn-sm me-2" onclick="deletePageFromNavbar()">
+                                <i class="fas fa-trash"></i> Delete Page
+                            </button>
+                        <% } %>
+                        
                         <!-- Info Dropdown -->
-                        <div class="btn-group" role="group">
+                        <div class="btn-group me-2" role="group">
                             <button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fas fa-info-circle"></i> Info
                             </button>
@@ -112,9 +125,11 @@
 
                         <!-- Edit Button -->
                         <% if (typeof pageName !== 'undefined' && pageName && typeof canEdit !== 'undefined' && canEdit) { %>
-                            <a href="/edit/<%= encodeURIComponent(pageName) %>" class="btn btn-outline-primary btn-sm">
-                                <i class="fas fa-edit"></i> Edit
-                            </a>
+                            <div class="btn-group me-2" role="group">
+                                <a href="/edit/<%= encodeURIComponent(pageName) %>" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
+                            </div>
                         <% } %>
 
                         <!-- More Dropdown -->
@@ -633,4 +648,23 @@ document.addEventListener('DOMContentLoaded', () => {
     window.themeManager = new SimpleThemeManager();
     console.log('Simple Theme Manager initialized with theme:', window.themeManager.currentTheme);
 });
+
+// Edit form functions for navbar buttons
+function saveEditForm() {
+    const editForm = document.getElementById('editForm');
+    if (editForm) {
+        editForm.submit();
+    }
+}
+
+function deletePageFromNavbar() {
+    if (confirm('Are you sure you want to delete this page? This action cannot be undone.')) {
+        // Check if we're on an edit page and extract page name from title
+        const title = document.title;
+        if (title.startsWith('Edit ')) {
+            const pageName = title.replace('Edit ', '').replace(' | AMD Wiki', '');
+            window.location.href = '/delete/' + encodeURIComponent(pageName);
+        }
+    }
+}
 </script>

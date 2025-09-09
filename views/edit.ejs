@@ -71,13 +71,6 @@
                         </div>
                     </div>
                 </div>
-                
-                <!-- Submit Buttons -->
-                <div class="d-flex gap-3 mb-3">
-                    <button type="submit" class="btn btn-primary">Save Page</button>
-                    <a href="/wiki/<%= pageName %>" class="btn btn-secondary">Cancel</a>
-                    <button type="button" class="btn btn-danger" onclick="deletePage()">Delete Page</button>
-                </div>
             </form>
         </div>
     </div>
@@ -156,12 +149,6 @@
     // Initialize dropdowns
     updateSelectedCategoriesText();
     updateSelectedUserKeywordsText();
-    
-    function deletePage() {
-        if (confirm('Are you sure you want to delete this page? This action cannot be undone.')) {
-            window.location.href = '/delete/<%= pageName %>';
-        }
-    }
 </script>
 
 <%- include('footer') %>
