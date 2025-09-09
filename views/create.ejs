@@ -6,60 +6,67 @@
             <h1>Create New Page</h1>
             
             <form action="/create" method="POST">
-                <!-- Page Name -->
-                <div class="form-group mb-3">
-                    <label for="pageName" style="font-weight:bold;">Page Name:</label>
-                    <input type="text" id="pageName" name="pageName" class="form-control" 
-                           value="<%= typeof pageName !== 'undefined' ? pageName : '' %>" 
-                           placeholder="Enter page name..." required>
-                    <small class="form-text text-muted">Use spaces for readability. Special characters will be handled automatically.</small>
-                </div>
-                
-                <!-- Template Selection -->
-                <div class="form-group mb-3">
-                    <label for="templateName" style="font-weight:bold;">Template:</label>
-                    <select id="templateName" name="templateName" class="form-control" required>
-                        <option value="">Select a template...</option>
-                        <% templates.forEach(template => { %>
-                            <option value="<%= template.name %>"><%= template.displayName || template.name %></option>
-                        <% }); %>
-                    </select>
-                </div>
-                
-                <!-- Categories (At least one required, Max 3) -->
-                <div class="form-group mb-3">
-                    <label style="font-weight:bold;">Categories (At least one required, Max 3):</label>
-                    <div class="dropdown">
-                        <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button" id="categoriesDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            <span id="selectedCategoriesText">Select categories...</span>
-                        </button>
-                        <ul class="dropdown-menu w-100" aria-labelledby="categoriesDropdown">
-                            <% systemCategories.forEach(category => { %>
-                                <li>
-                                    <div class="dropdown-item-checkbox px-3 py-2">
-                                        <div class="form-check">
-                                            <input class="form-check-input category-checkbox" type="checkbox" name="categories[]" value="<%= category %>" id="dropdown-category-<%= category %>">
-                                            <label class="form-check-label ms-2" for="dropdown-category-<%= category %>"><%= category %></label>
-                                        </div>
-                                    </div>
-                                </li>
+                <!-- Page Name and Template on same row -->
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="pageName" style="font-weight:bold;">Page Name:</label>
+                        <input type="text" id="pageName" name="pageName" class="form-control" 
+                               value="<%= typeof pageName !== 'undefined' ? pageName : '' %>" 
+                               placeholder="Enter page name..." required>
+                        <small class="form-text text-muted">Use spaces for readability. Special characters will be handled automatically.</small>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="templateName" style="font-weight:bold;">Template:</label>
+                        <select id="templateName" name="templateName" class="form-control" required>
+                            <option value="">Select a template...</option>
+                            <% templates.forEach(template => { %>
+                                <option value="<%= template.name %>"><%= template.displayName || template.name %></option>
                             <% }); %>
-                        </ul>
+                        </select>
                     </div>
                 </div>
-
-                <!-- User Keywords (Optional, Max 3) -->
-                <div class="form-group mb-3">
-                    <label style="font-weight:bold;">User Keywords (Optional, Max 3):</label>
-                    <div class="row">
-                        <% userKeywords.forEach(keyword => { %>
-                            <div class="col-md-4 mb-2">
-                                <div class="form-check">
-                                    <input class="form-check-input user-keyword-checkbox" type="checkbox" name="userKeywords[]" value="<%= keyword %>" id="user-keyword-<%= keyword %>">
-                                    <label class="form-check-label" for="user-keyword-<%= keyword %>"><%= keyword %></label>
-                                </div>
-                            </div>
-                        <% }); %>
+                
+                <!-- Categories and User Keywords on same row -->
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label style="font-weight:bold;">Categories (At least one required, Max 3):</label>
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button" id="categoriesDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span id="selectedCategoriesText">Select categories...</span>
+                            </button>
+                            <ul class="dropdown-menu w-100" aria-labelledby="categoriesDropdown">
+                                <% systemCategories.forEach(category => { %>
+                                    <li>
+                                        <div class="dropdown-item-checkbox px-3 py-2">
+                                            <div class="form-check">
+                                                <input class="form-check-input category-checkbox" type="checkbox" name="categories[]" value="<%= category %>" id="dropdown-category-<%= category %>">
+                                                <label class="form-check-label ms-2" for="dropdown-category-<%= category %>"><%= category %></label>
+                                            </div>
+                                        </div>
+                                    </li>
+                                <% }); %>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label style="font-weight:bold;">User Keywords (Optional, Max 3):</label>
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button" id="userKeywordsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span id="selectedUserKeywordsText">Select user keywords...</span>
+                            </button>
+                            <ul class="dropdown-menu w-100" aria-labelledby="userKeywordsDropdown">
+                                <% userKeywords.forEach(keyword => { %>
+                                    <li>
+                                        <div class="dropdown-item-checkbox px-3 py-2">
+                                            <div class="form-check">
+                                                <input class="form-check-input user-keyword-checkbox" type="checkbox" name="userKeywords[]" value="<%= keyword %>" id="user-keyword-<%= keyword %>">
+                                                <label class="form-check-label ms-2" for="user-keyword-<%= keyword %>"><%= keyword %></label>
+                                            </div>
+                                        </div>
+                                    </li>
+                                <% }); %>
+                            </ul>
+                        </div>
                     </div>
                 </div>
 
@@ -106,6 +113,7 @@
                 this.checked = false;
                 alert('Maximum 3 user keywords allowed');
             }
+            updateSelectedUserKeywordsText();
         });
     });
     
@@ -115,7 +123,15 @@
         document.getElementById('selectedCategoriesText').textContent = text;
     }
     
+    function updateSelectedUserKeywordsText() {
+        const checkedKeywords = Array.from(document.querySelectorAll('.user-keyword-checkbox:checked')).map(cb => cb.value);
+        const text = checkedKeywords.length > 0 ? checkedKeywords.join(', ') : 'Select user keywords...';
+        document.getElementById('selectedUserKeywordsText').textContent = text;
+    }
+    
+    // Initialize dropdowns
     updateSelectedCategoriesText();
+    updateSelectedUserKeywordsText();
 </script>
 
 <%- include('footer') %>
