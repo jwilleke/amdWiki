@@ -39,10 +39,12 @@
   --bg-secondary: #161b22;
   --bg-tertiary: #21262d;
   
-  /* GitHub-style text colors */
-  --text-primary: #f0f6fc;
+  /* GitHub-style text colors - improved for better content readability */
+  --text-primary: #e6edf3;
   --text-secondary: #7d8590;
   --text-muted: #656d76;
+  --text-heading: #f0f6fc;
+  --text-content: #c9d1d9;
   
   /* GitHub-style borders */
   --border-color: #30363d;
@@ -193,6 +195,7 @@ body {
 .jspwiki-content {
     padding-top: 1.5rem;
     min-height: calc(100vh - 120px);
+    color: var(--text-content, #333);
 }
 
 /* JSPWiki-style Navigation - GitHub-inspired */
@@ -342,14 +345,14 @@ main[role="main"] {
 /* Page content styling */
 .markdown-body {
     line-height: 1.6;
-    color: #333;
+    color: var(--text-content, #333);
 }
 
 .markdown-body h1, 
 .markdown-body h2, 
 .markdown-body h3 {
-    color: #2c3e50;
-    border-bottom: 1px solid #e9ecef;
+    color: var(--text-heading, #2c3e50);
+    border-bottom: 1px solid var(--border-color, #e9ecef);
     padding-bottom: 0.3rem;
 }
 
@@ -462,6 +465,16 @@ main[role="main"] {
     margin-left: 16.66667%; /* Match sidebar width */
     padding-top: 1rem;
     min-height: calc(100vh - 56px); /* Full height minus navbar */
+    color: var(--text-content, #333);
+}
+
+/* Content headings and text */
+main h1, main h2, main h3, main h4, main h5, main h6 {
+    color: var(--text-heading, #2c3e50);
+}
+
+main p, main div, main span, main li {
+    color: var(--text-content, #333);
 }
 
 /* Container adjustments */
@@ -497,26 +510,31 @@ main[role="main"] {
 
 .markdown-body {
     padding-top: 1rem;
+    color: var(--text-content, #333);
 }
 
 .markdown-body h1, .markdown-body h2, .markdown-body h3, .markdown-body h4, .markdown-body h5, .markdown-body h6 {
     margin-top: 1.5rem;
     margin-bottom: 1rem;
+    color: var(--text-heading, #2c3e50);
 }
 
 .markdown-body p {
     margin-bottom: 1rem;
+    color: var(--text-content, #333);
 }
 
 .markdown-body ul, .markdown-body ol {
     margin-bottom: 1rem;
+    color: var(--text-content, #333);
 }
 
 .markdown-body pre {
     padding: 1rem;
-    background-color: var(--bg-secondary);
-    border: 1px solid #dee2e6;
+    background-color: var(--code-bg, var(--bg-secondary));
+    border: 1px solid var(--code-border, #dee2e6);
     border-radius: .25rem;
+    color: var(--text-primary);
 }
 
 /* Wiki link styles */
