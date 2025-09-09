@@ -1,4 +1,24 @@
-<%- include('header', { pageName: pageName || '' }) %>
+<%- include('header', { pageName: pag            <!-- Categories -->
+            <div class="form-group mb-3">
+                <label style="font-weight:bold;">Categories (required, max 3):</label>
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button" id="categoriesDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span id="selectedCategoriesText">Select categories...</span>
+                    </button>
+                    <ul class="dropdown-menu w-100" aria-labelledby="categoriesDropdown" style="max-height: 300px; overflow-y: auto;">
+                        <% systemCategories.forEach(category => { %>
+                            <li>
+                                <div class="dropdown-item-checkbox px-3 py-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input category-checkbox" type="checkbox" name="categories[]" value="<%= category %>" id="dropdown-category-<%= category %>">
+                                        <label class="form-check-label ms-2" for="dropdown-category-<%= category %>"><%= category %></label>
+                                    </div>
+                                </div>
+                            </li>
+                        <% }); %>
+                    </ul>
+                </div>
+            </div>' }) %>
 
 <h1 class="h2 mb-3">Create New Page</h1>
 
@@ -146,6 +166,67 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize display
     updateKeywordDisplay();
+    
+    // Categories dropdown functionality
+    const categoryCheckboxes = document.querySelectorAll('.category-checkbox');
+    const maxCategories = 3;
+    const selectedCategoriesText = document.getElementById('selectedCategoriesText');
+    const categoriesDropdown = document.getElementById('categoriesDropdown');
+    
+    // Update the categories dropdown button text and disable/enable checkboxes
+    function updateCategoriesDisplay() {
+        const checkedCategoryBoxes = document.querySelectorAll('.category-checkbox:checked');
+        const selectedCategories = Array.from(checkedCategoryBoxes).map(cb => cb.value);
+        
+        // Update button text
+        if (selectedCategories.length === 0) {
+            selectedCategoriesText.textContent = 'Select categories...';
+            categoriesDropdown.classList.remove('btn-primary');
+            categoriesDropdown.classList.add('btn-outline-secondary');
+        } else {
+            selectedCategoriesText.textContent = selectedCategories.join(', ');
+            categoriesDropdown.classList.remove('btn-outline-secondary');
+            categoriesDropdown.classList.add('btn-primary');
+        }
+        
+        // Disable unchecked boxes if we've reached the limit
+        categoryCheckboxes.forEach(checkbox => {
+            if (!checkbox.checked && checkedCategoryBoxes.length >= maxCategories) {
+                checkbox.disabled = true;
+                checkbox.parentElement.parentElement.classList.add('text-muted');
+            } else {
+                checkbox.disabled = false;
+                checkbox.parentElement.parentElement.classList.remove('text-muted');
+            }
+        });
+    }
+    
+    // Add event listeners to category checkboxes
+    categoryCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const checkedCategoryBoxes = document.querySelectorAll('.category-checkbox:checked');
+            
+            if (checkedCategoryBoxes.length > maxCategories) {
+                this.checked = false;
+                alert(`You can select a maximum of ${maxCategories} categories.`);
+            }
+            
+            updateCategoriesDisplay();
+        });
+    });
+    
+    // Initialize categories display
+    updateCategoriesDisplay();
+    
+    // Form validation to ensure at least one category is selected
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const checkedCategoryBoxes = document.querySelectorAll('.category-checkbox:checked');
+        if (checkedCategoryBoxes.length === 0) {
+            e.preventDefault();
+            alert('Please select at least one category.');
+            return false;
+        }
+    });
     
     // Template preview functionality
     const templateRadios = document.querySelectorAll('input[name="templateName"]');

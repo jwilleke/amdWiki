@@ -146,6 +146,76 @@ class WikiRoutes {
   }
 
   /**
+   * Get system categories from System Keywords page (admin-only)
+   */
+  async getSystemCategories() {
+    try {
+      const pageManager = this.engine.getManager('PageManager');
+      const systemKeywordsPage = await pageManager.getPage('System Keywords');
+      
+      if (!systemKeywordsPage) {
+        return ['System', 'Documentation', 'Test'];
+      }
+      
+      // Extract system categories from the content
+      const categories = [];
+      const lines = systemKeywordsPage.content.split('\n');
+      
+      for (const line of lines) {
+        // Look for markdown list items that contain category arrays like [System, Documentation]
+        const arrayMatch = line.match(/\[([^\]]+)\]/);
+        if (arrayMatch) {
+          const categoriesInLine = arrayMatch[1].split(',').map(cat => cat.trim());
+          categoriesInLine.forEach(cat => {
+            if (cat && !categories.includes(cat)) {
+              categories.push(cat);
+            }
+          });
+        }
+      }
+      
+      // Default system categories if none found
+      return categories.length > 0 ? categories : ['System', 'Documentation', 'Test'];
+    } catch (err) {
+      console.error('Error loading system categories:', err);
+      return ['System', 'Documentation', 'Test'];
+    }
+  }
+  async getSystemCategories() {
+    try {
+      const pageManager = this.engine.getManager('PageManager');
+      const systemKeywordsPage = await pageManager.getPage('System Keywords');
+      
+      if (!systemKeywordsPage) {
+        return ['System', 'Documentation', 'Test'];
+      }
+      
+      // Extract system categories from the content
+      const categories = [];
+      const lines = systemKeywordsPage.content.split('\n');
+      
+      for (const line of lines) {
+        // Look for markdown list items that contain category arrays like [System, Documentation]
+        const arrayMatch = line.match(/\[([^\]]+)\]/);
+        if (arrayMatch) {
+          const categoriesInLine = arrayMatch[1].split(',').map(cat => cat.trim());
+          categoriesInLine.forEach(cat => {
+            if (cat && !categories.includes(cat)) {
+              categories.push(cat);
+            }
+          });
+        }
+      }
+      
+      // Default system categories if none found
+      return categories.length > 0 ? categories : ['System', 'Documentation', 'Test'];
+    } catch (err) {
+      console.error('Error loading system categories:', err);
+      return ['System', 'Documentation', 'Test'];
+    }
+  }
+
+  /**
    * Extract user keywords from User-Keywords page
    */
   async getUserKeywords() {
@@ -408,10 +478,10 @@ class WikiRoutes {
       const templates = templateManager.getTemplates();
       
       // Get categories and keywords for the form
-      const categories = await this.getCategories();
+      const systemCategories = await this.getSystemCategories();
       const userKeywords = await this.getUserKeywords();
       
-      console.log('DEBUG: Categories returned:', categories);
+      console.log('DEBUG: System categories returned:', systemCategories);
       console.log('DEBUG: User keywords returned:', userKeywords);
       
       res.render('create', {
@@ -419,7 +489,7 @@ class WikiRoutes {
         title: 'Create New Page',
         pageName: pageName,
         templates: templates,
-        categories: categories,
+        systemCategories: systemCategories,
         userKeywords: userKeywords
       });
       
@@ -487,10 +557,19 @@ class WikiRoutes {
         return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to create pages. Please contact an administrator.');
       }
       
-      const { pageName, templateName, category, userKeywords } = req.body;
+      const { pageName, templateName, categories, userKeywords } = req.body;
       
       if (!pageName || !templateName) {
         return res.status(400).send('Page name and template are required');
+      }
+      
+      // Ensure categories is an array and validate
+      let categoriesArray = Array.isArray(categories) ? categories : (categories ? [categories] : []);
+      if (categoriesArray.length === 0) {
+        return res.status(400).send('At least one category is required');
+      }
+      if (categoriesArray.length > 3) {
+        return res.status(400).send('Maximum 3 categories allowed');
       }
       
       const templateManager = this.engine.getManager('TemplateManager');
@@ -505,7 +584,8 @@ class WikiRoutes {
       // Apply template with variables
       const templateVars = {
         pageName: pageName,
-        category: category || '',
+        category: categoriesArray[0] || '', // Use first category for backward compatibility
+        categories: categoriesArray.join(', '),
         userKeywords: Array.isArray(userKeywords) ? userKeywords.join(', ') : (userKeywords || ''),
         date: new Date().toISOString().split('T')[0]
       };
@@ -515,7 +595,7 @@ class WikiRoutes {
       // Save the new page
       const metadata = {
         title: pageName,
-        category: category || '',
+        categories: categoriesArray,
         'user-keywords': Array.isArray(userKeywords) ? userKeywords : (userKeywords ? [userKeywords] : [])
       };
       
@@ -575,12 +655,9 @@ class WikiRoutes {
       // Get common template data with user context
       const commonData = await this.getCommonTemplateDataWithUser(req);
       
-      // Get categories and keywords - use all categories for admin editing required pages
+      // Get categories and keywords - use system categories for admin editing
       const isAdmin = currentUser && userManager.hasPermission(currentUser.username, 'admin:system');
-      const isRequired = await this.isRequiredPage(pageName);
-      const categories = (isRequired && isAdmin) ? 
-        await this.getAllCategories() : 
-        await this.getCategories();
+      const systemCategories = await this.getSystemCategories();
       const userKeywords = await this.getUserKeywords();
       
       // If page doesn't exist, generate template data without saving
@@ -597,8 +674,9 @@ class WikiRoutes {
       const cleanContent = aclManager.removeACLMarkup(pageData.content);
       pageData.content = cleanContent;
 
-      // Extract current category and keywords from metadata
-      const selectedCategory = pageData.metadata?.category || '';
+      // Extract current categories and keywords from metadata - handle both old and new format
+      const selectedCategories = pageData.metadata?.categories || 
+                                (pageData.metadata?.category ? [pageData.metadata.category] : []);
       const selectedUserKeywords = pageData.metadata?.['user-keywords'] || [];
 
       res.render('edit', {
@@ -607,8 +685,8 @@ class WikiRoutes {
         pageName: pageName,
         content: pageData.content,
         metadata: pageData.metadata,
-        categories: categories,
-        selectedCategory: selectedCategory,
+        systemCategories: systemCategories,
+        selectedCategories: selectedCategories,
         userKeywords: userKeywords,
         selectedUserKeywords: selectedUserKeywords
       });
@@ -625,7 +703,7 @@ class WikiRoutes {
   async savePage(req, res) {
     try {
       const pageName = req.params.page;
-      const { content, title, category, userKeywords } = req.body;
+      const { content, title, categories, userKeywords } = req.body;
       
       const pageManager = this.engine.getManager('PageManager');
       const renderingManager = this.engine.getManager('RenderingManager');
@@ -639,10 +717,19 @@ class WikiRoutes {
       // Get existing page data for ACL checking
       const existingPage = await pageManager.getPage(pageName);
       
+      // Ensure categories is an array and validate
+      let categoriesArray = Array.isArray(categories) ? categories : (categories ? [categories] : []);
+      if (categoriesArray.length === 0) {
+        return res.status(400).send('At least one category is required');
+      }
+      if (categoriesArray.length > 3) {
+        return res.status(400).send('Maximum 3 categories allowed');
+      }
+      
       // Prepare metadata first to check the category
       const metadata = {
         title: title || pageName,
-        category: category || '',
+        categories: categoriesArray,
         'user-keywords': Array.isArray(userKeywords) ? userKeywords : (userKeywords ? [userKeywords] : [])
       };
       
