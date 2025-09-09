@@ -83,15 +83,43 @@
         const preview = document.getElementById('preview');
         let text = content.value;
         
-        // Simple markdown conversion
-        text = text.replace(/^# (.*$)/gim, '<h1>$1</h1>');
-        text = text.replace(/^## (.*$)/gim, '<h2>$1</h2>');
-        text = text.replace(/^### (.*$)/gim, '<h3>$1</h3>');
-        text = text.replace(/\*\*(.*)\*\*/g, '<strong>$1</strong>');
-        text = text.replace(/\*(.*)\*/g, '<em>$1</em>');
-        text = text.replace(/\n/g, '<br>');
-        
-        preview.innerHTML = text;
+        // Make an API call to get properly rendered content with user variables
+        fetch('/api/preview', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                content: text,
+                pageName: '<%= pageName %>'
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.html) {
+                preview.innerHTML = data.html;
+            } else {
+                // Fallback to simple markdown conversion if API fails
+                text = text.replace(/^# (.*$)/gim, '<h1>$1</h1>');
+                text = text.replace(/^## (.*$)/gim, '<h2>$1</h2>');
+                text = text.replace(/^### (.*$)/gim, '<h3>$1</h3>');
+                text = text.replace(/\*\*(.*)\*\*/g, '<strong>$1</strong>');
+                text = text.replace(/\*(.*)\*/g, '<em>$1</em>');
+                text = text.replace(/\n/g, '<br>');
+                preview.innerHTML = text;
+            }
+        })
+        .catch(error => {
+            console.error('Preview API error:', error);
+            // Fallback to simple markdown conversion
+            text = text.replace(/^# (.*$)/gim, '<h1>$1</h1>');
+            text = text.replace(/^## (.*$)/gim, '<h2>$1</h2>');
+            text = text.replace(/^### (.*$)/gim, '<h3>$1</h3>');
+            text = text.replace(/\*\*(.*)\*\*/g, '<strong>$1</strong>');
+            text = text.replace(/\*(.*)\*/g, '<em>$1</em>');
+            text = text.replace(/\n/g, '<br>');
+            preview.innerHTML = text;
+        });
     }
     
     // Update preview on input

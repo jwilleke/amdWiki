@@ -979,8 +979,12 @@ class WikiRoutes {
     try {
       const { content, pageName } = req.body;
       const renderingManager = this.engine.getManager('RenderingManager');
+      const userManager = this.engine.getManager('UserManager');
       
-      const renderedContent = renderingManager.renderPreview(content, pageName);
+      // Get current user context for authentication variables
+      const currentUser = await userManager.getCurrentUser(req);
+      
+      const renderedContent = renderingManager.renderPreview(content, pageName, currentUser);
       
       res.json({ 
         html: renderedContent,
