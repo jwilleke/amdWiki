@@ -915,6 +915,20 @@ class UserManager extends BaseManager {
       hasSessionCookie: true
     };
   }
+
+  /**
+   * Check if a user has a specific role
+   * @param {string} username - Username to check
+   * @param {string} roleName - Role name to check for
+   * @returns {boolean} True if user has the role
+   */
+  hasRole(username, roleName) {
+    const user = this.users.get(username);
+    if (!user || !user.roles) {
+      return false;
+    }
+    return user.roles.includes(roleName);
+  }
 }
 
 module.exports = UserManager;

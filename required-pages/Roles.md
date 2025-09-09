@@ -1,0 +1,173 @@
+---
+uuid: roles-docs-2025-0909-wiki-system
+categories: [System, Documentation]
+user-keywords: [roles, permissions, authentication, authorization, security]
+title: User Roles and Permissions
+lastModified: '2025-09-09T12:00:00.000Z'
+---
+
+# User Roles and Permissions
+
+amdWiki implements a role-based access control (RBAC) system that defines what actions users can perform within the wiki. This system provides fine-grained permission control while maintaining simplicity for administrators.
+
+## Available Roles
+
+### Administrator (admin)
+- **Description**: Full system access with all permissions
+- **Use Case**: System administrators, wiki maintainers
+- **Permissions**:
+  - All page operations (read, edit, create, delete, rename)
+  - User management (create, edit, delete users)
+  - Role management (assign/remove roles)
+  - System configuration access
+  - Attachment management (upload, delete)
+  - Export and search capabilities
+  - Bypass all ACL restrictions
+
+### Editor (editor)
+- **Description**: Can create and edit all pages with content management focus
+- **Use Case**: Content managers, senior contributors
+- **Permissions**:
+  - All page operations (read, edit, create, delete, rename)
+  - Attachment management (upload, delete)
+  - Export pages and search all content
+  - Subject to ACL restrictions
+
+### Contributor (contributor)
+- **Description**: Can edit existing pages and create new content
+- **Use Case**: Regular wiki contributors, team members
+- **Permissions**:
+  - Page read, edit, and create
+  - Upload attachments
+  - Export pages and search all content
+  - Cannot delete or rename pages
+  - Subject to ACL restrictions
+
+### Reader (reader)
+- **Description**: Read-only access to wiki content
+- **Use Case**: Viewers, guests with accounts
+- **Permissions**:
+  - Page read access
+  - Search all content
+  - Export pages
+  - Subject to ACL restrictions
+
+### Anonymous (anonymous)
+- **Description**: Public access without authentication
+- **Use Case**: Public wiki visitors
+- **Permissions**:
+  - Page read access only
+  - Limited to publicly accessible content
+  - Subject to ACL restrictions
+
+## Permission Categories
+
+### Page Permissions
+- `page:read` - View page content
+- `page:edit` - Modify existing pages
+- `page:create` - Create new pages
+- `page:delete` - Remove pages permanently
+- `page:rename` - Change page names/URLs
+
+### System Permissions
+- `admin:users` - Manage user accounts
+- `admin:roles` - Manage role assignments
+- `admin:config` - Modify system configuration
+- `admin:system` - Full system administration
+
+### Content Permissions
+- `attachment:upload` - Upload files to pages
+- `attachment:delete` - Remove uploaded files
+- `export:pages` - Export wiki content
+
+### Search Permissions
+- `search:all` - Search all accessible content
+- `search:restricted` - Search protected content
+
+## Role Assignment
+
+### Current User Assignments
+- **admin** user: `admin` role
+- **jim** user: `reader` role
+
+### Changing User Roles
+1. Access user management (admin permission required)
+2. Select target user
+3. Assign appropriate role from available options
+4. Changes take effect immediately
+
+## Integration with ACLs
+
+Roles work seamlessly with [Access Control Lists](Access%20Control%20Lists.md):
+
+- **Role-based ACLs**: Use role names in ACL definitions
+- **Admin Override**: Admin users bypass all ACL restrictions
+- **Hierarchical Access**: Higher roles typically include lower role permissions
+- **Default Behavior**: When no ACL exists, role permissions apply
+
+### Example ACL with Roles
+
+```markdown
+[{ALLOW view admin,editor,contributor}]
+[{ALLOW edit admin,editor}]
+[{ALLOW delete admin}]
+```
+
+## Built-in Principals
+
+Beyond user roles, the system recognizes these special principals:
+
+- **all** - Everyone (authenticated and anonymous)
+- **anonymous** - Users without authentication
+- **asserted** - Users with session but not authenticated
+- **authenticated** - Users with valid authentication
+
+## Security Model
+
+### Design Principles
+- **Least Privilege**: Users receive minimum necessary permissions
+- **Role Hierarchy**: Clear progression from anonymous to admin
+- **Permission Granularity**: Fine-grained control over specific actions
+- **ACL Override**: Page-level security can restrict role permissions
+
+### Security Features
+- Role-based access control (RBAC)
+- Permission inheritance through role hierarchy
+- ACL integration for page-level security
+- Admin bypass capability for system maintenance
+
+## Best Practices
+
+### Role Assignment Guidelines
+1. **Start Minimal**: Assign the lowest role that meets user needs
+2. **Regular Review**: Periodically audit role assignments
+3. **Principle of Least Privilege**: Avoid unnecessary elevated permissions
+4. **Document Changes**: Track role changes for security auditing
+
+### Content Security
+1. Use ACLs for sensitive pages
+2. Combine roles with ACLs for layered security
+3. Regular security reviews of page permissions
+4. Monitor admin activities
+
+## Troubleshooting
+
+### Common Issues
+- **Access Denied**: Check user role and page ACLs
+- **Missing Permissions**: Verify role includes required permissions
+- **ACL Conflicts**: Ensure ACL principals match user roles
+
+### Debugging
+1. Check user's assigned role in user management
+2. Verify role permissions match required actions
+3. Review page ACLs for conflicts
+4. Test with admin account to isolate issues
+
+## Related Documentation
+
+- [Access Control Lists](Access%20Control%20Lists.md) - Page-level security
+  - [ACL Test Page]
+- [User Management] - Creating and managing users
+- [System Configuration] - Wiki system settings
+
+Last updated: September 9, 2025

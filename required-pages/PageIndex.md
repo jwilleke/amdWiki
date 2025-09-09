@@ -7,7 +7,7 @@ categories:
   - Index
 user-keywords: []
 uuid: pageindex-system-generated
-lastModified: '2025-09-08T19:44:27.080Z'
+lastModified: '2025-09-09T08:32:17.229Z'
 ---
 # Page Index
 
@@ -21,6 +21,7 @@ This page contains an alphabetical listing of all pages in this wiki.
 
 ### Pages Directory
 
+- [Access Control Lists](../pages/Access%20Control%20Lists)
 - [Fourth Test Page](../pages/Fourth%20Test%20Page)
 - [JSPWiki Row Styling Implementation](../pages/JSPWiki%20Row%20Styling%20Implementation)
 - [Jims](../pages/Jims)
@@ -33,8 +34,6 @@ This page contains an alphabetical listing of all pages in this wiki.
 
 ### Required Pages Directory
 
-- [ACL Test Page](ACL%20Test%20Page)
-- [Access Control Lists](Access%20Control%20Lists)
 - [Authentication States Implementation](Authentication%20States%20Implementation)
 - [Categories](Categories)
 - [Extended Link Test](Extended%20Link%20Test)
@@ -51,6 +50,7 @@ This page contains an alphabetical listing of all pages in this wiki.
 - [Project Overview and Vision](Project%20Overview%20and%20Vision)
 - [Project Tasks and TODO](Project%20Tasks%20and%20TODO)
 - [Red Link Test](Red%20Link%20Test)
+- [Roles](Roles)
 - [Row Styling Test](Row%20Styling%20Test)
 - [Search Documentation](Search%20Documentation)
 - [Simple Row Test](Simple%20Row%20Test)
