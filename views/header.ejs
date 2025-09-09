@@ -80,7 +80,7 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-8">
-                    <% if (typeof pageName !== 'undefined' && pageName) { %>
+                    <!-- Always show navigation controls -->
                         <ul class="nav nav-pills float-start">
                             <!-- Menu toggle button -->
                             <li class="nav-item" id="menu">
@@ -88,6 +88,7 @@
                                     <i class="fas fa-bars"></i>
                                 </button>
                             </li>
+                    <% if (typeof pageName !== 'undefined' && pageName) { %>
                             <!-- Breadcrumb trail dropdown -->
                             <li class="nav-item dropdown" id="trail">
                                 <button class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="Navigation Trail">
@@ -98,7 +99,9 @@
                                     <li><span class="dropdown-item-text text-muted">No trail available</span></li>
                                 </ul>
                             </li>
-                        </ul>
+                    <% } else { %>
+                            <!-- Placeholder for pages without trail -->
+                            </ul>
                     <% } %>
                 </div>
                 <div class="col-4">
@@ -676,32 +679,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Left menu and trail functionality
 function toggleLeftMenu() {
-    const sidebar = document.querySelector('.jspwiki-sidebar');
-    const mainContent = document.querySelector('.main-content');
+    const sidebar = document.querySelector('.sidebar');
+    const mainContent = document.querySelector('main');
     
-    if (sidebar) {
+    console.log('Toggle clicked - Sidebar classes:', sidebar ? sidebar.className : 'not found');
+    console.log('Toggle clicked - Main content classes:', mainContent ? mainContent.className : 'not found');
+    
+    if (sidebar && mainContent) {
         if (sidebar.classList.contains('d-none')) {
+            console.log('Showing sidebar...');
             // Show sidebar
             sidebar.classList.remove('d-none');
             sidebar.classList.add('d-md-block');
-            if (mainContent) {
-                // Restore original main content classes
-                mainContent.classList.remove('col-12');
-                mainContent.classList.add('col-md-9', 'ms-sm-auto', 'col-lg-10');
-            }
-            // Store preference
+            // Restore original Bootstrap classes for 2-column layout
+            mainContent.classList.remove('col-12');
+            mainContent.classList.add('col-md-9', 'ms-sm-auto', 'col-lg-10');
             localStorage.setItem('leftMenuVisible', 'true');
+            console.log('After showing - Sidebar classes:', sidebar.className);
+            console.log('After showing - Main content classes:', mainContent.className);
         } else {
+            console.log('Hiding sidebar...');
             // Hide sidebar
             sidebar.classList.add('d-none');
             sidebar.classList.remove('d-md-block');
-            if (mainContent) {
-                // Make main content full width
-                mainContent.classList.remove('col-md-9', 'ms-sm-auto', 'col-lg-10');
-                mainContent.classList.add('col-12');
-            }
-            // Store preference
+            // Make main content full width
+            mainContent.classList.remove('col-md-9', 'ms-sm-auto', 'col-lg-10');
+            mainContent.classList.add('col-12');
             localStorage.setItem('leftMenuVisible', 'false');
+            console.log('After hiding - Sidebar classes:', sidebar.className);
+            console.log('After hiding - Main content classes:', mainContent.className);
         }
     }
 }
@@ -709,9 +715,25 @@ function toggleLeftMenu() {
 // Initialize left menu state from localStorage
 function initializeLeftMenuState() {
     const isVisible = localStorage.getItem('leftMenuVisible');
+    console.log('Init: leftMenuVisible from localStorage:', isVisible);
+    
+    // Don't auto-hide if no preference is stored, let the default CSS handle it
     if (isVisible === 'false') {
         const sidebar = document.querySelector('.jspwiki-sidebar');
-        const mainContent = document.querySelector('.main-content');
+        // Try multiple selectors to find the main content
+        let mainContent = document.querySelector('body > div.container-fluid > div > main');
+        if (!mainContent) {
+            mainContent = document.querySelector('main.jspwiki-content');
+        }
+        if (!mainContent) {
+            mainContent = document.querySelector('main[role="main"]');
+        }
+        if (!mainContent) {
+            mainContent = document.querySelector('.jspwiki-content');
+        }
+        
+        console.log('Init: Found sidebar:', sidebar);
+        console.log('Init: Found main content:', mainContent);
         
         if (sidebar) {
             sidebar.classList.add('d-none');
@@ -719,7 +741,20 @@ function initializeLeftMenuState() {
             if (mainContent) {
                 mainContent.classList.remove('col-md-9', 'ms-sm-auto', 'col-lg-10');
                 mainContent.classList.add('col-12');
+                console.log('Init: Applied full-width layout on page load');
             }
+        }
+    } else if (isVisible === 'true') {
+        // Show sidebar if preference is to show it
+        const sidebar = document.querySelector('.jspwiki-sidebar');
+        const mainContent = document.querySelector('main');
+        
+        if (sidebar && mainContent) {
+            sidebar.classList.remove('d-none');
+            sidebar.classList.add('d-md-block');
+            mainContent.classList.remove('col-12');
+            mainContent.classList.add('col-md-9', 'ms-sm-auto', 'col-lg-10');
+            console.log('Init: Restored sidebar from localStorage');
         }
     }
 }

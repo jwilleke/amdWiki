@@ -337,9 +337,19 @@ body {
 
 /* Main content area adjustments for JSPWiki style */
 main[role="main"] {
-    margin-left: 16.66667%; /* Match sidebar width */
     min-height: calc(100vh - 56px);
     background-color: var(--bg-primary);
+    transition: margin-left 0.3s ease; /* Smooth transition when sidebar toggles */
+}
+
+/* When sidebar is visible, add margin */
+main[role="main"].col-md-9 {
+    margin-left: 16.66667%; /* Match sidebar width when sidebar is visible */
+}
+
+/* When sidebar is hidden, remove margin */
+main[role="main"].col-12 {
+    margin-left: 0; /* Full width when sidebar is hidden */
 }
 
 /* Page content styling */
@@ -460,9 +470,9 @@ main[role="main"] {
     border-color: var(--border-color);
 }
 
-/* Main content adjustments */
-main[role="main"] {
-    margin-left: 16.66667%; /* Match sidebar width */
+/* Main content adjustments - removed fixed margin, handled by Bootstrap classes */
+main[role="main"].legacy-layout {
+    margin-left: 16.66667%; /* Match sidebar width - only for legacy layout */
     padding-top: 1rem;
     min-height: calc(100vh - 56px); /* Full height minus navbar */
     color: var(--text-content, #333);
