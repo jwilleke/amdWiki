@@ -196,7 +196,9 @@ class ThemeManager {
                 title = 'Toggle Theme';
         }
         
-        icon.className = iconClass;
+        if (icon) {
+            icon.className = iconClass;
+        }
         toggle.setAttribute('title', title);
         
         // Add tooltip if Bootstrap is available
@@ -231,7 +233,7 @@ class ThemeManager {
 
 // Initialize theme manager when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('Theme Manager: Initializing...');
+    console.log('Theme Manager: DOM is ready, initializing...');
     window.themeManager = new ThemeManager();
     console.log('Theme Manager: Initialized with theme:', window.themeManager.currentTheme);
     

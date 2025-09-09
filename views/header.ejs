@@ -11,11 +11,11 @@
 </head>
 <body>
     <!-- JSPWiki-style header -->
-    <div class="jspwiki-header bg-light border-bottom">
+    <div class="jspwiki-header border-bottom">
         <div class="container-fluid">
             <div class="row align-items-center py-2">
                 <div class="col-md-3">
-                    <a class="navbar-brand text-dark" href="/">
+                    <a class="navbar-brand" href="/">
                         <i class="fas fa-book text-primary"></i> <strong>amdWiki</strong>
                     </a>
                 </div>
@@ -158,7 +158,7 @@
 
     <div class="container-fluid">
         <div class="row">
-            <nav class="col-md-2 d-none d-md-block bg-light sidebar jspwiki-sidebar">
+            <nav class="col-md-2 d-none d-md-block sidebar jspwiki-sidebar">
                 <div class="sidebar-sticky px-3 pt-3">
                     <% if (typeof leftMenuContent !== 'undefined' && leftMenuContent) { %>
                         <div class="leftmenu-content">
@@ -292,7 +292,7 @@
                                     <i class="fas fa-copy"></i> Copy to Clipboard
                                 </button>
                             </div>
-                            <pre id="sourceContent" class="bg-light p-3 border rounded" style="max-height: 500px; overflow-y: auto; white-space: pre-wrap;">${escapeHtml(sourceContent)}</pre>
+                            <pre id="sourceContent" class="p-3 border rounded" style="max-height: 500px; overflow-y: auto; white-space: pre-wrap; background-color: var(--code-bg); color: var(--text-primary);">${escapeHtml(sourceContent)}</pre>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -353,4 +353,203 @@
 </script>
 
 <!-- Theme Manager -->
-<script src="/js/theme-manager.js"></script>
+<script>
+// Simple embedded theme manager with system preference support
+class SimpleThemeManager {
+    constructor() {
+        console.log('🎨 Theme Manager: Starting initialization...');
+        this.themes = ['light', 'dark', 'system'];
+        this.currentTheme = localStorage.getItem('theme-preference') || 'system';
+        this.systemTheme = this.getSystemTheme();
+        
+        console.log('🎨 Theme Manager: Initial state:', {
+            currentTheme: this.currentTheme,
+            systemTheme: this.systemTheme,
+            stored: localStorage.getItem('theme-preference')
+        });
+        
+        this.applyTheme();
+        this.createThemeToggle();
+        
+        // Listen for system theme changes
+        if (window.matchMedia) {
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+                console.log('🎨 System theme changed:', e.matches ? 'dark' : 'light');
+                this.systemTheme = e.matches ? 'dark' : 'light';
+                if (this.currentTheme === 'system') {
+                    this.applyTheme();
+                    this.updateButton();
+                }
+            });
+        }
+        
+        console.log('🎨 Theme Manager: Initialization complete');
+    }
+    
+    getSystemTheme() {
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            return 'dark';
+        }
+        return 'light';
+    }
+    
+    getEffectiveTheme() {
+        if (this.currentTheme === 'system') {
+            return this.systemTheme;
+        }
+        return this.currentTheme;
+    }
+    
+    applyTheme() {
+        const effectiveTheme = this.getEffectiveTheme();
+        const html = document.documentElement;
+        
+        console.log('🎨 Applying theme:', this.currentTheme, '(effective:', effectiveTheme + ')');
+        
+        // Remove existing theme attributes
+        html.removeAttribute('data-theme');
+        
+        // Apply new theme
+        if (effectiveTheme === 'dark') {
+            html.setAttribute('data-theme', 'dark');
+            document.body.style.backgroundColor = '#1a1a1a';
+            document.body.style.color = '#e9ecef';
+        } else {
+            html.setAttribute('data-theme', 'light');
+            document.body.style.backgroundColor = '#ffffff';
+            document.body.style.color = '#212529';
+        }
+        
+        console.log('🎨 Theme applied - HTML data-theme:', html.getAttribute('data-theme'));
+        console.log('🎨 Theme applied - Body background:', document.body.style.backgroundColor);
+        
+        // Add a visible debug indicator
+        let debugDiv = document.getElementById('theme-debug');
+        if (!debugDiv) {
+            debugDiv = document.createElement('div');
+            debugDiv.id = 'theme-debug';
+            debugDiv.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                left: 20px;
+                background: rgba(0,0,0,0.8);
+                color: white;
+                padding: 10px;
+                border-radius: 5px;
+                z-index: 9998;
+                font-family: monospace;
+                font-size: 12px;
+            `;
+            document.body.appendChild(debugDiv);
+        }
+        debugDiv.textContent = `Theme: ${this.currentTheme} (${effectiveTheme})`;
+        
+        // Force a reflow to ensure styles are applied
+        document.body.offsetHeight;
+    }
+    
+    cycleTheme() {
+        const oldTheme = this.currentTheme;
+        const currentIndex = this.themes.indexOf(this.currentTheme);
+        const nextIndex = (currentIndex + 1) % this.themes.length;
+        this.currentTheme = this.themes[nextIndex];
+        
+        console.log('🎨 Theme cycling:', oldTheme, '→', this.currentTheme);
+        
+        localStorage.setItem('theme-preference', this.currentTheme);
+        this.applyTheme();
+        this.updateButton();
+        
+        // Show a brief visual feedback
+        if (this.toggleButton) {
+            this.toggleButton.style.transform = 'scale(1.2)';
+            setTimeout(() => {
+                this.toggleButton.style.transform = 'scale(1)';
+            }, 200);
+        }
+    }
+    
+    createThemeToggle() {
+        const toggle = document.createElement('div');
+        toggle.id = 'theme-toggle';
+        toggle.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            background: #ffffff;
+            border: 2px solid #007bff;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        `;
+        toggle.innerHTML = '<i class="fas fa-palette" style="color: #007bff; font-size: 1.2rem;"></i>';
+        toggle.title = 'Toggle Theme';
+        
+        toggle.addEventListener('click', () => {
+            console.log('🎨 Theme toggle clicked!');
+            this.cycleTheme();
+        });
+        
+        toggle.addEventListener('mouseenter', () => {
+            toggle.style.transform = 'scale(1.1)';
+        });
+        
+        toggle.addEventListener('mouseleave', () => {
+            toggle.style.transform = 'scale(1)';
+        });
+        
+        document.body.appendChild(toggle);
+        this.toggleButton = toggle;
+        this.updateButton();
+    }
+    
+    updateButton() {
+        if (!this.toggleButton) return;
+        const icon = this.toggleButton.querySelector('i');
+        const effectiveTheme = this.getEffectiveTheme();
+        
+        switch (this.currentTheme) {
+            case 'light':
+                icon.className = 'fas fa-sun';
+                this.toggleButton.style.background = '#ffffff';
+                this.toggleButton.style.borderColor = '#007bff';
+                icon.style.color = '#007bff';
+                this.toggleButton.title = 'Theme: Light (click for Dark)';
+                break;
+            case 'dark':
+                icon.className = 'fas fa-moon';
+                this.toggleButton.style.background = '#2d2d2d';
+                this.toggleButton.style.borderColor = '#66b3ff';
+                icon.style.color = '#66b3ff';
+                this.toggleButton.title = 'Theme: Dark (click for System)';
+                break;
+            case 'system':
+                icon.className = 'fas fa-adjust';
+                if (effectiveTheme === 'dark') {
+                    this.toggleButton.style.background = '#2d2d2d';
+                    this.toggleButton.style.borderColor = '#66b3ff';
+                    icon.style.color = '#66b3ff';
+                } else {
+                    this.toggleButton.style.background = '#ffffff';
+                    this.toggleButton.style.borderColor = '#007bff';
+                    icon.style.color = '#007bff';
+                }
+                this.toggleButton.title = `Theme: System (${effectiveTheme}) (click for Light)`;
+                break;
+        }
+    }
+}
+
+// Initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    window.themeManager = new SimpleThemeManager();
+    console.log('Simple Theme Manager initialized with theme:', window.themeManager.currentTheme);
+});
+</script>
