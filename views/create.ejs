@@ -1,4 +1,32 @@
-<%- include('header', { pageName: pag            <!-- Categories -->
+<%- include('header', { pageName: '' }) %>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-10">
+            <h1>Create New Page</h1>
+            
+            <form action="/create" method="POST">
+                <!-- Page Name -->
+                <div class="form-group mb-3">
+                    <label for="pageName" style="font-weight:bold;">Page Name:</label>
+                    <input type="text" id="pageName" name="pageName" class="form-control" 
+                           value="<%= typeof name !== 'undefined' ? name : '' %>" 
+                           placeholder="Enter page name..." required>
+                    <small class="form-text text-muted">Use spaces for readability. Special characters will be handled automatically.</small>
+                </div>
+                
+                <!-- Template Selection -->
+                <div class="form-group mb-3">
+                    <label for="templateName" style="font-weight:bold;">Template:</label>
+                    <select id="templateName" name="templateName" class="form-control" required>
+                        <option value="">Select a template...</option>
+                        <% templates.forEach(template => { %>
+                            <option value="<%= template.name %>"><%= template.displayName %></option>
+                        <% }); %>
+                    </select>
+                </div>
+                
+                <!-- Categories -->
             <div class="form-group mb-3">
                 <label style="font-weight:bold;">Categories (required, max 3):</label>
                 <div class="dropdown">

@@ -1,4 +1,24 @@
-<%- inc        <!-- Categories -->
+<%- include('header', { pageName: pageName }) %>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-10">
+            <h1>Edit <%= pageName %></h1>
+            
+            <form action="/save/<%= pageName %>" method="POST">
+                <!-- Page Title -->
+                <div class="form-group mb-3">
+                    <label for="title" style="font-weight:bold;">Page Title:</label>
+                    <input type="text" id="title" name="title" class="form-control" value="<%= metadata.title || pageName %>" required>
+                </div>
+                
+                <!-- Content -->
+                <div class="form-group mb-3">
+                    <label for="content" style="font-weight:bold;">Content:</label>
+                    <textarea id="content" name="content" class="form-control" rows="20" required><%= content %></textarea>
+                </div>
+                
+                <!-- Categories -->
         <div class="form-group">
             <label style="font-weight:bold;">Categories (required, max 3):</label>
             <div class="dropdown">
