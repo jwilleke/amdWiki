@@ -288,7 +288,7 @@
                         </div>
                         <div class="modal-body">
                             <div class="mb-3">
-                                <button class="btn btn-outline-primary btn-sm" onclick="copySourceToClipboard()">
+                                <button id="copyButton" class="btn btn-outline-primary btn-sm">
                                     <i class="fas fa-copy"></i> Copy to Clipboard
                                 </button>
                             </div>
@@ -306,17 +306,33 @@
         const existingModal = document.getElementById('pageSourceModal');
         if (existingModal) existingModal.remove();
         
-        // Add modal to DOM and show
+        // Add modal to DOM
         document.body.insertAdjacentHTML('beforeend', sourceModal);
-        new bootstrap.Modal(document.getElementById('pageSourceModal')).show();
+        
+        // Add event listener for copy button
+        const copyButton = document.getElementById('copyButton');
+        if (copyButton) {
+            copyButton.addEventListener('click', copySourceToClipboard);
+        }
+        
+        // Show modal
+        const modal = new bootstrap.Modal(document.getElementById('pageSourceModal'));
+        modal.show();
     }
     
-    function copySourceToClipboard() {
+    function copySourceToClipboard(event) {
         const sourceContent = document.getElementById('sourceContent').textContent;
-        navigator.clipboard.writeText(sourceContent).then(() => {
-            // Show success feedback
-            const btn = event.target.closest('button');
-            const originalText = btn.innerHTML;
+        const btn = event ? event.target.closest('button') : document.getElementById('copyButton');
+        
+        if (!btn) {
+            console.error('Copy button not found');
+            return;
+        }
+        
+        const originalText = btn.innerHTML;
+        
+        // Function to show success feedback
+        function showSuccess() {
             btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
             btn.classList.remove('btn-outline-primary');
             btn.classList.add('btn-success');
@@ -326,10 +342,106 @@
                 btn.classList.remove('btn-success');
                 btn.classList.add('btn-outline-primary');
             }, 2000);
-        }).catch(err => {
-            console.error('Failed to copy: ', err);
-            alert('Failed to copy to clipboard');
-        });
+        }
+        
+        // Function to show error feedback
+        function showError(errorMsg) {
+            console.error('Failed to copy: ', errorMsg);
+            btn.innerHTML = '<i class="fas fa-times"></i> Failed';
+            btn.classList.remove('btn-outline-primary');
+            btn.classList.add('btn-danger');
+            
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.classList.remove('btn-danger');
+                btn.classList.add('btn-outline-primary');
+            }, 2000);
+        }
+        
+        // Modern clipboard API (preferred method)
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(sourceContent).then(() => {
+                console.log('Clipboard API copy successful');
+                showSuccess();
+            }).catch(err => {
+                console.warn('Clipboard API failed, trying fallback method:', err);
+                tryFallbackCopy();
+            });
+        } else {
+            console.log('Clipboard API not available, using fallback method');
+            // Fallback for older browsers or non-secure contexts
+            tryFallbackCopy();
+        }
+        
+        function tryFallbackCopy() {
+            try {
+                // Create a temporary textarea element
+                const textArea = document.createElement('textarea');
+                textArea.value = sourceContent;
+                textArea.style.position = 'fixed';
+                textArea.style.left = '-999999px';
+                textArea.style.top = '-999999px';
+                textArea.style.opacity = '0';
+                document.body.appendChild(textArea);
+                
+                // Select and copy the content
+                textArea.focus();
+                textArea.select();
+                textArea.setSelectionRange(0, 99999); // For mobile devices
+                
+                const successful = document.execCommand('copy');
+                document.body.removeChild(textArea);
+                
+                if (successful) {
+                    console.log('Fallback copy successful');
+                    showSuccess();
+                } else {
+                    throw new Error('execCommand copy failed');
+                }
+            } catch (err) {
+                console.error('All copy methods failed:', err);
+                showError(err.message);
+                
+                // As a last resort, provide manual copy instructions
+                showManualCopyInstructions();
+            }
+        }
+        
+        function showManualCopyInstructions() {
+            const modal = document.createElement('div');
+            modal.innerHTML = `
+                <div class="modal fade" id="copyInstructionsModal" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Manual Copy Required</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p><strong>Automatic copy failed.</strong> Please manually copy the content:</p>
+                                <ol>
+                                    <li>Click in the source code area above</li>
+                                    <li>Select all text (<kbd>Ctrl+A</kbd> or <kbd>Cmd+A</kbd>)</li>
+                                    <li>Copy the selected text (<kbd>Ctrl+C</kbd> or <kbd>Cmd+C</kbd>)</li>
+                                </ol>
+                                <p class="text-muted">This may happen in some browsers due to security restrictions.</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            const instructionsModal = new bootstrap.Modal(document.getElementById('copyInstructionsModal'));
+            instructionsModal.show();
+            
+            // Remove modal when closed
+            document.getElementById('copyInstructionsModal').addEventListener('hidden.bs.modal', function () {
+                document.body.removeChild(modal);
+            });
+        }
     }
     
     function escapeHtml(text) {
