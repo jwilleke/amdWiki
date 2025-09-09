@@ -101,17 +101,37 @@ class PageManager extends BaseManager {
       return true;
     }
     
-    // Check if metadata indicates System/Admin category
-    if (metadata && metadata.category === 'System/Admin') {
-      return true;
+    // Check if metadata indicates System category
+    if (metadata) {
+      // Check singular category field
+      if (metadata.category === 'System/Admin' || metadata.category === 'System') {
+        return true;
+      }
+      
+      // Check plural categories array
+      if (metadata.categories && Array.isArray(metadata.categories)) {
+        if (metadata.categories.includes('System') || metadata.categories.includes('System/Admin')) {
+          return true;
+        }
+      }
     }
     
     // If no metadata provided, check existing page
     if (!metadata) {
       try {
         const pageData = await this.getPage(pageName);
-        if (pageData && pageData.metadata && pageData.metadata.category === 'System/Admin') {
-          return true;
+        if (pageData && pageData.metadata) {
+          // Check singular category field
+          if (pageData.metadata.category === 'System/Admin' || pageData.metadata.category === 'System') {
+            return true;
+          }
+          
+          // Check plural categories array
+          if (pageData.metadata.categories && Array.isArray(pageData.metadata.categories)) {
+            if (pageData.metadata.categories.includes('System') || pageData.metadata.categories.includes('System/Admin')) {
+              return true;
+            }
+          }
         }
       } catch (err) {
         // If page doesn't exist yet, not a required page
