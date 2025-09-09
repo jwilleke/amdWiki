@@ -81,8 +81,23 @@
             <div class="row">
                 <div class="col-8">
                     <% if (typeof pageName !== 'undefined' && pageName) { %>
-                        <ul class="nav nav-pills">
-                            <!-- Navigation pills removed for cleaner interface -->
+                        <ul class="nav nav-pills float-start">
+                            <!-- Menu toggle button -->
+                            <li class="nav-item" id="menu">
+                                <button class="btn btn-outline-secondary btn-sm me-2" onclick="toggleLeftMenu()" title="Show/Hide Sidebar">
+                                    <i class="fas fa-bars"></i>
+                                </button>
+                            </li>
+                            <!-- Breadcrumb trail dropdown -->
+                            <li class="nav-item dropdown" id="trail">
+                                <button class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="Navigation Trail">
+                                    Trail
+                                </button>
+                                <ul class="dropdown-menu" data-hover-parent="li" id="breadcrumbTrail">
+                                    <!-- Breadcrumbs will be populated by JavaScript -->
+                                    <li><span class="dropdown-item-text text-muted">No trail available</span></li>
+                                </ul>
+                            </li>
                         </ul>
                     <% } %>
                 </div>
@@ -203,7 +218,7 @@
                 </div>
             </nav>
 
-            <main role="main" class="col-md-9 ms-sm-auto col-lg-10 px-4 jspwiki-content">
+            <main role="main" class="col-md-9 ms-sm-auto col-lg-10 px-4 jspwiki-content main-content">
 
 <script>
     function createNewPage() {
@@ -647,7 +662,217 @@ class SimpleThemeManager {
 document.addEventListener('DOMContentLoaded', () => {
     window.themeManager = new SimpleThemeManager();
     console.log('Simple Theme Manager initialized with theme:', window.themeManager.currentTheme);
+    
+    // Check for user changes and server restarts
+    checkUserChange();
+    checkServerRestart();
+    
+    // Initialize left menu state
+    initializeLeftMenuState();
+    
+    // Initialize breadcrumb trail
+    initializeTrail();
 });
+
+// Left menu and trail functionality
+function toggleLeftMenu() {
+    const sidebar = document.querySelector('.jspwiki-sidebar');
+    const mainContent = document.querySelector('.main-content');
+    
+    if (sidebar) {
+        if (sidebar.classList.contains('d-none')) {
+            // Show sidebar
+            sidebar.classList.remove('d-none');
+            sidebar.classList.add('d-md-block');
+            if (mainContent) {
+                // Restore original main content classes
+                mainContent.classList.remove('col-12');
+                mainContent.classList.add('col-md-9', 'ms-sm-auto', 'col-lg-10');
+            }
+            // Store preference
+            localStorage.setItem('leftMenuVisible', 'true');
+        } else {
+            // Hide sidebar
+            sidebar.classList.add('d-none');
+            sidebar.classList.remove('d-md-block');
+            if (mainContent) {
+                // Make main content full width
+                mainContent.classList.remove('col-md-9', 'ms-sm-auto', 'col-lg-10');
+                mainContent.classList.add('col-12');
+            }
+            // Store preference
+            localStorage.setItem('leftMenuVisible', 'false');
+        }
+    }
+}
+
+// Initialize left menu state from localStorage
+function initializeLeftMenuState() {
+    const isVisible = localStorage.getItem('leftMenuVisible');
+    if (isVisible === 'false') {
+        const sidebar = document.querySelector('.jspwiki-sidebar');
+        const mainContent = document.querySelector('.main-content');
+        
+        if (sidebar) {
+            sidebar.classList.add('d-none');
+            sidebar.classList.remove('d-md-block');
+            if (mainContent) {
+                mainContent.classList.remove('col-md-9', 'ms-sm-auto', 'col-lg-10');
+                mainContent.classList.add('col-12');
+            }
+        }
+    }
+}
+
+// Breadcrumb trail management
+let navigationTrail = JSON.parse(localStorage.getItem('navigationTrail') || '[]');
+
+// Clear trail function
+function clearTrail() {
+    navigationTrail = [];
+    localStorage.removeItem('navigationTrail');
+    updateTrailDropdown();
+}
+
+// Check if user has changed (for clearing trail on user switch)
+function checkUserChange() {
+    const currentUserInfo = '<%= typeof currentUser !== "undefined" && currentUser ? currentUser.username || "anonymous" : "anonymous" %>';
+    const lastUser = localStorage.getItem('lastUser');
+    
+    if (lastUser && lastUser !== currentUserInfo) {
+        // User has changed, clear the trail
+        clearTrail();
+    }
+    
+    // Store current user
+    localStorage.setItem('lastUser', currentUserInfo);
+}
+
+// Check if server has restarted (simple timestamp check)
+function checkServerRestart() {
+    const serverStartTime = '<%= Date.now() %>';
+    const lastServerTime = localStorage.getItem('lastServerTime');
+    
+    if (lastServerTime && Math.abs(serverStartTime - lastServerTime) > 300000) { // 5 minutes difference
+        // Server likely restarted, clear trail
+        clearTrail();
+    }
+    
+    localStorage.setItem('lastServerTime', serverStartTime);
+}
+
+function addToTrail(pageName, pageTitle) {
+    // Don't add the same page consecutively 
+    if (navigationTrail.length > 0 && navigationTrail[0].page === pageName) {
+        return;
+    }
+    
+    // Remove any existing entry for this page from anywhere in the trail
+    navigationTrail = navigationTrail.filter(item => item.page !== pageName);
+    
+    // Use pageName if pageTitle is not provided or is generic
+    const displayTitle = (pageTitle && pageTitle !== 'Markdown Wiki' && pageTitle !== pageName) ? pageTitle : pageName;
+    
+    // Add to beginning of trail
+    navigationTrail.unshift({
+        page: pageName,
+        title: displayTitle,
+        timestamp: Date.now()
+    });
+    
+    // Keep only last 10 entries
+    navigationTrail = navigationTrail.slice(0, 10);
+    
+    // Save to localStorage
+    localStorage.setItem('navigationTrail', JSON.stringify(navigationTrail));
+    
+    // Debug log
+    console.log('Added to trail:', pageName, 'as', displayTitle);
+    
+    // Update dropdown
+    updateTrailDropdown();
+}
+
+function updateTrailDropdown() {
+    const dropdown = document.getElementById('breadcrumbTrail');
+    if (!dropdown) return;
+    
+    dropdown.innerHTML = '';
+    
+    // Get current page to exclude it from trail
+    const currentPage = window.location.pathname.split('/wiki/')[1];
+    const currentPageDecoded = currentPage ? decodeURIComponent(currentPage) : null;
+    
+    // Show only trail items (excluding current page)
+    const trailItemsToShow = navigationTrail.filter(item => 
+        !currentPageDecoded || item.page !== currentPageDecoded
+    );
+    
+    if (trailItemsToShow.length === 0) {
+        dropdown.innerHTML = '<li><span class="dropdown-item-text text-muted">No trail available</span></li>';
+        return;
+    }
+    
+    trailItemsToShow.forEach((item, index) => {
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.className = 'dropdown-item';
+        a.href = `/wiki/${encodeURIComponent(item.page)}`;
+        
+        // Use the page name from the URL, not a potentially generic title
+        const displayName = item.page; // Always use the actual page name
+        a.innerHTML = `<i class="fas fa-file-alt me-2"></i>${displayName}`;
+        
+        // Add time indicator for recent items
+        const timeDiff = Date.now() - item.timestamp;
+        if (timeDiff < 300000) { // Less than 5 minutes
+            a.innerHTML += ' <small class="text-muted">(recent)</small>';
+        }
+        
+        li.appendChild(a);
+        dropdown.appendChild(li);
+    });
+    
+    // Add separator and clear option if there are items
+    if (trailItemsToShow.length > 0) {
+        const separator = document.createElement('li');
+        separator.innerHTML = '<hr class="dropdown-divider">';
+        dropdown.appendChild(separator);
+        
+        const clearLi = document.createElement('li');
+        const clearA = document.createElement('a');
+        clearA.className = 'dropdown-item text-danger';
+        clearA.href = '#';
+        clearA.innerHTML = '<i class="fas fa-trash me-2"></i>Clear Trail';
+        clearA.onclick = (e) => {
+            e.preventDefault();
+            clearTrail();
+        };
+        clearLi.appendChild(clearA);
+        dropdown.appendChild(clearLi);
+    }
+}
+
+// Initialize trail on page load
+function initializeTrail() {
+    const currentPage = window.location.pathname.split('/wiki/')[1];
+    if (!currentPage) {
+        updateTrailDropdown();
+        return;
+    }
+    
+    const currentPageDecoded = decodeURIComponent(currentPage);
+    // Use the page name from URL, not the document title
+    const pageName = currentPageDecoded;
+    
+    // Only add to trail if it's a different page than the last one visited
+    if (navigationTrail.length === 0 || navigationTrail[0].page !== currentPageDecoded) {
+        addToTrail(currentPageDecoded, pageName);
+    } else {
+        // Just update the dropdown without adding
+        updateTrailDropdown();
+    }
+}
 
 // Edit form functions for navbar buttons
 function saveEditForm() {
