@@ -5,33 +5,22 @@
         <div class="col-md-12">
             <h1>Edit <%= pageName %></h1>
             
-            <form action="/wiki/<%= pageName %>" method="POST">
+            <form action="/save/<%= pageName %>" method="POST">
                 <!-- Page Title -->
                 <div class="form-group mb-3">
                     <label for="title" style="font-weight:bold;">Page Title:</label>
                     <input type="text" id="title" name="title" class="form-control" value="<%= metadata.title || pageName %>" required>
                 </div>
                 
-                <!-- Categories (At least one required, Max 3) -->
+                <!-- Single Category (Required) -->
                 <div class="form-group mb-3">
-                    <label style="font-weight:bold;">Categories (At least one required, Max 3):</label>
-                    <div class="dropdown">
-                        <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button" id="categoriesDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            <span id="selectedCategoriesText">Select categories...</span>
-                        </button>
-                        <ul class="dropdown-menu w-100" aria-labelledby="categoriesDropdown">
-                            <% systemCategories.forEach(category => { %>
-                                <li>
-                                    <div class="dropdown-item-checkbox px-3 py-2">
-                                        <div class="form-check">
-                                            <input class="form-check-input category-checkbox" type="checkbox" name="categories[]" value="<%= category %>" id="dropdown-category-<%= category %>" <%= selectedCategories.includes(category) ? 'checked' : '' %>>
-                                            <label class="form-check-label ms-2" for="dropdown-category-<%= category %>"><%= category %></label>
-                                        </div>
-                                    </div>
-                                </li>
-                            <% }); %>
-                        </ul>
-                    </div>
+                    <label for="category" style="font-weight:bold;">Category (Required - Select One):</label>
+                    <select class="form-control" id="category" name="category" required>
+                        <option value="">-- Select Category --</option>
+                        <% systemCategories.forEach(category => { %>
+                            <option value="<%= category.toLowerCase() %>" <%= metadata.category === category.toLowerCase() ? 'selected' : '' %>><%= category %></option>
+                        <% }); %>
+                    </select>
                 </div>
                 
                 <!-- Content -->
@@ -50,6 +39,28 @@
                     </div>
                 </div>
                 
+                <!-- Admin Categories (Optional, Max 3) -->
+                <div class="form-group mb-3">
+                    <label style="font-weight:bold;">Admin Categories (Optional, Max 3):</label>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button" id="categoriesDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span id="selectedCategoriesText">Select admin categories...</span>
+                        </button>
+                        <ul class="dropdown-menu w-100" aria-labelledby="categoriesDropdown">
+                            <% systemCategories.forEach(category => { %>
+                                <li>
+                                    <div class="dropdown-item-checkbox px-3 py-2">
+                                        <div class="form-check">
+                                            <input class="form-check-input category-checkbox" type="checkbox" name="categories[]" value="<%= category %>" id="dropdown-category-<%= category %>" <%= selectedCategories.includes(category) ? 'checked' : '' %>>
+                                            <label class="form-check-label ms-2" for="dropdown-category-<%= category %>"><%= category %></label>
+                                        </div>
+                                    </div>
+                                </li>
+                            <% }); %>
+                        </ul>
+                    </div>
+                </div>
+
                 <!-- User Keywords (Optional, Max 3) -->
                 <div class="form-group mb-3">
                     <label style="font-weight:bold;">User Keywords (Optional, Max 3):</label>
@@ -98,27 +109,17 @@
     document.getElementById('content').addEventListener('input', updatePreview);
     updatePreview();
     
-    // Category checkboxes limitation and validation
+    // Category checkboxes limitation
     const categoryCheckboxes = document.querySelectorAll('.category-checkbox');
     categoryCheckboxes.forEach(checkbox => {
         checkbox.addEventListener('change', function() {
             const checkedCount = document.querySelectorAll('.category-checkbox:checked').length;
             if (checkedCount > 3) {
                 this.checked = false;
-                alert('Maximum 3 categories allowed');
+                alert('Maximum 3 admin categories allowed');
             }
             updateSelectedCategoriesText();
         });
-    });
-    
-    // Form submission validation
-    document.querySelector('form').addEventListener('submit', function(e) {
-        const checkedCount = document.querySelectorAll('.category-checkbox:checked').length;
-        if (checkedCount === 0) {
-            e.preventDefault();
-            alert('At least one category is required');
-            return false;
-        }
     });
     
     // User keyword limitation
@@ -135,7 +136,7 @@
     
     function updateSelectedCategoriesText() {
         const checkedCategories = Array.from(document.querySelectorAll('.category-checkbox:checked')).map(cb => cb.value);
-        const text = checkedCategories.length > 0 ? checkedCategories.join(', ') : 'Select categories...';
+        const text = checkedCategories.length > 0 ? checkedCategories.join(', ') : 'Select admin categories...';
         document.getElementById('selectedCategoriesText').textContent = text;
     }
     
