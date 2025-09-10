@@ -1,0 +1,437 @@
+# Integration Guide: DigitalDocumentPermission in Custom Managers and Plugins
+
+## Overview
+
+This guide explains how to leverage amdWiki's DigitalDocumentPermission functionality in custom managers and plugins to provide consistent machine-readable access control information across your wiki ecosystem.
+
+## Understanding DigitalDocumentPermission
+
+DigitalDocumentPermission objects provide Schema.org compliant metadata about who can perform what actions on wiki content. This information enhances SEO and enables external systems to understand your wiki's access control model.
+
+## Basic Integration Patterns
+
+### 1. Using DigitalDocumentPermission in Custom Managers
+
+#### Example: Custom ContentManager
+
+```javascript
+const SchemaGenerator = require('../utils/SchemaGenerator');
+
+class ContentManager extends BaseManager {
+  async getContentWithPermissions(contentId, userContext) {
+    const content = await this.getContent(contentId);
+    
+    // Generate permissions for the content
+    const permissions = SchemaGenerator.generateDigitalDocumentPermissions(
+      content, 
+      userContext, 
+      { engine: this.engine }
+    );
+    
+    return {
+      ...content,
+      permissions: permissions,
+      schemaMarkup: this.generateSchemaMarkup(content, permissions)
+    };
+  }
+  
+  generateSchemaMarkup(content, permissions) {
+    const schema = {
+      "@context": "https://schema.org",
+      "@type": "CreativeWork",
+      "name": content.title,
+      "hasDigitalDocumentPermission": permissions
+    };
+    
+    return SchemaGenerator.generateScriptTag(schema);
+  }
+}
+```
+
+#### Example: Custom APIManager
+
+```javascript
+class APIManager extends BaseManager {
+  async getPageAPI(pageName, req) {
+    const pageManager = this.engine.getManager('PageManager');
+    const userManager = this.engine.getManager('UserManager');
+    
+    const pageData = await pageManager.getPage(pageName);
+    const currentUser = await userManager.getCurrentUser(req);
+    
+    // Include permission metadata in API response
+    const permissions = SchemaGenerator.generateDigitalDocumentPermissions(
+      pageData,
+      currentUser,
+      { engine: this.engine }
+    );
+    
+    return {
+      page: pageData,
+      permissions: permissions.map(p => ({
+        type: p.permissionType,
+        grantee: p.grantee.audienceType || p.grantee.name,
+        scope: this.determinePermissionScope(p)
+      })),
+      userCanEdit: this.checkUserPermission(permissions, currentUser, 'WritePermission'),
+      userCanDelete: this.checkUserPermission(permissions, currentUser, 'DeletePermission')
+    };
+  }
+  
+  checkUserPermission(permissions, user, permissionType) {
+    return permissions.some(p => 
+      p.permissionType === permissionType && 
+      this.userMatchesGrantee(user, p.grantee)
+    );
+  }
+}
+```
+
+### 2. Using DigitalDocumentPermission in Plugins
+
+#### Example: AccessControlPlugin
+
+```javascript
+const AccessControlPlugin = {
+  name: 'AccessControlPlugin',
+  
+  execute(context, params) {
+    const engine = context.engine;
+    const pageData = context.pageData;
+    const currentUser = context.user;
+    
+    // Generate permissions for current page
+    const permissions = SchemaGenerator.generateDigitalDocumentPermissions(
+      pageData,
+      currentUser,
+      { engine: engine }
+    );
+    
+    // Generate HTML representation
+    return this.renderPermissionsTable(permissions, params);
+  },
+  
+  renderPermissionsTable(permissions, params) {
+    const showDetails = params.details === 'true';
+    
+    let html = '<div class="access-control-info">';
+    html += '<h4>Page Permissions</h4>';
+    html += '<table class="table table-sm">';
+    html += '<thead><tr><th>Action</th><th>Who Can Access</th>';
+    if (showDetails) html += '<th>Type</th>';
+    html += '</tr></thead><tbody>';
+    
+    permissions.forEach(permission => {
+      const action = permission.permissionType.replace('Permission', '');
+      const grantee = permission.grantee.audienceType || permission.grantee.name;
+      const granteeType = permission.grantee['@type'];
+      
+      html += `<tr>`;
+      html += `<td>${action}</td>`;
+      html += `<td>${this.formatGrantee(grantee, granteeType)}</td>`;
+      if (showDetails) html += `<td>${granteeType}</td>`;
+      html += `</tr>`;
+    });
+    
+    html += '</tbody></table></div>';
+    return html;
+  },
+  
+  formatGrantee(grantee, type) {
+    if (type === 'Audience') {
+      const audienceMap = {
+        'public': '🌍 Everyone',
+        'authenticated': '🔐 Logged-in Users',
+        'editor': '✏️ Editors',
+        'admin': '👑 Administrators',
+        'developer': '💻 Developers'
+      };
+      return audienceMap[grantee] || grantee;
+    }
+    return `👤 ${grantee}`;
+  }
+};
+
+module.exports = AccessControlPlugin;
+```
+
+#### Example: PermissionSummaryPlugin
+
+```javascript
+const PermissionSummaryPlugin = {
+  name: 'PermissionSummaryPlugin',
+  
+  execute(context, params) {
+    const engine = context.engine;
+    const pageManager = engine.getManager('PageManager');
+    
+    // Get permissions for multiple pages
+    const pageNames = params.pages ? params.pages.split(',') : ['Welcome'];
+    
+    return this.generatePermissionSummary(pageNames, engine, context.user);
+  },
+  
+  async generatePermissionSummary(pageNames, engine, user) {
+    const pageManager = engine.getManager('PageManager');
+    let html = '<div class="permission-summary">';
+    html += '<h4>Permission Summary</h4>';
+    
+    for (const pageName of pageNames) {
+      const pageData = await pageManager.getPage(pageName.trim());
+      if (!pageData) continue;
+      
+      const permissions = SchemaGenerator.generateDigitalDocumentPermissions(
+        pageData,
+        user,
+        { engine: engine }
+      );
+      
+      html += `<div class="page-permissions">`;
+      html += `<h5>${pageData.title}</h5>`;
+      html += `<div class="permission-badges">`;
+      
+      permissions.forEach(p => {
+        const action = p.permissionType.replace('Permission', '');
+        const grantee = p.grantee.audienceType || p.grantee.name;
+        html += `<span class="badge badge-secondary">${action}: ${grantee}</span> `;
+      });
+      
+      html += `</div></div>`;
+    }
+    
+    html += '</div>';
+    return html;
+  }
+};
+
+module.exports = PermissionSummaryPlugin;
+```
+
+### 3. Integration with Custom Templates
+
+#### Template Helper for Permissions
+
+```javascript
+// In your custom TemplateManager or helper functions
+class PermissionTemplateHelper {
+  static generatePermissionBadges(pageData, engine, user) {
+    const permissions = SchemaGenerator.generateDigitalDocumentPermissions(
+      pageData,
+      user,
+      { engine: engine }
+    );
+    
+    return permissions.map(p => ({
+      action: p.permissionType.replace('Permission', ''),
+      grantee: p.grantee.audienceType || p.grantee.name,
+      icon: this.getPermissionIcon(p.permissionType),
+      color: this.getPermissionColor(p.grantee['@type'])
+    }));
+  }
+  
+  static getPermissionIcon(permissionType) {
+    const icons = {
+      'ReadPermission': '👀',
+      'WritePermission': '✏️',
+      'DeletePermission': '🗑️',
+      'UploadPermission': '📎',
+      'CommentPermission': '💬',
+      'AdministerPermission': '⚙️'
+    };
+    return icons[permissionType] || '🔒';
+  }
+  
+  static getPermissionColor(granteeType) {
+    return granteeType === 'Audience' ? 'primary' : 'success';
+  }
+}
+```
+
+#### EJS Template Usage
+
+```html
+<!-- In your custom EJS templates -->
+<div class="page-permissions">
+  <% const permissionBadges = PermissionTemplateHelper.generatePermissionBadges(page, engine, user); %>
+  <% permissionBadges.forEach(badge => { %>
+    <span class="badge badge-<%= badge.color %>">
+      <%= badge.icon %> <%= badge.action %>: <%= badge.grantee %>
+    </span>
+  <% }); %>
+</div>
+```
+
+## Advanced Integration Patterns
+
+### 1. Permission-Aware Content Filtering
+
+```javascript
+class SmartContentManager extends BaseManager {
+  async getFilteredContent(userContext, filters = {}) {
+    const allContent = await this.getAllContent();
+    
+    return allContent.filter(content => {
+      const permissions = SchemaGenerator.generateDigitalDocumentPermissions(
+        content,
+        userContext,
+        { engine: this.engine }
+      );
+      
+      // Only show content user can read
+      return permissions.some(p => 
+        p.permissionType === 'ReadPermission' && 
+        this.userMatchesGrantee(userContext, p.grantee)
+      );
+    });
+  }
+  
+  userMatchesGrantee(user, grantee) {
+    if (grantee['@type'] === 'Audience') {
+      switch (grantee.audienceType) {
+        case 'public': return true;
+        case 'authenticated': return !!user;
+        case 'admin': return user && user.roles.includes('admin');
+        case 'editor': return user && (user.roles.includes('editor') || user.roles.includes('admin'));
+        default: return user && user.roles.includes(grantee.audienceType);
+      }
+    } else if (grantee['@type'] === 'Person') {
+      return user && user.username === grantee.name;
+    }
+    return false;
+  }
+}
+```
+
+### 2. Dynamic Permission Updates
+
+```javascript
+class DynamicPermissionManager extends BaseManager {
+  async updatePagePermissions(pageName, newACL, userContext) {
+    const pageManager = this.engine.getManager('PageManager');
+    const pageData = await pageManager.getPage(pageName);
+    
+    // Update page content with new ACL
+    const updatedContent = this.updateACLInContent(pageData.content, newACL);
+    pageData.content = updatedContent;
+    
+    // Generate new permissions
+    const newPermissions = SchemaGenerator.generateDigitalDocumentPermissions(
+      pageData,
+      userContext,
+      { engine: this.engine }
+    );
+    
+    // Save page with updated content
+    await pageManager.savePage(pageName, pageData);
+    
+    // Return permission summary
+    return {
+      success: true,
+      permissions: newPermissions,
+      summary: this.generatePermissionSummary(newPermissions)
+    };
+  }
+  
+  generatePermissionSummary(permissions) {
+    const summary = {};
+    permissions.forEach(p => {
+      const action = p.permissionType.replace('Permission', '');
+      const grantee = p.grantee.audienceType || p.grantee.name;
+      if (!summary[action]) summary[action] = [];
+      summary[action].push(grantee);
+    });
+    return summary;
+  }
+}
+```
+
+## Best Practices
+
+### 1. Performance Optimization
+
+```javascript
+// Cache permission results for expensive operations
+class CachedPermissionManager extends BaseManager {
+  constructor(engine) {
+    super(engine);
+    this.permissionCache = new Map();
+    this.cacheTimeout = 5 * 60 * 1000; // 5 minutes
+  }
+  
+  async getCachedPermissions(pageData, user) {
+    const cacheKey = `${pageData.uuid}-${user?.username || 'anonymous'}`;
+    const cached = this.permissionCache.get(cacheKey);
+    
+    if (cached && Date.now() - cached.timestamp < this.cacheTimeout) {
+      return cached.permissions;
+    }
+    
+    const permissions = SchemaGenerator.generateDigitalDocumentPermissions(
+      pageData,
+      user,
+      { engine: this.engine }
+    );
+    
+    this.permissionCache.set(cacheKey, {
+      permissions,
+      timestamp: Date.now()
+    });
+    
+    return permissions;
+  }
+}
+```
+
+### 2. Error Handling
+
+```javascript
+// Always handle permission generation errors gracefully
+function safeGeneratePermissions(pageData, user, engine) {
+  try {
+    return SchemaGenerator.generateDigitalDocumentPermissions(
+      pageData,
+      user,
+      { engine }
+    );
+  } catch (error) {
+    console.warn('Permission generation failed:', error);
+    return []; // Return empty permissions on error
+  }
+}
+```
+
+### 3. Validation
+
+```javascript
+// Validate permission objects before use
+function validatePermissions(permissions) {
+  return permissions.filter(p => 
+    p['@type'] === 'DigitalDocumentPermission' &&
+    p.permissionType &&
+    p.permissionType.endsWith('Permission') &&
+    p.grantee &&
+    p.grantee['@type'] &&
+    ['Person', 'Audience'].includes(p.grantee['@type'])
+  );
+}
+```
+
+## Testing Custom Integrations
+
+```javascript
+// Example test for custom manager integration
+describe('Custom ContentManager with Permissions', () => {
+  test('includes permissions in content response', async () => {
+    const manager = new ContentManager(mockEngine);
+    const content = await manager.getContentWithPermissions('test-id', mockUser);
+    
+    expect(content.permissions).toBeDefined();
+    expect(content.permissions).toBeInstanceOf(Array);
+    expect(content.schemaMarkup).toContain('DigitalDocumentPermission');
+  });
+});
+```
+
+## Conclusion
+
+DigitalDocumentPermission integration provides a powerful way to enhance your custom managers and plugins with machine-readable access control information. By following these patterns, you can create a consistent permission model across your entire amdWiki ecosystem while maintaining Schema.org compliance and excellent performance.
