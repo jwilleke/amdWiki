@@ -225,9 +225,11 @@ Implement the following default User State
 * **WebDAV**: File management and synchronization protocols
 * **CommonMark**: Markdown specification compliance
 * **Runtime Validation**: Joi/Zod for data validation (avoiding JSON Schema fragmentation)
+* **Schema.org**: Structured data markup for SEO and semantic web integration
 
 ### Content Standards
 * **Dublin Core**: Metadata schema for digital assets
+* **Schema.org Vocabulary**: Semantic markup for all content types and modules
 * **EXIF**: Photo metadata preservation and management
 * **MIME Types**: Proper content-type handling across modules
 * **Unicode UTF-8**: Full internationalization support
@@ -238,6 +240,34 @@ Implement the following default User State
 * **Semantic Versioning**: Module version management
 * **Container Standards**: Docker/OCI compliance for deployment
 * **Environment Variables**: Configuration management patterns
+
+## Schema.org Integration Strategy
+
+### Core Platform Benefits
+* **SEO Enhancement**: Automatic structured data generation from YAML frontmatter
+* **Search Engine Optimization**: Rich snippets and enhanced search results
+* **Semantic Interoperability**: Machine-readable content across all modules
+* **Content Discoverability**: Improved indexing and content relationships
+
+### Module-Specific Schema Types
+* **Wiki Pages**: Article, WebPage, CreativeWork schemas
+* **Blog Module**: BlogPosting, Person (author), Organization schemas  
+* **E-commerce Module**: Product, Offer, Review, Organization schemas
+* **Document Management**: DigitalDocument, MediaObject, Dataset schemas
+* **Photo Management**: ImageObject, PhotoAlbum, Place (location) schemas
+* **CRM Module**: Person, Organization, ContactPoint schemas
+
+### Implementation Approach
+* **Automatic Generation**: RenderingManager creates JSON-LD from page metadata
+* **Module Registration**: Each module defines its schema.org mappings
+* **Template Integration**: Schema markup injected into page <head> sections
+* **Validation Tools**: Structured data testing and validation
+
+### Schema.org Compliance Benefits
+* **Google Rich Results**: Enhanced search appearance
+* **Voice Assistant Support**: Better content understanding for Alexa/Google
+* **Knowledge Graph Integration**: Potential inclusion in search knowledge panels
+* **API Interoperability**: Machine-readable data for external integrations
 
 ## Documentation Strategy
 
