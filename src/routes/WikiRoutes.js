@@ -2,6 +2,8 @@
  * Modern route handlers using manager-based architecture
  */
 
+const SchemaGenerator = require('../utils/SchemaGenerator');
+
 class WikiRoutes {
   constructor(engine) {
     this.engine = engine;
@@ -258,6 +260,87 @@ class WikiRoutes {
   }
 
   /**
+   * Generate Schema.org JSON-LD markup for a page
+   * @param {Object} pageData - Page metadata and content
+   * @param {Object} req - Express request object for URL generation
+   * @returns {string} HTML script tag with JSON-LD
+   */
+  async generatePageSchema(pageData, req) {
+    try {
+      const baseUrl = `${req.protocol}://${req.get('host')}`;
+      const pageUrl = `${baseUrl}${req.originalUrl}`;
+      
+      const schema = SchemaGenerator.generatePageSchema(pageData, {
+        baseUrl: baseUrl,
+        pageUrl: pageUrl
+      });
+      
+      return SchemaGenerator.generateScriptTag(schema);
+    } catch (err) {
+      console.error('Error generating page schema:', err);
+      return '';
+    }
+  }
+
+  /**
+   * Generate site-wide Schema.org markup (Organization, SoftwareApplication)
+   * @param {Object} req - Express request object
+   * @returns {string} HTML script tags with JSON-LD
+   */
+  async generateSiteSchema(req) {
+    try {
+      const baseUrl = `${req.protocol}://${req.get('host')}`;
+      
+      // Load configuration data
+      const config = this.engine.getConfig();
+      const configData = {
+        applicationName: config.get('applicationName', 'amdWiki'),
+        version: config.get('version', '1.0.0'),
+        server: {
+          port: config.get('server.port', 3000),
+          host: config.get('server.host', 'localhost')
+        },
+        features: {
+          export: config.get('features.export', { html: true }),
+          attachments: config.get('features.attachments', { enabled: true }),
+          llm: config.get('features.llm', { enabled: false })
+        }
+      };
+
+      // Load user data (admins only for privacy)
+      const userManager = this.engine.getManager('UserManager');
+      const allUsersArray = userManager.getUsers(); // This returns array without passwords
+      const publicUsers = {};
+      
+      allUsersArray.forEach(userData => {
+        if (userData.roles?.includes('admin') && !userData.isSystem) {
+          publicUsers[userData.username] = userData;
+        }
+      });
+
+      const siteData = {
+        config: configData,
+        users: publicUsers
+      };
+
+      const schemas = SchemaGenerator.generateComprehensiveSchema(siteData, {
+        organizationName: "amdWiki Platform",
+        repository: "https://github.com/jwilleke/amdWiki",
+        baseUrl: baseUrl
+      });
+
+      // Generate script tags for all schemas
+      return schemas.map(schema => 
+        SchemaGenerator.generateScriptTag(schema)
+      ).join('\n    ');
+      
+    } catch (err) {
+      console.error('Error generating site schema:', err);
+      return '';
+    }
+  }
+
+  /**
    * Render error page with consistent template data
    */
   async renderError(req, res, status, title, message) {
@@ -412,6 +495,18 @@ class WikiRoutes {
       const isReaderView = req.query.view === 'reader';
       const viewTemplate = isReaderView ? 'reader' : 'view';
       
+      // Generate Schema.org markup for this page
+      const pageSchema = await this.generatePageSchema({
+        title: pageData.metadata.title || pageName,
+        categories: pageData.metadata.categories || pageData.metadata.category ? [pageData.metadata.category] : [],
+        userKeywords: pageData.metadata.userKeywords || pageData.metadata['user-keywords'] || [],
+        lastModified: pageData.metadata.lastModified,
+        uuid: pageData.metadata.uuid
+      }, req);
+      
+      // Generate site-wide Schema.org markup (only on main pages for performance)
+      const siteSchema = pageName === 'Welcome' ? await this.generateSiteSchema(req) : '';
+      
       res.render(viewTemplate, {
         ...commonData,
         title: pageData.metadata.title || pageName,
@@ -423,7 +518,9 @@ class WikiRoutes {
         exists: true,
         canEdit: currentUser ? userManager.hasPermission(currentUser.username, 'page:edit') : false,
         canDelete: currentUser ? userManager.hasPermission(currentUser.username, 'page:delete') : false,
-        isReaderView: isReaderView
+        isReaderView: isReaderView,
+        pageSchema: pageSchema,
+        siteSchema: siteSchema
       });
       
     } catch (err) {
