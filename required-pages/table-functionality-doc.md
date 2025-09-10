@@ -7,6 +7,7 @@ user-keywords: []
 uuid: table-functionality-doc
 lastModified: '2025-09-08T22:00:00.000Z'
 slug: jspwiki-table-functionality
+category: Documentation
 ---
 
 # JSPWiki Table Functionality Documentation

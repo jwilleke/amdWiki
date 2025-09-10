@@ -284,7 +284,7 @@ class PageManager extends BaseManager {
     
     // Remove old file if page is moving between directories or filename changed
     const existingUuid = this.resolvePageIdentifier(identifier);
-    if (existingUuid && existingUuid !== metadata.uuid) {
+    if (existingUuid) {
       const oldFileInfo = this.uuidToFileMap.get(existingUuid);
       if (oldFileInfo && oldFileInfo.filePath !== filePath) {
         await fs.remove(oldFileInfo.filePath);

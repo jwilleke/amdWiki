@@ -7,6 +7,7 @@ user-keywords: []
 title: User Variables Test
 lastModified: '2025-09-08T22:30:00.000Z'
 slug: user-variables-test
+category: System
 ---
 
 # User Variables Test Page

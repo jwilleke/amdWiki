@@ -1,7 +1,11 @@
 ---
 uuid: acl-test-01-abcd-efgh-ijkl-mnop
-category: Testing
-user-keywords: [acl, access, control, test]
+category: General
+user-keywords:
+  - acl
+  - access
+  - control
+  - test
 title: ACL Test Page
 slug: acl-test-page
 created: 2025-09-07T10:45:00.000Z

@@ -11,6 +11,7 @@ user-keywords:
 uuid: project-overview-vision
 lastModified: '2025-09-08T22:35:00.000Z'
 slug: project-overview-and-vision
+category: System
 ---
 
 # Project Overview and Vision

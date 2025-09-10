@@ -12,6 +12,7 @@ user-keywords:
 title: User Roles and Permissions
 lastModified: '2025-09-09T12:00:00.000Z'
 slug: user-roles-and-permissions
+category: Documentation
 ---
 
 # User Roles and Permissions
