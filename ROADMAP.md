@@ -224,7 +224,7 @@ Implement the following default User State
 * **RSS/Atom**: Syndication feeds for blog and content modules
 * **WebDAV**: File management and synchronization protocols
 * **CommonMark**: Markdown specification compliance
-* **JSON Schema**: Data validation and documentation
+* **Runtime Validation**: Joi/Zod for data validation (avoiding JSON Schema fragmentation)
 
 ### Content Standards
 * **Dublin Core**: Metadata schema for digital assets
