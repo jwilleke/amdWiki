@@ -1,0 +1,160 @@
+# Schema.org Legal Name and Address Guidelines
+
+## When to Include Legal Name
+
+### **Required Scenarios** ⚖️
+
+#### **Business Operations**
+- **Incorporated entities**: LLC, Corporation, Partnership
+- **Professional services**: Law firms, medical practices, consulting
+- **E-commerce platforms**: Selling products or services
+- **Financial services**: Banking, investment, insurance
+
+#### **Compliance Requirements**
+- **Terms of Service**: Legal entity identification
+- **Privacy Policies**: Data controller identification  
+- **Copyright notices**: Legal copyright holder
+- **Professional licensing**: Licensed professional display
+
+#### **Trust & Authority**
+- **Government organizations**: Official legal entity names
+- **Educational institutions**: Accredited institution names
+- **Healthcare providers**: Licensed facility names
+- **Certification bodies**: Authorized credentialing organizations
+
+### **Optional Scenarios** ✅
+
+#### **Open Source Projects**
+- **Personal projects**: No legal entity required
+- **Community initiatives**: Informal organizations
+- **Educational content**: Learning and documentation
+- **Internal tools**: Company-internal wikis
+
+## Schema.org Implementation
+
+### **Complete Legal Structure**
+```json
+{
+  "@type": "Organization",
+  "name": "amdWiki",
+  "legalName": "amdWiki LLC",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "123 Tech Street",
+    "addressLocality": "San Francisco",
+    "addressRegion": "CA", 
+    "postalCode": "94102",
+    "addressCountry": "United States"
+  }
+}
+```
+
+### **Minimal Open Source Structure**
+```json
+{
+  "@type": "Organization",
+  "name": "amdWiki",
+  "legalName": null,
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Internet",
+    "addressCountry": "Global"
+  }
+}
+```
+
+## Field-by-Field Guide
+
+### **legalName** (Optional)
+- **When to use**: Formal business entity exists
+- **Examples**: 
+  - `"legalName": "John Willeke"` (individual)
+  - `"legalName": "amdWiki Technologies LLC"` (business)
+- **When to omit**: Personal/open source projects
+
+### **address** (Optional but Recommended)
+- **Physical address**: For businesses with physical locations
+- **Virtual address**: Use "Internet"/"Global" for digital-only
+- **Privacy consideration**: Don't include personal home addresses
+
+## Legal Obligations by Jurisdiction
+
+### **United States** 🇺🇸
+- **No federal requirement** for Schema.org legal names
+- **State business registration** may require legal disclosure
+- **Professional licensing** requires licensed entity names
+
+### **European Union** 🇪🇺
+- **GDPR compliance**: Data controller identification in privacy policy
+- **Digital Services Act**: Platform operator identification
+- **Business registration**: Legal entity disclosure for commercial sites
+
+### **General Best Practices** 🌍
+- **Transparency**: Clear identification builds trust
+- **Consistency**: Match legal documents with Schema.org data
+- **Privacy protection**: Don't expose personal addresses unnecessarily
+- **Professional appearance**: Enhance credibility with proper structure
+
+## amdWiki Recommendation
+
+### **Current Status**: ✅ **Compliant**
+Your open source wiki project has **no legal naming obligations**:
+- Personal/educational project
+- No commercial operations
+- Open source license
+- Community-focused
+
+### **Future Considerations**:
+1. **Add legal name** if incorporating as business
+2. **Include business address** if offering commercial services
+3. **Maintain founder information** for credibility
+4. **Consider professional consultation** before commercialization
+
+### **Implementation Options**:
+
+#### **Option 1: Keep Current (Recommended)**
+```json
+{
+  "name": "amdWiki",
+  "legalName": null,
+  "address": null
+}
+```
+
+#### **Option 2: Add Virtual Presence**
+```json
+{
+  "name": "amdWiki", 
+  "legalName": null,
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Internet",
+    "addressCountry": "Global"
+  }
+}
+```
+
+#### **Option 3: Full Business Structure**
+```json
+{
+  "name": "amdWiki",
+  "legalName": "John Willeke",
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "[Your City]",
+    "addressRegion": "[Your State]", 
+    "addressCountry": "[Your Country]"
+  }
+}
+```
+
+## Admin UI Features
+
+The admin interface now supports:
+- ✅ **Legal name input** (optional field)
+- ✅ **Full postal address** entry
+- ✅ **Real-time validation** of Schema.org compliance
+- ✅ **Privacy controls** (exclude null/empty fields from output)
+- ✅ **Form handling** for nested address objects
+
+You can add these details any time through `/admin/organizations` without legal obligations! 🎯

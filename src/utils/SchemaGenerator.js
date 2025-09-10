@@ -181,54 +181,39 @@ class SchemaGenerator {
   }
 
   /**
-   * Generate Person schema from user JSON data
-   * @param {Object} userData - User data from users.json
+   * Generate Person schema from Schema.org compliant person data
+   * @param {Object} personData - Schema.org Person data
    * @param {Object} options - Generation options
    * @returns {Object} Person schema object
    */
-  static generatePersonSchema(userData, options = {}) {
-    const schema = {
-      "@context": "https://schema.org",
-      "@type": "Person",
-      "name": userData.displayName || userData.username,
-      "identifier": userData.username
-    };
-
-    // Add email if available and not sensitive
-    if (userData.email && !userData.isSystem) {
-      schema.email = userData.email;
+  static generatePersonSchema(personData, options = {}) {
+    // Person data is already Schema.org compliant, just clean for public use
+    const { authentication, ...publicPerson } = personData;
+    
+    // Enhance with additional properties if needed
+    if (!publicPerson.url && options.baseUrl) {
+      publicPerson.url = `${options.baseUrl}/person/${personData.identifier}`;
     }
+    
+    return publicPerson;
+  }
 
-    // Add organization membership
-    schema.memberOf = {
-      "@type": "Organization",
-      "name": options.organizationName || "amdWiki Platform"
-    };
-
-    // Add role information
-    if (userData.roles && userData.roles.length > 0) {
-      schema.roleName = userData.roles;
-      
-      // Enhanced role descriptions
-      if (userData.roles.includes('admin')) {
-        schema.jobTitle = 'Administrator';
-      } else if (userData.roles.includes('editor')) {
-        schema.jobTitle = 'Content Editor';
-      } else if (userData.roles.includes('reader')) {
-        schema.jobTitle = 'Reader';
-      }
+  /**
+   * Generate Organization schema from Schema.org compliant organization data
+   * @param {Object} organizationData - Schema.org Organization data
+   * @param {Object} options - Generation options
+   * @returns {Object} Organization schema object
+   */
+  static generateOrganizationSchema(organizationData, options = {}) {
+    // Organization data is already Schema.org compliant
+    const organization = { ...organizationData };
+    
+    // Enhance with additional properties if needed
+    if (!organization.url && options.baseUrl) {
+      organization.url = options.baseUrl;
     }
-
-    // Add temporal information
-    if (userData.createdAt) {
-      schema.memberOfStartDate = userData.createdAt;
-    }
-
-    if (userData.lastLogin) {
-      schema.lastReviewed = userData.lastLogin;
-    }
-
-    return schema;
+    
+    return organization;
   }
 
   /**
@@ -241,9 +226,9 @@ class SchemaGenerator {
     const schema = {
       "@context": "https://schema.org",
       "@type": "SoftwareApplication",
-      "name": configData.applicationName || "amdWiki",
-      "version": configData.version,
-      "applicationCategory": "Wiki Software",
+      "name": configData.application?.name || configData.applicationName || "amdWiki",
+      "version": configData.application?.version || configData.version,
+      "applicationCategory": configData.application?.applicationCategory || "Wiki Software",
       "operatingSystem": "Cross-platform"
     };
 
@@ -272,61 +257,46 @@ class SchemaGenerator {
     // Add requirements
     schema.softwareRequirements = "Node.js";
     
-    // Add organization
-    schema.author = {
-      "@type": "Organization",
-      "name": options.organizationName || "amdWiki Platform"
-    };
+    // Add organization reference
+    if (configData.organization) {
+      schema.author = configData.organization;
+    } else {
+      schema.author = {
+        "@type": "Organization",
+        "name": options.organizationName || "amdWiki Platform"
+      };
+    }
 
     return schema;
   }
 
   /**
-   * Generate Organization schema for the platform
+   * Generate comprehensive site schema using Schema.org compliant data
+   * @param {Object} siteData - Combined data from SchemaManager
    * @param {Object} options - Generation options
-   * @returns {Object} Organization schema object
-   */
-  static generateOrganizationSchema(options = {}) {
-    return {
-      "@context": "https://schema.org",
-      "@type": "Organization",
-      "name": options.organizationName || "amdWiki Platform",
-      "description": "Digital platform for wiki, document management, and modular content systems",
-      "foundingDate": options.foundingDate || "2025",
-      "sameAs": options.website || options.repository,
-      "makesOffer": {
-        "@type": "Offer",
-        "itemOffered": {
-          "@type": "SoftwareApplication",
-          "name": "amdWiki Platform"
-        }
-      }
-    };
-  }
-
-  /**
-   * Generate comprehensive site schema combining all data sources
-   * @param {Object} siteData - Combined data from all JSON sources
-   * @param {Object} options - Generation options
-   * @returns {Object} Complete site schema
+   * @returns {Array} Array of schema objects
    */
   static generateComprehensiveSchema(siteData, options = {}) {
     const schemas = [];
 
-    // Add main organization
-    schemas.push(this.generateOrganizationSchema(options));
+    // Add organizations (already Schema.org compliant)
+    if (siteData.organizations) {
+      siteData.organizations.forEach(org => {
+        schemas.push(this.generateOrganizationSchema(org, options));
+      });
+    }
 
     // Add software application
     if (siteData.config) {
       schemas.push(this.generateSoftwareSchema(siteData.config, options));
     }
 
-    // Add key user profiles (admins only for privacy)
-    if (siteData.users) {
-      Object.values(siteData.users)
-        .filter(user => user.roles?.includes('admin') && !user.isSystem)
-        .forEach(user => {
-          schemas.push(this.generatePersonSchema(user, options));
+    // Add public persons (admins only for privacy, already Schema.org compliant)
+    if (siteData.persons) {
+      siteData.persons
+        .filter(person => person.hasCredential?.some(cred => cred.credentialCategory === 'admin') && !person.isSystem)
+        .forEach(person => {
+          schemas.push(this.generatePersonSchema(person, options));
         });
     }
 

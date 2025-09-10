@@ -290,43 +290,52 @@ class WikiRoutes {
   async generateSiteSchema(req) {
     try {
       const baseUrl = `${req.protocol}://${req.get('host')}`;
-      
-      // Load configuration data
       const config = this.engine.getConfig();
-      const configData = {
-        applicationName: config.get('applicationName', 'amdWiki'),
-        version: config.get('version', '1.0.0'),
-        server: {
-          port: config.get('server.port', 3000),
-          host: config.get('server.host', 'localhost')
-        },
-        features: {
-          export: config.get('features.export', { html: true }),
-          attachments: config.get('features.attachments', { enabled: true }),
-          llm: config.get('features.llm', { enabled: false })
-        }
-      };
-
-      // Load user data (admins only for privacy)
-      const userManager = this.engine.getManager('UserManager');
-      const allUsersArray = userManager.getUsers(); // This returns array without passwords
-      const publicUsers = {};
       
-      allUsersArray.forEach(userData => {
-        if (userData.roles?.includes('admin') && !userData.isSystem) {
-          publicUsers[userData.username] = userData;
-        }
-      });
+      // Check if SchemaManager is available, fallback to legacy method
+      let siteData;
+      try {
+        const schemaManager = this.engine.getManager('SchemaManager');
+        siteData = await schemaManager.getComprehensiveSiteData();
+      } catch (err) {
+        console.warn('SchemaManager not available, using legacy data sources:', err.message);
+        
+        // Fallback to legacy data structure
+        const configData = {
+          applicationName: config.get('applicationName', 'amdWiki'),
+          version: config.get('version', '1.0.0'),
+          server: {
+            port: config.get('server.port', 3000),
+            host: config.get('server.host', 'localhost')
+          },
+          features: {
+            export: config.get('features.export', { html: true }),
+            attachments: config.get('features.attachments', { enabled: true }),
+            llm: config.get('features.llm', { enabled: false })
+          }
+        };
 
-      const siteData = {
-        config: configData,
-        users: publicUsers
-      };
+        // Load user data (admins only for privacy)
+        const userManager = this.engine.getManager('UserManager');
+        const allUsersArray = userManager.getUsers(); // This returns array without passwords
+        const publicUsers = {};
+        
+        allUsersArray.forEach(userData => {
+          if (userData.roles?.includes('admin') && !userData.isSystem) {
+            publicUsers[userData.username] = userData;
+          }
+        });
+
+        siteData = {
+          config: configData,
+          users: publicUsers
+        };
+      }
 
       const schemas = SchemaGenerator.generateComprehensiveSchema(siteData, {
-        organizationName: "amdWiki Platform",
-        repository: "https://github.com/jwilleke/amdWiki",
-        baseUrl: baseUrl
+        baseUrl: baseUrl,
+        organizationName: siteData.organizations?.[0]?.name || "amdWiki Platform",
+        repository: "https://github.com/jwilleke/amdWiki"
       });
 
       // Generate script tags for all schemas
@@ -1944,6 +1953,14 @@ class WikiRoutes {
     app.post('/admin/roles/:roleName', this.adminUpdateRole.bind(this));
     app.get('/admin/settings', this.adminSettings.bind(this)); // Add missing settings route
     
+    // Admin Schema.org Organization Management Routes
+    app.get('/admin/organizations', this.adminOrganizations.bind(this));
+    app.post('/admin/organizations', this.adminCreateOrganization.bind(this));
+    app.put('/admin/organizations/:identifier', this.adminUpdateOrganization.bind(this));
+    app.delete('/admin/organizations/:identifier', this.adminDeleteOrganization.bind(this));
+    app.get('/admin/organizations/:identifier', this.adminGetOrganization.bind(this));
+    app.get('/admin/organizations/:identifier/schema', this.adminGetOrganizationSchema.bind(this));
+    
     console.log('✅ Wiki routes registered');
   }
 
@@ -1967,6 +1984,207 @@ class WikiRoutes {
     } catch (error) {
       console.error('Error retrieving page source:', error);
       res.status(500).send('Error retrieving page source');
+    }
+  }
+
+  // ============================================================================
+  // Admin Organization Management Route Handlers
+  // ============================================================================
+
+  /**
+   * Admin Organizations Management Page
+   */
+  async adminOrganizations(req, res) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const userContext = await userManager.getCurrentUser(req);
+      if (!userContext.isAuthenticated || !userContext.isAdmin) {
+        return await this.renderError(req, res, 403, 'Access Denied', 'Admin access required');
+      }
+
+      const templateData = await this.getCommonTemplateData(userContext);
+      
+      // Try to get SchemaManager, fallback gracefully
+      let organizations = [];
+      try {
+        const schemaManager = this.engine.getManager('SchemaManager');
+        organizations = schemaManager.getOrganizations();
+      } catch (err) {
+        console.warn('SchemaManager not available:', err.message);
+        // Create default organization from config
+        const config = this.engine.getConfig();
+        organizations = [{
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          "identifier": "amdwiki-platform",
+          "name": config.get('applicationName', 'amdWiki Platform'),
+          "description": "Digital platform for wiki, document management, and modular content systems"
+        }];
+      }
+
+      templateData.organizations = organizations;
+      templateData.pageTitle = 'Organization Management';
+      templateData.success = req.query.success;
+      templateData.error = req.query.error;
+
+      res.render('admin-organizations', templateData);
+    } catch (error) {
+      console.error('Error loading admin organizations page:', error);
+      await this.renderError(req, res, 500, 'Server Error', 'Failed to load organizations management');
+    }
+  }
+
+  /**
+   * Create New Organization
+   */
+  async adminCreateOrganization(req, res) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const userContext = await userManager.getCurrentUser(req);
+      if (!userContext.isAuthenticated || !userContext.isAdmin) {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+
+      const schemaManager = this.engine.getManager('SchemaManager');
+      const organizationData = req.body;
+
+      // Validate and create organization
+      const newOrganization = await schemaManager.createOrganization(organizationData);
+      
+      if (req.headers.accept?.includes('application/json')) {
+        res.json({ success: true, organization: newOrganization });
+      } else {
+        res.redirect('/admin/organizations?success=Organization created successfully');
+      }
+    } catch (error) {
+      console.error('Error creating organization:', error);
+      if (req.headers.accept?.includes('application/json')) {
+        res.status(500).json({ error: error.message });
+      } else {
+        res.redirect('/admin/organizations?error=' + encodeURIComponent(error.message));
+      }
+    }
+  }
+
+  /**
+   * Update Existing Organization
+   */
+  async adminUpdateOrganization(req, res) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const userContext = await userManager.getCurrentUser(req);
+      if (!userContext.isAuthenticated || !userContext.isAdmin) {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+
+      const schemaManager = this.engine.getManager('SchemaManager');
+      const identifier = req.params.identifier;
+      const organizationData = req.body;
+
+      // Update organization
+      const updatedOrganization = await schemaManager.updateOrganization(identifier, organizationData);
+      
+      if (req.headers.accept?.includes('application/json')) {
+        res.json({ success: true, organization: updatedOrganization });
+      } else {
+        res.redirect('/admin/organizations?success=Organization updated successfully');
+      }
+    } catch (error) {
+      console.error('Error updating organization:', error);
+      if (req.headers.accept?.includes('application/json')) {
+        res.status(500).json({ error: error.message });
+      } else {
+        res.redirect('/admin/organizations?error=' + encodeURIComponent(error.message));
+      }
+    }
+  }
+
+  /**
+   * Delete Organization
+   */
+  async adminDeleteOrganization(req, res) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const userContext = await userManager.getCurrentUser(req);
+      if (!userContext.isAuthenticated || !userContext.isAdmin) {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+
+      const schemaManager = this.engine.getManager('SchemaManager');
+      const identifier = req.params.identifier;
+
+      // Delete organization
+      await schemaManager.deleteOrganization(identifier);
+      
+      if (req.headers.accept?.includes('application/json')) {
+        res.json({ success: true });
+      } else {
+        res.redirect('/admin/organizations?success=Organization deleted successfully');
+      }
+    } catch (error) {
+      console.error('Error deleting organization:', error);
+      if (req.headers.accept?.includes('application/json')) {
+        res.status(500).json({ error: error.message });
+      } else {
+        res.redirect('/admin/organizations?error=' + encodeURIComponent(error.message));
+      }
+    }
+  }
+
+  /**
+   * Get Single Organization (API endpoint)
+   */
+  async adminGetOrganization(req, res) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const userContext = await userManager.getCurrentUser(req);
+      if (!userContext.isAuthenticated || !userContext.isAdmin) {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+
+      const schemaManager = this.engine.getManager('SchemaManager');
+      const identifier = req.params.identifier;
+      const organization = await schemaManager.getOrganization(identifier);
+
+      if (!organization) {
+        return res.status(404).json({ error: 'Organization not found' });
+      }
+
+      res.json(organization);
+    } catch (error) {
+      console.error('Error getting organization:', error);
+      res.status(500).json({ error: error.message });
+    }
+  }
+
+  /**
+   * Get Organization Schema.org JSON-LD (API endpoint)
+   */
+  async adminGetOrganizationSchema(req, res) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const userContext = await userManager.getCurrentUser(req);
+      if (!userContext.isAuthenticated || !userContext.isAdmin) {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+
+      const schemaManager = this.engine.getManager('SchemaManager');
+      const identifier = req.params.identifier;
+      const organization = await schemaManager.getOrganization(identifier);
+
+      if (!organization) {
+        return res.status(404).json({ error: 'Organization not found' });
+      }
+
+      // Generate Schema.org JSON-LD using SchemaGenerator
+      const schema = SchemaGenerator.generateOrganizationSchema(organization, {
+        baseUrl: `${req.protocol}://${req.get('host')}`
+      });
+
+      res.json(schema);
+    } catch (error) {
+      console.error('Error getting organization schema:', error);
+      res.status(500).json({ error: error.message });
     }
   }
 }

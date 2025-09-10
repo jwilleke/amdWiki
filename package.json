@@ -15,7 +15,10 @@
     "version:patch": "node version.js patch",
     "version:minor": "node version.js minor",
     "version:major": "node version.js major",
-    "version:help": "node version.js help"
+    "version:help": "node version.js help",
+    "migrate:schema": "node scripts/migrate-to-schema.js",
+    "migrate:schema:dry": "node scripts/migrate-to-schema.js --dry-run",
+    "migrate:schema:backup": "node scripts/migrate-to-schema.js --backup"
   },
   "jest": {
     "testEnvironment": "node",
