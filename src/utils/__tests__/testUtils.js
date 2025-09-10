@@ -208,3 +208,39 @@ module.exports = {
   generateTestUUID,
   expectToThrow
 };
+
+// Add Jest test suite for the utilities
+describe('Test Utilities', () => {
+  const testUtils = require('../testUtils');
+
+  it('should create temporary directories', async () => {
+    const tempDir = await testUtils.createTempDir('test');
+    expect(typeof tempDir).toBe('string');
+    expect(tempDir).toContain('test');
+    
+    // Cleanup
+    await testUtils.cleanupTempDir(tempDir);
+  });
+
+  it('should generate random strings', () => {
+    const str1 = testUtils.randomString(10);
+    const str2 = testUtils.randomString(10);
+    
+    expect(str1).toHaveLength(10);
+    expect(str2).toHaveLength(10);
+    expect(str1).not.toBe(str2);
+  });
+
+  it('should generate test UUIDs', () => {
+    const uuid = testUtils.generateTestUUID();
+    expect(typeof uuid).toBe('string');
+    expect(uuid).toMatch(/^[0-9a-f-]+$/);
+  });
+
+  it('should create mock engines', () => {
+    const mockEngine = testUtils.createMockEngine();
+    expect(mockEngine).toBeDefined();
+    expect(mockEngine.getManager).toBeDefined();
+    expect(mockEngine.log).toBeDefined();
+  });
+});
