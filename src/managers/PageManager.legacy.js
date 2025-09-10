@@ -243,12 +243,12 @@ class PageManager extends BaseManager {
         category: 'System',
         categories: ['System', 'Navigation', 'Index'],
         'user-keywords': [],
-        uuid: 'pageindex-system-generated',
+        uuid: uuidv4(), // Generate proper UUID instead of hardcoded value
         lastModified: timestamp
       };
 
-      // Write the PageIndex file
-      const pageIndexPath = path.join(this.requiredPagesDir, 'PageIndex.md');
+      // Write the PageIndex file with UUID-based filename
+      const pageIndexPath = path.join(this.requiredPagesDir, `${metadata.uuid}.md`);
       const pageIndexContent = matter.stringify(content, metadata);
       await fs.writeFile(pageIndexPath, pageIndexContent);
       

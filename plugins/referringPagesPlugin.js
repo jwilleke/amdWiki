@@ -12,30 +12,25 @@ const pluginInfo = {
 };
 
 // Plugin implementation
-function referringPagesPlugin(pageName, params, linkGraph) {
-  // Parse parameters
-  const opts = {};
-  params.replace(/([a-zA-Z]+)=('([^']*)'|"([^"]*)"|([^\s]+))/g, (m, key, val, s1, s2, s3) => {
-    opts[key] = s1 || s2 || s3;
-  });
-  
+function ReferringPagesPlugin(pageName, params, linkGraph) {
+  // Parse parameters (params is already an object from PluginManager)
+  const opts = params || {};
+
   // Defaults
-  const max = opts.max ? parseInt(opts.max) : 10;
-  
-  // Find referring pages
+  const max = opts.max ? parseInt(opts.max) : 10;  // Find referring pages
   let referring = [];
   if (linkGraph && linkGraph[pageName]) {
     referring = linkGraph[pageName];
   }
-  
+
   if (opts.show === 'count') {
     return String(referring.length);
   }
-  
+
   // Limit and format
   referring = referring.slice(0, max);
   let links = referring.map(p => `<li><a class="wikipage" href="/wiki/${p}">${p}</a></li>`).join('');
-  
+
   if (links) {
     links = `<ul>${links}</ul>`;
     // Remove any asterisk before <ul>
@@ -45,7 +40,7 @@ function referringPagesPlugin(pageName, params, linkGraph) {
     // Remove all stray newlines after </ul>
     links = links.replace(/<\/ul>\s*$/g, '</ul>');
   }
-  
+
   return links;
 }
 
@@ -56,9 +51,9 @@ function initialize(engine) {
 }
 
 // Export plugin with metadata
-module.exports = referringPagesPlugin;
-module.exports.name = pluginInfo.name;
-module.exports.description = pluginInfo.description;
-module.exports.author = pluginInfo.author;
-module.exports.version = pluginInfo.version;
+module.exports = ReferringPagesPlugin;
+module.exports.name = 'ReferringPagesPlugin';
+module.exports.description = 'Lists pages that refer to the current page';
+module.exports.author = 'amdWiki';
+module.exports.version = '1.0.0';
 module.exports.initialize = initialize;

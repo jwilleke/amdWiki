@@ -378,6 +378,18 @@ class PageManager extends BaseManager {
    */
   async updatePageIndex() {
     try {
+      // Check if PageIndex already exists
+      let existingPageIndex = null;
+      let existingUuid = null;
+      
+      for (const [title, uuid] of this.titleToUuidMap.entries()) {
+        if (title === 'PageIndex') {
+          existingPageIndex = this.uuidToFileMap.get(uuid);
+          existingUuid = uuid;
+          break;
+        }
+      }
+
       // Get all pages from both directories
       const allPages = [];
       
@@ -412,12 +424,14 @@ class PageManager extends BaseManager {
         category: 'System',
         categories: ['System', 'Navigation', 'Index'],
         'user-keywords': [],
-        uuid: 'pageindex-system-generated',
+        uuid: existingUuid || uuidv4(), // Use existing UUID or generate new one
         lastModified: timestamp
       };
 
-      // Write the PageIndex file with UUID-based filename
-      const pageIndexPath = path.join(this.requiredPagesDir, `${metadata.uuid}.md`);
+      // Write the PageIndex file (update existing or create new)
+      const pageIndexPath = existingPageIndex 
+        ? path.join(existingPageIndex.directory === 'required' ? this.requiredPagesDir : this.pagesDir, `${metadata.uuid}.md`)
+        : path.join(this.requiredPagesDir, `${metadata.uuid}.md`);
       const pageIndexContent = matter.stringify(content, metadata);
       await fs.writeFile(pageIndexPath, pageIndexContent);
       
