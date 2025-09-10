@@ -10,12 +10,13 @@ class SchemaGenerator {
    * @returns {Object} JSON-LD schema object
    */
   static generatePageSchema(pageData, options = {}) {
+    const schemaType = this.determineSchemaType(pageData);
     const baseSchema = {
       "@context": "https://schema.org",
-      "@type": this.determineSchemaType(pageData),
+      "@type": schemaType,
       "name": pageData.title,
       "headline": pageData.title,
-      "url": options.pageUrl || `${options.baseUrl}/wiki/${encodeURIComponent(pageData.title)}`,
+      "url": options.pageUrl || `${options.baseUrl}/view/${encodeURIComponent(pageData.title)}`,
       "dateModified": pageData.lastModified,
       "inLanguage": "en-US",
       "isPartOf": {
@@ -25,17 +26,39 @@ class SchemaGenerator {
       }
     };
 
+    // Add creation date if available
+    if (pageData.dateCreated) {
+      baseSchema.dateCreated = pageData.dateCreated;
+    }
+
     // Add keywords if available
     if (pageData.userKeywords && pageData.userKeywords.length > 0) {
       baseSchema.keywords = pageData.userKeywords.join(', ');
     }
 
-    // Add categories as 'about' subjects
+    // Add categories as 'about' subjects for WebPage
     if (pageData.categories && pageData.categories.length > 0) {
-      baseSchema.about = pageData.categories.map(category => ({
-        "@type": "Thing",
-        "name": category
-      }));
+      if (schemaType === 'WebPage') {
+        baseSchema.about = pageData.categories.map(category => ({
+          "@type": "DefinedTerm",
+          "name": category,
+          "inDefinedTermSet": {
+            "@type": "DefinedTermSet",
+            "name": "amdWiki Categories"
+          }
+        }));
+      } else {
+        baseSchema.about = pageData.categories.map(category => ({
+          "@type": "Thing",
+          "name": category
+        }));
+      }
+    }
+
+    // Add primary category as subject for WebPage
+    if (pageData.category && schemaType === 'WebPage') {
+      baseSchema.primaryImageOfPage = null; // Can be enhanced later
+      baseSchema.relatedLink = [`${options.baseUrl}/category/${encodeURIComponent(pageData.category)}`];
     }
 
     // Add author information
@@ -58,14 +81,14 @@ class SchemaGenerator {
     const keywords = pageData.userKeywords || [];
     const title = pageData.title || '';
 
-    // Documentation pages
+    // Documentation pages - specialized technical content
     if (categories.includes('Documentation') || 
         keywords.includes('documentation') ||
         title.toLowerCase().includes('documentation')) {
       return 'TechArticle';
     }
 
-    // Project/vision pages
+    // Project/vision pages - creative planning content
     if (categories.includes('Project') || 
         keywords.includes('vision') || 
         keywords.includes('roadmap') ||
@@ -73,21 +96,15 @@ class SchemaGenerator {
       return 'CreativeWork';
     }
 
-    // System/reference pages
-    if (categories.includes('System') || 
-        title.toLowerCase().includes('system') ||
-        title.toLowerCase().includes('categories') ||
-        title.toLowerCase().includes('keywords')) {
-      return 'WebPage';
-    }
-
-    // Meeting notes
+    // Meeting notes - time-based collaborative content
     if (categories.includes('Meeting Notes') ||
         title.toLowerCase().includes('meeting')) {
       return 'Article';
     }
 
-    // Default to Article for general content
+    // Default to WebPage for all wiki content
+    // WebPage is most appropriate for interconnected wiki pages with navigation
+    return 'WebPage';
     return 'Article';
   }
 
@@ -147,15 +164,53 @@ class SchemaGenerator {
   }
 
   /**
-   * Enhance WebPage schema for system pages
+   * Enhance WebPage schema for wiki pages
    */
   static enhanceWebPage(schema, pageData, options) {
+    // Add breadcrumb for category hierarchy
+    if (pageData.category && pageData.category.includes('/')) {
+      const categoryParts = pageData.category.split('/');
+      schema.breadcrumb = {
+        "@type": "BreadcrumbList",
+        "itemListElement": categoryParts.map((part, index) => ({
+          "@type": "ListItem",
+          "position": index + 1,
+          "name": part,
+          "item": `${options.baseUrl}/category/${part}`
+        }))
+      };
+    }
+
+    // Add main content designation
+    schema.mainContentOfPage = {
+      "@type": "WebPageElement",
+      "cssSelector": ".wiki-content"
+    };
+
+    // Add specific enhancements based on page type
     if (pageData.title?.toLowerCase().includes('categories')) {
       schema.mainEntity = {
-        "@type": "DefinedTermSet",
+        "@type": "DefinedTermSet", 
         "name": "amdWiki Content Categories",
         "description": "Available categories for organizing wiki content"
       };
+    }
+
+    if (pageData.title?.toLowerCase().includes('keywords')) {
+      schema.mainEntity = {
+        "@type": "DefinedTermSet",
+        "name": "amdWiki User Keywords", 
+        "description": "Available user-defined keywords for content tagging"
+      };
+    }
+
+    // Add significant links for wiki navigation
+    if (pageData.categories?.includes('System')) {
+      schema.significantLink = [
+        `${options.baseUrl}/view/Categories`,
+        `${options.baseUrl}/view/User-Keywords`,
+        `${options.baseUrl}/view/Welcome`
+      ];
     }
 
     return schema;

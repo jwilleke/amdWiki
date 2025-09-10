@@ -1,5 +1,6 @@
 const BaseManager = require('./BaseManager');
-const fs = require('fs-extra');
+const fs = require('fs').promises;
+const fsSync = require('fs');
 const path = require('path');
 
 /**
@@ -18,6 +19,7 @@ class SchemaManager extends BaseManager {
     await super.initialize(config);
     
     this.dataDirectory = config.dataDirectory || './users';
+    // Ensure data directory exists
     await fs.mkdir(this.dataDirectory, { recursive: true });
     
     await this.loadPersons();
@@ -32,7 +34,7 @@ class SchemaManager extends BaseManager {
   async loadPersons() {
     try {
       const personsFile = path.join(this.dataDirectory, 'persons.json');
-      if (await fs.pathExists(personsFile)) {
+      if (fsSync.existsSync(personsFile)) {
         const personsData = await fs.readFile(personsFile, 'utf8');
         const persons = JSON.parse(personsData);
         this.persons = new Map(Object.entries(persons));
@@ -53,7 +55,7 @@ class SchemaManager extends BaseManager {
   async loadOrganizations() {
     try {
       const organizationsFile = path.join(this.dataDirectory, 'organizations.json');
-      if (await fs.pathExists(organizationsFile)) {
+      if (fsSync.existsSync(organizationsFile)) {
         const organizationsData = await fs.readFile(organizationsFile, 'utf8');
         const organizations = JSON.parse(organizationsData);
         this.organizations = new Map(Object.entries(organizations));
@@ -371,7 +373,7 @@ class SchemaManager extends BaseManager {
   async migrateLegacyUsers() {
     try {
       const usersFile = path.join(this.dataDirectory, 'users.json');
-      if (!(await fs.pathExists(usersFile))) {
+      if (!fsSync.existsSync(usersFile)) {
         console.log('No legacy users.json found to migrate');
         return;
       }
@@ -411,7 +413,9 @@ class SchemaManager extends BaseManager {
       }
 
       // Backup legacy file
-      await fs.move(usersFile, path.join(this.dataDirectory, 'users.json.backup'));
+      const backupPath = path.join(this.dataDirectory, 'users.json.backup');
+      await fs.copyFile(usersFile, backupPath);
+      await fs.unlink(usersFile);
       console.log('✅ Migration completed, legacy users.json backed up');
 
     } catch (err) {

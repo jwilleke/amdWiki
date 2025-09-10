@@ -7,7 +7,7 @@ categories:
   - Index
 user-keywords: []
 uuid: pageindex-system-generated
-lastModified: '2025-09-10T08:42:13.820Z'
+lastModified: '2025-09-10T09:47:16.121Z'
 ---
 # Page Index
 
@@ -24,6 +24,7 @@ This page contains an alphabetical listing of all pages in this wiki.
 - [ACL Test Page](../pages/ACL%20Test%20Page)
 - [Access Control Lists](../pages/Access%20Control%20Lists)
 - [Authentication States Implementation](../pages/Authentication%20States%20Implementation)
+- [Categories](../pages/Categories)
 - [Extended Link Test](../pages/Extended%20Link%20Test)
 - [Footer](../pages/Footer)
 - [Fourth Test Page](../pages/Fourth%20Test%20Page)
@@ -31,6 +32,7 @@ This page contains an alphabetical listing of all pages in this wiki.
 - [Jims](../pages/Jims)
 - [Jims2](../pages/Jims2)
 - [LeftMenu](../pages/LeftMenu)
+- [Page-Metadata](../pages/Page-Metadata)
 - [Password Management](../pages/Password%20Management)
 - [Pipe Link Test](../pages/Pipe%20Link%20Test)
 - [Pipe Test Simple](../pages/Pipe%20Test%20Simple)

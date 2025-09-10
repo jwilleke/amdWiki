@@ -73,8 +73,9 @@ This page serves as the central hub for all documentation, tutorials, guides, ex
 
 ## 📝 Content Management
 
-### Categories & Keywords
-* **[Categories]** - Category system documentation
+### Metadata & Organization
+* **[Page-Metadata](../pages/Page-Metadata)** - **COMPLETE metadata field documentation**
+* **[Categories]** - Available category values
 * **[System Keywords]** - System-level keyword management
 * **[User Keywords]** - User keyword management
 * **[Metadata Cleanup Progress]** - Metadata standardization progress
