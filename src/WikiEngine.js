@@ -88,8 +88,12 @@ class WikiEngine extends Engine {
     const UserManager = require('./managers/UserManager');
     const ACLManager = require('./managers/ACLManager');
     const SchemaManager = require('./managers/SchemaManager');
+    const ValidationManager = require('./managers/ValidationManager');
     
     try {
+      console.log('✅ Registering ValidationManager...');
+      this.registerManager('ValidationManager', new ValidationManager(this));
+      
       console.log('📄 Registering PageManager...');
       this.registerManager('PageManager', new PageManager(this));
       
@@ -120,7 +124,10 @@ class WikiEngine extends Engine {
       console.log('🏢 Registering SchemaManager...');
       this.registerManager('SchemaManager', new SchemaManager(this));
       
-      // Initialize in dependency order
+      // Initialize in dependency order - ValidationManager first
+      console.log('🚀 Initializing ValidationManager...');
+      await this.getManager('ValidationManager').initialize();
+      
       console.log('🚀 Initializing PageManager...');
       await this.getManager('PageManager').initialize();
       

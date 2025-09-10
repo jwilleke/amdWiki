@@ -2,10 +2,31 @@ const { describe, test, expect, beforeEach, afterEach } = require('@jest/globals
 const fs = require('fs-extra');
 const path = require('path');
 const PageManager = require('../PageManager');
+const { v4: uuidv4 } = require('uuid');
+
+// Mock ValidationManager
+const mockValidationManager = {
+  generateFilename: jest.fn((metadata) => `${metadata.uuid}.md`),
+  validatePage: jest.fn(() => ({ success: true, warnings: [] })),
+  generateValidMetadata: jest.fn((title, options = {}) => ({
+    title,
+    uuid: options.uuid || uuidv4(),
+    slug: title.toLowerCase().replace(/\s+/g, '-'),
+    category: options.category || 'General',
+    'user-keywords': options['user-keywords'] || [],
+    lastModified: new Date().toISOString(),
+    ...options
+  }))
+};
 
 // Mock engine
 const mockEngine = {
-  getManager: jest.fn(),
+  getManager: jest.fn((name) => {
+    if (name === 'ValidationManager') {
+      return mockValidationManager;
+    }
+    return null;
+  }),
   getConfig: jest.fn(() => ({
     get: jest.fn()
   }))
@@ -68,24 +89,48 @@ describe('PageManager', () => {
 
   describe('page existence checking', () => {
     beforeEach(async () => {
-      // Create test pages
+      // Create test pages with UUID-based filenames
+      const testPageUuid = uuidv4();
+      const systemPageUuid = uuidv4();
+      
       await fs.writeFile(
-        path.join(testPagesDir, 'TestPage.md'),
-        '---\ntitle: Test Page\n---\n# Test Page\nContent'
+        path.join(testPagesDir, `${testPageUuid}.md`),
+        `---
+title: Test Page
+uuid: ${testPageUuid}
+slug: test-page
+category: General
+user-keywords: []
+lastModified: '2025-01-01T00:00:00.000Z'
+---
+# Test Page
+Content`
       );
       await fs.writeFile(
-        path.join(testRequiredPagesDir, 'SystemPage.md'),
-        '---\ntitle: System Page\ncategories: [System]\n---\n# System Page'
+        path.join(testRequiredPagesDir, `${systemPageUuid}.md`),
+        `---
+title: System Page
+uuid: ${systemPageUuid}
+slug: system-page
+category: System
+categories: [System]
+user-keywords: []
+lastModified: '2025-01-01T00:00:00.000Z'
+---
+# System Page`
       );
+      
+      // Rebuild caches after creating test files
+      await pageManager.buildLookupCaches();
     });
 
     test('should detect existing regular pages', async () => {
-      const exists = await pageManager.pageExists('TestPage');
+      const exists = await pageManager.pageExists('Test Page');
       expect(exists).toBe(true);
     });
 
     test('should detect existing required pages', async () => {
-      const exists = await pageManager.pageExists('SystemPage');
+      const exists = await pageManager.pageExists('System Page');
       expect(exists).toBe(true);
     });
 
@@ -97,11 +142,14 @@ describe('PageManager', () => {
 
   describe('page retrieval', () => {
     beforeEach(async () => {
+      const testPageUuid = uuidv4();
       const pageContent = `---
 title: Test Page
 categories: [General]
 user-keywords: [test, example]
-uuid: test-uuid-123
+uuid: ${testPageUuid}
+slug: test-page
+category: General
 lastModified: '2025-09-09T10:00:00.000Z'
 ---
 # Test Page
@@ -111,17 +159,34 @@ This is test content with **markdown**.
 ## Section 1
 Content here.`;
 
-      await fs.writeFile(path.join(testPagesDir, 'TestPage.md'), pageContent);
+      await fs.writeFile(path.join(testPagesDir, `${testPageUuid}.md`), pageContent);
+      
+      // Also create a page without frontmatter for testing
+      const noMetadataUuid = uuidv4();
+      await fs.writeFile(path.join(testPagesDir, `${noMetadataUuid}.md`), 
+        `---
+title: NoMetadata
+uuid: ${noMetadataUuid}
+slug: no-metadata
+category: General
+user-keywords: []
+lastModified: '2025-01-01T00:00:00.000Z'
+---
+# Simple Page
+Just content without metadata.`);
+      
+      // Rebuild caches
+      await pageManager.buildLookupCaches();
     });
 
     test('should retrieve page with correct metadata and content', async () => {
-      const page = await pageManager.getPage('TestPage');
+      const page = await pageManager.getPage('Test Page');
       
       expect(page).toBeTruthy();
-      expect(page.name).toBe('TestPage');
+      expect(page.name).toBe('Test Page');
       expect(page.title).toBe('Test Page');
       expect(page.categories).toEqual(['General']);
-      expect(page.userKeywords).toEqual(['test', 'example']);
+      expect(page['user-keywords']).toEqual(['test', 'example']);
       expect(page.uuid).toBe('test-uuid-123');
       expect(page.content).toContain('This is test content with **markdown**');
       expect(page.content).toContain('## Section 1');
@@ -152,15 +217,15 @@ Content here.`;
       const metadata = {
         title: 'New Page',
         categories: ['Documentation'],
-        userKeywords: ['new', 'test']
+        'user-keywords': ['new', 'test']
       };
 
       const result = await pageManager.savePage('NewPage', content, metadata);
       
-      expect(result.success).toBe(true);
-      expect(await pageManager.pageExists('NewPage')).toBe(true);
+      expect(result.title).toBe('New Page');
+      expect(await pageManager.pageExists('New Page')).toBe(true);
       
-      const savedPage = await pageManager.getPage('NewPage');
+      const savedPage = await pageManager.getPage('New Page');
       expect(savedPage.title).toBe('New Page');
       expect(savedPage.categories).toEqual(['Documentation']);
       expect(savedPage.content).toContain('This is new content');
@@ -221,27 +286,38 @@ Content here.`;
   });
 
   describe('page deletion', () => {
+    let deleteTestUuid;
+    
     beforeEach(async () => {
+      deleteTestUuid = uuidv4();
       await fs.writeFile(
-        path.join(testPagesDir, 'DeleteTest.md'),
-        '---\ntitle: Delete Test\n---\n# Delete Test'
+        path.join(testPagesDir, `${deleteTestUuid}.md`),
+        `---
+title: Delete Test
+uuid: ${deleteTestUuid}
+slug: delete-test
+category: General
+user-keywords: []
+lastModified: '2025-01-01T00:00:00.000Z'
+---
+# Delete Test`
       );
+      await pageManager.buildLookupCaches();
     });
 
     test('should delete existing page', async () => {
-      expect(await pageManager.pageExists('DeleteTest')).toBe(true);
+      expect(await pageManager.pageExists('Delete Test')).toBe(true);
       
-      const result = await pageManager.deletePage('DeleteTest');
+      const result = await pageManager.deletePage('Delete Test');
       
-      expect(result.success).toBe(true);
-      expect(await pageManager.pageExists('DeleteTest')).toBe(false);
+      expect(result).toBe(true);
+      expect(await pageManager.pageExists('Delete Test')).toBe(false);
     });
 
     test('should handle deletion of non-existent page', async () => {
       const result = await pageManager.deletePage('NonExistentPage');
       
-      expect(result.success).toBe(false);
-      expect(result.error).toContain('not found');
+      expect(result).toBe(false);
     });
   });
 
@@ -276,14 +352,58 @@ Content here.`;
 
   describe('page listing', () => {
     beforeEach(async () => {
-      // Create test pages
-      await fs.writeFile(path.join(testPagesDir, 'Page1.md'), '# Page 1');
-      await fs.writeFile(path.join(testPagesDir, 'Page2.md'), '# Page 2');
-      await fs.writeFile(path.join(testRequiredPagesDir, 'SystemPage1.md'), '# System Page 1');
-      await fs.writeFile(path.join(testRequiredPagesDir, 'SystemPage2.md'), '# System Page 2');
+      // Create test pages with UUID-based filenames
+      const page1Uuid = uuidv4();
+      const page2Uuid = uuidv4();
+      const systemPage1Uuid = uuidv4();
+      const systemPage2Uuid = uuidv4();
+      
+      await fs.writeFile(path.join(testPagesDir, `${page1Uuid}.md`), 
+        `---
+title: Page1
+uuid: ${page1Uuid}
+slug: page1
+category: General
+user-keywords: []
+lastModified: '2025-01-01T00:00:00.000Z'
+---
+# Page 1`);
+      await fs.writeFile(path.join(testPagesDir, `${page2Uuid}.md`), 
+        `---
+title: Page2
+uuid: ${page2Uuid}
+slug: page2
+category: General
+user-keywords: []
+lastModified: '2025-01-01T00:00:00.000Z'
+---
+# Page 2`);
+      await fs.writeFile(path.join(testRequiredPagesDir, `${systemPage1Uuid}.md`), 
+        `---
+title: SystemPage1
+uuid: ${systemPage1Uuid}
+slug: systempage1
+category: System
+user-keywords: []
+lastModified: '2025-01-01T00:00:00.000Z'
+---
+# System Page 1`);
+      await fs.writeFile(path.join(testRequiredPagesDir, `${systemPage2Uuid}.md`), 
+        `---
+title: SystemPage2
+uuid: ${systemPage2Uuid}
+slug: systempage2
+category: System
+user-keywords: []
+lastModified: '2025-01-01T00:00:00.000Z'
+---
+# System Page 2`);
       
       // Create non-markdown file that should be ignored
       await fs.writeFile(path.join(testPagesDir, 'notapage.txt'), 'Not a markdown file');
+      
+      // Rebuild caches
+      await pageManager.buildLookupCaches();
     });
 
     test('should return all page names from both directories', async () => {
@@ -308,20 +428,18 @@ Content here.`;
     test('should create page from template', async () => {
       // Mock template manager
       const mockTemplateManager = {
-        getTemplate: jest.fn().mockReturnValue({
-          content: '---\ncategory: {{category}}\n---\n# {{pageName}}\n\nTemplate content for {{pageName}}.'
-        }),
-        populateTemplate: jest.fn().mockReturnValue({
-          content: '# NewFromTemplate\n\nTemplate content for NewFromTemplate.',
-          metadata: { category: 'General' }
-        })
+        getTemplate: jest.fn().mockResolvedValue('# {{pageName}}\n\nTemplate content for {{pageName}}.')
       };
       
-      mockEngine.getManager.mockReturnValue(mockTemplateManager);
+      mockEngine.getManager.mockImplementation((name) => {
+        if (name === 'ValidationManager') return mockValidationManager;
+        if (name === 'TemplateManager') return mockTemplateManager;
+        return null;
+      });
       
       const result = await pageManager.createPageFromTemplate('NewFromTemplate', 'default');
       
-      expect(result.success).toBe(true);
+      expect(result.name).toBe('NewFromTemplate');
       expect(mockTemplateManager.getTemplate).toHaveBeenCalledWith('default');
       expect(mockTemplateManager.populateTemplate).toHaveBeenCalled();
     });

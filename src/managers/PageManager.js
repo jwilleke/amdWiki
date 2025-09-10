@@ -254,6 +254,8 @@ class PageManager extends BaseManager {
    * @returns {Object} Saved page information
    */
   async savePage(identifier, content, metadata = {}) {
+    const validationManager = this.engine.getManager('ValidationManager');
+    
     // Ensure required metadata
     if (!metadata.uuid) {
       metadata.uuid = uuidv4();
@@ -270,17 +272,39 @@ class PageManager extends BaseManager {
     if (!metadata.slug) {
       metadata.slug = generateSlug(metadata.title);
     }
+    
+    // Ensure required metadata fields with defaults
+    if (!metadata.category) {
+      metadata.category = 'General';
+    }
+    
+    if (!metadata['user-keywords']) {
+      metadata['user-keywords'] = [];
+    }
 
     // Add/update timestamp
     metadata.lastModified = new Date().toISOString();
+    
+    // Generate the target filename using UUID
+    const targetFilename = validationManager.generateFilename(metadata);
+    
+    // Validate the complete page before saving
+    const validation = validationManager.validatePage(targetFilename, metadata, content);
+    if (!validation.success) {
+      throw new Error(`Page validation failed: ${validation.error}`);
+    }
+    
+    // Log warnings if any
+    if (validation.warnings.length > 0) {
+      console.warn('Page validation warnings:', validation.warnings);
+    }
 
     // Determine the correct directory based on page type and metadata
     const isRequired = await this.isRequiredPage(identifier, metadata);
     const targetDir = isRequired ? this.requiredPagesDir : this.pagesDir;
     
-    // Use UUID for filename
-    const fileName = `${metadata.uuid}.md`;
-    const filePath = path.join(targetDir, fileName);
+    // Use validated UUID-based filename
+    const filePath = path.join(targetDir, targetFilename);
     
     // Remove old file if page is moving between directories or filename changed
     const existingUuid = this.resolvePageIdentifier(identifier);
@@ -513,6 +537,103 @@ This page contains an alphabetical listing of all pages in this wiki.
   }
 
   /**
+   * Validate and fix all existing files to ensure UUID naming compliance
+   * @param {Object} options - Validation options
+   * @returns {Object} Validation summary report
+   */
+  async validateAndFixAllFiles(options = {}) {
+    const validationManager = this.engine.getManager('ValidationManager');
+    const dryRun = options.dryRun || false;
+    const report = {
+      totalFiles: 0,
+      validFiles: 0,
+      invalidFiles: 0,
+      fixedFiles: 0,
+      errors: [],
+      warnings: [],
+      fixes: []
+    };
+
+    const directories = [
+      { path: this.pagesDir, type: 'regular' },
+      { path: this.requiredPagesDir, type: 'required' }
+    ];
+
+    for (const dir of directories) {
+      try {
+        const files = await fs.readdir(dir.path);
+        
+        for (const file of files) {
+          if (!file.endsWith('.md')) continue;
+          
+          report.totalFiles++;
+          const filePath = path.join(dir.path, file);
+          
+          try {
+            const fileContent = await fs.readFile(filePath, 'utf-8');
+            const fileData = matter(fileContent);
+            
+            // Validate the file
+            const validation = validationManager.validateExistingFile(filePath, fileData);
+            
+            if (validation.success) {
+              report.validFiles++;
+              if (validation.warnings.length > 0) {
+                report.warnings.push(`${file}: ${validation.warnings.join(', ')}`);
+              }
+            } else {
+              report.invalidFiles++;
+              report.errors.push(`${file}: ${validation.error}`);
+              
+              if (validation.fixes) {
+                const fixInfo = {
+                  originalFile: file,
+                  originalPath: filePath,
+                  suggestedFilename: validation.fixes.filename,
+                  suggestedMetadata: validation.fixes.metadata
+                };
+                
+                report.fixes.push(fixInfo);
+                
+                if (!dryRun) {
+                  try {
+                    // Apply the fix
+                    const newFilePath = path.join(dir.path, validation.fixes.filename);
+                    const newContent = matter.stringify(fileData.content, validation.fixes.metadata);
+                    
+                    // Write new file
+                    await fs.writeFile(newFilePath, newContent);
+                    
+                    // Remove old file if different
+                    if (filePath !== newFilePath) {
+                      await fs.remove(filePath);
+                    }
+                    
+                    report.fixedFiles++;
+                  } catch (fixError) {
+                    report.errors.push(`Failed to fix ${file}: ${fixError.message}`);
+                  }
+                }
+              }
+            }
+          } catch (err) {
+            report.errors.push(`Error reading ${file}: ${err.message}`);
+          }
+        }
+      } catch (err) {
+        report.errors.push(`Error reading directory ${dir.path}: ${err.message}`);
+      }
+    }
+    
+    if (!dryRun && report.fixedFiles > 0) {
+      // Rebuild caches after fixes
+      await this.buildLookupCaches();
+    }
+    
+    return report;
+  }
+
+  /**
    * Create page from template
    * @param {string} pageName - Name of the new page
    * @param {string} templateName - Name of the template to use
@@ -525,13 +646,11 @@ This page contains an alphabetical listing of all pages in this wiki.
     }
 
     const templateContent = await templateManager.getTemplate(templateName);
-    const metadata = {
-      title: pageName,
-      slug: generateSlug(pageName),
-      uuid: uuidv4(),
-      created: new Date().toISOString(),
-      category: 'Uncategorized'
-    };
+    const validationManager = this.engine.getManager('ValidationManager');
+    const metadata = validationManager.generateValidMetadata(pageName, {
+      category: 'Uncategorized',
+      created: new Date().toISOString()
+    });
 
     return await this.savePage(pageName, templateContent, metadata);
   }

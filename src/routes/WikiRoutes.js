@@ -825,6 +825,7 @@ class WikiRoutes {
       const searchManager = this.engine.getManager('SearchManager');
       const userManager = this.engine.getManager('UserManager');
       const aclManager = this.engine.getManager('ACLManager');
+      const validationManager = this.engine.getManager('ValidationManager');
       
       // Get current user
       const currentUser = await userManager.getCurrentUser(req);
@@ -841,12 +842,22 @@ class WikiRoutes {
         return res.status(400).send('Maximum 3 categories allowed');
       }
       
-      // Prepare metadata first to check the category
-      const metadata = {
+      // Validate user keywords
+      let userKeywordsArray = Array.isArray(userKeywords) ? userKeywords : (userKeywords ? [userKeywords] : []);
+      if (userKeywordsArray.length > validationManager.maxUserKeywords) {
+        return res.status(400).send(`Maximum ${validationManager.maxUserKeywords} user keywords allowed`);
+      }
+      
+      // Prepare metadata using ValidationManager to ensure completeness
+      const baseMetadata = {
         title: title || pageName,
+        category: categoriesArray[0], // Use first category as primary
         categories: categoriesArray,
-        'user-keywords': Array.isArray(userKeywords) ? userKeywords : (userKeywords ? [userKeywords] : [])
+        'user-keywords': userKeywordsArray
       };
+      
+      // Generate complete valid metadata
+      const metadata = validationManager.generateValidMetadata(baseMetadata.title, baseMetadata);
       
       // Check if this is or will become a required page that needs admin access
       const isCurrentlyRequired = await this.isRequiredPage(pageName);
@@ -1970,6 +1981,10 @@ class WikiRoutes {
     app.get('/admin/organizations/:identifier', this.adminGetOrganization.bind(this));
     app.get('/admin/organizations/:identifier/schema', this.adminGetOrganizationSchema.bind(this));
     
+    // Admin File Validation Routes
+    app.get('/admin/validate-files', this.adminValidateFiles.bind(this));
+    app.post('/admin/fix-files', this.adminFixFiles.bind(this));
+    
     console.log('✅ Wiki routes registered');
   }
 
@@ -2163,6 +2178,70 @@ class WikiRoutes {
     } catch (error) {
       console.error('Error getting organization:', error);
       res.status(500).json({ error: error.message });
+    }
+  }
+
+  /**
+   * Admin route to validate all files and check for naming convention compliance
+   */
+  async adminValidateFiles(req, res) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const userContext = await userManager.getCurrentUser(req);
+      
+      if (!userContext.isAuthenticated || !userContext.isAdmin) {
+        return await this.renderError(req, res, 403, 'Access Denied', 'Admin access required');
+      }
+
+      const pageManager = this.engine.getManager('PageManager');
+      const dryRun = req.query.dryRun === 'true';
+      
+      // Run validation
+      const report = await pageManager.validateAndFixAllFiles({ dryRun });
+      
+      // Render validation report
+      const templateData = await this.getCommonTemplateData(userContext);
+      templateData.title = 'File Validation Report';
+      templateData.report = report;
+      templateData.dryRun = dryRun;
+      
+      res.render('admin-validation-report', templateData);
+      
+    } catch (err) {
+      console.error('Error validating files:', err);
+      await this.renderError(req, res, 500, 'Validation Error', err.message);
+    }
+  }
+
+  /**
+   * Admin API route to fix all non-compliant files
+   */
+  async adminFixFiles(req, res) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const userContext = await userManager.getCurrentUser(req);
+      
+      if (!userContext.isAuthenticated || !userContext.isAdmin) {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+
+      const pageManager = this.engine.getManager('PageManager');
+      
+      // Run fixes (not dry run)
+      const report = await pageManager.validateAndFixAllFiles({ dryRun: false });
+      
+      res.json({
+        success: true,
+        message: `Fixed ${report.fixedFiles} files out of ${report.invalidFiles} invalid files`,
+        report
+      });
+      
+    } catch (err) {
+      console.error('Error fixing files:', err);
+      res.status(500).json({ 
+        success: false, 
+        error: err.message 
+      });
     }
   }
 
