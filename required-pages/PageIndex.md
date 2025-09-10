@@ -7,7 +7,7 @@ categories:
   - Index
 user-keywords: []
 uuid: pageindex-system-generated
-lastModified: '2025-09-10T09:47:16.121Z'
+lastModified: '2025-09-10T12:00:25.750Z'
 ---
 # Page Index
 
@@ -32,7 +32,6 @@ This page contains an alphabetical listing of all pages in this wiki.
 - [Jims](../pages/Jims)
 - [Jims2](../pages/Jims2)
 - [LeftMenu](../pages/LeftMenu)
-- [Page-Metadata](../pages/Page-Metadata)
 - [Password Management](../pages/Password%20Management)
 - [Pipe Link Test](../pages/Pipe%20Link%20Test)
 - [Pipe Test Simple](../pages/Pipe%20Test%20Simple)
@@ -63,6 +62,7 @@ This page contains an alphabetical listing of all pages in this wiki.
 
 ### Required Pages Directory
 
+- [# Code Citations](%23%20Code%20Citations)
 - [ACL Test Page](ACL%20Test%20Page)
 - [Access Control Lists](Access%20Control%20Lists)
 - [Authentication States Implementation](Authentication%20States%20Implementation)
@@ -72,6 +72,7 @@ This page contains an alphabetical listing of all pages in this wiki.
 - [JSPWiki Table Functionality](JSPWiki%20Table%20Functionality)
 - [LeftMenu](LeftMenu)
 - [Metadata Cleanup Progress](Metadata%20Cleanup%20Progress)
+- [Page-Metadata](Page-Metadata)
 - [Password Management](Password%20Management)
 - [Pipe Link Test](Pipe%20Link%20Test)
 - [Pipe Test Simple](Pipe%20Test%20Simple)

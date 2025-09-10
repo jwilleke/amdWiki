@@ -46,6 +46,13 @@
 
 ### High Priority
 
+* **Access Control Enhancement** - Enhance current UserManager + ACLManager system
+  * Context-aware permissions (time-based, maintenance mode restrictions)
+  * Resource-based policies aligned with storage categories (System, General, Documentation, Developer)
+  * Enhanced audit trail with access decision logging to `/users/access-log.json`
+  * Policy-based access control using JSON configuration instead of XACML complexity
+  * Attribute-based permissions with environmental context (IP, user agent, time)
+  * Storage location permission integration with category-based file organization
 * User Authentication System - Login/permissions
 * Page History & Versioning - Track changes over time
 * Advanced Search Filters - Category/keyword/date filtering

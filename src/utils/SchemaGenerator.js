@@ -6,7 +6,7 @@ class SchemaGenerator {
   /**
    * Generate Schema.org markup for a wiki page
    * @param {Object} pageData - Page metadata and content
-   * @param {Object} options - Generation options
+   * @param {Object} options - Generation options (should include engine and user for permissions)
    * @returns {Object} JSON-LD schema object
    */
   static generatePageSchema(pageData, options = {}) {
@@ -66,6 +66,14 @@ class SchemaGenerator {
       "@type": "Organization",
       "name": "amdWiki Platform"
     };
+
+    // Add DigitalDocumentPermission objects if engine is available
+    if (options.engine) {
+      const permissions = this.generateDigitalDocumentPermissions(pageData, options.user, options);
+      if (permissions.length > 0) {
+        baseSchema.hasDigitalDocumentPermission = permissions;
+      }
+    }
 
     // Add specific schema enhancements based on content type
     return this.enhanceSchemaByType(baseSchema, pageData, options);
@@ -323,6 +331,324 @@ class SchemaGenerator {
     }
 
     return schema;
+  }
+
+  /**
+   * Generate DigitalDocumentPermission objects for a page
+   * @param {Object} pageData - Page metadata and content
+   * @param {Object} user - Current user context (null for anonymous)
+   * @param {Object} options - Generation options (must include engine)
+   * @returns {Array} Array of DigitalDocumentPermission objects
+   */
+  static generateDigitalDocumentPermissions(pageData, user, options = {}) {
+    const permissions = [];
+    const engine = options.engine;
+    
+    if (!engine) {
+      console.warn('Engine not provided to generateDigitalDocumentPermissions');
+      return permissions;
+    }
+    
+    const userManager = engine.getManager('UserManager');
+    const aclManager = engine.getManager('ACLManager');
+    
+    if (!userManager || !aclManager) {
+      console.warn('UserManager or ACLManager not available for permission generation');
+      return permissions;
+    }
+    
+    // Parse page-level ACL if present
+    const pageACL = aclManager.parseACL(pageData.content || '');
+    
+    // Generate permissions based on page type and ACL
+    return this.generatePermissionsByContext(pageData, pageACL, userManager, aclManager, options);
+  }
+
+  /**
+   * Generate permissions based on page category and protection level
+   * @param {Object} pageData - Page metadata
+   * @param {Object} pageACL - Parsed ACL from page content
+   * @param {Object} userManager - UserManager instance
+   * @param {Object} aclManager - ACLManager instance
+   * @param {Object} options - Generation options
+   * @returns {Array} Array of DigitalDocumentPermission objects
+   */
+  static generatePermissionsByContext(pageData, pageACL, userManager, aclManager, options) {
+    const category = pageData.category || 'General';
+    
+    // If page has specific ACL, use ACL-based permissions
+    if (pageACL) {
+      return this.generateACLBasedPermissions(pageACL, userManager, options);
+    }
+    
+    // Base permission strategy by category
+    const categoryStrategies = {
+      'General': () => this.generateGeneralPagePermissions(pageData, userManager, options),
+      'System': () => this.generateSystemPagePermissions(pageData, userManager, options),
+      'Documentation': () => this.generateDocumentationPermissions(pageData, userManager, options),
+      'Developer': () => this.generateDeveloperPermissions(pageData, userManager, options)
+    };
+    
+    const strategy = categoryStrategies[category] || categoryStrategies['General'];
+    return strategy();
+  }
+
+  /**
+   * Generate permissions for General category pages (user content)
+   * @param {Object} pageData - Page metadata
+   * @param {Object} userManager - UserManager instance
+   * @param {Object} options - Generation options
+   * @returns {Array} Array of DigitalDocumentPermission objects
+   */
+  static generateGeneralPagePermissions(pageData, userManager, options) {
+    const permissions = [];
+    
+    // Default General page permissions
+    permissions.push({
+      "@type": "DigitalDocumentPermission",
+      "permissionType": "ReadPermission",
+      "grantee": {
+        "@type": "Audience",
+        "audienceType": "public"
+      }
+    });
+    
+    permissions.push({
+      "@type": "DigitalDocumentPermission", 
+      "permissionType": "WritePermission",
+      "grantee": {
+        "@type": "Audience",
+        "audienceType": "editor"
+      }
+    });
+    
+    permissions.push({
+      "@type": "DigitalDocumentPermission",
+      "permissionType": "CreatePermission",
+      "grantee": {
+        "@type": "Audience", 
+        "audienceType": "editor"
+      }
+    });
+    
+    permissions.push({
+      "@type": "DigitalDocumentPermission",
+      "permissionType": "DeletePermission",
+      "grantee": {
+        "@type": "Person",
+        "name": "admin"
+      }
+    });
+    
+    permissions.push({
+      "@type": "DigitalDocumentPermission",
+      "permissionType": "CommentPermission",
+      "grantee": {
+        "@type": "Audience",
+        "audienceType": "authenticated"
+      }
+    });
+    
+    permissions.push({
+      "@type": "DigitalDocumentPermission",
+      "permissionType": "UploadPermission", 
+      "grantee": {
+        "@type": "Audience",
+        "audienceType": "editor"
+      }
+    });
+    
+    return permissions;
+  }
+
+  /**
+   * Generate permissions for System category pages (app-managed)
+   * @param {Object} pageData - Page metadata
+   * @param {Object} userManager - UserManager instance
+   * @param {Object} options - Generation options
+   * @returns {Array} Array of DigitalDocumentPermission objects
+   */
+  static generateSystemPagePermissions(pageData, userManager, options) {
+    const permissions = [];
+    
+    // System pages: Read for all, admin-only for modifications
+    permissions.push({
+      "@type": "DigitalDocumentPermission",
+      "permissionType": "ReadPermission",
+      "grantee": {
+        "@type": "Audience",
+        "audienceType": "public"
+      }
+    });
+    
+    permissions.push({
+      "@type": "DigitalDocumentPermission",
+      "permissionType": "AdministerPermission",
+      "grantee": {
+        "@type": "Person", 
+        "name": "admin"
+      }
+    });
+    
+    return permissions;
+  }
+
+  /**
+   * Generate permissions for Documentation category pages
+   * @param {Object} pageData - Page metadata
+   * @param {Object} userManager - UserManager instance
+   * @param {Object} options - Generation options
+   * @returns {Array} Array of DigitalDocumentPermission objects
+   */
+  static generateDocumentationPermissions(pageData, userManager, options) {
+    const permissions = [];
+    
+    permissions.push({
+      "@type": "DigitalDocumentPermission",
+      "permissionType": "ReadPermission",
+      "grantee": {
+        "@type": "Audience",
+        "audienceType": "public" 
+      }
+    });
+    
+    permissions.push({
+      "@type": "DigitalDocumentPermission",
+      "permissionType": "WritePermission",
+      "grantee": {
+        "@type": "Audience",
+        "audienceType": "editor"
+      }
+    });
+    
+    permissions.push({
+      "@type": "DigitalDocumentPermission",
+      "permissionType": "CommentPermission",
+      "grantee": {
+        "@type": "Audience",
+        "audienceType": "authenticated"
+      }
+    });
+    
+    return permissions;
+  }
+
+  /**
+   * Generate permissions for Developer category pages
+   * @param {Object} pageData - Page metadata
+   * @param {Object} userManager - UserManager instance
+   * @param {Object} options - Generation options
+   * @returns {Array} Array of DigitalDocumentPermission objects
+   */
+  static generateDeveloperPermissions(pageData, userManager, options) {
+    const permissions = [];
+    
+    permissions.push({
+      "@type": "DigitalDocumentPermission",
+      "permissionType": "ReadPermission", 
+      "grantee": {
+        "@type": "Audience",
+        "audienceType": "public"
+      }
+    });
+    
+    permissions.push({
+      "@type": "DigitalDocumentPermission",
+      "permissionType": "WritePermission",
+      "grantee": {
+        "@type": "Audience",
+        "audienceType": "developer"
+      }
+    });
+    
+    permissions.push({
+      "@type": "DigitalDocumentPermission",
+      "permissionType": "CreatePermission",
+      "grantee": {
+        "@type": "Audience",
+        "audienceType": "developer"
+      }
+    });
+    
+    return permissions;
+  }
+
+  /**
+   * Generate permissions based on parsed page ACL
+   * @param {Object} pageACL - Parsed ACL object
+   * @param {Object} userManager - UserManager instance  
+   * @param {Object} options - Generation options
+   * @returns {Array} Array of DigitalDocumentPermission objects
+   */
+  static generateACLBasedPermissions(pageACL, userManager, options) {
+    const permissions = [];
+    
+    // Map ACL actions to permission types
+    const aclToPermissionMap = {
+      'view': 'ReadPermission',
+      'edit': 'WritePermission', 
+      'delete': 'DeletePermission',
+      'rename': 'RenamePermission',
+      'upload': 'UploadPermission'
+    };
+    
+    for (const [action, principals] of Object.entries(pageACL)) {
+      const permissionType = aclToPermissionMap[action];
+      if (!permissionType || !principals || principals.length === 0) {
+        continue;
+      }
+      
+      // Generate permission for each principal
+      for (const principal of principals) {
+        const grantee = this.mapPrincipalToGrantee(principal, userManager);
+        if (grantee) {
+          permissions.push({
+            "@type": "DigitalDocumentPermission",
+            "permissionType": permissionType,
+            "grantee": grantee
+          });
+        }
+      }
+    }
+    
+    return permissions;
+  }
+
+  /**
+   * Map ACL principal to Schema.org grantee object
+   * @param {string} principal - ACL principal (user, role, or special)
+   * @param {Object} userManager - UserManager instance
+   * @returns {Object|null} Schema.org Person or Audience object
+   */
+  static mapPrincipalToGrantee(principal, userManager) {
+    const p = principal.toLowerCase();
+    
+    // Handle special principals
+    const specialMappings = {
+      'all': { "@type": "Audience", "audienceType": "public" },
+      'anonymous': { "@type": "Audience", "audienceType": "anonymous" },
+      'authenticated': { "@type": "Audience", "audienceType": "authenticated" },
+      'asserted': { "@type": "Audience", "audienceType": "asserted" }
+    };
+    
+    if (specialMappings[p]) {
+      return specialMappings[p];
+    }
+    
+    // Check if it's a role
+    const role = userManager.getRole(principal);
+    if (role) {
+      return {
+        "@type": "Audience",
+        "audienceType": principal
+      };
+    }
+    
+    // Assume it's a specific user
+    return {
+      "@type": "Person",
+      "name": principal
+    };
   }
 
   /**
