@@ -179,6 +179,159 @@ class SchemaGenerator {
   static generateSiteSchema(pages, options = {}) {
     return pages.map(page => this.generatePageSchema(page, options));
   }
+
+  /**
+   * Generate Person schema from user JSON data
+   * @param {Object} userData - User data from users.json
+   * @param {Object} options - Generation options
+   * @returns {Object} Person schema object
+   */
+  static generatePersonSchema(userData, options = {}) {
+    const schema = {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": userData.displayName || userData.username,
+      "identifier": userData.username
+    };
+
+    // Add email if available and not sensitive
+    if (userData.email && !userData.isSystem) {
+      schema.email = userData.email;
+    }
+
+    // Add organization membership
+    schema.memberOf = {
+      "@type": "Organization",
+      "name": options.organizationName || "amdWiki Platform"
+    };
+
+    // Add role information
+    if (userData.roles && userData.roles.length > 0) {
+      schema.roleName = userData.roles;
+      
+      // Enhanced role descriptions
+      if (userData.roles.includes('admin')) {
+        schema.jobTitle = 'Administrator';
+      } else if (userData.roles.includes('editor')) {
+        schema.jobTitle = 'Content Editor';
+      } else if (userData.roles.includes('reader')) {
+        schema.jobTitle = 'Reader';
+      }
+    }
+
+    // Add temporal information
+    if (userData.createdAt) {
+      schema.memberOfStartDate = userData.createdAt;
+    }
+
+    if (userData.lastLogin) {
+      schema.lastReviewed = userData.lastLogin;
+    }
+
+    return schema;
+  }
+
+  /**
+   * Generate SoftwareApplication schema from wiki configuration
+   * @param {Object} configData - Configuration from wiki.json
+   * @param {Object} options - Generation options
+   * @returns {Object} SoftwareApplication schema object
+   */
+  static generateSoftwareSchema(configData, options = {}) {
+    const schema = {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": configData.applicationName || "amdWiki",
+      "version": configData.version,
+      "applicationCategory": "Wiki Software",
+      "operatingSystem": "Cross-platform"
+    };
+
+    // Add server configuration
+    if (configData.server) {
+      schema.serviceType = "Web Application";
+      if (configData.server.port) {
+        schema.serverStatus = `Running on port ${configData.server.port}`;
+      }
+    }
+
+    // Add feature capabilities
+    if (configData.features) {
+      const capabilities = [];
+      
+      if (configData.features.export?.html) capabilities.push("HTML Export");
+      if (configData.features.export?.pdf) capabilities.push("PDF Export");
+      if (configData.features.attachments?.enabled) capabilities.push("File Attachments");
+      if (configData.features.llm?.enabled) capabilities.push("AI Integration");
+      
+      if (capabilities.length > 0) {
+        schema.featureList = capabilities;
+      }
+    }
+
+    // Add requirements
+    schema.softwareRequirements = "Node.js";
+    
+    // Add organization
+    schema.author = {
+      "@type": "Organization",
+      "name": options.organizationName || "amdWiki Platform"
+    };
+
+    return schema;
+  }
+
+  /**
+   * Generate Organization schema for the platform
+   * @param {Object} options - Generation options
+   * @returns {Object} Organization schema object
+   */
+  static generateOrganizationSchema(options = {}) {
+    return {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": options.organizationName || "amdWiki Platform",
+      "description": "Digital platform for wiki, document management, and modular content systems",
+      "foundingDate": options.foundingDate || "2025",
+      "sameAs": options.website || options.repository,
+      "makesOffer": {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "SoftwareApplication",
+          "name": "amdWiki Platform"
+        }
+      }
+    };
+  }
+
+  /**
+   * Generate comprehensive site schema combining all data sources
+   * @param {Object} siteData - Combined data from all JSON sources
+   * @param {Object} options - Generation options
+   * @returns {Object} Complete site schema
+   */
+  static generateComprehensiveSchema(siteData, options = {}) {
+    const schemas = [];
+
+    // Add main organization
+    schemas.push(this.generateOrganizationSchema(options));
+
+    // Add software application
+    if (siteData.config) {
+      schemas.push(this.generateSoftwareSchema(siteData.config, options));
+    }
+
+    // Add key user profiles (admins only for privacy)
+    if (siteData.users) {
+      Object.values(siteData.users)
+        .filter(user => user.roles?.includes('admin') && !user.isSystem)
+        .forEach(user => {
+          schemas.push(this.generatePersonSchema(user, options));
+        });
+    }
+
+    return schemas;
+  }
 }
 
 module.exports = SchemaGenerator;
