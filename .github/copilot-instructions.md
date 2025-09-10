@@ -1,0 +1,143 @@
+# amdWiki AI Coding Agent Instructions
+
+## Architecture Overview
+
+**amdWiki** is a JSPWiki-inspired file-based wiki built with Node.js/Express following a modular manager pattern. Pages are stored as Markdown files with YAML frontmatter.
+
+### Core Engine Pattern
+- **WikiEngine** (`src/WikiEngine.js`) - Central orchestrator extending base `Engine` class
+- **Manager Registration** - All functionality through manager instances: PageManager, RenderingManager, SearchManager, etc.
+- **Plugin System** - Extensible via `/plugins` directory with JSPWiki-style syntax
+- **Config-Driven** - Configuration via `config/Config.js` with validation
+
+### Key Architectural Decisions
+- **File-based storage** - No database; pages stored as `.md` files in `/pages`
+- **Manager isolation** - Each manager extends `BaseManager.js` with standard lifecycle
+- **Template rendering** - EJS templates with JSPWiki-style navigation and Bootstrap UI
+- **Three-tier auth** - Anonymous, Authenticated, Admin roles via UserManager
+
+## Essential Development Patterns
+
+### 1. Manager Creation Pattern
+```javascript
+// All managers follow this pattern in WikiEngine.js
+const NewManager = require('./managers/NewManager');
+this.registerManager('NewManager', new NewManager(this));
+await manager.initialize(config);
+```
+
+### 2. Route Handler Pattern
+Routes in `src/routes/WikiRoutes.js` use manager dependency injection:
+```javascript
+async routeHandler(req, res) {
+  const pageManager = this.engine.getManager('PageManager');
+  const userContext = await this.getCurrentUser(req);
+  // Always get common template data
+  const templateData = await this.getCommonTemplateData(userContext);
+}
+```
+
+### 3. Page Frontmatter Structure
+All pages require this YAML frontmatter:
+```yaml
+---
+title: Page Name
+category: General
+user-keywords: []
+uuid: auto-generated-uuid
+lastModified: ISO-date-string
+---
+```
+
+### 4. Plugin Development Pattern
+Plugins in `/plugins` follow this structure:
+```javascript
+const PluginName = {
+  name: 'PluginName',
+  execute(context, params) {
+    const engine = context.engine;
+    const manager = engine.getManager('ManagerName');
+    return 'HTML output';
+  }
+};
+```
+
+## Critical Developer Workflows
+
+### Running & Testing
+```bash
+npm start              # Start server on port 3000
+npm test               # Run Jest test suite
+npm run test:coverage  # Generate coverage reports
+npm run dev            # Development mode (same as start)
+```
+
+### Version Management
+```bash
+npm run version:show   # Display current version
+npm run version:patch  # Increment patch version
+npm run version:minor  # Increment minor version
+npm run version:major  # Increment major version
+```
+
+### File Structure Navigation
+- **Pages**: `/pages/*.md` - Wiki content files
+- **Templates**: `/views/*.ejs` - EJS view templates  
+- **Managers**: `/src/managers/` - Business logic modules
+- **Routes**: `/src/routes/WikiRoutes.js` - All HTTP endpoints
+- **Plugins**: `/plugins/*.js` - Extensible functionality
+- **Static**: `/public/` - CSS, JS, images
+- **Config**: `/config/Config.js` - Application configuration
+
+## JSPWiki-Specific Conventions
+
+### Link Syntax
+- **Internal links**: `[PageName]` or `[Link Text|PageName]`
+- **Red links**: Automatically detected for non-existent pages
+- **Categories**: YAML frontmatter `category: CategoryName`
+
+### User Variables
+Pages support JSPWiki-style user variables:
+- `[{$username}]` - Current user's username
+- `[{$loginstatus}]` - User authentication status
+- `[{$userroles}]` - User's assigned roles
+
+### Plugin Invocation
+JSPWiki-style plugin syntax in pages:
+- `[{PluginName}]` - Basic plugin call
+- `[{PluginName param1='value'}]` - Plugin with parameters
+
+## Integration Points
+
+### Authentication Flow
+1. **Session middleware** - Express session with cookie-based auth
+2. **UserManager** - Handles login/logout/registration
+3. **ACLManager** - Role-based access control
+4. **Template context** - User data injected into all views
+
+### Search Integration
+- **Lunr.js** - Full-text search indexing in SearchManager
+- **Multi-criteria** - Category, keyword, content search
+- **Real-time** - Index updates on page save
+
+### Rendering Pipeline
+1. **PageManager** - Loads raw Markdown from filesystem
+2. **ACLManager** - Removes restricted content based on user roles
+3. **RenderingManager** - Processes JSPWiki syntax, renders Markdown
+4. **TemplateManager** - Injects into EJS templates with user context
+
+## Common Gotchas
+
+- **Config instance** - WikiEngine constructor requires proper Config validation
+- **Manager order** - Managers have initialization dependencies (PageManager before RenderingManager)
+- **User context** - Always pass user context to rendering for variable expansion
+- **File paths** - Use absolute paths; relative paths can break in different contexts
+- **ACL markup** - Content filtering happens before rendering, not after
+- **Plugin context** - Plugins receive engine instance via context.engine
+
+## Testing Patterns
+
+Tests use Jest with manager mocking patterns. Key test files:
+- `src/managers/__tests__/` - Manager unit tests
+- `src/__tests__/` - Integration tests
+- Coverage target: `src/**/*.js` excluding `src/tests/**` and `src/legacy/**`
