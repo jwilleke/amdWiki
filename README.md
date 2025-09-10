@@ -3,6 +3,8 @@
 
 A simple, file-based wiki application built with Node.js, Express, and Markdown which mimics [JSPWiki](https://github.com/apache/jspwiki)
 
+📋 **See [ROADMAP.md](ROADMAP.md) for project vision, technical specifications, and feature priorities.**
+
 ## Features
 
 * Create, view, and edit wiki pages
