@@ -1,6 +1,6 @@
-# GEMINI.md
+# amdWiki Project Roadmap
 
-## Project overview
+## Project Overview
 
 * Purpose: A Wiki that basiclly mimics [jspwiki](https://github.com/apache/jspwiki) functionality use Markdown.
 * Able to be locally hosted.
