@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Planned
+- Future enhancements
+
+## [1.3.1] - 2025-09-10
+
 ### Added
 
 - **Dark Mode Theme System**: Comprehensive dark mode implementation with system preference detection
