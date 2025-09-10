@@ -1,10 +1,46 @@
-# amdWiki Project Roadmap
+# amdWiki Digital Platform Roadmap
 
-## Project Overview
+## Platform Vision
 
-* Purpose: A Wiki that basiclly mimics [jspwiki](https://github.com/apache/jspwiki) functionality use Markdown.
-* Able to be locally hosted.
-* Architectural overview: Use node.js
+**amdWiki** is evolving from a JSPWiki-inspired wiki into a **comprehensive digital platform** for personal and organizational use. The goal is to create a modular, standards-based ecosystem that can be hosted locally or on the internet.
+
+### Core Philosophy
+* **Modular Architecture**: Plugin-based modules for different use cases
+* **Standards-First**: RFC and widely-adopted standards support
+* **Local-First**: Can run entirely offline while supporting cloud deployment
+* **Universal Platform**: "Jack of all trades" digital workspace
+
+### Initial Foundation
+* **Wiki Core**: JSPWiki-compatible functionality using Markdown
+* **Manager Pattern**: Extensible architecture for module integration
+* **File-Based Storage**: Portable, database-free content management
+* **Node.js Stack**: Modern, performant, widely-supported technology
+
+## Platform Module Roadmap
+
+### Phase 1: Core Foundation (Current)
+* **Wiki Engine** - JSPWiki-compatible content management ✅
+* **User Management** - Authentication and authorization system
+* **Plugin Architecture** - Extensible module loading system
+* **Standards Compliance** - Markdown, YAML frontmatter, HTTP standards
+
+### Phase 2: Content Modules
+* **Blog Module** - Multi-author blogging with RSS/Atom feeds
+* **Document Management** - File organization, versioning, search
+* **Photo Management** - Gallery, EXIF metadata, album organization
+* **Asset Management** - Digital asset tracking and maintenance logs
+
+### Phase 3: Business Modules  
+* **E-Commerce Store** - Product catalog, cart, payment integration
+* **CRM Module** - Contact management and interaction tracking
+* **Project Management** - Task tracking, timeline management
+* **Knowledge Base** - FAQ, documentation, help desk integration
+
+### Phase 4: Advanced Platform
+* **API Gateway** - RESTful API for all modules with OpenAPI specs
+* **Workflow Engine** - Business process automation
+* **Reporting Dashboard** - Analytics and insights across modules
+* **Multi-tenant Support** - Organization and user isolation
 
 ## Next Iteration Opportunities
 
@@ -176,8 +212,72 @@ Implement the following default User State
 - authenticated
 - 
 - admin
-  - all permisions
+  - all permissions
 
+## Standards Compliance Strategy
+
+### Technical Standards (RFC & Widely Adopted)
+* **HTTP/REST**: RFC 7231 compliant API design
+* **JSON API**: JSON:API specification for consistent data exchange
+* **OpenAPI 3.0**: API documentation and client generation
+* **OAuth 2.0/OIDC**: Industry-standard authentication protocols
+* **RSS/Atom**: Syndication feeds for blog and content modules
+* **WebDAV**: File management and synchronization protocols
+* **CommonMark**: Markdown specification compliance
+* **JSON Schema**: Data validation and documentation
+
+### Content Standards
+* **Dublin Core**: Metadata schema for digital assets
+* **EXIF**: Photo metadata preservation and management
+* **MIME Types**: Proper content-type handling across modules
+* **Unicode UTF-8**: Full internationalization support
+* **ISO 8601**: Date/time formatting consistency
+
+### Platform Architecture Standards
+* **Twelve-Factor App**: Deployment and configuration methodology
+* **Semantic Versioning**: Module version management
+* **Container Standards**: Docker/OCI compliance for deployment
+* **Environment Variables**: Configuration management patterns
+
+## Documentation Strategy
+
+### User Documentation
+* **Installation Guides**: Self-hosting and cloud deployment
+* **User Manuals**: Per-module functionality guides
+* **Video Tutorials**: Visual learning for complex workflows
+* **FAQ/Troubleshooting**: Common issues and solutions
+
+### Hosting Provider Documentation
+* **Deployment Guides**: Various hosting platform instructions
+* **Performance Tuning**: Optimization recommendations
+* **Security Hardening**: Best practices for production
+* **Backup/Recovery**: Data protection strategies
+
+### Developer Documentation
+* **API References**: Complete OpenAPI specifications
+* **Module Development**: Plugin/module creation guides
+* **Architecture Guides**: Platform internals and patterns
+* **Contributing Guidelines**: Code standards and review process
+
+### Integration Documentation
+* **Third-party APIs**: Integration patterns and examples
+* **Webhook Systems**: Event-driven integration guides
+* **Import/Export**: Data migration tools and formats
+* **Extension Points**: Customization and theming guides
+
+## Platform Success Metrics
+
+### Technical Excellence
+* **Standards Compliance**: 100% adherence to chosen standards
+* **API Coverage**: Complete OpenAPI documentation
+* **Test Coverage**: >90% code coverage across modules
+* **Performance**: <200ms average response times
+
+### Community Growth
+* **Module Ecosystem**: 3rd-party module marketplace
+* **Documentation Quality**: Comprehensive guides for all audiences
+* **Support Community**: Forums, Discord, Stack Overflow presence
+* **Hosting Adoption**: Multiple hosting provider support
 
 ## More Information
 
