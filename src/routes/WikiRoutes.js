@@ -270,9 +270,15 @@ class WikiRoutes {
       const baseUrl = `${req.protocol}://${req.get('host')}`;
       const pageUrl = `${baseUrl}${req.originalUrl}`;
       
+      // Get current user for permission context
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = await userManager.getCurrentUser(req);
+      
       const schema = SchemaGenerator.generatePageSchema(pageData, {
         baseUrl: baseUrl,
-        pageUrl: pageUrl
+        pageUrl: pageUrl,
+        engine: this.engine,        // Pass engine for DigitalDocumentPermission generation
+        user: currentUser          // Pass user context for permission generation
       });
       
       return SchemaGenerator.generateScriptTag(schema);
@@ -507,10 +513,13 @@ class WikiRoutes {
       // Generate Schema.org markup for this page
       const pageSchema = await this.generatePageSchema({
         title: pageData.metadata.title || pageName,
+        category: pageData.metadata.category,
         categories: pageData.metadata.categories || pageData.metadata.category ? [pageData.metadata.category] : [],
         userKeywords: pageData.metadata.userKeywords || pageData.metadata['user-keywords'] || [],
         lastModified: pageData.metadata.lastModified,
-        uuid: pageData.metadata.uuid
+        uuid: pageData.metadata.uuid,
+        content: pageData.content,         // Include content for ACL parsing
+        isProtected: pageData.metadata.isProtected
       }, req);
       
       // Generate site-wide Schema.org markup (only on main pages for performance)
