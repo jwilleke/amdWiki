@@ -1,9 +1,17 @@
 ---
 uuid: roles-docs-2025-0909-wiki-system
-categories: [System, Documentation]
-user-keywords: [roles, permissions, authentication, authorization, security]
+categories:
+  - System
+  - Documentation
+user-keywords:
+  - roles
+  - permissions
+  - authentication
+  - authorization
+  - security
 title: User Roles and Permissions
 lastModified: '2025-09-09T12:00:00.000Z'
+slug: user-roles-and-permissions
 ---
 
 # User Roles and Permissions

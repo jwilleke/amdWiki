@@ -1,9 +1,11 @@
 ---
 uuid: sys-keywords-001
-categories: [System]
+categories:
+  - System
 user-keywords: []
 title: System Keywords
 lastModified: '2025-09-08T15:35:00.000Z'
+slug: system-keywords
 ---
 # System Keywords
 

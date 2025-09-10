@@ -1,9 +1,16 @@
 ---
 title: Project Overview and Vision
-categories: [System, Documentation]
-user-keywords: [gemini, vision, roadmap, architecture]
+categories:
+  - System
+  - Documentation
+user-keywords:
+  - gemini
+  - vision
+  - roadmap
+  - architecture
 uuid: project-overview-vision
 lastModified: '2025-09-08T22:35:00.000Z'
+slug: project-overview-and-vision
 ---
 
 # Project Overview and Vision

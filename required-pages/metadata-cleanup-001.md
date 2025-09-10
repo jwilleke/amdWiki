@@ -1,9 +1,12 @@
 ---
 uuid: metadata-cleanup-001
-categories: [System, Documentation]
+categories:
+  - System
+  - Documentation
 user-keywords: []
 title: Metadata Cleanup Progress
 lastModified: '2025-09-08T15:35:00.000Z'
+slug: metadata-cleanup-progress
 ---
 # Metadata Cleanup Progress
 

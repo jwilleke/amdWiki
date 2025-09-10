@@ -1,9 +1,16 @@
 ---
 title: Project Tasks and TODO
-categories: [System, Documentation]
-user-keywords: [tasks, todo, development, planning]
+categories:
+  - System
+  - Documentation
+user-keywords:
+  - tasks
+  - todo
+  - development
+  - planning
 uuid: project-tasks-todo
 lastModified: '2025-09-08T22:30:00.000Z'
+slug: project-tasks-and-todo
 ---
 
 # Project Tasks and TODO

@@ -1,9 +1,12 @@
 ---
 uuid: user-variables-test-001
-categories: [System, Test]
+categories:
+  - System
+  - Test
 user-keywords: []
 title: User Variables Test
 lastModified: '2025-09-08T22:30:00.000Z'
+slug: user-variables-test
 ---
 
 # User Variables Test Page
