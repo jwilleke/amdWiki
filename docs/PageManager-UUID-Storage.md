@@ -90,7 +90,7 @@ if (!validation.success) {
 
 **Directory Organization:**
 
-``` 
+``` bash
 pages/           # User-created content
 ├── {uuid}.md   # Regular pages
 └── ...
