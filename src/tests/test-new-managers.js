@@ -1,4 +1,4 @@
-const WikiEngine = require('../WikiEngine');
+const WikiEngine = require('./src/WikiEngine');
 
 async function testNewManagers() {
   console.log('🧪 Testing new managers functionality...\n');
@@ -27,7 +27,7 @@ This is a test with a [{$pagename}] macro and a [Welcome] wiki link.
 
 Here's a plugin macro: [{referringPagesPlugin page="Categories"}]`;
 
-    const renderedHtml = renderingManager.renderMarkdown(testContent, 'Test Page', null);
+    const renderedHtml = renderingManager.renderMarkdown(testContent, 'Test Page');
     console.log('   Rendered HTML preview:');
     console.log('   ' + renderedHtml.substring(0, 200) + '...\n');
 

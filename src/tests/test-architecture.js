@@ -1,7 +1,7 @@
 /**
  * Test script for the new JSPWiki-inspired architecture
  */
-const WikiEngine = require('../WikiEngine');
+const WikiEngine = require('./src/WikiEngine');
 
 async function testNewArchitecture() {
   console.log('🚀 Testing new amdWiki architecture...\n');
