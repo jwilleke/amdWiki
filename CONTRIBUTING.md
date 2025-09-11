@@ -18,6 +18,7 @@ amdWiki follows a **manager-based architecture** inspired by JSPWiki:
 - **Managers** - Modular functionality (`src/managers/`)
 - **Plugins** - Extensible features (`plugins/`)
 - **File-based storage** - Pages as Markdown files (`pages/`)
+- **Additional technical guides in [docs/](docs/) folder**, such as testing and manager development.
 
 📖 **Read `.github/copilot-instructions.md`** for detailed architecture patterns.
 
@@ -56,7 +57,27 @@ const PluginName = {
 };
 ```
 
+### Security Guidelines
+- Ensure **authentication checks** for routes or features that modify content (use three-state authentication: Anonymous, Asserted, Authenticated).
+- Implement **role-based permissions** (reader, contributor, editor, admin) for access control.
+- Validate and sanitize **all user inputs** to prevent security vulnerabilities.
+- Use **ACLManager** for content filtering based on user permissions.
+
+### UI/UX Standards
+- Use **Bootstrap 5** components and styling for consistency.
+- Follow **JSPWiki-style navigation and layout patterns** as seen in existing templates.
+- Ensure **responsive design** for mobile compatibility.
+- Implement professional styling with cards, shadows, and hover effects.
+
+### Performance & Reliability
+- Implement **caching** for page lookups where applicable (e.g., titleToUuidMap, slugToUuidMap).
+- Ensure **cache rebuilding** after page modifications.
+- Handle **file system errors** gracefully to prevent crashes.
+- Use proper **cleanup** in finally blocks for resource management.
+
 ## 🧪 Testing
+
+📖 **See [docs/testing/PageManager-Testing-Guide.md](docs/testing/PageManager-Testing-Guide.md) for detailed mocking strategies.**
 
 - **Run tests**: `npm test`
 - **Coverage**: `npm run test:coverage`

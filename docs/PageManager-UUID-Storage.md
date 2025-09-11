@@ -19,9 +19,10 @@ The PageManager is a sophisticated content management system that implements UUI
 
 **File Naming Convention:**
 
-```
+``` bash
 {uuid}.md
 ```
+
 Example: `2db43b31-8316-417e-8cc5-d3306996512a.md`
 
 ### Multi-Resolution Identifier System
@@ -38,6 +39,7 @@ The PageManager supports multiple ways to identify and access pages:
 ### 1. Caching System
 
 **Performance Optimization:**
+
 ```javascript
 this.pageCache = new Map();           // Full page content cache
 this.titleToUuidMap = new Map();      // Title → UUID mapping
@@ -59,6 +61,7 @@ this.uuidToFileMap = new Map();       // UUID → File info mapping
 4. Legacy filename fallback
 
 **Example Usage:**
+
 ```javascript
 // All these resolve to the same page:
 await pageManager.getPage('2db43b31-8316-417e-8cc5-d3306996512a'); // UUID
@@ -75,6 +78,7 @@ await pageManager.getPage('page-index');                          // Slug
 - Automatic fix suggestions
 
 **Validation Flow:**
+
 ```javascript
 const validation = validationManager.validatePage(filename, metadata, content);
 if (!validation.success) {
@@ -85,7 +89,8 @@ if (!validation.success) {
 ### 4. Dual Directory Structure
 
 **Directory Organization:**
-```
+
+``` 
 pages/           # User-created content
 ├── {uuid}.md   # Regular pages
 └── ...
@@ -166,6 +171,7 @@ Creates a new page from a template.
 ## Metadata Structure
 
 ### Required Fields
+
 ```yaml
 ---
 title: Page Title
@@ -178,6 +184,7 @@ lastModified: '2025-09-11T10:00:00.000Z'
 ```
 
 ### Optional Fields
+
 ```yaml
 ---
 categories: [General, Documentation]
@@ -242,6 +249,7 @@ version: '1.0'
 ## Best Practices
 
 ### Page Creation
+
 ```javascript
 const metadata = {
   title: 'My New Page',
@@ -253,12 +261,14 @@ await pageManager.savePage('My New Page', '# Content', metadata);
 ```
 
 ### Bulk Operations
+
 ```javascript
 const report = await pageManager.validateAndFixAllFiles({ dryRun: true });
 console.log(`Found ${report.invalidFiles} issues`);
 ```
 
 ### Custom Identifiers
+
 ```javascript
 // Use slugs for clean URLs
 const page = await pageManager.getPageBySlug('my-clean-url');
