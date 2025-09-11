@@ -20,7 +20,7 @@ amdWiki follows a **manager-based architecture** inspired by JSPWiki:
 - **File-based storage** - Pages as Markdown files (`pages/`)
 - **Additional technical guides in [docs/](docs/) folder**, such as testing and manager development.
 
-📖 **Read `.github/copilot-instructions.md`** for detailed architecture patterns.
+📖 **Read [ARCHITECTURE-PAGE-CLASSIFICATION.md](ARCHITECTURE-PAGE-CLASSIFICATION.md)** for detailed architecture patterns.
 
 ## 🔧 Development Guidelines
 
