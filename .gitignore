@@ -158,3 +158,4 @@ exports/*
 logs/*
 
 # Keep required-pages/ tracked (system pages)
+.editorconfig
