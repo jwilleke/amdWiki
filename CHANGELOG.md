@@ -28,10 +28,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enhanced error handling test coverage
 - Better cache consistency testing
 
-## [1.3.1] - Previous Release
-...
 ### Planned
-- Future enhancements
+- Unit test implementation
+- Performance optimization for large page sets
+- Mobile UI enhancements
+- Export/import functionality
+- See [ROADMAP.md](ROADMAP.md) for detailed future plans
 
 ## [1.3.1] - 2025-09-10
 
@@ -119,10 +121,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Session security**: Enhanced cookie configuration and session management
   - **Redirect safety**: Proper redirect parameter handling to prevent attacks
 
-### Planned
-
-- Future enhancements
-
 ## [1.3.0] - 2025-09-08
 
 ### Added
@@ -155,104 +153,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Git ignore patterns**: Resolved VS Code showing user content as untracked files
 - **Table rendering**: Complete JSPWiki TablePlugin compatibility with all styling parameters
 - **Project structure**: Clean separation between system files and user content
-
-## [Unreleased]
-
-### Planned
-
-- Unit test implementation
-- Performance optimization for large page sets
-- Mobile UI enhancements
-- Export/import functionality
-
-### Added (Since 1.2.0)
-
-- **JSPWiki-Style Action Buttons**: Implemented authentic JSPWiki navigation with Info, Edit, and More dropdowns
-  - **Info Dropdown**: Page Information modal, Page History, Page Statistics, Recent Changes
-  - **Edit Button**: Direct edit access with permission checking
-  - **More Dropdown**: View Page Source, Show Reader View, Export, System Variables, Search Help
-- **Page Source Dialog**: Professional modal for viewing and copying raw markdown content
-  - One-click copy to clipboard with visual feedback
-  - Syntax highlighting and scrollable content
-  - Responsive design for mobile devices
-- **Reader View**: Distraction-free reading experience
-  - Clean typography-focused design
-  - Floating action buttons (Exit, Print, Copy Content)
-  - Keyboard shortcuts (Escape to exit, Ctrl/Cmd+P to print)
-  - Mobile-responsive layout
-- **Create User Modal**: Professional user creation interface for admin panel
-  - Complete form validation (password matching, role selection)
-  - Bootstrap 5 modal with responsive design
-  - Success/error message handling
-- **Edit User Modal**: Complete user editing functionality for admin panel
-  - Pre-populated form with current user data
-  - Role management with checkbox interface
-  - Optional password updating (leave blank to keep current)
-  - User status toggle (active/inactive)
-  - Form validation and AJAX submission
-- **Improved Access Control System**: Enhanced page access control with sensible defaults
-  - Default read access for all regular pages (including anonymous users)
-  - Restricted access only for system/admin pages
-  - Edit button visibility based on actual user permissions
-  - Proper role-based permission checking for all actions
-- **JSPWiki-Style Table Support**: Complete table rendering system with advanced styling
-  - Enhanced Showdown markdown converter with table support
-  - JSPWiki Table plugin syntax: `[{Table param:value}]`
-  - Advanced styling parameters: style, dataStyle, headerStyle, evenRowStyle, oddRowStyle
-  - Row numbering support with configurable start value
-  - Automatic conversion of JSPWiki table syntax to styled HTML tables
-- **Dynamic Markdown Footer**: Footer content now loaded from editable `Footer.md` page
-- **Version System Variables**: Added `[{$version}]` and `[{$year}]` system variables
-- **Footer Styling**: Professional footer styling with responsive design
-- **Version Management**: Automatic version display in footer from package.json
-
-### Changed (Since 1.2.0)
-
-- **Bootstrap 5 Migration**: Complete migration from Bootstrap 4 to Bootstrap 5
-  - Updated all dropdown toggles (`data-toggle` → `data-bs-toggle`)
-  - Migrated badge classes (`badge-*` → `bg-*`)
-  - Updated margin/padding classes (`ml-*` → `ms-*`)
-  - Modernized modal and form components
-- **Navigation Structure**: Simplified and cleaned navigation
-  - Removed redundant navigation pills (News, WikiEtiquette, Find pages, About this Wiki, Create)
-  - Context-aware action buttons (only show on relevant pages)
-  - Minimalist design focusing on page-specific actions
-
-### Fixed
-
-- **Bootstrap 5 Migration Issues**: Resolved all compatibility problems from Bootstrap 4 to 5 upgrade
-  - Fixed admin dropdown menu not working (data-toggle → data-bs-toggle)
-  - Updated badge classes (badge-secondary → badge-secondary bg-secondary)
-  - Corrected margin classes (mr-2 → me-2)
-  - Fixed modal initialization and event handling
-- **Admin Panel Functionality**: Restored complete admin user management
-  - Fixed non-functional "Create User" button
-  - Restored modal form validation and submission
-  - Fixed success/error message display system
-  - Fixed async/await bug in adminCreateUser method causing "Access denied" errors
-  - Fixed user creation parameter mismatch causing users to be created with undefined usernames
-  - Fixed async/await bug in adminUpdateUser method for proper permission checking
-  - Fixed invalid "user" role in user creation forms - replaced with proper system roles (reader, contributor, editor, admin)
-- **Access Control System**: Fixed overly restrictive page access
-  - Regular pages now readable by all users (including anonymous) by default
-  - System/admin pages properly restricted to authorized users only
-  - Edit button visibility now based on actual user permissions instead of hardcoded values
-- **Navigation Dropdown Issues**: Resolved all dropdown menu problems
-  - Fixed Info, Edit, and More dropdown menus not opening
-  - Corrected Bootstrap 5 dropdown toggle attributes
-  - Ensured proper JavaScript event binding
-
-### Changed
-
-- **JSPWiki-Style Navigation**: Completely redesigned navbar to match Apache JSPWiki layout
-  - Two-tier navigation with header bar and tab navigation
-  - Prominent search bar in header center
-  - Cleaner tab-based navigation (Home, Find, Create, Tools)
-  - Improved sidebar with page icons and better organization
-- **Simplified Page Headers**: Removed complex flexbox wrapper divs for cleaner, simpler page layouts
-- **Footer Content**: Cleaned up footer to show only essential information without explanatory text
-- **Documentation**: Streamlined System Variables documentation
-- **Page Layout**: Removed "Page Information" metadata section from page view for cleaner appearance
 
 ## [1.2.0] - 2025-09-07
 
@@ -426,7 +326,9 @@ This project follows [Semantic Versioning](https://semver.org/) (SemVer):
 
 ### Version History Summary
 
-- **1.2.0** (Current): Major feature additions (JSPWiki-style search, enhanced authentication, UI improvements)
+- **1.3.1** (Latest): Dark mode, user preferences, authentication fixes, and UI enhancements
+- **1.3.0**: JSPWiki table functionality, project reorganization, and documentation consolidation
+- **1.2.0**: Advanced search system, JSPWiki-style UI, and authentication improvements
 - **1.1.0**: Basic feature set with authentication and templates
 - **1.0.0**: Initial release with core wiki functionality
 
@@ -485,4 +387,4 @@ JSPWiki-compatible link system with:
 
 ---
 
-*This changelog covers the major enhancements implemented on September 7, 2025. For detailed technical documentation, see the Search Documentation page within the wiki.*
+*This changelog covers the major enhancements implemented on September 7, 2025. For detailed technical documentation, see the Search Documentation page within the wiki or check [docs/](docs/) folder.*
