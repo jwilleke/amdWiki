@@ -101,7 +101,7 @@ required-pages/  # System and required content
 ```
 
 **Automatic Classification:**
-- System/Admin category → `required-pages/`
+- System → `required-pages/`
 - User content → `pages/`
 - Configurable via metadata
 
