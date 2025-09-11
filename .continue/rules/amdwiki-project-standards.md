@@ -2,6 +2,8 @@
 alwaysApply: true
 ---
 
+# Project Standards
+
 When working on the amdWiki project:
 
 ## Architecture & Design Patterns
@@ -10,6 +12,7 @@ When working on the amdWiki project:
 3. Use the established Engine → Manager → Component hierarchy
 4. Store pages as Markdown files with YAML frontmatter in UUID-based filenames (uuid.md)
 5. Use file-based storage: /pages for regular content, /required-pages for system pages
+6. Use Markdownlint Configuration**: `.markdownlint.json` for formating all Markdown files
 
 ## Code Standards
 1. Use CommonJS modules (require/module.exports) - no ES6 imports
@@ -17,6 +20,7 @@ When working on the amdWiki project:
 3. Follow existing error handling patterns with try/catch and graceful degradation
 4. Use async/await for asynchronous operations consistently
 5. Implement proper validation and sanitization for user inputs
+
 
 ## Testing Standards (Critical - Per CHANGELOG.md)
 1. **Use mocks instead of real file operations** - PageManager tests were removed for not following this
