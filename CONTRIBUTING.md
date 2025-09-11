@@ -64,10 +64,14 @@ const PluginName = {
 - **Test location**: `src/managers/__tests__/`
 
 ### Test Requirements
-- Unit tests for new managers
-- Integration tests for route handlers
-- Plugin functionality tests
-- Maintain >80% coverage
+- **Unit tests for new managers** (extending BaseManager pattern)
+- **Integration tests** for route handlers and cross-component functionality
+- **Plugin functionality tests** for JSPWiki-style plugin syntax
+- **Use mocks instead of real file operations** - critical requirement (see CHANGELOG.md)
+- **Mock fs-extra completely** using in-memory Map-based file systems
+- **Mock gray-matter** for YAML frontmatter parsing
+- **Maintain >80% coverage** for critical managers (>90% for PageManager, UserManager, ACLManager)
+- **Use testUtils.js** for common mock objects and test utilities
 
 ## 📝 Page Development
 
