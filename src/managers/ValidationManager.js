@@ -9,8 +9,8 @@ const path = require('path');
 class ValidationManager extends BaseManager {
   constructor(engine) {
     super(engine);
-    this.requiredMetadataFields = ['title', 'uuid', 'slug', 'category', 'user-keywords', 'lastModified'];
-    this.validCategories = [
+    this.requiredMetadataFields = ['title', 'uuid', 'slug', 'system-category', 'user-keywords', 'lastModified'];
+    this.validSystemCategories = [
       'System', 'System/Admin', 'Documentation', 'General', 'User', 'Test', 'Developer'
     ];
   }
@@ -87,31 +87,12 @@ class ValidationManager extends BaseManager {
       validationErrors.push('slug must be a URL-safe string (lowercase, alphanumeric, hyphens only)');
     }
     
-    // Category validation
-    if (metadata.category) {
-      if (typeof metadata.category !== 'string') {
-        validationErrors.push('category must be a string');
-      } else if (!this.validCategories.includes(metadata.category)) {
-        result.warnings.push(`Category '${metadata.category}' is not in the standard list: ${this.validCategories.join(', ')}`);
-      }
-    }
-    
-    // Categories array validation (if present)
-    if (metadata.categories) {
-      if (!Array.isArray(metadata.categories)) {
-        validationErrors.push('categories must be an array');
-      } else if (metadata.categories.length > this.maxCategories) {
-        validationErrors.push(`Maximum ${this.maxCategories} categories allowed, found ${metadata.categories.length}`);
-      } else {
-        for (const cat of metadata.categories) {
-          if (typeof cat !== 'string') {
-            validationErrors.push('All categories must be strings');
-            break;
-          }
-          if (!this.validCategories.includes(cat)) {
-            result.warnings.push(`Category '${cat}' is not in the standard list`);
-          }
-        }
+    // System category validation
+    if (metadata['system-category']) {
+      if (typeof metadata['system-category'] !== 'string') {
+        validationErrors.push('system-category must be a string');
+      } else if (!this.validSystemCategories.includes(metadata['system-category'])) {
+        result.warnings.push(`System category '${metadata['system-category']}' is not in the standard list: ${this.validSystemCategories.join(', ')}`);
       }
     }
     

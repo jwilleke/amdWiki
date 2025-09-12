@@ -163,7 +163,7 @@
                             <% if (!fix.suggestedMetadata.uuid) missingFields.push('uuid') %>
                             <% if (!fix.suggestedMetadata.title) missingFields.push('title') %>
                             <% if (!fix.suggestedMetadata.slug) missingFields.push('slug') %>
-                            <% if (!fix.suggestedMetadata.category) missingFields.push('category') %>
+                            <% if (!fix.suggestedMetadata['system-category']) missingFields.push('system-category') %>
                             <% if (!fix.suggestedMetadata['user-keywords']) missingFields.push('user-keywords') %>
                             <% if (!fix.suggestedMetadata.lastModified) missingFields.push('lastModified') %>
                             

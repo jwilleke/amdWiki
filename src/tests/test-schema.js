@@ -4,32 +4,32 @@ const SchemaGenerator = require('./src/utils/SchemaGenerator');
 const testPages = [
   {
     title: "Welcome",
-    categories: ["System", "Documentation"],
-    userKeywords: ["wiki", "welcome", "getting-started"],
+    'system-category': "System",
+    'user-keywords': ["wiki", "welcome", "getting-started", "Documentation"],
     lastModified: "2025-09-08T15:35:00.000Z"
   },
   {
     title: "Plugin System Documentation", 
-    category: "System/Admin",
-    userKeywords: ["plugins", "documentation", "jspwiki"],
+    'system-category': "System/Admin",
+    'user-keywords': ["plugins", "documentation", "jspwiki"],
     lastModified: "2025-09-07T09:42:00.000Z"
   },
   {
     title: "Project Overview and Vision",
-    categories: ["System", "Documentation"],
-    userKeywords: ["gemini", "vision", "roadmap", "architecture"],
+    'system-category': "System",
+    'user-keywords': ["gemini", "vision", "roadmap", "architecture", "Documentation"],
     lastModified: "2025-09-08T22:35:00.000Z"
   },
   {
     title: "Categories",
-    categories: ["System"],
-    userKeywords: [],
+    'system-category': "System",
+    'user-keywords': [],
     lastModified: "2025-09-08T16:40:00.000Z"
   },
   {
     title: "Search Documentation",
-    category: "Documentation", 
-    userKeywords: ["search", "documentation", "help", "guide"],
+    'system-category': "Documentation", 
+    'user-keywords': ["search", "documentation", "help", "guide"],
     lastModified: "2025-09-07T00:00:00.000Z"
   }
 ];

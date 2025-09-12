@@ -12,28 +12,23 @@
                     <input type="text" id="title" name="title" class="form-control" value="<%= metadata.title || pageName %>" required>
                 </div>
                 
-                <!-- Categories and User Keywords on same row -->
+                <!-- System Category (Admin only) and User Keywords (Editable by any editor) -->
                 <div class="row mb-3">
+                    <% if (user && user.roles && user.roles.includes('admin')) { %>
                     <div class="col-md-6">
-                        <label style="font-weight:bold;">Categories (At least one required, Max 3):</label>
-                        <div class="dropdown">
-                            <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button" id="categoriesDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                <span id="selectedCategoriesText">Select categories...</span>
-                            </button>
-                            <ul class="dropdown-menu w-100" aria-labelledby="categoriesDropdown">
-                                <% systemCategories.forEach(category => { %>
-                                    <li>
-                                        <div class="dropdown-item-checkbox px-3 py-2">
-                                            <div class="form-check">
-                                                <input class="form-check-input category-checkbox" type="checkbox" name="categories[]" value="<%= category %>" id="dropdown-category-<%= category %>" <%= selectedCategories.includes(category) ? 'checked' : '' %>>
-                                                <label class="form-check-label ms-2" for="dropdown-category-<%= category %>"><%= category %></label>
-                                            </div>
-                                        </div>
-                                    </li>
-                                <% }); %>
-                            </ul>
-                        </div>
+                        <label style="font-weight:bold;">System Category (Admin Only):</label>
+                        <select class="form-control" id="systemCategory" name="system-category" required>
+                            <% systemCategories.forEach(category => { %>
+                                <option value="<%= category %>" <%= metadata['system-category'] === category ? 'selected' : '' %>><%= category %></option>
+                            <% }); %>
+                        </select>
                     </div>
+                    <% } else { %>
+                    <div class="col-md-6">
+                        <label style="font-weight:bold;">System Category:</label>
+                        <input type="text" class="form-control" id="systemCategory" name="system-category" value="<%= metadata['system-category'] %>" readonly>
+                    </div>
+                    <% } %>
                     <div class="col-md-6">
                         <label style="font-weight:bold;">User Keywords (Optional, Max 3):</label>
                         <div class="dropdown">
@@ -45,7 +40,7 @@
                                     <li>
                                         <div class="dropdown-item-checkbox px-3 py-2">
                                             <div class="form-check">
-                                                <input class="form-check-input user-keyword-checkbox" type="checkbox" name="userKeywords[]" value="<%= keyword %>" id="user-keyword-<%= keyword %>" <%= selectedUserKeywords.includes(keyword) ? 'checked' : '' %>>
+                                                <input class="form-check-input user-keyword-checkbox" type="checkbox" name="user-keywords[]" value="<%= keyword %>" id="user-keyword-<%= keyword %>" <%= selectedUserKeywords.includes(keyword) ? 'checked' : '' %>>
                                                 <label class="form-check-label ms-2" for="user-keyword-<%= keyword %>"><%= keyword %></label>
                                             </div>
                                         </div>

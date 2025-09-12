@@ -8,20 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Removed
-- **PageManager.legacy.js**: Removed legacy PageManager implementation to eliminate conflicting page management systems
-
-### Improved
-- **Test isolation**: Implemented comprehensive mock-based testing for PageManager
-  - Complete fs-extra mocking for better test isolation
   - In-memory mock file system using Map for predictable test behavior
   - gray-matter mocking for YAML frontmatter parsing
-  - 10-100x faster test execution with no real file I/O operations
-  - Better error simulation and edge case testing
-
-### Added
 - **Testing documentation**: New PageManager Testing Guide (`docs/testing/PageManager-Testing-Guide.md`)
 - **Updated contributing guidelines**: Enhanced testing best practices and mock-based testing approach
-
 ### Technical
 - All PageManager tests now use mocks instead of real file operations
 - Improved test reliability and CI/CD compatibility

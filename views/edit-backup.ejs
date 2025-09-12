@@ -13,15 +13,21 @@
                 </div>
                 
                 <!-- Single Category (Required) -->
+                <% if (user && user.roles && user.roles.includes('admin')) { %>
                 <div class="form-group mb-3">
-                    <label for="category" style="font-weight:bold;">Category (Required - Select One):</label>
-                    <select class="form-control" id="category" name="category" required>
-                        <option value="">-- Select Category --</option>
+                    <label for="system-category" style="font-weight:bold;">System Category (Admin Only):</label>
+                    <select class="form-control" id="system-category" name="system-category" required>
                         <% systemCategories.forEach(category => { %>
-                            <option value="<%= category.toLowerCase() %>" <%= metadata.category === category.toLowerCase() ? 'selected' : '' %>><%= category %></option>
+                            <option value="<%= category %>" <%= metadata['system-category'] === category ? 'selected' : '' %>><%= category %></option>
                         <% }); %>
                     </select>
                 </div>
+                <% } else { %>
+                <div class="form-group mb-3">
+                    <label for="system-category" style="font-weight:bold;">System Category:</label>
+                    <input type="text" class="form-control" id="system-category" name="system-category" value="<%= metadata['system-category'] %>" readonly>
+                </div>
+                <% } %>
                 
                 <!-- Content -->
                 <div class="form-group mb-3">

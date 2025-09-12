@@ -217,16 +217,8 @@ class PageManager extends BaseManager {
 
     // Check if metadata indicates System category
     if (metadata) {
-      // Check singular category field
-      if (metadata.category === 'System/Admin' || metadata.category === 'System') {
+      if (metadata['system-category'] === 'System/Admin' || metadata['system-category'] === 'System') {
         return true;
-      }
-      
-      // Check plural categories array
-      if (metadata.categories && Array.isArray(metadata.categories)) {
-        if (metadata.categories.includes('System') || metadata.categories.includes('System/Admin')) {
-          return true;
-        }
       }
     }
     
@@ -274,10 +266,9 @@ class PageManager extends BaseManager {
     }
     
     // Ensure required metadata fields with defaults
-    if (!metadata.category) {
-      metadata.category = 'General';
+    if (!metadata['system-category']) {
+      metadata['system-category'] = 'General';
     }
-    
     if (!metadata['user-keywords']) {
       metadata['user-keywords'] = [];
     }
@@ -419,13 +410,12 @@ class PageManager extends BaseManager {
       
       // Create metadata for PageIndex
       const metadata = {
-        title: 'PageIndex',
-        slug: 'page-index',
-        category: 'System',
-        categories: ['System', 'Navigation', 'Index'],
-        'user-keywords': [],
-        uuid: existingUuid || uuidv4(), // Use existing UUID or generate new one
-        lastModified: timestamp
+  title: 'PageIndex',
+  slug: 'page-index',
+  'system-category': 'System',
+  'user-keywords': ['Navigation', 'Index'],
+  uuid: existingUuid || uuidv4(), // Use existing UUID or generate new one
+  lastModified: timestamp
       };
 
       // Write the PageIndex file (update existing or create new)

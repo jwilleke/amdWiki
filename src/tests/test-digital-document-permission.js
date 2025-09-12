@@ -29,11 +29,11 @@ async function testDigitalDocumentPermissionIntegration() {
     // Test 1: Basic permission generation for General category
     console.log('\n2. Testing General category permissions...');
     const generalPageData = {
-      title: 'Test General Page',
-      category: 'General',
-      content: 'This is a test page with general content.',
-      uuid: 'test-general-uuid',
-      lastModified: new Date().toISOString()
+  title: 'Test General Page',
+  'system-category': 'General',
+  content: 'This is a test page with general content.',
+  uuid: 'test-general-uuid',
+  lastModified: new Date().toISOString()
     };
     
     const options = {
@@ -57,8 +57,8 @@ async function testDigitalDocumentPermissionIntegration() {
     // Test 2: System category permissions
     console.log('\n3. Testing System category permissions...');
     const systemPageData = {
-      title: 'System Configuration',
-      category: 'System',
+  title: 'System Configuration',
+  'system-category': 'System',
       content: 'System configuration page.',
       uuid: 'test-system-uuid',
       lastModified: new Date().toISOString()
