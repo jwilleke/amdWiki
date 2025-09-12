@@ -76,25 +76,20 @@
 </div>
 
 <script>
-    // Category checkboxes limitation and validation
-    const categoryCheckboxes = document.querySelectorAll('.category-checkbox');
-    categoryCheckboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', function() {
-            const checkedCount = document.querySelectorAll('.category-checkbox:checked').length;
-            if (checkedCount > 3) {
-                this.checked = false;
-                alert('Maximum 3 categories allowed');
-            }
-            updateSelectedCategoriesText();
-        });
-    });
-    
-    // Form submission validation
+    // Form submission validation for system-category and user-keywords
     document.querySelector('form').addEventListener('submit', function(e) {
-        const checkedCount = document.querySelectorAll('.category-checkbox:checked').length;
-        if (checkedCount === 0) {
+        // Validate system-category (should always be present)
+        const systemCategory = document.getElementById('systemCategory').value;
+        if (!systemCategory) {
             e.preventDefault();
-            alert('At least one category is required');
+            alert('System category is required');
+            return false;
+        }
+        // Validate user-keywords (max 3, optional)
+        const checkedKeywords = document.querySelectorAll('.user-keyword-checkbox:checked').length;
+        if (checkedKeywords > 3) {
+            e.preventDefault();
+            alert('Maximum 3 user keywords allowed');
             return false;
         }
     });
@@ -112,11 +107,7 @@
         });
     });
     
-    function updateSelectedCategoriesText() {
-        const checkedCategories = Array.from(document.querySelectorAll('.category-checkbox:checked')).map(cb => cb.value);
-        const text = checkedCategories.length > 0 ? checkedCategories.join(', ') : 'Select categories...';
-        document.getElementById('selectedCategoriesText').textContent = text;
-    }
+    // Removed obsolete category UI update
     
     function updateSelectedUserKeywordsText() {
         const checkedKeywords = Array.from(document.querySelectorAll('.user-keyword-checkbox:checked')).map(cb => cb.value);
