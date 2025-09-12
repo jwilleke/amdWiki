@@ -176,7 +176,7 @@
                                         <hr>
                                         
                                         <div class="d-flex justify-content-between">
-                                            <button type="submit" class="btn btn-success">
+                                            <button type="submit" class="btn" style="background-color: var(--btn-success-bg); color: var(--btn-success-text); border-color: var(--btn-success-border);">
                                                 <i class="fas fa-save"></i> Save Preferences
                                             </button>
                                             
@@ -251,7 +251,7 @@
                                 <i class="fas fa-save"></i> Update Profile
                             </button>
                             
-                            <a href="/" class="btn btn-secondary">
+                            <a href="/" class="btn" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);">
                                 <i class="fas fa-arrow-left"></i> Back to Wiki
                             </a>
                         </div>
@@ -341,7 +341,7 @@ document.getElementById('smartPairs')?.addEventListener('change', function() {
     const demo = document.getElementById('smartPairsDemo');
     if (demo) {
         demo.textContent = this.checked ? 'Smart pairs enabled!' : 'Smart pairs disabled';
-        demo.className = this.checked ? 'text-success' : 'text-muted';
+        demo.className = this.checked ? 'style="color: var(--text-success);"' : 'text-muted';
     }
 });
 </script>

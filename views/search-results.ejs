@@ -115,7 +115,7 @@
 
 <!-- Search Results -->
 <% if (query || category || userKeywords) { %>
-    <div class="row">
+    <div class="row" style="background-color: var(--card-bg);">
         <div class="col-md-9">
             <% if (results.length > 0) { %>
                 <div class="mb-3">
@@ -212,15 +212,15 @@
                 <div class="card-body" style="background-color: var(--card-bg);">
                     <table class="table table-sm table-borderless">
                         <tr>
-                            <td><i class="fas fa-file-alt text-primary me-2"></i><strong>Total Pages:</strong></td>
+                            <td><i class="fas fa-file-alt style="color: var(--text-primary);" me-2"></i><strong>Total Pages:</strong></td>
                             <td><span class="badge" style="background-color: var(--badge-primary-bg); color: var(--badge-primary-text);"><%= stats.totalDocuments %></span></td>
                         </tr>
                         <tr>
-                            <td><i class="fas fa-folder text-secondary me-2"></i><strong>Categories:</strong></td>
+                            <td><i class="fas fa-folder style="color: var(--text-secondary);" me-2"></i><strong>Categories:</strong></td>
                             <td><span class="badge" style="background-color: var(--badge-secondary-bg); color: var(--badge-secondary-text);"><%= stats.totalCategories %></span></td>
                         </tr>
                         <tr>
-                            <td><i class="fas fa-tags text-info me-2"></i><strong>Keywords:</strong></td>
+                            <td><i class="fas fa-tags style="color: var(--text-info);" me-2"></i><strong>Keywords:</strong></td>
                             <td><span class="badge" style="background-color: var(--badge-info-bg); color: var(--badge-info-text);"><%= stats.totalUserKeywords %></span></td>
                         </tr>
                     </table>
@@ -337,7 +337,7 @@
             <div class="col-md-8 offset-md-2">
                 <div class="card border-light">
                     <div class="card-body" style="background-color: var(--card-bg);">
-                        <h6><i class="fas fa-lightbulb text-warning"></i> Quick Search Tips</h6>
+                        <h6><i class="fas fa-lightbulb style="color: var(--text-warning);""></i> Quick Search Tips</h6>
                         <div class="row">
                             <div class="col-md-6">
                                 <ul class="list-unstyled small">

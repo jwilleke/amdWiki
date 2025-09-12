@@ -25,7 +25,7 @@
             <div class="row align-items-center py-2">
                 <div class="col-md-3">
                     <a class="navbar-brand" href="/">
-                        <i class="fas fa-book text-primary"></i> <strong>amdWiki</strong>
+                        <i class="fas fa-book style="color: var(--text-primary);""></i> <strong>amdWiki</strong>
                     </a>
                 </div>
                 <div class="col-md-6">
@@ -46,7 +46,7 @@
                             <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="fas fa-user"></i> <%= currentUser.displayName || currentUser.username %>
                                 <% if (currentUser.roles && currentUser.roles.includes('admin')) { %>
-                                    <span class="badge bg-warning text-dark ms-1">Admin</span>
+                                    <span class="badge bg-warning style="color: var(--text-dark);" ms-1">Admin</span>
                                 <% } %>
                             </button>
                             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
@@ -268,7 +268,7 @@
                             </table>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);" data-bs-dismiss="modal">Close</button>
                         </div>
                     </div>
                 </div>
@@ -337,10 +337,10 @@
                                     <i class="fas fa-copy"></i> Copy to Clipboard
                                 </button>
                             </div>
-                            <pre id="sourceContent" class="p-3 border rounded" style="max-height: 500px; overflow-y: auto; white-space: pre-wrap; background-color: var(--code-bg); color: var(--text-primary);">${escapeHtml(sourceContent)}</pre>
+                            <pre id="sourceContent" class="p-3 border rounded" style="max-height: 500px; overflow-y: auto; white-space: pre-wrap; background-color: var(--code-bg); color: var(--style="color: var(--text-primary);");">${escapeHtml(sourceContent)}</pre>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);" data-bs-dismiss="modal">Close</button>
                         </div>
                     </div>
                 </div>
@@ -472,7 +472,7 @@
                                 <p class="text-muted">This may happen in some browsers due to security restrictions.</p>
                             </div>
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="button" class="btn" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);" data-bs-dismiss="modal">Close</button>
                             </div>
                         </div>
                     </div>
@@ -888,7 +888,7 @@ function updateTrailDropdown() {
         
         const clearLi = document.createElement('li');
         const clearA = document.createElement('a');
-        clearA.className = 'dropdown-item text-danger';
+        clearA.className = 'dropdown-item style="color: var(--text-danger);"';
         clearA.href = '#';
         clearA.innerHTML = '<i class="fas fa-trash me-2"></i>Clear Trail';
         clearA.onclick = (e) => {

@@ -8,7 +8,7 @@
           <i class="fas fa-users"></i>
           User Management
         </h2>
-        <a href="/admin" class="btn btn-secondary">
+        <a href="/admin" class="btn" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);">
           <i class="fas fa-arrow-left"></i> Back to Dashboard
         </a>
       </div>
@@ -39,7 +39,7 @@
           </div>
         </div>
         <div class="col-md-3">
-          <div class="card bg-success text-white">
+          <div class="card" style="background-color: var(--card-success-bg); color: var(--card-success-text);">
             <div class="card-body">
               <h5 class="card-title">Active Users</h5>
               <h3><%= users.filter(u => u.isActive).length %></h3>
@@ -90,7 +90,7 @@
                   <td>
                     <strong><%= user.username %></strong>
                     <% if (user.isSystem) { %>
-                      <span class="badge bg-warning text-dark">System</span>
+                      <span class="badge" style="background-color: var(--badge-warning-bg); color: var(--badge-warning-text);">System</span>
                     <% } %>
                   </td>
                   <td><%= user.displayName || user.username %></td>
@@ -104,9 +104,9 @@
                   </td>
                   <td>
                     <% if (user.isActive) { %>
-                      <span class="badge bg-success">Active</span>
+                      <span class="badge" style="background-color: var(--badge-success-bg); color: var(--badge-success-text);">Active</span>
                     <% } else { %>
-                      <span class="badge bg-danger">Inactive</span>
+                      <span class="badge" style="background-color: var(--badge-danger-bg); color: var(--badge-danger-text);">Inactive</span>
                     <% } %>
                   </td>
                   <td>
@@ -224,7 +224,7 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);" data-bs-dismiss="modal">Cancel</button>
           <button type="submit" class="btn" style="background-color: var(--btn-primary-bg); color: var(--btn-primary-text); border-color: var(--btn-primary-border);">
             <i class="fas fa-user-plus"></i> Create User
           </button>
@@ -310,7 +310,7 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);" data-bs-dismiss="modal">Cancel</button>
           <button type="submit" class="btn" style="background-color: var(--btn-primary-bg); color: var(--btn-primary-text); border-color: var(--btn-primary-border);">
             <i class="fas fa-save"></i> Update User
           </button>

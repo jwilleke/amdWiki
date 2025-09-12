@@ -75,7 +75,7 @@
                                         <i class="fas fa-save"></i> Update Role
                                     </button>
                                     <% if (!role.isSystem) { %>
-                                    <button type="button" class="btn btn-outline-danger btn-sm" 
+                                    <button type="button" class="btn btn-sm" style="background-color: var(--btn-outline-danger-bg); color: var(--btn-outline-danger-text); border-color: var(--btn-outline-danger-border);" 
                                             onclick="deleteRole('<%= role.name %>')">
                                         <i class="fas fa-trash"></i> Delete
                                     </button>
@@ -122,7 +122,7 @@
                                     <% roles.forEach(role => { %>
                                     <td class="text-center">
                                         <% if (role.permissions.includes(perm.key)) { %>
-                                        <i class="fas fa-check text-success"></i>
+                                        <i class="fas fa-check style="color: var(--text-success);""></i>
                                         <% } else { %>
                                         <i class="fas fa-times text-muted"></i>
                                         <% } %>
