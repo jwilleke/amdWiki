@@ -12,7 +12,14 @@ slug: project-tasks-and-todo
 
 # Project Tasks and TODO
 
+[GitHub](https://github.com/jwilleke/amdWiki)
+
 ## 🎯 Current Development Tasks
+
+### High Priority
+- [ ] Fix BUGs
+
+
 
 ### Completed ✅
 - [x] JSPWiki-style table functionality with row styling
@@ -20,14 +27,20 @@ slug: project-tasks-and-todo
 - [x] `[{Table}]` plugin with full parameter support
 - [x] Automatic row numbering with `|#` syntax
 - [x] Project structure reorganization
+- [x] Extract JSPWiki color palette and implement as CSS custom properties
+- [x] Port JSPWiki typography system to our current CSS
+- [x] Implement JSPWiki-style sidebar navigation
+- [x] Add JSPWiki-inspired form styling
+- [x] Preview on Right side
+- [x] Prompt for pagename when creating "new-page"
 
 ### High Priority
-- [ ] Extract JSPWiki color palette and implement as CSS custom properties
-- [ ] Port JSPWiki typography system to our current CSS
-- [ ] Implement JSPWiki-style sidebar navigation
-- [ ] Add JSPWiki-inspired form styling
-- [ ] Preview on Right side
-- [ ] Prompt for pagename when creating "new-page"
+- [x] Extract JSPWiki color palette and implement as CSS custom properties
+- [x] Port JSPWiki typography system to our current CSS
+- [x] Implement JSPWiki-style sidebar navigation
+- [x] Add JSPWiki-inspired form styling
+- [x] Preview on Right side
+- [x] Prompt for pagename when creating "new-page"
 
 ### Medium Priority  
 - [ ] Port JSPWiki button and component styling
@@ -44,9 +57,9 @@ slug: project-tasks-and-todo
 ## 🔧 Technical Implementation Tasks
 
 ### Macro/Plugin System
-- [ ] Implement JSPWiki-style plugins similar to [ReferringPagesPlugin](https://jspwiki-wiki.apache.org/Wiki.jsp?page=ReferringPagesPlugin)
-- [ ] Support WikiVariable expansion like `[{$pagename}]`
-- [ ] Add `[{ReferringPagesPlugin before='*' after='\n' }]` functionality
+- [x] Implement JSPWiki-style plugins similar to [ReferringPagesPlugin](https://jspwiki-wiki.apache.org/Wiki.jsp?page=ReferringPagesPlugin)
+- [x] Support WikiVariable expansion like `[{$pagename}]`
+- [x] Add `[{ReferringPagesPlugin before='*' after='\n' }]` functionality
 
 ### Link System
 - [ ] Normal wiki links `[new-page]` should render as links to page named "new-page"
