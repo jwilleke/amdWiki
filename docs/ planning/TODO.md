@@ -17,30 +17,8 @@ slug: project-tasks-and-todo
 ## 🎯 Current Development Tasks
 
 ### High Priority
-- [ ] Fix BUGs
-
-
-
-### Completed ✅
-- [x] JSPWiki-style table functionality with row styling
-- [x] `%%table-striped` syntax for theme-based alternating rows
-- [x] `[{Table}]` plugin with full parameter support
-- [x] Automatic row numbering with `|#` syntax
-- [x] Project structure reorganization
-- [x] Extract JSPWiki color palette and implement as CSS custom properties
-- [x] Port JSPWiki typography system to our current CSS
-- [x] Implement JSPWiki-style sidebar navigation
-- [x] Add JSPWiki-inspired form styling
-- [x] Preview on Right side
-- [x] Prompt for pagename when creating "new-page"
-
-### High Priority
-- [x] Extract JSPWiki color palette and implement as CSS custom properties
-- [x] Port JSPWiki typography system to our current CSS
-- [x] Implement JSPWiki-style sidebar navigation
-- [x] Add JSPWiki-inspired form styling
-- [x] Preview on Right side
-- [x] Prompt for pagename when creating "new-page"
+- [ ] Fix Open [BUGs](https://github.com/jwilleke/amdWiki/issues)
+- [ ] Fix Open [Feature Requests](https://github.com/jwilleke/amdWiki/issues?q=state%3Aopen%20label%3Aenhancement)
 
 ### Medium Priority  
 - [ ] Port JSPWiki button and component styling
@@ -116,13 +94,13 @@ JSPWiki uses a sophisticated LESS-based build system with:
 
 **Recommended Approach**: JSPWiki-inspired design system with modern tools
 
-#### ✅ Advantages:
+#### ✅ Advantages
 - Professional, battle-tested visual language
 - Component modularity for selective implementation
 - Built-in responsive design and accessibility
 - Familiar UI patterns for wiki users
 
-#### ⚠️ Considerations:
+#### ⚠️ Considerations
 - Bootstrap 3 → 5 migration needed
 - LESS → SCSS preferred for modern tooling
 - Adapt Java-specific components for Node.js
