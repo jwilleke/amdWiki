@@ -35,7 +35,7 @@
                                         <% if (user.isExternal) { %>
                                             <span class="badge" style="background-color: var(--badge-info-bg); color: var(--badge-info-text);">OAuth/External</span>
                                         <% } else { %>
-                                            <span class="badge bg-primary">Local Account</span>
+                                            <span class="badge" style="background-color: var(--badge-primary-bg); color: var(--badge-primary-text);">Local Account</span>
                                         <% } %>
                                     </p>
                                     <p><strong>Roles:</strong> 
@@ -247,7 +247,7 @@
                         <hr>
                         
                         <div class="d-flex justify-content-between">
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" class="btn" style="background-color: var(--btn-primary-bg); color: var(--btn-primary-text); border-color: var(--btn-primary-border);">
                                 <i class="fas fa-save"></i> Update Profile
                             </button>
                             

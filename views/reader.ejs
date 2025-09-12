@@ -118,13 +118,13 @@
 <body>
     <!-- Reader View Actions -->
     <div class="reader-actions">
-        <a href="/wiki/<%= encodeURIComponent(pageName) %>" class="btn btn-outline-primary btn-sm" title="Exit Reader View">
+        <a href="/wiki/<%= encodeURIComponent(pageName) %>" class="btn btn-sm" style="background-color: var(--btn-outline-primary-bg); color: var(--btn-outline-primary-text); border-color: var(--btn-outline-primary-border);" title="Exit Reader View">
             <i class="fas fa-times"></i>
         </a>
-        <button onclick="window.print()" class="btn btn-outline-secondary btn-sm" title="Print">
+        <button onclick="window.print()" class="btn btn-sm" style="background-color: var(--btn-outline-secondary-bg); color: var(--btn-outline-secondary-text); border-color: var(--btn-outline-secondary-border);" title="Print">
             <i class="fas fa-print"></i>
         </button>
-        <button onclick="copyPageContent()" class="btn btn-outline-info btn-sm" title="Copy Content">
+        <button onclick="copyPageContent()" class="btn btn-sm" style="background-color: var(--btn-outline-info-bg); color: var(--btn-outline-info-text); border-color: var(--btn-outline-info-border);" title="Copy Content">
             <i class="fas fa-copy"></i>
         </button>
     </div>

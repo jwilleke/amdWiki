@@ -172,7 +172,7 @@
                                             </span>
                                         <% }); %>
                                         <% if (result.metadata.userKeywords.length > 3) { %>
-                                            <span class="badge bg-light text-dark">+<%= result.metadata.userKeywords.length - 3 %> more</span>
+                                            <span class="badge" style="background-color: var(--badge-light-bg); color: var(--badge-light-text);">+<%= result.metadata.userKeywords.length - 3 %> more</span>
                                         <% } %>
                                     <% } %>
                                 </div>
@@ -213,11 +213,11 @@
                     <table class="table table-sm table-borderless">
                         <tr>
                             <td><i class="fas fa-file-alt text-primary me-2"></i><strong>Total Pages:</strong></td>
-                            <td><span class="badge bg-primary"><%= stats.totalDocuments %></span></td>
+                            <td><span class="badge" style="background-color: var(--badge-primary-bg); color: var(--badge-primary-text);"><%= stats.totalDocuments %></span></td>
                         </tr>
                         <tr>
                             <td><i class="fas fa-folder text-secondary me-2"></i><strong>Categories:</strong></td>
-                            <td><span class="badge bg-secondary"><%= stats.totalCategories %></span></td>
+                            <td><span class="badge" style="background-color: var(--badge-secondary-bg); color: var(--badge-secondary-text);"><%= stats.totalCategories %></span></td>
                         </tr>
                         <tr>
                             <td><i class="fas fa-tags text-info me-2"></i><strong>Keywords:</strong></td>
@@ -264,12 +264,12 @@
                         <div class="d-flex flex-wrap gap-2 browse-buttons">
                             <% availableCategories.slice(0, 8).forEach(cat => { %>
                                 <a href="/search?category=<%= encodeURIComponent(cat) %>" 
-                                   class="btn btn-outline-primary btn-sm">
+                                   class="btn btn-sm" style="background-color: var(--btn-outline-primary-bg); color: var(--btn-outline-primary-text); border-color: var(--btn-outline-primary-border);">
                                     <i class="fas fa-folder-open"></i> <%= cat %>
                                 </a>
                             <% }); %>
                             <% if (availableCategories.length > 8) { %>
-                                <button class="btn btn-outline-secondary btn-sm" type="button" 
+                                <button class="btn btn-sm" style="background-color: var(--btn-outline-secondary-bg); color: var(--btn-outline-secondary-text); border-color: var(--btn-outline-secondary-border);" type="button" 
                                         onclick="toggleMoreCategories()" id="moreCategoriesBtn">
                                     +<%= availableCategories.length - 8 %> more categories...
                                 </button>
@@ -280,7 +280,7 @@
                                 <div class="d-flex flex-wrap gap-2 browse-buttons">
                                     <% availableCategories.slice(8).forEach(cat => { %>
                                         <a href="/search?category=<%= encodeURIComponent(cat) %>" 
-                                           class="btn btn-outline-primary btn-sm">
+                                           class="btn btn-sm" style="background-color: var(--btn-outline-primary-bg); color: var(--btn-outline-primary-text); border-color: var(--btn-outline-primary-border);">
                                             <i class="fas fa-folder-open"></i> <%= cat %>
                                         </a>
                                     <% }); %>
@@ -302,12 +302,12 @@
                         <div class="d-flex flex-wrap gap-2 browse-buttons">
                             <% availableKeywords.slice(0, 10).forEach(keyword => { %>
                                 <a href="/search?keywords=<%= encodeURIComponent(keyword) %>" 
-                                   class="btn btn-outline-info btn-sm">
+                                   class="btn btn-sm" style="background-color: var(--btn-outline-info-bg); color: var(--btn-outline-info-text); border-color: var(--btn-outline-info-border);">
                                     <i class="fas fa-tag"></i> <%= keyword %>
                                 </a>
                             <% }); %>
                             <% if (availableKeywords.length > 10) { %>
-                                <button class="btn btn-outline-secondary btn-sm" type="button" 
+                                <button class="btn btn-sm" style="background-color: var(--btn-outline-secondary-bg); color: var(--btn-outline-secondary-text); border-color: var(--btn-outline-secondary-border);" type="button" 
                                         onclick="toggleMoreKeywords()" id="moreKeywordsBtn">
                                     +<%= availableKeywords.length - 10 %> more keywords...
                                 </button>
@@ -318,7 +318,7 @@
                                 <div class="d-flex flex-wrap gap-2 browse-buttons">
                                     <% availableKeywords.slice(10).forEach(keyword => { %>
                                         <a href="/search?keywords=<%= encodeURIComponent(keyword) %>" 
-                                           class="btn btn-outline-info btn-sm">
+                                           class="btn btn-sm" style="background-color: var(--btn-outline-info-bg); color: var(--btn-outline-info-text); border-color: var(--btn-outline-info-border);">
                                             <i class="fas fa-tag"></i> <%= keyword %>
                                         </a>
                                     <% }); %>
@@ -355,7 +355,7 @@
                             </div>
                         </div>
                         <div class="text-center mt-2">
-                            <a href="/wiki/Search%20Documentation" class="btn btn-outline-info btn-sm">
+                            <a href="/wiki/Search%20Documentation" class="btn btn-sm" style="background-color: var(--btn-outline-info-bg); color: var(--btn-outline-info-text); border-color: var(--btn-outline-info-border);">
                                 <i class="fas fa-book me-1"></i>Complete Search Documentation
                             </a>
                         </div>

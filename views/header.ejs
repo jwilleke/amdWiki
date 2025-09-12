@@ -33,7 +33,7 @@
                         <div class="input-group">
                             <input class="form-control" type="search" placeholder="Search pages..." aria-label="Search" name="q" style="min-width: 300px;">
                             <div class="input-group-append">
-                                <button class="btn btn-primary" type="submit">
+                                <button class="btn" style="background-color: var(--btn-primary-bg); color: var(--btn-primary-text); border-color: var(--btn-primary-border);" type="submit">
                                     <i class="fas fa-search"></i>
                                 </button>
                             </div>
@@ -156,7 +156,7 @@
                         <!-- Edit Button -->
                         <% if (typeof pageName !== 'undefined' && pageName && typeof canEdit !== 'undefined' && canEdit) { %>
                             <div class="btn-group me-2" role="group">
-                                <a href="/edit/<%= encodeURIComponent(pageName) %>" class="btn btn-outline-primary btn-sm">
+                                <a href="/edit/<%= encodeURIComponent(pageName) %>" class="btn btn-sm" style="background-color: var(--btn-outline-primary-bg); color: var(--btn-outline-primary-text); border-color: var(--btn-outline-primary-border);">
                                     <i class="fas fa-edit"></i> Edit
                                 </a>
                             </div>
@@ -333,7 +333,7 @@
                         </div>
                         <div class="modal-body">
                             <div class="mb-3">
-                                <button id="copyButton" class="btn btn-outline-primary btn-sm">
+                                <button id="copyButton" class="btn btn-sm" style="background-color: var(--btn-outline-primary-bg); color: var(--btn-outline-primary-text); border-color: var(--btn-outline-primary-border);">
                                     <i class="fas fa-copy"></i> Copy to Clipboard
                                 </button>
                             </div>

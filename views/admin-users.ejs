@@ -31,7 +31,7 @@
       <!-- User Statistics -->
       <div class="row mb-4">
         <div class="col-md-3">
-          <div class="card bg-primary text-white">
+          <div class="card" style="background-color: var(--card-primary-bg); color: var(--card-primary-text);">
             <div class="card-body">
               <h5 class="card-title">Total Users</h5>
               <h3><%= users.length %></h3>
@@ -47,7 +47,7 @@
           </div>
         </div>
         <div class="col-md-3">
-          <div class="card bg-info text-white">
+          <div class="card" style="background-color: var(--card-info-bg); color: var(--card-info-text);">
             <div class="card-body">
               <h5 class="card-title">Admin Users</h5>
               <h3><%= users.filter(u => u.roles.includes('admin')).length %></h3>
@@ -55,7 +55,7 @@
           </div>
         </div>
         <div class="col-md-3">
-          <div class="card bg-warning text-white">
+          <div class="card" style="background-color: var(--card-warning-bg); color: var(--card-warning-text);">
             <div class="card-body">
               <h5 class="card-title">System Users</h5>
               <h3><%= users.filter(u => u.isSystem).length %></h3>
@@ -145,7 +145,7 @@
 
       <!-- Create New User Button -->
       <div class="mt-4">
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createUserModal">
+        <button class="btn" style="background-color: var(--btn-primary-bg); color: var(--btn-primary-text); border-color: var(--btn-primary-border);" data-bs-toggle="modal" data-bs-target="#createUserModal">
           <i class="fas fa-plus"></i> Create New User
         </button>
       </div>
@@ -225,7 +225,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-primary">
+          <button type="submit" class="btn" style="background-color: var(--btn-primary-bg); color: var(--btn-primary-text); border-color: var(--btn-primary-border);">
             <i class="fas fa-user-plus"></i> Create User
           </button>
         </div>
@@ -311,7 +311,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-primary">
+          <button type="submit" class="btn" style="background-color: var(--btn-primary-bg); color: var(--btn-primary-text); border-color: var(--btn-primary-border);">
             <i class="fas fa-save"></i> Update User
           </button>
         </div>
