@@ -10,7 +10,7 @@
 
 <!-- Advanced Search Form -->
 <div class="card mb-4 shadow-sm">
-    <div class="card-header bg-light">
+    <div class="card-header" style="background-color: var(--card-bg);">
         <h5 class="mb-0 d-flex justify-content-between align-items-center">
             <span><i class="fas fa-cog me-2"></i>Search Options</span>
             <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#searchOptions">
@@ -19,7 +19,7 @@
         </h5>
     </div>
     <div class="collapse show" id="searchOptions">
-        <div class="card-body bg-white">
+    <div class="card-body" style="background-color: var(--card-bg);">
             <form action="/search" method="GET" class="row g-3">
                 <!-- Text Search -->
                 <div class="col-md-4">
@@ -206,10 +206,10 @@
         <!-- Search Statistics Sidebar -->
         <div class="col-md-3">
             <div class="card shadow-sm">
-                <div class="card-header bg-info text-white">
+                <div class="card-header" style="background-color: var(--card-bg); color: var(--info-text, #0dcaf0);">
                     <h6 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Search Statistics</h6>
                 </div>
-                <div class="card-body">
+                <div class="card-body" style="background-color: var(--card-bg);">
                     <table class="table table-sm table-borderless">
                         <tr>
                             <td><i class="fas fa-file-alt text-primary me-2"></i><strong>Total Pages:</strong></td>
@@ -228,10 +228,10 @@
             </div>
             
             <div class="card mt-3 shadow-sm">
-                <div class="card-header bg-warning text-dark">
+                <div class="card-header" style="background-color: var(--card-bg); color: var(--warning-text, #ffc107);">
                     <h6 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Search Tips</h6>
                 </div>
-                <div class="card-body">
+                <div class="card-body" style="background-color: var(--card-bg);">
                     <div class="small">
                         <ul class="list-unstyled mb-0">
                             <li class="mb-2"><strong>Exact phrase:</strong> <code>"your phrase"</code></li>
@@ -257,7 +257,7 @@
         <div class="row mt-4">
             <div class="col-md-6">
                 <div class="card">
-                    <div class="card-header bg-primary text-white">
+                    <div class="card-header" style="background-color: var(--card-bg); color: var(--primary-text, #0d6efd);"> 
                         <h6 class="mb-0"><i class="fas fa-folder"></i> Browse by Category</h6>
                     </div>
                     <div class="card-body">
@@ -295,10 +295,10 @@
             </div>
             <div class="col-md-6">
                 <div class="card">
-                    <div class="card-header bg-info text-white">
+                    <div class="card-header" style="background-color: var(--card-bg); color: var(--info-text, #0dcaf0);">
                         <h6 class="mb-0"><i class="fas fa-tags"></i> Browse by Keywords</h6>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body" style="background-color: var(--card-bg);">
                         <div class="d-flex flex-wrap gap-2 browse-buttons">
                             <% availableKeywords.slice(0, 10).forEach(keyword => { %>
                                 <a href="/search?keywords=<%= encodeURIComponent(keyword) %>" 
@@ -336,7 +336,7 @@
         <div class="row mt-4">
             <div class="col-md-8 offset-md-2">
                 <div class="card border-light">
-                    <div class="card-body">
+                    <div class="card-body" style="background-color: var(--card-bg);">
                         <h6><i class="fas fa-lightbulb text-warning"></i> Quick Search Tips</h6>
                         <div class="row">
                             <div class="col-md-6">
