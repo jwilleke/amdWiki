@@ -99,106 +99,6 @@ class TemplateManager extends BaseManager {
    * Create default page templates
    */
   async createDefaultTemplates() {
-# {{pageName}}
-
-## Overview
-
-{{pageName}} is...
-
-## Content
-
-Add your content here.
-
-## More Information
-
-There might be more information for this subject on one of the following:
-[{ReferringPagesPlugin before='*' after='\\n' }]
-`,
-# {{pageName}}
-
-## Purpose
-
-This document describes...
-
-## Instructions
-
-### Example 1
-
-\`\`\`
-Example code or content here
-\`\`\`
-
-## See Also
-
-
-## More Information
-
-There might be more information for this subject on one of the following:
-[{ReferringPagesPlugin before='*' after='\\n' }]
-`,
-# {{pageName}}
-## Subcategories
-
-* Subcategory 1 (Description of subcategory)
-* Subcategory 2 (Description of subcategory)
-* Subcategory 3 (Description of subcategory)
-
-## Pages in this Category
-
-This section will automatically show pages that use this category.
-
-## More Information
-
-There might be more information for this subject on one of the following:
-[{ReferringPagesPlugin before='*' after='\\n' }]
-`,
-# {{pageName}}
-
-**Date:** {{date}}  
-**Attendees:** 
-**Location:** 
-
-## Agenda
-2. Item 2
-3. Item 3
-
-## Discussion
-    const defaultTemplates = {
-  'default': `---
-
-## Overview
-
-{{pageName}} is...
-
-## Content
-
-Add your content here.
-
-## More Information
-
-There might be more information for this subject on one of the following:
-[{ReferringPagesPlugin before='*' after='\\n' }]
-`,
-  'documentation': `---
-uuid: {{uuid}}
-system-category: Wiki Documentation (Documentation and Hints for this Wiki)
-user-keywords: []
----
-# {{pageName}}
-
-
-1. Step one
-2. Step two
-3. Step three
-
-## Examples
-
-### Example 1
-
-\`\`\`
-Example code or content here
-\`\`\`
-
     const defaultTemplates = {
       'default':
         '---\n' +
@@ -206,9 +106,9 @@ Example code or content here
         'system-category: {{systemCategory}}\n' +
         'user-keywords: {{userKeywords}}\n' +
         '---\n' +
-        '# {{pageName}}\n\n' +
+        '# [{$pagename}]\n\n' +
         '## Overview\n\n' +
-        '{{pageName}} is...\n\n' +
+        '[{$pagename}] is...\n\n' +
         '## Content\n\n' +
         'Add your content here.\n\n' +
         '## More Information\n\n' +
@@ -220,7 +120,7 @@ Example code or content here
         'system-category: Wiki Documentation (Documentation and Hints for this Wiki)\n' +
         'user-keywords: []\n' +
         '---\n' +
-        '# {{pageName}}\n\n' +
+        '# [{$pagename}]\n\n' +
         '## Purpose\n\n' +
         'This document describes...\n\n' +
         '## Instructions\n\n' +
@@ -242,9 +142,9 @@ Example code or content here
         'system-category: Wiki Documentation (Documentation and Hints for this Wiki)\n' +
         'user-keywords: []\n' +
         '---\n' +
-        '# {{pageName}}\n\n' +
+        '# [{$pagename}]\n\n' +
         '## Overview\n\n' +
-        '{{pageName}} contains pages related to...\n\n' +
+        '[{$pagename}] contains pages related to...\n\n' +
         '## Subcategories\n\n' +
         '* Subcategory 1 (Description of subcategory)\n' +
         '* Subcategory 2 (Description of subcategory)\n' +
@@ -260,90 +160,27 @@ Example code or content here
         'system-category: {{systemCategory}}\n' +
         'user-keywords: [{{userKeywords}}]\n' +
         '---\n' +
-        '# {{pageName}}\n\n' +
+        '# [{$pagename}]\n\n' +
         '**Date:** {{date}}  \n' +
         '**Attendees:** \n' +
         '**Location:** \n\n' +
         '## Agenda\n\n' +
         '1. Item 1\n' +
         '2. Item 2\n' +
-        '3. Item 3\n\n'
-## See Also
-
-- [Related Page]
-- [Another Related Page]
-
-## More Information
-
-There might be more information for this subject on one of the following:
-[{ReferringPagesPlugin before='*' after='\\n' }]
-`,
-  'category': `---
-uuid: {{uuid}}
-system-category: Wiki Documentation (Documentation and Hints for this Wiki)
-user-keywords: []
----
-# {{pageName}}
-
-## Overview
-
-{{pageName}} contains pages related to...
-
-## Subcategories
-
-* Subcategory 1 (Description of subcategory)
-* Subcategory 2 (Description of subcategory)
-* Subcategory 3 (Description of subcategory)
-
-## Pages in this Category
-
-This section will automatically show pages that use this category.
-
-## More Information
-
-There might be more information for this subject on one of the following:
-[{ReferringPagesPlugin before='*' after='\\n' }]
-`,
-  'meeting-notes': `---
-uuid: {{uuid}}
-system-category: {{systemCategory}}
-user-keywords: [{{userKeywords}}]
----
-# {{pageName}}
-
-**Date:** {{date}}  
-**Attendees:** 
-**Location:** 
-
-## Agenda
-
-1. Item 1
-2. Item 2
-3. Item 3
-
-
-### Topic 1
-
-### Topic 2
-
-### Topic 3
-
-## Action Items
-
-- [ ] Action item 1 - Assigned to: [Person]
-- [ ] Action item 2 - Assigned to: [Person]
-- [ ] Action item 3 - Assigned to: [Person]
-
-## Next Meeting
-
-**Date:** TBD  
-**Location:** TBD
-
-## More Information
-
-There might be more information for this subject on one of the following:
-[{ReferringPagesPlugin before='*' after='\\n' }]
-`
+        '3. Item 3\n\n' +
+        '### Topic 1\n\n' +
+        '### Topic 2\n\n' +
+        '### Topic 3\n\n' +
+        '## Action Items\n\n' +
+        '- [ ] Action item 1 - Assigned to: [Person]\n' +
+        '- [ ] Action item 2 - Assigned to: [Person]\n' +
+        '- [ ] Action item 3 - Assigned to: [Person]\n' +
+        '## Next Meeting\n\n' +
+        '**Date:** TBD  \n' +
+        '**Location:** TBD\n\n' +
+        '## More Information\n\n' +
+        'There might be more information for this subject on one of the following:\n' +
+        '[{ReferringPagesPlugin before="*" after="\\n" }]\n'
     };
 
     for (const [templateName, content] of Object.entries(defaultTemplates)) {

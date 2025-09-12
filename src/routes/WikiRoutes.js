@@ -816,6 +816,11 @@ class WikiRoutes {
    * Save a page
    */
   async savePage(req, res) {
+  // Debug: log systemCategory value before validation
+  let systemCategory = req.body['system-category'] || '';
+  console.log('DEBUG systemCategory before validation:', systemCategory);
+  // Debug: log incoming POST body to diagnose system-category issue
+  console.log('DEBUG savePage POST body:', req.body);
     try {
       const pageName = req.params.page;
       const { content, title, categories, userKeywords } = req.body;
@@ -833,36 +838,31 @@ class WikiRoutes {
       // Get existing page data for ACL checking
       const existingPage = await pageManager.getPage(pageName);
       
-      // Ensure categories is an array and validate
-      let categoriesArray = Array.isArray(categories) ? categories : (categories ? [categories] : []);
-      if (categoriesArray.length === 0) {
-        return res.status(400).send('At least one category is required');
+      // Accept system-category as required field (new metadata format)
+      let systemCategory = req.body['system-category'] || '';
+      if (!systemCategory || typeof systemCategory !== 'string' || systemCategory.trim() === '') {
+        return res.status(400).send('A system-category is required');
       }
-      if (categoriesArray.length > 3) {
-        return res.status(400).send('Maximum 3 categories allowed');
-      }
-      
       // Validate user keywords
       let userKeywordsArray = Array.isArray(userKeywords) ? userKeywords : (userKeywords ? [userKeywords] : []);
       if (userKeywordsArray.length > validationManager.maxUserKeywords) {
         return res.status(400).send(`Maximum ${validationManager.maxUserKeywords} user keywords allowed`);
       }
-      
-      // Prepare metadata using ValidationManager to ensure completeness
-      const baseMetadata = {
+
+      // Prepare metadata ONCE, preserving UUID if editing
+      let baseMetadata = {
         title: title || pageName,
-        category: categoriesArray[0], // Use first category as primary
-        categories: categoriesArray,
+        'system-category': systemCategory,
         'user-keywords': userKeywordsArray
       };
-      
-      // Generate complete valid metadata
+      if (existingPage && existingPage.metadata && existingPage.metadata.uuid) {
+        baseMetadata.uuid = existingPage.metadata.uuid;
+      }
       const metadata = validationManager.generateValidMetadata(baseMetadata.title, baseMetadata);
-      
-      // Check if this is or will become a required page that needs admin access
+
+      // Permission checks
       const isCurrentlyRequired = await this.isRequiredPage(pageName);
       const willBeRequired = await pageManager.isRequiredPage(pageName, metadata);
-      
       if (isCurrentlyRequired || willBeRequired) {
         if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
           return await this.renderError(req, res, 403, 'Access Denied', 'Only administrators can edit this page or assign System/Admin category');
@@ -870,22 +870,12 @@ class WikiRoutes {
       } else {
         // For existing pages, check ACL edit permission
         if (existingPage) {
-          const hasEditPermission = await aclManager.checkPagePermission(
-            pageName, 'edit', currentUser, existingPage.content
-          );
-          
-          if (!hasEditPermission) {
-            return await this.renderError(req, res, 403, 'Access Denied', 
-              'You do not have permission to edit this page');
-          }
-        } else {
-          // For new pages, check general page creation permission
           if (!currentUser || !userManager.hasPermission(currentUser.username, 'page:create')) {
             return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to create pages');
           }
         }
       }
-      
+
       // Save the page
       await pageManager.savePage(pageName, content, metadata);
       
@@ -894,7 +884,6 @@ class WikiRoutes {
       await searchManager.rebuildIndex();
       
       res.redirect(`/wiki/${pageName}`);
-      
     } catch (err) {
       console.error('Error saving page:', err);
       res.status(500).send('Error saving page');
@@ -1027,28 +1016,32 @@ class WikiRoutes {
       }
 
       // Get available categories and keywords for dropdowns
-      const availableCategories = searchManager.getAllCategories();
-      const availableKeywords = searchManager.getAllUserKeywords();
-      
-      // Get search statistics
-      const stats = searchManager.getStatistics();
-
-      res.render('search-results', {
-        ...commonData,
-        title: 'Search Results',
-        query: query,
-        category: categories.length === 1 ? categories[0] : '', // For backward compatibility
-        categories: categories,
-        userKeywords: userKeywords.length === 1 ? userKeywords[0] : '', // For backward compatibility
-        userKeywordsList: userKeywords,
-        searchIn: searchIn.length === 1 ? searchIn[0] : searchIn,
-        results: results,
-        count: results.length,
-        searchType: searchType,
-        availableCategories: availableCategories,
-        availableKeywords: availableKeywords,
-        stats: stats
-      });
+          // Accept system-category as required field (new metadata format)
+          let systemCategory = req.body['system-category'] || '';
+          if (!systemCategory || typeof systemCategory !== 'string' || systemCategory.trim() === '') {
+            return res.status(400).send('A system-category is required');
+          }
+        
+          // Validate user keywords
+          let userKeywordsArray = Array.isArray(userKeywords) ? userKeywords : (userKeywords ? [userKeywords] : []);
+          if (userKeywordsArray.length > validationManager.maxUserKeywords) {
+            return res.status(400).send(`Maximum ${validationManager.maxUserKeywords} user keywords allowed`);
+          }
+        
+          // Prepare metadata using ValidationManager to ensure completeness
+          const baseMetadata = {
+            title: title || pageName,
+            'system-category': systemCategory,
+            'user-keywords': userKeywordsArray
+          };
+        
+          // Preserve UUID if editing an existing page
+          if (existingPage && existingPage.metadata && existingPage.metadata.uuid) {
+            baseMetadata.uuid = existingPage.metadata.uuid;
+          }
+        
+          // Generate complete valid metadata
+          const metadata = validationManager.generateValidMetadata(baseMetadata.title, baseMetadata);
       
     } catch (err) {
       console.error('Error searching:', err);
@@ -2097,7 +2090,7 @@ class WikiRoutes {
     try {
       const userManager = this.engine.getManager('UserManager');
       const userContext = await userManager.getCurrentUser(req);
-      if (!userContext.isAuthenticated || !userContext.isAdmin) {
+           if (!userContext.isAuthenticated || !userContext.isAdmin) {
         return res.status(403).json({ error: 'Admin access required' });
       }
 
@@ -2107,6 +2100,8 @@ class WikiRoutes {
 
       // Update organization
       const updatedOrganization = await schemaManager.updateOrganization(identifier, organizationData);
+      
+
       
       if (req.headers.accept?.includes('application/json')) {
         res.json({ success: true, organization: updatedOrganization });

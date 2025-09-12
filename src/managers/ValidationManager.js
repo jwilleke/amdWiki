@@ -312,7 +312,7 @@ class ValidationManager extends BaseManager {
     }
     
     if (!metadata.category) {
-      fixes.metadata.category = 'General';
+  // No longer require legacy 'category' field
     }
     
     if (!metadata['user-keywords']) {

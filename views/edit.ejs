@@ -26,7 +26,8 @@
                     <% } else { %>
                     <div class="col-md-6">
                         <label style="font-weight:bold;">System Category:</label>
-                        <input type="text" class="form-control" id="systemCategory" name="system-category" value="<%= metadata['system-category'] %>" readonly>
+                        <input type="hidden" id="systemCategory" name="system-category" value="<%= metadata['system-category'] %>">
+                        <input type="text" class="form-control" value="<%= metadata['system-category'] %>" readonly>
                     </div>
                     <% } %>
                     <div class="col-md-6">
