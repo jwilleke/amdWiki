@@ -40,7 +40,7 @@ slug: project-tasks-and-todo
 - [x] Add `[{ReferringPagesPlugin before='*' after='\n' }]` functionality
 
 ### Link System
-- [ ] Normal wiki links `[new-page]` should render as links to page named "new-page"
+- [x] Normal wiki links `[new-page]` should render as links to page named "new-page"
 - [ ] Auto-complete for page names when typing `[]` during editing
 - [ ] Page name type-down search functionality
 
