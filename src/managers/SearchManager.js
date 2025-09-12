@@ -39,26 +39,27 @@ class SearchManager extends BaseManager {
       pages.forEach(page => {
         // Extract metadata fields
         const metadata = page.metadata || {};
-          const systemCategory = metadata['system-category'] || '';
-          const userKeywords = Array.isArray(metadata['user-keywords']) ? 
-            metadata['user-keywords'].join(' ') : 
-            (metadata['user-keywords'] || '');
-          const tags = Array.isArray(metadata.tags) ? 
-            metadata.tags.join(' ') : 
-            (metadata.tags || '');
+        const systemCategory = metadata['system-category'] || '';
+        const userKeywords = Array.isArray(metadata['user-keywords']) ? 
+          metadata['user-keywords'].join(' ') : 
+          (metadata['user-keywords'] || '');
+        const tags = Array.isArray(metadata.tags) ? 
+          metadata.tags.join(' ') : 
+          (metadata.tags || '');
+        const title = metadata.title || page.name; // Use frontmatter title, fallback to name
 
-          documents[page.name] = {
-            id: page.name,
-            title: page.name,
-            content: page.content,
-            body: page.content,
-            systemCategory: systemCategory,
-            userKeywords: userKeywords,
-            tags: tags,
-            keywords: `${userKeywords} ${tags}`,
-            lastModified: metadata.lastModified || '',
-            uuid: metadata.uuid || ''
-          };
+        documents[page.name] = {
+          id: page.name,
+          title: title,
+          content: page.content,
+          body: page.content,
+          systemCategory: systemCategory,
+          userKeywords: userKeywords,
+          tags: tags,
+          keywords: `${userKeywords} ${tags}`,
+          lastModified: metadata.lastModified || '',
+          uuid: metadata.uuid || ''
+        };
       });
 
       this.documents = documents;

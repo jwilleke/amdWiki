@@ -1016,32 +1016,30 @@ class WikiRoutes {
       }
 
       // Get available categories and keywords for dropdowns
-          // Accept system-category as required field (new metadata format)
-          let systemCategory = req.body['system-category'] || '';
-          if (!systemCategory || typeof systemCategory !== 'string' || systemCategory.trim() === '') {
-            return res.status(400).send('A system-category is required');
-          }
-        
-          // Validate user keywords
-          let userKeywordsArray = Array.isArray(userKeywords) ? userKeywords : (userKeywords ? [userKeywords] : []);
-          if (userKeywordsArray.length > validationManager.maxUserKeywords) {
-            return res.status(400).send(`Maximum ${validationManager.maxUserKeywords} user keywords allowed`);
-          }
-        
-          // Prepare metadata using ValidationManager to ensure completeness
-          const baseMetadata = {
-            title: title || pageName,
-            'system-category': systemCategory,
-            'user-keywords': userKeywordsArray
-          };
-        
-          // Preserve UUID if editing an existing page
-          if (existingPage && existingPage.metadata && existingPage.metadata.uuid) {
-            baseMetadata.uuid = existingPage.metadata.uuid;
-          }
-        
-          // Generate complete valid metadata
-          const metadata = validationManager.generateValidMetadata(baseMetadata.title, baseMetadata);
+      const systemCategories = await this.getSystemCategories();
+      const userKeywordsList = await this.getUserKeywords();
+      
+      // Get stats for search results (optional, fallback to empty if not available)
+      let stats = {};
+      if (searchManager.getStats) {
+        stats = searchManager.getStats();
+      }
+      res.render('search-results', {
+        ...commonData,
+        title: 'Search Results',
+        results: results,
+        count: results.length,
+        query: query,
+        categories: categories,
+        userKeywords: userKeywords,
+        searchIn: searchIn,
+        searchType: searchType,
+        systemCategories: systemCategories,
+        userKeywordsList: userKeywordsList,
+        availableCategories: systemCategories,
+        availableKeywords: userKeywordsList,
+        stats: stats
+      });
       
     } catch (err) {
       console.error('Error searching:', err);
@@ -2115,7 +2113,7 @@ class WikiRoutes {
       } else {
         res.redirect('/admin/organizations?error=' + encodeURIComponent(error.message));
       }
-    }
+ }
   }
 
   /**
