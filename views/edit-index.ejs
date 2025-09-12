@@ -33,10 +33,10 @@
                                 <a href="/edit/<%= encodeURIComponent(page) %>" class="list-group-item list-group-item-action page-item" data-page="<%= page.toLowerCase() %>">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div>
-                                            <i class="fas fa-file-alt text-primary me-2"></i>
+                                            <i class="fas fa-file-alt style="color: var(--text-primary);" me-2"></i>
                                             <span class="page-name"><%= page %></span>
                                         </div>
-                                        <i class="fas fa-edit text-secondary"></i>
+                                        <i class="fas fa-edit style="color: var(--text-secondary);""></i>
                                     </div>
                                 </a>
                             <% }); %>
@@ -47,7 +47,7 @@
         </div>
 
         <div class="mt-3">
-            <a href="/" class="btn btn-secondary">
+            <a href="/" class="btn" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);">
                 <i class="fas fa-arrow-left"></i> Back to Home
             </a>
             <% if (currentUser && (currentUser.roles.includes('admin') || currentUser.roles.includes('editor') || currentUser.roles.includes('contributor'))) { %>
