@@ -99,12 +99,6 @@ class TemplateManager extends BaseManager {
    * Create default page templates
    */
   async createDefaultTemplates() {
-    const defaultTemplates = {
-      'default': `---
-uuid: {{uuid}}
-category: {{category}}
-user-keywords: {{userKeywords}}
----
 # {{pageName}}
 
 ## Overview
@@ -120,11 +114,6 @@ Add your content here.
 There might be more information for this subject on one of the following:
 [{ReferringPagesPlugin before='*' after='\\n' }]
 `,
-      'documentation': `---
-uuid: {{uuid}}
-category: Wiki Documentation (Documentation and Hints for this Wiki)
-user-keywords: []
----
 # {{pageName}}
 
 ## Purpose
@@ -132,6 +121,71 @@ user-keywords: []
 This document describes...
 
 ## Instructions
+
+### Example 1
+
+\`\`\`
+Example code or content here
+\`\`\`
+
+## See Also
+
+
+## More Information
+
+There might be more information for this subject on one of the following:
+[{ReferringPagesPlugin before='*' after='\\n' }]
+`,
+# {{pageName}}
+## Subcategories
+
+* Subcategory 1 (Description of subcategory)
+* Subcategory 2 (Description of subcategory)
+* Subcategory 3 (Description of subcategory)
+
+## Pages in this Category
+
+This section will automatically show pages that use this category.
+
+## More Information
+
+There might be more information for this subject on one of the following:
+[{ReferringPagesPlugin before='*' after='\\n' }]
+`,
+# {{pageName}}
+
+**Date:** {{date}}  
+**Attendees:** 
+**Location:** 
+
+## Agenda
+2. Item 2
+3. Item 3
+
+## Discussion
+    const defaultTemplates = {
+  'default': `---
+
+## Overview
+
+{{pageName}} is...
+
+## Content
+
+Add your content here.
+
+## More Information
+
+There might be more information for this subject on one of the following:
+[{ReferringPagesPlugin before='*' after='\\n' }]
+`,
+  'documentation': `---
+uuid: {{uuid}}
+system-category: Wiki Documentation (Documentation and Hints for this Wiki)
+user-keywords: []
+---
+# {{pageName}}
+
 
 1. Step one
 2. Step two
@@ -145,6 +199,75 @@ This document describes...
 Example code or content here
 \`\`\`
 
+    const defaultTemplates = {
+      'default':
+        '---\n' +
+        'uuid: {{uuid}}\n' +
+        'system-category: {{systemCategory}}\n' +
+        'user-keywords: {{userKeywords}}\n' +
+        '---\n' +
+        '# {{pageName}}\n\n' +
+        '## Overview\n\n' +
+        '{{pageName}} is...\n\n' +
+        '## Content\n\n' +
+        'Add your content here.\n\n' +
+        '## More Information\n\n' +
+        'There might be more information for this subject on one of the following:\n' +
+        '[{ReferringPagesPlugin before="*" after="\\n" }]\n',
+      'documentation':
+        '---\n' +
+        'uuid: {{uuid}}\n' +
+        'system-category: Wiki Documentation (Documentation and Hints for this Wiki)\n' +
+        'user-keywords: []\n' +
+        '---\n' +
+        '# {{pageName}}\n\n' +
+        '## Purpose\n\n' +
+        'This document describes...\n\n' +
+        '## Instructions\n\n' +
+        '1. Step one\n' +
+        '2. Step two\n' +
+        '3. Step three\n\n' +
+        '## Examples\n\n' +
+        '### Example 1\n\n' +
+        '    Example code or content here\n\n' +
+        '## See Also\n\n' +
+        '- [Related Page]\n' +
+        '- [Another Related Page]\n\n' +
+        '## More Information\n\n' +
+        'There might be more information for this subject on one of the following:\n' +
+        '[{ReferringPagesPlugin before="*" after="\\n" }]\n',
+      'category':
+        '---\n' +
+        'uuid: {{uuid}}\n' +
+        'system-category: Wiki Documentation (Documentation and Hints for this Wiki)\n' +
+        'user-keywords: []\n' +
+        '---\n' +
+        '# {{pageName}}\n\n' +
+        '## Overview\n\n' +
+        '{{pageName}} contains pages related to...\n\n' +
+        '## Subcategories\n\n' +
+        '* Subcategory 1 (Description of subcategory)\n' +
+        '* Subcategory 2 (Description of subcategory)\n' +
+        '* Subcategory 3 (Description of subcategory)\n\n' +
+        '## Pages in this Category\n\n' +
+        'This section will automatically show pages that use this category.\n\n' +
+        '## More Information\n\n' +
+        'There might be more information for this subject on one of the following:\n' +
+        '[{ReferringPagesPlugin before="*" after="\\n" }]\n',
+      'meeting-notes':
+        '---\n' +
+        'uuid: {{uuid}}\n' +
+        'system-category: {{systemCategory}}\n' +
+        'user-keywords: [{{userKeywords}}]\n' +
+        '---\n' +
+        '# {{pageName}}\n\n' +
+        '**Date:** {{date}}  \n' +
+        '**Attendees:** \n' +
+        '**Location:** \n\n' +
+        '## Agenda\n\n' +
+        '1. Item 1\n' +
+        '2. Item 2\n' +
+        '3. Item 3\n\n'
 ## See Also
 
 - [Related Page]
@@ -155,9 +278,9 @@ Example code or content here
 There might be more information for this subject on one of the following:
 [{ReferringPagesPlugin before='*' after='\\n' }]
 `,
-      'category': `---
+  'category': `---
 uuid: {{uuid}}
-category: Wiki Documentation (Documentation and Hints for this Wiki)
+system-category: Wiki Documentation (Documentation and Hints for this Wiki)
 user-keywords: []
 ---
 # {{pageName}}
@@ -181,9 +304,9 @@ This section will automatically show pages that use this category.
 There might be more information for this subject on one of the following:
 [{ReferringPagesPlugin before='*' after='\\n' }]
 `,
-      'meeting-notes': `---
+  'meeting-notes': `---
 uuid: {{uuid}}
-category: {{category}}
+system-category: {{systemCategory}}
 user-keywords: [{{userKeywords}}]
 ---
 # {{pageName}}
@@ -198,7 +321,6 @@ user-keywords: [{{userKeywords}}]
 2. Item 2
 3. Item 3
 
-## Discussion
 
 ### Topic 1
 

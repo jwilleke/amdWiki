@@ -524,13 +524,14 @@ This page contains an alphabetical listing of all pages in this wiki.
     }
 
     const templateContent = await templateManager.getTemplate(templateName);
-    const metadata = {
-      title: pageName,
-      slug: generateSlug(pageName),
-      uuid: uuidv4(),
-      created: new Date().toISOString(),
-      category: 'Uncategorized'
-    };
+      const metadata = {
+        title: pageName,
+        slug: generateSlug(pageName),
+        uuid: uuidv4(),
+        created: new Date().toISOString(),
+        'system-category': 'General',
+        'user-keywords': []
+      };
 
     return {
       title: pageName,
@@ -651,10 +652,11 @@ This page contains an alphabetical listing of all pages in this wiki.
 
     const templateContent = await templateManager.getTemplate(templateName);
     const validationManager = this.engine.getManager('ValidationManager');
-    const metadata = validationManager.generateValidMetadata(pageName, {
-      category: 'Uncategorized',
-      created: new Date().toISOString()
-    });
+      const metadata = validationManager.generateValidMetadata(pageName, {
+        'system-category': 'General',
+        'user-keywords': [],
+        created: new Date().toISOString()
+      });
 
     return await this.savePage(pageName, templateContent, metadata);
   }

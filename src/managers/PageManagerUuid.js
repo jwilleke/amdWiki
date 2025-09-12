@@ -383,13 +383,12 @@ class PageManager extends BaseManager {
       
       // Create metadata for PageIndex
       const metadata = {
-        title: 'PageIndex',
-        slug: 'page-index',
-        category: 'System',
-        categories: ['System', 'Navigation', 'Index'],
-        'user-keywords': [],
-        uuid: 'pageindex-system-generated',
-        lastModified: timestamp
+  title: 'PageIndex',
+  slug: 'page-index',
+  'system-category': 'System',
+  'user-keywords': ['Navigation', 'Index'],
+  uuid: 'pageindex-system-generated',
+  lastModified: timestamp
       };
 
       // Write the PageIndex file with UUID-based filename
@@ -496,13 +495,14 @@ This page contains an alphabetical listing of all pages in this wiki.
     }
 
     const templateContent = await templateManager.getTemplate(templateName);
-    const metadata = {
-      title: pageName,
-      slug: generateSlug(pageName),
-      uuid: uuidv4(),
-      created: new Date().toISOString(),
-      category: 'Uncategorized'
-    };
+      const metadata = {
+        title: pageName,
+        slug: generateSlug(pageName),
+        uuid: uuidv4(),
+        created: new Date().toISOString(),
+        'system-category': 'General',
+        'user-keywords': []
+      };
 
     return {
       title: pageName,
@@ -525,13 +525,14 @@ This page contains an alphabetical listing of all pages in this wiki.
     }
 
     const templateContent = await templateManager.getTemplate(templateName);
-    const metadata = {
-      title: pageName,
-      slug: generateSlug(pageName),
-      uuid: uuidv4(),
-      created: new Date().toISOString(),
-      category: 'Uncategorized'
-    };
+      const metadata = {
+        title: pageName,
+        slug: generateSlug(pageName),
+        uuid: uuidv4(),
+        created: new Date().toISOString(),
+        'system-category': 'General',
+        'user-keywords': []
+      };
 
     return await this.savePage(pageName, templateContent, metadata);
   }

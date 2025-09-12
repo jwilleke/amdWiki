@@ -39,26 +39,26 @@ class SearchManager extends BaseManager {
       pages.forEach(page => {
         // Extract metadata fields
         const metadata = page.metadata || {};
-        const category = metadata.category || '';
-        const userKeywords = Array.isArray(metadata['user-keywords']) ? 
-          metadata['user-keywords'].join(' ') : 
-          (metadata['user-keywords'] || '');
-        const tags = Array.isArray(metadata.tags) ? 
-          metadata.tags.join(' ') : 
-          (metadata.tags || '');
+          const systemCategory = metadata['system-category'] || '';
+          const userKeywords = Array.isArray(metadata['user-keywords']) ? 
+            metadata['user-keywords'].join(' ') : 
+            (metadata['user-keywords'] || '');
+          const tags = Array.isArray(metadata.tags) ? 
+            metadata.tags.join(' ') : 
+            (metadata.tags || '');
 
-        documents[page.name] = {
-          id: page.name,
-          title: page.name,
-          content: page.content,
-          body: page.content,
-          category: category,
-          userKeywords: userKeywords,
-          tags: tags,
-          keywords: `${userKeywords} ${tags}`, // Combined keywords field
-          lastModified: metadata.lastModified || '',
-          uuid: metadata.uuid || ''
-        };
+          documents[page.name] = {
+            id: page.name,
+            title: page.name,
+            content: page.content,
+            body: page.content,
+            systemCategory: systemCategory,
+            userKeywords: userKeywords,
+            tags: tags,
+            keywords: `${userKeywords} ${tags}`,
+            lastModified: metadata.lastModified || '',
+            uuid: metadata.uuid || ''
+          };
       });
 
       this.documents = documents;
@@ -68,7 +68,7 @@ class SearchManager extends BaseManager {
         this.ref('id');
         this.field('title', { boost: 10 });
         this.field('content');
-        this.field('category', { boost: 8 });
+        this.field('systemCategory', { boost: 8 });
         this.field('userKeywords', { boost: 6 });
         this.field('tags', { boost: 5 });
         this.field('keywords', { boost: 4 });

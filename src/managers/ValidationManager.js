@@ -225,11 +225,9 @@ class ValidationManager extends BaseManager {
   generateValidMetadata(title, options = {}) {
     const uuid = options.uuid || uuidv4();
     const slug = options.slug || this.generateSlug(title);
-    
     return {
       title: title.trim(),
-      category: options.category || 'General',
-      categories: options.categories || [options.category || 'General'],
+      'system-category': options['system-category'] || 'General',
       'user-keywords': options.userKeywords || options['user-keywords'] || [],
       uuid: uuid,
       slug: slug,

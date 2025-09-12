@@ -109,8 +109,8 @@ class ExportManager extends BaseManager {
     <div class="export-meta">
         <p>Exported from amdWiki on ${new Date().toLocaleString()}</p>
         <p>Last modified: ${page.lastModified || 'Unknown'}</p>
-        ${page.category ? `<p>Category: ${page.category}</p>` : ''}
-        ${page.userKeywords && page.userKeywords.length > 0 ? `<p>Keywords: ${page.userKeywords.join(', ')}</p>` : ''}
+    ${page['system-category'] ? `<p>System Category: ${page['system-category']}</p>` : ''}
+    ${page['user-keywords'] && page['user-keywords'].length > 0 ? `<p>User Keywords: ${page['user-keywords'].join(', ')}</p>` : ''}
     </div>
 </body>
 </html>`;
