@@ -1,0 +1,177 @@
+<%- include('header', { pageName: pageName }) %>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <h1>Edit <%= pageName %></h1>
+            
+            <form id="editForm" action="/wiki/<%= pageName %>" method="POST">
+                <!-- Page Title on its own row -->
+                <div class="form-group mb-3">
+                    <label for="title" style="font-weight:bold;">Page Title:</label>
+                    <input type="text" id="title" name="title" class="form-control" value="<%= metadata.title || pageName %>" required>
+                </div>
+                
+                <!-- System Category (Admin only) and User Keywords (Editable by any editor) -->
+                <div class="row mb-3">
+                    <% if (user && user.roles && user.roles.includes('admin')) { %>
+                    <div class="col-md-6">
+                        <label style="font-weight:bold;">System Category (Admin Only):</label>
+                        <select class="form-control" id="systemCategory" name="system-category" required>
+                            <% systemCategories.forEach(category => { %>
+                                <option value="<%= category %>" <%= metadata['system-category'] === category ? 'selected' : '' %>><%= category %></option>
+                            <% }); %>
+                        </select>
+                    </div>
+                    <% } else { %>
+                    <div class="col-md-6">
+                        <label style="font-weight:bold;">System Category:</label>
+                        <input type="text" class="form-control" id="systemCategory" name="system-category" value="<%= metadata['system-category'] %>" readonly>
+                    </div>
+                    <% } %>
+                    <div class="col-md-6">
+                        <label style="font-weight:bold;">User Keywords (Optional, Max 3):</label>
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button" id="userKeywordsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span id="selectedUserKeywordsText">Select user keywords...</span>
+                            </button>
+                            <ul class="dropdown-menu w-100" aria-labelledby="userKeywordsDropdown">
+                                <% userKeywords.forEach(keyword => { %>
+                                    <li>
+                                        <div class="dropdown-item-checkbox px-3 py-2">
+                                            <div class="form-check">
+                                                <input class="form-check-input user-keyword-checkbox" type="checkbox" name="user-keywords[]" value="<%= keyword %>" id="user-keyword-<%= keyword %>" <%= selectedUserKeywords.includes(keyword) ? 'checked' : '' %>>
+                                                <label class="form-check-label ms-2" for="user-keyword-<%= keyword %>"><%= keyword %></label>
+                                            </div>
+                                        </div>
+                                    </li>
+                                <% }); %>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Content -->
+                <div class="form-group mb-3">
+                    <label for="content" style="font-weight:bold;">Content:</label>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <textarea id="content" name="content" class="form-control" rows="20" required><%= content %></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">Preview</div>
+                                <div class="card-body markdown-body" id="preview"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Update preview function
+    function updatePreview() {
+        const content = document.getElementById('content');
+        const preview = document.getElementById('preview');
+        let text = content.value;
+        
+        // Make an API call to get properly rendered content with user variables
+        fetch('/api/preview', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                content: text,
+                pageName: '<%= pageName %>'
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.html) {
+                preview.innerHTML = data.html;
+            } else {
+                // Fallback to simple markdown conversion if API fails
+                text = text.replace(/^# (.*$)/gim, '<h1>$1</h1>');
+                text = text.replace(/^## (.*$)/gim, '<h2>$1</h2>');
+                text = text.replace(/^### (.*$)/gim, '<h3>$1</h3>');
+                text = text.replace(/\*\*(.*)\*\*/g, '<strong>$1</strong>');
+                text = text.replace(/\*(.*)\*/g, '<em>$1</em>');
+                text = text.replace(/\n/g, '<br>');
+                preview.innerHTML = text;
+            }
+        })
+        .catch(error => {
+            console.error('Preview API error:', error);
+            // Fallback to simple markdown conversion
+            text = text.replace(/^# (.*$)/gim, '<h1>$1</h1>');
+            text = text.replace(/^## (.*$)/gim, '<h2>$1</h2>');
+            text = text.replace(/^### (.*$)/gim, '<h3>$1</h3>');
+            text = text.replace(/\*\*(.*)\*\*/g, '<strong>$1</strong>');
+            text = text.replace(/\*(.*)\*/g, '<em>$1</em>');
+            text = text.replace(/\n/g, '<br>');
+            preview.innerHTML = text;
+        });
+    }
+    
+    // Update preview on input
+    document.getElementById('content').addEventListener('input', updatePreview);
+    updatePreview();
+    
+    // Category checkboxes limitation and validation
+    const categoryCheckboxes = document.querySelectorAll('.category-checkbox');
+    categoryCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const checkedCount = document.querySelectorAll('.category-checkbox:checked').length;
+            if (checkedCount > 3) {
+                this.checked = false;
+                alert('Maximum 3 categories allowed');
+            }
+            updateSelectedCategoriesText();
+        });
+    });
+    
+    // Form submission validation
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const checkedCount = document.querySelectorAll('.category-checkbox:checked').length;
+        if (checkedCount === 0) {
+            e.preventDefault();
+            alert('At least one category is required');
+            return false;
+        }
+    });
+    
+    // User keyword limitation
+    const userKeywordCheckboxes = document.querySelectorAll('.user-keyword-checkbox');
+    userKeywordCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const checkedCount = document.querySelectorAll('.user-keyword-checkbox:checked').length;
+            if (checkedCount > 3) {
+                this.checked = false;
+                alert('Maximum 3 user keywords allowed');
+            }
+            updateSelectedUserKeywordsText();
+        });
+    });
+    
+    function updateSelectedCategoriesText() {
+        const checkedCategories = Array.from(document.querySelectorAll('.category-checkbox:checked')).map(cb => cb.value);
+        const text = checkedCategories.length > 0 ? checkedCategories.join(', ') : 'Select categories...';
+        document.getElementById('selectedCategoriesText').textContent = text;
+    }
+    
+    function updateSelectedUserKeywordsText() {
+        const checkedKeywords = Array.from(document.querySelectorAll('.user-keyword-checkbox:checked')).map(cb => cb.value);
+        const text = checkedKeywords.length > 0 ? checkedKeywords.join(', ') : 'Select user keywords...';
+        document.getElementById('selectedUserKeywordsText').textContent = text;
+    }
+    
+    // Initialize dropdowns
+    updateSelectedCategoriesText();
+    updateSelectedUserKeywordsText();
+</script>
+
+<%- include('footer') %>

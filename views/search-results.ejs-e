@@ -3,7 +3,7 @@
 <div class="search-page">
 <h1 class="h2"><i class="fas fa-search"></i> Search</h1>
 <div class="mb-3">
-    <span class="badge" style="background-color: var(--badge-info-bg); color: var(--badge-info-text);">
+    <span class="badge bg-info">
         <%= count %> result<%= count === 1 ? '' : 's' %>
     </span>
 </div>
@@ -221,7 +221,7 @@
                         </tr>
                         <tr>
                             <td><i class="fas fa-tags text-info me-2"></i><strong>Keywords:</strong></td>
-                            <td><span class="badge" style="background-color: var(--badge-info-bg); color: var(--badge-info-text);"><%= stats.totalUserKeywords %></span></td>
+                            <td><span class="badge bg-info"><%= stats.totalUserKeywords %></span></td>
                         </tr>
                     </table>
                 </div>

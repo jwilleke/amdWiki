@@ -1,0 +1,942 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown Wiki</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <!-- Schema.org JSON-LD structured data -->
+    <% if (typeof pageSchema !== 'undefined' && pageSchema) { %>
+        <%- pageSchema %>
+    <% } %>
+    
+    <% if (typeof siteSchema !== 'undefined' && siteSchema) { %>
+        <%- siteSchema %>
+    <% } %>
+</head>
+<body>
+    <!-- JSPWiki-style header -->
+    <div class="jspwiki-header border-bottom">
+        <div class="container-fluid">
+            <div class="row align-items-center py-2">
+                <div class="col-md-3">
+                    <a class="navbar-brand" href="/">
+                        <i class="fas fa-book text-primary"></i> <strong>amdWiki</strong>
+                    </a>
+                </div>
+                <div class="col-md-6">
+                    <form class="form-inline justify-content-center" action="/search" method="GET">
+                        <div class="input-group">
+                            <input class="form-control" type="search" placeholder="Search pages..." aria-label="Search" name="q" style="min-width: 300px;">
+                            <div class="input-group-append">
+                                <button class="btn btn-primary" type="submit">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="col-md-3 text-right">
+                    <% if (typeof currentUser !== 'undefined' && currentUser && currentUser.isAuthenticated) { %>
+                        <div class="dropdown d-inline">
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-user"></i> <%= currentUser.displayName || currentUser.username %>
+                                <% if (currentUser.roles && currentUser.roles.includes('admin')) { %>
+                                    <span class="badge bg-warning text-dark ms-1">Admin</span>
+                                <% } %>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
+                                <a class="dropdown-item" href="/profile">
+                                    <i class="fas fa-user-cog"></i> Profile
+                                </a>
+                                <% if (currentUser.roles && (currentUser.roles.includes('admin') || currentUser.roles.includes('editor'))) { %>
+                                    <div class="dropdown-divider"></div>
+                                    <h6 class="dropdown-header">Management</h6>
+                                    <% if (currentUser.roles.includes('admin')) { %>
+                                        <a class="dropdown-item" href="/admin">
+                                            <i class="fas fa-cogs"></i> Admin Dashboard
+                                        </a>
+                                        <a class="dropdown-item" href="/admin/users">
+                                            <i class="fas fa-users"></i> User Management
+                                        </a>
+                                        <a class="dropdown-item" href="/admin/organizations">
+                                            <i class="fas fa-building"></i> Organizations
+                                        </a>
+                                    <% } %>
+                                <% } %>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="/logout">
+                                    <i class="fas fa-sign-out-alt"></i> Logout
+                                </a>
+                            </div>
+                        </div>
+                    <% } else { %>
+                        <a class="btn btn-outline-primary btn-sm mr-2" href="/login">
+                            <i class="fas fa-sign-in-alt"></i> Login
+                        </a>
+                        <a class="btn btn-primary btn-sm" href="/register">
+                            <i class="fas fa-user-plus"></i> Register
+                        </a>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JSPWiki-style navigation -->
+    <div class="navigation" role="navigation">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-8">
+                    <!-- Always show navigation controls -->
+                        <ul class="nav nav-pills float-start">
+                            <!-- Menu toggle button -->
+                            <li class="nav-item" id="menu">
+                                <button class="btn btn-outline-secondary btn-sm me-2" onclick="toggleLeftMenu()" title="Show/Hide Sidebar">
+                                    <i class="fas fa-bars"></i>
+                                </button>
+                            </li>
+                    <% if (typeof pageName !== 'undefined' && pageName) { %>
+                            <!-- Breadcrumb trail dropdown -->
+                            <li class="nav-item dropdown" id="trail">
+                                <button class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="Navigation Trail">
+                                    Trail
+                                </button>
+                                <ul class="dropdown-menu" data-hover-parent="li" id="breadcrumbTrail">
+                                    <!-- Breadcrumbs will be populated by JavaScript -->
+                                    <li><span class="dropdown-item-text text-muted">No trail available</span></li>
+                                </ul>
+                            </li>
+                    <% } else { %>
+                            <!-- Placeholder for pages without trail -->
+                            </ul>
+                    <% } %>
+                </div>
+                <div class="col-4">
+                    <div class="btn-group float-end" role="group">
+                        <!-- Edit Page Actions (only show in edit mode) -->
+                        <% if (typeof title !== 'undefined' && title && title.startsWith('Edit ')) { %>
+                            <button type="button" class="btn btn-outline-success btn-sm me-2" onclick="saveEditForm()">
+                                <i class="fas fa-save"></i> Save Page
+                            </button>
+                            <a href="/wiki/<%= encodeURIComponent(pageName) %>" class="btn btn-outline-secondary btn-sm me-2">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                            <button type="button" class="btn btn-outline-danger btn-sm me-2" onclick="deletePageFromNavbar()">
+                                <i class="fas fa-trash"></i> Delete Page
+                            </button>
+                        <% } %>
+                        
+                        <!-- Info Dropdown -->
+                        <div class="btn-group me-2" role="group">
+                            <button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-info-circle"></i> Info
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#" onclick="showPageInfo()">
+                                    <i class="fas fa-info"></i> Page Information
+                                </a></li>
+                                <li><a class="dropdown-item" href="#" onclick="showPageHistory()">
+                                    <i class="fas fa-history"></i> Page History
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#" onclick="showPageStats()">
+                                    <i class="fas fa-chart-bar"></i> Page Statistics
+                                </a></li>
+                                <li><a class="dropdown-item" href="/wiki/Recent%20Changes">
+                                    <i class="fas fa-clock"></i> Recent Changes
+                                </a></li>
+                            </ul>
+                        </div>
+
+                        <!-- Edit Button -->
+                        <% if (typeof pageName !== 'undefined' && pageName && typeof canEdit !== 'undefined' && canEdit) { %>
+                            <div class="btn-group me-2" role="group">
+                                <a href="/edit/<%= encodeURIComponent(pageName) %>" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
+                            </div>
+                        <% } %>
+
+                        <!-- More Dropdown -->
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-ellipsis-h"></i> More
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <% if (typeof currentUser !== 'undefined' && currentUser && currentUser.isAuthenticated && currentUser.roles && (currentUser.roles.includes('admin') || currentUser.roles.includes('editor') || currentUser.roles.includes('contributor'))) { %>
+                                    <li><a class="dropdown-item" href="/create">
+                                        <i class="fas fa-plus"></i> Create New Page
+                                    </a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                <% } %>
+                                <li><a class="dropdown-item" href="#" onclick="showPageSource()">
+                                    <i class="fas fa-code"></i> View Page Source
+                                </a></li>
+                                <% if (typeof pageName !== 'undefined' && pageName) { %>
+                                    <li><a class="dropdown-item" href="/wiki/<%= encodeURIComponent(pageName) %>?view=reader">
+                                        <i class="fas fa-book-reader"></i> Show Reader View
+                                    </a></li>
+                                <% } %>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="/export">
+                                    <i class="fas fa-download"></i> Export
+                                </a></li>
+                                <li><a class="dropdown-item" href="/wiki/System%20Variables">
+                                    <i class="fas fa-cog"></i> System Variables
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="/wiki/Search%20Documentation">
+                                    <i class="fas fa-question-circle"></i> Search Help
+                                </a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <nav class="col-md-2 d-none d-md-block sidebar jspwiki-sidebar">
+                <div class="sidebar-sticky px-3 pt-3">
+                    <% if (typeof leftMenuContent !== 'undefined' && leftMenuContent) { %>
+                        <div class="leftmenu-content">
+                            <%- leftMenuContent %>
+                        </div>
+                    <% } else { %>
+                        <!-- Fallback if LeftMenu.md not available -->
+                        <h6 class="sidebar-heading text-muted mb-3">Navigation</h6>
+                        <ul class="nav flex-column">
+                            <li class="nav-item">
+                                <a class="nav-link" href="/">
+                                    <i class="fas fa-home text-muted me-2"></i> Home
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/search">
+                                    <i class="fas fa-search text-muted me-2"></i> Search
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/create">
+                                    <i class="fas fa-plus text-muted me-2"></i> Create
+                                </a>
+                            </li>
+                        </ul>
+                    <% } %>
+                </div>
+            </nav>
+
+            <main role="main" class="col-md-9 ms-sm-auto col-lg-10 px-4 jspwiki-content main-content">
+
+<script>
+    function createNewPage() {
+        const pageName = prompt('Enter the name for the new page:');
+        if (pageName) {
+            window.location.href = `/edit/${pageName}`;
+        }
+    }
+    
+    // JSPWiki-style Info dropdown functions
+    function showPageInfo() {
+        const currentPage = window.location.pathname.split('/wiki/')[1] || 'Unknown';
+        const decodedPage = decodeURIComponent(currentPage);
+        
+        const infoModal = `
+            <div class="modal fade" id="pageInfoModal" tabindex="-1">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">
+                                <i class="fas fa-info-circle"></i> Page Information: ${decodedPage}
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <table class="table table-bordered">
+                                <tr><td><strong>Page Name:</strong></td><td>${decodedPage}</td></tr>
+                                <tr><td><strong>URL:</strong></td><td>${window.location.href}</td></tr>
+                                <tr><td><strong>Last Modified:</strong></td><td>Recently</td></tr>
+                                <tr><td><strong>Version:</strong></td><td>Current</td></tr>
+                                <tr><td><strong>Size:</strong></td><td>Calculating...</td></tr>
+                            </table>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Remove existing modal if any
+        const existingModal = document.getElementById('pageInfoModal');
+        if (existingModal) existingModal.remove();
+        
+        // Add modal to DOM and show
+        document.body.insertAdjacentHTML('beforeend', infoModal);
+        new bootstrap.Modal(document.getElementById('pageInfoModal')).show();
+    }
+    
+    function showPageHistory() {
+        alert('Page History feature coming soon!');
+    }
+    
+    function showPageStats() {
+        alert('Page Statistics feature coming soon!');
+    }
+    
+    // View Page Source functionality
+    function showPageSource() {
+        const currentPage = window.location.pathname.split('/wiki/')[1];
+        if (!currentPage) {
+            alert('No page selected for source view');
+            return;
+        }
+        
+        // Fetch the raw markdown content
+        fetch(`/api/page-source/${encodeURIComponent(currentPage)}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch page source');
+                }
+                return response.text();
+            })
+            .then(sourceContent => {
+                showSourceModal(sourceContent, decodeURIComponent(currentPage));
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Fallback - try to get content from current page
+                const contentElement = document.querySelector('.page-content, .wiki-content, main');
+                const fallbackContent = contentElement ? contentElement.textContent : 'Could not retrieve page source';
+                showSourceModal(fallbackContent, decodeURIComponent(currentPage || 'Unknown'));
+            });
+    }
+    
+    function showSourceModal(sourceContent, pageName) {
+        const sourceModal = `
+            <div class="modal fade" id="pageSourceModal" tabindex="-1">
+                <div class="modal-dialog modal-xl">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">
+                                <i class="fas fa-code"></i> Page Source: ${pageName}
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <button id="copyButton" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-copy"></i> Copy to Clipboard
+                                </button>
+                            </div>
+                            <pre id="sourceContent" class="p-3 border rounded" style="max-height: 500px; overflow-y: auto; white-space: pre-wrap; background-color: var(--code-bg); color: var(--text-primary);">${escapeHtml(sourceContent)}</pre>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Remove existing modal if any
+        const existingModal = document.getElementById('pageSourceModal');
+        if (existingModal) existingModal.remove();
+        
+        // Add modal to DOM
+        document.body.insertAdjacentHTML('beforeend', sourceModal);
+        
+        // Add event listener for copy button
+        const copyButton = document.getElementById('copyButton');
+        if (copyButton) {
+            copyButton.addEventListener('click', copySourceToClipboard);
+        }
+        
+        // Show modal
+        const modal = new bootstrap.Modal(document.getElementById('pageSourceModal'));
+        modal.show();
+    }
+    
+    function copySourceToClipboard(event) {
+        const sourceContent = document.getElementById('sourceContent').textContent;
+        const btn = event ? event.target.closest('button') : document.getElementById('copyButton');
+        
+        if (!btn) {
+            console.error('Copy button not found');
+            return;
+        }
+        
+        const originalText = btn.innerHTML;
+        
+        // Function to show success feedback
+        function showSuccess() {
+            btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+            btn.classList.remove('btn-outline-primary');
+            btn.classList.add('btn-success');
+            
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.classList.remove('btn-success');
+                btn.classList.add('btn-outline-primary');
+            }, 2000);
+        }
+        
+        // Function to show error feedback
+        function showError(errorMsg) {
+            console.error('Failed to copy: ', errorMsg);
+            btn.innerHTML = '<i class="fas fa-times"></i> Failed';
+            btn.classList.remove('btn-outline-primary');
+            btn.classList.add('btn-danger');
+            
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.classList.remove('btn-danger');
+                btn.classList.add('btn-outline-primary');
+            }, 2000);
+        }
+        
+        // Modern clipboard API (preferred method)
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(sourceContent).then(() => {
+                console.log('Clipboard API copy successful');
+                showSuccess();
+            }).catch(err => {
+                console.warn('Clipboard API failed, trying fallback method:', err);
+                tryFallbackCopy();
+            });
+        } else {
+            console.log('Clipboard API not available, using fallback method');
+            // Fallback for older browsers or non-secure contexts
+            tryFallbackCopy();
+        }
+        
+        function tryFallbackCopy() {
+            try {
+                // Create a temporary textarea element
+                const textArea = document.createElement('textarea');
+                textArea.value = sourceContent;
+                textArea.style.position = 'fixed';
+                textArea.style.left = '-999999px';
+                textArea.style.top = '-999999px';
+                textArea.style.opacity = '0';
+                document.body.appendChild(textArea);
+                
+                // Select and copy the content
+                textArea.focus();
+                textArea.select();
+                textArea.setSelectionRange(0, 99999); // For mobile devices
+                
+                const successful = document.execCommand('copy');
+                document.body.removeChild(textArea);
+                
+                if (successful) {
+                    console.log('Fallback copy successful');
+                    showSuccess();
+                } else {
+                    throw new Error('execCommand copy failed');
+                }
+            } catch (err) {
+                console.error('All copy methods failed:', err);
+                showError(err.message);
+                
+                // As a last resort, provide manual copy instructions
+                showManualCopyInstructions();
+            }
+        }
+        
+        function showManualCopyInstructions() {
+            const modal = document.createElement('div');
+            modal.innerHTML = `
+                <div class="modal fade" id="copyInstructionsModal" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Manual Copy Required</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p><strong>Automatic copy failed.</strong> Please manually copy the content:</p>
+                                <ol>
+                                    <li>Click in the source code area above</li>
+                                    <li>Select all text (<kbd>Ctrl+A</kbd> or <kbd>Cmd+A</kbd>)</li>
+                                    <li>Copy the selected text (<kbd>Ctrl+C</kbd> or <kbd>Cmd+C</kbd>)</li>
+                                </ol>
+                                <p class="text-muted">This may happen in some browsers due to security restrictions.</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            const instructionsModal = new bootstrap.Modal(document.getElementById('copyInstructionsModal'));
+            instructionsModal.show();
+            
+            // Remove modal when closed
+            document.getElementById('copyInstructionsModal').addEventListener('hidden.bs.modal', function () {
+                document.body.removeChild(modal);
+            });
+        }
+    }
+    
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    // Highlight active navigation links
+    document.addEventListener('DOMContentLoaded', function() {
+        const currentPath = window.location.pathname;
+        const navLinks = document.querySelectorAll('.navigation .nav-link');
+        
+        navLinks.forEach(link => {
+            const href = link.getAttribute('href');
+            if (href && currentPath.includes(href) && href !== '/') {
+                link.classList.add('active');
+            }
+        });
+    });
+</script>
+
+<!-- Theme Manager -->
+<script>
+// Simple embedded theme manager with system preference support
+class SimpleThemeManager {
+    constructor() {
+        console.log('🎨 Theme Manager: Starting initialization...');
+        this.themes = ['light', 'dark', 'system'];
+        this.currentTheme = localStorage.getItem('theme-preference') || 'system';
+        this.systemTheme = this.getSystemTheme();
+        
+        console.log('🎨 Theme Manager: Initial state:', {
+            currentTheme: this.currentTheme,
+            systemTheme: this.systemTheme,
+            stored: localStorage.getItem('theme-preference')
+        });
+        
+        this.applyTheme();
+        this.createThemeToggle();
+        
+        // Listen for system theme changes
+        if (window.matchMedia) {
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+                console.log('🎨 System theme changed:', e.matches ? 'dark' : 'light');
+                this.systemTheme = e.matches ? 'dark' : 'light';
+                if (this.currentTheme === 'system') {
+                    this.applyTheme();
+                    this.updateButton();
+                }
+            });
+        }
+        
+        console.log('🎨 Theme Manager: Initialization complete');
+    }
+    
+    getSystemTheme() {
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            return 'dark';
+        }
+        return 'light';
+    }
+    
+    getEffectiveTheme() {
+        if (this.currentTheme === 'system') {
+            return this.systemTheme;
+        }
+        return this.currentTheme;
+    }
+    
+    applyTheme() {
+        const effectiveTheme = this.getEffectiveTheme();
+        const html = document.documentElement;
+        
+        console.log('🎨 Applying theme:', this.currentTheme, '(effective:', effectiveTheme + ')');
+        
+        // Remove existing theme attributes
+        html.removeAttribute('data-theme');
+        
+        // Apply new theme
+        if (effectiveTheme === 'dark') {
+            html.setAttribute('data-theme', 'dark');
+            document.body.style.backgroundColor = '#1a1a1a';
+            document.body.style.color = '#e9ecef';
+        } else {
+            html.setAttribute('data-theme', 'light');
+            document.body.style.backgroundColor = '#ffffff';
+            document.body.style.color = '#212529';
+        }
+        
+        console.log('🎨 Theme applied - HTML data-theme:', html.getAttribute('data-theme'));
+        console.log('🎨 Theme applied - Body background:', document.body.style.backgroundColor);
+        
+        // Add a visible debug indicator
+        let debugDiv = document.getElementById('theme-debug');
+        if (!debugDiv) {
+            debugDiv = document.createElement('div');
+            debugDiv.id = 'theme-debug';
+            debugDiv.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                left: 20px;
+                background: rgba(0,0,0,0.8);
+                color: white;
+                padding: 10px;
+                border-radius: 5px;
+                z-index: 9998;
+                font-family: monospace;
+                font-size: 12px;
+            `;
+            document.body.appendChild(debugDiv);
+        }
+        debugDiv.textContent = `Theme: ${this.currentTheme} (${effectiveTheme})`;
+        
+        // Force a reflow to ensure styles are applied
+        document.body.offsetHeight;
+    }
+    
+    cycleTheme() {
+        const oldTheme = this.currentTheme;
+        const currentIndex = this.themes.indexOf(this.currentTheme);
+        const nextIndex = (currentIndex + 1) % this.themes.length;
+        this.currentTheme = this.themes[nextIndex];
+        
+        console.log('🎨 Theme cycling:', oldTheme, '→', this.currentTheme);
+        
+        localStorage.setItem('theme-preference', this.currentTheme);
+        this.applyTheme();
+        this.updateButton();
+        
+        // Show a brief visual feedback
+        if (this.toggleButton) {
+            this.toggleButton.style.background = 'var(--bg-tertiary)';
+            setTimeout(() => {
+                this.toggleButton.style.background = 'var(--card-bg)';
+            }, 200);
+        }
+    }
+    
+    createThemeToggle() {
+        const toggle = document.createElement('div');
+        toggle.id = 'theme-toggle';
+        toggle.className = 'theme-toggle';
+        toggle.innerHTML = '<i class="fas fa-palette"></i>';
+        toggle.title = 'Toggle Theme';
+        
+        toggle.addEventListener('click', () => {
+            console.log('🎨 Theme toggle clicked!');
+            this.cycleTheme();
+        });
+        
+        toggle.addEventListener('mouseenter', () => {
+            toggle.style.background = 'var(--bg-tertiary)';
+        });
+        
+        toggle.addEventListener('mouseleave', () => {
+            toggle.style.background = 'var(--card-bg)';
+        });
+        
+        document.body.appendChild(toggle);
+        this.toggleButton = toggle;
+        this.updateButton();
+    }
+    
+    updateButton() {
+        if (!this.toggleButton) return;
+        const icon = this.toggleButton.querySelector('i');
+        const effectiveTheme = this.getEffectiveTheme();
+        
+        switch (this.currentTheme) {
+            case 'light':
+                icon.className = 'fas fa-sun';
+                this.toggleButton.title = 'Theme: Light (click for Dark)';
+                break;
+            case 'dark':
+                icon.className = 'fas fa-moon';
+                this.toggleButton.title = 'Theme: Dark (click for System)';
+                break;
+            case 'system':
+                icon.className = 'fas fa-adjust';
+                this.toggleButton.title = `Theme: System (${effectiveTheme}) (click for Light)`;
+                break;
+        }
+    }
+}
+
+// Initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    window.themeManager = new SimpleThemeManager();
+    console.log('Simple Theme Manager initialized with theme:', window.themeManager.currentTheme);
+    
+    // Check for user changes and server restarts
+    checkUserChange();
+    checkServerRestart();
+    
+    // Initialize left menu state
+    initializeLeftMenuState();
+    
+    // Initialize breadcrumb trail
+    initializeTrail();
+});
+
+// Left menu and trail functionality
+function toggleLeftMenu() {
+    const sidebar = document.querySelector('.sidebar');
+    const mainContent = document.querySelector('main');
+    
+    console.log('Toggle clicked - Sidebar classes:', sidebar ? sidebar.className : 'not found');
+    console.log('Toggle clicked - Main content classes:', mainContent ? mainContent.className : 'not found');
+    
+    if (sidebar && mainContent) {
+        if (sidebar.classList.contains('d-none')) {
+            console.log('Showing sidebar...');
+            // Show sidebar
+            sidebar.classList.remove('d-none');
+            sidebar.classList.add('d-md-block');
+            // Restore original Bootstrap classes for 2-column layout
+            mainContent.classList.remove('col-12');
+            mainContent.classList.add('col-md-9', 'ms-sm-auto', 'col-lg-10');
+            localStorage.setItem('leftMenuVisible', 'true');
+            console.log('After showing - Sidebar classes:', sidebar.className);
+            console.log('After showing - Main content classes:', mainContent.className);
+        } else {
+            console.log('Hiding sidebar...');
+            // Hide sidebar
+            sidebar.classList.add('d-none');
+            sidebar.classList.remove('d-md-block');
+            // Make main content full width
+            mainContent.classList.remove('col-md-9', 'ms-sm-auto', 'col-lg-10');
+            mainContent.classList.add('col-12');
+            localStorage.setItem('leftMenuVisible', 'false');
+            console.log('After hiding - Sidebar classes:', sidebar.className);
+            console.log('After hiding - Main content classes:', mainContent.className);
+        }
+    }
+}
+
+// Initialize left menu state from localStorage
+function initializeLeftMenuState() {
+    const isVisible = localStorage.getItem('leftMenuVisible');
+    console.log('Init: leftMenuVisible from localStorage:', isVisible);
+    
+    // Don't auto-hide if no preference is stored, let the default CSS handle it
+    if (isVisible === 'false') {
+        const sidebar = document.querySelector('.jspwiki-sidebar');
+        // Try multiple selectors to find the main content
+        let mainContent = document.querySelector('body > div.container-fluid > div > main');
+        if (!mainContent) {
+            mainContent = document.querySelector('main.jspwiki-content');
+        }
+        if (!mainContent) {
+            mainContent = document.querySelector('main[role="main"]');
+        }
+        if (!mainContent) {
+            mainContent = document.querySelector('.jspwiki-content');
+        }
+        
+        console.log('Init: Found sidebar:', sidebar);
+        console.log('Init: Found main content:', mainContent);
+        
+        if (sidebar) {
+            sidebar.classList.add('d-none');
+            sidebar.classList.remove('d-md-block');
+            if (mainContent) {
+                mainContent.classList.remove('col-md-9', 'ms-sm-auto', 'col-lg-10');
+                mainContent.classList.add('col-12');
+                console.log('Init: Applied full-width layout on page load');
+            }
+        }
+    } else if (isVisible === 'true') {
+        // Show sidebar if preference is to show it
+        const sidebar = document.querySelector('.jspwiki-sidebar');
+        const mainContent = document.querySelector('main');
+        
+        if (sidebar && mainContent) {
+            sidebar.classList.remove('d-none');
+            sidebar.classList.add('d-md-block');
+            mainContent.classList.remove('col-12');
+            mainContent.classList.add('col-md-9', 'ms-sm-auto', 'col-lg-10');
+            console.log('Init: Restored sidebar from localStorage');
+        }
+    }
+}
+
+// Breadcrumb trail management
+let navigationTrail = JSON.parse(localStorage.getItem('navigationTrail') || '[]');
+
+// Clear trail function
+function clearTrail() {
+    navigationTrail = [];
+    localStorage.removeItem('navigationTrail');
+    updateTrailDropdown();
+}
+
+// Check if user has changed (for clearing trail on user switch)
+function checkUserChange() {
+    const currentUserInfo = '<%= typeof currentUser !== "undefined" && currentUser ? currentUser.username || "anonymous" : "anonymous" %>';
+    const lastUser = localStorage.getItem('lastUser');
+    
+    if (lastUser && lastUser !== currentUserInfo) {
+        // User has changed, clear the trail
+        clearTrail();
+    }
+    
+    // Store current user
+    localStorage.setItem('lastUser', currentUserInfo);
+}
+
+// Check if server has restarted (simple timestamp check)
+function checkServerRestart() {
+    const serverStartTime = '<%= Date.now() %>';
+    const lastServerTime = localStorage.getItem('lastServerTime');
+    
+    if (lastServerTime && Math.abs(serverStartTime - lastServerTime) > 300000) { // 5 minutes difference
+        // Server likely restarted, clear trail
+        clearTrail();
+    }
+    
+    localStorage.setItem('lastServerTime', serverStartTime);
+}
+
+function addToTrail(pageName, pageTitle) {
+    // Don't add the same page consecutively 
+    if (navigationTrail.length > 0 && navigationTrail[0].page === pageName) {
+        return;
+    }
+    
+    // Remove any existing entry for this page from anywhere in the trail
+    navigationTrail = navigationTrail.filter(item => item.page !== pageName);
+    
+    // Use pageName if pageTitle is not provided or is generic
+    const displayTitle = (pageTitle && pageTitle !== 'Markdown Wiki' && pageTitle !== pageName) ? pageTitle : pageName;
+    
+    // Add to beginning of trail
+    navigationTrail.unshift({
+        page: pageName,
+        title: displayTitle,
+        timestamp: Date.now()
+    });
+    
+    // Keep only last 10 entries
+    navigationTrail = navigationTrail.slice(0, 10);
+    
+    // Save to localStorage
+    localStorage.setItem('navigationTrail', JSON.stringify(navigationTrail));
+    
+    // Debug log
+    console.log('Added to trail:', pageName, 'as', displayTitle);
+    
+    // Update dropdown
+    updateTrailDropdown();
+}
+
+function updateTrailDropdown() {
+    const dropdown = document.getElementById('breadcrumbTrail');
+    if (!dropdown) return;
+    
+    dropdown.innerHTML = '';
+    
+    // Get current page to exclude it from trail
+    const currentPage = window.location.pathname.split('/wiki/')[1];
+    const currentPageDecoded = currentPage ? decodeURIComponent(currentPage) : null;
+    
+    // Show only trail items (excluding current page)
+    const trailItemsToShow = navigationTrail.filter(item => 
+        !currentPageDecoded || item.page !== currentPageDecoded
+    );
+    
+    if (trailItemsToShow.length === 0) {
+        dropdown.innerHTML = '<li><span class="dropdown-item-text text-muted">No trail available</span></li>';
+        return;
+    }
+    
+    trailItemsToShow.forEach((item, index) => {
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.className = 'dropdown-item';
+        a.href = `/wiki/${encodeURIComponent(item.page)}`;
+        
+        // Use the page name from the URL, not a potentially generic title
+        const displayName = item.page; // Always use the actual page name
+        a.innerHTML = `<i class="fas fa-file-alt me-2"></i>${displayName}`;
+        
+        // Add time indicator for recent items
+        const timeDiff = Date.now() - item.timestamp;
+        if (timeDiff < 300000) { // Less than 5 minutes
+            a.innerHTML += ' <small class="text-muted">(recent)</small>';
+        }
+        
+        li.appendChild(a);
+        dropdown.appendChild(li);
+    });
+    
+    // Add separator and clear option if there are items
+    if (trailItemsToShow.length > 0) {
+        const separator = document.createElement('li');
+        separator.innerHTML = '<hr class="dropdown-divider">';
+        dropdown.appendChild(separator);
+        
+        const clearLi = document.createElement('li');
+        const clearA = document.createElement('a');
+        clearA.className = 'dropdown-item text-danger';
+        clearA.href = '#';
+        clearA.innerHTML = '<i class="fas fa-trash me-2"></i>Clear Trail';
+        clearA.onclick = (e) => {
+            e.preventDefault();
+            clearTrail();
+        };
+        clearLi.appendChild(clearA);
+        dropdown.appendChild(clearLi);
+    }
+}
+
+// Initialize trail on page load
+function initializeTrail() {
+    const currentPage = window.location.pathname.split('/wiki/')[1];
+    if (!currentPage) {
+        updateTrailDropdown();
+        return;
+    }
+    
+    const currentPageDecoded = decodeURIComponent(currentPage);
+    // Use the page name from URL, not the document title
+    const pageName = currentPageDecoded;
+    
+    // Only add to trail if it's a different page than the last one visited
+    if (navigationTrail.length === 0 || navigationTrail[0].page !== currentPageDecoded) {
+        addToTrail(currentPageDecoded, pageName);
+    } else {
+        // Just update the dropdown without adding
+        updateTrailDropdown();
+    }
+}
+
+// Edit form functions for navbar buttons
+function saveEditForm() {
+    const editForm = document.getElementById('editForm');
+    if (editForm) {
+        editForm.submit();
+    }
+}
+
+function deletePageFromNavbar() {
+    if (confirm('Are you sure you want to delete this page? This action cannot be undone.')) {
+        // Check if we're on an edit page and extract page name from title
+        const title = document.title;
+        if (title.startsWith('Edit ')) {
+            const pageName = title.replace('Edit ', '').replace(' | AMD Wiki', '');
+            window.location.href = '/delete/' + encodeURIComponent(pageName);
+        }
+    }
+}
+</script>

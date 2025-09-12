@@ -1,0 +1,132 @@
+<%- include('header', { pageName: '' }) %>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <h1>Create New Page</h1>
+            
+            <form action="/create" method="POST">
+                <!-- Page Name and Template on same row -->
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="pageName" style="font-weight:bold;">Page Name:</label>
+                        <input type="text" id="pageName" name="pageName" class="form-control" 
+                               value="<%= typeof pageName !== 'undefined' ? pageName : '' %>" 
+                               placeholder="Enter page name..." required>
+                        <small class="form-text text-muted">Use spaces for readability. Special characters will be handled automatically.</small>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="templateName" style="font-weight:bold;">Template:</label>
+                        <select id="templateName" name="templateName" class="form-control" required>
+                            <option value="">Select a template...</option>
+                            <% templates.forEach(template => { %>
+                                <option value="<%= template.name %>"><%= template.displayName || template.name %></option>
+                            <% }); %>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Categories and User Keywords on same row -->
+                <div class="row mb-3">
+                    <% if (user && user.roles && user.roles.includes('admin')) { %>
+                    <div class="col-md-6">
+                        <label style="font-weight:bold;">System Category (Admin Only):</label>
+                        <select class="form-control" id="systemCategory" name="system-category" required>
+                            <% systemCategories.forEach(category => { %>
+                                <option value="<%= category %>"><%= category %></option>
+                            <% }); %>
+                        </select>
+                    </div>
+                    <% } else { %>
+                    <div class="col-md-6">
+                        <label style="font-weight:bold;">System Category:</label>
+                        <input type="text" class="form-control" id="systemCategory" name="system-category" value="General" readonly>
+                    </div>
+                    <% } %>
+                    <div class="col-md-6">
+                        <label style="font-weight:bold;">User Keywords (Optional, Max 3):</label>
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button" id="userKeywordsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span id="selectedUserKeywordsText">Select user keywords...</span>
+                            </button>
+                            <ul class="dropdown-menu w-100" aria-labelledby="userKeywordsDropdown">
+                                <% userKeywords.forEach(keyword => { %>
+                                    <li>
+                                        <div class="dropdown-item-checkbox px-3 py-2">
+                                            <div class="form-check">
+                                                <input class="form-check-input user-keyword-checkbox" type="checkbox" name="userKeywords[]" value="<%= keyword %>" id="user-keyword-<%= keyword %>">
+                                                <label class="form-check-label ms-2" for="user-keyword-<%= keyword %>"><%= keyword %></label>
+                                            </div>
+                                        </div>
+                                    </li>
+                                <% }); %>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Buttons -->
+                <div class="d-flex gap-3 mb-3">
+                    <button type="submit" class="btn btn-primary">Create Page</button>
+                    <a href="/" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Category checkboxes limitation and validation
+    const categoryCheckboxes = document.querySelectorAll('.category-checkbox');
+    categoryCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const checkedCount = document.querySelectorAll('.category-checkbox:checked').length;
+            if (checkedCount > 3) {
+                this.checked = false;
+                alert('Maximum 3 categories allowed');
+            }
+            updateSelectedCategoriesText();
+        });
+    });
+    
+    // Form submission validation
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const checkedCount = document.querySelectorAll('.category-checkbox:checked').length;
+        if (checkedCount === 0) {
+            e.preventDefault();
+            alert('At least one category is required');
+            return false;
+        }
+    });
+    
+    // User keyword limitation
+    const userKeywordCheckboxes = document.querySelectorAll('.user-keyword-checkbox');
+    userKeywordCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const checkedCount = document.querySelectorAll('.user-keyword-checkbox:checked').length;
+            if (checkedCount > 3) {
+                this.checked = false;
+                alert('Maximum 3 user keywords allowed');
+            }
+            updateSelectedUserKeywordsText();
+        });
+    });
+    
+    function updateSelectedCategoriesText() {
+        const checkedCategories = Array.from(document.querySelectorAll('.category-checkbox:checked')).map(cb => cb.value);
+        const text = checkedCategories.length > 0 ? checkedCategories.join(', ') : 'Select categories...';
+        document.getElementById('selectedCategoriesText').textContent = text;
+    }
+    
+    function updateSelectedUserKeywordsText() {
+        const checkedKeywords = Array.from(document.querySelectorAll('.user-keyword-checkbox:checked')).map(cb => cb.value);
+        const text = checkedKeywords.length > 0 ? checkedKeywords.join(', ') : 'Select user keywords...';
+        document.getElementById('selectedUserKeywordsText').textContent = text;
+    }
+    
+    // Initialize dropdowns
+    updateSelectedCategoriesText();
+    updateSelectedUserKeywordsText();
+</script>
+
+<%- include('footer') %>

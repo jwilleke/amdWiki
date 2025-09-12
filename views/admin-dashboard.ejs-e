@@ -1,0 +1,190 @@
+<%- include('header', { pageName: '' }) %>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h1><i class="fas fa-cogs"></i> Admin Dashboard</h1>
+            <p class="lead">Welcome to the administration panel, <%= currentUser.displayName %>!</p>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <!-- System Stats -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-bar"></i> System Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Total Pages:</strong> <%= pages.length %></p>
+                    <p><strong>Total Users:</strong> <%= stats.totalUsers || 'N/A' %></p>
+                    <p><strong>System Uptime:</strong> <%= stats.uptime || 'N/A' %></p>
+                    <p><strong>Version:</strong> amdWiki 1.0.0</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-bolt"></i> Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <a href="/create" class="btn btn-primary btn-block mb-2">
+                        <i class="fas fa-plus"></i> Create New Page
+                    </a>
+                    <a href="/admin/users" class="btn btn-info btn-block mb-2">
+                        <i class="fas fa-users"></i> Manage Users
+                    </a>
+                    <a href="/admin/roles" class="btn btn-warning btn-block mb-2">
+                        <i class="fas fa-shield-alt"></i> Manage Roles
+                    </a>
+                    <a href="/export" class="btn btn-success btn-block">
+                        <i class="fas fa-download"></i> Export Data
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Required Pages Management -->
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5><i class="fas fa-lock"></i> Required Pages (Admin Only)</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">These pages can only be edited by administrators:</p>
+                    <% if (requiredPages && requiredPages.length > 0) { %>
+                        <% requiredPages.forEach(pageName => { %>
+                            <a href="/edit/<%= encodeURIComponent(pageName) %>" class="btn btn-outline-primary btn-block mb-2">
+                                <i class="fas fa-edit"></i> Edit <%= pageName %>
+                            </a>
+                        <% }); %>
+                    <% } else { %>
+                        <p class="text-muted">No required pages found.</p>
+                    <% } %>
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle"></i> All users can view these pages, but only admins can edit them.
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Recent Activity -->
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-history"></i> Recent Activity</h5>
+                </div>
+                <div class="card-body">
+                    <% if (recentActivity && recentActivity.length > 0) { %>
+                        <% recentActivity.slice(0, 5).forEach(activity => { %>
+                            <div class="mb-2">
+                                <small class="text-muted"><%= activity.timestamp %></small><br>
+                                <%= activity.description %>
+                            </div>
+                        <% }); %>
+                    <% } else { %>
+                        <p class="text-muted">No recent activity to display.</p>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <!-- User Management -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-users-cog"></i> User Management</h5>
+                </div>
+                <div class="card-body">
+                    <p>Manage user accounts, roles, and permissions.</p>
+                    <a href="/admin/users" class="btn btn-primary">
+                        <i class="fas fa-users"></i> Go to User Management
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Settings -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-cog"></i> System Settings</h5>
+                </div>
+                <div class="card-body">
+                    <p>Configure wiki settings and system preferences.</p>
+                    <div class="btn-group">
+                        <a href="/admin/roles" class="btn btn-secondary">
+                            <i class="fas fa-shield-alt"></i> Roles
+                        </a>
+                        <a href="/admin/settings" class="btn btn-secondary">
+                            <i class="fas fa-cogs"></i> Settings
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <% if (currentUser.roles.includes('admin')) { %>
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card border-warning">
+                <div class="card-header bg-warning">
+                    <h5><i class="fas fa-exclamation-triangle"></i> Administrator Tools</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <h6>System Maintenance</h6>
+                            <button class="btn btn-outline-danger btn-sm" onclick="confirmRestart()">
+                                <i class="fas fa-sync-alt"></i> Restart System
+                            </button>
+                        </div>
+                        <div class="col-md-3">
+                            <h6>Data Management</h6>
+                            <a href="/admin/backup" class="btn btn-outline-info btn-sm">
+                                <i class="fas fa-database"></i> Backup Data
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <h6>Logs</h6>
+                            <a href="/admin/logs" class="btn btn-outline-secondary btn-sm">
+                                <i class="fas fa-file-alt"></i> View Logs
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <h6>Performance</h6>
+                            <button class="btn btn-outline-success btn-sm" onclick="clearCache()">
+                                <i class="fas fa-broom"></i> Clear Cache
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <% } %>
+</div>
+
+<script>
+function confirmRestart() {
+    if (confirm('Are you sure you want to restart the system? This will temporarily interrupt service.')) {
+        // Add restart functionality here
+        alert('Restart functionality would be implemented here.');
+    }
+}
+
+function clearCache() {
+    // Add cache clearing functionality here
+    alert('Cache clearing functionality would be implemented here.');
+}
+</script>
+
+<%- include('footer') %>

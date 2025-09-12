@@ -1,0 +1,83 @@
+<%- include('header', { pageName: '' }) %>
+
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-4">
+            <div class="card mt-5">
+                <div class="card-header text-center">
+                    <h4>Login to amdWiki</h4>
+                </div>
+                <div class="card-body">
+                    <% if (error) { %>
+                        <div class="alert alert-danger">
+                            <%= error %>
+                        </div>
+                    <% } %>
+                    
+                    <% if (typeof success !== 'undefined' && success) { %>
+                        <div class="alert alert-success">
+                            <%= success %>
+                        </div>
+                    <% } %>
+                    
+                    <form action="/login" method="POST">
+                        <input type="hidden" name="redirect" value="<%= redirect || '/' %>">
+                        
+                        <div class="form-group mb-3">
+                            <label for="username">Username:</label>
+                            <input type="text" class="form-control" id="username" name="username" required autofocus>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="password">Password:</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="remember">
+                                <label class="form-check-label" for="remember">
+                                    Remember me
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100">Login</button>
+                    </form>
+                    
+                    <hr>
+                    
+                    <div class="text-center">
+                        <p class="mb-2">Don't have an account? <a href="/register">Register here</a></p>
+                        <p class="mb-0"><a href="/">← Back to Wiki</a></p>
+                    </div>
+                    
+                    <!-- OAuth Integration Section -->
+                    <div class="mt-4">
+                        <div class="text-center">
+                            <small class="text-muted">External Authentication</small>
+                        </div>
+                        <div class="mt-2">
+                            <div class="alert alert-info">
+                                <small>
+                                    <strong>OAuth/JWT Integration:</strong><br>
+                                    External systems can authenticate using Bearer tokens in the Authorization header.<br>
+                                    Token format: <code>Bearer &lt;jwt-token&gt;</code><br>
+                                    Required claims: <code>sub</code> (username), <code>role</code> or <code>roles</code>
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-footer text-center">
+                    <small class="text-muted">
+                        Default admin: username = <code>admin</code>, password = <code>admin123</code>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('footer') %>

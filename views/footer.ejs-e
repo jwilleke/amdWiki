@@ -1,0 +1,33 @@
+
+            <!-- Dynamic Footer from Footer.md -->
+            <% if (typeof footerContent !== 'undefined' && footerContent) { %>
+                <div class="footer-content mt-4 pt-3 border-top">
+                    <%- footerContent %>
+                </div>
+            <% } %>
+            
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/user-preferences.js"></script>
+    
+    <script>
+    // Initialize user preferences if available
+    if (typeof currentUser !== 'undefined' && currentUser && currentUser.preferences) {
+        window.userPrefs = new UserPreferences(currentUser.preferences);
+        
+        // Apply display preferences
+        document.addEventListener('DOMContentLoaded', function() {
+            window.userPrefs.applyDisplayPreferences();
+            
+            // Apply editor preferences to any textareas
+            document.querySelectorAll('textarea').forEach(function(textarea) {
+                window.userPrefs.applyEditorPreferences(textarea);
+            });
+        });
+    }
+    </script>
+</body>
+</html>

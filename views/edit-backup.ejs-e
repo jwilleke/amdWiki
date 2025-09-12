@@ -1,0 +1,158 @@
+<%- include('header', { pageName: pageName }) %>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <h1>Edit <%= pageName %></h1>
+            
+            <form action="/save/<%= pageName %>" method="POST">
+                <!-- Page Title -->
+                <div class="form-group mb-3">
+                    <label for="title" style="font-weight:bold;">Page Title:</label>
+                    <input type="text" id="title" name="title" class="form-control" value="<%= metadata.title || pageName %>" required>
+                </div>
+                
+                <!-- Single Category (Required) -->
+                <% if (user && user.roles && user.roles.includes('admin')) { %>
+                <div class="form-group mb-3">
+                    <label for="system-category" style="font-weight:bold;">System Category (Admin Only):</label>
+                    <select class="form-control" id="system-category" name="system-category" required>
+                        <% systemCategories.forEach(category => { %>
+                            <option value="<%= category %>" <%= metadata['system-category'] === category ? 'selected' : '' %>><%= category %></option>
+                        <% }); %>
+                    </select>
+                </div>
+                <% } else { %>
+                <div class="form-group mb-3">
+                    <label for="system-category" style="font-weight:bold;">System Category:</label>
+                    <input type="text" class="form-control" id="system-category" name="system-category" value="<%= metadata['system-category'] %>" readonly>
+                </div>
+                <% } %>
+                
+                <!-- Content -->
+                <div class="form-group mb-3">
+                    <label for="content" style="font-weight:bold;">Content:</label>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <textarea id="content" name="content" class="form-control" rows="20" required><%= content %></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">Preview</div>
+                                <div class="card-body markdown-body" id="preview"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Admin Categories (Optional, Max 3) -->
+                <div class="form-group mb-3">
+                    <label style="font-weight:bold;">Admin Categories (Optional, Max 3):</label>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button" id="categoriesDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span id="selectedCategoriesText">Select admin categories...</span>
+                        </button>
+                        <ul class="dropdown-menu w-100" aria-labelledby="categoriesDropdown">
+                            <% systemCategories.forEach(category => { %>
+                                <li>
+                                    <div class="dropdown-item-checkbox px-3 py-2">
+                                        <div class="form-check">
+                                            <input class="form-check-input category-checkbox" type="checkbox" name="categories[]" value="<%= category %>" id="dropdown-category-<%= category %>" <%= selectedCategories.includes(category) ? 'checked' : '' %>>
+                                            <label class="form-check-label ms-2" for="dropdown-category-<%= category %>"><%= category %></label>
+                                        </div>
+                                    </div>
+                                </li>
+                            <% }); %>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- User Keywords (Optional, Max 3) -->
+                <div class="form-group mb-3">
+                    <label style="font-weight:bold;">User Keywords (Optional, Max 3):</label>
+                    <div class="row">
+                        <% userKeywords.forEach(keyword => { %>
+                            <div class="col-md-4 mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input user-keyword-checkbox" type="checkbox" name="userKeywords[]" value="<%= keyword %>" id="user-keyword-<%= keyword %>" <%= selectedUserKeywords.includes(keyword) ? 'checked' : '' %>>
+                                    <label class="form-check-label" for="user-keyword-<%= keyword %>"><%= keyword %></label>
+                                </div>
+                            </div>
+                        <% }); %>
+                    </div>
+                </div>
+
+                <!-- Submit Buttons -->
+                <div class="d-flex gap-3 mb-3">
+                    <button type="submit" class="btn btn-primary">Save Page</button>
+                    <a href="/wiki/<%= pageName %>" class="btn btn-secondary">Cancel</a>
+                    <button type="button" class="btn btn-danger" onclick="deletePage()">Delete Page</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Update preview function
+    function updatePreview() {
+        const content = document.getElementById('content');
+        const preview = document.getElementById('preview');
+        let text = content.value;
+        
+        // Simple markdown conversion
+        text = text.replace(/^# (.*$)/gim, '<h1>$1</h1>');
+        text = text.replace(/^## (.*$)/gim, '<h2>$1</h2>');
+        text = text.replace(/^### (.*$)/gim, '<h3>$1</h3>');
+        text = text.replace(/\*\*(.*)\*\*/g, '<strong>$1</strong>');
+        text = text.replace(/\*(.*)\*/g, '<em>$1</em>');
+        text = text.replace(/\n/g, '<br>');
+        
+        preview.innerHTML = text;
+    }
+    
+    // Update preview on input
+    document.getElementById('content').addEventListener('input', updatePreview);
+    updatePreview();
+    
+    // Category checkboxes limitation
+    const categoryCheckboxes = document.querySelectorAll('.category-checkbox');
+    categoryCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const checkedCount = document.querySelectorAll('.category-checkbox:checked').length;
+            if (checkedCount > 3) {
+                this.checked = false;
+                alert('Maximum 3 admin categories allowed');
+            }
+            updateSelectedCategoriesText();
+        });
+    });
+    
+    // User keyword limitation
+    const userKeywordCheckboxes = document.querySelectorAll('.user-keyword-checkbox');
+    userKeywordCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const checkedCount = document.querySelectorAll('.user-keyword-checkbox:checked').length;
+            if (checkedCount > 3) {
+                this.checked = false;
+                alert('Maximum 3 user keywords allowed');
+            }
+        });
+    });
+    
+    function updateSelectedCategoriesText() {
+        const checkedCategories = Array.from(document.querySelectorAll('.category-checkbox:checked')).map(cb => cb.value);
+        const text = checkedCategories.length > 0 ? checkedCategories.join(', ') : 'Select admin categories...';
+        document.getElementById('selectedCategoriesText').textContent = text;
+    }
+    
+    updateSelectedCategoriesText();
+    
+    function deletePage() {
+        if (confirm('Are you sure you want to delete this page? This action cannot be undone.')) {
+            window.location.href = '/delete/<%= pageName %>';
+        }
+    }
+</script>
+
+<%- include('footer') %>

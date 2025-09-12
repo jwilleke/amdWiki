@@ -1,0 +1,160 @@
+<%- include('header', { pageName: '' }) %>
+
+<div class="container-fluid mt-4">
+    <div class="row">
+        <!-- Left Menu -->
+        <div class="col-md-3">
+            <%- leftMenuContent %>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-md-9">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-cogs"></i> System Settings</h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/">Home</a></li>
+                        <li class="breadcrumb-item"><a href="/admin">Admin</a></li>
+                        <li class="breadcrumb-item active">Settings</li>
+                    </ol>
+                </nav>
+            </div>
+
+            <!-- System Information -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5><i class="fas fa-info-circle"></i> System Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-sm">
+                                <tr>
+                                    <td><strong>System Name:</strong></td>
+                                    <td><%= settings.systemName %></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Version:</strong></td>
+                                    <td><%= settings.version %></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Node.js Version:</strong></td>
+                                    <td><%= process.version %></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Platform:</strong></td>
+                                    <td><%= process.platform %></td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-sm">
+                                <tr>
+                                    <td><strong>Uptime:</strong></td>
+                                    <td><%= Math.floor(process.uptime()) %> seconds</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Memory Usage:</strong></td>
+                                    <td><%= Math.round(process.memoryUsage().heapUsed / 1024 / 1024) %> MB</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Current Theme:</strong></td>
+                                    <td><%= settings.theme %></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Session Timeout:</strong></td>
+                                    <td><%= settings.sessionTimeout %></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Configuration Settings -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5><i class="fas fa-sliders-h"></i> Configuration Settings</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Note:</strong> Configuration settings are currently read-only. 
+                        To modify settings, edit the configuration files directly.
+                    </div>
+                    
+                    <form>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="maxFileSize">Maximum File Upload Size</label>
+                                    <input type="text" class="form-control" id="maxFileSize" 
+                                           value="<%= settings.maxFileSize %>" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label for="allowRegistration">Allow New User Registration</label>
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="allowRegistration" 
+                                               <%= settings.allowRegistration ? 'checked' : '' %> disabled>
+                                        <label class="form-check-label" for="allowRegistration">
+                                            Allow users to self-register
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="theme">Current Theme</label>
+                                    <input type="text" class="form-control" id="theme" 
+                                           value="<%= settings.theme %>" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label for="sessionTimeout">Session Timeout</label>
+                                    <input type="text" class="form-control" id="sessionTimeout" 
+                                           value="<%= settings.sessionTimeout %>" readonly>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-external-link-alt"></i> Quick Links</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h6>User Management</h6>
+                            <ul class="list-unstyled">
+                                <li><a href="/admin/users"><i class="fas fa-users"></i> Manage Users</a></li>
+                                <li><a href="/admin/roles"><i class="fas fa-shield-alt"></i> Manage Roles</a></li>
+                                <li><a href="/register"><i class="fas fa-user-plus"></i> Add New User</a></li>
+                            </ul>
+                        </div>
+                        <div class="col-md-4">
+                            <h6>Content Management</h6>
+                            <ul class="list-unstyled">
+                                <li><a href="/create"><i class="fas fa-plus"></i> Create New Page</a></li>
+                                <li><a href="/search"><i class="fas fa-search"></i> Search Pages</a></li>
+                                <li><a href="/export"><i class="fas fa-download"></i> Export Data</a></li>
+                            </ul>
+                        </div>
+                        <div class="col-md-4">
+                            <h6>System</h6>
+                            <ul class="list-unstyled">
+                                <li><a href="/admin"><i class="fas fa-dashboard"></i> Admin Dashboard</a></li>
+                                <li><a href="/user-info"><i class="fas fa-info"></i> User Debug Info</a></li>
+                                <li><a href="/"><i class="fas fa-home"></i> Wiki Home</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('footer') %>

@@ -1,0 +1,412 @@
+<%- include('header', { pageName: 'Organization Management' }) %>
+
+<div class="container-fluid mt-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3">
+            <%- leftMenuContent %>
+        </div>
+
+        <!-- Main content -->
+        <div class="col-md-9">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-building"></i> Organization Management</h1>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createOrganizationModal">
+                    <i class="fas fa-plus"></i> Add Organization
+                </button>
+            </div>
+
+            <!-- Organizations List -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list"></i> Organizations
+                        <span class="badge bg-secondary ms-2"><%= organizations.length %></span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <% if (organizations.length === 0) { %>
+                        <div class="text-center py-4">
+                            <i class="fas fa-building fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">No organizations configured yet.</p>
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createOrganizationModal">
+                                <i class="fas fa-plus"></i> Create First Organization
+                            </button>
+                        </div>
+                    <% } else { %>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Description</th>
+                                        <th>Contact Points</th>
+                                        <th>Founded</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% organizations.forEach(org => { %>
+                                        <tr>
+                                            <td>
+                                                <strong><%= org.name %></strong>
+                                                <% if (org.alternateName) { %>
+                                                    <br><small class="text-muted"><%= org.alternateName %></small>
+                                                <% } %>
+                                            </td>
+                                            <td>
+                                                <span class="text-truncate d-inline-block" style="max-width: 200px;" title="<%= org.description || 'No description' %>">
+                                                    <%= org.description || 'No description' %>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <% if (org.contactPoint && org.contactPoint.length > 0) { %>
+                                                    <% org.contactPoint.forEach(contact => { %>
+                                                        <span class="badge bg-info me-1"><%= contact.contactType %></span>
+                                                    <% }) %>
+                                                <% } else { %>
+                                                    <span class="text-muted">None</span>
+                                                <% } %>
+                                            </td>
+                                            <td><%= org.foundingDate || 'Unknown' %></td>
+                                            <td>
+                                                <% if (org.isActive !== false) { %>
+                                                    <span class="badge bg-success">Active</span>
+                                                <% } else { %>
+                                                    <span class="badge bg-secondary">Inactive</span>
+                                                <% } %>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <button class="btn btn-outline-primary btn-sm" onclick="editOrganization('<%= org.name.toLowerCase() %>')" 
+                                                            data-org='<%- JSON.stringify(org) %>'>
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button class="btn btn-outline-info btn-sm" onclick="viewOrganizationSchema('<%= org.name.toLowerCase() %>')"
+                                                            data-org='<%- JSON.stringify(org) %>'>
+                                                        <i class="fas fa-code"></i>
+                                                    </button>
+                                                    <button class="btn btn-outline-danger btn-sm" onclick="deleteOrganization('<%= org.name.toLowerCase() %>', '<%= org.name %>')">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <% }) %>
+                                </tbody>
+                            </table>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create Organization Modal -->
+<div class="modal fade" id="createOrganizationModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form id="createOrganizationForm">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-building"></i> Create Organization
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Basic Information -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="orgName" class="form-label">Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="orgName" name="name" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="orgLegalName" class="form-label">Legal Name <span class="text-muted">(optional)</span></label>
+                            <input type="text" class="form-control" id="orgLegalName" name="legalName">
+                            <div class="form-text">Legal entity name if different from display name</div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="orgAlternateName" class="form-label">Alternate Name</label>
+                            <input type="text" class="form-control" id="orgAlternateName" name="alternateName">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="orgFoundingDate" class="form-label">Founding Date</label>
+                            <input type="text" class="form-control" id="orgFoundingDate" name="foundingDate" placeholder="YYYY">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="orgDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="orgDescription" name="description" rows="3"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="orgUrl" class="form-label">Website URL</label>
+                        <input type="url" class="form-control" id="orgUrl" name="url">
+                    </div>
+
+                    <!-- Postal Address Section -->
+                    <h6><i class="fas fa-map-marker-alt"></i> Postal Address <span class="text-muted">(optional)</span></h6>
+                    <div class="border rounded p-3 mb-3 bg-light">
+                        <div class="row mb-2">
+                            <div class="col-12">
+                                <label for="orgStreetAddress" class="form-label">Street Address</label>
+                                <input type="text" class="form-control" id="orgStreetAddress" name="address.streetAddress" placeholder="123 Main Street">
+                            </div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-md-6">
+                                <label for="orgLocality" class="form-label">City/Locality</label>
+                                <input type="text" class="form-control" id="orgLocality" name="address.addressLocality" placeholder="San Francisco">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="orgRegion" class="form-label">State/Region</label>
+                                <input type="text" class="form-control" id="orgRegion" name="address.addressRegion" placeholder="CA">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="orgPostalCode" class="form-label">Postal Code</label>
+                                <input type="text" class="form-control" id="orgPostalCode" name="address.postalCode" placeholder="94102">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="orgCountry" class="form-label">Country</label>
+                                <input type="text" class="form-control" id="orgCountry" name="address.addressCountry" placeholder="United States">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact Points -->
+                    <h6><i class="fas fa-phone"></i> Contact Points <span class="text-danger">*</span></h6>
+                    <div id="contactPointsContainer">
+                        <div class="contact-point-item border rounded p-3 mb-3">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label class="form-label">Contact Type</label>
+                                    <select class="form-select" name="contactType" required>
+                                        <option value="">Select Type</option>
+                                        <option value="administrative">Administrative</option>
+                                        <option value="customer support">Customer Support</option>
+                                        <option value="technical support">Technical Support</option>
+                                        <option value="sales">Sales</option>
+                                        <option value="general">General</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" class="form-control" name="contactEmail">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Phone</label>
+                                    <input type="tel" class="form-control" name="contactPhone">
+                                </div>
+                                <div class="col-md-1 d-flex align-items-end">
+                                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeContactPoint(this)">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="addContactPoint()">
+                        <i class="fas fa-plus"></i> Add Contact Point
+                    </button>
+
+                    <!-- Knowledge Areas -->
+                    <div class="mt-4">
+                        <label for="orgKnowsAbout" class="form-label">Knowledge Areas</label>
+                        <input type="text" class="form-control" id="orgKnowsAbout" name="knowsAbout" 
+                               placeholder="Comma-separated areas of expertise">
+                        <small class="form-text text-muted">e.g., Wiki Software, Content Management, Document Management</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Create Organization
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Organization Modal -->
+<div class="modal fade" id="editOrganizationModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <!-- Similar form structure as create, but populated with existing data -->
+            <form id="editOrganizationForm">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-edit"></i> Edit Organization
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="editOrgId" name="identifier">
+                    <!-- Same form fields as create modal -->
+                    <!-- Implementation abbreviated for brevity -->
+                    <p class="text-info">Edit form implementation would mirror the create form with pre-populated values.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Update Organization
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Schema.org View Modal -->
+<div class="modal fade" id="schemaViewModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-code"></i> Schema.org JSON-LD
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <pre><code id="schemaDisplay" class="language-json"></code></pre>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="copySchema()">
+                    <i class="fas fa-copy"></i> Copy Schema
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Organization management JavaScript
+function addContactPoint() {
+    const container = document.getElementById('contactPointsContainer');
+    const newItem = container.querySelector('.contact-point-item').cloneNode(true);
+    
+    // Clear values in cloned item
+    newItem.querySelectorAll('input, select').forEach(input => {
+        input.value = '';
+    });
+    
+    container.appendChild(newItem);
+}
+
+function removeContactPoint(button) {
+    const container = document.getElementById('contactPointsContainer');
+    if (container.children.length > 1) {
+        button.closest('.contact-point-item').remove();
+    }
+}
+
+function editOrganization(identifier) {
+    // Implementation for editing organizations
+    console.log('Edit organization:', identifier);
+    // Would populate edit modal with existing data
+}
+
+function viewOrganizationSchema(identifier) {
+    const button = event.target.closest('button');
+    const org = JSON.parse(button.dataset.org);
+    
+    document.getElementById('schemaDisplay').textContent = JSON.stringify(org, null, 2);
+    new bootstrap.Modal(document.getElementById('schemaViewModal')).show();
+}
+
+function deleteOrganization(identifier, name) {
+    if (confirm(`Are you sure you want to delete the organization "${name}"?`)) {
+        // Implementation for deleting organizations
+        console.log('Delete organization:', identifier);
+    }
+}
+
+function copySchema() {
+    const schemaText = document.getElementById('schemaDisplay').textContent;
+    navigator.clipboard.writeText(schemaText).then(() => {
+        alert('Schema copied to clipboard!');
+    });
+}
+
+// Form submission handlers
+document.getElementById('createOrganizationForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const formData = new FormData(e.target);
+    const orgData = {
+        name: formData.get('name'),
+        legalName: formData.get('legalName') || null,
+        alternateName: formData.get('alternateName'),
+        description: formData.get('description'),
+        url: formData.get('url'),
+        foundingDate: formData.get('foundingDate'),
+        knowsAbout: formData.get('knowsAbout')?.split(',').map(s => s.trim()).filter(s => s) || []
+    };
+
+    // Handle postal address - only include if at least one field is filled
+    const addressFields = {
+        streetAddress: formData.get('address.streetAddress'),
+        addressLocality: formData.get('address.addressLocality'),
+        addressRegion: formData.get('address.addressRegion'),
+        postalCode: formData.get('address.postalCode'),
+        addressCountry: formData.get('address.addressCountry')
+    };
+    
+    const hasAddressData = Object.values(addressFields).some(value => value && value.trim());
+    if (hasAddressData) {
+        orgData.address = {
+            "@type": "PostalAddress",
+            ...Object.fromEntries(
+                Object.entries(addressFields).filter(([key, value]) => value && value.trim())
+            )
+        };
+    }
+
+    // Collect contact points
+    const contactPoints = [];
+    document.querySelectorAll('.contact-point-item').forEach(item => {
+        const contactType = item.querySelector('[name="contactType"]').value;
+        const email = item.querySelector('[name="contactEmail"]').value;
+        const phone = item.querySelector('[name="contactPhone"]').value;
+        
+        if (contactType && (email || phone)) {
+            const contact = { "@type": "ContactPoint", contactType };
+            if (email) contact.email = email;
+            if (phone) contact.telephone = phone;
+            contactPoints.push(contact);
+        }
+    });
+    
+    orgData.contactPoint = contactPoints;
+
+    try {
+        const response = await fetch('/admin/organizations', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(orgData)
+        });
+
+        if (response.ok) {
+            location.reload();
+        } else {
+            const error = await response.text();
+            alert('Error creating organization: ' + error);
+        }
+    } catch (err) {
+        alert('Error creating organization: ' + err.message);
+    }
+});
+</script>
+
+<%- include('footer') %>

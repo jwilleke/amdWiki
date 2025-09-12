@@ -1,0 +1,12 @@
+
+<%- include('header', { pageName: '' }) %>
+
+<div class="jumbotron">
+    <h1 class="display-4">Welcome to your Markdown Wiki!</h1>
+    <p class="lead">This is a simple, file-based wiki application built with Node.js.</p>
+    <hr class="my-4">
+    <p>To get started, you can create a new page or click on an existing page in the sidebar.</p>
+    <a class="btn btn-primary btn-lg" href="/edit/new-page" role="button">Create a New Page</a>
+</div>
+
+<%- include('footer') %>

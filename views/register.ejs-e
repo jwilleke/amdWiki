@@ -1,0 +1,79 @@
+<%- include('header', { pageName: '' }) %>
+
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-4">
+            <div class="card mt-5">
+                <div class="card-header text-center">
+                    <h4>Register for amdWiki</h4>
+                </div>
+                <div class="card-body">
+                    <% if (error) { %>
+                        <div class="alert alert-danger">
+                            <%= error %>
+                        </div>
+                    <% } %>
+                    
+                    <% if (typeof success !== 'undefined' && success) { %>
+                        <div class="alert alert-success">
+                            <%= success %>
+                        </div>
+                    <% } %>
+                    
+                    <form action="/register" method="POST">
+                        <div class="form-group mb-3">
+                            <label for="username">Username:</label>
+                            <input type="text" class="form-control" id="username" name="username" required autofocus
+                                   pattern="[a-zA-Z0-9_-]{3,20}" title="3-20 characters, letters, numbers, underscores, hyphens only">
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="email">Email:</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="displayName">Display Name:</label>
+                            <input type="text" class="form-control" id="displayName" name="displayName" required>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="password">Password:</label>
+                            <input type="password" class="form-control" id="password" name="password" required
+                                   minlength="6" title="Minimum 6 characters">
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="confirmPassword">Confirm Password:</label>
+                            <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100">Register</button>
+                    </form>
+                    
+                    <hr>
+                    
+                    <div class="text-center">
+                        <p>Already have an account? <a href="/login">Login here</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Client-side password confirmation validation
+document.getElementById('confirmPassword').addEventListener('input', function() {
+    const password = document.getElementById('password').value;
+    const confirmPassword = this.value;
+    
+    if (password !== confirmPassword) {
+        this.setCustomValidity('Passwords do not match');
+    } else {
+        this.setCustomValidity('');
+    }
+});
+</script>
+
+<%- include('footer') %>

@@ -33,7 +33,7 @@
                                     <p><strong>Display Name:</strong> <%= user.displayName %></p>
                                     <p><strong>Account Type:</strong> 
                                         <% if (user.isExternal) { %>
-                                            <span class="badge" style="background-color: var(--badge-info-bg); color: var(--badge-info-text);">OAuth/External</span>
+                                            <span class="badge bg-info">OAuth/External</span>
                                         <% } else { %>
                                             <span class="badge bg-primary">Local Account</span>
                                         <% } %>
