@@ -90,22 +90,38 @@ class PageValidator {
       const files = await fs.readdir(dirPath);
       for (const file of files) {
         if (!file.endsWith('.md')) continue;
-        
+
         this.report.totalFiles++;
         const filePath = path.join(dirPath, file);
-        
+
         try {
           const fileContent = await fs.readFile(filePath, 'utf-8');
-          const { data: metadata } = matter(fileContent);
-          
+          const parsed = matter(fileContent);
+          const metadata = parsed.data;
+          let changed = false;
+
+          // Auto-fix legacy metadata fields
+          if (typeof metadata.category === 'string') {
+            metadata['system-category'] = metadata.category;
+            delete metadata.category;
+            changed = true;
+            this.report.suggestions.push(`${file}: replaced 'category' with 'system-category'`);
+          }
+          if (Array.isArray(metadata.categories)) {
+            metadata['user-keywords'] = metadata.categories;
+            delete metadata.categories;
+            changed = true;
+            this.report.suggestions.push(`${file}: replaced 'categories' with 'user-keywords'`);
+          }
+
           // Check UUID naming compliance (filename should match UUID format)
           const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.md$/i;
           const isUuidNamed = uuidRegex.test(file);
-          
+
           // Check if file is in correct directory based on metadata
           const isSystemPage = this.isSystemPage(metadata);
           const isCorrectlyPlaced = expectSystem === isSystemPage;
-          
+
           if (isUuidNamed && isCorrectlyPlaced) {
             this.report.validFiles++;
           } else {
@@ -119,6 +135,13 @@ class PageValidator {
               this.report.issues.push(`${file} is misplaced: ${isSystemPage ? 'System page in user directory' : 'User page in system directory'}`);
               this.report.suggestions.push(`Move ${file} to ${isSystemPage ? 'required-pages/' : 'pages/'}`);
             }
+          }
+
+          // Write fixed file if not dry-run and changes were made
+          if (changed && !this.options.dryRun) {
+            const newContent = matter.stringify(parsed.content, metadata);
+            await fs.writeFile(filePath, newContent, 'utf-8');
+            this.report.suggestions.push(`${file}: file updated with new metadata fields`);
           }
         } catch (err) {
           this.report.invalidFiles++;
