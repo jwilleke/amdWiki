@@ -141,9 +141,9 @@
                     </small>
                 </div>
 
-                <div class="list-group search-results">
+                <div class="list-group search-results" style="background-color: var(--card-bg); border: 1px solid var(--card-border); border-radius: 0.5rem;">
                     <% results.forEach((result, index) => { %>
-                        <div class="list-group-item search-result-enter">
+                        <div class="list-group-item search-result-enter" style="background-color: var(--card-bg); border-bottom: 1px solid var(--card-border); color: var(--text-content);">
                             <div class="d-flex w-100 justify-content-between">
                                 <h6 class="mb-1">
                                     <a href="/wiki/<%= encodeURIComponent(result.name) %>" class="text-decoration-none">
