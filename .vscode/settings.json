@@ -1,3 +1,4 @@
 {
-  "vscodeGrok.showPreview": "always"
+  "vscodeGrok.showPreview": "always",
+  "git.confirmSync": false
 }

@@ -36,7 +36,7 @@ The PageManager supports multiple ways to identify and access pages:
 
 ## Key Components
 
-### 1. Caching System
+### 1. Caching System--
 
 **Performance Optimization:**
 
