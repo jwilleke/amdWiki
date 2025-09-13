@@ -701,6 +701,36 @@ main p, main div, main span, main li {
     }
 }
 
+/* Edit Page - Textarea and Preview Height Matching */
+#content {
+    min-height: 480px; /* Calculated: 20 rows * 1.5 line-height * 16px font-size = ~480px */
+    resize: vertical; /* Allow vertical resizing */
+}
+
+#preview {
+    min-height: 440px; /* Textarea height minus card header and padding */
+    max-height: none;
+    overflow-y: auto; /* Add scrolling if content exceeds height */
+    word-wrap: break-word;
+}
+
+/* Ensure the preview card matches textarea height */
+.card:has(#preview) {
+    height: fit-content;
+    min-height: 480px; /* Match textarea height */
+}
+
+/* Alternative for browsers that don't support :has() */
+.edit-preview-card {
+    height: fit-content;
+    min-height: 480px;
+}
+
+.edit-preview-card .card-body {
+    min-height: 440px;
+    overflow-y: auto;
+}
+
 /* Left Menu Content Styles */
 .leftmenu-content {
     font-size: 0.9rem;
