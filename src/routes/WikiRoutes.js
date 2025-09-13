@@ -235,17 +235,26 @@ class WikiRoutes {
         return ['medicine', 'geology', 'test'];
       }
       
-      // Extract keywords from the content (lines that start with '-')
+      // Extract keywords only from the bullet list under '## Current User Keywords'
       const keywords = [];
       const lines = keywordsPage.content.split('\n');
-      console.log('Processing', lines.length, 'lines from User Keywords page');
+      let inKeywordsSection = false;
       for (const line of lines) {
-        const bulletMatch = line.match(/^\s*-\s*(.+)$/);
-        if (bulletMatch) {
-          const keyword = bulletMatch[1].trim();
-          if (keyword && !keywords.includes(keyword)) {
-            keywords.push(keyword);
-            console.log('Added keyword:', keyword);
+        if (line.trim().startsWith('## ')) {
+          // Enter keywords section
+          inKeywordsSection = line.trim().toLowerCase().includes('current user keywords');
+          continue;
+        }
+        if (inKeywordsSection) {
+          // Stop if we hit another heading
+          if (line.trim().startsWith('## ')) break;
+          const bulletMatch = line.match(/^\s*-\s*(.+)$/);
+          if (bulletMatch) {
+            const keyword = bulletMatch[1].trim();
+            if (keyword && !keywords.includes(keyword)) {
+              keywords.push(keyword);
+              console.log('Added keyword:', keyword);
+            }
           }
         }
       }
