@@ -79,6 +79,12 @@ const defaultConfig = {
       uploadDir: './public/images',
       defaultAlt: 'Uploaded image',
       defaultClass: 'wiki-image'
+    },
+    maintenance: {
+      enabled: false,
+      message: 'System is currently under maintenance. Please try again later.',
+      allowAdmins: true,
+      estimatedDuration: null
     }
   },
 
