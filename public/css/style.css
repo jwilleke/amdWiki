@@ -1204,6 +1204,26 @@ pre, code {
     transition: color 0.15s ease;
 }
 
+/* Edit and Preview Dialog Synchronization - Fix for Issue #7 */
+/* Ensure textarea and preview panel have matching heights */
+#content {
+    height: 400px; /* Set fixed height for consistency */
+    resize: vertical; /* Allow vertical resizing */
+}
+
+#preview {
+    height: 400px; /* Match textarea height */
+    overflow-y: auto; /* Enable scrolling for overflow content */
+    padding: 1rem; /* Add padding for better readability */
+    border: 1px solid var(--border-color); /* Add border to match textarea styling */
+    border-radius: 0.375rem; /* Match Bootstrap form control border radius */
+}
+
+/* Ensure the preview card body has proper height */
+.card-body#preview {
+    max-height: none; /* Remove any height restrictions */
+}
+
 /* System preference media query */
 @media (prefers-color-scheme: dark) {
     :root:not([data-theme]) {
