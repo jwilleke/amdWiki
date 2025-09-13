@@ -98,6 +98,8 @@
         const preview = document.getElementById('preview');
         let text = content.value;
         
+        console.log('🔄 Updating preview for content:', text.substring(0, 50) + '...');
+        
         // Make an API call to get properly rendered content with user variables
         fetch('/api/preview', {
             method: 'POST',
@@ -109,11 +111,17 @@
                 pageName: '<%= pageName %>'
             })
         })
-        .then(response => response.json())
+        .then(response => {
+            console.log('📡 API response status:', response.status);
+            return response.json();
+        })
         .then(data => {
+            console.log('📄 API response data:', data);
             if (data.success && data.html) {
+                console.log('✅ Setting preview HTML:', data.html.substring(0, 100) + '...');
                 preview.innerHTML = data.html;
             } else {
+                console.log('⚠️ API returned success=false or no HTML, using fallback');
                 // Fallback to simple markdown conversion if API fails
                 text = text.replace(/^# (.*$)/gim, '<h1>$1</h1>');
                 text = text.replace(/^## (.*$)/gim, '<h2>$1</h2>');
@@ -125,7 +133,7 @@
             }
         })
         .catch(error => {
-            console.error('Preview API error:', error);
+            console.error('❌ Preview API error:', error);
             // Fallback to simple markdown conversion
             text = text.replace(/^# (.*$)/gim, '<h1>$1</h1>');
             text = text.replace(/^## (.*$)/gim, '<h2>$1</h2>');

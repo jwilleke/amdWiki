@@ -1089,14 +1089,17 @@ class WikiRoutes {
    */
   async previewPage(req, res) {
     try {
+      console.log('🔍 Preview API called with:', req.body);
       const { content, pageName } = req.body;
       const renderingManager = this.engine.getManager('RenderingManager');
       const userManager = this.engine.getManager('UserManager');
       
       // Get current user context for authentication variables
       const currentUser = await userManager.getCurrentUser(req);
+      console.log('👤 Current user:', currentUser);
       
       const renderedContent = renderingManager.renderMarkdown(content, pageName, currentUser);
+      console.log('📝 Rendered content:', renderedContent);
       
       res.json({ 
         html: renderedContent,
@@ -1104,7 +1107,7 @@ class WikiRoutes {
       });
       
     } catch (err) {
-      console.error('Error generating preview:', err);
+      console.error('❌ Error generating preview:', err);
       res.status(500).json({ 
         error: 'Error generating preview',
         success: false 
