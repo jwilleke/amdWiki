@@ -478,7 +478,7 @@ class WikiRoutes {
 
       // Check ACL permission for viewing this page
       const hasViewPermission = await aclManager.checkPagePermission(
-        pageName, 'view', currentUser, pageData.content
+        pageName, 'view', currentUser, pageData.content, pageData.metadata
       );
       
       if (!hasViewPermission) {
@@ -747,7 +747,7 @@ class WikiRoutes {
         // For existing pages, check ACL edit permission
         if (pageData) {
           const hasEditPermission = await aclManager.checkPagePermission(
-            pageName, 'edit', currentUser, pageData.content
+            pageName, 'edit', currentUser, pageData.content, pageData.metadata
           );
           
           if (!hasEditPermission) {
@@ -917,7 +917,7 @@ class WikiRoutes {
       } else {
         // Check ACL delete permission
         const hasDeletePermission = await aclManager.checkPagePermission(
-          pageName, 'delete', currentUser, pageData.content
+          pageName, 'delete', currentUser, pageData.content, pageData.metadata
         );
         
         if (!hasDeletePermission) {

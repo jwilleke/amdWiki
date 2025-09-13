@@ -88,6 +88,30 @@ const defaultConfig = {
     enabled: true
   },
 
+  // Access Control and Security
+  security: {
+    // Storage location-based permissions
+    storageLocationPermissions: {
+      enabled: true,
+      configPath: './config/StorageLocationPermissionConfig.js'
+    },
+    
+    // Session settings
+    session: {
+      secret: 'amdwiki-secret-key-change-me',
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      secure: false, // Set to true for HTTPS
+      httpOnly: true
+    },
+    
+    // Permission caching
+    permissionCache: {
+      enabled: true,
+      ttl: 300000, // 5 minutes
+      maxEntries: 1000
+    }
+  },
+
   // Logging
   logging: {
     level: 'info',
