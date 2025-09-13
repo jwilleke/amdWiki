@@ -39,6 +39,51 @@ app.use(session({
   }
 }));
 
+// Maintenance mode middleware
+app.use(async (req, res, next) => {
+  // Skip maintenance check for static files and API endpoints
+  if (req.path.startsWith('/public/') || req.path.startsWith('/js/') || req.path.startsWith('/css/') || req.path === '/favicon.ico') {
+    return next();
+  }
+
+  try {
+    const engine = wikiEngine;
+    if (!engine) {
+      return next(); // Engine not ready yet
+    }
+
+    const config = engine.config;
+    const maintenanceEnabled = config?.features?.maintenance?.enabled;
+
+    if (maintenanceEnabled) {
+      const userManager = engine.getManager('UserManager');
+      const isAdmin = await userManager.isUserInRole(req.session?.userId, 'admin');
+
+      // Allow admins to bypass maintenance mode if configured
+      if (config.features.maintenance.allowAdmins && isAdmin) {
+        return next();
+      }
+
+      // Show maintenance page
+      const maintenanceMessage = config.features.maintenance.message || 'System is currently under maintenance.';
+      const estimatedDuration = config.features.maintenance.estimatedDuration;
+      const allowAdmins = config.features.maintenance.allowAdmins;
+
+      return res.render('maintenance', {
+        message: maintenanceMessage,
+        estimatedDuration: estimatedDuration,
+        allowAdmins: allowAdmins,
+        isAdmin: isAdmin
+      });
+    }
+
+    next();
+  } catch (error) {
+    console.error('Maintenance middleware error:', error);
+    next(); // Continue if there's an error
+  }
+});
+
 // Initialize WikiEngine and Routes
 async function initializeWikiEngine() {
   const engine = new WikiEngine();
