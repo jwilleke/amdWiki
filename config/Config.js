@@ -94,6 +94,48 @@ const defaultConfig = {
     dir: './logs',
     maxSize: '1MB',
     maxFiles: 5
+  },
+
+  // Access Control Settings
+  accessControl: {
+    // Context-aware permissions
+    contextAware: {
+      enabled: true,
+      timeZone: 'UTC',
+      businessHours: {
+        enabled: false,
+        start: '09:00',
+        end: '17:00',
+        days: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday']
+      },
+      maintenanceMode: {
+        enabled: false,
+        allowedRoles: ['admin'],
+        message: 'System is under maintenance. Please try again later.'
+      }
+    },
+    // Audit logging
+    audit: {
+      enabled: true,
+      logFile: './users/access-log.json',
+      retention: {
+        maxFiles: 10,
+        maxAge: '30d'
+      },
+      includeContext: {
+        ip: true,
+        userAgent: true,
+        timestamp: true,
+        decision: true,
+        reason: true
+      }
+    },
+    // Policy-based access control
+    policies: {
+      enabled: false,
+      configFile: './config/access-policies.json',
+      defaultPolicy: 'deny'
+    }
   }
 };
 
