@@ -55,14 +55,14 @@
                 <!-- Content -->
                 <div class="form-group mb-3">
                     <label for="content" style="font-weight:bold;">Content:</label>
-                    <div class="row">
+                    <div class="row edit-content-row">
                         <div class="col-md-6">
-                            <textarea id="content" name="content" class="form-control" rows="20" required><%= content %></textarea>
+                            <textarea id="content" name="content" class="form-control edit-textarea" rows="20" required><%= content %></textarea>
                         </div>
                         <div class="col-md-6">
-                            <div class="card">
+                            <div class="card edit-preview-card">
                                 <div class="card-header">Preview</div>
-                                <div class="card-body markdown-body" id="preview"></div>
+                                <div class="card-body markdown-body edit-preview-body" id="preview"></div>
                             </div>
                         </div>
                     </div>
@@ -90,6 +90,44 @@
         </div>
     </div>
 </div>
+
+<style>
+/* Edit Page: Synchronize Content and Preview Heights */
+.edit-content-row {
+    display: flex;
+    align-items: stretch;
+}
+
+.edit-textarea {
+    height: 500px; /* Fixed height for consistent sizing */
+    resize: vertical; /* Allow vertical resizing */
+}
+
+.edit-preview-card {
+    height: 500px; /* Match textarea height */
+    display: flex;
+    flex-direction: column;
+}
+
+.edit-preview-body {
+    flex: 1; /* Take up remaining space */
+    overflow-y: auto; /* Scroll if content exceeds height */
+    padding: 1rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767.98px) {
+    .edit-content-row {
+        flex-direction: column;
+    }
+    
+    .edit-textarea,
+    .edit-preview-card {
+        height: 400px; /* Smaller height on mobile */
+        margin-bottom: 1rem;
+    }
+}
+</style>
 
 <script>
     // Update preview function
