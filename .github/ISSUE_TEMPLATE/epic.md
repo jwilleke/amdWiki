@@ -2,7 +2,7 @@
 name: EPIC
 about: Large feature or initiative that spans multiple issues
 title: "[EPIC] "
-labels: ''
+labels: 'epic'
 assignees: ''
 
 ---
