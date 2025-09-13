@@ -154,17 +154,21 @@ class WikiRoutes {
     try {
       const pageManager = this.engine.getManager('PageManager');
       const systemKeywordsPage = await pageManager.getPage('System Keywords');
-      
       if (!systemKeywordsPage) {
         return ['System', 'Documentation', 'Test'];
       }
-      
-      // Extract system categories from the content
       const categories = [];
       const lines = systemKeywordsPage.content.split('\n');
-      
       for (const line of lines) {
-        // Look for markdown list items that contain category arrays like [System, Documentation]
+        // Parse bullet list items: - keyword
+        const bulletMatch = line.match(/^\s*-\s*(.+)$/);
+        if (bulletMatch) {
+          const keyword = bulletMatch[1].trim();
+          if (keyword && !categories.includes(keyword)) {
+            categories.push(keyword);
+          }
+        }
+        // Also support legacy array format: [System, Documentation]
         const arrayMatch = line.match(/\[([^\]]+)\]/);
         if (arrayMatch) {
           const categoriesInLine = arrayMatch[1].split(',').map(cat => cat.trim());
@@ -175,8 +179,6 @@ class WikiRoutes {
           });
         }
       }
-      
-      // Default system categories if none found
       return categories.length > 0 ? categories : ['System', 'Documentation', 'Test'];
     } catch (err) {
       console.error('Error loading system categories:', err);
