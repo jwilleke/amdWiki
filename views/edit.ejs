@@ -57,12 +57,17 @@
                     <label for="content" style="font-weight:bold;">Content:</label>
                     <div class="row">
                         <div class="col-md-6">
-                            <textarea id="content" name="content" class="form-control" rows="20" required><%= content %></textarea>
+                            <div class="card h-100">
+                                <div class="card-header">Edit Content</div>
+                                <div class="card-body p-0">
+                                    <textarea id="content" name="content" class="form-control border-0 rounded-0" rows="20" style="min-height: 400px; resize: vertical;" required><%= content %></textarea>
+                                </div>
+                            </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="card">
+                            <div class="card h-100">
                                 <div class="card-header">Preview</div>
-                                <div class="card-body markdown-body" id="preview"></div>
+                                <div class="card-body markdown-body" id="preview" style="min-height: 400px;"></div>
                             </div>
                         </div>
                     </div>
