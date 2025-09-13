@@ -2,6 +2,7 @@
  * Modern route handlers using manager-based architecture
  */
 
+const path = require('path');
 const SchemaGenerator = require('../utils/SchemaGenerator');
 
 class WikiRoutes {
@@ -1149,7 +1150,7 @@ class WikiRoutes {
       }
 
       // 🔒 SECURITY: Check if user can edit the parent page
-      const canEditPage = await aclManager.checkPermission(currentUser, pageName, 'edit');
+      const canEditPage = await aclManager.checkAttachmentPermission(currentUser, pageName, 'upload');
       if (!canEditPage) {
         return res.status(403).json({
           success: false,
@@ -1231,7 +1232,7 @@ class WikiRoutes {
 
       // 🔒 SECURITY: Check if user can view the parent page
       const pageName = attachment.pageName;
-      const canViewPage = await aclManager.checkPermission(currentUser, pageName, 'view');
+      const canViewPage = await aclManager.checkAttachmentPermission(currentUser, attachmentId, 'view');
       if (!canViewPage) {
         return res.status(403).send('No permission to access this attachment');
       }
@@ -1276,7 +1277,7 @@ class WikiRoutes {
 
       // 🔒 SECURITY: Check if user can edit/delete from the parent page
       const pageName = attachment.pageName;
-      const canEditPage = await aclManager.checkPermission(currentUser, pageName, 'edit');
+      const canEditPage = await aclManager.checkAttachmentPermission(currentUser, attachmentId, 'delete');
       if (!canEditPage) {
         return res.status(403).json({
           success: false,

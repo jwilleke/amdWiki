@@ -214,6 +214,33 @@ class ACLManager extends BaseManager {
   }
 
   /**
+   * Check default permissions for actions using UserManager
+   * @param {string} action - Action to check (view, edit, delete, etc.)
+   * @param {Object} user - User object or null for anonymous
+   * @returns {boolean} True if user has permission, false otherwise
+   */
+  checkDefaultPermission(action, user) {
+    const userManager = this.engine.getManager('UserManager');
+    if (!userManager) {
+      console.warn('UserManager not available for permission check');
+      return false;
+    }
+
+    // Map actions to permission strings
+    const permissionMap = {
+      'view': 'page:read',
+      'edit': 'page:edit',
+      'delete': 'page:delete',
+      'create': 'page:create'
+    };
+
+    const permission = permissionMap[action.toLowerCase()] || `page:${action.toLowerCase()}`;
+    const username = user ? user.username : null;
+
+    return userManager.hasPermission(username, permission);
+  }
+
+  /**
    * Check context-aware restrictions (time-based, maintenance mode)
    * @param {Object} user - User object
    * @param {Object} context - Request context
@@ -432,7 +459,7 @@ class ACLManager extends BaseManager {
     const isSystemAdminPage = await this.isSystemAdminCategoryPage(pageName);
     if (isSystemAdminPage) {
       // System/Admin pages require admin permissions for attachments too
-      return user && userManager.hasPermission(user.username, 'admin:system');
+      return user && userManager.hasPermission(user.username, 'admin:system') ? true : false;
     }
 
     // For regular pages, check standard page permissions

@@ -8,6 +8,9 @@ const mockUserManager = {
 };
 
 // Mock engine
+// Shared config store for testing
+const configStore = {};
+
 const mockEngine = {
   getManager: jest.fn((name) => {
     if (name === 'UserManager') {
@@ -17,6 +20,10 @@ const mockEngine = {
   }),
   getConfig: jest.fn(() => ({
     get: jest.fn((key, defaultValue) => {
+      // Return stored value or default
+      if (configStore[key] !== undefined) {
+        return configStore[key];
+      }
       // Return empty objects for config paths to avoid undefined errors
       if (key === 'accessControl.audit') {
         return { enabled: false };
@@ -29,7 +36,9 @@ const mockEngine = {
       }
       return defaultValue;
     }),
-    set: jest.fn() // Add set method for config updates
+    set: jest.fn((key, value) => {
+      configStore[key] = value;
+    })
   }))
 };
 
@@ -529,6 +538,313 @@ describe('ACLManager', () => {
       expect(stats).toHaveProperty('recentDay');
       expect(stats).toHaveProperty('deniedAccess');
       expect(stats).toHaveProperty('averageProcessingTime');
+    });
+  });
+
+  describe('Category-based permissions (Issue #22)', () => {
+    describe('isSystemAdminCategoryPage', () => {
+      test('should return true for System/Admin category pages', async () => {
+        // Mock PageManager
+        const mockPageManager = {
+          getPage: jest.fn().mockResolvedValue({
+            metadata: {
+              category: 'System/Admin',
+              'system-category': 'System'
+            }
+          })
+        };
+
+        mockEngine.getManager.mockImplementation((name) => {
+          if (name === 'UserManager') return mockUserManager;
+          if (name === 'PageManager') return mockPageManager;
+          return null;
+        });
+
+        const result = await aclManager.isSystemAdminCategoryPage('AdminPage');
+        expect(result).toBe(true);
+        expect(mockPageManager.getPage).toHaveBeenCalledWith('AdminPage');
+      });
+
+      test('should return true for System category pages', async () => {
+        const mockPageManager = {
+          getPage: jest.fn().mockResolvedValue({
+            metadata: {
+              category: 'System'
+            }
+          })
+        };
+
+        mockEngine.getManager.mockImplementation((name) => {
+          if (name === 'UserManager') return mockUserManager;
+          if (name === 'PageManager') return mockPageManager;
+          return null;
+        });
+
+        const result = await aclManager.isSystemAdminCategoryPage('SystemPage');
+        expect(result).toBe(true);
+      });
+
+      test('should return false for regular pages', async () => {
+        const mockPageManager = {
+          getPage: jest.fn().mockResolvedValue({
+            metadata: {
+              category: 'General'
+            }
+          })
+        };
+
+        mockEngine.getManager.mockImplementation((name) => {
+          if (name === 'UserManager') return mockUserManager;
+          if (name === 'PageManager') return mockPageManager;
+          return null;
+        });
+
+        const result = await aclManager.isSystemAdminCategoryPage('RegularPage');
+        expect(result).toBe(false);
+      });
+
+      test('should return false when page not found', async () => {
+        const mockPageManager = {
+          getPage: jest.fn().mockResolvedValue(null)
+        };
+
+        mockEngine.getManager.mockImplementation((name) => {
+          if (name === 'UserManager') return mockUserManager;
+          if (name === 'PageManager') return mockPageManager;
+          return null;
+        });
+
+        const result = await aclManager.isSystemAdminCategoryPage('NonExistentPage');
+        expect(result).toBe(false);
+      });
+
+      test('should handle errors gracefully', async () => {
+        const mockPageManager = {
+          getPage: jest.fn().mockRejectedValue(new Error('Database error'))
+        };
+
+        mockEngine.getManager.mockImplementation((name) => {
+          if (name === 'UserManager') return mockUserManager;
+          if (name === 'PageManager') return mockPageManager;
+          return null;
+        });
+
+        const result = await aclManager.isSystemAdminCategoryPage('ErrorPage');
+        expect(result).toBe(false);
+      });
+    });
+
+    describe('checkAttachmentPermission', () => {
+      test('should allow admin users for any attachment', async () => {
+        const mockAttachmentManager = {
+          getAttachment: jest.fn().mockReturnValue({
+            id: 'test-attachment',
+            pageName: 'RegularPage'
+          })
+        };
+
+        mockUserManager.hasPermission.mockReturnValue(true);
+
+        mockEngine.getManager.mockImplementation((name) => {
+          if (name === 'UserManager') return mockUserManager;
+          if (name === 'AttachmentManager') return mockAttachmentManager;
+          return null;
+        });
+
+        const adminUser = { username: 'admin', isAuthenticated: true };
+        const result = await aclManager.checkAttachmentPermission(adminUser, 'test-attachment', 'view');
+        expect(result).toBe(true);
+        expect(mockUserManager.hasPermission).toHaveBeenCalledWith('admin', 'admin:system');
+      });
+
+      test('should deny access for System/Admin page attachments to non-admin users', async () => {
+        const mockAttachmentManager = {
+          getAttachment: jest.fn().mockReturnValue({
+            id: 'system-attachment',
+            pageName: 'AdminPage'
+          })
+        };
+
+        const mockPageManager = {
+          getPage: jest.fn().mockResolvedValue({
+            metadata: {
+              category: 'System/Admin'
+            }
+          })
+        };
+
+        mockUserManager.hasPermission.mockReturnValue(false);
+
+        mockEngine.getManager.mockImplementation((name) => {
+          if (name === 'UserManager') return mockUserManager;
+          if (name === 'AttachmentManager') return mockAttachmentManager;
+          if (name === 'PageManager') return mockPageManager;
+          return null;
+        });
+
+        const regularUser = { username: 'user', isAuthenticated: true };
+        const result = await aclManager.checkAttachmentPermission(regularUser, 'system-attachment', 'view');
+        expect(result).toBe(false);
+      });
+
+      test('should allow access for System/Admin page attachments to admin users', async () => {
+        const mockAttachmentManager = {
+          getAttachment: jest.fn().mockReturnValue({
+            id: 'system-attachment',
+            pageName: 'AdminPage'
+          })
+        };
+
+        const mockPageManager = {
+          getPage: jest.fn().mockResolvedValue({
+            metadata: {
+              category: 'System/Admin'
+            }
+          })
+        };
+
+        mockUserManager.hasPermission.mockReturnValue(true);
+
+        mockEngine.getManager.mockImplementation((name) => {
+          if (name === 'UserManager') return mockUserManager;
+          if (name === 'AttachmentManager') return mockAttachmentManager;
+          if (name === 'PageManager') return mockPageManager;
+          return null;
+        });
+
+        const adminUser = { username: 'admin', isAuthenticated: true };
+        const result = await aclManager.checkAttachmentPermission(adminUser, 'system-attachment', 'view');
+        expect(result).toBe(true);
+      });
+
+      test('should allow access for regular page attachments to authenticated users', async () => {
+        const mockAttachmentManager = {
+          getAttachment: jest.fn().mockReturnValue({
+            id: 'regular-attachment',
+            pageName: 'RegularPage'
+          })
+        };
+
+        const mockPageManager = {
+          getPage: jest.fn().mockResolvedValue({
+            metadata: {
+              category: 'General'
+            },
+            content: 'Regular page content'
+          })
+        };
+
+        mockEngine.getManager.mockImplementation((name) => {
+          if (name === 'UserManager') return mockUserManager;
+          if (name === 'AttachmentManager') return mockAttachmentManager;
+          if (name === 'PageManager') return mockPageManager;
+          return null;
+        });
+
+        const regularUser = { username: 'user', isAuthenticated: true };
+        const result = await aclManager.checkAttachmentPermission(regularUser, 'regular-attachment', 'view');
+        expect(result).toBe(true);
+      });
+
+      test('should deny access when attachment not found', async () => {
+        // Create a separate ACLManager instance with custom mocks for this test
+        const testMockEngine = {
+          getManager: jest.fn((name) => {
+            if (name === 'UserManager') return {
+              hasPermission: jest.fn().mockReturnValue(false)
+            };
+            if (name === 'AttachmentManager') return {
+              getAttachment: jest.fn().mockReturnValue(null)
+            };
+            if (name === 'PageManager') return {
+              getPage: jest.fn()
+            };
+            return null;
+          }),
+          getConfig: jest.fn(() => ({
+            get: jest.fn((key, defaultValue) => {
+              if (key === 'accessControl.audit') {
+                return { enabled: false };
+              }
+              return defaultValue;
+            })
+          }))
+        };
+
+        const testAclManager = new ACLManager(testMockEngine);
+        await testAclManager.initialize();
+
+        const user = { username: 'user', isAuthenticated: true };
+        const result = await testAclManager.checkAttachmentPermission(user, 'nonexistent-attachment', 'view');
+        expect(result).toBe(false);
+      });
+
+      test('should deny access for anonymous users on System/Admin attachments', async () => {
+        // Create a separate ACLManager instance with custom mocks for this test
+        const testMockEngine = {
+          getManager: jest.fn((name) => {
+            if (name === 'UserManager') return {
+              hasPermission: jest.fn().mockReturnValue(false)
+            };
+            if (name === 'AttachmentManager') return {
+              getAttachment: jest.fn().mockReturnValue({
+                id: 'system-attachment',
+                pageName: 'AdminPage'
+              })
+            };
+            if (name === 'PageManager') return {
+              getPage: jest.fn().mockResolvedValue({
+                metadata: {
+                  category: 'System/Admin'
+                }
+              })
+            };
+            return null;
+          }),
+          getConfig: jest.fn(() => ({
+            get: jest.fn((key, defaultValue) => {
+              if (key === 'accessControl.audit') {
+                return { enabled: false };
+              }
+              return defaultValue;
+            })
+          }))
+        };
+
+        const testAclManager = new ACLManager(testMockEngine);
+        await testAclManager.initialize();
+
+        const result = await testAclManager.checkAttachmentPermission(null, 'system-attachment', 'view');
+        expect(result).toBe(false);
+      });
+
+      test('should allow anonymous access to regular page attachments', async () => {
+        const mockAttachmentManager = {
+          getAttachment: jest.fn().mockReturnValue({
+            id: 'regular-attachment',
+            pageName: 'Welcome'
+          })
+        };
+
+        const mockPageManager = {
+          getPage: jest.fn().mockResolvedValue({
+            metadata: {
+              category: 'General'
+            },
+            content: 'Welcome to the wiki'
+          })
+        };
+
+        mockEngine.getManager.mockImplementation((name) => {
+          if (name === 'UserManager') return mockUserManager;
+          if (name === 'AttachmentManager') return mockAttachmentManager;
+          if (name === 'PageManager') return mockPageManager;
+          return null;
+        });
+
+        const result = await aclManager.checkAttachmentPermission(null, 'regular-attachment', 'view');
+        expect(result).toBe(true);
+      });
     });
   });
 });
