@@ -4,6 +4,8 @@
 
 **amdWiki** is a JSPWiki-inspired file-based wiki built with Node.js/Express following a modular manager pattern. Pages are stored as Markdown files with YAML frontmatter.
 
+Review CONRTRIBUTING.md
+
 ### Core Engine Pattern
 - **WikiEngine** (`src/WikiEngine.js`) - Central orchestrator extending base `Engine` class
 - **Manager Registration** - All functionality through manager instances: PageManager, RenderingManager, SearchManager, etc.

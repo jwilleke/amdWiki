@@ -10,6 +10,28 @@ class WikiRoutes {
   }
 
   /**
+   * Parse file size string (e.g., '5MB', '1GB') to bytes
+   * @param {string} sizeStr - Size string
+   * @returns {number} Size in bytes
+   */
+  parseFileSize(sizeStr) {
+    const units = {
+      'B': 1,
+      'KB': 1024,
+      'MB': 1024 * 1024,
+      'GB': 1024 * 1024 * 1024
+    };
+    
+    const match = sizeStr.toUpperCase().match(/^(\d+(?:\.\d+)?)\s*(B|KB|MB|GB)?$/);
+    if (!match) return 5 * 1024 * 1024; // Default 5MB
+    
+    const size = parseFloat(match[1]);
+    const unit = match[2] || 'B';
+    
+    return Math.round(size * units[unit]);
+  }
+
+  /**
    * Get common template data that all pages need
    * @param {object} userContext - User context for rendering variables
    */
@@ -1120,6 +1142,36 @@ class WikiRoutes {
   }
 
   /**
+   * Upload image file
+   */
+  async uploadImage(req, res) {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: 'No image file uploaded' });
+      }
+
+      // Return the image path that can be used in the Image plugin
+      const imagePath = `/images/${req.file.filename}`;
+
+      res.json({
+        success: true,
+        imagePath: imagePath,
+        filename: req.file.filename,
+        originalName: req.file.originalname,
+        size: req.file.size,
+        message: 'Image uploaded successfully'
+      });
+
+    } catch (err) {
+      console.error('Error uploading image:', err);
+      res.status(500).json({
+        success: false,
+        error: err.message || 'Error uploading image'
+      });
+    }
+  }
+
+  /**
    * Serve attachment file
    */
   async serveAttachment(req, res) {
@@ -1881,6 +1933,52 @@ class WikiRoutes {
    * Register all routes with Express app
    */
   registerRoutes(app) {
+    // Set up multer for file uploads
+    const multer = require('multer');
+    const path = require('path');
+    const config = this.engine.getConfig();
+
+    // Configure multer for attachments
+    const attachmentStorage = multer.memoryStorage();
+    const attachmentUpload = multer({
+      storage: attachmentStorage,
+      limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+      fileFilter: (req, file, cb) => {
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf', 'text/plain', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+        if (allowedTypes.includes(file.mimetype)) {
+          cb(null, true);
+        } else {
+          cb(new Error('Invalid file type'), false);
+        }
+      }
+    });
+
+    // Configure multer for images
+    const imageStorage = multer.diskStorage({
+      destination: (req, file, cb) => {
+        const uploadDir = config.get('features.images.uploadDir', './public/images');
+        cb(null, path.join(__dirname, '../../', uploadDir.replace('./', '')));
+      },
+      filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+      }
+    });
+    const imageUpload = multer({
+      storage: imageStorage,
+      limits: { 
+        fileSize: this.parseFileSize(config.get('features.images.maxSize', '5MB'))
+      },
+      fileFilter: (req, file, cb) => {
+        const allowedTypes = config.get('features.images.allowedTypes', ['image/jpeg', 'image/png', 'image/gif', 'image/webp']);
+        if (allowedTypes.includes(file.mimetype)) {
+          cb(null, true);
+        } else {
+          cb(new Error('Only image files are allowed'), false);
+        }
+      }
+    });
+
     // Main routes
     app.get('/', this.homePage.bind(this));
     
@@ -1905,9 +2003,12 @@ class WikiRoutes {
     app.get('/api/page-source/:page', this.getPageSource.bind(this));
     
     // Attachment routes
-    app.post('/attachments/upload/:page', this.uploadAttachment.bind(this));
+    app.post('/attachments/upload/:page', attachmentUpload.single('file'), this.uploadAttachment.bind(this));
     app.get('/attachments/:attachmentId', this.serveAttachment.bind(this));
     app.delete('/attachments/:attachmentId', this.deleteAttachment.bind(this));
+    
+    // Image upload routes
+    app.post('/images/upload', imageUpload.single('image'), this.uploadImage.bind(this));
     
     // Export routes
     app.get('/export', this.exportPage.bind(this));

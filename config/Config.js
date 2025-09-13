@@ -71,6 +71,14 @@ const defaultConfig = {
       enabled: true,
       maxSize: '10MB',
       allowedTypes: ['image/*', 'text/*', 'application/pdf']
+    },
+    images: {
+      enabled: true,
+      maxSize: '5MB',
+      allowedTypes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
+      uploadDir: './public/images',
+      defaultAlt: 'Uploaded image',
+      defaultClass: 'wiki-image'
     }
   },
 

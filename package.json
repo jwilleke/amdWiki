@@ -53,6 +53,7 @@
     "gray-matter": "^4.0.3",
     "lunr": "^2.3.9",
     "markdownlint": "^0.38.0",
+    "multer": "^2.0.2",
     "showdown": "^2.1.0",
     "uuid": "^9.0.0",
     "winston": "^3.17.0"

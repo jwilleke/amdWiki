@@ -14,6 +14,8 @@ A simple, file-based wiki application built with Node.js, Express, and Markdown 
 - Three-state authentication system
 - Professional UI with Bootstrap styling
 - Pages are stored as Markdown files
+- **Inline image support with upload functionality**
+- **Plugin system for extensible functionality**
 
 📖 **Detailed technical documentation available in [docs/](docs/) folder.**
 
@@ -46,6 +48,19 @@ Configuration files are located in `config/` or `wiki.conf/` directories. Modify
 [Link Text|PageName]  # Links to PageName with custom text
 [PageName]           # Simple link to PageName
 ```
+
+**Inserting Images (JSPWiki Plugin Syntax):**
+```markdown
+[{Image src='image.jpg' alt='Description' width='300'}]  # Basic image
+[{Image src='/images/photo.jpg' alt='Photo' height='200'}]  # With height
+[{Image src='https://example.com/image.png' class='responsive'}]  # External image
+```
+
+**Image Upload:**
+- Use the image upload section in the page editor
+- Select an image file and click "Upload Image"
+- Click "Insert at Cursor" to add the image to your content
+- Supported formats: JPEG, PNG, GIF, WebP (max 5MB)
 
 ## Documentation
 - [CHANGELOG.md](CHANGELOG.md) - Version history and detailed change notes.
