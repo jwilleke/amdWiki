@@ -1,6 +1,6 @@
 const ImagePlugin = require('./ImagePlugin');
 
-describe('ImagePlugin', () => {
+describe('Image', () => {
   let mockContext;
   let mockConfig;
 
@@ -177,7 +177,7 @@ describe('ImagePlugin', () => {
 
   describe('plugin metadata', () => {
     it('should have correct name', () => {
-      expect(ImagePlugin.name).toBe('ImagePlugin');
+      expect(ImagePlugin.name).toBe('Image');
     });
 
     it('should have execute method', () => {

@@ -336,13 +336,57 @@ class RenderingManager extends BaseManager {
           const pluginName = parts[0];
           const params = {};
           
-          // Parse parameters
+          // Parse parameters - improved to handle quoted values and spaced syntax
           for (let i = 1; i < parts.length; i++) {
-            const param = parts[i];
-            const equalIndex = param.indexOf('=');
-            if (equalIndex > 0) {
+            let param = parts[i];
+            
+            // Handle case where key and value are separate, like "align = 'left'"
+            if (!param.includes('=') && i + 1 < parts.length && parts[i + 1].startsWith('=')) {
+              const key = param;
+              let value = parts[i + 1].substring(1); // Remove the =
+              i++; // Skip the =value part
+              
+              // Handle quoted values
+              if ((value.startsWith("'") && !value.endsWith("'")) || 
+                  (value.startsWith('"') && !value.endsWith('"'))) {
+                const quoteChar = value.charAt(0);
+                while (i + 1 < parts.length && !value.endsWith(quoteChar)) {
+                  i++;
+                  value += ' ' + parts[i];
+                }
+                if (value.startsWith(quoteChar) && value.endsWith(quoteChar)) {
+                  value = value.slice(1, -1);
+                }
+              } else if (value.startsWith("'") && value.endsWith("'")) {
+                value = value.slice(1, -1);
+              } else if (value.startsWith('"') && value.endsWith('"')) {
+                value = value.slice(1, -1);
+              }
+              
+              params[key] = value;
+            } else if (param.includes('=')) {
+              // Handle normal key=value syntax
+              const equalIndex = param.indexOf('=');
               const key = param.substring(0, equalIndex);
-              const value = param.substring(equalIndex + 1);
+              let value = param.substring(equalIndex + 1);
+              
+              // Handle quoted values that might span multiple parts
+              if ((value.startsWith("'") && !value.endsWith("'")) || 
+                  (value.startsWith('"') && !value.endsWith('"'))) {
+                const quoteChar = value.charAt(0);
+                while (i + 1 < parts.length && !value.endsWith(quoteChar)) {
+                  i++;
+                  value += ' ' + parts[i];
+                }
+                if (value.startsWith(quoteChar) && value.endsWith(quoteChar)) {
+                  value = value.slice(1, -1);
+                }
+              } else if (value.startsWith("'") && value.endsWith("'")) {
+                value = value.slice(1, -1);
+              } else if (value.startsWith('"') && value.endsWith('"')) {
+                value = value.slice(1, -1);
+              }
+              
               params[key] = value;
             }
           }

@@ -1,5 +1,8 @@
 # amdWiki AI Coding Agent Instructions
 
+
+When running terminal commands, ensure the shell sources ~/.bash_profile or equivalent to include /usr/local/bin in PATH for npm/Node tools.
+
 ## Architecture Overview
 
 **amdWiki** is a JSPWiki-inspired file-based wiki built with Node.js/Express following a modular manager pattern. Pages are stored as Markdown files with YAML frontmatter.

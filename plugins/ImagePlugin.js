@@ -1,11 +1,11 @@
 /**
- * ImagePlugin for amdWiki
+ * Image plugin for amdWiki
  * Implements inline image functionality similar to JSPWiki's Image plugin
  * Syntax: [{Image src='path/to/image.jpg' alt='description' width='200' height='150'}]
  */
 
 const ImagePlugin = {
-  name: 'ImagePlugin',
+  name: 'Image',
 
   /**
    * Execute the plugin
@@ -56,10 +56,6 @@ const ImagePlugin = {
         imgTag += ` title="${params.title}"`;
       }
 
-      if (params.border) {
-        imgTag += ` style="border: ${params.border}px solid #ccc;"`;
-      }
-
       // Handle class and style
       let styles = [];
       let classes = [];
@@ -68,6 +64,11 @@ const ImagePlugin = {
         classes.push(params.class);
       } else {
         classes.push(defaultClass);
+      }
+
+      // Add border style if specified
+      if (params.border) {
+        styles.push(`border: ${params.border}px solid #ccc;`);
       }
 
       if (params.style) {
@@ -91,9 +92,7 @@ const ImagePlugin = {
       }
 
       if (styles.length > 0) {
-        const existingStyle = imgTag.includes('style=') ? imgTag.match(/style="([^"]*)"/)[1] + ';' : '';
-        imgTag = imgTag.replace(/style="[^"]*"/, '');
-        imgTag += ` style="${existingStyle}${styles.join(' ')}"`;
+        imgTag += ` style="${styles.join(' ')}"`;
       }
 
       imgTag += ' />';
@@ -115,7 +114,7 @@ const ImagePlugin = {
 
       return imgTag;
     } catch (error) {
-      console.error('ImagePlugin error:', error);
+      console.error('Image plugin error:', error);
       return '<span class="error">Image plugin error</span>';
     }
   }
