@@ -1118,20 +1118,40 @@ class WikiRoutes {
   async uploadAttachment(req, res) {
     try {
       const { page: pageName } = req.params;
+      const userManager = this.engine.getManager('UserManager');
+      const aclManager = this.engine.getManager('ACLManager');
       const attachmentManager = this.engine.getManager('AttachmentManager');
-      
+
+      // 🔒 SECURITY: Check authentication
+      const currentUser = await userManager.getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({
+          success: false,
+          error: 'Authentication required to upload attachments'
+        });
+      }
+
+      // 🔒 SECURITY: Check if user can edit the parent page
+      const canEditPage = await aclManager.checkPermission(currentUser, pageName, 'edit');
+      if (!canEditPage) {
+        return res.status(403).json({
+          success: false,
+          error: 'No permission to upload attachments to this page'
+        });
+      }
+
       if (!req.file) {
         return res.status(400).json({ error: 'No file uploaded' });
       }
-      
+
       const attachment = await attachmentManager.uploadAttachment(pageName, req.file);
-      
+
       res.json({
         success: true,
         attachment: attachment,
         message: 'File uploaded successfully'
       });
-      
+
     } catch (err) {
       console.error('Error uploading attachment:', err);
       res.status(500).json({
@@ -1177,17 +1197,32 @@ class WikiRoutes {
   async serveAttachment(req, res) {
     try {
       const { attachmentId } = req.params;
+      const userManager = this.engine.getManager('UserManager');
+      const aclManager = this.engine.getManager('ACLManager');
       const attachmentManager = this.engine.getManager('AttachmentManager');
-      
+
+      // 🔒 SECURITY: Check authentication
+      const currentUser = await userManager.getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).send('Authentication required to access attachments');
+      }
+
       const attachment = attachmentManager.getAttachment(attachmentId);
       if (!attachment) {
         return res.status(404).send('Attachment not found');
       }
-      
+
+      // 🔒 SECURITY: Check if user can view the parent page
+      const pageName = attachment.pageName;
+      const canViewPage = await aclManager.checkPermission(currentUser, pageName, 'view');
+      if (!canViewPage) {
+        return res.status(403).send('No permission to access this attachment');
+      }
+
       res.setHeader('Content-Type', attachment.mimeType);
       res.setHeader('Content-Disposition', `inline; filename="${attachment.originalName}"`);
       res.sendFile(path.resolve(attachment.path));
-      
+
     } catch (err) {
       console.error('Error serving attachment:', err);
       res.status(500).send('Error serving attachment');
@@ -1200,15 +1235,45 @@ class WikiRoutes {
   async deleteAttachment(req, res) {
     try {
       const { attachmentId } = req.params;
+      const userManager = this.engine.getManager('UserManager');
+      const aclManager = this.engine.getManager('ACLManager');
       const attachmentManager = this.engine.getManager('AttachmentManager');
-      
+
+      // 🔒 SECURITY: Check authentication
+      const currentUser = await userManager.getCurrentUser(req);
+      if (!currentUser) {
+        return res.status(401).json({
+          success: false,
+          error: 'Authentication required to delete attachments'
+        });
+      }
+
+      // Get attachment to check parent page permissions
+      const attachment = attachmentManager.getAttachment(attachmentId);
+      if (!attachment) {
+        return res.status(404).json({
+          success: false,
+          error: 'Attachment not found'
+        });
+      }
+
+      // 🔒 SECURITY: Check if user can edit/delete from the parent page
+      const pageName = attachment.pageName;
+      const canEditPage = await aclManager.checkPermission(currentUser, pageName, 'edit');
+      if (!canEditPage) {
+        return res.status(403).json({
+          success: false,
+          error: 'No permission to delete attachments from this page'
+        });
+      }
+
       await attachmentManager.deleteAttachment(attachmentId);
-      
+
       res.json({
         success: true,
         message: 'Attachment deleted successfully'
       });
-      
+
     } catch (err) {
       console.error('Error deleting attachment:', err);
       res.status(500).json({
@@ -1696,7 +1761,10 @@ class WikiRoutes {
         roleCount: roles.length,
         stats: stats,
         recentActivity: recentActivity,
-        requiredPages: requiredPages
+        requiredPages: requiredPages,
+        maintenanceMode: this.engine.config?.features?.maintenance?.enabled || false,
+        successMessage: req.query.success || null,
+        errorMessage: req.query.error || null
       };
       
       res.render('admin-dashboard', templateData);
@@ -1704,6 +1772,35 @@ class WikiRoutes {
     } catch (err) {
       console.error('Error loading admin dashboard:', err);
       res.status(500).send('Error loading admin dashboard');
+    }
+  }
+
+  /**
+   * Toggle maintenance mode (admin only)
+   */
+  async adminToggleMaintenance(req, res) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = await userManager.getCurrentUser(req);
+
+      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+        return res.status(403).send('Access denied');
+      }
+
+      // Toggle maintenance mode in config
+      const config = this.engine.config;
+      const currentMode = config.features?.maintenance?.enabled || false;
+      config.features.maintenance.enabled = !currentMode;
+
+      // Log the maintenance mode change
+      console.log(`🔧 Maintenance mode ${config.features.maintenance.enabled ? 'ENABLED' : 'DISABLED'} by ${currentUser.username}`);
+
+      // Redirect back to admin dashboard with success message
+      res.redirect('/admin?success=Maintenance mode ' + (config.features.maintenance.enabled ? 'enabled' : 'disabled'));
+
+    } catch (err) {
+      console.error('Error toggling maintenance mode:', err);
+      res.redirect('/admin?error=Failed to toggle maintenance mode');
     }
   }
 
@@ -2037,6 +2134,7 @@ class WikiRoutes {
     app.get('/admin/roles', this.adminRoles.bind(this));
     app.post('/admin/roles/:roleName', this.adminUpdateRole.bind(this));
     app.get('/admin/settings', this.adminSettings.bind(this)); // Add missing settings route
+    app.post('/admin/maintenance/toggle', this.adminToggleMaintenance.bind(this));
     
     // Admin Schema.org Organization Management Routes
     app.get('/admin/organizations', this.adminOrganizations.bind(this));

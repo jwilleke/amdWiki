@@ -132,34 +132,65 @@ class ACLManager extends BaseManager {
   }
 
   /**
-   * Check default role-based permission when no ACL exists
-   * @param {string} action - Action to check
-   * @param {Object} user - User object
-   * @returns {boolean} True if permission granted by default policy
+   * Check if a page has System/Admin category
+   * @param {string} pageName - Name of the page
+   * @returns {boolean} True if page has System/Admin category
    */
-  checkDefaultPermission(action, user) {
+  async isSystemAdminCategoryPage(pageName) {
+    try {
+      const pageManager = this.engine.getManager('PageManager');
+      const pageData = await pageManager.getPage(pageName);
+      
+      if (pageData && pageData.metadata) {
+        const systemCategory = pageData.metadata['system-category'] || pageData.metadata.category;
+        return systemCategory === 'System/Admin' || systemCategory === 'System';
+      }
+      
+      return false;
+    } catch (error) {
+      console.error('Error checking page category:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Check attachment permission based on parent page
+   * @param {Object} user - User object
+   * @param {string} attachmentId - Attachment ID
+   * @param {string} action - Action to check (view, edit, delete)
+   * @returns {boolean} True if permission granted
+   */
+  async checkAttachmentPermission(user, attachmentId, action) {
     const userManager = this.engine.getManager('UserManager');
-    if (!userManager) return false;
+    const attachmentManager = this.engine.getManager('AttachmentManager');
 
-    // Map actions to permissions
-    const actionToPermission = {
-      'view': 'page:read',
-      'edit': 'page:edit',
-      'delete': 'page:delete',
-      'rename': 'page:rename',
-      'upload': 'attachment:upload'
-    };
-
-    const permission = actionToPermission[action.toLowerCase()];
-    if (!permission) return false;
-
-    // Check if user has the required permission
-    if (!user) {
-      // Anonymous user - check if anonymous role has permission
-      return userManager.hasPermission(null, permission);
+    // Admin users always have access
+    if (user && userManager.hasPermission(user.username, 'admin:system')) {
+      return true;
     }
 
-    return userManager.hasPermission(user.username, permission);
+    // Get attachment to find parent page
+    const attachment = attachmentManager.getAttachment(attachmentId);
+    if (!attachment) {
+      return false;
+    }
+
+    const pageName = attachment.pageName;
+
+    // Check if parent page has System/Admin category
+    const isSystemAdminPage = await this.isSystemAdminCategoryPage(pageName);
+    if (isSystemAdminPage) {
+      // System/Admin pages require admin permissions for attachments too
+      return user && userManager.hasPermission(user.username, 'admin:system');
+    }
+
+    // For regular pages, check standard page permissions
+    // Get page content to check ACL rules
+    const pageManager = this.engine.getManager('PageManager');
+    const pageData = await pageManager.getPage(pageName);
+    const pageContent = pageData ? pageData.content : '';
+
+    return await this.checkPagePermission(pageName, action, user, pageContent);
   }
 
   /**
