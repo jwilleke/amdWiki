@@ -100,6 +100,20 @@ class WikiRoutes {
         };
     }
 
+  /**
+   * Extract request context for access control
+   * @param {Object} req - Express request object
+   * @returns {Object} Context information
+   */
+  getRequestContext(req) {
+    return {
+      ip: req.ip || req.connection.remoteAddress,
+      userAgent: req.get('User-Agent'),
+      referer: req.get('Referer'),
+      timestamp: new Date().toISOString()
+    };
+  }
+
     /**
    * Extract categories from Categories page
    */
@@ -477,8 +491,9 @@ class WikiRoutes {
       }
 
       // Check ACL permission for viewing this page
+      const context = this.getRequestContext(req);
       const hasViewPermission = await aclManager.checkPagePermission(
-        pageName, 'view', currentUser, pageData.content
+        pageName, 'view', currentUser, pageData.content, context
       );
       
       if (!hasViewPermission) {
@@ -746,8 +761,9 @@ class WikiRoutes {
       } else {
         // For existing pages, check ACL edit permission
         if (pageData) {
+          const context = this.getRequestContext(req);
           const hasEditPermission = await aclManager.checkPagePermission(
-            pageName, 'edit', currentUser, pageData.content
+            pageName, 'edit', currentUser, pageData.content, context
           );
           
           if (!hasEditPermission) {
@@ -916,8 +932,9 @@ class WikiRoutes {
         }
       } else {
         // Check ACL delete permission
+        const context = this.getRequestContext(req);
         const hasDeletePermission = await aclManager.checkPagePermission(
-          pageName, 'delete', currentUser, pageData.content
+          pageName, 'delete', currentUser, pageData.content, context
         );
         
         if (!hasDeletePermission) {
