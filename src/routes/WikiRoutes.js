@@ -235,24 +235,20 @@ class WikiRoutes {
         return ['medicine', 'geology', 'test'];
       }
       
-      // Extract keywords from the content (lines that start with *)
+      // Extract keywords from the content (lines that start with '-')
       const keywords = [];
       const lines = keywordsPage.content.split('\n');
-      
       console.log('Processing', lines.length, 'lines from User Keywords page');
-      
       for (const line of lines) {
-        const trimmed = line.trim();
-        if (trimmed.startsWith('* ') && !trimmed.includes('(') && trimmed.length > 2) {
-          // Convert to lowercase and clean up the keyword
-          const keyword = trimmed.substring(2).toLowerCase().trim();
+        const bulletMatch = line.match(/^\s*-\s*(.+)$/);
+        if (bulletMatch) {
+          const keyword = bulletMatch[1].trim();
           if (keyword && !keywords.includes(keyword)) {
             keywords.push(keyword);
             console.log('Added keyword:', keyword);
           }
         }
       }
-      
       console.log('Final getUserKeywords result:', keywords);
       return keywords.length > 0 ? keywords : ['medicine', 'geology', 'test'];
     } catch (err) {
