@@ -8,10 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Removed
-  - In-memory mock file system using Map for predictable test behavior
-  - gray-matter mocking for YAML frontmatter parsing
+- In-memory mock file system using Map for predictable test behavior
+- gray-matter mocking for YAML frontmatter parsing
 - **Testing documentation**: New PageManager Testing Guide (`docs/testing/PageManager-Testing-Guide.md`)
 - **Updated contributing guidelines**: Enhanced testing best practices and mock-based testing approach
+
 ### Technical
 - All PageManager tests now use mocks instead of real file operations
 - Improved test reliability and CI/CD compatibility
