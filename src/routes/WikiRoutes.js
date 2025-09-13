@@ -159,24 +159,23 @@ class WikiRoutes {
       }
       const categories = [];
       const lines = systemKeywordsPage.content.split('\n');
+      let inKeywordsSection = false;
       for (const line of lines) {
-        // Parse bullet list items: - keyword
-        const bulletMatch = line.match(/^\s*-\s*(.+)$/);
-        if (bulletMatch) {
-          const keyword = bulletMatch[1].trim();
-          if (keyword && !categories.includes(keyword)) {
-            categories.push(keyword);
-          }
+        if (line.trim().startsWith('## ')) {
+          // Enter keywords section
+          inKeywordsSection = line.trim().toLowerCase().includes('current system keywords');
+          continue;
         }
-        // Also support legacy array format: [System, Documentation]
-        const arrayMatch = line.match(/\[([^\]]+)\]/);
-        if (arrayMatch) {
-          const categoriesInLine = arrayMatch[1].split(',').map(cat => cat.trim());
-          categoriesInLine.forEach(cat => {
-            if (cat && !categories.includes(cat)) {
-              categories.push(cat);
+        if (inKeywordsSection) {
+          // Stop if we hit another heading
+          if (line.trim().startsWith('## ')) break;
+          const bulletMatch = line.match(/^\s*-\s*(.+)$/);
+          if (bulletMatch) {
+            const keyword = bulletMatch[1].trim();
+            if (keyword && !categories.includes(keyword)) {
+              categories.push(keyword);
             }
-          });
+          }
         }
       }
       return categories.length > 0 ? categories : ['System', 'Documentation', 'Test'];
@@ -652,10 +651,10 @@ class WikiRoutes {
         return res.status(400).send('Page name and template are required');
       }
       
-      // Ensure categories is an array and validate
+      // Ensure categories is an array and always include 'default'
       let categoriesArray = Array.isArray(categories) ? categories : (categories ? [categories] : []);
-      if (categoriesArray.length === 0) {
-        return res.status(400).send('At least one category is required');
+      if (!categoriesArray.includes('default')) {
+        categoriesArray.unshift('default');
       }
       if (categoriesArray.length > 3) {
         return res.status(400).send('Maximum 3 categories allowed');
