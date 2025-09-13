@@ -58,8 +58,18 @@ class ACLManager extends BaseManager {
       const policiesData = await fs.readFile(configFile, 'utf-8');
       const policies = JSON.parse(policiesData);
       
-      for (const [name, policy] of Object.entries(policies)) {
-        this.accessPolicies.set(name, policy);
+      // Load default policies
+      if (policies.defaultPolicies) {
+        for (const [name, policy] of Object.entries(policies.defaultPolicies)) {
+          this.accessPolicies.set(name, policy);
+        }
+      }
+      
+      // Load special policies
+      if (policies.specialPolicies) {
+        for (const [name, policy] of Object.entries(policies.specialPolicies)) {
+          this.accessPolicies.set(name, policy);
+        }
       }
       
       console.log(`📋 Loaded ${this.accessPolicies.size} access policies`);
@@ -131,7 +141,7 @@ class ACLManager extends BaseManager {
         reason = contextCheck.reason;
       } else {
         // Proceed with standard ACL check
-        decision = await this.performStandardACLCheck(pageName, action, user, pageContent);
+        decision = await this.performStandardACLCheck(pageName, action, user, pageContent, context);
         reason = decision ? 'acl_allowed' : 'acl_denied';
       }
       
@@ -167,14 +177,15 @@ class ACLManager extends BaseManager {
   }
 
   /**
-   * Perform standard ACL check (original logic)
+   * Perform enhanced ACL check with policy evaluation
    * @param {string} pageName - Name of the page
    * @param {string} action - Action to check
    * @param {Object} user - User object
    * @param {string} pageContent - Page content
+   * @param {Object} context - Request context
    * @returns {boolean} True if permission granted
    */
-  async performStandardACLCheck(pageName, action, user, pageContent) {
+  async performStandardACLCheck(pageName, action, user, pageContent, context = {}) {
     const userManager = this.engine.getManager('UserManager');
     if (!userManager) {
       throw new Error('UserManager not available');
@@ -185,7 +196,13 @@ class ACLManager extends BaseManager {
       return true;
     }
 
-    // Parse ACL from page content
+    // Check policy-based access control first (if enabled)
+    const policyResult = await this.evaluatePolicies(pageName, action, user, pageContent, context);
+    if (policyResult.applied) {
+      return policyResult.allowed;
+    }
+
+    // Fall back to traditional ACL parsing
     const acl = this.parseACL(pageContent);
     
     // If ACL exists, use ACL rules
@@ -214,6 +231,133 @@ class ACLManager extends BaseManager {
   }
 
   /**
+   * Evaluate policy-based access control
+   * @param {string} pageName - Name of the page
+   * @param {string} action - Action to check
+   * @param {Object} user - User object
+   * @param {string} pageContent - Page content
+   * @param {Object} context - Request context
+   * @returns {Object} { applied: boolean, allowed: boolean, policy: string }
+   */
+  async evaluatePolicies(pageName, action, user, pageContent, context = {}) {
+    const config = this.engine.getConfig();
+    const policiesEnabled = config.get('accessControl.policies.enabled', false);
+    
+    if (!policiesEnabled || this.accessPolicies.size === 0) {
+      return { applied: false, allowed: false, policy: null };
+    }
+
+    // Extract page metadata for policy evaluation
+    const pageMetadata = this.extractPageMetadata(pageContent);
+    
+    // Check for special context policies first
+    if (context.contextReason === 'maintenance_mode') {
+      const policy = this.accessPolicies.get('maintenanceMode');
+      if (policy) {
+        const allowed = this.evaluatePolicy(policy, action, user, { context: 'maintenance' });
+        return { applied: true, allowed, policy: 'maintenanceMode' };
+      }
+    }
+
+    if (context.contextReason === 'outside_business_hours' || context.contextReason === 'outside_business_days') {
+      const policy = this.accessPolicies.get('businessHours');
+      if (policy) {
+        const allowed = this.evaluatePolicy(policy, action, user, { context: 'outside_business_hours' });
+        return { applied: true, allowed, policy: 'businessHours' };
+      }
+    }
+
+    // Check category-based policies
+    const pageCategory = pageMetadata.category || 'General';
+    const categoryPolicies = {
+      'System': this.accessPolicies.get('systemPages'),
+      'Documentation': this.accessPolicies.get('documentationPages'),
+      'General': this.accessPolicies.get('generalPages')
+    };
+
+    const policy = categoryPolicies[pageCategory];
+    if (policy) {
+      const allowed = this.evaluatePolicy(policy, action, user, { pageCategory });
+      return { applied: true, allowed, policy: `${pageCategory.toLowerCase()}Pages` };
+    }
+
+    return { applied: false, allowed: false, policy: null };
+  }
+
+  /**
+   * Evaluate a single policy
+   * @param {Object} policy - Policy definition
+   * @param {string} action - Action to check
+   * @param {Object} user - User object
+   * @param {Object} context - Evaluation context
+   * @returns {boolean} True if policy allows access
+   */
+  evaluatePolicy(policy, action, user, context = {}) {
+    if (!policy || !policy.permissions) {
+      return false;
+    }
+
+    // Check if policy conditions match
+    if (policy.conditions) {
+      for (const [conditionKey, conditionValue] of Object.entries(policy.conditions)) {
+        if (context[conditionKey] !== conditionValue) {
+          return false; // Condition not met
+        }
+      }
+    }
+
+    // Get allowed principals for this action
+    const allowedPrincipals = policy.permissions[action.toLowerCase()] || [];
+    
+    if (allowedPrincipals.length === 0) {
+      return false; // No permissions defined for this action
+    }
+
+    // Evaluate principals same as ACL
+    return this.userMatchesPrincipals(user, allowedPrincipals);
+  }
+
+  /**
+   * Extract metadata from page content
+   * @param {string} pageContent - Page content
+   * @returns {Object} Page metadata
+   */
+  extractPageMetadata(pageContent) {
+    if (!pageContent || typeof pageContent !== 'string') {
+      return {};
+    }
+
+    const metadata = {};
+    
+    // Extract YAML frontmatter
+    const frontmatterMatch = pageContent.match(/^---\s*\n([\s\S]*?)\n---/);
+    if (frontmatterMatch) {
+      try {
+        const yaml = frontmatterMatch[1];
+        const lines = yaml.split('\n');
+        
+        for (const line of lines) {
+          const colonIndex = line.indexOf(':');
+          if (colonIndex > 0) {
+            const key = line.substring(0, colonIndex).trim();
+            const value = line.substring(colonIndex + 1).trim().replace(/^['"]|['"]$/g, '');
+            
+            if (key === 'category' || key === 'system-category') {
+              metadata.category = value;
+            } else if (key === 'title') {
+              metadata.title = value;
+            }
+          }
+        }
+      } catch (error) {
+        console.warn('Error parsing page metadata:', error.message);
+      }
+    }
+
+    return metadata;
+  }
+
+  /**
    * Check context-aware restrictions (time-based, maintenance mode)
    * @param {Object} user - User object
    * @param {Object} context - Request context
@@ -230,12 +374,14 @@ class ACLManager extends BaseManager {
     // Check maintenance mode
     const maintenanceCheck = this.checkMaintenanceMode(user, contextConfig.maintenanceMode);
     if (!maintenanceCheck.allowed) {
+      context.contextReason = 'maintenance_mode';
       return maintenanceCheck;
     }
 
     // Check business hours (if enabled)
     const businessHoursCheck = this.checkBusinessHours(contextConfig.businessHours, contextConfig.timeZone);
     if (!businessHoursCheck.allowed) {
+      context.contextReason = businessHoursCheck.reason;
       return businessHoursCheck;
     }
 
@@ -602,6 +748,48 @@ class ACLManager extends BaseManager {
       enabled: maintenanceConfig.enabled || false,
       message: maintenanceConfig.message || 'System is under maintenance',
       allowedRoles: maintenanceConfig.allowedRoles || ['admin']
+    };
+  }
+
+  /**
+   * Get loaded access policies
+   * @returns {Array} Array of policy definitions
+   */
+  getAccessPolicies() {
+    const policies = [];
+    for (const [name, policy] of this.accessPolicies.entries()) {
+      policies.push({
+        name,
+        description: policy.description || 'No description',
+        conditions: policy.conditions || {},
+        permissions: policy.permissions || {}
+      });
+    }
+    return policies;
+  }
+
+  /**
+   * Check if policy-based access control is enabled
+   * @returns {boolean} True if policies are enabled
+   */
+  isPolicyBasedAccessEnabled() {
+    const config = this.engine.getConfig();
+    return config.get('accessControl.policies.enabled', false) && this.accessPolicies.size > 0;
+  }
+
+  /**
+   * Get access control system status
+   * @returns {Object} Status of access control features
+   */
+  getAccessControlStatus() {
+    const config = this.engine.getConfig();
+    return {
+      contextAware: config.get('accessControl.contextAware.enabled', false),
+      auditLogging: config.get('accessControl.audit.enabled', false),
+      policyBased: this.isPolicyBasedAccessEnabled(),
+      maintenanceMode: this.getMaintenanceStatus().enabled,
+      policiesLoaded: this.accessPolicies.size,
+      auditEntriesInMemory: this.auditLog.length
     };
   }
 }

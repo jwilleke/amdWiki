@@ -1,0 +1,61 @@
+{
+  "defaultPolicies": {
+    "systemPages": {
+      "description": "Default policy for System category pages",
+      "conditions": {
+        "pageCategory": "System"
+      },
+      "permissions": {
+        "view": ["admin", "moderator"],
+        "edit": ["admin"],
+        "delete": ["admin"]
+      }
+    },
+    "generalPages": {
+      "description": "Default policy for General category pages",
+      "conditions": {
+        "pageCategory": "General"
+      },
+      "permissions": {
+        "view": ["all"],
+        "edit": ["authenticated"],
+        "delete": ["admin", "moderator"]
+      }
+    },
+    "documentationPages": {
+      "description": "Default policy for Documentation category pages",
+      "conditions": {
+        "pageCategory": "Documentation"
+      },
+      "permissions": {
+        "view": ["all"],
+        "edit": ["admin", "moderator", "editor"],
+        "delete": ["admin"]
+      }
+    }
+  },
+  "specialPolicies": {
+    "maintenanceMode": {
+      "description": "Policy applied during maintenance mode",
+      "conditions": {
+        "context": "maintenance"
+      },
+      "permissions": {
+        "view": ["admin"],
+        "edit": ["admin"],
+        "delete": ["admin"]
+      }
+    },
+    "businessHours": {
+      "description": "Policy for business hours restrictions",
+      "conditions": {
+        "context": "outside_business_hours"
+      },
+      "permissions": {
+        "view": ["admin", "moderator"],
+        "edit": ["admin"],
+        "delete": ["admin"]
+      }
+    }
+  }
+}

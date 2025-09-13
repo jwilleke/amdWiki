@@ -2054,6 +2054,8 @@ class WikiRoutes {
     app.get('/admin/roles', this.adminRoles.bind(this));
     app.post('/admin/roles/:roleName', this.adminUpdateRole.bind(this));
     app.get('/admin/settings', this.adminSettings.bind(this)); // Add missing settings route
+    app.get('/admin/access-control', this.handleAccessControlAdmin.bind(this)); // Access Control Admin
+    app.post('/admin/access-control', this.handleAccessControlAdmin.bind(this)); // Access Control Admin POST
     
     // Admin Schema.org Organization Management Routes
     app.get('/admin/organizations', this.adminOrganizations.bind(this));
@@ -2357,6 +2359,125 @@ class WikiRoutes {
     } catch (error) {
       console.error('Error getting organization schema:', error);
       res.status(500).json({ error: error.message });
+    }
+  }
+
+  /**
+   * Handle access control admin page
+   */
+  async handleAccessControlAdmin(req, res) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const aclManager = this.engine.getManager('ACLManager');
+      const currentUser = await userManager.getCurrentUser(req);
+
+      // Check if user is admin
+      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+        return await this.renderError(req, res, 403, 'Access Denied', 
+          'Administrator privileges required to access this page');
+      }
+
+      const templateData = await this.getCommonTemplateDataWithUser(req);
+
+      if (req.method === 'POST') {
+        // Handle configuration updates
+        const { maintenanceMode } = req.body;
+        
+        if (maintenanceMode !== undefined) {
+          aclManager.setMaintenanceMode(maintenanceMode === 'true');
+        }
+        
+        // Redirect to prevent form resubmission
+        return res.redirect('/admin/access-control');
+      }
+
+      // Get current access control status
+      const accessControlStatus = aclManager.getAccessControlStatus();
+      const accessPolicies = aclManager.getAccessPolicies();
+      const accessStats = aclManager.getAccessControlStats();
+      const recentAuditLog = aclManager.getAccessLog(20);
+
+      // Create simple HTML response since we don't have a template
+      const html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Access Control Administration</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 20px; }
+            .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+            .enabled { background: #d4edda; color: #155724; }
+            .disabled { background: #f8d7da; color: #721c24; }
+            table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+            th { background-color: #f2f2f2; }
+          </style>
+        </head>
+        <body>
+          <h1>Access Control Administration</h1>
+          
+          <h2>System Status</h2>
+          <div class="status ${accessControlStatus.contextAware ? 'enabled' : 'disabled'}">
+            Context-Aware Permissions: ${accessControlStatus.contextAware ? 'Enabled' : 'Disabled'}
+          </div>
+          <div class="status ${accessControlStatus.auditLogging ? 'enabled' : 'disabled'}">
+            Audit Logging: ${accessControlStatus.auditLogging ? 'Enabled' : 'Disabled'}
+          </div>
+          <div class="status ${accessControlStatus.policyBased ? 'enabled' : 'disabled'}">
+            Policy-Based Access: ${accessControlStatus.policyBased ? 'Enabled' : 'Disabled'}
+          </div>
+          <div class="status ${accessControlStatus.maintenanceMode ? 'enabled' : 'disabled'}">
+            Maintenance Mode: ${accessControlStatus.maintenanceMode ? 'Active' : 'Inactive'}
+          </div>
+
+          <h2>Statistics</h2>
+          <ul>
+            <li>Total Access Checks: ${accessStats.totalChecks}</li>
+            <li>Last Hour: ${accessStats.recentHour}</li>
+            <li>Last Day: ${accessStats.recentDay}</li>
+            <li>Denied Access: ${accessStats.deniedAccess}</li>
+            <li>Average Processing Time: ${accessStats.averageProcessingTime.toFixed(2)}ms</li>
+            <li>Policies Loaded: ${accessControlStatus.policiesLoaded}</li>
+          </ul>
+
+          <h2>Loaded Policies</h2>
+          <table>
+            <tr><th>Name</th><th>Description</th><th>Conditions</th></tr>
+            ${accessPolicies.map(policy => `
+              <tr>
+                <td>${policy.name}</td>
+                <td>${policy.description}</td>
+                <td>${JSON.stringify(policy.conditions)}</td>
+              </tr>
+            `).join('')}
+          </table>
+
+          <h2>Recent Access Log</h2>
+          <table>
+            <tr><th>Time</th><th>User</th><th>Page</th><th>Action</th><th>Decision</th><th>Reason</th></tr>
+            ${recentAuditLog.map(entry => `
+              <tr>
+                <td>${new Date(entry.timestamp).toLocaleString()}</td>
+                <td>${entry.user}</td>
+                <td>${entry.pageName}</td>
+                <td>${entry.action}</td>
+                <td>${entry.decision ? '✓ Allow' : '✗ Deny'}</td>
+                <td>${entry.reason}</td>
+              </tr>
+            `).join('')}
+          </table>
+
+          <p><a href="/">← Back to Wiki</a></p>
+        </body>
+        </html>
+      `;
+
+      res.send(html);
+
+    } catch (error) {
+      console.error('Error in access control admin:', error);
+      return await this.renderError(req, res, 500, 'Server Error', 
+        'An error occurred while loading the access control administration page');
     }
   }
 }
