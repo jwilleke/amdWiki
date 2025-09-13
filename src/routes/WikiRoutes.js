@@ -1096,7 +1096,7 @@ class WikiRoutes {
       // Get current user context for authentication variables
       const currentUser = await userManager.getCurrentUser(req);
       
-      const renderedContent = renderingManager.renderPreview(content, pageName, currentUser);
+      const renderedContent = renderingManager.renderMarkdown(content, pageName, currentUser);
       
       res.json({ 
         html: renderedContent,

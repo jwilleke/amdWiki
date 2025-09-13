@@ -30,7 +30,7 @@ class PluginManager extends BaseManager {
         if (await fs.pathExists(searchPath)) {
           const files = await fs.readdir(searchPath);
           for (const file of files) {
-            if (file.endsWith('.js')) {
+            if (file.endsWith('.js') && !file.endsWith('.test.js')) {
               await this.loadPlugin(path.join(searchPath, file));
             }
           }
