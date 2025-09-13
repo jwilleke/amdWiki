@@ -87,6 +87,7 @@ class WikiEngine extends Engine {
     const ExportManager = require('./managers/ExportManager');
     const UserManager = require('./managers/UserManager');
     const ACLManager = require('./managers/ACLManager');
+    const AccessLogManager = require('./managers/AccessLogManager');
     const SchemaManager = require('./managers/SchemaManager');
     const ValidationManager = require('./managers/ValidationManager');
     
@@ -117,6 +118,9 @@ class WikiEngine extends Engine {
       
       console.log('👤 Registering UserManager...');
       this.registerManager('UserManager', new UserManager(this));
+      
+      console.log('🔍 Registering AccessLogManager...');
+      this.registerManager('AccessLogManager', new AccessLogManager(this));
       
       console.log('🔒 Registering ACLManager...');
       this.registerManager('ACLManager', new ACLManager(this));
@@ -151,6 +155,9 @@ class WikiEngine extends Engine {
       
       console.log('🚀 Initializing UserManager...');
       await this.getManager('UserManager').initialize();
+      
+      console.log('🚀 Initializing AccessLogManager...');
+      await this.getManager('AccessLogManager').initialize();
       
       console.log('🚀 Initializing ACLManager...');
       await this.getManager('ACLManager').initialize();

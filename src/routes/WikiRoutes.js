@@ -442,6 +442,23 @@ class WikiRoutes {
   }
 
   /**
+   * Build request context for access logging
+   * @param {Object} req - Express request object  
+   * @returns {Object} Request context for logging
+   */
+  buildRequestContext(req) {
+    return {
+      ip: req.ip || req.connection.remoteAddress || req.headers['x-forwarded-for'] || 'unknown',
+      userAgent: req.headers['user-agent'] || 'unknown',
+      method: req.method,
+      url: req.originalUrl || req.url,
+      referrer: req.headers.referer || req.headers.referrer || null,
+      sessionId: req.session?.sessionId || req.cookies?.sessionId || null,
+      hasSessionCookie: !!(req.session?.sessionId || req.cookies?.sessionId)
+    };
+  }
+
+  /**
    * Display a wiki page
    */
   async viewPage(req, res) {
@@ -477,8 +494,9 @@ class WikiRoutes {
       }
 
       // Check ACL permission for viewing this page
+      const requestContext = this.buildRequestContext(req);
       const hasViewPermission = await aclManager.checkPagePermission(
-        pageName, 'view', currentUser, pageData.content
+        pageName, 'view', currentUser, pageData.content, requestContext
       );
       
       if (!hasViewPermission) {
@@ -746,8 +764,9 @@ class WikiRoutes {
       } else {
         // For existing pages, check ACL edit permission
         if (pageData) {
+          const requestContext = this.buildRequestContext(req);
           const hasEditPermission = await aclManager.checkPagePermission(
-            pageName, 'edit', currentUser, pageData.content
+            pageName, 'edit', currentUser, pageData.content, requestContext
           );
           
           if (!hasEditPermission) {
@@ -916,8 +935,9 @@ class WikiRoutes {
         }
       } else {
         // Check ACL delete permission
+        const requestContext = this.buildRequestContext(req);
         const hasDeletePermission = await aclManager.checkPagePermission(
-          pageName, 'delete', currentUser, pageData.content
+          pageName, 'delete', currentUser, pageData.content, requestContext
         );
         
         if (!hasDeletePermission) {
@@ -2038,6 +2058,12 @@ class WikiRoutes {
     app.post('/admin/roles/:roleName', this.adminUpdateRole.bind(this));
     app.get('/admin/settings', this.adminSettings.bind(this)); // Add missing settings route
     
+    // Admin Access Logs routes
+    app.get('/admin/access-logs', this.adminAccessLogs.bind(this));
+    app.get('/admin/access-logs/export', this.adminExportAccessLogs.bind(this));
+    app.post('/admin/access-logs/clear', this.adminClearAccessLogs.bind(this));
+    app.get('/admin/access-logs/stats', this.adminAccessLogStats.bind(this));
+    
     // Admin Schema.org Organization Management Routes
     app.get('/admin/organizations', this.adminOrganizations.bind(this));
     app.post('/admin/organizations', this.adminCreateOrganization.bind(this));
@@ -2340,6 +2366,200 @@ class WikiRoutes {
     } catch (error) {
       console.error('Error getting organization schema:', error);
       res.status(500).json({ error: error.message });
+    }
+  }
+
+  /**
+   * Admin Access Logs Management
+   */
+  async adminAccessLogs(req, res) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = await userManager.getCurrentUser(req);
+      
+      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+        return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to access audit logs');
+      }
+      
+      const accessLogManager = this.engine.getManager('AccessLogManager');
+      const commonData = await this.getCommonTemplateDataWithUser(req);
+      
+      // Parse query parameters for filtering
+      const filters = {
+        username: req.query.username || '',
+        action: req.query.action || '',
+        resource: req.query.resource || '',
+        allowed: req.query.allowed ? req.query.allowed === 'true' : undefined,
+        startDate: req.query.startDate || '',
+        endDate: req.query.endDate || '',
+        ip: req.query.ip || '',
+        page: parseInt(req.query.page) || 1,
+        limit: parseInt(req.query.limit) || 50,
+        sortOrder: req.query.sortOrder || 'desc'
+      };
+      
+      // Remove empty filters
+      Object.keys(filters).forEach(key => {
+        if (filters[key] === '' || filters[key] === undefined) {
+          delete filters[key];
+        }
+      });
+      
+      // Get filtered logs
+      const logsResult = await accessLogManager.getAccessLogs(filters);
+      
+      // Get access statistics
+      const statsOptions = {
+        period: parseInt(req.query.statsPeriod) || 24 // hours
+      };
+      const stats = await accessLogManager.getAccessStatistics(statsOptions);
+      
+      // Get log file metrics
+      const metrics = await accessLogManager.getLogMetrics();
+      
+      res.render('admin-access-logs', {
+        ...commonData,
+        title: 'Access Audit Logs',
+        logs: logsResult.logs,
+        pagination: logsResult.pagination,
+        filters: filters,
+        stats: stats,
+        metrics: metrics,
+        actions: ['view', 'edit', 'delete', 'create', 'upload'],
+        allowedOptions: [
+          { value: '', text: 'All Decisions' },
+          { value: 'true', text: 'Allowed Only' },
+          { value: 'false', text: 'Denied Only' }
+        ]
+      });
+      
+    } catch (err) {
+      console.error('Error loading access logs:', err);
+      res.status(500).send('Error loading access logs');
+    }
+  }
+
+  /**
+   * Export Access Logs
+   */
+  async adminExportAccessLogs(req, res) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = await userManager.getCurrentUser(req);
+      
+      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+        return res.status(403).json({ error: 'Access denied' });
+      }
+      
+      const accessLogManager = this.engine.getManager('AccessLogManager');
+      const format = req.query.format || 'json';
+      
+      // Build filter options from query parameters
+      const options = {
+        username: req.query.username || undefined,
+        action: req.query.action || undefined,
+        resource: req.query.resource || undefined,
+        allowed: req.query.allowed ? req.query.allowed === 'true' : undefined,
+        startDate: req.query.startDate || undefined,
+        endDate: req.query.endDate || undefined,
+        ip: req.query.ip || undefined,
+        limit: parseInt(req.query.limit) || 1000, // Max export limit
+        sortOrder: req.query.sortOrder || 'desc'
+      };
+      
+      // Remove undefined values
+      Object.keys(options).forEach(key => {
+        if (options[key] === undefined) {
+          delete options[key];
+        }
+      });
+      
+      const exportData = await accessLogManager.exportLogs(format, options);
+      
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const filename = `access-logs-${timestamp}.${format === 'csv' ? 'csv' : 'json'}`;
+      
+      res.setHeader('Content-Type', format === 'csv' ? 'text/csv' : 'application/json');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.send(exportData);
+      
+    } catch (err) {
+      console.error('Error exporting access logs:', err);
+      res.status(500).json({ error: 'Error exporting access logs' });
+    }
+  }
+
+  /**
+   * Clear Access Logs (Admin only, with confirmation)
+   */
+  async adminClearAccessLogs(req, res) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = await userManager.getCurrentUser(req);
+      
+      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+        return res.status(403).json({ error: 'Access denied' });
+      }
+      
+      const accessLogManager = this.engine.getManager('AccessLogManager');
+      
+      // Require confirmation parameter for safety
+      if (req.body.confirm !== 'yes') {
+        return res.status(400).json({ error: 'Confirmation required to clear logs' });
+      }
+      
+      await accessLogManager.clearLogs();
+      
+      // Log this administrative action
+      const requestContext = this.buildRequestContext(req);
+      await accessLogManager.logAccess({
+        action: 'admin-clear-logs',
+        resource: 'system-access-logs',
+        user: currentUser,
+        allowed: true,
+        reason: 'Admin cleared all access logs',
+        source: 'AdminAction',
+        ...requestContext
+      });
+      
+      res.json({ success: true, message: 'All access logs cleared successfully' });
+      
+    } catch (err) {
+      console.error('Error clearing access logs:', err);
+      res.status(500).json({ error: 'Error clearing access logs' });
+    }
+  }
+
+  /**
+   * Get Access Log Statistics API
+   */
+  async adminAccessLogStats(req, res) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = await userManager.getCurrentUser(req);
+      
+      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+        return res.status(403).json({ error: 'Access denied' });
+      }
+      
+      const accessLogManager = this.engine.getManager('AccessLogManager');
+      
+      const options = {
+        period: parseInt(req.query.period) || 24 // hours
+      };
+      
+      const stats = await accessLogManager.getAccessStatistics(options);
+      const metrics = await accessLogManager.getLogMetrics();
+      
+      res.json({
+        stats: stats,
+        metrics: metrics,
+        timestamp: new Date().toISOString()
+      });
+      
+    } catch (err) {
+      console.error('Error getting access log stats:', err);
+      res.status(500).json({ error: 'Error getting statistics' });
     }
   }
 }

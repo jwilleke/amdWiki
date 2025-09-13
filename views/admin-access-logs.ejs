@@ -1,0 +1,399 @@
+<%- include('header', { pageName: '' }) %>
+
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h1><i class="fas fa-eye"></i> Access Audit Logs</h1>
+            <p class="lead">Monitor and analyze system access decisions and user activity.</p>
+        </div>
+    </div>
+
+    <!-- Statistics Overview -->
+    <div class="row mt-3">
+        <div class="col-md-3">
+            <div class="card border-primary">
+                <div class="card-body text-center">
+                    <h3 class="text-primary"><%= stats.totalAccess %></h3>
+                    <small class="text-muted">Total Access (Last <%= stats.period %>)</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-success">
+                <div class="card-body text-center">
+                    <h3 class="text-success"><%= stats.allowedAccess %></h3>
+                    <small class="text-muted">Allowed Access</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-danger">
+                <div class="card-body text-center">
+                    <h3 class="text-danger"><%= stats.deniedAccess %></h3>
+                    <small class="text-muted">Denied Access</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-info">
+                <div class="card-body text-center">
+                    <h3 class="text-info"><%= stats.uniqueUsers %></h3>
+                    <small class="text-muted">Unique Users</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-filter"></i> Filters & Search</h5>
+                </div>
+                <div class="card-body">
+                    <form method="GET" action="/admin/access-logs" class="row g-3">
+                        <div class="col-md-2">
+                            <label for="username" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="username" name="username" 
+                                   value="<%= filters.username || '' %>" placeholder="Any user">
+                        </div>
+                        <div class="col-md-2">
+                            <label for="action" class="form-label">Action</label>
+                            <select class="form-control" id="action" name="action">
+                                <option value="">All Actions</option>
+                                <% actions.forEach(action => { %>
+                                    <option value="<%= action %>" <%= (filters.action === action) ? 'selected' : '' %>>
+                                        <%= action %>
+                                    </option>
+                                <% }) %>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="resource" class="form-label">Resource</label>
+                            <input type="text" class="form-control" id="resource" name="resource" 
+                                   value="<%= filters.resource || '' %>" placeholder="Page name">
+                        </div>
+                        <div class="col-md-2">
+                            <label for="allowed" class="form-label">Decision</label>
+                            <select class="form-control" id="allowed" name="allowed">
+                                <% allowedOptions.forEach(option => { %>
+                                    <option value="<%= option.value %>" <%= (filters.allowed?.toString() === option.value) ? 'selected' : '' %>>
+                                        <%= option.text %>
+                                    </option>
+                                <% }) %>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="startDate" class="form-label">Start Date</label>
+                            <input type="date" class="form-control" id="startDate" name="startDate" 
+                                   value="<%= filters.startDate || '' %>">
+                        </div>
+                        <div class="col-md-2">
+                            <label for="endDate" class="form-label">End Date</label>
+                            <input type="date" class="form-control" id="endDate" name="endDate" 
+                                   value="<%= filters.endDate || '' %>">
+                        </div>
+                        <div class="col-md-2">
+                            <label for="ip" class="form-label">IP Address</label>
+                            <input type="text" class="form-control" id="ip" name="ip" 
+                                   value="<%= filters.ip || '' %>" placeholder="IP address">
+                        </div>
+                        <div class="col-md-2">
+                            <label for="limit" class="form-label">Per Page</label>
+                            <select class="form-control" id="limit" name="limit">
+                                <option value="25" <%= (filters.limit === 25) ? 'selected' : '' %>>25</option>
+                                <option value="50" <%= (filters.limit === 50) ? 'selected' : '' %>>50</option>
+                                <option value="100" <%= (filters.limit === 100) ? 'selected' : '' %>>100</option>
+                            </select>
+                        </div>
+                        <div class="col-md-8 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary me-2">
+                                <i class="fas fa-search"></i> Filter
+                            </button>
+                            <a href="/admin/access-logs" class="btn btn-secondary me-2">
+                                <i class="fas fa-times"></i> Clear
+                            </a>
+                            <a href="/admin/access-logs/export?<%= new URLSearchParams(filters).toString() %>&format=csv" class="btn btn-success me-2">
+                                <i class="fas fa-download"></i> Export CSV
+                            </a>
+                            <a href="/admin/access-logs/export?<%= new URLSearchParams(filters).toString() %>&format=json" class="btn btn-info">
+                                <i class="fas fa-download"></i> Export JSON
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Access Logs Table -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5><i class="fas fa-list"></i> Access Log Entries</h5>
+                    <span class="badge bg-secondary">
+                        <%= pagination.totalCount %> total entries
+                    </span>
+                </div>
+                <div class="card-body">
+                    <% if (logs.length === 0) { %>
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> No access log entries found matching the current filters.
+                        </div>
+                    <% } else { %>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover table-sm">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Timestamp</th>
+                                        <th>User</th>
+                                        <th>Action</th>
+                                        <th>Resource</th>
+                                        <th>Decision</th>
+                                        <th>Reason</th>
+                                        <th>IP</th>
+                                        <th>Details</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% logs.forEach(log => { %>
+                                        <tr class="<%= log.decision.allowed ? '' : 'table-warning' %>">
+                                            <td>
+                                                <small><%= new Date(log.timestamp).toLocaleString() %></small>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-<%= log.user.isAuthenticated ? 'primary' : 'secondary' %>">
+                                                    <%= log.user.username %>
+                                                </span>
+                                            </td>
+                                            <td><%= log.action %></td>
+                                            <td>
+                                                <% if (log.metadata.isSystemPage) { %>
+                                                    <i class="fas fa-lock text-warning" title="System Page"></i>
+                                                <% } %>
+                                                <code><%= log.resource %></code>
+                                            </td>
+                                            <td>
+                                                <% if (log.decision.allowed) { %>
+                                                    <span class="badge bg-success">
+                                                        <i class="fas fa-check"></i> Allowed
+                                                    </span>
+                                                <% } else { %>
+                                                    <span class="badge bg-danger">
+                                                        <i class="fas fa-times"></i> Denied
+                                                    </span>
+                                                <% } %>
+                                            </td>
+                                            <td>
+                                                <small><%= log.decision.reason %></small>
+                                            </td>
+                                            <td>
+                                                <code><%= log.request.ip %></code>
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-info" type="button" 
+                                                        data-bs-toggle="collapse" data-bs-target="#details-<%= log.id %>" 
+                                                        aria-expanded="false">
+                                                    <i class="fas fa-info"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr class="collapse" id="details-<%= log.id %>">
+                                            <td colspan="8">
+                                                <div class="card card-body bg-light small">
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <strong>Request Details:</strong><br>
+                                                            Method: <%= log.request.method %><br>
+                                                            URL: <%= log.request.url %><br>
+                                                            User Agent: <%= log.request.userAgent %><br>
+                                                            <% if (log.request.referrer) { %>
+                                                                Referrer: <%= log.request.referrer %><br>
+                                                            <% } %>
+                                                            Session ID: <%= log.session.sessionId || 'None' %>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <strong>Access Control:</strong><br>
+                                                            Source: <%= log.decision.source %><br>
+                                                            <% if (log.decision.aclRules) { %>
+                                                                ACL Rules: <%= Object.keys(log.decision.aclRules).length %> defined<br>
+                                                            <% } %>
+                                                            Default Policy: <%= log.decision.defaultPolicy ? 'Yes' : 'No' %><br>
+                                                            Duration: <%= log.metadata.duration %>ms<br>
+                                                            <% if (log.metadata.pageCategory) { %>
+                                                                Category: <%= log.metadata.pageCategory %>
+                                                            <% } %>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <% }) %>
+                                </tbody>
+                            </table>
+                        </div>
+                    <% } %>
+
+                    <!-- Pagination -->
+                    <% if (pagination.totalPages > 1) { %>
+                        <nav aria-label="Log pagination">
+                            <ul class="pagination justify-content-center">
+                                <% if (pagination.hasPrev) { %>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?<%= new URLSearchParams({...filters, page: pagination.currentPage - 1}).toString() %>">
+                                            Previous
+                                        </a>
+                                    </li>
+                                <% } %>
+                                
+                                <% for(let i = Math.max(1, pagination.currentPage - 2); i <= Math.min(pagination.totalPages, pagination.currentPage + 2); i++) { %>
+                                    <li class="page-item <%= (i === pagination.currentPage) ? 'active' : '' %>">
+                                        <a class="page-link" href="?<%= new URLSearchParams({...filters, page: i}).toString() %>">
+                                            <%= i %>
+                                        </a>
+                                    </li>
+                                <% } %>
+                                
+                                <% if (pagination.hasNext) { %>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?<%= new URLSearchParams({...filters, page: pagination.currentPage + 1}).toString() %>">
+                                            Next
+                                        </a>
+                                    </li>
+                                <% } %>
+                            </ul>
+                        </nav>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Log Management -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card border-info">
+                <div class="card-header">
+                    <h5><i class="fas fa-chart-line"></i> Top Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6">
+                            <strong>Top Actions:</strong>
+                            <ul class="list-unstyled">
+                                <% stats.topActions.forEach(item => { %>
+                                    <li><code><%= item.item %></code>: <%= item.count %></li>
+                                <% }) %>
+                            </ul>
+                        </div>
+                        <div class="col-6">
+                            <strong>Top Users:</strong>
+                            <ul class="list-unstyled">
+                                <% stats.topUsers.forEach(item => { %>
+                                    <li><span class="badge bg-secondary"><%= item.item %></span>: <%= item.count %></li>
+                                <% }) %>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card border-warning">
+                <div class="card-header">
+                    <h5><i class="fas fa-cogs"></i> Log Management</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Log File:</strong> <%= metrics.fileSizeFormatted %> (<%= metrics.entryCount %> entries)</p>
+                    <p><strong>Retention:</strong> <%= metrics.retentionDays %> days</p>
+                    <p><strong>Max Entries:</strong> <%= metrics.maxEntries %></p>
+                    <% if (metrics.oldestEntry) { %>
+                        <p><strong>Oldest Entry:</strong> <%= new Date(metrics.oldestEntry).toLocaleString() %></p>
+                    <% } %>
+                    
+                    <hr>
+                    <button class="btn btn-danger btn-sm" onclick="confirmClearLogs()">
+                        <i class="fas fa-trash"></i> Clear All Logs
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Clear Logs Confirmation Modal -->
+<div class="modal fade" id="clearLogsModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Clear Access Logs</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>Warning:</strong> This will permanently delete all access log entries. This action cannot be undone.
+                </div>
+                <p>Are you sure you want to clear all access logs?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" onclick="clearLogs()">
+                    <i class="fas fa-trash"></i> Clear All Logs
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmClearLogs() {
+    const modal = new bootstrap.Modal(document.getElementById('clearLogsModal'));
+    modal.show();
+}
+
+async function clearLogs() {
+    try {
+        const response = await fetch('/admin/access-logs/clear', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ confirm: 'yes' })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            alert('All access logs have been cleared successfully.');
+            window.location.reload();
+        } else {
+            alert('Error: ' + result.message);
+        }
+    } catch (error) {
+        alert('Error clearing logs: ' + error.message);
+    }
+    
+    // Hide modal
+    const modal = bootstrap.Modal.getInstance(document.getElementById('clearLogsModal'));
+    modal.hide();
+}
+
+// Auto-refresh statistics every 30 seconds
+setInterval(async function() {
+    try {
+        const response = await fetch('/admin/access-logs/stats?period=24');
+        const data = await response.json();
+        
+        // Update statistics without full page reload
+        // This is a simple implementation - could be enhanced
+        console.log('Updated stats:', data);
+    } catch (error) {
+        console.error('Error updating stats:', error);
+    }
+}, 30000);
+</script>
+
+<%- include('footer') %>

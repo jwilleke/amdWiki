@@ -94,6 +94,18 @@ const defaultConfig = {
     dir: './logs',
     maxSize: '1MB',
     maxFiles: 5
+  },
+
+  // Audit trail and access logging
+  auditTrail: {
+    enabled: true,
+    logFile: './users/access-log.json',
+    maxLogEntries: 10000,
+    retentionDays: 90,
+    consoleLogging: true,
+    logAnonymousAccess: true,
+    logSuccessfulAccess: true,
+    logFailedAccess: true
   }
 };
 
