@@ -1,19 +1,71 @@
 const BaseManager = require('./BaseManager');
+const fs = require('fs').promises;
+const path = require('path');
 
 /**
  * ACLManager - Access Control List Manager
  * Parses and evaluates page-level access control using JSPWiki-style syntax
  * Integrates with permissions from UserManager
+ * Enhanced with context-aware permissions and audit logging
  */
 class ACLManager extends BaseManager {
   constructor(engine) {
     super(engine);
     this.aclCache = new Map(); // pageName -> parsed ACL
+    this.auditLog = []; // In-memory audit log
+    this.accessPolicies = new Map(); // policy name -> policy definition
   }
 
   async initialize(config = {}) {
     await super.initialize(config);
-    console.log('🔒 ACLManager initialized');
+    
+    // Initialize audit logging
+    await this.initializeAuditLogging();
+    
+    // Load access policies if enabled
+    if (this.engine.getConfig().get('accessControl.policies.enabled', false)) {
+      await this.loadAccessPolicies();
+    }
+    
+    console.log('🔒 ACLManager initialized with context-aware permissions');
+  }
+
+  /**
+   * Initialize audit logging system
+   */
+  async initializeAuditLogging() {
+    const auditConfig = this.engine.getConfig().get('accessControl.audit', {});
+    
+    if (auditConfig.enabled) {
+      const logDir = path.dirname(auditConfig.logFile || './users/access-log.json');
+      try {
+        await fs.mkdir(logDir, { recursive: true });
+        console.log('📋 Audit logging initialized');
+      } catch (error) {
+        console.warn('Warning: Could not create audit log directory:', error.message);
+      }
+    }
+  }
+
+  /**
+   * Load access policies from configuration file
+   */
+  async loadAccessPolicies() {
+    const policiesConfig = this.engine.getConfig().get('accessControl.policies', {});
+    const configFile = policiesConfig.configFile || './config/access-policies.json';
+    
+    try {
+      const policiesData = await fs.readFile(configFile, 'utf-8');
+      const policies = JSON.parse(policiesData);
+      
+      for (const [name, policy] of Object.entries(policies)) {
+        this.accessPolicies.set(name, policy);
+      }
+      
+      console.log(`📋 Loaded ${this.accessPolicies.size} access policies`);
+    } catch (error) {
+      console.log('📋 No access policies file found, using default ACL system');
+    }
   }
 
   /**
@@ -58,14 +110,71 @@ class ACLManager extends BaseManager {
   }
 
   /**
-   * Check page permission with default read access policy
+   * Check page permission with context-aware and audit logging
    * @param {string} pageName - Name of the page
    * @param {string} action - Action to check (view, edit, delete, rename, upload)
    * @param {Object} user - User object (null for anonymous)
    * @param {string} pageContent - Page content to parse ACL from
+   * @param {Object} context - Request context (IP, userAgent, etc.)
    * @returns {boolean} True if permission granted
    */
-  async checkPagePermission(pageName, action, user, pageContent) {
+  async checkPagePermission(pageName, action, user, pageContent, context = {}) {
+    const startTime = Date.now();
+    let decision = false;
+    let reason = 'unknown';
+    
+    try {
+      // Check context-aware restrictions first
+      const contextCheck = await this.checkContextRestrictions(user, context);
+      if (!contextCheck.allowed) {
+        decision = false;
+        reason = contextCheck.reason;
+      } else {
+        // Proceed with standard ACL check
+        decision = await this.performStandardACLCheck(pageName, action, user, pageContent);
+        reason = decision ? 'acl_allowed' : 'acl_denied';
+      }
+      
+      // Log the access decision
+      await this.logAccessDecision({
+        pageName,
+        action,
+        user: user ? user.username : 'anonymous',
+        decision,
+        reason,
+        context,
+        timestamp: new Date().toISOString(),
+        processingTime: Date.now() - startTime
+      });
+      
+      return decision;
+    } catch (error) {
+      // Log the error and deny access
+      reason = `error: ${error.message}`;
+      await this.logAccessDecision({
+        pageName,
+        action,
+        user: user ? user.username : 'anonymous',
+        decision: false,
+        reason,
+        context,
+        timestamp: new Date().toISOString(),
+        processingTime: Date.now() - startTime
+      });
+      
+      return false;
+    }
+  }
+
+  /**
+   * Perform standard ACL check (original logic)
+   * @param {string} pageName - Name of the page
+   * @param {string} action - Action to check
+   * @param {Object} user - User object
+   * @param {string} pageContent - Page content
+   * @returns {boolean} True if permission granted
+   */
+  async performStandardACLCheck(pageName, action, user, pageContent) {
     const userManager = this.engine.getManager('UserManager');
     if (!userManager) {
       throw new Error('UserManager not available');
@@ -102,6 +211,148 @@ class ACLManager extends BaseManager {
     
     // For non-view actions (edit, delete, etc.), check role-based permissions
     return this.checkDefaultPermission(action, user);
+  }
+
+  /**
+   * Check context-aware restrictions (time-based, maintenance mode)
+   * @param {Object} user - User object
+   * @param {Object} context - Request context
+   * @returns {Object} { allowed: boolean, reason: string }
+   */
+  async checkContextRestrictions(user, context) {
+    const config = this.engine.getConfig();
+    const contextConfig = config.get('accessControl.contextAware', {});
+    
+    if (!contextConfig.enabled) {
+      return { allowed: true, reason: 'context_disabled' };
+    }
+
+    // Check maintenance mode
+    const maintenanceCheck = this.checkMaintenanceMode(user, contextConfig.maintenanceMode);
+    if (!maintenanceCheck.allowed) {
+      return maintenanceCheck;
+    }
+
+    // Check business hours (if enabled)
+    const businessHoursCheck = this.checkBusinessHours(contextConfig.businessHours, contextConfig.timeZone);
+    if (!businessHoursCheck.allowed) {
+      return businessHoursCheck;
+    }
+
+    return { allowed: true, reason: 'context_allowed' };
+  }
+
+  /**
+   * Check maintenance mode restrictions
+   * @param {Object} user - User object
+   * @param {Object} maintenanceConfig - Maintenance mode configuration
+   * @returns {Object} { allowed: boolean, reason: string }
+   */
+  checkMaintenanceMode(user, maintenanceConfig = {}) {
+    if (!maintenanceConfig.enabled) {
+      return { allowed: true, reason: 'maintenance_disabled' };
+    }
+
+    // Check if user has allowed role during maintenance
+    if (user && user.roles) {
+      const allowedRoles = maintenanceConfig.allowedRoles || ['admin'];
+      const hasAllowedRole = user.roles.some(role => allowedRoles.includes(role));
+      
+      if (hasAllowedRole) {
+        return { allowed: true, reason: 'maintenance_override' };
+      }
+    }
+
+    return { 
+      allowed: false, 
+      reason: 'maintenance_mode',
+      message: maintenanceConfig.message || 'System is under maintenance'
+    };
+  }
+
+  /**
+   * Check business hours restrictions
+   * @param {Object} businessHoursConfig - Business hours configuration
+   * @param {string} timeZone - Time zone for business hours
+   * @returns {Object} { allowed: boolean, reason: string }
+   */
+  checkBusinessHours(businessHoursConfig = {}, timeZone = 'UTC') {
+    if (!businessHoursConfig.enabled) {
+      return { allowed: true, reason: 'business_hours_disabled' };
+    }
+
+    try {
+      const now = new Date();
+      const currentTime = now.toLocaleTimeString('en-US', { 
+        timeZone, 
+        hour12: false, 
+        hour: '2-digit', 
+        minute: '2-digit' 
+      });
+      
+      const currentDay = now.toLocaleDateString('en-US', { 
+        timeZone, 
+        weekday: 'long' 
+      }).toLowerCase();
+
+      const allowedDays = businessHoursConfig.days || ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+      const startTime = businessHoursConfig.start || '09:00';
+      const endTime = businessHoursConfig.end || '17:00';
+
+      // Check if current day is allowed
+      if (!allowedDays.includes(currentDay)) {
+        return { 
+          allowed: false, 
+          reason: 'outside_business_days',
+          message: `Access restricted outside business days (${allowedDays.join(', ')})`
+        };
+      }
+
+      // Check if current time is within business hours
+      if (currentTime < startTime || currentTime > endTime) {
+        return { 
+          allowed: false, 
+          reason: 'outside_business_hours',
+          message: `Access restricted outside business hours (${startTime}-${endTime} ${timeZone})`
+        };
+      }
+
+      return { allowed: true, reason: 'within_business_hours' };
+    } catch (error) {
+      console.warn('Error checking business hours:', error.message);
+      return { allowed: true, reason: 'business_hours_error' };
+    }
+  }
+
+  /**
+   * Log access decision for audit trail
+   * @param {Object} logEntry - Access log entry
+   */
+  async logAccessDecision(logEntry) {
+    const auditConfig = this.engine.getConfig().get('accessControl.audit', {});
+    
+    if (!auditConfig.enabled) {
+      return;
+    }
+
+    // Add to in-memory log
+    this.auditLog.push(logEntry);
+
+    // Keep only recent entries in memory (last 1000)
+    if (this.auditLog.length > 1000) {
+      this.auditLog = this.auditLog.slice(-1000);
+    }
+
+    // Write to file if configured
+    if (auditConfig.logFile) {
+      try {
+        const logFile = auditConfig.logFile;
+        const logData = JSON.stringify(logEntry) + '\n';
+        await fs.appendFile(logFile, logData);
+      } catch (error) {
+        console.warn('Failed to write audit log:', error.message);
+      }
+    }
   }
 
   /**
@@ -287,6 +538,102 @@ class ACLManager extends BaseManager {
     }
 
     return summary;
+  }
+
+  /**
+   * Get recent access log entries (for admin interface)
+   * @param {number} limit - Maximum number of entries to return
+   * @param {Object} filters - Optional filters (user, action, pageName)
+   * @returns {Array} Array of log entries
+   */
+  getAccessLog(limit = 100, filters = {}) {
+    let entries = [...this.auditLog];
+
+    // Apply filters
+    if (filters.user) {
+      entries = entries.filter(entry => entry.user === filters.user);
+    }
+    if (filters.action) {
+      entries = entries.filter(entry => entry.action === filters.action);
+    }
+    if (filters.pageName) {
+      entries = entries.filter(entry => entry.pageName === filters.pageName);
+    }
+    if (filters.decision !== undefined) {
+      entries = entries.filter(entry => entry.decision === filters.decision);
+    }
+
+    // Sort by timestamp (most recent first) and limit
+    return entries
+      .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+      .slice(0, limit);
+  }
+
+  /**
+   * Get access control statistics
+   * @returns {Object} Statistics about access control
+   */
+  getAccessControlStats() {
+    const recent = this.auditLog.slice(-1000); // Last 1000 entries
+    const now = Date.now();
+    const oneHour = 60 * 60 * 1000;
+    const oneDay = 24 * oneHour;
+
+    const stats = {
+      totalChecks: recent.length,
+      recentHour: recent.filter(entry => 
+        now - new Date(entry.timestamp).getTime() < oneHour
+      ).length,
+      recentDay: recent.filter(entry => 
+        now - new Date(entry.timestamp).getTime() < oneDay
+      ).length,
+      deniedAccess: recent.filter(entry => !entry.decision).length,
+      maintenanceBlocked: recent.filter(entry => 
+        entry.reason === 'maintenance_mode'
+      ).length,
+      businessHoursBlocked: recent.filter(entry => 
+        entry.reason.includes('business_hours') || entry.reason.includes('business_days')
+      ).length,
+      averageProcessingTime: recent.reduce((sum, entry) => 
+        sum + (entry.processingTime || 0), 0
+      ) / Math.max(recent.length, 1)
+    };
+
+    return stats;
+  }
+
+  /**
+   * Set maintenance mode
+   * @param {boolean} enabled - Whether to enable maintenance mode
+   * @param {string} message - Optional maintenance message
+   * @param {Array} allowedRoles - Roles allowed during maintenance
+   */
+  setMaintenanceMode(enabled, message = null, allowedRoles = ['admin']) {
+    const config = this.engine.getConfig();
+    config.set('accessControl.contextAware.maintenanceMode.enabled', enabled);
+    
+    if (message) {
+      config.set('accessControl.contextAware.maintenanceMode.message', message);
+    }
+    
+    config.set('accessControl.contextAware.maintenanceMode.allowedRoles', allowedRoles);
+    
+    console.log(`🔧 Maintenance mode ${enabled ? 'enabled' : 'disabled'}`);
+  }
+
+  /**
+   * Check if maintenance mode is active
+   * @returns {Object} Maintenance mode status
+   */
+  getMaintenanceStatus() {
+    const config = this.engine.getConfig();
+    const maintenanceConfig = config.get('accessControl.contextAware.maintenanceMode', {});
+    
+    return {
+      enabled: maintenanceConfig.enabled || false,
+      message: maintenanceConfig.message || 'System is under maintenance',
+      allowedRoles: maintenanceConfig.allowedRoles || ['admin']
+    };
   }
 }
 

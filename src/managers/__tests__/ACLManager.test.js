@@ -16,7 +16,20 @@ const mockEngine = {
     return null;
   }),
   getConfig: jest.fn(() => ({
-    get: jest.fn()
+    get: jest.fn((key, defaultValue) => {
+      // Return empty objects for config paths to avoid undefined errors
+      if (key === 'accessControl.audit') {
+        return { enabled: false };
+      }
+      if (key === 'accessControl.policies') {
+        return { enabled: false };
+      }
+      if (key === 'accessControl.contextAware') {
+        return { enabled: false };
+      }
+      return defaultValue;
+    }),
+    set: jest.fn() // Add set method for config updates
   }))
 };
 
@@ -285,19 +298,19 @@ describe('ACLManager', () => {
   });
 
   describe('permission delegation', () => {
-    test('should check permissions via UserManager', async () => {
+    test('should check permissions via UserManager', () => {
       mockUserManager.hasPermission.mockReturnValue(true);
       
-      const hasPermission = await aclManager.checkPermission('testuser', 'page:edit');
+      const hasPermission = aclManager.checkDefaultPermission('edit', { username: 'testuser' });
       
       expect(hasPermission).toBe(true);
       expect(mockUserManager.hasPermission).toHaveBeenCalledWith('testuser', 'page:edit');
     });
 
-    test('should handle null user for permission checking', async () => {
+    test('should handle null user for permission checking', () => {
       mockUserManager.hasPermission.mockReturnValue(false);
       
-      const hasPermission = await aclManager.checkPermission(null, 'page:read');
+      const hasPermission = aclManager.checkDefaultPermission('view', null);
       
       expect(hasPermission).toBe(false);
       expect(mockUserManager.hasPermission).toHaveBeenCalledWith(null, 'page:read');
@@ -358,6 +371,164 @@ describe('ACLManager', () => {
       
       expect(aclManager.aclCache.has(pageName)).toBe(true);
       expect(aclManager.aclCache.get(pageName)).toEqual(acl);
+    });
+  });
+
+  describe('context-aware permissions', () => {
+    beforeEach(() => {
+      // Mock config for context-aware features
+      mockEngine.getConfig = jest.fn(() => ({
+        get: jest.fn((key, defaultValue) => {
+          const config = {
+            'accessControl.contextAware': {
+              enabled: true,
+              timeZone: 'UTC',
+              businessHours: {
+                enabled: false
+              },
+              maintenanceMode: {
+                enabled: false,
+                allowedRoles: ['admin']
+              }
+            },
+            'accessControl.audit': {
+              enabled: true,
+              logFile: './test-audit.log'
+            }
+          };
+          
+          const keys = key.split('.');
+          let value = config;
+          for (const k of keys) {
+            value = value?.[k];
+          }
+          return value !== undefined ? value : defaultValue;
+        })
+      }));
+    });
+
+    test('should allow access when context checks pass', async () => {
+      mockUserManager.hasPermission.mockReturnValue(true);
+      
+      const context = {
+        ip: '127.0.0.1',
+        userAgent: 'test-agent',
+        timestamp: new Date().toISOString()
+      };
+      
+      const mockUser = { username: 'testuser', roles: ['reader'] };
+      const hasAccess = await aclManager.checkPagePermission(
+        'TestPage', 'view', mockUser, 'test content', context
+      );
+      
+      expect(hasAccess).toBe(true);
+    });
+
+    test('should deny access when maintenance mode is enabled', async () => {
+      // Enable maintenance mode in config
+      mockEngine.getConfig().get.mockImplementation((key, defaultValue) => {
+        if (key === 'accessControl.contextAware') {
+          return {
+            enabled: true,
+            maintenanceMode: {
+              enabled: true,
+              allowedRoles: ['admin'],
+              message: 'System under maintenance'
+            }
+          };
+        }
+        return defaultValue;
+      });
+
+      const context = { ip: '127.0.0.1', userAgent: 'test-agent' };
+      const mockUser = { username: 'testuser', roles: ['reader'] };
+      
+      const hasAccess = await aclManager.checkPagePermission(
+        'TestPage', 'view', mockUser, 'test content', context
+      );
+      
+      expect(hasAccess).toBe(false);
+    });
+
+    test('should allow admin access during maintenance mode', async () => {
+      // Enable maintenance mode in config
+      mockEngine.getConfig().get.mockImplementation((key, defaultValue) => {
+        if (key === 'accessControl.contextAware') {
+          return {
+            enabled: true,
+            maintenanceMode: {
+              enabled: true,
+              allowedRoles: ['admin'],
+              message: 'System under maintenance'
+            }
+          };
+        }
+        return defaultValue;
+      });
+
+      const context = { ip: '127.0.0.1', userAgent: 'test-agent' };
+      const mockAdminUser = { username: 'admin', roles: ['admin'] };
+      
+      const hasAccess = await aclManager.checkPagePermission(
+        'TestPage', 'view', mockAdminUser, 'test content', context
+      );
+      
+      expect(hasAccess).toBe(true);
+    });
+
+    test('should maintain audit log of access decisions', async () => {
+      mockUserManager.hasPermission.mockReturnValue(true);
+      
+      const context = {
+        ip: '192.168.1.1',
+        userAgent: 'Mozilla/5.0',
+        timestamp: new Date().toISOString()
+      };
+      
+      const mockUser = { username: 'testuser', roles: ['reader'] };
+      
+      await aclManager.checkPagePermission(
+        'TestPage', 'edit', mockUser, 'test content', context
+      );
+      
+      const auditLog = aclManager.getAccessLog(10);
+      expect(auditLog.length).toBeGreaterThan(0);
+      expect(auditLog[0]).toMatchObject({
+        pageName: 'TestPage',
+        action: 'edit',
+        user: 'testuser',
+        decision: expect.any(Boolean)
+      });
+    });
+  });
+
+  describe('maintenance mode management', () => {
+    test('should set maintenance mode', () => {
+      aclManager.setMaintenanceMode(true, 'Scheduled maintenance', ['admin', 'moderator']);
+      
+      const status = aclManager.getMaintenanceStatus();
+      expect(status.enabled).toBe(true);
+      expect(status.message).toBe('Scheduled maintenance');
+      expect(status.allowedRoles).toEqual(['admin', 'moderator']);
+    });
+
+    test('should disable maintenance mode', () => {
+      aclManager.setMaintenanceMode(false);
+      
+      const status = aclManager.getMaintenanceStatus();
+      expect(status.enabled).toBe(false);
+    });
+  });
+
+  describe('access control statistics', () => {
+    test('should provide access control statistics', () => {
+      const stats = aclManager.getAccessControlStats();
+      
+      expect(stats).toHaveProperty('totalChecks');
+      expect(stats).toHaveProperty('recentHour');
+      expect(stats).toHaveProperty('recentDay');
+      expect(stats).toHaveProperty('deniedAccess');
+      expect(stats).toHaveProperty('averageProcessingTime');
     });
   });
 });
