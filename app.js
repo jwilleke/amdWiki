@@ -80,11 +80,33 @@ app.use(async (req, res, next) => {
     if (maintenanceEnabled) {
       const userManager = engine.getManager('UserManager');
       const isAdmin = await userManager.isUserInRole(req.session?.userId, 'admin');
+      const userId = req.session?.userId || 'anonymous';
+      const userIP = req.ip || req.connection.remoteAddress;
 
       // Allow admins to bypass maintenance mode if configured
       if (config.features.maintenance.allowAdmins && isAdmin) {
+        logger.info(`Admin user ${userId} bypassed maintenance mode for ${req.path}`, {
+          action: 'maintenance_bypass',
+          userId: userId,
+          userIP: userIP,
+          path: req.path,
+          method: req.method,
+          timestamp: new Date().toISOString()
+        });
         return next();
       }
+
+      // Log blocked access attempt
+      logger.warn(`Access blocked by maintenance mode for ${req.path}`, {
+        action: 'maintenance_block',
+        userId: userId,
+        userIP: userIP,
+        path: req.path,
+        method: req.method,
+        userAgent: req.get('User-Agent'),
+        isAdmin: isAdmin,
+        timestamp: new Date().toISOString()
+      });
 
       // Show maintenance page
       const maintenanceMessage = config.features.maintenance.message || 'System is currently under maintenance.';
@@ -114,6 +136,14 @@ app.use(async (req, res, next) => {
     next();
   } catch (error) {
     console.error('Maintenance middleware error:', error);
+    logger.error('Maintenance middleware error', {
+      error: error.message,
+      stack: error.stack,
+      path: req?.path,
+      method: req?.method,
+      userIP: req?.ip,
+      timestamp: new Date().toISOString()
+    });
     next(); // Continue if there's an error
   }
 });

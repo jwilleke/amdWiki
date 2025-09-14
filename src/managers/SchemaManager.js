@@ -221,6 +221,19 @@ class SchemaManager extends BaseManager {
   }
 
   /**
+   * Delete Schema.org Organization
+   */
+  async deleteOrganization(identifier) {
+    if (!this.organizations.has(identifier)) {
+      throw new Error(`Organization with identifier ${identifier} not found`);
+    }
+
+    this.organizations.delete(identifier);
+    await this.saveOrganizations();
+    return true;
+  }
+
+  /**
    * Validate and enhance Person data with Schema.org compliance
    */
   validateAndEnhancePerson(personData) {

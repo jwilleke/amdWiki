@@ -1827,16 +1827,35 @@ class WikiRoutes {
         action: 'maintenance_mode_toggle',
         newState: config.features.maintenance.enabled,
         user: currentUser.username,
+        userIP: req.ip || req.connection.remoteAddress,
+        userAgent: req.get('User-Agent'),
         timestamp: new Date().toISOString()
       });
 
       // Create notification for all users about maintenance mode change
-      const notificationManager = this.engine.getManager('NotificationManager');
-      await notificationManager.createMaintenanceNotification(
-        config.features.maintenance.enabled,
-        currentUser.username,
-        config.features.maintenance
-      );
+      try {
+        const notificationManager = this.engine.getManager('NotificationManager');
+        await notificationManager.createMaintenanceNotification(
+          config.features.maintenance.enabled,
+          currentUser.username,
+          config.features.maintenance
+        );
+
+        logger.info(`Maintenance notification created for mode change`, {
+          action: 'maintenance_notification_created',
+          mode: config.features.maintenance.enabled ? 'enabled' : 'disabled',
+          triggeredBy: currentUser.username,
+          timestamp: new Date().toISOString()
+        });
+      } catch (notificationError) {
+        logger.error(`Failed to create maintenance notification`, {
+          action: 'maintenance_notification_failed',
+          error: notificationError.message,
+          mode: config.features.maintenance.enabled ? 'enabled' : 'disabled',
+          triggeredBy: currentUser.username,
+          timestamp: new Date().toISOString()
+        });
+      }
 
       // Create detailed success message
       const action = config.features.maintenance.enabled ? 'ENABLED' : 'DISABLED';
