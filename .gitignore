@@ -158,6 +158,8 @@ exports/*
 logs/*
 /data/
 data/*
+/reports/
+reports/*
 
 # Keep required-pages/ tracked (system pages)
 .editorconfig
