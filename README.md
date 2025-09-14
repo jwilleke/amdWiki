@@ -16,6 +16,10 @@ A simple, file-based wiki application built with Node.js, Express, and Markdown 
 - Pages are stored as Markdown files
 - **Inline image support with upload functionality**
 - **Plugin system for extensible functionality**
+- **Policy-Based Access Control**: Advanced permission system with JSON configuration
+- **Comprehensive Audit Trail**: Complete security monitoring and access logging
+- **Time-Based Permissions**: Context-aware permissions with scheduling and maintenance mode
+- **Admin Dashboard**: Full administrative interface for user management and system monitoring
 
 📖 **Detailed technical documentation available in [docs/](docs/) folder.**
 
