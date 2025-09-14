@@ -164,6 +164,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <form action="/admin/users" method="POST">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <div class="modal-body">
           <div class="mb-3">
             <label for="username" class="form-label">Username *</label>

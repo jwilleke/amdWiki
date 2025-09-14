@@ -133,8 +133,9 @@ class ACLManager extends BaseManager {
     let reason = 'unknown';
     
     try {
-      // Check policy-based access control first (if available)
-      if (this.policyEvaluator) {
+      // Check policy-based access control first (if enabled)
+      const policiesEnabled = this.engine.getConfig().get('accessControl.policies.enabled', false);
+      if (policiesEnabled && this.policyEvaluator) {
         const policyContext = this.createPolicyContext(pageName, action, user, context);
         const policyResult = await this.policyEvaluator.evaluateAccess(policyContext);
         

@@ -21,6 +21,7 @@
                     <% } %>
                     
                     <form action="/login" method="POST">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                         <input type="hidden" name="redirect" value="<%= redirect || '/' %>">
                         
                         <div class="form-group mb-3">
