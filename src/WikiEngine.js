@@ -136,7 +136,11 @@ class WikiEngine extends Engine {
       console.log('📋 Registering PolicyValidator...');
       this.registerManager('PolicyValidator', new PolicyValidator(this));
       
-      console.log('🔔 Registering NotificationManager...');
+      console.log('� Registering AuditManager...');
+      const AuditManager = require('./managers/AuditManager');
+      this.registerManager('AuditManager', new AuditManager(this));
+      
+      console.log('�🔔 Registering NotificationManager...');
       this.registerManager('NotificationManager', new NotificationManager(this));
       
       console.log('🏢 Registering SchemaManager...');
@@ -182,6 +186,11 @@ class WikiEngine extends Engine {
       console.log('🚀 Initializing PolicyValidator...');
       await this.getManager('PolicyValidator').initialize();
       
+      console.log('🚀 Initializing AuditManager...');
+      // Load audit configuration
+      const auditConfig = await this.loadAuditConfig();
+      await this.getManager('AuditManager').initialize(auditConfig);
+      
       console.log('🚀 Initializing NotificationManager...');
       await this.getManager('NotificationManager').initialize();
       
@@ -196,15 +205,39 @@ class WikiEngine extends Engine {
   }
 
   /**
-   * Create a new WikiEngine instance from configuration file
-   * @param {string} configPath - Path to configuration file
-   * @returns {WikiEngine} Initialized WikiEngine instance
+   * Load audit configuration from audit-config.json
+   * @returns {Object} Audit configuration
    */
-  static async createFromConfig(configPath) {
-    const config = await Config.loadFromFile(configPath);
-    const engine = new WikiEngine();
-    await engine.initialize(config);
-    return engine;
+  async loadAuditConfig() {
+    const fs = require('fs-extra');
+    const path = require('path');
+    
+    const auditConfigPath = path.join(__dirname, '../config/audit/audit-config.json');
+    
+    try {
+      if (await fs.pathExists(auditConfigPath)) {
+        const auditConfigContent = await fs.readFile(auditConfigPath, 'utf-8');
+        const auditConfig = JSON.parse(auditConfigContent);
+        console.log('📋 Loaded audit configuration from file');
+        return auditConfig.audit || auditConfig;
+      }
+    } catch (error) {
+      console.warn('⚠️ Failed to load audit configuration, using defaults:', error.message);
+    }
+    
+    // Return default audit configuration
+    return {
+      enabled: true,
+      logLevel: 'info',
+      maxQueueSize: 1000,
+      flushInterval: 30000,
+      retentionDays: 90,
+      logDirectory: path.join(__dirname, '../logs'),
+      auditFileName: 'audit.log',
+      archiveFileName: 'audit-archive.log',
+      maxFileSize: '10MB',
+      maxFiles: 10
+    };
   }
 
   /**

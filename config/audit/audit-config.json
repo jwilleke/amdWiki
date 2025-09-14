@@ -1,0 +1,63 @@
+{
+  "audit": {
+    "enabled": true,
+    "level": "info",
+    "logDirectory": "./logs",
+    "auditFileName": "audit.log",
+    "archiveFileName": "audit-archive.log",
+    "maxFileSize": "10MB",
+    "maxFiles": 10,
+    "retentionDays": 90,
+    "maxQueueSize": 1000,
+    "flushInterval": 30000,
+    "cacheSize": 10000,
+    "compression": {
+      "enabled": true,
+      "algorithm": "gzip",
+      "level": 6
+    },
+    "filters": {
+      "excludeUsers": [],
+      "excludeIPs": [],
+      "excludeResources": [],
+      "excludeActions": []
+    },
+    "alerts": {
+      "enabled": true,
+      "failedLoginThreshold": 5,
+      "suspiciousActivityThreshold": 10,
+      "adminActionThreshold": 50,
+      "emailNotifications": {
+        "enabled": false,
+        "recipients": ["security@company.com"],
+        "smtp": {
+          "host": "smtp.company.com",
+          "port": 587,
+          "secure": false,
+          "auth": {
+            "user": "noreply@company.com",
+            "pass": "password"
+          }
+        }
+      }
+    },
+    "monitoring": {
+      "enabled": true,
+      "metricsInterval": 60000,
+      "alertOnHighVolume": true,
+      "volumeThreshold": 1000
+    },
+    "export": {
+      "enabled": true,
+      "formats": ["json", "csv", "xml"],
+      "maxExportSize": 10000,
+      "compression": true
+    },
+    "anomalyDetection": {
+      "enabled": false,
+      "algorithms": ["statistical", "machine_learning"],
+      "sensitivity": "medium",
+      "trainingPeriod": 30
+    }
+  }
+}

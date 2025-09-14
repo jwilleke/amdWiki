@@ -39,6 +39,30 @@ class PolicyEvaluator extends BaseManager {
       if (this.evaluationCache.has(cacheKey)) {
         const cached = this.evaluationCache.get(cacheKey);
         cached.fromCache = true;
+
+        // Log cached access decision
+        await this.logAuditEvent({
+          eventType: 'access_decision',
+          user: evalContext.user?.username || 'anonymous',
+          userId: evalContext.user?.id,
+          sessionId: context.sessionId,
+          ipAddress: evalContext.ip,
+          userAgent: evalContext.userAgent,
+          resource: evalContext.resource,
+          resourceType: evalContext.resourceType,
+          action: evalContext.action,
+          result: cached.allowed ? 'allow' : 'deny',
+          reason: cached.reason,
+          policyId: cached.policyId,
+          policyName: cached.policyName,
+          context: {
+            cached: true,
+            evaluationTime: cached.evaluationTime
+          },
+          duration: Date.now() - startTime,
+          severity: 'low'
+        });
+
         return cached;
       }
 
@@ -52,6 +76,29 @@ class PolicyEvaluator extends BaseManager {
       result.evaluationTime = Date.now() - startTime;
       result.cacheKey = cacheKey;
 
+      // Log access decision
+      await this.logAuditEvent({
+        eventType: 'access_decision',
+        user: evalContext.user?.username || 'anonymous',
+        userId: evalContext.user?.id,
+        sessionId: context.sessionId,
+        ipAddress: evalContext.ip,
+        userAgent: evalContext.userAgent,
+        resource: evalContext.resource,
+        resourceType: evalContext.resourceType,
+        action: evalContext.action,
+        result: result.allowed ? 'allow' : 'deny',
+        reason: result.reason,
+        policyId: result.policyId,
+        policyName: result.policyName,
+        context: {
+          matchedPolicies: result.matchedPolicies?.length || 0,
+          evaluationPath: result.evaluationPath
+        },
+        duration: result.evaluationTime,
+        severity: result.allowed ? 'low' : 'medium'
+      });
+
       // Cache result (with size limit)
       if (this.evaluationCache.size < this.maxCacheSize) {
         this.evaluationCache.set(cacheKey, { ...result });
@@ -61,6 +108,19 @@ class PolicyEvaluator extends BaseManager {
 
     } catch (error) {
       console.error('Policy evaluation error:', error);
+
+      // Log evaluation error
+      await this.logAuditEvent({
+        eventType: 'access_decision',
+        user: context.user?.username || 'anonymous',
+        resource: context.resource,
+        action: context.action,
+        result: 'error',
+        reason: `evaluation_error: ${error.message}`,
+        duration: Date.now() - startTime,
+        severity: 'high'
+      });
+
       return {
         allowed: false,
         reason: 'evaluation_error',
@@ -558,6 +618,21 @@ class PolicyEvaluator extends BaseManager {
       totalEvaluations: this.evaluationCount || 0,
       averageEvaluationTime: this.averageEvalTime || 0
     };
+  }
+
+  /**
+   * Log audit event using AuditManager
+   */
+  async logAuditEvent(auditData) {
+    try {
+      const auditManager = this.engine.getManager('AuditManager');
+      if (auditManager && auditManager.isInitialized()) {
+        await auditManager.logAuditEvent(auditData);
+      }
+    } catch (error) {
+      // Don't let audit logging failures break policy evaluation
+      console.warn('Audit logging failed:', error.message);
+    }
   }
 }
 

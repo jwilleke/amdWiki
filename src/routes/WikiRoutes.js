@@ -2418,6 +2418,12 @@ class WikiRoutes {
     app.get('/admin/validate-files', this.adminValidateFiles.bind(this));
     app.post('/admin/fix-files', this.adminFixFiles.bind(this));
     
+    // Admin Audit Routes
+    app.get('/admin/audit', this.adminAuditLogs.bind(this));
+    app.get('/admin/audit/api/logs', this.adminAuditLogsApi.bind(this));
+    app.get('/admin/audit/api/log/:id', this.adminAuditLogDetails.bind(this));
+    app.get('/admin/audit/export', this.adminAuditExport.bind(this));
+    
     console.log('✅ Wiki routes registered');
   }
 
@@ -2855,6 +2861,175 @@ class WikiRoutes {
     } catch (err) {
       console.error('Error loading notification management:', err);
       res.status(500).send('Error loading notification management');
+    }
+  }
+
+  // ============================================================================
+  // Admin Audit Route Handlers
+  // ============================================================================
+
+  /**
+   * Admin audit logs page
+   */
+  async adminAuditLogs(req, res) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = await this.getCurrentUser(req);
+      
+      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+        return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to view audit logs.');
+      }
+
+      const aclManager = this.engine.getManager('ACLManager');
+      const auditStats = aclManager.getAccessControlStats();
+      
+      const templateData = await this.getCommonTemplateData(currentUser);
+      res.render('admin-audit', {
+        ...templateData,
+        auditStats,
+        title: 'Audit Logs - Admin',
+        currentUser
+      });
+      
+    } catch (err) {
+      console.error('Error loading audit logs:', err);
+      res.status(500).send('Error loading audit logs');
+    }
+  }
+
+  /**
+   * API endpoint for audit logs data
+   */
+  async adminAuditLogsApi(req, res) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = await this.getCurrentUser(req);
+      
+      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+        return res.status(403).json({ error: 'Access denied' });
+      }
+
+      const aclManager = this.engine.getManager('ACLManager');
+      
+      // Parse query parameters
+      const filters = {
+        user: req.query.user || null,
+        action: req.query.action || null,
+        decision: req.query.decision !== undefined ? (req.query.decision === 'true') : null,
+        pageName: req.query.pageName || null
+      };
+      
+      const limit = parseInt(req.query.limit) || 50;
+      const offset = parseInt(req.query.offset) || 0;
+      
+      // Get filtered logs
+      const allFilteredLogs = aclManager.getAccessLog(1000, filters); // Get more than needed for pagination
+      const total = allFilteredLogs.length;
+      const auditLogs = allFilteredLogs.slice(offset, offset + limit);
+      
+      res.json({
+        results: auditLogs,
+        total: total,
+        limit: limit,
+        offset: offset
+      });
+      
+    } catch (err) {
+      console.error('Error retrieving audit logs:', err);
+      res.status(500).json({ error: 'Error retrieving audit logs' });
+    }
+  }
+
+  /**
+   * API endpoint for individual audit log details
+   */
+  async adminAuditLogDetails(req, res) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = await this.getCurrentUser(req);
+      
+      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+        return res.status(403).json({ error: 'Access denied' });
+      }
+
+      const aclManager = this.engine.getManager('ACLManager');
+      const logId = req.params.id;
+      
+      // Get all audit logs and find the specific one
+      const allLogs = aclManager.getAccessLog(10000); // Get a large number to find the specific log
+      const logDetails = allLogs.find(log => log.timestamp === logId);
+      
+      if (!logDetails) {
+        return res.status(404).json({ error: 'Audit log not found' });
+      }
+      
+      res.json(logDetails);
+      
+    } catch (err) {
+      console.error('Error retrieving audit log details:', err);
+      res.status(500).json({ error: 'Error retrieving audit log details' });
+    }
+  }
+
+  /**
+   * Export audit logs
+   */
+  async adminAuditExport(req, res) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = await this.getCurrentUser(req);
+      
+      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+        return res.status(403).send('Access denied');
+      }
+
+      const aclManager = this.engine.getManager('ACLManager');
+      
+      // Parse query parameters
+      const filters = {
+        user: req.query.user || null,
+        action: req.query.action || null,
+        decision: req.query.decision !== undefined ? (req.query.decision === 'true') : null,
+        pageName: req.query.pageName || null
+      };
+      
+      const format = req.query.format || 'json';
+      
+      // Get filtered logs for export
+      const exportData = aclManager.getAccessLog(10000, filters); // Get all matching logs
+      
+      if (format === 'json') {
+        res.setHeader('Content-Type', 'application/json');
+        res.setHeader('Content-Disposition', 'attachment; filename="audit-logs.json"');
+        res.send(JSON.stringify(exportData, null, 2));
+      } else if (format === 'csv') {
+        // Convert to CSV format
+        const csvHeaders = ['timestamp', 'user', 'pageName', 'action', 'decision', 'reason', 'ip', 'userAgent'];
+        const csvRows = exportData.map(log => [
+          log.timestamp,
+          log.user,
+          log.pageName,
+          log.action,
+          log.decision,
+          log.reason,
+          log.context?.ip || '',
+          log.context?.userAgent || ''
+        ]);
+        
+        const csvContent = [csvHeaders, ...csvRows]
+          .map(row => row.map(field => `"${field}"`).join(','))
+          .join('\n');
+        
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', 'attachment; filename="audit-logs.csv"');
+        res.send(csvContent);
+      } else {
+        res.status(400).send('Invalid format. Supported formats: json, csv');
+      }
+      
+    } catch (err) {
+      console.error('Error exporting audit logs:', err);
+      res.status(500).send('Error exporting audit logs');
     }
   }
 }
