@@ -122,6 +122,20 @@ class WikiEngine extends Engine {
       console.log('🔒 Registering ACLManager...');
       this.registerManager('ACLManager', new ACLManager(this));
       
+      // Policy-based access control managers
+      const PolicyManager = require('./managers/PolicyManager');
+      const PolicyEvaluator = require('./managers/PolicyEvaluator');
+      const PolicyValidator = require('./managers/PolicyValidator');
+      
+      console.log('📋 Registering PolicyManager...');
+      this.registerManager('PolicyManager', new PolicyManager(this));
+      
+      console.log('📋 Registering PolicyEvaluator...');
+      this.registerManager('PolicyEvaluator', new PolicyEvaluator(this));
+      
+      console.log('📋 Registering PolicyValidator...');
+      this.registerManager('PolicyValidator', new PolicyValidator(this));
+      
       console.log('🔔 Registering NotificationManager...');
       this.registerManager('NotificationManager', new NotificationManager(this));
       
@@ -158,6 +172,15 @@ class WikiEngine extends Engine {
       
       console.log('🚀 Initializing ACLManager...');
       await this.getManager('ACLManager').initialize();
+      
+      console.log('🚀 Initializing PolicyManager...');
+      await this.getManager('PolicyManager').initialize();
+      
+      console.log('🚀 Initializing PolicyEvaluator...');
+      await this.getManager('PolicyEvaluator').initialize();
+      
+      console.log('🚀 Initializing PolicyValidator...');
+      await this.getManager('PolicyValidator').initialize();
       
       console.log('🚀 Initializing NotificationManager...');
       await this.getManager('NotificationManager').initialize();

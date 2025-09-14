@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Policy Management - amdWiki Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+    <style>
+        .policy-card {
+            transition: all 0.3s ease;
+        }
+        .policy-card:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .policy-status {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+        .policy-status.allow {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .policy-status.deny {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .json-editor {
+            font-family: 'Courier New', monospace;
+            min-height: 300px;
+        }
+        .condition-builder {
+            border: 1px solid #dee2e6;
+            border-radius: 0.375rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        .condition-item {
+            background-color: #f8f9fa;
+            padding: 0.5rem;
+            margin-bottom: 0.5rem;
+            border-radius: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .validation-error {
+            border-color: #dc3545;
+            background-color: #f8d7da;
+        }
+        .validation-success {
+            border-color: #28a745;
+            background-color: #d4edda;
+        }
+    </style>
+</head>
+<body>
+    <%- include('../header') %>
+
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h1>Policy Management</h1>
+                    <div>
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createPolicyModal">
+                            <i class="fas fa-plus"></i> Create Policy
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" onclick="refreshPolicies()">
+                            <i class="fas fa-sync"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Policy Statistics -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h5 class="card-title text-primary"><%= policies.length %></h5>
+                                <p class="card-text">Total Policies</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h5 class="card-title text-success"><%= policies.filter(p => p.effect === 'allow').length %></h5>
+                                <p class="card-text">Allow Policies</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h5 class="card-title text-danger"><%= policies.filter(p => p.effect === 'deny').length %></h5>
+                                <p class="card-text">Deny Policies</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <h5 class="card-title text-info"><%= Math.round(policies.reduce((sum, p) => sum + p.priority, 0) / Math.max(policies.length, 1)) %></h5>
+                                <p class="card-text">Avg Priority</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Policy List -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Access Control Policies</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row" id="policyGrid">
+                            <% policies.forEach(policy => { %>
+                            <div class="col-md-6 col-lg-4 mb-3">
+                                <div class="card policy-card h-100">
+                                    <div class="card-body position-relative">
+                                        <span class="policy-status <%= policy.effect %>">
+                                            <%= policy.effect.toUpperCase() %>
+                                        </span>
+                                        <h6 class="card-title"><%= policy.name %></h6>
+                                        <p class="card-text small text-muted"><%= policy.description || 'No description' %></p>
+
+                                        <div class="mb-2">
+                                            <small class="text-muted">Priority: <strong><%= policy.priority %></strong></small>
+                                        </div>
+
+                                        <div class="mb-2">
+                                            <small class="text-muted">Subjects:</small>
+                                            <div>
+                                                <% policy.subjects.forEach(subject => { %>
+                                                <span class="badge bg-secondary me-1"><%= subject.type %>:<%= subject.value || subject.key %></span>
+                                                <% }); %>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-2">
+                                            <small class="text-muted">Resources:</small>
+                                            <div>
+                                                <% policy.resources.forEach(resource => { %>
+                                                <span class="badge bg-info me-1"><%= resource.type %>:<%= resource.value || resource.pattern %></span>
+                                                <% }); %>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-2">
+                                            <small class="text-muted">Actions:</small>
+                                            <div>
+                                                <% policy.actions.forEach(action => { %>
+                                                <span class="badge bg-warning me-1"><%= action %></span>
+                                                <% }); %>
+                                            </div>
+                                        </div>
+
+                                        <div class="mt-3">
+                                            <button class="btn btn-sm btn-outline-primary me-1" onclick="viewPolicy('<%= policy.id %>')">
+                                                <i class="fas fa-eye"></i> View
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-secondary me-1" onclick="editPolicy('<%= policy.id %>')">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger" onclick="deletePolicy('<%= policy.id %>', '<%= policy.name %>')">
+                                                <i class="fas fa-trash"></i> Delete
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <% }); %>
+                        </div>
+
+                        <% if (policies.length === 0) { %>
+                        <div class="text-center py-5">
+                            <i class="fas fa-shield-alt fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No Policies Found</h5>
+                            <p class="text-muted">Create your first access control policy to get started.</p>
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createPolicyModal">
+                                Create First Policy
+                            </button>
+                        </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Policy Modal -->
+    <div class="modal fade" id="createPolicyModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create New Policy</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="createPolicyForm">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    <label for="policyName" class="form-label">Policy Name *</label>
+                                    <input type="text" class="form-control" id="policyName" required>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="policyPriority" class="form-label">Priority</label>
+                                    <input type="number" class="form-control" id="policyPriority" value="50" min="0" max="1000">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="policyDescription" class="form-label">Description</label>
+                            <textarea class="form-control" id="policyDescription" rows="2"></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Effect *</label>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="policyEffect" id="effectAllow" value="allow" checked>
+                                <label class="form-check-label" for="effectAllow">
+                                    Allow
+                                </label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="policyEffect" id="effectDeny" value="deny">
+                                <label class="form-check-label" for="effectDeny">
+                                    Deny
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Subjects Section -->
+                        <div class="mb-3">
+                            <label class="form-label">Subjects (Who)</label>
+                            <div id="subjectsContainer">
+                                <div class="condition-builder">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <select class="form-select subject-type">
+                                                <option value="user">User</option>
+                                                <option value="role">Role</option>
+                                                <option value="group">Group</option>
+                                                <option value="attribute">Attribute</option>
+                                                <option value="authenticated">Authenticated</option>
+                                                <option value="anonymous">Anonymous</option>
+                                                <option value="admin">Admin</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <input type="text" class="form-control subject-value" placeholder="Value">
+                                        </div>
+                                        <div class="col-md-2">
+                                            <button type="button" class="btn btn-outline-danger btn-sm remove-condition">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="addSubject()">
+                                <i class="fas fa-plus"></i> Add Subject
+                            </button>
+                        </div>
+
+                        <!-- Resources Section -->
+                        <div class="mb-3">
+                            <label class="form-label">Resources (What)</label>
+                            <div id="resourcesContainer">
+                                <div class="condition-builder">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <select class="form-select resource-type">
+                                                <option value="page">Page</option>
+                                                <option value="attachment">Attachment</option>
+                                                <option value="category">Category</option>
+                                                <option value="tag">Tag</option>
+                                                <option value="resource-type">Resource Type</option>
+                                                <option value="path">Path</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <input type="text" class="form-control resource-value" placeholder="Value/Pattern">
+                                        </div>
+                                        <div class="col-md-2">
+                                            <button type="button" class="btn btn-outline-danger btn-sm remove-condition">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="addResource()">
+                                <i class="fas fa-plus"></i> Add Resource
+                            </button>
+                        </div>
+
+                        <!-- Actions Section -->
+                        <div class="mb-3">
+                            <label class="form-label">Actions (How)</label>
+                            <div class="row">
+                                <% ['view', 'edit', 'delete', 'create', 'upload', 'download', 'admin'].forEach(action => { %>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input policy-action" type="checkbox" value="<%= action %>" id="action<%= action %>">
+                                        <label class="form-check-label" for="action<%= action %>">
+                                            <%= action.charAt(0).toUpperCase() + action.slice(1) %>
+                                        </label>
+                                    </div>
+                                </div>
+                                <% }); %>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="createPolicy()">Create Policy</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Policy Modal -->
+    <div class="modal fade" id="viewPolicyModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Policy Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <pre id="policyJsonView" class="json-editor"></pre>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="editPolicyFromView()">Edit Policy</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%- include('../footer') %>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentPolicyId = null;
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add event listeners for dynamic elements
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            // Remove condition buttons
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('remove-condition') || e.target.closest('.remove-condition')) {
+                    e.target.closest('.condition-builder').remove();
+                }
+            });
+        }
+
+        function addSubject() {
+            const container = document.getElementById('subjectsContainer');
+            const newSubject = document.createElement('div');
+            newSubject.className = 'condition-builder';
+            newSubject.innerHTML = `
+                <div class="row">
+                    <div class="col-md-4">
+                        <select class="form-select subject-type">
+                            <option value="user">User</option>
+                            <option value="role">Role</option>
+                            <option value="group">Group</option>
+                            <option value="attribute">Attribute</option>
+                            <option value="authenticated">Authenticated</option>
+                            <option value="anonymous">Anonymous</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <input type="text" class="form-control subject-value" placeholder="Value">
+                    </div>
+                    <div class="col-md-2">
+                        <button type="button" class="btn btn-outline-danger btn-sm remove-condition">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            container.appendChild(newSubject);
+        }
+
+        function addResource() {
+            const container = document.getElementById('resourcesContainer');
+            const newResource = document.createElement('div');
+            newResource.className = 'condition-builder';
+            newResource.innerHTML = `
+                <div class="row">
+                    <div class="col-md-4">
+                        <select class="form-select resource-type">
+                            <option value="page">Page</option>
+                            <option value="attachment">Attachment</option>
+                            <option value="category">Category</option>
+                            <option value="tag">Tag</option>
+                            <option value="resource-type">Resource Type</option>
+                            <option value="path">Path</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <input type="text" class="form-control resource-value" placeholder="Value/Pattern">
+                    </div>
+                    <div class="col-md-2">
+                        <button type="button" class="btn btn-outline-danger btn-sm remove-condition">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            container.appendChild(newResource);
+        }
+
+        async function createPolicy() {
+            const form = document.getElementById('createPolicyForm');
+
+            // Collect subjects
+            const subjects = [];
+            document.querySelectorAll('#subjectsContainer .condition-builder').forEach(builder => {
+                const type = builder.querySelector('.subject-type').value;
+                const value = builder.querySelector('.subject-value').value.trim();
+
+                if (value || ['authenticated', 'anonymous', 'admin'].includes(type)) {
+                    subjects.push({ type, value: value || undefined });
+                }
+            });
+
+            // Collect resources
+            const resources = [];
+            document.querySelectorAll('#resourcesContainer .condition-builder').forEach(builder => {
+                const type = builder.querySelector('.resource-type').value;
+                const value = builder.querySelector('.resource-value').value.trim();
+
+                if (value) {
+                    resources.push({ type, value });
+                }
+            });
+
+            // Collect actions
+            const actions = [];
+            document.querySelectorAll('.policy-action:checked').forEach(checkbox => {
+                actions.push(checkbox.value);
+            });
+
+            const policyData = {
+                id: 'policy_' + Date.now(),
+                name: document.getElementById('policyName').value,
+                description: document.getElementById('policyDescription').value,
+                priority: parseInt(document.getElementById('policyPriority').value),
+                effect: document.querySelector('input[name="policyEffect"]:checked').value,
+                subjects,
+                resources,
+                actions,
+                conditions: [],
+                metadata: {
+                    created: new Date().toISOString(),
+                    author: '<%= user ? user.username : "system" %>',
+                    tags: []
+                }
+            };
+
+            try {
+                const response = await fetch('/admin/policies', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(policyData)
+                });
+
+                if (response.ok) {
+                    bootstrap.Modal.getInstance(document.getElementById('createPolicyModal')).hide();
+                    form.reset();
+                    refreshPolicies();
+                    showAlert('Policy created successfully!', 'success');
+                } else {
+                    const error = await response.json();
+                    showAlert('Error creating policy: ' + error.message, 'danger');
+                }
+            } catch (error) {
+                showAlert('Error creating policy: ' + error.message, 'danger');
+            }
+        }
+
+        async function viewPolicy(policyId) {
+            try {
+                const response = await fetch(`/admin/policies/${policyId}`);
+                if (response.ok) {
+                    const policy = await response.json();
+                    document.getElementById('policyJsonView').textContent = JSON.stringify(policy, null, 2);
+                    currentPolicyId = policyId;
+                    new bootstrap.Modal(document.getElementById('viewPolicyModal')).show();
+                } else {
+                    showAlert('Error loading policy details', 'danger');
+                }
+            } catch (error) {
+                showAlert('Error loading policy: ' + error.message, 'danger');
+            }
+        }
+
+        function editPolicy(policyId) {
+            // Redirect to edit page or open edit modal
+            window.location.href = `/admin/policies/${policyId}/edit`;
+        }
+
+        function editPolicyFromView() {
+            if (currentPolicyId) {
+                editPolicy(currentPolicyId);
+            }
+        }
+
+        async function deletePolicy(policyId, policyName) {
+            if (confirm(`Are you sure you want to delete the policy "${policyName}"?`)) {
+                try {
+                    const response = await fetch(`/admin/policies/${policyId}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (response.ok) {
+                        refreshPolicies();
+                        showAlert('Policy deleted successfully!', 'success');
+                    } else {
+                        showAlert('Error deleting policy', 'danger');
+                    }
+                } catch (error) {
+                    showAlert('Error deleting policy: ' + error.message, 'danger');
+                }
+            }
+        }
+
+        async function refreshPolicies() {
+            window.location.reload();
+        }
+
+        function showAlert(message, type) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+            alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            alertDiv.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+
+            document.body.appendChild(alertDiv);
+
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

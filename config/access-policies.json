@@ -1,0 +1,113 @@
+{
+  "policies": [
+    {
+      "id": "admin-full-access",
+      "name": "Administrator Full Access",
+      "description": "Full access for system administrators",
+      "priority": 100,
+      "effect": "allow",
+      "subjects": [
+        {
+          "type": "role",
+          "value": "admin"
+        }
+      ],
+      "resources": [
+        {
+          "type": "page",
+          "pattern": "*"
+        },
+        {
+          "type": "attachment",
+          "pattern": "*"
+        }
+      ],
+      "actions": [
+        "view",
+        "edit",
+        "delete",
+        "upload",
+        "admin"
+      ],
+      "conditions": [],
+      "metadata": {
+        "created": "2025-09-14T13:28:00.701Z",
+        "author": "system",
+        "tags": [
+          "admin",
+          "default"
+        ]
+      }
+    },
+    {
+      "id": "authenticated-user-access",
+      "name": "Authenticated User Access",
+      "description": "Basic access for authenticated users",
+      "priority": 50,
+      "effect": "allow",
+      "subjects": [
+        {
+          "type": "attribute",
+          "key": "isAuthenticated",
+          "value": true
+        }
+      ],
+      "resources": [
+        {
+          "type": "page",
+          "pattern": "*"
+        }
+      ],
+      "actions": [
+        "view"
+      ],
+      "conditions": [],
+      "metadata": {
+        "created": "2025-09-14T13:28:00.701Z",
+        "author": "system",
+        "tags": [
+          "user",
+          "default"
+        ]
+      }
+    },
+    {
+      "id": "deny-anonymous",
+      "name": "Deny Anonymous Access",
+      "description": "Deny access to sensitive resources for anonymous users",
+      "priority": 10,
+      "effect": "deny",
+      "subjects": [
+        {
+          "type": "attribute",
+          "key": "isAuthenticated",
+          "value": false
+        }
+      ],
+      "resources": [
+        {
+          "type": "category",
+          "value": "System"
+        },
+        {
+          "type": "category",
+          "value": "Admin"
+        }
+      ],
+      "actions": [
+        "view",
+        "edit",
+        "delete"
+      ],
+      "conditions": [],
+      "metadata": {
+        "created": "2025-09-14T13:28:00.701Z",
+        "author": "system",
+        "tags": [
+          "security",
+          "default"
+        ]
+      }
+    }
+  ]
+}

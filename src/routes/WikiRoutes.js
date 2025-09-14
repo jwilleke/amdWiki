@@ -1878,6 +1878,196 @@ class WikiRoutes {
   }
 
   /**
+   * Admin policy management dashboard
+   */
+  async adminPolicies(req, res) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = await userManager.getCurrentUser(req);
+
+      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+        return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to access policy management');
+      }
+
+      const commonData = await this.getCommonTemplateDataWithUser(req);
+      const policyManager = this.engine.getManager('PolicyManager');
+
+      if (!policyManager) {
+        return await this.renderError(req, res, 500, 'Configuration Error', 'PolicyManager is not available');
+      }
+
+      const policies = policyManager.getPolicies();
+
+      res.render('admin-policies', {
+        ...commonData,
+        title: 'Policy Management',
+        policies: policies,
+        user: currentUser,
+        csrfToken: req.session.csrfToken || '',
+        successMessage: req.query.success || null,
+        errorMessage: req.query.error || null
+      });
+
+    } catch (err) {
+      console.error('Error loading policy management:', err);
+      res.status(500).send('Error loading policy management');
+    }
+  }
+
+  /**
+   * Create a new policy
+   */
+  async adminCreatePolicy(req, res) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = await userManager.getCurrentUser(req);
+
+      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+        return res.status(403).json({ error: 'Access denied' });
+      }
+
+      const policyManager = this.engine.getManager('PolicyManager');
+      const policyValidator = this.engine.getManager('PolicyValidator');
+
+      if (!policyManager || !policyValidator) {
+        return res.status(500).json({ error: 'Policy system not available' });
+      }
+
+      const policyData = req.body;
+
+      // Validate and save the policy
+      const result = await policyValidator.validateAndSavePolicy(policyData);
+
+      res.json({
+        success: true,
+        policy: result.policy,
+        message: 'Policy created successfully'
+      });
+
+    } catch (err) {
+      console.error('Error creating policy:', err);
+      res.status(500).json({
+        error: 'Failed to create policy',
+        details: err.message
+      });
+    }
+  }
+
+  /**
+   * Get a specific policy
+   */
+  async adminGetPolicy(req, res) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = await userManager.getCurrentUser(req);
+
+      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+        return res.status(403).json({ error: 'Access denied' });
+      }
+
+      const policyManager = this.engine.getManager('PolicyManager');
+      const policyId = req.params.id;
+
+      if (!policyManager) {
+        return res.status(500).json({ error: 'Policy system not available' });
+      }
+
+      const policy = policyManager.getPolicy(policyId);
+
+      if (!policy) {
+        return res.status(404).json({ error: 'Policy not found' });
+      }
+
+      res.json(policy);
+
+    } catch (err) {
+      console.error('Error retrieving policy:', err);
+      res.status(500).json({
+        error: 'Failed to retrieve policy',
+        details: err.message
+      });
+    }
+  }
+
+  /**
+   * Update an existing policy
+   */
+  async adminUpdatePolicy(req, res) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = await userManager.getCurrentUser(req);
+
+      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+        return res.status(403).json({ error: 'Access denied' });
+      }
+
+      const policyManager = this.engine.getManager('PolicyManager');
+      const policyValidator = this.engine.getManager('PolicyValidator');
+      const policyId = req.params.id;
+      const policyData = { ...req.body, id: policyId };
+
+      if (!policyManager || !policyValidator) {
+        return res.status(500).json({ error: 'Policy system not available' });
+      }
+
+      // Validate and save the updated policy
+      const result = await policyValidator.validateAndSavePolicy(policyData);
+
+      res.json({
+        success: true,
+        policy: result.policy,
+        message: 'Policy updated successfully'
+      });
+
+    } catch (err) {
+      console.error('Error updating policy:', err);
+      res.status(500).json({
+        error: 'Failed to update policy',
+        details: err.message
+      });
+    }
+  }
+
+  /**
+   * Delete a policy
+   */
+  async adminDeletePolicy(req, res) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = await userManager.getCurrentUser(req);
+
+      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+        return res.status(403).json({ error: 'Access denied' });
+      }
+
+      const policyManager = this.engine.getManager('PolicyManager');
+      const policyId = req.params.id;
+
+      if (!policyManager) {
+        return res.status(500).json({ error: 'Policy system not available' });
+      }
+
+      const success = await policyManager.deletePolicy(policyId);
+
+      if (!success) {
+        return res.status(404).json({ error: 'Policy not found' });
+      }
+
+      res.json({
+        success: true,
+        message: 'Policy deleted successfully'
+      });
+
+    } catch (err) {
+      console.error('Error deleting policy:', err);
+      res.status(500).json({
+        error: 'Failed to delete policy',
+        details: err.message
+      });
+    }
+  }
+
+  /**
    * Admin users management
    */
   async adminUsers(req, res) {
@@ -2208,6 +2398,13 @@ class WikiRoutes {
     app.post('/admin/roles/:roleName', this.adminUpdateRole.bind(this));
     app.get('/admin/settings', this.adminSettings.bind(this)); // Add missing settings route
     app.post('/admin/maintenance/toggle', this.adminToggleMaintenance.bind(this));
+    
+    // Admin Policy Management Routes
+    app.get('/admin/policies', this.adminPolicies.bind(this));
+    app.post('/admin/policies', this.adminCreatePolicy.bind(this));
+    app.get('/admin/policies/:id', this.adminGetPolicy.bind(this));
+    app.put('/admin/policies/:id', this.adminUpdatePolicy.bind(this));
+    app.delete('/admin/policies/:id', this.adminDeletePolicy.bind(this));
     
     // Admin Schema.org Organization Management Routes
     app.get('/admin/organizations', this.adminOrganizations.bind(this));

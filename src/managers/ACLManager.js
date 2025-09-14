@@ -15,6 +15,7 @@ class ACLManager extends BaseManager {
     this.aclCache = new Map(); // pageName -> parsed ACL
     this.auditLog = []; // In-memory audit log
     this.accessPolicies = new Map(); // policy name -> policy definition
+    this.policyEvaluator = null; // PolicyEvaluator instance
   }
 
   async initialize(config = {}) {
@@ -26,6 +27,12 @@ class ACLManager extends BaseManager {
     // Load access policies if enabled
     if (this.engine.getConfig().get('accessControl.policies.enabled', false)) {
       await this.loadAccessPolicies();
+    }
+
+    // Get reference to PolicyEvaluator for policy-based access control
+    this.policyEvaluator = this.engine.getManager('PolicyEvaluator');
+    if (this.policyEvaluator) {
+      console.log('📋 ACLManager integrated with PolicyEvaluator');
     }
     
     console.log('🔒 ACLManager initialized with context-aware permissions');
@@ -112,6 +119,7 @@ class ACLManager extends BaseManager {
 
   /**
    * Check page permission with context-aware and audit logging
+   * Now includes policy-based access control integration
    * @param {string} pageName - Name of the page
    * @param {string} action - Action to check (view, edit, delete, rename, upload)
    * @param {Object} user - User object (null for anonymous)
@@ -125,6 +133,33 @@ class ACLManager extends BaseManager {
     let reason = 'unknown';
     
     try {
+      // Check policy-based access control first (if available)
+      if (this.policyEvaluator) {
+        const policyContext = this.createPolicyContext(pageName, action, user, context);
+        const policyResult = await this.policyEvaluator.evaluateAccess(policyContext);
+        
+        if (policyResult.hasDecision) {
+          decision = policyResult.allowed;
+          reason = policyResult.reason;
+          
+          // Log policy-based decision
+          await this.logAccessDecision({
+            pageName,
+            action,
+            user: user ? user.username : 'anonymous',
+            decision,
+            reason: `policy:${reason}`,
+            context,
+            policyId: policyResult.policyName,
+            timestamp: new Date().toISOString(),
+            processingTime: Date.now() - startTime
+          });
+          
+          return decision;
+        }
+        // If no policy decision, fall back to traditional ACL
+      }
+
       // Check context-aware restrictions first
       const contextCheck = await this.checkContextRestrictions(user, context);
       if (!contextCheck.allowed) {
@@ -611,10 +646,50 @@ class ACLManager extends BaseManager {
   }
 
   /**
-   * Check if a page is a system or admin page that should have restricted access
+   * Create policy evaluation context from ACL request
    * @param {string} pageName - Name of the page
-   * @returns {boolean} True if this is a system/admin page
+   * @param {string} action - Action being performed
+   * @param {Object} user - User object
+   * @param {Object} context - Request context
+   * @returns {Object} Policy evaluation context
    */
+  createPolicyContext(pageName, action, user, context = {}) {
+    // Get page metadata for category information
+    let category = '';
+    let tags = [];
+    
+    try {
+      const pageManager = this.engine.getManager('PageManager');
+      if (pageManager) {
+        // This is a synchronous call for simplicity - in production might need async
+        const pageData = pageManager.getPage ? pageManager.getPage(pageName) : null;
+        if (pageData && pageData.metadata) {
+          category = pageData.metadata.category || '';
+          tags = pageData.metadata.tags || [];
+        }
+      }
+    } catch (error) {
+      // Ignore errors in context creation
+      console.warn('Error getting page metadata for policy context:', error.message);
+    }
+
+    return {
+      user: user,
+      resource: pageName,
+      action: action,
+      category: category,
+      tags: tags,
+      ip: context.ip || '',
+      userAgent: context.userAgent || '',
+      timestamp: context.timestamp || new Date().toISOString(),
+      session: context.session || {},
+      environment: context.environment || 'production',
+      // Additional context for policies
+      resourceType: 'page',
+      isAdminPage: this.isSystemOrAdminPage(pageName),
+      hasACL: context.pageContent ? this.parseACL(context.pageContent) !== null : false
+    };
+  }
   isSystemOrAdminPage(pageName) {
     if (!pageName) return false;
     
