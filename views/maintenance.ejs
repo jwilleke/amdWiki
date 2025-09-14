@@ -50,6 +50,18 @@
       </div>
 
       <div class="maintenance-body">
+        <% if (typeof notifications !== 'undefined' && notifications && notifications.length > 0) { %>
+          <% notifications.forEach(notification => { %>
+            <div class="alert alert-<%= notification.level === 'warning' ? 'warning' : notification.level === 'error' ? 'danger' : notification.level === 'success' ? 'success' : 'info' %> border-0 mb-3">
+              <h6 class="alert-heading mb-2"><%= notification.title %></h6>
+              <p class="mb-0"><%= notification.message %></p>
+              <small class="text-muted">
+                <%= new Date(notification.createdAt).toLocaleString() %>
+              </small>
+            </div>
+          <% }); %>
+        <% } %>
+
         <div class="alert alert-warning border-0 bg-light">
           <h5 class="alert-heading mb-3">We're currently performing maintenance</h5>
           <p class="mb-3"><%= message %></p>

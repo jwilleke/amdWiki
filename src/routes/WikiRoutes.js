@@ -4,6 +4,7 @@
 
 const path = require('path');
 const SchemaGenerator = require('../utils/SchemaGenerator');
+const logger = require('../utils/logger');
 
 class WikiRoutes {
   constructor(engine) {
@@ -1811,13 +1812,37 @@ class WikiRoutes {
       config.features.maintenance.enabled = !currentMode;
 
       // Log the maintenance mode change
-      console.log(`🔧 Maintenance mode ${config.features.maintenance.enabled ? 'ENABLED' : 'DISABLED'} by ${currentUser.username}`);
+      logger.info(`Maintenance mode ${config.features.maintenance.enabled ? 'ENABLED' : 'DISABLED'} by ${currentUser.username}`, {
+        action: 'maintenance_mode_toggle',
+        newState: config.features.maintenance.enabled,
+        user: currentUser.username,
+        timestamp: new Date().toISOString()
+      });
 
-      // Redirect back to admin dashboard with success message
-      res.redirect('/admin?success=Maintenance mode ' + (config.features.maintenance.enabled ? 'enabled' : 'disabled'));
+      // Create notification for all users about maintenance mode change
+      const notificationManager = this.engine.getManager('NotificationManager');
+      notificationManager.createMaintenanceNotification(
+        config.features.maintenance.enabled,
+        currentUser.username,
+        config.features.maintenance
+      );
+
+      // Create detailed success message
+      const action = config.features.maintenance.enabled ? 'ENABLED' : 'DISABLED';
+      const message = `Maintenance mode has been ${action.toLowerCase()}. ` +
+        (config.features.maintenance.enabled 
+          ? 'Regular users will see a maintenance page until it is disabled.'
+          : 'The system is now fully accessible to all users.');
+
+      // Redirect back to admin dashboard with detailed success message
+      res.redirect(`/admin?success=${encodeURIComponent(message)}`);
 
     } catch (err) {
-      console.error('Error toggling maintenance mode:', err);
+      logger.error('Error toggling maintenance mode', {
+        error: err.message,
+        stack: err.stack,
+        user: req.session?.user?.username || 'unknown'
+      });
       res.redirect('/admin?error=Failed to toggle maintenance mode');
     }
   }

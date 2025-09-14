@@ -1,6 +1,7 @@
 const BaseManager = require('./BaseManager');
 const fs = require('fs').promises;
 const path = require('path');
+const logger = require('../utils/logger');
 
 /**
  * ACLManager - Access Control List Manager
@@ -645,7 +646,13 @@ class ACLManager extends BaseManager {
     
     config.set('accessControl.contextAware.maintenanceMode.allowedRoles', allowedRoles);
     
-    console.log(`🔧 Maintenance mode ${enabled ? 'enabled' : 'disabled'}`);
+    logger.info(`Maintenance mode ${enabled ? 'enabled' : 'disabled'}`, {
+      action: 'maintenance_mode_set',
+      enabled: enabled,
+      message: message,
+      allowedRoles: allowedRoles,
+      timestamp: new Date().toISOString()
+    });
   }
 
   /**

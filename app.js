@@ -39,6 +39,28 @@ app.use(session({
   }
 }));
 
+// Simple CSRF protection middleware
+app.use((req, res, next) => {
+  // Generate CSRF token for session if it doesn't exist
+  if (!req.session.csrfToken) {
+    req.session.csrfToken = require('crypto').randomBytes(32).toString('hex');
+  }
+  
+  // Make CSRF token available to templates
+  res.locals.csrfToken = req.session.csrfToken;
+  
+  // For POST requests, validate CSRF token
+  if (req.method === 'POST') {
+    const token = req.body._csrf || req.headers['x-csrf-token'];
+    if (!token || token !== req.session.csrfToken) {
+      logger.warn(`CSRF token validation failed for ${req.path} from ${req.ip}`);
+      return res.status(403).send('CSRF token validation failed');
+    }
+  }
+  
+  next();
+});
+
 // Maintenance mode middleware
 app.use(async (req, res, next) => {
   // Skip maintenance check for static files and API endpoints
@@ -69,11 +91,23 @@ app.use(async (req, res, next) => {
       const estimatedDuration = config.features.maintenance.estimatedDuration;
       const allowAdmins = config.features.maintenance.allowAdmins;
 
+      // Get maintenance notifications
+      let notifications = [];
+      try {
+        const notificationManager = engine.getManager('NotificationManager');
+        notifications = notificationManager.getAllNotifications()
+          .filter(n => n.type === 'maintenance')
+          .slice(-3); // Show last 3 maintenance notifications
+      } catch (error) {
+        console.error('Error fetching maintenance notifications:', error);
+      }
+
       return res.render('maintenance', {
         message: maintenanceMessage,
         estimatedDuration: estimatedDuration,
         allowAdmins: allowAdmins,
-        isAdmin: isAdmin
+        isAdmin: isAdmin,
+        notifications: notifications
       });
     }
 

@@ -89,6 +89,7 @@ class WikiEngine extends Engine {
     const ACLManager = require('./managers/ACLManager');
     const SchemaManager = require('./managers/SchemaManager');
     const ValidationManager = require('./managers/ValidationManager');
+    const NotificationManager = require('./managers/NotificationManager');
     
     try {
       console.log('✅ Registering ValidationManager...');
@@ -120,6 +121,9 @@ class WikiEngine extends Engine {
       
       console.log('🔒 Registering ACLManager...');
       this.registerManager('ACLManager', new ACLManager(this));
+      
+      console.log('🔔 Registering NotificationManager...');
+      this.registerManager('NotificationManager', new NotificationManager(this));
       
       console.log('🏢 Registering SchemaManager...');
       this.registerManager('SchemaManager', new SchemaManager(this));
@@ -154,6 +158,9 @@ class WikiEngine extends Engine {
       
       console.log('🚀 Initializing ACLManager...');
       await this.getManager('ACLManager').initialize();
+      
+      console.log('🚀 Initializing NotificationManager...');
+      await this.getManager('NotificationManager').initialize();
       
       console.log('🚀 Initializing SchemaManager...');
       await this.getManager('SchemaManager').initialize();
