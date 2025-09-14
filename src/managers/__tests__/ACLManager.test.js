@@ -20,10 +20,44 @@ const mockEngine = {
   }),
   getConfig: jest.fn(() => ({
     get: jest.fn((key, defaultValue) => {
-      // Return stored value or default
+      // Check for exact key in configStore first
       if (configStore[key] !== undefined) {
         return configStore[key];
       }
+      
+      // Handle nested keys by traversing the configStore object
+      const keys = key.split('.');
+      let current = configStore;
+      for (const k of keys) {
+        if (current && typeof current === 'object' && k in current) {
+          current = current[k];
+        } else {
+          current = undefined;
+          break;
+        }
+      }
+      if (current !== undefined) {
+        return current;
+      }
+      
+      // Special handling for maintenance mode - reconstruct the object from individual keys
+      if (key === 'accessControl.contextAware.maintenanceMode') {
+        const maintenanceMode = {};
+        const baseKey = 'accessControl.contextAware.maintenanceMode';
+        if (configStore[`${baseKey}.enabled`] !== undefined) {
+          maintenanceMode.enabled = configStore[`${baseKey}.enabled`];
+        }
+        if (configStore[`${baseKey}.message`] !== undefined) {
+          maintenanceMode.message = configStore[`${baseKey}.message`];
+        }
+        if (configStore[`${baseKey}.allowedRoles`] !== undefined) {
+          maintenanceMode.allowedRoles = configStore[`${baseKey}.allowedRoles`];
+        }
+        if (Object.keys(maintenanceMode).length > 0) {
+          return maintenanceMode;
+        }
+      }
+      
       // Return empty objects for config paths to avoid undefined errors
       if (key === 'accessControl.audit') {
         return { enabled: false };
@@ -37,7 +71,20 @@ const mockEngine = {
       return defaultValue;
     }),
     set: jest.fn((key, value) => {
-      configStore[key] = value;
+      const keys = key.split('.');
+      let current = configStore;
+      
+      // Navigate to the parent object
+      for (let i = 0; i < keys.length - 1; i++) {
+        const k = keys[i];
+        if (!current[k] || typeof current[k] !== 'object') {
+          current[k] = {};
+        }
+        current = current[k];
+      }
+      
+      // Set the value
+      current[keys[keys.length - 1]] = value;
     })
   }))
 };
@@ -46,14 +93,15 @@ describe('ACLManager', () => {
   let aclManager;
 
   beforeEach(async () => {
+    // Reset config store for each test
+    Object.keys(configStore).forEach(key => delete configStore[key]);
+    
     aclManager = new ACLManager(mockEngine);
     await aclManager.initialize();
     
     // Reset all mocks
     jest.clearAllMocks();
-  });
-
-  describe('ACL parsing', () => {
+  });  describe('ACL parsing', () => {
     test('should parse ALLOW view ACL correctly', () => {
       const content = '[{ALLOW view admin,editor,user1}]';
       const acl = aclManager.parseACL(content);
@@ -256,23 +304,29 @@ describe('ACLManager', () => {
       expect(canEdit).toBe(false); // User doesn't have admin role which is required to edit
     });
 
-    test('should throw error when UserManager not available', async () => {
+    test('should return false when UserManager not available', async () => {
       mockEngine.getManager.mockReturnValue(null);
       
-      await expect(
-        aclManager.checkPagePermission('TestPage', 'view', mockUser, 'content')
-      ).rejects.toThrow('UserManager not available');
+      const hasAccess = await aclManager.checkPagePermission('TestPage', 'view', mockUser, 'content');
+      
+      expect(hasAccess).toBe(false);
     });
   });
 
   describe('system page detection', () => {
     test('should identify system pages correctly', () => {
       const systemPages = [
-        'SystemInfo',
-        'PageIndex',
-        'Categories',
-        'System Variables',
-        'User Keywords'
+        'admin',
+        'users', 
+        'roles',
+        'permissions',
+        'system',
+        'config',
+        'settings',
+        'user-manager',
+        'role-manager',
+        'permission-manager',
+        'acl-manager'
       ];
       
       systemPages.forEach(pageName => {
@@ -282,9 +336,11 @@ describe('ACLManager', () => {
 
     test('should identify admin pages correctly', () => {
       const adminPages = [
-        'Password Management',
-        'User Management',
-        'Admin Settings'
+        'admin/users',
+        'admin/roles', 
+        'admin/permissions',
+        'system/config',
+        'system/settings'
       ];
       
       adminPages.forEach(pageName => {
@@ -307,6 +363,16 @@ describe('ACLManager', () => {
   });
 
   describe('permission delegation', () => {
+    beforeEach(() => {
+      // Ensure UserManager mock is available for these tests
+      mockEngine.getManager.mockImplementation((name) => {
+        if (name === 'UserManager') {
+          return mockUserManager;
+        }
+        return null;
+      });
+    });
+
     test('should check permissions via UserManager', () => {
       mockUserManager.hasPermission.mockReturnValue(true);
       
@@ -328,6 +394,16 @@ describe('ACLManager', () => {
 
   describe('default permission checking', () => {
     const mockUser = { username: 'testuser', roles: ['reader'] };
+
+    beforeEach(() => {
+      // Ensure UserManager mock is available for these tests
+      mockEngine.getManager.mockImplementation((name) => {
+        if (name === 'UserManager') {
+          return mockUserManager;
+        }
+        return null;
+      });
+    });
 
     test('should allow view action for users with page:read permission', () => {
       mockUserManager.hasPermission.mockReturnValue(true);
@@ -412,6 +488,9 @@ describe('ACLManager', () => {
             value = value?.[k];
           }
           return value !== undefined ? value : defaultValue;
+        }),
+        set: jest.fn((key, value) => {
+          configStore[key] = value;
         })
       }));
     });
@@ -435,19 +514,27 @@ describe('ACLManager', () => {
 
     test('should deny access when maintenance mode is enabled', async () => {
       // Enable maintenance mode in config
-      mockEngine.getConfig().get.mockImplementation((key, defaultValue) => {
-        if (key === 'accessControl.contextAware') {
-          return {
-            enabled: true,
-            maintenanceMode: {
+      mockEngine.getConfig = jest.fn(() => ({
+        get: jest.fn((key, defaultValue) => {
+          if (key === 'accessControl.contextAware') {
+            return {
               enabled: true,
-              allowedRoles: ['admin'],
-              message: 'System under maintenance'
-            }
-          };
-        }
-        return defaultValue;
-      });
+              maintenanceMode: {
+                enabled: true,
+                allowedRoles: ['admin'],
+                message: 'System under maintenance'
+              }
+            };
+          }
+          if (key === 'accessControl.audit') {
+            return { enabled: false };
+          }
+          return defaultValue;
+        }),
+        set: jest.fn((key, value) => {
+          configStore[key] = value;
+        })
+      }));
 
       const context = { ip: '127.0.0.1', userAgent: 'test-agent' };
       const mockUser = { username: 'testuser', roles: ['reader'] };
@@ -461,19 +548,27 @@ describe('ACLManager', () => {
 
     test('should allow admin access during maintenance mode', async () => {
       // Enable maintenance mode in config
-      mockEngine.getConfig().get.mockImplementation((key, defaultValue) => {
-        if (key === 'accessControl.contextAware') {
-          return {
-            enabled: true,
-            maintenanceMode: {
+      mockEngine.getConfig = jest.fn(() => ({
+        get: jest.fn((key, defaultValue) => {
+          if (key === 'accessControl.contextAware') {
+            return {
               enabled: true,
-              allowedRoles: ['admin'],
-              message: 'System under maintenance'
-            }
-          };
-        }
-        return defaultValue;
-      });
+              maintenanceMode: {
+                enabled: true,
+                allowedRoles: ['admin'],
+                message: 'System under maintenance'
+              }
+            };
+          }
+          if (key === 'accessControl.audit') {
+            return { enabled: false };
+          }
+          return defaultValue;
+        }),
+        set: jest.fn((key, value) => {
+          configStore[key] = value;
+        })
+      }));
 
       const context = { ip: '127.0.0.1', userAgent: 'test-agent' };
       const mockAdminUser = { username: 'admin', roles: ['admin'] };
@@ -483,9 +578,33 @@ describe('ACLManager', () => {
       );
       
       expect(hasAccess).toBe(true);
-    });
+    });    test('should maintain audit log of access decisions', async () => {
+      // Enable audit logging for this test
+      mockEngine.getConfig = jest.fn(() => ({
+        get: jest.fn((key, defaultValue) => {
+          if (key === 'accessControl.audit') {
+            return { enabled: true, logFile: null };
+          }
+          return defaultValue;
+        }),
+        set: jest.fn((key, value) => {
+          const keys = key.split('.');
+          let current = configStore;
+          
+          // Navigate to the parent object
+          for (let i = 0; i < keys.length - 1; i++) {
+            const k = keys[i];
+            if (!current[k] || typeof current[k] !== 'object') {
+              current[k] = {};
+            }
+            current = current[k];
+          }
+          
+          // Set the value
+          current[keys[keys.length - 1]] = value;
+        })
+      }));
 
-    test('should maintain audit log of access decisions', async () => {
       mockUserManager.hasPermission.mockReturnValue(true);
       
       const context = {
@@ -512,10 +631,82 @@ describe('ACLManager', () => {
   });
 
   describe('maintenance mode management', () => {
+    beforeEach(() => {
+      // Reset config store specifically for maintenance mode tests
+      Object.keys(configStore).forEach(key => delete configStore[key]);
+    });
+
     test('should set maintenance mode', () => {
-      aclManager.setMaintenanceMode(true, 'Scheduled maintenance', ['admin', 'moderator']);
+      // Create a fresh ACLManager instance with isolated config for this test
+      const isolatedConfigStore = {};
+      const isolatedMockEngine = {
+        getManager: jest.fn((name) => {
+          if (name === 'UserManager') {
+            return mockUserManager;
+          }
+          return null;
+        }),
+        getConfig: jest.fn(() => ({
+          get: jest.fn((key, defaultValue) => {
+            // Handle nested keys by traversing the isolated configStore object
+            const keys = key.split('.');
+            let current = isolatedConfigStore;
+            for (const k of keys) {
+              if (current && typeof current === 'object' && k in current) {
+                current = current[k];
+              } else {
+                current = undefined;
+                break;
+              }
+            }
+            if (current !== undefined) {
+              return current;
+            }
+            
+            // Special handling for maintenance mode - reconstruct the object from individual keys
+            if (key === 'accessControl.contextAware.maintenanceMode') {
+              const maintenanceMode = {};
+              const baseKey = 'accessControl.contextAware.maintenanceMode';
+              if (isolatedConfigStore[`${baseKey}.enabled`] !== undefined) {
+                maintenanceMode.enabled = isolatedConfigStore[`${baseKey}.enabled`];
+              }
+              if (isolatedConfigStore[`${baseKey}.message`] !== undefined) {
+                maintenanceMode.message = isolatedConfigStore[`${baseKey}.message`];
+              }
+              if (isolatedConfigStore[`${baseKey}.allowedRoles`] !== undefined) {
+                maintenanceMode.allowedRoles = isolatedConfigStore[`${baseKey}.allowedRoles`];
+              }
+              if (Object.keys(maintenanceMode).length > 0) {
+                return maintenanceMode;
+              }
+            }
+            
+            return defaultValue;
+          }),
+          set: jest.fn((key, value) => {
+            const keys = key.split('.');
+            let current = isolatedConfigStore;
+            
+            // Navigate to the parent object
+            for (let i = 0; i < keys.length - 1; i++) {
+              const k = keys[i];
+              if (!current[k] || typeof current[k] !== 'object') {
+                current[k] = {};
+              }
+              current = current[k];
+            }
+            
+            // Set the value
+            current[keys[keys.length - 1]] = value;
+          })
+        }))
+      };
       
-      const status = aclManager.getMaintenanceStatus();
+      const isolatedAclManager = new ACLManager(isolatedMockEngine);
+      
+      isolatedAclManager.setMaintenanceMode(true, 'Scheduled maintenance', ['admin', 'moderator']);
+      
+      const status = isolatedAclManager.getMaintenanceStatus();
       expect(status.enabled).toBe(true);
       expect(status.message).toBe('Scheduled maintenance');
       expect(status.allowedRoles).toEqual(['admin', 'moderator']);

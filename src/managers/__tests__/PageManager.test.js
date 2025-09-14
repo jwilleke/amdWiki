@@ -142,7 +142,7 @@ lastModified: '2025-01-01T00:00:00.000Z'
 
   describe('page retrieval', () => {
     beforeEach(async () => {
-      const testPageUuid = uuidv4();
+      const testPageUuid = 'test-uuid-123';
       const pageContent = `---
 title: Test Page
 categories: [General]
@@ -243,7 +243,7 @@ Just content without metadata.`);
       
       expect(result.success).toBe(true);
       
-      const updatedPage = await pageManager.getPage('UpdateTest');
+      const updatedPage = await pageManager.getPage('Updated Title');
       expect(updatedPage.title).toBe('Updated Title');
       expect(updatedPage.content).toContain('Updated Content');
     });
@@ -251,7 +251,7 @@ Just content without metadata.`);
     test('should generate UUID if not provided', async () => {
       await pageManager.savePage('UUIDTest', '# Content', { title: 'UUID Test' });
       
-      const page = await pageManager.getPage('UUIDTest');
+      const page = await pageManager.getPage('UUID Test');
       expect(page.uuid).toBeTruthy();
       expect(page.uuid).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
     });
@@ -261,26 +261,26 @@ Just content without metadata.`);
       
       await pageManager.savePage('TimestampTest', '# Content', { title: 'Timestamp Test' });
       
-      const page = await pageManager.getPage('TimestampTest');
+      const page = await pageManager.getPage('Timestamp Test');
       expect(page.lastModified).toBeTruthy();
       expect(new Date(page.lastModified).getTime()).toBeGreaterThanOrEqual(new Date(beforeSave).getTime());
     });
 
     test('should save to required-pages directory for system pages', async () => {
-      const metadata = { categories: ['System'] };
+      const metadata = { categories: ['System'], uuid: 'system-test-uuid' };
       
       await pageManager.savePage('SystemTest', '# System Page', metadata);
       
-      const systemPagePath = path.join(testRequiredPagesDir, 'SystemTest.md');
+      const systemPagePath = path.join(testRequiredPagesDir, 'system-test-uuid.md');
       expect(await fs.pathExists(systemPagePath)).toBe(true);
     });
 
     test('should save to regular pages directory for non-system pages', async () => {
-      const metadata = { categories: ['General'] };
+      const metadata = { categories: ['General'], uuid: 'regular-test-uuid' };
       
       await pageManager.savePage('RegularTest', '# Regular Page', metadata);
       
-      const regularPagePath = path.join(testPagesDir, 'RegularTest.md');
+      const regularPagePath = path.join(testPagesDir, 'regular-test-uuid.md');
       expect(await fs.pathExists(regularPagePath)).toBe(true);
     });
   });
@@ -428,7 +428,10 @@ lastModified: '2025-01-01T00:00:00.000Z'
     test('should create page from template', async () => {
       // Mock template manager
       const mockTemplateManager = {
-        getTemplate: jest.fn().mockResolvedValue('# {{pageName}}\n\nTemplate content for {{pageName}}.')
+        getTemplate: jest.fn().mockResolvedValue('# {{pageName}}\n\nTemplate content for {{pageName}}.'),
+        populateTemplate: jest.fn().mockImplementation((template, variables) => {
+          return template.replace(/\{\{pageName\}\}/g, variables.pageName);
+        })
       };
       
       mockEngine.getManager.mockImplementation((name) => {

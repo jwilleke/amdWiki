@@ -185,6 +185,12 @@ class PageManager extends BaseManager {
         slug: data.slug || generateSlug(data.title || fileInfo.fileName),
         uuid: data.uuid || uuid,
         content: content,
+        // Flatten common metadata properties to top level for easier access
+        categories: data.categories || (data.category ? [data.category] : ['General']),
+        'user-keywords': data['user-keywords'] || [],
+        category: data.category || 'General',
+        'system-category': data['system-category'] || 'General',
+        lastModified: data.lastModified,
         metadata: data,
         filePath: fileInfo.filePath,
         isUuidBased: data.uuid === uuid
@@ -217,6 +223,17 @@ class PageManager extends BaseManager {
 
     // Check if metadata indicates System category
     if (metadata) {
+      // Check categories array (new format)
+      if (metadata.categories && Array.isArray(metadata.categories)) {
+        if (metadata.categories.includes('System')) {
+          return true;
+        }
+      }
+      // Check legacy single category format
+      if (metadata.category === 'System') {
+        return true;
+      }
+      // Check legacy system-category format
       if (metadata['system-category'] === 'System/Admin' || metadata['system-category'] === 'System') {
         return true;
       }
@@ -246,87 +263,95 @@ class PageManager extends BaseManager {
    * @returns {Object} Saved page information
    */
   async savePage(identifier, content, metadata = {}) {
-    const validationManager = this.engine.getManager('ValidationManager');
-    
-    // Ensure required metadata
-    if (!metadata.uuid) {
-      metadata.uuid = uuidv4();
-    }
-    
-    if (!metadata.title) {
-      // If identifier looks like a UUID, we need a proper title
-      if (identifier.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
-        throw new Error('Title is required when saving by UUID');
+    try {
+      const validationManager = this.engine.getManager('ValidationManager');
+      
+      // Ensure required metadata
+      if (!metadata.uuid) {
+        metadata.uuid = uuidv4();
       }
-      metadata.title = identifier;
-    }
-    
-    if (!metadata.slug) {
-      metadata.slug = generateSlug(metadata.title);
-    }
-    
-    // Ensure required metadata fields with defaults
-    if (!metadata['system-category']) {
-      metadata['system-category'] = 'General';
-    }
-    if (!metadata['user-keywords']) {
-      metadata['user-keywords'] = [];
-    }
-
-    // Add/update timestamp
-    metadata.lastModified = new Date().toISOString();
-    
-    // Generate the target filename using UUID
-    const targetFilename = validationManager.generateFilename(metadata);
-    
-    // Validate the complete page before saving
-    const validation = validationManager.validatePage(targetFilename, metadata, content);
-    if (!validation.success) {
-      throw new Error(`Page validation failed: ${validation.error}`);
-    }
-    
-    // Log warnings if any
-    if (validation.warnings.length > 0) {
-      console.warn('Page validation warnings:', validation.warnings);
-    }
-
-    // Determine the correct directory based on page type and metadata
-    const isRequired = await this.isRequiredPage(identifier, metadata);
-    const targetDir = isRequired ? this.requiredPagesDir : this.pagesDir;
-    
-    // Use validated UUID-based filename
-    const filePath = path.join(targetDir, targetFilename);
-    
-    // Remove old file if page is moving between directories or filename changed
-    const existingUuid = this.resolvePageIdentifier(identifier);
-    if (existingUuid) {
-      const oldFileInfo = this.uuidToFileMap.get(existingUuid);
-      if (oldFileInfo && oldFileInfo.filePath !== filePath) {
-        await fs.remove(oldFileInfo.filePath);
+      
+      if (!metadata.title) {
+        // If identifier looks like a UUID, we need a proper title
+        if (identifier.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
+          throw new Error('Title is required when saving by UUID');
+        }
+        metadata.title = identifier;
       }
-    }
+      
+      if (!metadata.slug) {
+        metadata.slug = generateSlug(metadata.title);
+      }
+      
+      // Ensure required metadata fields with defaults
+      if (!metadata['system-category']) {
+        metadata['system-category'] = 'General';
+      }
+      if (!metadata['user-keywords']) {
+        metadata['user-keywords'] = [];
+      }
 
-    // Save the file
-    const newContent = matter.stringify(content, metadata);
-    await fs.writeFile(filePath, newContent);
-    
-    // Rebuild caches to include new/updated page
-    await this.buildLookupCaches();
-    
-    // Update PageIndex if this isn't the PageIndex itself
-    if (metadata.title !== 'PageIndex') {
-      await this.updatePageIndex();
-    }
+      // Add/update timestamp
+      metadata.lastModified = new Date().toISOString();
+      
+      // Generate the target filename using UUID
+      const targetFilename = validationManager.generateFilename(metadata);
+      
+      // Validate the complete page before saving
+      const validation = validationManager.validatePage(targetFilename, metadata, content);
+      if (!validation.success) {
+        throw new Error(`Page validation failed: ${validation.error}`);
+      }
+      
+      // Log warnings if any
+      if (validation.warnings.length > 0) {
+        console.warn('Page validation warnings:', validation.warnings);
+      }
 
-    return { 
-      name: metadata.title, 
-      title: metadata.title,
-      slug: metadata.slug,
-      uuid: metadata.uuid,
-      content, 
-      metadata, 
-      filePath 
-    };
+      // Determine the correct directory based on page type and metadata
+      const isRequired = await this.isRequiredPage(identifier, metadata);
+      const targetDir = isRequired ? this.requiredPagesDir : this.pagesDir;
+      
+      // Use validated UUID-based filename
+      const filePath = path.join(targetDir, targetFilename);
+      
+      // Remove old file if page is moving between directories or filename changed
+      const existingUuid = this.resolvePageIdentifier(identifier);
+      if (existingUuid) {
+        const oldFileInfo = this.uuidToFileMap.get(existingUuid);
+        if (oldFileInfo && oldFileInfo.filePath !== filePath) {
+          await fs.remove(oldFileInfo.filePath);
+        }
+      }
+
+      // Save the file
+      const newContent = matter.stringify(content, metadata);
+      await fs.writeFile(filePath, newContent);
+      
+      // Rebuild caches to include new/updated page
+      await this.buildLookupCaches();
+      
+      // Update PageIndex if this isn't the PageIndex itself
+      if (metadata.title !== 'PageIndex') {
+        await this.updatePageIndex();
+      }
+
+      return { 
+        success: true,
+        name: metadata.title, 
+        title: metadata.title,
+        slug: metadata.slug,
+        uuid: metadata.uuid,
+        content, 
+        metadata, 
+        filePath 
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message
+      };
+    }
   }
 
   /**
@@ -645,20 +670,28 @@ This page contains an alphabetical listing of all pages in this wiki.
    * @returns {Object} Created page object
    */
   async createPageFromTemplate(pageName, templateName = 'default') {
-    const templateManager = this.engine.getManager('TemplateManager');
-    if (!templateManager) {
-      throw new Error('TemplateManager not available');
+    try {
+      const templateManager = this.engine.getManager('TemplateManager');
+      if (!templateManager) {
+        throw new Error('TemplateManager not available');
+      }
+
+      const templateContent = await templateManager.getTemplate(templateName);
+      const populatedContent = await templateManager.populateTemplate(templateContent, { pageName });
+      const validationManager = this.engine.getManager('ValidationManager');
+        const metadata = validationManager.generateValidMetadata(pageName, {
+          'system-category': 'General',
+          'user-keywords': [],
+          created: new Date().toISOString()
+        });
+
+      return await this.savePage(pageName, populatedContent, metadata);
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message
+      };
     }
-
-    const templateContent = await templateManager.getTemplate(templateName);
-    const validationManager = this.engine.getManager('ValidationManager');
-      const metadata = validationManager.generateValidMetadata(pageName, {
-        'system-category': 'General',
-        'user-keywords': [],
-        created: new Date().toISOString()
-      });
-
-    return await this.savePage(pageName, templateContent, metadata);
   }
 
   /**

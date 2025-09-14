@@ -330,7 +330,7 @@ class UserManager extends BaseManager {
   createSession(user) {
     const sessionId = crypto.randomBytes(32).toString('hex');
     const session = {
-      sessionId,
+      id: sessionId,
       username: user.username,
       user: user,
       createdAt: new Date().toISOString(),
@@ -339,7 +339,7 @@ class UserManager extends BaseManager {
     };
     
     this.sessions.set(sessionId, session);
-    return sessionId;
+    return session;
   }
 
   /**
@@ -350,13 +350,13 @@ class UserManager extends BaseManager {
   getSession(sessionId) {
     const session = this.sessions.get(sessionId);
     if (!session) {
-      return null;
+      return undefined;
     }
     
     // Check if session is expired
     if (new Date() > new Date(session.expiresAt)) {
       this.sessions.delete(sessionId);
-      return null;
+      return undefined;
     }
     
     // Update last access
@@ -370,6 +370,7 @@ class UserManager extends BaseManager {
    */
   destroySession(sessionId) {
     this.sessions.delete(sessionId);
+    return true;
   }
 
   /**
@@ -504,7 +505,7 @@ class UserManager extends BaseManager {
     await this.saveUsers();
     
     console.log(`👤 Updated user: ${username}`);
-    return true;
+    return user;
   }
 
   /**
@@ -532,6 +533,7 @@ class UserManager extends BaseManager {
     }
     
     console.log(`👤 Deleted user: ${username}`);
+    return true;
   }
 
   /**
@@ -553,7 +555,7 @@ class UserManager extends BaseManager {
   getUser(username) {
     const user = this.users.get(username);
     if (!user) {
-      return null;
+      return undefined;
     }
     
     const { password, ...userWithoutPassword } = user;
@@ -609,6 +611,7 @@ class UserManager extends BaseManager {
     await this.saveRoles();
     
     console.log(`👤 Created role: ${name}`);
+    return role;
   }
 
   /**
@@ -640,7 +643,7 @@ class UserManager extends BaseManager {
       await this.saveRoles(true);
       
       console.log(`👤 Updated role permissions: ${roleName}`);
-      return true;
+      return updatedRole;
     } catch (err) {
       console.error('Error updating role permissions:', err);
       return false;
