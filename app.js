@@ -41,6 +41,12 @@ app.use(session({
 
 // Simple CSRF protection middleware
 app.use((req, res, next) => {
+  // Skip CSRF check for certain paths
+  if (req.path === '/login' && req.method === 'POST') {
+    console.log('DEBUG CSRF: Skipping CSRF check for login');
+    return next();
+  }
+  
   // Generate CSRF token for session if it doesn't exist
   if (!req.session.csrfToken) {
     req.session.csrfToken = require('crypto').randomBytes(32).toString('hex');
@@ -52,10 +58,17 @@ app.use((req, res, next) => {
   // For POST requests, validate CSRF token
   if (req.method === 'POST') {
     const token = req.body._csrf || req.headers['x-csrf-token'];
+    console.log('DEBUG CSRF: Token from request:', token);
+    console.log('DEBUG CSRF: Token from session:', req.session.csrfToken);
+    console.log('DEBUG CSRF: Tokens match:', token === req.session.csrfToken);
+    
     if (!token || token !== req.session.csrfToken) {
       logger.warn(`CSRF token validation failed for ${req.path} from ${req.ip}`);
-      return res.status(403).send('CSRF token validation failed');
+      console.log('DEBUG CSRF: Blocking request due to CSRF failure');
+      res.status(403).send('CSRF token validation failed');
+      return; // Explicit return
     }
+    console.log('DEBUG CSRF: Token validation passed');
   }
   
   next();

@@ -2289,6 +2289,143 @@ class WikiRoutes {
     }
   }
 
+  /**
+   * Register all routes with Express app
+   */
+  registerRoutes(app) {
+    // Set up multer for file uploads
+    const multer = require('multer');
+    const path = require('path');
+    const config = this.engine.getConfig();
+
+    // Configure multer for attachments
+    const attachmentStorage = multer.memoryStorage();
+    const attachmentUpload = multer({
+      storage: attachmentStorage,
+      limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+      fileFilter: (req, file, cb) => {
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf', 'text/plain', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+        if (allowedTypes.includes(file.mimetype)) {
+          cb(null, true);
+        } else {
+          cb(new Error('Invalid file type'), false);
+        }
+      }
+    });
+
+    // Configure multer for images
+    const imageStorage = multer.diskStorage({
+      destination: (req, file, cb) => {
+        const uploadDir = config.get('features.images.uploadDir', './public/images');
+        cb(null, path.join(__dirname, '../../', uploadDir.replace('./', '')));
+      },
+      filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+      }
+    });
+    const imageUpload = multer({
+      storage: imageStorage,
+      limits: { 
+        fileSize: this.parseFileSize(config.get('features.images.maxSize', '5MB'))
+      },
+      fileFilter: (req, file, cb) => {
+        const allowedTypes = config.get('features.images.allowedTypes', ['image/jpeg', 'image/png', 'image/gif', 'image/webp']);
+        if (allowedTypes.includes(file.mimetype)) {
+          cb(null, true);
+        } else {
+          cb(new Error('Only image files are allowed'), false);
+        }
+      }
+    });
+
+    // Main routes
+    app.get('/', this.homePage.bind(this));
+    
+    // Specific routes that must come BEFORE wildcard routes
+    app.get('/create', this.createPage.bind(this)); // New page creation form
+    app.post('/create', this.createPageFromTemplate.bind(this)); // Create from template
+    app.get('/search', this.searchPages.bind(this));
+    app.get('/Search', this.searchPages.bind(this)); // JSPWiki-style uppercase Search page
+    app.get('/edit', this.editPageIndex.bind(this)); // Edit page selector
+    app.get('/edit/:page', this.editPage.bind(this));
+    app.post('/edit/:page', this.savePage.bind(this)); // Alternative save route
+    app.post('/delete/:page', this.deletePage.bind(this)); // Delete page
+    
+    // Wildcard routes (must come AFTER specific routes)
+    app.get('/wiki/:page', this.viewPage.bind(this));
+    app.post('/wiki/:page', this.savePage.bind(this)); // Handle form submissions
+    
+    // API routes
+    app.get('/api/suggestions', this.searchSuggestions.bind(this));
+    app.post('/api/preview', this.previewPage.bind(this));
+    app.get('/api/page-names', this.getPageNames.bind(this));
+    app.get('/api/page-source/:page', this.getPageSource.bind(this));
+    
+    // Attachment routes
+    app.post('/attachments/upload/:page', attachmentUpload.single('file'), this.uploadAttachment.bind(this));
+    app.get('/attachments/:attachmentId', this.serveAttachment.bind(this));
+    app.delete('/attachments/:attachmentId', this.deleteAttachment.bind(this));
+    
+    // Image upload routes
+    app.post('/images/upload', imageUpload.single('image'), this.uploadImage.bind(this));
+    
+    // Export routes
+    app.get('/export', this.exportPage.bind(this));
+    app.post('/export/html/:page', this.exportPageHtml.bind(this));
+    app.post('/export/markdown/:page', this.exportPageMarkdown.bind(this));
+    app.get('/exports', this.listExports.bind(this));
+    app.get('/exports/:filename', this.downloadExport.bind(this));
+    
+    // Authentication routes
+    app.get('/login', this.loginPage.bind(this));
+    app.post('/login', this.processLogin.bind(this));
+    app.get('/logout', this.processLogout.bind(this));
+    app.get('/user-info', this.userInfo.bind(this)); // Debug route to show current user state
+    app.get('/register', this.registerPage.bind(this));
+    app.post('/register', this.processRegister.bind(this));
+    app.get('/profile', this.profilePage.bind(this));
+    app.post('/profile', this.updateProfile.bind(this));
+    app.post('/profile/preferences', this.updatePreferences.bind(this));
+    
+    // Admin routes
+    app.get('/admin', this.adminDashboard.bind(this));
+    app.get('/admin/users', this.adminUsers.bind(this));
+    app.post('/admin/users', this.adminCreateUser.bind(this));
+    app.put('/admin/users/:username', this.adminUpdateUser.bind(this));
+    app.delete('/admin/users/:username', this.adminDeleteUser.bind(this));
+    app.get('/admin/roles', this.adminRoles.bind(this));
+    app.post('/admin/roles/:roleName', this.adminUpdateRole.bind(this));
+    app.get('/admin/settings', this.adminSettings.bind(this)); // Add missing settings route
+    app.post('/admin/maintenance/toggle', this.adminToggleMaintenance.bind(this));
+    
+    // Admin Policy Management Routes
+    app.get('/admin/policies', this.adminPolicies.bind(this));
+    app.post('/admin/policies', this.adminCreatePolicy.bind(this));
+    app.get('/admin/policies/:id', this.adminGetPolicy.bind(this));
+    app.put('/admin/policies/:id', this.adminUpdatePolicy.bind(this));
+    app.delete('/admin/policies/:id', this.adminDeletePolicy.bind(this));
+    
+    // Admin Schema.org Organization Management Routes
+    app.get('/admin/organizations', this.adminOrganizations.bind(this));
+    app.post('/admin/organizations', this.adminCreateOrganization.bind(this));
+    app.put('/admin/organizations/:identifier', this.adminUpdateOrganization.bind(this));
+    app.delete('/admin/organizations/:identifier', this.adminDeleteOrganization.bind(this));
+    app.get('/admin/organizations/:identifier', this.adminGetOrganization.bind(this));
+    app.get('/admin/organizations/:identifier/schema', this.adminGetOrganizationSchema.bind(this));
+    
+    // Admin File Validation Routes
+    app.get('/admin/validate-files', this.adminValidateFiles.bind(this));
+    app.post('/admin/fix-files', this.adminFixFiles.bind(this));
+    
+    // Admin Audit Routes
+    app.get('/admin/audit', this.adminAuditLogs.bind(this));
+    app.get('/admin/audit/api/logs', this.adminAuditLogsApi.bind(this));
+    app.get('/admin/audit/api/log/:id', this.adminAuditLogDetails.bind(this));
+    app.get('/admin/audit/export', this.adminAuditExport.bind(this));
+    
+    console.log('✅ Wiki routes registered');
+  }
 
   /**
    * Get raw page source (markdown content) for viewing/copying
