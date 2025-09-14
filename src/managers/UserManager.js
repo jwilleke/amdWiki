@@ -448,7 +448,7 @@ class UserManager extends BaseManager {
    * @returns {Object} Created user (without password)
    */
   async createUser(userData) {
-    const { username, email, displayName, password, roles = ['reader'], isExternal = false } = userData;
+    const { username, email, displayName, password, roles = ['reader'], isExternal = false, isActive = true } = userData;
     
     if (this.users.has(username)) {
       throw new Error('Username already exists');
@@ -462,7 +462,7 @@ class UserManager extends BaseManager {
       displayName: displayName || username,
       password: hashedPassword,
       roles,
-      isActive: true,
+      isActive: isActive,
       isSystem: false,
       isExternal: isExternal, // Flag to indicate OAuth/external user
       createdAt: new Date().toISOString(),
@@ -928,6 +928,53 @@ class UserManager extends BaseManager {
       return false;
     }
     return user.roles.includes(roleName);
+  }
+
+  /**
+   * Assign a role to a user
+   * @param {string} username - Username
+   * @param {string} roleName - Role name to assign
+   * @returns {boolean} True if successful
+   */
+  async assignRole(username, roleName) {
+    const user = this.users.get(username);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    if (!this.roles.has(roleName)) {
+      throw new Error('Role not found');
+    }
+
+    if (!user.roles.includes(roleName)) {
+      user.roles.push(roleName);
+      await this.saveUsers();
+      console.log(`👤 Assigned role '${roleName}' to user '${username}'`);
+    }
+
+    return true;
+  }
+
+  /**
+   * Remove a role from a user
+   * @param {string} username - Username
+   * @param {string} roleName - Role name to remove
+   * @returns {boolean} True if successful
+   */
+  async removeRole(username, roleName) {
+    const user = this.users.get(username);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const roleIndex = user.roles.indexOf(roleName);
+    if (roleIndex > -1) {
+      user.roles.splice(roleIndex, 1);
+      await this.saveUsers();
+      console.log(`👤 Removed role '${roleName}' from user '${username}'`);
+    }
+
+    return true;
   }
 }
 
