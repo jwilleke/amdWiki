@@ -291,6 +291,11 @@ class ACLManager extends BaseManager {
       return { allowed: true, reason: 'context_disabled' };
     }
 
+    // Skip context restrictions for anonymous users on public wiki
+    if (!user || user.username === 'anonymous' || user.username === 'asserted') {
+      return { allowed: true, reason: 'anonymous_user' };
+    }
+
     // Check maintenance mode
     const maintenanceCheck = this.checkMaintenanceMode(user, contextConfig.maintenanceMode);
     if (!maintenanceCheck.allowed) {
