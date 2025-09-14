@@ -2,7 +2,7 @@
 
 A simple, file-based wiki application built with Node.js, Express, and Markdown which mimics [JSPWiki](https://github.com/apache/jspwiki)
 
-📋 **See [ROADMAP.md](ROADMAP.md) for project vision, technical specifications, and feature priorities.**
+📋 **See [docs/planning/ROADMAP.md](docs/planning/ROADMAP.md) for project vision, technical specifications, and feature priorities.**
 
 ## Features
 
@@ -36,11 +36,43 @@ A simple, file-based wiki application built with Node.js, Express, and Markdown 
 
 ### For Developers
 - Follow the setup steps above.
-- Read [CONTRIBUTING.md](CONTRIBUTING.md) for coding standards, testing, and contribution guidelines.
-- Check [CHANGELOG.md](CHANGELOG.md) for version history and migration notes for breaking changes.
+- Read [docs/development/CONTRIBUTING.md](docs/development/CONTRIBUTING.md) for coding standards, testing, and contribution guidelines.
+- Check [docs/CHANGELOG.md](docs/CHANGELOG.md) for version history and migration notes for breaking changes.
 
 ## Configuration
-Configuration files are located in `config/` or `wiki.conf/` directories. Modify settings like port, directories, or manager options as needed. See detailed configuration guides in [docs/](docs/) if available.
+Configuration files are located in `config/` directory. Modify settings like port, directories, or manager options as needed. See detailed configuration guides in [docs/](docs/) if available.
+
+## Project Structure
+
+```bash
+amdWiki/
+├── src/                    # Source code
+│   ├── core/              # Core engine components
+│   ├── managers/          # Business logic managers
+│   ├── routes/            # HTTP route handlers
+│   └── utils/             # Utility functions
+├── config/                # Application configuration
+├── public/                # Static assets (CSS, JS, images)
+├── views/                 # EJS templates
+├── docs/                  # Documentation
+│   ├── architecture/      # System architecture docs
+│   ├── development/       # Development guides
+│   ├── planning/          # Project planning docs
+│   ├── api/              # API documentation
+│   └── issues/           # Issue tracking
+├── tests/                 # Test files
+├── scripts/               # Utility scripts
+├── data/                  # Runtime application data
+├── logs/                  # Application logs
+├── pages/                 # User-generated wiki pages
+├── users/                 # User account data
+├── attachments/           # User uploaded files
+├── exports/               # Exported content
+├── reports/               # Test coverage reports
+└── archive/               # Legacy files
+```
+
+📖 **Detailed project structure documentation available in [docs/architecture/PROJECT-STRUCTURE.md](docs/architecture/PROJECT-STRUCTURE.md)**
 
 ## Examples
 **Creating a Wiki Page Link (JSPWiki Syntax):**
