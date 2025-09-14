@@ -1771,6 +1771,15 @@ class WikiRoutes {
         { timestamp: new Date(Date.now() - 60000).toLocaleString(), description: 'System started' }
       ];
       
+      // Get system notifications
+      let notifications = [];
+      try {
+        const notificationManager = this.engine.getManager('NotificationManager');
+        notifications = notificationManager.getAllNotifications().slice(-10); // Get last 10 notifications
+      } catch (error) {
+        console.error('Error fetching notifications for admin dashboard:', error);
+      }
+      
       const templateData = {
         ...commonData,
         title: 'Admin Dashboard',
@@ -1781,7 +1790,9 @@ class WikiRoutes {
         stats: stats,
         recentActivity: recentActivity,
         requiredPages: requiredPages,
+        notifications: notifications,
         maintenanceMode: this.engine.config?.features?.maintenance?.enabled || false,
+        csrfToken: req.session.csrfToken || '',
         successMessage: req.query.success || null,
         errorMessage: req.query.error || null
       };
@@ -2481,6 +2492,153 @@ class WikiRoutes {
     } catch (error) {
       console.error('Error getting organization schema:', error);
       res.status(500).json({ error: error.message });
+    }
+  }
+
+  /**
+   * Register all routes with the Express app
+   * @param {Express} app - Express application instance
+   */
+  registerRoutes(app) {
+    // Public routes
+    app.get('/', (req, res) => this.homePage(req, res));
+    app.get('/wiki/:page', (req, res) => this.viewPage(req, res));
+    app.get('/edit/:page', (req, res) => this.editPage(req, res));
+    app.post('/save/:page', (req, res) => this.savePage(req, res));
+    app.get('/create', (req, res) => this.createPage(req, res));
+    app.post('/create', (req, res) => this.createPageFromTemplate(req, res));
+    app.post('/delete/:page', (req, res) => this.deletePage(req, res));
+    app.get('/search', (req, res) => this.searchPages(req, res));
+    app.get('/login', (req, res) => this.loginPage(req, res));
+    app.post('/login', (req, res) => this.processLogin(req, res));
+    app.post('/logout', (req, res) => this.processLogout(req, res));
+    app.get('/register', (req, res) => this.registerPage(req, res));
+    app.post('/register', (req, res) => this.processRegister(req, res));
+    app.get('/profile', (req, res) => this.profilePage(req, res));
+    app.post('/profile', (req, res) => this.updateProfile(req, res));
+    app.post('/preferences', (req, res) => this.updatePreferences(req, res));
+    app.get('/user-info', (req, res) => this.userInfo(req, res));
+
+    // Admin routes
+    app.get('/admin', (req, res) => this.adminDashboard(req, res));
+    app.post('/admin/maintenance/toggle', (req, res) => this.adminToggleMaintenance(req, res));
+    app.get('/admin/users', (req, res) => this.adminUsers(req, res));
+    app.post('/admin/users', (req, res) => this.adminCreateUser(req, res));
+    app.put('/admin/users/:username', (req, res) => this.adminUpdateUser(req, res));
+    app.delete('/admin/users/:username', (req, res) => this.adminDeleteUser(req, res));
+    app.get('/admin/roles', (req, res) => this.adminRoles(req, res));
+    app.post('/admin/roles', (req, res) => this.adminCreateRole(req, res));
+    app.put('/admin/roles/:role', (req, res) => this.adminUpdateRole(req, res));
+    app.delete('/admin/roles/:role', (req, res) => this.adminDeleteRole(req, res));
+
+    // Notification management routes
+    app.post('/admin/notifications/:id/dismiss', (req, res) => this.adminDismissNotification(req, res));
+    app.post('/admin/notifications/clear-all', (req, res) => this.adminClearAllNotifications(req, res));
+    app.get('/admin/notifications', (req, res) => this.adminNotifications(req, res));
+
+    // Schema.org routes
+    app.get('/schema/person/:identifier', (req, res) => this.adminGetPersonSchema(req, res));
+    app.get('/schema/organization/:identifier', (req, res) => this.adminGetOrganizationSchema(req, res));
+  }
+
+  /**
+   * Dismiss a notification (admin only)
+   */
+  async adminDismissNotification(req, res) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = await userManager.getCurrentUser(req);
+
+      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+        return res.status(403).send('Access denied');
+      }
+
+      const notificationId = req.params.id;
+      const notificationManager = this.engine.getManager('NotificationManager');
+
+      const success = notificationManager.dismissNotification(notificationId, currentUser.username);
+
+      if (success) {
+        res.redirect('/admin?success=Notification dismissed successfully');
+      } else {
+        res.redirect('/admin?error=Notification not found or already dismissed');
+      }
+    } catch (err) {
+      console.error('Error dismissing notification:', err);
+      res.redirect('/admin?error=Failed to dismiss notification');
+    }
+  }
+
+  /**
+   * Clear all notifications (admin only)
+   */
+  async adminClearAllNotifications(req, res) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = await userManager.getCurrentUser(req);
+
+      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+        return res.status(403).send('Access denied');
+      }
+
+      const notificationManager = this.engine.getManager('NotificationManager');
+      const allNotifications = notificationManager.getAllNotifications();
+
+      // Dismiss all notifications for the current admin user
+      let dismissedCount = 0;
+      for (const notification of allNotifications) {
+        if (notificationManager.dismissNotification(notification.id, currentUser.username)) {
+          dismissedCount++;
+        }
+      }
+
+      res.redirect(`/admin?success=Cleared ${dismissedCount} notifications successfully`);
+    } catch (err) {
+      console.error('Error clearing notifications:', err);
+      res.redirect('/admin?error=Failed to clear notifications');
+    }
+  }
+
+  /**
+   * Notification management page (admin only)
+   */
+  async adminNotifications(req, res) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = await userManager.getCurrentUser(req);
+
+      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+        return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to manage notifications');
+      }
+
+      const commonData = await this.getCommonTemplateDataWithUser(req);
+      const notificationManager = this.engine.getManager('NotificationManager');
+
+      // Get all notifications with expired ones for management
+      const allNotifications = notificationManager.getAllNotifications(true);
+      const activeNotifications = notificationManager.getAllNotifications(false);
+      const expiredNotifications = allNotifications.filter(n =>
+        n.expiresAt && n.expiresAt < new Date()
+      );
+
+      // Get notification statistics
+      const stats = notificationManager.getStats();
+
+      res.render('admin-notifications', {
+        ...commonData,
+        title: 'Notification Management',
+        allNotifications: allNotifications,
+        activeNotifications: activeNotifications,
+        expiredNotifications: expiredNotifications,
+        stats: stats,
+        csrfToken: req.session.csrfToken || '',
+        successMessage: req.query.success || null,
+        errorMessage: req.query.error || null
+      });
+
+    } catch (err) {
+      console.error('Error loading notification management:', err);
+      res.status(500).send('Error loading notification management');
     }
   }
 }

@@ -1,0 +1,228 @@
+<%- include('header', { pageName: '' }) %>
+
+<div class="container mt-4">
+    <% if (typeof successMessage !== 'undefined' && successMessage) { %>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle"></i> <%= successMessage %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <% } %>
+
+    <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle"></i> <%= errorMessage %>
+            <button type="button class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <% } %>
+
+    <div class="row">
+        <div class="col-12">
+            <h1><i class="fas fa-bell"></i> Notification Management</h1>
+            <p class="lead">Manage system notifications and alerts</p>
+        </div>
+    </div>
+
+    <!-- Notification Statistics -->
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="card-title text-primary"><%= stats.total %></h3>
+                    <p class="card-text">Total Notifications</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="card-title text-success"><%= stats.active %></h3>
+                    <p class="card-text">Active</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="card-title text-warning"><%= stats.expired %></h3>
+                    <p class="card-text">Expired</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="card-title text-info"><%= Object.keys(stats.byType).length %></h3>
+                    <p class="card-text">Types</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Filters -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <ul class="nav nav-tabs card-header-tabs" id="notificationTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="active-tab" data-bs-toggle="tab" data-bs-target="#active" type="button" role="tab">Active (<%= activeNotifications.length %>)</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="all-tab" data-bs-toggle="tab" data-bs-target="#all" type="button" role="tab">All (<%= allNotifications.length %>)</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="expired-tab" data-bs-toggle="tab" data-bs-target="#expired" type="button" role="tab">Expired (<%= expiredNotifications.length %>)</button>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <div class="tab-content" id="notificationTabsContent">
+                        <!-- Active Notifications -->
+                        <div class="tab-pane fade show active" id="active" role="tabpanel">
+                            <% if (activeNotifications.length > 0) { %>
+                                <% activeNotifications.forEach(notification => { %>
+                                    <div class="alert alert-<%= notification.level === 'warning' ? 'warning' : notification.level === 'error' ? 'danger' : notification.level === 'success' ? 'success' : 'info' %> border-0 mb-3">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div class="flex-grow-1">
+                                                <h6 class="alert-heading mb-1"><%= notification.title %></h6>
+                                                <p class="mb-1"><%= notification.message %></p>
+                                                <small class="text-muted">
+                                                    <i class="fas fa-clock"></i> <%= new Date(notification.createdAt).toLocaleString() %>
+                                                    <% if (notification.type) { %>
+                                                        <span class="badge bg-secondary ms-2"><%= notification.type %></span>
+                                                    <% } %>
+                                                    <% if (notification.expiresAt) { %>
+                                                        <span class="badge bg-warning ms-2">Expires: <%= new Date(notification.expiresAt).toLocaleString() %></span>
+                                                    <% } %>
+                                                </small>
+                                            </div>
+                                            <div class="ms-3">
+                                                <form method="POST" action="/admin/notifications/<%= notification.id %>/dismiss" class="d-inline">
+                                                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                                    <button type="submit" class="btn btn-sm btn-outline-secondary" title="Dismiss notification">
+                                                        <i class="fas fa-times"></i> Dismiss
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <% }); %>
+                            <% } else { %>
+                                <div class="text-center py-4">
+                                    <i class="fas fa-bell-slash fa-3x text-muted mb-3"></i>
+                                    <p class="text-muted">No active notifications</p>
+                                </div>
+                            <% } %>
+                        </div>
+
+                        <!-- All Notifications -->
+                        <div class="tab-pane fade" id="all" role="tabpanel">
+                            <% if (allNotifications.length > 0) { %>
+                                <% allNotifications.forEach(notification => { %>
+                                    <div class="alert alert-<%= notification.level === 'warning' ? 'warning' : notification.level === 'error' ? 'danger' : notification.level === 'success' ? 'success' : 'info' %> border-0 mb-3 <%= notification.expiresAt && notification.expiresAt < new Date() ? 'opacity-50' : '' %>">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div class="flex-grow-1">
+                                                <h6 class="alert-heading mb-1"><%= notification.title %></h6>
+                                                <p class="mb-1"><%= notification.message %></p>
+                                                <small class="text-muted">
+                                                    <i class="fas fa-clock"></i> <%= new Date(notification.createdAt).toLocaleString() %>
+                                                    <% if (notification.type) { %>
+                                                        <span class="badge bg-secondary ms-2"><%= notification.type %></span>
+                                                    <% } %>
+                                                    <% if (notification.expiresAt) { %>
+                                                        <% if (notification.expiresAt < new Date()) { %>
+                                                            <span class="badge bg-danger ms-2">Expired: <%= new Date(notification.expiresAt).toLocaleString() %></span>
+                                                        <% } else { %>
+                                                            <span class="badge bg-warning ms-2">Expires: <%= new Date(notification.expiresAt).toLocaleString() %></span>
+                                                        <% } %>
+                                                    <% } %>
+                                                </small>
+                                            </div>
+                                            <div class="ms-3">
+                                                <% if (!notification.expiresAt || notification.expiresAt >= new Date()) { %>
+                                                    <form method="POST" action="/admin/notifications/<%= notification.id %>/dismiss" class="d-inline">
+                                                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                                        <button type="submit" class="btn btn-sm btn-outline-secondary" title="Dismiss notification">
+                                                            <i class="fas fa-times"></i> Dismiss
+                                                        </button>
+                                                    </form>
+                                                <% } else { %>
+                                                    <span class="badge bg-secondary">Expired</span>
+                                                <% } %>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <% }); %>
+                            <% } else { %>
+                                <div class="text-center py-4">
+                                    <i class="fas fa-bell-slash fa-3x text-muted mb-3"></i>
+                                    <p class="text-muted">No notifications found</p>
+                                </div>
+                            <% } %>
+                        </div>
+
+                        <!-- Expired Notifications -->
+                        <div class="tab-pane fade" id="expired" role="tabpanel">
+                            <% if (expiredNotifications.length > 0) { %>
+                                <% expiredNotifications.forEach(notification => { %>
+                                    <div class="alert alert-secondary border-0 mb-3 opacity-75">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div class="flex-grow-1">
+                                                <h6 class="alert-heading mb-1"><%= notification.title %></h6>
+                                                <p class="mb-1"><%= notification.message %></p>
+                                                <small class="text-muted">
+                                                    <i class="fas fa-clock"></i> <%= new Date(notification.createdAt).toLocaleString() %>
+                                                    <% if (notification.type) { %>
+                                                        <span class="badge bg-secondary ms-2"><%= notification.type %></span>
+                                                    <% } %>
+                                                    <span class="badge bg-danger ms-2">Expired: <%= new Date(notification.expiresAt).toLocaleString() %></span>
+                                                </small>
+                                            </div>
+                                            <div class="ms-3">
+                                                <span class="badge bg-secondary">Expired</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <% }); %>
+                            <% } else { %>
+                                <div class="text-center py-4">
+                                    <i class="fas fa-clock fa-3x text-muted mb-3"></i>
+                                    <p class="text-muted">No expired notifications</p>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <form method="POST" action="/admin/notifications/clear-all" class="d-inline">
+                                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Clear all active notifications? This action cannot be undone.')">
+                                    <i class="fas fa-trash"></i> Clear All Active
+                                </button>
+                            </form>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <a href="/admin" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-arrow-left"></i> Back to Dashboard
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto-refresh notifications every 30 seconds
+setInterval(function() {
+    // Only refresh if we're on the active tab
+    if (document.querySelector('#active-tab').classList.contains('active')) {
+        location.reload();
+    }
+}, 30000);
+</script>
+
+<%- include('footer') %>
