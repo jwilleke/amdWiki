@@ -130,10 +130,30 @@ async function initializeWikiEngine() {
     usersDirectory: path.join(__dirname, 'users'),
     templatesDirectory: path.join(__dirname, 'templates')
   });
-  
+
+  // Reconfigure logger with config settings
+  const config = engine.config;
+  console.log('🔧 Checking logger config:', config?.logging);
+  if (config?.logging) {
+    const { reconfigureLogger } = require('./src/utils/logger');
+    const newLogger = reconfigureLogger({
+      level: config.logging.level || 'info',
+      dir: path.resolve(__dirname, config.logging.dir || './logs'),
+      maxSize: config.logging.maxSize || '1MB',
+      maxFiles: config.logging.maxFiles || 5
+    });
+
+    // Replace the global logger reference
+    logger = newLogger;
+    console.log('✅ Logger reconfigured with config settings');
+    logger.info('Logger successfully reconfigured with config settings');
+  } else {
+    console.log('⚠️ No logging config found, using defaults');
+  }
+
   const wikiRoutes = new WikiRoutes(engine);
   wikiRoutes.registerRoutes(app);
-  
+
   console.log('✅ WikiEngine and routes initialized');
   return engine;
 }
