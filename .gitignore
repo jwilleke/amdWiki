@@ -156,6 +156,8 @@ attachments/*
 exports/*
 /logs/
 logs/*
+/data/
+data/*
 
 # Keep required-pages/ tracked (system pages)
 .editorconfig
