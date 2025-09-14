@@ -662,6 +662,82 @@ class ACLManager extends BaseManager {
       allowedRoles: maintenanceConfig.allowedRoles || ['admin']
     };
   }
+
+  /**
+   * Check storage location permission for a page
+   * Determines whether a page should be stored in regular or required pages directory
+   * @param {string} pageName - Name of the page
+   * @param {Object} user - User object (null for anonymous)
+   * @param {Object} metadata - Page metadata
+   * @param {string} content - Page content
+   * @returns {Object} Storage location decision with reasoning
+   */
+  async checkStorageLocation(pageName, user, metadata = {}, content = '') {
+    const config = this.engine.getConfig();
+    const storageConfig = config.get('accessControl.storageLocation', {});
+    
+    // Default decision
+    let location = 'regular';
+    let reason = 'default';
+    
+    // Check if storage location policies are enabled
+    if (!storageConfig.enabled) {
+      return { location, reason: 'policies_disabled' };
+    }
+    
+    // Check user role-based storage rules
+    if (user && storageConfig.roleBasedStorage) {
+      const userManager = this.engine.getManager('UserManager');
+      if (userManager) {
+        // Admin users can store in required pages
+        if (userManager.hasPermission(user.username, 'admin:system')) {
+          location = 'required';
+          reason = 'admin_user';
+        }
+        
+        // Check role-based rules
+        for (const [role, storageType] of Object.entries(storageConfig.roleBasedStorage)) {
+          if (userManager.hasRole(user.username, role)) {
+            location = storageType;
+            reason = `role_${role}`;
+            break;
+          }
+        }
+      }
+    }
+    
+    // Check category-based storage rules
+    if (metadata.categories && Array.isArray(metadata.categories)) {
+      for (const category of metadata.categories) {
+        if (storageConfig.categoryBasedStorage && storageConfig.categoryBasedStorage[category]) {
+          location = storageConfig.categoryBasedStorage[category];
+          reason = `category_${category}`;
+          break;
+        }
+      }
+    }
+    
+    // Check legacy category format
+    if (metadata.category && storageConfig.categoryBasedStorage && storageConfig.categoryBasedStorage[metadata.category]) {
+      location = storageConfig.categoryBasedStorage[metadata.category];
+      reason = `legacy_category_${metadata.category}`;
+    }
+    
+    // Check ACL-based storage rules (pages with restrictive ACLs go to required)
+    if (content && storageConfig.aclBasedStorage) {
+      const acl = this.parseACL(content);
+      if (acl) {
+        // If page has restrictive ACL rules, store in required pages
+        const hasRestrictions = Object.values(acl).some(principals => principals.length > 0);
+        if (hasRestrictions) {
+          location = 'required';
+          reason = 'restrictive_acl';
+        }
+      }
+    }
+    
+    return { location, reason };
+  }
 }
 
 module.exports = ACLManager;

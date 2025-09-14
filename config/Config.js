@@ -141,6 +141,26 @@ const defaultConfig = {
       enabled: false,
       configFile: './config/access-policies.json',
       defaultPolicy: 'deny'
+    },
+    // Storage location permissions
+    storageLocation: {
+      enabled: true,
+      // Role-based storage rules
+      roleBasedStorage: {
+        'admin': 'required',
+        'editor': 'regular',
+        'user': 'regular'
+      },
+      // Category-based storage rules
+      categoryBasedStorage: {
+        'System': 'required',
+        'Admin': 'required',
+        'Security': 'required',
+        'General': 'regular',
+        'Documentation': 'regular'
+      },
+      // ACL-based storage rules
+      aclBasedStorage: true  // Pages with restrictive ACLs go to required pages
     }
   }
 };

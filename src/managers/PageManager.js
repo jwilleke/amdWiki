@@ -212,7 +212,7 @@ class PageManager extends BaseManager {
    * @param {Object} metadata - Page metadata (optional, for checking category)
    * @returns {boolean} True if it's a required page
    */
-  async isRequiredPage(identifier, metadata = null) {
+  async isRequiredPage(identifier, metadata = null, user = null, content = '') {
     // Hardcoded required pages
     const hardcodedRequiredPages = ['Categories', 'Wiki Documentation'];
     
@@ -239,12 +239,26 @@ class PageManager extends BaseManager {
       }
     }
     
+    // Check ACL-based storage location if ACLManager is available
+    try {
+      const aclManager = this.engine.getManager('ACLManager');
+      if (aclManager) {
+        const storageDecision = await aclManager.checkStorageLocation(identifier, user, metadata, content);
+        if (storageDecision.location === 'required') {
+          return true;
+        }
+      }
+    } catch (error) {
+      // If ACL check fails, log but don't fail the operation
+      console.warn('ACL storage location check failed:', error.message);
+    }
+    
     // If no metadata provided, check existing page
     if (!metadata) {
       try {
         const pageData = await this.getPage(identifier);
         if (pageData && pageData.metadata) {
-          return await this.isRequiredPage(identifier, pageData.metadata);
+          return await this.isRequiredPage(identifier, pageData.metadata, user, pageData.content);
         }
       } catch (err) {
         // If page doesn't exist yet, not a required page
@@ -260,9 +274,10 @@ class PageManager extends BaseManager {
    * @param {string} identifier - Page identifier (title, slug, or UUID)
    * @param {string} content - Page content
    * @param {Object} metadata - Page metadata
+   * @param {Object} user - User object (optional, for ACL-based storage decisions)
    * @returns {Object} Saved page information
    */
-  async savePage(identifier, content, metadata = {}) {
+  async savePage(identifier, content, metadata = {}, user = null) {
     try {
       const validationManager = this.engine.getManager('ValidationManager');
       
@@ -309,7 +324,7 @@ class PageManager extends BaseManager {
       }
 
       // Determine the correct directory based on page type and metadata
-      const isRequired = await this.isRequiredPage(identifier, metadata);
+      const isRequired = await this.isRequiredPage(identifier, metadata, user, content);
       const targetDir = isRequired ? this.requiredPagesDir : this.pagesDir;
       
       // Use validated UUID-based filename

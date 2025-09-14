@@ -68,6 +68,14 @@ const mockEngine = {
       if (key === 'accessControl.contextAware') {
         return { enabled: false };
       }
+      if (key === 'accessControl.storageLocation') {
+        return configStore['accessControl.storageLocation'] || {
+          enabled: false,
+          roleBasedStorage: {},
+          categoryBasedStorage: {},
+          aclBasedStorage: false
+        };
+      }
       return defaultValue;
     }),
     set: jest.fn((key, value) => {
@@ -1036,6 +1044,102 @@ describe('ACLManager', () => {
         const result = await aclManager.checkAttachmentPermission(null, 'regular-attachment', 'view');
         expect(result).toBe(true);
       });
+    });
+  });
+
+  describe('storage location permissions', () => {
+    beforeEach(() => {
+      // Reset mocks
+      mockUserManager.hasPermission.mockReset();
+      mockUserManager.hasRole.mockReset();
+      
+      // Reset config store and set up proper nested structure
+      Object.keys(configStore).forEach(key => delete configStore[key]);
+      
+      // Set up storage location config using nested structure
+      configStore.accessControl = {
+        storageLocation: {
+          enabled: true,
+          roleBasedStorage: {
+            'admin': 'required',
+            'editor': 'regular'
+          },
+          categoryBasedStorage: {
+            'System': 'required',
+            'General': 'regular'
+          },
+          aclBasedStorage: true
+        }
+      };
+    });
+
+    test('should return default location when policies disabled', async () => {
+      // Override config for this specific test
+      configStore.accessControl.storageLocation.enabled = false;
+      
+      const result = await aclManager.checkStorageLocation('TestPage', null, {}, '');
+      
+      expect(result.location).toBe('regular');
+      expect(result.reason).toBe('policies_disabled');
+    });
+
+    test('should store admin user pages in required directory', async () => {
+      const user = { username: 'admin' };
+      mockUserManager.hasPermission.mockReturnValue(true);
+      
+      const result = await aclManager.checkStorageLocation('TestPage', user, {}, '');
+      
+      expect(result.location).toBe('required');
+      expect(result.reason).toBe('admin_user');
+      expect(mockUserManager.hasPermission).toHaveBeenCalledWith('admin', 'admin:system');
+    });
+
+    test('should store pages by user role', async () => {
+      const user = { username: 'editor' };
+      mockUserManager.hasPermission.mockReturnValue(false); // Not an admin
+      mockUserManager.hasRole.mockImplementation((username, role) => {
+        return role === 'editor'; // Only return true for editor role
+      });
+      
+      const result = await aclManager.checkStorageLocation('TestPage', user, {}, '');
+      
+      expect(result.location).toBe('regular');
+      expect(result.reason).toBe('role_editor');
+      expect(mockUserManager.hasRole).toHaveBeenCalledWith('editor', 'editor');
+    });
+
+    test('should store pages by category', async () => {
+      const metadata = { categories: ['System'] };
+      
+      const result = await aclManager.checkStorageLocation('TestPage', null, metadata, '');
+      
+      expect(result.location).toBe('required');
+      expect(result.reason).toBe('category_System');
+    });
+
+    test('should store pages by legacy category format', async () => {
+      const metadata = { category: 'System' };
+      
+      const result = await aclManager.checkStorageLocation('TestPage', null, metadata, '');
+      
+      expect(result.location).toBe('required');
+      expect(result.reason).toBe('legacy_category_System');
+    });
+
+    test('should store pages with restrictive ACLs in required directory', async () => {
+      const content = '[{ALLOW view admin}] Some content';
+      
+      const result = await aclManager.checkStorageLocation('TestPage', null, {}, content);
+      
+      expect(result.location).toBe('required');
+      expect(result.reason).toBe('restrictive_acl');
+    });
+
+    test('should default to regular directory for normal pages', async () => {
+      const result = await aclManager.checkStorageLocation('TestPage', null, {}, '');
+      
+      expect(result.location).toBe('regular');
+      expect(result.reason).toBe('default');
     });
   });
 });

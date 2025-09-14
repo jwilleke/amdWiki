@@ -19,11 +19,19 @@ const mockValidationManager = {
   }))
 };
 
+// Mock ACLManager
+const mockACLManager = {
+  checkStorageLocation: jest.fn().mockResolvedValue({ location: 'regular', reason: 'default' })
+};
+
 // Mock engine
 const mockEngine = {
   getManager: jest.fn((name) => {
     if (name === 'ValidationManager') {
       return mockValidationManager;
+    }
+    if (name === 'ACLManager') {
+      return mockACLManager;
     }
     return null;
   }),
@@ -497,6 +505,88 @@ invalid yaml: [unclosed array
       
       // Should not throw error
       await expect(pageManager.updatePageIndex()).resolves.not.toThrow();
+    });
+  });
+
+  describe('ACL-based storage location', () => {
+    beforeEach(() => {
+      // Reset ACLManager mock completely
+      mockACLManager.checkStorageLocation.mockReset();
+      mockACLManager.checkStorageLocation.mockResolvedValue({ location: 'regular', reason: 'default' });
+    });
+
+    test('should use ACLManager for storage location decisions', async () => {
+      mockACLManager.checkStorageLocation.mockResolvedValue({ location: 'required', reason: 'acl_decision' });
+      
+      const metadata = { categories: ['General'] };
+      const user = { username: 'testuser' };
+      
+      const result = await pageManager.savePage('ACLTest', '# Test Content', metadata, user);
+      
+      expect(result.success).toBe(true);
+      expect(mockACLManager.checkStorageLocation).toHaveBeenCalledWith('ACLTest', user, metadata, '# Test Content');
+      
+      // Verify file was saved to required pages directory
+      const requiredPagePath = path.join(testRequiredPagesDir, `${metadata.uuid}.md`);
+      expect(await fs.pathExists(requiredPagePath)).toBe(true);
+    });
+
+    test('should handle ACLManager errors gracefully', async () => {
+      mockACLManager.checkStorageLocation.mockRejectedValue(new Error('ACL check failed'));
+      
+      const metadata = { categories: ['General'] };
+      
+      const result = await pageManager.savePage('ACLErrorTest', '# Test Content', metadata);
+      
+      expect(result.success).toBe(true); // Should still succeed despite ACL error
+      expect(mockACLManager.checkStorageLocation).toHaveBeenCalled();
+      
+      // Should default to regular pages directory
+      const regularPagePath = path.join(testPagesDir, `${metadata.uuid}.md`);
+      expect(await fs.pathExists(regularPagePath)).toBe(true);
+    });
+
+    test('should work without ACLManager (backward compatibility)', async () => {
+      // Mock engine to return null for ACLManager
+      mockEngine.getManager.mockImplementation((name) => {
+        if (name === 'ValidationManager') {
+          return mockValidationManager;
+        }
+        return null; // No ACLManager
+      });
+      
+      const metadata = { categories: ['General'] };
+      
+      const result = await pageManager.savePage('NoACLTest', '# Test Content', metadata);
+      
+      expect(result.success).toBe(true);
+      
+      // Should default to regular pages directory
+      const regularPagePath = path.join(testPagesDir, `${metadata.uuid}.md`);
+      expect(await fs.pathExists(regularPagePath)).toBe(true);
+      
+      // Restore ACLManager for other tests
+      mockEngine.getManager.mockImplementation((name) => {
+        if (name === 'ValidationManager') {
+          return mockValidationManager;
+        }
+        if (name === 'ACLManager') {
+          return mockACLManager;
+        }
+        return null;
+      });
+    });
+
+    test('should pass user and content to ACLManager', async () => {
+      const user = { username: 'admin', role: 'admin' };
+      const content = '[{ALLOW edit admin}] Restricted content';
+      const metadata = { categories: ['General'] }; // Use General instead of System
+      
+      mockACLManager.checkStorageLocation.mockResolvedValue({ location: 'required', reason: 'admin_acl' });
+      
+      await pageManager.savePage('AdminPage', content, metadata, user);
+      
+      expect(mockACLManager.checkStorageLocation).toHaveBeenCalledWith('AdminPage', user, metadata, content);
     });
   });
 });
