@@ -25,9 +25,9 @@ amdWiki follows a **manager-based architecture** inspired by JSPWiki:
 ## 🔧 Development Guidelines
 
 ### Critical requirements
-- CHANGELOG.md ALL notable changes to are documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) [CHANGELOG.md]
+- [CHANGELOG.md](./CHANGELOG.md) ALL notable changes to are documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) [CHANGELOG.md]
 - [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
-- Markdownlint Configuration using `.markdownlint.json`
+- Markdownlint Configuration using (.markdownlint.json)
 - Use of Open Standards
   - [Schema.org](https://schema.org/) when possible.
 
