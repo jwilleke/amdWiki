@@ -19,6 +19,7 @@ const defaultConfig = {
     pagesDir: './pages',
     templatesDir: './wiki.conf/templates',
     resourcesDir: './resources',
+    dataDir: './data',
     workDir: './',
     encoding: 'UTF-8',
     frontPage: 'Welcome'

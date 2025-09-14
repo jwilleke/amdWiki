@@ -1832,7 +1832,7 @@ class WikiRoutes {
 
       // Create notification for all users about maintenance mode change
       const notificationManager = this.engine.getManager('NotificationManager');
-      notificationManager.createMaintenanceNotification(
+      await notificationManager.createMaintenanceNotification(
         config.features.maintenance.enabled,
         currentUser.username,
         config.features.maintenance
@@ -2556,7 +2556,7 @@ class WikiRoutes {
       const notificationId = req.params.id;
       const notificationManager = this.engine.getManager('NotificationManager');
 
-      const success = notificationManager.dismissNotification(notificationId, currentUser.username);
+      const success = await notificationManager.dismissNotification(notificationId, currentUser.username);
 
       if (success) {
         res.redirect('/admin?success=Notification dismissed successfully');
@@ -2587,7 +2587,7 @@ class WikiRoutes {
       // Dismiss all notifications for the current admin user
       let dismissedCount = 0;
       for (const notification of allNotifications) {
-        if (notificationManager.dismissNotification(notification.id, currentUser.username)) {
+        if (await notificationManager.dismissNotification(notification.id, currentUser.username)) {
           dismissedCount++;
         }
       }
