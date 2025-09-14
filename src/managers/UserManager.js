@@ -481,13 +481,15 @@ class UserManager extends BaseManager {
     // Handle anonymous user (no session cookie)
     if (!username || username === 'anonymous') {
       const anonymousRole = this.roles.get('anonymous');
-      return anonymousRole && anonymousRole.permissions.includes(permission);
+      const result = anonymousRole && anonymousRole.permissions.includes(permission);
+      return result;
     }
     
     // Handle asserted user (has session cookie but expired/invalid)
     if (username === 'asserted') {
       const readerRole = this.roles.get('reader');
-      return readerRole && readerRole.permissions.includes(permission);
+      const result = readerRole && readerRole.permissions.includes(permission);
+      return result;
     }
 
     const user = this.users.get(username);

@@ -231,23 +231,28 @@ class ACLManager extends BaseManager {
       
       // If specific ACL for this action exists, check it
       if (allowedPrincipals.length > 0) {
-        return this.userMatchesPrincipals(user, allowedPrincipals);
+        const result = this.userMatchesPrincipals(user, allowedPrincipals);
+        return result;
       }
     }
 
     // Default policy: Allow read access to all pages unless it's a system/admin page
     if (action.toLowerCase() === 'view') {
       // Check if this is a system/admin page that should be restricted
-      if (this.isSystemOrAdminPage(pageName)) {
+      const isSystemPage = this.isSystemOrAdminPage(pageName);
+      
+      if (isSystemPage) {
         // System/admin pages require proper permissions
-        return this.checkDefaultPermission(action, user);
+        const result = this.checkDefaultPermission(action, user);
+        return result;
       }
       // Regular pages are readable by everyone (including anonymous)
       return true;
     }
     
     // For non-view actions (edit, delete, etc.), check role-based permissions
-    return this.checkDefaultPermission(action, user);
+    const result = this.checkDefaultPermission(action, user);
+    return result;
   }
 
   /**
@@ -273,8 +278,10 @@ class ACLManager extends BaseManager {
 
     const permission = permissionMap[action.toLowerCase()] || `page:${action.toLowerCase()}`;
     const username = user ? user.username : null;
-
-    return userManager.hasPermission(username, permission);
+    
+    const result = userManager.hasPermission(username, permission);
+    
+    return result;
   }
 
   /**

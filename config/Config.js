@@ -110,7 +110,7 @@ const defaultConfig = {
       enabled: true,
       timeZone: 'UTC',
       businessHours: {
-        enabled: true,
+        enabled: false,
         start: '09:00',
         end: '17:00',
         days: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday']

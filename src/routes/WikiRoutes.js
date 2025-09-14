@@ -227,15 +227,11 @@ class WikiRoutes {
    * Extract user keywords from User-Keywords page
    */
   async getUserKeywords() {
-    console.log('=== getUserKeywords method called ===');
     try {
       const pageManager = this.engine.getManager('PageManager');
       const keywordsPage = await pageManager.getPage('User Keywords');
       
-      console.log('User Keywords page loaded:', !!keywordsPage);
-      
       if (!keywordsPage) {
-        console.log('No User Keywords page found, returning defaults');
         return ['medicine', 'geology', 'test'];
       }
       
@@ -257,12 +253,10 @@ class WikiRoutes {
             const keyword = bulletMatch[1].trim();
             if (keyword && !keywords.includes(keyword)) {
               keywords.push(keyword);
-              console.log('Added keyword:', keyword);
             }
           }
         }
       }
-      console.log('Final getUserKeywords result:', keywords);
       return keywords.length > 0 ? keywords : ['medicine', 'geology', 'test'];
     } catch (err) {
       console.error('Error loading user keywords:', err);
@@ -573,27 +567,19 @@ class WikiRoutes {
    * Display create new page form with template selection
    */
   async createPage(req, res) {
-    console.log('=== createPage method called ===');
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.user ? req.user : await userManager.getCurrentUser(req);
       
-      console.log('DEBUG: Session cookie:', req.cookies?.sessionId);
-      console.log('DEBUG: Current user:', currentUser);
-      
       // Check if user is authenticated
       if (!currentUser) {
-        console.log('DEBUG: No current user, redirecting to login');
         return res.redirect('/login?redirect=' + encodeURIComponent('/create'));
       }
       
       // Check if user has permission to create pages
       if (!userManager.hasPermission(currentUser.username, 'page:create')) {
-        console.log('DEBUG: User lacks page:create permission');
         return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to create pages. Please contact an administrator.');
       }
-      
-      console.log('DEBUG: User authenticated and authorized, proceeding...');
       
       const pageName = req.query.name || '';
       const templateManager = this.engine.getManager('TemplateManager');
@@ -607,9 +593,6 @@ class WikiRoutes {
       // Get categories and keywords for the form
       const systemCategories = await this.getSystemCategories();
       const userKeywords = await this.getUserKeywords();
-      
-      console.log('DEBUG: System categories returned:', systemCategories);
-      console.log('DEBUG: User keywords returned:', userKeywords);
       
       res.render('create', {
         ...commonData,
@@ -829,11 +812,6 @@ class WikiRoutes {
    * Save a page
    */
   async savePage(req, res) {
-  // Debug: log systemCategory value before validation
-  let systemCategory = req.body['system-category'] || '';
-  console.log('DEBUG systemCategory before validation:', systemCategory);
-  // Debug: log incoming POST body to diagnose system-category issue
-  console.log('DEBUG savePage POST body:', req.body);
     try {
       const pageName = req.params.page;
       const { content, title, categories, userKeywords } = req.body;
