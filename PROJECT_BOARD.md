@@ -21,7 +21,7 @@
 | #19 Enhanced Audit Trail & Access Logging | Not Started | Medium | Medium | TBD | TBD |
 | #20 Policy-Based Access Control (JSON Config) | Not Started | High | Large | TBD | TBD |
 | #21 Attribute-Based Permissions with Context | Not Started | Medium | Large | TBD | TBD |
-| #22 Storage Location Permission Integration | 🔄 In Progress | Low | Medium | TBD | TBD |
+| #22 Storage Location Permission Integration | ✅ Completed | Low | Medium | Current | Sept 14 |
 
 ### 🔄 Current Sprint: Maintenance Mode Implementation
 
@@ -45,7 +45,7 @@
 
 ### 📊 Progress Metrics
 
-- **Overall Epic**: 14% Complete (1/7 sub-issues)
+- **Overall Epic**: 29% Complete (2/7 sub-issues)
 - **Current Sprint**: ✅ Completed
 - **Estimated Completion**: September 13, 2025
 
@@ -65,8 +65,8 @@
 ✅ **FIXED**: Consistent permission model between pages and attachments
 
 **Remaining Work:**
-1. ⏳ **Category Integration** - Add System/Admin category restrictions for attachments
-2. ⏳ **Storage Location Rules** - Add directory-based permission rules
+1. ✅ **COMPLETED** - Storage Location Rules implemented with ACL-based decisions
+2. ⏳ **Category Integration** - Add System/Admin category restrictions for attachments
 3. ⏳ **Advanced ACL Syntax** - Add attachment-specific permission syntax
 4. ⏳ **Audit Logging** - Add comprehensive logging for attachment operations
 
@@ -96,13 +96,14 @@
 
 ### Key Metrics
 - **Total Issues**: 7 (Access Control)
-- **Completed**: 1
+- **Completed**: 2
 - **In Progress**: 1
 - **Not Started**: 5
 - **Success Rate**: 100% (1/1 completed successfully)
 
 ### 📝 Recent Updates
 
+- **Sept 14, 2025**: ✅ **COMPLETED** - Issue #22: ACL-based Storage Location Permission Integration
 - **Sept 13, 2025**: ✅ **SECURITY FIXED** - Added permission checks to all attachment routes
 - **Sept 13, 2025**: 🔒 **CRITICAL** - Implemented authentication and page-based permissions for uploads/downloads/deletes
 - **Sept 13, 2025**: 🚨 **CRITICAL** - Discovered major security conflicts in attachment permissions
