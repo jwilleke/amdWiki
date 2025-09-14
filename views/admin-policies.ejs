@@ -6,6 +6,7 @@
     <title>Policy Management - amdWiki Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="/css/style.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         .policy-card {
             transition: all 0.3s ease;
@@ -57,6 +58,26 @@
             border-color: #28a745;
             background-color: #d4edda;
         }
+        .help-icon {
+            color: #6c757d;
+            cursor: help;
+            margin-left: 0.25rem;
+        }
+        .help-text {
+            font-size: 0.875em;
+            color: #6c757d;
+            margin-top: 0.25rem;
+        }
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .section-header h6 {
+            margin: 0;
+            color: #495057;
+        }
     </style>
 </head>
 <body>
@@ -66,12 +87,23 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h1>Policy Management</h1>
                     <div>
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createPolicyModal">
+                        <h1>Policy Management
+                            <i class="fas fa-info-circle help-icon"
+                               data-bs-toggle="popover"
+                               data-bs-placement="right"
+                               data-bs-html="true"
+                               data-bs-content="<strong>Policy-Based Access Control</strong><br>Manage fine-grained access control policies for your wiki. Policies define who can access what resources under which conditions.<br><br><em>Need help? See the <a href='/docs/admin/policy-management-guide.md' target='_blank'>Admin Guide</a></em>"></i>
+                        </h1>
+                        <p class="text-muted mb-0">Configure access control policies to manage user permissions across your wiki</p>
+                    </div>
+                    <div>
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createPolicyModal"
+                                data-bs-toggle="tooltip" data-bs-placement="top" title="Create a new access control policy">
                             <i class="fas fa-plus"></i> Create Policy
                         </button>
-                        <button type="button" class="btn btn-outline-secondary" onclick="refreshPolicies()">
+                        <button type="button" class="btn btn-outline-secondary" onclick="refreshPolicies()"
+                                data-bs-toggle="tooltip" data-bs-placement="top" title="Refresh the policy list">
                             <i class="fas fa-sync"></i> Refresh
                         </button>
                     </div>
@@ -83,7 +115,12 @@
                         <div class="card">
                             <div class="card-body text-center">
                                 <h5 class="card-title text-primary"><%= policies.length %></h5>
-                                <p class="card-text">Total Policies</p>
+                                <p class="card-text">Total Policies
+                                    <i class="fas fa-info-circle help-icon"
+                                       data-bs-toggle="tooltip"
+                                       data-bs-placement="top"
+                                       title="Total number of active access control policies"></i>
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -91,7 +128,12 @@
                         <div class="card">
                             <div class="card-body text-center">
                                 <h5 class="card-title text-success"><%= policies.filter(p => p.effect === 'allow').length %></h5>
-                                <p class="card-text">Allow Policies</p>
+                                <p class="card-text">Allow Policies
+                                    <i class="fas fa-info-circle help-icon"
+                                       data-bs-toggle="tooltip"
+                                       data-bs-placement="top"
+                                       title="Policies that grant access to resources"></i>
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -99,7 +141,12 @@
                         <div class="card">
                             <div class="card-body text-center">
                                 <h5 class="card-title text-danger"><%= policies.filter(p => p.effect === 'deny').length %></h5>
-                                <p class="card-text">Deny Policies</p>
+                                <p class="card-text">Deny Policies
+                                    <i class="fas fa-info-circle help-icon"
+                                       data-bs-toggle="tooltip"
+                                       data-bs-placement="top"
+                                       title="Policies that restrict access to resources"></i>
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -107,7 +154,12 @@
                         <div class="card">
                             <div class="card-body text-center">
                                 <h5 class="card-title text-info"><%= Math.round(policies.reduce((sum, p) => sum + p.priority, 0) / Math.max(policies.length, 1)) %></h5>
-                                <p class="card-text">Avg Priority</p>
+                                <p class="card-text">Avg Priority
+                                    <i class="fas fa-info-circle help-icon"
+                                       data-bs-toggle="tooltip"
+                                       data-bs-placement="top"
+                                       title="Average priority of all policies (higher = more important)"></i>
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -162,13 +214,16 @@
                                         </div>
 
                                         <div class="mt-3">
-                                            <button class="btn btn-sm btn-outline-primary me-1" onclick="viewPolicy('<%= policy.id %>')">
+                                            <button class="btn btn-sm btn-outline-primary me-1" onclick="viewPolicy('<%= policy.id %>')"
+                                                    data-bs-toggle="tooltip" data-bs-placement="top" title="View detailed policy information">
                                                 <i class="fas fa-eye"></i> View
                                             </button>
-                                            <button class="btn btn-sm btn-outline-secondary me-1" onclick="editPolicy('<%= policy.id %>')">
+                                            <button class="btn btn-sm btn-outline-secondary me-1" onclick="editPolicy('<%= policy.id %>')"
+                                                    data-bs-toggle="tooltip" data-bs-placement="top" title="Edit this policy">
                                                 <i class="fas fa-edit"></i> Edit
                                             </button>
-                                            <button class="btn btn-sm btn-outline-danger" onclick="deletePolicy('<%= policy.id %>', '<%= policy.name %>')">
+                                            <button class="btn btn-sm btn-outline-danger" onclick="deletePolicy('<%= policy.id %>', '<%= policy.name %>')"
+                                                    data-bs-toggle="tooltip" data-bs-placement="top" title="Delete this policy">
                                                 <i class="fas fa-trash"></i> Delete
                                             </button>
                                         </div>
@@ -203,51 +258,103 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-lightbulb"></i>
+                        <strong>Quick Start:</strong> Define who can access what resources under which conditions.
+                        Use the <a href="/docs/admin/policy-management-guide.md" target="_blank">Admin Guide</a> for detailed examples.
+                    </div>
+
                     <form id="createPolicyForm">
                         <div class="row">
                             <div class="col-md-8">
                                 <div class="mb-3">
-                                    <label for="policyName" class="form-label">Policy Name *</label>
-                                    <input type="text" class="form-control" id="policyName" required>
+                                    <label for="policyName" class="form-label">Policy Name *
+                                        <i class="fas fa-info-circle help-icon"
+                                           data-bs-toggle="tooltip"
+                                           data-bs-placement="right"
+                                           title="A descriptive name for your policy (e.g., 'Editors Full Access', 'Public Read Only')"></i>
+                                    </label>
+                                    <input type="text" class="form-control" id="policyName" required
+                                           placeholder="e.g., Editor Full Access">
+                                    <div class="help-text">Choose a clear, descriptive name that explains the policy's purpose</div>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="mb-3">
-                                    <label for="policyPriority" class="form-label">Priority</label>
+                                    <label for="policyPriority" class="form-label">Priority
+                                        <i class="fas fa-info-circle help-icon"
+                                           data-bs-toggle="tooltip"
+                                           data-bs-placement="right"
+                                           title="Higher numbers override lower ones. Use 1-99 for general policies, 100+ for specific rules"></i>
+                                    </label>
                                     <input type="number" class="form-control" id="policyPriority" value="50" min="0" max="1000">
+                                    <div class="help-text">Default: 50</div>
                                 </div>
                             </div>
                         </div>
 
                         <div class="mb-3">
-                            <label for="policyDescription" class="form-label">Description</label>
-                            <textarea class="form-control" id="policyDescription" rows="2"></textarea>
+                            <label for="policyDescription" class="form-label">Description
+                                <i class="fas fa-info-circle help-icon"
+                                   data-bs-toggle="tooltip"
+                                   data-bs-placement="right"
+                                   title="Optional detailed explanation of when and why this policy exists"></i>
+                            </label>
+                            <textarea class="form-control" id="policyDescription" rows="2"
+                                      placeholder="e.g., Allows authenticated users to view and edit pages during business hours"></textarea>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Effect *</label>
+                            <label class="form-label">Effect *
+                                <i class="fas fa-info-circle help-icon"
+                                   data-bs-toggle="tooltip"
+                                   data-bs-placement="right"
+                                   title="Allow: Grants access when conditions are met. Deny: Blocks access when conditions are met"></i>
+                            </label>
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input" type="radio" name="policyEffect" id="effectAllow" value="allow" checked>
                                 <label class="form-check-label" for="effectAllow">
-                                    Allow
+                                    <strong>Allow</strong> - Grant access
                                 </label>
                             </div>
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input" type="radio" name="policyEffect" id="effectDeny" value="deny">
                                 <label class="form-check-label" for="effectDeny">
-                                    Deny
+                                    <strong>Deny</strong> - Block access
                                 </label>
                             </div>
                         </div>
 
                         <!-- Subjects Section -->
                         <div class="mb-3">
-                            <label class="form-label">Subjects (Who)</label>
+                            <div class="section-header">
+                                <h6>Subjects (Who)
+                                    <i class="fas fa-info-circle help-icon"
+                                       data-bs-toggle="popover"
+                                       data-bs-placement="right"
+                                       data-bs-html="true"
+                                       data-bs-content="<strong>Who does this policy apply to?</strong><br><br>
+                                       <strong>User:</strong> Specific username<br>
+                                       <strong>Role:</strong> Users with specific role (editor, admin)<br>
+                                       <strong>Group:</strong> Users in specific group<br>
+                                       <strong>Attribute:</strong> Users with specific attribute value<br>
+                                       <strong>Authenticated:</strong> Any logged-in user<br>
+                                       <strong>Anonymous:</strong> Non-logged-in users<br>
+                                       <strong>Admin:</strong> Users with admin privileges"></i>
+                                </h6>
+                            </div>
+                            <div class="help-text mb-2">
+                                Define who this policy applies to. You can add multiple subjects - the policy applies if ANY subject matches.
+                            </div>
                             <div id="subjectsContainer">
                                 <div class="condition-builder">
                                     <div class="row">
                                         <div class="col-md-4">
-                                            <select class="form-select subject-type">
+                                            <label class="form-label">Subject Type</label>
+                                            <select class="form-select subject-type"
+                                                    data-bs-toggle="tooltip"
+                                                    data-bs-placement="top"
+                                                    title="Choose the type of user this policy applies to">
                                                 <option value="user">User</option>
                                                 <option value="role">Role</option>
                                                 <option value="group">Group</option>
@@ -258,29 +365,60 @@
                                             </select>
                                         </div>
                                         <div class="col-md-6">
-                                            <input type="text" class="form-control subject-value" placeholder="Value">
+                                            <label class="form-label">Value
+                                                <i class="fas fa-info-circle help-icon"
+                                                   data-bs-toggle="tooltip"
+                                                   data-bs-placement="top"
+                                                   title="For user/role/group: enter the name. For attribute: use key=value format"></i>
+                                            </label>
+                                            <input type="text" class="form-control subject-value"
+                                                   placeholder="e.g., john.doe, editor, department=IT">
                                         </div>
                                         <div class="col-md-2">
-                                            <button type="button" class="btn btn-outline-danger btn-sm remove-condition">
+                                            <label class="form-label">&nbsp;</label>
+                                            <button type="button" class="btn btn-outline-danger btn-sm remove-condition w-100"
+                                                    data-bs-toggle="tooltip" data-bs-placement="top" title="Remove this subject">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="addSubject()">
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="addSubject()"
+                                    data-bs-toggle="tooltip" data-bs-placement="top" title="Add another subject to this policy">
                                 <i class="fas fa-plus"></i> Add Subject
                             </button>
                         </div>
 
                         <!-- Resources Section -->
                         <div class="mb-3">
-                            <label class="form-label">Resources (What)</label>
+                            <div class="section-header">
+                                <h6>Resources (What)
+                                    <i class="fas fa-info-circle help-icon"
+                                       data-bs-toggle="popover"
+                                       data-bs-placement="right"
+                                       data-bs-html="true"
+                                       data-bs-content="<strong>What resources does this policy control?</strong><br><br>
+                                       <strong>Page:</strong> Wiki pages (use * for all, Admin* for pattern)<br>
+                                       <strong>Attachment:</strong> File attachments (*.pdf, *.doc)<br>
+                                       <strong>Category:</strong> Pages in specific category<br>
+                                       <strong>Tag:</strong> Pages with specific tag<br>
+                                       <strong>Resource Type:</strong> Specific resource types<br>
+                                       <strong>Path:</strong> URL path patterns (/api/*, /admin/*)"></i>
+                                </h6>
+                            </div>
+                            <div class="help-text mb-2">
+                                Define what resources this policy applies to. Use patterns with * wildcard for flexible matching.
+                            </div>
                             <div id="resourcesContainer">
                                 <div class="condition-builder">
                                     <div class="row">
                                         <div class="col-md-4">
-                                            <select class="form-select resource-type">
+                                            <label class="form-label">Resource Type</label>
+                                            <select class="form-select resource-type"
+                                                    data-bs-toggle="tooltip"
+                                                    data-bs-placement="top"
+                                                    title="Choose the type of resource this policy controls">
                                                 <option value="page">Page</option>
                                                 <option value="attachment">Attachment</option>
                                                 <option value="category">Category</option>
@@ -290,29 +428,65 @@
                                             </select>
                                         </div>
                                         <div class="col-md-6">
-                                            <input type="text" class="form-control resource-value" placeholder="Value/Pattern">
+                                            <label class="form-label">Value/Pattern
+                                                <i class="fas fa-info-circle help-icon"
+                                                   data-bs-toggle="tooltip"
+                                                   data-bs-placement="top"
+                                                   title="Enter specific value or pattern (e.g., *, Admin*, *.pdf, /api/*)"></i>
+                                            </label>
+                                            <input type="text" class="form-control resource-value"
+                                                   placeholder="e.g., *, Admin*, *.pdf, /api/*">
                                         </div>
                                         <div class="col-md-2">
-                                            <button type="button" class="btn btn-outline-danger btn-sm remove-condition">
+                                            <label class="form-label">&nbsp;</label>
+                                            <button type="button" class="btn btn-outline-danger btn-sm remove-condition w-100"
+                                                    data-bs-toggle="tooltip" data-bs-placement="top" title="Remove this resource">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="addResource()">
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="addResource()"
+                                    data-bs-toggle="tooltip" data-bs-placement="top" title="Add another resource to this policy">
                                 <i class="fas fa-plus"></i> Add Resource
                             </button>
                         </div>
 
                         <!-- Actions Section -->
                         <div class="mb-3">
-                            <label class="form-label">Actions (How)</label>
+                            <div class="section-header">
+                                <h6>Actions (How)
+                                    <i class="fas fa-info-circle help-icon"
+                                       data-bs-toggle="popover"
+                                       data-bs-placement="right"
+                                       data-bs-html="true"
+                                       data-bs-content="<strong>What operations does this policy control?</strong><br><br>
+                                       <strong>View:</strong> Read/view content<br>
+                                       <strong>Edit:</strong> Modify content<br>
+                                       <strong>Delete:</strong> Remove content<br>
+                                       <strong>Create:</strong> Create new content<br>
+                                       <strong>Upload:</strong> Upload files<br>
+                                       <strong>Download:</strong> Download files<br>
+                                       <strong>Admin:</strong> Administrative operations"></i>
+                                </h6>
+                            </div>
+                            <div class="help-text mb-2">
+                                Select the operations this policy allows or denies. Choose all that apply.
+                            </div>
                             <div class="row">
                                 <% ['view', 'edit', 'delete', 'create', 'upload', 'download', 'admin'].forEach(action => { %>
                                 <div class="col-md-3">
                                     <div class="form-check">
-                                        <input class="form-check-input policy-action" type="checkbox" value="<%= action %>" id="action<%= action %>">
+                                        <input class="form-check-input policy-action" type="checkbox" value="<%= action %>" id="action<%= action %>"
+                                               data-bs-toggle="tooltip" data-bs-placement="top"
+                                               title="<%= action === 'view' ? 'Allow viewing/reading content' :
+                                                        action === 'edit' ? 'Allow modifying content' :
+                                                        action === 'delete' ? 'Allow deleting content' :
+                                                        action === 'create' ? 'Allow creating new content' :
+                                                        action === 'upload' ? 'Allow uploading files' :
+                                                        action === 'download' ? 'Allow downloading files' :
+                                                        'Allow administrative operations' %>">
                                         <label class="form-check-label" for="action<%= action %>">
                                             <%= action.charAt(0).toUpperCase() + action.slice(1) %>
                                         </label>
@@ -566,6 +740,22 @@
                 alertDiv.remove();
             }, 5000);
         }
+
+        // Initialize tooltips and popovers
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize all tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+
+            // Initialize all popovers
+            var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
+            var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+                return new bootstrap.Popover(popoverTriggerEl);
+            });
+        });
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
