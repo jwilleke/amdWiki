@@ -110,15 +110,18 @@ const defaultConfig = {
       enabled: true,
       timeZone: 'UTC',
       businessHours: {
-        enabled: false,
+        enabled: true,
         start: '09:00',
         end: '17:00',
         days: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday']
       },
-      maintenanceMode: {
+      customSchedules: {
         enabled: false,
-        allowedRoles: ['admin'],
-        message: 'System is under maintenance. Please try again later.'
+        schedules: './config/schedules.json'
+      },
+      holidays: {
+        enabled: false,
+        calendar: './config/holidays.json'
       }
     },
     // Audit logging

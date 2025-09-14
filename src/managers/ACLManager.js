@@ -261,10 +261,10 @@ class ACLManager extends BaseManager {
       return maintenanceCheck;
     }
 
-    // Check business hours (if enabled)
-    const businessHoursCheck = this.checkBusinessHours(contextConfig.businessHours, contextConfig.timeZone);
-    if (!businessHoursCheck.allowed) {
-      return businessHoursCheck;
+    // Check time-based restrictions (enhanced)
+    const timeCheck = await this.checkEnhancedTimeRestrictions(user, context);
+    if (!timeCheck.allowed) {
+      return timeCheck;
     }
 
     return { allowed: true, reason: 'context_allowed' };
@@ -350,6 +350,233 @@ class ACLManager extends BaseManager {
       console.warn('Error checking business hours:', error.message);
       return { allowed: true, reason: 'business_hours_error' };
     }
+  }
+
+  /**
+   * Enhanced time-based permission checking with custom schedules and holidays
+   * @param {Object} user - User object
+   * @param {Object} context - Access context
+   * @returns {Object} { allowed: boolean, reason: string, message: string }
+   */
+  async checkEnhancedTimeRestrictions(user, context) {
+    const config = this.engine.getConfig();
+    const timeConfig = config.get('accessControl.contextAware', {});
+
+    // Check if enhanced time features are enabled
+    if (!timeConfig.customSchedules?.enabled && !timeConfig.holidays?.enabled) {
+      // Fall back to basic business hours check
+      return this.checkBusinessHours(timeConfig.businessHours, timeConfig.timeZone);
+    }
+
+    try {
+      const now = new Date();
+      const currentDate = now.toISOString().split('T')[0]; // YYYY-MM-DD format
+      const currentTime = now.toLocaleTimeString('en-US', {
+        timeZone: timeConfig.timeZone || 'UTC',
+        hour12: false,
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+
+      // Check holidays first (they override all other schedules)
+      if (timeConfig.holidays?.enabled) {
+        const holidayCheck = await this.checkHolidayRestrictions(currentDate, timeConfig.holidays);
+        if (!holidayCheck.allowed) {
+          return holidayCheck;
+        }
+      }
+
+      // Check custom schedules if enabled
+      if (timeConfig.customSchedules?.enabled) {
+        const scheduleCheck = await this.checkCustomSchedule(user, context, currentDate, currentTime, timeConfig);
+        if (scheduleCheck.allowed !== undefined) {
+          return scheduleCheck;
+        }
+      }
+
+      // Fall back to basic business hours
+      return this.checkBusinessHours(timeConfig.businessHours, timeConfig.timeZone);
+
+    } catch (error) {
+      console.warn('Error in enhanced time restrictions:', error.message);
+      return { allowed: true, reason: 'time_check_error' };
+    }
+  }
+
+  /**
+   * Check holiday restrictions
+   * @param {string} currentDate - Current date in YYYY-MM-DD format
+   * @param {Object} holidaysConfig - Holiday configuration
+   * @returns {Object} { allowed: boolean, reason: string, message: string }
+   */
+  async checkHolidayRestrictions(currentDate, holidaysConfig) {
+    try {
+      const holidaysFile = holidaysConfig.calendar || './config/holidays.json';
+
+      // Load holidays from file
+      const holidaysData = await fs.readFile(holidaysFile, 'utf-8');
+      const holidays = JSON.parse(holidaysData);
+
+      // Check for exact date match
+      if (holidays.dates && holidays.dates[currentDate]) {
+        const holiday = holidays.dates[currentDate];
+        return {
+          allowed: false,
+          reason: 'holiday_restriction',
+          message: holiday.message || `Access restricted on ${holiday.name || 'holiday'}`
+        };
+      }
+
+      // Check for recurring holidays (e.g., "*-12-25" for Christmas)
+      if (holidays.recurring) {
+        const [year, month, day] = currentDate.split('-');
+        const recurringKey = `*-${month}-${day}`;
+
+        if (holidays.recurring[recurringKey]) {
+          const holiday = holidays.recurring[recurringKey];
+          return {
+            allowed: false,
+            reason: 'recurring_holiday_restriction',
+            message: holiday.message || `Access restricted on ${holiday.name || 'holiday'}`
+          };
+        }
+      }
+
+      return { allowed: true, reason: 'not_a_holiday' };
+
+    } catch (error) {
+      console.warn('Error checking holiday restrictions:', error.message);
+      return { allowed: true, reason: 'holiday_check_error' };
+    }
+  }
+
+  /**
+   * Check custom schedule restrictions
+   * @param {Object} user - User object
+   * @param {Object} context - Access context
+   * @param {string} currentDate - Current date in YYYY-MM-DD format
+   * @param {string} currentTime - Current time in HH:MM format
+   * @param {Object} timeConfig - Time configuration
+   * @returns {Object} { allowed: boolean, reason: string, message: string }
+   */
+  async checkCustomSchedule(user, context, currentDate, currentTime, timeConfig) {
+    try {
+      const schedulesFile = timeConfig.customSchedules.schedules || './config/schedules.json';
+
+      // Load schedules from file
+      const schedulesData = await fs.readFile(schedulesFile, 'utf-8');
+      const schedules = JSON.parse(schedulesData);
+
+      // Determine which schedule applies to this user/context
+      const applicableSchedule = this.determineApplicableSchedule(user, context, schedules);
+
+      if (!applicableSchedule) {
+        return { allowed: undefined }; // No custom schedule, fall back to business hours
+      }
+
+      const schedule = schedules[applicableSchedule];
+      if (!schedule) {
+        return { allowed: undefined };
+      }
+
+      // Check exceptions first
+      if (schedule.exceptions) {
+        for (const exception of schedule.exceptions) {
+          if (exception.date === currentDate) {
+            return {
+              allowed: exception.type === 'allow',
+              reason: `schedule_exception_${exception.type}`,
+              message: exception.reason || `Schedule exception: ${exception.type}`
+            };
+          }
+        }
+      }
+
+      // Check rules
+      if (schedule.rules) {
+        const now = new Date();
+        const currentDay = now.toLocaleDateString('en-US', {
+          timeZone: timeConfig.timeZone || 'UTC',
+          weekday: 'long'
+        }).toLowerCase();
+
+        for (const rule of schedule.rules) {
+          // Check if rule applies to current day
+          if (rule.days && !rule.days.includes(currentDay)) {
+            continue;
+          }
+
+          // Check time range if specified
+          if (rule.startTime && rule.endTime) {
+            if (currentTime < rule.startTime || currentTime > rule.endTime) {
+              if (rule.type === 'allow') {
+                return {
+                  allowed: false,
+                  reason: 'outside_schedule_time',
+                  message: `Access restricted outside schedule time (${rule.startTime}-${rule.endTime})`
+                };
+              }
+            } else if (rule.type === 'allow') {
+              return { allowed: true, reason: 'within_schedule_time' };
+            }
+          } else if (rule.type === 'deny') {
+            // Day-based denial
+            return {
+              allowed: false,
+              reason: 'schedule_day_denied',
+              message: `Access restricted on ${currentDay}`
+            };
+          }
+        }
+      }
+
+      return { allowed: undefined }; // No matching rule, fall back to business hours
+
+    } catch (error) {
+      console.warn('Error checking custom schedule:', error.message);
+      return { allowed: undefined };
+    }
+  }
+
+  /**
+   * Determine which schedule applies to a user/context
+   * @param {Object} user - User object
+   * @param {Object} context - Access context
+   * @param {Object} schedules - Available schedules
+   * @returns {string|null} Schedule name or null
+   */
+  determineApplicableSchedule(user, context, schedules) {
+    // Priority order: user-specific -> role-specific -> context-specific -> default
+
+    // Check user-specific schedule
+    if (user && user.schedule && schedules[user.schedule]) {
+      return user.schedule;
+    }
+
+    // Check role-specific schedule
+    if (user && user.roles) {
+      for (const role of user.roles) {
+        const roleSchedule = `role_${role}`;
+        if (schedules[roleSchedule]) {
+          return roleSchedule;
+        }
+      }
+    }
+
+    // Check context-specific schedule (e.g., page category)
+    if (context && context.pageCategory) {
+      const categorySchedule = `category_${context.pageCategory}`;
+      if (schedules[categorySchedule]) {
+        return categorySchedule;
+      }
+    }
+
+    // Return default schedule if it exists
+    if (schedules.default) {
+      return 'default';
+    }
+
+    return null;
   }
 
   /**
