@@ -32,13 +32,14 @@ class UserManager extends BaseManager {
     // Load existing users, roles, and sessions
     await this.loadUsers();
     await this.loadRoles();
+    await this.loadSessions();
     
     // Create default admin user if no users exist
     if (this.users.size === 0) {
       await this.createDefaultAdmin();
     }
     
-    console.log(`👤 UserManager initialized with ${this.users.size} users and ${this.roles.size} roles`);
+    console.log(`👤 UserManager initialized with ${this.users.size} users, ${this.roles.size} roles, and ${this.sessions.size} sessions`);
   }
 
   /**
@@ -199,6 +200,46 @@ class UserManager extends BaseManager {
       console.log(`💾 Saved ${Object.keys(rolesToSave).length} roles to disk`);
     } catch (err) {
       console.error('Error saving roles:', err);
+    }
+  }
+
+  /**
+   * Load sessions from disk
+   */
+  async loadSessions() {
+    try {
+      const sessionsFile = path.join(this.usersDirectory, 'sessions.json');
+      const sessionsData = await fs.readFile(sessionsFile, 'utf8');
+      const sessions = JSON.parse(sessionsData);
+      
+      // Convert sessions object back to Map and filter out expired sessions
+      this.sessions = new Map();
+      const now = new Date();
+      
+      for (const [sessionId, session] of Object.entries(sessions)) {
+        if (new Date(session.expiresAt) > now) {
+          this.sessions.set(sessionId, session);
+        }
+      }
+      
+      console.log(`👤 Loaded ${this.sessions.size} active sessions`);
+    } catch (err) {
+      // Sessions file doesn't exist yet or is corrupted
+      this.sessions = new Map();
+      console.log('👤 No sessions file found, starting with empty sessions');
+    }
+  }
+
+  /**
+   * Save sessions to disk
+   */
+  async saveSessions() {
+    try {
+      const sessionsFile = path.join(this.usersDirectory, 'sessions.json');
+      const sessions = Object.fromEntries(this.sessions);
+      await fs.writeFile(sessionsFile, JSON.stringify(sessions, null, 2));
+    } catch (err) {
+      console.error('Error saving sessions:', err);
     }
   }
 
@@ -392,7 +433,8 @@ class UserManager extends BaseManager {
     };
     
     this.sessions.set(sessionId, session);
-    return session;
+    this.saveSessions(); // Persist session to disk
+    return sessionId;
   }
 
   /**
@@ -409,11 +451,13 @@ class UserManager extends BaseManager {
     // Check if session is expired
     if (new Date() > new Date(session.expiresAt)) {
       this.sessions.delete(sessionId);
+      this.saveSessions(); // Persist session deletion
       return undefined;
     }
     
     // Update last access
     session.lastAccess = new Date().toISOString();
+    this.saveSessions(); // Persist updated access time
     return session;
   }
 
@@ -423,6 +467,7 @@ class UserManager extends BaseManager {
    */
   destroySession(sessionId) {
     this.sessions.delete(sessionId);
+    this.saveSessions(); // Persist session deletion to disk
     return true;
   }
 
@@ -837,18 +882,14 @@ class UserManager extends BaseManager {
       }
     }
     
-    // Check for session-based auth
-    const sessionId = req.session?.sessionId || req.cookies?.sessionId;
-    console.log('DEBUG UserManager: Looking for sessionId:', sessionId);
-    console.log('DEBUG UserManager: Available cookies:', req.cookies);
+    // Check for session-based auth - prioritize cookie-based sessions over express-session
+    const sessionId = req.cookies?.sessionId || req.session?.sessionId;
     
     if (!sessionId) {
-      console.log('DEBUG UserManager: No sessionId found');
       return null;
     }
     
     const session = this.getSession(sessionId);
-    console.log('DEBUG UserManager: Session lookup result:', session ? 'found' : 'not found');
     
     if (session && session.user) {
       session.user.isAuthenticated = true;

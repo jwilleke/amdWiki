@@ -1444,7 +1444,6 @@ class WikiRoutes {
       const userManager = this.engine.getManager('UserManager');
       
       console.log('DEBUG: Login attempt for:', username);
-      console.log('DEBUG: Redirect parameter:', redirect);
       
       const user = await userManager.authenticateUser(username, password);
       if (!user) {
