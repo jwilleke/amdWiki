@@ -239,10 +239,63 @@ class UserManager extends BaseManager {
       loginCount: 0,
       preferences: {}
     };
-    
+
     this.users.set('admin', adminUser);
     await this.saveUsers();
-    
+
+    // Sync default admin to Schema.org data
+    try {
+      const schemaManager = this.engine.getManager('SchemaManager');
+      if (schemaManager && schemaManager.isInitialized()) {
+        const personData = {
+          "@context": "https://schema.org",
+          "@type": "Person",
+          "identifier": 'admin',
+          "name": 'Administrator',
+          "alternateName": ['admin'],
+          "email": 'admin@localhost',
+          "memberOf": {
+            "@type": "Organization",
+            "identifier": "amdwiki-platform",
+            "name": "amdWiki Platform"
+          },
+          "worksFor": {
+            "@type": "Organization",
+            "identifier": "amdwiki-platform",
+            "name": "amdWiki Platform"
+          },
+          "hasCredential": [{
+            "@type": "EducationalOccupationalCredential",
+            "credentialCategory": "admin",
+            "competencyRequired": ["System Administration", "User Management", "Configuration Management"],
+            "issuedBy": {
+              "@type": "Organization",
+              "identifier": "amdwiki-platform"
+            }
+          }],
+          "jobTitle": "Administrator",
+          "memberOfStartDate": adminUser.createdAt,
+          "dateCreated": adminUser.createdAt,
+          "authentication": {
+            "passwordHash": adminUser.password,
+            "isSystem": true,
+            "preferences": adminUser.preferences
+          },
+          "contactPoint": {
+            "@type": "ContactPoint",
+            "contactType": "Account",
+            "availableLanguage": ["English"],
+            "email": "admin@localhost"
+          }
+        };
+
+        await schemaManager.createPerson(personData);
+        console.log('📋 Synced default admin to Schema.org data');
+      }
+    } catch (error) {
+      console.error('❌ Failed to sync default admin to Schema.org data:', error.message);
+    }
+
     console.log('👤 Created default admin user (username: admin, password: admin123)');
   }
 
@@ -450,13 +503,13 @@ class UserManager extends BaseManager {
    */
   async createUser(userData) {
     const { username, email, displayName, password, roles = ['reader'], isExternal = false, isActive = true } = userData;
-    
+
     if (this.users.has(username)) {
       throw new Error('Username already exists');
     }
-    
+
     const hashedPassword = isExternal ? null : this.hashPassword(password);
-    
+
     const user = {
       username,
       email,
@@ -471,12 +524,71 @@ class UserManager extends BaseManager {
       loginCount: 0,
       preferences: {}
     };
-    
+
+    // Save user to users.json first
     this.users.set(username, user);
     await this.saveUsers();
-    
+
+    // Automatically sync to Schema.org persons.json
+    try {
+      const schemaManager = this.engine.getManager('SchemaManager');
+      if (schemaManager && schemaManager.isInitialized()) {
+        // Transform user data to Schema.org Person format
+        const personData = {
+          "@context": "https://schema.org",
+          "@type": "Person",
+          "identifier": username,
+          "name": user.displayName,
+          "alternateName": [username],
+          "email": user.email,
+          "memberOf": {
+            "@type": "Organization",
+            "identifier": "amdwiki-platform",
+            "name": "amdWiki Platform"
+          },
+          "worksFor": {
+            "@type": "Organization",
+            "identifier": "amdwiki-platform",
+            "name": "amdWiki Platform"
+          },
+          "hasCredential": roles.map(role => ({
+            "@type": "EducationalOccupationalCredential",
+            "credentialCategory": role,
+            "competencyRequired": this.getRoleCompetencies(role),
+            "issuedBy": {
+              "@type": "Organization",
+              "identifier": "amdwiki-platform"
+            }
+          })),
+          "jobTitle": this.getJobTitleFromRoles(roles),
+          "memberOfStartDate": user.createdAt,
+          "dateCreated": user.createdAt,
+          "authentication": {
+            "passwordHash": user.password,
+            "isSystem": user.isSystem,
+            "preferences": user.preferences
+          },
+          "contactPoint": {
+            "@type": "ContactPoint",
+            "contactType": "Account",
+            "availableLanguage": ["English"],
+            "email": user.email
+          }
+        };
+
+        await schemaManager.createPerson(personData);
+        console.log(`📋 Synced user ${username} to Schema.org data`);
+      } else {
+        console.warn(`⚠️  SchemaManager not available, user ${username} not synced to Schema.org data`);
+      }
+    } catch (error) {
+      console.error(`❌ Failed to sync user ${username} to Schema.org data:`, error.message);
+      // Don't fail the user creation, but log the issue
+      // In production, you might want to implement a retry mechanism or queue
+    }
+
     console.log(`👤 Created user: ${username} (${isExternal ? 'External' : 'Local'})`);
-    
+
     // Return user without password
     const { password: _, ...userWithoutPassword } = user;
     return userWithoutPassword;
@@ -492,7 +604,7 @@ class UserManager extends BaseManager {
     if (!user) {
       throw new Error('User not found');
     }
-    
+
     // Handle password updates - only for local users
     if (updates.password) {
       if (user.isExternal) {
@@ -500,10 +612,52 @@ class UserManager extends BaseManager {
       }
       updates.password = this.hashPassword(updates.password);
     }
-    
+
     Object.assign(user, updates);
     await this.saveUsers();
-    
+
+    // Sync changes to Schema.org data
+    try {
+      const schemaManager = this.engine.getManager('SchemaManager');
+      if (schemaManager && schemaManager.isInitialized()) {
+        // Prepare update data for Schema.org Person
+        const updateData = {};
+
+        if (updates.displayName !== undefined) {
+          updateData.name = updates.displayName;
+        }
+        if (updates.email !== undefined) {
+          updateData.email = updates.email;
+          if (updateData.contactPoint === undefined) updateData.contactPoint = {};
+          updateData.contactPoint.email = updates.email;
+        }
+        if (updates.roles !== undefined) {
+          updateData.hasCredential = updates.roles.map(role => ({
+            "@type": "EducationalOccupationalCredential",
+            "credentialCategory": role,
+            "competencyRequired": this.getRoleCompetencies(role),
+            "issuedBy": {
+              "@type": "Organization",
+              "identifier": "amdwiki-platform"
+            }
+          }));
+          updateData.jobTitle = this.getJobTitleFromRoles(updates.roles);
+        }
+        if (updates.preferences !== undefined) {
+          if (updateData.authentication === undefined) updateData.authentication = {};
+          updateData.authentication.preferences = updates.preferences;
+        }
+
+        if (Object.keys(updateData).length > 0) {
+          updateData.lastReviewed = new Date().toISOString();
+          await schemaManager.updatePerson(username, updateData);
+          console.log(`📋 Synced user ${username} updates to Schema.org data`);
+        }
+      }
+    } catch (error) {
+      console.error(`❌ Failed to sync user ${username} updates to Schema.org data:`, error.message);
+    }
+
     console.log(`👤 Updated user: ${username}`);
     return user;
   }
@@ -524,6 +678,22 @@ class UserManager extends BaseManager {
     
     this.users.delete(username);
     await this.saveUsers();
+    
+    // Sync deletion to Schema.org data
+    try {
+      const schemaManager = this.engine.getManager('SchemaManager');
+      if (schemaManager && schemaManager.isInitialized()) {
+        // Check if SchemaManager has a deletePerson method
+        if (typeof schemaManager.deletePerson === 'function') {
+          await schemaManager.deletePerson(username);
+          console.log(`📋 Removed user ${username} from Schema.org data`);
+        } else {
+          console.warn(`⚠️  SchemaManager.deletePerson not available, user ${username} not removed from Schema.org data`);
+        }
+      }
+    } catch (error) {
+      console.error(`❌ Failed to remove user ${username} from Schema.org data:`, error.message);
+    }
     
     // Destroy all sessions for this user
     for (const [sessionId, session] of this.sessions.entries()) {
@@ -978,6 +1148,37 @@ class UserManager extends BaseManager {
     }
 
     return true;
+  }
+
+  /**
+   * Get competencies required for a given role (for Schema.org sync)
+   * @param {string} role - Role name
+   * @returns {Array} Array of competency strings
+   */
+  getRoleCompetencies(role) {
+    const competencies = {
+      'admin': ['System Administration', 'User Management', 'Configuration Management'],
+      'editor': ['Content Creation', 'Content Editing', 'Wiki Markup'],
+      'reader': ['Content Consumption', 'Basic Navigation']
+    };
+
+    return competencies[role] || ['Basic Platform Usage'];
+  }
+
+  /**
+   * Get job title from user roles (for Schema.org sync)
+   * @param {Array} roles - Array of role names
+   * @returns {string} Job title string
+   */
+  getJobTitleFromRoles(roles) {
+    if (roles.includes('admin')) {
+      return 'Administrator';
+    } else if (roles.includes('editor')) {
+      return 'Content Editor';
+    } else if (roles.includes('reader')) {
+      return 'Reader';
+    }
+    return 'User';
   }
 }
 
