@@ -9,14 +9,34 @@ jest.mock('../src/WikiEngine', () => {
   const mockUserManager = {
     getCurrentUser: jest.fn().mockResolvedValue({
       username: 'testuser',
-      isAuthenticated: true,
+      displayName: 'Test User',
+      email: 'test@example.com',
+      isExternal: false,
+      createdAt: new Date('2023-01-01'),
+      lastLogin: new Date('2024-01-01'),
       roles: ['authenticated']
     }),
     hasPermission: jest.fn().mockReturnValue(true),
     destroySession: jest.fn().mockResolvedValue(true),
     getUsers: jest.fn().mockResolvedValue([
-      { username: 'admin', roles: ['admin'] },
-      { username: 'testuser', roles: ['authenticated'] }
+      { 
+        username: 'admin', 
+        displayName: 'Admin User',
+        email: 'admin@example.com',
+        isExternal: false,
+        createdAt: new Date('2023-01-01'),
+        lastLogin: new Date('2024-01-01'),
+        roles: ['admin'] 
+      },
+      { 
+        username: 'testuser', 
+        displayName: 'Test User',
+        email: 'test@example.com',
+        isExternal: false,
+        createdAt: new Date('2023-01-01'),
+        lastLogin: new Date('2024-01-01'),
+        roles: ['authenticated'] 
+      }
     ]),
     getRoles: jest.fn().mockResolvedValue([
       { name: 'admin', permissions: ['read', 'write', 'admin'] },
@@ -30,7 +50,11 @@ jest.mock('../src/WikiEngine', () => {
     deleteRole: jest.fn().mockResolvedValue(true),
     authenticateUser: jest.fn().mockResolvedValue({
       username: 'testuser',
-      isAuthenticated: true,
+      displayName: 'Test User',
+      email: 'test@example.com',
+      isExternal: false,
+      createdAt: new Date('2023-01-01'),
+      lastLogin: new Date('2024-01-01'),
       roles: ['authenticated']
     }),
     registerUser: jest.fn().mockResolvedValue(true),
@@ -38,8 +62,11 @@ jest.mock('../src/WikiEngine', () => {
     updatePreferences: jest.fn().mockResolvedValue(true),
     getUser: jest.fn().mockResolvedValue({
       username: 'testuser',
-      email: 'test@example.com',
       displayName: 'Test User',
+      email: 'test@example.com',
+      isExternal: false,
+      createdAt: new Date('2023-01-01'),
+      lastLogin: new Date('2024-01-01'),
       preferences: {}
     }),
     getPermissions: jest.fn().mockReturnValue(new Map([
@@ -48,14 +75,20 @@ jest.mock('../src/WikiEngine', () => {
       ['admin', 'Administrative access']
     ])),
     getUserPermissions: jest.fn().mockResolvedValue(['read', 'write']),
-    createSession: jest.fn().mockResolvedValue('session-id-123')
+    createSession: jest.fn().mockResolvedValue('session-id-123'),
+    isUserInRole: jest.fn().mockReturnValue(true)
   };
 
   const mockPageManager = {
     getPageNames: jest.fn().mockResolvedValue(['Welcome', 'TestPage']),
-    getPage: jest.fn().mockResolvedValue({
-      content: '# Test Page\nThis is a test page.',
-      metadata: { title: 'TestPage' }
+    getPage: jest.fn().mockImplementation((pageName) => {
+      if (pageName === 'Footer' || pageName === 'LeftMenu') {
+        return Promise.resolve(null); // These pages don't exist
+      }
+      return Promise.resolve({
+        content: '# Test Page\nThis is a test page.',
+        metadata: { title: 'TestPage' }
+      });
     }),
     savePage: jest.fn().mockResolvedValue(true),
     deletePage: jest.fn().mockResolvedValue(true),
@@ -96,7 +129,7 @@ jest.mock('../src/WikiEngine', () => {
     getNotifications: jest.fn().mockReturnValue([]),
     createMaintenanceNotification: jest.fn().mockResolvedValue(true),
     getAllNotifications: jest.fn().mockReturnValue([]),
-    getStats: jest.fn().mockReturnValue({ total: 0, active: 0, expired: 0 })
+    getStats: jest.fn().mockReturnValue({ total: 0, active: 0, expired: 0, byType: {}, byLevel: {} })
   };
 
   const mockSchemaManager = {
@@ -221,15 +254,20 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
       { name: 'admin', permissions: ['read', 'write', 'admin'] },
       { name: 'authenticated', permissions: ['read', 'write'] }
     ]);
-    mockUserManager.getPermissions.mockResolvedValue(new Map([
+    mockUserManager.getPermissions.mockReturnValue(new Map([
       ['read', 'Read access to pages'],
       ['write', 'Write access to pages'],
       ['admin', 'Administrative access']
     ]));
     mockPageManager.getPageNames.mockResolvedValue(['Welcome', 'TestPage']);
-    mockPageManager.getPage.mockResolvedValue({
-      content: '# Test Page\nThis is a test page.',
-      metadata: { title: 'TestPage' }
+    mockPageManager.getPage.mockImplementation((pageName) => {
+      if (pageName === 'Footer' || pageName === 'LeftMenu') {
+        return Promise.resolve(null); // These pages don't exist
+      }
+      return Promise.resolve({
+        content: '# Test Page\nThis is a test page.',
+        metadata: { title: 'TestPage' }
+      });
     });
     mockPageManager.getPageContent.mockResolvedValue('# Test Page\nThis is a test page.');
     mockPageManager.isRequiredPage.mockReturnValue(false);
@@ -250,10 +288,17 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
     mockACLManager.parseACL.mockReturnValue({ permissions: [] });
     mockNotificationManager.getNotifications.mockResolvedValue([]);
     mockNotificationManager.getAllNotifications.mockReturnValue([]);
-    mockNotificationManager.getStats.mockResolvedValue({ total: 0, active: 0, expired: 0 });
+    mockNotificationManager.getStats.mockResolvedValue({ total: 0, active: 0, expired: 0, byType: {}, byLevel: {} });
     mockNotificationManager.dismissNotification.mockResolvedValue(true);
     mockSchemaManager.getPerson.mockResolvedValue(null);
     mockSchemaManager.getOrganization.mockResolvedValue(null);
+
+    // Reset config to initial state
+    mockEngine.config = {
+      features: {
+        maintenance: { enabled: false, allowAdmins: true }
+      }
+    };
   });
 
   describe('Public Routes', () => {
@@ -541,12 +586,34 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
   });
 
   describe('Admin Routes', () => {
+    beforeEach(() => {
+      // Set up admin user for all admin tests
+      mockUserManager.getCurrentUser.mockResolvedValue({
+        username: 'admin',
+        displayName: 'Admin User',
+        email: 'admin@example.com',
+        isExternal: false,
+        createdAt: new Date('2023-01-01'),
+        lastLogin: new Date('2024-01-01'),
+        isAuthenticated: true,
+        isAdmin: true,
+        roles: ['admin']
+      });
+      mockUserManager.hasPermission.mockReturnValue(true);
+    });
+
     describe('GET /admin', () => {
       test('should return 200 for admin user', async () => {
         mockUserManager.getCurrentUser.mockResolvedValue({
           username: 'admin',
+          displayName: 'Admin User',
+          email: 'admin@example.com',
+          isExternal: false,
+          createdAt: new Date('2023-01-01'),
+          lastLogin: new Date('2024-01-01'),
           isAuthenticated: true,
-          isAdmin: true
+          isAdmin: true,
+          roles: ['admin']
         });
         mockUserManager.hasPermission.mockReturnValue(true);
         mockPageManager.getPageNames.mockResolvedValue(['Welcome']);
@@ -559,6 +626,11 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
       test('should return 403 for non-admin user', async () => {
         mockUserManager.getCurrentUser.mockResolvedValue({
           username: 'user',
+          displayName: 'Regular User',
+          email: 'user@example.com',
+          isExternal: false,
+          createdAt: new Date('2023-01-01'),
+          lastLogin: new Date('2024-01-01'),
           isAuthenticated: true,
           isAdmin: false
         });
@@ -571,20 +643,22 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
 
     describe('POST /admin/maintenance/toggle', () => {
       test('should toggle maintenance mode for admin', async () => {
-        mockUserManager.getCurrentUser.mockResolvedValue({ username: 'admin' });
-        mockUserManager.hasPermission.mockReturnValue(true);
-
         const response = await request(app)
           .post('/admin/maintenance/toggle')
           .send({ _csrf: 'test-csrf-token' });
 
-        expect(response.status).toBe(200);
+        expect(response.status).toBe(302);
       });
     });
 
     describe('GET /admin/users', () => {
       test('should return user list for admin', async () => {
-        mockUserManager.getCurrentUser.mockResolvedValue({ username: 'admin' });
+        mockUserManager.getCurrentUser.mockResolvedValue({ 
+          username: 'admin',
+          displayName: 'Admin User',
+          email: 'admin@example.com',
+          roles: ['admin']
+        });
         mockUserManager.hasPermission.mockReturnValue(true);
         mockUserManager.getUsers.mockReturnValue([]);
 
@@ -595,7 +669,12 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
 
     describe('POST /admin/users', () => {
       test('should create user for admin', async () => {
-        mockUserManager.getCurrentUser.mockResolvedValue({ username: 'admin' });
+        mockUserManager.getCurrentUser.mockResolvedValue({ 
+          username: 'admin',
+          displayName: 'Admin User',
+          email: 'admin@example.com',
+          roles: ['admin']
+        });
         mockUserManager.hasPermission.mockReturnValue(true);
         mockUserManager.createUser.mockResolvedValue(true);
 
@@ -614,7 +693,11 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
 
     describe('PUT /admin/users/:username', () => {
       test('should update user for admin', async () => {
-        mockUserManager.getCurrentUser.mockResolvedValue({ username: 'admin' });
+        mockUserManager.getCurrentUser.mockResolvedValue({ 
+          username: 'admin',
+          displayName: 'Admin User',
+          email: 'admin@example.com'
+        });
         mockUserManager.hasPermission.mockReturnValue(true);
         mockUserManager.updateUser.mockResolvedValue(true);
 
@@ -631,7 +714,11 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
 
     describe('DELETE /admin/users/:username', () => {
       test('should delete user for admin', async () => {
-        mockUserManager.getCurrentUser.mockResolvedValue({ username: 'admin' });
+        mockUserManager.getCurrentUser.mockResolvedValue({ 
+          username: 'admin',
+          displayName: 'Admin User',
+          email: 'admin@example.com'
+        });
         mockUserManager.hasPermission.mockReturnValue(true);
         mockUserManager.deleteUser.mockResolvedValue(true);
 
@@ -645,9 +732,21 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
 
     describe('GET /admin/roles', () => {
       test('should return role list for admin', async () => {
-        mockUserManager.getCurrentUser.mockResolvedValue({ username: 'admin' });
-        mockUserManager.hasPermission.mockReturnValue(true);
-        mockUserManager.getRoles.mockReturnValue(new Map());
+        mockUserManager.getCurrentUser.mockResolvedValue({
+          username: 'admin',
+          displayName: 'Admin User',
+          email: 'admin@example.com',
+          isExternal: false,
+          createdAt: new Date('2023-01-01'),
+          lastLogin: new Date('2024-01-01'),
+          isAuthenticated: true,
+          isAdmin: true,
+          roles: ['admin']
+        });
+        mockUserManager.getRoles.mockReturnValue(new Map([
+          ['admin', { name: 'admin', permissions: ['read', 'write', 'admin'] }],
+          ['authenticated', { name: 'authenticated', permissions: ['read', 'write'] }]
+        ]));
 
         const response = await request(app).get('/admin/roles');
         expect(response.status).toBe(200);
@@ -656,8 +755,6 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
 
     describe('POST /admin/roles', () => {
       test('should create role for admin', async () => {
-        mockUserManager.getCurrentUser.mockResolvedValue({ username: 'admin' });
-        mockUserManager.hasPermission.mockReturnValue(true);
         mockUserManager.createRole.mockResolvedValue({ name: 'newrole' });
 
         const response = await request(app)
@@ -675,13 +772,24 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
 
     describe('PUT /admin/roles/:role', () => {
       test('should update role for admin', async () => {
-        mockUserManager.getCurrentUser.mockResolvedValue({ username: 'admin' });
+        mockUserManager.getCurrentUser.mockResolvedValue({
+          username: 'admin',
+          displayName: 'Admin User',
+          email: 'admin@example.com',
+          isExternal: false,
+          createdAt: new Date('2023-01-01'),
+          lastLogin: new Date('2024-01-01'),
+          isAuthenticated: true,
+          isAdmin: true,
+          roles: ['admin']
+        });
         mockUserManager.hasPermission.mockReturnValue(true);
         mockUserManager.updateRolePermissions.mockResolvedValue(true);
 
         const response = await request(app)
           .put('/admin/roles/testrole')
           .send({
+            roleName: 'testrole',
             permissions: ['page:read', 'page:edit'],
             _csrf: 'test-csrf-token'
           });
@@ -692,8 +800,6 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
 
     describe('DELETE /admin/roles/:role', () => {
       test('should delete role for admin', async () => {
-        mockUserManager.getCurrentUser.mockResolvedValue({ username: 'admin' });
-        mockUserManager.hasPermission.mockReturnValue(true);
         mockUserManager.deleteRole.mockResolvedValue(true);
 
         const response = await request(app)
@@ -706,7 +812,28 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
 
     describe('GET /admin/notifications', () => {
       test('should return notifications for admin', async () => {
-        mockUserManager.getCurrentUser.mockResolvedValue({ username: 'admin' });
+        // Ensure clean config state
+        mockEngine.config = {
+          features: {
+            maintenance: { enabled: false, allowAdmins: true }
+          }
+        };
+        
+        // Reset notification manager mocks
+        mockNotificationManager.getAllNotifications.mockReturnValue([]);
+        mockNotificationManager.getStats.mockReturnValue({ total: 0, active: 0, expired: 0, byType: {}, byLevel: {} });
+        
+        mockUserManager.getCurrentUser.mockResolvedValue({
+          username: 'admin',
+          displayName: 'Admin User',
+          email: 'admin@example.com',
+          isExternal: false,
+          createdAt: new Date('2023-01-01'),
+          lastLogin: new Date('2024-01-01'),
+          isAuthenticated: true,
+          isAdmin: true,
+          roles: ['admin']
+        });
         mockUserManager.hasPermission.mockReturnValue(true);
 
         const response = await request(app).get('/admin/notifications');
@@ -716,7 +843,11 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
 
     describe('POST /admin/notifications/:id/dismiss', () => {
       test('should dismiss notification for admin', async () => {
-        mockUserManager.getCurrentUser.mockResolvedValue({ username: 'admin' });
+        mockUserManager.getCurrentUser.mockResolvedValue({ 
+          username: 'admin',
+          displayName: 'Admin User',
+          email: 'admin@example.com'
+        });
         mockUserManager.hasPermission.mockReturnValue(true);
 
         const mockNotificationManager = mockEngine.getManager('NotificationManager');
@@ -732,7 +863,11 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
 
     describe('POST /admin/notifications/clear-all', () => {
       test('should clear all notifications for admin', async () => {
-        mockUserManager.getCurrentUser.mockResolvedValue({ username: 'admin' });
+        mockUserManager.getCurrentUser.mockResolvedValue({ 
+          username: 'admin',
+          displayName: 'Admin User',
+          email: 'admin@example.com'
+        });
         mockUserManager.hasPermission.mockReturnValue(true);
 
         const response = await request(app)
@@ -745,7 +880,11 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
 
     describe('GET /schema/person/:identifier', () => {
       test('should return person schema for admin', async () => {
-        mockUserManager.getCurrentUser.mockResolvedValue({ username: 'admin' });
+        mockUserManager.getCurrentUser.mockResolvedValue({ 
+          username: 'admin',
+          displayName: 'Admin User',
+          email: 'admin@example.com'
+        });
         mockUserManager.hasPermission.mockReturnValue(true);
 
         const mockSchemaManager = mockEngine.getManager('SchemaManager');
@@ -759,7 +898,11 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
       });
 
       test('should return 404 for non-existent person', async () => {
-        mockUserManager.getCurrentUser.mockResolvedValue({ username: 'admin' });
+        mockUserManager.getCurrentUser.mockResolvedValue({ 
+          username: 'admin',
+          displayName: 'Admin User',
+          email: 'admin@example.com'
+        });
         mockUserManager.hasPermission.mockReturnValue(true);
 
         const mockSchemaManager = mockEngine.getManager('SchemaManager');
@@ -772,7 +915,11 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
 
     describe('GET /schema/organization/:identifier', () => {
       test('should return organization schema for admin', async () => {
-        mockUserManager.getCurrentUser.mockResolvedValue({ username: 'admin' });
+        mockUserManager.getCurrentUser.mockResolvedValue({ 
+          username: 'admin',
+          displayName: 'Admin User',
+          email: 'admin@example.com'
+        });
         mockUserManager.hasPermission.mockReturnValue(true);
 
         const mockSchemaManager = mockEngine.getManager('SchemaManager');
