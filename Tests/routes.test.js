@@ -7,68 +7,101 @@ const WikiRoutes = require('../src/routes/WikiRoutes');
 jest.mock('../src/WikiEngine', () => {
   // Create mock managers once
   const mockUserManager = {
-    getCurrentUser: jest.fn(),
-    hasPermission: jest.fn(),
-    destroySession: jest.fn(),
-    getUsers: jest.fn(),
-    getRoles: jest.fn(),
-    createUser: jest.fn(),
-    updateUser: jest.fn(),
-    deleteUser: jest.fn(),
-    createRole: jest.fn(),
-    updateRolePermissions: jest.fn(),
-    deleteRole: jest.fn(),
-    authenticateUser: jest.fn(),
-    registerUser: jest.fn(),
-    updateProfile: jest.fn(),
-    updatePreferences: jest.fn(),
-    getUser: jest.fn(),
-    getPermissions: jest.fn(),
-    getUserPermissions: jest.fn()
+    getCurrentUser: jest.fn().mockResolvedValue({
+      username: 'testuser',
+      isAuthenticated: true,
+      roles: ['authenticated']
+    }),
+    hasPermission: jest.fn().mockReturnValue(true),
+    destroySession: jest.fn().mockResolvedValue(true),
+    getUsers: jest.fn().mockResolvedValue([
+      { username: 'admin', roles: ['admin'] },
+      { username: 'testuser', roles: ['authenticated'] }
+    ]),
+    getRoles: jest.fn().mockResolvedValue([
+      { name: 'admin', permissions: ['read', 'write', 'admin'] },
+      { name: 'authenticated', permissions: ['read', 'write'] }
+    ]),
+    createUser: jest.fn().mockResolvedValue(true),
+    updateUser: jest.fn().mockResolvedValue(true),
+    deleteUser: jest.fn().mockResolvedValue(true),
+    createRole: jest.fn().mockResolvedValue(true),
+    updateRolePermissions: jest.fn().mockResolvedValue(true),
+    deleteRole: jest.fn().mockResolvedValue(true),
+    authenticateUser: jest.fn().mockResolvedValue({
+      username: 'testuser',
+      isAuthenticated: true,
+      roles: ['authenticated']
+    }),
+    registerUser: jest.fn().mockResolvedValue(true),
+    updateProfile: jest.fn().mockResolvedValue(true),
+    updatePreferences: jest.fn().mockResolvedValue(true),
+    getUser: jest.fn().mockResolvedValue({
+      username: 'testuser',
+      email: 'test@example.com',
+      displayName: 'Test User',
+      preferences: {}
+    }),
+    getPermissions: jest.fn().mockReturnValue(new Map([
+      ['read', 'Read access to pages'],
+      ['write', 'Write access to pages'],
+      ['admin', 'Administrative access']
+    ])),
+    getUserPermissions: jest.fn().mockResolvedValue(['read', 'write']),
+    createSession: jest.fn().mockResolvedValue('session-id-123')
   };
 
   const mockPageManager = {
-    getPageNames: jest.fn(),
-    getPage: jest.fn(),
-    savePage: jest.fn(),
-    deletePage: jest.fn(),
-    getPageContent: jest.fn(),
-    isRequiredPage: jest.fn()
+    getPageNames: jest.fn().mockResolvedValue(['Welcome', 'TestPage']),
+    getPage: jest.fn().mockResolvedValue({
+      content: '# Test Page\nThis is a test page.',
+      metadata: { title: 'TestPage' }
+    }),
+    savePage: jest.fn().mockResolvedValue(true),
+    deletePage: jest.fn().mockResolvedValue(true),
+    getPageContent: jest.fn().mockResolvedValue('# Test Page\nThis is a test page.'),
+    isRequiredPage: jest.fn().mockReturnValue(false)
   };
 
   const mockRenderingManager = {
-    renderContent: jest.fn(),
-    renderMarkdown: jest.fn(),
-    getReferringPages: jest.fn()
+    renderContent: jest.fn().mockReturnValue('<p>This is rendered content</p>'),
+    renderMarkdown: jest.fn().mockReturnValue('<p>This is rendered markdown</p>'),
+    getReferringPages: jest.fn().mockResolvedValue([]),
+    rebuildLinkGraph: jest.fn().mockResolvedValue(true)
   };
 
   const mockSearchManager = {
-    search: jest.fn(),
-    advancedSearch: jest.fn()
+    search: jest.fn().mockResolvedValue([]),
+    advancedSearch: jest.fn().mockResolvedValue([]),
+    rebuildIndex: jest.fn().mockResolvedValue(true)
   };
 
   const mockTemplateManager = {
-    render: jest.fn(),
-    getTemplates: jest.fn()
+    render: jest.fn().mockImplementation((template, data, callback) => {
+      if (callback) callback(null, '<html>Test Template</html>');
+      return '<html>Test Template</html>';
+    }),
+    getTemplates: jest.fn().mockResolvedValue(['template1', 'template2'])
   };
 
   const mockACLManager = {
-    checkPagePermission: jest.fn(),
-    removeACLMarkup: jest.fn(),
-    parseACL: jest.fn()
+    checkPagePermission: jest.fn().mockResolvedValue(true),
+    removeACLMarkup: jest.fn().mockReturnValue('Content without ACL markup'),
+    parseACL: jest.fn().mockReturnValue({ permissions: [] })
   };
 
   const mockNotificationManager = {
-    dismissNotification: jest.fn(),
-    clearAllNotifications: jest.fn(),
-    getNotifications: jest.fn(),
-    createMaintenanceNotification: jest.fn(),
-    getAllNotifications: jest.fn()
+    dismissNotification: jest.fn().mockResolvedValue(true),
+    clearAllNotifications: jest.fn().mockResolvedValue(true),
+    getNotifications: jest.fn().mockReturnValue([]),
+    createMaintenanceNotification: jest.fn().mockResolvedValue(true),
+    getAllNotifications: jest.fn().mockReturnValue([]),
+    getStats: jest.fn().mockReturnValue({ total: 0, active: 0, expired: 0 })
   };
 
   const mockSchemaManager = {
-    getPerson: jest.fn(),
-    getOrganization: jest.fn()
+    getPerson: jest.fn().mockResolvedValue(null),
+    getOrganization: jest.fn().mockResolvedValue(null)
   };
 
   return jest.fn().mockImplementation(() => ({
@@ -125,6 +158,21 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
       next();
     });
 
+    // Mock CSRF middleware
+    app.use((req, res, next) => {
+      req.csrfToken = () => 'test-csrf-token';
+
+      // CSRF validation for POST requests
+      if (req.method === 'POST') {
+        const token = req.body._csrf || req.headers['x-csrf-token'] || req.headers['csrf-token'];
+        if (!token || token !== 'test-csrf-token') {
+          return res.status(403).json({ error: 'Invalid CSRF token' });
+        }
+      }
+
+      next();
+    });
+
     // Create WikiRoutes instance with the same mock engine
     const WikiEngine = require('../src/WikiEngine');
     mockEngine = new WikiEngine();
@@ -138,27 +186,82 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
     mockSchemaManager = mockEngine.getManager('SchemaManager');
     mockRenderingManager = mockEngine.getManager('RenderingManager');
     mockSearchManager = mockEngine.getManager('SearchManager');
+    mockTemplateManager = mockEngine.getManager('TemplateManager');
+
+    // Set up default mock implementations - using defaults from jest.mock()
+    // No additional setup needed as jest.mock() provides the defaults
 
     // Register routes
     wikiRoutes.registerRoutes(app);
   });
 
   afterEach(() => {
-    // Don't clear all mocks as it breaks the WikiEngine mock setup
-    // jest.clearAllMocks();
+    // Clear all mocks but preserve the WikiEngine mock setup
+    jest.clearAllMocks();
+
+    // Re-establish default mock implementations
+    mockUserManager.getCurrentUser.mockResolvedValue({
+      username: 'testuser',
+      isAuthenticated: true,
+      roles: ['authenticated']
+    });
+    mockUserManager.hasPermission.mockReturnValue(true);
+    mockUserManager.getUserPermissions.mockResolvedValue(['read', 'write']);
+    mockUserManager.getUser.mockResolvedValue({
+      username: 'testuser',
+      email: 'test@example.com',
+      displayName: 'Test User',
+      preferences: {}
+    });
+    mockUserManager.getUsers.mockResolvedValue([
+      { username: 'admin', roles: ['admin'] },
+      { username: 'testuser', roles: ['authenticated'] }
+    ]);
+    mockUserManager.getRoles.mockResolvedValue([
+      { name: 'admin', permissions: ['read', 'write', 'admin'] },
+      { name: 'authenticated', permissions: ['read', 'write'] }
+    ]);
+    mockUserManager.getPermissions.mockResolvedValue(new Map([
+      ['read', 'Read access to pages'],
+      ['write', 'Write access to pages'],
+      ['admin', 'Administrative access']
+    ]));
+    mockPageManager.getPageNames.mockResolvedValue(['Welcome', 'TestPage']);
+    mockPageManager.getPage.mockResolvedValue({
+      content: '# Test Page\nThis is a test page.',
+      metadata: { title: 'TestPage' }
+    });
+    mockPageManager.getPageContent.mockResolvedValue('# Test Page\nThis is a test page.');
+    mockPageManager.isRequiredPage.mockReturnValue(false);
+    mockRenderingManager.renderContent.mockReturnValue('<p>This is rendered content</p>');
+    mockRenderingManager.renderMarkdown.mockReturnValue('<p>This is rendered markdown</p>');
+    mockRenderingManager.getReferringPages.mockResolvedValue([]);
+    mockRenderingManager.rebuildLinkGraph.mockResolvedValue(true);
+    mockSearchManager.search.mockResolvedValue([]);
+    mockSearchManager.advancedSearch.mockResolvedValue([]);
+    mockSearchManager.rebuildIndex.mockResolvedValue(true);
+    mockTemplateManager.render.mockImplementation((template, data, callback) => {
+      if (callback) callback(null, '<html>Test Template</html>');
+      return '<html>Test Template</html>';
+    });
+    mockTemplateManager.getTemplates.mockResolvedValue(['template1', 'template2']);
+    mockACLManager.checkPagePermission.mockResolvedValue(true);
+    mockACLManager.removeACLMarkup.mockReturnValue('Content without ACL markup');
+    mockACLManager.parseACL.mockReturnValue({ permissions: [] });
+    mockNotificationManager.getNotifications.mockResolvedValue([]);
+    mockNotificationManager.getAllNotifications.mockReturnValue([]);
+    mockNotificationManager.getStats.mockResolvedValue({ total: 0, active: 0, expired: 0 });
+    mockNotificationManager.dismissNotification.mockResolvedValue(true);
+    mockSchemaManager.getPerson.mockResolvedValue(null);
+    mockSchemaManager.getOrganization.mockResolvedValue(null);
   });
 
   describe('Public Routes', () => {
     describe('GET /', () => {
-      test('should return 200 for home page', async () => {
-        mockPageManager.getPageNames.mockResolvedValue(['Welcome', 'TestPage']);
-        mockPageManager.getPage.mockResolvedValue({
-          content: '# Welcome\nWelcome to the wiki!',
-          metadata: { title: 'Welcome' }
-        });
-
+      test('should redirect to Welcome page', async () => {
         const response = await request(app).get('/');
-        expect(response.status).toBe(200);
+        expect(response.status).toBe(302);
+        expect(response.headers.location).toBe('/wiki/Welcome');
       });
     });
 
@@ -299,6 +402,9 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
 
     describe('GET /login', () => {
       test('should return 200 for login page', async () => {
+        // Mock unauthenticated user for login page
+        mockUserManager.getCurrentUser.mockResolvedValue(null);
+
         const response = await request(app).get('/login');
         expect(response.status).toBe(200);
       });
@@ -377,6 +483,12 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
     describe('GET /profile', () => {
       test('should return 200 for authenticated user', async () => {
         mockUserManager.getCurrentUser.mockResolvedValue({ username: 'testuser' });
+        mockUserManager.getUser.mockResolvedValue({
+          username: 'testuser',
+          email: 'test@example.com',
+          displayName: 'Test User',
+          preferences: {}
+        });
 
         const response = await request(app).get('/profile');
         expect(response.status).toBe(200);

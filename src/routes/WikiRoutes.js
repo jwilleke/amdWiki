@@ -600,7 +600,8 @@ class WikiRoutes {
         pageName: pageName,
         templates: templates,
         systemCategories: systemCategories,
-        userKeywords: userKeywords
+        userKeywords: userKeywords,
+        csrfToken: req.csrfToken()
       });
       
     } catch (err) {
@@ -799,7 +800,8 @@ class WikiRoutes {
         systemCategories: systemCategories,
         selectedCategories: selectedCategories,
         userKeywords: userKeywords,
-        selectedUserKeywords: selectedUserKeywords
+        selectedUserKeywords: selectedUserKeywords,
+        csrfToken: req.csrfToken()
       });
       
     } catch (err) {
@@ -1390,7 +1392,7 @@ class WikiRoutes {
   async loginPage(req, res) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = userManager.getCurrentUser(req);
+      const currentUser = await userManager.getCurrentUser(req);
       
       // Redirect if already logged in
       if (currentUser && currentUser.isAuthenticated) {
@@ -1404,7 +1406,8 @@ class WikiRoutes {
         ...commonData,
         title: 'Login',
         error: req.query.error,
-        redirect: req.query.redirect
+        redirect: req.query.redirect,
+        csrfToken: req.csrfToken()
       });
       
     } catch (err) {
@@ -1514,7 +1517,8 @@ class WikiRoutes {
       res.render('register', {
         ...commonData,
         title: 'Register',
-        error: req.query.error
+        error: req.query.error,
+        csrfToken: req.csrfToken()
       });
       
     } catch (err) {
@@ -1570,7 +1574,7 @@ class WikiRoutes {
     console.log('DEBUG: profilePage accessed');
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = userManager.getCurrentUser(req);
+      const currentUser = await userManager.getCurrentUser(req);
       
       console.log('DEBUG: currentUser from userManager:', currentUser ? currentUser.username : 'null');
       
@@ -1580,11 +1584,11 @@ class WikiRoutes {
       }
       
       // Get fresh user data from database to ensure we have latest preferences
-      const freshUser = userManager.getUser(currentUser.username);
+      const freshUser = await userManager.getUser(currentUser.username);
       console.log('DEBUG: profilePage - fresh user preferences:', freshUser ? freshUser.preferences : 'no fresh user');
       
       const commonData = await this.getCommonTemplateData();
-      const userPermissions = userManager.getUserPermissions(currentUser.username);
+      const userPermissions = await userManager.getUserPermissions(currentUser.username);
       
       res.render('profile', {
         ...commonData,
@@ -1592,7 +1596,8 @@ class WikiRoutes {
         user: freshUser || currentUser, // Use fresh user data if available
         permissions: userPermissions,
         error: req.query.error,
-        success: req.query.success
+        success: req.query.success,
+        csrfToken: req.csrfToken()
       });
       
     } catch (err) {
@@ -1769,7 +1774,7 @@ class WikiRoutes {
         requiredPages: requiredPages,
         notifications: notifications,
         maintenanceMode: this.engine.config?.features?.maintenance?.enabled || false,
-        csrfToken: req.session.csrfToken || '',
+        csrfToken: req.csrfToken(),
         successMessage: req.query.success || null,
         errorMessage: req.query.error || null
       };
@@ -2066,7 +2071,8 @@ class WikiRoutes {
         users: users,
         roles: roles,
         successMessage: req.query.success || null,
-        errorMessage: req.query.error || null
+        errorMessage: req.query.error || null,
+        csrfToken: req.csrfToken()
       });
       
     } catch (err) {
@@ -2800,7 +2806,7 @@ class WikiRoutes {
         activeNotifications: activeNotifications,
         expiredNotifications: expiredNotifications,
         stats: stats,
-        csrfToken: req.session.csrfToken || '',
+        csrfToken: req.csrfToken(),
         successMessage: req.query.success || null,
         errorMessage: req.query.error || null
       });
