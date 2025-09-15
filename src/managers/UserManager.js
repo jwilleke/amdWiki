@@ -832,6 +832,41 @@ class UserManager extends BaseManager {
   }
 
   /**
+   * Delete a role (admin only)
+   * @param {string} roleName - Name of the role to delete
+   * @returns {boolean} Success status
+   */
+  async deleteRole(roleName) {
+    if (!this.roles.has(roleName)) {
+      throw new Error('Role not found');
+    }
+
+    const role = this.roles.get(roleName);
+    
+    // Prevent deletion of system roles
+    if (role.isSystem) {
+      throw new Error('Cannot delete system role');
+    }
+
+    // Remove role from all users
+    for (const [username, user] of this.users.entries()) {
+      const roleIndex = user.roles.indexOf(roleName);
+      if (roleIndex > -1) {
+        user.roles.splice(roleIndex, 1);
+        console.log(`👤 Removed role '${roleName}' from user '${username}' during role deletion`);
+      }
+    }
+
+    // Delete the role
+    this.roles.delete(roleName);
+    await this.saveRoles();
+    await this.saveUsers();
+
+    console.log(`👤 Deleted role: ${roleName}`);
+    return true;
+  }
+
+  /**
    * Update role permissions (for admin security policy management)
    * @param {string} roleName - Role name to update
    * @param {Object} updates - Updates to apply

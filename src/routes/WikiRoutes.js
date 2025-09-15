@@ -2144,7 +2144,7 @@ class WikiRoutes {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = userManager.getCurrentUser(req);
       
-      if (!userManager.hasPermission(currentUser, 'admin:users')) {
+      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:users')) {
         return res.status(403).send('Access denied');
       }
       
@@ -2225,6 +2225,81 @@ class WikiRoutes {
     } catch (err) {
       console.error('Error updating role:', err);
       res.status(500).json({ success: false, message: 'Error updating role' });
+    }
+  }
+
+  /**
+   * Create new role (admin only)
+   */
+  async adminCreateRole(req, res) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = await userManager.getCurrentUser(req);
+      
+      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:roles')) {
+        return res.status(403).json({ success: false, message: 'Access denied' });
+      }
+      
+      const { name, displayName, description, permissions } = req.body;
+      
+      if (!name) {
+        return res.status(400).json({ success: false, message: 'Role name required' });
+      }
+      
+      const roleData = {
+        name,
+        displayName: displayName || name,
+        description: description || '',
+        permissions: Array.isArray(permissions) ? permissions : []
+      };
+      
+      const role = await userManager.createRole(roleData);
+      
+      if (role) {
+        res.json({ success: true, message: 'Role created successfully', role });
+      } else {
+        res.status(400).json({ success: false, message: 'Failed to create role' });
+      }
+    } catch (err) {
+      console.error('Error creating role:', err);
+      if (err.message === 'Role already exists') {
+        res.status(409).json({ success: false, message: 'Role already exists' });
+      } else {
+        res.status(500).json({ success: false, message: 'Error creating role' });
+      }
+    }
+  }
+
+  /**
+   * Delete role (admin only)
+   */
+  async adminDeleteRole(req, res) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = await userManager.getCurrentUser(req);
+      
+      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:roles')) {
+        return res.status(403).json({ success: false, message: 'Access denied' });
+      }
+      
+      const { role } = req.params;
+      
+      if (!role) {
+        return res.status(400).json({ success: false, message: 'Role name required' });
+      }
+      
+      await userManager.deleteRole(role);
+      
+      res.json({ success: true, message: 'Role deleted successfully' });
+    } catch (err) {
+      console.error('Error deleting role:', err);
+      if (err.message === 'Role not found') {
+        res.status(404).json({ success: false, message: 'Role not found' });
+      } else if (err.message === 'Cannot delete system role') {
+        res.status(403).json({ success: false, message: 'Cannot delete system role' });
+      } else {
+        res.status(500).json({ success: false, message: 'Error deleting role' });
+      }
     }
   }
 
@@ -2532,8 +2607,8 @@ class WikiRoutes {
   async adminGetOrganizationSchema(req, res) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const userContext = await userManager.getCurrentUser(req);
-      if (!userContext.isAuthenticated || !userContext.isAdmin) {
+      const currentUser = await userManager.getCurrentUser(req);
+      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
         return res.status(403).json({ error: 'Admin access required' });
       }
 
@@ -2558,6 +2633,37 @@ class WikiRoutes {
   }
 
   /**
+   * Get Schema.org Person schema for a user
+   */
+  async adminGetPersonSchema(req, res) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = await userManager.getCurrentUser(req);
+      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+
+      const schemaManager = this.engine.getManager('SchemaManager');
+      const identifier = req.params.identifier;
+      const person = await schemaManager.getPerson(identifier);
+
+      if (!person) {
+        return res.status(404).json({ error: 'Person not found' });
+      }
+
+      // Generate Schema.org JSON-LD using SchemaGenerator
+      const schema = SchemaGenerator.generatePersonSchema(person, {
+        baseUrl: `${req.protocol}://${req.get('host')}`
+      });
+
+      res.json(schema);
+    } catch (error) {
+      console.error('Error getting person schema:', error);
+      res.status(500).json({ error: error.message });
+    }
+  }
+
+  /**
    * Register all routes with the Express app
    * @param {Express} app - Express application instance
    */
@@ -2573,6 +2679,7 @@ class WikiRoutes {
     app.get('/search', (req, res) => this.searchPages(req, res));
     app.get('/login', (req, res) => this.loginPage(req, res));
     app.post('/login', (req, res) => this.processLogin(req, res));
+    app.get('/logout', (req, res) => this.processLogout(req, res));
     app.post('/logout', (req, res) => this.processLogout(req, res));
     app.get('/register', (req, res) => this.registerPage(req, res));
     app.post('/register', (req, res) => this.processRegister(req, res));
