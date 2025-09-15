@@ -1,59 +1,87 @@
 const express = require('express');
 const request = require('supertest');
+const path = require('path');
 const WikiRoutes = require('../src/routes/WikiRoutes');
 
 // Mock the WikiEngine and its managers
 jest.mock('../src/WikiEngine', () => {
+  // Create mock managers once
+  const mockUserManager = {
+    getCurrentUser: jest.fn(),
+    hasPermission: jest.fn(),
+    destroySession: jest.fn(),
+    getUsers: jest.fn(),
+    getRoles: jest.fn(),
+    createUser: jest.fn(),
+    updateUser: jest.fn(),
+    deleteUser: jest.fn(),
+    createRole: jest.fn(),
+    updateRolePermissions: jest.fn(),
+    deleteRole: jest.fn(),
+    authenticateUser: jest.fn(),
+    registerUser: jest.fn(),
+    updateProfile: jest.fn(),
+    updatePreferences: jest.fn(),
+    getUser: jest.fn(),
+    getPermissions: jest.fn(),
+    getUserPermissions: jest.fn()
+  };
+
+  const mockPageManager = {
+    getPageNames: jest.fn(),
+    getPage: jest.fn(),
+    savePage: jest.fn(),
+    deletePage: jest.fn(),
+    getPageContent: jest.fn(),
+    isRequiredPage: jest.fn()
+  };
+
+  const mockRenderingManager = {
+    renderContent: jest.fn(),
+    renderMarkdown: jest.fn(),
+    getReferringPages: jest.fn()
+  };
+
+  const mockSearchManager = {
+    search: jest.fn(),
+    advancedSearch: jest.fn()
+  };
+
+  const mockTemplateManager = {
+    render: jest.fn(),
+    getTemplates: jest.fn()
+  };
+
+  const mockACLManager = {
+    checkPagePermission: jest.fn(),
+    removeACLMarkup: jest.fn(),
+    parseACL: jest.fn()
+  };
+
+  const mockNotificationManager = {
+    dismissNotification: jest.fn(),
+    clearAllNotifications: jest.fn(),
+    getNotifications: jest.fn(),
+    createMaintenanceNotification: jest.fn(),
+    getAllNotifications: jest.fn()
+  };
+
+  const mockSchemaManager = {
+    getPerson: jest.fn(),
+    getOrganization: jest.fn()
+  };
+
   return jest.fn().mockImplementation(() => ({
     getManager: jest.fn((name) => {
       const mockManagers = {
-        UserManager: {
-          getCurrentUser: jest.fn(),
-          hasPermission: jest.fn(),
-          destroySession: jest.fn(),
-          getUsers: jest.fn(),
-          getRoles: jest.fn(),
-          createUser: jest.fn(),
-          updateUser: jest.fn(),
-          deleteUser: jest.fn(),
-          createRole: jest.fn(),
-          updateRolePermissions: jest.fn(),
-          deleteRole: jest.fn(),
-          authenticateUser: jest.fn(),
-          registerUser: jest.fn(),
-          updateProfile: jest.fn(),
-          updatePreferences: jest.fn()
-        },
-        PageManager: {
-          getPageNames: jest.fn(),
-          getPage: jest.fn(),
-          savePage: jest.fn(),
-          deletePage: jest.fn(),
-          getPageContent: jest.fn(),
-          isRequiredPage: jest.fn()
-        },
-        RenderingManager: {
-          renderContent: jest.fn()
-        },
-        SearchManager: {
-          search: jest.fn()
-        },
-        TemplateManager: {
-          render: jest.fn()
-        },
-        ACLManager: {
-          checkPagePermission: jest.fn()
-        },
-        NotificationManager: {
-          dismissNotification: jest.fn(),
-          clearAllNotifications: jest.fn(),
-          getNotifications: jest.fn(),
-          createMaintenanceNotification: jest.fn()
-        },
-        SchemaManager: {
-          getPerson: jest.fn(),
-          getOrganization: jest.fn()
-        }
+        UserManager: mockUserManager,
+        PageManager: mockPageManager,
+        RenderingManager: mockRenderingManager,
+        SearchManager: mockSearchManager,
+        TemplateManager: mockTemplateManager,
+        ACLManager: mockACLManager,
+        NotificationManager: mockNotificationManager,
+        SchemaManager: mockSchemaManager
       };
       return mockManagers[name] || {};
     }),
@@ -80,6 +108,10 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
 
+    // Configure template engine
+    app.set('view engine', 'ejs');
+    app.set('views', path.join(__dirname, '../views'));
+
     // Mock session middleware
     app.use((req, res, next) => {
       req.session = {};
@@ -93,12 +125,12 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
       next();
     });
 
-    // Create WikiRoutes instance
+    // Create WikiRoutes instance with the same mock engine
     const WikiEngine = require('../src/WikiEngine');
     mockEngine = new WikiEngine();
     wikiRoutes = new WikiRoutes(mockEngine);
 
-    // Get mock managers
+    // Get mock managers from the same engine instance
     mockUserManager = mockEngine.getManager('UserManager');
     mockPageManager = mockEngine.getManager('PageManager');
     mockACLManager = mockEngine.getManager('ACLManager');
@@ -290,17 +322,16 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
 
     describe('GET /logout', () => {
       test('should logout and redirect', async () => {
-        // Get a fresh reference to the mock manager
-        const freshMockUserManager = mockEngine.getManager('UserManager');
-        freshMockUserManager.getCurrentUser.mockResolvedValue({ username: 'testuser' });
-        freshMockUserManager.destroySession.mockReturnValue(true);
+        // Set up the mock to return the expected user
+        mockUserManager.getCurrentUser.mockResolvedValue({ username: 'testuser' });
+        mockUserManager.destroySession.mockReturnValue(true);
 
         const response = await request(app)
           .get('/logout')
           .set('Cookie', 'sessionId=test-session-id');
 
         expect(response.status).toBe(302);
-        expect(freshMockUserManager.destroySession).toHaveBeenCalledWith('test-session-id');
+        expect(mockUserManager.destroySession).toHaveBeenCalledWith('test-session-id');
       });
     });
 
