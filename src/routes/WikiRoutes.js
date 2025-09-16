@@ -657,23 +657,23 @@ class WikiRoutes {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.user ? req.user : await userManager.getCurrentUser(req);
-      
+
       // Check if user is authenticated
       if (!currentUser) {
         return res.redirect('/login?redirect=' + encodeURIComponent('/create'));
       }
-      
+
       // Check if user has permission to create pages
       if (!userManager.hasPermission(currentUser.username, 'page:create')) {
         return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to create pages. Please contact an administrator.');
       }
-      
+
       const { pageName, templateName, categories, userKeywords } = req.body;
-      
+
       if (!pageName || !templateName) {
         return res.status(400).send('Page name and template are required');
       }
-      
+
       // Ensure categories is an array and always include 'default'
       let categoriesArray = Array.isArray(categories) ? categories : (categories ? [categories] : []);
       if (!categoriesArray.includes('default')) {
@@ -682,16 +682,48 @@ class WikiRoutes {
       if (categoriesArray.length > 3) {
         return res.status(400).send('Maximum 3 categories allowed');
       }
-      
+
       const templateManager = this.engine.getManager('TemplateManager');
       const pageManager = this.engine.getManager('PageManager');
-      
+
       // Check if page already exists
       const existingPage = await pageManager.getPage(pageName);
       if (existingPage) {
-        return res.status(409).send('Page already exists');
+        console.log(`DEBUG: createPageFromTemplate - Page ${pageName} already exists, rendering error template`);
+        try {
+          const commonData = await this.getCommonTemplateData(currentUser);
+
+          return res.status(409).render('error', {
+          ...commonData,
+          currentUser,
+          title: 'Page Already Exists',
+          error: { status: 409 },
+          message: `A page named "${pageName}" already exists.`,
+          details: 'You can view the existing page or edit it if you have permission.',
+          actions: [
+            {
+              label: 'View Page',
+              url: `/wiki/${encodeURIComponent(pageName)}`,
+              class: 'btn-primary'
+            },
+            {
+              label: 'Edit Page',
+              url: `/edit/${encodeURIComponent(pageName)}`,
+              class: 'btn-secondary'
+            },
+            {
+              label: 'Back to Create',
+              url: '/create',
+              class: 'btn-outline-secondary'
+            }
+          ]
+        });
+        } catch (templateError) {
+          console.log('DEBUG: Error rendering template, falling back to simple message', templateError);
+          return res.status(409).send('Page already exists');
+        }
       }
-      
+
       // Apply template with variables
       const templateVars = {
         pageName: pageName,
@@ -807,6 +839,111 @@ class WikiRoutes {
     } catch (err) {
       console.error('Error loading edit page:', err);
       res.status(500).send('Error loading edit page');
+    }
+  }
+
+  /**
+   * Create a new wiki page via POST /wiki/:page
+   * @param {object} req - Express request object
+   * @param {object} res - Express response object
+   */
+  async createWikiPage(req, res) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = req.user ? req.user : await userManager.getCurrentUser(req);
+
+      // Check if user is authenticated
+      if (!currentUser) {
+        return res.redirect('/login?redirect=' + encodeURIComponent(req.originalUrl));
+      }
+
+      // Check if user has permission to create pages
+      if (!userManager.hasPermission(currentUser.username, 'page:create')) {
+        return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to create pages.');
+      }
+
+      const pageName = decodeURIComponent(req.params.page);
+      const { content, templateName, categories, userKeywords } = req.body;
+
+      const pageManager = this.engine.getManager('PageManager');
+
+      // Check if page already exists
+      const existingPage = await pageManager.getPage(pageName);
+      if (existingPage) {
+        const commonData = await this.getCommonTemplateData(currentUser);
+
+        return res.status(409).render('error', {
+          ...commonData,
+          currentUser,
+          title: 'Page Already Exists',
+          error: { status: 409 },
+          message: `A page named "${pageName}" already exists.`,
+          details: 'You can view the existing page or edit it if you have permission.',
+          actions: [
+            {
+              label: 'View Page',
+              url: `/wiki/${encodeURIComponent(pageName)}`,
+              class: 'btn-primary'
+            },
+            {
+              label: 'Edit Page',
+              url: `/edit/${encodeURIComponent(pageName)}`,
+              class: 'btn-secondary'
+            },
+            {
+              label: 'Back to Create',
+              url: '/create',
+              class: 'btn-outline-secondary'
+            }
+          ]
+        });
+      }
+
+      let finalContent = content;
+
+      // If a template was selected, apply it
+      if (templateName && templateName !== 'none') {
+        const templateManager = this.engine.getManager('TemplateManager');
+
+        // Ensure categories is an array
+        let categoriesArray = Array.isArray(categories) ? categories : (categories ? [categories] : ['General']);
+
+        // Apply template with variables
+        const templateVars = {
+          pageName: pageName,
+          category: categoriesArray[0] || 'General',
+          categories: categoriesArray.join(', '),
+          userKeywords: Array.isArray(userKeywords) ? userKeywords.join(', ') : (userKeywords || ''),
+          date: new Date().toISOString().split('T')[0]
+        };
+
+        finalContent = templateManager.applyTemplate(templateName, templateVars);
+      } else if (!content) {
+        return res.status(400).send('Content or template is required');
+      }
+
+      // Create metadata for new page
+      const metadata = {
+        title: pageName,
+        category: categories || 'General',
+        'user-keywords': Array.isArray(userKeywords) ? userKeywords : (userKeywords ? [userKeywords] : [])
+      };
+
+      // Save the new page
+      await pageManager.savePage(pageName, finalContent, metadata);
+
+      // Rebuild search index and link graph
+      const renderingManager = this.engine.getManager('RenderingManager');
+      const searchManager = this.engine.getManager('SearchManager');
+      await renderingManager.rebuildLinkGraph();
+      await searchManager.rebuildIndex();
+
+      // Redirect to edit the new page (so user can see template result)
+      res.redirect(`/edit/${encodeURIComponent(pageName)}`);
+
+    } catch (error) {
+      console.error('Error creating wiki page:', error);
+      return await this.renderError(req, res, 500, 'Internal Server Error', 'Failed to create page');
     }
   }
 
@@ -1095,7 +1232,7 @@ class WikiRoutes {
       // Get current user context for authentication variables
       const currentUser = await userManager.getCurrentUser(req);
       
-      const renderedContent = renderingManager.renderMarkdown(content, pageName, currentUser);
+      const renderedContent = renderingManager.renderPage(content, pageName, currentUser);
       
       res.json({ 
         html: renderedContent,
@@ -2678,6 +2815,7 @@ class WikiRoutes {
     // Public routes
     app.get('/', (req, res) => this.homePage(req, res));
     app.get('/wiki/:page', (req, res) => this.viewPage(req, res));
+    app.post('/wiki/:page', (req, res) => this.createWikiPage(req, res));
     app.get('/edit/:page', (req, res) => this.editPage(req, res));
     app.post('/save/:page', (req, res) => this.savePage(req, res));
     app.get('/create', (req, res) => this.createPage(req, res));
