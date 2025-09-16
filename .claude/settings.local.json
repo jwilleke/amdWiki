@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm start)",
+      "Bash(pm2 start:*)",
+      "Bash(pm2 logs:*)",
+      "Bash(pm2 restart:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

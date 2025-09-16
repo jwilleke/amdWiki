@@ -30,6 +30,7 @@ amdWiki follows a **manager-based architecture** inspired by JSPWiki:
 - Markdownlint Configuration using (.markdownlint.json)
 - Use of Open Standards
   - [Schema.org](https://schema.org/) when possible.
+- 📖 **Read [ARCHITECTURE-PAGE-CLASSIFICATION.md](ARCHITECTURE-PAGE-CLASSIFICATION.md)** for detailed architecture patterns.
 
 ### Code Style
 - Use **CommonJS** modules (`require/module.exports`)
