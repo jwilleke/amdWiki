@@ -6,6 +6,7 @@
             <h1>Create New Page</h1>
             
             <form action="/create" method="POST">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                 <!-- Page Name and Template on same row -->
                 <div class="row mb-3">
                     <div class="col-md-6">

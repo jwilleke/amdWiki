@@ -6,6 +6,7 @@
             <h1>Create New Page</h1>
             
             <form action="/create" method="POST">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                 <!-- Page Name -->
                 <div class="form-group mb-3">
                     <label for="pageName" style="font-weight:bold;">Page Name:</label>

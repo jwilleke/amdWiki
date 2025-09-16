@@ -601,7 +601,7 @@ class WikiRoutes {
         templates: templates,
         systemCategories: systemCategories,
         userKeywords: userKeywords,
-        csrfToken: req.csrfToken()
+        csrfToken: req.session.csrfToken
       });
       
     } catch (err) {
@@ -801,7 +801,7 @@ class WikiRoutes {
         selectedCategories: selectedCategories,
         userKeywords: userKeywords,
         selectedUserKeywords: selectedUserKeywords,
-        csrfToken: req.csrfToken()
+        csrfToken: req.session.csrfToken
       });
       
     } catch (err) {
@@ -1407,7 +1407,7 @@ class WikiRoutes {
         title: 'Login',
         error: req.query.error,
         redirect: req.query.redirect,
-        csrfToken: req.csrfToken()
+        csrfToken: req.session.csrfToken
       });
       
     } catch (err) {
@@ -1518,7 +1518,7 @@ class WikiRoutes {
         ...commonData,
         title: 'Register',
         error: req.query.error,
-        csrfToken: req.csrfToken()
+        csrfToken: req.session.csrfToken
       });
       
     } catch (err) {
@@ -1597,7 +1597,7 @@ class WikiRoutes {
         permissions: userPermissions,
         error: req.query.error,
         success: req.query.success,
-        csrfToken: req.csrfToken()
+        csrfToken: req.session.csrfToken
       });
       
     } catch (err) {
@@ -1774,7 +1774,7 @@ class WikiRoutes {
         requiredPages: requiredPages,
         notifications: notifications,
         maintenanceMode: this.engine.config?.features?.maintenance?.enabled || false,
-        csrfToken: req.csrfToken(),
+        csrfToken: req.session.csrfToken,
         successMessage: req.query.success || null,
         errorMessage: req.query.error || null
       };
@@ -2072,7 +2072,7 @@ class WikiRoutes {
         roles: roles,
         successMessage: req.query.success || null,
         errorMessage: req.query.error || null,
-        csrfToken: req.csrfToken()
+        csrfToken: req.session.csrfToken
       });
       
     } catch (err) {
@@ -2381,12 +2381,13 @@ class WikiRoutes {
   async adminOrganizations(req, res) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const userContext = await userManager.getCurrentUser(req);
-      if (!userContext.isAuthenticated || !userContext.isAdmin) {
+      const currentUser = await userManager.getCurrentUser(req);
+
+      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
         return await this.renderError(req, res, 403, 'Access Denied', 'Admin access required');
       }
 
-      const templateData = await this.getCommonTemplateData(userContext);
+      const templateData = await this.getCommonTemplateDataWithUser(req);
       
       // Try to get SchemaManager, fallback gracefully
       let organizations = [];
@@ -2711,6 +2712,14 @@ class WikiRoutes {
     app.post('/admin/notifications/clear-all', (req, res) => this.adminClearAllNotifications(req, res));
     app.get('/admin/notifications', (req, res) => this.adminNotifications(req, res));
 
+    // Admin Schema.org Organization Management Routes
+    app.get('/admin/organizations', this.adminOrganizations.bind(this));
+    app.post('/admin/organizations', this.adminCreateOrganization.bind(this));
+    app.put('/admin/organizations/:identifier', this.adminUpdateOrganization.bind(this));
+    app.delete('/admin/organizations/:identifier', this.adminDeleteOrganization.bind(this));
+    app.get('/admin/organizations/:identifier', this.adminGetOrganization.bind(this));
+    app.get('/admin/organizations/:identifier/schema', this.adminGetOrganizationSchema.bind(this));
+
     // Schema.org routes
     app.get('/schema/person/:identifier', (req, res) => this.adminGetPersonSchema(req, res));
     app.get('/schema/organization/:identifier', (req, res) => this.adminGetOrganizationSchema(req, res));
@@ -2806,7 +2815,7 @@ class WikiRoutes {
         activeNotifications: activeNotifications,
         expiredNotifications: expiredNotifications,
         stats: stats,
-        csrfToken: req.csrfToken(),
+        csrfToken: req.session.csrfToken,
         successMessage: req.query.success || null,
         errorMessage: req.query.error || null
       });
