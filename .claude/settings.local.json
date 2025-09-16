@@ -7,7 +7,9 @@
       "Bash(pm2 restart:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(pm2 stop:*)"
+      "Bash(pm2 stop:*)",
+      "Bash(npm test)",
+      "Bash(npm test:*)"
     ],
     "deny": [],
     "ask": []

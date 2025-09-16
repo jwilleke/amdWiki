@@ -9,7 +9,7 @@ const path = require('path');
 class ValidationManager extends BaseManager {
   constructor(engine) {
     super(engine);
-    this.requiredMetadataFields = ['title', 'uuid', 'slug', 'system-category', 'user-keywords', 'lastModified'];
+    this.requiredMetadataFields = ['title', 'uuid', 'slug', 'category', 'user-keywords', 'lastModified'];
     this.validSystemCategories = [
       'System', 'System/Admin', 'Documentation', 'General', 'User', 'Test', 'Developer'
     ];
@@ -87,12 +87,12 @@ class ValidationManager extends BaseManager {
       validationErrors.push('slug must be a URL-safe string (lowercase, alphanumeric, hyphens only)');
     }
     
-    // System category validation
-    if (metadata['system-category']) {
-      if (typeof metadata['system-category'] !== 'string') {
-        validationErrors.push('system-category must be a string');
-      } else if (!this.validSystemCategories.includes(metadata['system-category'])) {
-        result.warnings.push(`System category '${metadata['system-category']}' is not in the standard list: ${this.validSystemCategories.join(', ')}`);
+    // Category validation
+    if (metadata.category) {
+      if (typeof metadata.category !== 'string') {
+        validationErrors.push('category must be a string');
+      } else if (!this.validSystemCategories.includes(metadata.category)) {
+        result.warnings.push(`Category '${metadata.category}' is not in the standard list: ${this.validSystemCategories.join(', ')}`);
       }
     }
     
@@ -227,7 +227,7 @@ class ValidationManager extends BaseManager {
     const slug = options.slug || this.generateSlug(title);
     return {
       title: title.trim(),
-      'system-category': options['system-category'] || 'General',
+      category: options.category || 'General',
       'user-keywords': options.userKeywords || options['user-keywords'] || [],
       uuid: uuid,
       slug: slug,

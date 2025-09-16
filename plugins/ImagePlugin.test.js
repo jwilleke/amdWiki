@@ -169,7 +169,7 @@ describe('Image', () => {
 
       expect(result).toContain('<div class="image-plugin-container');
       expect(result).toContain('<a href="https://example.com"');
-      expect(result).toContain('style="border: 3px solid #ccc;;margin: 10px; display: block; margin: 0 auto;"');
+      expect(result).toContain('style="border: 3px solid #ccc; margin: 10px; display: block; margin: 0 auto;"');
       expect(result).toContain('title="Hover text"');
       expect(result).toContain('<div class="image-caption" style="font-size: 0.9em; color: #666; margin-top: 5px;">Test Caption</div>');
     });

@@ -427,7 +427,7 @@ class SearchManager extends BaseManager {
     if (!category) return [];
     
     return Object.values(this.documents)
-      .filter(doc => doc.category.toLowerCase().includes(category.toLowerCase()))
+      .filter(doc => doc.category && doc.category.toLowerCase().includes(category.toLowerCase()))
       .map(doc => ({
         name: doc.id,
         title: doc.title,
@@ -489,6 +489,104 @@ class SearchManager extends BaseManager {
    */
   getDocumentCount() {
     return Object.keys(this.documents).length;
+  }
+
+  /**
+   * Search by keywords
+   * @param {Array} keywords - Keywords to search for
+   * @returns {Array} Search results
+   */
+  searchByKeywords(keywords) {
+    if (!keywords || !Array.isArray(keywords)) return [];
+
+    const query = keywords.join(' ');
+    return this.search(query);
+  }
+
+  /**
+   * Add page to search index
+   * @param {Object} page - Page object to add
+   */
+  addToIndex(page) {
+    if (!page || !page.name) return;
+
+    // Add to documents
+    const metadata = page.metadata || {};
+    this.documents[page.name] = {
+      id: page.name,
+      name: page.name,
+      title: metadata.title || page.name,
+      content: page.content || '',
+      category: metadata.category || '',
+      systemCategory: metadata['system-category'] || '',
+      userKeywords: Array.isArray(metadata['user-keywords']) ?
+        metadata['user-keywords'].join(' ') :
+        (metadata['user-keywords'] || ''),
+      tags: Array.isArray(metadata.tags) ?
+        metadata.tags.join(' ') :
+        (metadata.tags || ''),
+      lastModified: metadata.lastModified || new Date().toISOString()
+    };
+
+    // Rebuild index to include new document
+    this.buildSearchIndex();
+  }
+
+  /**
+   * Remove page from search index
+   * @param {string} pageName - Name of page to remove
+   */
+  removeFromIndex(pageName) {
+    if (!pageName || !this.documents[pageName]) return;
+
+    delete this.documents[pageName];
+
+    // Rebuild index without the removed document
+    this.buildSearchIndex();
+  }
+
+  /**
+   * Perform multi-criteria search
+   * @param {Object} criteria - Search criteria object
+   * @returns {Array} Search results
+   */
+  multiSearch(criteria) {
+    if (!criteria) return [];
+
+    let results = [];
+
+    // Text search
+    if (criteria.query) {
+      results = this.search(criteria.query);
+    }
+
+    // Category filter
+    if (criteria.category) {
+      const categoryResults = this.searchByCategory(criteria.category);
+      if (results.length === 0) {
+        results = categoryResults;
+      } else {
+        // Intersect results
+        results = results.filter(r1 =>
+          categoryResults.some(r2 => r1.name === r2.name)
+        );
+      }
+    }
+
+    // Keywords filter
+    if (criteria.keywords) {
+      const keywordResults = this.searchByKeywords(criteria.keywords);
+      if (results.length === 0) {
+        results = keywordResults;
+      } else {
+        // Intersect results
+        results = results.filter(r1 =>
+          keywordResults.some(r2 => r1.name === r2.name)
+        );
+      }
+    }
+
+    return results;
   }
 }
 

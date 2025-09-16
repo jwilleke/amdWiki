@@ -27,20 +27,28 @@ const mockConfig = {
       const enabled = configStore['accessControl.contextAware.maintenanceMode.enabled'];
       const message = configStore['accessControl.contextAware.maintenanceMode.message'];
       const allowedRoles = configStore['accessControl.contextAware.maintenanceMode.allowedRoles'];
-      
+
       console.log(`Building nested config for ${key}:`, { enabled, message, allowedRoles });
-      
+
       const result = {
         enabled: enabled !== undefined ? enabled : false,
         message: message !== undefined ? message : 'System is under maintenance',
         allowedRoles: allowedRoles !== undefined ? allowedRoles : ['admin']
       };
-      
-      console.log(`Returning nested config:`, result);
-      return result;
+
+      // Only return the constructed object if we have any stored values
+      if (enabled !== undefined || message !== undefined || allowedRoles !== undefined) {
+        console.log(`Returning nested config:`, result);
+        return result;
+      }
+
+      // Return default if no values are set
+      console.log(`No maintenance config found, returning default`);
+      return defaultValue || { enabled: false, message: 'System is under maintenance', allowedRoles: ['admin'] };
     }
     
     // Return empty objects for config paths to avoid undefined errors
+    // Note: These must come AFTER the more specific maintenance mode check above
     if (key === 'accessControl.audit') {
       return configStore['accessControl.audit'] || { enabled: false };
     }

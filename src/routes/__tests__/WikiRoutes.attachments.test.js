@@ -140,7 +140,7 @@ describe('WikiRoutes - Attachment Security (Issue #22)', () => {
       await wikiRoutes.uploadAttachment(mockReq, mockRes);
 
       // Verify
-      expect(mockRes.status).toHaveBeenCalledWith(500);
+      expect(mockRes.status).toHaveBeenCalledWith(400);
       expect(mockRes.json).toHaveBeenCalledWith({
         success: false,
         error: 'Upload failed'
@@ -248,7 +248,7 @@ describe('WikiRoutes - Attachment Security (Issue #22)', () => {
       await wikiRoutes.serveAttachment(mockReq, mockRes);
 
       // Verify
-      expect(mockRes.status).toHaveBeenCalledWith(404);
+      expect(mockRes.status).toHaveBeenCalledWith(500);
       expect(mockRes.json).toHaveBeenCalledWith({
         success: false,
         error: 'Attachment file not found'

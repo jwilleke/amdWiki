@@ -808,7 +808,7 @@ class RenderingManager extends BaseManager {
     if (!userContext || !userContext.username) {
       return 'Anonymous';
     }
-    
+
     // Handle authentication states as defined in Authentication States Implementation
     switch (userContext.username) {
       case 'anonymous':
@@ -818,6 +818,118 @@ class RenderingManager extends BaseManager {
       default:
         return 'Authenticated';
     }
+  }
+
+  /**
+   * Render wiki links (JSPWiki-style links)
+   * @param {string} content - Content with wiki links
+   * @returns {string} Content with rendered links
+   */
+  renderWikiLinks(content) {
+    if (!content) return '';
+
+    // Process wiki-style links [PageName] and [Display Text|PageName]
+    return content.replace(/\[([^\]]+)\]/g, (match, linkContent) => {
+      const parts = linkContent.split('|');
+      const displayText = parts[0].trim();
+      const pageName = parts.length > 1 ? parts[1].trim() : displayText;
+
+      // Check if page exists (simplified - just check if it looks like a page name)
+      const pageManager = this.engine.getManager('PageManager');
+      const pageExists = pageManager && pageManager.pageExists && pageManager.pageExists(pageName);
+
+      if (pageExists) {
+        return `<a href="/view/${encodeURIComponent(pageName)}">${displayText}</a>`;
+      } else {
+        return `<a href="/view/${encodeURIComponent(pageName)}" class="red-link">${displayText}</a>`;
+      }
+    });
+  }
+
+  /**
+   * Render plugins (JSPWiki-style plugins)
+   * @param {string} content - Content with plugin syntax
+   * @returns {string} Content with rendered plugins
+   */
+  renderPlugins(content) {
+    if (!content) return '';
+
+    // Process plugin syntax [{PluginName param1=value1}]
+    return content.replace(/\[\{([^}]+)\}\]/g, (match, pluginContent) => {
+      const parts = pluginContent.trim().split(/\s+/);
+      const pluginName = parts[0];
+
+      const pluginManager = this.engine.getManager('PluginManager');
+      if (pluginManager && pluginManager.hasPlugin && pluginManager.hasPlugin(pluginName)) {
+        try {
+          // Parse parameters
+          const params = {};
+          for (let i = 1; i < parts.length; i++) {
+            const paramParts = parts[i].split('=');
+            if (paramParts.length === 2) {
+              params[paramParts[0]] = paramParts[1];
+            }
+          }
+
+          return pluginManager.executePlugin(pluginName, params, { engine: this.engine });
+        } catch (error) {
+          return `<span class="error">Plugin ${pluginName} error</span>`;
+        }
+      }
+
+      return match; // Return original if plugin not found
+    });
+  }
+
+  /**
+   * Expand user variables in content
+   * @param {string} content - Content with user variables
+   * @param {object} userContext - User context
+   * @returns {string} Content with expanded variables
+   */
+  expandUserVariables(content, userContext) {
+    if (!content) return '';
+
+    let expandedContent = content;
+
+    // Replace {$username} with current username
+    expandedContent = expandedContent.replace(/\{\$username\}/g, this.getUserName(userContext));
+
+    // Replace {$loginStatus} with current login status
+    expandedContent = expandedContent.replace(/\{\$loginStatus\}/g, this.getLoginStatus(userContext));
+
+    // Replace {$displayName} with display name
+    const displayName = userContext && userContext.displayName ? userContext.displayName : this.getUserName(userContext);
+    expandedContent = expandedContent.replace(/\{\$displayName\}/g, displayName);
+
+    return expandedContent;
+  }
+
+  /**
+   * Render a complete page
+   * @param {string} content - Raw page content
+   * @param {string} pageName - Page name
+   * @param {object} userContext - User context
+   * @returns {string} Fully rendered HTML
+   */
+  renderPage(content, pageName, userContext = null) {
+    if (!content) return '';
+
+    let processedContent = content;
+
+    // Step 1: Expand user variables
+    processedContent = this.expandUserVariables(processedContent, userContext);
+
+    // Step 2: Process plugins
+    processedContent = this.renderPlugins(processedContent);
+
+    // Step 3: Process wiki links
+    processedContent = this.renderWikiLinks(processedContent);
+
+    // Step 4: Render markdown
+    processedContent = this.renderMarkdown(processedContent, pageName, userContext);
+
+    return processedContent;
   }
 }
 
