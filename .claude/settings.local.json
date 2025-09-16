@@ -6,7 +6,8 @@
       "Bash(pm2 logs:*)",
       "Bash(pm2 restart:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(pm2 stop:*)"
     ],
     "deny": [],
     "ask": []
