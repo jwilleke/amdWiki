@@ -696,8 +696,8 @@ class WikiRoutes {
           return res.status(409).render('error', {
           ...commonData,
           currentUser,
-          title: 'Page Already Exists',
           error: { status: 409 },
+          title: 'Page Already Exists',
           message: `A page named "${pageName}" already exists.`,
           details: 'You can view the existing page or edit it if you have permission.',
           actions: [
@@ -875,8 +875,8 @@ class WikiRoutes {
         return res.status(409).render('error', {
           ...commonData,
           currentUser,
-          title: 'Page Already Exists',
           error: { status: 409 },
+          title: 'Page Already Exists',
           message: `A page named "${pageName}" already exists.`,
           details: 'You can view the existing page or edit it if you have permission.',
           actions: [
