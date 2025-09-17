@@ -278,6 +278,17 @@
         // Update preview
         updatePreview();
     }
+
+    // Initialize User Preferences for Smart Typing
+    document.addEventListener('DOMContentLoaded', function() {
+        <% if (typeof user !== 'undefined' && user && user.preferences) { %>
+            const userPrefs = new UserPreferences(<%- JSON.stringify(user.preferences) %>);
+            const contentTextarea = document.getElementById('content');
+            if (contentTextarea) {
+                userPrefs.applyEditorPreferences(contentTextarea);
+            }
+        <% } %>
+    });
 </script>
 
 <%- include('footer') %>
