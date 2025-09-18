@@ -1,7 +1,9 @@
 /**
  * Configuration management following JSPWiki patterns
+ * Now supports bridge to ConfigurationManager for JSPWiki-compatible properties
  */
 const path = require('path');
+const { ConfigBridge } = require('./ConfigBridge');
 
 const defaultConfig = {
   // Application settings
@@ -172,6 +174,18 @@ const defaultConfig = {
 class Config {
   constructor(customConfig = {}) {
     this.config = this.mergeConfig(defaultConfig, customConfig);
+    this.configurationManager = null;
+    this.bridge = null;
+  }
+
+  /**
+   * Set ConfigurationManager bridge for JSPWiki-compatible properties
+   * @param {ConfigurationManager} configurationManager - ConfigurationManager instance
+   */
+  setConfigurationManager(configurationManager) {
+    this.configurationManager = configurationManager;
+    this.bridge = new ConfigBridge(configurationManager);
+    console.log('✅ Config.js bridge to ConfigurationManager established');
   }
 
   /**
@@ -201,9 +215,18 @@ class Config {
    * @returns {*} Configuration value
    */
   get(keyPath, defaultValue = null) {
+    // Try bridge first (JSPWiki-compatible properties)
+    if (this.bridge) {
+      const bridgeValue = this.bridge.get(keyPath, undefined);
+      if (bridgeValue !== undefined) {
+        return bridgeValue;
+      }
+    }
+
+    // Fall back to original Config.js logic
     const keys = keyPath.split('.');
     let value = this.config;
-    
+
     for (const key of keys) {
       if (value && typeof value === 'object' && key in value) {
         value = value[key];
@@ -211,7 +234,7 @@ class Config {
         return defaultValue;
       }
     }
-    
+
     return value;
   }
 

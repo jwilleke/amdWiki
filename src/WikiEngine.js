@@ -161,6 +161,11 @@ class WikiEngine extends Engine {
       console.log('🚀 Initializing ConfigurationManager...');
       await this.getManager('ConfigurationManager').initialize();
 
+      // Establish bridge between Config.js and ConfigurationManager
+      if (this.config && typeof this.config.setConfigurationManager === 'function') {
+        this.config.setConfigurationManager(this.getManager('ConfigurationManager'));
+      }
+
       console.log('🚀 Initializing VariableManager...');
       await this.getManager('VariableManager').initialize();
 
