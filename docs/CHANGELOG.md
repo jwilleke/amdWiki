@@ -8,6 +8,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **JSPWiki-Compatible VariableManager System**: Complete variable management system similar to JSPWiki's DefaultVariableManager
+  - **VariableManager**: New manager with 18 system variables and 4 contextual variables
+  - **Variable Registry**: Function-based registry system for dynamic value generation
+  - **Admin Variables Interface**: Complete variable browser, testing, and debugging interface
+  - **System Variables**: Application info, configuration, runtime data, and plugin variables
+  - **Contextual Variables**: User authentication state and page context variables
+  - **Variable Protection**: Safeguards for escaped variables and code blocks during expansion
+  - **Live Testing**: Real-time variable expansion testing in admin interface
+  - **Custom Registration**: Plugin API for registering custom variables
+  - **JSPWiki Compatibility**: Maintains JSPWiki variable patterns and naming conventions
+
+- **JSPWiki-Compatible Configuration Management System**: Complete configuration system with property merging
+  - **ConfigurationManager**: New manager handling app-default-config.json and app-custom-config.json
+  - **Property Merging**: Two-tier configuration with defaults and custom overrides
+  - **Admin Configuration Interface**: Full web-based configuration management with validation
+  - **Server Configuration**: Configurable port, host, session settings, and base URLs
+  - **Runtime Updates**: Live configuration updates without server restart via admin interface
+  - **Property Validation**: Ensures proper amdwiki.* and log4j.* property naming
+  - **Configuration Export**: View and manage all configuration properties
+  - **JSPWiki Compatibility**: Property naming and structure matches JSPWiki patterns
+  - **Security Integration**: Proper session and security configuration management
 - **Comprehensive Audit Trail System**: Complete security monitoring and access logging implementation
   - **AuditManager**: New manager for comprehensive audit logging with configurable retention policies
   - **Admin Audit Interface**: Full-featured audit log viewer with filtering, pagination, and export capabilities

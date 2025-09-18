@@ -4,7 +4,7 @@
 
 amdWiki follows a modular manager pattern where each manager handles a specific aspect of the wiki's functionality. All managers extend the `BaseManager` class and are registered with the `WikiEngine` during initialization.
 
-## Core Managers (16 total)
+## Core Managers (18 total)
 
 ### Content & Page Management
 - **PageManager** - Handles page storage, retrieval, and metadata management
@@ -29,6 +29,10 @@ amdWiki follows a modular manager pattern where each manager handles a specific 
 - **PolicyEvaluator** - Evaluates policy-based access control
 - **PolicyValidator** - Validates policy configurations
 - **AuditManager** - Logs access decisions and security events
+
+### Configuration & Variables
+- **ConfigurationManager** - JSPWiki-compatible configuration management with property merging
+- **VariableManager** - System and contextual variable expansion similar to JSPWiki's DefaultVariableManager
 
 ### System & Validation
 - **ValidationManager** - Validates page metadata and content
