@@ -155,6 +155,49 @@ class VariableManager extends BaseManager {
       return userContext.displayName || userContext.username || 'Anonymous';
     });
 
+    // Browser and network variables
+    this.contextualVariables.set('useragent', (context) => {
+      if (!context || !context.requestInfo) {
+        return 'Unknown';
+      }
+      return context.requestInfo.userAgent || 'Unknown';
+    });
+
+    this.contextualVariables.set('browser', (context) => {
+      if (!context || !context.requestInfo) {
+        return 'Unknown';
+      }
+      return this.getBrowserInfo(context.requestInfo.userAgent);
+    });
+
+    this.contextualVariables.set('clientip', (context) => {
+      if (!context || !context.requestInfo) {
+        return 'Unknown';
+      }
+      return context.requestInfo.clientIp || 'Unknown';
+    });
+
+    this.contextualVariables.set('referer', (context) => {
+      if (!context || !context.requestInfo) {
+        return 'Direct';
+      }
+      return context.requestInfo.referer || 'Direct';
+    });
+
+    this.contextualVariables.set('sessionid', (context) => {
+      if (!context || !context.requestInfo) {
+        return 'None';
+      }
+      return context.requestInfo.sessionId || 'None';
+    });
+
+    this.contextualVariables.set('acceptlanguage', (context) => {
+      if (!context || !context.requestInfo) {
+        return 'Unknown';
+      }
+      return context.requestInfo.acceptLanguage || 'Unknown';
+    });
+
     // Page-related variables
     this.contextualVariables.set('pagename', (context) => {
       if (!context || !context.pageName) {
@@ -347,7 +390,7 @@ class VariableManager extends BaseManager {
     if (!userContext) return 'Anonymous';
 
     if (userContext.username) {
-      return userContext.displayName || userContext.username;
+      return userContext.username;
     }
 
     return 'Anonymous';
@@ -361,13 +404,43 @@ class VariableManager extends BaseManager {
   getLoginStatus(userContext) {
     if (!userContext) return 'Anonymous';
 
-    if (userContext.authenticated) {
+    if (userContext.isAuthenticated) {
       return 'Authenticated';
     } else if (userContext.asserted) {
       return 'Asserted';
     }
 
     return 'Anonymous';
+  }
+
+  /**
+   * Parse browser information from user agent string
+   * @param {string} userAgent - User agent string
+   * @returns {string} Browser information
+   */
+  getBrowserInfo(userAgent) {
+    if (!userAgent) return 'Unknown';
+
+    // Simple browser detection
+    if (userAgent.includes('Chrome') && !userAgent.includes('Edg')) {
+      const match = userAgent.match(/Chrome\/(\d+)/);
+      return match ? `Chrome ${match[1]}` : 'Chrome';
+    } else if (userAgent.includes('Firefox')) {
+      const match = userAgent.match(/Firefox\/(\d+)/);
+      return match ? `Firefox ${match[1]}` : 'Firefox';
+    } else if (userAgent.includes('Safari') && !userAgent.includes('Chrome')) {
+      const match = userAgent.match(/Version\/(\d+)/);
+      return match ? `Safari ${match[1]}` : 'Safari';
+    } else if (userAgent.includes('Edg')) {
+      const match = userAgent.match(/Edg\/(\d+)/);
+      return match ? `Edge ${match[1]}` : 'Edge';
+    } else if (userAgent.includes('OPR') || userAgent.includes('Opera')) {
+      const match = userAgent.match(/(?:OPR|Opera)\/(\d+)/);
+      return match ? `Opera ${match[1]}` : 'Opera';
+    }
+
+    // Fallback for unknown browsers
+    return 'Unknown Browser';
   }
 
   /**

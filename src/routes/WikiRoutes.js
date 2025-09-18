@@ -34,10 +34,26 @@ class WikiRoutes {
   }
 
   /**
+   * Extract request information for variable expansion
+   * @param {object} req - Express request object
+   * @returns {object} Request information object
+   */
+  getRequestInfo(req) {
+    return {
+      userAgent: req.headers['user-agent'] || 'Unknown',
+      clientIp: req.ip || req.connection?.remoteAddress || req.headers['x-forwarded-for']?.split(',')[0]?.trim() || 'Unknown',
+      referer: req.headers.referer || req.headers.referrer || 'Direct',
+      acceptLanguage: req.headers['accept-language'] || 'Unknown',
+      sessionId: req.session?.id || req.sessionID || 'None'
+    };
+  }
+
+  /**
    * Get common template data that all pages need
    * @param {object} userContext - User context for rendering variables
+   * @param {object} req - Express request object (optional)
    */
-  async getCommonTemplateData(userContext = null) {
+  async getCommonTemplateData(userContext = null, req = null) {
     const pageManager = this.engine.getManager('PageManager');
     const pages = await pageManager.getPageNames();
     
@@ -51,7 +67,8 @@ class WikiRoutes {
         
         // Remove ACL markup and render footer content with user context
         const cleanContent = aclManager.removeACLMarkup(footerPage.content);
-        footerContent = renderingManager.renderMarkdown(cleanContent, 'Footer', userContext);
+        const requestInfo = req ? this.getRequestInfo(req) : null;
+        footerContent = renderingManager.renderMarkdown(cleanContent, 'Footer', userContext, requestInfo);
       }
     } catch (error) {
       console.warn('Could not load footer content:', error.message);
@@ -71,7 +88,8 @@ class WikiRoutes {
         
         // Remove ACL markup and render left menu content with user context
         const cleanContent = aclManager.removeACLMarkup(leftMenuPage.content);
-        leftMenuContent = renderingManager.renderMarkdown(cleanContent, 'LeftMenu', userContext);
+        const requestInfo = req ? this.getRequestInfo(req) : null;
+        leftMenuContent = renderingManager.renderMarkdown(cleanContent, 'LeftMenu', userContext, requestInfo);
       }
     } catch (error) {
       console.warn('Could not load left menu content:', error.message);
@@ -92,8 +110,8 @@ class WikiRoutes {
         const userManager = this.engine.getManager('UserManager');
         const currentUser = req.user ? req.user : await userManager.getCurrentUser(req);
         
-        // Get base data with user context for rendering
-        const baseData = await this.getCommonTemplateData(currentUser);
+        // Get base data with user context and request for rendering
+        const baseData = await this.getCommonTemplateData(currentUser, req);
         
         return {
             ...baseData,
@@ -418,7 +436,8 @@ class WikiRoutes {
       }
       
       // Render markdown to HTML with user context (this will automatically expand system variables)
-      const renderedContent = renderingManager.renderMarkdown(leftMenuPage.content, 'LeftMenu', userContext);
+      const requestInfo = null; // getLeftMenu doesn't have access to req currently
+      const renderedContent = renderingManager.renderMarkdown(leftMenuPage.content, 'LeftMenu', userContext, requestInfo);
       
       // Format for Bootstrap navigation
       return this.formatLeftMenuContent(renderedContent);
@@ -503,8 +522,9 @@ class WikiRoutes {
       // Remove ACL markup from content before rendering
       const cleanContent = aclManager.removeACLMarkup(pageData.content);
       
-      // Render the markdown content with user context
-      const renderedContent = renderingManager.renderMarkdown(cleanContent, pageName, commonData.user);
+      // Render the markdown content with user context and request info
+      const requestInfo = this.getRequestInfo(req);
+      const renderedContent = renderingManager.renderMarkdown(cleanContent, pageName, commonData.user, requestInfo);
       
       // Get referring pages for context
       const referringPages = renderingManager.getReferringPages(pageName);

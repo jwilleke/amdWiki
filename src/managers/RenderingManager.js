@@ -38,11 +38,11 @@ class RenderingManager extends BaseManager {
    * @param {object} userContext - User context for authentication variables
    * @returns {string} Rendered HTML
    */
-  renderMarkdown(content, pageName, userContext = null) {
+  renderMarkdown(content, pageName, userContext = null, requestInfo = null) {
     if (!content) return '';
 
     // Step 1: Expand macros
-    let expandedContent = this.expandMacros(content, pageName, userContext);
+    let expandedContent = this.expandMacros(content, pageName, userContext, requestInfo);
     
     // Step 2: Process JSPWiki-style tables
     expandedContent = this.processJSPWikiTables(expandedContent);
@@ -292,7 +292,7 @@ class RenderingManager extends BaseManager {
    * @param {object} userContext - User context for authentication variables
    * @returns {string} Content with expanded macros
    */
-  expandMacros(content, pageName, userContext = null) {
+  expandMacros(content, pageName, userContext = null, requestInfo = null) {
     let expandedContent = content;
 
     // Step 1: Protect code blocks and escaped syntax
@@ -328,7 +328,7 @@ class RenderingManager extends BaseManager {
         try {
           // Check if it's a system variable (starts with $)
           if (content.startsWith('$')) {
-            return this.expandAllVariables(`[{${content}}]`, userContext, pageName);
+            return this.expandAllVariables(`[{${content}}]`, userContext, pageName, requestInfo);
           }
           
           // Parse plugin call: PluginName param1=value1 param2=value2
@@ -404,7 +404,7 @@ class RenderingManager extends BaseManager {
       });
     } else {
       // Fallback: just handle variables directly with unified system
-      expandedContent = this.expandAllVariables(expandedContent, userContext, pageName);
+      expandedContent = this.expandAllVariables(expandedContent, userContext, pageName, requestInfo);
     }
 
     // Step 3: Restore protected areas
@@ -889,7 +889,7 @@ class RenderingManager extends BaseManager {
    * @param {string} pageName - Current page name
    * @returns {string} Content with expanded variables
    */
-  expandAllVariables(content, userContext, pageName) {
+  expandAllVariables(content, userContext, pageName, requestInfo = null) {
     if (!content) return '';
 
     const variableManager = this.engine.getManager('VariableManager');
@@ -900,7 +900,8 @@ class RenderingManager extends BaseManager {
 
     const context = {
       userContext: userContext,
-      pageName: pageName
+      pageName: pageName,
+      requestInfo: requestInfo
     };
 
     return variableManager.expandVariables(content, context);
