@@ -4,7 +4,6 @@ JSPWiki-style wiki with advanced search capabilities
 
 Read docs/development/CONTRIBUTING.md
 
-
 ## Commands
 - Start: `npm start` or `npm run dev`
 - Test: `npm test`
