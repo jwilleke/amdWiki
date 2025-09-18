@@ -164,6 +164,22 @@ class LocaleUtils {
   }
 
   /**
+   * Get available date format options
+   * @returns {Array} Array of date format options
+   */
+  static getDateFormatOptions() {
+    return [
+      { value: 'auto', label: 'Auto (from locale)', description: 'Use locale-specific format' },
+      { value: 'MM/dd/yyyy', label: 'MM/dd/yyyy', description: '12/25/2023 (US format)' },
+      { value: 'dd/MM/yyyy', label: 'dd/MM/yyyy', description: '25/12/2023 (European format)' },
+      { value: 'dd.MM.yyyy', label: 'dd.MM.yyyy', description: '25.12.2023 (German format)' },
+      { value: 'yyyy/MM/dd', label: 'yyyy/MM/dd', description: '2023/12/25 (ISO-style)' },
+      { value: 'yyyy-MM-dd', label: 'yyyy-MM-dd', description: '2023-12-25 (ISO date)' },
+      { value: 'yyyy-MM-dd HH:mm', label: 'yyyy-MM-dd HH:mm', description: '2023-12-25 14:30 (ISO datetime)' }
+    ];
+  }
+
+  /**
    * Get supported locales list
    * @returns {Array} Array of supported locale objects
    */
@@ -181,7 +197,7 @@ class LocaleUtils {
       { code: 'zh-CN', name: '中文 (中国)', dateFormat: 'yyyy/MM/dd', timeFormat: '24h' },
       { code: 'ru-RU', name: 'Русский (Россия)', dateFormat: 'dd.MM.yyyy', timeFormat: '24h' },
       { code: 'ar-SA', name: 'العربية (السعودية)', dateFormat: 'dd/MM/yyyy', timeFormat: '24h' },
-      { code: 'hi-IN', name: 'हिन्दी (भारत)', dateFormat: 'dd/MM/yyyy', timeFormat: '24h' }
+      { code: 'hi-IN', name: 'हिन्दी (भారत)', dateFormat: 'dd/MM/yyyy', timeFormat: '24h' }
     ];
   }
 

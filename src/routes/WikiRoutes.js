@@ -1755,10 +1755,13 @@ class WikiRoutes {
       const commonData = await this.getCommonTemplateData();
       const userPermissions = await userManager.getUserPermissions(currentUser.username);
 
-      // Get timezone configuration
+      // Get timezone and date format configuration
       const configManager = this.engine.getManager('ConfigurationManager');
       const availableTimezones = configManager ?
         configManager.getProperty('amdwiki.timezones', []) : [];
+
+      const LocaleUtils = require('../utils/LocaleUtils');
+      const availableDateFormats = LocaleUtils.getDateFormatOptions();
 
       res.render('profile', {
         ...commonData,
@@ -1766,6 +1769,7 @@ class WikiRoutes {
         user: freshUser || currentUser, // Use fresh user data if available
         permissions: userPermissions,
         availableTimezones: availableTimezones,
+        availableDateFormats: availableDateFormats,
         error: req.query.error,
         success: req.query.success,
         csrfToken: req.session.csrfToken
@@ -1880,8 +1884,19 @@ class WikiRoutes {
         preferences['timezone'] = req.body['preferences.timezone'];
       }
 
-      // Update dateFormat based on locale if locale is provided
-      if (req.body['preferences.locale']) {
+      // Handle date format preference
+      if (req.body['preferences.dateFormat']) {
+        const selectedDateFormat = req.body['preferences.dateFormat'];
+        if (selectedDateFormat === 'auto') {
+          // Use locale-based format
+          const LocaleUtils = require('../utils/LocaleUtils');
+          preferences['dateFormat'] = LocaleUtils.getDateFormatFromLocale(req.body['preferences.locale'] || 'en-US');
+        } else {
+          // Use manually selected format
+          preferences['dateFormat'] = selectedDateFormat;
+        }
+      } else if (req.body['preferences.locale']) {
+        // Fallback: Update dateFormat based on locale if locale is provided but no explicit dateFormat
         const LocaleUtils = require('../utils/LocaleUtils');
         preferences['dateFormat'] = LocaleUtils.getDateFormatFromLocale(req.body['preferences.locale']);
       }

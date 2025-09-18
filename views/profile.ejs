@@ -212,6 +212,25 @@
                                                     </select>
                                                 </div>
 
+                                                <div class="form-group mb-3">
+                                                    <label for="dateFormat" class="form-label"><strong>Date Format</strong></label>
+                                                    <select class="form-control" id="dateFormat" name="preferences.dateFormat">
+                                                        <% if (availableDateFormats && availableDateFormats.length > 0) { %>
+                                                            <% availableDateFormats.forEach(fmt => { %>
+                                                                <%
+                                                                const currentFormat = user.preferences?.dateFormat || 'MM/dd/yyyy';
+                                                                const isSelected = (fmt.value === 'auto' && !user.preferences?.dateFormat) ||
+                                                                                 (fmt.value !== 'auto' && currentFormat === fmt.value);
+                                                                %>
+                                                                <option value="<%= fmt.value %>" <%= isSelected ? 'selected' : '' %> data-description="<%= fmt.description %>">
+                                                                    <%= fmt.label %>
+                                                                </option>
+                                                            <% }); %>
+                                                        <% } %>
+                                                    </select>
+                                                    <small class="form-text text-muted">Choose a specific format or use Auto to follow your locale setting</small>
+                                                </div>
+
                                                 <div class="card bg-info bg-opacity-10 border-info">
                                                     <div class="card-body p-2">
                                                         <h6 class="card-title mb-1"><i class="fas fa-eye"></i> Live Preview</h6>
@@ -418,6 +437,7 @@ function updateDateTimePreview() {
     const locale = document.getElementById('locale')?.value || 'en-US';
     const timeFormat = document.querySelector('input[name="preferences.timeFormat"]:checked')?.value || '12h';
     const timezone = document.getElementById('timezone')?.value || 'UTC';
+    const dateFormat = document.getElementById('dateFormat')?.value || 'auto';
 
     const now = new Date();
 
@@ -425,7 +445,13 @@ function updateDateTimePreview() {
     const datePreview = document.getElementById('datePreview');
     if (datePreview) {
         try {
-            datePreview.textContent = now.toLocaleDateString(locale);
+            if (dateFormat === 'auto') {
+                // Use browser's locale formatting
+                datePreview.textContent = now.toLocaleDateString(locale);
+            } else {
+                // Use custom format - simplified formatting for preview
+                datePreview.textContent = formatDateWithPattern(now, dateFormat, locale, timeFormat);
+            }
         } catch (error) {
             datePreview.textContent = now.toLocaleDateString('en-US');
         }
@@ -450,6 +476,32 @@ function updateDateTimePreview() {
     }
 }
 
+// Simple date formatting for preview
+function formatDateWithPattern(date, pattern, locale, timeFormat) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+
+    switch (pattern) {
+        case 'MM/dd/yyyy':
+            return `${month}/${day}/${year}`;
+        case 'dd/MM/yyyy':
+            return `${day}/${month}/${year}`;
+        case 'dd.MM.yyyy':
+            return `${day}.${month}.${year}`;
+        case 'yyyy/MM/dd':
+            return `${year}/${month}/${day}`;
+        case 'yyyy-MM-dd':
+            return `${year}-${month}-${day}`;
+        case 'yyyy-MM-dd HH:mm':
+            return `${year}-${month}-${day} ${hours}:${minutes}`;
+        default:
+            return date.toLocaleDateString(locale);
+    }
+}
+
 // Add event listeners for live preview
 document.addEventListener('DOMContentLoaded', function() {
     // Initial preview update
@@ -458,6 +510,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Update preview when settings change
     document.getElementById('locale')?.addEventListener('change', updateDateTimePreview);
     document.getElementById('timezone')?.addEventListener('change', updateDateTimePreview);
+    document.getElementById('dateFormat')?.addEventListener('change', updateDateTimePreview);
     document.querySelectorAll('input[name="preferences.timeFormat"]').forEach(radio => {
         radio.addEventListener('change', updateDateTimePreview);
     });
