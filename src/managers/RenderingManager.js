@@ -883,7 +883,7 @@ class RenderingManager extends BaseManager {
   }
 
   /**
-   * Unified variable expansion - handles ALL variable patterns [{$...}] and {$...}
+   * Variable expansion - delegates to VariableManager
    * @param {string} content - Content with variables
    * @param {object} userContext - User context
    * @param {string} pageName - Current page name
@@ -892,104 +892,18 @@ class RenderingManager extends BaseManager {
   expandAllVariables(content, userContext, pageName) {
     if (!content) return '';
 
-    console.log('DEBUG: expandAllVariables called with pageName:', typeof pageName, pageName);
-
-    let expandedContent = content;
-
-    // Define all supported variables in a registry
-    const configManager = this.engine.getManager('ConfigurationManager');
-    const variables = {
-      // System variables from configuration
-      'applicationname': () => configManager ? configManager.getApplicationName() : 'amdWiki',
-      'baseurl': () => configManager ? configManager.getBaseURL() : this.getBaseUrl(),
-      'encoding': () => configManager ? configManager.getEncoding() : 'UTF-8',
-      'frontpage': () => configManager ? configManager.getFrontPage() : 'Welcome',
-      'amdwikiversion': () => configManager ? configManager.getProperty('amdwiki.version', '1.3.2') : '1.3.2',
-      'pageprovider': () => configManager ? configManager.getProperty('amdwiki.pageProvider', 'FileSystemProvider') : 'FileSystemProvider',
-      'pageproviderdescription': () => 'amdWiki File System Provider',
-      'requestcontext': () => 'view',
-      'interwikilinks': () => configManager ? configManager.getProperty('amdwiki.interWikiRef.count', '3') : '3',
-      'inlinedimages': () => configManager ? configManager.getProperty('amdwiki.translatorReader.inlineImages', 'true') : 'true',
-
-      // System runtime variables
-      'totalpages': () => this.getTotalPagesCount().toString(),
-      'uptime': () => this.formatUptime(this.getUptime()),
-      'timestamp': () => new Date().toISOString(),
-      'date': () => new Date().toLocaleDateString(),
-      'time': () => new Date().toLocaleTimeString(),
-      'year': () => new Date().getFullYear().toString(),
-
-      // User variables
-      'username': () => this.getUserName(userContext),
-      'loginstatus': () => this.getLoginStatus(userContext),
-      'pagename': () => {
-        if (typeof pageName === 'string') return pageName;
-        if (typeof pageName === 'object' && pageName) {
-          // If it's accidentally a user object, return 'Unknown'
-          if (pageName.username || pageName.email) return 'Unknown';
-          // Try toString as fallback
-          return pageName.toString();
-        }
-        return pageName || 'Unknown';
-      },
-      'displayname': () => userContext && userContext.displayName ? userContext.displayName : this.getUserName(userContext),
-
-      // Plugin variables
-      'sessionsplugin': () => '1' // Simple fallback
-    };
-
-    // First, protect escaped variables and code blocks from expansion
-    const protectedParts = [];
-    let partIndex = 0;
-
-    // Protect escaped variables [[{$variable}] -> [{$variable}] (literal, not expanded)
-    expandedContent = expandedContent.replace(/\[\[\{\$([^}]+)\}\]/g, (match, variableName) => {
-      const placeholder = `__PROTECTED_${partIndex}__`;
-      const literalForm = `[{$${variableName}}]`;
-      protectedParts[partIndex] = literalForm; // Store as literal [{$var}]
-      console.log(`DEBUG: Protecting escaped variable "${match}" as "${literalForm}"`);
-      partIndex++;
-      return placeholder;
-    });
-
-    // Protect code blocks ```...```
-    expandedContent = expandedContent.replace(/```[\s\S]*?```/g, (match) => {
-      const placeholder = `__PROTECTED_${partIndex}__`;
-      protectedParts[partIndex] = match;
-      partIndex++;
-      return placeholder;
-    });
-
-    // Only handle [{$variable}] format in lowercase
-    expandedContent = expandedContent.replace(/\[\{\$([^}]+)\}\]/g, (match, variableName) => {
-      const varName = variableName.trim();
-
-      // Only accept lowercase variable names
-      if (varName !== varName.toLowerCase()) {
-        console.warn(`Variable must be lowercase: ${variableName}`);
-        return `[Error: ${variableName} - must be lowercase]`;
-      }
-
-      if (variables[varName]) {
-        try {
-          return variables[varName]();
-        } catch (err) {
-          console.error(`Error expanding variable ${variableName}:`, err);
-          return `[Error: ${variableName}]`;
-        }
-      } else {
-        console.warn(`Unknown variable: ${variableName}`);
-        return `[Unknown: ${variableName}]`;
-      }
-    });
-
-    // Restore protected parts
-    for (let i = 0; i < partIndex; i++) {
-      expandedContent = expandedContent.replace(`__PROTECTED_${i}__`, protectedParts[i]);
-      console.log(`DEBUG: Restored protected part ${i}: "${protectedParts[i]}"`);
+    const variableManager = this.engine.getManager('VariableManager');
+    if (!variableManager) {
+      console.warn('VariableManager not available, skipping variable expansion');
+      return content;
     }
 
-    return expandedContent;
+    const context = {
+      userContext: userContext,
+      pageName: pageName
+    };
+
+    return variableManager.expandVariables(content, context);
   }
 
   /**

@@ -1,0 +1,255 @@
+<%- include('header', { pageName: 'Variable Management' }) %>
+
+<div class="container mt-4">
+    <% if (typeof message !== 'undefined' && message) { %>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle"></i> <%= message %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <% } %>
+
+    <% if (typeof error !== 'undefined' && error) { %>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle"></i> <%= error %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <% } %>
+
+    <div class="row">
+        <div class="col-12">
+            <h1><i class="fas fa-code"></i> Variable Management</h1>
+            <p class="lead">Manage and debug amdWiki system variables similar to JSPWiki's VariableManager</p>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <nav>
+                <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                    <button class="nav-link active" id="nav-system-tab" data-bs-toggle="tab" data-bs-target="#nav-system" type="button" role="tab">
+                        <i class="fas fa-cog"></i> System Variables
+                    </button>
+                    <button class="nav-link" id="nav-contextual-tab" data-bs-toggle="tab" data-bs-target="#nav-contextual" type="button" role="tab">
+                        <i class="fas fa-user"></i> Contextual Variables
+                    </button>
+                    <button class="nav-link" id="nav-test-tab" data-bs-toggle="tab" data-bs-target="#nav-test" type="button" role="tab">
+                        <i class="fas fa-flask"></i> Variable Testing
+                    </button>
+                    <button class="nav-link" id="nav-custom-tab" data-bs-toggle="tab" data-bs-target="#nav-custom" type="button" role="tab">
+                        <i class="fas fa-plus"></i> Custom Variables
+                    </button>
+                </div>
+            </nav>
+
+            <div class="tab-content" id="nav-tabContent">
+                <!-- System Variables Tab -->
+                <div class="tab-pane fade show active" id="nav-system" role="tabpanel">
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h5><i class="fas fa-cog"></i> System Variables</h5>
+                            <small class="text-muted">Variables that don't require user or page context</small>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 25%;">Variable Name</th>
+                                            <th style="width: 35%;">Current Value</th>
+                                            <th style="width: 40%;">Description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% systemVariables.forEach(varName => { %>
+                                            <tr>
+                                                <td>
+                                                    <code>[{$<%= varName %>}]</code>
+                                                </td>
+                                                <td>
+                                                    <% try { %>
+                                                        <code><%= variableManager.getVariable(varName) %></code>
+                                                    <% } catch(err) { %>
+                                                        <span class="text-danger">Error: <%= err.message %></span>
+                                                    <% } %>
+                                                </td>
+                                                <td>
+                                                    <small class="text-muted">
+                                                        <% if (varName === 'applicationname') { %>Application name from configuration
+                                                        <% } else if (varName === 'baseurl') { %>Base URL for the wiki
+                                                        <% } else if (varName === 'version' || varName === 'amdwikiversion') { %>amdWiki version number
+                                                        <% } else if (varName === 'totalpages') { %>Total number of pages in wiki
+                                                        <% } else if (varName === 'uptime') { %>Server uptime
+                                                        <% } else if (varName === 'timestamp') { %>Current ISO timestamp
+                                                        <% } else if (varName === 'date') { %>Current date
+                                                        <% } else if (varName === 'time') { %>Current time
+                                                        <% } else if (varName === 'year') { %>Current year
+                                                        <% } else { %>System variable
+                                                        <% } %>
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                        <% }); %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contextual Variables Tab -->
+                <div class="tab-pane fade" id="nav-contextual" role="tabpanel">
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h5><i class="fas fa-user"></i> Contextual Variables</h5>
+                            <small class="text-muted">Variables that require user or page context</small>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 25%;">Variable Name</th>
+                                            <th style="width: 35%;">Your Current Value</th>
+                                            <th style="width: 40%;">Description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% contextualVariables.forEach(varName => { %>
+                                            <tr>
+                                                <td>
+                                                    <code>[{$<%= varName %>}]</code>
+                                                </td>
+                                                <td>
+                                                    <% try { %>
+                                                        <% const context = { userContext: user, pageName: 'admin-variables' }; %>
+                                                        <code><%= variableManager.getVariable(varName, context) %></code>
+                                                    <% } catch(err) { %>
+                                                        <span class="text-danger">Error: <%= err.message %></span>
+                                                    <% } %>
+                                                </td>
+                                                <td>
+                                                    <small class="text-muted">
+                                                        <% if (varName === 'username') { %>Current user's name
+                                                        <% } else if (varName === 'loginstatus') { %>User authentication status
+                                                        <% } else if (varName === 'displayname') { %>User's display name
+                                                        <% } else if (varName === 'pagename') { %>Current page name
+                                                        <% } else { %>Context-dependent variable
+                                                        <% } %>
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                        <% }); %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Variable Testing Tab -->
+                <div class="tab-pane fade" id="nav-test" role="tabpanel">
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h5><i class="fas fa-flask"></i> Variable Testing</h5>
+                            <small class="text-muted">Test variable expansion in content</small>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST" action="/admin/variables/test">
+                                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+                                <div class="mb-3">
+                                    <label for="testContent" class="form-label">Test Content</label>
+                                    <textarea class="form-control" id="testContent" name="content" rows="6" placeholder="Enter content with [{$variable}] patterns to test variable expansion...">Welcome to [{$applicationname}] version [{$version}]!
+
+Current user: [{$username}] (Status: [{$loginstatus}])
+Current page: [{$pagename}]
+Total pages: [{$totalpages}]
+Server uptime: [{$uptime}]
+
+Generated at [{$timestamp}]</textarea>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="testPageName" class="form-label">Test Page Name (optional)</label>
+                                    <input type="text" class="form-control" id="testPageName" name="pageName" value="Test Page" placeholder="Page name for testing">
+                                </div>
+
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-play"></i> Test Variable Expansion
+                                </button>
+                            </form>
+
+                            <% if (typeof testResult !== 'undefined') { %>
+                                <div class="mt-4">
+                                    <h6>Test Result:</h6>
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <pre style="white-space: pre-wrap;"><%= testResult %></pre>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Custom Variables Tab -->
+                <div class="tab-pane fade" id="nav-custom" role="tabpanel">
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h5><i class="fas fa-plus"></i> Custom Variables</h5>
+                            <small class="text-muted">Register custom variables for your wiki</small>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i>
+                                Custom variable registration would be implemented here for plugins and extensions.
+                                This feature allows developers to register new variables programmatically.
+                            </div>
+
+                            <h6>Debug Information</h6>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h5 class="card-title"><%= debugInfo.systemVariables %></h5>
+                                            <p class="card-text">System Variables</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h5 class="card-title"><%= debugInfo.contextualVariables %></h5>
+                                            <p class="card-text">Contextual Variables</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h5 class="card-title"><%= debugInfo.totalVariables %></h5>
+                                            <p class="card-text">Total Variables</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Back to Admin -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <a href="/admin" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Admin Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
+<%- include('footer') %>

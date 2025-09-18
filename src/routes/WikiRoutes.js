@@ -2471,7 +2471,7 @@ class WikiRoutes {
         defaultProperties,
         customProperties,
         mergedProperties,
-        csrfToken: req.csrfToken()
+        csrfToken: req.session.csrfToken
       };
 
       res.render('admin-configuration', templateData);
@@ -2533,6 +2533,100 @@ class WikiRoutes {
     } catch (err) {
       console.error('Error resetting configuration:', err);
       res.redirect('/admin/configuration?error=Failed to reset configuration');
+    }
+  }
+
+  /**
+   * Admin variable management page
+   */
+  async adminVariables(req, res) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = await userManager.getCurrentUser(req);
+
+      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+        return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to access variable management');
+      }
+
+      const variableManager = this.engine.getManager('VariableManager');
+      if (!variableManager) {
+        return await this.renderError(req, res, 500, 'Service Unavailable', 'VariableManager not available');
+      }
+
+      const debugInfo = variableManager.getDebugInfo();
+
+      const templateData = {
+        title: 'Variable Management',
+        user: currentUser,
+        message: req.query.success,
+        error: req.query.error,
+        variableManager: variableManager,
+        systemVariables: debugInfo.systemVariables,
+        contextualVariables: debugInfo.contextualVariables,
+        debugInfo: {
+          systemVariables: debugInfo.systemVariables.length,
+          contextualVariables: debugInfo.contextualVariables.length,
+          totalVariables: debugInfo.totalVariables
+        },
+        csrfToken: req.session.csrfToken
+      };
+
+      res.render('admin-variables', templateData);
+    } catch (err) {
+      console.error('Error loading admin variables:', err);
+      res.status(500).send('Error loading variable management');
+    }
+  }
+
+  /**
+   * Test variable expansion
+   */
+  async adminTestVariables(req, res) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = await userManager.getCurrentUser(req);
+
+      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+
+      const variableManager = this.engine.getManager('VariableManager');
+      if (!variableManager) {
+        return res.status(500).json({ error: 'VariableManager not available' });
+      }
+
+      const { content, pageName } = req.body;
+
+      const context = {
+        userContext: currentUser,
+        pageName: pageName || 'Test Page'
+      };
+
+      const result = variableManager.expandVariables(content || '', context);
+
+      // Redirect back with the result
+      const debugInfo = variableManager.getDebugInfo();
+      const templateData = {
+        title: 'Variable Management',
+        user: currentUser,
+        message: 'Variable expansion test completed',
+        testResult: result,
+        variableManager: variableManager,
+        systemVariables: debugInfo.systemVariables,
+        contextualVariables: debugInfo.contextualVariables,
+        debugInfo: {
+          systemVariables: debugInfo.systemVariables.length,
+          contextualVariables: debugInfo.contextualVariables.length,
+          totalVariables: debugInfo.totalVariables
+        },
+        csrfToken: req.session.csrfToken
+      };
+
+      res.render('admin-variables', templateData);
+
+    } catch (err) {
+      console.error('Error testing variables:', err);
+      res.redirect('/admin/variables?error=Failed to test variables');
     }
   }
 
@@ -2928,6 +3022,8 @@ class WikiRoutes {
     app.get('/admin/configuration', (req, res) => this.adminConfiguration(req, res));
     app.post('/admin/configuration', (req, res) => this.adminUpdateConfiguration(req, res));
     app.post('/admin/configuration/reset', (req, res) => this.adminResetConfiguration(req, res));
+    app.get('/admin/variables', (req, res) => this.adminVariables(req, res));
+    app.post('/admin/variables/test', (req, res) => this.adminTestVariables(req, res));
     app.post('/admin/maintenance/toggle', (req, res) => this.adminToggleMaintenance(req, res));
     app.get('/admin/users', (req, res) => this.adminUsers(req, res));
     app.post('/admin/users', (req, res) => this.adminCreateUser(req, res));
