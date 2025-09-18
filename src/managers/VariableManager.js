@@ -84,16 +84,18 @@ class VariableManager extends BaseManager {
     // Runtime system variables
     this.variables.set('totalpages', () => {
       try {
-        const pageManager = this.engine.getManager('PageManager');
-        if (pageManager) {
-          return pageManager.getTotalPagesCount().toString();
-        } else {
-          // Fallback: try RenderingManager's method
-          const renderingManager = this.engine.getManager('RenderingManager');
-          if (renderingManager && renderingManager.getTotalPagesCount) {
-            return renderingManager.getTotalPagesCount().toString();
-          }
+        // Use RenderingManager's getTotalPagesCount method
+        const renderingManager = this.engine.getManager('RenderingManager');
+        if (renderingManager && renderingManager.getTotalPagesCount) {
+          return renderingManager.getTotalPagesCount().toString();
         }
+
+        // Fallback: try PageManager if it has the method
+        const pageManager = this.engine.getManager('PageManager');
+        if (pageManager && pageManager.getTotalPagesCount) {
+          return pageManager.getTotalPagesCount().toString();
+        }
+
         return '0';
       } catch (err) {
         console.error('Error getting total pages count:', err);

@@ -278,6 +278,7 @@ class PageManager extends BaseManager {
    * @returns {Object} Saved page information
    */
   async savePage(identifier, content, metadata = {}, user = null) {
+    console.log('🔧 PageManager.savePage called:', { identifier, contentLength: content?.length, metadata: JSON.stringify(metadata), user: user?.username });
     try {
       const validationManager = this.engine.getManager('ValidationManager');
       
@@ -308,15 +309,21 @@ class PageManager extends BaseManager {
 
       // Add/update timestamp
       metadata.lastModified = new Date().toISOString();
-      
+      console.log('📅 Updated lastModified:', metadata.lastModified);
+
       // Generate the target filename using UUID
       const targetFilename = validationManager.generateFilename(metadata);
-      
+      console.log('📁 Generated filename:', targetFilename);
+
       // Validate the complete page before saving
+      console.log('🔍 Starting page validation...');
       const validation = validationManager.validatePage(targetFilename, metadata, content);
+      console.log('🔍 Validation result:', { success: validation.success, error: validation.error, warnings: validation.warnings?.length || 0 });
       if (!validation.success) {
+        console.error('❌ Validation failed:', validation.error);
         throw new Error(`Page validation failed: ${validation.error}`);
       }
+      console.log('✅ Validation passed');
       
       // Log warnings if any
       if (validation.warnings.length > 0) {
@@ -341,7 +348,9 @@ class PageManager extends BaseManager {
 
       // Save the file
       const newContent = matter.stringify(content, metadata);
+      console.log('💾 About to write file:', { filePath, contentLength: newContent.length });
       await fs.writeFile(filePath, newContent);
+      console.log('✅ File written successfully:', filePath);
       
       // Rebuild caches to include new/updated page
       await this.buildLookupCaches();

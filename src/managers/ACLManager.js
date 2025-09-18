@@ -996,14 +996,14 @@ class ACLManager extends BaseManager {
    */
   async checkStorageLocation(pageName, user, metadata = {}, content = '') {
     const config = this.engine.getConfig();
-    const storageConfig = config.get('accessControl.storageLocation', {});
-    
+    const storageConfig = config.get('accessControl.storageLocation', { enabled: false });
+
     // Default decision
     let location = 'regular';
     let reason = 'default';
-    
+
     // Check if storage location policies are enabled
-    if (!storageConfig.enabled) {
+    if (!storageConfig || !storageConfig.enabled) {
       return { location, reason: 'policies_disabled' };
     }
     
