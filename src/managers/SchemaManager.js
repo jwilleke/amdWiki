@@ -11,8 +11,10 @@ class SchemaManager extends BaseManager {
   constructor(engine) {
     super(engine);
     this.dataDirectory = './users';
-    this.persons = new Map();
+    this.persons = new Map(); // Map by identifier
+    this.personsById = new Map(); // Map by numeric ID for file compatibility
     this.organizations = new Map();
+    this.nextPersonId = 0;
   }
 
   async initialize(config = {}) {
@@ -37,15 +39,37 @@ class SchemaManager extends BaseManager {
       if (fsSync.existsSync(personsFile)) {
         const personsData = await fs.readFile(personsFile, 'utf8');
         const persons = JSON.parse(personsData);
-        this.persons = new Map(Object.entries(persons));
+
+        // Build both Maps: by identifier and by numeric ID
+        this.persons = new Map();
+        this.personsById = new Map();
+        this.nextPersonId = 0;
+
+        for (const [numericId, person] of Object.entries(persons)) {
+          if (person && person.identifier) {
+            this.persons.set(person.identifier, person);
+            this.personsById.set(numericId, person);
+
+            // Track the highest numeric ID for new persons
+            const id = parseInt(numericId);
+            if (!isNaN(id) && id >= this.nextPersonId) {
+              this.nextPersonId = id + 1;
+            }
+          }
+        }
+
         console.log(`👤 Loaded ${this.persons.size} persons`);
       } else {
         this.persons = new Map();
+        this.personsById = new Map();
+        this.nextPersonId = 0;
         console.log('👤 No persons file found, starting with empty persons');
       }
     } catch (err) {
       console.error('Error loading persons:', err);
       this.persons = new Map();
+      this.personsById = new Map();
+      this.nextPersonId = 0;
     }
   }
 
@@ -76,7 +100,8 @@ class SchemaManager extends BaseManager {
   async savePersons() {
     try {
       const personsFile = path.join(this.dataDirectory, 'persons.json');
-      const persons = Object.fromEntries(this.persons);
+      // Use the numeric ID map to preserve file format
+      const persons = Object.fromEntries(this.personsById);
       await fs.writeFile(personsFile, JSON.stringify(persons, null, 2), 'utf8');
     } catch (err) {
       console.error('Error saving persons:', err);
@@ -163,7 +188,20 @@ class SchemaManager extends BaseManager {
    */
   async createPerson(personData) {
     const person = this.validateAndEnhancePerson(personData);
+
+    // Add to both Maps
     this.persons.set(person.identifier, person);
+
+    // Find next available numeric ID
+    let numericId = this.nextPersonId.toString();
+    while (this.personsById.has(numericId)) {
+      this.nextPersonId++;
+      numericId = this.nextPersonId.toString();
+    }
+
+    this.personsById.set(numericId, person);
+    this.nextPersonId++;
+
     await this.savePersons();
     return person;
   }
@@ -177,6 +215,15 @@ class SchemaManager extends BaseManager {
       throw new Error(`Person with identifier ${identifier} not found`);
     }
 
+    // Find the numeric ID for this person
+    let numericId = null;
+    for (const [id, person] of this.personsById.entries()) {
+      if (person.identifier === identifier) {
+        numericId = id;
+        break;
+      }
+    }
+
     const updatedPerson = {
       ...existingPerson,
       ...updateData,
@@ -184,7 +231,13 @@ class SchemaManager extends BaseManager {
     };
 
     const validatedPerson = this.validateAndEnhancePerson(updatedPerson);
+
+    // Update both Maps
     this.persons.set(identifier, validatedPerson);
+    if (numericId !== null) {
+      this.personsById.set(numericId, validatedPerson);
+    }
+
     await this.savePersons();
     return validatedPerson;
   }

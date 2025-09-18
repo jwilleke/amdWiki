@@ -237,6 +237,12 @@ class VariableManager extends BaseManager {
   getVariable(variableName, context = {}) {
     const normalizedName = variableName.toLowerCase().trim();
 
+    // Debug logging for problematic variable names
+    if (!variableName || variableName.trim() === '') {
+      console.warn(`VariableManager.getVariable called with empty/null variable name: "${variableName}"`);
+      return `[Error: Empty variable name]`;
+    }
+
     // Check contextual variables first
     if (this.contextualVariables.has(normalizedName)) {
       try {
@@ -260,7 +266,7 @@ class VariableManager extends BaseManager {
     }
 
     // Variable not found
-    console.warn(`Unknown variable: ${variableName}`);
+    console.warn(`Unknown variable: "${variableName}" (normalized: "${normalizedName}")`);
     return `[Unknown: ${variableName}]`;
   }
 
@@ -368,6 +374,12 @@ class VariableManager extends BaseManager {
     // Step 2: Expand [{$variable}] patterns
     expandedContent = expandedContent.replace(/\[\{\$([^}]+)\}\]/g, (match, variableName) => {
       const varName = variableName.trim();
+
+      // Debug logging for empty/problematic variable names
+      if (!varName) {
+        console.warn(`VariableManager: Empty variable name found in pattern: "${match}"`);
+        return `[Error: Empty variable name]`;
+      }
 
       // Only accept lowercase variable names
       if (varName !== varName.toLowerCase()) {
