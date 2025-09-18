@@ -1,0 +1,6 @@
+{
+  "_comment": "This file overrides values from app-default-config.json",
+  "_example_applicationName": "My Custom Wiki Name",
+  "_example_baseURL": "https://my-wiki.example.com",
+  "_example_frontPage": "CustomHomePage"
+}

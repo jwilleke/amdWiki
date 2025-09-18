@@ -2447,6 +2447,96 @@ class WikiRoutes {
   }
 
   /**
+   * Admin configuration management page
+   */
+  async adminConfiguration(req, res) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = await userManager.getCurrentUser(req);
+
+      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+        return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to access configuration management');
+      }
+
+      const configManager = this.engine.getManager('ConfigurationManager');
+      const defaultProperties = configManager.getDefaultProperties();
+      const customProperties = configManager.getCustomProperties();
+      const mergedProperties = configManager.getAllProperties();
+
+      const templateData = {
+        title: 'Configuration Management',
+        user: currentUser,
+        message: req.query.success,
+        error: req.query.error,
+        defaultProperties,
+        customProperties,
+        mergedProperties,
+        csrfToken: req.csrfToken()
+      };
+
+      res.render('admin-configuration', templateData);
+    } catch (err) {
+      console.error('Error loading admin configuration:', err);
+      res.status(500).send('Error loading configuration management');
+    }
+  }
+
+  /**
+   * Update configuration property
+   */
+  async adminUpdateConfiguration(req, res) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = await userManager.getCurrentUser(req);
+
+      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+
+      const configManager = this.engine.getManager('ConfigurationManager');
+      const { property, value } = req.body;
+
+      if (!property) {
+        return res.status(400).json({ error: 'Property name is required' });
+      }
+
+      // Validate property name (must start with amdwiki.)
+      if (!property.startsWith('amdwiki.') && !property.startsWith('log4j.')) {
+        return res.status(400).json({ error: 'Property must start with amdwiki. or log4j.' });
+      }
+
+      await configManager.setProperty(property, value);
+      res.redirect('/admin/configuration?success=Configuration updated successfully');
+
+    } catch (err) {
+      console.error('Error updating configuration:', err);
+      res.redirect('/admin/configuration?error=Failed to update configuration');
+    }
+  }
+
+  /**
+   * Reset configuration to defaults
+   */
+  async adminResetConfiguration(req, res) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = await userManager.getCurrentUser(req);
+
+      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+
+      const configManager = this.engine.getManager('ConfigurationManager');
+      await configManager.resetToDefaults();
+      res.redirect('/admin/configuration?success=Configuration reset to defaults');
+
+    } catch (err) {
+      console.error('Error resetting configuration:', err);
+      res.redirect('/admin/configuration?error=Failed to reset configuration');
+    }
+  }
+
+  /**
    * Admin settings page
    */
   async adminSettings(req, res) {
@@ -2835,6 +2925,9 @@ class WikiRoutes {
 
     // Admin routes
     app.get('/admin', (req, res) => this.adminDashboard(req, res));
+    app.get('/admin/configuration', (req, res) => this.adminConfiguration(req, res));
+    app.post('/admin/configuration', (req, res) => this.adminUpdateConfiguration(req, res));
+    app.post('/admin/configuration/reset', (req, res) => this.adminResetConfiguration(req, res));
     app.post('/admin/maintenance/toggle', (req, res) => this.adminToggleMaintenance(req, res));
     app.get('/admin/users', (req, res) => this.adminUsers(req, res));
     app.post('/admin/users', (req, res) => this.adminCreateUser(req, res));
@@ -2857,6 +2950,9 @@ class WikiRoutes {
     app.delete('/admin/organizations/:identifier', this.adminDeleteOrganization.bind(this));
     app.get('/admin/organizations/:identifier', this.adminGetOrganization.bind(this));
     app.get('/admin/organizations/:identifier/schema', this.adminGetOrganizationSchema.bind(this));
+
+    // API routes
+    app.post('/api/preview', (req, res) => this.previewPage(req, res));
 
     // Schema.org routes
     app.get('/schema/person/:identifier', (req, res) => this.adminGetPersonSchema(req, res));

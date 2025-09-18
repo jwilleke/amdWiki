@@ -18,7 +18,8 @@ const logger = require('./src/utils/logger');
 const WikiEngine = require('./src/WikiEngine');
 const WikiRoutes = require('./src/routes/WikiRoutes');
 
-const port = 3000;
+// Port will be set from configuration after WikiEngine is initialized
+let port = 3000; // Default fallback
 
 // Set up view engine and middleware
 app.set('view engine', 'ejs');
@@ -27,15 +28,16 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(cookieParser());
 
-// Session middleware for authentication
+// Session middleware configuration will be set after WikiEngine initialization
+// Placeholder for now - will be reconfigured with proper settings
 app.use(session({
-  secret: 'amdwiki-session-secret-change-in-production',
+  secret: 'temporary-secret',
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: false, // Set to true in production with HTTPS
+    secure: false,
     httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    maxAge: 24 * 60 * 60 * 1000
   }
 }));
 
@@ -164,15 +166,27 @@ app.use(async (req, res, next) => {
 // Initialize WikiEngine and Routes
 async function initializeWikiEngine() {
   const engine = new WikiEngine();
+
+  // Get configuration values early for initialization
+  // Note: ConfigurationManager is initialized during engine.initialize()
+  // So we need to use defaults here and reconfigure after
   await engine.initialize({
     applicationName: 'amdWiki',
-    baseUrl: 'http://localhost:3000',
+    baseUrl: 'http://localhost:3000', // Will be updated from config below
     pagesDirectory: path.join(__dirname, 'pages'),
     attachmentsDirectory: path.join(__dirname, 'attachments'),
     exportsDirectory: path.join(__dirname, 'exports'),
     usersDirectory: path.join(__dirname, 'users'),
     templatesDirectory: path.join(__dirname, 'templates')
   });
+
+  // Update runtime configuration from ConfigurationManager
+  const configManager = engine.getManager('ConfigurationManager');
+  port = configManager.getServerPort();
+
+  // Log the configured values
+  console.log(`🔧 Using configured port: ${port}`);
+  console.log(`🔧 Using configured baseURL: ${configManager.getBaseURL()}`);
 
   // Reconfigure logger with config settings
   const config = engine.config;
