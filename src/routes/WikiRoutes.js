@@ -1754,12 +1754,18 @@ class WikiRoutes {
       
       const commonData = await this.getCommonTemplateData();
       const userPermissions = await userManager.getUserPermissions(currentUser.username);
-      
+
+      // Get timezone configuration
+      const configManager = this.engine.getManager('ConfigurationManager');
+      const availableTimezones = configManager ?
+        configManager.getProperty('amdwiki.timezones', []) : [];
+
       res.render('profile', {
         ...commonData,
         title: 'Profile',
         user: freshUser || currentUser, // Use fresh user data if available
         permissions: userPermissions,
+        availableTimezones: availableTimezones,
         error: req.query.error,
         success: req.query.success,
         csrfToken: req.session.csrfToken
@@ -1861,8 +1867,24 @@ class WikiRoutes {
       preferences['display.pagesize'] = req.body['display.pagesize'] || '25';
       preferences['display.tooltips'] = req.body['display.tooltips'] === 'on';
       preferences['display.readermode'] = req.body['display.readermode'] === 'on';
-      preferences['display.dateformat'] = req.body['display.dateformat'] || 'default';
       preferences['display.theme'] = req.body['display.theme'] || 'system';
+
+      // Locale preferences (new system)
+      if (req.body['preferences.locale']) {
+        preferences['locale'] = req.body['preferences.locale'];
+      }
+      if (req.body['preferences.timeFormat']) {
+        preferences['timeFormat'] = req.body['preferences.timeFormat'];
+      }
+      if (req.body['preferences.timezone']) {
+        preferences['timezone'] = req.body['preferences.timezone'];
+      }
+
+      // Update dateFormat based on locale if locale is provided
+      if (req.body['preferences.locale']) {
+        const LocaleUtils = require('../utils/LocaleUtils');
+        preferences['dateFormat'] = LocaleUtils.getDateFormatFromLocale(req.body['preferences.locale']);
+      }
       
       console.log('DEBUG: updatePreferences - preferences to save:', preferences);
       

@@ -77,7 +77,7 @@
                                     <h6><i class="fas fa-cogs"></i> User Preferences</h6>
                                 </div>
                                 <div class="card-body">
-                                    <form action="/profile/preferences" method="POST">
+                                    <form action="/preferences" method="POST">
                                         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                                         <div class="row">
                                             <div class="col-md-6">
@@ -152,14 +152,80 @@
                                                     </label>
                                                 </div>
                                                 
+                                                <h6><i class="fas fa-globe"></i> Localization & Date/Time</h6>
+
                                                 <div class="form-group mb-3">
-                                                    <label for="dateFormat" class="form-label"><strong>Date Format</strong></label>
-                                                    <select class="form-control" id="dateFormat" name="display.dateformat">
-                                                        <option value="default" <%= (user.preferences && user.preferences['display.dateformat'] === 'default') ? 'selected' : '' %>>Default (MM/DD/YYYY)</option>
-                                                        <option value="iso" <%= (user.preferences && user.preferences['display.dateformat'] === 'iso') ? 'selected' : '' %>>ISO (YYYY-MM-DD)</option>
-                                                        <option value="european" <%= (user.preferences && user.preferences['display.dateformat'] === 'european') ? 'selected' : '' %>>European (DD/MM/YYYY)</option>
-                                                        <option value="long" <%= (user.preferences && user.preferences['display.dateformat'] === 'long') ? 'selected' : '' %>>Long Format</option>
+                                                    <label for="locale" class="form-label"><strong>Locale</strong></label>
+                                                    <select class="form-control" id="locale" name="preferences.locale">
+                                                        <option value="en-US" <%= (user.preferences && user.preferences.locale === 'en-US') ? 'selected' : '' %>>English (United States)</option>
+                                                        <option value="en-GB" <%= (user.preferences && user.preferences.locale === 'en-GB') ? 'selected' : '' %>>English (United Kingdom)</option>
+                                                        <option value="fr-FR" <%= (user.preferences && user.preferences.locale === 'fr-FR') ? 'selected' : '' %>>Français (France)</option>
+                                                        <option value="de-DE" <%= (user.preferences && user.preferences.locale === 'de-DE') ? 'selected' : '' %>>Deutsch (Deutschland)</option>
+                                                        <option value="es-ES" <%= (user.preferences && user.preferences.locale === 'es-ES') ? 'selected' : '' %>>Español (España)</option>
+                                                        <option value="it-IT" <%= (user.preferences && user.preferences.locale === 'it-IT') ? 'selected' : '' %>>Italiano (Italia)</option>
+                                                        <option value="pt-BR" <%= (user.preferences && user.preferences.locale === 'pt-BR') ? 'selected' : '' %>>Português (Brasil)</option>
+                                                        <option value="ja-JP" <%= (user.preferences && user.preferences.locale === 'ja-JP') ? 'selected' : '' %>>日本語 (日本)</option>
+                                                        <option value="ko-KR" <%= (user.preferences && user.preferences.locale === 'ko-KR') ? 'selected' : '' %>>한국어 (대한민국)</option>
+                                                        <option value="zh-CN" <%= (user.preferences && user.preferences.locale === 'zh-CN') ? 'selected' : '' %>>中文 (中国)</option>
+                                                        <option value="ru-RU" <%= (user.preferences && user.preferences.locale === 'ru-RU') ? 'selected' : '' %>>Русский (Россия)</option>
+                                                        <option value="ar-SA" <%= (user.preferences && user.preferences.locale === 'ar-SA') ? 'selected' : '' %>>العربية (السعودية)</option>
+                                                        <option value="hi-IN" <%= (user.preferences && user.preferences.locale === 'hi-IN') ? 'selected' : '' %>>हिन्दी (भारत)</option>
                                                     </select>
+                                                    <small class="form-text text-muted">Determines date, time, and number formatting</small>
+                                                </div>
+
+                                                <div class="form-group mb-3">
+                                                    <label class="form-label"><strong>Time Format</strong></label>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio" name="preferences.timeFormat" id="timeFormat12" value="12h"
+                                                               <%= (!user.preferences || !user.preferences.timeFormat || user.preferences.timeFormat === '12h') ? 'checked' : '' %>>
+                                                        <label class="form-check-label" for="timeFormat12">
+                                                            12-hour (2:30 PM)
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio" name="preferences.timeFormat" id="timeFormat24" value="24h"
+                                                               <%= (user.preferences && user.preferences.timeFormat === '24h') ? 'checked' : '' %>>
+                                                        <label class="form-check-label" for="timeFormat24">
+                                                            24-hour (14:30)
+                                                        </label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group mb-3">
+                                                    <label for="timezone" class="form-label"><strong>Timezone</strong></label>
+                                                    <select class="form-control" id="timezone" name="preferences.timezone">
+                                                        <% if (availableTimezones && availableTimezones.length > 0) { %>
+                                                            <% let currentCategory = ''; %>
+                                                            <% availableTimezones.forEach(tz => { %>
+                                                                <% if (currentCategory !== tz.category) { %>
+                                                                    <% if (currentCategory !== '') { %></optgroup><% } %>
+                                                                    <% currentCategory = tz.category; %>
+                                                                    <optgroup label="<%= tz.category %>">
+                                                                <% } %>
+                                                                <option value="<%= tz.value %>" <%= (user.preferences && user.preferences.timezone === tz.value) || (!user.preferences?.timezone && tz.value === 'UTC') ? 'selected' : '' %>><%= tz.label %></option>
+                                                            <% }); %>
+                                                            <% if (currentCategory !== '') { %></optgroup><% } %>
+                                                        <% } else { %>
+                                                            <option value="UTC" <%= (!user.preferences || !user.preferences.timezone || user.preferences.timezone === 'UTC') ? 'selected' : '' %>>UTC (Coordinated Universal Time)</option>
+                                                        <% } %>
+                                                    </select>
+                                                </div>
+
+                                                <div class="card bg-info bg-opacity-10 border-info">
+                                                    <div class="card-body p-2">
+                                                        <h6 class="card-title mb-1"><i class="fas fa-eye"></i> Live Preview</h6>
+                                                        <div class="row">
+                                                            <div class="col-6">
+                                                                <small class="text-muted">Date:</small><br>
+                                                                <span id="datePreview" class="fw-bold">Loading...</span>
+                                                            </div>
+                                                            <div class="col-6">
+                                                                <small class="text-muted">Time:</small><br>
+                                                                <span id="timePreview" class="fw-bold">Loading...</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                                 
                                                 <div class="form-group mb-3">
@@ -345,6 +411,59 @@ document.getElementById('smartPairs')?.addEventListener('change', function() {
         demo.textContent = this.checked ? 'Smart pairs enabled!' : 'Smart pairs disabled';
         demo.className = this.checked ? 'style="color: var(--text-success);"' : 'text-muted';
     }
+});
+
+// Locale and date/time preview functionality
+function updateDateTimePreview() {
+    const locale = document.getElementById('locale')?.value || 'en-US';
+    const timeFormat = document.querySelector('input[name="preferences.timeFormat"]:checked')?.value || '12h';
+    const timezone = document.getElementById('timezone')?.value || 'UTC';
+
+    const now = new Date();
+
+    // Update date preview
+    const datePreview = document.getElementById('datePreview');
+    if (datePreview) {
+        try {
+            datePreview.textContent = now.toLocaleDateString(locale);
+        } catch (error) {
+            datePreview.textContent = now.toLocaleDateString('en-US');
+        }
+    }
+
+    // Update time preview
+    const timePreview = document.getElementById('timePreview');
+    if (timePreview) {
+        try {
+            const options = {
+                hour12: timeFormat === '12h',
+                timeZone: timezone === 'UTC' ? 'UTC' : timezone
+            };
+            timePreview.textContent = now.toLocaleTimeString(locale, options);
+        } catch (error) {
+            const options = {
+                hour12: timeFormat === '12h',
+                timeZone: 'UTC'
+            };
+            timePreview.textContent = now.toLocaleTimeString('en-US', options);
+        }
+    }
+}
+
+// Add event listeners for live preview
+document.addEventListener('DOMContentLoaded', function() {
+    // Initial preview update
+    updateDateTimePreview();
+
+    // Update preview when settings change
+    document.getElementById('locale')?.addEventListener('change', updateDateTimePreview);
+    document.getElementById('timezone')?.addEventListener('change', updateDateTimePreview);
+    document.querySelectorAll('input[name="preferences.timeFormat"]').forEach(radio => {
+        radio.addEventListener('change', updateDateTimePreview);
+    });
+
+    // Update preview every 30 seconds to keep time current
+    setInterval(updateDateTimePreview, 30000);
 });
 </script>
 

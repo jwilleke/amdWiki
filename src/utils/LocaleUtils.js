@@ -184,6 +184,43 @@ class LocaleUtils {
       { code: 'hi-IN', name: 'हिन्दी (भारत)', dateFormat: 'dd/MM/yyyy', timeFormat: '24h' }
     ];
   }
+
+  /**
+   * Validate timezone string
+   * @param {string} timezone - Timezone to validate
+   * @returns {boolean} True if timezone is valid
+   */
+  static isValidTimezone(timezone) {
+    try {
+      // Test if timezone is supported by Intl.DateTimeFormat
+      new Intl.DateTimeFormat('en-US', { timeZone: timezone });
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  /**
+   * Get timezone display name
+   * @param {string} timezone - Timezone identifier (e.g., 'America/New_York')
+   * @param {string} locale - Locale for display name (default: 'en-US')
+   * @returns {string} Human-readable timezone name
+   */
+  static getTimezoneDisplayName(timezone, locale = 'en-US') {
+    try {
+      const formatter = new Intl.DateTimeFormat(locale, {
+        timeZone: timezone,
+        timeZoneName: 'long'
+      });
+
+      const parts = formatter.formatToParts(new Date());
+      const timeZonePart = parts.find(part => part.type === 'timeZoneName');
+
+      return timeZonePart ? timeZonePart.value : timezone;
+    } catch (error) {
+      return timezone;
+    }
+  }
 }
 
 module.exports = LocaleUtils;

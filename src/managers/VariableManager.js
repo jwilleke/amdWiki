@@ -463,22 +463,22 @@ class VariableManager extends BaseManager {
 
   /**
    * Get user's preferred locale from context
-   * @param {object} context - Context object containing requestInfo
+   * @param {object} context - Context object containing requestInfo and userContext
    * @returns {string} User's preferred locale (e.g., 'en-US')
    */
   getUserLocale(context) {
-    if (!context || !context.requestInfo) {
-      return 'en-US'; // Default fallback
+    // Priority 1: User preferences (if logged in and set)
+    if (context && context.userContext && context.userContext.preferences && context.userContext.preferences.locale) {
+      return context.userContext.preferences.locale;
     }
 
-    // Get Accept-Language header from request
-    const acceptLanguage = context.requestInfo.acceptLanguage;
-    if (!acceptLanguage || acceptLanguage === 'Unknown') {
-      return 'en-US';
+    // Priority 2: Browser locale from Accept-Language header
+    if (context && context.requestInfo && context.requestInfo.acceptLanguage && context.requestInfo.acceptLanguage !== 'Unknown') {
+      return LocaleUtils.parseAcceptLanguage(context.requestInfo.acceptLanguage);
     }
 
-    // Parse the Accept-Language header to get preferred locale
-    return LocaleUtils.parseAcceptLanguage(acceptLanguage);
+    // Priority 3: System default
+    return 'en-US';
   }
 }
 

@@ -139,6 +139,151 @@
   "amdwiki.default.system-category": "general",
   "amdwiki.maximum.user-keywords": 5,
   "amdwiki.default.template.dateformat": "dd-MMM-yyyy HH:mm",
+  "amdwiki.default.timezone": "UTC",
+
+  "_comment_timezones": "Available timezone options for user preferences",
+  "amdwiki.timezones": [
+    {
+      "value": "UTC",
+      "label": "UTC (Coordinated Universal Time)",
+      "category": "Universal"
+    },
+    {
+      "value": "America/New_York",
+      "label": "Eastern Time (New York)",
+      "category": "North America"
+    },
+    {
+      "value": "America/Chicago",
+      "label": "Central Time (Chicago)",
+      "category": "North America"
+    },
+    {
+      "value": "America/Denver",
+      "label": "Mountain Time (Denver)",
+      "category": "North America"
+    },
+    {
+      "value": "America/Los_Angeles",
+      "label": "Pacific Time (Los Angeles)",
+      "category": "North America"
+    },
+    {
+      "value": "America/Toronto",
+      "label": "Eastern Time (Toronto)",
+      "category": "North America"
+    },
+    {
+      "value": "America/Vancouver",
+      "label": "Pacific Time (Vancouver)",
+      "category": "North America"
+    },
+    {
+      "value": "Europe/London",
+      "label": "GMT (London)",
+      "category": "Europe"
+    },
+    {
+      "value": "Europe/Paris",
+      "label": "CET (Paris)",
+      "category": "Europe"
+    },
+    {
+      "value": "Europe/Berlin",
+      "label": "CET (Berlin)",
+      "category": "Europe"
+    },
+    {
+      "value": "Europe/Rome",
+      "label": "CET (Rome)",
+      "category": "Europe"
+    },
+    {
+      "value": "Europe/Madrid",
+      "label": "CET (Madrid)",
+      "category": "Europe"
+    },
+    {
+      "value": "Europe/Moscow",
+      "label": "MSK (Moscow)",
+      "category": "Europe"
+    },
+    {
+      "value": "Europe/Stockholm",
+      "label": "CET (Stockholm)",
+      "category": "Europe"
+    },
+    {
+      "value": "Asia/Tokyo",
+      "label": "JST (Tokyo)",
+      "category": "Asia"
+    },
+    {
+      "value": "Asia/Shanghai",
+      "label": "CST (Shanghai)",
+      "category": "Asia"
+    },
+    {
+      "value": "Asia/Seoul",
+      "label": "KST (Seoul)",
+      "category": "Asia"
+    },
+    {
+      "value": "Asia/Kolkata",
+      "label": "IST (Kolkata)",
+      "category": "Asia"
+    },
+    {
+      "value": "Asia/Dubai",
+      "label": "GST (Dubai)",
+      "category": "Asia"
+    },
+    {
+      "value": "Asia/Singapore",
+      "label": "SGT (Singapore)",
+      "category": "Asia"
+    },
+    {
+      "value": "Australia/Sydney",
+      "label": "AEST (Sydney)",
+      "category": "Oceania"
+    },
+    {
+      "value": "Australia/Melbourne",
+      "label": "AEST (Melbourne)",
+      "category": "Oceania"
+    },
+    {
+      "value": "Australia/Perth",
+      "label": "AWST (Perth)",
+      "category": "Oceania"
+    },
+    {
+      "value": "Pacific/Auckland",
+      "label": "NZST (Auckland)",
+      "category": "Oceania"
+    },
+    {
+      "value": "Africa/Cairo",
+      "label": "EET (Cairo)",
+      "category": "Africa"
+    },
+    {
+      "value": "Africa/Johannesburg",
+      "label": "SAST (Johannesburg)",
+      "category": "Africa"
+    },
+    {
+      "value": "America/Sao_Paulo",
+      "label": "BRT (São Paulo)",
+      "category": "South America"
+    },
+    {
+      "value": "America/Argentina/Buenos_Aires",
+      "label": "ART (Buenos Aires)",
+      "category": "South America"
+    }
+  ],
 
   "_comment_storageLocation": "Storage location permissions",
   "amdwiki.storageLocation.enabled": true,

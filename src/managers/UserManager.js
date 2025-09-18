@@ -563,6 +563,11 @@ class UserManager extends BaseManager {
     const defaultDateFormat = LocaleUtils.getDateFormatFromLocale(userLocale);
     const defaultTimeFormat = LocaleUtils.getTimeFormatFromLocale(userLocale);
 
+    // Get default timezone from configuration
+    const configManager = this.engine.getManager('ConfigurationManager');
+    const defaultTimezone = configManager ?
+      configManager.getProperty('amdwiki.default.timezone', 'UTC') : 'UTC';
+
     const user = {
       username,
       email,
@@ -579,7 +584,7 @@ class UserManager extends BaseManager {
         locale: userLocale,
         dateFormat: defaultDateFormat,
         timeFormat: defaultTimeFormat,
-        timezone: 'UTC' // Default timezone, could be enhanced to detect from browser
+        timezone: defaultTimezone
       }
     };
 
