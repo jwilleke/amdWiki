@@ -188,6 +188,131 @@ class ConfigurationManager {
   }
 
   /**
+   * Get directory paths
+   * @returns {Object} Directory configuration
+   */
+  getDirectories() {
+    return {
+      pages: this.getProperty('amdwiki.directories.pages', './pages'),
+      templates: this.getProperty('amdwiki.directories.templates', './templates'),
+      resources: this.getProperty('amdwiki.directories.resources', './resources'),
+      data: this.getProperty('amdwiki.directories.data', './data'),
+      work: this.getProperty('amdwiki.directories.work', './')
+    };
+  }
+
+  /**
+   * Get manager configuration
+   * @param {string} managerName - Name of manager
+   * @returns {Object} Manager configuration
+   */
+  getManagerConfig(managerName) {
+    const enabled = this.getProperty(`amdwiki.managers.${managerName}.enabled`, true);
+    const config = { enabled };
+
+    // Get manager-specific settings
+    const keys = Object.keys(this.properties).filter(key =>
+      key.startsWith(`amdwiki.managers.${managerName}.`) &&
+      !key.endsWith('.enabled')
+    );
+
+    keys.forEach(key => {
+      const settingName = key.replace(`amdwiki.managers.${managerName}.`, '');
+      config[settingName] = this.getProperty(key);
+    });
+
+    return config;
+  }
+
+  /**
+   * Get feature configuration
+   * @param {string} featureName - Name of feature
+   * @returns {Object} Feature configuration
+   */
+  getFeatureConfig(featureName) {
+    const enabled = this.getProperty(`amdwiki.features.${featureName}.enabled`, false);
+    const config = { enabled };
+
+    // Get feature-specific settings
+    const keys = Object.keys(this.properties).filter(key =>
+      key.startsWith(`amdwiki.features.${featureName}.`) &&
+      !key.endsWith('.enabled')
+    );
+
+    keys.forEach(key => {
+      const settingName = key.replace(`amdwiki.features.${featureName}.`, '');
+      config[settingName] = this.getProperty(key);
+    });
+
+    return config;
+  }
+
+  /**
+   * Get logging configuration
+   * @returns {Object} Logging configuration
+   */
+  getLoggingConfig() {
+    return {
+      level: this.getProperty('amdwiki.logging.level', 'info'),
+      dir: this.getProperty('amdwiki.logging.dir', './logs'),
+      maxSize: this.getProperty('amdwiki.logging.maxSize', '1MB'),
+      maxFiles: parseInt(this.getProperty('amdwiki.logging.maxFiles', '5'))
+    };
+  }
+
+  /**
+   * Get search configuration
+   * @returns {Object} Search configuration
+   */
+  getSearchConfig() {
+    return {
+      indexDir: this.getProperty('amdwiki.search.indexDir', './search-index'),
+      enabled: this.getProperty('amdwiki.search.enabled', 'true') === 'true'
+    };
+  }
+
+  /**
+   * Get access control configuration
+   * @returns {Object} Access control configuration
+   */
+  getAccessControlConfig() {
+    return {
+      contextAware: {
+        enabled: this.getProperty('amdwiki.accessControl.contextAware.enabled', 'true') === 'true',
+        timeZone: this.getProperty('amdwiki.accessControl.contextAware.timeZone', 'UTC')
+      },
+      businessHours: {
+        enabled: this.getProperty('amdwiki.accessControl.businessHours.enabled', 'false') === 'true',
+        start: this.getProperty('amdwiki.accessControl.businessHours.start', '09:00'),
+        end: this.getProperty('amdwiki.accessControl.businessHours.end', '17:00'),
+        days: this.getProperty('amdwiki.accessControl.businessHours.days', 'monday,tuesday,wednesday,thursday,friday').split(',')
+      }
+    };
+  }
+
+  /**
+   * Get audit configuration
+   * @returns {Object} Audit configuration
+   */
+  getAuditConfig() {
+    return {
+      enabled: this.getProperty('amdwiki.audit.enabled', 'true') === 'true',
+      logFile: this.getProperty('amdwiki.audit.logFile', './users/access-log.json'),
+      retention: {
+        maxFiles: parseInt(this.getProperty('amdwiki.audit.retention.maxFiles', '10')),
+        maxAge: this.getProperty('amdwiki.audit.retention.maxAge', '30d')
+      },
+      includeContext: {
+        ip: this.getProperty('amdwiki.audit.includeContext.ip', 'true') === 'true',
+        userAgent: this.getProperty('amdwiki.audit.includeContext.userAgent', 'true') === 'true',
+        timestamp: this.getProperty('amdwiki.audit.includeContext.timestamp', 'true') === 'true',
+        decision: this.getProperty('amdwiki.audit.includeContext.decision', 'true') === 'true',
+        reason: this.getProperty('amdwiki.audit.includeContext.reason', 'true') === 'true'
+      }
+    };
+  }
+
+  /**
    * Get RSS settings
    * @returns {Object} RSS configuration
    */
