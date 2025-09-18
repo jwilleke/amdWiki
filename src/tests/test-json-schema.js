@@ -5,7 +5,7 @@ const testUserData = {
   "jim": {
     "username": "jim",
     "email": "jim@willeke.com",
-    "displayName": "-jim",
+    "displayName": "Jim",
     "roles": ["reader"],
     "isActive": true,
     "isSystem": false,
