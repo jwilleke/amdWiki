@@ -135,6 +135,11 @@
   "amdwiki.policies.configFile": "./config/access-policies.json",
   "amdwiki.policies.defaultPolicy": "deny",
 
+  "_comment_defaults": "Default values for page creation",
+  "amdwiki.default.system-category": "general",
+  "amdwiki.maximum.user-keywords": 5,
+  "amdwiki.default.template.dateformat": "dd-MMM-yyyy HH:mm",
+
   "_comment_storageLocation": "Storage location permissions",
   "amdwiki.storageLocation.enabled": true,
   "amdwiki.storageLocation.aclBasedStorage": true,

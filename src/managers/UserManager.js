@@ -2,6 +2,7 @@ const BaseManager = require('./BaseManager');
 const fs = require('fs').promises;
 const path = require('path');
 const crypto = require('crypto');
+const LocaleUtils = require('../utils/LocaleUtils');
 
 /**
  * UserManager - Handles user authentication, authorization, and roles
@@ -549,13 +550,18 @@ class UserManager extends BaseManager {
    * @returns {Object} Created user (without password)
    */
   async createUser(userData) {
-    const { username, email, displayName, password, roles = ['reader'], isExternal = false, isActive = true } = userData;
+    const { username, email, displayName, password, roles = ['reader'], isExternal = false, isActive = true, acceptLanguage } = userData;
 
     if (this.users.has(username)) {
       throw new Error('Username already exists');
     }
 
     const hashedPassword = isExternal ? null : this.hashPassword(password);
+
+    // Determine user's locale and set default preferences
+    const userLocale = LocaleUtils.parseAcceptLanguage(acceptLanguage);
+    const defaultDateFormat = LocaleUtils.getDateFormatFromLocale(userLocale);
+    const defaultTimeFormat = LocaleUtils.getTimeFormatFromLocale(userLocale);
 
     const user = {
       username,
@@ -569,7 +575,12 @@ class UserManager extends BaseManager {
       createdAt: new Date().toISOString(),
       lastLogin: null,
       loginCount: 0,
-      preferences: {}
+      preferences: {
+        locale: userLocale,
+        dateFormat: defaultDateFormat,
+        timeFormat: defaultTimeFormat,
+        timezone: 'UTC' // Default timezone, could be enhanced to detect from browser
+      }
     };
 
     // Save user to users.json first

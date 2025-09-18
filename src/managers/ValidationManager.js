@@ -17,7 +17,10 @@ class ValidationManager extends BaseManager {
 
   async initialize(config = {}) {
     await super.initialize(config);
-    this.maxUserKeywords = config.maxUserKeywords || 3;
+    const configManager = this.engine.getManager('ConfigurationManager');
+    this.maxUserKeywords = configManager ?
+      configManager.getProperty('amdwiki.maximum.user-keywords', 5) :
+      (config.maxUserKeywords || 5);
     this.maxCategories = config.maxCategories || 3;
   }
 
@@ -101,6 +104,9 @@ class ValidationManager extends BaseManager {
       if (!Array.isArray(metadata['user-keywords'])) {
         validationErrors.push('user-keywords must be an array');
       } else {
+        if (metadata['user-keywords'].length > this.maxUserKeywords) {
+          validationErrors.push(`Maximum ${this.maxUserKeywords} user keywords are allowed, found ${metadata['user-keywords'].length}`);
+        }
         for (const keyword of metadata['user-keywords']) {
           if (typeof keyword !== 'string' || keyword.trim().length === 0) {
             validationErrors.push('All user keywords must be non-empty strings');
@@ -223,9 +229,14 @@ class ValidationManager extends BaseManager {
   generateValidMetadata(title, options = {}) {
     const uuid = options.uuid || uuidv4();
     const slug = options.slug || this.generateSlug(title);
+    const configManager = this.engine.getManager('ConfigurationManager');
+    const defaultSystemCategory = configManager ?
+      configManager.getProperty('amdwiki.default.system-category', 'general') :
+      'general';
+
     return {
       title: title.trim(),
-      'system-category': options['system-category'] || 'general',
+      'system-category': options['system-category'] || defaultSystemCategory,
       'user-keywords': options.userKeywords || options['user-keywords'] || [],
       uuid: uuid,
       slug: slug,

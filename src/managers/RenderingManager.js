@@ -927,16 +927,13 @@ class RenderingManager extends BaseManager {
 
     let processedContent = content;
 
-    // Step 1: Expand user variables
-    processedContent = this.expandUserVariables(processedContent, userContext, pageName);
-
-    // Step 2: Process plugins
+    // Step 1: Process plugins
     processedContent = this.renderPlugins(processedContent);
 
-    // Step 3: Process wiki links
+    // Step 2: Process wiki links
     processedContent = this.renderWikiLinks(processedContent);
 
-    // Step 4: Render markdown
+    // Step 3: Render markdown (this includes variable expansion via expandMacros)
     processedContent = this.renderMarkdown(processedContent, pageName, userContext);
 
     return processedContent;

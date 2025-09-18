@@ -189,7 +189,7 @@ class PageManager extends BaseManager {
         categories: data.categories || (data.category ? [data.category] : ['General']),
         'user-keywords': data['user-keywords'] || [],
         category: data.category || 'General',
-        'system-category': data['system-category'] || 'General',
+        'system-category': data['system-category'] || (this.engine.getManager('ConfigurationManager')?.getProperty('amdwiki.default.system-category', 'general') || 'general'),
         lastModified: data.lastModified,
         metadata: data,
         filePath: fileInfo.filePath,
@@ -573,12 +573,17 @@ This page contains an alphabetical listing of all pages in this wiki.
     }
 
     const templateContent = await templateManager.getTemplate(templateName);
+      const configManager = this.engine.getManager('ConfigurationManager');
+      const defaultSystemCategory = configManager ?
+        configManager.getProperty('amdwiki.default.system-category', 'general') :
+        'general';
+
       const metadata = {
         title: pageName,
         slug: generateSlug(pageName),
         uuid: uuidv4(),
         created: new Date().toISOString(),
-        'system-category': 'general',
+        'system-category': defaultSystemCategory,
         'user-keywords': []
       };
 
@@ -704,7 +709,6 @@ This page contains an alphabetical listing of all pages in this wiki.
       const populatedContent = await templateManager.populateTemplate(templateContent, { pageName });
       const validationManager = this.engine.getManager('ValidationManager');
         const metadata = validationManager.generateValidMetadata(pageName, {
-          'system-category': 'General',
           'user-keywords': [],
           created: new Date().toISOString()
         });

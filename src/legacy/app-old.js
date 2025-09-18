@@ -340,7 +340,8 @@ app.get('/edit/:page', async (req, res) => {
       pages,
       selectedCategory,
       selectedUserKeywords,
-      metadata
+      metadata,
+      maxUserKeywords: 5
     });
   } catch (err) {
     logger.error(err);

@@ -614,6 +614,10 @@ class WikiRoutes {
       const systemCategories = await this.getSystemCategories();
       const userKeywords = await this.getUserKeywords();
       
+      const configManager = this.engine.getManager('ConfigurationManager');
+      const maxUserKeywords = configManager ?
+        configManager.getProperty('amdwiki.maximum.user-keywords', 5) : 5;
+
       res.render('create', {
         ...commonData,
         title: 'Create New Page',
@@ -621,6 +625,7 @@ class WikiRoutes {
         templates: templates,
         systemCategories: systemCategories,
         userKeywords: userKeywords,
+        maxUserKeywords: maxUserKeywords,
         csrfToken: req.session.csrfToken
       });
       
@@ -843,6 +848,10 @@ class WikiRoutes {
                                 (pageData.metadata?.category ? [pageData.metadata.category] : []);
       const selectedUserKeywords = pageData.metadata?.['user-keywords'] || [];
 
+      const configManager = this.engine.getManager('ConfigurationManager');
+      const maxUserKeywords = configManager ?
+        configManager.getProperty('amdwiki.maximum.user-keywords', 5) : 5;
+
       res.render('edit', {
         ...commonData,
         title: `Edit ${pageName}`,
@@ -853,6 +862,7 @@ class WikiRoutes {
         selectedCategories: selectedCategories,
         userKeywords: userKeywords,
         selectedUserKeywords: selectedUserKeywords,
+        maxUserKeywords: maxUserKeywords,
         csrfToken: req.session.csrfToken
       });
       
@@ -1030,7 +1040,7 @@ class WikiRoutes {
       await renderingManager.rebuildLinkGraph();
       await searchManager.rebuildIndex();
       
-      res.redirect(`/wiki/${pageName}`);
+      res.redirect(`/wiki/${encodeURIComponent(pageName)}`);
     } catch (err) {
       console.error('Error saving page:', err);
       res.status(500).send('Error saving page');
@@ -1708,7 +1718,8 @@ class WikiRoutes {
         displayName: displayName || username,
         password,
         roles: ['reader'], // Default role
-        isExternal: false // Local user
+        isExternal: false, // Local user
+        acceptLanguage: req.headers['accept-language'] // Pass browser locale
       });
       
       console.log(`👤 User registered: ${username}`);
@@ -2254,7 +2265,8 @@ class WikiRoutes {
         email,
         displayName,
         password,
-        roles: Array.isArray(roles) ? roles : [roles]
+        roles: Array.isArray(roles) ? roles : [roles],
+        acceptLanguage: req.headers['accept-language'] // Pass browser locale
       });
       
       if (success) {

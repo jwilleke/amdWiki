@@ -86,11 +86,11 @@
             alert('System category is required');
             return false;
         }
-        // Validate user-keywords (max 3, optional)
+        // Validate user-keywords (max <%= maxUserKeywords %>, optional)
         const checkedKeywords = document.querySelectorAll('.user-keyword-checkbox:checked').length;
-        if (checkedKeywords > 3) {
+        if (checkedKeywords > <%= maxUserKeywords %>) {
             e.preventDefault();
-            alert('Maximum 3 user keywords allowed');
+            alert('Maximum <%= maxUserKeywords %> user keywords allowed');
             return false;
         }
     });
@@ -100,9 +100,9 @@
     userKeywordCheckboxes.forEach(checkbox => {
         checkbox.addEventListener('change', function() {
             const checkedCount = document.querySelectorAll('.user-keyword-checkbox:checked').length;
-            if (checkedCount > 3) {
+            if (checkedCount > <%= maxUserKeywords %>) {
                 this.checked = false;
-                alert('Maximum 3 user keywords allowed');
+                alert('Maximum <%= maxUserKeywords %> user keywords allowed');
             }
             updateSelectedUserKeywordsText();
         });

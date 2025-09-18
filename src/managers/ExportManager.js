@@ -1,6 +1,7 @@
 const BaseManager = require('./BaseManager');
 const fs = require('fs').promises;
 const path = require('path');
+const LocaleUtils = require('../utils/LocaleUtils');
 
 /**
  * ExportManager - Handles page exports (HTML, PDF, etc.)
@@ -29,7 +30,7 @@ class ExportManager extends BaseManager {
    * @param {string} pageName - Page name to export
    * @returns {string} HTML content
    */
-  async exportPageToHtml(pageName) {
+  async exportPageToHtml(pageName, user = null) {
     const pageManager = this.engine.getManager('PageManager');
     const renderingManager = this.engine.getManager('RenderingManager');
     
@@ -107,7 +108,7 @@ class ExportManager extends BaseManager {
     ${renderedContent}
     
     <div class="export-meta">
-        <p>Exported from amdWiki on ${new Date().toLocaleString()}</p>
+        <p>Exported from amdWiki on ${this.getFormattedTimestamp(user)}</p>
         <p>Last modified: ${page.lastModified || 'Unknown'}</p>
     ${page['system-category'] ? `<p>System Category: ${page['system-category']}</p>` : ''}
     ${page['user-keywords'] && page['user-keywords'].length > 0 ? `<p>User Keywords: ${page['user-keywords'].join(', ')}</p>` : ''}
@@ -123,7 +124,7 @@ class ExportManager extends BaseManager {
    * @param {Array} pageNames - Array of page names
    * @returns {string} Combined HTML content
    */
-  async exportPagesToHtml(pageNames) {
+  async exportPagesToHtml(pageNames, user = null) {
     const pageManager = this.engine.getManager('PageManager');
     const renderingManager = this.engine.getManager('RenderingManager');
     
@@ -237,13 +238,13 @@ class ExportManager extends BaseManager {
         <ul>
             ${toc}
         </ul>
-        <p><strong>${validPages.length}</strong> pages exported on ${new Date().toLocaleString()}</p>
+        <p><strong>${validPages.length}</strong> pages exported on ${this.getFormattedTimestamp(user)}</p>
     </div>
     
     ${combinedContent}
     
     <div class="export-meta">
-        <p>Exported from amdWiki on ${new Date().toLocaleString()}</p>
+        <p>Exported from amdWiki on ${this.getFormattedTimestamp(user)}</p>
         <p>Total pages: ${validPages.length}</p>
     </div>
 </body>
@@ -257,7 +258,7 @@ class ExportManager extends BaseManager {
    * @param {string|Array} pageNames - Single page name or array of page names
    * @returns {string} Markdown content
    */
-  async exportToMarkdown(pageNames) {
+  async exportToMarkdown(pageNames, user = null) {
     const pageManager = this.engine.getManager('PageManager');
     const names = Array.isArray(pageNames) ? pageNames : [pageNames];
     
@@ -265,7 +266,7 @@ class ExportManager extends BaseManager {
     
     if (names.length > 1) {
       markdown += `# amdWiki Export\n\n`;
-      markdown += `*Exported on ${new Date().toLocaleString()}*\n\n`;
+      markdown += `*Exported on ${this.getFormattedTimestamp(user)}*\n\n`;
       markdown += `## Table of Contents\n\n`;
       
       for (const pageName of names) {
@@ -346,6 +347,23 @@ class ExportManager extends BaseManager {
     const filePath = path.join(this.exportDirectory, filename);
     await fs.unlink(filePath);
     console.log(`📦 Deleted export: ${filename}`);
+  }
+
+  /**
+   * Get formatted timestamp using user's locale
+   * @param {object} user - User object (optional)
+   * @returns {string} Formatted timestamp
+   */
+  getFormattedTimestamp(user = null) {
+    const date = new Date();
+
+    if (user && user.preferences && user.preferences.locale) {
+      return LocaleUtils.formatDate(date, user.preferences.locale) + ' ' +
+             LocaleUtils.formatTime(date, user.preferences.locale);
+    }
+
+    // Fallback to system default
+    return date.toLocaleString();
   }
 }
 

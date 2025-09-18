@@ -1,4 +1,5 @@
 const BaseManager = require('./BaseManager');
+const LocaleUtils = require('../utils/LocaleUtils');
 
 /**
  * VariableManager - Manages system and user variables for amdWiki
@@ -111,17 +112,9 @@ class VariableManager extends BaseManager {
       return `${hours}h ${minutes}m ${seconds}s`;
     });
 
-    // Date and time variables
+    // Date and time variables (timestamp and year remain system-wide, others are contextual)
     this.variables.set('timestamp', () => {
       return new Date().toISOString();
-    });
-
-    this.variables.set('date', () => {
-      return new Date().toLocaleDateString();
-    });
-
-    this.variables.set('time', () => {
-      return new Date().toLocaleTimeString();
     });
 
     this.variables.set('year', () => {
@@ -221,6 +214,17 @@ class VariableManager extends BaseManager {
       }
 
       return 'Unknown';
+    });
+
+    // Locale-aware date and time variables
+    this.contextualVariables.set('date', (context) => {
+      const locale = this.getUserLocale(context);
+      return LocaleUtils.formatDate(new Date(), locale);
+    });
+
+    this.contextualVariables.set('time', (context) => {
+      const locale = this.getUserLocale(context);
+      return LocaleUtils.formatTime(new Date(), locale);
     });
   }
 
@@ -455,6 +459,26 @@ class VariableManager extends BaseManager {
       contextualVariables: Array.from(this.contextualVariables.keys()).sort(),
       totalVariables: this.variables.size + this.contextualVariables.size
     };
+  }
+
+  /**
+   * Get user's preferred locale from context
+   * @param {object} context - Context object containing requestInfo
+   * @returns {string} User's preferred locale (e.g., 'en-US')
+   */
+  getUserLocale(context) {
+    if (!context || !context.requestInfo) {
+      return 'en-US'; // Default fallback
+    }
+
+    // Get Accept-Language header from request
+    const acceptLanguage = context.requestInfo.acceptLanguage;
+    if (!acceptLanguage || acceptLanguage === 'Unknown') {
+      return 'en-US';
+    }
+
+    // Parse the Accept-Language header to get preferred locale
+    return LocaleUtils.parseAcceptLanguage(acceptLanguage);
   }
 }
 

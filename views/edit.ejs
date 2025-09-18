@@ -158,11 +158,11 @@
             alert('System category is required');
             return false;
         }
-        // Validate user-keywords (max 3, optional)
+        // Validate user-keywords (max <%= maxUserKeywords %>, optional)
         const checkedKeywords = document.querySelectorAll('.user-keyword-checkbox:checked').length;
-        if (checkedKeywords > 3) {
+        if (checkedKeywords > <%= maxUserKeywords %>) {
             e.preventDefault();
-            alert('Maximum 3 user keywords allowed');
+            alert('Maximum <%= maxUserKeywords %> user keywords allowed');
             return false;
         }
     });
