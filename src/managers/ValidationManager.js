@@ -100,8 +100,6 @@ class ValidationManager extends BaseManager {
     if (metadata['user-keywords']) {
       if (!Array.isArray(metadata['user-keywords'])) {
         validationErrors.push('user-keywords must be an array');
-      } else if (metadata['user-keywords'].length > this.maxUserKeywords) {
-        validationErrors.push(`Maximum ${this.maxUserKeywords} user keywords allowed, found ${metadata['user-keywords'].length}`);
       } else {
         for (const keyword of metadata['user-keywords']) {
           if (typeof keyword !== 'string' || keyword.trim().length === 0) {
@@ -227,7 +225,7 @@ class ValidationManager extends BaseManager {
     const slug = options.slug || this.generateSlug(title);
     return {
       title: title.trim(),
-      category: options.category || 'General',
+      'system-category': options['system-category'] || 'general',
       'user-keywords': options.userKeywords || options['user-keywords'] || [],
       uuid: uuid,
       slug: slug,

@@ -569,7 +569,7 @@ This page contains an alphabetical listing of all pages in this wiki.
         slug: generateSlug(pageName),
         uuid: uuidv4(),
         created: new Date().toISOString(),
-        'system-category': 'General',
+        'system-category': 'general',
         'user-keywords': []
       };
 

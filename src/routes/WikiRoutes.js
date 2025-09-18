@@ -995,9 +995,6 @@ class WikiRoutes {
       }
       // Validate user keywords
       let userKeywordsArray = Array.isArray(userKeywords) ? userKeywords : (userKeywords ? [userKeywords] : []);
-      if (userKeywordsArray.length > validationManager.maxUserKeywords) {
-        return res.status(400).send(`Maximum ${validationManager.maxUserKeywords} user keywords allowed`);
-      }
 
       // Prepare metadata ONCE, preserving UUID if editing
       let baseMetadata = {
