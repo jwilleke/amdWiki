@@ -1039,8 +1039,10 @@ class WikiRoutes {
       // Rebuild link graph and search index
       await renderingManager.rebuildLinkGraph();
       await searchManager.rebuildIndex();
-      
-      res.redirect(`/wiki/${encodeURIComponent(pageName)}`);
+
+      // Redirect to the updated page title if it changed (fallback to original name)
+      const redirectName = metadata.title || pageName;
+      res.redirect(`/wiki/${encodeURIComponent(redirectName)}`);
     } catch (err) {
       console.error('Error saving page:', err);
       res.status(500).send('Error saving page');
