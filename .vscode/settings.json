@@ -1,4 +1,6 @@
 {
   "vscodeGrok.showPreview": "always",
-  "git.confirmSync": false
+  "git.confirmSync": false,
+  "chat.agentSessionsViewLocation": "view",
+  "chat.edits2.enabled": true
 }
