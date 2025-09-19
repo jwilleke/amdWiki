@@ -36,26 +36,26 @@ class RenderingManager extends BaseManager {
    * @param {string} content - Markdown content
    * @param {string} pageName - Current page name
    * @param {object} userContext - User context for authentication variables
-   * @returns {string} Rendered HTML
+   * @returns {Promise<string>} Rendered HTML
    */
-  renderMarkdown(content, pageName, userContext = null, requestInfo = null) {
+  async renderMarkdown(content, pageName, userContext = null, requestInfo = null) {
     if (!content) return '';
 
     // Step 1: Expand macros
     let expandedContent = this.expandMacros(content, pageName, userContext, requestInfo);
-    
+
     // Step 2: Process JSPWiki-style tables
     expandedContent = this.processJSPWikiTables(expandedContent);
-    
+
     // Step 3: Process wiki-style links
-    expandedContent = this.processWikiLinks(expandedContent);
-    
+    expandedContent = await this.processWikiLinks(expandedContent);
+
     // Step 4: Convert to HTML
     const html = this.converter.makeHtml(expandedContent);
-    
+
     // Step 5: Post-process tables with styling
     const finalHtml = this.postProcessTables(html);
-    
+
     return finalHtml;
   }
 
@@ -293,6 +293,7 @@ class RenderingManager extends BaseManager {
    * @returns {string} Content with expanded macros
    */
   expandMacros(content, pageName, userContext = null, requestInfo = null) {
+    console.log('DEBUG: expandMacros called with content:', content, 'pageName:', pageName);
     let expandedContent = content;
 
     // Step 1: Protect code blocks and escaped syntax
@@ -326,8 +327,10 @@ class RenderingManager extends BaseManager {
       // Handle system variables (${variable}) and plugins ({PluginName params})
       expandedContent = expandedContent.replace(/\[\{([^}]+)\}\]/g, (match, content) => {
         try {
+          console.log('DEBUG: RenderingManager found macro:', match, 'content:', content);
           // Check if it's a system variable (starts with $)
           if (content.startsWith('$')) {
+            console.log('DEBUG: RenderingManager detected system variable, calling expandAllVariables with pageName:', pageName);
             return this.expandAllVariables(`[{${content}}]`, userContext, pageName, requestInfo);
           }
           
@@ -608,17 +611,29 @@ class RenderingManager extends BaseManager {
   /**
    * Process wiki-style links [PageName]
    * @param {string} content - Content with wiki links
-   * @returns {string} Content with processed links
+   * @returns {Promise<string>} Content with processed links
    */
-  processWikiLinks(content) {
+  async processWikiLinks(content) {
     try {
       const pageManager = this.engine.getManager('PageManager');
       if (!pageManager) {
         return content;
       }
 
-      // Get all existing page names (this should be cached in practice)
-      const pageNames = this.cachedPageNames || [];
+      // Get all existing page names (use cached if available, otherwise get fresh)
+      let pageNames = this.cachedPageNames || [];
+
+      // If no cached page names, try to get them fresh
+      if (pageNames.length === 0 && pageManager) {
+        try {
+          const pages = await pageManager.getAllPages();
+          pageNames = pages.map(page => page.name);
+          this.cachedPageNames = pageNames; // Update cache
+        } catch (err) {
+          console.warn('Could not get page names for link processing:', err);
+          pageNames = [];
+        }
+      }
       
       // Process wiki links with extended pipe syntax [DisplayText|Target|Parameters] and simple links [PageName]
       return content.replace(/\[([a-zA-Z0-9_\- ]+)(?:\|([a-zA-Z0-9_\-\/ .:?=&]+))?(?:\|([^|\]]+))?\]/g, (match, displayText, target, params) => {
@@ -773,10 +788,10 @@ class RenderingManager extends BaseManager {
    * @param {string} content - Markdown content
    * @param {string} pageName - Page name for context
    * @param {object} userContext - User context for authentication variables
-   * @returns {string} Rendered HTML preview
+   * @returns {Promise<string>} Rendered HTML preview
    */
-  renderPreview(content, pageName, userContext = null) {
-    return this.renderMarkdown(content, pageName, userContext);
+  async renderPreview(content, pageName, userContext = null) {
+    return await this.renderMarkdown(content, pageName, userContext);
   }
 
   /**
@@ -840,9 +855,9 @@ class RenderingManager extends BaseManager {
       const pageExists = pageManager && pageManager.pageExists && pageManager.pageExists(pageName);
 
       if (pageExists) {
-        return `<a href="/view/${encodeURIComponent(pageName)}">${displayText}</a>`;
+        return `<a href="/wiki/${encodeURIComponent(pageName)}" class="wikipage">${displayText}</a>`;
       } else {
-        return `<a href="/view/${encodeURIComponent(pageName)}" class="red-link">${displayText}</a>`;
+        return `<a href="/edit/${encodeURIComponent(pageName)}" style="color: red;" class="redlink">${displayText}</a>`;
       }
     });
   }
@@ -920,23 +935,13 @@ class RenderingManager extends BaseManager {
    * @param {string} content - Raw page content
    * @param {string} pageName - Page name
    * @param {object} userContext - User context
-   * @returns {string} Fully rendered HTML
+   * @returns {Promise<string>} Fully rendered HTML
    */
-  renderPage(content, pageName, userContext = null) {
+  async renderPage(content, pageName, userContext = null) {
     if (!content) return '';
 
-    let processedContent = content;
-
-    // Step 1: Process plugins
-    processedContent = this.renderPlugins(processedContent);
-
-    // Step 2: Process wiki links
-    processedContent = this.renderWikiLinks(processedContent);
-
-    // Step 3: Render markdown (this includes variable expansion via expandMacros)
-    processedContent = this.renderMarkdown(processedContent, pageName, userContext);
-
-    return processedContent;
+    // Use renderMarkdown which already handles all processing steps correctly
+    return await this.renderMarkdown(content, pageName, userContext);
   }
 }
 

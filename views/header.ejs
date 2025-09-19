@@ -248,43 +248,337 @@
     
     // JSPWiki-style Info dropdown functions
     function showPageInfo() {
-        const currentPage = window.location.pathname.split('/wiki/')[1] || 'Unknown';
+        const currentPage = window.location.pathname.split('/wiki/')[1];
+        if (!currentPage) {
+            alert('No page selected for information');
+            return;
+        }
+
         const decodedPage = decodeURIComponent(currentPage);
-        
-        const infoModal = `
+
+        // Show loading modal first
+        showPageInfoModal(decodedPage, null, true);
+
+        // Use a timeout to give the loading modal time to appear, then fetch data
+        setTimeout(() => {
+            // Fetch page metadata from the API
+            fetch(`/api/page-metadata/${encodeURIComponent(currentPage)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('API not available');
+                    }
+                    return response.json();
+                })
+                .then(metadata => {
+                    // Replace loading modal with actual data
+                    showPageInfoModal(decodedPage, metadata, false);
+                })
+                .catch(error => {
+                    console.warn('API fetch failed, using client-side data:', error.message);
+                    // Fallback to client-side metadata extraction
+                    const clientMetadata = extractClientSideMetadata(decodedPage);
+                    showPageInfoModal(decodedPage, clientMetadata, false);
+                });
+        }, 100);
+    }
+
+    function extractClientSideMetadata(pageName) {
+        // Extract basic metadata from the current page
+        const content = document.querySelector('.wiki-content, .page-content, main');
+        const contentText = content ? content.textContent || content.innerText || '' : '';
+
+        // Calculate basic stats
+        const wordCount = contentText.replace(/[^\w\s]/g, '').split(/\s+/).filter(word => word.length > 0).length;
+        const characterCount = contentText.length;
+        const lineCount = contentText.split('\n').length;
+
+        // Try to extract title from the page
+        const titleElement = document.querySelector('h1, .page-title, title');
+        const title = titleElement ? titleElement.textContent.replace(' | AMD Wiki', '') : pageName;
+
+        return {
+            title: title || pageName,
+            slug: pageName,
+            uuid: 'Not available (client-side)',
+            category: 'general',
+            keywords: [],
+            tags: [],
+            created: null,
+            lastModified: null,
+            lastAccessed: null,
+            stats: {
+                wordCount: wordCount,
+                characterCount: characterCount,
+                lineCount: lineCount,
+                fileSize: null
+            },
+            author: null,
+            description: null,
+            version: null,
+            status: 'published',
+            schemaType: null,
+            schemaData: null,
+            custom: {}
+        };
+    }
+
+    function showPageInfoModal(pageName, metadata, isLoading, errorMessage) {
+        const modalContent = generatePageInfoModalContent(pageName, metadata, isLoading, errorMessage);
+
+        // Remove existing modal if any
+        const existingModal = document.getElementById('pageInfoModal');
+        if (existingModal) {
+            // If modal exists and is shown, hide it first
+            const existingModalInstance = bootstrap.Modal.getInstance(existingModal);
+            if (existingModalInstance) {
+                existingModalInstance.hide();
+            }
+            existingModal.remove();
+        }
+
+        // Add modal to DOM
+        document.body.insertAdjacentHTML('beforeend', modalContent);
+
+        // Show modal with a small delay to ensure DOM is ready
+        setTimeout(() => {
+            const modalElement = document.getElementById('pageInfoModal');
+            const modal = new bootstrap.Modal(modalElement);
+
+            // Clean up when modal is hidden
+            modalElement.addEventListener('hidden.bs.modal', function () {
+                modal.dispose();
+                if (modalElement.parentNode) {
+                    modalElement.remove();
+                }
+            });
+
+            modal.show();
+        }, 10);
+    }
+
+    function generatePageInfoModalContent(pageName, metadata, isLoading, errorMessage) {
+        if (isLoading) {
+            return `
+                <div class="modal fade" id="pageInfoModal" tabindex="-1">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">
+                                    <i class="fas fa-info-circle"></i> Page Information: ${pageName}
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body text-center">
+                                <div class="spinner-border" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <p class="mt-2">Loading page information...</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        if (errorMessage) {
+            return `
+                <div class="modal fade" id="pageInfoModal" tabindex="-1">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">
+                                    <i class="fas fa-info-circle"></i> Page Information: ${pageName}
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="alert alert-danger">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    Failed to load page information: ${errorMessage}
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Format dates for display
+        function formatDate(dateStr) {
+            if (!dateStr) return 'Not available';
+            try {
+                return new Date(dateStr).toLocaleString();
+            } catch (e) {
+                return dateStr;
+            }
+        }
+
+        // Format file size for display
+        function formatFileSize(bytes) {
+            if (!bytes) return 'Not available';
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            if (bytes === 0) return '0 Bytes';
+            const i = Math.floor(Math.log(bytes) / Math.log(1024));
+            return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        // Generate keywords display
+        function formatKeywords(keywords) {
+            if (!keywords || keywords.length === 0) return 'None';
+            return keywords.map(keyword => `<span class="badge bg-secondary me-1">${keyword}</span>`).join('');
+        }
+
+        // Generate custom metadata display
+        function formatCustomMetadata(customData) {
+            if (!customData || Object.keys(customData).length === 0) return '';
+
+            let customRows = '';
+            for (const [key, value] of Object.entries(customData)) {
+                customRows += `<tr><td><strong>${key}:</strong></td><td>${value}</td></tr>`;
+            }
+
+            return customRows ? `
+                <tr><td colspan="2" class="table-warning"><strong>Custom Metadata</strong></td></tr>
+                ${customRows}
+            ` : '';
+        }
+
+        return `
             <div class="modal fade" id="pageInfoModal" tabindex="-1">
-                <div class="modal-dialog modal-lg">
+                <div class="modal-dialog modal-xl">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title">
-                                <i class="fas fa-info-circle"></i> Page Information: ${decodedPage}
+                                <i class="fas fa-info-circle"></i> Page Information: ${metadata.title || pageName}
                             </h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
                         <div class="modal-body">
-                            <table class="table table-bordered">
-                                <tr><td><strong>Page Name:</strong></td><td>${decodedPage}</td></tr>
-                                <tr><td><strong>URL:</strong></td><td>${window.location.href}</td></tr>
-                                <tr><td><strong>Last Modified:</strong></td><td>Recently</td></tr>
-                                <tr><td><strong>Version:</strong></td><td>Current</td></tr>
-                                <tr><td><strong>Size:</strong></td><td>Calculating...</td></tr>
-                            </table>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6><i class="fas fa-file-alt"></i> Basic Information</h6>
+                                    <table class="table table-bordered table-sm">
+                                        <tr><td><strong>Title:</strong></td><td>${metadata.title || 'Untitled'}</td></tr>
+                                        <tr><td><strong>Page Name:</strong></td><td>${pageName}</td></tr>
+                                        <tr><td><strong>Slug:</strong></td><td>${metadata.slug || 'Not set'}</td></tr>
+                                        <tr><td><strong>UUID:</strong></td><td><code class="small">${metadata.uuid || 'Not available'}</code></td></tr>
+                                        <tr><td><strong>Category:</strong></td><td><span class="badge bg-primary">${metadata.category}</span></td></tr>
+                                        <tr><td><strong>Status:</strong></td><td><span class="badge bg-success">${metadata.status}</span></td></tr>
+                                        <tr><td><strong>URL:</strong></td><td><small>${window.location.href}</small></td></tr>
+                                    </table>
+
+                                    <h6><i class="fas fa-tags"></i> Classification</h6>
+                                    <table class="table table-bordered table-sm">
+                                        <tr><td><strong>Keywords:</strong></td><td>${formatKeywords(metadata.keywords)}</td></tr>
+                                        <tr><td><strong>Author:</strong></td><td>${metadata.author || 'Not specified'}</td></tr>
+                                        <tr><td><strong>Description:</strong></td><td>${metadata.description || 'No description available'}</td></tr>
+                                        <tr><td><strong>Version:</strong></td><td>${metadata.version || 'Not versioned'}</td></tr>
+                                    </table>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <h6><i class="fas fa-clock"></i> Timestamps</h6>
+                                    <table class="table table-bordered table-sm">
+                                        <tr><td><strong>Created:</strong></td><td>${formatDate(metadata.created)}</td></tr>
+                                        <tr><td><strong>Last Modified:</strong></td><td>${formatDate(metadata.lastModified)}</td></tr>
+                                        <tr><td><strong>Last Accessed:</strong></td><td>${formatDate(metadata.lastAccessed)}</td></tr>
+                                    </table>
+
+                                    <h6><i class="fas fa-chart-bar"></i> Content Statistics</h6>
+                                    <table class="table table-bordered table-sm">
+                                        <tr><td><strong>Word Count:</strong></td><td>${metadata.stats.wordCount || 0} words</td></tr>
+                                        <tr><td><strong>Character Count:</strong></td><td>${metadata.stats.characterCount || 0} characters</td></tr>
+                                        <tr><td><strong>Line Count:</strong></td><td>${metadata.stats.lineCount || 0} lines</td></tr>
+                                        <tr><td><strong>File Size:</strong></td><td>${formatFileSize(metadata.stats.fileSize)}</td></tr>
+                                    </table>
+
+                                    ${metadata.schemaType ? `
+                                        <h6><i class="fas fa-code"></i> Schema.org Data</h6>
+                                        <table class="table table-bordered table-sm">
+                                            <tr><td><strong>Schema Type:</strong></td><td><code>${metadata.schemaType}</code></td></tr>
+                                            <tr><td><strong>Structured Data:</strong></td><td>${metadata.schemaData ? 'Available' : 'None'}</td></tr>
+                                        </table>
+                                    ` : ''}
+                                </div>
+                            </div>
+
+                            ${Object.keys(metadata.custom).length > 0 ? `
+                                <div class="row mt-3">
+                                    <div class="col-12">
+                                        <h6><i class="fas fa-cogs"></i> Additional Metadata</h6>
+                                        <table class="table table-bordered table-sm">
+                                            ${formatCustomMetadata(metadata.custom)}
+                                        </table>
+                                    </div>
+                                </div>
+                            ` : ''}
                         </div>
                         <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="copyPageUrl()">
+                                <i class="fas fa-copy"></i> Copy URL
+                            </button>
                             <button type="button" class="btn" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);" data-bs-dismiss="modal">Close</button>
                         </div>
                     </div>
                 </div>
             </div>
         `;
-        
-        // Remove existing modal if any
-        const existingModal = document.getElementById('pageInfoModal');
-        if (existingModal) existingModal.remove();
-        
-        // Add modal to DOM and show
-        document.body.insertAdjacentHTML('beforeend', infoModal);
-        new bootstrap.Modal(document.getElementById('pageInfoModal')).show();
+    }
+
+    function copyPageUrl() {
+        const url = window.location.href;
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(url).then(() => {
+                showTemporaryMessage('Page URL copied to clipboard!', 'success');
+            }).catch(() => {
+                showTemporaryMessage('Failed to copy URL', 'error');
+            });
+        } else {
+            // Fallback for older browsers
+            const textArea = document.createElement('textarea');
+            textArea.value = url;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            textArea.style.top = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showTemporaryMessage('Page URL copied to clipboard!', 'success');
+            } catch (err) {
+                showTemporaryMessage('Failed to copy URL', 'error');
+            }
+            document.body.removeChild(textArea);
+        }
+    }
+
+    function showTemporaryMessage(message, type) {
+        const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+        const iconClass = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
+
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert ${alertClass} alert-dismissible fade show position-fixed`;
+        alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+        alertDiv.innerHTML = `
+            <i class="${iconClass}"></i> ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+
+        document.body.appendChild(alertDiv);
+
+        // Auto-remove after 3 seconds
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                alertDiv.remove();
+            }
+        }, 3000);
     }
     
     function showPageHistory() {

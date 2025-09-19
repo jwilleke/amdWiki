@@ -68,7 +68,7 @@ class WikiRoutes {
         // Remove ACL markup and render footer content with user context
         const cleanContent = aclManager.removeACLMarkup(footerPage.content);
         const requestInfo = req ? this.getRequestInfo(req) : null;
-        footerContent = renderingManager.renderMarkdown(cleanContent, 'Footer', userContext, requestInfo);
+        footerContent = await renderingManager.renderMarkdown(cleanContent, 'Footer', userContext, requestInfo);
       }
     } catch (error) {
       console.warn('Could not load footer content:', error.message);
@@ -89,7 +89,7 @@ class WikiRoutes {
         // Remove ACL markup and render left menu content with user context
         const cleanContent = aclManager.removeACLMarkup(leftMenuPage.content);
         const requestInfo = req ? this.getRequestInfo(req) : null;
-        leftMenuContent = renderingManager.renderMarkdown(cleanContent, 'LeftMenu', userContext, requestInfo);
+        leftMenuContent = await renderingManager.renderMarkdown(cleanContent, 'LeftMenu', userContext, requestInfo);
       }
     } catch (error) {
       console.warn('Could not load left menu content:', error.message);
@@ -437,7 +437,7 @@ class WikiRoutes {
       
       // Render markdown to HTML with user context (this will automatically expand system variables)
       const requestInfo = null; // getLeftMenu doesn't have access to req currently
-      const renderedContent = renderingManager.renderMarkdown(leftMenuPage.content, 'LeftMenu', userContext, requestInfo);
+      const renderedContent = await renderingManager.renderMarkdown(leftMenuPage.content, 'LeftMenu', userContext, requestInfo);
       
       // Format for Bootstrap navigation
       return this.formatLeftMenuContent(renderedContent);
@@ -524,7 +524,7 @@ class WikiRoutes {
       
       // Render the markdown content with user context and request info
       const requestInfo = this.getRequestInfo(req);
-      const renderedContent = renderingManager.renderMarkdown(cleanContent, pageName, commonData.user, requestInfo);
+      const renderedContent = await renderingManager.renderMarkdown(cleanContent, pageName, commonData.user, requestInfo);
       
       // Get referring pages for context
       const referringPages = renderingManager.getReferringPages(pageName);
@@ -1251,26 +1251,32 @@ class WikiRoutes {
    * API endpoint to get page preview
    */
   async previewPage(req, res) {
+    console.log('!!! PREVIEW PAGE METHOD CALLED !!!');
     try {
       const { content, pageName } = req.body;
       const renderingManager = this.engine.getManager('RenderingManager');
-      const userManager = this.engine.getManager('UserManager');
-      
-      // Get current user context for authentication variables
-      const currentUser = await userManager.getCurrentUser(req);
-      
-      const renderedContent = renderingManager.renderPage(content, pageName, currentUser);
-      
-      res.json({ 
+
+      // Get common template data with user (same as viewPage for consistency)
+      const commonData = await this.getCommonTemplateDataWithUser(req);
+
+      // Get request info for consistency with actual page rendering
+      const requestInfo = this.getRequestInfo(req);
+
+      console.log('DEBUG: previewPage calling renderMarkdown with content:', content, 'pageName:', pageName);
+      console.log('DEBUG: previewPage using user context:', commonData.user);
+      const renderedContent = await renderingManager.renderMarkdown(content, pageName, commonData.user, requestInfo);
+      console.log('DEBUG: previewPage received renderedContent:', renderedContent);
+
+      res.json({
         html: renderedContent,
-        success: true 
+        success: true
       });
-      
+
     } catch (err) {
       console.error('Error generating preview:', err);
-      res.status(500).json({ 
+      res.status(500).json({
         error: 'Error generating preview',
-        success: false 
+        success: false
       });
     }
   }
@@ -3062,6 +3068,16 @@ class WikiRoutes {
    * @param {Express} app - Express application instance
    */
   registerRoutes(app) {
+    // API routes first to prevent conflicts
+    console.log('ROUTES DEBUG: Registering /api/preview route');
+    app.post('/api/preview', (req, res) => this.previewPage(req, res));
+    console.log('ROUTES DEBUG: Registering /api/test route');
+    app.get('/api/test', (req, res) => res.json({ message: 'API working!' }));
+    console.log('ROUTES DEBUG: Registering /api/page-metadata/:page route');
+    app.get('/api/page-metadata/:page', (req, res) => this.getPageMetadata(req, res));
+    console.log('ROUTES DEBUG: Registering /api/page-source/:page route');
+    app.get('/api/page-source/:page', (req, res) => this.getPageSource(req, res));
+
     // Public routes
     app.get('/', (req, res) => this.homePage(req, res));
     app.get('/wiki/:page', (req, res) => this.viewPage(req, res));
@@ -3113,8 +3129,6 @@ class WikiRoutes {
     app.get('/admin/organizations/:identifier', this.adminGetOrganization.bind(this));
     app.get('/admin/organizations/:identifier/schema', this.adminGetOrganizationSchema.bind(this));
 
-    // API routes
-    app.post('/api/preview', (req, res) => this.previewPage(req, res));
 
     // Schema.org routes
     app.get('/schema/person/:identifier', (req, res) => this.adminGetPersonSchema(req, res));
@@ -3388,6 +3402,103 @@ class WikiRoutes {
     } catch (err) {
       console.error('Error exporting audit logs:', err);
       res.status(500).send('Error exporting audit logs');
+    }
+  }
+
+  /**
+   * Get page metadata in a user-friendly format
+   */
+  async getPageMetadata(req, res) {
+    console.log('🔍 getPageMetadata called for page:', req.params.page);
+    try {
+      const pageName = decodeURIComponent(req.params.page);
+      const pageManager = this.engine.getManager('PageManager');
+
+      const page = await pageManager.getPage(pageName);
+      if (!page) {
+        return res.status(404).json({ error: 'Page not found' });
+      }
+
+      // Extract metadata from the page
+      const metadata = page.frontMatter || {};
+      const content = page.content || '';
+
+      // Calculate content statistics
+      const wordCount = content.replace(/[^\w\s]/g, '').split(/\s+/).filter(word => word.length > 0).length;
+      const characterCount = content.length;
+      const lineCount = content.split('\n').length;
+
+      // Get file stats if available
+      const fs = require('fs-extra');
+      const path = require('path');
+      let fileStats = null;
+
+      try {
+        const filePath = path.join(process.cwd(), 'pages', `${page.uuid}.md`);
+        const stats = await fs.stat(filePath);
+        fileStats = {
+          size: stats.size,
+          created: stats.birthtime,
+          modified: stats.mtime,
+          accessed: stats.atime
+        };
+      } catch (error) {
+        // File stats not available
+      }
+
+      // Format the metadata for user-friendly display
+      const formattedMetadata = {
+        // Basic page info
+        title: metadata.title || pageName,
+        slug: metadata.slug || pageName,
+        uuid: metadata.uuid || page.uuid,
+
+        // Categorization and tags
+        category: metadata['system-category'] || metadata.category || 'general',
+        keywords: Array.isArray(metadata['user-keywords']) ? metadata['user-keywords'] :
+                 (metadata.keywords ? metadata.keywords.split(',').map(k => k.trim()) : []),
+        tags: metadata.tags || [],
+
+        // Timestamps
+        created: fileStats?.created || null,
+        lastModified: metadata.lastModified || fileStats?.modified || null,
+        lastAccessed: fileStats?.accessed || null,
+
+        // Content statistics
+        stats: {
+          wordCount: wordCount,
+          characterCount: characterCount,
+          lineCount: lineCount,
+          fileSize: fileStats?.size || null
+        },
+
+        // Additional metadata
+        author: metadata.author || null,
+        description: metadata.description || null,
+        version: metadata.version || null,
+        status: metadata.status || 'published',
+
+        // Schema.org data if present
+        schemaType: metadata.schemaType || null,
+        schemaData: metadata.schemaData || null,
+
+        // Custom metadata
+        custom: {}
+      };
+
+      // Add any custom metadata fields not already handled
+      for (const [key, value] of Object.entries(metadata)) {
+        if (!['title', 'slug', 'uuid', 'system-category', 'category', 'user-keywords', 'keywords', 'tags',
+              'lastModified', 'author', 'description', 'version', 'status', 'schemaType', 'schemaData'].includes(key)) {
+          formattedMetadata.custom[key] = value;
+        }
+      }
+
+      res.json(formattedMetadata);
+
+    } catch (error) {
+      console.error('Error retrieving page metadata:', error);
+      res.status(500).json({ error: 'Internal server error', details: error.message });
     }
   }
 }

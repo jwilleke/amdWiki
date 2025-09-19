@@ -14,9 +14,10 @@ const mockEngine = {
 
 const mockPageManager = {
   getAllPages: jest.fn().mockReturnValue([
-    { title: 'Welcome', content: 'Welcome to the wiki' },
-    { title: 'Test Page', content: '[Welcome] is linked here' }
-  ])
+    { name: 'Welcome', content: 'Welcome to the wiki' },
+    { name: 'Test Page', content: '[Welcome] is linked here' }
+  ]),
+  pageExists: jest.fn().mockImplementation(pageName => ['Welcome', 'Test Page'].includes(pageName))
 };
 
 describe('RenderingManager', () => {
@@ -50,7 +51,7 @@ describe('RenderingManager', () => {
       const content = 'See [Welcome] for more info';
       const result = renderingManager.renderWikiLinks(content);
       
-      expect(result).toContain('<a href="/view/Welcome"');
+      expect(result).toContain('<a href="/wiki/Welcome"');
       expect(result).toContain('Welcome</a>');
     });
 
@@ -58,7 +59,7 @@ describe('RenderingManager', () => {
       const content = 'Check out [the main page|Welcome]';
       const result = renderingManager.renderWikiLinks(content);
       
-      expect(result).toContain('<a href="/view/Welcome"');
+      expect(result).toContain('<a href="/wiki/Welcome"');
       expect(result).toContain('the main page</a>');
     });
 
@@ -132,7 +133,7 @@ describe('RenderingManager', () => {
       
       const result = await renderingManager.renderPage(markdown, userContext);
       
-      expect(result).toContain('<a href="/view/Welcome"');
+      expect(result).toContain('<a href="/wiki/Welcome"');
       expect(result).toContain('<strong>bold text</strong>');
     });
   });
