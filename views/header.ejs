@@ -256,11 +256,12 @@
 
         const decodedPage = decodeURIComponent(currentPage);
 
-        // Show loading modal first
+        // Show loading modal first and wait for it to be fully rendered
         showPageInfoModal(decodedPage, null, true);
 
-        // Use a timeout to give the loading modal time to appear, then fetch data
-        setTimeout(() => {
+        // Fetch data immediately after modal is shown (no artificial delay)
+        // Use requestAnimationFrame to ensure DOM is fully updated before fetching
+        requestAnimationFrame(() => {
             // Fetch page metadata from the API
             fetch(`/api/page-metadata/${encodeURIComponent(currentPage)}`)
                 .then(response => {
@@ -279,7 +280,7 @@
                     const clientMetadata = extractClientSideMetadata(decodedPage);
                     showPageInfoModal(decodedPage, clientMetadata, false);
                 });
-        }, 100);
+        });
     }
 
     function extractClientSideMetadata(pageName) {
@@ -323,37 +324,58 @@
     }
 
     function showPageInfoModal(pageName, metadata, isLoading, errorMessage) {
-        const modalContent = generatePageInfoModalContent(pageName, metadata, isLoading, errorMessage);
+        // Clean up any existing modal completely before creating new one
+        cleanupExistingModal();
 
-        // Remove existing modal if any
-        const existingModal = document.getElementById('pageInfoModal');
-        if (existingModal) {
-            // If modal exists and is shown, hide it first
-            const existingModalInstance = bootstrap.Modal.getInstance(existingModal);
-            if (existingModalInstance) {
-                existingModalInstance.hide();
-            }
-            existingModal.remove();
-        }
+        const modalContent = generatePageInfoModalContent(pageName, metadata, isLoading, errorMessage);
 
         // Add modal to DOM
         document.body.insertAdjacentHTML('beforeend', modalContent);
 
-        // Show modal with a small delay to ensure DOM is ready
-        setTimeout(() => {
+        // Show modal immediately using requestAnimationFrame for proper timing
+        requestAnimationFrame(() => {
             const modalElement = document.getElementById('pageInfoModal');
+            if (!modalElement) {
+                console.error('Modal element not found after insertion');
+                return;
+            }
+
             const modal = new bootstrap.Modal(modalElement);
 
             // Clean up when modal is hidden
             modalElement.addEventListener('hidden.bs.modal', function () {
                 modal.dispose();
-                if (modalElement.parentNode) {
+                if (modalElement && modalElement.parentNode) {
                     modalElement.remove();
                 }
             });
 
             modal.show();
-        }, 10);
+        });
+    }
+
+    function cleanupExistingModal() {
+        const existingModal = document.getElementById('pageInfoModal');
+        if (existingModal) {
+            // Properly dispose of Bootstrap modal instance
+            const existingModalInstance = bootstrap.Modal.getInstance(existingModal);
+            if (existingModalInstance) {
+                existingModalInstance.dispose();
+            }
+            
+            // Remove from DOM
+            existingModal.remove();
+            
+            // Remove any backdrop that might be lingering
+            const backdrop = document.querySelector('.modal-backdrop');
+            if (backdrop) {
+                backdrop.remove();
+            }
+            
+            // Ensure body classes are cleaned up
+            document.body.classList.remove('modal-open');
+            document.body.style.paddingRight = '';
+        }
     }
 
     function generatePageInfoModalContent(pageName, metadata, isLoading, errorMessage) {
