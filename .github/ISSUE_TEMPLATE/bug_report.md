@@ -3,7 +3,7 @@ name: Bug Report
 about: Create a report to help us improve amdWiki
 title: "[BUG] "
 labels: bug
-assignees: ''
+assignees: jwilleke
 
 ---
 
@@ -32,10 +32,10 @@ If applicable, add screenshots to help explain your problem.
 
 ## 🖥️ Environment
 
-- **OS**: [e.g. macOS, Windows, Linux]
-- **Node.js Version**: [e.g. 18.17.0]
-- **amdWiki Version**: [e.g. 1.3.1]
-- **Browser** (if UI issue): [e.g. Chrome 115, Firefox 116]
+- **OS**: Intel Mac OS X 10157
+- **Node.js Version**: v22.17.0
+- **amdWiki Version**: 1.3.2
+- **Browser** (if UI issue): [User Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10157) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36
 
 ## 📝 Additional Context
 
