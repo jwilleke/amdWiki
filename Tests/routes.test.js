@@ -3,6 +3,12 @@ const request = require('supertest');
 const path = require('path');
 const WikiRoutes = require('../src/routes/WikiRoutes');
 
+// Mock LocaleUtils
+jest.mock('../src/utils/LocaleUtils', () => ({
+  getDateFormatOptions: jest.fn().mockReturnValue(['MM/dd/yyyy', 'dd/MM/yyyy', 'yyyy-MM-dd']),
+  getDateFormatFromLocale: jest.fn().mockReturnValue('MM/dd/yyyy')
+}));
+
 // Mock the WikiEngine and its managers
 jest.mock('../src/WikiEngine', () => {
   // Create mock managers once
@@ -12,6 +18,7 @@ jest.mock('../src/WikiEngine', () => {
       displayName: 'Test User',
       email: 'test@example.com',
       isExternal: false,
+      isAuthenticated: true,
       createdAt: new Date('2023-01-01'),
       lastLogin: new Date('2024-01-01'),
       roles: ['authenticated']
@@ -53,6 +60,7 @@ jest.mock('../src/WikiEngine', () => {
       displayName: 'Test User',
       email: 'test@example.com',
       isExternal: false,
+      isAuthenticated: true,
       createdAt: new Date('2023-01-01'),
       lastLogin: new Date('2024-01-01'),
       roles: ['authenticated']
@@ -114,7 +122,11 @@ jest.mock('../src/WikiEngine', () => {
       if (callback) callback(null, '<html>Test Template</html>');
       return '<html>Test Template</html>';
     }),
-    getTemplates: jest.fn().mockResolvedValue(['template1', 'template2'])
+    getTemplates: jest.fn().mockResolvedValue(['basic', 'template1', 'template2']),
+    getTemplate: jest.fn().mockResolvedValue({
+      name: 'basic',
+      content: '# {{title}}\nTemplate content here'
+    })
   };
 
   const mockACLManager = {
@@ -137,6 +149,24 @@ jest.mock('../src/WikiEngine', () => {
     getOrganization: jest.fn().mockResolvedValue(null)
   };
 
+  const mockConfigurationManager = {
+    getProperty: jest.fn().mockReturnValue([]),
+    get: jest.fn().mockReturnValue(null)
+  };
+
+  const mockVariableManager = {
+    expandVariables: jest.fn().mockReturnValue('expanded content')
+  };
+
+  const mockExportManager = {
+    getExports: jest.fn().mockResolvedValue([])
+  };
+
+  const mockValidationManager = {
+    validateContent: jest.fn().mockResolvedValue({ isValid: true }),
+    validateMetadata: jest.fn().mockResolvedValue({ isValid: true })
+  };
+
   return jest.fn().mockImplementation(() => ({
     getManager: jest.fn((name) => {
       const mockManagers = {
@@ -147,7 +177,11 @@ jest.mock('../src/WikiEngine', () => {
         TemplateManager: mockTemplateManager,
         ACLManager: mockACLManager,
         NotificationManager: mockNotificationManager,
-        SchemaManager: mockSchemaManager
+        SchemaManager: mockSchemaManager,
+        ConfigurationManager: mockConfigurationManager,
+        VariableManager: mockVariableManager,
+        ExportManager: mockExportManager,
+        ValidationManager: mockValidationManager
       };
       return mockManagers[name] || {};
     }),
@@ -168,6 +202,15 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
   let mockPageManager;
   let mockACLManager;
 
+  // Helper function to create complete user objects
+  const createMockUser = (username = 'testuser', roles = ['authenticated'], isAuthenticated = true) => ({
+    username: username,
+    displayName: username === 'testuser' ? 'Test User' : 'User',
+    email: `${username}@example.com`,
+    isAuthenticated: isAuthenticated,
+    roles: roles
+  });
+
   beforeEach(() => {
     // Create Express app
     app = express();
@@ -178,9 +221,26 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
     app.set('view engine', 'ejs');
     app.set('views', path.join(__dirname, '../views'));
 
+    // Mock template rendering to avoid file system dependencies
+    app.use((req, res, next) => {
+      const originalRender = res.render;
+      res.render = (template, data, callback) => {
+        // Return success response for template renders
+        if (callback) {
+          callback(null, '<html>Mock Template Content</html>');
+        } else {
+          res.send('<html>Mock Template Content</html>');
+        }
+      };
+      next();
+    });
+
     // Mock session middleware
     app.use((req, res, next) => {
-      req.session = {};
+      req.session = {
+        csrfToken: 'test-csrf-token',
+        user: { username: 'testuser' }
+      };
       // Parse cookies from headers
       if (req.headers.cookie) {
         const cookie = require('cookie');
@@ -235,6 +295,8 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
     // Re-establish default mock implementations
     mockUserManager.getCurrentUser.mockResolvedValue({
       username: 'testuser',
+      displayName: 'Test User',
+      email: 'test@example.com',
       isAuthenticated: true,
       roles: ['authenticated']
     });
@@ -282,7 +344,11 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
       if (callback) callback(null, '<html>Test Template</html>');
       return '<html>Test Template</html>';
     });
-    mockTemplateManager.getTemplates.mockResolvedValue(['template1', 'template2']);
+    mockTemplateManager.getTemplates.mockResolvedValue(['basic', 'template1', 'template2']);
+    mockTemplateManager.getTemplate.mockResolvedValue({
+      name: 'basic',  
+      content: '# {{title}}\nTemplate content here'
+    });
     mockACLManager.checkPagePermission.mockResolvedValue(true);
     mockACLManager.removeACLMarkup.mockReturnValue('Content without ACL markup');
     mockACLManager.parseACL.mockReturnValue({ permissions: [] });
@@ -334,7 +400,10 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
       test('should return 200 for authenticated user', async () => {
         mockUserManager.getCurrentUser.mockResolvedValue({
           username: 'testuser',
-          isAuthenticated: true
+          displayName: 'Test User',
+          email: 'test@example.com',
+          isAuthenticated: true,
+          roles: ['authenticated']
         });
         mockUserManager.hasPermission.mockReturnValue(true);
         mockPageManager.getPage.mockResolvedValue({
@@ -349,9 +418,13 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
       test('should return 403 for unauthorized user', async () => {
         mockUserManager.getCurrentUser.mockResolvedValue({
           username: 'testuser',
-          isAuthenticated: true
+          displayName: 'Test User',
+          email: 'test@example.com',
+          isAuthenticated: true,
+          roles: ['authenticated']
         });
         mockUserManager.hasPermission.mockReturnValue(false);
+        mockACLManager.checkPagePermission.mockResolvedValue(false);
 
         const response = await request(app).get('/edit/TestPage');
         expect(response.status).toBe(403);
@@ -360,7 +433,7 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
 
     describe('POST /save/:page', () => {
       test('should save page successfully', async () => {
-        mockUserManager.getCurrentUser.mockResolvedValue({ username: 'testuser' });
+        mockUserManager.getCurrentUser.mockResolvedValue(createMockUser());
         mockUserManager.hasPermission.mockReturnValue(true);
         mockPageManager.savePage.mockResolvedValue(true);
 
@@ -368,6 +441,7 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
           .post('/save/TestPage')
           .send({
             content: '# Updated Content',
+            'system-category': 'general',
             _csrf: 'test-csrf-token'
           });
 
@@ -385,7 +459,7 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
 
     describe('GET /create', () => {
       test('should return 200 for authenticated user', async () => {
-        mockUserManager.getCurrentUser.mockResolvedValue({ username: 'testuser' });
+        mockUserManager.getCurrentUser.mockResolvedValue(createMockUser());
         mockUserManager.hasPermission.mockReturnValue(true);
 
         const response = await request(app).get('/create');
@@ -395,15 +469,25 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
 
     describe('POST /create', () => {
       test('should create page successfully', async () => {
-        mockUserManager.getCurrentUser.mockResolvedValue({ username: 'testuser' });
+        mockUserManager.getCurrentUser.mockResolvedValue(createMockUser());
         mockUserManager.hasPermission.mockReturnValue(true);
         mockPageManager.savePage.mockResolvedValue(true);
+        // Make sure the new page doesn't exist
+        mockPageManager.getPage.mockImplementation((pageName) => {
+          if (pageName === 'NewPage') return Promise.resolve(null);
+          if (pageName === 'Footer' || pageName === 'LeftMenu') return Promise.resolve(null);
+          return Promise.resolve({
+            content: '# Test Page\nThis is a test page.',
+            metadata: { title: 'TestPage' }
+          });
+        });
 
         const response = await request(app)
           .post('/create')
           .send({
-            title: 'New Page',
-            content: '# New Page\nContent here',
+            pageName: 'NewPage',
+            templateName: 'basic',
+            categories: ['general'],
             _csrf: 'test-csrf-token'
           });
 
@@ -413,7 +497,7 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
 
     describe('POST /delete/:page', () => {
       test('should delete page successfully', async () => {
-        mockUserManager.getCurrentUser.mockResolvedValue({ username: 'testuser' });
+        mockUserManager.getCurrentUser.mockResolvedValue(createMockUser());
         mockUserManager.hasPermission.mockReturnValue(true);
         mockPageManager.deletePage.mockResolvedValue(true);
         mockPageManager.isRequiredPage.mockResolvedValue(false);
@@ -426,9 +510,26 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
       });
 
       test('should prevent deletion of required pages', async () => {
-        mockUserManager.getCurrentUser.mockResolvedValue({ username: 'testuser' });
-        mockUserManager.hasPermission.mockReturnValue(true);
-        mockPageManager.isRequiredPage.mockResolvedValue(true);
+        mockUserManager.getCurrentUser.mockResolvedValue(createMockUser());
+        // Allow general permissions but deny admin:system
+        mockUserManager.hasPermission.mockImplementation((username, permission) => {
+          if (permission === 'admin:system') return false;
+          return true;
+        });
+        // Make TestPage a required page by setting it to Categories (hardcoded required)
+        mockPageManager.getPage.mockImplementation((pageName) => {
+          if (pageName === 'Categories' || pageName === 'TestPage') {
+            return Promise.resolve({
+              content: '# Test Page\nThis is a test page.',
+              metadata: { title: 'TestPage', category: 'System/Admin' }
+            });
+          }
+          if (pageName === 'Footer' || pageName === 'LeftMenu') return Promise.resolve(null);
+          return Promise.resolve({
+            content: '# Test Page\nThis is a test page.',
+            metadata: { title: 'TestPage' }
+          });
+        });
 
         const response = await request(app)
           .post('/delete/TestPage')
