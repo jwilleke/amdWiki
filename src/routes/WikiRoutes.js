@@ -1003,8 +1003,20 @@ class WikiRoutes {
       if (!systemCategory || typeof systemCategory !== 'string' || systemCategory.trim() === '') {
         return res.status(400).send('A system-category is required');
       }
-      // Validate user keywords
-      let userKeywordsArray = Array.isArray(userKeywords) ? userKeywords : (userKeywords ? [userKeywords] : []);
+      // Validate user keywords (preserve existing if none submitted)
+      const submittedUserKeywords =
+             typeof req.body.userKeywords !== 'undefined' ? req.body.userKeywords :
+        (typeof req.body['user-keywords'] !== 'undefined' ? req.body['user-keywords'] : undefined);
+
+      let userKeywordsArray;
+      if (typeof submittedUserKeywords === 'undefined') {
+      // No keywords submitted: keep existing ones
+        userKeywordsArray = existingPage?.metadata?.['user-keywords'] || [];
+      } else {
+        userKeywordsArray = Array.isArray(submittedUserKeywords)
+          ? submittedUserKeywords
+          : (submittedUserKeywords ? [submittedUserKeywords] : []);
+      }
 
       // Prepare metadata ONCE, preserving UUID if editing
       let baseMetadata = {
