@@ -1471,7 +1471,7 @@ class WikiRoutes {
    */
   async exportPage(req, res) {
     try {
-      const commonData = await this.getCommonTemplateData();
+      const commonData = await this.getCommonTemplateDataWithUser(req);
       const pageManager = this.engine.getManager('PageManager');
       const pageNames = await pageManager.getPageNames();
       
@@ -1532,7 +1532,7 @@ class WikiRoutes {
    */
   async listExports(req, res) {
     try {
-      const commonData = await this.getCommonTemplateData();
+      const commonData = await this.getCommonTemplateDataWithUser(req);
       const exportManager = this.engine.getManager('ExportManager');
       const exports = await exportManager.getExports();
       
@@ -1772,7 +1772,7 @@ class WikiRoutes {
       const freshUser = await userManager.getUser(currentUser.username);
       console.log('DEBUG: profilePage - fresh user preferences:', freshUser ? freshUser.preferences : 'no fresh user');
       
-      const commonData = await this.getCommonTemplateData();
+      const commonData = await this.getCommonTemplateDataWithUser(req);
       const userPermissions = await userManager.getUserPermissions(currentUser.username);
 
       // Get timezone and date format configuration
