@@ -545,6 +545,97 @@ class UserManager extends BaseManager {
   }
 
   /**
+   * Check if a display name conflicts with existing page names or other users
+   * @param {string} displayName - Display name to check
+   * @param {string} excludeUsername - Username to exclude from the check (for updates)
+   * @returns {boolean} True if conflict exists
+   */
+  async checkDisplayNamePageConflict(displayName, excludeUsername = null) {
+    try {
+      // Check if display name is already used by another user
+      for (const [username, user] of this.users) {
+        if (username !== excludeUsername && user.displayName === displayName) {
+          return true; // Display name already in use by another user
+        }
+      }
+
+      const pageManager = this.engine.getManager('PageManager');
+      if (!pageManager) {
+        return false; // If no page manager, no conflict possible
+      }
+      
+      // Check if page exists with this name (as title, slug, or exact match)
+      const existingPage = await pageManager.getPage(displayName);
+      return existingPage !== null;
+    } catch (error) {
+      console.error('Error checking display name page conflict:', error);
+      return false; // On error, assume no conflict to avoid blocking registration
+    }
+  }
+
+  /**
+   * Create a user page for a new user
+   * @param {Object} user - User object
+   * @returns {boolean} True if user page was created successfully
+   */
+  async createUserPage(user) {
+    try {
+      const pageManager = this.engine.getManager('PageManager');
+      if (!pageManager) {
+        console.warn('PageManager not available, cannot create user page');
+        return false;
+      }
+
+      const templateManager = this.engine.getManager('TemplateManager');
+      if (!templateManager) {
+        console.warn('TemplateManager not available, cannot create user page');
+        return false;
+      }
+
+      // Check if user page already exists
+      const existingPage = await pageManager.getPage(user.displayName);
+      if (existingPage) {
+        console.log(`User page already exists for ${user.displayName}`);
+        return true;
+      }
+
+      // Get user page template
+      const templateContent = await templateManager.getTemplate('user-page');
+      
+      // Populate template with user data
+      const populatedContent = await templateManager.populateTemplate(templateContent, {
+        displayName: user.displayName,
+        username: user.username,
+        createdDate: new Date(user.createdAt).toLocaleDateString(),
+        userKeywords: ['user-page', user.displayName.toLowerCase().replace(/\s+/g, '-')]
+      });
+
+      // Generate metadata for the user page
+      const validationManager = this.engine.getManager('ValidationManager');
+      const metadata = validationManager.generateValidMetadata(user.displayName, {
+        'user-keywords': ['user-page', user.displayName.toLowerCase().replace(/\s+/g, '-')],
+        'system-category': 'User Pages',
+        created: user.createdAt,
+        author: user.username
+      });
+
+      // Save the user page
+      const result = await pageManager.savePage(user.displayName, populatedContent, metadata, user);
+      
+      if (result.success) {
+        console.log(`✅ Created user page for ${user.displayName}`);
+        return true;
+      } else {
+        console.error(`❌ Failed to create user page for ${user.displayName}:`, result.error);
+        return false;
+      }
+    } catch (error) {
+      console.error(`❌ Error creating user page for ${user.displayName}:`, error);
+      return false;
+    }
+  }
+
+  /**
    * Create new user
    * @param {Object} userData - User data
    * @returns {Object} Created user (without password)
@@ -554,6 +645,13 @@ class UserManager extends BaseManager {
 
     if (this.users.has(username)) {
       throw new Error('Username already exists');
+    }
+
+    // Check for display name conflicts with existing pages
+    const finalDisplayName = displayName || username;
+    const hasPageConflict = await this.checkDisplayNamePageConflict(finalDisplayName);
+    if (hasPageConflict) {
+      throw new Error(`Display name "${finalDisplayName}" conflicts with an existing page. Please choose a different display name.`);
     }
 
     const hashedPassword = isExternal ? null : this.hashPassword(password);
@@ -651,6 +749,14 @@ class UserManager extends BaseManager {
     }
 
     console.log(`👤 Created user: ${username} (${isExternal ? 'External' : 'Local'})`);
+
+    // Create user page after successful user creation
+    try {
+      await this.createUserPage(user);
+    } catch (error) {
+      console.warn(`⚠️  Failed to create user page for ${username}:`, error.message);
+      // Don't fail user creation if user page creation fails
+    }
 
     // Return user without password
     const { password: _, ...userWithoutPassword } = user;
