@@ -94,7 +94,7 @@
     <div class="navigation" role="navigation">
         <div class="container-fluid">
             <div class="row">
-                <div class="col-8">
+                <div class="col-3">
                     <!-- Always show navigation controls -->
                         <ul class="nav nav-pills float-start">
                             <!-- Menu toggle button -->
@@ -119,7 +119,17 @@
                             </ul>
                     <% } %>
                 </div>
-                <div class="col-4">
+                <div class="col-6">
+                    <!-- Navigation Title -->
+                    <div class="navigation-title text-center">
+                        <% if (typeof title !== 'undefined' && title) { %>
+                            <h5 class="mb-0 text-truncate"><%= title %></h5>
+                        <% } else if (typeof pageName !== 'undefined' && pageName) { %>
+                            <h5 class="mb-0 text-truncate"><%= pageName %></h5>
+                        <% } %>
+                    </div>
+                </div>
+                <div class="col-3">
                     <div class="btn-group float-end" role="group">
                         <!-- Edit Page Actions (only show in edit mode) -->
                         <% if (typeof title !== 'undefined' && title && title.startsWith('Edit ')) { %>

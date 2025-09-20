@@ -314,6 +314,34 @@ body {
     }
 }
 
+/* Navigation Title */
+.navigation-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    min-height: 38px; /* Match height of navigation buttons */
+}
+
+.navigation-title h5 {
+    color: var(--text-primary);
+    font-weight: 600;
+    max-width: 100%;
+    line-height: 1.2;
+}
+
+/* Responsive adjustments for navigation title */
+@media (max-width: 768px) {
+    .navigation-title {
+        padding: 0.25rem;
+        min-height: 32px;
+    }
+    
+    .navigation-title h5 {
+        font-size: 1rem;
+    }
+}
+
 /* Legacy sidebar styles - updated for JSPWiki layout */
 .sidebar-sticky {
     position: relative;
