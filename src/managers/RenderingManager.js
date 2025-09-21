@@ -78,9 +78,17 @@ class RenderingManager extends BaseManager {
 
     // Check if MarkupParser integration is enabled and MarkupParser is available
     const markupParser = this.engine.getManager('MarkupParser');
-    const useAdvancedParser = this.renderingConfig.useAdvancedParser && 
-                             markupParser && 
-                             markupParser.isInitialized();
+    const markupParserAvailable = markupParser && typeof markupParser.isInitialized === 'function' && markupParser.isInitialized();
+    const useAdvancedParser = this.renderingConfig.useAdvancedParser && markupParserAvailable;
+
+    // Debug logging to identify the issue
+    if (this.renderingConfig.logParsingMethod) {
+      console.log(`🔍 RenderingManager.renderMarkdown debug for ${pageName}:`);
+      console.log(`   useAdvancedParser config: ${this.renderingConfig.useAdvancedParser}`);
+      console.log(`   MarkupParser available: ${!!markupParser}`);
+      console.log(`   MarkupParser initialized: ${markupParserAvailable}`);
+      console.log(`   Final decision: ${useAdvancedParser ? 'AdvancedParser' : 'LegacyParser'}`);
+    }
 
     if (useAdvancedParser) {
       return await this.renderWithAdvancedParser(content, pageName, userContext, requestInfo);

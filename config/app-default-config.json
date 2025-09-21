@@ -91,6 +91,7 @@
   "amdwiki.markup.useAdvancedParser": true,
   "amdwiki.markup.fallbackToLegacy": true,
   "amdwiki.markup.integration.renderingManager": true,
+  "amdwiki.markup.logParsingMethod": true,
   "amdwiki.markup.caching": true,
   "amdwiki.markup.cacheTTL": 300,
   "amdwiki.markup.cache.parseResults.enabled": true,

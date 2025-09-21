@@ -72,6 +72,14 @@ class MarkupParser extends BaseManager {
   }
 
   /**
+   * Check if MarkupParser is initialized (required for RenderingManager integration)
+   * @returns {boolean} - True if initialized
+   */
+  isInitialized() {
+    return this.initialized && this.config && this.handlerRegistry && this.filterChain;
+  }
+
+  /**
    * Initialize filter chain with modular configuration
    */
   async initializeFilterChain() {
