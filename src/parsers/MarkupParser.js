@@ -1,5 +1,6 @@
 const BaseManager = require('../managers/BaseManager');
 const ParseContext = require('./context/ParseContext');
+const { HandlerRegistry } = require('./handlers/HandlerRegistry');
 
 /**
  * MarkupParser - Comprehensive markup parsing engine for JSPWiki compatibility
@@ -20,7 +21,7 @@ class MarkupParser extends BaseManager {
   constructor(engine) {
     super(engine);
     this.phases = [];
-    this.syntaxHandlers = new Map();
+    this.handlerRegistry = new HandlerRegistry(engine);
     this.filterChain = null;
     this.cache = null;
     this.metrics = {
@@ -276,18 +277,17 @@ class MarkupParser extends BaseManager {
    * Execute syntax handlers in priority order
    */
   async phaseContentTransformation(content, context) {
-    // Get sorted handlers by priority
-    const sortedHandlers = Array.from(this.syntaxHandlers.values())
-      .sort((a, b) => b.priority - a.priority);
+    // Get handlers in dependency-resolved priority order
+    const sortedHandlers = this.handlerRegistry.resolveExecutionOrder();
 
     let transformedContent = content;
 
-    // Execute each handler
+    // Execute each handler using the registry's execution method
     for (const handler of sortedHandlers) {
       try {
-        transformedContent = await handler.process(transformedContent, context);
+        transformedContent = await handler.execute(transformedContent, context);
       } catch (error) {
-        console.error(`❌ Error in handler ${handler.constructor.name}:`, error);
+        console.error(`❌ Error in handler ${handler.handlerId}:`, error);
         // Continue with other handlers
       }
     }
@@ -343,22 +343,56 @@ class MarkupParser extends BaseManager {
   /**
    * Register a syntax handler
    * @param {BaseSyntaxHandler} handler - Handler instance
+   * @param {Object} options - Registration options
+   * @returns {Promise<boolean>} - True if registration successful
    */
-  registerHandler(handler) {
-    const handlerId = handler.constructor.name;
-    this.syntaxHandlers.set(handlerId, handler);
-    console.log(`🔧 Registered syntax handler: ${handlerId} (priority: ${handler.priority})`);
+  async registerHandler(handler, options = {}) {
+    return await this.handlerRegistry.registerHandler(handler, options);
   }
 
   /**
    * Unregister a syntax handler
    * @param {string} handlerId - Handler identifier
+   * @returns {Promise<boolean>} - True if unregistration successful
    */
-  unregisterHandler(handlerId) {
-    if (this.syntaxHandlers.has(handlerId)) {
-      this.syntaxHandlers.delete(handlerId);
-      console.log(`🗑️  Unregistered syntax handler: ${handlerId}`);
-    }
+  async unregisterHandler(handlerId) {
+    return await this.handlerRegistry.unregisterHandler(handlerId);
+  }
+
+  /**
+   * Get handler by ID
+   * @param {string} handlerId - Handler identifier
+   * @returns {BaseSyntaxHandler|null} - Handler or null if not found
+   */
+  getHandler(handlerId) {
+    return this.handlerRegistry.getHandler(handlerId);
+  }
+
+  /**
+   * Get all handlers sorted by priority
+   * @param {boolean} enabledOnly - Only return enabled handlers
+   * @returns {Array<BaseSyntaxHandler>} - Handlers sorted by priority
+   */
+  getHandlers(enabledOnly = true) {
+    return this.handlerRegistry.getHandlersByPriority(enabledOnly);
+  }
+
+  /**
+   * Enable handler by ID
+   * @param {string} handlerId - Handler identifier
+   * @returns {boolean} - True if successful
+   */
+  enableHandler(handlerId) {
+    return this.handlerRegistry.enableHandler(handlerId);
+  }
+
+  /**
+   * Disable handler by ID
+   * @param {string} handlerId - Handler identifier
+   * @returns {boolean} - True if successful
+   */
+  disableHandler(handlerId) {
+    return this.handlerRegistry.disableHandler(handlerId);
   }
 
   /**
@@ -424,6 +458,9 @@ class MarkupParser extends BaseManager {
       };
     });
 
+    // Add handler registry metrics
+    metrics.handlerRegistry = this.handlerRegistry.getStats();
+
     return metrics;
   }
 
@@ -446,8 +483,8 @@ class MarkupParser extends BaseManager {
   async shutdown() {
     console.log('🔧 MarkupParser shutting down...');
     
-    // Clear handlers
-    this.syntaxHandlers.clear();
+    // Clear handler registry
+    await this.handlerRegistry.clearAll();
     
     // Clear cache reference
     this.cache = null;

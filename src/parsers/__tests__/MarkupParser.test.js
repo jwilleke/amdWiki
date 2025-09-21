@@ -243,46 +243,81 @@ describe('MarkupParser', () => {
   });
 
   describe('Handler Registration', () => {
-    test('should register syntax handlers', () => {
-      const mockHandler = {
-        constructor: { name: 'TestHandler' },
-        priority: 100,
-        process: jest.fn()
-      };
+    test('should register syntax handlers', async () => {
+      const { BaseSyntaxHandler } = require('../handlers/BaseSyntaxHandler');
       
-      markupParser.registerHandler(mockHandler);
+      class MockHandler extends BaseSyntaxHandler {
+        constructor() {
+          super(/mock-test/g, 100);
+          this.handlerId = 'MockHandler';
+        }
+        
+        async process(content, context) {
+          return content.replace(/mock-test/g, 'MOCK_PROCESSED');
+        }
+        
+        async handle(match, context) {
+          return 'MOCK_HANDLED';
+        }
+      }
       
-      expect(markupParser.syntaxHandlers.has('TestHandler')).toBe(true);
-      expect(markupParser.syntaxHandlers.get('TestHandler')).toBe(mockHandler);
+      const mockHandler = new MockHandler();
+      await markupParser.registerHandler(mockHandler);
+      
+      expect(markupParser.getHandler('MockHandler')).toBe(mockHandler);
     });
 
-    test('should unregister syntax handlers', () => {
-      const mockHandler = {
-        constructor: { name: 'TestHandler' },
-        priority: 100
-      };
+    test('should unregister syntax handlers', async () => {
+      const { BaseSyntaxHandler } = require('../handlers/BaseSyntaxHandler');
       
-      markupParser.registerHandler(mockHandler);
-      expect(markupParser.syntaxHandlers.has('TestHandler')).toBe(true);
+      class MockHandler extends BaseSyntaxHandler {
+        constructor() {
+          super(/mock-test2/g, 100);
+          this.handlerId = 'MockHandler2';
+        }
+        
+        async process(content, context) {
+          return content;
+        }
+        
+        async handle(match, context) {
+          return '';
+        }
+      }
       
-      markupParser.unregisterHandler('TestHandler');
-      expect(markupParser.syntaxHandlers.has('TestHandler')).toBe(false);
+      const mockHandler = new MockHandler();
+      await markupParser.registerHandler(mockHandler);
+      expect(markupParser.getHandler('MockHandler2')).toBe(mockHandler);
+      
+      await markupParser.unregisterHandler('MockHandler2');
+      expect(markupParser.getHandler('MockHandler2')).toBeNull();
     });
 
     test('should execute registered handlers during content transformation', async () => {
-      const mockHandler = {
-        constructor: { name: 'TestHandler' },
-        priority: 100,
-        process: jest.fn().mockResolvedValue('transformed content')
-      };
+      const { BaseSyntaxHandler } = require('../handlers/BaseSyntaxHandler');
       
-      markupParser.registerHandler(mockHandler);
+      class MockHandler extends BaseSyntaxHandler {
+        constructor() {
+          super(/transform-test/g, 100);
+          this.handlerId = 'TransformHandler';
+        }
+        
+        async process(content, context) {
+          return content.replace(/transform-test/g, 'TRANSFORMED');
+        }
+        
+        async handle(match, context) {
+          return 'HANDLED';
+        }
+      }
       
-      const content = 'original content';
+      const mockHandler = new MockHandler();
+      await markupParser.registerHandler(mockHandler);
+      
+      const content = 'This is transform-test content';
       const result = await markupParser.parse(content);
       
-      expect(mockHandler.process).toHaveBeenCalled();
-      expect(result).toContain('transformed content');
+      expect(result).toContain('TRANSFORMED');
     });
   });
 
