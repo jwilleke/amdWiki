@@ -39,6 +39,7 @@ function ReferringPagesPlugin(pageName, params, linkGraph) {
     links = links.replace(/<p>.*?(<ul>.*<\/ul>).*?<\/p>/, '$1');
     // Remove all stray newlines after </ul>
     links = links.replace(/<\/ul>\s*$/g, '</ul>');
+
   }
 
   return links;

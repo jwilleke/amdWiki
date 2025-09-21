@@ -177,7 +177,13 @@ class SecurityFilter extends BaseFilter {
       throw new Error(`Content exceeds maximum length limit: ${this.securityConfig.maxContentLength} characters`);
     }
 
-    let secureContent = content;
+    // Preserve HTMLTOKEN placeholders from HTML protection system
+    const htmlTokens = [];
+    let secureContent = content.replace(/HTMLTOKEN\d+HTMLTOKEN/g, (match) => {
+      const placeholder = `SECURITYPROTECTED${htmlTokens.length}SECURITYPROTECTED`;
+      htmlTokens.push(match);
+      return placeholder;
+    });
 
     // Apply security filters based on configuration
     if (this.securityConfig.stripDangerousContent) {
@@ -196,6 +202,11 @@ class SecurityFilter extends BaseFilter {
     if (this.securityConfig.logSecurityViolations && secureContent !== content) {
       this.logSecurityViolation(content, secureContent, context);
     }
+
+    // Restore HTMLTOKEN placeholders after security filtering
+    secureContent = secureContent.replace(/SECURITYPROTECTED(\d+)SECURITYPROTECTED/g, (match, index) => {
+      return htmlTokens[parseInt(index)] || match;
+    });
 
     return secureContent;
   }

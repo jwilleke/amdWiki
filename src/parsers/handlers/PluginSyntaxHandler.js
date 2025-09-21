@@ -208,14 +208,17 @@ class PluginSyntaxHandler extends BaseSyntaxHandler {
       userContext: context.userContext,
       requestInfo: context.requestInfo,
       engine: context.engine,
-      
+
       // Enhanced context for JSPWiki compatibility
       wikiContext: context,
       parameters: validation.params,
       bodyContent: matchInfo.bodyContent || null, // Support for body plugins
       handlerId: this.handlerId,
       markupParser: this.engine?.getManager('MarkupParser'),
-      
+
+      // Link graph for plugins like ReferringPagesPlugin
+      linkGraph: this.getLinkGraph(),
+
       // Additional JSPWiki-compatible context
       hasBody: matchInfo.bodyContent !== null,
       pluginName: pluginName,
@@ -223,7 +226,7 @@ class PluginSyntaxHandler extends BaseSyntaxHandler {
     };
 
     // Execute plugin with timeout
-    const executionPromise = pluginManager.executePlugin(pluginName, validation.params, pluginContext);
+    const executionPromise = pluginManager.execute(pluginName, context.pageName, validation.params, pluginContext);
     const timeoutPromise = new Promise((_, reject) => {
       setTimeout(() => reject(new Error(`Plugin ${pluginName} execution timeout`)), this.options.timeout);
     });
@@ -356,6 +359,20 @@ class PluginSyntaxHandler extends BaseSyntaxHandler {
   }
 
   /**
+   * Get link graph from RenderingManager
+   * @returns {Object} - Link graph object
+   */
+  getLinkGraph() {
+    try {
+      const renderingManager = this.engine?.getManager('RenderingManager');
+      return renderingManager?.getLinkGraph() || {};
+    } catch (error) {
+      console.warn('Failed to get link graph for plugin execution:', error.message);
+      return {};
+    }
+  }
+
+  /**
    * Get handler information for debugging
    * @returns {Object} - Handler information
    */
@@ -369,7 +386,8 @@ class PluginSyntaxHandler extends BaseSyntaxHandler {
         'JSON parameter parsing',
         'Security validation',
         'Error recovery',
-        'Performance tracking'
+        'Performance tracking',
+        'Link graph integration'
       ]
     };
   }

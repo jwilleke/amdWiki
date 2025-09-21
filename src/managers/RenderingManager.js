@@ -1051,7 +1051,7 @@ class RenderingManager extends BaseManager {
             }
           }
 
-          return pluginManager.executePlugin(pluginName, params, { engine: this.engine });
+          return pluginManager.execute(pluginName, pageName, params, { engine: this.engine });
         } catch (error) {
           return `<span class="error">Plugin ${pluginName} error</span>`;
         }
