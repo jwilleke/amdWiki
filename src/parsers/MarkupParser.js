@@ -223,6 +223,17 @@ class MarkupParser extends BaseManager {
       }
     }
 
+    // Register WikiLinkHandler (ESSENTIAL for basic wiki functionality)
+    const WikiLinkHandler = require('./handlers/WikiLinkHandler');
+    const wikiLinkHandler = new WikiLinkHandler(this.engine);
+    
+    try {
+      await this.registerHandler(wikiLinkHandler);
+      console.log('🔗 WikiLinkHandler registered successfully (CRITICAL for basic wiki links)');
+    } catch (error) {
+      console.warn('⚠️  Failed to register WikiLinkHandler - CRITICAL ISSUE:', error.message);
+    }
+
     const handlerCount = this.getHandlers().length;
     console.log(`🎯 Registered ${handlerCount} syntax handlers total`);
     
@@ -257,6 +268,7 @@ class MarkupParser extends BaseManager {
         interwiki: { enabled: true, priority: 80 },
         attachment: { enabled: true, priority: 75, enhanced: true, thumbnails: true, metadata: true },
         style: { enabled: true, priority: 70 },
+        wikilink: { enabled: true, priority: 50 }, // ESSENTIAL for basic functionality
         search: { enabled: true, priority: 65 },
         rss: { enabled: true, priority: 60 }
       },
@@ -835,6 +847,7 @@ class MarkupParser extends BaseManager {
       // Phase 3 handlers (advanced)
       'AttachmentHandler': 'attachment',
       'WikiStyleHandler': 'style',
+      'WikiLinkHandler': 'wikilink',
       'SearchPluginHandler': 'search',
       'RSSHandler': 'rss',
       
