@@ -24,13 +24,16 @@ class MarkupParser extends BaseManager {
     this.handlerRegistry = new HandlerRegistry(engine);
     this.filterChain = null;
     this.cache = null;
+    this.cacheStrategies = {};
+    this.performanceMonitor = null;
     this.metrics = {
       parseCount: 0,
       totalParseTime: 0,
       phaseMetrics: new Map(),
       errorCount: 0,
       cacheHits: 0,
-      cacheMisses: 0
+      cacheMisses: 0,
+      cacheMetrics: new Map()
     };
   }
 
@@ -43,8 +46,8 @@ class MarkupParser extends BaseManager {
     // Initialize processing phases
     this.initializePhases();
     
-    // Initialize cache integration
-    await this.initializeCaching();
+    // Initialize advanced cache integration
+    await this.initializeAdvancedCaching();
     
     // Initialize metrics collection
     this.initializeMetrics();
@@ -52,9 +55,13 @@ class MarkupParser extends BaseManager {
     // Configure handler registry
     this.configureHandlerRegistry();
     
+    // Initialize performance monitoring
+    this.initializePerformanceMonitoring();
+    
     console.log('✅ MarkupParser initialized with 7-phase processing pipeline');
     console.log(`🔧 Phases: ${this.phases.map(p => p.name).join(' → ')}`);
     console.log(`⚙️  Configuration loaded: ${this.config.enabled ? 'enabled' : 'disabled'}`);
+    console.log(`🗄️  Cache strategies: ${Object.keys(this.cacheStrategies).join(', ')}`);
   }
 
   /**
@@ -88,6 +95,22 @@ class MarkupParser extends BaseManager {
         spam: { enabled: true },
         security: { enabled: true },
         validation: { enabled: true }
+      },
+      cache: {
+        parseResults: { enabled: true, ttl: 300, maxSize: 1000 },
+        handlerResults: { enabled: true, ttl: 600, maxSize: 2000 },
+        patterns: { enabled: true, ttl: 3600, maxSize: 100 },
+        variables: { enabled: true, ttl: 900, maxSize: 500 },
+        enableWarmup: true,
+        metricsEnabled: true
+      },
+      performance: {
+        monitoring: true,
+        alertThresholds: {
+          parseTime: 100, // ms
+          cacheHitRatio: 0.6, // 60%
+          errorRate: 0.05 // 5%
+        }
       }
     };
 
@@ -116,6 +139,26 @@ class MarkupParser extends BaseManager {
         this.config.filters.spam.enabled = configManager.getProperty('amdwiki.markup.filters.spam.enabled', this.config.filters.spam.enabled);
         this.config.filters.security.enabled = configManager.getProperty('amdwiki.markup.filters.security.enabled', this.config.filters.security.enabled);
         this.config.filters.validation.enabled = configManager.getProperty('amdwiki.markup.filters.validation.enabled', this.config.filters.validation.enabled);
+        
+        // Advanced cache configuration
+        this.config.cache.parseResults.enabled = configManager.getProperty('amdwiki.markup.cache.parseResults.enabled', this.config.cache.parseResults.enabled);
+        this.config.cache.parseResults.ttl = configManager.getProperty('amdwiki.markup.cache.parseResults.ttl', this.config.cache.parseResults.ttl);
+        this.config.cache.parseResults.maxSize = configManager.getProperty('amdwiki.markup.cache.parseResults.maxSize', this.config.cache.parseResults.maxSize);
+        this.config.cache.handlerResults.enabled = configManager.getProperty('amdwiki.markup.cache.handlerResults.enabled', this.config.cache.handlerResults.enabled);
+        this.config.cache.handlerResults.ttl = configManager.getProperty('amdwiki.markup.cache.handlerResults.ttl', this.config.cache.handlerResults.ttl);
+        this.config.cache.handlerResults.maxSize = configManager.getProperty('amdwiki.markup.cache.handlerResults.maxSize', this.config.cache.handlerResults.maxSize);
+        this.config.cache.patterns.enabled = configManager.getProperty('amdwiki.markup.cache.patterns.enabled', this.config.cache.patterns.enabled);
+        this.config.cache.patterns.ttl = configManager.getProperty('amdwiki.markup.cache.patterns.ttl', this.config.cache.patterns.ttl);
+        this.config.cache.variables.enabled = configManager.getProperty('amdwiki.markup.cache.variables.enabled', this.config.cache.variables.enabled);
+        this.config.cache.variables.ttl = configManager.getProperty('amdwiki.markup.cache.variables.ttl', this.config.cache.variables.ttl);
+        this.config.cache.enableWarmup = configManager.getProperty('amdwiki.markup.cache.enableWarmup', this.config.cache.enableWarmup);
+        this.config.cache.metricsEnabled = configManager.getProperty('amdwiki.markup.cache.metricsEnabled', this.config.cache.metricsEnabled);
+        
+        // Performance monitoring configuration
+        this.config.performance.monitoring = configManager.getProperty('amdwiki.markup.performance.monitoring', this.config.performance.monitoring);
+        this.config.performance.alertThresholds.parseTime = configManager.getProperty('amdwiki.markup.performance.alertThresholds.parseTime', this.config.performance.alertThresholds.parseTime);
+        this.config.performance.alertThresholds.cacheHitRatio = configManager.getProperty('amdwiki.markup.performance.alertThresholds.cacheHitRatio', this.config.performance.alertThresholds.cacheHitRatio);
+        this.config.performance.alertThresholds.errorRate = configManager.getProperty('amdwiki.markup.performance.alertThresholds.errorRate', this.config.performance.alertThresholds.errorRate);
         
       } catch (err) {
         console.warn('⚠️  Failed to load MarkupParser config from ConfigurationManager, using defaults:', err.message);
@@ -182,21 +225,148 @@ class MarkupParser extends BaseManager {
   }
 
   /**
-   * Initialize caching integration with CacheManager
+   * Initialize advanced caching integration with multiple cache strategies
    */
-  async initializeCaching() {
+  async initializeAdvancedCaching() {
     if (!this.config.caching) {
       console.log('🗄️  MarkupParser caching disabled by configuration');
       return;
     }
     
     const cacheManager = this.engine.getManager('CacheManager');
-    if (cacheManager && cacheManager.isInitialized()) {
-      this.cache = cacheManager.region('MarkupParser');
-      console.log(`🗄️  MarkupParser cache region initialized (TTL: ${this.config.cacheTTL}s)`);
-    } else {
+    if (!cacheManager || !cacheManager.isInitialized()) {
       console.warn('⚠️  CacheManager not available, parsing will not be cached');
+      return;
     }
+
+    // Initialize multiple cache strategies
+    this.cacheStrategies = {};
+
+    // Parse Results Cache - Full content parsing results
+    if (this.config.cache.parseResults.enabled) {
+      this.cacheStrategies.parseResults = cacheManager.region('MarkupParser-ParseResults');
+      this.metrics.cacheMetrics.set('parseResults', { hits: 0, misses: 0, sets: 0 });
+    }
+
+    // Handler Results Cache - Individual handler outputs
+    if (this.config.cache.handlerResults.enabled) {
+      this.cacheStrategies.handlerResults = cacheManager.region('MarkupParser-HandlerResults');
+      this.metrics.cacheMetrics.set('handlerResults', { hits: 0, misses: 0, sets: 0 });
+    }
+
+    // Pattern Compilation Cache - Pre-compiled regex patterns
+    if (this.config.cache.patterns.enabled) {
+      this.cacheStrategies.patterns = cacheManager.region('MarkupParser-Patterns');
+      this.metrics.cacheMetrics.set('patterns', { hits: 0, misses: 0, sets: 0 });
+    }
+
+    // Variable Resolution Cache - System variable lookups
+    if (this.config.cache.variables.enabled) {
+      this.cacheStrategies.variables = cacheManager.region('MarkupParser-Variables');
+      this.metrics.cacheMetrics.set('variables', { hits: 0, misses: 0, sets: 0 });
+    }
+
+    // Set legacy cache reference for backward compatibility
+    this.cache = this.cacheStrategies.parseResults || null;
+
+    const strategiesCount = Object.keys(this.cacheStrategies).length;
+    console.log(`🗄️  MarkupParser advanced caching initialized with ${strategiesCount} strategies`);
+    console.log(`📊 Cache TTLs: parse=${this.config.cache.parseResults.ttl}s, handlers=${this.config.cache.handlerResults.ttl}s, patterns=${this.config.cache.patterns.ttl}s`);
+
+    // Perform cache warmup if enabled
+    if (this.config.cache.enableWarmup) {
+      await this.performCacheWarmup();
+    }
+  }
+
+  /**
+   * Initialize performance monitoring system
+   */
+  initializePerformanceMonitoring() {
+    if (!this.config.performance.monitoring) {
+      return;
+    }
+
+    this.performanceMonitor = {
+      alerts: [],
+      lastCheck: Date.now(),
+      checkInterval: 60000, // 1 minute
+      
+      // Performance tracking
+      recentParseTimes: [],
+      recentErrorRates: [],
+      maxRecentEntries: 100
+    };
+
+    console.log('📊 Performance monitoring initialized with alert thresholds:', this.config.performance.alertThresholds);
+  }
+
+  /**
+   * Perform cache warmup for frequently accessed content
+   */
+  async performCacheWarmup() {
+    console.log('🔥 Starting MarkupParser cache warmup...');
+    
+    try {
+      // Warm up common patterns
+      const commonPatterns = [
+        /\[\{(\w+)\s*([^}]*)\}\]/g, // Plugin syntax
+        /\$\{(\w+)\}/g, // Variable syntax
+        /\[\w+:\w+\]/g, // InterWiki syntax
+        /<wiki:(\w+)/g // WikiTag syntax
+      ];
+
+      for (const pattern of commonPatterns) {
+        if (this.cacheStrategies.patterns) {
+          const cacheKey = `pattern:${pattern.source}`;
+          await this.cacheStrategies.patterns.set(cacheKey, pattern, { ttl: this.config.cache.patterns.ttl });
+        }
+      }
+
+      // Warm up common variables
+      const commonVariables = ['pagename', 'username', 'applicationname', 'version', 'totalpages'];
+      if (this.cacheStrategies.variables) {
+        const variableManager = this.engine.getManager('VariableManager');
+        if (variableManager) {
+          for (const varName of commonVariables) {
+            try {
+              const cacheKey = `var:${varName}:default`;
+              const value = await this.resolveSystemVariable(varName, {});
+              await this.cacheStrategies.variables.set(cacheKey, value, { ttl: this.config.cache.variables.ttl });
+            } catch (error) {
+              // Skip variables that can't be resolved without context
+            }
+          }
+        }
+      }
+
+      console.log('🔥 Cache warmup completed');
+      
+    } catch (error) {
+      console.warn('⚠️  Cache warmup failed:', error.message);
+    }
+  }
+
+  /**
+   * Resolve system variable for cache warmup
+   * @param {string} varName - Variable name
+   * @param {Object} context - Context object
+   * @returns {Promise<string>} - Variable value
+   */
+  async resolveSystemVariable(varName, context) {
+    const variableManager = this.engine.getManager('VariableManager');
+    if (!variableManager) {
+      throw new Error('VariableManager not available');
+    }
+
+    // Create minimal context for system variables
+    const minimalContext = {
+      pageName: 'warmup',
+      userName: 'system',
+      ...context
+    };
+
+    return variableManager.expandVariables(`\${${varName}}`, minimalContext);
   }
 
   /**
@@ -242,13 +412,19 @@ class MarkupParser extends BaseManager {
       // Generate cache key
       const cacheKey = this.generateCacheKey(content, context);
       
-      // Check cache first
-      if (this.cache) {
-        const cached = await this.cache.get(cacheKey);
+      // Check parse results cache first
+      if (this.cacheStrategies.parseResults) {
+        const cached = await this.getCachedParseResult(cacheKey);
         if (cached) {
+          this.updateCacheMetrics('parseResults', 'hit');
           this.metrics.cacheHits++;
+          
+          // Update performance monitoring
+          this.updatePerformanceMetrics(Date.now() - startTime, true);
+          
           return cached;
         }
+        this.updateCacheMetrics('parseResults', 'miss');
         this.metrics.cacheMisses++;
       }
 
@@ -282,13 +458,13 @@ class MarkupParser extends BaseManager {
         }
       }
 
-      // Cache the result
-      if (this.cache) {
-        await this.cache.set(cacheKey, processedContent, { ttl: this.config.cacheTTL });
-      }
+      // Cache the result using appropriate strategy
+      await this.cacheParseResult(cacheKey, processedContent);
 
       // Update performance metrics
-      this.metrics.totalParseTime += Date.now() - startTime;
+      const processingTime = Date.now() - startTime;
+      this.metrics.totalParseTime += processingTime;
+      this.updatePerformanceMetrics(processingTime, false);
 
       return processedContent;
 
@@ -595,6 +771,40 @@ class MarkupParser extends BaseManager {
     // Add handler registry metrics
     metrics.handlerRegistry = this.handlerRegistry.getStats();
 
+    // Add advanced cache metrics
+    metrics.cacheStrategies = {};
+    this.metrics.cacheMetrics.forEach((cacheStats, strategy) => {
+      const total = cacheStats.hits + cacheStats.misses;
+      metrics.cacheStrategies[strategy] = {
+        ...cacheStats,
+        hitRatio: total > 0 ? cacheStats.hits / total : 0,
+        total: total
+      };
+    });
+
+    // Add performance monitoring data
+    if (this.performanceMonitor) {
+      metrics.performance = {
+        monitoring: this.config.performance.monitoring,
+        alertCount: this.performanceMonitor.alerts.length,
+        recentParseCount: this.performanceMonitor.recentParseTimes.length,
+        alerts: this.performanceMonitor.alerts.slice(-10) // Last 10 alerts
+      };
+
+      // Calculate recent performance stats
+      const recentTimes = this.performanceMonitor.recentParseTimes.slice(-20);
+      if (recentTimes.length > 0) {
+        const nonCachedTimes = recentTimes.filter(entry => !entry.cacheHit);
+        metrics.performance.recentStats = {
+          averageParseTime: nonCachedTimes.length > 0 
+            ? nonCachedTimes.reduce((sum, entry) => sum + entry.time, 0) / nonCachedTimes.length 
+            : 0,
+          cachedParseCount: recentTimes.filter(entry => entry.cacheHit).length,
+          nonCachedParseCount: nonCachedTimes.length
+        };
+      }
+    }
+
     return metrics;
   }
 
@@ -614,14 +824,252 @@ class MarkupParser extends BaseManager {
     this.initializeMetrics();
   }
 
+  /**
+   * Get cached parse result
+   * @param {string} cacheKey - Cache key
+   * @returns {Promise<string|null>} - Cached result or null
+   */
+  async getCachedParseResult(cacheKey) {
+    if (!this.cacheStrategies.parseResults) {
+      return null;
+    }
+    
+    try {
+      return await this.cacheStrategies.parseResults.get(cacheKey);
+    } catch (error) {
+      console.warn('⚠️  Cache get failed:', error.message);
+      return null;
+    }
+  }
+
+  /**
+   * Cache parse result
+   * @param {string} cacheKey - Cache key
+   * @param {string} content - Content to cache
+   */
+  async cacheParseResult(cacheKey, content) {
+    if (!this.cacheStrategies.parseResults) {
+      return;
+    }
+    
+    try {
+      await this.cacheStrategies.parseResults.set(cacheKey, content, { 
+        ttl: this.config.cache.parseResults.ttl 
+      });
+      this.updateCacheMetrics('parseResults', 'set');
+    } catch (error) {
+      console.warn('⚠️  Cache set failed:', error.message);
+    }
+  }
+
+  /**
+   * Get cached handler result
+   * @param {string} handlerId - Handler ID
+   * @param {string} contentHash - Content hash
+   * @param {string} contextHash - Context hash
+   * @returns {Promise<string|null>} - Cached result or null
+   */
+  async getCachedHandlerResult(handlerId, contentHash, contextHash) {
+    if (!this.cacheStrategies.handlerResults) {
+      return null;
+    }
+    
+    try {
+      const cacheKey = `handler:${handlerId}:${contentHash}:${contextHash}`;
+      const result = await this.cacheStrategies.handlerResults.get(cacheKey);
+      
+      if (result) {
+        this.updateCacheMetrics('handlerResults', 'hit');
+      } else {
+        this.updateCacheMetrics('handlerResults', 'miss');
+      }
+      
+      return result;
+    } catch (error) {
+      console.warn('⚠️  Handler cache get failed:', error.message);
+      return null;
+    }
+  }
+
+  /**
+   * Cache handler result
+   * @param {string} handlerId - Handler ID
+   * @param {string} contentHash - Content hash
+   * @param {string} contextHash - Context hash
+   * @param {string} result - Result to cache
+   */
+  async cacheHandlerResult(handlerId, contentHash, contextHash, result) {
+    if (!this.cacheStrategies.handlerResults) {
+      return;
+    }
+    
+    try {
+      const cacheKey = `handler:${handlerId}:${contentHash}:${contextHash}`;
+      await this.cacheStrategies.handlerResults.set(cacheKey, result, { 
+        ttl: this.config.cache.handlerResults.ttl 
+      });
+      this.updateCacheMetrics('handlerResults', 'set');
+    } catch (error) {
+      console.warn('⚠️  Handler cache set failed:', error.message);
+    }
+  }
+
+  /**
+   * Update cache metrics for specific strategy
+   * @param {string} strategy - Cache strategy name
+   * @param {string} operation - Operation type (hit, miss, set)
+   */
+  updateCacheMetrics(strategy, operation) {
+    if (!this.config.cache.metricsEnabled) {
+      return;
+    }
+    
+    const metrics = this.metrics.cacheMetrics.get(strategy);
+    if (metrics) {
+      metrics[operation === 'hit' ? 'hits' : operation === 'miss' ? 'misses' : 'sets']++;
+    }
+  }
+
+  /**
+   * Update performance metrics and check thresholds
+   * @param {number} processingTime - Processing time in milliseconds
+   * @param {boolean} cacheHit - Whether this was a cache hit
+   */
+  updatePerformanceMetrics(processingTime, cacheHit) {
+    if (!this.performanceMonitor) {
+      return;
+    }
+
+    // Track recent parse times
+    this.performanceMonitor.recentParseTimes.push({
+      time: processingTime,
+      cacheHit: cacheHit,
+      timestamp: Date.now()
+    });
+
+    // Limit recent entries
+    if (this.performanceMonitor.recentParseTimes.length > this.performanceMonitor.maxRecentEntries) {
+      this.performanceMonitor.recentParseTimes.shift();
+    }
+
+    // Check performance thresholds
+    this.checkPerformanceThresholds();
+  }
+
+  /**
+   * Check performance thresholds and generate alerts
+   */
+  checkPerformanceThresholds() {
+    if (!this.performanceMonitor) {
+      return;
+    }
+
+    const now = Date.now();
+    
+    // Only check every minute
+    if (now - this.performanceMonitor.lastCheck < this.performanceMonitor.checkInterval) {
+      return;
+    }
+
+    this.performanceMonitor.lastCheck = now;
+
+    // Check average parse time threshold
+    const recentTimes = this.performanceMonitor.recentParseTimes
+      .filter(entry => !entry.cacheHit) // Only non-cached times
+      .slice(-20); // Last 20 entries
+
+    if (recentTimes.length > 0) {
+      const avgTime = recentTimes.reduce((sum, entry) => sum + entry.time, 0) / recentTimes.length;
+      
+      if (avgTime > this.config.performance.alertThresholds.parseTime) {
+        this.generatePerformanceAlert('SLOW_PARSING', `Average parse time ${avgTime.toFixed(2)}ms exceeds threshold ${this.config.performance.alertThresholds.parseTime}ms`);
+      }
+    }
+
+    // Check cache hit ratio
+    const totalCacheOps = this.metrics.cacheHits + this.metrics.cacheMisses;
+    if (totalCacheOps > 0) {
+      const hitRatio = this.metrics.cacheHits / totalCacheOps;
+      
+      if (hitRatio < this.config.performance.alertThresholds.cacheHitRatio) {
+        this.generatePerformanceAlert('LOW_CACHE_HIT_RATIO', `Cache hit ratio ${(hitRatio * 100).toFixed(1)}% below threshold ${(this.config.performance.alertThresholds.cacheHitRatio * 100).toFixed(1)}%`);
+      }
+    }
+
+    // Check error rate
+    if (this.metrics.parseCount > 0) {
+      const errorRate = this.metrics.errorCount / this.metrics.parseCount;
+      
+      if (errorRate > this.config.performance.alertThresholds.errorRate) {
+        this.generatePerformanceAlert('HIGH_ERROR_RATE', `Error rate ${(errorRate * 100).toFixed(1)}% exceeds threshold ${(this.config.performance.alertThresholds.errorRate * 100).toFixed(1)}%`);
+      }
+    }
+  }
+
+  /**
+   * Generate performance alert
+   * @param {string} type - Alert type
+   * @param {string} message - Alert message
+   */
+  generatePerformanceAlert(type, message) {
+    const alert = {
+      type,
+      message,
+      timestamp: new Date().toISOString(),
+      metrics: this.getMetrics()
+    };
+
+    this.performanceMonitor.alerts.push(alert);
+    
+    // Limit alerts to prevent memory issues
+    if (this.performanceMonitor.alerts.length > 100) {
+      this.performanceMonitor.alerts.shift();
+    }
+
+    console.warn(`⚠️  MarkupParser Performance Alert [${type}]: ${message}`);
+    
+    // Optionally send to notification system
+    const notificationManager = this.engine.getManager('NotificationManager');
+    if (notificationManager) {
+      notificationManager.addNotification({
+        type: 'performance',
+        title: `MarkupParser Performance Alert: ${type}`,
+        message,
+        priority: 'medium',
+        source: 'MarkupParser'
+      });
+    }
+  }
+
+  /**
+   * Get performance alerts
+   * @returns {Array} - Array of performance alerts
+   */
+  getPerformanceAlerts() {
+    return this.performanceMonitor ? [...this.performanceMonitor.alerts] : [];
+  }
+
+  /**
+   * Clear performance alerts
+   */
+  clearPerformanceAlerts() {
+    if (this.performanceMonitor) {
+      this.performanceMonitor.alerts = [];
+    }
+  }
+
   async shutdown() {
     console.log('🔧 MarkupParser shutting down...');
     
     // Clear handler registry
     await this.handlerRegistry.clearAll();
     
-    // Clear cache reference
+    // Clear cache references
     this.cache = null;
+    this.cacheStrategies = {};
+    
+    // Clear performance monitor
+    this.performanceMonitor = null;
     
     // Clear phases
     this.phases = [];
