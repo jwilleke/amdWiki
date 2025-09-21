@@ -1,6 +1,7 @@
 const BaseManager = require('../managers/BaseManager');
 const ParseContext = require('./context/ParseContext');
 const { HandlerRegistry } = require('./handlers/HandlerRegistry');
+const FilterChain = require('./filters/FilterChain');
 
 /**
  * MarkupParser - Comprehensive markup parsing engine for JSPWiki compatibility
@@ -22,7 +23,7 @@ class MarkupParser extends BaseManager {
     super(engine);
     this.phases = [];
     this.handlerRegistry = new HandlerRegistry(engine);
-    this.filterChain = null;
+    this.filterChain = new FilterChain(engine);
     this.cache = null;
     this.cacheStrategies = {};
     this.performanceMonitor = null;
@@ -58,6 +59,9 @@ class MarkupParser extends BaseManager {
     // Initialize performance monitoring
     this.initializePerformanceMonitoring();
     
+    // Initialize filter chain
+    await this.initializeFilterChain();
+    
     // Register default handlers
     await this.registerDefaultHandlers();
     
@@ -65,6 +69,72 @@ class MarkupParser extends BaseManager {
     console.log(`🔧 Phases: ${this.phases.map(p => p.name).join(' → ')}`);
     console.log(`⚙️  Configuration loaded: ${this.config.enabled ? 'enabled' : 'disabled'}`);
     console.log(`🗄️  Cache strategies: ${Object.keys(this.cacheStrategies).join(', ')}`);
+  }
+
+  /**
+   * Initialize filter chain with modular configuration
+   */
+  async initializeFilterChain() {
+    if (!this.config.filters.enabled) {
+      console.log('🔧 Filter pipeline disabled by configuration');
+      return;
+    }
+
+    // Initialize the filter chain
+    await this.filterChain.initialize({ engine: this.engine });
+
+    // Register default filters based on configuration
+    await this.registerDefaultFilters();
+    
+    const filterCount = this.filterChain.getFilters().length;
+    console.log(`🔄 Filter pipeline initialized with ${filterCount} filters`);
+  }
+
+  /**
+   * Register default filters based on modular configuration
+   */
+  async registerDefaultFilters() {
+    // Register SecurityFilter if enabled
+    if (this.config.filters.security.enabled) {
+      const SecurityFilter = require('./filters/SecurityFilter');
+      const securityFilter = new SecurityFilter();
+      
+      try {
+        await securityFilter.initialize({ engine: this.engine });
+        this.filterChain.addFilter(securityFilter);
+        console.log('🔒 SecurityFilter registered successfully');
+      } catch (error) {
+        console.warn('⚠️  Failed to register SecurityFilter:', error.message);
+      }
+    }
+
+    // Register SpamFilter if enabled
+    if (this.config.filters.spam.enabled) {
+      const SpamFilter = require('./filters/SpamFilter');
+      const spamFilter = new SpamFilter();
+      
+      try {
+        await spamFilter.initialize({ engine: this.engine });
+        this.filterChain.addFilter(spamFilter);
+        console.log('🛡️  SpamFilter registered successfully');
+      } catch (error) {
+        console.warn('⚠️  Failed to register SpamFilter:', error.message);
+      }
+    }
+
+    // Register ValidationFilter if enabled
+    if (this.config.filters.validation.enabled) {
+      const ValidationFilter = require('./filters/ValidationFilter');
+      const validationFilter = new ValidationFilter();
+      
+      try {
+        await validationFilter.initialize({ engine: this.engine });
+        this.filterChain.addFilter(validationFilter);
+        console.log('✅ ValidationFilter registered successfully');
+      } catch (error) {
+        console.warn('⚠️  Failed to register ValidationFilter:', error.message);
+      }
+    }
   }
 
   /**
@@ -681,13 +751,21 @@ class MarkupParser extends BaseManager {
 
   /**
    * Phase 5: Filter Pipeline
-   * Apply content filters for security, validation, etc.
+   * Apply content filters for security, validation, etc. with modular configuration
    */
   async phaseFilterPipeline(content, context) {
-    if (this.filterChain) {
-      return await this.filterChain.process(content, context);
+    if (!this.filterChain || !this.config.filters.enabled) {
+      return content;
     }
-    return content;
+
+    try {
+      return await this.filterChain.process(content, context);
+    } catch (error) {
+      console.error('❌ Filter pipeline error:', error.message);
+      
+      // Return original content on filter pipeline failure
+      return content;
+    }
   }
 
   /**
@@ -888,6 +966,11 @@ class MarkupParser extends BaseManager {
 
     // Add handler registry metrics
     metrics.handlerRegistry = this.handlerRegistry.getStats();
+    
+    // Add filter chain metrics
+    if (this.filterChain) {
+      metrics.filterChain = this.filterChain.getStats();
+    }
 
     // Add advanced cache metrics
     metrics.cacheStrategies = {};
@@ -1181,6 +1264,12 @@ class MarkupParser extends BaseManager {
     
     // Clear handler registry
     await this.handlerRegistry.clearAll();
+    
+    // Clear filter chain
+    if (this.filterChain) {
+      await this.filterChain.shutdown();
+      this.filterChain = null;
+    }
     
     // Clear cache references
     this.cache = null;
