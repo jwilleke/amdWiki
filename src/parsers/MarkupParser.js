@@ -58,10 +58,76 @@ class MarkupParser extends BaseManager {
     // Initialize performance monitoring
     this.initializePerformanceMonitoring();
     
+    // Register default handlers
+    await this.registerDefaultHandlers();
+    
     console.log('✅ MarkupParser initialized with 7-phase processing pipeline');
     console.log(`🔧 Phases: ${this.phases.map(p => p.name).join(' → ')}`);
     console.log(`⚙️  Configuration loaded: ${this.config.enabled ? 'enabled' : 'disabled'}`);
     console.log(`🗄️  Cache strategies: ${Object.keys(this.cacheStrategies).join(', ')}`);
+  }
+
+  /**
+   * Register default syntax handlers based on configuration
+   */
+  async registerDefaultHandlers() {
+    if (!this.config.enabled) {
+      return;
+    }
+
+    // Register PluginSyntaxHandler if enabled
+    if (this.config.handlers.plugin.enabled) {
+      const PluginSyntaxHandler = require('./handlers/PluginSyntaxHandler');
+      const pluginHandler = new PluginSyntaxHandler(this.engine);
+      
+      try {
+        await this.registerHandler(pluginHandler);
+        console.log('🔌 PluginSyntaxHandler registered successfully');
+      } catch (error) {
+        console.warn('⚠️  Failed to register PluginSyntaxHandler:', error.message);
+      }
+    }
+
+    // Register WikiTagHandler if enabled
+    if (this.config.handlers.wikitag.enabled) {
+      const WikiTagHandler = require('./handlers/WikiTagHandler');
+      const wikiTagHandler = new WikiTagHandler(this.engine);
+      
+      try {
+        await this.registerHandler(wikiTagHandler);
+        console.log('🏷️  WikiTagHandler registered successfully');
+      } catch (error) {
+        console.warn('⚠️  Failed to register WikiTagHandler:', error.message);
+      }
+    }
+
+    // Register WikiFormHandler if enabled
+    if (this.config.handlers.form.enabled) {
+      const WikiFormHandler = require('./handlers/WikiFormHandler');
+      const wikiFormHandler = new WikiFormHandler(this.engine);
+      
+      try {
+        await this.registerHandler(wikiFormHandler);
+        console.log('📝 WikiFormHandler registered successfully');
+      } catch (error) {
+        console.warn('⚠️  Failed to register WikiFormHandler:', error.message);
+      }
+    }
+
+    // Register InterWikiLinkHandler if enabled
+    if (this.config.handlers.interwiki.enabled) {
+      const InterWikiLinkHandler = require('./handlers/InterWikiLinkHandler');
+      const interWikiHandler = new InterWikiLinkHandler(this.engine);
+      
+      try {
+        await this.registerHandler(interWikiHandler);
+        console.log('🌐 InterWikiLinkHandler registered successfully');
+      } catch (error) {
+        console.warn('⚠️  Failed to register InterWikiLinkHandler:', error.message);
+      }
+    }
+
+    console.log(`🎯 Registered ${this.getHandlers().length} syntax handlers total`);
   }
 
   /**

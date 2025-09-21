@@ -10,21 +10,46 @@ const { BaseSyntaxHandler } = require('./BaseSyntaxHandler');
  * Depends On: #56 - Handler Registration and Priority System
  */
 class PluginSyntaxHandler extends BaseSyntaxHandler {
-  constructor() {
+  constructor(engine = null) {
     super(
       /\[\{(\w+)\s*([^}]*)\}\]/g, // Pattern: [{PluginName params}]
       90, // High priority - process before most other handlers
       {
-        description: 'JSPWiki-style plugin syntax handler',
-        version: '1.0.0',
-        dependencies: ['PluginManager']
+        description: 'Enhanced JSPWiki-style plugin syntax handler with advanced parameter parsing',
+        version: '2.0.0',
+        dependencies: ['PluginManager'],
+        timeout: 10000, // 10 second timeout for plugin execution
+        cacheEnabled: true
       }
     );
     this.handlerId = 'PluginSyntaxHandler';
+    this.engine = engine;
+    this.config = null;
+  }
+
+  /**
+   * Initialize handler with configuration
+   * @param {Object} context - Initialization context
+   */
+  async onInitialize(context) {
+    this.engine = context.engine;
+    
+    // Load handler-specific configuration
+    const markupParser = context.engine?.getManager('MarkupParser');
+    if (markupParser) {
+      this.config = markupParser.getHandlerConfig('plugin');
+      
+      // Override priority if configured
+      if (this.config.priority && this.config.priority !== this.priority) {
+        this.priority = this.config.priority;
+        console.log(`🔧 PluginSyntaxHandler priority set to ${this.priority} from configuration`);
+      }
+    }
   }
 
   /**
    * Process content by finding and executing all plugin instances
+   * Supports both simple [{Plugin}] and body syntax [{Plugin}]content[/{Plugin}]
    * @param {string} content - Content to process
    * @param {ParseContext} context - Parse context
    * @returns {Promise<string>} - Content with plugins executed
@@ -34,7 +59,10 @@ class PluginSyntaxHandler extends BaseSyntaxHandler {
       return content;
     }
 
-    // Find all plugin matches
+    // First pass: Handle body-style plugins [{Plugin}]content[/{Plugin}]
+    content = await this.processBodyPlugins(content, context);
+
+    // Second pass: Handle simple plugins [{Plugin params}]
     const matches = [];
     let match;
     
@@ -46,6 +74,7 @@ class PluginSyntaxHandler extends BaseSyntaxHandler {
         fullMatch: match[0],
         pluginName: match[1],
         paramString: match[2] || '',
+        bodyContent: null, // No body for simple plugins
         index: match.index,
         length: match[0].length
       });
@@ -82,7 +111,59 @@ class PluginSyntaxHandler extends BaseSyntaxHandler {
   }
 
   /**
-   * Handle a specific plugin match
+   * Process body-style plugins: [{Plugin}]content[/{Plugin}]
+   * @param {string} content - Content to process
+   * @param {ParseContext} context - Parse context
+   * @returns {Promise<string>} - Content with body plugins processed
+   */
+  async processBodyPlugins(content, context) {
+    // Pattern for body plugins: [{PluginName params}]body content[/{PluginName}]
+    const bodyPluginRegex = /\[\{(\w+)\s*([^}]*)\}\](.*?)\[\{\/\1\}\]/gs;
+    
+    const bodyMatches = [];
+    let match;
+    
+    while ((match = bodyPluginRegex.exec(content)) !== null) {
+      bodyMatches.push({
+        fullMatch: match[0],
+        pluginName: match[1],
+        paramString: match[2] || '',
+        bodyContent: match[3] || '',
+        index: match.index,
+        length: match[0].length
+      });
+    }
+
+    // Process body matches in reverse order
+    let processedContent = content;
+    
+    for (let i = bodyMatches.length - 1; i >= 0; i--) {
+      const matchInfo = bodyMatches[i];
+      
+      try {
+        const replacement = await this.handle(matchInfo, context);
+        
+        processedContent = 
+          processedContent.slice(0, matchInfo.index) +
+          replacement +
+          processedContent.slice(matchInfo.index + matchInfo.length);
+          
+      } catch (error) {
+        console.error(`❌ Body plugin execution error for ${matchInfo.pluginName}:`, error.message);
+        
+        const errorPlaceholder = `<!-- Body Plugin Error: ${matchInfo.pluginName} - ${error.message} -->`;
+        processedContent = 
+          processedContent.slice(0, matchInfo.index) +
+          errorPlaceholder +
+          processedContent.slice(matchInfo.index + matchInfo.length);
+      }
+    }
+
+    return processedContent;
+  }
+
+  /**
+   * Handle a specific plugin match with caching support
    * @param {Object} matchInfo - Plugin match information
    * @param {ParseContext} context - Parse context
    * @returns {Promise<string>} - Plugin output HTML
@@ -99,25 +180,94 @@ class PluginSyntaxHandler extends BaseSyntaxHandler {
       throw new Error(`Invalid parameters for ${pluginName}: ${validation.errors.join(', ')}`);
     }
 
+    // Check cache for plugin result if caching enabled
+    let cachedResult = null;
+    const contentHash = this.generateContentHash(matchInfo.fullMatch);
+    const contextHash = this.generateContextHash(context);
+    
+    if (this.options.cacheEnabled) {
+      const markupParser = this.engine?.getManager('MarkupParser');
+      if (markupParser) {
+        cachedResult = await markupParser.getCachedHandlerResult(this.handlerId, contentHash, contextHash);
+        if (cachedResult) {
+          return cachedResult;
+        }
+      }
+    }
+
     // Get PluginManager
     const pluginManager = context.getManager('PluginManager');
     if (!pluginManager) {
       throw new Error('PluginManager not available');
     }
 
-    // Create plugin execution context
+    // Create enhanced plugin execution context
     const pluginContext = {
       pageName: context.pageName,
       userName: context.userName,
       userContext: context.userContext,
       requestInfo: context.requestInfo,
-      engine: context.engine
+      engine: context.engine,
+      
+      // Enhanced context for JSPWiki compatibility
+      wikiContext: context,
+      parameters: validation.params,
+      bodyContent: matchInfo.bodyContent || null, // Support for body plugins
+      handlerId: this.handlerId,
+      markupParser: this.engine?.getManager('MarkupParser'),
+      
+      // Additional JSPWiki-compatible context
+      hasBody: matchInfo.bodyContent !== null,
+      pluginName: pluginName,
+      originalMatch: matchInfo.fullMatch
     };
 
-    // Execute plugin
-    const result = await pluginManager.executePlugin(pluginName, validation.params, pluginContext);
+    // Execute plugin with timeout
+    const executionPromise = pluginManager.executePlugin(pluginName, validation.params, pluginContext);
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error(`Plugin ${pluginName} execution timeout`)), this.options.timeout);
+    });
+
+    const result = await Promise.race([executionPromise, timeoutPromise]) || '';
     
-    return result || '';
+    // Cache the result if caching enabled
+    if (this.options.cacheEnabled && result) {
+      const markupParser = this.engine?.getManager('MarkupParser');
+      if (markupParser) {
+        await markupParser.cacheHandlerResult(this.handlerId, contentHash, contextHash, result);
+      }
+    }
+    
+    return result;
+  }
+
+  /**
+   * Generate content hash for caching
+   * @param {string} content - Content to hash
+   * @returns {string} - Content hash
+   */
+  generateContentHash(content) {
+    const crypto = require('crypto');
+    return crypto.createHash('md5').update(content).digest('hex');
+  }
+
+  /**
+   * Generate context hash for caching
+   * @param {ParseContext} context - Parse context
+   * @returns {string} - Context hash
+   */
+  generateContextHash(context) {
+    const crypto = require('crypto');
+    const contextData = {
+      pageName: context.pageName,
+      userName: context.userName,
+      authenticated: context.isAuthenticated(),
+      roles: context.getUserRoles(),
+      // Round timestamp to 5-minute buckets for cache efficiency
+      timeBucket: Math.floor(Date.now() / 300000)
+    };
+    
+    return crypto.createHash('md5').update(JSON.stringify(contextData)).digest('hex');
   }
 
   /**
@@ -199,7 +349,9 @@ class PluginSyntaxHandler extends BaseSyntaxHandler {
       '[{PluginName param=value}]',
       '[{PluginName param1=value1 param2=value2}]',
       '[{PluginName param=\'quoted value\'}]',
-      '[{PluginName param="double quoted"}]'
+      '[{PluginName param="double quoted"}]',
+      '[{PluginName}]body content[/{PluginName}]',
+      '[{PluginName param=value}]body content with params[/{PluginName}]'
     ];
   }
 
