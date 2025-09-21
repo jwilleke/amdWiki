@@ -127,7 +127,39 @@ class MarkupParser extends BaseManager {
       }
     }
 
-    console.log(`🎯 Registered ${this.getHandlers().length} syntax handlers total`);
+    // Register AttachmentHandler if enabled (Phase 3)
+    if (this.config.handlers.attachment.enabled) {
+      const AttachmentHandler = require('./handlers/AttachmentHandler');
+      const attachmentHandler = new AttachmentHandler(this.engine);
+      
+      try {
+        await this.registerHandler(attachmentHandler);
+        console.log('📎 AttachmentHandler registered successfully');
+      } catch (error) {
+        console.warn('⚠️  Failed to register AttachmentHandler:', error.message);
+      }
+    }
+
+    // Register WikiStyleHandler if enabled (Phase 3)
+    if (this.config.handlers.style.enabled) {
+      const WikiStyleHandler = require('./handlers/WikiStyleHandler');
+      const styleHandler = new WikiStyleHandler(this.engine);
+      
+      try {
+        await this.registerHandler(styleHandler);
+        console.log('🎨 WikiStyleHandler registered successfully');
+      } catch (error) {
+        console.warn('⚠️  Failed to register WikiStyleHandler:', error.message);
+      }
+    }
+
+    const handlerCount = this.getHandlers().length;
+    console.log(`🎯 Registered ${handlerCount} syntax handlers total`);
+    
+    if (handlerCount > 0) {
+      const handlerNames = this.getHandlers().map(h => h.handlerId).join(', ');
+      console.log(`📋 Active handlers: ${handlerNames}`);
+    }
   }
 
   /**
@@ -153,8 +185,10 @@ class MarkupParser extends BaseManager {
         wikitag: { enabled: true, priority: 95 },
         form: { enabled: true, priority: 85 },
         interwiki: { enabled: true, priority: 80 },
-        attachment: { enabled: true, priority: 75 },
-        style: { enabled: true, priority: 70 }
+        attachment: { enabled: true, priority: 75, enhanced: true, thumbnails: true, metadata: true },
+        style: { enabled: true, priority: 70 },
+        search: { enabled: true, priority: 65 },
+        rss: { enabled: true, priority: 60 }
       },
       filters: {
         enabled: true,
@@ -196,8 +230,16 @@ class MarkupParser extends BaseManager {
         
         // Individual handler configuration
         for (const handlerName of Object.keys(this.config.handlers)) {
-          this.config.handlers[handlerName].enabled = configManager.getProperty(`amdwiki.markup.handlers.${handlerName}.enabled`, this.config.handlers[handlerName].enabled);
-          this.config.handlers[handlerName].priority = configManager.getProperty(`amdwiki.markup.handlers.${handlerName}.priority`, this.config.handlers[handlerName].priority);
+          const handler = this.config.handlers[handlerName];
+          handler.enabled = configManager.getProperty(`amdwiki.markup.handlers.${handlerName}.enabled`, handler.enabled);
+          handler.priority = configManager.getProperty(`amdwiki.markup.handlers.${handlerName}.priority`, handler.priority);
+          
+          // Advanced attachment handler configuration
+          if (handlerName === 'attachment') {
+            handler.enhanced = configManager.getProperty('amdwiki.markup.handlers.attachment.enhanced', handler.enhanced);
+            handler.thumbnails = configManager.getProperty('amdwiki.markup.handlers.attachment.thumbnails', handler.thumbnails);
+            handler.metadata = configManager.getProperty('amdwiki.markup.handlers.attachment.metadata', handler.metadata);
+          }
         }
         
         // Filter configuration
@@ -700,18 +742,28 @@ class MarkupParser extends BaseManager {
   }
 
   /**
-   * Get handler type from handler ID for configuration lookup
+   * Get handler type from handler ID for configuration lookup (modular mapping)
    * @param {string} handlerId - Handler ID
    * @returns {string|null} - Handler type or null
    */
   getHandlerTypeFromId(handlerId) {
     const typeMap = {
+      // Phase 2 handlers
       'PluginSyntaxHandler': 'plugin',
-      'WikiTagHandler': 'wikitag',
+      'WikiTagHandler': 'wikitag', 
       'WikiFormHandler': 'form',
       'InterWikiLinkHandler': 'interwiki',
+      
+      // Phase 3 handlers (advanced)
       'AttachmentHandler': 'attachment',
-      'WikiStyleHandler': 'style'
+      'WikiStyleHandler': 'style',
+      'SearchPluginHandler': 'search',
+      'RSSHandler': 'rss',
+      
+      // Future Phase 4 handlers (filters)
+      'SpamFilterHandler': 'filter-spam',
+      'SecurityFilterHandler': 'filter-security',
+      'ValidationFilterHandler': 'filter-validation'
     };
     
     return typeMap[handlerId] || null;
