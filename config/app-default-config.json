@@ -86,8 +86,11 @@
   "amdwiki.cache.redis.keyPrefix": "amdwiki:",
   "amdwiki.cache.redis.enableCluster": false,
 
-  "_comment_markup": "MarkupParser and Handler system configuration",
+  "_comment_markup": "MarkupParser and Handler system configuration", 
   "amdwiki.markup.enabled": true,
+  "amdwiki.markup.useAdvancedParser": true,
+  "amdwiki.markup.fallbackToLegacy": true,
+  "amdwiki.markup.integration.renderingManager": true,
   "amdwiki.markup.caching": true,
   "amdwiki.markup.cacheTTL": 300,
   "amdwiki.markup.cache.parseResults.enabled": true,

@@ -15,6 +15,9 @@ class RenderingManager extends BaseManager {
   async initialize(config = {}) {
     await super.initialize(config);
     
+    // Load modular rendering configuration
+    await this.loadRenderingConfiguration();
+    
     // Initialize Showdown converter with table support
     this.converter = new showdown.Converter({
       tables: true,
@@ -29,18 +32,128 @@ class RenderingManager extends BaseManager {
     await this.buildLinkGraph();
     
     console.log('✅ RenderingManager initialized');
+    console.log(`🔧 Advanced parser: ${this.renderingConfig.useAdvancedParser ? 'enabled' : 'disabled'}`);
+    console.log(`🔄 Legacy fallback: ${this.renderingConfig.fallbackToLegacy ? 'enabled' : 'disabled'}`);
   }
 
   /**
-   * Render markdown content to HTML
+   * Load modular rendering configuration from app-default/custom-config.json
+   */
+  async loadRenderingConfiguration() {
+    const configManager = this.engine.getManager('ConfigurationManager');
+    
+    // Default configuration
+    this.renderingConfig = {
+      useAdvancedParser: true,
+      fallbackToLegacy: true,
+      integration: true,
+      performanceComparison: false,
+      logParsingMethod: false
+    };
+
+    // Load from configuration if available
+    if (configManager) {
+      try {
+        this.renderingConfig.useAdvancedParser = configManager.getProperty('amdwiki.markup.useAdvancedParser', this.renderingConfig.useAdvancedParser);
+        this.renderingConfig.fallbackToLegacy = configManager.getProperty('amdwiki.markup.fallbackToLegacy', this.renderingConfig.fallbackToLegacy);
+        this.renderingConfig.integration = configManager.getProperty('amdwiki.markup.integration.renderingManager', this.renderingConfig.integration);
+        this.renderingConfig.performanceComparison = configManager.getProperty('amdwiki.markup.performanceComparison', this.renderingConfig.performanceComparison);
+        this.renderingConfig.logParsingMethod = configManager.getProperty('amdwiki.markup.logParsingMethod', this.renderingConfig.logParsingMethod);
+      } catch (error) {
+        console.warn('⚠️  Failed to load RenderingManager configuration, using defaults:', error.message);
+      }
+    }
+  }
+
+  /**
+   * Render markdown content to HTML with MarkupParser integration
    * @param {string} content - Markdown content
    * @param {string} pageName - Current page name
    * @param {object} userContext - User context for authentication variables
+   * @param {object} requestInfo - Request information
    * @returns {Promise<string>} Rendered HTML
    */
   async renderMarkdown(content, pageName, userContext = null, requestInfo = null) {
     if (!content) return '';
 
+    // Check if MarkupParser integration is enabled and MarkupParser is available
+    const markupParser = this.engine.getManager('MarkupParser');
+    const useAdvancedParser = this.renderingConfig.useAdvancedParser && 
+                             markupParser && 
+                             markupParser.isInitialized();
+
+    if (useAdvancedParser) {
+      return await this.renderWithAdvancedParser(content, pageName, userContext, requestInfo);
+    } else {
+      return await this.renderWithLegacyParser(content, pageName, userContext, requestInfo);
+    }
+  }
+
+  /**
+   * Render content using the advanced MarkupParser system
+   * @param {string} content - Content to render
+   * @param {string} pageName - Page name
+   * @param {object} userContext - User context
+   * @param {object} requestInfo - Request information
+   * @returns {Promise<string>} Rendered HTML
+   */
+  async renderWithAdvancedParser(content, pageName, userContext, requestInfo) {
+    if (this.renderingConfig.logParsingMethod) {
+      console.log(`🔧 Rendering ${pageName} with AdvancedParser (MarkupParser)`);
+    }
+
+    const startTime = Date.now();
+    
+    try {
+      const markupParser = this.engine.getManager('MarkupParser');
+      
+      // Create comprehensive context for MarkupParser
+      const parseContext = {
+        pageName: pageName,
+        userName: userContext?.username || userContext?.userName || 'anonymous',
+        userContext: userContext,
+        requestInfo: requestInfo,
+        renderingManager: this // Provide access to legacy methods if needed
+      };
+
+      // Use MarkupParser for complete processing
+      const result = await markupParser.parse(content, parseContext);
+      
+      // Performance comparison if enabled
+      if (this.renderingConfig.performanceComparison) {
+        await this.performPerformanceComparison(content, pageName, userContext, requestInfo, Date.now() - startTime);
+      }
+
+      return result;
+
+    } catch (error) {
+      console.error('❌ AdvancedParser rendering failed:', error.message);
+      
+      // Fallback to legacy parser if configured
+      if (this.renderingConfig.fallbackToLegacy) {
+        console.log('🔄 Falling back to legacy rendering for', pageName);
+        return await this.renderWithLegacyParser(content, pageName, userContext, requestInfo);
+      }
+      
+      throw error;
+    }
+  }
+
+  /**
+   * Render content using the legacy rendering system (backward compatibility)
+   * @param {string} content - Content to render
+   * @param {string} pageName - Page name
+   * @param {object} userContext - User context
+   * @param {object} requestInfo - Request information
+   * @returns {Promise<string>} Rendered HTML
+   */
+  async renderWithLegacyParser(content, pageName, userContext, requestInfo) {
+    if (this.renderingConfig.logParsingMethod) {
+      console.log(`🔧 Rendering ${pageName} with LegacyParser (Original RenderingManager)`);
+    }
+
+    // Original rendering pipeline (preserved for backward compatibility)
+    
     // Step 1: Expand macros
     let expandedContent = this.expandMacros(content, pageName, userContext, requestInfo);
 
@@ -57,6 +170,49 @@ class RenderingManager extends BaseManager {
     const finalHtml = this.postProcessTables(html);
 
     return finalHtml;
+  }
+
+  /**
+   * Perform performance comparison between advanced and legacy parsers (modular benchmarking)
+   * @param {string} content - Content that was parsed
+   * @param {string} pageName - Page name
+   * @param {object} userContext - User context
+   * @param {object} requestInfo - Request information
+   * @param {number} advancedTime - Time taken by advanced parser
+   */
+  async performPerformanceComparison(content, pageName, userContext, requestInfo, advancedTime) {
+    try {
+      const legacyStartTime = Date.now();
+      await this.renderWithLegacyParser(content, pageName, userContext, requestInfo);
+      const legacyTime = Date.now() - legacyStartTime;
+
+      const comparison = {
+        pageName,
+        contentLength: content.length,
+        advancedTime,
+        legacyTime,
+        improvement: legacyTime - advancedTime,
+        percentImprovement: legacyTime > 0 ? ((legacyTime - advancedTime) / legacyTime * 100).toFixed(1) : 0,
+        timestamp: new Date().toISOString()
+      };
+
+      console.log(`📊 Performance comparison for ${pageName}:`, comparison);
+
+      // Send to performance monitoring if available
+      const notificationManager = this.engine.getManager('NotificationManager');
+      if (notificationManager && Math.abs(comparison.improvement) > 50) { // Significant difference
+        notificationManager.addNotification({
+          type: 'performance',
+          title: `Rendering Performance: ${pageName}`,
+          message: `AdvancedParser vs Legacy: ${comparison.improvement}ms difference (${comparison.percentImprovement}% improvement)`,
+          priority: 'low',
+          source: 'RenderingManager'
+        });
+      }
+
+    } catch (error) {
+      console.warn('⚠️  Performance comparison failed:', error.message);
+    }
   }
 
   /**
