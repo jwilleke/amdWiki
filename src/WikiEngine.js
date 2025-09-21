@@ -92,6 +92,7 @@ class WikiEngine extends Engine {
     const NotificationManager = require('./managers/NotificationManager');
     const ConfigurationManager = require('./managers/ConfigurationManager');
     const VariableManager = require('./managers/VariableManager');
+    const CacheManager = require('./managers/CacheManager');
 
     try {
       console.log('✅ Registering ValidationManager...');
@@ -99,6 +100,9 @@ class WikiEngine extends Engine {
 
       console.log('📋 Registering ConfigurationManager...');
       this.registerManager('ConfigurationManager', new ConfigurationManager(this));
+
+      console.log('🗄️  Registering CacheManager...');
+      this.registerManager('CacheManager', new CacheManager(this));
 
       console.log('🔧 Registering VariableManager...');
       this.registerManager('VariableManager', new VariableManager(this));
@@ -165,6 +169,9 @@ class WikiEngine extends Engine {
       if (this.config && typeof this.config.setConfigurationManager === 'function') {
         this.config.setConfigurationManager(this.getManager('ConfigurationManager'));
       }
+
+      console.log('🚀 Initializing CacheManager...');
+      await this.getManager('CacheManager').initialize();
 
       console.log('🚀 Initializing VariableManager...');
       await this.getManager('VariableManager').initialize();

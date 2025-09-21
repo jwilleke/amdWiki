@@ -3135,6 +3135,11 @@ class WikiRoutes {
     app.post('/admin/notifications/clear-all', (req, res) => this.adminClearAllNotifications(req, res));
     app.get('/admin/notifications', (req, res) => this.adminNotifications(req, res));
 
+    // Cache management routes
+    app.get('/api/admin/cache/stats', (req, res) => this.adminCacheStats(req, res));
+    app.post('/api/admin/cache/clear', (req, res) => this.adminClearCache(req, res));
+    app.post('/api/admin/cache/clear/:region', (req, res) => this.adminClearCacheRegion(req, res));
+
     // Admin Schema.org Organization Management Routes
     app.get('/admin/organizations', this.adminOrganizations.bind(this));
     app.post('/admin/organizations', this.adminCreateOrganization.bind(this));
@@ -3247,6 +3252,108 @@ class WikiRoutes {
     } catch (err) {
       console.error('Error loading notification management:', err);
       res.status(500).send('Error loading notification management');
+    }
+  }
+
+  // ============================================================================
+  // Admin Cache Route Handlers
+  // ============================================================================
+
+  /**
+   * Admin cache statistics API endpoint
+   */
+  async adminCacheStats(req, res) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = await userManager.getCurrentUser(req);
+
+      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+        return res.status(403).json({ error: 'Access denied' });
+      }
+
+      const cacheManager = this.engine.getManager('CacheManager');
+      if (!cacheManager || !cacheManager.isInitialized()) {
+        return res.status(503).json({ error: 'CacheManager not available' });
+      }
+
+      const stats = await cacheManager.stats();
+      res.json(stats);
+
+    } catch (err) {
+      console.error('Error getting cache stats:', err);
+      res.status(500).json({ error: 'Failed to get cache statistics' });
+    }
+  }
+
+  /**
+   * Admin clear all cache API endpoint
+   */
+  async adminClearCache(req, res) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = await userManager.getCurrentUser(req);
+
+      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+        return res.status(403).json({ error: 'Access denied' });
+      }
+
+      const cacheManager = this.engine.getManager('CacheManager');
+      if (!cacheManager || !cacheManager.isInitialized()) {
+        return res.status(503).json({ error: 'CacheManager not available' });
+      }
+
+      await cacheManager.clear();
+      console.log(`Cache cleared by admin user: ${currentUser.username}`);
+      
+      res.json({ 
+        success: true, 
+        message: 'All caches cleared successfully',
+        timestamp: new Date().toISOString(),
+        user: currentUser.username
+      });
+
+    } catch (err) {
+      console.error('Error clearing cache:', err);
+      res.status(500).json({ error: 'Failed to clear cache' });
+    }
+  }
+
+  /**
+   * Admin clear cache region API endpoint
+   */
+  async adminClearCacheRegion(req, res) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = await userManager.getCurrentUser(req);
+
+      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+        return res.status(403).json({ error: 'Access denied' });
+      }
+
+      const cacheManager = this.engine.getManager('CacheManager');
+      if (!cacheManager || !cacheManager.isInitialized()) {
+        return res.status(503).json({ error: 'CacheManager not available' });
+      }
+
+      const region = req.params.region;
+      if (!region) {
+        return res.status(400).json({ error: 'Region parameter required' });
+      }
+
+      await cacheManager.clear(region);
+      console.log(`Cache region '${region}' cleared by admin user: ${currentUser.username}`);
+      
+      res.json({ 
+        success: true, 
+        message: `Cache region '${region}' cleared successfully`,
+        region: region,
+        timestamp: new Date().toISOString(),
+        user: currentUser.username
+      });
+
+    } catch (err) {
+      console.error(`Error clearing cache region '${req.params.region}':`, err);
+      res.status(500).json({ error: 'Failed to clear cache region' });
     }
   }
 

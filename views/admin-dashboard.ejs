@@ -296,9 +296,77 @@ function confirmRestart() {
     }
 }
 
-function clearCache() {
-    // Add cache clearing functionality here
-    alert('Cache clearing functionality would be implemented here.');
+async function clearCache() {
+    if (!confirm('Are you sure you want to clear all cache data? This action cannot be undone.')) {
+        return;
+    }
+
+    const button = document.querySelector('button[onclick="clearCache()"]');
+    const originalText = button.textContent;
+    
+    try {
+        button.disabled = true;
+        button.textContent = 'Clearing...';
+        
+        const response = await fetch('/api/admin/cache/clear', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok && result.success) {
+            button.classList.remove('btn-outline-success');
+            button.classList.add('btn-success');
+            button.textContent = '✓ Cache Cleared';
+            
+            // Show success message
+            showMessage('All caches cleared successfully', 'success');
+            
+            // Reset button after 3 seconds
+            setTimeout(() => {
+                button.disabled = false;
+                button.classList.remove('btn-success');
+                button.classList.add('btn-outline-success');
+                button.textContent = originalText;
+            }, 3000);
+        } else {
+            throw new Error(result.error || 'Failed to clear cache');
+        }
+    } catch (error) {
+        console.error('Cache clear error:', error);
+        button.disabled = false;
+        button.textContent = originalText;
+        showMessage('Failed to clear cache: ' + error.message, 'error');
+    }
+}
+
+function showMessage(message, type) {
+    // Create or update message element
+    let messageEl = document.querySelector('#cache-message');
+    if (!messageEl) {
+        messageEl = document.createElement('div');
+        messageEl.id = 'cache-message';
+        messageEl.style.position = 'fixed';
+        messageEl.style.top = '20px';
+        messageEl.style.right = '20px';
+        messageEl.style.zIndex = '9999';
+        messageEl.style.padding = '10px 15px';
+        messageEl.style.borderRadius = '4px';
+        messageEl.style.minWidth = '300px';
+        document.body.appendChild(messageEl);
+    }
+    
+    messageEl.textContent = message;
+    messageEl.className = type === 'success' ? 'alert alert-success' : 'alert alert-danger';
+    messageEl.style.display = 'block';
+    
+    // Auto-hide after 5 seconds
+    setTimeout(() => {
+        messageEl.style.display = 'none';
+    }, 5000);
 }
 </script>
 
