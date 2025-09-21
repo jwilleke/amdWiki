@@ -37,6 +37,9 @@ class MarkupParser extends BaseManager {
   async initialize(config = {}) {
     await super.initialize(config);
 
+    // Load configuration from ConfigurationManager
+    await this.loadConfiguration();
+
     // Initialize processing phases
     this.initializePhases();
     
@@ -46,8 +49,89 @@ class MarkupParser extends BaseManager {
     // Initialize metrics collection
     this.initializeMetrics();
     
+    // Configure handler registry
+    this.configureHandlerRegistry();
+    
     console.log('✅ MarkupParser initialized with 7-phase processing pipeline');
     console.log(`🔧 Phases: ${this.phases.map(p => p.name).join(' → ')}`);
+    console.log(`⚙️  Configuration loaded: ${this.config.enabled ? 'enabled' : 'disabled'}`);
+  }
+
+  /**
+   * Load configuration from ConfigurationManager
+   */
+  async loadConfiguration() {
+    const configManager = this.engine.getManager('ConfigurationManager');
+    
+    // Default configuration
+    this.config = {
+      enabled: true,
+      caching: true,
+      cacheTTL: 300,
+      handlerRegistry: {
+        maxHandlers: 100,
+        allowDuplicatePriorities: true,
+        enableDependencyResolution: true,
+        enableConflictDetection: true,
+        defaultTimeout: 5000
+      },
+      handlers: {
+        plugin: { enabled: true, priority: 90 },
+        wikitag: { enabled: true, priority: 95 },
+        form: { enabled: true, priority: 85 },
+        interwiki: { enabled: true, priority: 80 },
+        attachment: { enabled: true, priority: 75 },
+        style: { enabled: true, priority: 70 }
+      },
+      filters: {
+        enabled: true,
+        spam: { enabled: true },
+        security: { enabled: true },
+        validation: { enabled: true }
+      }
+    };
+
+    // Load from configuration manager if available
+    if (configManager) {
+      try {
+        this.config.enabled = configManager.getProperty('amdwiki.markup.enabled', this.config.enabled);
+        this.config.caching = configManager.getProperty('amdwiki.markup.caching', this.config.caching);
+        this.config.cacheTTL = configManager.getProperty('amdwiki.markup.cacheTTL', this.config.cacheTTL);
+        
+        // Handler registry configuration
+        this.config.handlerRegistry.maxHandlers = configManager.getProperty('amdwiki.markup.handlerRegistry.maxHandlers', this.config.handlerRegistry.maxHandlers);
+        this.config.handlerRegistry.allowDuplicatePriorities = configManager.getProperty('amdwiki.markup.handlerRegistry.allowDuplicatePriorities', this.config.handlerRegistry.allowDuplicatePriorities);
+        this.config.handlerRegistry.enableDependencyResolution = configManager.getProperty('amdwiki.markup.handlerRegistry.enableDependencyResolution', this.config.handlerRegistry.enableDependencyResolution);
+        this.config.handlerRegistry.enableConflictDetection = configManager.getProperty('amdwiki.markup.handlerRegistry.enableConflictDetection', this.config.handlerRegistry.enableConflictDetection);
+        this.config.handlerRegistry.defaultTimeout = configManager.getProperty('amdwiki.markup.handlerRegistry.defaultTimeout', this.config.handlerRegistry.defaultTimeout);
+        
+        // Individual handler configuration
+        for (const handlerName of Object.keys(this.config.handlers)) {
+          this.config.handlers[handlerName].enabled = configManager.getProperty(`amdwiki.markup.handlers.${handlerName}.enabled`, this.config.handlers[handlerName].enabled);
+          this.config.handlers[handlerName].priority = configManager.getProperty(`amdwiki.markup.handlers.${handlerName}.priority`, this.config.handlers[handlerName].priority);
+        }
+        
+        // Filter configuration
+        this.config.filters.enabled = configManager.getProperty('amdwiki.markup.filters.enabled', this.config.filters.enabled);
+        this.config.filters.spam.enabled = configManager.getProperty('amdwiki.markup.filters.spam.enabled', this.config.filters.spam.enabled);
+        this.config.filters.security.enabled = configManager.getProperty('amdwiki.markup.filters.security.enabled', this.config.filters.security.enabled);
+        this.config.filters.validation.enabled = configManager.getProperty('amdwiki.markup.filters.validation.enabled', this.config.filters.validation.enabled);
+        
+      } catch (err) {
+        console.warn('⚠️  Failed to load MarkupParser config from ConfigurationManager, using defaults:', err.message);
+      }
+    }
+  }
+
+  /**
+   * Configure handler registry with loaded configuration
+   */
+  configureHandlerRegistry() {
+    // Apply configuration to handler registry
+    this.handlerRegistry.config = {
+      ...this.handlerRegistry.config,
+      ...this.config.handlerRegistry
+    };
   }
 
   /**
@@ -101,10 +185,15 @@ class MarkupParser extends BaseManager {
    * Initialize caching integration with CacheManager
    */
   async initializeCaching() {
+    if (!this.config.caching) {
+      console.log('🗄️  MarkupParser caching disabled by configuration');
+      return;
+    }
+    
     const cacheManager = this.engine.getManager('CacheManager');
     if (cacheManager && cacheManager.isInitialized()) {
       this.cache = cacheManager.region('MarkupParser');
-      console.log('🗄️  MarkupParser cache region initialized');
+      console.log(`🗄️  MarkupParser cache region initialized (TTL: ${this.config.cacheTTL}s)`);
     } else {
       console.warn('⚠️  CacheManager not available, parsing will not be cached');
     }
@@ -133,6 +222,17 @@ class MarkupParser extends BaseManager {
   async parse(content, context = {}) {
     if (!content) {
       return '';
+    }
+
+    // Check if MarkupParser is enabled
+    if (!this.config.enabled) {
+      console.debug('🔧 MarkupParser disabled, falling back to basic rendering');
+      // Fall back to basic markdown conversion
+      const renderingManager = this.engine.getManager('RenderingManager');
+      if (renderingManager && renderingManager.converter) {
+        return renderingManager.converter.makeHtml(content);
+      }
+      return content;
     }
 
     const startTime = Date.now();
@@ -184,7 +284,7 @@ class MarkupParser extends BaseManager {
 
       // Cache the result
       if (this.cache) {
-        await this.cache.set(cacheKey, processedContent, { ttl: 300 });
+        await this.cache.set(cacheKey, processedContent, { ttl: this.config.cacheTTL });
       }
 
       // Update performance metrics
@@ -347,7 +447,41 @@ class MarkupParser extends BaseManager {
    * @returns {Promise<boolean>} - True if registration successful
    */
   async registerHandler(handler, options = {}) {
+    // Check if handler type is enabled in configuration
+    const handlerType = this.getHandlerTypeFromId(handler.handlerId);
+    if (handlerType && this.config.handlers[handlerType] && !this.config.handlers[handlerType].enabled) {
+      console.log(`🔧 Handler ${handler.handlerId} disabled by configuration, skipping registration`);
+      return false;
+    }
+    
     return await this.handlerRegistry.registerHandler(handler, options);
+  }
+
+  /**
+   * Get handler type from handler ID for configuration lookup
+   * @param {string} handlerId - Handler ID
+   * @returns {string|null} - Handler type or null
+   */
+  getHandlerTypeFromId(handlerId) {
+    const typeMap = {
+      'PluginSyntaxHandler': 'plugin',
+      'WikiTagHandler': 'wikitag',
+      'WikiFormHandler': 'form',
+      'InterWikiLinkHandler': 'interwiki',
+      'AttachmentHandler': 'attachment',
+      'WikiStyleHandler': 'style'
+    };
+    
+    return typeMap[handlerId] || null;
+  }
+
+  /**
+   * Get configuration for a specific handler type
+   * @param {string} handlerType - Handler type (plugin, wikitag, etc.)
+   * @returns {Object} - Handler configuration
+   */
+  getHandlerConfig(handlerType) {
+    return this.config.handlers[handlerType] || { enabled: true, priority: 100 };
   }
 
   /**
