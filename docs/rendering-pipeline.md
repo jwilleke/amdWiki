@@ -6,7 +6,7 @@ The amdWiki rendering system uses a sophisticated 7-phase MarkupParser pipeline 
 
 The rendering pipeline transforms wiki markup through seven distinct phases, each handling specific aspects of content processing:
 
-```
+```text
 Raw Wiki Content
        ↓
 Phase 1: Preprocessing
@@ -26,42 +26,60 @@ Phase 7: Post-processing
 Final HTML Output
 ```
 
-## Phase Details
+## Phase Details & Components
 
 ### Phase 1: Preprocessing
+**Component**: `MarkupParser.phasePreprocessing()`
 **Purpose**: Normalize content and prepare for processing
 - Normalizes line endings and whitespace
 - Handles character encoding
-- Prepares initial parse context
+- Prepares initial parse context (`ParseContext` object)
+- Sets up `context.pageName`, `context.timestamp`, `context.variables`
 
 ### Phase 2: Syntax Recognition
-**Purpose**: Identify and categorize wiki syntax elements
+**Component**: `MarkupParser.phaseSyntaxRecognition()`
+**Purpose**: Identify and categorize wiki syntax elements using registered handlers
+
+**Processing**: Each handler's `process()` method is called in priority order:
 - Recognizes JSPWiki plugins: `[{PluginName param=value}]`
 - Identifies system variables: `[{$variablename}]`
 - Detects escaped syntax: `[[{syntax}]`
 - Finds wiki links, attachments, and other markup
 
-**Handler Priority Order** (highest to lowest):
-1. **EscapedSyntaxHandler** (Priority: 100) - JSPWiki double bracket escaping
-2. **WikiTagHandler** (Priority: 95) - Wiki tag processing
-3. **PluginSyntaxHandler** (Priority: 90) - Plugin execution
-4. **WikiFormHandler** (Priority: 85) - Form processing
-5. **InterWikiLinkHandler** (Priority: 80) - InterWiki links
-6. **AttachmentHandler** (Priority: 75) - File attachments
-7. **WikiStyleHandler** (Priority: 70) - Style processing
-8. **WikiLinkHandler** (Priority: 50) - Basic wiki links
+**Handler Components** (priority order, highest to lowest):
+1. **EscapedSyntaxHandler** (Priority: 100) - `src/parsers/handlers/EscapedSyntaxHandler.js`
+   - Processes `[[{syntax}]` → `[{syntax}]` literal display
+2. **WikiTagHandler** (Priority: 95) - `src/parsers/handlers/WikiTagHandler.js`
+   - Handles JSPWiki-style tags and markup
+3. **PluginSyntaxHandler** (Priority: 90) - `src/parsers/handlers/PluginSyntaxHandler.js`
+   - Executes plugins via `PluginManager.execute()`
+4. **WikiFormHandler** (Priority: 85) - `src/parsers/handlers/WikiFormHandler.js`
+   - Processes form elements and input handling
+5. **InterWikiLinkHandler** (Priority: 80) - `src/parsers/handlers/InterWikiLinkHandler.js`
+   - Resolves links to external wikis
+6. **AttachmentHandler** (Priority: 75) - `src/parsers/handlers/AttachmentHandler.js`
+   - Processes file attachments and media
+7. **WikiStyleHandler** (Priority: 70) - `src/parsers/handlers/WikiStyleHandler.js`
+   - Applies CSS classes and styling
+8. **WikiLinkHandler** (Priority: 50) - `src/parsers/handlers/WikiLinkHandler.js`
+   - Creates internal wiki page links
 
 ### Phase 3: Context Resolution
+**Component**: `MarkupParser.phaseContextResolution()`
 **Purpose**: Build relationships and resolve references
-- Creates link graph for page relationships
-- Resolves plugin dependencies
-- Builds context for cross-references
+- **RenderingManager**: Provides `getLinkGraph()` for page relationships
+- **VariableManager**: Resolves variable references and dependencies
+- **PluginManager**: Validates plugin dependencies and parameters
+- Builds context for cross-references and navigation
 
 ### Phase 4: Content Transformation
-**Purpose**: Execute plugins and transform content
-- **Plugin Execution**: Runs JSPWiki-compatible plugins
-- **Variable Expansion**: Processes system variables like `[{$pagename}]`
-- **HTML Protection**: Critical step that prevents double-encoding
+**Component**: `MarkupParser.phaseContentTransformation()`
+**Purpose**: Execute plugins and transform content with HTML protection
+
+**Sub-components**:
+- **PluginManager**: Executes JSPWiki-compatible plugins
+- **VariableManager**: Processes system variables like `[{$pagename}]`
+- **HTML Protection System**: `MarkupParser.protectGeneratedHtml()`
 
 #### HTML Protection System
 The HTML Protection System is crucial for preventing double-encoding of generated HTML:
@@ -82,12 +100,22 @@ context.protectedBlocks = ['<img src="test.jpg" alt="Test" />']
 - `<span>`, `<div>`, `<strong>`, `<em>`, `<code>` tags
 
 ### Phase 5: Filter Pipeline
-**Purpose**: Apply security, validation, and content filters
+**Component**: `MarkupParser.phaseFilterPipeline()`
+**Purpose**: Apply security, validation, and content filters through FilterChain
 
-**Filter Priority Order** (highest to lowest):
-1. **SecurityFilter** (Priority: 110) - XSS, CSRF, HTML sanitization
-2. **SpamFilter** (Priority: 100) - Spam detection and prevention
-3. **ValidationFilter** (Priority: 90) - Content validation
+**Main Component**: `FilterChain` orchestrates all filters
+
+**Filter Components** (priority order, highest to lowest):
+1. **SecurityFilter** (Priority: 110) - `src/parsers/filters/SecurityFilter.js`
+   - XSS prevention and CSRF protection
+   - HTML sanitization with configurable allowed tags/attributes
+   - **HTMLTOKEN preservation** for HTML Protection System integration
+2. **SpamFilter** (Priority: 100) - `src/parsers/filters/SpamFilter.js`
+   - Link count limits and blacklisted domain detection
+   - Content pattern matching for spam prevention
+3. **ValidationFilter** (Priority: 90) - `src/parsers/filters/ValidationFilter.js`
+   - Markup syntax validation and content length limits
+   - Link and image validation
 
 #### SecurityFilter Integration
 The SecurityFilter now preserves HTML protection tokens:
@@ -110,16 +138,33 @@ secureContent = secureContent.replace(/SECURITYPROTECTED(\d+)SECURITYPROTECTED/g
 ```
 
 ### Phase 6: Markdown Conversion
+**Component**: `MarkupParser.phaseMarkdownConversion()`
 **Purpose**: Convert remaining markdown to HTML
-- Uses Showdown.js for markdown processing
-- Applies markdown extensions
-- Converts standard markdown syntax
+
+**Sub-components**:
+- **Showdown.js**: Third-party markdown processor
+- **Markdown Extensions**: Custom extensions for wiki-specific syntax
+- **Configuration**: Uses `this.config.markdown` settings
+
+**Processing**:
+- Converts standard markdown syntax (headers, lists, links, etc.)
+- Preserves HTMLTOKEN placeholders during conversion
+- Applies markdown extensions for enhanced functionality
 
 ### Phase 7: Post-processing
-**Purpose**: Final HTML cleanup and restoration
-- **HTML Token Restoration**: Replaces HTMLTOKEN placeholders with original HTML
-- **Link Processing**: Finalizes link attributes and classes
-- **HTML Cleanup**: Removes artifacts and normalizes output
+**Component**: `MarkupParser.phasePostProcessing()`
+**Purpose**: Final HTML cleanup and token restoration
+
+**Sub-components**:
+- **HTML Token Restoration**: `MarkupParser.restoreProtectedHtml()`
+- **Link Processing**: Finalizes link attributes and CSS classes
+- **HTML Cleanup**: `MarkupParser.cleanupGeneratedHtml()`
+
+**Processing Steps**:
+1. **Token Restoration**: Replaces HTMLTOKEN placeholders with original HTML
+2. **Link Finalization**: Adds proper CSS classes to wiki links
+3. **HTML Normalization**: Removes processing artifacts
+4. **Final Validation**: Ensures clean, valid HTML output
 
 ```javascript
 // Token Restoration Example:
@@ -142,12 +187,12 @@ processedContent = processedContent.replace(/HTMLTOKEN(\d+)HTMLTOKEN/g, (match, 
 - `[{$baseurl}]` - Base URL
 - `[{$timestamp}]` - Current ISO timestamp
 
-### Supported Plugins
-- **Image**: Display images with customizable attributes
-- **SessionsPlugin**: Show active session count
-- **TotalPagesPlugin**: Display total page count
-- **UptimePlugin**: Show server uptime
-- **ReferringPagesPlugin**: List pages that reference current page
+### Supported Plugins & Components
+- **Image** (`plugins/ImagePlugin.js`): Display images with customizable attributes
+- **SessionsPlugin** (`plugins/SessionsPlugin.js`): Show active session count via UserManager
+- **TotalPagesPlugin** (`plugins/TotalPagesPlugin.js`): Display total page count via PageManager
+- **UptimePlugin** (`plugins/UptimePlugin.js`): Show server uptime from process statistics
+- **ReferringPagesPlugin** (`plugins/referringPagesPlugin.js`): List pages that reference current page via RenderingManager.getLinkGraph()
 
 ## Configuration
 
@@ -238,3 +283,35 @@ Pipeline output feeds into search indexing for:
 - Content categorization
 
 This rendering pipeline provides a robust, secure, and extensible foundation for JSPWiki-compatible wiki markup processing while maintaining high performance and comprehensive feature support.
+
+## Component Integration Diagram
+
+```text
+MarkupParser (Main Controller)
+├── Phase 1: phasePreprocessing()
+├── Phase 2: phaseSyntaxRecognition()
+│   ├── EscapedSyntaxHandler
+│   ├── WikiTagHandler
+│   ├── PluginSyntaxHandler → PluginManager.execute()
+│   ├── WikiFormHandler
+│   ├── InterWikiLinkHandler
+│   ├── AttachmentHandler
+│   ├── WikiStyleHandler
+│   └── WikiLinkHandler
+├── Phase 3: phaseContextResolution()
+│   ├── RenderingManager.getLinkGraph()
+│   ├── VariableManager
+│   └── PluginManager
+├── Phase 4: phaseContentTransformation()
+│   ├── PluginManager.execute()
+│   ├── VariableManager.expandVariables()
+│   └── protectGeneratedHtml()
+├── Phase 5: phaseFilterPipeline() → FilterChain
+│   ├── SecurityFilter (with HTMLTOKEN preservation)
+│   ├── SpamFilter
+│   └── ValidationFilter
+├── Phase 6: phaseMarkdownConversion() → Showdown.js
+└── Phase 7: phasePostProcessing()
+    ├── restoreProtectedHtml()
+    └── cleanupGeneratedHtml()
+```
