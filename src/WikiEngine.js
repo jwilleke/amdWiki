@@ -93,6 +93,7 @@ class WikiEngine extends Engine {
     const ConfigurationManager = require('./managers/ConfigurationManager');
     const VariableManager = require('./managers/VariableManager');
     const CacheManager = require('./managers/CacheManager');
+    const MarkupParser = require('./parsers/MarkupParser');
 
     try {
       console.log('✅ Registering ValidationManager...');
@@ -106,6 +107,9 @@ class WikiEngine extends Engine {
 
       console.log('🔧 Registering VariableManager...');
       this.registerManager('VariableManager', new VariableManager(this));
+
+      console.log('📝 Registering MarkupParser...');
+      this.registerManager('MarkupParser', new MarkupParser(this));
 
       console.log('📄 Registering PageManager...');
       this.registerManager('PageManager', new PageManager(this));
@@ -175,6 +179,9 @@ class WikiEngine extends Engine {
 
       console.log('🚀 Initializing VariableManager...');
       await this.getManager('VariableManager').initialize();
+
+      console.log('🚀 Initializing MarkupParser...');
+      await this.getManager('MarkupParser').initialize();
 
       console.log('🚀 Initializing PageManager...');
       await this.getManager('PageManager').initialize();
