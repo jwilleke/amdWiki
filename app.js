@@ -1,3 +1,8 @@
+/**
+ * @file app.js
+ * @description Main application file for the Wiki Engine.
+ */
+
 const referringPagesPlugin = require('./plugins/referringPagesPlugin');
 const fs = require('fs-extra');
 const bodyParser = require('body-parser');
@@ -8,7 +13,7 @@ const matter = require('gray-matter');
 const express = require('express');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
-app = express();
+const app = express();
 const showdown = require('showdown');
 
 const { lint } = require('markdownlint/sync');
@@ -41,7 +46,9 @@ app.use(session({
   }
 }));
 
-// Simple CSRF protection middleware
+/**
+ * @description Middleware to handle CSRF protection.
+ */
 app.use((req, res, next) => {
   console.log('MIDDLEWARE DEBUG: Request:', req.method, req.path, 'Headers:', req.headers);
 
@@ -85,7 +92,9 @@ app.use((req, res, next) => {
   next();
 });
 
-// Maintenance mode middleware
+/**
+ * @description Middleware to handle maintenance mode.
+ */
 app.use(async (req, res, next) => {
   // Skip maintenance check for static files and API endpoints
   if (req.path.startsWith('/public/') || req.path.startsWith('/js/') || req.path.startsWith('/css/') || req.path === '/favicon.ico') {
@@ -173,6 +182,9 @@ app.use(async (req, res, next) => {
 });
 
 // Initialize WikiEngine and Routes
+/**
+ * @description Initialize the WikiEngine and set up routes.
+ */
 async function initializeWikiEngine() {
   const engine = new WikiEngine();
 
@@ -280,6 +292,9 @@ async function buildLinkGraph() {
   logger.info(`📊 Link graph built with ${Object.keys(linkGraph).length} entries`);
 }
 
+/**
+ * Build the search index for the wiki pages.
+ */
 async function buildSearchIndex() {
   documents = [];
   const files = await fs.readdir(pagesDir);
@@ -311,10 +326,15 @@ async function buildSearchIndex() {
   logger.info(`🔍 Search index built with ${documents.length} documents`);
 }
 
+/**
+ * Render markdown content with wiki-style links and other macros.
+ * @param {string} content - The markdown content to render.
+ * @param {string} pageName - The name of the current page.
+ * @returns {string} - The rendered markdown content.
+ */
 function renderMarkdown(content, pageName) {
   // Expand [{$pagename}] to the current page title
   let expandedContent = content.replace(/\[\{\$pagename\}\]/g, pageName);
-  // ReferringPagesPlugin macro expansion
   expandedContent = expandedContent.replace(/\[\{ReferringPagesPlugin([^}]*)\}\]/g, (match, params) => {
     return referringPagesPlugin(pageName, params, linkGraph);
   });
@@ -385,12 +405,19 @@ function renderMarkdown(content, pageName) {
   return converter.makeHtml(expandedContent);
 }
 
-// Start the server and store the server instance
+/**
+ * Render markdown content with wiki-style links and other macros.
+ * @param {string} content - The markdown content to render.
+ * @param {string} pageName - The name of the current page.
+ * @returns {string} - The rendered markdown content.
+ */
 const server = app.listen(port, () => {
   logger.info(`Wiki app listening at http://localhost:${port}`);
 });
 
-// Graceful shutdown endpoint
+/**
+ * Graceful shutdown endpoint
+ */
 app.get('/STOPP', (req, res) => {
   res.send('Shutting down server...');
   server.close(() => {
