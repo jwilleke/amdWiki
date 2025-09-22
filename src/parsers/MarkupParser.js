@@ -708,14 +708,23 @@ class MarkupParser extends BaseManager {
 
     // Extract and protect code blocks
     processedContent = processedContent.replace(/```[\s\S]*?```/g, (match) => {
-      const placeholder = `__CODE_BLOCK_${codeBlocks.length}__`;
+      const placeholder = `CODEBLOCK${codeBlocks.length}CODEBLOCK`;
       codeBlocks.push(match);
+      return placeholder;
+    });
+
+    // Extract and protect JSPWiki-style code blocks (''')
+    processedContent = processedContent.replace(/'''[\s\S]*?'''/g, (match) => {
+      const placeholder = `CODEBLOCK${codeBlocks.length}CODEBLOCK`;
+      // Convert JSPWiki style to markdown style for proper rendering
+      const content = match.replace(/^'''\s*\n?/, '```\n').replace(/\n?\s*'''$/, '\n```');
+      codeBlocks.push(content);
       return placeholder;
     });
 
     // Protect inline code
     processedContent = processedContent.replace(/`[^`]+`/g, (match) => {
-      const placeholder = `__INLINE_CODE_${codeBlocks.length}__`;
+      const placeholder = `INLINECODE${codeBlocks.length}INLINECODE`;
       codeBlocks.push(match);
       return placeholder;
     });
@@ -824,8 +833,8 @@ class MarkupParser extends BaseManager {
     if (context.protectedBlocks) {
       context.protectedBlocks.forEach((block, index) => {
         // Restore code blocks (from Phase 1 preprocessing)
-        const codeBlockPlaceholder = `__CODE_BLOCK_${index}__`;
-        const inlineCodePlaceholder = `__INLINE_CODE_${index}__`;
+        const codeBlockPlaceholder = `CODEBLOCK${index}CODEBLOCK`;
+        const inlineCodePlaceholder = `INLINECODE${index}INLINECODE`;
         content = content.replace(new RegExp(codeBlockPlaceholder, 'g'), block);
         content = content.replace(new RegExp(inlineCodePlaceholder, 'g'), block);
 

@@ -466,21 +466,30 @@ class RenderingManager extends BaseManager {
 
     // Protect code blocks (```code```)
     expandedContent = expandedContent.replace(/```[\s\S]*?```/g, (match) => {
-      const placeholder = `__PROTECTED_${protectionIndex++}__`;
+      const placeholder = `PROTECTED${protectionIndex++}PROTECTED`;
       protectedAreas[placeholder] = match;
+      return placeholder;
+    });
+
+    // Protect JSPWiki-style code blocks (''')
+    expandedContent = expandedContent.replace(/'''[\s\S]*?'''/g, (match) => {
+      const placeholder = `PROTECTED${protectionIndex++}PROTECTED`;
+      // Convert JSPWiki style to markdown style for proper rendering
+      const content = match.replace(/^'''\s*\n?/, '```\n').replace(/\n?\s*'''$/, '\n```');
+      protectedAreas[placeholder] = content;
       return placeholder;
     });
 
     // Protect inline code (`code`)
     expandedContent = expandedContent.replace(/`[^`]*`/g, (match) => {
-      const placeholder = `__PROTECTED_${protectionIndex++}__`;
+      const placeholder = `PROTECTED${protectionIndex++}PROTECTED`;
       protectedAreas[placeholder] = match;
       return placeholder;
     });
 
     // Protect escaped plugins/variables ([[{...}])
     expandedContent = expandedContent.replace(/\[\[\{([^}]+)\}\]/g, (match, content) => {
-      const placeholder = `__PROTECTED_${protectionIndex++}__`;
+      const placeholder = `PROTECTED${protectionIndex++}PROTECTED`;
       protectedAreas[placeholder] = `[{${content}}]`; // Remove one set of brackets
       return placeholder;
     });
