@@ -53,7 +53,7 @@ class RenderingManager extends BaseManager {
       fallbackToLegacy: true,
       integration: true,
       performanceComparison: false,
-      logParsingMethod: false
+      logParsingMethod: true // Enable debug logging to see which parser is used
     };
 
     // Load from configuration if available
@@ -957,6 +957,16 @@ class RenderingManager extends BaseManager {
 
       this.linkGraph = newLinkGraph;
       console.log(`📊 Link graph built with ${Object.keys(this.linkGraph).length} entries`);
+
+    // Notify LinkParserHandler to refresh its page names if it exists
+    const markupParser = this.engine.getManager('MarkupParser');
+    if (markupParser && markupParser.getHandler) {
+      const linkParserHandler = markupParser.getHandler('LinkParserHandler');
+      if (linkParserHandler && linkParserHandler.refreshPageNames) {
+        await linkParserHandler.refreshPageNames();
+        console.log('🔄 Notified LinkParserHandler to refresh page names');
+      }
+    }
     } catch (err) {
       console.error('Failed to build link graph:', err);
     }

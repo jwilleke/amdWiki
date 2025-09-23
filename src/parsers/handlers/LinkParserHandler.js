@@ -72,6 +72,12 @@ class LinkParserHandler extends BaseSyntaxHandler {
         const pageNames = pages.map(page => page.name);
         this.linkParser.setPageNames(pageNames);
         console.log(`📄 LinkParserHandler loaded ${pageNames.length} page names for link validation`);
+
+        // If no pages were loaded during initialization, schedule a retry
+        if (pageNames.length === 0) {
+          console.log('⏰ No pages loaded during LinkParserHandler initialization, scheduling retry...');
+          setTimeout(() => this.refreshPageNames(), 1000);
+        }
       }
 
       // Load InterWiki sites configuration
@@ -218,6 +224,17 @@ class LinkParserHandler extends BaseSyntaxHandler {
         const pageNames = pages.map(page => page.name);
         this.linkParser.setPageNames(pageNames);
         console.log(`🔄 LinkParserHandler refreshed ${pageNames.length} page names`);
+
+        // Debug: log some page names to see what we actually have
+        const testPages = ['PageIndex', 'SystemInfo', 'Everything We Know About You', 'Wiki Documentation'];
+        console.log('🔍 Debug - checking for specific pages:');
+        testPages.forEach(testPage => {
+          const exists = pageNames.includes(testPage);
+          console.log(`   ${testPage}: ${exists ? '✓ found' : '✗ not found'}`);
+        });
+
+        // Show first few page names for debugging
+        console.log(`📝 First 10 page names: ${pageNames.slice(0, 10).join(', ')}`);
       }
     } catch (error) {
       console.warn('⚠️  Failed to refresh page names:', error.message);
