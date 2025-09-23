@@ -1,6 +1,24 @@
 /**
  * Comprehensive test suite for all plugins using PluginManager
  * Tests plugin discovery, initialization, and basic execution for all plugins
+ * 
+ * Uses PluginManager - The test initializes the PluginManager with a proper mock engine and configuration to load all plugins from the plugins/ directory.
+ * Tests Plugin Discovery - Verifies that all expected plugins are discovered and loaded correctly, including:
+ * - TotalPagesPlugin
+ * - UptimePlugin
+ * - ImagePlugin
+ * - ReferringPagesPlugin
+ * - SessionsPlugin
+ * Tests Plugin Execution - Validates that each plugin can be executed through the PluginManager and returns expected results.
+ * Tests Error Handling - Ensures plugins handle error conditions gracefully (missing parameters, network failures, etc.).
+ * Tests Plugin Integration - Verifies that plugins work correctly with the PluginManager's context passing and parameter handling.
+
+  The test file demonstrates comprehensive testing patterns by:
+  - Setting up mock engines, loggers, and configuration managers
+  - Testing both object-based plugins (with execute methods) and function-based plugins
+  - Validating plugin metadata (name, description, author, version)
+  - Testing various parameter combinations and error scenarios
+  - Ensuring proper context handling and fallback behavior
  */
 
 const path = require('path');
@@ -13,6 +31,7 @@ describe('All Plugins (via PluginManager)', () => {
   let mockLogger;
   let mockConfigManager;
   let mockContext;
+  let consoleErrorSpy;
 
   beforeAll(async () => {
     // Point to the real plugins directory
@@ -71,6 +90,9 @@ describe('All Plugins (via PluginManager)', () => {
     pluginManager = new PluginManager(mockEngine);
     await pluginManager.initialize();
 
+    // Setup console.error spy to suppress error output during tests
+    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
     // Setup mock context for plugin execution
     mockContext = {
       engine: mockEngine,
@@ -92,6 +114,11 @@ describe('All Plugins (via PluginManager)', () => {
 
   afterEach(() => {
     delete global.fetch;
+  });
+
+  afterAll(() => {
+    // Restore console.error
+    consoleErrorSpy?.mockRestore();
   });
 
   describe('Plugin Discovery and Loading', () => {

@@ -1,3 +1,10 @@
+/**
+ * ACLManager tests 
+ * 
+ * @jest-environment jsdom
+ * 
+ */
+
 const { describe, test, expect, beforeEach } = require('@jest/globals');
 const ACLManager = require('../ACLManager');
 
