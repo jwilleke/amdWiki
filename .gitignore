@@ -160,6 +160,7 @@ logs/*
 data/*
 /reports/
 reports/*
+/private/
 
 # Keep required-pages/ tracked (system pages)
 .editorconfig

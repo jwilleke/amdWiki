@@ -1,5 +1,6 @@
 const BaseManager = require('./BaseManager');
 const showdown = require('showdown');
+const { LinkParser } = require('../parsers/LinkParser');
 
 /**
  * RenderingManager - Handles markdown rendering and macro expansion
@@ -10,6 +11,7 @@ class RenderingManager extends BaseManager {
     super(engine);
     this.converter = null;
     this.linkGraph = {};
+    this.linkParser = new LinkParser();
   }
 
   async initialize(config = {}) {
@@ -30,7 +32,10 @@ class RenderingManager extends BaseManager {
     
     // Build initial link graph
     await this.buildLinkGraph();
-    
+
+    // Initialize LinkParser with page names
+    await this.initializeLinkParser();
+
     console.log('✅ RenderingManager initialized');
     console.log(`🔧 Advanced parser: ${this.renderingConfig.useAdvancedParser ? 'enabled' : 'disabled'}`);
     console.log(`🔄 Legacy fallback: ${this.renderingConfig.fallbackToLegacy ? 'enabled' : 'disabled'}`);
@@ -958,6 +963,38 @@ class RenderingManager extends BaseManager {
   }
 
   /**
+   * Initialize LinkParser with page names and configuration
+   */
+  async initializeLinkParser() {
+    try {
+      // Set page names for link validation (existing pages)
+      if (this.cachedPageNames && Array.isArray(this.cachedPageNames)) {
+        this.linkParser.setPageNames(this.cachedPageNames);
+      }
+
+      // TODO: Add InterWiki sites configuration from config
+      // For now, add some common InterWiki sites
+      const interWikiSites = {
+        'Wikipedia': {
+          url: 'https://en.wikipedia.org/wiki/%s',
+          description: 'Wikipedia English',
+          openInNewWindow: true
+        },
+        'JSPWiki': {
+          url: 'https://jspwiki-wiki.apache.org/Wiki.jsp?page=%s',
+          description: 'JSPWiki Documentation',
+          openInNewWindow: true
+        }
+      };
+      this.linkParser.setInterWikiSites(interWikiSites);
+
+      console.log(`🔗 LinkParser initialized with ${this.cachedPageNames ? this.cachedPageNames.length : 0} pages and ${Object.keys(interWikiSites).length} InterWiki sites`);
+    } catch (error) {
+      console.error('Failed to initialize LinkParser:', error);
+    }
+  }
+
+  /**
    * Get link graph
    * @returns {Object} Link graph object
    */
@@ -970,6 +1007,7 @@ class RenderingManager extends BaseManager {
    */
   async rebuildLinkGraph() {
     await this.buildLinkGraph();
+    await this.initializeLinkParser();
   }
 
   /**
@@ -1035,29 +1073,23 @@ class RenderingManager extends BaseManager {
   }
 
   /**
-   * Render wiki links (JSPWiki-style links)
+   * Render wiki links (JSPWiki-style links) using LinkParser
    * @param {string} content - Content with wiki links
    * @returns {string} Content with rendered links
    */
   renderWikiLinks(content) {
     if (!content) return '';
 
-    // Process wiki-style links [PageName] and [Display Text|PageName]
-    return content.replace(/\[([^\]]+)\]/g, (match, linkContent) => {
-      const parts = linkContent.split('|');
-      const displayText = parts[0].trim();
-      const pageName = parts.length > 1 ? parts[1].trim() : displayText;
-
-      // Check if page exists (simplified - just check if it looks like a page name)
-      const pageManager = this.engine.getManager('PageManager');
-      const pageExists = pageManager && pageManager.pageExists && pageManager.pageExists(pageName);
-
-      if (pageExists) {
-        return `<a href="/wiki/${encodeURIComponent(pageName)}" class="wikipage">${displayText}</a>`;
-      } else {
-        return `<a href="/edit/${encodeURIComponent(pageName)}" style="color: red;" class="redlink">${displayText}</a>`;
-      }
-    });
+    try {
+      // Use the centralized LinkParser for comprehensive link processing
+      return this.linkParser.parseLinks(content, {
+        pageName: 'current', // Could be passed in if needed
+        engine: this.engine
+      });
+    } catch (error) {
+      console.error('LinkParser failed, falling back to original content:', error);
+      return content;
+    }
   }
 
   /**
