@@ -27,13 +27,13 @@ class PluginManager extends BaseManager {
       this.engine.getManager('ConfigurationManager') ||
       this.engine.getManager('ConfigManager');
 
-    if (!cfgMgr || typeof cfgMgr.get !== 'function') {
+    if (!cfgMgr || typeof cfgMgr.getProperty !== 'function') {
       this.engine.logger?.warn?.('PluginManager: ConfigurationManager not available; no plugins will be loaded.');
       return;
     }
 
     // MUST come only from config; no fallbacks
-    const raw = cfgMgr.get('amdwiki.managers.pluginManager.searchPaths');
+    const raw = cfgMgr.getProperty('amdwiki.managers.pluginManager.searchPaths');
     this.engine.logger?.debug?.(
       `PluginManager: raw searchPaths type=${typeof raw} value=${JSON.stringify(raw)}`
     );
@@ -130,6 +130,28 @@ class PluginManager extends BaseManager {
   }
 
   /**
+   * Find plugin by name (case-insensitive)
+   * @param {string} pluginName - Name of the plugin to find
+   * @returns {Object|null} Plugin object or null if not found
+   */
+  findPlugin(pluginName) {
+    // Try exact match first (for performance)
+    if (this.plugins.has(pluginName)) {
+      return this.plugins.get(pluginName);
+    }
+
+    // Try case-insensitive match
+    const lowerName = pluginName.toLowerCase();
+    for (const [key, plugin] of this.plugins) {
+      if (key.toLowerCase() === lowerName) {
+        return plugin;
+      }
+    }
+
+    return null;
+  }
+
+  /**
    * Execute a plugin
    * @param {string} pluginName - Name of the plugin
    * @param {string} pageName - Current page name
@@ -138,7 +160,7 @@ class PluginManager extends BaseManager {
    * @returns {string} Plugin output
    */
   async execute(pluginName, pageName, params, context = {}) {
-    const plugin = this.plugins.get(pluginName);
+    const plugin = this.findPlugin(pluginName);
     if (!plugin) {
       return `Plugin '${pluginName}' not found`;
     }
@@ -184,7 +206,7 @@ class PluginManager extends BaseManager {
    * @returns {Object} Plugin information
    */
   getPluginInfo(pluginName) {
-    const plugin = this.plugins.get(pluginName);
+    const plugin = this.findPlugin(pluginName);
     if (!plugin) {
       return null;
     }
@@ -203,7 +225,7 @@ class PluginManager extends BaseManager {
    * @returns {boolean} True if plugin exists
    */
   hasPlugin(pluginName) {
-    return this.plugins.has(pluginName);
+    return this.findPlugin(pluginName) !== null;
   }
 }
 
