@@ -1,68 +1,124 @@
 const BaseManager = require('./BaseManager');
 
-/**
- * PluginManager - Handles plugin registration and execution
- * Similar to JSPWiki's PluginManager
- */
 class PluginManager extends BaseManager {
   constructor(engine) {
     super(engine);
     this.plugins = new Map();
     this.searchPaths = [];
+    this.allowedRoots = [];
   }
 
   async initialize(config = {}) {
     await super.initialize(config);
-    this.searchPaths = config.searchPaths || ['./plugins', './src/plugins'];
+    // Do NOT read search paths from config here; only ConfigurationManager controls them
     await this.registerPlugins();
-    console.log('🚀 Initializing PluginManager...');
+    this.engine.logger?.info?.('PluginManager initialized');
   }
 
   /**
-   * Register all plugins from search paths
+   * Register all plugins from search paths obtained ONLY from
+   * ConfigurationManager at key: amdwiki.managers.pluginManager.searchPaths
    */
   async registerPlugins() {
     const fs = require('fs-extra');
     const path = require('path');
 
-    for (const searchPath of this.searchPaths) {
+    const cfgMgr =
+      this.engine.getManager('ConfigurationManager') ||
+      this.engine.getManager('ConfigManager');
+
+    if (!cfgMgr || typeof cfgMgr.get !== 'function') {
+      this.engine.logger?.warn?.('PluginManager: ConfigurationManager not available; no plugins will be loaded.');
+      return;
+    }
+
+    // MUST come only from config; no fallbacks
+    const configured = cfgMgr.get('amdwiki.managers.pluginManager.searchPaths');
+    if (!Array.isArray(configured) || configured.length === 0) {
+      this.engine.logger?.info?.('PluginManager: No plugin search paths configured; skipping plugin load.');
+      return;
+    }
+
+    // Resolve and validate configured roots
+    const roots = [];
+    for (const p of configured) {
       try {
-        if (await fs.pathExists(searchPath)) {
-          const files = await fs.readdir(searchPath);
-          for (const file of files) {
-            if (file.endsWith('.js') && !file.endsWith('.test.js')) {
-              await this.loadPlugin(path.join(searchPath, file));
-            }
-          }
+        const abs = path.resolve(process.cwd(), String(p));
+        if (!(await fs.pathExists(abs))) {
+          this.engine.logger?.debug?.(`PluginManager: configured path does not exist: ${abs}`);
+          continue;
+        }
+        const st = await fs.lstat(abs);
+        if (!st.isDirectory()) {
+          this.engine.logger?.warn?.(`PluginManager: configured path is not a directory: ${abs}`);
+          continue;
+        }
+        // Use realpath to collapse symlinks for later prefix checks
+        const real = await fs.realpath(abs);
+        roots.push(real);
+      } catch (e) {
+        this.engine.logger?.warn?.(`PluginManager: failed to validate configured path "${p}": ${e.message}`);
+      }
+    }
+
+    this.allowedRoots = roots;
+    if (this.allowedRoots.length === 0) {
+      this.engine.logger?.info?.('PluginManager: No valid plugin roots after validation; skipping plugin load.');
+      return;
+    }
+
+    // Enumerate .js files in allowed roots only
+    for (const root of this.allowedRoots) {
+      try {
+        const entries = await fs.readdir(root, { withFileTypes: true });
+        for (const entry of entries) {
+          if (!entry.isFile()) continue;
+          if (!entry.name.endsWith('.js') || entry.name.endsWith('.test.js')) continue;
+
+          const candidate = require('path').join(root, entry.name);
+          await this.loadPlugin(candidate); // loadPlugin re-validates path is under an allowed root
         }
       } catch (err) {
-        console.warn(`Failed to load plugins from ${searchPath}:`, err.message);
+        this.engine.logger?.warn?.(`PluginManager: Failed to load plugins from ${root}: ${err.message}`);
       }
     }
   }
 
   /**
-   * Load a single plugin
+   * Load a single plugin from a validated, allowed root
    * @param {string} pluginPath - Path to the plugin file
    */
   async loadPlugin(pluginPath) {
+    const fs = require('fs-extra');
+    const path = require('path');
     try {
-      // Resolve absolute path
-      const path = require('path');
-      const absolutePath = path.resolve(pluginPath);
-      
-      const plugin = require(absolutePath);
-      const pluginName = plugin.name || path.parse(pluginPath).name;
-      
-      // Initialize plugin if it has an initialize method
+      // Resolve and validate canonical path
+      const realFile = await fs.realpath(path.resolve(pluginPath));
+      const isAllowed = this.allowedRoots.some(
+        (root) => realFile === root || realFile.startsWith(root + path.sep)
+      );
+      if (!isAllowed) {
+        this.engine.logger?.warn?.(`PluginManager: blocked plugin outside allowed roots: ${realFile}`);
+        return;
+      }
+
+      const mod = require(realFile);
+      const plugin = mod?.default || mod;
+      const pluginName = plugin?.name || path.parse(realFile).name;
+
+      if (!plugin || (typeof plugin !== 'function' && typeof plugin.execute !== 'function')) {
+        this.engine.logger?.warn?.(`PluginManager: "${pluginName}" is not an executable plugin; skipping.`);
+        return;
+      }
+
       if (typeof plugin.initialize === 'function') {
         await plugin.initialize(this.engine);
       }
 
       this.plugins.set(pluginName, plugin);
-      console.log(`Loaded plugin: ${pluginName}`);
+      this.engine.logger?.info?.(`PluginManager: Loaded plugin "${pluginName}" from ${realFile}`);
     } catch (err) {
-      console.error(`Failed to load plugin ${pluginPath}:`, err.message);
+      this.engine.logger?.error?.(`PluginManager: Failed to load plugin ${pluginPath}: ${err.message}`);
     }
   }
 

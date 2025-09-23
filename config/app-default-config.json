@@ -31,7 +31,7 @@
   "amdwiki.workflow.approver": "Admin",
   "amdwiki.userdatabase": "JSONUserDatabase",
   "amdwiki.groupdatabase": "JSONGroupDatabase",
-  "amdwiki.authorizer": "WebContainerAuthorizer",
+  "amdwiki.authorizer": "DefaultAuthorizer",
   "amdwiki.loginModule.class": "CookieAuthenticationLoginModule",
   "amdwiki.basicAttachmentProvider.storageDir": "./attachments",
   "amdwiki.luceneSearchProvider.luceneDirectory": "./lucene",
