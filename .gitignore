@@ -164,3 +164,4 @@ reports/*
 # Keep required-pages/ tracked (system pages)
 .editorconfig
 .claude/settings.local.json
+src/managers/__tests__/temp.test.js

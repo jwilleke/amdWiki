@@ -67,7 +67,7 @@
   "_comment_managers": "Manager configuration settings",
   "amdwiki.managers.pageManager.enabled": true,
   "amdwiki.managers.pluginManager.enabled": true,
-  "amdwiki.managers.pluginManager.searchPaths": "./plugins,./src/plugins",
+  "amdwiki.managers.pluginManager.searchPaths": ["./plugins", "./src/plugins"],
   "amdwiki.managers.renderingManager.enabled": true,
   "amdwiki.managers.searchManager.enabled": true,
   "amdwiki.managers.templateManager.enabled": true,

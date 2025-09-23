@@ -33,7 +33,14 @@ class PluginManager extends BaseManager {
     }
 
     // MUST come only from config; no fallbacks
-    const configured = cfgMgr.get('amdwiki.managers.pluginManager.searchPaths');
+    const raw = cfgMgr.get('amdwiki.managers.pluginManager.searchPaths');
+    this.engine.logger?.debug?.(
+      `PluginManager: raw searchPaths type=${typeof raw} value=${JSON.stringify(raw)}`
+    );
+    // Accept array or comma-separated string
+    let configured = [];
+    if (Array.isArray(raw)) configured = raw;
+    else if (typeof raw === 'string') configured = raw.split(',').map(s => s.trim()).filter(Boolean);
     if (!Array.isArray(configured) || configured.length === 0) {
       this.engine.logger?.info?.('PluginManager: No plugin search paths configured; skipping plugin load.');
       return;
