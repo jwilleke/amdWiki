@@ -140,28 +140,32 @@ class WikiRoutes {
    * Session count (uses app.js sessionStore)
    */
   getActiveSesssionCount(req, res) {
-    try {
-      const store = req.sessionStore;
-      if (!store) return res.status(503).json({ error: 'Session store not available' });
+      try {
+        const store = req.sessionStore;
+        if (!store) return res.status(503).json({ error: 'Session store not available' });
 
-      if (typeof store.length === 'function') {
-        return store.length((err, count) => {
-          if (err) return res.status(500).json({ error: 'Failed to obtain session count' });
-          return res.json({ sessionCount: count || 0 });
-        });
+        if (typeof store.length === 'function') {
+          return store.length((err, count) => {
+            if (err) return res.status(500).json({ error: 'Failed to obtain session count' });
+            return res.json({ sessionCount: count || 0 });
+          });
+        }
+
+        if (typeof store.all === 'function') {
+          return store.all((err, sessions) => {
+            if (err) return res.status(500).json({ error: 'Failed to obtain session count' });
+            const n = Array.isArray(sessions)
+              ? sessions.length
+              : (sessions ? Object.keys(sessions).length : 0);
+            return res.json({ sessionCount: n });
+          });
+        }
+
+        return res.status(501).json({ error: 'Session count not supported by store' });
+      } catch (e) {
+        return res.status(500).json({ error: 'Failed to obtain session count' });
       }
-      if (typeof store.all === 'function') {
-        return store.all((err, sessions) => {
-          if (err) return res.status(500).json({ error: 'Failed to obtain session count' });
-          const n = Array.isArray(sessions) ? sessions.length : (sessions ? Object.keys(sessions).length : 0);
-          return res.json({ sessionCount: n });
-        });
-      }
-      return res.status(501).json({ error: 'Session count not supported by store' });
-    } catch (e) {
-      return res.status(500).json({ error: 'Failed to obtain session count' });
-    }
-  };
+    };
 
   /**
  * Extract categories from Categories page
@@ -3177,7 +3181,7 @@ class WikiRoutes {
     app.get('/admin/organizations/:identifier', this.adminGetOrganization.bind(this));
     app.get('/admin/organizations/:identifier/schema', this.adminGetOrganizationSchema.bind(this));
 
-    app.get('/api/session-count', (req, res) => { this.getSessionCount(req, res) });
+    app.get('/api/session-count', (req, res) => { this.getActiveSesssionCount(req, res) });
     // Schema.org routes
     app.get('/schema/person/:identifier', (req, res) => this.adminGetPersonSchema(req, res));
     app.get('/schema/organization/:identifier', (req, res) => this.adminGetOrganizationSchema(req, res));
