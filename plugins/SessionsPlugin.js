@@ -17,20 +17,36 @@ const SessionsPlugin = {
    */
   async execute(context) {
     try {
-      // Build base URL from config
-      const config = context.engine.getConfig();
-      const host = config.get('server.host', 'localhost');
-      const port = config.get('server.port', 3000);
+      // Prefer ConfigurationManager keys
+      const cfgMgr =
+        context.engine.getManager?.('ConfigurationManager') ||
+        context.engine.getManager?.('ConfigManager');
+
+      let host = 'localhost';
+      let port = 3000;
+
+      if (cfgMgr?.get) {
+        host = cfgMgr.get('amdwiki.server.host', host);
+        port = cfgMgr.get('amdwiki.server.port', port);
+      } else if (typeof context.engine.getConfig === 'function') {
+        const config = context.engine.getConfig();
+        if (config?.get) {
+          host = config.get('amdwiki.server.host', host);
+          port = config.get('amdwiki.server.port', port);
+        }
+      }
+
       const baseUrl = `http://${host}:${port}`;
 
       // Use global fetch if available; otherwise lazy-load node-fetch (ESM)
       const fetchFn = typeof fetch === 'function' ? fetch : (await import('node-fetch')).default;
 
       const resp = await fetchFn(`${baseUrl}/api/session-count`, { method: 'GET' });
-      if (!resp.ok) return '0';
+      if (!resp?.ok) return '0';
       const data = await resp.json().catch(() => ({ sessionCount: 0 }));
       return String(data.sessionCount ?? 0);
-    } catch {
+    } catch (e) {
+      console.error(`SessionsPlugin error: ${e.message}`);
       return '0';
     }
   }
