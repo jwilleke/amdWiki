@@ -46,7 +46,8 @@ const SessionsPlugin = {
       const data = await resp.json().catch(() => ({ sessionCount: 0 }));
       return String(data.sessionCount ?? 0);
     } catch (e) {
-      console.error(`SessionsPlugin error: ${e.message}`);
+      const log = context?.engine?.logger?.error || console.error;
+      log(`SessionsPlugin error: ${e.message}`);
       return '0';
     }
   }

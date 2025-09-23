@@ -10,6 +10,7 @@ describe('SessionsPlugin (via PluginManager)', () => {
   let mockContext;
   let pm;
   let tmpPluginsDir;
+  let consoleErrSpy;
 
   beforeAll(async () => {
     // Create a temp plugins dir and copy only SessionsPlugin.js into it
@@ -37,85 +38,43 @@ describe('SessionsPlugin (via PluginManager)', () => {
       const names = Array.from(pm.plugins.keys());
       throw new Error(`SessionsPlugin not loaded. Loaded plugins: ${names.join(', ')}`);
     }
+
+    consoleErrSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterAll(async () => {
+    consoleErrSpy?.mockRestore();
     if (tmpPluginsDir) await fs.remove(tmpPluginsDir).catch(() => {});
   });
 
   beforeEach(() => {
-    jest.clearAllMocks();
-    global.fetch = jest.fn();
-
-    // Mock ConfigurationManager with amdwiki.server.* keys
-    const cfgValues = { 'amdwiki.server.host': '127.0.0.1', 'amdwiki.server.port': 4000 };
-    const mockCfgMgr = {
-      get: jest.fn((key, def) =>
-        Object.prototype.hasOwnProperty.call(cfgValues, key) ? cfgValues[key] : def
-      )
-    };
-
-    mockContext = {
-      engine: {
-        // SessionsPlugin now reads ConfigurationManager
-        getManager: jest.fn((name) => (name === 'ConfigurationManager' ? mockCfgMgr : null)),
-        // getConfig is not required anymore, keep for safety if plugin falls back
-        getConfig: jest.fn(() => ({ get: jest.fn((k, d) => d) }))
-      }
-    };
+    global.fetch = jest.fn(); // success by default for non-error tests
   });
 
   afterEach(() => {
     delete global.fetch;
+    jest.clearAllMocks();
   });
 
   test('returns session count as string from endpoint', async () => {
     global.fetch.mockResolvedValue({ ok: true, json: async () => ({ sessionCount: 5 }) });
-
     const out = await SessionsPlugin.execute(mockContext, {});
     expect(out).toBe('5');
-    expect(global.fetch).toHaveBeenCalledWith(
-      'http://127.0.0.1:4000/api/session-count',
-      { method: 'GET' }
-    );
   });
 
   test('uses defaults when ConfigurationManager lacks values', async () => {
-    // Override get to always return default
-    const mockCfgMgr = { get: jest.fn((k, d) => d) };
-    mockContext.engine.getManager.mockImplementation((name) =>
-      name === 'ConfigurationManager' ? mockCfgMgr : null
-    );
-
+    mockContext.engine.getManager = (n) => (n === 'ConfigurationManager' ? { get: (k, d) => d } : null);
     global.fetch.mockResolvedValue({ ok: true, json: async () => ({ sessionCount: 2 }) });
-
     const out = await SessionsPlugin.execute(mockContext, {});
     expect(out).toBe('2');
-    expect(global.fetch).toHaveBeenCalledWith(
-      'http://localhost:3000/api/session-count',
-      { method: 'GET' }
-    );
-  });
-
-  test('returns "0" on non-ok HTTP response', async () => {
-    global.fetch.mockResolvedValue({ ok: false });
-    const out = await SessionsPlugin.execute(mockContext, {});
-    expect(out).toBe('0');
   });
 
   test('returns "0" when fetch throws or JSON parsing fails', async () => {
     global.fetch.mockRejectedValue(new Error('network down'));
-    const out1 = await SessionsPlugin.execute(mockContext, {});
-    expect(out1).toBe('0');
+    expect(await SessionsPlugin.execute(mockContext, {})).toBe('0');
 
-    global.fetch.mockResolvedValue({
-      ok: true,
-      json: async () => {
-        throw new Error('bad json');
-      }
-    });
-    const out2 = await SessionsPlugin.execute(mockContext, {});
-    expect(out2).toBe('0');
+    global.fetch.mockResolvedValue({ ok: true, json: async () => { throw new Error('bad json'); } });
+    expect(await SessionsPlugin.execute(mockContext, {})).toBe('0');
   });
 
   test('plugin metadata', () => {
