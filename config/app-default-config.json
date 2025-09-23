@@ -151,7 +151,7 @@
   "amdwiki.style.predefined.background": "bg-primary,bg-secondary,bg-light,bg-dark",
   "amdwiki.style.predefined.layout": "text-center,text-left,text-right,float-left,float-right",
   
-  "_comment_search": "Search plugin configuration",  
+  "_comment_search_plugin": "Search plugin configuration",  
   "amdwiki.search.plugin.maxResults": 50,
   "amdwiki.search.plugin.showScore": true,
   "amdwiki.search.plugin.allowAdvanced": true,

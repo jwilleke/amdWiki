@@ -15,10 +15,24 @@ const SessionsPlugin = {
    * @param {Object} params - Plugin parameters
    * @returns {string} HTML output
    */
-  execute(context, params) {
-    // For now, return a simple count of 1
-    // In a real implementation, this would track actual sessions
-    return '1';
+  async execute(context) {
+    try {
+      // Build base URL from config
+      const config = context.engine.getConfig();
+      const host = config.get('server.host', 'localhost');
+      const port = config.get('server.port', 3000);
+      const baseUrl = `http://${host}:${port}`;
+
+      // Use global fetch if available; otherwise lazy-load node-fetch (ESM)
+      const fetchFn = typeof fetch === 'function' ? fetch : (await import('node-fetch')).default;
+
+      const resp = await fetchFn(`${baseUrl}/api/session-count`, { method: 'GET' });
+      if (!resp.ok) return '0';
+      const data = await resp.json().catch(() => ({ sessionCount: 0 }));
+      return String(data.sessionCount ?? 0);
+    } catch {
+      return '0';
+    }
   }
 };
 
