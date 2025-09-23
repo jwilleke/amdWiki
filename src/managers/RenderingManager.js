@@ -163,7 +163,7 @@ class RenderingManager extends BaseManager {
     // Original rendering pipeline (preserved for backward compatibility)
     
     // Step 1: Expand macros
-    let expandedContent = this.expandMacros(content, pageName, userContext, requestInfo);
+    let expandedContent = await this.expandMacros(content, pageName, userContext, requestInfo);
 
     // Step 2: Process JSPWiki-style tables
     expandedContent = this.processJSPWikiTables(expandedContent);
@@ -456,7 +456,7 @@ class RenderingManager extends BaseManager {
    * @param {object} userContext - User context for authentication variables
    * @returns {string} Content with expanded macros
    */
-  expandMacros(content, pageName, userContext = null, requestInfo = null) {
+  async expandMacros(content, pageName, userContext = null, requestInfo = null) {
     console.log('DEBUG: expandMacros called with content:', content, 'pageName:', pageName);
     let expandedContent = content;
 
@@ -498,86 +498,111 @@ class RenderingManager extends BaseManager {
     const pluginManager = this.engine.getManager('PluginManager');
     if (pluginManager) {
       // Handle system variables (${variable}) and plugins ({PluginName params})
-      expandedContent = expandedContent.replace(/\[\{([^}]+)\}\]/g, (match, content) => {
+      const macroRegex = /\[\{([^}]+)\}\]/g;
+      const matches = [];
+      let match;
+
+      // Collect all matches first
+      while ((match = macroRegex.exec(expandedContent)) !== null) {
+        matches.push({
+          fullMatch: match[0],
+          content: match[1],
+          index: match.index
+        });
+      }
+
+      // Process matches in reverse order to maintain string positions
+      for (let i = matches.length - 1; i >= 0; i--) {
+        const matchInfo = matches[i];
         try {
-          console.log('DEBUG: RenderingManager found macro:', match, 'content:', content);
+          console.log('DEBUG: RenderingManager found macro:', matchInfo.fullMatch, 'content:', matchInfo.content);
+
+          let replacement;
           // Check if it's a system variable (starts with $)
-          if (content.startsWith('$')) {
+          if (matchInfo.content.startsWith('$')) {
             console.log('DEBUG: RenderingManager detected system variable, calling expandAllVariables with pageName:', pageName);
-            return this.expandAllVariables(`[{${content}}]`, userContext, pageName, requestInfo);
-          }
-          
-          // Parse plugin call: PluginName param1=value1 param2=value2
-          const parts = content.trim().split(/\s+/);
-          const pluginName = parts[0];
-          const params = {};
-          
-          // Parse parameters - improved to handle quoted values and spaced syntax
-          for (let i = 1; i < parts.length; i++) {
-            let param = parts[i];
-            
-            // Handle case where key and value are separate, like "align = 'left'"
-            if (!param.includes('=') && i + 1 < parts.length && parts[i + 1].startsWith('=')) {
-              const key = param;
-              let value = parts[i + 1].substring(1); // Remove the =
-              i++; // Skip the =value part
-              
-              // Handle quoted values
-              if ((value.startsWith("'") && !value.endsWith("'")) || 
-                  (value.startsWith('"') && !value.endsWith('"'))) {
-                const quoteChar = value.charAt(0);
-                while (i + 1 < parts.length && !value.endsWith(quoteChar)) {
-                  i++;
-                  value += ' ' + parts[i];
-                }
-                if (value.startsWith(quoteChar) && value.endsWith(quoteChar)) {
+            replacement = this.expandAllVariables(`[{${matchInfo.content}}]`, userContext, pageName, requestInfo);
+          } else {
+            // Parse plugin call: PluginName param1=value1 param2=value2
+            const parts = matchInfo.content.trim().split(/\s+/);
+            const pluginName = parts[0];
+            const params = {};
+
+            // Parse parameters - improved to handle quoted values and spaced syntax
+            for (let j = 1; j < parts.length; j++) {
+              let param = parts[j];
+
+              // Handle case where key and value are separate, like "align = 'left'"
+              if (!param.includes('=') && j + 1 < parts.length && parts[j + 1].startsWith('=')) {
+                const key = param;
+                let value = parts[j + 1].substring(1); // Remove the =
+                j++; // Skip the =value part
+
+                // Handle quoted values
+                if ((value.startsWith("'") && !value.endsWith("'")) ||
+                    (value.startsWith('"') && !value.endsWith('"'))) {
+                  const quoteChar = value.charAt(0);
+                  while (j + 1 < parts.length && !value.endsWith(quoteChar)) {
+                    j++;
+                    value += ' ' + parts[j];
+                  }
+                  if (value.startsWith(quoteChar) && value.endsWith(quoteChar)) {
+                    value = value.slice(1, -1);
+                  }
+                } else if (value.startsWith("'") && value.endsWith("'")) {
+                  value = value.slice(1, -1);
+                } else if (value.startsWith('"') && value.endsWith('"')) {
                   value = value.slice(1, -1);
                 }
-              } else if (value.startsWith("'") && value.endsWith("'")) {
-                value = value.slice(1, -1);
-              } else if (value.startsWith('"') && value.endsWith('"')) {
-                value = value.slice(1, -1);
-              }
-              
-              params[key] = value;
-            } else if (param.includes('=')) {
-              // Handle normal key=value syntax
-              const equalIndex = param.indexOf('=');
-              const key = param.substring(0, equalIndex);
-              let value = param.substring(equalIndex + 1);
-              
-              // Handle quoted values that might span multiple parts
-              if ((value.startsWith("'") && !value.endsWith("'")) || 
-                  (value.startsWith('"') && !value.endsWith('"'))) {
-                const quoteChar = value.charAt(0);
-                while (i + 1 < parts.length && !value.endsWith(quoteChar)) {
-                  i++;
-                  value += ' ' + parts[i];
-                }
-                if (value.startsWith(quoteChar) && value.endsWith(quoteChar)) {
+
+                params[key] = value;
+              } else if (param.includes('=')) {
+                // Handle normal key=value syntax
+                const equalIndex = param.indexOf('=');
+                const key = param.substring(0, equalIndex);
+                let value = param.substring(equalIndex + 1);
+
+                // Handle quoted values that might span multiple parts
+                if ((value.startsWith("'") && !value.endsWith("'")) ||
+                    (value.startsWith('"') && !value.endsWith('"'))) {
+                  const quoteChar = value.charAt(0);
+                  while (j + 1 < parts.length && !value.endsWith(quoteChar)) {
+                    j++;
+                    value += ' ' + parts[j];
+                  }
+                  if (value.startsWith(quoteChar) && value.endsWith(quoteChar)) {
+                    value = value.slice(1, -1);
+                  }
+                } else if (value.startsWith("'") && value.endsWith("'")) {
+                  value = value.slice(1, -1);
+                } else if (value.startsWith('"') && value.endsWith('"')) {
                   value = value.slice(1, -1);
                 }
-              } else if (value.startsWith("'") && value.endsWith("'")) {
-                value = value.slice(1, -1);
-              } else if (value.startsWith('"') && value.endsWith('"')) {
-                value = value.slice(1, -1);
+
+                params[key] = value;
               }
-              
-              params[key] = value;
             }
+
+            // Execute plugin
+            replacement = await pluginManager.execute(pluginName, pageName, params, {
+              linkGraph: this.linkGraph,
+              engine: this.engine,
+              pageName: pageName
+            });
           }
-          
-          // Execute plugin
-          return pluginManager.execute(pluginName, pageName, params, { 
-            linkGraph: this.linkGraph,
-            engine: this.engine,
-            pageName: pageName
-          });
+
+          // Replace the match in the content
+          expandedContent = expandedContent.substring(0, matchInfo.index) +
+                           replacement +
+                           expandedContent.substring(matchInfo.index + matchInfo.fullMatch.length);
         } catch (err) {
-          console.error(`Macro expansion failed for ${content}:`, err);
-          return `[Error: ${content}]`;
+          console.error(`Macro expansion failed for ${matchInfo.content}:`, err);
+          const errorReplacement = `[Error: ${matchInfo.content}]`;
+          expandedContent = expandedContent.substring(0, matchInfo.index) +
+                           errorReplacement +
+                           expandedContent.substring(matchInfo.index + matchInfo.fullMatch.length);
         }
-      });
+      }
     } else {
       // Fallback: just handle variables directly with unified system
       expandedContent = this.expandAllVariables(expandedContent, userContext, pageName, requestInfo);
@@ -1038,36 +1063,64 @@ class RenderingManager extends BaseManager {
   /**
    * Render plugins (JSPWiki-style plugins)
    * @param {string} content - Content with plugin syntax
+   * @param {string} pageName - Page name for plugin context
    * @returns {string} Content with rendered plugins
    */
-  renderPlugins(content) {
+  async renderPlugins(content, pageName) {
     if (!content) return '';
 
     // Process plugin syntax [{PluginName param1=value1}]
-    return content.replace(/\[\{([^}]+)\}\]/g, (match, pluginContent) => {
-      const parts = pluginContent.trim().split(/\s+/);
-      const pluginName = parts[0];
+    const pluginManager = this.engine.getManager('PluginManager');
+    if (!pluginManager) return content;
 
-      const pluginManager = this.engine.getManager('PluginManager');
-      if (pluginManager && pluginManager.hasPlugin && pluginManager.hasPlugin(pluginName)) {
-        try {
+    const macroRegex = /\[\{([^}]+)\}\]/g;
+    const matches = [];
+    let match;
+
+    // Collect all matches first
+    while ((match = macroRegex.exec(content)) !== null) {
+      matches.push({
+        fullMatch: match[0],
+        content: match[1],
+        index: match.index
+      });
+    }
+
+    // Process matches in reverse order to maintain string positions
+    let processedContent = content;
+    for (let i = matches.length - 1; i >= 0; i--) {
+      const matchInfo = matches[i];
+      try {
+        const parts = matchInfo.content.trim().split(/\s+/);
+        const pluginName = parts[0];
+
+        if (pluginManager.hasPlugin && pluginManager.hasPlugin(pluginName)) {
           // Parse parameters
           const params = {};
-          for (let i = 1; i < parts.length; i++) {
-            const paramParts = parts[i].split('=');
+          for (let j = 1; j < parts.length; j++) {
+            const paramParts = parts[j].split('=');
             if (paramParts.length === 2) {
               params[paramParts[0]] = paramParts[1];
             }
           }
 
-          return pluginManager.execute(pluginName, pageName, params, { engine: this.engine });
-        } catch (error) {
-          return `<span class="error">Plugin ${pluginName} error</span>`;
-        }
-      }
+          const result = await pluginManager.execute(pluginName, pageName, params, { engine: this.engine });
 
-      return match; // Return original if plugin not found
-    });
+          // Replace the match in the content
+          processedContent = processedContent.substring(0, matchInfo.index) +
+                            result +
+                            processedContent.substring(matchInfo.index + matchInfo.fullMatch.length);
+        }
+      } catch (error) {
+        const parts = matchInfo.content.trim().split(/\s+/);
+        const errorReplacement = `<span class="error">Plugin ${parts[0]} error</span>`;
+        processedContent = processedContent.substring(0, matchInfo.index) +
+                          errorReplacement +
+                          processedContent.substring(matchInfo.index + matchInfo.fullMatch.length);
+      }
+    }
+
+    return processedContent;
   }
 
   /**

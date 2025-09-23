@@ -137,7 +137,7 @@ class PluginManager extends BaseManager {
    * @param {Object} context - Additional context
    * @returns {string} Plugin output
    */
-  execute(pluginName, pageName, params, context = {}) {
+  async execute(pluginName, pageName, params, context = {}) {
     const plugin = this.plugins.get(pluginName);
     if (!plugin) {
       return `Plugin '${pluginName}' not found`;
@@ -153,12 +153,14 @@ class PluginManager extends BaseManager {
 
       // Check if it's a new-style plugin with execute method
       if (plugin.execute && typeof plugin.execute === 'function') {
-        return plugin.execute(wikiContext, params);
+        const result = await plugin.execute(wikiContext, params);
+        return result;
       }
-      
+
       // Check if it's an old-style function plugin
       if (typeof plugin === 'function') {
-        return plugin(pageName, params, context.linkGraph || {});
+        const result = await plugin(pageName, params, context.linkGraph || {});
+        return result;
       }
 
       return `Plugin '${pluginName}' is not executable`;

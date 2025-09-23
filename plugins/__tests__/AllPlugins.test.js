@@ -172,21 +172,21 @@ describe('All Plugins (via PluginManager)', () => {
   });
 
   describe('Plugin Execution', () => {
-    test('TotalPagesPlugin should return page count', () => {
-      const result = pluginManager.execute('TotalPagesPlugin', 'TestPage', {}, mockContext);
+    test('TotalPagesPlugin should return page count', async () => {
+      const result = await pluginManager.execute('TotalPagesPlugin', 'TestPage', {}, mockContext);
 
       expect(result).toBe('3'); // Based on mock PageManager returning 3 pages
     });
 
-    test('UptimePlugin should return formatted uptime', () => {
-      const result = pluginManager.execute('UptimePlugin', 'TestPage', {}, mockContext);
+    test('UptimePlugin should return formatted uptime', async () => {
+      const result = await pluginManager.execute('UptimePlugin', 'TestPage', {}, mockContext);
 
       // Should return uptime in format like "1m" since we set startTime 1 minute ago
       expect(result).toMatch(/^\d+m$/);
     });
 
-    test('ReferringPagesPlugin should return referring pages list', () => {
-      const result = pluginManager.execute('ReferringPagesPlugin', 'TestPage', {}, mockContext);
+    test('ReferringPagesPlugin should return referring pages list', async () => {
+      const result = await pluginManager.execute('ReferringPagesPlugin', 'TestPage', {}, mockContext);
 
       // Should contain HTML list with referring pages
       expect(result).toContain('<ul>');
@@ -194,8 +194,8 @@ describe('All Plugins (via PluginManager)', () => {
       expect(result).toContain('ReferringPage2');
     });
 
-    test('ReferringPagesPlugin should return count when show=count', () => {
-      const result = pluginManager.execute('ReferringPagesPlugin', 'TestPage', { show: 'count' }, mockContext);
+    test('ReferringPagesPlugin should return count when show=count', async () => {
+      const result = await pluginManager.execute('ReferringPagesPlugin', 'TestPage', { show: 'count' }, mockContext);
 
       expect(result).toBe('2'); // Two referring pages in mock data
     });
@@ -206,29 +206,29 @@ describe('All Plugins (via PluginManager)', () => {
       expect(result).toBe('3'); // Based on mock fetch response
     });
 
-    test('ImagePlugin should generate img tag', () => {
+    test('ImagePlugin should generate img tag', async () => {
       const params = { src: '/test/image.jpg' };
-      const result = pluginManager.execute('Image', 'TestPage', params, mockContext);
+      const result = await pluginManager.execute('Image', 'TestPage', params, mockContext);
 
       expect(result).toContain('<img');
       expect(result).toContain('src="/test/image.jpg"');
     });
 
-    test('ImagePlugin should return error for missing src', () => {
-      const result = pluginManager.execute('Image', 'TestPage', {}, mockContext);
+    test('ImagePlugin should return error for missing src', async () => {
+      const result = await pluginManager.execute('Image', 'TestPage', {}, mockContext);
 
       expect(result).toMatch(/src attribute is required/i);
     });
   });
 
   describe('Error Handling', () => {
-    test('should handle execution of non-existent plugin', () => {
-      const result = pluginManager.execute('NonExistentPlugin', 'TestPage', {}, mockContext);
+    test('should handle execution of non-existent plugin', async () => {
+      const result = await pluginManager.execute('NonExistentPlugin', 'TestPage', {}, mockContext);
 
       expect(result).toContain("Plugin 'NonExistentPlugin' not found");
     });
 
-    test('should handle plugin execution errors gracefully', () => {
+    test('should handle plugin execution errors gracefully', async () => {
       // Create a mock context that will cause PageManager to throw
       const badContext = {
         ...mockContext,
@@ -247,7 +247,7 @@ describe('All Plugins (via PluginManager)', () => {
         }
       };
 
-      const result = pluginManager.execute('TotalPagesPlugin', 'TestPage', {}, badContext);
+      const result = await pluginManager.execute('TotalPagesPlugin', 'TestPage', {}, badContext);
 
       // Should return fallback value instead of throwing
       expect(result).toBe('0');
@@ -263,15 +263,15 @@ describe('All Plugins (via PluginManager)', () => {
   });
 
   describe('Plugin Parameter Handling', () => {
-    test('should handle ReferringPagesPlugin max parameter', () => {
-      const result = pluginManager.execute('ReferringPagesPlugin', 'TestPage', { max: '1' }, mockContext);
+    test('should handle ReferringPagesPlugin max parameter', async () => {
+      const result = await pluginManager.execute('ReferringPagesPlugin', 'TestPage', { max: '1' }, mockContext);
 
       // Should only show 1 referring page
       expect(result).toContain('ReferringPage1');
       expect(result).not.toContain('ReferringPage2');
     });
 
-    test('should handle ImagePlugin with multiple parameters', () => {
+    test('should handle ImagePlugin with multiple parameters', async () => {
       const params = {
         src: '/test/image.jpg',
         alt: 'Test image',
@@ -280,7 +280,7 @@ describe('All Plugins (via PluginManager)', () => {
         class: 'custom-class'
       };
 
-      const result = pluginManager.execute('Image', 'TestPage', params, mockContext);
+      const result = await pluginManager.execute('Image', 'TestPage', params, mockContext);
 
       expect(result).toContain('src="/test/image.jpg"');
       expect(result).toContain('alt="Test image"');
@@ -291,19 +291,19 @@ describe('All Plugins (via PluginManager)', () => {
   });
 
   describe('Plugin Context and Integration', () => {
-    test('plugins should receive correct context', () => {
+    test('plugins should receive correct context', async () => {
       // Test that plugins get the right context by checking what they do with it
-      const result = pluginManager.execute('TotalPagesPlugin', 'TestPage', {}, mockContext);
+      const result = await pluginManager.execute('TotalPagesPlugin', 'TestPage', {}, mockContext);
 
       // Verify the plugin used the engine from context
       expect(mockEngine.getManager).toHaveBeenCalledWith('PageManager');
       expect(result).toBe('3');
     });
 
-    test('plugins should handle missing context gracefully', () => {
+    test('plugins should handle missing context gracefully', async () => {
       // Test with completely empty context - PluginManager will use its own engine as fallback
       const emptyContext = {};
-      const result = pluginManager.execute('TotalPagesPlugin', 'TestPage', {}, emptyContext);
+      const result = await pluginManager.execute('TotalPagesPlugin', 'TestPage', {}, emptyContext);
 
       // Since PluginManager falls back to its own engine, this should still work
       expect(result).toBe('3');

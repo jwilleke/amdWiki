@@ -123,22 +123,38 @@ class WikiContext {
     }
 
     // Process JSPWiki-style plugins [{PluginName param1='value'}]
-    return content.replace(/\[\{([^}]+)\}\]/g, (match, pluginContent) => {
+    const pluginRegex = /\[\{([^}]+)\}\]/g;
+    const matches = [];
+    let match;
+
+    // Collect all matches first
+    while ((match = pluginRegex.exec(content)) !== null) {
+      matches.push({
+        fullMatch: match[0],
+        pluginContent: match[1],
+        index: match.index
+      });
+    }
+
+    // Process matches in reverse order to maintain string positions
+    let processedContent = content;
+    for (let i = matches.length - 1; i >= 0; i--) {
+      const matchInfo = matches[i];
       try {
         // Parse plugin name and parameters
-        const parts = pluginContent.trim().split(/\s+/);
+        const parts = matchInfo.pluginContent.trim().split(/\s+/);
         const pluginName = parts[0];
-        
+
         // Parse parameters (simplified - could be enhanced)
         const params = {};
-        for (let i = 1; i < parts.length; i++) {
-          const param = parts[i];
+        for (let j = 1; j < parts.length; j++) {
+          const param = parts[j];
           const eqIndex = param.indexOf('=');
           if (eqIndex > 0) {
             const key = param.substring(0, eqIndex);
             let value = param.substring(eqIndex + 1);
             // Remove quotes if present
-            if ((value.startsWith('"') && value.endsWith('"')) || 
+            if ((value.startsWith('"') && value.endsWith('"')) ||
                 (value.startsWith("'") && value.endsWith("'"))) {
               value = value.slice(1, -1);
             }
@@ -155,12 +171,22 @@ class WikiContext {
           linkGraph: this.linkGraph
         };
 
-        return pluginManager.execute(pluginName, this.pageName, params, context);
+        const result = await pluginManager.execute(pluginName, this.pageName, params, context);
+
+        // Replace the match in the content
+        processedContent = processedContent.substring(0, matchInfo.index) +
+                          result +
+                          processedContent.substring(matchInfo.index + matchInfo.fullMatch.length);
       } catch (error) {
-        console.error(`Error executing plugin from ${match}:`, error);
-        return `<span class="error">Plugin Error: ${error.message}</span>`;
+        console.error(`Error executing plugin from ${matchInfo.fullMatch}:`, error);
+        const errorReplacement = `<span class="error">Plugin Error: ${error.message}</span>`;
+        processedContent = processedContent.substring(0, matchInfo.index) +
+                          errorReplacement +
+                          processedContent.substring(matchInfo.index + matchInfo.fullMatch.length);
       }
-    });
+    }
+
+    return processedContent;
   }
 
   /**
