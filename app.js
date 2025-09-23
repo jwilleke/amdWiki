@@ -23,6 +23,7 @@ const logger = require('./src/utils/logger');
 const WikiEngine = require('./src/WikiEngine');
 const WikiRoutes = require('./src/routes/WikiRoutes');
 const WikiContext = require('./src/context/WikiContext');
+const sessionStore = new session.MemoryStore();
 
 // Port will be set from configuration after WikiEngine is initialized
 let port = 3000; // Default fallback
@@ -40,12 +41,15 @@ app.use(session({
   secret: 'temporary-secret',
   resave: false,
   saveUninitialized: false,
+  store: sessionStore,
   cookie: {
     secure: false,
     httpOnly: true,
     maxAge: 24 * 60 * 60 * 1000
   }
 }));
+
+
 
 /**
  * @description Middleware to handle CSRF protection.
@@ -92,6 +96,17 @@ app.use((req, res, next) => {
   console.log('MIDDLEWARE DEBUG: Passing to next middleware');
   next();
 });
+
+/**
+ * Function to get session count
+ * @param {*} callback 
+ */
+function getActiveSessionCount(callback) {
+  store.length(function(err, count) {
+    callback(count);
+  });
+}
+
 
 /**
  * @description Middleware to handle maintenance mode.
