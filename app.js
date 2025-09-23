@@ -3,7 +3,6 @@
  * @description Main application file for the Wiki Engine.
  */
 
-const referringPagesPlugin = require('./plugins/referringPagesPlugin');
 const fs = require('fs-extra');
 const bodyParser = require('body-parser');
 const path = require('path');
