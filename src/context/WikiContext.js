@@ -1,32 +1,38 @@
+const { LinkParser } = require('../parsers/LinkParser');
+
 /**
  * WikiContext - Central context for wiki rendering operations
- * 
+ *
  * Orchestrates the rendering pipeline using managers instead of inline regex.
  * Follows JSPWiki's architecture where WikiContext coordinates access to
  * managers like VariableManager, PluginManager, and RenderingManager.
- * 
+ *
  * Related Issue: #66 - Implement WikiContext and Manager refactoring
  */
 class WikiContext {
   constructor(engine, options = {}) {
     this.engine = engine;
-    
+
     // Page context
     this.pageName = options.pageName || 'unknown';
     this.content = options.content || '';
-    
-    // User context  
+
+    // User context
     this.userContext = options.userContext || null;
     this.requestInfo = options.requestInfo || null;
-    
+
     // Rendering state
     this.variables = new Map();
     this.metadata = {};
     this.linkGraph = options.linkGraph || {};
-    
+
     // Performance tracking
     this.startTime = Date.now();
     this.phaseTimings = new Map();
+
+    // LinkParser for fallback link processing
+    this.fallbackLinkParser = new LinkParser();
+    this.linkParserInitialized = false;
   }
 
   /**
@@ -190,85 +196,78 @@ class WikiContext {
   }
 
   /**
-   * Expand wiki links using RenderingManager
+   * Expand wiki links using RenderingManager or LinkParser fallback
    * @param {string} content - Content with wiki links
    * @returns {string} - Content with rendered links
    */
   async expandWikiLinks(content) {
     const renderingManager = this.getManager('RenderingManager');
     if (!renderingManager) {
-      console.warn('RenderingManager not available, using fallback link processing');
-      return this.fallbackLinkProcessing(content);
+      console.warn('RenderingManager not available, using LinkParser fallback');
+      return await this.fallbackLinkProcessing(content);
     }
 
     return renderingManager.renderWikiLinks(content);
   }
 
   /**
-   * Fallback link processing if RenderingManager is not available
+   * Initialize fallback LinkParser with page names and configuration
+   */
+  async initializeFallbackLinkParser() {
+    if (this.linkParserInitialized) {
+      return;
+    }
+
+    try {
+      const pageManager = this.getManager('PageManager');
+      if (pageManager) {
+        // Get page names for link validation
+        const pages = pageManager.getAllPages ? await pageManager.getAllPages() : [];
+        const pageNames = Array.isArray(pages) ? pages.map(page => page.name || page) : [];
+        this.fallbackLinkParser.setPageNames(pageNames);
+      }
+
+      // Set up basic InterWiki sites for fallback
+      this.fallbackLinkParser.setInterWikiSites({
+        'Wikipedia': {
+          url: 'https://en.wikipedia.org/wiki/%s',
+          description: 'Wikipedia English',
+          openInNewWindow: true
+        },
+        'JSPWiki': {
+          url: 'https://jspwiki-wiki.apache.org/Wiki.jsp?page=%s',
+          description: 'JSPWiki Documentation',
+          openInNewWindow: true
+        }
+      });
+
+      this.linkParserInitialized = true;
+    } catch (error) {
+      console.warn('Failed to initialize fallback LinkParser:', error);
+    }
+  }
+
+  /**
+   * Fallback link processing using LinkParser (replaces brittle regex approach)
    * @param {string} content - Content with wiki links
    * @returns {string} - Content with processed links
    */
-  fallbackLinkProcessing(content) {
-    const pageManager = this.getManager('PageManager');
-    if (!pageManager) {
+  async fallbackLinkProcessing(content) {
+    if (!content) {
       return content;
     }
 
     try {
-      // Get list of existing pages
-      const pages = pageManager.getPageNames ? pageManager.getPageNames() : [];
-      const pageNames = Array.isArray(pages) ? pages : [];
-      
-      // Process wiki-style links [PageName] and [Display Text|PageName|Parameters]
-      return content.replace(/\[([a-zA-Z0-9\s_-]+)(?:\|([a-zA-Z0-9\s_\-\/ .:?=&]+))?(?:\|([^|\]]+))?\]/g, 
-        (match, displayText, target, params) => {
-          // Parse parameters if provided
-          let linkAttributes = '';
-          if (params) {
-            const targetMatch = params.match(/target=['"]([^'"]+)['"]/);
-            if (targetMatch) {
-              linkAttributes += ` target="${targetMatch[1]}"`;
-              if (targetMatch[1] === '_blank') {
-                linkAttributes += ' rel="noopener noreferrer"';
-              }
-            }
-            
-            const classMatch = params.match(/class=['"]([^'"]+)['"]/);
-            if (classMatch) {
-              linkAttributes += ` class="${classMatch[1]}"`;
-            }
-            
-            const titleMatch = params.match(/title=['"]([^'"]+)['"]/);
-            if (titleMatch) {
-              linkAttributes += ` title="${titleMatch[1]}"`;
-            }
-          }
-          
-          // If no target specified, it's a simple wiki link
-          if (!target) {
-            const pageName = displayText;
-            if (pageNames.includes(pageName)) {
-              return `<a href="/wiki/${encodeURIComponent(pageName)}"${linkAttributes}>${pageName}</a>`;
-            } else {
-              return `<a href="/edit/${encodeURIComponent(pageName)}" style="color: red;"${linkAttributes}>${pageName}</a>`;
-            }
-          }
-          
-          // Handle pipe syntax [DisplayText|Target|Parameters]
-          if (target.includes('://') || target.startsWith('/')) {
-            return `<a href="${target}"${linkAttributes}>${displayText}</a>`;
-          } else if (target.toLowerCase() === 'search') {
-            return `<a href="/search"${linkAttributes}>${displayText}</a>`;
-          } else {
-            if (pageNames.includes(target)) {
-              return `<a href="/wiki/${encodeURIComponent(target)}"${linkAttributes}>${displayText}</a>`;
-            } else {
-              return `<a href="/edit/${encodeURIComponent(target)}" style="color: red;"${linkAttributes}>${displayText}</a>`;
-            }
-          }
-        }
-      );
+      // Initialize LinkParser if not already done
+      await this.initializeFallbackLinkParser();
+
+      // Use comprehensive LinkParser for fallback processing
+      return this.fallbackLinkParser.parseLinks(content, {
+        pageName: this.pageName,
+        engine: this.engine,
+        userContext: this.userContext
+      });
+
     } catch (error) {
       console.error('Error in fallback link processing:', error);
       return content;

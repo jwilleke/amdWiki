@@ -203,18 +203,8 @@ class MarkupParser extends BaseManager {
       }
     }
 
-    // Register InterWikiLinkHandler if enabled
-    if (this.config.handlers.interwiki.enabled) {
-      const InterWikiLinkHandler = require('./handlers/InterWikiLinkHandler');
-      const interWikiHandler = new InterWikiLinkHandler(this.engine);
-      
-      try {
-        await this.registerHandler(interWikiHandler);
-        console.log('🌐 InterWikiLinkHandler registered successfully');
-      } catch (error) {
-        console.warn('⚠️  Failed to register InterWikiLinkHandler:', error.message);
-      }
-    }
+    // InterWikiLinkHandler is now replaced by unified LinkParserHandler
+    // Registration moved to after WikiStyleHandler for optimal priority
 
     // Register AttachmentHandler if enabled (Phase 3)
     if (this.config.handlers.attachment.enabled) {
@@ -242,15 +232,15 @@ class MarkupParser extends BaseManager {
       }
     }
 
-    // Register WikiLinkHandler (ESSENTIAL for basic wiki functionality)
-    const WikiLinkHandler = require('./handlers/WikiLinkHandler');
-    const wikiLinkHandler = new WikiLinkHandler(this.engine);
-    
+    // Register LinkParserHandler (unified link processing replacing WikiLinkHandler + InterWikiLinkHandler)
+    const LinkParserHandler = require('./handlers/LinkParserHandler');
+    const linkParserHandler = new LinkParserHandler(this.engine);
+
     try {
-      await this.registerHandler(wikiLinkHandler);
-      console.log('🔗 WikiLinkHandler registered successfully (CRITICAL for basic wiki links)');
+      await this.registerHandler(linkParserHandler);
+      console.log('🔗 LinkParserHandler registered successfully (unified link processing for all link types)');
     } catch (error) {
-      console.warn('⚠️  Failed to register WikiLinkHandler - CRITICAL ISSUE:', error.message);
+      console.warn('⚠️  Failed to register LinkParserHandler - CRITICAL ISSUE:', error.message);
     }
 
     const handlerCount = this.getHandlers().length;
@@ -876,14 +866,13 @@ class MarkupParser extends BaseManager {
     const typeMap = {
       // Phase 2 handlers
       'PluginSyntaxHandler': 'plugin',
-      'WikiTagHandler': 'wikitag', 
+      'WikiTagHandler': 'wikitag',
       'WikiFormHandler': 'form',
-      'InterWikiLinkHandler': 'interwiki',
-      
+
       // Phase 3 handlers (advanced)
       'AttachmentHandler': 'attachment',
       'WikiStyleHandler': 'style',
-      'WikiLinkHandler': 'wikilink',
+      'LinkParserHandler': 'linkparser', // Unified handler replacing both WikiLinkHandler and InterWikiLinkHandler
       'SearchPluginHandler': 'search',
       'RSSHandler': 'rss',
       
