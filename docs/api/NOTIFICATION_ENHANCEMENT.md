@@ -117,8 +117,19 @@ Implement a robust notification system for amdWiki to improve user experience an
 - Webhook HTTP client (optional)
 
 ### Configuration
+
+config/Config.js is DERECICATED SHOULD use:
+src/managers/ConfigurationManager.js which uses config/app-default-config.json
+There is an entry:
+
+"amdwiki.notifications.dir": "./data",
+"amdwiki.notifications.file": "notifications.json",
+
+See [docs/managers/ConfigurationManager-Documentation.md](docs/managers/ConfigurationManager-Documentation.md)
+
+
 ```javascript
-// Added to config/Config.js
+// Added to config/Config.js DERECICATED
 wiki: {
   dataDir: './data'  // For notification persistence
 }

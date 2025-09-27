@@ -242,6 +242,11 @@
   "amdwiki.logging.maxSize": "1MB",
   "amdwiki.logging.maxFiles": 5,
 
+  "_comment_notifications": "notifications configuration",
+  "amdwiki.notifications.dir": "./data",
+  "amdwiki.notifications.file": "notifications.json",
+  "amdwiki.notifications.autoSaveInterval" : 300000,
+
   "_comment_accessControl": "Access control and security settings",
   "amdwiki.accessControl.contextAware.enabled": true,
   "amdwiki.accessControl.contextAware.timeZone": "UTC",

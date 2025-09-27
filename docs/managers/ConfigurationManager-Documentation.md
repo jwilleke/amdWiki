@@ -52,6 +52,16 @@ Contains custom overrides for default properties. This is the file to modify for
   "amdwiki.frontPage": "CustomHomePage"
 }
 ```
+## How to Test ConfigurationManager
+
+You can test src/managers/ConfigurationManager.js with simple script 
+scripts/configurationmanage-get-config.js 
+Usage:
+
+- node scripts/configurationmanage-get-config.js ```<key> [--prefix] [--pretty]```
+- Examples:
+  - node scripts/configurationmanage-get-config.js amdwiki.notifications.dir
+  - node scripts/configurationmanage-get-config.js amdwiki.notifications --prefix --pretty
 
 ## Property Naming Convention
 
