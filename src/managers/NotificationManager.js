@@ -143,6 +143,16 @@ class NotificationManager extends BaseManager {
   }
 
   /**
+   * Add a notification (alias for createNotification for backward compatibility)
+   * @param {Object} notification - Notification object
+   * @returns {string} Notification ID
+   */
+  async addNotification(notification) {
+    return this.createNotification(notification);
+  }
+  
+
+  /**
    * Get notifications for a specific user
    * @param {string} username - Username to get notifications for
    * @param {boolean} includeExpired - Include expired notifications
