@@ -169,9 +169,13 @@ class SchemaManager extends BaseManager {
     const featureAttachments = cfgMgr?.getProperty?.('amdwiki.features.attachments.enabled', true);
     const featureLlm = cfgMgr?.getProperty?.('amdwiki.features.llm.enabled', false);
 
+    // Return arrays so SchemaGenerator can iterate with forEach
+    const personsArray = this.getPersonsArray();
+    const organizationsArray = this.getOrganizationsArray();
+
     return {
-      persons: this.getPersons(),
-      organizations: this.getOrganizations(),
+      persons: personsArray,
+      organizations: organizationsArray,
       config: {
         application: {
           name: applicationName,
@@ -188,12 +192,26 @@ class SchemaManager extends BaseManager {
     };
   }
 
+  // Keep existing object-returning getters for compatibility
   getPersons() {
     return Object.fromEntries(this.personsById);
   }
 
   getOrganizations() {
     return Object.fromEntries(this.organizations);
+  }
+
+  // New: array-returning helpers for schema generation
+  getPersonsArray() {
+    // Preserve numeric ID ordering if possible
+    const entries = Array.from(this.personsById.entries())
+      .sort((a, b) => Number(a[0]) - Number(b[0]))
+      .map(([, person]) => person);
+    return entries;
+  }
+
+  getOrganizationsArray() {
+    return Array.from(this.organizations.values());
   }
 }
 
