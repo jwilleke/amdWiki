@@ -15,7 +15,7 @@ All components should be designed with modularity and reusability in mind. Using
 - **WikiEngine** (`src/WikiEngine.js`) - Central orchestrator extending base `Engine` class
 - **Manager Registration** - All functionality through manager instances: PageManager, RenderingManager, SearchManager, etc.
 - **Plugin System** - Extensible via `/plugins` directory with JSPWiki-style syntax
-- **Config-Driven** - Configuration via `config/Config.js` with validation
+- **Config-Driven** - Configuration via `src/managers/ConfigurationManager.js` (single source of truth) with validation
 
 ### Key Architectural Decisions
 - **File-based storage** - No database; pages stored as `.md` files in `/pages`
@@ -68,6 +68,30 @@ const PluginName = {
   }
 };
 ```
+
+### Configuration Access Pattern
+- Always access configuration via `ConfigurationManager`:
+```js
+const cfgMgr = this.engine.getManager('ConfigurationManager');
+const value = cfgMgr.getProperty('amdwiki.some.key', 'default');
+```
+- Do not read configuration files directly in managers/plugins.
+- Do not use legacy `config/Config.js` or `ConfigBridge.js` for new code.
+
+### NotificationManager Configuration (must use ConfigurationManager)
+- The Notification system reads its settings exclusively through `ConfigurationManager`. See `src/managers/NotificationManager.js`.
+- Keys:
+  - `amdwiki.notifications.dir` (string) — absolute or relative directory for persisted notifications (default: `./data`)
+  - `amdwiki.notifications.file` (string) — filename for persisted notifications (default: `notifications.json`)
+  - `amdwiki.notifications.autoSaveInterval` (number, ms) — autosave interval (default: `300000`)
+- Example usage inside `NotificationManager`:
+```js
+const cfgMgr = this.engine.getManager('ConfigurationManager');
+const dataDir = cfgMgr.getProperty('amdwiki.notifications.dir', './data');
+const fileName = cfgMgr.getProperty('amdwiki.notifications.file', 'notifications.json');
+const interval = cfgMgr.getProperty('amdwiki.notifications.autoSaveInterval', 5 * 60 * 1000);
+```
+- Do not read environment variables or files directly for notifications; rely on `ConfigurationManager`.
 
 ## Critical Developer Workflows
 

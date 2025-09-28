@@ -1,5 +1,5 @@
 const Engine = require('./core/Engine');
-const { Config } = require('../config/Config');
+const { Config } = require('../config/Config'); // DEPRECATED
 
 // Managers
 const PageManager = require('./managers/PageManager');

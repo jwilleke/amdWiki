@@ -24,9 +24,20 @@ class NotificationManager extends BaseManager {
     await super.initialize(config);
     this.logger = logger.child({ component: 'NotificationManager' });
 
-    // Set up storage path
-    const dataDir = config.wiki?.dataDir || './data';
-    this.storagePath = path.resolve(dataDir, 'notifications.json');
+    // Pull settings from ConfigurationManager (with safe fallbacks)
+    const cfgMgr =
+      this.engine?.getManager?.('ConfigurationManager') ||
+      this.engine?.getManager?.('ConfigManager');
+
+    const defaultDir = config.wiki?.dataDir || './data';
+    const dataDirCfg = cfgMgr?.getProperty?.('amdwiki.notifications.dir', defaultDir) ?? defaultDir;
+    const fileNameCfg = cfgMgr?.getProperty?.('amdwiki.notifications.file', 'notifications.json') ?? 'notifications.json';
+    const intervalCfg = cfgMgr?.getProperty?.('amdwiki.notifications.autoSaveInterval') ?? (5 * 60 * 1000);
+
+    // validate values
+    const dataDirAbs = path.resolve(process.cwd(), String(dataDirCfg));
+    this.storagePath = path.resolve(dataDirAbs, String(fileNameCfg));
+    const intervalMs = Number.isFinite(Number(intervalCfg)) ? Number(intervalCfg) : 5 * 60 * 1000;
 
     // Ensure data directory exists
     const dataDirPath = path.dirname(this.storagePath);
@@ -39,12 +50,15 @@ class NotificationManager extends BaseManager {
     // Load existing notifications
     await this.loadNotifications();
 
-    // Set up periodic save (every 5 minutes)
+    // Set up periodic save
+    if (this.saveInterval) clearInterval(this.saveInterval);
     this.saveInterval = setInterval(() => {
       this.saveNotifications();
-    }, 5 * 60 * 1000);
+    }, Math.max(1000, intervalMs));
 
-    this.logger.info('NotificationManager initialized with persistence');
+    this.logger.info(
+      `NotificationManager initialized with persistence: path=${this.storagePath}, intervalMs=${Math.max(1000, intervalMs)}`
+    );
   }
 
   /**
