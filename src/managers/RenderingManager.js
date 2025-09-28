@@ -1163,39 +1163,27 @@ class RenderingManager extends BaseManager {
     }
 
     return processedContent;
-  }
+  } 
 
   /**
-   * Variable expansion - delegates to VariableManager
-   * @param {string} content - Content with variables
-   * @param {object} userContext - User context
-   * @param {string} pageName - Current page name
-   * @returns {string} Content with expanded variables
+   * Expand all [{$variable}] occurrences using VariableManager
+   * @deprecated Use expandAllVariables instead.
    */
-  expandAllVariables(content, userContext, pageName, requestInfo = null) {
-    if (!content) return '';
-
-    const variableManager = this.engine.getManager('VariableManager');
-    if (!variableManager) {
-      console.warn('VariableManager not available, skipping variable expansion');
-      return content;
+  expandAllVariables(content, context = {}) {
+    const varMgr = this.engine?.getManager?.('VariableManager');
+    if (!varMgr || typeof varMgr.expandVariables !== 'function') {
+      this.engine?.logger?.warn?.('RenderingManager: VariableManager not available; skipping variable expansion');
+      return content ?? '';
     }
-
-    const context = {
-      userContext: userContext,
-      pageName: pageName,
-      requestInfo: requestInfo
-    };
-
-    return variableManager.expandVariables(content, context);
+    return varMgr.expandVariables(content, context);
   }
 
   /**
-   * Legacy function - now calls unified expansion
-   * @deprecated Use expandAllVariables instead
+   * @deprecated Use expandAllVariables instead.
    */
-  expandUserVariables(content, userContext, pageName) {
-    return this.expandAllVariables(content, userContext, pageName);
+  expandUserVariables(content, context = {}) {
+    this.engine?.logger?.warn?.('RenderingManager.expandUserVariables is deprecated; use expandAllVariables');
+    return this.expandAllVariables(content, context);
   }
 
   /**

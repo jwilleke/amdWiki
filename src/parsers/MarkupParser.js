@@ -383,36 +383,43 @@ class MarkupParser extends BaseManager {
   initializePhases() {
     this.phases = [
       {
+        // Phase 1: Preprocessing 
         name: 'Preprocessing',
         priority: 100,
         process: this.phasePreprocessing.bind(this)
       },
       {
+        // Phase 2: Syntax Recognition
         name: 'Syntax Recognition',
         priority: 200,
         process: this.phaseSyntaxRecognition.bind(this)
       },
       {
+        // Phase 3: Context Resolution
         name: 'Context Resolution',
         priority: 300,
         process: this.phaseContextResolution.bind(this)
       },
       {
+        // Phase 4: Content Transformation
         name: 'Content Transformation',
         priority: 400,
         process: this.phaseContentTransformation.bind(this)
       },
       {
+        // Phase 5: Filter Pipeline
         name: 'Filter Pipeline',
         priority: 500,
         process: this.phaseFilterPipeline.bind(this)
       },
       {
+        // Phase 6: Markdown Conversion
         name: 'Markdown Conversion',
         priority: 600,
         process: this.phaseMarkdownConversion.bind(this)
       },
       {
+        // Pahe 7: Post-processing
         name: 'Post-processing',
         priority: 700,
         process: this.phasePostProcessing.bind(this)

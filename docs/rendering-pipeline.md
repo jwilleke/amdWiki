@@ -6,6 +6,8 @@ The amdWiki rendering system uses a sophisticated 7-phase MarkupParser pipeline 
 
 The rendering pipeline transforms wiki markup through seven distinct phases, each handling specific aspects of content processing:
 
+> See src/parsers/MarkupParser.js 
+
 ```text
 Raw Wiki Content
        ↓
