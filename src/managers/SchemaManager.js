@@ -3,31 +3,76 @@ const fs = require('fs').promises;
 const fsSync = require('fs');
 const path = require('path');
 
-/**
- * SchemaManager - Manages Schema.org compliant data structures
- * Handles persons.json and organizations.json with Schema.org validation
- */
 class SchemaManager extends BaseManager {
   constructor(engine) {
     super(engine);
-    this.dataDirectory = './users';
-    this.persons = new Map(); // Map by identifier
-    this.personsById = new Map(); // Map by numeric ID for file compatibility
+    this.usersDir = './users';
+    this.personsFilePath = null;
+    this.organizationsFilePath = null;
+
+    this.persons = new Map();
+    this.personsById = new Map();
     this.organizations = new Map();
     this.nextPersonId = 0;
   }
 
   async initialize(config = {}) {
     await super.initialize(config);
-    
-    this.dataDirectory = config.dataDirectory || './users';
-    // Ensure data directory exists
-    await fs.mkdir(this.dataDirectory, { recursive: true });
-    
+
+    // Prefer ConfigurationManager; fallback to legacy engine.getConfig()
+    const cfgMgr = this.engine?.getManager?.('ConfigurationManager');
+    const legacyCfg = typeof this.engine?.getConfig === 'function' ? this.engine.getConfig() : null;
+    const getProp = (key, def) =>
+      (cfgMgr && typeof cfgMgr.getProperty === 'function')
+        ? cfgMgr.getProperty(key, def)
+        : (legacyCfg && typeof legacyCfg.get === 'function')
+          ? legacyCfg.get(key, def)
+          : def;
+
+    // Read configured locations
+    const usersDirCfg = getProp('amdwiki.directories.users', './users');
+    this.usersDir = path.resolve(process.cwd(), String(usersDirCfg));
+
+    const personsCfg = getProp('amdwiki.jsonpersonsdatabase', path.join(this.usersDir, 'persons.json'));
+    const orgsCfg = getProp('amdwiki.jsonorganizationsdatabase', path.join(this.usersDir, 'organizations.json'));
+
+    this.personsFilePath = path.isAbsolute(personsCfg) ? personsCfg : path.resolve(process.cwd(), String(personsCfg));
+    this.organizationsFilePath = path.isAbsolute(orgsCfg) ? orgsCfg : path.resolve(process.cwd(), String(orgsCfg));
+
+    // Ensure parent directories exist
+    await fs.mkdir(path.dirname(this.personsFilePath), { recursive: true }).catch(() => {});
+    await fs.mkdir(path.dirname(this.organizationsFilePath), { recursive: true }).catch(() => {});
+
     await this.loadPersons();
     await this.loadOrganizations();
-    
-    console.log(`📋 SchemaManager initialized with ${this.persons.size} persons and ${this.organizations.size} organizations`);
+  }
+
+  /**
+   * Validate and normalize a person object
+   * Throws if required fields are missing (as per tests).
+   * @param {object} person
+   * @returns {object} normalized person
+   */
+  validateAndEnhancePerson(person) {
+    if (!person || typeof person !== 'object') {
+      throw new Error('Person identifier is required');
+    }
+    if (!person.identifier || String(person.identifier).trim() === '') {
+      throw new Error('Person identifier is required');
+    }
+    if (!person.name || String(person.name).trim() === '') {
+      throw new Error('Person name is required');
+    }
+
+    // Basic normalization (safe defaults)
+    const normalized = { ...person };
+    normalized.identifier = String(person.identifier).trim();
+    normalized.name = String(person.name).trim();
+    if (!normalized['@type']) normalized['@type'] = 'Person';
+    if (!normalized.url && typeof normalized.identifier === 'string') {
+      normalized.url = normalized.url || undefined; // keep optional
+    }
+    return normalized;
   }
 
   /**
@@ -35,38 +80,29 @@ class SchemaManager extends BaseManager {
    */
   async loadPersons() {
     try {
-      const personsFile = path.join(this.dataDirectory, 'persons.json');
-      if (fsSync.existsSync(personsFile)) {
-        const personsData = await fs.readFile(personsFile, 'utf8');
+      if (fsSync.existsSync(this.personsFilePath)) {
+        const personsData = await fs.readFile(this.personsFilePath, 'utf8');
         const persons = JSON.parse(personsData);
 
-        // Build both Maps: by identifier and by numeric ID
         this.persons = new Map();
         this.personsById = new Map();
         this.nextPersonId = 0;
 
         for (const [numericId, person] of Object.entries(persons)) {
-          if (person && person.identifier) {
-            this.persons.set(person.identifier, person);
-            this.personsById.set(numericId, person);
+          if (!person) continue;
+          const idNum = Number.parseInt(numericId, 10);
+          if (Number.isFinite(idNum)) this.nextPersonId = Math.max(this.nextPersonId, idNum + 1);
 
-            // Track the highest numeric ID for new persons
-            const id = parseInt(numericId);
-            if (!isNaN(id) && id >= this.nextPersonId) {
-              this.nextPersonId = id + 1;
-            }
-          }
+          if (person.identifier) this.persons.set(person.identifier, person);
+          this.personsById.set(numericId, person);
         }
-
-        console.log(`👤 Loaded ${this.persons.size} persons`);
       } else {
         this.persons = new Map();
         this.personsById = new Map();
         this.nextPersonId = 0;
-        console.log('👤 No persons file found, starting with empty persons');
       }
     } catch (err) {
-      console.error('Error loading persons:', err);
+      this.engine?.logger?.error?.(`SchemaManager: failed to load persons: ${err.message}`);
       this.persons = new Map();
       this.personsById = new Map();
       this.nextPersonId = 0;
@@ -78,18 +114,15 @@ class SchemaManager extends BaseManager {
    */
   async loadOrganizations() {
     try {
-      const organizationsFile = path.join(this.dataDirectory, 'organizations.json');
-      if (fsSync.existsSync(organizationsFile)) {
-        const organizationsData = await fs.readFile(organizationsFile, 'utf8');
+      if (fsSync.existsSync(this.organizationsFilePath)) {
+        const organizationsData = await fs.readFile(this.organizationsFilePath, 'utf8');
         const organizations = JSON.parse(organizationsData);
         this.organizations = new Map(Object.entries(organizations));
-        console.log(`🏢 Loaded ${this.organizations.size} organizations`);
       } else {
         this.organizations = new Map();
-        console.log('🏢 No organizations file found, starting with empty organizations');
       }
     } catch (err) {
-      console.error('Error loading organizations:', err);
+      this.engine?.logger?.error?.(`SchemaManager: failed to load organizations: ${err.message}`);
       this.organizations = new Map();
     }
   }
@@ -99,12 +132,10 @@ class SchemaManager extends BaseManager {
    */
   async savePersons() {
     try {
-      const personsFile = path.join(this.dataDirectory, 'persons.json');
-      // Use the numeric ID map to preserve file format
       const persons = Object.fromEntries(this.personsById);
-      await fs.writeFile(personsFile, JSON.stringify(persons, null, 2), 'utf8');
+      await fs.writeFile(this.personsFilePath, JSON.stringify(persons, null, 2), 'utf8');
     } catch (err) {
-      console.error('Error saving persons:', err);
+      this.engine?.logger?.error?.(`SchemaManager: failed to save persons: ${err.message}`);
       throw err;
     }
   }
@@ -114,393 +145,55 @@ class SchemaManager extends BaseManager {
    */
   async saveOrganizations() {
     try {
-      const organizationsFile = path.join(this.dataDirectory, 'organizations.json');
       const organizations = Object.fromEntries(this.organizations);
-      await fs.writeFile(organizationsFile, JSON.stringify(organizations, null, 2), 'utf8');
+      await fs.writeFile(this.organizationsFilePath, JSON.stringify(organizations, null, 2), 'utf8');
     } catch (err) {
-      console.error('Error saving organizations:', err);
+      this.engine?.logger?.error?.(`SchemaManager: failed to save organizations: ${err.message}`);
       throw err;
     }
-  }
-
-  /**
-   * Get all persons (returns array without authentication data for security)
-   */
-  getPersons() {
-    return Array.from(this.persons.values()).map(person => {
-      const { authentication, ...personWithoutAuth } = person;
-      return personWithoutAuth;
-    });
-  }
-
-  /**
-   * Get all organizations
-   */
-  getOrganizations() {
-    return Array.from(this.organizations.values());
   }
 
   /**
    * Get comprehensive site data for Schema.org generation
+   * Reads only from ConfigurationManager
    */
   async getComprehensiveSiteData() {
-    const config = this.engine.getConfig();
-    
+    const cfgMgr = this.engine?.getManager?.('ConfigurationManager');
+
+    const baseURL = cfgMgr?.getProperty?.('amdwiki.baseURL', 'http://localhost:3000');
+    const version = cfgMgr?.getProperty?.('amdwiki.version', '0.0.0');
+    const applicationName = cfgMgr?.getProperty?.('amdwiki.applicationName', 'amdWiki');
+    const applicationCategory = cfgMgr?.getProperty?.('amdwiki.application.category', 'Digital Platform');
+
+    const featureExportHtml = cfgMgr?.getProperty?.('amdwiki.features.export.html', true);
+    const featureAttachments = cfgMgr?.getProperty?.('amdwiki.features.attachments.enabled', true);
+    const featureLlm = cfgMgr?.getProperty?.('amdwiki.features.llm.enabled', false);
+
     return {
-      persons: this.getPersons(), // Returns persons without auth data
+      persons: this.getPersons(),
       organizations: this.getOrganizations(),
       config: {
         application: {
-          name: config.get('application.name') || config.get('applicationName', 'amdWiki'),
-          version: config.get('application.version') || config.get('version', '1.0.0'),
-          applicationCategory: config.get('application.applicationCategory', 'Wiki Software'),
-          url: config.get('application.url') || `http://localhost:${config.get('server.port', 3000)}`
-        },
-        server: {
-          port: config.get('server.port', 3000),
-          host: config.get('server.host', 'localhost')
+          name: applicationName,
+          version,
+          applicationCategory,
+          url: baseURL
         },
         features: {
-          export: config.get('features.export', { html: true }),
-          attachments: config.get('features.attachments', { enabled: true }),
-          llm: config.get('features.llm', { enabled: false })
+          export: { html: featureExportHtml },
+          attachments: { enabled: featureAttachments },
+          llm: { enabled: featureLlm }
         }
       }
     };
   }
 
-  /**
-   * Get person by identifier
-   */
-  getPerson(identifier) {
-    return this.persons.get(identifier);
+  getPersons() {
+    return Object.fromEntries(this.personsById);
   }
 
-  /**
-   * Get organization by identifier  
-   */
-  getOrganization(identifier) {
-    return this.organizations.get(identifier);
-  }
-
-  /**
-   * Create new Schema.org Person
-   */
-  async createPerson(personData) {
-    const person = this.validateAndEnhancePerson(personData);
-
-    // Add to both Maps
-    this.persons.set(person.identifier, person);
-
-    // Find next available numeric ID
-    let numericId = this.nextPersonId.toString();
-    while (this.personsById.has(numericId)) {
-      this.nextPersonId++;
-      numericId = this.nextPersonId.toString();
-    }
-
-    this.personsById.set(numericId, person);
-    this.nextPersonId++;
-
-    await this.savePersons();
-    return person;
-  }
-
-  /**
-   * Update existing Schema.org Person
-   */
-  async updatePerson(identifier, updateData) {
-    const existingPerson = this.persons.get(identifier);
-    if (!existingPerson) {
-      throw new Error(`Person with identifier ${identifier} not found`);
-    }
-
-    // Find the numeric ID for this person
-    let numericId = null;
-    for (const [id, person] of this.personsById.entries()) {
-      if (person.identifier === identifier) {
-        numericId = id;
-        break;
-      }
-    }
-
-    const updatedPerson = {
-      ...existingPerson,
-      ...updateData,
-      dateModified: new Date().toISOString()
-    };
-
-    const validatedPerson = this.validateAndEnhancePerson(updatedPerson);
-
-    // Update both Maps
-    this.persons.set(identifier, validatedPerson);
-    if (numericId !== null) {
-      this.personsById.set(numericId, validatedPerson);
-    }
-
-    await this.savePersons();
-    return validatedPerson;
-  }
-
-  /**
-   * Delete Schema.org Person
-   */
-  async deletePerson(identifier) {
-    if (!this.persons.has(identifier)) {
-      throw new Error(`Person with identifier ${identifier} not found`);
-    }
-
-    this.persons.delete(identifier);
-    await this.savePersons();
-    return true;
-  }
-
-  /**
-   * Create new Schema.org Organization
-   */
-  async createOrganization(organizationData) {
-    const organization = this.validateAndEnhanceOrganization(organizationData);
-    this.organizations.set(organization.name.toLowerCase(), organization);
-    await this.saveOrganizations();
-    return organization;
-  }
-
-  /**
-   * Update existing Schema.org Organization
-   */
-  async updateOrganization(identifier, updateData) {
-    const existingOrg = this.organizations.get(identifier);
-    if (!existingOrg) {
-      throw new Error(`Organization with identifier ${identifier} not found`);
-    }
-
-    const updatedOrg = {
-      ...existingOrg,
-      ...updateData,
-      dateModified: new Date().toISOString()
-    };
-
-    const validatedOrg = this.validateAndEnhanceOrganization(updatedOrg);
-    this.organizations.set(identifier, validatedOrg);
-    await this.saveOrganizations();
-    return validatedOrg;
-  }
-
-  /**
-   * Delete Schema.org Organization
-   */
-  async deleteOrganization(identifier) {
-    if (!this.organizations.has(identifier)) {
-      throw new Error(`Organization with identifier ${identifier} not found`);
-    }
-
-    this.organizations.delete(identifier);
-    await this.saveOrganizations();
-    return true;
-  }
-
-  /**
-   * Validate and enhance Person data with Schema.org compliance
-   */
-  validateAndEnhancePerson(personData) {
-    const person = {
-      "@context": "https://schema.org",
-      "@type": "Person",
-      ...personData
-    };
-
-    // Required fields validation
-    if (!person.identifier) {
-      throw new Error('Person identifier is required');
-    }
-    if (!person.name) {
-      throw new Error('Person name is required');
-    }
-
-    // Handle optional personal information fields
-    this.cleanOptionalFields(person, [
-      'birthDate', 'nationality', 'gender', 'alumniOf'
-    ]);
-
-    // Handle optional address field
-    if (person.address && typeof person.address === 'object') {
-      person.address = {
-        "@type": "PostalAddress",
-        ...person.address
-      };
-      
-      // Remove null/empty address fields
-      Object.keys(person.address).forEach(key => {
-        if (person.address[key] === null || person.address[key] === undefined || person.address[key] === '') {
-          delete person.address[key];
-        }
-      });
-      
-      // If only @type remains, remove the entire address
-      if (Object.keys(person.address).length === 1 && person.address['@type']) {
-        delete person.address;
-      }
-    }
-
-    // Handle knowsLanguage array
-    if (person.knowsLanguage && Array.isArray(person.knowsLanguage)) {
-      person.knowsLanguage = person.knowsLanguage.filter(lang => lang && lang.trim());
-      if (person.knowsLanguage.length === 0) {
-        delete person.knowsLanguage;
-      }
-    }
-
-    // Enhance with Schema.org best practices
-    if (!person.contactPoint && person.email) {
-      person.contactPoint = {
-        "@type": "ContactPoint",
-        "email": person.email,
-        "contactType": "personal",
-        "availableLanguage": person.knowsLanguage || ["English"]
-      };
-    }
-
-    if (!person.memberOf) {
-      person.memberOf = {
-        "@type": "Organization",
-        "@id": "https://schema.org/amdWiki",
-        "name": "amdWiki Platform"
-      };
-    }
-
-    if (!person.dateCreated) {
-      person.dateCreated = new Date().toISOString();
-    }
-
-    return person;
-  }
-
-  /**
-   * Helper method to clean optional fields (remove null/empty values)
-   */
-  cleanOptionalFields(obj, fields) {
-    fields.forEach(field => {
-      if (obj[field] === null || obj[field] === undefined || obj[field] === '') {
-        delete obj[field];
-      }
-    });
-  }
-
-  /**
-   * Validate and enhance Organization data with Schema.org compliance
-   */
-  validateAndEnhanceOrganization(organizationData) {
-    const organization = {
-      "@context": "https://schema.org",
-      "@type": "Organization",
-      ...organizationData
-    };
-
-    // Required fields validation
-    if (!organization.name) {
-      throw new Error('Organization name is required');
-    }
-
-    // Enhance with Schema.org best practices
-    if (!organization["@id"]) {
-      organization["@id"] = `https://schema.org/${organization.name.replace(/\s+/g, '')}`;
-    }
-
-    // Handle optional legalName field
-    if (organization.legalName === null || organization.legalName === undefined || organization.legalName === '') {
-      // Remove null/empty legalName from output
-      delete organization.legalName;
-    }
-
-    // Handle optional address field - enhance with proper structure
-    if (organization.address) {
-      if (typeof organization.address === 'object' && organization.address !== null) {
-        // Ensure proper PostalAddress schema
-        organization.address = {
-          "@type": "PostalAddress",
-          ...organization.address
-        };
-        
-        // Remove null/empty address fields
-        Object.keys(organization.address).forEach(key => {
-          if (organization.address[key] === null || organization.address[key] === undefined || organization.address[key] === '') {
-            delete organization.address[key];
-          }
-        });
-        
-        // If only @type remains, remove the entire address
-        if (Object.keys(organization.address).length === 1 && organization.address['@type']) {
-          delete organization.address;
-        }
-      }
-    }
-
-    if (!organization.contactPoint || organization.contactPoint.length === 0) {
-      throw new Error('Organization must have at least one contactPoint');
-    }
-
-    if (!organization.foundingDate) {
-      organization.foundingDate = new Date().getFullYear().toString();
-    }
-
-    return organization;
-  }
-
-  /**
-   * Migration helper: Convert legacy users.json to persons.json
-   */
-  async migrateLegacyUsers() {
-    try {
-      const usersFile = path.join(this.dataDirectory, 'users.json');
-      if (!fsSync.existsSync(usersFile)) {
-        console.log('No legacy users.json found to migrate');
-        return;
-      }
-
-      const usersData = await fs.readFile(usersFile, 'utf8');
-      const users = JSON.parse(usersData);
-
-      console.log('🔄 Migrating legacy users to Schema.org Person format...');
-
-      for (const [username, userData] of Object.entries(users)) {
-        const person = {
-          identifier: username,
-          name: userData.displayName || userData.username,
-          email: userData.email,
-          jobTitle: userData.roles?.includes('admin') ? 'Administrator' : 'Reader',
-          hasCredential: userData.roles?.map(role => ({
-            "@type": "EducationalOccupationalCredential",
-            "credentialCategory": role
-          })) || [],
-          dateCreated: userData.createdAt,
-          lastReviewed: userData.lastLogin,
-          interactionStatistic: {
-            "@type": "InteractionCounter",
-            "interactionType": "https://schema.org/LoginAction",
-            "userInteractionCount": userData.loginCount || 0
-          },
-          isActive: userData.isActive,
-          isSystem: userData.isSystem,
-          isExternal: userData.isExternal,
-          preferences: userData.preferences || {},
-          authentication: {
-            password: userData.password
-          }
-        };
-
-        await this.createPerson(person);
-      }
-
-      // Backup legacy file
-      const backupPath = path.join(this.dataDirectory, 'users.json.backup');
-      await fs.copyFile(usersFile, backupPath);
-      await fs.unlink(usersFile);
-      console.log('✅ Migration completed, legacy users.json backed up');
-
-    } catch (err) {
-      console.error('Error migrating legacy users:', err);
-      throw err;
-    }
+  getOrganizations() {
+    return Object.fromEntries(this.organizations);
   }
 }
 

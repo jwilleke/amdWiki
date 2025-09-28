@@ -12,12 +12,8 @@ jest.mock('fs', () => ({
 const fs = require('fs').promises;
 const fsSync = require('fs');
 
-const mockEngine = {
-  log: jest.fn(),
-  getConfig: jest.fn().mockReturnValue({
-    get: jest.fn().mockReturnValue('test-value')
-  })
-};
+const mockCfgMgr = { getProperty: jest.fn().mockImplementation((k,d)=>d) };
+const mockEngine = { getManager: jest.fn(n => n==='ConfigurationManager'?mockCfgMgr:null) };
 
 describe("SchemaManager", () => {
   let schemaManager;
