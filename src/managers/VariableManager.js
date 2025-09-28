@@ -127,7 +127,7 @@ class VariableManager extends BaseManager {
       return '1';
     });
   }
-
+ 
   /**
    * Register contextual variables that require user/page context
    */

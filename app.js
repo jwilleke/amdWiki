@@ -359,15 +359,18 @@ async function renderMarkdown(content, pageName, userContext = null, requestInfo
     }
 
     // Create WikiContext with the engine and render using managers
-    const context = new WikiContext(wikiEngine, {
-      pageName: pageName,
-      content: content,
-      userContext: userContext,
-      requestInfo: requestInfo,
-      linkGraph: linkGraph
+    const ctx = new WikiContext(wikiEngine, {
+      context: WikiContext.CONTEXT.VIEW,
+      pageName,
+      content: markdown,
+      userContext,
+      request: req,
+      response: res,
+      linkGraph
     });
+    const html = await ctx.renderMarkdown();
 
-    return await context.renderMarkdown(content, pageName, userContext, requestInfo);
+    return html;
   } catch (error) {
     console.error('Error in WikiContext rendering, falling back to basic conversion:', error);
     logger.error('WikiContext rendering error', { 

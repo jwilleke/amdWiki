@@ -1,4 +1,5 @@
 const { LinkParser } = require('../parsers/LinkParser');
+const Showdown = require('showdown');
 
 /**
  * WikiContext - Central context for wiki rendering operations
@@ -10,21 +11,50 @@ const { LinkParser } = require('../parsers/LinkParser');
  * Related Issue: #66 - Implement WikiContext and Manager refactoring
  */
 class WikiContext {
-  constructor(engine, options = {}) {
+  // JSPWiki-like context constants
+  static CONTEXT = {
+    VIEW: 'view',
+    EDIT: 'edit',
+    PREVIEW: 'preview',
+    DIFF: 'diff',
+    ATTACH: 'attach',
+    INFO: 'info',
+    COMMENT: 'comment',
+    UPLOAD: 'upload',
+    LOGIN: 'login',
+    LOGOUT: 'logout',
+    PREFS: 'prefs',
+    SEARCH: 'search'
+  };
+
+  constructor(
+    engine,
+    {
+      context = WikiContext.CONTEXT.VIEW,
+      pageName = 'Home',
+      content = '',
+      userContext = null,
+      request = null,
+      response = null,
+      requestInfo = null,
+      linkGraph = {},
+      variables = {},
+      command = null
+    } = {}
+  ) {
     this.engine = engine;
+    this._context = context;
+    this.pageName = pageName;
+    this.content = content;
+    this.userContext = userContext;
+    this.request = request || null;
+    this.response = response || null;
+    this.requestInfo = requestInfo || (request ? WikiContext.fromExpressReq(request) : null);
+    this.linkGraph = linkGraph || {};
+    this.command = command || null;
 
-    // Page context
-    this.pageName = options.pageName || 'unknown';
-    this.content = options.content || '';
-
-    // User context
-    this.userContext = options.userContext || null;
-    this.requestInfo = options.requestInfo || null;
-
-    // Rendering state
-    this.variables = new Map();
-    this.metadata = {};
-    this.linkGraph = options.linkGraph || {};
+    this._variables = new Map(Object.entries(variables || {}));
+    this._fallbackConverter = new Showdown.Converter();
 
     // Performance tracking
     this.startTime = Date.now();
@@ -33,6 +63,28 @@ class WikiContext {
     // LinkParser for fallback link processing
     this.fallbackLinkParser = new LinkParser();
     this.linkParserInitialized = false;
+  }
+
+  // Express request -> normalized requestInfo for VariableManager
+  static fromExpressReq(req) {
+    if (!req) return null;
+    const xfwd = req.headers?.['x-forwarded-for'] || '';
+    const clientIp =
+      (typeof xfwd === 'string' && xfwd.split(',')[0].trim()) ||
+      req.ip ||
+      req.connection?.remoteAddress ||
+      undefined;
+
+    return {
+      userAgent: req.headers?.['user-agent'],
+      acceptLanguage: req.headers?.['accept-language'],
+      referer: req.get?.('referer') || 'Direct',
+      clientIp,
+      // session hints (non-sensitive)
+      sessionId: req.sessionID || null,
+      userId: req.session?.userId ?? null,
+      roles: Array.isArray(req.session?.roles) ? req.session.roles : (req.session?.roles ? [req.session.roles] : [])
+    };
   }
 
   /**
@@ -302,42 +354,43 @@ class WikiContext {
     };
   }
 
-  /**
-   * Set variable value
-   * @param {string} name - Variable name
-   * @param {any} value - Variable value
-   */
-  setVariable(name, value) {
-    this.variables.set(name, value);
-  }
+  // --- JSPWiki-style accessors ---
+  getEngine() { return this.engine; }
+  getRequest() { return this.request; }
+  getResponse() { return this.response; }
+  getUser() { return this.userContext; }
+  setUser(userContext) { this.userContext = userContext; return this; }
 
-  /**
-   * Get variable value
-   * @param {string} name - Variable name
-   * @param {any} defaultValue - Default value if not found
-   * @returns {any} - Variable value
-   */
-  getVariable(name, defaultValue = null) {
-    return this.variables.get(name) || defaultValue;
-  }
+  getPageName() { return this.pageName; }
+  setPageName(name) { this.pageName = name; return this; }
 
-  /**
-   * Set metadata value
-   * @param {string} key - Metadata key
-   * @param {any} value - Metadata value
-   */
-  setMetadata(key, value) {
-    this.metadata[key] = value;
-  }
+  getContext() { return this._context; }
+  setContext(ctx) { this._context = ctx; return this; }
 
-  /**
-   * Get metadata value
-   * @param {string} key - Metadata key
-   * @param {any} defaultValue - Default value if not found
-   * @returns {any} - Metadata value
-   */
-  getMetadata(key, defaultValue = null) {
-    return this.metadata[key] || defaultValue;
+  getCommand() { return this.command; }
+  setCommand(cmd) { this.command = cmd; return this; }
+
+  // Context variables (WikiContext variable map)
+  getVariable(name) { return this._variables.get(name); }
+  setVariable(name, value) { this._variables.set(name, value); return this; }
+  hasVariable(name) { return this._variables.has(name); }
+  getVariables() { return Object.fromEntries(this._variables.entries()); }
+
+  // Options fed to MarkupParser; VariableManager reads from pageContext
+  toParseOptions() {
+    return {
+      pageName: this.pageName,
+      userName: this.userContext?.username || 'anonymous',
+      pageContext: {
+        userContext: this.userContext,
+        pageName: this.pageName,
+        requestInfo: this.requestInfo,
+        variables: this.getVariables(),
+        linkGraph: this.linkGraph,
+        context: this._context,
+        command: this.command
+      }
+    };
   }
 
   /**
