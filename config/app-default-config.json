@@ -174,7 +174,7 @@
   "amdwiki.markup.filters.pipeline.failOnError": false,
   
   "_comment_security_filters": "Security filter configuration",
-  "amdwiki.markup.filters.spam.enabled": true,
+  "amdwiki.markup.filters.spam.enabled": false,
   "amdwiki.markup.filters.spam.priority": 100,
   "amdwiki.markup.filters.spam.maxLinks": 10,
   "amdwiki.markup.filters.spam.maxImages": 5,
@@ -182,7 +182,7 @@
   "amdwiki.markup.filters.spam.whitelistDomains": "wikipedia.org,github.com,stackoverflow.com",
   "amdwiki.markup.filters.spam.cacheBlacklist": true,
   
-  "amdwiki.markup.filters.security.enabled": true,
+  "amdwiki.markup.filters.security.enabled": false,
   "amdwiki.markup.filters.security.priority": 110,
   "amdwiki.markup.filters.security.preventXSS": true,
   "amdwiki.markup.filters.security.preventCSRF": true,
@@ -200,7 +200,7 @@
   "amdwiki.markup.filters.validation.reportErrors": true,
   
   "_comment_custom_filters": "Custom filter plugin configuration",
-  "amdwiki.markup.filters.custom.enabled": true,
+  "amdwiki.markup.filters.custom.enabled": false,
   "amdwiki.markup.filters.custom.searchPaths": "./filters,./src/filters",
   "amdwiki.markup.filters.custom.autoLoad": true,
   "amdwiki.markup.filters.custom.cacheResults": true,
