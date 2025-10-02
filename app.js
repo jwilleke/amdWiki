@@ -216,6 +216,10 @@ async function initializeWikiEngine() {
     templatesDirectory: path.join(__dirname, 'templates')
   });
 
+  // Create and set a default, request-less context for engine startup tasks
+  const startupContext = new WikiContext(engine, { context: WikiContext.CONTEXT.NONE });
+  engine.setContext(startupContext);
+
   // Update runtime configuration from ConfigurationManager
   const configManager = engine.getManager('ConfigurationManager');
   port = configManager.getServerPort();
@@ -341,48 +345,8 @@ async function buildSearchIndex() {
   logger.info(`🔍 Search index built with ${documents.length} documents`);
 }
 
-/**
- * Render markdown content with wiki-style links and other macros using WikiContext.
- * This replaces the previous inline regex processing with manager-based architecture.
- * @param {string} content - The markdown content to render.
- * @param {string} pageName - The name of the current page.
- * @param {Object} userContext - User context for authentication variables (optional).
- * @param {Object} requestInfo - Request information for context variables (optional).
- * @returns {string} - The rendered markdown content.
- */
-async function renderMarkdown(content, pageName, userContext = null, requestInfo = null) {
-  try {
-    if (!wikiEngine) {
-      // Fallback to original behavior if engine not ready
-      console.warn('WikiEngine not available, using fallback rendering');
-      return converter.makeHtml(content);
-    }
-
-    // Create WikiContext with the engine and render using managers
-    const ctx = new WikiContext(wikiEngine, {
-      context: WikiContext.CONTEXT.VIEW,
-      pageName,
-      content: markdown,
-      userContext,
-      request: req,
-      response: res,
-      linkGraph
-    });
-    const html = await ctx.renderMarkdown();
-
-    return html;
-  } catch (error) {
-    console.error('Error in WikiContext rendering, falling back to basic conversion:', error);
-    logger.error('WikiContext rendering error', { 
-      error: error.message, 
-      pageName: pageName, 
-      contentLength: content ? content.length : 0 
-    });
-    
-    // Fallback to basic markdown conversion
-    return converter.makeHtml(content);
-  }
-}
+// REMOVED the broken global renderMarkdown function.
+// All rendering logic is now correctly handled within WikiRoutes.
 
 /**
  * Render markdown content with wiki-style links and other macros.

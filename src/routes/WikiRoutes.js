@@ -7,6 +7,7 @@
 const path = require('path');
 const SchemaGenerator = require('../utils/SchemaGenerator');
 const logger = require('../utils/logger');
+const WikiContext = require('../context/WikiContext');
 
 class WikiRoutes {
   constructor(engine) {
@@ -57,51 +58,48 @@ class WikiRoutes {
    */
   async getCommonTemplateData(userContext = null, req = null) {
     const pageManager = this.engine.getManager('PageManager');
-    const pages = await pageManager.getPageNames();
+    const renderingManager = this.engine.getManager('RenderingManager');
+    const configManager = this.engine.getManager('ConfigurationManager');
+    const aclManager = this.engine.getManager('ACLManager');
 
-    // Load footer content from Footer.md
-    let footerContent = null;
+    const appName = configManager.getProperty('amdwiki.applicationName', 'amdWiki');
+    const pages = await pageManager.getAllPages();
+
+    // Render LeftMenu and Footer using the new WikiContext-driven pipeline
+    let leftMenuHtml = '';
+    let footerHtml = '';
+
     try {
-      const footerPage = await pageManager.getPage('Footer');
-      if (footerPage && footerPage.content) {
-        const renderingManager = this.engine.getManager('RenderingManager');
-        const aclManager = this.engine.getManager('ACLManager');
-
-        // Remove ACL markup and render footer content with user context
-        const cleanContent = aclManager.removeACLMarkup(footerPage.content);
-        const requestInfo = req ? this.getRequestInfo(req) : null;
-        footerContent = await renderingManager.renderMarkdown(cleanContent, 'Footer', userContext, requestInfo);
-      }
-    } catch (error) {
-      console.warn('Could not load footer content:', error.message);
-      // Fallback footer content
-      footerContent = `<div class="text-center text-muted">
-        <small>amdWiki v1.2.0 | Copyright © amdWiki ${new Date().getFullYear()}</small>
-      </div>`;
+      const leftMenuMarkdown = await pageManager.loadPageContent('LeftMenu');
+      const leftMenuCtx = new WikiContext(this.engine, {
+        context: WikiContext.CONTEXT.VIEW,
+        pageName: 'LeftMenu',
+        userContext
+      });
+      leftMenuHtml = await renderingManager.textToHTML(leftMenuCtx, leftMenuMarkdown);
+    } catch (err) {
+      logger.warn('Could not load or render LeftMenu content.', { error: err.message });
     }
 
-    // Load left menu content from LeftMenu.md
-    let leftMenuContent = null;
     try {
-      const leftMenuPage = await pageManager.getPage('LeftMenu');
-      if (leftMenuPage && leftMenuPage.content) {
-        const renderingManager = this.engine.getManager('RenderingManager');
-        const aclManager = this.engine.getManager('ACLManager');
-
-        // Remove ACL markup and render left menu content with user context
-        const cleanContent = aclManager.removeACLMarkup(leftMenuPage.content);
-        const requestInfo = req ? this.getRequestInfo(req) : null;
-        leftMenuContent = await renderingManager.renderMarkdown(cleanContent, 'LeftMenu', userContext, requestInfo);
-      }
-    } catch (error) {
-      console.warn('Could not load left menu content:', error.message);
+      const footerMarkdown = await pageManager.loadPageContent('Footer');
+      const footerCtx = new WikiContext(this.engine, {
+        context: WikiContext.CONTEXT.VIEW,
+        pageName: 'Footer',
+        userContext
+      });
+      footerHtml = await renderingManager.textToHTML(footerCtx, footerMarkdown);
+    } catch (err) {
+      logger.warn('Could not load or render Footer content.', { error: err.message });
     }
 
     return {
-      pages: pages,
-      appName: this.engine.getApplicationName(),
-      footerContent: footerContent,
-      leftMenuContent: leftMenuContent
+      title: appName,
+      appName,
+      pages,
+      user: userContext,
+      leftMenu: leftMenuHtml,
+      footer: footerHtml
     };
   }
 
@@ -508,111 +506,48 @@ class WikiRoutes {
    */
   async viewPage(req, res) {
     try {
-      const pageName = req.params.page;
+      const pageName = req.params.page || 'Welcome';
+      const userManager = this.engine.getManager('UserManager');
+      const userContext = await userManager.getCurrentUser(req);
       const pageManager = this.engine.getManager('PageManager');
       const renderingManager = this.engine.getManager('RenderingManager');
-      const userManager = this.engine.getManager('UserManager');
       const aclManager = this.engine.getManager('ACLManager');
 
-      const currentUser = await userManager.getCurrentUser(req);
-
-      // Get page data first (needed for ACL checking)
-      const pageData = await pageManager.getPage(pageName);
-      if (!pageData) {
-        // Check if user can create pages
-        const canCreate = currentUser ?
-          userManager.hasPermission(currentUser.username, 'page:create') :
-          userManager.hasPermission(null, 'page:create');
-
-        const commonData = await this.getCommonTemplateDataWithUser(req);
-        const leftMenuContent = await this.getLeftMenu();
-        return res.status(404).render('view', {
-          ...commonData,
-          title: 'Page Not Found',
-          content: `<h1>Page Not Found</h1><p>The page "${pageName}" does not exist.</p>${canCreate ? `<p><a href="/create?name=${encodeURIComponent(pageName)}" class="btn btn-primary">Create Page</a></p>` : ''}`,
-          pageName: pageName,
-          leftMenuContent: leftMenuContent,
-          referringPages: [], // Add missing referringPages
-          exists: false,
-          canCreate: canCreate
-        });
+      // Check view permission
+      const canView = await aclManager.checkPagePermission(pageName, 'view', userContext);
+      if (!canView) {
+        return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to view this page.');
       }
 
-      // Check ACL permission for viewing this page
-      const context = this.getRequestContext(req);
-      const hasViewPermission = await aclManager.checkPagePermission(
-        pageName, 'view', currentUser, pageData.content, context
-      );
+      const markdown = await pageManager.loadPageContent(pageName);
 
-      if (!hasViewPermission) {
-        return await this.renderError(req, res, 403, 'Access Denied',
-          'You do not have permission to view this page');
-      }
-
-      // Get common template data with user
-      const commonData = await this.getCommonTemplateDataWithUser(req);
-
-      // Remove ACL markup from content before rendering
-      const cleanContent = aclManager.removeACLMarkup(pageData.content);
-
-      // Render the markdown content with user context and request info
-      const requestInfo = this.getRequestInfo(req);
-      const renderedContent = await renderingManager.renderMarkdown(cleanContent, pageName, commonData.user, requestInfo);
-
-      // Get referring pages for context
-      const referringPages = renderingManager.getReferringPages(pageName);
-
-      // Get left menu content with user context
-      const leftMenuContent = await this.getLeftMenu(commonData.user);
-
-      // Check if reader view is requested
-      const isReaderView = req.query.view === 'reader';
-      const viewTemplate = isReaderView ? 'reader' : 'view';
-
-      // Generate Schema.org markup for this page
-      const pageSchema = await this.generatePageSchema({
-        title: pageData.metadata.title || pageName,
-        category: pageData.metadata.category,
-        categories: pageData.metadata.categories || pageData.metadata.category ? [pageData.metadata.category] : [],
-        userKeywords: pageData.metadata.userKeywords || pageData.metadata['user-keywords'] || [],
-        lastModified: pageData.metadata.lastModified,
-        uuid: pageData.metadata.uuid,
-        content: pageData.content,         // Include content for ACL parsing
-        isProtected: pageData.metadata.isProtected
-      }, req);
-
-      // Generate site-wide Schema.org markup (only on main pages for performance)
-      const siteSchema = pageName === 'Welcome' ? await this.generateSiteSchema(req) : '';
-
-      res.render(viewTemplate, {
-        ...commonData,
-        title: pageData.metadata.title || pageName,
-        content: renderedContent,
-        pageName: pageName,
-        metadata: pageData.metadata,
-        referringPages: referringPages,
-        leftMenuContent: leftMenuContent,
-        exists: true,
-        canEdit: currentUser ? userManager.hasPermission(currentUser.username, 'page:edit') : false,
-        canDelete: currentUser ? userManager.hasPermission(currentUser.username, 'page:delete') : false,
-        isReaderView: isReaderView,
-        pageSchema: pageSchema,
-        siteSchema: siteSchema
+      // 1. Construct WikiContext for this specific request
+      const ctx = new WikiContext(this.engine, {
+        context: WikiContext.CONTEXT.VIEW,
+        pageName,
+        content: markdown,
+        userContext,
+        request: req,
+        response: res
       });
 
-    } catch (err) {
-      console.error('Error viewing page:', err);
-      const commonData = await this.getCommonTemplateDataWithUser(req);
-      const leftMenuContent = await this.getLeftMenu();
-      res.status(500).render('view', {
-        ...commonData,
-        title: 'Error',
-        content: '<h1>Error</h1><p>An error occurred while loading the page.</p>',
-        pageName: req.params.page,
-        leftMenuContent: leftMenuContent,
-        referringPages: [], // Add missing referringPages
-        exists: false
+      // 2. Set the engine's active context
+      this.engine.setContext(ctx);
+
+      // 3. Call the rendering pipeline via RenderingManager
+      const html = await renderingManager.textToHTML(ctx, markdown);
+
+      // 4. Render the final page
+      const templateData = await this.getCommonTemplateData(userContext);
+      res.render('view', {
+        ...templateData,
+        pageName,
+        content: html,
+        lastModified: (await pageManager.getPageMetadata(pageName))?.lastModified
       });
+    } catch (error) {
+      console.error('Error viewing page:', error);
+      await this.renderError(req, res, 500, 'Error', 'Could not render the page.');
     }
   }
 

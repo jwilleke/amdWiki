@@ -4,71 +4,99 @@ const { Config } = require('../config/Config'); // DEPRECATED
 // Managers
 const PageManager = require('./managers/PageManager');
 const PluginManager = require('./managers/PluginManager');
+const RenderingManager = require('./managers/RenderingManager');
+const SearchManager = require('./managers/SearchManager');
+const TemplateManager = require('./managers/TemplateManager');
+const AttachmentManager = require('./managers/AttachmentManager');
+const ExportManager = require('./managers/ExportManager');
+const UserManager = require('./managers/UserManager');
+const ACLManager = require('./managers/ACLManager');
+const SchemaManager = require('./managers/SchemaManager');
+const ValidationManager = require('./managers/ValidationManager');
+const NotificationManager = require('./managers/NotificationManager');
+const ConfigurationManager = require('./managers/ConfigurationManager');
+const VariableManager = require('./managers/VariableManager');
+const CacheManager = require('./managers/CacheManager');
+const MarkupParser = require('./parsers/MarkupParser');
 
 /**
  * WikiEngine - Main engine implementation
  * Follows JSPWiki's architecture patterns
  */
 class WikiEngine extends Engine {
-  constructor() {
-    super();
+  constructor(config = {}, context = null) {
+    super(config);
+    this.context = context || null;
     this.config = null;
     this.startTime = Date.now(); // Track when the engine was started
+  }
+
+  /**
+   * Sets the currently active WikiContext for the engine.
+   * @param {WikiContext} context The context to set.
+   * @returns {WikiEngine} The engine instance for chaining.
+   */
+  setContext(context) {
+    this.context = context;
+    return this;
+  }
+
+  /**
+   * Gets the currently active WikiContext.
+   * @returns {WikiContext|null} The active context.
+   */
+  getContext() {
+    return this.context;
   }
 
   /**
    * Initialize the wiki engine with configuration
    * @param {Object|Config} config - Configuration object or Config instance
    */
-  async initialize(config = {}) {
-    console.log('🔧 WikiEngine.initialize() starting...');
-    
-    // Handle Config instance or plain object
-    if (config instanceof Config) {
-      this.config = config;
-      console.log('✅ Using provided Config instance');
-    } else {
-      this.config = new Config(config);
-      console.log('✅ Created new Config instance from object');
-    }
+  async initialize(config) {
+    this.config = config;
 
-    // Defensive check #1: Verify config instance
-    if (!this.config || typeof this.config.get !== 'function') {
-      throw new Error('Config instance is invalid - missing get() method');
-    }
-    console.log('✅ Config instance verified before super.initialize()');
+    // 1. Initialize Core Managers first (Config, Notifications)
+    this.registerManager('ConfigurationManager', new ConfigurationManager(this));
+    await this.getManager('ConfigurationManager').initialize(config);
 
-    // Validate configuration
-    const errors = this.config.validate();
-    if (errors.length > 0) {
-      throw new Error(`Configuration errors: ${errors.join(', ')}`);
-    }
-    console.log('✅ Configuration validated successfully');
+    this.registerManager('NotificationManager', new NotificationManager(this));
+    await this.getManager('NotificationManager').initialize();
 
-    // Store the config instance before calling super.initialize()
-    const configInstance = this.config;
-    
-    // Initialize base engine properties only (don't call initializeManagers twice)
-    if (this.initialized) {
-      throw new Error('Engine already initialized');
-    }
+    // 2. Initialize PageManager, which is fundamental for content
+    this.registerManager('PageManager', new PageManager(this));
+    await this.getManager('PageManager').initialize();
 
-    // Store configuration - don't overwrite this.config if it's already set
-    this.properties = new Map(Object.entries(this.config.getAll()));
-    
-    // Defensive check #2: Restore config instance if it was overwritten
-    if (!this.config || typeof this.config.get !== 'function') {
-      console.warn('⚠️  Config instance was overwritten, restoring...');
-      this.config = configInstance;
-    }
-    console.log('✅ Config instance verified after initialization');
+    // 3. Initialize other managers that may depend on the above
+    this.registerManager('UserManager', new UserManager(this));
+    await this.getManager('UserManager').initialize();
 
-    // Initialize and register managers (only once)
-    await this.initializeManagers();
-    
-    this.initialized = true;
+    this.registerManager('ACLManager', new ACLManager(this));
+    await this.getManager('ACLManager').initialize();
 
-    console.log(`✅ ${this.getApplicationName()} initialized successfully`);
+    this.registerManager('PluginManager', new PluginManager(this));
+    await this.getManager('PluginManager').initialize();
+
+    this.registerManager('RenderingManager', new RenderingManager(this));
+    await this.getManager('RenderingManager').initialize();
+
+    this.registerManager('SearchManager', new SearchManager(this));
+    await this.getManager('SearchManager').initialize();
+
+    this.registerManager('SchemaManager', new SchemaManager(this));
+    await this.getManager('SchemaManager').initialize();
+
+    this.registerManager('PolicyManager', new PolicyManager(this));
+    await this.getManager('PolicyManager').initialize();
+
+    this.registerManager('PolicyValidator', new PolicyValidator(this));
+    await this.getManager('PolicyValidator').initialize();
+
+    this.registerManager('PolicyEvaluator', new PolicyEvaluator(this));
+    await this.getManager('PolicyEvaluator').initialize();
+
+    console.log('✅ All managers initialized');
+    return this;
   }
 
   /**

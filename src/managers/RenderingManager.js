@@ -1166,38 +1166,18 @@ class RenderingManager extends BaseManager {
   } 
 
   /**
-   * Expand all [{$variable}] occurrences using VariableManager
-   * @deprecated Use expandAllVariables instead.
+   * Converts wiki markup to HTML using the provided WikiContext.
+   * This is the main entry point for the rendering pipeline.
+   * @param {WikiContext} context The context for the rendering operation.
+   * @param {string} content The raw wiki markup to render.
+   * @returns {Promise<string>} The rendered HTML.
    */
-  expandAllVariables(content, context = {}) {
-    const varMgr = this.engine?.getManager?.('VariableManager');
-    if (!varMgr || typeof varMgr.expandVariables !== 'function') {
-      this.engine?.logger?.warn?.('RenderingManager: VariableManager not available; skipping variable expansion');
-      return content ?? '';
+  async textToHTML(context, content) {
+    if (!context || typeof context.renderMarkdown !== 'function') {
+      throw new Error('RenderingManager.textToHTML requires a valid WikiContext object.');
     }
-    return varMgr.expandVariables(content, context);
-  }
-
-  /**
-   * @deprecated Use expandAllVariables instead.
-   */
-  expandUserVariables(content, context = {}) {
-    this.engine?.logger?.warn?.('RenderingManager.expandUserVariables is deprecated; use expandAllVariables');
-    return this.expandAllVariables(content, context);
-  }
-
-  /**
-   * Render a complete page
-   * @param {string} content - Raw page content
-   * @param {string} pageName - Page name
-   * @param {object} userContext - User context
-   * @returns {Promise<string>} Fully rendered HTML
-   */
-  async renderPage(content, pageName, userContext = null) {
-    if (!content) return '';
-
-    // Use renderMarkdown which already handles all processing steps correctly
-    return await this.renderMarkdown(content, pageName, userContext);
+    // Delegate rendering to the context, which orchestrates the full pipeline
+    return context.renderMarkdown(content);
   }
 }
 
