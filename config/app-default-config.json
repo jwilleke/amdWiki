@@ -456,5 +456,41 @@
   "log4j.appender.console": "org.apache.log4j.ConsoleAppender",
   "log4j.appender.console.layout": "org.apache.log4j.PatternLayout",
   "log4j.appender.console.layout.ConversionPattern": "%d [%t] %p %c %x - %m%n",
-  "log4j.rootCategory": "INFO,console"
+  "log4j.rootCategory": "INFO,console",
+  "_comment_holidays": "Holiday access restrictions and messages",
+  "amdwiki.holidays.enabled": true,
+  "amdwiki.holidays.dates": {
+    "2025-01-01": {
+      "name": "New Year's Day",
+      "message": "Access restricted on New Year's Day",
+      "enabled": true
+    },
+    "2025-07-04": {
+      "name": "Independence Day",
+      "message": "Access restricted on Independence Day",
+      "enabled": true
+    },
+    "2025-12-25": {
+      "name": "Christmas Day",
+      "message": "Access restricted on Christmas Day",
+      "enabled": true
+    },
+    "2025-12-26": {
+      "name": "Boxing Day",
+      "message": "Access restricted on Boxing Day",
+      "enabled": true
+    }
+  },
+  "amdwiki.holidays.recurring": {
+    "*-01-01": {
+      "name": "New Year's Day",
+      "message": "Access restricted on New Year's Day",
+      "enabled": true
+    },
+    "*-12-25": {
+      "name": "Christmas Day",
+      "message": "Access restricted on Christmas Day",
+      "enabled": true
+    }
+  }
 }
