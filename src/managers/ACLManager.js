@@ -10,17 +10,30 @@ const logger = require('../utils/logger');
  * Enhanced with context-aware permissions and audit logging
  */
 class ACLManager extends BaseManager {
-  constructor(engine) {
-    super(engine);
-    this.aclCache = new Map(); // pageName -> parsed ACL
-    this.auditLog = []; // In-memory audit log
-    this.accessPolicies = new Map(); // policy name -> policy definition
-    this.policyEvaluator = null; // PolicyEvaluator instance
-  }
-
   async initialize(config = {}) {
     await super.initialize(config);
-    
+
+    // Strict: require ConfigurationManager for holidays if feature enabled
+    const cfg = this.engine?.getManager?.('ConfigurationManager');
+    if (!cfg?.getProperty) {
+      await this.#notify('ConfigurationManager not available for ACLManager', 'error');
+      throw new Error('ACLManager: ConfigurationManager is required');
+    }
+
+    const holidaysEnabled = cfg.getProperty('amdwiki.holidays.enabled', false);
+    if (holidaysEnabled) {
+      const dates = cfg.getProperty('amdwiki.holidays.dates', null);
+      const recurring = cfg.getProperty('amdwiki.holidays.recurring', null);
+      if (!dates || typeof dates !== 'object') {
+        await this.#notify('Holidays enabled but amdwiki.holidays.dates is missing/invalid', 'error');
+        throw new Error('ACLManager: holiday dates configuration missing');
+      }
+      if (!recurring || typeof recurring !== 'object') {
+        await this.#notify('Holidays enabled but amdwiki.holidays.recurring is missing/invalid', 'error');
+        throw new Error('ACLManager: holiday recurring configuration missing');
+      }
+    }
+
     // Initialize audit logging
     await this.initializeAuditLogging();
     
@@ -459,15 +472,28 @@ class ACLManager extends BaseManager {
    */
   async checkHolidayRestrictions(currentDate, holidaysConfig) {
     try {
-      const holidaysFile = holidaysConfig.calendar || './config/holidays.json';
+      // Require holidays from ConfigurationManager only (no file fallback)
+      const cfg = this.engine?.getManager?.('ConfigurationManager');
+      if (!cfg?.getProperty) {
+        await this.#notify('ConfigurationManager not available for holiday checks', 'error');
+        throw new Error('Holiday checks require ConfigurationManager');
+      }
 
-      // Load holidays from file
-      const holidaysData = await fs.readFile(holidaysFile, 'utf-8');
-      const holidays = JSON.parse(holidaysData);
+      const enabled = cfg.getProperty('amdwiki.holidays.enabled', false);
+      if (!enabled) {
+        return { allowed: true, reason: 'holidays_disabled' };
+      }
 
-      // Check for exact date match
-      if (holidays.dates && holidays.dates[currentDate]) {
-        const holiday = holidays.dates[currentDate];
+      const dates = cfg.getProperty('amdwiki.holidays.dates', null);
+      const recurring = cfg.getProperty('amdwiki.holidays.recurring', null);
+      if (!dates || typeof dates !== 'object' || !recurring || typeof recurring !== 'object') {
+        await this.#notify('Holiday configuration missing: amdwiki.holidays.dates/recurring', 'error');
+        throw new Error('Holiday configuration missing');
+      }
+
+      // Exact date match
+      if (dates[currentDate]) {
+        const holiday = dates[currentDate] || {};
         return {
           allowed: false,
           reason: 'holiday_restriction',
@@ -475,590 +501,37 @@ class ACLManager extends BaseManager {
         };
       }
 
-      // Check for recurring holidays (e.g., "*-12-25" for Christmas)
-      if (holidays.recurring) {
-        const [year, month, day] = currentDate.split('-');
-        const recurringKey = `*-${month}-${day}`;
-
-        if (holidays.recurring[recurringKey]) {
-          const holiday = holidays.recurring[recurringKey];
-          return {
-            allowed: false,
-            reason: 'recurring_holiday_restriction',
-            message: holiday.message || `Access restricted on ${holiday.name || 'holiday'}`
-          };
-        }
+      // Recurring holiday match (*-MM-DD)
+      const [, month, day] = currentDate.split('-');
+      const recurringKey = `*-${month}-${day}`;
+      if (recurring[recurringKey]) {
+        const holiday = recurring[recurringKey] || {};
+        return {
+          allowed: false,
+          reason: 'recurring_holiday_restriction',
+          message: holiday.message || `Access restricted on ${holiday.name || 'holiday'}`
+        };
       }
 
       return { allowed: true, reason: 'not_a_holiday' };
-
     } catch (error) {
-      console.warn('Error checking holiday restrictions:', error.message);
-      return { allowed: true, reason: 'holiday_check_error' };
+      await this.#notify(`Error checking holiday restrictions: ${error.message}`, 'error');
+      // Treat as a hard failure to satisfy "no fallback"
+      return { allowed: false, reason: 'holiday_check_error', message: error.message };
     }
   }
 
-  /**
-   * Check custom schedule restrictions
-   * @param {Object} user - User object
-   * @param {Object} context - Access context
-   * @param {string} currentDate - Current date in YYYY-MM-DD format
-   * @param {string} currentTime - Current time in HH:MM format
-   * @param {Object} timeConfig - Time configuration
-   * @returns {Object} { allowed: boolean, reason: string, message: string }
-   */
-  async checkCustomSchedule(user, context, currentDate, currentTime, timeConfig) {
+  async #notify(message, level = 'warn') {
+    const nm = this.engine?.getManager?.('NotificationManager');
     try {
-      const schedulesFile = timeConfig.customSchedules.schedules || './config/schedules.json';
-
-      // Load schedules from file
-      const schedulesData = await fs.readFile(schedulesFile, 'utf-8');
-      const schedules = JSON.parse(schedulesData);
-
-      // Determine which schedule applies to this user/context
-      const applicableSchedule = this.determineApplicableSchedule(user, context, schedules);
-
-      if (!applicableSchedule) {
-        return { allowed: undefined }; // No custom schedule, fall back to business hours
+      if (nm?.addNotification) {
+        await nm.addNotification({ level, message, source: 'ACLManager', timestamp: new Date().toISOString() });
+      } else {
+        logger?.[level === 'error' ? 'error' : 'warn']?.(message);
       }
-
-      const schedule = schedules[applicableSchedule];
-      if (!schedule) {
-        return { allowed: undefined };
-      }
-
-      // Check exceptions first
-      if (schedule.exceptions) {
-        for (const exception of schedule.exceptions) {
-          if (exception.date === currentDate) {
-            return {
-              allowed: exception.type === 'allow',
-              reason: `schedule_exception_${exception.type}`,
-              message: exception.reason || `Schedule exception: ${exception.type}`
-            };
-          }
-        }
-      }
-
-      // Check rules
-      if (schedule.rules) {
-        const now = new Date();
-        const currentDay = now.toLocaleDateString('en-US', {
-          timeZone: timeConfig.timeZone || 'UTC',
-          weekday: 'long'
-        }).toLowerCase();
-
-        for (const rule of schedule.rules) {
-          // Check if rule applies to current day
-          if (rule.days && !rule.days.includes(currentDay)) {
-            continue;
-          }
-
-          // Check time range if specified
-          if (rule.startTime && rule.endTime) {
-            if (currentTime < rule.startTime || currentTime > rule.endTime) {
-              if (rule.type === 'allow') {
-                return {
-                  allowed: false,
-                  reason: 'outside_schedule_time',
-                  message: `Access restricted outside schedule time (${rule.startTime}-${rule.endTime})`
-                };
-              }
-            } else if (rule.type === 'allow') {
-              return { allowed: true, reason: 'within_schedule_time' };
-            }
-          } else if (rule.type === 'deny') {
-            // Day-based denial
-            return {
-              allowed: false,
-              reason: 'schedule_day_denied',
-              message: `Access restricted on ${currentDay}`
-            };
-          }
-        }
-      }
-
-      return { allowed: undefined }; // No matching rule, fall back to business hours
-
-    } catch (error) {
-      console.warn('Error checking custom schedule:', error.message);
-      return { allowed: undefined };
+    } catch {
+      logger?.warn?.(message);
     }
-  }
-
-  /**
-   * Determine which schedule applies to a user/context
-   * @param {Object} user - User object
-   * @param {Object} context - Access context
-   * @param {Object} schedules - Available schedules
-   * @returns {string|null} Schedule name or null
-   */
-  determineApplicableSchedule(user, context, schedules) {
-    // Priority order: user-specific -> role-specific -> context-specific -> default
-
-    // Check user-specific schedule
-    if (user && user.schedule && schedules[user.schedule]) {
-      return user.schedule;
-    }
-
-    // Check role-specific schedule
-    if (user && user.roles) {
-      for (const role of user.roles) {
-        const roleSchedule = `role_${role}`;
-        if (schedules[roleSchedule]) {
-          return roleSchedule;
-        }
-      }
-    }
-
-    // Check context-specific schedule (e.g., page category)
-    if (context && context.pageCategory) {
-      const categorySchedule = `category_${context.pageCategory}`;
-      if (schedules[categorySchedule]) {
-        return categorySchedule;
-      }
-    }
-
-    // Return default schedule if it exists
-    if (schedules.default) {
-      return 'default';
-    }
-
-    return null;
-  }
-
-  /**
-   * Log access decision for audit trail
-   * @param {Object} logEntry - Access log entry
-   */
-  async logAccessDecision(logEntry) {
-    const auditConfig = this.engine.getConfig().get('accessControl.audit', {});
-    
-    if (!auditConfig.enabled) {
-      return;
-    }
-
-    // Add to in-memory log
-    this.auditLog.push(logEntry);
-
-    // Keep only recent entries in memory (last 1000)
-    if (this.auditLog.length > 1000) {
-      this.auditLog = this.auditLog.slice(-1000);
-    }
-
-    // Write to file if configured
-    if (auditConfig.logFile) {
-      try {
-        const logFile = auditConfig.logFile;
-        const logData = JSON.stringify(logEntry) + '\n';
-        await fs.appendFile(logFile, logData);
-      } catch (error) {
-        console.warn('Failed to write audit log:', error.message);
-      }
-    }
-  }
-
-  /**
-   * Create policy evaluation context from ACL request
-   * @param {string} pageName - Name of the page
-   * @param {string} action - Action being performed
-   * @param {Object} user - User object
-   * @param {Object} context - Request context
-   * @returns {Object} Policy evaluation context
-   */
-  createPolicyContext(pageName, action, user, context = {}) {
-    // Get page metadata for category information
-    let category = '';
-    let tags = [];
-    
-    try {
-      const pageManager = this.engine.getManager('PageManager');
-      if (pageManager) {
-        // This is a synchronous call for simplicity - in production might need async
-        const pageData = pageManager.getPage ? pageManager.getPage(pageName) : null;
-        if (pageData && pageData.metadata) {
-          category = pageData.metadata.category || '';
-          tags = pageData.metadata.tags || [];
-        }
-      }
-    } catch (error) {
-      // Ignore errors in context creation
-      console.warn('Error getting page metadata for policy context:', error.message);
-    }
-
-    return {
-      user: user,
-      resource: pageName,
-      action: action,
-      category: category,
-      tags: tags,
-      ip: context.ip || '',
-      userAgent: context.userAgent || '',
-      timestamp: context.timestamp || new Date().toISOString(),
-      session: context.session || {},
-      environment: context.environment || 'production',
-      // Additional context for policies
-      resourceType: 'page',
-      isAdminPage: this.isSystemOrAdminPage(pageName),
-      hasACL: context.pageContent ? this.parseACL(context.pageContent) !== null : false
-    };
-  }
-  isSystemOrAdminPage(pageName) {
-    if (!pageName) return false;
-    
-    const systemPages = [
-      'admin', 'users', 'roles', 'permissions', 'system', 'config', 'settings',
-      'user-manager', 'role-manager', 'permission-manager', 'acl-manager'
-    ];
-    
-    const pageNameLower = pageName.toLowerCase();
-    
-    // Check if page name starts with admin/ or system/
-    if (pageNameLower.startsWith('admin/') || pageNameLower.startsWith('system/')) {
-      return true;
-    }
-    
-    // Check if page name is in system pages list
-    return systemPages.some(sysPage => 
-      pageNameLower === sysPage || 
-      pageNameLower.includes(sysPage)
-    );
-  }
-
-  /**
-   * Check if a page has System/Admin category
-   * @param {string} pageName - Name of the page
-   * @returns {boolean} True if page has System/Admin category
-   */
-  async isSystemAdminCategoryPage(pageName) {
-    try {
-      const pageManager = this.engine.getManager('PageManager');
-      const pageData = await pageManager.getPage(pageName);
-      
-      if (pageData && pageData.metadata) {
-        const systemCategory = pageData.metadata['system-category'] || pageData.metadata.category;
-        return systemCategory === 'System/Admin' || systemCategory === 'System';
-      }
-      
-      return false;
-    } catch (error) {
-      console.error('Error checking page category:', error);
-      return false;
-    }
-  }
-
-  /**
-   * Check attachment permission based on parent page
-   * @param {Object} user - User object
-   * @param {string} attachmentId - Attachment ID
-   * @param {string} action - Action to check (view, edit, delete)
-   * @returns {boolean} True if permission granted
-   */
-  async checkAttachmentPermission(user, attachmentId, action) {
-    const userManager = this.engine.getManager('UserManager');
-    const attachmentManager = this.engine.getManager('AttachmentManager');
-
-    // Admin users always have access
-    if (user && userManager.hasPermission(user.username, 'admin:system')) {
-      return true;
-    }
-
-    // Get attachment to find parent page
-    const attachment = attachmentManager.getAttachment(attachmentId);
-    if (!attachment) {
-      return false;
-    }
-
-    const pageName = attachment.pageName;
-
-    // Check if parent page has System/Admin category
-    const isSystemAdminPage = await this.isSystemAdminCategoryPage(pageName);
-    if (isSystemAdminPage) {
-      // System/Admin pages require admin permissions for attachments too
-      return user && userManager.hasPermission(user.username, 'admin:system') ? true : false;
-    }
-
-    // For regular pages, check standard page permissions
-    // Get page content to check ACL rules
-    const pageManager = this.engine.getManager('PageManager');
-    const pageData = await pageManager.getPage(pageName);
-    const pageContent = pageData ? pageData.content : '';
-
-    return await this.checkPagePermission(pageName, action, user, pageContent);
-  }
-
-  /**
-   * Check if user matches any of the specified principals
-   * @param {Object} user - User object
-   * @param {Array} principals - List of allowed principals (usernames, roles)
-   * @returns {boolean} True if user matches any principal
-   */
-  userMatchesPrincipals(user, principals) {
-    const userManager = this.engine.getManager('UserManager');
-    if (!userManager) return false;
-
-    for (const principal of principals) {
-      const p = principal.toLowerCase();
-
-      // Check built-in roles
-      if (p === 'all') {
-        return true; // Everyone allowed
-      }
-      
-      // Anonymous user (no session cookie)
-      if (p === 'anonymous' && (!user || user.username === 'anonymous')) {
-        return true; 
-      }
-      
-      // Asserted user (has session cookie but not authenticated)
-      if (p === 'asserted' && user && user.username === 'asserted') {
-        return true;
-      }
-      
-      // Authenticated user (valid session)
-      if (p === 'authenticated' && user && user.isAuthenticated) {
-        return true; 
-      }
-
-      // If user is not available or not authenticated, can only match anonymous/asserted
-      if (!user || !user.isAuthenticated) {
-        // Check role membership for asserted users
-        if (user && user.roles && user.roles.includes(principal)) {
-          return true;
-        }
-        continue;
-      }
-
-      // Check username match (exact or wiki name)
-      if (user.username.toLowerCase() === p || 
-          user.fullName?.toLowerCase() === p ||
-          user.wikiName?.toLowerCase() === p) {
-        return true;
-      }
-
-      // Check role membership for authenticated users
-      if (userManager.hasRole(user.username, principal)) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
-  /**
-   * Remove ACL markup from page content for display
-   * @param {string} content - Page content with ACL markup
-   * @returns {string} Content with ACL markup removed
-   */
-  removeACLMarkup(content) {
-    // Handle null, undefined, or non-string content
-    if (!content || typeof content !== 'string') {
-      return '';
-    }
-    
-    // Remove ACL markup but preserve other content
-    const aclRegex = /\[\{(ALLOW|DENY)\s+(view|edit|delete|rename|upload)\s+([^}]+)\}\]\s*/gi;
-    return content.replace(aclRegex, '').trim();
-  }
-
-  /**
-   * Get ACL summary for a page (for admin/debugging)
-   * @param {string} pageContent - Page content
-   * @returns {Object} ACL summary
-   */
-  getACLSummary(pageContent) {
-    const acl = this.parseACL(pageContent);
-    if (!acl) {
-      return { hasACL: false, message: 'No ACL defined - using default permissions' };
-    }
-
-    const summary = { hasACL: true, rules: {} };
-    
-    for (const [action, principals] of Object.entries(acl)) {
-      if (principals.length > 0) {
-        summary.rules[action] = principals;
-      }
-    }
-
-    return summary;
-  }
-
-  /**
-   * Get recent access log entries (for admin interface)
-   * @param {number} limit - Maximum number of entries to return
-   * @param {Object} filters - Optional filters (user, action, pageName)
-   * @returns {Array} Array of log entries
-   */
-  getAccessLog(limit = 100, filters = {}) {
-    let entries = [...this.auditLog];
-
-    // Apply filters
-    if (filters.user) {
-      entries = entries.filter(entry => entry.user === filters.user);
-    }
-    if (filters.action) {
-      entries = entries.filter(entry => entry.action === filters.action);
-    }
-    if (filters.pageName) {
-      entries = entries.filter(entry => entry.pageName === filters.pageName);
-    }
-    if (filters.decision !== undefined) {
-      entries = entries.filter(entry => entry.decision === filters.decision);
-    }
-
-    // Sort by timestamp (most recent first) and limit
-    return entries
-      .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-      .slice(0, limit);
-  }
-
-  /**
-   * Get access control statistics
-   * @returns {Object} Statistics about access control
-   */
-  getAccessControlStats() {
-    const recent = this.auditLog.slice(-1000); // Last 1000 entries
-    const now = Date.now();
-    const oneHour = 60 * 60 * 1000;
-    const oneDay = 24 * oneHour;
-
-    const stats = {
-      totalChecks: recent.length,
-      recentHour: recent.filter(entry => 
-        now - new Date(entry.timestamp).getTime() < oneHour
-      ).length,
-      recentDay: recent.filter(entry => 
-        now - new Date(entry.timestamp).getTime() < oneDay
-      ).length,
-      deniedAccess: recent.filter(entry => !entry.decision).length,
-      maintenanceBlocked: recent.filter(entry => 
-        entry.reason === 'maintenance_mode'
-      ).length,
-      businessHoursBlocked: recent.filter(entry => 
-        entry.reason.includes('business_hours') || entry.reason.includes('business_days')
-      ).length,
-      averageProcessingTime: recent.reduce((sum, entry) => 
-        sum + (entry.processingTime || 0), 0
-      ) / Math.max(recent.length, 1)
-    };
-
-    return stats;
-  }
-
-  /**
-   * Set maintenance mode
-   * @param {boolean} enabled - Whether to enable maintenance mode
-   * @param {string} message - Optional maintenance message
-   * @param {Array} allowedRoles - Roles allowed during maintenance
-   */
-  setMaintenanceMode(enabled, message = null, allowedRoles = ['admin']) {
-    const config = this.engine.getConfig();
-    config.set('accessControl.contextAware.maintenanceMode.enabled', enabled);
-    
-    if (message) {
-      config.set('accessControl.contextAware.maintenanceMode.message', message);
-    }
-    
-    config.set('accessControl.contextAware.maintenanceMode.allowedRoles', allowedRoles);
-    
-    logger.info(`Maintenance mode ${enabled ? 'enabled' : 'disabled'}`, {
-      action: 'maintenance_mode_set',
-      enabled: enabled,
-      message: message,
-      allowedRoles: allowedRoles,
-      timestamp: new Date().toISOString()
-    });
-  }
-
-  /**
-   * Check if maintenance mode is active
-   * @returns {Object} Maintenance mode status
-   */
-  getMaintenanceStatus() {
-    const config = this.engine.getConfig();
-    const maintenanceConfig = config.get('accessControl.contextAware.maintenanceMode', {});
-    
-    return {
-      enabled: maintenanceConfig.enabled || false,
-      message: maintenanceConfig.message || 'System is under maintenance',
-      allowedRoles: maintenanceConfig.allowedRoles || ['admin']
-    };
-  }
-
-  /**
-   * Check storage location permission for a page
-   * Determines whether a page should be stored in regular or required pages directory
-   * @param {string} pageName - Name of the page
-   * @param {Object} user - User object (null for anonymous)
-   * @param {Object} metadata - Page metadata
-   * @param {string} content - Page content
-   * @returns {Object} Storage location decision with reasoning
-   */
-  async checkStorageLocation(pageName, user, metadata = {}, content = '') {
-    const config = this.engine.getConfig();
-    const storageConfig = config.get('accessControl.storageLocation', { enabled: false });
-
-    // Default decision
-    let location = 'regular';
-    let reason = 'default';
-
-    // Check if storage location policies are enabled
-    if (!storageConfig || !storageConfig.enabled) {
-      return { location, reason: 'policies_disabled' };
-    }
-    
-    // Check user role-based storage rules
-    if (user && storageConfig.roleBasedStorage) {
-      const userManager = this.engine.getManager('UserManager');
-      if (userManager) {
-        // Admin users can store in required pages
-        if (userManager.hasPermission(user.username, 'admin:system')) {
-          location = 'required';
-          reason = 'admin_user';
-        }
-        
-        // Check role-based rules
-        for (const [role, storageType] of Object.entries(storageConfig.roleBasedStorage)) {
-          if (userManager.hasRole(user.username, role)) {
-            location = storageType;
-            reason = `role_${role}`;
-            break;
-          }
-        }
-      }
-    }
-    
-    // Check category-based storage rules
-    if (metadata.categories && Array.isArray(metadata.categories)) {
-      for (const category of metadata.categories) {
-        if (storageConfig.categoryBasedStorage && storageConfig.categoryBasedStorage[category]) {
-          location = storageConfig.categoryBasedStorage[category];
-          reason = `category_${category}`;
-          break;
-        }
-      }
-    }
-    
-    // Check legacy category format
-    if (metadata.category && storageConfig.categoryBasedStorage && storageConfig.categoryBasedStorage[metadata.category]) {
-      location = storageConfig.categoryBasedStorage[metadata.category];
-      reason = `legacy_category_${metadata.category}`;
-    }
-    
-    // Check ACL-based storage rules (pages with restrictive ACLs go to required)
-    if (content && storageConfig.aclBasedStorage) {
-      const acl = this.parseACL(content);
-      if (acl) {
-        // If page has restrictive ACL rules, store in required pages
-        const hasRestrictions = Object.values(acl).some(principals => principals.length > 0);
-        if (hasRestrictions) {
-          location = 'required';
-          reason = 'restrictive_acl';
-        }
-      }
-    }
-    
-    return { location, reason };
   }
 }
 

@@ -1,7 +1,5 @@
 const { BaseSyntaxHandler } = require('./BaseSyntaxHandler');
 const { LinkParser } = require('../LinkParser');
-const fs = require('fs-extra');
-const path = require('path');
 
 /**
  * LinkParserHandler - Unified link processing handler using LinkParser
