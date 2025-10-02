@@ -34,6 +34,19 @@ class ACLManager extends BaseManager {
       }
     }
 
+    // Strict schedules config via ConfigurationManager (no file fallback)
+    const schEnabled = cfg.getProperty('amdwiki.schedules.enabled', true);
+    if (schEnabled) {
+      const schedules = cfg.getProperty('amdwiki.schedules', null);
+      if (!schedules || typeof schedules !== 'object' || Object.keys(schedules).length === 0) {
+        await this.#notify('ACLManager: schedules enabled but amdwiki.schedules is missing/empty', 'error');
+        throw new Error('ACLManager: schedules configuration missing');
+      }
+      this.schedules = schedules;
+    } else {
+      this.schedules = {};
+    }
+
     // Initialize audit logging
     await this.initializeAuditLogging();
     
@@ -420,47 +433,50 @@ class ACLManager extends BaseManager {
    * @returns {Object} { allowed: boolean, reason: string, message: string }
    */
   async checkEnhancedTimeRestrictions(user, context) {
-    const config = this.engine.getConfig();
-    const timeConfig = config.get('accessControl.contextAware', {});
-
-    // Check if enhanced time features are enabled
-    if (!timeConfig.customSchedules?.enabled && !timeConfig.holidays?.enabled) {
-      // Fall back to basic business hours check
-      return this.checkBusinessHours(timeConfig.businessHours, timeConfig.timeZone);
-    }
-
     try {
+      const cfg = this.engine?.getManager?.('ConfigurationManager');
+      const enabled = cfg?.getProperty?.('amdwiki.schedules.enabled', true);
+      if (!enabled) {
+        return { allowed: true, reason: 'schedules_disabled' };
+      }
+
+      const schedules = cfg.getProperty('amdwiki.schedules', null);
+      if (!schedules || typeof schedules !== 'object' || Object.keys(schedules).length === 0) {
+        await this.#notify('ACLManager: amdwiki.schedules missing during check', 'error');
+        throw new Error('Schedules configuration missing');
+      }
+
       const now = new Date();
       const currentDate = now.toISOString().split('T')[0]; // YYYY-MM-DD format
       const currentTime = now.toLocaleTimeString('en-US', {
-        timeZone: timeConfig.timeZone || 'UTC',
+        timeZone: cfg.getProperty('amdwiki.timeZone', 'UTC'),
         hour12: false,
         hour: '2-digit',
         minute: '2-digit'
       });
 
       // Check holidays first (they override all other schedules)
-      if (timeConfig.holidays?.enabled) {
-        const holidayCheck = await this.checkHolidayRestrictions(currentDate, timeConfig.holidays);
+      if (schedules.holidays?.enabled) {
+        const holidayCheck = await this.checkHolidayRestrictions(currentDate, schedules.holidays);
         if (!holidayCheck.allowed) {
           return holidayCheck;
         }
       }
 
       // Check custom schedules if enabled
-      if (timeConfig.customSchedules?.enabled) {
-        const scheduleCheck = await this.checkCustomSchedule(user, context, currentDate, currentTime, timeConfig);
+      if (schedules.customSchedules?.enabled) {
+        const scheduleCheck = await this.checkCustomSchedule(user, context, currentDate, currentTime, schedules);
         if (scheduleCheck.allowed !== undefined) {
           return scheduleCheck;
         }
       }
 
       // Fall back to basic business hours
-      return this.checkBusinessHours(timeConfig.businessHours, timeConfig.timeZone);
+      return this.checkBusinessHours(schedules.businessHours, schedules.timeZone);
 
     } catch (error) {
-      console.warn('Error in enhanced time restrictions:', error.message);
-      return { allowed: true, reason: 'time_check_error' };
+      await this.#notify(`Error in enhanced time restrictions: ${error.message}`, 'error');
+      return { allowed: false, reason: 'schedule_check_error', message: error.message };
     }
   }
 
@@ -527,10 +543,10 @@ class ACLManager extends BaseManager {
       if (nm?.addNotification) {
         await nm.addNotification({ level, message, source: 'ACLManager', timestamp: new Date().toISOString() });
       } else {
-        logger?.[level === 'error' ? 'error' : 'warn']?.(message);
+        console?.[level === 'error' ? 'error' : 'warn']?.(message);
       }
     } catch {
-      logger?.warn?.(message);
+      console?.warn?.(message);
     }
   }
 }

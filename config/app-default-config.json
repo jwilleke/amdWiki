@@ -492,5 +492,155 @@
       "message": "Access restricted on Christmas Day",
       "enabled": true
     }
+  },
+  "_comment_schedules": "Access schedules (role/category/default and named definitions)",
+  "amdwiki.schedules.enabled": true,
+  "amdwiki.schedules": {
+    "business-hours": {
+      "name": "Standard Business Hours",
+      "description": "Monday-Friday, 9 AM - 5 PM",
+      "timeZone": "America/New_York",
+      "rules": [
+        {
+          "days": [
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday"
+          ],
+          "startTime": "09:00",
+          "endTime": "17:00",
+          "type": "allow"
+        },
+        {
+          "days": [
+            "saturday",
+            "sunday"
+          ],
+          "type": "deny"
+        }
+      ],
+      "exceptions": [],
+      "enabled": true
+    },
+    "weekend-support": {
+      "name": "Weekend Support",
+      "description": "Limited weekend access for critical issues",
+      "timeZone": "America/New_York",
+      "rules": [
+        {
+          "days": [
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday"
+          ],
+          "startTime": "09:00",
+          "endTime": "17:00",
+          "type": "allow"
+        },
+        {
+          "days": [
+            "saturday"
+          ],
+          "startTime": "10:00",
+          "endTime": "14:00",
+          "type": "allow"
+        },
+        {
+          "days": [
+            "sunday"
+          ],
+          "type": "deny"
+        }
+      ],
+      "exceptions": [],
+      "enabled": true
+    },
+    "emergency-24-7": {
+      "name": "24/7 Emergency Access",
+      "description": "Full access for emergency situations",
+      "timeZone": "UTC",
+      "rules": [
+        {
+          "type": "allow"
+        }
+      ],
+      "exceptions": [],
+      "enabled": true
+    },
+    "role_admin": {
+      "name": "Administrator Schedule",
+      "description": "Extended hours for administrators",
+      "timeZone": "America/New_York",
+      "rules": [
+        {
+          "days": [
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday"
+          ],
+          "startTime": "08:00",
+          "endTime": "18:00",
+          "type": "allow"
+        },
+        {
+          "days": [
+            "saturday"
+          ],
+          "startTime": "09:00",
+          "endTime": "12:00",
+          "type": "allow"
+        }
+      ],
+      "exceptions": [],
+      "enabled": true
+    },
+    "category_System": {
+      "name": "System Pages Schedule",
+      "description": "Restricted access to system pages",
+      "timeZone": "America/New_York",
+      "rules": [
+        {
+          "days": [
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday"
+          ],
+          "startTime": "09:00",
+          "endTime": "17:00",
+          "type": "allow"
+        }
+      ],
+      "exceptions": [],
+      "enabled": true
+    },
+    "default": {
+      "name": "Default Schedule",
+      "description": "Fallback schedule for users without specific assignments",
+      "timeZone": "UTC",
+      "rules": [
+        {
+          "days": [
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday"
+          ],
+          "startTime": "09:00",
+          "endTime": "17:00",
+          "type": "allow"
+        }
+      ],
+      "exceptions": [],
+      "enabled": true
+    }
   }
 }
