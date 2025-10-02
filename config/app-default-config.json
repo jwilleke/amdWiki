@@ -62,8 +62,6 @@
   "amdwiki.jsonuserdatabase": ".users/users.json",
   "amdwiki.jsonpersonsdatabase": ".users/persons.json",
   "amdwiki.jsonorganizationsdatabase": "users/organizations.json",
-
-
   "_comment_directories": "Directory and file system settings",
   "amdwiki.directories.pages": "./pages",
   "amdwiki.directories.templates": "./templates",
@@ -71,16 +69,17 @@
   "amdwiki.directories.data": "./data",
   "amdwiki.directories.users": "./users",
   "amdwiki.directories.work": "./",
-
   "_comment_managers": "Manager configuration settings",
   "amdwiki.managers.pageManager.enabled": true,
   "amdwiki.managers.pluginManager.enabled": true,
-  "amdwiki.managers.pluginManager.searchPaths": ["./plugins", "./src/plugins"],
+  "amdwiki.managers.pluginManager.searchPaths": [
+    "./plugins",
+    "./src/plugins"
+  ],
   "amdwiki.managers.renderingManager.enabled": true,
   "amdwiki.managers.searchManager.enabled": true,
   "amdwiki.managers.templateManager.enabled": true,
   "amdwiki.managers.cacheManager.enabled": true,
-
   "_comment_cache": "Cache system configuration",
   "amdwiki.cache.enabled": true,
   "amdwiki.cache.provider": "node-cache",
@@ -93,8 +92,7 @@
   "amdwiki.cache.redis.url": "redis://localhost:6379",
   "amdwiki.cache.redis.keyPrefix": "amdwiki:",
   "amdwiki.cache.redis.enableCluster": false,
-
-  "_comment_markup": "MarkupParser and Handler system configuration", 
+  "_comment_markup": "MarkupParser and Handler system configuration",
   "amdwiki.markup.enabled": true,
   "amdwiki.markup.useAdvancedParser": true,
   "amdwiki.markup.fallbackToLegacy": true,
@@ -140,7 +138,6 @@
   "amdwiki.markup.handlers.search.priority": 65,
   "amdwiki.markup.handlers.rss.enabled": true,
   "amdwiki.markup.handlers.rss.priority": 60,
-  
   "_comment_attachment": "Advanced attachment handling configuration",
   "amdwiki.attachment.enhanced.thumbnailSizes": "150x150,300x300",
   "amdwiki.attachment.enhanced.showMetadata": true,
@@ -149,7 +146,6 @@
   "amdwiki.attachment.enhanced.iconPath": "/icons/filetypes",
   "amdwiki.attachment.enhanced.cacheMetadata": true,
   "amdwiki.attachment.enhanced.generateThumbnails": true,
-  
   "_comment_wikistyle": "WikiStyle and CSS configuration",
   "amdwiki.style.customClasses.enabled": true,
   "amdwiki.style.bootstrap.integration": true,
@@ -158,21 +154,18 @@
   "amdwiki.style.predefined.text": "text-primary,text-secondary,text-success,text-danger,text-warning,text-info",
   "amdwiki.style.predefined.background": "bg-primary,bg-secondary,bg-light,bg-dark",
   "amdwiki.style.predefined.layout": "text-center,text-left,text-right,float-left,float-right",
-  
-  "_comment_search_plugin": "Search plugin configuration",  
+  "_comment_search_plugin": "Search plugin configuration",
   "amdwiki.search.plugin.maxResults": 50,
   "amdwiki.search.plugin.showScore": true,
   "amdwiki.search.plugin.allowAdvanced": true,
   "amdwiki.search.plugin.cacheResults": true,
   "amdwiki.search.plugin.cacheTTL": 300,
-  
   "_comment_filters": "Filter pipeline system configuration",
   "amdwiki.markup.filters.enabled": true,
   "amdwiki.markup.filters.pipeline.maxFilters": 50,
   "amdwiki.markup.filters.pipeline.timeout": 10000,
   "amdwiki.markup.filters.pipeline.enableProfiling": true,
   "amdwiki.markup.filters.pipeline.failOnError": false,
-  
   "_comment_security_filters": "Security filter configuration",
   "amdwiki.markup.filters.spam.enabled": false,
   "amdwiki.markup.filters.spam.priority": 100,
@@ -181,7 +174,6 @@
   "amdwiki.markup.filters.spam.blacklistWords": "spam,casino,pharmacy,viagra",
   "amdwiki.markup.filters.spam.whitelistDomains": "wikipedia.org,github.com,stackoverflow.com",
   "amdwiki.markup.filters.spam.cacheBlacklist": true,
-  
   "amdwiki.markup.filters.security.enabled": false,
   "amdwiki.markup.filters.security.priority": 110,
   "amdwiki.markup.filters.security.preventXSS": true,
@@ -190,7 +182,6 @@
   "amdwiki.markup.filters.security.allowedTags": "p,div,span,strong,em,ul,ol,li,h1,h2,h3,h4,h5,h6,a,img",
   "amdwiki.markup.filters.security.allowedAttributes": "class,id,href,src,alt,title",
   "amdwiki.markup.filters.security.stripDangerousContent": true,
-  
   "amdwiki.markup.filters.validation.enabled": true,
   "amdwiki.markup.filters.validation.priority": 90,
   "amdwiki.markup.filters.validation.validateMarkup": true,
@@ -198,27 +189,54 @@
   "amdwiki.markup.filters.validation.validateImages": true,
   "amdwiki.markup.filters.validation.maxContentLength": 1048576,
   "amdwiki.markup.filters.validation.reportErrors": true,
-  
   "_comment_custom_filters": "Custom filter plugin configuration",
   "amdwiki.markup.filters.custom.enabled": false,
   "amdwiki.markup.filters.custom.searchPaths": "./filters,./src/filters",
   "amdwiki.markup.filters.custom.autoLoad": true,
   "amdwiki.markup.filters.custom.cacheResults": true,
-  
   "_comment_interwiki": "InterWiki link configuration",
   "amdwiki.interwiki.enabled": true,
-  "amdwiki.interwiki.openInNewWindow": true,
-  "amdwiki.interwiki.addIconIndicator": true,
-  "amdwiki.interwiki.caseSensitive": false,
-  "amdwiki.interwiki.sites.Wikipedia": "https://en.wikipedia.org/wiki/%s",
-  "amdwiki.interwiki.sites.JSPWiki": "https://jspwiki-wiki.apache.org/Wiki.jsp?page=%s",
-  "amdwiki.interwiki.sites.MeatBall": "http://www.usemod.com/cgi-bin/mb.pl?%s",
-  "amdwiki.interwiki.sites.C2": "http://wiki.c2.com/?%s",
-
+  "amdwiki.interwiki.options": {
+    "openInNewWindow": true,
+    "addIconIndicator": true,
+    "caseSensitive": false,
+    "showTooltips": true,
+    "cacheTTL": 3600,
+    "maxCacheEntries": 1000
+  },
+  "amdwiki.interwiki.sites": {
+    "Wikipedia": {
+      "url": "https://en.wikipedia.org/wiki/%s",
+      "description": "Wikipedia, the free encyclopedia",
+      "icon": "wikipedia.png",
+      "enabled": true,
+      "openInNewWindow": true
+    },
+    "JSPWiki": {
+      "url": "https://jspwiki-wiki.apache.org/Wiki.jsp?page=%s",
+      "description": "Apache JSPWiki Documentation",
+      "icon": "jspwiki.png",
+      "enabled": true,
+      "openInNewWindow": true
+    },
+    "MeatBall": {
+      "url": "http://www.usemod.com/cgi-bin/mb.pl?%s",
+      "description": "MeatBall Wiki",
+      "icon": "meatball.png",
+      "enabled": true,
+      "openInNewWindow": true
+    },
+    "C2": {
+      "url": "http://wiki.c2.com/?%s",
+      "description": "C2 Wiki (Portland Pattern Repository)",
+      "icon": "c2.png",
+      "enabled": false,
+      "openInNewWindow": true
+    }
+  },
   "_comment_plugins": "Plugin system configuration",
   "amdwiki.plugins.searchPath": "./plugins",
   "amdwiki.plugins.enabled": true,
-
   "_comment_features": "Feature toggle settings",
   "amdwiki.features.export.html": true,
   "amdwiki.features.export.pdf": false,
@@ -239,22 +257,18 @@
   "amdwiki.features.maintenance.message": "System is currently under maintenance. Please try again later.",
   "amdwiki.features.maintenance.allowAdmins": true,
   "amdwiki.features.maintenance.estimatedDuration": null,
-
   "_comment_search": "Search system configuration",
   "amdwiki.search.indexDir": "./search-index",
   "amdwiki.search.enabled": true,
-
   "_comment_logging": "Logging configuration",
   "amdwiki.logging.level": "info",
   "amdwiki.logging.dir": "./logs",
   "amdwiki.logging.maxSize": "1MB",
   "amdwiki.logging.maxFiles": 5,
-
   "_comment_notifications": "notifications configuration",
   "amdwiki.notifications.dir": "./data",
   "amdwiki.notifications.file": "notifications.json",
-  "amdwiki.notifications.autoSaveInterval" : 300000,
-
+  "amdwiki.notifications.autoSaveInterval": 300000,
   "_comment_accessControl": "Access control and security settings",
   "amdwiki.accessControl.contextAware.enabled": true,
   "amdwiki.accessControl.contextAware.timeZone": "UTC",
@@ -266,7 +280,6 @@
   "amdwiki.accessControl.customSchedules.schedules": "./config/schedules.json",
   "amdwiki.accessControl.holidays.enabled": false,
   "amdwiki.accessControl.holidays.calendar": "./config/holidays.json",
-
   "_comment_audit": "Audit logging settings",
   "amdwiki.audit.enabled": true,
   "amdwiki.audit.logFile": "./users/access-log.json",
@@ -277,18 +290,15 @@
   "amdwiki.audit.includeContext.timestamp": true,
   "amdwiki.audit.includeContext.decision": true,
   "amdwiki.audit.includeContext.reason": true,
-
   "_comment_policies": "Policy-based access control",
   "amdwiki.policies.enabled": false,
   "amdwiki.policies.configFile": "./config/access-policies.json",
   "amdwiki.policies.defaultPolicy": "deny",
-
   "_comment_defaults": "Default values for page creation",
   "amdwiki.default.system-category": "general",
   "amdwiki.maximum.user-keywords": 5,
   "amdwiki.default.template.dateformat": "dd-MMM-yyyy HH:mm",
   "amdwiki.default.timezone": "UTC",
-
   "_comment_timezones": "Available timezone options for user preferences",
   "amdwiki.timezones": [
     {
@@ -432,7 +442,6 @@
       "category": "South America"
     }
   ],
-
   "_comment_storageLocation": "Storage location permissions",
   "amdwiki.storageLocation.enabled": true,
   "amdwiki.storageLocation.aclBasedStorage": true,
@@ -444,7 +453,6 @@
   "amdwiki.storageLocation.categoryBasedStorage.Security": "required",
   "amdwiki.storageLocation.categoryBasedStorage.General": "regular",
   "amdwiki.storageLocation.categoryBasedStorage.Documentation": "regular",
-
   "log4j.appender.console": "org.apache.log4j.ConsoleAppender",
   "log4j.appender.console.layout": "org.apache.log4j.PatternLayout",
   "log4j.appender.console.layout.ConversionPattern": "%d [%t] %p %c %x - %m%n",

@@ -1,5 +1,7 @@
 const { BaseSyntaxHandler } = require('./BaseSyntaxHandler');
 const { LinkParser } = require('../LinkParser');
+const fs = require('fs-extra');
+const path = require('path');
 
 /**
  * LinkParserHandler - Unified link processing handler using LinkParser
@@ -98,36 +100,58 @@ class LinkParserHandler extends BaseSyntaxHandler {
    */
   async loadInterWikiConfiguration() {
     try {
-      // Try to load from config/interwiki.json (same as InterWikiLinkHandler)
-      const fs = require('fs').promises;
-      const path = require('path');
-      const interWikiPath = path.join(process.cwd(), 'config', 'interwiki.json');
+      const cfg = this.engine?.getManager?.('ConfigurationManager');
+      const globalEnabled = cfg?.getProperty?.('amdwiki.interwiki.enabled', true);
+      if (!globalEnabled) return { enabled: false, sites: {} };
 
-      try {
-        const configContent = await fs.readFile(interWikiPath, 'utf8');
-        const config = JSON.parse(configContent);
+      // Prefer ConfigurationManager (object of siteName -> siteObject)
+      const sitesFromCfg = cfg?.getProperty?.('amdwiki.interwiki.sites', null);
 
-        if (config.interwiki) {
-          // Convert config format to LinkParser format
-          const sites = {};
-          for (const [siteName, siteConfig] of Object.entries(config.interwiki)) {
-            if (siteConfig.enabled !== false) {
-              sites[siteName] = {
-                url: siteConfig.url,
-                description: siteConfig.description || siteName,
-                openInNewWindow: siteConfig.openInNewWindow !== false
-              };
+      let sites = null;
+      if (sitesFromCfg && typeof sitesFromCfg === 'object') {
+        sites = sitesFromCfg;
+      } else {
+        // Fallback to config/interwiki.json if present
+        const filePath = path.resolve(process.cwd(), 'config', 'interwiki.json');
+        if (await fs.pathExists(filePath)) {
+          try {
+            const json = await fs.readJson(filePath);
+            if (json?.interwiki && typeof json.interwiki === 'object') {
+              sites = json.interwiki;
             }
+          } catch {
+            // ignore
           }
-
-          this.linkParser.setInterWikiSites(sites);
-          console.log(`🌐 LinkParserHandler loaded ${Object.keys(sites).length} InterWiki sites from config/interwiki.json`);
         }
-
-      } catch (fileError) {
-        // Fall back to default InterWiki sites
-        this.loadDefaultInterWikiSites();
       }
+
+      // Built-in defaults as last resort
+      if (!sites) {
+        sites = {
+          Wikipedia: { url: 'https://en.wikipedia.org/wiki/%s', enabled: true, openInNewWindow: true },
+          JSPWiki:   { url: 'https://jspwiki.apache.org/Wiki.jsp?page=%s', enabled: true, openInNewWindow: true }
+        };
+      }
+
+      // Normalize and filter by per-site enabled flag (default: true)
+      const normalized = {};
+      for (const [name, def] of Object.entries(sites)) {
+        if (!def) continue;
+        const obj = typeof def === 'string' ? { url: def } : def;
+        if (!obj.url) continue;
+        const siteEnabled = obj.enabled !== false; // enabled unless explicitly false
+        if (!siteEnabled) continue;
+        normalized[name] = {
+          url: String(obj.url),
+          description: obj.description || '',
+          icon: obj.icon || '',
+          enabled: true,
+          openInNewWindow: obj.openInNewWindow !== false
+        };
+      }
+
+      this.linkParser.setInterWikiSites(normalized);
+      console.log(`🌐 LinkParserHandler loaded ${Object.keys(normalized).length} InterWiki sites from configuration`);
 
     } catch (error) {
       console.warn('⚠️  Failed to load InterWiki configuration:', error.message);
