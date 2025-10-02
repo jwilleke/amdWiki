@@ -4,102 +4,83 @@ const path = require('path');
 const logger = require('../utils/logger');
 
 /**
- * ACLManager - Access Control List Manager
- * Parses and evaluates page-level access control using JSPWiki-style syntax
- * Integrates with permissions from UserManager
- * Enhanced with context-aware permissions and audit logging
+ * ACLManager - Handles Access Control Lists and context-aware permissions.
  */
 class ACLManager extends BaseManager {
-  async initialize(config = {}) {
-    await super.initialize(config);
+  constructor(engine) {
+    super(engine);
+    this.accessPolicies = new Map();
+    this.policyEvaluator = null;
+    this.schedules = {};
+  }
 
-    // Strict: require ConfigurationManager for holidays if feature enabled
-    const cfg = this.engine?.getManager?.('ConfigurationManager');
-    if (!cfg?.getProperty) {
-      await this.#notify('ConfigurationManager not available for ACLManager', 'error');
-      throw new Error('ACLManager: ConfigurationManager is required');
+  /**
+   * Initializes the ACLManager by loading policies and configurations
+   * from the ConfigurationManager.
+   */
+  async initialize() {
+    const configManager = this.engine.getManager('ConfigurationManager');
+    if (!configManager) {
+      throw new Error('ACLManager requires ConfigurationManager to be initialized.');
     }
 
-    const holidaysEnabled = cfg.getProperty('amdwiki.holidays.enabled', false);
-    if (holidaysEnabled) {
-      const dates = cfg.getProperty('amdwiki.holidays.dates', null);
-      const recurring = cfg.getProperty('amdwiki.holidays.recurring', null);
-      if (!dates || typeof dates !== 'object') {
-        await this.#notify('Holidays enabled but amdwiki.holidays.dates is missing/invalid', 'error');
-        throw new Error('ACLManager: holiday dates configuration missing');
-      }
-      if (!recurring || typeof recurring !== 'object') {
-        await this.#notify('Holidays enabled but amdwiki.holidays.recurring is missing/invalid', 'error');
-        throw new Error('ACLManager: holiday recurring configuration missing');
-      }
-    }
-
-    // Strict schedules config via ConfigurationManager (no file fallback)
-    const schEnabled = cfg.getProperty('amdwiki.schedules.enabled', true);
-    if (schEnabled) {
-      const schedules = cfg.getProperty('amdwiki.schedules', null);
-      if (!schedules || typeof schedules !== 'object' || Object.keys(schedules).length === 0) {
-        await this.#notify('ACLManager: schedules enabled but amdwiki.schedules is missing/empty', 'error');
-        throw new Error('ACLManager: schedules configuration missing');
-      }
-      this.schedules = schedules;
-    } else {
-      this.schedules = {};
-    }
-
-    // Initialize audit logging
+    // Initialize audit logging using the correct configuration pattern
     await this.initializeAuditLogging();
-    
-    // Load access policies if enabled
-    if (this.engine.getConfig().get('accessControl.policies.enabled', false)) {
+
+    // Load policies if enabled
+    const policiesEnabled = configManager.getProperty('amdwiki.access.policies.enabled', false);
+    if (policiesEnabled) {
       await this.loadAccessPolicies();
     }
 
-    // Get reference to PolicyEvaluator for policy-based access control
+    // Load schedules if enabled
+    const schedulesEnabled = configManager.getProperty('amdwiki.schedules.enabled', true);
+    if (schedulesEnabled) {
+      this.schedules = configManager.getProperty('amdwiki.schedules', {});
+    }
+
+    // Integrate with PolicyEvaluator
     this.policyEvaluator = this.engine.getManager('PolicyEvaluator');
     if (this.policyEvaluator) {
-      console.log('📋 ACLManager integrated with PolicyEvaluator');
+      logger.info('ACLManager integrated with PolicyEvaluator');
     }
-    
-    console.log('🔒 ACLManager initialized with context-aware permissions');
+
+    logger.info('🔒 ACLManager initialized with context-aware permissions');
   }
 
   /**
-   * Initialize audit logging system
+   * Initialize audit logging system based on configuration.
    */
   async initializeAuditLogging() {
-    const auditConfig = this.engine.getConfig().get('accessControl.audit', {});
-    
+    const configManager = this.engine.getManager('ConfigurationManager');
+    const auditConfig = configManager.getProperty('amdwiki.access.audit', {});
+
     if (auditConfig.enabled) {
-      const logDir = path.dirname(auditConfig.logFile || './users/access-log.json');
+      const logFile = auditConfig.logFile || './users/access-log.json';
+      const logDir = path.dirname(logFile);
       try {
         await fs.mkdir(logDir, { recursive: true });
-        console.log('📋 Audit logging initialized');
+        logger.info('📋 Audit logging initialized');
       } catch (error) {
-        console.warn('Warning: Could not create audit log directory:', error.message);
+        logger.warn('Warning: Could not create audit log directory:', { error: error.message });
       }
     }
   }
 
   /**
-   * Load access policies from configuration file
+   * Load access policies from ConfigurationManager.
    */
   async loadAccessPolicies() {
-    const policiesConfig = this.engine.getConfig().get('accessControl.policies', {});
-    const configFile = policiesConfig.configFile || './config/access-policies.json';
-    
-    try {
-      const policiesData = await fs.readFile(configFile, 'utf-8');
-      const policies = JSON.parse(policiesData);
-      
-      for (const [name, policy] of Object.entries(policies)) {
-        this.accessPolicies.set(name, policy);
+    const configManager = this.engine.getManager('ConfigurationManager');
+    const policies = configManager.getProperty('amdwiki.access.policies', []);
+
+    this.accessPolicies.clear();
+    for (const policy of policies) {
+      if (policy && policy.id) {
+        this.accessPolicies.set(policy.id, policy);
       }
-      
-      console.log(`📋 Loaded ${this.accessPolicies.size} access policies`);
-    } catch (error) {
-      console.log('📋 No access policies file found, using default ACL system');
     }
+    logger.info(`📋 Loaded ${this.accessPolicies.size} access policies from ConfigurationManager`);
   }
 
   /**
