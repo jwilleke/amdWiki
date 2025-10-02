@@ -513,13 +513,14 @@ class WikiRoutes {
       const renderingManager = this.engine.getManager('RenderingManager');
       const aclManager = this.engine.getManager('ACLManager');
 
-      // Check view permission
-      const canView = await aclManager.checkPagePermission(pageName, 'view', userContext);
+      // Load page content before checking permissions
+      const markdown = await pageManager.getPageContent(pageName);
+
+      // Check view permission, now passing the page content
+      const canView = await aclManager.checkPagePermission(pageName, 'view', userContext, markdown);
       if (!canView) {
         return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to view this page.');
       }
-
-      const markdown = await pageManager.loadPageContent(pageName);
 
       // 1. Construct WikiContext for this specific request
       const ctx = new WikiContext(this.engine, {
