@@ -11,6 +11,8 @@ Review CONRTRIBUTING.md
 
 All components should be designed with modularity and reusability in mind. Using config/app-default-config.json as a base, and app-custom-config.json to override values.
 
+App.js should create 
+
 ### Core Engine Pattern
 - **WikiEngine** (`src/WikiEngine.js`) - Central orchestrator extending base `Engine` class
 - **Manager Registration** - All functionality through manager instances: PageManager, RenderingManager, SearchManager, etc.

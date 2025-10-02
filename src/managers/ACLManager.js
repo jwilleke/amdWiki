@@ -549,6 +549,60 @@ class ACLManager extends BaseManager {
       console?.warn?.(message);
     }
   }
+
+  /**
+   * Record/audit an access decision.
+   * Accepts either a single object or positional args for backward compatibility.
+   */
+  logAccessDecision(userOrObj, pageName, action, allowed, reason, context = {}) {
+    let user = userOrObj;
+    if (arguments.length === 1 && userOrObj && typeof userOrObj === 'object') {
+      user = userOrObj.user;
+      pageName = userOrObj.pageName;
+      action = userOrObj.action;
+      allowed = userOrObj.allowed;
+      reason = userOrObj.reason;
+      context = userOrObj.context || {};
+    }
+    const username = user?.username || user?.name || 'anonymous';
+    const msg = `ACL decision: user=${username} page=${pageName} action=${action} allowed=${!!allowed} reason=${reason || 'n/a'}`;
+    if (allowed) {
+      this.engine?.logger?.info?.(msg);
+    } else {
+      this.engine?.logger?.warn?.(msg);
+    }
+    // Optional: forward to NotificationManager for UI surfacing
+    const nm = this.engine?.getManager?.('NotificationManager');
+    if (nm?.addNotification) {
+      nm.addNotification({
+        level: allowed ? 'info' : 'warn',
+        message: msg,
+        source: 'ACLManager',
+        context,
+        timestamp: new Date().toISOString()
+      }).catch(() => {});
+    }
+  }
+
+  /**
+   * Strip ACL markup from page content before rendering menus/partials.
+   * Supports common patterns: [{ALLOW ...}], [{DENY ...}], %%acl ... %%, (:acl ... :)
+   */
+  removeACLMarkup(content) {
+    if (typeof content !== 'string' || !content) return content;
+    const pluginPattern = /\[\{\s*(ALLOW|DENY)\b[^}]*\}\]/gmi;
+    const percentBlock = /%%acl[\s\S]*?%%/gmi;
+    const directiveParen = /\(:\s*acl\b[^:]*:\)/gmi;
+    return content
+      .replace(pluginPattern, '')
+      .replace(percentBlock, '')
+      .replace(directiveParen, '');
+  }
+
+  // Alias for compatibility if other code calls stripACLMarkup
+  stripACLMarkup(content) {
+    return this.removeACLMarkup(content);
+  }
 }
 
 module.exports = ACLManager;
