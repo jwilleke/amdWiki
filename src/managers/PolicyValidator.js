@@ -1,5 +1,6 @@
 const BaseManager = require('./BaseManager');
 const Ajv = require('ajv');
+const addFormats = require('ajv-formats'); // NEW
 
 /**
  * PolicyValidator - Validates policy schemas and detects conflicts
@@ -29,6 +30,7 @@ class PolicyValidator extends BaseManager {
       verbose: true,
       strict: false
     });
+    addFormats(this.schemaValidator); // NEW
 
     // Load policy schema
     await this.loadPolicySchema();
@@ -137,29 +139,32 @@ class PolicyValidator extends BaseManager {
                   type: 'string',
                   enum: ['time-range', 'ip-range', 'user-attribute', 'context-attribute', 'environment', 'session-attribute', 'custom']
                 },
-                key: {
-                  type: 'string'
-                },
-                value: {
-                  type: ['string', 'number', 'boolean', 'array']
-                },
+                key: { type: 'string' },
+                value: { type: ['string', 'number', 'boolean', 'array'] },
                 operator: {
                   type: 'string',
                   enum: ['==', '===', '!=', '!==', '>', '>=', '<', '<=', 'in', 'contains', 'regex']
                 },
+                // Accept RFC 3339 date-time, RFC 3339 time (HH:MM:SS), or HH:MM[(:SS)][TZ]
                 startTime: {
                   type: 'string',
-                  format: 'date-time'
+                  anyOf: [
+                    { format: 'date-time' },
+                    { format: 'time' },
+                    { pattern: '^([01]\\d|2[0-3]):[0-5]\\d(:[0-5]\\d)?(Z|[+-][0-2]\\d:[0-5]\\d)?$' }
+                  ]
                 },
                 endTime: {
                   type: 'string',
-                  format: 'date-time'
+                  anyOf: [
+                    { format: 'date-time' },
+                    { format: 'time' },
+                    { pattern: '^([01]\\d|2[0-3]):[0-5]\\d(:[0-5]\\d)?(Z|[+-][0-2]\\d:[0-5]\\d)?$' }
+                  ]
                 },
                 ranges: {
                   type: 'array',
-                  items: {
-                    type: 'string'
-                  }
+                  items: { type: 'string' }
                 }
               }
             }
@@ -167,26 +172,11 @@ class PolicyValidator extends BaseManager {
           metadata: {
             type: 'object',
             properties: {
-              created: {
-                type: 'string',
-                format: 'date-time'
-              },
-              modified: {
-                type: 'string',
-                format: 'date-time'
-              },
-              author: {
-                type: 'string'
-              },
-              tags: {
-                type: 'array',
-                items: {
-                  type: 'string'
-                }
-              },
-              version: {
-                type: 'string'
-              }
+              created: { type: 'string', format: 'date-time' },
+              modified: { type: 'string', format: 'date-time' },
+              author: { type: 'string' },
+              tags: { type: 'array', items: { type: 'string' } },
+              version: { type: 'string' }
             }
           }
         }
