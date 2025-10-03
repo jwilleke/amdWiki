@@ -1,151 +1,100 @@
 const Showdown = require('showdown');
+const logger = require('../utils/logger');
 
 /**
- * WikiContext (Node/Express adaptation of JSPWiki's WikiContext)
- * - Holds engine, request/response, page, user, variables, and context type.
- * - Provides parse options for MarkupParser.
- * - Central object for the rendering pipeline.
+ * WikiContext - Encapsulates the context of a single request or rendering operation.
+ * Inspired by JSPWiki's WikiContext, it provides access to the engine, page,
+ * user, and other contextual information.
  */
 class WikiContext {
-  // JSPWiki-like context constants
   static CONTEXT = {
     VIEW: 'view',
     EDIT: 'edit',
     PREVIEW: 'preview',
     DIFF: 'diff',
-    ATTACH: 'attach',
     INFO: 'info',
-    COMMENT: 'comment',
-    UPLOAD: 'upload',
-    LOGIN: 'login',
-    LOGOUT: 'logout',
-    PREFS: 'prefs',
-    SEARCH: 'search',
-    NONE: 'none' // For operations outside a request context
+    NONE: 'none', // For operations without a specific page context
   };
 
-  constructor(
-    engine,
-    {
-      context = WikiContext.CONTEXT.VIEW,
-      pageName = 'Home',
-      content = '',
-      userContext = null,
-      request = null,
-      response = null,
-      command = null
-    } = {}
-  ) {
-    this.engine = engine;
-    this._context = context;
-    this.pageName = pageName;
-    this.content = content;
-    this.userContext = userContext;
-    this.request = request || null;
-    this.response = response || null;
-    this.command = command || null;
+  constructor(engine, options = {}) {
+    if (!engine) {
+      throw new Error('WikiContext requires a valid WikiEngine instance.');
+    }
 
-    this.requestInfo = request ? WikiContext.fromExpressReq(request) : null;
-    this._variables = new Map();
+    this.engine = engine;
+    this.context = options.context || WikiContext.CONTEXT.NONE;
+    this.pageName = options.pageName || null;
+    this.content = options.content || null;
+    this.userContext = options.userContext || null;
+    this.request = options.request || null;
+    this.response = options.response || null;
+
+    // Ensure essential managers are available on the context
+    this.pageManager = engine.getManager('PageManager');
+    this.renderingManager = engine.getManager('RenderingManager');
+    this.pluginManager = engine.getManager('PluginManager');
+    this.variableManager = engine.getManager('VariableManager'); // This was missing
+    this.aclManager = engine.getManager('ACLManager');
+
     this._fallbackConverter = new Showdown.Converter();
   }
 
-  // Express request -> normalized requestInfo for VariableManager
-  static fromExpressReq(req) {
-    if (!req) return null;
-    const xfwd = req.headers?.['x-forwarded-for'] || '';
-    const clientIp =
-      (typeof xfwd === 'string' && xfwd.split(',')[0].trim()) ||
-      req.ip ||
-      req.connection?.remoteAddress ||
-      undefined;
-
-    return {
-      userAgent: req.headers?.['user-agent'],
-      acceptLanguage: req.headers?.['accept-language'],
-      referer: req.get?.('referer') || 'Direct',
-      clientIp,
-      sessionId: req.sessionID || null,
-      userId: req.session?.userId ?? null,
-      roles: Array.isArray(req.session?.roles) ? req.session.roles : []
-    };
+  /**
+   * Returns the current rendering context (e.g., 'view', 'edit').
+   * @returns {string} The context string.
+   */
+  getContext() {
+    return this.context;
   }
-
-  // --- JSPWiki-style accessors ---
-  getEngine() { return this.engine; }
-  getRequest() { return this.request; }
-  getResponse() { return this.response; }
-  getUser() { return this.userContext; }
-  setUser(userContext) { this.userContext = userContext; return this; }
-
-  getPageName() { return this.pageName; }
-  setPageName(name) { this.pageName = name; return this; }
-
-  getContext() { return this._context; }
-  setContext(ctx) { this._context = ctx; return this; }
-
-  getCommand() { return this.command; }
-  setCommand(cmd) { this.command = cmd; return this; }
-
-  // Context variables (WikiContext variable map)
-  getVariable(name) { return this._variables.get(name); }
-  setVariable(name, value) { this._variables.set(name, value); return this; }
-  hasVariable(name) { return this._variables.has(name); }
-  getVariables() { return Object.fromEntries(this._variables.entries()); }
 
   /**
-   * Creates a clone of the current context.
-   * @returns {WikiContext} A new WikiContext instance with copied properties.
+   * Renders the provided markdown content through the full pipeline.
+   * @param {string} content The markdown content to render.
+   * @returns {Promise<string>} The rendered HTML.
    */
-  clone() {
-    const newContext = new WikiContext(this.engine, {
-      context: this._context,
-      pageName: this.pageName,
-      content: this.content,
-      userContext: this.userContext,
-      request: this.request,
-      response: this.response,
-      command: this.command
-    });
-    for (const [key, value] of this._variables.entries()) {
-      newContext.setVariable(key, value);
+  async renderMarkdown(content = this.content) {
+    // The advanced parser should be the primary method
+    const parser = this.renderingManager?.getParser?.();
+    logger.info(`[CTX] renderMarkdown page=${this.pageName} parser=${!!parser} contentLen=${content?.length ?? 0}`);
+
+    if (parser && typeof parser.parse === 'function') {
+      const html = await parser.parse(content, this.toParseOptions());
+      logger.info(`[CTX] parsed via MarkupParser resultLen=${html?.length ?? 0}`);
+      return html;
     }
-    return newContext;
+
+    // Fallback for when the advanced parser is not available
+    logger.warn(`[CTX] Using fallback renderer for page ${this.pageName}.`);
+    let expanded = content;
+    if (this.variableManager && typeof this.variableManager.expandVariables === 'function') {
+      expanded = this.variableManager.expandVariables(expanded, this.toParseOptions().pageContext);
+      logger.info(`[CTX] variables expanded len=${expanded?.length ?? 0}`);
+    }
+
+    const html = this._fallbackConverter.makeHtml(expanded);
+    logger.info(`[CTX] fallback converter resultLen=${html?.length ?? 0}`);
+    return html;
   }
 
-  // Options fed to MarkupParser
+  /**
+   * Creates the options object needed for the MarkupParser.
+   * @returns {object}
+   */
   toParseOptions() {
     return {
-      pageName: this.pageName,
-      userName: this.userContext?.username || 'anonymous',
       pageContext: {
-        userContext: this.userContext,
         pageName: this.pageName,
-        requestInfo: this.requestInfo,
-        variables: this.getVariables(),
-        context: this._context,
-        command: this.command
-      }
+        userContext: this.userContext,
+        requestInfo: {
+          acceptLanguage: this.request?.headers?.['accept-language'],
+          userAgent: this.request?.headers?.['user-agent'],
+          clientIp: this.request?.ip,
+          referer: this.request?.headers?.referer,
+          sessionId: this.request?.sessionID,
+        },
+      },
+      engine: this.engine,
     };
-  }
-
-  // Render content using the full pipeline
-  async renderMarkdown(content = this.content) {
-    const parser = this.engine?.getManager?.('MarkupParser');
-    if (parser && typeof parser.parse === 'function') {
-      return parser.parse(content, this.toParseOptions());
-    }
-
-    // Fallback path if MarkupParser is not available
-    const renderingManager = this.engine?.getManager?.('RenderingManager');
-    let expanded = content;
-    if (renderingManager?.expandAllVariables) {
-      expanded = renderingManager.expandAllVariables(content, this.toParseOptions().pageContext);
-    }
-    if (renderingManager?.converter?.makeHtml) {
-      return renderingManager.converter.makeHtml(expanded);
-    }
-    return this._fallbackConverter.makeHtml(expanded);
   }
 }
 

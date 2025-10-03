@@ -14,8 +14,13 @@ class PageManager extends BaseManager {
   constructor(engine) {
     super(engine);
     this.pagesDirectory = null;
+    this.requiredPagesDirectory = null;
     this.encoding = 'UTF-8';
+    // Main cache, keyed by canonical identifier (UUID or title)
     this.pageCache = new Map();
+    // Lookup maps for resolving different identifiers
+    this.titleIndex = new Map(); // Maps lower-case title to canonical identifier
+    this.uuidIndex = new Map(); // Maps UUID to canonical identifier
   }
 
   /**
@@ -23,43 +28,110 @@ class PageManager extends BaseManager {
    */
   async initialize() {
     const configManager = this.engine.getManager('ConfigurationManager');
-    if (!configManager) {
-      throw new Error('PageManager requires ConfigurationManager to be initialized.');
-    }
+    if (!configManager) throw new Error('PageManager requires ConfigurationManager to be initialized.');
 
-    // Fetch configuration from the single source of truth
-    this.pagesDirectory = configManager.getProperty('amdwiki.directories.pages', './pages');
+    const cfgPath = configManager.getProperty('amdwiki.directories.pages', './pages');
+    this.pagesDirectory = path.isAbsolute(cfgPath) ? cfgPath : path.join(process.cwd(), cfgPath);
+
+    const reqCfgPath = configManager.getProperty('amdwiki.directories.required-pages', './required-pages');
+    this.requiredPagesDirectory = path.isAbsolute(reqCfgPath) ? reqCfgPath : path.join(process.cwd(), reqCfgPath);
+
     this.encoding = configManager.getProperty('amdwiki.encoding', 'UTF-8');
 
-    // Ensure the pages directory exists
-    try {
-      await fs.ensureDir(this.pagesDirectory);
-      logger.info(`Page directory ensured at: ${this.pagesDirectory}`);
-    } catch (error) {
-      logger.error(`Failed to create page directory at ${this.pagesDirectory}`, { error });
-      throw error;
-    }
+    await fs.ensureDir(this.pagesDirectory);
+    await fs.ensureDir(this.requiredPagesDirectory);
+    logger.info(`Page directory ensured at: ${this.pagesDirectory}`);
+    logger.info(`Required-pages directory ensured at: ${this.requiredPagesDirectory}`);
 
-    // Build the initial page list
     await this.refreshPageList();
     logger.info(`PageManager initialized with ${this.pageCache.size} pages.`);
   }
 
   /**
-   * Reads all .md files from the pages directory and populates the page cache.
+   * Reads all .md files from both pages and required-pages directories and populates the page cache.
    */
   async refreshPageList() {
     this.pageCache.clear();
-    const files = await fs.readdir(this.pagesDirectory);
-    const pageFiles = files.filter(file => file.endsWith('.md'));
+    this.titleIndex.clear();
+    this.uuidIndex.clear();
 
-    for (const file of pageFiles) {
-      const pageName = path.basename(file, '.md');
-      this.pageCache.set(pageName, {
-        name: pageName,
-        filePath: path.join(this.pagesDirectory, file)
-      });
+    // Scan both directories
+    const pagesFiles = await this.#walkDir(this.pagesDirectory);
+    const requiredFiles = await this.#walkDir(this.requiredPagesDirectory);
+    const allFiles = [...pagesFiles, ...requiredFiles];
+    const mdFiles = allFiles.filter(f => f.toLowerCase().endsWith('.md'));
+
+    for (const filePath of mdFiles) {
+      try {
+        const fileContent = await fs.readFile(filePath, this.encoding);
+        const { data: metadata } = matter(fileContent);
+        const title = metadata.title;
+        const uuid = metadata.uuid || path.basename(filePath, '.md');
+
+        if (!title) {
+          logger.warn(`[PAGE] Skipping file with no title in frontmatter: ${filePath}`);
+          continue;
+        }
+
+        const pageInfo = {
+          title: title,
+          uuid: uuid,
+          filePath: filePath,
+          metadata: metadata
+        };
+
+        // Use title as the canonical key for the main cache
+        const canonicalKey = title;
+        this.pageCache.set(canonicalKey, pageInfo);
+
+        // Build lookup indexes
+        this.titleIndex.set(title.toLowerCase(), canonicalKey);
+        if (uuid) {
+          this.uuidIndex.set(uuid, canonicalKey);
+        }
+
+      } catch (error) {
+        logger.error(`[PAGE] Failed to process page file: ${filePath}`, { error: error.message });
+      }
     }
+    logger.info(`[PAGE] Indexing complete. Found ${this.pageCache.size} valid pages.`);
+  }
+
+  async #walkDir(dir) {
+    const out = [];
+    try {
+      const entries = await fs.readdir(dir, { withFileTypes: true });
+      for (const entry of entries) {
+        const full = path.join(dir, entry.name);
+        if (entry.isDirectory()) {
+          if (entry.name.startsWith('.')) continue; // Skip hidden dirs
+          out.push(...(await this.#walkDir(full)));
+        } else if (entry.isFile()) {
+          out.push(full);
+        }
+      }
+    } catch (error) {
+      logger.error(`[PAGE] Failed to walk directory: ${dir}`, { error: error.message });
+    }
+    return out;
+  }
+
+  #resolvePageInfo(identifier) {
+    if (!identifier) return null;
+
+    // 1. Try UUID index first
+    let canonicalKey = this.uuidIndex.get(identifier);
+    if (canonicalKey) {
+      return this.pageCache.get(canonicalKey);
+    }
+
+    // 2. Try title index (case-insensitive)
+    canonicalKey = this.titleIndex.get(identifier.toLowerCase());
+    if (canonicalKey) {
+      return this.pageCache.get(canonicalKey);
+    }
+
+    return null; // Not found
   }
 
   /**
@@ -67,12 +139,15 @@ class PageManager extends BaseManager {
    * @param {string} pageName The name of the page to load.
    * @returns {Promise<string>} The raw markdown content.
    */
-  async getPageContent(pageName) {
-    const pageInfo = this.pageCache.get(pageName);
-    if (!pageInfo) {
-      throw new Error(`Page '${pageName}' not found.`);
+  async getPageContent(identifier) {
+    const info = this.#resolvePageInfo(identifier);
+    if (!info) {
+      logger.warn(`[PAGE] Not found: ${identifier}`);
+      throw new Error(`Page '${identifier}' not found.`);
     }
-    return fs.readFile(pageInfo.filePath, this.encoding);
+    const content = await fs.readFile(info.filePath, this.encoding);
+    logger.info(`[PAGE] Loaded ${info.title} from ${path.basename(info.filePath)} (${content.length} bytes)`);
+    return content;
   }
 
   /**
@@ -80,15 +155,9 @@ class PageManager extends BaseManager {
    * @param {string} pageName The name of the page.
    * @returns {Promise<object|null>} The page metadata, or null if not found.
    */
-  async getPageMetadata(pageName) {
-    try {
-      const content = await this.getPageContent(pageName);
-      const { data } = matter(content);
-      return data;
-    } catch (error) {
-      logger.warn(`Could not retrieve metadata for page '${pageName}'.`, { error: error.message });
-      return null;
-    }
+  async getPageMetadata(identifier) {
+    const info = this.#resolvePageInfo(identifier);
+    return info ? info.metadata : null;
   }
 
   /**
@@ -99,12 +168,14 @@ class PageManager extends BaseManager {
    * @returns {Promise<void>}
    */
   async savePage(pageName, content, metadata = {}) {
-    const filePath = path.join(this.pagesDirectory, `${pageName}.md`);
-    const now = new Date().toISOString();
+    const uuid = metadata.uuid || this.#resolvePageInfo(pageName)?.uuid || uuidv4();
+    const filePath = path.join(this.pagesDirectory, `${uuid}.md`);
+    await fs.ensureDir(path.dirname(filePath));
 
+    const now = new Date().toISOString();
     const updatedMetadata = {
       title: pageName,
-      uuid: metadata.uuid || uuidv4(),
+      uuid: uuid,
       ...metadata,
       lastModified: now
     };
@@ -112,9 +183,13 @@ class PageManager extends BaseManager {
     const fileContent = matter.stringify(content, updatedMetadata);
     await fs.writeFile(filePath, fileContent, this.encoding);
 
-    // Update cache
-    this.pageCache.set(pageName, { name: pageName, filePath });
-    logger.info(`Page '${pageName}' saved successfully.`);
+    // Update cache immediately
+    const pageInfo = { title: pageName, uuid, filePath, metadata: updatedMetadata };
+    this.pageCache.set(pageName, pageInfo);
+    this.titleIndex.set(pageName.toLowerCase(), pageName);
+    this.uuidIndex.set(uuid, pageName);
+
+    logger.info(`Page '${pageName}' saved successfully to ${path.basename(filePath)}.`);
   }
 
   /**
@@ -122,7 +197,7 @@ class PageManager extends BaseManager {
    * @returns {Promise<string[]>} An array of page names.
    */
   async getAllPages() {
-    return Array.from(this.pageCache.keys());
+    return Array.from(this.pageCache.keys()).sort((a, b) => a.localeCompare(b));
   }
 
   /**
@@ -130,8 +205,36 @@ class PageManager extends BaseManager {
    * @param {string} pageName The name of the page.
    * @returns {boolean} True if the page exists, false otherwise.
    */
-  pageExists(pageName) {
-    return this.pageCache.has(pageName);
+  pageExists(identifier) {
+    return !!this.#resolvePageInfo(identifier);
+  }
+
+  /**
+   * Gets both page content and metadata together.
+   * @param {string} identifier Page name or UUID
+   * @returns {Promise<{content: string, metadata: object}|null>} Page data or null if not found
+   */
+  async getPage(identifier) {
+    const info = this.#resolvePageInfo(identifier);
+    if (!info) {
+      return null;
+    }
+
+    try {
+      const fullContent = await fs.readFile(info.filePath, this.encoding);
+      const { content, data: metadata } = matter(fullContent);
+
+      return {
+        content,
+        metadata,
+        title: info.title,
+        uuid: info.uuid,
+        filePath: info.filePath
+      };
+    } catch (error) {
+      logger.error(`[PAGE] Failed to read page: ${identifier}`, { error: error.message });
+      return null;
+    }
   }
 }
 

@@ -28,21 +28,19 @@ class PolicyEvaluator extends BaseManager {
    * @returns {Promise<{hasDecision: boolean, allowed: boolean, reason: string, policyName: string|null}>}
    */
   async evaluateAccess(context) {
-    const policies = this.policyManager.getAllPolicies();
+    const { pageName, action, userContext } = context || {};
+    const roles = (userContext?.roles || []).join('|');
+    logger.info(`[POLICY] Evaluate page=${pageName} action=${action} user=${userContext?.username} roles=${roles}`);
 
+    const policies = this.policyManager.getAllPolicies();
     for (const policy of policies) {
-      if (this.matches(policy, context)) {
-        // This policy applies. Return its effect as the final decision.
-        return {
-          hasDecision: true,
-          allowed: policy.effect === 'allow',
-          reason: `Policy match: ${policy.id}`,
-          policyName: policy.id
-        };
+      const match = this.matches(policy, context);
+      logger.info(`[POLICY] Check policy=${policy.id} effect=${policy.effect} match=${match}`);
+      if (match) {
+        return { hasDecision: true, allowed: policy.effect === 'allow', reason: `Policy match: ${policy.id}`, policyName: policy.id };
       }
     }
-
-    // No policy matched, so no decision was made.
+    logger.info('[POLICY] No matching policy');
     return { hasDecision: false, allowed: false, reason: 'No matching policy', policyName: null };
   }
 
@@ -61,32 +59,38 @@ class PolicyEvaluator extends BaseManager {
   }
 
   /**
-   * Checks if the user context matches the policy's subjects.
-   * @param {Array<object>} subjects - The subjects array from the policy.
-   * @param {object} userContext - The user's context.
-   * @returns {boolean} True if a subject matches the user.
+   * Check if the user context's roles match the policy's subject requirements.
+   * @param {Array<Object>} policySubjects - The subjects array from the policy.
+   * @param {Object} userContext - The user's context.
+   * @returns {boolean} True if the user matches the policy subjects.
    */
-  matchesSubject(subjects, userContext) {
-    if (!subjects || subjects.length === 0) {
-      return true; // No subjects specified means it applies to everyone.
+  matchesSubject(policySubjects, userContext) {
+    if (!policySubjects || policySubjects.length === 0) {
+      return true; // A policy with no subjects applies to everyone.
     }
 
     const userRoles = new Set(userContext?.roles || []);
 
-    for (const subject of subjects) {
-      if (subject.type === 'role') {
-        if (userRoles.has(subject.value)) {
-          return true; // User has the required role.
-        }
-      }
-      if (subject.type === 'attribute' && subject.key === 'isAuthenticated') {
-        const isAuthenticated = userContext?.isAuthenticated || false;
-        if (isAuthenticated === subject.value) {
-          return true; // User's authentication status matches.
-        }
+    // Check if policy requires "All" role - this matches everyone including anonymous
+    for (const subject of policySubjects) {
+      if (subject.type === 'role' && subject.value === 'All') {
+        return true; // "All" matches any user
       }
     }
-    return false; // No subject rule matched the user.
+
+    // If user has no roles, they cannot match policies requiring specific roles
+    if (userRoles.size === 0) {
+      return false;
+    }
+
+    // The user is a match if they have AT LEAST ONE of the roles specified in the policy's subjects
+    for (const subject of policySubjects) {
+      if (subject.type === 'role' && userRoles.has(subject.value)) {
+        return true; // Match found!
+      }
+    }
+
+    return false; // No matching role was found in the user's context.
   }
 
   /**

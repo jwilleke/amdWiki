@@ -11,19 +11,30 @@ Review CONRTRIBUTING.md
 
 All components should be designed with modularity and reusability in mind. Using config/app-default-config.json as a base, and app-custom-config.json to override values.
 
-App.js should create 
+### RenderPipline
+
+We expect WikiContext to implement methods as in https://github.com/apache/jspwiki/blob/c31d4f284983fd25e37e7ec5682fe2bdfddc439b/jspwiki-main/src/main/java/org/apache/wiki/WikiContext.java#L64
+
 
 ### Core Engine Pattern
+- **WikiContext** - WikiContext that 
+  - Page Render Request: The client sends a request to view a wiki page. The WikiEngine receives the request and constructs a WikiContext that encapsulates the request type, authentication, page, and rendering parameters.
+  - Data Retrieval: WikiEngine uses the context to retrieve the WikiPage object and the raw wiki text (markup) of the page from the repository (filesystem, database, or cache).
+  - Rendering Manager: The rendering pipeline begins when WikiEngine calls a method like textToHTML(context, pageContent) on its src/managers/RenderingManager.js. The RenderingManager determines which parser to use based on WikiContext (classic JSPWiki markup, Markdown, etc.) and user preferences.
+  - Parser Instantiation and Parsing: The appropriate Parser (for example, src/parsers/MarkupParser.js) is instantiated. It processes the wiki markup, handles macros, plugins, and generates an internal  DOM that represents the structured content of the page.
+  - Post-Processing and Plugins: After parsing, plugins or custom handlers embedded in the page are invoked as needed. These may modify the internal  DOM, include dynamic content, or perform security/permission checks.
+  - HTML Serialization: The WikiDocument DOM is serialized to HTML. The HTML may be further post-processed to handle links, images, CSS classes, and security filtering for safe output.
+  - Final Output: The resulting HTML is sent back as the HTTP response, and the user's browser displays the rendered page
 - **WikiEngine** (`src/WikiEngine.js`) - Central orchestrator extending base `Engine` class
 - **Manager Registration** - All functionality through manager instances: PageManager, RenderingManager, SearchManager, etc.
 - **Plugin System** - Extensible via `/plugins` directory with JSPWiki-style syntax
-- **Config-Driven** - Configuration via `src/managers/ConfigurationManager.js` (single source of truth) with validation
+- **ConfigurationManager** - Configuration via `src/managers/ConfigurationManager.js` (single source of truth) with validation
 
 ### Key Architectural Decisions
-- **File-based storage** - No database; pages stored as `.md` files in `/pages`
+- **File-based storage** - No database; pages stored as `.md` files in `/pages` or `/required-pages`
 - **Manager isolation** - Each manager extends `BaseManager.js` with standard lifecycle
 - **Template rendering** - EJS templates with JSPWiki-style navigation and Bootstrap UI
-- **Three-tier auth** - Anonymous, Authenticated, Admin roles via UserManager
+- **Three-tier auth** - Default roles are Anonymous, Authenticated, Admin roles via UserManager (Which are Obtained form ConfigurationManager)
 
 ## Essential Development Patterns
 
@@ -50,7 +61,7 @@ async routeHandler(req, res) {
 All pages require this YAML frontmatter:
 ```yaml
 ---
-title: Page Name
+title: Page Name 
 category: General
 user-keywords: []
 uuid: auto-generated-uuid
@@ -114,6 +125,7 @@ npm run version:major  # Increment major version
 ```
 
 ### File Structure Navigation
+- app.js is in root of project
 - **Pages**: `/pages/*.md` - Wiki content files
 - **Templates**: `/views/*.ejs` - EJS view templates  
 - **Managers**: `/src/managers/` - Business logic modules

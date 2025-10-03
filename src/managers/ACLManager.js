@@ -10,8 +10,7 @@ class ACLManager extends BaseManager {
   constructor(engine) {
     super(engine);
     this.accessPolicies = new Map();
-    this.policyEvaluator = null;
-    this.schedules = {};
+    this.policyEvaluator = null; // Initialize as null
   }
 
   /**
@@ -20,32 +19,15 @@ class ACLManager extends BaseManager {
    */
   async initialize() {
     const configManager = this.engine.getManager('ConfigurationManager');
-    if (!configManager) {
-      throw new Error('ACLManager requires ConfigurationManager to be initialized.');
-    }
+    const policies = configManager.getProperty('amdwiki.access.policies', []);
+    this.accessPolicies = new Map(policies.map(p => [p.id, p]));
+    logger.info(`📋 Loaded ${this.accessPolicies.size} access policies from ConfigurationManager`);
 
-    // Initialize audit logging using the correct configuration pattern
-    await this.initializeAuditLogging();
-
-    // Load policies if enabled
-    const policiesEnabled = configManager.getProperty('amdwiki.access.policies.enabled', false);
-    if (policiesEnabled) {
-      await this.loadAccessPolicies();
-    }
-
-    // Load schedules if enabled
-    const schedulesEnabled = configManager.getProperty('amdwiki.schedules.enabled', true);
-    if (schedulesEnabled) {
-      this.schedules = configManager.getProperty('amdwiki.schedules', {});
-    }
-
-    // Integrate with PolicyEvaluator
+    // CRITICAL FIX: Get the PolicyEvaluator instance from the engine.
     this.policyEvaluator = this.engine.getManager('PolicyEvaluator');
-    if (this.policyEvaluator) {
-      logger.info('ACLManager integrated with PolicyEvaluator');
+    if (!this.policyEvaluator) {
+      logger.warn('[ACL] PolicyEvaluator manager not found. Global policies will not be evaluated.');
     }
-
-    logger.info('🔒 ACLManager initialized with context-aware permissions');
   }
 
   /**
@@ -84,44 +66,32 @@ class ACLManager extends BaseManager {
   }
 
   /**
-   * Parse ACL from page content
-   * Supports JSPWiki-style syntax: [{ALLOW action user,role,group}]
-   * @param {string} content - Page content
-   * @returns {Object} Parsed ACL rules
+   * Parses JSPWiki-style ACL markup from page content.
+   * Example: [{ALLOW view All,Admin}]
+   * @param {string} content The page's raw markdown content.
+   * @returns {Map<string, Set<string>>} A map of actions to a set of allowed principals.
    */
-  parseACL(content) {
-    if (!content) return null;
+  parsePageACL(content) {
+    const acl = new Map();
+    if (!content) return acl;
 
-    const aclRules = {
-      view: [],
-      edit: [],
-      delete: [],
-      rename: [],
-      upload: []
-    };
-
-    // Regex to match [{ALLOW action principals}] or [{DENY action principals}]
-    const aclRegex = /\[\{(ALLOW|DENY)\s+(view|edit|delete|rename|upload)\s+([^}]+)\}\]/gi;
-    
+    // Regex to match [{ALLOW action principals}]
+    const aclRegex = /\[\{\s*ALLOW\s+([a-z, ]+)\s+([^}]+)\s*\}\]/gi;
     let match;
+
     while ((match = aclRegex.exec(content)) !== null) {
-      const [fullMatch, permission, action, principals] = match;
-      
-      // Parse principals (comma-separated list)
-      const principalList = principals.split(',')
-        .map(p => p.trim())
-        .filter(p => p.length > 0);
+      const actions = match[1].split(',').map(s => s.trim().toLowerCase());
+      const principals = match[2].split(',').map(s => s.trim());
 
-      if (permission.toUpperCase() === 'ALLOW') {
-        aclRules[action.toLowerCase()] = principalList;
+      for (const action of actions) {
+        if (!acl.has(action)) {
+          acl.set(action, new Set());
+        }
+        const principalSet = acl.get(action);
+        principals.forEach(p => principalSet.add(p));
       }
-      // Note: We don't implement DENY to keep security model simple
-      // (following JSPWiki's philosophy of "deny by default")
     }
-
-    // Return null if no ACL rules found
-    const hasRules = Object.values(aclRules).some(rules => rules.length > 0);
-    return hasRules ? aclRules : null;
+    return acl;
   }
 
   /**
@@ -129,85 +99,47 @@ class ACLManager extends BaseManager {
    * Now includes policy-based access control integration
    * @param {string} pageName - Name of the page
    * @param {string} action - Action to check (view, edit, delete, rename, upload)
-   * @param {Object} user - User object (null for anonymous)
+   * @param {Object} userContext - User context object (null for anonymous)
    * @param {string} pageContent - Page content to parse ACL from
-   * @param {Object} context - Request context (IP, userAgent, etc.)
    * @returns {boolean} True if permission granted
    */
-  async checkPagePermission(pageName, action, user, pageContent, context = {}) {
-    const startTime = Date.now();
-    let decision = false;
-    let reason = 'unknown';
-    
-    try {
-      // Check policy-based access control first (if enabled)
-      const policiesEnabled = this.engine.getConfig().get('accessControl.policies.enabled', false);
-      if (policiesEnabled && this.policyEvaluator) {
-        const policyContext = this.createPolicyContext(pageName, action, user, context);
-        const policyResult = await this.policyEvaluator.evaluateAccess(policyContext);
-        
-        if (policyResult.hasDecision) {
-          decision = policyResult.allowed;
-          reason = policyResult.reason;
-          
-          // Log policy-based decision
-          await this.logAccessDecision({
-            pageName,
-            action,
-            user: user ? user.username : 'anonymous',
-            decision,
-            reason: `policy:${reason}`,
-            context,
-            policyId: policyResult.policyName,
-            timestamp: new Date().toISOString(),
-            processingTime: Date.now() - startTime
-          });
-          
-          return decision;
-        }
-        // If no policy decision, fall back to traditional ACL
-      }
+  async checkPagePermission(pageName, action, userContext, pageContent) {
+    const roles = (userContext?.roles || []).join('|');
+    logger.info(`[ACL] checkPagePermission page=${pageName} action=${action} user=${userContext?.username} roles=${roles}`);
 
-      // Check context-aware restrictions first
-      const contextCheck = await this.checkContextRestrictions(user, context);
-      if (!contextCheck.allowed) {
-        decision = false;
-        reason = contextCheck.reason;
-      } else {
-        // Proceed with standard ACL check
-        decision = await this.performStandardACLCheck(pageName, action, user, pageContent);
-        reason = decision ? 'acl_allowed' : 'acl_denied';
+    // 1. Evaluate Global Policies first
+    if (this.policyEvaluator) {
+      try {
+        const policyContext = { pageName, action, userContext };
+        const policyResult = await this.policyEvaluator.evaluateAccess(policyContext);
+        logger.info(`[ACL] PolicyEvaluator decision hasDecision=${policyResult.hasDecision} allowed=${policyResult.allowed} policy=${policyResult.policyName}`);
+        if (policyResult.hasDecision) {
+          return policyResult.allowed;
+        }
+      } catch (e) {
+        logger.warn('[ACL] PolicyEvaluator error', { error: e.message, stack: e.stack });
       }
-      
-      // Log the access decision
-      await this.logAccessDecision({
-        pageName,
-        action,
-        user: user ? user.username : 'anonymous',
-        decision,
-        reason,
-        context,
-        timestamp: new Date().toISOString(),
-        processingTime: Date.now() - startTime
-      });
-      
-      return decision;
-    } catch (error) {
-      // Log the error and deny access
-      reason = `error: ${error.message}`;
-      await this.logAccessDecision({
-        pageName,
-        action,
-        user: user ? user.username : 'anonymous',
-        decision: false,
-        reason,
-        context,
-        timestamp: new Date().toISOString(),
-        processingTime: Date.now() - startTime
-      });
-      
-      return false;
     }
+
+    // 2. Evaluate Page-Level ACLs if no global policy decided
+    if (pageContent && typeof pageContent === 'string') {
+      const pageAcl = this.parsePageACL(pageContent);
+      const principals = pageAcl.get(action.toLowerCase());
+      logger.info(`[ACL] Page ACL for action=${action}: ${principals ? Array.from(principals).join('|') : 'none'}`);
+
+      if (principals) {
+        if (principals.has('All')) return true;
+        if (userContext?.roles) {
+          for (const r of userContext.roles) {
+            if (principals.has(r)) return true;
+          }
+        }
+        if (userContext?.username && principals.has(userContext.username)) return true;
+      }
+    }
+
+    logger.info(`[ACL] Default deny for page=${pageName} (no policy/ACL matched)`);
+    return false;
   }
 
   /**

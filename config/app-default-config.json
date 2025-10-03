@@ -265,6 +265,9 @@
   "amdwiki.logging.dir": "./logs",
   "amdwiki.logging.maxSize": "1MB",
   "amdwiki.logging.maxFiles": 5,
+  "amdwiki.logging.debug.enabled": false,
+  "amdwiki.logging.debug.session": false,
+  "amdwiki.logging.debug.login": false,
   "_comment_notifications": "notifications configuration",
   "amdwiki.notifications.dir": "./data",
   "amdwiki.notifications.file": "notifications.json",
@@ -662,40 +665,22 @@
         {
           "type": "page",
           "pattern": "*"
-        },
-        {
-          "type": "attachment",
-          "pattern": "*"
         }
       ],
       "actions": [
-        "view",
-        "edit",
-        "delete",
-        "upload",
-        "admin"
-      ],
-      "conditions": [],
-      "metadata": {
-        "created": "2025-09-14T13:28:00.701Z",
-        "author": "system",
-        "tags": [
-          "admin",
-          "default"
-        ]
-      }
+        "*"
+      ]
     },
     {
-      "id": "authenticated-user-access",
-      "name": "Authenticated User Access",
-      "description": "Basic access for authenticated users",
-      "priority": 50,
+      "id": "default-view-for-all",
+      "name": "Default View Access",
+      "description": "Allows all users (including anonymous) to view all pages by default.",
+      "priority": 1,
       "effect": "allow",
       "subjects": [
         {
-          "type": "attribute",
-          "key": "isAuthenticated",
-          "value": true
+          "type": "role",
+          "value": "All"
         }
       ],
       "resources": [
@@ -706,28 +691,57 @@
       ],
       "actions": [
         "view"
-      ],
-      "conditions": [],
-      "metadata": {
-        "created": "2025-09-14T13:28:00.701Z",
-        "author": "system",
-        "tags": [
-          "user",
-          "default"
-        ]
-      }
+      ]
     },
     {
-      "id": "deny-anonymous",
-      "name": "Deny Anonymous Access",
-      "description": "Deny access to sensitive resources for anonymous users",
-      "priority": 10,
+      "id": "authenticated-user-rights",
+      "name": "Authenticated User Rights",
+      "description": "Grants authenticated users rights to edit and perform other actions on non-system pages.",
+      "priority": 50,
+      "effect": "allow",
+      "subjects": [
+        {
+          "type": "role",
+          "value": "Authenticated"
+        }
+      ],
+      "resources": [
+        {
+          "type": "page",
+          "pattern": "*"
+        }
+      ],
+      "actions": [
+        "edit",
+        "upload",
+        "rename",
+        "delete"
+      ],
+      "conditions": [
+        {
+          "type": "resource",
+          "key": "category",
+          "operator": "notEquals",
+          "value": "System"
+        },
+        {
+          "type": "resource",
+          "key": "category",
+          "operator": "notEquals",
+          "value": "Admin"
+        }
+      ]
+    },
+    {
+      "id": "deny-anonymous-system-access",
+      "name": "Deny Anonymous System Access",
+      "description": "Deny anonymous users from viewing sensitive system pages.",
+      "priority": 60,
       "effect": "deny",
       "subjects": [
         {
-          "type": "attribute",
-          "key": "isAuthenticated",
-          "value": false
+          "type": "role",
+          "value": "Anonymous"
         }
       ],
       "resources": [
@@ -744,16 +758,7 @@
         "view",
         "edit",
         "delete"
-      ],
-      "conditions": [],
-      "metadata": {
-        "created": "2025-09-14T13:28:00.701Z",
-        "author": "system",
-        "tags": [
-          "security",
-          "default"
-        ]
-      }
+      ]
     }
   ]
 }

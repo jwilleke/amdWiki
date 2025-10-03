@@ -96,7 +96,7 @@
 
 **Remaining Work:**
 1. ✅ **COMPLETED** - Storage Location Rules implemented with ACL-based decisions
-2. ⏳ **Category Integration** - Add System/Admin category restrictions for attachments
+2. ⏳ **Category Integration** - Add System/Admin category restrictions for attachments see docs/page-metadata.md
 3. ⏳ **Advanced ACL Syntax** - Add attachment-specific permission syntax
 4. ⏳ **Audit Logging** - Add comprehensive logging for attachment operations
 

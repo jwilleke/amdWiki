@@ -49,11 +49,8 @@ slug: project-tasks-and-todo
 - [ ] Store globally unique identifier in YAML frontmatter
 - [ ] Prevent editing of UUID section in frontmatter
 
-### Category and Keyword System
-- [ ] **Category**: Single top-level container per page (dropdown selection in editor)
-- [ ] **Keywords**: Auto-generate 3 keywords using LLM (Ollama) at indexing time
-- [ ] **User-Keywords**: Allow custom tags (3 max, multi-select dropdown in editor)
-- [ ] Store all metadata in YAML frontmatter (non-editable section)
+### Category and Keyword System 
+see docs/page-metadata.md
 
 ### Search Features
 - [ ] **Title Search**: Map to filename minus extension

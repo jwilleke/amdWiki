@@ -2,7 +2,7 @@ const BaseManager = require('./BaseManager');
 const fs = require('fs').promises;
 const path = require('path');
 const crypto = require('crypto');
-const LocaleUtils = require('../utils/LocaleUtils');
+const logger = require('../utils/logger'); // Add this line
 
 /**
  * UserManager - Handles user authentication, authorization, and roles
@@ -11,15 +11,11 @@ const LocaleUtils = require('../utils/LocaleUtils');
 class UserManager extends BaseManager {
   constructor(engine) {
     super(engine);
-    this.usersDirectory = './users';
-    this.users = new Map(); // username -> user object
-    this.sessions = new Map(); // sessionId -> session data
-    this.roles = new Map(); // roleName -> role definition
-    this.permissions = new Map(); // permission -> description
-    
-    // Initialize default permissions
-    this.initializeDefaultPermissions();
-    this.initializeDefaultRoles();
+    // this.usersDirectory = './users'; // This will be determined by config
+    this.users = new Map();
+    this.sessions = new Map();
+    this.roles = new Map();
+    this.permissions = new Map();
   }
 
   async initialize(config = {}) {
@@ -33,14 +29,14 @@ class UserManager extends BaseManager {
     // Load existing users, roles, and sessions
     await this.loadUsers();
     await this.loadRoles();
-    await this.loadSessions();
+    await this.loadSessions(); // This will now use the correct path
     
     // Create default admin user if no users exist
     if (this.users.size === 0) {
       await this.createDefaultAdmin();
     }
     
-    console.log(`👤 UserManager initialized with ${this.users.size} users, ${this.roles.size} roles, and ${this.sessions.size} sessions`);
+    console.log(`👤 UserManager initialized with ${this.users.size} users and ${this.roles.size} roles.`);
   }
 
   /**
@@ -205,46 +201,6 @@ class UserManager extends BaseManager {
   }
 
   /**
-   * Load sessions from disk
-   */
-  async loadSessions() {
-    try {
-      const sessionsFile = path.join(this.usersDirectory, 'sessions.json');
-      const sessionsData = await fs.readFile(sessionsFile, 'utf8');
-      const sessions = JSON.parse(sessionsData);
-      
-      // Convert sessions object back to Map and filter out expired sessions
-      this.sessions = new Map();
-      const now = new Date();
-      
-      for (const [sessionId, session] of Object.entries(sessions)) {
-        if (new Date(session.expiresAt) > now) {
-          this.sessions.set(sessionId, session);
-        }
-      }
-      
-      console.log(`👤 Loaded ${this.sessions.size} active sessions`);
-    } catch (err) {
-      // Sessions file doesn't exist yet or is corrupted
-      this.sessions = new Map();
-      console.log('👤 No sessions file found, starting with empty sessions');
-    }
-  }
-
-  /**
-   * Save sessions to disk
-   */
-  async saveSessions() {
-    try {
-      const sessionsFile = path.join(this.usersDirectory, 'sessions.json');
-      const sessions = Object.fromEntries(this.sessions);
-      await fs.writeFile(sessionsFile, JSON.stringify(sessions, null, 2));
-    } catch (err) {
-      console.error('Error saving sessions:', err);
-    }
-  }
-
-  /**
    * Simple password hashing using crypto
    * @param {string} password - Plain text password
    * @returns {string} Hashed password
@@ -393,7 +349,7 @@ class UserManager extends BaseManager {
    * Authenticate user with username/password
    * @param {string} username - Username
    * @param {string} password - Password
-   * @returns {Object|null} User object if authenticated
+   * @returns {Object|null} User object if authenticated, including the isAuthenticated flag.
    */
   async authenticateUser(username, password) {
     const user = this.users.get(username);
@@ -411,65 +367,13 @@ class UserManager extends BaseManager {
     user.loginCount = (user.loginCount || 0) + 1;
     await this.saveUsers();
     
-    // Return user without password but with authentication flag
+    // CRITICAL FIX: Return a user object that is ready to be placed in the session.
+    // It must include the `isAuthenticated` flag.
     const { password: _, ...userWithoutPassword } = user;
-    userWithoutPassword.isAuthenticated = true;
-    return userWithoutPassword;
-  }
-
-  /**
-   * Create a new session for authenticated user
-   * @param {Object} user - User object
-   * @returns {string} Session ID
-   */
-  createSession(user) {
-    const sessionId = crypto.randomBytes(32).toString('hex');
-    const session = {
-      id: sessionId,
-      username: user.username,
-      user: user,
-      createdAt: new Date().toISOString(),
-      lastAccess: new Date().toISOString(),
-      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 hours
+    return {
+      ...userWithoutPassword,
+      isAuthenticated: true
     };
-    
-    this.sessions.set(sessionId, session);
-    this.saveSessions(); // Persist session to disk
-    return sessionId;
-  }
-
-  /**
-   * Get session by session ID
-   * @param {string} sessionId - Session ID
-   * @returns {Object|null} Session object
-   */
-  getSession(sessionId) {
-    const session = this.sessions.get(sessionId);
-    if (!session) {
-      return undefined;
-    }
-    
-    // Check if session is expired
-    if (new Date() > new Date(session.expiresAt)) {
-      this.sessions.delete(sessionId);
-      this.saveSessions(); // Persist session deletion
-      return undefined;
-    }
-    
-    // Update last access
-    session.lastAccess = new Date().toISOString();
-    this.saveSessions(); // Persist updated access time
-    return session;
-  }
-
-  /**
-   * Destroy session
-   * @param {string} sessionId - Session ID
-   */
-  destroySession(sessionId) {
-    this.sessions.delete(sessionId);
-    this.saveSessions(); // Persist session deletion to disk
-    return true;
   }
 
   /**
@@ -485,7 +389,7 @@ class UserManager extends BaseManager {
       const result = anonymousRole && anonymousRole.permissions.includes(permission);
       return result;
     }
-    
+
     // Handle asserted user (has session cookie but expired/invalid)
     if (username === 'asserted') {
       const readerRole = this.roles.get('reader');
@@ -497,7 +401,7 @@ class UserManager extends BaseManager {
     if (!user || !user.isActive) {
       return false;
     }
-    
+
     // Check all user's roles for the permission
     for (const roleName of user.roles) {
       const role = this.roles.get(roleName);
@@ -505,7 +409,7 @@ class UserManager extends BaseManager {
         return true;
       }
     }
-    
+
     return false;
   }
 
@@ -864,13 +768,6 @@ class UserManager extends BaseManager {
       console.error(`❌ Failed to remove user ${username} from Schema.org data:`, error.message);
     }
     
-    // Destroy all sessions for this user
-    for (const [sessionId, session] of this.sessions.entries()) {
-      if (session.username === username) {
-        this.sessions.delete(sessionId);
-      }
-    }
-    
     console.log(`👤 Deleted user: ${username}`);
     return true;
   }
@@ -1025,251 +922,90 @@ class UserManager extends BaseManager {
   }
 
   /**
-   * Get current user from request
-   * @param {Object} req - Express request object
-   * @returns {Object|null} Current user or null
+   * Gets the current user context from the request session.
+   * This method is the single source of truth for user context during a request.
+   * It dynamically adds built-in roles (All, Authenticated, Anonymous) every time.
+   * @param {object} req - The Express request object.
+   * @returns {Promise<object>} The user context object.
    */
-  getCurrentUser(req) {
-    // Check for JWT token first (OAuth/external auth)
-    const authHeader = req.headers.authorization;
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      const token = authHeader.substring(7);
-      const user = this.validateJwtToken(token);
-      if (user) {
-        user.isAuthenticated = true;
-        return user;
+  async getCurrentUser(req) {
+    // Case 1: User is authenticated and has a session.
+    if (req.session && req.session.user && req.session.user.isAuthenticated) {
+      // Start with the user object from the session.
+      const userFromSession = req.session.user;
+
+      // Re-fetch the user from the source of truth (this.users map) to ensure data is fresh.
+      const freshUser = this.users.get(userFromSession.username);
+      if (!freshUser || !freshUser.isActive) {
+        // If user was deleted or deactivated, treat them as anonymous.
+        return this.getAnonymousUser();
       }
+
+      // Construct the full context for this request.
+      const currentUserContext = {
+        ...freshUser, // Use fresh user data
+        isAuthenticated: true
+      };
+
+      // Dynamically add built-in roles.
+      const roles = new Set(currentUserContext.roles || []);
+      roles.add('All');
+      roles.add('Authenticated');
+      currentUserContext.roles = Array.from(roles);
+
+      return currentUserContext;
     }
-    
-    // Check for session-based auth - prioritize cookie-based sessions over express-session
-    const sessionId = req.cookies?.sessionId || req.session?.sessionId;
-    
-    if (!sessionId) {
-      return null;
-    }
-    
-    const session = this.getSession(sessionId);
-    
-    if (session && session.user) {
-      session.user.isAuthenticated = true;
-      return session.user;
-    }
-    
-    // If user has a session cookie but session is invalid/expired,
-    // treat as asserted user (different from anonymous)
-    if (sessionId) {
-      return this.getAssertedUser();
-    }
-    
-    return null;
+
+    // Case 2: User is not authenticated.
+    return this.getAnonymousUser();
   }
 
   /**
-   * Validate JWT token and extract user/role information
-   * @param {string} token - JWT token
-   * @returns {Object|null} User object or null
+   * Middleware to ensure user is authenticated.
+   * @param {Object} req - The request object.
+   * @param {Object} res - The response object.
+   * @param {Function} next - The next middleware function.
    */
-  validateJwtToken(token) {
-    try {
-      // Simple JWT validation - in production, use proper JWT library
-      const parts = token.split('.');
-      if (parts.length !== 3) return null;
-      
-      const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString());
-      
-      // Check expiration
-      if (payload.exp && Date.now() >= payload.exp * 1000) {
-        return null;
-      }
-      
-      // Map external user to internal user format
-      return this.mapExternalUserToInternal(payload);
-      
-    } catch (err) {
-      console.error('JWT validation error:', err);
-      return null;
+  ensureAuthenticated(req, res, next) {
+    const user = req.user;
+    if (!user || !user.isAuthenticated) {
+      return res.status(401).json({ error: 'Unauthorized' });
     }
+    next();
   }
 
   /**
-   * Map external OAuth/JWT user to internal user format
-   * @param {Object} externalUser - External user payload
-   * @returns {Object} Internal user object
+   * Middleware to ensure user has specific permissions.
+   * @param {Array<string>} requiredPermissions - The permissions required.
+   * @returns {Function} Middleware function.
    */
-  mapExternalUserToInternal(externalUser) {
-    const {
-      sub: username,
-      email,
-      name: displayName,
-      role,
-      roles,
-      preferred_username,
-      given_name,
-      family_name
-    } = externalUser;
-    
-    // Determine username
-    const finalUsername = preferred_username || username || email;
-    
-    // Map external roles to internal roles
-    const userRoles = this.mapExternalRoles(role, roles);
-    
-    // Create internal user object
-    const internalUser = {
-      username: finalUsername,
-      email: email,
-      displayName: displayName || `${given_name || ''} ${family_name || ''}`.trim() || finalUsername,
-      roles: userRoles,
-      isActive: true,
-      isExternal: true, // Mark as external user
-      externalProvider: externalUser.iss || 'oauth',
-      lastLogin: new Date().toISOString(),
-      isAuthenticated: true
-    };
-    
-    console.log(`👤 External user authenticated: ${finalUsername} with roles: ${userRoles.join(', ')}`);
-    return internalUser;
-  }
-
-  /**
-   * Map external roles to internal roles
-   * @param {string|Array} role - Single role or array of roles
-   * @param {Array} roles - Alternative roles array
-   * @returns {Array} Array of internal role names
-   */
-  mapExternalRoles(role, roles) {
-    // Get roles from either parameter
-    let externalRoles = [];
-    if (Array.isArray(roles)) {
-      externalRoles = roles;
-    } else if (Array.isArray(role)) {
-      externalRoles = role;
-    } else if (typeof role === 'string') {
-      externalRoles = [role];
-    } else if (typeof roles === 'string') {
-      externalRoles = [roles];
-    }
-    
-    // Map external roles to internal roles
-    const roleMapping = {
-      'admin': 'admin',
-      'administrator': 'admin',
-      'editor': 'editor',
-      'author': 'contributor',
-      'contributor': 'contributor',
-      'user': 'reader',
-      'reader': 'reader',
-      'viewer': 'reader',
-      'guest': 'anonymous'
-    };
-    
-    const mappedRoles = [];
-    for (const externalRole of externalRoles) {
-      const internalRole = roleMapping[externalRole.toLowerCase()];
-      if (internalRole && this.roles.has(internalRole)) {
-        mappedRoles.push(internalRole);
-      }
-    }
-    
-    // Default to reader if no valid roles found
-    if (mappedRoles.length === 0) {
-      mappedRoles.push('reader');
-    }
-    
-    return mappedRoles;
-  }
-
-  /**
-   * Create API key for external integrations
-   * @param {string} username - Username
-   * @param {string} description - API key description
-   * @returns {string} API key
-   */
-  async createApiKey(username, description = '') {
-    const user = this.users.get(username);
-    if (!user) {
-      throw new Error('User not found');
-    }
-    
-    const apiKey = crypto.randomBytes(32).toString('hex');
-    const keyData = {
-      key: apiKey,
-      username: username,
-      description: description,
-      createdAt: new Date().toISOString(),
-      lastUsed: null,
-      isActive: true
-    };
-    
-    // Store API key (in production, hash the key)
-    if (!user.apiKeys) {
-      user.apiKeys = [];
-    }
-    user.apiKeys.push(keyData);
-    
-    await this.saveUsers();
-    
-    console.log(`👤 Created API key for user: ${username}`);
-    return apiKey;
-  }
-
-  /**
-   * Validate API key
-   * @param {string} apiKey - API key
-   * @returns {Object|null} User object or null
-   */
-  validateApiKey(apiKey) {
-    for (const user of this.users.values()) {
-      if (user.apiKeys) {
-        const keyData = user.apiKeys.find(k => k.key === apiKey && k.isActive);
-        if (keyData) {
-          keyData.lastUsed = new Date().toISOString();
-          return this.getUser(user.username);
-        }
-      }
-    }
-    return null;
-  }
-
-  /**
-   * Middleware for authentication
-   * @param {Array} requiredPermissions - Required permissions
-   * @returns {Function} Express middleware
-   */
-  requireAuth(requiredPermissions = []) {
+  requirePermissions(requiredPermissions = []) {
     return (req, res, next) => {
-      const user = this.getCurrentUser(req);
+      const user = req.user;
       
-      if (!user) {
-        return res.redirect('/login?redirect=' + encodeURIComponent(req.originalUrl));
+      if (!user || !user.isAuthenticated) {
+        return res.status(401).json({ error: 'Unauthorized' });
       }
       
-      // Check permissions
-      for (const permission of requiredPermissions) {
-        if (!this.hasPermission(user.username, permission)) {
-          return res.status(403).render('error', {
-            title: 'Access Denied',
-            message: 'You do not have permission to access this resource',
-            error: { status: 403 }
-          });
-        }
+      // Check if user has at least one of the required permissions
+      const hasPermission = requiredPermissions.some(permission => this.hasPermission(user.username, permission));
+      if (!hasPermission) {
+        return res.status(403).json({ error: 'Forbidden' });
       }
       
-      req.user = user;
       next();
     };
   }
 
   /**
    * Anonymous user access (no login required)
-   * @param {Object} req - Express request object
-   * @returns {Object} Anonymous user object
+   * @returns {Object} Anonymous user object with built-in roles.
    */
   getAnonymousUser() {
     return {
-      username: 'anonymous',
+      username: 'Anonymous',
       displayName: 'Anonymous User',
-      roles: ['anonymous'],
+      roles: ['Anonymous', 'All'], // Ensure 'All' role is present
       isAuthenticated: false
     };
   }
@@ -1379,6 +1115,121 @@ class UserManager extends BaseManager {
       return 'Reader';
     }
     return 'User';
+  }
+
+  /**
+   * Gets the configured path for the sessions JSON file.
+   * @returns {string} The path to the sessions file.
+   * @private
+   */
+  _getSessionStorePath() {
+    const configManager = this.engine.getManager('ConfigurationManager');
+    // Use the configuration key you provided.
+    return configManager.getProperty('amdwiki.session.store', 'users/sessions.json');
+  }
+
+  /**
+   * Load sessions from disk and clean up expired ones.
+   */
+  async loadSessions() {
+    this.sessions.clear();
+    const sessionsFilePath = this._getSessionStorePath();
+    try {
+      const sessionsData = await fs.readFile(sessionsFilePath, 'utf8');
+      const sessionsFromFile = JSON.parse(sessionsData);
+      
+      const now = new Date();
+      let sessionsChanged = false;
+
+      for (const [sessionId, session] of Object.entries(sessionsFromFile)) {
+        if (new Date(session.expiresAt) > now) {
+          this.sessions.set(sessionId, session);
+        } else {
+          sessionsChanged = true;
+        }
+      }
+
+      if (sessionsChanged) {
+        await this.saveSessions();
+      }
+      
+      logger.info(`👤 Loaded ${this.sessions.size} active sessions from ${sessionsFilePath}`);
+    } catch (err) {
+      if (err.code !== 'ENOENT') {
+        logger.error(`[USER] Error loading sessions file from ${sessionsFilePath}`, { error: err });
+      } else {
+        logger.info(`[USER] Sessions file not found at ${sessionsFilePath}, starting fresh.`);
+      }
+      this.sessions = new Map();
+    }
+  }
+
+  /**
+   * Save sessions to disk
+   */
+  async saveSessions() {
+    const sessionsFilePath = this._getSessionStorePath();
+    try {
+      const sessionsObject = Object.fromEntries(this.sessions);
+      await fs.mkdir(path.dirname(sessionsFilePath), { recursive: true });
+      await fs.writeFile(sessionsFilePath, JSON.stringify(sessionsObject, null, 2), 'utf8');
+    } catch (err) {
+      logger.error(`[USER] Error saving sessions file to ${sessionsFilePath}`, { error: err });
+    }
+  }
+
+  /**
+   * Create a new session
+   * @param {string} username - The username for the session
+   * @param {Object} [additionalData] - Any additional data to store in the session
+   * @returns {string} The ID of the created session
+   */
+  async createSession(username, additionalData = {}) {
+    const sessionId = crypto.randomBytes(16).toString('hex');
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(); // 1 day expiration
+
+    const sessionData = {
+      id: sessionId,
+      username,
+      expiresAt,
+      ...additionalData
+    };
+
+    this.sessions.set(sessionId, sessionData);
+    await this.saveSessions();
+
+    return sessionId;
+  }
+
+  /**
+   * Get session data by ID
+   * @param {string} sessionId - The ID of the session
+   * @returns {Object|null} The session data, or null if not found
+   */
+  getSession(sessionId) {
+    return this.sessions.get(sessionId) || null;
+  }
+
+  /**
+   * Delete a session by ID
+   * @param {string} sessionId - The ID of the session
+   */
+  async deleteSession(sessionId) {
+    this.sessions.delete(sessionId);
+    await this.saveSessions();
+  }
+
+  /**
+   * Delete all sessions for a user
+   * @param {string} username - The username of the user
+   */
+  async deleteUserSessions(username) {
+    for (const [sessionId, session] of this.sessions.entries()) {
+      if (session.username === username) {
+        this.sessions.delete(sessionId);
+      }
+    }
+    await this.saveSessions();
   }
 }
 

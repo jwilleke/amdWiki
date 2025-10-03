@@ -1,4 +1,5 @@
 const BaseManager = require('./BaseManager');
+const logger = require('../utils/logger');
 const showdown = require('showdown');
 const { LinkParser } = require('../parsers/LinkParser');
 
@@ -1173,11 +1174,13 @@ class RenderingManager extends BaseManager {
    * @returns {Promise<string>} The rendered HTML.
    */
   async textToHTML(context, content) {
+    logger.info(`[RENDER] textToHTML page=${context?.pageName} ctx=${context?.getContext?.()} contentLen=${content?.length ?? 0}`);
     if (!context || typeof context.renderMarkdown !== 'function') {
       throw new Error('RenderingManager.textToHTML requires a valid WikiContext object.');
     }
-    // Delegate rendering to the context, which orchestrates the full pipeline
-    return context.renderMarkdown(content);
+    const html = await context.renderMarkdown(content);
+    logger.info(`[RENDER] resultLen=${html?.length ?? 0}`);
+    return html;
   }
 }
 

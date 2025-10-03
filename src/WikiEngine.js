@@ -8,12 +8,14 @@ const PageManager = require('./managers/PageManager');
 const PluginManager = require('./managers/PluginManager');
 const RenderingManager = require('./managers/RenderingManager');
 const SearchManager = require('./managers/SearchManager');
-const UserManager = require('./managers/UserManager');
+const UserManager = require('./managers/UserManager'); // Add this line
 const ACLManager = require('./managers/ACLManager');
 const SchemaManager = require('./managers/SchemaManager');
+const VariableManager = require('./managers/VariableManager');
 const PolicyManager = require('./managers/PolicyManager');
 const PolicyValidator = require('./managers/PolicyValidator');
 const PolicyEvaluator = require('./managers/PolicyEvaluator');
+const ExportManager = require('./managers/ExportManager'); // Add this line
 
 /**
  * WikiEngine - The core orchestrator for the wiki application
@@ -52,20 +54,31 @@ class WikiEngine extends Engine {
   async initialize(config) {
     this.config = config;
 
-    // 1. Initialize Core Managers first (Config, Notifications)
+    // 1. Initialize core managers with no dependencies
     this.registerManager('ConfigurationManager', new ConfigurationManager(this));
     await this.getManager('ConfigurationManager').initialize(config);
 
+    // 2. Initialize UserManager early as it's critical for security and context
+    this.registerManager('UserManager', new UserManager(this));
+    await this.getManager('UserManager').initialize(this.config);
+
+    // 3. Initialize other managers that may depend on the above
     this.registerManager('NotificationManager', new NotificationManager(this));
     await this.getManager('NotificationManager').initialize();
 
-    // 2. Initialize PageManager, which is fundamental for content
     this.registerManager('PageManager', new PageManager(this));
     await this.getManager('PageManager').initialize();
 
-    // 3. Initialize other managers that may depend on the above
-    this.registerManager('UserManager', new UserManager(this));
-    await this.getManager('UserManager').initialize();
+    // Initialize PolicyManager and PolicyEvaluator BEFORE ACLManager
+    // because ACLManager depends on PolicyEvaluator
+    this.registerManager('PolicyManager', new PolicyManager(this));
+    await this.getManager('PolicyManager').initialize();
+
+    this.registerManager('PolicyValidator', new PolicyValidator(this));
+    await this.getManager('PolicyValidator').initialize();
+
+    this.registerManager('PolicyEvaluator', new PolicyEvaluator(this));
+    await this.getManager('PolicyEvaluator').initialize();
 
     this.registerManager('ACLManager', new ACLManager(this));
     await this.getManager('ACLManager').initialize();
@@ -79,17 +92,16 @@ class WikiEngine extends Engine {
     this.registerManager('SearchManager', new SearchManager(this));
     await this.getManager('SearchManager').initialize();
 
+    // Add VariableManager to the initialization sequence
+    this.registerManager('VariableManager', new VariableManager(this));
+    await this.getManager('VariableManager').initialize();
+
     this.registerManager('SchemaManager', new SchemaManager(this));
     await this.getManager('SchemaManager').initialize();
 
-    this.registerManager('PolicyManager', new PolicyManager(this));
-    await this.getManager('PolicyManager').initialize();
-
-    this.registerManager('PolicyValidator', new PolicyValidator(this));
-    await this.getManager('PolicyValidator').initialize();
-
-    this.registerManager('PolicyEvaluator', new PolicyEvaluator(this));
-    await this.getManager('PolicyEvaluator').initialize();
+    // Add the missing ExportManager to the initialization sequence
+    this.registerManager('ExportManager', new ExportManager(this));
+    await this.getManager('ExportManager').initialize();
 
     console.log('✅ All managers initialized');
     return this;
