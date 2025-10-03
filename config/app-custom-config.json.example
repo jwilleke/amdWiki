@@ -1,0 +1,18 @@
+{
+  "_comment": "Local custom configuration overrides",
+  "_description": "Copy this to app-custom-config.json and customize for your local environment",
+  "_note": "app-custom-config.json is .gitignored and won't be committed",
+
+  "_example_overrides": {
+    "amdwiki.applicationName": "My Wiki",
+    "amdwiki.baseURL": "http://localhost:3000",
+    "amdwiki.port": 3000,
+
+    "amdwiki.logging.debug.session": true,
+    "amdwiki.logging.debug.login": true,
+
+    "amdwiki.directories.pages": "./pages",
+    "amdwiki.directories.required-pages": "./required-pages",
+    "amdwiki.directories.attachments": "./attachments"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "_comment": "Production environment overrides",
+  "_description": "These settings override app-default-config.json in production (NODE_ENV=production)",
+
+  "amdwiki.logging.level": "info",
+  "amdwiki.logging.debug.enabled": false,
+  "amdwiki.logging.debug.session": false,
+  "amdwiki.logging.debug.login": false,
+
+  "amdwiki.rendering.useAdvancedParser": true,
+  "amdwiki.rendering.logParsingMethod": false,
+
+  "amdwiki.session.cookie.secure": true,
+  "amdwiki.session.cookie.httpOnly": true,
+  "amdwiki.session.cookie.sameSite": "strict",
+
+  "_comment_performance": "Optimized performance settings for production",
+  "amdwiki.cache.enabled": true,
+  "amdwiki.cache.ttl": 3600,
+  "amdwiki.search.indexOnStartup": true,
+
+  "_comment_security": "Enhanced security for production",
+  "amdwiki.features.maintenance.enabled": false,
+  "amdwiki.features.maintenance.allowAdmins": true
+}

@@ -163,6 +163,10 @@ reports/*
 /private/
 
 # Keep required-pages/ tracked (system pages)
+
+# Configuration - keep custom config local only
+config/app-custom-config.json
+
 .editorconfig
 .claude/settings.local.json
 src/managers/__tests__/temp.test.js
