@@ -1,3 +1,11 @@
+/**
+ * The VariableManager is an interface responsible for managing variables used in the wiki (for example, constant variables that can be expanded inside pages).
+ * The WikiEngine creates and initializes the VariableManager when it is instantiated. It typically instantiates the default implementation called DefaultVariableManager.
+ * During the initialization phase of the WikiEngine, it creates instances of its core managers including VariableManager and calls their initialize() method passing context and properties.
+ * This setup allows JSPWiki to handle variable substitution and expansion consistently across the wiki pages.
+ * The VariableManager is accessible via WikiEngine.getManager('VariableManager') after initialization.
+*/ 
+
 const BaseManager = require('./BaseManager');
 const { v4: uuidv4, validate: validateUuid } = require('uuid');
 const path = require('path');

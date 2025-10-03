@@ -529,8 +529,14 @@ class WikiRoutes {
         return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to view this page.');
       }
 
+      // Check if user can edit this page
+      const canEdit = await aclManager.checkPagePermission(pageName, 'edit', userContext, markdown);
+
       const ctx = new WikiContext(this.engine, { context: WikiContext.CONTEXT.VIEW, pageName, content: markdown, userContext, request: req, response: res });
       const html = await renderingManager.textToHTML(ctx, markdown);
+
+      // Get page metadata for display
+      const metadata = await pageManager.getPageMetadata(pageName);
 
       // Pass the request object to get all common data
       const templateData = await this.getCommonTemplateData(req);
@@ -538,7 +544,9 @@ class WikiRoutes {
         ...templateData,
         pageName,
         content: html,
-        lastModified: (await pageManager.getPageMetadata(pageName))?.lastModified,
+        canEdit,
+        metadata,
+        lastModified: metadata?.lastModified,
         referringPages: [] // TODO: Implement backlink detection
       });
     } catch (error) {

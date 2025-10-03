@@ -135,9 +135,9 @@ class PageManager extends BaseManager {
   }
 
   /**
-   * Retrieves the raw markdown content of a page.
+   * Retrieves the raw markdown content of a page (without frontmatter).
    * @param {string} pageName The name of the page to load.
-   * @returns {Promise<string>} The raw markdown content.
+   * @returns {Promise<string>} The raw markdown content without frontmatter.
    */
   async getPageContent(identifier) {
     const info = this.#resolvePageInfo(identifier);
@@ -145,7 +145,8 @@ class PageManager extends BaseManager {
       logger.warn(`[PAGE] Not found: ${identifier}`);
       throw new Error(`Page '${identifier}' not found.`);
     }
-    const content = await fs.readFile(info.filePath, this.encoding);
+    const fullContent = await fs.readFile(info.filePath, this.encoding);
+    const { content } = matter(fullContent);
     logger.info(`[PAGE] Loaded ${info.title} from ${path.basename(info.filePath)} (${content.length} bytes)`);
     return content;
   }

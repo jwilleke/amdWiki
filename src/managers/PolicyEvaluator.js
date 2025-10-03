@@ -4,6 +4,7 @@ const micromatch = require('micromatch');
 
 /**
  * PolicyEvaluator - Evaluates access policies against a given context.
+ * PolicyEvaluator mimics how JSPWiki uses Java's built-in security framework (java.security) to load and evaluate security policies from a policy file
  */
 class PolicyEvaluator extends BaseManager {
   constructor(engine) {

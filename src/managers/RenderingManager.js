@@ -1025,6 +1025,8 @@ class RenderingManager extends BaseManager {
    * Get pages that refer to a specific page
    * @param {string} pageName - Target page name
    * @returns {Array<string>} Array of referring page names
+   * @todo
+   * SHOULD BE using plugins/referringPagesPlugin.js
    */
   getReferringPages(pageName) {
     return this.linkGraph[pageName] || [];

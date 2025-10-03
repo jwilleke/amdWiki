@@ -6,6 +6,44 @@
     <%- content %>
 </div>
 
+<!-- Page Metadata section -->
+<% if (typeof metadata !== 'undefined' && metadata) { %>
+<div class="card mb-4">
+    <div class="card-header">
+        <h6 class="mb-0">
+            <i class="fas fa-info-circle"></i> Page Information
+        </h6>
+    </div>
+    <div class="card-body">
+        <div class="row small">
+            <div class="col-md-6">
+                <% if (metadata.creator) { %>
+                <p class="mb-1"><strong>Creator:</strong> <%= metadata.creator %></p>
+                <% } %>
+                <% if (metadata.editor) { %>
+                <p class="mb-1"><strong>Last Editor:</strong> <%= metadata.editor %></p>
+                <% } %>
+                <% if (metadata.lastModified) { %>
+                <p class="mb-1"><strong>Last Modified:</strong> <%= new Date(metadata.lastModified).toLocaleString() %></p>
+                <% } %>
+            </div>
+            <div class="col-md-6">
+                <% if (metadata['system-category']) { %>
+                <p class="mb-1"><strong>Category:</strong> <span class="badge bg-primary"><%= metadata['system-category'] %></span></p>
+                <% } %>
+                <% if (metadata['user-keywords'] && metadata['user-keywords'].length > 0) { %>
+                <p class="mb-1"><strong>Keywords:</strong>
+                    <% metadata['user-keywords'].forEach(keyword => { %>
+                        <span class="badge bg-secondary me-1"><%= keyword %></span>
+                    <% }); %>
+                </p>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</div>
+<% } %>
+
 <!-- More Information section (similar to JSPWiki) -->
 <% if (referringPages && referringPages.length > 0) { %>
 <div class="card mb-4">
