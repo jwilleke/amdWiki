@@ -43,6 +43,23 @@ class RenderingManager extends BaseManager {
   }
 
   /**
+   * Get the MarkupParser instance (for WikiContext integration)
+   * @returns {MarkupParser|null} MarkupParser instance if available and enabled
+   */
+  getParser() {
+    if (!this.renderingConfig.useAdvancedParser) {
+      return null;
+    }
+
+    const markupParser = this.engine.getManager('MarkupParser');
+    if (markupParser && typeof markupParser.isInitialized === 'function' && markupParser.isInitialized()) {
+      return markupParser;
+    }
+
+    return null;
+  }
+
+  /**
    * Load modular rendering configuration from app-default/custom-config.json
    */
   async loadRenderingConfiguration() {

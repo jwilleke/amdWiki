@@ -8,14 +8,17 @@ const PageManager = require('./managers/PageManager');
 const PluginManager = require('./managers/PluginManager');
 const RenderingManager = require('./managers/RenderingManager');
 const SearchManager = require('./managers/SearchManager');
-const UserManager = require('./managers/UserManager'); // Add this line
+const UserManager = require('./managers/UserManager');
 const ACLManager = require('./managers/ACLManager');
 const SchemaManager = require('./managers/SchemaManager');
 const VariableManager = require('./managers/VariableManager');
 const PolicyManager = require('./managers/PolicyManager');
 const PolicyValidator = require('./managers/PolicyValidator');
 const PolicyEvaluator = require('./managers/PolicyEvaluator');
-const ExportManager = require('./managers/ExportManager'); // Add this line
+const ExportManager = require('./managers/ExportManager');
+
+// Parsers
+const MarkupParser = require('./parsers/MarkupParser');
 
 /**
  * WikiEngine - The core orchestrator for the wiki application
@@ -85,6 +88,10 @@ class WikiEngine extends Engine {
 
     this.registerManager('PluginManager', new PluginManager(this));
     await this.getManager('PluginManager').initialize();
+
+    // Initialize MarkupParser before RenderingManager (RenderingManager depends on it)
+    this.registerManager('MarkupParser', new MarkupParser(this));
+    await this.getManager('MarkupParser').initialize();
 
     this.registerManager('RenderingManager', new RenderingManager(this));
     await this.getManager('RenderingManager').initialize();
