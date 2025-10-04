@@ -7,6 +7,7 @@
 const path = require('path');
 const SchemaGenerator = require('../utils/SchemaGenerator');
 const logger = require('../utils/logger');
+const WikiContext = require('../context/WikiContext');
 
 class WikiRoutes {
   constructor(engine) {
@@ -51,75 +52,65 @@ class WikiRoutes {
   }
 
   /**
-   * Get common template data that all pages need
-   * @param {object} userContext - User context for rendering variables
-   * @param {object} req - Express request object (optional)
+   * Get common template data that all pages need.
+   * This is now the single source of truth for common data.
+   * @param {object} req - Express request object.
    */
-  async getCommonTemplateData(userContext = null, req = null) {
-    const pageManager = this.engine.getManager('PageManager');
-    const pages = await pageManager.getPageNames();
-
-    // Load footer content from Footer.md
-    let footerContent = null;
-    try {
-      const footerPage = await pageManager.getPage('Footer');
-      if (footerPage && footerPage.content) {
-        const renderingManager = this.engine.getManager('RenderingManager');
-        const aclManager = this.engine.getManager('ACLManager');
-
-        // Remove ACL markup and render footer content with user context
-        const cleanContent = aclManager.removeACLMarkup(footerPage.content);
-        const requestInfo = req ? this.getRequestInfo(req) : null;
-        footerContent = await renderingManager.renderMarkdown(cleanContent, 'Footer', userContext, requestInfo);
-      }
-    } catch (error) {
-      console.warn('Could not load footer content:', error.message);
-      // Fallback footer content
-      footerContent = `<div class="text-center text-muted">
-        <small>amdWiki v1.2.0 | Copyright © amdWiki ${new Date().getFullYear()}</small>
-      </div>`;
-    }
-
-    // Load left menu content from LeftMenu.md
-    let leftMenuContent = null;
-    try {
-      const leftMenuPage = await pageManager.getPage('LeftMenu');
-      if (leftMenuPage && leftMenuPage.content) {
-        const renderingManager = this.engine.getManager('RenderingManager');
-        const aclManager = this.engine.getManager('ACLManager');
-
-        // Remove ACL markup and render left menu content with user context
-        const cleanContent = aclManager.removeACLMarkup(leftMenuPage.content);
-        const requestInfo = req ? this.getRequestInfo(req) : null;
-        leftMenuContent = await renderingManager.renderMarkdown(cleanContent, 'LeftMenu', userContext, requestInfo);
-      }
-    } catch (error) {
-      console.warn('Could not load left menu content:', error.message);
-    }
-
-    return {
-      pages: pages,
-      appName: this.engine.getApplicationName(),
-      footerContent: footerContent,
-      leftMenuContent: leftMenuContent
-    };
-  }
-
-  /**
-   * Get common template data with current user
-   */
-  async getCommonTemplateDataWithUser(req) {
+  async getCommonTemplateData(req) {
     const userManager = this.engine.getManager('UserManager');
-    const currentUser = req.user ? req.user : await userManager.getCurrentUser(req);
+    const aclManager = this.engine.getManager('ACLManager');
+    const renderingManager = this.engine.getManager('RenderingManager');
+    const pageManager = this.engine.getManager('PageManager');
+    const configManager = this.engine.getManager('ConfigurationManager');
 
-    // Get base data with user context and request for rendering
-    const baseData = await this.getCommonTemplateData(currentUser, req);
-
-    return {
-      ...baseData,
-      currentUser,
-      user: currentUser  // Add user alias for consistency
+    // Get the user context directly from the request.
+    const userContext = req.userContext || await userManager.getCurrentUser(req);
+    const templateData = {
+      currentUser: userContext,
+      user: userContext, // Add alias for consistency
+      appName: configManager?.getProperty('amdwiki.application.name', 'amdWiki'),
+      pages: await pageManager.getAllPages()
     };
+
+    // Load LeftMenu
+    try {
+      const leftMenuContent = await pageManager.getPageContent('LeftMenu');
+      logger.info(`[TEMPLATE] Loading LeftMenu for user=${userContext?.username} roles=${userContext?.roles?.join('|')}`);
+      
+      const canViewLeftMenu = await aclManager.checkPagePermission('LeftMenu', 'view', userContext, leftMenuContent);
+      logger.info(`[TEMPLATE] LeftMenu ACL decision: ${canViewLeftMenu}`);
+
+      if (canViewLeftMenu) {
+        const ctx = new WikiContext(this.engine, { pageName: 'LeftMenu', content: leftMenuContent, userContext, request: req });
+        templateData.leftMenu = await renderingManager.textToHTML(ctx, leftMenuContent);
+      } else {
+        templateData.leftMenu = '';
+      }
+    } catch (error) {
+      logger.warn('Could not load or render LeftMenu content.', { error: error.message });
+      templateData.leftMenu = '';
+    }
+
+    // Load Footer
+    try {
+      const footerContent = await pageManager.getPageContent('Footer');
+      logger.info(`[TEMPLATE] Loading Footer for user=${userContext?.username} roles=${userContext?.roles?.join('|')}`);
+      
+      const canViewFooter = await aclManager.checkPagePermission('Footer', 'view', userContext, footerContent);
+      logger.info(`[TEMPLATE] Footer ACL decision: ${canViewFooter}`);
+
+      if (canViewFooter) {
+        const ctx = new WikiContext(this.engine, { pageName: 'Footer', content: footerContent, userContext, request: req });
+        templateData.footer = await renderingManager.textToHTML(ctx, footerContent);
+      } else {
+        templateData.footer = '';
+      }
+    } catch (error) {
+      logger.warn('Could not load or render Footer content.', { error: error.message });
+      templateData.footer = '';
+    }
+
+    return templateData;
   }
 
   /**
@@ -328,7 +319,7 @@ class WikiRoutes {
 
       // Get current user for permission context
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = await userManager.getCurrentUser(req);
+      const currentUser = req.userContext;
 
       const schema = SchemaGenerator.generatePageSchema(pageData, {
         baseUrl: baseUrl,
@@ -416,7 +407,9 @@ class WikiRoutes {
    */
   async renderError(req, res, status, title, message) {
     try {
-      const commonData = await this.getCommonTemplateDataWithUser(req);
+      // Pass the request object to get all common data
+      const commonData = await this.getCommonTemplateData(req);
+
       return res.status(status).render('error', {
         ...commonData,
         title: title,
@@ -508,111 +501,57 @@ class WikiRoutes {
    */
   async viewPage(req, res) {
     try {
-      const pageName = req.params.page;
+      const configManager = this.engine.getManager('ConfigurationManager');
+      const frontPage = configManager.getProperty('amdwiki.frontPage', 'Welcome');
+      const pageName = req.params.page || frontPage;
+
+      // The userContext is now available on the request via the session middleware
+      const userContext = req.userContext;
       const pageManager = this.engine.getManager('PageManager');
       const renderingManager = this.engine.getManager('RenderingManager');
-      const userManager = this.engine.getManager('UserManager');
       const aclManager = this.engine.getManager('ACLManager');
 
-      const currentUser = await userManager.getCurrentUser(req);
+      logger.info(`[VIEW] pageName=${pageName} user=${userContext?.username} roles=${(userContext?.roles||[]).join('|')}`);
 
-      // Get page data first (needed for ACL checking)
-      const pageData = await pageManager.getPage(pageName);
-      if (!pageData) {
-        // Check if user can create pages
-        const canCreate = currentUser ?
-          userManager.hasPermission(currentUser.username, 'page:create') :
-          userManager.hasPermission(null, 'page:create');
-
-        const commonData = await this.getCommonTemplateDataWithUser(req);
-        const leftMenuContent = await this.getLeftMenu();
-        return res.status(404).render('view', {
-          ...commonData,
-          title: 'Page Not Found',
-          content: `<h1>Page Not Found</h1><p>The page "${pageName}" does not exist.</p>${canCreate ? `<p><a href="/create?name=${encodeURIComponent(pageName)}" class="btn btn-primary">Create Page</a></p>` : ''}`,
-          pageName: pageName,
-          leftMenuContent: leftMenuContent,
-          referringPages: [], // Add missing referringPages
-          exists: false,
-          canCreate: canCreate
-        });
-      }
-
-      // Check ACL permission for viewing this page
-      const context = this.getRequestContext(req);
-      const hasViewPermission = await aclManager.checkPagePermission(
-        pageName, 'view', currentUser, pageData.content, context
-      );
-
-      if (!hasViewPermission) {
-        return await this.renderError(req, res, 403, 'Access Denied',
-          'You do not have permission to view this page');
-      }
-
-      // Get common template data with user
-      const commonData = await this.getCommonTemplateDataWithUser(req);
-
-      // Remove ACL markup from content before rendering
-      const cleanContent = aclManager.removeACLMarkup(pageData.content);
-
-      // Render the markdown content with user context and request info
-      const requestInfo = this.getRequestInfo(req);
-      const renderedContent = await renderingManager.renderMarkdown(cleanContent, pageName, commonData.user, requestInfo);
-
-      // Get referring pages for context
-      const referringPages = renderingManager.getReferringPages(pageName);
-
-      // Get left menu content with user context
-      const leftMenuContent = await this.getLeftMenu(commonData.user);
-
-      // Check if reader view is requested
-      const isReaderView = req.query.view === 'reader';
-      const viewTemplate = isReaderView ? 'reader' : 'view';
-
-      // Generate Schema.org markup for this page
-      const pageSchema = await this.generatePageSchema({
-        title: pageData.metadata.title || pageName,
-        category: pageData.metadata.category,
-        categories: pageData.metadata.categories || pageData.metadata.category ? [pageData.metadata.category] : [],
-        userKeywords: pageData.metadata.userKeywords || pageData.metadata['user-keywords'] || [],
-        lastModified: pageData.metadata.lastModified,
-        uuid: pageData.metadata.uuid,
-        content: pageData.content,         // Include content for ACL parsing
-        isProtected: pageData.metadata.isProtected
-      }, req);
-
-      // Generate site-wide Schema.org markup (only on main pages for performance)
-      const siteSchema = pageName === 'Welcome' ? await this.generateSiteSchema(req) : '';
-
-      res.render(viewTemplate, {
-        ...commonData,
-        title: pageData.metadata.title || pageName,
-        content: renderedContent,
-        pageName: pageName,
-        metadata: pageData.metadata,
-        referringPages: referringPages,
-        leftMenuContent: leftMenuContent,
-        exists: true,
-        canEdit: currentUser ? userManager.hasPermission(currentUser.username, 'page:edit') : false,
-        canDelete: currentUser ? userManager.hasPermission(currentUser.username, 'page:delete') : false,
-        isReaderView: isReaderView,
-        pageSchema: pageSchema,
-        siteSchema: siteSchema
+      // Gracefully handle page not found
+      const markdown = await pageManager.getPageContent(pageName).catch(err => {
+        if (err.message.includes('not found')) return null;
+        throw err;
       });
 
-    } catch (err) {
-      console.error('Error viewing page:', err);
-      const commonData = await this.getCommonTemplateDataWithUser(req);
-      const leftMenuContent = await this.getLeftMenu();
-      res.status(500).render('view', {
-        ...commonData,
-        title: 'Error',
-        content: '<h1>Error</h1><p>An error occurred while loading the page.</p>',
-        pageName: req.params.page,
-        leftMenuContent: leftMenuContent,
-        referringPages: [], // Add missing referringPages
-        exists: false
+      if (markdown === null) {
+        return await this.renderError(req, res, 404, 'Not Found', `The page '${pageName}' does not exist.`);
+      }
+
+      const canView = await aclManager.checkPagePermission(pageName, 'view', userContext, markdown);
+      logger.info(`[VIEW] ACL decision for ${pageName}: ${canView}`);
+      if (!canView) {
+        return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to view this page.');
+      }
+
+      // Check if user can edit this page
+      const canEdit = await aclManager.checkPagePermission(pageName, 'edit', userContext, markdown);
+
+      const ctx = new WikiContext(this.engine, { context: WikiContext.CONTEXT.VIEW, pageName, content: markdown, userContext, request: req, response: res });
+      const html = await renderingManager.textToHTML(ctx, markdown);
+
+      // Get page metadata for display
+      const metadata = await pageManager.getPageMetadata(pageName);
+
+      // Pass the request object to get all common data
+      const templateData = await this.getCommonTemplateData(req);
+      res.render('view', {
+        ...templateData,
+        pageName,
+        content: html,
+        canEdit,
+        metadata,
+        lastModified: metadata?.lastModified,
+        referringPages: [] // TODO: Implement backlink detection
       });
+    } catch (error) {
+      logger.error('[VIEW] Error viewing page', { error: error.message, stack: error.stack });
+      await this.renderError(req, res, 500, 'Error', 'Could not render the page.');
     }
   }
 
@@ -622,10 +561,10 @@ class WikiRoutes {
   async createPage(req, res) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.user ? req.user : await userManager.getCurrentUser(req);
+      const currentUser = req.userContext;
 
       // Check if user is authenticated
-      if (!currentUser) {
+      if (!currentUser || !currentUser.isAuthenticated) {
         return res.redirect('/login?redirect=' + encodeURIComponent('/create'));
       }
 
@@ -638,7 +577,7 @@ class WikiRoutes {
       const templateManager = this.engine.getManager('TemplateManager');
 
       // Get common template data with user context
-      const commonData = await this.getCommonTemplateDataWithUser(req);
+      const commonData = await this.getCommonTemplateData(req);
 
       // Get available templates
       const templates = templateManager.getTemplates();
@@ -674,10 +613,10 @@ class WikiRoutes {
   async editPageIndex(req, res) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.user ? req.user : await userManager.getCurrentUser(req);
+      const currentUser = req.userContext;
 
       // Check if user is authenticated
-      if (!currentUser) {
+      if (!currentUser || !currentUser.isAuthenticated) {
         return res.redirect('/login?redirect=' + encodeURIComponent('/edit'));
       }
 
@@ -694,7 +633,7 @@ class WikiRoutes {
       const sortedPages = allPages.sort((a, b) => a.localeCompare(b));
 
       // Get common template data with user context
-      const commonData = await this.getCommonTemplateDataWithUser(req);
+      const commonData = await this.getCommonTemplateData(req);
 
       res.render('edit-index', {
         ...commonData,
@@ -714,10 +653,10 @@ class WikiRoutes {
   async createPageFromTemplate(req, res) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.user ? req.user : await userManager.getCurrentUser(req);
+      const currentUser = req.userContext;
 
       // Check if user is authenticated
-      if (!currentUser) {
+      if (!currentUser || !currentUser.isAuthenticated) {
         return res.redirect('/login?redirect=' + encodeURIComponent('/create'));
       }
 
@@ -824,7 +763,7 @@ class WikiRoutes {
       const aclManager = this.engine.getManager('ACLManager');
 
       // Get current user
-      const currentUser = await userManager.getCurrentUser(req);
+      const currentUser = req.userContext;
 
       // Get page data to check ACL (if page exists)
       let pageData = await pageManager.getPage(pageName);
@@ -855,7 +794,7 @@ class WikiRoutes {
       }
 
       // Get common template data with user context
-      const commonData = await this.getCommonTemplateDataWithUser(req);
+      const commonData = await this.getCommonTemplateData(req);
 
       // Get categories and keywords - use system categories for admin editing
       const isAdmin = currentUser && userManager.hasPermission(currentUser.username, 'admin:system');
@@ -913,10 +852,10 @@ class WikiRoutes {
   async createWikiPage(req, res) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = req.user ? req.user : await userManager.getCurrentUser(req);
+      const currentUser = req.userContext;
 
       // Check if user is authenticated
-      if (!currentUser) {
+      if (!currentUser || !currentUser.isAuthenticated) {
         return res.redirect('/login?redirect=' + encodeURIComponent(req.originalUrl));
       }
 
@@ -1026,7 +965,7 @@ class WikiRoutes {
       const validationManager = this.engine.getManager('ValidationManager');
 
       // Get current user
-      const currentUser = await userManager.getCurrentUser(req);
+      const currentUser = req.userContext;
 
       // Get existing page data for ACL checking
       const existingPage = await pageManager.getPage(pageName);
@@ -1109,7 +1048,7 @@ class WikiRoutes {
       const aclManager = this.engine.getManager('ACLManager');
 
       // Get current user
-      const currentUser = await userManager.getCurrentUser(req);
+      const currentUser = req.userContext;
 
       // Check if page exists
       const pageData = await pageManager.getPage(pageName);
@@ -1188,7 +1127,7 @@ class WikiRoutes {
       const searchManager = this.engine.getManager('SearchManager');
 
       // Get common template data with user context
-      const commonData = await this.getCommonTemplateDataWithUser(req);
+      const commonData = await this.getCommonTemplateData(req);
 
       let results = [];
       let searchType = 'text';
@@ -1304,7 +1243,7 @@ class WikiRoutes {
       const renderingManager = this.engine.getManager('RenderingManager');
 
       // Get common template data with user (same as viewPage for consistency)
-      const commonData = await this.getCommonTemplateDataWithUser(req);
+      const commonData = await this.getCommonTemplateData(req);
 
       // Get request info for consistency with actual page rendering
       const requestInfo = this.getRequestInfo(req);
@@ -1339,8 +1278,8 @@ class WikiRoutes {
       const attachmentManager = this.engine.getManager('AttachmentManager');
 
       // 🔒 SECURITY: Check authentication
-      const currentUser = await userManager.getCurrentUser(req);
-      if (!currentUser) {
+      const currentUser = req.userContext;
+      if (!currentUser || !currentUser.isAuthenticated) {
         return res.status(401).json({
           success: false,
           error: 'Authentication required to upload attachments'
@@ -1418,8 +1357,8 @@ class WikiRoutes {
       const attachmentManager = this.engine.getManager('AttachmentManager');
 
       // 🔒 SECURITY: Check authentication
-      const currentUser = await userManager.getCurrentUser(req);
-      if (!currentUser) {
+      const currentUser = req.userContext;
+      if (!currentUser || !currentUser.isAuthenticated) {
         return res.status(401).send('Authentication required to access attachments');
       }
 
@@ -1456,8 +1395,8 @@ class WikiRoutes {
       const attachmentManager = this.engine.getManager('AttachmentManager');
 
       // 🔒 SECURITY: Check authentication
-      const currentUser = await userManager.getCurrentUser(req);
-      if (!currentUser) {
+      const currentUser = req.userContext;
+      if (!currentUser || !currentUser.isAuthenticated) {
         return res.status(401).json({
           success: false,
           error: 'Authentication required to delete attachments'
@@ -1504,7 +1443,7 @@ class WikiRoutes {
    */
   async exportPage(req, res) {
     try {
-      const commonData = await this.getCommonTemplateDataWithUser(req);
+      const commonData = await this.getCommonTemplateData(req);
       const pageManager = this.engine.getManager('PageManager');
       const pageNames = await pageManager.getPageNames();
 
@@ -1565,7 +1504,7 @@ class WikiRoutes {
    */
   async listExports(req, res) {
     try {
-      const commonData = await this.getCommonTemplateDataWithUser(req);
+      const commonData = await this.getCommonTemplateData(req);
       const exportManager = this.engine.getManager('ExportManager');
       const exports = await exportManager.getExports();
 
@@ -1609,7 +1548,7 @@ class WikiRoutes {
   async loginPage(req, res) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = await userManager.getCurrentUser(req);
+      const currentUser = req.userContext;
 
       // Redirect if already logged in
       if (currentUser && currentUser.isAuthenticated) {
@@ -1617,14 +1556,14 @@ class WikiRoutes {
         return res.redirect(redirect);
       }
 
-      const commonData = await this.getCommonTemplateData();
+      const commonData = await this.getCommonTemplateData(req);
 
       res.render('login', {
         ...commonData,
         title: 'Login',
         error: req.query.error,
         redirect: req.query.redirect,
-        csrfToken: req.session.csrfToken
+        csrfToken: req.session?.csrfToken || ''
       });
 
     } catch (err) {
@@ -1640,30 +1579,38 @@ class WikiRoutes {
     try {
       const { username, password, redirect = '/' } = req.body;
       const userManager = this.engine.getManager('UserManager');
+      const configManager = this.engine.getManager('ConfigurationManager');
+      const debugLogin = configManager.getProperty('amdwiki.logging.debug.login', false);
 
-      console.log('DEBUG: Login attempt for:', username);
+      if (debugLogin) console.log('DEBUG: Login attempt for:', username);
 
       const user = await userManager.authenticateUser(username, password);
       if (!user) {
-        console.log('DEBUG: Authentication failed for:', username);
+        if (debugLogin) console.log('DEBUG: Authentication failed for:', username);
         return res.redirect('/login?error=Invalid username or password&redirect=' + encodeURIComponent(redirect));
       }
 
-      const sessionId = userManager.createSession(user);
-      console.log('DEBUG: Created session:', sessionId);
+      // Store username in express-session
+      req.session.username = user.username;
+      req.session.isAuthenticated = true;
 
-      // Set session cookie
-      res.cookie('sessionId', sessionId, {
-        httpOnly: true,
-        secure: false, // Set to true in production with HTTPS
-        maxAge: 24 * 60 * 60 * 1000, // 24 hours
-        path: '/',
-        sameSite: 'lax'
+      logger.info(`👤 User logged in: ${username}`);
+
+      if (debugLogin) {
+        console.log('DEBUG: Session ID:', req.sessionID);
+        console.log('DEBUG: Session data before save:', JSON.stringify(req.session));
+        console.log('DEBUG: Session set, redirecting to:', redirect);
+      }
+
+      // Save session before redirect
+      req.session.save((err) => {
+        if (err) {
+          console.error('Error saving session:', err);
+          return res.redirect('/login?error=Session save failed');
+        }
+        if (debugLogin) console.log('DEBUG: Session saved successfully, now redirecting');
+        res.redirect(redirect);
       });
-
-      console.log(`👤 User logged in: ${username}`);
-      console.log('DEBUG: Redirecting to:', redirect);
-      res.redirect(redirect);
 
     } catch (err) {
       console.error('Error processing login:', err);
@@ -1676,15 +1623,13 @@ class WikiRoutes {
    */
   async processLogout(req, res) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const sessionId = req.cookies?.sessionId;
-
-      if (sessionId) {
-        userManager.destroySession(sessionId);
-        res.clearCookie('sessionId');
-      }
-
-      res.redirect('/');
+      // Destroy express-session
+      req.session.destroy((err) => {
+        if (err) {
+          console.error('Error destroying session:', err);
+        }
+        res.redirect('/');
+      });
 
     } catch (err) {
       console.error('Error processing logout:', err);
@@ -1698,7 +1643,7 @@ class WikiRoutes {
   async userInfo(req, res) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = await userManager.getCurrentUser(req);
+      const currentUser = req.userContext;
       const sessionId = req.cookies?.sessionId;
       const session = sessionId ? userManager.getSession(sessionId) : null;
 
@@ -1729,7 +1674,7 @@ class WikiRoutes {
    */
   async registerPage(req, res) {
     try {
-      const commonData = await this.getCommonTemplateData();
+      const commonData = await this.getCommonTemplateData(req);
 
       res.render('register', {
         ...commonData,
@@ -1792,20 +1737,20 @@ class WikiRoutes {
     console.log('DEBUG: profilePage accessed');
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = await userManager.getCurrentUser(req);
+      const currentUser = req.userContext;
 
-      console.log('DEBUG: currentUser from userManager:', currentUser ? currentUser.username : 'null');
+      console.log('DEBUG: currentUser from req.userContext:', currentUser ? currentUser.username : 'null');
 
-      if (!currentUser) {
-        console.log('DEBUG: No current user, redirecting to login');
+      if (!currentUser || !currentUser.isAuthenticated) {
+        console.log('DEBUG: No authenticated user, redirecting to login');
         return res.redirect('/login?redirect=/profile');
       }
 
       // Get fresh user data from database to ensure we have latest preferences
-      const freshUser = await userManager.getUser(currentUser.username);
+      const freshUser = userManager.getUser(currentUser.username);
       console.log('DEBUG: profilePage - fresh user preferences:', freshUser ? freshUser.preferences : 'no fresh user');
 
-      const commonData = await this.getCommonTemplateDataWithUser(req);
+      const commonData = await this.getCommonTemplateData(req);
       const userPermissions = await userManager.getUserPermissions(currentUser.username);
 
       // Get timezone and date format configuration
@@ -1840,9 +1785,9 @@ class WikiRoutes {
   async updateProfile(req, res) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = userManager.getCurrentUser(req);
+      const currentUser = req.userContext;
 
-      if (!currentUser) {
+      if (!currentUser || !currentUser.isAuthenticated) {
         return res.redirect('/login');
       }
 
@@ -1895,11 +1840,11 @@ class WikiRoutes {
     try {
       console.log('DEBUG: Request body:', req.body);
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = userManager.getCurrentUser(req);
+      const currentUser = req.userContext;
 
       console.log('DEBUG: Current user:', currentUser ? currentUser.username : 'null');
 
-      if (!currentUser) {
+      if (!currentUser || !currentUser.isAuthenticated) {
         console.log('DEBUG: No current user, redirecting to login');
         return res.redirect('/login');
       }
@@ -1973,20 +1918,25 @@ class WikiRoutes {
    */
   async adminDashboard(req, res) {
     try {
-      const userManager = this.engine.getManager('UserManager');
-      const currentUser = await userManager.getCurrentUser(req);
+      const currentUser = req.userContext;
+      const aclManager = this.engine.getManager('ACLManager');
 
-      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+      // Check admin access using PolicyEvaluator
+      const hasAccess = await aclManager.checkPagePermission('AdminDashboard', 'view', currentUser);
+
+      if (!currentUser || !currentUser.isAuthenticated || !hasAccess) {
         return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to access the admin dashboard');
       }
 
-      const commonData = await this.getCommonTemplateDataWithUser(req);
+      const userManager = this.engine.getManager('UserManager');
+
+      const commonData = await this.getCommonTemplateData(req);
       const users = userManager.getUsers();
       const roles = userManager.getRoles();
 
       // Get all required pages for the admin dashboard
       const pageManager = this.engine.getManager('PageManager');
-      const allPageNames = await pageManager.getPageNames();
+      const allPageNames = await pageManager.getAllPages();
       const requiredPages = [];
 
       for (const pageName of allPageNames) {
@@ -2048,7 +1998,7 @@ class WikiRoutes {
   async adminToggleMaintenance(req, res) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = await userManager.getCurrentUser(req);
+      const currentUser = req.userContext;
 
       if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
         return res.status(403).send('Access denied');
@@ -2120,13 +2070,13 @@ class WikiRoutes {
   async adminPolicies(req, res) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = await userManager.getCurrentUser(req);
+      const currentUser = req.userContext;
 
       if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
         return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to access policy management');
       }
 
-      const commonData = await this.getCommonTemplateDataWithUser(req);
+      const commonData = await this.getCommonTemplateData(req);
       const policyManager = this.engine.getManager('PolicyManager');
 
       if (!policyManager) {
@@ -2157,7 +2107,7 @@ class WikiRoutes {
   async adminCreatePolicy(req, res) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = await userManager.getCurrentUser(req);
+      const currentUser = req.userContext;
 
       if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
         return res.status(403).json({ error: 'Access denied' });
@@ -2196,7 +2146,7 @@ class WikiRoutes {
   async adminGetPolicy(req, res) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = await userManager.getCurrentUser(req);
+      const currentUser = req.userContext;
 
       if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
         return res.status(403).json({ error: 'Access denied' });
@@ -2212,7 +2162,7 @@ class WikiRoutes {
       const policy = policyManager.getPolicy(policyId);
 
       if (!policy) {
-        return res.status(404).json({ error: 'Policy not found' });
+               return res.status(404).json({ error: 'Policy not found' });
       }
 
       res.json(policy);
@@ -2232,7 +2182,7 @@ class WikiRoutes {
   async adminUpdatePolicy(req, res) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = await userManager.getCurrentUser(req);
+      const currentUser = req.userContext;
 
       if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
         return res.status(403).json({ error: 'Access denied' });
@@ -2271,7 +2221,7 @@ class WikiRoutes {
   async adminDeletePolicy(req, res) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = await userManager.getCurrentUser(req);
+      const currentUser = req.userContext;
 
       if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
         return res.status(403).json({ error: 'Access denied' });
@@ -2310,13 +2260,13 @@ class WikiRoutes {
   async adminUsers(req, res) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = await userManager.getCurrentUser(req);
+      const currentUser = req.userContext;
 
       if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:users')) {
         return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to access user management');
       }
 
-      const commonData = await this.getCommonTemplateDataWithUser(req);
+      const commonData = await this.getCommonTemplateData(req);
       const users = userManager.getUsers();
       const roles = userManager.getRoles();
 
@@ -2342,7 +2292,7 @@ class WikiRoutes {
   async adminCreateUser(req, res) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = await userManager.getCurrentUser(req);
+      const currentUser = req.userContext;
 
       if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:users')) {
         return res.status(403).send('Access denied');
@@ -2376,7 +2326,7 @@ class WikiRoutes {
   async adminUpdateUser(req, res) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = await userManager.getCurrentUser(req);
+      const currentUser = req.userContext;
 
       if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:users')) {
         return res.status(403).json({ success: false, message: 'Access denied' });
@@ -2404,7 +2354,7 @@ class WikiRoutes {
   async adminDeleteUser(req, res) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = userManager.getCurrentUser(req);
+      const currentUser = req.userContext;
 
       if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:users')) {
         return res.status(403).send('Access denied');
@@ -2430,13 +2380,13 @@ class WikiRoutes {
   async adminRoles(req, res) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = await userManager.getCurrentUser(req);
+      const currentUser = req.userContext;
 
       if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:roles')) {
         return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to manage roles');
       }
 
-      const commonData = await this.getCommonTemplateDataWithUser(req);
+      const commonData = await this.getCommonTemplateData(req);
       const leftMenuContent = await this.getLeftMenu();
       const roles = userManager.getRoles();
       const permissions = userManager.getPermissions();
@@ -2461,7 +2411,7 @@ class WikiRoutes {
   async adminUpdateRole(req, res) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = await userManager.getCurrentUser(req);
+      const currentUser = req.userContext;
 
       if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:roles')) {
         return res.status(403).json({ success: false, message: 'Access denied' });
@@ -2496,7 +2446,7 @@ class WikiRoutes {
   async adminCreateRole(req, res) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = await userManager.getCurrentUser(req);
+      const currentUser = req.userContext;
 
       if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:roles')) {
         return res.status(403).json({ success: false, message: 'Access denied' });
@@ -2538,7 +2488,7 @@ class WikiRoutes {
   async adminDeleteRole(req, res) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = await userManager.getCurrentUser(req);
+      const currentUser = req.userContext;
 
       if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:roles')) {
         return res.status(403).json({ success: false, message: 'Access denied' });
@@ -2571,7 +2521,7 @@ class WikiRoutes {
   async adminConfiguration(req, res) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = await userManager.getCurrentUser(req);
+      const currentUser = req.userContext;
 
       if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
         return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to access configuration management');
@@ -2606,7 +2556,7 @@ class WikiRoutes {
   async adminUpdateConfiguration(req, res) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = await userManager.getCurrentUser(req);
+      const currentUser = req.userContext;
 
       if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
         return res.status(403).json({ error: 'Admin access required' });
@@ -2639,7 +2589,7 @@ class WikiRoutes {
   async adminResetConfiguration(req, res) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = await userManager.getCurrentUser(req);
+      const currentUser = req.userContext;
 
       if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
         return res.status(403).json({ error: 'Admin access required' });
@@ -2661,7 +2611,7 @@ class WikiRoutes {
   async adminVariables(req, res) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = await userManager.getCurrentUser(req);
+      const currentUser = req.userContext;
 
       if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
         return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to access variable management');
@@ -2703,7 +2653,7 @@ class WikiRoutes {
   async adminTestVariables(req, res) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = await userManager.getCurrentUser(req);
+      const currentUser = req.userContext;
 
       if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
         return res.status(403).json({ error: 'Admin access required' });
@@ -2755,13 +2705,13 @@ class WikiRoutes {
   async adminSettings(req, res) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = await userManager.getCurrentUser(req);
+      const currentUser = req.userContext;
 
       if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
         return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to access system settings');
       }
 
-      const commonData = await this.getCommonTemplateDataWithUser(req);
+      const commonData = await this.getCommonTemplateData(req);
       const leftMenuContent = await this.getLeftMenu();
 
       // System configuration settings (you can expand this)
@@ -2821,13 +2771,13 @@ class WikiRoutes {
   async adminOrganizations(req, res) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = await userManager.getCurrentUser(req);
+      const currentUser = req.userContext;
 
       if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
         return await this.renderError(req, res, 403, 'Access Denied', 'Admin access required');
       }
 
-      const templateData = await this.getCommonTemplateDataWithUser(req);
+      const templateData = await this.getCommonTemplateData(req);
 
       // Try to get SchemaManager, fallback gracefully
       let organizations = [];
@@ -2865,7 +2815,7 @@ class WikiRoutes {
   async adminCreateOrganization(req, res) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const userContext = await userManager.getCurrentUser(req);
+      const userContext = req.userContext;
       if (!userContext.isAuthenticated || !userContext.isAdmin) {
         return res.status(403).json({ error: 'Admin access required' });
       }
@@ -2897,7 +2847,7 @@ class WikiRoutes {
   async adminUpdateOrganization(req, res) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const userContext = await userManager.getCurrentUser(req);
+      const userContext = req.userContext;
       if (!userContext.isAuthenticated || !userContext.isAdmin) {
         return res.status(403).json({ error: 'Admin access required' });
       }
@@ -2932,7 +2882,7 @@ class WikiRoutes {
   async adminDeleteOrganization(req, res) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const userContext = await userManager.getCurrentUser(req);
+      const userContext = req.userContext;
       if (!userContext.isAuthenticated || !userContext.isAdmin) {
         return res.status(403).json({ error: 'Admin access required' });
       }
@@ -2964,7 +2914,7 @@ class WikiRoutes {
   async adminGetOrganization(req, res) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const userContext = await userManager.getCurrentUser(req);
+      const userContext = req.userContext;
       if (!userContext.isAuthenticated || !userContext.isAdmin) {
         return res.status(403).json({ error: 'Admin access required' });
       }
@@ -3054,7 +3004,7 @@ class WikiRoutes {
   async adminGetOrganizationSchema(req, res) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = await userManager.getCurrentUser(req);
+      const currentUser = req.userContext;
       if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
         return res.status(403).json({ error: 'Admin access required' });
       }
@@ -3085,7 +3035,7 @@ class WikiRoutes {
   async adminGetPersonSchema(req, res) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = await userManager.getCurrentUser(req);
+      const currentUser = req.userContext;
       if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
         return res.status(403).json({ error: 'Admin access required' });
       }
@@ -3193,7 +3143,7 @@ class WikiRoutes {
   async adminDismissNotification(req, res) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = await userManager.getCurrentUser(req);
+      const currentUser = req.userContext;
 
       if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
         return res.status(403).send('Access denied');
@@ -3221,7 +3171,7 @@ class WikiRoutes {
   async adminClearAllNotifications(req, res) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = await userManager.getCurrentUser(req);
+      const currentUser = req.userContext;
 
       if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
         return res.status(403).send('Access denied');
@@ -3251,13 +3201,13 @@ class WikiRoutes {
   async adminNotifications(req, res) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = await userManager.getCurrentUser(req);
+      const currentUser = req.userContext;
 
       if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
         return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to manage notifications');
       }
 
-      const commonData = await this.getCommonTemplateDataWithUser(req);
+      const commonData = await this.getCommonTemplateData(req);
       const notificationManager = this.engine.getManager('NotificationManager');
 
       // Get all notifications with expired ones for management
@@ -3298,7 +3248,7 @@ class WikiRoutes {
   async adminCacheStats(req, res) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = await userManager.getCurrentUser(req);
+      const currentUser = req.userContext;
 
       if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
         return res.status(403).json({ error: 'Access denied' });
@@ -3324,7 +3274,7 @@ class WikiRoutes {
   async adminClearCache(req, res) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = await userManager.getCurrentUser(req);
+      const currentUser = req.userContext;
 
       if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
         return res.status(403).json({ error: 'Access denied' });
@@ -3357,7 +3307,7 @@ class WikiRoutes {
   async adminClearCacheRegion(req, res) {
     try {
       const userManager = this.engine.getManager('UserManager');
-      const currentUser = await userManager.getCurrentUser(req);
+      const currentUser = req.userContext;
 
       if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
         return res.status(403).json({ error: 'Access denied' });

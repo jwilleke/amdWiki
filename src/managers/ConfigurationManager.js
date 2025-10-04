@@ -3,16 +3,26 @@ const path = require('path');
 
 /**
  * ConfigurationManager - Handles JSPWiki-compatible configuration
- * Merges app-default-config.json with app-custom-config.json overrides
+ * Merges configurations in order:
+ * 1. app-default-config.json (base defaults)
+ * 2. app-{environment}-config.json (environment-specific, optional)
+ * 3. app-custom-config.json (local overrides, optional)
+ *
+ * Environment is determined by NODE_ENV (default: 'development')
  */
 class ConfigurationManager {
   constructor(engine) {
     this.engine = engine;
     this.defaultConfig = null;
+    this.environmentConfig = null;
     this.customConfig = null;
     this.mergedConfig = null;
-    this.defaultConfigPath = path.join(process.cwd(), 'config', 'app-default-config.json');
-    this.customConfigPath = path.join(process.cwd(), 'config', 'app-custom-config.json');
+    this.environment = process.env.NODE_ENV || 'development';
+
+    const configDir = path.join(process.cwd(), 'config');
+    this.defaultConfigPath = path.join(configDir, 'app-default-config.json');
+    this.environmentConfigPath = path.join(configDir, `app-${this.environment}-config.json`);
+    this.customConfigPath = path.join(configDir, 'app-custom-config.json');
   }
 
   /**
@@ -21,7 +31,8 @@ class ConfigurationManager {
   async initialize() {
     try {
       await this.loadConfigurations();
-      console.log('📋 ConfigurationManager initialized with merged JSPWiki-compatible configuration');
+      console.log(`📋 ConfigurationManager initialized for environment: ${this.environment}`);
+      console.log(`📋 Loaded configs: default + ${this.environmentConfig ? 'environment' : 'no environment'} + ${this.customConfig && Object.keys(this.customConfig).length > 0 ? 'custom' : 'no custom'}`);
     } catch (error) {
       console.error('Failed to initialize ConfigurationManager:', error);
       throw error;
@@ -30,32 +41,46 @@ class ConfigurationManager {
 
   /**
    * Load and merge configurations
+   * Priority: default < environment < custom (highest)
    */
   async loadConfigurations() {
-    // Load default configuration
+    // 1. Load default configuration (required)
     if (await fs.pathExists(this.defaultConfigPath)) {
       this.defaultConfig = await fs.readJson(this.defaultConfigPath);
     } else {
       throw new Error(`Default configuration file not found: ${this.defaultConfigPath}`);
     }
 
-    // Load custom configuration (optional)
+    // 2. Load environment-specific configuration (optional)
+    this.environmentConfig = {};
+    if (await fs.pathExists(this.environmentConfigPath)) {
+      const envData = await fs.readJson(this.environmentConfigPath);
+      // Filter out comment fields starting with _
+      for (const [key, value] of Object.entries(envData)) {
+        if (!key.startsWith('_')) {
+          this.environmentConfig[key] = value;
+        }
+      }
+      console.log(`📋 Loaded environment config: ${this.environmentConfigPath}`);
+    }
+
+    // 3. Load custom configuration (optional, for local overrides)
+    this.customConfig = {};
     if (await fs.pathExists(this.customConfigPath)) {
       const customData = await fs.readJson(this.customConfigPath);
       // Filter out comment fields starting with _
-      this.customConfig = {};
       for (const [key, value] of Object.entries(customData)) {
         if (!key.startsWith('_')) {
           this.customConfig[key] = value;
         }
       }
-    } else {
-      this.customConfig = {};
+      console.log(`📋 Loaded custom config: ${this.customConfigPath}`);
     }
 
-    // Merge configurations (custom overrides default)
+    // Merge configurations (later configs override earlier ones)
     this.mergedConfig = {
       ...this.defaultConfig,
+      ...this.environmentConfig,
       ...this.customConfig
     };
   }

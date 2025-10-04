@@ -1,217 +1,66 @@
 const BaseManager = require('./BaseManager');
-const fs = require('fs').promises;
-const fsSync = require('fs');
+const fs = require('fs-extra');
 const path = require('path');
+const logger = require('../utils/logger');
 
+/**
+ * SchemaManager - Loads and provides access to JSON schemas used for validation.
+ */
 class SchemaManager extends BaseManager {
   constructor(engine) {
     super(engine);
-    this.usersDir = './users';
-    this.personsFilePath = null;
-    this.organizationsFilePath = null;
-
-    this.persons = new Map();
-    this.personsById = new Map();
-    this.organizations = new Map();
-    this.nextPersonId = 0;
-  }
-
-  async initialize(config = {}) {
-    await super.initialize(config);
-
-    // Prefer ConfigurationManager; fallback to legacy engine.getConfig()
-    const cfgMgr = this.engine?.getManager?.('ConfigurationManager');
-    const legacyCfg = typeof this.engine?.getConfig === 'function' ? this.engine.getConfig() : null;
-    const getProp = (key, def) =>
-      (cfgMgr && typeof cfgMgr.getProperty === 'function')
-        ? cfgMgr.getProperty(key, def)
-        : (legacyCfg && typeof legacyCfg.get === 'function')
-          ? legacyCfg.get(key, def)
-          : def;
-
-    // Read configured locations
-    const usersDirCfg = getProp('amdwiki.directories.users', './users');
-    this.usersDir = path.resolve(process.cwd(), String(usersDirCfg));
-
-    const personsCfg = getProp('amdwiki.jsonpersonsdatabase', path.join(this.usersDir, 'persons.json'));
-    const orgsCfg = getProp('amdwiki.jsonorganizationsdatabase', path.join(this.usersDir, 'organizations.json'));
-
-    this.personsFilePath = path.isAbsolute(personsCfg) ? personsCfg : path.resolve(process.cwd(), String(personsCfg));
-    this.organizationsFilePath = path.isAbsolute(orgsCfg) ? orgsCfg : path.resolve(process.cwd(), String(orgsCfg));
-
-    // Ensure parent directories exist
-    await fs.mkdir(path.dirname(this.personsFilePath), { recursive: true }).catch(() => {});
-    await fs.mkdir(path.dirname(this.organizationsFilePath), { recursive: true }).catch(() => {});
-
-    await this.loadPersons();
-    await this.loadOrganizations();
+    this.schemas = new Map();
   }
 
   /**
-   * Validate and normalize a person object
-   * Throws if required fields are missing (as per tests).
-   * @param {object} person
-   * @returns {object} normalized person
+   * Initializes the SchemaManager by loading all .schema.json files
+   * from the directory specified in the configuration.
    */
-  validateAndEnhancePerson(person) {
-    if (!person || typeof person !== 'object') {
-      throw new Error('Person identifier is required');
-    }
-    if (!person.identifier || String(person.identifier).trim() === '') {
-      throw new Error('Person identifier is required');
-    }
-    if (!person.name || String(person.name).trim() === '') {
-      throw new Error('Person name is required');
+  async initialize() {
+    const configManager = this.engine.getManager('ConfigurationManager');
+    if (!configManager) {
+      throw new Error('SchemaManager requires ConfigurationManager to be initialized.');
     }
 
-    // Basic normalization (safe defaults)
-    const normalized = { ...person };
-    normalized.identifier = String(person.identifier).trim();
-    normalized.name = String(person.name).trim();
-    if (!normalized['@type']) normalized['@type'] = 'Person';
-    if (!normalized.url && typeof normalized.identifier === 'string') {
-      normalized.url = normalized.url || undefined; // keep optional
-    }
-    return normalized;
-  }
+    // Correctly fetch the schemas directory from ConfigurationManager
+    const schemasDir = configManager.getProperty('amdwiki.directories.schemas', './config/schemas');
 
-  /**
-   * Load Schema.org Person data
-   */
-  async loadPersons() {
     try {
-      if (fsSync.existsSync(this.personsFilePath)) {
-        const personsData = await fs.readFile(this.personsFilePath, 'utf8');
-        const persons = JSON.parse(personsData);
-
-        this.persons = new Map();
-        this.personsById = new Map();
-        this.nextPersonId = 0;
-
-        for (const [numericId, person] of Object.entries(persons)) {
-          if (!person) continue;
-          const idNum = Number.parseInt(numericId, 10);
-          if (Number.isFinite(idNum)) this.nextPersonId = Math.max(this.nextPersonId, idNum + 1);
-
-          if (person.identifier) this.persons.set(person.identifier, person);
-          this.personsById.set(numericId, person);
-        }
-      } else {
-        this.persons = new Map();
-        this.personsById = new Map();
-        this.nextPersonId = 0;
-      }
-    } catch (err) {
-      this.engine?.logger?.error?.(`SchemaManager: failed to load persons: ${err.message}`);
-      this.persons = new Map();
-      this.personsById = new Map();
-      this.nextPersonId = 0;
-    }
-  }
-
-  /**
-   * Load Schema.org Organization data
-   */
-  async loadOrganizations() {
-    try {
-      if (fsSync.existsSync(this.organizationsFilePath)) {
-        const organizationsData = await fs.readFile(this.organizationsFilePath, 'utf8');
-        const organizations = JSON.parse(organizationsData);
-        this.organizations = new Map(Object.entries(organizations));
-      } else {
-        this.organizations = new Map();
-      }
-    } catch (err) {
-      this.engine?.logger?.error?.(`SchemaManager: failed to load organizations: ${err.message}`);
-      this.organizations = new Map();
-    }
-  }
-
-  /**
-   * Save Schema.org Person data
-   */
-  async savePersons() {
-    try {
-      const persons = Object.fromEntries(this.personsById);
-      await fs.writeFile(this.personsFilePath, JSON.stringify(persons, null, 2), 'utf8');
-    } catch (err) {
-      this.engine?.logger?.error?.(`SchemaManager: failed to save persons: ${err.message}`);
-      throw err;
-    }
-  }
-
-  /**
-   * Save Schema.org Organization data
-   */
-  async saveOrganizations() {
-    try {
-      const organizations = Object.fromEntries(this.organizations);
-      await fs.writeFile(this.organizationsFilePath, JSON.stringify(organizations, null, 2), 'utf8');
-    } catch (err) {
-      this.engine?.logger?.error?.(`SchemaManager: failed to save organizations: ${err.message}`);
-      throw err;
-    }
-  }
-
-  /**
-   * Get comprehensive site data for Schema.org generation
-   * Reads only from ConfigurationManager
-   */
-  async getComprehensiveSiteData() {
-    const cfgMgr = this.engine?.getManager?.('ConfigurationManager');
-
-    const baseURL = cfgMgr?.getProperty?.('amdwiki.baseURL', 'http://localhost:3000');
-    const version = cfgMgr?.getProperty?.('amdwiki.version', '0.0.0');
-    const applicationName = cfgMgr?.getProperty?.('amdwiki.applicationName', 'amdWiki');
-    const applicationCategory = cfgMgr?.getProperty?.('amdwiki.application.category', 'Digital Platform');
-
-    const featureExportHtml = cfgMgr?.getProperty?.('amdwiki.features.export.html', true);
-    const featureAttachments = cfgMgr?.getProperty?.('amdwiki.features.attachments.enabled', true);
-    const featureLlm = cfgMgr?.getProperty?.('amdwiki.features.llm.enabled', false);
-
-    // Return arrays so SchemaGenerator can iterate with forEach
-    const personsArray = this.getPersonsArray();
-    const organizationsArray = this.getOrganizationsArray();
-
-    return {
-      persons: personsArray,
-      organizations: organizationsArray,
-      config: {
-        application: {
-          name: applicationName,
-          version,
-          applicationCategory,
-          url: baseURL
-        },
-        features: {
-          export: { html: featureExportHtml },
-          attachments: { enabled: featureAttachments },
-          llm: { enabled: featureLlm }
+      const files = await fs.readdir(schemasDir);
+      for (const file of files) {
+        if (file.endsWith('.schema.json')) {
+          const schemaName = path.basename(file, '.schema.json');
+          const schemaPath = path.join(schemasDir, file);
+          const schema = await fs.readJson(schemaPath);
+          this.schemas.set(schemaName, schema);
         }
       }
-    };
+      logger.info(`📋 Loaded ${this.schemas.size} schemas from ${schemasDir}`);
+    } catch (error) {
+      // Log a warning if the directory doesn't exist, but don't crash the app
+      if (error.code === 'ENOENT') {
+        logger.warn(`Schema directory not found at ${schemasDir}. No schemas loaded.`);
+      } else {
+        logger.error(`Failed to load schemas from ${schemasDir}`, { error });
+      }
+    }
   }
 
-  // Keep existing object-returning getters for compatibility
-  getPersons() {
-    return Object.fromEntries(this.personsById);
+  /**
+   * Retrieves a loaded JSON schema by its name.
+   * @param {string} name The name of the schema (without .schema.json).
+   * @returns {object|undefined} The loaded schema object, or undefined if not found.
+   */
+  getSchema(name) {
+    return this.schemas.get(name);
   }
 
-  getOrganizations() {
-    return Object.fromEntries(this.organizations);
-  }
-
-  // New: array-returning helpers for schema generation
-  getPersonsArray() {
-    // Preserve numeric ID ordering if possible
-    const entries = Array.from(this.personsById.entries())
-      .sort((a, b) => Number(a[0]) - Number(b[0]))
-      .map(([, person]) => person);
-    return entries;
-  }
-
-  getOrganizationsArray() {
-    return Array.from(this.organizations.values());
+  /**
+   * Returns a list of all loaded schema names.
+   * @returns {string[]} An array of schema names.
+   */
+  getAllSchemaNames() {
+    return Array.from(this.schemas.keys());
   }
 }
 

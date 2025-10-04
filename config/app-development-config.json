@@ -1,0 +1,20 @@
+{
+  "_comment": "Development environment overrides",
+  "_description": "These settings override app-default-config.json in development (NODE_ENV=development)",
+
+  "amdwiki.logging.level": "debug",
+  "amdwiki.logging.debug.enabled": true,
+  "amdwiki.logging.debug.session": true,
+  "amdwiki.logging.debug.login": true,
+
+  "amdwiki.markup.useAdvancedParser": true,
+  "amdwiki.markup.logParsingMethod": true,
+
+  "amdwiki.features.maintenance.enabled": false,
+
+  "amdwiki.session.cookie.secure": false,
+
+  "_comment_performance": "Relaxed performance settings for development",
+  "amdwiki.cache.enabled": false,
+  "amdwiki.search.indexOnStartup": false
+}

@@ -2,43 +2,66 @@
 
 JSPWiki-style wiki with advanced search capabilities
 
-Read docs/development/CONTRIBUTING.md
+Read: .github/copilot-instructions.md
+- So this code \
+\
+ Welcome to your new [{$applicationname}]
 
-## Commands
-- Start: `npm start` or `npm run dev`
-- Test: `npm test`
-- Test with watch: `npm run test:watch`
-- Test with coverage: `npm run test:coverage`
-- PM2 start: `pm2 start app.js --name "server"`
+[{$pagename}] the Home Page.
 
-## Project Structure
-- `/src/` - Core application code
-- `/pages/` - Wiki pages content
-- `/templates/` - Page templates
-- `/config/` - Configuration files
-- `/tests/` - Test files
-- `/docs/` - Documentation
-- `/users/` - User data
-- `/views/` - EJS view templates
+You may want to check out these pages:
+* [PageIndex]
+* [SystemInfo]
+* For help see [Wiki Documentation]
 
-## Key Features
-- Advanced search with Lunr.js
-- User management and ACL
-- Plugin system
-- Multiple export formats
-- Schema management for persons/organizations
-- Audit logging and notifications
+The date is: [{$date}]
 
-## Technology Stack
-- Node.js + Express
-- EJS templating
-- Markdown processing with Showdown
-- BCrypt for authentication
-- Winston for logging
-- Jest for testing
+The time is: [{$time}]\
+\
+from http://localhost:3000/edit/Welcome\
+\
+Renders as:\
+Welcome to your new {$applicationname}
+Welcome the Home Page.
 
-## Development Notes
-- Server runs on port 3000
-- Uses CommonJS modules
-- Session-based authentication
-- File-based data storage
+You may want to check out these pages:
+
+PageIndex
+SystemInfo
+For help see Wiki Documentation
+The date is: {$date}
+
+The time is: {$time}\
+\
+So plugins are Not properly rendered or perhaps discovered
+- So this code \
+\
+ Welcome to your new [{$applicationname}]
+
+[{$pagename}] the Home Page.
+
+You may want to check out these pages:
+* [PageIndex]
+* [SystemInfo]
+* For help see [Wiki Documentation]
+
+The date is: [{$date}]
+
+The time is: [{$time}]\
+\
+from http://localhost:3000/edit/Welcome\
+\
+Renders as:\
+Welcome to your new {$applicationname}
+Welcome the Home Page.
+
+You may want to check out these pages:
+
+PageIndex
+SystemInfo
+For help see Wiki Documentation
+The date is: {$date}
+
+The time is: {$time}\
+\
+So plugins are Not properly rendered or perhaps discovered

@@ -14,119 +14,65 @@ slug: project-tasks-and-todo
 
 [GitHub](https://github.com/jwilleke/amdWiki)
 
-## 🎯 Current Development Tasks
+## Well-Implemented (Very Close)
 
-### High Priority
-- [ ] Fix Open [BUGs](https://github.com/jwilleke/amdWiki/issues)
-- [ ] Fix Open [Feature Requests](https://github.com/jwilleke/amdWiki/issues?q=state%3Aopen%20label%3Aenhancement)
+  1. WikiEngine Orchestration ✅
+    - Your WikiEngine.js mirrors JSPWiki's central coordinator role
+    - Initializes managers in correct dependency order
+  2. PageManager & Page Retrieval ✅
+    - PageManager.js retrieves page content
+    - Uses file system storage (like FileSystemProvider)
+    - Properly parses frontmatter with gray-matter
+    - Supports UUID-based page identification
+  3. RenderingManager Pipeline ✅
+    - RenderingManager.js converts markdown to HTML
+    - Coordinates rendering through WikiContext
+    - Has link graph for backlinks (getReferringPages())
+    - Integrates with PluginManager
+  4. Access Control ✅
+    - ACLManager.js enforces permissions (like AuthorizationManager)
+    - PolicyEvaluator.js evaluates policies (mimics JAAS policy evaluation)
+    - PolicyManager.js loads policies from configuration
+    - Works through checkPagePermission()
+  5. User Management ✅
+    - UserManager.js handles authentication (like AuthenticationManager)
+    - Session management via express-session
+    - User database in JSON format
+  6. Plugin System ✅
+    - PluginManager.js exists
+    - Can load and execute plugins during rendering
 
-### Medium Priority  
-- [ ] Port JSPWiki button and component styling
-- [ ] Implement JSPWiki-style search interface
-- [ ] Add JSPWiki-inspired page layout patterns
-- [ ] Create JSPWiki-style plugin components (TOC, etc.)
+## ⚠️ Partially Implemented (Needs Work)
 
-### Low Priority
-- [ ] Full Bootstrap 3→5 migration analysis
-- [ ] Custom icon font integration
-- [ ] Advanced dynamic components
-- [ ] Cross-browser compatibility testing
+  7. Template Rendering ⚠️
+    - ✅ Have TemplateManager.js
+    - ✅ Using EJS templates (view.ejs, header.ejs, footer.ejs)
+    - ⚠️ Not fully integrated with RenderingManager
+    - ❌ No dynamic template selection based on context
+  8. Parsing & Markup ⚠️
+    - ✅ Uses markdown-it for parsing
+    - ⚠️ Has MarkupParser.js but marked as "fallback"
+    - ❌ No intermediate representation like JSPWiki's WikiParser AST
+    - ⚠️ Variable expansion exists but integration unclear
+  9. Filter System ⚠️
+    - ❌ No FilterManager equivalent
+    - ❌ No preprocessing/postprocessing filter pipeline
+    - ✅ Has some filters in code but not centralized
 
-## 🔧 Technical Implementation Tasks
+  ❌ Missing or Incomplete
 
-### Macro/Plugin System
-- [x] Implement JSPWiki-style plugins similar to [ReferringPagesPlugin](https://jspwiki-wiki.apache.org/Wiki.jsp?page=ReferringPagesPlugin)
-- [x] Support WikiVariable expansion like `[{$pagename}]`
-- [x] Add `[{ReferringPagesPlugin before='*' after='\n' }]` functionality
-
-### Link System
-- [x] Normal wiki links `[new-page]` should render as links to page named "new-page"
-- [ ] Auto-complete for page names when typing `[]` during editing
-- [ ] Page name type-down search functionality
-
-### UUID Implementation
-- [ ] Implement UUID for page tracking and versions even after renaming
-- [ ] Store globally unique identifier in YAML frontmatter
-- [ ] Prevent editing of UUID section in frontmatter
-
-### Category and Keyword System
-- [ ] **Category**: Single top-level container per page (dropdown selection in editor)
-- [ ] **Keywords**: Auto-generate 3 keywords using LLM (Ollama) at indexing time
-- [ ] **User-Keywords**: Allow custom tags (3 max, multi-select dropdown in editor)
-- [ ] Store all metadata in YAML frontmatter (non-editable section)
-
-### Search Features
-- [ ] **Title Search**: Map to filename minus extension
-- [ ] **Category/Keyword Search**: Faceted search by category, keywords, user-keywords
-- [ ] **Full Content Search**: Index entire markdown body with relevance scoring
-- [ ] Consider FlexSearch, Elastic, or MongoDB for search engine
-
-### Export Functionality
-- [ ] Export markdown to HTML
-- [ ] Export to ODT format
-- [ ] Export to PDF
-- [ ] Export tables to ODS format
-
-### Quality Assurance
-- [ ] Integrate markdownlint library for document validation
-- [ ] Auto-lint markdown on save/preview
-
-## 📋 JSPWiki Styles Analysis
-
-### 🏗️ Architecture Overview
-
-JSPWiki uses a sophisticated LESS-based build system with:
-
-1. **Modular Bootstrap 3.3.7 Integration**: Custom theme built on Bootstrap foundation
-2. **Comprehensive LESS Structure**: 
-   - `haddock/` main theme directory
-   - `bootstrap/` - Custom Bootstrap 3 variant  
-   - `default/` - JSPWiki-specific components
-   - `fontjspwiki/` - Custom icon fonts
-
-3. **Component-Based Organization**:
-   - Core styling (type, variables, scaffolding)
-   - Template-specific styles (View, Edit, Search, etc.)
-   - Plugin-specific styles (TOC, Index, Weblog, etc.)
-   - Dynamic components (Tabs, Accordion, Carousel, etc.)
-
-### 🎯 Implementation Assessment
-
-**Recommended Approach**: JSPWiki-inspired design system with modern tools
-
-#### ✅ Advantages
-- Professional, battle-tested visual language
-- Component modularity for selective implementation
-- Built-in responsive design and accessibility
-- Familiar UI patterns for wiki users
-
-#### ⚠️ Considerations
-- Bootstrap 3 → 5 migration needed
-- LESS → SCSS preferred for modern tooling
-- Adapt Java-specific components for Node.js
-
-### 🛠️ Implementation Phases
-
-#### Phase 1: Foundation (2 weeks)
-- Extract JSPWiki color palette and typography
-- Migrate essential components to Bootstrap 5
-- Set up modern build tools (Sass, PostCSS)
-
-#### Phase 2: Core Components (3 weeks)
-- Port navigation and layout patterns
-- Implement form styling and buttons
-- Add JSPWiki-specific component styles
-
-#### Phase 3: Advanced Features (3 weeks)
-- Plugin integration styling
-- Dynamic interactive components
-- Mobile responsiveness polish
-
-## 🔍 Research Tasks
-- [ ] Analyze JSPWiki's responsive breakpoints
-- [ ] Study JSPWiki's accessibility patterns
-- [ ] Review JSPWiki's dark theme implementation
-- [ ] Investigate JSPWiki's print stylesheet approach
+  10. Attachment Handling ❌
+    - ✅ AttachmentManager.js exists
+    - ❌ Not integrated into rendering pipeline
+    - ❌ No attachment links rendered in pages
+  11. Caching ❌
+    - ✅ CacheManager.js exists
+    - ❌ Not being used for page rendering
+    - ❌ No performance optimization
+  12. WikiContext Flow ⚠️
+    - ✅ WikiContext.js exists and is passed around
+    - ⚠️ Not consistently used across all rendering
+    - ⚠️ Context doesn't carry enough state
 
 ## 📚 Reference Links
 

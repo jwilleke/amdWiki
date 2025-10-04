@@ -68,8 +68,7 @@ class LinkParserHandler extends BaseSyntaxHandler {
       // Load page names for link validation
       const pageManager = this.engine?.getManager('PageManager');
       if (pageManager) {
-        const pages = await pageManager.getAllPages();
-        const pageNames = pages.map(page => page.name);
+        const pageNames = await pageManager.getAllPages(); // Returns array of strings
         this.linkParser.setPageNames(pageNames);
         console.log(`📄 LinkParserHandler loaded ${pageNames.length} page names for link validation`);
 
@@ -242,8 +241,7 @@ class LinkParserHandler extends BaseSyntaxHandler {
     try {
       const pageManager = this.engine?.getManager('PageManager');
       if (pageManager) {
-        const pages = await pageManager.getAllPages();
-        const pageNames = pages.map(page => page.name);
+        const pageNames = await pageManager.getAllPages(); // Returns array of strings
         this.linkParser.setPageNames(pageNames);
         console.log(`🔄 LinkParserHandler refreshed ${pageNames.length} page names`);
 
