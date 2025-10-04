@@ -1,6 +1,6 @@
 /**
- * Plugin discovery: 
- * Mocks a ConfigurationManager to point PluginManager at the real ./plugins directory, 
+ * Plugin discovery:
+ * Mocks a ConfigurationManager to point PluginManager at the real ./plugins directory,
  * calls registerPlugins(), and retrieves the Image plugin by name.
  * Context/config: Stubs context.engine.getConfig().get() to supply defaultAlt and defaultClass settings used by the plugin.
  * execute() coverage:
@@ -19,20 +19,20 @@
  * Metadata:
  * ImagePlugin.name equals "Image".
  * ImagePlugin.execute is a function.
- * 
+ *
  * It does not test HTML semantics or CSS rendering; assertions are string contains/regex-based. It also relies on loading all plugins from ./plugins (so other plugins may log during setup).
- * 
+ *
  */
 
-const path = require('path');
-const fs = require('fs-extra');
+const path = require("path");
+const fs = require("fs-extra");
 
-const PluginManager = require('../../src/managers/PluginManager');
+const PluginManager = require("../../src/managers/PluginManager");
 
-const localTestImage = '/images/test.jpg';
-const internetTestImage = 'https://picsum.photos/id/1/200/300';
+const localTestImage = "/images/test.jpg";
+const internetTestImage = "https://picsum.photos/id/1/200/300";
 
-describe('Image (via PluginManager)', () => {
+describe("Image (via PluginManager)", () => {
   let ImagePlugin;
   let mockContext;
   let mockConfig;
@@ -40,117 +40,129 @@ describe('Image (via PluginManager)', () => {
 
   beforeAll(async () => {
     // Point ConfigurationManager to the real ./plugins directory
-    const pluginsDir = path.resolve(__dirname, '..');
+    const pluginsDir = path.resolve(__dirname, "..");
     const exists = await fs.pathExists(pluginsDir);
     if (!exists) {
       throw new Error(`Plugins directory not found at ${pluginsDir}`);
     }
 
-    const logger = { info: jest.fn(), warn: jest.fn(), debug: jest.fn(), error: jest.fn() };
-    const cfgMgr = { get: jest.fn().mockReturnValue([pluginsDir]) };
+    const logger = {
+      info: jest.fn(),
+      warn: jest.fn(),
+      debug: jest.fn(),
+      error: jest.fn(),
+    };
+    // PluginManager expects ConfigurationManager.getProperty(...) in production code
+    const cfgMgr = { getProperty: jest.fn().mockReturnValue([pluginsDir]) };
     const engine = {
-      getManager: (name) => (name === 'ConfigurationManager' ? cfgMgr : null),
-      logger
+      getManager: (name) => (name === "ConfigurationManager" ? cfgMgr : null),
+      logger,
     };
 
     pm = new PluginManager(engine);
     if (!pm.engine) pm.engine = engine; // safety if constructor signature differs
     await pm.registerPlugins();
 
-    ImagePlugin = pm.plugins.get('Image');
+    ImagePlugin = pm.plugins.get("Image");
     if (!ImagePlugin) {
       const names = Array.from(pm.plugins.keys());
-      throw new Error(`Image plugin not found. Loaded plugins: ${names.join(', ')}`);
+      throw new Error(
+        `Image plugin not found. Loaded plugins: ${names.join(", ")}`
+      );
     }
   });
 
   beforeEach(() => {
-    mockConfig = {
-      get: jest.fn()
+    const mockConfigManager = {
+      getProperty: jest.fn().mockImplementation((key, def) => {
+        const configMap = {
+          "amdwiki.features.images.defaultAlt": "Uploaded image",
+          "amdwiki.features.images.defaultClass": "wiki-image",
+        };
+        return key in configMap ? configMap[key] : def;
+      }),
     };
-    mockConfig.get.mockImplementation((key, def) => {
-      const configMap = {
-        'features.images.defaultAlt': 'Uploaded image',
-        'features.images.defaultClass': 'wiki-image'
-      };
-      return key in configMap ? configMap[key] : def;
-    });
 
     mockContext = {
       engine: {
-        getConfig: jest.fn().mockReturnValue(mockConfig)
-      }
+        getManager: jest.fn().mockImplementation((name) => {
+          if (name === "ConfigurationManager") {
+            return mockConfigManager;
+          }
+          return null;
+        }),
+      },
     };
   });
 
-  describe('execute method', () => {
-    it('generates basic img tag with src', () => {
+  describe("execute method", () => {
+    it("generates basic img tag with src", () => {
       const params = { src: localTestImage };
       const result = ImagePlugin.execute(mockContext, params);
 
-      expect(result).toContain('<img');
+      expect(result).toContain("<img");
       expect(result).toContain('src="/images/test.jpg"');
       expect(result).toContain('alt="Uploaded image"');
       expect(result).toContain('class="wiki-image"');
     });
 
-    it('handles relative src paths', () => {
+    it("handles relative src paths", () => {
       const params = { src: localTestImage };
       const result = ImagePlugin.execute(mockContext, params);
 
       expect(result).toContain('src="/images/test.jpg"');
     });
 
-    it('handles absolute src paths', () => {
+    it("handles absolute src paths", () => {
       const params = { src: internetTestImage };
       const result = ImagePlugin.execute(mockContext, params);
 
       expect(result).toContain(`src="${internetTestImage}"`);
     });
 
-    it('uses custom alt text', () => {
-      const params = { src: localTestImage, alt: 'Custom alt text' };
+    it("uses custom alt text", () => {
+      const params = { src: localTestImage, alt: "Custom alt text" };
       const result = ImagePlugin.execute(mockContext, params);
 
       expect(result).toContain('alt="Custom alt text"');
     });
 
-    it('includes width and height attributes', () => {
-      const params = { src: localTestImage, width: '200', height: '150' };
+    it("includes width and height attributes", () => {
+      const params = { src: localTestImage, width: "200", height: "150" };
       const result = ImagePlugin.execute(mockContext, params);
 
       expect(result).toContain('width="200"');
       expect(result).toContain('height="150"');
     });
 
-    it('includes custom class', () => {
-      const params = { src: localTestImage, class: 'custom-class' };
+    it("includes custom class", () => {
+      const params = { src: localTestImage, class: "custom-class" };
       const result = ImagePlugin.execute(mockContext, params);
 
       expect(result).toContain('class="custom-class"');
     });
 
-    it('includes style attribute', () => {
-      const params = { src: localTestImage, style: 'border: 1px solid black;' };
+    it("includes style attribute", () => {
+      const params = { src: localTestImage, style: "border: 1px solid black;" };
       const result = ImagePlugin.execute(mockContext, params);
 
       expect(result).toContain('style="border: 1px solid black;"');
     });
 
-    it('returns error when src is missing', () => {
-      const params = { alt: 'Test' };
+    it("returns error when src is missing", () => {
+      const params = { alt: "Test" };
       const result = ImagePlugin.execute(mockContext, params);
 
       expect(result).toMatch(/Image plugin: src attribute is required/i);
     });
 
-    it('handles errors gracefully', () => {
+    it("handles errors gracefully", () => {
       const badContext = {
         engine: {
           getConfig: jest.fn(() => {
-            throw new Error('Config error');
-          })
-        }
+            throw new Error("Config error");
+          }),
+        },
       };
 
       const params = { src: localTestImage };
@@ -159,93 +171,248 @@ describe('Image (via PluginManager)', () => {
       expect(result).toMatch(/Image plugin error/i);
     });
 
-    it('includes caption when provided', () => {
-      const params = { src: localTestImage, caption: 'Test Caption' };
+    it("includes caption when provided", () => {
+      const params = { src: localTestImage, caption: "Test Caption" };
       const result = ImagePlugin.execute(mockContext, params);
 
       expect(result).toContain('<div class="image-plugin-container');
-      expect(result).toContain('<img');
-      expect(result).toContain('>Test Caption</div>');
+      expect(result).toContain("<img");
+      expect(result).toContain(">Test Caption</div>");
     });
 
-    it('applies left alignment', () => {
-      const params = { src: localTestImage, align: 'left' };
+    it("applies left alignment", () => {
+      const params = { src: localTestImage, align: "left" };
       const result = ImagePlugin.execute(mockContext, params);
 
-      expect(result).toContain('float: left;');
-      expect(result).toContain('margin-right: 10px;');
+      expect(result).toContain("float: left;");
+      expect(result).toContain("margin-right: 10px;");
     });
 
-    it('applies right alignment', () => {
-      const params = { src: localTestImage, align: 'right' };
+    it("applies right alignment", () => {
+      const params = { src: localTestImage, align: "right" };
       const result = ImagePlugin.execute(mockContext, params);
 
-      expect(result).toContain('float: right;');
-      expect(result).toContain('margin-left: 10px;');
+      expect(result).toContain("float: right;");
+      expect(result).toContain("margin-left: 10px;");
     });
 
-    it('applies center alignment', () => {
-      const params = { src: localTestImage, align: 'center' };
+    it("applies center alignment", () => {
+      const params = { src: localTestImage, align: "center" };
       const result = ImagePlugin.execute(mockContext, params);
 
-      expect(result).toContain('display: block;');
-      expect(result).toContain('margin: 0 auto;');
+      expect(result).toContain("display: block;");
+      expect(result).toContain("margin: 0 auto;");
     });
 
-    it('wraps image in link when link parameter provided', () => {
+    it("wraps image in link when link parameter provided", () => {
       const params = { src: localTestImage, link: internetTestImage };
       const result = ImagePlugin.execute(mockContext, params);
 
       expect(result).toContain(`<a href="${internetTestImage}"`);
-      expect(result).toContain('<img');
-      expect(result).toContain('</a>');
+      expect(result).toContain("<img");
+      expect(result).toContain("</a>");
     });
 
-    it('adds border style when border parameter provided', () => {
-      const params = { src: localTestImage, border: '2' };
+    it("adds border style when border parameter provided", () => {
+      const params = { src: localTestImage, border: "2" };
       const result = ImagePlugin.execute(mockContext, params);
 
-      expect(result).toContain('border: 2px solid #ccc;');
+      expect(result).toContain("border: 2px solid #ccc;");
     });
 
-    it('adds title attribute when title parameter provided', () => {
-      const params = { src: localTestImage, title: 'Hover text' };
+    it("adds title attribute when title parameter provided", () => {
+      const params = { src: localTestImage, title: "Hover text" };
       const result = ImagePlugin.execute(mockContext, params);
 
       expect(result).toContain('title="Hover text"');
     });
 
-    it('combines multiple advanced parameters', () => {
+    it("combines multiple advanced parameters", () => {
       const params = {
         src: localTestImage,
-        caption: 'Test Caption',
-        align: 'center',
+        caption: "Test Caption",
+        align: "center",
         link: internetTestImage,
-        border: '3',
-        title: 'Hover text',
-        style: 'margin: 10px;'
+        border: "3",
+        title: "Hover text",
+        style: "margin: 10px;",
       };
       const result = ImagePlugin.execute(mockContext, params);
 
       expect(result).toContain('<div class="image-plugin-container');
       expect(result).toContain(`<a href="${internetTestImage}"`);
       // Be flexible on style concatenation order; check substrings
-      expect(result).toContain('border: 3px solid #ccc;');
-      expect(result).toContain('margin: 10px;');
-      expect(result).toContain('display: block;');
-      expect(result).toContain('margin: 0 auto;');
+      expect(result).toContain("border: 3px solid #ccc;");
+      expect(result).toContain("margin: 10px;");
+      expect(result).toContain("display: block;");
+      expect(result).toContain("margin: 0 auto;");
       expect(result).toContain('title="Hover text"');
-      expect(result).toContain('>Test Caption</div>');
+      expect(result).toContain(">Test Caption</div>");
     });
   });
 
-  describe('plugin metadata', () => {
-    it('has correct name', () => {
-      expect(ImagePlugin.name).toBe('Image');
+  describe("plugin metadata", () => {
+    it("has correct name", () => {
+      expect(ImagePlugin.name).toBe("Image");
     });
 
-    it('has execute method', () => {
-      expect(typeof ImagePlugin.execute).toBe('function');
+    it("has execute method", () => {
+      expect(typeof ImagePlugin.execute).toBe("function");
+    });
+  });
+
+  describe("uploaded image integration (Bug #76)", () => {
+    it("handles uploaded image paths correctly", () => {
+      // Simulate path returned by upload endpoint
+      const uploadedPath = "/images/upload-1234567890-123456789.jpg";
+      const params = { src: uploadedPath, alt: "Uploaded file" };
+      const result = ImagePlugin.execute(mockContext, params);
+
+      expect(result).toContain("<img");
+      expect(result).toContain(`src="${uploadedPath}"`);
+      expect(result).toContain('alt="Uploaded file"');
+      // Should not double the /images/ prefix
+      expect(result).not.toContain("/images/images/");
+    });
+
+    it("does not add /images/ prefix to paths starting with /images/", () => {
+      const params = { src: "/images/upload-123.jpg" };
+      const result = ImagePlugin.execute(mockContext, params);
+
+      expect(result).toContain('src="/images/upload-123.jpg"');
+      expect(result).not.toContain("/images/images/");
+    });
+
+    it("adds /images/ prefix to relative paths without /", () => {
+      const params = { src: "local-image.jpg" };
+      const result = ImagePlugin.execute(mockContext, params);
+
+      expect(result).toContain('src="/images/local-image.jpg"');
+    });
+
+    it("preserves absolute URLs without modification", () => {
+      const params = { src: "https://example.com/image.jpg" };
+      const result = ImagePlugin.execute(mockContext, params);
+
+      expect(result).toContain('src="https://example.com/image.jpg"');
+      expect(result).not.toContain("/images/https://");
+    });
+
+    it("handles uploaded PNG files", () => {
+      const params = { src: "/images/upload-1234567890-123456789.png" };
+      const result = ImagePlugin.execute(mockContext, params);
+
+      expect(result).toContain('src="/images/upload-1234567890-123456789.png"');
+    });
+
+    it("handles uploaded WebP files", () => {
+      const params = { src: "/images/upload-1234567890-123456789.webp" };
+      const result = ImagePlugin.execute(mockContext, params);
+
+      expect(result).toContain(
+        'src="/images/upload-1234567890-123456789.webp"'
+      );
+    });
+
+    it("handles uploaded SVG files", () => {
+      const params = { src: "/images/upload-1234567890-123456789.svg" };
+      const result = ImagePlugin.execute(mockContext, params);
+
+      expect(result).toContain('src="/images/upload-1234567890-123456789.svg"');
+    });
+
+    it("works with upload response imagePath property", () => {
+      // Simulate full upload response
+      const uploadResponse = {
+        success: true,
+        imagePath: "/images/upload-1234567890-123456789.jpg",
+        filename: "upload-1234567890-123456789.jpg",
+        originalName: "my-photo.jpg",
+        size: 245678,
+      };
+
+      const params = {
+        src: uploadResponse.imagePath,
+        alt: uploadResponse.originalName,
+      };
+      const result = ImagePlugin.execute(mockContext, params);
+
+      expect(result).toContain(`src="${uploadResponse.imagePath}"`);
+      expect(result).toContain(`alt="${uploadResponse.originalName}"`);
+    });
+
+    it("generates correct syntax for edit.ejs insertImage", () => {
+      // Simulate what edit.ejs does when user clicks "Insert at Cursor"
+      const uploadResponse = {
+        imagePath: "/images/upload-1234567890-123456789.jpg",
+        originalName: "vacation.jpg",
+      };
+
+      const imageSyntax = `[{Image src='${uploadResponse.imagePath}' alt='${uploadResponse.originalName}'}]`;
+
+      expect(imageSyntax).toBe(
+        "[{Image src='/images/upload-1234567890-123456789.jpg' alt='vacation.jpg'}]"
+      );
+    });
+  });
+
+  describe("ConfigurationManager integration", () => {
+    it("falls back to default values when ConfigurationManager unavailable", () => {
+      const contextWithoutConfig = {
+        engine: {
+          getManager: jest.fn().mockReturnValue(null),
+        },
+      };
+
+      const params = { src: "/images/test.jpg" };
+      const result = ImagePlugin.execute(contextWithoutConfig, params);
+
+      expect(result).toContain("<img");
+      expect(result).toContain('alt="Uploaded image"'); // default fallback
+      expect(result).toContain('class="wiki-image"'); // default fallback
+    });
+
+    it("uses ConfigurationManager values when available", () => {
+      const customConfigManager = {
+        getProperty: jest.fn().mockImplementation((key, def) => {
+          if (key === "amdwiki.features.images.defaultAlt") return "Custom Alt";
+          if (key === "amdwiki.features.images.defaultClass")
+            return "custom-class";
+          return def;
+        }),
+      };
+
+      const contextWithCustomConfig = {
+        engine: {
+          getManager: jest.fn().mockReturnValue(customConfigManager),
+        },
+      };
+
+      const params = { src: "/images/test.jpg" };
+      const result = ImagePlugin.execute(contextWithCustomConfig, params);
+
+      expect(result).toContain('alt="Custom Alt"');
+      expect(result).toContain('class="custom-class"');
+    });
+
+    it("handles ConfigurationManager errors gracefully", () => {
+      const faultyConfigManager = {
+        getProperty: jest.fn().mockImplementation(() => {
+          throw new Error("Config error");
+        }),
+      };
+
+      const contextWithFaultyConfig = {
+        engine: {
+          getManager: jest.fn().mockReturnValue(faultyConfigManager),
+        },
+      };
+
+      const params = { src: "/images/test.jpg" };
+      const result = ImagePlugin.execute(contextWithFaultyConfig, params);
+
+      // Should return error message instead of crashing
+      expect(result).toMatch(/Image plugin error/i);
     });
   });
 });

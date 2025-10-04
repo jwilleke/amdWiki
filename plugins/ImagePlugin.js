@@ -5,7 +5,7 @@
  */
 
 const ImagePlugin = {
-  name: 'Image',
+  name: "Image",
 
   /**
    * Execute the plugin
@@ -15,23 +15,34 @@ const ImagePlugin = {
    */
   execute(context, params) {
     try {
-      // Get configuration (if available)
-      const config = context.engine ? context.engine.getConfig() : null;
-      const defaultAlt = config ? config.get('features.images.defaultAlt', 'Uploaded image') : 'Uploaded image';
-      const defaultClass = config ? config.get('features.images.defaultClass', 'wiki-image') : 'wiki-image';
+      // Get configuration from ConfigurationManager
+      const configManager = context.engine?.getManager("ConfigurationManager");
+      const defaultAlt =
+        configManager?.getProperty(
+          "amdwiki.features.images.defaultAlt",
+          "Uploaded image"
+        ) || "Uploaded image";
+      const defaultClass =
+        configManager?.getProperty(
+          "amdwiki.features.images.defaultClass",
+          "wiki-image"
+        ) || "wiki-image";
 
       // Build the image tag
-      let imgTag = '<img';
+      let imgTag = "<img";
 
       // Required src attribute
       if (params.src) {
         // Handle relative paths - assume images are in /public/images or /attachments
         let src = params.src;
-        if (!src.startsWith('http') && !src.startsWith('/')) {
+
+        // If it starts with http or /, use as-is (absolute path or URL)
+        if (!src.startsWith("http") && !src.startsWith("/")) {
           // Relative path - prepend with /images/
           src = `/images/${src}`;
         }
-        // If it's already an absolute path starting with /images/, use as-is
+        // If path already starts with /images/, use as-is (no double prefix)
+
         imgTag += ` src="${src}"`;
       } else {
         return '<span class="error">Image plugin: src attribute is required</span>';
@@ -78,24 +89,24 @@ const ImagePlugin = {
       // Add alignment styles
       if (params.align) {
         const align = params.align.toLowerCase();
-        if (align === 'left') {
-          styles.push('float: left; margin-right: 10px;');
-        } else if (align === 'right') {
-          styles.push('float: right; margin-left: 10px;');
-        } else if (align === 'center') {
-          styles.push('display: block; margin: 0 auto;');
+        if (align === "left") {
+          styles.push("float: left; margin-right: 10px;");
+        } else if (align === "right") {
+          styles.push("float: right; margin-left: 10px;");
+        } else if (align === "center") {
+          styles.push("display: block; margin: 0 auto;");
         }
       }
 
       if (classes.length > 0) {
-        imgTag += ` class="${classes.join(' ')}"`;
+        imgTag += ` class="${classes.join(" ")}"`;
       }
 
       if (styles.length > 0) {
-        imgTag += ` style="${styles.join(' ')}"`;
+        imgTag += ` style="${styles.join(" ")}"`;
       }
 
-      imgTag += ' />';
+      imgTag += " />";
 
       // Handle link wrapping
       if (params.link) {
@@ -104,7 +115,9 @@ const ImagePlugin = {
 
       // Handle caption
       if (params.caption) {
-        const alignClass = params.align ? `text-${params.align.toLowerCase()}` : '';
+        const alignClass = params.align
+          ? `text-${params.align.toLowerCase()}`
+          : "";
         imgTag = `
 <div class="image-plugin-container ${alignClass}" style="margin-bottom: 10px;">
   ${imgTag}
@@ -114,10 +127,10 @@ const ImagePlugin = {
 
       return imgTag;
     } catch (error) {
-      console.error('Image plugin error:', error);
+      console.error("Image plugin error:", error);
       return '<span class="error">Image plugin error</span>';
     }
-  }
+  },
 };
 
 module.exports = ImagePlugin;
