@@ -91,10 +91,9 @@ const PluginName = {
 ```
 
 ### Security Guidelines
-- Ensure **authentication checks** for routes or features that modify content (use three-state authentication: Anonymous, Asserted, Authenticated).
-- Implement **role-based permissions** (reader, contributor, editor, admin) for access control.
-- Validate and sanitize **all user inputs** to prevent security vulnerabilities.
-- Use **ACLManager** for content filtering based on user permissions.
+
+Use **ACLManager** for content filtering based on user permissions.
+See [Policies-Roles-Permissions](docs/architecture/Policies-Roles-Permissions.md)
 
 ### UI/UX Standards
 - Use **Bootstrap 5** components and styling for consistency.
