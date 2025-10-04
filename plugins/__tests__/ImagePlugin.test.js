@@ -260,4 +260,159 @@ describe("Image (via PluginManager)", () => {
       expect(typeof ImagePlugin.execute).toBe("function");
     });
   });
+
+  describe("uploaded image integration (Bug #76)", () => {
+    it("handles uploaded image paths correctly", () => {
+      // Simulate path returned by upload endpoint
+      const uploadedPath = "/images/upload-1234567890-123456789.jpg";
+      const params = { src: uploadedPath, alt: "Uploaded file" };
+      const result = ImagePlugin.execute(mockContext, params);
+
+      expect(result).toContain("<img");
+      expect(result).toContain(`src="${uploadedPath}"`);
+      expect(result).toContain('alt="Uploaded file"');
+      // Should not double the /images/ prefix
+      expect(result).not.toContain("/images/images/");
+    });
+
+    it("does not add /images/ prefix to paths starting with /images/", () => {
+      const params = { src: "/images/upload-123.jpg" };
+      const result = ImagePlugin.execute(mockContext, params);
+
+      expect(result).toContain('src="/images/upload-123.jpg"');
+      expect(result).not.toContain("/images/images/");
+    });
+
+    it("adds /images/ prefix to relative paths without /", () => {
+      const params = { src: "local-image.jpg" };
+      const result = ImagePlugin.execute(mockContext, params);
+
+      expect(result).toContain('src="/images/local-image.jpg"');
+    });
+
+    it("preserves absolute URLs without modification", () => {
+      const params = { src: "https://example.com/image.jpg" };
+      const result = ImagePlugin.execute(mockContext, params);
+
+      expect(result).toContain('src="https://example.com/image.jpg"');
+      expect(result).not.toContain("/images/https://");
+    });
+
+    it("handles uploaded PNG files", () => {
+      const params = { src: "/images/upload-1234567890-123456789.png" };
+      const result = ImagePlugin.execute(mockContext, params);
+
+      expect(result).toContain('src="/images/upload-1234567890-123456789.png"');
+    });
+
+    it("handles uploaded WebP files", () => {
+      const params = { src: "/images/upload-1234567890-123456789.webp" };
+      const result = ImagePlugin.execute(mockContext, params);
+
+      expect(result).toContain(
+        'src="/images/upload-1234567890-123456789.webp"'
+      );
+    });
+
+    it("handles uploaded SVG files", () => {
+      const params = { src: "/images/upload-1234567890-123456789.svg" };
+      const result = ImagePlugin.execute(mockContext, params);
+
+      expect(result).toContain('src="/images/upload-1234567890-123456789.svg"');
+    });
+
+    it("works with upload response imagePath property", () => {
+      // Simulate full upload response
+      const uploadResponse = {
+        success: true,
+        imagePath: "/images/upload-1234567890-123456789.jpg",
+        filename: "upload-1234567890-123456789.jpg",
+        originalName: "my-photo.jpg",
+        size: 245678,
+      };
+
+      const params = {
+        src: uploadResponse.imagePath,
+        alt: uploadResponse.originalName,
+      };
+      const result = ImagePlugin.execute(mockContext, params);
+
+      expect(result).toContain(`src="${uploadResponse.imagePath}"`);
+      expect(result).toContain(`alt="${uploadResponse.originalName}"`);
+    });
+
+    it("generates correct syntax for edit.ejs insertImage", () => {
+      // Simulate what edit.ejs does when user clicks "Insert at Cursor"
+      const uploadResponse = {
+        imagePath: "/images/upload-1234567890-123456789.jpg",
+        originalName: "vacation.jpg",
+      };
+
+      const imageSyntax = `[{Image src='${uploadResponse.imagePath}' alt='${uploadResponse.originalName}'}]`;
+
+      expect(imageSyntax).toBe(
+        "[{Image src='/images/upload-1234567890-123456789.jpg' alt='vacation.jpg'}]"
+      );
+    });
+  });
+
+  describe("ConfigurationManager integration", () => {
+    it("falls back to default values when ConfigurationManager unavailable", () => {
+      const contextWithoutConfig = {
+        engine: {
+          getManager: jest.fn().mockReturnValue(null),
+        },
+      };
+
+      const params = { src: "/images/test.jpg" };
+      const result = ImagePlugin.execute(contextWithoutConfig, params);
+
+      expect(result).toContain("<img");
+      expect(result).toContain('alt="Uploaded image"'); // default fallback
+      expect(result).toContain('class="wiki-image"'); // default fallback
+    });
+
+    it("uses ConfigurationManager values when available", () => {
+      const customConfigManager = {
+        getProperty: jest.fn().mockImplementation((key, def) => {
+          if (key === "amdwiki.features.images.defaultAlt") return "Custom Alt";
+          if (key === "amdwiki.features.images.defaultClass")
+            return "custom-class";
+          return def;
+        }),
+      };
+
+      const contextWithCustomConfig = {
+        engine: {
+          getManager: jest.fn().mockReturnValue(customConfigManager),
+        },
+      };
+
+      const params = { src: "/images/test.jpg" };
+      const result = ImagePlugin.execute(contextWithCustomConfig, params);
+
+      expect(result).toContain('alt="Custom Alt"');
+      expect(result).toContain('class="custom-class"');
+    });
+
+    it("handles ConfigurationManager errors gracefully", () => {
+      const faultyConfigManager = {
+        getProperty: jest.fn().mockImplementation(() => {
+          throw new Error("Config error");
+        }),
+      };
+
+      const contextWithFaultyConfig = {
+        engine: {
+          getManager: jest.fn().mockReturnValue(faultyConfigManager),
+        },
+      };
+
+      const params = { src: "/images/test.jpg" };
+      const result = ImagePlugin.execute(contextWithFaultyConfig, params);
+
+      // Should return error message instead of crashing
+      expect(result).toMatch(/Image plugin error/i);
+    });
+  });
 });

@@ -3802,10 +3802,33 @@ class WikiRoutes {
       this.adminDeleteRole(req, res)
     );
 
-    // Image upload route
-    app.post("/images/upload", imageUpload.single("image"), (req, res) =>
-      this.uploadImage(req, res)
-    );
+    // Image upload route with error handling
+    app.post("/images/upload", (req, res) => {
+      imageUpload.single("image")(req, res, (err) => {
+        if (err) {
+          // Multer error handling
+          if (err instanceof multer.MulterError) {
+            if (err.code === "LIMIT_FILE_SIZE") {
+              return res.status(400).json({
+                success: false,
+                error: "File size exceeds 10MB limit",
+              });
+            }
+            return res.status(400).json({
+              success: false,
+              error: err.message,
+            });
+          }
+          // Other errors (e.g., file type validation)
+          return res.status(400).json({
+            success: false,
+            error: err.message,
+          });
+        }
+        // No error, proceed to handler
+        this.uploadImage(req, res);
+      });
+    });
 
     // Notification management routes
     app.post("/admin/notifications/:id/dismiss", (req, res) =>
