@@ -64,6 +64,7 @@
   "amdwiki.jsonorganizationsdatabase": "users/organizations.json",
   "_comment_directories": "Directory and file system settings",
   "amdwiki.directories.pages": "./pages",
+  "amdwiki.directories.required-pages": "./required-pages",
   "amdwiki.directories.templates": "./templates",
   "amdwiki.directories.resources": "./resources",
   "amdwiki.directories.data": "./data",

@@ -14,7 +14,7 @@ const { BaseSyntaxHandler } = require('./BaseSyntaxHandler');
 class EscapedSyntaxHandler extends BaseSyntaxHandler {
   constructor() {
     super(
-      /\[\[(\{[\s\S]*?\})\]/g, // Pattern: [[{PluginName params...}] - escape plugin syntax with any content
+      /\[\[(\{[^\]]+\})\]/g, // Pattern: [[{PluginName params...}] - escape plugin syntax
       100, // Highest priority - must process before PluginSyntaxHandler (90)
       {
         description: 'JSPWiki-style double bracket escaping for literal syntax display',
@@ -37,6 +37,10 @@ class EscapedSyntaxHandler extends BaseSyntaxHandler {
       return content;
     }
 
+    console.log(`🔍 EscapedSyntaxHandler.process() called, content length: ${content.length}`);
+    console.log(`🔍 Content contains [[{: ${content.includes('[[{')}`);
+    console.log(`🔍 Pattern: ${this.pattern}`);
+
     // Find all double bracket patterns
     const matches = [];
     let match;
@@ -45,6 +49,7 @@ class EscapedSyntaxHandler extends BaseSyntaxHandler {
     this.pattern.lastIndex = 0;
 
     while ((match = this.pattern.exec(content)) !== null) {
+      console.log(`🔍 Found match: "${match[0]}"`);
       matches.push({
         fullMatch: match[0],        // [[{PluginName}]
         innerContent: match[1],     // {PluginName}
@@ -52,6 +57,8 @@ class EscapedSyntaxHandler extends BaseSyntaxHandler {
         length: match[0].length
       });
     }
+
+    console.log(`🔍 Total matches found: ${matches.length}`);
 
     // Process matches in reverse order to maintain string positions
     let processedContent = content;
@@ -87,7 +94,9 @@ class EscapedSyntaxHandler extends BaseSyntaxHandler {
     // Convert [[{content}] to [{content}] but HTML-encode the brackets to prevent further processing
     const literalContent = `&#91;${matchInfo.innerContent}&#93;`;
 
-    // Debug: console.log(`🔓 Escaped syntax: ${matchInfo.fullMatch.replace(/\n/g, '\\n')} → ${literalContent}`);
+    console.log(`🔓 Escaped syntax detected!`);
+    console.log(`   Input: "${matchInfo.fullMatch}"`);
+    console.log(`   Output: "${literalContent}"`);
 
     return literalContent;
   }

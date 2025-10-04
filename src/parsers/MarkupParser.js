@@ -703,6 +703,22 @@ class MarkupParser extends BaseManager {
     const codeBlocks = [];
     let processedContent = content;
 
+    // Process escaped syntax FIRST (highest priority - before anything else)
+    // This handles JSPWiki double bracket escaping: [[{syntax}] → [{syntax}]
+    const escapedHandler = this.handlerRegistry.getHandler('EscapedSyntaxHandler');
+    console.log(`🔍 Phase 1: escapedHandler = ${escapedHandler ? 'FOUND' : 'NOT FOUND'}`);
+    if (escapedHandler) {
+      try {
+        // Debug: Check if content contains escaped syntax
+        if (processedContent.includes('[[{')) {
+          console.log(`🔍 Found escaped syntax in content, processing...`);
+        }
+        processedContent = await escapedHandler.process(processedContent, context);
+      } catch (error) {
+        console.error('❌ Error processing escaped syntax:', error.message);
+      }
+    }
+
     // Extract and protect code blocks
     processedContent = processedContent.replace(/```[\s\S]*?```/g, (match) => {
       const placeholder = `CODEBLOCK${codeBlocks.length}CODEBLOCK`;
@@ -731,7 +747,7 @@ class MarkupParser extends BaseManager {
 
     // Normalize line endings
     processedContent = processedContent.replace(/\r\n/g, '\n');
-    
+
     // Remove excessive whitespace but preserve intentional formatting
     processedContent = processedContent.replace(/\n\s*\n\s*\n/g, '\n\n');
 
@@ -756,10 +772,11 @@ class MarkupParser extends BaseManager {
   async phaseContextResolution(content, context) {
     const variableManager = this.engine.getManager('VariableManager');
     if (variableManager) {
-      // Expand system variables
-      content = variableManager.expandVariables(content, context.pageContext);
+      // Expand system variables - pass the full context which includes both pageContext and ParseContext properties
+      // The ParseContext has: pageName, userName, userContext, requestInfo extracted from pageContext
+      content = variableManager.expandVariables(content, context);
     }
-    
+
     return content;
   }
 
@@ -774,7 +791,12 @@ class MarkupParser extends BaseManager {
     let transformedContent = content;
 
     // Execute each handler using the registry's execution method
+    // Skip EscapedSyntaxHandler as it's already processed in Phase 1 (Preprocessing)
     for (const handler of sortedHandlers) {
+      if (handler.handlerId === 'EscapedSyntaxHandler') {
+        continue; // Already processed in Phase 1
+      }
+
       try {
         transformedContent = await handler.execute(transformedContent, context);
       } catch (error) {

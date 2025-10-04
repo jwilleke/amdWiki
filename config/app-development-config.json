@@ -7,8 +7,8 @@
   "amdwiki.logging.debug.session": true,
   "amdwiki.logging.debug.login": true,
 
-  "amdwiki.rendering.useAdvancedParser": true,
-  "amdwiki.rendering.logParsingMethod": true,
+  "amdwiki.markup.useAdvancedParser": true,
+  "amdwiki.markup.logParsingMethod": true,
 
   "amdwiki.features.maintenance.enabled": false,
 

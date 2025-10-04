@@ -10,22 +10,37 @@ class ParseContext {
   constructor(content, context, engine) {
     // Original content and processing context
     this.originalContent = content;
-    this.pageContext = context;
-    this.engine = engine;
-    
-    // Extract context information
-    this.pageName = context.pageName || 'unknown';
-    this.userName = context.userName || 'anonymous';
-    this.userContext = context.userContext || null;
-    this.requestInfo = context.requestInfo || null;
-    
+
+    // Handle nested structure from WikiContext.toParseOptions()
+    // Context structure: { pageContext: { pageName, userContext, requestInfo }, engine }
+    if (context.pageContext) {
+      // Nested structure from WikiContext
+      this.pageContext = context.pageContext;
+      this.engine = context.engine || engine;
+
+      // Extract from nested pageContext
+      this.pageName = context.pageContext.pageName || 'unknown';
+      this.userName = context.pageContext.userName || 'anonymous';
+      this.userContext = context.pageContext.userContext || null;
+      this.requestInfo = context.pageContext.requestInfo || null;
+    } else {
+      // Direct structure (legacy or alternative calling pattern)
+      this.pageContext = context;
+      this.engine = engine;
+
+      this.pageName = context.pageName || 'unknown';
+      this.userName = context.userName || 'anonymous';
+      this.userContext = context.userContext || null;
+      this.requestInfo = context.requestInfo || null;
+    }
+
     // Processing state
     this.protectedBlocks = [];
     this.syntaxTokens = [];
     this.variables = new Map();
     this.handlerResults = new Map();
     this.metadata = {};
-    
+
     // Performance tracking
     this.startTime = Date.now();
     this.phaseTimings = new Map();

@@ -16,7 +16,7 @@ is the timestamp the page was last modifed
 creator - the username that created the page
 
 ## editor
-The person who last modified the document (https://schema.org/editor)
+The person who last modified the document (<https://schema.org/editor>)
 
 ## Keywords and system-category
 
@@ -33,7 +33,6 @@ user-keywords are defined in [user-keywords](../required-pages/e3bc8a66-9a68-47b
 ## system-keywords
 Are future implementaion for AI Tags based on Content.
 - Multiple values
-
 
 ## Required Fields (All Pages)
 ```yaml
