@@ -28,7 +28,7 @@ const imageStorage = multer.diskStorage({
 
 const imageUpload = multer({
   storage: imageStorage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
   fileFilter: (req, file, cb) => {
     const allowedTypes = /jpeg|jpg|png|gif|webp|svg/;
     const extname = allowedTypes.test(
@@ -66,7 +66,7 @@ class WikiRoutes {
     const match = sizeStr
       .toUpperCase()
       .match(/^(\d+(?:\.\d+)?)\s*(B|KB|MB|GB)?$/);
-    if (!match) return 5 * 1024 * 1024; // Default 5MB
+    if (!match) return 10 * 1024 * 1024; // Default 10MB
 
     const size = parseFloat(match[1]);
     const unit = match[2] || "B";
