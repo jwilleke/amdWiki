@@ -159,18 +159,25 @@ class UserManager extends BaseManager {
    * Load roles from disk
    */
   async loadRoles() {
+    // Initialize default permissions first
+    this.initializeDefaultPermissions();
+
+    // Initialize default roles
+    this.initializeDefaultRoles();
+
     try {
       const rolesFile = path.join(this.usersDirectory, 'roles.json');
       const rolesData = await fs.readFile(rolesFile, 'utf8');
       const roles = JSON.parse(rolesData);
-      
-      // Merge with default roles
+
+      // Merge custom roles with defaults (custom roles override defaults)
       for (const [roleName, role] of Object.entries(roles)) {
         this.roles.set(roleName, role);
       }
-      console.log(`👤 Loaded ${this.roles.size} roles`);
+      console.log(`👤 Loaded ${this.roles.size} roles from file`);
     } catch (err) {
-      // Roles file doesn't exist yet, use defaults
+      // Roles file doesn't exist yet, using default roles
+      console.log(`👤 Using ${this.roles.size} default roles`);
     }
   }
 

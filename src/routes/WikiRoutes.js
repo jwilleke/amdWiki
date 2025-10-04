@@ -563,13 +563,21 @@ class WikiRoutes {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
 
+      console.log('[CREATE-DEBUG] currentUser:', currentUser ? currentUser.username : 'null', 'isAuth:', currentUser?.isAuthenticated);
+      console.log('[CREATE-DEBUG] checking page:create permission for user:', currentUser?.username);
+
       // Check if user is authenticated
       if (!currentUser || !currentUser.isAuthenticated) {
+        console.log('[CREATE-DEBUG] User not authenticated, redirecting to login');
         return res.redirect('/login?redirect=' + encodeURIComponent('/create'));
       }
 
+      const hasPermission = userManager.hasPermission(currentUser.username, 'page:create');
+      console.log('[CREATE-DEBUG] hasPermission result:', hasPermission);
+
       // Check if user has permission to create pages
-      if (!userManager.hasPermission(currentUser.username, 'page:create')) {
+      if (!hasPermission) {
+        console.log('[CREATE-DEBUG] Permission denied for user:', currentUser.username);
         return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to create pages. Please contact an administrator.');
       }
 
