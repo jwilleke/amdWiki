@@ -12,6 +12,7 @@ const UserManager = require('./managers/UserManager');
 const ACLManager = require('./managers/ACLManager');
 const SchemaManager = require('./managers/SchemaManager');
 const VariableManager = require('./managers/VariableManager');
+const ValidationManager = require('./managers/ValidationManager');
 const PolicyManager = require('./managers/PolicyManager');
 const PolicyValidator = require('./managers/PolicyValidator');
 const PolicyEvaluator = require('./managers/PolicyEvaluator');
@@ -98,6 +99,9 @@ class WikiEngine extends Engine {
 
     this.registerManager('SearchManager', new SearchManager(this));
     await this.getManager('SearchManager').initialize();
+
+    this.registerManager('ValidationManager', new ValidationManager(this));
+    await this.getManager('ValidationManager').initialize();
 
     // Add VariableManager to the initialization sequence
     this.registerManager('VariableManager', new VariableManager(this));

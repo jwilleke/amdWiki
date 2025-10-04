@@ -1332,10 +1332,10 @@ class WikiRoutes {
 
       // Permission checks
       const isCurrentlyRequired = await this.isRequiredPage(pageName);
-      const willBeRequired = await pageManager.isRequiredPage(
-        pageName,
-        metadata
-      );
+      // Check if the new metadata will make this a required page
+      const hardcodedRequiredPages = ["Categories", "Wiki Documentation"];
+      const willBeRequired = hardcodedRequiredPages.includes(pageName) ||
+                            metadata['system-category'] === "System/Admin";
       if (isCurrentlyRequired || willBeRequired) {
         if (
           !currentUser ||

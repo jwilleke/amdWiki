@@ -30,6 +30,7 @@ class ValidationManager extends BaseManager {
       configManager.getProperty('amdwiki.maximum.user-keywords', 5) :
       (config.maxUserKeywords || 5);
     this.maxCategories = config.maxCategories || 3;
+    console.log('✅ ValidationManager initialized');
   }
 
   /**
