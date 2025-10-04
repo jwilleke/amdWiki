@@ -646,14 +646,14 @@
     }
   },
   
-  "_comment_access_policies": "Access control policies",
+  "_comment_access_policies": "Access control policies - Role-based with specific action permissions",
   "amdwiki.access.policies.defaultPolicy": "deny",
   "amdwiki.access.policies.enabled": true,
   "amdwiki.access.policies": [
     {
       "id": "admin-full-access",
       "name": "Administrator Full Access",
-      "description": "Full access for system administrators",
+      "description": "Full system access for administrators - all page and admin permissions",
       "priority": 100,
       "effect": "allow",
       "subjects": [
@@ -669,13 +669,155 @@
         }
       ],
       "actions": [
+        "page:read",
+        "page:edit",
+        "page:create",
+        "page:delete",
+        "page:rename",
+        "attachment:upload",
+        "attachment:delete",
+        "export:pages",
+        "search:all",
+        "search:restricted",
+        "admin:users",
+        "admin:roles",
+        "admin:config",
+        "admin:system"
+      ]
+    },
+    {
+      "id": "editor-permissions",
+      "name": "Editor Permissions",
+      "description": "Can create, edit, delete, and rename pages plus manage attachments",
+      "priority": 80,
+      "effect": "allow",
+      "subjects": [
+        {
+          "type": "role",
+          "value": "editor"
+        }
+      ],
+      "resources": [
+        {
+          "type": "page",
+          "pattern": "*"
+        }
+      ],
+      "actions": [
+        "page:read",
+        "page:edit",
+        "page:create",
+        "page:delete",
+        "page:rename",
+        "attachment:upload",
+        "attachment:delete",
+        "export:pages",
+        "search:all"
+      ]
+    },
+    {
+      "id": "contributor-permissions",
+      "name": "Contributor Permissions",
+      "description": "Can create and edit pages, upload attachments (no delete/rename)",
+      "priority": 70,
+      "effect": "allow",
+      "subjects": [
+        {
+          "type": "role",
+          "value": "contributor"
+        }
+      ],
+      "resources": [
+        {
+          "type": "page",
+          "pattern": "*"
+        }
+      ],
+      "actions": [
+        "page:read",
+        "page:edit",
+        "page:create",
+        "attachment:upload",
+        "export:pages",
+        "search:all"
+      ]
+    },
+    {
+      "id": "reader-permissions",
+      "name": "Reader Permissions",
+      "description": "Read-only access - can view pages, search, and export",
+      "priority": 60,
+      "effect": "allow",
+      "subjects": [
+        {
+          "type": "role",
+          "value": "reader"
+        }
+      ],
+      "resources": [
+        {
+          "type": "page",
+          "pattern": "*"
+        }
+      ],
+      "actions": [
+        "page:read",
+        "search:all",
+        "export:pages"
+      ]
+    },
+    {
+      "id": "anonymous-read-only",
+      "name": "Anonymous Read Access",
+      "description": "Anonymous users can only read pages",
+      "priority": 50,
+      "effect": "allow",
+      "subjects": [
+        {
+          "type": "role",
+          "value": "anonymous"
+        }
+      ],
+      "resources": [
+        {
+          "type": "page",
+          "pattern": "*"
+        }
+      ],
+      "actions": [
+        "page:read"
+      ]
+    },
+    {
+      "id": "deny-anonymous-system-pages",
+      "name": "Deny Anonymous System Pages",
+      "description": "Block anonymous access to system and admin category pages",
+      "priority": 90,
+      "effect": "deny",
+      "subjects": [
+        {
+          "type": "role",
+          "value": "anonymous"
+        }
+      ],
+      "resources": [
+        {
+          "type": "category",
+          "value": "system"
+        },
+        {
+          "type": "category",
+          "value": "admin"
+        }
+      ],
+      "actions": [
         "*"
       ]
     },
     {
       "id": "default-view-for-all",
-      "name": "Default View Access",
-      "description": "Allows all users (including anonymous) to view all pages by default.",
+      "name": "Default View Access for All",
+      "description": "Fallback - all authenticated users can at minimum view pages",
       "priority": 1,
       "effect": "allow",
       "subjects": [
@@ -691,74 +833,7 @@
         }
       ],
       "actions": [
-        "view"
-      ]
-    },
-    {
-      "id": "authenticated-user-rights",
-      "name": "Authenticated User Rights",
-      "description": "Grants authenticated users rights to edit and perform other actions on non-system pages.",
-      "priority": 50,
-      "effect": "allow",
-      "subjects": [
-        {
-          "type": "role",
-          "value": "Authenticated"
-        }
-      ],
-      "resources": [
-        {
-          "type": "page",
-          "pattern": "*"
-        }
-      ],
-      "actions": [
-        "edit",
-        "upload",
-        "rename",
-        "delete"
-      ],
-      "conditions": [
-        {
-          "type": "resource",
-          "key": "category",
-          "operator": "notEquals",
-          "value": "System"
-        },
-        {
-          "type": "resource",
-          "key": "category",
-          "operator": "notEquals",
-          "value": "Admin"
-        }
-      ]
-    },
-    {
-      "id": "deny-anonymous-system-access",
-      "name": "Deny Anonymous System Access",
-      "description": "Deny anonymous users from viewing sensitive system pages.",
-      "priority": 60,
-      "effect": "deny",
-      "subjects": [
-        {
-          "type": "role",
-          "value": "Anonymous"
-        }
-      ],
-      "resources": [
-        {
-          "type": "category",
-          "value": "System"
-        },
-        {
-          "type": "category",
-          "value": "Admin"
-        }
-      ],
-      "actions": [
-        "view",
-        "edit",
-        "delete"
+        "page:read"
       ]
     }
   ]

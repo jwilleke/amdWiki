@@ -163,7 +163,7 @@ The system includes 7 default policies defined in `config/app-default-config.jso
    - ACLManager loads policies into PolicyEvaluator
 
 2. **Access Check Flow:**
-   ```
+   ``` text
    User Request → ACLManager.checkPagePermission()
                 ↓
    Action Mapping (view → page:read)
@@ -276,7 +276,7 @@ Note: `Authenticated` and `All` roles are automatically added.
 
 ### Example 1: Anonymous User Views Welcome Page
 
-```
+``` text
 Request: GET /wiki/Welcome
 User: Anonymous
 Action: view → page:read
@@ -295,7 +295,7 @@ Result: ALLOWED (policy: default-view-for-all)
 
 ### Example 2: Admin User Accesses Admin Roles
 
-```
+``` text
 Request: GET /admin/roles
 User: jim (roles: admin)
 Action: admin:roles
@@ -308,7 +308,7 @@ Result: ALLOWED (policy: admin-full-access)
 
 ### Example 3: Anonymous User Tries Admin Page
 
-```
+``` text
 Request: GET /admin/users
 User: Anonymous
 Action: admin:users
@@ -322,7 +322,7 @@ Result: DENIED (policy: deny-anonymous-system-pages)
 
 ### Example 4: Editor Creates Page
 
-```
+``` text
 Request: POST /create
 User: editor_user (roles: editor)
 Action: page:create
@@ -339,7 +339,7 @@ Result: ALLOWED (policy: editor-permissions)
 
 The system provides extensive logging for troubleshooting:
 
-```
+``` text
 [POLICY] Evaluate page=Welcome action=page:read user=Anonymous roles=Anonymous|All
 [POLICY] Check policy=admin-full-access effect=allow match=false
 [POLICY] Check policy=default-view-for-all effect=allow match=true
@@ -371,21 +371,16 @@ To add a new policy, edit `config/app-default-config.json`:
 }
 ```
 
-Then restart the server for changes to take effect.
-
 ## Security Considerations
 
 1. **Priority Matters:** Higher priority policies override lower ones. Place deny policies before allow policies.
-
 2. **Default Deny:** If no policy matches, access is denied by default.
-
 3. **Role Accumulation:** Users accumulate roles (`Authenticated`, `All`) automatically. Be careful with `All` role policies.
-
 4. **Resource Patterns:** Use specific patterns for sensitive resources to avoid unintended access.
 
 5. **Action Granularity:** Separate admin actions (`admin:*`) from page actions (`page:*`) to prevent privilege escalation.
 
-## Files Modified
+## Files Typically Affected
 
 - `src/managers/ACLManager.js` - Action name mapping, policy evaluation integration
 - `src/managers/UserManager.js` - Policy-based hasPermission() implementation
@@ -397,4 +392,3 @@ Then restart the server for changes to take effect.
 
 - [JSPWiki Rendering](./JSPWiki-rendering.md)
 - [Page Metadata](./page-metadata.md)
-- [Security Policy](../Security-Policy.md)
