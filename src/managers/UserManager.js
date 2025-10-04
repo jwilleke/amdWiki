@@ -384,40 +384,52 @@ class UserManager extends BaseManager {
   }
 
   /**
-   * Check if user has permission
+   * Check if user has permission using policy-based access control
    * @param {string} username - Username (null for anonymous)
-   * @param {string} permission - Permission to check
-   * @returns {boolean} True if user has permission
+   * @param {string} action - Action/permission to check (e.g., 'page:create', 'admin:users')
+   * @returns {Promise<boolean>} True if user has permission via policies
    */
-  hasPermission(username, permission) {
-    // Handle anonymous user (no session cookie)
-    if (!username || username === 'anonymous') {
-      const anonymousRole = this.roles.get('anonymous');
-      const result = anonymousRole && anonymousRole.permissions.includes(permission);
-      return result;
-    }
-
-    // Handle asserted user (has session cookie but expired/invalid)
-    if (username === 'asserted') {
-      const readerRole = this.roles.get('reader');
-      const result = readerRole && readerRole.permissions.includes(permission);
-      return result;
-    }
-
-    const user = this.users.get(username);
-    if (!user || !user.isActive) {
+  async hasPermission(username, action) {
+    const policyEvaluator = this.engine?.getManager('PolicyEvaluator');
+    if (!policyEvaluator) {
+      console.warn('[UserManager] PolicyEvaluator not available, denying permission');
       return false;
     }
 
-    // Check all user's roles for the permission
-    for (const roleName of user.roles) {
-      const role = this.roles.get(roleName);
-      if (role && role.permissions.includes(permission)) {
-        return true;
+    // Build user context for policy evaluation
+    let userContext;
+    if (!username || username === 'anonymous') {
+      userContext = {
+        username: 'Anonymous',
+        roles: ['anonymous', 'All'],
+        isAuthenticated: false
+      };
+    } else if (username === 'asserted') {
+      userContext = {
+        username: 'Asserted',
+        roles: ['reader', 'All'],
+        isAuthenticated: false
+      };
+    } else {
+      const user = this.users.get(username);
+      if (!user || !user.isActive) {
+        return false;
       }
+      userContext = {
+        username: user.username,
+        roles: [...(user.roles || []), 'Authenticated', 'All'],
+        isAuthenticated: true
+      };
     }
 
-    return false;
+    // Evaluate using policies - use generic page resource for permission checks
+    const result = await policyEvaluator.evaluateAccess({
+      pageName: '*',  // Generic - checking user capability, not specific page
+      action: action,
+      userContext: userContext
+    });
+
+    return result.allowed;
   }
 
   /**

@@ -107,10 +107,21 @@ class ACLManager extends BaseManager {
     const roles = (userContext?.roles || []).join('|');
     logger.info(`[ACL] checkPagePermission page=${pageName} action=${action} user=${userContext?.username} roles=${roles}`);
 
+    // Map legacy action names to policy action names
+    const actionMap = {
+      'view': 'page:read',
+      'edit': 'page:edit',
+      'delete': 'page:delete',
+      'create': 'page:create',
+      'rename': 'page:rename',
+      'upload': 'attachment:upload'
+    };
+    const policyAction = actionMap[action.toLowerCase()] || action;
+
     // 1. Evaluate Global Policies first
     if (this.policyEvaluator) {
       try {
-        const policyContext = { pageName, action, userContext };
+        const policyContext = { pageName, action: policyAction, userContext };
         const policyResult = await this.policyEvaluator.evaluateAccess(policyContext);
         logger.info(`[ACL] PolicyEvaluator decision hasDecision=${policyResult.hasDecision} allowed=${policyResult.allowed} policy=${policyResult.policyName}`);
         if (policyResult.hasDecision) {
@@ -157,7 +168,7 @@ class ACLManager extends BaseManager {
     }
 
     // If user has admin:system permission, always allow
-    if (user && userManager.hasPermission(user.username, 'admin:system')) {
+    if (user && await userManager.hasPermission(user.username, 'admin:system')) {
       return true;
     }
 
@@ -182,15 +193,15 @@ class ACLManager extends BaseManager {
       
       if (isSystemPage) {
         // System/admin pages require proper permissions
-        const result = this.checkDefaultPermission(action, user);
+        const result = await this.checkDefaultPermission(action, user);
         return result;
       }
       // Regular pages are readable by everyone (including anonymous)
       return true;
     }
-    
+
     // For non-view actions (edit, delete, etc.), check role-based permissions
-    const result = this.checkDefaultPermission(action, user);
+    const result = await this.checkDefaultPermission(action, user);
     return result;
   }
 
@@ -198,9 +209,9 @@ class ACLManager extends BaseManager {
    * Check default permissions for actions using UserManager
    * @param {string} action - Action to check (view, edit, delete, etc.)
    * @param {Object} user - User object or null for anonymous
-   * @returns {boolean} True if user has permission, false otherwise
+   * @returns {Promise<boolean>} True if user has permission, false otherwise
    */
-  checkDefaultPermission(action, user) {
+  async checkDefaultPermission(action, user) {
     const userManager = this.engine.getManager('UserManager');
     if (!userManager) {
       console.warn('UserManager not available for permission check');
@@ -217,9 +228,9 @@ class ACLManager extends BaseManager {
 
     const permission = permissionMap[action.toLowerCase()] || `page:${action.toLowerCase()}`;
     const username = user ? user.username : null;
-    
-    const result = userManager.hasPermission(username, permission);
-    
+
+    const result = await userManager.hasPermission(username, permission);
+
     return result;
   }
 

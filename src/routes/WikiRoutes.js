@@ -572,7 +572,7 @@ class WikiRoutes {
         return res.redirect('/login?redirect=' + encodeURIComponent('/create'));
       }
 
-      const hasPermission = userManager.hasPermission(currentUser.username, 'page:create');
+      const hasPermission = await userManager.hasPermission(currentUser.username, 'page:create');
       console.log('[CREATE-DEBUG] hasPermission result:', hasPermission);
 
       // Check if user has permission to create pages
@@ -629,7 +629,7 @@ class WikiRoutes {
       }
 
       // Check if user has permission to edit pages
-      if (!userManager.hasPermission(currentUser.username, 'page:edit')) {
+      if (!(await userManager.hasPermission(currentUser.username, 'page:edit'))) {
         return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to edit pages. Please contact an administrator.');
       }
 
@@ -669,7 +669,7 @@ class WikiRoutes {
       }
 
       // Check if user has permission to create pages
-      if (!userManager.hasPermission(currentUser.username, 'page:create')) {
+      if (!(await userManager.hasPermission(currentUser.username, 'page:create'))) {
         return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to create pages. Please contact an administrator.');
       }
 
@@ -778,7 +778,7 @@ class WikiRoutes {
 
       // Check if this is a required page that needs admin access
       if (await this.isRequiredPage(pageName)) {
-        if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+        if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:system'))) {
           return await this.renderError(req, res, 403, 'Access Denied', 'Only administrators can edit this page');
         }
       } else {
@@ -795,7 +795,7 @@ class WikiRoutes {
           }
         } else {
           // For new pages, check general page creation permission
-          if (!currentUser || !userManager.hasPermission(currentUser.username, 'page:create')) {
+          if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'page:create'))) {
             return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to create pages');
           }
         }
@@ -805,7 +805,7 @@ class WikiRoutes {
       const commonData = await this.getCommonTemplateData(req);
 
       // Get categories and keywords - use system categories for admin editing
-      const isAdmin = currentUser && userManager.hasPermission(currentUser.username, 'admin:system');
+      const isAdmin = currentUser && await userManager.hasPermission(currentUser.username, 'admin:system');
       const systemCategories = await this.getSystemCategories();
       const userKeywords = await this.getUserKeywords();
 
@@ -868,7 +868,7 @@ class WikiRoutes {
       }
 
       // Check if user has permission to create pages
-      if (!userManager.hasPermission(currentUser.username, 'page:create')) {
+      if (!(await userManager.hasPermission(currentUser.username, 'page:create'))) {
         return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to create pages.');
       }
 
@@ -1013,13 +1013,13 @@ class WikiRoutes {
       const isCurrentlyRequired = await this.isRequiredPage(pageName);
       const willBeRequired = await pageManager.isRequiredPage(pageName, metadata);
       if (isCurrentlyRequired || willBeRequired) {
-        if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+        if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:system'))) {
           return await this.renderError(req, res, 403, 'Access Denied', 'Only administrators can edit this page or assign System/Admin category');
         }
       } else {
         // For existing pages, check ACL edit permission
         if (existingPage) {
-          if (!currentUser || !userManager.hasPermission(currentUser.username, 'page:create')) {
+          if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'page:create'))) {
             return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to create pages');
           }
         }
@@ -1067,7 +1067,7 @@ class WikiRoutes {
 
       // Check if this is a required page that needs admin access
       if (await this.isRequiredPage(pageName)) {
-        if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+        if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:system'))) {
           return await this.renderError(req, res, 403, 'Access Denied', 'Only administrators can delete this page');
         }
       } else {
@@ -1666,7 +1666,7 @@ class WikiRoutes {
               currentUser.isAuthenticated ? 'Authenticated' : 'Unknown',
         hasSessionCookie: !!sessionId,
         permissions: currentUser ? userManager.getUserPermissions(currentUser.username) :
-          userManager.hasPermission(null, 'page:read') ? ['anonymous permissions'] : []
+          await userManager.hasPermission(null, 'page:read') ? ['anonymous permissions'] : []
       };
 
       res.json(info);
@@ -2008,7 +2008,7 @@ class WikiRoutes {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
 
-      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:system'))) {
         return res.status(403).send('Access denied');
       }
 
@@ -2080,7 +2080,7 @@ class WikiRoutes {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
 
-      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:system'))) {
         return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to access policy management');
       }
 
@@ -2117,7 +2117,7 @@ class WikiRoutes {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
 
-      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:system'))) {
         return res.status(403).json({ error: 'Access denied' });
       }
 
@@ -2156,7 +2156,7 @@ class WikiRoutes {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
 
-      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:system'))) {
         return res.status(403).json({ error: 'Access denied' });
       }
 
@@ -2192,7 +2192,7 @@ class WikiRoutes {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
 
-      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:system'))) {
         return res.status(403).json({ error: 'Access denied' });
       }
 
@@ -2231,7 +2231,7 @@ class WikiRoutes {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
 
-      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:system'))) {
         return res.status(403).json({ error: 'Access denied' });
       }
 
@@ -2270,7 +2270,7 @@ class WikiRoutes {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
 
-      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:users')) {
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:users'))) {
         return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to access user management');
       }
 
@@ -2302,7 +2302,7 @@ class WikiRoutes {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
 
-      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:users')) {
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:users'))) {
         return res.status(403).send('Access denied');
       }
 
@@ -2336,7 +2336,7 @@ class WikiRoutes {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
 
-      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:users')) {
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:users'))) {
         return res.status(403).json({ success: false, message: 'Access denied' });
       }
 
@@ -2364,7 +2364,7 @@ class WikiRoutes {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
 
-      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:users')) {
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:users'))) {
         return res.status(403).send('Access denied');
       }
 
@@ -2390,19 +2390,17 @@ class WikiRoutes {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
 
-      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:roles')) {
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:roles'))) {
         return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to manage roles');
       }
 
       const commonData = await this.getCommonTemplateData(req);
-      const leftMenuContent = await this.getLeftMenu();
       const roles = userManager.getRoles();
       const permissions = userManager.getPermissions();
 
       res.render('admin-roles', {
         ...commonData,
         title: 'Security Policy Management',
-        leftMenuContent: leftMenuContent,
         roles: Array.from(roles.values()),
         permissions: Array.from(permissions.entries()).map(([key, desc]) => ({ key, description: desc }))
       });
@@ -2421,7 +2419,7 @@ class WikiRoutes {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
 
-      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:roles')) {
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:roles'))) {
         return res.status(403).json({ success: false, message: 'Access denied' });
       }
 
@@ -2456,7 +2454,7 @@ class WikiRoutes {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
 
-      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:roles')) {
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:roles'))) {
         return res.status(403).json({ success: false, message: 'Access denied' });
       }
 
@@ -2498,7 +2496,7 @@ class WikiRoutes {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
 
-      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:roles')) {
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:roles'))) {
         return res.status(403).json({ success: false, message: 'Access denied' });
       }
 
@@ -2531,7 +2529,7 @@ class WikiRoutes {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
 
-      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:system'))) {
         return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to access configuration management');
       }
 
@@ -2566,7 +2564,7 @@ class WikiRoutes {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
 
-      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:system'))) {
         return res.status(403).json({ error: 'Admin access required' });
       }
 
@@ -2599,7 +2597,7 @@ class WikiRoutes {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
 
-      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:system'))) {
         return res.status(403).json({ error: 'Admin access required' });
       }
 
@@ -2621,7 +2619,7 @@ class WikiRoutes {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
 
-      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:system'))) {
         return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to access variable management');
       }
 
@@ -2663,7 +2661,7 @@ class WikiRoutes {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
 
-      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:system'))) {
         return res.status(403).json({ error: 'Admin access required' });
       }
 
@@ -2715,7 +2713,7 @@ class WikiRoutes {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
 
-      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:system'))) {
         return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to access system settings');
       }
 
@@ -2781,7 +2779,7 @@ class WikiRoutes {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
 
-      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:system'))) {
         return await this.renderError(req, res, 403, 'Access Denied', 'Admin access required');
       }
 
@@ -3013,7 +3011,7 @@ class WikiRoutes {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
-      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:system'))) {
         return res.status(403).json({ error: 'Admin access required' });
       }
 
@@ -3044,7 +3042,7 @@ class WikiRoutes {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
-      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:system'))) {
         return res.status(403).json({ error: 'Admin access required' });
       }
 
@@ -3153,7 +3151,7 @@ class WikiRoutes {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
 
-      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:system'))) {
         return res.status(403).send('Access denied');
       }
 
@@ -3181,7 +3179,7 @@ class WikiRoutes {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
 
-      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:system'))) {
         return res.status(403).send('Access denied');
       }
 
@@ -3211,7 +3209,7 @@ class WikiRoutes {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
 
-      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:system'))) {
         return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to manage notifications');
       }
 
@@ -3258,7 +3256,7 @@ class WikiRoutes {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
 
-      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:system'))) {
         return res.status(403).json({ error: 'Access denied' });
       }
 
@@ -3284,7 +3282,7 @@ class WikiRoutes {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
 
-      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:system'))) {
         return res.status(403).json({ error: 'Access denied' });
       }
 
@@ -3317,7 +3315,7 @@ class WikiRoutes {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
 
-      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:system'))) {
         return res.status(403).json({ error: 'Access denied' });
       }
 
@@ -3360,7 +3358,7 @@ class WikiRoutes {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = await this.getCurrentUser(req);
 
-      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:system'))) {
         return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to view audit logs.');
       }
 
@@ -3389,7 +3387,7 @@ class WikiRoutes {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = await this.getCurrentUser(req);
 
-      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:system'))) {
         return res.status(403).json({ error: 'Access denied' });
       }
 
@@ -3432,7 +3430,7 @@ class WikiRoutes {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = await this.getCurrentUser(req);
 
-      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:system'))) {
         return res.status(403).json({ error: 'Access denied' });
       }
 
@@ -3463,7 +3461,7 @@ class WikiRoutes {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = await this.getCurrentUser(req);
 
-      if (!currentUser || !userManager.hasPermission(currentUser.username, 'admin:system')) {
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:system'))) {
         return res.status(403).send('Access denied');
       }
 
