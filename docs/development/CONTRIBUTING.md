@@ -10,6 +10,31 @@ Welcome! We appreciate your interest in contributing to amdWiki, a JSPWiki-inspi
 4. **Start** development server: `npm start`
 5. **Test** your changes: `npm test`
 
+## How to start the server
+You have multiple options:
+  1. PM2 (currently using):
+    - pm2 start app.js --name amdWiki (first time)
+    - pm2 restart amdWiki (to restart)
+    - pm2 logs amdWiki (view logs)
+    - pm2 stop amdWiki (stop server)
+  2. npm scripts (from package.json):
+    - npm run dev - Development mode
+    - npm run start:dev - Development mode
+    - npm run start:prod - Production mode
+    - npm start - Production mode
+  3. Direct node:
+    - NODE_ENV=development node app.js
+    - NODE_ENV=production node app.js
+
+### Log Locations Summary
+
+  | Type        | Location                      | Purpose                             |
+  |-------------|-------------------------------|-------------------------------------|
+  | PM2 Output  | ~/.pm2/logs/amdWiki-out.log   | Real-time stdout, startup messages  |
+  | PM2 Errors  | ~/.pm2/logs/amdWiki-error.log | Real-time stderr, plugin errors     |
+  | Application | ./logs/app.log                | Winston logger, detailed operations |
+  | Audit       | ./logs/audit.log              | Security/audit events               |
+
 ## 🏗️ Architecture Overview
 
 amdWiki follows a **manager-based architecture** inspired by JSPWiki:
