@@ -17,23 +17,28 @@ const SessionsPlugin = {
    */
   async execute(context) {
     try {
-      // Prefer ConfigurationManager keys
-      const cfgMgr =
-        context.engine.getManager?.('ConfigurationManager') ||
-        context.engine.getManager?.('ConfigManager');
-
       let host = 'localhost';
       let port = 3000;
 
-      if (cfgMgr?.get) {
-        host = cfgMgr.get('amdwiki.server.host', host);
-        port = cfgMgr.get('amdwiki.server.port', port);
-      } else if (typeof context.engine.getConfig === 'function') {
-        const config = context.engine.getConfig();
-        if (config?.get) {
-          host = config.get('amdwiki.server.host', host);
-          port = config.get('amdwiki.server.port', port);
+      // Try to get config, but use defaults if anything fails
+      try {
+        // Prefer ConfigurationManager keys
+        const cfgMgr =
+          context.engine?.getManager?.('ConfigurationManager') ||
+          context.engine?.getManager?.('ConfigManager');
+
+        if (cfgMgr?.getProperty) {
+          host = cfgMgr.getProperty('amdwiki.server.host', host);
+          port = cfgMgr.getProperty('amdwiki.server.port', port);
+        } else if (typeof context.engine?.getConfig === 'function') {
+          const config = context.engine.getConfig();
+          if (config?.get) {
+            host = config.get('amdwiki.server.host', host);
+            port = config.get('amdwiki.server.port', port);
+          }
         }
+      } catch (configError) {
+        // Silently use defaults if config is not available
       }
 
       const baseUrl = `http://${host}:${port}`;
@@ -46,6 +51,10 @@ const SessionsPlugin = {
       const data = await resp.json().catch(() => ({ sessionCount: 0 }));
       return String(data.sessionCount ?? 0);
     } catch (e) {
+      // Suppress config initialization errors - use defaults instead
+      if (e.message && e.message.includes('Config instance is invalid')) {
+        return '0';
+      }
       const log = context?.engine?.logger?.error || console.error;
       log(`SessionsPlugin error: ${e.message}`);
       return '0';

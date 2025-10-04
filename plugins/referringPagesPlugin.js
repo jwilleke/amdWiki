@@ -16,33 +16,68 @@ function ReferringPagesPlugin(pageName, params, linkGraph) {
   // Parse parameters (params is already an object from PluginManager)
   const opts = params || {};
 
+  // Use page parameter if provided, otherwise use pageName
+  const targetPage = opts.page || pageName;
+
   // Defaults
-  const max = opts.max ? parseInt(opts.max) : 10;  // Find referring pages
+  const max = opts.max ? parseInt(opts.max) : 10;
+  const before = opts.before || '';
+  const after = opts.after || '';
+
+  // Find referring pages
   let referring = [];
-  if (linkGraph && linkGraph[pageName]) {
-    referring = linkGraph[pageName];
+  if (linkGraph && linkGraph[targetPage]) {
+    referring = linkGraph[targetPage];
   }
+
+  // Debug: console.log(`[ReferringPagesPlugin] pageName=${pageName} targetPage=${targetPage} referring=${referring.length} linkGraph keys=${linkGraph ? Object.keys(linkGraph).length : 0}`);
 
   if (opts.show === 'count') {
     return String(referring.length);
   }
 
-  // Limit and format
-  referring = referring.slice(0, max);
-  let links = referring.map(p => `<li><a class="wikipage" href="/wiki/${p}">${p}</a></li>`).join('');
-
-  if (links) {
-    links = `<ul>${links}</ul>`;
-    // Remove any asterisk before <ul>
-    links = links.replace(/\*\s*<ul>/, '<ul>');
-    // Remove <p>...</p> wrapping if present and only keep <ul>...</ul>
-    links = links.replace(/<p>.*?(<ul>.*<\/ul>).*?<\/p>/, '$1');
-    // Remove all stray newlines after </ul>
-    links = links.replace(/<\/ul>\s*$/g, '</ul>');
-
+  // If no referring pages, return empty string
+  if (referring.length === 0) {
+    return '';
   }
 
-  return links;
+  // Limit and format
+  referring = referring.slice(0, max);
+
+  // If before/after are provided, format each link with those markers
+  if (before || after) {
+    // Convert escaped sequences
+    let processedBefore = before.replace(/\\n/g, '\n').replace(/\\t/g, '\t');
+    let processedAfter = after.replace(/\\n/g, '\n').replace(/\\t/g, '\t');
+
+    // If before contains * or -, create a proper HTML list
+    if (processedBefore.includes('*') || processedBefore.includes('-')) {
+      const linksList = referring.map(p =>
+        `<li><a class="wikipage" href="/wiki/${encodeURIComponent(p)}">${p}</a></li>`
+      ).join('');
+      return `<ul>${linksList}</ul>`;
+    }
+
+    // Otherwise, use custom before/after markers
+    // Escape special markdown characters to prevent markdown processing
+    processedBefore = processedBefore.replace(/\*/g, '&#42; ');
+    processedAfter = processedAfter.replace(/\*/g, '&#42; ');
+
+    // Create links with before/after markers
+    const linksList = referring.map(p =>
+      `${processedBefore}<a class="wikipage" href="/wiki/${encodeURIComponent(p)}">${p}</a>${processedAfter}`
+    ).join('');
+
+    // Convert newlines to <br> tags for HTML rendering
+    return linksList.replace(/\n/g, '<br>');
+  }
+
+  // Default: wrap in <ul><li> list
+  const linksList = referring.map(p =>
+    `<li><a class="wikipage" href="/wiki/${encodeURIComponent(p)}">${p}</a></li>`
+  ).join('');
+
+  return `<ul>${linksList}</ul>`;
 }
 
 // Plugin initialization (JSPWiki-style)

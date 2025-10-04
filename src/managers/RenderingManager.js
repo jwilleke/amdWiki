@@ -928,15 +928,19 @@ class RenderingManager extends BaseManager {
     }
 
     try {
-      const pages = await pageManager.getAllPages();
+      const pageNames = await pageManager.getAllPages(); // Returns array of strings
       const newLinkGraph = {};
-      
-      // Cache page names for wiki link processing
-      this.cachedPageNames = pages.map(page => page.name);
 
-      for (const page of pages) {
-        const pageName = page.name;
-        const content = page.content;
+      // Cache page names for wiki link processing
+      this.cachedPageNames = pageNames;
+
+      for (const pageName of pageNames) {
+        // Load the actual page data
+        const pageData = await pageManager.getPage(pageName);
+        if (!pageData) {
+          continue; // Skip if page can't be loaded
+        }
+        const content = pageData.content || '';
 
         if (!newLinkGraph[pageName]) {
           newLinkGraph[pageName] = [];
