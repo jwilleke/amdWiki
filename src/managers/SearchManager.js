@@ -32,27 +32,32 @@ class SearchManager extends BaseManager {
     }
 
     try {
-      const pages = await pageManager.getAllPages();
+      const pageNames = await pageManager.getAllPages();
       const documents = {};
-      
-      // Prepare documents for indexing
-      pages.forEach(page => {
-        // Extract metadata fields
-        const metadata = page.metadata || {};
-        const systemCategory = metadata['system-category'] || '';
-        const userKeywords = Array.isArray(metadata['user-keywords']) ? 
-          metadata['user-keywords'].join(' ') : 
-          (metadata['user-keywords'] || '');
-        const tags = Array.isArray(metadata.tags) ? 
-          metadata.tags.join(' ') : 
-          (metadata.tags || '');
-        const title = metadata.title || page.name; // Use frontmatter title, fallback to name
 
-        documents[page.name] = {
-          id: page.name,
+      // Load each page and prepare documents for indexing
+      for (const pageName of pageNames) {
+        const pageData = await pageManager.getPage(pageName);
+        if (!pageData) {
+          continue; // Skip if page can't be loaded
+        }
+
+        // Extract metadata fields
+        const metadata = pageData.metadata || {};
+        const systemCategory = metadata['system-category'] || '';
+        const userKeywords = Array.isArray(metadata['user-keywords']) ?
+          metadata['user-keywords'].join(' ') :
+          (metadata['user-keywords'] || '');
+        const tags = Array.isArray(metadata.tags) ?
+          metadata.tags.join(' ') :
+          (metadata.tags || '');
+        const title = metadata.title || pageName; // Use frontmatter title, fallback to name
+
+        documents[pageName] = {
+          id: pageName,
           title: title,
-          content: page.content,
-          body: page.content,
+          content: pageData.content || '',
+          body: pageData.content || '',
           systemCategory: systemCategory,
           userKeywords: userKeywords,
           tags: tags,
@@ -60,7 +65,7 @@ class SearchManager extends BaseManager {
           lastModified: metadata.lastModified || '',
           uuid: metadata.uuid || ''
         };
-      });
+      }
 
       this.documents = documents;
 
