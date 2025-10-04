@@ -218,9 +218,9 @@
         <div class="row">
             <nav class="col-md-2 d-none d-md-block sidebar jspwiki-sidebar">
                 <div class="sidebar-sticky px-3 pt-3">
-                    <% if (typeof leftMenuContent !== 'undefined' && leftMenuContent) { %>
+                    <% if (typeof leftMenu !== 'undefined' && leftMenu) { %>
                         <div class="leftmenu-content">
-                            <%- leftMenuContent %>
+                            <%- leftMenu %>
                         </div>
                     <% } else { %>
                         <!-- Fallback if LeftMenu.md not available -->
