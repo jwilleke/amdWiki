@@ -65,20 +65,24 @@ describe('Image (via PluginManager)', () => {
   });
 
   beforeEach(() => {
-    mockConfig = {
-      get: jest.fn()
+    const mockConfigManager = {
+      getProperty: jest.fn().mockImplementation((key, def) => {
+        const configMap = {
+          'amdwiki.features.images.defaultAlt': 'Uploaded image',
+          'amdwiki.features.images.defaultClass': 'wiki-image'
+        };
+        return key in configMap ? configMap[key] : def;
+      })
     };
-    mockConfig.get.mockImplementation((key, def) => {
-      const configMap = {
-        'features.images.defaultAlt': 'Uploaded image',
-        'features.images.defaultClass': 'wiki-image'
-      };
-      return key in configMap ? configMap[key] : def;
-    });
 
     mockContext = {
       engine: {
-        getConfig: jest.fn().mockReturnValue(mockConfig)
+        getManager: jest.fn().mockImplementation((name) => {
+          if (name === 'ConfigurationManager') {
+            return mockConfigManager;
+          }
+          return null;
+        })
       }
     };
   });

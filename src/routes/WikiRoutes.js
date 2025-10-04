@@ -5,9 +5,41 @@
  */
 
 const path = require('path');
+const multer = require('multer');
+const fs = require('fs');
 const SchemaGenerator = require('../utils/SchemaGenerator');
 const logger = require('../utils/logger');
 const WikiContext = require('../context/WikiContext');
+
+// Configure multer for image uploads
+const imageStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadDir = path.join(__dirname, '../../public/images');
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, 'upload-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const imageUpload = multer({
+  storage: imageStorage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png|gif|webp|svg/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+    
+    if (mimetype && extname) {
+      return cb(null, true);
+    }
+    cb(new Error('Only image files (jpeg, jpg, png, gif, webp, svg) are allowed'));
+  }
+});
 
 class WikiRoutes {
   constructor(engine) {
@@ -3118,6 +3150,9 @@ class WikiRoutes {
     app.post('/admin/roles', (req, res) => this.adminCreateRole(req, res));
     app.put('/admin/roles/:role', (req, res) => this.adminUpdateRole(req, res));
     app.delete('/admin/roles/:role', (req, res) => this.adminDeleteRole(req, res));
+
+    // Image upload route
+    app.post('/images/upload', imageUpload.single('image'), (req, res) => this.uploadImage(req, res));
 
     // Notification management routes
     app.post('/admin/notifications/:id/dismiss', (req, res) => this.adminDismissNotification(req, res));

@@ -15,10 +15,10 @@ const ImagePlugin = {
    */
   execute(context, params) {
     try {
-      // Get configuration (if available)
-      const config = context.engine ? context.engine.getConfig() : null;
-      const defaultAlt = config ? config.get('features.images.defaultAlt', 'Uploaded image') : 'Uploaded image';
-      const defaultClass = config ? config.get('features.images.defaultClass', 'wiki-image') : 'wiki-image';
+      // Get configuration from ConfigurationManager
+      const configManager = context.engine?.getManager('ConfigurationManager');
+      const defaultAlt = configManager?.getProperty('amdwiki.features.images.defaultAlt', 'Uploaded image') || 'Uploaded image';
+      const defaultClass = configManager?.getProperty('amdwiki.features.images.defaultClass', 'wiki-image') || 'wiki-image';
 
       // Build the image tag
       let imgTag = '<img';
@@ -27,11 +27,14 @@ const ImagePlugin = {
       if (params.src) {
         // Handle relative paths - assume images are in /public/images or /attachments
         let src = params.src;
+        
+        // If it starts with http or /, use as-is (absolute path or URL)
         if (!src.startsWith('http') && !src.startsWith('/')) {
           // Relative path - prepend with /images/
           src = `/images/${src}`;
         }
-        // If it's already an absolute path starting with /images/, use as-is
+        // If path already starts with /images/, use as-is (no double prefix)
+        
         imgTag += ` src="${src}"`;
       } else {
         return '<span class="error">Image plugin: src attribute is required</span>';
