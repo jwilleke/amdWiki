@@ -697,7 +697,7 @@ class MarkupParser extends BaseManager {
   /**
    * Phase 1: Preprocessing
    * Handle JSPWiki-specific escaping and normalize content
-   * Standard markdown (code blocks, inline code, etc.) is left untouched for Showdown
+   * Protect code blocks from WikiStyleHandler and other Phase 3 handlers
    */
   async phasePreprocessing(content, context) {
     let processedContent = content;
@@ -719,10 +719,25 @@ class MarkupParser extends BaseManager {
     }
 
     // Convert JSPWiki-style code blocks ({{{}}}) to markdown (```)
-    // This is the ONLY code block transformation we do - converting JSPWiki syntax to standard markdown
     processedContent = processedContent.replace(/\{\{\{(\w*)\s*\n([\s\S]*?)\n\}\}\}/g, (_match, language, code) => {
       // Preserve language identifier if present
       return '```' + (language || '') + '\n' + code + '\n```';
+    });
+
+    // Protect code blocks from WikiStyleHandler and other handlers
+    // They will be restored in Phase 6 before markdown conversion
+    context.codeBlocks = [];
+    processedContent = processedContent.replace(/(```[\s\S]*?```)/g, (match) => {
+      const placeholder = `CODEBLOCK${context.codeBlocks.length}CODEBLOCK`;
+      context.codeBlocks.push(match);
+      return placeholder;
+    });
+
+    // Protect inline code from handlers
+    processedContent = processedContent.replace(/(`[^`]+`)/g, (match) => {
+      const placeholder = `INLINECODE${context.codeBlocks.length}INLINECODE`;
+      context.codeBlocks.push(match);
+      return placeholder;
     });
 
     // Normalize line endings
@@ -816,6 +831,16 @@ class MarkupParser extends BaseManager {
    * All standard markdown (code blocks, links, lists, etc.) is handled by Showdown natively
    */
   async phaseMarkdownConversion(content, context) {
+    // Restore code blocks BEFORE Showdown processes them
+    if (context.codeBlocks) {
+      context.codeBlocks.forEach((block, index) => {
+        const codeBlockPlaceholder = `CODEBLOCK${index}CODEBLOCK`;
+        const inlineCodePlaceholder = `INLINECODE${index}INLINECODE`;
+        content = content.replace(new RegExp(codeBlockPlaceholder, 'g'), block);
+        content = content.replace(new RegExp(inlineCodePlaceholder, 'g'), block);
+      });
+    }
+
     const renderingManager = this.engine.getManager('RenderingManager');
     if (renderingManager && renderingManager.converter) {
       // Pass content directly to Showdown - it handles all standard markdown
