@@ -94,6 +94,12 @@
                         <div id="imageList" class="d-flex flex-wrap gap-2"></div>
                     </div>
                 </div>
+
+                <!-- Form Submit Buttons -->
+                <div class="form-group mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg">Save Page</button>
+                    <a href="/wiki/<%= encodeURIComponent(pageName) %>" class="btn btn-secondary btn-lg ms-2">Cancel</a>
+                </div>
             </form>
         </div>
     </div>
@@ -151,20 +157,33 @@
     updatePreview();
     // Form submission validation for system-category and user-keywords
     document.querySelector('form').addEventListener('submit', function(e) {
-        // Validate system-category (should always be present)
-        const systemCategory = document.getElementById('systemCategory').value;
-        if (!systemCategory) {
-            e.preventDefault();
-            alert('System category is required');
-            return false;
+        console.log('Form submit triggered');
+
+        // Validate system-category (only if field exists - admin users only)
+        const systemCategoryElement = document.getElementById('systemCategory');
+        if (systemCategoryElement) {
+            const systemCategory = systemCategoryElement.value;
+            if (!systemCategory) {
+                console.log('Validation failed: no system category');
+                e.preventDefault();
+                alert('System category is required');
+                return false;
+            }
+            console.log('System category:', systemCategory);
+        } else {
+            console.log('System category field not found (non-admin user)');
         }
+
         // Validate user-keywords (max <%= maxUserKeywords %>, optional)
         const checkedKeywords = document.querySelectorAll('.user-keyword-checkbox:checked').length;
         if (checkedKeywords > <%= maxUserKeywords %>) {
+            console.log('Validation failed: too many keywords');
             e.preventDefault();
             alert('Maximum <%= maxUserKeywords %> user keywords allowed');
             return false;
         }
+
+        console.log('Form validation passed, submitting...');
     });
     function updateSelectedUserKeywordsText() {
         const checkedKeywords = Array.from(document.querySelectorAll('.user-keyword-checkbox:checked')).map(cb => cb.value);

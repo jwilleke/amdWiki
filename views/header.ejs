@@ -1253,9 +1253,41 @@ function initializeTrail() {
 
 // Edit form functions for navbar buttons
 function saveEditForm() {
+    console.log('saveEditForm() called from navbar');
     const editForm = document.getElementById('editForm');
     if (editForm) {
+        console.log('Edit form found, triggering validation and submission...');
+
+        // Validate system-category (only if field exists - admin users only)
+        const systemCategoryElement = document.getElementById('systemCategory');
+        if (systemCategoryElement) {
+            const systemCategory = systemCategoryElement.value;
+            if (!systemCategory) {
+                console.log('Validation failed: no system category');
+                alert('System category is required');
+                return false;
+            }
+            console.log('System category:', systemCategory);
+        } else {
+            console.log('System category field not found (non-admin user)');
+        }
+
+        // Validate user-keywords (get max from form or use default)
+        const maxUserKeywords = 5; // Default value, should match server-side
+        const checkedKeywords = document.querySelectorAll('.user-keyword-checkbox:checked').length;
+        if (checkedKeywords > maxUserKeywords) {
+            console.log('Validation failed: too many keywords');
+            alert('Maximum ' + maxUserKeywords + ' user keywords allowed');
+            return false;
+        }
+
+        console.log('Validation passed, submitting form...');
+        console.log('Form action:', editForm.action);
+        console.log('Form method:', editForm.method);
+        console.log('Form elements:', editForm.elements.length);
         editForm.submit();
+    } else {
+        console.error('Edit form not found!');
     }
 }
 
