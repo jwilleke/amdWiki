@@ -1852,7 +1852,7 @@ class WikiRoutes {
     try {
       const commonData = await this.getCommonTemplateData(req);
       const pageManager = this.engine.getManager("PageManager");
-      const pageNames = await pageManager.getPageNames();
+      const pageNames = await pageManager.getAllPages();
 
       res.render("export", {
         ...commonData,
@@ -1874,13 +1874,9 @@ class WikiRoutes {
       const exportManager = this.engine.getManager("ExportManager");
 
       const html = await exportManager.exportPageToHtml(pageName);
+      await exportManager.saveExport(html, pageName, "html");
+      res.status(200).send("Export succesfull");
 
-      res.setHeader("Content-Type", "text/html");
-      res.setHeader(
-        "Content-Disposition",
-        `attachment; filename="${pageName}.html"`
-      );
-      res.send(html);
     } catch (err) {
       console.error("Error exporting to HTML:", err);
       res.status(500).send("Error exporting page");
@@ -1896,13 +1892,10 @@ class WikiRoutes {
       const exportManager = this.engine.getManager("ExportManager");
 
       const markdown = await exportManager.exportToMarkdown(pageName);
+      await exportManager.saveExport(markdown, pageName, "markdown");
 
-      res.setHeader("Content-Type", "text/markdown");
-      res.setHeader(
-        "Content-Disposition",
-        `attachment; filename="${pageName}.md"`
-      );
-      res.send(markdown);
+      res.status(200).send("Export succesfull");
+
     } catch (err) {
       console.error("Error exporting to Markdown:", err);
       res.status(500).send("Error exporting page");
@@ -1947,23 +1940,6 @@ class WikiRoutes {
     } catch (err) {
       console.error("Error downloading export:", err);
       res.status(500).send("Error downloading export");
-    }
-  }
-
-  /**
-   * Delete export file
-   */
-  async deleteExport(req, res) {
-    try {
-      const { filename } = req.params;
-      const exportManager = this.engine.getManager('ExportManager');
-      
-      await exportManager.deleteExport(filename);
-      res.sendStatus(204);
-    }
-    catch (err) {
-      console.error('Error deleting export:', err);
-      res.status(500).json({message:'Error deleting export'});
     }
   }
 
