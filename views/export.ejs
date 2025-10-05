@@ -98,19 +98,39 @@
 </div>
 
 <script>
-document.getElementById('single-export-form').addEventListener('submit', function(e) {
+document.getElementById('single-export-form').addEventListener('submit', async function(e) {
     e.preventDefault();
     
     const pageSelect = document.getElementById('page-select');
     const format = document.querySelector('input[name="format"]:checked').value;
-    
-    if (!pageSelect.value) {
+    const pageName = pageSelect.value;
+
+    if (!pageName) {
         alert('Please select a page to export');
         return;
     }
     
-    const url = `/export/${format}/${encodeURIComponent(pageSelect.value)}`;
-    window.open(url, '_blank');
+    const url = `/export/${format}/${encodeURIComponent(pageName)}`;
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': '<%= csrfToken %>'
+            },
+            body: JSON.stringify({
+                pageName: pageName
+            })
+        });
+    
+        if (response.ok) {
+            alert('Export succesfull!');
+        } 
+    }
+    catch (error) {
+        console.error('Error during export:', error);
+        alert('Export failed: ' + error.message);
+    }
 });
 
 document.getElementById('multi-export-form').addEventListener('submit', function(e) {
@@ -124,11 +144,10 @@ document.getElementById('multi-export-form').addEventListener('submit', function
         return;
     }
     
-    // For now, just export the first page as example
+    // For now, the pop-up is shown
     // TODO: Implement multi-page export endpoint
     if (selectedPages.length > 0) {
-        const url = `/export/html/${encodeURIComponent(selectedPages[0])}`;
-        window.open(url, '_blank');
+        alert('Multi-page export feature is coming soon.');
     }
 });
 </script>

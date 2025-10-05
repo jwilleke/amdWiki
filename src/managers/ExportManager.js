@@ -40,7 +40,7 @@ class ExportManager extends BaseManager {
     }
     
     // Render the page content (without user context for exports)
-    const renderedContent = renderingManager.renderMarkdown(page.content, pageName, null);
+    const renderedContent = await renderingManager.renderMarkdown(page.content, pageName, null);
     
     // Create full HTML document
     const html = `<!DOCTYPE html>
