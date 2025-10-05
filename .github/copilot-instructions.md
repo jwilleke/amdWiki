@@ -5,7 +5,7 @@ When running terminal commands, ensure the shell sources ~/.bash_profile or equi
 
 Read [SERVER.md](/SERVER.md)
 Read [SERVER.md](/SERVER.md)
-Read [](/docs/managers/ValidationManager-Documentation.md
+Read [ValidationManager](/required-pages/5100a3df-0d87-4d85-87de-359f51029c67.md)
 
 ## Architecture Overview
 
