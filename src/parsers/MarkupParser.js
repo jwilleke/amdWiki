@@ -696,11 +696,10 @@ class MarkupParser extends BaseManager {
 
   /**
    * Phase 1: Preprocessing
-   * Handle escaping, protect code blocks, normalize content
+   * Handle JSPWiki-specific escaping and normalize content
+   * Standard markdown (code blocks, inline code, etc.) is left untouched for Showdown
    */
   async phasePreprocessing(content, context) {
-    // Protect code blocks from processing
-    const codeBlocks = [];
     let processedContent = content;
 
     // Process escaped syntax FIRST (highest priority - before anything else)
@@ -719,31 +718,12 @@ class MarkupParser extends BaseManager {
       }
     }
 
-    // Extract and protect code blocks
-    processedContent = processedContent.replace(/```[\s\S]*?```/g, (match) => {
-      const placeholder = `CODEBLOCK${codeBlocks.length}CODEBLOCK`;
-      codeBlocks.push(match);
-      return placeholder;
+    // Convert JSPWiki-style code blocks ({{{}}}) to markdown (```)
+    // This is the ONLY code block transformation we do - converting JSPWiki syntax to standard markdown
+    processedContent = processedContent.replace(/\{\{\{(\w*)\s*\n([\s\S]*?)\n\}\}\}/g, (_match, language, code) => {
+      // Preserve language identifier if present
+      return '```' + (language || '') + '\n' + code + '\n```';
     });
-
-    // Extract and protect JSPWiki-style code blocks (''')
-    processedContent = processedContent.replace(/'''[\s\S]*?'''/g, (match) => {
-      const placeholder = `CODEBLOCK${codeBlocks.length}CODEBLOCK`;
-      // Convert JSPWiki style to markdown style for proper rendering
-      const content = match.replace(/^'''\s*\n?/, '```\n').replace(/\n?\s*'''$/, '\n```');
-      codeBlocks.push(content);
-      return placeholder;
-    });
-
-    // Protect inline code
-    processedContent = processedContent.replace(/`[^`]+`/g, (match) => {
-      const placeholder = `INLINECODE${codeBlocks.length}INLINECODE`;
-      codeBlocks.push(match);
-      return placeholder;
-    });
-
-    // Store protected blocks in context
-    context.protectedBlocks = codeBlocks;
 
     // Normalize line endings
     processedContent = processedContent.replace(/\r\n/g, '\n');
@@ -833,11 +813,12 @@ class MarkupParser extends BaseManager {
   /**
    * Phase 6: Markdown Conversion
    * Convert markdown to HTML using Showdown
+   * All standard markdown (code blocks, links, lists, etc.) is handled by Showdown natively
    */
   async phaseMarkdownConversion(content, context) {
     const renderingManager = this.engine.getManager('RenderingManager');
     if (renderingManager && renderingManager.converter) {
-      // Use existing Showdown converter
+      // Pass content directly to Showdown - it handles all standard markdown
       content = renderingManager.converter.makeHtml(content);
     }
     return content;
@@ -845,19 +826,12 @@ class MarkupParser extends BaseManager {
 
   /**
    * Phase 7: Post-processing
-   * Final cleanup, restore protected blocks, validation
+   * Final cleanup and validation
    */
   async phasePostProcessing(content, context) {
-    // Restore protected blocks (code blocks and HTML)
+    // Restore protected HTML blocks (from Phase 4 protectHtml)
     if (context.protectedBlocks) {
       context.protectedBlocks.forEach((block, index) => {
-        // Restore code blocks (from Phase 1 preprocessing)
-        const codeBlockPlaceholder = `CODEBLOCK${index}CODEBLOCK`;
-        const inlineCodePlaceholder = `INLINECODE${index}INLINECODE`;
-        content = content.replace(new RegExp(codeBlockPlaceholder, 'g'), block);
-        content = content.replace(new RegExp(inlineCodePlaceholder, 'g'), block);
-
-        // Restore protected HTML (from Phase 4 content transformation) using unique tokens
         const htmlPlaceholder = `HTMLTOKEN${index}HTMLTOKEN`;
         content = content.replace(new RegExp(htmlPlaceholder, 'g'), block);
       });
@@ -1126,7 +1100,15 @@ class MarkupParser extends BaseManager {
    * @returns {string} - Cleaned HTML
    */
   cleanupHtml(html) {
-    // Remove excessive whitespace
+    // Protect code blocks from whitespace normalization
+    const codeBlocks = [];
+    html = html.replace(/(<pre><code[^>]*>)([\s\S]*?)(<\/code><\/pre>)/g, (match) => {
+      const placeholder = `CLEANUPCODE${codeBlocks.length}CLEANUPCODE`;
+      codeBlocks.push(match);
+      return placeholder;
+    });
+
+    // Remove excessive whitespace (but not in code blocks)
     html = html.replace(/\s+/g, ' ');
 
     // Fix common HTML issues
@@ -1134,6 +1116,12 @@ class MarkupParser extends BaseManager {
 
     // Ensure proper paragraph spacing
     html = html.replace(/(<\/p>)\s*(<p>)/g, '$1\n$2');
+
+    // Restore code blocks
+    codeBlocks.forEach((block, index) => {
+      const placeholder = `CLEANUPCODE${index}CLEANUPCODE`;
+      html = html.replace(placeholder, block);
+    });
 
     return html.trim();
   }

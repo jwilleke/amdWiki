@@ -573,6 +573,8 @@ main p, main div, main span, main li {
     border: 1px solid var(--code-border, #dee2e6);
     border-radius: .25rem;
     color: var(--text-primary);
+    white-space: pre;
+    overflow-x: auto;
 }
 
 /* Wiki link styles */
