@@ -17,6 +17,7 @@ const PolicyManager = require('./managers/PolicyManager');
 const PolicyValidator = require('./managers/PolicyValidator');
 const PolicyEvaluator = require('./managers/PolicyEvaluator');
 const ExportManager = require('./managers/ExportManager');
+const TemplateManager = require('./managers/TemplateManager');
 
 // Parsers
 const MarkupParser = require('./parsers/MarkupParser');
@@ -72,6 +73,9 @@ class WikiEngine extends Engine {
 
     this.registerManager('PageManager', new PageManager(this));
     await this.getManager('PageManager').initialize();
+
+    this.registerManager('TemplateManager', new TemplateManager(this));
+    await this.getManager('TemplateManager').initialize();
 
     // Initialize PolicyManager and PolicyEvaluator BEFORE ACLManager
     // because ACLManager depends on PolicyEvaluator
