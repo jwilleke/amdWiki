@@ -575,6 +575,7 @@ class WikiRoutes {
         title: title,
         message: message,
         error: { status: status },
+        originalUrl: req.originalUrl || '/',
       });
     } catch (err) {
       console.error("Error rendering error page:", err);

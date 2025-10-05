@@ -79,7 +79,7 @@
                             </div>
                         </div>
                     <% } else { %>
-                        <a class="btn btn-outline-primary btn-sm mr-2" href="/login">
+                        <a class="btn btn-outline-primary btn-sm mr-2" href="/login?redirect=<%= encodeURIComponent(typeof pageName !== 'undefined' && pageName ? `/wiki/${pageName}` : '/') %>">
                             <i class="fas fa-sign-in-alt"></i> Login
                         </a>
                         <a class="btn btn-primary btn-sm" href="/register">
