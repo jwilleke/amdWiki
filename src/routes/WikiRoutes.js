@@ -1914,7 +1914,7 @@ class WikiRoutes {
     try {
       const commonData = await this.getCommonTemplateData(req);
       const pageManager = this.engine.getManager("PageManager");
-      const pageNames = await pageManager.getPageNames();
+      const pageNames = await pageManager.getAllPages();
 
       res.render("export", {
         ...commonData,
@@ -1936,13 +1936,9 @@ class WikiRoutes {
       const exportManager = this.engine.getManager("ExportManager");
 
       const html = await exportManager.exportPageToHtml(pageName);
+      await exportManager.saveExport(html, pageName, "html");
+      res.status(200).send("Export succesfull");
 
-      res.setHeader("Content-Type", "text/html");
-      res.setHeader(
-        "Content-Disposition",
-        `attachment; filename="${pageName}.html"`
-      );
-      res.send(html);
     } catch (err) {
       console.error("Error exporting to HTML:", err);
       res.status(500).send("Error exporting page");
@@ -1958,13 +1954,10 @@ class WikiRoutes {
       const exportManager = this.engine.getManager("ExportManager");
 
       const markdown = await exportManager.exportToMarkdown(pageName);
+      await exportManager.saveExport(markdown, pageName, "markdown");
 
-      res.setHeader("Content-Type", "text/markdown");
-      res.setHeader(
-        "Content-Disposition",
-        `attachment; filename="${pageName}.md"`
-      );
-      res.send(markdown);
+      res.status(200).send("Export succesfull");
+
     } catch (err) {
       console.error("Error exporting to Markdown:", err);
       res.status(500).send("Error exporting page");
@@ -2009,6 +2002,23 @@ class WikiRoutes {
     } catch (err) {
       console.error("Error downloading export:", err);
       res.status(500).send("Error downloading export");
+    }
+  }
+
+  /**
+   * Delete export file
+   */
+  async deleteExport(req, res) {
+    try {
+      const { filename } = req.params;
+      const exportManager = this.engine.getManager('ExportManager');
+      
+      await exportManager.deleteExport(filename);
+      res.sendStatus(204);
+    }
+    catch (err) {
+      console.error('Error deleting export:', err);
+      res.status(500).json({message:'Error deleting export'});
     }
   }
 
@@ -3813,25 +3823,31 @@ class WikiRoutes {
     );
 
     // Public routes
-    app.get("/", (req, res) => this.homePage(req, res));
-    app.get("/wiki/:page", (req, res) => this.viewPage(req, res));
-    app.post("/wiki/:page", (req, res) => this.createWikiPage(req, res));
-    app.get("/edit/:page", (req, res) => this.editPage(req, res));
-    app.post("/save/:page", (req, res) => this.savePage(req, res));
-    app.get("/create", (req, res) => this.createPage(req, res));
-    app.post("/create", (req, res) => this.createPageFromTemplate(req, res));
-    app.post("/delete/:page", (req, res) => this.deletePage(req, res));
-    app.get("/search", (req, res) => this.searchPages(req, res));
-    app.get("/login", (req, res) => this.loginPage(req, res));
-    app.post("/login", (req, res) => this.processLogin(req, res));
-    app.get("/logout", (req, res) => this.processLogout(req, res));
-    app.post("/logout", (req, res) => this.processLogout(req, res));
-    app.get("/register", (req, res) => this.registerPage(req, res));
-    app.post("/register", (req, res) => this.processRegister(req, res));
-    app.get("/profile", (req, res) => this.profilePage(req, res));
-    app.post("/profile", (req, res) => this.updateProfile(req, res));
-    app.post("/preferences", (req, res) => this.updatePreferences(req, res));
-    app.get("/user-info", (req, res) => this.userInfo(req, res));
+    app.get('/', (req, res) => this.homePage(req, res));
+    app.get('/wiki/:page', (req, res) => this.viewPage(req, res));
+    app.post('/wiki/:page', (req, res) => this.createWikiPage(req, res));
+    app.get('/edit/:page', (req, res) => this.editPage(req, res));
+    app.post('/save/:page', (req, res) => this.savePage(req, res));
+    app.get('/create', (req, res) => this.createPage(req, res));
+    app.post('/create', (req, res) => this.createPageFromTemplate(req, res));
+    app.post('/delete/:page', (req, res) => this.deletePage(req, res));
+    app.get('/search', (req, res) => this.searchPages(req, res));
+    app.get('/login', (req, res) => this.loginPage(req, res));
+    app.post('/login', (req, res) => this.processLogin(req, res));
+    app.get('/logout', (req, res) => this.processLogout(req, res));
+    app.post('/logout', (req, res) => this.processLogout(req, res));
+    app.get('/register', (req, res) => this.registerPage(req, res));
+    app.post('/register', (req, res) => this.processRegister(req, res));
+    app.get('/profile', (req, res) => this.profilePage(req, res));
+    app.post('/profile', (req, res) => this.updateProfile(req, res));
+    app.post('/preferences', (req, res) => this.updatePreferences(req, res));
+    app.get('/user-info', (req, res) => this.userInfo(req, res));
+    app.get('/export', (req, res) => this.exportPage(req, res));
+    app.post('/export/html/:page', (req, res) => this.exportPageHtml(req, res));
+    app.post('/export/markdown/:page', (req, res) => this.exportPageMarkdown(req, res));
+    app.get('/exports', (req, res) => this.listExports(req, res));
+    app.get('/download/:filename', (req, res) => this.downloadExport(req, res));
+    app.delete('/deleteExport/:filename', (req, res) => this.deleteExport(req, res));
 
     // Admin routes
     app.get("/admin", (req, res) => this.adminDashboard(req, res));
