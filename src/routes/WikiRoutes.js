@@ -4412,8 +4412,8 @@ class WikiRoutes {
         return res.status(404).json({ error: "Page not found" });
       }
 
-      // Extract metadata from the page
-      const metadata = page.frontMatter || {};
+      // Extract metadata from the page (getPage returns 'metadata', not 'frontMatter')
+      const metadata = page.metadata || {};
       const content = page.content || "";
 
       // Calculate content statistics
@@ -4442,12 +4442,16 @@ class WikiRoutes {
         // File stats not available
       }
 
+      // Get filesystem filename from page.filePath (path is already imported at top of file)
+      const filesystemName = page.filePath ? path.basename(page.filePath) : null;
+
       // Format the metadata for user-friendly display
       const formattedMetadata = {
         // Basic page info
         title: metadata.title || pageName,
         slug: metadata.slug || pageName,
         uuid: metadata.uuid || page.uuid,
+        filesystemName: filesystemName,
 
         // Categorization and tags
         category: metadata["system-category"] || metadata.category || "general",
