@@ -5,8 +5,14 @@
 ### Using the Helper Script (Recommended)
 
 ```bash
-# Start the server
+# Start the server (production mode - default)
 ./server.sh start
+
+# Start in development mode
+./server.sh start dev
+
+# Start in production mode (explicit)
+./server.sh start prod
 
 # Stop the server
 ./server.sh stop
@@ -14,8 +20,11 @@
 # Restart the server
 ./server.sh restart
 
-# Check server status
+# Check server status and environment
 ./server.sh status
+
+# Show environment and available configs
+./server.sh env
 
 # View logs (default: 50 lines)
 ./server.sh logs
@@ -25,6 +34,72 @@
 
 # Remove PID lock (if server crashed)
 ./server.sh unlock
+```
+
+## Environment Configuration
+
+amdWiki uses different configuration files based on the `NODE_ENV` environment variable:
+
+| Environment | Config File | Use Case |
+|-------------|-------------|----------|
+| **production** | `config/app-production-config.json` | Production deployment (default) |
+| **development** | `config/app-development-config.json` | Local development |
+| **test** | `config/app-test-config.json` | Running tests |
+| **staging** | `config/app-staging-config.json` | Staging server (if exists) |
+| **custom** | `config/app-custom-config.json` | Local overrides (not tracked in git) |
+
+### How Configuration Loading Works
+
+1. **Default Config**: `config/app-default-config.json` is always loaded first (base settings)
+2. **Environment Config**: Based on `NODE_ENV`, loads:
+   - `config/app-production-config.json` (default)
+   - `config/app-development-config.json` (if `NODE_ENV=development`)
+   - `config/app-test-config.json` (if `NODE_ENV=test`)
+   - etc.
+3. **Custom Config**: `config/app-custom-config.json` is loaded last and overrides everything
+   - This file is `.gitignore`d for local-only settings
+   - Use this for machine-specific overrides (API keys, local ports, etc.)
+
+### Starting with Different Environments
+
+**Method 1: Using `./server.sh` argument (recommended)**
+```bash
+./server.sh start dev          # Development mode
+./server.sh start prod         # Production mode
+./server.sh restart dev        # Restart in development mode
+```
+
+**Method 2: Using NODE_ENV environment variable**
+```bash
+NODE_ENV=development ./server.sh start
+NODE_ENV=staging ./server.sh start
+NODE_ENV=production ./server.sh start
+```
+
+**Method 3: Using npm scripts directly**
+```bash
+npm run start:dev              # Development
+npm run start:prod             # Production
+npm start                      # Production (default)
+```
+
+### Checking Current Environment
+
+```bash
+./server.sh env
+```
+
+Output:
+```
+Current Environment Configuration:
+  NODE_ENV: production
+  Config file: config/app-production-config.json
+
+Available configs:
+  config/app-default-config.json
+  config/app-development-config.json
+  config/app-production-config.json
+  config/app-test-config.json
 ```
 
 ## Multiple Instance Prevention
@@ -154,3 +229,12 @@ pm2 startup
 - **Purpose:** Prevents multiple server instances
 - **Cleanup:** Automatically removed on clean shutdown
 - **Manual Cleanup:** Use `./server.sh unlock` if needed
+
+## Log Locations Summary
+
+  | Type        | Location                         | Purpose                             |
+  |-------------|----------------------------------|-------------------------------------|
+  | PM2 Output  | ~/.pm2/logs/amdWiki-out.log      | Real-time stdout, startup messages  |
+  | PM2 Errors  | ~/.pm2/logs/amdWiki-error.log    | Real-time stderr, plugin errors     |
+  | Application | ./logs/app1.log, app2.log, etc.  | Winston logger, detailed operations |
+  | Audit       | ./logs/audit.log                 | Security/audit events               |

@@ -11,20 +11,8 @@ Welcome! We appreciate your interest in contributing to amdWiki, a JSPWiki-inspi
 5. **Test** your changes: `npm test`
 
 ## How to start the server
-You have multiple options:
-  1. PM2 (currently using):
-    - pm2 start app.js --name amdWiki (first time)
-    - pm2 restart amdWiki (to restart)
-    - pm2 logs amdWiki (view logs)
-    - pm2 stop amdWiki (stop server)
-  2. npm scripts (from package.json):
-    - npm run dev - Development mode
-    - npm run start:dev - Development mode
-    - npm run start:prod - Production mode
-    - npm start - Production mode
-  3. Direct node:
-    - NODE_ENV=development node app.js
-    - NODE_ENV=production node app.js
+
+see [SERVER](../../SERVER.md)
 
 ### Log Locations Summary
 

@@ -1,7 +1,10 @@
 # amdWiki AI Coding Agent Instructions
 
-
 When running terminal commands, ensure the shell sources ~/.bash_profile or equivalent to include /usr/local/bin in PATH for npm/Node tools.
+
+
+Read  [SERVER.md](../SERVER.md)
+
 
 ## Architecture Overview
 
