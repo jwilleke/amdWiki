@@ -226,7 +226,12 @@ class WikiRoutes {
             return res
               .status(500)
               .json({ error: "Failed to obtain session count" });
-          return res.json({ sessionCount: count || 0 });
+          // Return both sessionCount and distinctUsers
+          // For now, distinctUsers = sessionCount (until we implement user tracking)
+          return res.json({
+            sessionCount: count || 0,
+            distinctUsers: count || 0  // TODO: Implement actual distinct user tracking
+          });
         });
       }
 
@@ -236,12 +241,32 @@ class WikiRoutes {
             return res
               .status(500)
               .json({ error: "Failed to obtain session count" });
-          const n = Array.isArray(sessions)
-            ? sessions.length
+
+          // Convert to array if needed
+          const sessionArray = Array.isArray(sessions)
+            ? sessions
             : sessions
-            ? Object.keys(sessions).length
-            : 0;
-          return res.json({ sessionCount: n });
+            ? Object.values(sessions)
+            : [];
+
+          const sessionCount = sessionArray.length;
+
+          // Count distinct users (unique usernames, including anonymous)
+          const usernames = new Set();
+          for (const session of sessionArray) {
+            if (session && session.username) {
+              usernames.add(session.username);
+            } else {
+              // Session without username is also counted as 'anonymous'
+              usernames.add('anonymous');
+            }
+          }
+          const distinctUsers = usernames.size;
+
+          return res.json({
+            sessionCount: sessionCount,
+            distinctUsers: distinctUsers
+          });
         });
       }
 

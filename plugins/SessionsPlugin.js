@@ -12,10 +12,10 @@ const SessionsPlugin = {
   /**
    * Execute the plugin
    * @param {Object} context - Wiki context
-   * @param {Object} params - Plugin parameters
+   * @param {Object} params - Plugin parameters (property='users' or 'distinctUsers')
    * @returns {string} HTML output
    */
-  async execute(context) {
+  async execute(context, params = {}) {
     try {
       let host = 'localhost';
       let port = 3000;
@@ -46,10 +46,20 @@ const SessionsPlugin = {
       // Use global fetch if available; otherwise lazy-load node-fetch (ESM)
       const fetchFn = typeof fetch === 'function' ? fetch : (await import('node-fetch')).default;
 
+      // Determine which property to return
+      const property = (params.property || 'users').toLowerCase();
+
       const resp = await fetchFn(`${baseUrl}/api/session-count`, { method: 'GET' });
       if (!resp?.ok) return '0';
-      const data = await resp.json().catch(() => ({ sessionCount: 0 }));
-      return String(data.sessionCount ?? 0);
+      const data = await resp.json().catch(() => ({ sessionCount: 0, distinctUsers: 0 }));
+
+      // Return based on property parameter
+      if (property === 'distinctusers') {
+        return String(data.distinctUsers ?? data.sessionCount ?? 0);
+      } else {
+        // Default: property='users'
+        return String(data.sessionCount ?? 0);
+      }
     } catch (e) {
       // Suppress config initialization errors - use defaults instead
       if (e.message && e.message.includes('Config instance is invalid')) {
