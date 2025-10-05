@@ -1265,3 +1265,234 @@ pre, code {
         --table-hover: #495057;
     }
 }
+
+/* ==============================================
+   JSPWiki-Style Table Classes
+   ============================================== */
+
+/* Sortable tables - cursor indication */
+.sortable th {
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  padding-right: 20px;
+}
+
+.sortable th:hover {
+  background-color: var(--table-hover);
+}
+
+.sortable th::after {
+  content: ' ⇅';
+  opacity: 0.3;
+  font-size: 0.8em;
+}
+
+.sortable th.sort-asc::after {
+  content: ' ↑';
+  opacity: 1;
+}
+
+.sortable th.sort-desc::after {
+  content: ' ↓';
+  opacity: 1;
+}
+
+/* Zebra striping for tables */
+.zebra-table tr:nth-child(even),
+.table-striped tbody tr:nth-child(even) {
+  background-color: var(--table-stripe);
+}
+
+/* Hover effect for tables */
+.table-hover tbody tr:hover {
+  background-color: var(--table-hover);
+}
+
+/* Fit table to content (auto width) */
+.table-fit {
+  width: auto !important;
+}
+
+/* Bordered tables */
+.table-bordered,
+.table-bordered th,
+.table-bordered td {
+  border: 1px solid var(--border-color);
+}
+
+/* Small/compact tables */
+.table-sm th,
+.table-sm td {
+  padding: 4px 8px;
+  font-size: 0.9em;
+}
+
+/* Responsive tables */
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Table filter functionality */
+.table-filter-container {
+  margin-bottom: 10px;
+}
+
+.table-filter-input {
+  width: 100%;
+  max-width: 300px;
+  padding: 6px 12px;
+  border: 1px solid var(--input-border);
+  border-radius: 4px;
+  background: var(--input-bg);
+  color: var(--text-primary);
+}
+
+/* ==============================================
+   JSPWiki-Style Block Classes
+   ============================================== */
+
+/* Information blocks */
+.information {
+  background-color: var(--alert-info-bg, #d1ecf1);
+  border: 1px solid var(--alert-info-border, #bee5eb);
+  color: var(--alert-info-text, #0c5460);
+  padding: 12px 20px;
+  border-radius: 4px;
+  margin: 10px 0;
+}
+
+.information::before {
+  content: 'ℹ️ ';
+  font-weight: bold;
+}
+
+/* Warning blocks */
+.warning {
+  background-color: var(--alert-warning-bg, #fff3cd);
+  border: 1px solid var(--alert-warning-border, #ffeeba);
+  color: var(--alert-warning-text, #856404);
+  padding: 12px 20px;
+  border-radius: 4px;
+  margin: 10px 0;
+}
+
+.warning::before {
+  content: '⚠️ ';
+  font-weight: bold;
+}
+
+/* Error blocks */
+.error {
+  background-color: var(--alert-danger-bg);
+  border: 1px solid var(--alert-danger-border);
+  color: var(--alert-danger-text);
+  padding: 12px 20px;
+  border-radius: 4px;
+  margin: 10px 0;
+}
+
+.error::before {
+  content: '❌ ';
+  font-weight: bold;
+}
+
+/* Quote blocks */
+.quote {
+  border-left: 4px solid var(--border-color-strong);
+  padding-left: 16px;
+  margin: 16px 0;
+  font-style: italic;
+  color: var(--text-secondary);
+}
+
+/* Center alignment */
+.center {
+  text-align: center;
+}
+
+/* Comment box (floating) */
+.commentbox {
+  float: right;
+  margin: 0 0 10px 10px;
+  padding: 10px;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  max-width: 300px;
+  font-size: 0.9em;
+}
+
+/* Collapsible sections */
+.collapse {
+  cursor: pointer;
+}
+
+.collapse::before {
+  content: '▶ ';
+  display: inline-block;
+  transition: transform 0.2s;
+}
+
+.collapse.expanded::before {
+  transform: rotate(90deg);
+}
+
+.collapsebox {
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  margin: 10px 0;
+}
+
+.collapsebox-header {
+  background-color: var(--bg-secondary);
+  padding: 10px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.collapsebox-content {
+  padding: 10px;
+  display: none;
+}
+
+.collapsebox.expanded .collapsebox-content {
+  display: block;
+}
+
+/* Multi-column layout */
+.columns {
+  column-count: 2;
+  column-gap: 20px;
+}
+
+/* Text direction */
+.ltr {
+  direction: ltr;
+}
+
+.rtl {
+  direction: rtl;
+}
+
+/* Small text */
+.small {
+  font-size: 0.875em;
+}
+
+/* Subscript and superscript */
+.sub {
+  vertical-align: sub;
+  font-size: 0.75em;
+}
+
+.sup {
+  vertical-align: super;
+  font-size: 0.75em;
+}
+
+/* Strikethrough */
+.strike {
+  text-decoration: line-through;
+}

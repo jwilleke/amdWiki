@@ -15,7 +15,7 @@ const { BaseSyntaxHandler } = require('./BaseSyntaxHandler');
 class WikiStyleHandler extends BaseSyntaxHandler {
   constructor(engine = null) {
     super(
-      /%%([^%]+?)\s+(.*?)\s*\/%/g, // Pattern: %%style-info content /%
+      /%%([^%]+?)\s+([\s\S]*?)\s*\/%/g, // Pattern: %%style-info content /% - [\s\S]*? matches across newlines
       70, // Medium priority - process after most content handlers
       {
         description: 'JSPWiki-style CSS class and inline styling handler with security validation',
@@ -143,27 +143,35 @@ class WikiStyleHandler extends BaseSyntaxHandler {
    * Load default configuration when ConfigurationManager unavailable (modular fallback)
    */
   loadDefaultConfiguration() {
-    // Default predefined classes (Bootstrap-compatible)
+    // Default predefined classes (Bootstrap-compatible + JSPWiki table styles)
     const defaultClasses = [
       // Text styling
       'text-primary', 'text-secondary', 'text-success', 'text-danger', 'text-warning', 'text-info',
       'text-muted', 'text-white', 'text-dark',
-      
-      // Background styling  
+
+      // Background styling
       'bg-primary', 'bg-secondary', 'bg-success', 'bg-danger', 'bg-warning', 'bg-info',
       'bg-light', 'bg-dark', 'bg-white',
-      
+
       // Layout and alignment
       'text-center', 'text-left', 'text-right', 'text-justify',
       'float-left', 'float-right', 'clearfix',
-      
+
       // Typography
       'fw-bold', 'fw-normal', 'fw-light', 'fst-italic', 'fst-normal',
-      'text-decoration-underline', 'text-decoration-line-through'
+      'text-decoration-underline', 'text-decoration-line-through',
+
+      // JSPWiki table classes
+      'sortable', 'table-filter', 'zebra-table', 'table-striped', 'table-hover',
+      'table-fit', 'table-bordered', 'table-sm', 'table-responsive',
+
+      // JSPWiki block classes
+      'collapse', 'collapsebox', 'columns', 'quote', 'information', 'warning', 'error',
+      'commentbox', 'ltr', 'rtl', 'small', 'sub', 'sup', 'strike', 'center'
     ];
-    
+
     defaultClasses.forEach(cls => this.predefinedClasses.add(cls));
-    
+
     // Default allowed CSS properties
     ['color', 'background-color', 'font-weight', 'font-style', 'text-align', 'text-decoration'].forEach(prop => {
       this.allowedCSSProperties.add(prop);
@@ -172,6 +180,7 @@ class WikiStyleHandler extends BaseSyntaxHandler {
 
   /**
    * Process content by finding and applying WikiStyle syntax
+   * Handles nested blocks by processing them recursively from innermost to outermost
    * @param {string} content - Content to process
    * @param {ParseContext} context - Parse context
    * @returns {Promise<string>} - Content with styles applied
@@ -181,46 +190,68 @@ class WikiStyleHandler extends BaseSyntaxHandler {
       return content;
     }
 
-    const matches = [];
-    let match;
-    
-    // Reset regex state
-    this.pattern.lastIndex = 0;
-    
-    while ((match = this.pattern.exec(content)) !== null) {
-      matches.push({
-        fullMatch: match[0],
-        styleInfo: match[1].trim(), // CSS classes or inline styles
-        textContent: match[2].trim(), // Content to style
-        index: match.index,
-        length: match[0].length
-      });
+    // Process nested blocks recursively by finding innermost blocks first
+    let processedContent = content;
+    let hasChanges = true;
+    let iterations = 0;
+    const maxIterations = 20; // Prevent infinite loops
+
+    while (hasChanges && iterations < maxIterations) {
+      hasChanges = false;
+      iterations++;
+
+      const matches = [];
+      let match;
+
+      // Reset regex state
+      this.pattern.lastIndex = 0;
+
+      while ((match = this.pattern.exec(processedContent)) !== null) {
+        matches.push({
+          fullMatch: match[0],
+          styleInfo: match[1].trim(), // CSS classes or inline styles
+          textContent: match[2].trim(), // Content to style
+          index: match.index,
+          length: match[0].length
+        });
+      }
+
+      if (matches.length === 0) {
+        break;
+      }
+
+      // Process matches in reverse order to maintain string positions
+      for (let i = matches.length - 1; i >= 0; i--) {
+        const matchInfo = matches[i];
+
+        try {
+          const replacement = await this.handle(matchInfo, context);
+
+          // Only replace if the content changed
+          if (replacement !== matchInfo.fullMatch) {
+            processedContent =
+              processedContent.slice(0, matchInfo.index) +
+              replacement +
+              processedContent.slice(matchInfo.index + matchInfo.length);
+            hasChanges = true;
+          }
+
+        } catch (error) {
+          console.error(`❌ WikiStyle processing error:`, error.message);
+
+          // Leave original content on error for debugging
+          const errorPlaceholder = `<!-- WikiStyle Error: ${error.message} -->`;
+          processedContent =
+            processedContent.slice(0, matchInfo.index) +
+            errorPlaceholder + matchInfo.textContent +
+            processedContent.slice(matchInfo.index + matchInfo.length);
+          hasChanges = true;
+        }
+      }
     }
 
-    // Process matches in reverse order to maintain string positions
-    let processedContent = content;
-    
-    for (let i = matches.length - 1; i >= 0; i--) {
-      const matchInfo = matches[i];
-      
-      try {
-        const replacement = await this.handle(matchInfo, context);
-        
-        processedContent = 
-          processedContent.slice(0, matchInfo.index) +
-          replacement +
-          processedContent.slice(matchInfo.index + matchInfo.length);
-          
-      } catch (error) {
-        console.error(`❌ WikiStyle processing error:`, error.message);
-        
-        // Leave original content on error for debugging
-        const errorPlaceholder = `<!-- WikiStyle Error: ${error.message} -->`;
-        processedContent = 
-          processedContent.slice(0, matchInfo.index) +
-          errorPlaceholder + matchInfo.textContent +
-          processedContent.slice(matchInfo.index + matchInfo.length);
-      }
+    if (iterations >= maxIterations) {
+      console.warn('⚠️  WikiStyleHandler: Max iterations reached, possible infinite loop');
     }
 
     return processedContent;
@@ -272,7 +303,7 @@ class WikiStyleHandler extends BaseSyntaxHandler {
   async processCSSClasses(classInfo, content, context) {
     const classNames = classInfo.split(/\s+/).filter(cls => cls.trim());
     const validClasses = [];
-    
+
     // Validate each class (modular security)
     for (const className of classNames) {
       if (this.isValidCSSClass(className)) {
@@ -281,14 +312,73 @@ class WikiStyleHandler extends BaseSyntaxHandler {
         console.warn(`⚠️  Invalid or unsafe CSS class rejected: ${className}`);
       }
     }
-    
+
     if (validClasses.length === 0) {
       // No valid classes, return content without styling
       return content;
     }
-    
-    // Generate styled HTML
+
     const classAttribute = validClasses.join(' ');
+
+    // Table-specific classes that need to be applied to <table> elements
+    const tableClasses = ['sortable', 'table-filter', 'zebra-table', 'table-striped',
+                          'table-hover', 'table-fit', 'table-bordered', 'table-sm',
+                          'table-responsive'];
+
+    const hasTableClass = validClasses.some(cls => tableClasses.includes(cls));
+
+    // Check if content contains JSPWiki table syntax or HTML table
+    // Also check deeper in content for tables nested inside other %% blocks
+    const hasTableSyntax = /(\|\||<table)/i.test(content) || /%%TABLE_CLASSES\{/.test(content);
+
+    if (hasTableClass && hasTableSyntax) {
+      // For table content, inject classes using a special marker that will be processed
+      // by the table handler later in the pipeline
+
+      // Check if content already has table class markers (from nested blocks)
+      // Look for markers anywhere in the content, not just at the start
+      const existingMarkerMatch = content.match(/%%TABLE_CLASSES\{([^}]+)\}%%/);
+      if (existingMarkerMatch) {
+        // Extract existing classes and merge them
+        const mergedClasses = `${classAttribute} ${existingMarkerMatch[1]}`;
+        // Replace the existing marker with merged classes
+        return content.replace(/%%TABLE_CLASSES\{[^}]+\}%%/, `%%TABLE_CLASSES{${this.escapeHtml(mergedClasses)}}%%`);
+      }
+
+      // No existing marker, add new one at the beginning
+      return `%%TABLE_CLASSES{${this.escapeHtml(classAttribute)}}%%${content}`;
+    }
+
+    // Check if content already has HTML tags (is already processed)
+    if (/<[a-z][\s\S]*>/i.test(content)) {
+      // Try to apply class to existing HTML element
+      const existingTable = content.match(/<table([^>]*)>/i);
+      if (existingTable && hasTableClass) {
+        // Add classes to existing table tag
+        const existingClasses = existingTable[1].match(/class=["']([^"']*)["']/);
+        if (existingClasses) {
+          const mergedClasses = `${existingClasses[1]} ${classAttribute}`;
+          return content.replace(/<table([^>]*)>/i,
+            `<table${existingTable[1].replace(/class=["'][^"']*["']/, `class="${this.escapeHtml(mergedClasses)}"`)}>`);
+        } else {
+          return content.replace(/<table([^>]*)>/i,
+            `<table${existingTable[1]} class="${this.escapeHtml(classAttribute)}">`);
+        }
+      }
+      // Wrap other HTML content in div
+      return `<div class="${this.escapeHtml(classAttribute)}">${content}</div>`;
+    }
+
+    // For non-table content or inline content without HTML, use div for block classes
+    const blockClasses = ['information', 'warning', 'error', 'quote', 'commentbox',
+                          'center', 'columns', 'collapse', 'collapsebox'];
+    const hasBlockClass = validClasses.some(cls => blockClasses.includes(cls));
+
+    if (hasBlockClass || content.includes('\n')) {
+      return `<div class="${this.escapeHtml(classAttribute)}">${content}</div>`;
+    }
+
+    // Default: use span for inline content
     return `<span class="${this.escapeHtml(classAttribute)}">${content}</span>`;
   }
 
