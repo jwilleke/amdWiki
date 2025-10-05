@@ -112,6 +112,16 @@ describe("ExportManager", () => {
             expect(html).not.toContain("System Category");
             expect(html).not.toContain("User Keywords");
         });
+
+        it("should show 'Unknown' if lastModified is missing", async () => {
+            const page = { content: "Hello" };
+            mockPageManager.getPage.mockResolvedValue(page);
+            mockRenderingManager.renderMarkdown.mockResolvedValue("<p>Hello</p>");
+
+            const html = await exportManager.exportPageToHtml("PageUnknown");
+
+            expect(html).toContain("Last modified: Unknown");
+        });
     });
 
     // Tests for exporting pages to Markdown format
@@ -175,6 +185,12 @@ describe("ExportManager", () => {
             const filePath = await exportManager.saveExport(content, filename, format);
             const timestampRegex = /\d{4}-\d{2}-\d{2}/;
             expect(filePath).toMatch(new RegExp(`FileTest_${timestampRegex.source}\\.html`));
+        });
+
+        it("should throw error if writeFile fails", async () => {
+            fs.writeFile.mockRejectedValue(new Error("disk full"));
+            await expect(exportManager.saveExport("data", "file", "html"))
+                .rejects.toThrow("disk full");
         });
     });
 
@@ -245,6 +261,17 @@ describe("ExportManager", () => {
             const exportsList = await exportManager.getExports();
             expect(exportsList).toEqual([]);
         });
+
+        it("should skip file if fs.stat fails", async () => {
+            fs.readdir.mockResolvedValue(["goodFile", "badFile"]);
+            fs.stat.mockImplementation((file) => {
+                if (file.includes("badFile")) throw new Error("fs error");
+                return Promise.resolve({ size: 123, birthtime: new Date(), mtime: new Date() });
+            });
+
+            const exportsList = await exportManager.getExports();
+            expect(exportsList.map(f => f.filename)).toEqual(["goodFile"]);
+        });
     });
 
     describe("deleteExport", () => {
@@ -265,6 +292,13 @@ describe("ExportManager", () => {
             fs.unlink.mockRejectedValue(new Error("File not found"));
             exportManager.exportDirectory = "./exports";
             await expect(exportManager.deleteExport("missing.html")).rejects.toThrow("File not found");
+        });
+
+        it("should handle filename with special chars", async () => {
+            fs.unlink.mockResolvedValue();
+            exportManager.exportDirectory = "./exports";
+            await exportManager.deleteExport("my/file?name.html");
+            expect(fs.unlink).toHaveBeenCalledWith(path.join("./exports", "my/file?name.html"));
         });
     });
 
@@ -292,6 +326,14 @@ describe("ExportManager", () => {
 
         it("should never throw even with null user", () => {
             expect(() => exportManager.getFormattedTimestamp(null)).not.toThrow();
+        });
+
+        it("should fallback to system locale if LocaleUtils fails", () => {
+            const user = { preferences: { locale: "en-US" } };
+            LocaleUtils.formatDate.mockImplementation(() => { throw new Error("fail"); });
+            LocaleUtils.formatTime.mockImplementation(() => { throw new Error("fail"); });
+            const ts = exportManager.getFormattedTimestamp(user);
+            expect(typeof ts).toBe("string");
         });
     });
 });
