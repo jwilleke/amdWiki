@@ -1272,6 +1272,8 @@ class WikiRoutes {
   async savePage(req, res) {
     try {
       const pageName = req.params.page;
+      console.log(`💾 Save request received for page: ${pageName}`);
+      console.log(`💾 Request body keys: ${Object.keys(req.body).join(', ')}`);
       const { content, title, categories, userKeywords } = req.body;
 
       const pageManager = this.engine.getManager("PageManager");

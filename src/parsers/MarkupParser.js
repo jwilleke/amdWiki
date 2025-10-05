@@ -863,10 +863,89 @@ class MarkupParser extends BaseManager {
       });
     }
 
+    // Apply table classes from WikiStyleHandler markers
+    content = this.applyTableClasses(content);
+
     // Final HTML validation and cleanup
     content = this.cleanupHtml(content);
 
     return content;
+  }
+
+  /**
+   * Apply table classes from WikiStyleHandler %%TABLE_CLASSES{...}%% markers
+   * Handles multiple consecutive markers by merging all classes
+   * @param {string} content - HTML content to process
+   * @returns {string} Content with classes applied to table elements
+   */
+  applyTableClasses(content) {
+    // First, merge consecutive %%TABLE_CLASSES{...}%% markers
+    let mergedContent = content;
+    let hasConsecutiveMarkers = true;
+
+    while (hasConsecutiveMarkers) {
+      // Pattern to find consecutive markers: %%TABLE_CLASSES{class1}%%%%TABLE_CLASSES{class2}%%
+      const consecutivePattern = /%%TABLE_CLASSES\{([^}]+)\}%%%%TABLE_CLASSES\{([^}]+)\}%%/;
+      const match = consecutivePattern.exec(mergedContent);
+
+      if (match) {
+        // Merge the two class sets
+        const mergedClasses = `${match[1]} ${match[2]}`;
+        mergedContent = mergedContent.replace(match[0], `%%TABLE_CLASSES{${mergedClasses}}%%`);
+      } else {
+        hasConsecutiveMarkers = false;
+      }
+    }
+
+    // Now apply the merged classes to table elements
+    // Pattern: %%TABLE_CLASSES{class1 class2}%%...table HTML...
+    const tableClassPattern = /%%TABLE_CLASSES\{([^}]+)\}%%/g;
+
+    let result = mergedContent;
+    let match;
+
+    // Reset regex state
+    tableClassPattern.lastIndex = 0;
+
+    // Collect all markers and their classes
+    const markers = [];
+    while ((match = tableClassPattern.exec(mergedContent)) !== null) {
+      markers.push({
+        fullMatch: match[0],
+        classes: match[1],
+        index: match.index
+      });
+    }
+
+    // Apply classes to the next table after each marker
+    for (const marker of markers) {
+      // Find the next <table> tag after this marker
+      const contentAfterMarker = result.substring(result.indexOf(marker.fullMatch));
+      const tableMatch = contentAfterMarker.match(/<table([^>]*)>/);
+
+      if (tableMatch) {
+        const existingAttrs = tableMatch[1];
+        const classMatch = existingAttrs.match(/class=["']([^"']*)["']/);
+
+        let newTableTag;
+        if (classMatch) {
+          // Merge with existing classes
+          const mergedClasses = `${classMatch[1]} ${marker.classes}`.trim();
+          newTableTag = `<table${existingAttrs.replace(/class=["'][^"']*["']/, `class="${mergedClasses}"`)}>`;
+        } else {
+          // Add new class attribute
+          newTableTag = `<table${existingAttrs} class="${marker.classes}">`;
+        }
+
+        // Replace the old table tag with the new one
+        result = result.replace(tableMatch[0], newTableTag);
+      }
+
+      // Remove the marker
+      result = result.replace(marker.fullMatch, '');
+    }
+
+    return result;
   }
 
   /**

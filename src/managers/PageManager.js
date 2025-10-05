@@ -170,8 +170,28 @@ class PageManager extends BaseManager {
    */
   async savePage(pageName, content, metadata = {}) {
     const uuid = metadata.uuid || this.#resolvePageInfo(pageName)?.uuid || uuidv4();
-    const filePath = path.join(this.pagesDirectory, `${uuid}.md`);
+
+    // Determine which directory to save to based on system-category
+    // Per System Keywords page: system, documentation, test → required-pages; general → pages
+    const systemCategory = (metadata['system-category'] || metadata.systemCategory || 'general').toLowerCase();
+    const isRequiredPage = systemCategory === 'system' ||
+                           systemCategory === 'documentation' ||
+                           systemCategory === 'test';
+
+    const targetDirectory = isRequiredPage ? this.requiredPagesDirectory : this.pagesDirectory;
+    const filePath = path.join(targetDirectory, `${uuid}.md`);
     await fs.ensureDir(path.dirname(filePath));
+
+    // If the file exists in the wrong directory, remove it
+    const oldPageInfo = this.#resolvePageInfo(pageName);
+    if (oldPageInfo && oldPageInfo.filePath !== filePath) {
+      try {
+        await fs.unlink(oldPageInfo.filePath);
+        logger.info(`Moved page from ${oldPageInfo.filePath} to ${filePath}`);
+      } catch (err) {
+        logger.warn(`Could not remove old file: ${oldPageInfo.filePath}`, { error: err.message });
+      }
+    }
 
     const now = new Date().toISOString();
     const updatedMetadata = {

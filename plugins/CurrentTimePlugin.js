@@ -98,6 +98,13 @@ const CurrentTimePlugin = {
    */
   formatWithPattern(date, pattern, locale, timezone, hour12) {
     try {
+      // First, extract and protect quoted strings (literal text)
+      const literals = [];
+      let workingPattern = pattern.replace(/'([^']*)'/g, (match, p1) => {
+        literals.push(p1);
+        return `__LITERAL_${literals.length - 1}__`;
+      });
+
       // Convert date to specified timezone
       const options = {
         timeZone: timezone,
@@ -108,7 +115,9 @@ const CurrentTimePlugin = {
         minute: '2-digit',
         second: '2-digit',
         hour12: hour12,
-        weekday: 'long'
+        weekday: 'long',
+        era: 'short',
+        timeZoneName: 'short'
       };
 
       const formatter = new Intl.DateTimeFormat(locale, options);
@@ -139,6 +148,12 @@ const CurrentTimePlugin = {
       });
       const weekdayName = weekdayNameFormatter.format(date);
 
+      const weekdayShortFormatter = new Intl.DateTimeFormat(locale, {
+        weekday: 'short',
+        timeZone: timezone
+      });
+      const weekdayShort = weekdayShortFormatter.format(date);
+
       // Build replacements for common Java SimpleDateFormat patterns
       const year = partMap.year || '';
       const month = partMap.month || '';
@@ -148,14 +163,16 @@ const CurrentTimePlugin = {
       const second = partMap.second || '';
       const weekday = weekdayName || partMap.weekday || '';
       const dayPeriod = partMap.dayPeriod || ''; // AM/PM
+      const era = partMap.era || 'AD'; // Era (AD/BC)
+      const timeZoneName = partMap.timeZoneName || timezone; // Timezone abbreviation
 
       // Replace pattern tokens
       // IMPORTANT: Replace longer patterns first to avoid partial replacements
-      let result = pattern;
+      let result = workingPattern;
 
       // Weekday patterns (do these early before other single-letter replacements)
       result = result.replace(/EEEE/g, weekday);           // Full weekday name
-      result = result.replace(/EEE/g, weekday.slice(0, 3)); // Short weekday name
+      result = result.replace(/EEE/g, weekdayShort);       // Short weekday name
 
       // Month patterns (longer patterns first)
       result = result.replace(/MMMM/g, monthName);        // Full month name
@@ -185,8 +202,19 @@ const CurrentTimePlugin = {
       result = result.replace(/ss/g, second);              // 2-digit second
       result = result.replace(/\bs\b/g, parseInt(second, 10)); // Second without leading zero (word boundary)
 
+      // Era pattern (AD/BC)
+      result = result.replace(/\bG\b/g, era);              // Era designator
+
+      // Timezone patterns
+      result = result.replace(/\bz\b/g, timeZoneName);     // Timezone abbreviation
+
       // AM/PM pattern (do this last to avoid conflicts)
       result = result.replace(/\ba\b/g, dayPeriod);            // AM/PM marker (word boundary)
+
+      // Restore literal text
+      literals.forEach((literal, index) => {
+        result = result.replace(`__LITERAL_${index}__`, literal);
+      });
 
       return result;
 

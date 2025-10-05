@@ -7,10 +7,70 @@ const path = require('path');
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
+const fs = require('fs-extra');
 
 const logger = require('./src/utils/logger');
 const WikiEngine = require('./src/WikiEngine');
 const WikiRoutes = require('./src/routes/WikiRoutes');
+
+// --- PID File Lock to Prevent Multiple Instances ---
+const PID_FILE = path.join(__dirname, '.amdwiki.pid');
+
+function checkAndCreatePidLock() {
+  try {
+    // Check if PID file exists
+    if (fs.existsSync(PID_FILE)) {
+      const existingPid = fs.readFileSync(PID_FILE, 'utf8').trim();
+
+      // Check if the process is actually running
+      try {
+        process.kill(existingPid, 0); // Signal 0 checks if process exists
+        console.error('❌ FATAL: Another instance of amdWiki is already running (PID: ' + existingPid + ')');
+        console.error('   If you believe this is an error, delete: ' + PID_FILE);
+        process.exit(1);
+      } catch (e) {
+        // Process doesn't exist, stale PID file - remove it
+        console.log('⚠️  Removing stale PID file from previous instance');
+        fs.unlinkSync(PID_FILE);
+      }
+    }
+
+    // Create PID file with current process ID
+    fs.writeFileSync(PID_FILE, process.pid.toString());
+    console.log('🔒 PID lock created: ' + process.pid);
+
+    // Clean up PID file on exit
+    const cleanup = () => {
+      try {
+        if (fs.existsSync(PID_FILE)) {
+          const pidInFile = fs.readFileSync(PID_FILE, 'utf8').trim();
+          if (pidInFile === process.pid.toString()) {
+            fs.unlinkSync(PID_FILE);
+            console.log('🔓 PID lock removed');
+          }
+        }
+      } catch (e) {
+        // Ignore cleanup errors
+      }
+    };
+
+    process.on('exit', cleanup);
+    process.on('SIGINT', () => { cleanup(); process.exit(0); });
+    process.on('SIGTERM', () => { cleanup(); process.exit(0); });
+    process.on('uncaughtException', (err) => {
+      console.error('Uncaught Exception:', err);
+      cleanup();
+      process.exit(1);
+    });
+
+  } catch (error) {
+    console.error('❌ FATAL: Could not create PID lock:', error.message);
+    process.exit(1);
+  }
+}
+
+// Check for existing instance before starting
+checkAndCreatePidLock();
 
 // --- Main Application Bootstrap ---
 (async () => {
@@ -56,6 +116,9 @@ const WikiRoutes = require('./src/routes/WikiRoutes');
   const debugSession = configManager.getProperty('amdwiki.logging.debug.session', false);
 
   app.use(async (req, res, next) => {
+    // Log all incoming requests for debugging
+    console.log(`📨 ${req.method} ${req.url}`);
+
     const userManager = engine.getManager('UserManager');
 
     if (debugSession) {

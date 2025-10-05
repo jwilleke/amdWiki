@@ -316,18 +316,24 @@ class PluginSyntaxHandler extends BaseSyntaxHandler {
     }
 
     const params = {};
-    // Enhanced regex to handle quoted values with spaces and special characters
-    const paramRegex = /(\w+)=(?:'([^']*)'|"([^"]*)"|([^\s]+))/g;
+    // Enhanced regex to handle quoted values with spaces, special characters, and escaped quotes
+    // Matches: key='value with \'escaped\' quotes' or key="value" or key=unquoted
+    const paramRegex = /(\w+)=(?:'((?:[^'\\]|\\.)*)'|"((?:[^"\\]|\\.)*)"|([^\s]+))/g;
     let match;
 
     while ((match = paramRegex.exec(paramString)) !== null) {
       const key = match[1];
-      const value = match[2] || match[3] || match[4] || '';
-      
+      let value = match[2] || match[3] || match[4] || '';
+
+      // Unescape escaped quotes in the value
+      if (match[2] || match[3]) {
+        value = value.replace(/\\'/g, "'").replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+      }
+
       // Try to parse as JSON for objects/arrays/primitives
       try {
-        if (value.startsWith('{') || value.startsWith('[') || 
-            value === 'true' || value === 'false' || 
+        if (value.startsWith('{') || value.startsWith('[') ||
+            value === 'true' || value === 'false' ||
             /^\d+(\.\d+)?$/.test(value)) { // Support decimal numbers
           params[key] = JSON.parse(value);
         } else {
