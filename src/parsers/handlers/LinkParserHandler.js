@@ -69,8 +69,15 @@ class LinkParserHandler extends BaseSyntaxHandler {
       const pageManager = this.engine?.getManager('PageManager');
       if (pageManager) {
         const pageNames = await pageManager.getAllPages(); // Returns array of strings
-        this.linkParser.setPageNames(pageNames);
-        console.log(`📄 LinkParserHandler loaded ${pageNames.length} page names for link validation`);
+
+        // Get plural matching configuration
+        const configManager = this.engine?.getManager('ConfigurationManager');
+        const matchEnglishPlurals = configManager ?
+          configManager.getProperty('amdwiki.translatorReader.matchEnglishPlurals', true) :
+          true;
+
+        this.linkParser.setPageNames(pageNames, matchEnglishPlurals);
+        console.log(`📄 LinkParserHandler loaded ${pageNames.length} page names for link validation (plural matching: ${matchEnglishPlurals ? 'enabled' : 'disabled'})`);
 
         // If no pages were loaded during initialization, schedule a retry
         if (pageNames.length === 0) {

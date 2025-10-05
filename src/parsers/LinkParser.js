@@ -22,6 +22,8 @@
  * @see https://github.com/jwilleke/amdWiki/issues/75
  */
 
+const PageNameMatcher = require('../utils/PageNameMatcher');
+
 class LinkParser {
   /**
    * Create a new LinkParser instance
@@ -68,6 +70,9 @@ class LinkParser {
     // Cache for page names (set externally)
     this.pageNames = new Set();
 
+    // Page name matcher for fuzzy matching (plurals, case)
+    this.pageNameMatcher = null;
+
     // InterWiki sites configuration
     this.interWikiSites = new Map();
 
@@ -78,9 +83,11 @@ class LinkParser {
   /**
    * Set the list of existing wiki page names for link validation
    * @param {Array<string>} pageNames - Array of page names
+   * @param {boolean} matchEnglishPlurals - Enable plural matching (default: true)
    */
-  setPageNames(pageNames) {
+  setPageNames(pageNames, matchEnglishPlurals = true) {
     this.pageNames = new Set(pageNames || []);
+    this.pageNameMatcher = new PageNameMatcher(matchEnglishPlurals);
   }
 
   /**
@@ -299,10 +306,22 @@ class LinkParser {
   generateInternalLink(link, context) {
     const pageName = link.target || link.text;
     const displayText = link.text;
-    const exists = this.pageNames.has(pageName);
+
+    // Try fuzzy matching if PageNameMatcher is available
+    let matchedPage = null;
+    if (this.pageNameMatcher) {
+      const allPages = Array.from(this.pageNames);
+      matchedPage = this.pageNameMatcher.findMatch(pageName, allPages);
+    } else {
+      // Fallback to exact match
+      matchedPage = this.pageNames.has(pageName) ? pageName : null;
+    }
+
+    const exists = matchedPage !== null;
+    const targetPage = matchedPage || pageName;
 
     const href = exists
-      ? `/wiki/${encodeURIComponent(pageName)}`
+      ? `/wiki/${encodeURIComponent(targetPage)}`
       : `/edit/${encodeURIComponent(pageName)}`;
 
     const baseClass = exists

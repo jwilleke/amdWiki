@@ -4,6 +4,7 @@ const path = require('path');
 const matter = require('gray-matter');
 const { v4: uuidv4 } = require('uuid');
 const logger = require('../utils/logger');
+const PageNameMatcher = require('../utils/PageNameMatcher');
 
 /**
  * PageManager - Handles all operations related to wiki pages,
@@ -21,6 +22,7 @@ class PageManager extends BaseManager {
     // Lookup maps for resolving different identifiers
     this.titleIndex = new Map(); // Maps lower-case title to canonical identifier
     this.uuidIndex = new Map(); // Maps UUID to canonical identifier
+    this.pageNameMatcher = null; // Will be initialized with config
   }
 
   /**
@@ -37,6 +39,11 @@ class PageManager extends BaseManager {
     this.requiredPagesDirectory = path.isAbsolute(reqCfgPath) ? reqCfgPath : path.join(process.cwd(), reqCfgPath);
 
     this.encoding = configManager.getProperty('amdwiki.encoding', 'UTF-8');
+
+    // Initialize PageNameMatcher with plural matching config
+    const matchEnglishPlurals = configManager.getProperty('amdwiki.translatorReader.matchEnglishPlurals', true);
+    this.pageNameMatcher = new PageNameMatcher(matchEnglishPlurals);
+    logger.info(`Plural matching: ${matchEnglishPlurals ? 'enabled' : 'disabled'}`);
 
     await fs.ensureDir(this.pagesDirectory);
     await fs.ensureDir(this.requiredPagesDirectory);
@@ -125,10 +132,23 @@ class PageManager extends BaseManager {
       return this.pageCache.get(canonicalKey);
     }
 
-    // 2. Try title index (case-insensitive)
+    // 2. Try title index (case-insensitive exact match)
     canonicalKey = this.titleIndex.get(identifier.toLowerCase());
     if (canonicalKey) {
       return this.pageCache.get(canonicalKey);
+    }
+
+    // 3. Try fuzzy matching with plurals if enabled
+    if (this.pageNameMatcher) {
+      const allTitles = Array.from(this.pageCache.values()).map(info => info.title);
+      const matchedTitle = this.pageNameMatcher.findMatch(identifier, allTitles);
+      if (matchedTitle) {
+        canonicalKey = this.titleIndex.get(matchedTitle.toLowerCase());
+        if (canonicalKey) {
+          logger.info(`[PAGE] Fuzzy match: '${identifier}' -> '${matchedTitle}'`);
+          return this.pageCache.get(canonicalKey);
+        }
+      }
     }
 
     return null; // Not found

@@ -2,6 +2,7 @@ const BaseManager = require('./BaseManager');
 const logger = require('../utils/logger');
 const showdown = require('showdown');
 const { LinkParser } = require('../parsers/LinkParser');
+const PageNameMatcher = require('../utils/PageNameMatcher');
 
 /**
  * RenderingManager - Handles markdown rendering and macro expansion
@@ -13,6 +14,7 @@ class RenderingManager extends BaseManager {
     this.converter = null;
     this.linkGraph = {};
     this.linkParser = new LinkParser();
+    this.pageNameMatcher = null; // Will be initialized with config
   }
 
   async initialize(config = {}) {
@@ -20,7 +22,14 @@ class RenderingManager extends BaseManager {
     
     // Load modular rendering configuration
     await this.loadRenderingConfiguration();
-    
+
+    // Initialize PageNameMatcher with plural matching config
+    const configManager = this.engine.getManager('ConfigurationManager');
+    if (configManager) {
+      const matchEnglishPlurals = configManager.getProperty('amdwiki.translatorReader.matchEnglishPlurals', true);
+      this.pageNameMatcher = new PageNameMatcher(matchEnglishPlurals);
+    }
+
     // Initialize Showdown converter with table support and proper list handling
     this.converter = new showdown.Converter({
       tables: true,
@@ -889,8 +898,13 @@ class RenderingManager extends BaseManager {
         // If no target specified, it's a simple wiki link
         if (!target) {
           const pageName = displayText;
-          if (pageNames.includes(pageName)) {
-            return `<a href="/wiki/${encodeURIComponent(pageName)}" class="wikipage"${linkAttributes}>${pageName}</a>`;
+          // Try fuzzy matching with plurals if enabled
+          const matchedPage = this.pageNameMatcher ?
+            this.pageNameMatcher.findMatch(pageName, pageNames) :
+            (pageNames.includes(pageName) ? pageName : null);
+
+          if (matchedPage) {
+            return `<a href="/wiki/${encodeURIComponent(matchedPage)}" class="wikipage"${linkAttributes}>${pageName}</a>`;
           }
           // Red link for non-existent pages
           return `<a href="/edit/${encodeURIComponent(pageName)}" style="color: red;" class="redlink"${linkAttributes}>${pageName}</a>`;
@@ -907,8 +921,13 @@ class RenderingManager extends BaseManager {
           return `<a href="/search" class="nav-link"${linkAttributes}>${displayText}</a>`;
         } else {
           // Wiki page target
-          if (pageNames.includes(target)) {
-            return `<a href="/wiki/${encodeURIComponent(target)}" class="wikipage"${linkAttributes}>${displayText}</a>`;
+          // Try fuzzy matching with plurals if enabled
+          const matchedPage = this.pageNameMatcher ?
+            this.pageNameMatcher.findMatch(target, pageNames) :
+            (pageNames.includes(target) ? target : null);
+
+          if (matchedPage) {
+            return `<a href="/wiki/${encodeURIComponent(matchedPage)}" class="wikipage"${linkAttributes}>${displayText}</a>`;
           }
           // Red link for non-existent page target
           return `<a href="/edit/${encodeURIComponent(target)}" style="color: red;" class="redlink"${linkAttributes}>${displayText}</a>`;
