@@ -23,8 +23,6 @@ The person who last modified the document (<https://schema.org/editor>)
 ### system-category
 
 system-category is defined in page [system-category](../required-pages/5100a3df-0d87-4d85-87de-359f51029c67.md)
-- REQUIRED and limited and is SINGLE-VAUED
-- Values are in the List "## Current System Keywords"
 
 ## user-keywords
 user-keywords are defined in [user-keywords](../required-pages/e3bc8a66-9a68-47bb-af14-d6f8b611a3b2.md)

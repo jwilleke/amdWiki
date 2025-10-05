@@ -172,13 +172,40 @@ class PageManager extends BaseManager {
     const uuid = metadata.uuid || this.#resolvePageInfo(pageName)?.uuid || uuidv4();
 
     // Determine which directory to save to based on system-category
-    // Per System Keywords page: system, documentation, test → required-pages; general → pages
-    const systemCategory = (metadata['system-category'] || metadata.systemCategory || 'general').toLowerCase();
-    const isRequiredPage = systemCategory === 'system' ||
-                           systemCategory === 'documentation' ||
-                           systemCategory === 'test';
+    // Use configuration from amdwiki.systemCategories
+    const configManager = this.engine.getManager('ConfigurationManager');
+    const systemCategory = metadata['system-category'] || metadata.systemCategory || 'General';
 
-    const targetDirectory = isRequiredPage ? this.requiredPagesDirectory : this.pagesDirectory;
+    let targetDirectory;
+    if (configManager) {
+      const systemCategoriesConfig = configManager.getProperty('amdwiki.systemCategories', null);
+
+      if (systemCategoriesConfig) {
+        // Find the category configuration by label (case-insensitive)
+        let storageLocation = 'regular'; // default
+        for (const [key, config] of Object.entries(systemCategoriesConfig)) {
+          if (config.label.toLowerCase() === systemCategory.toLowerCase()) {
+            storageLocation = config.storageLocation || 'regular';
+            break;
+          }
+        }
+        targetDirectory = storageLocation === 'required' ? this.requiredPagesDirectory : this.pagesDirectory;
+      } else {
+        // Fallback to hardcoded logic if config not available
+        const systemCategoryLower = systemCategory.toLowerCase();
+        const isRequiredPage = systemCategoryLower === 'system' ||
+                               systemCategoryLower === 'documentation' ||
+                               systemCategoryLower === 'test';
+        targetDirectory = isRequiredPage ? this.requiredPagesDirectory : this.pagesDirectory;
+      }
+    } else {
+      // Fallback if ConfigurationManager not available
+      const systemCategoryLower = systemCategory.toLowerCase();
+      const isRequiredPage = systemCategoryLower === 'system' ||
+                             systemCategoryLower === 'documentation' ||
+                             systemCategoryLower === 'test';
+      targetDirectory = isRequiredPage ? this.requiredPagesDirectory : this.pagesDirectory;
+    }
     const filePath = path.join(targetDirectory, `${uuid}.md`);
     await fs.ensureDir(path.dirname(filePath));
 
@@ -194,23 +221,35 @@ class PageManager extends BaseManager {
     }
 
     const now = new Date().toISOString();
+    // Use metadata.title if provided (for renames), otherwise use pageName
+    const finalTitle = metadata.title || pageName;
     const updatedMetadata = {
-      title: pageName,
+      title: finalTitle,
       uuid: uuid,
       ...metadata,
+      title: finalTitle, // Ensure title is not overridden by spread
       lastModified: now
     };
 
     const fileContent = matter.stringify(content, updatedMetadata);
     await fs.writeFile(filePath, fileContent, this.encoding);
 
-    // Update cache immediately
-    const pageInfo = { title: pageName, uuid, filePath, metadata: updatedMetadata };
-    this.pageCache.set(pageName, pageInfo);
-    this.titleIndex.set(pageName.toLowerCase(), pageName);
-    this.uuidIndex.set(uuid, pageName);
+    // Handle title change: remove old cache entries
+    const titleChanged = oldPageInfo && oldPageInfo.title !== finalTitle;
+    if (titleChanged) {
+      // Remove old title from cache and indexes
+      this.pageCache.delete(oldPageInfo.title);
+      this.titleIndex.delete(oldPageInfo.title.toLowerCase());
+      logger.info(`Page renamed from '${oldPageInfo.title}' to '${finalTitle}'`);
+    }
 
-    logger.info(`Page '${pageName}' saved successfully to ${path.basename(filePath)}.`);
+    // Update cache with NEW title as the key
+    const pageInfo = { title: finalTitle, uuid, filePath, metadata: updatedMetadata };
+    this.pageCache.set(finalTitle, pageInfo);
+    this.titleIndex.set(finalTitle.toLowerCase(), finalTitle);
+    this.uuidIndex.set(uuid, finalTitle);
+
+    logger.info(`Page '${finalTitle}' saved successfully to ${path.basename(filePath)}.`);
   }
 
   /**

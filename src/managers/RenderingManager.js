@@ -21,14 +21,17 @@ class RenderingManager extends BaseManager {
     // Load modular rendering configuration
     await this.loadRenderingConfiguration();
     
-    // Initialize Showdown converter with table support
+    // Initialize Showdown converter with table support and proper list handling
     this.converter = new showdown.Converter({
       tables: true,
       strikethrough: true,
       tasklists: true,
       simpleLineBreaks: true,
       openLinksInNewWindow: false,
-      backslashEscapesHTMLTags: true
+      backslashEscapesHTMLTags: true,
+      disableForced4SpacesIndentedSublists: true,  // Allow 2-space indented sublists
+      literalMidWordUnderscores: true,              // Better underscore handling
+      ghCodeBlocks: true                            // GitHub-style code blocks
     });
     
     // Build initial link graph

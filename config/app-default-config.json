@@ -350,6 +350,119 @@
       "enabled": true
     }
   },
+  "_comment_systemKeywords": "System keyword definitions for controlled vocabulary",
+  "amdwiki.systemKeywords": {
+    "general": {
+      "label": "general",
+      "description": "General-purpose keyword for standard wiki content",
+      "default": true,
+      "category": "content-type",
+      "enabled": true
+    }
+  },
+  "_comment_userKeywords": "User keyword definitions for flexible content tagging and organization",
+  "amdwiki.userKeywords": {
+    "default": {
+      "label": "default",
+      "description": "Default keyword with no special restrictions",
+      "category": "general",
+      "enabled": true,
+      "restrictEditing": false
+    },
+    "private": {
+      "label": "private",
+      "description": "Private content editable only by author and admins",
+      "category": "access",
+      "enabled": true,
+      "restrictEditing": true,
+      "allowedRoles": ["admin", "author"]
+    },
+    "draft": {
+      "label": "draft",
+      "description": "Work in progress content",
+      "category": "status",
+      "enabled": true,
+      "restrictEditing": false
+    },
+    "review": {
+      "label": "review",
+      "description": "Content under review",
+      "category": "status",
+      "enabled": true,
+      "restrictEditing": false
+    },
+    "published": {
+      "label": "published",
+      "description": "Finalized and approved content",
+      "category": "status",
+      "enabled": true,
+      "restrictEditing": false
+    },
+    "medicine": {
+      "label": "medicine",
+      "description": "Medical and healthcare-related content",
+      "category": "subject",
+      "enabled": true,
+      "restrictEditing": false,
+      "schemaOrg": "MedicalEntity"
+    },
+    "geology": {
+      "label": "geology",
+      "description": "Geological and earth science content",
+      "category": "subject",
+      "enabled": true,
+      "restrictEditing": false
+    },
+    "meteorology": {
+      "label": "meteorology",
+      "description": "Weather and atmospheric science content",
+      "category": "subject",
+      "enabled": true,
+      "restrictEditing": false
+    },
+    "oceanography": {
+      "label": "oceanography",
+      "description": "Ocean and marine science content",
+      "category": "subject",
+      "enabled": true,
+      "restrictEditing": false
+    },
+    "psychology": {
+      "label": "psychology",
+      "description": "Psychological and behavioral science content",
+      "category": "subject",
+      "enabled": true,
+      "restrictEditing": false
+    },
+    "sociology": {
+      "label": "sociology",
+      "description": "Social science and society-related content",
+      "category": "subject",
+      "enabled": true,
+      "restrictEditing": false
+    },
+    "anthropology": {
+      "label": "anthropology",
+      "description": "Human culture and society content",
+      "category": "subject",
+      "enabled": true,
+      "restrictEditing": false
+    },
+    "economics": {
+      "label": "economics",
+      "description": "Economic and financial content",
+      "category": "subject",
+      "enabled": true,
+      "restrictEditing": false
+    },
+    "political-science": {
+      "label": "political-science",
+      "description": "Political science and governance content",
+      "category": "subject",
+      "enabled": true,
+      "restrictEditing": false
+    }
+  },
   "_comment_timezones": "Available timezone options for user preferences",
   "amdwiki.timezones": [
     {

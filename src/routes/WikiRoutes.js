@@ -279,12 +279,12 @@ class WikiRoutes {
   }
 
   /**
-   * Extract categories from Categories page
+   * Extract categories from System Categories page
    */
   async getCategories() {
     try {
       const pageManager = this.engine.getManager("PageManager");
-      const categoriesPage = await pageManager.getPage("Categories");
+      const categoriesPage = await pageManager.getPage("System Categories");
 
       if (!categoriesPage) {
         return ["General", "Documentation", "Project", "Reference"];
@@ -320,7 +320,7 @@ class WikiRoutes {
   async getAllCategories() {
     try {
       const pageManager = this.engine.getManager("PageManager");
-      const categoriesPage = await pageManager.getPage("Categories");
+      const categoriesPage = await pageManager.getPage("System Categories");
 
       if (!categoriesPage) {
         return ["General", "Documentation", "System/Admin"];
@@ -399,6 +399,31 @@ class WikiRoutes {
    */
   async getUserKeywords() {
     try {
+      const configManager = this.engine.getManager("ConfigurationManager");
+
+      // Try to get user keywords from configuration first
+      if (configManager) {
+        const userKeywordsConfig = configManager.getProperty("amdwiki.userKeywords", null);
+
+        if (userKeywordsConfig && typeof userKeywordsConfig === 'object') {
+          const keywords = [];
+
+          // Extract all enabled keyword labels from configuration
+          for (const [key, config] of Object.entries(userKeywordsConfig)) {
+            if (config.enabled !== false && config.label) {
+              keywords.push(config.label);
+            }
+          }
+
+          if (keywords.length > 0) {
+            console.log(`✅ Loaded ${keywords.length} user keywords from configuration`);
+            return keywords;
+          }
+        }
+      }
+
+      // Fallback: read from User Keywords page (legacy method)
+      console.log('⚠️  Falling back to reading user keywords from page');
       const pageManager = this.engine.getManager("PageManager");
       const keywordsPage = await pageManager.getPage("User Keywords");
 
@@ -563,7 +588,7 @@ class WikiRoutes {
    */
   async isRequiredPage(pageName) {
     // Hardcoded required pages (for backward compatibility)
-    const hardcodedRequiredPages = ["Categories", "Wiki Documentation"];
+    const hardcodedRequiredPages = ["System Categories", "Wiki Documentation"];
     if (hardcodedRequiredPages.includes(pageName)) {
       return true;
     }
@@ -575,7 +600,9 @@ class WikiRoutes {
       if (
         pageData &&
         pageData.metadata &&
-        pageData.metadata.category === "System/Admin"
+        (pageData.metadata.category === "System/Admin" ||
+         pageData.metadata['system-category'] === "System" ||
+         pageData.metadata['system-category'] === "System/Admin")
       ) {
         return true;
       }
@@ -1042,6 +1069,13 @@ class WikiRoutes {
       // Get current user
       const currentUser = req.userContext;
 
+      // Check if user is authenticated - redirect to login if not
+      if (!currentUser || !currentUser.isAuthenticated) {
+        return res.redirect(
+          "/login?redirect=" + encodeURIComponent(req.originalUrl)
+        );
+      }
+
       // Get page data to check ACL (if page exists)
       let pageData = await pageManager.getPage(pageName);
 
@@ -1360,8 +1394,10 @@ class WikiRoutes {
       // Permission checks
       const isCurrentlyRequired = await this.isRequiredPage(pageName);
       // Check if the new metadata will make this a required page
-      const hardcodedRequiredPages = ["Categories", "Wiki Documentation"];
+      const hardcodedRequiredPages = ["System Categories", "Wiki Documentation"];
       const willBeRequired = hardcodedRequiredPages.includes(pageName) ||
+                            hardcodedRequiredPages.includes(metadata.title) ||
+                            metadata['system-category'] === "System" ||
                             metadata['system-category'] === "System/Admin";
       if (isCurrentlyRequired || willBeRequired) {
         if (
