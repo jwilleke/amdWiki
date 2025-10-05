@@ -301,49 +301,49 @@
   "_comment_systemCategories": "System category definitions with storage location mapping",
   "amdwiki.systemCategories": {
     "general": {
-      "label": "General",
+      "label": "general",
       "description": "General wiki pages",
       "default": true,
       "storageLocation": "regular",
       "enabled": true
     },
     "system": {
-      "label": "System",
+      "label": "system",
       "description": "System configuration and infrastructure pages",
       "default": false,
       "storageLocation": "required",
       "enabled": true
     },
     "system-admin": {
-      "label": "System/Admin",
+      "label": "system/Admin",
       "description": "Administrative system pages",
       "default": false,
       "storageLocation": "required",
-      "enabled": true
+      "enabled": false
     },
     "documentation": {
-      "label": "Documentation",
+      "label": "documentation",
       "description": "User and technical documentation",
       "default": false,
       "storageLocation": "regular",
       "enabled": true
     },
     "user": {
-      "label": "User",
+      "label": "user",
       "description": "User-generated content",
       "default": false,
       "storageLocation": "regular",
       "enabled": true
     },
     "test": {
-      "label": "Test",
+      "label": "test",
       "description": "Testing and development pages",
       "default": false,
       "storageLocation": "regular",
       "enabled": true
     },
     "developer": {
-      "label": "Developer",
+      "label": "developer",
       "description": "Developer documentation and technical notes",
       "default": false,
       "storageLocation": "regular",

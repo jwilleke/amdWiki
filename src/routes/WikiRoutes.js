@@ -352,45 +352,37 @@ class WikiRoutes {
   }
 
   /**
-   * Get system categories from System Keywords page (admin-only)
+   * Get system categories from configuration (admin-only)
    */
   async getSystemCategories() {
     try {
-      const pageManager = this.engine.getManager("PageManager");
-      const systemKeywordsPage = await pageManager.getPage("System Keywords");
-      if (!systemKeywordsPage) {
-        return ["System", "Documentation", "Test"];
+      const configManager = this.engine.getManager("ConfigurationManager");
+      if (!configManager) {
+        return ["general", "system", "documentation", "test"];
       }
+
+      // Load system categories from configuration
+      const systemCategories = configManager.getProperty("amdwiki.systemCategories", {});
+
+      // Filter enabled categories and extract labels (case-insensitive)
       const categories = [];
-      const lines = systemKeywordsPage.content.split("\n");
-      let inKeywordsSection = false;
-      for (const line of lines) {
-        if (line.trim().startsWith("## ")) {
-          // Enter keywords section
-          inKeywordsSection = line
-            .trim()
-            .toLowerCase()
-            .includes("current system keywords");
-          continue;
-        }
-        if (inKeywordsSection) {
-          // Stop if we hit another heading
-          if (line.trim().startsWith("## ")) break;
-          const bulletMatch = line.match(/^\s*-\s*(.+)$/);
-          if (bulletMatch) {
-            const keyword = bulletMatch[1].trim();
-            if (keyword && !categories.includes(keyword)) {
-              categories.push(keyword);
-            }
-          }
+      for (const [key, config] of Object.entries(systemCategories)) {
+        if (config.enabled !== false) { // Include if not explicitly disabled
+          // Use label if available, otherwise use key (both lowercase)
+          const label = (config.label || key).toLowerCase();
+          categories.push(label);
         }
       }
+
+      // Sort alphabetically for consistent ordering
+      categories.sort();
+
       return categories.length > 0
         ? categories
-        : ["System", "Documentation", "Test"];
+        : ["general", "system", "documentation", "test"];
     } catch (err) {
       console.error("Error loading system categories:", err);
-      return ["System", "Documentation", "Test"];
+      return ["general", "system", "documentation", "test"];
     }
   }
 
