@@ -3,8 +3,9 @@
 When running terminal commands, ensure the shell sources ~/.bash_profile or equivalent to include /usr/local/bin in PATH for npm/Node tools.
 
 
-Read  [SERVER.md](../SERVER.md)
-
+Read [SERVER.md](/SERVER.md)
+Read [SERVER.md](/SERVER.md)
+Read [](/docs/managers/ValidationManager-Documentation.md
 
 ## Architecture Overview
 
@@ -111,22 +112,6 @@ const interval = cfgMgr.getProperty('amdwiki.notifications.autoSaveInterval', 5 
 
 ## Critical Developer Workflows
 
-### Running & Testing
-```bash
-npm start              # Start server on port 3000
-npm test               # Run Jest test suite
-npm run test:coverage  # Generate coverage reports
-npm run dev            # Development mode (same as start)
-```
-
-### Version Management
-```bash
-npm run version:show   # Display current version
-npm run version:patch  # Increment patch version
-npm run version:minor  # Increment minor version
-npm run version:major  # Increment major version
-```
-
 ### File Structure Navigation
 - app.js is in root of project
 - **Pages**: `/pages/*.md` - Wiki content files
@@ -158,6 +143,7 @@ JSPWiki-style plugin syntax in pages:
 ## Integration Points
 
 ### Authentication Flow
+
 1. **Session middleware** - Express session with cookie-based auth
 2. **UserManager** - Handles login/logout/registration
 3. **ACLManager** - Role-based access control
@@ -169,10 +155,7 @@ JSPWiki-style plugin syntax in pages:
 - **Real-time** - Index updates on page save
 
 ### Rendering Pipeline
-1. **PageManager** - Loads raw Markdown from filesystem
-2. **ACLManager** - Removes restricted content based on user roles
-3. **RenderingManager** - Processes JSPWiki syntax, renders Markdown
-4. **TemplateManager** - Injects into EJS templates with user context
+see [amdWiki Rendering Pipeline.md](/docs/planning/amdWiki%20Rendering%20Pipeline.md)
 
 ## Common Gotchas
 

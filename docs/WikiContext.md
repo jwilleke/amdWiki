@@ -8,7 +8,7 @@ WikiContext encapsulates the rendering pipeline and provides access to various m
 
 ## Architecture
 
-```
+```plaintext
 ┌─────────────┐    ┌──────────────────┐    ┌─────────────────┐
 │   Content   │───▶│   WikiContext    │───▶│  Rendered HTML  │
 │ (Markdown)  │    │   Orchestrator   │    │    (Output)     │

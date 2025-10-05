@@ -14,8 +14,6 @@
   "amdwiki.session.store": "users/sessions.json",
   "amdwiki.templateDir": "default",
   "amdwiki.workDir": "./work",
-  "amdwiki.fileSystemProvider.pageDir": "./pages",
-  "amdwiki.fileSystemProvider.required-pageDir": "./required-pages",
   "amdwiki.translatorReader.matchEnglishPlurals": true,
   "amdwiki.translatorReader.camelCaseLinks": true,
   "amdwiki.translatorReader.allowHTML": false,

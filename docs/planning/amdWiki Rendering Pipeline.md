@@ -1,94 +1,251 @@
 # Overview of the Rendering Pipeline for amdWiki
 
-amdWiki is a Node.js-based, file-based wiki application inspired by JSPWiki, using Markdown for page storage and Express.js for server-side handling. It supports JSPWiki-style syntax (e.g., `[Link Text|PageName]` for links, `[{Image src='image.jpg'}]` for plugins) alongside Markdown. The rendering pipeline is primarily **server-side**, processing raw Markdown/wiki markup into HTML, embedding it in EJS templates, and serving styled responses to the browser. It lacks the complex manager-based architecture of JSPWiki but emphasizes simplicity with Express routes, EJS views, and a plugin system for extensibility.
+amdWiki is a Node.js-based, file-based wiki application inspired by JSPWiki, using Markdown for page storage and Express.js for server-side handling. It supports JSPWiki-style syntax (e.g., `[Link Text|PageName]` for links, `[{Image src='image.jpg'}]` for plugins) alongside Markdown. The rendering pipeline is primarily **server-side**, processing raw Markdown/wiki markup into HTML through a sophisticated 7-phase MarkupParser system, embedding it in EJS templates, and serving styled responses to the browser.
 
-The pipeline is triggered per HTTP request (e.g., GET `/wiki/Main`), orchestrated by Express middleware and routes. It integrates authentication, access control (via JSON policies), and auditing. Client-side enhancements (e.g., Bootstrap JS for interactivity) are minimal, with static assets served from `/public/`. Below is a step-by-step explanation of the inferred rendering pipeline, based on the project's architecture (Node.js/Express, Markdown parsing, EJS templating).
+The pipeline is triggered per HTTP request (e.g., GET `/wiki/Main`), orchestrated by Express middleware and routes through the WikiEngine manager architecture. It integrates authentication, access control (via JSON policies), and auditing. The core rendering is handled by RenderingManager which can operate in two modes:
+
+1. **Advanced Parser Mode** (default): Uses the MarkupParser with a 7-phase processing pipeline for comprehensive JSPWiki syntax support
+2. **Legacy Parser Mode** (fallback): Original implementation for backward compatibility
+
+Client-side enhancements (e.g., Bootstrap JS for interactivity) are minimal, with static assets served from `/public/`. Below is a step-by-step explanation of the rendering pipeline, based on the project's architecture (Node.js/Express, WikiEngine managers, MarkupParser, Showdown, EJS templating).
 
 ## Steps in the Rendering Pipeline
 
-1. **HTTP Request Handling**:
-   - An incoming request (e.g., `GET /wiki/Main`) is received by the Express app in `src/routes/` (e.g., a wiki route handler like `wikiRouter.js`).
-   - Middleware processes the request: authentication (three-state system: anonymous, user, admin), policy-based access control (checks JSON config in `/config/` for permissions), and audit logging (records access in `/logs/` or `/data/`).
-   - If authorized, extracts parameters (e.g., page name `Main`, action `view`).
-   - Fact: Routes delegate to core logic in `src/core/` or `src/managers/`, ensuring security before rendering.
+### Phase 1. **HTTP Request Handling**
+- An incoming request (e.g., `GET /wiki/Main`) is received by the Express app in `src/routes/` (e.g., a wiki route handler like `wikiRouter.js`).
+- Middleware processes the request: authentication (three-state system: anonymous, user, admin), policy-based access control (checks JSON config in `/config/` for permissions), and audit logging (records access in `/logs/` or `/data/`).
+- If authorized, extracts parameters (e.g., page name `Main`, action `view`).
+- Fact: Routes delegate to core logic in `src/core/` or `src/managers/`, ensuring security before rendering.
 
-2. **Page Content Retrieval**:
-   - The route handler uses a manager (e.g., `PageManager` in `src/managers/`) to fetch the raw page file from `/pages/` (Markdown `.md` files, e.g., `Main.md`).
-   - Loads metadata (e.g., categories, keywords) from file headers or a separate JSON store in `/data/`.
-   - Checks for existence; if missing, generates a "red link" or creation prompt.
-   - Supports attachments (e.g., images in `/attachments/`) via upload handling.
-   - Fact: Storage is file-based (no database), with optional archiving to `/archive/`.
+### Phase 2. **Page Content Retrieval**
+- The route handler uses a manager (e.g., `PageManager` in `src/managers/`) to fetch the raw page file from `/pages/` (Markdown `.md` files, e.g., `Main.md`).
+- Loads metadata (e.g., categories, keywords) from file headers or a separate JSON store in `/data/`.
+- Checks for existence; if missing, generates a "red link" or creation prompt.
+- Supports attachments (e.g., images in `/attachments/`) via upload handling.
+- Fact: Storage is file-based (no database), with optional archiving to `/archive/`.
 
-3. **Pre-Processing (Syntax and Plugin Handling)**:
-   - Raw Markdown is scanned for JSPWiki-style syntax using utility functions in `src/utils/` (e.g., a parser for `[Link Text|PageName]` → temporary placeholders).
-   - Plugins (e.g., `[{Image src='image.jpg' width='300'}]`) are processed via the plugin system in `src/core/`:
-     - Replaces with HTML (e.g., `<img src="/attachments/image.jpg" width="300">`).
-     - Supports inline images (JPEG/PNG/GIF/WebP, max 5MB) with upload validation.
-   - Applies filters or transformations (e.g., category/keyword injection, red link detection).
-   - Fact: This step handles hybrid Markdown/wiki syntax, ensuring compatibility with JSPWiki markup without full JSPWiki parsing.
+### Phase 3. **Content Rendering (Advanced Parser or Legacy)**
+The RenderingManager routes content through either the Advanced Parser (MarkupParser) or Legacy Parser based on configuration.
 
-4. **Markdown Parsing to HTML**:
-   - The pre-processed content is converted to HTML using a Markdown parser (likely `marked` or similar, inferred from Node.js ecosystem; not explicitly named but standard for Markdown wikis).
-   - The parser resolves placeholders from step 3 (e.g., links to `<a href="/wiki/PageName">Link Text</a>`).
-   - Handles advanced features like multi-criteria search integration (e.g., embedding search results as HTML snippets).
-   - Fact: Output is a raw HTML fragment, with support for tables, headings, and lists from Markdown.
+#### Advanced Parser Mode (Default) - 7-Phase MarkupParser Pipeline
 
-5. **Post-Processing and Validation**:
-   - Applies any post-parse transformations (e.g., injecting audit trail links or time-based permissions via `src/managers/`).
-   - Validates output (e.g., sanitizes HTML to prevent XSS, enforces max file sizes for images).
-   - Integrates admin dashboard elements if in admin mode (e.g., monitoring stats from `/reports/`).
-   - Fact: Ensures compliance with policy-based access (e.g., hides sensitive content based on user role).
+**Phase 3a: Preprocessing** (`src/parsers/MarkupParser.js:phasePreprocessing`)
+- Handles JSPWiki double-bracket escaping: `[[{syntax}]` → `[{syntax}]` via EscapedSyntaxHandler
+- Converts JSPWiki code blocks `{{{code}}}` to Markdown ``` format
+- Protects code blocks and inline code from subsequent handlers using placeholders
+- Normalizes line endings and whitespace
+- Location: RenderingManager.js:99-121, MarkupParser.js:702-750
 
-6. **Template Rendering**:
-   - The HTML fragment is passed to an EJS template in `/views/` (e.g., `wiki-view.ejs` for view mode).
-   - The template wraps the content with layout elements: header (navigation, search bar), sidebar (categories/keywords), footer (audit info), and Bootstrap classes for styling.
-   - Includes static assets from `/public/` (e.g., `<link rel="stylesheet" href="/css/bootstrap.css">`).
-   - Supports user-specific customizations (e.g., via session data).
-   - Fact: EJS allows dynamic insertion (e.g., `<%= htmlContent %>`), with three-state auth influencing visible elements (e.g., edit button for logged-in users).
+**Phase 3b: Syntax Recognition** (`MarkupParser.js:phaseSyntaxRecognition`)
+- Identifies and tokenizes markup patterns (currently pass-through, handlers do pattern matching)
+- Creates syntax token registry for tracking
+- Location: MarkupParser.js:756-761
 
-7. **Response Serving and Caching**:
-   - The rendered HTML is sent as the response with appropriate headers (e.g., `Content-Type: text/html`).
-   - Optional caching (inferred via Express middleware; no explicit cache manager like JSPWiki's Ehcache).
-   - For exports (e.g., to `/exports/`), generates static HTML/PDF variants.
-   - Fact: Responses include Bootstrap JS for client-side interactivity (e.g., search filtering, image uploads).
+**Phase 3c: Context Resolution** (`MarkupParser.js:phaseContextResolution`)
+- Expands system variables via VariableManager: `[{$pagename}]`, `[{$username}]`, `[{$totalpages}]`, etc.
+- Resolves user context and authentication variables
+- Location: MarkupParser.js:767-776
+
+**Phase 3d: Content Transformation** (`MarkupParser.js:phaseContentTransformation`)
+- Executes syntax handlers in priority-resolved order via HandlerRegistry:
+  - **PluginSyntaxHandler** (priority 90): Processes `[{PluginName params}]` via PluginManager
+  - **WikiTagHandler** (priority 95): Handles `<wiki:Include>`, `<wiki:InsertPage>` tags
+  - **WikiFormHandler** (priority 85): Processes form elements and input handlers
+  - **AttachmentHandler** (priority 75): Processes attachment references and thumbnails
+  - **WikiStyleHandler** (priority 70): Handles `%%styles%%` and CSS class application
+  - **LinkParserHandler** (priority 50): Unified link processing for wiki links, InterWiki, and external links
+- Protects generated HTML from markdown encoding
+- Location: MarkupParser.js:782-807, HandlerRegistry in src/parsers/handlers/
+
+**Phase 3e: Filter Pipeline** (`MarkupParser.js:phaseFilterPipeline`)
+- Applies content filters if enabled (configurable via `amdwiki.markup.filters.enabled`):
+  - **SecurityFilter**: XSS prevention, HTML sanitization
+  - **SpamFilter**: Spam link detection and blocking
+  - **ValidationFilter**: Content validation and compliance checks
+- Location: MarkupParser.js:813-826, FilterChain in src/parsers/filters/
+
+**Phase 3f: Markdown Conversion** (`MarkupParser.js:phaseMarkdownConversion`)
+- Restores protected code blocks before Showdown processing
+- Converts markdown to HTML using Showdown converter with options:
+  - Tables support enabled
+  - Strikethrough enabled
+  - Task lists enabled
+  - Simple line breaks enabled
+- Showdown handles all standard markdown: code blocks, links, lists, tables, headings, etc.
+- Location: MarkupParser.js:833-850, RenderingManager.js:24-32
+
+**Phase 3g: Post-processing** (`MarkupParser.js:phasePostProcessing`)
+- Restores protected HTML blocks from Phase 3d
+- Applies table classes from WikiStyleHandler `%%TABLE_CLASSES{...}%%` markers
+- Final HTML validation and cleanup
+- Removes excessive whitespace while preserving code blocks
+- Location: MarkupParser.js:856-872
+
+#### Legacy Parser Mode (Fallback)
+- Step 1: Expand macros via PluginManager (RenderingManager.js:482-640)
+- Step 2: Process JSPWiki-style tables (RenderingManager.js:254-276)
+- Step 3: Process wiki-style links (RenderingManager.js:837-918)
+- Step 4: Convert to HTML via Showdown (RenderingManager.js:198)
+- Step 5: Post-process tables with styling (RenderingManager.js:407-473)
+- Used when: `amdwiki.markup.useAdvancedParser=false` or MarkupParser unavailable
+- Location: RenderingManager.js:181-204
+
+### Phase 4. **Template Rendering**
+- The HTML fragment is passed to an EJS template in `/views/` via TemplateManager (e.g., `wiki-view.ejs` for view mode).
+- The template wraps the content with layout elements: header (navigation, search bar), sidebar (categories/keywords), footer (audit info), and Bootstrap classes for styling.
+- Includes static assets from `/public/` (e.g., `<link rel="stylesheet" href="/css/bootstrap.css">`).
+- Supports user-specific customizations (e.g., via session data and WikiContext).
+- Fact: EJS allows dynamic insertion (e.g., `<%= htmlContent %>`), with three-state auth influencing visible elements (e.g., edit button for logged-in users).
+- Location: src/managers/TemplateManager.js, views/*.ejs
+
+### Phase 5. **Response Serving and Caching**
+- The rendered HTML is sent as the response with appropriate headers (e.g., `Content-Type: text/html`).
+- **Advanced caching** via CacheManager with multiple strategies:
+  - **Parse Results Cache**: Full content parsing results (TTL: 300s, configurable via `amdwiki.markup.cache.parseResults.ttl`)
+  - **Handler Results Cache**: Individual handler outputs (TTL: 600s)
+  - **Pattern Compilation Cache**: Pre-compiled regex patterns (TTL: 3600s)
+  - **Variable Resolution Cache**: System variable lookups (TTL: 900s)
+  - Cache regions managed by MarkupParser, integrated with CacheManager
+  - Performance monitoring with cache hit ratio tracking and alerts
+- For exports (e.g., to `/exports/`), ExportManager generates static HTML/PDF variants.
+- Fact: Responses include Bootstrap JS for client-side interactivity (e.g., search filtering, image uploads).
+- Location: src/parsers/MarkupParser.js:436-486 (caching), src/managers/ExportManager.js
 
 ### Key Components in the Pipeline
 
 | Component              | Role in Pipeline                                                                 | Location in Repo                      |
 |------------------------|----------------------------------------------------------------------------------|---------------------------------------|
-| **Express Routes**    | Handles requests, authentication, and delegates to managers.                     | `src/routes/` (e.g., `wikiRouter.js`) |
-| **PageManager**       | Retrieves/saves Markdown files and metadata.                                     | `src/managers/`                       |
-| **Syntax/Plugin Parser** | Pre-processes JSPWiki-style links/plugins to placeholders.                     | `src/utils/` or `src/core/`           |
-| **Markdown Parser**   | Converts Markdown + resolved syntax to HTML.                                     | Likely `marked` (Node.js lib)         |
-| **EJS Templates**     | Wraps HTML in layout with Bootstrap styling.                                     | `/views/` (e.g., `wiki-view.ejs`)     |
-| **Access Control**    | Validates permissions pre/post-rendering.                                        | `/config/` (JSON policies)            |
-| **Audit Trail**       | Logs access during retrieval and serving.                                        | `src/managers/` and `/logs/`          |
+| **WikiEngine**        | Central orchestrator, manages all managers and lifecycle                         | `src/WikiEngine.js`                   |
+| **Express Routes**    | Handles requests, authentication, and delegates to managers.                     | `src/routes/WikiRoutes.js`            |
+| **PageManager**       | Retrieves/saves Markdown files and metadata.                                     | `src/managers/PageManager.js`         |
+| **RenderingManager**  | Orchestrates rendering, delegates to MarkupParser or legacy pipeline             | `src/managers/RenderingManager.js`    |
+| **MarkupParser**      | 7-phase processing pipeline for JSPWiki syntax                                   | `src/parsers/MarkupParser.js`         |
+| **HandlerRegistry**   | Manages syntax handlers with priority resolution                                 | `src/parsers/handlers/HandlerRegistry.js` |
+| **Syntax Handlers**   | Process specific syntax types (plugins, links, forms, etc.)                      | `src/parsers/handlers/*Handler.js`    |
+| **FilterChain**       | Security, spam, validation filters                                               | `src/parsers/filters/FilterChain.js`  |
+| **VariableManager**   | Expands system variables like `[{$pagename}]`                                    | `src/managers/VariableManager.js`     |
+| **PluginManager**     | Executes plugins like `[{Image}]`, `[{TableOfContents}]`                        | `src/managers/PluginManager.js`       |
+| **Showdown**          | Converts Markdown to HTML                                                        | npm package (configured in RenderingManager) |
+| **TemplateManager**   | Manages EJS templates and wraps HTML in layout                                   | `src/managers/TemplateManager.js`     |
+| **EJS Templates**     | Wraps HTML in layout with Bootstrap styling                                      | `/views/*.ejs`                        |
+| **CacheManager**      | Multi-strategy caching for parse results, handlers, patterns                     | `src/managers/CacheManager.js`        |
+| **ACLManager**        | Validates permissions pre/post-rendering                                         | `src/managers/ACLManager.js`          |
+| **PolicyEvaluator**   | Evaluates policy-based access control                                            | `src/managers/PolicyEvaluator.js`     |
+| **UserManager**       | Three-tier authentication (Anonymous, Authenticated, Admin)                      | `src/managers/UserManager.js`         |
+| **ExportManager**     | Generates HTML/PDF exports                                                       | `src/managers/ExportManager.js`       |
 
 ## Textual Diagram of the Pipeline
 
+### Advanced Parser Mode (Default)
 ``` text
-HTTP Request (e.g., GET /wiki/Main) → Express Routes (auth + access check)
+HTTP Request (e.g., GET /wiki/Main)
+              ↓
+Express Routes (src/routes/WikiRoutes.js) → Auth + ACL check
               ↓
 PageManager (fetch Main.md from /pages/)
               ↓
-Pre-Processing (parse links/plugins in src/utils/)
+RenderingManager.renderMarkdown() → delegates to MarkupParser
               ↓
-Markdown Parser (convert to HTML fragment)
+┌─────────────────────────────────────────────────────────────┐
+│ MarkupParser 7-Phase Pipeline                              │
+├─────────────────────────────────────────────────────────────┤
+│ Phase 1: Preprocessing                                      │
+│   - EscapedSyntaxHandler (double-bracket escaping)          │
+│   - Code block protection                                   │
+│   - Normalize whitespace                                    │
+├─────────────────────────────────────────────────────────────┤
+│ Phase 2: Syntax Recognition                                 │
+│   - Pattern tokenization                                    │
+├─────────────────────────────────────────────────────────────┤
+│ Phase 3: Context Resolution                                 │
+│   - VariableManager (expand [{$variables}])                 │
+├─────────────────────────────────────────────────────────────┤
+│ Phase 4: Content Transformation                             │
+│   - PluginSyntaxHandler → PluginManager                     │
+│   - WikiTagHandler                                          │
+│   - WikiFormHandler                                         │
+│   - AttachmentHandler                                       │
+│   - WikiStyleHandler                                        │
+│   - LinkParserHandler (unified links)                       │
+│   - Protect generated HTML                                  │
+├─────────────────────────────────────────────────────────────┤
+│ Phase 5: Filter Pipeline                                    │
+│   - SecurityFilter (XSS prevention)                         │
+│   - SpamFilter                                              │
+│   - ValidationFilter                                        │
+├─────────────────────────────────────────────────────────────┤
+│ Phase 6: Markdown Conversion                                │
+│   - Restore code blocks                                     │
+│   - Showdown.makeHtml() (markdown → HTML)                   │
+├─────────────────────────────────────────────────────────────┤
+│ Phase 7: Post-processing                                    │
+│   - Restore protected HTML                                  │
+│   - Apply table classes                                     │
+│   - HTML cleanup                                            │
+└─────────────────────────────────────────────────────────────┘
               ↓
-Post-Processing (validation + injections)
+CacheManager (cache parse result with multi-strategy caching)
               ↓
-EJS Template (/views/wiki-view.ejs + Bootstrap CSS/JS from /public/)
+TemplateManager → EJS Template (/views/wiki-view.ejs)
               ↓
 Response (HTML to browser, audit log to /logs/)
 ```
 
+### Legacy Parser Mode (Fallback)
+``` text
+HTTP Request (e.g., GET /wiki/Main)
+              ↓
+Express Routes → Auth + ACL check
+              ↓
+PageManager (fetch Main.md)
+              ↓
+RenderingManager.renderWithLegacyParser()
+              ↓
+Expand macros (PluginManager)
+              ↓
+Process JSPWiki tables
+              ↓
+Process wiki links
+              ↓
+Showdown.makeHtml() (markdown → HTML)
+              ↓
+Post-process tables (styling)
+              ↓
+TemplateManager → EJS Template
+              ↓
+Response
+```
+
 ### Notes
-- **Inspiration from JSPWiki**: Unlike JSPWiki's manager-heavy pipeline (e.g., `WikiEngine`, `JSPWikiMarkupParser`), amdWiki simplifies with Express/EJS, focusing on Markdown over full wiki markup. No explicit "RenderingManager" exists, but the flow mirrors JSPWiki's steps.
-- **Extensibility**: Plugin system allows custom syntax handlers; time-based permissions add dynamic rendering rules.
-- **Performance**: File-based I/O is lightweight but may scale poorly without caching; suitable for small wikis.
+- **Inspiration from JSPWiki**: amdWiki implements a manager-based architecture similar to JSPWiki (`WikiEngine`, `RenderingManager`, `PageManager`), with a 7-phase MarkupParser that mirrors JSPWiki's parsing pipeline while using Markdown as the base format.
+- **Extensibility**:
+  - Plugin system via PluginManager and PluginSyntaxHandler
+  - Custom syntax handlers can be registered via HandlerRegistry
+  - Modular filter chain for security and validation
+  - Time-based permissions add dynamic rendering rules
+  - Configuration-driven handler enabling/disabling
+- **Performance**:
+  - Multi-strategy caching via CacheManager (parse results, handlers, patterns, variables)
+  - Performance monitoring with alert thresholds
+  - Cache hit ratio tracking and metrics
+  - Configurable TTLs for different cache strategies
+  - File-based I/O with intelligent caching suitable for small-to-medium wikis
+- **Configuration**:
+  - Advanced parser mode: `amdwiki.markup.useAdvancedParser=true` (default)
+  - Legacy fallback: `amdwiki.markup.fallbackToLegacy=true`
+  - Individual handlers: `amdwiki.markup.handlers.[handler].enabled`
+  - Filters: `amdwiki.markup.filters.enabled`
+  - Cache strategies: `amdwiki.markup.cache.[strategy].enabled`
+  - Performance monitoring: `amdwiki.markup.performance.monitoring`
 - **Documentation**: See [PROJECT-STRUCTURE.md](https://github.com/jwilleke/amdWiki/blob/master/docs/architecture/PROJECT-STRUCTURE.md) and [ROADMAP.md](https://github.com/jwilleke/amdWiki/blob/master/docs/planning/ROADMAP.md) for deeper details.
 
-This pipeline captures amdWiki's server-centric rendering, adapted from JSPWiki concepts. For code-level verification or customizations, refer to the repo's `src/` directory.
+This pipeline captures amdWiki's server-centric rendering with sophisticated JSPWiki-style processing. For code-level verification or customizations, refer to:
+- `src/WikiEngine.js` - Manager initialization and orchestration
+- `src/managers/RenderingManager.js` - Rendering orchestration and legacy parser
+- `src/parsers/MarkupParser.js` - 7-phase advanced parsing pipeline
+- `src/parsers/handlers/` - Syntax-specific handlers
+- `src/parsers/filters/` - Content filtering
+- `config/app-default-config.json` - Configuration options
 
 ## Rendering Pipeline Comparison
 
@@ -133,58 +290,72 @@ JSPWiki’s pipeline is a server-side process orchestrated by the `WikiEngine`, 
    - **Details**: Optimizes repeated views; dynamic content (e.g., WikiForms) may bypass caching.
 
 #### amdWiki Rendering Pipeline
-amdWiki’s pipeline is simpler, built on Node.js with Express.js, using Markdown with JSPWiki-style link syntax and EJS templates. It emphasizes lightweight deployment and file-based storage.
+amdWiki's pipeline is built on Node.js with Express.js, using Markdown with comprehensive JSPWiki-style syntax support and EJS templates. It features a sophisticated 7-phase MarkupParser inspired by JSPWiki's architecture while maintaining lightweight deployment and file-based storage.
 
 1. **HTTP Request Handling**:
-   - **Component**: Express routes (e.g., `src/routes/wikiRouter.js`).
-   - **Process**: Receives requests (e.g., `GET /wiki/Main`), applies middleware for authentication (three-state: anonymous, user, admin) and policy-based access control (JSON in `/config/`).
-   - **Details**: Logs audit trails to `/logs/`.
+   - **Component**: Express routes via `WikiRoutes` (`src/routes/WikiRoutes.js`).
+   - **Process**: Receives requests (e.g., `GET /wiki/Main`), applies middleware for authentication (three-state: anonymous, authenticated, admin) via UserManager and policy-based access control via PolicyEvaluator.
+   - **Details**: Logs audit trails; WikiContext object created for request tracking.
 
 2. **Page Content Retrieval**:
-   - **Component**: `PageManager` (in `src/managers/`).
-   - **Process**: Loads Markdown file (e.g., `Main.md`) from `/pages/` and metadata from `/data/` (JSON).
-   - **Details**: No built-in versioning; attachments stored in `/attachments/`.
+   - **Component**: `PageManager` (in `src/managers/PageManager.js`).
+   - **Process**: Loads Markdown file (e.g., `Main.md`) from `/pages/` or `/required-pages/` with YAML frontmatter metadata.
+   - **Details**: File-based versioning via archiving to `/archive/`; attachments stored in `/attachments/`.
 
-3. **Pre-Processing (Syntax and Plugin Handling)**:
-   - **Component**: Utility functions (`src/utils/` or `src/core/`).
-   - **Process**: Scans for JSPWiki-style syntax (e.g., `[Link|PageName]`, `[{Image src='image.jpg'}]`) and converts to placeholders for Markdown compatibility.
-   - **Details**: Supports plugins (e.g., images with max 5MB size).
+3. **Content Rendering - Advanced Parser Mode (Default)**:
+   - **Component**: `RenderingManager` delegates to `MarkupParser` (7-phase pipeline).
+   - **Process**:
+     - **Phase 1**: Preprocessing - EscapedSyntaxHandler, code block protection, normalization
+     - **Phase 2**: Syntax Recognition - Pattern tokenization
+     - **Phase 3**: Context Resolution - VariableManager expands `[{$variables}]`
+     - **Phase 4**: Content Transformation - Priority-ordered handlers (PluginSyntaxHandler, WikiTagHandler, WikiFormHandler, AttachmentHandler, WikiStyleHandler, LinkParserHandler)
+     - **Phase 5**: Filter Pipeline - SecurityFilter, SpamFilter, ValidationFilter
+     - **Phase 6**: Markdown Conversion - Showdown with tables, strikethrough, tasklists
+     - **Phase 7**: Post-processing - HTML restoration, table class application, cleanup
+   - **Details**: Configurable via `amdwiki.markup.*` settings; supports JSPWiki plugins, links, forms, styles, attachments.
 
-4. **Markdown Parsing to HTML**:
-   - **Component**: Markdown parser (likely `marked` or similar, inferred).
-   - **Process**: Converts Markdown and resolved placeholders to HTML (e.g., `[Link|PageName]` → `<a href="/wiki/PageName">Link</a>`).
-   - **Details**: Handles tables, headings, and search results.
+4. **Content Rendering - Legacy Parser Mode (Fallback)**:
+   - **Component**: `RenderingManager.renderWithLegacyParser()`.
+   - **Process**: Expand macros → Process JSPWiki tables → Process wiki links → Showdown conversion → Post-process styling.
+   - **Details**: Used when `amdwiki.markup.useAdvancedParser=false` or MarkupParser unavailable.
 
-5. **Post-Processing and Validation**:
-   - **Component**: Manager logic (`src/managers/`).
-   - **Process**: Sanitizes HTML, injects audit trails or time-based permissions.
-   - **Details**: Enforces access policies post-rendering.
+5. **Caching**:
+   - **Component**: `CacheManager` with multi-strategy caching integrated in MarkupParser.
+   - **Process**: Cache parse results (TTL: 300s), handler results (600s), patterns (3600s), variables (900s).
+   - **Details**: Performance monitoring with cache hit ratio tracking and alerts.
 
 6. **Template Rendering**:
-   - **Component**: EJS templates (`/views/wiki-view.ejs`).
+   - **Component**: `TemplateManager` using EJS templates (`/views/wiki-view.ejs`).
    - **Process**: Wraps HTML with Bootstrap-based layout (header, sidebar, footer) from `/public/css/bootstrap.css`.
-   - **Details**: Supports dynamic elements via EJS (e.g., `<%= htmlContent %>`).
+   - **Details**: Supports dynamic elements via EJS with WikiContext integration.
 
-7. **Response Serving and Caching**:
-   - **Component**: Express response handling.
-   - **Process**: Sends HTML response; optional caching via middleware.
-   - **Details**: Exports to `/exports/` (HTML/PDF); minimal client-side JS (Bootstrap).
+7. **Response Serving and Export**:
+   - **Component**: Express response handling via WikiRoutes.
+   - **Process**: Sends HTML response with caching headers; `ExportManager` generates HTML/PDF exports.
+   - **Details**: Minimal client-side JS (Bootstrap); audit logging to `/logs/`.
 
 ### Comparison Table
 
 | Aspect                    | JSPWiki Rendering Pipeline                          | amdWiki Rendering Pipeline                          |
 |---------------------------|----------------------------------------------------|----------------------------------------------------|
 | **Technology**            | Java, Servlet, JSP                                 | Node.js, Express, EJS                              |
-| **Content Format**        | JSPWiki markup (e.g., `**bold**`, `[{Plugin}]`)    | Markdown + JSPWiki-style links/plugins             |
-| **Core Controller**       | `WikiEngine` (singleton)                           | Express routes (`src/routes/`)                     |
-| **Context**               | `WikiContext` (page, mode, user)                   | Request object + middleware (auth, policies)       |
-| **Storage**               | `PageProvider` (e.g., `FileSystemProvider`)        | File-based (`/pages/*.md`, `/data/`)              |
-| **Parsing**               | `JSPWikiMarkupParser` (SPI-extensible)             | Markdown parser + custom syntax handler            |
-| **Enhancements**          | Plugins, Variables, Forms, Styles, Filters         | Plugins (e.g., Image), Links, Search               |
-| **Filters**               | Pre/post via `PageFilter` (`jspwiki.filters`)      | Middleware-based transformations                   |
-| **Templating**            | JSP (`view.jsp`, `jspwiki.css`, skins)             | EJS (`wiki-view.ejs`, Bootstrap CSS)              |
-| **Caching**               | `CacheManager` (Ehcache, configurable)             | Optional Express middleware (not explicit)         |
-| **Output**                | HTML via `WikiServlet`                             | HTML via Express response                          |
+| **Content Format**        | JSPWiki markup (e.g., `**bold**`, `[{Plugin}]`)    | Markdown + JSPWiki-style syntax (links, plugins, forms, styles) |
+| **Core Controller**       | `WikiEngine` (singleton)                           | `WikiEngine` (manager-based architecture)          |
+| **Context**               | `WikiContext` (page, mode, user)                   | `WikiContext` + `ParseContext` (page, user, request info) |
+| **Storage**               | `PageProvider` (e.g., `FileSystemProvider`)        | File-based (`/pages/*.md`, `/required-pages/*.md`) with YAML frontmatter |
+| **Parsing**               | `JSPWikiMarkupParser` (SPI-extensible)             | `MarkupParser` (7-phase pipeline with HandlerRegistry) |
+| **Parser Phases**         | Single-pass with manager callbacks                 | 7-phase: Preprocessing, Syntax Recognition, Context Resolution, Content Transformation, Filter Pipeline, Markdown Conversion, Post-processing |
+| **Enhancements**          | Plugins, Variables, Forms, Styles, Filters         | Plugins, Variables, Forms, Styles, WikiTags, Attachments via modular handlers |
+| **Handler System**        | Manager-based (PluginManager, VariableManager)     | HandlerRegistry with priority-ordered execution (PluginSyntaxHandler, WikiTagHandler, WikiFormHandler, LinkParserHandler, WikiStyleHandler, AttachmentHandler) |
+| **Filters**               | Pre/post via `PageFilter` (`jspwiki.filters`)      | FilterChain with SecurityFilter, SpamFilter, ValidationFilter |
+| **Link Processing**       | JSPWikiMarkupParser built-in                       | Unified LinkParserHandler (wiki links, InterWiki, external) |
+| **Variable Expansion**    | `VariableManager`                                  | `VariableManager` (Phase 3: Context Resolution)    |
+| **Templating**            | JSP (`view.jsp`, `jspwiki.css`, skins)             | EJS via `TemplateManager` (`wiki-view.ejs`, Bootstrap CSS) |
+| **Markdown Support**      | Via custom parsers (optional)                      | Native via Showdown (Phase 6) with JSPWiki enhancements |
+| **Caching**               | `CacheManager` (Ehcache, configurable)             | `CacheManager` with multi-strategy caching (parse results, handlers, patterns, variables) |
+| **Performance Monitoring**| Limited                                            | Built-in with alert thresholds (parse time, cache hit ratio, error rate) |
+| **Configuration**         | `jspwiki.properties`                               | `app-default-config.json` + `app-custom-config.json` (hierarchical) |
+| **Output**                | HTML via `WikiServlet`                             | HTML via Express response with audit logging       |
 
 ### Pros and Cons
 
@@ -205,18 +376,23 @@ amdWiki’s pipeline is simpler, built on Node.js with Express.js, using Markdow
 
 #### amdWiki Rendering Pipeline
 **Pros**:
-- **Lightweight**: Node.js/Express requires minimal setup, ideal for small wikis or quick deployments.
-- **Modern Stack**: Uses Markdown (widely adopted) and EJS, simpler than JSP for developers familiar with JavaScript.
-- **Simplicity**: Fewer components (no managers, SPI) reduce complexity; file-based storage is straightforward.
+- **Modern Architecture**: Node.js/Express with manager-based WikiEngine architecture similar to JSPWiki but lighter-weight.
+- **Sophisticated Parsing**: 7-phase MarkupParser with comprehensive JSPWiki syntax support (plugins, forms, styles, variables, WikiTags).
+- **Handler System**: Extensible HandlerRegistry with priority-ordered execution and dependency resolution.
+- **Markdown Native**: Uses Showdown for standard Markdown with JSPWiki enhancements, familiar to modern developers.
+- **Advanced Caching**: Multi-strategy caching (parse results, handlers, patterns, variables) with performance monitoring.
+- **Configuration-Driven**: Modular configuration system allowing fine-grained control of handlers, filters, and caching.
+- **Filter Pipeline**: Security, spam, and validation filters integrated into parsing pipeline.
+- **Performance Monitoring**: Built-in metrics tracking with alert thresholds for parse time, cache hit ratio, and error rates.
 - **Bootstrap Integration**: Pre-styled with Bootstrap CSS/JS, providing responsive, modern UI out-of-the-box.
-- **Policy-Based Access**: JSON-based access control (`/config/`) is easy to configure and audit.
+- **Dual-Mode Rendering**: Advanced parser with legacy fallback ensures backward compatibility.
 
 **Cons**:
-- **Limited Features**: Lacks advanced enhancements like WikiForms, Variables, or built-in versioning compared to JSPWiki.
-- **No Native Versioning**: File-based storage (`/pages/*.md`) does not support page history or diffs natively.
-- **Caching**: No explicit caching mechanism (unlike JSPWiki’s Ehcache), potentially slower for repeated views.
-- **Extensibility**: Plugin system is less mature; no formal SPI, limiting modularity compared to JSPWiki.
-- **Security**: Three-state authentication and JSON policies are simpler but less granular than JSPWiki’s ACLs.
+- **Versioning**: File-based archiving less sophisticated than JSPWiki's VersioningFileProvider (no diff, no version retrieval).
+- **Maturity**: Handler system and plugin library less mature than JSPWiki's decades of development.
+- **Java Ecosystem**: Lacks access to Java-based extensions and enterprise features available to JSPWiki.
+- **Documentation**: Still evolving; some handlers and features lack comprehensive documentation compared to JSPWiki.
+- **Database Support**: File-based only; no database PageProvider options like JSPWiki.
 
 ### Example Workflow Comparison
 **JSPWiki**:
@@ -224,13 +400,32 @@ amdWiki’s pipeline is simpler, built on Node.js with Express.js, using Markdow
 - **Flow**: `WikiServlet` → `WikiEngine` → `PageManager` (fetch `Main.txt`) → `SpamFilter` → `JSPWikiMarkupParser` (`<b>Main</b> 2025-09-21 04:35:00 EDT`) → Post-filter → `view.jsp` (with `jspwiki.css`) → Cached → Response.
 - **Output**: `<div class="content">Welcome <b>Main</b>! 2025-09-21 04:35:00 EDT</div>`.
 
-**amdWiki**:
-- **Markup**: `# Welcome *Main*! [{Image src='logo.jpg'}]`
-- **Flow**: Express route → Auth middleware → `PageManager` (fetch `Main.md`) → Syntax parser (links/plugins) → Markdown parser (`<h1>Welcome <em>Main</em>!</h1> <img src="/attachments/logo.jpg">`) → Post-processing (validation) → `wiki-view.ejs` (with Bootstrap) → Response.
-- **Output**: `<div class="container"><h1>Welcome <em>Main</em>!</h1> <img src="/attachments/logo.jpg"></div>`.
+**amdWiki** (Advanced Parser):
+- **Markup**: `# Welcome *Main*! [{Image src='logo.jpg'}] Current user: [{$username}]`
+- **Flow**:
+  - Express route → Auth middleware (UserManager) → ACL check (PolicyEvaluator)
+  - `PageManager` (fetch `Main.md`)
+  - `RenderingManager.renderMarkdown()` → `MarkupParser.parse()`
+    - Phase 1: Preprocessing (protect code blocks)
+    - Phase 2: Syntax Recognition (tokenize)
+    - Phase 3: Context Resolution (expand `[{$username}]` → "JohnDoe")
+    - Phase 4: Content Transformation (PluginSyntaxHandler processes `[{Image}]` → `<img src="/attachments/logo.jpg">`)
+    - Phase 5: Filter Pipeline (SecurityFilter, SpamFilter)
+    - Phase 6: Markdown Conversion (Showdown: `# Welcome` → `<h1>Welcome</h1>`, `*Main*` → `<em>Main</em>`)
+    - Phase 7: Post-processing (restore HTML, cleanup)
+  - `TemplateManager` → `wiki-view.ejs` (with Bootstrap)
+  - Response with cache headers
+- **Output**: `<div class="container"><h1>Welcome <em>Main</em>!</h1> <img src="/attachments/logo.jpg"> Current user: JohnDoe</div>`
 
 ### Summary
-- **JSPWiki**: Suited for complex, enterprise-grade wikis needing versioning, extensibility, and robust access control. Its pipeline is feature-rich but heavyweight, requiring significant setup and tuning.
-- **amdWiki**: Ideal for lightweight, modern wikis with simple Markdown-based content and quick deployment. Its pipeline is streamlined but lacks versioning and advanced enhancements, limiting scalability.
+- **JSPWiki**: Suited for complex, enterprise-grade wikis needing robust versioning, extensive extensibility via SPI, and granular access control. Its pipeline is feature-rich and battle-tested but heavyweight, requiring significant setup (servlet container, configuration) and Java expertise.
+- **amdWiki**: Modern wiki engine that combines JSPWiki's sophisticated parsing architecture with Node.js/Express agility and Markdown familiarity. Features a comprehensive 7-phase MarkupParser with extensive JSPWiki syntax support, advanced multi-strategy caching, and performance monitoring. Ideal for teams wanting JSPWiki-style features in a modern JavaScript stack with quick deployment. While handler library and versioning are less mature than JSPWiki's decades of development, the architecture is designed for extensibility and growth.
 
-For detailed implementation, refer to JSPWiki’s [API docs](https://jspwiki.apache.org/apidocs/2.12.2/) or amdWiki’s [PROJECT-STRUCTURE.md](https://github.com/jwilleke/amdWiki/blob/master/docs/architecture/PROJECT-STRUCTURE.md). If you need a visual comparison (e.g., Chart.js for performance metrics), provide specific data or metrics!
+**Key Differentiators**:
+- **JSPWiki**: Java/Servlet ecosystem, pure wiki markup, decades of plugins, enterprise features
+- **amdWiki**: Node.js/Express, Markdown + JSPWiki syntax, modern tooling, lightweight deployment, manager-based architecture
+
+For detailed implementation, refer to:
+- JSPWiki's [API docs](https://jspwiki.apache.org/apidocs/2.12.2/)
+- amdWiki's [PROJECT-STRUCTURE.md](https://github.com/jwilleke/amdWiki/blob/master/docs/architecture/PROJECT-STRUCTURE.md)
+- amdWiki's source: `src/WikiEngine.js`, `src/managers/RenderingManager.js`, `src/parsers/MarkupParser.js`
