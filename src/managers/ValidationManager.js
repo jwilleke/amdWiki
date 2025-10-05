@@ -18,19 +18,145 @@ class ValidationManager extends BaseManager {
   constructor(engine) {
     super(engine);
     this.requiredMetadataFields = ['title', 'uuid', 'slug', 'system-category', 'user-keywords', 'lastModified'];
+    // Legacy hardcoded categories (fallback if config not available)
     this.validSystemCategories = [
       'System', 'System/Admin', 'Documentation', 'General', 'User', 'Test', 'Developer'
     ];
+    this.systemCategoriesConfig = null;
   }
 
   async initialize(config = {}) {
     await super.initialize(config);
     const configManager = this.engine.getManager('ConfigurationManager');
+
+    // Load max keywords
     this.maxUserKeywords = configManager ?
       configManager.getProperty('amdwiki.maximum.user-keywords', 5) :
       (config.maxUserKeywords || 5);
     this.maxCategories = config.maxCategories || 3;
+
+    // Load system categories from configuration
+    this.loadSystemCategories(configManager);
+
     console.log('✅ ValidationManager initialized');
+    console.log(`📋 Loaded ${this.validSystemCategories.length} system categories: ${this.validSystemCategories.join(', ')}`);
+  }
+
+  /**
+   * Load system categories from ConfigurationManager
+   * @param {ConfigurationManager} configManager - Configuration manager instance
+   */
+  loadSystemCategories(configManager) {
+    if (!configManager) {
+      console.warn('⚠️  ConfigurationManager not available, using hardcoded system categories');
+      return;
+    }
+
+    try {
+      // Get system categories configuration
+      const systemCategoriesConfig = configManager.getProperty('amdwiki.systemCategories', null);
+
+      if (systemCategoriesConfig && typeof systemCategoriesConfig === 'object') {
+        this.systemCategoriesConfig = systemCategoriesConfig;
+
+        // Build valid categories list from enabled categories
+        const categories = [];
+        for (const [key, categoryConfig] of Object.entries(systemCategoriesConfig)) {
+          if (categoryConfig.enabled !== false) {
+            // Use the label as the valid category value
+            categories.push(categoryConfig.label);
+          }
+        }
+
+        if (categories.length > 0) {
+          this.validSystemCategories = categories;
+          console.log(`🔧 Loaded ${categories.length} system categories from configuration`);
+        } else {
+          console.warn('⚠️  No enabled system categories found in configuration, using defaults');
+        }
+      } else {
+        console.warn('⚠️  System categories configuration not found, using hardcoded defaults');
+      }
+    } catch (error) {
+      console.error('❌ Error loading system categories from configuration:', error.message);
+      console.warn('⚠️  Falling back to hardcoded system categories');
+    }
+  }
+
+  /**
+   * Get system category configuration by label
+   * @param {string} label - Category label (e.g., "General", "System")
+   * @returns {Object|null} Category configuration or null if not found
+   */
+  getCategoryConfig(label) {
+    if (!this.systemCategoriesConfig) {
+      return null;
+    }
+
+    // Find category by label (case-insensitive)
+    for (const [key, config] of Object.entries(this.systemCategoriesConfig)) {
+      if (config.label.toLowerCase() === label.toLowerCase()) {
+        return { key, ...config };
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * Get storage location for a category
+   * @param {string} category - Category label
+   * @returns {string} Storage location ('regular' or 'required')
+   */
+  getCategoryStorageLocation(category) {
+    const config = this.getCategoryConfig(category);
+    return config?.storageLocation || 'regular';
+  }
+
+  /**
+   * Get all enabled system categories
+   * @returns {Array<Object>} Array of category configurations
+   */
+  getAllSystemCategories() {
+    if (!this.systemCategoriesConfig) {
+      // Return legacy format
+      return this.validSystemCategories.map(label => ({
+        label,
+        description: '',
+        default: label === 'General',
+        storageLocation: 'regular',
+        enabled: true
+      }));
+    }
+
+    return Object.entries(this.systemCategoriesConfig)
+      .filter(([key, config]) => config.enabled !== false)
+      .map(([key, config]) => ({ key, ...config }));
+  }
+
+  /**
+   * Get the default system category
+   * @returns {string} Default category label
+   */
+  getDefaultSystemCategory() {
+    if (!this.systemCategoriesConfig) {
+      return 'General';
+    }
+
+    for (const [key, config] of Object.entries(this.systemCategoriesConfig)) {
+      if (config.default === true && config.enabled !== false) {
+        return config.label;
+      }
+    }
+
+    // Fallback to first enabled category
+    for (const [key, config] of Object.entries(this.systemCategoriesConfig)) {
+      if (config.enabled !== false) {
+        return config.label;
+      }
+    }
+
+    return 'General';
   }
 
   /**
@@ -238,10 +364,9 @@ class ValidationManager extends BaseManager {
   generateValidMetadata(title, options = {}) {
     const uuid = options.uuid || uuidv4();
     const slug = options.slug || this.generateSlug(title);
-    const configManager = this.engine.getManager('ConfigurationManager');
-    const defaultSystemCategory = configManager ?
-      configManager.getProperty('amdwiki.default.system-category', 'general') :
-      'general';
+
+    // Use the default category from configuration
+    const defaultSystemCategory = this.getDefaultSystemCategory();
 
     return {
       title: title.trim(),
@@ -328,9 +453,9 @@ class ValidationManager extends BaseManager {
     if (!metadata.slug) {
       fixes.metadata.slug = this.generateSlug(fixes.metadata.title);
     }
-    
+
     if (!metadata['system-category']) {
-      fixes.metadata['system-category'] = 'general';
+      fixes.metadata['system-category'] = this.getDefaultSystemCategory();
     }
     
     if (!metadata['user-keywords']) {

@@ -15,6 +15,7 @@
   "amdwiki.templateDir": "default",
   "amdwiki.workDir": "./work",
   "amdwiki.fileSystemProvider.pageDir": "./pages",
+  "amdwiki.fileSystemProvider.required-pageDir": "./required-pages",
   "amdwiki.translatorReader.matchEnglishPlurals": true,
   "amdwiki.translatorReader.camelCaseLinks": true,
   "amdwiki.translatorReader.allowHTML": false,
@@ -299,6 +300,58 @@
   "amdwiki.maximum.user-keywords": 5,
   "amdwiki.default.template.dateformat": "dd-MMM-yyyy HH:mm",
   "amdwiki.default.timezone": "UTC",
+  "_comment_systemCategories": "System category definitions with storage location mapping",
+  "amdwiki.systemCategories": {
+    "general": {
+      "label": "General",
+      "description": "General wiki pages",
+      "default": true,
+      "storageLocation": "regular",
+      "enabled": true
+    },
+    "system": {
+      "label": "System",
+      "description": "System configuration and infrastructure pages",
+      "default": false,
+      "storageLocation": "required",
+      "enabled": true
+    },
+    "system-admin": {
+      "label": "System/Admin",
+      "description": "Administrative system pages",
+      "default": false,
+      "storageLocation": "required",
+      "enabled": true
+    },
+    "documentation": {
+      "label": "Documentation",
+      "description": "User and technical documentation",
+      "default": false,
+      "storageLocation": "regular",
+      "enabled": true
+    },
+    "user": {
+      "label": "User",
+      "description": "User-generated content",
+      "default": false,
+      "storageLocation": "regular",
+      "enabled": true
+    },
+    "test": {
+      "label": "Test",
+      "description": "Testing and development pages",
+      "default": false,
+      "storageLocation": "regular",
+      "enabled": true
+    },
+    "developer": {
+      "label": "Developer",
+      "description": "Developer documentation and technical notes",
+      "default": false,
+      "storageLocation": "regular",
+      "enabled": true
+    }
+  },
   "_comment_timezones": "Available timezone options for user preferences",
   "amdwiki.timezones": [
     {
