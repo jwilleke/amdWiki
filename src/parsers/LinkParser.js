@@ -77,7 +77,7 @@ class LinkParser {
     this.interWikiSites = new Map();
 
     // Link pattern: [text] or [text|target] or [text|target|attributes]
-    this.linkPattern = /\[([^\|\]]+)(?:\|([^\|\]]+))?(?:\|([^\]]+))?\]/g;
+    this.linkPattern = /\[([^\|\]]+)(?:\|([^\|\]]+))?(?:\|([^\]]+))?\](?!\()/g;
   }
 
   /**

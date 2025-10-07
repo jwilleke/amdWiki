@@ -869,7 +869,8 @@ class RenderingManager extends BaseManager {
       }
       
       // Process wiki links with extended pipe syntax [DisplayText|Target|Parameters] and simple links [PageName]
-      return content.replace(/\[([a-zA-Z0-9_\- ]+)(?:\|([a-zA-Z0-9_\-\/ .:?=&]+))?(?:\|([^|\]]+))?\]/g, (match, displayText, target, params) => {
+      // Use negative lookahead to avoid matching markdown links [text](url)
+      return content.replace(/\[([a-zA-Z0-9_\- ]+)(?:\|([a-zA-Z0-9_\-\/ .:?=&]+))?(?:\|([^|\]]+))?\](?!\()/g, (match, displayText, target, params) => {
         // Parse parameters if provided
         let linkAttributes = '';
         if (params) {
