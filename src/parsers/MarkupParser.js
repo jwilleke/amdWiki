@@ -164,6 +164,17 @@ class MarkupParser extends BaseManager {
       console.warn('⚠️  Failed to register EscapedSyntaxHandler:', error.message);
     }
 
+    // Register JSPWikiPreprocessor (Phase 1) - processes %%.../%% blocks and tables BEFORE markdown
+    const JSPWikiPreprocessor = require('./handlers/JSPWikiPreprocessor');
+    const jspwikiPreprocessor = new JSPWikiPreprocessor(this.engine);
+
+    try {
+      await this.registerHandler(jspwikiPreprocessor);
+      console.log('📋 JSPWikiPreprocessor registered successfully (Phase 1)');
+    } catch (error) {
+      console.warn('⚠️  Failed to register JSPWikiPreprocessor:', error.message);
+    }
+
     // Register PluginSyntaxHandler if enabled
     if (this.config.handlers.plugin.enabled) {
       const PluginSyntaxHandler = require('./handlers/PluginSyntaxHandler');
@@ -219,18 +230,19 @@ class MarkupParser extends BaseManager {
       }
     }
 
-    // Register WikiStyleHandler if enabled (Phase 3)
-    if (this.config.handlers.style.enabled) {
-      const WikiStyleHandler = require('./handlers/WikiStyleHandler');
-      const styleHandler = new WikiStyleHandler(this.engine);
-      
-      try {
-        await this.registerHandler(styleHandler);
-        console.log('🎨 WikiStyleHandler registered successfully');
-      } catch (error) {
-        console.warn('⚠️  Failed to register WikiStyleHandler:', error.message);
-      }
-    }
+    // WikiStyleHandler and WikiTableHandler are DEPRECATED
+    // Replaced by JSPWikiPreprocessor which runs in Phase 1 (before markdown)
+    // This ensures table headers stay together and aren't wrapped in <p> tags
+    //
+    // Old registration code kept for reference (disabled):
+    // if (this.config.handlers.style.enabled) {
+    //   const WikiStyleHandler = require('./handlers/WikiStyleHandler');
+    //   const styleHandler = new WikiStyleHandler(this.engine);
+    //   await this.registerHandler(styleHandler);
+    // }
+    // const WikiTableHandler = require('./handlers/WikiTableHandler');
+    // const tableHandler = new WikiTableHandler(this.engine);
+    // await this.registerHandler(tableHandler);
 
     // Register LinkParserHandler (unified link processing replacing WikiLinkHandler + InterWikiLinkHandler)
     const LinkParserHandler = require('./handlers/LinkParserHandler');
@@ -702,19 +714,18 @@ class MarkupParser extends BaseManager {
   async phasePreprocessing(content, context) {
     let processedContent = content;
 
-    // Process escaped syntax FIRST (highest priority - before anything else)
-    // This handles JSPWiki double bracket escaping: [[{syntax}] → [{syntax}]
-    const escapedHandler = this.handlerRegistry.getHandler('EscapedSyntaxHandler');
-    console.log(`🔍 Phase 1: escapedHandler = ${escapedHandler ? 'FOUND' : 'NOT FOUND'}`);
-    if (escapedHandler) {
+    // Process ALL Phase 1 handlers in priority order
+    const phase1Handlers = this.handlerRegistry.resolveExecutionOrder()
+      .filter(handler => handler.phase === 1);
+
+    console.log(`🔍 Phase 1: Processing ${phase1Handlers.length} Phase 1 handlers`);
+
+    for (const handler of phase1Handlers) {
       try {
-        // Debug: Check if content contains escaped syntax
-        if (processedContent.includes('[[{')) {
-          console.log(`🔍 Found escaped syntax in content, processing...`);
-        }
-        processedContent = await escapedHandler.process(processedContent, context);
+        console.log(`🔍 Phase 1: Processing ${handler.handlerId}...`);
+        processedContent = await handler.execute(processedContent, context);
       } catch (error) {
-        console.error('❌ Error processing escaped syntax:', error.message);
+        console.error(`❌ Error in Phase 1 handler ${handler.handlerId}:`, error.message);
       }
     }
 
