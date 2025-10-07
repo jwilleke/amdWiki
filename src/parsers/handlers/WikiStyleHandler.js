@@ -207,6 +207,11 @@ class WikiStyleHandler extends BaseSyntaxHandler {
       this.pattern.lastIndex = 0;
 
       while ((match = this.pattern.exec(processedContent)) !== null) {
+        console.log(`🔍 WikiStyleHandler REGEX MATCH:
+          Full match: "${match[0].substring(0, 100)}..."
+          Group 1 (styleInfo): "${match[1]}"
+          Group 2 (content): "${match[2].substring(0, 100)}..."`);
+
         matches.push({
           fullMatch: match[0],
           styleInfo: match[1].trim(), // CSS classes or inline styles
@@ -223,9 +228,12 @@ class WikiStyleHandler extends BaseSyntaxHandler {
       // Process matches in reverse order to maintain string positions
       for (let i = matches.length - 1; i >= 0; i--) {
         const matchInfo = matches[i];
+        console.log(`🔍 WikiStyleHandler: Processing match ${i}: styleInfo="${matchInfo.styleInfo}", content preview="${matchInfo.textContent.substring(0, 50)}..."`);
 
         try {
           const replacement = await this.handle(matchInfo, context);
+          console.log(`🔍 WikiStyleHandler: Replacement preview: "${replacement.substring(0, 100)}..."`);
+
 
           // Only replace if the content changed
           if (replacement !== matchInfo.fullMatch) {
@@ -301,6 +309,8 @@ class WikiStyleHandler extends BaseSyntaxHandler {
    * @returns {Promise<string>} - Styled HTML
    */
   async processCSSClasses(classInfo, content, context) {
+    console.log(`🔍 processCSSClasses: classInfo="${classInfo}", content preview="${content.substring(0, 50)}"`);
+
     const classNames = classInfo.split(/\s+/).filter(cls => cls.trim());
     const validClasses = [];
 
@@ -315,10 +325,13 @@ class WikiStyleHandler extends BaseSyntaxHandler {
 
     if (validClasses.length === 0) {
       // No valid classes, return content without styling
+      console.log(`🔍 processCSSClasses: No valid classes, returning content as-is`);
       return content;
     }
 
     const classAttribute = validClasses.join(' ');
+    console.log(`🔍 processCSSClasses: classAttribute="${classAttribute}"`);
+
 
     // Table-specific classes that need to be applied to <table> elements
     const tableClasses = ['sortable', 'table-filter', 'zebra-table', 'table-striped',
@@ -328,25 +341,23 @@ class WikiStyleHandler extends BaseSyntaxHandler {
     const hasTableClass = validClasses.some(cls => tableClasses.includes(cls));
 
     // Check if content contains JSPWiki table syntax or HTML table
-    // Also check deeper in content for tables nested inside other %% blocks
-    const hasTableSyntax = /(\|\||<table)/i.test(content) || /%%TABLE_CLASSES\{/.test(content);
+    const hasTableSyntax = /(\|\||<table)/i.test(content);
 
     if (hasTableClass && hasTableSyntax) {
-      // For table content, inject classes using a special marker that will be processed
-      // by the table handler later in the pipeline
+      // For table content, inject marker RIGHT BEFORE the table syntax
+      // This ensures each %%table-style ... /% block only affects ITS table
 
-      // Check if content already has table class markers (from nested blocks)
-      // Look for markers anywhere in the content, not just at the start
-      const existingMarkerMatch = content.match(/%%TABLE_CLASSES\{([^}]+)\}%%/);
-      if (existingMarkerMatch) {
-        // Extract existing classes and merge them
-        const mergedClasses = `${classAttribute} ${existingMarkerMatch[1]}`;
-        // Replace the existing marker with merged classes
-        return content.replace(/%%TABLE_CLASSES\{[^}]+\}%%/, `%%TABLE_CLASSES{${this.escapeHtml(mergedClasses)}}%%`);
+      // Find the first table row and inject marker before it
+      const tableRowMatch = content.match(/^\s*\|\|/m);
+      if (tableRowMatch) {
+        const tableStartIndex = tableRowMatch.index;
+        const before = content.substring(0, tableStartIndex);
+        const tableAndAfter = content.substring(tableStartIndex);
+        return `${before}%%TABLE_CLASSES{${this.escapeHtml(classAttribute)}}%%${tableAndAfter}`;
       }
 
-      // No existing marker, add new one at the beginning
-      return `%%TABLE_CLASSES{${this.escapeHtml(classAttribute)}}%%${content}`;
+      // Fallback: no table found, return content as-is
+      return content;
     }
 
     // Check if content already has HTML tags (is already processed)
