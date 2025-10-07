@@ -3,7 +3,8 @@
 When running terminal commands, ensure the shell sources ~/.bash_profile or equivalent to include /usr/local/bin in PATH for npm/Node tools.
 
 
-Read [SERVER.md](/SERVER.md)
+Read [SEMVER.md](/docs/SEMVER.md)
+
 Read [SERVER.md](/SERVER.md)
 Read [ValidationManager](/required-pages/5100a3df-0d87-4d85-87de-359f51029c67.md)
 
@@ -38,7 +39,7 @@ We expect WikiContext to implement methods as in https://github.com/apache/jspwi
 - **File-based storage** - No database; pages stored as `.md` files in `/pages` or `/required-pages`
 - **Manager isolation** - Each manager extends `BaseManager.js` with standard lifecycle
 - **Template rendering** - EJS templates with JSPWiki-style navigation and Bootstrap UI
-- **Three-tier auth** - Default roles are Anonymous, Authenticated, Admin roles via UserManager (Which are Obtained form ConfigurationManager)
+- **Three-tier auth** - Default roles are Anonymous, Authenticated, Admin roles via UserManager (Which are Obtained form ConfigurationManager) Refer to [docs/architecture/Policies-Roles-Permissions.md](../docs/architecture/Policies-Roles-Permissions.md)
 
 ## Essential Development Patterns
 

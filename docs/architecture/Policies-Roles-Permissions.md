@@ -4,6 +4,17 @@
 
 amdWiki uses a **Policy-Based Access Control (PBAC)** system inspired by JSPWiki's security framework. This architecture provides fine-grained control over who can access what resources and perform which actions.
 
+## Terms
+
+- Permissions (same as Actions) are the actions allowed to be performed on a Resource (i.g page) We caterogize permssions as:
+  - Page Permissions
+  - Attachment Permissions
+  - Search Permissions
+  - Admin Permissions
+- Roles are a specific defined collection of Permissions
+- Policy is how roles and permssions come together.
+  - Defined in "amdwiki.access.policies"
+
 ## Core Components
 
 ### 1. PolicyEvaluator (`src/managers/PolicyEvaluator.js`)
