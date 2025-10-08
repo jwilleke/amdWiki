@@ -24,6 +24,38 @@ const mockACLManager = {
   checkStorageLocation: jest.fn().mockResolvedValue({ location: 'regular', reason: 'default' })
 };
 
+// Mock ConfigurationManager
+let testPagesDir;
+let testRequiredPagesDir;
+const mockConfigurationManager = {
+  getProperty: jest.fn((key, defaultValue) => {
+    if (key === 'amdwiki.directories.pages') {
+      return testPagesDir;
+    }
+    if (key === 'amdwiki.directories.required-pages') {
+      return testRequiredPagesDir;
+    }
+    if (key === 'amdwiki.encoding') {
+      return 'UTF-8';
+    }
+    if (key === 'amdwiki.translatorReader.matchEnglishPlurals') {
+      return true;
+    }
+    if (key === 'amdwiki.pageProvider') {
+      return 'FileSystemProvider';
+    }
+    if (key === 'amdwiki.systemCategories') {
+      return {
+        general: { label: 'general', storageLocation: 'regular' },
+        system: { label: 'system', storageLocation: 'required' },
+        documentation: { label: 'documentation', storageLocation: 'required' },
+        test: { label: 'test', storageLocation: 'required' }
+      };
+    }
+    return defaultValue;
+  })
+};
+
 // Mock engine
 const mockEngine = {
   getManager: jest.fn((name) => {
@@ -32,6 +64,9 @@ const mockEngine = {
     }
     if (name === 'ACLManager') {
       return mockACLManager;
+    }
+    if (name === 'ConfigurationManager') {
+      return mockConfigurationManager;
     }
     return null;
   }),
@@ -42,23 +77,18 @@ const mockEngine = {
 
 describe('PageManager', () => {
   let pageManager;
-  let testPagesDir;
-  let testRequiredPagesDir;
 
   beforeEach(async () => {
     // Create temporary test directories
     const testDir = path.join(__dirname, 'test-pages-' + Date.now());
     testPagesDir = path.join(testDir, 'pages');
     testRequiredPagesDir = path.join(testDir, 'required-pages');
-    
+
     await fs.ensureDir(testPagesDir);
     await fs.ensureDir(testRequiredPagesDir);
-    
+
     pageManager = new PageManager(mockEngine);
-    await pageManager.initialize({ 
-      pagesDir: testPagesDir,
-      requiredPagesDir: testRequiredPagesDir
-    });
+    await pageManager.initialize();
   });
 
   afterEach(async () => {
@@ -72,26 +102,35 @@ describe('PageManager', () => {
 
   describe('initialization', () => {
     test('should create pages directories if they do not exist', async () => {
-      const newPagesDir = path.join(__dirname, 'new-test-pages-' + Date.now());
-      const newRequiredPagesDir = path.join(__dirname, 'new-required-pages-' + Date.now());
-      
+      const newTestDir = path.join(__dirname, 'new-test-pages-' + Date.now());
+      const newPagesDir = path.join(newTestDir, 'pages');
+      const newRequiredPagesDir = path.join(newTestDir, 'required-pages');
+
+      // Temporarily update mock to return new directories
+      const originalPagesDir = testPagesDir;
+      const originalRequiredPagesDir = testRequiredPagesDir;
+      testPagesDir = newPagesDir;
+      testRequiredPagesDir = newRequiredPagesDir;
+
       const newPageManager = new PageManager(mockEngine);
-      await newPageManager.initialize({
-        pagesDir: newPagesDir,
-        requiredPagesDir: newRequiredPagesDir
-      });
+      await newPageManager.initialize();
 
       expect(await fs.pathExists(newPagesDir)).toBe(true);
       expect(await fs.pathExists(newRequiredPagesDir)).toBe(true);
 
+      // Restore original directories
+      testPagesDir = originalPagesDir;
+      testRequiredPagesDir = originalRequiredPagesDir;
+
       // Cleanup
-      await fs.remove(newPagesDir);
-      await fs.remove(newRequiredPagesDir);
+      await fs.remove(newTestDir);
     });
 
     test('should set correct directories from config', () => {
-      expect(pageManager.pagesDir).toBe(testPagesDir);
-      expect(pageManager.requiredPagesDir).toBe(testRequiredPagesDir);
+      // PageManager now uses provider, check provider properties
+      const provider = pageManager.getCurrentPageProvider();
+      expect(provider.pagesDirectory).toBe(testPagesDir);
+      expect(provider.requiredPagesDirectory).toBe(testRequiredPagesDir);
     });
   });
 

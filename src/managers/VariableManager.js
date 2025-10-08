@@ -69,8 +69,11 @@ class VariableManager extends BaseManager {
 
     this.registerVariable('totalpages', (context) => {
       const pageManager = this.engine.getManager('PageManager');
-      if (pageManager && pageManager.pageCache) {
-        return pageManager.pageCache.size.toString();
+      if (pageManager) {
+        const provider = pageManager.getCurrentPageProvider();
+        if (provider && provider.pageCache) {
+          return provider.pageCache.size.toString();
+        }
       }
       return '0';
     });
