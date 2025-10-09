@@ -1,5 +1,5 @@
 const Engine = require('./core/Engine');
-const { Config } = require('../config/Config'); // DEPRECATED
+const { Config } = require('../config/Config'); // TODO: Remove after migrating WikiRoutes.getConfig() usage
 
 // Managers
 const ConfigurationManager = require('./managers/ConfigurationManager');

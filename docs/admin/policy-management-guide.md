@@ -503,9 +503,9 @@ The policy system can integrate with:
 ### Configuration Files
 
 Key configuration files:
-- `config/policies.json`: Policy storage
+- `config/app-default-config.json`: Policy storage (key: `amdwiki.access.policies`)
 - `config/policy-schemas.json`: Schema definitions
-- `config/access-policies.json`: Legacy ACL policies
+- ~~`config/access-policies.json`~~: **DEPRECATED** - Policies now in app-default-config.json
 
 ### API Reference
 
