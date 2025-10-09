@@ -2,7 +2,7 @@
 
 ## Managers MUST incldue Backup
 
-Create src/managers/BackupManger
+ Create src/managers/BackupManger
 src/managers/BackupManger should be able to create single *.gz file to perform a backup().
 src/managers/BackupManger MUST have a single backup() fuction which will call every other src/managers/*Manager backup() fuction
 src/managers/BackupManger MUST have a single restore() fuction which will call every other src/managers/*Manager restore() fuction

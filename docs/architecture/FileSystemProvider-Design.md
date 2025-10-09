@@ -64,7 +64,7 @@ Based on code analysis, these components make calls to PageManager:
 
 Following JSPWiki's model:
 
-```
+``` javascript
 WikiEngine
   └── PageManager
       └── FileSystemProvider (configurable via "amdwiki.pageProvider")
@@ -427,7 +427,7 @@ The provider pattern uses these existing configuration keys from ConfigurationMa
 
 ## File Structure
 
-```
+``` javascript
 src/
 ├── managers/
 │   └── PageManager.js (refactored, thin wrapper)
@@ -466,7 +466,7 @@ All existing code calling PageManager methods continues to work:
 
 ### 1. Configuration Access (MANDATORY)
 
-**ALL providers and managers MUST access configuration exclusively through ConfigurationManager**
+ALL providers and managers MUST access configuration exclusively through ConfigurationManager
 
 ✅ **DO THIS:**
 ```javascript
@@ -501,7 +501,7 @@ All existing PageManager API calls continue to work unchanged - no breaking chan
 
 ## References
 
-- JSPWiki PageProvider: https://github.com/apache/jspwiki/blob/master/jspwiki-main/src/main/java/org/apache/wiki/providers/WikiPageProvider.java
+- JSPWiki PageProvider: <https://github.com/apache/jspwiki/blob/master/jspwiki-main/src/main/java/org/apache/wiki/providers/WikiPageProvider.java>
 - Current PageManager: [src/managers/PageManager.js](../../src/managers/PageManager.js)
 - ConfigurationManager: [src/managers/ConfigurationManager.js](../../src/managers/ConfigurationManager.js)
 - Configuration Pattern: [.github/copilot-instructions.md](../../.github/copilot-instructions.md#L90-L96)

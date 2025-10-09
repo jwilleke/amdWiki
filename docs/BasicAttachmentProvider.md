@@ -28,16 +28,6 @@ Automatticlly creates reference on the page used for upload:
 [{Image src='/attachments/621c9274e39fc77d5e6cce7028c7805a37e5d977f116c20cc8be728d8de90c26' caption='Nerve Action Potentials' align='left' style='font-size: 120%;background-color: white;'}]
 ```
 
-Files Created:
-* src/providers/BaseAttachmentProvider.js - Abstract base class for attachment providers
-* src/providers/BasicAttachmentProvider.js - Filesystem-based attachment storage with Schema.org metadata
-
-Files Modified:
-* src/managers/AttachmentManager.js - Refactored to use provider pattern with PolicyManager integration
-* src/WikiEngine.js - Added AttachmentManager import
-* src/WikiEngine.js - Added AttachmentManager initialization
-* config/app-default-config.json - Updated storage directory to ./data/attachments
-
 ## Key Features Implemented
 ✅ Provider Pattern - Follows FileSystemProvider architecture with pluggable storage backends
 ✅ Schema.org Metadata - Full CreativeWork format with author, dateCreated, encodingFormat, mentions array
@@ -57,29 +47,22 @@ Files Modified:
 
 ## Uplad Image
 ✅ Image Upload Migration Complete
-The editor at http://localhost:3000/edit/-jim now uses the AttachmentManager system. What Changed:
-Upload endpoint: /images/upload → /attachments/upload/:page
-Form field name: image → file
-Response format: Uses attachment metadata (attachmentId, url, Schema.org format)
-Image syntax: [{Image src='/attachments/HASH' alt='filename'}]
-Try it now:
-Go to http://localhost:3000/edit/-jim
-Click "Choose File" and select an image
-Click "Upload Image"
-Click "Insert at Cursor"
-The image will be:
-Stored in /Volumes/hd3/GitHub/amdWiki/data/attachments/
-Content-hashed (SHA-256) for deduplication
-Tracked in /Volumes/hd3/GitHub/amdWiki/data/attachments/BasicAttachmentProvider.json
-Associated with the "-jim" page via the "mentions" array
-Accessible at /attachments/{hash}
-Image syntax will be:
-[{Image src='/attachments/abc123...' alt='yourimage.png'}]
-Let me know if you encounter any errors when you try to upload!
+* Upload endpoint: /images/upload → /attachments/upload/:page
+* Form field name: image → file
+* Response format: Uses attachment metadata (attachmentId, url, Schema.org format)
+* Image syntax: [{Image src='/attachments/HASH' alt='filename'}]
+* The image will be:
+* Stored in /Volumes/hd3/GitHub/amdWiki/data/attachments/
+* Content-hashed (SHA-256) for deduplication
+* Tracked in /Volumes/hd3/GitHub/amdWiki/data/attachments/BasicAttachmentProvider.json
+* Associated with the "page" via the "mentions" array
+* Accessible at /attachments/{hash}
+* Image syntax will be:
+  * [{Image src='/attachments/abc123...' alt='yourimage.png'}]
 
 ## Upload Attachment Added to More Dropdown
 The "Upload Attachment" option has been added to the More dropdown in the navigation bar! How to use it:
-Navigate to any page (e.g., http://localhost:3000/wiki/-jim)
+Navigate to any page
 Click the More button (with ⋯ icon) in the navigation bar
 Click 📎 Upload Attachment
 A modal will appear where you can:
@@ -94,9 +77,9 @@ Features:
 ✅ Provides "Copy URL" button for easy sharing
 ✅ Auto-reloads the page after 2 seconds to show the attachment
 ✅ Uses the same AttachmentManager/BasicAttachmentProvider system
-Both upload methods now work:
-Page Editor (http://localhost:3000/edit/-jim) - "Choose File" + "Upload Image" for images during editing
-Navbar More Menu - "Upload Attachment" for any file type from any page view
+* Both upload methods now work:
+  * Page Editor on a Page - "Choose File" + "Upload Image" for images during editing
+  * Navbar More Menu - "Upload Attachment" for any file type from any page view
 
 ## Server Status
 * AttachmentManager initialized successfully ✅
@@ -126,10 +109,10 @@ The location to store attachments is is identified by:
 BasicAttachmentProvider MUST be able to backup() and restore() for src/managers/BackupManager.js
 
 The following entries should be honored: 
-- "amdwiki.features.attachments.enabled": true,
-- "amdwiki.features.attachments.maxSize": "10MB",
-- "amdwiki.features.attachments.allowedTypes": "image/*,text/*,application/pdf", <-- Should be an array of mimetypes -->
-- "amdwiki.features.attachments.metadatafile": "./data/attachments/BasicAttachmentProvider.json", (Matches "amdwiki.attachment.provider" name)
+* "amdwiki.features.attachments.enabled": true,
+* "amdwiki.features.attachments.maxSize": "10MB",
+* "amdwiki.features.attachments.allowedTypes": "image/*,text/*,application/pdf", <-- Should be an array of mimetypes -->
+* "amdwiki.features.attachments.metadatafile": "./data/attachments/BasicAttachmentProvider.json", (Matches "amdwiki.attachment.provider" name)
 
 ## BasicAttachmentProvider.json
 In JSPWiki attachments were attached to individual pages but in amdWiki they are stored within a shared folder within the BasicAttachmentProvider.
@@ -137,19 +120,18 @@ In JSPWiki attachments were attached to individual pages but in amdWiki they are
 Which pages attchements are used it tracked within the associated "json" like BasicAttachmentProvider.json.
 
 These "json" files will include:
-- Fullpath (including filename) attachement file.
-- author - The author of this content or rating. Please note that author is special in that HTML 5 provides a special mechanism for indicating authorship via the rel tag. That is equivalent to this and may be used interchangeably.
-- dateCreated - The date on which the CreativeWork was created or the item was added to a DataFeed.
-- editor - Specifies the Person who edited or upladed the CreativeWork. (may be same as author)
-- dateModified - The date on which the CreativeWork was most recently modified or when the item's entry was modified within a DataFeed.
-- encodingFormat - <https://schema.org/encodingFormat>  MUST be MIME format (see [IANA site](https://www.iana.org/assignments/media-types/media-types.xhtml) and [MDN reference](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/MIME_types))
-- isBasedOn - OPTIONAL - A resource from which this work is derived or from which it is a modification or adaptation. Supersedes isBasedOnUrl.
-- isFamilyFriendly - Assumed so unless set to false
-- Array of pages using the attachment
-- any other values OPTIONAL as used at https://schema.org/CreativeWork
+*Fullpath (including filename) attachement file.
+* author - The author of this content or rating. Please note that author is special in that HTML 5 provides a special mechanism for indicating authorship via the rel tag. That is equivalent to this and may be used interchangeably.
+* dateCreated - The date on which the CreativeWork was created or the item was added to a DataFeed.
+* editor - Specifies the Person who edited or upladed the CreativeWork. (may be same as author)
+* dateModified - The date on which the CreativeWork was most recently modified or when the item's entry was modified within a DataFeed.
+* encodingFormat - <https://schema.org/encodingFormat>  MUST be MIME format (see [IANA site](https://www.iana.org/assignments/media-types/media-types.xhtml) and [MDN reference](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/MIME_types))
+* isBasedOn - OPTIONAL - A resource from which this work is derived or from which it is a modification or adaptation. Supersedes isBasedOnUrl.
+* isFamilyFriendly - Assumed so unless set to false
+* Array of pages using the attachment
+* any other values OPTIONAL as used at <https://schema.org/CreativeWork>
 
-
-Example of BasicAttachmentProvider.json
+## Example of BasicAttachmentProvider.json
 ``` json
 {
   "@context": "https://schema.org",
@@ -207,8 +189,8 @@ protected static final int ATTACHMENT = 10;   Link to an attachment/file uploade
 
 ### "jspwiki.translatorReader.useAttachmentImage"
 the MarkupParser must determine if it is an attachement and use PROP_USEATTACHMENTIMAGE is a static final String property in JSPWiki (`"jspwiki.translatorReader.useAttachmentImage"`). It is used to control whether **attachment info links** in rendered wiki pages include a small attachment image icon.[1]
-- Purpose: If this property is set to `true`, any links to attachments (such as file uploads or page attachments) shown in wiki output will have a small image icon appended, marking the item visually as an attachment rather than a simple link.
-- Usage:
-  - The value is loaded from `jspwiki.properties` (or overridden in custom property files or system properties) into the parser's `m_useAttachmentImage` boolean field.[2]
-  - When the parser renders an attachment link, if `m_useAttachmentImage` is `true`, an attachment icon (typically `images/attachment_small.png`) is added near the link in the HTML output.
-- Summary: Set **PROP_USEATTACHMENTIMAGE** to `true` in your configuration to display attachment icons next to every rendered attachment info link in JSPWiki.
+* Purpose: If this property is set to `true`, any links to attachments (such as file uploads or page attachments) shown in wiki output will have a small image icon appended, marking the item visually as an attachment rather than a simple link.
+* Usage:
+  * The value is loaded from `jspwiki.properties` (or overridden in custom property files or system properties) into the parser's `m_useAttachmentImage` boolean field.[2]
+  * When the parser renders an attachment link, if `m_useAttachmentImage` is `true`, an attachment icon (typically `images/attachment_small.png`) is added near the link in the HTML output.
+* Summary: Set **PROP_USEATTACHMENTIMAGE** to `true` in your configuration to display attachment icons next to every rendered attachment info link in JSPWiki.

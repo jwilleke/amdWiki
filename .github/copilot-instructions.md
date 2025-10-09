@@ -3,10 +3,9 @@
 When running terminal commands, ensure the shell sources ~/.bash_profile or equivalent to include /usr/local/bin in PATH for npm/Node tools.
 
 
-Read [SEMVER.md](/docs/SEMVER.md)
-
-Read [SERVER.md](/SERVER.md)
-Read [ValidationManager](/required-pages/5100a3df-0d87-4d85-87de-359f51029c67.md)
+Read [SEMVER.md](../docs/SEMVER.md)
+Read [SERVER.md](../SERVER.md)
+Read [ValidationManager](../required-pages/5100a3df-0d87-4d85-87de-359f51029c67.md)
 
 ## Architecture Overview
 
@@ -156,7 +155,7 @@ JSPWiki-style plugin syntax in pages:
 - **Real-time** - Index updates on page save
 
 ### Rendering Pipeline
-see [amdWiki Rendering Pipeline.md](/docs/planning/amdWiki%20Rendering%20Pipeline.md)
+see [amdWiki Rendering Pipeline.md](../docs/planning/amdWiki Rendering Pipeline.md)
 
 ## Common Gotchas
 
