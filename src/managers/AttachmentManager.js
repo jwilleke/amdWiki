@@ -1,203 +1,334 @@
 const BaseManager = require('./BaseManager');
-const fs = require('fs').promises;
-const path = require('path');
-const crypto = require('crypto');
+const logger = require('../utils/logger');
 
 /**
- * AttachmentManager - Handles file uploads and attachments
- * Similar to JSPWiki's AttachmentManager
+ * AttachmentManager - Manages file attachments for wiki pages
+ *
+ * Following JSPWiki's AttachmentManager pattern, this manager:
+ * - Delegates storage to pluggable attachment providers
+ * - Enforces permissions via PolicyManager
+ * - Tracks attachment-page relationships
+ * - Provides high-level attachment operations
+ *
+ * Based on:
+ * https://github.com/apache/jspwiki/blob/master/jspwiki-main/src/main/java/org/apache/wiki/attachment/AttachmentManager.java
  */
 class AttachmentManager extends BaseManager {
   constructor(engine) {
     super(engine);
-    this.attachmentsDirectory = './attachments';
-    this.maxFileSize = 10 * 1024 * 1024; // 10MB default
-    this.allowedExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.pdf', '.txt', '.md', '.doc', '.docx'];
-    this.attachments = new Map(); // pageName -> attachments[]
+    this.attachmentProvider = null;
+    this.providerClass = null;
   }
 
+  /**
+   * Initialize AttachmentManager
+   * @param {Object} config - Configuration object
+   */
   async initialize(config = {}) {
     await super.initialize(config);
-    
-    // Set configuration
-    this.attachmentsDirectory = config.attachmentsDirectory || './attachments';
-    this.maxFileSize = config.maxFileSize || (10 * 1024 * 1024);
-    this.allowedExtensions = config.allowedExtensions || this.allowedExtensions;
-    
-    // Create attachments directory
-    await fs.mkdir(this.attachmentsDirectory, { recursive: true });
-    
-    // Load existing attachments index
-    await this.loadAttachmentsIndex();
-    
-    console.log('📎 AttachmentManager initialized');
-  }
 
-  /**
-   * Load attachments index from disk
-   */
-  async loadAttachmentsIndex() {
+    const configManager = this.engine.getManager('ConfigurationManager');
+    if (!configManager) {
+      throw new Error('AttachmentManager requires ConfigurationManager to be initialized.');
+    }
+
+    // Check if attachments are enabled
+    const attachmentsEnabled = configManager.getProperty('amdwiki.features.attachments.enabled', true);
+    if (!attachmentsEnabled) {
+      logger.info('📎 AttachmentManager: Attachments disabled by configuration');
+      return;
+    }
+
+    // Get provider class name
+    this.providerClass = configManager.getProperty('amdwiki.attachment.provider', 'BasicAttachmentProvider');
+
+    // Load and initialize provider
     try {
-      const indexPath = path.join(this.attachmentsDirectory, 'attachments-index.json');
-      const indexData = await fs.readFile(indexPath, 'utf8');
-      const index = JSON.parse(indexData);
-      
-      this.attachments = new Map(Object.entries(index));
-      console.log(`📎 Loaded ${this.attachments.size} attachment groups`);
-    } catch (err) {
-      // Index doesn't exist yet, start fresh
-      this.attachments = new Map();
+      const ProviderClass = require(`../providers/${this.providerClass}`);
+      this.attachmentProvider = new ProviderClass(this.engine);
+      await this.attachmentProvider.initialize();
+
+      logger.info(`📎 AttachmentManager initialized with ${this.providerClass}`);
+      const providerInfo = this.attachmentProvider.getProviderInfo();
+      logger.info(`📎 Provider features: ${providerInfo.features.join(', ')}`);
+    } catch (error) {
+      logger.error(`📎 Failed to initialize attachment provider: ${this.providerClass}`, error);
+      throw error;
     }
   }
 
   /**
-   * Save attachments index to disk
+   * Get current attachment provider
+   * @returns {BaseAttachmentProvider} Current provider instance
    */
-  async saveAttachmentsIndex() {
+  getCurrentAttachmentProvider() {
+    return this.attachmentProvider;
+  }
+
+  /**
+   * Check permission for attachment operation
+   * @param {string} action - Action to check (attachment:upload, attachment:delete)
+   * @param {object} context - WikiContext with user information
+   * @returns {Promise<boolean>} True if allowed
+   * @private
+   */
+  async #checkPermission(action, context) {
+    const policyManager = this.engine.getManager('PolicyManager');
+    if (!policyManager) {
+      logger.warn('📎 PolicyManager not available, denying action by default');
+      return false;
+    }
+
     try {
-      const indexPath = path.join(this.attachmentsDirectory, 'attachments-index.json');
-      const index = Object.fromEntries(this.attachments);
-      await fs.writeFile(indexPath, JSON.stringify(index, null, 2));
-    } catch (err) {
-      console.error('Error saving attachments index:', err);
+      const decision = await policyManager.checkPermission({
+        action: action,
+        resource: 'attachment',
+        context: context
+      });
+
+      return decision.allowed;
+    } catch (error) {
+      logger.error(`📎 Permission check failed for ${action}:`, error);
+      return false;
     }
   }
 
   /**
-   * Upload an attachment for a page
-   * @param {string} pageName - Page name
-   * @param {Object} file - File object from multer
-   * @returns {Object} Attachment metadata
+   * Upload an attachment
+   *
+   * @param {Buffer} fileBuffer - File data
+   * @param {object} fileInfo - { originalName, mimeType, size }
+   * @param {object} options - Upload options
+   * @param {string} options.pageName - Page to attach to (optional)
+   * @param {string} options.description - File description
+   * @param {object} options.context - WikiContext with user information
+   * @returns {Promise<object>} Attachment metadata
    */
-  async uploadAttachment(pageName, file) {
-    // Validate file
-    this.validateFile(file);
-    
-    // Generate unique filename
-    const fileExt = path.extname(file.originalname);
-    const fileHash = crypto.randomBytes(8).toString('hex');
-    const safeFileName = `${pageName}_${fileHash}${fileExt}`;
-    const filePath = path.join(this.attachmentsDirectory, safeFileName);
-    
-    // Save file
-    await fs.writeFile(filePath, file.buffer);
-    
-    // Create attachment metadata
-    const attachment = {
-      id: fileHash,
-      originalName: file.originalname,
-      fileName: safeFileName,
-      path: filePath,
-      size: file.size,
-      mimeType: file.mimetype,
-      uploadDate: new Date().toISOString(),
-      pageName: pageName
+  async uploadAttachment(fileBuffer, fileInfo, options = {}) {
+    if (!this.attachmentProvider) {
+      throw new Error('Attachment provider not initialized');
+    }
+
+    // Check permission
+    const allowed = await this.#checkPermission('attachment:upload', options.context);
+    if (!allowed) {
+      throw new Error('Permission denied: You do not have permission to upload attachments');
+    }
+
+    // Get user from context
+    const user = options.context?.user || null;
+
+    // Create metadata
+    const metadata = {
+      description: options.description || '',
+      isFamilyFriendly: true
     };
-    
-    // Add to index
-    if (!this.attachments.has(pageName)) {
-      this.attachments.set(pageName, []);
+
+    // Store attachment via provider
+    const attachmentMetadata = await this.attachmentProvider.storeAttachment(
+      fileBuffer,
+      fileInfo,
+      metadata,
+      user
+    );
+
+    // If pageName provided, add to mentions
+    if (options.pageName) {
+      await this.attachToPage(attachmentMetadata.identifier, options.pageName);
     }
-    this.attachments.get(pageName).push(attachment);
-    
-    // Save index
-    await this.saveAttachmentsIndex();
-    
-    console.log(`📎 Uploaded attachment: ${attachment.originalName} for page ${pageName}`);
-    return attachment;
+
+    logger.info(`📎 Uploaded attachment: ${fileInfo.originalName} (${attachmentMetadata.identifier})`);
+    return attachmentMetadata;
   }
 
   /**
-   * Validate uploaded file
-   * @param {Object} file - File object
+   * Attach an existing attachment to a page
+   *
+   * @param {string} attachmentId - Attachment identifier
+   * @param {string} pageName - Page name to attach to
+   * @returns {Promise<boolean>} Success status
    */
-  validateFile(file) {
-    if (!file) {
-      throw new Error('No file provided');
+  async attachToPage(attachmentId, pageName) {
+    if (!this.attachmentProvider) {
+      throw new Error('Attachment provider not initialized');
     }
-    
-    if (file.size > this.maxFileSize) {
-      throw new Error(`File too large. Maximum size: ${this.maxFileSize / 1024 / 1024}MB`);
+
+    const metadata = await this.attachmentProvider.getAttachmentMetadata(attachmentId);
+    if (!metadata) {
+      throw new Error(`Attachment not found: ${attachmentId}`);
     }
-    
-    const fileExt = path.extname(file.originalname).toLowerCase();
-    if (!this.allowedExtensions.includes(fileExt)) {
-      throw new Error(`File type not allowed. Allowed: ${this.allowedExtensions.join(', ')}`);
+
+    // Check if already attached
+    const mentions = metadata.mentions || [];
+    const alreadyAttached = mentions.some(m => m.name === pageName);
+    if (alreadyAttached) {
+      logger.info(`📎 Attachment ${attachmentId} already attached to ${pageName}`);
+      return true;
     }
+
+    // Add page to mentions
+    mentions.push({
+      '@type': 'WebPage',
+      'name': pageName,
+      'url': `/wiki/${encodeURIComponent(pageName)}`
+    });
+
+    await this.attachmentProvider.updateAttachmentMetadata(attachmentId, { mentions });
+
+    logger.info(`📎 Attached ${attachmentId} to page ${pageName}`);
+    return true;
   }
 
   /**
-   * Get attachments for a page
+   * Detach an attachment from a page
+   *
+   * @param {string} attachmentId - Attachment identifier
+   * @param {string} pageName - Page name to detach from
+   * @returns {Promise<boolean>} Success status
+   */
+  async detachFromPage(attachmentId, pageName) {
+    if (!this.attachmentProvider) {
+      throw new Error('Attachment provider not initialized');
+    }
+
+    const metadata = await this.attachmentProvider.getAttachmentMetadata(attachmentId);
+    if (!metadata) {
+      throw new Error(`Attachment not found: ${attachmentId}`);
+    }
+
+    // Remove page from mentions
+    const mentions = (metadata.mentions || []).filter(m => m.name !== pageName);
+    await this.attachmentProvider.updateAttachmentMetadata(attachmentId, { mentions });
+
+    logger.info(`📎 Detached ${attachmentId} from page ${pageName}`);
+    return true;
+  }
+
+  /**
+   * Get an attachment by ID
+   *
+   * @param {string} attachmentId - Attachment identifier
+   * @returns {Promise<{buffer: Buffer, metadata: object}|null>}
+   */
+  async getAttachment(attachmentId) {
+    if (!this.attachmentProvider) {
+      throw new Error('Attachment provider not initialized');
+    }
+
+    return await this.attachmentProvider.getAttachment(attachmentId);
+  }
+
+  /**
+   * Get attachment metadata only
+   *
+   * @param {string} attachmentId - Attachment identifier
+   * @returns {Promise<object|null>}
+   */
+  async getAttachmentMetadata(attachmentId) {
+    if (!this.attachmentProvider) {
+      throw new Error('Attachment provider not initialized');
+    }
+
+    return await this.attachmentProvider.getAttachmentMetadata(attachmentId);
+  }
+
+  /**
+   * Get all attachments for a page
+   *
    * @param {string} pageName - Page name
-   * @returns {Array} List of attachments
+   * @returns {Promise<Array<object>>}
    */
-  getAttachments(pageName) {
-    return this.attachments.get(pageName) || [];
+  async getAttachmentsForPage(pageName) {
+    if (!this.attachmentProvider) {
+      return [];
+    }
+
+    return await this.attachmentProvider.getAttachmentsForPage(pageName);
   }
 
   /**
-   * Get attachment by ID
-   * @param {string} attachmentId - Attachment ID
-   * @returns {Object|null} Attachment object
+   * Get all attachments
+   *
+   * @returns {Promise<Array<object>>}
    */
-  getAttachment(attachmentId) {
-    for (const attachments of this.attachments.values()) {
-      const attachment = attachments.find(a => a.id === attachmentId);
-      if (attachment) return attachment;
+  async getAllAttachments() {
+    if (!this.attachmentProvider) {
+      return [];
     }
-    return null;
+
+    return await this.attachmentProvider.getAllAttachments();
   }
 
   /**
    * Delete an attachment
-   * @param {string} attachmentId - Attachment ID
+   *
+   * @param {string} attachmentId - Attachment identifier
+   * @param {object} context - WikiContext with user information
+   * @returns {Promise<boolean>} Success status
    */
-  async deleteAttachment(attachmentId) {
-    const attachment = this.getAttachment(attachmentId);
-    if (!attachment) {
-      throw new Error('Attachment not found');
+  async deleteAttachment(attachmentId, context) {
+    if (!this.attachmentProvider) {
+      throw new Error('Attachment provider not initialized');
     }
-    
-    // Delete file
-    try {
-      await fs.unlink(attachment.path);
-    } catch (err) {
-      console.warn('Could not delete attachment file:', err.message);
+
+    // Check permission
+    const allowed = await this.#checkPermission('attachment:delete', context);
+    if (!allowed) {
+      throw new Error('Permission denied: You do not have permission to delete attachments');
     }
-    
-    // Remove from index
-    const pageAttachments = this.attachments.get(attachment.pageName);
-    if (pageAttachments) {
-      const index = pageAttachments.findIndex(a => a.id === attachmentId);
-      if (index > -1) {
-        pageAttachments.splice(index, 1);
-        if (pageAttachments.length === 0) {
-          this.attachments.delete(attachment.pageName);
-        }
-      }
-    }
-    
-    // Save index
-    await this.saveAttachmentsIndex();
-    
-    console.log(`📎 Deleted attachment: ${attachment.originalName}`);
+
+    return await this.attachmentProvider.deleteAttachment(attachmentId);
   }
 
   /**
-   * Get all attachments across all pages
-   * @returns {Array} All attachments
+   * Update attachment metadata
+   *
+   * @param {string} attachmentId - Attachment identifier
+   * @param {object} updates - Metadata updates
+   * @param {object} context - WikiContext with user information
+   * @returns {Promise<boolean>} Success status
    */
-  getAllAttachments() {
-    const allAttachments = [];
-    for (const attachments of this.attachments.values()) {
-      allAttachments.push(...attachments);
+  async updateAttachmentMetadata(attachmentId, updates, context) {
+    if (!this.attachmentProvider) {
+      throw new Error('Attachment provider not initialized');
     }
-    return allAttachments.sort((a, b) => new Date(b.uploadDate) - new Date(a.uploadDate));
+
+    // Check permission (requires upload permission to edit metadata)
+    const allowed = await this.#checkPermission('attachment:upload', context);
+    if (!allowed) {
+      throw new Error('Permission denied: You do not have permission to update attachment metadata');
+    }
+
+    // Update editor information
+    if (context?.user) {
+      updates.editor = {
+        '@type': 'Person',
+        'name': context.user.name || 'Unknown',
+        'email': context.user.email || undefined
+      };
+    }
+
+    return await this.attachmentProvider.updateAttachmentMetadata(attachmentId, updates);
   }
 
   /**
-   * Get attachment URL for serving
-   * @param {string} attachmentId - Attachment ID
+   * Check if an attachment exists
+   *
+   * @param {string} attachmentId - Attachment identifier
+   * @returns {Promise<boolean>}
+   */
+  async attachmentExists(attachmentId) {
+    if (!this.attachmentProvider) {
+      return false;
+    }
+
+    return await this.attachmentProvider.attachmentExists(attachmentId);
+  }
+
+  /**
+   * Get attachment URL
+   *
+   * @param {string} attachmentId - Attachment identifier
    * @returns {string} URL path
    */
   getAttachmentUrl(attachmentId) {
@@ -205,32 +336,80 @@ class AttachmentManager extends BaseManager {
   }
 
   /**
-   * Clean up orphaned attachments (attachments for pages that no longer exist)
-   * @param {Array} existingPageNames - List of existing page names
+   * Refresh attachment list (rescan storage)
+   *
+   * @returns {Promise<void>}
    */
-  async cleanupOrphanedAttachments(existingPageNames) {
-    const pageNameSet = new Set(existingPageNames);
-    let cleanedCount = 0;
-    
-    for (const [pageName, attachments] of this.attachments.entries()) {
-      if (!pageNameSet.has(pageName)) {
-        // Page no longer exists, delete all its attachments
-        for (const attachment of attachments) {
-          try {
-            await fs.unlink(attachment.path);
-            cleanedCount++;
-          } catch (err) {
-            console.warn('Could not delete orphaned attachment:', err.message);
-          }
-        }
-        this.attachments.delete(pageName);
-      }
+  async refreshAttachmentList() {
+    if (!this.attachmentProvider) {
+      return;
     }
-    
-    if (cleanedCount > 0) {
-      await this.saveAttachmentsIndex();
-      console.log(`📎 Cleaned up ${cleanedCount} orphaned attachments`);
+
+    await this.attachmentProvider.refreshAttachmentList();
+    logger.info('📎 Attachment list refreshed');
+  }
+
+  /**
+   * Backup manager data
+   * Delegates to provider's backup method
+   *
+   * @returns {Promise<Object>}
+   */
+  async backup() {
+    if (!this.attachmentProvider) {
+      return {
+        managerName: 'AttachmentManager',
+        timestamp: new Date().toISOString(),
+        data: null,
+        note: 'No provider initialized'
+      };
     }
+
+    const providerBackup = await this.attachmentProvider.backup();
+
+    return {
+      managerName: 'AttachmentManager',
+      timestamp: new Date().toISOString(),
+      providerClass: this.providerClass,
+      providerBackup: providerBackup
+    };
+  }
+
+  /**
+   * Restore manager data from backup
+   * Delegates to provider's restore method
+   *
+   * @param {Object} backupData - Backup data from backup() method
+   * @returns {Promise<void>}
+   */
+  async restore(backupData) {
+    if (!backupData) {
+      throw new Error('AttachmentManager: No backup data provided for restore');
+    }
+
+    if (!this.attachmentProvider) {
+      throw new Error('AttachmentManager: Provider not initialized, cannot restore');
+    }
+
+    if (backupData.providerClass !== this.providerClass) {
+      logger.warn(`📎 Provider mismatch: backup has ${backupData.providerClass}, current is ${this.providerClass}`);
+    }
+
+    if (backupData.providerBackup) {
+      await this.attachmentProvider.restore(backupData.providerBackup);
+      logger.info('📎 AttachmentManager restored from backup');
+    }
+  }
+
+  /**
+   * Shutdown the manager
+   */
+  async shutdown() {
+    if (this.attachmentProvider) {
+      await this.attachmentProvider.shutdown();
+    }
+    await super.shutdown();
+    logger.info('📎 AttachmentManager shut down');
   }
 }
 

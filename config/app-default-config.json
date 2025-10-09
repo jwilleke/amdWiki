@@ -63,7 +63,7 @@
   "amdwiki.workDir": "./work",
   "amdwiki.directories.pages": "./pages",
   "amdwiki.directories.required-pages": "./required-pages",
-  "amdwiki.basicAttachmentProvider.storageDir": "./attachments",
+  "amdwiki.basicAttachmentProvider.storageDir": "./data/attachments",
   "amdwiki.luceneSearchProvider.luceneDirectory": "./lucene",
   "amdwiki.directories.templates": "./templates",
   "amdwiki.directories.resources": "./resources",
