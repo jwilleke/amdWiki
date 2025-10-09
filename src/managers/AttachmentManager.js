@@ -67,30 +67,22 @@ class AttachmentManager extends BaseManager {
 
   /**
    * Check permission for attachment operation
+   * Any authenticated user can upload/delete attachments
    * @param {string} action - Action to check (attachment:upload, attachment:delete)
-   * @param {object} context - WikiContext with user information
+   * @param {object} userContext - User context with username and roles
    * @returns {Promise<boolean>} True if allowed
    * @private
    */
-  async #checkPermission(action, context) {
-    const policyManager = this.engine.getManager('PolicyManager');
-    if (!policyManager) {
-      logger.warn('📎 PolicyManager not available, denying action by default');
+  async #checkPermission(action, userContext) {
+    // Check if user is authenticated
+    if (!userContext || !userContext.isAuthenticated) {
+      logger.warn(`📎 Permission denied for ${action}: User not authenticated`);
       return false;
     }
 
-    try {
-      const decision = await policyManager.checkPermission({
-        action: action,
-        resource: 'attachment',
-        context: context
-      });
-
-      return decision.allowed;
-    } catch (error) {
-      logger.error(`📎 Permission check failed for ${action}:`, error);
-      return false;
-    }
+    // Any authenticated user can upload/delete attachments
+    logger.info(`📎 Permission granted for ${action}: User ${userContext.username} is authenticated`);
+    return true;
   }
 
   /**
@@ -115,8 +107,11 @@ class AttachmentManager extends BaseManager {
       throw new Error('Permission denied: You do not have permission to upload attachments');
     }
 
-    // Get user from context
-    const user = options.context?.user || null;
+    // Extract user info from context (context is the full userContext object)
+    const user = options.context ? {
+      name: options.context.username || options.context.name || 'Unknown',
+      email: options.context.email || undefined
+    } : null;
 
     // Create metadata
     const metadata = {

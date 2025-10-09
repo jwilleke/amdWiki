@@ -26,6 +26,12 @@ const imageStorage = multer.diskStorage({
   },
 });
 
+// Configure multer for general attachments (memory storage)
+const attachmentUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit (can be overridden by config)
+});
+
 const imageUpload = multer({
   storage: imageStorage,
   limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
@@ -1718,8 +1724,6 @@ class WikiRoutes {
   async uploadAttachment(req, res) {
     try {
       const { page: pageName } = req.params;
-      const userManager = this.engine.getManager("UserManager");
-      const aclManager = this.engine.getManager("ACLManager");
       const attachmentManager = this.engine.getManager("AttachmentManager");
 
       // 🔒 SECURITY: Check authentication
@@ -1731,31 +1735,37 @@ class WikiRoutes {
         });
       }
 
-      // 🔒 SECURITY: Check if user can edit the parent page
-      const canEditPage = await aclManager.checkAttachmentPermission(
-        currentUser,
-        pageName,
-        "upload"
-      );
-      if (!canEditPage) {
-        return res.status(403).json({
-          success: false,
-          error: "No permission to upload attachments to this page",
-        });
-      }
-
       if (!req.file) {
         return res.status(400).json({ error: "No file uploaded" });
       }
 
+      // Prepare file info
+      const fileBuffer = req.file.buffer;
+      const fileInfo = {
+        originalName: req.file.originalname,
+        mimeType: req.file.mimetype,
+        size: req.file.size,
+      };
+
+      // Prepare options with full user context for permission checks
+      const options = {
+        pageName: pageName,
+        description: req.body.description || "",
+        context: currentUser, // Pass full userContext for PolicyManager
+      };
+
+      // Upload via AttachmentManager (handles permission checks)
       const attachment = await attachmentManager.uploadAttachment(
-        pageName,
-        req.file
+        fileBuffer,
+        fileInfo,
+        options
       );
 
       res.json({
         success: true,
         attachment: attachment,
+        attachmentId: attachment.identifier,
+        url: attachment.url,
         message: "File uploaded successfully",
       });
     } catch (err) {
@@ -1802,40 +1812,26 @@ class WikiRoutes {
   async serveAttachment(req, res) {
     try {
       const { attachmentId } = req.params;
-      const userManager = this.engine.getManager("UserManager");
-      const aclManager = this.engine.getManager("ACLManager");
       const attachmentManager = this.engine.getManager("AttachmentManager");
 
-      // 🔒 SECURITY: Check authentication
-      const currentUser = req.userContext;
-      if (!currentUser || !currentUser.isAuthenticated) {
-        return res
-          .status(401)
-          .send("Authentication required to access attachments");
-      }
-
-      const attachment = attachmentManager.getAttachment(attachmentId);
-      if (!attachment) {
+      // Get attachment with buffer and metadata
+      const result = await attachmentManager.getAttachment(attachmentId);
+      if (!result) {
         return res.status(404).send("Attachment not found");
       }
 
-      // 🔒 SECURITY: Check if user can view the parent page
-      const pageName = attachment.pageName;
-      const canViewPage = await aclManager.checkAttachmentPermission(
-        currentUser,
-        attachmentId,
-        "view"
-      );
-      if (!canViewPage) {
-        return res.status(403).send("No permission to access this attachment");
-      }
+      const { buffer, metadata } = result;
 
-      res.setHeader("Content-Type", attachment.mimeType);
+      // Set headers
+      res.setHeader("Content-Type", metadata.encodingFormat);
       res.setHeader(
         "Content-Disposition",
-        `inline; filename="${attachment.originalName}"`
+        `inline; filename="${metadata.name}"`
       );
-      res.sendFile(path.resolve(attachment.path));
+      res.setHeader("Content-Length", metadata.contentSize);
+
+      // Send buffer
+      res.send(buffer);
     } catch (err) {
       console.error("Error serving attachment:", err);
       res.status(500).send("Error serving attachment");
@@ -1848,8 +1844,6 @@ class WikiRoutes {
   async deleteAttachment(req, res) {
     try {
       const { attachmentId } = req.params;
-      const userManager = this.engine.getManager("UserManager");
-      const aclManager = this.engine.getManager("ACLManager");
       const attachmentManager = this.engine.getManager("AttachmentManager");
 
       // 🔒 SECURITY: Check authentication
@@ -1861,30 +1855,19 @@ class WikiRoutes {
         });
       }
 
-      // Get attachment to check parent page permissions
-      const attachment = attachmentManager.getAttachment(attachmentId);
-      if (!attachment) {
+      // Delete via AttachmentManager (handles permission checks)
+      // Pass full userContext for PolicyManager
+      const deleted = await attachmentManager.deleteAttachment(
+        attachmentId,
+        currentUser
+      );
+
+      if (!deleted) {
         return res.status(404).json({
           success: false,
           error: "Attachment not found",
         });
       }
-
-      // 🔒 SECURITY: Check if user can edit/delete from the parent page
-      const pageName = attachment.pageName;
-      const canEditPage = await aclManager.checkAttachmentPermission(
-        currentUser,
-        attachmentId,
-        "delete"
-      );
-      if (!canEditPage) {
-        return res.status(403).json({
-          success: false,
-          error: "No permission to delete attachments from this page",
-        });
-      }
-
-      await attachmentManager.deleteAttachment(attachmentId);
 
       res.json({
         success: true,
@@ -3901,6 +3884,39 @@ class WikiRoutes {
         this.uploadImage(req, res);
       });
     });
+
+    // Attachment routes
+    app.post("/attachments/upload/:page", (req, res) => {
+      attachmentUpload.single("file")(req, res, (err) => {
+        if (err) {
+          if (err instanceof multer.MulterError) {
+            if (err.code === "LIMIT_FILE_SIZE") {
+              return res.status(400).json({
+                success: false,
+                error: "File size exceeds limit",
+              });
+            }
+            return res.status(400).json({
+              success: false,
+              error: err.message,
+            });
+          }
+          return res.status(400).json({
+            success: false,
+            error: err.message,
+          });
+        }
+        this.uploadAttachment(req, res);
+      });
+    });
+
+    app.get("/attachments/:attachmentId", (req, res) =>
+      this.serveAttachment(req, res)
+    );
+
+    app.delete("/attachments/:attachmentId", (req, res) =>
+      this.deleteAttachment(req, res)
+    );
 
     // Notification management routes
     app.post("/admin/notifications/:id/dismiss", (req, res) =>

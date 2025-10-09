@@ -191,6 +191,9 @@
                                     <li><a class="dropdown-item" href="/create">
                                         <i class="fas fa-plus"></i> Create New Page
                                     </a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="showUploadAttachment()">
+                                        <i class="fas fa-paperclip"></i> Upload Attachment
+                                    </a></li>
                                     <li><hr class="dropdown-divider"></li>
                                 <% } %>
                                 <li><a class="dropdown-item" href="#" onclick="showPageSource()">
@@ -1307,5 +1310,141 @@ function deletePageFromNavbar() {
             window.location.href = '/delete/' + encodeURIComponent(pageName);
         }
     }
+}
+
+function showUploadAttachment() {
+    const currentPage = window.location.pathname.split('/wiki/')[1];
+    if (!currentPage) {
+        alert('Please navigate to a page first before uploading attachments');
+        return;
+    }
+
+    const decodedPage = decodeURIComponent(currentPage);
+
+    // Create upload modal
+    const modalHTML = `
+        <div class="modal fade" id="uploadAttachmentModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title"><i class="fas fa-paperclip"></i> Upload Attachment to ${decodedPage}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="attachmentFile" class="form-label">Select File:</label>
+                            <input type="file" class="form-control" id="attachmentFile">
+                        </div>
+                        <div class="mb-3">
+                            <label for="attachmentDescription" class="form-label">Description (Optional):</label>
+                            <input type="text" class="form-control" id="attachmentDescription" placeholder="Brief description of the file">
+                        </div>
+                        <div id="uploadStatus"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" onclick="uploadAttachmentFile('${decodedPage}')">
+                            <i class="fas fa-upload"></i> Upload
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Remove existing modal if present
+    const existing = document.getElementById('uploadAttachmentModal');
+    if (existing) {
+        existing.remove();
+    }
+
+    // Add modal to page
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('uploadAttachmentModal'));
+    modal.show();
+
+    // Clean up when closed
+    document.getElementById('uploadAttachmentModal').addEventListener('hidden.bs.modal', function () {
+        this.remove();
+    });
+}
+
+async function uploadAttachmentFile(pageName) {
+    const fileInput = document.getElementById('attachmentFile');
+    const description = document.getElementById('attachmentDescription').value;
+    const statusDiv = document.getElementById('uploadStatus');
+
+    if (!fileInput.files[0]) {
+        statusDiv.innerHTML = '<div class="alert alert-warning">Please select a file first.</div>';
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', fileInput.files[0]);
+    formData.append('description', description || 'Uploaded from navbar');
+
+    statusDiv.innerHTML = '<div class="alert alert-info">Uploading...</div>';
+
+    try {
+        const response = await fetch(`/attachments/upload/${encodeURIComponent(pageName)}`, {
+            method: 'POST',
+            body: formData
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            statusDiv.innerHTML = `
+                <div class="alert alert-success">
+                    <strong>Upload successful!</strong><br>
+                    <small>Attachment ID: ${result.attachmentId}</small><br>
+                    <small>URL: <code>${result.url}</code></small><br>
+                    <button type="button" class="btn btn-sm btn-primary mt-2" onclick="copyToClipboard('${result.url}')">
+                        Copy URL
+                    </button>
+                </div>
+            `;
+
+            // Reload page after 2 seconds to show the attachment
+            setTimeout(() => {
+                location.reload();
+            }, 2000);
+        } else {
+            statusDiv.innerHTML = `<div class="alert alert-danger">Upload failed: ${result.error}</div>`;
+        }
+    } catch (error) {
+        statusDiv.innerHTML = `<div class="alert alert-danger">Upload failed: ${error.message}</div>`;
+    }
+}
+
+function copyToClipboard(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+            alert('URL copied to clipboard!');
+        }).catch(err => {
+            console.error('Copy failed:', err);
+            fallbackCopyToClipboard(text);
+        });
+    } else {
+        fallbackCopyToClipboard(text);
+    }
+}
+
+function fallbackCopyToClipboard(text) {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-999999px';
+    document.body.appendChild(textArea);
+    textArea.select();
+    try {
+        document.execCommand('copy');
+        alert('URL copied to clipboard!');
+    } catch (err) {
+        alert('Could not copy URL. Please copy manually: ' + text);
+    }
+    document.body.removeChild(textArea);
 }
 </script>

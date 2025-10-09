@@ -203,28 +203,37 @@
         const fileInput = document.getElementById('imageFile');
         const statusDiv = document.getElementById('imageUploadStatus');
         const insertBtn = document.getElementById('insertImageBtn');
-        
+
         if (!fileInput.files[0]) {
             statusDiv.innerHTML = '<div class="alert alert-warning">Please select an image file first.</div>';
             return;
         }
-        
+
         const formData = new FormData();
-        formData.append('image', fileInput.files[0]);
-        
+        formData.append('file', fileInput.files[0]);
+        formData.append('description', 'Image uploaded from editor');
+
         statusDiv.innerHTML = '<div class="alert alert-info">Uploading image...</div>';
         insertBtn.disabled = true;
-        
+
         try {
-            const response = await fetch('/images/upload', {
+            // Use new attachment upload endpoint
+            const pageName = '<%= pageName %>';
+            const response = await fetch(`/attachments/upload/${encodeURIComponent(pageName)}`, {
                 method: 'POST',
                 body: formData
             });
-            
+
             const result = await response.json();
-            
+
             if (result.success) {
-                uploadedImages.push(result);
+                // Store attachment info (with attachmentId)
+                uploadedImages.push({
+                    attachmentId: result.attachmentId,
+                    url: result.url,
+                    originalName: result.attachment.name,
+                    mimeType: result.attachment.encodingFormat
+                });
                 statusDiv.innerHTML = '<div class="alert alert-success">Image uploaded successfully!</div>';
                 insertBtn.disabled = false;
                 updateImageList();
@@ -239,24 +248,24 @@
     
     document.getElementById('insertImageBtn').addEventListener('click', function() {
         if (uploadedImages.length === 0) return;
-        
+
         const textarea = document.getElementById('content');
         const lastImage = uploadedImages[uploadedImages.length - 1];
-        
-        // Create Image plugin syntax
-        const imageSyntax = `[{Image src='${lastImage.imagePath}' alt='${lastImage.originalName}'}]`;
-        
+
+        // Create Image plugin syntax with attachment URL
+        const imageSyntax = `[{Image src='${lastImage.url}' alt='${lastImage.originalName}'}]`;
+
         // Insert at cursor position or at end
         const start = textarea.selectionStart;
         const end = textarea.selectionEnd;
         const text = textarea.value;
         const before = text.substring(0, start);
         const after = text.substring(end, text.length);
-        
+
         textarea.value = before + imageSyntax + after;
         textarea.focus();
         textarea.setSelectionRange(start + imageSyntax.length, start + imageSyntax.length);
-        
+
         // Update preview
         updatePreview();
     });
@@ -264,13 +273,13 @@
     function updateImageList() {
         const imageList = document.getElementById('imageList');
         imageList.innerHTML = '';
-        
+
         uploadedImages.forEach((image, index) => {
             const imageItem = document.createElement('div');
             imageItem.className = 'card';
             imageItem.style.width = '150px';
             imageItem.innerHTML = `
-                <img src="${image.imagePath}" class="card-img-top" style="height: 100px; object-fit: cover;" alt="${image.originalName}">
+                <img src="${image.url}" class="card-img-top" style="height: 100px; object-fit: cover;" alt="${image.originalName}">
                 <div class="card-body p-2">
                     <p class="card-text small mb-1">${image.originalName}</p>
                     <button type="button" class="btn btn-sm btn-outline-primary" onclick="insertImageAtIndex(${index})">Insert</button>
@@ -279,25 +288,25 @@
             imageList.appendChild(imageItem);
         });
     }
-    
+
     function insertImageAtIndex(index) {
         const textarea = document.getElementById('content');
         const image = uploadedImages[index];
-        
-        // Create Image plugin syntax
-        const imageSyntax = `[{Image src='${image.imagePath}' alt='${image.originalName}'}]`;
-        
+
+        // Create Image plugin syntax with attachment URL
+        const imageSyntax = `[{Image src='${image.url}' alt='${image.originalName}'}]`;
+
         // Insert at cursor position or at end
         const start = textarea.selectionStart;
         const end = textarea.selectionEnd;
         const text = textarea.value;
         const before = text.substring(0, start);
         const after = text.substring(end, text.length);
-        
+
         textarea.value = before + imageSyntax + after;
         textarea.focus();
         textarea.setSelectionRange(start + imageSyntax.length, start + imageSyntax.length);
-        
+
         // Update preview
         updatePreview();
     }
