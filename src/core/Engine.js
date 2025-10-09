@@ -59,6 +59,14 @@ class Engine {
   }
 
   /**
+   * Get all registered manager names
+   * @returns {string[]} Array of registered manager names
+   */
+  getRegisteredManagers() {
+    return Array.from(this.managers.keys());
+  }
+
+  /**
    * Get configuration property
    * @param {string} key - Property key
    * @param {*} defaultValue - Default value if not found

@@ -1002,5 +1002,11 @@
         "page:read"
       ]
     }
-  ]
+  ],
+  "_comment_backup": "Backup and restore configuration for BackupManager",
+  "amdwiki.backup.directory": "./backups",
+  "amdwiki.backup.maxBackups": 10,
+  "amdwiki.backup.compress": true,
+  "amdwiki.backup.autoBackup": false,
+  "amdwiki.backup.autoBackupInterval": 86400000
 }

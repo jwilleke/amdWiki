@@ -18,6 +18,7 @@ const PolicyValidator = require('./managers/PolicyValidator');
 const PolicyEvaluator = require('./managers/PolicyEvaluator');
 const ExportManager = require('./managers/ExportManager');
 const TemplateManager = require('./managers/TemplateManager');
+const BackupManager = require('./managers/BackupManager');
 
 // Parsers
 const MarkupParser = require('./parsers/MarkupParser');
@@ -117,6 +118,10 @@ class WikiEngine extends Engine {
     // Add the missing ExportManager to the initialization sequence
     this.registerManager('ExportManager', new ExportManager(this));
     await this.getManager('ExportManager').initialize();
+
+    // Add BackupManager to the initialization sequence
+    this.registerManager('BackupManager', new BackupManager(this));
+    await this.getManager('BackupManager').initialize();
 
     console.log('✅ All managers initialized');
     return this;
