@@ -22,12 +22,12 @@ lastModified: 2025-10-09
 ```
 
 **Expected Output**:
-```
+```text
 Application Name ([{$applicationname}]) : amdWiki
 ```
 
 **Actual Output**:
-```
+```text
 Application Name ([amdWiki: amdWiki
 ```
 
@@ -39,7 +39,7 @@ The `[[` escape is being processed incorrectly because string replacements happe
 
 JSPWiki solves this problem by **building an internal DOM tree** (not string processing):
 
-```
+```text
 Raw Wiki Markup
     ↓
 MarkupParser (tokenizes and builds JDOM tree)
@@ -125,7 +125,7 @@ public class XHTMLRenderer {
 
 ### Current Pipeline
 
-```
+```text
 Raw Markdown
     ↓
 Phase 1: Preprocessing (string replacement)
@@ -419,20 +419,20 @@ async textToHTML(context, pageContent) {
 
 ### DOM Library Choice
 
-**Option 1: jsdom** (Recommended)
-- Full DOM implementation
-- querySelector, appendChild, etc.
-- Heavy but feature-complete
+- Option 1: jsdom** (Recommended)
+  - Full DOM implementation
+  - querySelector, appendChild, etc.
+  - Heavy but feature-complete
 
-**Option 2: cheerio**
-- Lighter weight
-- jQuery-like API
-- Might be sufficient
+- Option 2: cheerio
+  - Lighter weight
+  - jQuery-like API
+  - Might be sufficient
 
-**Option 3: Custom DOM**
-- Minimal implementation
-- Only what we need
-- More work, but lighter
+- Option 3: Custom DOM
+  - Minimal implementation
+  - Only what we need
+  - More work, but lighter
 
 **Recommendation**: Start with jsdom for full compatibility, optimize later if needed.
 

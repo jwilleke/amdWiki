@@ -1,5 +1,7 @@
 # JSPWikiPreprocessor Architecture
 
+> NOTE: part of [WikiDocument-DOM-Architecture](../../docs/architecture/WikiDocument-DOM-Architecture.md)
+
 ## Overview
 
 `JSPWikiPreprocessor` is a Phase 1 handler in the amdWiki rendering pipeline that processes JSPWiki-specific syntax **before** markdown conversion. This ensures JSPWiki markup is properly converted to HTML before any other transformations occur.
@@ -8,11 +10,11 @@
 
 ### The 7-Phase Processing Pipeline
 
-```
+```text
 User Request → RenderingManager → MarkupParser → 7 Phases → HTML Response
 ```
 
-#### Complete Phase Breakdown:
+#### Complete Phase Breakdown
 
 1. **Phase 1: Preprocessing** ← **JSPWikiPreprocessor runs here**
    - Escape handling (EscapedSyntaxHandler - priority 100)
@@ -51,19 +53,17 @@ User Request → RenderingManager → MarkupParser → 7 Phases → HTML Respons
 
 **Critical Design Decision:** JSPWikiPreprocessor runs in Phase 1 (before markdown) to solve a fundamental problem:
 
-```
 PROBLEM (Old Architecture):
 Phase 4: WikiStyleHandler sees: %%table-striped
-Phase 6: Markdown wraps header: || Product || → <p>|| Product ||</p>
-Phase 4: WikiTableHandler can't find headers (they're in <p> tags!)
+Phase 6: Markdown wraps header: || Product || → ```<p>```|| Product ||</p>
+Phase 4: WikiTableHandler can't find headers (they're in ```<p>``` tags!)
 Result: Headers appear OUTSIDE tables ❌
 
 SOLUTION (New Architecture):
 Phase 1: JSPWikiPreprocessor sees: %%table-striped\n|| Product ||\n| Data |
-Phase 1: Converts to: <table class="table table-striped"><thead>...
-Phase 6: Markdown leaves <table> HTML unchanged ✅
+Phase 1: Converts to: ```<table class="table table-striped"><thead>...```
+Phase 6: Markdown leaves ```<table>``` HTML unchanged ✅
 Result: Headers are INSIDE tables ✓
-```
 
 ## How JSPWikiPreprocessor Works
 
@@ -79,7 +79,7 @@ async process(content, context) {
 ### 2. Nested Block Parsing
 
 **Input:**
-```
+```markdown
 %%zebra-table
 %%sortable
 || Header || Data ||
@@ -106,7 +106,7 @@ parseStyleBlocks(content, accumulatedClasses = [])
 ### 3. Table Parsing
 
 **JSPWiki Syntax:**
-```
+``` markdown
 || Header 1 || Header 2 ||   ← Double pipes = header row
 | Cell 1 | Cell 2 |          ← Single pipes = data row
 ```
@@ -185,21 +185,21 @@ async phasePreprocessing(content, context) {
 
 JSPWikiPreprocessor generates HTML that client-side JavaScript enhances:
 
-**1. zebraTable.js**
+#### 1. zebraTable.js
 ```javascript
 // Finds tables: table.zebra-table
 // Applies classes: .zebra-even, .zebra-odd
 // Uses CSS variables: --zebra-row-even, --zebra-text-color
 ```
 
-**2. tableSort.js**
+#### 2. tableSort.js
 ```javascript
 // Finds tables: table.sortable
 // Adds click handlers to <th> elements
 // Sorts rows and refreshes zebra striping
 ```
 
-**3. tableFilter.js**
+#### 3. tableFilter.js
 ```javascript
 // Finds tables: table.table-filter
 // Injects filter input row
@@ -209,7 +209,7 @@ JSPWikiPreprocessor generates HTML that client-side JavaScript enhances:
 ### With CSS
 
 **CSS Variables Flow:**
-```
+```css
 JSPWikiPreprocessor (JS)
   ↓ Sets inline style
 <table style="--zebra-row-even: #ffe0e0; --zebra-text-color: #000000;">
@@ -304,7 +304,7 @@ getContrastColor(hexColor) {
 ### Long-Term Architecture
 
 1. **Unified Preprocessor**
-   ```
+   ```text
    JSPWikiPreprocessor (current)
      ├─ Table Parsing ✓
      ├─ Style Blocks ✓

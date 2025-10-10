@@ -10,7 +10,7 @@ lastModified: 2025-10-09
 
 **Goal**: Migrate from fragile string-based parsing to robust DOM-based parsing following JSPWiki's proven architecture.
 
-**Reference**: [WikiDocument-DOM-Architecture.md](WikiDocument-DOM-Architecture.md)
+**Reference**: [WikiDocument-DOM-Architecture.md](../../docs/architecture/WikiDocument-DOM-Architecture.md))
 
 **Timeline**: 6 weeks (estimated)
 
@@ -104,7 +104,7 @@ lastModified: 2025-10-09
   - [ ] HEADING - !, !!, !!!, etc.
   - [ ] LIST_ITEM - *, #
   - [ ] TABLE_CELL - |
-  - [ ] BOLD - __text__
+  - [ ] BOLD - ```__text__```
   - [ ] ITALIC - ''text''
   - [ ] CODE_INLINE - {{text}}
   - [ ] CODE_BLOCK - {{{...}}}

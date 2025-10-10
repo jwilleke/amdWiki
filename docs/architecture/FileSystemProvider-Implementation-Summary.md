@@ -49,7 +49,7 @@ The FileSystemProvider pattern has been successfully implemented following the d
 
 ### 3. Updated Tests
 
-**[src/managers/__tests__/PageManager.test.js](../../src/managers/__tests__/PageManager.test.js)**
+**[src/managers/**tests**/PageManager.test.js](../../src/managers/__tests__/PageManager.test.js)**
 - Added ConfigurationManager mock
 - Updated test expectations to work with provider pattern
 - Tests verify:
@@ -61,7 +61,7 @@ The FileSystemProvider pattern has been successfully implemented following the d
 ## Verification Results
 
 ### Application Startup ✅
-```
+```text
 ✅ FileSystemProvider loaded successfully
 ✅ 82 pages indexed
 ✅ Provider features: uuid-indexing, title-indexing, plural-matching, dual-storage
@@ -120,7 +120,7 @@ All existing code continues to work unchanged:
 ## Architecture Benefits
 
 ### Before Refactoring
-```
+```text
 PageManager (322 lines)
 ├── Direct file system access
 ├── Directory walking
@@ -130,7 +130,7 @@ PageManager (322 lines)
 ```
 
 ### After Refactoring
-```
+```text
 PageManager (171 lines)
 ├── Provider loading
 └── Method proxying

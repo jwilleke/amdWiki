@@ -72,7 +72,7 @@ During the migration to the unified ConfigurationManager pattern, several legacy
 
 ## Verification Steps
 
-### Check if access-policies.json is still needed:
+### Check if access-policies.json is still needed
 
 ```bash
 # Search for direct reads of access-policies.json
@@ -85,7 +85,7 @@ grep -A5 "amdwiki.access.policies" config/app-default-config.json
 grep -A10 "initialize" src/managers/PolicyManager.js
 ```
 
-### Check if Config.js is still used:
+### Check if Config.js is still used
 
 ```bash
 # Find direct Config.js imports

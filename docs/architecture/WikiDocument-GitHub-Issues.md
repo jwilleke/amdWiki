@@ -8,15 +8,17 @@ lastModified: 2025-10-09
 
 # WikiDocument DOM Migration - GitHub Issues
 
+> NOTE: part of [WikiDocument-DOM-Architecture](../../docs/architecture/WikiDocument-DOM-Architecture.md)
+
 ## Epic Issue Template
 
 ### Title
-```
+```text
 [EPIC] Migrate to WikiDocument DOM-Based Parsing Architecture
 ```
 
 ### Labels
-```
+```text
 epic, enhancement, architecture, parser, high-priority
 ```
 
@@ -85,7 +87,6 @@ This epic tracks the following phases:
 - Original Issue: [Link to [[  escaping bug report]
 - JSPWiki Architecture: https://github.com/apache/jspwiki
 - Related Epic: #41 JSPWikiMarkupParser Enhancement Support
-```
 
 ---
 
@@ -243,7 +244,7 @@ module.exports = WikiDocument;
 ### Estimated Time
 
 2 days
-```
+```text
 
 ---
 
@@ -320,7 +321,7 @@ doc.appendChild(root, heading);
 ### Estimated Time
 
 2 days
-```
+```text
 
 ---
 
@@ -395,7 +396,7 @@ const allPlugins = doc.findPlugins();
 ### Estimated Time
 
 1-2 days
-```
+```text
 
 ---
 
@@ -477,7 +478,7 @@ const restored = WikiDocument.fromJSON(cached);
 ### Estimated Time
 
 2 days
-```
+```text
 
 ---
 
@@ -576,7 +577,7 @@ describe('WikiDocument', () => {
 ### Estimated Time
 
 2-3 days
-```
+```text
 
 ---
 
@@ -678,7 +679,7 @@ Returns the root DOM element.
 ### Estimated Time
 
 1-2 days
-```
+```text
 
 ---
 

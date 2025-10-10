@@ -235,5 +235,5 @@ node_modules/
 - [CONTRIBUTING.md](../development/CONTRIBUTING.md) - Development guidelines
 - [ARCHITECTURE-PAGE-CLASSIFICATION.md](ARCHITECTURE-PAGE-CLASSIFICATION.md) - Page classification system
 - [ROADMAP.md](../planning/ROADMAP.md) - Project planning and vision
-- [CHANGELOG.md](../CHANGELOG.md) - Version history and changes</content>
-<parameter name="filePath">/Volumes/hd3/GitHub/amdWiki/docs/architecture/PROJECT-STRUCTURE.md
+- [CHANGELOG.md](../CHANGELOG.md) - Version history and changes```</content>
+<parameter name="filePath">```/Volumes/hd3/GitHub/amdWiki/docs/architecture/PROJECT-STRUCTURE.md
