@@ -84,6 +84,93 @@ config/app-default-config.json - Added backup configuration properties
 
 The BackupManager retrieves this list via engine.getRegisteredManagers() at BackupManager.js:96.
 
+### Managers - Providers
+Some managers which store data on a Stoarge Media use "Providers" to perform the actual interactions with the different "Stoarge Media".
+This relationship is determine by the src/managers/ConfigurationManager.js settings.
+
+PageManager for instance 
+- const providerName = configManager.getProperty('amdwiki.pageProvider', 'FileSystemProvider');
+- then PageManager delegaates "Stoarge Media" calls to the providerName.
+- This requuires providerName to perform all interations with the "Stoarge Media" (which could bs a database)
+
+For "Stoarge Media" backups this requires providerName to implement a Backup() and Restore() functions that are called by the Manager which will return either:
+- return file reference to a specific .gz file
+- manifest??.json  # Contains all data inline
+
+The choice whould be based on src/managers/ConfigurationManager.js entries of
+```json
+{
+  "amdwiki.backup.strategy": "auto",  // auto|inline|file
+  "amdwiki.backup.inlineThreshold": 100,  // Max items for inline
+  "amdwiki.backup.compressFolder": true,  // Create .tar.gz
+  "amdwiki.backup.parallelProviders": true  // Backup providers concurrently
+}
+```
+
+#### Backup Logic (pseudocode)
+Update providerName to support both modes:
+```javascript
+class BasePageProvider {
+  /**
+   * Backup strategy - determines if provider should create files
+   * @returns {'inline'|'file'} Backup type
+   */
+  getBackupStrategy() {
+    // Default: inline for small data
+    return 'inline';
+  }
+  
+  async backup() {
+    if (this.getBackupStrategy() === 'file') {
+      return await this.backupToFile();
+    }
+    return await this.backupInline();
+  }
+  
+  async backupInline() {
+    // Return JSON-serializable data
+  }
+  
+  async backupToFile() {
+    // Create .gz file, return file reference
+  }
+}
+```
+
+#### Restore Logic (pseudocode)
+``` javascript
+async restore(backupPath) {
+  // Detect backup type
+  const isFolder = (await fs.stat(backupPath)).isDirectory();
+  const isTarGz = backupPath.endsWith('.tar.gz');
+  
+  if (isTarGz) {
+    // Extract .tar.gz first
+    backupPath = await this.#extractTarGz(backupPath);
+  }
+  
+  // Load manifest
+  const manifest = JSON.parse(
+    await fs.readFile(path.join(backupPath, 'manifest.json'))
+  );
+  
+  // Restore each manager
+  for (const [managerName, backup] of Object.entries(manifest.managers)) {
+    const manager = this.engine.getManager(managerName);
+    
+    if (backup.type === 'file') {
+      // Load data from separate file
+      const filePath = path.join(backupPath, backup.file);
+      const data = await this.#loadBackupFile(filePath);
+      await manager.restore(data);
+    } else {
+      // Inline data
+      await manager.restore(backup.data);
+    }
+  }
+}
+```
+
 ### Examples of Non-Data Managers
 - PolicyManager - Loads policies from config at startup, no persistent state
 - VariableManager - Registers handlers at initialization, no stored data
