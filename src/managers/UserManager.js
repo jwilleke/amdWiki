@@ -20,110 +20,79 @@ class UserManager extends BaseManager {
 
   async initialize(config = {}) {
     await super.initialize(config);
-    
-    this.usersDirectory = config.usersDirectory || './users';
-    
+
+    const configManager = this.engine.getManager('ConfigurationManager');
+    if (!configManager) {
+      throw new Error('UserManager requires ConfigurationManager');
+    }
+
+    // Load provider with fallback (ALL LOWERCASE) - for future provider support
+    // const defaultProvider = configManager.getProperty(
+    //   'amdwiki.user.provider.default',
+    //   'jsonuserprovider'
+    // );
+    // const providerName = configManager.getProperty(
+    //   'amdwiki.user.provider',
+    //   defaultProvider
+    // );
+    // TODO: Implement provider loading logic when multiple user providers are supported
+
+    // Load all settings from config (all keys lowercase)
+    this.usersDirectory = configManager.getProperty(
+      'amdwiki.user.provider.storagedir',
+      './users'
+    );
+    this.usersFile = configManager.getProperty(
+      'amdwiki.user.provider.files.users',
+      'users.json'
+    );
+    this.sessionsFile = configManager.getProperty(
+      'amdwiki.user.provider.files.sessions',
+      'sessions.json'
+    );
+    this.passwordSalt = configManager.getProperty(
+      'amdwiki.user.security.passwordsalt',
+      'amdwiki-salt'
+    );
+    this.defaultPassword = configManager.getProperty(
+      'amdwiki.user.security.defaultpassword',
+      'admin123'
+    );
+    this.sessionExpiration = configManager.getProperty(
+      'amdwiki.user.security.sessionexpiration',
+      86400000
+    );
+    this.defaultTimezone = configManager.getProperty(
+      'amdwiki.user.defaults.timezone',
+      'utc'
+    );
+
+    // Load role definitions from config
+    const roleDefinitions = configManager.getProperty(
+      'amdwiki.roles.definitions',
+      {}
+    );
+    this.roles = new Map(Object.entries(roleDefinitions));
+
+    logger.info(`👤 Loaded ${this.roles.size} role definitions from configuration`);
+
     // Create users directory
     await fs.mkdir(this.usersDirectory, { recursive: true });
-    
-    // Load existing users, roles, and sessions
+
+    // Load users and sessions
     await this.loadUsers();
-    await this.loadRoles();
-    await this.loadSessions(); // This will now use the correct path
-    
-    // Create default admin user if no users exist
+    await this.loadSessions();
+
+    // Create default admin if needed
     if (this.users.size === 0) {
       await this.createDefaultAdmin();
     }
-    
-    console.log(`👤 UserManager initialized with ${this.users.size} users and ${this.roles.size} roles.`);
+
+    logger.info(`👤 UserManager initialized with ${this.users.size} users`);
   }
 
-  /**
-   * Initialize default system permissions
-   */
-  initializeDefaultPermissions() {
-    const defaultPermissions = {
-      // Page permissions
-      'page:read': 'Read pages',
-      'page:edit': 'Edit pages',
-      'page:create': 'Create new pages',
-      'page:delete': 'Delete pages',
-      'page:rename': 'Rename pages',
-      
-      // System permissions
-      'admin:users': 'Manage users',
-      'admin:roles': 'Manage roles',
-      'admin:config': 'Manage system configuration',
-      'admin:system': 'Full system administration',
-      
-      // Content permissions
-      'attachment:upload': 'Upload attachments',
-      'attachment:delete': 'Delete attachments',
-      'export:pages': 'Export pages',
-      
-      // Search permissions
-      'search:all': 'Search all content',
-      'search:restricted': 'Search restricted content'
-    };
-    
-    for (const [permission, description] of Object.entries(defaultPermissions)) {
-      this.permissions.set(permission, description);
-    }
-  }
-
-  /**
-   * Initialize default roles
-   */
-  initializeDefaultRoles() {
-    const defaultRoles = {
-      'admin': {
-        name: 'admin',
-        displayName: 'Administrator',
-        description: 'Full system access',
-        permissions: Array.from(this.permissions.keys()),
-        isSystem: true
-      },
-      'editor': {
-        name: 'editor',
-        displayName: 'Editor',
-        description: 'Can create and edit all pages',
-        permissions: [
-          'page:read', 'page:edit', 'page:create', 'page:delete', 'page:rename',
-          'attachment:upload', 'attachment:delete', 'export:pages', 'search:all'
-        ],
-        isSystem: true
-      },
-      'contributor': {
-        name: 'contributor',
-        displayName: 'Contributor',
-        description: 'Can edit existing pages and create new ones',
-        permissions: [
-          'page:read', 'page:edit', 'page:create',
-          'attachment:upload', 'export:pages', 'search:all'
-        ],
-        isSystem: true
-      },
-      'reader': {
-        name: 'reader',
-        displayName: 'Reader',
-        description: 'Read-only access',
-        permissions: ['page:read', 'search:all', 'export:pages'],
-        isSystem: true
-      },
-      'anonymous': {
-        name: 'anonymous',
-        displayName: 'Anonymous User',
-        description: 'Public access (no login required)',
-        permissions: ['page:read'],
-        isSystem: true
-      }
-    };
-    
-    for (const [roleName, role] of Object.entries(defaultRoles)) {
-      this.roles.set(roleName, role);
-    }
-  }
+  // REMOVED: initializeDefaultPermissions() - Permissions now defined in policies
+  // REMOVED: initializeDefaultRoles() - Roles now loaded from config (amdwiki.roles.definitions)
 
   /**
    * Load users from disk
@@ -155,57 +124,11 @@ class UserManager extends BaseManager {
     }
   }
 
-  /**
-   * Load roles from disk
-   */
-  async loadRoles() {
-    // Initialize default permissions first
-    this.initializeDefaultPermissions();
+  // REMOVED: loadRoles() - Roles now loaded from config in initialize()
+  // Custom roles can be added in app-custom-config.json via ConfigurationManager's merge
 
-    // Initialize default roles
-    this.initializeDefaultRoles();
-
-    try {
-      const rolesFile = path.join(this.usersDirectory, 'roles.json');
-      const rolesData = await fs.readFile(rolesFile, 'utf8');
-      const roles = JSON.parse(rolesData);
-
-      // Merge custom roles with defaults (custom roles override defaults)
-      for (const [roleName, role] of Object.entries(roles)) {
-        this.roles.set(roleName, role);
-      }
-      console.log(`👤 Loaded ${this.roles.size} roles from file`);
-    } catch (err) {
-      // Roles file doesn't exist yet, using default roles
-      console.log(`👤 Using ${this.roles.size} default roles`);
-    }
-  }
-
-  /**
-   * Save roles to disk
-   * @param {boolean} includeSystemRoles - Whether to save system roles (for security policy management)
-   */
-  async saveRoles(includeSystemRoles = false) {
-    try {
-      const rolesFile = path.join(this.usersDirectory, 'roles.json');
-      const rolesToSave = {};
-      
-      // Save custom roles, and optionally system roles for security policy
-      for (const [roleName, role] of this.roles.entries()) {
-        if (!role.isSystem || includeSystemRoles) {
-          rolesToSave[roleName] = {
-            ...role,
-            lastModified: role.lastModified || new Date().toISOString()
-          };
-        }
-      }
-      
-      await fs.writeFile(rolesFile, JSON.stringify(rolesToSave, null, 2));
-      console.log(`💾 Saved ${Object.keys(rolesToSave).length} roles to disk`);
-    } catch (err) {
-      console.error('Error saving roles:', err);
-    }
-  }
+  // REMOVED: saveRoles() - Roles are now in config files (app-default-config.json / app-custom-config.json)
+  // To modify roles, edit config files directly
 
   /**
    * Simple password hashing using crypto
@@ -213,7 +136,8 @@ class UserManager extends BaseManager {
    * @returns {string} Hashed password
    */
   hashPassword(password) {
-    return crypto.createHash('sha256').update(password + 'amdwiki-salt').digest('hex');
+    const salt = this.passwordSalt || 'amdwiki-salt';
+    return crypto.createHash('sha256').update(password + salt).digest('hex');
   }
 
   /**
@@ -230,11 +154,13 @@ class UserManager extends BaseManager {
    * Create default admin user
    */
   async createDefaultAdmin() {
+    const defaultPassword = this.defaultPassword || 'admin123';
+
     const adminUser = {
       username: 'admin',
       email: 'admin@localhost',
       displayName: 'Administrator',
-      password: this.hashPassword('admin123'),
+      password: this.hashPassword(defaultPassword),
       roles: ['admin'],
       isActive: true,
       isSystem: true,
@@ -301,7 +227,7 @@ class UserManager extends BaseManager {
       console.error('❌ Failed to sync default admin to Schema.org data:', error.message);
     }
 
-    console.log('👤 Created default admin user (username: admin, password: admin123)');
+    console.log(`👤 Created default admin user (username: admin, password: ${defaultPassword})`);
   }
 
   /**
@@ -433,37 +359,64 @@ class UserManager extends BaseManager {
   }
 
   /**
-   * Get user's effective permissions
+   * Get user's effective permissions from PolicyManager
    * @param {string} username - Username (null for anonymous)
-   * @returns {Array} Array of permissions
+   * @returns {Array<string>} Array of permission strings
    */
   getUserPermissions(username) {
+    // Query PolicyManager for actual permissions
+    const policyManager = this.engine.getManager('PolicyManager');
+    if (!policyManager) {
+      logger.warn('PolicyManager not available, returning empty permissions');
+      return [];
+    }
+
     // Handle anonymous user (no session cookie)
     if (!username || username === 'anonymous') {
-      const anonymousRole = this.roles.get('anonymous');
-      return anonymousRole ? anonymousRole.permissions : [];
+      const userRoles = ['anonymous', 'All'];
+      return this._getPermissionsFromPolicies(policyManager, userRoles);
     }
-    
+
     // Handle asserted user (has session cookie but expired/invalid)
     if (username === 'asserted') {
-      const readerRole = this.roles.get('reader');
-      return readerRole ? readerRole.permissions : [];
+      const userRoles = ['reader', 'All'];
+      return this._getPermissionsFromPolicies(policyManager, userRoles);
     }
 
     const user = this.users.get(username);
     if (!user || !user.isActive) {
       return [];
     }
-    
+
+    // Get all user's roles (including Authenticated, All)
+    const userRoles = [...(user.roles || []), 'Authenticated', 'All'];
+    return this._getPermissionsFromPolicies(policyManager, userRoles);
+  }
+
+  /**
+   * Helper method to get permissions from policies for given roles
+   * @private
+   * @param {Object} policyManager - PolicyManager instance
+   * @param {Array<string>} userRoles - Array of role names
+   * @returns {Array<string>} Array of permission strings
+   */
+  _getPermissionsFromPolicies(policyManager, userRoles) {
+    const policies = policyManager.getAllPolicies();
     const permissions = new Set();
-    
-    for (const roleName of user.roles) {
-      const role = this.roles.get(roleName);
-      if (role) {
-        role.permissions.forEach(permission => permissions.add(permission));
+
+    // Collect permissions from all matching allow policies
+    for (const policy of policies) {
+      if (policy.effect === 'allow') {
+        const hasMatchingRole = policy.subjects.some(subject =>
+          subject.type === 'role' && userRoles.includes(subject.value)
+        );
+
+        if (hasMatchingRole) {
+          policy.actions.forEach(action => permissions.add(action));
+        }
       }
     }
-    
+
     return Array.from(permissions);
   }
 
@@ -844,100 +797,47 @@ class UserManager extends BaseManager {
 
   /**
    * Create custom role
+   * NOTE: Roles are now defined in config files (app-custom-config.json)
+   * This method is deprecated and will be removed in a future version.
    * @param {Object} roleData - Role data
+   * @deprecated Use config files to define roles instead
    */
   async createRole(roleData) {
-    const { name, displayName, description, permissions = [] } = roleData;
-    
-    if (this.roles.has(name)) {
-      throw new Error('Role already exists');
-    }
-    
-    const role = {
-      name,
-      displayName: displayName || name,
-      description,
-      permissions,
-      isSystem: false,
-      createdAt: new Date().toISOString()
-    };
-    
-    this.roles.set(name, role);
-    await this.saveRoles();
-    
-    console.log(`👤 Created role: ${name}`);
-    return role;
+    const { name, displayName, description } = roleData;
+
+    logger.warn(`[DEPRECATED] createRole() is deprecated. Add role '${name}' to config/app-custom-config.json under 'amdwiki.roles.definitions' instead.`);
+    logger.warn(`Example: { "${name}": { "name": "${name}", "displayname": "${displayName || name}", "description": "${description || ''}", "issystem": false } }`);
+
+    throw new Error('createRole() is deprecated. Please add custom roles to config/app-custom-config.json under amdwiki.roles.definitions');
   }
 
   /**
-   * Delete a role (admin only)
+   * Delete a role
+   * NOTE: Roles are now defined in config files
+   * This method is deprecated and will be removed in a future version.
    * @param {string} roleName - Name of the role to delete
-   * @returns {boolean} Success status
+   * @deprecated Use config files to manage roles instead
    */
   async deleteRole(roleName) {
-    if (!this.roles.has(roleName)) {
-      throw new Error('Role not found');
-    }
+    logger.warn(`[DEPRECATED] deleteRole() is deprecated. Remove role '${roleName}' from config/app-custom-config.json instead.`);
 
-    const role = this.roles.get(roleName);
-    
-    // Prevent deletion of system roles
-    if (role.isSystem) {
-      throw new Error('Cannot delete system role');
-    }
-
-    // Remove role from all users
-    for (const [username, user] of this.users.entries()) {
-      const roleIndex = user.roles.indexOf(roleName);
-      if (roleIndex > -1) {
-        user.roles.splice(roleIndex, 1);
-        console.log(`👤 Removed role '${roleName}' from user '${username}' during role deletion`);
-      }
-    }
-
-    // Delete the role
-    this.roles.delete(roleName);
-    await this.saveRoles();
-    await this.saveUsers();
-
-    console.log(`👤 Deleted role: ${roleName}`);
-    return true;
+    throw new Error('deleteRole() is deprecated. Please remove custom roles from config/app-custom-config.json under amdwiki.roles.definitions');
   }
 
   /**
-   * Update role permissions (for admin security policy management)
-   * @param {string} roleName - Role name to update
-   * @param {Object} updates - Updates to apply
-   * @returns {boolean} Success status
+   * Update role permissions
+   * NOTE: Role permissions are now defined via policies in config files
+   * This method is deprecated and will be removed in a future version.
+   * @param {string} _roleName - Role name to update (unused)
+   * @param {Object} _updates - Updates to apply (unused)
+   * @deprecated Use policies in config to manage permissions instead
    */
-  async updateRolePermissions(roleName, updates) {
-    try {
-      const role = this.roles.get(roleName);
-      if (!role) {
-        console.error(`Role not found: ${roleName}`);
-        return false;
-      }
+  async updateRolePermissions(_roleName, _updates) {
+    logger.warn(`[DEPRECATED] updateRolePermissions() is deprecated.`);
+    logger.warn(`Role metadata can be updated in config/app-custom-config.json under 'amdwiki.roles.definitions'`);
+    logger.warn(`Role permissions should be managed via policies in 'amdwiki.access.policies'`);
 
-      // Create updated role object
-      const updatedRole = {
-        ...role,
-        permissions: updates.permissions || role.permissions,
-        displayName: updates.displayName || role.displayName,
-        description: updates.description || role.description,
-        lastModified: new Date().toISOString()
-      };
-
-      this.roles.set(roleName, updatedRole);
-      
-      // Save to disk (include system roles for security policy management)
-      await this.saveRoles(true);
-      
-      console.log(`👤 Updated role permissions: ${roleName}`);
-      return updatedRole;
-    } catch (err) {
-      console.error('Error updating role permissions:', err);
-      return false;
-    }
+    throw new Error('updateRolePermissions() is deprecated. Please use config files and policies to manage role permissions');
   }
 
   /**

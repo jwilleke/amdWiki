@@ -56,7 +56,25 @@
   "amdwiki.jsonuserdatabase": ".users/users.json",
   "amdwiki.jsonpersonsdatabase": ".users/persons.json",
   "amdwiki.jsonorganizationsdatabase": "users/organizations.json",
-  
+
+  "_comment_user_storage": "User authentication and storage configuration (ALL LOWERCASE)",
+  "amdwiki.user.enabled": true,
+  "amdwiki.user.provider.default": "jsonuserprovider",
+  "amdwiki.user.provider": "jsonuserprovider",
+  "amdwiki.user.provider.storagedir": "./users",
+  "amdwiki.user.provider.files.users": "users.json",
+  "amdwiki.user.provider.files.sessions": "sessions.json",
+
+  "_comment_user_security": "User security settings (ALL LOWERCASE)",
+  "amdwiki.user.security.passwordsalt": "amdwiki-salt",
+  "amdwiki.user.security.defaultpassword": "admin123",
+  "amdwiki.user.security.sessionexpiration": 86400000,
+
+  "_comment_user_defaults": "Default user settings (ALL LOWERCASE)",
+  "amdwiki.user.defaults.timezone": "utc",
+  "amdwiki.user.defaults.locale": "en-us",
+  "amdwiki.user.defaults.theme": "light",
+
   "_comment_directories": "Directory and file system settings",
   "amdwiki.session.store": "users/sessions.json",
   "amdwiki.templateDir": "default",
@@ -811,7 +829,51 @@
       "enabled": true
     }
   },
-  
+
+  "_comment_roles": "Role definitions - metadata only, permissions defined via policies below (ALL LOWERCASE)",
+  "amdwiki.roles.definitions": {
+    "admin": {
+      "name": "admin",
+      "displayname": "Administrator",
+      "description": "Full system access to all features",
+      "issystem": true,
+      "icon": "shield-alt",
+      "color": "#dc3545"
+    },
+    "editor": {
+      "name": "editor",
+      "displayname": "Editor",
+      "description": "Can create, edit, delete, and rename pages",
+      "issystem": true,
+      "icon": "edit",
+      "color": "#007bff"
+    },
+    "contributor": {
+      "name": "contributor",
+      "displayname": "Contributor",
+      "description": "Can create and edit pages",
+      "issystem": true,
+      "icon": "user-edit",
+      "color": "#28a745"
+    },
+    "reader": {
+      "name": "reader",
+      "displayname": "Reader",
+      "description": "Read-only access to content",
+      "issystem": true,
+      "icon": "book-reader",
+      "color": "#6c757d"
+    },
+    "anonymous": {
+      "name": "anonymous",
+      "displayname": "Anonymous",
+      "description": "Public access without authentication",
+      "issystem": true,
+      "icon": "user-secret",
+      "color": "#adb5bd"
+    }
+  },
+
   "_comment_access_policies": "Access control policies - Role-based with specific action permissions",
   "amdwiki.access.policies.defaultPolicy": "deny",
   "amdwiki.access.policies.enabled": true,
