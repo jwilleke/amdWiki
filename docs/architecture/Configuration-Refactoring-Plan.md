@@ -28,7 +28,7 @@ This plan addresses critical architectural issues in amdWiki's configuration and
 
 ### Problem 1: Configuration Chaos (Issue #102)
 
-**Example: Attachment Configuration Scattered Across 33 Lines**
+#### Example: Attachment Configuration Scattered Across 33 Lines
 
 ```json
 // Line 20-22: Provider settings
@@ -126,15 +126,13 @@ async initialize(config) {
 }
 ```
 
----
-
 ## Proposed Solution
 
 ### Architecture Principle: Hierarchical Flat Keys
 
 Use consistent namespace pattern while maintaining flat dot-notation:
 
-```
+```text
 amdwiki.{component}.{namespace}.{property}
 
 Where:
@@ -928,6 +926,7 @@ mv config/app-custom-config.json.new config/app-custom-config.json
 ## Key Mappings (ALL LOWERCASE)
 
 ### Attachment Configuration
+
 | Old Key | New Key |
 |---------|---------|
 | `amdwiki.attachments.maxSize` | `amdwiki.attachment.security.maxsize` |
@@ -936,6 +935,7 @@ mv config/app-custom-config.json.new config/app-custom-config.json
 | `amdwiki.features.attachments.allowedTypes` | `amdwiki.attachment.security.allowedtypes` |
 
 ### User Configuration
+
 | Old Key | New Key |
 |---------|---------|
 | `amdwiki.directories.users` | `amdwiki.user.provider.storagedir` |
@@ -943,12 +943,14 @@ mv config/app-custom-config.json.new config/app-custom-config.json
 | `amdwiki.jsonuserdatabase` | `amdwiki.user.provider.files.users` |
 
 ### Page Configuration
+
 | Old Key | New Key |
 |---------|---------|
 | `amdwiki.pageProvider` | `amdwiki.page.provider` |
 | `amdwiki.directories.pages` | `amdwiki.page.provider.storagedir` |
 
 ### Search Configuration
+
 | Old Key | New Key |
 |---------|---------|
 | `amdwiki.searchProvider` | `amdwiki.search.provider` |
