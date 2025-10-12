@@ -238,7 +238,7 @@ async loadProvider(componentName) {
 }
 ```
 
-### Supported Providers
+### Possible suported Providers
 
 | Component | Default | Alternatives | Notes |
 |-----------|---------|--------------|-------|
