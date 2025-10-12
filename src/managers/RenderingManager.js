@@ -983,7 +983,7 @@ class RenderingManager extends BaseManager {
         }
 
         // Find wiki-style links including extended pipe syntax
-        const simpleLinkRegex = /\[([a-zA-Z0-9\s_-]+)(?:\|([a-zA-Z0-9\s_\-\/ .:?=&]+))?(?:\|([^|\]]+))?\]/g;
+        const simpleLinkRegex = /\[([a-zA-Z0-9\s_.\-]+)(?:\|([a-zA-Z0-9\s_\-\/ .:?=&]+))?(?:\|([^|\]]+))?\]/g;
         while ((match = simpleLinkRegex.exec(content)) !== null) {
           // For pipe syntax [DisplayText|Target|Parameters], use the target; otherwise use the display text
           const linkedPage = match[2] || match[1];

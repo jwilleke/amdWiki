@@ -65,10 +65,10 @@ class PluginSyntaxHandler extends BaseSyntaxHandler {
     // Second pass: Handle simple plugins [{Plugin params}]
     const matches = [];
     let match;
-    
+
     // Reset regex state
     this.pattern.lastIndex = 0;
-    
+
     while ((match = this.pattern.exec(content)) !== null) {
       matches.push({
         fullMatch: match[0],
@@ -82,25 +82,26 @@ class PluginSyntaxHandler extends BaseSyntaxHandler {
 
     // Process matches in reverse order to maintain string positions
     let processedContent = content;
-    
+
     for (let i = matches.length - 1; i >= 0; i--) {
       const matchInfo = matches[i];
-      
+
       try {
         const replacement = await this.handle(matchInfo, context);
-        
+
         // Replace the match with the plugin output
-        processedContent = 
+        processedContent =
           processedContent.slice(0, matchInfo.index) +
           replacement +
           processedContent.slice(matchInfo.index + matchInfo.length);
-          
+
       } catch (error) {
         console.error(`❌ Plugin execution error for ${matchInfo.pluginName}:`, error.message);
-        
+        console.error(`❌ Stack:`, error.stack);
+
         // Leave original plugin syntax on error for debugging
         const errorPlaceholder = `<!-- Plugin Error: ${matchInfo.pluginName} - ${error.message} -->`;
-        processedContent = 
+        processedContent =
           processedContent.slice(0, matchInfo.index) +
           errorPlaceholder +
           processedContent.slice(matchInfo.index + matchInfo.length);

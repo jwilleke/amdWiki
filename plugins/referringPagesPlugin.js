@@ -36,9 +36,9 @@ function ReferringPagesPlugin(pageName, params, linkGraph) {
     return String(referring.length);
   }
 
-  // If no referring pages, return empty string
+  // If no referring pages, show an informative message (JSPWiki-compatible behavior)
   if (referring.length === 0) {
-    return '';
+    return '<p><em>No pages currently refer to this page.</em></p>';
   }
 
   // Limit and format
@@ -50,8 +50,11 @@ function ReferringPagesPlugin(pageName, params, linkGraph) {
     let processedBefore = before.replace(/\\n/g, '\n').replace(/\\t/g, '\t');
     let processedAfter = after.replace(/\\n/g, '\n').replace(/\\t/g, '\t');
 
+    // Check for list markers BEFORE escaping
+    const isList = processedBefore.includes('*') || processedBefore.includes('-');
+
     // If before contains * or -, create a proper HTML list
-    if (processedBefore.includes('*') || processedBefore.includes('-')) {
+    if (isList) {
       const linksList = referring.map(p =>
         `<li><a class="wikipage" href="/wiki/${encodeURIComponent(p)}">${p}</a></li>`
       ).join('');

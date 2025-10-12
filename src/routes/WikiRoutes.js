@@ -1146,9 +1146,16 @@ class WikiRoutes {
       const systemCategories = await this.getSystemCategories();
       const userKeywords = await this.getUserKeywords();
 
-      // If page doesn't exist, generate template data without saving
+      // If page doesn't exist, create empty page data for new page
       if (!pageData) {
-        pageData = await pageManager.generateTemplateData(pageName);
+        pageData = {
+          content: '',
+          metadata: {
+            title: pageName,
+            created: new Date().toISOString(),
+            author: currentUser.username || 'Anonymous'
+          }
+        };
       }
 
       // Ensure content is a string for ACL processing
