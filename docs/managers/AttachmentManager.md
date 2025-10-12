@@ -48,7 +48,7 @@ Following JSPWiki's attachment management pattern, AttachmentManager:
 
 ## Architecture
 
-```
+```text
 ┌─────────────────────────────────────────────────────────┐
 │                   AttachmentManager                      │
 │  (High-level API, permissions, coordination)            │
@@ -211,7 +211,7 @@ Provider names follow lowercase convention in configuration but are normalized t
 ```
 
 **Storage Structure:**
-```
+```text
 data/attachments/
 ├── metadata.json                    # All attachment metadata
 ├── a8/                             # First 2 chars of hash
@@ -460,7 +460,7 @@ Initialize AttachmentManager with configuration.
 **Parameters:**
 - `config` (Object): Configuration object (usually empty, loaded from ConfigurationManager)
 
-**Returns:** Promise<void>
+**Returns:** ```Promise<void>```
 
 **Example:**
 ```javascript
@@ -495,7 +495,7 @@ Upload an attachment.
   - `description` (string): File description
   - `context` (Object): WikiContext with user information
 
-**Returns:** Promise<Object> - Attachment metadata
+**Returns:** ```Promise<Object>``` - Attachment metadata
 
 **Throws:** Error if permission denied or upload fails
 
@@ -558,7 +558,7 @@ Delete an attachment.
 - `attachmentId` (string): Attachment identifier
 - `userContext` (Object): User context for permission checking
 
-**Returns:** Promise<boolean> - True if deleted, false if not found
+**Returns:** ```Promise<boolean>``` - True if deleted, false if not found
 
 **Throws:** Error if permission denied
 
@@ -579,7 +579,7 @@ Check if attachment exists.
 **Parameters:**
 - `attachmentId` (string): Attachment identifier
 
-**Returns:** Promise<boolean>
+**Returns:** ```Promise<boolean>```
 
 **Example:**
 ```javascript
@@ -594,7 +594,7 @@ if (await attachmentManager.attachmentExists('abc123')) {
 
 Get all attachments metadata (without file data).
 
-**Returns:** Promise<Array<Object>> - Array of attachment metadata
+**Returns:** ```Promise<Array<Object>>``` - Array of attachment metadata
 
 **Example:**
 ```javascript
@@ -611,7 +611,7 @@ Get attachments used by a specific page.
 **Parameters:**
 - `pageName` (string): Page name/title
 
-**Returns:** Promise<Array<Object>> - Array of attachment metadata
+**Returns:** ```Promise<Array<Object>>``` - Array of attachment metadata
 
 **Example:**
 ```javascript
@@ -624,7 +624,7 @@ const attachments = await attachmentManager.getAttachmentsForPage('ProjectDocs')
 
 Refresh internal cache/index by re-scanning storage.
 
-**Returns:** Promise<void>
+**Returns:** ```Promise<void>```
 
 **Example:**
 ```javascript
@@ -637,7 +637,7 @@ await attachmentManager.refreshAttachmentList();
 
 Create backup of all attachment data.
 
-**Returns:** Promise<Object> - Backup data
+**Returns:** ```Promise<Object>``` - Backup data
 
 **Example:**
 ```javascript
@@ -654,7 +654,7 @@ Restore attachments from backup data.
 **Parameters:**
 - `backupData` (Object): Backup data from backup()
 
-**Returns:** Promise<void>
+**Returns:** ```Promise<void>```
 
 **Example:**
 ```javascript
@@ -668,7 +668,7 @@ await attachmentManager.restore(backupData);
 
 Shutdown AttachmentManager and cleanup resources.
 
-**Returns:** Promise<void>
+**Returns:** ```Promise<void>```
 
 **Example:**
 ```javascript
@@ -1030,4 +1030,4 @@ chmod 755 ./data/attachments
 
 **Last Updated:** 2025-10-12
 **Maintainer:** amdWiki Team
-**Issues:** https://github.com/jwilleke/amdWiki/issues
+**Issues:** <https://github.com/jwilleke/amdWiki/issues>

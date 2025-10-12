@@ -272,7 +272,7 @@ class CustomAuditProvider extends BaseAuditProvider {
 module.exports = CustomAuditProvider;
 ```
 
-2. **Add Configuration:**
+#### Add Configuration
 
 ```json
 {
@@ -282,7 +282,7 @@ module.exports = CustomAuditProvider;
 }
 ```
 
-3. **Register Provider:**
+#### Register Provider
 
 Place your provider file in `src/providers/CustomAuditProvider.js`. The AuditManager will automatically discover and load it based on the configuration.
 
@@ -974,7 +974,7 @@ console.log('Provider:', info.name);
 #### 2. FileAuditProvider Health Check Failures
 
 **Symptoms:**
-```
+```text
 [FileAuditProvider] Health check failed: ENOENT: no such file or directory
 ```
 
@@ -1072,7 +1072,7 @@ Enable debug logging to diagnose issues:
 ```
 
 This will output detailed information about audit operations:
-```
+```text
 [FileAuditProvider] Flushed 50 audit events to disk
 [FileAuditProvider] Loaded 1000 recent audit logs
 [AuditManager] Provider health check: true
