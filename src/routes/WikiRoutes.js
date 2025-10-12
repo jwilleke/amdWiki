@@ -3803,6 +3803,10 @@ class WikiRoutes {
     app.get("/api/page-source/:page", (req, res) =>
       this.getPageSource(req, res)
     );
+    console.log("ROUTES DEBUG: Registering /api/page-suggestions route");
+    app.get("/api/page-suggestions", (req, res) =>
+      this.getPageSuggestions(req, res)
+    );
 
     // Public routes
     app.get('/', (req, res) => this.homePage(req, res));
@@ -4543,6 +4547,96 @@ class WikiRoutes {
       res
         .status(500)
         .json({ error: "Internal server error", details: error.message });
+    }
+  }
+
+  /**
+   * API endpoint for page name autocomplete suggestions
+   * GET /api/page-suggestions?q=partial
+   *
+   * Used for:
+   * - Autocomplete when typing [page name] in editor
+   * - Autocomplete in search dialogs
+   *
+   * Related: GitHub Issue #90 - TypeDown for Internal Page Links
+   */
+  async getPageSuggestions(req, res) {
+    try {
+      const query = req.query.q || '';
+      const limit = parseInt(req.query.limit) || 10;
+
+      if (!query || query.length < 2) {
+        return res.json({ suggestions: [] });
+      }
+
+      const searchManager = this.engine.getManager('SearchManager');
+      const pageManager = this.engine.getManager('PageManager');
+
+      if (!searchManager || !pageManager) {
+        return res.status(500).json({ error: 'Search not available' });
+      }
+
+      // Get all page names (getAllPages returns an array of page name strings)
+      const allPageNames = await pageManager.getAllPages();
+
+      // Filter page names that match the query (case-insensitive)
+      const queryLower = query.toLowerCase();
+      const matchingNames = allPageNames
+        .filter(pageName => {
+          if (!pageName || typeof pageName !== 'string') return false;
+          return pageName.toLowerCase().includes(queryLower);
+        })
+        // Sort: exact matches first, then prefix matches, then alphabetical
+        .sort((a, b) => {
+          const aLower = a.toLowerCase();
+          const bLower = b.toLowerCase();
+
+          // Exact match
+          if (aLower === queryLower) return -1;
+          if (bLower === queryLower) return 1;
+
+          // Prefix match
+          const aPrefix = aLower.startsWith(queryLower);
+          const bPrefix = bLower.startsWith(queryLower);
+          if (aPrefix && !bPrefix) return -1;
+          if (!aPrefix && bPrefix) return 1;
+
+          // Alphabetical
+          return aLower.localeCompare(bLower);
+        })
+        .slice(0, limit);
+
+      // Load full details for matching pages
+      const matchingPages = await Promise.all(
+        matchingNames.map(async (pageName) => {
+          try {
+            const page = await pageManager.getPage(pageName);
+            return {
+              name: pageName,
+              slug: page?.metadata?.slug || pageName,
+              title: page?.metadata?.title || pageName,
+              category: page?.metadata?.['system-category'] || page?.metadata?.category || 'general'
+            };
+          } catch (err) {
+            // If page load fails, return basic info
+            return {
+              name: pageName,
+              slug: pageName,
+              title: pageName,
+              category: 'general'
+            };
+          }
+        })
+      );
+
+      res.json({
+        query,
+        suggestions: matchingPages,
+        count: matchingPages.length
+      });
+    } catch (error) {
+      console.error('Error getting page suggestions:', error);
+      res.status(500).json({ error: 'Internal server error', details: error.message });
     }
   }
 }

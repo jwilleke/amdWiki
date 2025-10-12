@@ -323,4 +323,86 @@
     });
 </script>
 
+<!-- Page Link Autocomplete - Issue #90 -->
+<script src="/js/page-autocomplete.js"></script>
+<script>
+    (function() {
+        const contentTextarea = document.getElementById('content');
+        if (!contentTextarea) return;
+
+        // Initialize page autocomplete
+        const autocomplete = new PageAutocomplete({
+            minChars: 2,
+            maxSuggestions: 10,
+            onSelect: function(suggestion) {
+                // Insert selected page name and close bracket
+                insertTextAtCursor(contentTextarea, suggestion.name + ']');
+                updatePreview();
+            }
+        });
+
+        // Helper function to insert text at cursor
+        function insertTextAtCursor(textarea, text) {
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const value = textarea.value;
+
+            textarea.value = value.substring(0, start) + text + value.substring(end);
+            textarea.focus();
+            textarea.setSelectionRange(start + text.length, start + text.length);
+        }
+
+        // Detect bracket typing and show autocomplete
+        contentTextarea.addEventListener('input', function(e) {
+            const cursorPos = contentTextarea.selectionStart;
+            const text = contentTextarea.value;
+
+            // Find last '[' before cursor
+            const lastBracket = text.lastIndexOf('[', cursorPos - 1);
+
+            if (lastBracket >= 0) {
+                // Extract text between '[' and cursor
+                const query = text.substring(lastBracket + 1, cursorPos);
+
+                // Check if we're inside a link (no closing ']' yet)
+                const textAfterBracket = text.substring(lastBracket);
+                const closingBracket = textAfterBracket.indexOf(']');
+
+                // Don't show if there's already a closing bracket before cursor
+                if (closingBracket === -1 || closingBracket > (cursorPos - lastBracket)) {
+                    // Don't show for plugin syntax [{...}] or variable syntax [{$...}]
+                    if (!query.startsWith('{')) {
+                        if (query.length >= 2) {
+                            autocomplete.search(query, contentTextarea);
+                        } else if (query.length < 2) {
+                            autocomplete.hideDropdown();
+                        }
+                    } else {
+                        autocomplete.hideDropdown();
+                    }
+                } else {
+                    autocomplete.hideDropdown();
+                }
+            } else {
+                autocomplete.hideDropdown();
+            }
+        });
+
+        // Handle keyboard navigation in autocomplete
+        contentTextarea.addEventListener('keydown', function(e) {
+            if (autocomplete.handleKeydown(e)) {
+                // Autocomplete handled the key, prevent default
+                e.preventDefault();
+            }
+        });
+
+        // Hide autocomplete when clicking outside
+        document.addEventListener('click', function(e) {
+            if (e.target !== contentTextarea) {
+                autocomplete.hideDropdown();
+            }
+        });
+    })();
+</script>
+
 <%- include('footer') %>

@@ -366,6 +366,52 @@
     </div>
 <% } %>
 
+<!-- Page Link Autocomplete - Issue #90 -->
+<script src="/js/page-autocomplete.js"></script>
+<script>
+// Page autocomplete for search input
+(function() {
+    const searchInput = document.getElementById('query');
+    if (!searchInput) return;
+
+    // Initialize page autocomplete
+    const autocomplete = new PageAutocomplete({
+        minChars: 2,
+        maxSuggestions: 10,
+        onSelect: function(suggestion) {
+            // Navigate directly to the selected page
+            window.location.href = `/wiki/${encodeURIComponent(suggestion.name)}`;
+        }
+    });
+
+    // Show autocomplete as user types
+    searchInput.addEventListener('input', function(e) {
+        const query = searchInput.value.trim();
+
+        if (query.length >= 2) {
+            autocomplete.search(query, searchInput);
+        } else {
+            autocomplete.hideDropdown();
+        }
+    });
+
+    // Handle keyboard navigation in autocomplete
+    searchInput.addEventListener('keydown', function(e) {
+        if (autocomplete.handleKeydown(e)) {
+            // Autocomplete handled the key, prevent default
+            e.preventDefault();
+        }
+    });
+
+    // Hide autocomplete when clicking outside
+    document.addEventListener('click', function(e) {
+        if (e.target !== searchInput) {
+            autocomplete.hideDropdown();
+        }
+    });
+})();
+</script>
+
 <script>
 // Auto-submit form when filters change
 document.addEventListener('DOMContentLoaded', function() {

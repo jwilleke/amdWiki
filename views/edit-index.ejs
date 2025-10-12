@@ -135,4 +135,50 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
+<!-- Page Link Autocomplete - Issue #90 -->
+<script src="/js/page-autocomplete.js"></script>
+<script>
+// Page autocomplete for edit index search
+(function() {
+    const searchInput = document.getElementById('pageSearch');
+    if (!searchInput) return;
+
+    // Initialize page autocomplete
+    const autocomplete = new PageAutocomplete({
+        minChars: 2,
+        maxSuggestions: 10,
+        onSelect: function(suggestion) {
+            // Navigate to edit the selected page
+            window.location.href = `/edit/${encodeURIComponent(suggestion.name)}`;
+        }
+    });
+
+    // Show autocomplete as user types (alongside existing filter)
+    searchInput.addEventListener('input', function(e) {
+        const query = searchInput.value.trim();
+
+        if (query.length >= 2) {
+            autocomplete.search(query, searchInput);
+        } else {
+            autocomplete.hideDropdown();
+        }
+    });
+
+    // Handle keyboard navigation in autocomplete
+    searchInput.addEventListener('keydown', function(e) {
+        if (autocomplete.handleKeydown(e)) {
+            // Autocomplete handled the key, prevent default
+            e.preventDefault();
+        }
+    });
+
+    // Hide autocomplete when clicking outside
+    document.addEventListener('click', function(e) {
+        if (e.target !== searchInput) {
+            autocomplete.hideDropdown();
+        }
+    });
+})();
+</script>
+
 <%- include('footer') %>

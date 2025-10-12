@@ -40,7 +40,7 @@
                 <div class="col-md-6">
                     <form class="form-inline justify-content-center" action="/search" method="GET">
                         <div class="input-group">
-                            <input class="form-control" type="search" placeholder="Search pages..." aria-label="Search" name="q" style="min-width: 300px;">
+                            <input class="form-control" type="search" id="headerSearchInput" placeholder="Search pages..." aria-label="Search" name="q" style="min-width: 300px;">
                             <div class="input-group-append">
                                 <button class="btn" style="background-color: var(--btn-primary-bg); color: var(--btn-primary-text); border-color: var(--btn-primary-border);" type="submit">
                                     <i class="fas fa-search"></i>
@@ -1447,4 +1447,63 @@ function fallbackCopyToClipboard(text) {
     }
     document.body.removeChild(textArea);
 }
+
+// Page autocomplete for header search - Issue #90
+(function() {
+    // Wait for page-autocomplete.js to load
+    function initHeaderAutocomplete() {
+        const headerSearchInput = document.getElementById('headerSearchInput');
+        if (!headerSearchInput || typeof PageAutocomplete === 'undefined') {
+            // Retry after a short delay if script not loaded yet
+            setTimeout(initHeaderAutocomplete, 100);
+            return;
+        }
+
+        // Initialize page autocomplete
+        const autocomplete = new PageAutocomplete({
+            minChars: 2,
+            maxSuggestions: 10,
+            onSelect: function(suggestion) {
+                // Navigate directly to the selected page
+                window.location.href = `/wiki/${encodeURIComponent(suggestion.name)}`;
+            }
+        });
+
+        // Show autocomplete as user types
+        headerSearchInput.addEventListener('input', function(e) {
+            const query = headerSearchInput.value.trim();
+
+            if (query.length >= 2) {
+                autocomplete.search(query, headerSearchInput);
+            } else {
+                autocomplete.hideDropdown();
+            }
+        });
+
+        // Handle keyboard navigation in autocomplete
+        headerSearchInput.addEventListener('keydown', function(e) {
+            if (autocomplete.handleKeydown(e)) {
+                // Autocomplete handled the key, prevent default
+                e.preventDefault();
+            }
+        });
+
+        // Hide autocomplete when clicking outside
+        document.addEventListener('click', function(e) {
+            if (e.target !== headerSearchInput) {
+                autocomplete.hideDropdown();
+            }
+        });
+    }
+
+    // Initialize after DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initHeaderAutocomplete);
+    } else {
+        initHeaderAutocomplete();
+    }
+})();
 </script>
+
+<!-- Page Link Autocomplete - Issue #90 -->
+<script src="/js/page-autocomplete.js"></script>
