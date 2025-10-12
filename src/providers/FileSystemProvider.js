@@ -35,22 +35,32 @@ class FileSystemProvider extends BasePageProvider {
 
   /**
    * Initialize the provider by reading configuration and caching pages.
-   * All configuration access goes through ConfigurationManager.
+   * All configuration access goes through ConfigurationManager (ALL LOWERCASE).
    */
   async initialize() {
     const configManager = this.engine.getManager('ConfigurationManager');
     if (!configManager) {
-      throw new Error('FileSystemProvider requires ConfigurationManager to be initialized.');
+      throw new Error('FileSystemProvider requires ConfigurationManager');
     }
 
-    // Get directory configuration
-    const cfgPath = configManager.getProperty('amdwiki.directories.pages', './pages');
+    // Get directory configuration (ALL LOWERCASE with provider-specific keys)
+    const cfgPath = configManager.getProperty(
+      'amdwiki.page.provider.filesystem.storagedir',
+      './pages'
+    );
     this.pagesDirectory = path.isAbsolute(cfgPath) ? cfgPath : path.join(process.cwd(), cfgPath);
 
-    const reqCfgPath = configManager.getProperty('amdwiki.directories.required-pages', './required-pages');
+    const reqCfgPath = configManager.getProperty(
+      'amdwiki.page.provider.filesystem.requiredpagesdir',
+      './required-pages'
+    );
     this.requiredPagesDirectory = path.isAbsolute(reqCfgPath) ? reqCfgPath : path.join(process.cwd(), reqCfgPath);
 
-    this.encoding = configManager.getProperty('amdwiki.encoding', 'UTF-8');
+    // Get encoding configuration (ALL LOWERCASE)
+    this.encoding = configManager.getProperty(
+      'amdwiki.page.provider.filesystem.encoding',
+      'utf-8'
+    );
 
     // Initialize PageNameMatcher with plural matching config
     const matchEnglishPlurals = configManager.getProperty('amdwiki.translatorReader.matchEnglishPlurals', true);

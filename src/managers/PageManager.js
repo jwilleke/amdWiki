@@ -23,52 +23,87 @@ class PageManager extends BaseManager {
   /**
    * Initialize the PageManager by loading and initializing the configured provider
    */
-  async initialize() {
-    // MUST get configuration via ConfigurationManager
+  async initialize(config = {}) {
+    await super.initialize(config);
+
     const configManager = this.engine.getManager('ConfigurationManager');
     if (!configManager) {
-      throw new Error('PageManager requires ConfigurationManager to be initialized.');
+      throw new Error('PageManager requires ConfigurationManager');
     }
 
-    // Get the provider name from configuration
-    const providerName = configManager.getProperty('amdwiki.pageProvider', 'FileSystemProvider');
+    // Check if page storage is enabled (ALL LOWERCASE)
+    const pageEnabled = configManager.getProperty('amdwiki.page.enabled', true);
+    if (!pageEnabled) {
+      logger.info('📄 PageManager: Page storage disabled by configuration');
+      return;
+    }
 
-    // Load the provider based on configuration
-    this.provider = this.#loadProvider(providerName);
+    // Load provider with fallback (ALL LOWERCASE)
+    const defaultProvider = configManager.getProperty(
+      'amdwiki.page.provider.default',
+      'filesystemprovider'
+    );
+    const providerName = configManager.getProperty(
+      'amdwiki.page.provider',
+      defaultProvider
+    );
 
-    // Initialize the provider (provider will access ConfigurationManager internally)
-    await this.provider.initialize();
+    // Normalize provider name to PascalCase for class loading
+    this.providerClass = this.#normalizeProviderName(providerName);
 
-    const info = this.provider.getProviderInfo();
-    logger.info(`PageManager initialized with ${info.name} v${info.version}`);
-    if (info.features && info.features.length > 0) {
-      logger.info(`Provider features: ${info.features.join(', ')}`);
+    logger.info(`📄 Loading page provider: ${providerName} (${this.providerClass})`);
+
+    // Load and initialize provider
+    try {
+      const ProviderClass = require(`../providers/${this.providerClass}`);
+      this.provider = new ProviderClass(this.engine);
+      await this.provider.initialize();
+
+      const info = this.provider.getProviderInfo();
+      logger.info(`📄 PageManager initialized with ${info.name} v${info.version}`);
+      if (info.features && info.features.length > 0) {
+        logger.info(`📄 Provider features: ${info.features.join(', ')}`);
+      }
+    } catch (error) {
+      logger.error(`📄 Failed to initialize page provider: ${this.providerClass}`, error);
+      throw error;
     }
   }
 
   /**
-   * Load a provider by name
-   * @param {string} providerName - Name of the provider to load
-   * @returns {BasePageProvider} The provider instance
+   * Normalize provider name from configuration (lowercase) to class name (PascalCase)
+   * @param {string} providerName - Provider name from configuration (e.g., 'filesystemprovider')
+   * @returns {string} Normalized class name (e.g., 'FileSystemProvider')
    * @private
    */
-  #loadProvider(providerName) {
-    switch (providerName) {
-      case 'FileSystemProvider':
-        return new FileSystemProvider(this.engine);
-
-      // Future providers can be added here:
-      // case 'DatabaseProvider':
-      //   const DatabaseProvider = require('../providers/DatabaseProvider');
-      //   return new DatabaseProvider(this.engine);
-      //
-      // case 'CloudStorageProvider':
-      //   const CloudStorageProvider = require('../providers/CloudStorageProvider');
-      //   return new CloudStorageProvider(this.engine);
-
-      default:
-        throw new Error(`Unknown page provider: ${providerName}`);
+  #normalizeProviderName(providerName) {
+    if (!providerName) {
+      throw new Error('Provider name cannot be empty');
     }
+
+    const lower = providerName.toLowerCase();
+
+    // Handle special cases for known provider names
+    const knownProviders = {
+      'filesystemprovider': 'FileSystemProvider',
+      'databaseprovider': 'DatabaseProvider',
+      'databasepageprovider': 'DatabasePageProvider',
+      's3provider': 'S3Provider',
+      's3pageprovider': 'S3PageProvider',
+      'cloudstorageprovider': 'CloudStorageProvider'
+    };
+
+    if (knownProviders[lower]) {
+      return knownProviders[lower];
+    }
+
+    // Fallback: Split on common separators and capitalize each word
+    const words = lower.split(/[-_]/);
+    const pascalCase = words
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join('');
+
+    return pascalCase;
   }
 
   /**
