@@ -8,6 +8,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Page Link Autocomplete**: Smart autocomplete for internal page links in editor and search (Issue #90)
+  - **API Endpoint**: `/api/page-suggestions` with smart sorting (exact → prefix → contains)
+  - **Client Module**: Reusable `PageAutocomplete` class with debouncing and keyboard navigation
+  - **Editor Integration**: Bracket detection `[page name]` with real-time suggestions
+  - **Search Integration**: Autocomplete in search page, header search bar, and edit index
+  - **Smart Matching**: Case-insensitive search with category badges and title highlighting
+  - **Keyboard Navigation**: Full keyboard support (↑↓ arrows, Enter, Escape)
+  - **Performance Optimized**: 200ms debounce, efficient filtering, browser caching
+  - **Context-Aware**: Excludes plugin `[{Plugin}]` and variable `[{$var}]` syntax
+  - **Documentation**: Complete user guide, technical docs, and quick reference
+  - **User Guide**: `/wiki/Page%20Link%20Autocomplete` wiki page
+  - **Technical Docs**: `docs/features/PageLinkAutocomplete.md`
+  - **Quick Reference**: `docs/features/PageLinkAutocomplete-QuickReference.md`
+
 - **JSPWiki-Compatible VariableManager System**: Complete variable management system similar to JSPWiki's DefaultVariableManager
   - **VariableManager**: New manager with 18 system variables and 4 contextual variables
   - **Variable Registry**: Function-based registry system for dynamic value generation

@@ -241,6 +241,31 @@ The following scenarios should be manually tested in a browser:
    - [ ] Performance with 90+ pages
    - [ ] No console errors
 
+## Documentation
+
+### User Documentation
+
+- **Wiki Page:** `pages/8f4a9c2d-1b7e-4e8f-9d3a-5c6b8e9f0a1b.md`
+  - Title: "Page Link Autocomplete"
+  - Location: `/wiki/Page%20Link%20Autocomplete`
+  - Audience: End users
+  - Content: User guide, examples, troubleshooting
+
+### Technical Documentation
+
+- **Full Guide:** `docs/features/PageLinkAutocomplete.md`
+  - Complete technical reference
+  - Architecture diagrams
+  - API documentation
+  - Customization guide
+  - Performance metrics
+
+- **Quick Reference:** `docs/features/PageLinkAutocomplete-QuickReference.md`
+  - One-page cheat sheet
+  - Keyboard shortcuts
+  - Common patterns
+  - Troubleshooting tips
+
 ## Related Issues
 
 - #90 - TypeDown for Internal Page Links (this issue)

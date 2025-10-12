@@ -79,6 +79,22 @@ This documentation is organized into several key areas to help you understand, d
 - Inventory tracking problems
 - Maintenance procedures
 
+## ✨ Features
+
+### [Page Link Autocomplete](features/PageLinkAutocomplete.md)
+- Smart page suggestions in editor and search
+- Keyboard navigation and shortcuts
+- API endpoint documentation
+- Customization and performance guide
+- **Quick Reference:** [One-page cheat sheet](features/PageLinkAutocomplete-QuickReference.md)
+- **Related Issue:** [#90 - TypeDown for Internal Page Links](https://github.com/jwilleke/amdWiki/issues/90)
+
+### [Table Styles](features/TableStyles.md)
+- JSPWiki-compatible table formatting
+- Interactive features (sortable, filterable)
+- Custom colors and themes
+- Dark mode support
+
 ## 📝 Additional Resources
 
 ### [Changelog](CHANGELOG.md)
@@ -113,6 +129,7 @@ This documentation is organized into several key areas to help you understand, d
 | Area | Purpose | Key Documents |
 |------|---------|---------------|
 | **Getting Started** | Basic usage and setup | [README.md](../README.md) |
+| **Features** | User features and guides | [Page Link Autocomplete](features/PageLinkAutocomplete.md) |
 | **Architecture** | System design and structure | [Project Structure](architecture/PROJECT-STRUCTURE.md) |
 | **Development** | Coding and contribution | [Contributing](development/CONTRIBUTING.md) |
 | **Planning** | Project vision and tasks | [Roadmap](planning/ROADMAP.md) |
@@ -127,10 +144,16 @@ This documentation is organized into several key areas to help you understand, d
 3. Check [Testing Plan](development/TESTING_PLAN.md)
 4. Look at current [Project Board](planning/PROJECT_BOARD.md)
 
+### For End Users
+1. Check [Features documentation](features/) for user guides
+2. Start with [Page Link Autocomplete](features/PageLinkAutocomplete.md)
+3. See [Table Styles](features/TableStyles.md) for formatting
+
 ### For System Administrators
 1. Review [Project Structure](architecture/PROJECT-STRUCTURE.md)
 2. Check [Attachment Permission Conflicts](issues/ATTACHMENT_PERMISSION_CONFLICTS.md)
 3. Review [Changelog](CHANGELOG.md) for updates
+4. See [Features](features/) for user-facing functionality
 
 ### For Developers
 1. Study [Architecture docs](architecture/)
@@ -156,5 +179,5 @@ When adding new documentation:
 
 ---
 
-*This documentation is maintained alongside the codebase. Last updated: September 14, 2025*</content>
+*This documentation is maintained alongside the codebase. Last updated: October 12, 2025*</content>
 
