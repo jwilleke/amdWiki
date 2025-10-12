@@ -38,23 +38,51 @@ class BasicAttachmentProvider extends BaseAttachmentProvider {
   async initialize() {
     const configManager = this.engine.getManager('ConfigurationManager');
     if (!configManager) {
-      throw new Error('BasicAttachmentProvider requires ConfigurationManager to be initialized.');
+      throw new Error('BasicAttachmentProvider requires ConfigurationManager');
     }
 
-    // Get storage directory configuration
-    const storagePath = configManager.getProperty('amdwiki.basicAttachmentProvider.storageDir', './data/attachments');
-    this.storageDirectory = path.isAbsolute(storagePath) ? storagePath : path.join(process.cwd(), storagePath);
+    // Get storage directory configuration (ALL LOWERCASE)
+    const storagePath = configManager.getProperty(
+      'amdwiki.attachment.provider.basic.storagedir',
+      './data/attachments'
+    );
+    this.storageDirectory = path.isAbsolute(storagePath)
+      ? storagePath
+      : path.join(process.cwd(), storagePath);
 
-    // Get metadata file location
-    const metadataPath = configManager.getProperty('amdwiki.features.attachments.metadatafile', './data/attachments/BasicAttachmentProvider.json');
-    this.metadataFile = path.isAbsolute(metadataPath) ? metadataPath : path.join(process.cwd(), metadataPath);
+    // Get metadata file location (ALL LOWERCASE)
+    const metadataPath = configManager.getProperty(
+      'amdwiki.attachment.metadatafile',
+      './data/attachments/metadata.json'
+    );
+    this.metadataFile = path.isAbsolute(metadataPath)
+      ? metadataPath
+      : path.join(process.cwd(), metadataPath);
 
-    // Get size limits and allowed types
-    const maxSizeStr = configManager.getProperty('amdwiki.features.attachments.maxSize', '10MB');
-    this.maxFileSize = this.#parseSize(maxSizeStr);
+    // Get size limits and allowed types from shared config (ALL LOWERCASE)
+    const maxSizeBytes = configManager.getProperty(
+      'amdwiki.attachment.maxsize',
+      10485760
+    );
+    this.maxFileSize = maxSizeBytes;
 
-    const allowedTypesStr = configManager.getProperty('amdwiki.features.attachments.allowedTypes', '');
-    this.allowedMimeTypes = allowedTypesStr ? allowedTypesStr.split(',').map(t => t.trim()) : [];
+    const allowedTypesStr = configManager.getProperty(
+      'amdwiki.attachment.allowedtypes',
+      ''
+    );
+    this.allowedMimeTypes = allowedTypesStr
+      ? allowedTypesStr.split(',').map(t => t.trim())
+      : [];
+
+    // Get provider-specific settings (ALL LOWERCASE)
+    this.hashContent = configManager.getProperty(
+      'amdwiki.attachment.provider.basic.hashcontent',
+      true
+    );
+    this.hashMethod = configManager.getProperty(
+      'amdwiki.attachment.provider.basic.hashmethod',
+      'sha256'
+    );
 
     // Ensure directories exist
     await fs.ensureDir(this.storageDirectory);
@@ -63,6 +91,7 @@ class BasicAttachmentProvider extends BaseAttachmentProvider {
     logger.info(`[BasicAttachmentProvider] Storage directory: ${this.storageDirectory}`);
     logger.info(`[BasicAttachmentProvider] Metadata file: ${this.metadataFile}`);
     logger.info(`[BasicAttachmentProvider] Max file size: ${this.#formatSize(this.maxFileSize)}`);
+    logger.info(`[BasicAttachmentProvider] Hash method: ${this.hashMethod}`);
 
     // Load metadata
     await this.#loadMetadata();

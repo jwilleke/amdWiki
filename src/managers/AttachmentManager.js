@@ -29,18 +29,36 @@ class AttachmentManager extends BaseManager {
 
     const configManager = this.engine.getManager('ConfigurationManager');
     if (!configManager) {
-      throw new Error('AttachmentManager requires ConfigurationManager to be initialized.');
+      throw new Error('AttachmentManager requires ConfigurationManager');
     }
 
-    // Check if attachments are enabled
-    const attachmentsEnabled = configManager.getProperty('amdwiki.features.attachments.enabled', true);
+    // Check if attachments are enabled (ALL LOWERCASE)
+    const attachmentsEnabled = configManager.getProperty('amdwiki.attachment.enabled', true);
     if (!attachmentsEnabled) {
       logger.info('📎 AttachmentManager: Attachments disabled by configuration');
       return;
     }
 
-    // Get provider class name
-    this.providerClass = configManager.getProperty('amdwiki.attachment.provider', 'BasicAttachmentProvider');
+    // Load provider with fallback (ALL LOWERCASE)
+    const defaultProvider = configManager.getProperty(
+      'amdwiki.attachment.provider.default',
+      'basicattachmentprovider'
+    );
+    const providerName = configManager.getProperty(
+      'amdwiki.attachment.provider',
+      defaultProvider
+    );
+
+    // Normalize provider name to PascalCase for class loading
+    // basicattachmentprovider -> BasicAttachmentProvider
+    this.providerClass = this.#normalizeProviderName(providerName);
+
+    // Load shared attachment settings
+    this.maxSize = configManager.getProperty('amdwiki.attachment.maxsize', 10485760);
+    this.allowedTypes = configManager.getProperty('amdwiki.attachment.allowedtypes', 'image/*,text/*,application/pdf');
+    this.forceDownload = configManager.getProperty('amdwiki.attachment.forcedownload', false);
+
+    logger.info(`📎 Loading attachment provider: ${providerName} (${this.providerClass})`);
 
     // Load and initialize provider
     try {
@@ -49,6 +67,9 @@ class AttachmentManager extends BaseManager {
       await this.attachmentProvider.initialize();
 
       logger.info(`📎 AttachmentManager initialized with ${this.providerClass}`);
+      logger.info(`📎 Max attachment size: ${this.#formatSize(this.maxSize)}`);
+      logger.info(`📎 Allowed types: ${this.allowedTypes}`);
+
       const providerInfo = this.attachmentProvider.getProviderInfo();
       logger.info(`📎 Provider features: ${providerInfo.features.join(', ')}`);
     } catch (error) {
@@ -405,6 +426,54 @@ class AttachmentManager extends BaseManager {
     }
     await super.shutdown();
     logger.info('📎 AttachmentManager shut down');
+  }
+
+  /**
+   * Normalize provider name to PascalCase class name
+   * @param {string} providerName - Lowercase provider name (e.g., 'basicattachmentprovider')
+   * @returns {string} PascalCase class name (e.g., 'BasicAttachmentProvider')
+   * @private
+   */
+  #normalizeProviderName(providerName) {
+    if (!providerName) {
+      throw new Error('Provider name cannot be empty');
+    }
+
+    // Convert to lowercase first to ensure consistency
+    const lower = providerName.toLowerCase();
+
+    // Handle special cases for known provider names
+    const knownProviders = {
+      'basicattachmentprovider': 'BasicAttachmentProvider',
+      'databaseattachmentprovider': 'DatabaseAttachmentProvider',
+      's3attachmentprovider': 'S3AttachmentProvider',
+      'azureblobattachmentprovider': 'AzureBlobAttachmentProvider'
+    };
+
+    if (knownProviders[lower]) {
+      return knownProviders[lower];
+    }
+
+    // Fallback: Split on common separators and capitalize each word
+    const words = lower.split(/[-_]/);
+    const pascalCase = words
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join('');
+
+    return pascalCase;
+  }
+
+  /**
+   * Format byte size to human-readable string
+   * @param {number} bytes - Size in bytes
+   * @returns {string} Formatted size (e.g., "10 MB")
+   * @private
+   */
+  #formatSize(bytes) {
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+    if (bytes === 0) return '0 Bytes';
+    const i = Math.floor(Math.log(bytes) / Math.log(1024));
+    return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
   }
 }
 
