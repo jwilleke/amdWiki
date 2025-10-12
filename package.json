@@ -56,6 +56,7 @@
     "express-session": "^1.18.2",
     "fs-extra": "^11.3.1",
     "gray-matter": "^4.0.3",
+    "linkedom": "^0.18.12",
     "lunr": "^2.3.9",
     "markdownlint": "^0.38.0",
     "multer": "^2.0.2",
