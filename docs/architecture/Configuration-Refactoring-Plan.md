@@ -957,7 +957,6 @@ mv config/app-custom-config.json.new config/app-custom-config.json
 | `amdwiki.luceneSearchProvider.luceneDirectory` | `amdwiki.search.provider.indexdir` |
 
 [... complete mapping table ...]
-```
 
 ### 3.3 Create Migration Script
 
