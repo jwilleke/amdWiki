@@ -1449,16 +1449,15 @@ function fallbackCopyToClipboard(text) {
 }
 
 // Page autocomplete for header search - Issue #90
-function initHeaderAutocomplete() {
-    if (typeof PageAutocomplete === 'undefined') {
-        setTimeout(initHeaderAutocomplete, 100);
-        return;
-    }
-
-    const headerSearchInput = document.getElementById('headerSearchInput');
-    if (!headerSearchInput) {
-        return;
-    }
+(function() {
+    // Wait for page-autocomplete.js to load
+    function initHeaderAutocomplete() {
+        const headerSearchInput = document.getElementById('headerSearchInput');
+        if (!headerSearchInput || typeof PageAutocomplete === 'undefined') {
+            // Retry after a short delay if script not loaded yet
+            setTimeout(initHeaderAutocomplete, 100);
+            return;
+        }
 
         // Initialize page autocomplete
         const autocomplete = new PageAutocomplete({
@@ -1495,13 +1494,16 @@ function initHeaderAutocomplete() {
                 autocomplete.hideDropdown();
             }
         });
-}
+    }
 
-// Initialize after DOM is ready
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initHeaderAutocomplete);
-} else {
-    initHeaderAutocomplete();
-}
+    // Initialize after DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initHeaderAutocomplete);
+    } else {
+        initHeaderAutocomplete();
+    }
+})();
 </script>
 
+<!-- Page Link Autocomplete - Issue #90 -->
+<script src="/js/page-autocomplete.js"></script>

@@ -367,10 +367,14 @@
 <% } %>
 
 <!-- Page Link Autocomplete - Issue #90 -->
-<script src="/js/page-autocomplete.js"></script>
 <script>
 // Page autocomplete for search input
-(function() {
+function initSearchPageAutocomplete() {
+    if (typeof PageAutocomplete === 'undefined') {
+        setTimeout(initSearchPageAutocomplete, 100);
+        return;
+    }
+
     const searchInput = document.getElementById('query');
     if (!searchInput) return;
 
@@ -409,7 +413,13 @@
             autocomplete.hideDropdown();
         }
     });
-})();
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSearchPageAutocomplete);
+} else {
+    initSearchPageAutocomplete();
+}
 </script>
 
 <script>

@@ -136,10 +136,14 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <!-- Page Link Autocomplete - Issue #90 -->
-<script src="/js/page-autocomplete.js"></script>
 <script>
 // Page autocomplete for edit index search
-(function() {
+function initEditIndexAutocomplete() {
+    if (typeof PageAutocomplete === 'undefined') {
+        setTimeout(initEditIndexAutocomplete, 100);
+        return;
+    }
+
     const searchInput = document.getElementById('pageSearch');
     if (!searchInput) return;
 
@@ -178,7 +182,13 @@ document.addEventListener('DOMContentLoaded', function() {
             autocomplete.hideDropdown();
         }
     });
-})();
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initEditIndexAutocomplete);
+} else {
+    initEditIndexAutocomplete();
+}
 </script>
 
 <%- include('footer') %>

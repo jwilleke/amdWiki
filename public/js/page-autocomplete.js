@@ -45,7 +45,7 @@ class PageAutocomplete {
       const data = await response.json();
       return data.suggestions || [];
     } catch (error) {
-      console.error('Error fetching suggestions:', error);
+      console.error('Autocomplete: Error fetching suggestions:', error);
       return [];
     }
   }

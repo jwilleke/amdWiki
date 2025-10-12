@@ -324,11 +324,20 @@
 </script>
 
 <!-- Page Link Autocomplete - Issue #90 -->
-<script src="/js/page-autocomplete.js"></script>
 <script>
-    (function() {
+    // Wait for PageAutocomplete to load (it's in footer.ejs)
+    function initEditPageAutocomplete() {
         const contentTextarea = document.getElementById('content');
-        if (!contentTextarea) return;
+        if (!contentTextarea) {
+            console.error('Autocomplete: content textarea not found');
+            return;
+        }
+
+        // Check if PageAutocomplete is loaded
+        if (typeof PageAutocomplete === 'undefined') {
+            setTimeout(initEditPageAutocomplete, 100);
+            return;
+        }
 
         // Initialize page autocomplete
         const autocomplete = new PageAutocomplete({
@@ -368,8 +377,11 @@
                 const textAfterBracket = text.substring(lastBracket);
                 const closingBracket = textAfterBracket.indexOf(']');
 
-                // Don't show if there's already a closing bracket before cursor
-                if (closingBracket === -1 || closingBracket > (cursorPos - lastBracket)) {
+                // Allow autocomplete if:
+                // 1. No closing bracket exists, OR
+                // 2. Closing bracket is after cursor (we're inside the link), OR
+                // 3. Closing bracket is exactly at cursor (auto-paired bracket)
+                if (closingBracket === -1 || closingBracket >= (cursorPos - lastBracket)) {
                     // Don't show for plugin syntax [{...}] or variable syntax [{$...}]
                     if (!query.startsWith('{')) {
                         if (query.length >= 2) {
@@ -402,7 +414,14 @@
                 autocomplete.hideDropdown();
             }
         });
-    })();
+    }
+
+    // Start initialization when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initEditPageAutocomplete);
+    } else {
+        initEditPageAutocomplete();
+    }
 </script>
 
 <%- include('footer') %>

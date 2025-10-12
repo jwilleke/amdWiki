@@ -94,6 +94,7 @@ checkAndCreatePidLock();
   // 2. Setup View Engine and Middleware
   app.set('views', path.join(__dirname, 'views')); // Correct path for views
   app.set('view engine', 'ejs');
+  app.set('view cache', false); // Disable template caching for development
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
   app.use(express.static(path.join(__dirname, 'public')));
