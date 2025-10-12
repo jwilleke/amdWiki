@@ -8,36 +8,39 @@ const { Tokenizer, TokenType } = require('../Tokenizer');
 describe('Token Recognition', () => {
   describe('Escaped text [[...]]', () => {
     test('parses simple escaped text', () => {
-      const tokenizer = new Tokenizer('[[escaped text]]');
+      // Syntax: [[content] outputs [content]
+      const tokenizer = new Tokenizer('[[escaped text]');
       const tokens = tokenizer.tokenize();
 
       expect(tokens).toHaveLength(2); // ESCAPED + EOF
       expect(tokens[0].type).toBe(TokenType.ESCAPED);
-      expect(tokens[0].value).toBe('escaped text');
+      expect(tokens[0].value).toBe('[escaped text]'); // [[ outputs [, content is literal
     });
 
     test('handles escaped brackets with special chars', () => {
-      const tokenizer = new Tokenizer('[[{$variable} [link] __bold__]]');
+      // Syntax: [[content] outputs [content], treating content as literal
+      const tokenizer = new Tokenizer('[[{$variable} [link] __bold__]');
       const tokens = tokenizer.tokenize();
 
       expect(tokens).toHaveLength(2);
       expect(tokens[0].type).toBe(TokenType.ESCAPED);
-      expect(tokens[0].value).toBe('{$variable} [link] __bold__');
+      expect(tokens[0].value).toBe('[{$variable} [link] __bold__]');
     });
 
     test('handles multiple escaped sections', () => {
-      const tokenizer = new Tokenizer('text [[escaped1]] more [[escaped2]]');
+      // Syntax: [[content] outputs [content]
+      const tokenizer = new Tokenizer('text [[escaped1] more [[escaped2]');
       const tokens = tokenizer.tokenize();
 
       expect(tokens.filter(t => t.type === TokenType.ESCAPED)).toHaveLength(2);
-      expect(tokens[1].value).toBe('escaped1');
-      expect(tokens[3].value).toBe('escaped2');
+      expect(tokens[1].value).toBe('[escaped1]');
+      expect(tokens[3].value).toBe('[escaped2]');
     });
   });
 
-  describe('Variables {$...}', () => {
+  describe('Variables [{$...}]', () => {
     test('parses simple variable', () => {
-      const tokenizer = new Tokenizer('{$username}');
+      const tokenizer = new Tokenizer('[{$username}]');
       const tokens = tokenizer.tokenize();
 
       expect(tokens[0].type).toBe(TokenType.VARIABLE);
@@ -46,7 +49,7 @@ describe('Token Recognition', () => {
     });
 
     test('parses multiple variables', () => {
-      const tokenizer = new Tokenizer('Hello {$name}, your score is {$score}');
+      const tokenizer = new Tokenizer('Hello [{$name}], your score is [{$score}]');
       const tokens = tokenizer.tokenize();
 
       const varTokens = tokens.filter(t => t.type === TokenType.VARIABLE);
@@ -241,7 +244,7 @@ describe('Token Recognition', () => {
   describe('Complex wiki markup', () => {
     test('parses mixed content correctly', () => {
       const input = `!!! Title
-This is [[escaped [link] text]] and {$variable}.
+This is [[escaped [link] text]] and [{$variable}].
 Some __bold__ text here
 [HomePage|Click here]`;
 
@@ -270,7 +273,8 @@ Some __bold__ text here
 
     test('handles escaped text correctly (key feature)', () => {
       // This is the critical test - escaped text should NOT be parsed
-      const input = 'Before [[no {$var} or [link] here]] after';
+      // Syntax: [[content] outputs [content] as literal text
+      const input = 'Before [[no [{$var}] or [link] here] after';
       const tokenizer = new Tokenizer(input);
       const tokens = tokenizer.tokenize();
 
@@ -278,7 +282,7 @@ Some __bold__ text here
       expect(tokens).toHaveLength(4);
       expect(tokens[0].type).toBe(TokenType.TEXT);
       expect(tokens[1].type).toBe(TokenType.ESCAPED);
-      expect(tokens[1].value).toBe('no {$var} or [link] here');
+      expect(tokens[1].value).toBe('[no [{$var}] or [link] here]'); // [[ outputs [, content is literal
       expect(tokens[2].type).toBe(TokenType.TEXT);
 
       // Verify no VARIABLE or LINK tokens were created

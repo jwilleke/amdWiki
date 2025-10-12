@@ -27,11 +27,8 @@ class DOMVariableHandler {
    * Initializes the handler
    */
   async initialize() {
-    this.variableManager = this.engine.getManager('VariableManager');
-
-    if (!this.variableManager) {
-      console.warn('⚠️  DOMVariableHandler: VariableManager not available');
-    }
+    // VariableManager may not be available yet during initialization
+    // We'll get it dynamically during processing
   }
 
   /**
@@ -45,6 +42,11 @@ class DOMVariableHandler {
    * @returns {WikiDocument} Updated WikiDocument
    */
   async processVariables(wikiDocument, context) {
+    // Get VariableManager dynamically (it might not be available during initialization)
+    if (!this.variableManager) {
+      this.variableManager = this.engine.getManager('VariableManager');
+    }
+
     if (!this.variableManager) {
       console.warn('⚠️  DOMVariableHandler: Cannot process variables without VariableManager');
       return wikiDocument;

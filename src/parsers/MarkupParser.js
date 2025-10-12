@@ -177,16 +177,9 @@ class MarkupParser extends BaseManager {
       return;
     }
 
-    // Register EscapedSyntaxHandler first (highest priority for double bracket escaping)
-    const EscapedSyntaxHandler = require('./handlers/EscapedSyntaxHandler');
-    const escapedHandler = new EscapedSyntaxHandler();
-
-    try {
-      await this.registerHandler(escapedHandler);
-      console.log('🔓 EscapedSyntaxHandler registered successfully');
-    } catch (error) {
-      console.warn('⚠️  Failed to register EscapedSyntaxHandler:', error.message);
-    }
+    // NOTE: EscapedSyntaxHandler and VariableSyntaxHandler removed in favor of DOM-based parsing
+    // See Issue #110 - JSPWiki Variable Syntax
+    // The DOM parser (Phase 0) handles escaping and variables without regex interference
 
     // Register JSPWikiPreprocessor (Phase 1) - processes %%.../%% blocks and tables BEFORE markdown
     const JSPWikiPreprocessor = require('./handlers/JSPWikiPreprocessor');
@@ -203,7 +196,7 @@ class MarkupParser extends BaseManager {
     if (this.config.handlers.plugin.enabled) {
       const PluginSyntaxHandler = require('./handlers/PluginSyntaxHandler');
       const pluginHandler = new PluginSyntaxHandler(this.engine);
-      
+
       try {
         await this.registerHandler(pluginHandler);
         console.log('🔌 PluginSyntaxHandler registered successfully');
@@ -740,43 +733,133 @@ class MarkupParser extends BaseManager {
   }
 
   /**
-   * Phase 0: DOM Parsing (NEW)
-   * Use DOMParser to create initial DOM structure
-   * This replaces fragile string-based parsing and fixes [[]] escaping issues
+   * Process JSPWiki-specific syntax (variables, plugins, escaping)
+   * This handles [{$var}], [{Plugin}], and [[escaped]] without breaking markdown
+   *
+   * Related: GitHub Issue #110 - JSPWiki Variable Syntax
+   */
+  async processJSPWikiSyntax(content, context) {
+    let processed = content;
+
+    // Step 1: Protect escaped syntax from further processing
+    // Replace [[content] with placeholders, storing the unescaped content
+    const escapedPlaceholders = new Map();
+    let escapedIndex = 0;
+
+    processed = processed.replace(/\[\[([^\]]+)\]/g, (match, innerContent) => {
+      const placeholder = `__ESCAPED_${escapedIndex}__`;
+      // Store with HTML-encoded brackets to prevent later handlers from processing
+      // [{...}] becomes &#91;{...}&#93; which displays as [{...}] but won't match [...]  patterns
+      escapedPlaceholders.set(placeholder, `&#91;${innerContent}&#93;`);
+      escapedIndex++;
+      return placeholder;
+    });
+
+    // Step 2: Handle variables [{$varname}]
+    const variableManager = this.engine.getManager('VariableManager');
+    if (variableManager && variableManager.variableHandlers) {
+      // Match [{$word}] pattern only
+      processed = processed.replace(/\[\{\$(\w+)\}\]/g, (match, varName) => {
+        const handler = variableManager.variableHandlers.get(varName.toLowerCase());
+        if (handler) {
+          try {
+            const value = handler(context);
+            return value !== undefined && value !== null ? String(value) : match;
+          } catch (error) {
+            console.error(`Error resolving variable ${varName}:`, error);
+            return match;
+          }
+        }
+        return match; // Variable not found, keep original
+      });
+    }
+
+    // Step 3: Handle plugins [{PluginName param=value}]
+    const pluginManager = this.engine.getManager('PluginManager');
+    if (pluginManager) {
+      // Match [{word ...}] pattern (not starting with $)
+      const pluginRegex = /\[\{([A-Z]\w+)(\s+[^\}]+)?\}\]/g;
+      const matches = [];
+      let match;
+
+      // Collect all plugin matches
+      while ((match = pluginRegex.exec(processed)) !== null) {
+        matches.push({
+          fullMatch: match[0],
+          pluginName: match[1],
+          paramsString: match[2] || '',
+          index: match.index
+        });
+      }
+
+      // Process plugins in reverse order to maintain string positions
+      for (let i = matches.length - 1; i >= 0; i--) {
+        const m = matches[i];
+        try {
+          // Parse parameters
+          const params = {};
+          if (m.paramsString) {
+            const paramPairs = m.paramsString.trim().split(/\s+/);
+            for (const pair of paramPairs) {
+              const [key, value] = pair.split('=');
+              if (key && value) {
+                params[key] = value.replace(/^['"]|['"]$/g, '');
+              }
+            }
+          }
+
+          // Execute plugin
+          const result = await pluginManager.execute(m.pluginName, context.pageName || 'Unknown', params, {
+            engine: this.engine,
+            context
+          });
+
+          // Replace in string
+          processed = processed.substring(0, m.index) + result + processed.substring(m.index + m.fullMatch.length);
+        } catch (error) {
+          console.error(`Error executing plugin ${m.pluginName}:`, error);
+          // Leave original syntax on error
+        }
+      }
+    }
+
+    // Step 4: Restore escaped content (now protected from processing)
+    for (const [placeholder, escapedContent] of escapedPlaceholders) {
+      processed = processed.replace(placeholder, escapedContent);
+    }
+
+    return processed;
+  }
+
+  /**
+   * Phase 0: DOM Parsing (DISABLED - causes markdown heading issues)
+   *
+   * The DOM parser converts markdown headings to list items. Instead, we handle
+   * JSPWiki syntax (variables, plugins, escaping) in later phases while preserving
+   * markdown syntax for the markdown converter.
    *
    * Related: GitHub Issue #93 - DOM-Based Parsing Architecture
+   * Related: GitHub Issue #110 - JSPWiki Variable Syntax
    */
   async phaseDOMParsing(content, context) {
-    try {
-      // Use DOMParser to parse content into WikiDocument
-      const wikiDocument = this.domParser.parse(content, context);
-
-      // Store WikiDocument in context for potential use by handlers
-      context.wikiDocument = wikiDocument;
-
-      // Serialize to HTML for further processing by existing handlers
-      const html = wikiDocument.toHTML();
-
-      console.log(`🎯 Phase 0: DOM parsing complete - ${wikiDocument.getChildCount()} root nodes`);
-
-      return html;
-
-    } catch (error) {
-      console.error('❌ Error in DOM parsing phase:', error);
-      // On error, return original content
-      return content;
-    }
+    // DISABLED: DOM parser breaks markdown headings
+    // JSPWiki syntax will be handled by string-based preprocessing in Phase 1
+    return content;
   }
 
   /**
    * Phase 1: Preprocessing
    * Handle JSPWiki-specific escaping and normalize content
    * Protect code blocks from WikiStyleHandler and other Phase 3 handlers
+   * Process variables and escaped syntax without interfering with markdown
    */
   async phasePreprocessing(content, context) {
     let processedContent = content;
 
-    // Process ALL Phase 1 handlers in priority order
+    // Step 1: Process JSPWiki-specific syntax BEFORE any other handlers
+    processedContent = await this.processJSPWikiSyntax(processedContent, context);
+
+    // Step 2: Process ALL Phase 1 handlers in priority order
     const phase1Handlers = this.handlerRegistry.resolveExecutionOrder()
       .filter(handler => handler.phase === 1);
 
@@ -854,14 +937,9 @@ class MarkupParser extends BaseManager {
         // Fall through to string-based expansion as fallback
       }
     } else {
-      // Legacy: String-based variable expansion for backward compatibility
-      const variableManager = this.engine.getManager('VariableManager');
-      if (variableManager) {
-        // Expand system variables - pass the full context which includes both pageContext and ParseContext properties
-        // The ParseContext has: pageName, userName, userContext, requestInfo extracted from pageContext
-        content = variableManager.expandVariables(content, context);
-        console.log('✅ Phase 3: String-based variable resolution (legacy)');
-      }
+      // Phase 1 now handles JSPWiki variable syntax, so Phase 3 is skipped
+      // This prevents double-processing of variables and respects escaped syntax
+      console.log('✅ Phase 3: Skipped (variables already processed in Phase 1)');
     }
 
     return content;

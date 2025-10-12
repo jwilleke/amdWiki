@@ -115,7 +115,7 @@ describe('DOMParser', () => {
     });
 
     test('parses variables', () => {
-      const wikiDoc = parser.parse('Hello [{$username}]!');
+      const wikiDoc = parser.parse('Hello {$username}!');
       const html = wikiDoc.toHTML();
       expect(html).toContain('wiki-variable');
       expect(html).toContain('data-variable="username"');
@@ -157,11 +157,11 @@ describe('DOMParser', () => {
     });
 
     test('escaped content is not parsed', () => {
-      const wikiDoc = parser.parse('Before [[[{$variable}] and [link]]] after');
+      const wikiDoc = parser.parse('Before [[{$variable} and [link]]] after');
       const html = wikiDoc.toHTML();
 
       // Should contain the literal text
-      expect(html).toContain('[{$variable}]');
+      expect(html).toContain('{$variable}');
       expect(html).toContain('[link]');
 
       // Should NOT have parsed elements
@@ -209,9 +209,9 @@ This is a paragraph with __bold__ and ''italic'' text.
 
 Here's a link to [HomePage|the home page].
 
-And a variable: [{$username}]
+And a variable: {$username}
 
-[[Escaped content with [{$var}] should not be parsed]]
+[[Escaped content with {$var} should not be parsed]]
 
 {{{
 // Code block
@@ -232,7 +232,7 @@ function hello() {
       expect(html).toContain('Nested item');
       expect(html).toContain('wiki-link');
       expect(html).toContain('wiki-variable');
-      expect(html).toContain('[{$var}]'); // Escaped variable
+      expect(html).toContain('{$var}'); // Escaped variable
       expect(html).toContain('<pre');
       expect(html).toContain('function hello()');
     });

@@ -27,11 +27,8 @@ class DOMPluginHandler {
    * Initializes the handler
    */
   async initialize() {
-    this.pluginManager = this.engine.getManager('PluginManager');
-
-    if (!this.pluginManager) {
-      console.warn('⚠️  DOMPluginHandler: PluginManager not available');
-    }
+    // PluginManager may not be available yet during initialization
+    // We'll get it dynamically during processing
   }
 
   /**
@@ -45,6 +42,11 @@ class DOMPluginHandler {
    * @returns {Promise<WikiDocument>} Updated WikiDocument
    */
   async processPlugins(wikiDocument, context) {
+    // Get PluginManager dynamically (it might not be available during initialization)
+    if (!this.pluginManager) {
+      this.pluginManager = this.engine.getManager('PluginManager');
+    }
+
     if (!this.pluginManager) {
       console.warn('⚠️  DOMPluginHandler: Cannot process plugins without PluginManager');
       return wikiDocument;

@@ -93,7 +93,7 @@ describe('MarkupParser - DOM Integration', () => {
     });
 
     test('parses variables', async () => {
-      const result = await parser.parse('Hello [{$username}]!');
+      const result = await parser.parse('Hello {$username}!');
       expect(result).toContain('wiki-variable');
       expect(result).toContain('data-variable="username"');
     });
@@ -112,10 +112,10 @@ describe('MarkupParser - DOM Integration', () => {
     });
 
     test('escaped content is NOT parsed', async () => {
-      const result = await parser.parse('Before [[[{$variable}] and [link]]] after');
+      const result = await parser.parse('Before [[{$variable} and [link]]] after');
 
       // Should contain literal text
-      expect(result).toContain('[{$variable}]');
+      expect(result).toContain('{$variable}');
       expect(result).toContain('[link]');
 
       // Should NOT have multiple parsed elements for the escaped content

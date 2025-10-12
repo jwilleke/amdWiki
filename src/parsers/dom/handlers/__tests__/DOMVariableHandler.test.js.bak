@@ -116,19 +116,19 @@ describe('DOMVariableHandler', () => {
   describe('processVariables()', () => {
     test('processes single variable', async () => {
       // Parse markup with variable
-      const wikiDoc = parser.parse('Hello [{$username}]!', { userName: 'Bob' });
+      const wikiDoc = parser.parse('Hello {$username}!', { userName: 'Bob' });
 
       // Process variables
       await handler.processVariables(wikiDoc, { userName: 'Bob' });
 
       const html = wikiDoc.toHTML();
       expect(html).toContain('Bob');
-      expect(html).not.toContain('[{$username}]');
+      expect(html).not.toContain('{$username}');
     });
 
     test('processes multiple variables', async () => {
       const wikiDoc = parser.parse(
-        'User: [{$username}], Page: [{$pagename}], Date: [{$date}]',
+        'User: {$username}, Page: {$pagename}, Date: {$date}',
         { userName: 'Charlie', pageName: 'HomePage' }
       );
 
@@ -144,14 +144,14 @@ describe('DOMVariableHandler', () => {
     });
 
     test('handles unknown variables gracefully', async () => {
-      const wikiDoc = parser.parse('Value: [{$unknown}]', {});
+      const wikiDoc = parser.parse('Value: {$unknown}', {});
 
       const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
 
       await handler.processVariables(wikiDoc, {});
 
       const html = wikiDoc.toHTML();
-      expect(html).toContain('{$unknown}'); // Original variable name preserved
+      expect(html).toContain('{$unknown}'); // Original syntax preserved
 
       expect(consoleSpy).toHaveBeenCalledWith(
         expect.stringContaining('Variable not found: unknown')
@@ -161,7 +161,7 @@ describe('DOMVariableHandler', () => {
     });
 
     test('handles variable resolution errors', async () => {
-      const wikiDoc = parser.parse('Error: [{$error}]', {});
+      const wikiDoc = parser.parse('Error: {$error}', {});
 
       const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
 
@@ -188,7 +188,7 @@ describe('DOMVariableHandler', () => {
     test('warns if VariableManager not available', async () => {
       handler.variableManager = null;
 
-      const wikiDoc = parser.parse('[{$username}]', {});
+      const wikiDoc = parser.parse('{$username}', {});
       const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
 
       await handler.processVariables(wikiDoc, {});
@@ -199,7 +199,7 @@ describe('DOMVariableHandler', () => {
 
     test('processes variables in different contexts', async () => {
       const wikiDoc = parser.parse(
-        'App: [{$appname}] v[{$version}]',
+        'App: {$appname} v{$version}',
         {}
       );
 
@@ -214,7 +214,7 @@ describe('DOMVariableHandler', () => {
   describe('getStatistics()', () => {
     test('returns statistics for document with variables', async () => {
       const wikiDoc = parser.parse(
-        '[{$username}] logged in on [{$date}]. Page: [{$username}]',
+        '{$username} logged in on {$date}. Page: {$username}',
         {}
       );
 
@@ -236,7 +236,7 @@ describe('DOMVariableHandler', () => {
     });
 
     test('tracks resolved vs unresolved variables', async () => {
-      const wikiDoc = parser.parse('[{$username}] and [{$unknown}]', {});
+      const wikiDoc = parser.parse('{$username} and {$unknown}', {});
 
       await handler.processVariables(wikiDoc, { userName: 'Dave' });
 
@@ -252,7 +252,7 @@ describe('DOMVariableHandler', () => {
     test('variables adjacent to headings', async () => {
       // Note: Variables inside heading text are not yet tokenized separately
       // This is a Phase 3.1 enhancement - nested inline element tokenization
-      const wikiDoc = parser.parse('!!! Welcome\n[{$username}] on this page', { userName: 'Eve' });
+      const wikiDoc = parser.parse('!!! Welcome\n{$username} on this page', { userName: 'Eve' });
 
       await handler.processVariables(wikiDoc, { userName: 'Eve' });
 
@@ -264,7 +264,7 @@ describe('DOMVariableHandler', () => {
     test('variables adjacent to lists', async () => {
       // Note: Variables inside list item text are not yet tokenized separately
       // Phase 3.1 will add support for nested inline tokenization
-      const wikiDoc = parser.parse('* Item one\n\n[{$username}] and [{$date}]', {});
+      const wikiDoc = parser.parse('* Item one\n\n{$username} and {$date}', {});
 
       await handler.processVariables(wikiDoc, { userName: 'Frank' });
 
@@ -277,7 +277,7 @@ describe('DOMVariableHandler', () => {
       // Note: Variables inside table cells are currently not tokenized separately
       // This is a limitation of the current tokenizer - table cells are atomic tokens
       // TODO: Phase 3.1 - Enhance tokenizer for nested inline elements
-      const wikiDoc = parser.parse('[{$username}] on\n\n| Cell 1 | Cell 2 |\n\nand [{$pagename}]', {});
+      const wikiDoc = parser.parse('{$username} on\n\n| Cell 1 | Cell 2 |\n\nand {$pagename}', {});
 
       await handler.processVariables(wikiDoc, {
         userName: 'Grace',
@@ -292,7 +292,7 @@ describe('DOMVariableHandler', () => {
     test('variables with adjacent formatting', async () => {
       // Variables work when adjacent to formatting, not nested inside
       // Nested variables in formatting is a Phase 3.1 enhancement
-      const wikiDoc = parser.parse("[{$username}] __is bold__ and [{$pagename}] ''is italic''", {});
+      const wikiDoc = parser.parse("{$username} __is bold__ and {$pagename} ''is italic''", {});
 
       await handler.processVariables(wikiDoc, {
         userName: 'Henry',
@@ -309,20 +309,20 @@ describe('DOMVariableHandler', () => {
 
   describe('Escaped Content', () => {
     test('does NOT process variables in escaped content', async () => {
-      const wikiDoc = parser.parse('[[[{$username}] should not be processed]]', {});
+      const wikiDoc = parser.parse('[[{$username} should not be processed]]', {});
 
       await handler.processVariables(wikiDoc, { userName: 'Iris' });
 
       const html = wikiDoc.toHTML();
       // Should contain the literal variable syntax
-      expect(html).toContain('[{$username}]');
+      expect(html).toContain('{$username}');
       // Should NOT contain the resolved value
       expect(html).not.toContain('Iris');
     });
 
     test('processes variables outside escaped content but not inside', async () => {
       const wikiDoc = parser.parse(
-        '[{$username}] says [[[{$pagename}] is escaped]]',
+        '{$username} says [[{$pagename} is escaped]]',
         {}
       );
 
@@ -335,14 +335,14 @@ describe('DOMVariableHandler', () => {
       // Outside escaped: resolved
       expect(html).toContain('Jack');
       // Inside escaped: NOT resolved
-      expect(html).toContain('[{$pagename}]');
+      expect(html).toContain('{$pagename}');
       expect(html).not.toContain('SecretPage');
     });
   });
 
   describe('Performance', () => {
     test('handles many variables efficiently', async () => {
-      const vars = Array(100).fill(0).map((_, i) => `[{$username}]`).join(' ');
+      const vars = Array(100).fill(0).map((_, i) => `{$username}`).join(' ');
       const wikiDoc = parser.parse(vars, {});
 
       const start = Date.now();

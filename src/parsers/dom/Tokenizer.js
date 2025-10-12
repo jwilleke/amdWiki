@@ -24,6 +24,7 @@ const TokenType = {
   ESCAPED: 'ESCAPED',
   VARIABLE: 'VARIABLE',
   PLUGIN: 'PLUGIN',
+  METADATA: 'METADATA',
   WIKI_TAG: 'WIKI_TAG',
   LINK: 'LINK',
   INTERWIKI: 'INTERWIKI',
@@ -400,18 +401,17 @@ class Tokenizer {
       return this.parseEscapedToken();
     }
 
-    // Variables: {$variable}
-    if (this.match('{$')) {
-      return this.parseVariableToken();
-    }
-
-    // Plugins: [{INSERT ...}]
+    // JSPWiki-style directives: [{...}]
+    // - [{$variable}] → Variable
+    // - [{SET name=value}] → Metadata
+    // - [{PluginName params}] → Plugin
     if (this.match('[{')) {
-      return this.parsePluginToken();
+      return this.parseBracketDirective();
     }
 
     // Wiki tags: [tag ...]
-    if (char === '[' && !this.match('[[')) {
+    // BUT NOT [[escaped or [{directive}]
+    if (char === '[' && !this.match('[[') && !this.match('[{')) {
       return this.parseWikiTagToken();
     }
 
@@ -477,34 +477,94 @@ class Tokenizer {
   }
 
   /**
-   * Parse escaped text: [[text]]
-   * This is the key feature - escaped brackets for literal text
+   * Parse escaped text: [[text]
+   * Syntax: [[content] where [[ outputs literal [
+   * Everything between [[ and ] is treated as plain text
+   * Example: [[{$variable}] renders as literal [{$variable}]
    * @returns {Token} Escaped token
    */
   parseEscapedToken() {
     const pos = this.getPosition();
     this.expect('[['); // consume [[
 
-    const content = this.readUntil(']]');
-    this.expect(']]'); // consume ]]
+    // Read until closing ] (syntax: [[content] outputs [content])
+    // JSPWiki: [[ outputs [, everything until matching ] is literal
+    // Need to handle nested brackets: [[text [link] more]
+    const content = [];
+    let bracketDepth = 0;
+
+    while (!this.isEOF()) {
+      const char = this.peekChar();
+
+      if (char === '[') {
+        // Nested opening bracket - increment depth
+        bracketDepth++;
+        content.push(this.nextChar());
+      } else if (char === ']') {
+        if (bracketDepth > 0) {
+          // This ] closes a nested [
+          bracketDepth--;
+          content.push(this.nextChar());
+        } else {
+          // This ] closes the escaped section
+          content.push(this.nextChar()); // include ] in output
+          break;
+        }
+      } else {
+        // Regular character
+        content.push(this.nextChar());
+      }
+    }
+
+    // If we reached EOF without finding ], that's OK - just return what we have
+    // JSPWiki is lenient with unclosed brackets
 
     return {
       type: TokenType.ESCAPED,
-      value: content,
+      value: '[' + content.join(''), // Output [content] (with closing ])
       ...pos
     };
   }
 
   /**
-   * Parse variable: {$varname}
+   * Parse bracket directive [{...}]
+   * Determines type based on content:
+   * - [{$...}] → Variable
+   * - [{SET ...}] → Metadata
+   * - [{...}] → Plugin
+   * @returns {Token} Directive token
+   */
+  parseBracketDirective() {
+    const pos = this.getPosition();
+    this.expect('[{');
+
+    // Peek ahead to determine type
+    const firstChar = this.peekChar();
+
+    if (firstChar === '$') {
+      // Variable: [{$varname}]
+      return this.parseVariableToken(pos);
+    } else if (this.match('SET')) {
+      // Metadata: [{SET name=value}]
+      return this.parseMetadataToken(pos);
+    } else {
+      // Plugin: [{PluginName params}]
+      return this.parsePluginToken(pos);
+    }
+  }
+
+  /**
+   * Parse variable: [{$varname}]
+   * Called after [{has been consumed
+   * @param {Object} pos - Position object
    * @returns {Token} Variable token
    */
-  parseVariableToken() {
-    const pos = this.getPosition();
-    this.expect('{$');
+  parseVariableToken(pos) {
+    // Consume the $
+    this.expect('$');
 
-    const varName = this.readUntil('}');
-    this.expect('}');
+    const varName = this.readUntil('}]');
+    this.expect('}]');
 
     return {
       type: TokenType.VARIABLE,
@@ -515,13 +575,33 @@ class Tokenizer {
   }
 
   /**
-   * Parse plugin: [{PLUGIN param1=value1}]
+   * Parse metadata: [{SET name=value}]
+   * Called after [{ has been consumed
+   * @param {Object} pos - Position object
+   * @returns {Token} Metadata token
+   */
+  parseMetadataToken(pos) {
+    this.expect('SET');
+    this.skipWhitespace();
+
+    const content = this.readUntil('}]');
+    this.expect('}]');
+
+    return {
+      type: TokenType.METADATA,
+      value: content.trim(),
+      ...pos,
+      metadata: { metadataContent: content.trim() }
+    };
+  }
+
+  /**
+   * Parse plugin: [{PluginName param1=value1}]
+   * Called after [{ has been consumed
+   * @param {Object} pos - Position object
    * @returns {Token} Plugin token
    */
-  parsePluginToken() {
-    const pos = this.getPosition();
-    this.expect('[{');
-
+  parsePluginToken(pos) {
     const content = this.readUntil('}]');
     this.expect('}]');
 
@@ -744,15 +824,14 @@ class Tokenizer {
       // Check for special character sequences
       if (char === '\n' ||
           this.match('[[') ||
-          this.match('{$') ||
-          this.match('[{') ||
+          this.match('[{') ||  // Variable syntax
           this.match('<!--') ||
           (this.isLineStart() && (char === '!' || char === '*' || char === '#')) ||
           char === '|' ||
           this.match('__') ||
           this.match("''") ||
           this.match('{{') ||
-          char === '[') {
+          (char === '[' && !this.match('[[') && !this.match('[{'))) {  // [ but not [[ or [{
         break;
       }
 
