@@ -20,6 +20,8 @@ const ExportManager = require('./managers/ExportManager');
 const TemplateManager = require('./managers/TemplateManager');
 const AttachmentManager = require('./managers/AttachmentManager');
 const BackupManager = require('./managers/BackupManager');
+const CacheManager = require('./managers/CacheManager');
+const AuditManager = require('./managers/AuditManager');
 
 // Parsers
 const MarkupParser = require('./parsers/MarkupParser');
@@ -65,11 +67,15 @@ class WikiEngine extends Engine {
     this.registerManager('ConfigurationManager', new ConfigurationManager(this));
     await this.getManager('ConfigurationManager').initialize(config);
 
-    // 2. Initialize UserManager early as it's critical for security and context
+    // 2. Initialize CacheManager early so other managers can use caching
+    this.registerManager('CacheManager', new CacheManager(this));
+    await this.getManager('CacheManager').initialize();
+
+    // 3. Initialize UserManager early as it's critical for security and context
     this.registerManager('UserManager', new UserManager(this));
     await this.getManager('UserManager').initialize(this.config);
 
-    // 3. Initialize other managers that may depend on the above
+    // 4. Initialize other managers that may depend on the above
     this.registerManager('NotificationManager', new NotificationManager(this));
     await this.getManager('NotificationManager').initialize();
 
@@ -123,6 +129,10 @@ class WikiEngine extends Engine {
     // Add AttachmentManager to the initialization sequence
     this.registerManager('AttachmentManager', new AttachmentManager(this));
     await this.getManager('AttachmentManager').initialize();
+
+    // Add AuditManager for audit trail logging
+    this.registerManager('AuditManager', new AuditManager(this));
+    await this.getManager('AuditManager').initialize();
 
     // Add BackupManager to the initialization sequence (must be last)
     this.registerManager('BackupManager', new BackupManager(this));

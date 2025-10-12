@@ -1,18 +1,18 @@
 /**
  * AuditManager - Comprehensive audit trail system for access control and security monitoring
- * Extends BaseManager following the JSPWiki modular manager pattern
+ * Extends BaseManager following the JSPWiki modular manager pattern with provider architecture
+ *
+ * Follows the provider pattern established in CacheManager, AttachmentManager, PageManager.
+ * Supports pluggable audit storage backends (file, database, cloud logging).
  */
 const BaseManager = require('./BaseManager');
-const path = require('path');
-const fs = require('fs-extra');
-const { v4: uuidv4 } = require('uuid');
+const logger = require('../utils/logger');
 
 class AuditManager extends BaseManager {
   constructor(engine) {
     super(engine);
-    this.auditLogs = [];
-    this.auditQueue = [];
-    this.isProcessing = false;
+    this.provider = null;
+    this.providerClass = null;
   }
 
   /**
@@ -20,94 +20,124 @@ class AuditManager extends BaseManager {
    * @param {Object} config - Configuration object
    */
   async initialize(config = {}) {
-    this.config = {
-      enabled: true,
-      logLevel: 'info',
-      maxQueueSize: 1000,
-      flushInterval: 30000, // 30 seconds
-      retentionDays: 90,
-      logDirectory: path.join(__dirname, '../../logs'),
-      auditFileName: 'audit.log',
-      archiveFileName: 'audit-archive.log',
-      maxFileSize: '10MB',
-      maxFiles: 10,
-      ...config
-    };
-
-    // Ensure logDirectory is an absolute path
-    if (this.config.logDirectory && !path.isAbsolute(this.config.logDirectory)) {
-      this.config.logDirectory = path.resolve(__dirname, '../../', this.config.logDirectory);
-    }
-
-    // Ensure log directory exists
-    await fs.ensureDir(this.config.logDirectory);
-
-    // Set up periodic flush
-    this.flushTimer = setInterval(() => {
-      this.flushAuditQueue();
-    }, this.config.flushInterval);
-
-    // Load existing audit logs if any
-    await this.loadExistingLogs();
-
-    // Clean up old logs
-    await this.cleanupOldLogs();
-
     await super.initialize(config);
 
-    console.log('📋 AuditManager initialized successfully');
+    const configManager = this.engine.getManager('ConfigurationManager');
+    if (!configManager) {
+      throw new Error('AuditManager requires ConfigurationManager');
+    }
+
+    // Check if audit is enabled (ALL LOWERCASE)
+    const auditEnabled = configManager.getProperty('amdwiki.audit.enabled', true);
+    if (!auditEnabled) {
+      logger.info('📋 AuditManager: Auditing disabled by configuration');
+      // Load NullAuditProvider when disabled
+      this.providerClass = 'NullAuditProvider';
+      await this.#loadProvider();
+      return;
+    }
+
+    // Load provider with fallback (ALL LOWERCASE)
+    const defaultProvider = configManager.getProperty(
+      'amdwiki.audit.provider.default',
+      'fileauditprovider'
+    );
+    const providerName = configManager.getProperty(
+      'amdwiki.audit.provider',
+      defaultProvider
+    );
+
+    // Normalize provider name to PascalCase for class loading
+    // fileauditprovider -> FileAuditProvider
+    this.providerClass = this.#normalizeProviderName(providerName);
+
+    logger.info(`📋 Loading audit provider: ${providerName} (${this.providerClass})`);
+
+    // Load and initialize provider
+    await this.#loadProvider();
+
+    logger.info(`📋 AuditManager initialized with ${this.providerClass}`);
+
+    const providerInfo = this.provider.getProviderInfo();
+    if (providerInfo.features && providerInfo.features.length > 0) {
+      logger.info(`📋 Provider features: ${providerInfo.features.join(', ')}`);
+    }
+  }
+
+  /**
+   * Load the audit provider dynamically
+   * @private
+   * @returns {Promise<void>}
+   */
+  async #loadProvider() {
+    try {
+      // Try to load provider class
+      const ProviderClass = require(`../providers/${this.providerClass}`);
+      this.provider = new ProviderClass(this.engine);
+      await this.provider.initialize();
+
+      // Test provider health
+      const isHealthy = await this.provider.isHealthy();
+      if (!isHealthy) {
+        logger.warn(`Audit provider ${this.providerClass} health check failed, switching to NullAuditProvider`);
+        const NullAuditProvider = require('../providers/NullAuditProvider');
+        this.provider = new NullAuditProvider(this.engine);
+        await this.provider.initialize();
+      }
+    } catch (error) {
+      logger.error(`Failed to load audit provider: ${this.providerClass}`, error);
+      // Fall back to NullAuditProvider on any error
+      logger.warn('Falling back to NullAuditProvider due to provider load error');
+      const NullAuditProvider = require('../providers/NullAuditProvider');
+      this.provider = new NullAuditProvider(this.engine);
+      await this.provider.initialize();
+    }
+  }
+
+  /**
+   * Normalize provider name to PascalCase class name
+   * @param {string} providerName - Lowercase provider name (e.g., 'fileauditprovider')
+   * @returns {string} PascalCase class name (e.g., 'FileAuditProvider')
+   * @private
+   */
+  #normalizeProviderName(providerName) {
+    if (!providerName) {
+      throw new Error('Provider name cannot be empty');
+    }
+
+    // Convert to lowercase first to ensure consistency
+    const lower = providerName.toLowerCase();
+
+    // Handle special cases for known provider names
+    const knownProviders = {
+      'fileauditprovider': 'FileAuditProvider',
+      'databaseauditprovider': 'DatabaseAuditProvider',
+      'cloudauditprovider': 'CloudAuditProvider',
+      'nullauditprovider': 'NullAuditProvider',
+      'null': 'NullAuditProvider',
+      'disabled': 'NullAuditProvider'
+    };
+
+    if (knownProviders[lower]) {
+      return knownProviders[lower];
+    }
+
+    // Fallback: Split on common separators and capitalize each word
+    const words = lower.split(/[-_]/);
+    const pascalCase = words
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join('');
+
+    return pascalCase;
   }
 
   /**
    * Log an audit event
    * @param {Object} auditEvent - Audit event data
+   * @returns {Promise<string>} Event ID
    */
   async logAuditEvent(auditEvent) {
-    if (!this.config.enabled) {
-      return;
-    }
-
-    const event = {
-      id: uuidv4(),
-      timestamp: new Date().toISOString(),
-      level: auditEvent.level || 'info',
-      eventType: auditEvent.eventType,
-      user: auditEvent.user || 'anonymous',
-      userId: auditEvent.userId,
-      sessionId: auditEvent.sessionId,
-      ipAddress: auditEvent.ipAddress,
-      userAgent: auditEvent.userAgent,
-      resource: auditEvent.resource,
-      resourceType: auditEvent.resourceType,
-      action: auditEvent.action,
-      result: auditEvent.result, // 'allow', 'deny', 'error'
-      reason: auditEvent.reason,
-      policyId: auditEvent.policyId,
-      policyName: auditEvent.policyName,
-      context: auditEvent.context || {},
-      metadata: auditEvent.metadata || {},
-      duration: auditEvent.duration, // in milliseconds
-      severity: auditEvent.severity || 'low' // 'low', 'medium', 'high', 'critical'
-    };
-
-    // Add to in-memory queue
-    this.auditQueue.push(event);
-
-    // Flush if queue is getting large
-    if (this.auditQueue.length >= this.config.maxQueueSize) {
-      await this.flushAuditQueue();
-    }
-
-    // Log critical events immediately
-    if (event.severity === 'critical' || event.level === 'error') {
-      console.error(`AUDIT CRITICAL: ${event.eventType} - ${event.result}`, {
-        user: event.user,
-        resource: event.resource,
-        reason: event.reason
-      });
-    }
-
-    return event.id;
+    return await this.provider.logAuditEvent(auditEvent);
   }
 
   /**
@@ -225,8 +255,21 @@ class AuditManager extends BaseManager {
    * Search audit logs
    * @param {Object} filters - Search filters
    * @param {Object} options - Search options
+   * @returns {Promise<Object>} Search results
    */
   async searchAuditLogs(filters = {}, options = {}) {
+    return await this.provider.searchAuditLogs(filters, options);
+  }
+
+  /**
+   * Search audit logs (original implementation - keeping for backwards compatibility)
+   * @private
+   * @param {Object} filters - Search filters
+   * @param {Object} options - Search options
+   * @returns {Promise<Object>} Search results
+   * @deprecated Use searchAuditLogs instead
+   */
+  async _searchAuditLogsOld(filters = {}, options = {}) {
     const {
       user,
       eventType,
@@ -298,8 +341,18 @@ class AuditManager extends BaseManager {
   /**
    * Get audit statistics
    * @param {Object} filters - Optional filters
+   * @returns {Promise<Object>} Audit statistics
    */
   async getAuditStats(filters = {}) {
+    return await this.provider.getAuditStats(filters);
+  }
+
+  /**
+   * Get audit statistics (original implementation)
+   * @private
+   * @deprecated Use getAuditStats instead
+   */
+  async _getAuditStatsOld(filters = {}) {
     const logs = await this.searchAuditLogs(filters, { limit: 10000 });
 
     const stats = {
@@ -340,9 +393,29 @@ class AuditManager extends BaseManager {
   }
 
   /**
+   * Export audit logs
+   * @param {Object} filters - Export filters
+   * @param {string} format - Export format ('json', 'csv')
+   * @returns {Promise<string>} Exported data
+   */
+  async exportAuditLogs(filters = {}, format = 'json') {
+    return await this.provider.exportAuditLogs(filters, format);
+  }
+
+  /**
    * Flush audit queue to disk
+   * @returns {Promise<void>}
    */
   async flushAuditQueue() {
+    return await this.provider.flush();
+  }
+
+  /**
+   * Flush audit queue (original implementation)
+   * @private
+   * @deprecated
+   */
+  async _flushAuditQueueOld() {
     if (this.auditQueue.length === 0 || this.isProcessing) {
       return;
     }
@@ -411,8 +484,18 @@ class AuditManager extends BaseManager {
 
   /**
    * Clean up old audit logs based on retention policy
+   * @returns {Promise<void>}
    */
   async cleanupOldLogs() {
+    return await this.provider.cleanup();
+  }
+
+  /**
+   * Clean up old audit logs (original implementation)
+   * @private
+   * @deprecated
+   */
+  async _cleanupOldLogsOld() {
     try {
       const auditLogPath = path.join(this.config.logDirectory, this.config.auditFileName);
       const archivePath = path.join(this.config.logDirectory, this.config.archiveFileName);
@@ -434,39 +517,19 @@ class AuditManager extends BaseManager {
   }
 
   /**
-   * Export audit logs
-   * @param {Object} filters - Export filters
-   * @param {string} format - Export format ('json', 'csv')
-   */
-  async exportAuditLogs(filters = {}, format = 'json') {
-    const logs = await this.searchAuditLogs(filters, { limit: 10000 });
-
-    if (format === 'csv') {
-      const csvHeader = 'timestamp,eventType,user,resource,action,result,severity,reason\n';
-      const csvRows = logs.results.map(log =>
-        `"${log.timestamp}","${log.eventType}","${log.user}","${log.resource}","${log.action}","${log.result}","${log.severity}","${log.reason}"`
-      ).join('\n');
-
-      return csvHeader + csvRows;
-    }
-
-    return JSON.stringify(logs.results, null, 2);
-  }
-
-  /**
    * Shutdown the audit manager
+   * @returns {Promise<void>}
    */
   async shutdown() {
-    // Flush any remaining events
-    await this.flushAuditQueue();
+    logger.info('📋 AuditManager shutting down...');
 
-    // Clear flush timer
-    if (this.flushTimer) {
-      clearInterval(this.flushTimer);
+    if (this.provider) {
+      await this.provider.close();
+      this.provider = null;
     }
 
     await super.shutdown();
-    console.log('AuditManager shut down successfully');
+    logger.info('📋 AuditManager shut down successfully');
   }
 }
 
