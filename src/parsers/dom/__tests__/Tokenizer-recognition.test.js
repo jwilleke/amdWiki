@@ -84,12 +84,13 @@ describe('Token Recognition', () => {
     });
 
     test('parses link with text', () => {
-      const tokenizer = new Tokenizer('[WikiPage|Link Text]');
+      // JSPWiki syntax: [DisplayText|Target]
+      const tokenizer = new Tokenizer('[Link Text|WikiPage]');
       const tokens = tokenizer.tokenize();
 
       expect(tokens[0].type).toBe(TokenType.LINK);
-      expect(tokens[0].metadata.link).toBe('WikiPage');
-      expect(tokens[0].metadata.text).toBe('Link Text');
+      expect(tokens[0].metadata.link).toBe('WikiPage'); // Target
+      expect(tokens[0].metadata.text).toBe('Link Text'); // Display text
     });
   });
 

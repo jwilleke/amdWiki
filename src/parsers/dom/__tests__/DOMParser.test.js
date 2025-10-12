@@ -105,12 +105,13 @@ describe('DOMParser', () => {
     });
 
     test('parses links', () => {
-      const wikiDoc = parser.parse('[HomePage|Go Home]');
+      // JSPWiki syntax: [DisplayText|Target]
+      const wikiDoc = parser.parse('[Go Home|HomePage]');
       const html = wikiDoc.toHTML();
       expect(html).toContain('<a');
       expect(html).toContain('wiki-link');
-      expect(html).toContain('Go Home');
-      expect(html).toContain('data-wiki-link="HomePage"');
+      expect(html).toContain('Go Home'); // Display text
+      expect(html).toContain('data-wiki-link="HomePage"'); // Target
     });
 
     test('parses variables', () => {

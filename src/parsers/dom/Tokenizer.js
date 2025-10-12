@@ -545,13 +545,16 @@ class Tokenizer {
     this.expect(']');
 
     // Check if it's a link (contains |)
+    // JSPWiki syntax: [DisplayText|Target] or [Target]
     if (content.includes('|')) {
-      const [link, text] = content.split('|', 2);
+      const parts = content.split('|', 2);
+      const displayText = parts[0].trim();
+      const target = parts[1].trim();
       return {
         type: TokenType.LINK,
         value: content,
         ...pos,
-        metadata: { link: link.trim(), text: text.trim() }
+        metadata: { link: target, text: displayText }
       };
     }
 

@@ -175,12 +175,14 @@ class DOMBuilder {
    */
   handleWikiTag(token) {
     this.ensureParagraph();
-    const span = this.wikiDocument.createElement('span', {
-      class: 'wiki-tag',
-      'data-tag': token.value
+    // Wiki tags like [PageName] are actually links - create link elements
+    const link = this.wikiDocument.createElement('a', {
+      class: 'wiki-link',
+      'data-wiki-link': token.value,
+      href: `#${token.value}`
     });
-    span.textContent = `[${token.value}]`;
-    this.paragraphContext.appendChild(span);
+    link.textContent = token.value;
+    this.paragraphContext.appendChild(link);
   }
 
   /**

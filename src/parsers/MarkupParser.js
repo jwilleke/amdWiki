@@ -5,6 +5,7 @@ const FilterChain = require('./filters/FilterChain');
 const { DOMParser: WikiDOMParser } = require('./dom/DOMParser');
 const DOMVariableHandler = require('./dom/handlers/DOMVariableHandler');
 const DOMPluginHandler = require('./dom/handlers/DOMPluginHandler');
+const DOMLinkHandler = require('./dom/handlers/DOMLinkHandler');
 
 /**
  * MarkupParser - Comprehensive markup parsing engine for JSPWiki compatibility
@@ -51,6 +52,9 @@ class MarkupParser extends BaseManager {
 
     // Initialize DOM-based plugin handler (Phase 4 migration - GitHub Issue #107)
     this.domPluginHandler = new DOMPluginHandler(engine);
+
+    // Initialize DOM-based link handler (Phase 5 migration - GitHub Issue #108)
+    this.domLinkHandler = new DOMLinkHandler(engine);
   }
 
   async initialize(config = {}) {
@@ -80,6 +84,7 @@ class MarkupParser extends BaseManager {
     // Initialize DOM handlers
     await this.domVariableHandler.initialize();
     await this.domPluginHandler.initialize();
+    await this.domLinkHandler.initialize();
 
     // Register default handlers
     await this.registerDefaultHandlers();
@@ -872,14 +877,19 @@ class MarkupParser extends BaseManager {
   async phaseContentTransformation(content, context) {
     // Check if we have a WikiDocument from Phase 0 (DOM parsing)
     if (context.wikiDocument) {
-      // Use DOM-based plugin processing (Phase 4 migration - GitHub Issue #107)
+      // Use DOM-based processing (Phase 4 & 5 migration - GitHub Issues #107, #108)
       try {
+        // Process plugins (Phase 4 - Issue #107)
         await this.domPluginHandler.processPlugins(context.wikiDocument, context);
+
+        // Process links (Phase 5 - Issue #108)
+        await this.domLinkHandler.processLinks(context.wikiDocument, context);
+
         // Return updated HTML from WikiDocument
         content = context.wikiDocument.toHTML();
-        console.log('✅ Phase 4: DOM-based plugin processing complete');
+        console.log('✅ Phase 4: DOM-based plugin and link processing complete');
       } catch (error) {
-        console.error('❌ Error in DOM plugin processing:', error);
+        console.error('❌ Error in DOM processing:', error);
         // Fall through to string-based handlers as fallback
       }
     } else {
