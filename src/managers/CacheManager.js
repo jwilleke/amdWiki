@@ -1,122 +1,147 @@
 const BaseManager = require('./BaseManager');
-const NodeCacheAdapter = require('../cache/NodeCacheAdapter');
-const NullCacheAdapter = require('../cache/NullCacheAdapter');
 const RegionCache = require('../cache/RegionCache');
+const logger = require('../utils/logger');
 
 /**
  * CacheManager - Centralized cache management for amdWiki
- * 
+ *
  * Provides a unified interface for caching across all managers with support for:
- * - Multiple cache backends (node-cache, Redis, etc.)
+ * - Multiple cache backends via provider pattern (NodeCache, Redis, Null)
  * - Cache regions (namespaces) for different managers
  * - Configurable TTL and cache policies
  * - Statistics and monitoring
+ * - Provider fallback pattern following #102, #104, #105, #106
+ *
+ * Configuration (all lowercase):
+ * - amdwiki.cache.enabled - Enable/disable caching
+ * - amdwiki.cache.provider.default - Default provider name
+ * - amdwiki.cache.provider - Active provider name
+ * - amdwiki.cache.defaultttl - Default TTL in seconds
+ * - amdwiki.cache.maxkeys - Maximum cache keys
  */
 class CacheManager extends BaseManager {
   constructor(engine) {
     super(engine);
-    this.adapter = null;
+    this.provider = null;
+    this.providerClass = null;
     this.regions = new Map();
-    this.config = {
-      enabled: true,
-      provider: 'node-cache',
-      defaultTTL: 300,
-      maxKeys: 1000,
-      checkPeriod: 120,
-      node: {
-        stdTTL: 300,
-        checkperiod: 120,
-        maxKeys: 1000
-      },
-      redis: {
-        url: 'redis://localhost:6379',
-        keyPrefix: 'amdwiki:',
-        enableCluster: false
-      }
-    };
   }
 
   async initialize(config = {}) {
     await super.initialize(config);
 
-    // Load cache configuration from ConfigurationManager if available
     const configManager = this.engine.getManager('ConfigurationManager');
-    if (configManager) {
-      try {
-        const enabled = configManager.getProperty('amdwiki.cache.enabled', this.config.enabled);
-        const provider = configManager.getProperty('amdwiki.cache.provider', this.config.provider);
-        const defaultTTL = configManager.getProperty('amdwiki.cache.defaultTTL', this.config.defaultTTL);
-        const maxKeys = configManager.getProperty('amdwiki.cache.maxKeys', this.config.maxKeys);
-        const checkPeriod = configManager.getProperty('amdwiki.cache.checkPeriod', this.config.checkPeriod);
-
-        this.config = {
-          ...this.config,
-          enabled,
-          provider,
-          defaultTTL,
-          maxKeys,
-          checkPeriod,
-          node: {
-            stdTTL: configManager.getProperty('amdwiki.cache.node.stdTTL', this.config.node.stdTTL),
-            checkperiod: configManager.getProperty('amdwiki.cache.node.checkperiod', this.config.node.checkperiod),
-            maxKeys: configManager.getProperty('amdwiki.cache.node.maxKeys', this.config.node.maxKeys)
-          },
-          redis: {
-            url: configManager.getProperty('amdwiki.cache.redis.url', this.config.redis.url),
-            keyPrefix: configManager.getProperty('amdwiki.cache.redis.keyPrefix', this.config.redis.keyPrefix),
-            enableCluster: configManager.getProperty('amdwiki.cache.redis.enableCluster', this.config.redis.enableCluster)
-          }
-        };
-      } catch (err) {
-        console.warn('Failed to load cache config from ConfigurationManager, using defaults:', err.message);
-      }
+    if (!configManager) {
+      throw new Error('CacheManager requires ConfigurationManager');
     }
 
-    // Override with any config passed to initialize
-    this.config = { ...this.config, ...config };
-
-    // Create cache adapter based on configuration
-    await this.createAdapter();
-
-    console.log(`🗄️  CacheManager initialized with ${this.config.provider} provider (enabled: ${this.config.enabled})`);
-  }
-
-  /**
-   * Create the appropriate cache adapter based on configuration
-   */
-  async createAdapter() {
-    if (!this.config.enabled) {
-      this.adapter = new NullCacheAdapter();
+    // Check if cache is enabled (ALL LOWERCASE)
+    const cacheEnabled = configManager.getProperty('amdwiki.cache.enabled', true);
+    if (!cacheEnabled) {
+      logger.info('🗄️  CacheManager: Caching disabled by configuration');
+      // Load NullCacheProvider when disabled
+      this.providerClass = 'NullCacheProvider';
+      await this.#loadProvider();
       return;
     }
 
-    switch (this.config.provider) {
-      case 'node-cache':
-        this.adapter = new NodeCacheAdapter(this.config.node);
-        break;
-      
-      case 'redis':
-        // Future implementation - for now fall back to node-cache
-        console.warn('Redis cache adapter not yet implemented, falling back to node-cache');
-        this.adapter = new NodeCacheAdapter(this.config.node);
-        break;
-      
-      case 'disabled':
-      case 'null':
-        this.adapter = new NullCacheAdapter();
-        break;
-      
-      default:
-        console.warn(`Unknown cache provider '${this.config.provider}', falling back to node-cache`);
-        this.adapter = new NodeCacheAdapter(this.config.node);
+    // Load provider with fallback (ALL LOWERCASE)
+    const defaultProvider = configManager.getProperty(
+      'amdwiki.cache.provider.default',
+      'nodecacheprovider'
+    );
+    const providerName = configManager.getProperty(
+      'amdwiki.cache.provider',
+      defaultProvider
+    );
+
+    // Normalize provider name to PascalCase for class loading
+    // nodecacheprovider -> NodeCacheProvider
+    this.providerClass = this.#normalizeProviderName(providerName);
+
+    // Load shared cache settings (ALL LOWERCASE)
+    this.defaultTTL = configManager.getProperty('amdwiki.cache.defaultttl', 300);
+    this.maxKeys = configManager.getProperty('amdwiki.cache.maxkeys', 1000);
+    this.checkPeriod = configManager.getProperty('amdwiki.cache.checkperiod', 120);
+
+    logger.info(`🗄️  Loading cache provider: ${providerName} (${this.providerClass})`);
+
+    // Load and initialize provider
+    await this.#loadProvider();
+
+    logger.info(`🗄️  CacheManager initialized with ${this.providerClass}`);
+    logger.info(`🗄️  Cache settings - TTL: ${this.defaultTTL}s, MaxKeys: ${this.maxKeys}`);
+
+    const providerInfo = this.provider.getProviderInfo();
+    if (providerInfo.features && providerInfo.features.length > 0) {
+      logger.info(`🗄️  Provider features: ${providerInfo.features.join(', ')}`);
+    }
+  }
+
+  /**
+   * Load the cache provider dynamically
+   * @private
+   * @returns {Promise<void>}
+   */
+  async #loadProvider() {
+    try {
+      // Try to load provider class
+      const ProviderClass = require(`../providers/${this.providerClass}`);
+      this.provider = new ProviderClass(this.engine);
+      await this.provider.initialize();
+
+      // Test provider health
+      const isHealthy = await this.provider.isHealthy();
+      if (!isHealthy) {
+        logger.warn(`Cache provider ${this.providerClass} health check failed, switching to NullCacheProvider`);
+        const NullCacheProvider = require('../providers/NullCacheProvider');
+        this.provider = new NullCacheProvider(this.engine);
+        await this.provider.initialize();
+      }
+    } catch (error) {
+      logger.error(`Failed to load cache provider: ${this.providerClass}`, error);
+      // Fall back to NullCacheProvider on any error
+      logger.warn('Falling back to NullCacheProvider due to provider load error');
+      const NullCacheProvider = require('../providers/NullCacheProvider');
+      this.provider = new NullCacheProvider(this.engine);
+      await this.provider.initialize();
+    }
+  }
+
+  /**
+   * Normalize provider name to PascalCase class name
+   * @param {string} providerName - Lowercase provider name (e.g., 'nodecacheprovider')
+   * @returns {string} PascalCase class name (e.g., 'NodeCacheProvider')
+   * @private
+   */
+  #normalizeProviderName(providerName) {
+    if (!providerName) {
+      throw new Error('Provider name cannot be empty');
     }
 
-    // Test adapter health
-    const isHealthy = await this.adapter.isHealthy();
-    if (!isHealthy) {
-      console.warn('Cache adapter health check failed, switching to null adapter');
-      this.adapter = new NullCacheAdapter();
+    // Convert to lowercase first to ensure consistency
+    const lower = providerName.toLowerCase();
+
+    // Handle special cases for known provider names
+    const knownProviders = {
+      'nodecacheprovider': 'NodeCacheProvider',
+      'rediscacheprovider': 'RedisCacheProvider',
+      'nullcacheprovider': 'NullCacheProvider',
+      'null': 'NullCacheProvider',
+      'disabled': 'NullCacheProvider'
+    };
+
+    if (knownProviders[lower]) {
+      return knownProviders[lower];
     }
+
+    // Fallback: Split on common separators and capitalize each word
+    const words = lower.split(/[-_]/);
+    const pascalCase = words
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join('');
+
+    return pascalCase;
   }
 
   /**
@@ -126,7 +151,7 @@ class CacheManager extends BaseManager {
    */
   region(region) {
     if (!this.regions.has(region)) {
-      this.regions.set(region, new RegionCache(this.adapter, region));
+      this.regions.set(region, new RegionCache(this.provider, region));
     }
     return this.regions.get(region);
   }
@@ -137,7 +162,7 @@ class CacheManager extends BaseManager {
    * @returns {Promise<any|undefined>} The cached value or undefined if not found
    */
   async get(key) {
-    return await this.adapter.get(key);
+    return await this.provider.get(key);
   }
 
   /**
@@ -149,8 +174,8 @@ class CacheManager extends BaseManager {
    * @returns {Promise<void>}
    */
   async set(key, value, options = {}) {
-    const ttl = options.ttl || this.config.defaultTTL;
-    return await this.adapter.set(key, value, ttl);
+    const ttl = options.ttl || this.defaultTTL;
+    return await this.provider.set(key, value, ttl);
   }
 
   /**
@@ -159,7 +184,7 @@ class CacheManager extends BaseManager {
    * @returns {Promise<void>}
    */
   async del(keys) {
-    return await this.adapter.del(keys);
+    return await this.provider.del(keys);
   }
 
   /**
@@ -173,7 +198,7 @@ class CacheManager extends BaseManager {
       const regionCache = this.region(region);
       return await regionCache.clear(pattern);
     } else {
-      return await this.adapter.clear(pattern);
+      return await this.provider.clear(pattern);
     }
   }
 
@@ -183,7 +208,7 @@ class CacheManager extends BaseManager {
    * @returns {Promise<string[]>} Array of matching keys
    */
   async keys(pattern = '*') {
-    return await this.adapter.keys(pattern);
+    return await this.provider.keys(pattern);
   }
 
   /**
@@ -196,17 +221,17 @@ class CacheManager extends BaseManager {
       const regionCache = this.region(region);
       return await regionCache.stats();
     } else {
-      const globalStats = await this.adapter.stats();
+      const globalStats = await this.provider.stats();
       const regions = Array.from(this.regions.keys());
-      
+
       return {
         global: globalStats,
         regions: regions,
+        provider: this.providerClass,
         config: {
-          enabled: this.config.enabled,
-          provider: this.config.provider,
-          defaultTTL: this.config.defaultTTL,
-          maxKeys: this.config.maxKeys
+          defaultTTL: this.defaultTTL,
+          maxKeys: this.maxKeys,
+          checkPeriod: this.checkPeriod
         }
       };
     }
@@ -217,7 +242,7 @@ class CacheManager extends BaseManager {
    * @returns {Promise<boolean>} True if cache is healthy
    */
   async isHealthy() {
-    return await this.adapter.isHealthy();
+    return await this.provider.isHealthy();
   }
 
   /**
@@ -225,7 +250,12 @@ class CacheManager extends BaseManager {
    * @returns {Object} Cache configuration
    */
   getConfig() {
-    return { ...this.config };
+    return {
+      provider: this.providerClass,
+      defaultTTL: this.defaultTTL,
+      maxKeys: this.maxKeys,
+      checkPeriod: this.checkPeriod
+    };
   }
 
   /**
@@ -241,8 +271,8 @@ class CacheManager extends BaseManager {
    * @returns {Promise<void>}
    */
   async flushAll() {
-    console.warn('CacheManager.flushAll() - clearing ALL cache data');
-    await this.adapter.clear('*');
+    logger.warn('CacheManager.flushAll() - clearing ALL cache data');
+    await this.provider.clear('*');
     this.regions.clear();
   }
 
@@ -251,21 +281,22 @@ class CacheManager extends BaseManager {
    * @returns {Promise<void>}
    */
   async shutdown() {
-    console.log('🗄️  CacheManager shutting down...');
-    
-    if (this.adapter) {
-      await this.adapter.close();
-      this.adapter = null;
+    logger.info('🗄️  CacheManager shutting down...');
+
+    if (this.provider) {
+      await this.provider.close();
+      this.provider = null;
     }
-    
+
     this.regions.clear();
-    
+
     await super.shutdown();
   }
 
   /**
    * Helper method to add cache support to BaseManager
    * Can be called from any manager to get a cache region
+   * @param {Object} engine - WikiEngine instance
    * @param {string} [region] - Region name (defaults to calling class name)
    * @returns {RegionCache} Cache instance scoped to the region
    */
@@ -273,8 +304,9 @@ class CacheManager extends BaseManager {
     const cacheManager = engine.getManager('CacheManager');
     if (!cacheManager || !cacheManager.isInitialized()) {
       // Return a null cache if CacheManager not available
-      const nullAdapter = new NullCacheAdapter();
-      return new RegionCache(nullAdapter, region || 'default');
+      const NullCacheProvider = require('../providers/NullCacheProvider');
+      const nullProvider = new NullCacheProvider(engine);
+      return new RegionCache(nullProvider, region || 'default');
     }
     return cacheManager.region(region || 'default');
   }
