@@ -2,6 +2,8 @@ const BaseManager = require('../managers/BaseManager');
 const ParseContext = require('./context/ParseContext');
 const { HandlerRegistry } = require('./handlers/HandlerRegistry');
 const FilterChain = require('./filters/FilterChain');
+const { DOMParser: WikiDOMParser } = require('./dom/DOMParser');
+const DOMVariableHandler = require('./dom/handlers/DOMVariableHandler');
 
 /**
  * MarkupParser - Comprehensive markup parsing engine for JSPWiki compatibility
@@ -36,6 +38,15 @@ class MarkupParser extends BaseManager {
       cacheMisses: 0,
       cacheMetrics: new Map()
     };
+
+    // Initialize DOM-based parser (Phase 2 migration - GitHub Issue #93)
+    this.domParser = new WikiDOMParser({
+      debug: false,
+      throwOnError: false
+    });
+
+    // Initialize DOM-based variable handler (Phase 3 migration - GitHub Issue #93)
+    this.domVariableHandler = new DOMVariableHandler(engine);
   }
 
   async initialize(config = {}) {
@@ -61,7 +72,10 @@ class MarkupParser extends BaseManager {
     
     // Initialize filter chain
     await this.initializeFilterChain();
-    
+
+    // Initialize DOM variable handler
+    await this.domVariableHandler.initialize();
+
     // Register default handlers
     await this.registerDefaultHandlers();
     
@@ -389,13 +403,22 @@ class MarkupParser extends BaseManager {
   }
 
   /**
-   * Initialize the 7 processing phases
+   * Initialize the 8 processing phases (updated for DOM-based parsing)
+   * Phase 0 (DOM Parsing) replaces string-based tokenization
    * Each phase has a specific responsibility in the parsing pipeline
+   *
+   * Related: GitHub Issue #93 - DOM-Based Parsing Architecture
    */
   initializePhases() {
     this.phases = [
       {
-        // Phase 1: Preprocessing 
+        // Phase 0: DOM Parsing (NEW - replaces fragile string parsing)
+        name: 'DOM Parsing',
+        priority: 50,
+        process: this.phaseDOMParsing.bind(this)
+      },
+      {
+        // Phase 1: Preprocessing
         name: 'Preprocessing',
         priority: 100,
         process: this.phasePreprocessing.bind(this)
@@ -707,6 +730,35 @@ class MarkupParser extends BaseManager {
   }
 
   /**
+   * Phase 0: DOM Parsing (NEW)
+   * Use DOMParser to create initial DOM structure
+   * This replaces fragile string-based parsing and fixes [[]] escaping issues
+   *
+   * Related: GitHub Issue #93 - DOM-Based Parsing Architecture
+   */
+  async phaseDOMParsing(content, context) {
+    try {
+      // Use DOMParser to parse content into WikiDocument
+      const wikiDocument = this.domParser.parse(content, context);
+
+      // Store WikiDocument in context for potential use by handlers
+      context.wikiDocument = wikiDocument;
+
+      // Serialize to HTML for further processing by existing handlers
+      const html = wikiDocument.toHTML();
+
+      console.log(`🎯 Phase 0: DOM parsing complete - ${wikiDocument.getChildCount()} root nodes`);
+
+      return html;
+
+    } catch (error) {
+      console.error('❌ Error in DOM parsing phase:', error);
+      // On error, return original content
+      return content;
+    }
+  }
+
+  /**
    * Phase 1: Preprocessing
    * Handle JSPWiki-specific escaping and normalize content
    * Protect code blocks from WikiStyleHandler and other Phase 3 handlers
@@ -774,13 +826,32 @@ class MarkupParser extends BaseManager {
   /**
    * Phase 3: Context Resolution
    * Expand variables, resolve parameters
+   *
+   * Uses DOM-based variable resolution if WikiDocument is available (Phase 3 migration)
+   * Falls back to string-based expansion for backward compatibility
    */
   async phaseContextResolution(content, context) {
-    const variableManager = this.engine.getManager('VariableManager');
-    if (variableManager) {
-      // Expand system variables - pass the full context which includes both pageContext and ParseContext properties
-      // The ParseContext has: pageName, userName, userContext, requestInfo extracted from pageContext
-      content = variableManager.expandVariables(content, context);
+    // Check if we have a WikiDocument from Phase 0 (DOM parsing)
+    if (context.wikiDocument) {
+      // Use DOM-based variable resolution (Phase 3 migration - GitHub Issue #93)
+      try {
+        await this.domVariableHandler.processVariables(context.wikiDocument, context);
+        // Return updated HTML from WikiDocument
+        content = context.wikiDocument.toHTML();
+        console.log('✅ Phase 3: DOM-based variable resolution complete');
+      } catch (error) {
+        console.error('❌ Error in DOM variable resolution:', error);
+        // Fall through to string-based expansion as fallback
+      }
+    } else {
+      // Legacy: String-based variable expansion for backward compatibility
+      const variableManager = this.engine.getManager('VariableManager');
+      if (variableManager) {
+        // Expand system variables - pass the full context which includes both pageContext and ParseContext properties
+        // The ParseContext has: pageName, userName, userContext, requestInfo extracted from pageContext
+        content = variableManager.expandVariables(content, context);
+        console.log('✅ Phase 3: String-based variable resolution (legacy)');
+      }
     }
 
     return content;

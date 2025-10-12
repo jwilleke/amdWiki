@@ -1,0 +1,171 @@
+/**
+ * DOMVariableHandler - DOM-based variable expansion handler
+ *
+ * Replaces string-based regex variable expansion with DOM queries.
+ * Processes wiki variables by querying WikiDocument for .wiki-variable elements
+ * and resolving their values through VariableManager.
+ *
+ * Part of Phase 3 of WikiDocument DOM Migration (GitHub Issue #93)
+ *
+ * Usage:
+ *   In wiki markup: {$username}, {$pagename}, {$date}, etc.
+ *   These are tokenized as VARIABLE tokens and become .wiki-variable elements
+ *   This handler resolves them to actual values
+ */
+class DOMVariableHandler {
+  /**
+   * Creates a new DOMVariableHandler
+   *
+   * @param {Object} engine - WikiEngine instance
+   */
+  constructor(engine) {
+    this.engine = engine;
+    this.variableManager = null;
+  }
+
+  /**
+   * Initializes the handler
+   */
+  async initialize() {
+    this.variableManager = this.engine.getManager('VariableManager');
+
+    if (!this.variableManager) {
+      console.warn('⚠️  DOMVariableHandler: VariableManager not available');
+    }
+  }
+
+  /**
+   * Processes variables in a WikiDocument
+   *
+   * Queries for .wiki-variable elements and resolves their values.
+   * This is the DOM-based equivalent of VariableManager.expandVariables()
+   *
+   * @param {WikiDocument} wikiDocument - The WikiDocument to process
+   * @param {Object} context - Rendering context
+   * @returns {WikiDocument} Updated WikiDocument
+   */
+  async processVariables(wikiDocument, context) {
+    if (!this.variableManager) {
+      console.warn('⚠️  DOMVariableHandler: Cannot process variables without VariableManager');
+      return wikiDocument;
+    }
+
+    // Query for all variable elements
+    const variableElements = wikiDocument.querySelectorAll('.wiki-variable');
+
+    if (variableElements.length === 0) {
+      return wikiDocument;
+    }
+
+    console.log(`🔍 DOMVariableHandler: Processing ${variableElements.length} variables`);
+
+    let processedCount = 0;
+    let errorCount = 0;
+
+    // Process each variable element
+    for (const varElement of variableElements) {
+      try {
+        // Get variable name from data attribute
+        const varName = varElement.getAttribute('data-variable');
+
+        if (!varName) {
+          console.warn('⚠️  Variable element missing data-variable attribute');
+          continue;
+        }
+
+        // Resolve variable value
+        const value = this.resolveVariable(varName, context);
+
+        if (value !== null && value !== undefined) {
+          // Update element text content with resolved value
+          varElement.textContent = value;
+          processedCount++;
+        } else {
+          // Variable not found - keep original syntax
+          varElement.textContent = `{$${varName}}`;
+          console.warn(`⚠️  Variable not found: ${varName}`);
+        }
+
+      } catch (error) {
+        errorCount++;
+        console.error(`❌ Error processing variable:`, error.message);
+        // On error, show error message
+        varElement.textContent = `[Error: ${error.message}]`;
+      }
+    }
+
+    console.log(`✅ DOMVariableHandler: Processed ${processedCount} variables, ${errorCount} errors`);
+
+    return wikiDocument;
+  }
+
+  /**
+   * Resolves a variable name to its value
+   *
+   * @param {string} varName - Variable name (without {$ })
+   * @param {Object} context - Rendering context
+   * @returns {string|null} Variable value or null if not found
+   */
+  resolveVariable(varName, context) {
+    if (!this.variableManager || !this.variableManager.variableHandlers) {
+      return null;
+    }
+
+    // Get handler for this variable (case-insensitive)
+    const handler = this.variableManager.variableHandlers.get(varName.toLowerCase().trim());
+
+    if (!handler) {
+      return null;
+    }
+
+    try {
+      const result = handler(context);
+
+      // Handle async handlers
+      if (result instanceof Promise) {
+        console.warn(`⚠️  Variable '${varName}' returned Promise - cannot resolve synchronously`);
+        return null;
+      }
+
+      return result;
+
+    } catch (error) {
+      console.error(`❌ Error resolving variable '${varName}':`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Gets statistics about variable processing
+   *
+   * @param {WikiDocument} wikiDocument - Document to analyze
+   * @returns {Object} Statistics
+   */
+  getStatistics(wikiDocument) {
+    const variableElements = wikiDocument.querySelectorAll('.wiki-variable');
+
+    const stats = {
+      totalVariables: variableElements.length,
+      uniqueVariables: new Set(),
+      variables: []
+    };
+
+    for (const varElement of variableElements) {
+      const varName = varElement.getAttribute('data-variable');
+      if (varName) {
+        stats.uniqueVariables.add(varName);
+        stats.variables.push({
+          name: varName,
+          resolved: !varElement.textContent.startsWith('{$')
+        });
+      }
+    }
+
+    stats.uniqueCount = stats.uniqueVariables.size;
+    stats.uniqueVariables = Array.from(stats.uniqueVariables);
+
+    return stats;
+  }
+}
+
+module.exports = DOMVariableHandler;
