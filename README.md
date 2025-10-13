@@ -20,6 +20,8 @@ A simple, file-based wiki application built with Node.js, Express, and Markdown 
 - **Comprehensive Audit Trail**: Complete security monitoring and access logging
 - **Time-Based Permissions**: Context-aware permissions with scheduling and maintenance mode
 - **Admin Dashboard**: Full administrative interface for user management and system monitoring
+- **WikiDocument DOM Architecture**: Robust, JSPWiki-inspired parsing engine with DOM-based processing
+- **Conflict-Free Parsing**: JSPWiki syntax and Markdown coexist without interference
 
 📖 **Detailed technical documentation available in [docs/](docs/) folder.**
 
@@ -53,6 +55,9 @@ amdWiki/
 ├── src/                    # Source code
 │   ├── core/              # Core engine components
 │   ├── managers/          # Business logic managers
+│   ├── parsers/           # WikiDocument DOM parser
+│   │   ├── dom/          # DOM handlers and WikiDocument
+│   │   └── __tests__/    # Parser test suites
 │   ├── routes/            # HTTP route handlers
 │   └── utils/             # Utility functions
 ├── config/                # Application configuration
@@ -62,7 +67,9 @@ amdWiki/
 │   ├── architecture/      # System architecture docs
 │   ├── development/       # Development guides
 │   ├── planning/          # Project planning docs
-│   ├── api/              # API documentation
+│   ├── api/              # API documentation (incl. MarkupParser)
+│   ├── migration/        # Migration guides
+│   ├── testing/          # Testing documentation
 │   └── issues/           # Issue tracking
 ├── tests/                 # Test files
 ├── scripts/               # Utility scripts
@@ -97,6 +104,41 @@ amdWiki/
 - Select an image file and click "Upload Image"
 - Click "Insert at Cursor" to add the image to your content
 - Supported formats: JPEG, PNG, GIF, WebP (max 5MB)
+
+## Parser Architecture
+
+amdWiki uses a **WikiDocument DOM extraction pipeline** that provides robust, conflict-free parsing of JSPWiki syntax and Markdown:
+
+### How It Works
+
+1. **Extract** - JSPWiki syntax (`[{$var}]`, `[{Plugin}]`, `[Link]`) extracted before Markdown parsing
+2. **Create DOM Nodes** - WikiDocument DOM nodes created for each JSPWiki element
+3. **Parse Markdown** - Showdown processes ALL Markdown without JSPWiki interference
+4. **Merge** - DOM nodes merged back into final HTML
+
+### Benefits
+
+- ✅ **No parsing conflicts** - JSPWiki and Markdown processed independently
+- ✅ **Correct heading rendering** - All Markdown headings (`##`, `###`) render properly
+- ✅ **Natural escaping** - `[[{$var}]]` creates literal text via DOM nodes
+- ✅ **Extensible** - Easy to add custom syntax via DOM handlers
+- ✅ **Production-ready** - 376+ tests with 100% success rate
+
+### Configuration
+
+The parser is enabled by default. To use the legacy parser:
+
+```json
+{
+  "jspwiki.parser.useExtractionPipeline": false
+}
+```
+
+### Documentation
+
+- **API Reference:** [docs/api/MarkupParser-API.md](docs/api/MarkupParser-API.md)
+- **Migration Guide:** [docs/migration/WikiDocument-DOM-Migration.md](docs/migration/WikiDocument-DOM-Migration.md)
+- **Architecture:** [docs/architecture/WikiDocument-DOM-Architecture.md](docs/architecture/WikiDocument-DOM-Architecture.md)
 
 ## Documentation
 - [CHANGELOG.md](CHANGELOG.md) - Version history and detailed change notes.

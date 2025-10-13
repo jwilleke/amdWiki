@@ -14,6 +14,13 @@ This documentation is organized into several key areas to help you understand, d
 - Development workflow documentation
 - Gitignore strategy and maintenance
 
+### [WikiDocument DOM Architecture](architecture/WikiDocument-DOM-Architecture.md)
+- JSPWiki-inspired parsing architecture
+- Three-phase extraction pipeline
+- DOM-based JSPWiki element processing
+- Production deployment and testing
+- Fixes markdown heading bug (#110, #93)
+
 ### [Page Classification Architecture](architecture/ARCHITECTURE-PAGE-CLASSIFICATION.md)
 - Content classification system
 - File system organization strategy
@@ -55,6 +62,14 @@ This documentation is organized into several key areas to help you understand, d
 - Completion status
 
 ## 🔌 API Documentation
+
+### [MarkupParser API](api/MarkupParser-API.md)
+- Complete parser API reference
+- Method signatures and examples
+- Configuration properties
+- Error handling and troubleshooting
+- Performance characteristics
+- Migration from legacy parser
 
 ### [Notification Enhancement](api/NOTIFICATION_ENHANCEMENT.md)
 - Notification system architecture
@@ -112,7 +127,22 @@ This documentation is organized into several key areas to help you understand, d
 - Management best practices
 - User content handling
 
+## 🔄 Migration Guides
+
+### [WikiDocument DOM Migration](migration/WikiDocument-DOM-Migration.md)
+- Migration patterns for custom handlers
+- Integration guide for adding custom syntax
+- Common pitfalls and solutions
+- Rollback plan and FAQ
+- Testing your migration
+
 ## 🧪 Testing Documentation
+
+### [Phase 5 Manual QA Plan](testing/Phase5-Manual-QA-Plan.md)
+- Comprehensive manual QA test plan
+- WikiDocument DOM pipeline validation
+- Production readiness testing
+- Acceptance criteria
 
 ### [PageManager Testing Guide](testing/testing/PageManager-Testing-Guide.md)
 - PageManager testing procedures
@@ -130,10 +160,12 @@ This documentation is organized into several key areas to help you understand, d
 |------|---------|---------------|
 | **Getting Started** | Basic usage and setup | [README.md](../README.md) |
 | **Features** | User features and guides | [Page Link Autocomplete](features/PageLinkAutocomplete.md) |
-| **Architecture** | System design and structure | [Project Structure](architecture/PROJECT-STRUCTURE.md) |
+| **Architecture** | System design and structure | [WikiDocument DOM](architecture/WikiDocument-DOM-Architecture.md), [Project Structure](architecture/PROJECT-STRUCTURE.md) |
 | **Development** | Coding and contribution | [Contributing](development/CONTRIBUTING.md) |
 | **Planning** | Project vision and tasks | [Roadmap](planning/ROADMAP.md) |
-| **API** | Technical interfaces | [Notification Enhancement](api/NOTIFICATION_ENHANCEMENT.md) |
+| **API** | Technical interfaces | [MarkupParser API](api/MarkupParser-API.md), [Notification Enhancement](api/NOTIFICATION_ENHANCEMENT.md) |
+| **Migration** | Upgrading and custom handlers | [WikiDocument DOM Migration](migration/WikiDocument-DOM-Migration.md) |
+| **Testing** | Test plans and procedures | [Phase 5 QA Plan](testing/Phase5-Manual-QA-Plan.md) |
 | **Issues** | Problems and solutions | [Attachment Conflicts](issues/ATTACHMENT_PERMISSION_CONFLICTS.md) |
 
 ## 📖 Reading Guide
@@ -156,10 +188,19 @@ This documentation is organized into several key areas to help you understand, d
 4. See [Features](features/) for user-facing functionality
 
 ### For Developers
-1. Study [Architecture docs](architecture/)
-2. Review [API documentation](api/)
-3. Check [Testing documentation](testing/)
-4. Review current [Issues](issues/)
+1. Study [WikiDocument DOM Architecture](architecture/WikiDocument-DOM-Architecture.md)
+2. Review [MarkupParser API](api/MarkupParser-API.md)
+3. Check [WikiDocument DOM Migration Guide](migration/WikiDocument-DOM-Migration.md) for custom syntax
+4. Study [Architecture docs](architecture/)
+5. Review [Testing documentation](testing/)
+6. Review current [Issues](issues/)
+
+### For Parser Contributors
+1. Start with [WikiDocument DOM Architecture](architecture/WikiDocument-DOM-Architecture.md)
+2. Review [MarkupParser API Documentation](api/MarkupParser-API.md)
+3. Read [Migration Guide](migration/WikiDocument-DOM-Migration.md) for handler patterns
+4. Check [Phase 5 QA Plan](testing/Phase5-Manual-QA-Plan.md) for testing approach
+5. Review parser test suites in `src/parsers/__tests__/`
 
 ## 🤝 Contributing to Documentation
 
@@ -179,5 +220,5 @@ When adding new documentation:
 
 ---
 
-*This documentation is maintained alongside the codebase. Last updated: October 12, 2025*</content>
+*This documentation is maintained alongside the codebase. Last updated: October 13, 2025*</content>
 

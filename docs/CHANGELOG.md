@@ -8,6 +8,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **WikiDocument DOM Parsing Architecture**: Production deployment of JSPWiki-inspired DOM-based parser (Epic #114)
+  - **WikiDocument DOM Extraction Pipeline**: Three-phase parsing that separates JSPWiki and Markdown processing
+  - **Phase 1 - Extraction** (#115): `extractJSPWikiSyntax()` extracts JSPWiki syntax before Markdown parsing
+  - **Phase 2 - DOM Creation** (#116): `createDOMNode()` creates WikiDocument DOM nodes via handlers
+  - **Phase 3 - Merge Pipeline** (#117): `mergeDOMNodes()` replaces placeholders with rendered nodes
+  - **DOM Handlers**: DOMVariableHandler, DOMPluginHandler, DOMLinkHandler for type-safe node creation
+  - **WikiDocument Class**: Lightweight DOM implementation using linkedom with metadata support
+  - **Comprehensive Testing** (#119): 376+ tests with 100% success rate
+  - **Production Integration** (#120): Deployed by default with automatic fallback to legacy parser
+  - **Complete Documentation** (#121): API reference, migration guide, and architecture documentation
+  - **Bug Fixes**: Resolves markdown heading bug (#110, #93) and escaping issues
+  - **Configuration**: `jspwiki.parser.useExtractionPipeline = true` (default)
+  - **Performance**: <50ms typical pages, <100ms large pages
+  - **Extensible**: Easy to add custom syntax via DOM handlers
+  - **Documentation**:
+    - API Reference: `docs/api/MarkupParser-API.md`
+    - Migration Guide: `docs/migration/WikiDocument-DOM-Migration.md`
+    - Architecture: `docs/architecture/WikiDocument-DOM-Architecture.md`
+    - QA Plan: `docs/testing/Phase5-Manual-QA-Plan.md`
 - **Page Link Autocomplete**: Smart autocomplete for internal page links in editor and search (Issue #90)
   - **API Endpoint**: `/api/page-suggestions` with smart sorting (exact → prefix → contains)
   - **Client Module**: Reusable `PageAutocomplete` class with debouncing and keyboard navigation

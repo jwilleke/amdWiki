@@ -29,11 +29,39 @@ amdWiki follows a **manager-based architecture** inspired by JSPWiki:
 
 - **WikiEngine** - Central orchestrator (`src/WikiEngine.js`)
 - **Managers** - Modular functionality (`src/managers/`)
+- **MarkupParser** - WikiDocument DOM extraction pipeline (`src/parsers/MarkupParser.js`)
+- **WikiDocument** - DOM-based JSPWiki element representation (`src/parsers/dom/WikiDocument.js`)
+- **DOM Handlers** - Variable, plugin, and link processing (`src/parsers/dom/handlers/`)
 - **Plugins** - Extensible features (`plugins/`)
 - **File-based storage** - Pages as Markdown files (`pages/`)
 - **Additional technical guides in [docs/](docs/) folder**, such as testing and manager development.
 
 📖 **Read [ARCHITECTURE-PAGE-CLASSIFICATION.md](ARCHITECTURE-PAGE-CLASSIFICATION.md)** for detailed architecture patterns.
+
+### WikiDocument DOM Parsing Architecture
+
+amdWiki uses a **three-phase extraction pipeline** that separates JSPWiki syntax processing from Markdown parsing:
+
+```
+Content → Extract JSPWiki → Create DOM Nodes → Showdown → Merge → HTML
+```
+
+**Key Components:**
+- **MarkupParser** - Main parser orchestrator
+- **extractJSPWikiSyntax()** - Phase 1: Extract JSPWiki syntax with placeholders
+- **createDOMNode()** - Phase 2: Create WikiDocument DOM nodes via handlers
+- **mergeDOMNodes()** - Phase 3: Replace placeholders with rendered nodes
+- **DOMVariableHandler** - Handles `[{$variable}]` syntax
+- **DOMPluginHandler** - Handles `[{Plugin param="value"}]` syntax
+- **DOMLinkHandler** - Handles `[PageName]` and `[Text|Target]` syntax
+
+**Benefits:**
+- No parsing conflicts between JSPWiki and Markdown
+- Correct heading rendering (fixes #110, #93)
+- Natural escaping via DOM text nodes
+- 376+ tests with 100% success rate
+
+📖 **Read [docs/architecture/WikiDocument-DOM-Architecture.md](docs/architecture/WikiDocument-DOM-Architecture.md)** for complete architecture details.
 
 ## 🔧 Development Guidelines
 
@@ -78,6 +106,55 @@ const PluginName = {
 };
 ```
 
+### Parser Development Pattern
+
+**Adding Custom JSPWiki Syntax:**
+
+1. **Add extraction pattern** in `MarkupParser.extractJSPWikiSyntax()`:
+```javascript
+// Extract custom syntax
+sanitized = sanitized.replace(/\[\{CUSTOM:(.*?)\}\]/g, (match, content) => {
+  jspwikiElements.push({
+    type: 'custom',
+    content: content.trim(),
+    id: id++,
+    syntax: match
+  });
+  return `<!--JSPWIKI-${uuid}-${id - 1}-->`;
+});
+```
+
+2. **Create DOM handler** in `src/parsers/dom/handlers/`:
+```javascript
+class CustomHandler {
+  async createNodeFromExtract(element, context, wikiDocument) {
+    const node = wikiDocument.createElement('div', {
+      'class': 'custom-element',
+      'data-jspwiki-id': element.id.toString()
+    });
+    node.textContent = element.content;
+    return node;
+  }
+}
+```
+
+3. **Integrate handler** in `MarkupParser.createDOMNode()`:
+```javascript
+case 'custom':
+  return await this.customHandler.createNodeFromExtract(element, context, wikiDocument);
+```
+
+4. **Add tests** in `src/parsers/__tests__/`:
+```javascript
+test('custom syntax extraction', () => {
+  const { jspwikiElements } = parser.extractJSPWikiSyntax('[{CUSTOM:test}]');
+  expect(jspwikiElements[0].type).toBe('custom');
+  expect(jspwikiElements[0].content).toBe('test');
+});
+```
+
+📖 **Read [docs/migration/WikiDocument-DOM-Migration.md](docs/migration/WikiDocument-DOM-Migration.md)** for detailed migration patterns and integration guide.
+
 ### Security Guidelines
 
 Use **ACLManager** for content filtering based on user permissions.
@@ -102,17 +179,42 @@ See [Policies-Roles-Permissions](docs/architecture/Policies-Roles-Permissions.md
 - **Run tests**: `npm test`
 - **Coverage**: `npm run test:coverage`
 - **Watch mode**: `npm run test:watch`
-- **Test location**: `src/managers/__tests__/`
+- **Test locations**:
+  - `src/managers/__tests__/` - Manager tests
+  - `src/parsers/__tests__/` - Parser tests
 
 ### Test Requirements
 - **Unit tests for new managers** (extending BaseManager pattern)
 - **Integration tests** for route handlers and cross-component functionality
 - **Plugin functionality tests** for JSPWiki-style plugin syntax
+- **Parser tests** for extraction, DOM creation, and merge pipeline
 - **Use mocks instead of real file operations** - critical requirement (see CHANGELOG.md)
 - **Mock fs-extra completely** using in-memory Map-based file systems
 - **Mock gray-matter** for YAML frontmatter parsing
 - **Maintain >80% coverage** for critical managers (>90% for PageManager, UserManager, ACLManager)
+- **Maintain >90% coverage** for parser components
 - **Use testUtils.js** for common mock objects and test utilities
+
+### Parser Test Suites
+
+The WikiDocument DOM parser has comprehensive test coverage:
+
+- **MarkupParser-Extraction.test.js** (41 tests) - Phase 1: JSPWiki syntax extraction
+- **MarkupParser-MergePipeline.test.js** (31 tests) - Phase 3: DOM merge pipeline
+- **MarkupParser-Comprehensive.test.js** (55 tests) - Integration tests covering:
+  - Markdown preservation
+  - JSPWiki syntax processing
+  - Mixed content scenarios
+  - Edge cases and error handling
+  - Performance validation
+  - Regression tests for #110, #93
+
+**Handler Tests:**
+- `DOMVariableHandler.test.js` - Variable node creation
+- `DOMPluginHandler.test.js` - Plugin node creation
+- `DOMLinkHandler.test.js` - Link node creation
+
+**Total: 376+ tests with 100% success rate**
 
 ## 📝 Page Development
 
@@ -185,12 +287,21 @@ npm run version:major    # Breaking changes (1.2.0 → 2.0.0)
 - **Page History & Versioning** features
 - **Advanced Search** enhancements
 - **Plugin Development**
+- **Parser Extensions** - Custom JSPWiki syntax handlers
 
 ### Good First Issues
 - Documentation improvements
 - New wiki plugins
 - UI/UX enhancements
 - Test coverage expansion
+- Parser handler improvements
+
+### Parser-Specific Contributions
+- **Custom Syntax Handlers** - Add new JSPWiki-style syntax
+- **Performance Optimizations** - Improve extraction/merge speed
+- **Handler Enhancements** - Improve existing DOM handlers
+- **Test Coverage** - Add edge case tests
+- **Documentation** - Improve API docs and examples
 
 ## 💬 Getting Help
 
@@ -205,5 +316,3 @@ By contributing, you agree that your contributions will be licensed under the sa
 ---
 
 Thank you for contributing to amdWiki! 🚀
-### Test Update
-- This is a test line to check if updates can be applied.
