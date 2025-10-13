@@ -1263,6 +1263,107 @@ class MarkupParser extends BaseManager {
   }
 
   /**
+   * Extract JSPWiki-specific syntax from content for DOM-based processing
+   *
+   * This method implements the pre-extraction strategy from Issue #114.
+   * Instead of tokenizing both markdown and JSPWiki syntax (which causes conflicts),
+   * we extract ONLY JSPWiki syntax and let Showdown handle all markdown.
+   *
+   * Extraction order:
+   * 1. Variables: [{$username}] → __JSPWIKI_uuid_0__
+   * 2. Plugins: [{TableOfContents}] → __JSPWIKI_uuid_1__
+   * 3. Escaped: [[{$var}] → __JSPWIKI_uuid_2__ (stores literal [{$var}])
+   * 4. Wiki links: [PageName] → __JSPWIKI_uuid_3__ (but not markdown [text](url))
+   *
+   * Code blocks are already protected by Phase 1 preprocessing, so JSPWiki syntax
+   * inside code blocks won't be extracted.
+   *
+   * @param {string} content - Raw wiki content
+   * @param {ParseContext} context - Parse context (for code block protection)
+   * @returns {Object} - { sanitized, jspwikiElements, uuid }
+   *
+   * Related: #114 (WikiDocument DOM Solution), #115 (Phase 1 Implementation)
+   *
+   * @example
+   * const input = "## Heading\n\nUser: [{$username}]";
+   * const { sanitized, jspwikiElements, uuid } = parser.extractJSPWikiSyntax(input);
+   * // sanitized: "## Heading\n\nUser: __JSPWIKI_abc123_0__"
+   * // jspwikiElements: [{ type: 'variable', varName: '$username', id: 0, ... }]
+   * // uuid: "abc123"
+   */
+  extractJSPWikiSyntax(content, context = {}) {
+    const crypto = require('crypto');
+    const jspwikiElements = [];
+    const uuid = crypto.randomUUID().substring(0, 8);
+    let sanitized = content;
+    let id = 0;
+
+    // IMPORTANT: Extraction order matters!
+    // Step 1: Extract ESCAPED syntax FIRST (before anything else)
+    // Matches: [[{$var}], [[{Plugin}]
+    // Result: Literal [{$var}] or [{Plugin}] in output
+    sanitized = sanitized.replace(/\[\[\{([^}]+)\}\]/g, (match, inner) => {
+      jspwikiElements.push({
+        type: 'escaped',
+        syntax: match,
+        literal: `[{${inner}}]`, // What should appear in output
+        id: id++,
+        position: match.index
+      });
+      return `__JSPWIKI_${uuid}_${id - 1}__`;
+    });
+
+    // Step 2: Extract variables [{$varname}]
+    // Matches: [{$username}], [{$pagename}], etc.
+    // Does NOT match: [{Plugin}], [[{$escaped}] (already extracted)
+    sanitized = sanitized.replace(/\[\{(\$\w+)\}\]/g, (match, varName) => {
+      jspwikiElements.push({
+        type: 'variable',
+        syntax: match,
+        varName: varName, // Includes the $
+        id: id++,
+        position: match.index
+      });
+      return `__JSPWIKI_${uuid}_${id - 1}__`;
+    });
+
+    // Step 3: Extract plugins [{PluginName params}]
+    // Matches: [{TableOfContents}], [{Search query='wiki'}]
+    // Does NOT match: [{$variable}] (already extracted)
+    sanitized = sanitized.replace(/\[\{([^$][^}]+)\}\]/g, (match, inner) => {
+      jspwikiElements.push({
+        type: 'plugin',
+        syntax: match,
+        inner: inner.trim(),
+        id: id++,
+        position: match.index
+      });
+      return `__JSPWIKI_${uuid}_${id - 1}__`;
+    });
+
+    // Step 4: Extract wiki links [PageName] or [Text|Target]
+    // Matches: [HomePage], [Click Here|HomePage]
+    // Does NOT match: [text](url) - markdown links (negative lookahead)
+    // Note: This runs last to avoid conflicts with escaped/variable/plugin syntax
+    sanitized = sanitized.replace(/\[([^\]]+)\](?!\()/g, (match, target) => {
+      jspwikiElements.push({
+        type: 'link',
+        syntax: match,
+        target: target.trim(),
+        id: id++,
+        position: match.index
+      });
+      return `__JSPWIKI_${uuid}_${id - 1}__`;
+    });
+
+    return {
+      sanitized,      // Content with JSPWiki syntax replaced by placeholders
+      jspwikiElements, // Array of extracted elements with metadata
+      uuid            // Unique identifier for this extraction (prevents collisions)
+    };
+  }
+
+  /**
    * Protect HTML links and other generated HTML from markdown encoding
    * @param {string} content - Content with generated HTML
    * @param {ParseContext} context - Parse context to store protected content
