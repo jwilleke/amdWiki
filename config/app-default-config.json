@@ -17,6 +17,9 @@
   "amdwiki.translatorReader.plainUris": true,
   "amdwiki.translatorReader.inlinePattern.1": "s/\\{\\{([^}]+)\\}\\}/\\<tt\\>$1\\<\\/tt\\>/g",
 
+  "_comment_parser": "Parser configuration (Phase 6, Issue #120)",
+  "jspwiki.parser.useExtractionPipeline": true,
+
   "_comment_page_storage": "Page storage configuration (ALL LOWERCASE)",
   "amdwiki.page.enabled": true,
   "amdwiki.page.provider.default": "filesystemprovider",

@@ -652,20 +652,79 @@ class MarkupParser extends BaseManager {
     const startTime = Date.now();
     this.metrics.parseCount++;
 
+    // Phase 6 (Issue #120): Check if WikiDocument DOM extraction pipeline should be used
+    const configManager = this.engine.getManager('ConfigurationManager');
+    const useExtractionPipeline = configManager?.getProperty?.(
+      'jspwiki.parser.useExtractionPipeline',
+      true // Default to new pipeline (Phase 6)
+    ) ?? true;
+
+    if (useExtractionPipeline) {
+      // NEW: WikiDocument DOM extraction pipeline (Phases 1-5, Issues #115-#119)
+      try {
+        console.log('🔄 Using WikiDocument DOM extraction pipeline');
+
+        // Check cache first
+        const cacheKey = this.generateCacheKey(content, context);
+        if (this.cacheStrategies.parseResults) {
+          const cached = await this.getCachedParseResult(cacheKey);
+          if (cached) {
+            this.updateCacheMetrics('parseResults', 'hit');
+            this.metrics.cacheHits++;
+            this.updatePerformanceMetrics(Date.now() - startTime, true);
+            console.log(`✅ Cache hit for extraction pipeline (${Date.now() - startTime}ms)`);
+            return cached;
+          }
+          this.updateCacheMetrics('parseResults', 'miss');
+          this.metrics.cacheMisses++;
+        }
+
+        // Parse using extraction pipeline
+        const result = await this.parseWithDOMExtraction(content, context);
+
+        // Cache the result
+        await this.cacheParseResult(cacheKey, result);
+
+        // Update metrics
+        const processingTime = Date.now() - startTime;
+        this.metrics.totalParseTime += processingTime;
+        this.updatePerformanceMetrics(processingTime, false);
+
+        console.log(`✅ Extraction pipeline completed (${processingTime}ms)`);
+
+        // Warn if parse time is slow
+        if (processingTime > 100) {
+          console.warn(`⚠️  Slow parse: ${processingTime}ms for page ${context.pageName || 'unknown'}`);
+        }
+
+        return result;
+
+      } catch (error) {
+        console.error('❌ Extraction pipeline error:', error);
+        console.warn('⚠️  Falling back to legacy 7-phase parser');
+
+        // Fall through to legacy parser on error
+        // (continue below with the old pipeline)
+      }
+    } else {
+      console.log('🔄 Using legacy 7-phase parser (extraction pipeline disabled)');
+    }
+
+    // LEGACY: Original 7-phase parser (fallback)
     try {
       // Generate cache key
       const cacheKey = this.generateCacheKey(content, context);
-      
+
       // Check parse results cache first
       if (this.cacheStrategies.parseResults) {
         const cached = await this.getCachedParseResult(cacheKey);
         if (cached) {
           this.updateCacheMetrics('parseResults', 'hit');
           this.metrics.cacheHits++;
-          
+
           // Update performance monitoring
           this.updatePerformanceMetrics(Date.now() - startTime, true);
-          
+
           return cached;
         }
         this.updateCacheMetrics('parseResults', 'miss');
@@ -677,26 +736,26 @@ class MarkupParser extends BaseManager {
 
       // Execute all processing phases
       let processedContent = content;
-      
+
       for (const phase of this.phases) {
         const phaseStartTime = Date.now();
-        
+
         try {
           processedContent = await this.executePhase(phase, processedContent, parseContext);
-          
+
           // Update phase metrics
           const phaseMetrics = this.metrics.phaseMetrics.get(phase.name);
           phaseMetrics.executionCount++;
           phaseMetrics.totalTime += Date.now() - phaseStartTime;
-          
+
         } catch (error) {
           console.error(`❌ Error in ${phase.name} phase:`, error);
-          
+
           // Update error metrics
           this.metrics.errorCount++;
           const phaseMetrics = this.metrics.phaseMetrics.get(phase.name);
           phaseMetrics.errorCount++;
-          
+
           // Continue with next phase on error (graceful degradation)
           // In production, you might want to be more strict
         }
@@ -715,7 +774,7 @@ class MarkupParser extends BaseManager {
     } catch (error) {
       console.error('❌ Critical error in MarkupParser.parse():', error);
       this.metrics.errorCount++;
-      
+
       // Return original content on critical failure
       return content;
     }
