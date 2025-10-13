@@ -31,7 +31,7 @@ describe('MarkupParser.extractJSPWikiSyntax()', () => {
       const content = 'User: [{$username}]';
       const { sanitized, jspwikiElements, uuid } = parser.extractJSPWikiSyntax(content);
 
-      expect(sanitized).toMatch(/User: __JSPWIKI_[a-f0-9]{8}_0__/);
+      expect(sanitized).toMatch(/User: <!--JSPWIKI-[a-f0-9]{8}-0-->/);
       expect(jspwikiElements).toHaveLength(1);
       expect(jspwikiElements[0]).toMatchObject({
         type: 'variable',
@@ -75,7 +75,7 @@ describe('MarkupParser.extractJSPWikiSyntax()', () => {
       const content = '[{TableOfContents}]';
       const { sanitized, jspwikiElements } = parser.extractJSPWikiSyntax(content);
 
-      expect(sanitized).toMatch(/__JSPWIKI_[a-f0-9]{8}_0__/);
+      expect(sanitized).toMatch(/<!--JSPWIKI-[a-f0-9]{8}-0-->/);
       expect(jspwikiElements).toHaveLength(1);
       expect(jspwikiElements[0]).toMatchObject({
         type: 'plugin',
@@ -116,7 +116,7 @@ describe('MarkupParser.extractJSPWikiSyntax()', () => {
       const content = 'Example: [[{$username}]';
       const { sanitized, jspwikiElements } = parser.extractJSPWikiSyntax(content);
 
-      expect(sanitized).toMatch(/Example: __JSPWIKI_[a-f0-9]{8}_0__/);
+      expect(sanitized).toMatch(/Example: <!--JSPWIKI-[a-f0-9]{8}-0-->/);
       expect(jspwikiElements).toHaveLength(1);
       expect(jspwikiElements[0]).toMatchObject({
         type: 'escaped',
@@ -150,7 +150,7 @@ describe('MarkupParser.extractJSPWikiSyntax()', () => {
       const content = '[HomePage]';
       const { sanitized, jspwikiElements } = parser.extractJSPWikiSyntax(content);
 
-      expect(sanitized).toMatch(/__JSPWIKI_[a-f0-9]{8}_0__/);
+      expect(sanitized).toMatch(/<!--JSPWIKI-[a-f0-9]{8}-0-->/);
       expect(jspwikiElements).toHaveLength(1);
       expect(jspwikiElements[0]).toMatchObject({
         type: 'link',
@@ -250,7 +250,7 @@ describe('MarkupParser.extractJSPWikiSyntax()', () => {
       const { sanitized, jspwikiElements } = parser.extractJSPWikiSyntax(content);
 
       expect(sanitized).toContain('## Welcome'); // MD preserved
-      expect(sanitized).toMatch(/__JSPWIKI_[a-f0-9]{8}_0__/); // Variable extracted
+      expect(sanitized).toMatch(/<!--JSPWIKI-[a-f0-9]{8}-0-->/); // Variable extracted
       expect(jspwikiElements).toHaveLength(1);
       expect(jspwikiElements[0].type).toBe('variable');
     });
@@ -312,18 +312,18 @@ Example: [[{$var}]
 
     test('UUID prevents placeholder conflicts', () => {
       // User writes text that looks like a placeholder
-      const content = 'Debug: __JSPWIKI_0__ and [{$username}]';
+      const content = 'Debug: <!--JSPWIKI-0__ and [{$username}]';
       const { sanitized, jspwikiElements, uuid } = parser.extractJSPWikiSyntax(content);
 
       // User's text preserved (no UUID, so different from our placeholders)
-      expect(sanitized).toContain('__JSPWIKI_0__');
+      expect(sanitized).toContain('<!--JSPWIKI-0__');
 
       // Variable gets UUID-based placeholder (different from user's text)
-      expect(sanitized).toContain(`__JSPWIKI_${uuid}_0__`);
+      expect(sanitized).toContain(`<!--JSPWIKI-${uuid}-0-->`);
 
-      // Both strings present (user's __JSPWIKI_0__ and our __JSPWIKI_uuid_0__)
-      const userPlaceholderCount = (sanitized.match(/__JSPWIKI_0__/g) || []).length;
-      const ourPlaceholderCount = (sanitized.match(new RegExp(`__JSPWIKI_${uuid}_0__`, 'g')) || []).length;
+      // Both strings present (user's <!--JSPWIKI-0__ and our <!--JSPWIKI-uuid-0-->)
+      const userPlaceholderCount = (sanitized.match(/<!--JSPWIKI-0__/g) || []).length;
+      const ourPlaceholderCount = (sanitized.match(new RegExp(`<!--JSPWIKI-${uuid}-0-->`, 'g')) || []).length;
       expect(userPlaceholderCount).toBe(1); // User's text
       expect(ourPlaceholderCount).toBe(1); // Our placeholder
     });
@@ -332,9 +332,9 @@ Example: [[{$var}]
       const content = '[{$user}] [{TOC}] [{$page}]';
       const { sanitized, uuid } = parser.extractJSPWikiSyntax(content);
 
-      expect(sanitized).toContain(`__JSPWIKI_${uuid}_0__`);
-      expect(sanitized).toContain(`__JSPWIKI_${uuid}_1__`);
-      expect(sanitized).toContain(`__JSPWIKI_${uuid}_2__`);
+      expect(sanitized).toContain(`<!--JSPWIKI-${uuid}-0-->`);
+      expect(sanitized).toContain(`<!--JSPWIKI-${uuid}-1-->`);
+      expect(sanitized).toContain(`<!--JSPWIKI-${uuid}-2-->`);
     });
   });
 

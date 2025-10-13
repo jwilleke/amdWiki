@@ -1310,7 +1310,7 @@ class MarkupParser extends BaseManager {
         id: id++,
         position: match.index
       });
-      return `__JSPWIKI_${uuid}_${id - 1}__`;
+      return `<!--JSPWIKI-${uuid}-${id - 1}-->`;
     });
 
     // Step 2: Extract variables [{$varname}]
@@ -1324,7 +1324,7 @@ class MarkupParser extends BaseManager {
         id: id++,
         position: match.index
       });
-      return `__JSPWIKI_${uuid}_${id - 1}__`;
+      return `<!--JSPWIKI-${uuid}-${id - 1}-->`;
     });
 
     // Step 3: Extract plugins [{PluginName params}]
@@ -1338,7 +1338,7 @@ class MarkupParser extends BaseManager {
         id: id++,
         position: match.index
       });
-      return `__JSPWIKI_${uuid}_${id - 1}__`;
+      return `<!--JSPWIKI-${uuid}-${id - 1}-->`;
     });
 
     // Step 4: Extract wiki links [PageName] or [Text|Target]
@@ -1353,7 +1353,7 @@ class MarkupParser extends BaseManager {
         id: id++,
         position: match.index
       });
-      return `__JSPWIKI_${uuid}_${id - 1}__`;
+      return `<!--JSPWIKI-${uuid}-${id - 1}-->`;
     });
 
     return {
@@ -1390,6 +1390,186 @@ class MarkupParser extends BaseManager {
     node.textContent = element.literal;
 
     return node;
+  }
+
+  /**
+   * Creates a DOM node from an extracted element (Phase 2 dispatcher)
+   *
+   * This is the dispatcher method for Phase 2 that routes extracted elements
+   * to the appropriate handler based on element type.
+   *
+   * @param {Object} element - Extracted element from extractJSPWikiSyntax()
+   * @param {Object} context - Rendering context
+   * @param {WikiDocument} wikiDocument - WikiDocument to create node in
+   * @returns {Promise<Element>} DOM node for the element
+   *
+   * @example
+   * const element = { type: 'variable', varName: '$username', id: 0 };
+   * const node = await createDOMNode(element, context, wikiDoc);
+   * // Returns: <span class="wiki-variable">JohnDoe</span>
+   */
+  async createDOMNode(element, context, wikiDocument) {
+    switch (element.type) {
+      case 'variable':
+        // Variable: [{$username}]
+        return await this.domVariableHandler.createNodeFromExtract(element, context, wikiDocument);
+
+      case 'plugin':
+        // Plugin: [{TableOfContents}]
+        return await this.domPluginHandler.createNodeFromExtract(element, context, wikiDocument);
+
+      case 'link':
+        // Link: [HomePage] or [Display|Target]
+        return await this.domLinkHandler.createNodeFromExtract(element, context, wikiDocument);
+
+      case 'escaped':
+        // Escaped: [[{$var}]] → [{$var}]
+        return this.createTextNodeForEscaped(element, wikiDocument);
+
+      default:
+        console.error(`❌ Unknown element type: ${element.type}`);
+        // Return error node
+        const errorNode = wikiDocument.createElement('span', {
+          'class': 'wiki-error',
+          'data-jspwiki-id': element.id.toString()
+        });
+        errorNode.textContent = `[Error: Unknown type ${element.type}]`;
+        return errorNode;
+    }
+  }
+
+  /**
+   * Merges DOM nodes back into Showdown-generated HTML (Phase 3)
+   *
+   * Replaces HTML comment placeholders (<!--JSPWIKI-uuid-id-->) in the HTML with
+   * the rendered DOM nodes. Processes nodes in reverse ID order to
+   * handle nested JSPWiki syntax correctly.
+   *
+   * Uses HTML comments as placeholders to avoid Showdown interpreting them as markdown.
+   *
+   * @param {string} html - HTML from Showdown with placeholders
+   * @param {Array<Element>} nodes - Array of DOM nodes with data-jspwiki-id
+   * @param {string} uuid - UUID from extraction phase
+   * @returns {string} Final HTML with nodes merged in
+   *
+   * @example
+   * // Input HTML: "<p>User: <!--JSPWIKI-abc123-0--></p>"
+   * // Node 0: <span data-jspwiki-id="0">JohnDoe</span>
+   * // Output: "<p>User: <span>JohnDoe</span></p>"
+   */
+  mergeDOMNodes(html, nodes, uuid) {
+    if (!nodes || nodes.length === 0) {
+      return html;
+    }
+
+    let result = html;
+
+    // Sort nodes by ID (descending) to handle nested replacements correctly
+    // Example: Plugin containing variable must be replaced after the plugin
+    const sortedNodes = Array.from(nodes).sort((a, b) => {
+      const idA = parseInt(a.getAttribute('data-jspwiki-id'));
+      const idB = parseInt(b.getAttribute('data-jspwiki-id'));
+      return idB - idA; // Descending order
+    });
+
+    for (const node of sortedNodes) {
+      const id = node.getAttribute('data-jspwiki-id');
+      const placeholder = `<!--JSPWIKI-${uuid}-${id}-->`;
+
+      // Render node to HTML
+      let rendered;
+      if (node.outerHTML) {
+        rendered = node.outerHTML;
+      } else if (node.textContent !== undefined) {
+        // Fallback for nodes without outerHTML
+        rendered = node.textContent;
+      } else {
+        // Empty node
+        rendered = '';
+      }
+
+      // Replace placeholder with rendered HTML
+      // Use regex with 'g' flag to replace all occurrences
+      const placeholderRegex = new RegExp(placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+      result = result.replace(placeholderRegex, rendered);
+    }
+
+    return result;
+  }
+
+  /**
+   * Parses wiki markup using DOM extraction strategy (Phase 1-3)
+   *
+   * This is the new parsing method that implements the WikiDocument DOM solution:
+   * 1. Extract JSPWiki syntax (variables, plugins, links, escaped)
+   * 2. Create DOM nodes from extracted elements
+   * 3. Let Showdown parse the sanitized markdown
+   * 4. Merge DOM nodes back into the HTML
+   *
+   * This approach fixes the markdown heading bug by letting Showdown handle
+   * ALL markdown parsing while WikiDocument handles ONLY JSPWiki syntax.
+   *
+   * @param {string} content - Wiki markup content
+   * @param {Object} context - Rendering context
+   * @returns {Promise<string>} Rendered HTML
+   *
+   * @example
+   * const html = await parser.parseWithDOMExtraction('## Hello\nUser: [{$username}]', context);
+   * // Returns: "<h2>Hello</h2>\n<p>User: <span>JohnDoe</span></p>"
+   */
+  async parseWithDOMExtraction(content, context) {
+    console.log('🔄 Starting DOM extraction parse...');
+
+    // Phase 1: Extract JSPWiki syntax
+    const { sanitized, jspwikiElements, uuid } = this.extractJSPWikiSyntax(content, context);
+    console.log(`📦 Extracted ${jspwikiElements.length} JSPWiki elements`);
+
+    // Phase 2: Create WikiDocument and build DOM nodes
+    const WikiDocument = require('./dom/WikiDocument');
+    const wikiDocument = new WikiDocument();
+
+    const nodes = [];
+    for (const element of jspwikiElements) {
+      try {
+        const node = await this.createDOMNode(element, context, wikiDocument);
+        nodes.push(node);
+      } catch (error) {
+        console.error(`❌ Error creating DOM node for element ${element.id}:`, error.message);
+        // Create error node
+        const errorNode = wikiDocument.createElement('span', {
+          'class': 'wiki-error',
+          'data-jspwiki-id': element.id.toString()
+        });
+        errorNode.textContent = `[Error: ${error.message}]`;
+        nodes.push(errorNode);
+      }
+    }
+    console.log(`🔨 Created ${nodes.length} DOM nodes`);
+
+    // Phase 3: Let Showdown parse the sanitized markdown
+    const renderingManager = this.engine.getManager('RenderingManager');
+    let showdownHtml;
+    if (renderingManager && renderingManager.converter) {
+      showdownHtml = renderingManager.converter.makeHtml(sanitized);
+    } else {
+      // Fallback if RenderingManager not available (testing)
+      const showdown = require('showdown');
+      const converter = new showdown.Converter({
+        tables: true,
+        strikethrough: true,
+        tasklists: true,
+        simpleLineBreaks: false,
+        ghCodeBlocks: true
+      });
+      showdownHtml = converter.makeHtml(sanitized);
+    }
+    console.log('📝 Showdown processed markdown');
+
+    // Phase 4: Merge DOM nodes back into the HTML
+    const finalHtml = this.mergeDOMNodes(showdownHtml, nodes, uuid);
+    console.log('✅ Merge complete');
+
+    return finalHtml;
   }
 
   /**
