@@ -247,6 +247,82 @@ class DOMPluginHandler {
   }
 
   /**
+   * Creates a DOM node from an extracted plugin element
+   *
+   * This method is part of the Phase 2 extraction-based parsing (Issue #114).
+   * It creates a plugin node from a pre-extracted element and executes the plugin.
+   *
+   * @param {Object} element - Extracted element from extractJSPWikiSyntax()
+   * @param {Object} context - Rendering context
+   * @param {WikiDocument} wikiDocument - WikiDocument to create node in
+   * @returns {Promise<Element>} DOM node for the plugin
+   *
+   * @example
+   * const element = { type: 'plugin', inner: 'TableOfContents', id: 1, ... };
+   * const node = await handler.createNodeFromExtract(element, context, wikiDoc);
+   * // Returns: <div class="wiki-plugin" data-plugin="TableOfContents">...plugin output...</div>
+   */
+  async createNodeFromExtract(element, context, wikiDocument) {
+    // Get PluginManager dynamically
+    if (!this.pluginManager) {
+      this.pluginManager = this.engine.getManager('PluginManager');
+    }
+
+    // Parse plugin name and parameters from the inner content
+    // element.inner = "TableOfContents" or "Search query='wiki' max='10'"
+    const pluginInfo = this.parsePluginContent(element.inner);
+
+    if (!pluginInfo) {
+      console.warn(`⚠️  Failed to parse plugin: ${element.inner}`);
+      // Return error node
+      const errorNode = wikiDocument.createElement('span', {
+        'class': 'wiki-plugin-error',
+        'data-jspwiki-id': element.id.toString()
+      });
+      errorNode.textContent = `[Error: Invalid plugin syntax]`;
+      return errorNode;
+    }
+
+    // Execute plugin
+    let result;
+    try {
+      result = await this.executePlugin(
+        pluginInfo.pluginName,
+        pluginInfo.parameters,
+        context,
+        null // pluginElement not needed here
+      );
+    } catch (error) {
+      console.error(`❌ Error executing plugin '${pluginInfo.pluginName}':`, error.message);
+      // Return error node
+      const errorNode = wikiDocument.createElement('span', {
+        'class': 'wiki-plugin-error',
+        'data-plugin': pluginInfo.pluginName,
+        'data-jspwiki-id': element.id.toString()
+      });
+      errorNode.textContent = `[Error: ${pluginInfo.pluginName}]`;
+      return errorNode;
+    }
+
+    // Create DOM node for successful plugin execution
+    const node = wikiDocument.createElement('div', {
+      'class': 'wiki-plugin',
+      'data-plugin': pluginInfo.pluginName,
+      'data-jspwiki-id': element.id.toString()
+    });
+
+    // Set innerHTML with plugin result
+    if (result && typeof result === 'string' && result.trim() !== '') {
+      node.innerHTML = result;
+    } else {
+      // Empty result - plugin executed but returned nothing
+      node.textContent = '';
+    }
+
+    return node;
+  }
+
+  /**
    * Gets statistics about plugin processing
    *
    * @param {WikiDocument} wikiDocument - Document to analyze

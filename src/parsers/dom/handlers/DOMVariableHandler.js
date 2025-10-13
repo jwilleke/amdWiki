@@ -138,6 +138,60 @@ class DOMVariableHandler {
   }
 
   /**
+   * Creates a DOM node from an extracted variable element
+   *
+   * This method is part of the Phase 2 extraction-based parsing (Issue #114).
+   * It creates a variable node from a pre-extracted element instead of
+   * parsing it from tokens.
+   *
+   * @param {Object} element - Extracted element from extractJSPWikiSyntax()
+   * @param {Object} context - Rendering context
+   * @param {WikiDocument} wikiDocument - WikiDocument to create node in
+   * @returns {Element} DOM node for the variable
+   *
+   * @example
+   * const element = { type: 'variable', varName: '$username', id: 0, ... };
+   * const node = handler.createNodeFromExtract(element, context, wikiDoc);
+   * // Returns: <span class="wiki-variable" data-variable="username">JohnDoe</span>
+   */
+  async createNodeFromExtract(element, context, wikiDocument) {
+    // Get VariableManager dynamically
+    if (!this.variableManager) {
+      this.variableManager = this.engine.getManager('VariableManager');
+    }
+
+    // Extract variable name (remove $ prefix if present)
+    const varName = element.varName.startsWith('$')
+      ? element.varName.substring(1)
+      : element.varName;
+
+    // Resolve variable value
+    let value;
+    try {
+      value = this.resolveVariable(varName, context);
+
+      // If value is null/undefined, use default text
+      if (value === null || value === undefined) {
+        value = `{$${varName}}`; // Show unresolved variable
+      }
+    } catch (error) {
+      console.error(`❌ Error resolving variable '${varName}':`, error.message);
+      value = `[Error: ${varName}]`;
+    }
+
+    // Create DOM node
+    const node = wikiDocument.createElement('span', {
+      'class': 'wiki-variable',
+      'data-variable': varName,
+      'data-jspwiki-id': element.id.toString()
+    });
+
+    node.textContent = String(value);
+
+    return node;
+  }
+
+  /**
    * Gets statistics about variable processing
    *
    * @param {WikiDocument} wikiDocument - Document to analyze

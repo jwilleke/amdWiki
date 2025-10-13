@@ -377,6 +377,182 @@ class DOMLinkHandler {
   }
 
   /**
+   * Creates a DOM node from an extracted link element
+   *
+   * This method is part of the Phase 2 extraction-based parsing (Issue #114).
+   * It creates a link node from a pre-extracted element instead of parsing tokens.
+   *
+   * @param {Object} element - Extracted element from extractJSPWikiSyntax()
+   * @param {Object} context - Rendering context
+   * @param {WikiDocument} wikiDocument - WikiDocument to create node in
+   * @returns {Promise<Element>} DOM node for the link
+   *
+   * @example
+   * const element = { type: 'link', target: 'PageName', id: 0, ... };
+   * const node = await handler.createNodeFromExtract(element, context, wikiDoc);
+   * // Returns: <a class="wiki-link wikipage" href="/wiki/PageName" data-jspwiki-id="0">PageName</a>
+   *
+   * @example
+   * const element = { type: 'link', target: 'Click Here|PageName', id: 1, ... };
+   * const node = await handler.createNodeFromExtract(element, context, wikiDoc);
+   * // Returns: <a class="wiki-link wikipage" href="/wiki/PageName" data-jspwiki-id="1">Click Here</a>
+   */
+  async createNodeFromExtract(element, context, wikiDocument) {
+    // Get LinkParser dynamically
+    if (!this.linkParser) {
+      this.linkParser = new LinkParser();
+    }
+
+    // Parse display text and target from pipe syntax
+    // Format can be:
+    // - "PageName" -> display and target are same
+    // - "Display|Target" -> custom display text
+    const parts = element.target.split('|').map(s => s.trim());
+    const displayText = parts.length > 1 ? parts[0] : parts[0];
+    const linkTarget = parts.length > 1 ? parts[1] : parts[0];
+
+    // Create Link object for type determination
+    const linkInfo = {
+      text: displayText,
+      target: linkTarget,
+      attributes: {},
+      originalText: element.syntax
+    };
+
+    // Determine link type (internal, external, interwiki, email, anchor)
+    const linkType = this.linkParser.determineLinkType(linkInfo);
+
+    // Create anchor element with base attributes
+    const node = wikiDocument.createElement('a', {
+      'class': 'wiki-link',
+      'data-jspwiki-id': element.id.toString()
+    });
+
+    node.textContent = displayText;
+
+    // Process based on link type
+    switch (linkType) {
+      case 'internal': {
+        // Internal wiki link - check if page exists
+        const pageName = linkTarget;
+        let matchedPage = null;
+
+        if (this.pageNameMatcher && this.pageNames.size > 0) {
+          const allPages = Array.from(this.pageNames);
+          matchedPage = this.pageNameMatcher.findMatch(pageName, allPages);
+        } else {
+          // Fallback to exact match
+          matchedPage = this.pageNames.has(pageName) ? pageName : null;
+        }
+
+        const exists = matchedPage !== null;
+        const targetPage = matchedPage || pageName;
+
+        // Set href
+        const href = exists
+          ? `/wiki/${encodeURIComponent(targetPage)}`
+          : `/edit/${encodeURIComponent(pageName)}`;
+        node.setAttribute('href', href);
+
+        // Set class
+        const baseClass = exists ? 'wikipage' : 'redlink';
+        node.setAttribute('class', `wiki-link ${baseClass}`);
+
+        // Add red link styling
+        if (!exists) {
+          node.setAttribute('style', 'color: red;');
+          node.setAttribute('title', `Create page: ${pageName}`);
+        }
+
+        node.setAttribute('data-link-type', 'internal');
+        node.setAttribute('data-target', pageName);
+        break;
+      }
+
+      case 'external': {
+        // External link
+        node.setAttribute('href', linkTarget);
+        node.setAttribute('class', 'wiki-link external-link');
+        node.setAttribute('target', '_blank');
+        node.setAttribute('rel', 'noopener noreferrer');
+        node.setAttribute('data-link-type', 'external');
+        node.setAttribute('data-target', linkTarget);
+        break;
+      }
+
+      case 'interwiki': {
+        // InterWiki link format: WikiName:PageName
+        const match = linkTarget.match(/^([A-Za-z0-9]+):(.+)$/);
+        if (match) {
+          const [, wikiName, pageName] = match;
+          const interWikiSites = this.linkParser.interWikiSites;
+          const siteConfig = interWikiSites.get(wikiName) ||
+                             interWikiSites.get(wikiName.toLowerCase());
+
+          if (siteConfig) {
+            // Generate URL
+            const url = siteConfig.url.replace('%s', encodeURIComponent(pageName));
+            node.setAttribute('href', url);
+            node.setAttribute('class', `wiki-link interwiki-link interwiki-${wikiName.toLowerCase()}`);
+
+            // Set target and rel
+            if (siteConfig.openInNewWindow !== false) {
+              node.setAttribute('target', '_blank');
+              node.setAttribute('rel', 'noopener noreferrer');
+            }
+
+            // Set title
+            if (siteConfig.description) {
+              node.setAttribute('title', `${siteConfig.description}: ${displayText}`);
+            }
+
+            node.setAttribute('data-link-type', 'interwiki');
+            node.setAttribute('data-target', linkTarget);
+          } else {
+            // Unknown InterWiki site - treat as internal link
+            console.warn(`⚠️  Unknown InterWiki site: ${wikiName}`);
+            node.setAttribute('href', `/wiki/${encodeURIComponent(linkTarget)}`);
+            node.setAttribute('class', 'wiki-link redlink');
+            node.setAttribute('style', 'color: red;');
+            node.setAttribute('data-link-type', 'internal');
+            node.setAttribute('data-target', linkTarget);
+          }
+        }
+        break;
+      }
+
+      case 'email': {
+        // Email link
+        node.setAttribute('href', linkTarget);
+        node.setAttribute('class', 'wiki-link email-link');
+        node.setAttribute('data-link-type', 'email');
+        node.setAttribute('data-target', linkTarget);
+        break;
+      }
+
+      case 'anchor': {
+        // Anchor link
+        node.setAttribute('href', linkTarget);
+        node.setAttribute('class', 'wiki-link anchor-link');
+        node.setAttribute('data-link-type', 'anchor');
+        node.setAttribute('data-target', linkTarget);
+        break;
+      }
+
+      default: {
+        // Fallback to internal link
+        node.setAttribute('href', `/wiki/${encodeURIComponent(linkTarget)}`);
+        node.setAttribute('class', 'wiki-link redlink');
+        node.setAttribute('style', 'color: red;');
+        node.setAttribute('data-link-type', 'internal');
+        node.setAttribute('data-target', linkTarget);
+      }
+    }
+
+    return node;
+  }
+
+  /**
    * Gets statistics about link processing
    *
    * @param {WikiDocument} wikiDocument - Document to analyze

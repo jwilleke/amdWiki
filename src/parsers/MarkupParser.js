@@ -1364,6 +1364,35 @@ class MarkupParser extends BaseManager {
   }
 
   /**
+   * Creates a text node for escaped JSPWiki syntax
+   *
+   * This is a helper method for Phase 2 DOM node creation (Issue #116).
+   * Escaped syntax like [[{$var}]] should render as literal text [{$var}].
+   *
+   * @param {Object} element - Extracted escaped element
+   * @param {WikiDocument} wikiDocument - WikiDocument to create node in
+   * @returns {Element} DOM node containing the escaped literal text
+   *
+   * @example
+   * const element = { type: 'escaped', literal: '[{$username}]', id: 0, ... };
+   * const node = createTextNodeForEscaped(element, wikiDoc);
+   * // Returns: <span class="wiki-escaped" data-jspwiki-id="0">[{$username}]</span>
+   */
+  createTextNodeForEscaped(element, wikiDocument) {
+    // Create a span element to maintain consistency with other handlers
+    // (all handlers return elements with data-jspwiki-id for merge phase)
+    const node = wikiDocument.createElement('span', {
+      'class': 'wiki-escaped',
+      'data-jspwiki-id': element.id.toString()
+    });
+
+    // Set the literal text content (already extracted in element.literal)
+    node.textContent = element.literal;
+
+    return node;
+  }
+
+  /**
    * Protect HTML links and other generated HTML from markdown encoding
    * @param {string} content - Content with generated HTML
    * @param {ParseContext} context - Parse context to store protected content
