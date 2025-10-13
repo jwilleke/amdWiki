@@ -1299,6 +1299,26 @@ class MarkupParser extends BaseManager {
     let id = 0;
 
     // IMPORTANT: Extraction order matters!
+
+    // Step 0: Protect code blocks from JSPWiki extraction
+    // Code blocks should not have JSPWiki syntax processed
+    const codeBlocks = [];
+    let codeBlockId = 0;
+
+    // Protect fenced code blocks (```...```)
+    sanitized = sanitized.replace(/```[\s\S]*?```/g, (match) => {
+      const placeholder = `__CODEBLOCK_${codeBlockId++}__`;
+      codeBlocks.push({ placeholder, content: match });
+      return placeholder;
+    });
+
+    // Protect inline code (`...`)
+    sanitized = sanitized.replace(/`[^`]+`/g, (match) => {
+      const placeholder = `__CODEBLOCK_${codeBlockId++}__`;
+      codeBlocks.push({ placeholder, content: match });
+      return placeholder;
+    });
+
     // Step 1: Extract ESCAPED syntax FIRST (before anything else)
     // Matches: [[{$var}], [[{Plugin}]
     // Result: Literal [{$var}] or [{Plugin}] in output
@@ -1329,8 +1349,9 @@ class MarkupParser extends BaseManager {
 
     // Step 3: Extract plugins [{PluginName params}]
     // Matches: [{TableOfContents}], [{Search query='wiki'}]
-    // Does NOT match: [{$variable}] (already extracted)
-    sanitized = sanitized.replace(/\[\{([^$][^}]+)\}\]/g, (match, inner) => {
+    // Does NOT match: [{$variable}] (already extracted), [{] (malformed)
+    // Requires: At least one word character after [{
+    sanitized = sanitized.replace(/\[\{([A-Za-z]\w*[^}]*)\}\]/g, (match, inner) => {
       jspwikiElements.push({
         type: 'plugin',
         syntax: match,
@@ -1344,8 +1365,9 @@ class MarkupParser extends BaseManager {
     // Step 4: Extract wiki links [PageName] or [Text|Target]
     // Matches: [HomePage], [Click Here|HomePage]
     // Does NOT match: [text](url) - markdown links (negative lookahead)
+    // Does NOT match: [}] (malformed)
     // Note: This runs last to avoid conflicts with escaped/variable/plugin syntax
-    sanitized = sanitized.replace(/\[([^\]]+)\](?!\()/g, (match, target) => {
+    sanitized = sanitized.replace(/\[([^\]\[\{][^\]]*)\](?!\()/g, (match, target) => {
       jspwikiElements.push({
         type: 'link',
         syntax: match,
@@ -1355,6 +1377,11 @@ class MarkupParser extends BaseManager {
       });
       return `<!--JSPWIKI-${uuid}-${id - 1}-->`;
     });
+
+    // Step 5: Restore code blocks
+    for (const { placeholder, content } of codeBlocks) {
+      sanitized = sanitized.replace(placeholder, content);
+    }
 
     return {
       sanitized,      // Content with JSPWiki syntax replaced by placeholders
