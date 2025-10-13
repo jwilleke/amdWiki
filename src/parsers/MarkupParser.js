@@ -9,8 +9,33 @@ const DOMLinkHandler = require('./dom/handlers/DOMLinkHandler');
 
 /**
  * MarkupParser - Comprehensive markup parsing engine for JSPWiki compatibility
- * 
- * Implements a 7-phase processing pipeline:
+ *
+ * ============================================================================
+ * RENDERING PIPELINE (Phase 6, Issue #120):
+ * ============================================================================
+ *
+ * **PRIMARY PIPELINE (Default):** WikiDocument DOM Extraction (Issues #115-#120)
+ * 1. Extract JSPWiki syntax before markdown parsing (extractJSPWikiSyntax())
+ * 2. Create WikiDocument DOM nodes (createDOMNode())
+ * 3. Parse markdown with Showdown (makeHtml())
+ * 4. Merge DOM nodes into HTML (mergeDOMNodes())
+ *
+ * This pipeline fixes the markdown heading bug (#110, #93) and provides
+ * robust JSPWiki syntax processing without order dependencies.
+ *
+ * **Configuration:** Set `jspwiki.parser.useExtractionPipeline = true` (default)
+ *
+ * ============================================================================
+ * LEGACY PIPELINE (Deprecated, Fallback Only):
+ * ============================================================================
+ *
+ * **@deprecated** The 7-phase string-based pipeline below is DEPRECATED and
+ * kept only for backward compatibility and emergency fallback. It suffers from:
+ * - Order dependency issues
+ * - Markdown/JSPWiki conflicts (heading bug)
+ * - Fragile string manipulation
+ *
+ * Legacy 7-phase processing pipeline:
  * 1. Preprocessing - Escape handling, code block protection
  * 2. Syntax Recognition - Pattern detection and tokenization
  * 3. Context Resolution - Variable expansion, parameter resolution
@@ -18,9 +43,17 @@ const DOMLinkHandler = require('./dom/handlers/DOMLinkHandler');
  * 5. Filter Pipeline - Content filtering and validation
  * 6. Markdown Conversion - Showdown processing
  * 7. Post-processing - Cleanup and validation
- * 
- * Related Issue: #55 - Core Infrastructure and Phase System
- * Epic: #41 - Implement JSPWikiMarkupParser for Complete Enhancement Support
+ *
+ * **Configuration:** Set `jspwiki.parser.useExtractionPipeline = false` to use legacy
+ *
+ * ============================================================================
+ *
+ * Related Issues:
+ * - #114 - WikiDocument DOM Solution (Epic)
+ * - #115-#120 - Implementation Phases
+ * - #110, #93 - Markdown heading bug fixes
+ * - #55 - Core Infrastructure and Phase System (original)
+ * - #41 - JSPWikiMarkupParser Enhancement (original epic)
  */
 class MarkupParser extends BaseManager {
   constructor(engine) {
@@ -406,11 +439,25 @@ class MarkupParser extends BaseManager {
   }
 
   /**
-   * Initialize the 8 processing phases (updated for DOM-based parsing)
+   * Initialize the 8 processing phases (LEGACY/DEPRECATED)
+   *
+   * @deprecated This method initializes the LEGACY 7-phase string-based parser.
+   * The legacy parser is kept only for backward compatibility and emergency fallback.
+   *
+   * **NEW PRIMARY PIPELINE:** Use `parseWithDOMExtraction()` instead (Issues #115-#120)
+   * - Extraction-based approach
+   * - No order dependencies
+   * - Fixes markdown heading bug (#110, #93)
+   * - Active by default (jspwiki.parser.useExtractionPipeline = true)
+   *
+   * **This legacy pipeline is used only when:**
+   * - Configuration sets `jspwiki.parser.useExtractionPipeline = false`
+   * - New pipeline encounters an error (automatic fallback)
+   *
    * Phase 0 (DOM Parsing) replaces string-based tokenization
    * Each phase has a specific responsibility in the parsing pipeline
    *
-   * Related: GitHub Issue #93 - DOM-Based Parsing Architecture
+   * Related: GitHub Issues #93, #114-#120
    */
   initializePhases() {
     this.phases = [
