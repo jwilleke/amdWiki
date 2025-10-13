@@ -4,6 +4,44 @@ const WikiDocument = require('./WikiDocument');
 /**
  * DOMBuilder - Converts tokens into a WikiDocument DOM tree
  *
+ * ============================================================================
+ * ARCHITECTURE NOTE (Phase 4, Issue #118):
+ * ============================================================================
+ *
+ * **This DOMBuilder is a REFERENCE IMPLEMENTATION and is NOT actively used
+ * in the current rendering pipeline.**
+ *
+ * This builder converts tokens from the Tokenizer into a WikiDocument DOM.
+ * It was part of the Phase 0 tokenization-based parsing approach, which has
+ * been superseded by the extraction-based approach in Phases 1-3.
+ *
+ * CURRENT ACTIVE APPROACH:
+ * ------------------------
+ * DOM nodes are now created directly from extracted elements using:
+ * - DOMVariableHandler.createNodeFromExtract()
+ * - DOMPluginHandler.createNodeFromExtract()
+ * - DOMLinkHandler.createNodeFromExtract()
+ * - MarkupParser.createTextNodeForEscaped()
+ *
+ * These methods create DOM nodes directly without going through tokenization.
+ *
+ * WHY THIS DOMBUILDER IS KEPT:
+ * ----------------------------
+ * - Reference for token-to-DOM conversion patterns
+ * - Understanding of DOM tree construction
+ * - May be useful for future enhancements
+ * - Educational value
+ *
+ * SEE ALSO:
+ * - Tokenizer.js - Detailed architecture notes
+ * - DOMParser.js - Pipeline documentation
+ * - MarkupParser.parseWithDOMExtraction() - Current active pipeline
+ * - Issue #114 - WikiDocument DOM Solution
+ * - Issue #118 - Architecture documentation (this change)
+ *
+ * ============================================================================
+ *
+ * ORIGINAL DESCRIPTION:
  * Takes an array of tokens from the Tokenizer and builds a structured
  * DOM tree in a WikiDocument. Handles nesting, formatting, and all
  * JSPWiki-compatible markup elements.

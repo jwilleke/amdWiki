@@ -5,15 +5,51 @@ const WikiDocument = require('./WikiDocument');
 /**
  * DOMParser - Complete DOM-based parsing pipeline for wiki markup
  *
+ * ============================================================================
+ * ARCHITECTURE NOTE (Phase 4, Issue #118):
+ * ============================================================================
+ *
+ * **This DOMParser is a REFERENCE IMPLEMENTATION and is NOT actively used
+ * in the current rendering pipeline.**
+ *
+ * This parser uses the Tokenizer → DOMBuilder pipeline, which was the Phase 0
+ * approach to WikiDocument DOM parsing. However, it has been superseded by
+ * the extraction-based approach in Phases 1-3.
+ *
+ * CURRENT ACTIVE PIPELINE:
+ * ------------------------
+ * Use `MarkupParser.parseWithDOMExtraction()` instead of this DOMParser.
+ *
+ * The new pipeline:
+ * 1. MarkupParser.extractJSPWikiSyntax() - Extract JSPWiki syntax
+ * 2. MarkupParser.createDOMNode() - Create DOM nodes
+ * 3. Showdown.makeHtml() - Process markdown
+ * 4. MarkupParser.mergeDOMNodes() - Merge nodes into HTML
+ *
+ * WHY THIS DOMPARSER IS KEPT:
+ * ---------------------------
+ * - Reference implementation for token-based parsing
+ * - Useful for understanding the tokenization approach
+ * - May be enhanced for specific use cases in the future
+ * - Educational value for understanding different parsing strategies
+ *
+ * SEE ALSO:
+ * - Tokenizer.js - For detailed architecture notes
+ * - MarkupParser.parseWithDOMExtraction() - Current active pipeline
+ * - Issue #114 - WikiDocument DOM Solution
+ * - Issue #118 - Architecture documentation (this change)
+ *
+ * ============================================================================
+ *
+ * ORIGINAL DESCRIPTION:
  * Integrates Tokenizer and DOMBuilder to convert wiki markup into
  * a structured WikiDocument DOM tree. Provides error handling, recovery,
  * and detailed error messages with position information.
  *
- * This is the main entry point for DOM-based parsing, following JSPWiki's
- * MarkupParser architecture.
+ * This follows JSPWiki's MarkupParser architecture.
  *
  * Key Features:
- * - Complete parsing pipeline
+ * - Complete parsing pipeline (Tokenizer → DOMBuilder)
  * - Error handling with position tracking
  * - Helpful error messages
  * - Parse statistics and metadata

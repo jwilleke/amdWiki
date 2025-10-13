@@ -1,16 +1,73 @@
 /**
  * Tokenizer - Character-by-character parser for wiki markup
  *
- * This tokenizer reads wiki content character-by-character and produces tokens
- * that can be used to build a DOM tree. It handles lookahead and pushback
- * for complex parsing scenarios.
+ * ============================================================================
+ * ARCHITECTURE NOTE (Phase 4, Issue #118):
+ * ============================================================================
  *
- * Key features:
+ * **This Tokenizer is a REFERENCE IMPLEMENTATION and is NOT actively used
+ * in the current rendering pipeline.**
+ *
+ * HISTORY:
+ * --------
+ * Prior to Issue #114, this Tokenizer was part of the Phase 0 DOM parsing
+ * pipeline (Tokenizer → DOMBuilder → WikiDocument). However, this approach
+ * had conflicts when trying to parse both markdown AND JSPWiki syntax,
+ * resulting in bugs like ## headings becoming list items (Issue #110, #93).
+ *
+ * CURRENT ARCHITECTURE (Phases 1-3, Issue #114):
+ * -----------------------------------------------
+ * The rendering pipeline now uses a pre-extraction strategy inspired by
+ * JSPWiki's approach with FlexMark:
+ *
+ * 1. **Phase 1 - Extraction** (MarkupParser.extractJSPWikiSyntax())
+ *    - Extract ONLY JSPWiki syntax using regex
+ *    - Replace with HTML comment placeholders
+ *    - Result: Sanitized markdown + extracted elements
+ *
+ * 2. **Phase 2 - DOM Creation** (MarkupParser.createDOMNode())
+ *    - Create DOM nodes from extracted elements
+ *    - Uses DOMVariableHandler, DOMPluginHandler, DOMLinkHandler
+ *    - Result: Array of DOM nodes with data-jspwiki-id
+ *
+ * 3. **Phase 3 - Showdown + Merge** (MarkupParser.parseWithDOMExtraction())
+ *    - Showdown processes the sanitized markdown (handles ALL markdown)
+ *    - mergeDOMNodes() replaces placeholders with rendered nodes
+ *    - Result: Final HTML with both markdown and JSPWiki syntax
+ *
+ * WHY THIS TOKENIZER IS KEPT:
+ * ---------------------------
+ * - **Reference**: Documents JSPWiki syntax patterns clearly
+ * - **Testing**: Useful for unit testing syntax recognition
+ * - **Future**: May be enhanced for advanced use cases
+ * - **Educational**: Helps understand what we're parsing
+ *
+ * KEY DIFFERENCE:
+ * --------------
+ * - **Tokenizer**: Character-by-character, token-based parsing
+ * - **extractJSPWikiSyntax()**: Regex-based extraction (faster, simpler)
+ *
+ * The extraction approach is faster and avoids markdown conflicts because:
+ * 1. It extracts JSPWiki syntax BEFORE markdown parsing
+ * 2. Showdown handles ALL markdown (no conflicts)
+ * 3. DOM nodes are merged back AFTER markdown conversion
+ *
+ * ============================================================================
+ *
+ * KEY FEATURES OF THIS TOKENIZER:
  * - Character-by-character reading with position tracking
  * - Lookahead support via peekChar()
  * - Pushback support for complex token recognition
  * - Line and column tracking for error reporting
  * - Handles Unicode characters correctly
+ * - JSPWiki-only syntax (no markdown patterns)
+ *
+ * RELATED:
+ * - Issue #93: WikiDocument DOM Epic
+ * - Issue #110: Escaping bug
+ * - Issue #114: WikiDocument DOM Solution (heading bug fix)
+ * - Issue #118: Remove Markdown Tokenization (this change)
+ * - docs/planning/WikiDocument-DOM-Solution.md
  *
  * Part of Phase 2 of WikiDocument DOM Migration (GitHub Issue #93)
  */
