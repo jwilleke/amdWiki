@@ -7,13 +7,15 @@ const logger = require('../utils/logger'); // Add this line
 /**
  * UserManager - Handles user authentication, authorization, and roles
  * Similar to JSPWiki's UserManager with role-based permissions
+ *
+ * Follows JSPWiki's provider pattern where the actual storage implementation
+ * is abstracted behind a provider interface. This allows for different storage
+ * backends (file, database, LDAP, etc.) to be swapped via configuration.
  */
 class UserManager extends BaseManager {
   constructor(engine) {
     super(engine);
-    // this.usersDirectory = './users'; // This will be determined by config
-    this.users = new Map();
-    this.sessions = new Map();
+    this.provider = null;
     this.roles = new Map();
     this.permissions = new Map();
   }
@@ -26,30 +28,38 @@ class UserManager extends BaseManager {
       throw new Error('UserManager requires ConfigurationManager');
     }
 
-    // Load provider with fallback (ALL LOWERCASE) - for future provider support
-    // const defaultProvider = configManager.getProperty(
-    //   'amdwiki.user.provider.default',
-    //   'jsonuserprovider'
-    // );
-    // const providerName = configManager.getProperty(
-    //   'amdwiki.user.provider',
-    //   defaultProvider
-    // );
-    // TODO: Implement provider loading logic when multiple user providers are supported
+    // Load provider with fallback (ALL LOWERCASE)
+    const defaultProvider = configManager.getProperty(
+      'amdwiki.user.provider.default',
+      'fileuserprovider'
+    );
+    const providerName = configManager.getProperty(
+      'amdwiki.user.provider',
+      defaultProvider
+    );
 
-    // Load all settings from config (all keys lowercase)
-    this.usersDirectory = configManager.getProperty(
-      'amdwiki.user.provider.storagedir',
-      './users'
-    );
-    this.usersFile = configManager.getProperty(
-      'amdwiki.user.provider.files.users',
-      'users.json'
-    );
-    this.sessionsFile = configManager.getProperty(
-      'amdwiki.user.provider.files.sessions',
-      'sessions.json'
-    );
+    // Normalize provider name to PascalCase for class loading
+    this.providerClass = this.#normalizeProviderName(providerName);
+
+    logger.info(`👤 Loading user provider: ${providerName} (${this.providerClass})`);
+
+    // Load and initialize provider
+    try {
+      const ProviderClass = require(`../providers/${this.providerClass}`);
+      this.provider = new ProviderClass(this.engine);
+      await this.provider.initialize();
+
+      const info = this.provider.getProviderInfo();
+      logger.info(`👤 UserManager initialized with ${info.name} v${info.version}`);
+      if (info.features && info.features.length > 0) {
+        logger.info(`👤 Provider features: ${info.features.join(', ')}`);
+      }
+    } catch (error) {
+      logger.error(`👤 Failed to initialize user provider: ${this.providerClass}`, error);
+      throw error;
+    }
+
+    // Load configuration settings (for business logic)
     this.passwordSalt = configManager.getProperty(
       'amdwiki.user.security.passwordsalt',
       'amdwiki-salt'
@@ -76,59 +86,66 @@ class UserManager extends BaseManager {
 
     logger.info(`👤 Loaded ${this.roles.size} role definitions from configuration`);
 
-    // Create users directory
-    await fs.mkdir(this.usersDirectory, { recursive: true });
-
-    // Load users and sessions
-    await this.loadUsers();
-    await this.loadSessions();
-
     // Create default admin if needed
-    if (this.users.size === 0) {
+    const allUsers = await this.provider.getAllUsers();
+    if (allUsers.size === 0) {
       await this.createDefaultAdmin();
     }
 
-    logger.info(`👤 UserManager initialized with ${this.users.size} users`);
+    const userCount = (await this.provider.getAllUsers()).size;
+    logger.info(`👤 UserManager initialized with ${userCount} users`);
+  }
+
+  /**
+   * Normalize provider name from configuration (lowercase) to class name (PascalCase)
+   * @param {string} providerName - Provider name from configuration (e.g., 'fileuserprovider')
+   * @returns {string} Normalized class name (e.g., 'FileUserProvider')
+   * @private
+   */
+  #normalizeProviderName(providerName) {
+    if (!providerName) {
+      throw new Error('Provider name cannot be empty');
+    }
+
+    const lower = providerName.toLowerCase();
+
+    // Handle special cases for known provider names
+    const knownProviders = {
+      'fileuserprovider': 'FileUserProvider',
+      'jsonuserprovider': 'FileUserProvider', // Alias
+      'databaseuserprovider': 'DatabaseUserProvider',
+      'ldapuserprovider': 'LDAPUserProvider'
+    };
+
+    if (knownProviders[lower]) {
+      return knownProviders[lower];
+    }
+
+    // Fallback: Split on common separators and capitalize each word
+    const words = lower.split(/[-_]/);
+    const pascalCase = words
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join('');
+
+    return pascalCase;
+  }
+
+  /**
+   * Get the current user provider instance
+   * @returns {BaseUserProvider} The active provider
+   */
+  getCurrentUserProvider() {
+    return this.provider;
   }
 
   // REMOVED: initializeDefaultPermissions() - Permissions now defined in policies
   // REMOVED: initializeDefaultRoles() - Roles now loaded from config (amdwiki.roles.definitions)
-
-  /**
-   * Load users from disk
-   */
-  async loadUsers() {
-    try {
-      const usersFile = path.join(this.usersDirectory, 'users.json');
-      const usersData = await fs.readFile(usersFile, 'utf8');
-      const users = JSON.parse(usersData);
-      
-      this.users = new Map(Object.entries(users));
-      console.log(`👤 Loaded ${this.users.size} users`);
-    } catch (err) {
-      // Users file doesn't exist yet
-      this.users = new Map();
-    }
-  }
-
-  /**
-   * Save users to disk
-   */
-  async saveUsers() {
-    try {
-      const usersFile = path.join(this.usersDirectory, 'users.json');
-      const users = Object.fromEntries(this.users);
-      await fs.writeFile(usersFile, JSON.stringify(users, null, 2));
-    } catch (err) {
-      console.error('Error saving users:', err);
-    }
-  }
-
+  // REMOVED: loadUsers() - Now handled by provider
+  // REMOVED: saveUsers() - Now handled by provider
   // REMOVED: loadRoles() - Roles now loaded from config in initialize()
-  // Custom roles can be added in app-custom-config.json via ConfigurationManager's merge
-
   // REMOVED: saveRoles() - Roles are now in config files (app-default-config.json / app-custom-config.json)
-  // To modify roles, edit config files directly
+  // REMOVED: loadSessions() - Now handled by provider
+  // REMOVED: saveSessions() - Now handled by provider
 
   /**
    * Simple password hashing using crypto
@@ -171,8 +188,7 @@ class UserManager extends BaseManager {
       preferences: {}
     };
 
-    this.users.set('admin', adminUser);
-    await this.saveUsers();
+    await this.provider.createUser('admin', adminUser);
 
     // Sync default admin to Schema.org data
     try {
@@ -237,9 +253,9 @@ class UserManager extends BaseManager {
    */
   async createOrUpdateExternalUser(externalUserData) {
     const { username, email, displayName, roles = ['reader'], provider } = externalUserData;
-    
-    let user = this.users.get(username);
-    
+
+    let user = await this.provider.getUser(username);
+
     if (!user) {
       // Create new external user
       user = {
@@ -257,8 +273,8 @@ class UserManager extends BaseManager {
         loginCount: 1,
         preferences: {}
       };
-      
-      this.users.set(username, user);
+
+      await this.provider.createUser(username, user);
       console.log(`👤 Created external user: ${username} (${provider})`);
     } else {
       // Update existing external user
@@ -267,12 +283,11 @@ class UserManager extends BaseManager {
       user.roles = roles;
       user.lastLogin = new Date().toISOString();
       user.loginCount = (user.loginCount || 0) + 1;
-      
+
+      await this.provider.updateUser(username, user);
       console.log(`👤 Updated external user: ${username} (${provider})`);
     }
-    
-    await this.saveUsers();
-    
+
     // Return user without password
     const { password: _, ...userWithoutPassword } = user;
     return userWithoutPassword;
@@ -285,21 +300,21 @@ class UserManager extends BaseManager {
    * @returns {Object|null} User object if authenticated, including the isAuthenticated flag.
    */
   async authenticateUser(username, password) {
-    const user = this.users.get(username);
+    const user = await this.provider.getUser(username);
     if (!user || !user.isActive) {
       return null;
     }
-    
+
     const isValid = this.verifyPassword(password, user.password);
     if (!isValid) {
       return null;
     }
-    
+
     // Update login stats
     user.lastLogin = new Date().toISOString();
     user.loginCount = (user.loginCount || 0) + 1;
-    await this.saveUsers();
-    
+    await this.provider.updateUser(username, user);
+
     // CRITICAL FIX: Return a user object that is ready to be placed in the session.
     // It must include the `isAuthenticated` flag.
     const { password: _, ...userWithoutPassword } = user;
@@ -337,7 +352,7 @@ class UserManager extends BaseManager {
         isAuthenticated: false
       };
     } else {
-      const user = this.users.get(username);
+      const user = await this.provider.getUser(username);
       if (!user || !user.isActive) {
         return false;
       }
@@ -361,9 +376,9 @@ class UserManager extends BaseManager {
   /**
    * Get user's effective permissions from PolicyManager
    * @param {string} username - Username (null for anonymous)
-   * @returns {Array<string>} Array of permission strings
+   * @returns {Promise<Array<string>>} Array of permission strings
    */
-  getUserPermissions(username) {
+  async getUserPermissions(username) {
     // Query PolicyManager for actual permissions
     const policyManager = this.engine.getManager('PolicyManager');
     if (!policyManager) {
@@ -383,7 +398,7 @@ class UserManager extends BaseManager {
       return this._getPermissionsFromPolicies(policyManager, userRoles);
     }
 
-    const user = this.users.get(username);
+    const user = await this.provider.getUser(username);
     if (!user || !user.isActive) {
       return [];
     }
@@ -429,7 +444,8 @@ class UserManager extends BaseManager {
   async checkDisplayNamePageConflict(displayName, excludeUsername = null) {
     try {
       // Check if display name is already used by another user
-      for (const [username, user] of this.users) {
+      const allUsers = await this.provider.getAllUsers();
+      for (const [username, user] of allUsers) {
         if (username !== excludeUsername && user.displayName === displayName) {
           return true; // Display name already in use by another user
         }
@@ -439,7 +455,7 @@ class UserManager extends BaseManager {
       if (!pageManager) {
         return false; // If no page manager, no conflict possible
       }
-      
+
       // Check if page exists with this name (as title, slug, or exact match)
       const existingPage = await pageManager.getPage(displayName);
       return existingPage !== null;
@@ -519,7 +535,7 @@ class UserManager extends BaseManager {
   async createUser(userData) {
     const { username, email, displayName, password, roles = ['reader'], isExternal = false, isActive = true, acceptLanguage } = userData;
 
-    if (this.users.has(username)) {
+    if (await this.provider.userExists(username)) {
       throw new Error('Username already exists');
     }
 
@@ -562,9 +578,8 @@ class UserManager extends BaseManager {
       }
     };
 
-    // Save user to users.json first
-    this.users.set(username, user);
-    await this.saveUsers();
+    // Save user via provider
+    await this.provider.createUser(username, user);
 
     // Automatically sync to Schema.org persons.json
     try {
@@ -645,7 +660,7 @@ class UserManager extends BaseManager {
    * @param {Object} updates - Updates to apply
    */
   async updateUser(username, updates) {
-    const user = this.users.get(username);
+    const user = await this.provider.getUser(username);
     if (!user) {
       throw new Error('User not found');
     }
@@ -659,7 +674,7 @@ class UserManager extends BaseManager {
     }
 
     Object.assign(user, updates);
-    await this.saveUsers();
+    await this.provider.updateUser(username, user);
 
     // Sync changes to Schema.org data
     try {
@@ -712,17 +727,16 @@ class UserManager extends BaseManager {
    * @param {string} username - Username
    */
   async deleteUser(username) {
-    const user = this.users.get(username);
+    const user = await this.provider.getUser(username);
     if (!user) {
       throw new Error('User not found');
     }
-    
+
     if (user.isSystem) {
       throw new Error('Cannot delete system user');
     }
-    
-    this.users.delete(username);
-    await this.saveUsers();
+
+    await this.provider.deleteUser(username);
     
     // Sync deletion to Schema.org data
     try {
@@ -760,12 +774,12 @@ class UserManager extends BaseManager {
    * @param {string} username - Username
    * @returns {Object|null} User object (without password)
    */
-  getUser(username) {
-    const user = this.users.get(username);
+  async getUser(username) {
+    const user = await this.provider.getUser(username);
     if (!user) {
       return undefined;
     }
-    
+
     const { password, ...userWithoutPassword } = user;
     return userWithoutPassword;
   }
@@ -853,8 +867,8 @@ class UserManager extends BaseManager {
       // Start with the user object from the session.
       const userFromSession = req.session.user;
 
-      // Re-fetch the user from the source of truth (this.users map) to ensure data is fresh.
-      const freshUser = this.users.get(userFromSession.username);
+      // Re-fetch the user from the source of truth (provider) to ensure data is fresh.
+      const freshUser = await this.provider.getUser(userFromSession.username);
       if (!freshUser || !freshUser.isActive) {
         // If user was deleted or deactivated, treat them as anonymous.
         return this.getAnonymousUser();
@@ -950,8 +964,8 @@ class UserManager extends BaseManager {
    * @param {string} roleName - Role name to check for
    * @returns {boolean} True if user has the role
    */
-  hasRole(username, roleName) {
-    const user = this.users.get(username);
+  async hasRole(username, roleName) {
+    const user = await this.provider.getUser(username);
     if (!user || !user.roles) {
       return false;
     }
@@ -965,7 +979,7 @@ class UserManager extends BaseManager {
    * @returns {boolean} True if successful
    */
   async assignRole(username, roleName) {
-    const user = this.users.get(username);
+    const user = await this.provider.getUser(username);
     if (!user) {
       throw new Error('User not found');
     }
@@ -976,7 +990,7 @@ class UserManager extends BaseManager {
 
     if (!user.roles.includes(roleName)) {
       user.roles.push(roleName);
-      await this.saveUsers();
+      await this.provider.updateUser(username, user);
       console.log(`👤 Assigned role '${roleName}' to user '${username}'`);
     }
 
@@ -990,7 +1004,7 @@ class UserManager extends BaseManager {
    * @returns {boolean} True if successful
    */
   async removeRole(username, roleName) {
-    const user = this.users.get(username);
+    const user = await this.provider.getUser(username);
     if (!user) {
       throw new Error('User not found');
     }
@@ -998,7 +1012,7 @@ class UserManager extends BaseManager {
     const roleIndex = user.roles.indexOf(roleName);
     if (roleIndex > -1) {
       user.roles.splice(roleIndex, 1);
-      await this.saveUsers();
+      await this.provider.updateUser(username, user);
       console.log(`👤 Removed role '${roleName}' from user '${username}'`);
     }
 
@@ -1037,67 +1051,6 @@ class UserManager extends BaseManager {
   }
 
   /**
-   * Gets the configured path for the sessions JSON file.
-   * @returns {string} The path to the sessions file.
-   * @private
-   */
-  _getSessionStorePath() {
-    const configManager = this.engine.getManager('ConfigurationManager');
-    // Use the configuration key you provided.
-    return configManager.getProperty('amdwiki.session.store', 'users/sessions.json');
-  }
-
-  /**
-   * Load sessions from disk and clean up expired ones.
-   */
-  async loadSessions() {
-    this.sessions.clear();
-    const sessionsFilePath = this._getSessionStorePath();
-    try {
-      const sessionsData = await fs.readFile(sessionsFilePath, 'utf8');
-      const sessionsFromFile = JSON.parse(sessionsData);
-      
-      const now = new Date();
-      let sessionsChanged = false;
-
-      for (const [sessionId, session] of Object.entries(sessionsFromFile)) {
-        if (new Date(session.expiresAt) > now) {
-          this.sessions.set(sessionId, session);
-        } else {
-          sessionsChanged = true;
-        }
-      }
-
-      if (sessionsChanged) {
-        await this.saveSessions();
-      }
-      
-      logger.info(`👤 Loaded ${this.sessions.size} active sessions from ${sessionsFilePath}`);
-    } catch (err) {
-      if (err.code !== 'ENOENT') {
-        logger.error(`[USER] Error loading sessions file from ${sessionsFilePath}`, { error: err });
-      } else {
-        logger.info(`[USER] Sessions file not found at ${sessionsFilePath}, starting fresh.`);
-      }
-      this.sessions = new Map();
-    }
-  }
-
-  /**
-   * Save sessions to disk
-   */
-  async saveSessions() {
-    const sessionsFilePath = this._getSessionStorePath();
-    try {
-      const sessionsObject = Object.fromEntries(this.sessions);
-      await fs.mkdir(path.dirname(sessionsFilePath), { recursive: true });
-      await fs.writeFile(sessionsFilePath, JSON.stringify(sessionsObject, null, 2), 'utf8');
-    } catch (err) {
-      logger.error(`[USER] Error saving sessions file to ${sessionsFilePath}`, { error: err });
-    }
-  }
-
-  /**
    * Create a new session
    * @param {string} username - The username for the session
    * @param {Object} [additionalData] - Any additional data to store in the session
@@ -1114,8 +1067,7 @@ class UserManager extends BaseManager {
       ...additionalData
     };
 
-    this.sessions.set(sessionId, sessionData);
-    await this.saveSessions();
+    await this.provider.createSession(sessionId, sessionData);
 
     return sessionId;
   }
@@ -1125,8 +1077,8 @@ class UserManager extends BaseManager {
    * @param {string} sessionId - The ID of the session
    * @returns {Object|null} The session data, or null if not found
    */
-  getSession(sessionId) {
-    return this.sessions.get(sessionId) || null;
+  async getSession(sessionId) {
+    return await this.provider.getSession(sessionId);
   }
 
   /**
@@ -1134,8 +1086,7 @@ class UserManager extends BaseManager {
    * @param {string} sessionId - The ID of the session
    */
   async deleteSession(sessionId) {
-    this.sessions.delete(sessionId);
-    await this.saveSessions();
+    await this.provider.deleteSession(sessionId);
   }
 
   /**
@@ -1143,12 +1094,87 @@ class UserManager extends BaseManager {
    * @param {string} username - The username of the user
    */
   async deleteUserSessions(username) {
-    for (const [sessionId, session] of this.sessions.entries()) {
+    const allSessions = await this.provider.getAllSessions();
+    for (const [sessionId, session] of allSessions.entries()) {
       if (session.username === username) {
-        this.sessions.delete(sessionId);
+        await this.provider.deleteSession(sessionId);
       }
     }
-    await this.saveSessions();
+  }
+
+  /**
+   * Backup all user data
+   *
+   * Delegates to the provider's backup() method to serialize all user and session data.
+   * The backup includes all user accounts, sessions, and provider-specific data.
+   *
+   * @returns {Promise<Object>} Backup data from provider
+   */
+  async backup() {
+    logger.info('[UserManager] Starting backup...');
+
+    if (!this.provider) {
+      logger.warn('[UserManager] No provider available for backup');
+      return {
+        managerName: 'UserManager',
+        timestamp: new Date().toISOString(),
+        providerClass: null,
+        data: null,
+        note: 'No provider initialized'
+      };
+    }
+
+    try {
+      const providerBackup = await this.provider.backup();
+
+      return {
+        managerName: 'UserManager',
+        timestamp: new Date().toISOString(),
+        providerClass: this.providerClass,
+        providerBackup: providerBackup
+      };
+    } catch (error) {
+      logger.error('[UserManager] Backup failed:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Restore user data from backup
+   *
+   * Delegates to the provider's restore() method to recreate all users and sessions
+   * from the backup data.
+   *
+   * @param {Object} backupData - Backup data from backup() method
+   * @returns {Promise<void>}
+   */
+  async restore(backupData) {
+    logger.info('[UserManager] Starting restore...');
+
+    if (!backupData) {
+      throw new Error('UserManager: No backup data provided for restore');
+    }
+
+    if (!this.provider) {
+      throw new Error('UserManager: No provider available for restore');
+    }
+
+    // Check for provider mismatch
+    if (backupData.providerClass && backupData.providerClass !== this.providerClass) {
+      logger.warn(`[UserManager] Provider mismatch: backup has ${backupData.providerClass}, current is ${this.providerClass}`);
+    }
+
+    try {
+      if (backupData.providerBackup) {
+        await this.provider.restore(backupData.providerBackup);
+        logger.info('[UserManager] Restore completed successfully');
+      } else {
+        logger.warn('[UserManager] No provider backup data found in backup');
+      }
+    } catch (error) {
+      logger.error('[UserManager] Restore failed:', error);
+      throw error;
+    }
   }
 }
 

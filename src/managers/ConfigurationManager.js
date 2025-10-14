@@ -387,6 +387,107 @@ class ConfigurationManager {
   getDefaultProperties() {
     return { ...this.defaultConfig };
   }
+
+  /**
+   * Backup configuration data
+   *
+   * Backs up the custom configuration (user overrides) which can be restored
+   * to recreate the user's configuration settings. We don't backup default or
+   * environment configs as those are part of the codebase.
+   *
+   * @returns {Promise<Object>} Backup data containing custom configuration
+   */
+  async backup() {
+    const logger = require('../utils/logger');
+    logger.info('[ConfigurationManager] Starting backup...');
+
+    try {
+      // Count total properties in each config layer
+      const defaultPropsCount = this.defaultConfig ? Object.keys(this.defaultConfig).length : 0;
+      const envPropsCount = this.environmentConfig ? Object.keys(this.environmentConfig).length : 0;
+      const customPropsCount = this.customConfig ? Object.keys(this.customConfig).length : 0;
+      const mergedPropsCount = this.mergedConfig ? Object.keys(this.mergedConfig).length : 0;
+
+      const backupData = {
+        managerName: 'ConfigurationManager',
+        timestamp: new Date().toISOString(),
+        environment: this.environment,
+
+        // Backup all config layers for reference
+        defaultConfig: this.defaultConfig ? { ...this.defaultConfig } : null,
+        environmentConfig: this.environmentConfig ? { ...this.environmentConfig } : null,
+        customConfig: this.customConfig ? { ...this.customConfig } : null,
+        mergedConfig: this.mergedConfig ? { ...this.mergedConfig } : null,
+
+        // Config file paths for reference
+        paths: {
+          defaultConfigPath: this.defaultConfigPath,
+          environmentConfigPath: this.environmentConfigPath,
+          customConfigPath: this.customConfigPath
+        },
+
+        // Statistics
+        statistics: {
+          defaultPropertiesCount: defaultPropsCount,
+          environmentPropertiesCount: envPropsCount,
+          customPropertiesCount: customPropsCount,
+          mergedPropertiesCount: mergedPropsCount
+        }
+      };
+
+      logger.info(`[ConfigurationManager] Backed up ${customPropsCount} custom properties`);
+      logger.info(`[ConfigurationManager] Total merged properties: ${mergedPropsCount}`);
+
+      return backupData;
+    } catch (error) {
+      logger.error('[ConfigurationManager] Backup failed:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Restore configuration from backup data
+   *
+   * Restores the custom configuration (user overrides) from backup data.
+   * This will overwrite the current custom configuration file and reload
+   * all configurations to rebuild the merged config.
+   *
+   * @param {Object} backupData - Backup data from backup() method
+   * @returns {Promise<void>}
+   */
+  async restore(backupData) {
+    const logger = require('../utils/logger');
+    logger.info('[ConfigurationManager] Starting restore...');
+
+    if (!backupData) {
+      throw new Error('ConfigurationManager: No backup data provided for restore');
+    }
+
+    try {
+      // Restore custom configuration (user overrides)
+      if (backupData.customConfig) {
+        this.customConfig = { ...backupData.customConfig };
+
+        // Save custom config to disk
+        await this.saveCustomConfiguration();
+
+        logger.info(`[ConfigurationManager] Restored ${Object.keys(this.customConfig).length} custom properties`);
+      } else {
+        logger.warn('[ConfigurationManager] No custom config in backup, resetting to empty');
+        this.customConfig = {};
+        await this.saveCustomConfiguration();
+      }
+
+      // Reload all configurations to rebuild merged config
+      await this.loadConfigurations();
+
+      logger.info('[ConfigurationManager] Restore completed successfully');
+      logger.info(`[ConfigurationManager] Total merged properties: ${Object.keys(this.mergedConfig).length}`);
+    } catch (error) {
+      logger.error('[ConfigurationManager] Restore failed:', error);
+      throw error;
+    }
+  }
 }
 
 module.exports = ConfigurationManager;

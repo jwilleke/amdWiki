@@ -527,6 +527,11 @@ class ACLManager extends BaseManager {
   stripACLMarkup(content) {
     return this.removeACLMarkup(content);
   }
+
+  // NOTE: ACLManager does not need backup/restore methods because:
+  // - All policies are loaded from ConfigurationManager (backed up by ConfigurationManager)
+  // - Per-page ACLs are embedded in page content (backed up by PageManager)
+  // - The accessPolicies Map is just a runtime cache that can be rebuilt from config
 }
 
 module.exports = ACLManager;
