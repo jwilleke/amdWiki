@@ -63,6 +63,75 @@ Content → Extract JSPWiki → Create DOM Nodes → Showdown → Merge → HTML
 
 📖 **Read [docs/architecture/WikiDocument-DOM-Architecture.md](docs/architecture/WikiDocument-DOM-Architecture.md)** for complete architecture details.
 
+### Session Management Architecture
+
+amdWiki uses **express-session** for session management (standard Express middleware):
+
+**Session Setup (app.js):**
+```javascript
+const session = require('express-session');
+
+app.use(session({
+  secret: configManager.getProperty('amdwiki.session.secret', 'change-in-production'),
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: false,        // Set to true in production with HTTPS
+    httpOnly: true,       // Prevent XSS
+    maxAge: 24 * 60 * 60 * 1000  // 24 hours
+  }
+}));
+```
+
+**User Context Middleware (app.js):**
+```javascript
+app.use(async (req, res, next) => {
+  const userManager = engine.getManager('UserManager');
+
+  if (req.session && req.session.username && req.session.isAuthenticated) {
+    // Load full user from UserManager (via provider)
+    const user = await userManager.getUser(req.session.username);
+
+    if (user && user.isActive) {
+      req.userContext = {
+        ...user,
+        roles: [...user.roles, 'Authenticated', 'All'],
+        isAuthenticated: true
+      };
+    } else {
+      req.userContext = userManager.getAnonymousUser();
+    }
+  } else {
+    req.userContext = userManager.getAnonymousUser();
+  }
+
+  next();
+});
+```
+
+**Key Points:**
+- ✅ **Standard express-session** - No custom session middleware
+- ✅ **UserManager Provider Pattern** - Session loads user via FileUserProvider
+- ✅ **req.userContext** - Available on all routes with full user data
+- ✅ **Async User Loading** - Always `await userManager.getUser()`
+- ❌ **No src/middleware/session.js** - Removed (legacy)
+
+**Login Flow:**
+1. User submits credentials to `/login`
+2. `userManager.authenticateUser()` validates credentials
+3. `req.session.username` and `req.session.isAuthenticated` set
+4. On next request, middleware loads full user via `userManager.getUser()`
+5. `req.userContext` populated for route handlers
+
+**UserManager Methods (Async):**
+```javascript
+// All these methods are async and require await
+await userManager.getUser(username)
+await userManager.authenticateUser(username, password)
+await userManager.hasRole(username, roleName)
+await userManager.getSession(sessionId)
+```
+
 ## 🔧 Development Guidelines
 
 ### Critical requirements

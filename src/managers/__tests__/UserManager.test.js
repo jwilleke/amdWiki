@@ -231,10 +231,10 @@ describe('UserManager', () => {
       ).rejects.toThrow('User not found');
     });
 
-    test('should get all users without passwords', () => {
-      const users = userManager.getUsers();
+    test('should get all users without passwords', async () => {
+      const users = await userManager.getUsers();
       expect(users.length).toBeGreaterThan(0);
-      
+
       users.forEach(user => {
         expect(user.password).toBeUndefined();
         expect(user.username).toBeDefined();

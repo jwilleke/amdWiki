@@ -528,7 +528,7 @@ class WikiRoutes {
 
         // Load user data (admins only for privacy)
         const userManager = this.engine.getManager("UserManager");
-        const allUsersArray = userManager.getUsers(); // This returns array without passwords
+        const allUsersArray = await userManager.getUsers(); // This returns array without passwords
         const publicUsers = {};
 
         allUsersArray.forEach((userData) => {
@@ -2115,7 +2115,7 @@ class WikiRoutes {
       const userManager = this.engine.getManager("UserManager");
       const currentUser = req.userContext;
       const sessionId = req.cookies?.sessionId;
-      const session = sessionId ? userManager.getSession(sessionId) : null;
+      const session = sessionId ? await userManager.getSession(sessionId) : null;
 
       const info = {
         currentUser: currentUser,
@@ -2228,7 +2228,7 @@ class WikiRoutes {
       }
 
       // Get fresh user data from database to ensure we have latest preferences
-      const freshUser = userManager.getUser(currentUser.username);
+      const freshUser = await userManager.getUser(currentUser.username);
       console.log(
         "DEBUG: profilePage - fresh user preferences:",
         freshUser ? freshUser.preferences : "no fresh user"
@@ -2459,7 +2459,7 @@ class WikiRoutes {
       const userManager = this.engine.getManager("UserManager");
 
       const commonData = await this.getCommonTemplateData(req);
-      const users = userManager.getUsers();
+      const users = await userManager.getUsers();
       const roles = userManager.getRoles();
 
       // Get all required pages for the admin dashboard
@@ -2849,7 +2849,7 @@ class WikiRoutes {
       }
 
       const commonData = await this.getCommonTemplateData(req);
-      const users = userManager.getUsers();
+      const users = await userManager.getUsers();
       const roles = userManager.getRoles();
 
       res.render("admin-users", {

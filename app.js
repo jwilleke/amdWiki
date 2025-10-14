@@ -130,7 +130,7 @@ checkAndCreatePidLock();
 
     if (req.session && req.session.username && req.session.isAuthenticated) {
       // Fetch the user from UserManager
-      const user = userManager.getUser(req.session.username);
+      const user = await userManager.getUser(req.session.username);
       if (user && user.isActive) {
         // Build user context
         const roles = new Set(user.roles || []);

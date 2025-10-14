@@ -762,8 +762,9 @@ class UserManager extends BaseManager {
    * Get all users
    * @returns {Array} Array of users (without passwords)
    */
-  getUsers() {
-    return Array.from(this.users.values()).map(user => {
+  async getUsers() {
+    const allUsers = await this.provider.getAllUsers();
+    return Array.from(allUsers.values()).map(user => {
       const { password, ...userWithoutPassword } = user;
       return userWithoutPassword;
     });
