@@ -4096,23 +4096,12 @@ class WikiRoutes {
       }
 
       const notificationManager = this.engine.getManager("NotificationManager");
-      const allNotifications = notificationManager.getAllNotifications();
 
-      // Dismiss all notifications for the current admin user
-      let dismissedCount = 0;
-      for (const notification of allNotifications) {
-        if (
-          await notificationManager.dismissNotification(
-            notification.id,
-            currentUser.username
-          )
-        ) {
-          dismissedCount++;
-        }
-      }
+      // Delete all active notifications from the system
+      const clearedCount = await notificationManager.clearAllActive();
 
       res.redirect(
-        `/admin?success=Cleared ${dismissedCount} notifications successfully`
+        `/admin?success=Cleared ${clearedCount} notifications successfully`
       );
     } catch (err) {
       console.error("Error clearing notifications:", err);

@@ -287,6 +287,32 @@ class NotificationManager extends BaseManager {
   }
 
   /**
+   * Clear all active (non-expired) notifications
+   * @returns {number} Number of cleared notifications
+   */
+  async clearAllActive() {
+    const now = new Date();
+    let clearedCount = 0;
+
+    for (const [id, notification] of this.notifications.entries()) {
+      // Only delete active notifications (not expired ones)
+      if (!notification.expiresAt || notification.expiresAt >= now) {
+        this.notifications.delete(id);
+        clearedCount++;
+      }
+    }
+
+    if (clearedCount > 0) {
+      this.logger.info(`Cleared ${clearedCount} active notifications`);
+
+      // Save to storage after clearing
+      await this.saveNotifications();
+    }
+
+    return clearedCount;
+  }
+
+  /**
    * Get notification statistics
    * @returns {Object} Statistics object
    */
