@@ -177,7 +177,18 @@ This architecture enables:
 └──────────────────────────────────────────────────────────────────┘
 ```
 
----
+## BackupManager Configuration
+
+By default, BackupManager is controled by values wihtin config/app-default-config.json
+
+```json
+  "_comment_backup": "Backup and restore configuration for BackupManager",
+  "amdwiki.backup.directory": "./backups",
+  "amdwiki.backup.maxBackups": 10,
+  "amdwiki.backup.compress": true,
+  "amdwiki.backup.autoBackup": false,
+  "amdwiki.backup.autoBackupInterval": 86400000
+```
 
 ## Backup Coverage
 
