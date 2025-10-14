@@ -339,14 +339,39 @@
             return;
         }
 
+        // Track the bracket position for proper insertion
+        let currentBracketPos = -1;
+
         // Initialize page autocomplete
         const autocomplete = new PageAutocomplete({
             minChars: 2,
             maxSuggestions: 10,
             onSelect: function(suggestion) {
-                // Insert selected page name and close bracket
-                insertTextAtCursor(contentTextarea, suggestion.name + ']');
-                updatePreview();
+                // Replace partial text with full page name
+                const cursorPos = contentTextarea.selectionStart;
+                const text = contentTextarea.value;
+
+                // Find the opening bracket position
+                const bracketPos = currentBracketPos >= 0 ? currentBracketPos : text.lastIndexOf('[', cursorPos - 1);
+
+                if (bracketPos >= 0) {
+                    // Check if there's already a closing bracket after cursor
+                    const textAfter = text.substring(cursorPos);
+                    const hasClosingBracket = textAfter.trimStart().startsWith(']');
+
+                    // Replace from bracket to cursor with [PageName]
+                    const before = text.substring(0, bracketPos);
+                    const replacement = '[' + suggestion.name + (hasClosingBracket ? '' : ']');
+                    const after = text.substring(cursorPos);
+
+                    contentTextarea.value = before + replacement + after;
+
+                    // Position cursor after the closing bracket
+                    const newCursorPos = before.length + replacement.length;
+                    contentTextarea.setSelectionRange(newCursorPos, newCursorPos);
+                    contentTextarea.focus();
+                    updatePreview();
+                }
             }
         });
 
@@ -370,6 +395,9 @@
             const lastBracket = text.lastIndexOf('[', cursorPos - 1);
 
             if (lastBracket >= 0) {
+                // Store bracket position for later use in onSelect
+                currentBracketPos = lastBracket;
+
                 // Extract text between '[' and cursor
                 const query = text.substring(lastBracket + 1, cursorPos);
 
@@ -385,7 +413,7 @@
                     // Don't show for plugin syntax [{...}] or variable syntax [{$...}]
                     if (!query.startsWith('{')) {
                         if (query.length >= 2) {
-                            autocomplete.search(query, contentTextarea);
+                            autocomplete.search(query, contentTextarea, cursorPos);
                         } else if (query.length < 2) {
                             autocomplete.hideDropdown();
                         }
@@ -396,6 +424,7 @@
                     autocomplete.hideDropdown();
                 }
             } else {
+                currentBracketPos = -1;
                 autocomplete.hideDropdown();
             }
         });

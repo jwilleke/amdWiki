@@ -166,13 +166,21 @@
                                     <% } %>
                                     
                                     <% if (result.metadata.userKeywords && result.metadata.userKeywords.length > 0) { %>
-                                        <% result.metadata.userKeywords.slice(0, 3).forEach(keyword => { %>
+                                        <%
+                                        // Handle both string and array formats
+                                        const keywords = Array.isArray(result.metadata.userKeywords)
+                                            ? result.metadata.userKeywords
+                                            : (typeof result.metadata.userKeywords === 'string'
+                                                ? result.metadata.userKeywords.split(' ').filter(k => k.trim())
+                                                : []);
+                                        keywords.slice(0, 3).forEach(keyword => {
+                                        %>
                                             <span class="badge bg-info me-1">
                                                 <i class="fas fa-tag me-1"></i><%= keyword %>
                                             </span>
                                         <% }); %>
-                                        <% if (result.metadata.userKeywords.length > 3) { %>
-                                            <span class="badge" style="background-color: var(--badge-light-bg); color: var(--badge-light-text);">+<%= result.metadata.userKeywords.length - 3 %> more</span>
+                                        <% if (keywords.length > 3) { %>
+                                            <span class="badge" style="background-color: var(--badge-light-bg); color: var(--badge-light-text);">+<%= keywords.length - 3 %> more</span>
                                         <% } %>
                                     <% } %>
                                 </div>

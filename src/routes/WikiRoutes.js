@@ -1597,7 +1597,7 @@ class WikiRoutes {
           searchType = "keywords";
         } else {
           // Advanced search with multiple criteria
-          results = searchManager.advancedSearch({
+          results = await searchManager.advancedSearch({
             query: query,
             categories: categories,
             userKeywords: userKeywords,

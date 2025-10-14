@@ -54,8 +54,9 @@ class PageAutocomplete {
    * Show autocomplete dropdown
    * @param {HTMLElement} inputElement - The input element to attach dropdown to
    * @param {Array} suggestions - Array of suggestions
+   * @param {number} cursorPos - Optional cursor position for precise positioning
    */
-  showDropdown(inputElement, suggestions) {
+  showDropdown(inputElement, suggestions, cursorPos = null) {
     // Remove existing dropdown
     this.hideDropdown();
 
@@ -68,8 +69,9 @@ class PageAutocomplete {
     this.dropdown.className = 'page-autocomplete-dropdown';
     this.dropdown.style.cssText = `
       position: absolute;
-      background: white;
-      border: 1px solid #ccc;
+      background: var(--bs-body-bg, white);
+      color: var(--bs-body-color, #000);
+      border: 1px solid var(--bs-border-color, #ccc);
       border-radius: 4px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.15);
       max-height: 300px;
@@ -78,10 +80,19 @@ class PageAutocomplete {
       min-width: 250px;
     `;
 
-    // Position dropdown
-    const rect = inputElement.getBoundingClientRect();
-    this.dropdown.style.top = `${rect.bottom + window.scrollY}px`;
-    this.dropdown.style.left = `${rect.left + window.scrollX}px`;
+    // Position dropdown near cursor for textarea, otherwise below input
+    if (inputElement.tagName === 'TEXTAREA' && cursorPos !== null) {
+      // For textarea, position near the actual cursor position
+      const coords = this.getCaretCoordinates(inputElement, cursorPos);
+      const rect = inputElement.getBoundingClientRect();
+      this.dropdown.style.top = `${rect.top + coords.top + coords.height + window.scrollY}px`;
+      this.dropdown.style.left = `${rect.left + coords.left + window.scrollX}px`;
+    } else {
+      // For regular inputs, position below the input element
+      const rect = inputElement.getBoundingClientRect();
+      this.dropdown.style.top = `${rect.bottom + window.scrollY}px`;
+      this.dropdown.style.left = `${rect.left + window.scrollX}px`;
+    }
 
     // Create suggestion items
     suggestions.forEach((suggestion, index) => {
@@ -102,7 +113,7 @@ class PageAutocomplete {
         <div style="font-size: 0.85em; color: #666;">${suggestion.category}</div>
       `;
 
-      // Hover effect
+      // Hover effect (use CSS variables for dark mode support)
       item.addEventListener('mouseenter', () => {
         this.selectItem(index);
       });
@@ -158,11 +169,66 @@ class PageAutocomplete {
       item.style.backgroundColor = '';
     });
 
-    // Select new item
+    // Select new item (use appropriate background color for theme)
     if (index >= 0 && index < items.length) {
-      items[index].style.backgroundColor = '#e6f2ff';
+      // Use theme-aware highlighting
+      const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      items[index].style.backgroundColor = isDarkMode ? 'rgba(255, 255, 255, 0.1)' : '#e6f2ff';
       this.selectedIndex = index;
     }
+  }
+
+  /**
+   * Get caret coordinates within a textarea
+   * @param {HTMLTextAreaElement} textarea - The textarea element
+   * @param {number} position - Cursor position
+   * @returns {Object} Object with {top, left, height}
+   */
+  getCaretCoordinates(textarea, position) {
+    // Create a mirror div with same styling as textarea
+    const div = document.createElement('div');
+    const computed = window.getComputedStyle(textarea);
+
+    // Copy relevant styles
+    const properties = [
+      'boxSizing', 'width', 'height', 'overflowX', 'overflowY',
+      'borderTopWidth', 'borderRightWidth', 'borderBottomWidth', 'borderLeftWidth',
+      'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft',
+      'fontStyle', 'fontVariant', 'fontWeight', 'fontStretch', 'fontSize', 'lineHeight',
+      'fontFamily', 'textAlign', 'textTransform', 'textIndent', 'textDecoration',
+      'letterSpacing', 'wordSpacing', 'tabSize', 'whiteSpace', 'wordBreak', 'wordWrap'
+    ];
+
+    properties.forEach(prop => {
+      div.style[prop] = computed[prop];
+    });
+
+    div.style.position = 'absolute';
+    div.style.visibility = 'hidden';
+    div.style.whiteSpace = 'pre-wrap';
+    div.style.wordWrap = 'break-word';
+
+    document.body.appendChild(div);
+
+    // Get text before cursor
+    const textBeforeCaret = textarea.value.substring(0, position);
+    div.textContent = textBeforeCaret;
+
+    // Add a span at the cursor position to measure
+    const span = document.createElement('span');
+    span.textContent = textarea.value.substring(position) || '.';
+    div.appendChild(span);
+
+    // Get coordinates
+    const coordinates = {
+      top: span.offsetTop,
+      left: span.offsetLeft,
+      height: parseInt(computed.lineHeight)
+    };
+
+    document.body.removeChild(div);
+
+    return coordinates;
   }
 
   /**
@@ -217,8 +283,9 @@ class PageAutocomplete {
    * Search for suggestions with debouncing
    * @param {string} query - Search query
    * @param {HTMLElement} inputElement - Input element to show dropdown for
+   * @param {number} cursorPos - Optional cursor position for precise positioning
    */
-  search(query, inputElement) {
+  search(query, inputElement, cursorPos = null) {
     this.currentQuery = query;
 
     // Clear previous timer
@@ -229,7 +296,7 @@ class PageAutocomplete {
     // Debounce the search
     this.debounceTimer = setTimeout(async () => {
       const suggestions = await this.fetchSuggestions(query);
-      this.showDropdown(inputElement, suggestions);
+      this.showDropdown(inputElement, suggestions, cursorPos);
     }, this.debounceMs);
   }
 
