@@ -412,6 +412,155 @@ class FileSystemProvider extends BasePageProvider {
       ]
     };
   }
+
+  /**
+   * Backup all pages to a serializable format
+   *
+   * Returns all page files with their content and relative paths.
+   * This allows the backup to be restored to different directory locations.
+   *
+   * @returns {Promise<Object>} Backup data containing all pages
+   */
+  async backup() {
+    logger.info('[FileSystemProvider] Starting backup...');
+
+    try {
+      const backupData = {
+        providerName: 'FileSystemProvider',
+        version: '1.0.0',
+        timestamp: new Date().toISOString(),
+        encoding: this.encoding,
+        pages: [],
+        requiredPages: [],
+        statistics: {
+          totalPages: 0,
+          totalSize: 0
+        }
+      };
+
+      // Backup regular pages
+      const pagesFiles = await this.#walkDir(this.pagesDirectory);
+      const pagesMdFiles = pagesFiles.filter(f => f.toLowerCase().endsWith('.md'));
+
+      for (const filePath of pagesMdFiles) {
+        try {
+          const content = await fs.readFile(filePath, this.encoding);
+          const relativePath = path.relative(this.pagesDirectory, filePath);
+
+          backupData.pages.push({
+            relativePath: relativePath,
+            content: content,
+            size: Buffer.byteLength(content, this.encoding)
+          });
+
+          backupData.statistics.totalPages++;
+          backupData.statistics.totalSize += Buffer.byteLength(content, this.encoding);
+        } catch (error) {
+          logger.error(`[FileSystemProvider] Failed to backup page: ${filePath}`, error);
+        }
+      }
+
+      // Backup required pages
+      const requiredFiles = await this.#walkDir(this.requiredPagesDirectory);
+      const requiredMdFiles = requiredFiles.filter(f => f.toLowerCase().endsWith('.md'));
+
+      for (const filePath of requiredMdFiles) {
+        try {
+          const content = await fs.readFile(filePath, this.encoding);
+          const relativePath = path.relative(this.requiredPagesDirectory, filePath);
+
+          backupData.requiredPages.push({
+            relativePath: relativePath,
+            content: content,
+            size: Buffer.byteLength(content, this.encoding)
+          });
+
+          backupData.statistics.totalPages++;
+          backupData.statistics.totalSize += Buffer.byteLength(content, this.encoding);
+        } catch (error) {
+          logger.error(`[FileSystemProvider] Failed to backup required page: ${filePath}`, error);
+        }
+      }
+
+      logger.info(`[FileSystemProvider] Backup complete: ${backupData.statistics.totalPages} pages, ${(backupData.statistics.totalSize / 1024).toFixed(2)} KB`);
+
+      return backupData;
+    } catch (error) {
+      logger.error('[FileSystemProvider] Backup failed:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Restore pages from backup data
+   *
+   * Recreates all page files from the backup data.
+   * Preserves directory structure and file content.
+   *
+   * @param {Object} backupData - Backup data from backup() method
+   * @returns {Promise<void>}
+   */
+  async restore(backupData) {
+    logger.info('[FileSystemProvider] Starting restore...');
+
+    if (!backupData || !backupData.providerName) {
+      throw new Error('Invalid backup data: missing provider information');
+    }
+
+    if (backupData.providerName !== 'FileSystemProvider') {
+      logger.warn(`[FileSystemProvider] Backup is from different provider: ${backupData.providerName}`);
+    }
+
+    try {
+      let restoredCount = 0;
+
+      // Restore regular pages
+      if (backupData.pages && Array.isArray(backupData.pages)) {
+        for (const page of backupData.pages) {
+          try {
+            const targetPath = path.join(this.pagesDirectory, page.relativePath);
+            const targetDir = path.dirname(targetPath);
+
+            // Ensure directory exists
+            await fs.ensureDir(targetDir);
+
+            // Write page file
+            await fs.writeFile(targetPath, page.content, this.encoding);
+            restoredCount++;
+          } catch (error) {
+            logger.error(`[FileSystemProvider] Failed to restore page: ${page.relativePath}`, error);
+          }
+        }
+      }
+
+      // Restore required pages
+      if (backupData.requiredPages && Array.isArray(backupData.requiredPages)) {
+        for (const page of backupData.requiredPages) {
+          try {
+            const targetPath = path.join(this.requiredPagesDirectory, page.relativePath);
+            const targetDir = path.dirname(targetPath);
+
+            // Ensure directory exists
+            await fs.ensureDir(targetDir);
+
+            // Write page file
+            await fs.writeFile(targetPath, page.content, this.encoding);
+            restoredCount++;
+          } catch (error) {
+            logger.error(`[FileSystemProvider] Failed to restore required page: ${page.relativePath}`, error);
+          }
+        }
+      }
+
+      // Refresh page cache after restore
+      await this.refreshPageList();
+
+      logger.info(`[FileSystemProvider] Restore complete: ${restoredCount} pages restored, ${this.pageCache.size} pages in cache`);
+    } catch (error) {
+      logger.error('[FileSystemProvider] Restore failed:', error);
+      throw error;
+    }
+  }
 }
 
 module.exports = FileSystemProvider;

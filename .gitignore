@@ -170,3 +170,6 @@ config/app-custom-config.json
 .editorconfig
 .claude/settings.local.json
 src/managers/__tests__/temp.test.js
+
+# Backup
+backups

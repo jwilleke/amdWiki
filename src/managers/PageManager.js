@@ -200,6 +200,81 @@ class PageManager extends BaseManager {
     }
     logger.info('PageManager shut down');
   }
+
+  /**
+   * Backup all pages through the provider
+   *
+   * Delegates to the provider's backup() method to serialize all page data.
+   * The backup includes all page content, metadata, and directory structure.
+   *
+   * @returns {Promise<Object>} Backup data from provider
+   */
+  async backup() {
+    logger.info('[PageManager] Starting backup...');
+
+    if (!this.provider) {
+      logger.warn('[PageManager] No provider available for backup');
+      return {
+        managerName: 'PageManager',
+        timestamp: new Date().toISOString(),
+        providerClass: null,
+        data: null,
+        note: 'No provider initialized'
+      };
+    }
+
+    try {
+      const providerBackup = await this.provider.backup();
+
+      return {
+        managerName: 'PageManager',
+        timestamp: new Date().toISOString(),
+        providerClass: this.providerClass,
+        providerBackup: providerBackup
+      };
+    } catch (error) {
+      logger.error('[PageManager] Backup failed:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Restore pages from backup data
+   *
+   * Delegates to the provider's restore() method to recreate all pages
+   * from the backup data.
+   *
+   * @param {Object} backupData - Backup data from backup() method
+   * @returns {Promise<void>}
+   */
+  async restore(backupData) {
+    logger.info('[PageManager] Starting restore...');
+
+    if (!backupData) {
+      throw new Error('PageManager: No backup data provided for restore');
+    }
+
+    if (!this.provider) {
+      throw new Error('PageManager: No provider available for restore');
+    }
+
+    // Check for provider mismatch
+    if (backupData.providerClass && backupData.providerClass !== this.providerClass) {
+      logger.warn(`[PageManager] Provider mismatch: backup has ${backupData.providerClass}, current is ${this.providerClass}`);
+    }
+
+    try {
+      if (backupData.providerBackup) {
+        await this.provider.restore(backupData.providerBackup);
+        logger.info('[PageManager] Restore completed successfully');
+      } else {
+        logger.warn('[PageManager] No provider backup data found in backup');
+      }
+    } catch (error) {
+      logger.error('[PageManager] Restore failed:', error);
+      throw error;
+    }
+  }
 }
 
 module.exports = PageManager;
