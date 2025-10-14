@@ -1,6 +1,6 @@
 # BackupManager
 
-**Comprehensive Documentation for amdWiki BackupManager**
+Comprehensive Documentation for amdWiki BackupManager
 
 Version: 1.0.0
 Last Updated: 2025-10-14
@@ -71,7 +71,7 @@ This architecture enables:
 
 ### Component Diagram
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────────┐
 │                       BackupManager                              │
 │                                                                  │
@@ -104,7 +104,7 @@ This architecture enables:
 
 ### Backup Flow
 
-```
+```text
 ┌──────────────────────────────────────────────────────────────────┐
 │  1. User/System initiates backup                                  │
 │     └─> backupManager.backup()                                   │
@@ -144,7 +144,7 @@ This architecture enables:
 
 ### Restore Flow
 
-```
+```text
 ┌──────────────────────────────────────────────────────────────────┐
 │  1. User/System initiates restore                                 │
 │     └─> backupManager.restore(backupPath)                        │
@@ -193,7 +193,7 @@ This architecture enables:
 
 ### Manager Backup Statistics (Typical System)
 
-```
+```text
 Full system backup: 1,190.76 KB → 235.17 KB compressed (19.7%)
 ├─ PageManager:          1,095.50 KB (120 pages, 349.40 KB uncompressed)
 ├─ UserManager:             12.30 KB (5 users, 0 sessions)
@@ -709,7 +709,7 @@ class FileSystemProvider extends BasePageProvider {
 
 ### File Structure
 
-```
+```text
 Filename: amdwiki-backup-{ISO8601-timestamp}.json.gz
 Format: Gzipped JSON
 Encoding: UTF-8
@@ -981,7 +981,7 @@ chmod 755 backups/
 
 ### Adding Backup Support to a New Manager
 
-1. **Implement backup() method**:
+#### 1. **Implement backup() method**
 ```javascript
 async backup() {
   return {
@@ -993,7 +993,7 @@ async backup() {
 }
 ```
 
-2. **Implement restore() method**:
+#### 2. **Implement restore() method**
 ```javascript
 async restore(backupData) {
   if (!backupData || !backupData.data) {
@@ -1005,9 +1005,9 @@ async restore(backupData) {
 }
 ```
 
-3. **Register manager in WikiEngine** (automatic if using registerManager())
+#### 3. **Register manager in WikiEngine** (automatic if using registerManager())
 
-4. **Test backup/restore**:
+#### 4. **Test backup/restore**
 ```javascript
 const backup = await manager.backup();
 await manager.restore(backup);

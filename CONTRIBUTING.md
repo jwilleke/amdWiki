@@ -42,7 +42,7 @@ amdWiki follows a **manager-based architecture** inspired by JSPWiki:
 
 amdWiki uses a **three-phase extraction pipeline** that separates JSPWiki syntax processing from Markdown parsing:
 
-```
+```text
 Content → Extract JSPWiki → Create DOM Nodes → Showdown → Merge → HTML
 ```
 
@@ -179,7 +179,7 @@ const PluginName = {
 
 **Adding Custom JSPWiki Syntax:**
 
-1. **Add extraction pattern** in `MarkupParser.extractJSPWikiSyntax()`:
+#### 1. **Add extraction pattern** in `MarkupParser.extractJSPWikiSyntax()`
 ```javascript
 // Extract custom syntax
 sanitized = sanitized.replace(/\[\{CUSTOM:(.*?)\}\]/g, (match, content) => {
@@ -193,7 +193,7 @@ sanitized = sanitized.replace(/\[\{CUSTOM:(.*?)\}\]/g, (match, content) => {
 });
 ```
 
-2. **Create DOM handler** in `src/parsers/dom/handlers/`:
+#### 2. **Create DOM handler** in `src/parsers/dom/handlers/`
 ```javascript
 class CustomHandler {
   async createNodeFromExtract(element, context, wikiDocument) {
@@ -207,13 +207,13 @@ class CustomHandler {
 }
 ```
 
-3. **Integrate handler** in `MarkupParser.createDOMNode()`:
+#### 3. **Integrate handler** in `MarkupParser.createDOMNode()`
 ```javascript
 case 'custom':
   return await this.customHandler.createNodeFromExtract(element, context, wikiDocument);
 ```
 
-4. **Add tests** in `src/parsers/__tests__/`:
+#### 4. **Add tests** in `src/parsers/__tests__/`
 ```javascript
 test('custom syntax extraction', () => {
   const { jspwikiElements } = parser.extractJSPWikiSyntax('[{CUSTOM:test}]');
@@ -283,7 +283,7 @@ The WikiDocument DOM parser has comprehensive test coverage:
 - `DOMPluginHandler.test.js` - Plugin node creation
 - `DOMLinkHandler.test.js` - Link node creation
 
-**Total: 376+ tests with 100% success rate**
+Total: 376+ tests with 100% success rate
 
 ## 📝 Page Development
 
