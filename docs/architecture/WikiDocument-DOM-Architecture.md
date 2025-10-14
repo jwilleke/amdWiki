@@ -213,11 +213,12 @@ The problem: Phase 3 matches `___ESCAPED_BRACKET___{$var}]` because the `[` is n
 │                                                               │
 │  • Scan for JSPWiki patterns: [{$var}], [{PLUGIN}], [Link]  │
 │  • Extract each element with metadata                        │
-│  • Replace with HTML comment placeholders                    │
+│  • Replace with inline span placeholders                     │
 │  • Return: { sanitized, jspwikiElements, uuid }             │
 │                                                               │
-│  RESULT: "## Welcome\n\nUser: <!--JSPWIKI-uuid-0-->\n\n     │
-│           Page: <!--JSPWIKI-uuid-1-->"                       │
+│  RESULT: "## Welcome\n\nUser: <span data-jspwiki-           │
+│           placeholder="uuid-0"></span>\n\nPage:              │
+│           <span data-jspwiki-placeholder="uuid-1"></span>"   │
 └─────────────────────────────────────────────────────────────┘
                               │
                               ▼
@@ -242,7 +243,7 @@ The problem: Phase 3 matches `___ESCAPED_BRACKET___{$var}]` because the `[` is n
 │                                                               │
 │  Step A: Let Showdown parse sanitized markdown              │
 │    • Showdown.makeHtml(sanitized)                           │
-│    • Result: "<h2>Welcome</h2><p>User: <!--...--></p>"     │
+│    • Result: "<h2>Welcome</h2><p>User: <span ...></span></p>" │
 │                                                               │
 │  Step B: Merge DOM nodes back into HTML                     │
 │    • MarkupParser.mergeDOMNodes(html, nodes, uuid)          │
@@ -316,14 +317,20 @@ All reference files contain comprehensive architecture notes explaining why they
 
 ### Key Design Decisions
 
-#### 1. HTML Comment Placeholders
+#### 1. Inline Span Placeholders (Updated October 2025)
 
-**Decision:** Use `<!--JSPWIKI-uuid-id-->` format
+**Decision:** Use `<span data-jspwiki-placeholder="uuid-id"></span>` format
 
 **Rationale:**
-- HTML comments preserved by markdown parsers
+- Inline HTML elements preserved by markdown parsers as inline content
 - Don't interfere with markdown syntax
-- Invisible in rendered output if replacement fails
+- Prevent block-level rendering issues (HTML comments caused unwanted line breaks)
+- Valid HTML if replacement fails
+
+**Previous Decision (Deprecated):** HTML comments (`<!--JSPWIKI-uuid-id-->`)
+- **Issue Found:** Showdown treats HTML comments at start of line as block-level elements
+- **Problem:** `[{$pagename}] text` rendered as two blocks instead of inline
+- **Fixed:** Changed to inline span elements to maintain inline rendering
 
 **Rejected Alternative:** `__JSPWIKI_uuid_id__` (underscores interpreted as markdown)
 

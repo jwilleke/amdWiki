@@ -1393,7 +1393,7 @@ class MarkupParser extends BaseManager {
    * @example
    * const input = "## Heading\n\nUser: [{$username}]";
    * const { sanitized, jspwikiElements, uuid } = parser.extractJSPWikiSyntax(input);
-   * // sanitized: "## Heading\n\nUser: __JSPWIKI_abc123_0__"
+   * // sanitized: "## Heading\n\nUser: <span data-jspwiki-placeholder="abc123-0"></span>"
    * // jspwikiElements: [{ type: 'variable', varName: '$username', id: 0, ... }]
    * // uuid: "abc123"
    */
@@ -1436,7 +1436,7 @@ class MarkupParser extends BaseManager {
         id: id++,
         position: match.index
       });
-      return `<!--JSPWIKI-${uuid}-${id - 1}-->`;
+      return `<span data-jspwiki-placeholder="${uuid}-${id - 1}"></span>`;
     });
 
     // Step 2: Extract variables [{$varname}]
@@ -1450,7 +1450,7 @@ class MarkupParser extends BaseManager {
         id: id++,
         position: match.index
       });
-      return `<!--JSPWIKI-${uuid}-${id - 1}-->`;
+      return `<span data-jspwiki-placeholder="${uuid}-${id - 1}"></span>`;
     });
 
     // Step 3: Extract plugins [{PluginName params}]
@@ -1465,7 +1465,7 @@ class MarkupParser extends BaseManager {
         id: id++,
         position: match.index
       });
-      return `<!--JSPWIKI-${uuid}-${id - 1}-->`;
+      return `<span data-jspwiki-placeholder="${uuid}-${id - 1}"></span>`;
     });
 
     // Step 4: Extract wiki links [PageName] or [Text|Target]
@@ -1481,7 +1481,7 @@ class MarkupParser extends BaseManager {
         id: id++,
         position: match.index
       });
-      return `<!--JSPWIKI-${uuid}-${id - 1}-->`;
+      return `<span data-jspwiki-placeholder="${uuid}-${id - 1}"></span>`;
     });
 
     // Step 5: Restore code blocks
@@ -1607,7 +1607,7 @@ class MarkupParser extends BaseManager {
 
     for (const node of sortedNodes) {
       const id = node.getAttribute('data-jspwiki-id');
-      const placeholder = `<!--JSPWIKI-${uuid}-${id}-->`;
+      const placeholder = `<span data-jspwiki-placeholder="${uuid}-${id}"></span>`;
 
       // Render node to HTML
       let rendered;

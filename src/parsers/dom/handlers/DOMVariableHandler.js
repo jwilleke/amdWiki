@@ -75,7 +75,7 @@ class DOMVariableHandler {
           continue;
         }
 
-        // Resolve variable value
+        // Resolve variable value (resolveVariable handles context normalization)
         const value = this.resolveVariable(varName, context);
 
         if (value !== null && value !== undefined) {
@@ -121,7 +121,13 @@ class DOMVariableHandler {
     }
 
     try {
-      const result = handler(context);
+      // Extract pageContext from context if it exists (WikiContext.toParseOptions() structure)
+      // Context can be either:
+      // 1. { pageContext: { pageName, userContext, requestInfo }, engine } (from WikiContext)
+      // 2. { pageName, userContext, requestInfo } (direct format)
+      const variableContext = context.pageContext || context;
+
+      const result = handler(variableContext);
 
       // Handle async handlers
       if (result instanceof Promise) {

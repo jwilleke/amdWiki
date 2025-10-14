@@ -210,10 +210,14 @@ class DOMPluginHandler {
     }
 
     try {
+      // Get linkGraph from RenderingManager for ReferringPagesPlugin
+      const renderingManager = this.engine.getManager('RenderingManager');
+      const linkGraph = renderingManager ? renderingManager.linkGraph : {};
+
       // Build plugin context
       const pluginContext = {
         // Standard context
-        pageName: context.pageName || context?.pageContext?.name || 'unknown',
+        pageName: context.pageName || context?.pageContext?.pageName || 'unknown',
         userName: context.userName || 'anonymous',
         userContext: context.userContext,
         requestInfo: context.requestInfo,
@@ -227,7 +231,10 @@ class DOMPluginHandler {
 
         // DOM context
         wikiDocument: context.wikiDocument,
-        pluginElement: pluginElement
+        pluginElement: pluginElement,
+
+        // Link graph for ReferringPagesPlugin
+        linkGraph: linkGraph
       };
 
       // Execute plugin
