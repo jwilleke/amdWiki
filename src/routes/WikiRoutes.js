@@ -3154,6 +3154,66 @@ class WikiRoutes {
   }
 
   /**
+   * Admin backup - Create and download full system backup
+   */
+  async adminBackup(req, res) {
+    try {
+      const userManager = this.engine.getManager("UserManager");
+      const currentUser = req.userContext;
+
+      // Check admin permission for system operations
+      if (
+        !currentUser ||
+        !(await userManager.hasPermission(currentUser.username, "admin:system"))
+      ) {
+        return await this.renderError(
+          req,
+          res,
+          403,
+          "Access Denied",
+          "You do not have permission to create system backups"
+        );
+      }
+
+      const backupManager = this.engine.getManager("BackupManager");
+      if (!backupManager) {
+        return await this.renderError(
+          req,
+          res,
+          500,
+          "Backup Unavailable",
+          "BackupManager is not available"
+        );
+      }
+
+      console.log(`📦 Admin backup requested by: ${currentUser.username}`);
+
+      // Create backup
+      const backupPath = await backupManager.backup();
+      console.log(`✅ Backup created: ${backupPath}`);
+
+      // Get backup file stats
+      const fs = require('fs-extra');
+      const stats = await fs.stat(backupPath);
+      const filename = require('path').basename(backupPath);
+
+      // Send backup file as download
+      res.download(backupPath, filename, (err) => {
+        if (err) {
+          console.error('Error downloading backup:', err);
+          // Don't send response here as headers may already be sent
+        } else {
+          console.log(`✅ Backup downloaded by: ${currentUser.username}`);
+        }
+      });
+
+    } catch (err) {
+      console.error("Error creating backup:", err);
+      res.status(500).send("Error creating backup: " + err.message);
+    }
+  }
+
+  /**
    * Admin configuration management page
    */
   async adminConfiguration(req, res) {
@@ -3837,6 +3897,7 @@ class WikiRoutes {
 
     // Admin routes
     app.get("/admin", (req, res) => this.adminDashboard(req, res));
+    app.get("/admin/backup", (req, res) => this.adminBackup(req, res));
     app.get("/admin/configuration", (req, res) =>
       this.adminConfiguration(req, res)
     );
