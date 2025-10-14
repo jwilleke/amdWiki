@@ -132,6 +132,48 @@ await userManager.hasRole(username, roleName)
 await userManager.getSession(sessionId)
 ```
 
+## 📦 Key Dependencies
+
+### Versioning & Storage Libraries
+
+**fast-diff** - Text diffing for delta storage
+- **Purpose**: Efficiently store page versions as diffs instead of full copies
+- **Algorithm**: Myers diff algorithm (similar to git)
+- **Usage**: `src/utils/DeltaStorage.js`
+- **Why chosen**: Lightweight (no dependencies), fast, battle-tested algorithm
+- **Space savings**: 80-95% reduction for text-heavy content
+- **Documentation**: [fast-diff on npm](https://www.npmjs.com/package/fast-diff)
+
+**pako** - gzip compression/decompression
+- **Purpose**: Compress old version files to save disk space
+- **Implementation**: Pure JavaScript gzip (RFC 1952)
+- **Usage**: `src/utils/VersionCompression.js`
+- **Why chosen**: Pure JavaScript (no native bindings), works in Node.js and browsers
+- **Compression**: 60-80% size reduction typical for text
+- **Documentation**: [pako on npm](https://www.npmjs.com/package/pako)
+
+### Versioning Implementation
+
+The VersioningFileProvider uses delta storage + compression for efficient version management:
+
+```text
+v1: full_content.md                    (100 KB)
+v2: diff_from_v1.diff.gz               (2 KB)
+v3: diff_from_v2.diff.gz               (1.5 KB)
+v4: diff_from_v3.diff.gz               (2.2 KB)
+```
+
+**Storage efficiency**:
+- Without versioning: 400 KB (4 versions × 100 KB each)
+- With delta storage: 105.7 KB (74% space savings)
+- Reconstruction: Load v1, apply diffs sequentially
+
+**See also**:
+- `src/utils/DeltaStorage.js` - Diff creation and application
+- `src/utils/VersionCompression.js` - Compression utilities
+- `src/providers/BasePageProvider.js` - Versioning methods interface
+- [Phase 1 Implementation](https://github.com/jwilleke/amdWiki/issues/125)
+
 ## 🔧 Development Guidelines
 
 ### Critical requirements
