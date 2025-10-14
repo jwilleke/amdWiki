@@ -463,11 +463,19 @@ class VersioningFileProvider extends FileSystemProvider {
     const vNextDir = path.join(versionDir, `v${nextVersion}`);
     await fs.ensureDir(vNextDir);
 
-    // Read current content to create diff
+    // Read current content from previous version file (not from pageInfo)
+    // This ensures we're comparing the exact content we saved, not parsed content
     let currentContent;
     try {
-      // pageInfo already has the content parsed
-      currentContent = pageInfo.content || '';
+      const currentVersion = manifest.currentVersion;
+      if (currentVersion === 1) {
+        // Read from v1/content.md
+        const v1Path = path.join(versionDir, 'v1', 'content.md');
+        currentContent = await fs.readFile(v1Path, 'utf8');
+      } else {
+        // Reconstruct from v1 + diffs
+        currentContent = await this._reconstructVersion(uuid, location, currentVersion);
+      }
     } catch (error) {
       logger.error(`[VersioningFileProvider] Failed to read current content:`, error.message);
       currentContent = '';
@@ -530,6 +538,286 @@ class VersioningFileProvider extends FileSystemProvider {
   async _getCurrentVersion(uuid, location) {
     const manifest = await this._loadManifest(uuid, location);
     return manifest ? manifest.currentVersion : 0;
+  }
+
+  /**
+   * Reconstruct content for a specific version by applying diffs
+   * @param {string} uuid - Page UUID
+   * @param {string} location - 'pages' or 'required-pages'
+   * @param {number} targetVersion - Version to reconstruct
+   * @returns {Promise<string>} Reconstructed content
+   * @private
+   */
+  async _reconstructVersion(uuid, location, targetVersion) {
+    const versionDir = this._getVersionDirectory(uuid, location);
+
+    // Read v1 (base content)
+    const v1Path = path.join(versionDir, 'v1', 'content.md');
+    if (!await fs.pathExists(v1Path)) {
+      throw new Error(`Base version (v1) not found: ${v1Path}`);
+    }
+    let content = await fs.readFile(v1Path, 'utf8');
+
+    // If target is v1, we're done
+    if (targetVersion === 1) {
+      return content;
+    }
+
+    // Apply diffs sequentially from v2 to target version
+    for (let v = 2; v <= targetVersion; v++) {
+      const diffPath = path.join(versionDir, `v${v}`, 'content.diff');
+      if (!await fs.pathExists(diffPath)) {
+        throw new Error(`Diff file not found for v${v}: ${diffPath}`);
+      }
+
+      const diffData = await fs.readFile(diffPath, 'utf8');
+      const diff = JSON.parse(diffData);
+      content = DeltaStorage.applyDiff(content, diff);
+    }
+
+    return content;
+  }
+
+  // ============================================================================
+  // Version Retrieval Methods
+  // ============================================================================
+
+  /**
+   * Resolve identifier (UUID or title) to UUID and location
+   * @param {string} identifier - Page UUID or title
+   * @returns {Promise<{uuid: string, location: string}|null>} UUID and location, or null if not found
+   * @private
+   */
+  async _resolveIdentifier(identifier) {
+    // Check if identifier is already a UUID (in page index)
+    if (this.pageIndex.pages[identifier]) {
+      return {
+        uuid: identifier,
+        location: this.pageIndex.pages[identifier].location || 'pages'
+      };
+    }
+
+    // Try to find by title using pageExists and getPage
+    if (this.pageExists(identifier)) {
+      try {
+        const pageInfo = await this.getPage(identifier);
+        if (pageInfo && pageInfo.uuid) {
+          // Determine location from page index or default to 'pages'
+          const location = this.pageIndex.pages[pageInfo.uuid]?.location || 'pages';
+          return {
+            uuid: pageInfo.uuid,
+            location: location
+          };
+        }
+      } catch (error) {
+        logger.warn(`[VersioningFileProvider] Failed to resolve identifier '${identifier}':`, error.message);
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * Get version history for a page
+   *
+   * Returns an array of version metadata sorted by version number (newest first).
+   * Each entry includes: version, dateCreated, author, changeType, comment, contentHash, contentSize.
+   *
+   * @param {string} identifier - Page UUID or title
+   * @returns {Promise<Array<object>>} Array of version metadata (empty array if no versions)
+   * @throws {Error} If page not found
+   * @example
+   * const history = await provider.getVersionHistory('Main');
+   * // [
+   * //   { version: 3, dateCreated: '2024-01-03T...', author: 'john', ... },
+   * //   { version: 2, dateCreated: '2024-01-02T...', author: 'jane', ... },
+   * //   { version: 1, dateCreated: '2024-01-01T...', author: 'admin', ... }
+   * // ]
+   */
+  async getVersionHistory(identifier) {
+    // Resolve identifier to UUID and location
+    const resolved = await this._resolveIdentifier(identifier);
+    if (!resolved) {
+      throw new Error(`Page not found: ${identifier}`);
+    }
+
+    const { uuid, location } = resolved;
+
+    // Load manifest
+    const manifest = await this._loadManifest(uuid, location);
+    if (!manifest || !manifest.versions || manifest.versions.length === 0) {
+      return [];
+    }
+
+    // Return versions in reverse order (newest first)
+    return [...manifest.versions].reverse();
+  }
+
+  /**
+   * Get specific version content for a page
+   *
+   * Reconstructs the content for a specific version by:
+   * 1. Reading v1 (full content)
+   * 2. If version > 1 and delta storage enabled: apply diffs sequentially
+   * 3. If version > 1 and delta storage disabled: read full content directly
+   *
+   * @param {string} identifier - Page UUID or title
+   * @param {number} version - Version number to retrieve
+   * @returns {Promise<{content: string, metadata: object}>} Version content and metadata
+   * @throws {Error} If page/version not found or reconstruction fails
+   * @example
+   * const { content, metadata } = await provider.getPageVersion('Main', 2);
+   * console.log(content); // Content at version 2
+   * console.log(metadata.author); // Author of version 2
+   */
+  async getPageVersion(identifier, version) {
+    if (typeof version !== 'number' || version < 1) {
+      throw new Error(`Invalid version number: ${version}`);
+    }
+
+    // Resolve identifier to UUID and location
+    const resolved = await this._resolveIdentifier(identifier);
+    if (!resolved) {
+      throw new Error(`Page not found: ${identifier}`);
+    }
+
+    const { uuid, location } = resolved;
+
+    // Load manifest
+    const manifest = await this._loadManifest(uuid, location);
+    if (!manifest) {
+      throw new Error(`No version history found for: ${identifier}`);
+    }
+
+    if (version > manifest.currentVersion) {
+      throw new Error(`Version ${version} does not exist (current: ${manifest.currentVersion})`);
+    }
+
+    // Get version metadata
+    const versionMetadata = manifest.versions.find(v => v.version === version);
+    if (!versionMetadata) {
+      throw new Error(`Version ${version} metadata not found in manifest`);
+    }
+
+    const versionDir = this._getVersionDirectory(uuid, location);
+
+    // Reconstruct content based on delta storage setting
+    let content;
+    if (this.deltaStorageEnabled) {
+      // Use delta reconstruction (works for all versions including v1)
+      content = await this._reconstructVersion(uuid, location, version);
+    } else {
+      // Delta storage disabled: read full content directly
+      const vPath = path.join(versionDir, `v${version}`, 'content.md');
+      if (!await fs.pathExists(vPath)) {
+        throw new Error(`Version ${version} content file not found: ${vPath}`);
+      }
+      content = await fs.readFile(vPath, 'utf8');
+    }
+
+    return { content, metadata: versionMetadata };
+  }
+
+  /**
+   * Restore page to a specific version
+   *
+   * Creates a new version with the content from the specified version.
+   * This does NOT delete newer versions - it creates a new version with old content.
+   *
+   * @param {string} identifier - Page UUID or title
+   * @param {number} version - Version number to restore to
+   * @param {object} options - Restore options
+   * @param {string} options.author - Author of the restore action (default: 'system')
+   * @param {string} options.comment - Comment for the restore action (default: 'Restored from v{version}')
+   * @returns {Promise<number>} New version number created by restore
+   * @throws {Error} If page/version not found or restore fails
+   * @example
+   * const newVersion = await provider.restoreVersion('Main', 5, {
+   *   author: 'admin',
+   *   comment: 'Reverted spam edit'
+   * });
+   * console.log(`Restored to v5, created v${newVersion}`);
+   */
+  async restoreVersion(identifier, version, options = {}) {
+    // Get the content from the target version
+    const { content, metadata: versionMetadata } = await this.getPageVersion(identifier, version);
+
+    // Resolve identifier to get current page info
+    const resolved = await this._resolveIdentifier(identifier);
+    if (!resolved) {
+      throw new Error(`Page not found: ${identifier}`);
+    }
+
+    const { uuid } = resolved;
+
+    // Get current page to get title
+    const currentPage = await this.getPage(identifier);
+    const pageName = currentPage.title || identifier;
+
+    // Save as new version with restore metadata
+    const author = options.author || 'system';
+    const comment = options.comment || `Restored from v${version}`;
+
+    await this.savePage(pageName, content, {
+      uuid: uuid,
+      author: author,
+      comment: comment,
+      changeType: 'restored'
+    });
+
+    // Return the new version number
+    const location = this.pageIndex.pages[uuid]?.location || 'pages';
+    const newVersion = await this._getCurrentVersion(uuid, location);
+
+    logger.info(`[VersioningFileProvider] Restored page '${pageName}' to v${version}, created v${newVersion}`);
+    return newVersion;
+  }
+
+  /**
+   * Compare two versions of a page
+   *
+   * Returns a diff showing changes between two versions.
+   * Uses DeltaStorage to compute the diff.
+   *
+   * @param {string} identifier - Page UUID or title
+   * @param {number} version1 - First version number
+   * @param {number} version2 - Second version number
+   * @returns {Promise<object>} Comparison result with diff and stats
+   * @throws {Error} If page/versions not found
+   * @example
+   * const comparison = await provider.compareVersions('Main', 2, 5);
+   * console.log(comparison.stats); // { additions: 10, deletions: 3, unchanged: 100 }
+   * console.log(comparison.diff); // Array of diff operations
+   */
+  async compareVersions(identifier, version1, version2) {
+    if (typeof version1 !== 'number' || typeof version2 !== 'number') {
+      throw new Error('Version numbers must be integers');
+    }
+
+    if (version1 < 1 || version2 < 1) {
+      throw new Error('Version numbers must be >= 1');
+    }
+
+    // Get content for both versions
+    const { content: content1, metadata: meta1 } = await this.getPageVersion(identifier, version1);
+    const { content: content2, metadata: meta2 } = await this.getPageVersion(identifier, version2);
+
+    // Calculate diff from version1 to version2
+    const diff = DeltaStorage.createDiff(content1, content2);
+    const stats = DeltaStorage.getDiffStats(diff);
+
+    return {
+      version1: {
+        version: version1,
+        ...meta1
+      },
+      version2: {
+        version: version2,
+        ...meta2
+      },
+      diff: diff,
+      stats: stats
+    };
   }
 
   /**

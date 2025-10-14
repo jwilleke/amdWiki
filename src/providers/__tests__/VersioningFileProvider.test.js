@@ -669,4 +669,354 @@ describe('VersioningFileProvider', () => {
       expect(index.pages['doc-uuid-1'].author).toBe('developer2');
     });
   });
+
+  describe('Version Retrieval - getVersionHistory()', () => {
+    test('should return version history by page title', async () => {
+      await provider.initialize();
+
+      const pageName = 'Test History';
+      const uuid = 'history-uuid-1';
+
+      // Create 3 versions
+      await provider.savePage(pageName, 'v1 content', { uuid, author: 'user1' });
+      await provider.savePage(pageName, 'v2 content', { uuid, author: 'user2' });
+      await provider.savePage(pageName, 'v3 content', { uuid, author: 'user3' });
+
+      // Get history by title
+      const history = await provider.getVersionHistory(pageName);
+
+      expect(history.length).toBe(3);
+      // Newest first
+      expect(history[0].version).toBe(3);
+      expect(history[0].author).toBe('user3');
+      expect(history[1].version).toBe(2);
+      expect(history[1].author).toBe('user2');
+      expect(history[2].version).toBe(1);
+      expect(history[2].author).toBe('user1');
+    });
+
+    test('should return version history by UUID', async () => {
+      await provider.initialize();
+
+      const uuid = 'history-uuid-2';
+      await provider.savePage('Test', 'v1', { uuid, author: 'admin' });
+      await provider.savePage('Test', 'v2', { uuid, author: 'admin' });
+
+      // Get history by UUID
+      const history = await provider.getVersionHistory(uuid);
+
+      expect(history.length).toBe(2);
+      expect(history[0].version).toBe(2);
+      expect(history[1].version).toBe(1);
+    });
+
+    test('should return empty array for page with no versions', async () => {
+      await provider.initialize();
+
+      // Create page without versioning by directly manipulating page index
+      provider.pageIndex.pages['no-versions-uuid'] = {
+        uuid: 'no-versions-uuid',
+        title: 'No Versions',
+        location: 'pages'
+      };
+
+      const history = await provider.getVersionHistory('no-versions-uuid');
+      expect(history).toEqual([]);
+    });
+
+    test('should throw error for non-existent page', async () => {
+      await provider.initialize();
+
+      await expect(provider.getVersionHistory('NonExistent')).rejects.toThrow('Page not found');
+    });
+
+    test('should include all version metadata fields', async () => {
+      await provider.initialize();
+
+      await provider.savePage('Meta Test', 'content', {
+        uuid: 'meta-uuid-1',
+        author: 'john',
+        comment: 'Initial commit'
+      });
+
+      const history = await provider.getVersionHistory('Meta Test');
+
+      expect(history[0]).toHaveProperty('version');
+      expect(history[0]).toHaveProperty('dateCreated');
+      expect(history[0]).toHaveProperty('author');
+      expect(history[0]).toHaveProperty('changeType');
+      expect(history[0]).toHaveProperty('comment');
+      expect(history[0]).toHaveProperty('contentHash');
+      expect(history[0]).toHaveProperty('contentSize');
+    });
+  });
+
+  describe('Version Retrieval - getPageVersion()', () => {
+    test('should retrieve version 1 content', async () => {
+      await provider.initialize();
+
+      const content = 'Original content for v1';
+      await provider.savePage('Test', content, { uuid: 'version-uuid-1', author: 'admin' });
+
+      const { content: retrieved, metadata } = await provider.getPageVersion('Test', 1);
+
+      expect(retrieved).toBe(content);
+      expect(metadata.version).toBe(1);
+      expect(metadata.author).toBe('admin');
+    });
+
+    test('should retrieve version 2+ with delta storage (diff reconstruction)', async () => {
+      await provider.initialize();
+
+      const uuid = 'version-uuid-2';
+      const v1 = 'Hello world';
+      const v2 = 'Hello amdWiki';
+      const v3 = 'Hello amdWiki community';
+
+      await provider.savePage('Test', v1, { uuid, author: 'user1' });
+      await provider.savePage('Test', v2, { uuid, author: 'user2' });
+      await provider.savePage('Test', v3, { uuid, author: 'user3' });
+
+      // Retrieve v2 (should reconstruct from v1 + diff)
+      const { content: v2Content } = await provider.getPageVersion('Test', 2);
+      expect(v2Content).toBe(v2);
+
+      // Retrieve v3 (should reconstruct from v1 + diff2 + diff3)
+      const { content: v3Content } = await provider.getPageVersion('Test', 3);
+      expect(v3Content).toBe(v3);
+    });
+
+    test('should retrieve version by UUID', async () => {
+      await provider.initialize();
+
+      const uuid = 'version-uuid-3';
+      await provider.savePage('Test', 'content v1', { uuid });
+      await provider.savePage('Test', 'content v2', { uuid });
+
+      const { content } = await provider.getPageVersion(uuid, 1);
+      expect(content).toBe('content v1');
+    });
+
+    test('should throw error for invalid version number', async () => {
+      await provider.initialize();
+
+      await provider.savePage('Test', 'content', { uuid: 'version-uuid-4' });
+
+      await expect(provider.getPageVersion('Test', 0)).rejects.toThrow('Invalid version number');
+      await expect(provider.getPageVersion('Test', -1)).rejects.toThrow('Invalid version number');
+      await expect(provider.getPageVersion('Test', 'invalid')).rejects.toThrow('Invalid version number');
+    });
+
+    test('should throw error for version that does not exist', async () => {
+      await provider.initialize();
+
+      await provider.savePage('Test', 'content', { uuid: 'version-uuid-5' });
+
+      await expect(provider.getPageVersion('Test', 99)).rejects.toThrow('does not exist');
+    });
+
+    test('should throw error for non-existent page', async () => {
+      await provider.initialize();
+
+      await expect(provider.getPageVersion('NonExistent', 1)).rejects.toThrow('Page not found');
+    });
+
+    test('should handle large version chains efficiently', async () => {
+      await provider.initialize();
+
+      const uuid = 'version-uuid-6';
+      const pageName = 'Large Chain Test';
+
+      // Create 10 versions
+      for (let i = 1; i <= 10; i++) {
+        await provider.savePage(pageName, `Content version ${i}`, { uuid, author: `user${i}` });
+      }
+
+      // Retrieve v10 (should reconstruct through 9 diffs)
+      const startTime = Date.now();
+      const { content } = await provider.getPageVersion(pageName, 10);
+      const duration = Date.now() - startTime;
+
+      expect(content).toBe('Content version 10');
+      expect(duration).toBeLessThan(100); // Should complete in < 100ms
+    });
+  });
+
+  describe('Version Retrieval - restoreVersion()', () => {
+    test('should restore page to previous version', async () => {
+      await provider.initialize();
+
+      const uuid = 'restore-uuid-1';
+      const pageName = 'Restore Test';
+
+      // Create 3 versions
+      await provider.savePage(pageName, 'v1 content', { uuid, author: 'user1' });
+      await provider.savePage(pageName, 'v2 content', { uuid, author: 'user2' });
+      await provider.savePage(pageName, 'v3 content', { uuid, author: 'user3' });
+
+      // Restore to v1
+      const newVersion = await provider.restoreVersion(pageName, 1, { author: 'admin' });
+
+      // Should create v4 with v1's content
+      expect(newVersion).toBe(4);
+
+      // Verify v4 has v1's content
+      const { content } = await provider.getPageVersion(pageName, 4);
+      expect(content).toBe('v1 content');
+
+      // Verify metadata
+      const history = await provider.getVersionHistory(pageName);
+      expect(history[0].version).toBe(4);
+      expect(history[0].author).toBe('admin');
+      expect(history[0].changeType).toBe('restored');
+      expect(history[0].comment).toContain('Restored from v1');
+    });
+
+    test('should preserve all original versions after restore', async () => {
+      await provider.initialize();
+
+      const uuid = 'restore-uuid-2';
+      await provider.savePage('Test', 'v1', { uuid });
+      await provider.savePage('Test', 'v2', { uuid });
+      await provider.savePage('Test', 'v3', { uuid });
+
+      // Restore to v2
+      await provider.restoreVersion('Test', 2);
+
+      // All original versions should still exist
+      const history = await provider.getVersionHistory('Test');
+      expect(history.length).toBe(4); // v1, v2, v3, v4(restored)
+
+      // Can still retrieve v3
+      const { content: v3Content } = await provider.getPageVersion('Test', 3);
+      expect(v3Content).toBe('v3');
+    });
+
+    test('should accept custom author and comment', async () => {
+      await provider.initialize();
+
+      const uuid = 'restore-uuid-3';
+      await provider.savePage('Test', 'v1', { uuid });
+      await provider.savePage('Test', 'v2 bad content', { uuid });
+
+      await provider.restoreVersion('Test', 1, {
+        author: 'moderator',
+        comment: 'Reverted spam edit'
+      });
+
+      const history = await provider.getVersionHistory('Test');
+      expect(history[0].author).toBe('moderator');
+      expect(history[0].comment).toBe('Reverted spam edit');
+    });
+
+    test('should restore by UUID', async () => {
+      await provider.initialize();
+
+      const uuid = 'restore-uuid-4';
+      await provider.savePage('Test', 'v1', { uuid });
+      await provider.savePage('Test', 'v2', { uuid });
+
+      const newVersion = await provider.restoreVersion(uuid, 1);
+      expect(newVersion).toBe(3);
+    });
+
+    test('should throw error for non-existent page', async () => {
+      await provider.initialize();
+
+      await expect(provider.restoreVersion('NonExistent', 1)).rejects.toThrow();
+    });
+
+    test('should throw error for non-existent version', async () => {
+      await provider.initialize();
+
+      await provider.savePage('Test', 'v1', { uuid: 'restore-uuid-5' });
+
+      await expect(provider.restoreVersion('Test', 99)).rejects.toThrow();
+    });
+  });
+
+  describe('Version Retrieval - compareVersions()', () => {
+    test('should compare two versions and return diff', async () => {
+      await provider.initialize();
+
+      const uuid = 'compare-uuid-1';
+      await provider.savePage('Test', 'Hello world', { uuid, author: 'user1' });
+      await provider.savePage('Test', 'Hello amdWiki', { uuid, author: 'user2' });
+
+      const comparison = await provider.compareVersions('Test', 1, 2);
+
+      expect(comparison.version1.version).toBe(1);
+      expect(comparison.version1.author).toBe('user1');
+      expect(comparison.version2.version).toBe(2);
+      expect(comparison.version2.author).toBe('user2');
+
+      expect(Array.isArray(comparison.diff)).toBe(true);
+      expect(comparison.diff.length).toBeGreaterThan(0);
+
+      expect(comparison.stats).toHaveProperty('additions');
+      expect(comparison.stats).toHaveProperty('deletions');
+      expect(comparison.stats).toHaveProperty('unchanged');
+    });
+
+    test('should compare versions in any order', async () => {
+      await provider.initialize();
+
+      const uuid = 'compare-uuid-2';
+      await provider.savePage('Test', 'aaa', { uuid });
+      await provider.savePage('Test', 'bbb', { uuid });
+      await provider.savePage('Test', 'ccc', { uuid });
+
+      // Compare v1 to v3
+      const forward = await provider.compareVersions('Test', 1, 3);
+      expect(forward.version1.version).toBe(1);
+      expect(forward.version2.version).toBe(3);
+
+      // Compare v3 to v1 (reverse)
+      const backward = await provider.compareVersions('Test', 3, 1);
+      expect(backward.version1.version).toBe(3);
+      expect(backward.version2.version).toBe(1);
+    });
+
+    test('should compare by UUID', async () => {
+      await provider.initialize();
+
+      const uuid = 'compare-uuid-3';
+      await provider.savePage('Test', 'v1', { uuid });
+      await provider.savePage('Test', 'v2', { uuid });
+
+      const comparison = await provider.compareVersions(uuid, 1, 2);
+      expect(comparison.version1.version).toBe(1);
+    });
+
+    test('should handle identical versions (no changes)', async () => {
+      await provider.initialize();
+
+      const uuid = 'compare-uuid-4';
+      await provider.savePage('Test', 'same content', { uuid });
+      await provider.savePage('Test', 'same content', { uuid }); // No change
+
+      const comparison = await provider.compareVersions('Test', 1, 2);
+
+      expect(comparison.stats.additions).toBe(0);
+      expect(comparison.stats.deletions).toBe(0);
+      expect(comparison.stats.unchanged).toBeGreaterThan(0);
+    });
+
+    test('should throw error for invalid version numbers', async () => {
+      await provider.initialize();
+
+      await provider.savePage('Test', 'content', { uuid: 'compare-uuid-5' });
+
+      await expect(provider.compareVersions('Test', 'invalid', 1)).rejects.toThrow('must be integers');
+      await expect(provider.compareVersions('Test', 1, 0)).rejects.toThrow('must be >= 1');
+    });
+
+    test('should throw error for non-existent versions', async () => {
+      await provider.initialize();
+
+      await provider.savePage('Test', 'content', { uuid: 'compare-uuid-6' });
+
+      await expect(provider.compareVersions('Test', 1, 99)).rejects.toThrow();
+    });
+  });
 });
