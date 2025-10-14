@@ -37,6 +37,21 @@ The **BackupManager** is responsible for coordinating backup and restore operati
 - **Restore Coordination**: Restore data from backups across all managers
 - **Statistics**: Track backup sizes, compression ratios, and operation timing
 
+### How It Works
+
+  1. Engine Registration: When managers are registered in WikiEngine using registerManager(), they're automatically added to the list
+  2. Auto-Discovery: BackupManager calls this.engine.getRegisteredManagers() to get ALL registered managers
+  3. Automatic Backup: Loops through all managers and calls manager.backup() on each
+  4. Error Tolerance: If a manager fails, it continues with others (resilient design)
+  5. Default Behavior: If a manager doesn't implement backup(), it inherits from BaseManager which returns null
+
+  What This Means
+
+  ✅ Any manager registered in WikiEngine is automatically backed up
+  ✅ No manual registration needed in BackupManager
+  ✅ Resilient: One manager failure doesn't stop others
+  ✅ Extensible: New managers automatically included
+
 ### Design Philosophy
 
 The BackupManager follows the **Coordinator Pattern**:
