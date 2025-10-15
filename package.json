@@ -18,9 +18,6 @@
     "version:minor": "node version.js minor",
     "version:major": "node version.js major",
     "version:help": "node version.js help",
-    "migrate:schema": "node scripts/migrate-to-schema.js",
-    "migrate:schema:dry": "node scripts/migrate-to-schema.js --dry-run",
-    "migrate:schema:backup": "node scripts/migrate-to-schema.js --backup",
     "migrate:versioning": "node scripts/migrate-to-versioning.js",
     "migrate:versioning:dry": "node scripts/migrate-to-versioning.js --dry-run",
     "migrate:versioning:verbose": "node scripts/migrate-to-versioning.js --verbose",
@@ -38,7 +35,7 @@
     ],
     "collectCoverageFrom": [
       "src/**/*.js",
-      "!src/tests/**",
+      "!src/**/__tests__/**",
       "!src/legacy/**"
     ],
     "coverageDirectory": "coverage",

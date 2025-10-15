@@ -48,7 +48,7 @@ By default, VersioningFileProvider stores full content only for v1, then uses di
 
 #### How It Works
 
-```
+```text
 v1  → Full content (checkpoint)
 v2  → Diff from v1
 v3  → Diff from v2
@@ -467,7 +467,7 @@ npm run maintain:analyze
 
 ### Output Example
 
-```
+```text
 ═══════════════════════════════════════════════════════════════════
   amdWiki Version Maintenance Tool
 ═══════════════════════════════════════════════════════════════════
