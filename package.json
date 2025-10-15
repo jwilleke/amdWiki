@@ -23,7 +23,12 @@
     "migrate:schema:backup": "node scripts/migrate-to-schema.js --backup",
     "migrate:versioning": "node scripts/migrate-to-versioning.js",
     "migrate:versioning:dry": "node scripts/migrate-to-versioning.js --dry-run",
-    "migrate:versioning:verbose": "node scripts/migrate-to-versioning.js --verbose"
+    "migrate:versioning:verbose": "node scripts/migrate-to-versioning.js --verbose",
+    "maintain:versioning": "node scripts/maintain-versions.js",
+    "maintain:cleanup": "node scripts/maintain-versions.js --cleanup",
+    "maintain:compress": "node scripts/maintain-versions.js --compress",
+    "maintain:analyze": "node scripts/maintain-versions.js --analyze",
+    "maintain:full": "node scripts/maintain-versions.js --full"
   },
   "jest": {
     "testEnvironment": "node",

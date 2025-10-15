@@ -47,6 +47,7 @@ class VersioningFileProvider extends FileSystemProvider {
     this.retentionDays = 365;             // Days to retain versions
     this.compressionEnabled = true;       // Enable gzip compression
     this.deltaStorageEnabled = true;      // Enable delta storage (v1=full, v2+=diff)
+    this.checkpointInterval = 10;         // Store full snapshot every N versions (performance optimization)
 
     // Version directories (created during initialize)
     this.pagesVersionsDir = null;         // ./pages/versions/
@@ -54,6 +55,10 @@ class VersioningFileProvider extends FileSystemProvider {
 
     // In-memory page index cache
     this.pageIndex = null;
+
+    // Version cache for performance (LRU cache)
+    this.versionCache = new Map();
+    this.versionCacheSize = 50;
   }
 
   /**
@@ -126,6 +131,17 @@ class VersioningFileProvider extends FileSystemProvider {
       true
     );
 
+    // Performance optimization settings
+    this.checkpointInterval = configManager.getProperty(
+      'amdwiki.page.provider.versioning.checkpointinterval',
+      10
+    );
+
+    this.versionCacheSize = configManager.getProperty(
+      'amdwiki.page.provider.versioning.cachesize',
+      50
+    );
+
     // Validate configuration
     if (this.maxVersions < 1) {
       logger.warn('[VersioningFileProvider] Invalid maxVersions, using default: 50');
@@ -135,6 +151,11 @@ class VersioningFileProvider extends FileSystemProvider {
     if (this.retentionDays < 1) {
       logger.warn('[VersioningFileProvider] Invalid retentionDays, using default: 365');
       this.retentionDays = 365;
+    }
+
+    if (this.checkpointInterval < 5) {
+      logger.warn('[VersioningFileProvider] Invalid checkpointInterval, using default: 10');
+      this.checkpointInterval = 10;
     }
   }
 
@@ -481,10 +502,12 @@ class VersioningFileProvider extends FileSystemProvider {
       currentContent = '';
     }
 
-    // Create version based on delta storage setting
+    // Create version based on delta storage setting and checkpoints
     let versionMetadata;
-    if (this.deltaStorageEnabled && nextVersion > 1) {
-      // Create and save diff
+    const isCheckpoint = (nextVersion % this.checkpointInterval === 0);
+
+    if (this.deltaStorageEnabled && nextVersion > 1 && !isCheckpoint) {
+      // Create and save diff (unless this is a checkpoint)
       const diff = DeltaStorage.createDiff(currentContent, newContent);
       await fs.writeFile(
         path.join(vNextDir, 'content.diff'),
@@ -500,22 +523,32 @@ class VersioningFileProvider extends FileSystemProvider {
         contentHash: DeltaStorage.calculateHash(newContent),
         contentSize: Buffer.byteLength(JSON.stringify(diff), 'utf8'),
         compressed: false,
-        isDelta: true
+        isDelta: true,
+        isCheckpoint: false
       };
     } else {
-      // Store full content
+      // Store full content (v1, delta storage disabled, or checkpoint)
       await fs.writeFile(path.join(vNextDir, 'content.md'), newContent, 'utf8');
+
+      const comment = isCheckpoint
+        ? `Checkpoint at version ${nextVersion}`
+        : (metadata.comment || `Update to version ${nextVersion}`);
 
       versionMetadata = {
         dateCreated: new Date().toISOString(),
         author: metadata.author || 'unknown',
         changeType: metadata.changeType || 'updated',
-        comment: metadata.comment || `Update to version ${nextVersion}`,
+        comment: comment,
         contentHash: DeltaStorage.calculateHash(newContent),
         contentSize: Buffer.byteLength(newContent, 'utf8'),
         compressed: false,
-        isDelta: false
+        isDelta: false,
+        isCheckpoint: isCheckpoint
       };
+
+      if (isCheckpoint) {
+        logger.info(`[VersioningFileProvider] Created checkpoint at v${nextVersion} for page ${pageName}`);
+      }
     }
 
     // Save metadata
@@ -542,6 +575,9 @@ class VersioningFileProvider extends FileSystemProvider {
 
   /**
    * Reconstruct content for a specific version by applying diffs
+   *
+   * Performance optimized: Uses nearest checkpoint instead of always starting from v1.
+   *
    * @param {string} uuid - Page UUID
    * @param {string} location - 'pages' or 'required-pages'
    * @param {number} targetVersion - Version to reconstruct
@@ -549,22 +585,43 @@ class VersioningFileProvider extends FileSystemProvider {
    * @private
    */
   async _reconstructVersion(uuid, location, targetVersion) {
+    // Check cache first
+    const cacheKey = `${uuid}:${targetVersion}`;
+    if (this.versionCache.has(cacheKey)) {
+      this._updateCacheAccess(cacheKey);
+      return this.versionCache.get(cacheKey);
+    }
+
     const versionDir = this._getVersionDirectory(uuid, location);
 
-    // Read v1 (base content)
-    const v1Path = path.join(versionDir, 'v1', 'content.md');
-    if (!await fs.pathExists(v1Path)) {
-      throw new Error(`Base version (v1) not found: ${v1Path}`);
+    // Find nearest checkpoint at or before target version
+    let startVersion = 1;
+    for (let v = targetVersion; v >= 1; v--) {
+      if (v === 1 || (v % this.checkpointInterval === 0)) {
+        // Check if this checkpoint exists
+        const checkpointPath = path.join(versionDir, `v${v}`, 'content.md');
+        if (await fs.pathExists(checkpointPath)) {
+          startVersion = v;
+          break;
+        }
+      }
     }
-    let content = await fs.readFile(v1Path, 'utf8');
 
-    // If target is v1, we're done
-    if (targetVersion === 1) {
+    // Read from nearest checkpoint
+    const startPath = path.join(versionDir, `v${startVersion}`, 'content.md');
+    if (!await fs.pathExists(startPath)) {
+      throw new Error(`Checkpoint v${startVersion} not found: ${startPath}`);
+    }
+    let content = await fs.readFile(startPath, 'utf8');
+
+    // If we're at the target version, we're done
+    if (targetVersion === startVersion) {
+      this._addToCache(cacheKey, content);
       return content;
     }
 
-    // Apply diffs sequentially from v2 to target version
-    for (let v = 2; v <= targetVersion; v++) {
+    // Apply diffs sequentially from checkpoint + 1 to target version
+    for (let v = startVersion + 1; v <= targetVersion; v++) {
       const diffPath = path.join(versionDir, `v${v}`, 'content.diff');
       if (!await fs.pathExists(diffPath)) {
         throw new Error(`Diff file not found for v${v}: ${diffPath}`);
@@ -575,7 +632,37 @@ class VersioningFileProvider extends FileSystemProvider {
       content = DeltaStorage.applyDiff(content, diff);
     }
 
+    // Add to cache
+    this._addToCache(cacheKey, content);
+
     return content;
+  }
+
+  /**
+   * Add content to version cache (LRU eviction)
+   * @param {string} key - Cache key
+   * @param {string} content - Content to cache
+   * @private
+   */
+  _addToCache(key, content) {
+    // Remove oldest entry if cache is full
+    if (this.versionCache.size >= this.versionCacheSize) {
+      const firstKey = this.versionCache.keys().next().value;
+      this.versionCache.delete(firstKey);
+    }
+
+    this.versionCache.set(key, content);
+  }
+
+  /**
+   * Update cache access (move to end for LRU)
+   * @param {string} key - Cache key
+   * @private
+   */
+  _updateCacheAccess(key) {
+    const content = this.versionCache.get(key);
+    this.versionCache.delete(key);
+    this.versionCache.set(key, content);
   }
 
   // ============================================================================
@@ -820,6 +907,171 @@ class VersioningFileProvider extends FileSystemProvider {
     };
   }
 
+  // ============================================================================
+  // Maintenance Methods
+  // ============================================================================
+
+  /**
+   * Purge old versions of a page
+   *
+   * Removes old versions based on retention policies:
+   * - Keep versions newer than retentionDays
+   * - Keep last keepLatest versions (minimum)
+   * - Optionally keep milestone versions (v1, every 10th version)
+   *
+   * @param {string} identifier - Page UUID or title
+   * @param {object} options - Purge options
+   * @param {number} options.keepLatest - Minimum versions to keep (default: maxVersions or 10)
+   * @param {number} options.retentionDays - Keep versions newer than this (default: from config)
+   * @param {boolean} options.keepMilestones - Keep v1 and every 10th version (default: true)
+   * @param {boolean} options.dryRun - Preview without deleting (default: false)
+   * @returns {Promise<object>} Purge report
+   * @throws {Error} If page not found or purge fails
+   * @example
+   * const report = await provider.purgeOldVersions('Main', {
+   *   keepLatest: 20,
+   *   retentionDays: 90,
+   *   keepMilestones: true
+   * });
+   * console.log(`Removed ${report.versionsRemoved} versions, freed ${report.spaceFreed} bytes`);
+   */
+  async purgeOldVersions(identifier, options = {}) {
+    // Resolve identifier to UUID and location
+    const resolved = await this._resolveIdentifier(identifier);
+    if (!resolved) {
+      throw new Error(`Page not found: ${identifier}`);
+    }
+
+    const { uuid, location } = resolved;
+
+    // Load manifest
+    const manifest = await this._loadManifest(uuid, location);
+    if (!manifest || manifest.versions.length === 0) {
+      return {
+        versionsRemoved: 0,
+        spaceFreed: 0,
+        message: 'No versions to purge'
+      };
+    }
+
+    // Default options
+    const keepLatest = options.keepLatest || this.maxVersions || 10;
+    const retentionDays = options.retentionDays !== undefined ? options.retentionDays : this.retentionDays;
+    const keepMilestones = options.keepMilestones !== undefined ? options.keepMilestones : true;
+    const dryRun = options.dryRun || false;
+
+    // Calculate cutoff date for retention
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - retentionDays);
+
+    const versionDir = this._getVersionDirectory(uuid, location);
+    const versionsToPurge = [];
+    let spaceFreed = 0;
+
+    // Determine which versions to purge
+    for (const versionMeta of manifest.versions) {
+      const versionNum = versionMeta.version;
+
+      // Always keep the last keepLatest versions
+      const versionsFromEnd = manifest.currentVersion - versionNum + 1;
+      if (versionsFromEnd <= keepLatest) {
+        continue;
+      }
+
+      // Check retention date
+      const versionDate = new Date(versionMeta.dateCreated);
+      if (versionDate >= cutoffDate) {
+        continue; // Too recent to purge
+      }
+
+      // Optionally keep milestones (v1, every 10th version)
+      if (keepMilestones && (versionNum === 1 || versionNum % 10 === 0)) {
+        continue;
+      }
+
+      // Mark for purging
+      versionsToPurge.push(versionNum);
+
+      // Calculate space that will be freed
+      if (!dryRun) {
+        try {
+          const vPath = path.join(versionDir, `v${versionNum}`);
+          if (await fs.pathExists(vPath)) {
+            const stats = await this._getDirectorySize(vPath);
+            spaceFreed += stats;
+          }
+        } catch (error) {
+          logger.warn(`[VersioningFileProvider] Failed to calculate size for v${versionNum}: ${error.message}`);
+        }
+      }
+    }
+
+    if (versionsToPurge.length === 0) {
+      return {
+        versionsRemoved: 0,
+        spaceFreed: 0,
+        message: 'No versions meet purge criteria'
+      };
+    }
+
+    // Perform purge (unless dry run)
+    if (!dryRun) {
+      for (const versionNum of versionsToPurge) {
+        try {
+          const vPath = path.join(versionDir, `v${versionNum}`);
+          await fs.remove(vPath);
+          logger.info(`[VersioningFileProvider] Purged version ${versionNum} of page ${uuid}`);
+        } catch (error) {
+          logger.error(`[VersioningFileProvider] Failed to purge v${versionNum}: ${error.message}`);
+        }
+      }
+
+      // Update manifest (remove purged versions)
+      manifest.versions = manifest.versions.filter(v => !versionsToPurge.includes(v.version));
+      await this._saveManifest(uuid, location, manifest);
+
+      logger.info(`[VersioningFileProvider] Purged ${versionsToPurge.length} versions from page ${uuid}`);
+    }
+
+    return {
+      versionsRemoved: versionsToPurge.length,
+      versionsPurged: versionsToPurge,
+      spaceFreed: spaceFreed,
+      dryRun: dryRun,
+      message: dryRun
+        ? `Would remove ${versionsToPurge.length} versions (dry run)`
+        : `Removed ${versionsToPurge.length} versions`
+    };
+  }
+
+  /**
+   * Get total size of a directory recursively
+   * @param {string} dirPath - Directory path
+   * @returns {Promise<number>} Total size in bytes
+   * @private
+   */
+  async _getDirectorySize(dirPath) {
+    let totalSize = 0;
+
+    if (!await fs.pathExists(dirPath)) {
+      return 0;
+    }
+
+    const items = await fs.readdir(dirPath);
+    for (const item of items) {
+      const itemPath = path.join(dirPath, item);
+      const stats = await fs.stat(itemPath);
+
+      if (stats.isDirectory()) {
+        totalSize += await this._getDirectorySize(itemPath);
+      } else {
+        totalSize += stats.size;
+      }
+    }
+
+    return totalSize;
+  }
+
   /**
    * Get provider information
    * @returns {object} Provider metadata
@@ -838,7 +1090,8 @@ class VersioningFileProvider extends FileSystemProvider {
         'version-history',
         'delta-storage',
         'compression',
-        'page-index'
+        'page-index',
+        'version-purging'
       ]
     };
   }
