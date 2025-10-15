@@ -287,12 +287,46 @@ See [Policies-Roles-Permissions](docs/architecture/Policies-Roles-Permissions.md
 
 📖 **See [docs/testing/PageManager-Testing-Guide.md](docs/testing/PageManager-Testing-Guide.md) for detailed mocking strategies.**
 
-- **Run tests**: `npm test`
-- **Coverage**: `npm run test:coverage`
+### Running Tests
+- **Run all tests**: `npm test`
+- **Coverage report**: `npm run test:coverage`
 - **Watch mode**: `npm run test:watch`
-- **Test locations**:
-  - `src/managers/__tests__/` - Manager tests
-  - `src/parsers/__tests__/` - Parser tests
+- **Run specific test**: `npm test -- path/to/test.test.js`
+- **CI mode**: `npm run test:ci`
+
+### Test Organization
+
+All tests follow the **Jest `__tests__` pattern** co-located with source code:
+
+```
+src/
+├── managers/
+│   ├── PageManager.js
+│   └── __tests__/
+│       ├── PageManager.test.js
+│       └── PageManager-Storage.test.js
+├── parsers/
+│   ├── MarkupParser.js
+│   └── __tests__/
+│       ├── MarkupParser.test.js
+│       └── MarkupParser-Integration.test.js
+├── routes/
+│   ├── WikiRoutes.js
+│   └── __tests__/
+│       ├── routes.test.js
+│       └── maintenance-mode.test.js
+└── utils/
+    ├── SchemaGenerator.js
+    └── __tests__/
+        └── SchemaGenerator.test.js
+```
+
+**Why this pattern:**
+- ✅ Tests co-located with code they test
+- ✅ Easy to find and maintain
+- ✅ Jest automatically discovers all tests
+- ✅ Follows Jest best practices
+- ✅ Clear separation from source code
 
 ### Test Requirements
 - **Unit tests for new managers** (extending BaseManager pattern)
@@ -305,6 +339,83 @@ See [Policies-Roles-Permissions](docs/architecture/Policies-Roles-Permissions.md
 - **Maintain >80% coverage** for critical managers (>90% for PageManager, UserManager, ACLManager)
 - **Maintain >90% coverage** for parser components
 - **Use testUtils.js** for common mock objects and test utilities
+
+### Writing Tests
+
+**1. Create test file in `__tests__` directory:**
+```bash
+# For a new manager
+touch src/managers/__tests__/NewManager.test.js
+
+# For a new utility
+touch src/utils/__tests__/NewUtil.test.js
+```
+
+**2. Use Jest testing framework:**
+```javascript
+const NewManager = require('../NewManager');
+
+describe('NewManager', () => {
+  let manager;
+  let mockEngine;
+
+  beforeEach(() => {
+    mockEngine = { /* mock setup */ };
+    manager = new NewManager(mockEngine);
+  });
+
+  test('should initialize correctly', async () => {
+    await manager.initialize();
+    expect(manager.initialized).toBe(true);
+  });
+});
+```
+
+**3. Mock file operations:**
+```javascript
+jest.mock('fs-extra');
+const fs = require('fs-extra');
+
+// Setup mocks
+fs.readFile.mockResolvedValue('file content');
+fs.writeFile.mockResolvedValue();
+```
+
+### Test Types
+
+**Unit Tests** - Test individual functions/methods
+- Located: `src/**/__tests__/*.test.js`
+- Focus: Single component in isolation
+- Example: `PageManager.test.js`
+
+**Integration Tests** - Test multiple components together
+- Located: `src/**/__tests__/*-Integration.test.js`
+- Focus: Component interactions
+- Example: `MarkupParser-Integration.test.js`
+
+**Route Tests** - Test HTTP endpoints
+- Located: `src/routes/__tests__/*.test.js`
+- Use: supertest for HTTP testing
+- Example: `routes.test.js`
+
+### Test Coverage
+
+Jest configuration excludes test files from coverage:
+```json
+{
+  "collectCoverageFrom": [
+    "src/**/*.js",
+    "!src/**/__tests__/**",
+    "!src/legacy/**"
+  ]
+}
+```
+
+View coverage report:
+```bash
+npm run test:coverage
+# Open: coverage/lcov-report/index.html
+```
 
 ### Parser Test Suites
 
