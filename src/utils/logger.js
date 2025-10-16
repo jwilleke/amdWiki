@@ -1,4 +1,17 @@
-// Simple logging framework using winston
+/**
+ * Simple logging framework using winston
+ *
+ * Provides centralized logging for the entire amdWiki application with
+ * file rotation, console output, and configurable log levels.
+ *
+ * @module logger
+ *
+ * @example
+ * const logger = require('./utils/logger');
+ * logger.info('Application started');
+ * logger.error('Error occurred', { error });
+ */
+
 const path = require('path');
 const { createLogger, format, transports } = require('winston');
 
@@ -13,6 +26,16 @@ const defaultConfig = {
   maxFiles: 5
 };
 
+/**
+ * Creates a winston logger instance with the specified configuration
+ *
+ * @param {Object} [config={}] - Logger configuration
+ * @param {string} [config.level='info'] - Log level (error, warn, info, debug)
+ * @param {string} [config.dir] - Log directory path
+ * @param {number|string} [config.maxSize=1048576] - Max log file size
+ * @param {number} [config.maxFiles=5] - Max number of rotated log files
+ * @returns {Object} Winston logger instance
+ */
 function createLoggerWithConfig(config = {}) {
   const logConfig = { ...defaultConfig, ...config };
 

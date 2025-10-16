@@ -1,14 +1,33 @@
 /**
  * AuditManager - Comprehensive audit trail system for access control and security monitoring
- * Extends BaseManager following the JSPWiki modular manager pattern with provider architecture
  *
+ * Extends BaseManager following the JSPWiki modular manager pattern with provider architecture.
  * Follows the provider pattern established in CacheManager, AttachmentManager, PageManager.
  * Supports pluggable audit storage backends (file, database, cloud logging).
+ *
+ * @class AuditManager
+ * @extends BaseManager
+ *
+ * @property {BaseAuditProvider|null} provider - The active audit provider
+ * @property {string|null} providerClass - The class name of the loaded provider
+ *
+ * @see {@link BaseManager} for base functionality
+ * @see {@link FileAuditProvider} for default provider implementation
+ *
+ * @example
+ * const auditManager = engine.getManager('AuditManager');
+ * await auditManager.logAccess('admin', 'Main', 'view', 'granted');
  */
 const BaseManager = require('./BaseManager');
 const logger = require('../utils/logger');
 
 class AuditManager extends BaseManager {
+  /**
+   * Creates a new AuditManager instance
+   *
+   * @constructor
+   * @param {WikiEngine} engine - The wiki engine instance
+   */
   constructor(engine) {
     super(engine);
     this.provider = null;
@@ -16,8 +35,12 @@ class AuditManager extends BaseManager {
   }
 
   /**
-   * Initialize the audit manager
-   * @param {Object} config - Configuration object
+   * Initialize the AuditManager and load the configured provider
+   *
+   * @async
+   * @param {Object} [config={}] - Configuration object (unused, reads from ConfigurationManager)
+   * @returns {Promise<void>}
+   * @throws {Error} If ConfigurationManager is not available or provider fails to load
    */
   async initialize(config = {}) {
     await super.initialize(config);

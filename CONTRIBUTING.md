@@ -288,21 +288,287 @@ v4: diff_from_v3.diff.gz               (2.2 KB)
 - Follow **existing patterns** in manager creation and route handling
 - **ESLint** and **Prettier** compliance (if configured)
 - Use **meaningful variable names** and JSDoc comments
+- **Required**: Comprehensive JSDoc documentation for all classes, methods, and functions (see below)
+
+## 📚 JSDoc Documentation Standards
+
+**All code MUST include comprehensive JSDoc documentation.** The entire codebase (~95% of core architecture) is fully documented with JSDoc, and all new contributions must maintain this standard.
+
+### JSDoc Requirements
+
+#### 1. **Class Documentation**
+Every class must have a JSDoc block with:
+- Class description explaining purpose and functionality
+- `@class` tag
+- `@extends` tag (if applicable)
+- `@abstract` tag (for abstract classes)
+- `@property` tags documenting all class properties
+- `@see` references to related classes
+- `@example` showing real-world usage
+
+```javascript
+/**
+ * ExampleManager - Brief description of manager purpose
+ *
+ * Detailed description explaining what this manager does, its role in the
+ * architecture, and any important implementation details or patterns used.
+ *
+ * Key features:
+ * - Feature 1 description
+ * - Feature 2 description
+ * - Feature 3 description
+ *
+ * @class ExampleManager
+ * @extends BaseManager
+ *
+ * @property {WikiEngine} engine - Reference to the wiki engine
+ * @property {boolean} initialized - Whether manager has been initialized
+ * @property {Map<string, Object>} dataCache - Cache of processed data
+ *
+ * @see {@link BaseManager} for base functionality
+ * @see {@link RelatedManager} for related operations
+ *
+ * @example
+ * const exampleManager = engine.getManager('ExampleManager');
+ * const result = await exampleManager.performOperation('input');
+ */
+class ExampleManager extends BaseManager {
+  // ...
+}
+```
+
+#### 2. **Constructor Documentation**
+```javascript
+/**
+ * Creates a new ExampleManager instance
+ *
+ * @constructor
+ * @param {WikiEngine} engine - The wiki engine instance
+ * @throws {Error} If engine is not provided
+ */
+constructor(engine) {
+  super(engine);
+  this.dataCache = new Map();
+}
+```
+
+#### 3. **Method Documentation**
+Every method must document:
+- Purpose and behavior
+- All parameters with types
+- Return value with type
+- Exceptions/errors thrown
+- Async/promise handling
+- Examples for complex methods
+
+```javascript
+/**
+ * Process data with optional filtering
+ *
+ * Performs data processing with configurable options and returns
+ * the processed result. Supports filtering by various criteria.
+ *
+ * @async
+ * @param {string} input - Input data to process
+ * @param {Object} [options={}] - Processing options
+ * @param {boolean} [options.filter=false] - Enable filtering
+ * @param {string[]} [options.categories] - Filter by categories
+ * @returns {Promise<Object>} Processed data
+ * @returns {string} result.output - Processed output
+ * @returns {Object} result.metadata - Processing metadata
+ * @throws {Error} If input is invalid
+ * @throws {ValidationError} If options fail validation
+ *
+ * @example
+ * const result = await manager.processData('input', {
+ *   filter: true,
+ *   categories: ['General']
+ * });
+ * console.log(result.output);
+ */
+async processData(input, options = {}) {
+  // Implementation
+}
+```
+
+#### 4. **Private/Protected Methods**
+```javascript
+/**
+ * Internal helper method for data validation
+ *
+ * @private
+ * @param {Object} data - Data to validate
+ * @returns {boolean} True if valid
+ */
+#validateData(data) {
+  // Implementation
+}
+```
+
+#### 5. **Type Definitions**
+For complex data structures:
+```javascript
+/**
+ * Search result structure
+ * @typedef {Object} SearchResult
+ * @property {string} name - Page name/identifier
+ * @property {string} title - Page title
+ * @property {number} score - Relevance score (0-1)
+ * @property {string} snippet - Content snippet with highlights
+ * @property {Object} metadata - Additional metadata
+ */
+```
+
+#### 6. **Provider Interface Documentation**
+```javascript
+/**
+ * BaseExampleProvider - Abstract interface for example providers
+ *
+ * All example providers must extend this class and implement its methods.
+ * Providers handle storage/retrieval from different backends.
+ *
+ * @class BaseExampleProvider
+ * @abstract
+ *
+ * @property {WikiEngine} engine - Reference to the wiki engine
+ * @property {boolean} initialized - Whether provider has been initialized
+ *
+ * @see {@link ConcreteProvider} for filesystem implementation
+ * @see {@link ExampleManager} for usage
+ */
+```
+
+### JSDoc Best Practices
+
+#### DO:
+- ✅ Document ALL public classes, methods, and functions
+- ✅ Include detailed descriptions explaining "why" not just "what"
+- ✅ Provide type information for all parameters and returns
+- ✅ Add examples for complex APIs
+- ✅ Cross-reference related classes with `@see`
+- ✅ Document exceptions with `@throws`
+- ✅ Use `@async` for async methods
+- ✅ Include configuration keys in comments
+- ✅ Document JSPWiki patterns and architecture
+
+#### DON'T:
+- ❌ Skip documentation for "simple" methods
+- ❌ Use vague descriptions like "does something"
+- ❌ Omit parameter types or return types
+- ❌ Leave complex methods without examples
+- ❌ Document implementation details that change frequently
+- ❌ Use inconsistent formatting
+
+### Generating Documentation
+
+Generate HTML documentation from JSDoc comments:
+
+```bash
+# Install JSDoc globally (if needed)
+npm install -g jsdoc
+
+# Generate documentation
+npx jsdoc -c jsdoc.json
+
+# View generated docs
+open ./jsdocs/index.html
+```
+
+The `jsdoc.json` configuration is already set up in the project root.
+
+### IDE Integration
+
+JSDoc provides excellent IDE support:
+
+**VS Code / IntelliSense:**
+- Hover over classes/methods to see documentation
+- Autocomplete with parameter hints
+- Type checking in JavaScript files
+- Click to navigate to definitions
+
+**Enable type checking in VS Code:**
+Add to your file or workspace settings:
+```javascript
+// @ts-check
+```
+
+Or enable globally in `.vscode/settings.json`:
+```json
+{
+  "js/ts.implicitProjectConfig.checkJs": true
+}
+```
+
+### Documentation Coverage
+
+Current documentation coverage:
+- **Core Engine**: 100% ✅
+- **Managers** (23 files): 100% ✅
+- **Providers** (18 files): 100% ✅
+- **Parsers** (2 files): 100% ✅
+- **Utilities**: ~85% ✅
+- **Overall**: ~95% ✅
+
+**All new code must maintain 100% JSDoc coverage.**
 
 ### Manager Development Pattern
 ```javascript
-// All managers extend BaseManager
+/**
+ * NewManager - Brief description of manager purpose
+ *
+ * Detailed description of what this manager does and its role
+ * in the amdWiki architecture.
+ *
+ * @class NewManager
+ * @extends BaseManager
+ *
+ * @property {WikiEngine} engine - Reference to the wiki engine
+ * @property {boolean} initialized - Whether manager has been initialized
+ *
+ * @see {@link BaseManager} for base functionality
+ *
+ * @example
+ * const newManager = engine.getManager('NewManager');
+ * await newManager.performOperation();
+ */
 class NewManager extends BaseManager {
+  /**
+   * Creates a new NewManager instance
+   *
+   * @constructor
+   * @param {WikiEngine} engine - The wiki engine instance
+   */
   constructor(engine) {
     super(engine);
   }
 
+  /**
+   * Initialize the manager with configuration
+   *
+   * @async
+   * @param {Object} [config={}] - Configuration object
+   * @returns {Promise<void>}
+   */
   async initialize(config = {}) {
     await super.initialize(config);
     // Manager-specific initialization
   }
 
-  // Managers can receive WikiContext for user-aware operations
+  /**
+   * Perform a context-aware operation
+   *
+   * Managers can receive WikiContext for user-aware operations.
+   *
+   * @async
+   * @param {WikiContext} wikiContext - The wiki context
+   * @param {...*} params - Additional parameters
+   * @returns {Promise<*>} Operation result
+   * @throws {Error} If authentication is required but user is not authenticated
+   *
+   * @example
+   * const context = new WikiContext(engine, { pageName: 'Main' });
+   * const result = await manager.performOperation(context, 'param1');
+   */
   async performOperation(wikiContext, ...params) {
     const userContext = wikiContext.userContext;
     const pageName = wikiContext.pageName;

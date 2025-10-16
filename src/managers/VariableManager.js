@@ -2,15 +2,49 @@ const BaseManager = require('./BaseManager');
 const logger = require('../utils/logger');
 
 /**
- * VariableManager - Handles the expansion of JSPWiki-style variables.
- * Example: [{$username}], [{$pageName}]
+ * VariableManager - Handles the expansion of JSPWiki-style variables
+ *
+ * Provides dynamic variable expansion in wiki content. Variables are
+ * placeholders like [{$username}], [{$pageName}] that are replaced with
+ * actual values during rendering based on the current context.
+ *
+ * Supported variable categories:
+ * - Application info: appName, version, baseURL
+ * - Page context: pageName
+ * - User context: username, loginStatus, userRoles
+ * - Date/Time: date, time, timestamp, year, month, day
+ * - System info: uptime
+ *
+ * @class VariableManager
+ * @extends BaseManager
+ *
+ * @property {Map<string, Function>} variableHandlers - Variable name to handler function map
+ *
+ * @see {@link BaseManager} for base functionality
+ *
+ * @example
+ * const variableManager = engine.getManager('VariableManager');
+ * const expanded = variableManager.expandVariables('Hello [{$username}]!', context);
+ * // Returns: 'Hello admin!'
  */
 class VariableManager extends BaseManager {
+  /**
+   * Creates a new VariableManager instance
+   *
+   * @constructor
+   * @param {WikiEngine} engine - The wiki engine instance
+   */
   constructor(engine) {
     super(engine);
     this.variableHandlers = new Map();
   }
 
+  /**
+   * Initialize the VariableManager and register core variables
+   *
+   * @async
+   * @returns {Promise<void>}
+   */
   async initialize() {
     this.registerCoreVariables();
     logger.info('🔧 VariableManager initialized with core variables.');

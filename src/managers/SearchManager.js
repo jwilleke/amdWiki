@@ -3,7 +3,17 @@ const logger = require('../utils/logger');
 
 /**
  * SearchManager - Handles search indexing and querying
- * Similar to JSPWiki's SearchManager
+ *
+ * Similar to JSPWiki's SearchManager, this manager provides full-text search
+ * capabilities through a pluggable provider system. Supports different search
+ * backends (Lunr.js, Elasticsearch, etc.) via provider abstraction.
+ *
+ * Key features:
+ * - Pluggable search provider system
+ * - Full-text indexing of page content and metadata
+ * - Configurable search ranking and filtering
+ * - Automatic index rebuilding
+ * - Provider abstraction for different search engines
  *
  * Follows the provider pattern established in AttachmentManager, PageManager,
  * CacheManager, and AuditManager for pluggable search backends.
@@ -14,15 +24,50 @@ const logger = require('../utils/logger');
  * - amdwiki.search.provider - Active provider name
  * - amdwiki.search.provider.lunr.* - LunrSearchProvider settings
  *
+ * @class SearchManager
+ * @extends BaseManager
+ *
+ * @property {BaseSearchProvider|null} provider - The active search provider
+ * @property {string|null} providerClass - The class name of the loaded provider
+ *
+ * @see {@link BaseManager} for base functionality
+ * @see {@link LunrSearchProvider} for default provider implementation
+ *
+ * @example
+ * const searchManager = engine.getManager('SearchManager');
+ * const results = await searchManager.search('hello world');
+ * console.log(`Found ${results.length} pages`);
+ *
  * Related: GitHub Issue #102 - Configuration reorganization
  */
 class SearchManager extends BaseManager {
+  /**
+   * Creates a new SearchManager instance
+   *
+   * @constructor
+   * @param {WikiEngine} engine - The wiki engine instance
+   */
   constructor(engine) {
     super(engine);
     this.provider = null;
     this.providerClass = null;
   }
 
+  /**
+   * Initialize the SearchManager and load the configured provider
+   *
+   * Loads the search provider, builds the initial search index, and prepares
+   * the search system for queries.
+   *
+   * @async
+   * @param {Object} [config={}] - Configuration object (unused, reads from ConfigurationManager)
+   * @returns {Promise<void>}
+   * @throws {Error} If ConfigurationManager is not available or provider fails to load
+   *
+   * @example
+   * await searchManager.initialize();
+   * console.log('Search system ready');
+   */
   async initialize(config = {}) {
     await super.initialize(config);
 

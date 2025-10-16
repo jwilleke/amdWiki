@@ -4,9 +4,30 @@ const path = require('path');
 const logger = require('../utils/logger');
 
 /**
- * SchemaManager - Loads and provides access to JSON schemas used for validation.
+ * SchemaManager - Loads and provides access to JSON schemas for validation
+ *
+ * Manages JSON Schema files used throughout the wiki for validating page metadata,
+ * configuration files, and other structured data.
+ *
+ * @class SchemaManager
+ * @extends BaseManager
+ *
+ * @property {Map<string, Object>} schemas - Loaded JSON schemas by name
+ *
+ * @see {@link BaseManager} for base functionality
+ * @see {@link ValidationManager} for schema usage
+ *
+ * @example
+ * const schemaManager = engine.getManager('SchemaManager');
+ * const pageSchema = schemaManager.getSchema('page');
  */
 class SchemaManager extends BaseManager {
+  /**
+   * Creates a new SchemaManager instance
+   *
+   * @constructor
+   * @param {WikiEngine} engine - The wiki engine instance
+   */
   constructor(engine) {
     super(engine);
     this.schemas = new Map();
@@ -14,7 +35,10 @@ class SchemaManager extends BaseManager {
 
   /**
    * Initializes the SchemaManager by loading all .schema.json files
-   * from the directory specified in the configuration.
+   *
+   * @async
+   * @returns {Promise<void>}
+   * @throws {Error} If ConfigurationManager is not available
    */
   async initialize() {
     const configManager = this.engine.getManager('ConfigurationManager');

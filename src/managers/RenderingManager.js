@@ -6,9 +6,41 @@ const PageNameMatcher = require('../utils/PageNameMatcher');
 
 /**
  * RenderingManager - Handles markdown rendering and macro expansion
- * Similar to JSPWiki's RenderingManager
+ *
+ * Similar to JSPWiki's RenderingManager, this manager orchestrates the conversion
+ * of markdown/wiki markup to HTML. It supports both legacy Showdown-based rendering
+ * and the advanced MarkupParser with multi-phase processing.
+ *
+ * Key features:
+ * - Pluggable parser system (Showdown vs MarkupParser)
+ * - Wiki link parsing and resolution
+ * - Link graph building for backlinks/orphaned pages
+ * - Plugin and variable expansion integration
+ * - Page name matching with plural support
+ *
+ * @class RenderingManager
+ * @extends BaseManager
+ *
+ * @property {showdown.Converter|null} converter - Showdown markdown converter (legacy)
+ * @property {Object} linkGraph - Graph of page links for backlink analysis
+ * @property {LinkParser} linkParser - Parser for wiki-style links
+ * @property {PageNameMatcher|null} pageNameMatcher - Matcher for page name resolution
+ * @property {Object} renderingConfig - Rendering configuration (parser selection, fallback, etc.)
+ *
+ * @see {@link BaseManager} for base functionality
+ * @see {@link MarkupParser} for advanced parsing
+ *
+ * @example
+ * const renderingManager = engine.getManager('RenderingManager');
+ * const html = await renderingManager.renderPage('# Hello World', { pageName: 'Main' });
  */
 class RenderingManager extends BaseManager {
+  /**
+   * Creates a new RenderingManager instance
+   *
+   * @constructor
+   * @param {WikiEngine} engine - The wiki engine instance
+   */
   constructor(engine) {
     super(engine);
     this.converter = null;
@@ -17,6 +49,20 @@ class RenderingManager extends BaseManager {
     this.pageNameMatcher = null; // Will be initialized with config
   }
 
+  /**
+   * Initialize the RenderingManager
+   *
+   * Sets up the markdown converter, link parser, and rendering configuration.
+   * Determines whether to use the advanced MarkupParser or legacy Showdown converter.
+   *
+   * @async
+   * @param {Object} [config={}] - Configuration object (unused, reads from ConfigurationManager)
+   * @returns {Promise<void>}
+   *
+   * @example
+   * await renderingManager.initialize();
+   * console.log('RenderingManager ready');
+   */
   async initialize(config = {}) {
     await super.initialize(config);
     
@@ -56,7 +102,17 @@ class RenderingManager extends BaseManager {
 
   /**
    * Get the MarkupParser instance (for WikiContext integration)
+   *
+   * Returns the advanced MarkupParser if enabled and initialized, or null
+   * if using legacy Showdown rendering.
+   *
    * @returns {MarkupParser|null} MarkupParser instance if available and enabled
+   *
+   * @example
+   * const parser = renderingManager.getParser();
+   * if (parser) {
+   *   const html = await parser.parse(content, options);
+   * }
    */
   getParser() {
     if (!this.renderingConfig.useAdvancedParser) {
@@ -73,6 +129,13 @@ class RenderingManager extends BaseManager {
 
   /**
    * Load modular rendering configuration from app-default/custom-config.json
+   *
+   * Reads configuration to determine which parser to use and whether to
+   * enable fallback, performance comparison, and debug logging.
+   *
+   * @async
+   * @private
+   * @returns {Promise<void>}
    */
   async loadRenderingConfiguration() {
     const configManager = this.engine.getManager('ConfigurationManager');

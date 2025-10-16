@@ -7,19 +7,52 @@ const logger = require('../utils/logger');
 const PageNameMatcher = require('../utils/PageNameMatcher');
 
 /**
- * FileSystemProvider - Markdown file-based storage provider
+ * FileSystemProvider - Markdown file-based page storage provider
  *
- * Implements page storage using filesystem with YAML frontmatter.
- * Pages are stored as .md files in configurable directories.
+ * Implements page storage using filesystem with YAML frontmatter metadata.
+ * Pages are stored as .md files in configurable directories with UUID-based
+ * filenames for reliable identification.
  *
- * Features:
- * - UUID-based file naming
+ * Key features:
+ * - UUID-based file naming for reliable page identity
  * - Title-based lookup with case-insensitive matching
- * - Plural name matching (configurable)
+ * - Plural name matching support (e.g., "Page" matches "Pages")
  * - Dual storage locations (regular pages and required/system pages)
- * - In-memory caching with multiple indexes
+ * - In-memory caching with multiple lookup indexes
+ * - Gray-matter for frontmatter parsing
+ * - Configurable encoding support
+ *
+ * Configuration keys (all lowercase):
+ * - amdwiki.page.provider.filesystem.storagedir - Main pages directory
+ * - amdwiki.page.provider.filesystem.requiredpagesdir - Required pages directory
+ * - amdwiki.page.provider.filesystem.encoding - File encoding (default: utf-8)
+ * - amdwiki.translatorReader.matchEnglishPlurals - Enable plural matching
+ *
+ * @class FileSystemProvider
+ * @extends BasePageProvider
+ *
+ * @property {string|null} pagesDirectory - Path to regular pages directory
+ * @property {string|null} requiredPagesDirectory - Path to required pages directory
+ * @property {string} encoding - File encoding (default: UTF-8)
+ * @property {Map<string, Object>} pageCache - Main page cache by canonical identifier
+ * @property {Map<string, string>} titleIndex - Maps lowercase title to canonical identifier
+ * @property {Map<string, string>} uuidIndex - Maps UUID to canonical identifier
+ * @property {PageNameMatcher|null} pageNameMatcher - Page name matching utility
+ *
+ * @see {@link BasePageProvider} for base interface
+ * @see {@link PageManager} for usage
+ *
+ * @example
+ * // Configured via PageManager, not used directly
+ * // Set in config: amdwiki.page.provider = 'filesystemprovider'
  */
 class FileSystemProvider extends BasePageProvider {
+  /**
+   * Creates a new FileSystemProvider instance
+   *
+   * @constructor
+   * @param {WikiEngine} engine - The wiki engine instance
+   */
   constructor(engine) {
     super(engine);
     this.pagesDirectory = null;
@@ -34,8 +67,14 @@ class FileSystemProvider extends BasePageProvider {
   }
 
   /**
-   * Initialize the provider by reading configuration and caching pages.
+   * Initialize the provider by reading configuration and caching pages
+   *
+   * Loads all pages from both directories into memory for fast lookup.
    * All configuration access goes through ConfigurationManager (ALL LOWERCASE).
+   *
+   * @async
+   * @returns {Promise<void>}
+   * @throws {Error} If ConfigurationManager is not available
    */
   async initialize() {
     const configManager = this.engine.getManager('ConfigurationManager');

@@ -4,9 +4,42 @@ const path = require('path');
 const logger = require('../utils/logger');
 
 /**
- * ACLManager - Handles Access Control Lists and context-aware permissions.
+ * ACLManager - Handles Access Control Lists and context-aware permissions
+ *
+ * Implements JSPWiki-style access control with extensions for context-aware
+ * permissions (time-based, location-based, etc.). Supports both page-level
+ * ACLs embedded in page content and global policy-based access control.
+ *
+ * Key features:
+ * - JSPWiki-style ACL markup parsing ([{ALLOW view Admin}])
+ * - Context-aware permission evaluation
+ * - Global policy-based access control
+ * - Audit logging of access decisions
+ * - Role-based permission checking
+ * - Category-based access control
+ *
+ * @class ACLManager
+ * @extends BaseManager
+ *
+ * @property {Map<string, Object>} accessPolicies - Global access policies
+ * @property {PolicyEvaluator|null} policyEvaluator - Policy evaluation engine
+ *
+ * @see {@link BaseManager} for base functionality
+ * @see {@link PolicyEvaluator} for policy evaluation
+ * @see {@link AuditManager} for audit logging
+ *
+ * @example
+ * const aclManager = engine.getManager('ACLManager');
+ * const canView = await aclManager.checkPermission('Main', 'view', userContext);
+ * if (canView) console.log('User can view page');
  */
 class ACLManager extends BaseManager {
+  /**
+   * Creates a new ACLManager instance
+   *
+   * @constructor
+   * @param {WikiEngine} engine - The wiki engine instance
+   */
   constructor(engine) {
     super(engine);
     this.accessPolicies = new Map();
@@ -15,7 +48,16 @@ class ACLManager extends BaseManager {
 
   /**
    * Initializes the ACLManager by loading policies and configurations
-   * from the ConfigurationManager.
+   *
+   * Loads access policies from configuration and initializes the policy
+   * evaluator for context-aware permission evaluation.
+   *
+   * @async
+   * @returns {Promise<void>}
+   *
+   * @example
+   * await aclManager.initialize();
+   * console.log('ACL system ready');
    */
   async initialize() {
     const configManager = this.engine.getManager('ConfigurationManager');
@@ -66,10 +108,18 @@ class ACLManager extends BaseManager {
   }
 
   /**
-   * Parses JSPWiki-style ACL markup from page content.
-   * Example: [{ALLOW view All,Admin}]
-   * @param {string} content The page's raw markdown content.
-   * @returns {Map<string, Set<string>>} A map of actions to a set of allowed principals.
+   * Parses JSPWiki-style ACL markup from page content
+   *
+   * Extracts ACL directives from page content in the format [{ALLOW action principals}].
+   * Multiple actions and principals can be comma-separated.
+   *
+   * @param {string} content - The page's raw markdown content
+   * @returns {Map<string, Set<string>>} Map of actions to sets of allowed principals
+   *
+   * @example
+   * const acl = aclManager.parsePageACL('[{ALLOW view All}] [{ALLOW edit Admin}]');
+   * // acl.get('view') => Set(['All'])
+   * // acl.get('edit') => Set(['Admin'])
    */
   parsePageACL(content) {
     const acl = new Map();

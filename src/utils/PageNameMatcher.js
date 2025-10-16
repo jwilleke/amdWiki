@@ -1,14 +1,32 @@
 /**
  * PageNameMatcher - Utility for matching page names with plural and case variations
- * Implements JSPWiki-style plural matching based on matchEnglishPlurals configuration
+ *
+ * Implements JSPWiki-style plural matching to allow flexible page name resolution.
+ * For example, linking to "Page" will match both "Page" and "Pages".
+ *
+ * @class PageNameMatcher
+ *
+ * @property {boolean} matchEnglishPlurals - Whether to enable plural matching
+ *
+ * @example
+ * const matcher = new PageNameMatcher(true);
+ * matcher.match('Page', ['Pages', 'Main']); // Returns 'Pages'
+ * matcher.match('Categories', ['Category']); // Returns 'Category'
  */
 class PageNameMatcher {
+  /**
+   * Creates a new PageNameMatcher instance
+   *
+   * @constructor
+   * @param {boolean} [matchEnglishPlurals=true] - Enable plural matching
+   */
   constructor(matchEnglishPlurals = true) {
     this.matchEnglishPlurals = matchEnglishPlurals;
   }
 
   /**
    * Normalize a page name for comparison (lowercase)
+   *
    * @param {string} pageName - The page name to normalize
    * @returns {string} Normalized page name
    */

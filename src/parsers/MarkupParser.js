@@ -48,6 +48,28 @@ const DOMLinkHandler = require('./dom/handlers/DOMLinkHandler');
  *
  * ============================================================================
  *
+ * @class MarkupParser
+ * @extends BaseManager
+ *
+ * @property {Array} phases - Processing phase definitions
+ * @property {HandlerRegistry} handlerRegistry - Registry for syntax handlers
+ * @property {FilterChain} filterChain - Content filter chain
+ * @property {Object} cache - Parse result cache
+ * @property {Object} cacheStrategies - Caching strategies by content type
+ * @property {Object} performanceMonitor - Performance monitoring
+ * @property {Object} metrics - Parser performance metrics
+ * @property {WikiDOMParser} domParser - DOM-based parser for JSPWiki syntax
+ * @property {DOMVariableHandler} domVariableHandler - Variable expansion handler
+ * @property {DOMPluginHandler} domPluginHandler - Plugin execution handler
+ * @property {DOMLinkHandler} domLinkHandler - Link resolution handler
+ *
+ * @see {@link BaseManager} for base functionality
+ * @see {@link RenderingManager} for integration
+ *
+ * @example
+ * const markupParser = engine.getManager('MarkupParser');
+ * const html = await markupParser.parse(content, { pageName: 'Main' });
+ *
  * Related Issues:
  * - #114 - WikiDocument DOM Solution (Epic)
  * - #115-#120 - Implementation Phases
@@ -56,6 +78,12 @@ const DOMLinkHandler = require('./dom/handlers/DOMLinkHandler');
  * - #41 - JSPWikiMarkupParser Enhancement (original epic)
  */
 class MarkupParser extends BaseManager {
+  /**
+   * Creates a new MarkupParser instance
+   *
+   * @constructor
+   * @param {WikiEngine} engine - The wiki engine instance
+   */
   constructor(engine) {
     super(engine);
     this.phases = [];
@@ -90,6 +118,13 @@ class MarkupParser extends BaseManager {
     this.domLinkHandler = new DOMLinkHandler(engine);
   }
 
+  /**
+   * Initialize the MarkupParser
+   *
+   * @async
+   * @param {Object} [config={}] - Configuration object
+   * @returns {Promise<void>}
+   */
   async initialize(config = {}) {
     await super.initialize(config);
 

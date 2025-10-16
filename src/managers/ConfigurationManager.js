@@ -2,15 +2,45 @@ const fs = require('fs-extra');
 const path = require('path');
 
 /**
- * ConfigurationManager - Handles JSPWiki-compatible configuration
- * Merges configurations in order:
- * 1. app-default-config.json (base defaults)
- * 2. app-{environment}-config.json (environment-specific, optional)
- * 3. app-custom-config.json (local overrides, optional)
+ * ConfigurationManager - Handles JSPWiki-compatible configuration management
  *
- * Environment is determined by NODE_ENV (default: 'development')
+ * Implements a hierarchical configuration system that merges multiple configuration
+ * sources in priority order. This allows for flexible deployment configurations while
+ * maintaining sensible defaults.
+ *
+ * Configuration merge order (later overrides earlier):
+ * 1. app-default-config.json (base defaults - required)
+ * 2. app-{environment}-config.json (environment-specific - optional)
+ * 3. app-custom-config.json (local overrides - optional)
+ *
+ * Environment is determined by NODE_ENV environment variable (default: 'development')
+ *
+ * @class ConfigurationManager
+ *
+ * @property {WikiEngine} engine - Reference to the wiki engine
+ * @property {Object|null} defaultConfig - Default configuration (required)
+ * @property {Object|null} environmentConfig - Environment-specific configuration (optional)
+ * @property {Object|null} customConfig - Custom local overrides (optional)
+ * @property {Object|null} mergedConfig - Final merged configuration
+ * @property {string} environment - Current environment (from NODE_ENV)
+ * @property {string} defaultConfigPath - Path to default config file
+ * @property {string} environmentConfigPath - Path to environment config file
+ * @property {string} customConfigPath - Path to custom config file
+ *
+ * @see {@link BaseManager} for base functionality
+ *
+ * @example
+ * const configManager = engine.getManager('ConfigurationManager');
+ * const appName = configManager.getApplicationName();
+ * const port = configManager.getServerPort();
  */
 class ConfigurationManager {
+  /**
+   * Creates a new ConfigurationManager instance
+   *
+   * @constructor
+   * @param {WikiEngine} engine - The wiki engine instance
+   */
   constructor(engine) {
     this.engine = engine;
     this.defaultConfig = null;
@@ -27,6 +57,12 @@ class ConfigurationManager {
 
   /**
    * Initialize the configuration manager
+   *
+   * Loads and merges all configuration files in the correct priority order.
+   *
+   * @async
+   * @returns {Promise<void>}
+   * @throws {Error} If default configuration file is not found
    */
   async initialize() {
     try {
@@ -40,8 +76,18 @@ class ConfigurationManager {
   }
 
   /**
-   * Load and merge configurations
+   * Load and merge configurations from all sources
+   *
+   * Loads configurations in priority order and merges them into a single
+   * configuration object. Fields starting with '_' are treated as comments
+   * and excluded from the final configuration.
+   *
    * Priority: default < environment < custom (highest)
+   *
+   * @async
+   * @private
+   * @returns {Promise<void>}
+   * @throws {Error} If default configuration file cannot be loaded
    */
   async loadConfigurations() {
     // 1. Load default configuration (required)
@@ -86,10 +132,16 @@ class ConfigurationManager {
   }
 
   /**
-   * Get a configuration property
+   * Get a configuration property value
+   *
+   * Retrieves a property from the merged configuration with optional default value.
+   *
    * @param {string} key - Configuration property key
-   * @param {*} defaultValue - Default value if property not found
-   * @returns {*} Configuration value
+   * @param {*} [defaultValue=null] - Default value if property not found
+   * @returns {*} Configuration value or default
+   *
+   * @example
+   * const appName = configManager.getProperty('amdwiki.applicationName', 'MyWiki');
    */
   getProperty(key, defaultValue = null) {
     return this.mergedConfig?.[key] ?? defaultValue;
@@ -97,8 +149,17 @@ class ConfigurationManager {
 
   /**
    * Set a configuration property (updates custom config)
+   *
+   * Sets a property value and persists it to the custom configuration file.
+   * This allows runtime configuration changes that survive restarts.
+   *
+   * @async
    * @param {string} key - Configuration property key
-   * @param {*} value - Configuration value
+   * @param {*} value - Configuration value to set
+   * @returns {Promise<void>}
+   *
+   * @example
+   * await configManager.setProperty('amdwiki.applicationName', 'My Custom Wiki');
    */
   async setProperty(key, value) {
     if (!this.customConfig) {
@@ -114,6 +175,12 @@ class ConfigurationManager {
 
   /**
    * Save custom configuration to file
+   *
+   * Persists the current custom configuration to disk with proper formatting.
+   *
+   * @async
+   * @private
+   * @returns {Promise<void>}
    */
   async saveCustomConfiguration() {
     const configToSave = {
@@ -126,7 +193,14 @@ class ConfigurationManager {
 
   /**
    * Get all configuration properties
+   *
+   * Returns a copy of the entire merged configuration object.
+   *
    * @returns {Object} All merged configuration properties
+   *
+   * @example
+   * const allConfig = configManager.getAllProperties();
+   * console.log(JSON.stringify(allConfig, null, 2));
    */
   getAllProperties() {
     return { ...this.mergedConfig };
@@ -134,15 +208,20 @@ class ConfigurationManager {
 
   /**
    * Get application name
-   * @returns {string} Application name
+   *
+   * @returns {string} Application name (defaults to 'amdWiki')
+   *
+   * @example
+   * const name = configManager.getApplicationName(); // 'amdWiki'
    */
   getApplicationName() {
     return this.getProperty('amdwiki.applicationName', 'amdWiki');
   }
 
   /**
-   * Get base URL
-   * @returns {string} Base URL
+   * Get base URL for the wiki
+   *
+   * @returns {string} Base URL (defaults to 'http://localhost:3000')
    */
   getBaseURL() {
     return this.getProperty('amdwiki.baseURL', 'http://localhost:3000');
@@ -150,7 +229,8 @@ class ConfigurationManager {
 
   /**
    * Get front page name
-   * @returns {string} Front page name
+   *
+   * @returns {string} Front page name (defaults to 'Welcome')
    */
   getFrontPage() {
     return this.getProperty('amdwiki.frontPage', 'Welcome');
@@ -227,9 +307,20 @@ class ConfigurationManager {
   }
 
   /**
-   * Get manager configuration
-   * @param {string} managerName - Name of manager
-   * @returns {Object} Manager configuration
+   * Get manager-specific configuration
+   *
+   * Retrieves all configuration properties for a specific manager,
+   * including enabled status and manager-specific settings.
+   *
+   * @param {string} managerName - Name of the manager
+   * @returns {Object} Manager configuration object with enabled flag and settings
+   * @returns {boolean} config.enabled - Whether the manager is enabled
+   *
+   * @example
+   * const searchConfig = configManager.getManagerConfig('SearchManager');
+   * if (searchConfig.enabled) {
+   *   // Use search manager
+   * }
    */
   getManagerConfig(managerName) {
     const enabled = this.getProperty(`amdwiki.managers.${managerName}.enabled`, true);
@@ -365,6 +456,16 @@ class ConfigurationManager {
 
   /**
    * Reset configuration to defaults (admin only)
+   *
+   * Clears all custom configuration and resets to default values.
+   * This operation persists the empty custom configuration to disk.
+   *
+   * @async
+   * @returns {Promise<void>}
+   *
+   * @example
+   * await configManager.resetToDefaults();
+   * console.log('Configuration reset to defaults');
    */
   async resetToDefaults() {
     this.customConfig = {};
@@ -374,7 +475,15 @@ class ConfigurationManager {
 
   /**
    * Get custom configuration for admin UI
+   *
+   * Returns only the custom overrides, useful for displaying
+   * which settings have been customized.
+   *
    * @returns {Object} Custom configuration properties only
+   *
+   * @example
+   * const customSettings = configManager.getCustomProperties();
+   * console.log('Customized settings:', Object.keys(customSettings));
    */
   getCustomProperties() {
     return { ...this.customConfig };
@@ -382,6 +491,10 @@ class ConfigurationManager {
 
   /**
    * Get default configuration for comparison
+   *
+   * Returns the base default configuration, useful for comparison
+   * with current settings or resetting individual properties.
+   *
    * @returns {Object} Default configuration properties
    */
   getDefaultProperties() {

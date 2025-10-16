@@ -11,10 +11,33 @@ const { v4: uuidv4, validate: validateUuid } = require('uuid');
 const path = require('path');
 
 /**
- * ValidationManager - Ensures all files follow UUID naming convention and contain required metadata
- * Prevents creation of files that don't conform to the established architecture
+ * ValidationManager - Ensures all files follow UUID naming and metadata conventions
+ *
+ * Validates page metadata and enforces architectural constraints including UUID-based
+ * naming, required metadata fields, valid system categories, and keyword limits.
+ *
+ * @class ValidationManager
+ * @extends BaseManager
+ *
+ * @property {string[]} requiredMetadataFields - Required metadata fields
+ * @property {string[]} validSystemCategories - Valid system category values
+ * @property {number} maxUserKeywords - Maximum user keywords allowed
+ * @property {number} maxCategories - Maximum categories allowed
+ *
+ * @see {@link BaseManager} for base functionality
+ *
+ * @example
+ * const validationManager = engine.getManager('ValidationManager');
+ * const result = validationManager.validatePage(metadata);
+ * if (!result.valid) console.error(result.errors);
  */
 class ValidationManager extends BaseManager {
+  /**
+   * Creates a new ValidationManager instance
+   *
+   * @constructor
+   * @param {WikiEngine} engine - The wiki engine instance
+   */
   constructor(engine) {
     super(engine);
     this.requiredMetadataFields = ['title', 'uuid', 'slug', 'system-category', 'user-keywords', 'lastModified'];
@@ -25,6 +48,13 @@ class ValidationManager extends BaseManager {
     this.systemCategoriesConfig = null;
   }
 
+  /**
+   * Initialize the ValidationManager
+   *
+   * @async
+   * @param {Object} [config={}] - Configuration object
+   * @returns {Promise<void>}
+   */
   async initialize(config = {}) {
     await super.initialize(config);
     const configManager = this.engine.getManager('ConfigurationManager');

@@ -4,9 +4,38 @@ const path = require('path');
 
 /**
  * TemplateManager - Handles page templates and themes
- * Similar to JSPWiki's TemplateManager
+ *
+ * Similar to JSPWiki's TemplateManager, this manager provides template
+ * management for creating new pages from predefined templates and managing
+ * wiki themes for UI customization.
+ *
+ * Key features:
+ * - Page template management
+ * - Theme loading and switching
+ * - Default template creation
+ * - Template content retrieval
+ *
+ * @class TemplateManager
+ * @extends BaseManager
+ *
+ * @property {Object<string, Object>} templates - Loaded page templates
+ * @property {Object<string, Object>} themes - Loaded themes
+ * @property {string} templatesDirectory - Path to templates directory
+ * @property {string} themesDirectory - Path to themes directory
+ *
+ * @see {@link BaseManager} for base functionality
+ *
+ * @example
+ * const templateManager = engine.getManager('TemplateManager');
+ * const template = templateManager.getTemplate('Meeting Notes');
  */
 class TemplateManager extends BaseManager {
+  /**
+   * Creates a new TemplateManager instance
+   *
+   * @constructor
+   * @param {WikiEngine} engine - The wiki engine instance
+   */
   constructor(engine) {
     super(engine);
     this.templates = {};
@@ -15,6 +44,15 @@ class TemplateManager extends BaseManager {
     this.themesDirectory = './themes';
   }
 
+  /**
+   * Initialize the TemplateManager and load templates/themes
+   *
+   * @async
+   * @param {Object} [config={}] - Configuration object
+   * @param {string} [config.templatesDirectory] - Templates directory path
+   * @param {string} [config.themesDirectory] - Themes directory path
+   * @returns {Promise<void>}
+   */
   async initialize(config = {}) {
     await super.initialize(config);
     

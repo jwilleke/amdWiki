@@ -1,6 +1,38 @@
 const BaseManager = require('./BaseManager');
 
+/**
+ * PluginManager - Handles plugin discovery, registration, and execution
+ *
+ * Similar to JSPWiki's PluginManager, this manager provides a plugin system
+ * for extending wiki functionality. Plugins are discovered from configured
+ * search paths and executed during markup parsing.
+ *
+ * Key features:
+ * - Dynamic plugin discovery from search paths
+ * - Plugin registration and metadata management
+ * - Secure plugin execution with sandboxing
+ * - Configurable plugin search paths
+ *
+ * @class PluginManager
+ * @extends BaseManager
+ *
+ * @property {Map<string, Object>} plugins - Registered plugins
+ * @property {string[]} searchPaths - Directories to search for plugins
+ * @property {string[]} allowedRoots - Allowed root paths for security
+ *
+ * @see {@link BaseManager} for base functionality
+ *
+ * @example
+ * const pluginManager = engine.getManager('PluginManager');
+ * const result = await pluginManager.execute('CurrentTimePlugin', params);
+ */
 class PluginManager extends BaseManager {
+  /**
+   * Creates a new PluginManager instance
+   *
+   * @constructor
+   * @param {WikiEngine} engine - The wiki engine instance
+   */
   constructor(engine) {
     super(engine);
     this.plugins = new Map();
@@ -8,6 +40,13 @@ class PluginManager extends BaseManager {
     this.allowedRoots = [];
   }
 
+  /**
+   * Initialize the PluginManager and discover plugins
+   *
+   * @async
+   * @param {Object} [config={}] - Configuration object (unused, reads from ConfigurationManager)
+   * @returns {Promise<void>}
+   */
   async initialize(config = {}) {
     await super.initialize(config);
     // Do NOT read search paths from config here; only ConfigurationManager controls them

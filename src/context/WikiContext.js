@@ -2,20 +2,77 @@ const Showdown = require('showdown');
 const logger = require('../utils/logger');
 
 /**
- * WikiContext - Encapsulates the context of a single request or rendering operation.
- * Inspired by JSPWiki's WikiContext, it provides access to the engine, page,
- * user, and other contextual information.
+ * WikiContext - Encapsulates the context of a single request or rendering operation
+ *
+ * Inspired by JSPWiki's WikiContext, this class provides a request-scoped container
+ * for all contextual information needed during page rendering, including the engine,
+ * current page, user, request/response objects, and manager references.
+ *
+ * @class WikiContext
+ *
+ * @property {WikiEngine} engine - The wiki engine instance
+ * @property {string} context - The rendering context (VIEW, EDIT, PREVIEW, etc.)
+ * @property {string|null} pageName - Name of the current page
+ * @property {string|null} content - Page content (markdown)
+ * @property {Object|null} userContext - Current user context/session
+ * @property {Object|null} request - Express request object
+ * @property {Object|null} response - Express response object
+ * @property {PageManager} pageManager - Reference to PageManager
+ * @property {RenderingManager} renderingManager - Reference to RenderingManager
+ * @property {PluginManager} pluginManager - Reference to PluginManager
+ * @property {VariableManager} variableManager - Reference to VariableManager
+ * @property {ACLManager} aclManager - Reference to ACLManager
+ * @property {Showdown.Converter} _fallbackConverter - Fallback markdown converter
+ *
+ * @see {@link WikiEngine} for the main engine
+ * @see {@link RenderingManager} for rendering operations
  */
 class WikiContext {
+  /**
+   * Context type constants for different rendering modes
+   *
+   * @static
+   * @readonly
+   * @enum {string}
+   */
   static CONTEXT = {
+    /** Viewing a page */
     VIEW: 'view',
+    /** Editing a page */
     EDIT: 'edit',
+    /** Previewing page changes */
     PREVIEW: 'preview',
+    /** Viewing page diff */
     DIFF: 'diff',
+    /** Viewing page information/metadata */
     INFO: 'info',
-    NONE: 'none', // For operations without a specific page context
+    /** No specific page context */
+    NONE: 'none',
   };
 
+  /**
+   * Creates a new WikiContext instance
+   *
+   * @constructor
+   * @param {WikiEngine} engine - The wiki engine instance
+   * @param {Object} [options={}] - Context options
+   * @param {string} [options.context] - Context type (VIEW, EDIT, etc.)
+   * @param {string} [options.pageName] - Name of the page
+   * @param {string} [options.content] - Page content
+   * @param {Object} [options.userContext] - User context/session
+   * @param {Object} [options.request] - Express request object
+   * @param {Object} [options.response] - Express response object
+   * @throws {Error} If engine is not provided
+   *
+   * @example
+   * const context = new WikiContext(engine, {
+   *   context: WikiContext.CONTEXT.VIEW,
+   *   pageName: 'Main',
+   *   userContext: req.session.user,
+   *   request: req,
+   *   response: res
+   * });
+   */
   constructor(engine, options = {}) {
     if (!engine) {
       throw new Error('WikiContext requires a valid WikiEngine instance.');
@@ -40,17 +97,38 @@ class WikiContext {
   }
 
   /**
-   * Returns the current rendering context (e.g., 'view', 'edit').
-   * @returns {string} The context string.
+   * Returns the current rendering context type
+   *
+   * @returns {string} The context type (VIEW, EDIT, PREVIEW, etc.)
+   *
+   * @example
+   * if (context.getContext() === WikiContext.CONTEXT.EDIT) {
+   *   // Show edit-specific UI
+   * }
    */
   getContext() {
     return this.context;
   }
 
   /**
-   * Renders the provided markdown content through the full pipeline.
-   * @param {string} content The markdown content to render.
-   * @returns {Promise<string>} The rendered HTML.
+   * Renders the provided markdown content through the full rendering pipeline
+   *
+   * This method uses the MarkupParser for advanced parsing with plugin support,
+   * variable expansion, and multi-phase processing. Falls back to simple Showdown
+   * conversion if the parser is unavailable.
+   *
+   * @async
+   * @param {string} [content=this.content] - The markdown content to render
+   * @returns {Promise<string>} The rendered HTML
+   *
+   * @example
+   * const html = await context.renderMarkdown('# Hello World');
+   * // Returns: '<h1>Hello World</h1>'
+   *
+   * @example
+   * // With plugins and variables
+   * const html = await context.renderMarkdown('[{CurrentTimePlugin}]');
+   * // Returns expanded plugin output
    */
   async renderMarkdown(content = this.content) {
     // The advanced parser should be the primary method
@@ -77,8 +155,21 @@ class WikiContext {
   }
 
   /**
-   * Creates the options object needed for the MarkupParser.
-   * @returns {object}
+   * Creates the options object needed for the MarkupParser
+   *
+   * Builds a comprehensive options object containing page context, user context,
+   * request information, and engine reference for use during parsing.
+   *
+   * @returns {Object} Parse options object
+   * @returns {Object} options.pageContext - Page-specific context
+   * @returns {string} options.pageContext.pageName - Current page name
+   * @returns {Object} options.pageContext.userContext - User session context
+   * @returns {Object} options.pageContext.requestInfo - HTTP request information
+   * @returns {WikiEngine} options.engine - Engine instance
+   *
+   * @example
+   * const options = context.toParseOptions();
+   * const html = await parser.parse(content, options);
    */
   toParseOptions() {
     return {

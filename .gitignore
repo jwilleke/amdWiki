@@ -78,6 +78,9 @@ web_modules/
 .next
 out
 
+# JSDoc generated documentation
+jsdocs/
+
 # Nuxt.js build / generate output
 .nuxt
 dist

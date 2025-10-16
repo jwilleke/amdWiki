@@ -6,13 +6,50 @@ const logger = require('../utils/logger'); // Add this line
 
 /**
  * UserManager - Handles user authentication, authorization, and roles
- * Similar to JSPWiki's UserManager with role-based permissions
+ *
+ * Similar to JSPWiki's UserManager with role-based permissions. This manager
+ * orchestrates user operations through a pluggable provider system, allowing
+ * different storage backends (file, database, LDAP, etc.) to be used.
+ *
+ * Key responsibilities:
+ * - User authentication (login/logout)
+ * - Password management with hashing
+ * - Role and permission management
+ * - Session management
+ * - User profile management
+ * - Provider abstraction for storage
  *
  * Follows JSPWiki's provider pattern where the actual storage implementation
  * is abstracted behind a provider interface. This allows for different storage
  * backends (file, database, LDAP, etc.) to be swapped via configuration.
+ *
+ * @class UserManager
+ * @extends BaseManager
+ *
+ * @property {BaseUserProvider|null} provider - The active user storage provider
+ * @property {string} providerClass - The class name of the loaded provider
+ * @property {Map<string, Object>} roles - Role definitions
+ * @property {Map<string, Object>} permissions - Permission definitions
+ * @property {string} passwordSalt - Salt for password hashing
+ * @property {string} defaultPassword - Default password for new admin user
+ * @property {number} sessionExpiration - Session expiration time in milliseconds
+ * @property {string} defaultTimezone - Default timezone for users
+ *
+ * @see {@link BaseManager} for base functionality
+ * @see {@link FileUserProvider} for default provider implementation
+ *
+ * @example
+ * const userManager = engine.getManager('UserManager');
+ * const user = await userManager.authenticate('admin', 'password');
+ * if (user) console.log('Logged in:', user.username);
  */
 class UserManager extends BaseManager {
+  /**
+   * Creates a new UserManager instance
+   *
+   * @constructor
+   * @param {WikiEngine} engine - The wiki engine instance
+   */
   constructor(engine) {
     super(engine);
     this.provider = null;
@@ -20,6 +57,21 @@ class UserManager extends BaseManager {
     this.permissions = new Map();
   }
 
+  /**
+   * Initialize the UserManager and load the configured provider
+   *
+   * Loads the user provider, role definitions, and creates a default admin
+   * user if no users exist.
+   *
+   * @async
+   * @param {Object} [config={}] - Configuration object (unused, reads from ConfigurationManager)
+   * @returns {Promise<void>}
+   * @throws {Error} If ConfigurationManager is not available or provider fails to load
+   *
+   * @example
+   * await userManager.initialize();
+   * // Creates default admin if no users exist
+   */
   async initialize(config = {}) {
     await super.initialize(config);
 

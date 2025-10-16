@@ -7,12 +7,35 @@ const logger = require('../utils/logger');
  * Providers handle the actual storage and retrieval of wiki pages, whether
  * from filesystem, database, cloud storage, or other backends.
  *
+ * This follows JSPWiki's provider pattern for pluggable storage backends.
+ *
+ * @class BasePageProvider
  * @abstract
+ *
+ * @property {WikiEngine} engine - Reference to the wiki engine
+ * @property {boolean} initialized - Whether provider has been initialized
+ *
+ * @see {@link FileSystemProvider} for filesystem implementation
+ * @see {@link PageManager} for usage
+ *
+ * @example
+ * class MyProvider extends BasePageProvider {
+ *   async initialize() {
+ *     const config = this.engine.getManager('ConfigurationManager');
+ *     this.storagePath = config.getProperty('myProvider.path');
+ *   }
+ *   async getPage(identifier) {
+ *     // Implementation
+ *   }
+ * }
  */
 class BasePageProvider {
   /**
    * Create a new page provider
-   * @param {object} engine - The WikiEngine instance
+   *
+   * @constructor
+   * @param {WikiEngine} engine - The WikiEngine instance
+   * @throws {Error} If engine is not provided
    */
   constructor(engine) {
     if (!engine) {
@@ -23,7 +46,7 @@ class BasePageProvider {
   }
 
   /**
-   * Initialize the provider
+   * Initialize the provider with configuration
    *
    * IMPORTANT: Providers MUST access configuration via ConfigurationManager:
    *   const configManager = this.engine.getManager('ConfigurationManager');
@@ -31,16 +54,28 @@ class BasePageProvider {
    *
    * Do NOT read configuration files directly.
    *
+   * @async
+   * @abstract
    * @returns {Promise<void>}
+   * @throws {Error} Always throws - must be implemented by subclass
    */
   async initialize() {
     throw new Error('initialize() must be implemented by provider');
   }
 
   /**
-   * Get page content and metadata together
-   * @param {string} identifier - Page UUID or title
-   * @returns {Promise<{content: string, metadata: object, title: string, uuid: string, filePath: string}|null>}
+   * Get complete page with content and metadata
+   *
+   * @async
+   * @abstract
+   * @param {string} identifier - Page UUID, title, or slug
+   * @returns {Promise<Object|null>} Page object or null if not found
+   * @returns {string} page.content - Markdown content
+   * @returns {Object} page.metadata - Frontmatter metadata
+   * @returns {string} page.title - Page title
+   * @returns {string} page.uuid - Page UUID
+   * @returns {string} page.filePath - Path to page file
+   * @throws {Error} Always throws - must be implemented by subclass
    */
   async getPage(identifier) {
     throw new Error('getPage() must be implemented by provider');
@@ -48,17 +83,25 @@ class BasePageProvider {
 
   /**
    * Get only page content (without metadata)
-   * @param {string} identifier - Page UUID or title
-   * @returns {Promise<string>}
+   *
+   * @async
+   * @abstract
+   * @param {string} identifier - Page UUID, title, or slug
+   * @returns {Promise<string>} Markdown content
+   * @throws {Error} Always throws - must be implemented by subclass
    */
   async getPageContent(identifier) {
     throw new Error('getPageContent() must be implemented by provider');
   }
 
   /**
-   * Get only page metadata
-   * @param {string} identifier - Page UUID or title
-   * @returns {Promise<object|null>}
+   * Get only page metadata (without content)
+   *
+   * @async
+   * @abstract
+   * @param {string} identifier - Page UUID, title, or slug
+   * @returns {Promise<Object|null>} Metadata object or null if not found
+   * @throws {Error} Always throws - must be implemented by subclass
    */
   async getPageMetadata(identifier) {
     throw new Error('getPageMetadata() must be implemented by provider');
@@ -66,10 +109,14 @@ class BasePageProvider {
 
   /**
    * Save page content and metadata
+   *
+   * @async
+   * @abstract
    * @param {string} pageName - Page title
-   * @param {string} content - Page content (markdown)
-   * @param {object} metadata - Page metadata (frontmatter)
+   * @param {string} content - Markdown content
+   * @param {Object} [metadata={}] - Frontmatter metadata
    * @returns {Promise<void>}
+   * @throws {Error} Always throws - must be implemented by subclass
    */
   async savePage(pageName, content, metadata = {}) {
     throw new Error('savePage() must be implemented by provider');

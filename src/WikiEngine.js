@@ -28,9 +28,30 @@ const MarkupParser = require('./parsers/MarkupParser');
 
 /**
  * WikiEngine - The core orchestrator for the wiki application
- * Follows JSPWiki's architecture patterns
+ *
+ * Follows JSPWiki's architecture patterns by coordinating all managers
+ * and providing a central access point for wiki functionality. This is the
+ * main entry point for the application and initializes all 24+ managers
+ * in the correct dependency order.
+ *
+ * @class WikiEngine
+ * @extends Engine
+ *
+ * @property {WikiContext|null} context - Currently active WikiContext for request scope
+ * @property {Config|Object|null} config - Configuration instance or object
+ * @property {number} startTime - Timestamp when the engine was started
+ *
+ * @see {@link Engine} for base functionality
+ * @see {@link WikiContext} for request-scoped context
  */
 class WikiEngine extends Engine {
+  /**
+   * Creates a new WikiEngine instance
+   *
+   * @constructor
+   * @param {Object} [config={}] - Initial configuration object (not used in constructor)
+   * @param {WikiContext|null} [context=null] - Initial WikiContext (optional)
+   */
   constructor(config = {}, context = null) {
     super(config);
     this.context = context || null;
@@ -39,9 +60,17 @@ class WikiEngine extends Engine {
   }
 
   /**
-   * Sets the currently active WikiContext for the engine.
-   * @param {WikiContext} context The context to set.
-   * @returns {WikiEngine} The engine instance for chaining.
+   * Sets the currently active WikiContext for the engine
+   *
+   * The WikiContext encapsulates request-specific information including
+   * the current user, page, and rendering context.
+   *
+   * @param {WikiContext} context - The WikiContext to set as active
+   * @returns {WikiEngine} The engine instance for method chaining
+   *
+   * @example
+   * const context = new WikiContext(engine, { pageName: 'Main' });
+   * engine.setContext(context).getPageManager().getPage('Main');
    */
   setContext(context) {
     this.context = context;
@@ -49,8 +78,15 @@ class WikiEngine extends Engine {
   }
 
   /**
-   * Gets the currently active WikiContext.
-   * @returns {WikiContext|null} The active context.
+   * Gets the currently active WikiContext
+   *
+   * @returns {WikiContext|null} The active context or null if none set
+   *
+   * @example
+   * const context = engine.getContext();
+   * if (context) {
+   *   console.log('Current page:', context.pageName);
+   * }
    */
   getContext() {
     return this.context;
@@ -58,7 +94,37 @@ class WikiEngine extends Engine {
 
   /**
    * Initialize the wiki engine with configuration
-   * @param {Object|Config} config - Configuration object or Config instance
+   *
+   * This method initializes all 24+ managers in the correct dependency order:
+   * 1. ConfigurationManager - Core configuration (no dependencies)
+   * 2. CacheManager - Caching support (used by many managers)
+   * 3. UserManager - User authentication/authorization (critical for security)
+   * 4. NotificationManager - Notification system
+   * 5. PageManager - Page storage and retrieval
+   * 6. TemplateManager - Template rendering
+   * 7. PolicyManager/PolicyValidator/PolicyEvaluator - Policy system
+   * 8. ACLManager - Access control (depends on PolicyEvaluator)
+   * 9. PluginManager - Plugin system
+   * 10. MarkupParser - Markup parsing
+   * 11. RenderingManager - Content rendering (depends on MarkupParser)
+   * 12. SearchManager - Full-text search
+   * 13. ValidationManager - Schema validation
+   * 14. VariableManager - Variable expansion
+   * 15. SchemaManager - Schema management
+   * 16. ExportManager - Page export
+   * 17. AttachmentManager - File attachments
+   * 18. AuditManager - Audit logging
+   * 19. BackupManager - Backup/restore (must be last)
+   *
+   * @async
+   * @param {Config|Object} config - Configuration object or Config instance
+   * @returns {Promise<WikiEngine>} The initialized engine instance
+   * @throws {Error} If any manager fails to initialize
+   *
+   * @example
+   * const engine = new WikiEngine();
+   * await engine.initialize(config);
+   * console.log('Engine ready with', engine.getRegisteredManagers().length, 'managers');
    */
   async initialize(config) {
     this.config = config;
@@ -144,8 +210,19 @@ class WikiEngine extends Engine {
 
   /**
    * Create a new WikiEngine with default configuration
-   * @param {Object} overrides - Configuration overrides
-   * @returns {WikiEngine} Initialized WikiEngine instance
+   *
+   * Factory method for creating and initializing a WikiEngine in one step.
+   *
+   * @static
+   * @async
+   * @param {Object} [overrides={}] - Configuration overrides to apply
+   * @returns {Promise<WikiEngine>} Fully initialized WikiEngine instance
+   *
+   * @example
+   * const engine = await WikiEngine.createDefault({
+   *   applicationName: 'MyWiki',
+   *   port: 3000
+   * });
    */
   static async createDefault(overrides = {}) {
     const engine = new WikiEngine();
@@ -155,7 +232,14 @@ class WikiEngine extends Engine {
 
   /**
    * Get application name from configuration
-   * @returns {string} Application name
+   *
+   * Safely retrieves the application name with defensive checks for
+   * invalid configuration state.
+   *
+   * @returns {string} Application name (defaults to 'amdWiki' if config invalid)
+   *
+   * @example
+   * const name = engine.getApplicationName(); // 'amdWiki'
    */
   getApplicationName() {
     // Defensive check: Handle case where config might be invalid
@@ -168,7 +252,13 @@ class WikiEngine extends Engine {
 
   /**
    * Get configuration instance
+   *
    * @returns {Config} Configuration instance
+   * @throws {Error} If config is not initialized or invalid
+   *
+   * @example
+   * const config = engine.getConfig();
+   * const dbPath = config.get('databasePath');
    */
   getConfig() {
     if (!this.config || typeof this.config.get !== 'function') {
@@ -179,7 +269,11 @@ class WikiEngine extends Engine {
 
   /**
    * Convenience method to get PageManager
+   *
    * @returns {PageManager} PageManager instance
+   *
+   * @example
+   * const page = await engine.getPageManager().getPage('Main');
    */
   getPageManager() {
     return this.getManager('PageManager');
@@ -187,7 +281,11 @@ class WikiEngine extends Engine {
 
   /**
    * Convenience method to get PluginManager
+   *
    * @returns {PluginManager} PluginManager instance
+   *
+   * @example
+   * const plugins = engine.getPluginManager().getAllPlugins();
    */
   getPluginManager() {
     return this.getManager('PluginManager');

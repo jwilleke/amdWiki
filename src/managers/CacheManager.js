@@ -18,8 +18,28 @@ const logger = require('../utils/logger');
  * - amdwiki.cache.provider - Active provider name
  * - amdwiki.cache.defaultttl - Default TTL in seconds
  * - amdwiki.cache.maxkeys - Maximum cache keys
+ *
+ * @class CacheManager
+ * @extends BaseManager
+ *
+ * @property {BaseCacheProvider|null} provider - The active cache provider
+ * @property {string|null} providerClass - The class name of the loaded provider
+ * @property {Map<string, RegionCache>} regions - Cache regions by name
+ *
+ * @see {@link BaseManager} for base functionality
+ *
+ * @example
+ * const cacheManager = engine.getManager('CacheManager');
+ * const region = cacheManager.getRegion('pages');
+ * region.set('Main', pageData, 3600);
  */
 class CacheManager extends BaseManager {
+  /**
+   * Creates a new CacheManager instance
+   *
+   * @constructor
+   * @param {WikiEngine} engine - The wiki engine instance
+   */
   constructor(engine) {
     super(engine);
     this.provider = null;
@@ -27,6 +47,14 @@ class CacheManager extends BaseManager {
     this.regions = new Map();
   }
 
+  /**
+   * Initialize the CacheManager and load the configured provider
+   *
+   * @async
+   * @param {Object} [config={}] - Configuration object (unused, reads from ConfigurationManager)
+   * @returns {Promise<void>}
+   * @throws {Error} If ConfigurationManager is not available
+   */
   async initialize(config = {}) {
     await super.initialize(config);
 

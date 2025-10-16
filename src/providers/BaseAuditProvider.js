@@ -5,6 +5,16 @@
  * Follows the provider pattern established in CacheManager, AttachmentManager, and PageManager.
  *
  * Audit providers implement different storage backends (file, database, cloud logging)
+ *
+ * @class BaseAuditProvider
+ * @abstract
+ *
+ * @property {WikiEngine} engine - Reference to the wiki engine
+ * @property {boolean} initialized - Whether provider has been initialized
+ *
+ * @see {@link FileAuditProvider} for file-based implementation
+ * @see {@link DatabaseAuditProvider} for database implementation
+ * @see {@link AuditManager} for usage
  */
 
 /**

@@ -10,11 +10,31 @@ const FileSystemProvider = require('../providers/FileSystemProvider');
  * backends (filesystem, database, cloud, etc.) to be swapped via configuration.
  *
  * The PageManager acts as a thin coordinator that:
- * - Loads the configured provider (via "amdwiki.pageProvider")
+ * - Loads the configured provider (via "amdwiki.page.provider")
  * - Proxies all page operations to the provider
  * - Maintains the public API for backward compatibility
+ *
+ * @class PageManager
+ * @extends BaseManager
+ *
+ * @property {BasePageProvider|null} provider - The active page storage provider
+ * @property {string} providerClass - The class name of the loaded provider
+ *
+ * @see {@link BaseManager} for base functionality
+ * @see {@link FileSystemProvider} for default provider implementation
+ *
+ * @example
+ * const pageManager = engine.getManager('PageManager');
+ * const page = await pageManager.getPage('Main');
+ * console.log(page.content);
  */
 class PageManager extends BaseManager {
+  /**
+   * Creates a new PageManager instance
+   *
+   * @constructor
+   * @param {WikiEngine} engine - The wiki engine instance
+   */
   constructor(engine) {
     super(engine);
     this.provider = null;
@@ -22,6 +42,18 @@ class PageManager extends BaseManager {
 
   /**
    * Initialize the PageManager by loading and initializing the configured provider
+   *
+   * Reads the page provider configuration and dynamically loads the provider class.
+   * The provider name is normalized from lowercase (config) to PascalCase (class name).
+   *
+   * @async
+   * @param {Object} [config={}] - Configuration object (unused, reads from ConfigurationManager)
+   * @returns {Promise<void>}
+   * @throws {Error} If ConfigurationManager is not available or provider fails to load
+   *
+   * @example
+   * await pageManager.initialize();
+   * // Loads FileSystemProvider by default
    */
   async initialize(config = {}) {
     await super.initialize(config);
@@ -108,7 +140,13 @@ class PageManager extends BaseManager {
 
   /**
    * Get the current page provider instance
-   * @returns {BasePageProvider} The active provider
+   *
+   * @returns {BasePageProvider} The active provider instance
+   *
+   * @example
+   * const provider = pageManager.getCurrentPageProvider();
+   * const info = provider.getProviderInfo();
+   * console.log('Using:', info.name);
    */
   getCurrentPageProvider() {
     return this.provider;
@@ -119,9 +157,23 @@ class PageManager extends BaseManager {
   // ============================================================================
 
   /**
-   * Get page content and metadata together
-   * @param {string} identifier - Page UUID or title
-   * @returns {Promise<{content: string, metadata: object, title: string, uuid: string, filePath: string}|null>}
+   * Get complete page with content and metadata
+   *
+   * Retrieves a page by UUID, title, or slug. Returns the full page object
+   * including content, metadata, and file path information.
+   *
+   * @async
+   * @param {string} identifier - Page UUID, title, or slug
+   * @returns {Promise<Object|null>} Page object or null if not found
+   * @returns {string} page.content - Markdown content
+   * @returns {Object} page.metadata - Frontmatter metadata
+   * @returns {string} page.title - Page title
+   * @returns {string} page.uuid - Page UUID
+   * @returns {string} page.filePath - Path to page file
+   *
+   * @example
+   * const page = await pageManager.getPage('Main');
+   * console.log(page.title, page.metadata.author);
    */
   async getPage(identifier) {
     return this.provider.getPage(identifier);
@@ -129,17 +181,33 @@ class PageManager extends BaseManager {
 
   /**
    * Get only page content (without metadata)
-   * @param {string} identifier - Page UUID or title
-   * @returns {Promise<string>}
+   *
+   * More efficient than getPage() when only content is needed.
+   *
+   * @async
+   * @param {string} identifier - Page UUID, title, or slug
+   * @returns {Promise<string>} Markdown content
+   *
+   * @example
+   * const content = await pageManager.getPageContent('Main');
+   * console.log(content);
    */
   async getPageContent(identifier) {
     return this.provider.getPageContent(identifier);
   }
 
   /**
-   * Get only page metadata
-   * @param {string} identifier - Page UUID or title
-   * @returns {Promise<object|null>}
+   * Get only page metadata (without content)
+   *
+   * More efficient than getPage() when only metadata is needed.
+   *
+   * @async
+   * @param {string} identifier - Page UUID, title, or slug
+   * @returns {Promise<Object|null>} Metadata object or null if not found
+   *
+   * @example
+   * const meta = await pageManager.getPageMetadata('Main');
+   * console.log('Author:', meta.author);
    */
   async getPageMetadata(identifier) {
     return this.provider.getPageMetadata(identifier);
@@ -147,10 +215,21 @@ class PageManager extends BaseManager {
 
   /**
    * Save page content and metadata
+   *
+   * Creates a new page or updates an existing one. Handles UUID generation
+   * for new pages and version management automatically.
+   *
+   * @async
    * @param {string} pageName - Page title
-   * @param {string} content - Page content (markdown)
-   * @param {object} metadata - Page metadata (frontmatter)
+   * @param {string} content - Markdown content
+   * @param {Object} [metadata={}] - Frontmatter metadata
    * @returns {Promise<void>}
+   *
+   * @example
+   * await pageManager.savePage('New Page', '# Hello World', {
+   *   author: 'admin',
+   *   tags: ['tutorial']
+   * });
    */
   async savePage(pageName, content, metadata = {}) {
     return this.provider.savePage(pageName, content, metadata);
@@ -158,8 +237,16 @@ class PageManager extends BaseManager {
 
   /**
    * Delete a page
-   * @param {string} identifier - Page UUID or title
+   *
+   * Removes a page from storage. The page can be identified by UUID, title, or slug.
+   *
+   * @async
+   * @param {string} identifier - Page UUID, title, or slug
    * @returns {Promise<boolean>} True if deleted, false if not found
+   *
+   * @example
+   * const deleted = await pageManager.deletePage('Old Page');
+   * if (deleted) console.log('Page removed');
    */
   async deletePage(identifier) {
     return this.provider.deletePage(identifier);
@@ -167,8 +254,16 @@ class PageManager extends BaseManager {
 
   /**
    * Check if page exists
-   * @param {string} identifier - Page UUID or title
-   * @returns {boolean}
+   *
+   * Fast existence check without loading page content.
+   *
+   * @param {string} identifier - Page UUID, title, or slug
+   * @returns {boolean} True if page exists
+   *
+   * @example
+   * if (pageManager.pageExists('Main')) {
+   *   console.log('Main page exists');
+   * }
    */
   pageExists(identifier) {
     return this.provider.pageExists(identifier);
@@ -176,7 +271,15 @@ class PageManager extends BaseManager {
 
   /**
    * Get all page titles
+   *
+   * Returns a sorted list of all page titles in the wiki.
+   *
+   * @async
    * @returns {Promise<string[]>} Sorted array of page titles
+   *
+   * @example
+   * const pages = await pageManager.getAllPages();
+   * console.log('Total pages:', pages.length);
    */
   async getAllPages() {
     return this.provider.getAllPages();
@@ -184,7 +287,16 @@ class PageManager extends BaseManager {
 
   /**
    * Refresh internal cache/index
+   *
+   * Forces the provider to rebuild its internal caches and indices.
+   * Useful after external file system changes.
+   *
+   * @async
    * @returns {Promise<void>}
+   *
+   * @example
+   * await pageManager.refreshPageList();
+   * console.log('Page list refreshed');
    */
   async refreshPageList() {
     return this.provider.refreshPageList();
@@ -192,6 +304,10 @@ class PageManager extends BaseManager {
 
   /**
    * Shutdown the PageManager and its provider
+   *
+   * Cleanly shuts down the provider, closing connections and flushing caches.
+   *
+   * @async
    * @returns {Promise<void>}
    */
   async shutdown() {

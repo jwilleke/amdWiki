@@ -17,6 +17,22 @@
  * - Extensible architecture for future link types
  * - Comprehensive error handling and validation
  *
+ * @class LinkParser
+ *
+ * @property {Object} options - Parser configuration options
+ * @property {Set<string>} pageNames - Cache of available page names
+ * @property {PageNameMatcher|null} pageNameMatcher - Page name matching utility
+ * @property {Map} interWikiSites - InterWiki site configurations
+ * @property {RegExp} linkPattern - Regular expression for link matching
+ *
+ * @see {@link PageNameMatcher} for fuzzy page matching
+ * @see {@link RenderingManager} for usage
+ *
+ * @example
+ * const linkParser = new LinkParser();
+ * linkParser.setPageNames(['Main', 'Help', 'About']);
+ * const html = linkParser.parseLinks('[Main] and [Help|Documentation]');
+ *
  * @author amdWiki
  * @version 1.0.0
  * @see https://github.com/jwilleke/amdWiki/issues/75
@@ -27,7 +43,12 @@ const PageNameMatcher = require('../utils/PageNameMatcher');
 class LinkParser {
   /**
    * Create a new LinkParser instance
-   * @param {Object} options - Configuration options
+   *
+   * @constructor
+   * @param {Object} [options={}] - Configuration options
+   * @param {string[]} [options.allowedAttributes] - Allowed HTML attributes
+   * @param {Object} [options.defaultClasses] - Default CSS classes for link types
+   * @param {Object} [options.security] - Security settings
    */
   constructor(options = {}) {
     this.options = {

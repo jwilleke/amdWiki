@@ -4,10 +4,32 @@ const fs = require('fs').promises;
 const path = require('path');
 
 /**
- * Notification Manager - Handles system notifications and user alerts
- * Extends BaseManager following the modular manager pattern
+ * NotificationManager - Handles system notifications and user alerts
+ *
+ * Manages user-facing notifications and system alerts with persistent storage.
+ * Extends BaseManager following the modular manager pattern.
+ *
+ * @class NotificationManager
+ * @extends BaseManager
+ *
+ * @property {Map<number, Object>} notifications - Active notifications by ID
+ * @property {number} notificationId - Auto-incrementing notification ID
+ * @property {string|null} storagePath - Path to notifications storage file
+ * @property {Set<number>} saveQueue - Notifications pending save
+ *
+ * @see {@link BaseManager} for base functionality
+ *
+ * @example
+ * const notificationManager = engine.getManager('NotificationManager');
+ * notificationManager.addNotification('admin', 'Welcome!', 'info');
  */
 class NotificationManager extends BaseManager {
+  /**
+   * Creates a new NotificationManager instance
+   *
+   * @constructor
+   * @param {WikiEngine} engine - The wiki engine instance
+   */
   constructor(engine) {
     super(engine);
     this.notifications = new Map(); // Store active notifications
@@ -18,7 +40,10 @@ class NotificationManager extends BaseManager {
 
   /**
    * Initialize the notification manager
-   * @param {Object} config - Configuration object
+   *
+   * @async
+   * @param {Object} [config={}] - Configuration object
+   * @returns {Promise<void>}
    */
   async initialize(config = {}) {
     await super.initialize(config);

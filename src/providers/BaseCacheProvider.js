@@ -5,6 +5,16 @@
  * Follows the provider pattern established in AttachmentManager and PageManager.
  *
  * Cache providers implement different storage backends (node-cache, Redis, etc.)
+ *
+ * @class BaseCacheProvider
+ * @abstract
+ *
+ * @property {WikiEngine} engine - Reference to the wiki engine
+ * @property {boolean} initialized - Whether provider has been initialized
+ *
+ * @see {@link NodeCacheProvider} for in-memory implementation
+ * @see {@link RedisCacheProvider} for Redis implementation
+ * @see {@link CacheManager} for usage
  */
 
 /**
@@ -21,6 +31,12 @@
  */
 
 class BaseCacheProvider {
+  /**
+   * Creates a new cache provider
+   *
+   * @constructor
+   * @param {WikiEngine} engine - The wiki engine instance
+   */
   constructor(engine) {
     this.engine = engine;
     this.initialized = false;

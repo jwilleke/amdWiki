@@ -9,12 +9,22 @@ const logger = require('../utils/logger');
  *
  * Following JSPWiki's attachment provider pattern.
  *
+ * @class BaseAttachmentProvider
  * @abstract
+ *
+ * @property {WikiEngine} engine - Reference to the wiki engine
+ * @property {boolean} initialized - Whether provider has been initialized
+ *
+ * @see {@link BasicAttachmentProvider} for filesystem implementation
+ * @see {@link AttachmentManager} for usage
  */
 class BaseAttachmentProvider {
   /**
    * Create a new attachment provider
-   * @param {object} engine - The WikiEngine instance
+   *
+   * @constructor
+   * @param {WikiEngine} engine - The WikiEngine instance
+   * @throws {Error} If engine is not provided
    */
   constructor(engine) {
     if (!engine) {

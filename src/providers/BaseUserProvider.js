@@ -7,12 +7,22 @@ const logger = require('../utils/logger');
  * Providers handle the actual storage and retrieval of user accounts and sessions,
  * whether from filesystem (JSON), database, LDAP, or other backends.
  *
+ * @class BaseUserProvider
  * @abstract
+ *
+ * @property {WikiEngine} engine - Reference to the wiki engine
+ * @property {boolean} initialized - Whether provider has been initialized
+ *
+ * @see {@link FileUserProvider} for filesystem implementation
+ * @see {@link UserManager} for usage
  */
 class BaseUserProvider {
   /**
    * Create a new user provider
-   * @param {object} engine - The WikiEngine instance
+   *
+   * @constructor
+   * @param {WikiEngine} engine - The WikiEngine instance
+   * @throws {Error} If engine is not provided
    */
   constructor(engine) {
     if (!engine) {

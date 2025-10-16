@@ -4,16 +4,44 @@ const path = require('path');
 const LocaleUtils = require('../utils/LocaleUtils');
 
 /**
- * ExportManager - Handles page exports (HTML, PDF, etc.)
- * Similar to JSPWiki's export functionality
+ * ExportManager - Handles page exports to multiple formats
+ *
+ * Similar to JSPWiki's export functionality, provides page export capabilities
+ * to HTML, PDF, markdown, and other formats.
+ *
+ * @class ExportManager
+ * @extends BaseManager
+ *
+ * @property {string} exportDirectory - Directory for exported files
+ * @property {string[]} supportedFormats - Supported export formats
+ *
+ * @see {@link BaseManager} for base functionality
+ *
+ * @example
+ * const exportManager = engine.getManager('ExportManager');
+ * const html = await exportManager.exportPageToHtml('Main');
  */
 class ExportManager extends BaseManager {
+  /**
+   * Creates a new ExportManager instance
+   *
+   * @constructor
+   * @param {WikiEngine} engine - The wiki engine instance
+   */
   constructor(engine) {
     super(engine);
     this.exportDirectory = './exports';
     this.supportedFormats = ['html', 'pdf', 'markdown'];
   }
 
+  /**
+   * Initialize the ExportManager
+   *
+   * @async
+   * @param {Object} [config={}] - Configuration object
+   * @param {string} [config.exportDirectory] - Export directory path
+   * @returns {Promise<void>}
+   */
   async initialize(config = {}) {
     await super.initialize(config);
     

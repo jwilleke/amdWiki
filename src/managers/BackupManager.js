@@ -11,6 +11,9 @@ const gunzip = promisify(zlib.gunzip);
 /**
  * BackupManager - Coordinates backup and restore operations across all managers
  *
+ * Orchestrates system-wide backup and restore by calling backup()/restore()
+ * on all registered managers and aggregating their data into compressed archives.
+ *
  * Responsibilities:
  * - Call backup() on all registered managers
  * - Aggregate backup data into a single .gz file
@@ -23,9 +26,26 @@ const gunzip = promisify(zlib.gunzip);
  * - Serializes to JSON and compresses with gzip
  * - Stores as single .gz file
  *
+ * @class BackupManager
  * @extends BaseManager
+ *
+ * @property {string|null} backupDirectory - Directory for backup files
+ * @property {number} maxBackups - Maximum number of backups to retain
+ *
+ * @see {@link BaseManager} for base functionality and backup() pattern
+ *
+ * @example
+ * const backupManager = engine.getManager('BackupManager');
+ * const backupPath = await backupManager.createBackup();
+ * console.log('Backup created:', backupPath);
  */
 class BackupManager extends BaseManager {
+  /**
+   * Creates a new BackupManager instance
+   *
+   * @constructor
+   * @param {WikiEngine} engine - The wiki engine instance
+   */
   constructor(engine) {
     super(engine);
     this.backupDirectory = null;
@@ -34,7 +54,11 @@ class BackupManager extends BaseManager {
 
   /**
    * Initialize BackupManager
-   * @param {Object} config - Configuration object
+   *
+   * @async
+   * @param {Object} [config={}] - Configuration object (unused, reads from ConfigurationManager)
+   * @returns {Promise<void>}
+   * @throws {Error} If ConfigurationManager is not available
    */
   async initialize(config = {}) {
     await super.initialize(config);

@@ -10,10 +10,29 @@ const logger = require('../utils/logger');
  * - Tracks attachment-page relationships
  * - Provides high-level attachment operations
  *
+ * @class AttachmentManager
+ * @extends BaseManager
+ *
+ * @property {BaseAttachmentProvider|null} attachmentProvider - The active attachment provider
+ * @property {string|null} providerClass - The class name of the loaded provider
+ *
+ * @see {@link BaseManager} for base functionality
+ * @see {@link BasicAttachmentProvider} for default provider implementation
+ *
+ * @example
+ * const attachmentManager = engine.getManager('AttachmentManager');
+ * await attachmentManager.attachFile('Main', fileBuffer, 'document.pdf');
+ *
  * Based on:
  * https://github.com/apache/jspwiki/blob/master/jspwiki-main/src/main/java/org/apache/wiki/attachment/AttachmentManager.java
  */
 class AttachmentManager extends BaseManager {
+  /**
+   * Creates a new AttachmentManager instance
+   *
+   * @constructor
+   * @param {WikiEngine} engine - The wiki engine instance
+   */
   constructor(engine) {
     super(engine);
     this.attachmentProvider = null;
@@ -21,8 +40,12 @@ class AttachmentManager extends BaseManager {
   }
 
   /**
-   * Initialize AttachmentManager
-   * @param {Object} config - Configuration object
+   * Initialize AttachmentManager and load the configured provider
+   *
+   * @async
+   * @param {Object} [config={}] - Configuration object (unused, reads from ConfigurationManager)
+   * @returns {Promise<void>}
+   * @throws {Error} If ConfigurationManager is not available or provider fails to load
    */
   async initialize(config = {}) {
     await super.initialize(config);

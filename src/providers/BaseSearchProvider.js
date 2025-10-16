@@ -6,6 +6,15 @@
  *
  * Search providers implement different search engines (Lunr.js, Elasticsearch, etc.)
  *
+ * @class BaseSearchProvider
+ * @abstract
+ *
+ * @property {WikiEngine} engine - Reference to the wiki engine
+ * @property {boolean} initialized - Whether provider has been initialized
+ *
+ * @see {@link LunrSearchProvider} for Lunr.js implementation
+ * @see {@link SearchManager} for usage
+ *
  * Related: GitHub Issue #102 - Configuration reorganization
  */
 
