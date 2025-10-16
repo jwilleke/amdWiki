@@ -3430,10 +3430,12 @@ class WikiRoutes {
       }
 
       const debugInfo = variableManager.getDebugInfo();
+      const commonData = await this.getCommonTemplateData(req);
+      const leftMenuContent = await this.getLeftMenu();
 
       const templateData = {
+        ...commonData,
         title: "Variable Management",
-        user: currentUser,
         message: req.query.success,
         error: req.query.error,
         variableManager: variableManager,
@@ -3444,6 +3446,7 @@ class WikiRoutes {
           contextualVariables: debugInfo.contextualVariables.length,
           totalVariables: debugInfo.totalVariables,
         },
+        leftMenu: leftMenuContent,
         csrfToken: req.session.csrfToken,
       };
 
