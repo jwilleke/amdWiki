@@ -76,7 +76,9 @@ class VariableManager extends BaseManager {
     });
 
     // User context - ParseContext has userName and userContext
-    this.registerVariable('username', (context) => context?.userName || context?.userContext?.username || 'Anonymous');
+    this.registerVariable('username', (context) => {
+      return context?.userName || context?.userContext?.username || 'Anonymous';
+    });
     this.registerVariable('loginstatus', (context) => context?.userContext?.isAuthenticated ? 'Logged in' : 'Not logged in');
     this.registerVariable('userroles', (context) => (context?.userContext?.roles || []).join(', '));
 

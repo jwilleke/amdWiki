@@ -1688,8 +1688,12 @@ class MarkupParser extends BaseManager {
   async parseWithDOMExtraction(content, context) {
     console.log('🔄 Starting DOM extraction parse...');
 
+    // Create ParseContext to properly extract nested userContext/requestInfo
+    const ParseContext = require('./context/ParseContext');
+    const parseContext = new ParseContext(content, context, this.engine);
+
     // Phase 1: Extract JSPWiki syntax
-    const { sanitized, jspwikiElements, uuid } = this.extractJSPWikiSyntax(content, context);
+    const { sanitized, jspwikiElements, uuid } = this.extractJSPWikiSyntax(content, parseContext);
     console.log(`📦 Extracted ${jspwikiElements.length} JSPWiki elements`);
 
     // Phase 2: Create WikiDocument and build DOM nodes
@@ -1699,7 +1703,7 @@ class MarkupParser extends BaseManager {
     const nodes = [];
     for (const element of jspwikiElements) {
       try {
-        const node = await this.createDOMNode(element, context, wikiDocument);
+        const node = await this.createDOMNode(element, parseContext, wikiDocument);
         nodes.push(node);
       } catch (error) {
         console.error(`❌ Error creating DOM node for element ${element.id}:`, error.message);

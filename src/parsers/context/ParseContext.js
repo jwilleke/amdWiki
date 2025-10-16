@@ -20,18 +20,28 @@ class ParseContext {
 
       // Extract from nested pageContext
       this.pageName = context.pageContext.pageName || 'unknown';
-      this.userName = context.pageContext.userName || 'anonymous';
       this.userContext = context.pageContext.userContext || null;
       this.requestInfo = context.pageContext.requestInfo || null;
+
+      // Extract userName from userContext if not directly provided
+      this.userName = context.pageContext.userName ||
+                      this.userContext?.username ||
+                      this.userContext?.userName ||
+                      'anonymous';
     } else {
       // Direct structure (legacy or alternative calling pattern)
       this.pageContext = context;
       this.engine = engine;
 
       this.pageName = context.pageName || 'unknown';
-      this.userName = context.userName || 'anonymous';
       this.userContext = context.userContext || null;
       this.requestInfo = context.requestInfo || null;
+
+      // Extract userName from userContext if not directly provided
+      this.userName = context.userName ||
+                      this.userContext?.username ||
+                      this.userContext?.userName ||
+                      'anonymous';
     }
 
     // Processing state

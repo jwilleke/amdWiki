@@ -205,8 +205,10 @@ class PluginManager extends BaseManager {
     }
 
     try {
-      // Create JSPWiki-style context object
-      const wikiContext = {
+      // Pass the full context through to plugins
+      // Plugins expect the full ParseContext/WikiContext with all properties
+      const pluginContext = {
+        ...context, // Spread all context properties
         engine: context.engine || this.engine,
         pageName: pageName,
         linkGraph: context.linkGraph || {}
@@ -214,7 +216,7 @@ class PluginManager extends BaseManager {
 
       // Check if it's a new-style plugin with execute method
       if (plugin.execute && typeof plugin.execute === 'function') {
-        const result = await plugin.execute(wikiContext, params);
+        const result = await plugin.execute(pluginContext, params);
         return result;
       }
 

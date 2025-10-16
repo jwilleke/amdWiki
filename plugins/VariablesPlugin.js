@@ -35,6 +35,9 @@ const VariablesPlugin = {
         return '<p class="error">VariableManager not available</p>';
       }
 
+      // Use the context directly - PluginManager now passes the full context through
+      const variableContext = context;
+
       // Get debug info with all variables
       const debugInfo = variableManager.getDebugInfo();
 
@@ -80,7 +83,7 @@ const VariablesPlugin = {
 
         // Add system variables
         for (const varName of debugInfo.systemVariables) {
-          const value = variableManager.getVariable(varName, context);
+          const value = variableManager.getVariable(varName, variableContext);
           const description = this.getVariableDescription(varName);
 
           html += '          <tr>\n';
@@ -120,7 +123,7 @@ const VariablesPlugin = {
 
         // Add contextual variables
         for (const varName of debugInfo.contextualVariables) {
-          const value = variableManager.getVariable(varName, context);
+          const value = variableManager.getVariable(varName, variableContext);
           const description = this.getVariableDescription(varName);
 
           html += '          <tr>\n';
