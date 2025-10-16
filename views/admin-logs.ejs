@@ -1,0 +1,66 @@
+<%- include('header', { title: 'System Logs' }) %>
+
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-file-alt"></i> System Logs</h1>
+        <a href="/admin" class="btn" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);">
+          <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+      </div>
+
+      <% if (typeof successMessage !== 'undefined' && successMessage) { %>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+          <i class="fas fa-check-circle"></i> <%= successMessage %>
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      <% } %>
+
+      <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+          <i class="fas fa-exclamation-triangle"></i> <%= errorMessage %>
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      <% } %>
+
+      <!-- Log Files -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <h5><i class="fas fa-folder-open"></i> Available Log Files</h5>
+        </div>
+        <div class="card-body">
+          <% if (logFiles && logFiles.length > 0) { %>
+            <div class="list-group">
+              <% logFiles.forEach(file => { %>
+                <a href="#" class="list-group-item list-group-item-action">
+                  <i class="fas fa-file"></i> <%= file %>
+                </a>
+              <% }); %>
+            </div>
+          <% } else { %>
+            <p class="text-muted">No log files found.</p>
+          <% } %>
+        </div>
+      </div>
+
+      <!-- Recent Logs -->
+      <div class="card">
+        <div class="card-header">
+          <h5><i class="fas fa-list"></i> Recent Log Entries (Last 100 lines)</h5>
+        </div>
+        <div class="card-body">
+          <pre style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; max-height: 600px; overflow-y: auto;"><%= logContent || 'No log content available' %></pre>
+        </div>
+      </div>
+
+      <div class="mt-3">
+        <button class="btn" style="background-color: var(--btn-primary-bg); color: var(--btn-primary-text); border-color: var(--btn-primary-border);" onclick="location.reload()">
+          <i class="fas fa-sync"></i> Refresh Logs
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('footer') %>

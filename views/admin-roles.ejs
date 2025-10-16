@@ -28,10 +28,10 @@
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <h5 class="mb-0">
-                                <span class="badge <%= role.isSystem ? 'bg-primary' : 'bg-secondary' %> me-2">
-                                    <%= role.isSystem ? 'System' : 'Custom' %>
+                                <span class="badge <%= role.issystem ? 'bg-primary' : 'bg-secondary' %> me-2">
+                                    <%= role.issystem ? 'System' : 'Custom' %>
                                 </span>
-                                <%= role.displayName %>
+                                <%= role.displayname %>
                             </h5>
                             <small class="text-muted"><%= role.name %></small>
                         </div>
@@ -39,39 +39,29 @@
                             <form class="role-form" data-role="<%= role.name %>">
                                 <div class="mb-3">
                                     <label class="form-label">Display Name</label>
-                                    <input type="text" class="form-control" name="displayName" 
-                                           value="<%= role.displayName %>" <%= role.isSystem ? 'readonly' : '' %>>
+                                    <input type="text" class="form-control" name="displayName"
+                                           value="<%= role.displayname %>" <%= role.issystem ? 'readonly' : '' %>>
                                 </div>
-                                
+
                                 <div class="mb-3">
                                     <label class="form-label">Description</label>
-                                    <textarea class="form-control" name="description" rows="2" 
-                                              <%= role.isSystem ? 'readonly' : '' %>><%= role.description %></textarea>
+                                    <textarea class="form-control" name="description" rows="2"
+                                              <%= role.issystem ? 'readonly' : '' %>><%= role.description %></textarea>
                                 </div>
                                 
-                                <div class="mb-3">
-                                    <label class="form-label">Permissions</label>
-                                    <div class="permissions-grid" style="max-height: 200px; overflow-y: auto;">
-                                        <% permissions.forEach(perm => { %>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" 
-                                                   name="permissions" value="<%= perm.key %>"
-                                                   id="<%= role.name %>_<%= perm.key %>"
-                                                   <%= role.permissions.includes(perm.key) ? 'checked' : '' %>>
-                                            <label class="form-check-label" for="<%= role.name %>_<%= perm.key %>">
-                                                <code><%= perm.key %></code>
-                                                <small class="text-muted d-block"><%= perm.description %></small>
-                                            </label>
-                                        </div>
-                                        <% }); %>
-                                    </div>
+                                <div class="alert alert-info">
+                                    <small>
+                                        <i class="fas fa-info-circle"></i>
+                                        Permissions are managed through Access Policies, not directly on roles.
+                                        Visit the Policies page to configure role-based permissions.
+                                    </small>
                                 </div>
-                                
+
                                 <div class="d-flex justify-content-between">
                                     <button type="submit" class="btn" style="background-color: var(--btn-primary-bg); color: var(--btn-primary-text); border-color: var(--btn-primary-border);">
                                         <i class="fas fa-save"></i> Update Role
                                     </button>
-                                    <% if (!role.isSystem) { %>
+                                    <% if (!role.issystem) { %>
                                     <button type="button" class="btn btn-sm" style="background-color: var(--btn-outline-danger-bg); color: var(--btn-outline-danger-text); border-color: var(--btn-outline-danger-border);" 
                                             onclick="deleteRole('<%= role.name %>')">
                                         <i class="fas fa-trash"></i> Delete
@@ -82,9 +72,13 @@
                         </div>
                         <div class="card-footer">
                             <small class="text-muted">
-                                <strong><%= role.permissions.length %></strong> permissions assigned
-                                <% if (role.lastModified) { %>
-                                | Last modified: <%= new Date(role.lastModified).toLocaleDateString() %>
+                                <% if (role.issystem) { %>
+                                    System Role
+                                <% } else { %>
+                                    Custom Role
+                                <% } %>
+                                <% if (role.lastmodified) { %>
+                                | Last modified: <%= new Date(role.lastmodified).toLocaleDateString() %>
                                 <% } %>
                             </small>
                         </div>

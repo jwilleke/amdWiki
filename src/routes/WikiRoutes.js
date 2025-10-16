@@ -3555,6 +3555,116 @@ class WikiRoutes {
   }
 
   /**
+   * Restart the system (PM2)
+   */
+  async adminRestart(req, res) {
+    try {
+      const userManager = this.engine.getManager("UserManager");
+      const currentUser = req.userContext;
+
+      if (
+        !currentUser ||
+        !(await userManager.hasPermission(currentUser.username, "admin:system"))
+      ) {
+        return res.status(403).json({
+          success: false,
+          error: "You do not have permission to restart the system"
+        });
+      }
+
+      const { exec } = require('child_process');
+      const logger = require('../utils/logger');
+
+      logger.info(`System restart requested by: ${currentUser.username}`);
+
+      // Execute pm2 restart command
+      exec('pm2 restart amdWiki', (error, stdout, stderr) => {
+        if (error) {
+          logger.error(`Restart error: ${error.message}`);
+          return;
+        }
+        if (stderr) {
+          logger.error(`Restart stderr: ${stderr}`);
+        }
+        logger.info(`Restart output: ${stdout}`);
+      });
+
+      // Send response immediately before restart
+      res.json({
+        success: true,
+        message: 'System is restarting...'
+      });
+    } catch (err) {
+      console.error("Error restarting system:", err);
+      res.status(500).json({
+        success: false,
+        error: "Error restarting system"
+      });
+    }
+  }
+
+  /**
+   * Admin logs page
+   */
+  async adminLogs(req, res) {
+    try {
+      const userManager = this.engine.getManager("UserManager");
+      const currentUser = req.userContext;
+
+      if (
+        !currentUser ||
+        !(await userManager.hasPermission(currentUser.username, "admin:system"))
+      ) {
+        return await this.renderError(
+          req,
+          res,
+          403,
+          "Access Denied",
+          "You do not have permission to access system logs"
+        );
+      }
+
+      const commonData = await this.getCommonTemplateData(req);
+      const fs = require('fs-extra');
+      const path = require('path');
+
+      // Read recent logs
+      const logDir = './logs';
+      let logContent = '';
+      let logFiles = [];
+
+      try {
+        if (await fs.pathExists(logDir)) {
+          logFiles = await fs.readdir(logDir);
+          logFiles = logFiles.filter(f => f.endsWith('.log')).sort().reverse();
+
+          if (logFiles.length > 0) {
+            const latestLog = path.join(logDir, logFiles[0]);
+            const content = await fs.readFile(latestLog, 'utf8');
+            // Get last 100 lines
+            const lines = content.split('\n');
+            logContent = lines.slice(-100).join('\n');
+          }
+        }
+      } catch (err) {
+        console.error('Error reading logs:', err);
+        logContent = 'Error reading log files';
+      }
+
+      res.render("admin-logs", {
+        ...commonData,
+        title: "System Logs",
+        logFiles,
+        logContent,
+        csrfToken: req.session.csrfToken
+      });
+    } catch (err) {
+      console.error("Error loading admin logs:", err);
+      res.status(500).send("Error loading system logs");
+    }
+  }
+
+  /**
    * Get raw page source (markdown content) for viewing/copying
    */
   async getPageSource(req, res) {
@@ -4022,6 +4132,9 @@ class WikiRoutes {
     app.delete("/admin/roles/:role", (req, res) =>
       this.adminDeleteRole(req, res)
     );
+    app.get("/admin/settings", (req, res) => this.adminSettings(req, res));
+    app.get("/admin/logs", (req, res) => this.adminLogs(req, res));
+    app.post("/admin/restart", (req, res) => this.adminRestart(req, res));
 
     // Image upload route with error handling
     app.post("/images/upload", (req, res) => {

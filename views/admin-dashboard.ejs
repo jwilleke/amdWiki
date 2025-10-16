@@ -289,10 +289,33 @@
 </div>
 
 <script>
-function confirmRestart() {
-    if (confirm('Are you sure you want to restart the system? This will temporarily interrupt service.')) {
-        // Add restart functionality here
-        alert('Restart functionality would be implemented here.');
+async function confirmRestart() {
+    if (!confirm('Are you sure you want to restart the system? This will temporarily interrupt service.')) {
+        return;
+    }
+
+    try {
+        const response = await fetch('/admin/restart', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            alert('System is restarting. The page will reload in a few seconds...');
+            // Wait for restart and reload
+            setTimeout(() => {
+                window.location.reload();
+            }, 5000);
+        } else {
+            alert('Error restarting system: ' + (result.error || 'Unknown error'));
+        }
+    } catch (error) {
+        console.error('Restart error:', error);
+        alert('Error restarting system: ' + error.message);
     }
 }
 

@@ -238,6 +238,32 @@ class VariableManager extends BaseManager {
       return match; // Return original string if no handler is found
     });
   }
+
+  /**
+   * Get debug information about registered variables
+   * @returns {Object} Debug information including system and contextual variables
+   */
+  getDebugInfo() {
+    const variables = Array.from(this.variableHandlers.keys());
+
+    // Categorize variables
+    const systemVariables = variables.filter(v =>
+      ['appname', 'applicationname', 'version', 'baseurl', 'uptime', 'totalpages'].includes(v)
+    );
+
+    const contextualVariables = variables.filter(v =>
+      ['pagename', 'username', 'loginstatus', 'userroles', 'displayname',
+       'useragent', 'browser', 'clientip', 'referer', 'sessionid', 'acceptlanguage',
+       'date', 'time', 'timestamp', 'year', 'month', 'day'].includes(v)
+    );
+
+    return {
+      totalVariables: variables.length,
+      systemVariables,
+      contextualVariables,
+      allVariables: variables
+    };
+  }
 }
 
 module.exports = VariableManager;
