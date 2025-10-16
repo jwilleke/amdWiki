@@ -1405,6 +1405,14 @@ class WikiRoutes {
       console.log(`💾 Request body keys: ${Object.keys(req.body).join(', ')}`);
       const { content, title, categories, userKeywords } = req.body;
 
+      // Create WikiContext as single source of truth for this operation
+      const wikiContext = this.createWikiContext(req, {
+        context: WikiContext.CONTEXT.EDIT,
+        pageName: pageName,
+        content: content,
+        response: res
+      });
+
       const pageManager = this.engine.getManager("PageManager");
       const renderingManager = this.engine.getManager("RenderingManager");
       const searchManager = this.engine.getManager("SearchManager");
@@ -1412,8 +1420,8 @@ class WikiRoutes {
       const aclManager = this.engine.getManager("ACLManager");
       const validationManager = this.engine.getManager("ValidationManager");
 
-      // Get current user
-      const currentUser = req.userContext;
+      // Get user context from WikiContext (single source of truth)
+      const currentUser = wikiContext.userContext;
 
       // Get existing page data for ACL checking
       const existingPage = await pageManager.getPage(pageName);
@@ -1452,6 +1460,7 @@ class WikiRoutes {
         title: title || pageName,
         "system-category": systemCategory,
         "user-keywords": userKeywordsArray,
+        author: currentUser?.username || 'anonymous'  // Add author for versioning
       };
       if (existingPage && existingPage.metadata && existingPage.metadata.uuid) {
         baseMetadata.uuid = existingPage.metadata.uuid;
@@ -1507,6 +1516,8 @@ class WikiRoutes {
       }
 
       // Save the page
+      // TODO: Refactor PageManager.savePage() to accept WikiContext instead of individual parameters
+      // For now, metadata includes author from wikiContext.userContext
       await pageManager.savePage(pageName, content, metadata);
 
       // Rebuild link graph and search index
@@ -4605,6 +4616,29 @@ class WikiRoutes {
       // Get filesystem filename from page.filePath (path is already imported at top of file)
       const filesystemName = page.filePath ? path.basename(page.filePath) : null;
 
+      // Get version information if versioning is enabled
+      let versionInfo = null;
+      try {
+        const provider = pageManager.provider;
+        if (typeof provider.getVersionHistory === 'function') {
+          const versions = await provider.getVersionHistory(pageName);
+          if (versions && versions.length > 0) {
+            const currentVersion = versions[0]; // Most recent version is first
+            versionInfo = {
+              currentVersion: currentVersion.version,
+              totalVersions: versions.length,
+              lastAuthor: currentVersion.author,
+              lastModified: currentVersion.dateCreated,
+              changeType: currentVersion.changeType,
+              comment: currentVersion.comment
+            };
+          }
+        }
+      } catch (error) {
+        // Versioning not available or failed - continue without it
+        console.log('Version info not available:', error.message);
+      }
+
       // Format the metadata for user-friendly display
       const formattedMetadata = {
         // Basic page info
@@ -4624,7 +4658,7 @@ class WikiRoutes {
 
         // Timestamps
         created: fileStats?.created || null,
-        lastModified: metadata.lastModified || fileStats?.modified || null,
+        lastModified: versionInfo?.lastModified || metadata.lastModified || fileStats?.modified || null,
         lastAccessed: fileStats?.accessed || null,
 
         // Content statistics
@@ -4635,10 +4669,11 @@ class WikiRoutes {
           fileSize: fileStats?.size || null,
         },
 
-        // Additional metadata
-        author: metadata.author || null,
+        // Additional metadata - enhanced with version info
+        author: versionInfo?.lastAuthor || metadata.author || null,
         description: metadata.description || null,
-        version: metadata.version || null,
+        version: versionInfo ? `v${versionInfo.currentVersion} of ${versionInfo.totalVersions}` : metadata.version || null,
+        versionInfo: versionInfo, // Include full version info for advanced use
         status: metadata.status || "published",
 
         // Schema.org data if present

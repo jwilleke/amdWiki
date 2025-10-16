@@ -196,6 +196,41 @@ res.render('template-name', {
 - ✅ Pass WikiContext to plugins, parsers, and handlers
 - ✅ Use appropriate context type for the operation
 
+**Migration Strategy:**
+
+The codebase is gradually being refactored to use WikiContext everywhere:
+
+1. **Route Handlers** (In Progress) - Create WikiContext at the start of each handler
+2. **Template Rendering** (Done) - Extract template data from WikiContext
+3. **Manager Methods** (Future) - Update manager signatures to accept WikiContext
+4. **Provider Methods** (Future) - Update provider signatures to accept WikiContext
+
+Example of current hybrid approach:
+```javascript
+async savePage(req, res) {
+  // Create WikiContext (single source of truth)
+  const wikiContext = this.createWikiContext(req, {
+    context: WikiContext.CONTEXT.EDIT,
+    pageName: pageName,
+    content: content
+  });
+
+  // Extract user info from context
+  const currentUser = wikiContext.userContext;
+
+  // Prepare metadata with author from context
+  const metadata = {
+    ...otherMetadata,
+    author: currentUser?.username || 'anonymous'
+  };
+
+  // TODO: Eventually this should be: pageManager.savePage(wikiContext, metadata)
+  await pageManager.savePage(pageName, content, metadata);
+}
+```
+
+When refactoring existing code, add TODO comments indicating where WikiContext should be used.
+
 ## 📦 Key Dependencies
 
 ### Versioning & Storage Libraries
@@ -492,6 +527,7 @@ Jest configuration excludes test files from coverage:
 ```
 
 View coverage report:
+
 ```bash
 npm run test:coverage
 # Open: coverage/lcov-report/index.html
