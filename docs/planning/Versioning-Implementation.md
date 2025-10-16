@@ -97,28 +97,23 @@ VersioningFileProvider maintains current page storage locations and adds version
   ├── {uuid}.md                (current page content with frontmatter)
   └── versions/                (version history stored alongside pages)
       └── {uuid}/
-          ├── manifest.json    (version history index for this page)
+          ├── manifest.json    (SINGLE SOURCE OF TRUTH for all version metadata)
           ├── v1/
-          │   ├── content.md   (full content for v1)
-          │   └── meta.json    (metadata snapshot)
+          │   └── content.md   (full content for v1)
           ├── v2/
-          │   ├── content.diff (delta from v1 if deltastorage:true)
-          │   └── meta.json
+          │   └── content.diff (delta from v1 if deltastorage:true)
           └── v3/
-              ├── content.diff (delta from v2 if deltastorage:true)
-              └── meta.json
+              └── content.diff (delta from v2 if deltastorage:true)
 
 ./required-pages/              (stays in current location - NOT moved)
   ├── {uuid}.md                (current required page content)
   └── versions/                (version history for required pages)
       └── {uuid}/
-          ├── manifest.json
+          ├── manifest.json    (SINGLE SOURCE OF TRUTH for all version metadata)
           ├── v1/
-          │   ├── content.md
-          │   └── meta.json
+          │   └── content.md
           └── v2/
-              ├── content.diff
-              └── meta.json
+              └── content.diff
 ```
 
 **Design Rationale:**
@@ -127,6 +122,7 @@ VersioningFileProvider maintains current page storage locations and adds version
 - **Minimal migration**: Pages stay in current locations, reducing migration complexity
 - **Delta storage**: v1 stores full content, v2+ stores diffs (saves disk space)
 - **Scalability**: Nested version folders scale to thousands of versions per page
+- **Single source of truth**: All version metadata (author, date, hash, etc.) stored ONLY in `manifest.json` to prevent inconsistency. Individual v{N}/meta.json files are NOT used.
 
 ## Missing Metadata Fields 
 

@@ -20,16 +20,19 @@ const VersionCompression = require('../utils/VersionCompression');
  *
  * Directory Structure:
  * ```
- * ./data/page-index.json
- * ./pages/{uuid}.md
+ * ./data/page-index.json              # Centralized index for fast lookups
+ * ./pages/{uuid}.md                    # Current version of page
  * ./pages/versions/{uuid}/
- *   ├── manifest.json
- *   ├── v1/content.md (full)
- *   ├── v2/content.diff (delta)
- *   └── v3/content.diff (delta)
+ *   ├── manifest.json                  # Single source of truth for all version metadata
+ *   ├── v1/content.md                  # Full content (baseline)
+ *   ├── v2/content.diff                # Delta from v1
+ *   └── v3/content.diff                # Delta from v2
  * ./required-pages/{uuid}.md
- * ./required-pages/versions/{uuid}/...
+ * ./required-pages/versions/{uuid}/... # Same structure for system pages
  * ```
+ *
+ * Note: Version metadata (author, date, hash, etc.) is stored ONLY in manifest.json
+ *       to avoid data inconsistency. Individual v{N}/meta.json files are no longer used.
  *
  * @extends FileSystemProvider
  */
@@ -575,8 +578,9 @@ class VersioningFileProvider extends FileSystemProvider {
     // Write full content for v1
     await fs.writeFile(path.join(v1Dir, 'content.md'), content, 'utf8');
 
-    // Write metadata
+    // Create version metadata (stored in manifest.json only - single source of truth)
     const versionMetadata = {
+      version: 1,
       dateCreated: new Date().toISOString(),
       author: metadata.author || 'unknown',
       changeType: 'created',
@@ -586,7 +590,6 @@ class VersioningFileProvider extends FileSystemProvider {
       compressed: false,
       isDelta: false
     };
-    await fs.writeFile(path.join(v1Dir, 'meta.json'), JSON.stringify(versionMetadata, null, 2), 'utf8');
 
     // Create and save manifest
     const manifest = this._createInitialManifest(uuid, pageName);
@@ -686,10 +689,8 @@ class VersioningFileProvider extends FileSystemProvider {
       }
     }
 
-    // Save metadata
-    await fs.writeFile(path.join(vNextDir, 'meta.json'), JSON.stringify(versionMetadata, null, 2), 'utf8');
-
-    // Update manifest
+    // Update manifest (single source of truth for metadata)
+    // Note: No longer writing individual v{N}/meta.json files
     this._addVersionToManifest(manifest, versionMetadata);
     await this._saveManifest(uuid, location, manifest);
 
