@@ -5071,6 +5071,8 @@ class WikiRoutes {
   async pageHistory(req, res) {
     try {
       const pageName = decodeURIComponent(req.params.page);
+      logger.info(`[pageHistory] Request for page: "${pageName}"`);
+
       const pageManager = this.engine.getManager('PageManager');
 
       // Create WikiContext for this request
@@ -5110,9 +5112,12 @@ class WikiRoutes {
 
       // Get page info
       const pageInfo = await pageManager.getPage(pageName);
+      logger.info(`[pageHistory] Page info - UUID: ${pageInfo.uuid}, Title: ${pageInfo.title}`);
 
       // Get version history
+      logger.info(`[pageHistory] Fetching version history for: "${pageName}"`);
       const versions = await provider.getVersionHistory(pageName);
+      logger.info(`[pageHistory] Found ${versions.length} versions`);
 
       // Get template data from WikiContext
       const templateData = this.getTemplateDataFromContext(wikiContext);
