@@ -49,10 +49,16 @@ docs/
 ```bash
 data/                      # Application runtime data (gitignored)
 ├── notifications.json     # Notification persistence data
+├── page-index.json        # Versioning page index
+├── sessions/              # Session storage (file-based sessions)
+└── attachments/           # Attachment metadata and storage
 
 logs/                      # Application logs (gitignored)
-├── app.log               # Main application log
-└── server.log            # Server-specific logs
+├── app.log               # Winston application logs (detailed operations)
+├── pm2-out.log           # PM2 stdout (console output)
+├── pm2-error.log         # PM2 stderr (runtime errors)
+├── pm2-combined.log      # PM2 combined logs
+└── audit.log             # Security/audit events
 
 pages/                     # User-generated wiki pages (gitignored)
 ├── *.md                  # Individual wiki pages

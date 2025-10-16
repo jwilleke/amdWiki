@@ -57,6 +57,48 @@ class WikiRoutes {
   }
 
   /**
+   * Create a WikiContext for the given request and page
+   * This should be the single source of truth for all context information
+   * @param {object} req - Express request object
+   * @param {object} options - Additional context options (pageName, content, context type)
+   * @returns {WikiContext} WikiContext instance
+   */
+  createWikiContext(req, options = {}) {
+    return new WikiContext(this.engine, {
+      context: options.context || WikiContext.CONTEXT.NONE,
+      pageName: options.pageName || null,
+      content: options.content || null,
+      userContext: req.userContext,
+      request: req,
+      response: options.response || null
+    });
+  }
+
+  /**
+   * Extract template data from WikiContext
+   * This ensures all templates get consistent data structure
+   * @param {WikiContext} wikiContext - The wiki context
+   * @returns {object} Template data object
+   */
+  getTemplateDataFromContext(wikiContext) {
+    return {
+      // User context (both names for compatibility)
+      currentUser: wikiContext.userContext,
+      userContext: wikiContext.userContext,
+      user: wikiContext.userContext,
+
+      // Page context
+      pageName: wikiContext.pageName,
+
+      // WikiContext itself for advanced usage
+      wikiContext: wikiContext,
+
+      // Engine reference
+      engine: wikiContext.engine
+    };
+  }
+
+  /**
    * Parse file size string (e.g., '5MB', '1GB') to bytes
    * @param {string} sizeStr - Size string
    * @returns {number} Size in bytes
@@ -4996,10 +5038,18 @@ class WikiRoutes {
       const pageName = decodeURIComponent(req.params.page);
       const pageManager = this.engine.getManager('PageManager');
 
+      // Create WikiContext for this request
+      const wikiContext = this.createWikiContext(req, {
+        context: WikiContext.CONTEXT.INFO,
+        pageName: pageName,
+        response: res
+      });
+
       if (!pageManager) {
+        const templateData = this.getTemplateDataFromContext(wikiContext);
         return res.status(500).render('error', {
-          message: 'PageManager not available',
-          userContext: req.userContext
+          ...templateData,
+          message: 'PageManager not available'
         });
       }
 
@@ -5007,17 +5057,19 @@ class WikiRoutes {
 
       // Check if provider supports versioning
       if (typeof provider.getVersionHistory !== 'function') {
+        const templateData = this.getTemplateDataFromContext(wikiContext);
         return res.status(501).render('error', {
-          message: 'Page versioning is not enabled. Please configure VersioningFileProvider.',
-          userContext: req.userContext
+          ...templateData,
+          message: 'Page versioning is not enabled. Please configure VersioningFileProvider.'
         });
       }
 
       // Check if page exists
       if (!pageManager.pageExists(pageName)) {
+        const templateData = this.getTemplateDataFromContext(wikiContext);
         return res.status(404).render('error', {
-          message: `Page "${pageName}" not found`,
-          userContext: req.userContext
+          ...templateData,
+          message: `Page "${pageName}" not found`
         });
       }
 
@@ -5027,20 +5079,24 @@ class WikiRoutes {
       // Get version history
       const versions = await provider.getVersionHistory(pageName);
 
+      // Get template data from WikiContext
+      const templateData = this.getTemplateDataFromContext(wikiContext);
+
       res.render('page-history', {
-        pageName: pageName,
+        ...templateData,
         pageUuid: pageInfo.uuid,
         versions: versions,
-        versionCount: versions.length,
-        userContext: req.userContext
+        versionCount: versions.length
       });
 
     } catch (error) {
       logger.error(`Error rendering page history: ${error.message}`);
+      const wikiContext = this.createWikiContext(req, { response: res });
+      const templateData = this.getTemplateDataFromContext(wikiContext);
       res.status(500).render('error', {
+        ...templateData,
         message: 'Error loading page history',
-        error: error.message,
-        userContext: req.userContext
+        error: error.message
       });
     }
   }
@@ -5055,19 +5111,28 @@ class WikiRoutes {
       const v1 = parseInt(req.query.v1);
       const v2 = parseInt(req.query.v2);
 
+      // Create WikiContext for this request
+      const wikiContext = this.createWikiContext(req, {
+        context: WikiContext.CONTEXT.DIFF,
+        pageName: pageName,
+        response: res
+      });
+
       if (isNaN(v1) || isNaN(v2) || v1 < 1 || v2 < 1) {
+        const templateData = this.getTemplateDataFromContext(wikiContext);
         return res.status(400).render('error', {
-          message: 'Invalid version numbers. Please provide valid v1 and v2 parameters.',
-          userContext: req.userContext
+          ...templateData,
+          message: 'Invalid version numbers. Please provide valid v1 and v2 parameters.'
         });
       }
 
       const pageManager = this.engine.getManager('PageManager');
 
       if (!pageManager) {
+        const templateData = this.getTemplateDataFromContext(wikiContext);
         return res.status(500).render('error', {
-          message: 'PageManager not available',
-          userContext: req.userContext
+          ...templateData,
+          message: 'PageManager not available'
         });
       }
 
@@ -5075,17 +5140,19 @@ class WikiRoutes {
 
       // Check if provider supports versioning
       if (typeof provider.compareVersions !== 'function') {
+        const templateData = this.getTemplateDataFromContext(wikiContext);
         return res.status(501).render('error', {
-          message: 'Page versioning is not enabled. Please configure VersioningFileProvider.',
-          userContext: req.userContext
+          ...templateData,
+          message: 'Page versioning is not enabled. Please configure VersioningFileProvider.'
         });
       }
 
       // Check if page exists
       if (!pageManager.pageExists(pageName)) {
+        const templateData = this.getTemplateDataFromContext(wikiContext);
         return res.status(404).render('error', {
-          message: `Page "${pageName}" not found`,
-          userContext: req.userContext
+          ...templateData,
+          message: `Page "${pageName}" not found`
         });
       }
 
@@ -5095,22 +5162,26 @@ class WikiRoutes {
       // Compare versions
       const comparison = await provider.compareVersions(pageName, v1, v2);
 
+      // Get template data from WikiContext
+      const templateData = this.getTemplateDataFromContext(wikiContext);
+
       res.render('page-diff', {
-        pageName: pageName,
+        ...templateData,
         pageUuid: pageInfo.uuid,
         version1: comparison.version1,
         version2: comparison.version2,
         diff: comparison.diff,
-        stats: comparison.stats,
-        userContext: req.userContext
+        stats: comparison.stats
       });
 
     } catch (error) {
       logger.error(`Error rendering page diff: ${error.message}`);
+      const wikiContext = this.createWikiContext(req, { response: res });
+      const templateData = this.getTemplateDataFromContext(wikiContext);
       res.status(500).render('error', {
+        ...templateData,
         message: 'Error comparing versions',
-        error: error.message,
-        userContext: req.userContext
+        error: error.message
       });
     }
   }
