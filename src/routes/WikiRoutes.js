@@ -5321,8 +5321,12 @@ class WikiRoutes {
       // Get template data from WikiContext
       const templateData = this.getTemplateDataFromContext(wikiContext);
 
+      // Get left menu content
+      const leftMenu = await this.getLeftMenu(wikiContext.userContext);
+
       res.render('page-diff', {
         ...templateData,
+        leftMenu,
         pageUuid: pageInfo.uuid,
         version1: comparison.version1,
         version2: comparison.version2,
