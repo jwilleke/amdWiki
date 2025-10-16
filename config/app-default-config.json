@@ -431,7 +431,7 @@
       "label": "documentation",
       "description": "User and technical documentation",
       "default": false,
-      "storageLocation": "regular",
+      "storageLocation": "required",
       "enabled": true
     },
     "user": {

@@ -1,0 +1,19 @@
+{
+  "pageId": "357a1552-84cd-469a-bf50-d34ff77fd6a0",
+  "pageName": "System Variables",
+  "currentVersion": 1,
+  "versions": [
+    {
+      "version": 1,
+      "dateCreated": "2025-10-16T14:53:45.134Z",
+      "author": "jim",
+      "changeType": "updated",
+      "comment": "Update to version 1",
+      "contentHash": "1c8cf729bd6ee1c65dc3fdad062b738433f4aba46a68ba288186b03f82d4229f",
+      "contentSize": 613,
+      "compressed": false,
+      "isDelta": false,
+      "isCheckpoint": false
+    }
+  ]
+}
