@@ -423,13 +423,6 @@
       "storageLocation": "required",
       "enabled": true
     },
-    "system-admin": {
-      "label": "system/Admin",
-      "description": "Administrative system pages",
-      "default": false,
-      "storageLocation": "required",
-      "enabled": false
-    },
     "documentation": {
       "label": "documentation",
       "description": "User and technical documentation",
@@ -455,7 +448,7 @@
       "label": "developer",
       "description": "Developer documentation and technical notes",
       "default": false,
-      "storageLocation": "regular",
+      "storageLocation": "required",
       "enabled": true
     }
   },

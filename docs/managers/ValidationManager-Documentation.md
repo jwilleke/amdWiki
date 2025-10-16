@@ -54,8 +54,7 @@ System categories are now configurable via `app-default-config.json` under `amdw
 
 **Default System Categories:**
 - `general` - General wiki pages (default, regular storage)
-- `system` - System configuration pages (required storage)
-- `system-admin` - Administrative system pages (required storage)
+- `system` - System configuration and administrative pages (required storage)
 - `documentation` - User documentation (regular storage)
 - `user` - User-generated content (regular storage)
 - `test` - Testing pages (regular storage)
