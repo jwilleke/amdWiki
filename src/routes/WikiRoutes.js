@@ -837,9 +837,15 @@ class WikiRoutes {
 
       // Pass the request object to get all common data
       const templateData = await this.getCommonTemplateData(req);
-      res.render("view", {
+
+      // Check if reader view is requested
+      const viewMode = req.query.view;
+      const template = viewMode === 'reader' ? 'reader' : 'view';
+
+      res.render(template, {
         ...templateData,
         pageName,
+        title: pageName, // For reader view template
         content: html,
         canEdit,
         metadata,
