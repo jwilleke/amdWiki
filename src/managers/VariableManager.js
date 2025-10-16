@@ -240,6 +240,31 @@ class VariableManager extends BaseManager {
   }
 
   /**
+   * Get the value of a specific variable
+   * @param {string} varName - The variable name (without brackets/dollar sign)
+   * @param {Object} context - Optional context for contextual variables
+   * @returns {string} The variable value
+   */
+  getVariable(varName, context = {}) {
+    const handler = this.variableHandlers.get(varName.toLowerCase().trim());
+    if (handler) {
+      try {
+        const result = handler(context);
+        // Handle async handlers
+        if (result instanceof Promise) {
+          logger.warn(`[VAR] Variable '${varName}' returned a Promise - returning placeholder`);
+          return '[Async]';
+        }
+        return result;
+      } catch (error) {
+        logger.error(`[VAR] Error getting variable '${varName}'`, { error });
+        return `[Error: ${error.message}]`;
+      }
+    }
+    return `[Unknown: ${varName}]`;
+  }
+
+  /**
    * Get debug information about registered variables
    * @returns {Object} Debug information including system and contextual variables
    */
