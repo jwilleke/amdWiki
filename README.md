@@ -22,6 +22,12 @@ A simple, file-based wiki application built with Node.js, Express, and Markdown 
 - **Admin Dashboard**: Full administrative interface for user management and system monitoring
 - **WikiDocument DOM Architecture**: Robust, JSPWiki-inspired parsing engine with DOM-based processing
 - **Conflict-Free Parsing**: JSPWiki syntax and Markdown coexist without interference
+- **📚 Page Version History**: Complete version control with diff comparison and restore capabilities
+  - View all previous versions of any page
+  - Compare versions side-by-side or unified diff
+  - Restore to any previous version
+  - Automatic delta storage for efficiency
+  - Full version metadata tracking
 
 📖 **Detailed technical documentation available in [docs/](docs/) folder.**
 
