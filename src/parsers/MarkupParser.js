@@ -1507,8 +1507,9 @@ class MarkupParser extends BaseManager {
     // Matches: [HomePage], [Click Here|HomePage]
     // Does NOT match: [text](url) - markdown links (negative lookahead)
     // Does NOT match: [}] (malformed)
+    // Does NOT match: [^id] - markdown footnote references
     // Note: This runs last to avoid conflicts with escaped/variable/plugin syntax
-    sanitized = sanitized.replace(/\[([^\]\[\{][^\]]*)\](?!\()/g, (match, target) => {
+    sanitized = sanitized.replace(/\[([^\]\[\{\^][^\]]*)\](?!\()/g, (match, target) => {
       jspwikiElements.push({
         type: 'link',
         syntax: match,

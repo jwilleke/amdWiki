@@ -1,6 +1,8 @@
 const BaseManager = require('./BaseManager');
 const logger = require('../utils/logger');
 const showdown = require('showdown');
+// Using fixed version of showdown-footnotes with global flag for all references
+const showdownFootnotes = require('../extensions/showdown-footnotes-fixed');
 const { LinkParser } = require('../parsers/LinkParser');
 const PageNameMatcher = require('../utils/PageNameMatcher');
 
@@ -86,7 +88,8 @@ class RenderingManager extends BaseManager {
       backslashEscapesHTMLTags: true,
       disableForced4SpacesIndentedSublists: true,  // Allow 2-space indented sublists
       literalMidWordUnderscores: true,              // Better underscore handling
-      ghCodeBlocks: true                            // GitHub-style code blocks
+      ghCodeBlocks: true,                           // GitHub-style code blocks
+      extensions: [showdownFootnotes]               // GitHub Flavored Markdown footnotes support
     });
     
     // Build initial link graph

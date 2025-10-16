@@ -23,7 +23,8 @@ class LinkParserHandler extends BaseSyntaxHandler {
   constructor(engine = null) {
     super(
       // Use LinkParser's regex pattern - matches all supported link types
-      /\[([^\|\]]+)(?:\|([^\|\]]+))?(?:\|([^\]]+))?\](?!\()/g,
+      // Excludes markdown footnote syntax [^id] by using negative lookahead (?!\^)
+      /\[(?!\^)([^\|\]]+)(?:\|([^\|\]]+))?(?:\|([^\]]+))?\](?!\()/g,
       60, // Medium-high priority - process links after most syntax but before markdown
       {
         description: 'Unified link processor using centralized LinkParser for all link types',
