@@ -89,8 +89,7 @@ npm run stop  # or: pm2 stop amdwiki
 
 # Create backup
 cd /path/to/amdwiki
-tar -czf backup-before-versioning-$(date +%Y%m%d).tar.gz \
-  pages/ required-pages/ data/ config/
+tar -czf backup-before-versioning-$(date +%Y%m%d).tar.gz pages/ required-pages/ data/ config/
 
 # Verify backup
 tar -tzf backup-before-versioning-*.tar.gz | head
@@ -125,7 +124,7 @@ Edit `config/app-custom-config.json`:
 Start the wiki - it will automatically initialize versioning:
 
 ```bash
-npm start
+./server.sh start
 ```
 
 **What Happens**:
@@ -137,7 +136,14 @@ npm start
 
 **Monitor the logs**:
 ```bash
-tail -f logs/wiki.log
+# Application logs (recommended - detailed Winston logs)
+tail -f logs/app.log
+
+# Or PM2 console output
+tail -f logs/pm2-out.log
+
+# Or use the server script
+./server.sh logs
 ```
 
 Look for:
@@ -261,8 +267,11 @@ VersioningFileProvider automatically migrates existing pages on first startup.
 #### Monitor Migration
 
 ```bash
-# Watch logs during startup
-tail -f logs/wiki.log | grep Versioning
+# Watch logs during startup (application logs recommended)
+tail -f logs/app.log | grep Versioning
+
+# Or watch PM2 console output
+tail -f logs/pm2-out.log | grep Versioning
 
 # Check migration status
 ls -la data/page-index.json
@@ -518,7 +527,7 @@ find pages/versions -name "manifest.json" -exec jq '.currentVersion' {} \; | \
 Monitor logs for cache hits:
 
 ```bash
-grep "Version cache" logs/wiki.log | tail -20
+grep "Version cache" logs/app.log | tail -20
 ```
 
 ### Health Checks
@@ -774,7 +783,7 @@ Enable verbose logging:
 
 View logs:
 ```bash
-tail -f logs/wiki.log | grep -E "Versioning|Provider"
+tail -f logs/app.log | grep -E "Versioning|Provider"
 ```
 
 ---
@@ -874,7 +883,7 @@ To re-enable versioning:
 
 ### Getting Help
 
-1. Check logs: `logs/wiki.log`
+1. Check logs: `logs/app.log` (application logs) or `./server.sh logs` (PM2 logs)
 2. Review documentation
 3. Run analytics: `npm run maintain:analyze`
 4. Check GitHub issues

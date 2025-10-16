@@ -43,7 +43,8 @@ case "${1:-}" in
   start)
     echo "🚀 Starting amdWiki in $ENV_NAME mode..."
     echo "   Config: config/app-$ENV_NAME-config.json"
-    pm2 start npm --name "amdWiki" -- run "$NPM_SCRIPT"
+    echo "   Logs: ./logs/"
+    pm2 start ecosystem.config.js --env $ENV_NAME
     ;;
 
   stop)
@@ -55,7 +56,7 @@ case "${1:-}" in
     echo "🔄 Restarting amdWiki..."
     if [ -n "$ENV_ARG" ]; then
       echo "   Environment: $ENV_NAME"
-      pm2 restart amdWiki --update-env
+      pm2 restart ecosystem.config.js --env $ENV_NAME --update-env
     else
       pm2 restart amdWiki
     fi

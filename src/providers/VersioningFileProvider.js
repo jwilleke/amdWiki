@@ -183,6 +183,7 @@ class VersioningFileProvider extends FileSystemProvider {
 
   /**
    * Load existing page index or create new one
+   * If index is empty but pages exist, auto-migrate them
    * @private
    */
   async _loadOrCreatePageIndex() {
@@ -198,6 +199,18 @@ class VersioningFileProvider extends FileSystemProvider {
     } else {
       logger.info('[VersioningFileProvider] No page index found, creating new');
       await this._createEmptyPageIndex();
+    }
+
+    // Auto-migrate if index is empty but pages exist
+    if (this.pageIndex.pageCount === 0 && this.pageCache && this.pageCache.size > 0) {
+      logger.info(`[VersioningFileProvider] Auto-migrating ${this.pageCache.size} existing pages...`);
+      await this._autoMigrateExistingPages();
+
+      // If still empty after migration, rebuild index from existing manifests
+      if (this.pageIndex.pageCount === 0) {
+        logger.info(`[VersioningFileProvider] Rebuilding page index from existing version manifests...`);
+        await this._rebuildPageIndexFromManifests();
+      }
     }
   }
 
@@ -226,6 +239,128 @@ class VersioningFileProvider extends FileSystemProvider {
     const tempPath = `${this.pageIndexPath}.tmp`;
     await fs.writeFile(tempPath, JSON.stringify(this.pageIndex, null, 2), 'utf8');
     await fs.rename(tempPath, this.pageIndexPath);
+  }
+
+  /**
+   * Auto-migrate existing pages to versioning
+   * Creates v1 for all pages that don't have versions yet
+   * @private
+   */
+  async _autoMigrateExistingPages() {
+    let migratedCount = 0;
+    let errorCount = 0;
+
+    for (const [uuid, pageData] of this.pageCache.entries()) {
+      try {
+        // Check if page already has versions
+        const versionDir = this._getVersionDirectory(uuid);
+        const manifestPath = path.join(versionDir, 'manifest.json');
+
+        if (await fs.pathExists(manifestPath)) {
+          logger.debug(`[VersioningFileProvider] Page ${pageData.title} already has versions, skipping`);
+          continue;
+        }
+
+        // Determine location (check which directory the page is in)
+        const pagesPath = path.join(this.pagesDirectory, `${uuid}.md`);
+        const requiredPath = path.join(this.requiredPagesDirectory, `${uuid}.md`);
+
+        let location = 'pages';
+        let pagePath = pagesPath;
+
+        if (await fs.pathExists(requiredPath)) {
+          location = 'required-pages';
+          pagePath = requiredPath;
+        }
+
+        // Read current page content
+        let content = '';
+        let metadata = {};
+
+        if (await fs.pathExists(pagePath)) {
+          const fileContent = await fs.readFile(pagePath, 'utf8');
+          const parsed = matter(fileContent);
+          content = parsed.content;
+          metadata = parsed.data;
+        }
+
+        // Create v1
+        await this._createInitialVersion(uuid, pageData.title, content, metadata, location);
+
+        // Update page index
+        await this._updatePageInIndex(uuid, {
+          title: pageData.title,
+          uuid: uuid,
+          currentVersion: 1,
+          location: location,
+          lastModified: new Date().toISOString(),
+          author: 'system',
+          hasVersions: true
+        });
+
+        migratedCount++;
+
+        if (migratedCount % 10 === 0) {
+          logger.info(`[VersioningFileProvider] Migrated ${migratedCount}/${this.pageCache.size} pages...`);
+        }
+      } catch (error) {
+        logger.error(`[VersioningFileProvider] Failed to migrate page ${pageData.title} (${uuid}): ${error.message}`);
+        logger.debug(error.stack);
+        errorCount++;
+      }
+    }
+
+    logger.info(`[VersioningFileProvider] Auto-migration complete: ${migratedCount} pages migrated, ${errorCount} errors`);
+  }
+
+  /**
+   * Rebuild page index from existing version manifests
+   * Used when index is lost but versions exist
+   * @private
+   */
+  async _rebuildPageIndexFromManifests() {
+    let rebuiltCount = 0;
+    let errorCount = 0;
+
+    for (const [uuid, pageData] of this.pageCache.entries()) {
+      try {
+        // Determine location
+        const pagesPath = path.join(this.pagesDirectory, `${uuid}.md`);
+        const requiredPath = path.join(this.requiredPagesDirectory, `${uuid}.md`);
+        const location = (await fs.pathExists(requiredPath)) ? 'required-pages' : 'pages';
+
+        // Load manifest
+        const versionDir = this._getVersionDirectory(uuid, location);
+        const manifestPath = path.join(versionDir, 'manifest.json');
+
+        if (await fs.pathExists(manifestPath)) {
+          const manifestData = await fs.readFile(manifestPath, 'utf8');
+          const manifest = JSON.parse(manifestData);
+
+          // Update page index
+          await this._updatePageInIndex(uuid, {
+            title: pageData.title,
+            uuid: uuid,
+            currentVersion: manifest.currentVersion,
+            location: location,
+            lastModified: manifest.lastModified || new Date().toISOString(),
+            author: manifest.author || 'unknown',
+            hasVersions: true
+          });
+
+          rebuiltCount++;
+
+          if (rebuiltCount % 10 === 0) {
+            logger.info(`[VersioningFileProvider] Rebuilt ${rebuiltCount}/${this.pageCache.size} index entries...`);
+          }
+        }
+      } catch (error) {
+        logger.error(`[VersioningFileProvider] Failed to rebuild index for ${pageData.title} (${uuid}): ${error.message}`);
+        errorCount++;
+      }
+    }
+
+    logger.info(`[VersioningFileProvider] Page index rebuild complete: ${rebuiltCount} entries rebuilt, ${errorCount} errors`);
   }
 
   /**

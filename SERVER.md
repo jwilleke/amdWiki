@@ -217,11 +217,12 @@ pm2 startup
 
 ## Server Logs Location
 
-- **PM2 Logs:** `~/.pm2/logs/`
-  - Output: `amdWiki-out.log`
-  - Errors: `amdWiki-error.log`
+All logs are now written to the `./logs/` directory:
 
-- **Application Logs:** `./logs/` (if configured)
+- **PM2 Console Output:** `./logs/pm2-out.log` - stdout from the application
+- **PM2 Errors:** `./logs/pm2-error.log` - stderr from the application
+- **PM2 Combined:** `./logs/pm2-combined.log` - combined output
+- **Application Logs:** `./logs/app.log` - Winston application logs
 
 ## PID Lock File
 
@@ -232,9 +233,12 @@ pm2 startup
 
 ## Log Locations Summary
 
-  | Type        | Location                         | Purpose                             |
-  |-------------|----------------------------------|-------------------------------------|
-  | PM2 Output  | ~/.pm2/logs/amdWiki-out.log      | Real-time stdout, startup messages  |
-  | PM2 Errors  | ~/.pm2/logs/amdWiki-error.log    | Real-time stderr, plugin errors     |
-  | Application | ./logs/app1.log, app2.log, etc.  | Winston logger, detailed operations |
-  | Audit       | ./logs/audit.log                 | Security/audit events               |
+All logs are centralized in the `./logs/` directory:
+
+  | Type        | Location                    | Purpose                             |
+  |-------------|-----------------------------|-------------------------------------|
+  | PM2 Output  | ./logs/pm2-out.log          | stdout, startup messages            |
+  | PM2 Errors  | ./logs/pm2-error.log        | stderr, runtime errors              |
+  | PM2 Combined| ./logs/pm2-combined.log     | Combined PM2 logs                   |
+  | Application | ./logs/app.log              | Winston logger, detailed operations |
+  | Audit       | ./logs/audit.log            | Security/audit events               |

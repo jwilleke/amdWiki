@@ -173,3 +173,6 @@ src/managers/__tests__/temp.test.js
 
 # Backup
 backups
+
+# Session storage
+data/sessions/

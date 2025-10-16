@@ -7,6 +7,7 @@ const path = require('path');
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
+const FileStore = require('session-file-store')(session);
 const fs = require('fs-extra');
 
 const logger = require('./src/utils/logger');
@@ -100,9 +101,18 @@ checkAndCreatePidLock();
   app.use(express.static(path.join(__dirname, 'public')));
   app.use(cookieParser());
 
-  // Setup express-session
+  // Setup express-session with file store
   const configManager = engine.getManager('ConfigurationManager');
+  const sessionPath = path.join(__dirname, 'data', 'sessions');
+  await fs.ensureDir(sessionPath);
+
   app.use(session({
+    store: new FileStore({
+      path: sessionPath,
+      ttl: configManager.getProperty('amdwiki.session.maxAge', 24 * 60 * 60 * 1000) / 1000, // Convert to seconds
+      retries: 0,
+      reapInterval: 3600 // Clean up expired sessions every hour
+    }),
     secret: configManager.getProperty('amdwiki.session.secret', 'amdwiki-session-secret-change-in-production'),
     resave: false,
     saveUninitialized: false,
