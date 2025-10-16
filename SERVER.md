@@ -62,21 +62,21 @@ amdWiki uses different configuration files based on the `NODE_ENV` environment v
 
 ### Starting with Different Environments
 
-**Method 1: Using `./server.sh` argument (recommended)**
+#### Method 1: Using `./server.sh` argument (recommended)**
 ```bash
 ./server.sh start dev          # Development mode
 ./server.sh start prod         # Production mode
 ./server.sh restart dev        # Restart in development mode
 ```
 
-**Method 2: Using NODE_ENV environment variable**
+#### Method 2: Using NODE_ENV environment variable**
 ```bash
 NODE_ENV=development ./server.sh start
 NODE_ENV=staging ./server.sh start
 NODE_ENV=production ./server.sh start
 ```
 
-**Method 3: Using npm scripts directly**
+#### Method 3: Using npm scripts directly**
 ```bash
 npm run start:dev              # Development
 npm run start:prod             # Production
@@ -90,7 +90,7 @@ npm start                      # Production (default)
 ```
 
 Output:
-```
+```text
 Current Environment Configuration:
   NODE_ENV: production
   Config file: config/app-production-config.json

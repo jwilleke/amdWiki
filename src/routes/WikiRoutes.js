@@ -772,6 +772,27 @@ class WikiRoutes {
       // Get page metadata for display
       const metadata = await pageManager.getPageMetadata(pageName);
 
+      // Get version information if versioning is enabled
+      let versionInfo = null;
+      const provider = pageManager.provider;
+      if (typeof provider.getVersionHistory === 'function') {
+        try {
+          const versions = await provider.getVersionHistory(pageName);
+          if (versions && versions.length > 0) {
+            const latestVersion = versions[0]; // Versions are returned newest first
+            versionInfo = {
+              currentVersion: latestVersion.version,
+              totalVersions: versions.length,
+              lastModified: latestVersion.dateCreated,
+              lastAuthor: latestVersion.author
+            };
+          }
+        } catch (error) {
+          // Silently fail if versioning not available for this page
+          logger.debug(`[VIEW] Could not get version info for ${pageName}: ${error.message}`);
+        }
+      }
+
       // Pass the request object to get all common data
       const templateData = await this.getCommonTemplateData(req);
       res.render("view", {
@@ -780,6 +801,7 @@ class WikiRoutes {
         content: html,
         canEdit,
         metadata,
+        versionInfo,
         lastModified: metadata?.lastModified,
         referringPages: [], // TODO: Implement backlink detection
       });
@@ -3868,6 +3890,21 @@ class WikiRoutes {
       this.getPageSuggestions(req, res)
     );
 
+    // Version management API routes (Phase 6)
+    console.log("ROUTES DEBUG: Registering version management API routes");
+    app.get("/api/page/:identifier/versions", (req, res) =>
+      this.getPageVersions(req, res)
+    );
+    app.get("/api/page/:identifier/version/:version", (req, res) =>
+      this.getPageVersion(req, res)
+    );
+    app.get("/api/page/:identifier/compare/:v1/:v2", (req, res) =>
+      this.comparePageVersions(req, res)
+    );
+    app.post("/api/page/:identifier/restore/:version", (req, res) =>
+      this.restorePageVersion(req, res)
+    );
+
     // Public routes
     app.get('/', (req, res) => this.homePage(req, res));
     app.get('/wiki/:page', (req, res) => this.viewPage(req, res));
@@ -3894,6 +3931,10 @@ class WikiRoutes {
     app.get('/exports', (req, res) => this.listExports(req, res));
     app.get('/download/:filename', (req, res) => this.downloadExport(req, res));
     app.delete('/deleteExport/:filename', (req, res) => this.deleteExport(req, res));
+
+    // Version management view routes (Phase 6)
+    app.get('/history/:page', (req, res) => this.pageHistory(req, res));
+    app.get('/diff/:page', (req, res) => this.pageDiff(req, res));
 
     // Admin routes
     app.get("/admin", (req, res) => this.adminDashboard(req, res));
@@ -4687,6 +4728,390 @@ class WikiRoutes {
     } catch (error) {
       console.error('Error getting page suggestions:', error);
       res.status(500).json({ error: 'Internal server error', details: error.message });
+    }
+  }
+
+  // ============================================================================
+  // Version Management API Handlers (Phase 6)
+  // ============================================================================
+
+  /**
+   * GET /api/page/:identifier/versions
+   * Get version history for a page
+   */
+  async getPageVersions(req, res) {
+    try {
+      const { identifier } = req.params;
+      const pageManager = this.engine.getManager('PageManager');
+
+      if (!pageManager) {
+        return res.status(500).json({ error: 'PageManager not available' });
+      }
+
+      const provider = pageManager.provider;
+
+      // Check if provider supports versioning
+      if (typeof provider.getVersionHistory !== 'function') {
+        return res.status(501).json({
+          error: 'Versioning not supported',
+          message: 'Current page provider does not support version history'
+        });
+      }
+
+      // Get version history
+      const versions = await provider.getVersionHistory(identifier);
+
+      res.json({
+        success: true,
+        identifier: identifier,
+        versionCount: versions.length,
+        versions: versions
+      });
+
+    } catch (error) {
+      logger.error(`Error getting page versions: ${error.message}`);
+
+      if (error.message.includes('not found')) {
+        return res.status(404).json({
+          error: 'Page not found',
+          message: error.message
+        });
+      }
+
+      res.status(500).json({
+        error: 'Internal server error',
+        details: error.message
+      });
+    }
+  }
+
+  /**
+   * GET /api/page/:identifier/version/:version
+   * Get specific version content
+   */
+  async getPageVersion(req, res) {
+    try {
+      const { identifier, version } = req.params;
+      const versionNum = parseInt(version);
+
+      if (isNaN(versionNum) || versionNum < 1) {
+        return res.status(400).json({
+          error: 'Invalid version number',
+          message: 'Version must be a positive integer'
+        });
+      }
+
+      const pageManager = this.engine.getManager('PageManager');
+
+      if (!pageManager) {
+        return res.status(500).json({ error: 'PageManager not available' });
+      }
+
+      const provider = pageManager.provider;
+
+      // Check if provider supports versioning
+      if (typeof provider.getPageVersion !== 'function') {
+        return res.status(501).json({
+          error: 'Versioning not supported',
+          message: 'Current page provider does not support version history'
+        });
+      }
+
+      // Get version content
+      const versionData = await provider.getPageVersion(identifier, versionNum);
+
+      res.json({
+        success: true,
+        identifier: identifier,
+        version: versionNum,
+        content: versionData.content,
+        metadata: versionData.metadata
+      });
+
+    } catch (error) {
+      logger.error(`Error getting page version: ${error.message}`);
+
+      if (error.message.includes('not found')) {
+        return res.status(404).json({
+          error: 'Page or version not found',
+          message: error.message
+        });
+      }
+
+      if (error.message.includes('does not exist')) {
+        return res.status(404).json({
+          error: 'Version not found',
+          message: error.message
+        });
+      }
+
+      res.status(500).json({
+        error: 'Internal server error',
+        details: error.message
+      });
+    }
+  }
+
+  /**
+   * GET /api/page/:identifier/compare/:v1/:v2
+   * Compare two versions of a page
+   */
+  async comparePageVersions(req, res) {
+    try {
+      const { identifier, v1, v2 } = req.params;
+      const version1 = parseInt(v1);
+      const version2 = parseInt(v2);
+
+      if (isNaN(version1) || isNaN(version2) || version1 < 1 || version2 < 1) {
+        return res.status(400).json({
+          error: 'Invalid version numbers',
+          message: 'Versions must be positive integers'
+        });
+      }
+
+      const pageManager = this.engine.getManager('PageManager');
+
+      if (!pageManager) {
+        return res.status(500).json({ error: 'PageManager not available' });
+      }
+
+      const provider = pageManager.provider;
+
+      // Check if provider supports versioning
+      if (typeof provider.compareVersions !== 'function') {
+        return res.status(501).json({
+          error: 'Versioning not supported',
+          message: 'Current page provider does not support version comparison'
+        });
+      }
+
+      // Compare versions
+      const comparison = await provider.compareVersions(identifier, version1, version2);
+
+      res.json({
+        success: true,
+        identifier: identifier,
+        comparison: comparison
+      });
+
+    } catch (error) {
+      logger.error(`Error comparing page versions: ${error.message}`);
+
+      if (error.message.includes('not found')) {
+        return res.status(404).json({
+          error: 'Page or version not found',
+          message: error.message
+        });
+      }
+
+      res.status(500).json({
+        error: 'Internal server error',
+        details: error.message
+      });
+    }
+  }
+
+  /**
+   * POST /api/page/:identifier/restore/:version
+   * Restore page to a specific version
+   */
+  async restorePageVersion(req, res) {
+    try {
+      const { identifier, version } = req.params;
+      const versionNum = parseInt(version);
+
+      if (isNaN(versionNum) || versionNum < 1) {
+        return res.status(400).json({
+          error: 'Invalid version number',
+          message: 'Version must be a positive integer'
+        });
+      }
+
+      // Check authentication
+      if (!req.userContext || !req.userContext.isAuthenticated) {
+        return res.status(401).json({
+          error: 'Authentication required',
+          message: 'You must be logged in to restore versions'
+        });
+      }
+
+      const pageManager = this.engine.getManager('PageManager');
+
+      if (!pageManager) {
+        return res.status(500).json({ error: 'PageManager not available' });
+      }
+
+      const provider = pageManager.provider;
+
+      // Check if provider supports versioning
+      if (typeof provider.restoreVersion !== 'function') {
+        return res.status(501).json({
+          error: 'Versioning not supported',
+          message: 'Current page provider does not support version restoration'
+        });
+      }
+
+      // Get restore options from request body
+      const { comment } = req.body || {};
+
+      // Restore version
+      const newVersion = await provider.restoreVersion(identifier, versionNum, {
+        author: req.userContext.username || 'unknown',
+        comment: comment || `Restored from v${versionNum}`
+      });
+
+      logger.info(`[WikiRoutes] User ${req.userContext.username} restored page ${identifier} to v${versionNum}, created v${newVersion}`);
+
+      res.json({
+        success: true,
+        identifier: identifier,
+        restoredFromVersion: versionNum,
+        newVersion: newVersion,
+        message: `Successfully restored to version ${versionNum}, created version ${newVersion}`
+      });
+
+    } catch (error) {
+      logger.error(`Error restoring page version: ${error.message}`);
+
+      if (error.message.includes('not found')) {
+        return res.status(404).json({
+          error: 'Page or version not found',
+          message: error.message
+        });
+      }
+
+      res.status(500).json({
+        error: 'Internal server error',
+        details: error.message
+      });
+    }
+  }
+
+  /**
+   * GET /history/:page
+   * Show page history view
+   */
+  async pageHistory(req, res) {
+    try {
+      const pageName = decodeURIComponent(req.params.page);
+      const pageManager = this.engine.getManager('PageManager');
+
+      if (!pageManager) {
+        return res.status(500).render('error', {
+          message: 'PageManager not available',
+          userContext: req.userContext
+        });
+      }
+
+      const provider = pageManager.provider;
+
+      // Check if provider supports versioning
+      if (typeof provider.getVersionHistory !== 'function') {
+        return res.status(501).render('error', {
+          message: 'Page versioning is not enabled. Please configure VersioningFileProvider.',
+          userContext: req.userContext
+        });
+      }
+
+      // Check if page exists
+      if (!pageManager.pageExists(pageName)) {
+        return res.status(404).render('error', {
+          message: `Page "${pageName}" not found`,
+          userContext: req.userContext
+        });
+      }
+
+      // Get page info
+      const pageInfo = await pageManager.getPage(pageName);
+
+      // Get version history
+      const versions = await provider.getVersionHistory(pageName);
+
+      res.render('page-history', {
+        pageName: pageName,
+        pageUuid: pageInfo.uuid,
+        versions: versions,
+        versionCount: versions.length,
+        userContext: req.userContext
+      });
+
+    } catch (error) {
+      logger.error(`Error rendering page history: ${error.message}`);
+      res.status(500).render('error', {
+        message: 'Error loading page history',
+        error: error.message,
+        userContext: req.userContext
+      });
+    }
+  }
+
+  /**
+   * GET /diff/:page?v1=X&v2=Y
+   * Show version comparison view
+   */
+  async pageDiff(req, res) {
+    try {
+      const pageName = decodeURIComponent(req.params.page);
+      const v1 = parseInt(req.query.v1);
+      const v2 = parseInt(req.query.v2);
+
+      if (isNaN(v1) || isNaN(v2) || v1 < 1 || v2 < 1) {
+        return res.status(400).render('error', {
+          message: 'Invalid version numbers. Please provide valid v1 and v2 parameters.',
+          userContext: req.userContext
+        });
+      }
+
+      const pageManager = this.engine.getManager('PageManager');
+
+      if (!pageManager) {
+        return res.status(500).render('error', {
+          message: 'PageManager not available',
+          userContext: req.userContext
+        });
+      }
+
+      const provider = pageManager.provider;
+
+      // Check if provider supports versioning
+      if (typeof provider.compareVersions !== 'function') {
+        return res.status(501).render('error', {
+          message: 'Page versioning is not enabled. Please configure VersioningFileProvider.',
+          userContext: req.userContext
+        });
+      }
+
+      // Check if page exists
+      if (!pageManager.pageExists(pageName)) {
+        return res.status(404).render('error', {
+          message: `Page "${pageName}" not found`,
+          userContext: req.userContext
+        });
+      }
+
+      // Get page info
+      const pageInfo = await pageManager.getPage(pageName);
+
+      // Compare versions
+      const comparison = await provider.compareVersions(pageName, v1, v2);
+
+      res.render('page-diff', {
+        pageName: pageName,
+        pageUuid: pageInfo.uuid,
+        version1: comparison.version1,
+        version2: comparison.version2,
+        diff: comparison.diff,
+        stats: comparison.stats,
+        userContext: req.userContext
+      });
+
+    } catch (error) {
+      logger.error(`Error rendering page diff: ${error.message}`);
+      res.status(500).render('error', {
+        message: 'Error comparing versions',
+        error: error.message,
+        userContext: req.userContext
+      });
     }
   }
 }

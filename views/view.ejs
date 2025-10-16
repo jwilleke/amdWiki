@@ -1,6 +1,26 @@
 
 <%- include('header', { pageName: pageName }) %>
 
+<!-- Version Info Banner (if versioning enabled) -->
+<% if (typeof versionInfo !== 'undefined' && versionInfo) { %>
+<div class="alert alert-light border mb-3" style="background-color: #f8f9fa;">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <i class="fas fa-code-branch text-muted"></i>
+            <strong>Version <%= versionInfo.currentVersion %></strong> of <%= versionInfo.totalVersions %>
+            <span class="text-muted">|</span>
+            Last edited by <strong><%= versionInfo.lastAuthor %></strong>
+            <span class="text-muted">on <%= new Date(versionInfo.lastModified).toLocaleString() %></span>
+        </div>
+        <div>
+            <a href="/history/<%= encodeURIComponent(pageName) %>" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-history"></i> View History
+            </a>
+        </div>
+    </div>
+</div>
+<% } %>
+
 <!-- Page content -->
 <div class="markdown-body mb-4">
     <%- content %>

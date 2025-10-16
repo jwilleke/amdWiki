@@ -1,0 +1,241 @@
+<%- include('header', { pageName: 'Page History: ' + pageName }) %>
+
+<div class="container mt-4">
+  <div class="card">
+    <div class="card-header">
+      <h4><i class="fas fa-history"></i> Page History: <%= pageName %></h4>
+      <p class="mb-0 text-muted">
+        <a href="/wiki/<%= encodeURIComponent(pageName) %>">
+          <i class="fas fa-arrow-left"></i> Back to Page
+        </a>
+      </p>
+    </div>
+    <div class="card-body">
+      <% if (versionCount === 0) { %>
+        <div class="alert alert-info">
+          <i class="fas fa-info-circle"></i> No version history available for this page.
+        </div>
+      <% } else { %>
+        <p class="text-muted">
+          This page has <strong><%= versionCount %></strong> version<%= versionCount > 1 ? 's' : '' %> in its history.
+        </p>
+
+        <div class="table-responsive">
+          <table class="table table-striped table-hover">
+            <thead>
+              <tr>
+                <th>Version</th>
+                <th>Date</th>
+                <th>Author</th>
+                <th>Change Type</th>
+                <th>Comment</th>
+                <th>Size</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% versions.forEach((v, index) => { %>
+                <tr <%= v.version === versions[0].version ? 'class="table-primary"' : '' %>>
+                  <td>
+                    <strong>v<%= v.version %></strong>
+                    <% if (v.version === versions[0].version) { %>
+                      <span class="badge badge-success">Current</span>
+                    <% } %>
+                    <% if (v.isCheckpoint) { %>
+                      <span class="badge badge-info" title="Checkpoint version"><i class="fas fa-flag"></i></span>
+                    <% } %>
+                  </td>
+                  <td>
+                    <span title="<%= new Date(v.dateCreated).toLocaleString() %>">
+                      <%= new Date(v.dateCreated).toLocaleDateString() %>
+                      <%= new Date(v.dateCreated).toLocaleTimeString() %>
+                    </span>
+                  </td>
+                  <td><%= v.author %></td>
+                  <td>
+                    <% if (v.changeType === 'created') { %>
+                      <span class="badge badge-success"><i class="fas fa-plus"></i> Created</span>
+                    <% } else if (v.changeType === 'updated') { %>
+                      <span class="badge badge-primary"><i class="fas fa-edit"></i> Updated</span>
+                    <% } else if (v.changeType === 'restored') { %>
+                      <span class="badge badge-warning"><i class="fas fa-undo"></i> Restored</span>
+                    <% } else { %>
+                      <span class="badge badge-secondary"><%= v.changeType %></span>
+                    <% } %>
+                  </td>
+                  <td><%= v.comment || '-' %></td>
+                  <td>
+                    <%= (v.contentSize / 1024).toFixed(2) %> KB
+                    <% if (v.compressed) { %>
+                      <i class="fas fa-compress text-muted" title="Compressed"></i>
+                    <% } %>
+                    <% if (v.isDelta) { %>
+                      <i class="fas fa-code-branch text-info" title="Delta storage"></i>
+                    <% } %>
+                  </td>
+                  <td>
+                    <div class="btn-group btn-group-sm" role="group">
+                      <button type="button" class="btn btn-outline-primary"
+                              onclick="viewVersion('<%= pageName %>', <%= v.version %>)"
+                              title="View this version">
+                        <i class="fas fa-eye"></i>
+                      </button>
+                      <% if (index < versions.length - 1) { %>
+                        <button type="button" class="btn btn-outline-info"
+                                onclick="compareVersions('<%= pageName %>', <%= v.version %>, <%= versions[index + 1].version %>)"
+                                title="Compare with previous version">
+                          <i class="fas fa-exchange-alt"></i>
+                        </button>
+                      <% } %>
+                      <% if (v.version !== versions[0].version && userContext.isAuthenticated) { %>
+                        <button type="button" class="btn btn-outline-warning"
+                                onclick="restoreVersion('<%= pageName %>', <%= v.version %>)"
+                                title="Restore to this version">
+                          <i class="fas fa-undo"></i>
+                        </button>
+                      <% } %>
+                    </div>
+                  </td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Version Comparison Tool -->
+        <div class="card mt-4">
+          <div class="card-header">
+            <h5><i class="fas fa-exchange-alt"></i> Compare Versions</h5>
+          </div>
+          <div class="card-body">
+            <form id="compareForm" class="form-inline">
+              <label class="mr-2">From:</label>
+              <select id="version1" class="form-control mr-3">
+                <% versions.forEach(v => { %>
+                  <option value="<%= v.version %>">v<%= v.version %> (<%= new Date(v.dateCreated).toLocaleDateString() %>)</option>
+                <% }); %>
+              </select>
+
+              <label class="mr-2">To:</label>
+              <select id="version2" class="form-control mr-3">
+                <% versions.forEach(v => { %>
+                  <option value="<%= v.version %>" <%= v.version === versions[0].version ? 'selected' : '' %>>
+                    v<%= v.version %> (<%= new Date(v.dateCreated).toLocaleDateString() %>)
+                  </option>
+                <% }); %>
+              </select>
+
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-exchange-alt"></i> Compare
+              </button>
+            </form>
+          </div>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<!-- Version Viewer Modal -->
+<div class="modal fade" id="versionModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="versionModalTitle">Loading...</h5>
+        <button type="button" class="close" data-dismiss="modal">
+          <span>&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div id="versionContent" class="markdown-body">
+          <div class="text-center">
+            <div class="spinner-border" role="status">
+              <span class="sr-only">Loading...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// View a specific version
+function viewVersion(pageName, version) {
+  const modal = $('#versionModal');
+  modal.find('#versionModalTitle').text(`Version ${version} of ${pageName}`);
+  modal.find('#versionContent').html('<div class="text-center"><div class="spinner-border" role="status"><span class="sr-only">Loading...</span></div></div>');
+  modal.modal('show');
+
+  fetch(`/api/page/${encodeURIComponent(pageName)}/version/${version}`)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Failed to load version');
+      }
+      return response.json();
+    })
+    .then(data => {
+      // Render markdown content
+      const renderedHtml = marked.parse(data.content);
+      modal.find('#versionContent').html(renderedHtml);
+    })
+    .catch(error => {
+      modal.find('#versionContent').html(`<div class="alert alert-danger">Error loading version: ${error.message}</div>`);
+    });
+}
+
+// Compare two versions
+function compareVersions(pageName, v1, v2) {
+  window.location.href = `/diff/${encodeURIComponent(pageName)}?v1=${v2}&v2=${v1}`;
+}
+
+// Restore to a specific version
+function restoreVersion(pageName, version) {
+  if (!confirm(`Are you sure you want to restore "${pageName}" to version ${version}?\n\nThis will create a new version with the content from version ${version}.`)) {
+    return;
+  }
+
+  fetch(`/api/page/${encodeURIComponent(pageName)}/restore/${version}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      comment: `Restored from v${version} via Page History`
+    })
+  })
+    .then(response => {
+      if (!response.ok) {
+        return response.json().then(err => { throw new Error(err.message || 'Restore failed'); });
+      }
+      return response.json();
+    })
+    .then(data => {
+      alert(`Successfully restored to version ${version}!\nCreated new version ${data.newVersion}.`);
+      window.location.reload();
+    })
+    .catch(error => {
+      alert(`Error restoring version: ${error.message}`);
+    });
+}
+
+// Compare form submission
+document.getElementById('compareForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const v1 = document.getElementById('version1').value;
+  const v2 = document.getElementById('version2').value;
+  compareVersions('<%= pageName %>', v1, v2);
+});
+
+// Load marked.js for markdown rendering if not already loaded
+if (typeof marked === 'undefined') {
+  const script = document.createElement('script');
+  script.src = 'https://cdn.jsdelivr.net/npm/marked/marked.min.js';
+  document.head.appendChild(script);
+}
+</script>
+
+<%- include('footer') %>

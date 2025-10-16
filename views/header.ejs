@@ -625,7 +625,12 @@
     }
     
     function showPageHistory() {
-        alert('Page History feature coming soon!');
+        const currentPage = window.location.pathname.split('/wiki/')[1] || window.location.pathname.split('/edit/')[1];
+        if (!currentPage) {
+            alert('No page selected for history view');
+            return;
+        }
+        window.location.href = `/history/${encodeURIComponent(currentPage)}`;
     }
     
     function showPageStats() {

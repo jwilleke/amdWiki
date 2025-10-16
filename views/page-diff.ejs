@@ -1,0 +1,254 @@
+<%- include('header', { pageName: 'Compare Versions: ' + pageName }) %>
+
+<div class="container mt-4">
+  <div class="card">
+    <div class="card-header">
+      <h4><i class="fas fa-exchange-alt"></i> Comparing Versions: <%= pageName %></h4>
+      <p class="mb-0 text-muted">
+        <a href="/wiki/<%= encodeURIComponent(pageName) %>">
+          <i class="fas fa-arrow-left"></i> Back to Page
+        </a>
+        |
+        <a href="/history/<%= encodeURIComponent(pageName) %>">
+          <i class="fas fa-history"></i> View History
+        </a>
+      </p>
+    </div>
+    <div class="card-body">
+      <!-- Version Info -->
+      <div class="row mb-4">
+        <div class="col-md-6">
+          <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+              <h5 class="mb-0">
+                <i class="fas fa-minus-circle"></i> Version <%= version1.version %>
+              </h5>
+            </div>
+            <div class="card-body">
+              <p><strong>Date:</strong> <%= new Date(version1.dateCreated).toLocaleString() %></p>
+              <p><strong>Author:</strong> <%= version1.author %></p>
+              <p><strong>Change:</strong> <%= version1.changeType %></p>
+              <p class="mb-0"><strong>Comment:</strong> <%= version1.comment || '-' %></p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card border-success">
+            <div class="card-header bg-success text-white">
+              <h5 class="mb-0">
+                <i class="fas fa-plus-circle"></i> Version <%= version2.version %>
+              </h5>
+            </div>
+            <div class="card-body">
+              <p><strong>Date:</strong> <%= new Date(version2.dateCreated).toLocaleString() %></p>
+              <p><strong>Author:</strong> <%= version2.author %></p>
+              <p><strong>Change:</strong> <%= version2.changeType %></p>
+              <p class="mb-0"><strong>Comment:</strong> <%= version2.comment || '-' %></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Diff Statistics -->
+      <div class="alert alert-info">
+        <h5><i class="fas fa-chart-bar"></i> Change Summary</h5>
+        <div class="row">
+          <div class="col-md-4">
+            <strong class="text-success"><i class="fas fa-plus"></i> Additions:</strong> <%= stats.additions %>
+          </div>
+          <div class="col-md-4">
+            <strong class="text-danger"><i class="fas fa-minus"></i> Deletions:</strong> <%= stats.deletions %>
+          </div>
+          <div class="col-md-4">
+            <strong class="text-muted"><i class="fas fa-equals"></i> Unchanged:</strong> <%= stats.unchanged %>
+          </div>
+        </div>
+      </div>
+
+      <!-- View Mode Selector -->
+      <div class="btn-group mb-3" role="group">
+        <button type="button" class="btn btn-primary active" id="btnUnified" onclick="showView('unified')">
+          <i class="fas fa-align-left"></i> Unified View
+        </button>
+        <button type="button" class="btn btn-outline-primary" id="btnSideBySide" onclick="showView('sidebyside')">
+          <i class="fas fa-columns"></i> Side-by-Side
+        </button>
+      </div>
+
+      <!-- Unified Diff View -->
+      <div id="unifiedView" class="diff-container">
+        <pre class="diff-pre"><code id="unifiedDiff">Loading...</code></pre>
+      </div>
+
+      <!-- Side-by-Side Diff View -->
+      <div id="sideBySideView" class="diff-container" style="display: none;">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-header bg-danger text-white">
+                <h6 class="mb-0">Version <%= version1.version %> (Old)</h6>
+              </div>
+              <div class="card-body p-0">
+                <pre class="diff-pre mb-0"><code id="oldVersion">Loading...</code></pre>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-header bg-success text-white">
+                <h6 class="mb-0">Version <%= version2.version %> (New)</h6>
+              </div>
+              <div class="card-body p-0">
+                <pre class="diff-pre mb-0"><code id="newVersion">Loading...</code></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.diff-container {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.diff-pre {
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 15px;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.diff-line-added {
+  background-color: #d4edda;
+  color: #155724;
+  padding: 2px 5px;
+  display: block;
+}
+
+.diff-line-deleted {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 2px 5px;
+  display: block;
+}
+
+.diff-line-unchanged {
+  padding: 2px 5px;
+  display: block;
+}
+
+.diff-line-marker {
+  display: inline-block;
+  width: 30px;
+  text-align: center;
+  font-weight: bold;
+}
+</style>
+
+<script>
+// Store diff data
+const diffData = <%- JSON.stringify(diff) %>;
+
+// Render diff based on view mode
+function showView(mode) {
+  const unified = document.getElementById('unifiedView');
+  const sideBySide = document.getElementById('sideBySideView');
+  const btnUnified = document.getElementById('btnUnified');
+  const btnSideBySide = document.getElementById('btnSideBySide');
+
+  if (mode === 'unified') {
+    unified.style.display = 'block';
+    sideBySide.style.display = 'none';
+    btnUnified.classList.add('active');
+    btnUnified.classList.remove('btn-outline-primary');
+    btnUnified.classList.add('btn-primary');
+    btnSideBySide.classList.remove('active');
+    btnSideBySide.classList.add('btn-outline-primary');
+    btnSideBySide.classList.remove('btn-primary');
+  } else {
+    unified.style.display = 'none';
+    sideBySide.style.display = 'block';
+    btnSideBySide.classList.add('active');
+    btnSideBySide.classList.remove('btn-outline-primary');
+    btnSideBySide.classList.add('btn-primary');
+    btnUnified.classList.remove('active');
+    btnUnified.classList.add('btn-outline-primary');
+    btnUnified.classList.remove('btn-primary');
+  }
+}
+
+// Render unified diff
+function renderUnifiedDiff() {
+  const container = document.getElementById('unifiedDiff');
+  let html = '';
+
+  diffData.forEach(part => {
+    const [type, text] = part;
+
+    if (type === -1) {
+      // Deletion
+      html += `<span class="diff-line-deleted"><span class="diff-line-marker">-</span>${escapeHtml(text)}</span>`;
+    } else if (type === 1) {
+      // Addition
+      html += `<span class="diff-line-added"><span class="diff-line-marker">+</span>${escapeHtml(text)}</span>`;
+    } else {
+      // Unchanged
+      html += `<span class="diff-line-unchanged"><span class="diff-line-marker"> </span>${escapeHtml(text)}</span>`;
+    }
+  });
+
+  container.innerHTML = html;
+}
+
+// Render side-by-side diff
+function renderSideBySideDiff() {
+  const oldContainer = document.getElementById('oldVersion');
+  const newContainer = document.getElementById('newVersion');
+
+  let oldHtml = '';
+  let newHtml = '';
+
+  diffData.forEach(part => {
+    const [type, text] = part;
+
+    if (type === -1) {
+      // Deletion - only in old version
+      oldHtml += `<span class="diff-line-deleted">${escapeHtml(text)}</span>`;
+    } else if (type === 1) {
+      // Addition - only in new version
+      newHtml += `<span class="diff-line-added">${escapeHtml(text)}</span>`;
+    } else {
+      // Unchanged - in both versions
+      oldHtml += `<span class="diff-line-unchanged">${escapeHtml(text)}</span>`;
+      newHtml += `<span class="diff-line-unchanged">${escapeHtml(text)}</span>`;
+    }
+  });
+
+  oldContainer.innerHTML = oldHtml;
+  newContainer.innerHTML = newHtml;
+}
+
+// Escape HTML for display
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+// Initialize diffs on page load
+document.addEventListener('DOMContentLoaded', function() {
+  renderUnifiedDiff();
+  renderSideBySideDiff();
+});
+</script>
+
+<%- include('footer') %>
