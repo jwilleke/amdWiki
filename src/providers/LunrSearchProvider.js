@@ -253,12 +253,27 @@ class LunrSearchProvider extends BaseSearchProvider {
       }));
     }
 
-    // Filter by categories if specified
+    // Filter by categories if specified (case-insensitive)
     if (categoryList.length > 0) {
+      const beforeCount = results.length;
       results = results.filter(result => {
         const docCategory = result.metadata.systemCategory;
-        return docCategory && categoryList.includes(docCategory);
+        if (!docCategory) {
+          logger.debug(`[LunrSearchProvider] No category for: ${result.name}`);
+          return false;
+        }
+
+        // Case-insensitive comparison
+        const docCategoryLower = docCategory.toLowerCase();
+        const matches = categoryList.some(cat => cat.toLowerCase() === docCategoryLower);
+
+        if (!matches) {
+          logger.debug(`[LunrSearchProvider] Filtered out ${result.name}: category "${docCategory}" not in [${categoryList.join(', ')}]`);
+        }
+
+        return matches;
       });
+      logger.info(`[LunrSearchProvider] Category filter: ${beforeCount} -> ${results.length} results (filter: [${categoryList.join(', ')}])`);
     }
 
     // Filter by user keywords if specified

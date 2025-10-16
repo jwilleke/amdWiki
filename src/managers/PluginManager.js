@@ -170,6 +170,10 @@ class PluginManager extends BaseManager {
 
   /**
    * Find plugin by name (case-insensitive)
+   * Supports JSPWiki-style plugin naming where you can use either:
+   * - "Search" or "SearchPlugin"
+   * - "Index" or "IndexPlugin"
+   *
    * @param {string} pluginName - Name of the plugin to find
    * @returns {Object|null} Plugin object or null if not found
    */
@@ -184,6 +188,38 @@ class PluginManager extends BaseManager {
     for (const [key, plugin] of this.plugins) {
       if (key.toLowerCase() === lowerName) {
         return plugin;
+      }
+    }
+
+    // JSPWiki compatibility: Try with "Plugin" suffix if not already present
+    if (!pluginName.toLowerCase().endsWith('plugin')) {
+      const withSuffix = pluginName + 'Plugin';
+      if (this.plugins.has(withSuffix)) {
+        return this.plugins.get(withSuffix);
+      }
+
+      // Try case-insensitive with suffix
+      const lowerWithSuffix = withSuffix.toLowerCase();
+      for (const [key, plugin] of this.plugins) {
+        if (key.toLowerCase() === lowerWithSuffix) {
+          return plugin;
+        }
+      }
+    }
+
+    // Try without "Plugin" suffix if it's present
+    if (pluginName.toLowerCase().endsWith('plugin')) {
+      const withoutSuffix = pluginName.slice(0, -6); // Remove "Plugin"
+      if (this.plugins.has(withoutSuffix)) {
+        return this.plugins.get(withoutSuffix);
+      }
+
+      // Try case-insensitive without suffix
+      const lowerWithoutSuffix = withoutSuffix.toLowerCase();
+      for (const [key, plugin] of this.plugins) {
+        if (key.toLowerCase() === lowerWithoutSuffix) {
+          return plugin;
+        }
       }
     }
 

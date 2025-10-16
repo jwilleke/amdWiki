@@ -171,10 +171,10 @@ class PluginSyntaxHandler extends BaseSyntaxHandler {
    */
   async handle(matchInfo, context) {
     const { pluginName, paramString } = matchInfo;
-    
+
     // Parse plugin parameters
     const parameters = this.parseParameters(paramString);
-    
+
     // Validate parameters
     const validation = this.validatePluginParameters(pluginName, parameters);
     if (!validation.isValid) {
@@ -319,7 +319,8 @@ class PluginSyntaxHandler extends BaseSyntaxHandler {
     const params = {};
     // Enhanced regex to handle quoted values with spaces, special characters, and escaped quotes
     // Matches: key='value with \'escaped\' quotes' or key="value" or key=unquoted
-    const paramRegex = /(\w+)=(?:'((?:[^'\\]|\\.)*)'|"((?:[^"\\]|\\.)*)"|([^\s]+))/g;
+    // Note: [\w-]+ allows word characters and dashes (for param names like 'system-category')
+    const paramRegex = /([\w-]+)=(?:'((?:[^'\\]|\\.)*)'|"((?:[^"\\]|\\.)*)"|([^\s]+))/g;
     let match;
 
     while ((match = paramRegex.exec(paramString)) !== null) {
