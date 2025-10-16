@@ -165,10 +165,12 @@
 <script>
 // View a specific version
 function viewVersion(pageName, version) {
-  const modal = $('#versionModal');
-  modal.find('#versionModalTitle').text(`Version ${version} of ${pageName}`);
-  modal.find('#versionContent').html('<div class="text-center"><div class="spinner-border" role="status"><span class="sr-only">Loading...</span></div></div>');
-  modal.modal('show');
+  const modalElement = document.getElementById('versionModal');
+  const modal = new bootstrap.Modal(modalElement);
+
+  document.getElementById('versionModalTitle').textContent = `Version ${version} of ${pageName}`;
+  document.getElementById('versionContent').innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="sr-only">Loading...</span></div></div>';
+  modal.show();
 
   fetch(`/api/page/${encodeURIComponent(pageName)}/version/${version}`)
     .then(response => {
@@ -180,10 +182,10 @@ function viewVersion(pageName, version) {
     .then(data => {
       // Render markdown content
       const renderedHtml = marked.parse(data.content);
-      modal.find('#versionContent').html(renderedHtml);
+      document.getElementById('versionContent').innerHTML = renderedHtml;
     })
     .catch(error => {
-      modal.find('#versionContent').html(`<div class="alert alert-danger">Error loading version: ${error.message}</div>`);
+      document.getElementById('versionContent').innerHTML = `<div class="alert alert-danger">Error loading version: ${error.message}</div>`;
     });
 }
 

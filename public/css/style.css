@@ -25,6 +25,9 @@
   --alert-danger-bg: #f8d7da;
   --alert-danger-border: #f5c2c7;
   --alert-danger-text: #842029;
+  --alert-info-bg: #d1ecf1;
+  --alert-info-border: #bee5eb;
+  --alert-info-text: #0c5460;
   --code-bg: #f8f9fa;
   --code-border: #e9ecef;
   --table-stripe: #f0f0f0;
@@ -76,7 +79,10 @@
   --alert-danger-bg: #282e33;
   --alert-danger-border: #f85149;
   --alert-danger-text: #f85149;
-  
+  --alert-info-bg: #1c2c3a;
+  --alert-info-border: #388bfd;
+  --alert-info-text: #58a6ff;
+
   /* GitHub-style code blocks */
   --code-bg: #161b22;
   --code-border: #30363d;
@@ -1093,6 +1099,12 @@ main p, main div, main span, main li {
     color: var(--alert-danger-text);
 }
 
+.alert-info {
+    background-color: var(--alert-info-bg);
+    border-color: var(--alert-info-border);
+    color: var(--alert-info-text);
+}
+
 /* Tables */
 .table {
     color: var(--text-primary);
@@ -1203,6 +1215,14 @@ pre, code {
 
 .text-primary {
     color: var(--link-color) !important;
+}
+
+.text-success {
+    color: var(--alert-success-text) !important;
+}
+
+.text-danger {
+    color: var(--alert-danger-text) !important;
 }
 
 /* Borders */

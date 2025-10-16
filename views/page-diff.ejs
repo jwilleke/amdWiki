@@ -116,8 +116,8 @@
 }
 
 .diff-pre {
-  background-color: #f5f5f5;
-  border: 1px solid #ddd;
+  background-color: var(--code-bg);
+  border: 1px solid var(--border-color);
   border-radius: 4px;
   padding: 15px;
   font-family: 'Courier New', Courier, monospace;
@@ -125,18 +125,19 @@
   line-height: 1.5;
   white-space: pre-wrap;
   word-wrap: break-word;
+  color: var(--text-primary);
 }
 
 .diff-line-added {
-  background-color: #d4edda;
-  color: #155724;
+  background-color: var(--alert-success-bg);
+  color: var(--alert-success-text);
   padding: 2px 5px;
   display: block;
 }
 
 .diff-line-deleted {
-  background-color: #f8d7da;
-  color: #721c24;
+  background-color: var(--alert-danger-bg);
+  color: var(--alert-danger-text);
   padding: 2px 5px;
   display: block;
 }
@@ -144,6 +145,7 @@
 .diff-line-unchanged {
   padding: 2px 5px;
   display: block;
+  color: var(--text-primary);
 }
 
 .diff-line-marker {
@@ -151,6 +153,7 @@
   width: 30px;
   text-align: center;
   font-weight: bold;
+  color: var(--text-secondary);
 }
 </style>
 
