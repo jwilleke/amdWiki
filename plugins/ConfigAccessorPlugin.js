@@ -37,7 +37,8 @@ const ConfigAccessorPlugin = {
     const type = opts.type;
     const valueonly = opts.valueonly === 'true' || opts.valueonly === true;
     const before = opts.before !== undefined ? opts.before : '';
-    const after = opts.after !== undefined ? opts.after : '\n';
+    // Note: after default is determined in displayConfigValue based on single vs multiple values
+    const after = opts.after;
 
     try {
       // Get managers from engine
