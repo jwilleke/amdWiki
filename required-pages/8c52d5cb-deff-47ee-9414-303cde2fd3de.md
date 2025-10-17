@@ -4,10 +4,10 @@ uuid: 8c52d5cb-deff-47ee-9414-303cde2fd3de
 system-category: developer
 user-keywords: []
 slug: resource
-lastModified: '2025-10-17T13:10:22.433Z'
+lastModified: '2025-10-17T13:24:21.713Z'
 author: jim
 ---
-!!! Overview
+# Overview
 [{$pagename}], [AKA] [Asset], which is is anything of value that an individual or organization owns, including tangible things like real estate and intangible things like patents. 
 
 
@@ -16,6 +16,6 @@ author: jim
 ## Pages
 For [{$applicationname}] we are primarily concerned about "Pages".
 
-!! More Information
+## More Information
 There might be more information for this subject on one of the following:
 [{ReferringPagesPlugin before='*' after='\n' }]
