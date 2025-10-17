@@ -3,11 +3,13 @@
  * Displays configuration values including roles, features, and system settings
  *
  * Usage:
- *   [{ConfigAccessor}]                                    - Display all roles
- *   [{ConfigAccessor type='roles'}]                       - Display all roles (explicit)
- *   [{ConfigAccessor type='config' key='amdwiki.server.port'}] - Display specific config value
- *   [{ConfigAccessor type='manager' manager='UserManager'}]    - Display manager config
- *   [{ConfigAccessor type='feature' feature='search'}]         - Display feature config
+ *   [{ConfigAccessor key='amdwiki.server.port'}]                       - Display single config value (formatted)
+ *   [{ConfigAccessor key='amdwiki.server.*'}]                          - Display matching config values with wildcard (formatted)
+ *   [{ConfigAccessor key='amdwiki.server.port' valueonly='true'}]      - Return only the value (inline)
+ *   [{ConfigAccessor key='amdwiki.server.*' valueonly='true'}]         - Return matching values, one per line (inline)
+ *   [{ConfigAccessor type='roles'}]                                    - Display all roles (formatted)
+ *   [{ConfigAccessor type='manager' manager='UserManager'}]            - Display manager config (formatted)
+ *   [{ConfigAccessor type='feature' feature='search'}]                 - Display feature config (formatted)
  *
  * Note: Plugin names are case-insensitive. [{configaccessor}], [{ConfigAccessor}], and [{CONFIGACCESSOR}] all work the same.
  */
@@ -19,17 +21,19 @@ const ConfigAccessorPlugin = {
   name: 'ConfigAccessorPlugin',
   description: 'Access configuration values including roles, features, and system settings',
   author: 'amdWiki',
-  version: '1.0.0',
+  version: '2.0.0',
 
   /**
    * Execute the plugin
    * @param {Object} context - Wiki context containing engine reference
    * @param {Object} params - Plugin parameters
-   * @returns {Promise<string>} HTML output
+   * @returns {Promise<string>} HTML output or plain text
    */
   async execute(context, params) {
     const opts = params || {};
-    const type = opts.type || 'roles'; // 'roles', 'config', 'manager', 'feature'
+    const key = opts.key;
+    const type = opts.type;
+    const valueonly = opts.valueonly === 'true' || opts.valueonly === true;
 
     try {
       // Get managers from engine
@@ -40,13 +44,20 @@ const ConfigAccessorPlugin = {
         return '<p class="error">ConfigurationManager not available</p>';
       }
 
-      // Generate HTML based on type
+      // Require either key or type parameter
+      if (!key && !type) {
+        return '<p class="error">Missing required parameter: must specify either \'key\' or \'type\'</p>';
+      }
+
+      // If key is provided, handle config value(s)
+      if (key) {
+        return this.displayConfigValue(configManager, key, valueonly);
+      }
+
+      // Otherwise handle type-based display (no valueonly support for these)
       switch (type.toLowerCase()) {
         case 'roles':
           return this.displayRoles(userManager);
-
-        case 'config':
-          return this.displayConfigValue(configManager, opts.key);
 
         case 'manager':
           return this.displayManagerConfig(configManager, opts.manager);
@@ -55,7 +66,7 @@ const ConfigAccessorPlugin = {
           return this.displayFeatureConfig(configManager, opts.feature);
 
         default:
-          return `<p class="error">Unknown type: ${escapeHtml(type)}. Use 'roles', 'config', 'manager', or 'feature'.</p>`;
+          return `<p class="error">Unknown type: ${escapeHtml(type)}. Use 'roles', 'manager', or 'feature'.</p>`;
       }
 
     } catch (error) {
@@ -136,22 +147,103 @@ const ConfigAccessorPlugin = {
   },
 
   /**
-   * Display a specific config value
+   * Display config value(s) with optional wildcard support
    * @param {Object} configManager - ConfigurationManager instance
-   * @param {string} key - Config key (dot-notation)
-   * @returns {string} HTML output
+   * @param {string} key - Config key (dot-notation, supports wildcards with *)
+   * @param {boolean} valueonly - If true, return only the value(s) without HTML formatting
+   * @returns {string} HTML output or plain text
    */
-  displayConfigValue(configManager, key) {
+  displayConfigValue(configManager, key, valueonly = false) {
     if (!key) {
-      return '<p class="error">Missing required parameter: key</p><p class="text-muted">Usage: [{ConfigAccessor type=\'config\' key=\'amdwiki.some.key\'}]</p>';
+      return '<p class="error">Missing required parameter: key</p><p class="text-muted">Usage: [{ConfigAccessor key=\'amdwiki.some.key\'}]</p>';
     }
 
+    // Check if key contains wildcard
+    const hasWildcard = key.includes('*');
+
+    if (hasWildcard) {
+      // Get all properties and filter by pattern
+      const allProps = configManager.getAllProperties();
+      const pattern = new RegExp('^' + key.replace(/\./g, '\\.').replace(/\*/g, '.*') + '$');
+      const matchingKeys = Object.keys(allProps).filter(k => pattern.test(k)).sort();
+
+      if (matchingKeys.length === 0) {
+        if (valueonly) {
+          return ''; // Return empty string for valueonly if no matches
+        }
+        return `<p class="text-muted">No config keys match pattern: <code>${escapeHtml(key)}</code></p>`;
+      }
+
+      // If valueonly, return values one per line
+      if (valueonly) {
+        return matchingKeys.map(k => {
+          const val = allProps[k];
+          if (typeof val === 'object') {
+            return JSON.stringify(val);
+          }
+          return String(val);
+        }).join('\n');
+      }
+
+      // Otherwise, return formatted HTML table
+      let html = '<div class="config-accessor-plugin">\n';
+      html += '  <div class="card">\n';
+      html += '    <div class="card-header">\n';
+      html += `      <h6><i class="fas fa-cog"></i> Configuration Values (${matchingKeys.length} matches)</h6>\n`;
+      html += `      <small class="text-muted">Pattern: <code>${escapeHtml(key)}</code></small>\n`;
+      html += '    </div>\n';
+      html += '    <div class="card-body">\n';
+      html += '      <div class="table-responsive">\n';
+      html += '        <table class="table table-sm">\n';
+      html += '          <thead>\n';
+      html += '            <tr>\n';
+      html += '              <th style="width: 40%;">Key</th>\n';
+      html += '              <th style="width: 60%;">Value</th>\n';
+      html += '            </tr>\n';
+      html += '          </thead>\n';
+      html += '          <tbody>\n';
+
+      for (const matchKey of matchingKeys) {
+        const value = allProps[matchKey];
+        const displayValue = typeof value === 'object' ?
+          JSON.stringify(value, null, 2) :
+          String(value);
+
+        html += '            <tr>\n';
+        html += `              <td><code>${escapeHtml(matchKey)}</code></td>\n`;
+        html += `              <td><code>${escapeHtml(displayValue)}</code></td>\n`;
+        html += '            </tr>\n';
+      }
+
+      html += '          </tbody>\n';
+      html += '        </table>\n';
+      html += '      </div>\n';
+      html += '    </div>\n';
+      html += '  </div>\n';
+      html += '</div>\n';
+
+      return html;
+    }
+
+    // Single key lookup (no wildcard)
     const value = configManager.getProperty(key);
 
     if (value === undefined || value === null) {
+      if (valueonly) {
+        return ''; // Return empty string for valueonly if not found
+      }
       return `<p class="text-muted">Config key <code>${escapeHtml(key)}</code> not found</p>`;
     }
 
+    // If valueonly, return just the value
+    if (valueonly) {
+      if (typeof value === 'object') {
+        return JSON.stringify(value);
+      }
+      return String(value);
+    }
+
+    // Otherwise, return formatted HTML
     let html = '<div class="config-accessor-plugin">\n';
     html += '  <div class="card">\n';
     html += '    <div class="card-header">\n';
