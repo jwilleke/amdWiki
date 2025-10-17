@@ -1121,6 +1121,13 @@ class WikiRoutes {
       await renderingManager.rebuildLinkGraph();
       await searchManager.rebuildIndex();
 
+      // Clear rendered page cache to ensure pages with red links are re-rendered
+      const cacheManager = this.engine.getManager("CacheManager");
+      if (cacheManager && cacheManager.isInitialized()) {
+        await cacheManager.clear();
+        console.log('🗑️  Cleared cache after page creation to update red links');
+      }
+
       // Redirect to edit the new page
       res.redirect(`/edit/${pageName}`);
     } catch (err) {
@@ -1387,6 +1394,13 @@ class WikiRoutes {
       await renderingManager.rebuildLinkGraph();
       await searchManager.rebuildIndex();
 
+      // Clear rendered page cache to ensure pages with red links are re-rendered
+      const cacheManager = this.engine.getManager("CacheManager");
+      if (cacheManager && cacheManager.isInitialized()) {
+        await cacheManager.clear();
+        console.log('🗑️  Cleared cache after page creation to update red links');
+      }
+
       // Redirect to edit the new page (so user can see template result)
       res.redirect(`/edit/${encodeURIComponent(pageName)}`);
     } catch (error) {
@@ -1529,6 +1543,13 @@ class WikiRoutes {
       // Rebuild link graph and search index
       await renderingManager.rebuildLinkGraph();
       await searchManager.rebuildIndex();
+
+      // Clear rendered page cache to ensure pages with red links are re-rendered
+      const cacheManager = this.engine.getManager("CacheManager");
+      if (cacheManager && cacheManager.isInitialized()) {
+        await cacheManager.clear();
+        console.log('🗑️  Cleared cache after page save to update red links');
+      }
 
       // Redirect to the updated page title if it changed (fallback to original name)
       const redirectName = metadata.title || pageName;

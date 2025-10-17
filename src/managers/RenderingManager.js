@@ -1078,6 +1078,14 @@ class RenderingManager extends BaseManager {
         console.log('🔄 Notified LinkParserHandler to refresh page names');
       }
     }
+
+    // Notify DOMLinkHandler to refresh its page names if it exists
+    if (markupParser && markupParser.domLinkHandler) {
+      if (markupParser.domLinkHandler.refreshPageNames) {
+        await markupParser.domLinkHandler.refreshPageNames();
+        console.log('🔄 Notified DOMLinkHandler to refresh page names');
+      }
+    }
     } catch (err) {
       console.error('Failed to build link graph:', err);
     }
