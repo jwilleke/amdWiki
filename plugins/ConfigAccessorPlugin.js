@@ -5,15 +5,16 @@
  * Usage:
  *   [{ConfigAccessor key='amdwiki.server.port'}]                                - Display single config value (formatted)
  *   [{ConfigAccessor key='amdwiki.server.*'}]                                   - Display matching config values with wildcard (formatted)
- *   [{ConfigAccessor key='amdwiki.server.port' valueonly='true'}]               - Return only the value (inline, ends with newline)
- *   [{ConfigAccessor key='amdwiki.server.port' valueonly='true' after=''}]      - Return only the value (inline, no newline)
- *   [{ConfigAccessor key='amdwiki.server.*' valueonly='true'}]                  - Return matching values, one per line
- *   [{ConfigAccessor key='amdwiki.server.*' valueonly='true' before='* ' after='\n'}]  - Return as bulleted list
+ *   [{ConfigAccessor key='amdwiki.server.port' valueonly='true'}]               - Return only the value (inline, no trailing content by default)
+ *   [{ConfigAccessor key='amdwiki.server.port' valueonly='true' after='\n'}]    - Return value with trailing newline
+ *   [{ConfigAccessor key='amdwiki.server.*' valueonly='true'}]                  - Return matching values, one per line (default)
+ *   [{ConfigAccessor key='amdwiki.server.*' valueonly='true' before='* '}]      - Return as bulleted list
  *   [{ConfigAccessor type='roles'}]                                             - Display all roles (formatted)
  *   [{ConfigAccessor type='manager' manager='UserManager'}]                     - Display manager config (formatted)
  *   [{ConfigAccessor type='feature' feature='search'}]                          - Display feature config (formatted)
  *
  * Note: Plugin names are case-insensitive. [{configaccessor}], [{ConfigAccessor}], and [{CONFIGACCESSOR}] all work the same.
+ * Default 'after' value: '' (empty) for single values, '\n' (newline) for multiple values (wildcards)
  */
 
 /**
@@ -23,7 +24,21 @@ const ConfigAccessorPlugin = {
   name: 'ConfigAccessorPlugin',
   description: 'Access configuration values including roles, features, and system settings',
   author: 'amdWiki',
-  version: '2.1.0',
+  version: '2.2.0',
+
+  /**
+   * Process escape sequences in strings (e.g., \n, \t, \\)
+   * @param {string} str - String to process
+   * @returns {string} Processed string with escape sequences converted
+   */
+  processEscapeSequences(str) {
+    if (typeof str !== 'string') return str;
+    return str
+      .replace(/\\n/g, '\n')   // Newline
+      .replace(/\\t/g, '\t')   // Tab
+      .replace(/\\r/g, '\r')   // Carriage return
+      .replace(/\\\\/g, '\\'); // Backslash (must be last)
+  },
 
   /**
    * Execute the plugin
@@ -157,10 +172,10 @@ const ConfigAccessorPlugin = {
    * @param {string} key - Config key (dot-notation, supports wildcards with *)
    * @param {boolean} valueonly - If true, return only the value(s) without HTML formatting
    * @param {string} before - String to prepend before each value (default: '')
-   * @param {string} after - String to append after each value (default: '\n')
+   * @param {string} after - String to append after each value (default: '' for single, '\n' for multiple)
    * @returns {string} HTML output or plain text
    */
-  displayConfigValue(configManager, key, valueonly = false, before = '', after = '\n') {
+  displayConfigValue(configManager, key, valueonly = false, before = '', after = undefined) {
     if (!key) {
       return '<p class="error">Missing required parameter: key</p><p class="text-muted">Usage: [{ConfigAccessor key=\'amdwiki.some.key\'}]</p>';
     }
@@ -181,13 +196,23 @@ const ConfigAccessorPlugin = {
         return `<p class="text-muted">No config keys match pattern: <code>${escapeHtml(key)}</code></p>`;
       }
 
-      // If valueonly, return values with before/after formatting
+      // If valueonly, return values with before/after formatting wrapped in span
       if (valueonly) {
-        return matchingKeys.map(k => {
+        // Default after for multiple values is '\n'
+        const afterStr = after !== undefined ? after : '\n';
+        // Process escape sequences in before/after strings
+        const processedBefore = this.processEscapeSequences(before);
+        const processedAfter = this.processEscapeSequences(afterStr);
+
+        const items = matchingKeys.map(k => {
           const val = allProps[k];
           const valStr = typeof val === 'object' ? JSON.stringify(val) : String(val);
-          return before + valStr + after;
+          return processedBefore + escapeHtml(valStr) + processedAfter;
         }).join('');
+        // Convert newlines to <br> for HTML rendering
+        const htmlItems = items.replace(/\n/g, '<br>\n');
+        // Wrap in span to ensure it's treated as inline HTML
+        return `<span class="config-values">${htmlItems}</span>`;
       }
 
       // Otherwise, return formatted HTML table
@@ -240,10 +265,18 @@ const ConfigAccessorPlugin = {
       return `<p class="text-muted">Config key <code>${escapeHtml(key)}</code> not found</p>`;
     }
 
-    // If valueonly, return just the value with before/after formatting
+    // If valueonly, return just the value with before/after formatting wrapped in span
     if (valueonly) {
+      // Default after for single value is '' (empty string) for inline use
+      const afterStr = after !== undefined ? after : '';
+      // Process escape sequences in before/after strings
+      const processedBefore = this.processEscapeSequences(before);
+      const processedAfter = this.processEscapeSequences(afterStr);
+
       const valStr = typeof value === 'object' ? JSON.stringify(value) : String(value);
-      return before + valStr + after;
+      // Escape the value, process escape sequences in before/after
+      // Wrap in span to ensure it's treated as inline HTML
+      return `<span class="config-value">${processedBefore}${escapeHtml(valStr)}${processedAfter}</span>`;
     }
 
     // Otherwise, return formatted HTML

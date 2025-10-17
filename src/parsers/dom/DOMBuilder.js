@@ -197,15 +197,23 @@ class DOMBuilder {
 
   /**
    * Handles plugins [{PLUGIN ...}]
+   * Creates inline span element to allow plugins within paragraphs
    */
   handlePlugin(token) {
-    this.closeCurrentParagraph();
-    const div = this.wikiDocument.createElement('div', {
+    // Use span for inline rendering instead of div
+    const span = this.wikiDocument.createElement('span', {
       class: 'wiki-plugin',
       'data-plugin-content': token.value
     });
-    div.textContent = `[{${token.value}}]`;
-    this.currentParent.appendChild(div);
+    span.textContent = `[{${token.value}}]`;
+
+    // If inside a paragraph, append to paragraph context for inline rendering
+    // Otherwise append to current parent for block-level rendering
+    if (this.paragraphContext) {
+      this.paragraphContext.appendChild(span);
+    } else {
+      this.currentParent.appendChild(span);
+    }
   }
 
   /**

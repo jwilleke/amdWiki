@@ -2,7 +2,7 @@
 
 The ConfigAccessorPlugin provides access to system configuration values including roles, features, manager settings, and any configuration property. This plugin is useful for displaying configuration information on wiki pages or embedding config values inline in text.
 
-**Version:** 2.1.0
+**Version:** 2.2.0
 
 ## Usage
 
@@ -70,7 +70,7 @@ Shows all configuration properties for a specific feature.
 | `type` | `roles`, `manager`, `feature` | *(none)* | Yes (if no `key`) | What type of configuration to display |
 | `valueonly` | `true`, `false` | `false` | No | Return only value(s) without HTML formatting |
 | `before` | Any string | `''` (empty) | No | String to prepend before each value (only with `valueonly`) |
-| `after` | Any string | `'\n'` (newline) | No | String to append after each value (only with `valueonly`) |
+| `after` | Any string | *Smart default* | No | String to append after each value (only with `valueonly`) |
 | `manager` | Manager name | *(none)* | Yes (if `type='manager'`) | Manager name |
 | `feature` | Feature name | *(none)* | Yes (if `type='feature'`) | Feature name |
 
@@ -78,17 +78,21 @@ Shows all configuration properties for a specific feature.
 
 **Note:** The `before` and `after` parameters only work when `valueonly='true'`. They are ignored in formatted display mode.
 
+**Smart Default for `after`:**
+- **Single value** (no wildcard): `''` (empty string) - Perfect for inline use
+- **Multiple values** (wildcard): `'\n'` (newline) - One value per line by default
+
 ## Examples
 
-### Example 1: Inline Value in Text (No Trailing Newline)
+### Example 1: Inline Value in Text (Smart Default)
 
 ```wiki
-The server is running on port [{ConfigAccessor key='amdwiki.server.port' valueonly='true' after=''}].
+The server is running on port [{ConfigAccessor key='amdwiki.server.port' valueonly='true'}].
 ```
 
 **Output:** The server is running on port 3000.
 
-**Note:** Using `after=''` prevents the default newline, keeping the value inline.
+**Note:** Single values have no trailing newline by default (smart default), perfect for inline use. No need to specify `after=''`!
 
 ### Example 2: Display Single Config Value (Formatted)
 
@@ -267,14 +271,21 @@ When `valueonly='true'` is specified:
 - Objects: returns JSON string representation
 - Empty/not found: returns empty string
 - Default `before`: `''` (empty string)
-- Default `after`: `'\n'` (newline)
+- Default `after`: **Smart default** - `''` (empty) for single values, `'\n'` (newline) for multiple values
+
+### Smart Defaults
+The `after` parameter has intelligent defaults based on usage:
+- **Single value** (e.g., `key='amdwiki.server.port'`): Default `after=''` - No trailing newline, perfect for inline use
+- **Multiple values** (e.g., `key='amdwiki.server.*'`): Default `after='\n'` - One value per line, perfect for lists
+
+This means you don't need to specify `after=''` for inline single values - it just works!
 
 ### Format Control with before/after
 - `before`: String prepended before each value
-- `after`: String appended after each value
+- `after`: String appended after each value (overrides smart default when specified)
 - Both parameters work together to format output
-- Use `after=''` to prevent trailing newlines for inline use
-- Use `before='* '` with `after='\n'` for bulleted lists
+- Use `after='\n'` to add a trailing newline to single values if needed
+- Use `before='* '` for bulleted lists (works with default `after='\n'` for wildcards)
 - Use `before='<li>'` with `after='</li>\n'` for HTML lists
 
 ### Use Cases
@@ -581,6 +592,13 @@ All database settings:
 - [System Variables Page](/wiki/System%20Variables)
 
 ## Version History
+
+- **2.2.0** (2025-10-17) - Smart defaults release
+  - **IMPROVED:** Smart default for `after` parameter based on usage
+    - Single values: default `after=''` (no trailing newline) for perfect inline use
+    - Multiple values (wildcard): default `after='\n'` (newline) for list formatting
+  - No longer need to specify `after=''` for inline single values!
+  - Better user experience with intelligent defaults
 
 - **2.1.0** (2025-10-17) - Formatting enhancement release
   - Added `before` and `after` parameters for flexible output formatting

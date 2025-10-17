@@ -267,7 +267,7 @@ class DOMPluginHandler {
    * @example
    * const element = { type: 'plugin', inner: 'TableOfContents', id: 1, ... };
    * const node = await handler.createNodeFromExtract(element, context, wikiDoc);
-   * // Returns: <div class="wiki-plugin" data-plugin="TableOfContents">...plugin output...</div>
+   * // Returns: <span class="wiki-plugin" data-plugin="TableOfContents">...plugin output...</span>
    */
   async createNodeFromExtract(element, context, wikiDocument) {
     // Get PluginManager dynamically
@@ -311,22 +311,54 @@ class DOMPluginHandler {
       return errorNode;
     }
 
-    // Create DOM node for successful plugin execution
-    const node = wikiDocument.createElement('div', {
-      'class': 'wiki-plugin',
-      'data-plugin': pluginInfo.pluginName,
-      'data-jspwiki-id': element.id.toString()
-    });
-
-    // Set innerHTML with plugin result
+    // Parse the result to check if we can unwrap it
     if (result && typeof result === 'string' && result.trim() !== '') {
-      node.innerHTML = result;
-    } else {
-      // Empty result - plugin executed but returned nothing
-      node.textContent = '';
-    }
+      // Create temporary container to parse HTML result
+      const tempContainer = wikiDocument.createElement('div');
+      tempContainer.innerHTML = result.trim(); // Trim to avoid whitespace text nodes
 
-    return node;
+      // Count significant (non-whitespace) child nodes
+      const significantChildren = Array.from(tempContainer.childNodes).filter(node => {
+        // Keep element nodes, skip empty text nodes
+        return node.nodeType === 1 || (node.nodeType === 3 && node.textContent.trim() !== '');
+      });
+
+      // If result has single significant child, return it directly (unwrapped)
+      // This avoids double-wrapping for both inline and block content
+      if (significantChildren.length === 1 && significantChildren[0].nodeType === 1) {
+        const unwrappedNode = significantChildren[0];
+        // Preserve tracking attributes for serialization
+        unwrappedNode.setAttribute('data-jspwiki-id', element.id.toString());
+        unwrappedNode.setAttribute('data-plugin', pluginInfo.pluginName);
+        return unwrappedNode;
+      }
+
+      // Multiple root elements - determine wrapper type based on content
+      // Use div for block content, span for inline/mixed content
+      const hasBlockElements = significantChildren.some(node => {
+        if (node.nodeType !== 1) return false;
+        const tagName = node.tagName.toLowerCase();
+        return ['div', 'p', 'table', 'ul', 'ol', 'pre', 'blockquote', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(tagName);
+      });
+
+      const wrapperTag = hasBlockElements ? 'div' : 'span';
+      const node = wikiDocument.createElement(wrapperTag, {
+        'class': 'wiki-plugin',
+        'data-plugin': pluginInfo.pluginName,
+        'data-jspwiki-id': element.id.toString()
+      });
+      node.innerHTML = result.trim();
+      return node;
+    } else {
+      // Empty result - return empty span
+      const node = wikiDocument.createElement('span', {
+        'class': 'wiki-plugin',
+        'data-plugin': pluginInfo.pluginName,
+        'data-jspwiki-id': element.id.toString()
+      });
+      node.textContent = '';
+      return node;
+    }
   }
 
   /**
