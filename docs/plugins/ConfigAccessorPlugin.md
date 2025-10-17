@@ -6,7 +6,7 @@ The ConfigAccessorPlugin provides access to system configuration values includin
 
 ### Display All Roles (Default)
 
-```
+```wiki
 [{ConfigAccessor}]
 ```
 
@@ -14,7 +14,7 @@ This displays all system and custom roles in a formatted table.
 
 ### Display Specific Configuration Value
 
-```
+```wiki
 [{ConfigAccessor type='config' key='amdwiki.server.port'}]
 ```
 
@@ -22,7 +22,7 @@ Retrieves and displays a specific configuration property by its key.
 
 ### Display Manager Configuration
 
-```
+```wiki
 [{ConfigAccessor type='manager' manager='UserManager'}]
 ```
 
@@ -30,7 +30,7 @@ Shows all configuration properties for a specific manager.
 
 ### Display Feature Configuration
 
-```
+```wiki
 [{ConfigAccessor type='feature' feature='search'}]
 ```
 
@@ -49,7 +49,7 @@ Shows all configuration properties for a specific feature.
 
 ### Example 1: Display All Roles
 
-```
+```wiki
 [{ConfigAccessor}]
 [{ConfigAccessor type='roles'}]
 ```
@@ -70,7 +70,7 @@ Output includes:
 
 ### Example 2: Get Server Port
 
-```
+```wiki
 [{ConfigAccessor type='config' key='amdwiki.server.port'}]
 ```
 
@@ -80,7 +80,7 @@ Displays:
 
 ### Example 3: Get Application Name
 
-```
+```wiki
 [{ConfigAccessor type='config' key='amdwiki.applicationName'}]
 ```
 
@@ -90,7 +90,7 @@ Displays:
 
 ### Example 4: Get Role Definitions
 
-```
+```wiki
 [{ConfigAccessor type='config' key='amdwiki.roles.definitions'}]
 ```
 
@@ -98,7 +98,7 @@ Displays the entire role definitions object in formatted JSON.
 
 ### Example 5: UserManager Configuration
 
-```
+```wiki
 [{ConfigAccessor type='manager' manager='UserManager'}]
 ```
 
@@ -110,7 +110,7 @@ Shows a table with all UserManager configuration properties such as:
 
 ### Example 6: PageManager Configuration
 
-```
+```wiki
 [{ConfigAccessor type='manager' manager='PageManager'}]
 ```
 
@@ -122,7 +122,7 @@ Shows PageManager-specific configuration like:
 
 ### Example 7: Search Feature Configuration
 
-```
+```wiki
 [{ConfigAccessor type='feature' feature='search'}]
 ```
 
@@ -139,7 +139,7 @@ The plugin uses these ConfigurationManager methods:
 ### getProperty(key, defaultValue)
 Gets a single configuration property by dot-notation key.
 
-```
+```javascript
 key: 'amdwiki.server.port'
 returns: 3000
 ```
@@ -147,7 +147,7 @@ returns: 3000
 ### getManagerConfig(managerName)
 Gets all configuration for a specific manager.
 
-```
+```javascript
 managerName: 'UserManager'
 returns: { sessionTimeout: 3600, ... }
 ```
@@ -155,7 +155,7 @@ returns: { sessionTimeout: 3600, ... }
 ### getFeatureConfig(featureName)
 Gets all configuration for a specific feature.
 
-```
+```javascript
 featureName: 'search'
 returns: { indexPath: './index', ... }
 ```
@@ -234,7 +234,7 @@ Built-in roles defined in configuration:
 
 Plugin names are case-insensitive in amdWiki:
 
-```
+```wiki
 [{ConfigAccessor}]           ✓ Works
 [{configaccessor}]           ✓ Works
 [{CONFIGACCESSOR}]           ✓ Works
@@ -247,7 +247,7 @@ All variations invoke the same plugin.
 
 ### Missing Required Parameters
 
-```
+```wiki
 [{ConfigAccessor type='config'}]
 ```
 
@@ -255,7 +255,7 @@ Returns: `Missing required parameter: key`
 
 ### Invalid Configuration Key
 
-```
+```wiki
 [{ConfigAccessor type='config' key='invalid.key'}]
 ```
 
@@ -263,7 +263,7 @@ Returns: `Config key 'invalid.key' not found`
 
 ### Manager Not Found
 
-```
+```wiki
 [{ConfigAccessor type='manager' manager='NonexistentManager'}]
 ```
 
@@ -271,7 +271,7 @@ Returns: `No configuration found for manager: NonexistentManager`
 
 ### Feature Not Found
 
-```
+```wiki
 [{ConfigAccessor type='feature' feature='nonexistent'}]
 ```
 
@@ -289,7 +289,7 @@ Returns: `No configuration found for feature: nonexistent`
 ### 1. System Information Pages
 Display current configuration on admin/status pages:
 
-```
+```wiki
 ## Server Configuration
 
 **Port:** [{ConfigAccessor type='config' key='amdwiki.server.port'}]
@@ -299,7 +299,7 @@ Display current configuration on admin/status pages:
 ### 2. Role Documentation
 Document available roles for users:
 
-```
+```wiki
 ## Available User Roles
 
 [{ConfigAccessor}]
@@ -308,7 +308,7 @@ Document available roles for users:
 ### 3. Feature Documentation
 Show current feature configuration:
 
-```
+```wiki
 ## Search Configuration
 
 [{ConfigAccessor type='feature' feature='search'}]
@@ -317,7 +317,7 @@ Show current feature configuration:
 ### 4. Manager Settings
 Display manager configuration for troubleshooting:
 
-```
+```wiki
 ## PageManager Settings
 
 [{ConfigAccessor type='manager' manager='PageManager'}]

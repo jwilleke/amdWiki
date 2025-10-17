@@ -6,24 +6,24 @@ The VariablesPlugin displays system and contextual variables available in the wi
 
 ### Show All Variables (Default)
 
-```
-[{INSERT VariablesPlugin}]
+```wiki
+[{VariablesPlugin}]
 ```
 
 This displays both system and contextual variables in tabbed format.
 
 ### Show Only System Variables
 
-```
-[{INSERT VariablesPlugin type='system'}]
+```wiki
+[{VariablesPlugin type='system'}]
 ```
 
 Displays only system variables that don't require user or page context.
 
 ### Show Only Contextual Variables
 
-```
-[{INSERT VariablesPlugin type='contextual'}]
+```wiki
+[{VariablesPlugin type='contextual'}]
 ```
 
 Displays only contextual variables that depend on user or page context.
@@ -32,35 +32,44 @@ Displays only contextual variables that depend on user or page context.
 
 | Parameter | Values | Default | Description |
 |-----------|--------|---------|-------------|
-| `type` | `all`, `system`, `contextual` | `all` | Which type of variables to display |
+| `type` | `all`, `system`, `contextual`, `plugins` | `all` | Which type of information to display |
 
 ## Examples
 
 ### Example 1: Display All Variables
 
-```
-[{INSERT VariablesPlugin}]
+```wiki
+[{VariablesPlugin}]
 ```
 
 Shows a tabbed interface with:
 - **System Variables tab**: applicationname, version, baseurl, uptime, totalpages, etc.
 - **Contextual Variables tab**: username, pagename, displayname, browser, clientip, etc.
+- **Available Plugins tab**: All registered plugins with descriptions
 
 ### Example 2: Display System Variables Only
 
-```
-[{INSERT VariablesPlugin type='system'}]
+```wiki
+[{VariablesPlugin type='system'}]
 ```
 
 Shows only system-level variables in a single table.
 
 ### Example 3: Display Contextual Variables Only
 
-```
-[{INSERT VariablesPlugin type='contextual'}]
+```wiki
+[{VariablesPlugin type='contextual'}]
 ```
 
 Shows only context-dependent variables in a single table.
+
+### Example 4: Display Available Plugins Only
+
+```wiki
+[{VariablesPlugin type='plugins'}]
+```
+
+Shows only registered plugins in a single table.
 
 ## Variable Categories
 
