@@ -327,7 +327,8 @@ class ConfigurationManager {
     const config = { enabled };
 
     // Get manager-specific settings
-    const keys = Object.keys(this.properties).filter(key =>
+    const allProps = this.mergedConfig || {};
+    const keys = Object.keys(allProps).filter(key =>
       key.startsWith(`amdwiki.managers.${managerName}.`) &&
       !key.endsWith('.enabled')
     );
@@ -350,7 +351,8 @@ class ConfigurationManager {
     const config = { enabled };
 
     // Get feature-specific settings
-    const keys = Object.keys(this.properties).filter(key =>
+    const allProps = this.mergedConfig || {};
+    const keys = Object.keys(allProps).filter(key =>
       key.startsWith(`amdwiki.features.${featureName}.`) &&
       !key.endsWith('.enabled')
     );

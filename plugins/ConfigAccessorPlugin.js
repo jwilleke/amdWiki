@@ -12,6 +12,11 @@
  *   [{ConfigAccessor type='roles'}]                                             - Display all roles (formatted)
  *   [{ConfigAccessor type='manager' manager='UserManager'}]                     - Display manager config (formatted)
  *   [{ConfigAccessor type='feature' feature='search'}]                          - Display feature config (formatted)
+ *   [{ConfigAccessor type='userKeywords'}]                                      - Display all user keywords (formatted)
+ *   [{ConfigAccessor type='userKeywords' label='private'}]                      - Display keywords with label='private'
+ *   [{ConfigAccessor type='userKeywords' enabled='true'}]                       - Display enabled keywords
+ *   [{ConfigAccessor type='userKeywords' category='access'}]                    - Display keywords by category
+ *   [{ConfigAccessor type='userKeywords' enabled='true' valueonly='true'}]      - Return enabled keyword labels only
  *
  * Note: Plugin names are case-insensitive. [{configaccessor}], [{ConfigAccessor}], and [{CONFIGACCESSOR}] all work the same.
  * Default 'after' value: '' (empty) for single values, '\n' (newline) for multiple values (wildcards)
@@ -24,7 +29,7 @@ const ConfigAccessorPlugin = {
   name: 'ConfigAccessorPlugin',
   description: 'Access configuration values including roles, features, and system settings',
   author: 'amdWiki',
-  version: '2.4.0',
+  version: '2.5.0',
 
   /**
    * Process escape sequences in strings (e.g., \n, \t, \\)
@@ -88,8 +93,11 @@ const ConfigAccessorPlugin = {
         case 'feature':
           return this.displayFeatureConfig(configManager, opts.feature);
 
+        case 'userkeywords':
+          return this.displayUserKeywords(configManager, opts, valueonly, before, after);
+
         default:
-          return `<p class="error">Unknown type: ${escapeHtml(type)}. Use 'roles', 'actions', 'manager', or 'feature'.</p>`;
+          return `<p class="error">Unknown type: ${escapeHtml(type)}. Use 'roles', 'actions', 'manager', 'feature', or 'userKeywords'.</p>`;
       }
 
     } catch (error) {
@@ -286,6 +294,168 @@ const ConfigAccessorPlugin = {
     } catch (error) {
       console.error('[ConfigAccessorPlugin] Error in displayActions:', error);
       return `<p class="error">Error displaying actions: ${escapeHtml(error.message)}</p>`;
+    }
+  },
+
+  /**
+   * Display user keywords with optional filtering
+   * @param {Object} configManager - ConfigurationManager instance
+   * @param {Object} opts - Filter options (label, enabled, category, restrictEditing, etc.)
+   * @param {boolean} valueonly - If true, return only the label values
+   * @param {string} before - String to prepend before each value
+   * @param {string} after - String to append after each value
+   * @returns {string} HTML output or plain text
+   */
+  displayUserKeywords(configManager, opts = {}, valueonly = false, before = '', after = undefined) {
+    if (!configManager) {
+      return '<p class="error">ConfigurationManager not available</p>';
+    }
+
+    try {
+      // Get userKeywords from configuration
+      const userKeywords = configManager.getProperty('amdwiki.userKeywords', {});
+
+      if (!userKeywords || typeof userKeywords !== 'object' || Object.keys(userKeywords).length === 0) {
+        if (valueonly) {
+          return '';
+        }
+        return '<p class="text-muted">No user keywords found</p>';
+      }
+
+      // Convert to array and filter based on opts
+      let keywords = Object.entries(userKeywords).map(([key, value]) => ({
+        key,
+        ...value
+      }));
+
+      // Apply filters based on opts
+      const filterKeys = ['label', 'enabled', 'category', 'restrictEditing'];
+      for (const filterKey of filterKeys) {
+        if (opts[filterKey] !== undefined) {
+          const filterValue = opts[filterKey];
+          keywords = keywords.filter(kw => {
+            // Handle boolean values
+            if (filterKey === 'enabled' || filterKey === 'restrictEditing') {
+              const boolValue = filterValue === 'true' || filterValue === true;
+              return kw[filterKey] === boolValue;
+            }
+            // Handle string values (case-insensitive comparison)
+            return String(kw[filterKey]).toLowerCase() === String(filterValue).toLowerCase();
+          });
+        }
+      }
+
+      if (keywords.length === 0) {
+        if (valueonly) {
+          return '';
+        }
+        const filterDesc = Object.entries(opts)
+          .filter(([k]) => filterKeys.includes(k))
+          .map(([k, v]) => `${k}=${v}`)
+          .join(', ');
+        return `<p class="text-muted">No user keywords match filter: ${escapeHtml(filterDesc)}</p>`;
+      }
+
+      // If valueonly, return labels with before/after formatting
+      if (valueonly) {
+        // Default after for multiple values is '\n'
+        const afterStr = after !== undefined ? after : '\n';
+        const processedBefore = this.processEscapeSequences(before);
+        const processedAfter = this.processEscapeSequences(afterStr);
+
+        const items = keywords.map(kw => {
+          return processedBefore + escapeHtml(kw.label) + processedAfter;
+        }).join('');
+
+        // Convert newlines to <br> for HTML rendering
+        const htmlItems = items.replace(/\n/g, '<br>\n');
+        return `<span class="config-userkeywords">${htmlItems}</span>`;
+      }
+
+      // Otherwise, return formatted HTML table
+      let html = '<div class="config-accessor-plugin">\n';
+      html += '  <div class="card">\n';
+      html += '    <div class="card-header">\n';
+      html += '      <h6><i class="fas fa-tags"></i> User Keywords';
+
+      // Add filter info to header if filters applied
+      const appliedFilters = Object.entries(opts)
+        .filter(([k]) => filterKeys.includes(k))
+        .map(([k, v]) => `${k}=${v}`)
+        .join(', ');
+      if (appliedFilters) {
+        html += ` (${escapeHtml(appliedFilters)})`;
+      }
+
+      html += '</h6>\n';
+      html += '      <small class="text-muted">User-defined keywords for content tagging and organization</small>\n';
+      html += '    </div>\n';
+      html += '    <div class="card-body">\n';
+      html += '      <div class="table-responsive">\n';
+      html += '        <table class="table table-sm table-hover">\n';
+      html += '          <thead>\n';
+      html += '            <tr>\n';
+      html += '              <th style="width: 15%;">Label</th>\n';
+      html += '              <th style="width: 30%;">Description</th>\n';
+      html += '              <th style="width: 15%;">Category</th>\n';
+      html += '              <th style="width: 10%;">Enabled</th>\n';
+      html += '              <th style="width: 15%;">Restrict Editing</th>\n';
+      html += '              <th style="width: 15%;">Allowed Roles</th>\n';
+      html += '            </tr>\n';
+      html += '          </thead>\n';
+      html += '          <tbody>\n';
+
+      // Sort keywords by label
+      keywords.sort((a, b) => a.label.localeCompare(b.label));
+
+      for (const kw of keywords) {
+        const enabledBadge = kw.enabled ?
+          '<span class="badge bg-success">Yes</span>' :
+          '<span class="badge bg-secondary">No</span>';
+        const restrictBadge = kw.restrictEditing ?
+          '<span class="badge bg-warning">Yes</span>' :
+          '<span class="badge bg-secondary">No</span>';
+        const allowedRoles = kw.allowedRoles && Array.isArray(kw.allowedRoles) ?
+          kw.allowedRoles.join(', ') : '-';
+
+        html += '            <tr>\n';
+        html += `              <td><code>${escapeHtml(kw.label)}</code></td>\n`;
+        html += `              <td><small class="text-muted">${escapeHtml(kw.description || 'No description')}</small></td>\n`;
+        html += `              <td><span class="badge bg-info">${escapeHtml(kw.category || 'none')}</span></td>\n`;
+        html += `              <td>${enabledBadge}</td>\n`;
+        html += `              <td>${restrictBadge}</td>\n`;
+        html += `              <td><small>${escapeHtml(allowedRoles)}</small></td>\n`;
+        html += '            </tr>\n';
+      }
+
+      html += '          </tbody>\n';
+      html += '        </table>\n';
+      html += '      </div>\n';
+      html += '    </div>\n';
+      html += '    <div class="card-footer text-muted">\n';
+      html += `      <small>Total Keywords: ${keywords.length}`;
+
+      // Add breakdown by category
+      const categories = {};
+      for (const kw of keywords) {
+        const cat = kw.category || 'none';
+        categories[cat] = (categories[cat] || 0) + 1;
+      }
+      const categoryBreakdown = Object.entries(categories)
+        .map(([cat, count]) => `${cat}: ${count}`)
+        .join(', ');
+      html += ` | By Category: ${categoryBreakdown}`;
+
+      html += '</small>\n';
+      html += '    </div>\n';
+      html += '  </div>\n';
+      html += '</div>\n';
+
+      return html;
+
+    } catch (error) {
+      console.error('[ConfigAccessorPlugin] Error in displayUserKeywords:', error);
+      return `<p class="error">Error displaying user keywords: ${escapeHtml(error.message)}</p>`;
     }
   },
 
