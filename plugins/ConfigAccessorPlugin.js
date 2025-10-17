@@ -24,7 +24,7 @@ const ConfigAccessorPlugin = {
   name: 'ConfigAccessorPlugin',
   description: 'Access configuration values including roles, features, and system settings',
   author: 'amdWiki',
-  version: '2.3.0',
+  version: '2.4.0',
 
   /**
    * Process escape sequences in strings (e.g., \n, \t, \\)
@@ -74,10 +74,13 @@ const ConfigAccessorPlugin = {
         return this.displayConfigValue(configManager, key, valueonly, before, after);
       }
 
-      // Otherwise handle type-based display (no valueonly support for these)
+      // Otherwise handle type-based display
       switch (type.toLowerCase()) {
         case 'roles':
           return this.displayRoles(userManager);
+
+        case 'actions':
+          return this.displayActions(configManager, valueonly, before, after);
 
         case 'manager':
           return this.displayManagerConfig(configManager, opts.manager);
@@ -86,7 +89,7 @@ const ConfigAccessorPlugin = {
           return this.displayFeatureConfig(configManager, opts.feature);
 
         default:
-          return `<p class="error">Unknown type: ${escapeHtml(type)}. Use 'roles', 'manager', or 'feature'.</p>`;
+          return `<p class="error">Unknown type: ${escapeHtml(type)}. Use 'roles', 'actions', 'manager', or 'feature'.</p>`;
       }
 
     } catch (error) {
@@ -164,6 +167,126 @@ const ConfigAccessorPlugin = {
     html += '</div>\n';
 
     return html;
+  },
+
+  /**
+   * Display all unique actions from access policies
+   * @param {Object} configManager - ConfigurationManager instance
+   * @param {boolean} valueonly - If true, return only the action values
+   * @param {string} before - String to prepend before each action
+   * @param {string} after - String to append after each action
+   * @returns {string} HTML output or plain text
+   */
+  displayActions(configManager, valueonly = false, before = '', after = undefined) {
+    if (!configManager) {
+      return '<p class="error">ConfigurationManager not available</p>';
+    }
+
+    try {
+      // Get access policies from configuration
+      const policies = configManager.getProperty('amdwiki.access.policies', []);
+
+      if (!Array.isArray(policies) || policies.length === 0) {
+        if (valueonly) {
+          return '';
+        }
+        return '<p class="text-muted">No access policies found</p>';
+      }
+
+      // Extract all unique actions from all policies
+      const actionsSet = new Set();
+      for (const policy of policies) {
+        if (policy.actions && Array.isArray(policy.actions)) {
+          policy.actions.forEach(action => actionsSet.add(action));
+        }
+      }
+
+      const actions = Array.from(actionsSet).sort();
+
+      if (actions.length === 0) {
+        if (valueonly) {
+          return '';
+        }
+        return '<p class="text-muted">No actions defined in access policies</p>';
+      }
+
+      // If valueonly, return actions with before/after formatting
+      if (valueonly) {
+        // Default after for multiple values is '\n'
+        const afterStr = after !== undefined ? after : '\n';
+        const processedBefore = this.processEscapeSequences(before);
+        const processedAfter = this.processEscapeSequences(afterStr);
+
+        const items = actions.map(action => {
+          return processedBefore + escapeHtml(action) + processedAfter;
+        }).join('');
+
+        // Convert newlines to <br> for HTML rendering
+        const htmlItems = items.replace(/\n/g, '<br>\n');
+        return `<span class="config-actions">${htmlItems}</span>`;
+      }
+
+      // Otherwise, return formatted HTML table
+      // Group actions by category (prefix before colon)
+      const actionsByCategory = {};
+      for (const action of actions) {
+        const [category] = action.split(':');
+        if (!actionsByCategory[category]) {
+          actionsByCategory[category] = [];
+        }
+        actionsByCategory[category].push(action);
+      }
+
+      let html = '<div class="config-accessor-plugin">\n';
+      html += '  <div class="card">\n';
+      html += '    <div class="card-header">\n';
+      html += '      <h6><i class="fas fa-shield-alt"></i> Available Actions (Permissions)</h6>\n';
+      html += '      <small class="text-muted">All unique actions defined in access control policies</small>\n';
+      html += '    </div>\n';
+      html += '    <div class="card-body">\n';
+      html += '      <div class="table-responsive">\n';
+      html += '        <table class="table table-sm table-hover">\n';
+      html += '          <thead>\n';
+      html += '            <tr>\n';
+      html += '              <th style="width: 30%;">Category</th>\n';
+      html += '              <th style="width: 70%;">Actions</th>\n';
+      html += '            </tr>\n';
+      html += '          </thead>\n';
+      html += '          <tbody>\n';
+
+      // Sort categories for consistent display
+      const categories = Object.keys(actionsByCategory).sort();
+      for (const category of categories) {
+        const categoryActions = actionsByCategory[category];
+        html += '            <tr>\n';
+        html += `              <td><strong><code>${escapeHtml(category)}</code></strong></td>\n`;
+        html += '              <td>\n';
+
+        // Display actions as badges
+        for (const action of categoryActions) {
+          html += `                <code class="me-2">${escapeHtml(action)}</code>\n`;
+        }
+
+        html += '              </td>\n';
+        html += '            </tr>\n';
+      }
+
+      html += '          </tbody>\n';
+      html += '        </table>\n';
+      html += '      </div>\n';
+      html += '    </div>\n';
+      html += '    <div class="card-footer text-muted">\n';
+      html += `      <small>Total Actions: ${actions.length} | Categories: ${categories.length}</small>\n`;
+      html += '    </div>\n';
+      html += '  </div>\n';
+      html += '</div>\n';
+
+      return html;
+
+    } catch (error) {
+      console.error('[ConfigAccessorPlugin] Error in displayActions:', error);
+      return `<p class="error">Error displaying actions: ${escapeHtml(error.message)}</p>`;
+    }
   },
 
   /**
