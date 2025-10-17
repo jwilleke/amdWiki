@@ -24,7 +24,7 @@ const ConfigAccessorPlugin = {
   name: 'ConfigAccessorPlugin',
   description: 'Access configuration values including roles, features, and system settings',
   author: 'amdWiki',
-  version: '2.2.0',
+  version: '2.3.0',
 
   /**
    * Process escape sequences in strings (e.g., \n, \t, \\)
