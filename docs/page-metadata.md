@@ -33,6 +33,7 @@ Are future implementaion for AI Tags based on Content.
 - Multiple values
 
 ## Required Fields (All Pages)
+
 ```yaml
 title: "Page Name"
 system-category: "system" | "user" | "documentation"
