@@ -2,7 +2,7 @@
 
 The ConfigAccessorPlugin provides access to system configuration values including roles, features, manager settings, and any configuration property. This plugin is useful for displaying configuration information on wiki pages or embedding config values inline in text.
 
-**Version:** 2.0.0
+**Version:** 2.1.0
 
 ## Usage
 
@@ -69,20 +69,26 @@ Shows all configuration properties for a specific feature.
 | `key` | Config key with optional wildcards (*) | *(none)* | Yes (if no `type`) | Configuration key in dot-notation, supports wildcards |
 | `type` | `roles`, `manager`, `feature` | *(none)* | Yes (if no `key`) | What type of configuration to display |
 | `valueonly` | `true`, `false` | `false` | No | Return only value(s) without HTML formatting |
+| `before` | Any string | `''` (empty) | No | String to prepend before each value (only with `valueonly`) |
+| `after` | Any string | `'\n'` (newline) | No | String to append after each value (only with `valueonly`) |
 | `manager` | Manager name | *(none)* | Yes (if `type='manager'`) | Manager name |
 | `feature` | Feature name | *(none)* | Yes (if `type='feature'`) | Feature name |
 
 **Important:** You must specify either `key` or `type` parameter. The plugin will return an error if neither is provided.
 
+**Note:** The `before` and `after` parameters only work when `valueonly='true'`. They are ignored in formatted display mode.
+
 ## Examples
 
-### Example 1: Inline Value in Text
+### Example 1: Inline Value in Text (No Trailing Newline)
 
 ```wiki
-The server is running on port [{ConfigAccessor key='amdwiki.server.port' valueonly='true'}].
+The server is running on port [{ConfigAccessor key='amdwiki.server.port' valueonly='true' after=''}].
 ```
 
 **Output:** The server is running on port 3000.
+
+**Note:** Using `after=''` prevents the default newline, keeping the value inline.
 
 ### Example 2: Display Single Config Value (Formatted)
 
@@ -94,7 +100,7 @@ The server is running on port [{ConfigAccessor key='amdwiki.server.port' valueon
 - **Key:** `amdwiki.server.port`
 - **Value:** `3000`
 
-### Example 3: Get All Server Config (Inline)
+### Example 3: Get All Server Config (Inline, Default Newlines)
 
 ```wiki
 [{ConfigAccessor key='amdwiki.server.*' valueonly='true'}]
@@ -105,6 +111,8 @@ The server is running on port [{ConfigAccessor key='amdwiki.server.port' valueon
 3000
 localhost
 ```
+
+**Note:** By default, each value ends with `\n` (newline).
 
 ### Example 4: Display All Server Config (Formatted)
 
@@ -178,6 +186,48 @@ reader
 anonymous
 ```
 
+### Example 10: Create Bulleted List with before/after
+
+```wiki
+## Server Configuration
+
+[{ConfigAccessor key='amdwiki.server.*' valueonly='true' before='* ' after='\n'}]
+```
+
+**Output:**
+```
+## Server Configuration
+
+* 3000
+* localhost
+```
+
+### Example 11: Inline Comma-Separated List
+
+```wiki
+Available roles: [{ConfigAccessor key='amdwiki.roles.definitions.*.name' valueonly='true' before='' after=', '}]
+```
+
+**Output:** Available roles: admin, editor, contributor, reader, anonymous,
+
+**Note:** You may want to trim the trailing comma manually or use other formatting.
+
+### Example 12: Custom Formatting with HTML
+
+```wiki
+<ul>
+[{ConfigAccessor key='amdwiki.server.*' valueonly='true' before='<li>' after='</li>\n'}]
+</ul>
+```
+
+**Output:**
+```html
+<ul>
+<li>3000</li>
+<li>localhost</li>
+</ul>
+```
+
 ## Wildcard Support
 
 The `key` parameter supports wildcards using the `*` character for flexible pattern matching:
@@ -212,14 +262,26 @@ When `valueonly='true'` is specified:
 
 ### Behavior
 - Returns **plain text only** (no HTML formatting)
-- Single value: returns the value as-is
-- Multiple values (wildcard): returns values separated by newlines
+- Single value: returns the value with optional `before` and `after` strings
+- Multiple values (wildcard): returns each value with `before` and `after` strings
 - Objects: returns JSON string representation
 - Empty/not found: returns empty string
+- Default `before`: `''` (empty string)
+- Default `after`: `'\n'` (newline)
+
+### Format Control with before/after
+- `before`: String prepended before each value
+- `after`: String appended after each value
+- Both parameters work together to format output
+- Use `after=''` to prevent trailing newlines for inline use
+- Use `before='* '` with `after='\n'` for bulleted lists
+- Use `before='<li>'` with `after='</li>\n'` for HTML lists
 
 ### Use Cases
 - Embedding config values inline in sentences
-- Creating dynamic lists or tables
+- Creating dynamic bulleted or numbered lists
+- Creating HTML lists with custom formatting
+- Building comma-separated or custom-delimited lists
 - Using config values in calculations or comparisons
 - Building dynamic URLs or paths
 
@@ -519,6 +581,13 @@ All database settings:
 - [System Variables Page](/wiki/System%20Variables)
 
 ## Version History
+
+- **2.1.0** (2025-10-17) - Formatting enhancement release
+  - Added `before` and `after` parameters for flexible output formatting
+  - Fixed manager/feature config error handling (better null checking)
+  - Default `after` value is now `'\n'` (previously joined without control)
+  - Enhanced valueonly mode with customizable delimiters
+  - Support for bulleted lists, HTML lists, and custom formatting
 
 - **2.0.0** (2025-10-17) - Major enhancement release
   - **BREAKING:** Now requires either `key` or `type` parameter (no default behavior)

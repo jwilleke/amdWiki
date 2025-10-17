@@ -3,13 +3,15 @@
  * Displays configuration values including roles, features, and system settings
  *
  * Usage:
- *   [{ConfigAccessor key='amdwiki.server.port'}]                       - Display single config value (formatted)
- *   [{ConfigAccessor key='amdwiki.server.*'}]                          - Display matching config values with wildcard (formatted)
- *   [{ConfigAccessor key='amdwiki.server.port' valueonly='true'}]      - Return only the value (inline)
- *   [{ConfigAccessor key='amdwiki.server.*' valueonly='true'}]         - Return matching values, one per line (inline)
- *   [{ConfigAccessor type='roles'}]                                    - Display all roles (formatted)
- *   [{ConfigAccessor type='manager' manager='UserManager'}]            - Display manager config (formatted)
- *   [{ConfigAccessor type='feature' feature='search'}]                 - Display feature config (formatted)
+ *   [{ConfigAccessor key='amdwiki.server.port'}]                                - Display single config value (formatted)
+ *   [{ConfigAccessor key='amdwiki.server.*'}]                                   - Display matching config values with wildcard (formatted)
+ *   [{ConfigAccessor key='amdwiki.server.port' valueonly='true'}]               - Return only the value (inline, ends with newline)
+ *   [{ConfigAccessor key='amdwiki.server.port' valueonly='true' after=''}]      - Return only the value (inline, no newline)
+ *   [{ConfigAccessor key='amdwiki.server.*' valueonly='true'}]                  - Return matching values, one per line
+ *   [{ConfigAccessor key='amdwiki.server.*' valueonly='true' before='* ' after='\n'}]  - Return as bulleted list
+ *   [{ConfigAccessor type='roles'}]                                             - Display all roles (formatted)
+ *   [{ConfigAccessor type='manager' manager='UserManager'}]                     - Display manager config (formatted)
+ *   [{ConfigAccessor type='feature' feature='search'}]                          - Display feature config (formatted)
  *
  * Note: Plugin names are case-insensitive. [{configaccessor}], [{ConfigAccessor}], and [{CONFIGACCESSOR}] all work the same.
  */
@@ -21,7 +23,7 @@ const ConfigAccessorPlugin = {
   name: 'ConfigAccessorPlugin',
   description: 'Access configuration values including roles, features, and system settings',
   author: 'amdWiki',
-  version: '2.0.0',
+  version: '2.1.0',
 
   /**
    * Execute the plugin
@@ -34,6 +36,8 @@ const ConfigAccessorPlugin = {
     const key = opts.key;
     const type = opts.type;
     const valueonly = opts.valueonly === 'true' || opts.valueonly === true;
+    const before = opts.before !== undefined ? opts.before : '';
+    const after = opts.after !== undefined ? opts.after : '\n';
 
     try {
       // Get managers from engine
@@ -51,7 +55,7 @@ const ConfigAccessorPlugin = {
 
       // If key is provided, handle config value(s)
       if (key) {
-        return this.displayConfigValue(configManager, key, valueonly);
+        return this.displayConfigValue(configManager, key, valueonly, before, after);
       }
 
       // Otherwise handle type-based display (no valueonly support for these)
@@ -151,9 +155,11 @@ const ConfigAccessorPlugin = {
    * @param {Object} configManager - ConfigurationManager instance
    * @param {string} key - Config key (dot-notation, supports wildcards with *)
    * @param {boolean} valueonly - If true, return only the value(s) without HTML formatting
+   * @param {string} before - String to prepend before each value (default: '')
+   * @param {string} after - String to append after each value (default: '\n')
    * @returns {string} HTML output or plain text
    */
-  displayConfigValue(configManager, key, valueonly = false) {
+  displayConfigValue(configManager, key, valueonly = false, before = '', after = '\n') {
     if (!key) {
       return '<p class="error">Missing required parameter: key</p><p class="text-muted">Usage: [{ConfigAccessor key=\'amdwiki.some.key\'}]</p>';
     }
@@ -174,15 +180,13 @@ const ConfigAccessorPlugin = {
         return `<p class="text-muted">No config keys match pattern: <code>${escapeHtml(key)}</code></p>`;
       }
 
-      // If valueonly, return values one per line
+      // If valueonly, return values with before/after formatting
       if (valueonly) {
         return matchingKeys.map(k => {
           const val = allProps[k];
-          if (typeof val === 'object') {
-            return JSON.stringify(val);
-          }
-          return String(val);
-        }).join('\n');
+          const valStr = typeof val === 'object' ? JSON.stringify(val) : String(val);
+          return before + valStr + after;
+        }).join('');
       }
 
       // Otherwise, return formatted HTML table
@@ -235,12 +239,10 @@ const ConfigAccessorPlugin = {
       return `<p class="text-muted">Config key <code>${escapeHtml(key)}</code> not found</p>`;
     }
 
-    // If valueonly, return just the value
+    // If valueonly, return just the value with before/after formatting
     if (valueonly) {
-      if (typeof value === 'object') {
-        return JSON.stringify(value);
-      }
-      return String(value);
+      const valStr = typeof value === 'object' ? JSON.stringify(value) : String(value);
+      return before + valStr + after;
     }
 
     // Otherwise, return formatted HTML
@@ -278,47 +280,59 @@ const ConfigAccessorPlugin = {
       return '<p class="error">Missing required parameter: manager</p><p class="text-muted">Usage: [{ConfigAccessor type=\'manager\' manager=\'UserManager\'}]</p>';
     }
 
-    const config = configManager.getManagerConfig(managerName);
+    try {
+      const config = configManager.getManagerConfig(managerName);
 
-    if (!config || Object.keys(config).length === 0) {
-      return `<p class="text-muted">No configuration found for manager: <code>${escapeHtml(managerName)}</code></p>`;
-    }
+      // Check if config is a valid object with properties
+      if (!config || typeof config !== 'object' || Array.isArray(config)) {
+        return `<p class="text-muted">No configuration found for manager: <code>${escapeHtml(managerName)}</code></p>`;
+      }
 
-    let html = '<div class="config-accessor-plugin">\n';
-    html += '  <div class="card">\n';
-    html += '    <div class="card-header">\n';
-    html += `      <h6><i class="fas fa-cogs"></i> ${escapeHtml(managerName)} Configuration</h6>\n`;
-    html += '    </div>\n';
-    html += '    <div class="card-body">\n';
-    html += '      <div class="table-responsive">\n';
-    html += '        <table class="table table-sm">\n';
-    html += '          <thead>\n';
-    html += '            <tr>\n';
-    html += '              <th style="width: 40%;">Property</th>\n';
-    html += '              <th style="width: 60%;">Value</th>\n';
-    html += '            </tr>\n';
-    html += '          </thead>\n';
-    html += '          <tbody>\n';
+      const configEntries = Object.entries(config);
+      if (configEntries.length === 0) {
+        return `<p class="text-muted">No configuration properties found for manager: <code>${escapeHtml(managerName)}</code></p>`;
+      }
 
-    for (const [key, value] of Object.entries(config)) {
-      const displayValue = typeof value === 'object' ?
-        JSON.stringify(value, null, 2) :
-        String(value);
-
+      let html = '<div class="config-accessor-plugin">\n';
+      html += '  <div class="card">\n';
+      html += '    <div class="card-header">\n';
+      html += `      <h6><i class="fas fa-cogs"></i> ${escapeHtml(managerName)} Configuration</h6>\n`;
+      html += '    </div>\n';
+      html += '    <div class="card-body">\n';
+      html += '      <div class="table-responsive">\n';
+      html += '        <table class="table table-sm">\n';
+      html += '          <thead>\n';
       html += '            <tr>\n';
-      html += `              <td><code>${escapeHtml(key)}</code></td>\n`;
-      html += `              <td><code>${escapeHtml(displayValue)}</code></td>\n`;
+      html += '              <th style="width: 40%;">Property</th>\n';
+      html += '              <th style="width: 60%;">Value</th>\n';
       html += '            </tr>\n';
+      html += '          </thead>\n';
+      html += '          <tbody>\n';
+
+      for (const [key, value] of configEntries) {
+        const displayValue = typeof value === 'object' ?
+          JSON.stringify(value, null, 2) :
+          String(value);
+
+        html += '            <tr>\n';
+        html += `              <td><code>${escapeHtml(key)}</code></td>\n`;
+        html += `              <td><code>${escapeHtml(displayValue)}</code></td>\n`;
+        html += '            </tr>\n';
+      }
+
+      html += '          </tbody>\n';
+      html += '        </table>\n';
+      html += '      </div>\n';
+      html += '    </div>\n';
+      html += '  </div>\n';
+      html += '</div>\n';
+
+      return html;
+
+    } catch (error) {
+      console.error('[ConfigAccessorPlugin] Error in displayManagerConfig:', error);
+      return `<p class="error">Error displaying manager configuration: ${escapeHtml(error.message)}</p>`;
     }
-
-    html += '          </tbody>\n';
-    html += '        </table>\n';
-    html += '      </div>\n';
-    html += '    </div>\n';
-    html += '  </div>\n';
-    html += '</div>\n';
-
-    return html;
   },
 
   /**
@@ -332,47 +346,59 @@ const ConfigAccessorPlugin = {
       return '<p class="error">Missing required parameter: feature</p><p class="text-muted">Usage: [{ConfigAccessor type=\'feature\' feature=\'search\'}]</p>';
     }
 
-    const config = configManager.getFeatureConfig(featureName);
+    try {
+      const config = configManager.getFeatureConfig(featureName);
 
-    if (!config || Object.keys(config).length === 0) {
-      return `<p class="text-muted">No configuration found for feature: <code>${escapeHtml(featureName)}</code></p>`;
-    }
+      // Check if config is a valid object with properties
+      if (!config || typeof config !== 'object' || Array.isArray(config)) {
+        return `<p class="text-muted">No configuration found for feature: <code>${escapeHtml(featureName)}</code></p>`;
+      }
 
-    let html = '<div class="config-accessor-plugin">\n';
-    html += '  <div class="card">\n';
-    html += '    <div class="card-header">\n';
-    html += `      <h6><i class="fas fa-puzzle-piece"></i> ${escapeHtml(featureName)} Feature Configuration</h6>\n`;
-    html += '    </div>\n';
-    html += '    <div class="card-body">\n';
-    html += '      <div class="table-responsive">\n';
-    html += '        <table class="table table-sm">\n';
-    html += '          <thead>\n';
-    html += '            <tr>\n';
-    html += '              <th style="width: 40%;">Property</th>\n';
-    html += '              <th style="width: 60%;">Value</th>\n';
-    html += '            </tr>\n';
-    html += '          </thead>\n';
-    html += '          <tbody>\n';
+      const configEntries = Object.entries(config);
+      if (configEntries.length === 0) {
+        return `<p class="text-muted">No configuration properties found for feature: <code>${escapeHtml(featureName)}</code></p>`;
+      }
 
-    for (const [key, value] of Object.entries(config)) {
-      const displayValue = typeof value === 'object' ?
-        JSON.stringify(value, null, 2) :
-        String(value);
-
+      let html = '<div class="config-accessor-plugin">\n';
+      html += '  <div class="card">\n';
+      html += '    <div class="card-header">\n';
+      html += `      <h6><i class="fas fa-puzzle-piece"></i> ${escapeHtml(featureName)} Feature Configuration</h6>\n`;
+      html += '    </div>\n';
+      html += '    <div class="card-body">\n';
+      html += '      <div class="table-responsive">\n';
+      html += '        <table class="table table-sm">\n';
+      html += '          <thead>\n';
       html += '            <tr>\n';
-      html += `              <td><code>${escapeHtml(key)}</code></td>\n`;
-      html += `              <td><code>${escapeHtml(displayValue)}</code></td>\n`;
+      html += '              <th style="width: 40%;">Property</th>\n';
+      html += '              <th style="width: 60%;">Value</th>\n';
       html += '            </tr>\n';
+      html += '          </thead>\n';
+      html += '          <tbody>\n';
+
+      for (const [key, value] of configEntries) {
+        const displayValue = typeof value === 'object' ?
+          JSON.stringify(value, null, 2) :
+          String(value);
+
+        html += '            <tr>\n';
+        html += `              <td><code>${escapeHtml(key)}</code></td>\n`;
+        html += `              <td><code>${escapeHtml(displayValue)}</code></td>\n`;
+        html += '            </tr>\n';
+      }
+
+      html += '          </tbody>\n';
+      html += '        </table>\n';
+      html += '      </div>\n';
+      html += '    </div>\n';
+      html += '  </div>\n';
+      html += '</div>\n';
+
+      return html;
+
+    } catch (error) {
+      console.error('[ConfigAccessorPlugin] Error in displayFeatureConfig:', error);
+      return `<p class="error">Error displaying feature configuration: ${escapeHtml(error.message)}</p>`;
     }
-
-    html += '          </tbody>\n';
-    html += '        </table>\n';
-    html += '      </div>\n';
-    html += '    </div>\n';
-    html += '  </div>\n';
-    html += '</div>\n';
-
-    return html;
   },
 
   /**
