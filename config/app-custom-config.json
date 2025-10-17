@@ -15,5 +15,7 @@
   "amdwiki.page.provider.versioning.compression": "gzip",
   "amdwiki.page.provider.versioning.deltastorage": true,
   "amdwiki.page.provider.versioning.checkpointinterval": 10,
-  "amdwiki.page.provider.versioning.cachesize": 50
+  "amdwiki.page.provider.versioning.cachesize": 50,
+
+  "amdwiki.backup.autoBackup":true
 }
