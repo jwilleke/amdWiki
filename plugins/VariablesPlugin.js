@@ -1,12 +1,13 @@
 /**
  * VariablesPlugin - JSPWiki-style plugin for amdWiki
- * Displays system and contextual variables available in the wiki
+ * Displays system variables, contextual variables, and available plugins
  *
  * Usage:
- *   [{INSERT VariablesPlugin}]
- *   [{INSERT VariablesPlugin type='system'}]
- *   [{INSERT VariablesPlugin type='contextual'}]
- *   [{INSERT VariablesPlugin type='all'}]
+ *   [{VariablesPlugin}]                        - Shows all (variables + plugins)
+ *   [{VariablesPlugin type='all'}]             - Shows all (variables + plugins)
+ *   [{VariablesPlugin type='system'}]          - Shows only system variables
+ *   [{VariablesPlugin type='contextual'}]      - Shows only contextual variables
+ *   [{VariablesPlugin type='plugins'}]         - Shows only available plugins
  */
 
 /**
@@ -26,11 +27,13 @@ const VariablesPlugin = {
    */
   async execute(context, params) {
     const opts = params || {};
-    const type = opts.type || 'all'; // 'system', 'contextual', or 'all'
+    const type = opts.type || 'all'; // 'system', 'contextual', 'plugins', or 'all'
 
     try {
-      // Get VariableManager from engine
+      // Get managers from engine
       const variableManager = context?.engine?.getManager?.('VariableManager');
+      const pluginManager = context?.engine?.getManager?.('PluginManager');
+
       if (!variableManager) {
         return '<p class="error">VariableManager not available</p>';
       }
@@ -55,6 +58,11 @@ const VariablesPlugin = {
         html += '  <li class="nav-item" role="presentation">\n';
         html += '    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#var-contextual" type="button" role="tab">\n';
         html += '      <i class="fas fa-user"></i> Contextual Variables\n';
+        html += '    </button>\n';
+        html += '  </li>\n';
+        html += '  <li class="nav-item" role="presentation">\n';
+        html += '    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#var-plugins" type="button" role="tab">\n';
+        html += '      <i class="fas fa-puzzle-piece"></i> Available Plugins\n';
         html += '    </button>\n';
         html += '  </li>\n';
         html += '</ul>\n';
@@ -141,16 +149,70 @@ const VariablesPlugin = {
         html += type === 'all' ? '</div>\n' : '';
       }
 
+      // Available Plugins
+      if (type === 'all' || type === 'plugins') {
+        html += type === 'all' ? '<div class="tab-pane fade" id="var-plugins" role="tabpanel">\n' : '';
+        html += '<div class="card">\n';
+        html += '  <div class="card-header">\n';
+        html += '    <h5><i class="fas fa-puzzle-piece"></i> Available Plugins</h5>\n';
+        html += '    <small class="text-muted">Registered plugins that can be invoked in wiki pages</small>\n';
+        html += '  </div>\n';
+        html += '  <div class="card-body">\n';
+
+        if (pluginManager && pluginManager.plugins && pluginManager.plugins.size > 0) {
+          html += '    <div class="table-responsive">\n';
+          html += '      <table class="table table-sm table-hover">\n';
+          html += '        <thead>\n';
+          html += '          <tr>\n';
+          html += '            <th style="width: 25%;">Plugin Name</th>\n';
+          html += '            <th style="width: 40%;">Description</th>\n';
+          html += '            <th style="width: 15%;">Version</th>\n';
+          html += '            <th style="width: 20%;">Author</th>\n';
+          html += '          </tr>\n';
+          html += '        </thead>\n';
+          html += '        <tbody>\n';
+
+          // Sort plugins alphabetically
+          const pluginArray = Array.from(pluginManager.plugins.entries());
+          pluginArray.sort((a, b) => a[0].localeCompare(b[0]));
+
+          for (const [pluginName, plugin] of pluginArray) {
+            const description = plugin.description || 'No description';
+            const version = plugin.version || 'N/A';
+            const author = plugin.author || 'Unknown';
+
+            html += '          <tr>\n';
+            html += `            <td><code>[{${escapeHtml(pluginName)}}]</code></td>\n`;
+            html += `            <td><small class="text-muted">${escapeHtml(description)}</small></td>\n`;
+            html += `            <td><span class="badge bg-info">${escapeHtml(version)}</span></td>\n`;
+            html += `            <td><small>${escapeHtml(author)}</small></td>\n`;
+            html += '          </tr>\n';
+          }
+
+          html += '        </tbody>\n';
+          html += '      </table>\n';
+          html += '    </div>\n';
+        } else {
+          html += '    <p class="text-muted">No plugins currently registered</p>\n';
+        }
+
+        html += '  </div>\n';
+        html += '</div>\n';
+        html += type === 'all' ? '</div>\n' : '';
+      }
+
       // Close tab content if showing all
       if (type === 'all') {
         html += '</div>\n';
       }
 
       // Add summary stats
+      const pluginCount = pluginManager && pluginManager.plugins ? pluginManager.plugins.size : 0;
       html += '<div class="mt-3 text-muted text-center">\n';
       html += `  <small>Total Variables: ${debugInfo.totalVariables} | `;
       html += `System: ${debugInfo.systemVariables.length} | `;
-      html += `Contextual: ${debugInfo.contextualVariables.length}</small>\n`;
+      html += `Contextual: ${debugInfo.contextualVariables.length} | `;
+      html += `Plugins: ${pluginCount}</small>\n`;
       html += '</div>\n';
 
       html += '</div>\n';
