@@ -2,6 +2,8 @@
 
 When running terminal commands, ensure the shell sources ~/.bash_profile or equivalent to include /usr/local/bin in PATH for npm/Node tools.
 
+[CONRTRIBUTING.md](../CONTRIBUTING.md)
+
 
 Read [SEMVER.md](../docs/SEMVER.md)
 Read [SERVER.md](../SERVER.md)
@@ -14,4 +16,4 @@ Read [Policies-Roles-Permissions.md](../docs/architecture/Policies-Roles-Permiss
 
 [Current-Rendering-Pipeline](../docs/architecture/Current-Rendering-Pipeline.md)
 
-[CONRTRIBUTING.md](../CONTRIBUTING.md)
+
