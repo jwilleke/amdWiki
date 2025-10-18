@@ -44,26 +44,26 @@ case "${1:-}" in
     echo "🚀 Starting amdWiki in $ENV_NAME mode..."
     echo "   Config: config/app-$ENV_NAME-config.json"
     echo "   Logs: ./logs/"
-    pm2 start ecosystem.config.js --env $ENV_NAME
+    npx --no -- npx --no -- pm2 start ecosystem.config.js --env $ENV_NAME
     ;;
 
   stop)
     echo "🛑 Stopping amdWiki..."
-    pm2 stop amdWiki
+    npx --no -- pm2 stop amdWiki
     ;;
 
   restart)
     echo "🔄 Restarting amdWiki..."
     if [ -n "$ENV_ARG" ]; then
       echo "   Environment: $ENV_NAME"
-      pm2 restart ecosystem.config.js --env $ENV_NAME --update-env
+      npx --no -- pm2 restart ecosystem.config.js --env $ENV_NAME --update-env
     else
-      pm2 restart amdWiki
+      npx --no -- pm2 restart amdWiki
     fi
     ;;
 
   status)
-    pm2 list | grep amdWiki
+    npx --no -- pm2 list | grep amdWiki
     if [ -f "$PID_FILE" ]; then
       PID=$(cat "$PID_FILE")
       echo ""
@@ -72,7 +72,7 @@ case "${1:-}" in
     ;;
 
   logs)
-    pm2 logs amdWiki --lines ${2:-50}
+    npx --no -- pm2 logs amdWiki --lines ${2:-50}
     ;;
 
   env)
