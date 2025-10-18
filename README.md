@@ -40,11 +40,22 @@ A simple, file-based wiki application built with Node.js, Express, and Markdown 
     ```
 2. Start the server:
     ```bash
-    npm start
+    ./server.sh start          # Production mode (default)
     # or
-    node app.js
+    ./server.sh start dev      # Development mode
     ```
-3. Open your browser and navigate to `http://localhost:3000`.
+3. Open your browser and navigate to `http://localhost:3000`
+
+**Server Management:**
+```bash
+./server.sh start [dev|prod]   # Start server (default: production)
+./server.sh stop               # Stop server
+./server.sh restart [dev|prod] # Restart server
+./server.sh status             # Show server status
+./server.sh logs [50]          # Show logs (default: 50 lines)
+./server.sh env                # Show environment config
+./server.sh unlock             # Remove PID lock (if server crashed)
+```
 
 ### For Developers
 - Follow the setup steps above.
@@ -52,7 +63,42 @@ A simple, file-based wiki application built with Node.js, Express, and Markdown 
 - Check [docs/CHANGELOG.md](docs/CHANGELOG.md) for version history and migration notes for breaking changes.
 
 ## Configuration
-Configuration files are located in `config/` directory. Modify settings like port, directories, or manager options as needed. See detailed configuration guides in [docs/](docs/) if available.
+
+amdWiki uses a **hierarchical configuration system** with three layers (later overrides earlier):
+
+1. `config/app-default-config.json` - Base defaults (required, ~1150 properties)
+2. `config/app-{environment}-config.json` - Environment-specific settings (optional)
+   - Environment determined by `NODE_ENV` (development, production, test)
+3. `config/app-custom-config.json` - Local overrides (optional, persisted by admin UI)
+
+### Making Configuration Changes
+
+**Via Admin UI:**
+- Navigate to [/admin/configuration](/admin/configuration)
+- Changes saved to `app-custom-config.json`
+- Restart required: [/admin/restart](/admin/restart)
+
+**Manual Editing:**
+- Edit `config/app-custom-config.json` directly
+- Restart server to apply changes:
+  ```bash
+  ./server.sh restart
+  ```
+
+### Key Configuration Properties
+
+```json
+{
+  "amdwiki.applicationName": "amdWiki",
+  "amdwiki.server.port": 3000,
+  "amdwiki.baseURL": "http://localhost:3000",
+  "amdwiki.frontPage": "Welcome",
+  "amdwiki.page.provider": "filesystemprovider",
+  "amdwiki.backup.autoBackup": true
+}
+```
+
+**Note:** Properties starting with `_` are treated as comments and ignored.
 
 ## Project Structure
 
@@ -65,28 +111,39 @@ amdWiki/
 │   │   ├── dom/          # DOM handlers and WikiDocument
 │   │   └── __tests__/    # Parser test suites
 │   ├── routes/            # HTTP route handlers
+│   │   └── __tests__/    # Route test suites
 │   └── utils/             # Utility functions
 ├── config/                # Application configuration
+│   ├── app-default-config.json        # Base defaults (~1150 properties)
+│   ├── app-{env}-config.json          # Environment-specific
+│   └── app-custom-config.json         # Local overrides
 ├── public/                # Static assets (CSS, JS, images)
 ├── views/                 # EJS templates
 ├── docs/                  # Documentation
 │   ├── architecture/      # System architecture docs
 │   ├── development/       # Development guides
 │   ├── planning/          # Project planning docs
-│   ├── api/              # API documentation (incl. MarkupParser)
+│   ├── api/              # API documentation
 │   ├── migration/        # Migration guides
 │   ├── testing/          # Testing documentation
+│   ├── managers/         # Manager documentation
 │   └── issues/           # Issue tracking
-├── tests/                 # Test files
 ├── scripts/               # Utility scripts
+├── templates/             # Wiki page templates
+├── plugins/               # Plugin system
+├── themes/                # UI themes
 ├── data/                  # Runtime application data
-├── logs/                  # Application logs
+│   ├── attachments/      # Uploaded file storage
+│   └── sessions/         # Express session store
 ├── pages/                 # User-generated wiki pages
-├── users/                 # User account data
-├── attachments/           # User uploaded files
+├── required-pages/        # System required pages
+├── users/                 # User account data (users, roles, sessions)
+├── backups/               # System backups (BackupManager)
 ├── exports/               # Exported content
+├── logs/                  # Application logs
 ├── reports/               # Test coverage reports
-└── archive/               # Legacy files
+├── coverage/              # Istanbul coverage data
+└── jsdocs/                # JSDoc generated API docs
 ```
 
 📖 **Detailed project structure documentation available in [docs/architecture/PROJECT-STRUCTURE.md](docs/architecture/PROJECT-STRUCTURE.md)**
@@ -130,15 +187,17 @@ amdWiki uses a **WikiDocument DOM extraction pipeline** that provides robust, co
 - ✅ **Extensible** - Easy to add custom syntax via DOM handlers
 - ✅ **Production-ready** - 376+ tests with 100% success rate
 
-### Configuration
+### Parser Configuration
 
-The parser is enabled by default. To use the legacy parser:
+The WikiDocument DOM parser is enabled by default. To use the legacy parser, add to `config/app-custom-config.json`:
 
 ```json
 {
   "jspwiki.parser.useExtractionPipeline": false
 }
 ```
+
+Then restart the server (see [Configuration](#configuration) section above).
 
 ### Documentation
 
