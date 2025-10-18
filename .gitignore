@@ -182,3 +182,5 @@ data/sessions/
 
 # Ignore the entire versions directory and its contents as these are already tracked by git.
 required-pages/versions/*
+CLAUDE.md
+archive
