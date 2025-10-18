@@ -2,17 +2,32 @@
 
 Welcome! We appreciate your interest in contributing to amdWiki, a JSPWiki-inspired file-based wiki built with Node.js.
 
+📖 **First time here?** Read [README.md](README.md) for project overview, features, and structure.
+
 ## 🚀 Quick Start
 
 1. **Fork** the repository
 2. **Clone** your fork: `git clone https://github.com/your-username/amdWiki.git`
 3. **Install** dependencies: `npm install`
-4. **Start** development server: `npm start`
+4. **Start** development server: `./server.sh start dev`
 5. **Test** your changes: `npm test`
 
-## How to start the server
+## Server Management
 
-see [SERVER](../../SERVER.md)
+amdWiki uses `server.sh` for all server operations. See [SERVER.md](SERVER.md) for detailed documentation.
+
+**Common Commands:**
+```bash
+./server.sh start [dev|prod]   # Start server (default: production)
+./server.sh stop               # Stop server
+./server.sh restart [dev|prod] # Restart server
+./server.sh status             # Show server status
+./server.sh logs [50]          # Show logs (default: 50 lines)
+./server.sh env                # Show environment config
+./server.sh unlock             # Remove PID lock (if server crashed)
+```
+
+**Note:** Always use `./server.sh` instead of direct `npm start` or `pm2` commands for proper environment configuration and PID lock management.
 
 ### Log Locations Summary
 
@@ -22,6 +37,53 @@ see [SERVER](../../SERVER.md)
   | PM2 Errors  | ~/.pm2/logs/amdWiki-error.log | Real-time stderr, plugin errors     |
   | Application | ./logs/app.log                | Winston logger, detailed operations |
   | Audit       | ./logs/audit.log              | Security/audit events               |
+
+## ⚙️ Configuration System
+
+amdWiki uses a **hierarchical configuration system** with three layers that merge in priority order:
+
+1. `config/app-default-config.json` - Base defaults (required, ~1150 properties)
+2. `config/app-{environment}-config.json` - Environment-specific settings (optional)
+   - Environment determined by `NODE_ENV` (development, production, test)
+   - Loaded via `./server.sh start [dev|prod]`
+3. `config/app-custom-config.json` - Local overrides (optional, persisted by admin UI)
+
+### Configuration Workflow for Contributors
+
+**During Development:**
+- Edit `config/app-custom-config.json` for local testing
+- Never commit `app-custom-config.json` (in .gitignore)
+- Test with both dev and prod configs
+
+**Adding New Configuration Properties:**
+1. Add to `config/app-default-config.json` with sensible defaults
+2. Document in manager's JSDoc comments
+3. Add getter method in ConfigurationManager (if needed)
+4. Update relevant documentation
+
+**Applying Configuration Changes:**
+```bash
+# After editing any config file
+./server.sh restart [dev|prod]
+```
+
+**Via Admin UI:**
+- Navigate to `/admin/configuration`
+- Changes automatically saved to `app-custom-config.json`
+- Restart required: `/admin/restart` or `./server.sh restart`
+
+### Configuration Property Naming
+
+Follow JSPWiki-style naming conventions:
+
+```javascript
+"amdwiki.{category}.{property}": value
+"amdwiki.page.provider": "filesystemprovider"
+"amdwiki.backup.autoBackup": true
+"jspwiki.parser.useExtractionPipeline": true
+```
+
+**Note:** Properties starting with `_` are treated as comments and ignored during loading (see ConfigurationManager.js:105-109, 118-121).
 
 ## 🏗️ Architecture Overview
 
@@ -679,7 +741,7 @@ See [Policies-Roles-Permissions](docs/architecture/Policies-Roles-Permissions.md
 
 All tests follow the **Jest `__tests__` pattern** co-located with source code:
 
-```
+```text
 src/
 ├── managers/
 │   ├── PageManager.js
@@ -847,6 +909,11 @@ lastModified: ISO-date-string
 3. **Add tests** for new functionality
 4. **Update documentation** if needed
 5. **Run full test suite**: `npm test`
+6. **Test with server**: Test your changes in both development and production modes
+   ```bash
+   ./server.sh start dev    # Test in development
+   ./server.sh restart prod # Test in production
+   ```
 
 ### PR Requirements
 - **Descriptive title** and detailed description
