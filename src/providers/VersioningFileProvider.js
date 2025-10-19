@@ -387,6 +387,20 @@ class VersioningFileProvider extends FileSystemProvider {
   }
 
   /**
+   * Remove a page from the page index
+   * @param {string} uuid - Page UUID
+   * @private
+   */
+  async _removePageFromIndex(uuid) {
+    if (this.pageIndex.pages[uuid]) {
+      delete this.pageIndex.pages[uuid];
+      this.pageIndex.pageCount--;
+      await this._savePageIndex();
+      logger.info(`[VersioningFileProvider] Removed page ${uuid} from index`);
+    }
+  }
+
+  /**
    * Get version directory for a page
    * @param {string} uuid - Page UUID
    * @param {string} location - 'pages' or 'required-pages'
@@ -559,6 +573,49 @@ class VersioningFileProvider extends FileSystemProvider {
     });
 
     logger.info(`[VersioningFileProvider] Saved page '${pageName}' with versioning`);
+  }
+
+  /**
+   * Delete a page and its version history
+   * @param {string} identifier - Page UUID or title
+   * @returns {Promise<boolean>} True if deleted, false if not found
+   * @override
+   */
+  async deletePage(identifier) {
+    // Get page info before deleting
+    const pageData = await this.getPage(identifier);
+    if (!pageData) {
+      logger.warn(`[VersioningFileProvider] Cannot delete - page not found: ${identifier}`);
+      return false;
+    }
+
+    const uuid = pageData.uuid;
+    const location = pageData.metadata?.['system-category']?.toLowerCase() === 'system' ? 'required-pages' : 'pages';
+
+    try {
+      // Call parent to delete main file and clear caches
+      const deleted = await super.deletePage(identifier);
+      if (!deleted) {
+        return false;
+      }
+
+      // Delete version directory if it exists
+      const versionDir = this._getVersionDirectory(uuid, location);
+      const versionDirExists = await fs.pathExists(versionDir);
+      if (versionDirExists) {
+        await fs.remove(versionDir);
+        logger.info(`[VersioningFileProvider] Deleted version directory for ${uuid}`);
+      }
+
+      // Remove from page index
+      await this._removePageFromIndex(uuid);
+
+      logger.info(`[VersioningFileProvider] Deleted page '${identifier}' with all versions`);
+      return true;
+    } catch (error) {
+      logger.error(`[VersioningFileProvider] Failed to delete page: ${identifier}`, { error: error.message });
+      return false;
+    }
   }
 
   /**
