@@ -214,6 +214,39 @@ class PageManager extends BaseManager {
   }
 
   /**
+   * Save page content and metadata using WikiContext
+   *
+   * Creates a new page or updates an existing one using WikiContext as the
+   * single source of truth. Extracts page name, content, and author from context.
+   *
+   * @async
+   * @param {WikiContext} wikiContext - The wiki context containing page and user info
+   * @param {Object} [metadata={}] - Additional frontmatter metadata
+   * @returns {Promise<void>}
+   *
+   * @example
+   * await pageManager.savePageWithContext(wikiContext, {
+   *   tags: ['tutorial']
+   * });
+   */
+  async savePageWithContext(wikiContext, metadata = {}) {
+    if (!wikiContext) {
+      throw new Error('PageManager.savePageWithContext requires a WikiContext');
+    }
+
+    const pageName = wikiContext.pageName;
+    const content = wikiContext.content;
+
+    // Extract author from WikiContext user context
+    const enrichedMetadata = {
+      ...metadata,
+      author: wikiContext.userContext?.username || metadata.author || 'anonymous'
+    };
+
+    return this.provider.savePage(pageName, content, enrichedMetadata);
+  }
+
+  /**
    * Save page content and metadata
    *
    * Creates a new page or updates an existing one. Handles UUID generation
@@ -224,6 +257,7 @@ class PageManager extends BaseManager {
    * @param {string} content - Markdown content
    * @param {Object} [metadata={}] - Frontmatter metadata
    * @returns {Promise<void>}
+   * @deprecated Use savePageWithContext() with WikiContext instead
    *
    * @example
    * await pageManager.savePage('New Page', '# Hello World', {
@@ -236,6 +270,33 @@ class PageManager extends BaseManager {
   }
 
   /**
+   * Delete a page using WikiContext
+   *
+   * Removes a page from storage using WikiContext as the single source of truth.
+   * Extracts the page name from the context.
+   *
+   * @async
+   * @param {WikiContext} wikiContext - The wiki context containing page info
+   * @returns {Promise<boolean>} True if deleted, false if not found
+   *
+   * @example
+   * const deleted = await pageManager.deletePageWithContext(wikiContext);
+   * if (deleted) console.log('Page removed');
+   */
+  async deletePageWithContext(wikiContext) {
+    if (!wikiContext) {
+      throw new Error('PageManager.deletePageWithContext requires a WikiContext');
+    }
+
+    const identifier = wikiContext.pageName;
+
+    // Future: Could add audit logging here using wikiContext.userContext
+    logger.info(`[PageManager] Deleting page: ${identifier} by user: ${wikiContext.userContext?.username || 'anonymous'}`);
+
+    return this.provider.deletePage(identifier);
+  }
+
+  /**
    * Delete a page
    *
    * Removes a page from storage. The page can be identified by UUID, title, or slug.
@@ -243,6 +304,7 @@ class PageManager extends BaseManager {
    * @async
    * @param {string} identifier - Page UUID, title, or slug
    * @returns {Promise<boolean>} True if deleted, false if not found
+   * @deprecated Use deletePageWithContext() with WikiContext instead
    *
    * @example
    * const deleted = await pageManager.deletePage('Old Page');

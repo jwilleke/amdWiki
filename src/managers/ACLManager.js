@@ -145,6 +145,127 @@ class ACLManager extends BaseManager {
   }
 
   /**
+   * Check page permission using WikiContext
+   *
+   * Checks if the user in WikiContext has permission to perform an action on a page.
+   * Uses WikiContext as the single source of truth for page name, content, and user info.
+   * Includes policy-based and page-level ACL evaluation with audit logging.
+   *
+   * @async
+   * @param {WikiContext} wikiContext - The wiki context containing page and user info
+   * @param {string} action - Action to check (view, edit, delete, rename, upload)
+   * @returns {Promise<boolean>} True if permission granted
+   *
+   * @example
+   * const canEdit = await aclManager.checkPagePermissionWithContext(wikiContext, 'edit');
+   * if (canEdit) console.log('User can edit page');
+   */
+  async checkPagePermissionWithContext(wikiContext, action) {
+    if (!wikiContext) {
+      throw new Error('ACLManager.checkPagePermissionWithContext requires a WikiContext');
+    }
+
+    const pageName = wikiContext.pageName;
+    const userContext = wikiContext.userContext;
+    const pageContent = wikiContext.content;
+
+    const roles = (userContext?.roles || []).join('|');
+    logger.info(`[ACL] checkPagePermissionWithContext page=${pageName} action=${action} user=${userContext?.username} roles=${roles}`);
+
+    // Map legacy action names to policy action names
+    const actionMap = {
+      'view': 'page:read',
+      'edit': 'page:edit',
+      'delete': 'page:delete',
+      'create': 'page:create',
+      'rename': 'page:rename',
+      'upload': 'attachment:upload'
+    };
+    const policyAction = actionMap[action.toLowerCase()] || action;
+
+    // 1. Evaluate Global Policies first
+    if (this.policyEvaluator) {
+      try {
+        const policyContext = { pageName, action: policyAction, userContext };
+        const policyResult = await this.policyEvaluator.evaluateAccess(policyContext);
+        logger.info(`[ACL] PolicyEvaluator decision hasDecision=${policyResult.hasDecision} allowed=${policyResult.allowed} policy=${policyResult.policyName}`);
+        if (policyResult.hasDecision) {
+          // Log access decision for audit
+          this.logAccessDecision({
+            user: userContext,
+            pageName,
+            action,
+            allowed: policyResult.allowed,
+            reason: policyResult.policyName || 'global_policy',
+            context: { wikiContext: wikiContext.context }
+          });
+          return policyResult.allowed;
+        }
+      } catch (e) {
+        logger.warn('[ACL] PolicyEvaluator error', { error: e.message, stack: e.stack });
+      }
+    }
+
+    // 2. Evaluate Page-Level ACLs if no global policy decided
+    if (pageContent && typeof pageContent === 'string') {
+      const pageAcl = this.parsePageACL(pageContent);
+      const principals = pageAcl.get(action.toLowerCase());
+      logger.info(`[ACL] Page ACL for action=${action}: ${principals ? Array.from(principals).join('|') : 'none'}`);
+
+      if (principals) {
+        if (principals.has('All')) {
+          this.logAccessDecision({
+            user: userContext,
+            pageName,
+            action,
+            allowed: true,
+            reason: 'page_acl_all',
+            context: { wikiContext: wikiContext.context }
+          });
+          return true;
+        }
+        if (userContext?.roles) {
+          for (const r of userContext.roles) {
+            if (principals.has(r)) {
+              this.logAccessDecision({
+                user: userContext,
+                pageName,
+                action,
+                allowed: true,
+                reason: `page_acl_role_${r}`,
+                context: { wikiContext: wikiContext.context }
+              });
+              return true;
+            }
+          }
+        }
+        if (userContext?.username && principals.has(userContext.username)) {
+          this.logAccessDecision({
+            user: userContext,
+            pageName,
+            action,
+            allowed: true,
+            reason: 'page_acl_user',
+            context: { wikiContext: wikiContext.context }
+          });
+          return true;
+        }
+      }
+    }
+
+    logger.info(`[ACL] Default deny for page=${pageName} (no policy/ACL matched)`);
+    this.logAccessDecision({
+      user: userContext,
+      pageName,
+      action,
+      allowed: false,
+      reason: 'default_deny',
+      context: { wikiContext: wikiContext.context }
+    });
+    return false;
+  }
+
+  /**
    * Check page permission with context-aware and audit logging
    * Now includes policy-based access control integration
    * @param {string} pageName - Name of the page
@@ -152,6 +273,7 @@ class ACLManager extends BaseManager {
    * @param {Object} userContext - User context object (null for anonymous)
    * @param {string} pageContent - Page content to parse ACL from
    * @returns {boolean} True if permission granted
+   * @deprecated Use checkPagePermissionWithContext() with WikiContext instead
    */
   async checkPagePermission(pageName, action, userContext, pageContent) {
     const roles = (userContext?.roles || []).join('|');

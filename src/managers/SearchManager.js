@@ -189,10 +189,104 @@ class SearchManager extends BaseManager {
   }
 
   /**
+   * Search for pages using WikiContext
+   *
+   * Performs a search using WikiContext as the single source of truth for user information.
+   * Logs search queries with user context for analytics and audit purposes.
+   *
+   * @async
+   * @param {WikiContext} wikiContext - The wiki context containing user info
+   * @param {string} query - Search query
+   * @param {Object} [options={}] - Additional search options
+   * @returns {Promise<Array<Object>>} Search results
+   *
+   * @example
+   * const results = await searchManager.searchWithContext(wikiContext, 'hello world');
+   * console.log(`Found ${results.length} pages`);
+   */
+  async searchWithContext(wikiContext, query, options = {}) {
+    if (!wikiContext) {
+      throw new Error('SearchManager.searchWithContext requires a WikiContext');
+    }
+
+    if (!this.provider) {
+      logger.warn('[SearchManager] No provider available for search');
+      return [];
+    }
+
+    // Log search query with user context for analytics
+    const username = wikiContext.userContext?.username || 'anonymous';
+    logger.info(`[SearchManager] Search query="${query}" user=${username} options=${JSON.stringify(options)}`);
+
+    try {
+      const results = await this.provider.search(query, options);
+      logger.info(`[SearchManager] Search completed query="${query}" user=${username} results=${results.length}`);
+      return results;
+    } catch (err) {
+      logger.error(`[SearchManager] Search failed query="${query}" user=${username}:`, err);
+      return [];
+    }
+  }
+
+  /**
+   * Advanced search with WikiContext
+   *
+   * Performs advanced search with multiple criteria using WikiContext as the single source
+   * of truth. Logs detailed search parameters with user context for analytics.
+   *
+   * @async
+   * @param {WikiContext} wikiContext - The wiki context containing user info
+   * @param {Object} [options={}] - Search options
+   * @param {string} [options.query] - Text query
+   * @param {Array<string>} [options.categories] - Categories to filter
+   * @param {Array<string>} [options.userKeywords] - Keywords to filter
+   * @param {Array<string>} [options.searchIn] - Fields to search in
+   * @param {number} [options.maxResults] - Maximum results to return
+   * @returns {Promise<Array>} Search results
+   *
+   * @example
+   * const results = await searchManager.advancedSearchWithContext(wikiContext, {
+   *   query: 'tutorial',
+   *   categories: ['Documentation'],
+   *   maxResults: 20
+   * });
+   */
+  async advancedSearchWithContext(wikiContext, options = {}) {
+    if (!wikiContext) {
+      throw new Error('SearchManager.advancedSearchWithContext requires a WikiContext');
+    }
+
+    if (!this.provider) {
+      logger.warn('[SearchManager] No provider available for advanced search');
+      return [];
+    }
+
+    // Log advanced search with user context for analytics
+    const username = wikiContext.userContext?.username || 'anonymous';
+    const searchDetails = {
+      query: options.query || '',
+      categories: options.categories?.length || 0,
+      keywords: options.userKeywords?.length || 0,
+      searchIn: options.searchIn?.join(',') || 'all'
+    };
+    logger.info(`[SearchManager] Advanced search user=${username} details=${JSON.stringify(searchDetails)}`);
+
+    try {
+      const results = await this.provider.advancedSearch(options);
+      logger.info(`[SearchManager] Advanced search completed user=${username} results=${results.length}`);
+      return results;
+    } catch (err) {
+      logger.error(`[SearchManager] Advanced search failed user=${username}:`, err);
+      return [];
+    }
+  }
+
+  /**
    * Search for pages matching the query
    * @param {string} query - Search query
    * @param {Object} options - Search options
    * @returns {Promise<Array<Object>>} Search results
+   * @deprecated Use searchWithContext() with WikiContext instead
    */
   async search(query, options = {}) {
     if (!this.provider) {
@@ -212,6 +306,7 @@ class SearchManager extends BaseManager {
    * Advanced search with multiple criteria support
    * @param {Object} options - Search options
    * @returns {Promise<Array>} Search results
+   * @deprecated Use advancedSearchWithContext() with WikiContext instead
    */
   async advancedSearch(options = {}) {
     if (!this.provider) {

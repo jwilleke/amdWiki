@@ -746,8 +746,15 @@ class WikiRoutes {
       );
       const pageName = req.params.page || frontPage;
 
-      // The userContext is now available on the request via the session middleware
-      const userContext = req.userContext;
+      // Create WikiContext as single source of truth for this operation
+      const wikiContext = this.createWikiContext(req, {
+        context: WikiContext.CONTEXT.VIEW,
+        pageName: pageName,
+        response: res
+      });
+
+      // Extract user from WikiContext (single source of truth)
+      const userContext = wikiContext.userContext;
       const pageManager = this.engine.getManager("PageManager");
       const renderingManager = this.engine.getManager("RenderingManager");
       const aclManager = this.engine.getManager("ACLManager");
@@ -776,12 +783,10 @@ class WikiRoutes {
         );
       }
 
-      const canView = await aclManager.checkPagePermission(
-        pageName,
-        "view",
-        userContext,
-        markdown
-      );
+      // Update WikiContext with page content for ACL checking
+      wikiContext.content = markdown;
+
+      const canView = await aclManager.checkPagePermissionWithContext(wikiContext, "view");
       logger.info(`[VIEW] ACL decision for ${pageName}: ${canView}`);
       if (!canView) {
         return await this.renderError(
@@ -794,22 +799,8 @@ class WikiRoutes {
       }
 
       // Check if user can edit this page
-      const canEdit = await aclManager.checkPagePermission(
-        pageName,
-        "edit",
-        userContext,
-        markdown
-      );
-
-      const ctx = new WikiContext(this.engine, {
-        context: WikiContext.CONTEXT.VIEW,
-        pageName,
-        content: markdown,
-        userContext,
-        request: req,
-        response: res,
-      });
-      const html = await renderingManager.textToHTML(ctx, markdown);
+      const canEdit = await aclManager.checkPagePermissionWithContext(wikiContext, "edit");
+      const html = await renderingManager.textToHTML(wikiContext, markdown);
 
       // Get page metadata for display
       const metadata = await pageManager.getPageMetadata(pageName);
@@ -873,8 +864,18 @@ class WikiRoutes {
    */
   async createPage(req, res) {
     try {
+      const pageName = req.query.name || "";
+
+      // Create WikiContext as single source of truth for this operation
+      const wikiContext = this.createWikiContext(req, {
+        context: WikiContext.CONTEXT.EDIT,
+        pageName: pageName,
+        response: res
+      });
+
+      // Extract user from WikiContext (single source of truth)
+      const currentUser = wikiContext.userContext;
       const userManager = this.engine.getManager("UserManager");
-      const currentUser = req.userContext;
 
       console.log(
         "[CREATE-DEBUG] currentUser:",
@@ -916,11 +917,11 @@ class WikiRoutes {
         );
       }
 
-      const pageName = req.query.name || "";
       const templateManager = this.engine.getManager("TemplateManager");
 
-      // Get common template data with user context
-      const commonData = await this.getCommonTemplateData(req);
+      // Get template data from WikiContext
+      const templateData = this.getTemplateDataFromContext(wikiContext);
+      const commonData = { ...templateData };
 
       // Get available templates
       const templates = templateManager.getTemplates();
@@ -1002,27 +1003,6 @@ class WikiRoutes {
    */
   async createPageFromTemplate(req, res) {
     try {
-      const userManager = this.engine.getManager("UserManager");
-      const currentUser = req.userContext;
-
-      // Check if user is authenticated
-      if (!currentUser || !currentUser.isAuthenticated) {
-        return res.redirect("/login?redirect=" + encodeURIComponent("/create"));
-      }
-
-      // Check if user has permission to create pages
-      if (
-        !(await userManager.hasPermission(currentUser.username, "page:create"))
-      ) {
-        return await this.renderError(
-          req,
-          res,
-          403,
-          "Access Denied",
-          "You do not have permission to create pages. Please contact an administrator."
-        );
-      }
-
       const { pageName, templateName, categories, userKeywords } = req.body;
 
       if (!pageName || !templateName) {
@@ -1043,7 +1023,50 @@ class WikiRoutes {
       }
 
       const templateManager = this.engine.getManager("TemplateManager");
+
+      // Apply template with variables
+      const templateVars = {
+        pageName: pageName,
+        category: categoriesArray[0] || "", // Use first category for backward compatibility
+        categories: categoriesArray.join(", "),
+        userKeywords: Array.isArray(userKeywords)
+          ? userKeywords.join(", ")
+          : userKeywords || "",
+        date: new Date().toISOString().split("T")[0],
+      };
+
+      const content = templateManager.applyTemplate(templateName, templateVars);
+
+      // Create WikiContext as single source of truth for this operation
+      const wikiContext = this.createWikiContext(req, {
+        context: WikiContext.CONTEXT.EDIT,
+        pageName: pageName,
+        content: content,
+        response: res
+      });
+
+      // Extract user from WikiContext (single source of truth)
+      const currentUser = wikiContext.userContext;
+      const userManager = this.engine.getManager("UserManager");
       const pageManager = this.engine.getManager("PageManager");
+
+      // Check if user is authenticated
+      if (!currentUser || !currentUser.isAuthenticated) {
+        return res.redirect("/login?redirect=" + encodeURIComponent("/create"));
+      }
+
+      // Check if user has permission to create pages
+      if (
+        !(await userManager.hasPermission(currentUser.username, "page:create"))
+      ) {
+        return await this.renderError(
+          req,
+          res,
+          403,
+          "Access Denied",
+          "You do not have permission to create pages. Please contact an administrator."
+        );
+      }
 
       // Check if page already exists
       const existingPage = await pageManager.getPage(pageName);
@@ -1052,7 +1075,7 @@ class WikiRoutes {
           `DEBUG: createPageFromTemplate - Page ${pageName} already exists, rendering error template`
         );
         try {
-          const commonData = await this.getCommonTemplateData(currentUser);
+          const commonData = await this.getCommonTemplateData(req);
 
           return res.status(409).render("error", {
             ...commonData,
@@ -1089,20 +1112,7 @@ class WikiRoutes {
         }
       }
 
-      // Apply template with variables
-      const templateVars = {
-        pageName: pageName,
-        category: categoriesArray[0] || "", // Use first category for backward compatibility
-        categories: categoriesArray.join(", "),
-        userKeywords: Array.isArray(userKeywords)
-          ? userKeywords.join(", ")
-          : userKeywords || "",
-        date: new Date().toISOString().split("T")[0],
-      };
-
-      const content = templateManager.applyTemplate(templateName, templateVars);
-
-      // Save the new page
+      // Save the new page using WikiContext
       const metadata = {
         title: pageName,
         categories: categoriesArray,
@@ -1113,7 +1123,7 @@ class WikiRoutes {
           : [],
       };
 
-      await pageManager.savePage(pageName, content, metadata);
+      await pageManager.savePageWithContext(wikiContext, metadata);
 
       // Rebuild search index and link graph
       const renderingManager = this.engine.getManager("RenderingManager");
@@ -1138,12 +1148,19 @@ class WikiRoutes {
   async editPage(req, res) {
     try {
       const pageName = req.params.page;
+
+      // Create WikiContext as single source of truth for this operation
+      const wikiContext = this.createWikiContext(req, {
+        context: WikiContext.CONTEXT.EDIT,
+        pageName: pageName,
+        response: res
+      });
+
+      // Extract user from WikiContext (single source of truth)
+      const currentUser = wikiContext.userContext;
       const pageManager = this.engine.getManager("PageManager");
       const userManager = this.engine.getManager("UserManager");
       const aclManager = this.engine.getManager("ACLManager");
-
-      // Get current user
-      const currentUser = req.userContext;
 
       // Check if user is authenticated - redirect to login if not
       if (!currentUser || !currentUser.isAuthenticated) {
@@ -1175,13 +1192,12 @@ class WikiRoutes {
       } else {
         // For existing pages, check ACL edit permission
         if (pageData) {
-          const context = this.getRequestContext(req);
-          const hasEditPermission = await aclManager.checkPagePermission(
-            pageName,
-            "edit",
-            currentUser,
-            pageData.content,
-            context
+          // Update WikiContext with page content for ACL checking
+          wikiContext.content = pageData.content;
+
+          const hasEditPermission = await aclManager.checkPagePermissionWithContext(
+            wikiContext,
+            "edit"
           );
 
           if (!hasEditPermission) {
@@ -1213,8 +1229,9 @@ class WikiRoutes {
         }
       }
 
-      // Get common template data with user context
-      const commonData = await this.getCommonTemplateData(req);
+      // Get template data from WikiContext
+      const templateData = this.getTemplateDataFromContext(wikiContext);
+      const commonData = { ...templateData };
 
       // Get categories and keywords - use system categories for admin editing
       const isAdmin =
@@ -1281,66 +1298,8 @@ class WikiRoutes {
    */
   async createWikiPage(req, res) {
     try {
-      const userManager = this.engine.getManager("UserManager");
-      const currentUser = req.userContext;
-
-      // Check if user is authenticated
-      if (!currentUser || !currentUser.isAuthenticated) {
-        return res.redirect(
-          "/login?redirect=" + encodeURIComponent(req.originalUrl)
-        );
-      }
-
-      // Check if user has permission to create pages
-      if (
-        !(await userManager.hasPermission(currentUser.username, "page:create"))
-      ) {
-        return await this.renderError(
-          req,
-          res,
-          403,
-          "Access Denied",
-          "You do not have permission to create pages."
-        );
-      }
-
       const pageName = decodeURIComponent(req.params.page);
       const { content, templateName, categories, userKeywords } = req.body;
-
-      const pageManager = this.engine.getManager("PageManager");
-
-      // Check if page already exists
-      const existingPage = await pageManager.getPage(pageName);
-      if (existingPage) {
-        const commonData = await this.getCommonTemplateData(currentUser);
-
-        return res.status(409).render("error", {
-          ...commonData,
-          currentUser,
-          error: { status: 409 },
-          title: "Page Already Exists",
-          message: `A page named "${pageName}" already exists.`,
-          details:
-            "You can view the existing page or edit it if you have permission.",
-          actions: [
-            {
-              label: "View Page",
-              url: `/wiki/${encodeURIComponent(pageName)}`,
-              class: "btn-primary",
-            },
-            {
-              label: "Edit Page",
-              url: `/edit/${encodeURIComponent(pageName)}`,
-              class: "btn-secondary",
-            },
-            {
-              label: "Back to Create",
-              url: "/create",
-              class: "btn-outline-secondary",
-            },
-          ],
-        });
-      }
 
       let finalContent = content;
 
@@ -1374,6 +1333,72 @@ class WikiRoutes {
         return res.status(400).send("Content or template is required");
       }
 
+      // Create WikiContext as single source of truth for this operation
+      const wikiContext = this.createWikiContext(req, {
+        context: WikiContext.CONTEXT.EDIT,
+        pageName: pageName,
+        content: finalContent,
+        response: res
+      });
+
+      // Extract user from WikiContext (single source of truth)
+      const currentUser = wikiContext.userContext;
+      const userManager = this.engine.getManager("UserManager");
+      const pageManager = this.engine.getManager("PageManager");
+
+      // Check if user is authenticated
+      if (!currentUser || !currentUser.isAuthenticated) {
+        return res.redirect(
+          "/login?redirect=" + encodeURIComponent(req.originalUrl)
+        );
+      }
+
+      // Check if user has permission to create pages
+      if (
+        !(await userManager.hasPermission(currentUser.username, "page:create"))
+      ) {
+        return await this.renderError(
+          req,
+          res,
+          403,
+          "Access Denied",
+          "You do not have permission to create pages."
+        );
+      }
+
+      // Check if page already exists
+      const existingPage = await pageManager.getPage(pageName);
+      if (existingPage) {
+        const commonData = await this.getCommonTemplateData(req);
+
+        return res.status(409).render("error", {
+          ...commonData,
+          currentUser,
+          error: { status: 409 },
+          title: "Page Already Exists",
+          message: `A page named "${pageName}" already exists.`,
+          details:
+            "You can view the existing page or edit it if you have permission.",
+          actions: [
+            {
+              label: "View Page",
+              url: `/wiki/${encodeURIComponent(pageName)}`,
+              class: "btn-primary",
+            },
+            {
+              label: "Edit Page",
+              url: `/edit/${encodeURIComponent(pageName)}`,
+              class: "btn-secondary",
+            },
+            {
+              label: "Back to Create",
+              url: "/create",
+              class: "btn-outline-secondary",
+            },
+          ],
+        });
+      }
+
       // Create metadata for new page
       const metadata = {
         title: pageName,
@@ -1385,8 +1410,8 @@ class WikiRoutes {
           : [],
       };
 
-      // Save the new page
-      await pageManager.savePage(pageName, finalContent, metadata);
+      // Save the new page using WikiContext
+      await pageManager.savePageWithContext(wikiContext, metadata);
 
       // Rebuild search index and link graph
       const renderingManager = this.engine.getManager("RenderingManager");
@@ -1535,10 +1560,8 @@ class WikiRoutes {
         }
       }
 
-      // Save the page
-      // TODO: Refactor PageManager.savePage() to accept WikiContext instead of individual parameters
-      // For now, metadata includes author from wikiContext.userContext
-      await pageManager.savePage(pageName, content, metadata);
+      // Save the page using WikiContext (author is automatically extracted from context)
+      await pageManager.savePageWithContext(wikiContext, metadata);
 
       // Rebuild link graph and search index
       await renderingManager.rebuildLinkGraph();
@@ -1568,14 +1591,20 @@ class WikiRoutes {
       const pageName = req.params.page;
       console.log(`🗑️ Delete request received for page: ${pageName}`);
 
+      // Create WikiContext as single source of truth for this operation
+      const wikiContext = this.createWikiContext(req, {
+        context: WikiContext.CONTEXT.NONE,
+        pageName: pageName,
+        response: res
+      });
+
+      // Extract user from WikiContext (single source of truth)
+      const currentUser = wikiContext.userContext;
       const pageManager = this.engine.getManager("PageManager");
       const renderingManager = this.engine.getManager("RenderingManager");
       const searchManager = this.engine.getManager("SearchManager");
       const userManager = this.engine.getManager("UserManager");
       const aclManager = this.engine.getManager("ACLManager");
-
-      // Get current user
-      const currentUser = req.userContext;
 
       // Check if page exists
       const pageData = await pageManager.getPage(pageName);
@@ -1602,14 +1631,13 @@ class WikiRoutes {
           );
         }
       } else {
-        // Check ACL delete permission
-        const context = this.getRequestContext(req);
-        const hasDeletePermission = await aclManager.checkPagePermission(
-          pageName,
-          "delete",
-          currentUser,
-          pageData.content,
-          context
+        // Check ACL delete permission using WikiContext
+        // Update WikiContext with page content for ACL checking
+        wikiContext.content = pageData.content;
+
+        const hasDeletePermission = await aclManager.checkPagePermissionWithContext(
+          wikiContext,
+          "delete"
         );
 
         if (!hasDeletePermission) {
@@ -1625,8 +1653,8 @@ class WikiRoutes {
 
       console.log(`✅ Page found, proceeding to delete: ${pageName}`);
 
-      // Delete the page
-      const deleteResult = await pageManager.deletePage(pageName);
+      // Delete the page using WikiContext (includes audit logging with user info)
+      const deleteResult = await pageManager.deletePageWithContext(wikiContext);
       console.log(`🗑️ Delete result: ${deleteResult}`);
 
       if (deleteResult) {
@@ -1656,6 +1684,12 @@ class WikiRoutes {
     try {
       const query = req.query.q || "";
 
+      // Create WikiContext as single source of truth for this operation
+      const wikiContext = this.createWikiContext(req, {
+        context: WikiContext.CONTEXT.NONE,
+        response: res
+      });
+
       // Handle multiple categories and keywords
       let categories = req.query.category || [];
       if (typeof categories === "string") categories = [categories];
@@ -1673,8 +1707,9 @@ class WikiRoutes {
 
       const searchManager = this.engine.getManager("SearchManager");
 
-      // Get common template data with user context
-      const commonData = await this.getCommonTemplateData(req);
+      // Get template data from WikiContext
+      const templateData = this.getTemplateDataFromContext(wikiContext);
+      const commonData = { ...templateData };
 
       let results = [];
       let searchType = "text";
@@ -1698,8 +1733,8 @@ class WikiRoutes {
             : searchManager.searchByUserKeywords(userKeywords[0]);
           searchType = "keywords";
         } else {
-          // Advanced search with multiple criteria
-          results = await searchManager.advancedSearch({
+          // Advanced search with multiple criteria using WikiContext
+          results = await searchManager.advancedSearchWithContext(wikiContext, {
             query: query,
             categories: categories,
             userKeywords: userKeywords,
