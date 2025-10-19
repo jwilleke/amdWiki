@@ -176,13 +176,16 @@ class DOMPluginHandler {
 
     // Match key=value pairs
     // Supports: key=value, key='value with spaces', key="value with spaces"
+    // Also supports optional spaces around the equals sign: key = value, key ='value'
     // Pattern explanation:
     // - ([\w-]+) = capture key name (word chars + dashes for 'system-category')
+    // - \s* = optional whitespace before equals
     // - = = equals sign
+    // - \s* = optional whitespace after equals
     // - (?:...) = non-capturing group with two alternatives:
     //   - (['"])([^\2]*?)\2 = quoted value (capture quote, content, match same quote)
     //   - ([^\s]+) = unquoted value (no spaces)
-    const paramRegex = /([\w-]+)=(?:(['"])(.+?)\2|([^\s]+))/g;
+    const paramRegex = /([\w-]+)\s*=\s*(?:(['"])(.+?)\2|([^\s]+))/g;
     let match;
 
     while ((match = paramRegex.exec(paramString)) !== null) {

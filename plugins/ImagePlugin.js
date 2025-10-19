@@ -1,7 +1,32 @@
 /**
  * Image plugin for amdWiki
  * Implements inline image functionality similar to JSPWiki's Image plugin
+ *
  * Syntax: [{Image src='path/to/image.jpg' alt='description' width='200' height='150'}]
+ *
+ * Parameters:
+ *   src (required) - Image source path or URL
+ *   alt (optional) - Alt text (defaults to caption if not provided)
+ *   caption (optional) - Image caption (also used as alt if alt not provided)
+ *   width (optional) - Image width
+ *   height (optional) - Image height
+ *   align (optional) - Horizontal alignment: left, right, center
+ *   display (optional) - Display mode:
+ *     - float (default): Allows text wrapping around image
+ *     - block: Image in its own block, no text wrapping
+ *     - inline: Image flows inline with text
+ *     - full: Full-width image
+ *   border (optional) - Border width in pixels
+ *   style (optional) - Custom inline CSS styles
+ *   class (optional) - Custom CSS class
+ *   title (optional) - Title attribute (tooltip)
+ *   link (optional) - URL to link the image to
+ *
+ * Examples:
+ *   [{Image src='/path/image.jpg' caption='My Image'}]
+ *   [{Image src='/path/image.jpg' align='left' display='float' caption='Floats with text'}]
+ *   [{Image src='/path/image.jpg' align='left' display='block' caption='No text wrapping'}]
+ *   [{Image src='/path/image.jpg' display='full' caption='Full width image'}]
  */
 
 const ImagePlugin = {
@@ -49,8 +74,11 @@ const ImagePlugin = {
       }
 
       // Optional attributes
+      // If alt is not provided, use caption as alt (if available)
       if (params.alt) {
         imgTag += ` alt="${params.alt}"`;
+      } else if (params.caption) {
+        imgTag += ` alt="${params.caption}"`;
       } else {
         imgTag += ` alt="${defaultAlt}"`;
       }
@@ -86,15 +114,44 @@ const ImagePlugin = {
         styles.push(params.style);
       }
 
-      // Add alignment styles
-      if (params.align) {
-        const align = params.align.toLowerCase();
+      // Handle display parameter
+      // display="float" - allows text wrapping (default for left/right align)
+      // display="block" - image in its own block, no text wrapping
+      // display="inline" - image flows inline with text
+      // display="full" - full-width image
+      const display = params.display ? params.display.toLowerCase() : "float";
+      const align = params.align ? params.align.toLowerCase() : null;
+
+      // Apply display and alignment styles
+      if (display === "full") {
+        // Full-width display - ignores align parameter
+        styles.push("display: block; width: 100%; height: auto; margin: 10px 0;");
+      } else if (display === "block") {
+        // Block display - no text wrapping
         if (align === "left") {
-          styles.push("float: left; margin-right: 10px;");
+          styles.push("display: block; margin-right: auto; margin-bottom: 10px;");
         } else if (align === "right") {
-          styles.push("float: right; margin-left: 10px;");
+          styles.push("display: block; margin-left: auto; margin-bottom: 10px;");
+        } else if (align === "center" || !align) {
+          styles.push("display: block; margin: 0 auto 10px auto;");
+        }
+      } else if (display === "inline") {
+        // Inline display - flows with text
+        if (align === "left") {
+          styles.push("vertical-align: middle; margin-right: 5px;");
+        } else if (align === "right") {
+          styles.push("vertical-align: middle; margin-left: 5px;");
+        } else {
+          styles.push("vertical-align: middle;");
+        }
+      } else {
+        // Float display (default) - allows text wrapping
+        if (align === "left") {
+          styles.push("float: left; margin-right: 10px; margin-bottom: 10px;");
+        } else if (align === "right") {
+          styles.push("float: right; margin-left: 10px; margin-bottom: 10px;");
         } else if (align === "center") {
-          styles.push("display: block; margin: 0 auto;");
+          styles.push("display: block; margin: 0 auto 10px auto;");
         }
       }
 
@@ -118,8 +175,40 @@ const ImagePlugin = {
         const alignClass = params.align
           ? `text-${params.align.toLowerCase()}`
           : "";
+
+        // Build container styles based on display mode
+        let containerStyles = [];
+
+        if (display === "full") {
+          containerStyles.push("display: block; width: 100%; margin: 10px 0;");
+        } else if (display === "block") {
+          if (align === "left") {
+            containerStyles.push("display: block; margin-right: auto; margin-bottom: 10px;");
+          } else if (align === "right") {
+            containerStyles.push("display: block; margin-left: auto; margin-bottom: 10px;");
+          } else {
+            containerStyles.push("display: block; margin: 0 auto 10px auto;");
+          }
+        } else if (display === "inline") {
+          containerStyles.push("display: inline-block; vertical-align: middle;");
+          if (align === "left") {
+            containerStyles.push("margin-right: 5px;");
+          } else if (align === "right") {
+            containerStyles.push("margin-left: 5px;");
+          }
+        } else {
+          // Float display
+          if (align === "left") {
+            containerStyles.push("float: left; margin-right: 10px; margin-bottom: 10px;");
+          } else if (align === "right") {
+            containerStyles.push("float: right; margin-left: 10px; margin-bottom: 10px;");
+          } else {
+            containerStyles.push("display: block; margin: 0 auto 10px auto;");
+          }
+        }
+
         imgTag = `
-<div class="image-plugin-container ${alignClass}" style="margin-bottom: 10px;">
+<div class="image-plugin-container ${alignClass}" style="${containerStyles.join(" ")}">
   ${imgTag}
   <div class="image-caption" style="font-size: 0.9em; color: #666; margin-top: 5px;">${params.caption}</div>
 </div>`;

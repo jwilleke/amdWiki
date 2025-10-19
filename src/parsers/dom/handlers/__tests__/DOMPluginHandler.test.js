@@ -153,6 +153,41 @@ describe('DOMPluginHandler', () => {
       const result = handler.parseParameters('title="My Title"');
       expect(result.title).toBe('My Title');
     });
+
+    test('handles spaces before equals sign', () => {
+      const result = handler.parseParameters('align ="left"');
+      expect(result.align).toBe('left');
+    });
+
+    test('handles spaces after equals sign', () => {
+      const result = handler.parseParameters('align= "right"');
+      expect(result.align).toBe('right');
+    });
+
+    test('handles spaces around equals sign', () => {
+      const result = handler.parseParameters('align = "center"');
+      expect(result.align).toBe('center');
+    });
+
+    test('handles complex parameters with special characters and spaces', () => {
+      const result = handler.parseParameters(
+        'src="/path/to/file" caption ="Test Caption" align= \'left\' style= "font-size: 120%;background-color: white;"'
+      );
+      expect(result.src).toBe('/path/to/file');
+      expect(result.caption).toBe('Test Caption');
+      expect(result.align).toBe('left');
+      expect(result.style).toBe('font-size: 120%;background-color: white;');
+    });
+
+    test('handles user reported Image plugin syntax', () => {
+      const result = handler.parseParameters(
+        "src='/attachments/621c9274e39fc77d5e6cce7028c7805a37e5d977f116c20cc8be728d8de90c26' caption='Nerve Action Potentials' align ='left' style='font-size: 120%;background-color: white;'"
+      );
+      expect(result.src).toBe('/attachments/621c9274e39fc77d5e6cce7028c7805a37e5d977f116c20cc8be728d8de90c26');
+      expect(result.caption).toBe('Nerve Action Potentials');
+      expect(result.align).toBe('left');
+      expect(result.style).toBe('font-size: 120%;background-color: white;');
+    });
   });
 
   describe('executePlugin()', () => {

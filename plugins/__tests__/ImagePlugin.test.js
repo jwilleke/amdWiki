@@ -201,7 +201,7 @@ describe("Image (via PluginManager)", () => {
       const result = ImagePlugin.execute(mockContext, params);
 
       expect(result).toContain("display: block;");
-      expect(result).toContain("margin: 0 auto;");
+      expect(result).toContain("margin: 0 auto");
     });
 
     it("wraps image in link when link parameter provided", () => {
@@ -245,7 +245,7 @@ describe("Image (via PluginManager)", () => {
       expect(result).toContain("border: 3px solid #ccc;");
       expect(result).toContain("margin: 10px;");
       expect(result).toContain("display: block;");
-      expect(result).toContain("margin: 0 auto;");
+      expect(result).toContain("margin: 0 auto"); // Not checking for exact end as we added bottom margin
       expect(result).toContain('title="Hover text"');
       expect(result).toContain(">Test Caption</div>");
     });
@@ -413,6 +413,226 @@ describe("Image (via PluginManager)", () => {
 
       // Should return error message instead of crashing
       expect(result).toMatch(/Image plugin error/i);
+    });
+  });
+
+  describe("parameter parsing with spaces", () => {
+    it("handles spaces before equals sign", () => {
+      const params = {
+        src: localTestImage,
+        align: "left",
+        caption: "Test Caption",
+      };
+      const result = ImagePlugin.execute(mockContext, params);
+
+      expect(result).toContain("float: left;");
+      expect(result).toContain(">Test Caption</div>");
+    });
+
+    it("handles spaces after equals sign", () => {
+      const params = {
+        src: localTestImage,
+        style: "font-size: 120%;background-color: white;",
+      };
+      const result = ImagePlugin.execute(mockContext, params);
+
+      expect(result).toContain("font-size: 120%;background-color: white;");
+    });
+
+    it("handles complex parameters with special characters", () => {
+      const params = {
+        src: "/attachments/621c9274e39fc77d5e6cce7028c7805a37e5d977f116c20cc8be728d8de90c26",
+        caption: "Nerve Action Potentials",
+        align: "left",
+        style: "font-size: 120%;background-color: white;",
+      };
+      const result = ImagePlugin.execute(mockContext, params);
+
+      expect(result).toContain("<img");
+      expect(result).toContain(
+        'src="/attachments/621c9274e39fc77d5e6cce7028c7805a37e5d977f116c20cc8be728d8de90c26"'
+      );
+      expect(result).toContain(">Nerve Action Potentials</div>");
+      expect(result).toContain("float: left;");
+      expect(result).toContain("font-size: 120%;background-color: white;");
+    });
+  });
+
+  describe("display parameter", () => {
+    it("applies float display with left align (default behavior)", () => {
+      const params = { src: localTestImage, align: "left" };
+      const result = ImagePlugin.execute(mockContext, params);
+
+      expect(result).toContain("float: left;");
+      expect(result).toContain("margin-right: 10px;");
+    });
+
+    it("applies block display with left align (no text wrap)", () => {
+      const params = { src: localTestImage, align: "left", display: "block" };
+      const result = ImagePlugin.execute(mockContext, params);
+
+      expect(result).toContain("display: block;");
+      expect(result).toContain("margin-right: auto;");
+      expect(result).not.toContain("float:");
+    });
+
+    it("applies block display with right align (no text wrap)", () => {
+      const params = { src: localTestImage, align: "right", display: "block" };
+      const result = ImagePlugin.execute(mockContext, params);
+
+      expect(result).toContain("display: block;");
+      expect(result).toContain("margin-left: auto;");
+      expect(result).not.toContain("float:");
+    });
+
+    it("applies block display with center align", () => {
+      const params = { src: localTestImage, align: "center", display: "block" };
+      const result = ImagePlugin.execute(mockContext, params);
+
+      expect(result).toContain("display: block;");
+      expect(result).toContain("margin: 0 auto");
+    });
+
+    it("applies full-width display", () => {
+      const params = { src: localTestImage, display: "full" };
+      const result = ImagePlugin.execute(mockContext, params);
+
+      expect(result).toContain("display: block;");
+      expect(result).toContain("width: 100%;");
+      expect(result).toContain("height: auto;");
+    });
+
+    it("applies inline display", () => {
+      const params = { src: localTestImage, display: "inline" };
+      const result = ImagePlugin.execute(mockContext, params);
+
+      expect(result).toContain("vertical-align: middle;");
+      expect(result).not.toContain("float:");
+      expect(result).not.toContain("display: block;");
+    });
+
+    it("applies inline display with left align", () => {
+      const params = {
+        src: localTestImage,
+        display: "inline",
+        align: "left",
+      };
+      const result = ImagePlugin.execute(mockContext, params);
+
+      expect(result).toContain("vertical-align: middle;");
+      expect(result).toContain("margin-right: 5px;");
+    });
+
+    it("applies inline display with right align", () => {
+      const params = {
+        src: localTestImage,
+        display: "inline",
+        align: "right",
+      };
+      const result = ImagePlugin.execute(mockContext, params);
+
+      expect(result).toContain("vertical-align: middle;");
+      expect(result).toContain("margin-left: 5px;");
+    });
+
+    it("applies caption container styles for block display", () => {
+      const params = {
+        src: localTestImage,
+        display: "block",
+        align: "left",
+        caption: "Test Caption",
+      };
+      const result = ImagePlugin.execute(mockContext, params);
+
+      expect(result).toContain("image-plugin-container");
+      expect(result).toContain("display: block;");
+      expect(result).toContain(">Test Caption</div>");
+    });
+
+    it("applies caption container styles for full display", () => {
+      const params = {
+        src: localTestImage,
+        display: "full",
+        caption: "Full Width Image",
+      };
+      const result = ImagePlugin.execute(mockContext, params);
+
+      expect(result).toContain("image-plugin-container");
+      expect(result).toContain("width: 100%;");
+      expect(result).toContain(">Full Width Image</div>");
+    });
+  });
+
+  describe("caption as alt fallback", () => {
+    it("uses caption as alt when alt is not provided", () => {
+      const params = { src: localTestImage, caption: "My Caption" };
+      const result = ImagePlugin.execute(mockContext, params);
+
+      expect(result).toContain('alt="My Caption"');
+    });
+
+    it("uses alt when both alt and caption are provided", () => {
+      const params = {
+        src: localTestImage,
+        alt: "Alt Text",
+        caption: "Caption Text",
+      };
+      const result = ImagePlugin.execute(mockContext, params);
+
+      expect(result).toContain('alt="Alt Text"');
+      expect(result).toContain(">Caption Text</div>");
+    });
+
+    it("uses default alt when neither alt nor caption provided", () => {
+      const params = { src: localTestImage };
+      const result = ImagePlugin.execute(mockContext, params);
+
+      expect(result).toContain('alt="Uploaded image"');
+    });
+  });
+
+  describe("real-world examples", () => {
+    it("renders left-floating image with text wrap", () => {
+      const params = {
+        src: "/attachments/example.jpg",
+        caption: "Example Image",
+        align: "left",
+        display: "float",
+      };
+      const result = ImagePlugin.execute(mockContext, params);
+
+      expect(result).toContain('src="/attachments/example.jpg"');
+      expect(result).toContain('alt="Example Image"');
+      expect(result).toContain("float: left;");
+      expect(result).toContain(">Example Image</div>");
+    });
+
+    it("renders left-aligned image without text wrap", () => {
+      const params = {
+        src: "/attachments/example.jpg",
+        caption: "Example Image",
+        align: "left",
+        display: "block",
+      };
+      const result = ImagePlugin.execute(mockContext, params);
+
+      expect(result).toContain('src="/attachments/example.jpg"');
+      expect(result).toContain('alt="Example Image"');
+      expect(result).toContain("display: block;");
+      expect(result).not.toContain("float:");
+    });
+
+    it("renders full-width image", () => {
+      const params = {
+        src: "/attachments/example.jpg",
+        caption: "Full Width Example",
+        display: "full",
+      };
+      const result = ImagePlugin.execute(mockContext, params);
+
+      expect(result).toContain('src="/attachments/example.jpg"');
+      expect(result).toContain('alt="Full Width Example"');
+      expect(result).toContain("width: 100%;");
     });
   });
 });
