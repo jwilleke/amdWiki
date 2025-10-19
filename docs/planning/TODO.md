@@ -31,7 +31,7 @@ AttachmentManager exists but needs complete UI integration.
   - Drag-and-drop file upload
   - Progress indicators
   - File type validation
-  - Size limit enforcement
+  - Size limit enforcement 
 - [ ] Create inline attachment management panel
   - List attached files with preview
   - Delete/rename functionality

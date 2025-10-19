@@ -247,7 +247,7 @@ Rather than converting all 155 files at once, we'll use TypeScript's support for
 
 ### Phase-by-Phase Strategy
 
-```
+```text
 JavaScript (Current)
     ↓
 JavaScript + TypeScript Config (Allow .js and .ts)
@@ -266,7 +266,7 @@ Full TypeScript (100% coverage)
 ### File Organization
 
 **Before**:
-```
+```text
 src/
   managers/
     PageManager.js
@@ -275,7 +275,7 @@ src/
 ```
 
 **During Migration**:
-```
+```text
 src/
   managers/
     PageManager.ts          ✅ Migrated
@@ -285,7 +285,7 @@ src/
 ```
 
 **After**:
-```
+```text
 src/
   managers/
     PageManager.ts
@@ -375,7 +375,7 @@ dist/                       # Compiled output
   ```
 
 - [ ] Create `.gitignore` updates
-  ```
+  ```text
   # TypeScript
   dist/
   *.tsbuildinfo
