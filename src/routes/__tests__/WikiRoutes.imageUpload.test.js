@@ -50,14 +50,19 @@ const mockEngine = {
 describe("WikiRoutes - Image Upload (Bug #76)", () => {
   let app;
   let wikiRoutes;
+  let uploadedFiles; // Track files created during tests
   const testUploadDir = path.join(
     __dirname,
     "../../../public/images/test-uploads"
   );
+  const actualUploadDir = path.join(__dirname, "../../../public/images");
 
   beforeEach(async () => {
     // Clear all mocks
     jest.clearAllMocks();
+
+    // Initialize array to track uploaded files
+    uploadedFiles = [];
 
     // Create test upload directory
     await fs.ensureDir(testUploadDir);
@@ -82,7 +87,17 @@ describe("WikiRoutes - Image Upload (Bug #76)", () => {
   });
 
   afterEach(async () => {
-    // Cleanup test uploads
+    // Cleanup test uploads from actual upload directory
+    for (const filename of uploadedFiles) {
+      const filePath = path.join(actualUploadDir, filename);
+      try {
+        await fs.remove(filePath);
+      } catch (err) {
+        // Ignore errors if file doesn't exist
+      }
+    }
+
+    // Cleanup test upload directory
     await fs.remove(testUploadDir);
   });
 
@@ -103,6 +118,11 @@ describe("WikiRoutes - Image Upload (Bug #76)", () => {
         .post("/images/upload")
         .attach("image", testImagePath)
         .expect(200);
+
+      // Track uploaded file for cleanup
+      if (response.body.filename) {
+        uploadedFiles.push(response.body.filename);
+      }
 
       expect(response.body).toHaveProperty("success", true);
       expect(response.body).toHaveProperty("imagePath");
@@ -166,6 +186,11 @@ describe("WikiRoutes - Image Upload (Bug #76)", () => {
         .attach("image", testImagePath)
         .expect(200);
 
+      // Track uploaded file for cleanup
+      if (response.body.filename) {
+        uploadedFiles.push(response.body.filename);
+      }
+
       expect(response.body.success).toBe(true);
       expect(response.body.filename).toMatch(/\.jpg$/);
     });
@@ -186,6 +211,11 @@ describe("WikiRoutes - Image Upload (Bug #76)", () => {
         .attach("image", pngBuffer, "test.png")
         .expect(200);
 
+      // Track uploaded file for cleanup
+      if (response.body.filename) {
+        uploadedFiles.push(response.body.filename);
+      }
+
       expect(response.body.success).toBe(true);
       expect(response.body.filename).toMatch(/\.png$/);
     });
@@ -205,9 +235,19 @@ describe("WikiRoutes - Image Upload (Bug #76)", () => {
         .post("/images/upload")
         .attach("image", testImagePath);
 
+      // Track uploaded file for cleanup
+      if (response1.body.filename) {
+        uploadedFiles.push(response1.body.filename);
+      }
+
       const response2 = await request(app)
         .post("/images/upload")
         .attach("image", testImagePath);
+
+      // Track uploaded file for cleanup
+      if (response2.body.filename) {
+        uploadedFiles.push(response2.body.filename);
+      }
 
       expect(response1.body.filename).not.toEqual(response2.body.filename);
     });
@@ -228,6 +268,11 @@ describe("WikiRoutes - Image Upload (Bug #76)", () => {
         .attach("image", testImagePath)
         .expect(200);
 
+      // Track uploaded file for cleanup
+      if (response.body.filename) {
+        uploadedFiles.push(response.body.filename);
+      }
+
       expect(response.body.filename).toMatch(/\.jpg$/);
       expect(response.body.imagePath).toMatch(/\.jpg$/);
     });
@@ -247,6 +292,11 @@ describe("WikiRoutes - Image Upload (Bug #76)", () => {
         .post("/images/upload")
         .attach("image", testImagePath)
         .expect(200);
+
+      // Track uploaded file for cleanup
+      if (response.body.filename) {
+        uploadedFiles.push(response.body.filename);
+      }
 
       expect(response.body.originalName).toBe("test-one.jpg");
     });
@@ -272,6 +322,11 @@ describe("WikiRoutes - Image Upload (Bug #76)", () => {
         .post("/images/upload")
         .attach("image", testImagePath);
 
+      // Track uploaded file for cleanup
+      if (response.status === 200 && response.body.filename) {
+        uploadedFiles.push(response.body.filename);
+      }
+
       // Check that upload succeeded (directory exists or was created)
       if (response.status === 200) {
         expect(await fs.pathExists(uploadDir)).toBe(true);
@@ -296,6 +351,11 @@ describe("WikiRoutes - Image Upload (Bug #76)", () => {
         .attach("image", testImagePath)
         .expect(200);
 
+      // Track uploaded file for cleanup
+      if (response.body.filename) {
+        uploadedFiles.push(response.body.filename);
+      }
+
       expect(response.body.imagePath).toMatch(/^\/images\//);
     });
 
@@ -316,6 +376,11 @@ describe("WikiRoutes - Image Upload (Bug #76)", () => {
         .post("/images/upload")
         .attach("image", testImagePath)
         .expect(200);
+
+      // Track uploaded file for cleanup
+      if (response.body.filename) {
+        uploadedFiles.push(response.body.filename);
+      }
 
       // ImagePlugin expects paths starting with / or http
       expect(response.body.imagePath).toMatch(
@@ -383,6 +448,11 @@ describe("WikiRoutes - Image Upload (Bug #76)", () => {
         .attach("image", testImagePath)
         .expect(200);
 
+      // Track uploaded file for cleanup
+      if (uploadResponse.body.filename) {
+        uploadedFiles.push(uploadResponse.body.filename);
+      }
+
       const imagePath = uploadResponse.body.imagePath;
 
       // Simulate ImagePlugin usage
@@ -410,6 +480,11 @@ describe("WikiRoutes - Image Upload (Bug #76)", () => {
         .attach("image", pngBuffer, "../../../malicious.png")
         .expect(200);
 
+      // Track uploaded file for cleanup
+      if (response.body.filename) {
+        uploadedFiles.push(response.body.filename);
+      }
+
       // Should not allow directory traversal in filename
       expect(response.body.filename).not.toContain("..");
       expect(response.body.filename).toMatch(/^upload-\d+-\d+\.png$/);
@@ -425,6 +500,11 @@ describe("WikiRoutes - Image Upload (Bug #76)", () => {
       const response = await request(app)
         .post("/images/upload")
         .attach("image", Buffer.from(maliciousSVG), "malicious.svg");
+
+      // Track uploaded file for cleanup
+      if (response.status === 200 && response.body.filename) {
+        uploadedFiles.push(response.body.filename);
+      }
 
       // SVG should be accepted (it's in allowedTypes), but should be served with proper headers
       // This test documents the current behavior - proper mitigation would be CSP headers
