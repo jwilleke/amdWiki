@@ -502,7 +502,7 @@ For complex data structures:
 
 ### JSDoc Best Practices
 
-#### DO:
+#### DO
 - ✅ Document ALL public classes, methods, and functions
 - ✅ Include detailed descriptions explaining "why" not just "what"
 - ✅ Provide type information for all parameters and returns
@@ -513,7 +513,7 @@ For complex data structures:
 - ✅ Include configuration keys in comments
 - ✅ Document JSPWiki patterns and architecture
 
-#### DON'T:
+#### DON'T
 - ❌ Skip documentation for "simple" methods
 - ❌ Use vague descriptions like "does something"
 - ❌ Omit parameter types or return types
