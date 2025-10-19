@@ -394,7 +394,7 @@ The provider pattern uses these existing configuration keys from ConfigurationMa
 - `amdwiki.directories.required-pages` - System pages directory (default: "./required-pages")
 - `amdwiki.encoding` - File encoding (default: "UTF-8")
 - `amdwiki.translatorReader.matchEnglishPlurals` - Enable plural matching (default: true)
-- `amdwiki.systemCategories` - Category-to-storage mapping
+- `amdwiki.system-category` - Category-to-storage mapping
 
 ## Migration Strategy
 

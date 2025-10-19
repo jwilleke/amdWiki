@@ -665,7 +665,7 @@ system-category: nonexistent-category
 
 ```json
 {
-  "amdwiki.systemCategories": {
+  "amdwiki.system-category": {
     "my-custom-category": {
       "label": "my-custom-category",
       "description": "My custom content type",
@@ -862,8 +862,8 @@ Located in: `config/app-default-config.json`
 
 ```json
 {
-  "_comment_systemCategories": "System category definitions with storage location mapping",
-  "amdwiki.systemCategories": {
+  "_comment_system_category": "System category definitions with storage location mapping",
+  "amdwiki.system-category": {
     "general": {
       "label": "general",
       "description": "General wiki pages",

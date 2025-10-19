@@ -23,7 +23,7 @@ const createMockEngine = () => {
       if (name === 'ConfigurationManager') {
         return {
           getProperty: jest.fn((key, defaultValue) => {
-            if (key === 'amdwiki.translatorReader.matchEnglishPlurals') return true;
+            if (key === 'amdwiki.translator-reader.match-english-plurals') return true;
             if (key === 'amdwiki.interwiki.enabled') return true;
             if (key === 'amdwiki.interwiki.sites') {
               return {

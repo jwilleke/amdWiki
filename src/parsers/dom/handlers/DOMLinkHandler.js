@@ -71,7 +71,7 @@ class DOMLinkHandler {
       // Get plural matching configuration
       const configManager = this.engine.getManager('ConfigurationManager');
       const matchEnglishPlurals = configManager ?
-        configManager.getProperty('amdwiki.translatorReader.matchEnglishPlurals', true) :
+        configManager.getProperty('amdwiki.translator-reader.match-english-plurals', true) :
         true;
 
       this.pageNameMatcher = new PageNameMatcher(matchEnglishPlurals);

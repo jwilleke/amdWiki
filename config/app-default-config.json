@@ -11,11 +11,11 @@
   "amdwiki.session.maxAge": 86400000,
   "amdwiki.session.secure": false,
   "amdwiki.session.httpOnly": true,
-  "amdwiki.translatorReader.matchEnglishPlurals": true,
-  "amdwiki.translatorReader.camelCaseLinks": true,
-  "amdwiki.translatorReader.allowHTML": false,
-  "amdwiki.translatorReader.plainUris": true,
-  "amdwiki.translatorReader.inlinePattern.1": "s/\\{\\{([^}]+)\\}\\}/\\<tt\\>$1\\<\\/tt\\>/g",
+  "amdwiki.translator-reader.match-english-plurals": true,
+  "amdwiki.translator-reader.camel-case-links": true,
+  "amdwiki.translator-reader.allow-html": false,
+  "amdwiki.translator-reader.plain-uris": true,
+  "amdwiki.translator-reader.inline-pattern.1": "s/\\{\\{([^}]+)\\}\\}/\\<tt\\>$1\\<\\/tt\\>/g",
 
   "_comment_parser": "Parser configuration (Phase 6, Issue #120)",
   "jspwiki.parser.useExtractionPipeline": true,
@@ -407,8 +407,8 @@
   "amdwiki.maximum.user-keywords": 5,
   "amdwiki.default.template.dateformat": "dd-MMM-yyyy HH:mm",
   "amdwiki.default.timezone": "UTC",
-  "_comment_systemCategories": "System category definitions with storage location mapping",
-  "amdwiki.systemCategories": {
+  "_comment_system_category": "System category definitions with storage location mapping",
+  "amdwiki.system-category": {
     "general": {
       "label": "general",
       "description": "General wiki pages",
@@ -452,8 +452,8 @@
       "enabled": true
     }
   },
-  "_comment_systemKeywords": "System keyword definitions for controlled vocabulary",
-  "amdwiki.systemKeywords": {
+  "_comment_system_keywords": "System keyword definitions for controlled vocabulary",
+  "amdwiki.system-keywords": {
     "general": {
       "label": "general",
       "description": "General-purpose keyword for standard wiki content",
@@ -462,8 +462,8 @@
       "enabled": true
     }
   },
-  "_comment_userKeywords": "User keyword definitions for flexible content tagging and organization",
-  "amdwiki.userKeywords": {
+  "_comment_user_keywords": "User keyword definitions for flexible content tagging and organization",
+  "amdwiki.user-keywords": {
     "default": {
       "label": "default",
       "description": "Default keyword with no special restrictions",

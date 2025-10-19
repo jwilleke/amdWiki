@@ -559,7 +559,7 @@ describe('VersioningFileProvider', () => {
     test('should store required pages in correct location', async () => {
       // Mock system categories config
       configManager.getProperty = jest.fn((key, defaultValue) => {
-        if (key === 'amdwiki.systemCategories') {
+        if (key === 'amdwiki.system-category') {
           return {
             Navigation: {
               label: 'Navigation',

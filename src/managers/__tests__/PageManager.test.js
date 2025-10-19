@@ -38,13 +38,13 @@ const mockConfigurationManager = {
     if (key === 'amdwiki.encoding') {
       return 'UTF-8';
     }
-    if (key === 'amdwiki.translatorReader.matchEnglishPlurals') {
+    if (key === 'amdwiki.translator-reader.match-english-plurals') {
       return true;
     }
     if (key === 'amdwiki.pageProvider') {
       return 'FileSystemProvider';
     }
-    if (key === 'amdwiki.systemCategories') {
+    if (key === 'amdwiki.system-category') {
       return {
         general: { label: 'general', storageLocation: 'regular' },
         system: { label: 'system', storageLocation: 'required' },

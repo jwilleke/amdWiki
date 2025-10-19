@@ -50,13 +50,13 @@ describe('ValidationManager', () => {
         title: 'Test Page',
         uuid: uuidv4(),
         slug: 'test-page',
-        category: 'General',
+        'system-category': 'General',
         'user-keywords': ['test', 'example'],
         lastModified: new Date().toISOString()
       };
 
       const result = validationManager.validateMetadata(validMetadata);
-      
+
       expect(result.success).toBe(true);
       expect(result.error).toBeNull();
     });
@@ -78,13 +78,13 @@ describe('ValidationManager', () => {
         title: 'Test Page',
         uuid: 'invalid-uuid',
         slug: 'test-page',
-        category: 'General',
+        'system-category': 'General',
         'user-keywords': [],
         lastModified: new Date().toISOString()
       };
 
       const result = validationManager.validateMetadata(metadata);
-      
+
       expect(result.success).toBe(false);
       expect(result.error).toContain('uuid must be a valid RFC 4122 UUID v4');
     });
@@ -94,7 +94,7 @@ describe('ValidationManager', () => {
         title: 'Test Page',
         uuid: uuidv4(),
         slug: 'Invalid Slug With Spaces',
-        category: 'General',
+        'system-category': 'General',
         'user-keywords': [],
         lastModified: new Date().toISOString()
       };
@@ -110,7 +110,7 @@ describe('ValidationManager', () => {
         title: 'Test Page',
         uuid: uuidv4(),
         slug: 'test-page',
-        category: 'General',
+        'system-category': 'General',
         'user-keywords': ['valid', 'keywords'],
         lastModified: new Date().toISOString()
       };
@@ -127,7 +127,7 @@ describe('ValidationManager', () => {
         title: 'Test Page',
         uuid: uuidv4(),
         slug: 'test-page',
-        category: 'General',
+        'system-category': 'General',
         'user-keywords': ['one', 'two', 'three', 'four'], // Too many
         lastModified: new Date().toISOString()
       };
@@ -135,7 +135,7 @@ describe('ValidationManager', () => {
       const result = validationManager.validateMetadata(metadata);
       
       expect(result.success).toBe(false);
-      expect(result.error).toContain('Maximum 3 user keywords allowed');
+      expect(result.error).toContain('Maximum 3 user keywords are allowed');
     });
 
     test('should warn about non-standard categories', () => {
@@ -143,13 +143,13 @@ describe('ValidationManager', () => {
         title: 'Test Page',
         uuid: uuidv4(),
         slug: 'test-page',
-        category: 'NonStandardCategory',
+        'system-category': 'NonStandardCategory',
         'user-keywords': [],
         lastModified: new Date().toISOString()
       };
 
       const result = validationManager.validateMetadata(metadata);
-      
+
       expect(result.success).toBe(true);
       expect(result.warnings).toContainEqual(expect.stringContaining('is not in the standard list'));
     });
@@ -163,7 +163,7 @@ describe('ValidationManager', () => {
         title: 'Test Page',
         uuid: uuid,
         slug: 'test-page',
-        category: 'General',
+        'system-category': 'General',
         'user-keywords': [],
         lastModified: new Date().toISOString()
       };
@@ -184,7 +184,7 @@ describe('ValidationManager', () => {
         title: 'Test Page',
         uuid: metadataUuid,
         slug: 'test-page',
-        category: 'General',
+        'system-category': 'General',
         'user-keywords': [],
         lastModified: new Date().toISOString()
       };
@@ -200,11 +200,11 @@ describe('ValidationManager', () => {
     test('should generate complete metadata with UUID', () => {
       const title = 'Test Page';
       const result = validationManager.generateValidMetadata(title);
-      
+
       expect(result.title).toBe(title);
       expect(result.uuid).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
       expect(result.slug).toBe('test-page');
-      expect(result.category).toBe('General');
+      expect(result['system-category']).toBe('general');
       expect(Array.isArray(result['user-keywords'])).toBe(true);
       expect(result.lastModified).toBeDefined();
     });
@@ -212,14 +212,14 @@ describe('ValidationManager', () => {
     test('should use provided options', () => {
       const title = 'Test Page';
       const options = {
-        category: 'Documentation',
+        'system-category': 'documentation',
         'user-keywords': ['test'],
         uuid: uuidv4()
       };
-      
+
       const result = validationManager.generateValidMetadata(title, options);
-      
-      expect(result.category).toBe('Documentation');
+
+      expect(result['system-category']).toBe('documentation');
       expect(result['user-keywords']).toEqual(['test']);
       expect(result.uuid).toBe(options.uuid);
     });
@@ -262,10 +262,10 @@ describe('ValidationManager', () => {
       };
 
       const fixes = validationManager.generateFixSuggestions(filename, metadata);
-      
+
       expect(fixes.metadata.uuid).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
       expect(fixes.metadata.slug).toBe('test-page');
-      expect(fixes.metadata.category).toBe('General');
+      expect(fixes.metadata['system-category']).toBe('general');
       expect(Array.isArray(fixes.metadata['user-keywords'])).toBe(true);
       expect(fixes.metadata.lastModified).toBeDefined();
       expect(fixes.filename).toBe(`${fixes.metadata.uuid}.md`);
@@ -278,13 +278,14 @@ describe('ValidationManager', () => {
         title: 'Test Page',
         uuid: uuid,
         slug: 'test-page',
-        category: 'General',
+        'system-category': 'General',
+        'system-category': 'General',
         'user-keywords': ['test'],
         lastModified: '2025-01-01T00:00:00.000Z'
       };
 
       const fixes = validationManager.generateFixSuggestions(filename, metadata);
-      
+
       expect(fixes.metadata).toEqual(metadata);
       expect(fixes.filename).toBeNull(); // No filename change needed
     });

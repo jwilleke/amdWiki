@@ -313,7 +313,7 @@ const ConfigAccessorPlugin = {
 
     try {
       // Get userKeywords from configuration
-      const userKeywords = configManager.getProperty('amdwiki.userKeywords', {});
+      const userKeywords = configManager.getProperty('amdwiki.user-keywords', {});
 
       if (!userKeywords || typeof userKeywords !== 'object' || Object.keys(userKeywords).length === 0) {
         if (valueonly) {

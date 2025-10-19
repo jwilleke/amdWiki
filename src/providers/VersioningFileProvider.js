@@ -533,7 +533,7 @@ class VersioningFileProvider extends FileSystemProvider {
     // Determine location based on system-category
     const systemCategory = metadata['system-category'] || metadata.systemCategory || 'General';
     const configManager = this.engine.getManager('ConfigurationManager');
-    const systemCategoriesConfig = configManager?.getProperty('amdwiki.systemCategories', null);
+    const systemCategoriesConfig = configManager?.getProperty('amdwiki.system-category', null);
 
     let location = 'pages';
     if (systemCategoriesConfig) {

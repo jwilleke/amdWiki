@@ -42,7 +42,7 @@ Every page must include these YAML frontmatter fields:
 
 ### 3. System Categories
 
-System categories are now configurable via `app-default-config.json` under `amdwiki.systemCategories`. Each category has:
+System categories are now configurable via `app-default-config.json` under `amdwiki.system-category`. Each category has:
 
 | Property | Type | Description |
 |----------|------|-------------|
@@ -79,7 +79,7 @@ Configuration is loaded from ConfigurationManager via `config/app-default-config
 
 ```json
 {
-  "amdwiki.systemCategories": {
+  "amdwiki.system-category": {
     "general": {
       "label": "General",
       "description": "General wiki pages",
@@ -117,7 +117,7 @@ To add a custom category, add it to `app-custom-config.json`:
 
 ```json
 {
-  "amdwiki.systemCategories": {
+  "amdwiki.system-category": {
     "custom-category": {
       "label": "Custom Category",
       "description": "My custom category",

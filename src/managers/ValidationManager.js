@@ -43,7 +43,7 @@ class ValidationManager extends BaseManager {
     this.requiredMetadataFields = ['title', 'uuid', 'slug', 'system-category', 'user-keywords', 'lastModified'];
     // Legacy hardcoded categories (fallback if config not available)
     this.validSystemCategories = [
-      'System', 'System/Admin', 'Documentation', 'General', 'User', 'Test', 'Developer'
+      'system', 'documentation', 'general', 'user', 'test', 'developer'
     ];
     this.systemCategoriesConfig = null;
   }
@@ -84,7 +84,7 @@ class ValidationManager extends BaseManager {
 
     try {
       // Get system categories configuration
-      const systemCategoriesConfig = configManager.getProperty('amdwiki.systemCategories', null);
+      const systemCategoriesConfig = configManager.getProperty('amdwiki.system-category', null);
 
       if (systemCategoriesConfig && typeof systemCategoriesConfig === 'object') {
         this.systemCategoriesConfig = systemCategoriesConfig;
@@ -153,7 +153,7 @@ class ValidationManager extends BaseManager {
       return this.validSystemCategories.map(label => ({
         label,
         description: '',
-        default: label === 'General',
+        default: label === 'general',
         storageLocation: 'regular',
         enabled: true
       }));
@@ -170,7 +170,7 @@ class ValidationManager extends BaseManager {
    */
   getDefaultSystemCategory() {
     if (!this.systemCategoriesConfig) {
-      return 'General';
+      return 'general';
     }
 
     for (const [key, config] of Object.entries(this.systemCategoriesConfig)) {
@@ -186,7 +186,7 @@ class ValidationManager extends BaseManager {
       }
     }
 
-    return 'General';
+    return 'general';
   }
 
   /**

@@ -74,7 +74,7 @@ class LinkParserHandler extends BaseSyntaxHandler {
         // Get plural matching configuration
         const configManager = this.engine?.getManager('ConfigurationManager');
         const matchEnglishPlurals = configManager ?
-          configManager.getProperty('amdwiki.translatorReader.matchEnglishPlurals', true) :
+          configManager.getProperty('amdwiki.translator-reader.match-english-plurals', true) :
           true;
 
         this.linkParser.setPageNames(pageNames, matchEnglishPlurals);

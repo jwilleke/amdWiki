@@ -410,7 +410,7 @@ class WikiRoutes {
       }
 
       // Load system categories from configuration
-      const systemCategories = configManager.getProperty("amdwiki.systemCategories", {});
+      const systemCategories = configManager.getProperty("amdwiki.system-category", {});
 
       // Filter enabled categories and extract labels (case-insensitive)
       const categories = [];
@@ -443,7 +443,7 @@ class WikiRoutes {
 
       // Try to get user keywords from configuration first
       if (configManager) {
-        const userKeywordsConfig = configManager.getProperty("amdwiki.userKeywords", null);
+        const userKeywordsConfig = configManager.getProperty("amdwiki.user-keywords", null);
 
         if (userKeywordsConfig && typeof userKeywordsConfig === 'object') {
           const keywords = [];

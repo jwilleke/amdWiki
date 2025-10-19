@@ -26,7 +26,7 @@ const PageNameMatcher = require('../utils/PageNameMatcher');
  * - amdwiki.page.provider.filesystem.storagedir - Main pages directory
  * - amdwiki.page.provider.filesystem.requiredpagesdir - Required pages directory
  * - amdwiki.page.provider.filesystem.encoding - File encoding (default: utf-8)
- * - amdwiki.translatorReader.matchEnglishPlurals - Enable plural matching
+ * - amdwiki.translator-reader.match-english-plurals - Enable plural matching
  *
  * @class FileSystemProvider
  * @extends BasePageProvider
@@ -102,7 +102,7 @@ class FileSystemProvider extends BasePageProvider {
     );
 
     // Initialize PageNameMatcher with plural matching config
-    const matchEnglishPlurals = configManager.getProperty('amdwiki.translatorReader.matchEnglishPlurals', true);
+    const matchEnglishPlurals = configManager.getProperty('amdwiki.translator-reader.match-english-plurals', true);
     this.pageNameMatcher = new PageNameMatcher(matchEnglishPlurals);
     logger.info(`[FileSystemProvider] Plural matching: ${matchEnglishPlurals ? 'enabled' : 'disabled'}`);
 
@@ -305,13 +305,13 @@ class FileSystemProvider extends BasePageProvider {
     const uuid = metadata.uuid || this.#resolvePageInfo(pageName)?.uuid || uuidv4();
 
     // Determine which directory to save to based on system-category
-    // Use configuration from amdwiki.systemCategories via ConfigurationManager
+    // Use configuration from amdwiki.system-category via ConfigurationManager
     const configManager = this.engine.getManager('ConfigurationManager');
     const systemCategory = metadata['system-category'] || metadata.systemCategory || 'General';
 
     let targetDirectory;
     if (configManager) {
-      const systemCategoriesConfig = configManager.getProperty('amdwiki.systemCategories', null);
+      const systemCategoriesConfig = configManager.getProperty('amdwiki.system-category', null);
 
       if (systemCategoriesConfig) {
         // Find the category configuration by label (case-insensitive)

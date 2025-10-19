@@ -182,7 +182,7 @@ Provider pattern uses these configuration keys:
 | `amdwiki.directories.required-pages` | `./required-pages` | System pages directory |
 | `amdwiki.encoding` | `UTF-8` | File encoding |
 | `amdwiki.translatorReader.matchEnglishPlurals` | `true` | Enable plural matching |
-| `amdwiki.systemCategories` | `{...}` | Category-to-storage mapping |
+| `amdwiki.system-category` | `{...}` | Category-to-storage mapping |
 
 ## Access Patterns
 

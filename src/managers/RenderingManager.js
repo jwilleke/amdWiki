@@ -74,7 +74,7 @@ class RenderingManager extends BaseManager {
     // Initialize PageNameMatcher with plural matching config
     const configManager = this.engine.getManager('ConfigurationManager');
     if (configManager) {
-      const matchEnglishPlurals = configManager.getProperty('amdwiki.translatorReader.matchEnglishPlurals', true);
+      const matchEnglishPlurals = configManager.getProperty('amdwiki.translator-reader.match-english-plurals', true);
       this.pageNameMatcher = new PageNameMatcher(matchEnglishPlurals);
     }
 
