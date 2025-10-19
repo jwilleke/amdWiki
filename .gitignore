@@ -184,3 +184,5 @@ data/sessions/
 required-pages/versions/*
 CLAUDE.md
 archive
+
+node_modules/
