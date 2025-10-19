@@ -170,8 +170,25 @@ checkAndCreatePidLock();
 
   // 5. Start the Server
   const port = configManager.getProperty('amdwiki.port', 3000);
-  app.listen(port, () => {
-    logger.info(`Wiki app listening at http://localhost:${port}`);
+  const hostname = configManager.getProperty('amdwiki.hostname', 'localhost');
+  const baseURL = `http://${hostname}:${port}`;
+
+  app.listen(port, async () => {
+    console.log('\n' + '='.repeat(60));
+    console.log(`🚀 Running amdWiki on port ${port}`);
+    console.log(`🌐 Visit: ${baseURL}`);
+
+    // Check if admin is using default password
+    const userManager = engine.getManager('UserManager');
+    const isDefaultPassword = await userManager.isAdminUsingDefaultPassword();
+    if (isDefaultPassword) {
+      const defaultPassword = configManager.getProperty('amdwiki.user.security.defaultpassword', 'admin123');
+      console.log(`⚠️  Use user 'admin' and password '${defaultPassword}' to login.`);
+      console.log(`⚠️  SECURITY WARNING: Change the admin password immediately!`);
+    }
+
+    console.log('='.repeat(60) + '\n');
+    logger.info(`Wiki app listening at ${baseURL}`);
   });
 
 })();

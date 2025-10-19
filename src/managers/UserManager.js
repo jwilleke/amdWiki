@@ -220,6 +220,24 @@ class UserManager extends BaseManager {
   }
 
   /**
+   * Check if admin user still has the default password
+   * @returns {Promise<boolean>} True if admin has default password
+   */
+  async isAdminUsingDefaultPassword() {
+    try {
+      const adminUser = await this.provider.getUser('admin');
+      if (!adminUser) {
+        return false;
+      }
+      const defaultPassword = this.defaultPassword || 'admin123';
+      return this.verifyPassword(defaultPassword, adminUser.password);
+    } catch (error) {
+      logger.error('Error checking admin default password:', error);
+      return false;
+    }
+  }
+
+  /**
    * Create default admin user
    */
   async createDefaultAdmin() {
