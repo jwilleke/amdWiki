@@ -50,39 +50,48 @@ class UserPreferences {
 
     editor.addEventListener('keydown', (e) => {
       const char = e.key;
-      const pos = editor.selectionStart;
+      const start = editor.selectionStart;
+      const end = editor.selectionEnd;
       const value = editor.value;
-      
+
       if (pairs[char]) {
         e.preventDefault();
-        const before = value.substring(0, pos);
-        const after = value.substring(editor.selectionEnd);
+        const before = value.substring(0, start);
+        const selected = value.substring(start, end);
+        const after = value.substring(end);
         const closing = pairs[char];
-        
-        editor.value = before + char + closing + after;
-        editor.setSelectionRange(pos + 1, pos + 1);
+
+        // If there's a selection, wrap it; otherwise just insert the pair
+        if (selected.length > 0) {
+          editor.value = before + char + selected + closing + after;
+          // Keep the wrapped text selected
+          editor.setSelectionRange(start + 1, end + 1);
+        } else {
+          editor.value = before + char + closing + after;
+          editor.setSelectionRange(start + 1, start + 1);
+        }
       }
       
       // Handle closing pairs - skip if next character is the closing pair
       else if (Object.values(pairs).includes(char)) {
-        const nextChar = value.charAt(pos);
+        const nextChar = value.charAt(start);
         if (nextChar === char) {
           e.preventDefault();
-          editor.setSelectionRange(pos + 1, pos + 1);
+          editor.setSelectionRange(start + 1, start + 1);
         }
       }
-      
+
       // Handle backspace - remove matching pair
-      else if (e.key === 'Backspace') {
-        const prevChar = value.charAt(pos - 1);
-        const nextChar = value.charAt(pos);
-        
+      else if (e.key === 'Backspace' && start === end) {
+        const prevChar = value.charAt(start - 1);
+        const nextChar = value.charAt(start);
+
         if (pairs[prevChar] === nextChar) {
           e.preventDefault();
-          const before = value.substring(0, pos - 1);
-          const after = value.substring(pos + 1);
+          const before = value.substring(0, start - 1);
+          const after = value.substring(start + 1);
           editor.value = before + after;
-          editor.setSelectionRange(pos - 1, pos - 1);
+          editor.setSelectionRange(start - 1, start - 1);
         }
       }
     });
