@@ -1,10 +1,10 @@
 /**
  * VariablesPlugin - JSPWiki-style plugin for amdWiki
- * Displays system variables, contextual variables, and available plugins
+ * Displays system variables, contextual variables, available plugins, and configuration variables
  *
  * Usage:
- *   [{VariablesPlugin}]                        - Shows all (variables + plugins)
- *   [{VariablesPlugin type='all'}]             - Shows all (variables + plugins)
+ *   [{VariablesPlugin}]                        - Shows all (variables + plugins + config)
+ *   [{VariablesPlugin type='all'}]             - Shows all (variables + plugins + config)
  *   [{VariablesPlugin type='system'}]          - Shows only system variables
  *   [{VariablesPlugin type='contextual'}]      - Shows only contextual variables
  *   [{VariablesPlugin type='plugins'}]         - Shows only available plugins
@@ -63,6 +63,11 @@ const VariablesPlugin = {
         html += '  <li class="nav-item" role="presentation">\n';
         html += '    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#var-plugins" type="button" role="tab">\n';
         html += '      <i class="fas fa-puzzle-piece"></i> Available Plugins\n';
+        html += '    </button>\n';
+        html += '  </li>\n';
+        html += '  <li class="nav-item" role="presentation">\n';
+        html += '    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#var-config" type="button" role="tab">\n';
+        html += '      <i class="fas fa-sliders-h"></i> Configuration Variables\n';
         html += '    </button>\n';
         html += '  </li>\n';
         html += '</ul>\n';
@@ -199,6 +204,34 @@ const VariablesPlugin = {
         html += '  </div>\n';
         html += '</div>\n';
         html += type === 'all' ? '</div>\n' : '';
+      }
+
+      // Configuration Variables (using ConfigAccessorPlugin)
+      if (type === 'all') {
+        html += '<div class="tab-pane fade" id="var-config" role="tabpanel">\n';
+
+        // Get ConfigAccessorPlugin
+        const configAccessorPlugin = pluginManager?.plugins?.get('ConfigAccessorPlugin');
+
+        if (configAccessorPlugin) {
+          try {
+            // Execute ConfigAccessorPlugin to get configuration values
+            // Display all amdwiki.* configuration values
+            const configOutput = await configAccessorPlugin.execute(context, { key: 'amdwiki.*' });
+            html += configOutput;
+          } catch (error) {
+            console.error('[VariablesPlugin] Error executing ConfigAccessorPlugin:', error);
+            html += '<div class="alert alert-warning">\n';
+            html += '  <i class="fas fa-exclamation-triangle"></i> Error loading configuration variables\n';
+            html += '</div>\n';
+          }
+        } else {
+          html += '<div class="alert alert-info">\n';
+          html += '  <i class="fas fa-info-circle"></i> ConfigAccessorPlugin not available\n';
+          html += '</div>\n';
+        }
+
+        html += '</div>\n';
       }
 
       // Close tab content if showing all
