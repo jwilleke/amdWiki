@@ -297,7 +297,7 @@ class VersioningFileProvider extends FileSystemProvider {
           currentVersion: 1,
           location: location,
           lastModified: new Date().toISOString(),
-          author: 'system',
+          editor: 'system',
           hasVersions: true
         });
 
@@ -347,7 +347,7 @@ class VersioningFileProvider extends FileSystemProvider {
             currentVersion: manifest.currentVersion,
             location: location,
             lastModified: manifest.lastModified || new Date().toISOString(),
-            author: manifest.author || 'unknown',
+            editor: manifest.editor || manifest.author || 'unknown',
             hasVersions: true
           });
 
@@ -568,7 +568,7 @@ class VersioningFileProvider extends FileSystemProvider {
       currentVersion: await this._getCurrentVersion(uuid, location),
       location: location,
       lastModified: new Date().toISOString(),
-      author: metadata.author || 'unknown',
+      editor: metadata.editor || metadata.author || 'unknown',
       hasVersions: true
     });
 
@@ -639,7 +639,7 @@ class VersioningFileProvider extends FileSystemProvider {
     const versionMetadata = {
       version: 1,
       dateCreated: new Date().toISOString(),
-      author: metadata.author || 'unknown',
+      editor: metadata.editor || metadata.author || 'unknown',
       changeType: 'created',
       comment: metadata.comment || 'Initial version',
       contentHash: DeltaStorage.calculateHash(content),
@@ -712,7 +712,7 @@ class VersioningFileProvider extends FileSystemProvider {
 
       versionMetadata = {
         dateCreated: new Date().toISOString(),
-        author: metadata.author || 'unknown',
+        editor: metadata.editor || metadata.author || 'unknown',
         changeType: metadata.changeType || 'updated',
         comment: metadata.comment || `Update to version ${nextVersion}`,
         contentHash: DeltaStorage.calculateHash(newContent),
@@ -731,7 +731,7 @@ class VersioningFileProvider extends FileSystemProvider {
 
       versionMetadata = {
         dateCreated: new Date().toISOString(),
-        author: metadata.author || 'unknown',
+        editor: metadata.editor || metadata.author || 'unknown',
         changeType: metadata.changeType || 'updated',
         comment: comment,
         contentHash: DeltaStorage.calculateHash(newContent),
@@ -901,7 +901,7 @@ class VersioningFileProvider extends FileSystemProvider {
    * Get version history for a page
    *
    * Returns an array of version metadata sorted by version number (newest first).
-   * Each entry includes: version, dateCreated, author, changeType, comment, contentHash, contentSize.
+   * Each entry includes: version, dateCreated, editor, changeType, comment, contentHash, contentSize.
    *
    * @param {string} identifier - Page UUID or title
    * @returns {Promise<Array<object>>} Array of version metadata (empty array if no versions)
@@ -909,9 +909,9 @@ class VersioningFileProvider extends FileSystemProvider {
    * @example
    * const history = await provider.getVersionHistory('Main');
    * // [
-   * //   { version: 3, dateCreated: '2024-01-03T...', author: 'john', ... },
-   * //   { version: 2, dateCreated: '2024-01-02T...', author: 'jane', ... },
-   * //   { version: 1, dateCreated: '2024-01-01T...', author: 'admin', ... }
+   * //   { version: 3, dateCreated: '2024-01-03T...', editor: 'john', ... },
+   * //   { version: 2, dateCreated: '2024-01-02T...', editor: 'jane', ... },
+   * //   { version: 1, dateCreated: '2024-01-01T...', editor: 'admin', ... }
    * // ]
    */
   async getVersionHistory(identifier) {
@@ -948,7 +948,7 @@ class VersioningFileProvider extends FileSystemProvider {
    * @example
    * const { content, metadata } = await provider.getPageVersion('Main', 2);
    * console.log(content); // Content at version 2
-   * console.log(metadata.author); // Author of version 2
+   * console.log(metadata.editor); // Editor of version 2
    */
   async getPageVersion(identifier, version) {
     if (typeof version !== 'number' || version < 1) {
@@ -1007,13 +1007,13 @@ class VersioningFileProvider extends FileSystemProvider {
    * @param {string} identifier - Page UUID or title
    * @param {number} version - Version number to restore to
    * @param {object} options - Restore options
-   * @param {string} options.author - Author of the restore action (default: 'system')
+   * @param {string} options.editor - Editor of the restore action (default: 'system')
    * @param {string} options.comment - Comment for the restore action (default: 'Restored from v{version}')
    * @returns {Promise<number>} New version number created by restore
    * @throws {Error} If page/version not found or restore fails
    * @example
    * const newVersion = await provider.restoreVersion('Main', 5, {
-   *   author: 'admin',
+   *   editor: 'admin',
    *   comment: 'Reverted spam edit'
    * });
    * console.log(`Restored to v5, created v${newVersion}`);
@@ -1035,12 +1035,12 @@ class VersioningFileProvider extends FileSystemProvider {
     const pageName = currentPage.title || identifier;
 
     // Save as new version with restore metadata
-    const author = options.author || 'system';
+    const editor = options.editor || options.author || 'system';
     const comment = options.comment || `Restored from v${version}`;
 
     await this.savePage(pageName, content, {
       uuid: uuid,
-      author: author,
+      editor: editor,
       comment: comment,
       changeType: 'restored'
     });

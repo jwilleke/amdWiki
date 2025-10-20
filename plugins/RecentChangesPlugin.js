@@ -53,6 +53,9 @@ const RecentChangesPlugin = {
         return '<p class="error">Invalid "format" parameter: must be "full" or "compact"</p>';
       }
 
+      // Load page-index.json for version information
+      const pageIndex = await this.loadPageIndex();
+
       // Get all pages
       const allPageNames = await pageManager.getAllPages();
       if (!allPageNames || allPageNames.length === 0) {
@@ -80,12 +83,21 @@ const RecentChangesPlugin = {
 
           // Filter by cutoff date
           if (mtime >= cutoffDate) {
+            // Get version info from page-index.json
+            const indexEntry = pageIndex?.pages?.[page.uuid];
+            const currentVersion = indexEntry?.currentVersion || 1;
+            const hasVersions = indexEntry?.hasVersions || false;
+            const editor = indexEntry?.editor || page.metadata.editor || page.metadata.author || 'Unknown';
+
             pagesWithDates.push({
               title: page.title,
               uuid: page.uuid,
               mtime: mtime,
               metadata: page.metadata || {},
-              filePath: page.filePath
+              filePath: page.filePath,
+              currentVersion: currentVersion,
+              hasVersions: hasVersions,
+              editor: editor
             });
           }
         } catch (error) {
@@ -129,22 +141,22 @@ const RecentChangesPlugin = {
     html += '    <tr>\n';
     html += '      <th style="width: 40%;">Page</th>\n';
     html += '      <th style="width: 25%;">Last Modified</th>\n';
-    html += '      <th style="width: 20%;">Author</th>\n';
+    html += '      <th style="width: 20%;">Editor</th>\n';
     html += '      <th style="width: 15%;">Version</th>\n';
     html += '    </tr>\n';
     html += '  </thead>\n';
     html += '  <tbody>\n';
 
     for (const page of pages) {
-      const author = page.metadata.author || 'Unknown';
-      const version = page.metadata.version || '1';
+      const editor = page.editor || 'Unknown';
+      const version = page.currentVersion || 1;
       const formattedDate = this.formatDate(page.mtime);
 
       html += '    <tr>\n';
       html += `      <td><a class="wikipage" href="/wiki/${encodeURIComponent(page.title)}">${escapeHtml(page.title)}</a></td>\n`;
       html += `      <td><span class="text-muted">${formattedDate}</span></td>\n`;
-      html += `      <td><small>${escapeHtml(author)}</small></td>\n`;
-      html += `      <td><span class="badge bg-secondary">${escapeHtml(version)}</span></td>\n`;
+      html += `      <td><small>${escapeHtml(editor)}</small></td>\n`;
+      html += `      <td><span class="badge bg-secondary">v${escapeHtml(String(version))}</span></td>\n`;
       html += '    </tr>\n';
     }
 
@@ -227,6 +239,23 @@ const RecentChangesPlugin = {
       const options = { month: 'short', day: 'numeric', year: 'numeric' };
       return date.toLocaleDateString('en-US', options);
     }
+  },
+
+  /**
+   * Load page-index.json for version information
+   * @returns {Promise<Object|null>} Page index data or null if not available
+   */
+  async loadPageIndex() {
+    try {
+      const pageIndexPath = path.join(process.cwd(), 'data', 'page-index.json');
+      if (await fs.pathExists(pageIndexPath)) {
+        const data = await fs.readFile(pageIndexPath, 'utf8');
+        return JSON.parse(data);
+      }
+    } catch (error) {
+      console.error('[RecentChangesPlugin] Error loading page-index.json:', error.message);
+    }
+    return null;
   },
 
   /**

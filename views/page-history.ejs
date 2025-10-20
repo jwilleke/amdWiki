@@ -26,7 +26,7 @@
               <tr>
                 <th>Version</th>
                 <th>Date</th>
-                <th>Author</th>
+                <th>Editor</th>
                 <th>Change Type</th>
                 <th>Comment</th>
                 <th>Size</th>
@@ -51,7 +51,7 @@
                       <%= new Date(v.dateCreated).toLocaleTimeString() %>
                     </span>
                   </td>
-                  <td><%= v.author %></td>
+                  <td><%= v.editor || v.author %></td>
                   <td>
                     <% if (v.changeType === 'created') { %>
                       <span class="badge badge-success"><i class="fas fa-plus"></i> Created</span>
