@@ -138,7 +138,7 @@ The server is running on port [{ConfigAccessor key='amdwiki.server.port' valueon
 ```
 
 **Output:** Plain text, one value per line:
-```
+``` text
 3000
 localhost
 ```
@@ -241,7 +241,7 @@ This creates the same Security Policy Summary table as seen on the `/admin/roles
 ```
 
 **Output:** Plain text, one role name per line:
-```
+``` text
 admin
 editor
 contributor
@@ -258,7 +258,7 @@ anonymous
 ```
 
 **Output:**
-```
+```text
 ## Server Configuration
 
 * 3000
