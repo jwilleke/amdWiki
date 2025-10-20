@@ -46,6 +46,33 @@ Displays a formatted table showing all matching keys and values.
 
 Displays all system and custom roles in a formatted table.
 
+### Display Security Policy Summary
+
+```wiki
+[{ConfigAccessor type='permissions'}]
+```
+
+Displays the Security Policy Summary - a permissions matrix showing which roles have which permissions. Shows green checkmarks for granted permissions and gray X marks for denied permissions.
+
+Alternative syntax:
+```wiki
+[{ConfigAccessor type='policy-summary'}]
+```
+
+### Display Current User Summary
+
+```wiki
+[{ConfigAccessor type='user-summary'}]
+```
+
+Displays the current user's information, roles, and permissions from WikiContext. Shows:
+- User information (username, display name, email)
+- Assigned roles with descriptions
+- All permissions granted by those roles
+- Which role(s) grant each permission
+
+If the user is not logged in, displays a friendly message with a login link.
+
 ### Display Manager Configuration
 
 ```wiki
@@ -67,7 +94,7 @@ Shows all configuration properties for a specific feature.
 | Parameter | Values | Default | Required | Description |
 |-----------|--------|---------|----------|-------------|
 | `key` | Config key with optional wildcards (*) | *(none)* | Yes (if no `type`) | Configuration key in dot-notation, supports wildcards |
-| `type` | `roles`, `manager`, `feature` | *(none)* | Yes (if no `key`) | What type of configuration to display |
+| `type` | `roles`, `permissions`, `policy-summary`, `user-summary`, `manager`, `feature` | *(none)* | Yes (if no `key`) | What type of configuration to display |
 | `valueonly` | `true`, `false` | `false` | No | Return only value(s) without HTML formatting |
 | `before` | Any string | `''` (empty) | No | String to prepend before each value (only with `valueonly`) |
 | `after` | Any string | *Smart default* | No | String to append after each value (only with `valueonly`) |
@@ -150,6 +177,38 @@ Welcome to [{ConfigAccessor key='amdwiki.applicationName' valueonly='true'}]!
 - Icon with color
 
 Includes roles like Admin, Editor, Contributor, Reader, and Anonymous.
+
+### Example 6a: Display Security Policy Summary
+
+```wiki
+[{ConfigAccessor type='permissions'}]
+```
+
+**Output:** Formatted permissions matrix table showing:
+- Permission list (e.g., `page:read`, `admin:system`)
+- Permission descriptions
+- Checkmarks (✓) for roles that have each permission
+- X marks (✗) for roles that don't have each permission
+- Footer with total counts
+
+This creates the same Security Policy Summary table as seen on the `/admin/roles` page.
+
+### Example 6b: Display Current User Summary
+
+```wiki
+[{ConfigAccessor type='user-summary'}]
+```
+
+**Output:** Formatted card showing:
+- User information (username, display name, email)
+- All roles assigned to the current user with descriptions and icons
+- Permissions table showing:
+  - Permission code (e.g., `page:edit`)
+  - Permission description
+  - Which role(s) grant that permission
+- Footer with totals (roles and permissions)
+
+**Note:** If the user is not logged in, displays a friendly message: "Not logged in. Please login to see your user summary."
 
 ### Example 7: Display Manager Configuration
 
@@ -539,6 +598,38 @@ Document available roles for users:
 [{ConfigAccessor type='roles'}]
 ```
 
+### 3a. Security Policy Documentation
+Display the complete security policy showing which roles have which permissions:
+
+```wiki
+## Security Policy Matrix
+
+The following table shows which permissions are granted to each role:
+
+[{ConfigAccessor type='permissions'}]
+
+For more information about managing roles and permissions, visit the [Admin Dashboard](/admin/roles).
+```
+
+### 3b. User Profile/Dashboard Pages
+Show users their own roles and permissions:
+
+```wiki
+## My Access Rights
+
+This page shows your current roles and permissions in the system.
+
+[{ConfigAccessor type='user-summary'}]
+
+If you believe you need additional permissions, please contact your system administrator.
+```
+
+**Great for:**
+- User profile pages
+- Personal dashboard
+- Help/FAQ pages explaining what users can do
+- Transparency about user access rights
+
 ### 4. Dynamic Lists
 Create dynamic lists from configuration:
 
@@ -592,6 +683,23 @@ All database settings:
 - [System Variables Page](/wiki/System%20Variables)
 
 ## Version History
+
+- **2.7.0** (2025-10-20) - User Summary release
+  - **NEW:** Added `type='user-summary'` to display current user's information
+  - Shows user's username, display name, and email
+  - Displays all roles assigned to the user with descriptions
+  - Shows all permissions granted by those roles
+  - Includes which role(s) grant each permission
+  - Friendly message for anonymous/not logged in users
+  - Perfect for user profile pages and access transparency
+
+- **2.6.0** (2025-10-20) - Security Policy Summary release
+  - **NEW:** Added `type='permissions'` to display Security Policy Summary
+  - **NEW:** Added `type='policy-summary'` as alias for permissions
+  - Displays permissions matrix showing which roles have which permissions
+  - Shows checkmarks (✓) for granted permissions, X marks (✗) for denied
+  - Includes permission descriptions and statistics
+  - Perfect for documentation and transparency of security policies
 
 - **2.2.0** (2025-10-17) - Smart defaults release
   - **IMPROVED:** Smart default for `after` parameter based on usage

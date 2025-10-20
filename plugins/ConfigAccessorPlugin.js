@@ -10,6 +10,9 @@
  *   [{ConfigAccessor key='amdwiki.server.*' valueonly='true'}]                  - Return matching values, one per line (default)
  *   [{ConfigAccessor key='amdwiki.server.*' valueonly='true' before='* '}]      - Return as bulleted list
  *   [{ConfigAccessor type='roles'}]                                             - Display all roles (formatted)
+ *   [{ConfigAccessor type='permissions'}]                                       - Display Security Policy Summary (permissions matrix)
+ *   [{ConfigAccessor type='policy-summary'}]                                    - Alias for permissions type
+ *   [{ConfigAccessor type='user-summary'}]                                      - Display current user's roles and permissions
  *   [{ConfigAccessor type='manager' manager='UserManager'}]                     - Display manager config (formatted)
  *   [{ConfigAccessor type='feature' feature='search'}]                          - Display feature config (formatted)
  *   [{ConfigAccessor type='userKeywords'}]                                      - Display all user keywords (formatted)
@@ -29,7 +32,7 @@ const ConfigAccessorPlugin = {
   name: 'ConfigAccessorPlugin',
   description: 'Access configuration values including roles, features, and system settings',
   author: 'amdWiki',
-  version: '2.5.0',
+  version: '2.7.0',
 
   /**
    * Process escape sequences in strings (e.g., \n, \t, \\)
@@ -84,6 +87,13 @@ const ConfigAccessorPlugin = {
         case 'roles':
           return this.displayRoles(userManager);
 
+        case 'permissions':
+        case 'policy-summary':
+          return this.displayPermissions(userManager);
+
+        case 'user-summary':
+          return this.displayUserSummary(context, userManager);
+
         case 'actions':
           return this.displayActions(configManager, valueonly, before, after);
 
@@ -97,7 +107,7 @@ const ConfigAccessorPlugin = {
           return this.displayUserKeywords(configManager, opts, valueonly, before, after);
 
         default:
-          return `<p class="error">Unknown type: ${escapeHtml(type)}. Use 'roles', 'actions', 'manager', 'feature', or 'userKeywords'.</p>`;
+          return `<p class="error">Unknown type: ${escapeHtml(type)}. Use 'roles', 'permissions', 'policy-summary', 'user-summary', 'actions', 'manager', 'feature', or 'userKeywords'.</p>`;
       }
 
     } catch (error) {
@@ -170,6 +180,227 @@ const ConfigAccessorPlugin = {
     html += '    </div>\n';
     html += '    <div class="card-footer text-muted">\n';
     html += `      <small>Total Roles: ${roles.length} | System Roles: ${roles.filter(r => r.issystem).length} | Custom Roles: ${roles.filter(r => !r.issystem).length}</small>\n`;
+    html += '    </div>\n';
+    html += '  </div>\n';
+    html += '</div>\n';
+
+    return html;
+  },
+
+  /**
+   * Display Security Policy Summary - permissions matrix showing which roles have which permissions
+   * @param {Object} userManager - UserManager instance
+   * @returns {string} HTML output
+   */
+  displayPermissions(userManager) {
+    if (!userManager) {
+      return '<p class="error">UserManager not available</p>';
+    }
+
+    const roles = userManager.getRoles();
+    const permissions = userManager.getPermissions();
+
+    if (!roles || roles.length === 0) {
+      return '<p class="text-muted">No roles configured</p>';
+    }
+
+    if (!permissions || permissions.size === 0) {
+      return '<p class="text-muted">No permissions defined in the system</p>';
+    }
+
+    // Convert permissions Map to array
+    const permissionsArray = Array.from(permissions.entries()).map(([key, desc]) => ({
+      key,
+      description: desc
+    }));
+
+    // Convert roles Map to array if needed
+    const rolesArray = Array.isArray(roles) ? roles : Array.from(roles.values());
+
+    let html = '<div class="config-accessor-plugin">\n';
+    html += '  <div class="card mt-4">\n';
+    html += '    <div class="card-header">\n';
+    html += '      <h5 class="mb-0"><i class="fas fa-shield-alt"></i> Security Policy Summary</h5>\n';
+    html += '      <small class="text-muted">Permissions matrix showing which roles have which permissions</small>\n';
+    html += '    </div>\n';
+    html += '    <div class="card-body">\n';
+    html += '      <div class="table-responsive">\n';
+    html += '        <table class="table table-bordered table-hover table-sm">\n';
+    html += '          <thead>\n';
+    html += '            <tr>\n';
+    html += '              <th style="width: 300px;">Permission</th>\n';
+
+    // Add column headers for each role
+    for (const role of rolesArray) {
+      html += `              <th class="text-center">${escapeHtml(role.displayname)}</th>\n`;
+    }
+
+    html += '            </tr>\n';
+    html += '          </thead>\n';
+    html += '          <tbody>\n';
+
+    // Add rows for each permission
+    for (const perm of permissionsArray) {
+      html += '            <tr>\n';
+      html += '              <td>\n';
+      html += `                <code class="text-primary">${escapeHtml(perm.key)}</code>\n`;
+      html += `                <br><small class="text-muted">${escapeHtml(perm.description)}</small>\n`;
+      html += '              </td>\n';
+
+      // Check each role for this permission
+      for (const role of rolesArray) {
+        html += '              <td class="text-center">\n';
+        if (role.permissions && role.permissions.includes(perm.key)) {
+          html += '                <i class="fas fa-check text-success"></i>\n';
+        } else {
+          html += '                <i class="fas fa-times text-muted"></i>\n';
+        }
+        html += '              </td>\n';
+      }
+
+      html += '            </tr>\n';
+    }
+
+    html += '          </tbody>\n';
+    html += '        </table>\n';
+    html += '      </div>\n';
+    html += '    </div>\n';
+    html += '    <div class="card-footer text-muted">\n';
+    html += `      <small>Total Permissions: ${permissionsArray.length} | Total Roles: ${rolesArray.length}</small>\n`;
+    html += '    </div>\n';
+    html += '  </div>\n';
+    html += '</div>\n';
+
+    return html;
+  },
+
+  /**
+   * Display current user summary - roles and permissions from WikiContext
+   * @param {Object} context - Wiki context containing user information
+   * @param {Object} userManager - UserManager instance
+   * @returns {string} HTML output
+   */
+  displayUserSummary(context, userManager) {
+    if (!userManager) {
+      return '<p class="error">UserManager not available</p>';
+    }
+
+    // Get current user from context (WikiContext uses userContext, not currentUser)
+    const currentUser = context?.userContext || context?.currentUser;
+
+    if (!currentUser) {
+      return '<div class="alert alert-info"><i class="fas fa-info-circle"></i> Not logged in. Please <a href="/login">login</a> to see your user summary.</div>';
+    }
+
+    const username = currentUser.username || 'Unknown';
+    const displayName = currentUser.displayName || currentUser.displayname || username;
+    const email = currentUser.email || '';
+    const userRoles = currentUser.roles || [];
+
+    // Get all permissions for the user's roles
+    const allRoles = userManager.getRoles();
+    const rolesArray = Array.isArray(allRoles) ? allRoles : Array.from(allRoles.values());
+
+    // Collect user's permissions from their roles
+    const userPermissions = new Set();
+    const roleDetails = [];
+
+    for (const roleName of userRoles) {
+      const roleObj = rolesArray.find(r => r.name === roleName);
+      if (roleObj) {
+        roleDetails.push(roleObj);
+        if (roleObj.permissions && Array.isArray(roleObj.permissions)) {
+          roleObj.permissions.forEach(perm => userPermissions.add(perm));
+        }
+      }
+    }
+
+    const permissionsArray = Array.from(userPermissions).sort();
+
+    let html = '<div class="config-accessor-plugin">\n';
+    html += '  <div class="card">\n';
+    html += '    <div class="card-header">\n';
+    html += '      <h5 class="mb-0"><i class="fas fa-user-circle"></i> Current User Summary</h5>\n';
+    html += '      <small class="text-muted">Your roles and permissions</small>\n';
+    html += '    </div>\n';
+    html += '    <div class="card-body">\n';
+
+    // User Information Section
+    html += '      <h6><i class="fas fa-id-card"></i> User Information</h6>\n';
+    html += '      <table class="table table-sm table-borderless mb-3">\n';
+    html += '        <tbody>\n';
+    html += `          <tr><td style="width: 150px;"><strong>Username:</strong></td><td><code>${escapeHtml(username)}</code></td></tr>\n`;
+    html += `          <tr><td><strong>Display Name:</strong></td><td>${escapeHtml(displayName)}</td></tr>\n`;
+    if (email) {
+      html += `          <tr><td><strong>Email:</strong></td><td>${escapeHtml(email)}</td></tr>\n`;
+    }
+    html += '        </tbody>\n';
+    html += '      </table>\n';
+
+    // Roles Section
+    html += '      <h6><i class="fas fa-users"></i> Your Roles</h6>\n';
+    if (roleDetails.length > 0) {
+      html += '      <div class="mb-3">\n';
+      for (const role of roleDetails) {
+        const color = role.color || '#6c757d';
+        const badge = role.issystem ?
+          '<span class="badge bg-primary ms-2">System</span>' :
+          '<span class="badge bg-secondary ms-2">Custom</span>';
+        html += `        <div class="mb-2">\n`;
+        html += `          <i class="fas fa-${escapeHtml(role.icon || 'user')}" style="color: ${escapeHtml(color)};"></i>\n`;
+        html += `          <strong style="color: ${escapeHtml(color)};">${escapeHtml(role.displayname)}</strong>\n`;
+        html += `          ${badge}\n`;
+        html += `          <br><small class="text-muted ms-4">${escapeHtml(role.description || 'No description')}</small>\n`;
+        html += `        </div>\n`;
+      }
+      html += '      </div>\n';
+    } else {
+      html += '      <p class="text-muted">No roles assigned</p>\n';
+    }
+
+    // Permissions Section
+    html += '      <h6><i class="fas fa-shield-alt"></i> Your Permissions</h6>\n';
+    if (permissionsArray.length > 0) {
+      html += '      <div class="table-responsive">\n';
+      html += '        <table class="table table-sm table-bordered">\n';
+      html += '          <thead>\n';
+      html += '            <tr>\n';
+      html += '              <th style="width: 40%;">Permission</th>\n';
+      html += '              <th style="width: 60%;">Granted By Role(s)</th>\n';
+      html += '            </tr>\n';
+      html += '          </thead>\n';
+      html += '          <tbody>\n';
+
+      // Get permissions details
+      const allPermissions = userManager.getPermissions();
+
+      for (const permKey of permissionsArray) {
+        const permDesc = allPermissions.get(permKey) || 'No description';
+
+        // Find which roles grant this permission
+        const grantingRoles = roleDetails
+          .filter(role => role.permissions && role.permissions.includes(permKey))
+          .map(role => role.displayname);
+
+        html += '            <tr>\n';
+        html += '              <td>\n';
+        html += `                <code class="text-primary">${escapeHtml(permKey)}</code>\n`;
+        html += `                <br><small class="text-muted">${escapeHtml(permDesc)}</small>\n`;
+        html += '              </td>\n';
+        html += `              <td><small>${escapeHtml(grantingRoles.join(', '))}</small></td>\n`;
+        html += '            </tr>\n';
+      }
+
+      html += '          </tbody>\n';
+      html += '        </table>\n';
+      html += '      </div>\n';
+    } else {
+      html += '      <p class="text-muted">No permissions assigned (no roles with permissions)</p>\n';
+    }
+
+    html += '    </div>\n';
+    html += '    <div class="card-footer text-muted">\n';
+    html += `      <small><i class="fas fa-info-circle"></i> Total Roles: ${roleDetails.length} | Total Permissions: ${permissionsArray.length}</small>\n`;
     html += '    </div>\n';
     html += '  </div>\n';
     html += '</div>\n';
