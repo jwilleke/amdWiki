@@ -1,52 +1,45 @@
 <%- include('header', { pageName: '' }) %>
 
-<div class="container-fluid">
-    <div class="row">
-        <!-- Left Menu -->
-        <div class="col-md-3">
-            <%- leftMenu %>
-        </div>
-        
-        <!-- Main Content -->
-        <div class="col-md-9">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1>Security Policy Management</h1>
-                <a href="/admin" class="btn" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);">
-                    <i class="fas fa-arrow-left"></i> Back to Dashboard
-                </a>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Security Policy Management</h1>
+    <a href="/admin" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left"></i> Back to Dashboard
+    </a>
+</div>
+
+<div class="alert alert-info">
+    <strong>Wiki-Wide Security Policy:</strong> Define what permissions each role has across the entire wiki.
+    Page-level ACLs can further restrict access but cannot grant more permissions than defined here.
+</div>
+
+<!-- Role Management -->
+<div class="row">
+    <% roles.forEach(role => { %>
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <span class="badge <%= role.issystem ? 'bg-primary' : 'bg-secondary' %> me-2">
+                        <%= role.issystem ? 'System' : 'Custom' %>
+                    </span>
+                    <%= role.displayname %>
+                </h5>
+                <small class="text-muted"><%= role.name %></small>
             </div>
-            
-            <div class="alert alert-info">
-                <strong>Wiki-Wide Security Policy:</strong> Define what permissions each role has across the entire wiki. 
-                Page-level ACLs can further restrict access but cannot grant more permissions than defined here.
-            </div>
-            
-            <!-- Role Management -->
-            <div class="row">
-                <% roles.forEach(role => { %>
-                <div class="col-lg-6 mb-4">
-                    <div class="card" style="background-color: var(--card-bg); border-color: var(--border-color);">
-                        <div class="card-header d-flex justify-content-between align-items-center" style="background-color: var(--card-header-bg); border-bottom-color: var(--border-color); color: var(--text-primary);">
-                            <h5 class="mb-0">
-                                <span class="badge <%= role.issystem ? 'bg-primary' : 'bg-secondary' %> me-2">
-                                    <%= role.issystem ? 'System' : 'Custom' %>
-                                </span>
-                                <%= role.displayname %>
-                            </h5>
-                            <small class="text-muted"><%= role.name %></small>
-                        </div>
-                        <div class="card-body" style="background-color: var(--card-bg); color: var(--text-primary);">
+            <div class="card-body">
                             <form class="role-form" data-role="<%= role.name %>">
                                 <div class="mb-3">
                                     <label class="form-label">Display Name</label>
                                     <input type="text" class="form-control" name="displayName"
-                                           value="<%= role.displayname %>" <%= role.issystem ? 'readonly' : '' %>>
+                                           value="<%= role.displayname %>" <%= role.issystem ? 'readonly' : '' %>
+                                           style="<%= role.issystem ? 'background-color: #ffffff !important; color: #212529 !important;' : '' %>">
                                 </div>
 
                                 <div class="mb-3">
                                     <label class="form-label">Description</label>
                                     <textarea class="form-control" name="description" rows="2"
-                                              <%= role.issystem ? 'readonly' : '' %>><%= role.description %></textarea>
+                                              <%= role.issystem ? 'readonly' : '' %>
+                                              style="<%= role.issystem ? 'background-color: #ffffff !important; color: #212529 !important;' : '' %>"><%= role.description %></textarea>
                                 </div>
                                 
                                 <div class="alert alert-info">
@@ -68,65 +61,69 @@
                                     </button>
                                     <% } %>
                                 </div>
-                            </form>
-                        </div>
-                        <div class="card-footer" style="background-color: var(--card-footer-bg); border-top-color: var(--border-color);">
-                            <small class="text-muted">
-                                <% if (role.issystem) { %>
-                                    System Role
-                                <% } else { %>
-                                    Custom Role
-                                <% } %>
-                                <% if (role.lastmodified) { %>
-                                | Last modified: <%= new Date(role.lastmodified).toLocaleDateString() %>
-                                <% } %>
-                            </small>
-                        </div>
-                    </div>
-                </div>
-                <% }); %>
-            </div>
-            
-            <!-- Security Policy Summary -->
-            <div class="card mt-4" style="background-color: var(--card-bg); border-color: var(--border-color);">
-                <div class="card-header" style="background-color: var(--card-header-bg); border-bottom-color: var(--border-color); color: var(--text-primary);">
-                    <h5>Security Policy Summary</h5>
-                </div>
-                <div class="card-body" style="background-color: var(--card-bg); color: var(--text-primary);">
-                    <div class="table-responsive">
-                        <table class="table table-sm" style="color: var(--text-primary);">
-                            <thead>
-                                <tr>
-                                    <th>Permission</th>
-                                    <% roles.forEach(role => { %>
-                                    <th class="text-center"><%= role.displayname %></th>
-                                    <% }); %>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <% permissions.forEach(perm => { %>
-                                <tr>
-                                    <td>
-                                        <code><%= perm.key %></code>
-                                        <br><small class="text-muted"><%= perm.description %></small>
-                                    </td>
-                                    <% roles.forEach(role => { %>
-                                    <td class="text-center">
-                                        <% if (role.permissions.includes(perm.key)) { %>
-                                        <i class="fas fa-check" style="color: var(--text-success);"></i>
-                                        <% } else { %>
-                                        <i class="fas fa-times text-muted"></i>
-                                        <% } %>
-                                    </td>
-                                    <% }); %>
-                                </tr>
-                                <% }); %>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+            </form>
         </div>
+        <div class="card-footer">
+            <small class="text-muted">
+                <% if (role.issystem) { %>
+                    System Role
+                <% } else { %>
+                    Custom Role
+                <% } %>
+                <% if (role.lastmodified) { %>
+                | Last modified: <%= new Date(role.lastmodified).toLocaleDateString() %>
+                <% } %>
+            </small>
+        </div>
+    </div>
+</div>
+<% }); %>
+</div>
+
+<!-- Security Policy Summary -->
+<div class="card mt-4">
+    <div class="card-header">
+        <h5 class="mb-0">Security Policy Summary</h5>
+    </div>
+    <div class="card-body">
+        <% if (permissions && permissions.length > 0) { %>
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover table-sm">
+                <thead>
+                    <tr>
+                        <th style="width: 300px;">Permission</th>
+                        <% roles.forEach(role => { %>
+                        <th class="text-center"><%= role.displayname %></th>
+                        <% }); %>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% permissions.forEach(perm => { %>
+                    <tr>
+                        <td>
+                            <code class="text-primary"><%= perm.key %></code>
+                            <br><small class="text-muted"><%= perm.description %></small>
+                        </td>
+                        <% roles.forEach(role => { %>
+                        <td class="text-center">
+                            <% if (role.permissions && role.permissions.includes(perm.key)) { %>
+                            <i class="fas fa-check text-success"></i>
+                            <% } else { %>
+                            <i class="fas fa-times text-muted"></i>
+                            <% } %>
+                        </td>
+                        <% }); %>
+                    </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
+        <% } else { %>
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            No permissions defined in the system. Permissions are configured through Access Policies.
+        </div>
+        <% } %>
     </div>
 </div>
 

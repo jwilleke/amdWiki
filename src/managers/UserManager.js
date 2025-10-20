@@ -138,6 +138,9 @@ class UserManager extends BaseManager {
 
     logger.info(`👤 Loaded ${this.roles.size} role definitions from configuration`);
 
+    // Initialize permissions registry
+    this.#initializePermissions();
+
     // Create default admin if needed
     const allUsers = await this.provider.getAllUsers();
     if (allUsers.size === 0) {
@@ -146,6 +149,29 @@ class UserManager extends BaseManager {
 
     const userCount = (await this.provider.getAllUsers()).size;
     logger.info(`👤 UserManager initialized with ${userCount} users`);
+  }
+
+  /**
+   * Initialize the permissions registry with all available permissions
+   * @private
+   */
+  #initializePermissions() {
+    // Define all available permissions in the system
+    this.permissions.set('page:read', 'View wiki pages');
+    this.permissions.set('page:edit', 'Edit wiki pages');
+    this.permissions.set('page:create', 'Create new wiki pages');
+    this.permissions.set('page:delete', 'Delete wiki pages');
+    this.permissions.set('page:rename', 'Rename wiki pages');
+    this.permissions.set('attachment:read', 'View attachments');
+    this.permissions.set('attachment:upload', 'Upload attachments');
+    this.permissions.set('attachment:delete', 'Delete attachments');
+    this.permissions.set('search:all', 'Access search functionality');
+    this.permissions.set('export:pages', 'Export pages');
+    this.permissions.set('admin:system', 'System administration');
+    this.permissions.set('admin:users', 'User management');
+    this.permissions.set('admin:roles', 'Role management');
+
+    logger.info(`👤 Initialized ${this.permissions.size} permissions`);
   }
 
   /**

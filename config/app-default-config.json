@@ -920,7 +920,22 @@
       "description": "Full system access to all features",
       "issystem": true,
       "icon": "shield-alt",
-      "color": "#dc3545"
+      "color": "#dc3545",
+      "permissions": [
+        "page:read",
+        "page:edit",
+        "page:create",
+        "page:delete",
+        "page:rename",
+        "attachment:read",
+        "attachment:upload",
+        "attachment:delete",
+        "search:all",
+        "export:pages",
+        "admin:system",
+        "admin:users",
+        "admin:roles"
+      ]
     },
     "editor": {
       "name": "editor",
@@ -928,7 +943,18 @@
       "description": "Can create, edit, delete, and rename pages",
       "issystem": true,
       "icon": "edit",
-      "color": "#007bff"
+      "color": "#007bff",
+      "permissions": [
+        "page:read",
+        "page:edit",
+        "page:create",
+        "page:delete",
+        "page:rename",
+        "attachment:read",
+        "attachment:upload",
+        "search:all",
+        "export:pages"
+      ]
     },
     "contributor": {
       "name": "contributor",
@@ -936,7 +962,16 @@
       "description": "Can create and edit pages",
       "issystem": true,
       "icon": "user-edit",
-      "color": "#28a745"
+      "color": "#28a745",
+      "permissions": [
+        "page:read",
+        "page:edit",
+        "page:create",
+        "attachment:read",
+        "attachment:upload",
+        "search:all",
+        "export:pages"
+      ]
     },
     "reader": {
       "name": "reader",
@@ -944,7 +979,13 @@
       "description": "Read-only access to content",
       "issystem": true,
       "icon": "book-reader",
-      "color": "#6c757d"
+      "color": "#6c757d",
+      "permissions": [
+        "page:read",
+        "attachment:read",
+        "search:all",
+        "export:pages"
+      ]
     },
     "anonymous": {
       "name": "anonymous",
@@ -952,7 +993,11 @@
       "description": "Public access without authentication",
       "issystem": true,
       "icon": "user-secret",
-      "color": "#adb5bd"
+      "color": "#adb5bd",
+      "permissions": [
+        "page:read",
+        "attachment:read"
+      ]
     }
   },
 
