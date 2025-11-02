@@ -118,6 +118,7 @@ class PageManager extends BaseManager {
     // Handle special cases for known provider names
     const knownProviders = {
       'filesystemprovider': 'FileSystemProvider',
+      'versioningfileprovider': 'VersioningFileProvider',
       'databaseprovider': 'DatabaseProvider',
       'databasepageprovider': 'DatabasePageProvider',
       's3provider': 'S3Provider',
