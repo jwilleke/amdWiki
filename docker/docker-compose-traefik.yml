@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+  amdwiki:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: amdwiki
+    restart: unless-stopped
+
+    # User configuration
+    user: "${UID:-1000}:${GID:-1000}"
+
+    # Environment variables
+    environment:
+      - NODE_ENV=production
+
+    # Volume mounts for persistent data
+    volumes:
+      # Wiki pages (persistent)
+      - ../pages:/app/pages
+
+      # Data directory (attachments, users, versions)
+      - ../data:/app/data
+
+      # Logs directory
+      - ../logs:/app/logs
+
+      # Sessions directory (optional, for persistence across restarts)
+      - ../sessions:/app/sessions
+
+      # Optional: Mount custom configuration
+      # - ../config/app-custom-config.json:/app/config/app-custom-config.json
+
+    # Health check
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/', (r) => process.exit((r.statusCode === 200 || r.statusCode === 302) ? 0 : 1))"]
+      interval: 30s
+      timeout: 10s
+      start_period: 40s
+      retries: 3
+
+    # Resource limits (optional)
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+    # Traefik labels
+    labels:
+      # Enable Traefik for this container
+      - "traefik.enable=true"
+
+      # HTTP Router - Redirect to HTTPS
+      - "traefik.http.routers.amdwiki-http.rule=Host(`${AMDWIKI_DOMAIN}`)"
+      - "traefik.http.routers.amdwiki-http.entrypoints=web"
+      - "traefik.http.routers.amdwiki-http.middlewares=amdwiki-redirect-https"
+
+      # HTTPS Router with Authelia
+      - "traefik.http.routers.amdwiki.rule=Host(`${AMDWIKI_DOMAIN}`)"
+      - "traefik.http.routers.amdwiki.entrypoints=websecure"
+      - "traefik.http.routers.amdwiki.tls=true"
+      - "traefik.http.routers.amdwiki.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.amdwiki.middlewares=authelia@docker"
+
+      # Service definition
+      - "traefik.http.services.amdwiki.loadbalancer.server.port=3000"
+
+      # Middleware: Redirect HTTP to HTTPS
+      - "traefik.http.middlewares.amdwiki-redirect-https.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.amdwiki-redirect-https.redirectscheme.permanent=true"
+
+    # Connect to Traefik network
+    networks:
+      - traefik_net
+
+networks:
+  traefik_net:
+    external: true
