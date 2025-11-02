@@ -1,0 +1,56 @@
+{
+  "_comment": "Example production configuration for Docker deployment",
+  "_comment_usage": "Copy this file to app-production-config.json and customize for your deployment",
+  "_comment_configmanager": "ConfigurationManager merges this with app-default-config.json",
+
+  "_comment_server": "Server configuration - Important for Docker",
+  "amdwiki.server.host": "0.0.0.0",
+  "_comment_host": "Use 0.0.0.0 to bind to all interfaces in Docker container",
+  "amdwiki.server.port": 3000,
+
+  "_comment_baseurl": "Base URL configuration",
+  "amdwiki.baseURL": "https://your-domain.com",
+  "_comment_baseurl_note": "Change this to your actual domain or IP address",
+
+  "_comment_application": "Application identification",
+  "amdwiki.applicationName": "amdWiki Production",
+
+  "_comment_session": "Session configuration - CRITICAL for production",
+  "amdwiki.session.secret": "CHANGE-THIS-TO-A-SECURE-RANDOM-STRING-FOR-PRODUCTION",
+  "_comment_session_secret": "Generate with: node -e \"console.log(require('crypto').randomBytes(32).toString('hex'))\"",
+  "amdwiki.session.secure": true,
+  "_comment_session_secure": "Set to true when using HTTPS (recommended for production)",
+  "amdwiki.session.httpOnly": true,
+  "amdwiki.session.maxAge": 86400000,
+  "_comment_session_maxage": "Session duration in milliseconds (default: 24 hours)",
+
+  "_comment_directories": "Directory paths - pre-configured for Docker volumes",
+  "amdwiki.page.provider.filesystem.storagedir": "./pages",
+  "amdwiki.attachment.metadatafile": "./data/attachments/metadata.json",
+  "amdwiki.logging.dir": "./logs",
+  "amdwiki.directories.data": "./data",
+
+  "_comment_logging": "Logging configuration",
+  "amdwiki.logging.level": "info",
+  "_comment_logging_level": "Options: error, warn, info, verbose, debug",
+
+  "_comment_features": "Feature configuration",
+  "amdwiki.rss.generate": true,
+  "amdwiki.rss.channelTitle": "amdWiki Production Feed",
+  "amdwiki.rss.channelDescription": "RSS feed for amdWiki production updates",
+
+  "_comment_search": "Search configuration",
+  "amdwiki.search.enabled": true,
+  "amdwiki.search.provider": "lunrsearchprovider",
+
+  "_comment_security": "Security configuration",
+  "amdwiki.translator-reader.allow-html": false,
+  "_comment_security_html": "Keep false to prevent XSS attacks",
+
+  "_comment_performance": "Performance tuning",
+  "amdwiki.page.provider.filesystem.autosave": true,
+
+  "_comment_optional": "Optional: Uncomment and configure as needed",
+  "_amdwiki.frontPage": "Welcome",
+  "_amdwiki.encoding": "UTF-8"
+}

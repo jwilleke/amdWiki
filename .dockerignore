@@ -1,0 +1,73 @@
+# Node.js
+node_modules
+npm-debug.log
+yarn-error.log
+package-lock.json
+
+# Development files
+.git
+.gitignore
+.github
+*.md
+!README.md
+
+# IDE and editor files
+.vscode
+.idea
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Testing
+coverage
+*.test.js
+__tests__
+test
+tests
+.jest
+
+# Documentation
+docs
+jsdocs
+
+# Logs (will be generated in container)
+logs
+*.log
+.amdwiki.pid
+
+# PM2
+.pm2
+pm2.config.js
+
+# Environment files (should be mounted or configured per environment)
+.env
+.env.*
+
+# Build artifacts
+dist
+build
+
+# Temporary files
+tmp
+temp
+*.tmp
+
+# Local development data (should be mounted as volumes)
+# Uncomment these if you want to exclude local data from image
+# pages/*
+# data/*
+# sessions/*
+
+# Backup files
+*.bak
+*.backup
+
+# OS files
+Thumbs.DB
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Local custom config (should be mounted at runtime)
+config/app-custom-config.json

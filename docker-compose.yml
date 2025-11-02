@@ -1,0 +1,87 @@
+version: '3.8'
+
+services:
+  amdwiki:
+    build: .
+    container_name: amdwiki
+    restart: unless-stopped
+
+    # Port mapping
+    # Maps container port to host port
+    # ConfigurationManager uses amdwiki.server.port (default: 3000)
+    #
+    # The host port can be customized via HOST_PORT environment variable:
+    # - Set in .env file: HOST_PORT=8080
+    # - Or command line: HOST_PORT=8080 docker-compose up
+    # - Or use "3000" to let Docker auto-assign a random port
+    ports:
+      - "${HOST_PORT:-3000}:3000"
+
+    # Environment variables
+    # NODE_ENV determines which config file is loaded by ConfigurationManager:
+    # - production: config/app-production-config.json
+    # - development: config/app-development-config.json
+    # - test: config/app-test-config.json
+    environment:
+      - NODE_ENV=production
+
+    # Volume mounts for persistent data
+    # These paths are referenced by ConfigurationManager:
+    # - pages: amdwiki.page.provider.filesystem.storagedir
+    # - data: amdwiki.directories.data (attachments, users, versions)
+    # - logs: amdwiki.logging.dir
+    # - config: Custom configuration overrides
+    volumes:
+      # Wiki pages (persistent)
+      - ./pages:/app/pages
+
+      # Data directory (attachments, users, versions)
+      - ./data:/app/data
+
+      # Logs directory
+      - ./logs:/app/logs
+
+      # Optional: Mount custom configuration
+      # Create app-custom-config.json locally to override settings
+      # - ./config/app-custom-config.json:/app/config/app-custom-config.json
+
+      # Optional: Mount environment-specific config
+      # Uncomment to override the production config
+      # - ./config/app-production-config.json:/app/config/app-production-config.json
+
+      # Sessions directory (optional, for persistence across restarts)
+      - ./sessions:/app/sessions
+
+    # Health check
+    # Note: Health check uses container internal port (always 3000)
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:${CONTAINER_PORT:-3000}/', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"]
+      interval: 30s
+      timeout: 10s
+      start_period: 40s
+      retries: 3
+
+    # Resource limits (optional)
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+# Optional: Named volumes for better management
+# Uncomment to use named volumes instead of bind mounts
+# volumes:
+#   amdwiki-pages:
+#   amdwiki-data:
+#   amdwiki-logs:
+#   amdwiki-sessions:
+
+# Then update the service volumes section to:
+#     volumes:
+#       - amdwiki-pages:/app/pages
+#       - amdwiki-data:/app/data
+#       - amdwiki-logs:/app/logs
+#       - amdwiki-sessions:/app/sessions
