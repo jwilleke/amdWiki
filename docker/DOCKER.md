@@ -17,7 +17,31 @@ This guide explains how to run amdWiki in Docker with proper ConfigurationManage
 
 ## Quick Start
 
-### Using Docker Compose (Recommended)
+### Using Setup Script (Easiest)
+
+```bash
+# 1. Clone the repository
+git clone <repository-url>
+cd amdWiki
+
+# 2. Run the automated setup script
+./docker/docker-setup.sh
+
+# 3. Start the application
+cd docker
+docker-compose up -d
+
+# 4. Access the wiki
+open http://localhost:3000
+```
+
+The `docker-setup.sh` script automatically:
+- Creates required directories
+- Configures `docker/.env` with your current user's UID/GID
+- Optionally creates production config
+- Validates Docker installation
+
+### Using Docker Compose (Manual Setup)
 
 ```bash
 # 1. Clone the repository
@@ -25,23 +49,28 @@ git clone <repository-url>
 cd amdWiki
 
 # 2. Create required directories
-# Docker will auto-create these if missing, but pre-creating avoids permission issues
 mkdir -p pages data logs sessions
 
-# 3. (Optional) Configure port if 3000 is already in use
-cp .env.example .env
-# Edit .env and set HOST_PORT=8080 (or any available port)
+# 3. Configure environment (port and user permissions)
+cp docker/.env.example docker/.env
+
+# Set your current user's UID/GID to avoid permission issues (Linux/macOS)
+echo "UID=$(id -u)" >> docker/.env
+echo "GID=$(id -g)" >> docker/.env
+
+# Optional: Change port if 3000 is in use
+# Edit docker/.env and set HOST_PORT=8080
 
 # 4. (Optional) Create production configuration
 cp config/app-production-config.example.json config/app-production-config.json
 # Edit config/app-production-config.json with your settings
 
 # 5. Start the application
+cd docker
 docker-compose up -d
 
 # 6. Access the wiki
 open http://localhost:3000
-# Or if you changed the port: open http://localhost:8080
 ```
 
 ### Using Docker CLI
@@ -387,7 +416,7 @@ The application requires persistent storage for several directories:
 **Auto-Creation Behavior:**
 - Docker Compose will automatically create missing directories
 - However, auto-created directories may have permission issues (especially on Linux)
-- **Best practice:** Pre-create directories before first run
+- **Best practice:** Pre-create directories and configure UID/GID before first run
 
 **Recommended setup:**
 
@@ -395,11 +424,8 @@ The application requires persistent storage for several directories:
 # Create all required directories
 mkdir -p pages data logs sessions
 
-# On Linux, if you encounter permission issues, set proper ownership:
-# The container runs as user 'node' with UID 1000
-sudo chown -R 1000:1000 pages data logs sessions
-
-# On macOS/Windows with Docker Desktop, this is usually not needed
+# Configure UID/GID to match your user (recommended)
+# See "User Permissions (UID/GID)" section below
 ```
 
 **What gets stored where:**
@@ -409,6 +435,71 @@ pages/          # Wiki page markdown files (user content)
 data/           # Attachments, users, versions (application data)
 logs/           # Application logs (debugging and monitoring)
 sessions/       # Session files (user sessions)
+```
+
+### User Permissions (UID/GID)
+
+**Why this matters:**
+- Files created by the container need to match your host user permissions
+- Without proper UID/GID configuration, you may get "permission denied" errors
+- Or files may be owned by root, making them hard to edit on the host
+
+**Solution: Configure UID/GID in .env file**
+
+Docker Compose is configured to run as `UID:GID` specified in your `.env` file (default: 1000:1000).
+
+#### Option 1: Auto-configure with your current user (Recommended)
+
+```bash
+# Copy example and add your current user's UID/GID
+cp .env.example .env
+echo "UID=$(id -u)" >> .env
+echo "GID=$(id -g)" >> .env
+
+# Start with your user permissions
+docker-compose up -d
+```
+
+#### Option 2: Manually set UID/GID
+
+```bash
+# Find your UID and GID
+id -u  # Shows your UID (e.g., 1000 or 501)
+id -g  # Shows your GID (e.g., 1000 or 20)
+
+# Edit .env file and set:
+# UID=1000
+# GID=1000
+```
+
+#### Option 3: Set at runtime
+
+```bash
+# Override without editing .env
+UID=$(id -u) GID=$(id -g) docker-compose up -d
+```
+
+#### Common UID/GID values:
+
+| Platform | First User | Notes |
+|----------|-----------|-------|
+| Linux | 1000:1000 | Standard first user |
+| macOS | 501:20 | Standard first user |
+| Docker default | 1000:1000 | Built-in 'node' user |
+
+#### Troubleshooting Permissions
+
+If you see permission errors:
+
+```bash
+# Check current ownership
+ls -la pages/ data/ logs/
+
+# Fix ownership to match your .env UID/GID
+sudo chown -R $(id -u):$(id -g) pages data logs sessions
+
+# Restart container
+docker-compose restart
 ```
 
 ### Using Named Volumes

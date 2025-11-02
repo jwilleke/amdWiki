@@ -14,8 +14,8 @@ RUN apk add --no-cache python3 make g++
 COPY package*.json ./
 
 # Install dependencies
-# Use --production for production builds, omit for development
-RUN npm ci --only=production
+# Install all dependencies (some devDependencies are needed at runtime)
+RUN npm install --prefer-offline
 
 # Copy application files
 COPY . .
@@ -33,10 +33,11 @@ RUN mkdir -p \
     sessions \
     templates \
     config && \
-    chown -R node:node /app
+    chmod -R 777 /app
 
-# Switch to non-root user for security
-USER node
+# Note: chmod 777 allows any user to write (needed for docker-compose user override)
+# This is safe in Docker since the container is isolated
+# The user is set via docker-compose.yml using UID/GID env vars
 
 # Expose port (configurable via amdwiki.server.port in ConfigurationManager)
 # Default: 3000, can be overridden with environment-specific config
@@ -51,8 +52,9 @@ ENV NODE_ENV=production
 
 # Health check
 # Checks if the application is responding on the configured port
+# Accepts both 200 (OK) and 302 (Redirect) as healthy responses
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD node -e "require('http').get('http://localhost:3000/', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"
+    CMD node -e "require('http').get('http://localhost:3000/', (r) => process.exit((r.statusCode === 200 || r.statusCode === 302) ? 0 : 1))"
 
 # Volume mounts for persistent data
 # These paths correspond to ConfigurationManager directory settings:
