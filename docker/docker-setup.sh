@@ -24,8 +24,8 @@ echo ""
 
 # 1. Create required directories
 echo "📁 Creating required directories..."
-mkdir -p pages data logs sessions
-echo "   ✅ Created: pages, data, logs, sessions"
+mkdir -p pages data logs sessions search-index work
+echo "   ✅ Created: pages, data, logs, sessions, search-index, work"
 echo ""
 
 # 2. Create .env file with current user's UID/GID
@@ -51,19 +51,35 @@ if [ ! -f docker/.env ]; then
     CURRENT_UID=$(id -u)
     CURRENT_GID=$(id -g)
 
-    # Update docker/.env file with current user's UID/GID
+    # Check for available port starting from 3000
+    echo "🔍 Checking port availability..."
+    AVAILABLE_PORT=3000
+    for port in {3000..3010}; do
+        if ! lsof -Pi :$port -sTCP:LISTEN -t >/dev/null 2>&1 && \
+           ! netstat -tuln 2>/dev/null | grep -q ":$port "; then
+            AVAILABLE_PORT=$port
+            echo "   ✅ Port $AVAILABLE_PORT is available"
+            break
+        else
+            echo "   ⚠️  Port $port is already in use"
+        fi
+    done
+
+    # Update docker/.env file with current user's UID/GID and available port
     # Note: Using different approach for cross-platform compatibility
     if [[ "$OSTYPE" == "darwin"* ]]; then
         # macOS
         sed -i '' "s/^UID=.*/UID=$CURRENT_UID/" docker/.env
         sed -i '' "s/^GID=.*/GID=$CURRENT_GID/" docker/.env
+        sed -i '' "s/^HOST_PORT=.*/HOST_PORT=$AVAILABLE_PORT/" docker/.env
     else
         # Linux
         sed -i "s/^UID=.*/UID=$CURRENT_UID/" docker/.env
         sed -i "s/^GID=.*/GID=$CURRENT_GID/" docker/.env
+        sed -i "s/^HOST_PORT=.*/HOST_PORT=$AVAILABLE_PORT/" docker/.env
     fi
 
-    echo "   ✅ Created docker/.env with UID=$CURRENT_UID, GID=$CURRENT_GID"
+    echo "   ✅ Created docker/.env with UID=$CURRENT_UID, GID=$CURRENT_GID, PORT=$AVAILABLE_PORT"
     echo ""
 fi
 
@@ -105,7 +121,8 @@ echo ""
 echo "✅ Setup complete!"
 echo ""
 echo "📝 Configuration summary:"
-echo "   - Directories: pages, data, logs, sessions"
+echo "   - Directories: pages, data, logs, sessions, search-index, work"
+echo "   - System pages: required-pages (from repository)"
 echo "   - User permissions: UID=$(grep '^UID=' docker/.env | cut -d= -f2), GID=$(grep '^GID=' docker/.env | cut -d= -f2)"
 echo "   - Host port: $(grep '^HOST_PORT=' docker/.env | cut -d= -f2)"
 echo "   - Environment: $(grep '^NODE_ENV=' docker/.env | cut -d= -f2)"
