@@ -44,6 +44,9 @@ services:
       # Wiki pages (persistent)
       - ../pages:/app/pages
 
+      # Required pages (system pages - persistent)
+      - ../required-pages:/app/required-pages
+
       # Data directory (attachments, users, versions)
       - ../data:/app/data
 

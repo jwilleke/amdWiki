@@ -2,6 +2,10 @@
   "_comment": "Production environment overrides",
   "_description": "These settings override app-default-config.json in production (NODE_ENV=production)",
 
+  "_comment_server": "Server binding for Docker - must bind to 0.0.0.0 to accept external connections",
+  "amdwiki.server.host": "0.0.0.0",
+  "amdwiki.server.port": 3000,
+
   "amdwiki.logging.level": "info",
   "amdwiki.logging.debug.enabled": false,
   "amdwiki.logging.debug.session": false,

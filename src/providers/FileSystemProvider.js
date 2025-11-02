@@ -63,6 +63,7 @@ class FileSystemProvider extends BasePageProvider {
     // Lookup maps for resolving different identifiers
     this.titleIndex = new Map(); // Maps lower-case title to canonical identifier
     this.uuidIndex = new Map(); // Maps UUID to canonical identifier
+    this.slugIndex = new Map(); // Maps slug to canonical identifier
     this.pageNameMatcher = null; // Will be initialized with config
   }
 
@@ -127,6 +128,7 @@ class FileSystemProvider extends BasePageProvider {
     this.pageCache.clear();
     this.titleIndex.clear();
     this.uuidIndex.clear();
+    this.slugIndex.clear();
 
     // Scan both directories
     const pagesFiles = await this.#walkDir(this.pagesDirectory);
@@ -162,6 +164,9 @@ class FileSystemProvider extends BasePageProvider {
         if (uuid) {
           this.uuidIndex.set(uuid, canonicalKey);
         }
+        if (metadata.slug) {
+          this.slugIndex.set(metadata.slug.toLowerCase(), canonicalKey);
+        }
 
       } catch (error) {
         logger.error(`[FileSystemProvider] Failed to process page file: ${filePath}`, { error: error.message });
@@ -196,13 +201,14 @@ class FileSystemProvider extends BasePageProvider {
   }
 
   /**
-   * Resolve a page identifier (UUID or title) to page info
+   * Resolve a page identifier (UUID, slug, or title) to page info
    * Tries multiple strategies:
    * 1. UUID index lookup
-   * 2. Title index (case-insensitive exact match)
-   * 3. Fuzzy matching with plurals (if enabled)
+   * 2. Slug index lookup (URL-friendly identifiers)
+   * 3. Title index (case-insensitive exact match)
+   * 4. Fuzzy matching with plurals (if enabled)
    *
-   * @param {string} identifier - Page UUID or title
+   * @param {string} identifier - Page UUID, slug, or title
    * @returns {object|null} Page info or null if not found
    * @private
    */
@@ -215,7 +221,13 @@ class FileSystemProvider extends BasePageProvider {
       return this.pageCache.get(canonicalKey);
     }
 
-    // 2. Try title index (case-insensitive exact match)
+    // 2. Try slug index (URL-friendly identifiers like "my-page-name")
+    canonicalKey = this.slugIndex.get(identifier.toLowerCase());
+    if (canonicalKey) {
+      return this.pageCache.get(canonicalKey);
+    }
+
+    // 3. Try title index (case-insensitive exact match)
     canonicalKey = this.titleIndex.get(identifier.toLowerCase());
     if (canonicalKey) {
       return this.pageCache.get(canonicalKey);

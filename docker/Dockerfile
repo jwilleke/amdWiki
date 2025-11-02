@@ -59,10 +59,11 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
 # Volume mounts for persistent data
 # These paths correspond to ConfigurationManager directory settings:
 # - amdwiki.page.provider.filesystem.storagedir: ./pages
+# - amdwiki.page.provider.filesystem.requiredpagesdir: ./required-pages
 # - amdwiki.attachment.metadatafile: ./data/attachments/metadata.json
 # - amdwiki.logging.dir: ./logs
 # - amdwiki.directories.data: ./data
-VOLUME ["/app/pages", "/app/data", "/app/logs", "/app/config"]
+VOLUME ["/app/pages", "/app/required-pages", "/app/data", "/app/logs", "/app/config"]
 
 # Start command
 # Uses npm start which runs: NODE_ENV=production node app.js
