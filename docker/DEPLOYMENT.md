@@ -31,10 +31,11 @@ Deploy to a remote Linux server via SSH.
 
 **On your local machine:**
 - SSH access to remote server
-- rsync (for file transfer) or git (for git-based deployment)
+- Git (recommended for deployment)
 
 **On remote server:**
 - Docker and Docker Compose installed
+- Git installed
 - SSH access (key-based authentication recommended)
 - Open port for web access (default: 3000)
 
@@ -58,48 +59,72 @@ The script will:
 5. Start Docker containers
 6. Display access URL
 
-### Manual Deployment
+### Manual Deployment (Recommended: Git-Based)
 
-If you prefer manual deployment:
+#### Fresh/Clean Deployment
+
+For a brand new installation or to start over:
 
 ```bash
-# 1. Copy files to remote server
-rsync -avz --exclude '.git' --exclude 'node_modules' \
-  ./ user@server:~/amdwiki/
+# 1. SSH to server
+ssh root@192.168.68.71  # or your server
 
-# 2. SSH to server
-ssh user@server
+# 2. Choose deployment location and clean if needed
+cd /opt/dosckers  # or your preferred location
+rm -rf amdwiki/   # if starting fresh
+mkdir -p amdwiki
+cd amdwiki
 
-# 3. Setup and start
-cd ~/amdwiki
-./docker-setup.sh
-docker-compose up -d
+# 3. Clone the repository (note the trailing dot to clone into current dir)
+git clone https://github.com/jwilleke/amdWiki.git .
 
-# 4. Check status
+# 4. Create runtime directories (NOT in repo, created on deployment)
+mkdir -p pages data logs sessions search-index work
+
+# 5. Configure environment
+cd docker
+cp .env.example .env
+# Optional: Edit .env for custom UID, GID, or ports
+vim .env
+
+# 6. Build and start
+docker-compose up -d --build
+
+# 7. Verify deployment
 docker-compose ps
-docker-compose logs -f
+docker-compose logs -f amdwiki
+
+# 8. Test access
+curl http://localhost:3000
+# Or from another machine: curl http://192.168.68.71:3000
 ```
+
+**Important directories:**
+- `required-pages/` - System pages (IN REPO - automatically cloned)
+- `pages/` - User wiki content (created at runtime, persisted across restarts)
+- `data/` - Attachments, users, versions (created at runtime)
+- `logs/` - Application logs (created at runtime)
+- `sessions/` - User sessions (created at runtime)
+
+#### Update Existing Deployment
+
+To update code on an already-deployed server:
+
+```bash
+ssh user@server
+cd /opt/dosckers/amdwiki
+git pull origin master
+cd docker
+docker-compose down
+docker-compose up -d --build
+docker-compose logs -f amdwiki
+```
+
+**Note:** Updates preserve your `pages/`, `data/`, `logs/`, and `sessions/` directories.
 
 ### Deployment Methods
 
-#### Method 1: rsync (Default)
-
-Copies files directly from local to remote:
-
-```bash
-DEPLOY_METHOD=rsync ./deploy-remote.sh
-```
-
-**Pros:**
-- Fast for updates
-- No need for git repository
-- Excludes development files automatically
-
-**Cons:**
-- Requires rsync on both machines
-- Doesn't track version history on server
-
-#### Method 2: Git Clone/Pull
+#### Method 1: Git Clone/Pull (Recommended)
 
 Uses git to deploy from repository:
 
@@ -109,12 +134,34 @@ DEPLOY_METHOD=git ./deploy-remote.sh
 
 **Pros:**
 - Version controlled on server
-- Easy rollbacks
+- Easy rollbacks and updates
 - Multiple servers can pull from same repo
+- Ensures `required-pages/` system directory is present
+- Cleaner deployment process
 
 **Cons:**
 - Requires git repository
-- Server needs access to git remote
+- Server needs network access to git remote
+
+**Important:** The `required-pages/` directory is **required** and is part of the repository. It contains system pages like "Everything We Know About You", "LeftMenu", etc. Git-based deployment ensures this directory is present.
+
+#### Method 2: rsync (Alternative)
+
+Copies files directly from local to remote:
+
+```bash
+DEPLOY_METHOD=rsync ./deploy-remote.sh
+```
+
+**Pros:**
+- Fast for updates
+- No need for git repository on server
+- Excludes development files automatically
+
+**Cons:**
+- Requires rsync on both machines
+- Doesn't track version history on server
+- Must ensure `required-pages/` is copied
 
 ### Environment Configuration
 

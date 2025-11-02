@@ -94,10 +94,11 @@ docker/
 └── README.md              # This file
 
 ../                        # Project root
-├── pages/                 # Wiki content (mounted)
-├── data/                  # Application data (mounted)
-├── logs/                  # Application logs (mounted)
-└── sessions/              # User sessions (mounted)
+├── required-pages/        # System pages (IN REPO - required!)
+├── pages/                 # Wiki content (runtime, create on deployment)
+├── data/                  # Application data (runtime, create on deployment)
+├── logs/                  # Application logs (runtime, create on deployment)
+└── sessions/              # User sessions (runtime, create on deployment)
 ```
 
 ## Environment Variables
@@ -116,10 +117,11 @@ GID=1000                 # Group ID for container
 
 The following directories are mounted from the project root:
 
-- `../pages` → `/app/pages` - Wiki page content
-- `../data` → `/app/data` - Attachments, users, versions
-- `../logs` → `/app/logs` - Application logs
-- `../sessions` → `/app/sessions` - User session files
+- `../pages` → `/app/pages` - Wiki page content (runtime, not in repo)
+- `../required-pages` → `/app/required-pages` - System pages (in repo)
+- `../data` → `/app/data` - Attachments, users, versions (runtime, not in repo)
+- `../logs` → `/app/logs` - Application logs (runtime, not in repo)
+- `../sessions` → `/app/sessions` - User session files (runtime, not in repo)
 
 ## ConfigurationManager Integration
 
