@@ -12,8 +12,10 @@ services:
     user: "${UID:-1000}:${GID:-1000}"
 
     # Environment variables
+    # EXTERNAL_PORT: Not used with Traefik (accessed via domain)
     environment:
       - NODE_ENV=production
+      - EXTERNAL_PORT=443
 
     # Volume mounts for persistent data
     volumes:

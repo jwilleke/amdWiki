@@ -171,11 +171,21 @@ checkAndCreatePidLock();
   // 5. Start the Server
   const port = configManager.getProperty('amdwiki.port', 3000);
   const hostname = configManager.getProperty('amdwiki.hostname', 'localhost');
-  const baseURL = `http://${hostname}:${port}`;
+
+  // In Docker, the external port may differ from the internal port
+  // Check for EXTERNAL_PORT environment variable set by docker-compose
+  const externalPort = process.env.EXTERNAL_PORT ? parseInt(process.env.EXTERNAL_PORT) : port;
+  const displayPort = externalPort !== port ? externalPort : port;
+  const baseURL = `http://${hostname}:${displayPort}`;
 
   app.listen(port, async () => {
     console.log('\n' + '='.repeat(60));
-    console.log(`🚀 Running amdWiki on port ${port}`);
+    if (externalPort !== port) {
+      console.log(`🚀 Running amdWiki on port ${port} (container internal)`);
+      console.log(`🌐 External port: ${externalPort}`);
+    } else {
+      console.log(`🚀 Running amdWiki on port ${port}`);
+    }
     console.log(`🌐 Visit: ${baseURL}`);
 
     // Check if admin is using default password
