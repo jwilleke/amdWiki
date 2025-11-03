@@ -13,9 +13,12 @@ services:
 
     # Environment variables
     # EXTERNAL_PORT: Not used with Traefik (accessed via domain)
+    # AMDWIKI_DOMAIN: Automatically set baseURL and hostname from .env
     environment:
       - NODE_ENV=production
       - EXTERNAL_PORT=443
+      - AMDWIKI_BASE_URL=https://${AMDWIKI_DOMAIN}
+      - AMDWIKI_HOSTNAME=${AMDWIKI_DOMAIN}
 
     # Volume mounts for persistent data
     volumes:
