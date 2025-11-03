@@ -126,8 +126,21 @@ class SearchManager extends BaseManager {
       return providerName;
     }
 
-    // Convert lowercase to PascalCase
-    // lunrsearchprovider -> LunrSearchProvider
+    const lower = providerName.toLowerCase();
+
+    // Handle special cases for known provider names
+    const knownProviders = {
+      'lunrsearchprovider': 'LunrSearchProvider',
+      'elasticsearchprovider': 'ElasticsearchProvider',
+      'solrsearchprovider': 'SolrSearchProvider'
+    };
+
+    if (knownProviders[lower]) {
+      return knownProviders[lower];
+    }
+
+    // Fallback: Convert lowercase to PascalCase
+    // Split on hyphens/underscores and capitalize each part
     return providerName
       .split(/[-_]/)
       .map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
