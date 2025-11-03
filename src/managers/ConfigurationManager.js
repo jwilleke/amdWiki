@@ -135,6 +135,12 @@ class ConfigurationManager {
    * Get a configuration property value
    *
    * Retrieves a property from the merged configuration with optional default value.
+   * Checks environment variables first for specific keys (Docker/Traefik support).
+   *
+   * Priority order:
+   * 1. Environment variables (for Docker/Traefik deployments)
+   * 2. Merged configuration (from config files)
+   * 3. Default value parameter
    *
    * @param {string} key - Configuration property key
    * @param {*} [defaultValue=null] - Default value if property not found
@@ -144,6 +150,19 @@ class ConfigurationManager {
    * const appName = configManager.getProperty('amdwiki.applicationName', 'MyWiki');
    */
   getProperty(key, defaultValue = null) {
+    // Check environment variables for Docker/Traefik deployments
+    // Allows dynamic configuration without editing config files
+    const envOverrides = {
+      'amdwiki.baseURL': process.env.AMDWIKI_BASE_URL,
+      'amdwiki.hostname': process.env.AMDWIKI_HOSTNAME,
+      'amdwiki.server.host': process.env.AMDWIKI_HOST,
+      'amdwiki.server.port': process.env.AMDWIKI_PORT,
+    };
+
+    if (envOverrides[key]) {
+      return envOverrides[key];
+    }
+
     return this.mergedConfig?.[key] ?? defaultValue;
   }
 
