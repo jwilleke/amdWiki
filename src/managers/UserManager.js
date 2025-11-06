@@ -2,7 +2,8 @@ const BaseManager = require('./BaseManager');
 const fs = require('fs').promises;
 const path = require('path');
 const crypto = require('crypto');
-const logger = require('../utils/logger'); // Add this line
+const logger = require('../utils/logger');
+const LocaleUtils = require('../utils/LocaleUtils');
 
 /**
  * UserManager - Handles user authentication, authorization, and roles
@@ -632,7 +633,9 @@ class UserManager extends BaseManager {
     const { username, email, displayName, password, roles = ['reader'], isExternal = false, isActive = true, acceptLanguage } = userData;
 
     if (await this.provider.userExists(username)) {
-      throw new Error('Username already exists');
+      // Get all existing usernames for debugging
+      const existingUsers = await this.provider.getAllUsernames();
+      throw new Error(`Username already exists: "${username}". Existing users: ${existingUsers.join(', ')}`);
     }
 
     // Check for display name conflicts with existing pages

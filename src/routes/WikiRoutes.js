@@ -3021,6 +3021,8 @@ class WikiRoutes {
 
       const { username, email, displayName, password, roles } = req.body;
 
+      console.log(`[admin/users] Attempting to create user: "${username}" with display name: "${displayName}"`);
+
       const success = await userManager.createUser({
         username,
         email,
@@ -3037,7 +3039,8 @@ class WikiRoutes {
       }
     } catch (err) {
       console.error("Error creating user:", err);
-      res.redirect("/admin/users?error=Error creating user");
+      const errorMessage = encodeURIComponent(err.message || "Error creating user");
+      res.redirect(`/admin/users?error=${errorMessage}`);
     }
   }
 
