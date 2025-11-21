@@ -165,7 +165,9 @@ data/*
 reports/*
 /private/
 
-# Keep required-pages/ tracked (system pages)
+# required-pages/ - Site-specific content (not framework code)
+/required-pages/
+required-pages/*
 
 # Configuration - keep custom config local only
 config/app-custom-config.json
@@ -186,3 +188,4 @@ CLAUDE.md
 archive
 
 node_modules/
+converted/
