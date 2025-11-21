@@ -1,5 +1,6 @@
 {
   "amdwiki.applicationName": "amdWiki",
+  "amdwiki.faviconPath": "/favicon.svg",
   "amdwiki.application.category": "Digital Platform",
   "amdwiki.version": "1.3.2",
   "amdwiki.baseURL": "http://localhost:3000",
