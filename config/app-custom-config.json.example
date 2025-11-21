@@ -4,13 +4,20 @@
   "_note": "app-custom-config.json is .gitignored and won't be committed",
 
   "_example_overrides": {
+    "_comment_branding": "Customize application branding",
     "amdwiki.applicationName": "My Wiki",
-    "amdwiki.baseURL": "http://localhost:3000",
-    "amdwiki.port": 3000,
+    "amdwiki.faviconPath": "/favicon.svg",
 
+    "_comment_server": "Server configuration",
+    "amdwiki.server.port": 3000,
+    "amdwiki.server.host": "localhost",
+    "amdwiki.baseURL": "http://localhost:3000",
+
+    "_comment_debugging": "Enable debug logging",
     "amdwiki.logging.debug.session": true,
     "amdwiki.logging.debug.login": true,
 
+    "_comment_directories": "Custom directory locations",
     "amdwiki.directories.pages": "./pages",
     "amdwiki.directories.required-pages": "./required-pages",
     "amdwiki.directories.attachments": "./attachments"
