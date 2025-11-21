@@ -160,8 +160,16 @@ class WikiRoutes {
       currentUser: userContext,
       user: userContext, // Add alias for consistency
       appName: configManager?.getProperty(
-        "amdwiki.application.name",
+        "amdwiki.applicationName",
         "amdWiki"
+      ),
+      applicationName: configManager?.getProperty(
+        "amdwiki.applicationName",
+        "amdWiki"
+      ),
+      faviconPath: configManager?.getProperty(
+        "amdwiki.faviconPath",
+        "/favicon.ico"
       ),
       pages: await pageManager.getAllPages(),
     };
