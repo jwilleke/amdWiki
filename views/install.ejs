@@ -82,7 +82,30 @@
 
       <% if (messages && messages.error) { %>
         <div class="alert alert-danger" role="alert">
-          <%= messages.error %>
+          <strong>Error:</strong> <%= messages.error %>
+        </div>
+      <% } %>
+
+      <% if (messages && messages.warning) { %>
+        <div class="alert alert-warning" role="alert">
+          <strong>Warning:</strong> <%= messages.warning %>
+          <% if (partialInstallation && partialInstallation.isPartial) { %>
+            <div class="mt-2">
+              <strong>Completed steps:</strong>
+              <ul class="mb-2">
+                <% if (partialInstallation.steps.configWritten) { %><li>Configuration file written</li><% } %>
+                <% if (partialInstallation.steps.organizationCreated) { %><li>Organization created</li><% } %>
+                <% if (partialInstallation.steps.adminCreated) { %><li>Admin user created</li><% } %>
+                <% if (partialInstallation.steps.pagesCopied) { %><li>Pages copied</li><% } %>
+              </ul>
+              <form method="POST" action="/install/reset" class="d-inline">
+                <button type="submit" class="btn btn-warning btn-sm"
+                        onclick="return confirm('This will remove all partial installation data (backups will be created). Continue?')">
+                  <i class="bi bi-arrow-counterclockwise"></i> Reset Installation
+                </button>
+              </form>
+            </div>
+          <% } %>
         </div>
       <% } %>
 

@@ -42,19 +42,26 @@ class InstallRoutes {
           return res.redirect('/');
         }
 
+        // Check for partial installation
+        const partialState = await this.installService.detectPartialInstallation();
+
         // Render install form
         res.render('install', {
           formData: req.session.installFormData || {},
           sessionSecret: this.installService.generateSessionSecret(),
           messages: {
-            info: 'Please complete the following fields to set up your wiki.',
-            error: req.session.installError
-          }
+            info: req.session.installSuccess || 'Please complete the following fields to set up your wiki.',
+            error: req.session.installError,
+            warning: partialState.isPartial ?
+              'Partial installation detected. Please reset before continuing.' : null
+          },
+          partialInstallation: partialState
         });
 
         // Clear session data
         delete req.session.installFormData;
         delete req.session.installError;
+        delete req.session.installSuccess;
       } catch (error) {
         console.error('Error displaying install form:', error);
         res.status(500).send('Error loading installation page');
@@ -116,6 +123,41 @@ class InstallRoutes {
         req.session.installError = error.message;
         req.session.installFormData = req.body;
         res.redirect('/install');
+      }
+    });
+
+    // POST /install/reset - Reset partial installation
+    this.router.post('/reset', async (req, res) => {
+      try {
+        // Reset the installation
+        const result = await this.installService.resetInstallation();
+
+        if (!result.success) {
+          req.session.installError = result.error;
+        } else {
+          req.session.installSuccess = result.message;
+        }
+
+        res.redirect('/install');
+      } catch (error) {
+        console.error('Error resetting installation:', error);
+        req.session.installError = `Reset failed: ${error.message}`;
+        res.redirect('/install');
+      }
+    });
+
+    // GET /install/status - Check installation status (API endpoint)
+    this.router.get('/status', async (req, res) => {
+      try {
+        const partialState = await this.installService.detectPartialInstallation();
+        const installRequired = await this.installService.isInstallRequired();
+
+        res.json({
+          installRequired,
+          partialInstallation: partialState
+        });
+      } catch (error) {
+        res.status(500).json({ error: error.message });
       }
     });
   }

@@ -49,6 +49,42 @@ class InstallService {
   }
 
   /**
+   * Detect partial installation state
+   *
+   * @returns {Promise<Object>} Partial installation status
+   */
+  async detectPartialInstallation() {
+    const completed = this.configManager.getProperty('amdwiki.install.completed', false);
+
+    if (completed) {
+      return { isPartial: false, steps: {} };
+    }
+
+    const userManager = this.engine.getManager('UserManager');
+    const adminExists = await userManager.hasRole('admin', 'admin');
+
+    const pagesDir = this.configManager.getProperty('amdwiki.page.provider.filesystem.storagedir', './pages');
+    const pagesExist = await this.#hasPagesInDirectory(pagesDir);
+
+    const customConfigPath = path.join(__dirname, '../../config/app-custom-config.json');
+    const customConfigExists = await fs.pathExists(customConfigPath);
+
+    const organizationsPath = path.join(__dirname, '../../users/organizations.json');
+    const organizationsExist = await fs.pathExists(organizationsPath);
+
+    const steps = {
+      configWritten: customConfigExists,
+      organizationCreated: organizationsExist,
+      adminCreated: adminExists,
+      pagesCopied: pagesExist
+    };
+
+    const isPartial = Object.values(steps).some(v => v === true) && !completed;
+
+    return { isPartial, steps };
+  }
+
+  /**
    * Check if pages exist in directory
    *
    * @private
@@ -72,25 +108,44 @@ class InstallService {
    * @returns {Promise<Object>} Result with success status and any errors
    */
   async processInstallation(installData) {
+    const installSteps = [];
+
     try {
       // Validate required fields
       this.#validateInstallData(installData);
 
+      // Check for partial installation
+      const partialState = await this.detectPartialInstallation();
+      if (partialState.isPartial) {
+        throw new Error(
+          'Partial installation detected. Please reset the installation before continuing. ' +
+          `Completed steps: ${Object.entries(partialState.steps)
+            .filter(([_, v]) => v)
+            .map(([k]) => k)
+            .join(', ')}`
+        );
+      }
+
       // 1. Write app-custom-config.json
+      installSteps.push('writeConfig');
       await this.#writeCustomConfig(installData);
 
       // 2. Write users/organizations.json
+      installSteps.push('writeOrganization');
       await this.#writeOrganizationData(installData);
 
       // 3. Create admin user
+      installSteps.push('createAdmin');
       await this.#createAdminUser(installData);
 
       // 4. Copy startup pages if requested
       if (installData.copyStartupPages) {
+        installSteps.push('copyPages');
         await this.#copyStartupPages();
       }
 
       // 5. Mark installation as complete
+      installSteps.push('markComplete');
       await this.#markInstallationComplete();
 
       return {
@@ -98,9 +153,109 @@ class InstallService {
         message: 'Installation completed successfully'
       };
     } catch (error) {
+      // Log which step failed
+      const failedStep = installSteps[installSteps.length - 1] || 'validation';
+
       return {
         success: false,
-        error: error.message
+        error: error.message,
+        failedStep,
+        completedSteps: installSteps.slice(0, -1)
+      };
+    }
+  }
+
+  /**
+   * Reset partial installation to allow retry
+   *
+   * @async
+   * @returns {Promise<Object>} Result with success status
+   */
+  async resetInstallation() {
+    try {
+      const partialState = await this.detectPartialInstallation();
+
+      if (!partialState.isPartial) {
+        return {
+          success: false,
+          error: 'No partial installation detected. Nothing to reset.'
+        };
+      }
+
+      const resetSteps = [];
+
+      // 1. Remove app-custom-config.json
+      const customConfigPath = path.join(__dirname, '../../config/app-custom-config.json');
+      if (await fs.pathExists(customConfigPath)) {
+        // Backup before deleting
+        const backupPath = customConfigPath + '.backup-' + Date.now();
+        await fs.copy(customConfigPath, backupPath);
+        await fs.remove(customConfigPath);
+        resetSteps.push('Removed custom config (backup created)');
+      }
+
+      // 2. Remove organizations.json
+      const organizationsPath = path.join(__dirname, '../../users/organizations.json');
+      if (await fs.pathExists(organizationsPath)) {
+        const backupPath = organizationsPath + '.backup-' + Date.now();
+        await fs.copy(organizationsPath, backupPath);
+        await fs.remove(organizationsPath);
+        resetSteps.push('Removed organizations (backup created)');
+      }
+
+      // 3. Remove admin user
+      const userManager = this.engine.getManager('UserManager');
+      const adminExists = await userManager.hasRole('admin', 'admin');
+      if (adminExists) {
+        // Get the users file path
+        const usersPath = path.join(__dirname, '../../users/users.json');
+        if (await fs.pathExists(usersPath)) {
+          const backupPath = usersPath + '.backup-' + Date.now();
+          await fs.copy(usersPath, backupPath);
+
+          // Read, remove admin, write back
+          const usersData = await fs.readJson(usersPath);
+          if (usersData.admin) {
+            delete usersData.admin;
+            await fs.writeJson(usersPath, usersData, { spaces: 2 });
+            resetSteps.push('Removed admin user (backup created)');
+          }
+        }
+      }
+
+      // 4. Remove copied pages (only if they were copied during this installation)
+      const pagesDir = this.configManager.getProperty(
+        'amdwiki.page.provider.filesystem.storagedir',
+        './pages'
+      );
+
+      // Only clear if directory exists and has files
+      if (await fs.pathExists(pagesDir)) {
+        const files = await fs.readdir(pagesDir);
+        const mdFiles = files.filter(f => f.endsWith('.md'));
+
+        if (mdFiles.length > 0) {
+          // Create a backup directory
+          const backupDir = pagesDir + '.backup-' + Date.now();
+          await fs.copy(pagesDir, backupDir);
+
+          // Remove only .md files, keep the directory structure
+          for (const file of mdFiles) {
+            await fs.remove(path.join(pagesDir, file));
+          }
+          resetSteps.push(`Removed ${mdFiles.length} pages (backup created)`);
+        }
+      }
+
+      return {
+        success: true,
+        message: 'Installation reset successfully. You can now start the installation process again.',
+        resetSteps
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: `Reset failed: ${error.message}`
       };
     }
   }
