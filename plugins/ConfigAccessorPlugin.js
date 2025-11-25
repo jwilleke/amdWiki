@@ -106,8 +106,14 @@ const ConfigAccessorPlugin = {
         case 'userkeywords':
           return this.displayUserKeywords(configManager, opts, valueonly, before, after);
 
+        case 'systemkeywords':
+          return this.displaySystemKeywords(configManager, opts, valueonly, before, after);
+
+        case 'systemcategories':
+          return this.displaySystemCategories(configManager, opts, valueonly, before, after);
+
         default:
-          return `<p class="error">Unknown type: ${escapeHtml(type)}. Use 'roles', 'permissions', 'policy-summary', 'user-summary', 'actions', 'manager', 'feature', or 'userKeywords'.</p>`;
+          return `<p class="error">Unknown type: ${escapeHtml(type)}. Use 'roles', 'permissions', 'policy-summary', 'user-summary', 'actions', 'manager', 'feature', 'userKeywords', 'systemKeywords', or 'systemCategories'.</p>`;
       }
 
     } catch (error) {
@@ -687,6 +693,317 @@ const ConfigAccessorPlugin = {
     } catch (error) {
       console.error('[ConfigAccessorPlugin] Error in displayUserKeywords:', error);
       return `<p class="error">Error displaying user keywords: ${escapeHtml(error.message)}</p>`;
+    }
+  },
+
+  /**
+   * Display system keywords with optional filtering
+   * @param {Object} configManager - ConfigurationManager instance
+   * @param {Object} opts - Filter options (label, enabled, category, etc.)
+   * @param {boolean} valueonly - If true, return only the label values
+   * @param {string} before - String to prepend before each value
+   * @param {string} after - String to append after each value
+   * @returns {string} HTML output or plain text
+   */
+  displaySystemKeywords(configManager, opts = {}, valueonly = false, before = '', after = undefined) {
+    if (!configManager) {
+      return '<p class="error">ConfigurationManager not available</p>';
+    }
+
+    try {
+      // Get systemKeywords from configuration
+      const systemKeywords = configManager.getProperty('amdwiki.system-keywords', {});
+
+      if (!systemKeywords || typeof systemKeywords !== 'object' || Object.keys(systemKeywords).length === 0) {
+        if (valueonly) {
+          return '';
+        }
+        return '<p class="text-muted">No system keywords found</p>';
+      }
+
+      // Convert to array and filter based on opts
+      let keywords = Object.entries(systemKeywords).map(([key, value]) => ({
+        key,
+        ...value
+      }));
+
+      // Apply filters based on opts
+      const filterKeys = ['label', 'enabled', 'category', 'default'];
+      for (const filterKey of filterKeys) {
+        if (opts[filterKey] !== undefined) {
+          const filterValue = opts[filterKey];
+          keywords = keywords.filter(kw => {
+            // Handle boolean values
+            if (filterKey === 'enabled' || filterKey === 'default') {
+              const boolValue = filterValue === 'true' || filterValue === true;
+              return kw[filterKey] === boolValue;
+            }
+            // Handle string values (case-insensitive comparison)
+            return String(kw[filterKey]).toLowerCase() === String(filterValue).toLowerCase();
+          });
+        }
+      }
+
+      if (keywords.length === 0) {
+        if (valueonly) {
+          return '';
+        }
+        const filterDesc = Object.entries(opts)
+          .filter(([k]) => filterKeys.includes(k))
+          .map(([k, v]) => `${k}=${v}`)
+          .join(', ');
+        return `<p class="text-muted">No system keywords match filter: ${escapeHtml(filterDesc)}</p>`;
+      }
+
+      // If valueonly, return labels with before/after formatting
+      if (valueonly) {
+        const afterStr = after !== undefined ? after : '\n';
+        const processedBefore = this.processEscapeSequences(before);
+        const processedAfter = this.processEscapeSequences(afterStr);
+
+        const items = keywords.map(kw => {
+          return processedBefore + escapeHtml(kw.label) + processedAfter;
+        }).join('');
+
+        const htmlItems = items.replace(/\n/g, '<br>\n');
+        return `<span class="config-systemkeywords">${htmlItems}</span>`;
+      }
+
+      // Otherwise, return formatted HTML table
+      let html = '<div class="config-accessor-plugin">\n';
+      html += '  <div class="card">\n';
+      html += '    <div class="card-header">\n';
+      html += '      <h6><i class="fas fa-tags"></i> System Keywords';
+
+      const appliedFilters = Object.entries(opts)
+        .filter(([k]) => filterKeys.includes(k))
+        .map(([k, v]) => `${k}=${v}`)
+        .join(', ');
+      if (appliedFilters) {
+        html += ` (${escapeHtml(appliedFilters)})`;
+      }
+
+      html += '</h6>\n';
+      html += '      <small class="text-muted">System-defined keywords for controlled vocabulary</small>\n';
+      html += '    </div>\n';
+      html += '    <div class="card-body">\n';
+      html += '      <div class="table-responsive">\n';
+      html += '        <table class="table table-sm table-hover">\n';
+      html += '          <thead>\n';
+      html += '            <tr>\n';
+      html += '              <th style="width: 15%;">Label</th>\n';
+      html += '              <th style="width: 40%;">Description</th>\n';
+      html += '              <th style="width: 15%;">Category</th>\n';
+      html += '              <th style="width: 10%;">Enabled</th>\n';
+      html += '              <th style="width: 10%;">Default</th>\n';
+      html += '              <th style="width: 10%;">Schema.org</th>\n';
+      html += '            </tr>\n';
+      html += '          </thead>\n';
+      html += '          <tbody>\n';
+
+      keywords.sort((a, b) => a.label.localeCompare(b.label));
+
+      for (const kw of keywords) {
+        const enabledBadge = kw.enabled ?
+          '<span class="badge bg-success">Yes</span>' :
+          '<span class="badge bg-secondary">No</span>';
+        const defaultBadge = kw.default ?
+          '<span class="badge bg-primary">Yes</span>' :
+          '<span class="badge bg-secondary">No</span>';
+
+        html += '            <tr>\n';
+        html += `              <td><code>${escapeHtml(kw.label)}</code></td>\n`;
+        html += `              <td><small class="text-muted">${escapeHtml(kw.description || 'No description')}</small></td>\n`;
+        html += `              <td><span class="badge bg-info">${escapeHtml(kw.category || 'none')}</span></td>\n`;
+        html += `              <td>${enabledBadge}</td>\n`;
+        html += `              <td>${defaultBadge}</td>\n`;
+        html += `              <td><small>${escapeHtml(kw.schemaOrg || '-')}</small></td>\n`;
+        html += '            </tr>\n';
+      }
+
+      html += '          </tbody>\n';
+      html += '        </table>\n';
+      html += '      </div>\n';
+      html += '    </div>\n';
+      html += '    <div class="card-footer text-muted">\n';
+      html += `      <small>Total Keywords: ${keywords.length}`;
+
+      const categories = {};
+      for (const kw of keywords) {
+        const cat = kw.category || 'none';
+        categories[cat] = (categories[cat] || 0) + 1;
+      }
+      const categoryBreakdown = Object.entries(categories)
+        .map(([cat, count]) => `${cat}: ${count}`)
+        .join(', ');
+      html += ` | By Category: ${categoryBreakdown}`;
+
+      html += '</small>\n';
+      html += '    </div>\n';
+      html += '  </div>\n';
+      html += '</div>\n';
+
+      return html;
+
+    } catch (error) {
+      console.error('[ConfigAccessorPlugin] Error in displaySystemKeywords:', error);
+      return `<p class="error">Error displaying system keywords: ${escapeHtml(error.message)}</p>`;
+    }
+  },
+
+  /**
+   * Display system categories with optional filtering
+   * @param {Object} configManager - ConfigurationManager instance
+   * @param {Object} opts - Filter options (label, enabled, default, storageLocation, etc.)
+   * @param {boolean} valueonly - If true, return only the label values
+   * @param {string} before - String to prepend before each value
+   * @param {string} after - String to append after each value
+   * @returns {string} HTML output or plain text
+   */
+  displaySystemCategories(configManager, opts = {}, valueonly = false, before = '', after = undefined) {
+    if (!configManager) {
+      return '<p class="error">ConfigurationManager not available</p>';
+    }
+
+    try {
+      // Get systemCategories from configuration
+      const systemCategories = configManager.getProperty('amdwiki.system-category', {});
+
+      if (!systemCategories || typeof systemCategories !== 'object' || Object.keys(systemCategories).length === 0) {
+        if (valueonly) {
+          return '';
+        }
+        return '<p class="text-muted">No system categories found</p>';
+      }
+
+      // Convert to array and filter based on opts
+      let categories = Object.entries(systemCategories).map(([key, value]) => ({
+        key,
+        ...value
+      }));
+
+      // Apply filters based on opts
+      const filterKeys = ['label', 'enabled', 'default', 'storageLocation'];
+      for (const filterKey of filterKeys) {
+        if (opts[filterKey] !== undefined) {
+          const filterValue = opts[filterKey];
+          categories = categories.filter(cat => {
+            // Handle boolean values
+            if (filterKey === 'enabled' || filterKey === 'default') {
+              const boolValue = filterValue === 'true' || filterValue === true;
+              return cat[filterKey] === boolValue;
+            }
+            // Handle string values (case-insensitive comparison)
+            return String(cat[filterKey]).toLowerCase() === String(filterValue).toLowerCase();
+          });
+        }
+      }
+
+      if (categories.length === 0) {
+        if (valueonly) {
+          return '';
+        }
+        const filterDesc = Object.entries(opts)
+          .filter(([k]) => filterKeys.includes(k))
+          .map(([k, v]) => `${k}=${v}`)
+          .join(', ');
+        return `<p class="text-muted">No system categories match filter: ${escapeHtml(filterDesc)}</p>`;
+      }
+
+      // If valueonly, return labels with before/after formatting
+      if (valueonly) {
+        const afterStr = after !== undefined ? after : '\n';
+        const processedBefore = this.processEscapeSequences(before);
+        const processedAfter = this.processEscapeSequences(afterStr);
+
+        const items = categories.map(cat => {
+          return processedBefore + escapeHtml(cat.label) + processedAfter;
+        }).join('');
+
+        const htmlItems = items.replace(/\n/g, '<br>\n');
+        return `<span class="config-systemcategories">${htmlItems}</span>`;
+      }
+
+      // Otherwise, return formatted HTML table
+      let html = '<div class="config-accessor-plugin">\n';
+      html += '  <div class="card">\n';
+      html += '    <div class="card-header">\n';
+      html += '      <h6><i class="fas fa-folder"></i> System Categories';
+
+      const appliedFilters = Object.entries(opts)
+        .filter(([k]) => filterKeys.includes(k))
+        .map(([k, v]) => `${k}=${v}`)
+        .join(', ');
+      if (appliedFilters) {
+        html += ` (${escapeHtml(appliedFilters)})`;
+      }
+
+      html += '</h6>\n';
+      html += '      <small class="text-muted">System categories that determine page storage location</small>\n';
+      html += '    </div>\n';
+      html += '    <div class="card-body">\n';
+      html += '      <div class="table-responsive">\n';
+      html += '        <table class="table table-sm table-hover">\n';
+      html += '          <thead>\n';
+      html += '            <tr>\n';
+      html += '              <th style="width: 15%;">Label</th>\n';
+      html += '              <th style="width: 45%;">Description</th>\n';
+      html += '              <th style="width: 15%;">Storage Location</th>\n';
+      html += '              <th style="width: 10%;">Enabled</th>\n';
+      html += '              <th style="width: 15%;">Default</th>\n';
+      html += '            </tr>\n';
+      html += '          </thead>\n';
+      html += '          <tbody>\n';
+
+      categories.sort((a, b) => a.label.localeCompare(b.label));
+
+      for (const cat of categories) {
+        const enabledBadge = cat.enabled ?
+          '<span class="badge bg-success">Yes</span>' :
+          '<span class="badge bg-secondary">No</span>';
+        const defaultBadge = cat.default ?
+          '<span class="badge bg-primary">Yes</span>' :
+          '<span class="badge bg-secondary">No</span>';
+        const storageBadge = cat.storageLocation === 'required' ?
+          '<span class="badge bg-warning">required-pages</span>' :
+          '<span class="badge bg-info">pages</span>';
+
+        html += '            <tr>\n';
+        html += `              <td><code>${escapeHtml(cat.label)}</code></td>\n`;
+        html += `              <td><small class="text-muted">${escapeHtml(cat.description || 'No description')}</small></td>\n`;
+        html += `              <td>${storageBadge}</td>\n`;
+        html += `              <td>${enabledBadge}</td>\n`;
+        html += `              <td>${defaultBadge}</td>\n`;
+        html += '            </tr>\n';
+      }
+
+      html += '          </tbody>\n';
+      html += '        </table>\n';
+      html += '      </div>\n';
+      html += '    </div>\n';
+      html += '    <div class="card-footer text-muted">\n';
+      html += `      <small>Total Categories: ${categories.length}`;
+
+      const storageBreakdown = categories.reduce((acc, cat) => {
+        const loc = cat.storageLocation || 'regular';
+        acc[loc] = (acc[loc] || 0) + 1;
+        return acc;
+      }, {});
+      const storageDesc = Object.entries(storageBreakdown)
+        .map(([loc, count]) => `${loc}: ${count}`)
+        .join(', ');
+      html += ` | By Storage: ${storageDesc}`;
+
+      html += '</small>\n';
+      html += '    </div>\n';
+      html += '  </div>\n';
+      html += '</div>\n';
+
+      return html;
+
+    } catch (error) {
+      console.error('[ConfigAccessorPlugin] Error in displaySystemCategories:', error);
+      return `<p class="error">Error displaying system categories: ${escapeHtml(error.message)}</p>`;
     }
   },
 

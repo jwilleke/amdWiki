@@ -452,13 +452,6 @@
       "storageLocation": "regular",
       "enabled": true
     },
-    "test": {
-      "label": "test",
-      "description": "Testing and development pages",
-      "default": false,
-      "storageLocation": "regular",
-      "enabled": true
-    },
     "developer": {
       "label": "developer",
       "description": "Developer documentation and technical notes",
