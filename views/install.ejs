@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>amdWiki Installation</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: 20px;
+    }
+    .install-container {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px;
+    }
+    .install-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .install-header h1 {
+      color: #333;
+      margin-bottom: 10px;
+    }
+    .install-header p {
+      color: #666;
+      font-size: 1.1rem;
+    }
+    .section-header {
+      border-bottom: 2px solid #667eea;
+      padding-bottom: 10px;
+      margin-top: 30px;
+      margin-bottom: 20px;
+      color: #667eea;
+      font-weight: 600;
+    }
+    .form-label {
+      font-weight: 500;
+      color: #333;
+    }
+    .help-text {
+      font-size: 0.875rem;
+      color: #6c757d;
+      margin-top: 0.25rem;
+    }
+    .btn-install {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      padding: 12px 40px;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+    .btn-install:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+    .alert-info {
+      background-color: #e7f3ff;
+      border-color: #b3d9ff;
+      color: #004085;
+    }
+    .required-field::after {
+      content: " *";
+      color: #dc3545;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="install-container">
+      <div class="install-header">
+        <h1>Welcome to amdWiki</h1>
+        <p>Let's set up your wiki in a few simple steps</p>
+      </div>
+
+      <% if (messages && messages.error) { %>
+        <div class="alert alert-danger" role="alert">
+          <%= messages.error %>
+        </div>
+      <% } %>
+
+      <% if (messages && messages.info) { %>
+        <div class="alert alert-info" role="alert">
+          <%= messages.info %>
+        </div>
+      <% } %>
+
+      <form method="POST" action="/install" id="installForm">
+
+        <!-- Basic Configuration -->
+        <div class="section-header">
+          <i class="bi bi-gear"></i> Basic Configuration
+        </div>
+
+        <div class="mb-3">
+          <label for="applicationName" class="form-label required-field">Application Name</label>
+          <input type="text" class="form-control" id="applicationName" name="applicationName"
+                 value="<%= formData?.applicationName || 'My Wiki' %>" required>
+          <div class="help-text">The name of your wiki (shown in the header and title)</div>
+        </div>
+
+        <div class="mb-3">
+          <label for="baseURL" class="form-label required-field">Base URL</label>
+          <input type="url" class="form-control" id="baseURL" name="baseURL"
+                 value="<%= formData?.baseURL || 'http://localhost:3000' %>" required>
+          <div class="help-text">The URL where your wiki will be accessible</div>
+        </div>
+
+        <!-- Administrator Account -->
+        <div class="section-header">
+          <i class="bi bi-person-badge"></i> Administrator Account
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="adminUsername" class="form-label required-field">Username</label>
+            <input type="text" class="form-control" id="adminUsername" name="adminUsername"
+                   value="<%= formData?.adminUsername || 'admin' %>" required>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="adminEmail" class="form-label required-field">Email</label>
+            <input type="email" class="form-control" id="adminEmail" name="adminEmail"
+                   value="<%= formData?.adminEmail || '' %>" required>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="adminPassword" class="form-label required-field">Password</label>
+            <input type="password" class="form-control" id="adminPassword" name="adminPassword"
+                   required minlength="8">
+            <div class="help-text">Minimum 8 characters</div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="adminPasswordConfirm" class="form-label required-field">Confirm Password</label>
+            <input type="password" class="form-control" id="adminPasswordConfirm"
+                   name="adminPasswordConfirm" required>
+          </div>
+        </div>
+
+        <!-- Organization Information -->
+        <div class="section-header">
+          <i class="bi bi-building"></i> Organization Information
+        </div>
+
+        <div class="mb-3">
+          <label for="orgName" class="form-label required-field">Organization Name</label>
+          <input type="text" class="form-control" id="orgName" name="orgName"
+                 value="<%= formData?.orgName || '' %>" required>
+          <div class="help-text">Your company or organization name</div>
+        </div>
+
+        <div class="mb-3">
+          <label for="orgLegalName" class="form-label">Legal Name (Optional)</label>
+          <input type="text" class="form-control" id="orgLegalName" name="orgLegalName"
+                 value="<%= formData?.orgLegalName || '' %>">
+          <div class="help-text">Official legal business name if different</div>
+        </div>
+
+        <div class="mb-3">
+          <label for="orgDescription" class="form-label required-field">Description</label>
+          <textarea class="form-control" id="orgDescription" name="orgDescription"
+                    rows="3" required><%= formData?.orgDescription || '' %></textarea>
+          <div class="help-text">Brief description of your organization or wiki purpose</div>
+        </div>
+
+        <!-- Advanced Settings (Collapsible) -->
+        <div class="accordion mb-3" id="advancedAccordion">
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed" type="button"
+                      data-bs-toggle="collapse" data-bs-target="#advancedSettings">
+                <i class="bi bi-sliders me-2"></i> Advanced Settings (Optional)
+              </button>
+            </h2>
+            <div id="advancedSettings" class="accordion-collapse collapse"
+                 data-bs-parent="#advancedAccordion">
+              <div class="accordion-body">
+
+                <div class="mb-3">
+                  <label for="orgFoundingDate" class="form-label">Founding Date</label>
+                  <input type="text" class="form-control" id="orgFoundingDate"
+                         name="orgFoundingDate" placeholder="YYYY"
+                         value="<%= formData?.orgFoundingDate || '' %>">
+                  <div class="help-text">Year founded (e.g., 2025)</div>
+                </div>
+
+                <div class="mb-3">
+                  <label for="orgAddressLocality" class="form-label">City</label>
+                  <input type="text" class="form-control" id="orgAddressLocality"
+                         name="orgAddressLocality" value="<%= formData?.orgAddressLocality || '' %>">
+                </div>
+
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label for="orgAddressRegion" class="form-label">State/Region</label>
+                    <input type="text" class="form-control" id="orgAddressRegion"
+                           name="orgAddressRegion" value="<%= formData?.orgAddressRegion || '' %>">
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label for="orgAddressCountry" class="form-label">Country</label>
+                    <input type="text" class="form-control" id="orgAddressCountry"
+                           name="orgAddressCountry" value="<%= formData?.orgAddressCountry || '' %>">
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label for="sessionSecret" class="form-label">Session Secret</label>
+                  <input type="text" class="form-control" id="sessionSecret"
+                         name="sessionSecret" value="<%= sessionSecret %>">
+                  <div class="help-text">Random secret for session security (auto-generated)</div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Startup Pages Option -->
+        <div class="section-header">
+          <i class="bi bi-file-earmark-text"></i> Initial Content
+        </div>
+
+        <div class="form-check mb-3">
+          <input class="form-check-input" type="checkbox" id="copyStartupPages"
+                 name="copyStartupPages" checked>
+          <label class="form-check-label" for="copyStartupPages">
+            <strong>Copy startup pages to initialize wiki</strong>
+            <div class="help-text">
+              Includes 33 essential pages: 15 system pages for core functionality
+              and 18 documentation pages for user help. Recommended for first-time setup.
+            </div>
+          </label>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="d-grid gap-2 mt-4">
+          <button type="submit" class="btn btn-primary btn-install">
+            Complete Installation
+          </button>
+        </div>
+
+        <div class="text-center mt-3">
+          <small class="text-muted">
+            Fields marked with <span class="text-danger">*</span> are required
+          </small>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Password validation
+    document.getElementById('installForm').addEventListener('submit', function(e) {
+      const password = document.getElementById('adminPassword').value;
+      const confirm = document.getElementById('adminPasswordConfirm').value;
+
+      if (password !== confirm) {
+        e.preventDefault();
+        alert('Passwords do not match!');
+        return false;
+      }
+
+      if (password.length < 8) {
+        e.preventDefault();
+        alert('Password must be at least 8 characters long!');
+        return false;
+      }
+    });
+  </script>
+</body>
+</html>

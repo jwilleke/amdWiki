@@ -18,6 +18,20 @@
   "amdwiki.translator-reader.plain-uris": true,
   "amdwiki.translator-reader.inline-pattern.1": "s/\\{\\{([^}]+)\\}\\}/\\<tt\\>$1\\<\\/tt\\>/g",
 
+  "_comment_install": "First-run installation configuration (Issue #153)",
+  "amdwiki.install.completed": false,
+  "amdwiki.install.requireSetup": true,
+  "amdwiki.install.copyStartupPages": true,
+  "amdwiki.install.createAdminUser": true,
+  "amdwiki.install.organization.name": "",
+  "amdwiki.install.organization.legalName": "",
+  "amdwiki.install.organization.description": "",
+  "amdwiki.install.organization.foundingDate": "",
+  "amdwiki.install.organization.contactEmail": "",
+  "amdwiki.install.organization.addressLocality": "",
+  "amdwiki.install.organization.addressRegion": "",
+  "amdwiki.install.organization.addressCountry": "",
+
   "_comment_parser": "Parser configuration (Phase 6, Issue #120)",
   "jspwiki.parser.useExtractionPipeline": true,
 

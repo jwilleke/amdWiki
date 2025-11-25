@@ -1,0 +1,227 @@
+# Install System Integration Guide
+
+This guide explains how to integrate the first-run installation system into amdWiki.
+
+## Overview
+
+The installation system provides a JSPWiki-style setup wizard that:
+- Collects application and organization configuration
+- Creates the admin user account
+- Copies startup pages to initialize the wiki
+- Writes configuration to `app-custom-config.json` and `users/organizations.json`
+
+## Files Created
+
+### Configuration
+- `config/app-default-config.json` - Added install properties
+
+### Service Layer
+- `src/services/InstallService.js` - Installation logic
+
+### Routes
+- `src/routes/InstallRoutes.js` - Install route handlers
+
+### Views
+- `views/install.ejs` - Installation form
+- `views/install-success.ejs` - Success confirmation page
+
+## Integration Steps
+
+### 1. Register InstallService with WikiEngine
+
+Add to `src/WikiEngine.js`:
+
+```javascript
+const InstallService = require('./services/InstallService');
+
+// In initialize() method, after managers are loaded:
+this.installService = new InstallService(this);
+```
+
+### 2. Register Install Routes in app.js
+
+Add install routes **BEFORE** other routes:
+
+```javascript
+const InstallRoutes = require('./src/routes/InstallRoutes');
+
+// After WikiEngine initialization
+const installRoutes = new InstallRoutes(engine);
+app.use('/install', installRoutes.getRouter());
+```
+
+### 3. Add Install Check Middleware
+
+Add to `app.js` **BEFORE** session middleware:
+
+```javascript
+// Install check middleware - redirect to /install if needed
+app.use(async (req, res, next) => {
+  // Skip check for install routes and static assets
+  if (req.path.startsWith('/install') ||
+      req.path.startsWith('/css') ||
+      req.path.startsWith('/js') ||
+      req.path.startsWith('/images')) {
+    return next();
+  }
+
+  // Check if installation is required
+  const installService = engine.installService;
+  const installRequired = await installService.isInstallRequired();
+
+  if (installRequired) {
+    return res.redirect('/install');
+  }
+
+  next();
+});
+```
+
+## Configuration Properties
+
+The following properties were added to `app-default-config.json`:
+
+```json
+{
+  "amdwiki.install.completed": false,
+  "amdwiki.install.requireSetup": true,
+  "amdwiki.install.copyStartupPages": true,
+  "amdwiki.install.createAdminUser": true,
+  "amdwiki.install.organization.name": "",
+  "amdwiki.install.organization.legalName": "",
+  "amdwiki.install.organization.description": "",
+  "amdwiki.install.organization.foundingDate": "",
+  "amdwiki.install.organization.contactEmail": "",
+  "amdwiki.install.organization.addressLocality": "",
+  "amdwiki.install.organization.addressRegion": "",
+  "amdwiki.install.organization.addressCountry": ""
+}
+```
+
+## Installation Flow
+
+1. **First Request**: User accesses wiki
+2. **Install Check**: Middleware detects install needed
+3. **Redirect**: User redirected to `/install`
+4. **Form Display**: Installation form shown with:
+   - Basic configuration (app name, base URL)
+   - Admin account creation
+   - Organization information
+   - Advanced settings (optional)
+5. **Form Submit**: Data validated and processed
+6. **Configuration Written**:
+   - `config/app-custom-config.json` created
+   - `users/organizations.json` created
+7. **Admin Created**: First admin user account created
+8. **Pages Copied**: Startup pages copied from `required-pages/` to `pages/`
+9. **Success**: User redirected to success page
+10. **Login**: User clicks "Go to Login" and starts using wiki
+
+## What Gets Created
+
+### config/app-custom-config.json
+```json
+{
+  "amdwiki.applicationName": "My Wiki",
+  "amdwiki.baseURL": "http://example.com",
+  "amdwiki.session.secret": "[generated]",
+  "amdwiki.install.completed": true,
+  "amdwiki.install.organization.name": "My Organization",
+  ...
+}
+```
+
+### users/organizations.json
+```json
+[
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "identifier": "amdwiki-platform",
+    "name": "My Organization",
+    "url": "http://example.com",
+    "description": "My wiki description",
+    ...
+  }
+]
+```
+
+### pages/
+All 33 startup pages copied from `required-pages/`:
+- 15 system pages (system-category: system)
+- 18 documentation pages (system-category: documentation)
+
+### users/users.json
+Admin user account created with:
+- Username from form
+- Hashed password
+- Email from form
+- Roles: admin, Authenticated, All
+
+## Security Considerations
+
+1. **Install Route Protection**: Only accessible when install is required
+2. **Password Validation**: Minimum 8 characters, confirmation required
+3. **Session Secret**: Auto-generated random 64-character hex string
+4. **Admin Creation**: Uses UserManager's secure password hashing
+5. **CSRF Protection**: Should be added to form in production
+
+## Testing
+
+### Test Install Required
+```javascript
+const installService = engine.installService;
+const required = await installService.isInstallRequired();
+console.log('Install required:', required);
+```
+
+### Test Form Rendering
+Navigate to: `http://localhost:3000/install`
+
+### Test Installation Process
+1. Fill out form with valid data
+2. Submit
+3. Verify `config/app-custom-config.json` created
+4. Verify `users/organizations.json` created
+5. Verify admin user created
+6. Verify pages copied to `pages/`
+
+## Skipping Installation (Development)
+
+To skip installation in development:
+
+1. Create `config/app-custom-config.json` manually with:
+```json
+{
+  "amdwiki.install.completed": true
+}
+```
+
+2. Or set environment variable:
+```bash
+SKIP_INSTALL=true npm start
+```
+
+## Troubleshooting
+
+### Install Loop
+If redirected to `/install` repeatedly:
+- Check `amdwiki.install.completed` in config
+- Verify admin user exists in `users/users.json`
+- Check `pages/` directory has .md files
+
+### Form Validation Errors
+- Check browser console for JavaScript errors
+- Verify all required fields filled
+- Passwords must match and be 8+ characters
+
+### Permission Errors
+- Ensure write permissions on `config/` directory
+- Ensure write permissions on `users/` directory
+- Ensure write permissions on `pages/` directory
+
+## References
+
+- JSPWiki Install.jsp: https://github.com/apache/jspwiki/blob/master/jspwiki-war/src/main/webapp/Install.jsp
+- Issue #153: Refactor required-pages architecture
+- Schema.org Organization: https://schema.org/Organization
