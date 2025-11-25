@@ -165,10 +165,6 @@ data/*
 reports/*
 /private/
 
-# required-pages/ - Site-specific content (not framework code)
-/required-pages/
-required-pages/*
-
 # Configuration - keep custom config local only
 config/app-custom-config.json
 
