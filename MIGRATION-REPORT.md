@@ -187,10 +187,10 @@ The following pages were moved from `required-pages/` to `docs/developer/`:
 - LeftMenu (`907abcd4-1449-47aa-a1f5-7dcc4c0dde00.md`)
 - Welcome (`92fd6e62-20f8-46c2-b7da-77b404c3100a.md`)
 - Recently Changed (`b02d8e2b-dc38-4b7d-9724-1b5e1b37ee96.md`)
+- Recent Changes (`a50d10aa-d2a7-4151-9423-5e966e4787fb.md`) - ✅ Standardized from `recent-changes-page-001.md`
 - AKA (`c8b5781f-93a3-4fb8-adb4-263077dc3f58.md`)
 - Everything We Know About You (`d26ac975-3773-4144-a346-0d42c991eb1f.md`)
 - User Keywords (`e3bc8a66-9a68-47bb-af14-d6f8b611a3b2.md`)
-- Recent Changes (`recent-changes-page-001.md`)
 
 ## Action Items
 
