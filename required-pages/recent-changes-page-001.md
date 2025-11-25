@@ -1,7 +1,7 @@
 ---
 title: Recent Changes
 uuid: recent-changes-page-001
-system-category: developer
+system-category: system
 user-keywords: []
 slug: recent-changes
 lastModified: '2025-10-20T10:47:21.921Z'
