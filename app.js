@@ -13,6 +13,7 @@ const fs = require('fs-extra');
 const logger = require('./src/utils/logger');
 const WikiEngine = require('./src/WikiEngine');
 const WikiRoutes = require('./src/routes/WikiRoutes');
+const InstallRoutes = require('./src/routes/InstallRoutes');
 
 // --- PID File Lock to Prevent Multiple Instances ---
 const PID_FILE = path.join(__dirname, '.amdwiki.pid');
@@ -101,6 +102,34 @@ checkAndCreatePidLock();
   app.use(express.static(path.join(__dirname, 'public')));
   app.use(cookieParser());
 
+  // Install check middleware - must be BEFORE session to allow static assets
+  const InstallService = require('./src/services/InstallService');
+  const installService = new InstallService(engine);
+
+  app.use(async (req, res, next) => {
+    // Skip check for install routes, static assets, and favicon
+    if (req.path.startsWith('/install') ||
+        req.path.startsWith('/css') ||
+        req.path.startsWith('/js') ||
+        req.path.startsWith('/images') ||
+        req.path === '/favicon.ico' ||
+        req.path === '/favicon.svg') {
+      return next();
+    }
+
+    // Check if installation is required
+    try {
+      const installRequired = await installService.isInstallRequired();
+      if (installRequired) {
+        return res.redirect('/install');
+      }
+    } catch (error) {
+      console.error('Error checking install status:', error);
+    }
+
+    next();
+  });
+
   // Setup express-session with file store
   const configManager = engine.getManager('ConfigurationManager');
   const sessionPath = path.join(__dirname, 'data', 'sessions');
@@ -165,6 +194,11 @@ checkAndCreatePidLock();
   });
 
   // 4. Register Custom Middleware and Routes
+
+  // Install routes (must be first, before WikiRoutes)
+  const installRoutes = new InstallRoutes(engine);
+  app.use('/install', installRoutes.getRouter());
+
   const wikiRoutes = new WikiRoutes(engine);
   wikiRoutes.registerRoutes(app); // This single file handles ALL routes, including auth.
 
