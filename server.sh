@@ -13,6 +13,10 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PID_FILE="$SCRIPT_DIR/.amdwiki.pid"
 
+# Generate unique PM2 app name from directory name
+DIR_NAME=$(basename "$SCRIPT_DIR")
+APP_NAME="amdWiki-$DIR_NAME"
+
 # Determine environment from second argument or NODE_ENV
 ENV_ARG="${2:-}"
 if [ -n "$ENV_ARG" ]; then
@@ -48,22 +52,22 @@ case "${1:-}" in
     ;;
 
   stop)
-    echo "🛑 Stopping amdWiki..."
-    npx --no -- pm2 stop amdWiki
+    echo "🛑 Stopping $APP_NAME..."
+    npx --no -- pm2 stop "$APP_NAME"
     ;;
 
   restart)
-    echo "🔄 Restarting amdWiki..."
+    echo "🔄 Restarting $APP_NAME..."
     if [ -n "$ENV_ARG" ]; then
       echo "   Environment: $ENV_NAME"
       npx --no -- pm2 restart ecosystem.config.js --env $ENV_NAME --update-env
     else
-      npx --no -- pm2 restart amdWiki
+      npx --no -- pm2 restart "$APP_NAME"
     fi
     ;;
 
   status)
-    npx --no -- pm2 list | grep amdWiki
+    npx --no -- pm2 list | grep "$APP_NAME"
     if [ -f "$PID_FILE" ]; then
       PID=$(cat "$PID_FILE")
       echo ""
@@ -72,7 +76,7 @@ case "${1:-}" in
     ;;
 
   logs)
-    npx --no -- pm2 logs amdWiki --lines ${2:-50}
+    npx --no -- pm2 logs "$APP_NAME" --lines ${2:-50}
     ;;
 
   env)

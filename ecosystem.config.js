@@ -1,6 +1,12 @@
+const path = require('path');
+
+// Generate unique app name based on directory
+const dirName = path.basename(__dirname);
+const appName = `amdWiki-${dirName}`;
+
 module.exports = {
   apps: [{
-    name: 'amdWiki',
+    name: appName,
     script: 'app.js',
     cwd: __dirname,
 
