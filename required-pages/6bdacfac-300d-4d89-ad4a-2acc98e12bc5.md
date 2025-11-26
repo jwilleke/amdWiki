@@ -1,7 +1,7 @@
 ---
 title: ImagePlugin
 uuid: 6bdacfac-300d-4d89-ad4a-2acc98e12bc5
-system-category: system
+system-category: documentation
 categories:
   - Documentation
 user-keywords:
