@@ -445,13 +445,7 @@
       "storageLocation": "required",
       "enabled": true
     },
-    "user": {
-      "label": "user",
-      "description": "User-generated content",
-      "default": false,
-      "storageLocation": "regular",
-      "enabled": true
-    },
+
     "developer": {
       "label": "developer",
       "description": "Developer documentation and technical note Only in GitHub",
