@@ -396,8 +396,9 @@ class MarkupParser extends BaseManager {
         monitoring: true,
         alertThresholds: {
           parseTime: 100, // ms
-          cacheHitRatio: 0.6, // 60%
-          errorRate: 0.05 // 5%
+          cacheHitRatio: 0.2, // 20%
+          errorRate: 0.05, // 5%
+          minCacheSamples: 50 // Minimum cache operations before alerting
         }
       }
     };
@@ -455,6 +456,7 @@ class MarkupParser extends BaseManager {
         this.config.performance.alertThresholds.parseTime = configManager.getProperty('amdwiki.markup.performance.alertThresholds.parseTime', this.config.performance.alertThresholds.parseTime);
         this.config.performance.alertThresholds.cacheHitRatio = configManager.getProperty('amdwiki.markup.performance.alertThresholds.cacheHitRatio', this.config.performance.alertThresholds.cacheHitRatio);
         this.config.performance.alertThresholds.errorRate = configManager.getProperty('amdwiki.markup.performance.alertThresholds.errorRate', this.config.performance.alertThresholds.errorRate);
+        this.config.performance.alertThresholds.minCacheSamples = configManager.getProperty('amdwiki.markup.performance.alertThresholds.minCacheSamples', this.config.performance.alertThresholds.minCacheSamples);
         
       } catch (err) {
         console.warn('⚠️  Failed to load MarkupParser config from ConfigurationManager, using defaults:', err.message);
@@ -2078,11 +2080,13 @@ class MarkupParser extends BaseManager {
       }
     }
 
-    // Check cache hit ratio
+    // Check cache hit ratio (only if we have enough samples)
     const totalCacheOps = this.metrics.cacheHits + this.metrics.cacheMisses;
-    if (totalCacheOps > 0) {
+    const minSamples = this.config.performance.alertThresholds.minCacheSamples || 50;
+
+    if (totalCacheOps >= minSamples) {
       const hitRatio = this.metrics.cacheHits / totalCacheOps;
-      
+
       if (hitRatio < this.config.performance.alertThresholds.cacheHitRatio) {
         this.generatePerformanceAlert('LOW_CACHE_HIT_RATIO', `Cache hit ratio ${(hitRatio * 100).toFixed(1)}% below threshold ${(this.config.performance.alertThresholds.cacheHitRatio * 100).toFixed(1)}%`);
       }
