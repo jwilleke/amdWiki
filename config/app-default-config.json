@@ -454,9 +454,9 @@
     },
     "developer": {
       "label": "developer",
-      "description": "Developer documentation and technical notes",
+      "description": "Developer documentation and technical note Only in GitHub",
       "default": false,
-      "storageLocation": "required",
+      "storageLocation": "github",
       "enabled": true
     }
   },
