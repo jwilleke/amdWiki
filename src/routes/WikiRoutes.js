@@ -3711,7 +3711,7 @@ class WikiRoutes {
 
       // Rebuild search index
       await searchManager.rebuildIndex();
-      const searchStats = await searchManager.getIndexStats();
+      const searchStats = await searchManager.getStatistics();
 
       // Rebuild link graph
       await renderingManager.rebuildLinkGraph();
@@ -3719,14 +3719,14 @@ class WikiRoutes {
       // Clear rendered page cache
       await cacheManager.clear('rendered-pages');
 
-      logger.info(`Reindex complete: ${pageCount} pages, ${searchStats.documentCount || 0} search documents`);
+      logger.info(`Reindex complete: ${pageCount} pages, ${searchStats.totalDocuments || 0} search documents`);
 
       res.json({
         success: true,
         message: 'Pages reindexed successfully',
         stats: {
           pageCount: pageCount,
-          searchDocuments: searchStats.documentCount || 0,
+          searchDocuments: searchStats.totalDocuments || 0,
           timestamp: new Date().toISOString()
         }
       });
