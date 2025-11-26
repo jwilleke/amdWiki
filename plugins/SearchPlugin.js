@@ -10,12 +10,20 @@
  * [{Search system-category='documentation'}]
  * [{Search user-keywords='economics'}]
  * [{Search query='manager' system-category='system' max=5}]
+ * [{Search system-category='system' format='count'}]
+ * [{Search system-category='documentation' format='titles'}]
+ * [{Search user-keywords='test' format='list'}]
  *
  * Parameters:
  * - query: Search text query (default: '*' for all pages)
  * - system-category: Filter by system category
  * - user-keywords: Filter by user keywords (OR logic for multiple values)
  * - max: Maximum number of results (default: 50)
+ * - format: Output format (default: 'table')
+ *   - 'table': Full table with page names and scores (default)
+ *   - 'count': Just the count of matching pages (e.g., "13")
+ *   - 'titles': Bullet list of page titles with links
+ *   - 'list': Simple list of page names (no links)
  *
  * Related: GitHub Issue #111
  */
@@ -27,7 +35,7 @@ const SearchPlugin = {
   name: 'SearchPlugin',
   description: 'JSPWiki-style search plugin for embedding search results in pages',
   author: 'amdWiki',
-  version: '1.0.0',
+  version: '2.0.0',
 
   /**
    * Execute the search plugin
@@ -50,12 +58,19 @@ const SearchPlugin = {
       const systemCategory = opts['system-category'];
       const userKeywords = opts['user-keywords'];
       const maxResults = parseInt(opts.max || '50', 10);
+      const format = (opts.format || 'table').toLowerCase();
 
-      console.log('[SearchPlugin] Parameters:', { query, systemCategory, userKeywords, maxResults });
+      console.log('[SearchPlugin] Parameters:', { query, systemCategory, userKeywords, maxResults, format });
 
       // Validate max parameter
       if (isNaN(maxResults) || maxResults < 1) {
         return '<p class="error">Invalid max parameter: must be a positive number</p>';
+      }
+
+      // Validate format parameter
+      const validFormats = ['table', 'count', 'titles', 'list'];
+      if (!validFormats.includes(format)) {
+        return `<p class="error">Invalid format parameter: must be one of ${validFormats.join(', ')}</p>`;
       }
 
       // Build search options
@@ -93,12 +108,13 @@ const SearchPlugin = {
         }
       }
 
-      // Format results as JSPWiki-style table
-      return formatResultsTable(results, {
+      // Format results based on format parameter
+      return formatResults(results, {
         query,
         systemCategory,
         userKeywords,
-        maxResults
+        maxResults,
+        format
       });
 
     } catch (error) {
@@ -131,6 +147,100 @@ function parseMultiValue(value) {
   return value.split('|')
     .map(v => v.trim())
     .filter(v => v.length > 0);
+}
+
+/**
+ * Format search results based on format type
+ * @param {Array<Object>} results - Search results
+ * @param {Object} options - Search options for display
+ * @returns {string} Formatted output
+ */
+function formatResults(results, options) {
+  switch (options.format) {
+    case 'count':
+      return formatCount(results, options);
+    case 'titles':
+      return formatTitles(results, options);
+    case 'list':
+      return formatList(results, options);
+    case 'table':
+    default:
+      return formatResultsTable(results, options);
+  }
+}
+
+/**
+ * Format search results as a simple count
+ * @param {Array<Object>} results - Search results
+ * @param {Object} options - Search options for display
+ * @returns {string} Count as text
+ */
+function formatCount(results, options) {
+  const count = results ? results.length : 0;
+  return `<span class="search-count">${count}</span>`;
+}
+
+/**
+ * Format search results as a bullet list of titles with links
+ * @param {Array<Object>} results - Search results
+ * @param {Object} options - Search options for display
+ * @returns {string} HTML bullet list
+ */
+function formatTitles(results, options) {
+  if (!results || results.length === 0) {
+    return `<div class="search-plugin">
+  <p class="info">No results found${options.query !== '*' ? ` for query: "${escapeHtml(options.query)}"` : ''}</p>
+</div>`;
+  }
+
+  let html = '<div class="search-plugin search-titles">\n';
+  html += '<ul>\n';
+
+  for (const result of results) {
+    const pageName = result.name || result.title || 'Unknown';
+    const title = result.title || result.name || 'Unknown';
+
+    html += `  <li><a class="wikipage" href="/wiki/${encodeURIComponent(pageName)}">${escapeHtml(title)}</a>`;
+
+    // Add metadata badges if available
+    if (result.metadata && result.metadata.systemCategory) {
+      html += ` <span class="badge badge-secondary">${escapeHtml(result.metadata.systemCategory)}</span>`;
+    }
+
+    html += '</li>\n';
+  }
+
+  html += '</ul>\n';
+  html += '</div>\n';
+
+  return html;
+}
+
+/**
+ * Format search results as a simple list of page names (no links)
+ * @param {Array<Object>} results - Search results
+ * @param {Object} options - Search options for display
+ * @returns {string} HTML list
+ */
+function formatList(results, options) {
+  if (!results || results.length === 0) {
+    return `<div class="search-plugin">
+  <p class="info">No results found${options.query !== '*' ? ` for query: "${escapeHtml(options.query)}"` : ''}</p>
+</div>`;
+  }
+
+  let html = '<div class="search-plugin search-list">\n';
+  html += '<ul>\n';
+
+  for (const result of results) {
+    const title = result.title || result.name || 'Unknown';
+    html += `  <li>${escapeHtml(title)}</li>\n`;
+  }
+
+  html += '</ul>\n';
+  html += '</div>\n';
+
+  return html;
 }
 
 /**
