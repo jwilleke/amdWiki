@@ -279,6 +279,9 @@
                             <button class="btn btn-outline-success btn-sm" onclick="clearCache()">
                                 <i class="fas fa-broom"></i> Clear Cache
                             </button>
+                            <button class="btn btn-outline-primary btn-sm mt-2" onclick="reindexPages()">
+                                <i class="fas fa-sync"></i> Reindex Pages
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -363,6 +366,55 @@ async function clearCache() {
         button.disabled = false;
         button.textContent = originalText;
         showMessage('Failed to clear cache: ' + error.message, 'error');
+    }
+}
+
+async function reindexPages() {
+    if (!confirm('Are you sure you want to reindex all pages? This will refresh the page cache and rebuild the search index.')) {
+        return;
+    }
+
+    const button = document.querySelector('button[onclick="reindexPages()"]');
+    const originalText = button.innerHTML;
+
+    try {
+        button.disabled = true;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Reindexing...';
+
+        const response = await fetch('/admin/reindex', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+            button.classList.remove('btn-outline-primary');
+            button.classList.add('btn-primary');
+            button.innerHTML = '<i class="fas fa-check"></i> Reindexed';
+
+            // Show success message with stats
+            const stats = result.stats || {};
+            const message = `Reindexing complete! Pages: ${stats.pageCount || 0}, Search docs: ${stats.searchDocuments || 0}`;
+            showMessage(message, 'success');
+
+            // Reset button after 3 seconds
+            setTimeout(() => {
+                button.disabled = false;
+                button.classList.remove('btn-primary');
+                button.classList.add('btn-outline-primary');
+                button.innerHTML = originalText;
+            }, 3000);
+        } else {
+            throw new Error(result.error || 'Failed to reindex pages');
+        }
+    } catch (error) {
+        console.error('Reindex error:', error);
+        button.disabled = false;
+        button.innerHTML = originalText;
+        showMessage('Failed to reindex: ' + error.message, 'error');
     }
 }
 

@@ -3680,6 +3680,66 @@ class WikiRoutes {
   }
 
   /**
+   * Admin reindex - Refresh page cache and rebuild search index
+   */
+  async adminReindex(req, res) {
+    try {
+      const userManager = this.engine.getManager("UserManager");
+      const currentUser = req.userContext;
+
+      if (
+        !currentUser ||
+        !(await userManager.hasPermission(currentUser.username, "admin:system"))
+      ) {
+        return res.status(403).json({
+          success: false,
+          error: "You do not have permission to reindex pages"
+        });
+      }
+
+      const logger = require('../utils/logger');
+      logger.info(`Page reindex requested by: ${currentUser.username}`);
+
+      const pageManager = this.engine.getManager("PageManager");
+      const searchManager = this.engine.getManager("SearchManager");
+      const renderingManager = this.engine.getManager("RenderingManager");
+      const cacheManager = this.engine.getManager("CacheManager");
+
+      // Refresh page list (reload from disk)
+      await pageManager.refreshPageList();
+      const pageCount = (await pageManager.getAllPages()).length;
+
+      // Rebuild search index
+      await searchManager.rebuildIndex();
+      const searchStats = await searchManager.getIndexStats();
+
+      // Rebuild link graph
+      await renderingManager.rebuildLinkGraph();
+
+      // Clear rendered page cache
+      await cacheManager.clear('rendered-pages');
+
+      logger.info(`Reindex complete: ${pageCount} pages, ${searchStats.documentCount || 0} search documents`);
+
+      res.json({
+        success: true,
+        message: 'Pages reindexed successfully',
+        stats: {
+          pageCount: pageCount,
+          searchDocuments: searchStats.documentCount || 0,
+          timestamp: new Date().toISOString()
+        }
+      });
+    } catch (err) {
+      console.error("Error reindexing pages:", err);
+      res.status(500).json({
+        success: false,
+        error: err.message || "Error reindexing pages"
+      });
+    }
+  }
+
+  /**
    * Admin logs page
    */
   async adminLogs(req, res) {
@@ -4211,6 +4271,7 @@ class WikiRoutes {
     app.get("/admin/settings", (req, res) => this.adminSettings(req, res));
     app.get("/admin/logs", (req, res) => this.adminLogs(req, res));
     app.post("/admin/restart", (req, res) => this.adminRestart(req, res));
+    app.post("/admin/reindex", (req, res) => this.adminReindex(req, res));
 
     // Image upload route with error handling
     app.post("/images/upload", (req, res) => {
