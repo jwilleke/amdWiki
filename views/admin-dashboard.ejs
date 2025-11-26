@@ -383,11 +383,16 @@ async function reindexPages() {
         button.disabled = true;
         button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Reindexing...';
 
+        // Get CSRF token from the page
+        const csrfToken = document.querySelector('input[name="_csrf"]')?.value || '<%= csrfToken %>';
+
         const response = await fetch('/admin/reindex', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
-            }
+                'Content-Type': 'application/json',
+                'CSRF-Token': csrfToken
+            },
+            body: JSON.stringify({ _csrf: csrfToken })
         });
 
         const result = await response.json();
