@@ -92,7 +92,6 @@ We’re now at the simplest, most powerful, fully standards-based (schema.org) p
 Ready to start coding the first add-on (`person-contacts`) this week?  
 Just say the word and I’ll drop the exact file-by-file code structure.
 
-
 ## Medici
 Medici is a fantastic find—it's a lightweight, double-entry accounting library for Node.js + Mongoose/MongoDB, designed exactly for managing financial journals, transactions, and balances with ACID compliance. In our context, it could supercharge the financial-ledger add-on, replacing or wrapping our SQLite setup with proper accounting rules (debits = credits, hierarchical accounts, voiding instead of deletes). This aligns perfectly with schema.org (we can map to FinancialProduct/Invoice via metadata) and keeps things standards-based.
 Since we're brainstorming, let's explore how Medici fits our ultra-minimal path: Drop-in integration via /addons/financial-ledger/, with MongoDB as the backend (easy to add via Docker or Atlas free tier). No full rewrite—just enhance the ledger for real-world business use (e.g., invoicing, expense tracking). BusinessHub can then query Medici for dashboards/reports.
@@ -163,7 +162,6 @@ const ldExport = { '@context': 'https://schema.org', '@type': 'FinancialProduct'
 
 - Database: Medici uses MongoDB collections (Medici_Journals, Medici_Transactions). For dev: Docker-compose with Mongo. Production: Atlas (free tier <512MB).
 - Fallback: Keep SQLite option via config flag—Medici for prod, SQLite for simple logging.
-
 
 ### Why Medici Elevates This to NextGen
 
