@@ -18,6 +18,7 @@
     "declarationMap": true,
     "removeComments": false,
     "importHelpers": true,
+    "downlevelIteration": true,
 
     /* Interop Constraints */
     "esModuleInterop": true,
