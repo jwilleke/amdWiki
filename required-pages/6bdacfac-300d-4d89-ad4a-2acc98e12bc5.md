@@ -10,6 +10,7 @@ user-keywords:
   - Media
 slug: imageplugin
 lastModified: '2025-10-19T09:58:00.000Z'
+editor: system
 ---
 # ImagePlugin
 

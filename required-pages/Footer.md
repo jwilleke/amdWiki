@@ -2,6 +2,7 @@
 title: Footer
 categories: [System, Documentation]
 user-keywords: []
+editor: system
 ---
 
 ---
