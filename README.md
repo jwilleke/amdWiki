@@ -28,6 +28,12 @@ A simple, file-based wiki application built with Node.js, Express, and Markdown 
   - Restore to any previous version
   - Automatic delta storage for efficiency
   - Full version metadata tracking
+- **🤖 Model Context Protocol (MCP) Server**: AI assistant integration for enhanced productivity
+  - Direct AI access to wiki content and metadata
+  - Full-text search with advanced filtering
+  - Metadata validation and generation
+  - 12 specialized tools for wiki operations
+  - Integration with Claude Desktop and Claude Code CLI
 
 📖 **Detailed technical documentation available in [docs/](docs/) folder.**
 
@@ -61,6 +67,34 @@ A simple, file-based wiki application built with Node.js, Express, and Markdown 
 - Follow the setup steps above.
 - Read [docs/development/CONTRIBUTING.md](docs/development/CONTRIBUTING.md) for coding standards, testing, and contribution guidelines.
 - Check [docs/CHANGELOG.md](docs/CHANGELOG.md) for version history and migration notes for breaking changes.
+
+### For AI Integration (MCP Server)
+
+amdWiki includes a Model Context Protocol (MCP) server for AI assistant integration:
+
+```bash
+# Build TypeScript
+npm run build
+
+# Start MCP server
+npm run mcp
+```
+
+**Integration with Claude Desktop:**
+Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
+```json
+{
+  "mcpServers": {
+    "amdwiki": {
+      "command": "node",
+      "args": ["/path/to/amdWiki/dist/mcp-server.js"],
+      "cwd": "/path/to/amdWiki"
+    }
+  }
+}
+```
+
+📖 **See [docs/MCP-SERVER.md](docs/MCP-SERVER.md) for complete documentation.**
 
 ## Configuration
 
