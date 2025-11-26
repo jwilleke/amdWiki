@@ -1,0 +1,63 @@
+{
+  "compilerOptions": {
+    /* Language and Environment */
+    "target": "ES2020",
+    "lib": ["ES2020"],
+    "module": "commonjs",
+    "moduleResolution": "node",
+
+    /* JavaScript Support - Allow JS files during migration */
+    "allowJs": true,
+    "checkJs": false,
+
+    /* Emit */
+    "outDir": "./dist",
+    "rootDir": "./",
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+    "removeComments": false,
+    "importHelpers": true,
+
+    /* Interop Constraints */
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+
+    /* Type Checking - Permissive during migration */
+    "strict": false,
+    "noImplicitAny": false,
+    "strictNullChecks": false,
+    "strictFunctionTypes": false,
+    "strictBindCallApply": false,
+    "strictPropertyInitialization": false,
+    "noImplicitThis": false,
+    "alwaysStrict": false,
+
+    /* Completeness */
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+
+    /* Advanced */
+    "resolveJsonModule": true,
+    "incremental": true,
+    "tsBuildInfoFile": "./.tsbuildinfo"
+  },
+  "include": [
+    "src/**/*",
+    "plugins/**/*",
+    "app.js"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.test.js",
+    "**/*.test.ts",
+    "**/__tests__/**"
+  ],
+  "ts-node": {
+    "compilerOptions": {
+      "module": "commonjs"
+    }
+  }
+}
