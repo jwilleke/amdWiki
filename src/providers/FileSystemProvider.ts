@@ -379,39 +379,21 @@ class FileSystemProvider extends BasePageProvider {
     }
 
     // Determine which directory to save to based on system-category
-    const configManager = this.engine.getManager('ConfigurationManager');
-    const systemCategory = metadata['system-category'] || (metadata as any).systemCategory || 'General';
+    // Use ValidationManager to get storage location from config
+    const systemCategory = metadata['system-category'] || (metadata as any).systemCategory || 'general';
 
-    let targetDirectory: string;
-    if (configManager) {
-      const systemCategoriesConfig = configManager.getProperty('amdwiki.system-category', null);
+    const validationManager = this.engine.getManager('ValidationManager');
+    const storageLocation = validationManager
+      ? validationManager.getCategoryStorageLocation(systemCategory)
+      : 'regular'; // fallback if ValidationManager not available
 
-      if (systemCategoriesConfig) {
-        // Find the category configuration by label (case-insensitive)
-        let storageLocation = 'regular'; // default
-        for (const [key, config] of Object.entries(systemCategoriesConfig)) {
-          if ((config as any).label?.toLowerCase() === systemCategory.toLowerCase()) {
-            storageLocation = (config as any).storageLocation || 'regular';
-            break;
-          }
-        }
-        targetDirectory = storageLocation === 'required' ? this.requiredPagesDirectory : this.pagesDirectory;
-      } else {
-        // Fallback to hardcoded logic if config not available
-        const systemCategoryLower = systemCategory.toLowerCase();
-        const isRequiredPage = systemCategoryLower === 'system' ||
-                               systemCategoryLower === 'documentation' ||
-                               systemCategoryLower === 'test';
-        targetDirectory = isRequiredPage ? this.requiredPagesDirectory : this.pagesDirectory;
-      }
-    } else {
-      // Fallback if ConfigurationManager not available
-      const systemCategoryLower = systemCategory.toLowerCase();
-      const isRequiredPage = systemCategoryLower === 'system' ||
-                             systemCategoryLower === 'documentation' ||
-                             systemCategoryLower === 'test';
-      targetDirectory = isRequiredPage ? this.requiredPagesDirectory : this.pagesDirectory;
+    // Handle github storage location - these pages should not be saved to wiki
+    if (storageLocation === 'github') {
+      throw new Error(`Cannot save page with system-category '${systemCategory}' - pages with storageLocation 'github' are not stored in the wiki (docs/ folder only)`);
     }
+
+    // Determine target directory based on storage location
+    const targetDirectory = storageLocation === 'required' ? this.requiredPagesDirectory : this.pagesDirectory;
 
     const filePath = path.join(targetDirectory, `${uuid}.md`);
     await fs.ensureDir(path.dirname(filePath));
