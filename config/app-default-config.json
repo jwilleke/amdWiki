@@ -440,7 +440,7 @@
     },
     "documentation": {
       "label": "documentation",
-      "description": "User and technical documentation",
+      "description": "End-User documentation",
       "default": false,
       "storageLocation": "required",
       "enabled": true
