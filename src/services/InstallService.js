@@ -85,6 +85,105 @@ class InstallService {
   }
 
   /**
+   * Detect if only pages folder is missing
+   *
+   * Returns true if installation is otherwise complete but pages folder is missing/empty
+   *
+   * @returns {Promise<Object>} Result with missingPagesOnly flag and details
+   */
+  async detectMissingPagesOnly() {
+    const completed = this.configManager.getProperty('amdwiki.install.completed', false);
+
+    // Only applicable if installation is completed
+    if (!completed) {
+      return { missingPagesOnly: false };
+    }
+
+    const pagesDir = this.configManager.getProperty('amdwiki.page.provider.filesystem.storagedir', './pages');
+    const pagesExist = await this.#hasPagesInDirectory(pagesDir);
+
+    // Check if pages directory exists but is empty
+    let pagesDirExists = false;
+    try {
+      const stats = await fs.stat(pagesDir);
+      pagesDirExists = stats.isDirectory();
+    } catch (error) {
+      pagesDirExists = false;
+    }
+
+    return {
+      missingPagesOnly: !pagesExist,
+      pagesDirExists,
+      pagesDir
+    };
+  }
+
+  /**
+   * Create pages folder and copy required pages
+   *
+   * Copies pages from required-pages directory to the pages directory
+   *
+   * @async
+   * @returns {Promise<Object>} Result with success status and number of pages copied
+   */
+  async createPagesFolder() {
+    try {
+      const pagesDir = this.configManager.getProperty(
+        'amdwiki.page.provider.filesystem.storagedir',
+        './pages'
+      );
+
+      const requiredPagesDir = this.configManager.getProperty(
+        'amdwiki.page.provider.filesystem.requiredpagesdir',
+        './required-pages'
+      );
+
+      // Create pages directory if it doesn't exist
+      await fs.ensureDir(pagesDir);
+
+      // Check if required-pages directory exists
+      const requiredPagesExists = await fs.pathExists(requiredPagesDir);
+      if (!requiredPagesExists) {
+        return {
+          success: false,
+          error: `Required pages directory not found: ${requiredPagesDir}`,
+          copiedCount: 0
+        };
+      }
+
+      // Copy all .md files from required-pages to pages
+      const files = await fs.readdir(requiredPagesDir);
+      const mdFiles = files.filter(f => f.endsWith('.md'));
+
+      let copiedCount = 0;
+      for (const file of mdFiles) {
+        const sourcePath = path.join(requiredPagesDir, file);
+        const destPath = path.join(pagesDir, file);
+
+        // Don't overwrite existing pages
+        const exists = await fs.pathExists(destPath);
+        if (!exists) {
+          await fs.copy(sourcePath, destPath);
+          copiedCount++;
+        }
+      }
+
+      return {
+        success: true,
+        message: `Pages folder created and ${copiedCount} pages copied`,
+        copiedCount,
+        pagesDir
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: `Failed to create pages folder: ${error.message}`,
+        copiedCount: 0
+      };
+    }
+  }
+
+  /**
    * Check if pages exist in directory
    *
    * @private

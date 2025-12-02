@@ -151,13 +151,45 @@ class InstallRoutes {
       try {
         const partialState = await this.installService.detectPartialInstallation();
         const installRequired = await this.installService.isInstallRequired();
+        const missingPages = await this.installService.detectMissingPagesOnly();
 
         res.json({
           installRequired,
-          partialInstallation: partialState
+          partialInstallation: partialState,
+          missingPagesOnly: missingPages
         });
       } catch (error) {
         res.status(500).json({ error: error.message });
+      }
+    });
+
+    // POST /install/create-pages - Create pages folder and copy required pages
+    this.router.post('/create-pages', async (req, res) => {
+      try {
+        // Check if only pages are missing
+        const missingPages = await this.installService.detectMissingPagesOnly();
+
+        if (!missingPages.missingPagesOnly) {
+          return res.status(400).json({
+            success: false,
+            error: 'Pages folder already exists or installation is not complete'
+          });
+        }
+
+        // Create pages folder and copy required pages
+        const result = await this.installService.createPagesFolder();
+
+        if (!result.success) {
+          return res.status(500).json(result);
+        }
+
+        res.json(result);
+      } catch (error) {
+        console.error('Error creating pages folder:', error);
+        res.status(500).json({
+          success: false,
+          error: `Failed to create pages folder: ${error.message}`
+        });
       }
     });
   }
