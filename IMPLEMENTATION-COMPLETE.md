@@ -142,13 +142,16 @@ Subsequent visits bypass install
 ### Missing Pages Detection
 
 **InstallService Methods:**
+
 - `detectMissingPagesOnly()` - Detects when installation is complete but pages folder is missing/empty
 - `createPagesFolder()` - Creates pages folder and copies all .md files from required-pages/
 
 **Route Endpoint:**
+
 - `POST /install/create-pages` - API to trigger pages folder creation with validation
 
 **Use Cases:**
+
 - Pages folder accidentally deleted
 - Disaster recovery without full reinstall
 - Graceful handling of file system issues
