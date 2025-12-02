@@ -7,28 +7,42 @@ Successfully implemented a complete JSPWiki-style first-run installation wizard 
 ## What Was Built
 
 ### 1. Configuration Infrastructure
+
 **File:** `config/app-default-config.json`
+
 - Added 13 install configuration properties
 - Installation tracking
 - Organization metadata fields
 
 ### 2. Installation Service
-**File:** `src/services/InstallService.js` (400+ lines)
+
+**File:** `src/services/InstallService.js` (500+ lines)
+
 - Form data validation
 - Config file generation
 - Organization JSON creation (Schema.org compliant)
 - Admin user creation with secure password hashing
 - Startup pages copying mechanism
 - Installation completion tracking
+- Partial installation detection
+- Missing pages folder detection (NEW)
+- Create and populate pages folder (NEW)
 
 ### 3. Install Routes
-**File:** `src/routes/InstallRoutes.js` (140+ lines)
+
+**File:** `src/routes/InstallRoutes.js` (180+ lines)
+
 - GET /install - Display installation form
 - POST /install - Process installation
+- POST /install/reset - Reset partial installation
+- GET /install/status - Check installation status (API)
+- POST /install/create-pages - Create missing pages folder (NEW)
 - Protection against reinstallation
 
 ### 4. User Interface
+
 **File:** `views/install.ejs` (260+ lines)
+
 - Professional Bootstrap 5 responsive design
 - Required fields: app name, base URL, admin credentials, organization info
 - Optional advanced settings: address, founding date, session secret
@@ -36,22 +50,28 @@ Successfully implemented a complete JSPWiki-style first-run installation wizard 
 - Startup pages checkbox
 
 **File:** `views/install-success.ejs` (100+ lines)
+
 - Success confirmation page
 - Installation summary
 - Next steps guidance
 
 ### 5. Integration
+
 **File:** `app.js`
+
 - Import InstallRoutes
 - Install check middleware (before session)
 - Route registration (before WikiRoutes)
 
 ### 6. Testing Tools
+
 **Files:** `scripts/test-install.sh`, `scripts/restore-install-test.sh`
+
 - Safe backup and restore for testing
 - Simulates first-run environment
 
 ### 7. Documentation
+
 - `docs/developer/INSTALL-INTEGRATION.md` - Integration guide
 - `docs/developer/INSTALL-TESTING.md` - Testing guide (385 lines)
 - `INSTALL-SYSTEM-SUMMARY.md` - Feature summary
@@ -87,6 +107,7 @@ Subsequent visits bypass install
 ## Files Created/Modified
 
 ### Created (9 files)
+
 1. `src/services/InstallService.js`
 2. `src/routes/InstallRoutes.js`
 3. `views/install.ejs`
@@ -98,10 +119,12 @@ Subsequent visits bypass install
 9. `INSTALL-SYSTEM-SUMMARY.md`
 
 ### Modified (2 files)
+
 1. `config/app-default-config.json` - Added install properties
 2. `app.js` - Integrated install system
 
 ### Previously Created (from earlier work)
+
 1. `required-pages/README.md` - Explains startup pages
 2. `docs/developer/` - 24 developer docs moved here
 3. `MIGRATION-REPORT.md` - Developer docs migration
@@ -114,6 +137,22 @@ Subsequent visits bypass install
 3. **Integration**: app.js changes (b06c215)
 4. **Documentation**: Testing guide (8b2347a)
 
+## Recovery Features (New)
+
+### Missing Pages Detection
+
+**InstallService Methods:**
+- `detectMissingPagesOnly()` - Detects when installation is complete but pages folder is missing/empty
+- `createPagesFolder()` - Creates pages folder and copies all .md files from required-pages/
+
+**Route Endpoint:**
+- `POST /install/create-pages` - API to trigger pages folder creation with validation
+
+**Use Cases:**
+- Pages folder accidentally deleted
+- Disaster recovery without full reinstall
+- Graceful handling of file system issues
+
 ## Benefits Achieved
 
 ✅ **Professional first-run experience** - JSPWiki-style wizard
@@ -124,10 +163,12 @@ Subsequent visits bypass install
 ✅ **Testable** - Safe test scripts, comprehensive guide
 ✅ **Well documented** - Integration and testing guides
 ✅ **Startup pages architecture** - Clear separation (issue #153)
+✅ **Recovery capabilities** - Graceful missing pages restoration (NEW)
 
 ## Testing
 
 **Quick test:**
+
 ```bash
 ./scripts/test-install.sh
 ./server.sh start dev
@@ -140,16 +181,19 @@ Subsequent visits bypass install
 ## Issue #153 Resolution
 
 ✅ **Separated framework from content:**
+
 - Developer docs → `docs/developer/` (GitHub)
 - Startup pages → `required-pages/` (copied on install)
 - User content → `pages/` (gitignored)
 
 ✅ **Established "startup pages" terminology:**
+
 - Not "templates" or "required pages"
 - Pages copied to initialize wiki
 - 15 system + 18 documentation = 33 total
 
 ✅ **First-run setup implemented:**
+
 - Detects empty pages/ and no admin
 - Prompts for configuration
 - Copies startup pages automatically
@@ -175,9 +219,9 @@ Subsequent visits bypass install
 
 ## References
 
-- Issue #153: https://github.com/jwilleke/amdWiki/issues/153
-- JSPWiki Install.jsp: https://github.com/apache/jspwiki/blob/master/jspwiki-war/src/main/webapp/Install.jsp
-- Schema.org Organization: https://schema.org/Organization
+- Issue #153: <https://github.com/jwilleke/amdWiki/issues/153>
+- JSPWiki Install.jsp: <https://github.com/apache/jspwiki/blob/master/jspwiki-war/src/main/webapp/Install.jsp>
+- Schema.org Organization: <https://schema.org/Organization>
 
 ---
 
