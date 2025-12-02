@@ -18,10 +18,8 @@ on:
         default: false
 
 env:
-  # Default values from .env.example
   DOCKER_IMAGE_NAME: amdwiki
-  DOCKER_NODE_VERSION: 20
-  # Registry configuration (update these)
+  DOCKER_NODE_VERSION: '20'
   DOCKER_REGISTRY: ghcr.io
   REGISTRY_USER: ${{ github.repository_owner }}
 
@@ -101,7 +99,8 @@ jobs:
         if: github.event_name != 'pull_request'
 
       - name: Image digest
-        run: echo "Image digest: ${{ steps.meta.outputs.digest }}"
+        run: |
+          echo "Image digest: ${{ steps.meta.outputs.digest }}"
 
   test:
     name: Test Docker Image
