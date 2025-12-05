@@ -17,6 +17,31 @@ Subject: [Brief description]
 
 ---
 
+## 2025-12-05-04
+
+**Agent:** Claude
+
+**Subject:** Fix installation flow - create default admin account early
+
+- **Key Decision:** Admin account with default password (admin123) should exist from source code initialization. Install form allows ONLY password change, NOT username change.
+- **Current Issue:** Admin needs to exist from start with fixed password (admin123), form should allow changing password during installation
+- **Requirements:**
+  1. Admin account "admin" created automatically on system initialization (not during install)
+  2. Default password: "admin123" (from config: amdwiki.user.security.defaultpassword)
+  3. Install form shows default credentials for reference
+  4. **Admin username is NOT editable in install form** - fixed to "admin"
+  5. **Only admin password is changeable** during installation
+  6. processInstallation() updates admin password (not creates new user)
+- **Work Needed:** 
+  1. Add admin creation to system initialization (WikiEngine or app.js startup)
+  2. Update install form to remove adminUsername field, show "admin" as fixed
+  3. Update processInstallation() to updateUser password instead of createUser
+  4. Update InstallService to handle password-only updates
+- **Files to Modify:** src/services/InstallService.js, views/install.ejs, app.js or WikiEngine
+- **Status:** READY TO IMPLEMENT
+
+---
+
 ## 2025-12-05-03
 
 **Agent:** Claude
