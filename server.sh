@@ -45,6 +45,18 @@ fi
 
 case "${1:-}" in
   start)
+    # Check if server is already running
+    if [ -f "$PID_FILE" ]; then
+      PID=$(cat "$PID_FILE")
+      if ps -p "$PID" > /dev/null 2>&1; then
+        echo "⚠️  Server already running with PID $PID"
+        echo "   Use './server.sh stop' to stop it first, or './server.sh unlock' to force"
+        exit 1
+      else
+        echo "🧹 Cleaning up stale PID file..."
+        rm -f "$PID_FILE"
+      fi
+    fi
     echo "🚀 Starting amdWiki in $ENV_NAME mode..."
     echo "   Config: config/app-$ENV_NAME-config.json"
     echo "   Logs: ./logs/"
