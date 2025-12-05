@@ -417,11 +417,22 @@ class InstallService {
   async #writeCustomConfig(data) {
     const customConfigPath = path.join(__dirname, '../../config/app-custom-config.json');
 
-    const customConfig = {
+    // Read existing custom config or start fresh
+    let customConfig = {};
+    if (await fs.pathExists(customConfigPath)) {
+      try {
+        customConfig = await fs.readJson(customConfigPath);
+      } catch (error) {
+        customConfig = {};
+      }
+    }
+
+    // Merge installation data using ConfigurationManager's merge strategy
+    const installationProperties = {
       'amdwiki.applicationName': data.applicationName,
       'amdwiki.baseURL': data.baseURL,
       'amdwiki.session.secret': data.sessionSecret || crypto.randomBytes(32).toString('hex'),
-      'amdwiki.install.completed': false, // Will be set to true at the end
+      'amdwiki.install.completed': false,
       'amdwiki.install.organization.name': data.orgName,
       'amdwiki.install.organization.legalName': data.orgLegalName || '',
       'amdwiki.install.organization.description': data.orgDescription,
@@ -432,7 +443,14 @@ class InstallService {
       'amdwiki.install.organization.addressCountry': data.orgAddressCountry || ''
     };
 
+    // Merge with existing config
+    Object.assign(customConfig, installationProperties);
+
+    // Write merged config back to file
     await fs.writeJson(customConfigPath, customConfig, { spaces: 2 });
+
+    // Reload ConfigurationManager to pick up new values
+    await this.configManager.reload();
   }
 
   /**
@@ -583,9 +601,18 @@ class InstallService {
    */
   async #markInstallationComplete() {
     const customConfigPath = path.join(__dirname, '../../config/app-custom-config.json');
+    
+    // Read current config
     const config = await fs.readJson(customConfigPath);
+    
+    // Set the completion flag
     config['amdwiki.install.completed'] = true;
+    
+    // Write updated config
     await fs.writeJson(customConfigPath, config, { spaces: 2 });
+    
+    // Reload ConfigurationManager so the flag is available
+    await this.configManager.reload();
   }
 
   /**
