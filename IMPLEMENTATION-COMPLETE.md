@@ -237,6 +237,8 @@ Subsequent visits bypass install
 ✅ Configuration saved correctly
 ✅ Admin user created with password hashing
 ✅ Startup pages copied on request
+✅ Admin username/email display as read-only (cannot be edited in form)
+✅ Server properly managed via PM2 with `./server.sh`
 
 ### Current Behavior
 
@@ -251,9 +253,24 @@ When a partial installation is detected (config written but not completed):
 
 **This is intentional for safety** - prevents accidental overwrites of partial setups.
 
+### Admin Account Implementation
+
+- **Username:** Fixed to "admin" (hardcoded in route, display-only in form)
+- **Email:** Fixed to "admin@localhost" (hardcoded in route, display-only in form)
+- **Password:** User-changeable during installation (must be >= 8 characters)
+- **Form Display:** Admin fields shown as styled divs (not inputs), preventing accidental form submission
+
+### Server Management
+
+- **Process Manager:** PM2 with centralized management via `./server.sh`
+- **PID Files:** Single `.amdwiki.pid` file managed by server.sh
+- **Start Command:** `./server.sh start [env]` (dev/prod)
+- **Status Check:** `./server.sh status` shows PM2 process list + PID lock
+- **Logs:** `./server.sh logs [n]` views PM2 logs
+
 ---
 
 **Status:** ✅ COMPLETE and READY FOR TESTING
 
 **Date:** 2025-11-25
-**Updated:** 2025-12-05
+**Updated:** 2025-12-05 (PM2 cleanup & verification complete)
