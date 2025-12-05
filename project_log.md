@@ -17,6 +17,27 @@ Subject: [Brief description]
 
 ---
 
+## 2025-12-05-03
+
+**Agent:** Claude
+
+**Subject:** Fixed installation loop caused by UserManager cache (RESOLVED)
+
+- **Key Decision:** Clear UserManager provider cache after reset
+- **Current Issue:** RESOLVED - Installation was looping because UserManager cached user data in memory
+- **Root Cause:** When reset deleted admin user from users.json, UserManager's Map cache still reported admin existing, causing detectPartialInstallation() to keep returning isPartial=true
+- **Work Done:** Added userManager.provider.loadUsers() call after reset steps to reload cached data from disk, verified syntax, tested fix
+- **Commits:** 8b060c3 (fix: Clear UserManager cache after installation reset)
+- **Files Modified:** src/services/InstallService.js
+
+**Solution Impact:** 
+- Reset now properly clears all state including cached user data
+- detectPartialInstallation() returns correct state after reset
+- Installation form can be submitted after reset succeeds
+- Installation loop fixed ✅
+
+---
+
 ## 2025-12-05-02
 
 **Agent:** Claude
