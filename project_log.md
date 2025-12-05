@@ -23,21 +23,25 @@ Subject: [Brief description]
 
 **Subject:** Fix installation flow - create default admin account early
 
-- **Key Decision:** Admin account with default password (admin123) should exist from source code initialization. Install form allows ONLY password change, NOT username change.
+- **Key Decision:** Admin account with default password (admin123) should exist from source code initialization. Install form allows ONLY password change, NOT username or email change.
 - **Current Issue:** Admin needs to exist from start with fixed password (admin123), form should allow changing password during installation
 - **Requirements:**
   1. Admin account "admin" created automatically on system initialization (not during install)
   2. Default password: "admin123" (from config: amdwiki.user.security.defaultpassword)
-  3. Install form shows default credentials for reference
-  4. **Admin username is NOT editable in install form** - fixed to "admin"
-  5. **Only admin password is changeable** during installation
-  6. processInstallation() updates admin password (not creates new user)
+  3. Admin email: **"admin@localhost"** (FIXED, not editable) - fallback for OIDC users
+  4. Install form shows: username "admin" (fixed), email "admin@localhost" (fixed), password (changeable)
+  5. **Admin username is NOT editable in install form** - fixed to "admin"
+  6. **Admin email is NOT editable in install form** - fixed to "admin@localhost"
+  7. **Only admin password is changeable** during installation
+  8. Both users/users.json and users/persons.json must reflect this account
+  9. processInstallation() updates ONLY admin password (not creates new user)
 - **Work Needed:** 
   1. Add admin creation to system initialization (WikiEngine or app.js startup)
-  2. Update install form to remove adminUsername field, show "admin" as fixed
+  2. Update install form: remove adminUsername and adminEmail fields, show "admin"/"admin@localhost" as fixed text
   3. Update processInstallation() to updateUser password instead of createUser
   4. Update InstallService to handle password-only updates
-- **Files to Modify:** src/services/InstallService.js, views/install.ejs, app.js or WikiEngine
+  5. Ensure both users.json and persons.json are updated with admin account
+- **Files to Modify:** src/services/InstallService.js, views/install.ejs, app.js or WikiEngine, likely UserManager
 - **Status:** READY TO IMPLEMENT
 
 ---
