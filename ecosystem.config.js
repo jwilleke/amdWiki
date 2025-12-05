@@ -40,9 +40,6 @@ module.exports = {
     // Error handling
     min_uptime: '10s',
     max_restarts: 10,
-    restart_delay: 4000,
-
-    // PID file
-    pid_file: './.amdwiki.pid'
+    restart_delay: 4000
   }]
 };

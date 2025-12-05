@@ -57,15 +57,28 @@ case "${1:-}" in
         rm -f "$PID_FILE"
       fi
     fi
+    
+    # Clean up any PM2-created PID files (.amdwiki-*.pid)
+    rm -f "$SCRIPT_DIR"/.amdwiki-*.pid
+    
     echo "🚀 Starting amdWiki in $ENV_NAME mode..."
     echo "   Config: config/app-$ENV_NAME-config.json"
     echo "   Logs: ./logs/"
     npx --no -- npx --no -- pm2 start ecosystem.config.js --env $ENV_NAME
+    
+    # Write our own PID file with the PM2 process PID
+    sleep 1
+    PM2_PID=$(npx pm2 pid "$APP_NAME" 2>/dev/null | grep -oE '[0-9]+' | head -1)
+    if [ -n "$PM2_PID" ]; then
+      echo "$PM2_PID" > "$PID_FILE"
+    fi
     ;;
 
   stop)
     echo "🛑 Stopping $APP_NAME..."
     npx --no -- pm2 stop "$APP_NAME"
+    # Clean up PID files
+    rm -f "$PID_FILE" "$SCRIPT_DIR"/.amdwiki-*.pid
     ;;
 
   restart)
