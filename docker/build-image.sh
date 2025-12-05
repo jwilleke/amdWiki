@@ -39,6 +39,12 @@ BUILD_CMD="docker build"
 BUILD_CMD="$BUILD_CMD -t $FULL_IMAGE"
 BUILD_CMD="$BUILD_CMD --build-arg NODE_VERSION=$DOCKER_NODE_VERSION"
 
+# Validate Docker is running
+if ! docker info >/dev/null 2>&1; then
+    echo "❌ Error: Docker daemon is not running or not accessible"
+    exit 1
+fi
+
 # Add platform if specified
 if [ -n "$DOCKER_BUILD_PLATFORM" ]; then
     BUILD_CMD="$BUILD_CMD --platform $DOCKER_BUILD_PLATFORM"
@@ -58,9 +64,16 @@ BUILD_CMD="$BUILD_CMD -f $DOCKERFILE_PATH $BUILD_CONTEXT"
 
 echo "Command: $BUILD_CMD"
 echo "============================================"
+echo ""
 
 # Execute build
-eval $BUILD_CMD
+if eval $BUILD_CMD; then
+    BUILD_STATUS=0
+else
+    BUILD_STATUS=$?
+    echo "❌ Build failed with exit code $BUILD_STATUS"
+    exit $BUILD_STATUS
+fi
 
 echo "============================================"
 echo "Build Complete!"

@@ -1,8 +1,11 @@
 # amdWiki Docker Image
 # JSPWiki-style wiki with advanced search capabilities
 
+# Build arguments
+ARG NODE_VERSION=20
+
 # Use Node.js LTS (Long Term Support) version
-FROM node:20-alpine
+FROM node:${NODE_VERSION}-alpine
 
 # Set working directory
 WORKDIR /app

@@ -22,13 +22,37 @@ echo ""
 echo "📍 Working directory: $(pwd)"
 echo ""
 
-# 1. Create required directories
-echo "📁 Creating required directories..."
-mkdir -p pages data logs sessions search-index work
-echo "   ✅ Created: pages, data, logs, sessions, search-index, work"
+# 1. Validate Docker installation first
+echo "🔍 Checking Docker installation..."
+if ! command -v docker &> /dev/null; then
+    echo "   ❌ Docker is not installed"
+    echo "   Please install Docker: https://docs.docker.com/get-docker/"
+    exit 1
+fi
+
+if ! docker info >/dev/null 2>&1; then
+    echo "   ❌ Docker daemon is not running"
+    echo "   Please start Docker and try again"
+    exit 1
+fi
+
+if ! command -v docker-compose &> /dev/null && ! docker compose version &> /dev/null 2>&1; then
+    echo "   ⚠️  Docker Compose is not installed"
+    echo "   Please install Docker Compose: https://docs.docker.com/compose/install/"
+    exit 1
+fi
+
+echo "   ✅ Docker is installed and running"
 echo ""
 
-# 2. Create .env file with current user's UID/GID
+# 2. Create required directories with proper permissions
+echo "📁 Creating required directories..."
+mkdir -p pages data logs sessions search-index work required-pages
+chmod 755 pages data logs sessions search-index work required-pages
+echo "   ✅ Created: pages, data, logs, sessions, search-index, work, required-pages"
+echo ""
+
+# 3. Create .env file with current user's UID/GID
 if [ -f docker/.env ]; then
     echo "⚠️  docker/.env file already exists"
     read -p "   Do you want to overwrite it? (y/N): " -n 1 -r
@@ -50,6 +74,12 @@ if [ ! -f docker/.env ]; then
     # Get current user's UID and GID
     CURRENT_UID=$(id -u)
     CURRENT_GID=$(id -g)
+    
+    # Auto-detect platform-specific defaults if needed
+    if [ "$CURRENT_UID" -eq 0 ]; then
+        echo "   ⚠️  Warning: Running as root (UID 0)"
+        echo "   Recommended: Use a non-root user for better security"
+    fi
 
     # Check for available port starting from 3000
     echo "🔍 Checking port availability..."
@@ -83,7 +113,7 @@ if [ ! -f docker/.env ]; then
     echo ""
 fi
 
-# 3. Optional: Create production config
+# 4. Optional: Create production config
 if [ ! -f config/app-production-config.json ]; then
     echo "📋 Production configuration"
     read -p "   Create production config from example? (y/N): " -n 1 -r
@@ -100,38 +130,22 @@ if [ ! -f config/app-production-config.json ]; then
     echo ""
 fi
 
-# 4. Check Docker and Docker Compose
-echo "🔍 Checking Docker installation..."
-if ! command -v docker &> /dev/null; then
-    echo "   ❌ Docker is not installed"
-    echo "   Please install Docker: https://docs.docker.com/get-docker/"
-    exit 1
-fi
-
-if ! command -v docker-compose &> /dev/null && ! docker compose version &> /dev/null; then
-    echo "   ⚠️  Docker Compose is not installed"
-    echo "   Please install Docker Compose: https://docs.docker.com/compose/install/"
-    exit 1
-fi
-
-echo "   ✅ Docker is installed"
-echo ""
-
 # 5. Summary and next steps
 echo "✅ Setup complete!"
 echo ""
 echo "📝 Configuration summary:"
-echo "   - Directories: pages, data, logs, sessions, search-index, work"
-echo "   - System pages: required-pages (from repository)"
+echo "   - Directories: pages, data, logs, sessions, search-index, work, required-pages"
 echo "   - User permissions: UID=$(grep '^UID=' docker/.env | cut -d= -f2), GID=$(grep '^GID=' docker/.env | cut -d= -f2)"
 echo "   - Host port: $(grep '^HOST_PORT=' docker/.env | cut -d= -f2)"
-echo "   - Environment: $(grep '^NODE_ENV=' docker/.env | cut -d= -f2)"
+echo "   - Node environment: $(grep '^NODE_ENV=' docker/.env | cut -d= -f2)"
+echo "   - Docker status: ✅ Installed and running"
 echo ""
 echo "🚀 Next steps:"
 echo "   1. (Optional) Edit docker/.env to change port or other settings"
 echo "   2. (Optional) Edit config/app-production-config.json with your settings"
-echo "   3. Start amdWiki: cd docker && docker-compose up -d"
-echo "   4. View logs: cd docker && docker-compose logs -f"
-echo "   5. Access wiki: http://localhost:$(grep '^HOST_PORT=' docker/.env | cut -d= -f2)"
+echo "   3. Build image: cd docker && bash build-image.sh"
+echo "   4. Start amdWiki: cd docker && docker-compose up -d"
+echo "   5. View logs: cd docker && docker-compose logs -f"
+echo "   6. Access wiki: http://localhost:$(grep '^HOST_PORT=' docker/.env | cut -d= -f2)"
 echo ""
 echo "📚 For more information, see docker/DOCKER.md"
