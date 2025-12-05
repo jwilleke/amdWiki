@@ -143,15 +143,17 @@
 
         <div class="row">
           <div class="col-md-6 mb-3">
-            <label for="adminUsername" class="form-label">Username</label>
-            <input type="text" class="form-control" id="adminUsername" 
-                   value="admin" readonly style="background-color: #f8f9fa;">
+            <label class="form-label">Username</label>
+            <div class="form-control" style="background-color: #f8f9fa; padding: 0.375rem 0.75rem; border: 1px solid #dee2e6; border-radius: 0.25rem;">
+              <strong>admin</strong>
+            </div>
             <div class="help-text">Fixed system account (cannot be changed)</div>
           </div>
           <div class="col-md-6 mb-3">
-            <label for="adminEmail" class="form-label">Email</label>
-            <input type="email" class="form-control" id="adminEmail" 
-                   value="admin@localhost" readonly style="background-color: #f8f9fa;">
+            <label class="form-label">Email</label>
+            <div class="form-control" style="background-color: #f8f9fa; padding: 0.375rem 0.75rem; border: 1px solid #dee2e6; border-radius: 0.25rem;">
+              <strong>admin@localhost</strong>
+            </div>
             <div class="help-text">Fixed fallback account for OIDC (cannot be changed)</div>
           </div>
         </div>
@@ -169,10 +171,6 @@
                    name="adminPasswordConfirm" required>
           </div>
         </div>
-
-        <!-- Organization Information -->
-        <div class="section-header">
-          <i class="bi bi-building"></i> Organization Information
         </div>
 
         <div class="mb-3">
