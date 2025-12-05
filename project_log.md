@@ -17,6 +17,20 @@ Subject: [Brief description]
 
 ---
 
+## 2025-12-05-01
+
+**Agent:** Claude
+
+**Subject:** Docker build process fixes and validation improvements
+
+- **Key Decision:** Fix hardcoded Node version in Dockerfile, add validation to build and setup scripts
+- **Current Issue:** None
+- **Work Done:** Added ARG NODE_VERSION to Dockerfile for flexible builds, fixed build-image.sh to pass correct NODE_VERSION arg, added Docker daemon validation in build-image.sh with error handling, reordered docker-setup.sh to validate Docker before operations, set proper permissions (755) on all directories during setup, added root user warning, improved error messages
+- **Commits:** a6d6716
+- **Files Modified:** docker/Dockerfile, docker/build-image.sh, docker/docker-setup.sh
+
+---
+
 ## 2025-12-02-02
 
 **Agent:** Claude
