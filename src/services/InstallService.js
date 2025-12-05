@@ -346,6 +346,12 @@ class InstallService {
         }
       }
 
+      // 5. Reload UserManager's provider to clear cached user data
+      if (userManager && userManager.provider) {
+        await userManager.provider.loadUsers();
+        resetSteps.push('Reloaded user cache');
+      }
+
       return {
         success: true,
         message: 'Installation reset successfully. You can now start the installation process again.',
