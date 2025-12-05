@@ -17,6 +17,20 @@ Subject: [Brief description]
 
 ---
 
+## 2025-12-05-02
+
+**Agent:** Claude
+
+**Subject:** Installation form submit debugging (session recovery)
+
+- **Key Decision:** Restore form fields to working state, avoid partial installation removal, preserve required attributes
+- **Current Issue:** Previous session removed `required` attributes from form fields and removed partial installation check - causing form submission to bypass validation
+- **Work Done:** Restored broken changes in InstallRoutes.js, InstallService.js, and install.ejs, restored partial installation validation and required field attributes
+- **Commits:** (pending - restored working versions)
+- **Files Modified:** src/routes/InstallRoutes.js, src/services/InstallService.js, views/install.ejs
+
+---
+
 ## 2025-12-05-01
 
 **Agent:** Claude

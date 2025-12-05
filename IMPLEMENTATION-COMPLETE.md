@@ -32,7 +32,7 @@ Successfully implemented a complete JSPWiki-style first-run installation wizard 
 
 **File:** `src/routes/InstallRoutes.js` (180+ lines)
 
-- GET /install - Display installation form
+- GET Same  - Display installation form
 - POST /install - Process installation
 - POST /install/reset - Reset partial installation
 - GET /install/status - Check installation status (API)
@@ -226,8 +226,34 @@ Subsequent visits bypass install
 - JSPWiki Install.jsp: <https://github.com/apache/jspwiki/blob/master/jspwiki-war/src/main/webapp/Install.jsp>
 - Schema.org Organization: <https://schema.org/Organization>
 
+## Current Status & Known Behavior
+
+### Working Features
+
+✅ Form displays correctly with all fields
+✅ Partial installation detection works
+✅ Reset functionality properly clears partial state
+✅ Form submission works after reset
+✅ Configuration saved correctly
+✅ Admin user created with password hashing
+✅ Startup pages copied on request
+
+### Current Behavior
+
+When a partial installation is detected (config written but not completed):
+
+1. User sees warning: "Partial installation detected"
+2. Completed steps are listed (config, admin, etc.)
+3. "Reset Installation" button provided
+4. Form shows but submit is **blocked** until reset
+5. User must click reset → confirms action → refreshes form
+6. Then can submit new installation data
+
+**This is intentional for safety** - prevents accidental overwrites of partial setups.
+
 ---
 
 **Status:** ✅ COMPLETE and READY FOR TESTING
 
 **Date:** 2025-11-25
+**Updated:** 2025-12-05
