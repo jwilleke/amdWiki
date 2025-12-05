@@ -218,30 +218,30 @@ See [docs/planning/ROADMAP.md](./docs/planning/ROADMAP.md)
 
 #### Active Work
 
-- **Installation form submit debugging** - Form validation and partial installation handling
-- AGENTS.md and project_log.md synchronization
-- Planning Phase 2 content modules
+- Installation system admin account implementation (COMPLETE)
+- PM2 process management cleanup (COMPLETE)
+- Server startup workflow verification (COMPLETE)
 
 #### Blockers
 
-- None (restored working form state)
+- None
 
 #### Recent Completions
 
-- Docker build process fixes (ARG NODE_VERSION, validation)
-- AGENTS.md and project_log.md session tracking
-- WikiDocument DOM architecture (376+ tests, 100% pass rate)
-- Configuration system hierarchical loading
-- Session management with WikiContext
-- Version 1.3.3 release
+- Fixed admin account system: username/email fixed, password changeable
+- PM2 process management consolidated via server.sh
+- PID file management cleaned up (single .amdwiki.pid only)
+- Installation form displays admin fields as read-only (non-editable)
+- Server properly starts/stops with PM2 (no stray processes)
+- InstallService updated to modify existing admin instead of creating new user
 
 #### Next Milestones
 
-1. **Installation form** - Debug and fix submit issue (ACTIVE)
-2. Attachment UI Enhancement completion
-3. WikiDocument comprehensive testing
-4. TypeScript migration progress
-5. Phase 2 planning finalization
+1. Manual browser testing of install form (priority)
+2. Verify admin account creation flow end-to-end
+3. Test installation reset functionality
+4. Attachment UI Enhancement completion
+5. WikiDocument comprehensive testing
 
 ## Notes & Context
 
