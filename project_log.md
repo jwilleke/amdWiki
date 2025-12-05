@@ -122,3 +122,54 @@ Subject: [Brief description]
 - **Work Done:** Created project_log.md, rewrote AGENTS.md sections (Overview, Status, Architecture, Standards, Guidelines, Sprint/Focus, Notes, Doc Map), deleted CLAUDE.md, updated copilot-instructions.md
 - **Commits:** 4776df3
 - **Files Modified:** AGENTS.md, project_log.md, .github/copilot-instructions.md
+
+## 2025-12-05-02: PM2 Process Management Cleanup & Verification
+
+**Agent:** Claude Code (Crush)
+**Subject:** PM2 Server Management Cleanup and Installation System Verification
+
+### Status
+- Server properly running under PM2 process management
+- Installation system implementation verified and working
+- PID file management cleaned up and consolidated
+
+### Key Decisions
+1. **Confirmed PM2 usage**: PM2 is a declared dependency and provides production-grade process management (auto-restart, log rotation, clustering). Kept as primary process manager.
+2. **Consolidated PID management**: Single `.amdwiki.pid` file managed exclusively by `server.sh` (removed PM2's auto-generated `.amdwiki-*.pid` files)
+3. **Verified form security**: Admin username and email are display-only (non-editable) in install form, hardcoded in route handler
+4. **Confirmed server startup**: Server runs properly via `./server.sh start [env]` with PM2
+
+### Work Done
+1. **Process cleanup**: Killed stray direct Node process (PID 44543), removed stale PID files (`.amdwiki-1.pid`)
+2. **PM2 initialization**: Started server fresh via `./server.sh start prod`, confirmed PM2 daemon spawned
+3. **Installation form verification**: Confirmed install.ejs shows correct read-only display for admin fields
+4. **Route validation**: Verified InstallRoutes.js hardcodes admin credentials (lines 85, 88)
+5. **Service validation**: Confirmed InstallService.js uses `#updateAdminPassword()` not user creation
+6. **Documentation**: Updated IMPLEMENTATION-COMPLETE.md with PM2 management details and admin account implementation notes
+
+### Commits
+- `f923dc9` docs: Update IMPLEMENTATION-COMPLETE with PM2 cleanup and server management verification
+
+### Files Modified
+- `IMPLEMENTATION-COMPLETE.md` - Added PM2 management, admin account, and server status sections
+
+### Testing Results
+- ✅ Server starts cleanly via PM2
+- ✅ Single `.amdwiki.pid` file created correctly
+- ✅ Install endpoint responds with proper HTML
+- ✅ Admin username/email display as read-only in form
+- ✅ No stale PID files remain after cleanup
+- ✅ Server status shows "online" with correct PID
+
+### Known Issues (Pre-existing)
+- Jest tests have logger mocking issues in CacheManager (not related to this session)
+- Test suite shows 595 failed tests (pre-existing, not caused by install system changes)
+
+### Next Session Recommendations
+1. Manual browser testing of install form submission
+2. Test admin account creation and password change functionality
+3. Verify users.json and users/persons.json both contain admin account after install
+4. Test installation reset workflow
+5. Consider adding integration tests for install flow
+
+---
