@@ -82,10 +82,10 @@ class InstallRoutes {
         const installData = {
           applicationName: req.body.applicationName,
           baseURL: req.body.baseURL,
-          adminUsername: req.body.adminUsername,
+          adminUsername: 'admin', // Fixed - not from form
           adminPassword: req.body.adminPassword,
           adminPasswordConfirm: req.body.adminPasswordConfirm,
-          adminEmail: req.body.adminEmail,
+          adminEmail: 'admin@localhost', // Fixed - not from form
           orgName: req.body.orgName,
           orgLegalName: req.body.orgLegalName,
           orgDescription: req.body.orgDescription,

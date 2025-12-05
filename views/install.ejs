@@ -143,14 +143,16 @@
 
         <div class="row">
           <div class="col-md-6 mb-3">
-            <label for="adminUsername" class="form-label required-field">Username</label>
-            <input type="text" class="form-control" id="adminUsername" name="adminUsername"
-                   value="<%= formData?.adminUsername || 'admin' %>" required>
+            <label for="adminUsername" class="form-label">Username</label>
+            <input type="text" class="form-control" id="adminUsername" 
+                   value="admin" readonly style="background-color: #f8f9fa;">
+            <div class="help-text">Fixed system account (cannot be changed)</div>
           </div>
           <div class="col-md-6 mb-3">
-            <label for="adminEmail" class="form-label required-field">Email</label>
-            <input type="email" class="form-control" id="adminEmail" name="adminEmail"
-                   value="<%= formData?.adminEmail || '' %>" required>
+            <label for="adminEmail" class="form-label">Email</label>
+            <input type="email" class="form-control" id="adminEmail" 
+                   value="admin@localhost" readonly style="background-color: #f8f9fa;">
+            <div class="help-text">Fixed fallback account for OIDC (cannot be changed)</div>
           </div>
         </div>
 
@@ -159,7 +161,7 @@
             <label for="adminPassword" class="form-label required-field">Password</label>
             <input type="password" class="form-control" id="adminPassword" name="adminPassword"
                    required minlength="8">
-            <div class="help-text">Minimum 8 characters</div>
+            <div class="help-text">Minimum 8 characters. Set your own password for the admin account.</div>
           </div>
           <div class="col-md-6 mb-3">
             <label for="adminPasswordConfirm" class="form-label required-field">Confirm Password</label>

@@ -233,9 +233,9 @@ class InstallService {
       installSteps.push('writeOrganization');
       await this.#writeOrganizationData(installData);
 
-      // 3. Create admin user
-      installSteps.push('createAdmin');
-      await this.#createAdminUser(installData);
+      // 3. Update admin password
+      installSteps.push('updateAdminPassword');
+      await this.#updateAdminPassword(installData);
 
       // 4. Copy startup pages if requested
       if (installData.copyStartupPages) {
@@ -549,19 +549,28 @@ class InstallService {
    * @param {Object} data - Installation data
    * @returns {Promise<void>}
    */
-  async #createAdminUser(data) {
+  /**
+   * Update admin user password during installation
+   *
+   * Updates the password for the default admin account created during system initialization.
+   * Username (admin) and email (admin@localhost) are fixed and cannot be changed.
+   *
+   * @private
+   * @param {Object} data - Installation data
+   * @returns {Promise<void>}
+   */
+  async #updateAdminPassword(data) {
     const userManager = this.engine.getManager('UserManager');
 
-    const userData = {
-      username: data.adminUsername,
-      password: data.adminPassword,
-      email: data.adminEmail,
-      fullName: 'Administrator',
-      roles: ['admin', 'Authenticated', 'All'],
-      isActive: true
+    // Update existing admin user (created during system initialization)
+    // Only update the password - username and email are fixed
+    const updates = {
+      password: data.adminPassword
+      // username: 'admin' - FIXED, cannot change
+      // email: 'admin@localhost' - FIXED, cannot change
     };
 
-    await userManager.createUser(userData);
+    await userManager.updateUser('admin', updates);
   }
 
   /**
