@@ -185,3 +185,4 @@ archive
 
 node_modules/
 converted/
+.amdwiki*.pid
