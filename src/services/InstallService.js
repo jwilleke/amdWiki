@@ -271,6 +271,13 @@ class InstallService {
       // Log which step failed
       const failedStep = installSteps[installSteps.length - 1] || 'validation';
 
+      // DEBUG: Log the error
+      console.error('❌ Installation failed:', {
+        failedStep,
+        error: error.message,
+        stack: error.stack
+      });
+
       return {
         success: false,
         error: error.message,
@@ -417,8 +424,8 @@ class InstallService {
       throw new Error('Passwords do not match');
     }
 
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    // Validate email format (allow localhost for admin@localhost)
+    const emailRegex = /^[^\s@]+@([^\s@.]+\.)+[^\s@]+$|^[^\s@]+@localhost$/;
     if (!emailRegex.test(data.adminEmail)) {
       throw new Error('Invalid email address');
     }
