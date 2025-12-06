@@ -16,6 +16,7 @@ Read [~/GLOBAL-CODE-PREFERENCES.md](~/GLOBAL-CODE-PREFERENCES.md) for overarchin
 ## Quick Navigation
 
 - [CONTRIBUTING.md](./CONTRIBUTING.md) - Development workflow, coding standards, JSDoc requirements
+- [INSTALLATION-SYSTEM.md](./INSTALLATION-SYSTEM.md) - Installation wizard system (NEW)
 - [docs/architecture/](./docs/architecture/) - Architecture patterns and system design (15 docs)
 - [SECURITY.md](./SECURITY.md) - Security practices and guidelines
 - [SERVER.md](./SERVER.md) - Server management and configuration
@@ -218,30 +219,37 @@ See [docs/planning/ROADMAP.md](./docs/planning/ROADMAP.md)
 
 #### Active Work
 
-- Installation system admin account implementation (COMPLETE)
-- PM2 process management cleanup (COMPLETE)
-- Server startup workflow verification (COMPLETE)
+- Installation system looping issue - FIXED ✅
+- Form partial installation retry logic - IMPLEMENTED ✅
+- Server process management - CRITICAL ISSUE IDENTIFIED 🚨
 
 #### Blockers
 
-- None
+**CRITICAL: GitHub Issue #167** - Multiple server instances running
+- Prevents reliable testing of installation form
+- Old cached code being served despite file changes
+- Multiple Node.js processes running simultaneously
+- Must fix before installation testing can proceed
 
-#### Recent Completions
+#### Recent Completions (Session 2025-12-06)
 
-- Fixed admin account system: username/email fixed, password changeable
-- PM2 process management consolidated via server.sh
-- PID file management cleaned up (single .amdwiki.pid only)
-- Installation form displays admin fields as read-only (non-editable)
-- Server properly starts/stops with PM2 (no stray processes)
-- InstallService updated to modify existing admin instead of creating new user
+- Fixed installation loop issue (allow retrying partial installations)
+- Verified backend security (admin credentials hardcoded at backend)
+- Identified root cause of form template caching issue
+- Created comprehensive INSTALLATION-SYSTEM.md documentation
+- Created GitHub issue #167 for server process management
+- Modified InstallService.processInstallation() to support partial installation recovery
+- Consolidated 4 installation docs into single INSTALLATION-SYSTEM.md file
 
 #### Next Milestones
 
-1. Manual browser testing of install form (priority)
-2. Verify admin account creation flow end-to-end
-3. Test installation reset functionality
-4. Attachment UI Enhancement completion
-5. WikiDocument comprehensive testing
+1. **URGENT:** Fix GitHub issue #167 (PID lock mechanism)
+2. Manual browser testing of install form (after #167 fixed)
+3. Test partial installation recovery scenario
+4. Verify admin account creation flow end-to-end
+5. Test installation reset functionality
+6. Attachment UI Enhancement completion
+7. WikiDocument comprehensive testing
 
 ## Notes & Context
 
