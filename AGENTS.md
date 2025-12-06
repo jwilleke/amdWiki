@@ -15,15 +15,26 @@ Read [~/GLOBAL-CODE-PREFERENCES.md](~/GLOBAL-CODE-PREFERENCES.md) for overarchin
 
 ## Quick Navigation
 
-- [CONTRIBUTING.md](./CONTRIBUTING.md) - Development workflow, coding standards, JSDoc requirements
-- [INSTALLATION-SYSTEM.md](./INSTALLATION-SYSTEM.md) - Installation wizard system (NEW)
-- [SERVER.md](./SERVER.md) - Server management and configuration
-- [SERVER-MANAGEMENT.md](./SERVER-MANAGEMENT.md) - Ideal server management practices (Issue #167)
-- [docs/architecture/](./docs/architecture/) - Architecture patterns and system design (15 docs)
-- [SECURITY.md](./SECURITY.md) - Security practices and guidelines
-- [docs/planning/TODO.md](./docs/planning/TODO.md) - Task tracking and priorities
+**Root-Level Documentation (Start Here)**
+- [README.md](./README.md) - Project overview and quick start
+- [SETUP.md](./SETUP.md) - Installation and setup instructions
+- [ARCHITECTURE.md](./ARCHITECTURE.md) - System architecture and design patterns
+- [CODE_STANDARDS.md](./CODE_STANDARDS.md) - Coding standards and best practices
+- [CONTRIBUTING.md](./CONTRIBUTING.md) - Development workflow and guidelines
+- [SECURITY.md](./SECURITY.md) - Security practices and threat model
+- [CHANGELOG.md](./CHANGELOG.md) - Release history and version tracking
+- [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md) - Community guidelines
+- [DOCUMENTATION.md](./DOCUMENTATION.md) - Complete documentation index
+
+**Detailed Documentation (In docs/ directory)**
+- [docs/INSTALLATION-SYSTEM.md](./docs/INSTALLATION-SYSTEM.md) - Installation wizard details
+- [docs/INSTALLATION-TESTING-RESULTS.md](./docs/INSTALLATION-TESTING-RESULTS.md) - Testing verification
+- [docs/SERVER.md](./docs/SERVER.md) - Server management and deployment
+- [docs/SERVER-MANAGEMENT.md](./docs/SERVER-MANAGEMENT.md) - Best practices (Issue #167 fix)
+- [docs/project_log.md](./docs/project_log.md) - AI agent work history
+- [docs/architecture/](./docs/architecture/) - Architecture patterns (15+ documents)
+- [docs/planning/TODO.md](./docs/planning/TODO.md) - Current tasks and priorities
 - [docs/planning/ROADMAP.md](./docs/planning/ROADMAP.md) - Long-term platform vision
-- [CHANGELOG.md](./CHANGELOG.md) - Version history (Keep a Changelog format)
 
 ## Project Overview
 
