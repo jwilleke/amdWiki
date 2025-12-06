@@ -481,7 +481,7 @@ class InstallService {
     await fs.writeJson(customConfigPath, customConfig, { spaces: 2 });
 
     // Reload ConfigurationManager to pick up new values
-    await this.configManager.reload();
+    await this.configManager.loadConfigurations();
   }
 
   /**
