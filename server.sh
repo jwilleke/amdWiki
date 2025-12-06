@@ -101,6 +101,10 @@ case "${1:-}" in
     else
       echo "⚠️  Server may have started but PID detection failed"
     fi
+
+    # STEP 7: Clean up PM2-generated PID files (keep only .amdwiki.pid as source of truth)
+    sleep 1
+    rm -f "$SCRIPT_DIR"/.amdwiki-*.pid
     ;;
 
   stop)
