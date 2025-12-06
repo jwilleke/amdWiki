@@ -332,34 +332,37 @@ User visits any URL → Middleware checks: install completed? YES → Continues 
 
 ### IMMEDIATE (Ready to Execute)
 
-**GitHub Issue #167** ✅ - FIXED
+#### GitHub Issue #167 ✅ - FIXED
+
 - 7-step validation and cleanup implemented in server.sh
 - Single `.amdwiki.pid` enforcement verified
 - Duplicate process startup prevented
 - Stale PID files cleaned up on startup
 - Tested and working correctly
 
-**Manual Browser Testing** (NOW POSSIBLE)
+#### Manual Browser Testing (NOW POSSIBLE)
+
 - Test fresh installation flow with valid server state
 - Test partial installation recovery scenarios
 - Verify admin account security
 - Test startup pages copying
 - Test installation reset functionality
 
-**Documentation Updates**
+#### Documentation Updates
+
 - Update CHANGELOG.md with #167 fix
 - Update CHANGELOG.md with installation testing completion
 - Mark issue #153 as resolved
 
 ### Future Enhancements
 
-1. CSRF protection for install form
-2. Email confirmation for admin
-3. Database support during installation
-4. Theme selection during setup
-5. Language selection
-6. Plugin enable/disable options
-7. Automated Jest tests for install flow
+- CSRF protection for install form
+- Email confirmation for admin
+- Database support during installation
+- Theme selection during setup
+- Language selection
+- Plugin enable/disable options
+- Automated Jest tests for install flow
 
 ## Success Metrics
 
