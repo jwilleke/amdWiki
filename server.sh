@@ -45,59 +45,153 @@ fi
 
 case "${1:-}" in
   start)
-    # Check if server is already running
+    # STEP 1: Check if server is already running via PID file
     if [ -f "$PID_FILE" ]; then
-      PID=$(cat "$PID_FILE")
-      if ps -p "$PID" > /dev/null 2>&1; then
-        echo "⚠️  Server already running with PID $PID"
-        echo "   Use './server.sh stop' to stop it first, or './server.sh unlock' to force"
+      EXISTING_PID=$(cat "$PID_FILE")
+      if ps -p "$EXISTING_PID" > /dev/null 2>&1; then
+        echo "❌ ERROR: Server already running (PID $EXISTING_PID)"
+        echo ""
+        echo "Options:"
+        echo "  1. Wait for startup to complete"
+        echo "  2. Stop with: ./server.sh stop"
+        echo "  3. Force unlock: ./server.sh unlock"
         exit 1
       else
-        echo "🧹 Cleaning up stale PID file..."
+        echo "🧹 Removing stale PID file (process $EXISTING_PID not found)..."
         rm -f "$PID_FILE"
       fi
     fi
-    
-    # Clean up any PM2-created PID files (.amdwiki-*.pid)
-    rm -f "$SCRIPT_DIR"/.amdwiki-*.pid
-    
+
+    # STEP 2: Check if port 3000 is already in use
+    if command -v lsof &> /dev/null; then
+      PORT_PID=$(lsof -Pi :3000 -sTCP:LISTEN -t 2>/dev/null)
+      if [ -n "$PORT_PID" ]; then
+        echo "❌ ERROR: Port 3000 in use by PID $PORT_PID"
+        echo ""
+        echo "This process is preventing amdWiki from starting:"
+        lsof -i :3000 2>/dev/null | grep LISTEN || true
+        echo ""
+        echo "Options:"
+        echo "  1. Kill that process: kill -9 $PORT_PID"
+        echo "  2. Force cleanup: ./server.sh unlock && ./server.sh start"
+        exit 1
+      fi
+    fi
+
+    # STEP 3: Clean up any orphaned Node processes running app.js
+    echo "🧹 Cleaning up any orphaned Node processes..."
+    pkill -9 -f "node.*app\.js" 2>/dev/null || true
+    sleep 1
+
+    # STEP 4: Clean up any PM2-created PID files (.amdwiki-*.pid) and legacy files
+    rm -f "$SCRIPT_DIR"/.amdwiki-*.pid "$SCRIPT_DIR"/server.pid
+
+    # STEP 5: Start via PM2
     echo "🚀 Starting amdWiki in $ENV_NAME mode..."
     echo "   Config: config/app-$ENV_NAME-config.json"
     echo "   Logs: ./logs/"
     npx --no -- npx --no -- pm2 start ecosystem.config.js --env $ENV_NAME
-    
-    # Write our own PID file with the PM2 process PID
+
+    # STEP 6: Write our own PID file with the PM2 process PID
     sleep 1
     PM2_PID=$(npx pm2 pid "$APP_NAME" 2>/dev/null | grep -oE '[0-9]+' | head -1)
     if [ -n "$PM2_PID" ]; then
       echo "$PM2_PID" > "$PID_FILE"
+      echo "✅ Server started (PID: $PM2_PID)"
+    else
+      echo "⚠️  Server may have started but PID detection failed"
     fi
     ;;
 
   stop)
     echo "🛑 Stopping $APP_NAME..."
+
+    # Try graceful stop first (5 second timeout)
     npx --no -- pm2 stop "$APP_NAME"
-    # Clean up PID files
-    rm -f "$PID_FILE" "$SCRIPT_DIR"/.amdwiki-*.pid
+    sleep 2
+
+    # Verify it's actually gone
+    if [ -f "$PID_FILE" ]; then
+      EXISTING_PID=$(cat "$PID_FILE")
+      if ps -p "$EXISTING_PID" > /dev/null 2>&1; then
+        echo "⚠️  Process didn't stop gracefully (PID $EXISTING_PID), force killing..."
+        kill -9 "$EXISTING_PID" 2>/dev/null || true
+        sleep 1
+      fi
+    fi
+
+    # Clean up PID files (including legacy files)
+    rm -f "$PID_FILE" "$SCRIPT_DIR"/.amdwiki-*.pid "$SCRIPT_DIR"/server.pid
+    echo "✅ Server stopped"
     ;;
 
   restart)
     echo "🔄 Restarting $APP_NAME..."
+
+    # Stop gracefully first
+    ./server.sh stop
+    sleep 2
+
+    # Verify process is gone
+    if [ -f "$PID_FILE" ]; then
+      REMAINING_PID=$(cat "$PID_FILE")
+      if ps -p "$REMAINING_PID" > /dev/null 2>&1; then
+        echo "⚠️  Process didn't stop gracefully, force killing PID $REMAINING_PID..."
+        kill -9 "$REMAINING_PID" 2>/dev/null || true
+        sleep 1
+      fi
+    fi
+
+    # Clean up any remaining orphaned processes
+    pkill -9 -f "node.*app\.js" 2>/dev/null || true
+    sleep 1
+
+    # Now start fresh
     if [ -n "$ENV_ARG" ]; then
       echo "   Environment: $ENV_NAME"
-      npx --no -- pm2 restart ecosystem.config.js --env $ENV_NAME --update-env
+      ./server.sh start $ENV_ARG
     else
-      npx --no -- pm2 restart "$APP_NAME"
+      ./server.sh start
     fi
     ;;
 
   status)
-    npx --no -- pm2 list | grep "$APP_NAME"
+    echo "📊 amdWiki Server Status"
+    echo "========================"
+    echo ""
+
+    # Check PID file
     if [ -f "$PID_FILE" ]; then
       PID=$(cat "$PID_FILE")
-      echo ""
-      echo "PID lock file exists: $PID"
+      if ps -p "$PID" > /dev/null 2>&1; then
+        echo "✅ PID Lock: Valid (PID $PID is running)"
+      else
+        echo "⚠️  PID Lock: Stale (PID $PID not running)"
+        echo "    Run: ./server.sh unlock"
+      fi
+    else
+      echo "❌ PID Lock: Not found (server likely not running)"
     fi
+
+    echo ""
+    echo "PM2 Status:"
+    npx --no -- pm2 list 2>/dev/null | grep -A 20 "$APP_NAME" || echo "   No PM2 processes found"
+
+    echo ""
+    echo "Port 3000:"
+    if command -v lsof &> /dev/null; then
+      if lsof -Pi :3000 -sTCP:LISTEN -t >/dev/null 2>&1; then
+        lsof -i :3000 | grep LISTEN || echo "   Port in use (process unknown)"
+      else
+        echo "   Port available"
+      fi
+    else
+      echo "   (lsof not available - install to check port status)"
+    fi
+
+    echo ""
+    echo "Node Processes:"
+    ps aux | grep "node.*app\.js" | grep -v grep || echo "   None found"
     ;;
 
   logs)
@@ -114,13 +208,25 @@ case "${1:-}" in
     ;;
 
   unlock)
-    if [ -f "$PID_FILE" ]; then
-      echo "🔓 Removing PID lock: $PID_FILE"
-      rm -f "$PID_FILE"
-      echo "✅ PID lock removed. You can now start the server."
-    else
-      echo "ℹ️  No PID lock file found."
-    fi
+    echo "🔓 Unlocking server..."
+
+    # 1. Delete any PM2 processes
+    npx --no -- pm2 delete "$APP_NAME" 2>/dev/null || true
+
+    # 2. Kill orphaned Node processes
+    echo "   Killing any orphaned Node processes..."
+    pkill -9 -f "node.*app\.js" 2>/dev/null || true
+
+    # 3. Remove all PID files (including legacy)
+    echo "   Removing PID lock files..."
+    rm -f "$PID_FILE" "$SCRIPT_DIR"/.amdwiki-*.pid "$SCRIPT_DIR"/server.pid
+
+    # 4. Clear PM2 data
+    echo "   Clearing PM2 logs..."
+    npx --no -- pm2 flush 2>/dev/null || true
+
+    sleep 1
+    echo "✅ Server unlocked. Run: ./server.sh start"
     ;;
 
   *)
@@ -129,20 +235,40 @@ case "${1:-}" in
     echo "Usage: $0 {start|stop|restart|status|logs|env|unlock} [environment]"
     echo ""
     echo "Commands:"
-    echo "  start [env]  - Start the server with PM2"
+    echo "  start [env]  - Start server (validates: no existing process, port available)"
     echo "                 env: dev, prod (default: production)"
-    echo "  stop         - Stop the server"
-    echo "  restart [env]- Restart the server"
-    echo "  status       - Show server status and PID lock"
+    echo "  stop         - Stop server gracefully (with force-kill fallback)"
+    echo "  restart [env]- Restart server (full stop → start cycle)"
+    echo "  status       - Show comprehensive server status"
+    echo "                 • PID lock validity"
+    echo "                 • PM2 process list"
+    echo "                 • Port 3000 availability"
+    echo "                 • Node processes"
     echo "  logs [n]     - Show server logs (n = line count, default: 50)"
     echo "  env          - Show current environment and available configs"
-    echo "  unlock       - Remove PID lock file (use if server crashed)"
+    echo "  unlock       - Force unlock server (clears PM2, kills processes, removes locks)"
+    echo "                 Use if server crashed or stuck"
+    echo ""
+    echo "Process Management:"
+    echo "  • Single instance guaranteed via .amdwiki.pid lock"
+    echo "  • Automatic cleanup of orphaned Node processes on start"
+    echo "  • Port conflict detection before startup"
+    echo "  • Graceful stop with force-kill fallback"
     echo ""
     echo "Environment Examples:"
     echo "  ./server.sh start          # Production (default)"
     echo "  ./server.sh start dev      # Development"
-    echo "  ./server.sh start prod     # Production (explicit)"
+    echo "  ./server.sh restart prod   # Restart production"
     echo "  NODE_ENV=staging ./server.sh start  # Custom environment"
+    echo ""
+    echo "Troubleshooting:"
+    echo "  Server won't start:"
+    echo "    1. Check status: ./server.sh status"
+    echo "    2. Force unlock: ./server.sh unlock"
+    echo "    3. Then start:   ./server.sh start"
+    echo ""
+    echo "  Multiple processes running:"
+    echo "    ./server.sh unlock  # Clears all locks and processes"
     echo ""
     echo "Config Files (loaded based on NODE_ENV):"
     echo "  config/app-development-config.json  - Development settings"
