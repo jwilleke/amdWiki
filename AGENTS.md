@@ -15,7 +15,8 @@ Read [~/GLOBAL-CODE-PREFERENCES.md](~/GLOBAL-CODE-PREFERENCES.md) for overarchin
 
 ## Quick Navigation
 
-**Root-Level Documentation (Start Here)**
+### Root-Level Documentation (Start Here)
+
 - [README.md](./README.md) - Project overview and quick start
 - [SETUP.md](./SETUP.md) - Installation and setup instructions
 - [ARCHITECTURE.md](./ARCHITECTURE.md) - System architecture and design patterns
@@ -26,7 +27,8 @@ Read [~/GLOBAL-CODE-PREFERENCES.md](~/GLOBAL-CODE-PREFERENCES.md) for overarchin
 - [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md) - Community guidelines
 - [DOCUMENTATION.md](./DOCUMENTATION.md) - Complete documentation index
 
-**Detailed Documentation (In docs/ directory)**
+### Detailed Documentation (In docs/ directory)
+
 - [docs/INSTALLATION-SYSTEM.md](./docs/INSTALLATION-SYSTEM.md) - Installation wizard details
 - [docs/INSTALLATION-TESTING-RESULTS.md](./docs/INSTALLATION-TESTING-RESULTS.md) - Testing verification
 - [docs/SERVER.md](./docs/SERVER.md) - Server management and deployment
@@ -238,6 +240,7 @@ See [docs/planning/ROADMAP.md](./docs/planning/ROADMAP.md)
 #### Blockers
 
 ✅ **FIXED: GitHub Issue #167** - Multiple server instances running
+
 - Implemented Option A: Keep PM2, fix coordination in server.sh
 - Process validation before startup (check existing PID, port availability)
 - Orphaned process cleanup on start (pkill -9 node.*app.js)
