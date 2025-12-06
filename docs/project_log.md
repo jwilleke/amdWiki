@@ -35,6 +35,7 @@ Subject: [Brief description]
 BaseSyntaxHandler was throwing errors immediately during `initialize()` when handler dependencies were missing. This created a systematic blocker affecting ~30 test suites.
 
 **Root Cause:**
+
 ```javascript
 // Before (Eager validation - WRONG)
 async validateDependencies(context) {
@@ -66,7 +67,7 @@ async validateDependencies(context) {
    - Added `hasDependencyErrors()` helper method
    - Store init context for later use
 
-2. **src/routes/__tests__/maintenance-mode.test.js**
+2. **src/routes/**tests**/maintenance-mode.test.js**
    - Fixed import path: `'../src/WikiEngine'` → `'../../WikiEngine'`
 
 3. **.github/workflows/docker-build.yml**
@@ -76,17 +77,20 @@ async validateDependencies(context) {
 **Test Results:**
 
 **Before Fix:**
+
 - HandlerRegistry.test.js: 5 failures, 31 passing
 - Many tests couldn't even run (crashed during handler registration)
 - Server initialization failed
 
 **After Fix:**
+
 - HandlerRegistry.test.js: 4 failures, 32 passing ✅
 - Tests that were blocked now running
 - **Server starts successfully** ✅ (confirmed by smoke tests)
 - 6 syntax handlers registered successfully
 
 **Smoke Test Confirmation:**
+
 ```
 ✅ WikiEngine initialized successfully
 ✅ All managers initialized
@@ -104,6 +108,7 @@ async validateDependencies(context) {
 **Remaining Test Failures:**
 
 Still ~46 failing test suites, but these are now **individual test logic issues**, not architectural blockers:
+
 - Configuration mismatches
 - Expected vs actual value differences
 - Missing optional handlers
@@ -169,6 +174,7 @@ These can be fixed incrementally as work progresses on related code.
 **Implementation Results:**
 
 ✅ **GitHub Actions CI/CD Complete**
+
 - Multi-job pipeline: test, lint, smoke-test, build, summary
 - Tests on Node 18.x and 20.x
 - Coverage reporting with Codecov integration
@@ -176,6 +182,7 @@ These can be fixed incrementally as work progresses on related code.
 - Automatic execution on push/PR to master/develop
 
 ✅ **Smoke Test Script Created**
+
 - Validates critical files exist
 - Tests configuration integrity
 - Verifies WikiEngine initialization
@@ -185,6 +192,7 @@ These can be fixed incrementally as work progresses on related code.
 - **Status:** All smoke tests passing ✅
 
 ✅ **NPM Scripts Enhanced**
+
 - `npm run smoke` - Quick smoke tests
 - `npm run test:changed` - Test only changed files
 - `npm run test:integration` - Integration tests (template ready)
@@ -255,12 +263,14 @@ These can be fixed incrementally as work progresses on related code.
 **Testing Results:**
 
 **Coverage Achievement:**
+
 - **Statements:** 100% (target was 90%+)
 - **Branches:** 100% (target was 90%+)
 - **Functions:** 100%
 - **Lines:** 100%
 
 **Test Count:**
+
 - Original tests: 35 passing
 - Enhanced tests: 49 passing (+14 new tests)
 - Test execution time: <1 second
@@ -295,6 +305,7 @@ These can be fixed incrementally as work progresses on related code.
 **Docker/Kubernetes Analysis:**
 
 Created comprehensive GitHub Issue #168 documenting:
+
 - Current Docker setup strengths (well-organized, production-ready Dockerfile, ConfigurationManager integration)
 - Critical issues identified:
   - PM2 incompatibility with K8s (process management conflict)
@@ -372,6 +383,7 @@ All tests PASSED with comprehensive verification:
 7. ✅ **Form Validation** - Required fields and constraints enforced
 
 **Testing Results:**
+
 - Created docs/INSTALLATION-TESTING-RESULTS.md (comprehensive test report)
 - Verified single server instance enforcement (Issue #167 fixed)
 - Confirmed admin login working with created credentials
@@ -382,6 +394,7 @@ All tests PASSED with comprehensive verification:
 Restructured documentation from scattered files to professional hierarchy:
 
 **Root Level (10 files - User Facing)**
+
 - README.md - Project overview
 - SETUP.md - Installation & setup (NEW)
 - AGENTS.md - AI agent context (updated Quick Navigation)
@@ -394,17 +407,20 @@ Restructured documentation from scattered files to professional hierarchy:
 - DOCUMENTATION.md - Documentation index (NEW)
 
 **Moved to docs/ (Detailed Documentation)**
+
 - docs/SERVER.md (was root)
 - docs/SERVER-MANAGEMENT.md (was root)
 - docs/INSTALLATION-SYSTEM.md (was root)
 - docs/project_log.md (was root)
 
 **Archived to docs/archive/**
+
 - INVESTIGATION-TABLE-STYLES.md (investigative report)
 - MIGRATION-REPORT.md (report)
 - TEST-PAGES-REPORT.md (report)
 
 **Updated Navigation**
+
 - AGENTS.md Quick Navigation: organized into root-level and docs/ sections
 - CHANGELOG.md: added reference to docs/project_log.md
 - All cross-references updated to new locations
@@ -499,6 +515,7 @@ Restructured documentation from scattered files to professional hierarchy:
 **Solution Implemented:**
 
 1. **Fixed Email Validation (Line 427-430):**
+
    ```javascript
    // BEFORE (rejected admin@localhost):
    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -506,10 +523,12 @@ Restructured documentation from scattered files to professional hierarchy:
    // AFTER (accepts localhost format):
    const emailRegex = /^[^\s@]+@([^\s@.]+\.)+[^\s@]+$|^[^\s@]+@localhost$/;
    ```
+
    - Now accepts both: `user@example.com` AND `admin@localhost`
    - Enables hardcoded admin email to pass validation
 
 2. **Fixed ConfigurationManager Method (Line 484):**
+
    ```javascript
    // BEFORE (method doesn't exist):
    await this.configManager.reload();
@@ -517,10 +536,12 @@ Restructured documentation from scattered files to professional hierarchy:
    // AFTER (correct method):
    await this.configManager.loadConfigurations();
    ```
+
    - Calls actual ConfigurationManager method to reload all config files
    - Ensures merged configuration reflects new custom config
 
 3. **Added Debug Logging (Lines 275-279):**
+
    ```javascript
    console.error('❌ Installation failed:', {
      failedStep,
@@ -528,6 +549,7 @@ Restructured documentation from scattered files to professional hierarchy:
      stack: error.stack
    });
    ```
+
    - Helps diagnose future installation failures
    - Shows which step failed and error details
 
