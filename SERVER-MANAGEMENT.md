@@ -220,11 +220,13 @@ unlock_server() {
 **Decision:** Use ONLY `.amdwiki.pid`
 
 **Never create:**
+
 - `server.pid`
 - `.amdwiki-*.pid`
 - Any PM2 generated PID files
 
 **Rules:**
+
 1. PID file contains: single integer (the process ID)
 2. Only written by server.sh during startup
 3. Only removed by server.sh during shutdown
@@ -308,6 +310,7 @@ Before starting server, `./server.sh start` should verify:
 ## Error Messages (User-Friendly)
 
 ### Error: Server Already Running
+
 ```
 ❌ ERROR: Server already running (PID 5754)
 
@@ -331,6 +334,7 @@ More info:
 ```
 
 ### Error: Port Already in Use
+
 ```
 ❌ ERROR: Port 3000 in use by PID 12345
 
