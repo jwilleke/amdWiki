@@ -226,11 +226,13 @@ See [docs/planning/ROADMAP.md](./docs/planning/ROADMAP.md)
 
 #### Blockers
 
-**CRITICAL: GitHub Issue #167** - Multiple server instances running
-- Prevents reliable testing of installation form
-- Old cached code being served despite file changes
-- Multiple Node.js processes running simultaneously
-- Must fix before installation testing can proceed
+✅ **FIXED: GitHub Issue #167** - Multiple server instances running
+- Implemented Option A: Keep PM2, fix coordination in server.sh
+- Process validation before startup (check existing PID, port availability)
+- Orphaned process cleanup on start (pkill -9 node.*app.js)
+- Single PID file enforcement (.amdwiki.pid only, no legacy files)
+- Graceful stop with force-kill fallback
+- Comprehensive status command showing server state
 
 #### Recent Completions (Session 2025-12-06)
 
@@ -241,11 +243,16 @@ See [docs/planning/ROADMAP.md](./docs/planning/ROADMAP.md)
 - Created GitHub issue #167 for server process management
 - Modified InstallService.processInstallation() to support partial installation recovery
 - Consolidated 4 installation docs into single INSTALLATION-SYSTEM.md file
+- Analyzed Docker/Kubernetes compatibility for process management options
+- Implemented Issue #167 fix in server.sh (Option A: Keep PM2, fix coordination)
+- Enhanced server.sh with 7-step validation and cleanup process
+- Verified single instance enforcement (one .amdwiki.pid, one Node process)
+- Tested restart/stop/start/unlock commands - all working correctly
 
 #### Next Milestones
 
-1. **URGENT:** Fix GitHub issue #167 (PID lock mechanism)
-2. Manual browser testing of install form (after #167 fixed)
+1. ✅ **DONE:** Fix GitHub issue #167 (PID lock mechanism)
+2. **NEXT:** Manual browser testing of install form (now #167 is fixed)
 3. Test partial installation recovery scenario
 4. Verify admin account creation flow end-to-end
 5. Test installation reset functionality
