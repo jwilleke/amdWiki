@@ -7,17 +7,20 @@ This document provides the quick setup instructions for the automated testing pi
 ## What's Already Set Up
 
 ✅ **GitHub Actions CI/CD** (.github/workflows/ci.yml)
+
 - Runs on every push and pull request
 - Tests on Node 18.x and 20.x
 - Includes smoke tests, lint checks, and coverage reporting
 
 ✅ **Smoke Test Script** (scripts/smoke-test.sh)
+
 - Quick 30-second validation
 - Tests WikiEngine initialization
 - Verifies critical files and configuration
 - Run with: `npm run smoke`
 
 ✅ **NPM Scripts** (package.json)
+
 - `npm test` - Run all tests
 - `npm run test:coverage` - Generate coverage report
 - `npm run test:changed` - Test only changed files (fast!)
@@ -46,6 +49,7 @@ npx husky add .husky/pre-commit "npm run test:changed"
 GitHub Actions will automatically run on your next push or pull request. No additional setup needed!
 
 **What it checks:**
+
 - ✅ All tests pass
 - ✅ Code coverage thresholds met (75%+)
 - ✅ Smoke tests pass
@@ -138,6 +142,7 @@ npm run smoke
 ### After Pushing
 
 Check GitHub Actions:
+
 - Go to repository → Actions tab
 - See test results for your push/PR
 - CI must pass before merging
@@ -149,6 +154,7 @@ Check GitHub Actions:
 ```bash
 ✅ All smoke tests passed!
 ```
+
 Means: System can start, managers load, no critical errors
 
 ### Unit Test Output
@@ -157,6 +163,7 @@ Means: System can start, managers load, no critical errors
 Test Suites: 1 passed, 1 total
 Tests:       49 passed, 49 total
 ```
+
 Means: All tests passed
 
 ### Coverage Output
@@ -165,6 +172,7 @@ Means: All tests passed
 File             | % Stmts | % Branch | % Funcs | % Lines
 WikiDocument.js  |     100 |      100 |     100 |     100
 ```
+
 Means: 100% of code is tested
 
 ## Troubleshooting
@@ -209,16 +217,19 @@ node -e "const WikiEngine = require('./src/WikiEngine'); console.log(WikiEngine)
 ## Benefits You'll See
 
 ### Immediate
+
 - ✅ Broken code caught before commit
 - ✅ Confidence in changes
 - ✅ Fast feedback (<30 seconds for smoke tests)
 
 ### Within a Week
+
 - ✅ Fewer bugs reaching production
 - ✅ Safer refactoring
 - ✅ Clear test status in PRs
 
 ### Within a Month
+
 - ✅ Zero regressions
 - ✅ Faster development (less debugging)
 - ✅ Higher code quality
@@ -226,17 +237,20 @@ node -e "const WikiEngine = require('./src/WikiEngine'); console.log(WikiEngine)
 ## Current Status
 
 ### Implemented (Phase 1)
+
 - ✅ GitHub Actions CI/CD workflow
 - ✅ Smoke test script
 - ✅ NPM test scripts
 - ✅ Documentation
 
 ### Ready to Add (Optional)
+
 - ⏸️ Pre-commit hooks (Husky) - 5 minutes to install
 - ⏸️ Coverage thresholds (jest.config.js) - 10 minutes to configure
 - ⏸️ Integration tests - Create as needed
 
 ### Future Enhancements (Phase 2+)
+
 - Integration test suite (see PREVENTING-REGRESSIONS.md)
 - Manager contract tests
 - Visual regression testing

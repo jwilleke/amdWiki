@@ -7,12 +7,14 @@
 ## Current Situation Analysis
 
 **✅ Good Foundation:**
+
 - AGENTS.md - Single source of truth
 - project_log.md - Session tracking
 - 90+ test files (376+ tests mentioned in docs)
 - Manager-based architecture (well-structured)
 
 **❌ Gaps Identified:**
+
 - Tests not running in CI/CD (failures exist)
 - No pre-commit validation
 - No integration test suite for critical paths
@@ -276,13 +278,16 @@ async listPages(): Promise<string[]>
 ```
 
 ### Consumers
+
 - RenderingManager (calls getPage)
 - SearchManager (calls listPages, getPage)
 - VersioningProvider (calls savePage, getPage)
 - WikiRoutes (calls all methods)
 
 ### Breaking Change Policy
+
 If you need to change a method signature:
+
 1. Add new method with new signature
 2. Deprecate old method (keep for 2 versions)
 3. Update all consumers to use new method
@@ -291,6 +296,7 @@ If you need to change a method signature:
 ## RenderingManager Contract
 
 ... (similar documentation for each manager)
+
 ```
 
 **Create contract tests:**
@@ -493,22 +499,26 @@ module.exports = {
 ## Implementation Roadmap
 
 ### Phase 1: Quick Wins (1-2 days)
+
 1. ✅ Fix existing test failures
 2. ✅ Add smoke test script
 3. ✅ Setup pre-commit hooks
 4. ✅ Document manager contracts
 
 ### Phase 2: CI/CD (2-3 days)
+
 1. ✅ Create GitHub Actions workflow
 2. ✅ Setup coverage reporting
 3. ✅ Add badge to README.md
 
 ### Phase 3: Integration Tests (3-5 days)
+
 1. ✅ Create critical path tests
 2. ✅ Add contract tests
 3. ✅ Setup test:integration script
 
 ### Phase 4: Process Integration (1 day)
+
 1. ✅ Update AGENTS.md with checklists
 2. ✅ Create CONTRIBUTING.md section on testing
 3. ✅ Train team on new workflow
@@ -575,6 +585,7 @@ test('page renders consistently', () => {
 
 **Q: Will this slow down development?**
 A: Initial setup takes time, but after that:
+
 - Pre-commit: +30 seconds per commit
 - CI: Runs in parallel, doesn't block development
 - Net result: Faster because fewer regressions to fix

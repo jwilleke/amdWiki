@@ -328,6 +328,7 @@ See [docs/planning/ROADMAP.md](./docs/planning/ROADMAP.md)
 ⚠️ **Changes breaking previously working services is a known issue.**
 
 See [docs/development/PREVENTING-REGRESSIONS.md](./docs/development/PREVENTING-REGRESSIONS.md) for comprehensive prevention strategy including:
+
 - Automated testing requirements
 - Pre-commit validation checklist
 - Integration testing approach
