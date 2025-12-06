@@ -426,6 +426,7 @@ Check what's using port 3000:
 ### Current Implementation (Bare Metal / VMs)
 
 **Strategy:** Option A - Keep PM2 for process management
+
 - **Best For:** Development, on-premises servers, single-machine deployments
 - **PM2 Features Used:**
   - Auto-restart on crash
@@ -438,6 +439,7 @@ Check what's using port 3000:
 ### Docker Deployment (Recommended)
 
 **Strategy:** Option C - Simple Node process (no PM2)
+
 - **Architecture:** Node runs as PID 1 in container
 - **Container Handles:**
   - Process restart (via restart policy: `unless-stopped`)
@@ -447,6 +449,7 @@ Check what's using port 3000:
 - **Single Instance Enforcement:** `.amdwiki.pid` lock still applies per container
 
 **Benefits:**
+
 - ✅ Cleaner process model (standard Docker practices)
 - ✅ No PM2 overhead in lightweight containers
 - ✅ Direct signal forwarding (SIGTERM → app)
@@ -454,6 +457,7 @@ Check what's using port 3000:
 - ✅ Better resource efficiency
 
 **Implementation:**
+
 ```dockerfile
 # Dockerfile.prod
 FROM node:20-alpine
@@ -471,6 +475,7 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
 ```
 
 **Docker Compose:**
+
 ```yaml
 version: '3.8'
 services:
@@ -505,6 +510,7 @@ services:
 ### Kubernetes Deployment
 
 **Strategy:** Option C variant - Simple Node process with K8s orchestration
+
 - **Pod Model:** Node runs as PID 1, K8s manages lifecycle
 - **Kubernetes Handles:**
   - Pod restart (via restart policy)
@@ -516,6 +522,7 @@ services:
   - PersistentVolumes for data storage
 
 **Implementation:**
+
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -600,6 +607,7 @@ spec:
 ```
 
 **Important Notes for Kubernetes:**
+
 - Each Pod gets its own `.amdwiki.pid` (isolated file system)
 - Single instance per Pod enforced automatically
 - Use `replicas: 1` to enforce single instance globally (or use StatefulSet)
@@ -613,6 +621,7 @@ spec:
 3. **Future (K8s):** Standard K8s Deployment with PersistentVolumes
 
 All strategies keep `.amdwiki.pid` locking mechanism:
+
 - **Bare Metal:** Enforces single instance per machine
 - **Docker:** Enforces single instance per container
 - **Kubernetes:** Enforces single instance per Pod (via shared filesystem)
@@ -630,6 +639,7 @@ app.get('/health', (req, res) => {
 ```
 
 This enables:
+
 - Container health checks (Docker HEALTHCHECK)
 - Kubernetes liveness/readiness probes
 - Load balancer health verification
