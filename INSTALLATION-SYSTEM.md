@@ -2,10 +2,10 @@
 
 Complete implementation of JSPWiki-style first-run installation wizard for amdWiki (Issue #153).
 
-**Status:** ✅ IMPLEMENTED & PARTIALLY TESTED
+**Status:** ✅ IMPLEMENTED - READY FOR BROWSER TESTING
 **Last Updated:** 2025-12-06
 **Created:** 2025-11-25
-**Related Issues:** #153 (startup pages), #167 (PID lock - BLOCKING)
+**Related Issues:** #153 (startup pages), #167 (PID lock - ✅ FIXED)
 
 ## Overview
 
@@ -190,15 +190,18 @@ Subsequent visits bypass install
 
 ### Known Issues ⚠️
 
-**BLOCKING ISSUE:** GitHub #167 - Multiple server instances running
-- Server cache inconsistency
-- Form template rendering issue
-- Form shows INPUT fields but should show read-only DIVs
-- File on disk has DIVs, server serves INPUT fields
-- Caused by old Node processes still running
+✅ **RESOLVED:** GitHub #167 - Multiple server instances running
 
-**Pre-existing Issues:**
-- Jest tests: 595 failed tests (CacheManager logger mocking)
+- Implemented 7-step validation and cleanup in server.sh
+- Process validation before startup
+- Port availability checking
+- Orphaned process cleanup
+- Single `.amdwiki.pid` enforcement
+- Tested and verified working correctly
+
+**Pre-existing Issues (Not Installation-Related):**
+
+- Jest tests: 595 failed tests (CacheManager logger mocking issue)
 - Not related to installation system
 
 ## Testing Checklist
@@ -206,6 +209,7 @@ Subsequent visits bypass install
 **Manual Browser Testing Needed:**
 
 Installation Flow:
+
 - [ ] Visit /install with empty pages directory
 - [ ] See installation form
 - [ ] Fill in all required fields
@@ -215,6 +219,7 @@ Installation Flow:
 - [ ] Subsequent visits redirect to home (not install)
 
 Partial Installation Recovery:
+
 - [ ] Start installation
 - [ ] Simulate failure (kill server mid-process)
 - [ ] Restart server
@@ -225,6 +230,7 @@ Partial Installation Recovery:
 - [ ] Installation completes (no loop!)
 
 Admin Account Security:
+
 - [ ] Username shows as "admin"
 - [ ] Email shows as "admin@localhost"
 - [ ] Try to change username in browser dev tools
@@ -232,12 +238,14 @@ Admin Account Security:
 - [ ] Try to login with created password
 
 Startup Pages:
+
 - [ ] Check "Copy startup pages" box
 - [ ] Complete installation
 - [ ] Verify 33 pages exist in pages/
 - [ ] Verify pages match required-pages/
 
 Recovery Features:
+
 - [ ] Delete pages/ folder after installation
 - [ ] Call POST /install/create-pages
 - [ ] Verify pages folder recreated
@@ -246,48 +254,41 @@ Recovery Features:
 ## Installation Workflow Summary
 
 ### Fresh Installation (No partial state)
-1. User visits /install
-2. Sees blank form
-3. Fills: app name, base URL, password, org info
-4. System creates all files and completes
-5. User redirected to success page
-6. User logs in
+
+User visits /install → Sees blank form → Fills: app name, base URL, password, org info → System creates all files and completes → User redirected to success page → User logs in
 
 ### Partial Installation (Previous attempt failed)
-1. User visits /install
-2. Sees warning: "Installation incomplete from previous attempt"
-3. Sees completed steps listed
-4. Form shows fields (can be changed)
-5. User can: submit to complete OR click "reset installation"
-6. If submit: continues from step after last completed step
-7. If reset: clears all state and starts fresh
+
+User visits /install → Sees warning: "Installation incomplete from previous attempt" → Sees completed steps listed → Form shows fields (can be changed) → User can: submit to complete OR click "reset installation" → If submit: continues from step after last completed step → If reset: clears all state and starts fresh
 
 ### Complete Installation
-1. User visits any URL
-2. Middleware checks: install completed? YES
-3. Continues to requested page (installation skipped)
-4. No install form shown
+
+User visits any URL → Middleware checks: install completed? YES → Continues to requested page (installation skipped) → No install form shown
 
 ## Integration Steps
 
-1. **Already integrated in this codebase**
-   - `app.js` lines 16, 106-107, 122-129, 198-200
-   - InstallRoutes imported and registered
-   - Middleware checks installation state
-   - Routes registered before WikiRoutes
+**Already integrated in this codebase**
 
-2. **Configuration**
-   - Default config in `config/app-default-config.json`
-   - Environment overrides in `config/app-development-config.json` etc.
+- `app.js` lines 16, 106-107, 122-129, 198-200
+- InstallRoutes imported and registered
+- Middleware checks installation state
+- Routes registered before WikiRoutes
 
-3. **Startup Pages**
-   - 15 system pages + 18 documentation = 33 total
-   - Located in `required-pages/`
-   - Copied to `pages/` on installation
+**Configuration**
+
+- Default config in `config/app-default-config.json`
+- Environment overrides in `config/app-development-config.json` etc.
+
+**Startup Pages**
+
+- 15 system pages + 18 documentation = 33 total
+- Located in `required-pages/`
+- Copied to `pages/` on installation
 
 ## Security Considerations
 
 ### What's Secure ✅
+
 - Admin password hashed with SHA-256
 - Session secret randomly generated
 - Email validation on form
@@ -298,6 +299,7 @@ Recovery Features:
 - No direct database access (file-based)
 
 ### What to Monitor ⚠️
+
 - Installation endpoint should be protected after completion (it is)
 - Form submission should validate all inputs (it does)
 - Partial installation reset requires user confirmation (it does)
@@ -328,23 +330,26 @@ Recovery Features:
 
 ## Next Steps
 
-### URGENT (Blocking Testing)
+### IMMEDIATE (Ready to Execute)
 
-1. **Fix GitHub Issue #167** - Multiple server instances
-   - Implement proper PID locking in server.sh
-   - Ensure only ONE .amdwiki.pid file
-   - Prevent duplicate process startup
-   - Clear stale PID files on startup
+**GitHub Issue #167** ✅ - FIXED
+- 7-step validation and cleanup implemented in server.sh
+- Single `.amdwiki.pid` enforcement verified
+- Duplicate process startup prevented
+- Stale PID files cleaned up on startup
+- Tested and working correctly
 
-### After #167 is Fixed
+**Manual Browser Testing** (NOW POSSIBLE)
+- Test fresh installation flow with valid server state
+- Test partial installation recovery scenarios
+- Verify admin account security
+- Test startup pages copying
+- Test installation reset functionality
 
-1. Manual browser testing of installation flow
-2. Test partial installation recovery scenarios
-3. Verify admin account security
-4. Test startup pages copying
-5. Test installation reset functionality
-6. Update CHANGELOG.md with improvements
-7. Mark issue #153 as resolved
+**Documentation Updates**
+- Update CHANGELOG.md with #167 fix
+- Update CHANGELOG.md with installation testing completion
+- Mark issue #153 as resolved
 
 ### Future Enhancements
 
@@ -363,7 +368,8 @@ Recovery Features:
 - ✅ **User Experience:** Professional, guided setup wizard
 - ✅ **Security:** Admin credentials protected, form validation
 - ✅ **Documentation:** 300+ lines of guides and API docs
-- ⏳ **Manual Testing:** Needs to be completed after #167 fix
+- ✅ **Server Stability:** Issue #167 fixed - single instance guaranteed
+- ⏳ **Manual Testing:** Ready to be completed (no blockers)
 
 ## Version History
 
