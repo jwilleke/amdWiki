@@ -395,4 +395,246 @@ describe('WikiDocument', () => {
       expect(root.tagName.toLowerCase()).toBe('body');
     });
   });
+
+  describe('Edge Cases and Error Handling', () => {
+    test('handles null pageData in toString', () => {
+      const doc = new WikiDocument(null, {});
+      const str = doc.toString();
+
+      expect(str).toContain('0 chars');
+    });
+
+    test('handles undefined pageData in getStatistics', () => {
+      const doc = new WikiDocument(undefined, {});
+      const stats = doc.getStatistics();
+
+      expect(stats.pageDataLength).toBe(0);
+    });
+
+    test('fromJSON handles missing html field', () => {
+      const json = { pageData: 'Test', metadata: { key: 'value' }, version: '1.0.0' };
+      const doc = WikiDocument.fromJSON(json);
+
+      expect(doc.getPageData()).toBe('Test');
+      expect(doc.toHTML()).toBe(''); // Empty because no html was restored
+    });
+
+    test('fromJSON handles missing metadata field', () => {
+      const json = { pageData: 'Test', html: '<p>Test</p>', version: '1.0.0' };
+      const doc = WikiDocument.fromJSON(json);
+
+      expect(doc.getPageData()).toBe('Test');
+      expect(doc.toHTML()).toContain('<p>Test</p>');
+      // Should still have default metadata from constructor
+      expect(doc.getMetadata()).toHaveProperty('createdAt');
+    });
+
+    test('handles empty string pageData', () => {
+      const doc = new WikiDocument('', {});
+
+      expect(doc.getPageData()).toBe('');
+      expect(doc.toString()).toContain('0 chars');
+    });
+
+    test('handles very large DOM structures', () => {
+      const doc = new WikiDocument('Large content', {});
+
+      // Add 100 elements
+      for (let i = 0; i < 100; i++) {
+        const para = doc.createElement('p', { id: `para-${i}` });
+        para.textContent = `Paragraph ${i}`;
+        doc.appendChild(para);
+      }
+
+      expect(doc.getChildCount()).toBe(100);
+      expect(doc.isEmpty()).toBe(false);
+
+      const stats = doc.getStatistics();
+      expect(stats.nodeCount).toBe(100);
+    });
+  });
+
+  describe('WeakRef Garbage Collection', () => {
+    test('context can be garbage collected', () => {
+      // Create a context that can be GC'd
+      let context = { page: 'TestPage', user: 'john' };
+      const doc = new WikiDocument('Test', context);
+
+      // Verify context is accessible
+      expect(doc.getContext()).toEqual(context);
+
+      // Clear the reference (allowing GC)
+      context = null;
+
+      // Force garbage collection if available (V8)
+      if (global.gc) {
+        global.gc();
+      }
+
+      // Note: We can't reliably test GC in Jest without --expose-gc flag
+      // This test documents the behavior rather than asserting it
+      // In real scenarios, the WeakRef would allow GC when context goes out of scope
+    });
+
+    test('getContext returns null after context is cleared', () => {
+      const doc = new WikiDocument('Test', { page: 'TestPage' });
+      doc.setContext(null);
+
+      expect(doc.getContext()).toBeNull();
+    });
+
+    test('document continues to work after context is cleared', () => {
+      const doc = new WikiDocument('Test', { page: 'TestPage' });
+      doc.setContext(null);
+
+      // Document should still be functional
+      const para = doc.createElement('p');
+      para.textContent = 'Test';
+      doc.appendChild(para);
+
+      expect(doc.toHTML()).toContain('<p>Test</p>');
+      expect(doc.getPageData()).toBe('Test');
+    });
+  });
+
+  describe('Complex DOM Operations', () => {
+    test('builds complex nested structure', () => {
+      const doc = new WikiDocument('Complex page', {});
+
+      // Create article structure
+      const article = doc.createElement('article', { class: 'wiki-article' });
+
+      const header = doc.createElement('header');
+      const h1 = doc.createElement('h1');
+      h1.textContent = 'Article Title';
+      header.appendChild(h1);
+      article.appendChild(header);
+
+      const section = doc.createElement('section', { class: 'content' });
+      for (let i = 0; i < 3; i++) {
+        const para = doc.createElement('p');
+        para.textContent = `Paragraph ${i}`;
+        section.appendChild(para);
+      }
+      article.appendChild(section);
+
+      const footer = doc.createElement('footer');
+      const author = doc.createElement('span', { class: 'author' });
+      author.textContent = 'John Doe';
+      footer.appendChild(author);
+      article.appendChild(footer);
+
+      doc.appendChild(article);
+
+      // Verify structure
+      const html = doc.toHTML();
+      expect(html).toContain('<article');
+      expect(html).toContain('<header>');
+      expect(html).toContain('Article Title');
+      expect(html).toContain('Paragraph 0');
+      expect(html).toContain('John Doe');
+    });
+
+    test('modifies complex structure', () => {
+      const doc = new WikiDocument('Test', {});
+
+      // Create initial structure
+      const div = doc.createElement('div', { id: 'container' });
+      const oldPara = doc.createElement('p', { id: 'old' });
+      oldPara.textContent = 'Old content';
+      div.appendChild(oldPara);
+      doc.appendChild(div);
+
+      // Modify structure
+      const newPara = doc.createElement('p', { id: 'new' });
+      newPara.textContent = 'New content';
+
+      const container = doc.getElementById('container');
+      const old = doc.getElementById('old');
+      container.replaceChild(newPara, old);
+
+      const html = doc.toHTML();
+      expect(html).not.toContain('Old content');
+      expect(html).toContain('New content');
+      expect(html).toContain('id="new"');
+    });
+  });
+
+  describe('Serialization Round-Trip', () => {
+    test('maintains structure through JSON round-trip', () => {
+      const original = new WikiDocument('Original markup', { page: 'TestPage' });
+      original.setMetadata('author', 'John Doe');
+      original.setMetadata('created', '2025-10-01');
+      original.setMetadata('tags', ['test', 'wiki']);
+
+      // Build complex structure
+      const article = original.createElement('article');
+      const h1 = original.createElement('h1', { id: 'title' });
+      h1.textContent = 'Test Article';
+      article.appendChild(h1);
+
+      const section = original.createElement('section', { class: 'content' });
+      const para1 = original.createElement('p');
+      para1.textContent = 'First paragraph';
+      const para2 = original.createElement('p');
+      para2.textContent = 'Second paragraph';
+      section.appendChild(para1);
+      section.appendChild(para2);
+      article.appendChild(section);
+
+      original.appendChild(article);
+
+      // Serialize
+      const json = original.toJSON();
+
+      // Deserialize
+      const restored = WikiDocument.fromJSON(json, { page: 'TestPage' });
+
+      // Verify all data is preserved
+      expect(restored.getPageData()).toBe('Original markup');
+      expect(restored.getMetadataValue('author')).toBe('John Doe');
+      expect(restored.getMetadataValue('created')).toBe('2025-10-01');
+      expect(restored.getMetadataValue('tags')).toEqual(['test', 'wiki']);
+
+      // Verify HTML structure
+      const restoredHTML = restored.toHTML();
+      expect(restoredHTML).toContain('<h1 id="title">Test Article</h1>');
+      expect(restoredHTML).toContain('First paragraph');
+      expect(restoredHTML).toContain('Second paragraph');
+
+      // Verify queries work on restored document
+      expect(restored.getElementById('title')).not.toBeNull();
+      expect(restored.querySelector('.content')).not.toBeNull();
+      expect(restored.querySelectorAll('p').length).toBe(2);
+    });
+  });
+
+  describe('Performance and Statistics', () => {
+    test('getStatistics provides accurate metrics', () => {
+      const content = 'This is test content with 31 characters';
+      const doc = new WikiDocument(content, { page: 'TestPage' });
+
+      doc.setMetadata('author', 'John');
+      doc.setMetadata('version', '1.0');
+
+      const para = doc.createElement('p');
+      para.textContent = 'Test paragraph';
+      doc.appendChild(para);
+
+      const stats = doc.getStatistics();
+
+      expect(stats.nodeCount).toBe(1);
+      expect(stats.pageDataLength).toBe(39); // 'This is test content with 31 characters'.length
+      expect(stats.htmlLength).toBeGreaterThan(0);
+      expect(stats.hasContext).toBe(true);
+      expect(stats.metadata).toBeGreaterThanOrEqual(3); // createdAt (default), version (default), author (custom), version (custom)
+    });
+
+    test('getStatistics handles document without context', () => {
+      const doc = new WikiDocument('Test', null);
+      const stats = doc.getStatistics();
+
+      expect(stats.hasContext).toBe(false);
+    });
+  });
 });

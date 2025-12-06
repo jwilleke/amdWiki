@@ -15,6 +15,10 @@ Read [~/GLOBAL-CODE-PREFERENCES.md](~/GLOBAL-CODE-PREFERENCES.md) for overarchin
 
 ## Quick Navigation
 
+### ⚠️ CRITICAL - Read Before Making Changes
+
+- **[docs/development/PREVENTING-REGRESSIONS.md](./docs/development/PREVENTING-REGRESSIONS.md)** - **Prevents breaking existing services** (automated testing strategy)
+
 ### Root-Level Documentation (Start Here)
 
 - [README.md](./README.md) - Project overview and quick start
@@ -319,6 +323,16 @@ See [docs/planning/ROADMAP.md](./docs/planning/ROADMAP.md)
 
 ### For All Agents
 
+**CRITICAL: Preventing Regressions**
+
+⚠️ **Changes breaking previously working services is a known issue.**
+
+See [docs/development/PREVENTING-REGRESSIONS.md](./docs/development/PREVENTING-REGRESSIONS.md) for comprehensive prevention strategy including:
+- Automated testing requirements
+- Pre-commit validation checklist
+- Integration testing approach
+- Manager contract enforcement
+
 **Before Starting:**
 
 1. Read [~/GLOBAL-CODE-PREFERENCES.md](~/GLOBAL-CODE-PREFERENCES.md) - Overarching principles
@@ -326,23 +340,30 @@ See [docs/planning/ROADMAP.md](./docs/planning/ROADMAP.md)
 3. Review [CONTRIBUTING.md](./CONTRIBUTING.md) - Development standards
 4. Check [docs/planning/TODO.md](./docs/planning/TODO.md) - Current tasks and priorities
 5. Review [CHANGELOG.md](./CHANGELOG.md) - Recent changes (v1.3.3)
+6. **Run smoke tests:** `npm run smoke` (if available, see PREVENTING-REGRESSIONS.md)
+7. **If changing manager APIs:** Read relevant contract in [docs/development/PREVENTING-REGRESSIONS.md](./docs/development/PREVENTING-REGRESSIONS.md)
 
 **During Work:**
 
 - Follow manager-based architecture patterns (extend BaseManager)
 - Use WikiContext for request/user context (single source of truth)
 - Write comprehensive JSDoc documentation (95% coverage standard)
+- **Write tests BEFORE changing code** (TDD approach prevents regressions)
 - Create tests in `__tests__/` directories (mock all file I/O)
+- **Run tests after each significant change:** `npm test -- <relevant-file>.test.js`
 - Reference docs, don't duplicate (DRY principle)
 - Use GitHub CLI for issues/PRs
 
 **After Completing Work:**
 
-- Update [project_log.md](./project_log.md) with session details
+- **Run full test suite:** `npm test` (MUST PASS before committing)
+- **Run integration tests:** `npm run test:integration` (if available)
+- **Verify coverage didn't drop:** `npm test -- --coverage`
+- Update [project_log.md](./docs/project_log.md) with session details
 - Update [docs/planning/TODO.md](./docs/planning/TODO.md) if tasks completed
 - Update [CHANGELOG.md](./CHANGELOG.md) for version releases
 - Restart server if config changes: `./server.sh restart`
-- Run tests: `npm test`
+- **If ANY test fails, do NOT commit. Fix first.**
 
 ### amdWiki-Specific Patterns
 
@@ -414,10 +435,16 @@ const value = configManager.getProperty('amdwiki.category.property', 'default');
 - [docs/architecture/WikiDocument-DOM-Architecture.md](./docs/architecture/WikiDocument-DOM-Architecture.md)
 - [docs/architecture/Policies-Roles-Permissions.md](./docs/architecture/Policies-Roles-Permissions.md)
 
-### Testing
+### Testing & Quality Assurance
 
-- [docs/testing/PageManager-Testing-Guide.md](./docs/testing/PageManager-Testing-Guide.md)
+- **[docs/development/PREVENTING-REGRESSIONS.md](./docs/development/PREVENTING-REGRESSIONS.md)** - **⚠️ READ FIRST:** Comprehensive strategy to prevent breaking changes
+- [docs/testing/PageManager-Testing-Guide.md](./docs/testing/PageManager-Testing-Guide.md) - Specific testing guide
 - Coverage: `npm run test:coverage`
+- **Test Requirements:**
+  - Write tests BEFORE changing code (TDD)
+  - All tests must pass before committing
+  - Coverage must not decrease
+  - Integration tests for manager interactions
 
 ### Configuration
 
@@ -428,6 +455,7 @@ const value = configManager.getProperty('amdwiki.category.property', 'default');
 
 ### API & Development
 
+- **[docs/development/PREVENTING-REGRESSIONS.md](./docs/development/PREVENTING-REGRESSIONS.md)** - Regression prevention strategy (CI/CD, testing)
 - [docs/api/](./docs/api/) - API documentation
 - [docs/developer/](./docs/developer/) - Developer guides
 - [docs/migration/](./docs/migration/) - Migration guides
