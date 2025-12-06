@@ -17,9 +17,10 @@ Read [~/GLOBAL-CODE-PREFERENCES.md](~/GLOBAL-CODE-PREFERENCES.md) for overarchin
 
 - [CONTRIBUTING.md](./CONTRIBUTING.md) - Development workflow, coding standards, JSDoc requirements
 - [INSTALLATION-SYSTEM.md](./INSTALLATION-SYSTEM.md) - Installation wizard system (NEW)
+- [SERVER.md](./SERVER.md) - Server management and configuration
+- [SERVER-MANAGEMENT.md](./SERVER-MANAGEMENT.md) - Ideal server management practices (Issue #167)
 - [docs/architecture/](./docs/architecture/) - Architecture patterns and system design (15 docs)
 - [SECURITY.md](./SECURITY.md) - Security practices and guidelines
-- [SERVER.md](./SERVER.md) - Server management and configuration
 - [docs/planning/TODO.md](./docs/planning/TODO.md) - Task tracking and priorities
 - [docs/planning/ROADMAP.md](./docs/planning/ROADMAP.md) - Long-term platform vision
 - [CHANGELOG.md](./CHANGELOG.md) - Version history (Keep a Changelog format)
