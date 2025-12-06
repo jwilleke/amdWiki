@@ -36,6 +36,7 @@ open http://localhost:3000
 ```
 
 The `docker-setup.sh` script automatically:
+
 - Creates required directories
 - Configures `docker/.env` with your current user's UID/GID
 - Optionally creates production config
@@ -101,6 +102,7 @@ amdWiki uses the **ConfigurationManager** which implements a hierarchical config
 3. `config/app-custom-config.json` - Custom overrides (optional)
 
 The `NODE_ENV` environment variable determines which environment config is loaded:
+
 - `production` → loads `app-production-config.json`
 - `development` → loads `app-development-config.json`
 - `test` → loads `app-test-config.json`
@@ -123,6 +125,7 @@ docker build -t mycompany/amdwiki:latest .
 ### Multi-stage Build for Production
 
 The Dockerfile is optimized for production with:
+
 - Node.js 20 Alpine Linux (minimal size)
 - Production-only dependencies
 - Non-root user execution
@@ -320,13 +323,13 @@ docker-compose exec amdwiki sh
 
 ### Creating Production Configuration
 
-1. Copy the example configuration:
+Step 1. Copy the example configuration:
 
 ```bash
 cp config/app-production-config.example.json config/app-production-config.json
 ```
 
-2. Edit `config/app-production-config.json`:
+Step 2. Edit `config/app-production-config.json`:
 
 ```json
 {
@@ -339,7 +342,7 @@ cp config/app-production-config.example.json config/app-production-config.json
 }
 ```
 
-3. Rebuild and restart:
+Step 3. Rebuild and restart:
 
 ```bash
 docker-compose down
@@ -414,6 +417,7 @@ The application requires persistent storage for several directories:
 ### Creating Host Directories
 
 **Auto-Creation Behavior:**
+
 - Docker Compose will automatically create missing directories
 - However, auto-created directories may have permission issues (especially on Linux)
 - **Best practice:** Pre-create directories and configure UID/GID before first run
@@ -439,12 +443,13 @@ sessions/       # Session files (user sessions)
 
 ### User Permissions (UID/GID)
 
-**Why this matters:**
+Why this matters:
+
 - Files created by the container need to match your host user permissions
 - Without proper UID/GID configuration, you may get "permission denied" errors
 - Or files may be owned by root, making them hard to edit on the host
 
-**Solution: Configure UID/GID in .env file**
+Solution: Configure UID/GID in .env file
 
 Docker Compose is configured to run as `UID:GID` specified in your `.env` file (default: 1000:1000).
 
@@ -479,7 +484,7 @@ id -g  # Shows your GID (e.g., 1000 or 20)
 UID=$(id -u) GID=$(id -g) docker-compose up -d
 ```
 
-#### Common UID/GID values:
+#### Common UID/GID values
 
 | Platform | First User | Notes |
 |----------|-----------|-------|
@@ -619,48 +624,56 @@ Update `config/app-production-config.json`:
 ### Container Won't Start
 
 Check logs:
+
 ```bash
 docker-compose logs -f
 docker logs amdwiki
 ```
 
 Common issues:
+
 - Port already in use: Change port mapping in `docker-compose.yml`
 - Permission errors: Ensure host directories are writable
 - Configuration errors: Validate JSON syntax in config files
 
 ### Can't Access Wiki
 
-1. Check container is running:
+Step 1. Check container is running:
+
 ```bash
 docker-compose ps
 ```
 
-2. Check port mapping:
+Step 2. Check port mapping:
+
 ```bash
 docker port amdwiki
 ```
 
-3. Test from within container:
+Step 3. Test from within container:
+
 ```bash
 docker-compose exec amdwiki wget -O- http://localhost:3000
 ```
 
-4. Check firewall rules on host
+Step 4. Check firewall rules on host
 
 ### Configuration Not Loading
 
-1. Check NODE_ENV:
+Step A Check NODE_ENV:
+
 ```bash
 docker-compose exec amdwiki printenv NODE_ENV
 ```
 
-2. Verify config file exists:
+Step B Verify config file exists:
+
 ```bash
 docker-compose exec amdwiki ls -la config/
 ```
 
-3. Check config file syntax:
+Step C Check config file syntax:
+
 ```bash
 docker-compose exec amdwiki cat config/app-production-config.json | node -e "console.log(JSON.parse(require('fs').readFileSync(0)))"
 ```
@@ -684,11 +697,13 @@ docker run --user 1000:1000 amdwiki
 ### Health Check Failing
 
 Check health status:
+
 ```bash
 docker inspect --format='{{json .State.Health}}' amdwiki | jq
 ```
 
 Test manually:
+
 ```bash
 docker-compose exec amdwiki wget -O- http://localhost:3000/
 ```

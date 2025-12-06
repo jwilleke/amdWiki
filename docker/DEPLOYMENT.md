@@ -30,10 +30,12 @@ Deploy to a remote Linux server via SSH.
 ### Prerequisites
 
 **On your local machine:**
+
 - SSH access to remote server
 - Git (recommended for deployment)
 
 **On remote server:**
+
 - Docker and Docker Compose installed
 - Git installed
 - SSH access (key-based authentication recommended)
@@ -52,6 +54,7 @@ export REMOTE_PATH="~/amdwiki"
 ```
 
 The script will:
+
 1. Test SSH connection
 2. Verify Docker installation
 3. Copy files to remote server (rsync or git)
@@ -100,6 +103,7 @@ curl http://localhost:3000
 ```
 
 **Important directories:**
+
 - `required-pages/` - System pages (IN REPO - automatically cloned)
 - `pages/` - User wiki content (created at runtime, persisted across restarts)
 - `data/` - Attachments, users, versions (created at runtime)
@@ -133,6 +137,7 @@ DEPLOY_METHOD=git ./deploy-remote.sh
 ```
 
 **Pros:**
+
 - Version controlled on server
 - Easy rollbacks and updates
 - Multiple servers can pull from same repo
@@ -140,6 +145,7 @@ DEPLOY_METHOD=git ./deploy-remote.sh
 - Cleaner deployment process
 
 **Cons:**
+
 - Requires git repository
 - Server needs network access to git remote
 
@@ -154,11 +160,13 @@ DEPLOY_METHOD=rsync ./deploy-remote.sh
 ```
 
 **Pros:**
+
 - Fast for updates
 - No need for git repository on server
 - Excludes development files automatically
 
 **Cons:**
+
 - Requires rsync on both machines
 - Doesn't track version history on server
 - Must ensure `required-pages/` is copied
@@ -352,6 +360,7 @@ find "$BACKUP_DIR" -name "amdwiki_backup_*.tar.gz" -mtime +7 -delete
 ### Monitoring
 
 Set up monitoring for:
+
 - Container health status
 - Disk usage (pages, data, logs directories)
 - Memory and CPU usage
@@ -381,6 +390,7 @@ docker cp amdwiki:/tmp/backup.tar.gz ./backup_$(date +%Y%m%d).tar.gz
 ### Deployment Script Issues
 
 **Cannot connect via SSH:**
+
 ```bash
 # Test SSH manually
 ssh -v user@host
@@ -393,6 +403,7 @@ ssh -i ~/.ssh/id_rsa user@host
 ```
 
 **rsync not found:**
+
 ```bash
 # Install rsync on macOS
 brew install rsync
@@ -402,6 +413,7 @@ sudo apt-get install rsync
 ```
 
 **Docker not found on remote:**
+
 ```bash
 # Install Docker on remote server
 ssh user@server
@@ -412,6 +424,7 @@ sudo usermod -aG docker $USER
 ### Container Issues
 
 **Container won't start:**
+
 ```bash
 # Check logs
 docker-compose logs -f
@@ -425,6 +438,7 @@ docker-compose up -d --build
 ```
 
 **Permission errors:**
+
 ```bash
 # Check UID/GID in .env
 cat .env | grep -E "UID|GID"
@@ -436,6 +450,7 @@ sudo chown -R $(id -u):$(id -g) pages data logs sessions
 ### Firewall Issues
 
 **Can't access from outside:**
+
 ```bash
 # Check if port is open locally
 curl http://localhost:3000

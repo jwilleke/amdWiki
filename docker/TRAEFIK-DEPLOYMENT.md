@@ -157,6 +157,7 @@ traefik.http.services.amdwiki.loadbalancer.server.port=3000
 ### Authelia Middleware
 
 The `authelia@docker` middleware:
+
 - Intercepts all requests before they reach amdWiki
 - Redirects unauthenticated users to Authelia login
 - Validates authentication tokens
@@ -204,11 +205,13 @@ volumes:
 ### Connection Refused
 
 Check if the container is running:
+
 ```bash
 docker ps | grep amdwiki
 ```
 
 Check container logs:
+
 ```bash
 docker logs amdwiki
 ```
@@ -216,16 +219,19 @@ docker logs amdwiki
 ### 502 Bad Gateway
 
 1. Verify amdWiki is healthy:
+
    ```bash
    docker exec amdwiki wget -O- http://localhost:3000
    ```
 
 2. Check Traefik can reach the container:
+
    ```bash
    docker exec traefik ping amdwiki
    ```
 
 3. Verify both containers are on `traefik_net`:
+
    ```bash
    docker network inspect traefik_net
    ```
@@ -233,6 +239,7 @@ docker logs amdwiki
 ### Authelia Redirect Loop
 
 1. Check Authelia logs on 192.168.68.71:
+
    ```bash
    docker logs authelia
    ```
@@ -244,11 +251,13 @@ docker logs amdwiki
 ### SSL Certificate Issues
 
 1. Check Traefik logs:
+
    ```bash
    docker logs traefik
    ```
 
 2. Verify DNS points to 192.168.68.71:
+
    ```bash
    nslookup wiki.example.com
    ```
@@ -302,6 +311,7 @@ http:
 ```
 
 Then update the amdWiki router middleware:
+
 ```yaml
 - "traefik.http.routers.amdwiki.middlewares=authelia@docker,security-headers@file"
 ```
@@ -309,12 +319,14 @@ Then update the amdWiki router middleware:
 ## Backup and Maintenance
 
 Important directories to backup:
+
 - `pages/` - Wiki content
 - `data/` - Attachments, users, versions
 - `sessions/` - Active sessions (optional)
 - `config/` - Custom configuration
 
 Backup command:
+
 ```bash
 tar -czf amdwiki-backup-$(date +%Y%m%d).tar.gz pages/ data/ config/
 ```
@@ -322,6 +334,7 @@ tar -czf amdwiki-backup-$(date +%Y%m%d).tar.gz pages/ data/ config/
 ## Support
 
 For issues:
-- amdWiki: https://github.com/your-repo/amdwiki/issues
-- Traefik: https://doc.traefik.io/traefik/
-- Authelia: https://www.authelia.com/
+
+- amdWiki: <https://github.com/your-repo/amdwiki/issues>
+- Traefik: <https://doc.traefik.io/traefik/>
+- Authelia: <https://www.authelia.com/>
