@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Complete page versioning system with JSPWiki-style version management.
 
 #### Phase 1-2: Foundation & Core Provider
+
 - **VersioningFileProvider**: File-based storage with complete version history
   - Delta storage using fast-diff algorithm (80-90% space savings)
   - Gzip compression for old versions
@@ -26,6 +27,7 @@ Complete page versioning system with JSPWiki-style version management.
 - **VersionCompression utility**: Gzip compression/decompression
 
 #### Phase 3: Version Retrieval & Restoration
+
 - `getVersionHistory()` - Retrieve all versions for a page
 - `getPageVersion()` - Get specific version content
 - `compareVersions()` - Compare any two versions with diff
@@ -33,6 +35,7 @@ Complete page versioning system with JSPWiki-style version management.
 - Metadata tracking: author, date, change type, comment, content hash
 
 #### Phase 4: Migration & Initialization
+
 - Automatic migration from FileSystemProvider on first startup
 - Creates v1 for all existing pages
 - Builds centralized page-index.json
@@ -40,6 +43,7 @@ Complete page versioning system with JSPWiki-style version management.
 - Manual migration script: `npm run migrate:versioning`
 
 #### Phase 5: Maintenance & Optimization
+
 - `purgeOldVersions()` - Clean up old versions with retention policies
 - Configurable retention: maxVersions and retentionDays
 - Milestone preservation (v1, every 10th version)
@@ -49,6 +53,7 @@ Complete page versioning system with JSPWiki-style version management.
 - Integrity verification
 
 #### Phase 6: UI Integration
+
 - **REST API Endpoints**:
   - `GET /api/page/:identifier/versions` - List versions
   - `GET /api/page/:identifier/version/:version` - Get version
@@ -69,6 +74,7 @@ Complete page versioning system with JSPWiki-style version management.
   - Quick access to version features
 
 #### Phase 7: Testing & Documentation
+
 - **Comprehensive Test Suite**:
   - 28 API endpoint tests (100% coverage)
   - Unit tests for VersioningFileProvider
@@ -107,6 +113,7 @@ New versioning configuration options:
 ### Technical Details
 
 **New Files**:
+
 - `src/providers/VersioningFileProvider.js` - Main provider implementation
 - `src/utils/DeltaStorage.js` - Diff algorithm wrapper
 - `src/utils/VersionCompression.js` - Compression utilities
@@ -117,11 +124,13 @@ New versioning configuration options:
 - `views/page-diff.ejs` - Diff viewer template
 
 **Modified Files**:
+
 - `src/routes/WikiRoutes.js` - Added 4 API + 2 view routes
 - `views/view.ejs` - Added version info banner
 - `views/header.ejs` - Updated Page History link
 
 **Tests**:
+
 - `src/providers/__tests__/VersioningFileProvider.test.js`
 - `src/providers/__tests__/VersioningFileProvider-Maintenance.test.js`
 - `src/utils/__tests__/DeltaStorage.test.js`
@@ -129,6 +138,7 @@ New versioning configuration options:
 - `src/routes/__tests__/WikiRoutes.versioning.test.js`
 
 **Documentation**:
+
 - `docs/user-guide/Using-Version-History.md`
 - `docs/api/Versioning-API.md`
 - `docs/admin/Versioning-Deployment-Guide.md`
@@ -150,11 +160,13 @@ None. VersioningFileProvider is opt-in and fully backward compatible.
 ### Migration
 
 To enable versioning:
+
 1. Update config: `"amdwiki.page.provider": "versioningfileprovider"`
 2. Restart application
 3. Version history created automatically for all pages
 
 To disable versioning:
+
 1. Update config: `"amdwiki.page.provider": "filesystemprovider"`
 2. Restart application
 3. Version data preserved for future re-enabling
@@ -162,6 +174,7 @@ To disable versioning:
 ### Dependencies
 
 No new dependencies required. Uses existing:
+
 - `fast-diff@1.3.0` (already installed in Phase 1)
 - `pako@2.1.0` (already installed in Phase 1)
 - `fs-extra@11.3.0` (existing)
@@ -183,9 +196,11 @@ See issue #124 for planned Phase 7+ features.
 ## [1.3.2] - 2024-10-14
 
 ### Fixed
+
 - Various bug fixes and improvements
 
 ### Documentation
+
 - Enhanced project documentation structure
 - Added comprehensive architecture guides
 
@@ -194,6 +209,7 @@ See issue #124 for planned Phase 7+ features.
 ## [1.3.1] - 2024-10-10
 
 ### Added
+
 - WikiDocument DOM parser
 - Enhanced JSPWiki compatibility
 - Improved test coverage
@@ -203,6 +219,7 @@ See issue #124 for planned Phase 7+ features.
 ## [1.3.0] - 2024-10-01
 
 ### Added
+
 - Policy-based access control
 - Audit trail system
 - Admin dashboard
@@ -213,6 +230,7 @@ See issue #124 for planned Phase 7+ features.
 ## [1.2.0] - 2024-09-15
 
 ### Added
+
 - Advanced search functionality
 - Multi-criteria filtering
 - Category organization
@@ -223,6 +241,7 @@ See issue #124 for planned Phase 7+ features.
 ## [1.1.0] - 2024-09-01
 
 ### Added
+
 - Image upload functionality
 - Inline image support
 - Attachment management
@@ -232,6 +251,7 @@ See issue #124 for planned Phase 7+ features.
 ## [1.0.0] - 2024-08-15
 
 ### Added
+
 - Initial release
 - Basic wiki functionality
 - Markdown support
