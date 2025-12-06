@@ -2,9 +2,9 @@
 
 **Purpose:** Define ideal server management practices and document the solution to GitHub issue #167 (multiple instances running)
 
-**Issue:** Multiple Node.js server processes running simultaneously despite PID lock mechanism
+**Status:** ✅ **IMPLEMENTED AND TESTED** (Session 2025-12-06)
 
-## Current State (Problem)
+## Problem Definition (SOLVED)
 
 ### What's Wrong
 
@@ -33,34 +33,56 @@ kill 45254
 - No validation that only ONE process should run
 ```
 
-## Ideal Solution
+## Solution Implemented
 
-### Architecture
+### 7-Step Startup Process (in server.sh)
 
 ```
-User runs: ./server.sh start
+./server.sh start
     ↓
-Check 1: Does .amdwiki.pid exist?
-    ├─ YES → Is process in PID file alive?
-    │   ├─ YES → Error: "Server already running (PID XXXX)"
-    │   │         Suggestion: ./server.sh stop or ./server.sh unlock
-    │   └─ NO → Remove stale .amdwiki.pid, continue
-    └─ NO → Continue
+STEP 1: Validate existing PID file
+    ├─ Check if .amdwiki.pid exists
+    ├─ If yes: Is process alive?
+    │   ├─ YES → ERROR: Server already running, suggest stop/unlock
+    │   └─ NO → Remove stale PID, continue
+    └─ If no: Continue
     ↓
-Check 2: Is port 3000 in use?
-    ├─ YES → Error: "Port 3000 in use by PID XXXX"
-    │         Kill with: kill -9 XXXX
-    └─ NO → Continue
+STEP 2: Check port 3000 availability
+    ├─ Using: lsof -Pi :3000
+    ├─ If in use → ERROR: Show what's using it, suggest kill or unlock
+    └─ If free: Continue
     ↓
-Check 3: Check for orphaned node processes
-    └─ Kill any stale: pkill -f "node.*app.js"
+STEP 3: Kill orphaned Node processes
+    ├─ pkill -9 -f "node.*app\.js"
+    └─ Sleep 1 second for cleanup
     ↓
-Start server via PM2
+STEP 4: Remove legacy PID files
+    ├─ rm -f .amdwiki-*.pid (PM2 artifacts)
+    ├─ rm -f server.pid (deprecated format)
+    └─ Continue
     ↓
-Write PID to .amdwiki.pid
+STEP 5: Start via PM2
+    ├─ npx pm2 start ecosystem.config.js --env {environment}
+    └─ Sleep 1 second for startup
     ↓
-Return control with clear status message
+STEP 6: Write .amdwiki.pid (single source of truth)
+    ├─ Get PM2 process ID
+    ├─ Write to .amdwiki.pid
+    └─ Report success with PID
+    ↓
+STEP 7: Clean PM2 artifacts
+    ├─ rm -f .amdwiki-*.pid (remove any PM2-generated files)
+    └─ Ensures ONLY .amdwiki.pid exists
 ```
+
+### Testing Results ✅
+
+- ✅ Single instance enforcement: ONE `.amdwiki.pid`, ONE Node process
+- ✅ Duplicate prevention: Second start blocks with helpful error
+- ✅ Graceful shutdown: Stop command works with force-kill fallback
+- ✅ Clean restart: Process replaced with new PID
+- ✅ Port conflict detection: Prevents startup if port in use
+- ✅ Stale PID cleanup: Removes orphaned lock files
 
 ## Implementation Details
 
@@ -398,3 +420,217 @@ Check what's using port 3000:
 ✅ Graceful stop/restart works reliably
 ✅ Form changes reflected immediately after restart
 ✅ No orphaned processes after crashes
+
+## Docker & Kubernetes Deployment
+
+### Current Implementation (Bare Metal / VMs)
+
+**Strategy:** Option A - Keep PM2 for process management
+- **Best For:** Development, on-premises servers, single-machine deployments
+- **PM2 Features Used:**
+  - Auto-restart on crash
+  - Memory-limit enforcement (500MB max)
+  - Log rotation with 100MB limit
+  - Single instance mode (instances: 1)
+  - Graceful shutdown timeout (5 seconds)
+- **Coordinator:** `server.sh` manages PM2, enforces single instance via `.amdwiki.pid`
+
+### Docker Deployment (Recommended)
+
+**Strategy:** Option C - Simple Node process (no PM2)
+- **Architecture:** Node runs as PID 1 in container
+- **Container Handles:**
+  - Process restart (via restart policy: `unless-stopped`)
+  - Logging (via log driver: `json-file` with rotation)
+  - Resource limits (via `--memory` and `--cpus` flags)
+  - Health checks (via `HEALTHCHECK` instruction)
+- **Single Instance Enforcement:** `.amdwiki.pid` lock still applies per container
+
+**Benefits:**
+- ✅ Cleaner process model (standard Docker practices)
+- ✅ No PM2 overhead in lightweight containers
+- ✅ Direct signal forwarding (SIGTERM → app)
+- ✅ Smaller image size (no PM2 dependency)
+- ✅ Better resource efficiency
+
+**Implementation:**
+```dockerfile
+# Dockerfile.prod
+FROM node:20-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --only=production
+COPY . .
+
+# Run Node directly (not via PM2)
+CMD ["node", "app.js"]
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:3000/health', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"
+```
+
+**Docker Compose:**
+```yaml
+version: '3.8'
+services:
+  amdwiki:
+    image: amdwiki:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+    volumes:
+      - ./pages:/app/pages              # Wiki pages
+      - ./users:/app/users              # User data
+      - ./attachments:/app/attachments  # Uploads
+      - ./config:/app/config            # Custom config
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+```
+
+### Kubernetes Deployment
+
+**Strategy:** Option C variant - Simple Node process with K8s orchestration
+- **Pod Model:** Node runs as PID 1, K8s manages lifecycle
+- **Kubernetes Handles:**
+  - Pod restart (via restart policy)
+  - Scaling (via Deployment replicas)
+  - Health checks (via liveness/readiness probes)
+  - Resource management (via requests/limits)
+  - Service discovery (via Service)
+  - ConfigMaps for environment variables
+  - PersistentVolumes for data storage
+
+**Implementation:**
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: amdwiki
+  labels:
+    app: amdwiki
+spec:
+  replicas: 2  # Or 1 if you want single instance
+  selector:
+    matchLabels:
+      app: amdwiki
+  template:
+    metadata:
+      labels:
+        app: amdwiki
+    spec:
+      containers:
+      - name: amdwiki
+        image: amdwiki:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 3000
+          name: http
+        env:
+        - name: NODE_ENV
+          value: "production"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 1
+        volumeMounts:
+        - name: pages
+          mountPath: /app/pages
+        - name: users
+          mountPath: /app/users
+        - name: attachments
+          mountPath: /app/attachments
+      volumes:
+      - name: pages
+        persistentVolumeClaim:
+          claimName: amdwiki-pages
+      - name: users
+        persistentVolumeClaim:
+          claimName: amdwiki-users
+      - name: attachments
+        persistentVolumeClaim:
+          claimName: amdwiki-attachments
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: amdwiki
+spec:
+  type: LoadBalancer
+  selector:
+    app: amdwiki
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 3000
+    name: http
+```
+
+**Important Notes for Kubernetes:**
+- Each Pod gets its own `.amdwiki.pid` (isolated file system)
+- Single instance per Pod enforced automatically
+- Use `replicas: 1` to enforce single instance globally (or use StatefulSet)
+- Stateless design allows horizontal scaling if needed
+- PersistentVolumes shared across replicas for data consistency
+
+### Migration Path: Bare Metal → Docker → Kubernetes
+
+1. **Today (Current):** PM2 + server.sh (working, tested)
+2. **Next (Docker):** Remove PM2, use simple Node in containers
+3. **Future (K8s):** Standard K8s Deployment with PersistentVolumes
+
+All strategies keep `.amdwiki.pid` locking mechanism:
+- **Bare Metal:** Enforces single instance per machine
+- **Docker:** Enforces single instance per container
+- **Kubernetes:** Enforces single instance per Pod (via shared filesystem)
+
+### Health Check Endpoint Recommendation
+
+For all deployment models, add `/health` endpoint to `app.js`:
+
+```javascript
+// app.js
+app.get('/health', (req, res) => {
+  // Simple check that server is responsive
+  res.status(200).json({ status: 'ok', uptime: process.uptime() });
+});
+```
+
+This enables:
+- Container health checks (Docker HEALTHCHECK)
+- Kubernetes liveness/readiness probes
+- Load balancer health verification
+- Monitoring system integration
