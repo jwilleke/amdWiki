@@ -53,7 +53,7 @@ class InstallRoutes {
             info: req.session.installSuccess || 'Please complete the following fields to set up your wiki.',
             error: req.session.installError,
             warning: partialState.isPartial ?
-              'Partial installation detected. Please reset before continuing.' : null
+              'Installation is incomplete from a previous attempt. Complete the form below to finish the setup.' : null
           },
           partialInstallation: partialState
         });

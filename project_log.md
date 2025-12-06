@@ -17,6 +17,84 @@ Subject: [Brief description]
 
 ---
 
+## 2025-12-06-01
+
+**Agent:** Claude Code (Haiku)
+
+**Subject:** Fix installation flow looping issue - allow retrying partial installations
+
+**Key Decision:**
+
+- Allow users to retry partial installations instead of forcing reset
+- Skip already-completed steps and continue from where the previous attempt failed
+- Makes partial installations a recoverable state instead of a blocking error
+
+**Current Issue (RESOLVED):**
+
+- When partial installation detected (config written but incomplete), form kept looping
+- User filled form → submitted → saw "Partial installation detected" error
+- User couldn't retry without clicking "Reset Installation" button
+- This was poor UX and confusing for users
+
+**Root Cause:**
+
+- `processInstallation()` method blocked ALL submissions if partial state existed (line 217-226)
+- Should only block truly corrupt states, not incomplete ones
+- User should be able to continue by retrying the form submission
+
+**Solution Implemented:**
+
+1. Modified `InstallService.processInstallation()` to:
+   - Detect which steps are already completed
+   - Skip those steps on retry
+   - Continue with remaining steps
+   - Track both new and previously completed steps
+
+2. Updated `InstallRoutes.js` warning message:
+   - Changed from "Please reset before continuing" (blocking tone)
+   - To "Complete the form below to finish the setup" (helpful tone)
+
+3. Updated `views/install.ejs`:
+   - Changed "Reset Installation" from required button to optional link
+   - Shows completed steps with checkmarks
+   - Encourages user to just submit form again
+
+**Work Done:**
+
+- Created comprehensive root cause analysis in `INSTALLATION-FLOW.md`
+- Modified `src/services/InstallService.js` - rewrote `processInstallation()` method (lines 202-283)
+- Updated `src/routes/InstallRoutes.js` - improved warning message (lines 49-59)
+- Updated `views/install.ejs` - better UX for partial installations (lines 89-112)
+- Tested server restart and form display
+- Created INSTALLATION-SERVICE.md consolidating documentation
+
+**Files Modified:**
+
+- `src/services/InstallService.js` - Core fix: allow retry of partial installations
+- `src/routes/InstallRoutes.js` - Better user messaging
+- `views/install.ejs` - UX improvements for partial state
+- `INSTALLATION-FLOW.md` - Root cause analysis (NEW)
+- `INSTALLATION-SERVICE.md` - Consolidated documentation (NEW)
+
+**Testing Performed:**
+
+- ✅ Server restart with new code
+- ✅ Install form displays correctly
+- ✅ Form endpoint responding
+- ✅ No errors in startup
+
+**Next Steps:**
+
+- Manual browser testing of full installation flow
+- Test partial installation recovery scenario
+- Test form submission with partial state
+- Verify admin password update works
+- Verify pages are copied correctly
+
+**Status:** ✅ CODE COMPLETE, NEEDS MANUAL TESTING
+
+---
+
 ## 2025-12-05-04
 
 **Agent:** Claude
@@ -25,7 +103,8 @@ Subject: [Brief description]
 
 - **Key Decision:** Admin account with default password (admin123) should exist from source code initialization. Install form allows ONLY password change, NOT username or email change.
 - **Current Issue:** Admin needs to exist from start with fixed password (admin123), form should allow changing password during installation
-- **Requirements:**
+
+**Requirements:**
   1. Admin account "admin" created automatically on system initialization (not during install)
   2. Default password: "admin123" (from config: amdwiki.user.security.defaultpassword)
   3. Admin email: **"admin@localhost"** (FIXED, not editable) - fallback for OIDC users

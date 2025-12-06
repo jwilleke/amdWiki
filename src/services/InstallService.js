@@ -202,43 +202,57 @@ class InstallService {
   /**
    * Process installation with provided data
    *
+   * Supports retrying partial installations. If some steps are already complete,
+   * skips them and continues with remaining steps. This allows users to recover
+   * from partial installation states without needing to reset.
+   *
    * @async
    * @param {Object} installData - Installation form data
-   * @returns {Promise<Object>} Result with success status and any errors
+   * @returns {Promise<Object>} Result with success status, completed steps, and any errors
    */
   async processInstallation(installData) {
     const installSteps = [];
+    const alreadyCompleted = [];
 
     try {
       // Validate required fields
       this.#validateInstallData(installData);
 
-      // Check for partial installation
+      // Check for partial installation - get the state but don't block
       const partialState = await this.detectPartialInstallation();
-      if (partialState.isPartial) {
-        throw new Error(
-          'Partial installation detected. Please reset the installation before continuing. ' +
-          `Completed steps: ${Object.entries(partialState.steps)
-            .filter(([_, v]) => v)
-            .map(([k]) => k)
-            .join(', ')}`
-        );
+
+      // Track which steps are already done
+      if (partialState.steps.configWritten) {
+        alreadyCompleted.push('configWritten');
+      }
+      if (partialState.steps.organizationCreated) {
+        alreadyCompleted.push('organizationCreated');
+      }
+      if (partialState.steps.adminCreated) {
+        alreadyCompleted.push('adminCreated');
+      }
+      if (partialState.steps.pagesCopied) {
+        alreadyCompleted.push('pagesCopied');
       }
 
-      // 1. Write app-custom-config.json
-      installSteps.push('writeConfig');
-      await this.#writeCustomConfig(installData);
+      // 1. Write app-custom-config.json (skip if already done)
+      if (!partialState.steps.configWritten) {
+        installSteps.push('writeConfig');
+        await this.#writeCustomConfig(installData);
+      }
 
-      // 2. Write users/organizations.json
-      installSteps.push('writeOrganization');
-      await this.#writeOrganizationData(installData);
+      // 2. Write users/organizations.json (skip if already done)
+      if (!partialState.steps.organizationCreated) {
+        installSteps.push('writeOrganization');
+        await this.#writeOrganizationData(installData);
+      }
 
-      // 3. Update admin password
+      // 3. Update admin password (always do this, user may want to change password)
       installSteps.push('updateAdminPassword');
       await this.#updateAdminPassword(installData);
 
       // 4. Copy startup pages if requested
-      if (installData.copyStartupPages) {
+      if (installData.copyStartupPages && !partialState.steps.pagesCopied) {
         installSteps.push('copyPages');
         await this.#copyStartupPages();
       }
@@ -249,7 +263,9 @@ class InstallService {
 
       return {
         success: true,
-        message: 'Installation completed successfully'
+        message: 'Installation completed successfully',
+        newlyCompleted: installSteps,
+        previouslyCompleted: alreadyCompleted
       };
     } catch (error) {
       // Log which step failed
@@ -259,7 +275,9 @@ class InstallService {
         success: false,
         error: error.message,
         failedStep,
-        completedSteps: installSteps.slice(0, -1)
+        completedSteps: [...alreadyCompleted, ...installSteps.slice(0, -1)],
+        newlyCompleted: installSteps.slice(0, -1),
+        previouslyCompleted: alreadyCompleted
       };
     }
   }
