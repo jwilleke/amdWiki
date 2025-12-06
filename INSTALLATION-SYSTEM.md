@@ -10,6 +10,7 @@ Complete implementation of JSPWiki-style first-run installation wizard for amdWi
 ## Overview
 
 The installation system provides a professional first-run experience with:
+
 - Configuration wizard with form validation
 - Admin account creation with secure password hashing
 - Organization data (Schema.org compliant)
@@ -22,9 +23,11 @@ The installation system provides a professional first-run experience with:
 ### Core Components
 
 #### 1. Installation Service
+
 **File:** `src/services/InstallService.js` (620+ lines)
 
 Core service handling:
+
 - Form data validation
 - Config file generation (`app-custom-config.json`)
 - Organization JSON creation (Schema.org compliant)
@@ -36,6 +39,7 @@ Core service handling:
 - Retry support (allows continuing from where previous attempt failed)
 
 **Key Methods:**
+
 - `isInstallRequired()` - Checks if installation needed
 - `detectPartialInstallation()` - Detects incomplete setups
 - `validateInstallData()` - Validates form submission
@@ -45,9 +49,11 @@ Core service handling:
 - `detectMissingPagesOnly()` - Recovery: detect missing pages
 
 #### 2. Installation Routes
+
 **File:** `src/routes/InstallRoutes.js` (180+ lines)
 
 HTTP endpoints:
+
 - `GET /install` - Display installation form
 - `POST /install` - Process installation submission (with partial installation support)
 - `POST /install/reset` - Reset partial installation
@@ -57,6 +63,7 @@ HTTP endpoints:
 #### 3. User Interface
 
 **Install Form:** `views/install.ejs` (260+ lines)
+
 - Bootstrap 5 responsive design
 - Basic configuration: app name, base URL
 - Admin account setup (password only - username/email fixed)
@@ -67,6 +74,7 @@ HTTP endpoints:
 - Partial installation status display
 
 **Success Page:** `views/install-success.ejs` (100+ lines)
+
 - Success confirmation with installation summary
 - Next steps guidance
 - Link to login
@@ -74,6 +82,7 @@ HTTP endpoints:
 #### 4. Configuration
 
 **File:** `config/app-default-config.json`
+
 - Added 13 installation tracking properties
 - Installation completion marker
 - Organization metadata fields
@@ -129,6 +138,7 @@ Subsequent visits bypass install
   - Can be changed again after installation
 
 **Form Security:** Backend doesn't trust form values
+
 - Form may show INPUT fields (UI issue due to #167)
 - Backend ignores any form-submitted username/email
 - Hardcodes 'admin' and 'admin@localhost'
@@ -137,16 +147,19 @@ Subsequent visits bypass install
 ## Partial Installation Recovery (NEW)
 
 **Problem Solved:** Previous design blocked retries if partial installation detected
+
 - User couldn't complete failed installation without reset
 - Poor UX for error recovery
 
 **Solution Implemented:** Allow retrying partial installations
+
 - `processInstallation()` now detects completed steps
 - Skips already-completed steps on retry
 - Continues with remaining steps
 - Returns status of what was new vs already done
 
 **Scenarios Supported:**
+
 1. Fresh install → config fails → retry → completes
 2. Fresh install → skip pages copy → retry with pages → completes
 3. Partial install → retry with new org data → completes
@@ -154,6 +167,7 @@ Subsequent visits bypass install
 ## Files Structure
 
 ### Created
+
 - `src/services/InstallService.js` - Core service
 - `src/routes/InstallRoutes.js` - HTTP routes
 - `views/install.ejs` - Installation form
@@ -164,11 +178,13 @@ Subsequent visits bypass install
 - `scripts/restore-install-test.sh` - Test restore script
 
 ### Modified
+
 - `config/app-default-config.json` - Added install properties
 - `app.js` - Integrated install system and routes
 - `views/install.ejs` - UX improvements for partial installation
 
 ### Previously Created
+
 - `required-pages/` - 33 startup pages
 - `docs/developer/` - Developer documentation
 

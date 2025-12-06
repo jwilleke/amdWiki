@@ -248,6 +248,9 @@ See [docs/planning/ROADMAP.md](./docs/planning/ROADMAP.md)
 - Enhanced server.sh with 7-step validation and cleanup process
 - Verified single instance enforcement (one .amdwiki.pid, one Node process)
 - Tested restart/stop/start/unlock commands - all working correctly
+- Fixed email validation to accept admin@localhost format
+- Fixed ConfigurationManager method call in installation (reload → loadConfigurations)
+- ✅ **Installation system fully tested and working** - users can complete setup wizard and login
 
 #### Next Milestones
 

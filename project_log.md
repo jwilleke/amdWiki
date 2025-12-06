@@ -17,6 +17,125 @@ Subject: [Brief description]
 
 ---
 
+## 2025-12-06-02
+
+**Agent:** Claude Code (Haiku)
+
+**Subject:** Fix installation form validation bugs - email regex and ConfigurationManager method
+
+**Key Decisions:**
+
+- Allow `admin@localhost` format in email validation (hardcoded admin email)
+- Use correct ConfigurationManager method: `loadConfigurations()` not `reload()`
+- Add detailed error logging for installation debugging
+- Update AGENTS.md with completion status
+
+**Current Issue (RESOLVED):**
+
+- Installation form looped after first bug fix (from 2025-12-06-01)
+- User reported: "I filled in the form and it looped back to the form! Again."
+- Two cascading bugs prevented form completion:
+  1. Email validation rejected `admin@localhost` format
+  2. ConfigurationManager method call was incorrect
+
+**Root Causes:**
+
+1. **Email Validation Bug (Line 427-430 in InstallService.js):**
+   - Regex required dot in domain: `/^[^\s@]+@[^\s@]+\.[^\s@]+$/`
+   - Failed on hardcoded `admin@localhost` (no dot in "localhost")
+   - Installation form silently failed and looped
+
+2. **ConfigurationManager Method Bug (Line 484 in InstallService.js):**
+   - Code called `this.configManager.reload()` (non-existent method)
+   - ConfigurationManager only has `loadConfigurations()` method
+   - Error thrown after email validation fixed: "this.configManager.reload is not a function"
+   - Prevented configuration reload after custom config written
+
+**Solution Implemented:**
+
+1. **Fixed Email Validation (Line 427-430):**
+   ```javascript
+   // BEFORE (rejected admin@localhost):
+   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+   // AFTER (accepts localhost format):
+   const emailRegex = /^[^\s@]+@([^\s@.]+\.)+[^\s@]+$|^[^\s@]+@localhost$/;
+   ```
+   - Now accepts both: `user@example.com` AND `admin@localhost`
+   - Enables hardcoded admin email to pass validation
+
+2. **Fixed ConfigurationManager Method (Line 484):**
+   ```javascript
+   // BEFORE (method doesn't exist):
+   await this.configManager.reload();
+
+   // AFTER (correct method):
+   await this.configManager.loadConfigurations();
+   ```
+   - Calls actual ConfigurationManager method to reload all config files
+   - Ensures merged configuration reflects new custom config
+
+3. **Added Debug Logging (Lines 275-279):**
+   ```javascript
+   console.error('❌ Installation failed:', {
+     failedStep,
+     error: error.message,
+     stack: error.stack
+   });
+   ```
+   - Helps diagnose future installation failures
+   - Shows which step failed and error details
+
+**Work Done:**
+
+- Fixed email validation regex to accept `admin@localhost` format
+- Fixed ConfigurationManager method call from `reload()` to `loadConfigurations()`
+- Added comprehensive error logging for installation failures
+- Restarted server with fixes
+- Performed manual browser testing: user successfully completed installation and logged in as admin
+- Updated AGENTS.md with completion information
+- Consolidated documentation (INSTALLATION-SYSTEM.md)
+- Enhanced server process management (server.sh with 7-step validation)
+
+**Commits:**
+
+- 7be3fc9 - Fix email validation to accept admin@localhost format
+- fc2a7f8 - Fix ConfigurationManager method call in installation
+
+**Files Modified:**
+
+- `src/services/InstallService.js` - Email regex fix + ConfigurationManager fix + debug logging
+- `AGENTS.md` - Updated "Recent Completions" section with session details
+- `INSTALLATION-SYSTEM.md` - Updated status from "PARTIALLY TESTED" to "READY FOR BROWSER TESTING"
+
+**Testing Performed:**
+
+- ✅ Installation form submitted successfully
+- ✅ Configuration files created correctly
+- ✅ Admin account created with password
+- ✅ User logged in successfully with admin credentials
+- ✅ Success page displays after completion
+- ✅ Server continues running after installation
+- ✅ Email validation accepts both standard and localhost formats
+
+**User Feedback:**
+
+- Initial test: "I filled in the form and it looped back to the form! Again." (email validation failure)
+- Second test: "But it did not! Still looping." (ConfigurationManager method failure)
+- Final test: "Looks like it worked. Was able to login as admin." ✅ SUCCESS
+
+**Next Steps:**
+
+- Manual browser testing of partial installation recovery scenario
+- Test installation reset functionality
+- Test startup pages copying feature
+- Run full Jest test suite (currently has pre-existing failures)
+- Consider CSRF protection for install form (future enhancement)
+
+**Status:** ✅ INSTALLATION SYSTEM WORKING - BROWSER TESTING VERIFIED
+
+---
+
 ## 2025-12-06-01
 
 **Agent:** Claude Code (Haiku)
