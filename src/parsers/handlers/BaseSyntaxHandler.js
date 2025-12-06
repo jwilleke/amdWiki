@@ -103,7 +103,10 @@ class BaseSyntaxHandler {
       return;
     }
 
-    // Validate dependencies
+    // Store context for later validation
+    this.initContext = context;
+
+    // Validate dependencies (non-throwing, stores errors for later)
     await this.validateDependencies(context);
 
     // Perform custom initialization
@@ -127,15 +130,33 @@ class BaseSyntaxHandler {
    * @returns {Promise<void>}
    */
   async validateDependencies(context) {
+    // Initialize dependency errors array if not exists
+    if (!this.dependencyErrors) {
+      this.dependencyErrors = [];
+    }
+
     for (const dependency of this.dependencies) {
-      if (typeof dependency === 'string') {
-        // Check if manager is available
-        if (context.engine && !context.engine.getManager(dependency)) {
-          throw new Error(`Handler ${this.handlerId} requires ${dependency} manager`);
+      try {
+        if (typeof dependency === 'string') {
+          // Check if manager is available
+          if (context.engine && !context.engine.getManager(dependency)) {
+            this.dependencyErrors.push({
+              type: 'manager',
+              name: dependency,
+              message: `Handler ${this.handlerId} requires ${dependency} manager`
+            });
+          }
+        } else if (typeof dependency === 'object') {
+          // Check specific dependency requirements
+          await this.validateSpecificDependency(dependency, context);
         }
-      } else if (typeof dependency === 'object') {
-        // Check specific dependency requirements
-        await this.validateSpecificDependency(dependency, context);
+      } catch (error) {
+        // Store error instead of throwing
+        this.dependencyErrors.push({
+          type: 'validation_error',
+          dependency,
+          message: error.message
+        });
       }
     }
   }
@@ -152,15 +173,43 @@ class BaseSyntaxHandler {
     if (type === 'manager') {
       const manager = context.engine?.getManager(name);
       if (!manager && !optional) {
-        throw new Error(`Handler ${this.handlerId} requires ${name} manager`);
+        // Store error instead of throwing
+        this.dependencyErrors.push({
+          type: 'manager',
+          name,
+          message: `Handler ${this.handlerId} requires ${name} manager`,
+          dependencySpec: dependency
+        });
       }
     } else if (type === 'handler') {
       // Check if another handler is available
       const handler = context.handlerRegistry?.getHandler(name);
       if (!handler && !optional) {
-        throw new Error(`Handler ${this.handlerId} requires ${name} handler`);
+        // Store error instead of throwing
+        this.dependencyErrors.push({
+          type: 'handler',
+          name,
+          message: `Handler ${this.handlerId} requires ${name} handler`,
+          dependencySpec: dependency
+        });
       }
     }
+  }
+
+  /**
+   * Get dependency validation errors
+   * @returns {Array} - Array of dependency errors
+   */
+  getDependencyErrors() {
+    return this.dependencyErrors || [];
+  }
+
+  /**
+   * Check if handler has unresolved dependencies
+   * @returns {boolean} - True if there are dependency errors
+   */
+  hasDependencyErrors() {
+    return (this.dependencyErrors || []).length > 0;
   }
 
   /**

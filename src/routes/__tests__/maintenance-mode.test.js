@@ -11,8 +11,8 @@
 const request = require('supertest');
 const express = require('express');
 const session = require('express-session');
-const WikiEngine = require('../src/WikiEngine');
-const WikiRoutes = require('../src/routes/WikiRoutes');
+const WikiEngine = require('../../WikiEngine');
+const WikiRoutes = require('../WikiRoutes');
 
 describe('Maintenance Mode Integration', () => {
   let app;
