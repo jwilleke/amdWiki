@@ -204,6 +204,9 @@ class WikiEngine extends Engine {
     this.registerManager('BackupManager', new BackupManager(this));
     await this.getManager('BackupManager').initialize();
 
+    // Mark engine as initialized (required for Engine base class contract)
+    this.initialized = true;
+
     console.log('✅ All managers initialized');
     return this;
   }

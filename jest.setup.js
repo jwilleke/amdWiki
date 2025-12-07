@@ -99,7 +99,9 @@ const MockSearchProvider = createMockProvider('MockSearchProvider', {
   async search() { return { results: [], totalHits: 0 }; },
   async indexPage() { },
   async removePage() { },
-  async clearIndex() { }
+  async clearIndex() { },
+  async buildIndex() { },
+  async getDocumentCount() { return 0; }
 });
 
 jest.mock('./src/providers/LunrSearchProvider', () => MockSearchProvider);
