@@ -239,6 +239,7 @@ Going forward, new tests should:
 
 | Date | Failing Suites | Passing Suites | Passing Tests | Notes |
 |------|---------------|----------------|---------------|-------|
+| 2025-12-07 | 41 | 26 | 1138 | PageManager.test.js + PageNameMatcher.test.js fixed (26+43 tests) |
 | 2025-12-07 | 42 | 24 | 1043 | SchemaManager + FilterChain fixed (3 quick wins total) |
 | 2025-12-07 | 44 | 22 | 1032 | WikiContext.test.js fixed (rewrote to match actual API) |
 | 2025-12-07 | 45 | 21 | 1020 | Global setup + comprehensive provider mocking |
