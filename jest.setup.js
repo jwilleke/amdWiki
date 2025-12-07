@@ -124,6 +124,22 @@ const MockAttachmentProvider = createMockProvider('MockAttachmentProvider', {
 
 jest.mock('./src/providers/BasicAttachmentProvider', () => MockAttachmentProvider);
 
+// Mock PageNameMatcher for RenderingManager tests
+jest.mock('./src/utils/PageNameMatcher', () => {
+  return class MockPageNameMatcher {
+    constructor(matchEnglishPlurals) {
+      this.matchEnglishPlurals = matchEnglishPlurals;
+    }
+    findBestMatch(pageName, allPages) {
+      // Simple mock: just return exact match if exists
+      return allPages.includes(pageName) ? pageName : null;
+    }
+    matchesPage(linkText, pageName) {
+      return linkText === pageName;
+    }
+  };
+});
+
 // Suppress console output during tests unless explicitly needed
 global.console = {
   ...console,

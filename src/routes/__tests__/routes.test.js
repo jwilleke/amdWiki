@@ -267,7 +267,7 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
     });
 
     // Create WikiRoutes instance with the same mock engine
-    const WikiEngine = require('../src/WikiEngine');
+    const WikiEngine = require('../../WikiEngine');
     mockEngine = new WikiEngine();
     wikiRoutes = new WikiRoutes(mockEngine);
 
