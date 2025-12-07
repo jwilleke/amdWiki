@@ -2,7 +2,7 @@
 
 **Created:** 2025-12-07
 **Status:** Active Work Plan
-**Current:** 41 failing suites, 26 passing suites, 545 failed tests, 1171 passed tests
+**Current:** 37 failing suites, 30 passing suites, ~500 failed tests, 1221 passed tests
 
 ## Overview
 
@@ -68,13 +68,15 @@ These tests cover critical system infrastructure. **Fix these first.**
 - **Fix:** Ensure proper test fixture setup, provider mocks
 - **Status:** 🔧 Pending
 
-### 6. SearchManager.test.js
+### 6. ~~SearchManager.test.js~~ ⚡ HIGH - ✅ FIXED (18/18 tests passing)
 - **Component:** Full-text search
-- **Failures:** Unknown count
-- **Issue:** Provider mock issues (likely buildIndex/getDocumentCount)
-- **Impact:** HIGH - Core feature
-- **Effort:** LOW (< 15 min) - **Should be fixed by jest.setup.js update**
-- **Status:** ✅ Likely fixed - Needs verification
+- **Fix Applied:** Complete test rewrite with ConfigurationManager mock
+  - Added missing ConfigurationManager mock
+  - Fixed method names to match API: indexPage → updatePageInIndex, removePage → removePageFromIndex
+  - Updated expectations: provider returns object {results, totalHits}, not array
+  - Tests now cover initialization, search operations, index management, statistics
+- **Impact:** HIGH - Core search functionality now fully tested
+- **Status:** ✅ FIXED
 
 ### 7. RenderingManager.test.js
 - **Component:** Content rendering
@@ -241,10 +243,10 @@ Tests that can be fixed in < 15 minutes with high impact:
 ### Week 1 - Core Infrastructure (Target: 8-10 fixed suites)
 
 **Day 1:**
-1. ✅ Fix WikiEngine.test.js (5 min)
-2. ✅ Verify policy-system.test.js fix (5 min)
-3. ✅ Verify SearchManager.test.js fix (5 min)
-4. Fix ACLManager.test.js (30-60 min)
+1. ✅ DONE - WikiEngine.test.js (5 min)
+2. ✅ DONE - policy-system.test.js rewrite (30 min)
+3. ✅ DONE - ACLManager.test.js rewrite (45 min)
+4. ✅ DONE - SearchManager.test.js rewrite (30 min)
 
 **Day 2:**
 5. Verify/fix UserManager.test.js (15 min)
@@ -275,9 +277,9 @@ Tests that can be fixed in < 15 minutes with high impact:
 
 ## Success Metrics
 
-**Current State:**
-- Test Suites: 41 failed, 26 passed (61% failure rate)
-- Individual Tests: 545 failed, 1171 passed (32% failure rate)
+**Current State:** (as of 2025-12-07 Session 4)
+- Test Suites: 37 failed, 30 passed (55% failure rate) ✅ Down from 61%
+- Individual Tests: ~500 failed, 1221 passed (~29% failure rate) ✅ Down from 32%
 
 **Week 1 Target:**
 - Test Suites: < 33 failed, > 34 passed (< 50% failure rate)

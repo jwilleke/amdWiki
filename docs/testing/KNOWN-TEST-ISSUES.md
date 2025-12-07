@@ -1,7 +1,7 @@
 # Known Test Issues
 
-**Last Updated:** 2025-12-07 (Session 2025-12-07-03 final)
-**Test Status:** 38 failing suites, 29 passing suites, 67 total
+**Last Updated:** 2025-12-07 (Session 2025-12-07-04)
+**Test Status:** 37 failing suites, 30 passing suites, 67 total
 
 ## Overview
 
@@ -17,7 +17,7 @@ This document tracks known test failures and the strategy for fixing them. Tests
 **Progress:**
 - ✅ Systematic blockers removed (import paths, missing deps)
 - ✅ Global test setup implemented (logger mocking, provider mocking)
-- ✅ 1171 tests passing (68% pass rate)
+- ✅ 1221 tests passing (71% pass rate)
 - ✅ WikiContext.test.js fixed (high-priority core component)
 - ✅ FilterChain.test.js fixed (quick win)
 - ✅ SchemaManager.test.js fixed (quick win)
@@ -27,9 +27,9 @@ This document tracks known test failures and the strategy for fixing them. Tests
 - ✅ WikiEngine.test.js fixed (5 tests, CRITICAL core engine)
 - ✅ policy-system.test.js fixed (10 tests, CRITICAL security component)
 - ✅ ACLManager.test.js fixed (22 tests, CRITICAL security component)
-- ✅ SearchManager mock enhanced (buildIndex, getDocumentCount methods)
+- ✅ SearchManager.test.js fixed (18 tests, HIGH priority core feature)
 - 📋 PRIORITIZED-TEST-FIXES.md created (comprehensive fix plan)
-- 🔧 38 test suites with individual issues remaining
+- 🔧 37 test suites with individual issues remaining
 
 ## Categories of Failures
 
@@ -246,8 +246,10 @@ Going forward, new tests should:
 
 | Date | Failing Suites | Passing Suites | Passing Tests | Notes |
 |------|---------------|----------------|---------------|-------|
-| 2025-12-07 | 39 | 28 | 1181 | policy-system.test.js fixed (10 tests) - complete rewrite to match read-only PolicyManager API |
-| 2025-12-07 | 40 | 27 | 1171 | WikiEngine.test.js fixed (5 tests) + SearchManager mock enhanced + PRIORITIZED-TEST-FIXES.md created |
+| 2025-12-07 | 37 | 30 | 1221 | SearchManager.test.js fixed (18 tests, HIGH priority) - complete rewrite with ConfigurationManager mock |
+| 2025-12-07 | 38 | 29 | 1203 | ACLManager.test.js fixed (22 tests, CRITICAL security) |
+| 2025-12-07 | 39 | 28 | 1181 | policy-system.test.js fixed (10 tests, CRITICAL security) |
+| 2025-12-07 | 40 | 27 | 1171 | WikiEngine.test.js fixed (5 tests) + PRIORITIZED-TEST-FIXES.md created |
 | 2025-12-07 | 40 | 27 | 1169 | UserManager.test.js fixed (31 tests, high-priority security component) |
 | 2025-12-07 | 41 | 26 | 1138 | PageManager.test.js + PageNameMatcher.test.js fixed (26+43 tests) |
 | 2025-12-07 | 42 | 24 | 1043 | SchemaManager + FilterChain fixed (3 quick wins total) |
