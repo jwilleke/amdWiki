@@ -1,7 +1,7 @@
 # Known Test Issues
 
-**Last Updated:** 2025-12-07 (Session 2025-12-07-03 continued)
-**Test Status:** 39 failing suites, 28 passing suites, 67 total
+**Last Updated:** 2025-12-07 (Session 2025-12-07-03 final)
+**Test Status:** 38 failing suites, 29 passing suites, 67 total
 
 ## Overview
 
@@ -26,9 +26,10 @@ This document tracks known test failures and the strategy for fixing them. Tests
 - ✅ UserManager.test.js fixed (31 tests, high-priority security component)
 - ✅ WikiEngine.test.js fixed (5 tests, CRITICAL core engine)
 - ✅ policy-system.test.js fixed (10 tests, CRITICAL security component)
+- ✅ ACLManager.test.js fixed (22 tests, CRITICAL security component)
 - ✅ SearchManager mock enhanced (buildIndex, getDocumentCount methods)
 - 📋 PRIORITIZED-TEST-FIXES.md created (comprehensive fix plan)
-- 🔧 39 test suites with individual issues remaining
+- 🔧 38 test suites with individual issues remaining
 
 ## Categories of Failures
 
