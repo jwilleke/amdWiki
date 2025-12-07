@@ -1,7 +1,7 @@
 # Known Test Issues
 
 **Last Updated:** 2025-12-07
-**Test Status:** 42 failing suites, 24 passing suites, 66 total
+**Test Status:** 40 failing suites, 27 passing suites, 67 total
 
 ## Overview
 
@@ -10,18 +10,21 @@ This document tracks known test failures and the strategy for fixing them. Tests
 ## Test Status Summary
 
 **Current Results:**
-- Test Suites: 42 failed, 24 passed, 66 total
-- Tests: 670 failed, 1 skipped, 1043 passed, 1714 total
+- Test Suites: 40 failed, 27 passed, 67 total
+- Tests: 547 failed, 1 skipped, 1169 passed, 1717 total
 - Coverage: Available via `npm run test:coverage`
 
 **Progress:**
 - ✅ Systematic blockers removed (import paths, missing deps)
 - ✅ Global test setup implemented (logger mocking, provider mocking)
-- ✅ 1043 tests passing (61% pass rate)
+- ✅ 1169 tests passing (68% pass rate)
 - ✅ WikiContext.test.js fixed (high-priority core component)
 - ✅ FilterChain.test.js fixed (quick win)
 - ✅ SchemaManager.test.js fixed (quick win)
-- 🔧 42 test suites with individual issues remaining
+- ✅ PageNameMatcher.test.js fixed (43 tests)
+- ✅ PageManager.test.js fixed (26 tests)
+- ✅ UserManager.test.js fixed (31 tests, high-priority security component)
+- 🔧 40 test suites with individual issues remaining
 
 ## Categories of Failures
 
@@ -109,10 +112,10 @@ These tests cover critical system components:
    - Impact: High - critical functionality
    - Effort: Low
 
-3. **UserManager.test.js** - User authentication
-   - Issue: Mock configuration
-   - Impact: High - security-critical
-   - Effort: Low
+3. ~~**UserManager.test.js**~~ - ✅ FIXED (31 tests passing)
+   - Completely rewrote to test proxy behavior
+   - Fixed authentication logic to use verifyPassword instead of validateCredentials
+   - Added PolicyManager mocking for permission tests
 
 ### Medium Priority (Features)
 
@@ -239,6 +242,7 @@ Going forward, new tests should:
 
 | Date | Failing Suites | Passing Suites | Passing Tests | Notes |
 |------|---------------|----------------|---------------|-------|
+| 2025-12-07 | 40 | 27 | 1169 | UserManager.test.js fixed (31 tests, high-priority security component) |
 | 2025-12-07 | 41 | 26 | 1138 | PageManager.test.js + PageNameMatcher.test.js fixed (26+43 tests) |
 | 2025-12-07 | 42 | 24 | 1043 | SchemaManager + FilterChain fixed (3 quick wins total) |
 | 2025-12-07 | 44 | 22 | 1032 | WikiContext.test.js fixed (rewrote to match actual API) |

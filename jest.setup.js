@@ -125,6 +125,7 @@ const MockAttachmentProvider = createMockProvider('MockAttachmentProvider', {
 jest.mock('./src/providers/BasicAttachmentProvider', () => MockAttachmentProvider);
 
 // Mock PageNameMatcher for RenderingManager tests
+// Note: This mock is bypassed in PageNameMatcher's own tests using jest.unmock()
 jest.mock('./src/utils/PageNameMatcher', () => {
   return class MockPageNameMatcher {
     constructor(matchEnglishPlurals) {

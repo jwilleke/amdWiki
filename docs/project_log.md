@@ -132,6 +132,144 @@ Adopted **Option B + C approach**:
 
 ---
 
+## 2025-12-07-02
+
+**Agent:** Claude Code (Sonnet 4.5)
+
+**Subject:** Test Suite Fixes - UserManager.test.js Complete Rewrite
+
+**Key Decisions:**
+
+- Completely rewrite UserManager.test.js to match actual implementation
+- Follow established PageManager.test.js pattern (test proxy behavior, not provider logic)
+- Mock PolicyManager for permission tests instead of using role-based assumptions
+- Use actual password hashing in authentication tests
+
+**Problem Identified:**
+
+UserManager.test.js had fundamental issues:
+
+1. Tests called non-existent methods (`authenticate()` instead of `authenticateUser()`)
+2. Tests expected `validateCredentials()` method that doesn't exist
+3. Permission tests assumed role-based system instead of policy-based
+4. Tests mocked wrong provider methods
+5. Original test count (67) was inflated, testing provider logic instead of manager proxy behavior
+
+**Test Status:**
+
+**Before fixes:**
+
+- UserManager.test.js: 0/67 passing (completely broken)
+- Overall: 41 failing suites, 26 passing, 1138 passing tests
+
+**After fixes:**
+
+- UserManager.test.js: 31/31 passing (100%)
+- Overall: 40 failing suites, 27 passing, 1169 passing tests
+- Pass rate improved: 61% → 68%
+
+**Changes Made:**
+
+1. **src/managers/\_\_tests\_\_/UserManager.test.js** - Complete rewrite
+   - Reduced from 67 tests to 31 focused tests
+   - Fixed method names: `authenticate()` → `authenticateUser()`, `getAllUsers()` → `getUsers()`, `getAllRoles()` → `getRoles()`
+   - Fixed authentication flow: Mock `getUser()` and use actual `hashPassword()`/`verifyPassword()`
+   - Added PolicyManager mock with correct structure (`subjects` array instead of `principals`)
+   - Fixed permission tests to use policy-based system
+   - Updated provider normalization tests (removed non-existent LDAPUserProvider)
+   - Fixed shutdown tests to match BaseManager behavior
+
+2. **docs/development/KNOWN-TEST-ISSUES.md**
+   - Updated test statistics: 40 failing, 27 passing, 1169 passing tests
+   - Marked UserManager.test.js as fixed
+   - Added progress notes for all 3 manager tests completed today
+
+**Test Categories:**
+
+1. **Initialization** (4 tests)
+   - ConfigurationManager requirement
+   - Provider initialization
+   - Configuration loading
+   - Role/permission map initialization
+
+2. **getCurrentUserProvider()** (2 tests)
+   - Provider instance return
+   - Provider interface verification
+
+3. **User CRUD Operations** (6 tests)
+   - getUser() with password stripping
+   - getUsers() delegation
+   - createUser() duplicate checking
+   - deleteUser() error handling and delegation
+
+4. **Authentication** (3 tests)
+   - Successful authentication with isAuthenticated flag
+   - Invalid password rejection
+   - Inactive user rejection
+
+5. **Role Management** (4 tests)
+   - getRole() lookups
+   - getRoles() listing
+   - hasRole() checking
+
+6. **Permission Management** (3 tests)
+   - getUserPermissions() via PolicyManager
+   - Permission aggregation from policies
+   - Empty array without PolicyManager
+
+7. **Password Management** (4 tests)
+   - hashPassword() generation
+   - Hash consistency
+   - verifyPassword() validation
+
+8. **Provider Normalization** (2 tests)
+   - Case-insensitive provider names
+   - FileUserProvider normalization
+
+9. **Shutdown** (2 tests)
+   - Manager initialization flag
+   - Error-free shutdown
+
+10. **Error Handling** (1 test)
+    - Missing provider handling
+
+**Work Done:**
+
+- ✅ Analyzed UserManager.js actual API
+- ✅ Completely rewrote test file following PageManager pattern
+- ✅ Fixed all method name mismatches
+- ✅ Implemented proper PolicyManager mocking
+- ✅ Used actual password hashing in tests
+- ✅ All 31 tests passing
+- ✅ Updated KNOWN-TEST-ISSUES.md documentation
+
+**Files Modified:**
+
+- `src/managers/__tests__/UserManager.test.js` - Complete rewrite (31 tests passing)
+- `docs/development/KNOWN-TEST-ISSUES.md` - Progress tracking update
+
+**Commits:**
+
+- (Pending commit)
+
+**Key Insights:**
+
+1. **Authentication Flow:** UserManager doesn't delegate to `validateCredentials()` - it calls `getUser()` then uses `verifyPassword()` internally
+2. **Permission System:** Uses PolicyManager with policy-based access control, not simple role-to-permission mapping
+3. **Password Security:** getUser() strips password field before returning, authenticateUser() adds isAuthenticated flag
+4. **Provider Pattern:** UserManager has more business logic than PageManager (password hashing, permission aggregation)
+
+**Impact:**
+
+- High-priority security-critical manager now fully tested
+- +31 passing tests
+- 3 of 3 high-priority manager tests now complete (WikiContext, PageManager, UserManager)
+- Clear pattern established for testing managers with business logic
+
+**Status:** UserManager.test.js complete, ready for commit
+
+---
+
 ## 2025-12-06-06
 
 **Agent:** Claude Code (Sonnet 4.5)

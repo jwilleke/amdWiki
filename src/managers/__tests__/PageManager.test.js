@@ -1,631 +1,323 @@
-const { describe, test, expect, beforeEach, afterEach } = require('@jest/globals');
-const fs = require('fs-extra');
-const path = require('path');
+/**
+ * PageManager Tests
+ *
+ * PageManager is a thin proxy that delegates all operations to a provider.
+ * These tests verify the proxy behavior, not the provider logic itself.
+ * Provider logic is tested in provider-specific test files.
+ */
+
 const PageManager = require('../PageManager');
-const { v4: uuidv4 } = require('uuid');
-
-// Mock ValidationManager
-const mockValidationManager = {
-  generateFilename: jest.fn((metadata) => `${metadata.uuid}.md`),
-  validatePage: jest.fn(() => ({ success: true, warnings: [] })),
-  generateValidMetadata: jest.fn((title, options = {}) => ({
-    title,
-    uuid: options.uuid || uuidv4(),
-    slug: title.toLowerCase().replace(/\s+/g, '-'),
-    category: options.category || 'General',
-    'user-keywords': options['user-keywords'] || [],
-    lastModified: new Date().toISOString(),
-    ...options
-  }))
-};
-
-// Mock ACLManager
-const mockACLManager = {
-  checkStorageLocation: jest.fn().mockResolvedValue({ location: 'regular', reason: 'default' })
-};
 
 // Mock ConfigurationManager
-let testPagesDir;
-let testRequiredPagesDir;
 const mockConfigurationManager = {
   getProperty: jest.fn((key, defaultValue) => {
-    if (key === 'amdwiki.directories.pages') {
-      return testPagesDir;
-    }
-    if (key === 'amdwiki.directories.required-pages') {
-      return testRequiredPagesDir;
-    }
-    if (key === 'amdwiki.encoding') {
-      return 'UTF-8';
-    }
-    if (key === 'amdwiki.translator-reader.match-english-plurals') {
-      return true;
-    }
-    if (key === 'amdwiki.pageProvider') {
-      return 'FileSystemProvider';
-    }
-    if (key === 'amdwiki.system-category') {
-      return {
-        general: { label: 'general', storageLocation: 'regular' },
-        system: { label: 'system', storageLocation: 'required' },
-        documentation: { label: 'documentation', storageLocation: 'required' },
-        test: { label: 'test', storageLocation: 'required' }
-      };
-    }
-    return defaultValue;
+    const config = {
+      'amdwiki.page.enabled': true,
+      'amdwiki.page.provider.default': 'filesystemprovider',
+      'amdwiki.page.provider': 'filesystemprovider',
+      'amdwiki.directories.pages': './pages',
+      'amdwiki.directories.required-pages': './required-pages'
+    };
+    return config[key] !== undefined ? config[key] : defaultValue;
   })
 };
 
 // Mock engine
 const mockEngine = {
   getManager: jest.fn((name) => {
-    if (name === 'ValidationManager') {
-      return mockValidationManager;
-    }
-    if (name === 'ACLManager') {
-      return mockACLManager;
-    }
-    if (name === 'ConfigurationManager') {
-      return mockConfigurationManager;
-    }
+    if (name === 'ConfigurationManager') return mockConfigurationManager;
     return null;
   }),
-  getConfig: jest.fn(() => ({
-    get: jest.fn()
-  }))
+  getConfig: jest.fn(() => ({ get: jest.fn() }))
 };
 
 describe('PageManager', () => {
   let pageManager;
 
   beforeEach(async () => {
-    // Create temporary test directories
-    const testDir = path.join(__dirname, 'test-pages-' + Date.now());
-    testPagesDir = path.join(testDir, 'pages');
-    testRequiredPagesDir = path.join(testDir, 'required-pages');
+    jest.clearAllMocks();
 
-    await fs.ensureDir(testPagesDir);
-    await fs.ensureDir(testRequiredPagesDir);
+    // Reset mock implementation to default behavior
+    mockConfigurationManager.getProperty.mockImplementation((key, defaultValue) => {
+      const config = {
+        'amdwiki.page.enabled': true,
+        'amdwiki.page.provider.default': 'filesystemprovider',
+        'amdwiki.page.provider': 'filesystemprovider',
+        'amdwiki.directories.pages': './pages',
+        'amdwiki.directories.required-pages': './required-pages'
+      };
+      return config[key] !== undefined ? config[key] : defaultValue;
+    });
 
     pageManager = new PageManager(mockEngine);
     await pageManager.initialize();
   });
 
   afterEach(async () => {
-    // Cleanup test directories
-    try {
-      await fs.remove(path.dirname(testPagesDir));
-    } catch (err) {
-      // Directory might not exist
+    if (pageManager.provider) {
+      await pageManager.shutdown();
     }
   });
 
-  describe('initialization', () => {
-    test('should create pages directories if they do not exist', async () => {
-      const newTestDir = path.join(__dirname, 'new-test-pages-' + Date.now());
-      const newPagesDir = path.join(newTestDir, 'pages');
-      const newRequiredPagesDir = path.join(newTestDir, 'required-pages');
+  describe('Initialization', () => {
+    test('should require ConfigurationManager', async () => {
+      const engineWithoutConfig = { getManager: jest.fn(() => null) };
+      const manager = new PageManager(engineWithoutConfig);
 
-      // Temporarily update mock to return new directories
-      const originalPagesDir = testPagesDir;
-      const originalRequiredPagesDir = testRequiredPagesDir;
-      testPagesDir = newPagesDir;
-      testRequiredPagesDir = newRequiredPagesDir;
-
-      const newPageManager = new PageManager(mockEngine);
-      await newPageManager.initialize();
-
-      expect(await fs.pathExists(newPagesDir)).toBe(true);
-      expect(await fs.pathExists(newRequiredPagesDir)).toBe(true);
-
-      // Restore original directories
-      testPagesDir = originalPagesDir;
-      testRequiredPagesDir = originalRequiredPagesDir;
-
-      // Cleanup
-      await fs.remove(newTestDir);
+      await expect(manager.initialize()).rejects.toThrow('PageManager requires ConfigurationManager');
     });
 
-    test('should set correct directories from config', () => {
-      // PageManager now uses provider, check provider properties
+    test('should initialize provider', async () => {
+      expect(pageManager.provider).toBeTruthy();
+      expect(pageManager.provider.initialized).toBe(true);
+    });
+
+    test('should get configuration from ConfigurationManager', async () => {
+      expect(mockConfigurationManager.getProperty).toHaveBeenCalledWith('amdwiki.page.enabled', true);
+      expect(mockConfigurationManager.getProperty).toHaveBeenCalledWith('amdwiki.page.provider', expect.any(String));
+    });
+
+    test('should handle disabled page storage', async () => {
+      mockConfigurationManager.getProperty.mockImplementation((key, defaultValue) => {
+        if (key === 'amdwiki.page.enabled') return false;
+        return defaultValue;
+      });
+
+      const disabledManager = new PageManager(mockEngine);
+      await disabledManager.initialize();
+
+      expect(disabledManager.provider).toBeNull();
+    });
+  });
+
+  describe('getCurrentPageProvider()', () => {
+    test('should return the provider instance', () => {
       const provider = pageManager.getCurrentPageProvider();
-      expect(provider.pagesDirectory).toBe(testPagesDir);
-      expect(provider.requiredPagesDirectory).toBe(testRequiredPagesDir);
+      expect(provider).toBe(pageManager.provider);
+      expect(provider).toBeTruthy();
+    });
+
+    test('should return provider with correct interface', () => {
+      const provider = pageManager.getCurrentPageProvider();
+      expect(provider.getProviderInfo).toBeDefined();
+      expect(typeof provider.getProviderInfo).toBe('function');
     });
   });
 
-  describe('page existence checking', () => {
-    beforeEach(async () => {
-      // Create test pages with UUID-based filenames
-      const testPageUuid = uuidv4();
-      const systemPageUuid = uuidv4();
-      
-      await fs.writeFile(
-        path.join(testPagesDir, `${testPageUuid}.md`),
-        `---
-title: Test Page
-uuid: ${testPageUuid}
-slug: test-page
-category: General
-user-keywords: []
-lastModified: '2025-01-01T00:00:00.000Z'
----
-# Test Page
-Content`
-      );
-      await fs.writeFile(
-        path.join(testRequiredPagesDir, `${systemPageUuid}.md`),
-        `---
-title: System Page
-uuid: ${systemPageUuid}
-slug: system-page
-category: System
-categories: [System]
-user-keywords: []
-lastModified: '2025-01-01T00:00:00.000Z'
----
-# System Page`
-      );
-      
-      // Rebuild caches after creating test files
-      await pageManager.buildLookupCaches();
+  describe('Proxy Methods', () => {
+    test('getPage() should delegate to provider', async () => {
+      const mockPage = { title: 'Test', content: '# Test' };
+      pageManager.provider.getPage = jest.fn().mockResolvedValue(mockPage);
+
+      const result = await pageManager.getPage('Test');
+
+      expect(pageManager.provider.getPage).toHaveBeenCalledWith('Test');
+      expect(result).toBe(mockPage);
     });
 
-    test('should detect existing regular pages', async () => {
-      const exists = await pageManager.pageExists('Test Page');
-      expect(exists).toBe(true);
+    test('getPageContent() should delegate to provider', async () => {
+      pageManager.provider.getPageContent = jest.fn().mockResolvedValue('# Content');
+
+      const result = await pageManager.getPageContent('Test');
+
+      expect(pageManager.provider.getPageContent).toHaveBeenCalledWith('Test');
+      expect(result).toBe('# Content');
     });
 
-    test('should detect existing required pages', async () => {
-      const exists = await pageManager.pageExists('System Page');
-      expect(exists).toBe(true);
+    test('getPageMetadata() should delegate to provider', async () => {
+      const mockMetadata = { title: 'Test', uuid: '123' };
+      pageManager.provider.getPageMetadata = jest.fn().mockResolvedValue(mockMetadata);
+
+      const result = await pageManager.getPageMetadata('Test');
+
+      expect(pageManager.provider.getPageMetadata).toHaveBeenCalledWith('Test');
+      expect(result).toBe(mockMetadata);
     });
 
-    test('should return false for non-existent pages', async () => {
-      const exists = await pageManager.pageExists('NonExistentPage');
-      expect(exists).toBe(false);
-    });
-  });
+    test('savePage() should delegate to provider', async () => {
+      pageManager.provider.savePage = jest.fn().mockResolvedValue(undefined);
 
-  describe('page retrieval', () => {
-    beforeEach(async () => {
-      const testPageUuid = 'test-uuid-123';
-      const pageContent = `---
-title: Test Page
-categories: [General]
-user-keywords: [test, example]
-uuid: ${testPageUuid}
-slug: test-page
-category: General
-lastModified: '2025-09-09T10:00:00.000Z'
----
-# Test Page
+      await pageManager.savePage('Test', '# Content', { category: 'General' });
 
-This is test content with **markdown**.
-
-## Section 1
-Content here.`;
-
-      await fs.writeFile(path.join(testPagesDir, `${testPageUuid}.md`), pageContent);
-      
-      // Also create a page without frontmatter for testing
-      const noMetadataUuid = uuidv4();
-      await fs.writeFile(path.join(testPagesDir, `${noMetadataUuid}.md`), 
-        `---
-title: NoMetadata
-uuid: ${noMetadataUuid}
-slug: no-metadata
-category: General
-user-keywords: []
-lastModified: '2025-01-01T00:00:00.000Z'
----
-# Simple Page
-Just content without metadata.`);
-      
-      // Rebuild caches
-      await pageManager.buildLookupCaches();
+      expect(pageManager.provider.savePage).toHaveBeenCalledWith('Test', '# Content', { category: 'General' });
     });
 
-    test('should retrieve page with correct metadata and content', async () => {
-      const page = await pageManager.getPage('Test Page');
-      
-      expect(page).toBeTruthy();
-      expect(page.name).toBe('Test Page');
-      expect(page.title).toBe('Test Page');
-      expect(page.categories).toEqual(['General']);
-      expect(page['user-keywords']).toEqual(['test', 'example']);
-      expect(page.uuid).toBe('test-uuid-123');
-      expect(page.content).toContain('This is test content with **markdown**');
-      expect(page.content).toContain('## Section 1');
+    test('deletePage() should delegate to provider', async () => {
+      pageManager.provider.deletePage = jest.fn().mockResolvedValue(undefined);
+
+      await pageManager.deletePage('Test');
+
+      expect(pageManager.provider.deletePage).toHaveBeenCalledWith('Test');
     });
 
-    test('should return null for non-existent page', async () => {
-      const page = await pageManager.getPage('NonExistentPage');
-      expect(page).toBeNull();
-    });
+    test('pageExists() should delegate to provider', () => {
+      pageManager.provider.pageExists = jest.fn().mockReturnValue(true);
 
-    test('should handle pages without frontmatter', async () => {
-      await fs.writeFile(
-        path.join(testPagesDir, 'NoMetadata.md'),
-        '# Simple Page\nJust content without metadata.'
-      );
+      const result = pageManager.pageExists('Test');
 
-      const page = await pageManager.getPage('NoMetadata');
-      expect(page).toBeTruthy();
-      expect(page.name).toBe('NoMetadata');
-      expect(page.title).toBe('NoMetadata'); // Should default to page name
-      expect(page.content).toContain('# Simple Page');
-    });
-  });
-
-  describe('page saving', () => {
-    test('should save new page with metadata', async () => {
-      const content = '# New Page\nThis is new content.';
-      const metadata = {
-        title: 'New Page',
-        categories: ['Documentation'],
-        'user-keywords': ['new', 'test']
-      };
-
-      const result = await pageManager.savePage('NewPage', content, metadata);
-      
-      expect(result.title).toBe('New Page');
-      expect(await pageManager.pageExists('New Page')).toBe(true);
-      
-      const savedPage = await pageManager.getPage('New Page');
-      expect(savedPage.title).toBe('New Page');
-      expect(savedPage.categories).toEqual(['Documentation']);
-      expect(savedPage.content).toContain('This is new content');
-    });
-
-    test('should update existing page', async () => {
-      // Create initial page
-      await pageManager.savePage('UpdateTest', '# Original Content', { title: 'Original' });
-      
-      // Update page
-      const newContent = '# Updated Content\nThis has been updated.';
-      const newMetadata = { title: 'Updated Title' };
-      
-      const result = await pageManager.savePage('UpdateTest', newContent, newMetadata);
-      
-      expect(result.success).toBe(true);
-      
-      const updatedPage = await pageManager.getPage('Updated Title');
-      expect(updatedPage.title).toBe('Updated Title');
-      expect(updatedPage.content).toContain('Updated Content');
-    });
-
-    test('should generate UUID if not provided', async () => {
-      await pageManager.savePage('UUIDTest', '# Content', { title: 'UUID Test' });
-      
-      const page = await pageManager.getPage('UUID Test');
-      expect(page.uuid).toBeTruthy();
-      expect(page.uuid).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
-    });
-
-    test('should update lastModified timestamp', async () => {
-      const beforeSave = new Date().toISOString();
-      
-      await pageManager.savePage('TimestampTest', '# Content', { title: 'Timestamp Test' });
-      
-      const page = await pageManager.getPage('Timestamp Test');
-      expect(page.lastModified).toBeTruthy();
-      expect(new Date(page.lastModified).getTime()).toBeGreaterThanOrEqual(new Date(beforeSave).getTime());
-    });
-
-    test('should save to required-pages directory for system pages', async () => {
-      const metadata = { categories: ['System'], uuid: 'system-test-uuid' };
-      
-      await pageManager.savePage('SystemTest', '# System Page', metadata);
-      
-      const systemPagePath = path.join(testRequiredPagesDir, 'system-test-uuid.md');
-      expect(await fs.pathExists(systemPagePath)).toBe(true);
-    });
-
-    test('should save to regular pages directory for non-system pages', async () => {
-      const metadata = { categories: ['General'], uuid: 'regular-test-uuid' };
-      
-      await pageManager.savePage('RegularTest', '# Regular Page', metadata);
-      
-      const regularPagePath = path.join(testPagesDir, 'regular-test-uuid.md');
-      expect(await fs.pathExists(regularPagePath)).toBe(true);
-    });
-  });
-
-  describe('page deletion', () => {
-    let deleteTestUuid;
-    
-    beforeEach(async () => {
-      deleteTestUuid = uuidv4();
-      await fs.writeFile(
-        path.join(testPagesDir, `${deleteTestUuid}.md`),
-        `---
-title: Delete Test
-uuid: ${deleteTestUuid}
-slug: delete-test
-category: General
-user-keywords: []
-lastModified: '2025-01-01T00:00:00.000Z'
----
-# Delete Test`
-      );
-      await pageManager.buildLookupCaches();
-    });
-
-    test('should delete existing page', async () => {
-      expect(await pageManager.pageExists('Delete Test')).toBe(true);
-      
-      const result = await pageManager.deletePage('Delete Test');
-      
+      expect(pageManager.provider.pageExists).toHaveBeenCalledWith('Test');
       expect(result).toBe(true);
-      expect(await pageManager.pageExists('Delete Test')).toBe(false);
     });
 
-    test('should handle deletion of non-existent page', async () => {
-      const result = await pageManager.deletePage('NonExistentPage');
-      
-      expect(result).toBe(false);
-    });
-  });
+    test('getAllPages() should delegate to provider', async () => {
+      const mockPages = [{ title: 'Page1' }, { title: 'Page2' }];
+      pageManager.provider.getAllPages = jest.fn().mockResolvedValue(mockPages);
 
-  describe('required page detection', () => {
-    test('should identify system pages by category', async () => {
-      const systemMetadata = { categories: ['System'] };
-      const generalMetadata = { categories: ['General'] };
-      
-      const isSystemPage = await pageManager.isRequiredPage('TestPage', systemMetadata);
-      const isGeneralPage = await pageManager.isRequiredPage('TestPage', generalMetadata);
-      
-      expect(isSystemPage).toBe(true);
-      expect(isGeneralPage).toBe(false);
+      const result = await pageManager.getAllPages();
+
+      expect(pageManager.provider.getAllPages).toHaveBeenCalled();
+      expect(result).toBe(mockPages);
     });
 
-    test('should handle legacy single category format', async () => {
-      const legacyMetadata = { category: 'System' };
-      
-      const isSystemPage = await pageManager.isRequiredPage('TestPage', legacyMetadata);
-      
-      expect(isSystemPage).toBe(true);
-    });
+    test('refreshPageList() should delegate to provider', async () => {
+      pageManager.provider.refreshPageList = jest.fn().mockResolvedValue(undefined);
 
-    test('should handle pages without category metadata', async () => {
-      const noMetadata = {};
-      
-      const isSystemPage = await pageManager.isRequiredPage('TestPage', noMetadata);
-      
-      expect(isSystemPage).toBe(false);
+      await pageManager.refreshPageList();
+
+      expect(pageManager.provider.refreshPageList).toHaveBeenCalled();
     });
   });
 
-  describe('page listing', () => {
-    beforeEach(async () => {
-      // Create test pages with UUID-based filenames
-      const page1Uuid = uuidv4();
-      const page2Uuid = uuidv4();
-      const systemPage1Uuid = uuidv4();
-      const systemPage2Uuid = uuidv4();
-      
-      await fs.writeFile(path.join(testPagesDir, `${page1Uuid}.md`), 
-        `---
-title: Page1
-uuid: ${page1Uuid}
-slug: page1
-category: General
-user-keywords: []
-lastModified: '2025-01-01T00:00:00.000Z'
----
-# Page 1`);
-      await fs.writeFile(path.join(testPagesDir, `${page2Uuid}.md`), 
-        `---
-title: Page2
-uuid: ${page2Uuid}
-slug: page2
-category: General
-user-keywords: []
-lastModified: '2025-01-01T00:00:00.000Z'
----
-# Page 2`);
-      await fs.writeFile(path.join(testRequiredPagesDir, `${systemPage1Uuid}.md`), 
-        `---
-title: SystemPage1
-uuid: ${systemPage1Uuid}
-slug: systempage1
-category: System
-user-keywords: []
-lastModified: '2025-01-01T00:00:00.000Z'
----
-# System Page 1`);
-      await fs.writeFile(path.join(testRequiredPagesDir, `${systemPage2Uuid}.md`), 
-        `---
-title: SystemPage2
-uuid: ${systemPage2Uuid}
-slug: systempage2
-category: System
-user-keywords: []
-lastModified: '2025-01-01T00:00:00.000Z'
----
-# System Page 2`);
-      
-      // Create non-markdown file that should be ignored
-      await fs.writeFile(path.join(testPagesDir, 'notapage.txt'), 'Not a markdown file');
-      
-      // Rebuild caches
-      await pageManager.buildLookupCaches();
+  describe('WikiContext Methods', () => {
+    test('savePageWithContext() should require WikiContext', async () => {
+      await expect(pageManager.savePageWithContext(null)).rejects.toThrow(
+        'PageManager.savePageWithContext requires a WikiContext'
+      );
     });
 
-    test('should return all page names from both directories', async () => {
-      const pageNames = await pageManager.getPageNames();
-      
-      expect(pageNames).toContain('Page1');
-      expect(pageNames).toContain('Page2');
-      expect(pageNames).toContain('SystemPage1');
-      expect(pageNames).toContain('SystemPage2');
-      expect(pageNames).not.toContain('notapage');
-    });
+    test('savePageWithContext() should extract data from WikiContext', async () => {
+      pageManager.provider.savePage = jest.fn().mockResolvedValue(undefined);
 
-    test('should filter only markdown files', async () => {
-      const pageNames = await pageManager.getPageNames();
-      
-      // Should not include .txt files
-      expect(pageNames.every(name => !name.endsWith('.txt'))).toBe(true);
-    });
-  });
-
-  describe('template creation', () => {
-    test('should create page from template', async () => {
-      // Mock template manager
-      const mockTemplateManager = {
-        getTemplate: jest.fn().mockResolvedValue('# {{pageName}}\n\nTemplate content for {{pageName}}.'),
-        populateTemplate: jest.fn().mockImplementation((template, variables) => {
-          return template.replace(/\{\{pageName\}\}/g, variables.pageName);
-        })
+      const wikiContext = {
+        pageName: 'Test Page',
+        content: '# Test Content',
+        userContext: { username: 'testuser' }
       };
-      
-      mockEngine.getManager.mockImplementation((name) => {
-        if (name === 'ValidationManager') return mockValidationManager;
-        if (name === 'TemplateManager') return mockTemplateManager;
-        return null;
-      });
-      
-      const result = await pageManager.createPageFromTemplate('NewFromTemplate', 'default');
-      
-      expect(result.name).toBe('NewFromTemplate');
-      expect(mockTemplateManager.getTemplate).toHaveBeenCalledWith('default');
-      expect(mockTemplateManager.populateTemplate).toHaveBeenCalled();
+
+      await pageManager.savePageWithContext(wikiContext, { category: 'General' });
+
+      expect(pageManager.provider.savePage).toHaveBeenCalledWith(
+        'Test Page',
+        '# Test Content',
+        {
+          category: 'General',
+          author: 'testuser'
+        }
+      );
     });
 
-    test('should handle missing template manager', async () => {
-      mockEngine.getManager.mockReturnValue(null);
-      
-      const result = await pageManager.createPageFromTemplate('NewPage', 'default');
-      
-      expect(result.success).toBe(false);
-      expect(result.error).toContain('TemplateManager not available');
+    test('savePageWithContext() should use anonymous if no user', async () => {
+      pageManager.provider.savePage = jest.fn().mockResolvedValue(undefined);
+
+      const wikiContext = {
+        pageName: 'Test Page',
+        content: '# Test Content'
+      };
+
+      await pageManager.savePageWithContext(wikiContext, {});
+
+      expect(pageManager.provider.savePage).toHaveBeenCalledWith(
+        'Test Page',
+        '# Test Content',
+        { author: 'anonymous' }
+      );
+    });
+
+    test('deletePageWithContext() should require WikiContext', async () => {
+      await expect(pageManager.deletePageWithContext(null)).rejects.toThrow(
+        'PageManager.deletePageWithContext requires a WikiContext'
+      );
+    });
+
+    test('deletePageWithContext() should extract pageName from WikiContext', async () => {
+      pageManager.provider.deletePage = jest.fn().mockResolvedValue(undefined);
+
+      const wikiContext = {
+        pageName: 'Test Page',
+        userContext: { username: 'testuser' }
+      };
+
+      await pageManager.deletePageWithContext(wikiContext);
+
+      expect(pageManager.provider.deletePage).toHaveBeenCalledWith('Test Page');
     });
   });
 
-  describe('error handling', () => {
-    test('should handle filesystem errors gracefully', async () => {
-      // Try to save to invalid directory
-      const originalPagesDir = pageManager.pagesDir;
-      pageManager.pagesDir = '/invalid/readonly/directory';
-      
-      const result = await pageManager.savePage('TestPage', '# Content', {});
-      
-      expect(result.success).toBe(false);
-      expect(result.error).toBeTruthy();
-      
-      // Restore original directory
-      pageManager.pagesDir = originalPagesDir;
+  describe('Backup and Restore', () => {
+    test('backup() should delegate to provider and wrap result', async () => {
+      const providerBackup = { pages: [{ title: 'Test' }] };
+      pageManager.provider.backup = jest.fn().mockResolvedValue(providerBackup);
+
+      const result = await pageManager.backup();
+
+      expect(pageManager.provider.backup).toHaveBeenCalled();
+      expect(result.managerName).toBe('PageManager');
+      expect(result.timestamp).toBeTruthy();
+      expect(result.providerBackup).toBe(providerBackup);
     });
 
-    test('should handle malformed frontmatter gracefully', async () => {
-      const malformedContent = `---
-title: Test
-invalid yaml: [unclosed array
----
-# Content`;
-      
-      await fs.writeFile(path.join(testPagesDir, 'Malformed.md'), malformedContent);
-      
-      // Should not throw error, but might return null or handle gracefully
-      const page = await pageManager.getPage('Malformed');
-      // The behavior here depends on how gray-matter handles malformed YAML
-      // At minimum, it shouldn't crash the application
-      expect(typeof page).toBeDefined();
-    });
-  });
+    test('restore() should extract provider backup and delegate', async () => {
+      const providerBackup = { pages: [{ title: 'Test' }] };
+      const managerBackup = {
+        managerName: 'PageManager',
+        timestamp: new Date().toISOString(),
+        providerBackup: providerBackup
+      };
 
-  describe('page index updates', () => {
-    test('should update page index when pages change', async () => {
-      // This test verifies that updatePageIndex method exists and can be called
-      // The actual implementation details would depend on the specific requirements
-      expect(typeof pageManager.updatePageIndex).toBe('function');
-      
-      // Should not throw error
-      await expect(pageManager.updatePageIndex()).resolves.not.toThrow();
+      pageManager.provider.restore = jest.fn().mockResolvedValue(undefined);
+
+      await pageManager.restore(managerBackup);
+
+      expect(pageManager.provider.restore).toHaveBeenCalledWith(providerBackup);
+    });
+
+    test('backup() should throw if provider lacks backup method', async () => {
+      // Remove backup method from provider
+      delete pageManager.provider.backup;
+
+      // Should throw TypeError when trying to call undefined method
+      await expect(pageManager.backup()).rejects.toThrow();
     });
   });
 
-  describe('ACL-based storage location', () => {
-    beforeEach(() => {
-      // Reset ACLManager mock completely
-      mockACLManager.checkStorageLocation.mockReset();
-      mockACLManager.checkStorageLocation.mockResolvedValue({ location: 'regular', reason: 'default' });
+  describe('shutdown()', () => {
+    test('should call provider shutdown', async () => {
+      // Mock shutdown method
+      pageManager.provider.shutdown = jest.fn().mockResolvedValue(undefined);
+
+      await pageManager.shutdown();
+
+      expect(pageManager.provider.shutdown).toHaveBeenCalled();
     });
 
-    test('should use ACLManager for storage location decisions', async () => {
-      mockACLManager.checkStorageLocation.mockResolvedValue({ location: 'required', reason: 'acl_decision' });
-      
-      const metadata = { categories: ['General'] };
-      const user = { username: 'testuser' };
-      
-      const result = await pageManager.savePage('ACLTest', '# Test Content', metadata, user);
-      
-      expect(result.success).toBe(true);
-      expect(mockACLManager.checkStorageLocation).toHaveBeenCalledWith('ACLTest', user, metadata, '# Test Content');
-      
-      // Verify file was saved to required pages directory
-      const requiredPagePath = path.join(testRequiredPagesDir, `${metadata.uuid}.md`);
-      expect(await fs.pathExists(requiredPagePath)).toBe(true);
+    test('should handle provider without shutdown method', async () => {
+      // Remove shutdown method
+      delete pageManager.provider.shutdown;
+
+      // Should still work (provider.shutdown() will be undefined)
+      await expect(pageManager.shutdown()).resolves.not.toThrow();
+    });
+  });
+
+  describe('Provider Normalization', () => {
+    test('should normalize filesystemprovider to FileSystemProvider', async () => {
+      // This is tested implicitly in initialization
+      expect(pageManager.providerClass).toBe('FileSystemProvider');
     });
 
-    test('should handle ACLManager errors gracefully', async () => {
-      mockACLManager.checkStorageLocation.mockRejectedValue(new Error('ACL check failed'));
-      
-      const metadata = { categories: ['General'] };
-      
-      const result = await pageManager.savePage('ACLErrorTest', '# Test Content', metadata);
-      
-      expect(result.success).toBe(true); // Should still succeed despite ACL error
-      expect(mockACLManager.checkStorageLocation).toHaveBeenCalled();
-      
-      // Should default to regular pages directory
-      const regularPagePath = path.join(testPagesDir, `${metadata.uuid}.md`);
-      expect(await fs.pathExists(regularPagePath)).toBe(true);
-    });
-
-    test('should work without ACLManager (backward compatibility)', async () => {
-      // Mock engine to return null for ACLManager
-      mockEngine.getManager.mockImplementation((name) => {
-        if (name === 'ValidationManager') {
-          return mockValidationManager;
-        }
-        return null; // No ACLManager
+    test('should normalize versioningfileprovider to VersioningFileProvider', async () => {
+      mockConfigurationManager.getProperty.mockImplementation((key, defaultValue) => {
+        if (key === 'amdwiki.page.provider') return 'versioningfileprovider';
+        if (key === 'amdwiki.page.provider.default') return 'filesystemprovider';
+        if (key === 'amdwiki.page.enabled') return true;
+        return defaultValue;
       });
-      
-      const metadata = { categories: ['General'] };
-      
-      const result = await pageManager.savePage('NoACLTest', '# Test Content', metadata);
-      
-      expect(result.success).toBe(true);
-      
-      // Should default to regular pages directory
-      const regularPagePath = path.join(testPagesDir, `${metadata.uuid}.md`);
-      expect(await fs.pathExists(regularPagePath)).toBe(true);
-      
-      // Restore ACLManager for other tests
-      mockEngine.getManager.mockImplementation((name) => {
-        if (name === 'ValidationManager') {
-          return mockValidationManager;
-        }
-        if (name === 'ACLManager') {
-          return mockACLManager;
-        }
-        return null;
-      });
-    });
 
-    test('should pass user and content to ACLManager', async () => {
-      const user = { username: 'admin', role: 'admin' };
-      const content = '[{ALLOW edit admin}] Restricted content';
-      const metadata = { categories: ['General'] }; // Use General instead of System
-      
-      mockACLManager.checkStorageLocation.mockResolvedValue({ location: 'required', reason: 'admin_acl' });
-      
-      await pageManager.savePage('AdminPage', content, metadata, user);
-      
-      expect(mockACLManager.checkStorageLocation).toHaveBeenCalledWith('AdminPage', user, metadata, content);
+      const manager = new PageManager(mockEngine);
+      await manager.initialize();
+
+      expect(manager.providerClass).toBe('VersioningFileProvider');
+      await manager.shutdown();
     });
   });
 });
