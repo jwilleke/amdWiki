@@ -1,18 +1,70 @@
+/**
+ * PageManager-Storage.test.js - REQUIRES MAJOR REWRITE
+ *
+ * OBSOLETE FUNCTIONALITY BEING TESTED:
+ * - savePage() returning {filePath, uuid, slug, metadata} - INCORRECT
+ *   Actual API: savePage() returns Promise<void> (see docs/managers/PageManager.md line 299)
+ *
+ * - File moving between directories based on category changes - NO LONGER USED
+ *   Pages are stored by providers, not moved between directories dynamically
+ *   Tests expecting page moves from pages/ <-> required-pages/ are obsolete
+ *
+ * - resolvePageIdentifier(), getPageBySlug(), buildLookupCaches() - May not exist
+ *   These methods are not documented in PageManager API docs
+ *
+ * STATUS: Deferred - Needs complete rewrite to match actual FileSystemProvider API
+ * See: docs/managers/PageManager.md for correct API documentation
+ */
+
 const path = require('path');
 const fs = require('fs-extra');
 const PageManager = require('../PageManager');
 const { v4: uuidv4 } = require('uuid');
 
+// Mock ConfigurationManager - will be updated with test directories in beforeEach
+let testPagesDir;
+let testRequiredPagesDir;
+let tempDir;
+
+const mockConfigurationManager = {
+  getProperty: jest.fn((key, defaultValue) => {
+    if (key === 'amdwiki.page.enabled') {
+      return true;
+    }
+    if (key === 'amdwiki.page.provider') {
+      return 'filesystemprovider';
+    }
+    if (key === 'amdwiki.page.provider.default') {
+      return 'filesystemprovider';
+    }
+    if (key === 'amdwiki.page.provider.filesystem.storagedir') {
+      return testPagesDir || './pages';
+    }
+    if (key === 'amdwiki.page.provider.filesystem.requiredpagesdir') {
+      return testRequiredPagesDir || './required-pages';
+    }
+    if (key === 'amdwiki.page.provider.filesystem.encoding') {
+      return 'utf-8';
+    }
+    if (key === 'amdwiki.translator-reader.match-english-plurals') {
+      return true;
+    }
+    return defaultValue;
+  })
+};
+
 // Mock WikiEngine for testing
 class MockWikiEngine {
   constructor() {
     this.managers = new Map();
+    // Add ConfigurationManager to engine
+    this.managers.set('ConfigurationManager', mockConfigurationManager);
   }
-  
+
   getManager(name) {
     return this.managers.get(name);
   }
-  
+
   registerManager(name, manager) {
     this.managers.set(name, manager);
   }
@@ -21,9 +73,6 @@ class MockWikiEngine {
 describe('PageManager File Storage and UUID System', () => {
   let pageManager;
   let engine;
-  let testPagesDir;
-  let testRequiredPagesDir;
-  let tempDir;
 
   beforeEach(async () => {
     // Create temporary directories for testing

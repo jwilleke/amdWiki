@@ -61,12 +61,14 @@ These tests cover critical system infrastructure. **Fix these first.**
 
 ### 5. PageManager-Storage.test.js
 - **Component:** Page storage and retrieval
-- **Failures:** Unknown count
-- **Issue:** File system/path issues, provider mocking
-- **Impact:** HIGH - Core functionality
-- **Effort:** MEDIUM (30-60 min)
-- **Fix:** Ensure proper test fixture setup, provider mocks
-- **Status:** 🔧 Pending
+- **Failures:** 25/26 tests failing
+- **Issue:** **Tests obsolete functionality that no longer exists**
+  - savePage() returns void, not {filePath, uuid, slug}
+  - File moving between directories (pages/ ↔ required-pages/) no longer used
+  - Tests methods not in API: resolvePageIdentifier(), getPageBySlug(), buildLookupCaches()
+- **Impact:** LOW - Tests outdated API, not current implementation
+- **Effort:** HIGH (4-6 hrs) - **Complete rewrite required to match actual FileSystemProvider API**
+- **Status:** ⏸️ DEFERRED - Needs full rewrite, see file header for details
 
 ### 6. ~~SearchManager.test.js~~ ⚡ HIGH - ✅ FIXED (18/18 tests passing)
 - **Component:** Full-text search
