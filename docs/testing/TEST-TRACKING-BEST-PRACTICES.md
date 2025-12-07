@@ -10,7 +10,7 @@ This document defines the standardized approach for tracking test failures, succ
 
 **Where to Track:**
 
-- **Test Status & Strategy:** [KNOWN-TEST-ISSUES.md](./KNOWN-TEST-ISSUES.md)
+- **Test Status & Strategy:** [KNOWN-TEST-ISSUES.md](.docs/testing/KNOWN-TEST-ISSUES.md)
 - **Detailed Test Results:** Jest JSON reports in `test-results/`
 - **Session Work Log:** [docs/project_log.md](../project_log.md)
 - **Active Work Status:** [AGENTS.md](../../AGENTS.md)
@@ -19,7 +19,7 @@ This document defines the standardized approach for tracking test failures, succ
 
 ### 1. Central Documentation (KNOWN-TEST-ISSUES.md)
 
-**Purpose:** Single source of truth for test suite health and fix strategy
+Purpose: Single source of truth for test suite health and fix strategy
 
 **Required Sections:**
 

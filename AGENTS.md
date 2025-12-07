@@ -17,7 +17,7 @@ Read [~/GLOBAL-CODE-PREFERENCES.md](~/GLOBAL-CODE-PREFERENCES.md) for overarchin
 
 ### ⚠️ CRITICAL - Read Before Making Changes
 
-- **[docs/development/PREVENTING-REGRESSIONS.md](./docs/development/PREVENTING-REGRESSIONS.md)** - **Prevents breaking existing services** (automated testing strategy)
+- **[PREVENTING-REGRESSIONS.md](.docs/testing/PREVENTING-REGRESSIONS.md)** - **Prevents breaking existing services** (automated testing strategy)
 
 ### Root-Level Documentation (Start Here)
 
