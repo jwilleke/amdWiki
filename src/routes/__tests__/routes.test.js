@@ -1,16 +1,16 @@
 const express = require('express');
 const request = require('supertest');
 const path = require('path');
-const WikiRoutes = require('../src/routes/WikiRoutes');
+const WikiRoutes = require('../WikiRoutes');
 
 // Mock LocaleUtils
-jest.mock('../src/utils/LocaleUtils', () => ({
+jest.mock('../../utils/LocaleUtils', () => ({
   getDateFormatOptions: jest.fn().mockReturnValue(['MM/dd/yyyy', 'dd/MM/yyyy', 'yyyy-MM-dd']),
   getDateFormatFromLocale: jest.fn().mockReturnValue('MM/dd/yyyy')
 }));
 
 // Mock the WikiEngine and its managers
-jest.mock('../src/WikiEngine', () => {
+jest.mock('../../WikiEngine', () => {
   // Create mock managers once
   const mockUserManager = {
     getCurrentUser: jest.fn().mockResolvedValue({

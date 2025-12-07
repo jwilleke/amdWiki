@@ -1,6 +1,7 @@
 const BaseManager = require('./BaseManager');
 const RegionCache = require('../cache/RegionCache');
 const logger = require('../utils/logger');
+const NullCacheProvider = require('../providers/NullCacheProvider');
 
 /**
  * CacheManager - Centralized cache management for amdWiki
@@ -122,7 +123,6 @@ class CacheManager extends BaseManager {
       const isHealthy = await this.provider.isHealthy();
       if (!isHealthy) {
         logger.warn(`Cache provider ${this.providerClass} health check failed, switching to NullCacheProvider`);
-        const NullCacheProvider = require('../providers/NullCacheProvider');
         this.provider = new NullCacheProvider(this.engine);
         await this.provider.initialize();
       }
@@ -130,7 +130,6 @@ class CacheManager extends BaseManager {
       logger.error(`Failed to load cache provider: ${this.providerClass}`, error);
       // Fall back to NullCacheProvider on any error
       logger.warn('Falling back to NullCacheProvider due to provider load error');
-      const NullCacheProvider = require('../providers/NullCacheProvider');
       this.provider = new NullCacheProvider(this.engine);
       await this.provider.initialize();
     }

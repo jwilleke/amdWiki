@@ -1,16 +1,14 @@
 const SchemaManager = require("../SchemaManager");
 
-jest.mock('fs', () => ({
-  promises: {
-    readFile: jest.fn(),
-    writeFile: jest.fn(),
-    mkdir: jest.fn()
-  },
-  existsSync: jest.fn()
+jest.mock('fs-extra', () => ({
+  readFile: jest.fn(),
+  writeFile: jest.fn(),
+  mkdir: jest.fn(),
+  existsSync: jest.fn(),
+  ensureDir: jest.fn()
 }));
 
-const fs = require('fs').promises;
-const fsSync = require('fs');
+const fs = require('fs-extra');
 
 const mockCfgMgr = { getProperty: jest.fn().mockImplementation((k,d)=>d) };
 const mockEngine = { getManager: jest.fn(n => n==='ConfigurationManager'?mockCfgMgr:null) };
@@ -25,10 +23,10 @@ describe("SchemaManager", () => {
 
   it("should initialize with empty collections", async () => {
     fs.mkdir.mockResolvedValue();
-    fsSync.existsSync.mockReturnValue(false);
-    
+    fs.existsSync.mockReturnValue(false);
+
     await schemaManager.initialize({});
-    
+
     expect(schemaManager.persons.size).toBe(0);
     expect(schemaManager.organizations.size).toBe(0);
   });

@@ -3,7 +3,7 @@
  * Tests the integration of PolicyManager, PolicyEvaluator, and PolicyValidator
  */
 
-const WikiEngine = require('../src/WikiEngine');
+const WikiEngine = require('../../WikiEngine');
 
 describe('Policy System Integration', () => {
   let engine;

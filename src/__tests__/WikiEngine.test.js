@@ -3,6 +3,20 @@ const path = require('path');
 const fs = require('fs-extra');
 const WikiEngine = require('../WikiEngine');
 
+// Mock logger to avoid console output during tests
+jest.mock('../utils/logger', () => ({
+  child: () => ({
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn()
+  }),
+  info: jest.fn(),
+  warn: jest.fn(),
+  error: jest.fn(),
+  debug: jest.fn()
+}));
+
 describe('WikiEngine', () => {
   let engine;
   let testDir;
