@@ -1,7 +1,7 @@
 # Known Test Issues
 
 **Last Updated:** 2025-12-07
-**Test Status:** 45 failing suites, 21 passing suites, 66 total
+**Test Status:** 44 failing suites, 22 passing suites, 66 total
 
 ## Overview
 
@@ -10,15 +10,16 @@ This document tracks known test failures and the strategy for fixing them. Tests
 ## Test Status Summary
 
 **Current Results:**
-- Test Suites: 45 failed, 21 passed, 66 total
-- Tests: 689 failed, 1 skipped, 1020 passed, 1710 total
+- Test Suites: 44 failed, 22 passed, 66 total
+- Tests: 677 failed, 1 skipped, 1032 passed, 1710 total
 - Coverage: Available via `npm run test:coverage`
 
 **Progress:**
 - ✅ Systematic blockers removed (import paths, missing deps)
-- ✅ Global test setup implemented (logger mocking)
-- ✅ 1020 tests passing (60% pass rate)
-- 🔧 45 test suites with individual issues remaining
+- ✅ Global test setup implemented (logger mocking, provider mocking)
+- ✅ 1032 tests passing (60% pass rate)
+- ✅ WikiContext.test.js fixed (high-priority core component)
+- 🔧 44 test suites with individual issues remaining
 
 ## Categories of Failures
 
@@ -234,10 +235,11 @@ Going forward, new tests should:
 
 ## Progress Tracking
 
-| Date | Failing Suites | Passing Tests | Notes |
-|------|---------------|---------------|-------|
-| 2025-12-07 | 45 | 1020 | Global setup implemented |
-| 2025-12-06 | 46 | 993 | Import path fixes |
+| Date | Failing Suites | Passing Suites | Passing Tests | Notes |
+|------|---------------|----------------|---------------|-------|
+| 2025-12-07 | 44 | 22 | 1032 | WikiContext.test.js fixed (rewrote to match actual API) |
+| 2025-12-07 | 45 | 21 | 1020 | Global setup + comprehensive provider mocking |
+| 2025-12-06 | 46 | 20 | 993 | Import path fixes |
 
 ---
 

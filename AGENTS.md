@@ -321,7 +321,7 @@ See [docs/planning/ROADMAP.md](./docs/planning/ROADMAP.md)
 
 ## Agent Guidelines
 
-### For All Agents
+### For All Agents 
 
 **CRITICAL: Preventing Regressions**
 
