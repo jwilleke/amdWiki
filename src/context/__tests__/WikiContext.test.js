@@ -1,46 +1,29 @@
 const WikiContext = require('../WikiContext');
 
 // Mock managers for testing
-const mockVariableManager = {
-  expandVariables: jest.fn((content, context) => {
-    // Simple mock: replace [{$pagename}] with the page name
-    return content.replace(/\[\{\$pagename\}\]/g, context.pageName);
-  })
-};
-
-const mockPluginManager = {
-  execute: jest.fn((pluginName, pageName, params, context) => {
-    if (pluginName === 'ReferringPagesPlugin') {
-      return `<div class="referring-pages">Mock referring pages for ${pageName}</div>`;
-    }
-    return `<div class="plugin-output">Mock ${pluginName} output</div>`;
-  })
+const mockParser = {
+  parse: jest.fn((content) => `<p>Parsed: ${content}</p>`)
 };
 
 const mockRenderingManager = {
-  renderWikiLinks: jest.fn((content) => {
-    // Simple mock: convert [PageName] to links
-    return content.replace(/\[([a-zA-Z0-9\s_-]+)\]/g, (match, pageName) => {
-      return `<a href="/wiki/${encodeURIComponent(pageName)}">${pageName}</a>`;
-    });
-  })
+  getParser: jest.fn(() => mockParser)
 };
 
-const mockPageManager = {
-  getPageNames: jest.fn(() => ['Main', 'TestPage', 'AnotherPage'])
+const mockVariableManager = {
+  expandVariables: jest.fn((content) => content.replace(/\[\{\$pagename\}\]/g, 'TestPage'))
 };
 
 const mockEngine = {
   getManager: jest.fn((managerName) => {
     switch (managerName) {
-      case 'VariableManager':
-        return mockVariableManager;
-      case 'PluginManager':
-        return mockPluginManager;
       case 'RenderingManager':
         return mockRenderingManager;
+      case 'VariableManager':
+        return mockVariableManager;
       case 'PageManager':
-        return mockPageManager;
+      case 'PluginManager':
+      case 'ACLManager':
+        return null;
       default:
         return null;
     }
@@ -51,195 +34,148 @@ describe('WikiContext', () => {
   let context;
 
   beforeEach(() => {
-    // Reset mocks
     jest.clearAllMocks();
-    
+
     context = new WikiContext(mockEngine, {
+      context: WikiContext.CONTEXT.VIEW,
       pageName: 'TestPage',
-      content: 'Test content with [{$pagename}] and [Main] link',
+      content: 'Test content with [{$pagename}]',
       userContext: { isAuthenticated: true, roles: ['user'] },
-      requestInfo: { userAgent: 'test-agent' }
+      request: {
+        headers: {
+          'user-agent': 'test-agent',
+          'accept-language': 'en-US'
+        },
+        ip: '127.0.0.1',
+        sessionID: 'test-session-id'
+      }
     });
   });
 
   describe('Constructor', () => {
     test('should initialize with correct properties', () => {
       expect(context.engine).toBe(mockEngine);
+      expect(context.context).toBe(WikiContext.CONTEXT.VIEW);
       expect(context.pageName).toBe('TestPage');
-      expect(context.content).toBe('Test content with [{$pagename}] and [Main] link');
+      expect(context.content).toBe('Test content with [{$pagename}]');
       expect(context.userContext.isAuthenticated).toBe(true);
-      expect(context.variables).toBeInstanceOf(Map);
-      expect(context.metadata).toEqual({});
+      expect(context.renderingManager).toBe(mockRenderingManager);
+      expect(context.variableManager).toBe(mockVariableManager);
+    });
+
+    test('should throw error if engine not provided', () => {
+      expect(() => new WikiContext(null)).toThrow('WikiContext requires a valid WikiEngine instance');
+    });
+
+    test('should use defaults for optional properties', () => {
+      const minimalContext = new WikiContext(mockEngine);
+      expect(minimalContext.context).toBe(WikiContext.CONTEXT.NONE);
+      expect(minimalContext.pageName).toBeNull();
+      expect(minimalContext.content).toBeNull();
+      expect(minimalContext.userContext).toBeNull();
     });
   });
 
-  describe('getManager', () => {
-    test('should delegate to engine.getManager', () => {
-      const result = context.getManager('VariableManager');
-      expect(mockEngine.getManager).toHaveBeenCalledWith('VariableManager');
-      expect(result).toBe(mockVariableManager);
-    });
-  });
-
-  describe('expandVariables', () => {
-    test('should use VariableManager to expand variables', async () => {
-      const content = 'Page: [{$pagename}]';
-      const result = await context.expandVariables(content);
-      
-      expect(mockVariableManager.expandVariables).toHaveBeenCalledWith(content, {
-        userContext: context.userContext,
-        pageName: context.pageName,
-        requestInfo: context.requestInfo
-      });
-      expect(result).toBe('Page: TestPage');
+  describe('getContext', () => {
+    test('should return the context type', () => {
+      expect(context.getContext()).toBe(WikiContext.CONTEXT.VIEW);
     });
 
-    test('should handle missing VariableManager gracefully', async () => {
-      const contextWithoutVM = new WikiContext({
-        getManager: () => null
-      });
-      
-      const content = 'Page: [{$pagename}]';
-      const result = await contextWithoutVM.expandVariables(content);
-      expect(result).toBe(content); // Should return unchanged
-    });
-  });
-
-  describe('expandPlugins', () => {
-    test('should use PluginManager to execute plugins', async () => {
-      const content = 'Test [{ReferringPagesPlugin}] plugin';
-      const result = await context.expandPlugins(content);
-      
-      expect(mockPluginManager.execute).toHaveBeenCalledWith(
-        'ReferringPagesPlugin',
-        'TestPage',
-        {},
-        expect.objectContaining({
-          engine: mockEngine,
-          pageName: 'TestPage',
-          userContext: context.userContext
-        })
-      );
-      expect(result).toContain('Mock referring pages for TestPage');
-    });
-
-    test('should handle plugin parameters', async () => {
-      const content = 'Test [{TestPlugin param1="value1"}] plugin';
-      const result = await context.expandPlugins(content);
-      
-      expect(mockPluginManager.execute).toHaveBeenCalledWith(
-        'TestPlugin',
-        'TestPage',
-        { param1: 'value1' },
-        expect.any(Object)
-      );
-    });
-
-    test('should handle missing PluginManager gracefully', async () => {
-      const contextWithoutPM = new WikiContext({
-        getManager: () => null
-      });
-      
-      const content = 'Test [{TestPlugin}] plugin';
-      const result = await contextWithoutPM.expandPlugins(content);
-      expect(result).toBe(content); // Should return unchanged
-    });
-  });
-
-  describe('expandWikiLinks', () => {
-    test('should use RenderingManager to render wiki links', async () => {
-      const content = 'Link to [Main] page';
-      const result = await context.expandWikiLinks(content);
-      
-      expect(mockRenderingManager.renderWikiLinks).toHaveBeenCalledWith(content);
-      expect(result).toContain('<a href="/wiki/Main">Main</a>');
-    });
-
-    test('should use fallback if RenderingManager not available', async () => {
-      const contextWithoutRM = new WikiContext({
-        getManager: (name) => name === 'PageManager' ? mockPageManager : null
-      });
-      
-      const content = 'Link to [Main] page';
-      const result = await contextWithoutRM.expandWikiLinks(content);
-      
-      expect(result).toContain('<a href="/wiki/Main">Main</a>');
+    test('should return NONE for default context', () => {
+      const defaultContext = new WikiContext(mockEngine);
+      expect(defaultContext.getContext()).toBe(WikiContext.CONTEXT.NONE);
     });
   });
 
   describe('renderMarkdown', () => {
-    test('should orchestrate full rendering pipeline', async () => {
-      const content = 'Page [{$pagename}] has [{ReferringPagesPlugin}] and link to [Main]';
-      
-      const result = await context.renderMarkdown(content, 'TestPage');
-      
-      // Verify all managers were called
+    test('should use MarkupParser when available', async () => {
+      const content = '# Test Header';
+      const result = await context.renderMarkdown(content);
+
+      expect(mockRenderingManager.getParser).toHaveBeenCalled();
+      expect(mockParser.parse).toHaveBeenCalledWith(content, expect.objectContaining({
+        pageContext: expect.objectContaining({
+          pageName: 'TestPage'
+        }),
+        engine: mockEngine
+      }));
+      expect(result).toBe('<p>Parsed: # Test Header</p>');
+    });
+
+    test('should use default content if none provided', async () => {
+      await context.renderMarkdown();
+
+      expect(mockParser.parse).toHaveBeenCalledWith(
+        'Test content with [{$pagename}]',
+        expect.any(Object)
+      );
+    });
+
+    test('should fallback to Showdown when parser not available', async () => {
+      mockRenderingManager.getParser.mockReturnValueOnce(null);
+
+      const result = await context.renderMarkdown('# Fallback Test');
+
+      // Should use fallback converter (Showdown)
+      expect(result).toContain('Fallback Test');
+      expect(mockParser.parse).not.toHaveBeenCalled();
+    });
+
+    test('should expand variables in fallback mode', async () => {
+      mockRenderingManager.getParser.mockReturnValueOnce(null);
+
+      const result = await context.renderMarkdown('[{$pagename}] test');
+
       expect(mockVariableManager.expandVariables).toHaveBeenCalled();
-      expect(mockPluginManager.execute).toHaveBeenCalled();
-      expect(mockRenderingManager.renderWikiLinks).toHaveBeenCalled();
-      
-      // Result should be HTML
-      expect(result).toContain('<p>');
-      expect(result).toContain('</p>');
-    });
-
-    test('should track performance metrics', async () => {
-      const content = 'Simple content';
-      
-      await context.renderMarkdown(content, 'TestPage');
-      
-      const performance = context.getPerformanceSummary();
-      expect(performance.totalTime).toBeGreaterThan(0);
-      expect(performance.variableTime).toBeGreaterThanOrEqual(0);
-      expect(performance.pluginTime).toBeGreaterThanOrEqual(0);
-      expect(performance.linkTime).toBeGreaterThanOrEqual(0);
-      expect(performance.markdownTime).toBeGreaterThanOrEqual(0);
+      expect(result).toContain('TestPage');
     });
   });
 
-  describe('Variable management', () => {
-    test('should set and get variables', () => {
-      context.setVariable('testVar', 'testValue');
-      expect(context.getVariable('testVar')).toBe('testValue');
-      expect(context.getVariable('nonexistent', 'default')).toBe('default');
+  describe('toParseOptions', () => {
+    test('should create correct parse options object', () => {
+      const options = context.toParseOptions();
+
+      expect(options).toEqual({
+        pageContext: {
+          pageName: 'TestPage',
+          userContext: { isAuthenticated: true, roles: ['user'] },
+          requestInfo: {
+            acceptLanguage: 'en-US',
+            userAgent: 'test-agent',
+            clientIp: '127.0.0.1',
+            referer: undefined,
+            sessionId: 'test-session-id'
+          }
+        },
+        engine: mockEngine
+      });
+    });
+
+    test('should handle missing request object', () => {
+      const contextWithoutRequest = new WikiContext(mockEngine, {
+        pageName: 'Test'
+      });
+
+      const options = contextWithoutRequest.toParseOptions();
+
+      expect(options.pageContext.requestInfo).toEqual({
+        acceptLanguage: undefined,
+        userAgent: undefined,
+        clientIp: undefined,
+        referer: undefined,
+        sessionId: undefined
+      });
     });
   });
 
-  describe('Metadata management', () => {
-    test('should set and get metadata', () => {
-      context.setMetadata('testKey', 'testValue');
-      expect(context.getMetadata('testKey')).toBe('testValue');
-      expect(context.getMetadata('nonexistent', 'default')).toBe('default');
-    });
-  });
-
-  describe('clone', () => {
-    test('should create a copy with overrides', () => {
-      context.setVariable('testVar', 'originalValue');
-      context.setMetadata('testKey', 'originalValue');
-      
-      const cloned = context.clone({ pageName: 'ClonedPage' });
-      
-      expect(cloned.pageName).toBe('ClonedPage');
-      expect(cloned.content).toBe(context.content);
-      expect(cloned.getVariable('testVar')).toBe('originalValue');
-      expect(cloned.getMetadata('testKey')).toBe('originalValue');
-      
-      // Changes to clone shouldn't affect original
-      cloned.setVariable('testVar', 'clonedValue');
-      expect(context.getVariable('testVar')).toBe('originalValue');
-    });
-  });
-
-  describe('getSummary', () => {
-    test('should return context summary', () => {
-      const summary = context.getSummary();
-      
-      expect(summary.pageName).toBe('TestPage');
-      expect(summary.contentLength).toBeGreaterThan(0);
-      expect(summary.variableCount).toBe(0);
-      expect(summary.userContext.isAuthenticated).toBe(true);
-      expect(summary.performance).toBeDefined();
+  describe('Context constants', () => {
+    test('should have all context type constants', () => {
+      expect(WikiContext.CONTEXT.VIEW).toBe('view');
+      expect(WikiContext.CONTEXT.EDIT).toBe('edit');
+      expect(WikiContext.CONTEXT.PREVIEW).toBe('preview');
+      expect(WikiContext.CONTEXT.DIFF).toBe('diff');
+      expect(WikiContext.CONTEXT.INFO).toBe('info');
+      expect(WikiContext.CONTEXT.NONE).toBe('none');
     });
   });
 });
