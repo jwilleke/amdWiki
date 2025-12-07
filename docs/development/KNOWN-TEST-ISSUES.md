@@ -1,7 +1,7 @@
 # Known Test Issues
 
 **Last Updated:** 2025-12-07
-**Test Status:** 44 failing suites, 22 passing suites, 66 total
+**Test Status:** 42 failing suites, 24 passing suites, 66 total
 
 ## Overview
 
@@ -10,16 +10,18 @@ This document tracks known test failures and the strategy for fixing them. Tests
 ## Test Status Summary
 
 **Current Results:**
-- Test Suites: 44 failed, 22 passed, 66 total
-- Tests: 677 failed, 1 skipped, 1032 passed, 1710 total
+- Test Suites: 42 failed, 24 passed, 66 total
+- Tests: 670 failed, 1 skipped, 1043 passed, 1714 total
 - Coverage: Available via `npm run test:coverage`
 
 **Progress:**
 - ✅ Systematic blockers removed (import paths, missing deps)
 - ✅ Global test setup implemented (logger mocking, provider mocking)
-- ✅ 1032 tests passing (60% pass rate)
+- ✅ 1043 tests passing (61% pass rate)
 - ✅ WikiContext.test.js fixed (high-priority core component)
-- 🔧 44 test suites with individual issues remaining
+- ✅ FilterChain.test.js fixed (quick win)
+- ✅ SchemaManager.test.js fixed (quick win)
+- 🔧 42 test suites with individual issues remaining
 
 ## Categories of Failures
 
@@ -166,8 +168,8 @@ Tests that can be fixed quickly (< 10 minutes each):
 
 - [ ] **policy-system.test.js** - Just needs ConfigurationManager mock
 - [ ] **routes.test.js** - Already mostly fixed, minor issues remain
-- [ ] **SchemaManager.test.js** - fs-extra mocking already done
-- [ ] **FilterChain.test.js** - Simple configuration issue
+- [x] **SchemaManager.test.js** - ✅ FIXED (rewrote to match actual API)
+- [x] **FilterChain.test.js** - ✅ FIXED (adjusted assertions)
 
 ## Won't Fix (For Now)
 
@@ -237,6 +239,7 @@ Going forward, new tests should:
 
 | Date | Failing Suites | Passing Suites | Passing Tests | Notes |
 |------|---------------|----------------|---------------|-------|
+| 2025-12-07 | 42 | 24 | 1043 | SchemaManager + FilterChain fixed (3 quick wins total) |
 | 2025-12-07 | 44 | 22 | 1032 | WikiContext.test.js fixed (rewrote to match actual API) |
 | 2025-12-07 | 45 | 21 | 1020 | Global setup + comprehensive provider mocking |
 | 2025-12-06 | 46 | 20 | 993 | Import path fixes |
