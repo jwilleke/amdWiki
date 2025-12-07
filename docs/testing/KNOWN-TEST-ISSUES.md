@@ -1,7 +1,7 @@
 # Known Test Issues
 
-**Last Updated:** 2025-12-07 (Session 2025-12-07-03)
-**Test Status:** 40 failing suites, 27 passing suites, 67 total (WikiEngine.test.js fix verified)
+**Last Updated:** 2025-12-07 (Session 2025-12-07-03 continued)
+**Test Status:** 39 failing suites, 28 passing suites, 67 total
 
 ## Overview
 
@@ -25,9 +25,10 @@ This document tracks known test failures and the strategy for fixing them. Tests
 - ✅ PageManager.test.js fixed (26 tests)
 - ✅ UserManager.test.js fixed (31 tests, high-priority security component)
 - ✅ WikiEngine.test.js fixed (5 tests, CRITICAL core engine)
+- ✅ policy-system.test.js fixed (10 tests, CRITICAL security component)
 - ✅ SearchManager mock enhanced (buildIndex, getDocumentCount methods)
 - 📋 PRIORITIZED-TEST-FIXES.md created (comprehensive fix plan)
-- 🔧 40 test suites with individual issues remaining
+- 🔧 39 test suites with individual issues remaining
 
 ## Categories of Failures
 
@@ -244,6 +245,7 @@ Going forward, new tests should:
 
 | Date | Failing Suites | Passing Suites | Passing Tests | Notes |
 |------|---------------|----------------|---------------|-------|
+| 2025-12-07 | 39 | 28 | 1181 | policy-system.test.js fixed (10 tests) - complete rewrite to match read-only PolicyManager API |
 | 2025-12-07 | 40 | 27 | 1171 | WikiEngine.test.js fixed (5 tests) + SearchManager mock enhanced + PRIORITIZED-TEST-FIXES.md created |
 | 2025-12-07 | 40 | 27 | 1169 | UserManager.test.js fixed (31 tests, high-priority security component) |
 | 2025-12-07 | 41 | 26 | 1138 | PageManager.test.js + PageNameMatcher.test.js fixed (26+43 tests) |
