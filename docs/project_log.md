@@ -17,6 +17,121 @@ Subject: [Brief description]
 
 ---
 
+## 2025-12-07-01
+
+**Agent:** Claude Code (Sonnet 4.5)
+
+**Subject:** Test Suite Fixes - Import Paths, Mocking, and Dependencies
+
+**Key Decisions:**
+
+- Fix systematic test import path issues
+- Install missing jest-environment-jsdom dependency
+- Implement Option B+C: Global test setup + fix-as-needed approach
+- Focus on unblocking tests rather than achieving 100% pass rate immediately
+
+**Problem Identified:**
+
+Multiple test suites failing due to:
+1. Missing `jest-environment-jsdom` dependency (required by ACLManager tests)
+2. Incorrect import paths (using `../src/` instead of `../` or `../../`)
+3. Incorrect mocking (mocking `fs` instead of `fs-extra`)
+4. Missing logger mocks causing initialization failures
+
+**Test Status:**
+
+**Before fixes:**
+- 46 failing test suites, 20 passing (some tests couldn't run due to blockers)
+- 606 failed tests, 993 passed
+
+**After fixes:**
+- 46 failing test suites, 20 passing (but more tests now running)
+- Tests previously blocked by import errors now execute
+- Systematic blockers removed
+
+**Changes Made:**
+
+1. **package.json**
+   - Added `jest-environment-jsdom` to devDependencies
+
+2. **src/managers/__tests__/policy-system.test.js**
+   - Fixed import: `require('../src/WikiEngine')` → `require('../../WikiEngine')`
+
+3. **src/routes/__tests__/routes.test.js**
+   - Fixed imports: `require('../src/routes/WikiRoutes')` → `require('../WikiRoutes')`
+   - Fixed imports: `jest.mock('../src/utils/LocaleUtils')` → `jest.mock('../../utils/LocaleUtils')`
+   - Fixed imports: `jest.mock('../src/WikiEngine')` → `jest.mock('../../WikiEngine')`
+
+4. **src/managers/__tests__/SchemaManager.test.js**
+   - Changed mock from `jest.mock('fs')` to `jest.mock('fs-extra')`
+   - Updated references from `fs.promises` to direct `fs-extra` methods
+
+5. **src/__tests__/WikiEngine.test.js**
+   - Added comprehensive logger mock to prevent initialization failures
+
+6. **src/managers/CacheManager.js**
+   - Moved `NullCacheProvider` require to top-level to avoid dynamic require issues
+   - Removed redundant inline requires in fallback paths
+
+7. **docs/development/AUTOMATED-TESTING-SETUP.md**
+   - Fixed typo: "pull reques" → "pull request"
+
+**Testing Strategy Decision:**
+
+Adopted **Option B + C approach**:
+- **Option B:** Create global test setup with common mocks (logger, providers)
+- **Option C:** Fix remaining tests incrementally as related code is modified
+
+**Rationale:**
+- Systematic blockers fixed (import paths, missing deps)
+- Remaining 46 failures are individual test logic issues
+- Global setup will prevent similar issues in future tests
+- Incremental fixes during feature work more practical than fixing all 46 now
+
+**Work Done:**
+
+- ✅ Analyzed all 46 failing test suites to identify patterns
+- ✅ Installed missing jest-environment-jsdom dependency
+- ✅ Fixed 4 test files with import path issues
+- ✅ Fixed SchemaManager fs-extra mocking
+- ✅ Added logger mock to WikiEngine tests
+- ✅ Improved CacheManager to avoid dynamic require issues
+- ✅ Fixed documentation typo
+- ✅ Committed all changes
+
+**Files Modified:**
+
+- `package.json` - Added jest-environment-jsdom
+- `package-lock.json` - Dependency lockfile update
+- `src/__tests__/WikiEngine.test.js` - Logger mock
+- `src/managers/CacheManager.js` - NullCacheProvider require
+- `src/managers/__tests__/SchemaManager.test.js` - fs-extra mock
+- `src/managers/__tests__/policy-system.test.js` - Import path fix
+- `src/routes/__tests__/routes.test.js` - Import path fixes
+- `docs/development/AUTOMATED-TESTING-SETUP.md` - Typo fix
+
+**Commits:**
+
+- `c0d3124` - fix: resolve test suite failures - import paths, mocking, and dependencies
+
+**Next Steps (Option B + C Implementation):**
+
+1. Create `jest.setup.js` with global mocks (logger, common providers)
+2. Update jest config to use setup file
+3. Document known test issues in AUTOMATED-TESTING-SETUP.md
+4. Fix remaining tests incrementally during feature work
+
+**Impact:**
+
+- Removed systematic test blockers (import errors, missing deps)
+- Tests that were failing to load now execute
+- Foundation for incremental test improvements
+- Clear path forward with Option B + C strategy
+
+**Status:** Test infrastructure improved, ready to implement global setup
+
+---
+
 ## 2025-12-06-06
 
 **Agent:** Claude Code (Sonnet 4.5)

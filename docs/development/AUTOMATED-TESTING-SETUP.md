@@ -58,7 +58,13 @@ GitHub Actions will automatically run on your next push or pull request. No addi
 
 ### Step 3: Fix Existing Test Failures (As Needed)
 
-Some tests are currently failing. Fix them gradually:
+**Current Status:** 45 failing test suites, 1020 passing tests (60% pass rate)
+
+We use a **fix-as-needed** strategy. See [KNOWN-TEST-ISSUES.md](./KNOWN-TEST-ISSUES.md) for:
+- Complete list of failing tests
+- Root causes and fix strategies
+- Priority ranking
+- Progress tracking
 
 ```bash
 # See which tests are failing
@@ -71,6 +77,8 @@ npm test -- <specific-test-file>.test.js
 git add .
 git commit -m "fix: resolve test failures"
 ```
+
+**Quick Wins:** See [KNOWN-TEST-ISSUES.md](./KNOWN-TEST-ISSUES.md#quick-wins) for tests that can be fixed in < 10 minutes.
 
 ### Step 4: Set Up Coverage Thresholds (Optional)
 
