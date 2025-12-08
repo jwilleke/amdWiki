@@ -89,6 +89,7 @@ jest.mock('../../WikiEngine', () => {
 
   const mockPageManager = {
     getPageNames: jest.fn().mockResolvedValue(['Welcome', 'TestPage']),
+    getAllPages: jest.fn().mockResolvedValue([]),
     getPage: jest.fn().mockImplementation((pageName) => {
       if (pageName === 'Footer' || pageName === 'LeftMenu') {
         return Promise.resolve(null); // These pages don't exist
@@ -101,12 +102,17 @@ jest.mock('../../WikiEngine', () => {
     savePage: jest.fn().mockResolvedValue(true),
     deletePage: jest.fn().mockResolvedValue(true),
     getPageContent: jest.fn().mockResolvedValue('# Test Page\nThis is a test page.'),
-    isRequiredPage: jest.fn().mockReturnValue(false)
+    getPageMetadata: jest.fn().mockResolvedValue({ title: 'TestPage', author: 'testuser' }),
+    isRequiredPage: jest.fn().mockReturnValue(false),
+    provider: {
+      getVersionHistory: jest.fn().mockResolvedValue([])
+    }
   };
 
   const mockRenderingManager = {
     renderContent: jest.fn().mockReturnValue('<p>This is rendered content</p>'),
     renderMarkdown: jest.fn().mockReturnValue('<p>This is rendered markdown</p>'),
+    textToHTML: jest.fn().mockResolvedValue('<p>This is rendered content</p>'),
     getReferringPages: jest.fn().mockResolvedValue([]),
     rebuildLinkGraph: jest.fn().mockResolvedValue(true)
   };
@@ -131,6 +137,7 @@ jest.mock('../../WikiEngine', () => {
 
   const mockACLManager = {
     checkPagePermission: jest.fn().mockResolvedValue(true),
+    checkPagePermissionWithContext: jest.fn().mockResolvedValue(true),
     removeACLMarkup: jest.fn().mockReturnValue('Content without ACL markup'),
     parseACL: jest.fn().mockReturnValue({ permissions: [] })
   };
@@ -241,6 +248,15 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
         csrfToken: 'test-csrf-token',
         user: { username: 'testuser' }
       };
+      // Set req.userContext like the real middleware does in app.js
+      // This is used by WikiRoutes.createWikiContext() to build WikiContext
+      req.userContext = {
+        username: 'testuser',
+        displayName: 'Test User',
+        email: 'test@example.com',
+        isAuthenticated: true,
+        roles: ['authenticated', 'Authenticated', 'All']
+      };
       // Parse cookies from headers
       if (req.headers.cookie) {
         const cookie = require('cookie');
@@ -264,6 +280,13 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
       }
 
       next();
+    });
+
+    // Error logging middleware for debugging
+    app.use((err, req, res, next) => {
+      console.error('[TEST ERROR]:', err.message);
+      console.error('[TEST ERROR STACK]:', err.stack);
+      next(err);
     });
 
     // Create WikiRoutes instance with the same mock engine
