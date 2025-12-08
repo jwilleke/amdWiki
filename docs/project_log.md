@@ -838,7 +838,7 @@ Next Steps (from TODO.md):
   - Move detailed docs to docs/: SERVER.md, SERVER-MANAGEMENT.md, INSTALLATION-SYSTEM.md, project_log.md
   - Archive investigative/report files to docs/archive/
   - Update AGENTS.md Quick Navigation with organized sections
-### Installation System Testing (7 Scenarios)
+- Installation System Testing (7 Scenarios):
 
 All tests PASSED with comprehensive verification:
 
@@ -857,11 +857,11 @@ Testing Results:
 - Confirmed admin login working with created credentials
 - Confirmed all 42 startup pages functional
 
-### Documentation Reorganization
+- Documentation Reorganization:
 
 Restructured documentation from scattered files to professional hierarchy:
 
-### Root Level (10 files - User Facing)
+- Root Level (10 files - User Facing):
 
 - README.md - Project overview
 - SETUP.md - Installation & setup (NEW)
@@ -874,20 +874,20 @@ Restructured documentation from scattered files to professional hierarchy:
 - CHANGELOG.md - Release history (updated with project_log link)
 - DOCUMENTATION.md - Documentation index (NEW)
 
-### Moved to docs/ (Detailed Documentation)
+- Moved to docs/ (Detailed Documentation):
 
 - docs/SERVER.md (was root)
 - docs/SERVER-MANAGEMENT.md (was root)
 - docs/INSTALLATION-SYSTEM.md (was root)
 - docs/project_log.md (was root)
 
-### Archived to docs/archive/
+- Archived to docs/archive/:
 
 - INVESTIGATION-TABLE-STYLES.md (investigative report)
 - MIGRATION-REPORT.md (report)
 - TEST-PAGES-REPORT.md (report)
 
-### Updated Navigation
+- Updated Navigation:
 
 - AGENTS.md Quick Navigation: organized into root-level and docs/ sections
 - CHANGELOG.md: added reference to docs/project_log.md
@@ -1264,20 +1264,20 @@ Subject: AGENTS.md implementation and project_log.md creation
 Agent: Claude Code (Crush)
 Subject: PM2 Server Management Cleanup and Installation System Verification
 
-### Status
+- Status:
 
 - Server properly running under PM2 process management
 - Installation system implementation verified and working
 - PID file management cleaned up and consolidated
 
-### Key Decisions
+- Key Decisions:
 
 1. Confirmed PM2 usage: PM2 is a declared dependency and provides production-grade process management (auto-restart, log rotation, clustering). Kept as primary process manager.
 2. Consolidated PID management: Single `.amdwiki.pid` file managed exclusively by `server.sh` (removed PM2's auto-generated `.amdwiki-*.pid` files)
 3. Verified form security: Admin username and email are display-only (non-editable) in install form, hardcoded in route handler
 4. Confirmed server startup: Server runs properly via `./server.sh start [env]` with PM2
 
-### Work Done
+- Work Done:
 
 1. Process cleanup: Killed stray direct Node process (PID 44543), removed stale PID files (`.amdwiki-1.pid`)
 2. PM2 initialization: Started server fresh via `./server.sh start prod`, confirmed PM2 daemon spawned
@@ -1286,15 +1286,15 @@ Subject: PM2 Server Management Cleanup and Installation System Verification
 5. Service validation: Confirmed InstallService.js uses `#updateAdminPassword()` not user creation
 6. Documentation: Updated IMPLEMENTATION-COMPLETE.md with PM2 management details and admin account implementation notes
 
-### Commits
+- Commits:
 
 - `f923dc9` docs: Update IMPLEMENTATION-COMPLETE with PM2 cleanup and server management verification
 
-### Files Modified
+- Files Modified:
 
 - `IMPLEMENTATION-COMPLETE.md` - Added PM2 management, admin account, and server status sections
 
-### Testing Results
+- Testing Results:
 
 - ✅ Server starts cleanly via PM2
 - ✅ Single `.amdwiki.pid` file created correctly
@@ -1303,12 +1303,12 @@ Subject: PM2 Server Management Cleanup and Installation System Verification
 - ✅ No stale PID files remain after cleanup
 - ✅ Server status shows "online" with correct PID
 
-### Known Issues (Pre-existing)
+- Known Issues (Pre-existing):
 
 - Jest tests have logger mocking issues in CacheManager (not related to this session)
 - Test suite shows 595 failed tests (pre-existing, not caused by install system changes)
 
-### Next Session Recommendations
+- Next Session Recommendations:
 
 1. Manual browser testing of install form submission
 2. Test admin account creation and password change functionality
