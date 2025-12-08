@@ -17,6 +17,137 @@ Subject: [Brief description]
 
 ---
 
+## 2025-12-07-03
+
+**Agent:** Claude Code (Sonnet 4.5)
+
+**Subject:** Test Prioritization & WikiEngine Fix - Core Component Testing
+
+**Key Decisions:**
+
+- Create comprehensive prioritized test fix plan following TEST-TRACKING-BEST-PRACTICES.md
+- Fix WikiEngine.test.js initialization flag (CRITICAL core component)
+- Enhance SearchManager mock with missing methods
+- Focus on high-priority core components first (WikiEngine, Managers, WikiContext)
+
+**Problem Identified:**
+
+- No prioritized plan for fixing 41 failing test suites
+- WikiEngine.test.js failing because `initialized` flag not set
+- SearchManager mock missing `buildIndex()` and `getDocumentCount()` methods
+
+**Test Status:**
+
+**Before fixes:**
+
+- WikiEngine.test.js: 2/5 passing (initialization tests failing)
+- 41 failing suites, 26 passing, 545 failed tests, 1169 passed tests
+
+**After fixes:**
+
+- WikiEngine.test.js: 5/5 passing ✅ (100%)
+- 40 failing suites (estimated), 27 passing, ~1171 passing tests
+- SearchManager mock enhanced for policy-system.test.js
+
+**Changes Made:**
+
+1. **docs/testing/PRIORITIZED-TEST-FIXES.md** - Created comprehensive fix plan
+   - Categorized all 41 failing suites by priority (High/Medium/Low)
+   - Identified quick wins (< 15 min fixes)
+   - Created week-by-week fix schedule
+   - Defined success metrics and tracking approach
+
+2. **src/WikiEngine.js** - Fixed initialization flag
+   - Added `this.initialized = true;` after all managers initialized (line 208)
+   - Ensures Engine base class contract is met
+   - WikiEngine.initialize() now properly signals completion
+
+3. **jest.setup.js** - Enhanced SearchManager mock
+   - Added `buildIndex()` method (async, no-op)
+   - Added `getDocumentCount()` method (returns 0)
+   - Should fix policy-system.test.js and SearchManager.test.js
+
+4. **docs/testing/KNOWN-TEST-ISSUES.md** - Updated progress
+   - Marked WikiEngine.test.js as fixed
+   - Added PRIORITIZED-TEST-FIXES.md reference
+   - Updated progress tracking table
+
+**Priority Breakdown:**
+
+**HIGH PRIORITY (7 suites):**
+
+- ✅ WikiEngine.test.js - FIXED (5 tests)
+- policy-system.test.js - Likely fixed by SearchManager mock
+- ACLManager.test.js - Pending
+- PageManager-Storage.test.js - Pending
+- SearchManager.test.js - Likely fixed by mock enhancement
+- RenderingManager.test.js - Pending
+
+**MEDIUM PRIORITY (18 suites):**
+
+- PluginManager tests (2 files)
+- MarkupParser tests (11 files) - Fix incrementally
+- Routes tests (4 files)
+- Parser handlers (5 files)
+
+**LOW PRIORITY (16 suites):**
+
+- Versioning tests (5 files) - Defer until versioning work
+- Plugin tests (2 files)
+
+**Work Done:**
+
+- ✅ Analyzed all 41 failing test suites
+- ✅ Created PRIORITIZED-TEST-FIXES.md (comprehensive roadmap)
+- ✅ Fixed WikiEngine.test.js (5/5 tests passing)
+- ✅ Enhanced SearchManager mock (buildIndex, getDocumentCount)
+- ✅ Updated KNOWN-TEST-ISSUES.md with progress
+- ✅ Identified 4 quick wins for next session
+
+**Files Created:**
+
+- `docs/testing/PRIORITIZED-TEST-FIXES.md` - Comprehensive fix plan (320 lines)
+
+**Files Modified:**
+
+- `src/WikiEngine.js` - Added `this.initialized = true` flag
+- `jest.setup.js` - Enhanced MockSearchProvider
+- `docs/testing/KNOWN-TEST-ISSUES.md` - Progress tracking update
+
+**Commits:**
+
+- (Pending commit)
+
+**Key Insights:**
+
+1. **Test Prioritization:** Following TEST-TRACKING-BEST-PRACTICES.md guidelines enabled systematic approach to 41 failures
+2. **Quick Wins:** WikiEngine.test.js was 5-minute fix with high impact (core engine tests)
+3. **Mock Enhancements:** Global mock improvements in jest.setup.js fix multiple test files
+4. **Documentation:** PRIORITIZED-TEST-FIXES.md provides clear roadmap for next 2-4 weeks of test fixes
+
+**Next Steps (Recommended):**
+
+**Immediate (Next Session):**
+
+1. Verify policy-system.test.js passes (should be fixed by SearchManager mock)
+2. Verify SearchManager.test.js passes
+3. Fix ACLManager.test.js (30-60 min)
+4. Fix PageManager-Storage.test.js (30-60 min)
+
+**Week 1 Target:** 8-10 fixed suites (High priority core components)
+**Month 1 Goal:** < 10 failing suites (from current 41)
+
+**Impact:**
+
+- Clear prioritized roadmap for test fixes
+- Core engine tests (WikiEngine) now passing
+- Foundation for systematic test improvement
+- Estimated 2 test suites fixed directly + 2 likely fixed via mock enhancement
+
+**Status:** WikiEngine.test.js verified passing, PRIORITIZED-TEST-FIXES.md created, ready for commit
+
+---
+
 ## 2025-12-07-01
 
 **Agent:** Claude Code (Sonnet 4.5)
@@ -33,6 +164,7 @@ Subject: [Brief description]
 **Problem Identified:**
 
 Multiple test suites failing due to:
+
 1. Missing `jest-environment-jsdom` dependency (required by ACLManager tests)
 2. Incorrect import paths (using `../src/` instead of `../` or `../../`)
 3. Incorrect mocking (mocking `fs` instead of `fs-extra`)
@@ -41,10 +173,12 @@ Multiple test suites failing due to:
 **Test Status:**
 
 **Before fixes:**
+
 - 46 failing test suites, 20 passing (some tests couldn't run due to blockers)
 - 606 failed tests, 993 passed
 
 **After fixes:**
+
 - 46 failing test suites, 20 passing (but more tests now running)
 - Tests previously blocked by import errors now execute
 - Systematic blockers removed
@@ -54,19 +188,19 @@ Multiple test suites failing due to:
 1. **package.json**
    - Added `jest-environment-jsdom` to devDependencies
 
-2. **src/managers/__tests__/policy-system.test.js**
+2. **src/managers/**tests**/policy-system.test.js**
    - Fixed import: `require('../src/WikiEngine')` → `require('../../WikiEngine')`
 
-3. **src/routes/__tests__/routes.test.js**
+3. **src/routes/**tests**/routes.test.js**
    - Fixed imports: `require('../src/routes/WikiRoutes')` → `require('../WikiRoutes')`
    - Fixed imports: `jest.mock('../src/utils/LocaleUtils')` → `jest.mock('../../utils/LocaleUtils')`
    - Fixed imports: `jest.mock('../src/WikiEngine')` → `jest.mock('../../WikiEngine')`
 
-4. **src/managers/__tests__/SchemaManager.test.js**
+4. **src/managers/**tests**/SchemaManager.test.js**
    - Changed mock from `jest.mock('fs')` to `jest.mock('fs-extra')`
    - Updated references from `fs.promises` to direct `fs-extra` methods
 
-5. **src/__tests__/WikiEngine.test.js**
+5. **src/**tests**/WikiEngine.test.js**
    - Added comprehensive logger mock to prevent initialization failures
 
 6. **src/managers/CacheManager.js**
@@ -79,10 +213,12 @@ Multiple test suites failing due to:
 **Testing Strategy Decision:**
 
 Adopted **Option B + C approach**:
+
 - **Option B:** Create global test setup with common mocks (logger, providers)
 - **Option C:** Fix remaining tests incrementally as related code is modified
 
 **Rationale:**
+
 - Systematic blockers fixed (import paths, missing deps)
 - Remaining 46 failures are individual test logic issues
 - Global setup will prevent similar issues in future tests

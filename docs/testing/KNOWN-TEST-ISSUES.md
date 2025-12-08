@@ -7,14 +7,21 @@
 
 This document tracks known test failures and the strategy for fixing them. Tests are fixed incrementally as related code is modified (Option C approach).
 
+Many failures are a result of Artitecutre changes from
+
+- [Migrate to WikiDocument DOM-Based Parsing Architecture](https://github.com/jwilleke/amdWiki/issues/93)
+- [Refactor to use WikiContext as Single Source of Truth Throughout Application](https://github.com/jwilleke/amdWiki/issues/132)
+
 ## Test Status Summary
 
-**Current Results:**
+Current Results:
+
 - Test Suites: 40 failed, 27 passed, 67 total
 - Tests: 547 failed, 1 skipped, 1169 passed, 1717 total
 - Coverage: Available via `npm run test:coverage`
 
-**Progress:**
+Progress:
+
 - ✅ Systematic blockers removed (import paths, missing deps)
 - ✅ Global test setup implemented (logger mocking, provider mocking)
 - ✅ 1221 tests passing (71% pass rate)
@@ -38,6 +45,7 @@ This document tracks known test failures and the strategy for fixing them. Tests
 **Pattern:** Tests expect certain mocks or configuration that aren't properly set up
 
 **Example:**
+
 ```
 TypeError: Cannot read properties of null (reading 'getProperty')
 ```

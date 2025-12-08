@@ -28,18 +28,23 @@ WikiContext encapsulates the rendering pipeline and provides access to various m
 ## Key Features
 
 ### 1. Request-Scoped Context Container
+
 - Encapsulates all request information (page, user, HTTP details)
 - Provides unified access to all engine managers
 - Created once per HTTP request
 
 ### 2. Rendering Orchestration
+
 WikiContext delegates rendering to the appropriate pipeline:
+
 - **Primary**: Uses MarkupParser when available (advanced parsing with DOM)
 - **Fallback**: Uses Showdown with VariableManager when parser unavailable
 - **Automatic**: Chooses best available method transparently
 
 ### 3. Manager Access
+
 Provides direct access to managers:
+
 - **RenderingManager** - Parsing and rendering
 - **VariableManager** - Variable expansion
 - **PluginManager** - Plugin execution
@@ -47,6 +52,7 @@ Provides direct access to managers:
 - **ACLManager** - Access control
 
 ### 4. Fallback Handling
+
 - Graceful degradation when managers are unavailable
 - Fallback to basic rendering for essential functionality
 - Error handling with detailed logging
@@ -108,6 +114,7 @@ const html = await parser.parse(content, options);
 WikiContext replaces the previous inline regex approach in `app.js`:
 
 ### Before (Inline Regex)
+
 ```javascript
 // Old approach - inline regex processing
 function renderMarkdown(content, pageName) {
@@ -121,6 +128,7 @@ function renderMarkdown(content, pageName) {
 ```
 
 ### After (WikiContext)
+
 ```javascript
 // New approach - manager-based processing
 async function renderMarkdown(content, pageName, userContext = null, request = null) {
@@ -139,7 +147,9 @@ async function renderMarkdown(content, pageName, userContext = null, request = n
 ## Integration Points
 
 ### With RenderingManager
+
 WikiContext accesses the parser through RenderingManager:
+
 ```javascript
 // Get parser from RenderingManager
 const parser = context.renderingManager?.getParser?.();
@@ -150,7 +160,9 @@ if (parser) {
 ```
 
 ### With VariableManager
+
 WikiContext provides access to VariableManager:
+
 ```javascript
 // Access VariableManager directly
 const variableManager = context.variableManager;
@@ -165,7 +177,9 @@ if (variableManager) {
 ```
 
 ### With PluginManager
+
 WikiContext provides access to PluginManager:
+
 ```javascript
 // Access PluginManager directly
 const pluginManager = context.pluginManager;
@@ -177,7 +191,9 @@ if (pluginManager) {
 ```
 
 ### With PageManager
+
 WikiContext provides access to PageManager:
+
 ```javascript
 // Access PageManager directly
 const pageManager = context.pageManager;
@@ -188,7 +204,9 @@ if (pageManager) {
 ```
 
 ### With ACLManager
+
 WikiContext provides access to ACLManager:
+
 ```javascript
 // Access ACLManager directly
 const aclManager = context.aclManager;
@@ -220,6 +238,7 @@ new WikiContext(engine, options)
 ```
 
 **Parameters:**
+
 - `engine` (WikiEngine) - Required. The wiki engine instance
 - `options` (Object) - Configuration options
   - `context` (string) - Context type: 'view', 'edit', 'preview', 'diff', 'info', 'none'
@@ -230,6 +249,7 @@ new WikiContext(engine, options)
   - `response` (Object) - Express response object
 
 **Throws:**
+
 - `Error` if engine is not provided
 
 ### Context Constants
@@ -265,12 +285,15 @@ async renderMarkdown(content = this.content): Promise<string>
 ```
 
 **Parameters:**
+
 - `content` (string, optional) - Content to render. Defaults to `this.content`
 
 **Returns:**
+
 - `Promise<string>` - Rendered HTML
 
 **Behavior:**
+
 1. Tries to use MarkupParser from RenderingManager (primary)
 2. Falls back to Showdown with VariableManager if parser unavailable
 3. Logs rendering process and result
@@ -284,6 +307,7 @@ toParseOptions(): Object
 ```
 
 **Returns:**
+
 ```javascript
 {
   pageContext: {
@@ -328,28 +352,34 @@ context.response     // Express response
 ## Performance Considerations
 
 ### Creation Overhead
+
 WikiContext creation is very fast (~0.5ms) and designed for per-request instantiation.
 
 ### Memory Footprint
+
 - Small memory footprint (~2KB per instance)
 - Stores references to managers, not copies
 - No caching of rendered content
 
 ### Caching Integration
+
 WikiContext integrates with the existing caching infrastructure through the managers it provides access to.
 
 ### Memory Management
+
 WikiContext is designed to be lightweight and can be created per-request without significant overhead.
 
 ## Testing
 
 WikiContext includes comprehensive test coverage:
+
 - Unit tests for all public methods
 - Integration tests with mock managers
 - Performance metric validation
 - Error handling verification
 
 Run WikiContext tests:
+
 ```bash
 npm test src/context/__tests__/WikiContext.test.js
 ```

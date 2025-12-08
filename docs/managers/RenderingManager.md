@@ -1,6 +1,6 @@
 # RenderingManager
 
-**Comprehensive Documentation for amdWiki RenderingManager**
+Comprehensive Documentation for amdWiki RenderingManager
 
 Version: 1.3.2
 Last Updated: 2025-10-16
@@ -46,6 +46,7 @@ The RenderingManager implements a **dual-parser architecture**:
 2. **Legacy Parser (Fallback)**: Direct Showdown conversion with basic JSPWiki syntax support
 
 This approach provides:
+
 - **Backward Compatibility**: Existing pages render correctly
 - **Progressive Enhancement**: New features via MarkupParser
 - **Reliability**: Automatic fallback on parser errors
@@ -225,16 +226,19 @@ Footnotes allow you to add notes and references at the bottom of your page witho
 #### Basic Footnote
 
 **Reference in text:**
+
 ```markdown
 This is a sentence with a footnote[^1].
 ```
 
 **Definition at bottom:**
+
 ```markdown
 [^1]: This is the footnote text.
 ```
 
 **Rendered output:**
+
 - In text: `This is a sentence with a footnote<sup><a href="#footnote-1">[1]</a></sup>.`
 - At bottom: `<small class="footnote" id="footnote-1"><a href="#footnote-1"><sup>[1]</sup></a>: This is the footnote text.</small>`
 
@@ -286,11 +290,13 @@ This has a longer footnote[^long].
 Footnotes generate clean, semantic HTML:
 
 **Footnote Reference:**
+
 ```html
 <a href="#footnote-1"><sup>[1]</sup></a>
 ```
 
 **Footnote Definition:**
+
 ```html
 <small class="footnote" id="footnote-1">
   <a href="#footnote-1"><sup>[1]</sup></a>:
@@ -314,11 +320,13 @@ Footnotes generate clean, semantic HTML:
 amdWiki uses a **patched version** of `showdown-footnotes` located at `src/extensions/showdown-footnotes-fixed.js` to fix two critical bugs in the original extension:
 
 **Bug #1: Missing Global Flag**
+
 - **Original:** `/\[\^([\d\w]+)\]/m` - only matches first occurrence
 - **Fixed:** `/\[\^([\d\w-]+)\]/mg` - matches all occurrences
 - **Impact:** Without this fix, only the first footnote reference on the page would be converted
 
 **Bug #2: Missing Hyphen Support**
+
 - **Original:** `[\d\w]+` - only matches digits and word characters
 - **Fixed:** `[\d\w-]+` - also matches hyphens
 - **Impact:** Without this fix, identifiers like `[^my-note]` and `[^long-note]` wouldn't work
@@ -330,6 +338,7 @@ These fixes are applied to all three filter functions in the extension (multi-pa
 Footnote syntax `[^id]` must be **excluded from wiki link processing** to prevent interference:
 
 **MarkupParser.js:1512** - Wiki link extraction excludes footnotes:
+
 ```javascript
 // Does NOT match: [^id] - markdown footnote references
 sanitized = sanitized.replace(/\[([^\]\[\{\^][^\]]*)\](?!\()/g, (match, target) => {
@@ -338,6 +347,7 @@ sanitized = sanitized.replace(/\[([^\]\[\{\^][^\]]*)\](?!\()/g, (match, target) 
 ```
 
 **LinkParserHandler.js:27** - Link handler pattern excludes footnotes:
+
 ```javascript
 // Excludes markdown footnote syntax [^id] by using negative lookahead (?!\^)
 /\[(?!\^)([^\|\]]+)(?:\|([^\|\]]+))?(?:\|([^\]]+))?\](?!\()/g
@@ -528,6 +538,7 @@ constructor(engine)
 Creates a new RenderingManager instance.
 
 **Parameters:**
+
 - `engine` (WikiEngine): The wiki engine instance
 
 #### Core Methods
@@ -537,11 +548,13 @@ Creates a new RenderingManager instance.
 Initializes the RenderingManager, loads configuration, and sets up Showdown converter.
 
 **Parameters:**
+
 - `config` (Object): Optional configuration object
 
 **Returns:** `Promise<void>`
 
 **Example:**
+
 ```javascript
 await renderingManager.initialize();
 ```
@@ -551,6 +564,7 @@ await renderingManager.initialize();
 Renders markdown content to HTML using the configured parser.
 
 **Parameters:**
+
 - `content` (string): Markdown content to render
 - `pageName` (string): Name of the current page
 - `userContext` (Object): User context for variable expansion
@@ -559,6 +573,7 @@ Renders markdown content to HTML using the configured parser.
 **Returns:** `Promise<string>` - Rendered HTML
 
 **Example:**
+
 ```javascript
 const html = await renderingManager.renderMarkdown(
   '# Hello\n\nThis is a footnote[^1].\n\n[^1]: Footnote text.',
@@ -575,6 +590,7 @@ Gets the MarkupParser instance if available and enabled.
 **Returns:** `MarkupParser|null`
 
 **Example:**
+
 ```javascript
 const parser = renderingManager.getParser();
 if (parser) {
@@ -589,6 +605,7 @@ if (parser) {
 Expands wiki macros and variables (legacy pipeline only).
 
 **Parameters:**
+
 - `content` (string): Content with macros
 - `pageName` (string): Page name
 - `userContext` (Object): User context
@@ -601,6 +618,7 @@ Expands wiki macros and variables (legacy pipeline only).
 Converts JSPWiki table syntax to HTML (legacy pipeline only).
 
 **Parameters:**
+
 - `content` (string): Content with JSPWiki tables
 
 **Returns:** `string` - Content with HTML tables
@@ -610,6 +628,7 @@ Converts JSPWiki table syntax to HTML (legacy pipeline only).
 Processes wiki-style links `[PageName]` (legacy pipeline only).
 
 **Parameters:**
+
 - `content` (string): Content with wiki links
 
 **Returns:** `Promise<string>` - Content with processed links
@@ -627,6 +646,7 @@ Builds a graph of page links for backlink support.
 Updates the link graph when a page is saved.
 
 **Parameters:**
+
 - `pageName` (string): Name of the page
 - `links` (Array<string>): Array of linked page names
 
@@ -637,6 +657,7 @@ Updates the link graph when a page is saved.
 Gets all pages that link to the specified page.
 
 **Parameters:**
+
 - `pageName` (string): Target page name
 
 **Returns:** `Array<string>` - Array of page names linking to target
@@ -889,10 +910,12 @@ try {
 ### Footnotes Not Rendering
 
 **Symptoms:**
+
 - `[^1]` appears as red wiki link
 - Footnote definitions show as literal text
 
 **Diagnosis:**
+
 ```bash
 # Check if showdown-footnotes is installed
 npm list showdown-footnotes
@@ -905,21 +928,25 @@ grep "\\[\\^" src/parsers/handlers/LinkParserHandler.js
 **Solution:**
 
 1. Ensure `showdown-footnotes` is installed:
+
    ```bash
    npm install showdown-footnotes --save
    ```
 
 2. Verify RenderingManager.js:4 imports extension:
+
    ```javascript
    const showdownFootnotes = require('showdown-footnotes');
    ```
 
 3. Check MarkupParser.js:1512 excludes `^`:
+
    ```javascript
    /\[([^\]\[\{\^][^\]]*)\](?!\()/g
    ```
 
 4. Check LinkParserHandler.js:27 excludes `^`:
+
    ```javascript
    /\[(?!\^)([^\|\]]+)(?:\|([^\|\]]+))?(?:\|([^\]]+))?\](?!\()/g
    ```
@@ -927,10 +954,12 @@ grep "\\[\\^" src/parsers/handlers/LinkParserHandler.js
 ### Parser Not Selected
 
 **Symptoms:**
+
 - Always using legacy parser
 - MarkupParser features not working
 
 **Diagnosis:**
+
 ```javascript
 const parser = renderingManager.getParser();
 console.log('Parser:', parser ? 'MarkupParser' : 'Legacy');
@@ -943,6 +972,7 @@ console.log('MarkupParser initialized:', markupParser?.isInitialized());
 **Solution:**
 
 1. Enable in configuration:
+
    ```json
    {
      "amdwiki.markup.enabled": true,
@@ -956,10 +986,12 @@ console.log('MarkupParser initialized:', markupParser?.isInitialized());
 ### Link Graph Stale
 
 **Symptoms:**
+
 - Backlinks not updating
 - Orphaned pages incorrect
 
 **Solution:**
+
 ```javascript
 // Rebuild link graph
 await renderingManager.buildLinkGraph();
@@ -972,10 +1004,12 @@ console.log('Backlinks:', backlinks);
 ### Performance Issues
 
 **Symptoms:**
+
 - Slow page rendering
 - High CPU usage
 
 **Diagnosis:**
+
 ```javascript
 // Enable performance logging
 {
@@ -987,6 +1021,7 @@ console.log('Backlinks:', backlinks);
 **Solution:**
 
 1. Check cache hit ratio:
+
    ```javascript
    const parser = renderingManager.getParser();
    const metrics = parser?.getMetrics();
@@ -995,6 +1030,7 @@ console.log('Backlinks:', backlinks);
    ```
 
 2. Enable caching:
+
    ```json
    {
      "amdwiki.markup.caching": true,

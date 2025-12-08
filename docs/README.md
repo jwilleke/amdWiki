@@ -9,12 +9,14 @@ This documentation is organized into several key areas to help you understand, d
 ## 🏗️ Architecture & Design
 
 ### [Project Structure](architecture/PROJECT-STRUCTURE.md)
+
 - Complete directory structure explanation
 - File organization guidelines
 - Development workflow documentation
 - Gitignore strategy and maintenance
 
 ### [WikiDocument DOM Architecture](architecture/WikiDocument-DOM-Architecture.md)
+
 - JSPWiki-inspired parsing architecture
 - Three-phase extraction pipeline
 - DOM-based JSPWiki element processing
@@ -22,6 +24,7 @@ This documentation is organized into several key areas to help you understand, d
 - Fixes markdown heading bug (#110, #93)
 
 ### [Page Classification Architecture](architecture/ARCHITECTURE-PAGE-CLASSIFICATION.md)
+
 - Content classification system
 - File system organization strategy
 - Metadata structure for pages
@@ -30,12 +33,14 @@ This documentation is organized into several key areas to help you understand, d
 ## 🚀 Development
 
 ### [Contributing Guidelines](development/CONTRIBUTING.md)
+
 - Coding standards and best practices
 - Development environment setup
 - Pull request process
 - Code review guidelines
 
 ### [Testing Plan](development/TESTING_PLAN.md)
+
 - Testing strategy and approach
 - Test coverage requirements
 - Automated testing setup
@@ -44,18 +49,21 @@ This documentation is organized into several key areas to help you understand, d
 ## 📋 Planning & Roadmap
 
 ### [Project Roadmap](planning/ROADMAP.md)
+
 - Long-term vision and goals
 - Technical specifications
 - Feature priorities and timeline
 - Future development plans
 
 ### [Project Board](planning/PROJECT_BOARD.md)
+
 - Current project status
 - Active development tasks
 - Sprint planning and tracking
 - Issue management
 
 ### [Task Tracking](planning/todo.md)
+
 - Detailed task breakdown
 - Progress tracking
 - Priority management
@@ -64,6 +72,7 @@ This documentation is organized into several key areas to help you understand, d
 ## 🔌 API Documentation
 
 ### [MarkupParser API](api/MarkupParser-API.md)
+
 - Complete parser API reference
 - Method signatures and examples
 - Configuration properties
@@ -72,6 +81,7 @@ This documentation is organized into several key areas to help you understand, d
 - Migration from legacy parser
 
 ### [Notification Enhancement](api/NOTIFICATION_ENHANCEMENT.md)
+
 - Notification system architecture
 - API endpoints and usage
 - Configuration options
@@ -80,16 +90,19 @@ This documentation is organized into several key areas to help you understand, d
 ## 🐛 Issues & Troubleshooting
 
 ### [Attachment Permission Conflicts](issues/ATTACHMENT_PERMISSION_CONFLICTS.md)
+
 - Known permission issues
 - Workarounds and solutions
 - Prevention strategies
 
 ### [Digital Document Permission Status](issues/DIGITAL-DOCUMENT-PERMISSION-STATUS.md)
+
 - Document permission tracking
 - Access control issues
 - Resolution procedures
 
 ### [Page Inventory](issues/PageInventory.md)
+
 - Page management issues
 - Inventory tracking problems
 - Maintenance procedures
@@ -97,6 +110,7 @@ This documentation is organized into several key areas to help you understand, d
 ## ✨ Features
 
 ### [Page Link Autocomplete](features/PageLinkAutocomplete.md)
+
 - Smart page suggestions in editor and search
 - Keyboard navigation and shortcuts
 - API endpoint documentation
@@ -105,6 +119,7 @@ This documentation is organized into several key areas to help you understand, d
 - **Related Issue:** [#90 - TypeDown for Internal Page Links](https://github.com/jwilleke/amdWiki/issues/90)
 
 ### [Table Styles](features/TableStyles.md)
+
 - JSPWiki-compatible table formatting
 - Interactive features (sortable, filterable)
 - Custom colors and themes
@@ -113,16 +128,19 @@ This documentation is organized into several key areas to help you understand, d
 ## 📝 Additional Resources
 
 ### [Changelog](CHANGELOG.md)
+
 - Version history and changes
 - Migration notes
 - Breaking changes documentation
 
 ### [Semantic Versioning](SEMVER.md)
+
 - Version numbering guidelines
 - Release management
 - Compatibility considerations
 
 ### [Content Management](Content%20Management.md)
+
 - Content organization strategies
 - Management best practices
 - User content handling
@@ -130,6 +148,7 @@ This documentation is organized into several key areas to help you understand, d
 ## 🔄 Migration Guides
 
 ### [WikiDocument DOM Migration](migration/WikiDocument-DOM-Migration.md)
+
 - Migration patterns for custom handlers
 - Integration guide for adding custom syntax
 - Common pitfalls and solutions
@@ -139,17 +158,20 @@ This documentation is organized into several key areas to help you understand, d
 ## 🧪 Testing Documentation
 
 ### [Phase 5 Manual QA Plan](testing/Phase5-Manual-QA-Plan.md)
+
 - Comprehensive manual QA test plan
 - WikiDocument DOM pipeline validation
 - Production readiness testing
 - Acceptance criteria
 
 ### [PageManager Testing Guide](testing/testing/PageManager-Testing-Guide.md)
+
 - PageManager testing procedures
 - Test case documentation
 - Validation methods
 
 ### [Test and Example Pages](testing/testing/Test%20and%20Example%20Pages.md)
+
 - Test page examples
 - Sample content for testing
 - Validation scenarios
@@ -171,23 +193,27 @@ This documentation is organized into several key areas to help you understand, d
 ## 📖 Reading Guide
 
 ### For New Contributors
+
 1. Start with [Contributing Guidelines](development/CONTRIBUTING.md)
 2. Review [Project Structure](architecture/PROJECT-STRUCTURE.md)
 3. Check [Testing Plan](development/TESTING_PLAN.md)
 4. Look at current [Project Board](planning/PROJECT_BOARD.md)
 
 ### For End Users
+
 1. Check [Features documentation](features/) for user guides
 2. Start with [Page Link Autocomplete](features/PageLinkAutocomplete.md)
 3. See [Table Styles](features/TableStyles.md) for formatting
 
 ### For System Administrators
+
 1. Review [Project Structure](architecture/PROJECT-STRUCTURE.md)
 2. Check [Attachment Permission Conflicts](issues/ATTACHMENT_PERMISSION_CONFLICTS.md)
 3. Review [Changelog](CHANGELOG.md) for updates
 4. See [Features](features/) for user-facing functionality
 
 ### For Developers
+
 1. Study [WikiDocument DOM Architecture](architecture/WikiDocument-DOM-Architecture.md)
 2. Review [MarkupParser API](api/MarkupParser-API.md)
 3. Check [WikiDocument DOM Migration Guide](migration/WikiDocument-DOM-Migration.md) for custom syntax
@@ -196,6 +222,7 @@ This documentation is organized into several key areas to help you understand, d
 6. Review current [Issues](issues/)
 
 ### For Parser Contributors
+
 1. Start with [WikiDocument DOM Architecture](architecture/WikiDocument-DOM-Architecture.md)
 2. Review [MarkupParser API Documentation](api/MarkupParser-API.md)
 3. Read [Migration Guide](migration/WikiDocument-DOM-Migration.md) for handler patterns
@@ -221,4 +248,3 @@ When adding new documentation:
 ---
 
 *This documentation is maintained alongside the codebase. Last updated: October 13, 2025*</content>
-

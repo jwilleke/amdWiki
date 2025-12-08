@@ -12,7 +12,7 @@ This guide helps developers migrate from the legacy 7-phase string-based parser 
 
 ## Do You Need to Migrate?
 
-### You DON'T need to migrate if:
+### You DON'T need to migrate if
 
 - ✅ You only use standard JSPWiki syntax (variables, plugins, links)
 - ✅ You haven't created custom syntax handlers
@@ -21,7 +21,7 @@ This guide helps developers migrate from the legacy 7-phase string-based parser 
 
 **Action:** None required. The new pipeline is active by default.
 
-### You DO need to migrate if:
+### You DO need to migrate if
 
 - ⚠️ You created custom phase processors
 - ⚠️ You created custom syntax handlers
@@ -37,18 +37,21 @@ This guide helps developers migrate from the legacy 7-phase string-based parser 
 ### Step 1: Understand the New Architecture
 
 **Old Approach (7-Phase):**
+
 ```
 Content → Phase 1 → Phase 2 → ... → Phase 7 → HTML
 (String manipulation at each phase)
 ```
 
 **New Approach (Extraction):**
+
 ```
 Content → Extract JSPWiki → Create DOM Nodes → Showdown → Merge → HTML
 (Separation of concerns, no conflicts)
 ```
 
 **Key Differences:**
+
 - **Pre-extraction**: JSPWiki syntax extracted BEFORE markdown parsing
 - **DOM-based**: Nodes created instead of string manipulation
 - **No conflicts**: Markdown and JSPWiki don't interfere
@@ -57,6 +60,7 @@ Content → Extract JSPWiki → Create DOM Nodes → Showdown → Merge → HTML
 ### Step 2: Assess Your Custom Code
 
 **Check for custom handlers:**
+
 ```bash
 # Search for custom phase processors
 grep -r "process.*function\|process.*=>" src/
@@ -71,16 +75,19 @@ grep -r "Handler.*extends\|class.*Handler" src/
 ### Step 3: Choose Migration Strategy
 
 **Option A: DOM Handler (Recommended)**
+
 - Create a new DOM handler class
 - Implement `createNodeFromExtract()` method
 - Integrate with extraction pipeline
 
 **Option B: Keep Legacy (Temporary)**
+
 - Set `jspwiki.parser.useExtractionPipeline = false`
 - Continue using legacy parser
 - Plan migration for future
 
 **Option C: Hybrid (Advanced)**
+
 - Use extraction pipeline for standard syntax
 - Add post-processing for custom syntax
 - Best of both worlds
@@ -92,6 +99,7 @@ grep -r "Handler.*extends\|class.*Handler" src/
 ### Pattern 1: Simple String Replacement
 
 **Before (Legacy Phase):**
+
 ```javascript
 // Custom phase in phases array
 {
@@ -107,6 +115,7 @@ grep -r "Handler.*extends\|class.*Handler" src/
 ```
 
 **After (DOM Handler):**
+
 ```javascript
 // 1. Add extraction pattern in extractJSPWikiSyntax()
 sanitized = sanitized.replace(/\{\{highlight:(.*?)\}\}/g, (match, text) => {
@@ -143,6 +152,7 @@ case 'highlight':
 ### Pattern 2: Complex Processing
 
 **Before (Multiple Phases):**
+
 ```javascript
 // Phase 1: Extract metadata
 {
@@ -171,6 +181,7 @@ case 'highlight':
 ```
 
 **After (Single Handler):**
+
 ```javascript
 // Extract metadata during extraction phase
 sanitized = sanitized.replace(/<!--META:(.*?)-->/g, (match, data) => {
@@ -213,6 +224,7 @@ class MetadataHandler {
 ### Pattern 3: Context-Dependent Processing
 
 **Before (Using Parse Context):**
+
 ```javascript
 {
   name: 'UserContent',
@@ -229,6 +241,7 @@ class MetadataHandler {
 ```
 
 **After (Context in Handler):**
+
 ```javascript
 // Extract admin blocks
 sanitized = sanitized.replace(
@@ -350,12 +363,14 @@ const html = await parser.parseWithDOMExtraction(content, context);
 ### Pitfall 1: Extracting Inside Code Blocks
 
 **Problem:**
+
 ```javascript
 // This extracts from code blocks (wrong!)
 sanitized = sanitized.replace(/pattern/g, ...);
 ```
 
 **Solution:**
+
 ```javascript
 // Code blocks are already protected in extractJSPWikiSyntax()
 // Your pattern added there will automatically skip code blocks
@@ -364,12 +379,14 @@ sanitized = sanitized.replace(/pattern/g, ...);
 ### Pitfall 2: Order Dependency
 
 **Problem:**
+
 ```javascript
 // Assuming variables are expanded before plugins
 const content = element.content.replace(/\[\{\$(\w+)\}\]/g, ...);
 ```
 
 **Solution:**
+
 ```javascript
 // Don't process JSPWiki syntax manually
 // Let the pipeline handle it:
@@ -381,12 +398,14 @@ const content = element.content.replace(/\[\{\$(\w+)\}\]/g, ...);
 ### Pitfall 3: Modifying Sanitized Content
 
 **Problem:**
+
 ```javascript
 // Trying to add markup to sanitized content
 sanitized += '<div>footer</div>';  // Wrong!
 ```
 
 **Solution:**
+
 ```javascript
 // Add elements via extraction/DOM creation
 jspwikiElements.push({
@@ -399,6 +418,7 @@ jspwikiElements.push({
 ### Pitfall 4: Synchronous Handlers
 
 **Problem:**
+
 ```javascript
 // Handler is not async
 createNodeFromExtract(element, context, wikiDocument) {
@@ -407,6 +427,7 @@ createNodeFromExtract(element, context, wikiDocument) {
 ```
 
 **Solution:**
+
 ```javascript
 // Always use async
 async createNodeFromExtract(element, context, wikiDocument) {
@@ -477,6 +498,7 @@ If you encounter issues with the new pipeline:
 ### Temporary Rollback (Immediate)
 
 **config/app-custom-config.json:**
+
 ```json
 {
   "jspwiki.parser.useExtractionPipeline": false
@@ -488,13 +510,14 @@ Restart server. Pages will use legacy parser.
 ### Permanent Rollback (If Needed)
 
 1. Set configuration permanently:
+
    ```json
    {
      "jspwiki.parser.useExtractionPipeline": false
    }
    ```
 
-2. Report issues on GitHub: https://github.com/jwilleke/amdWiki/issues
+2. Report issues on GitHub: <https://github.com/jwilleke/amdWiki/issues>
 
 3. Include:
    - Error messages
@@ -509,6 +532,7 @@ Restart server. Pages will use legacy parser.
 ### Handler Performance
 
 **Good:**
+
 ```javascript
 async createNodeFromExtract(element, context, wikiDocument) {
   // Fast node creation
@@ -519,6 +543,7 @@ async createNodeFromExtract(element, context, wikiDocument) {
 ```
 
 **Bad:**
+
 ```javascript
 async createNodeFromExtract(element, context, wikiDocument) {
   // Slow: database query for every element
@@ -528,6 +553,7 @@ async createNodeFromExtract(element, context, wikiDocument) {
 ```
 
 **Better:**
+
 ```javascript
 async initialize() {
   // Cache data during initialization
@@ -560,12 +586,13 @@ async createNodeFromExtract(element, context, wikiDocument) {
 
 ### Support
 
-- **GitHub Issues:** https://github.com/jwilleke/amdWiki/issues
-- **Documentation:** https://github.com/jwilleke/amdWiki/tree/master/docs
+- **GitHub Issues:** <https://github.com/jwilleke/amdWiki/issues>
+- **Documentation:** <https://github.com/jwilleke/amdWiki/tree/master/docs>
 
 ### Reporting Issues
 
 Include:
+
 1. amdWiki version
 2. Custom handler code
 3. Input content that fails
@@ -596,6 +623,7 @@ A: Not in the near term. It's kept for backward compatibility.
 **Q: How do I know which pipeline is running?**
 
 A: Check server logs on startup. You'll see:
+
 - `"🔄 Using WikiDocument DOM extraction pipeline"` (new)
 - `"🔄 Using legacy 7-phase parser"` (old)
 
@@ -608,12 +636,14 @@ A: Currently, no. Custom syntax requires modifying extraction patterns. A plugin
 ## Changelog
 
 ### Phase 7 (Issue #121) - Documentation
+
 - ✅ Created comprehensive migration guide
 - ✅ Added migration patterns
 - ✅ Added integration examples
 - ✅ Added testing guidance
 
 ### Phase 6 (Issue #120) - Production Integration
+
 - ✅ Integrated extraction pipeline
 - ✅ Made extraction pipeline default
 - ✅ Added configuration property
