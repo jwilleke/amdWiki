@@ -51,6 +51,7 @@ WikiDocument is a DOM-based representation of a wiki page, inspired by JSPWiki's
 | **Production Deployment** | ✅ Active | 1247/1707 (73%) | All test suites | #120 |
 
 **Overall Project Test Status:**
+
 - **Test Suites:** 32 passed, 35 failed, 67 total
 - **Tests:** 1,247 passed, 454 failed, 6 skipped, 1,707 total
 - **WikiDocument Core:** 100% passing (35/35 tests)
@@ -115,6 +116,7 @@ Content → Phase 1 → Phase 2 → ... → Phase 7 → HTML
 ```
 
 **Issues:**
+
 1. **Order dependency** - Variables before plugins? Escaping before or after variables?
 2. **State loss** - After replacement, you lose track of what was what
 3. **Fragile escaping** - `[[` must survive all phases without being processed
@@ -130,6 +132,7 @@ Content → Extract JSPWiki → Create DOM Nodes → Showdown → Merge → HTML
 ```
 
 **Benefits:**
+
 1. **No order dependency** - JSPWiki extracted before markdown parsing
 2. **Type-safe nodes** - Variables, plugins, links are distinct node types
 3. **Natural escaping** - Escaped content becomes text nodes, not parsed syntax
@@ -149,10 +152,12 @@ WikiDocument md = new MarkdownDocument(page, document);
 ```
 
 **Separation of concerns:**
+
 - **Markdown** (`##`, lists, tables) → FlexMark parser
 - **JSPWiki** (`[{$var}]`, `[{Plugin}]`, `[Link]`) → WikiDocument DOM
 
 **amdWiki follows the same pattern:**
+
 - **Markdown** → Showdown parser
 - **JSPWiki** → WikiDocument DOM
 
@@ -167,10 +172,12 @@ const doc = new WikiDocument(pageData, context);
 ```
 
 **Parameters:**
+
 - `pageData` (string) - Original wiki markup content
 - `context` (Object|null) - Rendering context, stored as WeakRef
 
 **Example:**
+
 ```javascript
 const WikiDocument = require('./src/parsers/dom/WikiDocument');
 
@@ -183,6 +190,7 @@ const doc = new WikiDocument('!! Welcome\nThis is a wiki page.', {
 ### Page Data Methods
 
 #### getPageData()
+
 Returns the original wiki markup.
 
 ```javascript
@@ -191,6 +199,7 @@ const content = doc.getPageData();
 ```
 
 #### setPageData(data)
+
 Updates the original wiki markup.
 
 ```javascript
@@ -202,6 +211,7 @@ doc.setPageData('!! Updated\nNew content.');
 ### Context Methods
 
 #### getContext()
+
 Returns the rendering context if it hasn't been garbage collected.
 
 ```javascript
@@ -214,6 +224,7 @@ if (context) {
 ```
 
 #### setContext(context)
+
 Updates or clears the rendering context.
 
 ```javascript
@@ -224,6 +235,7 @@ doc.setContext(null); // Clear context
 ### Metadata Methods
 
 #### getMetadata()
+
 Returns a copy of all metadata.
 
 ```javascript
@@ -232,6 +244,7 @@ const metadata = doc.getMetadata();
 ```
 
 #### setMetadata(key, value)
+
 Sets a metadata value.
 
 ```javascript
@@ -241,6 +254,7 @@ doc.setMetadata('processed', true);
 ```
 
 #### getMetadataValue(key, defaultValue)
+
 Gets a metadata value with optional default.
 
 ```javascript
@@ -251,6 +265,7 @@ const tags = doc.getMetadataValue('tags', []);
 ### DOM Creation Methods
 
 #### createElement(tag, attributes)
+
 Creates a new HTML element.
 
 ```javascript
@@ -262,6 +277,7 @@ const heading = doc.createElement('h1', {
 ```
 
 #### createTextNode(text)
+
 Creates a text node.
 
 ```javascript
@@ -269,6 +285,7 @@ const text = doc.createTextNode('Hello, world!');
 ```
 
 #### createCommentNode(text)
+
 Creates an HTML comment node.
 
 ```javascript
@@ -279,6 +296,7 @@ const comment = doc.createCommentNode('This is a comment');
 ### DOM Manipulation Methods
 
 #### appendChild(node)
+
 Appends a child to the root element.
 
 ```javascript
@@ -288,6 +306,7 @@ doc.appendChild(para);
 ```
 
 #### insertBefore(newNode, referenceNode)
+
 Inserts a node before a reference node.
 
 ```javascript
@@ -301,6 +320,7 @@ doc.insertBefore(middle, second);
 ```
 
 #### removeChild(node)
+
 Removes a child from the root element.
 
 ```javascript
@@ -308,6 +328,7 @@ doc.removeChild(para);
 ```
 
 #### replaceChild(newNode, oldNode)
+
 Replaces a child node.
 
 ```javascript
@@ -317,6 +338,7 @@ doc.replaceChild(newEl, old);
 ### DOM Query Methods
 
 #### querySelector(selector)
+
 Finds the first element matching a CSS selector.
 
 ```javascript
@@ -326,6 +348,7 @@ const special = doc.querySelector('div.content > p.important');
 ```
 
 #### querySelectorAll(selector)
+
 Finds all elements matching a CSS selector.
 
 ```javascript
@@ -337,6 +360,7 @@ paras.forEach(para => console.log(para.textContent));
 ```
 
 #### getElementById(id)
+
 Finds an element by ID.
 
 ```javascript
@@ -344,6 +368,7 @@ const heading = doc.getElementById('section-1');
 ```
 
 #### getElementsByClassName(className)
+
 Finds elements by class name.
 
 ```javascript
@@ -351,6 +376,7 @@ const wikis = doc.getElementsByClassName('wiki-para');
 ```
 
 #### getElementsByTagName(tagName)
+
 Finds elements by tag name.
 
 ```javascript
@@ -360,6 +386,7 @@ const headings = doc.getElementsByTagName('h1');
 ### Serialization Methods
 
 #### toHTML()
+
 Serializes the document to HTML string.
 
 ```javascript
@@ -368,6 +395,7 @@ const html = doc.toHTML();
 ```
 
 #### toString()
+
 Returns a debug-friendly string representation.
 
 ```javascript
@@ -376,6 +404,7 @@ console.log(doc.toString());
 ```
 
 #### toJSON()
+
 Serializes to JSON for caching.
 
 ```javascript
@@ -390,6 +419,7 @@ const json = doc.toJSON();
 ```
 
 #### fromJSON(json, context) (static)
+
 Deserializes from JSON (cache restore).
 
 ```javascript
@@ -400,6 +430,7 @@ const doc = WikiDocument.fromJSON(cached, { pageName: 'Test' });
 ### Utility Methods
 
 #### getRootElement()
+
 Returns the root element (body).
 
 ```javascript
@@ -408,6 +439,7 @@ console.log(root.tagName); // 'BODY'
 ```
 
 #### clear()
+
 Removes all content from the document.
 
 ```javascript
@@ -415,6 +447,7 @@ doc.clear();
 ```
 
 #### getChildCount()
+
 Returns the number of child nodes in root.
 
 ```javascript
@@ -422,6 +455,7 @@ console.log(`Document has ${doc.getChildCount()} nodes`);
 ```
 
 #### isEmpty()
+
 Checks if the document has no content.
 
 ```javascript
@@ -431,6 +465,7 @@ if (doc.isEmpty()) {
 ```
 
 #### getStatistics()
+
 Returns document statistics.
 
 ```javascript
@@ -680,6 +715,7 @@ async parse(content, context) {
 ```
 
 **Configuration:**
+
 ```json
 {
     "jspwiki.parser.useExtractionPipeline": true
@@ -822,6 +858,7 @@ npm test
 ### Test Categories
 
 **WikiDocument Class Tests:**
+
 - Constructor and initialization
 - Page data management
 - Context management (including WeakRef)
@@ -834,6 +871,7 @@ npm test
 - Edge cases and error handling
 
 **Extraction Tests:**
+
 - Variable extraction
 - Plugin extraction
 - Link extraction
@@ -842,6 +880,7 @@ npm test
 - Edge cases and nested syntax
 
 **Merge Pipeline Tests:**
+
 - Basic placeholder replacement
 - Markdown preservation
 - Multiple elements
@@ -867,6 +906,7 @@ Based on 1000 iterations:
 | **Complex Page** | **390μs** | **~21KB** | Full page parse |
 
 **Capacity:**
+
 - **2,564 pages/second** throughput
 - **2.11 MB** memory for 100 cached pages
 - **Sub-millisecond** operations
@@ -874,11 +914,13 @@ Based on 1000 iterations:
 ### Performance Characteristics
 
 **Extraction Pipeline:**
+
 - Parse time: <25ms per page
 - Memory: <40MB per 1000 pages
 - Faster than legacy 7-phase (no markdown tokenization)
 
 **Compared to Legacy Pipeline:**
+
 ```
 Legacy 7-phase:  20-30ms per page, 45MB per 1000 pages
 DOM extraction:  <25ms per page, <40MB per 1000 pages
@@ -900,6 +942,7 @@ If you have custom syntax handlers, see the detailed migration guide:
 **docs/migration/WikiDocument-DOM-Migration.md**
 
 Key steps:
+
 1. Understand new architecture (pre-extraction vs phases)
 2. Choose migration strategy (DOM handler vs keep legacy)
 3. Implement `createNodeFromExtract()` method
@@ -928,6 +971,7 @@ If needed, temporarily disable the new pipeline:
 Symptom: You see `<span data-jspwiki-placeholder="...">` in HTML
 
 Solution: Merge phase failed. Check that:
+
 - All extracted elements have corresponding nodes
 - Node IDs match placeholder IDs
 - UUID is passed correctly
@@ -937,6 +981,7 @@ Solution: Merge phase failed. Check that:
 Symptom: `[{$username}]` appears literally in output
 
 Solution: Extraction failed. Check that:
+
 - Syntax matches extraction regex
 - Not inside code blocks
 - Configuration has extraction pipeline enabled
@@ -946,6 +991,7 @@ Solution: Extraction failed. Check that:
 Symptom: `## Heading` not converted to `<h2>`
 
 Solution: Showdown not receiving content. Check:
+
 - Extraction not removing markdown
 - Showdown getting sanitized content
 - No conflicts with placeholders
@@ -955,6 +1001,7 @@ Solution: Showdown not receiving content. Check:
 Symptom: Parsing slower than expected
 
 Solution:
+
 - Check for complex regex in custom handlers
 - Verify cache is working
 - Profile with many elements
@@ -1019,6 +1066,7 @@ WikiContext is the rendering orchestrator that **uses** WikiDocument:
   - Provides DOM API for node manipulation
 
 **Relationship:**
+
 ```
 Request → WikiContext (orchestrates) → RenderingManager → MarkupParser
                                                               ↓
@@ -1030,6 +1078,7 @@ Request → WikiContext (orchestrates) → RenderingManager → MarkupParser
 ### GitHub Issues
 
 **Epic and Phases:**
+
 - Issue #114 - WikiDocument DOM Solution (Epic)
 - Issue #115 - Phase 1: Extraction ✅
 - Issue #116 - Phase 2: DOM Node Creation ✅
@@ -1040,22 +1089,26 @@ Request → WikiContext (orchestrates) → RenderingManager → MarkupParser
 - Issue #121 - Phase 7: Cleanup & Documentation ✅
 
 **Original Issues:**
+
 - Issue #93 - Migrate to WikiDocument DOM-Based Parsing
 - Issue #95 - WikiDocument Core Implementation ✅
 - Issue #99 - WikiDocument Comprehensive Testing ✅
 - Issue #100 - WikiDocument API Documentation ✅
 
 **Bug Fixes:**
+
 - Issue #110 - Markdown heading bug (fixed by extraction pipeline)
 
 ### Source Code
 
 **Core Implementation:**
+
 - `src/parsers/MarkupParser.js` - Main parser (extraction at lines 1235-1571)
 - `src/parsers/dom/WikiDocument.js` - WikiDocument class (400 lines)
 - `src/parsers/dom/handlers/` - DOM handlers
 
 **Tests:**
+
 - `src/parsers/dom/__tests__/WikiDocument.test.js` - 35 tests
 - `src/parsers/__tests__/MarkupParser-Extraction.test.js` - 41 tests
 - `src/parsers/__tests__/MarkupParser-MergePipeline.test.js` - 31 tests
@@ -1074,12 +1127,14 @@ WikiDocument provides a robust, DOM-based foundation for wiki content processing
 ✅ **Actively Used** - Default pipeline since October 2025
 
 The DOM extraction pipeline using WikiDocument has successfully:
+
 - Fixed the markdown heading bug
 - Eliminated order dependency issues
 - Improved maintainability and testability
 - Maintained backward compatibility
 
 **Version History:**
+
 - v1.0.0 (Oct 2025) - Initial WikiDocument implementation
 - v1.5.0 (Oct 2025) - DOM extraction pipeline complete
 - v2.0.0 (Dec 2025) - Production deployment, comprehensive documentation
