@@ -134,11 +134,21 @@ jest.mock('./src/utils/PageNameMatcher', () => {
       this.matchEnglishPlurals = matchEnglishPlurals;
     }
     findBestMatch(pageName, allPages) {
-      // Simple mock: just return exact match if exists
-      return allPages.includes(pageName) ? pageName : null;
+      // Try exact match first
+      if (allPages.includes(pageName)) {
+        return pageName;
+      }
+      // Try case-insensitive match
+      const lowerPageName = pageName.toLowerCase();
+      const match = allPages.find(p => p.toLowerCase() === lowerPageName);
+      return match || null;
+    }
+    findMatch(pageName, allPages) {
+      // Alias for findBestMatch - used by DOMLinkHandler
+      return this.findBestMatch(pageName, allPages);
     }
     matchesPage(linkText, pageName) {
-      return linkText === pageName;
+      return linkText === pageName || linkText.toLowerCase() === pageName.toLowerCase();
     }
   };
 });

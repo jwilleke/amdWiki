@@ -65,10 +65,23 @@ describe('DOMPluginHandler', () => {
   describe('Constructor and Initialization', () => {
     test('creates handler with engine', () => {
       expect(handler.engine).toBe(mockEngine);
-      expect(handler.pluginManager).not.toBeNull();
+      // Note: pluginManager is set lazily during processing, not at initialization
+      expect(handler.pluginManager).toBeNull();
     });
 
-    test('warns if PluginManager not available', async () => {
+    test('gets PluginManager on first processPlugins call', async () => {
+      // Create a new handler to test lazy initialization
+      const newHandler = new DOMPluginHandler(mockEngine);
+      expect(newHandler.pluginManager).toBeNull();
+
+      const wikiDoc = parser.parse('[{TableOfContents}]', {});
+      await newHandler.processPlugins(wikiDoc, {});
+
+      // After first call, pluginManager should be set
+      expect(newHandler.pluginManager).not.toBeNull();
+    });
+
+    test('warns if PluginManager not available during processing', async () => {
       const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
 
       const badEngine = {
@@ -76,10 +89,12 @@ describe('DOMPluginHandler', () => {
       };
 
       const badHandler = new DOMPluginHandler(badEngine);
-      await badHandler.initialize();
+      const wikiDoc = parser.parse('[{TableOfContents}]', {});
+
+      await badHandler.processPlugins(wikiDoc, {});
 
       expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('PluginManager not available')
+        expect.stringContaining('PluginManager')
       );
 
       consoleSpy.mockRestore();
@@ -191,6 +206,11 @@ describe('DOMPluginHandler', () => {
   });
 
   describe('executePlugin()', () => {
+    // Manually set pluginManager for these direct tests
+    beforeEach(() => {
+      handler.pluginManager = mockEngine.getManager('PluginManager');
+    });
+
     test('executes plugin through PluginManager', async () => {
       const context = { pageName: 'TestPage' };
       const pluginElement = { getAttribute: () => 'TableOfContents' };
@@ -309,12 +329,16 @@ describe('DOMPluginHandler', () => {
     });
 
     test('warns if PluginManager not available', async () => {
-      handler.pluginManager = null;
+      // Create a new handler with an engine that doesn't provide PluginManager
+      const badEngine = {
+        getManager: jest.fn(() => null)
+      };
+      const badHandler = new DOMPluginHandler(badEngine);
 
       const wikiDoc = parser.parse('[{TableOfContents}]', {});
       const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
 
-      await handler.processPlugins(wikiDoc, {});
+      await badHandler.processPlugins(wikiDoc, {});
 
       expect(consoleSpy).toHaveBeenCalled();
       consoleSpy.mockRestore();

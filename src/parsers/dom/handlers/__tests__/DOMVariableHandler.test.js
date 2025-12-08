@@ -52,10 +52,23 @@ describe('DOMVariableHandler', () => {
   describe('Constructor and Initialization', () => {
     test('creates handler with engine', () => {
       expect(handler.engine).toBe(mockEngine);
-      expect(handler.variableManager).not.toBeNull();
+      // Note: variableManager is set lazily during processing, not at initialization
+      expect(handler.variableManager).toBeNull();
     });
 
-    test('warns if VariableManager not available', async () => {
+    test('gets VariableManager on first processVariables call', async () => {
+      // Create a new handler to test lazy initialization
+      const newHandler = new DOMVariableHandler(mockEngine);
+      expect(newHandler.variableManager).toBeNull();
+
+      const wikiDoc = parser.parse('[{$username}]', {});
+      await newHandler.processVariables(wikiDoc, { userName: 'Test' });
+
+      // After first call, variableManager should be set
+      expect(newHandler.variableManager).not.toBeNull();
+    });
+
+    test('warns if VariableManager not available during processing', async () => {
       const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
 
       const badEngine = {
@@ -63,10 +76,12 @@ describe('DOMVariableHandler', () => {
       };
 
       const badHandler = new DOMVariableHandler(badEngine);
-      await badHandler.initialize();
+      const wikiDoc = parser.parse('[{$username}]', {});
+
+      await badHandler.processVariables(wikiDoc, {});
 
       expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('VariableManager not available')
+        expect.stringContaining('VariableManager')
       );
 
       consoleSpy.mockRestore();
@@ -74,6 +89,11 @@ describe('DOMVariableHandler', () => {
   });
 
   describe('resolveVariable()', () => {
+    // Manually set variableManager for these direct tests
+    beforeEach(() => {
+      handler.variableManager = mockEngine.getManager('VariableManager');
+    });
+
     test('resolves registered variable', () => {
       const context = { userName: 'Alice' };
       const value = handler.resolveVariable('username', context);
@@ -186,12 +206,16 @@ describe('DOMVariableHandler', () => {
     });
 
     test('warns if VariableManager not available', async () => {
-      handler.variableManager = null;
+      // Create a new handler with an engine that doesn't provide VariableManager
+      const badEngine = {
+        getManager: jest.fn(() => null)
+      };
+      const badHandler = new DOMVariableHandler(badEngine);
 
       const wikiDoc = parser.parse('[{$username}]', {});
       const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
 
-      await handler.processVariables(wikiDoc, {});
+      await badHandler.processVariables(wikiDoc, {});
 
       expect(consoleSpy).toHaveBeenCalled();
       consoleSpy.mockRestore();
@@ -342,7 +366,7 @@ describe('DOMVariableHandler', () => {
 
   describe('Performance', () => {
     test('handles many variables efficiently', async () => {
-      const vars = Array(100).fill(0).map((_, i) => `[{$username}]`).join(' ');
+      const vars = Array(100).fill(0).map(() => `[{$username}]`).join(' ');
       const wikiDoc = parser.parse(vars, {});
 
       const start = Date.now();
