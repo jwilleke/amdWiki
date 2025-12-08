@@ -11,15 +11,14 @@ amdWiki uses a **central WikiEngine** that orchestrates 23+ specialized managers
   - [Current-Rendering-Pipeline](docs/architecture/Current-Rendering-Pipeline.md)
   - [WikiDocument-DOM-Migration](docs/migration/WikiDocument-DOM-Migration.md)
   - [DOM-Parser-Implementation-Summary.md](docs/architecture/DOM-Parser-Implementation-Summary.md)
-- 
-- **PageManager** - Page storage, retrieval, versioning
-- **UserManager** - User authentication and profiles
-- **ACLManager** - Access control and permissions
-- **RenderingManager** - Content rendering (Markdown + JSPWiki)
-- **PluginManager** - Plugin loading and execution
-- **ConfigurationManager** - Configuration management
-- **SessionManager** - User session handling
-- Plus 16+ more specialized managers
+    - **PageManager** - Page storage, retrieval, versioning
+    - **UserManager** - User authentication and profiles
+    - **ACLManager** - Access control and permissions
+    - **RenderingManager** - Content rendering (Markdown + JSPWiki)
+    - **PluginManager** - Plugin loading and execution
+    - **ConfigurationManager** - Configuration management
+    - **SessionManager** - User session handling
+    - Plus 16+ more specialized managers
 
 ## Key Architecture Patterns
 

@@ -51,6 +51,7 @@ TypeError: Cannot read properties of null (reading 'getProperty')
 ```
 
 **Files Affected:**
+
 - ACLManager.test.js
 - WikiEngine.test.js
 - PageManager.test.js
@@ -63,11 +64,13 @@ TypeError: Cannot read properties of null (reading 'getProperty')
 **Pattern:** Dynamic requires fail in test environment
 
 **Example:**
+
 ```
 TypeError: NullCacheProvider is not a constructor
 ```
 
 **Files Affected:**
+
 - WikiEngine.test.js
 - CacheManager-related tests
 
@@ -78,6 +81,7 @@ TypeError: NullCacheProvider is not a constructor
 **Pattern:** Tests create/read files that don't exist or use wrong paths
 
 **Files Affected:**
+
 - VersioningFileProvider.test.js
 - VersioningMigration.test.js
 - PageManager-Storage.test.js
@@ -89,6 +93,7 @@ TypeError: NullCacheProvider is not a constructor
 **Pattern:** Parsers/handlers expect specific initialization that tests don't provide
 
 **Files Affected:**
+
 - MarkupParser*.test.js (multiple files)
 - WikiTagHandler.test.js
 - PluginSyntaxHandler.test.js
@@ -100,11 +105,13 @@ TypeError: NullCacheProvider is not a constructor
 **Pattern:** Jest worker crashes due to memory or infinite loops
 
 **Example:**
+
 ```
 Jest worker encountered 4 child process exceptions, exceeding retry limit
 ```
 
 **Files Affected:**
+
 - MarkupParser.test.js
 
 **Fix Strategy:** Investigate specific test causing crash, add timeouts
@@ -197,11 +204,13 @@ Tests intentionally skipped until related features are stable:
 ### Step 1: Identify the Root Cause
 
 Run the specific test:
+
 ```bash
 npm test -- path/to/test.js
 ```
 
 Read the error message carefully. Common patterns:
+
 - "Cannot read properties of null" → Missing mock
 - "is not a constructor" → Module loading issue
 - "ENOENT" → File not found
@@ -210,6 +219,7 @@ Read the error message carefully. Common patterns:
 ### Step 2: Add Necessary Mocks
 
 Check if test needs:
+
 - Logger mock (already global in jest.setup.js)
 - ConfigurationManager mock
 - File system mocks

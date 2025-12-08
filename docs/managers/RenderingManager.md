@@ -319,13 +319,13 @@ Footnotes generate clean, semantic HTML:
 
 amdWiki uses a **patched version** of `showdown-footnotes` located at `src/extensions/showdown-footnotes-fixed.js` to fix two critical bugs in the original extension:
 
-**Bug #1: Missing Global Flag**
+Bug #1: Missing Global Flag
 
 - **Original:** `/\[\^([\d\w]+)\]/m` - only matches first occurrence
 - **Fixed:** `/\[\^([\d\w-]+)\]/mg` - matches all occurrences
 - **Impact:** Without this fix, only the first footnote reference on the page would be converted
 
-**Bug #2: Missing Hyphen Support**
+Bug #2: Missing Hyphen Support
 
 - **Original:** `[\d\w]+` - only matches digits and word characters
 - **Fixed:** `[\d\w-]+` - also matches hyphens

@@ -245,6 +245,3 @@ When adding new documentation:
 - **Discussions**: Join community discussions for questions and ideas
 - **Documentation**: Help improve docs by submitting pull requests
 
----
-
-*This documentation is maintained alongside the codebase. Last updated: October 13, 2025*</content>

@@ -2,7 +2,7 @@
 
 Single source of truth for amdWiki project context. Read this first when working on the project.
 
-## Critical: Read Global Preferences First
+## ⚠️ CRITICAL - Read Global Preferences First
 
 Read [~/GLOBAL-CODE-PREFERENCES.md](~/GLOBAL-CODE-PREFERENCES.md) for overarching principles:
 
@@ -337,7 +337,7 @@ See [docs/planning/ROADMAP.md](./docs/planning/ROADMAP.md)
 
 ### For All Agents
 
-**CRITICAL: Preventing Regressions**
+### CRITICAL: Preventing Regressions**
 
 ⚠️ **Changes breaking previously working services is a known issue.**
 
