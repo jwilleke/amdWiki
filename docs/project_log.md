@@ -17,6 +17,124 @@ Subject: [Brief description]
 
 ---
 
+## 2025-12-08-02
+
+- Agent: Claude Code (Sonnet 4.5)
+- Subject: Routes Test Fixes - Mock Middleware & Manager Methods
+- Key Decisions:
+  - Add req.userContext to test middleware to match production app.js middleware
+  - Enhanced manager mocks to include methods actually called by routes
+  - Routes use WikiContext which requires req.userContext to be set
+- Work Done:
+  - Added req.userContext setup in mock session middleware
+  - Added checkPagePermissionWithContext() to ACLManager mock
+  - Added textToHTML() to RenderingManager mock
+  - Added getAllPages() and getPageMetadata() to PageManager mock
+  - Added provider.getVersionHistory() mock for versioning support
+- Test Status:
+  - Before: 31 failed suites, 407 failed tests
+  - After: 31 failed suites, 387 failed tests
+  - Fixed: 20 tests in routes.test.js
+  - Routes: 33 passing, 12 failing (was 13 passing, 32 failing)
+- Commits: 1d3eeb1
+- Files Modified: src/routes/__tests__/routes.test.js
+- Next Steps: Fix remaining 12 route tests (authentication/authorization edge cases, POST requests)
+
+## 2025-12-08-01
+
+- Agent: Claude Code (Sonnet 4.5)
+- Subject: DOM Handler Test Fixes - Lazy Initialization & PageNameMatcher Mock
+- Key Decisions:
+  - Align test expectations with lazy initialization pattern in DOM handlers
+  - Fix PageNameMatcher mock to include missing findMatch() method
+  - Add case-insensitive matching support for fuzzy page names
+- Test Status:
+  - Before: 34 failed suites, 447 failed tests
+  - After: 31 failed suites, 407 failed tests
+  - Fixed: 3 test suites (DOMVariableHandler, DOMPluginHandler, DOMLinkHandler) - 40 tests
+  - All DOM handler tests now passing: 101/101 (100%)
+- Test Results by Component (Failing tests listed first, sorted by fail count):
+
+| Component | Status | Failed | Passed | Total |
+|-----------|--------|--------|--------|-------|
+| VersioningFileProvider | FAIL | 54 | 1 | 55 |
+| UserManager (root) | FAIL | 48 | 0 | 48 |
+| DeltaStorage | FAIL | 36 | 5 | 41 |
+| routes | FAIL | 32 | 13 | 45 |
+| VersionCompression | FAIL | 31 | 3 | 34 |
+| PageManager-Storage | FAIL | 25 | 1 | 26 |
+| MarkupParser-Integration | FAIL | 18 | 6 | 24 |
+| VersioningMigration | FAIL | 18 | 16 | 34 |
+| AllPlugins | FAIL | 14 | 3 | 17 |
+| MarkupParser-EndToEnd | FAIL | 14 | 7 | 21 |
+| VersioningFileProvider-Maintenance | FAIL | 14 | 0 | 14 |
+| maintenance-mode | FAIL | 11 | 0 | 11 |
+| PluginSyntaxHandler | FAIL | 11 | 13 | 24 |
+| WikiRoutes.attachments | FAIL | 10 | 1 | 11 |
+| MarkupParser-Comprehensive | FAIL | 8 | 47 | 55 |
+| MarkupParser-ModularConfig | FAIL | 8 | 12 | 20 |
+| WikiRoutes.schema | FAIL | 8 | 1 | 9 |
+| MarkupParser-DOM-Integration | FAIL | 7 | 11 | 18 |
+| MarkupParser-Extraction | FAIL | 7 | 34 | 41 |
+| MarkupParser-MergePipeline | FAIL | 5 | 26 | 31 |
+| HandlerRegistry | FAIL | 4 | 32 | 36 |
+| PluginManager | FAIL | 4 | 1 | 5 |
+| PluginManager.registerPlugins | FAIL | 4 | 2 | 6 |
+| SessionsPlugin | FAIL | 4 | 0 | 4 |
+| MarkupParser-Config | FAIL | 3 | 13 | 16 |
+| BaseSyntaxHandler | FAIL | 2 | 30 | 32 |
+| ExportManager | FAIL | 2 | 23 | 25 |
+| MarkupParser-Performance | FAIL | 2 | 26 | 28 |
+| WikiTagHandler | FAIL | 2 | 48 | 50 |
+| MarkupParser-DOMNodeCreation | FAIL | 1 | 22 | 23 |
+| ACLManager | PASS | 0 | 22 | 22 |
+| DOMVariableHandler | PASS | 0 | 27 | 27 |
+| DOMPluginHandler | PASS | 0 | 38 | 38 |
+| DOMLinkHandler | PASS | 0 | 36 | 36 |
+| WikiEngine | PASS | 0 | 5 | 5 |
+| WikiContext | PASS | 0 | 12 | 12 |
+| WikiDocument | PASS | 0 | 49 | 49 |
+| DOMParser | PASS | 0 | 50 | 50 |
+| DOMBuilder | PASS | 0 | 27 | 27 |
+| Tokenizer | PASS | 0 | 51 | 52 |
+| Tokenizer-recognition | PASS | 0 | 27 | 27 |
+| LinkParser | PASS | 0 | 53 | 53 |
+| FilterChain | PASS | 0 | 28 | 28 |
+| PageManager | PASS | 0 | 26 | 26 |
+| UserManager | PASS | 0 | 31 | 31 |
+| RenderingManager | PASS | 0 | 23 | 28 |
+| SearchManager | PASS | 0 | 18 | 18 |
+| policy-system | PASS | 0 | 10 | 10 |
+| SchemaManager | PASS | 0 | 9 | 9 |
+| ValidationManager | PASS | 0 | 20 | 20 |
+| NotificationManager | PASS | 0 | 26 | 26 |
+| PluginManager.loadPlugin | PASS | 0 | 4 | 4 |
+| NodeCacheAdapter | PASS | 0 | 13 | 13 |
+| RegionCache | PASS | 0 | 18 | 18 |
+| WikiRoutes.imageUpload | PASS | 0 | 18 | 18 |
+| WikiRoutes.versioning | PASS | 0 | 28 | 28 |
+| admin-dashboard | PASS | 0 | 9 | 9 |
+| maintenance-middleware | PASS | 0 | 7 | 7 |
+| security-integration | PASS | 0 | 13 | 13 |
+| PageNameMatcher | PASS | 0 | 43 | 43 |
+| CurrentTimePlugin | PASS | 0 | 31 | 31 |
+| CounterPlugin | PASS | 0 | 55 | 55 |
+| ImagePlugin | PASS | 0 | 50 | 50 |
+
+- Work Done:
+  - Updated DOMVariableHandler.test.js for lazy initialization pattern
+  - Updated DOMPluginHandler.test.js with same pattern
+  - Enhanced PageNameMatcher mock in jest.setup.js with findMatch() and case-insensitive matching
+  - Fixed manager availability warning tests with proper engine mocks
+  - Removed unused loop variable to fix TypeScript diagnostic
+- Commits: 7461bbf
+- Files Modified:
+  - jest.setup.js
+  - src/parsers/dom/handlers/__tests__/DOMPluginHandler.test.js
+  - src/parsers/dom/handlers/__tests__/DOMVariableHandler.test.js
+
+---
+
 ## 2025-12-07-03
 
 - Agent: Claude Code (Sonnet 4.5)
