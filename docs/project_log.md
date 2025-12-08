@@ -153,7 +153,7 @@ Subject: [Brief description]
   - WikiEngine.test.js: 2/5 passing (initialization tests failing)
   - 41 failing suites, 26 passing, 545 failed tests, 1169 passed tests
 - After fixes:
-  - WikiEngine.test.js: 5/5 passing ✅ (100%)
+  - WikiEngine.test.js: 5/5 passing  (100%)
   - 40 failing suites (estimated), 27 passing, ~1171 passing tests
   - SearchManager mock enhanced for policy-system.test.js
 - Changes Made:
@@ -176,7 +176,7 @@ Subject: [Brief description]
     - Updated progress tracking table
 - Priority Breakdown:
   - HIGH PRIORITY (7 suites):
-    - ✅ WikiEngine.test.js - FIXED (5 tests)
+    -  WikiEngine.test.js - FIXED (5 tests)
     - policy-system.test.js - Likely fixed by SearchManager mock
     - ACLManager.test.js - Pending
     - PageManager-Storage.test.js - Pending
@@ -191,12 +191,12 @@ Subject: [Brief description]
     - Versioning tests (5 files) - Defer until versioning work
     - Plugin tests (2 files)
 - Work Done:
-  - ✅ Analyzed all 41 failing test suites
-  - ✅ Created PRIORITIZED-TEST-FIXES.md (comprehensive roadmap)
-  - ✅ Fixed WikiEngine.test.js (5/5 tests passing)
-  - ✅ Enhanced SearchManager mock (buildIndex, getDocumentCount)
-  - ✅ Updated KNOWN-TEST-ISSUES.md with progress
-  - ✅ Identified 4 quick wins for next session
+  -  Analyzed all 41 failing test suites
+  -  Created PRIORITIZED-TEST-FIXES.md (comprehensive roadmap)
+  -  Fixed WikiEngine.test.js (5/5 tests passing)
+  -  Enhanced SearchManager mock (buildIndex, getDocumentCount)
+  -  Updated KNOWN-TEST-ISSUES.md with progress
+  -  Identified 4 quick wins for next session
 - Files Created:
   - `docs/testing/PRIORITIZED-TEST-FIXES.md` - Comprehensive fix plan (320 lines)
 - Files Modified:
@@ -248,10 +248,10 @@ Problem Identified:
 
 Multiple test suites failing due to:
 
-1. Missing `jest-environment-jsdom` dependency (required by ACLManager tests)
-2. Incorrect import paths (using `../src/` instead of `../` or `../../`)
-3. Incorrect mocking (mocking `fs` instead of `fs-extra`)
-4. Missing logger mocks causing initialization failures
+- Missing `jest-environment-jsdom` dependency (required by ACLManager tests)
+- Incorrect import paths (using `../src/` instead of `../` or `../../`)
+- Incorrect mocking (mocking `fs` instead of `fs-extra`)
+- Missing logger mocks causing initialization failures
 
 Test Status:
 
@@ -268,30 +268,30 @@ After fixes:
 
 Changes Made:
 
-1. package.json
+- package.json
    - Added `jest-environment-jsdom` to devDependencies
 
-2. src/managers/tests/policy-system.test.js
-   - Fixed import: `require('../src/WikiEngine')` → `require('../../WikiEngine')`
+- src/managers/tests/policy-system.test.js
+   - Fixed import: `require('../src/WikiEngine')`  `require('../../WikiEngine')`
 
-3. src/routes/tests/routes.test.js
-   - Fixed imports: `require('../src/routes/WikiRoutes')` → `require('../WikiRoutes')`
-   - Fixed imports: `jest.mock('../src/utils/LocaleUtils')` → `jest.mock('../../utils/LocaleUtils')`
-   - Fixed imports: `jest.mock('../src/WikiEngine')` → `jest.mock('../../WikiEngine')`
+- src/routes/tests/routes.test.js
+   - Fixed imports: `require('../src/routes/WikiRoutes')`  `require('../WikiRoutes')`
+   - Fixed imports: `jest.mock('../src/utils/LocaleUtils')`  `jest.mock('../../utils/LocaleUtils')`
+   - Fixed imports: `jest.mock('../src/WikiEngine')`  `jest.mock('../../WikiEngine')`
 
-4. src/managers/tests/SchemaManager.test.js
+- src/managers/tests/SchemaManager.test.js
    - Changed mock from `jest.mock('fs')` to `jest.mock('fs-extra')`
    - Updated references from `fs.promises` to direct `fs-extra` methods
 
-5. src/tests/WikiEngine.test.js
+- src/tests/WikiEngine.test.js
    - Added comprehensive logger mock to prevent initialization failures
 
-6. src/managers/CacheManager.js
+- src/managers/CacheManager.js
    - Moved `NullCacheProvider` require to top-level to avoid dynamic require issues
    - Removed redundant inline requires in fallback paths
 
-7. docs/development/AUTOMATED-TESTING-SETUP.md
-   - Fixed typo: "pull reques" → "pull request"
+- docs/development/AUTOMATED-TESTING-SETUP.md
+   - Fixed typo: "pull reques"  "pull request"
 
 Testing Strategy Decision:
 
@@ -309,14 +309,14 @@ Rationale:
 
 Work Done:
 
-- ✅ Analyzed all 46 failing test suites to identify patterns
-- ✅ Installed missing jest-environment-jsdom dependency
-- ✅ Fixed 4 test files with import path issues
-- ✅ Fixed SchemaManager fs-extra mocking
-- ✅ Added logger mock to WikiEngine tests
-- ✅ Improved CacheManager to avoid dynamic require issues
-- ✅ Fixed documentation typo
-- ✅ Committed all changes
+-  Analyzed all 46 failing test suites to identify patterns
+-  Installed missing jest-environment-jsdom dependency
+-  Fixed 4 test files with import path issues
+-  Fixed SchemaManager fs-extra mocking
+-  Added logger mock to WikiEngine tests
+-  Improved CacheManager to avoid dynamic require issues
+-  Fixed documentation typo
+-  Committed all changes
 
 Files Modified:
 
@@ -335,10 +335,10 @@ Commits:
 
 Next Steps (Option B + C Implementation):
 
-1. Create `jest.setup.js` with global mocks (logger, common providers)
-2. Update jest config to use setup file
-3. Document known test issues in AUTOMATED-TESTING-SETUP.md
-4. Fix remaining tests incrementally during feature work
+- Create `jest.setup.js` with global mocks (logger, common providers)
+- Update jest config to use setup file
+- Document known test issues in AUTOMATED-TESTING-SETUP.md
+- Fix remaining tests incrementally during feature work
 
 Impact:
 
@@ -368,11 +368,11 @@ Problem Identified:
 
 UserManager.test.js had fundamental issues:
 
-1. Tests called non-existent methods (`authenticate()` instead of `authenticateUser()`)
-2. Tests expected `validateCredentials()` method that doesn't exist
-3. Permission tests assumed role-based system instead of policy-based
-4. Tests mocked wrong provider methods
-5. Original test count (67) was inflated, testing provider logic instead of manager proxy behavior
+- Tests called non-existent methods (`authenticate()` instead of `authenticateUser()`)
+- Tests expected `validateCredentials()` method that doesn't exist
+- Permission tests assumed role-based system instead of policy-based
+- Tests mocked wrong provider methods
+- Original test count (67) was inflated, testing provider logic instead of manager proxy behavior
 
 Test Status:
 
@@ -385,82 +385,82 @@ After fixes:
 
 - UserManager.test.js: 31/31 passing (100%)
 - Overall: 40 failing suites, 27 passing, 1169 passing tests
-- Pass rate improved: 61% → 68%
+- Pass rate improved: 61%  68%
 
 Changes Made:
 
-1. __src/managers/\_\_tests\_\_/UserManager.test.js__ - Complete rewrite
+- src/managers/\_\_tests\_\_/UserManager.test.js - Complete rewrite
    - Reduced from 67 tests to 31 focused tests
-   - Fixed method names: `authenticate()` → `authenticateUser()`, `getAllUsers()` → `getUsers()`, `getAllRoles()` → `getRoles()`
+   - Fixed method names: `authenticate()`  `authenticateUser()`, `getAllUsers()`  `getUsers()`, `getAllRoles()`  `getRoles()`
    - Fixed authentication flow: Mock `getUser()` and use actual `hashPassword()`/`verifyPassword()`
    - Added PolicyManager mock with correct structure (`subjects` array instead of `principals`)
    - Fixed permission tests to use policy-based system
    - Updated provider normalization tests (removed non-existent LDAPUserProvider)
    - Fixed shutdown tests to match BaseManager behavior
 
-2. docs/development/KNOWN-TEST-ISSUES.md
+- docs/development/KNOWN-TEST-ISSUES.md
    - Updated test statistics: 40 failing, 27 passing, 1169 passing tests
    - Marked UserManager.test.js as fixed
    - Added progress notes for all 3 manager tests completed today
 
 Test Categories:
 
-1. Initialization (4 tests)
+- Initialization (4 tests)
    - ConfigurationManager requirement
    - Provider initialization
    - Configuration loading
    - Role/permission map initialization
 
-2. getCurrentUserProvider() (2 tests)
+- getCurrentUserProvider() (2 tests)
    - Provider instance return
    - Provider interface verification
 
-3. User CRUD Operations (6 tests)
+- User CRUD Operations (6 tests)
    - getUser() with password stripping
    - getUsers() delegation
    - createUser() duplicate checking
    - deleteUser() error handling and delegation
 
-4. Authentication (3 tests)
+- Authentication (3 tests)
    - Successful authentication with isAuthenticated flag
    - Invalid password rejection
    - Inactive user rejection
 
-5. Role Management (4 tests)
+- Role Management (4 tests)
    - getRole() lookups
    - getRoles() listing
    - hasRole() checking
 
-6. Permission Management (3 tests)
+- Permission Management (3 tests)
    - getUserPermissions() via PolicyManager
    - Permission aggregation from policies
    - Empty array without PolicyManager
 
-7. Password Management (4 tests)
+- Password Management (4 tests)
    - hashPassword() generation
    - Hash consistency
    - verifyPassword() validation
 
-8. Provider Normalization (2 tests)
+- Provider Normalization (2 tests)
    - Case-insensitive provider names
    - FileUserProvider normalization
 
-9. Shutdown (2 tests)
+- Shutdown (2 tests)
    - Manager initialization flag
    - Error-free shutdown
 
-10. Error Handling (1 test)
+- Error Handling (1 test)
     - Missing provider handling
 
 Work Done:
 
-- ✅ Analyzed UserManager.js actual API
-- ✅ Completely rewrote test file following PageManager pattern
-- ✅ Fixed all method name mismatches
-- ✅ Implemented proper PolicyManager mocking
-- ✅ Used actual password hashing in tests
-- ✅ All 31 tests passing
-- ✅ Updated KNOWN-TEST-ISSUES.md documentation
+-  Analyzed UserManager.js actual API
+-  Completely rewrote test file following PageManager pattern
+-  Fixed all method name mismatches
+-  Implemented proper PolicyManager mocking
+-  Used actual password hashing in tests
+-  All 31 tests passing
+-  Updated KNOWN-TEST-ISSUES.md documentation
 
 Files Modified:
 
@@ -473,10 +473,10 @@ Commits:
 
 Key Insights:
 
-1. Authentication Flow: UserManager doesn't delegate to `validateCredentials()` - it calls `getUser()` then uses `verifyPassword()` internally
-2. Permission System: Uses PolicyManager with policy-based access control, not simple role-to-permission mapping
-3. Password Security: getUser() strips password field before returning, authenticateUser() adds isAuthenticated flag
-4. Provider Pattern: UserManager has more business logic than PageManager (password hashing, permission aggregation)
+- Authentication Flow: UserManager doesn't delegate to `validateCredentials()` - it calls `getUser()` then uses `verifyPassword()` internally
+- Permission System: Uses PolicyManager with policy-based access control, not simple role-to-permission mapping
+- Password Security: getUser() strips password field before returning, authenticateUser() adds isAuthenticated flag
+- Provider Pattern: UserManager has more business logic than PageManager (password hashing, permission aggregation)
 
 Impact:
 
@@ -512,7 +512,7 @@ Root Cause:
 // Before (Eager validation - WRONG)
 async validateDependencies(context) {
   if (!handler && !optional) {
-    throw new Error(...); // ❌ Blocks registration
+    throw new Error(...); //  Blocks registration
   }
 }
 ```
@@ -525,24 +525,24 @@ Modified BaseSyntaxHandler to store dependency errors instead of throwing:
 // After (Lazy validation - CORRECT)
 async validateDependencies(context) {
   if (!handler && !optional) {
-    this.dependencyErrors.push({...}); // ✅ Store for later validation
+    this.dependencyErrors.push({...}); //  Store for later validation
   }
 }
 ```
 
 Changes Made:
 
-1. src/parsers/handlers/BaseSyntaxHandler.js
+- src/parsers/handlers/BaseSyntaxHandler.js
    - Modified `validateDependencies()` - Store errors, don't throw
    - Modified `validateSpecificDependency()` - Store errors, don't throw
    - Added `getDependencyErrors()` helper method
    - Added `hasDependencyErrors()` helper method
    - Store init context for later use
 
-2. src/routes/tests/maintenance-mode.test.js
-   - Fixed import path: `'../src/WikiEngine'` → `'../../WikiEngine'`
+- src/routes/tests/maintenance-mode.test.js
+   - Fixed import path: `'../src/WikiEngine'`  `'../../WikiEngine'`
 
-3. .github/workflows/docker-build.yml
+- .github/workflows/docker-build.yml
    - Renamed to `docker-build.yml.disabled`
    - Deferred Docker/K8s work to Issue #168
 
@@ -556,18 +556,18 @@ Before Fix:
 
 After Fix:
 
-- HandlerRegistry.test.js: 4 failures, 32 passing ✅
+- HandlerRegistry.test.js: 4 failures, 32 passing 
 - Tests that were blocked now running
-- Server starts successfully ✅ (confirmed by smoke tests)
+- Server starts successfully  (confirmed by smoke tests)
 - 6 syntax handlers registered successfully
 
 Smoke Test Confirmation:
 
 ```
-✅ WikiEngine initialized successfully
-✅ All managers initialized
-✅ 6 syntax handlers registered (including AttachmentHandler)
-✅ No critical errors
+ WikiEngine initialized successfully
+ All managers initialized
+ 6 syntax handlers registered (including AttachmentHandler)
+ No critical errors
 ```
 
 Impact:
@@ -590,12 +590,12 @@ These can be fixed incrementally as work progresses on related code.
 
 Work Done:
 
-- ✅ Analyzed systematic test failure root cause
-- ✅ Implemented lazy dependency validation
-- ✅ Fixed import path in maintenance-mode.test.js
-- ✅ Verified server starts successfully (smoke tests)
-- ✅ Disabled Docker build workflow
-- ✅ Created comprehensive documentation
+-  Analyzed systematic test failure root cause
+-  Implemented lazy dependency validation
+-  Fixed import path in maintenance-mode.test.js
+-  Verified server starts successfully (smoke tests)
+-  Disabled Docker build workflow
+-  Created comprehensive documentation
 
 Files Created:
 
@@ -606,7 +606,7 @@ Files Modified:
 
 - `src/parsers/handlers/BaseSyntaxHandler.js` - Lazy validation implementation
 - `src/routes/tests/maintenance-mode.test.js` - Path fix
-- `.github/workflows/docker-build.yml` → `.github/workflows/docker-build.yml.disabled`
+- `.github/workflows/docker-build.yml`  `.github/workflows/docker-build.yml.disabled`
 - `docs/project_log.md` - Session entry
 
 Commits:
@@ -620,10 +620,10 @@ Related Issues:
 
 Next Steps (Recommended):
 
-1. Fix tests incrementally - As you work on related code
-2. Complete Docker/K8s - Per Issue #168 plan
-3. Install Husky - Add pre-commit hooks (5 minutes)
-4. Continue feature work - Attachment UI, TypeScript migration, etc.
+- Fix tests incrementally - As you work on related code
+- Complete Docker/K8s - Per Issue #168 plan
+- Install Husky - Add pre-commit hooks (5 minutes)
+- Continue feature work - Attachment UI, TypeScript migration, etc.
 
 Status: Systematic test blocker FIXED, server functional, CI/CD active
 
@@ -645,7 +645,7 @@ Key Decisions:
 
 Implementation Results:
 
-✅ GitHub Actions CI/CD Complete
+ GitHub Actions CI/CD Complete
 
 - Multi-job pipeline: test, lint, smoke-test, build, summary
 - Tests on Node 18.x and 20.x
@@ -653,7 +653,7 @@ Implementation Results:
 - Coverage threshold enforcement (75%+)
 - Automatic execution on push/PR to master/develop
 
-✅ Smoke Test Script Created
+ Smoke Test Script Created
 
 - Validates critical files exist
 - Tests configuration integrity
@@ -661,9 +661,9 @@ Implementation Results:
 - Checks syntax errors in key files
 - Validates package.json
 - Execution time: ~10 seconds
-- Status: All smoke tests passing ✅
+- Status: All smoke tests passing 
 
-✅ NPM Scripts Enhanced
+ NPM Scripts Enhanced
 
 - `npm run smoke` - Quick smoke tests
 - `npm run test:changed` - Test only changed files
@@ -673,20 +673,20 @@ Implementation Results:
 
 CI/CD Pipeline Jobs:
 
-1. Test Job - Runs full test suite with coverage
-2. Lint Job - Markdown lint, debugging code checks, TODO warnings
-3. Smoke Test Job - Quick validation (files, config, WikiEngine)
-4. Build Job - Checks build script if exists
-5. Summary Job - Aggregates results, fails if critical jobs fail
+- Test Job - Runs full test suite with coverage
+- Lint Job - Markdown lint, debugging code checks, TODO warnings
+- Smoke Test Job - Quick validation (files, config, WikiEngine)
+- Build Job - Checks build script if exists
+- Summary Job - Aggregates results, fails if critical jobs fail
 
 Work Done:
 
-- ✅ Created .github/workflows/ci.yml (190 lines, comprehensive CI/CD)
-- ✅ Created scripts/smoke-test.sh (smoke tests, all passing)
-- ✅ Enhanced package.json with test scripts
-- ✅ Created docs/development/AUTOMATED-TESTING-SETUP.md (quick setup guide)
-- ✅ Tested smoke tests (10-second execution, all pass)
-- ✅ Updated project_log.md with session details
+-  Created .github/workflows/ci.yml (190 lines, comprehensive CI/CD)
+-  Created scripts/smoke-test.sh (smoke tests, all passing)
+-  Enhanced package.json with test scripts
+-  Created docs/development/AUTOMATED-TESTING-SETUP.md (quick setup guide)
+-  Tested smoke tests (10-second execution, all pass)
+-  Updated project_log.md with session details
 
 Files Created:
 
@@ -749,28 +749,28 @@ Test Count:
 
 New Test Categories Added:
 
-1. Edge Cases and Error Handling (6 tests)
+- Edge Cases and Error Handling (6 tests)
    - Null/undefined pageData handling in toString() and getStatistics()
    - fromJSON missing html/metadata fields
    - Empty string pageData
    - Large DOM structures (100 elements stress test)
 
-2. WeakRef Garbage Collection (3 tests)
+- WeakRef Garbage Collection (3 tests)
    - Context GC documentation (with --expose-gc note)
    - Context clearing behavior
    - Document functionality after context cleared
 
-3. Complex DOM Operations (2 tests)
+- Complex DOM Operations (2 tests)
    - Nested structure building (article/header/section/footer)
    - Complex structure modification (replaceChild on nested DOM)
 
-4. Serialization Round-Trip (1 test)
+- Serialization Round-Trip (1 test)
    - Full JSON serialization/deserialization cycle
    - Metadata preservation verification
    - HTML structure integrity
    - Query functionality after restoration
 
-5. Performance and Statistics (2 tests)
+- Performance and Statistics (2 tests)
    - Accurate metrics validation
    - Statistics without context
 
@@ -789,22 +789,22 @@ Created comprehensive GitHub Issue #168 documenting:
 
 Work Done:
 
-- ✅ Analyzed WikiDocument.js implementation (400 lines, linkedom-based DOM)
-- ✅ Reviewed existing test suite (35 tests, 78.94% branch coverage)
-- ✅ Identified uncovered branches (lines 314, 343-392)
-- ✅ Added 14 new comprehensive tests
-- ✅ Achieved 100% coverage across all metrics
-- ✅ Verified all 49 tests passing
-- ✅ Reviewed Docker folder structure and documentation
-- ✅ Created GitHub Issue #168 for Docker/K8s deployment improvements
-- ✅ Created comprehensive PREVENTING-REGRESSIONS.md (addresses recurring issue)
-- ✅ Updated AGENTS.md with regression prevention guidelines
-- ✅ Added testing requirements to agent workflow
-- ✅ Updated project_log.md with session details
+-  Analyzed WikiDocument.js implementation (400 lines, linkedom-based DOM)
+-  Reviewed existing test suite (35 tests, 78.94% branch coverage)
+-  Identified uncovered branches (lines 314, 343-392)
+-  Added 14 new comprehensive tests
+-  Achieved 100% coverage across all metrics
+-  Verified all 49 tests passing
+-  Reviewed Docker folder structure and documentation
+-  Created GitHub Issue #168 for Docker/K8s deployment improvements
+-  Created comprehensive PREVENTING-REGRESSIONS.md (addresses recurring issue)
+-  Updated AGENTS.md with regression prevention guidelines
+-  Added testing requirements to agent workflow
+-  Updated project_log.md with session details
 
 Files Modified:
 
-- `src/parsers/dom/tests/WikiDocument.test.js` - Enhanced from 35 to 49 tests (398 → 640 lines)
+- `src/parsers/dom/tests/WikiDocument.test.js` - Enhanced from 35 to 49 tests (398  640 lines)
 - `docs/development/PREVENTING-REGRESSIONS.md` - Created comprehensive regression prevention guide
 - `AGENTS.md` - Added regression prevention section, updated agent guidelines
 - `docs/project_log.md` - Added session entry
@@ -842,13 +842,13 @@ Next Steps (from TODO.md):
 
 All tests PASSED with comprehensive verification:
 
-1. ✅ Fresh Installation Flow - Complete form submission, all files created, 42 pages copied
-2. ✅ Partial Installation Recovery - Partial state detection, recovery logic working
-3. ✅ Admin Account Security - Hardcoded credentials verified, password properly hashed
-4. ✅ Startup Pages Copying - All 42 required pages copied with UUID names
-5. ✅ Installation Reset Functionality - Reset endpoint clears completion flag
-6. ✅ Email Validation - Both standard format and localhost format accepted
-7. ✅ Form Validation - Required fields and constraints enforced
+-  Fresh Installation Flow - Complete form submission, all files created, 42 pages copied
+-  Partial Installation Recovery - Partial state detection, recovery logic working
+-  Admin Account Security - Hardcoded credentials verified, password properly hashed
+-  Startup Pages Copying - All 42 required pages copied with UUID names
+-  Installation Reset Functionality - Reset endpoint clears completion flag
+-  Email Validation - Both standard format and localhost format accepted
+-  Form Validation - Required fields and constraints enforced
 
 Testing Results:
 
@@ -895,15 +895,15 @@ Restructured documentation from scattered files to professional hierarchy:
 
 Work Done:
 
-1. Comprehensive installation system testing across 7 scenarios
-2. Created INSTALLATION-TESTING-RESULTS.md with detailed test report
-3. Verified GitHub Issue #167 closure (single server instance working)
-4. Updated AGENTS.md with testing session completion details
-5. Created 4 new root-level documentation files
-6. Moved 4 detailed docs to docs/ directory
-7. Archived 3 investigative/report files
-8. Updated cross-references and navigation links
-9. Reorganized documentation structure for clarity
+- Comprehensive installation system testing across 7 scenarios
+- Created INSTALLATION-TESTING-RESULTS.md with detailed test report
+- Verified GitHub Issue #167 closure (single server instance working)
+- Updated AGENTS.md with testing session completion details
+- Created 4 new root-level documentation files
+- Moved 4 detailed docs to docs/ directory
+- Archived 3 investigative/report files
+- Updated cross-references and navigation links
+- Reorganized documentation structure for clarity
 
 Commits:
 
@@ -926,14 +926,14 @@ Files Modified:
 
 Testing Performed:
 
-- ✅ Fresh installation: Form submission, config creation, page copying, admin login
-- ✅ Partial recovery: State detection, recovery logic
-- ✅ Admin security: Hardcoded credentials, password hashing, login
-- ✅ Startup pages: All 42 pages copied correctly
-- ✅ Installation reset: Completion flag cleared, form accessible again
-- ✅ Email validation: Both standard and localhost formats accepted
-- ✅ Form validation: Required fields and constraints enforced
-- ✅ Server process: Single instance enforcement (Issue #167)
+-  Fresh installation: Form submission, config creation, page copying, admin login
+-  Partial recovery: State detection, recovery logic
+-  Admin security: Hardcoded credentials, password hashing, login
+-  Startup pages: All 42 pages copied correctly
+-  Installation reset: Completion flag cleared, form accessible again
+-  Email validation: Both standard and localhost formats accepted
+-  Form validation: Required fields and constraints enforced
+-  Server process: Single instance enforcement (Issue #167)
 
 Next Steps:
 
@@ -942,7 +942,7 @@ Next Steps:
 - Consider automated Jest tests for installation flow (future enhancement)
 - Monitor real-world usage for edge cases
 
-Status: ✅ INSTALLATION SYSTEM TESTED & VERIFIED, DOCUMENTATION REORGANIZED & COMMITTED
+Status:  INSTALLATION SYSTEM TESTED & VERIFIED, DOCUMENTATION REORGANIZED & COMMITTED
 
 ---
 
@@ -964,17 +964,17 @@ Current Issue (RESOLVED):
 - Installation form looped after first bug fix (from 2025-12-06-01)
 - User reported: "I filled in the form and it looped back to the form! Again."
 - Two cascading bugs prevented form completion:
-  1. Email validation rejected `admin@localhost` format
-  2. ConfigurationManager method call was incorrect
+- Email validation rejected `admin@localhost` format
+- ConfigurationManager method call was incorrect
 
 Root Causes:
 
-1. Email Validation Bug (Line 427-430 in InstallService.js):
+- Email Validation Bug (Line 427-430 in InstallService.js):
    - Regex required dot in domain: `/^[^\s@]+@[^\s@]+\.[^\s@]+$/`
    - Failed on hardcoded `admin@localhost` (no dot in "localhost")
    - Installation form silently failed and looped
 
-2. ConfigurationManager Method Bug (Line 484 in InstallService.js):
+- ConfigurationManager Method Bug (Line 484 in InstallService.js):
    - Code called `this.configManager.reload()` (non-existent method)
    - ConfigurationManager only has `loadConfigurations()` method
    - Error thrown after email validation fixed: "this.configManager.reload is not a function"
@@ -982,7 +982,7 @@ Root Causes:
 
 Solution Implemented:
 
-1. Fixed Email Validation (Line 427-430):
+- Fixed Email Validation (Line 427-430):
 
    ```javascript
    // BEFORE (rejected admin@localhost):
@@ -995,7 +995,7 @@ Solution Implemented:
    - Now accepts both: `user@example.com` AND `admin@localhost`
    - Enables hardcoded admin email to pass validation
 
-2. Fixed ConfigurationManager Method (Line 484):
+- Fixed ConfigurationManager Method (Line 484):
 
    ```javascript
    // BEFORE (method doesn't exist):
@@ -1008,10 +1008,10 @@ Solution Implemented:
    - Calls actual ConfigurationManager method to reload all config files
    - Ensures merged configuration reflects new custom config
 
-3. Added Debug Logging (Lines 275-279):
+- Added Debug Logging (Lines 275-279):
 
    ```javascript
-   console.error('❌ Installation failed:', {
+   console.error(' Installation failed:', {
      failedStep,
      error: error.message,
      stack: error.stack
@@ -1045,19 +1045,19 @@ Files Modified:
 
 Testing Performed:
 
-- ✅ Installation form submitted successfully
-- ✅ Configuration files created correctly
-- ✅ Admin account created with password
-- ✅ User logged in successfully with admin credentials
-- ✅ Success page displays after completion
-- ✅ Server continues running after installation
-- ✅ Email validation accepts both standard and localhost formats
+-  Installation form submitted successfully
+-  Configuration files created correctly
+-  Admin account created with password
+-  User logged in successfully with admin credentials
+-  Success page displays after completion
+-  Server continues running after installation
+-  Email validation accepts both standard and localhost formats
 
 User Feedback:
 
 - Initial test: "I filled in the form and it looped back to the form! Again." (email validation failure)
 - Second test: "But it did not! Still looping." (ConfigurationManager method failure)
-- Final test: "Looks like it worked. Was able to login as admin." ✅ SUCCESS
+- Final test: "Looks like it worked. Was able to login as admin."  SUCCESS
 
 Next Steps:
 
@@ -1067,7 +1067,7 @@ Next Steps:
 - Run full Jest test suite (currently has pre-existing failures)
 - Consider CSRF protection for install form (future enhancement)
 
-Status: ✅ INSTALLATION SYSTEM WORKING - BROWSER TESTING VERIFIED
+Status:  INSTALLATION SYSTEM WORKING - BROWSER TESTING VERIFIED
 
 ---
 
@@ -1086,7 +1086,7 @@ Key Decision:
 Current Issue (RESOLVED):
 
 - When partial installation detected (config written but incomplete), form kept looping
-- User filled form → submitted → saw "Partial installation detected" error
+- User filled form  submitted  saw "Partial installation detected" error
 - User couldn't retry without clicking "Reset Installation" button
 - This was poor UX and confusing for users
 
@@ -1098,17 +1098,17 @@ Root Cause:
 
 Solution Implemented:
 
-1. Modified `InstallService.processInstallation()` to:
+- Modified `InstallService.processInstallation()` to:
    - Detect which steps are already completed
    - Skip those steps on retry
    - Continue with remaining steps
    - Track both new and previously completed steps
 
-2. Updated `InstallRoutes.js` warning message:
+- Updated `InstallRoutes.js` warning message:
    - Changed from "Please reset before continuing" (blocking tone)
    - To "Complete the form below to finish the setup" (helpful tone)
 
-3. Updated `views/install.ejs`:
+- Updated `views/install.ejs`:
    - Changed "Reset Installation" from required button to optional link
    - Shows completed steps with checkmarks
    - Encourages user to just submit form again
@@ -1132,10 +1132,10 @@ Files Modified:
 
 Testing Performed:
 
-- ✅ Server restart with new code
-- ✅ Install form displays correctly
-- ✅ Form endpoint responding
-- ✅ No errors in startup
+-  Server restart with new code
+-  Install form displays correctly
+-  Form endpoint responding
+-  No errors in startup
 
 Next Steps:
 
@@ -1145,7 +1145,7 @@ Next Steps:
 - Verify admin password update works
 - Verify pages are copied correctly
 
-Status: ✅ CODE COMPLETE, NEEDS MANUAL TESTING
+Status:  CODE COMPLETE, NEEDS MANUAL TESTING
 
 ---
 
@@ -1160,22 +1160,22 @@ Subject: Fix installation flow - create default admin account early
 
 Requirements:
 
-  1. Admin account "admin" created automatically on system initialization (not during install)
-  2. Default password: "admin123" (from config: amdwiki.user.security.defaultpassword)
-  3. Admin email: "admin@localhost" (FIXED, not editable) - fallback for OIDC users
-  4. Install form shows: username "admin" (fixed), email "admin@localhost" (fixed), password (changeable)
-  5. Admin username is NOT editable in install form - fixed to "admin"
-  6. Admin email is NOT editable in install form - fixed to "admin@localhost"
-  7. Only admin password is changeable during installation
-  8. Both users/users.json and users/persons.json must reflect this account
-  9. processInstallation() updates ONLY admin password (not creates new user)
+- Admin account "admin" created automatically on system initialization (not during install)
+- Default password: "admin123" (from config: amdwiki.user.security.defaultpassword)
+- Admin email: "admin@localhost" (FIXED, not editable) - fallback for OIDC users
+- Install form shows: username "admin" (fixed), email "admin@localhost" (fixed), password (changeable)
+- Admin username is NOT editable in install form - fixed to "admin"
+- Admin email is NOT editable in install form - fixed to "admin@localhost"
+- Only admin password is changeable during installation
+- Both users/users.json and users/persons.json must reflect this account
+- processInstallation() updates ONLY admin password (not creates new user)
 
 - Work Needed:
-  1. Add admin creation to system initialization (WikiEngine or app.js startup)
-  2. Update install form: remove adminUsername and adminEmail fields, show "admin"/"admin@localhost" as fixed text
-  3. Update processInstallation() to updateUser password instead of createUser
-  4. Update InstallService to handle password-only updates
-  5. Ensure both users.json and persons.json are updated with admin account
+- Add admin creation to system initialization (WikiEngine or app.js startup)
+- Update install form: remove adminUsername and adminEmail fields, show "admin"/"admin@localhost" as fixed text
+- Update processInstallation() to updateUser password instead of createUser
+- Update InstallService to handle password-only updates
+- Ensure both users.json and persons.json are updated with admin account
 - Files to Modify: src/services/InstallService.js, views/install.ejs, app.js or WikiEngine, likely UserManager
 - Status: READY TO IMPLEMENT
 
@@ -1199,7 +1199,7 @@ Solution Impact:
 - Reset now properly clears all state including cached user data
 - detectPartialInstallation() returns correct state after reset
 - Installation form can be submitted after reset succeeds
-- Installation loop fixed ✅
+- Installation loop fixed 
 
 ---
 
@@ -1259,7 +1259,7 @@ Subject: AGENTS.md implementation and project_log.md creation
 - Commits: 4776df3
 - Files Modified: AGENTS.md, project_log.md, .github/copilot-instructions.md
 
-## 2025-12-05-02: PM2 Process Management Cleanup & Verification
+## 2025-12-05-02
 
 Agent: Claude Code (Crush)
 Subject: PM2 Server Management Cleanup and Installation System Verification
@@ -1272,19 +1272,19 @@ Subject: PM2 Server Management Cleanup and Installation System Verification
 
 - Key Decisions:
 
-1. Confirmed PM2 usage: PM2 is a declared dependency and provides production-grade process management (auto-restart, log rotation, clustering). Kept as primary process manager.
-2. Consolidated PID management: Single `.amdwiki.pid` file managed exclusively by `server.sh` (removed PM2's auto-generated `.amdwiki-*.pid` files)
-3. Verified form security: Admin username and email are display-only (non-editable) in install form, hardcoded in route handler
-4. Confirmed server startup: Server runs properly via `./server.sh start [env]` with PM2
+- Confirmed PM2 usage: PM2 is a declared dependency and provides production-grade process management (auto-restart, log rotation, clustering). Kept as primary process manager.
+- Consolidated PID management: Single `.amdwiki.pid` file managed exclusively by `server.sh` (removed PM2's auto-generated `.amdwiki-*.pid` files)
+- Verified form security: Admin username and email are display-only (non-editable) in install form, hardcoded in route handler
+- Confirmed server startup: Server runs properly via `./server.sh start [env]` with PM2
 
 - Work Done:
 
-1. Process cleanup: Killed stray direct Node process (PID 44543), removed stale PID files (`.amdwiki-1.pid`)
-2. PM2 initialization: Started server fresh via `./server.sh start prod`, confirmed PM2 daemon spawned
-3. Installation form verification: Confirmed install.ejs shows correct read-only display for admin fields
-4. Route validation: Verified InstallRoutes.js hardcodes admin credentials (lines 85, 88)
-5. Service validation: Confirmed InstallService.js uses `#updateAdminPassword()` not user creation
-6. Documentation: Updated IMPLEMENTATION-COMPLETE.md with PM2 management details and admin account implementation notes
+- Process cleanup: Killed stray direct Node process (PID 44543), removed stale PID files (`.amdwiki-1.pid`)
+- PM2 initialization: Started server fresh via `./server.sh start prod`, confirmed PM2 daemon spawned
+- Installation form verification: Confirmed install.ejs shows correct read-only display for admin fields
+- Route validation: Verified InstallRoutes.js hardcodes admin credentials (lines 85, 88)
+- Service validation: Confirmed InstallService.js uses `#updateAdminPassword()` not user creation
+- Documentation: Updated IMPLEMENTATION-COMPLETE.md with PM2 management details and admin account implementation notes
 
 - Commits:
 
@@ -1296,12 +1296,12 @@ Subject: PM2 Server Management Cleanup and Installation System Verification
 
 - Testing Results:
 
-- ✅ Server starts cleanly via PM2
-- ✅ Single `.amdwiki.pid` file created correctly
-- ✅ Install endpoint responds with proper HTML
-- ✅ Admin username/email display as read-only in form
-- ✅ No stale PID files remain after cleanup
-- ✅ Server status shows "online" with correct PID
+-  Server starts cleanly via PM2
+-  Single `.amdwiki.pid` file created correctly
+-  Install endpoint responds with proper HTML
+-  Admin username/email display as read-only in form
+-  No stale PID files remain after cleanup
+-  Server status shows "online" with correct PID
 
 - Known Issues (Pre-existing):
 
@@ -1310,10 +1310,10 @@ Subject: PM2 Server Management Cleanup and Installation System Verification
 
 - Next Session Recommendations:
 
-1. Manual browser testing of install form submission
-2. Test admin account creation and password change functionality
-3. Verify users.json and users/persons.json both contain admin account after install
-4. Test installation reset workflow
-5. Consider adding integration tests for install flow
+- Manual browser testing of install form submission
+- Test admin account creation and password change functionality
+- Verify users.json and users/persons.json both contain admin account after install
+- Test installation reset workflow
+- Consider adding integration tests for install flow
 
 ---
