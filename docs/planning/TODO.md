@@ -20,6 +20,7 @@ slug: amdwiki-todo
 ## 🎯 NEXT STEPS - High Priority
 
 ### 1. Attachment UI Enhancement (2-3 weeks)
+
 **Status**: 📋 Not Started
 **Priority**: High
 **Owner**: Unassigned
@@ -27,11 +28,12 @@ slug: amdwiki-todo
 AttachmentManager exists but needs complete UI integration.
 
 **Tasks**:
+
 - [ ] Add upload widget to edit page interface
   - Drag-and-drop file upload
   - Progress indicators
   - File type validation
-  - Size limit enforcement 
+  - Size limit enforcement
 - [ ] Create inline attachment management panel
   - List attached files with preview
   - Delete/rename functionality
@@ -55,6 +57,7 @@ AttachmentManager exists but needs complete UI integration.
 ---
 
 ### 2. Mobile Optimization (2-3 weeks)
+
 **Status**: 📋 Not Started
 **Priority**: High
 **Owner**: Unassigned
@@ -62,6 +65,7 @@ AttachmentManager exists but needs complete UI integration.
 Make amdWiki fully responsive and mobile-friendly.
 
 **Tasks**:
+
 - [ ] Implement touch-friendly UI components
   - Larger tap targets
   - Swipe gestures
@@ -91,6 +95,7 @@ Make amdWiki fully responsive and mobile-friendly.
 ---
 
 ### 3. Performance Monitoring Dashboard (1-2 weeks)
+
 **Status**: 📋 Not Started
 **Priority**: High
 **Owner**: Unassigned
@@ -98,6 +103,7 @@ Make amdWiki fully responsive and mobile-friendly.
 Add analytics and metrics for system monitoring.
 
 **Tasks**:
+
 - [ ] Implement page load time tracking
   - Server-side timing
   - Client-side rendering metrics
@@ -129,12 +135,14 @@ Add analytics and metrics for system monitoring.
 ## 📌 Medium Priority Tasks
 
 ### 4. Page Comments System (3-4 weeks)
+
 **Status**: 📋 Not Started
 **Priority**: Medium
 
 Add discussion functionality to wiki pages.
 
 **Tasks**:
+
 - [ ] Design comment data model
 - [ ] Create CommentManager
 - [ ] Build comment UI components
@@ -147,12 +155,14 @@ Add discussion functionality to wiki pages.
 ---
 
 ### 5. Enhanced Notification System (2-3 weeks)
+
 **Status**: 📋 Not Started
 **Priority**: Medium
 
 Expand NotificationManager with real-time alerts.
 
 **Tasks**:
+
 - [ ] Implement page change notifications
 - [ ] Add @mention alerts
 - [ ] Build email notification support
@@ -165,12 +175,14 @@ Expand NotificationManager with real-time alerts.
 ---
 
 ### 6. Advanced Export Enhancements (2 weeks)
+
 **Status**: 📋 Not Started
 **Priority**: Medium
 
 Extend export capabilities beyond HTML/PDF.
 
 **Tasks**:
+
 - [ ] Add batch export functionality
 - [ ] Implement custom export templates
 - [ ] Add EPUB format support
@@ -183,12 +195,14 @@ Extend export capabilities beyond HTML/PDF.
 ---
 
 ### 7. Additional JSPWiki Plugins (Ongoing)
+
 **Status**: 📋 Not Started
 **Priority**: Medium
 
 Implement more JSPWiki-compatible plugins.
 
 **Tasks**:
+
 - [ ] TableOfContents plugin
 - [ ] IndexPlugin (alphabetical page listing)
 - [ ] CalendarTag plugin
@@ -204,21 +218,25 @@ Implement more JSPWiki-compatible plugins.
 ## 🔮 Low Priority / Future Ideas
 
 ### 8. Multiple Theme Support
+
 - Additional UI themes beyond dark/light
 - Theme marketplace
 - Custom CSS injection
 
 ### 9. Advanced Analytics
+
 - Deep insights dashboard
 - User behavior tracking
 - Content effectiveness metrics
 
 ### 10. Workflow Automation
+
 - Automated page management tasks
 - Scheduled page publishing
 - Approval workflows
 
 ### 11. Multi-language Support (i18n)
+
 - Full internationalization
 - RTL language support
 - Translation management
@@ -236,6 +254,7 @@ Implement more JSPWiki-compatible plugins.
 **Status**: ✅ **Fully Implemented and Deployed to Production**
 
 **Key Features Delivered**:
+
 - ✅ Per-page version history with delta storage
 - ✅ Automatic migration from FileSystemProvider
 - ✅ Centralized metadata index for fast lookups (page-index.json)
@@ -281,25 +300,30 @@ Implement more JSPWiki-compatible plugins.
 ### Deployed Components
 
 **Provider**: `src/providers/VersioningFileProvider.js` (1,237 lines)
+
 - Extends FileSystemProvider with full backward compatibility
 - Delta storage with checkpoint optimization (every 10th version)
 - LRU cache for version reconstruction
 - Atomic writes for data safety
 
 **Utilities**:
+
 - `src/utils/DeltaStorage.js` - Diff creation and application using fast-diff
 - `src/utils/VersionCompression.js` - gzip compression for old versions
 
 **REST API Endpoints** (`src/routes/WikiRoutes.js`):
+
 - `GET /api/pages/:page/versions` - Get version history
 - `GET /api/pages/:page/versions/:version` - Get specific version
 - `POST /api/pages/:page/versions/:version/restore` - Restore version
 - `GET /api/pages/:page/diff?v1=X&v2=Y` - Compare versions
 
 **UI Views**:
+
 - `views/page-history.ejs` - Complete version history interface with View, Compare, Restore actions
 
 **Test Suites** (5 comprehensive test files):
+
 - `src/providers/__tests__/VersioningFileProvider.test.js`
 - `src/providers/__tests__/VersioningFileProvider-Maintenance.test.js`
 - `src/utils/__tests__/VersionCompression.test.js`
@@ -311,42 +335,50 @@ Implement more JSPWiki-compatible plugins.
 ## ✨ Key Features Implemented
 
 ### 1. Delta Storage System
+
 - v1 stores full content (baseline)
 - v2+ stores only diffs from previous version
 - Significant disk space savings (typically 60-80% reduction)
 
 ### 2. Checkpoint Optimization
+
 - Every 10th version stores full content
 - Faster reconstruction of recent versions
 - Configurable via `checkpointinterval`
 
 ### 3. LRU Version Cache
+
 - In-memory cache for reconstructed versions
 - Configurable cache size (default: 50 versions)
 - Automatic eviction of least recently used entries
 
 ### 4. Auto-Migration
+
 - Seamless migration from FileSystemProvider
 - Automatic detection and v1 creation for existing pages
 - Zero-downtime deployment
 
 ### 5. Page Index
+
 - Centralized `page-index.json` for fast lookups
 - No filesystem scanning required
 - Tracks current version, location, last modified
 
 ### 6. Retention Policies
+
 - Configurable maximum versions (`maxversions`)
 - Age-based retention (`retentiondays`)
 - Milestone protection (always keeps v1 and checkpoints)
 - Dry-run capability for testing
 
 ### 7. Compression Support
+
 - gzip compression for old versions
 - Configurable compression settings
 - Automatic decompression on read
 
 ### 8. Full UI Integration
+
 - Version history table with sorting
 - Current version highlighting
 - Checkpoint indicators
@@ -354,11 +386,13 @@ Implement more JSPWiki-compatible plugins.
 - Date, author, change type tracking
 
 ### 9. Security Integration
+
 - Permission checks via PolicyManager
 - Audit logging via AuditManager
 - User attribution for all version operations
 
 ### 10. Atomic Operations
+
 - Temp file + rename pattern for safety
 - No partial writes
 - Data integrity guaranteed
@@ -433,6 +467,7 @@ Implement more JSPWiki-compatible plugins.
 ### For Administrators
 
 **Purge Old Versions**:
+
 ```bash
 # Via admin interface or API
 POST /api/pages/{page}/versions/purge
@@ -444,6 +479,7 @@ POST /api/pages/{page}/versions/purge
 ```
 
 **Rebuild Page Index**:
+
 ```bash
 # If page index becomes corrupted
 # Restart server - auto-rebuild from manifests
@@ -456,6 +492,7 @@ POST /api/pages/{page}/versions/purge
 ### Configuration Tuning
 
 **For Large Wikis** (1000+ pages):
+
 ```json
 {
   "amdwiki.page.provider.versioning.maxversions": 100,
@@ -465,6 +502,7 @@ POST /api/pages/{page}/versions/purge
 ```
 
 **For Storage-Constrained Systems**:
+
 ```json
 {
   "amdwiki.page.provider.versioning.maxversions": 20,
@@ -476,6 +514,7 @@ POST /api/pages/{page}/versions/purge
 ### Monitoring
 
 Check version statistics:
+
 - Page index size: `./data/page-index.json`
 - Version directory size: `./pages/versions/`
 - Cache hit rate: Monitor logs for reconstruction times
@@ -483,6 +522,7 @@ Check version statistics:
 ### Backup Considerations
 
 The BackupManager automatically includes:
+
 - All current pages
 - All version directories
 - Page index
@@ -515,18 +555,22 @@ The implementation has been thoroughly tested and deployed. No significant issue
 ### Tasks
 
 #### 1.1 Install Required Libraries
+
 ```bash
 npm install fast-diff      # Text diffing (Myers algorithm)
 npm install pako           # gzip compression/decompression
 ```
+
 - [ ] Add to package.json
 - [ ] Test imports in Node.js environment
 - [ ] Document library choices in CONTRIBUTING.md
 
 #### 1.2 Extend BasePageProvider Interface
+
 **File**: `src/providers/BasePageProvider.js`
 
 Add new abstract methods for versioning:
+
 - [ ] `async getVersionHistory(identifier)` - Returns array of version metadata
 - [ ] `async getPageVersion(identifier, version)` - Returns specific version content
 - [ ] `async restoreVersion(identifier, version)` - Restores page to version
@@ -534,14 +578,17 @@ Add new abstract methods for versioning:
 - [ ] `async purgeOldVersions(identifier, keepLatest)` - Cleanup old versions
 
 **Acceptance Criteria**:
+
 - All methods documented with JSDoc
 - Throw "must be implemented" errors (abstract pattern)
 - FileSystemProvider still works (doesn't implement versioning methods)
 
 #### 1.3 Create Utility Modules
+
 **File**: `src/utils/DeltaStorage.js`
 
 Implement delta storage utilities:
+
 - [ ] `createDiff(oldContent, newContent)` - Generate diff using fast-diff
 - [ ] `applyDiff(baseContent, diff)` - Reconstruct content from diff
 - [ ] `applyDiffChain(v1Content, diffArray)` - Apply multiple diffs sequentially
@@ -550,12 +597,14 @@ Implement delta storage utilities:
 **File**: `src/utils/VersionCompression.js`
 
 Implement compression utilities:
+
 - [ ] `compress(content)` - gzip compression using pako
 - [ ] `decompress(compressed)` - gzip decompression
 - [ ] `compressFile(filePath)` - Compress file in place
 - [ ] Unit tests for compression
 
 **Deliverables**:
+
 - Dependencies installed
 - BasePageProvider extended
 - Utility modules with 90%+ test coverage
@@ -569,9 +618,11 @@ Implement compression utilities:
 ### Tasks
 
 #### 2.1 Create VersioningFileProvider Class
+
 **File**: `src/providers/VersioningFileProvider.js`
 
 Basic structure:
+
 - [ ] Extend FileSystemProvider
 - [ ] Add constructor with versioning-specific properties
 - [ ] Override `initialize()` to setup version directories
@@ -592,6 +643,7 @@ class VersioningFileProvider extends FileSystemProvider {
 ```
 
 #### 2.2 Implement Configuration Loading
+
 - [ ] Read `amdwiki.page.provider.versioning.*` config
 - [ ] Setup paths: `./data/page-index.json`
 - [ ] Create `./pages/versions/` directory
@@ -599,7 +651,9 @@ class VersioningFileProvider extends FileSystemProvider {
 - [ ] Validate configuration values
 
 #### 2.3 Implement Version Creation
+
 Override `savePage()` to create versions:
+
 - [ ] Check if page exists (determine if create or update)
 - [ ] Load current version content
 - [ ] Create diff using DeltaStorage utility
@@ -610,6 +664,7 @@ Override `savePage()` to create versions:
 - [ ] Update page-index.json
 
 **Version Directory Structure**:
+
 ```text
 ./pages/versions/{uuid}/
   ├── manifest.json
@@ -625,7 +680,9 @@ Override `savePage()` to create versions:
 ```
 
 #### 2.4 Implement manifest.json Management
+
 **Format**:
+
 ```json
 {
   "pageId": "uuid",
@@ -658,13 +715,16 @@ Override `savePage()` to create versions:
 ```
 
 Tasks:
+
 - [ ] `loadManifest(uuid)` - Load manifest.json
 - [ ] `saveManifest(uuid, manifest)` - Save manifest.json
 - [ ] `addVersionToManifest(uuid, versionData)` - Append version entry
 - [ ] Handle missing/corrupted manifests gracefully
 
 #### 2.5 Implement page-index.json
+
 **Format**:
+
 ```json
 {
   "version": "1.0.0",
@@ -694,6 +754,7 @@ Tasks:
 ```
 
 Tasks:
+
 - [ ] `loadPageIndex()` - Load entire index
 - [ ] `savePageIndex()` - Save entire index
 - [ ] `updatePageInIndex(uuid, data)` - Update single page entry
@@ -701,6 +762,7 @@ Tasks:
 - [ ] Atomic writes (write to temp, then rename)
 
 **Deliverables**:
+
 - VersioningFileProvider class created
 - Version creation working on page saves
 - manifest.json and page-index.json functional
@@ -714,6 +776,7 @@ Tasks:
 ### Tasks
 
 #### 3.1 Implement getVersionHistory()
+
 ```javascript
 async getVersionHistory(identifier) {
   // 1. Resolve page UUID from identifier
@@ -721,11 +784,13 @@ async getVersionHistory(identifier) {
   // 3. Return versions array
 }
 ```
+
 - [ ] Handle missing version directory (return empty array)
 - [ ] Sort versions by version number
 - [ ] Include metadata from manifest
 
 #### 3.2 Implement getPageVersion()
+
 ```javascript
 async getPageVersion(identifier, version) {
   // 1. Load manifest for this page
@@ -738,12 +803,14 @@ async getPageVersion(identifier, version) {
   // 5. Return {content, metadata}
 }
 ```
+
 - [ ] Handle missing versions
 - [ ] Validate version numbers
 - [ ] Apply diff chain correctly
 - [ ] Cache reconstructed versions (optional optimization)
 
 #### 3.3 Implement restoreVersion()
+
 ```javascript
 async restoreVersion(identifier, version) {
   // 1. Get version content using getPageVersion()
@@ -752,11 +819,13 @@ async restoreVersion(identifier, version) {
   // 4. Log restoration action
 }
 ```
+
 - [ ] Add "restored from v{X}" in version comment
 - [ ] Preserve original metadata where appropriate
 - [ ] Trigger backup before restore (safety)
 
 #### 3.4 Implement compareVersions()
+
 ```javascript
 async compareVersions(identifier, v1, v2) {
   // 1. Load both versions
@@ -765,11 +834,13 @@ async compareVersions(identifier, v1, v2) {
   // 4. Return structured diff data
 }
 ```
+
 - [ ] Support line-by-line diff
 - [ ] Support unified diff format
 - [ ] Include metadata changes
 
 **Deliverables**:
+
 - All retrieval methods working
 - Version reconstruction tested with 10+ version chains
 - Restore functionality tested
@@ -783,7 +854,9 @@ async compareVersions(identifier, v1, v2) {
 ### Tasks
 
 #### 4.1 Implement Migration Detection
+
 In `initialize()`:
+
 ```javascript
 async initialize() {
   await super.initialize(); // FileSystemProvider init
@@ -802,6 +875,7 @@ async initialize() {
 ```
 
 #### 4.2 Implement Migration Process
+
 ```javascript
 async runMigration() {
   // 1. Trigger BackupManager
@@ -814,6 +888,7 @@ async runMigration() {
 ```
 
 Tasks:
+
 - [ ] Integrate with BackupManager
 - [ ] Scan `./pages/` and `./required-pages/`
 - [ ] For each .md file:
@@ -828,13 +903,16 @@ Tasks:
 - [ ] Create `./data/.migration-complete` marker file
 
 #### 4.3 Handle Migration Errors
+
 - [ ] Rollback capability if migration fails
 - [ ] Detailed error logging
 - [ ] Migration progress reporting
 - [ ] Skip already-migrated pages (idempotent)
 
 #### 4.4 Create Migration Report
+
 Generate `./data/migration-report.json`:
+
 ```json
 {
   "migrationDate": "2025-01-01T00:00:00.000Z",
@@ -848,6 +926,7 @@ Generate `./data/migration-report.json`:
 ```
 
 **Deliverables**:
+
 - Migration process tested with sample data
 - Rollback tested
 - Migration documentation written
@@ -861,6 +940,7 @@ Generate `./data/migration-report.json`:
 ### Tasks
 
 #### 5.1 Implement Version Purging
+
 ```javascript
 async purgeOldVersions(identifier, keepLatest) {
   // 1. Load manifest
@@ -872,6 +952,7 @@ async purgeOldVersions(identifier, keepLatest) {
   // 4. Update manifest.json
 }
 ```
+
 - [ ] Respect `maxversions` config
 - [ ] Respect `retentiondays` config
 - [ ] Always keep v1 (needed for delta reconstruction)
@@ -879,13 +960,16 @@ async purgeOldVersions(identifier, keepLatest) {
 - [ ] Log deleted versions
 
 #### 5.2 Implement Compression
+
 Background task to compress old versions:
+
 - [ ] Scan versions older than 30 days
 - [ ] Compress content.md / content.diff files
 - [ ] Update manifest with `compressed: true`
 - [ ] Add `compressOldVersions()` method
 
 #### 5.3 Implement Integrity Checks
+
 ```javascript
 async verifyPageIntegrity(identifier) {
   // 1. Load manifest
@@ -895,19 +979,23 @@ async verifyPageIntegrity(identifier) {
   // 5. Report any corruption
 }
 ```
+
 - [ ] SHA-256 hash verification
 - [ ] Reconstruct all versions to verify diff chain
 - [ ] Report missing files
 - [ ] Auto-repair if possible
 
 #### 5.4 Create Maintenance CLI Commands
+
 Add to server or create maintenance script:
+
 - [ ] `npm run maintenance:purge-old-versions` - Run purge on all pages
 - [ ] `npm run maintenance:compress-versions` - Compress old versions
 - [ ] `npm run maintenance:verify-integrity` - Check all pages
 - [ ] `npm run maintenance:rebuild-index` - Rebuild page-index.json
 
 **Deliverables**:
+
 - Purging functionality tested
 - Compression working
 - Integrity checks passing
@@ -922,9 +1010,11 @@ Add to server or create maintenance script:
 ### Tasks
 
 #### 6.1 Add REST API Endpoints
+
 **File**: `src/routes/WikiRoutes.js`
 
 Add endpoints:
+
 - [ ] `GET /api/pages/:page/versions` → getVersionHistory()
 - [ ] `GET /api/pages/:page/versions/:version` → getPageVersion()
 - [ ] `POST /api/pages/:page/versions/:version/restore` → restoreVersion()
@@ -932,14 +1022,17 @@ Add endpoints:
 - [ ] `DELETE /api/pages/:page/versions/:version` → purgeVersions()
 
 Add permission checks:
+
 - [ ] Viewing versions: `page:read` permission
 - [ ] Restoring versions: `page:edit` permission
 - [ ] Purging versions: `admin` role only
 
 #### 6.2 Update Page History UI
+
 Currently exists at "Info" → "Page History" dropdown.
 
 Tasks:
+
 - [ ] Modify PageInfo endpoint to call `getVersionHistory()`
 - [ ] Display version list with timestamps and authors
 - [ ] Add "View" button for each version
@@ -947,20 +1040,24 @@ Tasks:
 - [ ] Add "Compare" button to compare versions
 
 #### 6.3 Update Diff Viewer
+
 Currently exists at `Diff.jsp?page=X&r1=Y&r2=Z`
 
 Tasks:
+
 - [ ] Modify diff endpoint to use `compareVersions()`
 - [ ] Display side-by-side or unified diff
 - [ ] Highlight changes (additions/deletions)
 - [ ] Show metadata changes
 
 #### 6.4 Add Version Info to Page View
+
 - [ ] Display current version number in page info
 - [ ] Add "Version X of Y" indicator
 - [ ] Link to version history
 
 **Deliverables**:
+
 - REST API endpoints tested
 - UI integrated with versioning backend
 - User can view, compare, and restore versions
@@ -974,12 +1071,14 @@ Tasks:
 ### Tasks
 
 #### 7.1 Unit Tests
+
 - [ ] `src/providers/VersioningFileProvider.test.js` - All provider methods
 - [ ] `src/utils/DeltaStorage.test.js` - Diff creation/application
 - [ ] `src/utils/VersionCompression.test.js` - Compression
 - [ ] Coverage target: 90%+
 
 #### 7.2 Integration Tests
+
 - [ ] Full migration test with sample wiki
 - [ ] Version creation on page edits
 - [ ] Version retrieval and restoration
@@ -987,6 +1086,7 @@ Tasks:
 - [ ] Corruption recovery
 
 #### 7.3 Performance Tests
+
 - [ ] Test with 1000+ pages
 - [ ] Test with 100+ versions per page
 - [ ] Measure reconstruction time for v50, v100
@@ -994,6 +1094,7 @@ Tasks:
 - [ ] Benchmark page-index.json lookup performance
 
 #### 7.4 Documentation
+
 - [ ] **User Guide**: How to view/restore versions (add to main docs)
 - [ ] **Admin Guide**: Migration process, maintenance tasks
 - [ ] **API Documentation**: REST endpoints (OpenAPI spec)
@@ -1001,6 +1102,7 @@ Tasks:
 - [ ] Update CONTRIBUTING.md with versioning architecture
 
 **Deliverables**:
+
 - All tests passing
 - Performance benchmarks documented
 - User and admin documentation complete
@@ -1010,6 +1112,7 @@ Tasks:
 ## Configuration Summary
 
 ### app-default-config.json (NO CHANGES)
+
 ```json
 {
   "amdwiki.page.provider": "filesystemprovider",
@@ -1019,6 +1122,7 @@ Tasks:
 ```
 
 ### app-custom-config.json (ENABLE VERSIONING)
+
 ```json
 {
   "amdwiki.page.provider": "versioningfileprovider",
@@ -1109,6 +1213,7 @@ All phases have been completed and are now in production.
 **Version**: 1.0.0 (Stable)
 
 **Production Notes**:
+
 - Currently deployed and active in `app-custom-config.json`
 - All 5 test suites passing
 - Auto-migration working seamlessly

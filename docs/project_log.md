@@ -6,13 +6,18 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 
 ```
 ## yyyy-MM-dd-##
-Agent: [Claude/Gemini/Other]
-Subject: [Brief description]
+
+- Agent: [Claude/Gemini/Other]
+- Subject: [Brief description]
 - Key Decision: [decision]
 - Current Issue: [issue]
-- Work Done: [task 1], [task 2]
+- Work Done: 
+  - [task 1]
+  - [task 2]
 - Commits: [hash]
-- Files Modified: [file1.js, file2.md]
+- Files Modified: 
+  - [file1.js]
+  - [file2.md]
 ```
 
 ---

@@ -178,7 +178,7 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for comprehensive guidelines.
 
 ## Project Log
 
-See [project_log.md](./project_log.md) for AI agent session tracking. Format: yyyy-MM-dd-## with Agent, Subject, Key Decisions, Work Done, Commits, and Files Modified.
+See [project_log.md](./project_log.md) for AI agent session tracking. Formated in the method show at top of file.
 
 ## TODO & Next Steps
 

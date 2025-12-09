@@ -8,6 +8,7 @@
 **amdWiki** is evolving from a JSPWiki-inspired wiki into a **comprehensive digital platform** for personal and organizational use. The goal is to create a modular, standards-based ecosystem that can be hosted locally or on the internet.
 
 ### Core Philosophy
+
 * **Modular Architecture**: Plugin-based modules for different use cases
 * **Standards-First**: RFC and widely-adopted standards support
 * **Local-First**: Can run entirely offline while supporting cloud deployment
@@ -18,6 +19,7 @@
 ### Phase 2: Content Modules (Next Phase)
 
 #### Blog Module
+
 * Multi-author blogging with RSS/Atom feeds
 * Blog post templates and categories
 * Comment system integration
@@ -25,6 +27,7 @@
 * Author profiles and attribution
 
 #### Document Management
+
 * File organization and categorization
 * Advanced versioning features
 * Document search and indexing
@@ -32,6 +35,7 @@
 * Collaborative editing
 
 #### Photo Management
+
 * Gallery creation and management
 * EXIF metadata extraction and display
 * Album organization
@@ -39,6 +43,7 @@
 * Location-based photo mapping
 
 #### Asset Management
+
 * Digital asset tracking
 * Maintenance logs and histories
 * Depreciation tracking
@@ -48,6 +53,7 @@
 ### Phase 3: Business Modules
 
 #### E-Commerce Store
+
 * Product catalog management
 * Shopping cart functionality
 * Payment gateway integration (Stripe, PayPal)
@@ -56,6 +62,7 @@
 * Inventory tracking
 
 #### CRM Module
+
 * Contact management
 * Interaction tracking and history
 * Sales pipeline management
@@ -64,6 +71,7 @@
 * Reporting and analytics
 
 #### Project Management
+
 * Task tracking and assignment
 * Timeline and Gantt chart views
 * Milestone management
@@ -72,6 +80,7 @@
 * Resource allocation
 
 #### Knowledge Base
+
 * FAQ management
 * Documentation organization
 * Help desk integration
@@ -82,6 +91,7 @@
 ### Phase 4: Advanced Platform
 
 #### API Gateway
+
 * RESTful API for all modules
 * OpenAPI 3.0 specifications
 * API key management
@@ -90,6 +100,7 @@
 * GraphQL endpoint consideration
 
 #### Workflow Engine
+
 * Business process automation
 * Custom workflow creation
 * Approval chains
@@ -98,6 +109,7 @@
 * Event-driven triggers
 
 #### Reporting Dashboard
+
 * Analytics across all modules
 * Custom report builder
 * Data visualization
@@ -106,6 +118,7 @@
 * Real-time metrics
 
 #### Multi-tenant Support
+
 * Organization isolation
 * User and data segregation
 * Tenant-specific customization
@@ -117,6 +130,7 @@
 ### High Priority
 
 #### Attachment UI Enhancement
+
 * Upload widgets in edit pages
 * Inline attachment management interface
 * Image/video preview and optimization
@@ -125,6 +139,7 @@
 * Attachment versioning
 
 #### Mobile Optimization
+
 * Responsive design improvements
 * Touch-friendly UI components
 * Mobile-optimized editor
@@ -133,6 +148,7 @@
 * Mobile navigation improvements
 
 #### Performance Monitoring
+
 * Analytics and metrics dashboard
 * Page load time tracking
 * Search performance metrics
@@ -143,6 +159,7 @@
 ### Medium Priority
 
 #### Page Comments System
+
 * Comment threads on wiki pages
 * Mention system with notifications
 * Moderation capabilities
@@ -151,6 +168,7 @@
 * Spam protection
 
 #### Notification System
+
 * Real-time alerts
 * Page change notifications
 * @mention alerts
@@ -159,6 +177,7 @@
 * Digest mode for notifications
 
 #### Advanced Export Enhancements
+
 * Batch export functionality
 * Custom templates for exports
 * EPUB format support
@@ -167,6 +186,7 @@
 * Export history and versioning
 
 #### Plugin Development Enhancements
+
 * Additional JSPWiki-compatible plugins
 * Custom macro system expansion
 * Third-party plugin marketplace
@@ -177,6 +197,7 @@
 ### Future Considerations
 
 #### Multiple Theme Support
+
 * Additional UI themes beyond dark/light
 * Theme customization interface
 * Custom CSS per theme
@@ -184,6 +205,7 @@
 * User-created themes
 
 #### Advanced Analytics
+
 * Deep insights and reporting
 * User behavior tracking
 * Content popularity metrics
@@ -191,12 +213,14 @@
 * Conversion tracking (for e-commerce)
 
 #### Workflow Automation
+
 * Automated page management tasks
 * Content publishing workflows
 * Approval processes
 * Scheduled content updates
 
 #### Multi-language Support
+
 * Full internationalization (i18n)
 * Translation management
 * Language-specific content
@@ -208,6 +232,7 @@
 ### JSPWiki-Compatible Plugins
 
 #### ReferringPagesPlugin
+
 * max: Limit number of pages listed (default 10)
 * maxwidth: Limit link length
 * separator: Custom separator markup
@@ -217,6 +242,7 @@
 * showLastModified: Show modification time with count
 
 #### TablePlugin Enhancements
+
 * Zebra striping styles
 * Filtered tables with column filters
 * Sortable columns
@@ -225,6 +251,7 @@
 * Cell formatting options
 
 ### Variable System Expansion
+
 * Additional system variables
 * Custom user-defined variables
 * Computed variables
@@ -232,6 +259,7 @@
 * Variable documentation page
 
 ### Page Template System
+
 * Template library management
 * Custom template creation UI
 * Template categories
@@ -241,6 +269,7 @@
 ## Standards Compliance Strategy
 
 ### Technical Standards (RFC & Widely Adopted)
+
 * **HTTP/REST**: RFC 7231 compliant API design
 * **JSON API**: JSON:API specification for consistent data exchange
 * **OpenAPI 3.0**: API documentation and client generation
@@ -252,6 +281,7 @@
 * **Schema.org**: Structured data markup for SEO
 
 ### Content Standards
+
 * **Dublin Core**: Metadata schema for digital assets
 * **Schema.org Vocabulary**: Semantic markup for all content types
 * **EXIF**: Photo metadata preservation
@@ -260,6 +290,7 @@
 * **ISO 8601**: Date/time formatting consistency
 
 ### Platform Architecture Standards
+
 * **Twelve-Factor App**: Deployment and configuration methodology
 * **Semantic Versioning**: Module version management
 * **Container Standards**: Docker/OCI compliance for deployment
@@ -268,6 +299,7 @@
 ## Schema.org Integration Plans
 
 ### Module-Specific Schema Types
+
 * **Wiki Pages**: Article, WebPage, CreativeWork schemas
 * **Blog Module**: BlogPosting, Person (author), Organization schemas
 * **E-commerce Module**: Product, Offer, Review, Organization schemas
@@ -276,6 +308,7 @@
 * **CRM Module**: Person, Organization, ContactPoint schemas
 
 ### Implementation Goals
+
 * Automatic generation from YAML frontmatter
 * Module-specific schema registration
 * Template integration
@@ -285,6 +318,7 @@
 ## Documentation Roadmap
 
 ### User Documentation Needed
+
 * Installation guides for various platforms
 * Per-module user manuals
 * Video tutorials for complex workflows
@@ -292,6 +326,7 @@
 * Migration guides from other platforms
 
 ### Developer Documentation Needed
+
 * Complete API references
 * Module development guides
 * Architecture documentation
@@ -299,6 +334,7 @@
 * Testing guidelines
 
 ### Hosting Provider Documentation
+
 * Deployment guides for major platforms
 * Performance tuning guides
 * Security hardening recommendations
@@ -306,6 +342,7 @@
 * Scaling strategies
 
 ### Integration Documentation
+
 * Third-party API integration patterns
 * Webhook implementation guides
 * Import/export tools documentation
@@ -315,6 +352,7 @@
 ## Success Metrics
 
 ### Technical Goals
+
 * **Standards Compliance**: 100% adherence to chosen standards
 * **API Coverage**: Complete OpenAPI documentation for all endpoints
 * **Test Coverage**: >90% code coverage across all modules
@@ -322,6 +360,7 @@
 * **Security**: Regular security audits and updates
 
 ### Community Goals
+
 * **Module Ecosystem**: Third-party module marketplace
 * **Documentation Quality**: Comprehensive guides for all audiences
 * **Support Community**: Active forums and community support
@@ -332,6 +371,7 @@
 
 **Repository:** <https://github.com/jwilleke/amdWiki>
 **Technology Stack:**
+
 * Node.js + Express.js
 * EJS templating
 * Lunr.js for search

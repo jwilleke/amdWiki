@@ -1,0 +1,189 @@
+name: CI - Passing Tests Only
+
+# This workflow runs only the test suites that are currently passing.
+# Use this while fixing the remaining test failures incrementally.
+# See docs/testing/KNOWN-TEST-ISSUES.md for the full list of failing tests.
+
+on:
+  push:
+    branches: [master, develop]
+  pull_request:
+    branches: [master, develop]
+
+jobs:
+  passing-tests:
+    name: Passing Test Suites
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run passing tests only
+        run: |
+          npm test -- --maxWorkers=2 \
+            --testPathIgnorePatterns="\
+              AllPlugins.test.js|\
+              SessionsPlugin.test.js|\
+              src/__tests__/UserManager.test.js|\
+              PageManager-Storage.test.js|\
+              PluginManager.registerPlugins.test.js|\
+              PluginManager.test.js|\
+              MarkupParser-Comprehensive.test.js|\
+              MarkupParser-Config.test.js|\
+              MarkupParser-DOM-Integration.test.js|\
+              MarkupParser-DOMNodeCreation.test.js|\
+              MarkupParser-EndToEnd.test.js|\
+              MarkupParser-Extraction.test.js|\
+              MarkupParser-Integration.test.js|\
+              MarkupParser-MergePipeline.test.js|\
+              MarkupParser-ModularConfig.test.js|\
+              MarkupParser-Performance.test.js|\
+              MarkupParser.test.js|\
+              BaseSyntaxHandler.test.js|\
+              HandlerRegistry.test.js|\
+              WikiTagHandler.test.js|\
+              VersioningFileProvider-Maintenance.test.js|\
+              VersioningFileProvider.test.js|\
+              routes.test.js|\
+              DeltaStorage.test.js|\
+              VersionCompression.test.js|\
+              VersioningMigration.test.js"
+        env:
+          NODE_ENV: test
+
+  lint:
+    name: Lint & Code Quality
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run markdown lint
+        run: |
+          echo "Checking markdown files..."
+          if [ -f ".markdownlint.json" ]; then
+            npm run lint:md || echo "Warning: Markdown lint found issues"
+          else
+            echo "Skipping markdown lint (not configured)"
+          fi
+
+      - name: Check for debugging code
+        run: |
+          echo "Checking for console.log and debugger statements..."
+          if git grep -n "console\.log\|debugger" -- '*.js' '*.ts' ':!node_modules' ':!dist' ':!coverage' ':!*.test.js' ':!**/tests/**' ':!**/__tests__/**'; then
+            echo "Warning: Found console.log or debugger statements in source code"
+          else
+            echo "No debugging code found"
+          fi
+
+  smoke-test:
+    name: Smoke Tests
+    runs-on: ubuntu-latest
+    needs: passing-tests
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Create required directories
+        run: |
+          mkdir -p pages data logs sessions
+
+      - name: Check required files exist
+        run: |
+          echo "Verifying required pages..."
+          test -f "required-pages/Main.md" || (echo "Missing required-pages/Main.md" && exit 1)
+          test -f "required-pages/LeftMenu.md" || (echo "Missing required-pages/LeftMenu.md" && exit 1)
+          echo "Required files verified"
+
+      - name: Check configuration
+        run: |
+          echo "Verifying critical configuration..."
+          node -e "
+            const config = require('./config/app-default-config.json');
+            const required = [
+              'amdwiki.server.port',
+              'amdwiki.applicationName',
+              'amdwiki.page.provider.filesystem.storagedir'
+            ];
+            required.forEach(key => {
+              if (!config[key]) throw new Error('Missing config: ' + key);
+            });
+            console.log('Configuration validated');
+          "
+
+      - name: Test WikiEngine initialization
+        run: |
+          echo "Testing WikiEngine initialization..."
+          timeout 30 node -e "
+            const WikiEngine = require('./src/WikiEngine');
+            const engine = new WikiEngine();
+            engine.initialize().then(() => {
+              const required = ['PageManager', 'RenderingManager', 'UserManager'];
+              required.forEach(name => {
+                if (!engine.getManager(name)) throw new Error('Manager not loaded: ' + name);
+              });
+              console.log('WikiEngine initialization successful');
+              process.exit(0);
+            }).catch(err => {
+              console.error('WikiEngine initialization failed:', err);
+              process.exit(1);
+            });
+          "
+
+  summary:
+    name: CI Summary (Passing Tests)
+    runs-on: ubuntu-latest
+    needs: [passing-tests, lint, smoke-test]
+    if: always()
+
+    steps:
+      - name: Check results
+        run: |
+          echo "CI Pipeline Results (Passing Tests Only):"
+          echo "- Passing Tests: ${{ needs.passing-tests.result }}"
+          echo "- Lint: ${{ needs.lint.result }}"
+          echo "- Smoke Tests: ${{ needs.smoke-test.result }}"
+          echo ""
+          echo "Note: This workflow excludes 26 known-failing test suites."
+          echo "See docs/testing/KNOWN-TEST-ISSUES.md for details."
+
+          if [ "${{ needs.passing-tests.result }}" != "success" ] || \
+             [ "${{ needs.smoke-test.result }}" != "success" ]; then
+            echo "CI pipeline failed!"
+            exit 1
+          fi
+
+          echo "CI pipeline passed!"

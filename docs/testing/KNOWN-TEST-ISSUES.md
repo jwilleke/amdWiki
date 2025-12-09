@@ -1,13 +1,13 @@
 # Known Test Issues
 
-**Last Updated:** 2025-12-07 (Session 2025-12-07-04)
-**Test Status:** 37 failing suites, 30 passing suites, 67 total
+**Last Updated:** 2025-12-09 (Session 2025-12-09-01)
+**Test Status:** 26 failing suites, 41 passing suites, 67 total
 
 ## Overview
 
 This document tracks known test failures and the strategy for fixing them. Tests are fixed incrementally as related code is modified (Option C approach).
 
-Many failures are a result of Artitecutre changes from
+Many failures are a result of Architecture changes from
 
 - [Migrate to WikiDocument DOM-Based Parsing Architecture](https://github.com/jwilleke/amdWiki/issues/93)
 - [Refactor to use WikiContext as Single Source of Truth Throughout Application](https://github.com/jwilleke/amdWiki/issues/132)
@@ -16,15 +16,15 @@ Many failures are a result of Artitecutre changes from
 
 Current Results:
 
-- Test Suites: 40 failed, 27 passed, 67 total
-- Tests: 547 failed, 1 skipped, 1169 passed, 1717 total
+- Test Suites: 26 failed, 41 passed, 67 total
+- Tests: 345 failed, 6 skipped, 1359 passed, 1710 total
 - Coverage: Available via `npm run test:coverage`
 
 Progress:
 
 - ✅ Systematic blockers removed (import paths, missing deps)
 - ✅ Global test setup implemented (logger mocking, provider mocking)
-- ✅ 1221 tests passing (71% pass rate)
+- ✅ 1359 tests passing (79% pass rate)
 - ✅ WikiContext.test.js fixed (high-priority core component)
 - ✅ FilterChain.test.js fixed (quick win)
 - ✅ SchemaManager.test.js fixed (quick win)
@@ -35,8 +35,13 @@ Progress:
 - ✅ policy-system.test.js fixed (10 tests, CRITICAL security component)
 - ✅ ACLManager.test.js fixed (22 tests, CRITICAL security component)
 - ✅ SearchManager.test.js fixed (18 tests, HIGH priority core feature)
+- ✅ maintenance-mode.test.js fixed (12 tests, routes)
+- ✅ ExportManager.test.js fixed (25 tests)
+- ✅ PluginSyntaxHandler.test.js fixed (24 tests, pluginManager.execute mock)
+- ✅ WikiRoutes.attachments.test.js fixed (11 tests, req.userContext)
+- ✅ WikiRoutes.schema.test.js fixed (9 tests, simplified to unit tests)
 - 📋 PRIORITIZED-TEST-FIXES.md created (comprehensive fix plan)
-- 🔧 37 test suites with individual issues remaining
+- 🔧 26 test suites with individual issues remaining
 
 ## Categories of Failures
 
@@ -52,10 +57,10 @@ TypeError: Cannot read properties of null (reading 'getProperty')
 
 **Files Affected:**
 
-- ACLManager.test.js
-- WikiEngine.test.js
-- PageManager.test.js
-- UserManager.test.js
+- ~~ACLManager.test.js~~ ✅ Fixed
+- ~~WikiEngine.test.js~~ ✅ Fixed
+- ~~PageManager.test.js~~ ✅ Fixed
+- ~~UserManager.test.js~~ ✅ Fixed
 
 **Fix Strategy:** Add proper mocks for ConfigurationManager, engine dependencies
 
@@ -96,7 +101,7 @@ TypeError: NullCacheProvider is not a constructor
 
 - MarkupParser*.test.js (multiple files)
 - WikiTagHandler.test.js
-- PluginSyntaxHandler.test.js
+- ~~PluginSyntaxHandler.test.js~~ ✅ Fixed
 
 **Fix Strategy:** Provide minimal valid configurations in test setup
 
