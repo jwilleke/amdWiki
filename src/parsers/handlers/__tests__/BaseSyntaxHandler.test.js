@@ -170,8 +170,14 @@ describe('BaseSyntaxHandler', () => {
     test('should validate dependencies during initialization', async () => {
       const handler = new DependentHandler();
       const context = createMockContext();
-      
-      await expect(handler.initialize(context)).rejects.toThrow('requires TestManager manager');
+
+      // Implementation stores dependency errors rather than throwing
+      await handler.initialize(context);
+
+      // Check that dependency errors were recorded
+      expect(handler.dependencyErrors).toBeDefined();
+      expect(handler.dependencyErrors.length).toBeGreaterThan(0);
+      expect(handler.dependencyErrors[0].message).toContain('requires TestManager manager');
     });
 
     test('should initialize with valid dependencies', async () => {
@@ -429,11 +435,12 @@ describe('BaseSyntaxHandler', () => {
     });
 
     test('should clone handler with overrides', () => {
-      const handler = new TestHandler('Original', 200, { description: 'Original' });
-      
+      // TestHandler constructor: (priority = 100, options = {})
+      const handler = new TestHandler(200, { description: 'Original' });
+
       const cloneConfig = handler.clone({ priority: 300, description: 'Cloned' });
-      
-      expect(cloneConfig).toHaveProperty('handlerId', 'Original');
+
+      expect(cloneConfig).toHaveProperty('handlerId', 'TestHandler');
       expect(cloneConfig).toHaveProperty('priority', 300);
       expect(cloneConfig).toHaveProperty('description', 'Cloned');
       expect(cloneConfig.pattern).toBe(handler.pattern);
