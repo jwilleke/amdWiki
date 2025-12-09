@@ -82,20 +82,20 @@ See [docs/architecture/](./docs/architecture/) for comprehensive documentation.
 - Single source of truth for request/user context
 - Created per request with: context type, page name, user context, engine reference
 - Passed to managers, plugins, parsers, handlers
-- See: `src/context/WikiContext.js`
-
-#### Provider Pattern
-
-- Abstract provider interfaces (BasePageProvider, BaseUserProvider, etc.)
-- Concrete implementations (FileSystemPageProvider, FileUserProvider)
-- Enables storage backend swapping without manager changes
+- See: `docs/WikiContext-Complete-Guide.md`
 
 #### WikiDocument DOM Pipeline
 
 - Three-phase extraction: Extract JSPWiki → Create DOM Nodes → Merge with Markdown
 - Handler-based: DOMVariableHandler, DOMPluginHandler, DOMLinkHandler
 - No parsing conflicts between JSPWiki and Markdown syntax
-- See: `docs/architecture/WikiDocument-DOM-Architecture.md`
+- See: `docs/WikiDocument-Complete-Guide.md`
+
+#### Provider Pattern
+
+- Abstract provider interfaces (BasePageProvider, BaseUserProvider, etc.)
+- Concrete implementations (FileSystemPageProvider, FileUserProvider)
+- Enables storage backend swapping without manager changes
 
 #### Configuration System
 
