@@ -1,7 +1,7 @@
 # Known Test Issues
 
-**Last Updated:** 2025-12-09 (Session 2025-12-09-01)
-**Test Status:** 26 failing suites, 41 passing suites, 67 total
+**Last Updated:** 2025-12-09 (Session 2025-12-09-01, Updated)
+**Test Status:** 23 failing suites, 44 passing suites, 67 total
 
 ## Overview
 
@@ -16,15 +16,15 @@ Many failures are a result of Architecture changes from
 
 Current Results:
 
-- Test Suites: 26 failed, 41 passed, 67 total
-- Tests: 345 failed, 6 skipped, 1359 passed, 1710 total
+- Test Suites: 23 failed, 44 passed, 67 total
+- Tests: 337 failed, 6 skipped, 1367 passed, 1710 total
 - Coverage: Available via `npm run test:coverage`
 
 Progress:
 
 - ✅ Systematic blockers removed (import paths, missing deps)
 - ✅ Global test setup implemented (logger mocking, provider mocking)
-- ✅ 1359 tests passing (79% pass rate)
+- ✅ 1367 tests passing (80% pass rate)
 - ✅ WikiContext.test.js fixed (high-priority core component)
 - ✅ FilterChain.test.js fixed (quick win)
 - ✅ SchemaManager.test.js fixed (quick win)
@@ -40,8 +40,12 @@ Progress:
 - ✅ PluginSyntaxHandler.test.js fixed (24 tests, pluginManager.execute mock)
 - ✅ WikiRoutes.attachments.test.js fixed (11 tests, req.userContext)
 - ✅ WikiRoutes.schema.test.js fixed (9 tests, simplified to unit tests)
+- ✅ BaseSyntaxHandler.test.js fixed (32 tests, dependency validation)
+- ✅ HandlerRegistry.test.js fixed (36 tests, pattern/priority logic)
+- ✅ WikiTagHandler.test.js fixed (50 tests, nested tags/variables)
 - 📋 PRIORITIZED-TEST-FIXES.md created (comprehensive fix plan)
-- 🔧 26 test suites with individual issues remaining
+- 📋 ci-passing-tests.yml created (CI workflow excluding failing tests)
+- 🔧 23 test suites with individual issues remaining
 
 ## Categories of Failures
 
@@ -100,7 +104,7 @@ TypeError: NullCacheProvider is not a constructor
 **Files Affected:**
 
 - MarkupParser*.test.js (multiple files)
-- WikiTagHandler.test.js
+- ~~WikiTagHandler.test.js~~ ✅ Fixed
 - ~~PluginSyntaxHandler.test.js~~ ✅ Fixed
 
 **Fix Strategy:** Provide minimal valid configurations in test setup
