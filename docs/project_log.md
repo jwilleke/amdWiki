@@ -22,6 +22,27 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 
 ---
 
+## 2025-12-10-01
+
+- Agent: Gemini
+- Subject: WikiContext Documentation Update & Clarification
+- Key Decision: Updated WikiContext documentation to accurately reflect code implementation, especially regarding the decoupling of WikiContext instance from pageContext data passed to rendering pipeline components.
+- Work Done:
+  - Updated `docs/WikiContext-Complete-Guide.md`:
+    - Replaced existing 'Overview' with a new, more detailed summary.
+    - Added a new 'Architectural Note on Decoupling' section.
+    - Clarified the 'With MarkupParser' section to emphasize plain object passing.
+    - Clarified the introduction to the 'Integration with Managers' section.
+  - Updated `docs/WikiContext.md`:
+    - Replaced its content with a concise summary.
+    - Added a link to the `WikiContext-Complete-Guide.md` for full details.
+- Commits: (pending)
+- Files Modified:
+  - `docs/WikiContext-Complete-Guide.md`
+  - `docs/WikiContext.md`
+
+---
+
 ## 2025-12-09-01
 
 - Agent: Claude Code (Opus 4.5)
@@ -741,6 +762,7 @@ Created comprehensive GitHub Issue #168 documenting:
   - Missing K8s manifests
   - Single-stage build optimization needed
   - ConfigMap/Secret integration for K8s
+  - Missing K8s manifests
 - 3-phase implementation plan (Docker optimization, K8s manifests, optional enhancements)
 - Questions to resolve (scaling strategy, session storage, log management, image registry)
 
@@ -885,10 +907,10 @@ Testing Performed:
 
 - Fresh installation: Form submission, config creation, page copying, admin login
 - Partial recovery: State detection, recovery logic
-- Admin security: Hardcoded credentials, password hashing, login
-- Startup pages: All 42 pages copied correctly
+- Admin security: Hardcoded credentials verified, password properly hashed
+- Startup pages: All 42 pages copied with UUID names
 - Installation reset: Completion flag cleared, form accessible again
-- Email validation: Both standard and localhost formats accepted
+- Email validation: Both standard format and localhost format accepted
 - Form validation: Required fields and constraints enforced
 - Server process: Single instance enforcement (Issue #167)
 
@@ -1065,7 +1087,7 @@ Solution Implemented:
   - Changed from "Please reset before continuing" (blocking tone)
   - To "Complete the form below to finish the setup" (helpful tone)
 
-- Updated `views/install.ejs`:
+- Updated `views/install.ejs` - better UX for partial installations:
   - Changed "Reset Installation" from required button to optional link
   - Shows completed steps with checkmarks
   - Encourages user to just submit form again
