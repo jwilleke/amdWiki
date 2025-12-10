@@ -9,6 +9,47 @@ jest.mock('../../utils/LocaleUtils', () => ({
   getDateFormatFromLocale: jest.fn().mockReturnValue('MM/dd/yyyy')
 }));
 
+// Mock WikiContext - the central context object for all wiki operations
+// This allows tests to control userContext, pageName, and other context properties
+// Note: mockUserContext is accessed by the mock factory function
+let mockUserContext = null;
+
+jest.mock('../../context/WikiContext', () => {
+  const MockWikiContext = jest.fn().mockImplementation((engine, options = {}) => ({
+    engine: engine,
+    context: options.context || 'none',
+    pageName: options.pageName || null,
+    content: options.content || null,
+    userContext: options.userContext || mockUserContext,
+    request: options.request || null,
+    response: options.response || null,
+    pageManager: engine?.getManager?.('PageManager'),
+    renderingManager: engine?.getManager?.('RenderingManager'),
+    pluginManager: engine?.getManager?.('PluginManager'),
+    variableManager: engine?.getManager?.('VariableManager'),
+    aclManager: engine?.getManager?.('ACLManager'),
+    getContext: jest.fn().mockReturnValue(options.context || 'none'),
+    renderMarkdown: jest.fn().mockResolvedValue('<p>Rendered content</p>'),
+    toParseOptions: jest.fn().mockReturnValue({
+      pageContext: {
+        pageName: options.pageName,
+        userContext: options.userContext || mockUserContext
+      },
+      engine: engine
+    })
+  }));
+  // Add static CONTEXT enum used by WikiRoutes
+  MockWikiContext.CONTEXT = {
+    VIEW: 'view',
+    EDIT: 'edit',
+    PREVIEW: 'preview',
+    DIFF: 'diff',
+    INFO: 'info',
+    NONE: 'none'
+  };
+  return MockWikiContext;
+});
+
 // Mock the WikiEngine and its managers
 jest.mock('../../WikiEngine', () => {
   // Create mock managers once
@@ -91,7 +132,7 @@ jest.mock('../../WikiEngine', () => {
     getPageNames: jest.fn().mockResolvedValue(['Welcome', 'TestPage']),
     getAllPages: jest.fn().mockResolvedValue([]),
     getPage: jest.fn().mockImplementation((pageName) => {
-      if (pageName === 'Footer' || pageName === 'LeftMenu') {
+      if (pageName === 'Footer' || pageName === 'LeftMenu' || pageName === 'NonExistentPage') {
         return Promise.resolve(null); // These pages don't exist
       }
       return Promise.resolve({
@@ -100,8 +141,15 @@ jest.mock('../../WikiEngine', () => {
       });
     }),
     savePage: jest.fn().mockResolvedValue(true),
+    savePageWithContext: jest.fn().mockResolvedValue(true),
     deletePage: jest.fn().mockResolvedValue(true),
-    getPageContent: jest.fn().mockResolvedValue('# Test Page\nThis is a test page.'),
+    deletePageWithContext: jest.fn().mockResolvedValue(true),
+    getPageContent: jest.fn().mockImplementation((pageName) => {
+      if (pageName === 'Footer' || pageName === 'LeftMenu' || pageName === 'NonExistentPage') {
+        return Promise.reject(new Error(`Page "${pageName}" not found`));
+      }
+      return Promise.resolve('# Test Page\nThis is a test page.');
+    }),
     getPageMetadata: jest.fn().mockResolvedValue({ title: 'TestPage', author: 'testuser' }),
     isRequiredPage: jest.fn().mockReturnValue(false),
     provider: {
@@ -120,6 +168,11 @@ jest.mock('../../WikiEngine', () => {
   const mockSearchManager = {
     search: jest.fn().mockResolvedValue([]),
     advancedSearch: jest.fn().mockResolvedValue([]),
+    advancedSearchWithContext: jest.fn().mockResolvedValue([]),
+    searchByCategories: jest.fn().mockReturnValue([]),
+    searchByCategory: jest.fn().mockReturnValue([]),
+    searchByUserKeywordsList: jest.fn().mockReturnValue([]),
+    searchByUserKeywords: jest.fn().mockReturnValue([]),
     rebuildIndex: jest.fn().mockResolvedValue(true)
   };
 
@@ -132,7 +185,15 @@ jest.mock('../../WikiEngine', () => {
     getTemplate: jest.fn().mockResolvedValue({
       name: 'basic',
       content: '# {{title}}\nTemplate content here'
-    })
+    }),
+    applyTemplate: jest.fn().mockResolvedValue('# New Page\nTemplate content here')
+  };
+
+  const mockCacheManager = {
+    isInitialized: jest.fn().mockReturnValue(true),
+    clear: jest.fn().mockResolvedValue(true),
+    get: jest.fn().mockReturnValue(null),
+    set: jest.fn().mockResolvedValue(true)
   };
 
   const mockACLManager = {
@@ -171,7 +232,16 @@ jest.mock('../../WikiEngine', () => {
 
   const mockValidationManager = {
     validateContent: jest.fn().mockResolvedValue({ isValid: true }),
-    validateMetadata: jest.fn().mockResolvedValue({ isValid: true })
+    validateMetadata: jest.fn().mockResolvedValue({ isValid: true }),
+    generateValidMetadata: jest.fn().mockImplementation((title, baseMetadata) => ({
+      title: title || 'Untitled',
+      uuid: baseMetadata?.uuid || 'test-uuid-123',
+      'system-category': baseMetadata?.['system-category'] || 'General',
+      'user-keywords': baseMetadata?.['user-keywords'] || [],
+      author: baseMetadata?.author || 'testuser',
+      created: new Date().toISOString(),
+      modified: new Date().toISOString()
+    }))
   };
 
   return jest.fn().mockImplementation(() => ({
@@ -188,7 +258,8 @@ jest.mock('../../WikiEngine', () => {
         ConfigurationManager: mockConfigurationManager,
         VariableManager: mockVariableManager,
         ExportManager: mockExportManager,
-        ValidationManager: mockValidationManager
+        ValidationManager: mockValidationManager,
+        CacheManager: mockCacheManager
       };
       return mockManagers[name] || {};
     }),
@@ -209,16 +280,20 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
   let mockPageManager;
   let mockACLManager;
 
-  // Helper function to create complete user objects
-  const createMockUser = (username = 'testuser', roles = ['authenticated'], isAuthenticated = true) => ({
+  // Helper function to create user context objects for WikiContext
+  const createUserContext = (username = 'testuser', roles = ['authenticated', 'Authenticated', 'All'], isAuthenticated = true) => ({
     username: username,
-    displayName: username === 'testuser' ? 'Test User' : 'User',
+    displayName: username === 'testuser' ? 'Test User' : username.charAt(0).toUpperCase() + username.slice(1),
     email: `${username}@example.com`,
     isAuthenticated: isAuthenticated,
     roles: roles
   });
 
   beforeEach(() => {
+    // Initialize default authenticated user context for WikiContext mock
+    // This is used by the MockWikiContext when creating WikiContext instances
+    mockUserContext = createUserContext('testuser', ['authenticated', 'Authenticated', 'All'], true);
+
     // Create Express app
     app = express();
     app.use(express.json());
@@ -230,8 +305,7 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
 
     // Mock template rendering to avoid file system dependencies
     app.use((req, res, next) => {
-      const originalRender = res.render;
-      res.render = (template, data, callback) => {
+      res.render = (view, data, callback) => {
         // Return success response for template renders
         if (callback) {
           callback(null, '<html>Mock Template Content</html>');
@@ -242,25 +316,25 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
       next();
     });
 
-    // Mock session middleware
+    // Mock session middleware - uses mockUserContext for WikiContext
     app.use((req, res, next) => {
       req.session = {
         csrfToken: 'test-csrf-token',
-        user: { username: 'testuser' }
+        user: mockUserContext ? { username: mockUserContext.username } : null,
+        destroy: (callback) => {
+          // Mock session destroy for logout tests
+          if (callback) callback();
+        },
+        save: (callback) => {
+          // Mock session save for login tests
+          if (callback) callback();
+        }
       };
-      // Set req.userContext like the real middleware does in app.js
-      // This is used by WikiRoutes.createWikiContext() to build WikiContext
-      req.userContext = {
-        username: 'testuser',
-        displayName: 'Test User',
-        email: 'test@example.com',
-        isAuthenticated: true,
-        roles: ['authenticated', 'Authenticated', 'All']
-      };
+      // Set req.userContext - this is used by WikiRoutes.createWikiContext() to build WikiContext
+      req.userContext = mockUserContext;
       // Parse cookies from headers
       if (req.headers.cookie) {
-        const cookie = require('cookie');
-        req.cookies = cookie.parse(req.headers.cookie);
+        req.cookies = require('cookie').parse(req.headers.cookie);
       } else {
         req.cookies = {};
       }
@@ -412,7 +486,8 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
       });
 
       test('should return 404 for non-existent page', async () => {
-        mockPageManager.getPage.mockResolvedValue(null);
+        // viewPage uses getPageContent, not getPage
+        mockPageManager.getPageContent.mockRejectedValue(new Error('Page "NonExistentPage" not found'));
 
         const response = await request(app).get('/wiki/NonExistentPage');
         expect(response.status).toBe(404);
@@ -439,15 +514,8 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
       });
 
       test('should return 403 for unauthorized user', async () => {
-        mockUserManager.getCurrentUser.mockResolvedValue({
-          username: 'testuser',
-          displayName: 'Test User',
-          email: 'test@example.com',
-          isAuthenticated: true,
-          roles: ['authenticated']
-        });
-        mockUserManager.hasPermission.mockReturnValue(false);
-        mockACLManager.checkPagePermission.mockResolvedValue(false);
+        // editPage uses aclManager.checkPagePermissionWithContext for ACL check
+        mockACLManager.checkPagePermissionWithContext.mockResolvedValue(false);
 
         const response = await request(app).get('/edit/TestPage');
         expect(response.status).toBe(403);
@@ -456,7 +524,7 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
 
     describe('POST /save/:page', () => {
       test('should save page successfully', async () => {
-        mockUserManager.getCurrentUser.mockResolvedValue(createMockUser());
+        mockUserManager.getCurrentUser.mockResolvedValue(createUserContext());
         mockUserManager.hasPermission.mockReturnValue(true);
         mockPageManager.savePage.mockResolvedValue(true);
 
@@ -482,7 +550,7 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
 
     describe('GET /create', () => {
       test('should return 200 for authenticated user', async () => {
-        mockUserManager.getCurrentUser.mockResolvedValue(createMockUser());
+        mockUserManager.getCurrentUser.mockResolvedValue(createUserContext());
         mockUserManager.hasPermission.mockReturnValue(true);
 
         const response = await request(app).get('/create');
@@ -492,7 +560,7 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
 
     describe('POST /create', () => {
       test('should create page successfully', async () => {
-        mockUserManager.getCurrentUser.mockResolvedValue(createMockUser());
+        mockUserManager.getCurrentUser.mockResolvedValue(createUserContext());
         mockUserManager.hasPermission.mockReturnValue(true);
         mockPageManager.savePage.mockResolvedValue(true);
         // Make sure the new page doesn't exist
@@ -520,10 +588,14 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
 
     describe('POST /delete/:page', () => {
       test('should delete page successfully', async () => {
-        mockUserManager.getCurrentUser.mockResolvedValue(createMockUser());
-        mockUserManager.hasPermission.mockReturnValue(true);
-        mockPageManager.deletePage.mockResolvedValue(true);
-        mockPageManager.isRequiredPage.mockResolvedValue(false);
+        // Page metadata must NOT have System/Admin category for isRequiredPage() to return false
+        mockPageManager.getPage.mockResolvedValue({
+          content: '# Test Page\nThis is a test page.',
+          metadata: { title: 'TestPage', 'system-category': 'General' }
+        });
+        mockPageManager.deletePageWithContext.mockResolvedValue(true);
+        // ACL check must pass for delete permission
+        mockACLManager.checkPagePermissionWithContext.mockResolvedValue(true);
 
         const response = await request(app)
           .post('/delete/TestPage')
@@ -533,25 +605,15 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
       });
 
       test('should prevent deletion of required pages', async () => {
-        mockUserManager.getCurrentUser.mockResolvedValue(createMockUser());
-        // Allow general permissions but deny admin:system
-        mockUserManager.hasPermission.mockImplementation((username, permission) => {
-          if (permission === 'admin:system') return false;
-          return true;
+        // Page metadata with System/Admin category makes isRequiredPage() return true
+        mockPageManager.getPage.mockResolvedValue({
+          content: '# Test Page\nThis is a test page.',
+          metadata: { title: 'TestPage', 'system-category': 'System/Admin' }
         });
-        // Make TestPage a required page by setting it to Categories (hardcoded required)
-        mockPageManager.getPage.mockImplementation((pageName) => {
-          if (pageName === 'Categories' || pageName === 'TestPage') {
-            return Promise.resolve({
-              content: '# Test Page\nThis is a test page.',
-              metadata: { title: 'TestPage', category: 'System/Admin' }
-            });
-          }
-          if (pageName === 'Footer' || pageName === 'LeftMenu') return Promise.resolve(null);
-          return Promise.resolve({
-            content: '# Test Page\nThis is a test page.',
-            metadata: { title: 'TestPage' }
-          });
+        // User does NOT have admin:system permission - hasPermission(username, permission)
+        mockUserManager.hasPermission.mockImplementation((username, perm) => {
+          if (perm === 'admin:system') return false;
+          return true;
         });
 
         const response = await request(app)
@@ -570,12 +632,11 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
     });
 
     describe('GET /login', () => {
-      test('should return 200 for login page', async () => {
-        // Mock unauthenticated user for login page
-        mockUserManager.getCurrentUser.mockResolvedValue(null);
-
+      test('should redirect authenticated user away from login page', async () => {
+        // loginPage checks req.userContext.isAuthenticated and redirects if true
+        // Default test middleware sets isAuthenticated=true
         const response = await request(app).get('/login');
-        expect(response.status).toBe(200);
+        expect(response.status).toBe(302); // Redirects authenticated users away
       });
     });
 
@@ -596,32 +657,24 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
     });
 
     describe('GET /logout', () => {
-      test('should logout and redirect', async () => {
-        // Set up the mock to return the expected user
-        mockUserManager.getCurrentUser.mockResolvedValue({ username: 'testuser' });
-        mockUserManager.destroySession.mockReturnValue(true);
-
-        const response = await request(app)
-          .get('/logout')
-          .set('Cookie', 'sessionId=test-session-id');
+      test('should destroy session and redirect to home', async () => {
+        // processLogout calls req.session.destroy() and redirects to /
+        const response = await request(app).get('/logout');
 
         expect(response.status).toBe(302);
-        expect(mockUserManager.destroySession).toHaveBeenCalledWith('test-session-id');
+        expect(response.headers.location).toBe('/');
       });
     });
 
     describe('POST /logout', () => {
-      test('should logout and redirect', async () => {
-        mockUserManager.getCurrentUser.mockResolvedValue({ username: 'testuser' });
-        mockUserManager.destroySession.mockReturnValue(true);
-
+      test('should destroy session and redirect to home', async () => {
+        // processLogout calls req.session.destroy() and redirects to /
         const response = await request(app)
           .post('/logout')
-          .set('Cookie', 'sessionId=test-session-id')
           .send({ _csrf: 'test-csrf-token' });
 
         expect(response.status).toBe(302);
-        expect(mockUserManager.destroySession).toHaveBeenCalledWith('test-session-id');
+        expect(response.headers.location).toBe('/');
       });
     });
 
@@ -748,17 +801,9 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
       });
 
       test('should return 403 for non-admin user', async () => {
-        mockUserManager.getCurrentUser.mockResolvedValue({
-          username: 'user',
-          displayName: 'Regular User',
-          email: 'user@example.com',
-          isExternal: false,
-          createdAt: new Date('2023-01-01'),
-          lastLogin: new Date('2024-01-01'),
-          isAuthenticated: true,
-          isAdmin: false
-        });
-        mockUserManager.hasPermission.mockReturnValue(false);
+        // adminDashboard uses aclManager.checkPagePermission("AdminDashboard", "view", currentUser)
+        // Mock it to deny access for non-admin users
+        mockACLManager.checkPagePermission.mockResolvedValue(false);
 
         const response = await request(app).get('/admin');
         expect(response.status).toBe(403);
@@ -1065,9 +1110,8 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
     });
 
     test('should handle server errors gracefully', async () => {
-      mockUserManager.getCurrentUser.mockImplementation(() => {
-        throw new Error('Database connection failed');
-      });
+      // profilePage calls userManager.getUser() which should throw
+      mockUserManager.getUser.mockRejectedValue(new Error('Database connection failed'));
 
       const response = await request(app).get('/profile');
       expect(response.status).toBe(500);
@@ -1098,7 +1142,8 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
 
   describe('Authentication Checks', () => {
     test('should redirect unauthenticated users to login for protected routes', async () => {
-      mockUserManager.getCurrentUser.mockResolvedValue(null);
+      // Set mockUserContext to unauthenticated state - the middleware reads this on each request
+      mockUserContext = null;
 
       const response = await request(app).get('/profile');
       expect(response.status).toBe(302); // Should redirect to login

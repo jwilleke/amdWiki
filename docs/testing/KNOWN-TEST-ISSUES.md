@@ -1,7 +1,7 @@
 # Known Test Issues
 
-**Last Updated:** 2025-12-09 (Session 2025-12-09-01, Updated)
-**Test Status:** 23 failing suites, 44 passing suites, 67 total
+**Last Updated:** 2025-12-10 (Session 2025-12-10-01)
+**Test Status:** 22 failing suites, 45 passing suites, 67 total
 
 ## Overview
 
@@ -16,8 +16,8 @@ Many failures are a result of Architecture changes from
 
 Current Results:
 
-- Test Suites: 23 failed, 44 passed, 67 total
-- Tests: 337 failed, 6 skipped, 1367 passed, 1710 total
+- Test Suites: 22 failed, 45 passed, 67 total
+- Tests: ~330 failed, 6 skipped, ~1374 passed, 1710 total
 - Coverage: Available via `npm run test:coverage`
 
 Progress:
@@ -43,9 +43,10 @@ Progress:
 - ✅ BaseSyntaxHandler.test.js fixed (32 tests, dependency validation)
 - ✅ HandlerRegistry.test.js fixed (36 tests, pattern/priority logic)
 - ✅ WikiTagHandler.test.js fixed (50 tests, nested tags/variables)
+- ✅ routes.test.js fixed (45 tests, WikiContext/userContext mocking)
 - 📋 PRIORITIZED-TEST-FIXES.md created (comprehensive fix plan)
 - 📋 ci-passing-tests.yml created (CI workflow excluding failing tests)
-- 🔧 23 test suites with individual issues remaining
+- 🔧 22 test suites with individual issues remaining
 
 ## Categories of Failures
 
