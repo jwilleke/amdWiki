@@ -48,6 +48,7 @@ WikiContext is the central orchestrator for wiki content rendering in amdWiki, i
 | **Integration** | ✅ Production | Active | In use across all routes |
 
 **Status:**
+
 - ✅ Fully implemented and tested
 - ✅ Production-ready since October 2025
 - ✅ Active in all rendering paths
@@ -145,6 +146,7 @@ const html = await context.renderMarkdown();
 ```
 
 **Benefits:**
+
 1. **Cleaner APIs** - Single parameter instead of many
 2. **Easier testing** - Mock one object instead of many parameters
 3. **Better maintainability** - Add new context without changing signatures
@@ -183,10 +185,12 @@ const context = new WikiContext(engine, options);
 ```
 
 **Parameters:**
+
 - `engine` (WikiEngine) - Required. The wiki engine instance
 - `options` (Object) - Configuration options
 
 **Options:**
+
 - `context` (string) - Context type (VIEW, EDIT, PREVIEW, etc.)
 - `pageName` (string) - Name of the page
 - `content` (string) - Page content (markdown)
@@ -195,6 +199,7 @@ const context = new WikiContext(engine, options);
 - `response` (Object) - Express response object
 
 **Example:**
+
 ```javascript
 const WikiContext = require('./src/context/WikiContext');
 
@@ -213,6 +218,7 @@ const context = new WikiContext(engine, {
 ```
 
 **Throws:**
+
 - `Error` if engine is not provided
 
 ### Context Type Constants
@@ -229,6 +235,7 @@ WikiContext.CONTEXT = {
 ```
 
 **Usage:**
+
 ```javascript
 const context = new WikiContext(engine, {
     context: WikiContext.CONTEXT.EDIT,
@@ -276,6 +283,7 @@ const contextType = context.getContext();
 ```
 
 **Example:**
+
 ```javascript
 if (context.getContext() === WikiContext.CONTEXT.EDIT) {
     console.log('User is editing the page');
@@ -291,12 +299,15 @@ async renderMarkdown(content = this.content): Promise<string>
 ```
 
 **Parameters:**
+
 - `content` (string, optional) - Content to render. Defaults to `this.content`
 
 **Returns:**
+
 - `Promise<string>` - Rendered HTML
 
 **Example:**
+
 ```javascript
 // Render stored content
 const html = await context.renderMarkdown();
@@ -329,6 +340,7 @@ See also: [HomePage]
    - Basic rendering without plugins
 
 **Logging:**
+
 - Logs parser availability
 - Logs content length
 - Logs result length
@@ -343,9 +355,11 @@ toParseOptions(): Object
 ```
 
 **Returns:**
+
 - Object with `pageContext` and `engine` properties
 
 **Structure:**
+
 ```javascript
 {
     pageContext: {
@@ -364,6 +378,7 @@ toParseOptions(): Object
 ```
 
 **Example:**
+
 ```javascript
 const options = context.toParseOptions();
 
@@ -373,6 +388,7 @@ const html = await parser.parse(content, options);
 ```
 
 **Use Cases:**
+
 - Custom parsing with MarkupParser
 - Testing with specific options
 - Debugging parse options
@@ -927,6 +943,7 @@ WikiContext is designed to be lightweight and performant:
 ### Optimization Tips
 
 **Good:**
+
 ```javascript
 // Reuse context for multiple operations
 const context = new WikiContext(engine, options);
@@ -935,6 +952,7 @@ const html2 = await context.renderMarkdown(content2);
 ```
 
 **Avoid:**
+
 ```javascript
 // Don't create multiple contexts unnecessarily
 for (const content of contents) {
@@ -952,6 +970,7 @@ for (const content of contents) {
 If you're migrating from inline regex processing:
 
 **Before:**
+
 ```javascript
 function renderMarkdown(content, pageName) {
     let result = content;
@@ -970,6 +989,7 @@ function renderMarkdown(content, pageName) {
 ```
 
 **After:**
+
 ```javascript
 async function renderMarkdown(content, pageName, userContext) {
     const context = new WikiContext(engine, {
@@ -985,6 +1005,7 @@ async function renderMarkdown(content, pageName, userContext) {
 ### From Legacy RenderingManager
 
 **Before:**
+
 ```javascript
 const html = await renderingManager.renderMarkdown(
     content,
@@ -995,6 +1016,7 @@ const html = await renderingManager.renderMarkdown(
 ```
 
 **After:**
+
 ```javascript
 const context = new WikiContext(engine, {
     pageName: pageName,
@@ -1012,41 +1034,45 @@ const html = await context.renderMarkdown();
 
 ### Common Issues
 
-**Issue 1: "WikiContext requires a valid WikiEngine instance"**
+#### Issue 1: "WikiContext requires a valid WikiEngine instance"**
 
 Symptom: Error thrown on creation
 
 Solution:
+
 ```javascript
 // Ensure engine is provided
 const context = new WikiContext(engine, options); // engine must not be null
 ```
 
-**Issue 2: Fallback rendering always used**
+#### Issue 2: Fallback rendering always used**
 
 Symptom: Logs show "Using fallback renderer"
 
 Solution: Check that MarkupParser is initialized:
+
 ```javascript
 const parser = engine.getManager('MarkupParser');
 console.log('Parser available:', !!parser);
 console.log('Parser initialized:', parser?.isInitialized());
 ```
 
-**Issue 3: Variables not expanded**
+#### Issue 3: Variables not expanded**
 
 Symptom: `[{$pagename}]` appears literally in output
 
 Solution: Check VariableManager is available:
+
 ```javascript
 console.log('VariableManager:', !!context.variableManager);
 ```
 
-**Issue 4: Request info missing**
+#### Issue 4: Request info missing**
 
 Symptom: `toParseOptions()` has undefined request info
 
 Solution: Ensure request object is passed:
+
 ```javascript
 const context = new WikiContext(engine, {
     pageName: 'Main',
@@ -1072,13 +1098,13 @@ logger.debug(`[CTX] Managers: ${Object.keys(this).filter(k => k.includes('Manage
 
 **Core Documentation:**
 
-1. [docs/WikiContext.md](WikiContext.md) - Original WikiContext documentation
-2. [docs/architecture/Current-Rendering-Pipeline.md](architecture/Current-Rendering-Pipeline.md) - How WikiContext fits in the rendering pipeline
+- [docs/WikiContext.md](WikiContext.md) - Original WikiContext documentation
+- [docs/architecture/Current-Rendering-Pipeline.md](architecture/Current-Rendering-Pipeline.md) - How WikiContext fits in the rendering pipeline
 
 **Architecture Documentation:**
 
-3. [ARCHITECTURE.md](../ARCHITECTURE.md) - Overall amdWiki architecture including WikiContext
-4. [docs/WikiDocument-Complete-Guide.md](WikiDocument-Complete-Guide.md) - WikiDocument (used internally by MarkupParser)
+- [ARCHITECTURE.md](../ARCHITECTURE.md) - Overall amdWiki architecture including WikiContext
+- [docs/WikiDocument-Complete-Guide.md](WikiDocument-Complete-Guide.md) - WikiDocument (used internally by MarkupParser)
 
 **Related GitHub Issues:**
 
@@ -1106,6 +1132,7 @@ WikiContext and WikiDocument serve different purposes at different layers:
   - Short-lived (within parse operation)
 
 **Flow:**
+
 ```
 Request → WikiRoutes creates WikiContext
               ↓
@@ -1127,10 +1154,12 @@ Request → WikiRoutes creates WikiContext
 ### Source Code
 
 **Core Implementation:**
+
 - `src/context/WikiContext.js` - WikiContext class (192 lines)
 - `src/context/__tests__/WikiContext.test.js` - Unit tests (182 lines, 12 tests)
 
 **Integration Points:**
+
 - `src/routes/WikiRoutes.js` - Creates WikiContext per request
 - `src/managers/RenderingManager.js` - Uses WikiContext options
 - `src/parsers/MarkupParser.js` - Receives options from WikiContext
@@ -1148,6 +1177,7 @@ WikiContext is the central orchestrator for wiki rendering in amdWiki:
 ✅ **Actively Used** - In production since October 2025
 
 **Key Benefits:**
+
 - Simplifies API signatures (single context object vs many parameters)
 - Encapsulates all request-scoped information
 - Provides fallback rendering when managers unavailable
@@ -1155,6 +1185,7 @@ WikiContext is the central orchestrator for wiki rendering in amdWiki:
 - Follows JSPWiki's TranslatorReader pattern
 
 **Best Practices:**
+
 - Create one WikiContext per request
 - Pass to all managers and handlers
 - Use context types appropriately (VIEW, EDIT, etc.)
@@ -1162,6 +1193,7 @@ WikiContext is the central orchestrator for wiki rendering in amdWiki:
 - Mock WikiContext for testing
 
 **Version History:**
+
 - v1.0.0 (Oct 2025) - Initial implementation with full manager integration
 - Current (Dec 2025) - Production-ready, 100% test coverage
 

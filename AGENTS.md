@@ -79,12 +79,16 @@ See [docs/architecture/](./docs/architecture/) for comprehensive documentation.
 
 #### WikiContext Pattern
 
+WikiContext should always be used.
+
 - Single source of truth for request/user context
 - Created per request with: context type, page name, user context, engine reference
 - Passed to managers, plugins, parsers, handlers
 - See: `docs/WikiContext-Complete-Guide.md`
 
 #### WikiDocument DOM Pipeline
+
+WikiDocument should always be used.
 
 - Three-phase extraction: Extract JSPWiki → Create DOM Nodes → Merge with Markdown
 - Handler-based: DOMVariableHandler, DOMPluginHandler, DOMLinkHandler
