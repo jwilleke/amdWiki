@@ -1,3 +1,6 @@
+> **ARCHIVED**: This document is for historical purposes only. For the current and complete documentation, please see **[WikiDocument Complete Guide](../WikiDocument-Complete-Guide.md)**.
+
+
 # WikiDocument API Reference
 
 **Version:** 1.0.0

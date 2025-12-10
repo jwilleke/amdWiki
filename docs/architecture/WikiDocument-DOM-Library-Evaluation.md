@@ -1,3 +1,6 @@
+> **ARCHIVED**: This document is for historical purposes only. For the current and complete documentation, please see **[WikiDocument Complete Guide](../WikiDocument-Complete-Guide.md)**.
+
+
 # WikiDocument DOM Library Evaluation
 
 **Date:** 2025-10-12

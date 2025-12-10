@@ -1274,3 +1274,4 @@ Subject: AGENTS.md implementation and project_log.md creation
   - Verify users.json and users/persons.json both contain admin account after install
   - Test installation reset workflow
   - Consider adding integration tests for install flow
+  
