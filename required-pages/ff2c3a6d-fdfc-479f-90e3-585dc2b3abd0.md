@@ -29,25 +29,31 @@ The **CounterPlugin** maintains page-specific counters that increment each time 
 ## Quick Examples
 
 ### Basic Counter
+
 ```
 [{Counter}]
 [{Counter}]
 [{Counter}]
 ```
+
 **Output:** 1, 2, 3
 
 ### Named Counter
+
 ```
 [{Counter name='chapter'}]
 [{Counter name='chapter'}]
 ```
+
 **Output:** 1, 2 (separate from default counter)
 
 ### Custom Increment
+
 ```
 [{Counter increment='5'}]
 [{Counter increment='5'}]
 ```
+
 **Output:** 5, 10
 
 ## Parameters
@@ -62,6 +68,7 @@ The **CounterPlugin** maintains page-specific counters that increment each time 
 ## Use Cases
 
 ### Numbered Lists with Custom Formatting
+
 ```
 [{Counter start='1'}]. Introduction
 [{Counter}]. Background
@@ -70,6 +77,7 @@ The **CounterPlugin** maintains page-specific counters that increment each time 
 ```
 
 ### Multiple Counter Hierarchies
+
 ```
 # Section [{Counter name='section'}]
 ## Subsection [{Counter name='subsection'}].1
@@ -81,11 +89,13 @@ The **CounterPlugin** maintains page-specific counters that increment each time 
 ```
 
 ### Countdown with Negative Increment
+
 ```
 [{Counter name='countdown' start='10'}]
 [{Counter name='countdown' increment='-1'}]
 [{Counter name='countdown' increment='-1'}]
 ```
+
 **Output:** 10, 9, 8
 
 ## Accessing Counter Values as Variables
