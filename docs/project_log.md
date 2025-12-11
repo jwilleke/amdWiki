@@ -22,6 +22,22 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 
 ---
 
+## 2025-12-11-01
+
+- Agent: Claude Code (Opus 4.5)
+- Subject: Move documentation pages to required-pages with frontmatter
+- Key Decision: Documentation pages with wiki markup belong in required-pages/ (for startup copying), not docs/developer/ (for GitHub markdown documentation)
+- Work Done:
+  - Moved 8 documentation pages from docs/developer/ to required-pages/
+  - All pages already had proper frontmatter (title, uuid, system-category, etc.)
+  - Pages moved: Asset, Documentation for Developers, Roles, System Pages, Permissions, Resource, User Documentation Pages, Future Enhancement
+- Commits: (pending)
+- Files Modified:
+  - Deleted from docs/developer/: 8 .md files
+  - Added to required-pages/: 8 .md files (same UUIDs preserved)
+
+---
+
 ## 2025-12-10-01
 
 - Agent: Gemini
