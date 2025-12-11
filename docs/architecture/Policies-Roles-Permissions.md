@@ -22,16 +22,19 @@ amdWiki uses a **Policy-Based Access Control (PBAC)** system inspired by JSPWiki
 The PolicyEvaluator is the central component that evaluates access requests against defined policies.
 
 **Key Method:**
+
 ```javascript
 async evaluateAccess(context)
 ```
 
 **Parameters:**
+
 - `context.pageName` - The page being accessed
 - `context.action` - The action being performed (e.g., `page:read`, `admin:users`)
 - `context.userContext` - User information including username, roles, and authentication status
 
 **Returns:**
+
 ```javascript
 {
   hasDecision: boolean,  // Whether a policy matched
@@ -68,6 +71,7 @@ Policies are defined in `config/app-default-config.json` under `amdwiki.access.p
 ```
 
 **Policy Fields:**
+
 - `id` - Unique identifier
 - `name` - Human-readable name
 - `description` - Purpose of the policy
@@ -82,6 +86,7 @@ Policies are defined in `config/app-default-config.json` under `amdwiki.access.p
 Roles are assigned to users and define their capabilities through policies.
 
 **Built-in Roles:**
+
 - `admin` - Full system access (priority 100)
 - `editor` - Can create, edit, and delete pages (priority 80)
 - `contributor` - Can create and edit pages (priority 70)
@@ -89,6 +94,7 @@ Roles are assigned to users and define their capabilities through policies.
 - `anonymous` - Unauthenticated users (priority 50)
 
 **Special Roles:**
+
 - `Authenticated` - Automatically added to all logged-in users
 - `All` - Automatically added to everyone (including anonymous)
 
@@ -97,6 +103,7 @@ Roles are assigned to users and define their capabilities through policies.
 Actions are namespaced strings representing operations:
 
 **Page Permissions:**
+
 - `page:read` - View pages
 - `page:edit` - Modify existing pages
 - `page:create` - Create new pages
@@ -104,17 +111,21 @@ Actions are namespaced strings representing operations:
 - `page:rename` - Rename pages
 
 **Attachment Permissions:**
+
 - `attachment:upload` - Upload file attachments
 - `attachment:delete` - Delete attachments
 
 **Export Permissions:**
+
 - `export:pages` - Export pages to various formats
 
 **Search Permissions:**
+
 - `search:all` - Search all content
 - `search:restricted` - Search restricted/private content
 
 **Admin Permissions:**
+
 - `admin:users` - Manage users
 - `admin:roles` - Manage roles and permissions
 - `admin:config` - Modify system configuration
@@ -125,12 +136,14 @@ Actions are namespaced strings representing operations:
 The system includes 7 default policies defined in `config/app-default-config.json`:
 
 ### 1. admin-full-access (Priority 100)
+
 - **Subject:** admin role
 - **Actions:** All 14 permissions
 - **Effect:** Allow
 - Administrators have unrestricted access to all features.
 
 ### 2. deny-anonymous-system-pages (Priority 90)
+
 - **Subject:** anonymous role
 - **Resources:** Pages matching `*Admin*`, `*System*`, `*Config*`
 - **Actions:** All
@@ -138,30 +151,35 @@ The system includes 7 default policies defined in `config/app-default-config.jso
 - Prevents anonymous users from accessing system/admin pages.
 
 ### 3. editor-permissions (Priority 80)
+
 - **Subject:** editor role
 - **Actions:** 9 page permissions (read, edit, create, delete, rename, upload, export, search)
 - **Effect:** Allow
 - Editors can manage content but not administer the system.
 
 ### 4. contributor-permissions (Priority 70)
+
 - **Subject:** contributor role
 - **Actions:** 6 permissions (read, edit, create, upload, search all)
 - **Effect:** Allow
 - Contributors can create and edit but not delete content.
 
 ### 5. reader-permissions (Priority 60)
+
 - **Subject:** reader role
 - **Actions:** 3 permissions (read, search all, search restricted)
 - **Effect:** Allow
 - Readers have read-only access to all content.
 
 ### 6. anonymous-read-only (Priority 50)
+
 - **Subject:** anonymous role
 - **Actions:** page:read only
 - **Effect:** Allow
 - Anonymous users can view non-system pages.
 
 ### 7. default-view-for-all (Priority 1)
+
 - **Subject:** All role
 - **Actions:** page:read
 - **Effect:** Allow
@@ -174,6 +192,7 @@ The system includes 7 default policies defined in `config/app-default-config.jso
    - ACLManager loads policies into PolicyEvaluator
 
 2. **Access Check Flow:**
+
    ``` text
    User Request → ACLManager.checkPagePermission()
                 ↓
@@ -197,6 +216,7 @@ The system includes 7 default policies defined in `config/app-default-config.jso
 
 4. **Action Name Mapping:**
    Legacy action names are mapped to policy actions in ACLManager:
+
    ```javascript
    const actionMap = {
      'view': 'page:read',
@@ -264,6 +284,7 @@ async checkPagePermission(pageName, action, userContext, pageContent) {
 User contexts are built consistently across the system:
 
 **Anonymous Users:**
+
 ```javascript
 {
   username: 'Anonymous',
@@ -273,6 +294,7 @@ User contexts are built consistently across the system:
 ```
 
 **Authenticated Users:**
+
 ```javascript
 {
   username: 'jim',

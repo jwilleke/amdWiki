@@ -7,34 +7,41 @@ amdWiki follows a modular manager pattern where each manager handles a specific 
 ## Core Managers (18 total)
 
 ### Content & Page Management
+
 - **PageManager** - Handles page storage, retrieval, and metadata management
 - **AttachmentManager** - Manages file attachments for pages
 - **ExportManager** - Handles page export functionality
 
 ### User & Authentication
+
 - **UserManager** - Manages user authentication, sessions, and roles
 - **ACLManager** - Access Control List system for page permissions
 
 ### Content Processing
+
 - **RenderingManager** - Processes Markdown and JSPWiki syntax
 - **PluginManager** - Manages and executes wiki plugins
 - **TemplateManager** - Handles EJS templates and theming
 
 ### Search & Discovery
+
 - **SearchManager** - Full-text search using Lunr.js
 - **SchemaManager** - Manages Schema.org structured data
 
 ### Policy & Security
+
 - **PolicyManager** - Loads and manages access policies
 - **PolicyEvaluator** - Evaluates policy-based access control
 - **PolicyValidator** - Validates policy configurations
 - **AuditManager** - Logs access decisions and security events
 
 ### Configuration & Variables
+
 - **ConfigurationManager** - JSPWiki-compatible configuration management with property merging
 - **VariableManager** - System and contextual variable expansion similar to JSPWiki's DefaultVariableManager
 
 ### System & Validation
+
 - **ValidationManager** - Validates page metadata and content
 - **NotificationManager** - Handles system notifications
 
@@ -62,13 +69,16 @@ Managers are initialized in dependency order to ensure proper system startup:
 ## Manager Architecture
 
 ### BaseManager Pattern
+
 All managers extend `BaseManager.js` which provides:
+
 - Common initialization lifecycle
 - Engine reference management
 - Error handling patterns
 - Configuration access
 
 ### Registration Pattern
+
 ```javascript
 // In WikiEngine.js
 this.registerManager('ManagerName', new ManagerName(this));
@@ -76,7 +86,9 @@ await manager.initialize(config);
 ```
 
 ### Dependency Injection
+
 Managers access each other through the engine:
+
 ```javascript
 const userManager = this.engine.getManager('UserManager');
 ```

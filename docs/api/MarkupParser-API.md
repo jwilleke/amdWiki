@@ -32,6 +32,7 @@ const html = await parser.parse(content, {
 ### Parser Selection
 
 **config/app-default-config.json:**
+
 ```json
 {
   "jspwiki.parser.useExtractionPipeline": true  // Default: use new pipeline
@@ -39,6 +40,7 @@ const html = await parser.parse(content, {
 ```
 
 **Options:**
+
 - `true` (default): Use WikiDocument DOM extraction pipeline
 - `false`: Use legacy 7-phase pipeline
 
@@ -49,6 +51,7 @@ const html = await parser.parse(content, {
 Main entry point for parsing. Automatically selects the appropriate pipeline based on configuration.
 
 **Parameters:**
+
 - `content` (string): Raw wiki markup to parse
 - `context` (Object): Rendering context
   - `pageName` (string): Name of the page being rendered
@@ -58,6 +61,7 @@ Main entry point for parsing. Automatically selects the appropriate pipeline bas
 **Returns:** `Promise<string>` - Rendered HTML
 
 **Behavior:**
+
 1. Checks configuration for `jspwiki.parser.useExtractionPipeline`
 2. Routes to `parseWithDOMExtraction()` if enabled (default)
 3. Falls back to legacy parser if disabled or on error
@@ -65,6 +69,7 @@ Main entry point for parsing. Automatically selects the appropriate pipeline bas
 5. Tracks metrics and performance
 
 **Example:**
+
 ```javascript
 const html = await parser.parse('## Welcome\n\nHello [{$username}]!', {
   pageName: 'Welcome',
@@ -84,18 +89,21 @@ const html = await parser.parse('## Welcome\n\nHello [{$username}]!', {
 Parses wiki markup using the WikiDocument DOM extraction pipeline. This is the primary parsing method that fixes the markdown heading bug and provides robust JSPWiki syntax processing.
 
 **Parameters:**
+
 - `content` (string): Wiki markup content to parse
 - `context` (Object): Rendering context
 
 **Returns:** `Promise<string>` - Rendered HTML
 
 **Pipeline Steps:**
+
 1. Extract JSPWiki syntax (`extractJSPWikiSyntax()`)
 2. Create WikiDocument DOM nodes (`createDOMNode()`)
 3. Parse markdown with Showdown
 4. Merge DOM nodes into HTML (`mergeDOMNodes()`)
 
 **Example:**
+
 ```javascript
 const content = `
 ## Features
@@ -112,6 +120,7 @@ const html = await parser.parseWithDOMExtraction(content, {
 ```
 
 **Features:**
+
 - No markdown/JSPWiki conflicts
 - Correct heading rendering
 - Code block protection
@@ -119,6 +128,7 @@ const html = await parser.parseWithDOMExtraction(content, {
 - Nested syntax handling
 
 **Performance:**
+
 - Typical page: <50ms
 - Large page (5KB): <100ms
 - Cache integrated
@@ -132,21 +142,25 @@ const html = await parser.parseWithDOMExtraction(content, {
 Extracts JSPWiki syntax elements from content before markdown parsing. Replaces JSPWiki syntax with HTML comment placeholders to prevent markdown interference.
 
 **Parameters:**
+
 - `content` (string): Raw wiki markup
 - `context` (Object): Rendering context (optional)
 
 **Returns:** `Object`
+
 - `sanitized` (string): Content with placeholders
 - `jspwikiElements` (Array): Extracted elements with metadata
 - `uuid` (string): Unique identifier for this extraction
 
 **Extracted Elements:**
+
 - **Variables**: `[{$varname}]`
 - **Plugins**: `[{PluginName param="value"}]`
 - **Wiki Links**: `[PageName]` or `[Text|PageName]`
 - **Escaped Syntax**: `[[{$var}]` → literal `[{$var}]`
 
 **Example:**
+
 ```javascript
 const { sanitized, jspwikiElements, uuid } = parser.extractJSPWikiSyntax(
   'User: [{$username}] on [HomePage]',
@@ -162,6 +176,7 @@ const { sanitized, jspwikiElements, uuid } = parser.extractJSPWikiSyntax(
 ```
 
 **Features:**
+
 - **Code Block Protection**: JSPWiki syntax in `` ` `` or ``` blocks not extracted
 - **UUID-based Placeholders**: Prevents conflicts with user content
 - **HTML Comment Format**: `<!--JSPWIKI-uuid-id-->` preserved by Showdown
@@ -176,6 +191,7 @@ const { sanitized, jspwikiElements, uuid } = parser.extractJSPWikiSyntax(
 Creates a WikiDocument DOM node from an extracted JSPWiki element. Routes to appropriate handler based on element type.
 
 **Parameters:**
+
 - `element` (Object): Extracted element from `extractJSPWikiSyntax()`
   - `type` (string): 'variable', 'plugin', 'link', or 'escaped'
   - `id` (number): Element ID for placeholder matching
@@ -186,12 +202,14 @@ Creates a WikiDocument DOM node from an extracted JSPWiki element. Routes to app
 **Returns:** `Promise<Element>` - WikiDocument DOM node
 
 **Element Types:**
+
 - **variable**: Routes to `DOMVariableHandler.createNodeFromExtract()`
 - **plugin**: Routes to `DOMPluginHandler.createNodeFromExtract()`
 - **link**: Routes to `DOMLinkHandler.createNodeFromExtract()`
 - **escaped**: Creates text node with literal content
 
 **Example:**
+
 ```javascript
 const WikiDocument = require('./dom/WikiDocument');
 const wikiDocument = new WikiDocument();
@@ -208,6 +226,7 @@ const node = await parser.createDOMNode(element, context, wikiDocument);
 ```
 
 **Error Handling:**
+
 - Returns error node on failure
 - Logs error message
 - Parsing continues for other elements
@@ -221,6 +240,7 @@ const node = await parser.createDOMNode(element, context, wikiDocument);
 Merges WikiDocument DOM nodes back into Showdown-generated HTML by replacing placeholders with rendered nodes.
 
 **Parameters:**
+
 - `html` (string): Showdown-generated HTML with placeholders
 - `nodes` (Array<Element>): Array of WikiDocument DOM nodes
 - `uuid` (string): UUID from extraction (for placeholder matching)
@@ -228,12 +248,14 @@ Merges WikiDocument DOM nodes back into Showdown-generated HTML by replacing pla
 **Returns:** `string` - Final HTML with nodes merged
 
 **Algorithm:**
+
 1. Sort nodes by ID in descending order (handles nested syntax)
 2. For each node, find its placeholder `<!--JSPWIKI-uuid-id-->`
 3. Replace placeholder with `node.outerHTML` or `node.textContent`
 4. Return final HTML
 
 **Example:**
+
 ```javascript
 const html = '<p>User: <!--JSPWIKI-abc12345-0--></p>';
 const nodes = [/* WikiDocument nodes */];
@@ -244,6 +266,7 @@ const final = parser.mergeDOMNodes(html, nodes, uuid);
 ```
 
 **Features:**
+
 - **Descending ID Order**: Handles nested JSPWiki syntax correctly
 - **Safe Replacement**: Regex escaping prevents injection
 - **Preserves HTML**: Showdown-generated HTML structure maintained
@@ -257,12 +280,14 @@ const final = parser.mergeDOMNodes(html, nodes, uuid);
 Creates a text node for escaped JSPWiki syntax.
 
 **Parameters:**
+
 - `element` (Object): Escaped element with `literal` property
 - `wikiDocument` (WikiDocument): WikiDocument instance
 
 **Returns:** `TextNode` - DOM text node
 
 **Example:**
+
 ```javascript
 const element = {
   type: 'escaped',
@@ -303,6 +328,7 @@ Use `parseWithDOMExtraction()` instead for new code.
 ```
 
 **Properties:**
+
 - `jspwiki.parser.useExtractionPipeline` (boolean): Use extraction pipeline (default: `true`)
 - `amdwiki.parser.enabled` (boolean): Enable MarkupParser (default: `true`)
 
@@ -372,6 +398,7 @@ The parser implements three-level fallback:
 3. **Ultimate**: Return original content
 
 **Example:**
+
 ```javascript
 try {
   // Try extraction pipeline
@@ -397,12 +424,14 @@ When JSPWiki element processing fails, an error node is created:
 ### Extraction Pipeline
 
 **Typical Performance:**
+
 - Small page (<1KB): <10ms
 - Medium page (1-5KB): <50ms
 - Large page (5-10KB): <100ms
 - Very large page (10KB+): <500ms
 
 **Scaling:**
+
 - Extraction: O(n) where n = content length
 - DOM Creation: O(m) where m = number of JSPWiki elements
 - Merge: O(m log m) due to sorting
@@ -484,6 +513,7 @@ const html = await parser.parse(content, {
 ### From Legacy Parser
 
 **Before (Manual Phase Management):**
+
 ```javascript
 // Don't do this anymore
 const phases = parser.phases;
@@ -494,6 +524,7 @@ for (const phase of phases) {
 ```
 
 **After (Use Primary Method):**
+
 ```javascript
 // Do this instead
 const html = await parser.parse(content, context);
@@ -515,6 +546,7 @@ If you have custom syntax handlers, see the [Migration Guide](../migration/WikiD
 **Cause:** DOM node not created or merge failed
 
 **Solution:**
+
 1. Check handler initialization: `await parser.initialize()`
 2. Check error logs for handler failures
 3. Verify WikiDocument is created correctly
@@ -526,6 +558,7 @@ If you have custom syntax handlers, see the [Migration Guide](../migration/WikiD
 **Cause:** Showdown not configured or extraction conflict
 
 **Solution:**
+
 1. Verify RenderingManager has Showdown converter
 2. Check that JSPWiki syntax is extracted before Showdown runs
 3. Verify `jspwiki.parser.useExtractionPipeline = true`
@@ -537,6 +570,7 @@ If you have custom syntax handlers, see the [Migration Guide](../migration/WikiD
 **Cause:** VariableManager not initialized or handler error
 
 **Solution:**
+
 1. Ensure `await parser.initialize()` is called
 2. Check VariableManager is available: `engine.getManager('VariableManager')`
 3. Check error logs for handler failures
@@ -549,6 +583,7 @@ If you have custom syntax handlers, see the [Migration Guide](../migration/WikiD
 **Cause:** Large page, many elements, or cache disabled
 
 **Solution:**
+
 1. Enable parse results cache: `amdwiki.markup.cache.parseResults.enabled = true`
 2. Check page size (consider breaking up large pages)
 3. Monitor logs for slow parse warnings
@@ -561,16 +596,19 @@ If you have custom syntax handlers, see the [Migration Guide](../migration/WikiD
 ### Unit Tests
 
 **Extraction Tests:**
+
 ```bash
 npm test -- src/parsers/__tests__/MarkupParser-Extraction.test.js
 ```
 
 **Merge Pipeline Tests:**
+
 ```bash
 npm test -- src/parsers/__tests__/MarkupParser-MergePipeline.test.js
 ```
 
 **Comprehensive Tests:**
+
 ```bash
 npm test -- src/parsers/__tests__/MarkupParser-Comprehensive.test.js
 ```
@@ -614,6 +652,7 @@ See [Phase 5 Manual QA Plan](../testing/Phase5-Manual-QA-Plan.md) for comprehens
 ## Changelog
 
 ### Phase 6 (Issue #120) - Production Integration
+
 - ✅ Integrated extraction pipeline into `parse()` method
 - ✅ Added configuration property `jspwiki.parser.useExtractionPipeline`
 - ✅ Implemented automatic fallback to legacy parser
@@ -621,15 +660,18 @@ See [Phase 5 Manual QA Plan](../testing/Phase5-Manual-QA-Plan.md) for comprehens
 - ✅ Default changed to use extraction pipeline
 
 ### Phase 3 (Issue #117) - Merge Pipeline
+
 - ✅ Added `parseWithDOMExtraction()` method
 - ✅ Added `mergeDOMNodes()` method
 - ✅ Integrated with Showdown for markdown parsing
 
 ### Phase 2 (Issue #116) - DOM Node Creation
+
 - ✅ Added `createDOMNode()` method
 - ✅ Integrated DOM handlers for variables, plugins, links
 
 ### Phase 1 (Issue #115) - Extraction
+
 - ✅ Added `extractJSPWikiSyntax()` method
 - ✅ Implemented code block protection
 - ✅ Added UUID-based placeholder system

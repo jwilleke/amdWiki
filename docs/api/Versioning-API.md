@@ -38,9 +38,11 @@ The Version Management API provides programmatic access to page version history,
 All API requests use session-based authentication via cookies.
 
 **Login Required For**:
+
 - POST `/api/page/:identifier/restore/:version` (Restore version)
 
 **Anonymous Access**:
+
 - GET endpoints (history, version, compare) - Subject to page permissions
 
 ### Checking Authentication
@@ -62,14 +64,17 @@ GET /api/page/:identifier/versions
 ```
 
 **Parameters**:
+
 - `identifier` (path, required): Page title or UUID
 
 **Headers**:
+
 - None required
 
 #### Response
 
 **Success (200)**:
+
 ```json
 {
   "success": true,
@@ -117,6 +122,7 @@ GET /api/page/:identifier/versions
 ```
 
 **Error Responses**:
+
 - `404 Not Found`: Page doesn't exist
 - `501 Not Implemented`: Versioning not enabled
 - `500 Internal Server Error`: Server error
@@ -146,15 +152,18 @@ GET /api/page/:identifier/version/:version
 ```
 
 **Parameters**:
+
 - `identifier` (path, required): Page title or UUID
 - `version` (path, required): Version number (positive integer)
 
 **Headers**:
+
 - None required
 
 #### Response
 
 **Success (200)**:
+
 ```json
 {
   "success": true,
@@ -176,6 +185,7 @@ GET /api/page/:identifier/version/:version
 ```
 
 **Error Responses**:
+
 - `400 Bad Request`: Invalid version number
 - `404 Not Found`: Page or version doesn't exist
 - `501 Not Implemented`: Versioning not enabled
@@ -209,20 +219,24 @@ GET /api/page/:identifier/compare/:v1/:v2
 ```
 
 **Parameters**:
+
 - `identifier` (path, required): Page title or UUID
 - `v1` (path, required): First version number (positive integer)
 - `v2` (path, required): Second version number (positive integer)
 
 **Headers**:
+
 - None required
 
 **Notes**:
+
 - Order matters: `v1` is the "old" version, `v2` is the "new" version
 - Can compare any two versions (not just consecutive)
 
 #### Response
 
 **Success (200)**:
+
 ```json
 {
   "success": true,
@@ -259,11 +273,13 @@ GET /api/page/:identifier/compare/:v1/:v2
 ```
 
 **Diff Format**:
+
 - `[0, "text"]`: Unchanged line
 - `[1, "text"]`: Added line (in v2, not in v1)
 - `[-1, "text"]`: Deleted line (in v1, not in v2)
 
 **Error Responses**:
+
 - `400 Bad Request`: Invalid version numbers
 - `404 Not Found`: Page or versions don't exist
 - `501 Not Implemented`: Versioning not enabled
@@ -298,14 +314,17 @@ POST /api/page/:identifier/restore/:version
 ```
 
 **Parameters**:
+
 - `identifier` (path, required): Page title or UUID
 - `version` (path, required): Version number to restore to (positive integer)
 
 **Headers**:
+
 - `Content-Type: application/json`
 - `Cookie: connect.sid=...` (session cookie - **required**)
 
 **Body** (optional):
+
 ```json
 {
   "comment": "Reverting spam edits"
@@ -313,11 +332,13 @@ POST /api/page/:identifier/restore/:version
 ```
 
 **Body Fields**:
+
 - `comment` (string, optional): Reason for restore. Default: "Restored from vX"
 
 #### Response
 
 **Success (200)**:
+
 ```json
 {
   "success": true,
@@ -329,6 +350,7 @@ POST /api/page/:identifier/restore/:version
 ```
 
 **Error Responses**:
+
 - `400 Bad Request`: Invalid version number
 - `401 Unauthorized`: Not authenticated
 - `404 Not Found`: Page or version doesn't exist
@@ -434,6 +456,7 @@ Summary statistics for a comparison.
 ### Common Error Messages
 
 **Page Not Found**:
+
 ```json
 {
   "error": "Page not found",
@@ -442,6 +465,7 @@ Summary statistics for a comparison.
 ```
 
 **Invalid Version**:
+
 ```json
 {
   "error": "Invalid version number",
@@ -450,6 +474,7 @@ Summary statistics for a comparison.
 ```
 
 **Versioning Not Supported**:
+
 ```json
 {
   "error": "Versioning not supported",
@@ -458,6 +483,7 @@ Summary statistics for a comparison.
 ```
 
 **Authentication Required**:
+
 ```json
 {
   "error": "Authentication required",
@@ -472,6 +498,7 @@ Summary statistics for a comparison.
 Currently, no rate limiting is enforced on version management endpoints.
 
 **Best Practices**:
+
 - Cache version history results when possible
 - Don't poll for updates; use websockets if available
 - Batch operations when retrieving multiple versions
@@ -724,21 +751,25 @@ backupPageVersions('Main', './backups');
 ## Security Considerations
 
 ### Authentication
+
 - All GET endpoints respect page ACL permissions
 - POST /restore requires authenticated user
 - Session cookies must be httpOnly
 
 ### Input Validation
+
 - Page identifiers are URL-decoded
 - Version numbers must be positive integers
 - Comments are stored as-is (sanitized on display)
 
 ### Rate Limiting
+
 - Consider implementing rate limiting for production
 - Monitor for abuse patterns
 - Log all restore operations
 
 ### Best Practices
+
 - Always use HTTPS in production
 - Validate user permissions before allowing restores
 - Log all version operations for audit trail
@@ -757,6 +788,7 @@ backupPageVersions('Main', './backups');
 ## Support
 
 For issues or questions:
+
 - **Documentation**: See [User Guide](../user-guide/Using-Version-History.md)
 - **Administration**: See [Deployment Guide](../admin/Versioning-Deployment-Guide.md)
 - **Issues**: Report at your wiki's issue tracker

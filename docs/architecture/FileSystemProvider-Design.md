@@ -15,7 +15,9 @@ This document outlines the design for abstracting page storage operations into a
 ## Current Architecture
 
 ### PageManager Responsibilities (Current)
+
 The current [PageManager.js](../../src/managers/PageManager.js) directly handles:
+
 - File system access (`fs.readFile`, `fs.writeFile`, `fs.readdir`)
 - Directory walking and scanning
 - Page caching and indexing
@@ -399,6 +401,7 @@ The provider pattern uses these existing configuration keys from ConfigurationMa
 ## Migration Strategy
 
 ### Phase 1: Create Provider Infrastructure (Non-Breaking)
+
 1. Create `src/providers/` directory
 2. Implement `BasePageProvider.js` abstract class
 3. Implement `FileSystemProvider.js` with current logic
@@ -406,12 +409,14 @@ The provider pattern uses these existing configuration keys from ConfigurationMa
 5. **No changes to existing API** - all existing code continues working
 
 ### Phase 2: Internal Migration (Non-Breaking)
+
 1. Update PageManager to proxy calls to provider
 2. Move caching logic to provider
 3. Run comprehensive tests to ensure compatibility
 4. **No external API changes**
 
 ### Phase 3: Future Extensibility (Future Work)
+
 1. Implement additional providers (DatabaseProvider, etc.)
 2. Add provider lifecycle events
 3. Support provider chaining/fallback
@@ -442,6 +447,7 @@ src/
 ## Backward Compatibility
 
 All existing code calling PageManager methods continues to work:
+
 - `pageManager.getPage()` → proxied to `provider.getPage()`
 - `pageManager.savePage()` → proxied to `provider.savePage()`
 - No changes required to routes, handlers, or other managers
@@ -469,12 +475,14 @@ All existing code calling PageManager methods continues to work:
 ALL providers and managers MUST access configuration exclusively through ConfigurationManager
 
 ✅ **DO THIS:**
+
 ```javascript
 const configManager = this.engine.getManager('ConfigurationManager');
 const value = configManager.getProperty('amdwiki.some.key', 'defaultValue');
 ```
 
 ❌ **NEVER DO THIS:**
+
 ```javascript
 const config = require('../../config/app-default-config.json');
 const fs = require('fs');
@@ -483,6 +491,7 @@ process.env.SOME_CONFIG; // Don't read env vars directly for app config
 ```
 
 **Why?** ConfigurationManager provides:
+
 - Merge of default + custom configs
 - Validation
 - Runtime updates

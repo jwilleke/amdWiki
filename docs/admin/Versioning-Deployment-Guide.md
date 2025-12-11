@@ -5,6 +5,7 @@ Complete guide for administrators to deploy and configure page versioning in amd
 ## Overview
 
 This guide covers:
+
 - Prerequisites and requirements
 - Installation and configuration
 - Migration from FileSystemProvider
@@ -39,12 +40,14 @@ This guide covers:
 ### System Requirements
 
 **Minimum**:
+
 - Node.js 14.x or higher
 - 1GB free disk space (for version storage)
 - 512MB available RAM
 - Read/write permissions on data directories
 
 **Recommended**:
+
 - Node.js 18.x or higher
 - 5GB+ free disk space
 - 2GB+ available RAM
@@ -53,6 +56,7 @@ This guide covers:
 ### Software Dependencies
 
 All required dependencies are already included in amdWiki 1.3.2+:
+
 - ✅ `fast-diff` (v1.3.0+) - Diff algorithm
 - ✅ `pako` (v2.1.0+) - Compression
 - ✅ `fs-extra` (v11.3.0+) - File operations
@@ -128,6 +132,7 @@ Start the wiki - it will automatically initialize versioning:
 ```
 
 **What Happens**:
+
 1. Creates `./pages/versions/` directory
 2. Creates `./required-pages/versions/` directory
 3. Creates `./data/page-index.json`
@@ -135,6 +140,7 @@ Start the wiki - it will automatically initialize versioning:
 5. Builds initial page index
 
 **Monitor the logs**:
+
 ```bash
 # Application logs (recommended - detailed Winston logs)
 tail -f logs/app.log
@@ -147,6 +153,7 @@ tail -f logs/pm2-out.log
 ```
 
 Look for:
+
 ```
 [VersioningFileProvider] Initialized with versioning enabled
 [VersioningFileProvider] Delta storage: enabled
@@ -169,6 +176,7 @@ Look for:
 ```
 
 **Options**:
+
 - `"filesystemprovider"` - Basic file storage (no versioning)
 - `"versioningfileprovider"` - File storage with version history
 
@@ -185,6 +193,7 @@ Look for:
 ```
 
 **Important**:
+
 - Use existing page directories
 - Paths can be absolute or relative to project root
 - Ensure write permissions
@@ -218,14 +227,17 @@ Look for:
 ```
 
 **Compression**:
+
 - `"gzip"` - Enable compression (recommended)
 - `"none"` - Disable compression
 
 **Delta Storage**:
+
 - `true` - Store diffs (saves 80-90% space)
 - `false` - Store full content each version
 
 **Checkpoint Interval**:
+
 - Store full content every N versions
 - Lower = faster retrieval, more storage
 - Higher = slower retrieval, less storage
@@ -240,11 +252,13 @@ Look for:
 ```
 
 **Cache Size**:
+
 - Number of versions to keep in memory
 - Higher = more RAM, faster access
 - Lower = less RAM, more disk I/O
 
 **Recommendations**:
+
 - Small wiki: 20-30
 - Medium wiki: 50-100
 - Large wiki: 100-200
@@ -440,6 +454,7 @@ Balance speed vs storage:
 ```
 
 **Trade-offs**:
+
 - Lower (5): 20% more storage, 2x faster retrieval
 - Default (10): Balanced
 - Higher (20): 10% less storage, 50% slower retrieval
@@ -466,6 +481,7 @@ Reduce storage by lowering retention:
 ```
 
 **Memory Usage**:
+
 - Small pages (5KB): ~10KB per entry
 - Large pages (100KB): ~110KB per entry
 - 100 entries × 20KB avg = ~2MB
@@ -676,11 +692,13 @@ cp -r PAGE-UUID/ /path/to/amdwiki/pages/versions/
 **Symptoms**: API returns 501 errors
 
 **Causes**:
+
 - Provider not set to `versioningfileprovider`
 - Directories not created
 - Permission issues
 
 **Solutions**:
+
 ```bash
 # Check configuration
 cat config/app-custom-config.json | grep provider
@@ -701,6 +719,7 @@ npm restart
 **Symptoms**: Errors mentioning page-index.json
 
 **Solutions**:
+
 ```bash
 # Check if file exists
 ls -la data/page-index.json
@@ -718,11 +737,13 @@ echo '{"version":"1.0.0","lastUpdated":"'$(date -Iseconds)'","pageCount":0,"page
 **Symptoms**: Errors retrieving specific versions
 
 **Causes**:
+
 - Corrupted diff files
 - Missing checkpoint
 - Disk errors
 
 **Solutions**:
+
 ```bash
 # Verify version files
 ls pages/versions/PAGE-UUID/
@@ -738,6 +759,7 @@ npm run maintain:verify
 **Symptoms**: Disk space filling rapidly
 
 **Solutions**:
+
 ```bash
 # Check storage usage
 npm run maintain:analyze
@@ -757,11 +779,13 @@ npm run maintain:cleanup -- --keep-latest 20 --retention 90
 **Symptoms**: API calls taking >1 second
 
 **Causes**:
+
 - High checkpoint interval
 - Many versions to reconstruct
 - Small cache size
 
 **Solutions**:
+
 ```json
 {
   "checkpointinterval": 5,
@@ -782,6 +806,7 @@ Enable verbose logging:
 ```
 
 View logs:
+
 ```bash
 tail -f logs/app.log | grep -E "Versioning|Provider"
 ```

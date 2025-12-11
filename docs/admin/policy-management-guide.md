@@ -173,6 +173,7 @@ For complex policies, you can edit the JSON directly:
 ### 1. Role-Based Access
 
 **Allow editors to edit all pages:**
+
 ```json
 {
   "id": "editor-full-edit",
@@ -188,6 +189,7 @@ For complex policies, you can edit the JSON directly:
 ### 2. Time-Based Restrictions
 
 **Restrict admin access to business hours:**
+
 ```json
 {
   "id": "admin-business-hours",
@@ -210,6 +212,7 @@ For complex policies, you can edit the JSON directly:
 ### 3. IP-Based Security
 
 **Restrict sensitive content to internal network:**
+
 ```json
 {
   "id": "internal-network-only",
@@ -231,6 +234,7 @@ For complex policies, you can edit the JSON directly:
 ### 4. Department-Based Access
 
 **Allow IT department full access to system pages:**
+
 ```json
 {
   "id": "it-system-access",
@@ -252,6 +256,7 @@ For complex policies, you can edit the JSON directly:
 ### 5. Emergency Access Override
 
 **Allow emergency access during critical situations:**
+
 ```json
 {
   "id": "emergency-access",
@@ -333,6 +338,7 @@ The system automatically validates policies for:
 ### Policy Statistics
 
 The dashboard shows:
+
 - Total number of policies
 - Allow vs Deny policy counts
 - Average priority
@@ -341,6 +347,7 @@ The dashboard shows:
 ### Audit Logs
 
 Policy decisions are logged with:
+
 - User information
 - Resource accessed
 - Action attempted
@@ -350,6 +357,7 @@ Policy decisions are logged with:
 ### Performance Monitoring
 
 Monitor:
+
 - Policy evaluation times
 - Cache hit rates
 - Most frequently evaluated policies
@@ -364,6 +372,7 @@ Monitor:
 **Symptoms**: Expected access behavior not occurring
 
 **Solutions**:
+
 1. Check policy priority vs conflicting policies
 2. Verify subject/resource/action matching
 3. Review condition requirements
@@ -374,6 +383,7 @@ Monitor:
 **Symptoms**: Users can't access resources they should
 
 **Solutions**:
+
 1. Look for higher-priority deny policies
 2. Check condition evaluation
 3. Verify user attributes/roles
@@ -384,6 +394,7 @@ Monitor:
 **Symptoms**: Slow page loads, high CPU usage
 
 **Solutions**:
+
 1. Review cache hit rates
 2. Optimize policy conditions
 3. Reduce number of policies
@@ -394,6 +405,7 @@ Monitor:
 **Symptoms**: Policies can't be saved due to validation errors
 
 **Solutions**:
+
 1. Review error messages carefully
 2. Check JSON syntax
 3. Verify required fields are present
@@ -404,6 +416,7 @@ Monitor:
 #### Policy Testing
 
 Use the web interface to test policies:
+
 1. Create test scenarios
 2. Simulate user contexts
 3. Verify expected outcomes
@@ -411,6 +424,7 @@ Use the web interface to test policies:
 #### Audit Log Analysis
 
 Review audit logs for:
+
 - Policy decision patterns
 - Common access issues
 - Performance bottlenecks
@@ -419,6 +433,7 @@ Review audit logs for:
 #### Cache Statistics
 
 Monitor cache performance:
+
 - Hit/miss ratios
 - Cache size vs max size
 - Evaluation times
@@ -486,6 +501,7 @@ Create reusable policy templates for common scenarios:
 ### Integration with External Systems
 
 The policy system can integrate with:
+
 - LDAP/Active Directory for user attributes
 - External authorization services
 - Custom user attribute providers
@@ -503,6 +519,7 @@ The policy system can integrate with:
 ### Configuration Files
 
 Key configuration files:
+
 - `config/app-default-config.json`: Policy storage (key: `amdwiki.access.policies`)
 - `config/policy-schemas.json`: Schema definitions
 - ~~`config/access-policies.json`~~: **DEPRECATED** - Policies now in app-default-config.json

@@ -183,6 +183,7 @@ Targets a specific user by username:
 ```
 
 **Use Cases:**
+
 - Grant specific access to individual users
 - Override general policies for specific users
 - Temporary access for contractors
@@ -199,6 +200,7 @@ Targets users with a specific role:
 ```
 
 **Available Roles:**
+
 - `admin`: System administrators
 - `editor`: Content editors
 - `viewer`: Read-only users
@@ -217,6 +219,7 @@ Targets users belonging to a specific group:
 ```
 
 **Use Cases:**
+
 - Department-based access control
 - Project team permissions
 - Organizational unit restrictions
@@ -234,6 +237,7 @@ Targets users with specific attribute values:
 ```
 
 **Common Attributes:**
+
 - `department`: IT, HR, Marketing, Sales
 - `clearance`: public, internal, confidential, secret
 - `location`: office location or region
@@ -250,6 +254,7 @@ Targets any logged-in user:
 ```
 
 **Use Cases:**
+
 - General authenticated user policies
 - Override anonymous restrictions
 - Base level for role-based policies
@@ -265,6 +270,7 @@ Targets non-logged-in users:
 ```
 
 **Use Cases:**
+
 - Public access policies
 - Guest user permissions
 - Default deny for sensitive content
@@ -280,6 +286,7 @@ Targets users with administrative privileges:
 ```
 
 **Use Cases:**
+
 - Administrative override policies
 - System management access
 - Emergency access controls
@@ -298,6 +305,7 @@ Controls access to wiki pages:
 ```
 
 **Pattern Examples:**
+
 - `"*"`: All pages
 - `"Admin*"`: Pages starting with "Admin"
 - `"Project-*`: Project-related pages
@@ -315,6 +323,7 @@ Controls access to file attachments:
 ```
 
 **Pattern Examples:**
+
 - `"*.pdf"`: PDF files only
 - `"*.doc*"`: Word documents
 - `"confidential-*"`: Files with specific naming
@@ -332,6 +341,7 @@ Controls access to pages in specific categories:
 ```
 
 **Use Cases:**
+
 - Category-based content organization
 - Department-specific categories
 - Security classification categories
@@ -348,6 +358,7 @@ Controls access to pages with specific tags:
 ```
 
 **Use Cases:**
+
 - Content classification by tags
 - Security labeling
 - Workflow state management
@@ -364,6 +375,7 @@ Controls access to specific resource types:
 ```
 
 **Available Types:**
+
 - `page`: Wiki pages
 - `attachment`: File attachments
 - `category`: Category pages
@@ -381,6 +393,7 @@ Controls access to URL paths:
 ```
 
 **Pattern Examples:**
+
 - `"/api/*"`: All API endpoints
 - `"/admin/*"`: Admin interface
 - `"/public/*"`: Public content
@@ -401,6 +414,7 @@ Restricts access to specific time periods:
 ```
 
 **Configuration:**
+
 - `startTime`: Start time in HH:MM format (24-hour)
 - `endTime`: End time in HH:MM format (24-hour)
 - Supports cross-midnight ranges (e.g., 18:00 to 06:00)
@@ -417,6 +431,7 @@ Restricts access based on IP addresses:
 ```
 
 **Configuration:**
+
 - `ranges`: Array of IP ranges in CIDR notation
 - Supports both IPv4 and IPv6
 - Useful for office network restrictions
@@ -435,6 +450,7 @@ Checks user attributes for additional constraints:
 ```
 
 **Operators:**
+
 - `equals`: Exact match
 - `contains`: String contains value
 - `startsWith`: String starts with value
@@ -453,6 +469,7 @@ Checks request context attributes:
 ```
 
 **Common Context Attributes:**
+
 - `emergencyMode`: Emergency access flag
 - `maintenanceMode`: System maintenance flag
 - `userAgent`: Browser/client information
@@ -471,6 +488,7 @@ Checks system environment:
 ```
 
 **Use Cases:**
+
 - Development vs production policies
 - Staging environment restrictions
 - Environment-specific access rules
@@ -488,6 +506,7 @@ Checks user session attributes:
 ```
 
 **Common Session Attributes:**
+
 - `loginMethod`: Authentication method used
 - `sessionAge`: How long session has been active
 - `deviceType`: Mobile, desktop, tablet

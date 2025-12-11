@@ -104,6 +104,7 @@ Breakdown by Component:
 ### Test Categories
 
 **Unit Tests:**
+
 - Character-by-character reading
 - Position tracking (line/column)
 - Lookahead and pushback
@@ -113,6 +114,7 @@ Breakdown by Component:
 - Error handling and recovery
 
 **Integration Tests:**
+
 - Full parsing pipeline
 - MarkupParser Phase 0 integration
 - Context handling
@@ -127,6 +129,7 @@ Breakdown by Component:
 **Purpose:** Convert wiki markup into structured tokens
 
 **Features:**
+
 - Character-by-character reading with position tracking
 - Lookahead via `peekChar()` and `peekAhead(n)`
 - Pushback support for complex token recognition
@@ -134,6 +137,7 @@ Breakdown by Component:
 - Unicode support
 
 **Token Types (15 total):**
+
 ```javascript
 TokenType = {
   TEXT, ESCAPED, VARIABLE, PLUGIN, WIKI_TAG,
@@ -144,6 +148,7 @@ TokenType = {
 ```
 
 **Example:**
+
 ```javascript
 const tokenizer = new Tokenizer('!!! Hello __world__');
 const tokens = tokenizer.tokenize();
@@ -158,12 +163,14 @@ const tokens = tokenizer.tokenize();
 **Purpose:** Convert tokens into WikiDocument DOM tree
 
 **Features:**
+
 - Token-to-DOM-node conversion for all types
 - Nested structure management (lists, tables)
 - Context management (paragraphs, formatting)
 - Semantic HTML element creation
 
 **Example:**
+
 ```javascript
 const builder = new DOMBuilder(wikiDocument);
 builder.buildFromTokens(tokens);
@@ -176,6 +183,7 @@ builder.buildFromTokens(tokens);
 **Purpose:** Complete parsing pipeline with error handling
 
 **Features:**
+
 - Orchestrates Tokenizer + DOMBuilder
 - Error handling with graceful degradation
 - Position-aware error messages
@@ -183,6 +191,7 @@ builder.buildFromTokens(tokens);
 - Validation support
 
 **Example:**
+
 ```javascript
 const parser = new DOMParser();
 const wikiDoc = parser.parse(content, context);
@@ -193,12 +202,14 @@ const stats = parser.getStatistics();
 ### 4. MarkupParser Integration
 
 **Changes Made:**
+
 - Added Phase 0: DOM Parsing (before all existing phases)
 - Integrated DOMParser as primary parser
 - WikiDocument stored in context for handler access
 - No fallback - DOM parser is the primary engine
 
 **Code Changes:**
+
 ```javascript
 // src/parsers/MarkupParser.js
 
@@ -559,12 +570,13 @@ The DOM parser implementation successfully achieves its primary goal: **permanen
 - [WikiDocument DOM Architecture](WikiDocument-DOM-Architecture.md)
 - [Migration TODO](WikiDocument-Migration-TODO.md)
 - [GitHub Issue #93](https://github.com/jwilleke/amdWiki/issues/93)
-- JSPWiki MarkupParser: https://github.com/apache/jspwiki/blob/master/jspwiki-main/src/main/java/org/apache/wiki/parser/MarkupParser.java
-- JSPWiki WikiDocument API: https://jspwiki.apache.org/apidocs/2.12.1/org/apache/wiki/parser/WikiDocument.html
+- JSPWiki MarkupParser: <https://github.com/apache/jspwiki/blob/master/jspwiki-main/src/main/java/org/apache/wiki/parser/MarkupParser.java>
+- JSPWiki WikiDocument API: <https://jspwiki.apache.org/apidocs/2.12.1/org/apache/wiki/parser/WikiDocument.html>
 
 ## Changelog
 
 **2025-10-12** - Implementation complete
+
 - Phases 2.1-2.5 completed
 - MarkupParser integration complete
 - 208 tests passing

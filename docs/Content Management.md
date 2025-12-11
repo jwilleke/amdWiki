@@ -1,6 +1,7 @@
 # ## 📝 Content Management
 
 ## Metadata & Organization
+
 * **[Page-Metadata](../pages/Page-Metadata)** - **COMPLETE metadata field documentation**
 * **[Categories]** - Available category values
 * **[System Keywords]** - System-level keyword management
@@ -8,22 +9,27 @@
 * **[Metadata Cleanup Progress]** - Metadata standardization progress
 
 ## Templates & Styling
+
 * **[Footer]** - Wiki footer configuration
 * **[LeftMenu]** - Navigation menu configuration
 * **[Welcome]** - Default welcome page content
 
 ## Plugins & Extensions
+
 * **[Image Plugin]** - Inline image support with upload functionality
 
 ### Image Plugin
+
 The Image plugin enables inline image insertion using JSPWiki-compatible syntax:
 
 **Basic Usage:**
+
 ```markdown
 [{Image src='image.jpg' alt='Description'}]
 ```
 
 **Available Parameters:**
+
 * `src` (required): Image path or URL
 * `alt`: Alternative text for accessibility
 * `width`: Image width in pixels
@@ -37,6 +43,7 @@ The Image plugin enables inline image insertion using JSPWiki-compatible syntax:
 * `title`: Hover text for the image
 
 **Examples:**
+
 ```markdown
 [{Image src='photo.jpg' alt='My Photo' width='300' height='200'}]
 [{Image src='/images/logo.png' class='logo'}]
@@ -46,6 +53,7 @@ The Image plugin enables inline image insertion using JSPWiki-compatible syntax:
 ```
 
 **Image Upload:**
+
 * Images can be uploaded through the page editor interface
 * Supported formats: JPEG, PNG, GIF, WebP
 * Maximum file size: 5MB (configurable)

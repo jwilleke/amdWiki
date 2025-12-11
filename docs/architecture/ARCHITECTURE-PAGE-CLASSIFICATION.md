@@ -42,15 +42,18 @@ see: docs/page-metadata.md
 ### 6. Navigation and Search Integration
 
 #### By Page Type
+
 - **System Pages**: Admin navigation, system information
 - **User Pages**: Main content navigation, search results
 - **Documentation**: Help system, developer resources
 
 #### By Category
+
 - **Content-based**: Logical organization for users
 - **System-based**: Technical organization for admins
 
 #### By Documentation Type
+
 - **User Docs**: End-user help and tutorials
 - **Developer Docs**: Technical implementation guides  
 - **API Docs**: Reference documentation for integration
@@ -58,21 +61,25 @@ see: docs/page-metadata.md
 ### 7. Implementation Strategy
 
 #### Phase 1: Metadata Standards
+
 1. Update Page-Metadata.md with new fields
 2. Add validation for pageType, documentationType
 3. Create migration script for existing pages
 
 #### Phase 2: File Organization
+
 1. Audit current pages and classify them
 2. Move system pages to `/required-pages/`
 3. Ensure user pages remain in `/pages/`
 
 #### Phase 3: Upgrade Safety
+
 1. Implement upgrade script that respects pageType
 2. Add protection for user-generated content
 3. Create backup/restore mechanisms
 
 #### Phase 4: Enhanced Navigation
+
 1. Update navigation to use page classification
 2. Create filtered views by page type
 3. Implement documentation-specific features
@@ -80,6 +87,7 @@ see: docs/page-metadata.md
 ### 8. Migration Plan
 
 #### Current State Assessment
+
 ```bash
 # Audit existing pages
 find pages/ -name "*.md" | head -10
@@ -88,6 +96,7 @@ find docs/ -name "*.md" | head -10
 ```
 
 #### Classification Rules
+
 - Pages in `/required-pages/` → `pageType: "system"`
 - Pages in `/pages/` → `pageType: "user"`  
 - Pages in `/docs/` → `pageType: "documentation"`
@@ -114,6 +123,7 @@ find docs/ -name "*.md" | head -10
 ## Implementation Notes
 
 This architecture provides:
+
 - **Clear operational boundaries** for upgrades
 - **Flexible content organization** for users
 - **Proper documentation management** for developers

@@ -6,7 +6,7 @@ The amdWiki rendering system uses a sophisticated 7-phase MarkupParser pipeline 
 
 The rendering pipeline transforms wiki markup through seven distinct phases, each handling specific aspects of content processing:
 
-> See src/parsers/MarkupParser.js 
+> See src/parsers/MarkupParser.js
 
 ```text
 Raw Wiki Content
@@ -31,24 +31,29 @@ Final HTML Output
 ## Phase Details & Components
 
 ### Phase 1: Preprocessing
+
 **Component**: `MarkupParser.phasePreprocessing()`
 **Purpose**: Normalize content and prepare for processing
+
 - Normalizes line endings and whitespace
 - Handles character encoding
 - Prepares initial parse context (`ParseContext` object)
 - Sets up `context.pageName`, `context.timestamp`, `context.variables`
 
 ### Phase 2: Syntax Recognition
+
 **Component**: `MarkupParser.phaseSyntaxRecognition()`
 **Purpose**: Identify and categorize wiki syntax elements using registered handlers
 
 **Processing**: Each handler's `process()` method is called in priority order:
+
 - Recognizes JSPWiki plugins: `[{PluginName param=value}]`
 - Identifies system variables: `[{$variablename}]`
 - Detects escaped syntax: `[[{syntax}]`
 - Finds wiki links, attachments, and other markup
 
 **Handler Components** (priority order, highest to lowest):
+
 1. **EscapedSyntaxHandler** (Priority: 100) - `src/parsers/handlers/EscapedSyntaxHandler.js`
    - Processes `[[{syntax}]` → `[{syntax}]` literal display
 2. **WikiTagHandler** (Priority: 95) - `src/parsers/handlers/WikiTagHandler.js`
@@ -67,23 +72,28 @@ Final HTML Output
    - Creates internal wiki page links
 
 ### Phase 3: Context Resolution
+
 **Component**: `MarkupParser.phaseContextResolution()`
 **Purpose**: Build relationships and resolve references
+
 - **RenderingManager**: Provides `getLinkGraph()` for page relationships
 - **VariableManager**: Resolves variable references and dependencies
 - **PluginManager**: Validates plugin dependencies and parameters
 - Builds context for cross-references and navigation
 
 ### Phase 4: Content Transformation
+
 **Component**: `MarkupParser.phaseContentTransformation()`
 **Purpose**: Execute plugins and transform content with HTML protection
 
 **Sub-components**:
+
 - **PluginManager**: Executes JSPWiki-compatible plugins
 - **VariableManager**: Processes system variables like `[{$pagename}]`
 - **HTML Protection System**: `MarkupParser.protectGeneratedHtml()`
 
 #### HTML Protection System
+
 The HTML Protection System is crucial for preventing double-encoding of generated HTML:
 
 ```javascript
@@ -96,18 +106,21 @@ context.protectedBlocks = ['<img src="test.jpg" alt="Test" />']
 ```
 
 **Protected Elements**:
+
 - `<ul>` and `<ol>` lists with nested `<li>` and `<a>` elements
 - `<a>` anchor tags (standalone)
 - `<img>` self-closing tags (from Image plugin)
 - `<span>`, `<div>`, `<strong>`, `<em>`, `<code>` tags
 
 ### Phase 5: Filter Pipeline
+
 **Component**: `MarkupParser.phaseFilterPipeline()`
 **Purpose**: Apply security, validation, and content filters through FilterChain
 
 **Main Component**: `FilterChain` orchestrates all filters
 
 **Filter Components** (priority order, highest to lowest):
+
 1. **SecurityFilter** (Priority: 110) - `src/parsers/filters/SecurityFilter.js`
    - XSS prevention and CSRF protection
    - HTML sanitization with configurable allowed tags/attributes
@@ -120,6 +133,7 @@ context.protectedBlocks = ['<img src="test.jpg" alt="Test" />']
    - Link and image validation
 
 #### SecurityFilter Integration
+
 The SecurityFilter now preserves HTML protection tokens:
 
 ```javascript
@@ -140,29 +154,35 @@ secureContent = secureContent.replace(/SECURITYPROTECTED(\d+)SECURITYPROTECTED/g
 ```
 
 ### Phase 6: Markdown Conversion
+
 **Component**: `MarkupParser.phaseMarkdownConversion()`
 **Purpose**: Convert remaining markdown to HTML
 
 **Sub-components**:
+
 - **Showdown.js**: Third-party markdown processor
 - **Markdown Extensions**: Custom extensions for wiki-specific syntax
 - **Configuration**: Uses `this.config.markdown` settings
 
 **Processing**:
+
 - Converts standard markdown syntax (headers, lists, links, etc.)
 - Preserves HTMLTOKEN placeholders during conversion
 - Applies markdown extensions for enhanced functionality
 
 ### Phase 7: Post-processing
+
 **Component**: `MarkupParser.phasePostProcessing()`
 **Purpose**: Final HTML cleanup and token restoration
 
 **Sub-components**:
+
 - **HTML Token Restoration**: `MarkupParser.restoreProtectedHtml()`
 - **Link Processing**: Finalizes link attributes and CSS classes
 - **HTML Cleanup**: `MarkupParser.cleanupGeneratedHtml()`
 
 **Processing Steps**:
+
 1. **Token Restoration**: Replaces HTMLTOKEN placeholders with original HTML
 2. **Link Finalization**: Adds proper CSS classes to wiki links
 3. **HTML Normalization**: Removes processing artifacts
@@ -178,10 +198,12 @@ processedContent = processedContent.replace(/HTMLTOKEN(\d+)HTMLTOKEN/g, (match, 
 ## JSPWiki Compatibility Features
 
 ### Plugin System
+
 - **Normal Execution**: `[{Image src='test.jpg' alt='Test'}]` → `<img src="test.jpg" alt="Test" class="wiki-image" />`
 - **Escaped Syntax**: `[[{Image src='test.jpg' alt='Test'}]` → `[{Image src='test.jpg' alt='Test'}]` (literal)
 
 ### System Variables
+
 - `[{$pagename}]` - Current page name
 - `[{$totalpages}]` - Total number of pages
 - `[{$uptime}]` - Server uptime
@@ -190,6 +212,7 @@ processedContent = processedContent.replace(/HTMLTOKEN(\d+)HTMLTOKEN/g, (match, 
 - `[{$timestamp}]` - Current ISO timestamp
 
 ### Supported Plugins & Components
+
 - **Image** (`plugins/ImagePlugin.js`): Display images with customizable attributes
 - **SessionsPlugin** (`plugins/SessionsPlugin.js`): Show active session count via UserManager
 - **TotalPagesPlugin** (`plugins/TotalPagesPlugin.js`): Display total page count via PageManager
@@ -229,6 +252,7 @@ The rendering pipeline is configured through `app-default-config.json` and can b
 ## Performance Features
 
 ### Caching System
+
 The pipeline includes multi-level caching:
 
 - **Parse Results Cache**: TTL 300s
@@ -237,7 +261,9 @@ The pipeline includes multi-level caching:
 - **Variable Cache**: TTL 300s
 
 ### Performance Monitoring
+
 Tracks key metrics with configurable alerts:
+
 - Parse time threshold: 100ms
 - Cache hit ratio minimum: 60%
 - Error rate maximum: 5%
@@ -245,18 +271,23 @@ Tracks key metrics with configurable alerts:
 ## Architecture Benefits
 
 ### Modularity
+
 Each phase is independent and configurable, allowing for:
+
 - Easy extension with new handlers
 - Granular feature control
 - Custom filter development
 
 ### Security
+
 Multi-layered security approach:
+
 - HTML sanitization in SecurityFilter
 - XSS prevention at multiple levels
 - Content validation throughout pipeline
 
 ### Extensibility
+
 - Plugin system for custom functionality
 - Handler priority system for processing order
 - Filter chain for content processing
@@ -265,6 +296,7 @@ Multi-layered security approach:
 ## Error Handling
 
 The pipeline includes comprehensive error handling:
+
 - Graceful degradation when handlers fail
 - Detailed error logging with context
 - Fallback to legacy renderer when needed
@@ -273,13 +305,17 @@ The pipeline includes comprehensive error handling:
 ## Integration Points
 
 ### Link Graph
+
 Maintains relationships between pages for:
+
 - ReferringPagesPlugin functionality
 - Orphaned page detection
 - Navigation assistance
 
 ### Search Integration
+
 Pipeline output feeds into search indexing for:
+
 - Full-text search capabilities
 - Metadata extraction
 - Content categorization

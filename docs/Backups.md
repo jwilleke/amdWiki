@@ -7,7 +7,7 @@ src/managers/BackupManger should be able to create single *.gz file to perform a
 src/managers/BackupManger MUST have a single backup() fuction which will call every other src/managers/*Manager backup() fuction
 src/managers/BackupManger MUST have a single restore() fuction which will call every other src/managers/*Manager restore() fuction
 
-We will require but not do yet 
+We will require but not do yet
 All src/*Managers MUST have a single backup() function to perform a backup of the data they accoutnable to manage.
 All src/*Managers MUST have a single restore() function to perform a restore of the data they accoutnable to manage.
 
@@ -24,6 +24,7 @@ src/WikiEngine.js - Added BackupManager initialization
 config/app-default-config.json - Added backup configuration properties
 
 ## BackupManger Key Features
+
 - Creates single compressed .gz backup files
 - Calls backup() on all registered managers
 - Calls restore() on all managers from backup file
@@ -32,12 +33,14 @@ config/app-default-config.json - Added backup configuration properties
 - Helper methods: listBackups(), getLatestBackup()
 
 ## BackupManger Status
+
 - BackupManager is initialized and running ✅
 - Interface defined in BaseManager ✅
 - Server running normally ✅
 - Ready for individual manager implementations (future work as specified by user)
 
 ## BackupManger Configuration entries
+
 ``` json
   "_comment_backup": "Backup and restore configuration for BackupManager",
   "amdwiki.backup.directory": "./backups",
@@ -59,7 +62,8 @@ config/app-default-config.json - Added backup configuration properties
 - src/managers/ExportManager.js should only need to call instances for Managers backup()
 
 ## Registered Managers
-"Registered managers" are all manager instances that have been registered with the WikiEngine via engine.registerManager(name, instance). 
+
+"Registered managers" are all manager instances that have been registered with the WikiEngine via engine.registerManager(name, instance).
 > You can see the complete list in WikiEngine.js:65-129:
 
 - ConfigurationManager
@@ -85,19 +89,23 @@ config/app-default-config.json - Added backup configuration properties
 The BackupManager retrieves this list via engine.getRegisteredManagers() at BackupManager.js:96.
 
 ### Managers - Providers
+
 Some managers which store data on a Stoarge Media use "Providers" to perform the actual interactions with the different "Stoarge Media".
 This relationship is determine by the src/managers/ConfigurationManager.js settings.
 
-PageManager for instance 
+PageManager for instance
+
 - const providerName = configManager.getProperty('amdwiki.pageProvider', 'FileSystemProvider');
 - then PageManager delegaates "Stoarge Media" calls to the providerName.
 - This requuires providerName to perform all interations with the "Stoarge Media" (which could bs a database)
 
 For "Stoarge Media" backups this requires providerName to implement a Backup() and Restore() functions that are called by the Manager which will return either:
+
 - return file reference to a specific .gz file
 - manifest??.json  # Contains all data inline
 
 The choice whould be based on src/managers/ConfigurationManager.js entries of
+
 ```json
 {
   "amdwiki.backup.strategy": "auto",  // auto|inline|file
@@ -108,7 +116,9 @@ The choice whould be based on src/managers/ConfigurationManager.js entries of
 ```
 
 #### Backup Logic (pseudocode)
+
 Update providerName to support both modes:
+
 ```javascript
 class BasePageProvider {
   /**
@@ -138,6 +148,7 @@ class BasePageProvider {
 ```
 
 #### Restore Logic (pseudocode)
+
 ``` javascript
 async restore(backupPath) {
   // Detect backup type
@@ -172,6 +183,7 @@ async restore(backupPath) {
 ```
 
 ### Examples of Non-Data Managers
+
 - PolicyManager - Loads policies from config at startup, no persistent state
 - VariableManager - Registers handlers at initialization, no stored data
 - RenderingManager - Builds runtime link graphs, stateless rendering
@@ -189,6 +201,7 @@ async restore(backupPath) {
 ### How Non-Data Managers Interact with BackupManager
 
 The interaction is graceful and automatic:
+
 - During Backup (BackupManager.js:100-127):
   - BackupManager calls manager.backup() on every registered manager
   - Non-data managers return { managerName, timestamp, data: null }
@@ -210,18 +223,21 @@ The interaction is graceful and automatic:
 Yes, programmatically: You could check if a manager uses the default implementation:
 const hasCustomBackup = manager.backup !== BaseManager.prototype.backup;
 Yes, by inspection: Look for:
+
 - Managers that load config at initialization only
 - Managers with no file I/O or database operations
 - Managers that build runtime caches/indexes from other sources
 - Managers that provide pure functions (validators, evaluators)
 
 ## What Data Managers Return to BackupManager
+
 Based on the codebase analysis, here's what data managers return during backup operations and how they handle their data:
 📊 Data Structure Overview
 
-Data managers return a JSON-serializable object to the BackupManager, which aggregates all manager backups into a single compressed .gz file. 
+Data managers return a JSON-serializable object to the BackupManager, which aggregates all manager backups into a single compressed .gz file.
 
 The backup structure at BackupManager.js:88-93 is:
+
 ```json
 {
   version: '1.0.0',
@@ -237,7 +253,9 @@ The backup structure at BackupManager.js:88-93 is:
 ```
 
 ### Non-Data Managers
+
 "Non-data" managers are those that don't manage persistent state and only provide runtime services. They inherit the default backup() and restore() methods from BaseManager.js:50-74, which return minimal metadata:
+
 ```javascript
 async backup() {
   return {
@@ -255,7 +273,9 @@ async restore(backupData) {
 ## What Each Type of Manager Returns
 
 ### Non-Data Managers (Default Implementation)
+
 "Non-data" managers are those that don't manage persistent state and only provide runtime services. They inherit the default backup() and restore() methods from BaseManager.js:50-74, which return minimal metadata:
+
 ```javascript
 async backup() {
   return {
@@ -269,6 +289,7 @@ async restore(backupData) {
   // Does nothing - just validates backupData exists
 }
 ```
+
 Examples: PolicyManager, VariableManager, RenderingManager, ValidationManager
 
 ## Some of "Data" Managers
@@ -276,6 +297,7 @@ Examples: PolicyManager, VariableManager, RenderingManager, ValidationManager
 These were "cherry" picked. ALL managers need evaluated further.
 
 ### AttachmentManager (AttachmentManager.js:353-371)
+
 Returns metadata references delegating to its provider:
 
 ```javascript
@@ -297,6 +319,7 @@ Returns metadata references delegating to its provider:
 ```
 
 #### What's backed up
+
 ✅ Attachment metadata (Schema.org format)
 ✅ File information (names, sizes, MIME types)
 ✅ Page mentions/relationships
@@ -304,11 +327,13 @@ Returns metadata references delegating to its provider:
 ✅ Storage paths
 
 #### What's NOT backed up
+
 ❌ Actual file contents (binaries stay in filesystem) --> **MUST include**
 Storage Model: The provider at BasicAttachmentProvider.js:420-428 backs up the metadata Map which tracks all attachments. The actual files remain in ./data/attachments/ directory and are referenced by their SHA-256 hash.
 Need to modify backup() and restore() functions in BasicAttachmentProvider.js so AttachmentManager can make appropriate calls.
 
 ### PageManager (Delegates to Provider)
+
 PageManager itself has no custom backup method at PageManager.js:17-170, so it uses the default BaseManager implementation:
 {
   managerName: 'PageManager',
@@ -317,11 +342,13 @@ PageManager itself has no custom backup method at PageManager.js:17-170, so it u
 }
 
 However: The provider (FileSystemProvider)  **needs to implement backup/restore**. Currently it doesn't have these methods implemented, which means:
+
 - Page data stays in the filesystem (./pages/ directory)
 - Metadata/frontmatter is in the markdown files
 - Provider would need to return page cache/index data if implemented
 
 Potential future implementation:
+
 ``` javascript
 {
   managerName: 'PageManager',
@@ -338,7 +365,9 @@ Potential future implementation:
 ```
 
 ### UserManager (Not Yet Implemented)
+
 Currently has no custom backup/restore at UserManager.js, but should return:
+
 ``` javascript
 {
   managerName: 'UserManager',
@@ -363,12 +392,14 @@ Storage Model: UserManager stores data in JSON files:
 ## 🎯 Key Architectural Patterns
 
 ### Pattern 1: Metadata-Only Backups
+
 Most managers backup references and metadata, not actual content:
 AttachmentManager → Backs up metadata, files stay in ./data/attachments/
 PageManager → Would backup index/cache, files stay in ./pages/
 UserManager → Would backup user records, not raw JSON files
 
 ### Pattern 2: Provider Delegation
+
 Managers that use providers delegate backup/restore:
 // Manager level
 async backup() {
@@ -383,11 +414,13 @@ async backup() {
 This allows swapping storage backends without changing backup logic.
 
 ### Pattern 3: Graceful Degradation
+
 If a manager has no data, it returns data: null
 If backup fails, it's logged but doesn't stop other managers
 Non-data managers don't need special handling
 
 ## 📦 Backup Output: File vs Folder
+
 Current Implementation: Single .gz File
 
 The BackupManager creates a single compressed file at BackupManager.js:77-157:
@@ -397,6 +430,7 @@ The BackupManager creates a single compressed file at BackupManager.js:77-157:
   └── ...
 
 ### Contents
+
 JSON structure with all manager backups
 Compressed with gzip (~30-50% of original size)
 Metadata only, not actual file contents
@@ -422,7 +456,7 @@ The real data stays in the filesystem:
 ## Summary Table
 
 | Manager| Has Data? | What's Backed Up | Where's Real Data
-| ---- | ---- | ---- | ---- 
+| ---- | ---- | ---- | ----
 | AttachmentManager | ✅ Yes | Metadata Map | ./data/attachments/
 | PageManager | ✅ Yes | (Not implemented) | ./pages/
 | UserManager | ✅ Yes | (Not implemented) | ./users/
@@ -433,6 +467,7 @@ The real data stays in the filesystem:
 | ValidationManager | ❌ No | data: null | Runtime only
 
 ## 💡 Recommendations
+
 1. Implement backup for PageManager/Provider - Critical data not currently backed up
 2. Implement backup for UserManager - User accounts should be in backups
 3. MUST ADD full backup option - Include actual files, not just metadata

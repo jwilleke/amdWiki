@@ -5,6 +5,7 @@ The amdWiki MCP (Model Context Protocol) Server provides AI assistants like Clau
 ## Overview
 
 The MCP server exposes 12 specialized tools that allow AI assistants to:
+
 - Query and search wiki pages
 - Access metadata and categories
 - Validate and generate page metadata
@@ -74,10 +75,12 @@ Add to your MCP settings file:
 Get complete page content and metadata by identifier.
 
 **Parameters:**
+
 - `identifier` (string, required): Page title, UUID, or slug
 - `include_content` (boolean, optional): Include full content (default: true)
 
 **Example:**
+
 ```json
 {
   "identifier": "Main",
@@ -86,6 +89,7 @@ Get complete page content and metadata by identifier.
 ```
 
 **Returns:**
+
 ```json
 {
   "title": "Main",
@@ -104,11 +108,13 @@ Get complete page content and metadata by identifier.
 List all pages with optional filtering.
 
 **Parameters:**
+
 - `category` (string, optional): Filter by system category
 - `keywords` (array, optional): Filter by user keywords
 - `limit` (number, optional): Max results (default: 50)
 
 **Example:**
+
 ```json
 {
   "category": "documentation",
@@ -122,6 +128,7 @@ List all pages with optional filtering.
 Full-text search with advanced filtering.
 
 **Parameters:**
+
 - `query` (string, required): Search text
 - `categories` (array, optional): Filter by categories
 - `keywords` (array, optional): Filter by keywords
@@ -129,6 +136,7 @@ Full-text search with advanced filtering.
 - `max_results` (number, optional): Max results (default: 20)
 
 **Example:**
+
 ```json
 {
   "query": "validation metadata",
@@ -138,6 +146,7 @@ Full-text search with advanced filtering.
 ```
 
 **Returns:**
+
 ```json
 {
   "total": 5,
@@ -159,9 +168,11 @@ Full-text search with advanced filtering.
 Get page metadata only (fast, no content).
 
 **Parameters:**
+
 - `identifier` (string, required): Page identifier
 
 **Example:**
+
 ```json
 {
   "identifier": "Main"
@@ -175,6 +186,7 @@ Get all system categories with configurations.
 **Parameters:** None
 
 **Returns:**
+
 ```json
 {
   "categories": [
@@ -202,6 +214,7 @@ Get all user keywords in use across pages.
 **Parameters:** None
 
 **Returns:**
+
 ```json
 {
   "keywords": ["tutorial", "guide", "api", "configuration", ...]
@@ -213,9 +226,11 @@ Get all user keywords in use across pages.
 Validate page metadata structure.
 
 **Parameters:**
+
 - `metadata` (object, required): Metadata to validate
 
 **Example:**
+
 ```json
 {
   "metadata": {
@@ -229,6 +244,7 @@ Validate page metadata structure.
 ```
 
 **Returns:**
+
 ```json
 {
   "valid": true,
@@ -241,11 +257,13 @@ Validate page metadata structure.
 Generate valid metadata template for a new page.
 
 **Parameters:**
+
 - `title` (string, required): Page title
 - `category` (string, optional): System category (default: "general")
 - `keywords` (array, optional): User keywords (max 5)
 
 **Example:**
+
 ```json
 {
   "title": "My New Page",
@@ -261,9 +279,11 @@ Generate valid metadata template for a new page.
 List attachments for a page.
 
 **Parameters:**
+
 - `page_name` (string, required): Page identifier
 
 **Example:**
+
 ```json
 {
   "page_name": "Main"
@@ -271,6 +291,7 @@ List attachments for a page.
 ```
 
 **Returns:**
+
 ```json
 {
   "attachments": [
@@ -291,10 +312,12 @@ List attachments for a page.
 Find pages similar to a given page.
 
 **Parameters:**
+
 - `page_name` (string, required): Reference page
 - `limit` (number, optional): Max results (default: 10)
 
 **Example:**
+
 ```json
 {
   "page_name": "ValidationManager",
@@ -307,9 +330,11 @@ Find pages similar to a given page.
 Get wiki configuration value(s).
 
 **Parameters:**
+
 - `key` (string, optional): Specific config key
 
 **Example:**
+
 ```json
 {
   "key": "amdwiki.page.provider"
@@ -325,6 +350,7 @@ Get search index statistics.
 **Parameters:** None
 
 **Returns:**
+
 ```json
 {
   "documentCount": 125,
@@ -397,6 +423,7 @@ The MCP server initializes WikiEngine on first tool call and maintains a single 
 ### Communication Protocol
 
 The server uses **stdio transport** per MCP specification:
+
 - Receives JSON-RPC requests via stdin
 - Sends JSON-RPC responses via stdout
 - Logs errors to stderr
@@ -418,6 +445,7 @@ All tool calls return structured error responses:
 ```
 
 Common errors:
+
 - `Page not found`: Invalid identifier
 - `Invalid metadata`: Validation failure
 - `Manager not initialized`: WikiEngine initialization failed
@@ -427,6 +455,7 @@ Common errors:
 ### Caching
 
 The WikiEngine maintains in-memory caches:
+
 - Page cache (full content)
 - Title/UUID/Slug indexes
 - Search index (Lunr)
@@ -444,6 +473,7 @@ Use `include_content: false` for metadata-only queries to reduce response size.
 ### Access Control
 
 The MCP server runs with full wiki access. Ensure:
+
 - Server is only accessible to trusted AI assistants
 - File system permissions are properly configured
 - Configuration files are protected
@@ -451,6 +481,7 @@ The MCP server runs with full wiki access. Ensure:
 ### Data Exposure
 
 Be aware that:
+
 - All page content is accessible via MCP
 - Configuration values can be queried
 - No user authentication is enforced at MCP level
@@ -516,6 +547,7 @@ All debug output goes to stderr (not stdout, which is reserved for MCP protocol)
 **Issue**: `Cannot find module '@modelcontextprotocol/sdk'`
 
 **Solution**:
+
 ```bash
 npm install
 npm run build
@@ -526,6 +558,7 @@ npm run build
 **Issue**: `Manager not initialized`
 
 **Solution**: Check that:
+
 - `config/` directory exists
 - `pages/` and `required-pages/` directories exist
 - Configuration files are valid JSON
@@ -535,6 +568,7 @@ npm run build
 **Issue**: Search/list operations return no results
 
 **Solution**:
+
 - Verify pages exist: `ls pages/`
 - Rebuild search index: Restart MCP server
 - Check page metadata format
@@ -544,6 +578,7 @@ npm run build
 **Issue**: Slow tool responses
 
 **Solution**:
+
 - Use `include_content: false` when content not needed
 - Reduce `max_results` and `limit` parameters
 - Check disk I/O performance
@@ -552,6 +587,7 @@ npm run build
 ## Future Enhancements
 
 Planned improvements:
+
 - [ ] Page creation/editing tools
 - [ ] User authentication integration
 - [ ] Rate limiting

@@ -1,7 +1,7 @@
 ---
 title: Resource
 uuid: 8c52d5cb-deff-47ee-9414-303cde2fd3de
-system-category: developer
+system-category: documentation
 user-keywords: []
 slug: resource
 lastModified: '2025-10-17T13:24:21.713Z'

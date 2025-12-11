@@ -5,6 +5,7 @@ This guide explains how to integrate the first-run installation system into amdW
 ## Overview
 
 The installation system provides a JSPWiki-style setup wizard that:
+
 - Collects application and organization configuration
 - Creates the admin user account
 - Copies startup pages to initialize the wiki
@@ -13,15 +14,19 @@ The installation system provides a JSPWiki-style setup wizard that:
 ## Files Created
 
 ### Configuration
+
 - `config/app-default-config.json` - Added install properties
 
 ### Service Layer
+
 - `src/services/InstallService.js` - Installation logic
 
 ### Routes
+
 - `src/routes/InstallRoutes.js` - Install route handlers
 
 ### Views
+
 - `views/install.ejs` - Installation form
 - `views/install-success.ejs` - Success confirmation page
 
@@ -120,6 +125,7 @@ The following properties were added to `app-default-config.json`:
 ## What Gets Created
 
 ### config/app-custom-config.json
+
 ```json
 {
   "amdwiki.applicationName": "My Wiki",
@@ -132,6 +138,7 @@ The following properties were added to `app-default-config.json`:
 ```
 
 ### users/organizations.json
+
 ```json
 [
   {
@@ -147,12 +154,16 @@ The following properties were added to `app-default-config.json`:
 ```
 
 ### pages/
+
 All 33 startup pages copied from `required-pages/`:
+
 - 15 system pages (system-category: system)
 - 18 documentation pages (system-category: documentation)
 
 ### users/users.json
+
 Admin user account created with:
+
 - Username from form
 - Hashed password
 - Email from form
@@ -169,6 +180,7 @@ Admin user account created with:
 ## Testing
 
 ### Test Install Required
+
 ```javascript
 const installService = engine.installService;
 const required = await installService.isInstallRequired();
@@ -176,9 +188,11 @@ console.log('Install required:', required);
 ```
 
 ### Test Form Rendering
+
 Navigate to: `http://localhost:3000/install`
 
 ### Test Installation Process
+
 1. Fill out form with valid data
 2. Submit
 3. Verify `config/app-custom-config.json` created
@@ -190,14 +204,16 @@ Navigate to: `http://localhost:3000/install`
 
 To skip installation in development:
 
-1. Create `config/app-custom-config.json` manually with:
+### Setp 1. Create `config/app-custom-config.json` manually with
+
 ```json
 {
   "amdwiki.install.completed": true
 }
 ```
 
-2. Or set environment variable:
+### Setp 2. Or set environment variable
+
 ```bash
 SKIP_INSTALL=true npm start
 ```
@@ -205,23 +221,27 @@ SKIP_INSTALL=true npm start
 ## Troubleshooting
 
 ### Install Loop
+
 If redirected to `/install` repeatedly:
+
 - Check `amdwiki.install.completed` in config
 - Verify admin user exists in `users/users.json`
 - Check `pages/` directory has .md files
 
 ### Form Validation Errors
+
 - Check browser console for JavaScript errors
 - Verify all required fields filled
 - Passwords must match and be 8+ characters
 
 ### Permission Errors
+
 - Ensure write permissions on `config/` directory
 - Ensure write permissions on `users/` directory
 - Ensure write permissions on `pages/` directory
 
 ## References
 
-- JSPWiki Install.jsp: https://github.com/apache/jspwiki/blob/master/jspwiki-war/src/main/webapp/Install.jsp
+- JSPWiki Install.jsp: <https://github.com/apache/jspwiki/blob/master/jspwiki-war/src/main/webapp/Install.jsp>
 - Issue #153: Refactor required-pages architecture
-- Schema.org Organization: https://schema.org/Organization
+- Schema.org Organization: <https://schema.org/Organization>

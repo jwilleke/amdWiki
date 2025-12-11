@@ -75,12 +75,14 @@ async viewPage(req, res) {
 ```
 
 **Key Points**:
+
 - WikiContext encapsulates request metadata
 - WikiContext.renderMarkdown() is the entry point
 - ACL checks happen before rendering
 - Request info extracted for variable expansion
 
 **Components Used**:
+
 - `WikiContext` (src/context/WikiContext.js)
 - `UserManager` (authentication)
 - `ACLManager` (authorization)
@@ -120,6 +122,7 @@ class WikiContext {
 ```
 
 **Purpose**:
+
 - Encapsulates rendering context (like JSPWiki's WikiContext)
 - Provides access to engine managers
 - Handles fallback rendering
@@ -152,6 +155,7 @@ async renderMarkdown(content, pageName, userContext, requestInfo) {
 ```
 
 **Configuration** (from `config/app-default-config.json`):
+
 ```json
 {
   "amdwiki.markup.useAdvancedParser": true,
@@ -161,6 +165,7 @@ async renderMarkdown(content, pageName, userContext, requestInfo) {
 ```
 
 **Decision Tree**:
+
 - ✅ **Primary**: MarkupParser (if available and enabled)
 - 🔄 **Fallback**: Legacy Parser (if MarkupParser fails)
 - ❌ **Error**: Throw (if fallback disabled)
@@ -239,11 +244,13 @@ async phaseDOMParsing(content, context) {
 ```
 
 **Why Disabled?**:
+
 - DOM parser converts markdown headings to list items
 - Causes formatting issues
 - String-based preprocessing in Phase 1 handles JSPWiki syntax instead
 
 **WikiDocument Components** (available but not fully active):
+
 - ✅ `WikiDocument.js` - Fully implemented (400 lines)
 - ✅ `DOMParser.js` - Complete DOM parsing pipeline
 - ✅ `Tokenizer.js` - Token-based content parsing
@@ -257,12 +264,14 @@ async phaseDOMParsing(content, context) {
 **Purpose**: Handle escaping, normalize content, protect code blocks
 
 **Handlers**:
-- ✅ **JSPWikiPreprocessor** - Processes `%%.../%% ` blocks and tables BEFORE markdown
+
+- ✅ **JSPWikiPreprocessor** - Processes `%%.../%%` blocks and tables BEFORE markdown
   - Location: `src/parsers/handlers/JSPWikiPreprocessor.js`
   - Priority: Phase 1
   - Handles: `%%table-striped`, `%%wikitag`, etc.
 
 **Process**:
+
 ```javascript
 async phasePreprocessing(content, context) {
   // Step 1: Process JSPWiki-specific syntax
@@ -281,6 +290,7 @@ async phasePreprocessing(content, context) {
 ```
 
 **Key Operations**:
+
 - Escape handling (`[[` syntax)
 - Code block protection
 - JSPWiki table preprocessing
@@ -336,6 +346,7 @@ async phaseContextResolution(content, context) {
 **Purpose**: Execute syntax handlers (plugins, links, forms, etc.)
 
 **Handlers** (in priority order):
+
 1. **PluginSyntaxHandler** (Priority: 90)
    - Processes `[{PluginName params}]`
    - Delegates to PluginManager
@@ -358,6 +369,7 @@ async phaseContextResolution(content, context) {
    - Location: `src/parsers/handlers/LinkParserHandler.js`
 
 **Process**:
+
 ```javascript
 async phaseContentTransformation(content, context) {
   if (context.wikiDocument) {
@@ -389,6 +401,7 @@ async phaseContentTransformation(content, context) {
 **Purpose**: Security, spam detection, validation
 
 **Filters**:
+
 1. **SecurityFilter** - XSS prevention, HTML sanitization
    - Location: `src/parsers/filters/SecurityFilter.js`
    - Removes dangerous HTML, scripts, iframes
@@ -402,6 +415,7 @@ async phaseContentTransformation(content, context) {
    - Ensures content compliance
 
 **Process**:
+
 ```javascript
 async phaseFilterPipeline(content, context) {
   if (!this.config.filters.enabled) {
@@ -414,6 +428,7 @@ async phaseFilterPipeline(content, context) {
 ```
 
 **Configuration**:
+
 ```json
 {
   "amdwiki.markup.filters.enabled": true,
@@ -454,6 +469,7 @@ async phaseMarkdownConversion(content, context) {
 ```
 
 **Showdown Configuration**:
+
 - ✅ Tables support
 - ✅ Strikethrough
 - ✅ Task lists
@@ -467,6 +483,7 @@ async phaseMarkdownConversion(content, context) {
 **Purpose**: Cleanup, validation, restore protected content
 
 **Process**:
+
 ```javascript
 async phasePostProcessing(content, context) {
   // Restore any remaining protected HTML blocks
@@ -491,6 +508,7 @@ async phasePostProcessing(content, context) {
 **Location**: `src/managers/RenderingManager.js:renderWithLegacyParser()`
 
 **5-Step Process**:
+
 ```javascript
 async renderWithLegacyParser(content, pageName, userContext, requestInfo) {
   // Step 1: Expand macros (plugins + variables)
@@ -513,11 +531,13 @@ async renderWithLegacyParser(content, pageName, userContext, requestInfo) {
 ```
 
 **When Used**:
+
 - MarkupParser not available
 - MarkupParser disabled via config
 - MarkupParser throws error AND `fallbackToLegacy: true`
 
 **Legacy Methods** (still active):
+
 - `expandMacros()` - Plugin/variable expansion
 - `processJSPWikiTables()` - Table syntax
 - `processWikiLinks()` - Link processing
@@ -534,6 +554,7 @@ async renderWithLegacyParser(content, pageName, userContext, requestInfo) {
 **Status**: ✅ **Fully Implemented** (400 lines)
 
 **Features**:
+
 - W3C DOM API (createElement, appendChild, querySelector, etc.)
 - WeakRef context for garbage collection
 - Metadata storage
@@ -541,6 +562,7 @@ async renderWithLegacyParser(content, pageName, userContext, requestInfo) {
 - Based on linkedom for performance
 
 **Usage** (when Phase 0 enabled):
+
 ```javascript
 const wikiDocument = new WikiDocument(content, context);
 wikiDocument.appendChild(wikiDocument.createElement('p'));
@@ -556,6 +578,7 @@ const html = wikiDocument.toHTML();
 **Status**: ✅ **Fully Implemented**
 
 **Pipeline**:
+
 ```javascript
 parse(content, context) {
   // Step 1: Create WikiDocument
@@ -581,6 +604,7 @@ parse(content, context) {
 **Location**: `src/parsers/dom/Tokenizer.js`
 
 **Token Types**:
+
 - `TEXT` - Plain text
 - `VARIABLE` - `[{$varname}]`
 - `PLUGIN` - `[{PluginName params}]`
@@ -595,6 +619,7 @@ parse(content, context) {
 ### DOM Handlers
 
 **DOMVariableHandler** (`src/parsers/dom/handlers/DOMVariableHandler.js`):
+
 ```javascript
 async processVariables(wikiDocument, context) {
   const variableNodes = wikiDocument.querySelectorAll('[data-variable]');
@@ -607,6 +632,7 @@ async processVariables(wikiDocument, context) {
 ```
 
 **DOMPluginHandler** (`src/parsers/dom/handlers/DOMPluginHandler.js`):
+
 ```javascript
 async processPlugins(wikiDocument, context) {
   const pluginNodes = wikiDocument.querySelectorAll('[data-plugin]');
@@ -620,6 +646,7 @@ async processPlugins(wikiDocument, context) {
 ```
 
 **DOMLinkHandler** (`src/parsers/dom/handlers/DOMLinkHandler.js`):
+
 ```javascript
 async processLinks(wikiDocument, context) {
   const linkNodes = wikiDocument.querySelectorAll('[data-link-type]');
@@ -695,12 +722,14 @@ async processLinks(wikiDocument, context) {
 **Goal**: Replace brittle 7-phase string parser with robust WikiDocument DOM
 
 **Problem Identified**:
+
 - String-based parsing is order-dependent
 - Escaping issues (`[[` syntax) keep recurring
 - Can't cache intermediate results
 - Hard to debug transformations
 
 **Solution Designed**:
+
 - Token-based parsing → WikiDocument DOM
 - No order dependency (DOM nodes independent)
 - Natural escaping (text nodes vs. elements)
@@ -709,35 +738,41 @@ async processLinks(wikiDocument, context) {
 ### What's Been Implemented
 
 ✅ **Phase 1: WikiDocument Class** (Complete)
+
 - Full W3C DOM API implementation
 - Metadata storage
 - Serialization support
 - WeakRef context
 
 ✅ **Phase 2: Tokenizer & DOMParser** (Complete)
+
 - Character-by-character tokenization
 - Token type recognition
 - DOM tree construction
 - Error handling
 
 ✅ **Phase 3: DOM Handlers** (Complete)
+
 - DOMVariableHandler
 - DOMPluginHandler
 - DOMLinkHandler
 
 ⚠️ **Phase 4: Integration** (Partial)
+
 - MarkupParser has domParser instance
 - Phase 0 (DOM Parsing) **DISABLED** due to markdown heading issues
 - DOM handlers conditionally used if WikiDocument available
 - Primary method still string-based 7-phase
 
 ❌ **Phase 5: Legacy Removal** (Not Started)
+
 - 7-phase string system still primary
 - Legacy methods still active as fallback
 
 ### Current Blockers
 
 **Why Phase 0 (DOM Parsing) is Disabled**:
+
 ```javascript
 // src/parsers/MarkupParser.js:844-848
 async phaseDOMParsing(content, context) {
@@ -816,11 +851,13 @@ async phaseDOMParsing(content, context) {
 ### Current Production Performance
 
 **Average Parse Time** (2KB page):
+
 - MarkupParser (7-phase): ~15-30ms
 - Legacy Parser (5-step): ~20-40ms
 - Cache Hit: ~1-2ms
 
 **Bottlenecks**:
+
 - Handler execution (Phase 4): 40-50% of time
 - Showdown conversion (Phase 6): 30-40% of time
 - Filter pipeline (Phase 5): 10-15% of time
@@ -828,6 +865,7 @@ async phaseDOMParsing(content, context) {
 ### Caching Strategy
 
 **Cache Levels**:
+
 1. **Parse Results Cache** (TTL: 300s)
    - Caches final HTML output
    - Key: `parse:${pageName}:${contentHash}`
@@ -870,6 +908,7 @@ Request → WikiContext → RenderingManager → MarkupParser (7-phase string) �
 ### Components in Active Use
 
 **Modern (Primary)**:
+
 - WikiContext (request encapsulation)
 - MarkupParser with 7-phase pipeline
 - HandlerRegistry (priority-based execution)
@@ -877,27 +916,32 @@ Request → WikiContext → RenderingManager → MarkupParser (7-phase string) �
 - CacheManager (multi-strategy)
 
 **WikiDocument (Implemented, Limited Use)**:
+
 - WikiDocument class (available)
 - DOMParser (available but not primary)
 - DOM Handlers (used only if WikiDocument present in context)
 
 **Legacy (Fallback)**:
+
 - renderWithLegacyParser (5-step process)
 - Direct string manipulation methods
 
 ### What's NOT Legacy
 
 The 7-phase MarkupParser is **NOT legacy** - it's the current production parser. However:
+
 - ✅ It's **modern** compared to the old direct RenderingManager methods
 - ⚠️ It's **transitional** - designed to be replaced by WikiDocument DOM
 - 🔄 It's **brittle** - string-based parsing has known issues
 
 The **true legacy** components are:
+
 - ❌ Old Config.js system (replaced by ConfigurationManager)
 - ❌ renderWithLegacyParser 5-step process (fallback only)
 - ❌ Archived files in src/legacy/
 
 The **future/modern** architecture is:
+
 - ✅ WikiDocument DOM-based parsing (implemented, waiting for full activation)
 
 ---

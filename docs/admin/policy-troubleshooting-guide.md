@@ -9,6 +9,7 @@ This guide provides comprehensive troubleshooting information for the amdWiki Po
 Before diving into specific issues, use this checklist for rapid diagnosis:
 
 ### 1. Policy Configuration
+
 - [ ] Policies are syntactically valid JSON
 - [ ] Required fields are present (`id`, `name`, `effect`, `subjects`, `resources`, `actions`)
 - [ ] Subject, resource, and action values are correct
@@ -16,12 +17,14 @@ Before diving into specific issues, use this checklist for rapid diagnosis:
 - [ ] No conflicting policies with same priority
 
 ### 2. System Integration
+
 - [ ] PolicyManager is properly initialized
 - [ ] ACLManager integration is working
 - [ ] User context is correctly passed
 - [ ] Cache is functioning (if enabled)
 
 ### 3. User Experience
+
 - [ ] Users can access expected resources
 - [ ] Deny policies are not overly restrictive
 - [ ] Allow policies are granting correct access
@@ -32,11 +35,13 @@ Before diving into specific issues, use this checklist for rapid diagnosis:
 ### Issue 1: Users Cannot Access Expected Resources
 
 **Symptoms:**
+
 - Users report "Access Denied" for resources they should access
 - Policy evaluation returns unexpected results
 - Audit logs show policy denials
 
 **Possible Causes:**
+
 1. Higher-priority deny policy is blocking access
 2. Subject matching is incorrect
 3. Resource patterns don't match
@@ -45,10 +50,12 @@ Before diving into specific issues, use this checklist for rapid diagnosis:
 **Diagnostic Steps:**
 
 1. **Check Policy Priority**
+
    ```bash
    # List policies by priority
    grep -r "priority" /path/to/policies/
    ```
+
    Look for policies with higher priority that might conflict.
 
 2. **Verify Subject Matching**
@@ -57,6 +64,7 @@ Before diving into specific issues, use this checklist for rapid diagnosis:
    - Verify case sensitivity
 
 3. **Test Resource Patterns**
+
    ```javascript
    // Test pattern matching
    const pattern = "Admin*";
@@ -72,6 +80,7 @@ Before diving into specific issues, use this checklist for rapid diagnosis:
 **Resolution Steps:**
 
 1. **Adjust Policy Priority**
+
    ```json
    {
      "id": "fix-access-issue",
@@ -85,6 +94,7 @@ Before diving into specific issues, use this checklist for rapid diagnosis:
    ```
 
 2. **Create Override Policy**
+
    ```json
    {
      "id": "emergency-override",
@@ -98,6 +108,7 @@ Before diving into specific issues, use this checklist for rapid diagnosis:
    ```
 
 3. **Fix Subject Configuration**
+
    ```json
    // Before (incorrect)
    {"type": "role", "value": "Editor"}
@@ -109,11 +120,13 @@ Before diving into specific issues, use this checklist for rapid diagnosis:
 ### Issue 2: Policies Not Taking Effect
 
 **Symptoms:**
+
 - Policy changes don't appear to work
 - Old behavior persists after policy updates
 - Cache-related issues
 
 **Possible Causes:**
+
 1. Policy cache not cleared
 2. Policy file not saved correctly
 3. Server restart required
@@ -122,6 +135,7 @@ Before diving into specific issues, use this checklist for rapid diagnosis:
 **Diagnostic Steps:**
 
 1. **Check Policy File**
+
    ```bash
    # Verify policy file exists and is readable
    ls -la /path/to/policies/
@@ -129,6 +143,7 @@ Before diving into specific issues, use this checklist for rapid diagnosis:
    ```
 
 2. **Validate JSON Syntax**
+
    ```bash
    # Use jq to validate JSON
    jq . /path/to/policies/active-policies.json
@@ -138,6 +153,7 @@ Before diving into specific issues, use this checklist for rapid diagnosis:
    ```
 
 3. **Check Cache Status**
+
    ```javascript
    // Check if cache is enabled and current
    const policyManager = engine.getManager('PolicyManager');
@@ -146,6 +162,7 @@ Before diving into specific issues, use this checklist for rapid diagnosis:
    ```
 
 4. **Review Server Logs**
+
    ```bash
    # Check for policy loading errors
    grep -i "policy" /var/log/amdwiki/app.log
@@ -155,6 +172,7 @@ Before diving into specific issues, use this checklist for rapid diagnosis:
 **Resolution Steps:**
 
 1. **Clear Policy Cache**
+
    ```javascript
    // Clear cache programmatically
    const policyManager = engine.getManager('PolicyManager');
@@ -162,6 +180,7 @@ Before diving into specific issues, use this checklist for rapid diagnosis:
    ```
 
 2. **Restart Services**
+
    ```bash
    # Restart the wiki service
    sudo systemctl restart amdwiki
@@ -170,6 +189,7 @@ Before diving into specific issues, use this checklist for rapid diagnosis:
    ```
 
 3. **Reload Policies**
+
    ```javascript
    // Force policy reload
    const policyManager = engine.getManager('PolicyManager');
@@ -177,6 +197,7 @@ Before diving into specific issues, use this checklist for rapid diagnosis:
    ```
 
 4. **Validate and Save**
+
    ```bash
    # Backup current policies
    cp /path/to/policies/active-policies.json /path/to/policies/backup.json
@@ -189,12 +210,14 @@ Before diving into specific issues, use this checklist for rapid diagnosis:
 ### Issue 3: Performance Degradation
 
 **Symptoms:**
+
 - Slow page loads
 - High CPU usage during policy evaluation
 - Timeout errors
 - Memory usage spikes
 
 **Possible Causes:**
+
 1. Too many policies
 2. Inefficient policy patterns
 3. Cache misses
@@ -203,6 +226,7 @@ Before diving into specific issues, use this checklist for rapid diagnosis:
 **Diagnostic Steps:**
 
 1. **Monitor Policy Evaluation**
+
    ```javascript
    // Add timing to policy evaluation
    const startTime = Date.now();
@@ -212,12 +236,14 @@ Before diving into specific issues, use this checklist for rapid diagnosis:
    ```
 
 2. **Check Policy Count**
+
    ```bash
    # Count active policies
    jq '. | length' /path/to/policies/active-policies.json
    ```
 
 3. **Analyze Cache Performance**
+
    ```javascript
    // Check cache hit rate
    const stats = policyManager.getCacheStats();
@@ -225,6 +251,7 @@ Before diving into specific issues, use this checklist for rapid diagnosis:
    ```
 
 4. **Profile Resource Patterns**
+
    ```javascript
    // Test pattern performance
    const patterns = ['*', 'Admin*', 'Project-*', 'Home'];
@@ -242,6 +269,7 @@ Before diving into specific issues, use this checklist for rapid diagnosis:
 **Resolution Steps:**
 
 1. **Optimize Patterns**
+
    ```json
    // Before (inefficient)
    {"type": "page", "pattern": "*"}
@@ -251,6 +279,7 @@ Before diving into specific issues, use this checklist for rapid diagnosis:
    ```
 
 2. **Implement Caching Strategy**
+
    ```javascript
    // Enable result caching
    policyManager.enableCache({
@@ -260,6 +289,7 @@ Before diving into specific issues, use this checklist for rapid diagnosis:
    ```
 
 3. **Consolidate Policies**
+
    ```json
    // Combine similar policies
    {
@@ -278,6 +308,7 @@ Before diving into specific issues, use this checklist for rapid diagnosis:
    ```
 
 4. **Add Performance Monitoring**
+
    ```javascript
    // Monitor policy evaluation performance
    const slowThreshold = 100; // ms
@@ -290,11 +321,13 @@ Before diving into specific issues, use this checklist for rapid diagnosis:
 ### Issue 4: Unexpected Access Granted
 
 **Symptoms:**
+
 - Users can access resources they shouldn't
 - Security violations
 - Audit logs show unauthorized access
 
 **Possible Causes:**
+
 1. Overly permissive policies
 2. Incorrect allow policies
 3. Missing deny policies
@@ -303,12 +336,14 @@ Before diving into specific issues, use this checklist for rapid diagnosis:
 **Diagnostic Steps:**
 
 1. **Review Allow Policies**
+
    ```bash
    # Find overly permissive policies
    jq '.[] | select(.effect == "allow") | select(.resources[].pattern == "*")' /path/to/policies/active-policies.json
    ```
 
 2. **Check Subject Scope**
+
    ```javascript
    // Analyze subject breadth
    const policy = getPolicyById('problematic-policy');
@@ -317,12 +352,14 @@ Before diving into specific issues, use this checklist for rapid diagnosis:
    ```
 
 3. **Audit Access Patterns**
+
    ```bash
    # Check recent access logs
    grep "ALLOW" /var/log/amdwiki/access.log | tail -20
    ```
 
 4. **Test Policy Logic**
+
    ```javascript
    // Simulate access request
    const testContext = {
@@ -338,6 +375,7 @@ Before diving into specific issues, use this checklist for rapid diagnosis:
 **Resolution Steps:**
 
 1. **Add Deny Policies**
+
    ```json
    {
      "id": "restrict-sensitive-content",
@@ -355,6 +393,7 @@ Before diving into specific issues, use this checklist for rapid diagnosis:
    ```
 
 2. **Refine Subject Matching**
+
    ```json
    // Before (too broad)
    {"type": "authenticated"}
@@ -364,6 +403,7 @@ Before diving into specific issues, use this checklist for rapid diagnosis:
    ```
 
 3. **Implement Defense in Depth**
+
    ```json
    // Multiple layers of protection
    [
@@ -389,11 +429,13 @@ Before diving into specific issues, use this checklist for rapid diagnosis:
 ### Issue 5: Policy Validation Errors
 
 **Symptoms:**
+
 - Policies cannot be saved
 - Schema validation failures
 - Import errors
 
 **Possible Causes:**
+
 1. JSON syntax errors
 2. Missing required fields
 3. Invalid values
@@ -402,12 +444,14 @@ Before diving into specific issues, use this checklist for rapid diagnosis:
 **Diagnostic Steps:**
 
 1. **Validate JSON Syntax**
+
    ```bash
    # Check for syntax errors
    python -c "import json; json.load(open('policy.json'))"
    ```
 
 2. **Schema Validation**
+
    ```javascript
    const Ajv = require('ajv');
    const ajv = new Ajv();
@@ -420,6 +464,7 @@ Before diving into specific issues, use this checklist for rapid diagnosis:
    ```
 
 3. **Check Required Fields**
+
    ```javascript
    const requiredFields = ['id', 'name', 'effect', 'subjects', 'resources', 'actions'];
    const missingFields = requiredFields.filter(field => !policy.hasOwnProperty(field));
@@ -427,6 +472,7 @@ Before diving into specific issues, use this checklist for rapid diagnosis:
    ```
 
 4. **Verify Field Values**
+
    ```javascript
    // Check enum values
    const validEffects = ['allow', 'deny'];
@@ -440,6 +486,7 @@ Before diving into specific issues, use this checklist for rapid diagnosis:
 **Resolution Steps:**
 
 1. **Fix JSON Syntax**
+
    ```json
    // Before (invalid)
    {
@@ -463,6 +510,7 @@ Before diving into specific issues, use this checklist for rapid diagnosis:
    ```
 
 2. **Add Missing Fields**
+
    ```json
    {
      "id": "complete-policy",
@@ -477,6 +525,7 @@ Before diving into specific issues, use this checklist for rapid diagnosis:
    ```
 
 3. **Correct Invalid Values**
+
    ```json
    // Before (invalid action)
    {"actions": ["read", "write"]}
@@ -490,6 +539,7 @@ Before diving into specific issues, use this checklist for rapid diagnosis:
 ### Policy Conflict Analysis
 
 **Identify Conflicting Policies:**
+
 ```javascript
 function findConflicts(policies) {
   const conflicts = [];
@@ -514,6 +564,7 @@ function findConflicts(policies) {
 ```
 
 **Resolve Conflicts:**
+
 1. Adjust priority levels
 2. Refine subject/resource scope
 3. Combine overlapping policies
@@ -522,6 +573,7 @@ function findConflicts(policies) {
 ### Performance Profiling
 
 **Profile Policy Evaluation:**
+
 ```javascript
 class PolicyProfiler {
   constructor() {
@@ -562,6 +614,7 @@ class PolicyProfiler {
 ### Audit Log Analysis
 
 **Analyze Access Patterns:**
+
 ```bash
 # Find most accessed resources
 grep "ACCESS" /var/log/amdwiki/audit.log | \
@@ -586,6 +639,7 @@ grep "POLICY_EVAL" /var/log/amdwiki/performance.log | \
 ### Automated Testing
 
 **Policy Test Suite:**
+
 ```javascript
 const PolicyTester = {
   testBasicAccess: function() {
@@ -641,11 +695,13 @@ const PolicyTester = {
 ### Complete Policy System Reset
 
 **When to Use:**
+
 - Corrupted policy configuration
 - Multiple conflicting policies
 - System-wide access issues
 
 **Procedure:**
+
 ```bash
 # 1. Backup current policies
 cp /path/to/policies/active-policies.json /path/to/backup/emergency-backup.json
@@ -683,6 +739,7 @@ curl -u admin:password http://localhost:3000/
 ### Emergency Access Override
 
 **For Immediate Access Issues:**
+
 ```json
 {
   "id": "emergency-override",
@@ -711,6 +768,7 @@ curl -u admin:password http://localhost:3000/
 ### Regular Health Checks
 
 **Daily Checks:**
+
 ```bash
 #!/bin/bash
 # Policy system health check script
@@ -747,6 +805,7 @@ echo "=== Health Check Complete ==="
 ### Performance Monitoring
 
 **Key Metrics to Monitor:**
+
 - Policy evaluation response time
 - Cache hit/miss ratio
 - Memory usage
@@ -754,6 +813,7 @@ echo "=== Health Check Complete ==="
 - Policy change frequency
 
 **Alert Thresholds:**
+
 - Evaluation time > 100ms
 - Cache hit rate < 80%
 - Memory usage > 500MB
@@ -762,6 +822,7 @@ echo "=== Health Check Complete ==="
 ### Backup and Recovery
 
 **Regular Backup Procedure:**
+
 ```bash
 #!/bin/bash
 # Policy backup script
@@ -809,6 +870,7 @@ echo "Policy backup completed: $TIMESTAMP"
 ### Escalation Procedures
 
 **For Critical Issues:**
+
 1. Enable emergency access override
 2. Create incident ticket
 3. Notify security team
@@ -816,6 +878,7 @@ echo "Policy backup completed: $TIMESTAMP"
 5. Schedule root cause analysis
 
 **Contact Information:**
+
 - Security Team: `security@company.com`
 - DevOps Team: `devops@company.com`
 - Policy Administrators: `policy-admins@company.com`

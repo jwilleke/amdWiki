@@ -36,7 +36,7 @@ npm install
 
 ### 4. Open in Browser
 
-Visit http://localhost:3000
+Visit <http://localhost:3000>
 
 The installation wizard will guide you through first-time setup.
 
@@ -62,6 +62,7 @@ On first visit, the Installation Wizard will:
    - Provides starter content
 
 Complete the form and the system will:
+
 - Create configuration file
 - Create admin user with hashed password
 - Copy startup pages (if selected)
@@ -219,6 +220,7 @@ See [docs/SERVER-MANAGEMENT.md](./docs/SERVER-MANAGEMENT.md) for Docker deployme
 ### Installation Loop
 
 If form keeps looping:
+
 1. Check server logs: `./server.sh logs`
 2. Verify all required fields filled
 3. Try again or reset: `POST /install/reset`
@@ -272,6 +274,7 @@ pm2 delete all         # Remove from PM2
 ### Health Checks
 
 Check server health:
+
 ```bash
 curl http://localhost:3000/
 ```

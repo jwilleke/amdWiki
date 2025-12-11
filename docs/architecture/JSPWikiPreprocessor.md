@@ -79,6 +79,7 @@ async process(content, context) {
 ### 2. Nested Block Parsing
 
 **Input:**
+
 ```markdown
 %%zebra-table
 %%sortable
@@ -89,6 +90,7 @@ async process(content, context) {
 ```
 
 **Processing Flow:**
+
 ```javascript
 parseStyleBlocks(content, accumulatedClasses = [])
   ├─ Finds: %%zebra-table
@@ -106,12 +108,14 @@ parseStyleBlocks(content, accumulatedClasses = [])
 ### 3. Table Parsing
 
 **JSPWiki Syntax:**
+
 ``` markdown
 || Header 1 || Header 2 ||   ← Double pipes = header row
 | Cell 1 | Cell 2 |          ← Single pipes = data row
 ```
 
 **Parsing Logic:**
+
 ```javascript
 parseTableRow(line) {
   const isHeader = line.trim().startsWith('||');
@@ -122,6 +126,7 @@ parseTableRow(line) {
 ```
 
 **HTML Output:**
+
 ```html
 <table class="table zebra-table sortable">
   <thead>
@@ -138,6 +143,7 @@ parseTableRow(line) {
 **Syntax:** `%%zebra-HEXCOLOR` (e.g., `%%zebra-ffe0e0`)
 
 **Processing:**
+
 ```javascript
 extractCustomStyles(['zebra-ffe0e0'])
   ├─ Regex match: /^zebra-([0-9a-fA-F]{6})$/
@@ -151,6 +157,7 @@ extractCustomStyles(['zebra-ffe0e0'])
 ```
 
 **HTML Output:**
+
 ```html
 <table class="table zebra-table" style="--zebra-row-even: #ffe0e0; --zebra-text-color: #000000;">
 ```
@@ -160,6 +167,7 @@ extractCustomStyles(['zebra-ffe0e0'])
 ### With MarkupParser
 
 **Registration:**
+
 ```javascript
 // MarkupParser.js - registerDefaultHandlers()
 const JSPWikiPreprocessor = require('./handlers/JSPWikiPreprocessor');
@@ -168,6 +176,7 @@ await this.registerHandler(jspwikiPreprocessor);
 ```
 
 **Phase Execution:**
+
 ```javascript
 // MarkupParser.js - phasePreprocessing()
 async phasePreprocessing(content, context) {
@@ -186,6 +195,7 @@ async phasePreprocessing(content, context) {
 JSPWikiPreprocessor generates HTML that client-side JavaScript enhances:
 
 #### 1. zebraTable.js
+
 ```javascript
 // Finds tables: table.zebra-table
 // Applies classes: .zebra-even, .zebra-odd
@@ -193,6 +203,7 @@ JSPWikiPreprocessor generates HTML that client-side JavaScript enhances:
 ```
 
 #### 2. tableSort.js
+
 ```javascript
 // Finds tables: table.sortable
 // Adds click handlers to <th> elements
@@ -200,6 +211,7 @@ JSPWikiPreprocessor generates HTML that client-side JavaScript enhances:
 ```
 
 #### 3. tableFilter.js
+
 ```javascript
 // Finds tables: table.table-filter
 // Injects filter input row
@@ -209,6 +221,7 @@ JSPWikiPreprocessor generates HTML that client-side JavaScript enhances:
 ### With CSS
 
 **CSS Variables Flow:**
+
 ```css
 JSPWikiPreprocessor (JS)
   ↓ Sets inline style
@@ -223,6 +236,7 @@ color: var(--zebra-text-color);
 ## Supported Table Classes
 
 ### Visual Styles
+
 - `zebra-table` - Alternating row colors (default gray)
 - `table-striped` - Bootstrap-style striping
 - `table-bordered` - Cell borders
@@ -232,16 +246,19 @@ color: var(--zebra-text-color);
 - `table-responsive` - Horizontal scrolling on mobile
 
 ### Interactive Features
+
 - `sortable` / `table-sort` - Clickable column headers
 - `table-filter` - Filter inputs per column
 
 ### Custom Colors
+
 - `zebra-HEXCOLOR` - Custom stripe color with auto-contrast text
   - Example: `zebra-ffe0e0` (pink), `zebra-e0e0ff` (blue)
 
 ## Design Patterns
 
 ### 1. Recursive Descent Parser
+
 ```javascript
 parseStyleBlocks(content, accumulatedClasses) {
   // Accumulates classes through recursion
@@ -250,6 +267,7 @@ parseStyleBlocks(content, accumulatedClasses) {
 ```
 
 ### 2. State-Based Parsing (Inspired by JSPWiki)
+
 ```javascript
 // Line-by-line processing
 // Maintains state (depth, accumulated classes)
@@ -257,6 +275,7 @@ parseStyleBlocks(content, accumulatedClasses) {
 ```
 
 ### 3. WCAG Accessibility
+
 ```javascript
 getContrastColor(hexColor) {
   // Ensures WCAG-compliant contrast
@@ -267,17 +286,21 @@ getContrastColor(hexColor) {
 ## Deprecated Components
 
 ### WikiStyleHandler (Phase 4)
+
 **Replaced by:** JSPWikiPreprocessor (Phase 1)
 
 **Why deprecated:**
+
 - Ran too late (after markdown preprocessing)
 - Used marker system (%%TABLE_CLASSES{...}%%)
 - Headers separated from tables
 
 ### WikiTableHandler (Phase 4)
+
 **Replaced by:** JSPWikiPreprocessor (Phase 1)
 
 **Why deprecated:**
+
 - Couldn't find headers (wrapped in `<p>` tags)
 - State-based approach incomplete
 - Timing issues with WikiStyleHandler
@@ -304,6 +327,7 @@ getContrastColor(hexColor) {
 ### Long-Term Architecture
 
 1. **Unified Preprocessor**
+
    ```text
    JSPWikiPreprocessor (current)
      ├─ Table Parsing ✓
@@ -381,11 +405,13 @@ describe('JSPWikiPreprocessor', () => {
 ### Optimization Strategies
 
 1. **Early Exit**
+
    ```javascript
    if (!content.includes('%%')) return content; // No JSPWiki syntax
    ```
 
 2. **Regex Compilation**
+
    ```javascript
    // Compile once in constructor
    this.blockPattern = /^%%([a-zA-Z0-9_-]+)$/;
@@ -413,14 +439,17 @@ if (this.debug) {
 ### Common Issues
 
 **Issue:** Custom colors not applied
+
 - **Check:** zebraTable.js selector includes `table.zebra-table`
 - **Check:** CSS rule includes `table.zebra-table tbody tr.zebra-even`
 
 **Issue:** Headers outside table
+
 - **Check:** JSPWikiPreprocessor registered in Phase 1
 - **Check:** Handler phase property: `this.phase = 1`
 
 **Issue:** Nested blocks not working
+
 - **Check:** Matching `/%` for each `%%`
 - **Check:** Recursive call passes `accumulatedClasses`
 

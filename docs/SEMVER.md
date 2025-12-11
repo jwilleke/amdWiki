@@ -17,6 +17,7 @@ The project now follows [Semantic Versioning 2.0.0](https://semver.org/) specifi
 **Version**: 1.2.0 (as of September 7, 2025)
 
 This represents a MINOR version increment from the baseline due to significant new features:
+
 - Advanced search system
 - Enhanced authentication
 - UI/UX improvements
@@ -27,6 +28,7 @@ This represents a MINOR version increment from the baseline due to significant n
 ### 1. Version Management Script (`version.js`)
 
 **Usage**:
+
 ```bash
 node version.js                    # Show current version
 node version.js patch              # Increment patch version
@@ -39,6 +41,7 @@ node version.js help               # Show help
 ### 2. NPM Scripts
 
 Added to `package.json`:
+
 ```json
 {
   "scripts": {
@@ -54,6 +57,7 @@ Added to `package.json`:
 ### 3. Enhanced Package.json
 
 Updated with:
+
 - Proper semantic version (1.2.0)
 - Descriptive project description
 - Correct main entry point
@@ -62,6 +66,7 @@ Updated with:
 ### 4. Semantic Versioning in Changelog
 
 The `CHANGELOG.md` now follows [Keep a Changelog](https://keepachangelog.com/) format with:
+
 - Proper version headers with dates
 - Version type indicators (MAJOR/MINOR/PATCH)
 - Semantic versioning guide
@@ -85,21 +90,24 @@ The version management script automatically:
 
 ## Usage Guidelines
 
-### When to increment versions:
+### When to increment versions
 
 **PATCH (1.2.0 → 1.2.1)**:
+
 - Bug fixes
 - Documentation updates
 - Performance improvements (no API changes)
 - Internal refactoring
 
 **MINOR (1.2.0 → 1.3.0)**:
+
 - New features
 - New API methods/endpoints
 - Enhanced functionality
 - Backward-compatible changes
 
 **MAJOR (1.2.0 → 2.0.0)**:
+
 - Breaking API changes
 - Removed functionality
 - Incompatible changes
