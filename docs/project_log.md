@@ -22,6 +22,37 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 
 ---
 
+## 2025-12-12-01
+
+- Agent: Claude Code (Opus 4.5)
+- Subject: Docker Data Consolidation - Config Updates
+- Key Decision: Consolidate all instance-specific data into `./data/` directory for simpler Docker volume mounting
+- Work Done:
+  - Created branch `feature/docker-data-consolidation`
+  - Analyzed all config properties and their usage in codebase
+  - Updated 6 provider-specific paths in `app-default-config.json`:
+    - `amdwiki.page.provider.filesystem.storagedir`: `./pages` → `./data/pages`
+    - `amdwiki.user.provider.storagedir`: `./users` → `./data/users`
+    - `amdwiki.search.provider.lunr.indexdir`: `./search-index` → `./data/search-index`
+    - `amdwiki.logging.dir`: `./logs` → `./data/logs`
+    - `amdwiki.audit.provider.file.logdirectory`: `./logs` → `./data/logs`
+    - `amdwiki.backup.directory`: `./backups` → `./data/backups`
+  - Marked legacy/unused properties with comments (e.g., `amdwiki.jsonuserdatabase`, `amdwiki.directories.*`)
+  - Created GitHub Issue #169 - LoggingProvider pattern (for future)
+  - Created GitHub Issue #170 - BackupProvider pattern (for future)
+  - Updated AGENTS.md with current sprint status
+- Commits: (pending)
+- Files Modified:
+  - `config/app-default-config.json` - Path consolidation + legacy markers
+  - `agents.md` - Current sprint status
+- Next Steps:
+  - Update Dockerfile for new data structure
+  - Update docker-compose.yml for single data volume mount
+  - Build and test Docker image
+  - Create PR
+
+---
+
 ## 2025-12-11-01
 
 - Agent: Claude Code (Opus 4.5)

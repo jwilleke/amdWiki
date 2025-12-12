@@ -239,21 +239,43 @@ See [docs/planning/ROADMAP.md](./docs/planning/ROADMAP.md)
 
 ### Status Overview
 
-#### Active Work (Session 2025-12-07-02)
+#### Active Work (Session 2025-12-12)
 
-**Test Suite Improvements - High Priority Manager Tests:**
+**Docker Data Consolidation:**
 
-- ✅ UserManager.test.js - COMPLETE (31/31 tests passing)
-- ✅ PageManager.test.js - COMPLETE (26/26 tests passing)
-- ✅ WikiContext.test.js - COMPLETE (12/12 tests passing)
+- ✅ Created branch `feature/docker-data-consolidation`
+- ✅ Updated `app-default-config.json` - consolidated all instance data into `./data/`
+- ✅ Created GitHub Issue #169 - LoggingProvider pattern
+- ✅ Created GitHub Issue #170 - BackupProvider pattern
+- ✅ Marked legacy/unused config properties
+- 🔄 Dockerfile and docker-compose.yml updates pending
 
-**Current Test Status:**
+**Config Changes Made:**
 
-- Test Suites: 40 failed, 27 passed, 67 total (60% pass rate)
-- Tests: 547 failed, 1 skipped, 1169 passed, 1717 total (68% pass rate)
-- Improvement: +126 passing tests since 2025-12-06
+| Property | Old Value | New Value |
+|----------|-----------|-----------|
+| `amdwiki.page.provider.filesystem.storagedir` | `./pages` | `./data/pages` |
+| `amdwiki.user.provider.storagedir` | `./users` | `./data/users` |
+| `amdwiki.search.provider.lunr.indexdir` | `./search-index` | `./data/search-index` |
+| `amdwiki.logging.dir` | `./logs` | `./data/logs` |
+| `amdwiki.audit.provider.file.logdirectory` | `./logs` | `./data/logs` |
+| `amdwiki.backup.directory` | `./backups` | `./data/backups` |
 
-#### Recent Completions (Session 2025-12-07)
+**Test Status (from 2025-12-09):**
+
+- Test Suites: 26 failed, 27+ passed (~79% pass rate)
+- Tests: 345 failed, 1372+ passed (~80% pass rate)
+
+#### Recent Completions (Session 2025-12-12)
+
+**Docker Infrastructure:**
+
+- ✅ Analyzed config properties usage across codebase
+- ✅ Identified 6 provider-specific properties that need updating
+- ✅ Identified legacy/unused properties (marked in config)
+- ✅ Created issues for future LoggingProvider (#169) and BackupProvider (#170) patterns
+
+#### Previous Completions (Session 2025-12-07)
 
 **Test Suite Fixes:**
 
