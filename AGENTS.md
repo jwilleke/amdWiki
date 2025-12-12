@@ -268,9 +268,9 @@ data/
 
 **Test Status (2025-12-12):**
 
-- Test Suites: 22 failed, 45 passed (67 total)
-- Tests: 325 failed, 1379 passed (1710 total)
-- **Pass Rate: 80.6%** (slight improvement from 79-80%)
+- Test Suites: 21 failed, 46 passed (67 total)
+- Tests: 277 failed, 1409 passed (1692 total)
+- **Pass Rate: 83.3%**
 
 #### Issues Created (Session 2025-12-12)
 
@@ -281,6 +281,15 @@ data/
 
 - ✅ InstallService.js - 4 hardcoded `../../users/` paths now use ConfigurationManager
 - ✅ TotalPagesPlugin - Missing async/await on getAllPages() call
+- ✅ UserManager.test.js - Fixed with proper engine/provider mocking (30 tests)
+
+#### Documentation Consolidation (Session 2025-12-12)
+
+- ✅ Consolidated testing docs into 3 files:
+  - `docs/testing/Testing-Summary.md` - Current test status
+  - `docs/testing/Complete-Testing-Guide.md` - Comprehensive guide
+  - `docs/testing/PREVENTING-REGRESSIONS.md` - Regression prevention
+- ✅ Deleted 10 obsolete testing docs
 
 #### Previous Completions (Session 2025-12-07)
 
@@ -485,8 +494,9 @@ const value = configManager.getProperty('amdwiki.category.property', 'default');
 
 ### Testing & Quality Assurance
 
-- **[docs/development/PREVENTING-REGRESSIONS.md](./docs/development/PREVENTING-REGRESSIONS.md)** - **⚠️ READ FIRST:** Comprehensive strategy to prevent breaking changes
-- [docs/testing/PageManager-Testing-Guide.md](./docs/testing/PageManager-Testing-Guide.md) - Specific testing guide
+- **[docs/testing/Testing-Summary.md](./docs/testing/Testing-Summary.md)** - Current test status and quick reference
+- **[docs/testing/Complete-Testing-Guide.md](./docs/testing/Complete-Testing-Guide.md)** - Comprehensive testing documentation
+- **[docs/testing/PREVENTING-REGRESSIONS.md](./docs/testing/PREVENTING-REGRESSIONS.md)** - Regression prevention strategy
 - Coverage: `npm run test:coverage`
 - **Test Requirements:**
   - Write tests BEFORE changing code (TDD)
