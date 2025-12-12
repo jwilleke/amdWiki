@@ -59,8 +59,8 @@ Read [~/GLOBAL-CODE-PREFERENCES.md](~/GLOBAL-CODE-PREFERENCES.md) for overarchin
 ## Current Status
 
 - **Overall Progress:** Phase 1 (Core Wiki) 95% complete, Phase 2 (Content Modules) planning
-- **Current Version:** 1.3.3
-- **Last Updated:** 2025-12-02
+- **Current Version:** 1.5.0
+- **Last Updated:** 2025-12-12
 - **Phase:** Mature development transitioning to platform expansion
 - **Next Milestone:** Attachment UI Enhancement, TypeScript migration, WikiDocument testing
 
@@ -239,21 +239,20 @@ See [docs/planning/ROADMAP.md](./docs/planning/ROADMAP.md)
 
 ### Status Overview
 
-#### Active Work (Session 2025-12-12) - COMPLETED
+#### Completed (Session 2025-12-12) - v1.5.0 MERGED
 
-**Docker Data Consolidation - PR #171:**
+**Docker Data Consolidation - PR #171 (MERGED):**
 
-- ✅ Created branch `feature/docker-data-consolidation`
-- ✅ Updated `app-default-config.json` - consolidated all instance data into `./data/`
-- ✅ Created GitHub Issue #169 - LoggingProvider pattern
-- ✅ Created GitHub Issue #170 - BackupProvider pattern
-- ✅ Marked legacy/unused config properties
-- ✅ Updated Dockerfile for new data structure
-- ✅ Updated docker-compose.yml for single data volume
-- ✅ Built and tested Docker image successfully
-- ✅ Created PR #171
+- ✅ Consolidated all instance data into `./data/` directory
+- ✅ Updated 6 provider-specific paths in `app-default-config.json`
+- ✅ Created migration script `scripts/migrate-to-data-dir.sh`
+- ✅ Fixed InstallService.js hardcoded paths (use ConfigurationManager)
+- ✅ Fixed TotalPagesPlugin async/await bug
+- ✅ Updated Dockerfile and docker-compose.yml for single data volume
+- ✅ Bumped version to 1.5.0 (BREAKING CHANGE)
+- ✅ Squash-merged PR #171 to master
 
-**New Data Structure:**
+**New Data Structure (v1.5.0):**
 
 ```
 data/
@@ -267,22 +266,21 @@ data/
 └── versions/     - Page versions
 ```
 
-**Test Status (from 2025-12-09):**
+**Test Status (2025-12-12):**
 
-- Test Suites: 26 failed, 27+ passed (~79% pass rate)
-- Tests: 345 failed, 1372+ passed (~80% pass rate)
+- Test Suites: 22 failed, 45 passed (67 total)
+- Tests: 325 failed, 1379 passed (1710 total)
+- **Pass Rate: 80.6%** (slight improvement from 79-80%)
 
-#### Recent Completions (Session 2025-12-12)
+#### Issues Created (Session 2025-12-12)
 
-**Docker Infrastructure (PR #171):**
+- #169 - LoggingProvider pattern (future enhancement)
+- #170 - BackupProvider pattern (future enhancement)
 
-- ✅ Analyzed config properties usage across codebase
-- ✅ Updated 6 provider-specific paths in config
-- ✅ Marked legacy/unused properties (e.g., `amdwiki.directories.*`)
-- ✅ Created issues for LoggingProvider (#169) and BackupProvider (#170) patterns
-- ✅ Updated Dockerfile with consolidated data structure
-- ✅ Simplified docker-compose.yml to single data volume mount
-- ✅ Docker image builds and runs successfully
+#### Bug Fixes (Session 2025-12-12)
+
+- ✅ InstallService.js - 4 hardcoded `../../users/` paths now use ConfigurationManager
+- ✅ TotalPagesPlugin - Missing async/await on getAllPages() call
 
 #### Previous Completions (Session 2025-12-07)
 
@@ -389,7 +387,7 @@ See [docs/development/PREVENTING-REGRESSIONS.md](./docs/development/PREVENTING-R
 2. Read this [AGENTS.md](./AGENTS.md) - Project context and current state
 3. Review [CONTRIBUTING.md](./CONTRIBUTING.md) - Development standards
 4. Check [docs/planning/TODO.md](./docs/planning/TODO.md) - Current tasks and priorities
-5. Review [CHANGELOG.md](./CHANGELOG.md) - Recent changes (v1.3.3)
+5. Review [CHANGELOG.md](./CHANGELOG.md) - Recent changes (v1.5.0)
 6. **Run smoke tests:** `npm run smoke` (if available, see PREVENTING-REGRESSIONS.md)
 7. **If changing manager APIs:** Read relevant contract in [docs/development/PREVENTING-REGRESSIONS.md](./docs/development/PREVENTING-REGRESSIONS.md)
 

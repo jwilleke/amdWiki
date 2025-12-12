@@ -22,10 +22,45 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 
 ---
 
+## 2025-12-12-02
+
+- Agent: Claude Code (Opus 4.5)
+- Subject: v1.5.0 MERGED - Docker Data Consolidation Complete
+- Key Decision: Squash-merge PR #171 after fixing bugs discovered during testing
+- Work Done:
+  - Fixed InstallService.js - 4 hardcoded `../../users/` paths now use ConfigurationManager
+  - Fixed TotalPagesPlugin - async/await bug (getAllPages() is async)
+  - Ran migration script on local installation - successful
+  - Verified server runs correctly (47 pages showing, redirects to Welcome not Install)
+  - Squash-merged PR #171 to master
+  - Ran full test suite: 22 failed suites, 325 failed tests (80.6% pass rate)
+  - Added comment to GitHub Issue #167 about orphaned process issues
+- Commits:
+  - `f0cb8be` - feat!: Consolidate data directories into ./data/ for Docker (v1.5.0) [squash merge]
+- Test Results:
+  - Test Suites: 22 failed, 45 passed (67 total)
+  - Tests: 325 failed, 1379 passed, 6 skipped (1710 total)
+  - Pass Rate: 80.6% (slight improvement from previous 79-80%)
+- Files Modified (in squash):
+  - `config/app-default-config.json`
+  - `docker/Dockerfile`
+  - `docker/docker-compose.yml`
+  - `docker/README.md`
+  - `docker/DOCKER.md`
+  - `src/services/InstallService.js`
+  - `plugins/TotalPagesPlugin.js`
+  - `scripts/migrate-to-data-dir.sh` (new)
+  - `package.json` (v1.5.0)
+  - `CHANGELOG.md`
+  - `ARCHITECTURE.md`
+  - `AGENTS.md`
+
+---
+
 ## 2025-12-12-01
 
 - Agent: Claude Code (Opus 4.5)
-- Subject: Docker Data Consolidation - Complete Implementation
+- Subject: Docker Data Consolidation - Implementation
 - Key Decision: Consolidate all instance-specific data into `./data/` directory for simpler Docker volume mounting
 - Work Done:
   - Created branch `feature/docker-data-consolidation`
