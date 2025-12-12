@@ -13,9 +13,9 @@ const TotalPagesPlugin = {
    * Execute the plugin
    * @param {Object} context - Wiki context
    * @param {Object} params - Plugin parameters
-   * @returns {string} HTML output
+   * @returns {Promise<string>} HTML output
    */
-  execute(context, params) {
+  async execute(context, params) {
     const engine = context.engine;
     if (!engine) {
       return '0';
@@ -24,7 +24,7 @@ const TotalPagesPlugin = {
     try {
       const pageManager = engine.getManager('PageManager');
       if (pageManager && pageManager.getAllPages) {
-        const pages = pageManager.getAllPages();
+        const pages = await pageManager.getAllPages();
         return Array.isArray(pages) ? pages.length.toString() : '0';
       }
       return '0';
