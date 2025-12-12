@@ -763,35 +763,16 @@ class RenderingManager extends BaseManager {
 
   /**
    * Get total pages count
+   * Uses the provider's page cache for an accurate count.
+   * After installation, only counts pages from the main pages directory.
    * @returns {number} Number of pages
    */
   getTotalPagesCount() {
     try {
       const pageManager = this.engine.getManager('PageManager');
-      if (pageManager && pageManager.pagesDir && pageManager.requiredPagesDir) {
-        const fs = require('fs-extra');
-        const path = require('path');
-        
-        // Count .md files in both directories synchronously
-        let count = 0;
-        
-        try {
-          const regularFiles = fs.readdirSync(pageManager.pagesDir)
-            .filter(file => file.endsWith('.md'));
-          count += regularFiles.length;
-        } catch (err) {
-          // Pages directory might not exist
-        }
-        
-        try {
-          const requiredFiles = fs.readdirSync(pageManager.requiredPagesDir)
-            .filter(file => file.endsWith('.md'));
-          count += requiredFiles.length;
-        } catch (err) {
-          // Required pages directory might not exist
-        }
-        
-        return count;
+      if (pageManager && pageManager.provider && pageManager.provider.pageCache) {
+        // Use the provider's page cache for accurate count
+        return pageManager.provider.pageCache.size;
       }
       return 0;
     } catch (err) {
@@ -1052,10 +1033,19 @@ class RenderingManager extends BaseManager {
         const simpleLinkRegex = /\[([a-zA-Z0-9\s_.\-]+)(?:\|([a-zA-Z0-9\s_\-\/ .:?=&]+))?(?:\|([^|\]]+))?\]/g;
         while ((match = simpleLinkRegex.exec(content)) !== null) {
           // For pipe syntax [DisplayText|Target|Parameters], use the target; otherwise use the display text
-          const linkedPage = match[2] || match[1];
-          
+          let linkedPage = match[2] || match[1];
+
           // Only add to link graph if it's a wiki page (not external URLs or special pages)
           if (!linkedPage.includes('://') && !linkedPage.startsWith('/') && linkedPage.toLowerCase() !== 'search') {
+            // Use pageNameMatcher to resolve plurals/variants to actual page names
+            // This ensures [Plugins] links to "Plugin" page and appears in its referring pages
+            if (this.pageNameMatcher) {
+              const matchedPage = this.pageNameMatcher.findMatch(linkedPage, pageNames);
+              if (matchedPage) {
+                linkedPage = matchedPage;
+              }
+            }
+
             if (!newLinkGraph[linkedPage]) {
               newLinkGraph[linkedPage] = [];
             }

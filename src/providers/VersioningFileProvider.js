@@ -171,9 +171,12 @@ class VersioningFileProvider extends FileSystemProvider {
     this.pagesVersionsDir = path.join(this.pagesDirectory, 'versions');
     await fs.ensureDir(this.pagesVersionsDir);
 
-    // Create versions subdirectory under required-pages
-    this.requiredPagesVersionsDir = path.join(this.requiredPagesDirectory, 'versions');
-    await fs.ensureDir(this.requiredPagesVersionsDir);
+    // Only create required-pages versions directory during installation
+    if (!this.installationComplete) {
+      this.requiredPagesVersionsDir = path.join(this.requiredPagesDirectory, 'versions');
+      await fs.ensureDir(this.requiredPagesVersionsDir);
+      logger.info(`[VersioningFileProvider] Required-pages version dir (install mode): ${this.requiredPagesVersionsDir}`);
+    }
 
     // Create data directory for page index
     const dataDir = path.dirname(this.pageIndexPath);
@@ -181,7 +184,6 @@ class VersioningFileProvider extends FileSystemProvider {
 
     logger.info(`[VersioningFileProvider] Version directories created`);
     logger.info(`[VersioningFileProvider]   - ${this.pagesVersionsDir}`);
-    logger.info(`[VersioningFileProvider]   - ${this.requiredPagesVersionsDir}`);
   }
 
   /**
@@ -530,20 +532,9 @@ class VersioningFileProvider extends FileSystemProvider {
     // Determine UUID (existing or new)
     const uuid = pageInfo?.uuid || metadata.uuid || require('uuid').v4();
 
-    // Determine location based on system-category
-    const systemCategory = metadata['system-category'] || metadata.systemCategory || 'General';
-    const configManager = this.engine.getManager('ConfigurationManager');
-    const systemCategoriesConfig = configManager?.getProperty('amdwiki.system-category', null);
-
-    let location = 'pages';
-    if (systemCategoriesConfig) {
-      for (const [key, config] of Object.entries(systemCategoriesConfig)) {
-        if (config.label.toLowerCase() === systemCategory.toLowerCase()) {
-          location = config.storageLocation === 'required' ? 'required-pages' : 'pages';
-          break;
-        }
-      }
-    }
+    // After installation is complete, always use 'pages' location
+    // The required-pages directory is only used during installation to seed the wiki
+    const location = 'pages';
 
     try {
       if (pageInfo) {
@@ -590,7 +581,8 @@ class VersioningFileProvider extends FileSystemProvider {
     }
 
     const uuid = pageData.uuid;
-    const location = pageData.metadata?.['system-category']?.toLowerCase() === 'system' ? 'required-pages' : 'pages';
+    // After installation is complete, all pages are in 'pages' directory
+    const location = 'pages';
 
     try {
       // Call parent to delete main file and clear caches

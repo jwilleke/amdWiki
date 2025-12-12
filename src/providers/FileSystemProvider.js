@@ -32,7 +32,8 @@ const PageNameMatcher = require('../utils/PageNameMatcher');
  * @extends BasePageProvider
  *
  * @property {string|null} pagesDirectory - Path to regular pages directory
- * @property {string|null} requiredPagesDirectory - Path to required pages directory
+ * @property {string|null} requiredPagesDirectory - Path to required pages directory (only used during installation)
+ * @property {boolean} installationComplete - Whether installation is complete (required-pages should not be used after install)
  * @property {string} encoding - File encoding (default: UTF-8)
  * @property {Map<string, Object>} pageCache - Main page cache by canonical identifier
  * @property {Map<string, string>} titleIndex - Maps lowercase title to canonical identifier
@@ -57,6 +58,7 @@ class FileSystemProvider extends BasePageProvider {
     super(engine);
     this.pagesDirectory = null;
     this.requiredPagesDirectory = null;
+    this.installationComplete = false; // Will be set during initialize()
     this.encoding = 'UTF-8';
     // Main cache, keyed by canonical identifier (title)
     this.pageCache = new Map();
@@ -107,11 +109,19 @@ class FileSystemProvider extends BasePageProvider {
     this.pageNameMatcher = new PageNameMatcher(matchEnglishPlurals);
     logger.info(`[FileSystemProvider] Plural matching: ${matchEnglishPlurals ? 'enabled' : 'disabled'}`);
 
-    // Ensure directories exist
+    // Check if installation is complete - if so, required-pages should not be used
+    this.installationComplete = configManager.getProperty('amdwiki.install.completed', false);
+    logger.info(`[FileSystemProvider] Installation complete: ${this.installationComplete}`);
+
+    // Ensure pages directory exists
     await fs.ensureDir(this.pagesDirectory);
-    await fs.ensureDir(this.requiredPagesDirectory);
     logger.info(`[FileSystemProvider] Page directory: ${this.pagesDirectory}`);
-    logger.info(`[FileSystemProvider] Required-pages directory: ${this.requiredPagesDirectory}`);
+
+    // Only ensure required-pages directory exists if installation is NOT complete
+    if (!this.installationComplete) {
+      await fs.ensureDir(this.requiredPagesDirectory);
+      logger.info(`[FileSystemProvider] Required-pages directory (install mode): ${this.requiredPagesDirectory}`);
+    }
 
     // Load all pages into cache
     await this.refreshPageList();
@@ -121,8 +131,11 @@ class FileSystemProvider extends BasePageProvider {
   }
 
   /**
-   * Reads all .md files from both pages and required-pages directories
+   * Reads all .md files from the pages directory (and required-pages during installation)
    * and populates the page cache with multiple indexes.
+   *
+   * After installation is complete, only pages from the main pages directory are loaded.
+   * The required-pages directory is only used during installation to seed the wiki.
    */
   async refreshPageList() {
     this.pageCache.clear();
@@ -130,10 +143,17 @@ class FileSystemProvider extends BasePageProvider {
     this.uuidIndex.clear();
     this.slugIndex.clear();
 
-    // Scan both directories
+    // Only scan required-pages during installation (before install is complete)
     const pagesFiles = await this.#walkDir(this.pagesDirectory);
-    const requiredFiles = await this.#walkDir(this.requiredPagesDirectory);
-    const allFiles = [...pagesFiles, ...requiredFiles];
+    let allFiles = [...pagesFiles];
+
+    if (!this.installationComplete) {
+      // During installation, also include required-pages
+      const requiredFiles = await this.#walkDir(this.requiredPagesDirectory);
+      allFiles = [...pagesFiles, ...requiredFiles];
+      logger.info(`[FileSystemProvider] Install mode: including ${requiredFiles.length} files from required-pages`);
+    }
+
     const mdFiles = allFiles.filter(f => f.toLowerCase().endsWith('.md'));
 
     for (const filePath of mdFiles) {
@@ -306,7 +326,9 @@ class FileSystemProvider extends BasePageProvider {
 
   /**
    * Saves content to a wiki page, creating it if it doesn't exist.
-   * Determines storage location based on system-category metadata.
+   *
+   * After installation is complete, all pages are saved to the main pages directory.
+   * The required-pages directory is only used during installation.
    *
    * @param {string} pageName - The name of the page
    * @param {string} content - The new markdown content
@@ -316,41 +338,9 @@ class FileSystemProvider extends BasePageProvider {
   async savePage(pageName, content, metadata = {}) {
     const uuid = metadata.uuid || this.#resolvePageInfo(pageName)?.uuid || uuidv4();
 
-    // Determine which directory to save to based on system-category
-    // Use configuration from amdwiki.system-category via ConfigurationManager
-    const configManager = this.engine.getManager('ConfigurationManager');
-    const systemCategory = metadata['system-category'] || metadata.systemCategory || 'General';
-
-    let targetDirectory;
-    if (configManager) {
-      const systemCategoriesConfig = configManager.getProperty('amdwiki.system-category', null);
-
-      if (systemCategoriesConfig) {
-        // Find the category configuration by label (case-insensitive)
-        let storageLocation = 'regular'; // default
-        for (const [key, config] of Object.entries(systemCategoriesConfig)) {
-          if (config.label.toLowerCase() === systemCategory.toLowerCase()) {
-            storageLocation = config.storageLocation || 'regular';
-            break;
-          }
-        }
-        targetDirectory = storageLocation === 'required' ? this.requiredPagesDirectory : this.pagesDirectory;
-      } else {
-        // Fallback to hardcoded logic if config not available
-        const systemCategoryLower = systemCategory.toLowerCase();
-        const isRequiredPage = systemCategoryLower === 'system' ||
-                               systemCategoryLower === 'documentation' ||
-                               systemCategoryLower === 'test';
-        targetDirectory = isRequiredPage ? this.requiredPagesDirectory : this.pagesDirectory;
-      }
-    } else {
-      // Fallback if ConfigurationManager not available
-      const systemCategoryLower = systemCategory.toLowerCase();
-      const isRequiredPage = systemCategoryLower === 'system' ||
-                             systemCategoryLower === 'documentation' ||
-                             systemCategoryLower === 'test';
-      targetDirectory = isRequiredPage ? this.requiredPagesDirectory : this.pagesDirectory;
-    }
+    // After installation is complete, always save to pagesDirectory
+    // The required-pages directory is only used during installation to seed the wiki
+    const targetDirectory = this.pagesDirectory;
     const filePath = path.join(targetDirectory, `${uuid}.md`);
     await fs.ensureDir(path.dirname(filePath));
 

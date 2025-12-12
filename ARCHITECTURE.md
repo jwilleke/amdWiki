@@ -113,7 +113,7 @@ amdWiki/
 │   ├── backups/            # Backup files
 │   ├── sessions/           # Session files
 │   └── versions/           # Page version history
-├── required-pages/         # Default startup pages (system templates)
+├── required-pages/         # System pages (only used during installation, then copied to data/pages)
 ├── docs/                   # Detailed documentation
 ├── docker/                 # Docker deployment files
 ├── views/                  # EJS templates

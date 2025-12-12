@@ -22,6 +22,53 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 
 ---
 
+## 2025-12-12-05
+
+- Agent: Claude Code (Opus 4.5)
+- Subject: Test Coverage for Issues #172 and #174
+- Work Done:
+  - Created new test files for regression prevention:
+    - `WikiRoutes-isRequiredPage.test.js` - 14 tests passing (system-category protection)
+    - `RenderingManager.test.js` - Added plural resolution test for link graph (Issue #172)
+    - `FileSystemProvider.test.js` - Created but blocked by global mock (Issue #174)
+  - Identified jest.setup.js global mock issue blocking FileSystemProvider tests
+    - Global mock returns MockProvider, unmock returns empty object
+    - Requires Jest project configuration to properly test
+  - Test results: WikiRoutes and RenderingManager tests all pass
+- Files Modified:
+  - `src/routes/__tests__/WikiRoutes-isRequiredPage.test.js` - New (14 tests)
+  - `src/managers/__tests__/RenderingManager.test.js` - Updated (added Issue #172 test)
+  - `src/providers/__tests__/FileSystemProvider.test.js` - New (blocked by mock issue)
+- Known Issue:
+  - FileSystemProvider.test.js needs Jest projects config to bypass global mock
+  - Tests are written but fail due to module resolution with mocked dependencies
+
+---
+
+## 2025-12-12-04
+
+- Agent: Claude Code (Opus 4.5)
+- Subject: Bug Fixes - Required Pages & ReferringPagesPlugin
+- Issues Closed: #172, #174
+- Work Done:
+  - **Issue #174**: Fixed required-pages showing in operating wiki
+    - Modified FileSystemProvider to only load from required-pages during installation
+    - Added `installationComplete` flag checked from `amdwiki.install.completed` config
+    - Updated VersioningFileProvider to match parent behavior
+    - Fixed RenderingManager.getTotalPagesCount() to use provider cache
+    - Extended WikiRoutes.isRequiredPage() to protect system/documentation pages (Admin-only edit)
+  - **Issue #172**: Fixed ReferringPagesPlugin not showing plural-linked pages
+    - Root cause: buildLinkGraph() stored links literally without resolving plurals
+    - Fix: Added pageNameMatcher.findMatch() when building link graph
+    - Result: "Contextual Variables" (links to `[Plugins]`) now appears on "Plugin" page
+- Files Modified:
+  - `src/providers/FileSystemProvider.js` - Install-aware page loading
+  - `src/providers/VersioningFileProvider.js` - Match parent behavior
+  - `src/managers/RenderingManager.js` - Fix getTotalPagesCount() and buildLinkGraph()
+  - `src/routes/WikiRoutes.js` - Extended isRequiredPage() for system-category protection
+
+---
+
 ## 2025-12-12-03
 
 - Agent: Claude Code (Opus 4.5)

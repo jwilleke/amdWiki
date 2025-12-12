@@ -17,7 +17,7 @@ Read [~/GLOBAL-CODE-PREFERENCES.md](~/GLOBAL-CODE-PREFERENCES.md) for overarchin
 
 ### ⚠️ CRITICAL - Read Before Making Changes
 
-- **[PREVENTING-REGRESSIONS.md](.docs/testing/PREVENTING-REGRESSIONS.md)** - **Prevents breaking existing services** (automated testing strategy)
+__[PREVENTING-REGRESSIONS.md](.docs/testing/PREVENTING-REGRESSIONS.md)__ - __Prevents breaking existing services__ (automated testing strategy)
 
 ### Root-Level Documentation (Start Here)
 
@@ -312,6 +312,14 @@ data/
 - ✅ Comprehensive KNOWN-TEST-ISSUES.md documentation
 - ✅ Fix-as-needed strategy (Option C) implementation
 
+#### Previous Completions (Session 2025-12-12)
+
+- ✅ Fixed GitHub Issue #174 - Required pages no longer show in operating wiki
+  - FileSystemProvider only loads required-pages during installation
+  - Pages with system-category: system/documentation require Admin to edit
+- ✅ Fixed GitHub Issue #172 - ReferringPagesPlugin now shows plural-linked pages
+  - buildLinkGraph() now uses pageNameMatcher for plural resolution
+
 #### Previous Completions (Session 2025-12-06)
 
 - ✅ Installation system fully working - users can complete setup wizard and login
@@ -341,7 +349,7 @@ data/
 ### Project Maturity
 
 - **Phase 1** (Core Wiki): 95% complete
-- **Current Version:** 1.3.3 (Semantic Versioning)
+- **Current Version:** 1.5.0 (Semantic Versioning)
 - **Architecture:** Mature, manager-based, well-documented
 - **Documentation:** 100+ files, 95% JSDoc coverage
 - **Testing:** 376+ tests, Jest framework

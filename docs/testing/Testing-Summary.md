@@ -84,9 +84,16 @@ We use **Option C: Fix-As-Needed** approach:
 
 | Date | Failing Suites | Passing Tests | Notes |
 |------|---------------|---------------|-------|
+| 2025-12-12 | 21 | 1453+ | Added WikiRoutes-isRequiredPage (14), RenderingManager link graph tests |
 | 2025-12-12 | 21 | 1409 | UserManager tests fixed (30 tests) |
 | 2025-12-10 | 22 | 1379 | Multiple route tests fixed |
 | 2025-12-07 | 37 | 1221 | SearchManager, ACLManager fixed |
+
+### New Tests for Issue #172 and #174 (2025-12-12)
+
+- **WikiRoutes-isRequiredPage.test.js** - 14 tests for system-category protection
+- **RenderingManager.test.js** - Added plural link resolution test for Issue #172
+- **FileSystemProvider.test.js** - Installation-aware loading tests (blocked by mock issue)
 
 ## Known Issues
 
@@ -95,6 +102,12 @@ We use **Option C: Fix-As-Needed** approach:
 The CacheManager tests fail due to logger mock setup issues. This is a test infrastructure problem, not a code bug.
 
 **Workaround:** Tests are excluded from CI until fixed.
+
+### FileSystemProvider Global Mock Issue
+
+Tests in `FileSystemProvider.test.js` cannot bypass the global mock in `jest.setup.js`. Using `jest.unmock()` or `jest.requireActual()` returns an empty object because the module's dependencies (BasePageProvider) are also affected by the mock resolution.
+
+**Fix Required:** Add Jest projects configuration to run provider tests without global mocks.
 
 ### MarkupParser Handler Configuration
 

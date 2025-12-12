@@ -632,8 +632,17 @@ class WikiRoutes {
   }
 
   /**
-   * Check if a page is a required page (admin-only edit)
-   * This checks both hardcoded required pages and pages with System/Admin category
+   * Check if a page is a protected page (admin-only edit)
+   *
+   * Protected pages include:
+   * - Hardcoded required pages (backward compatibility)
+   * - Pages with system-category: system or documentation
+   *
+   * These pages are considered core system pages that may be overwritten
+   * by future updates to the application.
+   *
+   * @param {string} pageName - The page name to check
+   * @returns {Promise<boolean>} True if page requires admin permission to edit
    */
   async isRequiredPage(pageName) {
     // Hardcoded required pages (for backward compatibility)
@@ -642,18 +651,21 @@ class WikiRoutes {
       return true;
     }
 
-    // Check if page has System/Admin category
+    // Check if page has a protected system-category
     try {
       const pageManager = this.engine.getManager("PageManager");
       const pageData = await pageManager.getPage(pageName);
-      if (
-        pageData &&
-        pageData.metadata &&
-        (pageData.metadata.category === "System/Admin" ||
-         pageData.metadata['system-category'] === "System" ||
-         pageData.metadata['system-category'] === "System/Admin")
-      ) {
-        return true;
+      if (pageData && pageData.metadata) {
+        const systemCategory = (pageData.metadata['system-category'] || '').toLowerCase();
+        const category = (pageData.metadata.category || '').toLowerCase();
+
+        // Protected categories that require admin permission to edit
+        const protectedCategories = ['system', 'system/admin', 'documentation'];
+
+        if (protectedCategories.includes(systemCategory) ||
+            protectedCategories.includes(category)) {
+          return true;
+        }
       }
     } catch (err) {
       console.error("Error checking page category:", err);
