@@ -2,7 +2,7 @@ name: CI - Passing Tests Only
 
 # This workflow runs only the test suites that are currently passing.
 # Use this while fixing the remaining test failures incrementally.
-# See docs/testing/KNOWN-TEST-ISSUES.md for the full list of failing tests.
+# See docs/testing/Testing-Summary.md for the current test status.
 
 on:
   push:
@@ -33,10 +33,11 @@ jobs:
 
       - name: Run passing tests only
         run: |
-          # Run tests excluding known failing suites (23 remaining as of 2025-12-10)
+          # Run tests excluding known failing suites (21 remaining as of 2025-12-12)
+          # Fixed: UserManager.test.js (30 tests passing)
           # Note: maintenance-middleware.test.js is flaky in CI (socket/fetch issues)
           npm test -- --maxWorkers=2 \
-            --testPathIgnorePatterns="AllPlugins.test.js|SessionsPlugin.test.js|src/__tests__/UserManager.test.js|PageManager-Storage.test.js|PluginManager.registerPlugins.test.js|PluginManager.test.js|MarkupParser-Comprehensive.test.js|MarkupParser-Config.test.js|MarkupParser-DOM-Integration.test.js|MarkupParser-DOMNodeCreation.test.js|MarkupParser-EndToEnd.test.js|MarkupParser-Extraction.test.js|MarkupParser-Integration.test.js|MarkupParser-MergePipeline.test.js|MarkupParser-ModularConfig.test.js|MarkupParser-Performance.test.js|MarkupParser.test.js|VersioningFileProvider-Maintenance.test.js|VersioningFileProvider.test.js|DeltaStorage.test.js|VersionCompression.test.js|VersioningMigration.test.js|maintenance-middleware.test.js"
+            --testPathIgnorePatterns="AllPlugins.test.js|SessionsPlugin.test.js|PageManager-Storage.test.js|PluginManager.registerPlugins.test.js|PluginManager.test.js|MarkupParser-Comprehensive.test.js|MarkupParser-Config.test.js|MarkupParser-DOM-Integration.test.js|MarkupParser-DOMNodeCreation.test.js|MarkupParser-EndToEnd.test.js|MarkupParser-Extraction.test.js|MarkupParser-Integration.test.js|MarkupParser-MergePipeline.test.js|MarkupParser-ModularConfig.test.js|MarkupParser-Performance.test.js|MarkupParser.test.js|VersioningFileProvider-Maintenance.test.js|VersioningFileProvider.test.js|DeltaStorage.test.js|VersionCompression.test.js|VersioningMigration.test.js|maintenance-middleware.test.js"
         env:
           NODE_ENV: test
 
@@ -154,8 +155,8 @@ jobs:
           echo "- Lint: ${{ needs.lint.result }}"
           echo "- Smoke Tests: ${{ needs.smoke-test.result }}"
           echo ""
-          echo "Note: This workflow excludes 23 known-failing test suites."
-          echo "See docs/testing/KNOWN-TEST-ISSUES.md for details."
+          echo "Note: This workflow excludes 21 known-failing test suites."
+          echo "See docs/testing/Testing-Summary.md for details."
 
           if [ "${{ needs.passing-tests.result }}" != "success" ] || \
              [ "${{ needs.smoke-test.result }}" != "success" ]; then
