@@ -80,13 +80,11 @@ open http://localhost:3000
 # Build the image
 docker build -t amdwiki .
 
-# Run the container
+# Run the container (single data volume)
 docker run -d \
   --name amdwiki \
   -p 3000:3000 \
-  -v $(pwd)/pages:/app/pages \
   -v $(pwd)/data:/app/data \
-  -v $(pwd)/logs:/app/logs \
   amdwiki
 
 # Access the wiki
@@ -167,12 +165,11 @@ docker port amdwiki 3000
 ### Run with Volume Mounts
 
 ```bash
+# Single data volume (recommended)
 docker run -d \
   --name amdwiki \
   -p 3000:3000 \
-  -v $(pwd)/pages:/app/pages \
   -v $(pwd)/data:/app/data \
-  -v $(pwd)/logs:/app/logs \
   amdwiki
 ```
 
@@ -183,16 +180,16 @@ docker run -d \
 docker run -d \
   --name amdwiki \
   -p 3000:3000 \
+  -v $(pwd)/data:/app/data \
   -v $(pwd)/config/app-custom-config.json:/app/config/app-custom-config.json \
-  -v $(pwd)/pages:/app/pages \
   amdwiki
 
 # Option 2: Mount entire config directory
 docker run -d \
   --name amdwiki \
   -p 3000:3000 \
+  -v $(pwd)/data:/app/data \
   -v $(pwd)/config:/app/config \
-  -v $(pwd)/pages:/app/pages \
   amdwiki
 ```
 
@@ -391,54 +388,60 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 
 #### Directories
 
+All instance data is consolidated under `./data/`:
+
 ```json
 {
-  "amdwiki.page.provider.filesystem.storagedir": "./pages",
-  "amdwiki.attachment.metadatafile": "./data/attachments/metadata.json",
-  "amdwiki.logging.dir": "./logs",
-  "amdwiki.directories.data": "./data"
+  "amdwiki.page.provider.filesystem.storagedir": "./data/pages",
+  "amdwiki.user.provider.storagedir": "./data/users",
+  "amdwiki.attachment.provider.basic.storagedir": "./data/attachments",
+  "amdwiki.logging.dir": "./data/logs",
+  "amdwiki.search.provider.lunr.indexdir": "./data/search-index",
+  "amdwiki.backup.directory": "./data/backups"
 }
 ```
 
-These paths are mapped to Docker volumes (see next section).
+This enables a single Docker volume mount for all persistent data.
 
 ## Volume Mounts
 
-The application requires persistent storage for several directories:
+All instance data is consolidated under a **single volume mount**:
 
-| Host Path | Container Path | Purpose | ConfigurationManager Property |
-|-----------|---------------|---------|------------------------------|
-| `./pages` | `/app/pages` | Wiki pages | `amdwiki.page.provider.filesystem.storagedir` |
-| `./data` | `/app/data` | Attachments, users, versions | `amdwiki.directories.data` |
-| `./logs` | `/app/logs` | Application logs | `amdwiki.logging.dir` |
-| `./sessions` | `/app/sessions` | Session data | Session file store path |
-| `./config` | `/app/config` | Configuration overrides | ConfigurationManager paths |
+| Host Path | Container Path | Purpose |
+|-----------|---------------|---------|
+| `./data` | `/app/data` | All instance data |
+| `./required-pages` | `/app/required-pages` | System templates (read-only) |
+| `./config` | `/app/config` | Configuration overrides (optional) |
+
+The `./data` directory contains all persistent data:
+
+| Subdirectory | ConfigurationManager Property | Purpose |
+|--------------|------------------------------|---------|
+| `data/pages/` | `amdwiki.page.provider.filesystem.storagedir` | Wiki content |
+| `data/users/` | `amdwiki.user.provider.storagedir` | User accounts |
+| `data/attachments/` | `amdwiki.attachment.provider.basic.storagedir` | File attachments |
+| `data/logs/` | `amdwiki.logging.dir` | Application logs |
+| `data/search-index/` | `amdwiki.search.provider.lunr.indexdir` | Search index |
+| `data/backups/` | `amdwiki.backup.directory` | Backup files |
+| `data/sessions/` | (session file store) | User sessions |
+| `data/versions/` | (versioning provider) | Page versions |
 
 ### Creating Host Directories
 
 **Auto-Creation Behavior:**
 
-- Docker Compose will automatically create missing directories
-- However, auto-created directories may have permission issues (especially on Linux)
-- **Best practice:** Pre-create directories and configure UID/GID before first run
+- Docker Compose will automatically create the `data/` directory
+- Subdirectories are created automatically by the application
+- **Best practice:** Pre-create `data/` and configure UID/GID before first run
 
 **Recommended setup:**
 
 ```bash
-# Create all required directories
-mkdir -p pages data logs sessions
+# Create the data directory
+mkdir -p data
 
 # Configure UID/GID to match your user (recommended)
 # See "User Permissions (UID/GID)" section below
-```
-
-**What gets stored where:**
-
-```bash
-pages/          # Wiki page markdown files (user content)
-data/           # Attachments, users, versions (application data)
-logs/           # Application logs (debugging and monitoring)
-sessions/       # Session files (user sessions)
 ```
 
 ### User Permissions (UID/GID)
@@ -513,34 +516,28 @@ For better portability, use Docker named volumes:
 
 ```yaml
 volumes:
-  amdwiki-pages:
   amdwiki-data:
-  amdwiki-logs:
-  amdwiki-sessions:
 
 services:
   amdwiki:
     volumes:
-      - amdwiki-pages:/app/pages
       - amdwiki-data:/app/data
-      - amdwiki-logs:/app/logs
-      - amdwiki-sessions:/app/sessions
 ```
 
 ### Backing Up Volumes
 
 ```bash
-# Backup pages
+# Backup all data
 docker run --rm \
-  -v amdwiki_pages:/data \
+  -v amdwiki_data:/data \
   -v $(pwd)/backup:/backup \
-  alpine tar czf /backup/pages-backup.tar.gz -C /data .
+  alpine tar czf /backup/amdwiki-data-backup.tar.gz -C /data .
 
-# Restore pages
+# Restore all data
 docker run --rm \
-  -v amdwiki_pages:/data \
+  -v amdwiki_data:/data \
   -v $(pwd)/backup:/backup \
-  alpine tar xzf /backup/pages-backup.tar.gz -C /data
+  alpine tar xzf /backup/amdwiki-data-backup.tar.gz -C /data
 ```
 
 ## Environment Variables

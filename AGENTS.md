@@ -239,21 +239,52 @@ See [docs/planning/ROADMAP.md](./docs/planning/ROADMAP.md)
 
 ### Status Overview
 
-#### Active Work (Session 2025-12-07-02)
+#### Active Work (Session 2025-12-12) - COMPLETED
 
-**Test Suite Improvements - High Priority Manager Tests:**
+**Docker Data Consolidation - PR #171:**
 
-- ✅ UserManager.test.js - COMPLETE (31/31 tests passing)
-- ✅ PageManager.test.js - COMPLETE (26/26 tests passing)
-- ✅ WikiContext.test.js - COMPLETE (12/12 tests passing)
+- ✅ Created branch `feature/docker-data-consolidation`
+- ✅ Updated `app-default-config.json` - consolidated all instance data into `./data/`
+- ✅ Created GitHub Issue #169 - LoggingProvider pattern
+- ✅ Created GitHub Issue #170 - BackupProvider pattern
+- ✅ Marked legacy/unused config properties
+- ✅ Updated Dockerfile for new data structure
+- ✅ Updated docker-compose.yml for single data volume
+- ✅ Built and tested Docker image successfully
+- ✅ Created PR #171
 
-**Current Test Status:**
+**New Data Structure:**
 
-- Test Suites: 40 failed, 27 passed, 67 total (60% pass rate)
-- Tests: 547 failed, 1 skipped, 1169 passed, 1717 total (68% pass rate)
-- Improvement: +126 passing tests since 2025-12-06
+```
+data/
+├── pages/        - Wiki content
+├── users/        - User accounts
+├── attachments/  - File attachments
+├── logs/         - Application logs
+├── search-index/ - Search index
+├── backups/      - Backup files
+├── sessions/     - Session files
+└── versions/     - Page versions
+```
 
-#### Recent Completions (Session 2025-12-07)
+**Test Status (from 2025-12-09):**
+
+- Test Suites: 26 failed, 27+ passed (~79% pass rate)
+- Tests: 345 failed, 1372+ passed (~80% pass rate)
+
+#### Recent Completions (Session 2025-12-12)
+
+**Docker Infrastructure (PR #171):**
+
+- ✅ Analyzed config properties usage across codebase
+- ✅ Updated 6 provider-specific paths in config
+- ✅ Marked legacy/unused properties (e.g., `amdwiki.directories.*`)
+- ✅ Created issues for LoggingProvider (#169) and BackupProvider (#170) patterns
+- ✅ Updated Dockerfile with consolidated data structure
+- ✅ Simplified docker-compose.yml to single data volume mount
+- ✅ Docker image builds and runs successfully
+
+#### Previous Completions (Session 2025-12-07)
 
 **Test Suite Fixes:**
 

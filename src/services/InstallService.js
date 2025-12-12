@@ -69,7 +69,8 @@ class InstallService {
     const customConfigPath = path.join(__dirname, '../../config/app-custom-config.json');
     const customConfigExists = await fs.pathExists(customConfigPath);
 
-    const organizationsPath = path.join(__dirname, '../../users/organizations.json');
+    const usersDir = this.configManager.getProperty('amdwiki.user.provider.storagedir', './data/users');
+    const organizationsPath = path.join(usersDir, 'organizations.json');
     const organizationsExist = await fs.pathExists(organizationsPath);
 
     const steps = {
@@ -319,7 +320,8 @@ class InstallService {
       }
 
       // 2. Remove organizations.json
-      const organizationsPath = path.join(__dirname, '../../users/organizations.json');
+      const usersDir = this.configManager.getProperty('amdwiki.user.provider.storagedir', './data/users');
+      const organizationsPath = path.join(usersDir, 'organizations.json');
       if (await fs.pathExists(organizationsPath)) {
         const backupPath = organizationsPath + '.backup-' + Date.now();
         await fs.copy(organizationsPath, backupPath);
@@ -332,7 +334,7 @@ class InstallService {
       const adminExists = await userManager.hasRole('admin', 'admin');
       if (adminExists) {
         // Get the users file path
-        const usersPath = path.join(__dirname, '../../users/users.json');
+        const usersPath = path.join(usersDir, 'users.json');
         if (await fs.pathExists(usersPath)) {
           const backupPath = usersPath + '.backup-' + Date.now();
           await fs.copy(usersPath, backupPath);
@@ -492,7 +494,8 @@ class InstallService {
    * @returns {Promise<void>}
    */
   async #writeOrganizationData(data) {
-    const organizationsPath = path.join(__dirname, '../../users/organizations.json');
+    const usersDir = this.configManager.getProperty('amdwiki.user.provider.storagedir', './data/users');
+    const organizationsPath = path.join(usersDir, 'organizations.json');
 
     const organization = {
       '@context': 'https://schema.org',

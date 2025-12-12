@@ -9,6 +9,71 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 **See [docs/project_log.md](./docs/project_log.md) for detailed AI agent session logs and daily work history.**
 
+## [1.5.0] - 2025-12-12
+
+### BREAKING CHANGE - Data Directory Consolidation
+
+All instance-specific data directories have been consolidated under `./data/` for simpler deployment and Docker volume mounting.
+
+#### Migration Required
+
+**Existing installations MUST run the migration script before upgrading:**
+
+```bash
+./scripts/migrate-to-data-dir.sh
+```
+
+Or with dry-run first:
+
+```bash
+./scripts/migrate-to-data-dir.sh --dry-run
+```
+
+#### New Directory Structure
+
+```
+data/
+├── pages/        - Wiki content (was ./pages)
+├── users/        - User accounts (was ./users)
+├── attachments/  - File attachments (unchanged)
+├── logs/         - Application logs (was ./logs)
+├── search-index/ - Search index (was ./search-index)
+├── backups/      - Backup files (was ./backups)
+├── sessions/     - Session files (was ./sessions)
+└── versions/     - Page versions (unchanged)
+```
+
+#### Config Property Changes
+
+| Property | Old Value | New Value |
+|----------|-----------|-----------|
+| `amdwiki.page.provider.filesystem.storagedir` | `./pages` | `./data/pages` |
+| `amdwiki.user.provider.storagedir` | `./users` | `./data/users` |
+| `amdwiki.search.provider.lunr.indexdir` | `./search-index` | `./data/search-index` |
+| `amdwiki.logging.dir` | `./logs` | `./data/logs` |
+| `amdwiki.audit.provider.file.logdirectory` | `./logs` | `./data/logs` |
+| `amdwiki.backup.directory` | `./backups` | `./data/backups` |
+
+### Added
+
+- **Docker Support**: Simplified Docker deployment with single volume mount
+  - Updated Dockerfile for consolidated data structure
+  - Updated docker-compose.yml for single `./data` volume
+  - Updated Docker documentation (README.md, DOCKER.md)
+- **Migration Script**: `scripts/migrate-to-data-dir.sh` for existing installations
+- **GitHub Issues**: #169 (LoggingProvider pattern), #170 (BackupProvider pattern)
+
+### Changed
+
+- Marked legacy config properties (`amdwiki.directories.*`, `amdwiki.jsonuserdatabase`, etc.)
+- Docker now requires only one volume mount instead of multiple
+
+### Documentation
+
+- Updated AGENTS.md with current sprint status
+- Updated docs/project_log.md with session details
+- Updated docker/README.md and docker/DOCKER.md
+
 ## [1.4.0] - 2024-10-16
 
 ### Added - Version History Feature (Epic #124)

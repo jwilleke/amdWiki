@@ -106,10 +106,10 @@ Submit → InstallService.processInstallation()
     ↓
 System creates/updates:
   ✓ config/app-custom-config.json
-  ✓ users/organizations.json (Schema.org)
-  ✓ users/users.json (admin user)
-  ✓ users/persons.json (admin person)
-  ✓ pages/*.md (33 startup pages)
+  ✓ data/users/organizations.json (Schema.org)
+  ✓ data/users/users.json (admin user)
+  ✓ data/users/persons.json (admin person)
+  ✓ data/pages/*.md (33 startup pages)
     ↓
 Mark amdwiki.install.completed = true
     ↓
@@ -257,12 +257,12 @@ Startup Pages:
 
 - [ ] Check "Copy startup pages" box
 - [ ] Complete installation
-- [ ] Verify 33 pages exist in pages/
+- [ ] Verify 33 pages exist in data/pages/
 - [ ] Verify pages match required-pages/
 
 Recovery Features:
 
-- [ ] Delete pages/ folder after installation
+- [ ] Delete data/pages/ folder after installation
 - [ ] Call POST /install/create-pages
 - [ ] Verify pages folder recreated
 - [ ] Verify startup pages restored
@@ -299,7 +299,7 @@ User visits any URL → Middleware checks: install completed? YES → Continues 
 
 - 15 system pages + 18 documentation = 33 total
 - Located in `required-pages/`
-- Copied to `pages/` on installation
+- Copied to `data/pages/` on installation
 
 ## Security Considerations
 
