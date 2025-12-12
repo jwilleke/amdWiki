@@ -96,19 +96,29 @@ Three-phase extraction for parsing JSPWiki syntax:
 amdWiki/
 ├── src/
 │   ├── managers/           # 23+ domain-specific managers
-│   ├── routes/            # Express route handlers
-│   ├── services/          # Business logic services
-│   ├── plugins/           # Plugin system
-│   ├── parsers/           # Content parsing
-│   ├── context/           # WikiContext implementation
-│   └── utils/             # Utility functions
-├── config/                # Configuration files
-├── pages/                 # User-created wiki pages (generated)
-├── users/                 # User data and profiles (generated)
-├── docs/                  # Detailed documentation
-├── required-pages/        # Default startup pages
-├── views/                 # EJS templates
-└── tests/                 # Test files
+│   ├── providers/          # Storage providers (Page, User, Search, etc.)
+│   ├── routes/             # Express route handlers
+│   ├── services/           # Business logic services
+│   ├── plugins/            # Plugin system
+│   ├── parsers/            # Content parsing
+│   ├── context/            # WikiContext implementation
+│   └── utils/              # Utility functions
+├── config/                 # Configuration files
+├── data/                   # All instance-specific data (v1.5.0+)
+│   ├── pages/              # User-created wiki pages
+│   ├── users/              # User accounts and profiles
+│   ├── attachments/        # File attachments
+│   ├── logs/               # Application logs
+│   ├── search-index/       # Search index files
+│   ├── backups/            # Backup files
+│   ├── sessions/           # Session files
+│   └── versions/           # Page version history
+├── required-pages/         # Default startup pages (system templates)
+├── docs/                   # Detailed documentation
+├── docker/                 # Docker deployment files
+├── views/                  # EJS templates
+├── scripts/                # Utility scripts (migration, maintenance)
+└── public/                 # Static assets
 ```
 
 ## For More Details
@@ -128,4 +138,5 @@ See [docs/architecture/](./docs/architecture/) for comprehensive documentation o
 - [CONTRIBUTING.md](./CONTRIBUTING.md) - Development workflow and coding standards
 - [docs/INSTALLATION-SYSTEM.md](./docs/INSTALLATION-SYSTEM.md) - First-run setup wizard
 - [docs/SERVER.md](./docs/SERVER.md) - Server management and deployment
+- [docker/DOCKER.md](./docker/DOCKER.md) - Docker deployment guide
 - [SECURITY.md](./SECURITY.md) - Security practices and threat model
