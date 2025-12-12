@@ -239,27 +239,33 @@ See [docs/planning/ROADMAP.md](./docs/planning/ROADMAP.md)
 
 ### Status Overview
 
-#### Active Work (Session 2025-12-12)
+#### Active Work (Session 2025-12-12) - COMPLETED
 
-**Docker Data Consolidation:**
+**Docker Data Consolidation - PR #171:**
 
 - ✅ Created branch `feature/docker-data-consolidation`
 - ✅ Updated `app-default-config.json` - consolidated all instance data into `./data/`
 - ✅ Created GitHub Issue #169 - LoggingProvider pattern
 - ✅ Created GitHub Issue #170 - BackupProvider pattern
 - ✅ Marked legacy/unused config properties
-- 🔄 Dockerfile and docker-compose.yml updates pending
+- ✅ Updated Dockerfile for new data structure
+- ✅ Updated docker-compose.yml for single data volume
+- ✅ Built and tested Docker image successfully
+- ✅ Created PR #171
 
-**Config Changes Made:**
+**New Data Structure:**
 
-| Property | Old Value | New Value |
-|----------|-----------|-----------|
-| `amdwiki.page.provider.filesystem.storagedir` | `./pages` | `./data/pages` |
-| `amdwiki.user.provider.storagedir` | `./users` | `./data/users` |
-| `amdwiki.search.provider.lunr.indexdir` | `./search-index` | `./data/search-index` |
-| `amdwiki.logging.dir` | `./logs` | `./data/logs` |
-| `amdwiki.audit.provider.file.logdirectory` | `./logs` | `./data/logs` |
-| `amdwiki.backup.directory` | `./backups` | `./data/backups` |
+```
+data/
+├── pages/        - Wiki content
+├── users/        - User accounts
+├── attachments/  - File attachments
+├── logs/         - Application logs
+├── search-index/ - Search index
+├── backups/      - Backup files
+├── sessions/     - Session files
+└── versions/     - Page versions
+```
 
 **Test Status (from 2025-12-09):**
 
@@ -268,12 +274,15 @@ See [docs/planning/ROADMAP.md](./docs/planning/ROADMAP.md)
 
 #### Recent Completions (Session 2025-12-12)
 
-**Docker Infrastructure:**
+**Docker Infrastructure (PR #171):**
 
 - ✅ Analyzed config properties usage across codebase
-- ✅ Identified 6 provider-specific properties that need updating
-- ✅ Identified legacy/unused properties (marked in config)
-- ✅ Created issues for future LoggingProvider (#169) and BackupProvider (#170) patterns
+- ✅ Updated 6 provider-specific paths in config
+- ✅ Marked legacy/unused properties (e.g., `amdwiki.directories.*`)
+- ✅ Created issues for LoggingProvider (#169) and BackupProvider (#170) patterns
+- ✅ Updated Dockerfile with consolidated data structure
+- ✅ Simplified docker-compose.yml to single data volume mount
+- ✅ Docker image builds and runs successfully
 
 #### Previous Completions (Session 2025-12-07)
 

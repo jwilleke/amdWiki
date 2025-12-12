@@ -25,7 +25,7 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 ## 2025-12-12-01
 
 - Agent: Claude Code (Opus 4.5)
-- Subject: Docker Data Consolidation - Config Updates
+- Subject: Docker Data Consolidation - Complete Implementation
 - Key Decision: Consolidate all instance-specific data into `./data/` directory for simpler Docker volume mounting
 - Work Done:
   - Created branch `feature/docker-data-consolidation`
@@ -40,16 +40,25 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
   - Marked legacy/unused properties with comments (e.g., `amdwiki.jsonuserdatabase`, `amdwiki.directories.*`)
   - Created GitHub Issue #169 - LoggingProvider pattern (for future)
   - Created GitHub Issue #170 - BackupProvider pattern (for future)
-  - Updated AGENTS.md with current sprint status
-- Commits: (pending)
+  - Updated Dockerfile with consolidated data structure
+  - Updated docker-compose.yml for single data volume mount
+  - Built and tested Docker image successfully (returns 302 redirect to install)
+  - Created PR #171
+  - Updated Docker documentation (README.md, DOCKER.md)
+- Commits:
+  - `ccfddf0` - feat(docker): consolidate instance data paths into ./data/ directory
+  - `1651e10` - feat(docker): update Dockerfile and docker-compose for consolidated data
 - Files Modified:
   - `config/app-default-config.json` - Path consolidation + legacy markers
-  - `agents.md` - Current sprint status
-- Next Steps:
-  - Update Dockerfile for new data structure
-  - Update docker-compose.yml for single data volume mount
-  - Build and test Docker image
-  - Create PR
+  - `docker/Dockerfile` - New data structure, simplified volumes
+  - `docker/docker-compose.yml` - Single data volume mount
+  - `docker/README.md` - Updated for new structure
+  - `docker/DOCKER.md` - Updated volume documentation
+  - `AGENTS.md` - Session status
+- PR: #171 - https://github.com/jwilleke/amdWiki/pull/171
+- Issues Created:
+  - #169 - LoggingProvider pattern
+  - #170 - BackupProvider pattern
 
 ---
 

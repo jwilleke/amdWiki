@@ -95,10 +95,15 @@ docker/
 
 ../                        # Project root
 ├── required-pages/        # System pages (IN REPO - required!)
-├── pages/                 # Wiki content (runtime, create on deployment)
-├── data/                  # Application data (runtime, create on deployment)
-├── logs/                  # Application logs (runtime, create on deployment)
-└── sessions/              # User sessions (runtime, create on deployment)
+└── data/                  # All instance data (runtime, single volume mount)
+    ├── pages/             # Wiki content
+    ├── users/             # User accounts
+    ├── attachments/       # File attachments
+    ├── logs/              # Application logs
+    ├── search-index/      # Search index
+    ├── backups/           # Backup files
+    ├── sessions/          # User sessions
+    └── versions/          # Page versions
 ```
 
 ## Environment Variables
@@ -115,13 +120,22 @@ GID=1000                 # Group ID for container
 
 ## Volumes
 
-The following directories are mounted from the project root:
+All instance data is consolidated under a **single volume mount** (`../data:/app/data`):
 
-- `../pages` → `/app/pages` - Wiki page content (runtime, not in repo)
-- `../required-pages` → `/app/required-pages` - System pages (in repo)
-- `../data` → `/app/data` - Attachments, users, versions (runtime, not in repo)
-- `../logs` → `/app/logs` - Application logs (runtime, not in repo)
-- `../sessions` → `/app/sessions` - User session files (runtime, not in repo)
+| Host Path | Container Path | Purpose |
+|-----------|---------------|---------|
+| `../data` | `/app/data` | All instance data (pages, users, logs, etc.) |
+| `../required-pages` | `/app/required-pages` | System templates (read-only) |
+
+The `data/` directory contains:
+- `pages/` - Wiki content
+- `users/` - User accounts
+- `attachments/` - File attachments
+- `logs/` - Application logs
+- `search-index/` - Search index
+- `backups/` - Backup files
+- `sessions/` - User sessions
+- `versions/` - Page versions
 
 ## ConfigurationManager Integration
 
@@ -132,10 +146,13 @@ The Docker setup is fully integrated with amdWiki's ConfigurationManager:
   - `development` → `config/app-development-config.json`
   - `test` → `config/app-test-config.json`
 
-- **Directory paths** in ConfigurationManager match Docker volumes:
-  - `amdwiki.page.provider.filesystem.storagedir` → `./pages`
-  - `amdwiki.directories.data` → `./data`
-  - `amdwiki.logging.dir` → `./logs`
+- **Directory paths** in ConfigurationManager (all under `./data/`):
+  - `amdwiki.page.provider.filesystem.storagedir` → `./data/pages`
+  - `amdwiki.user.provider.storagedir` → `./data/users`
+  - `amdwiki.attachment.provider.basic.storagedir` → `./data/attachments`
+  - `amdwiki.logging.dir` → `./data/logs`
+  - `amdwiki.search.provider.lunr.indexdir` → `./data/search-index`
+  - `amdwiki.backup.directory` → `./data/backups`
 
 - **Server configuration**:
   - `amdwiki.server.host` → `0.0.0.0` (for Docker)
