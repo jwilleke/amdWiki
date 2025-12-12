@@ -24,21 +24,33 @@ RUN npm install --prefer-offline
 COPY . .
 
 # Create necessary directories with proper permissions
-# These directories are used by ConfigurationManager and various managers
+# All instance-specific data is consolidated under /app/data for single volume mount
+# Directory structure:
+#   data/
+#   ├── pages/        - Wiki content (amdwiki.page.provider.filesystem.storagedir)
+#   ├── users/        - User accounts (amdwiki.user.provider.storagedir)
+#   ├── attachments/  - File attachments (amdwiki.attachment.provider.basic.storagedir)
+#   ├── logs/         - Application logs (amdwiki.logging.dir)
+#   ├── search-index/ - Search index (amdwiki.search.provider.lunr.indexdir)
+#   ├── backups/      - Backup files (amdwiki.backup.directory)
+#   └── sessions/     - Session files
 RUN mkdir -p \
-    pages \
+    data/pages \
+    data/users \
     data/attachments \
     data/versions \
-    data/users \
-    logs \
+    data/logs \
+    data/search-index \
+    data/backups \
+    data/sessions \
+    required-pages \
     resources \
-    search-index \
-    sessions \
     templates \
     config && \
-    chmod -R 777 /app
+    chmod -R 755 /app && \
+    chmod -R 777 /app/data
 
-# Note: chmod 777 allows any user to write (needed for docker-compose user override)
+# Note: chmod 777 on /app/data allows any user to write (needed for docker-compose user override)
 # This is safe in Docker since the container is isolated
 # The user is set via docker-compose.yml using UID/GID env vars
 
@@ -60,13 +72,16 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD node -e "require('http').get('http://localhost:3000/', (r) => process.exit((r.statusCode === 200 || r.statusCode === 302) ? 0 : 1))"
 
 # Volume mounts for persistent data
-# These paths correspond to ConfigurationManager directory settings:
-# - amdwiki.page.provider.filesystem.storagedir: ./pages
-# - amdwiki.page.provider.filesystem.requiredpagesdir: ./required-pages
-# - amdwiki.attachment.metadatafile: ./data/attachments/metadata.json
-# - amdwiki.logging.dir: ./logs
-# - amdwiki.directories.data: ./data
-VOLUME ["/app/pages", "/app/required-pages", "/app/data", "/app/logs", "/app/config"]
+# All instance data is consolidated under /app/data (single volume mount)
+# Config properties now point to subdirectories within data/:
+# - amdwiki.page.provider.filesystem.storagedir: ./data/pages
+# - amdwiki.user.provider.storagedir: ./data/users
+# - amdwiki.attachment.provider.basic.storagedir: ./data/attachments
+# - amdwiki.logging.dir: ./data/logs
+# - amdwiki.search.provider.lunr.indexdir: ./data/search-index
+# - amdwiki.backup.directory: ./data/backups
+# Required-pages contains system templates (read-only, copied to data/pages on install)
+VOLUME ["/app/data", "/app/required-pages", "/app/config"]
 
 # Start command
 # Uses npm start which runs: NODE_ENV=production node app.js
