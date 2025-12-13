@@ -44,9 +44,9 @@ __[PREVENTING-REGRESSIONS.md](.docs/testing/PREVENTING-REGRESSIONS.md)__ - __Pre
 
 ## Project Overview
 
-**Project Name:** amdWiki
+__Project Name:__ amdWiki
 
-**Description:** JSPWiki-inspired file-based wiki platform evolving into a comprehensive digital platform for personal and organizational use. Manager-based architecture with modular plugin system, file-based storage, and standards-first approach.
+__Description:__ JSPWiki-inspired file-based wiki platform evolving into a comprehensive digital platform for personal and organizational use. Manager-based architecture with modular plugin system, file-based storage, and standards-first approach.
 
 ### Goals
 
@@ -58,11 +58,11 @@ __[PREVENTING-REGRESSIONS.md](.docs/testing/PREVENTING-REGRESSIONS.md)__ - __Pre
 
 ## Current Status
 
-- **Overall Progress:** Phase 1 (Core Wiki) 95% complete, Phase 2 (Content Modules) planning
-- **Current Version:** 1.5.0
-- **Last Updated:** 2025-12-12
-- **Phase:** Mature development transitioning to platform expansion
-- **Next Milestone:** Attachment UI Enhancement, TypeScript migration, WikiDocument testing
+- __Overall Progress:__ Phase 1 (Core Wiki) 95% complete, Phase 2 (Content Modules) planning
+- __Current Version:__ 1.5.0
+- __Last Updated:__ 2025-12-12
+- __Phase:__ Mature development transitioning to platform expansion
+- __Next Milestone:__ Attachment UI Enhancement, TypeScript migration, WikiDocument testing
 
 ## Architecture & Tech Stack
 
@@ -192,20 +192,20 @@ See [docs/planning/TODO.md](./docs/planning/TODO.md) for comprehensive task list
 
 From TODO.md (Last Updated: October 19, 2025):
 
-1. **Attachment UI Enhancement** (2-3 weeks)
+1. __Attachment UI Enhancement__ (2-3 weeks)
    - Upload widget with drag-drop
    - Inline attachment management panel
    - Image/video preview and optimization
    - Attachment search functionality
    - Status: 📋 Not Started
 
-2. **TypeScript Migration** (Ongoing)
+2. __TypeScript Migration__ (Ongoing)
    - Progressive migration strategy
    - Strict mode enabled
    - CommonJS compatibility maintained
    - Status: 🔄 In Progress
 
-3. **WikiDocument DOM Testing** (High Priority)
+3. __WikiDocument DOM Testing__ (High Priority)
    - Comprehensive WikiDocument.test.js
    - 90%+ coverage target
    - WeakRef garbage collection tests
@@ -241,7 +241,7 @@ See [docs/planning/ROADMAP.md](./docs/planning/ROADMAP.md)
 
 #### Completed (Session 2025-12-12) - v1.5.0 MERGED
 
-**Docker Data Consolidation - PR #171 (MERGED):**
+__Docker Data Consolidation - PR #171 (MERGED):__
 
 - ✅ Consolidated all instance data into `./data/` directory
 - ✅ Updated 6 provider-specific paths in `app-default-config.json`
@@ -252,7 +252,7 @@ See [docs/planning/ROADMAP.md](./docs/planning/ROADMAP.md)
 - ✅ Bumped version to 1.5.0 (BREAKING CHANGE)
 - ✅ Squash-merged PR #171 to master
 
-**New Data Structure (v1.5.0):**
+__New Data Structure (v1.5.0):__
 
 ```
 data/
@@ -266,11 +266,11 @@ data/
 └── versions/     - Page versions
 ```
 
-**Test Status (2025-12-12):**
+__Test Status (2025-12-12):__
 
 - Test Suites: 21 failed, 46 passed (67 total)
 - Tests: 277 failed, 1409 passed (1692 total)
-- **Pass Rate: 83.3%**
+- __Pass Rate: 83.3%__
 
 #### Issues Created (Session 2025-12-12)
 
@@ -293,7 +293,7 @@ data/
 
 #### Previous Completions (Session 2025-12-07)
 
-**Test Suite Fixes:**
+__Test Suite Fixes:__
 
 - ✅ Fixed UserManager.test.js (31 tests) - Complete rewrite to match actual implementation
   - Fixed authentication flow (getUser → verifyPassword)
@@ -306,7 +306,7 @@ data/
 - ✅ Fixed FilterChain.test.js (28 tests) - Quick win
 - ✅ Fixed SchemaManager.test.js (9 tests) - Quick win
 
-**Infrastructure:**
+__Infrastructure:__
 
 - ✅ Global test setup (jest.setup.js) with provider mocking
 - ✅ Comprehensive KNOWN-TEST-ISSUES.md documentation
@@ -330,15 +330,15 @@ data/
 
 #### Next Milestones
 
-**Testing:**
+__Testing:__
 
-1. ✅ **DONE:** Fix high-priority manager tests (WikiContext, PageManager, UserManager)
-2. **NEXT:** Continue incremental test fixes during feature work (40 suites remaining)
+1. ✅ __DONE:__ Fix high-priority manager tests (WikiContext, PageManager, UserManager)
+2. __NEXT:__ Continue incremental test fixes during feature work (40 suites remaining)
 3. Target: < 10 failing suites within 1 month
 
-**Installation:**
+__Installation:__
 
-1. ✅ **DONE:** Fix GitHub issue #167 (PID lock mechanism)
+1. ✅ __DONE:__ Fix GitHub issue #167 (PID lock mechanism)
 2. Manual browser testing of install form (now #167 is fixed)
 3. Test partial installation recovery scenario
 4. Attachment UI Enhancement completion
@@ -348,19 +348,19 @@ data/
 
 ### Project Maturity
 
-- **Phase 1** (Core Wiki): 95% complete
-- **Current Version:** 1.5.0 (Semantic Versioning)
-- **Architecture:** Mature, manager-based, well-documented
-- **Documentation:** 100+ files, 95% JSDoc coverage
-- **Testing:** 376+ tests, Jest framework
+- __Phase 1__ (Core Wiki): 95% complete
+- __Current Version:__ 1.5.0 (Semantic Versioning)
+- __Architecture:__ Mature, manager-based, well-documented
+- __Documentation:__ 100+ files, 95% JSDoc coverage
+- __Testing:__ 376+ tests, Jest framework
 
 ### Key Technologies
 
-- **Storage:** File-based Markdown with YAML frontmatter
-- **Versioning:** Delta storage (fast-diff) + compression (pako)
-- **Parsing:** Showdown + custom JSPWiki handlers
-- **Sessions:** express-session with FileStore
-- **Process Management:** PM2 with custom server.sh wrapper
+- __Storage:__ File-based Markdown with YAML frontmatter
+- __Versioning:__ Delta storage (fast-diff) + compression (pako)
+- __Parsing:__ Showdown + custom JSPWiki handlers
+- __Sessions:__ express-session with FileStore
+- __Process Management:__ PM2 with custom server.sh wrapper
 
 ### External Dependencies
 
@@ -371,10 +371,10 @@ data/
 
 ### Communication
 
-- **GitHub Issues:** Bug reports and feature requests
-- **GitHub Discussions:** Questions and general discussion
-- **GitHub CLI:** Primary interaction method
-- **Draft PRs:** Early feedback on complex changes
+- __GitHub Issues:__ Bug reports and feature requests
+- __GitHub Discussions:__ Questions and general discussion
+- __GitHub CLI:__ Primary interaction method
+- __Draft PRs:__ Early feedback on complex changes
 
 ### Performance Notes
 
@@ -389,7 +389,7 @@ data/
 
 ### CRITICAL: Preventing Regressions**
 
-⚠️ **Changes breaking previously working services is a known issue.**
+⚠️ __Changes breaking previously working services is a known issue.__
 
 See [docs/development/PREVENTING-REGRESSIONS.md](./docs/development/PREVENTING-REGRESSIONS.md) for comprehensive prevention strategy including:
 
@@ -398,41 +398,41 @@ See [docs/development/PREVENTING-REGRESSIONS.md](./docs/development/PREVENTING-R
 - Integration testing approach
 - Manager contract enforcement
 
-**Before Starting:**
+__Before Starting:__
 
 1. Read [~/GLOBAL-CODE-PREFERENCES.md](~/GLOBAL-CODE-PREFERENCES.md) - Overarching principles
 2. Read this [AGENTS.md](./AGENTS.md) - Project context and current state
 3. Review [CONTRIBUTING.md](./CONTRIBUTING.md) - Development standards
 4. Check [docs/planning/TODO.md](./docs/planning/TODO.md) - Current tasks and priorities
 5. Review [CHANGELOG.md](./CHANGELOG.md) - Recent changes (v1.5.0)
-6. **Run smoke tests:** `npm run smoke` (if available, see PREVENTING-REGRESSIONS.md)
-7. **If changing manager APIs:** Read relevant contract in [docs/development/PREVENTING-REGRESSIONS.md](./docs/development/PREVENTING-REGRESSIONS.md)
+6. __Run smoke tests:__ `npm run smoke` (if available, see PREVENTING-REGRESSIONS.md)
+7. __If changing manager APIs:__ Read relevant contract in [docs/development/PREVENTING-REGRESSIONS.md](./docs/development/PREVENTING-REGRESSIONS.md)
 
-**During Work:**
+__During Work:__
 
 - Follow manager-based architecture patterns (extend BaseManager)
 - Use WikiContext for request/user context (single source of truth)
 - Write comprehensive JSDoc documentation (95% coverage standard)
-- **Write tests BEFORE changing code** (TDD approach prevents regressions)
+- __Write tests BEFORE changing code__ (TDD approach prevents regressions)
 - Create tests in `__tests__/` directories (mock all file I/O)
-- **Run tests after each significant change:** `npm test -- <relevant-file>.test.js`
+- __Run tests after each significant change:__ `npm test -- <relevant-file>.test.js`
 - Reference docs, don't duplicate (DRY principle)
 - Use GitHub CLI for issues/PRs
 
-**After Completing Work:**
+__After Completing Work:__
 
-- **Run full test suite:** `npm test` (MUST PASS before committing)
-- **Run integration tests:** `npm run test:integration` (if available)
-- **Verify coverage didn't drop:** `npm test -- --coverage`
+- __Run full test suite:__ `npm test` (MUST PASS before committing)
+- __Run integration tests:__ `npm run test:integration` (if available)
+- __Verify coverage didn't drop:__ `npm test -- --coverage`
 - Update [project_log.md](./docs/project_log.md) with session details
 - Update [docs/planning/TODO.md](./docs/planning/TODO.md) if tasks completed
 - Update [CHANGELOG.md](./CHANGELOG.md) for version releases
 - Restart server if config changes: `./server.sh restart`
-- **If ANY test fails, do NOT commit. Fix first.**
+- __If ANY test fails, do NOT commit. Fix first.__
 
 ### amdWiki-Specific Patterns
 
-**Creating New Managers:**
+__Creating New Managers:__
 
 ```javascript
 // Extend BaseManager, add JSDoc, implement initialize()
@@ -448,7 +448,7 @@ class NewManager extends BaseManager {
 }
 ```
 
-**Using WikiContext:**
+__Using WikiContext:__
 
 ```javascript
 // In route handlers
@@ -462,14 +462,14 @@ const wikiContext = this.createWikiContext(req, {
 const templateData = this.getTemplateDataFromContext(wikiContext);
 ```
 
-**Configuration Access:**
+__Configuration Access:__
 
 ```javascript
 const configManager = engine.getManager('ConfigurationManager');
 const value = configManager.getProperty('amdwiki.category.property', 'default');
 ```
 
-**Server Management:**
+__Server Management:__
 
 ```bash
 ./server.sh start dev    # Development mode
@@ -502,11 +502,11 @@ const value = configManager.getProperty('amdwiki.category.property', 'default');
 
 ### Testing & Quality Assurance
 
-- **[docs/testing/Testing-Summary.md](./docs/testing/Testing-Summary.md)** - Current test status and quick reference
-- **[docs/testing/Complete-Testing-Guide.md](./docs/testing/Complete-Testing-Guide.md)** - Comprehensive testing documentation
-- **[docs/testing/PREVENTING-REGRESSIONS.md](./docs/testing/PREVENTING-REGRESSIONS.md)** - Regression prevention strategy
+- __[docs/testing/Testing-Summary.md](./docs/testing/Testing-Summary.md)__ - Current test status and quick reference
+- __[docs/testing/Complete-Testing-Guide.md](./docs/testing/Complete-Testing-Guide.md)__ - Comprehensive testing documentation
+- __[docs/testing/PREVENTING-REGRESSIONS.md](./docs/testing/PREVENTING-REGRESSIONS.md)__ - Regression prevention strategy
 - Coverage: `npm run test:coverage`
-- **Test Requirements:**
+- __Test Requirements:__
   - Write tests BEFORE changing code (TDD)
   - All tests must pass before committing
   - Coverage must not decrease
@@ -521,11 +521,11 @@ const value = configManager.getProperty('amdwiki.category.property', 'default');
 
 ### API & Development
 
-- **[docs/development/PREVENTING-REGRESSIONS.md](./docs/development/PREVENTING-REGRESSIONS.md)** - Regression prevention strategy (CI/CD, testing)
+- __[docs/development/PREVENTING-REGRESSIONS.md](./docs/development/PREVENTING-REGRESSIONS.md)__ - Regression prevention strategy (CI/CD, testing)
 - [docs/api/](./docs/api/) - API documentation
 - [docs/developer/](./docs/developer/) - Developer guides
 - [docs/migration/](./docs/migration/) - Migration guides
 
 ---
 
-**Important:** Keep AGENTS.md and project_log.md synchronized. They are the bridge between different agents working on the same project.
+__Important:__ Keep AGENTS.md and project_log.md synchronized. They are the bridge between different agents working on the same project.
