@@ -17,6 +17,47 @@ PID_FILE="$SCRIPT_DIR/.amdwiki.pid"
 DIR_NAME=$(basename "$SCRIPT_DIR")
 APP_NAME="amdWiki-$DIR_NAME"
 
+# Function to ensure PM2 daemon is healthy (only one running)
+ensure_single_pm2_daemon() {
+  local daemon_count=$(pgrep -f "PM2.*God Daemon" | wc -l | tr -d ' ')
+  if [ "$daemon_count" -gt 1 ]; then
+    echo "⚠️  Multiple PM2 daemons detected ($daemon_count). Killing all..."
+    pkill -9 -f "PM2.*God Daemon" 2>/dev/null || true
+    sleep 1
+    echo "   Restarting PM2 daemon..."
+  fi
+}
+
+# Function to kill all amdWiki processes (nuclear option)
+kill_all_amdwiki() {
+  # 1. Stop via PM2 (graceful attempt)
+  npx --no pm2 stop "$APP_NAME" 2>/dev/null || true
+  npx --no pm2 delete "$APP_NAME" 2>/dev/null || true
+
+  # 2. Kill any node processes running app.js from this directory
+  local app_pids=$(pgrep -f "node.*$SCRIPT_DIR/app\.js" 2>/dev/null || true)
+  if [ -n "$app_pids" ]; then
+    echo "   Killing app.js processes: $app_pids"
+    echo "$app_pids" | xargs kill -9 2>/dev/null || true
+  fi
+
+  # 3. Kill any process on port 3000 that's ours
+  if command -v lsof &> /dev/null; then
+    local port_pid=$(lsof -Pi :3000 -sTCP:LISTEN -t 2>/dev/null)
+    if [ -n "$port_pid" ]; then
+      # Check if it's a node process from our directory
+      local proc_cmd=$(ps -p "$port_pid" -o args= 2>/dev/null || true)
+      if echo "$proc_cmd" | grep -q "$SCRIPT_DIR"; then
+        echo "   Killing port 3000 holder: $port_pid"
+        kill -9 "$port_pid" 2>/dev/null || true
+      fi
+    fi
+  fi
+
+  # 4. Remove all PID files
+  rm -f "$PID_FILE" "$SCRIPT_DIR"/.amdwiki-*.pid "$SCRIPT_DIR"/server.pid
+}
+
 # Determine environment from second argument or NODE_ENV
 ENV_ARG="${2:-}"
 if [ -n "$ENV_ARG" ]; then
@@ -45,7 +86,10 @@ fi
 
 case "${1:-}" in
   start)
-    # STEP 1: Check if server is already running via PID file
+    # STEP 1: Ensure only one PM2 daemon is running
+    ensure_single_pm2_daemon
+
+    # STEP 2: Check if server is already running via PID file
     if [ -f "$PID_FILE" ]; then
       EXISTING_PID=$(cat "$PID_FILE")
       if ps -p "$EXISTING_PID" > /dev/null 2>&1; then
@@ -62,100 +106,96 @@ case "${1:-}" in
       fi
     fi
 
-    # STEP 2: Check if port 3000 is already in use
+    # STEP 3: Check if port 3000 is already in use
     if command -v lsof &> /dev/null; then
       PORT_PID=$(lsof -Pi :3000 -sTCP:LISTEN -t 2>/dev/null)
       if [ -n "$PORT_PID" ]; then
-        echo "❌ ERROR: Port 3000 in use by PID $PORT_PID"
-        echo ""
-        echo "This process is preventing amdWiki from starting:"
-        lsof -i :3000 2>/dev/null | grep LISTEN || true
-        echo ""
-        echo "Options:"
-        echo "  1. Kill that process: kill -9 $PORT_PID"
-        echo "  2. Force cleanup: ./server.sh unlock && ./server.sh start"
-        exit 1
+        # Check if it's OUR process (from this directory)
+        PORT_CMD=$(ps -p "$PORT_PID" -o args= 2>/dev/null || true)
+        if echo "$PORT_CMD" | grep -q "$SCRIPT_DIR"; then
+          echo "⚠️  Found orphaned amdWiki on port 3000 (PID $PORT_PID), killing..."
+          kill -9 "$PORT_PID" 2>/dev/null || true
+          sleep 1
+        else
+          echo "❌ ERROR: Port 3000 in use by another process (PID $PORT_PID)"
+          echo ""
+          echo "This process is preventing amdWiki from starting:"
+          lsof -i :3000 2>/dev/null | grep LISTEN || true
+          echo ""
+          echo "Options:"
+          echo "  1. Kill that process: kill -9 $PORT_PID"
+          echo "  2. Use a different port (not yet supported)"
+          exit 1
+        fi
       fi
     fi
 
-    # STEP 3: Clean up any orphaned Node processes running app.js
+    # STEP 4: Clean up any orphaned Node processes running app.js FROM THIS DIRECTORY
     echo "🧹 Cleaning up any orphaned Node processes..."
-    pkill -9 -f "node.*app\.js" 2>/dev/null || true
+    pgrep -f "node.*$SCRIPT_DIR/app\.js" 2>/dev/null | xargs kill -9 2>/dev/null || true
     sleep 1
 
-    # STEP 4: Clean up any PM2-created PID files (.amdwiki-*.pid) and legacy files
+    # STEP 5: Clean up any PM2-created PID files (.amdwiki-*.pid) and legacy files
     rm -f "$SCRIPT_DIR"/.amdwiki-*.pid "$SCRIPT_DIR"/server.pid
 
-    # STEP 5: Start via PM2
+    # STEP 6: Delete any existing PM2 app entry (prevents duplicates)
+    npx --no pm2 delete "$APP_NAME" 2>/dev/null || true
+
+    # STEP 7: Start via PM2
     echo "🚀 Starting amdWiki in $ENV_NAME mode..."
     echo "   Config: config/app-$ENV_NAME-config.json"
     echo "   Logs: ./data/logs/"
-    npx --no -- npx --no -- pm2 start ecosystem.config.js --env $ENV_NAME
+    npx --no pm2 start ecosystem.config.js --env $ENV_NAME
 
-    # STEP 6: Write our own PID file with the PM2 process PID
-    sleep 1
-    PM2_PID=$(npx pm2 pid "$APP_NAME" 2>/dev/null | grep -oE '[0-9]+' | head -1)
-    if [ -n "$PM2_PID" ]; then
+    # STEP 8: Write our own PID file with the PM2 process PID
+    sleep 2
+    PM2_PID=$(npx --no pm2 pid "$APP_NAME" 2>/dev/null | grep -oE '[0-9]+' | head -1)
+    if [ -n "$PM2_PID" ] && [ "$PM2_PID" != "0" ]; then
       echo "$PM2_PID" > "$PID_FILE"
       echo "✅ Server started (PID: $PM2_PID)"
     else
       echo "⚠️  Server may have started but PID detection failed"
+      echo "   Check: ./server.sh status"
     fi
 
-    # STEP 7: Clean up PM2-generated PID files (keep only .amdwiki.pid as source of truth)
-    sleep 1
+    # STEP 9: Clean up PM2-generated PID files (keep only .amdwiki.pid as source of truth)
     rm -f "$SCRIPT_DIR"/.amdwiki-*.pid
     ;;
 
   stop)
     echo "🛑 Stopping $APP_NAME..."
 
-    # Try graceful stop first (5 second timeout)
-    npx --no -- pm2 stop "$APP_NAME"
-    sleep 2
+    # Use the comprehensive kill function
+    kill_all_amdwiki
+    sleep 1
 
-    # Verify it's actually gone
-    if [ -f "$PID_FILE" ]; then
-      EXISTING_PID=$(cat "$PID_FILE")
-      if ps -p "$EXISTING_PID" > /dev/null 2>&1; then
-        echo "⚠️  Process didn't stop gracefully (PID $EXISTING_PID), force killing..."
-        kill -9 "$EXISTING_PID" 2>/dev/null || true
-        sleep 1
+    # Verify nothing is left on port 3000
+    if command -v lsof &> /dev/null; then
+      PORT_PID=$(lsof -Pi :3000 -sTCP:LISTEN -t 2>/dev/null)
+      if [ -n "$PORT_PID" ]; then
+        PORT_CMD=$(ps -p "$PORT_PID" -o args= 2>/dev/null || true)
+        if echo "$PORT_CMD" | grep -q "$SCRIPT_DIR"; then
+          echo "⚠️  Process still on port 3000, force killing PID $PORT_PID..."
+          kill -9 "$PORT_PID" 2>/dev/null || true
+        fi
       fi
     fi
 
-    # Clean up PID files (including legacy files)
-    rm -f "$PID_FILE" "$SCRIPT_DIR"/.amdwiki-*.pid "$SCRIPT_DIR"/server.pid
     echo "✅ Server stopped"
     ;;
 
   restart)
     echo "🔄 Restarting $APP_NAME..."
 
-    # Stop gracefully first
-    ./server.sh stop
+    # Stop everything
+    "$0" stop
     sleep 2
 
-    # Verify process is gone
-    if [ -f "$PID_FILE" ]; then
-      REMAINING_PID=$(cat "$PID_FILE")
-      if ps -p "$REMAINING_PID" > /dev/null 2>&1; then
-        echo "⚠️  Process didn't stop gracefully, force killing PID $REMAINING_PID..."
-        kill -9 "$REMAINING_PID" 2>/dev/null || true
-        sleep 1
-      fi
-    fi
-
-    # Clean up any remaining orphaned processes
-    pkill -9 -f "node.*app\.js" 2>/dev/null || true
-    sleep 1
-
-    # Now start fresh
+    # Start fresh
     if [ -n "$ENV_ARG" ]; then
-      echo "   Environment: $ENV_NAME"
-      ./server.sh start $ENV_ARG
+      "$0" start "$ENV_ARG"
     else
-      ./server.sh start
+      "$0" start
     fi
     ;;
 
@@ -163,6 +203,17 @@ case "${1:-}" in
     echo "📊 amdWiki Server Status"
     echo "========================"
     echo ""
+
+    # Check for multiple PM2 daemons (common issue)
+    DAEMON_COUNT=$(pgrep -f "PM2.*God Daemon" 2>/dev/null | wc -l | tr -d ' ')
+    if [ "$DAEMON_COUNT" -gt 1 ]; then
+      echo "⚠️  WARNING: $DAEMON_COUNT PM2 daemons running (should be 1)"
+      echo "    Run: ./server.sh unlock"
+      echo ""
+    elif [ "$DAEMON_COUNT" -eq 0 ]; then
+      echo "ℹ️  PM2 daemon not running"
+      echo ""
+    fi
 
     # Check PID file
     if [ -f "$PID_FILE" ]; then
@@ -179,7 +230,7 @@ case "${1:-}" in
 
     echo ""
     echo "PM2 Status:"
-    npx --no -- pm2 list 2>/dev/null | grep -A 20 "$APP_NAME" || echo "   No PM2 processes found"
+    npx --no pm2 list 2>/dev/null | grep -E "(id|$APP_NAME)" || echo "   No PM2 processes found"
 
     echo ""
     echo "Port 3000:"
@@ -194,12 +245,20 @@ case "${1:-}" in
     fi
 
     echo ""
-    echo "Node Processes:"
-    ps aux | grep "node.*app\.js" | grep -v grep || echo "   None found"
+    echo "Node Processes (this project):"
+    ps aux | grep "$SCRIPT_DIR/app\.js" | grep -v grep || echo "   None found"
+
+    # Check for PID file duplicates
+    PID_COUNT=$(ls -1 "$SCRIPT_DIR"/.amdwiki*.pid 2>/dev/null | wc -l | tr -d ' ')
+    if [ "$PID_COUNT" -gt 1 ]; then
+      echo ""
+      echo "⚠️  WARNING: Multiple PID files found:"
+      ls -la "$SCRIPT_DIR"/.amdwiki*.pid 2>/dev/null
+    fi
     ;;
 
   logs)
-    npx --no -- pm2 logs "$APP_NAME" --lines ${2:-50}
+    npx --no pm2 logs "$APP_NAME" --lines ${2:-50}
     ;;
 
   env)
@@ -212,22 +271,27 @@ case "${1:-}" in
     ;;
 
   unlock)
-    echo "🔓 Unlocking server..."
+    echo "🔓 Unlocking server (nuclear cleanup)..."
 
-    # 1. Delete any PM2 processes
-    npx --no -- pm2 delete "$APP_NAME" 2>/dev/null || true
+    # 1. Kill all amdWiki processes
+    echo "   Stopping all amdWiki processes..."
+    kill_all_amdwiki
 
-    # 2. Kill orphaned Node processes
-    echo "   Killing any orphaned Node processes..."
-    pkill -9 -f "node.*app\.js" 2>/dev/null || true
+    # 2. Check for multiple PM2 daemons and kill them all
+    DAEMON_COUNT=$(pgrep -f "PM2.*God Daemon" 2>/dev/null | wc -l | tr -d ' ')
+    if [ "$DAEMON_COUNT" -gt 0 ]; then
+      echo "   Killing $DAEMON_COUNT PM2 daemon(s)..."
+      npx --no pm2 kill 2>/dev/null || true
+      pkill -9 -f "PM2.*God Daemon" 2>/dev/null || true
+    fi
 
-    # 3. Remove all PID files (including legacy)
-    echo "   Removing PID lock files..."
-    rm -f "$PID_FILE" "$SCRIPT_DIR"/.amdwiki-*.pid "$SCRIPT_DIR"/server.pid
+    # 3. Kill any remaining node processes from this directory
+    echo "   Killing any remaining Node processes..."
+    pgrep -f "node.*$SCRIPT_DIR" 2>/dev/null | xargs kill -9 2>/dev/null || true
 
-    # 4. Clear PM2 data
+    # 4. Clear PM2 logs
     echo "   Clearing PM2 logs..."
-    npx --no -- pm2 flush 2>/dev/null || true
+    npx --no pm2 flush 2>/dev/null || true
 
     sleep 1
     echo "✅ Server unlocked. Run: ./server.sh start"

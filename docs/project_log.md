@@ -22,6 +22,35 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 
 ---
 
+## 2025-12-13-02
+
+- Agent: Claude Code (Opus 4.5)
+- Subject: Fix Issue #167 - Multiple PM2 Daemons and PIDs (Root Cause)
+- Issue: #167
+- Work Done:
+  - **Root cause identified**: Multiple PM2 daemons can spawn and persist in `~/.pm2/`
+  - **Bug fixed**: Double `npx --no -- npx --no --` on line 93 (was `npx --no -- npx --no -- pm2 start`)
+  - Added `ensure_single_pm2_daemon()` function - detects/kills multiple PM2 daemons
+  - Added `kill_all_amdwiki()` function - comprehensive process cleanup
+  - Improved `start` command:
+    - Now checks for multiple PM2 daemons before starting
+    - Deletes existing PM2 app entry before starting (prevents duplicates)
+    - Auto-kills orphaned processes from THIS directory only (not global)
+  - Improved `stop` command:
+    - Uses `pm2 delete` (not just `pm2 stop`) to fully remove app
+    - Explicitly kills any surviving processes
+  - Improved `unlock` command:
+    - Now kills ALL PM2 daemons (`pm2 kill` + `pkill`)
+    - Truly nuclear cleanup option
+  - Improved `status` command:
+    - Shows warning if multiple PM2 daemons detected
+    - Shows warning if multiple PID files exist
+    - Filters node processes to this project only
+- Files Modified:
+  - `server.sh` - Complete rewrite of process management logic
+
+---
+
 ## 2025-12-13-01
 
 - Agent: Claude Code (Opus 4.5)
