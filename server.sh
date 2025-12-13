@@ -89,7 +89,7 @@ case "${1:-}" in
     # STEP 5: Start via PM2
     echo "🚀 Starting amdWiki in $ENV_NAME mode..."
     echo "   Config: config/app-$ENV_NAME-config.json"
-    echo "   Logs: ./logs/"
+    echo "   Logs: ./data/logs/"
     npx --no -- npx --no -- pm2 start ecosystem.config.js --env $ENV_NAME
 
     # STEP 6: Write our own PID file with the PM2 process PID

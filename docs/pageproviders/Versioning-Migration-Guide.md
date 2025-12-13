@@ -604,7 +604,7 @@ const diff = await provider.compareVersions('PageName', 1, 3);
 If you encounter issues not covered in this guide:
 
 1. Check the GitHub issues: https://github.com/jwilleke/amdWiki/issues
-2. Review application logs: `./logs/app.log`
+2. Review application logs: `./data/logs/app.log`
 3. Enable verbose logging: `--verbose` flag
 4. Create a new issue with:
    - Migration report output

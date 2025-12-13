@@ -25,7 +25,7 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 ## 2025-12-13-01
 
 - Agent: Claude Code (Opus 4.5)
-- Subject: Security Vulnerability Fixes
+- Subject: Security Fixes & Logs Path Consolidation
 - Work Done:
   - Fixed js-yaml prototype pollution vulnerability (CVE in versions ≤4.1.0)
     - Added npm override to force js-yaml@^4.1.1
@@ -35,9 +35,20 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
     - Affects: csurf dependency
   - Updated baseline-browser-mapping to latest version
   - npm audit now shows 0 vulnerabilities
+  - Fixed PM2 logs path to use `./data/logs/` (missed in v1.5.0 consolidation)
+    - Updated ecosystem.config.js PM2 log paths
+    - Updated server.sh logs path display
+    - Updated documentation: CONTRIBUTING.md, SERVER-MANAGEMENT.md, Versioning-Migration-Guide.md
+    - Updated required-pages Server Management wiki page
 - Files Modified:
   - `package.json` - Added overrides section for js-yaml and cookie
   - `package-lock.json` - Updated dependency tree
+  - `ecosystem.config.js` - PM2 log paths → ./data/logs/
+  - `server.sh` - Updated logs path display
+  - `CONTRIBUTING.md` - Updated log locations table
+  - `docs/SERVER-MANAGEMENT.md` - Updated PM2 config example and validation steps
+  - `docs/pageproviders/Versioning-Migration-Guide.md` - Updated app.log path
+  - `required-pages/8dad9fdc-1d2e-4d4b-aeeb-a95bd1ba6a28.md` - Server Management wiki page
 
 ---
 

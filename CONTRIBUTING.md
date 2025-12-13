@@ -35,8 +35,8 @@ amdWiki uses `server.sh` for all server operations. See [SERVER.md](SERVER.md) f
   |-------------|-------------------------------|-------------------------------------|
   | PM2 Output  | ~/.pm2/logs/amdWiki-out.log   | Real-time stdout, startup messages  |
   | PM2 Errors  | ~/.pm2/logs/amdWiki-error.log | Real-time stderr, plugin errors     |
-  | Application | ./logs/app.log                | Winston logger, detailed operations |
-  | Audit       | ./logs/audit.log              | Security/audit events               |
+  | Application | ./data/logs/app.log           | Winston logger, detailed operations |
+  | Audit       | ./data/logs/audit.log         | Security/audit events               |
 
 ## ⚙️ Configuration System
 

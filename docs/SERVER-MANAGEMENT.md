@@ -256,9 +256,9 @@ module.exports = {
       watch: false,  // We manage restarts via server.sh
       autorestart: true,  // Restart if it crashes
       max_memory_restart: "500M",
-      error_file: "./logs/pm2-error.log",
-      out_file: "./logs/pm2-out.log",
-      log_file: "./logs/pm2-combined.log",
+      error_file: "./data/logs/pm2-error.log",
+      out_file: "./data/logs/pm2-out.log",
+      log_file: "./data/logs/pm2-combined.log",
       // Safety
       kill_timeout: 5000,
       listen_timeout: 3000
@@ -304,7 +304,7 @@ Before starting server, `./server.sh start` should verify:
 3. ✅ **No orphaned Node processes** running
 4. ✅ **PM2 daemon is running** (or can be started)
 5. ✅ **Configuration files exist** (default + environment)
-6. ✅ **Logs directory exists** (./logs/)
+6. ✅ **Logs directory exists** (./data/logs/)
 7. ✅ **Permission to write PID file** (.amdwiki.pid)
 
 ## Error Messages (User-Friendly)

@@ -135,15 +135,15 @@ The server uses a PID lock file (`.amdwiki.pid`) to prevent multiple instances f
 
 ## Server Logs Location
 
-All logs are written to the `./logs/` directory:
+All logs are written to the `./data/logs/` directory:
 
 | Type | Location | Purpose |
 |------|----------|---------|
-| PM2 Output | `./logs/pm2-out.log` | stdout, startup messages |
-| PM2 Errors | `./logs/pm2-error.log` | stderr, runtime errors |
-| PM2 Combined | `./logs/pm2-combined.log` | Combined PM2 logs |
-| Application | `./logs/app.log` | Winston logger, detailed operations |
-| Audit | `./logs/audit.log` | Security/audit events |
+| PM2 Output | `./data/logs/pm2-out.log` | stdout, startup messages |
+| PM2 Errors | `./data/logs/pm2-error.log` | stderr, runtime errors |
+| PM2 Combined | `./data/logs/pm2-combined.log` | Combined PM2 logs |
+| Application | `./data/logs/app.log` | Winston logger, detailed operations |
+| Audit | `./data/logs/audit.log` | Security/audit events |
 
 ## Manual Management
 
