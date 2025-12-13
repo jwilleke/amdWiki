@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
 - **WikiDocument DOM Parsing Architecture**: Production deployment of JSPWiki-inspired DOM-based parser (Epic #114)
   - **WikiDocument DOM Extraction Pipeline**: Three-phase parsing that separates JSPWiki and Markdown processing
   - **Phase 1 - Extraction** (#115): `extractJSPWikiSyntax()` extracts JSPWiki syntax before Markdown parsing
@@ -58,7 +59,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Admin Configuration Interface**: Full web-based configuration management with validation
   - **Server Configuration**: Configurable port, host, session settings, and base URLs
   - **Runtime Updates**: Live configuration updates without server restart via admin interface
-  - **Property Validation**: Ensures proper amdwiki.* and log4j.* property naming
+  - **Property Validation**: Ensures proper amdwiki.*and log4j.* property naming
   - **Configuration Export**: View and manage all configuration properties
   - **JSPWiki Compatibility**: Property naming and structure matches JSPWiki patterns
   - **Security Integration**: Proper session and security configuration management
@@ -74,12 +75,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Admin Dashboard**: Statistics and monitoring dashboard for security oversight
 
 ### Security
+
 - **Enhanced Security Monitoring**: Comprehensive access control decision logging
 - **Audit Trail Compliance**: Full audit trail for security compliance and monitoring
 - **Access Pattern Analysis**: Detailed logging of user actions and system access patterns
 - **Security Incident Detection**: Framework for detecting and logging security incidents
 
 ### Testing
+
 - **Comprehensive Route Testing Framework**: Major advancement in test coverage and reliability
   - **45-route test suite**: Complete coverage of all amdWiki HTTP endpoints with authentication and security testing
   - **CSRF Protection Validation**: Full CSRF token validation testing with security middleware verification
@@ -114,12 +117,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Comprehensive validation of manager integration points
 
 ### Removed
+
 - In-memory mock file system using Map for predictable test behavior
 - gray-matter mocking for YAML frontmatter parsing
 - **Testing documentation**: New PageManager Testing Guide (`docs/testing/PageManager-Testing-Guide.md`)
 - **Updated contributing guidelines**: Enhanced testing best practices and mock-based testing approach
 
 ### Technical
+
 - All PageManager tests now use mocks instead of real file operations
 - Improved test reliability and CI/CD compatibility
 - Enhanced error handling test coverage
@@ -127,6 +132,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Documentation Updates**: Updated CHANGELOG.md and TESTING_PLAN.md with comprehensive route testing status and achievements
 
 ### Planned
+
 - Unit test implementation
 - Performance optimization for large page sets
 - Mobile UI enhancements
@@ -222,6 +228,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.3.0] - 2025-09-08
 
 ### Added
+
 - **JSPWiki Table Functionality**: Complete implementation of JSPWiki-style table rendering
   - **`%%table-striped` syntax**: Bootstrap-compatible striped tables with theme-aware styling
   - **`[{Table}]` plugin syntax**: Advanced table styling with comprehensive parameter support
@@ -242,12 +249,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **JSPWiki Table Documentation**: Comprehensive usage examples and implementation details
 
 ### Changed
+
 - **Category system**: Replaced single `category` with array-based `categories` for better organization
 - **File organization**: Moved utility files (logger.js, version.js) to `src/utils/`
 - **Test organization**: Moved test files to `src/tests/`
 - **Legacy code**: Moved old app versions to `src/legacy/`
 
 ### Fixed
+
 - **Git ignore patterns**: Resolved VS Code showing user content as untracked files
 - **Table rendering**: Complete JSPWiki TablePlugin compatibility with all styling parameters
 - **Project structure**: Clean separation between system files and user content

@@ -21,11 +21,13 @@ Key Benefits of Using Interaction Types
     └── amenityFeature → Community-Wide (clubhouse, pool)
 
 Each Condo unit has relations to different types of persons:
+
 - Occupants
 - deed-Owners
 - Vendors for Maintenace
 
 Possible JSON Structure
+
 ```json
 {
   "@context": "https://schema.org",
