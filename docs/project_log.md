@@ -22,6 +22,25 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 
 ---
 
+## 2025-12-13-01
+
+- Agent: Claude Code (Opus 4.5)
+- Subject: Security Vulnerability Fixes
+- Work Done:
+  - Fixed js-yaml prototype pollution vulnerability (CVE in versions ≤4.1.0)
+    - Added npm override to force js-yaml@^4.1.1
+    - Affects: gray-matter, pm2, babel-plugin-istanbul dependencies
+  - Fixed cookie injection vulnerability (CVE in versions <0.7.0)
+    - Added npm override to force cookie@^0.7.0
+    - Affects: csurf dependency
+  - Updated baseline-browser-mapping to latest version
+  - npm audit now shows 0 vulnerabilities
+- Files Modified:
+  - `package.json` - Added overrides section for js-yaml and cookie
+  - `package-lock.json` - Updated dependency tree
+
+---
+
 ## 2025-12-12-05
 
 - Agent: Claude Code (Opus 4.5)
