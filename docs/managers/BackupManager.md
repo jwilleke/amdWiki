@@ -55,11 +55,13 @@ The **BackupManager** is responsible for coordinating backup and restore operati
 ### Design Philosophy
 
 The BackupManager follows the **Coordinator Pattern**:
+
 - BackupManager: Orchestrates backup/restore across all managers
 - Managers: Implement backup() and restore() methods
 - Providers: Handle actual data storage/retrieval (when using provider pattern)
 
 This architecture enables:
+
 - **Centralized Control**: Single point for all backup operations
 - **Manager Autonomy**: Each manager controls what data to backup
 - **Provider Delegation**: Managers delegate to providers for storage-specific backups
@@ -216,6 +218,7 @@ Full system backup: 1,190.76 KB → 235.17 KB compressed (19.7%)
 ### ACLManager Note
 
 ACLManager does **not** implement backup/restore because:
+
 - All policies are loaded from ConfigurationManager (already backed up)
 - Per-page ACLs are embedded in page content (backed up by PageManager)
 - The accessPolicies Map is just a runtime cache that can be rebuilt from config
@@ -260,11 +263,13 @@ ACLManager does **not** implement backup/restore because:
 Initialize the BackupManager and create backup directory.
 
 **Parameters:**
+
 - `config` (object, optional): Additional configuration options
 
 **Returns:** `Promise<void>`
 
 **Example:**
+
 ```javascript
 await backupManager.initialize();
 ```
@@ -280,6 +285,7 @@ Create a full system backup of all registered managers.
 **Throws:** Error if backup fails
 
 **Example:**
+
 ```javascript
 const backupPath = await backupManager.backup();
 console.log(`Backup saved to: ${backupPath}`);
@@ -287,6 +293,7 @@ console.log(`Backup saved to: ${backupPath}`);
 ```
 
 **Process:**
+
 1. Gets all registered managers from engine
 2. Calls `backup()` method on each manager
 3. Aggregates all data into single backup object
@@ -301,6 +308,7 @@ console.log(`Backup saved to: ${backupPath}`);
 Restore system state from a backup file.
 
 **Parameters:**
+
 - `backupPath` (string): Path to backup file (relative or absolute)
 
 **Returns:** `Promise<void>`
@@ -308,12 +316,14 @@ Restore system state from a backup file.
 **Throws:** Error if restore fails or backup file not found
 
 **Example:**
+
 ```javascript
 await backupManager.restore('backups/amdwiki-backup-2025-10-14T11-28-54-626Z.json.gz');
 console.log('System restored successfully');
 ```
 
 **Process:**
+
 1. Reads and decompresses backup file
 2. Parses JSON data
 3. Calls `restore()` on each manager with their backup data
@@ -329,6 +339,7 @@ List all available backups in the backup directory.
 **Returns:** `Promise<Array>` - Array of backup file information
 
 **Backup Info Structure:**
+
 ```javascript
 {
   filename: 'amdwiki-backup-2025-10-14T11-28-54-626Z.json.gz',
@@ -340,6 +351,7 @@ List all available backups in the backup directory.
 ```
 
 **Example:**
+
 ```javascript
 const backups = await backupManager.listBackups();
 console.log(`Found ${backups.length} backups:`);
@@ -355,6 +367,7 @@ backups.forEach(backup => {
 Delete a specific backup file.
 
 **Parameters:**
+
 - `backupPath` (string): Path to backup file to delete
 
 **Returns:** `Promise<void>`
@@ -362,6 +375,7 @@ Delete a specific backup file.
 **Throws:** Error if file doesn't exist or deletion fails
 
 **Example:**
+
 ```javascript
 await backupManager.deleteBackup('backups/old-backup-2025-09-01.json.gz');
 console.log('Backup deleted');
@@ -376,12 +390,14 @@ Remove old backups beyond the retention limit.
 **Returns:** `Promise<number>` - Number of backups deleted
 
 **Example:**
+
 ```javascript
 const deleted = await backupManager.cleanupOldBackups();
 console.log(`Deleted ${deleted} old backups`);
 ```
 
 **Logic:**
+
 - Lists all backup files sorted by timestamp (newest first)
 - Keeps `maxBackups` most recent backups
 - Deletes all older backups
@@ -393,11 +409,13 @@ console.log(`Deleted ${deleted} old backups`);
 Get information about a backup file without loading full contents.
 
 **Parameters:**
+
 - `backupPath` (string): Path to backup file
 
 **Returns:** `Promise<Object>` - Backup metadata
 
 **Example:**
+
 ```javascript
 const info = await backupManager.getBackupInfo('backups/backup.json.gz');
 console.log(`Backup created: ${info.metadata.timestamp}`);
@@ -950,6 +968,7 @@ async function checkBackupHealth() {
 **Cause**: Manager doesn't implement backup() method
 
 **Solution**: Add backup/restore methods to manager or register a BaseManager stub:
+
 ```javascript
 async backup() {
   return { managerName: this.constructor.name, timestamp: new Date().toISOString(), data: null };
@@ -971,6 +990,7 @@ async backup() {
 **Cause**: No write permissions to backup directory
 
 **Solution**: Check directory permissions:
+
 ```bash
 chmod 755 backups/
 ```
@@ -982,6 +1002,7 @@ chmod 755 backups/
 **Cause**: Many pages or large attachments
 
 **Solution**:
+
 - Implement incremental backups
 - Exclude large binary files
 - Increase retention period but reduce frequency
@@ -993,6 +1014,7 @@ chmod 755 backups/
 ### Adding Backup Support to a New Manager
 
 #### 1. **Implement backup() method**
+
 ```javascript
 async backup() {
   return {
@@ -1005,6 +1027,7 @@ async backup() {
 ```
 
 #### 2. **Implement restore() method**
+
 ```javascript
 async restore(backupData) {
   if (!backupData || !backupData.data) {
@@ -1019,6 +1042,7 @@ async restore(backupData) {
 #### 3. **Register manager in WikiEngine** (automatic if using registerManager())
 
 #### 4. **Test backup/restore**
+
 ```javascript
 const backup = await manager.backup();
 await manager.restore(backup);

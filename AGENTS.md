@@ -4,20 +4,28 @@ Single source of truth for amdWiki project context. Read this first when working
 
 ## ⚠️ CRITICAL - Read Global Preferences First
 
-Read [~/GLOBAL-CODE-PREFERENCES.md](~/GLOBAL-CODE-PREFERENCES.md) for overarching principles:
+Follow for overarching principles:
 
-- Concise, DRY code and documentation
-- Iterate progressively, start with core features
-- NEVER put unencrypted secrets in Git
-- Use project_log.md to track all work
-- GitHub CLI primary method for interactions
-- Use markdownlint, .editorconfig, .prettierrc.json standards
+- Be concise and sacrifice grammar for consistion
+- DRY (Don't Repeat Yourself) principle in Documentation and Code. Refer to other Documents.
+- Iterate Progressively. Start with Core features only: Gather feedback.
+- Present a list of unresolved questions to answer, if any.
+- Questions, Comments and Suggestions are always encouraged!
+- Your primary method for interacting with GitHub should be the CLI.
+- On larger objectives present phased implementation plan
+- NEVER put unencrypted "Secrets" in Git.
+- Always create project_log.md file as aa log of work done on the project in format
+  - yyyy-MM-dd-## - Created new file - "Commit"
+- Use the following
+  - .editorconfig
+  - .prettierrc.json
+  - .prettierignore
 
 ## Quick Navigation
 
 ### ⚠️ CRITICAL - Read Before Making Changes
 
-__[PREVENTING-REGRESSIONS.md](.docs/testing/PREVENTING-REGRESSIONS.md)__ - __Prevents breaking existing services__ (automated testing strategy)
+__[PREVENTING-REGRESSIONS.md](docs/testing/PREVENTING-REGRESSIONS.md)__ - __Prevents breaking existing services__ (automated testing strategy)
 
 ### Root-Level Documentation (Start Here)
 
@@ -186,7 +194,7 @@ See [project_log.md](./project_log.md) for AI agent session tracking. Formated i
 
 ## TODO & Next Steps
 
-See [docs/planning/TODO.md](./docs/planning/TODO.md) for comprehensive task list.
+See [docs/planning/TODO.md](/docs/planning/TODO.md) for comprehensive task list.
 
 ### Current High Priority
 
@@ -213,7 +221,7 @@ From TODO.md (Last Updated: October 19, 2025):
 
 ### Platform Roadmap
 
-See [docs/planning/ROADMAP.md](./docs/planning/ROADMAP.md)
+See [docs/planning/ROADMAP.md](/docs/planning/ROADMAP.md)
 
 #### Phase 2 (Next): Content Modules
 
@@ -366,7 +374,6 @@ __Installation:__
 
 - Node.js v18+ required
 - PM2 for production
-- ~/GLOBAL-CODE-PREFERENCES.md for global standards
 - No database required (file-based)
 
 ### Communication
@@ -391,7 +398,7 @@ __Installation:__
 
 ⚠️ __Changes breaking previously working services is a known issue.__
 
-See [docs/development/PREVENTING-REGRESSIONS.md](./docs/development/PREVENTING-REGRESSIONS.md) for comprehensive prevention strategy including:
+See [docs/development/PREVENTING-REGRESSIONS.md](/docs/development/PREVENTING-REGRESSIONS.md) for comprehensive prevention strategy including:
 
 - Automated testing requirements
 - Pre-commit validation checklist
@@ -400,13 +407,12 @@ See [docs/development/PREVENTING-REGRESSIONS.md](./docs/development/PREVENTING-R
 
 __Before Starting:__
 
-1. Read [~/GLOBAL-CODE-PREFERENCES.md](~/GLOBAL-CODE-PREFERENCES.md) - Overarching principles
-2. Read this [AGENTS.md](./AGENTS.md) - Project context and current state
-3. Review [CONTRIBUTING.md](./CONTRIBUTING.md) - Development standards
-4. Check [docs/planning/TODO.md](./docs/planning/TODO.md) - Current tasks and priorities
-5. Review [CHANGELOG.md](./CHANGELOG.md) - Recent changes (v1.5.0)
-6. __Run smoke tests:__ `npm run smoke` (if available, see PREVENTING-REGRESSIONS.md)
-7. __If changing manager APIs:__ Read relevant contract in [docs/development/PREVENTING-REGRESSIONS.md](./docs/development/PREVENTING-REGRESSIONS.md)
+- Read this [AGENTS.md](./AGENTS.md) - Project context and current state
+- Review [CONTRIBUTING.md](./CONTRIBUTING.md) - Development standards
+- Check [docs/planning/TODO.md](./docs/planning/TODO.md) - Current tasks and priorities
+- Review [CHANGELOG.md](./CHANGELOG.md) - Recent changes (v1.5.0)
+- __Run smoke tests:__ `npm run smoke` (if available, see PREVENTING-REGRESSIONS.md)
+- __If changing manager APIs:__ Read relevant contract in [docs/development/PREVENTING-REGRESSIONS.md](/docs/development/PREVENTING-REGRESSIONS.md)
 
 __During Work:__
 

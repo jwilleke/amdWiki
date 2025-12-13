@@ -31,6 +31,8 @@ Or with dry-run first:
 
 #### New Directory Structure
 
+See [Project Structure](ARCHITECTURE.md)
+
 ```
 data/
 ├── pages/        - Wiki content (was ./pages)

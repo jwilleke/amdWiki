@@ -52,10 +52,11 @@ Contains custom overrides for default properties. This is the file to modify for
   "amdwiki.frontPage": "CustomHomePage"
 }
 ```
+
 ## How to Test ConfigurationManager
 
-You can test src/managers/ConfigurationManager.js with simple script 
-scripts/configurationmanage-get-config.js 
+You can test src/managers/ConfigurationManager.js with simple script
+scripts/configurationmanage-get-config.js
 Usage:
 
 - node scripts/configurationmanage-get-config.js ```<key> [--prefix] [--pretty]```
@@ -72,6 +73,7 @@ All properties follow JSPWiki's naming convention:
 - **Descriptive names**: Clear, self-documenting property names
 
 **Examples:**
+
 - `amdwiki.server.port` - Server configuration
 - `amdwiki.session.maxAge` - Session settings
 - `amdwiki.rss.generate` - RSS feed settings
@@ -84,35 +86,43 @@ All properties follow JSPWiki's naming convention:
 #### Core Methods
 
 ##### `initialize()`
+
 Initializes the ConfigurationManager by loading and merging configuration files.
 
 ##### `getProperty(key, defaultValue = null)`
+
 Gets a configuration property value with optional default.
 
 **Parameters:**
+
 - `key` (string): Property key (e.g., 'amdwiki.applicationName')
 - `defaultValue` (any): Default value if property not found
 
 **Returns:** any - Property value or default
 
 ##### `setProperty(key, value)`
+
 Sets a custom configuration property (saves to app-custom-config.json).
 
 **Parameters:**
+
 - `key` (string): Property key
 - `value` (any): Property value
 
 ##### `getAllProperties()`
+
 Gets merged configuration properties (defaults + custom overrides).
 
 **Returns:** object - Complete merged configuration
 
 ##### `getDefaultProperties()`
+
 Gets default properties from app-default-config.json.
 
 **Returns:** object - Default configuration properties
 
 ##### `getCustomProperties()`
+
 Gets custom override properties from app-custom-config.json.
 
 **Returns:** object - Custom configuration overrides
@@ -221,29 +231,34 @@ Access at `/admin/configuration` with admin privileges.
 **Features:**
 
 #### Current Configuration Tab
+
 - View all active configuration (merged defaults + custom)
 - See source of each property (Default or Custom)
 - Real-time configuration state
 
 #### Custom Overrides Tab
+
 - Edit existing custom properties
 - Remove custom overrides
 - Reset individual properties to defaults
 - Bulk reset all properties
 
 #### Default Values Tab
+
 - Browse all default configuration values
 - Read-only view of app-default-config.json
 - Reference for available properties
 
 #### Add Property Tab
+
 - Add new custom configuration properties
 - Property name validation
-- Supports amdwiki.* and log4j.* prefixes
+- Supports amdwiki.*and log4j.* prefixes
 
 ### Property Validation
 
 The admin interface validates:
+
 - **Property names** must start with `amdwiki.` or `log4j.`
 - **Property values** are properly formatted
 - **Duplicate properties** are handled correctly
@@ -380,16 +395,19 @@ The ConfigurationManager maintains compatibility with JSPWiki patterns:
 ### Common Issues
 
 **Configuration not loading:**
+
 - Check JSON syntax in configuration files
 - Verify file permissions
 - Review startup logs for errors
 
 **Properties not taking effect:**
+
 - Restart server after manual file changes
 - Use admin interface for immediate updates
 - Check property name spelling
 
 **Admin interface errors:**
+
 - Verify admin privileges
 - Check CSRF token issues
 - Review property validation rules
@@ -411,21 +429,25 @@ console.log('Total properties:', Object.keys(allProps).length);
 ## Best Practices
 
 ### Property Naming
+
 - Use descriptive, hierarchical names
 - Follow `amdwiki.category.subcategory.property` pattern
 - Avoid abbreviations in property names
 
 ### Default Values
+
 - Always provide sensible defaults
 - Document expected property types
 - Use consistent value formats
 
 ### Custom Overrides
+
 - Only override what's necessary
 - Document custom configurations
 - Use version control for app-custom-config.json
 
 ### Security
+
 - Change default secrets in production
 - Use environment-appropriate security settings
 - Regularly audit configuration for sensitive data

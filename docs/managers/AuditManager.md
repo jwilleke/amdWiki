@@ -5,6 +5,7 @@
 The `AuditManager` is responsible for audit trail logging and compliance monitoring in amdWiki. It provides a centralized system for tracking security events, access decisions, policy evaluations, and user actions. The AuditManager uses a **provider pattern** to support multiple audit storage backends, making it flexible for different deployment scenarios from single-instance development to enterprise cloud deployments.
 
 **Key Features:**
+
 - **Pluggable Storage Backends:** File-based, database, cloud logging services
 - **Comprehensive Event Tracking:** Security events, access decisions, policy evaluations
 - **Search and Export:** Query audit logs with filters, export to JSON/CSV
@@ -542,6 +543,7 @@ await auditManager.initialize(config);
 ```
 
 **Parameters:**
+
 - `config` (Object): Configuration object (optional, uses ConfigurationManager if not provided)
 
 **Returns:** `Promise<void>`
@@ -562,6 +564,7 @@ const eventId = await auditManager.logAuditEvent({
 ```
 
 **Parameters:**
+
 - `auditEvent` (Object): Audit event data (see Event Structure)
 
 **Returns:** `Promise<string>` - Event ID
@@ -578,6 +581,7 @@ const results = await auditManager.searchAuditLogs(
 ```
 
 **Parameters:**
+
 - `filters` (Object): Search filters
   - `user` (string): Filter by username
   - `eventType` (string): Filter by event type
@@ -594,6 +598,7 @@ const results = await auditManager.searchAuditLogs(
   - `sortOrder` (string): Sort order 'asc' or 'desc' (default: 'desc')
 
 **Returns:** `Promise<Object>`
+
 ```javascript
 {
   results: Array<AuditEvent>,  // Array of audit events
@@ -613,9 +618,11 @@ const stats = await auditManager.getAuditStats({ severity: 'high' });
 ```
 
 **Parameters:**
+
 - `filters` (Object): Optional filters (same as searchAuditLogs)
 
 **Returns:** `Promise<Object>`
+
 ```javascript
 {
   totalEvents: number,                    // Total event count
@@ -640,6 +647,7 @@ const csvData = await auditManager.exportAuditLogs(
 ```
 
 **Parameters:**
+
 - `filters` (Object): Export filters (same as searchAuditLogs)
 - `format` (string): Export format ('json' or 'csv', default: 'json')
 
@@ -674,6 +682,7 @@ const info = auditManager.getProviderInfo();
 ```
 
 **Returns:** `Object`
+
 ```javascript
 {
   name: string,         // Provider name
@@ -814,11 +823,13 @@ class AttachmentManager {
 ### 1. Event Granularity
 
 **✅ Do:**
+
 - Log security-relevant events (authentication, authorization, access)
 - Log administrative actions (user creation, config changes)
 - Log data modifications (create, update, delete)
 
 **❌ Don't:**
+
 - Log every single page view in production (can overwhelm storage)
 - Log sensitive data (passwords, tokens, personal info)
 - Log non-deterministic data that changes on every run
@@ -842,6 +853,7 @@ severity: 'low'       // Page views, successful authentication
 ### 3. Context and Metadata
 
 **Good Event:**
+
 ```javascript
 {
   eventType: 'authorization.deny',
@@ -866,6 +878,7 @@ severity: 'low'       // Page views, successful authentication
 ```
 
 **Poor Event:**
+
 ```javascript
 {
   eventType: 'deny',
@@ -945,10 +958,12 @@ if (!await auditManager.isHealthy()) {
 #### 1. Audit Events Not Being Logged
 
 **Symptoms:**
+
 - No entries in audit log file
 - Search returns empty results
 
 **Diagnosis:**
+
 ```javascript
 // Check if auditing is enabled
 const config = engine.getManager('ConfigurationManager');
@@ -966,6 +981,7 @@ console.log('Provider:', info.name);
 ```
 
 **Solutions:**
+
 - Ensure `amdwiki.audit.enabled` is `true`
 - Check log directory permissions for FileAuditProvider
 - Verify provider configuration is correct
@@ -974,6 +990,7 @@ console.log('Provider:', info.name);
 #### 2. FileAuditProvider Health Check Failures
 
 **Symptoms:**
+
 ```text
 [FileAuditProvider] Health check failed: ENOENT: no such file or directory
 ```
@@ -1001,12 +1018,14 @@ async isHealthy() {
 #### 3. High Memory Usage
 
 **Symptoms:**
+
 - Node process memory grows continuously
 - System becomes slow over time
 
 **Cause:** Large audit queue or too many events in memory
 
 **Solutions:**
+
 ```json
 {
   "amdwiki.audit.maxqueuesize": 500,      // Reduce queue size
@@ -1018,12 +1037,14 @@ async isHealthy() {
 #### 4. Search Performance Issues
 
 **Symptoms:**
+
 - Slow search queries
 - High CPU during search
 
 **Cause:** FileAuditProvider loads recent events into memory for search
 
 **Solutions:**
+
 - Reduce in-memory log count (FileAuditProvider keeps last 1000 events)
 - Use DatabaseAuditProvider for high-volume scenarios (when available)
 - Implement pagination with smaller `limit` values
@@ -1039,10 +1060,12 @@ const results = await auditManager.searchAuditLogs(
 #### 5. Disk Space Issues (FileAuditProvider)
 
 **Symptoms:**
+
 - Disk full errors
 - Application stops logging
 
 **Solutions:**
+
 ```json
 {
   "amdwiki.audit.provider.file.maxfilesize": "5MB",  // Smaller files
@@ -1052,6 +1075,7 @@ const results = await auditManager.searchAuditLogs(
 ```
 
 Implement log rotation monitoring:
+
 ```javascript
 // Check log directory size
 const logDir = config.get('amdwiki.audit.provider.file.logdirectory');
@@ -1072,6 +1096,7 @@ Enable debug logging to diagnose issues:
 ```
 
 This will output detailed information about audit operations:
+
 ```text
 [FileAuditProvider] Flushed 50 audit events to disk
 [FileAuditProvider] Loaded 1000 recent audit logs
@@ -1096,6 +1121,7 @@ This will output detailed information about audit operations:
 1. **Update Configuration Keys:**
 
    Old format:
+
    ```json
    {
      "audit.enabled": true,
@@ -1106,6 +1132,7 @@ This will output detailed information about audit operations:
    ```
 
    New format:
+
    ```json
    {
      "amdwiki.audit.enabled": true,
@@ -1118,11 +1145,13 @@ This will output detailed information about audit operations:
 2. **Update Code References:**
 
    Old code:
+
    ```javascript
    const enabled = config.get('audit.enabled');
    ```
 
    New code:
+
    ```javascript
    const enabled = config.get('amdwiki.audit.enabled');
    ```
@@ -1199,6 +1228,7 @@ This will output detailed information about audit operations:
 | getAuditStats | 500 | 10ms | 120MB | Aggregation on 10,000 events |
 
 **Recommendations:**
+
 - Single instance: up to 100,000 events/day
 - Multi-instance: Use DatabaseAuditProvider instead
 
@@ -1211,6 +1241,7 @@ This will output detailed information about audit operations:
 | exportAuditLogs | 1,000 | 200ms | Streaming export |
 
 **Recommendations:**
+
 - Enterprise: millions of events/day
 - Requires proper database tuning and indexing
 

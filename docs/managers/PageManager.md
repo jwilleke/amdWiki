@@ -39,11 +39,13 @@ The **PageManager** is the central coordinator for all wiki page operations in a
 ### Design Philosophy
 
 The PageManager follows the **Separation of Concerns** principle:
+
 - PageManager: Thin coordinator layer (public API)
 - Provider: Storage implementation (filesystem, database, etc.)
 - ConfigurationManager: Configuration source of truth
 
 This architecture enables:
+
 - **Pluggability**: Swap storage backends via configuration
 - **Testability**: Mock providers for testing
 - **Scalability**: Move from filesystem to database/cloud without code changes
@@ -192,6 +194,7 @@ All PageManager configuration keys use **lowercase** naming:
 | `amdwiki.page.provider` | string | `"filesystemprovider"` | Active provider name |
 
 **Provider Fallback Pattern:**
+
 ```javascript
 // 1. Try specific provider setting
 const providerName = getProperty('amdwiki.page.provider')
@@ -223,6 +226,7 @@ Configuration uses **lowercase** provider names, which are normalized to **Pasca
 | `cloudstorageprovider` | `CloudStorageProvider` |
 
 Example normalization code:
+
 ```javascript
 #normalizeProviderName(providerName) {
   const lower = providerName.toLowerCase();
@@ -425,6 +429,7 @@ this.uuidIndex = new Map();
 ```
 
 **Lookup Flow:**
+
 ```
 User requests page: "welcome" (lowercase)
     │
@@ -454,6 +459,7 @@ The FileSystemProvider uses `PageNameMatcher` for intelligent name matching:
 ```
 
 When enabled, the system can find pages even if the link uses a plural form:
+
 ```markdown
 [Users]  <!-- Finds page titled "User" -->
 [Categories]  <!-- Finds page titled "Category" -->
@@ -692,6 +698,7 @@ s3://amdwiki-pages/
 Initialize the PageManager and load the configured provider.
 
 **Parameters:**
+
 - `config` (object, optional): Additional configuration options
 
 **Returns:** `Promise<void>`
@@ -699,6 +706,7 @@ Initialize the PageManager and load the configured provider.
 **Throws:** Error if ConfigurationManager is not available or provider fails to load
 
 **Example:**
+
 ```javascript
 await pageManager.initialize();
 ```
@@ -712,6 +720,7 @@ Get the currently active page provider instance.
 **Returns:** `BasePageProvider` - The active provider instance
 
 **Example:**
+
 ```javascript
 const provider = pageManager.getCurrentPageProvider();
 const info = provider.getProviderInfo();
@@ -725,11 +734,13 @@ console.log(`Using ${info.name} v${info.version}`);
 Get page content and metadata together.
 
 **Parameters:**
+
 - `identifier` (string): Page UUID or title
 
 **Returns:** `Promise<Object|null>` - Page object or null if not found
 
 **Page Object Structure:**
+
 ```javascript
 {
   content: string,      // Markdown content
@@ -741,6 +752,7 @@ Get page content and metadata together.
 ```
 
 **Example:**
+
 ```javascript
 const page = await pageManager.getPage('Welcome');
 if (page) {
@@ -757,11 +769,13 @@ if (page) {
 Get only page content (without metadata).
 
 **Parameters:**
+
 - `identifier` (string): Page UUID or title
 
 **Returns:** `Promise<string>` - Markdown content
 
 **Example:**
+
 ```javascript
 const content = await pageManager.getPageContent('Welcome');
 console.log(content);
@@ -774,11 +788,13 @@ console.log(content);
 Get only page metadata (without content).
 
 **Parameters:**
+
 - `identifier` (string): Page UUID or title
 
 **Returns:** `Promise<Object|null>` - Metadata object or null if not found
 
 **Example:**
+
 ```javascript
 const metadata = await pageManager.getPageMetadata('Welcome');
 console.log(`Author: ${metadata.author}`);
@@ -792,6 +808,7 @@ console.log(`Created: ${metadata.created}`);
 Save page content and metadata.
 
 **Parameters:**
+
 - `pageName` (string): Page title
 - `content` (string): Page content (Markdown)
 - `metadata` (object, optional): Page metadata
@@ -799,6 +816,7 @@ Save page content and metadata.
 **Returns:** `Promise<void>`
 
 **Example:**
+
 ```javascript
 await pageManager.savePage('New Page', '# Hello World', {
   author: 'jim',
@@ -814,11 +832,13 @@ await pageManager.savePage('New Page', '# Hello World', {
 Delete a page.
 
 **Parameters:**
+
 - `identifier` (string): Page UUID or title
 
 **Returns:** `Promise<boolean>` - `true` if deleted, `false` if not found
 
 **Example:**
+
 ```javascript
 const deleted = await pageManager.deletePage('Old Page');
 if (deleted) {
@@ -833,11 +853,13 @@ if (deleted) {
 Check if a page exists.
 
 **Parameters:**
+
 - `identifier` (string): Page UUID or title
 
 **Returns:** `boolean` - `true` if page exists
 
 **Example:**
+
 ```javascript
 if (pageManager.pageExists('Welcome')) {
   console.log('Welcome page exists');
@@ -853,6 +875,7 @@ Get all page titles.
 **Returns:** `Promise<string[]>` - Sorted array of page titles
 
 **Example:**
+
 ```javascript
 const pages = await pageManager.getAllPages();
 console.log(`Total pages: ${pages.length}`);
@@ -868,6 +891,7 @@ Get all pages with their metadata.
 **Returns:** `Promise<Array>` - Array of page objects with metadata
 
 **Example:**
+
 ```javascript
 const pages = await pageManager.getAllPagesWithMetadata();
 pages.forEach(page => {
@@ -882,11 +906,13 @@ pages.forEach(page => {
 Search pages by content or title.
 
 **Parameters:**
+
 - `query` (string): Search query
 
 **Returns:** `Promise<Array>` - Array of matching pages
 
 **Example:**
+
 ```javascript
 const results = await pageManager.searchPages('authentication');
 console.log(`Found ${results.length} pages`);
@@ -899,12 +925,14 @@ console.log(`Found ${results.length} pages`);
 Rename a page.
 
 **Parameters:**
+
 - `oldName` (string): Current page title
 - `newName` (string): New page title
 
 **Returns:** `Promise<void>`
 
 **Example:**
+
 ```javascript
 await pageManager.renamePage('Old Name', 'New Name');
 ```
@@ -916,11 +944,13 @@ await pageManager.renamePage('Old Name', 'New Name');
 Get page version history (if supported by provider).
 
 **Parameters:**
+
 - `identifier` (string): Page UUID or title
 
 **Returns:** `Promise<Array>` - Array of version objects
 
 **Example:**
+
 ```javascript
 const history = await pageManager.getPageHistory('Welcome');
 history.forEach(version => {
@@ -1209,18 +1239,21 @@ async function getCachedPage(pageName) {
 ### Configuration
 
 1. **Use Lowercase Keys**: All configuration keys should be lowercase
+
    ```json
    "amdwiki.page.provider": "filesystemprovider"  ✅
    "amdwiki.page.Provider": "FileSystemProvider"  ❌
    ```
 
 2. **Provider Fallback**: Always configure both default and active provider
+
    ```json
    "amdwiki.page.provider.default": "filesystemprovider",
    "amdwiki.page.provider": "filesystemprovider"
    ```
 
 3. **Never Modify app-default-config.json in Production**: Use `app-custom-config.json` for overrides
+
    ```json
    // app-custom-config.json
    {
@@ -1231,6 +1264,7 @@ async function getCachedPage(pageName) {
 ### Page Management
 
 1. **Always Use UUID Lookups for Programmatic Access**:
+
    ```javascript
    // Good - UUID is stable
    const page = await pageManager.getPage('3463c02f-5c84-...');
@@ -1240,6 +1274,7 @@ async function getCachedPage(pageName) {
    ```
 
 2. **Preserve Metadata When Updating**:
+
    ```javascript
    const page = await pageManager.getPage('MyPage');
    await pageManager.savePage('MyPage', newContent, {
@@ -1249,6 +1284,7 @@ async function getCachedPage(pageName) {
    ```
 
 3. **Check Existence Before Operations**:
+
    ```javascript
    if (pageManager.pageExists('MyPage')) {
      await pageManager.deletePage('MyPage');
@@ -1258,6 +1294,7 @@ async function getCachedPage(pageName) {
 ### Error Handling
 
 1. **Handle Null Returns**:
+
    ```javascript
    const page = await pageManager.getPage('NonExistent');
    if (!page) {
@@ -1267,6 +1304,7 @@ async function getCachedPage(pageName) {
    ```
 
 2. **Catch Provider Errors**:
+
    ```javascript
    try {
      await pageManager.savePage(pageName, content, metadata);
@@ -1279,6 +1317,7 @@ async function getCachedPage(pageName) {
 ### Performance
 
 1. **Use Caching for Frequently Accessed Pages**:
+
    ```javascript
    const cacheKey = `page:${pageName}`;
    let page = cache.get(cacheKey);
@@ -1289,6 +1328,7 @@ async function getCachedPage(pageName) {
    ```
 
 2. **Batch Operations When Possible**:
+
    ```javascript
    // Instead of multiple individual saves
    const pages = ['Page1', 'Page2', 'Page3'];
@@ -1298,6 +1338,7 @@ async function getCachedPage(pageName) {
    ```
 
 3. **Use `getAllPages()` Instead of Multiple `getPage()` Calls**:
+
    ```javascript
    // Good
    const allPages = await pageManager.getAllPagesWithMetadata();
@@ -1320,6 +1361,7 @@ async function getCachedPage(pageName) {
 **Cause**: ConfigurationManager not initialized before PageManager
 
 **Solution**: Ensure proper manager initialization order in `Engine.js`:
+
 ```javascript
 await this.registerManager('ConfigurationManager', ...);
 await this.registerManager('PageManager', ...);
@@ -1334,6 +1376,7 @@ await this.registerManager('PageManager', ...);
 **Cause**: Provider class doesn't exist or wrong name in configuration
 
 **Solution**: Check provider name normalization:
+
 ```json
 {
   "amdwiki.page.provider": "filesystemprovider"  // Lowercase
@@ -1349,6 +1392,7 @@ await this.registerManager('PageManager', ...);
 **Cause**: Cache not refreshed or incorrect directory path
 
 **Solution**: Check logs for initialization messages:
+
 ```
 📄 Loading page provider: filesystemprovider (FileSystemProvider)
 [FileSystemProvider] Page directory: /path/to/pages
@@ -1366,6 +1410,7 @@ Verify directory exists and contains `.md` files.
 **Cause**: File permission issues or invalid metadata
 
 **Solution**:
+
 1. Check directory permissions: `ls -la pages/`
 2. Validate metadata structure
 3. Check logs for specific error messages
@@ -1379,6 +1424,7 @@ Verify directory exists and contains `.md` files.
 **Cause**: Plural matching disabled in configuration
 
 **Solution**: Enable plural matching:
+
 ```json
 {
   "amdwiki.translatorReader.matchEnglishPlurals": true
@@ -1400,6 +1446,7 @@ const page = await pageManager.getPage('Welcome');
 ```
 
 Log messages to look for:
+
 - `📄 Loading page provider: ...` - Provider initialization
 - `[FileSystemProvider] Page directory: ...` - Directory paths
 - `[FileSystemProvider] Initialized with N pages` - Page count
@@ -1456,6 +1503,7 @@ If you're upgrading from an older version with different configuration keys:
 To create a new page storage provider:
 
 1. **Create Provider Class**:
+
 ```javascript
 // src/providers/CustomProvider.js
 const BasePageProvider = require('./BasePageProvider');
@@ -1489,6 +1537,7 @@ module.exports = CustomProvider;
 ```
 
 2. **Update Provider Normalization**:
+
 ```javascript
 // src/managers/PageManager.js
 #normalizeProviderName(providerName) {
@@ -1502,6 +1551,7 @@ module.exports = CustomProvider;
 ```
 
 3. **Add Configuration**:
+
 ```json
 {
   "amdwiki.page.provider": "customprovider",

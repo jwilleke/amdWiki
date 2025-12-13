@@ -117,6 +117,7 @@ PolicyEvaluator is the **decision engine** in amdWiki's access control system. I
 Evaluates all relevant policies to make an access decision.
 
 **Parameters:**
+
 - `context` (object):
   - `pageName` (string) - Name of the page/resource being accessed
   - `action` (string) - Action being performed (e.g., 'page:edit', 'admin:users')
@@ -126,6 +127,7 @@ Evaluates all relevant policies to make an access decision.
     - `isAuthenticated` (boolean) - Authentication status
 
 **Returns:** `Promise<object>`
+
 ```javascript
 {
   hasDecision: boolean,    // true if a policy matched
@@ -136,6 +138,7 @@ Evaluates all relevant policies to make an access decision.
 ```
 
 **Example:**
+
 ```javascript
 const policyEvaluator = engine.getManager('PolicyEvaluator');
 
@@ -157,6 +160,7 @@ if (result.allowed) {
 ```
 
 **Evaluation Process:**
+
 1. Gets all policies from PolicyManager (sorted by priority)
 2. For each policy (in order):
    - Check if policy matches context using `matches()`
@@ -167,6 +171,7 @@ if (result.allowed) {
    - Return `{ hasDecision: false, allowed: false }`
 
 **Logging:**
+
 ```
 [POLICY] Evaluate page=ProjectDocs action=page:edit user=john roles=editor|Authenticated|All
 [POLICY] Check policy=admin-full-access effect=allow match=false
@@ -180,12 +185,14 @@ if (result.allowed) {
 Checks if a single policy matches the given context.
 
 **Parameters:**
+
 - `policy` (object) - Policy to check
 - `context` (object) - Access request context
 
 **Returns:** `boolean` - True if policy matches, false otherwise
 
 **Matching Logic:**
+
 ```javascript
 return subjectMatch && resourceMatch && actionMatch;
 ```
@@ -193,6 +200,7 @@ return subjectMatch && resourceMatch && actionMatch;
 All three conditions must be true for a policy to match.
 
 **Example:**
+
 ```javascript
 const policy = {
   id: 'editor-permissions',
@@ -221,6 +229,7 @@ console.log(isMatch); // true
 Checks if the user's roles match the policy's subject requirements.
 
 **Parameters:**
+
 - `policySubjects` (Array<object>) - Policy subjects
 - `userContext` (object) - User context with roles
 
@@ -229,18 +238,21 @@ Checks if the user's roles match the policy's subject requirements.
 **Matching Rules:**
 
 1. **No subjects specified** → Matches everyone
+
    ```javascript
    policySubjects = []
    return true; // Applies to all users
    ```
 
 2. **"All" role** → Matches everyone (including anonymous)
+
    ```javascript
    policySubjects = [{ type: 'role', value: 'All' }]
    return true; // Universal match
    ```
 
 3. **Specific roles** → User must have at least one matching role
+
    ```javascript
    policySubjects = [
      { type: 'role', value: 'editor' },
@@ -251,12 +263,14 @@ Checks if the user's roles match the policy's subject requirements.
    ```
 
 4. **No roles** → No match for role-based policies
+
    ```javascript
    userContext.roles = []
    return false; // Cannot match role-based policies
    ```
 
 **Example:**
+
 ```javascript
 const policySubjects = [
   { type: 'role', value: 'editor' },
@@ -279,6 +293,7 @@ console.log(matches); // true (user has 'editor' role)
 Checks if the resource matches the policy's resource patterns.
 
 **Parameters:**
+
 - `resources` (Array<object>) - Policy resources
 - `pageName` (string) - Page name to check
 
@@ -287,12 +302,14 @@ Checks if the resource matches the policy's resource patterns.
 **Matching Rules:**
 
 1. **No resources specified** → Matches all resources
+
    ```javascript
    resources = []
    return true; // Applies to all resources
    ```
 
 2. **Glob pattern matching** → Uses micromatch
+
    ```javascript
    resources = [{ type: 'page', pattern: 'Project*' }]
    pageName = 'ProjectDocs'
@@ -300,6 +317,7 @@ Checks if the resource matches the policy's resource patterns.
    ```
 
 3. **Wildcard pattern** → Matches everything
+
    ```javascript
    resources = [{ type: 'page', pattern: '*' }]
    return true; // Universal resource match
@@ -315,6 +333,7 @@ Checks if the resource matches the policy's resource patterns.
 | `*Docs` | `ProjectDocs`, `UserDocs` | `Project` |
 
 **Example:**
+
 ```javascript
 const resources = [
   { type: 'page', pattern: 'Project*' }
@@ -331,6 +350,7 @@ console.log(policyEvaluator.matchesResource(resources, 'UserGuide'));   // false
 Checks if the action matches the policy's action list.
 
 **Parameters:**
+
 - `actions` (Array<string>) - Policy actions
 - `action` (string) - Action to check
 
@@ -339,12 +359,14 @@ Checks if the action matches the policy's action list.
 **Matching Rules:**
 
 1. **No actions specified** → Matches all actions
+
    ```javascript
    actions = []
    return true; // Applies to all actions
    ```
 
 2. **Exact match** → Action is in the list
+
    ```javascript
    actions = ['page:read', 'page:edit', 'page:create']
    action = 'page:edit'
@@ -352,12 +374,14 @@ Checks if the action matches the policy's action list.
    ```
 
 3. **Wildcard action** → Matches everything
+
    ```javascript
    actions = ['*']
    return true; // Universal action match
    ```
 
 **Example:**
+
 ```javascript
 const actions = ['page:read', 'page:edit', 'page:create'];
 
@@ -636,6 +660,7 @@ const roles = (userContext?.roles || []).join('|');
 ### 1. Always Include Built-in Roles
 
 ✅ **Do:**
+
 ```javascript
 const userContext = {
   username: user.username,
@@ -645,6 +670,7 @@ const userContext = {
 ```
 
 ❌ **Don't:**
+
 ```javascript
 const userContext = {
   username: user.username,
@@ -656,6 +682,7 @@ const userContext = {
 ### 2. Use Specific Actions
 
 ✅ **Do:**
+
 ```javascript
 await policyEvaluator.evaluateAccess({
   pageName: 'ProjectDocs',
@@ -665,6 +692,7 @@ await policyEvaluator.evaluateAccess({
 ```
 
 ❌ **Don't:**
+
 ```javascript
 await policyEvaluator.evaluateAccess({
   pageName: 'ProjectDocs',
@@ -676,6 +704,7 @@ await policyEvaluator.evaluateAccess({
 ### 3. Check hasDecision Flag
 
 ✅ **Do:**
+
 ```javascript
 const result = await policyEvaluator.evaluateAccess(context);
 
@@ -698,6 +727,7 @@ if (!result.hasDecision) {
 ## Changelog
 
 ### v1.3.2 (2025-10-11)
+
 - ✅ Initial documentation
 - ✅ Context-based policy evaluation
 - ✅ Role matching with built-in roles support

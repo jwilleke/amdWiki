@@ -186,6 +186,7 @@ Initializes PolicyManager by loading policies from ConfigurationManager.
 **Returns:** `Promise<void>`
 
 **Process:**
+
 1. Gets ConfigurationManager instance
 2. Checks if policies are enabled via `amdwiki.access.policies.enabled`
 3. Loads policies array from `amdwiki.access.policies`
@@ -194,11 +195,13 @@ Initializes PolicyManager by loading policies from ConfigurationManager.
 6. Logs number of policies loaded
 
 **Example Output:**
+
 ```text
 📋 Loaded 7 policies from ConfigurationManager.
 ```
 
 **Error Handling:**
+
 - Throws error if ConfigurationManager not available
 - Logs warning if policies array is invalid
 - Skips policies without `id` field
@@ -210,11 +213,13 @@ Initializes PolicyManager by loading policies from ConfigurationManager.
 Retrieves a single policy by its unique ID.
 
 **Parameters:**
+
 - `id` (string) - The unique policy ID
 
 **Returns:** Policy object or `undefined` if not found
 
 **Example:**
+
 ```javascript
 const policyManager = engine.getManager('PolicyManager');
 const policy = policyManager.getPolicy('admin-full-access');
@@ -227,6 +232,7 @@ if (policy) {
 ```
 
 **Use Case:**
+
 - Debugging specific policy
 - Checking if policy exists
 - Retrieving policy details for UI display
@@ -240,6 +246,7 @@ Returns all loaded policies, **sorted by priority (descending)**.
 **Returns:** `Array<object>` - Array of policy objects sorted by priority
 
 **Example:**
+
 ```javascript
 const policyManager = engine.getManager('PolicyManager');
 const policies = policyManager.getAllPolicies();
@@ -259,12 +266,14 @@ policies.forEach(policy => {
 ```
 
 **Sorting:**
+
 - Policies with **higher priority** are evaluated **first**
 - Priority range: 0-1000
 - Default priority: 50 (if not specified)
 - Sorting formula: `(b.priority || 0) - (a.priority || 0)`
 
 **Use Case:**
+
 - **PolicyEvaluator:** Gets all policies for evaluation
 - **UserManager:** Collects permissions from policies
 - **Admin UI:** Displays all policies to administrators
@@ -528,11 +537,13 @@ for (const policy of policies) {
 ### 1. Use Descriptive Policy IDs
 
 ❌ **Don't:**
+
 ```json
 { "id": "p1", "name": "Policy 1" }
 ```
 
 ✅ **Do:**
+
 ```json
 { "id": "editor-page-permissions", "name": "Editor Page Permissions" }
 ```
@@ -540,6 +551,7 @@ for (const policy of policies) {
 ### 2. Set Appropriate Priorities
 
 ❌ **Don't:** Use same priority for different policies
+
 ```json
 [
   { "id": "policy1", "priority": 50 },
@@ -548,6 +560,7 @@ for (const policy of policies) {
 ```
 
 ✅ **Do:** Use distinct priorities
+
 ```json
 [
   { "id": "editor-policy", "priority": 80 },
@@ -564,6 +577,7 @@ for (const policy of policies) {
 ### 4. Validate Policies
 
 ✅ **Use PolicyValidator to check policies before deployment:**
+
 ```javascript
 const validator = engine.getManager('PolicyValidator');
 const result = validator.validatePolicy(newPolicy);
@@ -652,6 +666,7 @@ validateAllPolicies() {
 **Cause:** No policies in config or policies disabled
 
 **Solution:**
+
 1. Check `amdwiki.access.policies.enabled: true`
 2. Verify `amdwiki.access.policies` array exists
 3. Ensure policies have `id` fields
@@ -679,6 +694,7 @@ validateAllPolicies() {
 ## Changelog
 
 ### v1.3.2 (2025-10-11)
+
 - ✅ Initial documentation
 - ✅ Config-driven policy loading
 - ✅ Priority-based sorting

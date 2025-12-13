@@ -126,9 +126,11 @@ PolicyValidator serves as the **quality assurance system** for policies. It ensu
 Validates a single policy for structural, business logic, and semantic correctness.
 
 **Parameters:**
+
 - `policy` (object) - Policy to validate
 
 **Returns:** `object`
+
 ```javascript
 {
   isValid: boolean,       // true if no errors
@@ -138,6 +140,7 @@ Validates a single policy for structural, business logic, and semantic correctne
 ```
 
 **Example:**
+
 ```javascript
 const policyValidator = engine.getManager('PolicyValidator');
 
@@ -176,9 +179,11 @@ if (result.warnings.length > 0) {
 Validates all policies and detects conflicts between them.
 
 **Parameters:**
+
 - `policies` (Array<object>, optional) - Policies to validate (default: get from PolicyManager)
 
 **Returns:** `object`
+
 ```javascript
 {
   isValid: boolean,       // true if no errors
@@ -193,6 +198,7 @@ Validates all policies and detects conflicts between them.
 ```
 
 **Example:**
+
 ```javascript
 const policyValidator = engine.getManager('PolicyValidator');
 const result = policyValidator.validateAllPolicies();
@@ -209,6 +215,7 @@ if (!result.isValid) {
 ```
 
 **Checks:**
+
 1. Validates each policy individually
 2. Checks for duplicate policy IDs
 3. Detects conflicting policies (same subjects/resources but different effects)
@@ -221,9 +228,11 @@ if (!result.isValid) {
 Detects conflicting policies that might override each other.
 
 **Parameters:**
+
 - `policies` (Array<object>) - Policies to check
 
 **Returns:** `object`
+
 ```javascript
 {
   errors: Array<object>,   // Critical conflicts
@@ -242,6 +251,7 @@ Detects conflicting policies that might override each other.
    - Expected behavior but worth noting
 
 **Example:**
+
 ```javascript
 const conflicts = policyValidator.detectPolicyConflicts(policies);
 
@@ -270,9 +280,11 @@ if (conflicts.warnings.length > 0) {
 Validates a policy and saves it (if valid) to PolicyManager.
 
 **Parameters:**
+
 - `policy` (object) - Policy to validate and save
 
 **Returns:** `Promise<object>`
+
 ```javascript
 {
   success: boolean,
@@ -283,6 +295,7 @@ Validates a policy and saves it (if valid) to PolicyManager.
 ```
 
 **Example:**
+
 ```javascript
 try {
   const result = await policyValidator.validateAndSavePolicy(newPolicy);
@@ -295,6 +308,7 @@ try {
 ```
 
 **Process:**
+
 1. Validates policy structure
 2. Checks for conflicts with existing policies
 3. Saves policy via PolicyManager (if valid)
@@ -309,6 +323,7 @@ try {
 Uses JSON Schema to validate structure and types.
 
 **Checks:**
+
 - Required fields present
 - Correct data types
 - Enum value validation
@@ -316,6 +331,7 @@ Uses JSON Schema to validate structure and types.
 - Array constraints
 
 **Example Errors:**
+
 ```javascript
 {
   type: 'schema',
@@ -326,6 +342,7 @@ Uses JSON Schema to validate structure and types.
 ```
 
 **Policy Schema:**
+
 ```javascript
 {
   type: 'object',
@@ -358,12 +375,14 @@ Uses JSON Schema to validate structure and types.
 Custom validation rules for business constraints.
 
 **Checks:**
+
 - No duplicate subjects
 - No duplicate resources
 - No duplicate actions
 - Priority in valid range (0-1000)
 
 **Example Errors:**
+
 ```javascript
 {
   type: 'business',
@@ -385,12 +404,14 @@ Custom validation rules for business constraints.
 Checks for logical consistency and completeness.
 
 **Checks:**
+
 - Time-range conditions have both start and end times
 - IP-range conditions have ranges defined
 - Attribute conditions have key, operator, and value
 - Deny policies don't include admin actions (anti-pattern)
 
 **Example Errors:**
+
 ```javascript
 {
   type: 'semantic',
@@ -414,6 +435,7 @@ Generates warnings for potential issues (non-critical).
 **Warning Types:**
 
 1. **Priority Warnings**
+
    ```javascript
    {
      type: 'priority',
@@ -422,6 +444,7 @@ Generates warnings for potential issues (non-critical).
    ```
 
 2. **Scope Warnings**
+
    ```javascript
    {
      type: 'scope',
@@ -431,6 +454,7 @@ Generates warnings for potential issues (non-critical).
    ```
 
 3. **Condition Warnings**
+
    ```javascript
    {
      type: 'conditions',
@@ -445,11 +469,13 @@ Generates warnings for potential issues (non-critical).
 ### Overlap Detection
 
 Policies are considered **overlapping** if they have:
+
 1. Matching subjects (same roles/users)
 2. Matching resources (same pages/patterns)
 3. Matching actions
 
 **Example Overlap:**
+
 ```javascript
 // Policy A
 {
@@ -471,6 +497,7 @@ Policies are considered **overlapping** if they have:
 When overlapping policies have different effects:
 
 1. **Higher Priority Wins** (if priorities differ)
+
    ```
    Policy A: priority 80, effect: allow
    Policy B: priority 60, effect: deny
@@ -478,6 +505,7 @@ When overlapping policies have different effects:
    ```
 
 2. **Unpredictable Order** (if priorities are equal)
+
    ```
    Policy A: priority 50, effect: allow
    Policy B: priority 50, effect: deny
@@ -489,9 +517,11 @@ When overlapping policies have different effects:
 ## Validation Cache
 
 ### Purpose
+
 Caches validation results to avoid re-validating unchanged policies.
 
 ### Cache Key
+
 ```javascript
 const cacheKey = `policy_${policy.id}`;
 ```
@@ -499,6 +529,7 @@ const cacheKey = `policy_${policy.id}`;
 ### Cache Operations
 
 **Check Cache:**
+
 ```javascript
 if (this.validationCache.has(cacheKey)) {
   return this.validationCache.get(cacheKey);
@@ -506,16 +537,19 @@ if (this.validationCache.has(cacheKey)) {
 ```
 
 **Store Result:**
+
 ```javascript
 this.validationCache.set(cacheKey, result);
 ```
 
 **Clear Cache:**
+
 ```javascript
 this.validationCache.clear();
 ```
 
 **When to Clear:**
+
 - After saving a policy
 - After updating policies
 - When policy definitions change
@@ -730,6 +764,7 @@ async function checkPolicyConflicts() {
 ### 1. Always Validate Before Saving
 
 ✅ **Do:**
+
 ```javascript
 const validation = policyValidator.validatePolicy(newPolicy);
 if (validation.isValid) {
@@ -738,6 +773,7 @@ if (validation.isValid) {
 ```
 
 ❌ **Don't:**
+
 ```javascript
 await savePolicyToConfig(newPolicy); // No validation!
 ```
@@ -745,6 +781,7 @@ await savePolicyToConfig(newPolicy); // No validation!
 ### 2. Handle Warnings Appropriately
 
 ✅ **Do:**
+
 ```javascript
 if (result.warnings.length > 0) {
   console.warn('Warnings found:', result.warnings);
@@ -755,6 +792,7 @@ if (result.warnings.length > 0) {
 ### 3. Use Unique Priority Values
 
 ✅ **Do:**
+
 ```json
 [
   { "id": "policy-a", "priority": 100 },
@@ -764,6 +802,7 @@ if (result.warnings.length > 0) {
 ```
 
 ❌ **Don't:**
+
 ```json
 [
   { "id": "policy-a", "priority": 50 },
@@ -774,6 +813,7 @@ if (result.warnings.length > 0) {
 ### 4. Clear Cache After Updates
 
 ✅ **Do:**
+
 ```javascript
 await policyManager.savePolicy(updatedPolicy);
 policyValidator.clearCache(); // Clear validation cache
@@ -784,6 +824,7 @@ policyValidator.clearCache(); // Clear validation cache
 ## Error Types Reference
 
 ### Schema Errors
+
 | Field | Message | Cause |
 |-------|---------|-------|
 | `/id` | must be string | ID is not a string |
@@ -792,6 +833,7 @@ policyValidator.clearCache(); // Clear validation cache
 | `/subjects` | must be array | Subjects is not an array |
 
 ### Business Errors
+
 | Field | Message | Cause |
 |-------|---------|-------|
 | `subjects[n]` | Duplicate subject criteria found | Same subject appears twice |
@@ -799,6 +841,7 @@ policyValidator.clearCache(); // Clear validation cache
 | `actions` | Duplicate actions found | Same action appears twice |
 
 ### Semantic Errors
+
 | Field | Message | Cause |
 |-------|---------|-------|
 | `conditions[n]` | Time range condition must have both startTime and endTime | Missing time |
@@ -818,6 +861,7 @@ policyValidator.clearCache(); // Clear validation cache
 ## Changelog
 
 ### v1.3.2 (2025-10-11)
+
 - ✅ Initial documentation
 - ✅ JSON Schema validation using Ajv
 - ✅ Business logic validation

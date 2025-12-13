@@ -39,6 +39,7 @@ The CacheManager provides centralized cache management for amdWiki with support 
 ### Design Principles
 
 Following the provider pattern established in AttachmentManager, PageManager, and UserManager:
+
 1. Delegates storage to pluggable providers
 2. Uses provider fallback pattern (`.provider.default` → `.provider`)
 3. All configuration keys are lowercase
@@ -77,6 +78,7 @@ Following the provider pattern established in AttachmentManager, PageManager, an
 ### Component Responsibilities
 
 **CacheManager:**
+
 - Provider initialization and management
 - Cache region management (namespaces)
 - Provider name normalization (lowercase → PascalCase)
@@ -84,17 +86,20 @@ Following the provider pattern established in AttachmentManager, PageManager, an
 - Statistics aggregation
 
 **BaseCacheProvider:**
+
 - Abstract interface all providers must implement
 - Defines standard methods (get, set, del, clear, keys, stats)
 - Enforces ConfigurationManager usage
 
 **Concrete Providers:**
+
 - Implement actual cache storage (in-memory, Redis, etc.)
 - Handle TTL and expiration
 - Provide statistics and health checks
 - Support pattern matching for keys
 
 **RegionCache:**
+
 - Provides namespace isolation for different managers
 - Wraps provider with region prefix
 - Enables cache segmentation
@@ -219,17 +224,20 @@ if (!isHealthy) {
 In-memory cache using the `node-cache` library. Best for single-instance deployments.
 
 **Features:**
+
 - TTL support
 - Pattern matching
 - Statistics tracking
 - Memory-efficient
 
 **Use Cases:**
+
 - Development environments
 - Single-instance production
 - Low-traffic wikis
 
 **Configuration Example:**
+
 ```json
 {
   "amdwiki.cache.provider": "nodecacheprovider",
@@ -245,11 +253,13 @@ In-memory cache using the `node-cache` library. Best for single-instance deploym
 No-op cache provider. All operations are no-ops.
 
 **Use Cases:**
+
 - Caching disabled (`amdwiki.cache.enabled: false`)
 - Testing environments
 - Automatic fallback when other providers fail
 
 **Configuration Example:**
+
 ```json
 {
   "amdwiki.cache.enabled": false
@@ -263,12 +273,14 @@ No-op cache provider. All operations are no-ops.
 Distributed cache using Redis. Best for multi-instance production deployments.
 
 **Planned Features:**
+
 - Distributed caching
 - Persistence
 - Pub/sub for cache invalidation
 - Cluster support
 
 **Use Cases:**
+
 - Multi-instance production
 - High-traffic wikis
 - Shared caching across servers
@@ -434,14 +446,17 @@ const pageStats = await pageCache.stats();
 ### CacheManager Methods
 
 #### `async initialize(config)`
+
 Initialize the cache manager and load provider.
 
 **Parameters:**
+
 - `config` (Object): Configuration object (optional)
 
 **Returns:** `Promise<void>`
 
 **Example:**
+
 ```javascript
 await cacheManager.initialize();
 ```
@@ -449,14 +464,17 @@ await cacheManager.initialize();
 ---
 
 #### `region(regionName)`
+
 Get or create a cache region.
 
 **Parameters:**
+
 - `regionName` (string): Region name (typically manager name)
 
 **Returns:** `RegionCache`
 
 **Example:**
+
 ```javascript
 const cache = cacheManager.region('PageManager');
 ```
@@ -464,14 +482,17 @@ const cache = cacheManager.region('PageManager');
 ---
 
 #### `async get(key)`
+
 Get a value from the cache (global scope).
 
 **Parameters:**
+
 - `key` (string): Cache key
 
 **Returns:** `Promise<any|undefined>` - Cached value or undefined
 
 **Example:**
+
 ```javascript
 const value = await cacheManager.get('mykey');
 ```
@@ -479,9 +500,11 @@ const value = await cacheManager.get('mykey');
 ---
 
 #### `async set(key, value, options)`
+
 Set a value in the cache (global scope).
 
 **Parameters:**
+
 - `key` (string): Cache key
 - `value` (any): Value to cache
 - `options` (Object): Options
@@ -490,6 +513,7 @@ Set a value in the cache (global scope).
 **Returns:** `Promise<void>`
 
 **Example:**
+
 ```javascript
 await cacheManager.set('mykey', 'myvalue', { ttl: 300 });
 ```
@@ -497,14 +521,17 @@ await cacheManager.set('mykey', 'myvalue', { ttl: 300 });
 ---
 
 #### `async del(keys)`
+
 Delete one or more keys from the cache.
 
 **Parameters:**
+
 - `keys` (string|string[]): Single key or array of keys
 
 **Returns:** `Promise<void>`
 
 **Example:**
+
 ```javascript
 await cacheManager.del('key1');
 await cacheManager.del(['key1', 'key2', 'key3']);
@@ -513,15 +540,18 @@ await cacheManager.del(['key1', 'key2', 'key3']);
 ---
 
 #### `async clear(region, pattern)`
+
 Clear cache entries.
 
 **Parameters:**
+
 - `region` (string): Optional region to clear
 - `pattern` (string): Optional pattern to match keys
 
 **Returns:** `Promise<void>`
 
 **Example:**
+
 ```javascript
 await cacheManager.clear();                    // Clear all
 await cacheManager.clear('PageManager');       // Clear region
@@ -531,14 +561,17 @@ await cacheManager.clear(null, 'temp:*');      // Clear pattern
 ---
 
 #### `async keys(pattern)`
+
 Get keys matching a pattern.
 
 **Parameters:**
+
 - `pattern` (string): Pattern to match (default: '*')
 
 **Returns:** `Promise<string[]>`
 
 **Example:**
+
 ```javascript
 const keys = await cacheManager.keys('user:*');
 ```
@@ -546,14 +579,17 @@ const keys = await cacheManager.keys('user:*');
 ---
 
 #### `async stats(region)`
+
 Get cache statistics.
 
 **Parameters:**
+
 - `region` (string): Optional region name
 
 **Returns:** `Promise<Object>` - Statistics object
 
 **Example:**
+
 ```javascript
 const stats = await cacheManager.stats();
 console.log(`Hit rate: ${stats.global.hitRate}%`);
@@ -562,11 +598,13 @@ console.log(`Hit rate: ${stats.global.hitRate}%`);
 ---
 
 #### `async isHealthy()`
+
 Check if cache provider is healthy.
 
 **Returns:** `Promise<boolean>`
 
 **Example:**
+
 ```javascript
 if (await cacheManager.isHealthy()) {
   console.log('Cache is healthy');
@@ -576,11 +614,13 @@ if (await cacheManager.isHealthy()) {
 ---
 
 #### `getConfig()`
+
 Get cache configuration.
 
 **Returns:** `Object` - Configuration object
 
 **Example:**
+
 ```javascript
 const config = cacheManager.getConfig();
 console.log(`Provider: ${config.provider}`);
@@ -589,11 +629,13 @@ console.log(`Provider: ${config.provider}`);
 ---
 
 #### `getRegions()`
+
 Get all active region names.
 
 **Returns:** `string[]`
 
 **Example:**
+
 ```javascript
 const regions = cacheManager.getRegions();
 console.log(`Active regions: ${regions.join(', ')}`);
@@ -602,6 +644,7 @@ console.log(`Active regions: ${regions.join(', ')}`);
 ---
 
 #### `async flushAll()`
+
 Flush all caches (dangerous operation).
 
 **Returns:** `Promise<void>`
@@ -611,6 +654,7 @@ Flush all caches (dangerous operation).
 ---
 
 #### `async shutdown()`
+
 Close and cleanup cache resources.
 
 **Returns:** `Promise<void>`
@@ -620,15 +664,18 @@ Close and cleanup cache resources.
 ### Static Methods
 
 #### `CacheManager.getCacheForManager(engine, region)`
+
 Helper method to get a cache region from any manager.
 
 **Parameters:**
+
 - `engine` (WikiEngine): Engine instance
 - `region` (string): Region name
 
 **Returns:** `RegionCache`
 
 **Example:**
+
 ```javascript
 const cache = CacheManager.getCacheForManager(this.engine, 'MyManager');
 ```
@@ -690,6 +737,7 @@ setInterval(async () => {
 **Status:** Stub implementation in `src/providers/RedisCacheProvider.js`
 
 **Planned Features:**
+
 - Distributed caching across multiple instances
 - Persistence for cache durability
 - Pub/sub for cache invalidation
@@ -698,6 +746,7 @@ setInterval(async () => {
 - Sentinel support for high availability
 
 **Configuration Example:**
+
 ```json
 {
   "amdwiki.cache.provider": "rediscacheprovider",
@@ -709,6 +758,7 @@ setInterval(async () => {
 ```
 
 **Implementation TODO:**
+
 - [ ] Install Redis client (`redis` or `ioredis`)
 - [ ] Implement connection management
 - [ ] Add cluster support
@@ -722,6 +772,7 @@ setInterval(async () => {
 **Status:** Not yet started
 
 **Use Cases:**
+
 - High-performance distributed caching
 - Simple key-value caching
 - Multi-instance deployments
@@ -731,6 +782,7 @@ setInterval(async () => {
 **Status:** Not yet started
 
 **Options:**
+
 - AWS ElastiCache
 - Azure Cache for Redis
 - Google Cloud Memorystore
@@ -864,11 +916,13 @@ if (!upperCase) {
 **Symptom:** Cache always returns undefined
 
 **Possible Causes:**
+
 1. CacheManager not initialized
 2. Caching disabled in configuration
 3. Provider failed health check and fell back to NullCacheProvider
 
 **Solutions:**
+
 ```javascript
 // Check if CacheManager is available
 const cacheManager = engine.getManager('CacheManager');
@@ -890,11 +944,13 @@ console.log('Healthy:', isHealthy);
 **Symptom:** Node process memory growing over time
 
 **Possible Causes:**
+
 1. maxKeys set too high
 2. TTL too long
 3. Storing large objects in cache
 
 **Solutions:**
+
 ```json
 {
   "amdwiki.cache.provider.nodecache.maxkeys": 500,
@@ -907,11 +963,13 @@ console.log('Healthy:', isHealthy);
 **Symptom:** Cache hit rate below 50%
 
 **Possible Causes:**
+
 1. TTL too short
 2. Keys not consistent
 3. High cache invalidation rate
 
 **Solutions:**
+
 - Increase TTL for stable data
 - Review key generation logic
 - Reduce cache invalidation frequency
@@ -921,11 +979,13 @@ console.log('Healthy:', isHealthy);
 **Symptom:** Logs show "Failed to load cache provider"
 
 **Possible Causes:**
+
 1. Provider file not found
 2. Syntax error in provider
 3. Missing dependencies
 
 **Solutions:**
+
 ```bash
 # Check provider exists
 ls src/providers/NodeCacheProvider.js
@@ -944,6 +1004,7 @@ npm install node-cache
 **Explanation:** This is expected behavior for NodeCacheProvider (in-memory cache).
 
 **Solutions:**
+
 - Use RedisCacheProvider for persistence
 - Pre-populate cache on startup
 - Accept cache warm-up period
@@ -955,6 +1016,7 @@ npm install node-cache
 ### From Old Configuration to New (Issue #102)
 
 **Old Configuration (Mixed Case):**
+
 ```json
 {
   "amdwiki.cache.enabled": true,
@@ -965,6 +1027,7 @@ npm install node-cache
 ```
 
 **New Configuration (All Lowercase):**
+
 ```json
 {
   "amdwiki.cache.enabled": true,
@@ -976,6 +1039,7 @@ npm install node-cache
 ```
 
 **Key Changes:**
+
 1. All keys now lowercase
 2. Provider value changed: `"node-cache"` → `"nodecacheprovider"`
 3. Added `.provider.default` for fallback
@@ -995,6 +1059,7 @@ npm install node-cache
 ## Implementation Status
 
 ✅ **Completed (v1.0.0):**
+
 - BaseCacheProvider interface
 - NodeCacheProvider (in-memory)
 - NullCacheProvider (no-op)
@@ -1005,6 +1070,7 @@ npm install node-cache
 - All lowercase configuration
 
 🔮 **Future Enhancements:**
+
 - RedisCacheProvider implementation
 - MemcachedProvider implementation
 - Cache warming strategies

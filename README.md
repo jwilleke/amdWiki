@@ -40,19 +40,25 @@ A simple, file-based wiki application built with Node.js, Express, and Markdown 
 ## Getting Started
 
 ### For Users
+
 1. Install dependencies:
+
     ```bash
     npm install
     ```
+
 2. Start the server:
+
     ```bash
     ./server.sh start          # Production mode (default)
     # or
     ./server.sh start dev      # Development mode
     ```
+
 3. Open your browser and navigate to `http://localhost:3000`
 
 **Server Management:**
+
 ```bash
 ./server.sh start [dev|prod]   # Start server (default: production)
 ./server.sh stop               # Stop server
@@ -64,6 +70,7 @@ A simple, file-based wiki application built with Node.js, Express, and Markdown 
 ```
 
 ### For Developers
+
 - Follow the setup steps above.
 - Read [docs/development/CONTRIBUTING.md](docs/development/CONTRIBUTING.md) for coding standards, testing, and contribution guidelines.
 - Check [docs/CHANGELOG.md](docs/CHANGELOG.md) for version history and migration notes for breaking changes.
@@ -82,6 +89,7 @@ npm run mcp
 
 **Integration with Claude Desktop:**
 Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
+
 ```json
 {
   "mcpServers": {
@@ -108,13 +116,16 @@ amdWiki uses a **hierarchical configuration system** with three layers (later ov
 ### Making Configuration Changes
 
 **Via Admin UI:**
+
 - Navigate to [/admin/configuration](/admin/configuration)
 - Changes saved to `app-custom-config.json`
 - Restart required: [/admin/restart](/admin/restart)
 
 **Manual Editing:**
+
 - Edit `config/app-custom-config.json` directly
 - Restart server to apply changes:
+
   ```bash
   ./server.sh restart
   ```
@@ -183,13 +194,16 @@ amdWiki/
 📖 **Detailed project structure documentation available in [docs/architecture/PROJECT-STRUCTURE.md](docs/architecture/PROJECT-STRUCTURE.md)**
 
 ## Examples
+
 **Creating a Wiki Page Link (JSPWiki Syntax):**
+
 ```markdown
 [Link Text|PageName]  # Links to PageName with custom text
 [PageName]           # Simple link to PageName
 ```
 
 **Inserting Images (JSPWiki Plugin Syntax):**
+
 ```markdown
 [{Image src='image.jpg' alt='Description' width='300'}]  # Basic image
 [{Image src='/images/photo.jpg' alt='Photo' height='200'}]  # With height
@@ -197,6 +211,7 @@ amdWiki/
 ```
 
 **Image Upload:**
+
 - Use the image upload section in the page editor
 - Select an image file and click "Upload Image"
 - Click "Insert at Cursor" to add the image to your content
@@ -240,6 +255,7 @@ Then restart the server (see [Configuration](#configuration) section above).
 - **Architecture:** [docs/architecture/WikiDocument-DOM-Architecture.md](docs/architecture/WikiDocument-DOM-Architecture.md)
 
 ## Documentation
+
 - [CHANGELOG.md](CHANGELOG.md) - Version history and detailed change notes.
 - [CONTRIBUTING.md](CONTRIBUTING.md) - How to contribute to the project.
 - [ROADMAP.md](ROADMAP.md) - Project vision and feature priorities.
@@ -250,6 +266,7 @@ Then restart the server (see [Configuration](#configuration) section above).
 This project follows [Semantic Versioning](https://semver.org/) (SemVer). Use the built-in version management tools:
 
 ### Check Current Version
+
 ```bash
 npm run version:show
 # or
@@ -257,6 +274,7 @@ node version.js
 ```
 
 ### Increment Version
+
 ```bash
 npm run version:patch    # Bug fixes (1.2.0 → 1.2.1)
 npm run version:minor    # New features (1.2.0 → 1.3.0)
@@ -264,20 +282,24 @@ npm run version:major    # Breaking changes (1.2.0 → 2.0.0)
 ```
 
 ### Set Specific Version
+
 ```bash
 node version.js set 1.2.3
 ```
 
 ### Version Help
+
 ```bash
 npm run version:help
 ```
 
 The version management script automatically:
+
 - Updates `package.json` version
 - Updates `CHANGELOG.md` with release information
 - Validates version format
 - Provides semantic versioning guidance
 
 ## License
+
 See [LICENSE](LICENSE) for details on usage and distribution.

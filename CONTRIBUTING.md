@@ -17,6 +17,7 @@ Welcome! We appreciate your interest in contributing to amdWiki, a JSPWiki-inspi
 amdWiki uses `server.sh` for all server operations. See [SERVER.md](SERVER.md) for detailed documentation.
 
 **Common Commands:**
+
 ```bash
 ./server.sh start [dev|prod]   # Start server (default: production)
 ./server.sh stop               # Stop server
@@ -51,23 +52,27 @@ amdWiki uses a **hierarchical configuration system** with three layers that merg
 ### Configuration Workflow for Contributors
 
 **During Development:**
+
 - Edit `config/app-custom-config.json` for local testing
 - Never commit `app-custom-config.json` (in .gitignore)
 - Test with both dev and prod configs
 
 **Adding New Configuration Properties:**
+
 1. Add to `config/app-default-config.json` with sensible defaults
 2. Document in manager's JSDoc comments
 3. Add getter method in ConfigurationManager (if needed)
 4. Update relevant documentation
 
 **Applying Configuration Changes:**
+
 ```bash
 # After editing any config file
 ./server.sh restart [dev|prod]
 ```
 
 **Via Admin UI:**
+
 - Navigate to `/admin/configuration`
 - Changes automatically saved to `app-custom-config.json`
 - Restart required: `/admin/restart` or `./server.sh restart`
@@ -109,6 +114,7 @@ Content → Extract JSPWiki → Create DOM Nodes → Showdown → Merge → HTML
 ```
 
 **Key Components:**
+
 - **MarkupParser** - Main parser orchestrator
 - **extractJSPWikiSyntax()** - Phase 1: Extract JSPWiki syntax with placeholders
 - **createDOMNode()** - Phase 2: Create WikiDocument DOM nodes via handlers
@@ -118,6 +124,7 @@ Content → Extract JSPWiki → Create DOM Nodes → Showdown → Merge → HTML
 - **DOMLinkHandler** - Handles `[PageName]` and `[Text|Target]` syntax
 
 **Benefits:**
+
 - No parsing conflicts between JSPWiki and Markdown
 - Correct heading rendering (fixes #110, #93)
 - Natural escaping via DOM text nodes
@@ -130,6 +137,7 @@ Content → Extract JSPWiki → Create DOM Nodes → Showdown → Merge → HTML
 amdWiki uses **express-session** for session management (standard Express middleware):
 
 **Session Setup (app.js):**
+
 ```javascript
 const session = require('express-session');
 
@@ -146,6 +154,7 @@ app.use(session({
 ```
 
 **User Context Middleware (app.js):**
+
 ```javascript
 app.use(async (req, res, next) => {
   const userManager = engine.getManager('UserManager');
@@ -172,6 +181,7 @@ app.use(async (req, res, next) => {
 ```
 
 **Key Points:**
+
 - ✅ **Standard express-session** - No custom session middleware
 - ✅ **UserManager Provider Pattern** - Session loads user via FileUserProvider
 - ✅ **req.userContext** - Available on all routes with full user data
@@ -179,6 +189,7 @@ app.use(async (req, res, next) => {
 - ❌ **No src/middleware/session.js** - Removed (legacy)
 
 **Login Flow:**
+
 1. User submits credentials to `/login`
 2. `userManager.authenticateUser()` validates credentials
 3. `req.session.username` and `req.session.isAuthenticated` set
@@ -186,6 +197,7 @@ app.use(async (req, res, next) => {
 5. `req.userContext` populated for route handlers
 
 **UserManager Methods (Async):**
+
 ```javascript
 // All these methods are async and require await
 await userManager.getUser(username)
@@ -199,6 +211,7 @@ await userManager.getSession(sessionId)
 **WikiContext** (`src/context/WikiContext.js`) is the central context object that holds all request/user context in one place. Inspired by JSPWiki's WikiContext, it provides access to the engine, page, user, and other contextual information.
 
 **Creating WikiContext in Route Handlers:**
+
 ```javascript
 // Use the helper method in WikiRoutes
 const wikiContext = this.createWikiContext(req, {
@@ -219,6 +232,7 @@ res.render('template-name', {
 ```
 
 **WikiContext Properties:**
+
 - `context` - The rendering context (VIEW, EDIT, PREVIEW, DIFF, INFO, NONE)
 - `pageName` - Current page name
 - `content` - Page content (if applicable)
@@ -229,6 +243,7 @@ res.render('template-name', {
 - Manager references: `pageManager`, `renderingManager`, `pluginManager`, `variableManager`, `aclManager`
 
 **Key Benefits:**
+
 - ✅ **Single Source of Truth** - All context data in one place
 - ✅ **Consistent Template Data** - All templates receive the same structure
 - ✅ **Easy Maintenance** - Add new properties in one location
@@ -236,6 +251,7 @@ res.render('template-name', {
 - ✅ **Rendering Context** - Used by parsers, plugins, and handlers
 
 **Template Data Structure:**
+
 ```javascript
 {
   currentUser: userContext,    // For header template compatibility
@@ -248,11 +264,13 @@ res.render('template-name', {
 ```
 
 **DO NOT:**
+
 - ❌ Pass individual `req.userContext` directly to templates
 - ❌ Create separate user context objects in route handlers
 - ❌ Manually construct template data objects
 
 **DO:**
+
 - ✅ Always use `createWikiContext()` helper in route handlers
 - ✅ Use `getTemplateDataFromContext()` to extract template data
 - ✅ Pass WikiContext to plugins, parsers, and handlers
@@ -268,6 +286,7 @@ The codebase is gradually being refactored to use WikiContext everywhere:
 4. **Provider Methods** (Future) - Update provider signatures to accept WikiContext
 
 Example of current hybrid approach:
+
 ```javascript
 async savePage(req, res) {
   // Create WikiContext (single source of truth)
@@ -298,6 +317,7 @@ When refactoring existing code, add TODO comments indicating where WikiContext s
 ### Versioning & Storage Libraries
 
 **fast-diff** - Text diffing for delta storage
+
 - **Purpose**: Efficiently store page versions as diffs instead of full copies
 - **Algorithm**: Myers diff algorithm (similar to git)
 - **Usage**: `src/utils/DeltaStorage.js`
@@ -306,6 +326,7 @@ When refactoring existing code, add TODO comments indicating where WikiContext s
 - **Documentation**: [fast-diff on npm](https://www.npmjs.com/package/fast-diff)
 
 **pako** - gzip compression/decompression
+
 - **Purpose**: Compress old version files to save disk space
 - **Implementation**: Pure JavaScript gzip (RFC 1952)
 - **Usage**: `src/utils/VersionCompression.js`
@@ -325,11 +346,13 @@ v4: diff_from_v3.diff.gz               (2.2 KB)
 ```
 
 **Storage efficiency**:
+
 - Without versioning: 400 KB (4 versions × 100 KB each)
 - With delta storage: 105.7 KB (74% space savings)
 - Reconstruction: Load v1, apply diffs sequentially
 
 **See also**:
+
 - `src/utils/DeltaStorage.js` - Diff creation and application
 - `src/utils/VersionCompression.js` - Compression utilities
 - `src/providers/BasePageProvider.js` - Versioning methods interface
@@ -338,6 +361,7 @@ v4: diff_from_v3.diff.gz               (2.2 KB)
 ## 🔧 Development Guidelines
 
 ### Critical requirements
+
 - [CHANGELOG.md](./CHANGELOG.md) ALL notable changes to are documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) [CHANGELOG.md]
 - [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 - Markdownlint Configuration using (.markdownlint.json)
@@ -346,6 +370,7 @@ v4: diff_from_v3.diff.gz               (2.2 KB)
 - 📖 **Read [ARCHITECTURE-PAGE-CLASSIFICATION.md](ARCHITECTURE-PAGE-CLASSIFICATION.md)** for detailed architecture patterns.
 
 ### Code Style
+
 - Use **CommonJS** modules (`require/module.exports`)
 - Follow **existing patterns** in manager creation and route handling
 - **ESLint** and **Prettier** compliance (if configured)
@@ -359,7 +384,9 @@ v4: diff_from_v3.diff.gz               (2.2 KB)
 ### JSDoc Requirements
 
 #### 1. **Class Documentation**
+
 Every class must have a JSDoc block with:
+
 - Class description explaining purpose and functionality
 - `@class` tag
 - `@extends` tag (if applicable)
@@ -400,6 +427,7 @@ class ExampleManager extends BaseManager {
 ```
 
 #### 2. **Constructor Documentation**
+
 ```javascript
 /**
  * Creates a new ExampleManager instance
@@ -415,7 +443,9 @@ constructor(engine) {
 ```
 
 #### 3. **Method Documentation**
+
 Every method must document:
+
 - Purpose and behavior
 - All parameters with types
 - Return value with type
@@ -454,6 +484,7 @@ async processData(input, options = {}) {
 ```
 
 #### 4. **Private/Protected Methods**
+
 ```javascript
 /**
  * Internal helper method for data validation
@@ -468,7 +499,9 @@ async processData(input, options = {}) {
 ```
 
 #### 5. **Type Definitions**
+
 For complex data structures:
+
 ```javascript
 /**
  * Search result structure
@@ -482,6 +515,7 @@ For complex data structures:
 ```
 
 #### 6. **Provider Interface Documentation**
+
 ```javascript
 /**
  * BaseExampleProvider - Abstract interface for example providers
@@ -503,6 +537,7 @@ For complex data structures:
 ### JSDoc Best Practices
 
 #### DO
+
 - ✅ Document ALL public classes, methods, and functions
 - ✅ Include detailed descriptions explaining "why" not just "what"
 - ✅ Provide type information for all parameters and returns
@@ -514,6 +549,7 @@ For complex data structures:
 - ✅ Document JSPWiki patterns and architecture
 
 #### DON'T
+
 - ❌ Skip documentation for "simple" methods
 - ❌ Use vague descriptions like "does something"
 - ❌ Omit parameter types or return types
@@ -543,6 +579,7 @@ The `jsdoc.json` configuration is already set up in the project root.
 JSDoc provides excellent IDE support:
 
 **VS Code / IntelliSense:**
+
 - Hover over classes/methods to see documentation
 - Autocomplete with parameter hints
 - Type checking in JavaScript files
@@ -550,11 +587,13 @@ JSDoc provides excellent IDE support:
 
 **Enable type checking in VS Code:**
 Add to your file or workspace settings:
+
 ```javascript
 // @ts-check
 ```
 
 Or enable globally in `.vscode/settings.json`:
+
 ```json
 {
   "js/ts.implicitProjectConfig.checkJs": true
@@ -564,6 +603,7 @@ Or enable globally in `.vscode/settings.json`:
 ### Documentation Coverage
 
 Current documentation coverage:
+
 - **Core Engine**: 100% ✅
 - **Managers** (23 files): 100% ✅
 - **Providers** (18 files): 100% ✅
@@ -574,6 +614,7 @@ Current documentation coverage:
 **All new code must maintain 100% JSDoc coverage.**
 
 ### Manager Development Pattern
+
 ```javascript
 /**
  * NewManager - Brief description of manager purpose
@@ -649,6 +690,7 @@ class NewManager extends BaseManager {
 ```
 
 ### Plugin Development Pattern
+
 ```javascript
 const PluginName = {
   name: 'PluginName',
@@ -665,6 +707,7 @@ const PluginName = {
 **Adding Custom JSPWiki Syntax:**
 
 #### 1. **Add extraction pattern** in `MarkupParser.extractJSPWikiSyntax()`
+
 ```javascript
 // Extract custom syntax
 sanitized = sanitized.replace(/\[\{CUSTOM:(.*?)\}\]/g, (match, content) => {
@@ -679,6 +722,7 @@ sanitized = sanitized.replace(/\[\{CUSTOM:(.*?)\}\]/g, (match, content) => {
 ```
 
 #### 2. **Create DOM handler** in `src/parsers/dom/handlers/`
+
 ```javascript
 class CustomHandler {
   async createNodeFromExtract(element, context, wikiDocument) {
@@ -693,12 +737,14 @@ class CustomHandler {
 ```
 
 #### 3. **Integrate handler** in `MarkupParser.createDOMNode()`
+
 ```javascript
 case 'custom':
   return await this.customHandler.createNodeFromExtract(element, context, wikiDocument);
 ```
 
 #### 4. **Add tests** in `src/parsers/__tests__/`
+
 ```javascript
 test('custom syntax extraction', () => {
   const { jspwikiElements } = parser.extractJSPWikiSyntax('[{CUSTOM:test}]');
@@ -715,12 +761,14 @@ Use **ACLManager** for content filtering based on user permissions.
 See [Policies-Roles-Permissions](docs/architecture/Policies-Roles-Permissions.md)
 
 ### UI/UX Standards
+
 - Use **Bootstrap 5** components and styling for consistency.
 - Follow **JSPWiki-style navigation and layout patterns** as seen in existing templates.
 - Ensure **responsive design** for mobile compatibility.
 - Implement professional styling with cards, shadows, and hover effects.
 
 ### Performance & Reliability
+
 - Implement **caching** for page lookups where applicable (e.g., titleToUuidMap, slugToUuidMap).
 - Ensure **cache rebuilding** after page modifications.
 - Handle **file system errors** gracefully to prevent crashes.
@@ -731,6 +779,7 @@ See [Policies-Roles-Permissions](docs/architecture/Policies-Roles-Permissions.md
 📖 **See [docs/testing/PageManager-Testing-Guide.md](docs/testing/PageManager-Testing-Guide.md) for detailed mocking strategies.**
 
 ### Running Tests
+
 - **Run all tests**: `npm test`
 - **Coverage report**: `npm run test:coverage`
 - **Watch mode**: `npm run test:watch`
@@ -765,6 +814,7 @@ src/
 ```
 
 **Why this pattern:**
+
 - ✅ Tests co-located with code they test
 - ✅ Easy to find and maintain
 - ✅ Jest automatically discovers all tests
@@ -772,6 +822,7 @@ src/
 - ✅ Clear separation from source code
 
 ### Test Requirements
+
 - **Unit tests for new managers** (extending BaseManager pattern)
 - **Integration tests** for route handlers and cross-component functionality
 - **Plugin functionality tests** for JSPWiki-style plugin syntax
@@ -786,6 +837,7 @@ src/
 ### Writing Tests
 
 **1. Create test file in `__tests__` directory:**
+
 ```bash
 # For a new manager
 touch src/managers/__tests__/NewManager.test.js
@@ -795,6 +847,7 @@ touch src/utils/__tests__/NewUtil.test.js
 ```
 
 **2. Use Jest testing framework:**
+
 ```javascript
 const NewManager = require('../NewManager');
 
@@ -815,6 +868,7 @@ describe('NewManager', () => {
 ```
 
 **3. Mock file operations:**
+
 ```javascript
 jest.mock('fs-extra');
 const fs = require('fs-extra');
@@ -827,16 +881,19 @@ fs.writeFile.mockResolvedValue();
 ### Test Types
 
 **Unit Tests** - Test individual functions/methods
+
 - Located: `src/**/__tests__/*.test.js`
 - Focus: Single component in isolation
 - Example: `PageManager.test.js`
 
 **Integration Tests** - Test multiple components together
+
 - Located: `src/**/__tests__/*-Integration.test.js`
 - Focus: Component interactions
 - Example: `MarkupParser-Integration.test.js`
 
 **Route Tests** - Test HTTP endpoints
+
 - Located: `src/routes/__tests__/*.test.js`
 - Use: supertest for HTTP testing
 - Example: `routes.test.js`
@@ -844,6 +901,7 @@ fs.writeFile.mockResolvedValue();
 ### Test Coverage
 
 Jest configuration excludes test files from coverage:
+
 ```json
 {
   "collectCoverageFrom": [
@@ -876,6 +934,7 @@ The WikiDocument DOM parser has comprehensive test coverage:
   - Regression tests for #110, #93
 
 **Handler Tests:**
+
 - `DOMVariableHandler.test.js` - Variable node creation
 - `DOMPluginHandler.test.js` - Plugin node creation
 - `DOMLinkHandler.test.js` - Link node creation
@@ -885,7 +944,9 @@ Total: 376+ tests with 100% success rate
 ## 📝 Page Development
 
 ### Frontmatter Structure
+
 All pages require YAML frontmatter:
+
 ```yaml
 ---
 title: Page Name
@@ -897,6 +958,7 @@ lastModified: ISO-date-string
 ```
 
 ### JSPWiki Syntax Support
+
 - **Links**: `[PageName]` or `[Link Text|PageName]`
 - **User variables**: `[{$username}]`, `[{$loginstatus}]`
 - **Plugins**: `[{PluginName param='value'}]`
@@ -904,18 +966,21 @@ lastModified: ISO-date-string
 ## 🔀 Pull Request Process
 
 ### Before Submitting
+
 1. **Create feature branch**: `git checkout -b feature/your-feature-name`
 2. **Follow coding patterns** from existing codebase
 3. **Add tests** for new functionality
 4. **Update documentation** if needed
 5. **Run full test suite**: `npm test`
 6. **Test with server**: Test your changes in both development and production modes
+
    ```bash
    ./server.sh start dev    # Test in development
    ./server.sh restart prod # Test in production
    ```
 
 ### PR Requirements
+
 - **Descriptive title** and detailed description
 - **Reference issues** using `#issue-number`
 - **Include tests** for new features
@@ -923,6 +988,7 @@ lastModified: ISO-date-string
 - **Follow semantic commit messages**: `feat:`, `fix:`, `chore:`
 
 ### Review Criteria
+
 - Follows manager-based architecture patterns
 - Includes appropriate tests
 - Maintains backward compatibility
@@ -941,12 +1007,14 @@ npm run version:major    # Breaking changes (1.2.0 → 2.0.0)
 ## 🐛 Issue Reporting
 
 ### Bug Reports
+
 - Use clear, descriptive titles
 - Include steps to reproduce
 - Specify Node.js version and OS
 - Include error messages and logs
 
 ### Feature Requests
+
 - Explain the use case and benefit
 - Consider JSPWiki compatibility
 - Discuss impact on existing functionality
@@ -954,6 +1022,7 @@ npm run version:major    # Breaking changes (1.2.0 → 2.0.0)
 ## 🎯 Areas for Contribution
 
 ### High Priority
+
 - **User Authentication** improvements
 - **Page History & Versioning** features
 - **Advanced Search** enhancements
@@ -961,6 +1030,7 @@ npm run version:major    # Breaking changes (1.2.0 → 2.0.0)
 - **Parser Extensions** - Custom JSPWiki syntax handlers
 
 ### Good First Issues
+
 - Documentation improvements
 - New wiki plugins
 - UI/UX enhancements
@@ -968,6 +1038,7 @@ npm run version:major    # Breaking changes (1.2.0 → 2.0.0)
 - Parser handler improvements
 
 ### Parser-Specific Contributions
+
 - **Custom Syntax Handlers** - Add new JSPWiki-style syntax
 - **Performance Optimizations** - Improve extraction/merge speed
 - **Handler Enhancements** - Improve existing DOM handlers

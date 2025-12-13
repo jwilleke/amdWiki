@@ -86,22 +86,26 @@ For operations and deployment:
 ## Quick Links
 
 ### For New Users
+
 - [README.md](./README.md) - What is amdWiki?
 - [docs/INSTALLATION-SYSTEM.md](./docs/INSTALLATION-SYSTEM.md) - Getting started
 - Help & Support - See README.md
 
 ### For Developers
+
 - [CONTRIBUTING.md](./CONTRIBUTING.md) - How to contribute
 - [ARCHITECTURE.md](./ARCHITECTURE.md) - How it's built
 - [CODE_STANDARDS.md](./CODE_STANDARDS.md) - How to code
 - [docs/developer/](./docs/developer/) - How-to guides
 
 ### For Operations
+
 - [docs/SERVER.md](./docs/SERVER.md) - Running amdWiki
 - [docs/SERVER-MANAGEMENT.md](./docs/SERVER-MANAGEMENT.md) - Best practices
 - [SECURITY.md](./SECURITY.md) - Security setup
 
 ### For Maintainers
+
 - [AGENTS.md](./AGENTS.md) - Project context
 - [CHANGELOG.md](./CHANGELOG.md) - Version management
 - [docs/project_log.md](./docs/project_log.md) - Work history
@@ -110,6 +114,7 @@ For operations and deployment:
 ## Key Technologies & References
 
 ### Core Stack
+
 - **Node.js v18+** - JavaScript runtime
 - **Express.js 5.x** - Web framework
 - **PM2** - Process manager
@@ -117,6 +122,7 @@ For operations and deployment:
 - **Bootstrap 5** - UI framework
 
 ### Storage & Processing
+
 - **Markdown** - Content format
 - **YAML Frontmatter** - Metadata
 - **Showdown** - Markdown parser
@@ -124,6 +130,7 @@ For operations and deployment:
 - **linkedom** - DOM implementation
 
 ### Development Tools
+
 - **Jest** - Testing framework
 - **TypeScript** - Type system (progressive migration)
 - **Prettier** - Code formatter

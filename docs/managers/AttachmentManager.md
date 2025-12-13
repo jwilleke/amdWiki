@@ -38,6 +38,7 @@ The AttachmentManager is responsible for managing file attachments in amdWiki. I
 ### Design Principles
 
 Following JSPWiki's attachment management pattern, AttachmentManager:
+
 1. Delegates storage to pluggable providers
 2. Enforces permissions via PolicyManager
 3. Tracks attachment-page relationships
@@ -76,6 +77,7 @@ Following JSPWiki's attachment management pattern, AttachmentManager:
 ### Component Responsibilities
 
 **AttachmentManager:**
+
 - Permission checking via PolicyManager
 - Provider initialization and management
 - High-level attachment operations (upload, download, delete)
@@ -83,11 +85,13 @@ Following JSPWiki's attachment management pattern, AttachmentManager:
 - Backup/restore coordination
 
 **BaseAttachmentProvider:**
+
 - Abstract interface all providers must implement
 - Defines standard methods (storeAttachment, getAttachment, etc.)
 - Enforces ConfigurationManager usage
 
 **Concrete Providers:**
+
 - Implement actual storage logic (filesystem, database, cloud)
 - Handle metadata persistence
 - Provide backup/restore support
@@ -194,6 +198,7 @@ Provider names follow lowercase convention in configuration but are normalized t
 **Status:** Production Ready
 **Storage:** Filesystem
 **Features:**
+
 - Content deduplication via SHA-256 hashing
 - Schema.org CreativeWork metadata
 - Shared storage model with page mentions tracking
@@ -201,6 +206,7 @@ Provider names follow lowercase convention in configuration but are normalized t
 - Backup/restore support
 
 **Configuration:**
+
 ```json
 {
   "amdwiki.attachment.provider": "basicattachmentprovider",
@@ -211,6 +217,7 @@ Provider names follow lowercase convention in configuration but are normalized t
 ```
 
 **Storage Structure:**
+
 ```text
 data/attachments/
 ├── metadata.json                    # All attachment metadata
@@ -222,6 +229,7 @@ data/attachments/
 ```
 
 **Use Cases:**
+
 - Small to medium-sized wikis (< 1000 attachments)
 - Single-server deployments
 - Local development
@@ -232,12 +240,14 @@ data/attachments/
 **Status:** Planned
 **Storage:** SQL Database (PostgreSQL, MySQL, SQLite)
 **Benefits:**
+
 - Transactional integrity
 - Built-in replication
 - Advanced querying capabilities
 - Better for large deployments
 
 **Planned Configuration:**
+
 ```json
 {
   "amdwiki.attachment.provider": "databaseattachmentprovider",
@@ -249,6 +259,7 @@ data/attachments/
 ```
 
 **Use Cases:**
+
 - Large wikis (> 1000 attachments)
 - Multi-server deployments
 - Need for transactional guarantees
@@ -259,12 +270,14 @@ data/attachments/
 **Status:** Planned
 **Storage:** AWS S3 (Simple Storage Service)
 **Benefits:**
+
 - Unlimited scalability
 - Built-in redundancy (11 9's durability)
 - CDN integration via CloudFront
 - Pay-per-use pricing
 
 **Planned Configuration:**
+
 ```json
 {
   "amdwiki.attachment.provider": "s3attachmentprovider",
@@ -278,6 +291,7 @@ data/attachments/
 ```
 
 **Use Cases:**
+
 - Enterprise wikis with high availability requirements
 - Global wikis needing CDN support
 - Compliance requirements (S3 supports encryption at rest)
@@ -288,12 +302,14 @@ data/attachments/
 **Status:** Planned
 **Storage:** Azure Blob Storage
 **Benefits:**
+
 - Integration with Microsoft ecosystem
 - Geo-redundant storage options
 - Azure CDN support
 - Competitive pricing
 
 **Planned Configuration:**
+
 ```json
 {
   "amdwiki.attachment.provider": "azureblobattachmentprovider",
@@ -306,6 +322,7 @@ data/attachments/
 ```
 
 **Use Cases:**
+
 - Organizations using Azure infrastructure
 - Need for geo-redundant storage
 - Integration with Azure services
@@ -458,11 +475,13 @@ try {
 Initialize AttachmentManager with configuration.
 
 **Parameters:**
+
 - `config` (Object): Configuration object (usually empty, loaded from ConfigurationManager)
 
 **Returns:** ```Promise<void>```
 
 **Example:**
+
 ```javascript
 await attachmentManager.initialize();
 ```
@@ -476,6 +495,7 @@ Get the current attachment provider instance.
 **Returns:** BaseAttachmentProvider
 
 **Example:**
+
 ```javascript
 const provider = attachmentManager.getCurrentAttachmentProvider();
 console.log(provider.getProviderInfo());
@@ -488,6 +508,7 @@ console.log(provider.getProviderInfo());
 Upload an attachment.
 
 **Parameters:**
+
 - `fileBuffer` (Buffer): File data
 - `fileInfo` (Object): `{ originalName, mimeType, size }`
 - `options` (Object): Upload options
@@ -500,6 +521,7 @@ Upload an attachment.
 **Throws:** Error if permission denied or upload fails
 
 **Example:**
+
 ```javascript
 const attachment = await attachmentManager.uploadAttachment(
   fileBuffer,
@@ -515,11 +537,13 @@ const attachment = await attachmentManager.uploadAttachment(
 Get attachment file data and metadata.
 
 **Parameters:**
+
 - `attachmentId` (string): Attachment identifier
 
 **Returns:** Promise<Object|null> - `{ buffer, metadata }` or null if not found
 
 **Example:**
+
 ```javascript
 const result = await attachmentManager.getAttachment('abc123');
 if (result) {
@@ -535,11 +559,13 @@ if (result) {
 Get attachment metadata only (no file data).
 
 **Parameters:**
+
 - `attachmentId` (string): Attachment identifier
 
 **Returns:** Promise<Object|null> - Schema.org CreativeWork metadata
 
 **Example:**
+
 ```javascript
 const metadata = await attachmentManager.getAttachmentMetadata('abc123');
 if (metadata) {
@@ -555,6 +581,7 @@ if (metadata) {
 Delete an attachment.
 
 **Parameters:**
+
 - `attachmentId` (string): Attachment identifier
 - `userContext` (Object): User context for permission checking
 
@@ -563,6 +590,7 @@ Delete an attachment.
 **Throws:** Error if permission denied
 
 **Example:**
+
 ```javascript
 const deleted = await attachmentManager.deleteAttachment(
   'abc123',
@@ -577,11 +605,13 @@ const deleted = await attachmentManager.deleteAttachment(
 Check if attachment exists.
 
 **Parameters:**
+
 - `attachmentId` (string): Attachment identifier
 
 **Returns:** ```Promise<boolean>```
 
 **Example:**
+
 ```javascript
 if (await attachmentManager.attachmentExists('abc123')) {
   console.log('Attachment found');
@@ -597,6 +627,7 @@ Get all attachments metadata (without file data).
 **Returns:** ```Promise<Array<Object>>``` - Array of attachment metadata
 
 **Example:**
+
 ```javascript
 const attachments = await attachmentManager.getAllAttachments();
 console.log(`Total attachments: ${attachments.length}`);
@@ -609,11 +640,13 @@ console.log(`Total attachments: ${attachments.length}`);
 Get attachments used by a specific page.
 
 **Parameters:**
+
 - `pageName` (string): Page name/title
 
 **Returns:** ```Promise<Array<Object>>``` - Array of attachment metadata
 
 **Example:**
+
 ```javascript
 const attachments = await attachmentManager.getAttachmentsForPage('ProjectDocs');
 ```
@@ -627,6 +660,7 @@ Refresh internal cache/index by re-scanning storage.
 **Returns:** ```Promise<void>```
 
 **Example:**
+
 ```javascript
 await attachmentManager.refreshAttachmentList();
 ```
@@ -640,6 +674,7 @@ Create backup of all attachment data.
 **Returns:** ```Promise<Object>``` - Backup data
 
 **Example:**
+
 ```javascript
 const backupData = await attachmentManager.backup();
 fs.writeFileSync('attachments-backup.json', JSON.stringify(backupData));
@@ -652,11 +687,13 @@ fs.writeFileSync('attachments-backup.json', JSON.stringify(backupData));
 Restore attachments from backup data.
 
 **Parameters:**
+
 - `backupData` (Object): Backup data from backup()
 
 **Returns:** ```Promise<void>```
 
 **Example:**
+
 ```javascript
 const backupData = JSON.parse(fs.readFileSync('attachments-backup.json'));
 await attachmentManager.restore(backupData);
@@ -671,6 +708,7 @@ Shutdown AttachmentManager and cleanup resources.
 **Returns:** ```Promise<void>```
 
 **Example:**
+
 ```javascript
 await attachmentManager.shutdown();
 ```
@@ -912,12 +950,14 @@ Add your provider to the normalization map:
 **Symptom:** AttachmentManager fails to initialize with error
 
 **Possible Causes:**
+
 1. ConfigurationManager not available
 2. Invalid provider name
 3. Provider file not found
 4. Configuration keys have uppercase characters
 
 **Solution:**
+
 ```javascript
 // Check ConfigurationManager
 const configManager = engine.getManager('ConfigurationManager');
@@ -949,6 +989,7 @@ console.log(`Looking for: ${providerPath}`);
 **Cause:** User lacks upload permissions in PolicyManager
 
 **Solution:** Check policies and user roles:
+
 ```javascript
 // Verify user has upload permission
 const policyManager = engine.getManager('PolicyManager');
@@ -964,12 +1005,14 @@ const hasPermission = await policyManager.evaluate({
 **Symptom:** `getAttachment()` returns null
 
 **Possible Causes:**
+
 1. Attachment ID incorrect
 2. Attachment deleted
 3. Provider storage corrupted
 4. Metadata out of sync
 
 **Solution:**
+
 ```javascript
 // Check if attachment exists
 const exists = await attachmentManager.attachmentExists(attachmentId);
@@ -989,6 +1032,7 @@ if (!exists) {
 **Cause:** `maxsize` configuration too small
 
 **Solution:** Increase max size in configuration:
+
 ```json
 {
   "amdwiki.attachment.maxsize": 52428800  // 50MB
@@ -1002,6 +1046,7 @@ if (!exists) {
 **Cause:** Storage directory doesn't exist and can't be created
 
 **Solution:** Check permissions and create manually:
+
 ```bash
 mkdir -p ./data/attachments
 chmod 755 ./data/attachments

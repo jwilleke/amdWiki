@@ -20,6 +20,7 @@ The VariableManager follows JSPWiki's design patterns with clean separation betw
 These variables provide application and runtime information without requiring user or page context.
 
 #### Application Information
+
 - `[{$applicationname}]` - Application name from configuration
 - `[{$baseurl}]` - Base URL for the wiki
 - `[{$encoding}]` - Character encoding (UTF-8)
@@ -27,6 +28,7 @@ These variables provide application and runtime information without requiring us
 - `[{$version}]` / `[{$amdwikiversion}]` - amdWiki version number
 
 #### Configuration Variables
+
 - `[{$pageprovider}]` - Page provider implementation name
 - `[{$pageproviderdescription}]` - Human-readable provider description
 - `[{$requestcontext}]` - Current request context (usually "view")
@@ -34,6 +36,7 @@ These variables provide application and runtime information without requiring us
 - `[{$inlinedimages}]` - Whether inline images are enabled
 
 #### Runtime Data
+
 - `[{$totalpages}]` - Total number of pages in the wiki
 - `[{$uptime}]` - Server uptime in human-readable format
 - `[{$timestamp}]` - Current ISO timestamp
@@ -42,6 +45,7 @@ These variables provide application and runtime information without requiring us
 - `[{$year}]` - Current year
 
 #### Plugin Variables
+
 - `[{$sessionsplugin}]` - Session-related plugin information
 
 ### Contextual Variables (4 total)
@@ -49,11 +53,13 @@ These variables provide application and runtime information without requiring us
 These variables require user session and page context to generate appropriate values.
 
 #### User Context
+
 - `[{$username}]` - Current user's name (or "Anonymous")
 - `[{$loginstatus}]` - Authentication status: "Anonymous", "Asserted", or "Authenticated"
 - `[{$displayname}]` - User's display name or username
 
 #### Page Context
+
 - `[{$pagename}]` - Current page name
 
 ## Usage
@@ -85,7 +91,9 @@ Variables inside code blocks are automatically protected:
 ```markdown
 Here's how to use variables:
 ```
+
 Use [{$pagename}] to show the current page name.
+
 ```
 ```
 
@@ -96,48 +104,59 @@ Use [{$pagename}] to show the current page name.
 #### Methods
 
 ##### `initialize()`
+
 Initializes the VariableManager and registers all default variables.
 
 ##### `getVariable(variableName, context = {})`
+
 Gets the value of a single variable.
 
 **Parameters:**
+
 - `variableName` (string): Variable name (lowercase)
 - `context` (object): Context object with `userContext` and `pageName`
 
 **Returns:** string - Variable value or error message
 
 ##### `hasVariable(variableName)`
+
 Checks if a variable exists in the registry.
 
 **Parameters:**
+
 - `variableName` (string): Variable name to check
 
 **Returns:** boolean
 
 ##### `expandVariables(content, context = {})`
+
 Expands all variables in content with protection for escaped variables and code blocks.
 
 **Parameters:**
+
 - `content` (string): Content with `[{$variable}]` patterns
 - `context` (object): Context with `userContext` and `pageName`
 
 **Returns:** string - Content with expanded variables
 
 ##### `registerVariable(name, valueFunction, isContextual = false)`
+
 Registers a custom variable.
 
 **Parameters:**
+
 - `name` (string): Variable name
 - `valueFunction` (function): Function returning variable value
 - `isContextual` (boolean): Whether variable requires context
 
 ##### `getAvailableVariables()`
+
 Gets array of all available variable names.
 
 **Returns:** Array<string> - Sorted array of variable names
 
 ##### `getDebugInfo()`
+
 Gets debugging information about registered variables.
 
 **Returns:** object - Debug information with counts and variable lists
@@ -190,6 +209,7 @@ variableManager.registerVariable('currentuserrole', (context) => {
 Access the variable management interface at `/admin/variables` with admin privileges.
 
 **Features:**
+
 - **System Variables Tab**: View all system variables with current values
 - **Contextual Variables Tab**: View contextual variables with your current values
 - **Variable Testing Tab**: Test variable expansion with custom content
@@ -252,15 +272,18 @@ The VariableManager maintains compatibility with JSPWiki patterns:
 ### Common Issues
 
 **Variables not expanding:**
+
 - Check variable name is lowercase
 - Ensure VariableManager is initialized
 - Verify variable exists with `hasVariable()`
 
 **Escaped variables showing incorrectly:**
+
 - Ensure double brackets: `[[{$variable}]`
 - Check for syntax errors in content
 
 **Custom variables not working:**
+
 - Verify registration with correct parameters
 - Check if variable is contextual but no context provided
 - Review error logs for registration issues
@@ -312,11 +335,14 @@ Normal variable: [{$username}]
 Escaped variable: [[{$username}]
 Code example:
 ```
+
 The variable [{$pagename}] shows the current page.
+
 ```
 ```
 
 This will render as:
+
 - Normal variable: **admin**
 - Escaped variable: **[{$username}]**
 - Code example: **The variable [{$pagename}] shows the current page.** (unchanged)

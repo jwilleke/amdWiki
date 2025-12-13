@@ -167,12 +167,14 @@ The **UserManager** handles user authentication, authorization, role management,
 Authenticates a user with username/password credentials.
 
 **Parameters:**
+
 - `username` (string) - Username
 - `password` (string) - Plain text password
 
 **Returns:** User object with `isAuthenticated: true`, or `null` if invalid
 
 **Example:**
+
 ```javascript
 const user = await userManager.authenticateUser('admin', 'admin123');
 if (user) {
@@ -181,6 +183,7 @@ if (user) {
 ```
 
 **Features:**
+
 - Verifies password using SHA-256 hash + salt
 - Updates `lastLogin` and `loginCount`
 - Returns user without password field
@@ -195,12 +198,14 @@ if (user) {
 Checks if user has permission to perform an action using policy-based access control.
 
 **Parameters:**
+
 - `username` (string) - Username (null for anonymous)
 - `action` (string) - Action to check (e.g., 'page:create', 'admin:users')
 
 **Returns:** `Promise<boolean>` - True if user has permission
 
 **Example:**
+
 ```javascript
 const canEdit = await userManager.hasPermission('editor', 'page:edit');
 if (canEdit) {
@@ -209,6 +214,7 @@ if (canEdit) {
 ```
 
 **User Context:**
+
 - Anonymous: `roles: ['anonymous', 'All']`
 - Asserted: `roles: ['reader', 'All']`
 - Authenticated: `roles: [user.roles, 'Authenticated', 'All']`
@@ -220,17 +226,20 @@ if (canEdit) {
 Gets all effective permissions for a user by querying PolicyManager.
 
 **Parameters:**
+
 - `username` (string) - Username (null for anonymous)
 
 **Returns:** `Array<string>` - Array of permission strings
 
 **Example:**
+
 ```javascript
 const permissions = userManager.getUserPermissions('admin');
 // Returns: ['page:read', 'page:edit', 'page:create', 'admin:users', ...]
 ```
 
 **How It Works:**
+
 1. Queries PolicyManager for all policies
 2. Builds user's role list (including built-in roles)
 3. Collects all actions from matching 'allow' policies
@@ -245,6 +254,7 @@ const permissions = userManager.getUserPermissions('admin');
 Creates a new user account.
 
 **Parameters:**
+
 - `userData` (object):
   - `username` (string, required) - Unique username
   - `email` (string, required) - Email address
@@ -257,6 +267,7 @@ Creates a new user account.
 **Returns:** User object (without password)
 
 **Example:**
+
 ```javascript
 const newUser = await userManager.createUser({
   username: 'john',
@@ -268,6 +279,7 @@ const newUser = await userManager.createUser({
 ```
 
 **Features:**
+
 - Hashes password with configurable salt
 - Checks for username/display name conflicts
 - Auto-detects user locale from Accept-Language header
@@ -281,10 +293,12 @@ const newUser = await userManager.createUser({
 Updates user information.
 
 **Parameters:**
+
 - `username` (string) - Username to update
 - `updates` (object) - Fields to update
 
 **Example:**
+
 ```javascript
 await userManager.updateUser('john', {
   displayName: 'John Smith',
@@ -293,6 +307,7 @@ await userManager.updateUser('john', {
 ```
 
 **Features:**
+
 - Cannot change password for external OAuth users
 - Syncs changes to Schema.org data
 - Auto-hashes password if updated
@@ -304,14 +319,17 @@ await userManager.updateUser('john', {
 Deletes a user account.
 
 **Parameters:**
+
 - `username` (string) - Username to delete
 
 **Example:**
+
 ```javascript
 await userManager.deleteUser('olduser');
 ```
 
 **Features:**
+
 - Cannot delete system users
 - Syncs deletion to Schema.org data
 - Removes from users.json
@@ -325,11 +343,13 @@ await userManager.deleteUser('olduser');
 Gets role metadata by name.
 
 **Parameters:**
+
 - `roleName` (string) - Role name
 
 **Returns:** Role object or null
 
 **Example:**
+
 ```javascript
 const adminRole = userManager.getRole('admin');
 console.log(adminRole.displayname); // "Administrator"
@@ -344,6 +364,7 @@ Gets all role definitions.
 **Returns:** Array of role objects
 
 **Example:**
+
 ```javascript
 const roles = userManager.getRoles();
 // Returns: [{ name: 'admin', displayname: 'Administrator', ... }, ...]
@@ -356,10 +377,12 @@ const roles = userManager.getRoles();
 Assigns a role to a user.
 
 **Parameters:**
+
 - `username` (string) - Username
 - `roleName` (string) - Role name to assign
 
 **Example:**
+
 ```javascript
 await userManager.assignRole('john', 'editor');
 ```
@@ -371,10 +394,12 @@ await userManager.assignRole('john', 'editor');
 Removes a role from a user.
 
 **Parameters:**
+
 - `username` (string) - Username
 - `roleName` (string) - Role name to remove
 
 **Example:**
+
 ```javascript
 await userManager.removeRole('john', 'contributor');
 ```
@@ -388,12 +413,14 @@ await userManager.removeRole('john', 'contributor');
 Creates a new session for a user.
 
 **Parameters:**
+
 - `username` (string) - Username
 - `additionalData` (object, optional) - Extra session data
 
 **Returns:** Session ID (string)
 
 **Example:**
+
 ```javascript
 const sessionId = await userManager.createSession('john', {
   ip: '192.168.1.100',
@@ -402,6 +429,7 @@ const sessionId = await userManager.createSession('john', {
 ```
 
 **Features:**
+
 - Generates cryptographically random session ID
 - Default expiration: 24 hours (configurable)
 - Stored in sessions.json
@@ -413,6 +441,7 @@ const sessionId = await userManager.createSession('john', {
 Retrieves session data by ID.
 
 **Parameters:**
+
 - `sessionId` (string) - Session ID
 
 **Returns:** Session object or null
@@ -424,6 +453,7 @@ Retrieves session data by ID.
 Deletes a session.
 
 **Parameters:**
+
 - `sessionId` (string) - Session ID to delete
 
 ---
@@ -433,6 +463,7 @@ Deletes a session.
 Deletes all sessions for a user.
 
 **Parameters:**
+
 - `username` (string) - Username
 
 ---
@@ -444,11 +475,13 @@ Deletes all sessions for a user.
 Gets the current user context from the request session.
 
 **Parameters:**
+
 - `req` (object) - Express request object
 
 **Returns:** User context object with roles and authentication status
 
 **Example:**
+
 ```javascript
 const currentUser = await userManager.getCurrentUser(req);
 console.log(currentUser.username); // "john"
@@ -649,12 +682,14 @@ These methods now throw errors with migration instructions:
 ### 1. Use Policy-Based Permissions
 
 ❌ **Don't** hardcode permissions in roles:
+
 ```javascript
 // Old way - NO LONGER SUPPORTED
 role.permissions = ['page:read', 'page:edit'];
 ```
 
 ✅ **Do** define permissions via policies:
+
 ```json
 {
   "id": "editor-permissions",
@@ -667,12 +702,14 @@ role.permissions = ['page:read', 'page:edit'];
 ### 2. Add Custom Roles in Config
 
 ❌ **Don't** use `createRole()`:
+
 ```javascript
 // Deprecated - throws error
 await userManager.createRole({ name: 'moderator', ... });
 ```
 
 ✅ **Do** add to `app-custom-config.json`:
+
 ```json
 {
   "amdwiki.roles.definitions": {
@@ -689,6 +726,7 @@ await userManager.createRole({ name: 'moderator', ... });
 ### 3. Check Permissions with Policy System
 
 ✅ **Use `hasPermission()` for access control:**
+
 ```javascript
 if (await userManager.hasPermission(username, 'page:edit')) {
   // Allow edit
@@ -696,6 +734,7 @@ if (await userManager.hasPermission(username, 'page:edit')) {
 ```
 
 ✅ **Use `getUserPermissions()` for UI rendering:**
+
 ```javascript
 const permissions = userManager.getUserPermissions(username);
 if (permissions.includes('admin:users')) {
@@ -706,6 +745,7 @@ if (permissions.includes('admin:users')) {
 ### 4. Handle External Users
 
 ✅ **Create OAuth users properly:**
+
 ```javascript
 const user = await userManager.createOrUpdateExternalUser({
   username: 'john.google',
@@ -766,6 +806,7 @@ const user = await userManager.createOrUpdateExternalUser({
 **Cause:** No matching policy for user's roles
 
 **Solution:**
+
 1. Check user's roles: `userManager.getUser(username).roles`
 2. Check available policies: `policyManager.getAllPolicies()`
 3. Verify policy subjects match user's roles
@@ -787,6 +828,7 @@ const user = await userManager.createOrUpdateExternalUser({
 ## Changelog
 
 ### v1.3.2 (2025-10-11)
+
 - ✅ Refactored to use ConfigurationManager for all settings
 - ✅ All configuration keys now lowercase
 - ✅ Roles loaded from config (`amdwiki.roles.definitions`)
@@ -797,6 +839,7 @@ const user = await userManager.createOrUpdateExternalUser({
 - ✅ Updated `getUserPermissions()` to query PolicyManager
 
 ### v1.3.1 (2025-09-xx)
+
 - Added Schema.org integration
 - Added user page auto-creation
 - Added external OAuth user support

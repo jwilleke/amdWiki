@@ -27,12 +27,14 @@ The amdWiki installation system has been tested comprehensively across 7 major t
 **Objective:** Verify complete installation can be completed from scratch
 
 **Procedure:**
+
 1. Reset system (delete pages/, users/, config/)
 2. Start server in development mode
 3. Submit installation form with valid data
 4. Verify files created and installation marked complete
 
 **Results:**
+
 ```
 ✅ Form submission successful (HTTP 302)
 ✅ Custom config file created (app-custom-config.json)
@@ -44,14 +46,16 @@ The amdWiki installation system has been tested comprehensively across 7 major t
 ```
 
 **Test Data Used:**
+
 - applicationName: "TestWiki"
-- baseURL: "http://localhost:3000"
+- baseURL: "<http://localhost:3000>"
 - orgName: "TestOrg"
 - orgDescription: "Testing"
 - adminPassword: "TestPass123"
 - copyStartupPages: enabled
 
 **Critical Findings:**
+
 - Form field names matter: Use `applicationName`, `baseURL`, `orgName`, not `appName` or `baseURL`
 - Password confirmation must match exactly
 - 8-character minimum password requirement enforced
@@ -63,6 +67,7 @@ The amdWiki installation system has been tested comprehensively across 7 major t
 **Objective:** Verify system can recover from partial installation states
 
 **Procedure:**
+
 1. Complete fresh installation (from Test 1)
 2. Delete custom-config.json to simulate partial failure
 3. Verify partial installation status detected
@@ -70,6 +75,7 @@ The amdWiki installation system has been tested comprehensively across 7 major t
 5. Verify recovery logic
 
 **Results:**
+
 ```
 ✅ Partial state detected: {"configWritten": false, "organizationCreated": true, "adminCreated": true, "pagesCopied": true}
 ✅ Installation status API shows partial state correctly
@@ -88,12 +94,14 @@ Once installation is marked complete (`amdwiki.install.completed: true`), the `/
 **Objective:** Verify admin account is properly secured with hardcoded values
 
 **Procedure:**
+
 1. Check users.json for admin user record
 2. Verify email is hardcoded as admin@localhost
 3. Test login with admin credentials
 4. Verify password is hashed
 
 **Results:**
+
 ```
 ✅ Admin user exists in users.json with:
    - username: "admin" (hardcoded)
@@ -110,6 +118,7 @@ Once installation is marked complete (`amdwiki.install.completed: true`), the `/
 ```
 
 **Security Assessment:**
+
 - ✅ Password is properly hashed (not plaintext)
 - ✅ Username cannot be changed during installation
 - ✅ Email is fixed to fallback format for OIDC compatibility
@@ -122,12 +131,14 @@ Once installation is marked complete (`amdwiki.install.completed: true`), the `/
 **Objective:** Verify all 42 required startup pages are copied correctly
 
 **Procedure:**
+
 1. Enable "Copy startup pages" during installation
 2. Verify pages/ directory created
 3. Count pages and compare with required-pages/
 4. Verify pages have meaningful content
 
 **Results:**
+
 ```
 ✅ All 42 required pages copied successfully (100% match)
 ✅ Pages use UUID-based filenames (e.g., 0a3d3111-7d22-4dfe-ae6d-b412a37a07cf.md)
@@ -148,12 +159,14 @@ Sample pages copied:
 **Objective:** Verify `/install/reset` endpoint clears installation state
 
 **Procedure:**
+
 1. Complete full installation
 2. Call POST /install/reset endpoint
 3. Verify installation completion flag is cleared
 4. Verify installRequired returns true
 
 **Results:**
+
 ```
 ✅ Reset endpoint responds with HTTP 302
 ✅ Installation completion flag cleared
@@ -171,12 +184,14 @@ Sample pages copied:
 **Objective:** Verify email validation accepts both standard and localhost formats
 
 **Procedure:**
+
 1. Test email regex with various formats
 2. Verify admin@localhost accepted
 3. Verify standard email format accepted
 4. Submit forms with test emails
 
 **Results:**
+
 ```
 ✅ Standard format accepted: user@example.com
 ✅ Localhost format accepted: admin@localhost
@@ -185,6 +200,7 @@ Sample pages copied:
 ```
 
 **Implementation Details:**
+
 - Regex pattern: `/^[^\s@]+@([^\s@.]+\.)+[^\s@]+$|^[^\s@]+@localhost$/`
 - Allows both standard email format and explicit localhost exception
 - Enables hardcoded admin@localhost email to pass validation
@@ -196,12 +212,14 @@ Sample pages copied:
 **Objective:** Verify form validation works for required fields and constraints
 
 **Procedure:**
+
 1. Submit form with missing required fields
 2. Submit form with mismatched passwords
 3. Submit form with invalid data
 4. Observe validation behavior
 
 **Results:**
+
 ```
 ✅ Missing applicationName: Form rejected with validation error
 ✅ Mismatched passwords: Form submission fails gracefully
@@ -210,6 +228,7 @@ Sample pages copied:
 ```
 
 **Validation Rules Implemented:**
+
 - applicationName: Required
 - baseURL: Required, must be valid URL
 - orgName: Required
@@ -222,6 +241,7 @@ Sample pages copied:
 ## Configuration Files Generated
 
 ### app-custom-config.json
+
 ```json
 {
   "amdwiki.applicationName": "TestWiki",
@@ -240,6 +260,7 @@ Sample pages copied:
 ```
 
 ### users/users.json (admin entry)
+
 ```json
 {
   "username": "admin",
@@ -275,16 +296,19 @@ Process Status:
 ## Known Limitations & Design Notes
 
 ### 1. Cached Configuration
+
 - Installation form access controlled by cached `amdwiki.install.completed` flag
 - Server restart required to reload configuration after manual file deletion
 - This is correct behavior - prevents re-installation of completed system
 
 ### 2. Partial Recovery Scope
+
 - Partial recovery works during active installation session
 - Post-completion recovery requires `/install/reset` endpoint
 - Design prevents unauthorized installation form access
 
 ### 3. Form Field Names
+
 - Must use exact form field names in requests:
   - `applicationName` (not `appName`)
   - `baseURL` (not `baseUrl`)
@@ -293,6 +317,7 @@ Process Status:
   - `copyStartupPages` (checkbox)
 
 ### 4. Password Hashing
+
 - Admin password hashed with SHA-256
 - Cannot be retrieved, only reset via backend code
 - Username and email cannot be changed after installation (hardcoded)
