@@ -1,15 +1,15 @@
 # Testing Summary
 
-**Last Updated:** 2025-12-13
+**Last Updated:** 2025-12-14
 **Current Version:** 1.5.0
 
 ## Current Test Status
 
 | Metric | Value |
 |--------|-------|
-| Test Suites | 22 failed, 47 passed (69 total) |
-| Tests | 289 failed, 1413 passed, 6 skipped (1708 total) |
-| **Pass Rate** | **82.7%** |
+| Test Suites | 19 failed, 50 passed (69 total) |
+| Tests | 222 failed, 1492 passed, 6 skipped (1720 total) |
+| **Pass Rate** | **86.7%** |
 
 ## Quick Commands
 
@@ -23,13 +23,14 @@ npm run smoke               # Quick 30-second validation
 
 ## Test Categories
 
-### Passing Test Suites (46)
+### Passing Test Suites (50)
 
 Core functionality is well-tested:
 
 - **WikiEngine** - Core engine lifecycle
 - **UserManager** - Authentication, sessions, permissions
 - **PageManager** - Page CRUD operations
+- **FileSystemProvider** - File-based page storage (12 tests)
 - **ACLManager** - Access control lists
 - **SearchManager** - Full-text search
 - **PolicyManager** - Policy-based access control
@@ -39,13 +40,13 @@ Core functionality is well-tested:
 - **ExportManager** - Page export
 - **Most route handlers** - HTTP endpoints
 
-### Failing Test Suites (21)
+### Failing Test Suites (19)
 
 Primarily in these areas:
 
 1. **CacheManager** (~200 tests) - Logger mocking issues
 2. **MarkupParser tests** (11 files) - Handler configuration
-3. **VersioningFileProvider** - Mock method issues
+3. **VersioningFileProvider-Maintenance** - Page index availability issues
 4. **WikiDocument** - DOM/parser edge cases
 
 ## Test Infrastructure
@@ -84,6 +85,7 @@ We use **Option C: Fix-As-Needed** approach:
 
 | Date | Failing Suites | Passing Tests | Notes |
 |------|---------------|---------------|-------|
+| 2025-12-14 | 19 | 1492 | Fixed FileSystemProvider tests (12), gray-matter/js-yaml 4.x compatibility |
 | 2025-12-13 | 22 | 1413 | Security fixes (js-yaml, cookie), logs path consolidation |
 | 2025-12-12 | 21 | 1453+ | Added WikiRoutes-isRequiredPage (14), RenderingManager link graph tests |
 | 2025-12-12 | 21 | 1409 | UserManager tests fixed (30 tests) |
@@ -94,7 +96,7 @@ We use **Option C: Fix-As-Needed** approach:
 
 - **WikiRoutes-isRequiredPage.test.js** - 14 tests for system-category protection
 - **RenderingManager.test.js** - Added plural link resolution test for Issue #172
-- **FileSystemProvider.test.js** - Installation-aware loading tests (blocked by mock issue)
+- **FileSystemProvider.test.js** - 12 tests for installation-aware loading ✅ Fixed 2025-12-14
 
 ## Known Issues
 
