@@ -91,7 +91,11 @@ const MockPageProvider = createMockProvider('MockPageProvider', {
   async listPages() { return []; }
 });
 
-jest.mock('./src/providers/FileSystemProvider', () => MockPageProvider);
+// Skip mocking FileSystemProvider when SKIP_PROVIDER_MOCK env var is set
+// This allows integration tests of actual provider implementations
+if (!process.env.SKIP_PROVIDER_MOCK) {
+  jest.mock('./src/providers/FileSystemProvider', () => MockPageProvider);
+}
 jest.mock('./src/providers/VersioningFileProvider', () => MockPageProvider);
 
 // Search Providers

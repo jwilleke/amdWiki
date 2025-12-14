@@ -2,9 +2,17 @@ const BasePageProvider = require('./BasePageProvider');
 const fs = require('fs-extra');
 const path = require('path');
 const matter = require('gray-matter');
+const yaml = require('js-yaml');
 const { v4: uuidv4 } = require('uuid');
 const logger = require('../utils/logger');
 const PageNameMatcher = require('../utils/PageNameMatcher');
+
+// Custom YAML engine for gray-matter to work with js-yaml 4.x
+// (gray-matter uses yaml.safeLoad which was removed in js-yaml 4)
+const yamlEngine = {
+  parse: (str) => yaml.load(str),
+  stringify: (obj) => yaml.dump(obj)
+};
 
 /**
  * FileSystemProvider - Markdown file-based page storage provider
@@ -159,7 +167,7 @@ class FileSystemProvider extends BasePageProvider {
     for (const filePath of mdFiles) {
       try {
         const fileContent = await fs.readFile(filePath, this.encoding);
-        const { data: metadata } = matter(fileContent);
+        const { data: metadata } = matter(fileContent, { engines: { yaml: yamlEngine } });
         const title = metadata.title;
         const uuid = metadata.uuid || path.basename(filePath, '.md');
 
@@ -284,7 +292,7 @@ class FileSystemProvider extends BasePageProvider {
 
     try {
       const fullContent = await fs.readFile(info.filePath, this.encoding);
-      const { content, data: metadata } = matter(fullContent);
+      const { content, data: metadata } = matter(fullContent, { engines: { yaml: yamlEngine } });
 
       return {
         content,
@@ -311,7 +319,7 @@ class FileSystemProvider extends BasePageProvider {
       throw new Error(`Page '${identifier}' not found.`);
     }
     const fullContent = await fs.readFile(info.filePath, this.encoding);
-    const { content } = matter(fullContent);
+    const { content } = matter(fullContent, { engines: { yaml: yamlEngine } });
     logger.info(`[FileSystemProvider] Loaded ${info.title} from ${path.basename(info.filePath)} (${content.length} bytes)`);
     return content;
   }
@@ -368,7 +376,7 @@ class FileSystemProvider extends BasePageProvider {
       lastModified: now
     };
 
-    const fileContent = matter.stringify(content, updatedMetadata);
+    const fileContent = matter.stringify(content, updatedMetadata, { engines: { yaml: yamlEngine } });
     await fs.writeFile(filePath, fileContent, this.encoding);
 
     // Handle title change: remove old cache entries

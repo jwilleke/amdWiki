@@ -66,8 +66,8 @@
       "^.+\\.js$": "babel-jest"
     },
     "moduleFileExtensions": [
-      "ts",
       "js",
+      "ts",
       "json"
     ]
   },

@@ -6,8 +6,8 @@
  * - Page cache management
  * - Save/load operations
  *
- * Note: jest.setup.js globally mocks FileSystemProvider.
- * This unmock MUST be at the top, before any imports.
+ * Note: jest.setup.js conditionally skips mocking FileSystemProvider
+ * when this test file is running.
  *
  * @jest-environment node
  */
@@ -15,17 +15,10 @@
 const path = require('path');
 const fs = require('fs-extra');
 
-// Load the actual FileSystemProvider using require.resolve to get the absolute path
-const absolutePath = path.resolve(__dirname, '../FileSystemProvider.js');
-process.stderr.write(`Absolute path: ${absolutePath}\n`);
-
-// Try requireActual with the resolved path
-const FileSystemProvider = jest.requireActual(absolutePath);
-
-// Debug: log what we got (use stderr since console is mocked)
-process.stderr.write(`FileSystemProvider type: ${typeof FileSystemProvider}\n`);
-process.stderr.write(`FileSystemProvider.name: ${FileSystemProvider?.name}\n`);
-process.stderr.write(`FileSystemProvider.prototype: ${FileSystemProvider?.prototype}\n`);
+// Force load the .js version (not .ts which uses default export)
+const providerPath = path.resolve(__dirname, '../FileSystemProvider.js');
+jest.unmock(providerPath);
+const FileSystemProvider = jest.requireActual(providerPath);
 
 // Unique test directory for each test run
 let TEST_DIR;
