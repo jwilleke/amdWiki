@@ -189,7 +189,9 @@ class FileSystemProvider extends BasePageProvider {
         }
 
       } catch (error) {
-        logger.error(`[FileSystemProvider] Failed to process page file: ${filePath}`, { error: error.message });
+        logger.error(`[FileSystemProvider] Failed to process page file: ${filePath}`);
+        logger.error(`[FileSystemProvider] Error: ${error.message}`);
+        logger.error(`[FileSystemProvider] Stack: ${error.stack}`);
       }
     }
     logger.info(`[FileSystemProvider] Indexing complete. Found ${this.pageCache.size} valid pages.`);
