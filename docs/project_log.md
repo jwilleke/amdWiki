@@ -40,7 +40,8 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
   - Deleted config/legacy/ folder entirely
   - ecosystem.config.js accepted as infrastructure-level (PM2 runs before app)
   - Fixed #173: Jest --testPathPattern deprecated, updated to --testPathPatterns
-- Commits: 28ca18c, 0b2e965
+  - Deleted obsolete parser integration tests (used mocks, not real integration)
+- Commits: 28ca18c, 0b2e965, eb7ff03, 39a9847
 - Files Modified:
   - src/WikiEngine.js
   - src/routes/WikiRoutes.js
@@ -56,6 +57,9 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
   - config/ConfigBridge.js
   - config/DigitalDocumentPermissionConfig.js
   - config/legacy/ (entire folder)
+  - src/parsers/__tests__/MarkupParser-Integration.test.js
+  - src/parsers/__tests__/MarkupParser-DOM-Integration.test.js
+  - src/parsers/__tests__/MarkupParser-DOM-Integration.test.js.bak
 
 ---
 

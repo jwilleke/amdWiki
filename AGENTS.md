@@ -257,6 +257,7 @@ See [docs/planning/ROADMAP.md](/docs/planning/ROADMAP.md)
 - ✅ getConfig() method deprecated (throws error pointing to ConfigurationManager)
 - ✅ Deleted: config/Config.js, ConfigBridge.js, DigitalDocumentPermissionConfig.js, legacy/
 - ✅ Fixed #173: Jest --testPathPattern → --testPathPatterns (deprecation)
+- ✅ Deleted obsolete parser integration tests (mock-based, not real integration)
 
 **Files Modified:**
 - WikiEngine.js, WikiRoutes.js, ACLManager.js, ConfigurationManager.js
