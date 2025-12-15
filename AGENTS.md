@@ -256,6 +256,7 @@ See [docs/planning/ROADMAP.md](/docs/planning/ROADMAP.md)
 - ✅ Removed all hardcoded path fallbacks from source files
 - ✅ getConfig() method deprecated (throws error pointing to ConfigurationManager)
 - ✅ Deleted: config/Config.js, ConfigBridge.js, DigitalDocumentPermissionConfig.js, legacy/
+- ✅ Fixed #173: Jest --testPathPattern → --testPathPatterns (deprecation)
 
 **Files Modified:**
 - WikiEngine.js, WikiRoutes.js, ACLManager.js, ConfigurationManager.js

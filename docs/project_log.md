@@ -39,7 +39,8 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
   - Deleted config/Config.js, config/ConfigBridge.js, config/DigitalDocumentPermissionConfig.js
   - Deleted config/legacy/ folder entirely
   - ecosystem.config.js accepted as infrastructure-level (PM2 runs before app)
-- Commits: 9f22dae
+  - Fixed #173: Jest --testPathPattern deprecated, updated to --testPathPatterns
+- Commits: 28ca18c, 0b2e965
 - Files Modified:
   - src/WikiEngine.js
   - src/routes/WikiRoutes.js
@@ -49,6 +50,7 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
   - src/managers/SchemaManager.js
   - src/managers/BackupManager.js
   - src/services/InstallService.js
+  - package.json
 - Files Deleted:
   - config/Config.js
   - config/ConfigBridge.js
