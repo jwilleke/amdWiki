@@ -1,5 +1,4 @@
 const Engine = require('./core/Engine');
-const { Config } = require('../config/Config'); // TODO: Remove after migrating WikiRoutes.getConfig() usage
 
 // Managers
 const ConfigurationManager = require('./managers/ConfigurationManager');
@@ -38,7 +37,7 @@ const MarkupParser = require('./parsers/MarkupParser');
  * @extends Engine
  *
  * @property {WikiContext|null} context - Currently active WikiContext for request scope
- * @property {Config|Object|null} config - Configuration instance or object
+ * @property {Object|null} config - Legacy configuration object (deprecated, use ConfigurationManager)
  * @property {number} startTime - Timestamp when the engine was started
  *
  * @see {@link Engine} for base functionality
@@ -55,7 +54,6 @@ class WikiEngine extends Engine {
   constructor(config = {}, context = null) {
     super(config);
     this.context = context || null;
-    this.config = null;
     this.startTime = Date.now(); // Track when the engine was started
   }
 
@@ -117,17 +115,18 @@ class WikiEngine extends Engine {
    * 19. BackupManager - Backup/restore (must be last)
    *
    * @async
-   * @param {Config|Object} config - Configuration object or Config instance
+   * @param {Object} [config={}] - Configuration object (passed to ConfigurationManager)
    * @returns {Promise<WikiEngine>} The initialized engine instance
    * @throws {Error} If any manager fails to initialize
    *
    * @example
    * const engine = new WikiEngine();
-   * await engine.initialize(config);
+   * await engine.initialize();
    * console.log('Engine ready with', engine.getRegisteredManagers().length, 'managers');
    */
-  async initialize(config) {
-    this.config = config;
+  async initialize(config = {}) {
+    // NOTE: All configuration access MUST use ConfigurationManager.getProperty()
+    // The config parameter is passed to ConfigurationManager for any runtime overrides
 
     // 1. Initialize core managers with no dependencies
     this.registerManager('ConfigurationManager', new ConfigurationManager(this));
@@ -139,7 +138,7 @@ class WikiEngine extends Engine {
 
     // 3. Initialize UserManager early as it's critical for security and context
     this.registerManager('UserManager', new UserManager(this));
-    await this.getManager('UserManager').initialize(this.config);
+    await this.getManager('UserManager').initialize();
 
     // 4. Initialize other managers that may depend on the above
     this.registerManager('NotificationManager', new NotificationManager(this));
@@ -236,38 +235,43 @@ class WikiEngine extends Engine {
   /**
    * Get application name from configuration
    *
-   * Safely retrieves the application name with defensive checks for
-   * invalid configuration state.
+   * Uses ConfigurationManager to retrieve the application name.
    *
-   * @returns {string} Application name (defaults to 'amdWiki' if config invalid)
+   * @returns {string} Application name (defaults to 'amdWiki')
    *
    * @example
    * const name = engine.getApplicationName(); // 'amdWiki'
    */
   getApplicationName() {
-    // Defensive check: Handle case where config might be invalid
-    if (!this.config || typeof this.config.get !== 'function') {
-      console.warn('⚠️  Config invalid in getApplicationName(), using fallback');
+    try {
+      const configManager = this.getManager('ConfigurationManager');
+      return configManager.getProperty('amdwiki.applicationName', 'amdWiki');
+    } catch (error) {
+      // ConfigurationManager not yet initialized
       return 'amdWiki';
     }
-    return this.config.get('applicationName', 'amdWiki');
   }
 
   /**
    * Get configuration instance
    *
-   * @returns {Config} Configuration instance
-   * @throws {Error} If config is not initialized or invalid
+   * @deprecated Use engine.getManager('ConfigurationManager').getProperty() instead
+   * @throws {Error} Always throws - use ConfigurationManager instead
    *
    * @example
-   * const config = engine.getConfig();
-   * const dbPath = config.get('databasePath');
+   * // OLD (deprecated):
+   * // const config = engine.getConfig();
+   * // const value = config.get('key');
+   *
+   * // NEW (use this instead):
+   * const configManager = engine.getManager('ConfigurationManager');
+   * const value = configManager.getProperty('amdwiki.key', 'default');
    */
   getConfig() {
-    if (!this.config || typeof this.config.get !== 'function') {
-      throw new Error('Config instance is invalid - call initialize() first');
-    }
-    return this.config;
+    throw new Error(
+      'getConfig() is deprecated. Use engine.getManager("ConfigurationManager").getProperty() instead. ' +
+      'See Issue #176 for migration guide.'
+    );
   }
 
   /**

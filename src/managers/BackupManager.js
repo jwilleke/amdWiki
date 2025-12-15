@@ -69,10 +69,10 @@ class BackupManager extends BaseManager {
       throw new Error('BackupManager requires ConfigurationManager to be initialized.');
     }
 
-    const backupDir = configManager.getProperty('amdwiki.backup.directory', './backups');
+    const backupDir = configManager.getProperty('amdwiki.backup.directory');
     this.backupDirectory = path.isAbsolute(backupDir) ? backupDir : path.join(process.cwd(), backupDir);
 
-    this.maxBackups = configManager.getProperty('amdwiki.backup.maxBackups', 10);
+    this.maxBackups = configManager.getProperty('amdwiki.backup.maxBackups');
 
     // Ensure backup directory exists
     await fs.ensureDir(this.backupDirectory);

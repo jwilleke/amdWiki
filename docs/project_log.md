@@ -22,6 +22,41 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 
 ---
 
+## 2025-12-15-01
+
+- Agent: Claude Code (Opus 4.5)
+- Subject: Enforce ConfigurationManager for all configuration access (Issue #176)
+- Issue: #176
+- Key Decision: All configuration MUST use ConfigurationManager - no hardcoded fallbacks (DRY)
+- Work Done:
+  - Removed Config.js import from WikiEngine.js, deprecated getConfig() method
+  - Migrated WikiRoutes.js (3 locations) from config.get() to ConfigurationManager
+  - Fixed ACLManager.js - removed legacy config.get() and hardcoded fallbacks
+  - Fixed NotificationManager.js - removed legacy config fallback
+  - Fixed SchemaManager.js, BackupManager.js - removed hardcoded fallbacks
+  - Fixed InstallService.js - removed all hardcoded path fallbacks
+  - Fixed ConfigurationManager.js - removed duplicate fallback values (were inconsistent with app-default-config.json)
+  - Deleted config/Config.js, config/ConfigBridge.js, config/DigitalDocumentPermissionConfig.js
+  - Deleted config/legacy/ folder entirely
+  - ecosystem.config.js accepted as infrastructure-level (PM2 runs before app)
+- Commits: 9f22dae
+- Files Modified:
+  - src/WikiEngine.js
+  - src/routes/WikiRoutes.js
+  - src/managers/ACLManager.js
+  - src/managers/ConfigurationManager.js
+  - src/managers/NotificationManager.js
+  - src/managers/SchemaManager.js
+  - src/managers/BackupManager.js
+  - src/services/InstallService.js
+- Files Deleted:
+  - config/Config.js
+  - config/ConfigBridge.js
+  - config/DigitalDocumentPermissionConfig.js
+  - config/legacy/ (entire folder)
+
+---
+
 ## 2025-12-13-02
 
 - Agent: Claude Code (Opus 4.5)

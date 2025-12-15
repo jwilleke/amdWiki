@@ -317,11 +317,11 @@ class ConfigurationManager {
    */
   getDirectories() {
     return {
-      pages: this.getProperty('amdwiki.directories.pages', './pages'),
-      templates: this.getProperty('amdwiki.directories.templates', './templates'),
-      resources: this.getProperty('amdwiki.directories.resources', './resources'),
-      data: this.getProperty('amdwiki.directories.data', './data'),
-      work: this.getProperty('amdwiki.directories.work', './')
+      pages: this.getProperty('amdwiki.directories.pages'),
+      templates: this.getProperty('amdwiki.directories.templates'),
+      resources: this.getProperty('amdwiki.directories.resources'),
+      data: this.getProperty('amdwiki.directories.data'),
+      work: this.getProperty('amdwiki.directories.work')
     };
   }
 
@@ -390,10 +390,10 @@ class ConfigurationManager {
    */
   getLoggingConfig() {
     return {
-      level: this.getProperty('amdwiki.logging.level', 'info'),
-      dir: this.getProperty('amdwiki.logging.dir', './logs'),
-      maxSize: this.getProperty('amdwiki.logging.maxSize', '1MB'),
-      maxFiles: parseInt(this.getProperty('amdwiki.logging.maxFiles', '5'))
+      level: this.getProperty('amdwiki.logging.level'),
+      dir: this.getProperty('amdwiki.logging.dir'),
+      maxSize: this.getProperty('amdwiki.logging.maxSize'),
+      maxFiles: parseInt(this.getProperty('amdwiki.logging.maxFiles'))
     };
   }
 
@@ -403,8 +403,8 @@ class ConfigurationManager {
    */
   getSearchConfig() {
     return {
-      indexDir: this.getProperty('amdwiki.search.indexDir', './search-index'),
-      enabled: this.getProperty('amdwiki.search.enabled', 'true') === 'true'
+      indexDir: this.getProperty('amdwiki.search.provider.lunr.indexdir'),
+      enabled: this.getProperty('amdwiki.search.enabled') === true
     };
   }
 
@@ -413,16 +413,17 @@ class ConfigurationManager {
    * @returns {Object} Access control configuration
    */
   getAccessControlConfig() {
+    const days = this.getProperty('amdwiki.accessControl.businessHours.days');
     return {
       contextAware: {
-        enabled: this.getProperty('amdwiki.accessControl.contextAware.enabled', 'true') === 'true',
-        timeZone: this.getProperty('amdwiki.accessControl.contextAware.timeZone', 'UTC')
+        enabled: this.getProperty('amdwiki.accessControl.contextAware.enabled') === true,
+        timeZone: this.getProperty('amdwiki.accessControl.contextAware.timeZone')
       },
       businessHours: {
-        enabled: this.getProperty('amdwiki.accessControl.businessHours.enabled', 'false') === 'true',
-        start: this.getProperty('amdwiki.accessControl.businessHours.start', '09:00'),
-        end: this.getProperty('amdwiki.accessControl.businessHours.end', '17:00'),
-        days: this.getProperty('amdwiki.accessControl.businessHours.days', 'monday,tuesday,wednesday,thursday,friday').split(',')
+        enabled: this.getProperty('amdwiki.accessControl.businessHours.enabled') === true,
+        start: this.getProperty('amdwiki.accessControl.businessHours.start'),
+        end: this.getProperty('amdwiki.accessControl.businessHours.end'),
+        days: typeof days === 'string' ? days.split(',') : days
       }
     };
   }
@@ -433,18 +434,19 @@ class ConfigurationManager {
    */
   getAuditConfig() {
     return {
-      enabled: this.getProperty('amdwiki.audit.enabled', 'true') === 'true',
-      logFile: this.getProperty('amdwiki.audit.logFile', './users/access-log.json'),
+      enabled: this.getProperty('amdwiki.audit.enabled') === true,
+      logDirectory: this.getProperty('amdwiki.audit.provider.file.logdirectory'),
+      logFile: this.getProperty('amdwiki.audit.provider.file.auditfilename'),
       retention: {
-        maxFiles: parseInt(this.getProperty('amdwiki.audit.retention.maxFiles', '10')),
-        maxAge: this.getProperty('amdwiki.audit.retention.maxAge', '30d')
+        maxFiles: parseInt(this.getProperty('amdwiki.audit.provider.file.maxfiles')),
+        maxAge: this.getProperty('amdwiki.audit.retentiondays')
       },
       includeContext: {
-        ip: this.getProperty('amdwiki.audit.includeContext.ip', 'true') === 'true',
-        userAgent: this.getProperty('amdwiki.audit.includeContext.userAgent', 'true') === 'true',
-        timestamp: this.getProperty('amdwiki.audit.includeContext.timestamp', 'true') === 'true',
-        decision: this.getProperty('amdwiki.audit.includeContext.decision', 'true') === 'true',
-        reason: this.getProperty('amdwiki.audit.includeContext.reason', 'true') === 'true'
+        ip: this.getProperty('amdwiki.audit.includeContext.ip') === true,
+        userAgent: this.getProperty('amdwiki.audit.includeContext.userAgent') === true,
+        timestamp: this.getProperty('amdwiki.audit.includeContext.timestamp') === true,
+        decision: this.getProperty('amdwiki.audit.includeContext.decision') === true,
+        reason: this.getProperty('amdwiki.audit.includeContext.reason') === true
       }
     };
   }

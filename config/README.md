@@ -21,6 +21,7 @@ The environment is determined by the `NODE_ENV` environment variable:
 ## Quick Start
 
 ### For Development (with debug logging)
+
 ```bash
 npm run dev
 # or
@@ -28,6 +29,7 @@ NODE_ENV=development node app.js
 ```
 
 ### For Production
+
 ```bash
 npm start
 # or
@@ -35,6 +37,7 @@ NODE_ENV=production node app.js
 ```
 
 ### For Testing
+
 ```bash
 npm test
 ```
@@ -44,6 +47,7 @@ npm test
 To add your own local overrides:
 
 1. Copy the example:
+
    ```bash
    cp config/app-custom-config.json.example config/app-custom-config.json
    ```
@@ -55,6 +59,7 @@ To add your own local overrides:
 ## Environment-Specific Settings
 
 ### Development (`app-development-config.json`)
+
 - Debug logging enabled
 - Session debugging enabled
 - MarkupParser enabled
@@ -62,6 +67,7 @@ To add your own local overrides:
 - Relaxed security for local testing
 
 ### Production (`app-production-config.json`)
+
 - Info-level logging only
 - All debug logging disabled
 - Secure session cookies
@@ -70,6 +76,7 @@ To add your own local overrides:
 - MarkupParser enabled
 
 ### Test (`app-test-config.json`)
+
 - Warning-level logging only
 - Fast sessions
 - In-memory storage
@@ -78,6 +85,7 @@ To add your own local overrides:
 ## Configuration Priority Example
 
 If you have:
+
 - `app-default-config.json`: `{ "amdwiki.port": 3000 }`
 - `app-development-config.json`: `{ "amdwiki.port": 3001 }`
 - `app-custom-config.json`: `{ "amdwiki.port": 8080 }`
@@ -87,26 +95,31 @@ Result in development: `port = 8080` (custom wins)
 ## Key Configuration Properties
 
 ### Application
+
 - `amdwiki.applicationName` - Site name
 - `amdwiki.baseURL` - Base URL for the wiki
 - `amdwiki.port` - HTTP port (default: 3000)
 
 ### Logging
+
 - `amdwiki.logging.level` - `debug`, `info`, `warn`, `error`
 - `amdwiki.logging.debug.enabled` - Master debug flag
 - `amdwiki.logging.debug.session` - Session debugging
 - `amdwiki.logging.debug.login` - Login debugging
 
 ### Rendering
+
 - `amdwiki.rendering.useAdvancedParser` - Enable MarkupParser
 - `amdwiki.rendering.logParsingMethod` - Log which parser is used
 
 ### Security
+
 - `amdwiki.session.cookie.secure` - HTTPS-only cookies
 - `amdwiki.session.cookie.httpOnly` - No JavaScript access
 - `amdwiki.session.cookie.sameSite` - CSRF protection
 
 ### Performance
+
 - `amdwiki.cache.enabled` - Enable caching
 - `amdwiki.cache.ttl` - Cache time-to-live (seconds)
 - `amdwiki.search.indexOnStartup` - Build search index on start
@@ -123,12 +136,14 @@ Result in development: `port = 8080` (custom wins)
 ## Checking Active Configuration
 
 The system logs at startup:
+
 ```
 📋 ConfigurationManager initialized for environment: development
 📋 Loaded configs: default + environment + custom
 ```
 
 To see all merged config values, use ConfigurationManager methods in code:
+
 ```javascript
 const configManager = engine.getManager('ConfigurationManager');
 const port = configManager.getProperty('amdwiki.port');

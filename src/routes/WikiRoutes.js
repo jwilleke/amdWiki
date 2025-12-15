@@ -548,7 +548,7 @@ class WikiRoutes {
   async generateSiteSchema(req) {
     try {
       const baseUrl = `${req.protocol}://${req.get("host")}`;
-      const config = this.engine.getConfig();
+      const configManager = this.engine.getManager("ConfigurationManager");
 
       // Check if SchemaManager is available, fallback to legacy method
       let siteData;
@@ -561,18 +561,18 @@ class WikiRoutes {
           err.message
         );
 
-        // Fallback to legacy data structure
+        // Fallback to legacy data structure using ConfigurationManager
         const configData = {
-          applicationName: config.get("applicationName", "amdWiki"),
-          version: config.get("version", "1.0.0"),
+          applicationName: configManager.getProperty("amdwiki.applicationName", "amdWiki"),
+          version: configManager.getProperty("amdwiki.version", "1.0.0"),
           server: {
-            port: config.get("server.port", 3000),
-            host: config.get("server.host", "localhost"),
+            port: configManager.getProperty("amdwiki.server.port", 3000),
+            host: configManager.getProperty("amdwiki.server.host", "localhost"),
           },
           features: {
-            export: config.get("features.export", { html: true }),
-            attachments: config.get("features.attachments", { enabled: true }),
-            llm: config.get("features.llm", { enabled: false }),
+            export: { html: configManager.getProperty("amdwiki.features.export.html", true) },
+            attachments: { enabled: configManager.getProperty("amdwiki.attachment.enabled", true) },
+            llm: { enabled: configManager.getProperty("amdwiki.features.llm.enabled", false) },
           },
         };
 
@@ -3776,8 +3776,9 @@ class WikiRoutes {
       const fs = require('fs-extra');
       const path = require('path');
 
-      // Read recent logs
-      const logDir = './logs';
+      // Read recent logs from configured directory
+      const configManager = this.engine.getManager("ConfigurationManager");
+      const logDir = configManager.getProperty('amdwiki.logging.dir');
       let logContent = '';
       let logFiles = [];
 
@@ -3868,14 +3869,14 @@ class WikiRoutes {
         organizations = schemaManager.getOrganizations();
       } catch (err) {
         console.warn("SchemaManager not available:", err.message);
-        // Create default organization from config
-        const config = this.engine.getConfig();
+        // Create default organization from ConfigurationManager
+        const configManager = this.engine.getManager("ConfigurationManager");
         organizations = [
           {
             "@context": "https://schema.org",
             "@type": "Organization",
             identifier: "amdwiki-platform",
-            name: config.get("applicationName", "amdWiki Platform"),
+            name: configManager.getProperty("amdwiki.applicationName", "amdWiki Platform"),
             description:
               "Digital platform for wiki, document management, and modular content systems",
           },

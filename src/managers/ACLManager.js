@@ -77,11 +77,10 @@ class ACLManager extends BaseManager {
    */
   async initializeAuditLogging() {
     const configManager = this.engine.getManager('ConfigurationManager');
-    const auditConfig = configManager.getProperty('amdwiki.access.audit', {});
+    const auditEnabled = configManager.getProperty('amdwiki.audit.enabled', true);
 
-    if (auditConfig.enabled) {
-      const logFile = auditConfig.logFile || './users/access-log.json';
-      const logDir = path.dirname(logFile);
+    if (auditEnabled) {
+      const logDir = configManager.getProperty('amdwiki.audit.provider.file.logdirectory');
       try {
         await fs.mkdir(logDir, { recursive: true });
         logger.info('📋 Audit logging initialized');
@@ -413,12 +412,22 @@ class ACLManager extends BaseManager {
    * @returns {Object} { allowed: boolean, reason: string }
    */
   async checkContextRestrictions(user, context) {
-    const config = this.engine.getConfig();
-    const contextConfig = config.get('accessControl.contextAware', {});
-    
-    if (!contextConfig.enabled) {
+    const configManager = this.engine.getManager('ConfigurationManager');
+    const contextAwareEnabled = configManager.getProperty('amdwiki.accessControl.contextAware.enabled', true);
+
+    if (!contextAwareEnabled) {
       return { allowed: true, reason: 'context_disabled' };
     }
+
+    // Build context config object from ConfigurationManager properties
+    const contextConfig = {
+      enabled: contextAwareEnabled,
+      timeZone: configManager.getProperty('amdwiki.accessControl.contextAware.timeZone', 'UTC'),
+      maintenanceMode: {
+        enabled: configManager.getProperty('amdwiki.features.maintenance.enabled', false),
+        allowAdmins: configManager.getProperty('amdwiki.features.maintenance.allowAdmins', true)
+      }
+    };
 
     // Skip context restrictions for anonymous users on public wiki
     if (!user || user.username === 'anonymous' || user.username === 'asserted') {

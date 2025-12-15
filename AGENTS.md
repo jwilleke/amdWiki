@@ -247,6 +247,28 @@ See [docs/planning/ROADMAP.md](/docs/planning/ROADMAP.md)
 
 ### Status Overview
 
+#### Completed (Session 2025-12-15) - Issue #176 CLOSED
+
+**ConfigurationManager Enforcement (DRY Principle):**
+
+- ✅ Removed legacy Config.js system entirely
+- ✅ All configuration now uses ConfigurationManager.getProperty()
+- ✅ Removed all hardcoded path fallbacks from source files
+- ✅ getConfig() method deprecated (throws error pointing to ConfigurationManager)
+- ✅ Deleted: config/Config.js, ConfigBridge.js, DigitalDocumentPermissionConfig.js, legacy/
+
+**Files Modified:**
+- WikiEngine.js, WikiRoutes.js, ACLManager.js, ConfigurationManager.js
+- NotificationManager.js, SchemaManager.js, BackupManager.js, InstallService.js
+
+**Key Decision:** ecosystem.config.js accepted as infrastructure-level (PM2 runs before app)
+
+**Test Status (2025-12-15):**
+- Test Suites: 21 failed, 48 passed (69 total)
+- Pass Rate: ~86%
+
+---
+
 #### Completed (Session 2025-12-12) - v1.5.0 MERGED
 
 __Docker Data Consolidation - PR #171 (MERGED):__

@@ -54,7 +54,8 @@ class NotificationManager extends BaseManager {
       this.engine?.getManager?.('ConfigurationManager') ||
       this.engine?.getManager?.('ConfigManager');
 
-    const defaultDir = config.wiki?.dataDir || './data';
+    // Use ConfigurationManager for data directory (no legacy config fallback)
+    const defaultDir = cfgMgr?.getProperty?.('amdwiki.directories.data', './data') ?? './data';
     const dataDirCfg = cfgMgr?.getProperty?.('amdwiki.notifications.dir', defaultDir) ?? defaultDir;
     const fileNameCfg = cfgMgr?.getProperty?.('amdwiki.notifications.file', 'notifications.json') ?? 'notifications.json';
     const intervalCfg = cfgMgr?.getProperty?.('amdwiki.notifications.autoSaveInterval') ?? (5 * 60 * 1000);

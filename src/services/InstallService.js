@@ -42,7 +42,7 @@ class InstallService {
     const adminExists = await userManager.hasRole('admin', 'admin');
 
     // Check if pages directory is empty
-    const pagesDir = this.configManager.getProperty('amdwiki.page.provider.filesystem.storagedir', './pages');
+    const pagesDir = this.configManager.getProperty('amdwiki.page.provider.filesystem.storagedir');
     const pagesExist = await this.#hasPagesInDirectory(pagesDir);
 
     return !adminExists || !pagesExist;
@@ -63,13 +63,13 @@ class InstallService {
     const userManager = this.engine.getManager('UserManager');
     const adminExists = await userManager.hasRole('admin', 'admin');
 
-    const pagesDir = this.configManager.getProperty('amdwiki.page.provider.filesystem.storagedir', './pages');
+    const pagesDir = this.configManager.getProperty('amdwiki.page.provider.filesystem.storagedir');
     const pagesExist = await this.#hasPagesInDirectory(pagesDir);
 
     const customConfigPath = path.join(__dirname, '../../config/app-custom-config.json');
     const customConfigExists = await fs.pathExists(customConfigPath);
 
-    const usersDir = this.configManager.getProperty('amdwiki.user.provider.storagedir', './data/users');
+    const usersDir = this.configManager.getProperty('amdwiki.user.provider.storagedir');
     const organizationsPath = path.join(usersDir, 'organizations.json');
     const organizationsExist = await fs.pathExists(organizationsPath);
 
@@ -100,7 +100,7 @@ class InstallService {
       return { missingPagesOnly: false };
     }
 
-    const pagesDir = this.configManager.getProperty('amdwiki.page.provider.filesystem.storagedir', './pages');
+    const pagesDir = this.configManager.getProperty('amdwiki.page.provider.filesystem.storagedir');
     const pagesExist = await this.#hasPagesInDirectory(pagesDir);
 
     // Check if pages directory exists but is empty
@@ -131,7 +131,7 @@ class InstallService {
     try {
       const pagesDir = this.configManager.getProperty(
         'amdwiki.page.provider.filesystem.storagedir',
-        './pages'
+        './data/pages'
       );
 
       const requiredPagesDir = this.configManager.getProperty(
@@ -320,7 +320,7 @@ class InstallService {
       }
 
       // 2. Remove organizations.json
-      const usersDir = this.configManager.getProperty('amdwiki.user.provider.storagedir', './data/users');
+      const usersDir = this.configManager.getProperty('amdwiki.user.provider.storagedir');
       const organizationsPath = path.join(usersDir, 'organizations.json');
       if (await fs.pathExists(organizationsPath)) {
         const backupPath = organizationsPath + '.backup-' + Date.now();
@@ -352,7 +352,7 @@ class InstallService {
       // 4. Remove copied pages (only if they were copied during this installation)
       const pagesDir = this.configManager.getProperty(
         'amdwiki.page.provider.filesystem.storagedir',
-        './pages'
+        './data/pages'
       );
 
       // Only clear if directory exists and has files
@@ -494,7 +494,7 @@ class InstallService {
    * @returns {Promise<void>}
    */
   async #writeOrganizationData(data) {
-    const usersDir = this.configManager.getProperty('amdwiki.user.provider.storagedir', './data/users');
+    const usersDir = this.configManager.getProperty('amdwiki.user.provider.storagedir');
     const organizationsPath = path.join(usersDir, 'organizations.json');
 
     const organization = {

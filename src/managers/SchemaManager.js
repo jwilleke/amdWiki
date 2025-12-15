@@ -46,8 +46,8 @@ class SchemaManager extends BaseManager {
       throw new Error('SchemaManager requires ConfigurationManager to be initialized.');
     }
 
-    // Correctly fetch the schemas directory from ConfigurationManager
-    const schemasDir = configManager.getProperty('amdwiki.directories.schemas', './config/schemas');
+    // Fetch the schemas directory from ConfigurationManager (no fallback - defined in app-default-config.json)
+    const schemasDir = configManager.getProperty('amdwiki.directories.schemas');
 
     try {
       const files = await fs.readdir(schemasDir);
