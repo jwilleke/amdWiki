@@ -17,7 +17,7 @@
     "test:coverage": "NODE_ENV=test jest --coverage",
     "test:ci": "NODE_ENV=test jest --coverage --ci",
     "test:changed": "NODE_ENV=test jest --changedSince=HEAD --bail",
-    "test:integration": "NODE_ENV=test jest --testPathPattern=integration.test.js --runInBand",
+    "test:integration": "NODE_ENV=test jest --testPathPatterns=integration.test.js --runInBand",
     "test:unit": "NODE_ENV=test jest --testPathIgnorePatterns=integration.test.js",
     "smoke": "./scripts/smoke-test.sh",
     "prepare": "husky install || echo 'Husky not installed'",
