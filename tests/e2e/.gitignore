@@ -1,0 +1,9 @@
+# Playwright auth state (generated during test runs)
+.auth/
+
+# Test output artifacts
+.output/
+
+# Playwright reports
+playwright-report/
+test-results/

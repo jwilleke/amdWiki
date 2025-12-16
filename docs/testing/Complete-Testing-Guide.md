@@ -1,6 +1,6 @@
 # Complete Testing Guide
 
-**Last Updated:** 2025-12-12
+**Last Updated:** 2025-12-16
 **Version:** 1.5.0
 
 This guide consolidates all testing documentation for amdWiki into a single comprehensive reference.
@@ -13,10 +13,11 @@ This guide consolidates all testing documentation for amdWiki into a single comp
 4. [Writing Tests](#writing-tests)
 5. [Mocking Patterns](#mocking-patterns)
 6. [Test Categories](#test-categories)
-7. [Debugging Tests](#debugging-tests)
-8. [CI/CD Integration](#cicd-integration)
-9. [Manual QA Testing](#manual-qa-testing)
-10. [Best Practices](#best-practices)
+7. [E2E Testing (Playwright)](#e2e-testing-playwright)
+8. [Debugging Tests](#debugging-tests)
+9. [CI/CD Integration](#cicd-integration)
+10. [Manual QA Testing](#manual-qa-testing)
+11. [Best Practices](#best-practices)
 
 ---
 
@@ -389,6 +390,201 @@ describe('API Routes', () => {
   });
 });
 ```
+
+---
+
+## E2E Testing (Playwright)
+
+End-to-End tests use Playwright to test the full application stack in a real browser. These tests catch issues that unit tests miss: UI bugs, API failures, cross-feature interactions, and real user workflows.
+
+### Why E2E Tests?
+
+- **Unit tests (Jest)**: Test individual functions in isolation
+- **E2E tests (Playwright)**: Test the full stack as a user would
+
+E2E tests are critical for regression prevention - they run on every code change to ensure new features don't break existing functionality.
+
+### Directory Structure
+
+```
+tests/e2e/
+├── .auth/                    # Session state (gitignored)
+│   └── user.json             # Saved authentication
+├── .output/                  # Test artifacts (gitignored)
+│   ├── report/               # HTML reports
+│   └── results/              # Test results
+├── fixtures/                 # Reusable test helpers
+│   ├── auth.js               # Authentication utilities
+│   └── helpers.js            # Common test utilities
+├── auth.setup.js             # Authentication setup (runs first)
+├── auth.spec.js              # Authentication tests
+├── pages.spec.js             # Page operation tests
+├── search.spec.js            # Search functionality tests
+├── admin.spec.js             # Admin dashboard tests
+└── .gitignore                # Excludes .auth/ and .output/
+```
+
+### About Fixtures
+
+**Yes, fixtures are needed.** The `fixtures/` directory contains reusable test helpers:
+
+- **`auth.js`**: Authentication helpers for login/logout
+- **`helpers.js`**: Common utilities like waiting for elements, generating test data
+
+Fixtures help:
+
+1. **DRY principle** - Avoid repeating login code in every test
+2. **Consistency** - Same authentication flow across all tests
+3. **Maintainability** - Update once when UI changes
+
+### Running E2E Tests
+
+```bash
+# Run all E2E tests (starts server automatically on port 3099)
+npm run test:e2e
+
+# Run with Playwright UI (visual debugging)
+npm run test:e2e:ui
+
+# Run in headed mode (see the browser)
+npm run test:e2e:headed
+
+# Run specific test file
+npx playwright test auth.spec.js
+
+# Run tests matching pattern
+npx playwright test --grep "login"
+
+# Generate HTML report
+npx playwright show-report tests/e2e/.output/report
+```
+
+### Configuration
+
+`playwright.config.js`:
+
+```javascript
+module.exports = defineConfig({
+  testDir: './tests/e2e',
+  fullyParallel: true,
+  retries: process.env.CI ? 2 : 0,
+  workers: process.env.CI ? 1 : undefined,
+
+  use: {
+    baseURL: 'http://localhost:3099',
+    trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
+  },
+
+  // Auto-start server before tests
+  webServer: {
+    command: 'PORT=3099 NODE_ENV=test node app.js',
+    url: 'http://localhost:3099',
+    reuseExistingServer: !process.env.CI,
+    timeout: 60000,
+  },
+
+  projects: [
+    { name: 'setup', testMatch: /.*\.setup\.js/ },
+    {
+      name: 'chromium',
+      use: { browserName: 'chromium' },
+      dependencies: ['setup'],
+    },
+  ],
+});
+```
+
+### Writing E2E Tests
+
+#### Basic Test Structure
+
+```javascript
+// @ts-check
+const { test, expect } = require('@playwright/test');
+
+test.describe('Feature Name', () => {
+  // Use saved authentication state
+  test.use({ storageState: './tests/e2e/.auth/user.json' });
+
+  test('should do expected behavior', async ({ page }) => {
+    // Navigate
+    await page.goto('/some-page');
+    await page.waitForLoadState('networkidle');
+
+    // Interact
+    await page.fill('input[name="field"]', 'value');
+    await page.click('button[type="submit"]');
+
+    // Assert
+    await expect(page).toHaveURL(/expected-url/);
+    await expect(page.locator('.success')).toBeVisible();
+  });
+});
+```
+
+#### Authentication Setup
+
+```javascript
+// auth.setup.js - Runs before all tests
+const { test: setup } = require('@playwright/test');
+
+setup('authenticate', async ({ page }) => {
+  await page.goto('/login');
+  await page.fill('input[name="username"]', 'admin');
+  await page.fill('input[name="password"]', 'admin');
+  await page.click('button[type="submit"]');
+
+  // Save session state for other tests
+  await page.context().storageState({ path: './tests/e2e/.auth/user.json' });
+});
+```
+
+#### Testing Protected Routes
+
+```javascript
+test('should protect admin routes', async ({ browser }) => {
+  // Create fresh context without authentication
+  const context = await browser.newContext();
+  const page = await context.newPage();
+
+  await page.goto('/admin');
+
+  // Should redirect to login
+  expect(page.url()).toContain('login');
+
+  await context.close();
+});
+```
+
+### E2E Test Coverage
+
+| Test File | Tests | Description |
+|-----------|-------|-------------|
+| auth.setup.js | 1 | Authentication state setup |
+| auth.spec.js | 7 | Login, logout, sessions, protected routes |
+| pages.spec.js | 12 | Page viewing, editing, creation, categories |
+| search.spec.js | 7 | Search interface, text search, filters |
+| admin.spec.js | 8 | Dashboard, user management, configuration |
+| **Total** | **35** | Core user journeys |
+
+### E2E Best Practices
+
+**DO:**
+
+- Use `waitForLoadState('networkidle')` after navigation
+- Use flexible selectors (`[name="field"]`, `.class`, `text=Label`)
+- Test real user workflows, not implementation details
+- Save authentication state to avoid logging in repeatedly
+- Use `test.skip()` for features that may not exist
+
+**DON'T:**
+
+- Hardcode test data that may change
+- Rely on specific timing (use proper waits)
+- Test every edge case (that's for unit tests)
+- Run E2E tests for simple logic validation
 
 ---
 

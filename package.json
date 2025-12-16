@@ -19,6 +19,9 @@
     "test:changed": "NODE_ENV=test jest --changedSince=HEAD --bail",
     "test:integration": "NODE_ENV=test jest --testPathPatterns=integration.test.js --runInBand",
     "test:unit": "NODE_ENV=test jest --testPathIgnorePatterns=integration.test.js",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed",
     "smoke": "./scripts/smoke-test.sh",
     "prepare": "husky install || echo 'Husky not installed'",
     "version": "echo $npm_package_version",
@@ -104,6 +107,7 @@
   },
   "devDependencies": {
     "@jest/globals": "^30.1.2",
+    "@playwright/test": "^1.57.0",
     "@types/express": "^5.0.5",
     "@types/fast-diff": "^1.1.0",
     "@types/jest": "^30.0.0",

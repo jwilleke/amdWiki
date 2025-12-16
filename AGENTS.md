@@ -68,9 +68,9 @@ __Description:__ JSPWiki-inspired file-based wiki platform evolving into a compr
 
 - __Overall Progress:__ Phase 1 (Core Wiki) 95% complete, Phase 2 (Content Modules) planning
 - __Current Version:__ 1.5.0
-- __Last Updated:__ 2025-12-12
+- __Last Updated:__ 2025-12-16
 - __Phase:__ Mature development transitioning to platform expansion
-- __Next Milestone:__ Attachment UI Enhancement, TypeScript migration, WikiDocument testing
+- __Next Milestone:__ Fix remaining E2E test selectors, Attachment UI Enhancement, TypeScript migration
 
 ## Architecture & Tech Stack
 
@@ -249,7 +249,7 @@ See [docs/planning/ROADMAP.md](/docs/planning/ROADMAP.md)
 
 #### Completed (Session 2025-12-15) - Issue #176 CLOSED
 
-**ConfigurationManager Enforcement (DRY Principle):**
+__ConfigurationManager Enforcement (DRY Principle):__
 
 - ✅ Removed legacy Config.js system entirely
 - ✅ All configuration now uses ConfigurationManager.getProperty()
@@ -259,13 +259,15 @@ See [docs/planning/ROADMAP.md](/docs/planning/ROADMAP.md)
 - ✅ Fixed #173: Jest --testPathPattern → --testPathPatterns (deprecation)
 - ✅ Deleted obsolete parser integration tests (mock-based, not real integration)
 
-**Files Modified:**
+__Files Modified:__
+
 - WikiEngine.js, WikiRoutes.js, ACLManager.js, ConfigurationManager.js
 - NotificationManager.js, SchemaManager.js, BackupManager.js, InstallService.js
 
-**Key Decision:** ecosystem.config.js accepted as infrastructure-level (PM2 runs before app)
+__Key Decision:__ ecosystem.config.js accepted as infrastructure-level (PM2 runs before app)
 
-**Test Status (2025-12-15):**
+__Test Status (2025-12-15):__
+
 - Test Suites: 21 failed, 48 passed (69 total)
 - Pass Rate: ~86%
 
@@ -535,7 +537,12 @@ __Server Management:__
 - __[docs/testing/Testing-Summary.md](./docs/testing/Testing-Summary.md)__ - Current test status and quick reference
 - __[docs/testing/Complete-Testing-Guide.md](./docs/testing/Complete-Testing-Guide.md)__ - Comprehensive testing documentation
 - __[docs/testing/PREVENTING-REGRESSIONS.md](./docs/testing/PREVENTING-REGRESSIONS.md)__ - Regression prevention strategy
-- Coverage: `npm run test:coverage`
+- __Test Commands:__
+  - Unit tests: `npm test` (Jest)
+  - Coverage: `npm run test:coverage`
+  - E2E tests: `npm run test:e2e` (Playwright)
+  - E2E with UI: `npm run test:e2e:ui`
+- __E2E Test Credentials:__ admin / admin123 (or set E2E_ADMIN_USER, E2E_ADMIN_PASS)
 - __Test Requirements:__
   - Write tests BEFORE changing code (TDD)
   - All tests must pass before committing

@@ -1,9 +1,11 @@
 # Testing Summary
 
-**Last Updated:** 2025-12-14
+**Last Updated:** 2025-12-16
 **Current Version:** 1.5.0
 
 ## Current Test Status
+
+### Unit/Integration Tests (Jest)
 
 | Metric | Value |
 |--------|-------|
@@ -11,14 +13,29 @@
 | Tests | 222 failed, 1492 passed, 6 skipped (1720 total) |
 | **Pass Rate** | **86.7%** |
 
+### End-to-End Tests (Playwright)
+
+| Test File | Description |
+|-----------|-------------|
+| auth.spec.js | Login, logout, session management |
+| pages.spec.js | Page viewing, editing, creation |
+| search.spec.js | Search functionality |
+| admin.spec.js | Admin dashboard access |
+
 ## Quick Commands
 
 ```bash
+# Unit Tests (Jest)
 npm test                    # Run all tests
 npm test -- <file>.test.js  # Run specific test file
 npm run test:coverage       # Generate coverage report
 npm run test:watch          # Watch mode for development
 npm run smoke               # Quick 30-second validation
+
+# E2E Tests (Playwright)
+npm run test:e2e            # Run all E2E tests
+npm run test:e2e:ui         # Run with Playwright UI
+npm run test:e2e:headed     # Run in headed browser mode
 ```
 
 ## Test Categories
@@ -117,6 +134,57 @@ Tests in `FileSystemProvider.test.js` cannot bypass the global mock in `jest.set
 Parser tests expect handlers that may not be registered in test environment.
 
 **Fix:** Register required handlers in test setup or mock them.
+
+## E2E Test Infrastructure
+
+### Setup
+
+E2E tests use Playwright with the following configuration:
+
+- **Test Directory:** `tests/e2e/`
+- **Config:** `playwright.config.js`
+- **Browser:** Chromium (default)
+- **Port:** 3099 (test server)
+
+### Test Files
+
+| File | Tests | Description |
+|------|-------|-------------|
+| `auth.setup.js` | 1 | Authentication setup (saves session state) |
+| `auth.spec.js` | 7 | Login form, invalid credentials, session management, logout, protected routes |
+| `pages.spec.js` | 12 | Homepage, page navigation, editing, creation, categories |
+| `search.spec.js` | 7 | Search interface, text search, special characters, filters |
+| `admin.spec.js` | 8 | Admin dashboard access, user management, configuration, security |
+
+### Fixtures
+
+- `fixtures/auth.js` - Authentication helpers
+- `fixtures/helpers.js` - Common test utilities
+
+### Running E2E Tests Locally
+
+```bash
+# Run all E2E tests (starts server automatically)
+npm run test:e2e
+
+# Run with Playwright UI (for debugging)
+npm run test:e2e:ui
+
+# Run in headed mode (see browser)
+npm run test:e2e:headed
+
+# Run specific test file
+npx playwright test auth.spec.js
+```
+
+### CI Integration
+
+E2E tests run automatically in GitHub Actions CI pipeline:
+
+1. Installs Playwright browsers
+2. Creates test user and directories
+3. Runs all E2E tests
+4. Uploads test report as artifact
 
 ## Related Documentation
 
