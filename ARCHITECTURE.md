@@ -114,7 +114,7 @@ amdWiki/
 │   ├── sessions/           # Session files
 │   └── versions/           # Page version history
 ├── required-pages/         # System pages (only used during installation, then copied to data/pages)
-├── docs/                   # Detailed documentation
+├── docs/                   # Developer documentation
 ├── docker/                 # Docker deployment files
 ├── views/                  # EJS templates
 ├── scripts/                # Utility scripts (migration, maintenance)
