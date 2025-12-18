@@ -64,6 +64,7 @@ ModuleName-Complete-Guide.md  # Deep dive (comprehensive)
 ```
 
 Examples:
+
 - `PageManager.md` + `PageManager-Complete-Guide.md`
 - `WikiContext.md` + `WikiContext-Complete-Guide.md`
 - `FileSystemProvider.md` + `FileSystemProvider-Complete-Guide.md`
@@ -117,11 +118,13 @@ Comprehensive documentation (500+ lines):
 Plugin docs require both developer and user-facing versions:
 
 **Developer doc** (`docs/plugins/PluginName.md`):
+
 - Technical implementation
 - API reference
 - Extension points
 
 **User doc** (`required-pages/PluginName.md`):
+
 - Usage syntax
 - Parameter reference
 - Examples
