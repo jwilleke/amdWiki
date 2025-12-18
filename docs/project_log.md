@@ -22,6 +22,48 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 
 ---
 
+## 2025-12-18-02
+
+- Agent: Claude Code (Opus 4.5)
+- Subject: Documentation Explosion Phase 1-2 (Issue #178)
+- Issue: #178 Documentation Explosion
+- Key Decision: Schema.org-compliant front matter, PascalCase naming, TypeDoc for automation
+- Work Done:
+  - Phase 1.1: Created docs/DOCUMENTATION-STANDARDS.md with comprehensive standards
+  - Phase 1.2: Created docs/templates/ with 4 documentation templates
+    - Manager-Template.md
+    - Provider-Template.md
+    - Plugin-Template.md
+    - Plugin-User-Template.md
+  - Phase 2.1: Renamed 7 manager docs to standardized PascalCase naming
+    - ConfigurationManager-Documentation.md → ConfigurationManager.md
+    - PolicyEvaluator-Documentation.md → PolicyEvaluator.md
+    - PolicyManager-Documentation.md → PolicyManager.md
+    - PolicyValidator-Documentation.md → PolicyValidator.md
+    - UserManager-Documentation.md → UserManager.md
+    - ValidationManager-Documentation.md → ValidationManager.md
+    - VariableManager-Documentation.md → VariableManager.md
+  - Phase 2.2: Moved 6 root-level docs to appropriate folders
+    - Backups.md → admin/Backups.md
+    - BasicAttachmentProvider.md → providers/BasicAttachmentProvider.md
+    - cache.md → architecture/Cache-System.md
+    - Content Management.md → user-guide/Content-Management.md
+    - page-metadata.md → architecture/Page-Metadata.md
+    - markdown-cheat-sheet.md → user-guide/Markdown-Cheat-Sheet.md
+  - Phase 2.3: Archived 2 non-markdown planning files
+    - planning/pagehistory.html → archive/pagehistory.html
+    - planning/tab-VersionManagement tab-pa.xhtml → archive/tab-VersionManagement-tab-pa.xhtml
+- Files Created:
+  - docs/DOCUMENTATION-STANDARDS.md
+  - docs/templates/Manager-Template.md
+  - docs/templates/Provider-Template.md
+  - docs/templates/Plugin-Template.md
+  - docs/templates/Plugin-User-Template.md
+- Files Renamed/Moved: 15 files (7 manager docs, 6 root-level docs, 2 archived)
+- Future Work: Phase 3-6 (folder reorganization, plugin docs, TypeDoc, missing module docs)
+
+---
+
 ## 2025-12-18-01
 
 - Agent: Claude Code (Opus 4.5)
@@ -65,7 +107,7 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
   - Updated docs/testing/Complete-Testing-Guide.md with comprehensive E2E section
   - Updated docs/testing/Testing-Summary.md with E2E overview
 - Test Results (Current):
-  - **17 passed, 9 failed, 2 skipped**
+  - __17 passed, 9 failed, 2 skipped__
   - Passing: auth setup, login form, credentials, session, protected routes, admin dashboard, navigation, user management, home page, wiki navigation, breadcrumbs, search results
   - Failing: mostly search page selectors and missing features (config section)
 - Test Credentials:
@@ -90,6 +132,7 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
   - Fix logout test selector
   - Some tests may need UI-specific adjustments
 - Commands:
+
   ```bash
   npm run test:e2e            # Run all E2E tests
   npm run test:e2e:ui         # Run with Playwright UI
@@ -145,8 +188,8 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 - Subject: Fix Issue #167 - Multiple PM2 Daemons and PIDs (Root Cause)
 - Issue: #167
 - Work Done:
-  - **Root cause identified**: Multiple PM2 daemons can spawn and persist in `~/.pm2/`
-  - **Bug fixed**: Double `npx --no -- npx --no --` on line 93 (was `npx --no -- npx --no -- pm2 start`)
+  - __Root cause identified__: Multiple PM2 daemons can spawn and persist in `~/.pm2/`
+  - __Bug fixed__: Double `npx --no -- npx --no --` on line 93 (was `npx --no -- npx --no -- pm2 start`)
   - Added `ensure_single_pm2_daemon()` function - detects/kills multiple PM2 daemons
   - Added `kill_all_amdwiki()` function - comprehensive process cleanup
   - Improved `start` command:
@@ -227,13 +270,13 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 - Subject: Bug Fixes - Required Pages & ReferringPagesPlugin
 - Issues Closed: #172, #174
 - Work Done:
-  - **Issue #174**: Fixed required-pages showing in operating wiki
+  - __Issue #174__: Fixed required-pages showing in operating wiki
     - Modified FileSystemProvider to only load from required-pages during installation
     - Added `installationComplete` flag checked from `amdwiki.install.completed` config
     - Updated VersioningFileProvider to match parent behavior
     - Fixed RenderingManager.getTotalPagesCount() to use provider cache
     - Extended WikiRoutes.isRequiredPage() to protect system/documentation pages (Admin-only edit)
-  - **Issue #172**: Fixed ReferringPagesPlugin not showing plural-linked pages
+  - __Issue #172__: Fixed ReferringPagesPlugin not showing plural-linked pages
     - Root cause: buildLinkGraph() stored links literally without resolving plurals
     - Fix: Added pageNameMatcher.findMatch() when building link graph
     - Result: "Contextual Variables" (links to `[Plugins]`) now appears on "Plugin" page
@@ -343,7 +386,7 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
   - `docker/README.md` - Updated for new structure
   - `docker/DOCKER.md` - Updated volume documentation
   - `AGENTS.md` - Session status
-- PR: #171 - https://github.com/jwilleke/amdWiki/pull/171
+- PR: #171 - <https://github.com/jwilleke/amdWiki/pull/171>
 - Issues Created:
   - #169 - LoggingProvider pattern
   - #170 - BackupProvider pattern
