@@ -149,13 +149,15 @@ WikiDocument should always be used.
 - TypeScript (progressive migration, strict mode enabled)
 - JSDoc (95% coverage requirement)
 - Semantic Versioning
-- markdownlint, .editorconfig, Prettier
+- [markdownlint](.vscode/settings.json), .editorconfig, Prettier
 
 ## Coding Standards
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md) for comprehensive guidelines.
 
 ### Key Standards
+
+
 
 #### Documentation
 
