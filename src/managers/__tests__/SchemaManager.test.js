@@ -9,7 +9,7 @@ jest.mock('fs-extra', () => ({
 
 const fs = require('fs-extra');
 
-const mockCfgMgr = { getProperty: jest.fn().mockImplementation((k,d)=>d) };
+const mockCfgMgr = { getProperty: jest.fn().mockReturnValue('./config/schemas') };
 const mockEngine = { getManager: jest.fn(n => n==='ConfigurationManager'?mockCfgMgr:null) };
 
 describe("SchemaManager", () => {
@@ -66,7 +66,7 @@ describe("SchemaManager", () => {
 
       await schemaManager.initialize({});
 
-      expect(mockCfgMgr.getProperty).toHaveBeenCalledWith('amdwiki.directories.schemas', './config/schemas');
+      expect(mockCfgMgr.getProperty).toHaveBeenCalledWith('amdwiki.directories.schemas');
       expect(fs.readdir).toHaveBeenCalledWith('/custom/schemas');
     });
   });

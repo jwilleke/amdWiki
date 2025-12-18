@@ -24,7 +24,7 @@ describe('SessionsPlugin (via PluginManager)', () => {
 
     // Wire PluginManager to the temp dir via ConfigurationManager
     const logger = { info: jest.fn(), warn: jest.fn(), debug: jest.fn(), error: jest.fn() };
-    const cfgMgr = { get: jest.fn().mockReturnValue([tmpPluginsDir]) };
+    const cfgMgr = { getProperty: jest.fn().mockReturnValue([tmpPluginsDir]) };
     const engine = {
       getManager: (name) => (name === 'ConfigurationManager' ? cfgMgr : null),
       logger
@@ -49,6 +49,20 @@ describe('SessionsPlugin (via PluginManager)', () => {
 
   beforeEach(() => {
     global.fetch = jest.fn(); // success by default for non-error tests
+    // Initialize mockContext with a proper engine
+    mockContext = {
+      engine: {
+        getManager: jest.fn((name) => {
+          if (name === 'ConfigurationManager') {
+            return {
+              getProperty: jest.fn((key, defaultVal) => defaultVal)
+            };
+          }
+          return null;
+        }),
+        logger: { error: jest.fn() }
+      }
+    };
   });
 
   afterEach(() => {
@@ -63,7 +77,7 @@ describe('SessionsPlugin (via PluginManager)', () => {
   });
 
   test('uses defaults when ConfigurationManager lacks values', async () => {
-    mockContext.engine.getManager = (n) => (n === 'ConfigurationManager' ? { get: (k, d) => d } : null);
+    mockContext.engine.getManager = (n) => (n === 'ConfigurationManager' ? { getProperty: (k, d) => d } : null);
     global.fetch.mockResolvedValue({ ok: true, json: async () => ({ sessionCount: 2 }) });
     const out = await SessionsPlugin.execute(mockContext, {});
     expect(out).toBe('2');

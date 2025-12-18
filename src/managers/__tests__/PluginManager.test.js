@@ -50,7 +50,7 @@ describe('PluginManager.registerPlugins', () => {
 
     const logger = makeLogger();
     const cfgMgr = {
-      get: jest.fn().mockReturnValue([tmpDirA]) // ONLY tmpDirA is allowed
+      getProperty: jest.fn().mockReturnValue([tmpDirA]) // ONLY tmpDirA is allowed
     };
     const engine = {
       getManager: (name) => (name === 'ConfigurationManager' ? cfgMgr : null),
@@ -73,7 +73,7 @@ describe('PluginManager.registerPlugins', () => {
     await pm.registerPlugins();
 
     // Assert
-    expect(cfgMgr.get).toHaveBeenCalledWith('amdwiki.managers.pluginManager.searchPaths');
+    expect(cfgMgr.getProperty).toHaveBeenCalledWith('amdwiki.managers.pluginManager.searchPaths');
     expect(loadCalls).toHaveLength(1);
     expect(path.basename(loadCalls[0])).toBe('Alpha.js');
 
@@ -112,7 +112,7 @@ describe('PluginManager.registerPlugins', () => {
 
   test('does not load anything when searchPaths config is missing/empty', async () => {
     const logger = makeLogger();
-    const cfgMgr = { get: jest.fn().mockReturnValue([]) };
+    const cfgMgr = { getProperty: jest.fn().mockReturnValue([]) };
     const engine = {
       getManager: () => cfgMgr,
       logger
@@ -126,7 +126,7 @@ describe('PluginManager.registerPlugins', () => {
 
     await pm.registerPlugins();
 
-    expect(cfgMgr.get).toHaveBeenCalledWith('amdwiki.managers.pluginManager.searchPaths');
+    expect(cfgMgr.getProperty).toHaveBeenCalledWith('amdwiki.managers.pluginManager.searchPaths');
     expect(pm.loadPlugin).not.toHaveBeenCalled();
     expect(logger.info).toHaveBeenCalled();
     expect(
@@ -140,7 +140,7 @@ describe('PluginManager.registerPlugins', () => {
     const logger = makeLogger();
     const missingDir = path.join(os.tmpdir(), 'pm-missing-' + Date.now());
 
-    const cfgMgr = { get: jest.fn().mockReturnValue([missingDir, tmpDirB]) };
+    const cfgMgr = { getProperty: jest.fn().mockReturnValue([missingDir, tmpDirB]) };
     const engine = {
       getManager: () => cfgMgr,
       logger
@@ -188,7 +188,7 @@ describe('PluginManager.registerPlugins', () => {
     const exists = await fs.pathExists(pluginsDir);
     expect(exists).toBe(true);
 
-    const cfgMgr = { get: jest.fn().mockReturnValue([pluginsDir]) };
+    const cfgMgr = { getProperty: jest.fn().mockReturnValue([pluginsDir]) };
     const engine = {
       getManager: (name) => (name === 'ConfigurationManager' ? cfgMgr : null),
       logger

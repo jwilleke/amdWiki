@@ -62,7 +62,7 @@ describe('PluginManager.registerPlugins', () => {
   });
 
   test('loads plugins only from configured searchPaths (array)', async () => {
-    const cfgMgr = { get: jest.fn().mockReturnValue([tmpA, tmpB]) };
+    const cfgMgr = { getProperty: jest.fn().mockReturnValue([tmpA, tmpB]) };
     const engine = makeEngine(cfgMgr);
     const PluginManager = require('../PluginManager');
     const pm = new PluginManager(engine);
@@ -84,7 +84,7 @@ describe('PluginManager.registerPlugins', () => {
   });
 
   test('accepts comma-separated string searchPaths', async () => {
-    const cfgMgr = { get: jest.fn().mockReturnValue(`${tmpA},${tmpB}`) };
+    const cfgMgr = { getProperty: jest.fn().mockReturnValue(`${tmpA},${tmpB}`) };
     const engine = makeEngine(cfgMgr);
     const PluginManager = require('../PluginManager');
     const pm = new PluginManager(engine);
@@ -109,7 +109,7 @@ describe('PluginManager.registerPlugins', () => {
   });
 
   test('skips when searchPaths config is empty', async () => {
-    const cfgMgr = { get: jest.fn().mockReturnValue([]) };
+    const cfgMgr = { getProperty: jest.fn().mockReturnValue([]) };
     const engine = makeEngine(cfgMgr);
     const PluginManager = require('../PluginManager');
     const pm = new PluginManager(engine);
@@ -125,7 +125,7 @@ describe('PluginManager.registerPlugins', () => {
     const notADir = path.join(os.tmpdir(), `pm-file-${Date.now()}.js`);
     await fs.writeFile(notADir, 'not a dir', 'utf8');
 
-    const cfgMgr = { get: jest.fn().mockReturnValue([missingDir, notADir, tmpA]) };
+    const cfgMgr = { getProperty: jest.fn().mockReturnValue([missingDir, notADir, tmpA]) };
     const engine = makeEngine(cfgMgr);
     const PluginManager = require('../PluginManager');
     const pm = new PluginManager(engine);
@@ -143,7 +143,7 @@ describe('PluginManager.registerPlugins', () => {
   });
 
   test('registerPlugins sets allowedRoots and loadPlugin blocks outside roots', async () => {
-    const cfgMgr = { get: jest.fn().mockReturnValue([tmpA]) };
+    const cfgMgr = { getProperty: jest.fn().mockReturnValue([tmpA]) };
     const engine = makeEngine(cfgMgr);
     const PluginManager = require('../PluginManager');
     const pm = new PluginManager(engine);

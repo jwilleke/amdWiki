@@ -51,7 +51,7 @@ describe('All Plugins (via PluginManager)', () => {
 
     // Setup mock configuration manager
     mockConfigManager = {
-      get: jest.fn().mockImplementation((key, defaultValue) => {
+      getProperty: jest.fn().mockImplementation((key, defaultValue) => {
         if (key === 'amdwiki.managers.pluginManager.searchPaths') {
           return [pluginsDir];
         }

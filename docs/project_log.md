@@ -22,6 +22,32 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 
 ---
 
+## 2025-12-18-01
+
+- Agent: Claude Code (Opus 4.5)
+- Subject: Fix CI test failures - ConfigurationManager API migration
+- Issue: CI failing due to test mocks using deprecated `cfgMgr.get()` instead of `cfgMgr.getProperty()`
+- Key Decision: Update all test mocks to use `getProperty()` API consistently
+- Work Done:
+  - Fixed SchemaManager.test.js - Updated mock to use `getProperty()` without default value
+  - Fixed PluginManager.test.js - Changed all `cfgMgr.get()` to `cfgMgr.getProperty()`
+  - Fixed PluginManager.registerPlugins.test.js - Changed all `cfgMgr.get()` to `cfgMgr.getProperty()`
+  - Fixed SessionsPlugin.test.js - Updated mock API and added proper mockContext initialization
+  - Fixed AllPlugins.test.js - Changed `mockConfigManager.get()` to `getProperty()`
+- Test Results (Before): 19 failed, 48 passed (67 total)
+- Test Results (After): 14 failed, 53 passed (67 total)
+- Tests Fixed: 5 test suites (30 individual tests)
+- Remaining Failures: Pre-existing issues (VersioningFileProvider, MarkupParser, NotificationManager)
+- Files Modified:
+  - src/managers/__tests__/SchemaManager.test.js
+  - src/managers/__tests__/PluginManager.test.js
+  - src/managers/__tests__/PluginManager.registerPlugins.test.js
+  - plugins/__tests__/SessionsPlugin.test.js
+  - plugins/__tests__/AllPlugins.test.js
+  - docs/project_log.md
+
+---
+
 ## 2025-12-16-01
 
 - Agent: Claude Code (Opus 4.5)
