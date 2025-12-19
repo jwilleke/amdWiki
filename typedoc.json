@@ -1,0 +1,31 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": ["src", "plugins"],
+  "entryPointStrategy": "expand",
+  "out": "docs/api/generated",
+  "plugin": ["typedoc-plugin-markdown"],
+  "readme": "none",
+  "name": "amdWiki API",
+  "excludePrivate": true,
+  "excludeProtected": false,
+  "excludeInternal": true,
+  "includeVersion": true,
+  "categorizeByGroup": true,
+  "categoryOrder": ["Managers", "Providers", "Plugins", "Parsers", "Utils", "*"],
+  "sort": ["alphabetical"],
+  "exclude": [
+    "**/__tests__/**",
+    "**/*.test.js",
+    "**/*.test.ts",
+    "**/node_modules/**"
+  ],
+  "externalPattern": ["**/node_modules/**"],
+  "excludeExternals": true,
+  "validation": {
+    "notExported": false,
+    "invalidLink": false,
+    "notDocumented": false
+  },
+  "logLevel": "Warn",
+  "tsconfig": "./tsconfig.json"
+}
