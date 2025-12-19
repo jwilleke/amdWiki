@@ -186,5 +186,3 @@ archive
 node_modules/
 converted/
 .amdwiki*.pid
-docs/api/generated/
-docs/api/html/

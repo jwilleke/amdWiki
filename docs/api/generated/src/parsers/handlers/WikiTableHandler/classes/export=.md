@@ -1,0 +1,955 @@
+[**amdWiki API v1.5.0**](../../../../../README.md)
+
+***
+
+[amdWiki API](../../../../../README.md) / [src/parsers/handlers/WikiTableHandler](../README.md) / export=
+
+# Class: export=
+
+Defined in: [src/parsers/handlers/WikiTableHandler.js:7](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/WikiTableHandler.js#L7)
+
+WikiTableHandler - JSPWiki table syntax parser with state-based parsing
+Inspired by JSPWiki's m_istable state flag approach
+
+## Extends
+
+- [`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md)
+
+## Constructors
+
+### Constructor
+
+> **new export=**(`engine`): `WikiTableHandler`
+
+Defined in: [src/parsers/handlers/WikiTableHandler.js:8](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/WikiTableHandler.js#L8)
+
+#### Parameters
+
+##### engine
+
+`any` = `null`
+
+#### Returns
+
+`WikiTableHandler`
+
+#### Overrides
+
+[`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md).[`constructor`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md#constructor)
+
+## Properties
+
+### dependencies
+
+> **dependencies**: `any`
+
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.js:47](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/BaseSyntaxHandler.js#L47)
+
+#### Inherited from
+
+[`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md).[`dependencies`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md#dependencies)
+
+***
+
+### dependencyErrors
+
+> **dependencyErrors**: `any`[]
+
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.js:135](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/BaseSyntaxHandler.js#L135)
+
+#### Inherited from
+
+[`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md).[`dependencyErrors`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md#dependencyerrors)
+
+***
+
+### description
+
+> **description**: `any`
+
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.js:46](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/BaseSyntaxHandler.js#L46)
+
+#### Inherited from
+
+[`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md).[`description`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md#description)
+
+***
+
+### enabled
+
+> **enabled**: `any`
+
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.js:60](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/BaseSyntaxHandler.js#L60)
+
+#### Inherited from
+
+[`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md).[`enabled`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md#enabled)
+
+***
+
+### engine
+
+> **engine**: `any`
+
+Defined in: [src/parsers/handlers/WikiTableHandler.js:21](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/WikiTableHandler.js#L21)
+
+***
+
+### handlerId
+
+> **handlerId**: `string`
+
+Defined in: [src/parsers/handlers/WikiTableHandler.js:20](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/WikiTableHandler.js#L20)
+
+#### Inherited from
+
+[`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md).[`handlerId`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md#handlerid)
+
+***
+
+### initContext
+
+> **initContext**: `any`
+
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.js:107](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/BaseSyntaxHandler.js#L107)
+
+#### Inherited from
+
+[`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md).[`initContext`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md#initcontext)
+
+***
+
+### initialized
+
+> **initialized**: `boolean`
+
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.js:59](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/BaseSyntaxHandler.js#L59)
+
+#### Inherited from
+
+[`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md).[`initialized`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md#initialized)
+
+***
+
+### options
+
+> **options**: `any`
+
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.js:33](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/BaseSyntaxHandler.js#L33)
+
+#### Inherited from
+
+[`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md).[`options`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md#options)
+
+***
+
+### pattern
+
+> **pattern**: `RegExp`
+
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.js:41](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/BaseSyntaxHandler.js#L41)
+
+#### Inherited from
+
+[`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md).[`pattern`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md#pattern)
+
+***
+
+### priority
+
+> **priority**: `number`
+
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.js:32](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/BaseSyntaxHandler.js#L32)
+
+#### Inherited from
+
+[`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md).[`priority`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md#priority)
+
+***
+
+### stats
+
+> **stats**: `object`
+
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.js:50](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/BaseSyntaxHandler.js#L50)
+
+#### averageTime
+
+> **averageTime**: `number` = `0`
+
+#### errorCount
+
+> **errorCount**: `number` = `0`
+
+#### executionCount
+
+> **executionCount**: `number` = `0`
+
+#### lastExecuted
+
+> **lastExecuted**: `any` = `null`
+
+#### totalTime
+
+> **totalTime**: `number` = `0`
+
+#### Inherited from
+
+[`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md).[`stats`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md#stats)
+
+***
+
+### version
+
+> **version**: `any`
+
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.js:45](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/BaseSyntaxHandler.js#L45)
+
+#### Inherited from
+
+[`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md).[`version`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md#version)
+
+## Methods
+
+### buildRegexFlags()
+
+> **buildRegexFlags**(): `string`
+
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.js:87](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/BaseSyntaxHandler.js#L87)
+
+Build regex flags based on options
+
+#### Returns
+
+`string`
+
+- Regex flags string
+
+#### Inherited from
+
+[`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md).[`buildRegexFlags`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md#buildregexflags)
+
+***
+
+### buildTable()
+
+> **buildTable**(`rows`, `classes`): `string`
+
+Defined in: [src/parsers/handlers/WikiTableHandler.js:117](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/WikiTableHandler.js#L117)
+
+Build HTML table from collected rows
+
+#### Parameters
+
+##### rows
+
+`any`
+
+##### classes
+
+`string` = `''`
+
+#### Returns
+
+`string`
+
+***
+
+### clone()
+
+> **clone**(`overrides`): `any`
+
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.js:530](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/BaseSyntaxHandler.js#L530)
+
+Create a clone of this handler with different options
+
+#### Parameters
+
+##### overrides
+
+`any` = `{}`
+
+Option overrides
+
+#### Returns
+
+`any`
+
+- Handler configuration for creating new instance
+
+#### Inherited from
+
+[`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md).[`clone`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md#clone)
+
+***
+
+### compilePattern()
+
+> **compilePattern**(`pattern`): `RegExp`
+
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.js:68](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/BaseSyntaxHandler.js#L68)
+
+Compile pattern into RegExp if it's a string
+
+#### Parameters
+
+##### pattern
+
+Pattern to compile
+
+`string` | `RegExp`
+
+#### Returns
+
+`RegExp`
+
+- Compiled regular expression
+
+#### Inherited from
+
+[`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md).[`compilePattern`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md#compilepattern)
+
+***
+
+### createErrorContext()
+
+> **createErrorContext**(`error`, `content`, `context`): `any`
+
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.js:307](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/BaseSyntaxHandler.js#L307)
+
+Create error context for debugging
+
+#### Parameters
+
+##### error
+
+`Error`
+
+The error that occurred
+
+##### content
+
+`string`
+
+Content being processed
+
+##### context
+
+`ParseContext`
+
+Parse context
+
+#### Returns
+
+`any`
+
+- Error context
+
+#### Inherited from
+
+[`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md).[`createErrorContext`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md#createerrorcontext)
+
+***
+
+### createTimeoutPromise()
+
+> **createTimeoutPromise**(): `Promise`\<`any`\>
+
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.js:288](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/BaseSyntaxHandler.js#L288)
+
+Create timeout promise for handler execution
+
+#### Returns
+
+`Promise`\<`any`\>
+
+- Promise that rejects after timeout
+
+#### Inherited from
+
+[`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md).[`createTimeoutPromise`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md#createtimeoutpromise)
+
+***
+
+### disable()
+
+> **disable**(): `void`
+
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.js:451](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/BaseSyntaxHandler.js#L451)
+
+Disable the handler
+
+#### Returns
+
+`void`
+
+#### Inherited from
+
+[`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md).[`disable`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md#disable)
+
+***
+
+### enable()
+
+> **enable**(): `void`
+
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.js:444](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/BaseSyntaxHandler.js#L444)
+
+Enable the handler
+
+#### Returns
+
+`void`
+
+#### Inherited from
+
+[`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md).[`enable`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md#enable)
+
+***
+
+### escapeHtml()
+
+> **escapeHtml**(`text`): `any`
+
+Defined in: [src/parsers/handlers/WikiTableHandler.js:168](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/WikiTableHandler.js#L168)
+
+#### Parameters
+
+##### text
+
+`any`
+
+#### Returns
+
+`any`
+
+***
+
+### execute()
+
+> **execute**(`content`, `context`): `Promise`\<`string`\>
+
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.js:241](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/BaseSyntaxHandler.js#L241)
+
+Execute the handler with performance tracking and error handling
+
+#### Parameters
+
+##### content
+
+`string`
+
+Content to process
+
+##### context
+
+`ParseContext`
+
+Parse context
+
+#### Returns
+
+`Promise`\<`string`\>
+
+- Processed content
+
+#### Inherited from
+
+[`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md).[`execute`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md#execute)
+
+***
+
+### getDependencyErrors()
+
+> **getDependencyErrors**(): `any`[]
+
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.js:203](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/BaseSyntaxHandler.js#L203)
+
+Get dependency validation errors
+
+#### Returns
+
+`any`[]
+
+- Array of dependency errors
+
+#### Inherited from
+
+[`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md).[`getDependencyErrors`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md#getdependencyerrors)
+
+***
+
+### getInfo()
+
+> **getInfo**(): `any`
+
+Defined in: [src/parsers/handlers/WikiTableHandler.js:178](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/WikiTableHandler.js#L178)
+
+#### Returns
+
+`any`
+
+***
+
+### getMetadata()
+
+> **getMetadata**(): `any`
+
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.js:494](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/BaseSyntaxHandler.js#L494)
+
+Get handler metadata
+
+#### Returns
+
+`any`
+
+- Handler metadata
+
+#### Inherited from
+
+[`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md).[`getMetadata`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md#getmetadata)
+
+***
+
+### getStats()
+
+> **getStats**(): `any`
+
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.js:467](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/BaseSyntaxHandler.js#L467)
+
+Get handler statistics
+
+#### Returns
+
+`any`
+
+- Handler statistics
+
+#### Inherited from
+
+[`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md).[`getStats`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md#getstats)
+
+***
+
+### handle()
+
+> **handle**(`match`, `context`): `Promise`\<`string`\>
+
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.js:231](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/BaseSyntaxHandler.js#L231)
+
+Handle a specific match - called for each pattern match
+
+#### Parameters
+
+##### match
+
+`any`[]
+
+Regex match result
+
+##### context
+
+`ParseContext`
+
+Parse context
+
+#### Returns
+
+`Promise`\<`string`\>
+
+- Replacement content
+
+#### Inherited from
+
+[`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md).[`handle`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md#handle)
+
+***
+
+### hasDependencyErrors()
+
+> **hasDependencyErrors**(): `boolean`
+
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.js:211](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/BaseSyntaxHandler.js#L211)
+
+Check if handler has unresolved dependencies
+
+#### Returns
+
+`boolean`
+
+- True if there are dependency errors
+
+#### Inherited from
+
+[`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md).[`hasDependencyErrors`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md#hasdependencyerrors)
+
+***
+
+### initialize()
+
+> **initialize**(`context`): `Promise`\<`void`\>
+
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.js:101](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/BaseSyntaxHandler.js#L101)
+
+Initialize the handler (optional override)
+Called when handler is registered
+
+#### Parameters
+
+##### context
+
+`any` = `{}`
+
+Initialization context
+
+#### Returns
+
+`Promise`\<`void`\>
+
+#### Inherited from
+
+[`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md).[`initialize`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md#initialize)
+
+***
+
+### isEnabled()
+
+> **isEnabled**(): `boolean`
+
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.js:459](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/BaseSyntaxHandler.js#L459)
+
+Check if handler is enabled
+
+#### Returns
+
+`boolean`
+
+- True if enabled
+
+#### Inherited from
+
+[`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md).[`isEnabled`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md#isenabled)
+
+***
+
+### onInitialize()
+
+> **onInitialize**(`context`): `Promise`\<`void`\>
+
+Defined in: [src/parsers/handlers/WikiTableHandler.js:24](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/WikiTableHandler.js#L24)
+
+Custom initialization logic (override in subclasses)
+
+#### Parameters
+
+##### context
+
+`any`
+
+Initialization context
+
+#### Returns
+
+`Promise`\<`void`\>
+
+#### Overrides
+
+[`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md).[`onInitialize`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md#oninitialize)
+
+***
+
+### onShutdown()
+
+> **onShutdown**(): `Promise`\<`void`\>
+
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.js:521](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/BaseSyntaxHandler.js#L521)
+
+Custom shutdown logic (override in subclasses)
+
+#### Returns
+
+`Promise`\<`void`\>
+
+#### Inherited from
+
+[`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md).[`onShutdown`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md#onshutdown)
+
+***
+
+### parseParameters()
+
+> **parseParameters**(`paramString`): `any`
+
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.js:330](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/BaseSyntaxHandler.js#L330)
+
+Parse parameters from parameter string
+Handles various formats: key=value, key='value', key="value"
+
+#### Parameters
+
+##### paramString
+
+`string`
+
+Parameter string to parse
+
+#### Returns
+
+`any`
+
+- Parsed parameters
+
+#### Inherited from
+
+[`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md).[`parseParameters`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md#parseparameters)
+
+***
+
+### parseTableRow()
+
+> **parseTableRow**(`line`): `object`
+
+Defined in: [src/parsers/handlers/WikiTableHandler.js:92](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/WikiTableHandler.js#L92)
+
+Parse a single table row
+
+#### Parameters
+
+##### line
+
+`any`
+
+#### Returns
+
+`object`
+
+##### cells
+
+> **cells**: `any`
+
+##### isHeader
+
+> **isHeader**: `any`
+
+***
+
+### process()
+
+> **process**(`content`, `context`): `Promise`\<`any`\>
+
+Defined in: [src/parsers/handlers/WikiTableHandler.js:29](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/WikiTableHandler.js#L29)
+
+Main processing method - MUST be implemented by subclasses
+
+#### Parameters
+
+##### content
+
+`any`
+
+Content to process
+
+##### context
+
+`any`
+
+Parse context
+
+#### Returns
+
+`Promise`\<`any`\>
+
+- Processed content
+
+#### Overrides
+
+[`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md).[`process`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md#process)
+
+***
+
+### resetStats()
+
+> **resetStats**(): `void`
+
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.js:480](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/BaseSyntaxHandler.js#L480)
+
+Reset handler statistics
+
+#### Returns
+
+`void`
+
+#### Inherited from
+
+[`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md).[`resetStats`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md#resetstats)
+
+***
+
+### shutdown()
+
+> **shutdown**(): `Promise`\<`void`\>
+
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.js:512](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/BaseSyntaxHandler.js#L512)
+
+Clean up handler resources (optional override)
+Called when handler is unregistered
+
+#### Returns
+
+`Promise`\<`void`\>
+
+#### Inherited from
+
+[`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md).[`shutdown`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md#shutdown)
+
+***
+
+### toString()
+
+> **toString**(): `string`
+
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.js:547](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/BaseSyntaxHandler.js#L547)
+
+String representation of handler
+
+#### Returns
+
+`string`
+
+- String representation
+
+#### Inherited from
+
+[`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md).[`toString`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md#tostring)
+
+***
+
+### validateDependencies()
+
+> **validateDependencies**(`context`): `Promise`\<`void`\>
+
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.js:132](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/BaseSyntaxHandler.js#L132)
+
+Validate handler dependencies
+
+#### Parameters
+
+##### context
+
+`any`
+
+Initialization context
+
+#### Returns
+
+`Promise`\<`void`\>
+
+#### Inherited from
+
+[`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md).[`validateDependencies`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md#validatedependencies)
+
+***
+
+### validateParameter()
+
+> **validateParameter**(`key`, `value`, `rule`): `any`
+
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.js:397](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/BaseSyntaxHandler.js#L397)
+
+Validate a single parameter
+
+#### Parameters
+
+##### key
+
+`string`
+
+Parameter key
+
+##### value
+
+`any`
+
+Parameter value
+
+##### rule
+
+`any`
+
+Validation rule
+
+#### Returns
+
+`any`
+
+- Validation result
+
+#### Inherited from
+
+[`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md).[`validateParameter`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md#validateparameter)
+
+***
+
+### validateParameters()
+
+> **validateParameters**(`params`, `schema`): `any`
+
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.js:361](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/BaseSyntaxHandler.js#L361)
+
+Validate parameters against schema
+
+#### Parameters
+
+##### params
+
+`any`
+
+Parameters to validate
+
+##### schema
+
+`any` = `{}`
+
+Validation schema
+
+#### Returns
+
+`any`
+
+- Validation result
+
+#### Inherited from
+
+[`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md).[`validateParameters`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md#validateparameters)
+
+***
+
+### validateSpecificDependency()
+
+> **validateSpecificDependency**(`dependency`, `context`): `Promise`\<`void`\>
+
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.js:170](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/BaseSyntaxHandler.js#L170)
+
+Validate specific dependency requirement
+
+#### Parameters
+
+##### dependency
+
+`any`
+
+Dependency specification
+
+##### context
+
+`any`
+
+Initialization context
+
+#### Returns
+
+`Promise`\<`void`\>
+
+#### Inherited from
+
+[`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md).[`validateSpecificDependency`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md#validatespecificdependency)
