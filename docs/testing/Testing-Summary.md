@@ -8,7 +8,7 @@
 ### Unit/Integration Tests (Jest)
 
 | Metric | Value |
-|--------|-------|
+| --- | --- |
 | Test Suites | 57 passed, 10 skipped (67 total) |
 | Tests | 1373 passed, 334 skipped (1707 total) |
 | **Pass Rate** | **100%** (of executed tests) |
@@ -16,7 +16,7 @@
 ### End-to-End Tests (Playwright)
 
 | Test File | Description |
-|-----------|-------------|
+| --- | --- |
 | auth.spec.js | Login, logout, session management |
 | pages.spec.js | Page viewing, editing, creation |
 | search.spec.js | Search functionality |
@@ -110,8 +110,8 @@ We use **Option C: Fix-As-Needed** approach:
 
 ## Recent Progress
 
-| Date | Failing Suites | Passing Tests | Notes |
-|------|---------------|---------------|-------|
+| Date       | Failing Suites | Passing Tests | Notes                                                            |
+| ---------- | -------------- | ------------- | ---------------------------------------------------------------- |
 | 2025-12-20 | 0 (10 skipped) | 1373 | Fixed NotificationManager, skipped obsolete tests pending API updates |
 | 2025-12-14 | 19 | 1492 | Fixed FileSystemProvider tests (12), gray-matter/js-yaml 4.x compatibility |
 | 2025-12-13 | 22 | 1413 | Security fixes (js-yaml, cookie), logs path consolidation |
@@ -153,8 +153,8 @@ E2E tests use Playwright with the following configuration:
 
 ### Test Files
 
-| File | Tests | Description |
-|------|-------|-------------|
+| File              | Tests | Description                                                                  |
+| ----------------- | ----- | ---------------------------------------------------------------------------- |
 | `auth.setup.js` | 1 | Authentication setup (saves session state) |
 | `auth.spec.js` | 7 | Login form, invalid credentials, session management, logout, protected routes |
 | `pages.spec.js` | 12 | Homepage, page navigation, editing, creation, categories |
