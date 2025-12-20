@@ -1,4 +1,9 @@
-# ConfigurationManager Documentation
+# ConfigurationManager Complete Guide
+
+**Module:** `src/managers/ConfigurationManager.js`
+**Quick Reference:** [ConfigurationManager.md](ConfigurationManager.md)
+
+---
 
 ## Overview
 

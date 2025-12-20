@@ -1,8 +1,9 @@
-# UserManager Documentation
+# UserManager Complete Guide
 
+**Module:** `src/managers/UserManager.js`
+**Quick Reference:** [UserManager.md](UserManager.md)
 **Version:** 1.3.2
-**Last Updated:** 2025-10-11
-**Manager Path:** [src/managers/UserManager.js](../../src/managers/UserManager.js)
+**Last Updated:** 2025-12-20
 
 ---
 

@@ -1,4 +1,10 @@
-# SearchManager
+# SearchManager Complete Guide
+
+**Module:** `src/managers/SearchManager.js`
+**Quick Reference:** [SearchManager.md](SearchManager.md)
+**Last Updated:** 2025-12-20
+
+---
 
 ## Overview
 
