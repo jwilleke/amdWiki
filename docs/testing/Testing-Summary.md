@@ -9,8 +9,8 @@
 
 | Metric | Value |
 | --- | --- |
-| Test Suites | 57 passed, 10 skipped (67 total) |
-| Tests | 1373 passed, 334 skipped (1707 total) |
+| Test Suites | 58 passed, 9 skipped (67 total) |
+| Tests | 1393 passed, 308 skipped (1701 total) |
 | **Pass Rate** | **100%** (of executed tests) |
 
 ### End-to-End Tests (Playwright)
@@ -40,13 +40,13 @@ npm run test:e2e:headed     # Run in headed browser mode
 
 ## Test Categories
 
-### Passing Test Suites (57)
+### Passing Test Suites (58)
 
 All core functionality is tested and passing:
 
 - **WikiEngine** - Core engine lifecycle
 - **UserManager** - Authentication, sessions, permissions
-- **PageManager** - Page CRUD operations
+- **PageManager** - Page CRUD operations (includes Storage integration tests)
 - **FileSystemProvider** - File-based page storage
 - **ACLManager** - Access control lists
 - **SearchManager** - Full-text search
@@ -61,20 +61,19 @@ All core functionality is tested and passing:
 - **All route handlers** - HTTP endpoints
 - **All plugins** - Plugin tests
 
-### Skipped Test Suites (10)
+### Skipped Test Suites (9)
 
 These suites are temporarily skipped pending API updates:
 
-1. **PageManager-Storage** - Tests obsolete API (needs rewrite)
-2. **VersioningFileProvider** - API mismatches (54 tests)
-3. **VersioningFileProvider-Maintenance** - Depends on above
-4. **VersioningMigration** - API mismatches (30 tests)
-5. **MarkupParser-Comprehensive** - Output format differences
-6. **MarkupParser-DOMNodeCreation** - Output format differences
-7. **MarkupParser-Extraction** - Output format differences
-8. **MarkupParser-MergePipeline** - Output format differences
-9. **MarkupParser-ModularConfig** - Output format differences
-10. **MarkupParser-EndToEnd** - Output format differences
+1. **VersioningFileProvider** - API mismatches (54 tests)
+2. **VersioningFileProvider-Maintenance** - Depends on above
+3. **VersioningMigration** - API mismatches (30 tests)
+4. **MarkupParser-Comprehensive** - Output format differences
+5. **MarkupParser-DOMNodeCreation** - Output format differences
+6. **MarkupParser-Extraction** - Output format differences
+7. **MarkupParser-MergePipeline** - Output format differences
+8. **MarkupParser-ModularConfig** - Output format differences
+9. **MarkupParser-EndToEnd** - Output format differences
 
 ## Test Infrastructure
 
@@ -112,6 +111,7 @@ We use **Option C: Fix-As-Needed** approach:
 
 | Date       | Failing Suites | Passing Tests | Notes                                                            |
 | ---------- | -------------- | ------------- | ---------------------------------------------------------------- |
+| 2025-12-20 | 0 (9 skipped) | 1393 | Rewrote PageManager-Storage.test.js with 20 integration tests |
 | 2025-12-20 | 0 (10 skipped) | 1373 | Fixed NotificationManager, skipped obsolete tests pending API updates |
 | 2025-12-14 | 19 | 1492 | Fixed FileSystemProvider tests (12), gray-matter/js-yaml 4.x compatibility |
 | 2025-12-13 | 22 | 1413 | Security fixes (js-yaml, cookie), logs path consolidation |
@@ -135,8 +135,6 @@ Several test suites are skipped because they test APIs that have changed:
 1. **Versioning Tests** - The VersioningFileProvider API has significant changes. Tests check for properties and methods that no longer exist or have different signatures.
 
 2. **MarkupParser Output Format Tests** - The WikiDocument DOM implementation produces different HTML output (with data attributes) than what the tests expect. The functionality works, but the expected HTML format differs.
-
-3. **PageManager-Storage** - Tests obsolete file operations that are now handled by providers.
 
 **Status:** These tests need comprehensive rewrites to match current implementation. Core functionality is tested by other passing tests.
 

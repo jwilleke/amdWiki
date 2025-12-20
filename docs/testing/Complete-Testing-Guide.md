@@ -1,6 +1,6 @@
 # Complete Testing Guide
 
-**Last Updated:** 2025-12-16
+**Last Updated:** 2025-12-20
 **Version:** 1.5.0
 
 This guide consolidates all testing documentation for amdWiki into a single comprehensive reference.
@@ -373,6 +373,54 @@ describe('WikiEngine Integration', () => {
   });
 });
 ```
+
+### Integration Tests with Actual Providers
+
+When testing manager-provider integration (not just mocked delegation), bypass the global mocks using `jest.unmock()`:
+
+```javascript
+// src/managers/__tests__/PageManager-Storage.test.js
+/**
+ * Integration tests using actual FileSystemProvider
+ */
+
+// Unmock providers BEFORE requires
+jest.unmock('../../providers/FileSystemProvider');
+jest.unmock('../../utils/PageNameMatcher');
+
+const path = require('path');
+const fs = require('fs-extra');
+const PageManager = require('../PageManager');
+
+// Create unique test directories per test
+let TEST_DIR;
+let TEST_PAGES_DIR;
+
+beforeEach(async () => {
+  TEST_DIR = path.join(__dirname, `../../temp-test-${Date.now()}`);
+  TEST_PAGES_DIR = path.join(TEST_DIR, 'pages');
+  await fs.ensureDir(TEST_PAGES_DIR);
+});
+
+afterEach(async () => {
+  await fs.remove(TEST_DIR);
+});
+
+test('should save and retrieve page via actual provider', async () => {
+  const pageManager = new PageManager(mockEngine);
+  await pageManager.initialize();
+
+  await pageManager.savePage('Test', '# Content', {});
+  const page = await pageManager.getPage('Test');
+
+  expect(page.title).toBe('Test');
+  expect(page.content).toContain('Content');
+});
+```
+
+This pattern is used for:
+- **PageManager-Storage.test.js** - Tests full save/retrieve/delete flow
+- **FileSystemProvider.test.js** - Tests installation-aware loading
 
 ### Route/API Tests
 

@@ -22,6 +22,43 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 
 ---
 
+## 2025-12-20-02
+
+- Agent: Claude Code (Opus 4.5)
+- Subject: PageManager-Storage.test.js Complete Rewrite
+- Issue: Test file tested obsolete API that no longer exists
+- Key Decision: Rewrite as integration tests using actual FileSystemProvider
+- Work Done:
+  - Analyzed obsolete test expectations:
+    - savePage() was expected to return `{filePath, uuid, slug, metadata}` - actual returns void
+    - Methods like `resolvePageIdentifier()`, `getPageBySlug()`, `buildLookupCaches()` don't exist
+    - File moving between directories based on category no longer happens
+  - Rewrote 26 obsolete tests as 20 new integration tests:
+    - Save and Retrieve Pages (3 tests)
+    - Page Existence and Listing (2 tests)
+    - Page Updates (1 test)
+    - Page Deletion (2 tests)
+    - WikiContext Integration (2 tests)
+    - UUID and File System (2 tests)
+    - Cache Refresh (1 test)
+    - Backup and Restore (2 tests)
+    - Error Handling (3 tests)
+    - Plural Name Matching (2 tests)
+  - Used jest.unmock() to bypass global mocks and use actual FileSystemProvider
+  - All 20 tests pass
+- Final Test Status:
+  - Test Suites: 58 passed, 9 skipped (67 total)
+  - Tests: 1393 passed, 308 skipped (1701 total)
+  - Pass Rate: 100% of executed tests
+- Commits: 6849960
+- Files Modified:
+  - src/managers/__tests__/PageManager-Storage.test.js (complete rewrite)
+  - docs/testing/Testing-Summary.md
+  - docs/testing/Complete-Testing-Guide.md
+  - docs/project_log.md
+
+---
+
 ## 2025-12-20-01
 
 - Agent: Claude Code (Opus 4.5)
