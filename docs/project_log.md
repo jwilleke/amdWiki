@@ -22,6 +22,24 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 
 ---
 
+## 2025-12-20-03
+
+- Agent: Claude Code (Opus 4.5)
+- Subject: AttachmentManager Documentation Reorganization
+- Issue: AttachmentManager.md was complete guide, no quick reference
+- Key Decision: Follow two-file documentation pattern
+- Work Done:
+  - Renamed AttachmentManager.md to AttachmentManager-Complete-Guide.md
+  - Created new concise AttachmentManager.md quick reference (~90 lines)
+  - Added cross-links between files
+  - Updated Last Updated date
+- Commits: 6862ac9
+- Files Modified:
+  - docs/managers/AttachmentManager.md (new quick reference)
+  - docs/managers/AttachmentManager-Complete-Guide.md (renamed from AttachmentManager.md)
+
+---
+
 ## 2025-12-20-02
 
 - Agent: Claude Code (Opus 4.5)
