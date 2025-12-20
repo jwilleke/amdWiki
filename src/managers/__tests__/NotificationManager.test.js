@@ -13,26 +13,51 @@ jest.mock('../../utils/logger', () => ({
   })
 }));
 
+// Helper function to create a properly mocked engine with ConfigurationManager
+function createMockEngine(dataDir) {
+  const mockConfigManager = {
+    getProperty: jest.fn((key, defaultValue) => {
+      if (key === 'amdwiki.directories.data' || key === 'amdwiki.notifications.dir') {
+        return dataDir;
+      }
+      if (key === 'amdwiki.notifications.file') {
+        return 'notifications.json';
+      }
+      if (key === 'amdwiki.notifications.autoSaveInterval') {
+        return 60000; // 1 minute for tests
+      }
+      return defaultValue;
+    })
+  };
+
+  return {
+    getManager: jest.fn((name) => {
+      if (name === 'ConfigurationManager' || name === 'ConfigManager') {
+        return mockConfigManager;
+      }
+      return undefined;
+    })
+  };
+}
+
 describe('NotificationManager', () => {
   let notificationManager;
   let mockEngine;
   let tempDir;
+  let testCounter = 0;
 
   beforeEach(async () => {
-    // Create temporary directory for test data
-    tempDir = path.join(__dirname, 'temp', Date.now().toString());
+    // Create truly unique temporary directory for test data
+    testCounter++;
+    tempDir = path.join(__dirname, 'temp', `${Date.now()}-${testCounter}-${Math.random().toString(36).substr(2, 9)}`);
     await fs.mkdir(tempDir, { recursive: true });
 
-    // Mock engine
-    mockEngine = {
-      getManager: jest.fn()
-    };
+    // Mock engine with ConfigurationManager pointing to temp directory
+    mockEngine = createMockEngine(tempDir);
 
     // Initialize NotificationManager
     notificationManager = new NotificationManager(mockEngine);
-    await notificationManager.initialize({
-      wiki: { dataDir: tempDir }
-    });
+    await notificationManager.initialize({});
   });
 
   afterEach(async () => {
@@ -265,19 +290,20 @@ describe('NotificationManager', () => {
 
   describe('initialization and storage', () => {
     test('should handle failed directory creation gracefully', async () => {
-      const mockEngine = { getManager: jest.fn() };
-      const manager = new NotificationManager(mockEngine);
-      
+      const invalidPath = path.join(tempDir, 'invalid-subdir');
+      const localMockEngine = createMockEngine(invalidPath);
+      const manager = new NotificationManager(localMockEngine);
+
       // Mock fs.mkdir to throw error
       const originalMkdir = require('fs').promises.mkdir;
       require('fs').promises.mkdir = jest.fn().mockRejectedValue(new Error('Permission denied'));
-      
+
       // Should not throw error, just log warning
-      await expect(manager.initialize({ wiki: { dataDir: '/invalid/path' } })).resolves.not.toThrow();
-      
+      await expect(manager.initialize({})).resolves.not.toThrow();
+
       // Restore original mkdir
       require('fs').promises.mkdir = originalMkdir;
-      
+
       await manager.shutdown();
     });
 
@@ -315,9 +341,9 @@ describe('NotificationManager', () => {
       await fs.writeFile(storagePath, JSON.stringify(existingNotifications, null, 2));
 
       // Create new manager that should load existing notifications
-      const mockEngine = { getManager: jest.fn() };
-      const manager = new NotificationManager(mockEngine);
-      await manager.initialize({ wiki: { dataDir: tempDir } });
+      const localMockEngine = createMockEngine(tempDir);
+      const manager = new NotificationManager(localMockEngine);
+      await manager.initialize({});
 
       // Verify notifications were loaded
       const loadedNotifications = manager.getAllNotifications(true); // include expired
@@ -337,29 +363,37 @@ describe('NotificationManager', () => {
     });
 
     test('should handle corrupted storage file gracefully', async () => {
+      // Create a unique temp directory for this test to avoid interference
+      const corruptedTempDir = path.join(__dirname, 'temp', `corrupted-${Date.now()}`);
+      await fs.mkdir(corruptedTempDir, { recursive: true });
+
       // Create corrupted storage file
-      const storagePath = path.join(tempDir, 'notifications.json');
+      const storagePath = path.join(corruptedTempDir, 'notifications.json');
       await fs.writeFile(storagePath, 'invalid json content');
 
-      const mockEngine = { getManager: jest.fn() };
-      const manager = new NotificationManager(mockEngine);
-      
+      const localMockEngine = createMockEngine(corruptedTempDir);
+      const manager = new NotificationManager(localMockEngine);
+
       // Should not throw error, just log error and continue
-      await expect(manager.initialize({ wiki: { dataDir: tempDir } })).resolves.not.toThrow();
-      
+      await expect(manager.initialize({})).resolves.not.toThrow();
+
       // Should start with empty notifications
       expect(manager.getAllNotifications()).toHaveLength(0);
 
       await manager.shutdown();
+
+      // Clean up
+      await fs.rm(corruptedTempDir, { recursive: true, force: true });
     });
 
     test('should handle missing storage file (ENOENT)', async () => {
-      const mockEngine = { getManager: jest.fn() };
-      const manager = new NotificationManager(mockEngine);
-      
-      // Initialize with non-existent directory
-      await manager.initialize({ wiki: { dataDir: path.join(tempDir, 'nonexistent') } });
-      
+      const nonExistentDir = path.join(tempDir, 'nonexistent-' + Date.now());
+      const localMockEngine = createMockEngine(nonExistentDir);
+      const manager = new NotificationManager(localMockEngine);
+
+      // Initialize - directory will be created, but file won't exist
+      await manager.initialize({});
+
       // Should start with empty notifications
       expect(manager.getAllNotifications()).toHaveLength(0);
 
