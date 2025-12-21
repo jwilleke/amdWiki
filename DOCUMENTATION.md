@@ -19,6 +19,28 @@ Complete documentation for amdWiki is organized in the `docs/` directory. This f
 
 See [docs/](./docs/) directory for comprehensive documentation on:
 
+### Developer Documentation Index
+
+**[docs/Developer-Documentation.md](./docs/Developer-Documentation.md)** - Complete index of all developer documentation:
+- 18 Managers (quick reference + complete guides)
+- 12 Plugins (developer + user guides)
+- 5 Providers (storage and services)
+- Architecture patterns and design documents
+- Testing guides and strategies
+- API reference (auto-generated)
+
+### Documentation by Category
+
+- **[docs/managers/](./docs/managers/)** - Manager documentation (18 managers)
+  - Quick reference guides (~100-200 lines each)
+  - Complete guides (~500-1000+ lines each)
+  - PageManager, RenderingManager, UserManager, ConfigurationManager, etc.
+
+- **[docs/plugins/](./docs/plugins/)** - Plugin documentation (12 plugins)
+  - Developer implementation guides
+  - User-facing documentation
+  - CurrentTimePlugin, ImagePlugin, SearchPlugin, etc.
+
 - **[docs/architecture/](./docs/architecture/)** - Architecture patterns (15+ documents)
   - Manager-based architecture overview
   - WikiDocument DOM pipeline
@@ -30,15 +52,10 @@ See [docs/](./docs/) directory for comprehensive documentation on:
   - TODO.md - Current tasks and priorities
   - ROADMAP.md - Long-term vision and milestones
 
-- **[docs/developer/](./docs/developer/)** - Developer guides
-  - Installation integration guide
-  - Installation testing procedures
-  - Plugin development
-
 - **[docs/testing/](./docs/testing/)** - Testing documentation
-  - Manager testing guides
-  - Coverage requirements
-  - Test patterns and examples
+  - Testing-Summary.md - Current test status
+  - Complete-Testing-Guide.md - Comprehensive guide
+  - PREVENTING-REGRESSIONS.md - Regression prevention
 
 - **[docs/migration/](./docs/migration/)** - Migration guides
   - Upgrade instructions
@@ -46,9 +63,9 @@ See [docs/](./docs/) directory for comprehensive documentation on:
   - Data migration procedures
 
 - **[docs/api/](./docs/api/)** - API documentation
+  - Auto-generated TypeDoc reference
   - REST API reference
   - Configuration API
-  - Manager APIs
 
 ## Installation & Setup
 
@@ -93,10 +110,12 @@ For operations and deployment:
 
 ### For Developers
 
+- **[docs/Developer-Documentation.md](./docs/Developer-Documentation.md)** - Complete developer doc index
 - [CONTRIBUTING.md](./CONTRIBUTING.md) - How to contribute
 - [ARCHITECTURE.md](./ARCHITECTURE.md) - How it's built
 - [CODE_STANDARDS.md](./CODE_STANDARDS.md) - How to code
-- [docs/developer/](./docs/developer/) - How-to guides
+- [docs/managers/](./docs/managers/) - Manager documentation
+- [docs/plugins/](./docs/plugins/) - Plugin documentation
 
 ### For Operations
 
