@@ -10,7 +10,7 @@ Last Updated: 2025-12-21
 
 | Category | Count | Description |
 |----------|-------|-------------|
-| [Managers](#managers) | 18 | Core system managers (quick reference + complete guides) |
+| [Managers](#managers) | 21 | Core system managers (quick reference + complete guides) |
 | [Plugins](#plugins) | 12 | Plugin documentation (developer + user guides) |
 | [Providers](#providers) | 5 | Storage and service providers |
 | [Architecture](#architecture) | 15+ | System design and patterns |
@@ -30,7 +30,9 @@ Concise API reference for each manager (~100-200 lines):
 | [ACLManager](managers/ACLManager.md) | Access Control Lists and page permissions |
 | [AttachmentManager](managers/AttachmentManager.md) | File attachment handling |
 | [AuditManager](managers/AuditManager.md) | Audit logging and compliance |
+| [BackupManager](managers/BackupManager.md) | System-wide backup and restore |
 | [BaseManager](managers/BaseManager.md) | Base class for all managers |
+| [CacheManager](managers/CacheManager.md) | Centralized cache management |
 | [ConfigurationManager](managers/ConfigurationManager.md) | Configuration management |
 | [ExportManager](managers/ExportManager.md) | Page export to HTML/Markdown |
 | [NotificationManager](managers/NotificationManager.md) | System notifications |
@@ -41,6 +43,7 @@ Concise API reference for each manager (~100-200 lines):
 | [PolicyValidator](managers/PolicyValidator.md) | Policy validation |
 | [RenderingManager](managers/RenderingManager.md) | Markdown and wiki markup rendering |
 | [SchemaManager](managers/SchemaManager.md) | JSON Schema management |
+| [SearchManager](managers/SearchManager.md) | Full-text search and indexing |
 | [TemplateManager](managers/TemplateManager.md) | Page templates and themes |
 | [UserManager](managers/UserManager.md) | User authentication and management |
 | [ValidationManager](managers/ValidationManager.md) | Input validation |
@@ -222,12 +225,10 @@ Before contributing, please review:
 
 ---
 
-## Missing Documentation
+## Documentation Status
 
-Quick reference files still needed (have Complete Guides):
-
-- [ ] BackupManager.md
-- [ ] CacheManager.md
-- [ ] SearchManager.md
+All manager documentation is now complete! Each manager has:
+- ✅ Quick Reference guide (~100-200 lines)
+- ✅ Complete Guide (~500-1000+ lines)
 
 See [Issue #178](https://github.com/jwilleke/amdWiki/issues/178) for documentation improvement tracking.
