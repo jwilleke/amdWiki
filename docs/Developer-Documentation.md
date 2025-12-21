@@ -75,29 +75,41 @@ In-depth documentation for each manager (500-1000+ lines):
 
 ### Developer Documentation
 
-Plugin implementation guides for developers:
+Plugin implementation guides for developers (in docs/plugins/):
 
 | Plugin | Description |
 |--------|-------------|
+| [ConfigAccessorPlugin](plugins/ConfigAccessorPlugin.md) | Access configuration values |
+| [CounterPlugin](plugins/CounterPlugin.md) | Page visit counter |
 | [CurrentTimePlugin](plugins/CurrentTimePlugin.md) | Display current date/time with formatting |
 | [ImagePlugin](plugins/ImagePlugin.md) | Inline images with options |
 | [IndexPlugin](plugins/IndexPlugin.md) | Alphabetical page listing |
+| [RecentChangesPlugin](plugins/RecentChangesPlugin.md) | Recent page changes display |
 | [ReferringPagesPlugin](plugins/ReferringPagesPlugin.md) | Show backlinks to current page |
 | [SearchPlugin](plugins/SearchPlugin.md) | Embedded search functionality |
 | [SessionsPlugin](plugins/SessionsPlugin.md) | Active session count |
 | [TotalPagesPlugin](plugins/TotalPagesPlugin.md) | Total page count |
 | [UptimePlugin](plugins/UptimePlugin.md) | Server uptime display |
+| [VariablesPlugin](plugins/VariablesPlugin.md) | Display system and contextual variables |
 
 ### User Documentation
 
-End-user plugin guides (in required-pages/):
+End-user plugin guides (in required-pages/ with `system-category: documentation`):
 
-- ReferringPagesPlugin user guide
-- SearchPlugin user guide
-- SessionsPlugin user guide
-- TotalPagesPlugin user guide
-- UptimePlugin user guide
-- Plugin index page
+All 12 plugins have user-facing documentation with examples:
+
+- ConfigAccessorPlugin - Access configuration values
+- CounterPlugin - Page visit counter
+- CurrentTimePlugin - Display formatted time
+- ImagePlugin - Inline images
+- IndexPlugin - Alphabetical page listing
+- RecentChangesPlugin - Recent page changes ✨ **New**
+- ReferringPagesPlugin - Show backlinks
+- SearchPlugin - Search functionality
+- SessionsPlugin - Active sessions count
+- TotalPagesPlugin - Total page count
+- UptimePlugin - Server uptime
+- VariablesPlugin - System variables ✨ **New**
 
 ---
 
