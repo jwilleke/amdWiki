@@ -70,6 +70,12 @@ export {
   AuditEvent
 } from './Provider';
 
+// WikiEngine types
+export {
+  WikiEngine,
+  ManagerRegistry
+} from './WikiEngine';
+
 // Type guards
 export {
   isPageFrontmatter,

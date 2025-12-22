@@ -8,6 +8,7 @@
 import { WikiPage, PageFrontmatter, PageInfo, PageSaveOptions, PageSearchResult, PageListOptions } from './Page';
 import { VersionMetadata, VersionManifest, VersionContent, VersionDiff, VersionHistoryEntry } from './Version';
 import { User, UserCreateData, UserUpdateData, UserSession } from './User';
+import { WikiEngine } from './WikiEngine';
 
 /**
  * Base provider interface
@@ -16,7 +17,7 @@ import { User, UserCreateData, UserUpdateData, UserSession } from './User';
  */
 export interface BaseProvider {
   /** Reference to WikiEngine */
-  engine: any;
+  engine: WikiEngine;
 
   /** Whether provider has been initialized */
   initialized: boolean;
