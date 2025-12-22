@@ -1,0 +1,8 @@
+{
+  "*.ts": [
+    "eslint --fix"
+  ],
+  "*.md": [
+    "markdownlint --fix"
+  ]
+}

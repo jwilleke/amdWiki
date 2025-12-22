@@ -97,7 +97,8 @@ Key rules:
 Run markdown linting:
 
 ```bash
-npm run lint:md       # Check all markdown files
+
+# Check all markdown files
 npm run lint:md:fix   # Auto-fix markdown issues (note: MD036 requires manual fix)
 ```
 
