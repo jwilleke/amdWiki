@@ -31,11 +31,13 @@ The migration process converts your existing pages to versioned format without m
 5. **Validates** migration integrity
 
 **Time Estimate**:
+
 - Small wiki (< 100 pages): 1-2 minutes
 - Medium wiki (100-1000 pages): 5-10 minutes
 - Large wiki (> 1000 pages): 15-30 minutes
 
 **Data Safety**:
+
 - ✅ Original page files are **NOT** modified
 - ✅ Version directories are created separately
 - ✅ Migration can be rolled back
@@ -120,6 +122,7 @@ node scripts/migrate-to-versioning.js --dry-run --verbose
 ```
 
 **Review the dry run output**:
+
 - Number of pages discovered
 - Any warnings about duplicate UUIDs
 - Any warnings about existing version directories
@@ -369,6 +372,7 @@ pm2 logs amdWiki --err
 **Issue**: Pages not found after migration
 
 **Solution**:
+
 ```bash
 # Verify page index exists and is valid
 cat ./data/page-index.json | jq .
@@ -377,6 +381,7 @@ cat ./data/page-index.json | jq .
 **Issue**: Version history not showing
 
 **Solution**:
+
 ```bash
 # Check manifest files exist
 find ./pages/versions -name "manifest.json" | wc -l
@@ -396,10 +401,13 @@ Error: Duplicate UUID found: abc-123
 **Cause**: Two or more pages have the same UUID.
 
 **Solution**:
+
 1. Find the duplicate pages:
+
    ```bash
    grep -r "uuid: abc-123" ./pages
    ```
+
 2. Assign a new UUID to one of the pages
 3. Re-run migration
 
@@ -412,6 +420,7 @@ Error: EACCES: permission denied, mkdir './pages/versions'
 **Cause**: Insufficient permissions to create directories.
 
 **Solution**:
+
 ```bash
 # Fix permissions
 chmod -R u+w ./pages ./required-pages ./data
@@ -428,6 +437,7 @@ Error: ENOSPC: no space left on device
 **Cause**: Insufficient disk space.
 
 **Solution**:
+
 1. Free up disk space
 2. Remove old backups or logs
 3. Re-run migration
@@ -464,6 +474,7 @@ Error: Content hash mismatch for uuid-123
 **Cause**: Content was modified during migration or file corruption.
 
 **Solution**:
+
 1. Check if files were modified during migration
 2. Re-run migration
 3. If persists, restore from backup and try again
@@ -528,6 +539,7 @@ pm2 start amdWiki
 ### Q: How much disk space will versioning use?
 
 **A**: With delta storage enabled:
+
 - v1: Same size as original page
 - v2+: Only stores differences (typically 5-20% of original size)
 - Overall: ~20-40% increase in storage for first few versions
@@ -540,6 +552,7 @@ pm2 start amdWiki
 ### Q: What happens if migration fails mid-way?
 
 **A**: The migration is designed to be safe:
+
 - Atomic writes prevent corruption
 - Original pages are never modified
 - You can re-run migration or rollback
@@ -547,6 +560,7 @@ pm2 start amdWiki
 ### Q: Can I migrate in batches?
 
 **A**: Not directly, but you can:
+
 1. Move some pages to a temporary directory
 2. Run migration on remaining pages
 3. Move pages back and run migration again
@@ -571,6 +585,7 @@ pm2 start amdWiki
 ### Q: How do I access old versions?
 
 **A**: Version retrieval methods are available in VersioningFileProvider:
+
 ```javascript
 // Get version history
 const history = await provider.getVersionHistory('PageName');
@@ -603,7 +618,7 @@ const diff = await provider.compareVersions('PageName', 1, 3);
 
 If you encounter issues not covered in this guide:
 
-1. Check the GitHub issues: https://github.com/jwilleke/amdWiki/issues
+1. Check the GitHub issues: <https://github.com/jwilleke/amdWiki/issues>
 2. Review application logs: `./data/logs/app.log`
 3. Enable verbose logging: `--verbose` flag
 4. Create a new issue with:

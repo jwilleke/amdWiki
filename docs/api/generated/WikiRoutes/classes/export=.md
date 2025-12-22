@@ -1689,6 +1689,7 @@ API endpoint for page name autocomplete suggestions
 GET /api/page-suggestions?q=partial
 
 Used for:
+
 - Autocomplete when typing [page name] in editor
 - Autocomplete in search dialogs
 
@@ -1894,6 +1895,7 @@ Defined in: [src/routes/WikiRoutes.js:647](https://github.com/jwilleke/amdWiki/b
 Check if a page is a protected page (admin-only edit)
 
 Protected pages include:
+
 - Hardcoded required pages (backward compatibility)
 - Pages with system-category: system or documentation
 

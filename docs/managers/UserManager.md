@@ -131,4 +131,5 @@ const sessionId = await userManager.createSession('john');
 ## Developer Documentation
 
 For complete API reference, authentication flows, and troubleshooting:
+
 - [UserManager-Complete-Guide.md](UserManager-Complete-Guide.md)

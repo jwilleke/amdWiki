@@ -1,6 +1,5 @@
 > **ARCHIVED**: This document is for historical purposes only. For the current and complete documentation, please see **[WikiDocument Complete Guide](../WikiDocument-Complete-Guide.md)**.
 
-
 # WikiDocument DOM Migration Guide
 
 **Version:** 1.3.2

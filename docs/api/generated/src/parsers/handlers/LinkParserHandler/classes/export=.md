@@ -12,6 +12,7 @@ LinkParserHandler - Unified link processing handler using LinkParser
 
 This handler integrates the comprehensive LinkParser into the MarkupParser
 handler architecture, providing centralized processing for all link types:
+
 - Internal wiki links: [PageName], [Display|Target]
 - External links: [Display|http://example.com]
 - InterWiki links: [Display|Wikipedia:Article]

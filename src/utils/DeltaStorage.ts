@@ -86,31 +86,31 @@ export default class DeltaStorage {
 
     for (const [operation, text] of diff) {
       switch (operation) {
-        case Diff.DELETE: // -1: delete
-          // Skip over the deleted text in the base
-          baseIndex += text.length;
-          break;
+      case Diff.DELETE: // -1: delete
+        // Skip over the deleted text in the base
+        baseIndex += text.length;
+        break;
 
-        case Diff.EQUAL: // 0: equal (keep)
-          // Verify the text matches what we expect in the base
-          const expectedText = baseContent.substring(baseIndex, baseIndex + text.length);
-          if (expectedText !== text) {
-            throw new Error(
-              `Diff application failed: expected "${text}" at position ${baseIndex}, ` +
+      case Diff.EQUAL: // 0: equal (keep)
+        // Verify the text matches what we expect in the base
+        const expectedText = baseContent.substring(baseIndex, baseIndex + text.length);
+        if (expectedText !== text) {
+          throw new Error(
+            `Diff application failed: expected "${text}" at position ${baseIndex}, ` +
               `but found "${expectedText}"`
-            );
-          }
-          result += text;
-          baseIndex += text.length;
-          break;
+          );
+        }
+        result += text;
+        baseIndex += text.length;
+        break;
 
-        case Diff.INSERT: // 1: insert
-          // Add the new text
-          result += text;
-          break;
+      case Diff.INSERT: // 1: insert
+        // Add the new text
+        result += text;
+        break;
 
-        default:
-          throw new Error(`Invalid diff operation: ${operation}`);
+      default:
+        throw new Error(`Invalid diff operation: ${operation}`);
       }
     }
 
@@ -231,15 +231,15 @@ export default class DeltaStorage {
       const length = text.length;
 
       switch (operation) {
-        case Diff.DELETE: // -1
-          stats.deletions += length;
-          break;
-        case Diff.EQUAL: // 0
-          stats.unchanged += length;
-          break;
-        case Diff.INSERT: // 1
-          stats.additions += length;
-          break;
+      case Diff.DELETE: // -1
+        stats.deletions += length;
+        break;
+      case Diff.EQUAL: // 0
+        stats.unchanged += length;
+        break;
+      case Diff.INSERT: // 1
+        stats.additions += length;
+        break;
       }
     }
 

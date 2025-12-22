@@ -14,6 +14,7 @@ Extends FileSystemProvider to add git-style page versioning with delta storage.
 Maintains backward compatibility - can be swapped with FileSystemProvider.
 
 Features:
+
 - Per-page version history with delta storage (v1 = full, v2+ = diffs)
 - Compression of old versions (gzip)
 - Centralized page index for fast lookups (./data/page-index.json)
@@ -21,6 +22,7 @@ Features:
 - Retention policies (maxVersions, retentionDays)
 
 Directory Structure:
+
 ```
 ./data/page-index.json              # Centralized index for fast lookups
 ./pages/{uuid}.md                    # Current version of page
@@ -481,6 +483,7 @@ Defined in: [src/providers/VersioningFileProvider.ts:1116](https://github.com/jw
 Get specific version content for a page
 
 Reconstructs the content for a specific version by:
+
 1. Reading v1 (full content)
 2. If version > 1 and delta storage enabled: apply diffs sequentially
 3. If version > 1 and delta storage disabled: read full content directly
@@ -655,6 +658,7 @@ Defined in: [src/providers/VersioningFileProvider.ts:1294](https://github.com/jw
 Purge old versions of a page
 
 Removes old versions based on retention policies:
+
 - Keep versions newer than retentionDays
 - Keep last keepLatest versions (minimum)
 - Optionally keep milestone versions (v1, every 10th version)
@@ -799,6 +803,7 @@ Defined in: [src/providers/VersioningFileProvider.ts:651](https://github.com/jwi
 Override savePage to create versions
 
 Algorithm:
+
 1. Check if page exists (new vs update)
 2. If update: create diff and new version
 3. If new: create initial version (v1 with full content)

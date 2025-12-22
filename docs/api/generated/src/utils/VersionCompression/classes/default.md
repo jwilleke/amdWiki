@@ -14,6 +14,7 @@ Uses pako (pure JavaScript gzip implementation) to compress old version files.
 This significantly reduces disk space usage for version history.
 
 Compression is particularly effective for:
+
 - Text content (60-80% size reduction typical)
 - Diff files (often compress very well)
 - Large content files

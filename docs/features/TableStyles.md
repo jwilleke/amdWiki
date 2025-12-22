@@ -61,20 +61,25 @@ amdWiki implements JSPWiki-compatible table styles with extensions for modern we
 ### Row Types
 
 **Header Row** - Double pipes (`||`):
+
 ```
 || Column 1 || Column 2 || Column 3 ||
 ```
+
 Rendered as: `<th>Column 1</th>`
 
 **Data Row** - Single pipes (`|`):
+
 ```
 | Data 1 | Data 2 | Data 3 |
 ```
+
 Rendered as: `<td>Data 1</td>`
 
 ### Style Blocks
 
 **Single Style:**
+
 ```
 %%style-name
 || Table content ||
@@ -83,6 +88,7 @@ Rendered as: `<td>Data 1</td>`
 ```
 
 **Nested Styles (JSPWiki Compatible):**
+
 ```
 %%style-1
 %%style-2
@@ -104,6 +110,7 @@ Rendered as: `<td>Data 1</td>`
 **Purpose:** Alternating row colors for easier reading
 
 **Syntax:**
+
 ```
 %%zebra-table
 || Header ||
@@ -126,6 +133,7 @@ Rendered as: `<td>Data 1</td>`
 **Purpose:** Add borders around all cells
 
 **Syntax:**
+
 ```
 %%table-bordered
 || Name || Value ||
@@ -144,6 +152,7 @@ Rendered as: `<td>Data 1</td>`
 **Purpose:** Size table to content width (not full width)
 
 **Syntax:**
+
 ```
 %%table-fit
 || Code || Language ||
@@ -163,6 +172,7 @@ Rendered as: `<td>Data 1</td>`
 **Purpose:** Highlight row on mouse hover
 
 **Syntax:**
+
 ```
 %%table-hover
 || Product || Price ||
@@ -182,6 +192,7 @@ Rendered as: `<td>Data 1</td>`
 **Purpose:** Reduce padding for dense information
 
 **Syntax:**
+
 ```
 %%table-sm
 || Code || Desc ||
@@ -201,6 +212,7 @@ Rendered as: `<td>Data 1</td>`
 **Purpose:** Horizontal scroll on mobile devices
 
 **Syntax:**
+
 ```
 %%table-responsive
 || Col 1 || Col 2 || Col 3 || Col 4 || Col 5 || Col 6 ||
@@ -221,6 +233,7 @@ Rendered as: `<td>Data 1</td>`
 **Purpose:** Click column headers to sort
 
 **Syntax:**
+
 ```
 %%sortable
 || Name || Age || Score ||
@@ -233,6 +246,7 @@ Rendered as: `<td>Data 1</td>`
 **Alternative:** `%%table-sort`
 
 **Features:**
+
 - **Natural sorting:** "Item 2" before "Item 10"
 - **Type detection:** Numbers, dates, text
 - **Click toggle:** Ascending → Descending → Ascending
@@ -241,6 +255,7 @@ Rendered as: `<td>Data 1</td>`
 **Implementation:** [tableSort.js](../../public/js/tableSort.js)
 
 **Sort Types:**
+
 - **Number:** 123, 45.67, -10
 - **Date:** 2025-01-15, Jan 15 2025
 - **Text:** Alphabetical (case-insensitive)
@@ -252,6 +267,7 @@ Rendered as: `<td>Data 1</td>`
 **Purpose:** Filter rows based on column values
 
 **Syntax:**
+
 ```
 %%table-filter
 || Product || Category || Price ||
@@ -262,6 +278,7 @@ Rendered as: `<td>Data 1</td>`
 ```
 
 **Features:**
+
 - **Filter row:** Input fields for each column
 - **Live filtering:** 300ms debounce
 - **Filter operators:**
@@ -272,6 +289,7 @@ Rendered as: `<td>Data 1</td>`
   - `/regex/` - Regular expression
 
 **Examples:**
+
 - `Electronics` - Show rows containing "Electronics"
 - `=29` - Show rows with exactly "29"
 - `^L` - Show rows starting with "L"
@@ -292,6 +310,7 @@ Where `HEXCOLOR` is a 6-digit hex color **without** the `#` symbol.
 ### Examples
 
 **Pink Stripes:**
+
 ```
 %%zebra-ffe0e0
 || Product || Price ||
@@ -301,6 +320,7 @@ Where `HEXCOLOR` is a 6-digit hex color **without** the `#` symbol.
 ```
 
 **Light Blue Stripes:**
+
 ```
 %%zebra-e0e0ff
 || Name || Score ||
@@ -310,6 +330,7 @@ Where `HEXCOLOR` is a 6-digit hex color **without** the `#` symbol.
 ```
 
 **Dark Green Stripes:**
+
 ```
 %%zebra-006400
 || Status || Count ||
@@ -328,6 +349,7 @@ textColor = luminance > 0.5 ? 'black' : 'white'
 ```
 
 **Examples:**
+
 - `%%zebra-ffe0e0` (pink, luminance 0.90) → **Black text**
 - `%%zebra-800000` (maroon, luminance 0.15) → **White text**
 - `%%zebra-808080` (gray, luminance 0.50) → **Black text**
@@ -335,6 +357,7 @@ textColor = luminance > 0.5 ? 'black' : 'white'
 ### Color Palette Ideas
 
 **Semantic Colors:**
+
 ```
 %%zebra-d4edda  # Success (light green)
 %%zebra-fff3cd  # Warning (light yellow)
@@ -343,6 +366,7 @@ textColor = luminance > 0.5 ? 'black' : 'white'
 ```
 
 **Brand Colors:**
+
 ```
 %%zebra-e3f2fd  # Material Blue 50
 %%zebra-f3e5f5  # Material Purple 50
@@ -444,6 +468,7 @@ amdWiki supports three dark mode approaches:
 ### Default Colors
 
 **Light Mode:**
+
 ```css
 --table-stripe: #f0f0f0;        /* Light gray */
 --zebra-row-even: rgba(2, 6, 19, 0.08);
@@ -451,6 +476,7 @@ amdWiki supports three dark mode approaches:
 ```
 
 **Dark Mode:**
+
 ```css
 --table-stripe: #252525;        /* Dark gray */
 --zebra-row-even: #1a1a1a;
@@ -460,6 +486,7 @@ amdWiki supports three dark mode approaches:
 ### Text Brightness
 
 **Dark Mode Enhancement:**
+
 ```css
 /* Even rows (striped) get brighter text */
 .zebra-even td {
@@ -481,6 +508,7 @@ Custom colors (`%%zebra-HEXCOLOR`) override theme colors:
 ```
 
 **Renders as:**
+
 ```html
 <table style="--zebra-row-even: #4a90e2; --zebra-text-color: #ffffff;">
 ```
@@ -561,6 +589,7 @@ Text color calculated independently of theme.
 ```
 
 **Filter examples:**
+
 - Department: `Engineering` - Show only engineers
 - Email: `@company.com` - Show all (contains)
 - Name: `^A` - Show names starting with "A"
@@ -638,6 +667,7 @@ Text color calculated independently of theme.
 ### JavaScript APIs
 
 **zebraTable.js:**
+
 ```javascript
 // Manually refresh zebra striping
 window.ZebraTable.init();
@@ -645,6 +675,7 @@ window.ZebraTable.refresh();
 ```
 
 **tableSort.js:**
+
 ```javascript
 // Manually sort a table
 window.TableSort.sortTable(tableElement, columnIndex, ascending);
@@ -652,6 +683,7 @@ window.TableSort.refresh();
 ```
 
 **tableFilter.js:**
+
 ```javascript
 // Manually refresh filters
 window.TableFilter.init();
@@ -661,16 +693,19 @@ window.TableFilter.refresh();
 ### Performance
 
 **Server-Side (JSPWikiPreprocessor):**
+
 - Parsing: O(n) where n = content length
 - Table generation: O(rows × cells)
 - Color calculation: O(1) per custom color
 
 **Client-Side (JavaScript):**
+
 - zebraTable.js: O(rows) per table
 - tableSort.js: O(rows × log rows) per sort
 - tableFilter.js: O(rows × columns) per filter
 
 **Memory:**
+
 - Minimal: HTML strings only
 - No DOM caching
 - Event listeners cleaned up on destroy
@@ -680,6 +715,7 @@ window.TableFilter.refresh();
 ## Browser Support
 
 ### Required Features
+
 - CSS Custom Properties (CSS Variables)
 - ES6 JavaScript
 - `Array.from()`, `Array.sort()`, arrow functions
@@ -687,12 +723,14 @@ window.TableFilter.refresh();
 - MutationObserver (for zebra striping)
 
 ### Supported Browsers
+
 - Chrome 60+
 - Firefox 55+
 - Safari 12+
 - Edge 79+
 
 ### Graceful Degradation
+
 - Without JavaScript: Basic HTML tables still render
 - Without CSS variables: Falls back to default colors
 - Without MutationObserver: CSS-only striping works
@@ -704,6 +742,7 @@ window.TableFilter.refresh();
 ### Issue: Custom colors not showing
 
 **Check:**
+
 1. zebraTable.js loaded: `<script src="/js/zebraTable.js"></script>`
 2. zebraTable.js selector includes `table.zebra-table`
 3. CSS rule includes `table.zebra-table tbody tr.zebra-even`
@@ -715,6 +754,7 @@ window.TableFilter.refresh();
 ### Issue: Headers outside table
 
 **Check:**
+
 1. JSPWikiPreprocessor registered in Phase 1
 2. Handler has `this.phase = 1`
 3. Using correct syntax: `|| Header ||` not `| Header |`
@@ -726,6 +766,7 @@ window.TableFilter.refresh();
 ### Issue: Sorting not working
 
 **Check:**
+
 1. tableSort.js loaded
 2. Table has `class="sortable"`
 3. Table has `<thead>` with `<th>` elements
@@ -737,6 +778,7 @@ window.TableFilter.refresh();
 ### Issue: Dark mode contrast too low
 
 **Check:**
+
 1. CSS variables defined in `[data-theme="dark"]`
 2. Text color set for `.zebra-even td`
 3. Theme actually applied (check `<html data-theme="dark">`)
@@ -750,6 +792,7 @@ window.TableFilter.refresh();
 ### From Old WikiStyleHandler/WikiTableHandler
 
 **Before (Phase 4):**
+
 ```
 Headers appear as <p> tags outside tables
 TABLE_CLASSES markers used
@@ -757,6 +800,7 @@ Complex priority dependencies
 ```
 
 **After (Phase 1):**
+
 ```
 Headers inside <thead> correctly
 Direct HTML generation
@@ -779,12 +823,14 @@ Simple, clean architecture
 ## Credits
 
 **Implementation:**
+
 - JSPWikiPreprocessor: Server-side parser (Phase 1)
 - zebraTable.js: Dynamic row striping
 - tableSort.js: Interactive sorting
 - tableFilter.js: Column filtering
 
 **Inspired by:**
+
 - [Apache JSPWiki](https://jspwiki.apache.org/)
 - [JSPWiki Haddock Styles](https://jspwiki-wiki.apache.org/Wiki.jsp?page=Haddock%20Styles)
 - Bootstrap Tables

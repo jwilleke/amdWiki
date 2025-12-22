@@ -62,6 +62,7 @@ class MyManager extends BaseManager {
 ## Managers Extending BaseManager
 
 All managers in `src/managers/` extend BaseManager:
+
 - [ACLManager](ACLManager.md)
 - [AttachmentManager](AttachmentManager.md)
 - [AuditManager](AuditManager.md)
@@ -83,5 +84,6 @@ All managers in `src/managers/` extend BaseManager:
 ## Developer Documentation
 
 For complete API reference and implementation patterns, see:
+
 - [BaseManager-Complete-Guide.md](BaseManager-Complete-Guide.md)
 - [Generated API Docs](../api/generated/src/managers/BaseManager/README.md)

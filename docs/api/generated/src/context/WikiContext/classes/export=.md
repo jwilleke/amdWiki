@@ -18,8 +18,8 @@ current page, user, request/response objects, and manager references.
 
 ## See
 
- - WikiEngine for the main engine
- - RenderingManager for rendering operations
+- WikiEngine for the main engine
+- RenderingManager for rendering operations
 
 ## Constructors
 

@@ -15,6 +15,7 @@ domain whitelisting, and content quality analysis through complete modularity
 via app-default-config.json and app-custom-config.json.
 
 Design Principles:
+
 - Configurable spam detection rules
 - Whitelist/blacklist modularity
 - Zero hardcoded detection rules

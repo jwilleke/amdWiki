@@ -59,7 +59,7 @@ export function createLoggerWithConfig(config: LoggerConfig = {}): Logger {
     if (sizeMatch) {
       const [, size, unit] = sizeMatch;
       const multiplier = unit?.toUpperCase() === 'MB' ? 1024 * 1024 :
-                        unit?.toUpperCase() === 'KB' ? 1024 : 1;
+        unit?.toUpperCase() === 'KB' ? 1024 : 1;
       maxSize = parseFloat(size) * multiplier;
     }
   }
@@ -101,7 +101,7 @@ export function reconfigureLogger(config: LoggerConfig): Logger {
 
   // Add new transports from the reconfigured logger
   newLogger.transports.forEach(transport => {
-    loggerInstance!.add(transport);
+    loggerInstance.add(transport);
   });
 
   // Update logger level

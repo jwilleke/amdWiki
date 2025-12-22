@@ -47,24 +47,28 @@ Based on JSPWiki's provider pattern, FileSystemProvider separates storage concer
 ### Key Features
 
 **Storage:**
+
 - UUID-based file naming (e.g., `550e8400-e29b-41d4-a716-446655440000.md`)
 - YAML frontmatter for metadata (gray-matter parsing)
 - Configurable encoding support (default: UTF-8)
 - Dual storage locations (pages/ and required-pages/)
 
 **Retrieval:**
+
 - Title-based lookup (case-insensitive)
 - UUID lookup (exact match)
 - Slug lookup (URL-friendly names)
 - Plural name matching (e.g., "Page" matches "Pages")
 
 **Performance:**
+
 - In-memory caching (all pages loaded at startup)
 - Multiple lookup indexes (UUID, title, slug)
 - O(1) page retrieval via Map structures
 - Lazy frontmatter parsing
 
 **Installation Support:**
+
 - Installation-aware loading (required-pages only during install)
 - System page protection (admin-only editing for system-category pages)
 - Automatic directory creation
@@ -97,6 +101,7 @@ WikiEngine
 ### Data Flow
 
 **Page Retrieval:**
+
 ```
 User requests "Home"
   → PageManager.getPage('Home')
@@ -110,6 +115,7 @@ User requests "Home"
 ```
 
 **Page Save:**
+
 ```
 User saves "MyPage"
   → PageManager.savePage('MyPage', data)
@@ -321,11 +327,13 @@ Markdown content goes here with [WikiLinks] and [{Plugins}].
 ### UUID File Naming
 
 **Why UUIDs?**
+
 - **Unique**: Globally unique identifiers prevent conflicts
 - **Stable**: Survives page renames (title changes don't break links)
 - **Portable**: Can merge wikis without filename conflicts
 
 **UUID Generation:**
+
 ```javascript
 const { v4: uuidv4 } = require('uuid');
 
@@ -337,10 +345,12 @@ const filePath = path.join(pagesDirectory, `${uuid}.md`);
 ### Frontmatter Structure
 
 **Required Fields:**
+
 - `title` - Page title (used for display and lookups)
 - `uuid` - Unique identifier (auto-generated if missing)
 
 **Common Fields:**
+
 - `author` - Page creator
 - `created` - Creation timestamp
 - `modified` - Last modification timestamp
@@ -558,12 +568,14 @@ async refreshPageList() {
 ### Cache Invalidation
 
 **When to refresh cache:**
+
 - After `savePage()` - Single page update
 - After `deletePage()` - Single page removal
 - After `renamePage()` - Title change affects indexes
 - Manual refresh via `refreshPageCache()`
 
 **Refresh strategies:**
+
 - **Full refresh**: `await refreshPageList()` - Reloads all pages
 - **Incremental**: Update single entry in caches (used by savePage)
 
@@ -610,12 +622,14 @@ const match = this.pageNameMatcher.findMatch(
 FileSystemProvider adapts behavior based on installation state:
 
 **During Installation** (`installationComplete = false`):
+
 - Loads pages from **both** directories:
   - `pagesDirectory` (./data/pages)
   - `requiredPagesDirectory` (./required-pages)
 - Allows required pages to be accessible for copying
 
 **After Installation** (`installationComplete = true`):
+
 - Loads pages from **only** `pagesDirectory`
 - Skips `requiredPagesDirectory` entirely
 - Required pages already copied to pagesDirectory
@@ -623,10 +637,12 @@ FileSystemProvider adapts behavior based on installation state:
 ### Why This Design?
 
 **Problem**: Required pages (system docs, templates) should:
+
 1. Be available during installation (for copying)
 2. NOT appear in production wiki (avoid duplicates)
 
 **Solution**: Installation-aware loading
+
 - Installation copies required-pages → pagesDirectory
 - After install, only pagesDirectory is scanned
 - Required-pages folder remains for future installs
@@ -656,6 +672,7 @@ async refreshPageList() {
 ### Initialization Methods
 
 #### `async initialize()`
+
 Initialize the provider with configuration.
 
 **Returns:** `Promise<void>`
@@ -663,6 +680,7 @@ Initialize the provider with configuration.
 **Throws:** Error if ConfigurationManager unavailable
 
 **Example:**
+
 ```javascript
 await provider.initialize();
 ```
@@ -672,14 +690,17 @@ await provider.initialize();
 ### Page Retrieval Methods
 
 #### `async getPage(identifier)`
+
 Get complete page by title/UUID/slug.
 
 **Parameters:**
+
 - `identifier` (String) - Page title, UUID, or slug
 
 **Returns:** `Promise<Object|null>` - Page object or null if not found
 
 **Page Object Structure:**
+
 ```javascript
 {
   title: 'Home',
@@ -697,6 +718,7 @@ Get complete page by title/UUID/slug.
 ```
 
 **Example:**
+
 ```javascript
 const page = await provider.getPage('Home');
 if (page) {
@@ -708,11 +730,13 @@ if (page) {
 ---
 
 #### `async getAllPages()`
+
 Get all pages (titles and UUIDs only, no content).
 
 **Returns:** `Promise<Array>` - Array of page info objects
 
 **Example:**
+
 ```javascript
 const pages = await provider.getAllPages();
 // [
@@ -724,14 +748,17 @@ const pages = await provider.getAllPages();
 ---
 
 #### `async pageExists(identifier)`
+
 Check if page exists.
 
 **Parameters:**
+
 - `identifier` (String) - Page title, UUID, or slug
 
 **Returns:** `Promise<Boolean>`
 
 **Example:**
+
 ```javascript
 if (await provider.pageExists('Home')) {
   console.log('Home page exists');
@@ -743,9 +770,11 @@ if (await provider.pageExists('Home')) {
 ### Page Storage Methods
 
 #### `async savePage(identifier, pageData)`
+
 Create or update a page.
 
 **Parameters:**
+
 - `identifier` (String) - Page title (for new pages) or title/UUID (for updates)
 - `pageData` (Object) - Page data:
   - `title` (String, required) - Page title
@@ -756,6 +785,7 @@ Create or update a page.
 **Returns:** `Promise<void>`
 
 **Example:**
+
 ```javascript
 await provider.savePage('NewPage', {
   title: 'New Page',
@@ -771,14 +801,17 @@ await provider.savePage('NewPage', {
 ---
 
 #### `async deletePage(identifier)`
+
 Delete a page.
 
 **Parameters:**
+
 - `identifier` (String) - Page title or UUID
 
 **Returns:** `Promise<Boolean>` - true if deleted, false if not found
 
 **Example:**
+
 ```javascript
 const deleted = await provider.deletePage('OldPage');
 if (deleted) {
@@ -789,15 +822,18 @@ if (deleted) {
 ---
 
 #### `async renamePage(oldIdentifier, newTitle)`
+
 Rename a page (preserves UUID, updates title).
 
 **Parameters:**
+
 - `oldIdentifier` (String) - Current page title or UUID
 - `newTitle` (String) - New page title
 
 **Returns:** `Promise<Boolean>` - true if renamed, false if not found
 
 **Example:**
+
 ```javascript
 await provider.renamePage('OldTitle', 'NewTitle');
 // UUID preserved, filename unchanged, title in frontmatter updated
@@ -808,11 +844,13 @@ await provider.renamePage('OldTitle', 'NewTitle');
 ### Cache Methods
 
 #### `async refreshPageCache()`
+
 Reload all pages from disk into cache (alias for refreshPageList).
 
 **Returns:** `Promise<void>`
 
 **Example:**
+
 ```javascript
 await provider.refreshPageCache();
 console.log(`Refreshed ${provider.pageCache.size} pages`);
@@ -823,11 +861,13 @@ console.log(`Refreshed ${provider.pageCache.size} pages`);
 ### Utility Methods
 
 #### `async backup()`
+
 Create backup of all pages.
 
 **Returns:** `Promise<Object>` - Backup data
 
 **Backup Structure:**
+
 ```javascript
 {
   pages: [
@@ -850,14 +890,17 @@ Create backup of all pages.
 ---
 
 #### `async restore(backupData)`
+
 Restore pages from backup.
 
 **Parameters:**
+
 - `backupData` (Object) - Backup data from `backup()`
 
 **Returns:** `Promise<void>`
 
 **Example:**
+
 ```javascript
 const backup = await provider.backup();
 // ... disaster occurs ...
@@ -871,22 +914,28 @@ await provider.restore(backup);
 ### Common Errors
 
 **Missing ConfigurationManager:**
+
 ```javascript
 Error: FileSystemProvider requires ConfigurationManager
 ```
+
 **Solution:** Ensure WikiEngine initializes ConfigurationManager before FileSystemProvider
 
 **File Read Errors:**
+
 ```javascript
 Error reading page file: /path/to/page.md
 ENOENT: no such file or directory
 ```
+
 **Solution:** Check file exists, verify permissions, ensure UUID matches filename
 
 **Invalid Frontmatter:**
+
 ```javascript
 Failed to process page file: invalid YAML
 ```
+
 **Solution:** Validate YAML syntax in frontmatter, ensure `---` delimiters present
 
 ### Error Handling Patterns
@@ -914,27 +963,32 @@ if (await provider.pageExists('MyPage')) {
 ### Performance Characteristics
 
 **Initialization:**
+
 - **Time:** O(n) where n = number of pages
 - **Typical:** 100 pages in ~200ms
 - **Large wiki:** 10,000 pages in ~3 seconds
 
 **Page Retrieval:**
+
 - **Time:** O(1) lookup + file read
 - **Cache hit:** ~1ms (Map lookup)
 - **File read:** ~5-10ms (depends on disk)
 
 **Page Save:**
+
 - **Time:** File write + cache update
 - **Typical:** ~10-20ms
 - **Large page:** ~50ms
 
 **Cache Refresh:**
+
 - **Full refresh:** Same as initialization
 - **Incremental:** ~1ms per page
 
 ### Optimization Tips
 
 1. **Avoid refreshPageCache() in loops**
+
    ```javascript
    // Bad
    for (const page of pages) {
@@ -949,6 +1003,7 @@ if (await provider.pageExists('MyPage')) {
    ```
 
 2. **Use getAllPages() for listings**
+
    ```javascript
    // getAllPages() returns cached data (fast)
    const pages = await provider.getAllPages();
@@ -960,6 +1015,7 @@ if (await provider.pageExists('MyPage')) {
    ```
 
 3. **Batch operations**
+
    ```javascript
    // Batch saves with single refresh
    for (const page of pages) {
@@ -998,6 +1054,7 @@ To migrate to database provider:
 **Symptom:** `getPage('MyPage')` returns null
 
 **Checks:**
+
 1. Verify title case matches (try different cases)
 2. Check UUID exists in file
 3. Run `refreshPageCache()`

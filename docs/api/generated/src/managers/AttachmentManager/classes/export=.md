@@ -11,6 +11,7 @@ Defined in: [src/managers/AttachmentManager.js:29](https://github.com/jwilleke/a
 AttachmentManager - Manages file attachments for wiki pages
 
 Following JSPWiki's AttachmentManager pattern, this manager:
+
 - Delegates storage to pluggable attachment providers
 - Enforces permissions via PolicyManager
 - Tracks attachment-page relationships
@@ -20,8 +21,8 @@ Following JSPWiki's AttachmentManager pattern, this manager:
 
 ## See
 
- - [BaseManager](../../BaseManager/classes/export=.md) for base functionality
- - BasicAttachmentProvider for default provider implementation
+- [BaseManager](../../BaseManager/classes/export=.md) for base functionality
+- BasicAttachmentProvider for default provider implementation
 
 ## Example
 

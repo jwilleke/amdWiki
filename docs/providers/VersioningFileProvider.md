@@ -104,6 +104,7 @@ data/versions/
 ### All FileSystemProvider Methods
 
 All methods from FileSystemProvider are available:
+
 - `getPage()`, `getAllPages()`, `savePage()`, `deletePage()`, `renamePage()`, etc.
 
 ## Delta Storage

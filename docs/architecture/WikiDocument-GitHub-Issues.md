@@ -1,7 +1,7 @@
 > **ARCHIVED**: This document is for historical purposes only. For the current and complete documentation, please see **[WikiDocument Complete Guide](../WikiDocument-Complete-Guide.md)**.
 
-
 ---
+
 title: WikiDocument DOM Migration - GitHub Issues Template
 uuid: wikidocument-github-issues
 category: documentation
@@ -16,11 +16,13 @@ lastModified: 2025-10-09
 ## Epic Issue Template
 
 ### Title
+
 ```text
 [EPIC] Migrate to WikiDocument DOM-Based Parsing Architecture
 ```
 
 ### Labels
+
 ```text
 epic, enhancement, architecture, parser, high-priority
 ```
@@ -175,6 +177,7 @@ Evaluate and select the appropriate DOM library for WikiDocument implementation.
 **Milestone**: WikiDocument DOM Migration - Week 1
 
 **Description**:
+
 ```markdown
 ## Phase 1.2: WikiDocument Core Implementation
 
@@ -247,6 +250,7 @@ module.exports = WikiDocument;
 ### Estimated Time
 
 2 days
+
 ```text
 
 ---
@@ -324,6 +328,7 @@ doc.appendChild(root, heading);
 ### Estimated Time
 
 2 days
+
 ```text
 
 ---
@@ -399,6 +404,7 @@ const allPlugins = doc.findPlugins();
 ### Estimated Time
 
 1-2 days
+
 ```text
 
 ---
@@ -481,6 +487,7 @@ const restored = WikiDocument.fromJSON(cached);
 ### Estimated Time
 
 2 days
+
 ```text
 
 ---
@@ -580,6 +587,7 @@ describe('WikiDocument', () => {
 ### Estimated Time
 
 2-3 days
+
 ```text
 
 ---
@@ -682,6 +690,7 @@ Returns the root DOM element.
 ### Estimated Time
 
 1-2 days
+
 ```text
 
 ---

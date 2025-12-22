@@ -15,6 +15,7 @@ link checking, image validation, and content quality analysis through complete
 modularity via app-default-config.json and app-custom-config.json.
 
 Design Principles:
+
 - Configurable validation rules and thresholds
 - Zero hardcoded validation logic
 - Deployment-specific validation policies

@@ -14,6 +14,7 @@ Handles JSPWiki-style double bracket escaping: [[{syntax}] → [{syntax}]
 This allows literal display of wiki syntax without processing.
 
 Examples:
+
 - [[{PluginName}] → [{PluginName}] (literal, not processed as plugin)
 - [[{$variable}] → [{$variable}] (literal, not processed as variable)
 - <!--[[PageName]]--> → <!--[PageName]--> (literal, not processed as wiki link)

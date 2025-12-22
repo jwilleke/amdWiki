@@ -74,11 +74,13 @@ Shows recent changes in compact format (same as default).
 ### Compact Format
 
 The compact format displays:
+
 - Page title (linked)
 - Relative timestamp (e.g., "just now", "2 hours ago", "3 days ago")
 - Total change count at the bottom
 
 **Example output:**
+
 ```text
 Recent Changes (Last 7 days)
 • Home (2 hours ago)
@@ -92,6 +94,7 @@ Recent Changes (Last 7 days)
 ### Full Format
 
 The full format displays a table with:
+
 - Page title (linked)
 - Last modified timestamp (formatted date/time)
 - Author name
@@ -99,6 +102,7 @@ The full format displays a table with:
 - Total page count at the bottom
 
 **Example output:**
+
 ```text
 Recent Changes (Last 7 days)
 
@@ -175,6 +179,7 @@ Shows recent changes from the last 3 days in compact format for quick scanning.
 ### Time Formatting
 
 **Compact Format** (relative times):
+
 - "just now" - Less than 1 minute ago
 - "N minutes ago" - Less than 1 hour ago
 - "N hours ago" - Less than 1 day ago
@@ -182,11 +187,13 @@ Shows recent changes from the last 3 days in compact format for quick scanning.
 - "MMM DD, YYYY" - For older dates
 
 **Full Format** (absolute times):
+
 - "MMM DD, YYYY H:MM AM/PM" - Standard format with 12-hour time
 
 ### No Changes Message
 
 If no pages have been modified within the specified time period:
+
 - Compact format: "No changes in the last N day(s)."
 - Full format: Same message
 
@@ -318,6 +325,7 @@ Displays: "Invalid 'format' parameter: must be 'full' or 'compact'"
 **Problem**: Plugin displays "No changes in the last N days"
 
 **Solutions**:
+
 1. Increase the `since` parameter to look further back
 2. Verify pages exist in the wiki
 3. Check that pages have been modified recently
@@ -328,6 +336,7 @@ Displays: "Invalid 'format' parameter: must be 'full' or 'compact'"
 **Problem**: Author or version shows as "Unknown" or "1"
 
 **Solutions**:
+
 1. Ensure pages have proper frontmatter metadata
 2. Add `author` field to page frontmatter
 3. Add `version` field to page frontmatter
@@ -337,6 +346,7 @@ Displays: "Invalid 'format' parameter: must be 'full' or 'compact'"
 **Problem**: Plugin takes too long to load
 
 **Solutions**:
+
 1. Reduce the `since` parameter value
 2. Use compact format instead of full format
 3. Consider paginating results (future enhancement)

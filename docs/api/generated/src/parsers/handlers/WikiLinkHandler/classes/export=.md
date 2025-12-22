@@ -11,6 +11,7 @@ Defined in: [src/parsers/handlers/WikiLinkHandler.js:14](https://github.com/jwil
 WikiLinkHandler - Internal wiki link processing (CRITICAL for basic functionality)
 
 Supports JSPWiki/amdWiki link syntax:
+
 - [PageName] - Simple internal links
 - [DisplayText|TargetPage] - Links with custom display text
 - [DisplayText|TargetPage|target=_blank] - Links with parameters

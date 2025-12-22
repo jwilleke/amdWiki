@@ -11,6 +11,7 @@ Defined in: [src/utils/VersioningAnalytics.js:23](https://github.com/jwilleke/am
 VersioningAnalytics - Storage analytics and reporting for VersioningFileProvider
 
 Provides detailed insights into:
+
 - Storage usage (total, per-page, by location)
 - Version distribution (counts, ages)
 - Compression effectiveness

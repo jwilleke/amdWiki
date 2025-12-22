@@ -65,6 +65,7 @@ async initialize(config = {}) {
 ```
 
 During initialization:
+
 1. Creates directories if they don't exist
 2. Creates default templates if none exist
 3. Loads all `.md` files as templates
@@ -94,6 +95,7 @@ getTemplates()
 **Returns:** `Array<Object>` - All template objects
 
 Each template object:
+
 ```javascript
 {
   name: 'meeting-notes',
@@ -113,6 +115,7 @@ getTemplate(templateName)
 ```
 
 **Parameters:**
+
 - `templateName` - Name of the template
 
 **Returns:** `Object|null` - Template object or null
@@ -128,6 +131,7 @@ applyTemplate(templateName, variables = {})
 ```
 
 **Parameters:**
+
 - `templateName` - Template to use
 - `variables` - Variables to substitute
 
@@ -136,6 +140,7 @@ applyTemplate(templateName, variables = {})
 **Throws:** `Error` if template not found
 
 **Example:**
+
 ```javascript
 const content = templateManager.applyTemplate('meeting-notes', {
   pageName: 'Sprint Planning 2025-01-20',
@@ -155,6 +160,7 @@ async createTemplate(templateName, content)
 ```
 
 **Parameters:**
+
 - `templateName` - Name for the template
 - `content` - Template content (with `{{variables}}`)
 
@@ -169,12 +175,14 @@ suggestTemplates(pageName, category)
 ```
 
 **Parameters:**
+
 - `pageName` - Page name (optional)
 - `category` - Page category (optional)
 
 **Returns:** `Array<string>` - Suggested template names
 
 **Logic:**
+
 - Category contains "documentation" → suggest `documentation`
 - Category contains "category" → suggest `category`
 - Name contains "meeting" or "notes" → suggest `meeting-notes`
@@ -218,6 +226,7 @@ async createTheme(themeName, content)
 ```
 
 **Parameters:**
+
 - `themeName` - Name for the theme
 - `content` - CSS content
 

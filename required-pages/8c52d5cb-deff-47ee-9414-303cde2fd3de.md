@@ -9,7 +9,7 @@ author: jim
 ---
 # Overview
 
-[{$pagename}], [AKA] [Asset], which is is anything of value that an individual or organization owns, including tangible things like real estate and intangible things like patents. 
+[{$pagename}], [AKA] [Asset], which is is anything of value that an individual or organization owns, including tangible things like real estate and intangible things like patents.
 
 [{$pagename}]s can be categorized as tangible (physical) or intangible (non-physical), and further by their liquidity or how they are used, such as current assets (easily converted to cash) or long-term investments.
 

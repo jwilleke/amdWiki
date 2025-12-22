@@ -720,7 +720,7 @@ class BasicAttachmentProvider extends BaseAttachmentProvider {
    */
   async refreshAttachmentList(): Promise<void> {
     await this.loadMetadata();
-    logger.info(`[BasicAttachmentProvider] Refreshed attachment list`);
+    logger.info('[BasicAttachmentProvider] Refreshed attachment list');
   }
 
   /**

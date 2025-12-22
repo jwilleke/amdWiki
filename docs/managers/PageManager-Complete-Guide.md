@@ -1536,7 +1536,7 @@ class CustomProvider extends BasePageProvider {
 module.exports = CustomProvider;
 ```
 
-2. **Update Provider Normalization**:
+1. **Update Provider Normalization**:
 
 ```javascript
 // src/managers/PageManager.js
@@ -1550,7 +1550,7 @@ module.exports = CustomProvider;
 }
 ```
 
-3. **Add Configuration**:
+1. **Add Configuration**:
 
 ```json
 {
@@ -1560,7 +1560,7 @@ module.exports = CustomProvider;
 }
 ```
 
-4. **Test Provider**: Restart server and verify initialization logs
+1. **Test Provider**: Restart server and verify initialization logs
 
 ---
 

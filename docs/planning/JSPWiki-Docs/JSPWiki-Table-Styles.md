@@ -5,19 +5,19 @@ In Apache JSPWiki, table styles such as `%%table-sort`, `%%sortable`, `%%table-f
 1. **Page Render Request**: The request includes page content with style directives like `%%table-sort`. The `WikiEngine` creates a `WikiContext`.
 2. **Data Retrieval**: Raw markup is fetched, including the `%%` directives and table syntax (`|` for cells).
 3. **Rendering Manager**: The `RenderingManager` selects the parser (configured as `org.apache.wiki.parser.JSPWikiMarkupParser` in `jspwiki.properties`).
-4. **Parser Instantiation and Parsing**: 
+4. **Parser Instantiation and Parsing**:
    - The `JSPWikiMarkupParser` scans the markup for `%%style-name` directives.
    - General style handling: `%%` is parsed as a style declaration. The string after `%%` (e.g., "table-sort") is extracted and stored as a CSS class or attribute.
    - Table parsing: Lines starting with `|` or `||` are identified as table rows/cells. A table element is created in the internal DOM (`WikiDocument`).
    - If a style directive precedes the table markup, the parser applies the class (e.g., "table-sort") to the table element in the DOM. This is part of a stack-based parsing system where styles are pushed onto the current element.
-5. **Post-Processing and Plugins**: 
+5. **Post-Processing and Plugins**:
    - Plugins may modify the DOM, but for table styles, no specific plugins are involved; the class is already set.
    - Security filters ensure safe output (e.g., no XSS from styles).
-6. **HTML Serialization**: 
+6. **HTML Serialization**:
    - The `WikiDocument` is serialized to HTML by a renderer (e.g., `XHTMLWikiRenderer` or similar).
    - The table element is output as `<table class="table-sort">` (or equivalent, e.g., "sortable" if mapped).
    - No specific logic for individual styles; the class is directly added as an HTML attribute.
-7. **Final Output**: 
+7. **Final Output**:
    - The HTML is sent to the browser.
    - Behavior (e.g., sorting for `%%table-sort`, filtering for `%%table-filter`) is handled client-side via JavaScript libraries included in templates (e.g., sorttable.js or DataTables.js in `templates/default/commonheader.jsp`).
    - Appearance (e.g., `%%table-striped` for zebra-striping, `%%table-hover` for hover effects) is defined in CSS files like `templates/default/css/jspwiki.css`, with rules like `.table-striped tr:nth-child(even) { background-color: #f9f9f9; }`.

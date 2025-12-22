@@ -15,9 +15,10 @@ Attachments are stored in a shared directory structure, not tied to individual p
 Page references are tracked via the "mentions" array in metadata.
 
 Based on JSPWiki's BasicAttachmentProvider:
-https://github.com/apache/jspwiki/blob/master/jspwiki-main/src/main/java/org/apache/wiki/providers/BasicAttachmentProvider.java
+<https://github.com/apache/jspwiki/blob/master/jspwiki-main/src/main/java/org/apache/wiki/providers/BasicAttachmentProvider.java>
 
 Features:
+
 - Filesystem storage with SHA-256 content hashing
 - Schema.org CreativeWork metadata format
 - Shared storage model with page mentions tracking

@@ -186,4 +186,5 @@ try {
 ## Developer Documentation
 
 For complete architecture, backup format details, provider integration, and troubleshooting:
+
 - [BackupManager-Complete-Guide.md](BackupManager-Complete-Guide.md)

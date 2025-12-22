@@ -14,12 +14,14 @@ Orchestrates system-wide backup and restore by calling backup()/restore()
 on all registered managers and aggregating their data into compressed archives.
 
 Responsibilities:
+
 - Call backup() on all registered managers
 - Aggregate backup data into a single .gz file
 - Restore from .gz backup file
 - Call restore() on all registered managers
 
 Architecture:
+
 - Each manager implements backup() to return its state
 - BackupManager collects all states into one object
 - Serializes to JSON and compresses with gzip
@@ -142,6 +144,7 @@ Defined in: [src/managers/BackupManager.js:101](https://github.com/jwilleke/amdW
 Perform a complete backup of all managers
 
 Process:
+
 1. Get all registered managers from engine
 2. Call backup() on each manager
 3. Aggregate all backup data
@@ -306,6 +309,7 @@ Defined in: [src/managers/BackupManager.js:198](https://github.com/jwilleke/amdW
 Restore from a backup file
 
 Process:
+
 1. Read and decompress backup file
 2. Parse JSON data
 3. Validate backup structure

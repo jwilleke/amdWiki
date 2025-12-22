@@ -48,24 +48,28 @@ Click: Navigate directly to the page
 ## Features
 
 ### ✅ Smart Matching
+
 - **Exact match priority:** Pages that exactly match your query appear first
 - **Prefix matching:** Pages starting with your query appear next
 - **Contains matching:** Any page containing your query text
 - **Case-insensitive:** Searches ignore case differences
 
 ### ✅ Context-Aware
+
 - **Editor mode:** Detects `[page name]` bracket syntax
 - **Excludes plugins:** Won't trigger for `[{Plugin}]` syntax
 - **Excludes variables:** Won't trigger for `[{$variable}]` syntax
 - **Smart positioning:** Dropdown appears next to your cursor
 
 ### ✅ Performance Optimized
+
 - **Debouncing:** API calls delayed by 200ms to reduce server load
 - **Minimal data:** Only loads page name, title, and category
 - **Efficient sorting:** Client-side sorting after fetch
 - **Cached responses:** Browser caches API responses
 
 ### ✅ User-Friendly
+
 - **Visual feedback:** Highlighted query text in results
 - **Category badges:** See page categories in dropdown
 - **Keyboard navigation:** Full keyboard support
@@ -82,12 +86,14 @@ Click: Navigate directly to the page
 **Trigger:** Type `[` followed by 2+ characters
 
 **Behavior:**
+
 - Shows autocomplete dropdown below cursor
 - Filters out plugin and variable syntax
 - Inserts selected page name and closes bracket
 - Updates preview automatically
 
 **Example:**
+
 ```
 Type:    [home
 Shows:   HomePage, Home, HomePages
@@ -96,6 +102,7 @@ Result:  [HomePage]
 ```
 
 **Exclusions:**
+
 - `[{Image src='...'}]` - Plugin syntax ignored
 - `[{$applicationname}]` - Variable syntax ignored
 - `[[escaped text]` - Escaped syntax ignored
@@ -107,12 +114,14 @@ Result:  [HomePage]
 **Trigger:** Type 2+ characters in "Search Text" field
 
 **Behavior:**
+
 - Shows matching pages in dropdown
 - Displays page title and category
 - Clicking navigates directly to page
 - Works alongside filters (categories, keywords)
 
 **Example:**
+
 ```
 Search: test
 Shows:  Test Simple Table, TEST Link Page, Test-100
@@ -126,11 +135,13 @@ Select: Navigate to /wiki/Test%20Simple%20Table
 **Trigger:** Type 2+ characters in header search
 
 **Behavior:**
+
 - Always available on every page
 - Immediate navigation to selected page
 - Consistent across entire site
 
 **Example:**
+
 ```
 Type anywhere: sys
 Shows: SystemInfo, System Variables...
@@ -144,12 +155,14 @@ Result: Navigate to selected page
 **Trigger:** Type 2+ characters in "Search Pages" field
 
 **Behavior:**
+
 - Shows autocomplete alongside list filtering
 - Both dropdown and filtered list work together
 - Selecting from dropdown navigates to edit page
 - Typing also filters the visible list
 
 **Example:**
+
 ```
 Search: home
 Shows: HomePage, HomePages (autocomplete)
@@ -209,18 +222,21 @@ contentTextarea.addEventListener('input', function(e) {
 ### Special Cases
 
 **Multiple Brackets:**
+
 ```
 Text: See [HomePage] and [sys
 Shows: Autocomplete for "sys" only (last bracket)
 ```
 
 **Nested Brackets:**
+
 ```
 Text: [Something [sys
 Shows: Autocomplete for "sys" (treats each [ independently)
 ```
 
 **Already Closed:**
+
 ```
 Text: [HomePage] sys
 Shows: Nothing (bracket already closed)
@@ -280,15 +296,18 @@ searchInput.addEventListener('input', function(e) {
 ### Navigation Behavior
 
 **Cycling:**
+
 - ArrowDown at bottom → wraps to top
 - ArrowUp at top → wraps to bottom
 
 **Visual Feedback:**
+
 - Selected item highlighted with blue background
 - Hover shows same highlight
 - Query text bolded in results
 
 **Keyboard vs Mouse:**
+
 - Both methods can be used interchangeably
 - Mouse hover updates keyboard selection
 - Keyboard navigation works without mouse
@@ -385,11 +404,13 @@ views/
 ### Data Flow
 
 **Request:**
+
 ```
 GET /api/page-suggestions?q=system&limit=5
 ```
 
 **Processing:**
+
 1. Extract query parameter `q=system`
 2. Fetch all page names from PageManager
 3. Filter names containing "system" (case-insensitive)
@@ -398,6 +419,7 @@ GET /api/page-suggestions?q=system&limit=5
 6. Return top 5 results
 
 **Response:**
+
 ```json
 {
   "query": "system",
@@ -651,11 +673,13 @@ item.innerHTML = `
 ### Comparison with JSPWiki
 
 JSPWiki has autocomplete for plugin insertion:
-- Triggered by `[{INSERT ` + `Ctrl+Space`
+
+- Triggered by `[{INSERT` + `Ctrl+Space`
 - Shows available plugins
 - Manual trigger required
 
 **amdWiki improvements:**
+
 - ✅ Automatic triggering (no hotkey needed)
 - ✅ Works for page links (not just plugins)
 - ✅ Available in multiple contexts (editor, search, header)
@@ -665,6 +689,7 @@ JSPWiki has autocomplete for plugin insertion:
 ### Migration Notes
 
 If migrating from JSPWiki:
+
 1. Page link autocomplete works automatically
 2. No user training required (intuitive)
 3. More contexts supported
@@ -677,44 +702,53 @@ If migrating from JSPWiki:
 ### Optimization Techniques
 
 **1. Debouncing:**
+
 - Default 200ms delay prevents excessive API calls
 - Adjustable via `debounceMs` option
 
 **2. Result Limiting:**
+
 - Default 10 suggestions reduces payload size
 - Adjustable via `maxSuggestions` option
 
 **3. Efficient Filtering:**
+
 - Case-insensitive string matching
 - Early exit for empty queries
 - Slice operation limits results
 
 **4. Client-Side Sorting:**
+
 - Sorting happens on server
 - Client only renders received data
 
 **5. Minimal Data Transfer:**
+
 - Only essential fields (name, slug, title, category)
 - No full page content loaded
 
 ### Performance Metrics
 
 With ~90 pages:
+
 - API response time: ~50-100ms
 - Dropdown render time: ~10-20ms
 - Total time to show suggestions: ~200-300ms (including debounce)
 
 With 1000+ pages:
+
 - API response time: ~200-500ms (still acceptable)
 - Consider adding server-side caching for larger wikis
 
 ### Caching Strategy
 
 **Browser Caching:**
+
 - GET requests automatically cached by browser
 - Cache duration controlled by server headers
 
 **Future Enhancements:**
+
 - Add localStorage caching of page list
 - Implement incremental search on cached data
 - Add service worker for offline support
@@ -730,12 +764,14 @@ With 1000+ pages:
 **Symptoms:** Type in input, nothing shows
 
 **Checks:**
+
 - Browser console for errors
 - Verify `page-autocomplete.js` is loaded
 - Check network tab for API calls
 - Ensure typing 2+ characters
 
 **Fix:**
+
 ```javascript
 // Check if PageAutocomplete is defined
 if (typeof PageAutocomplete === 'undefined') {
@@ -748,11 +784,13 @@ if (typeof PageAutocomplete === 'undefined') {
 **Symptoms:** Dropdown appears but shows "No suggestions"
 
 **Checks:**
+
 - Verify pages exist in wiki
 - Check query matches page names
 - Test API directly: `curl "http://localhost:3000/api/page-suggestions?q=test"`
 
 **Fix:**
+
 ```bash
 # Test API endpoint
 curl "http://localhost:3000/api/page-suggestions?q=home"
@@ -781,11 +819,13 @@ this.dropdown.style.position = 'fixed';
 **Symptoms:** Arrow keys don't navigate suggestions
 
 **Checks:**
+
 - Verify `handleKeydown` is attached
 - Check for event.preventDefault() conflicts
 - Look for other keyboard handlers
 
 **Fix:**
+
 ```javascript
 inputElement.addEventListener('keydown', (e) => {
   // Ensure autocomplete handles keys first

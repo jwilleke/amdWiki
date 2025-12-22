@@ -1,3 +1,138 @@
+---
+project_state: "template"
+last_updated: "2025-12-21"
+agent_priority_level: "medium"
+blockers: []
+requires_human_review: ["major architectural changes", "security policy modifications", "deployment to production"]
+agent_autonomy_level: "high"
+---
+
+# Project Context for AI Agents
+
+This file serves as the single source of truth for project context and state. All Experts should read this and update file when working on this project.
+
+## Agent Context Protocol
+
+### Machine-Readable Metadata
+
+See YAML frontmatter above for current project state.
+
+### Update Requirements
+
+- Update `last_updated` field whenever making significant changes to this file
+- Update `project_state` to reflect current status: "template", "active", "maintenance", "archived"
+- Update `blockers` array with any current blockers preventing progress
+- Update `agent_priority_level` based on urgency: "low", "medium", "high", "critical"
+
+## CRITICAL
+
+- Read [GLOBAL-CODE-PREFERENCES.md](./GLOBAL-CODE-PREFERENCES.md) first - This contains overarching principles that govern all work on this project
+
+## Quick Navigation - Single Source of Truth
+
+Each document is the authoritative source for its topic. Other docs reference these sources, never duplicate content.
+
+### Core Documentation (Single Source of Truth)
+
+- [GLOBAL-CODE-PREFERENCES.md](./GLOBAL-CODE-PREFERENCES.md) - **SSoT:** Overarching principles (DRY, secrets management, progressive iteration, project logging)
+- [SETUP.md](./SETUP.md) - **SSoT:** Installation, prerequisites, environment setup, verification steps
+- [CODE_STANDARDS.md](./CODE_STANDARDS.md) - **SSoT:** Naming conventions, code formatting, linting, testing, commit message format, performance guidelines
+- [ARCHITECTURE.md](./ARCHITECTURE.md) - **SSoT:** Project structure, directory conventions, file organization, technology stack
+- [SECURITY.md](./SECURITY.md) - **SSoT:** Secret management, dependency security, authentication, encryption, deployment security
+- [CONTRIBUTING.md](./CONTRIBUTING.md) - **SSoT:** Development workflow, branching strategy, pull request process, code review
+- [DOCUMENTATION.md](./DOCUMENTATION.md) - **SSoT:** Documentation navigation, DRY principles applied to docs, finding the right doc
+- [project_log.md](docs/project_log.md) - **SSoT:** Historical record of work done, next steps, session tracking
+
+### Auxiliary Documentation
+
+- [README.md](./README.md) - Project overview and quick start (references above docs)
+- [.github/workflows/README.md](.github/workflows/README.md) - CI/CD pipelines and automation
+
+## Context Overview
+
+- Project Name: `$PROJECT_NAME` (from .env.example)
+- Description: A brief description of what this project does and its primary purpose.
+- Example Project (for reference):
+  - Project Name: `user-auth-service`
+  - Description: A secure authentication microservice that handles user registration, login, JWT token management, and password reset flows for distributed applications.
+
+## Key Decisions
+
+These may be done initially or as the project progresses. Include "Decision and rationale"
+
+## Architecture & Tech Stack
+
+See [docs/architecture/](./docs/architecture/) for comprehensive documentation.
+
+## Coding Standards
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for comprehensive guidelines.
+
+## Project Constraints
+
+These may be done initially or as the project progresses.
+
+## Project Log
+
+See [project_log.md](./project_log.md) for AI agent session tracking. Formated in the method show at top of file.
+
+## Agent Priority Matrix
+
+### Agents CAN Work Autonomously On
+
+- Code refactoring following established patterns
+- Bug fixes for non-critical issues
+- Documentation updates and corrections
+- Writing tests for existing functionality
+- Adding features explicitly described in project_log.md
+- Code quality improvements (linting, formatting, type safety)
+- Dependency updates (patch and minor versions)
+- Performance optimizations with measurable impact
+
+### Agents MUST Request Human Review For
+
+- Major architectural changes or new patterns
+- Security policy modifications or authentication changes
+- Database schema migrations
+- Deployment to production environments
+- Breaking API changes
+- Major dependency updates (major versions)
+- Changes affecting user data or privacy
+- Modifications to CI/CD pipelines
+- Adding new third-party services or integrations
+
+## Known Limitations & Constraints
+
+### Technical Constraints
+
+- Node.js v18+ required
+- TypeScript strict mode must remain enabled
+- All code must pass linting and tests before commit
+- No unencrypted secrets in Git (per GLOBAL-CODE-PREFERENCES.md)
+
+### Process Constraints
+
+- All work must be done in feature branches
+- Pull requests required for main branch
+- Update project_log.md after each session
+- Update this file's `last_updated` timestamp when making changes
+
+### Agent-Specific Guidelines
+
+- Always read this file before starting work
+- Check blockers array before proceeding
+- Respect the priority matrix above
+- When uncertain, ask for human guidance
+- Document all assumptions and decisions
+
+## Notes & Context
+
+## GitHub Workflow
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for branching strategy, commit guidelines, pull request process, and testing requirements.
+
+**Important:** Keep this file synchronized and updated. This is the bridge between different experts working on the same project.
+
 # amdWiki AI Agent Context
 
 Single source of truth for amdWiki project context. Read this first when working on the project.
@@ -25,7 +160,7 @@ Follow for overarching principles:
 
 ### ⚠️ CRITICAL - Read Before Making Changes
 
-__[PREVENTING-REGRESSIONS.md](docs/testing/PREVENTING-REGRESSIONS.md)__ - __Prevents breaking existing services__ (automated testing strategy)
+**[PREVENTING-REGRESSIONS.md](docs/testing/PREVENTING-REGRESSIONS.md)** - **Prevents breaking existing services** (automated testing strategy)
 
 ### Root-Level Documentation (Start Here)
 
@@ -52,9 +187,9 @@ __[PREVENTING-REGRESSIONS.md](docs/testing/PREVENTING-REGRESSIONS.md)__ - __Prev
 
 ## Project Overview
 
-__Project Name:__ amdWiki
+**Project Name:** amdWiki
 
-__Description:__ JSPWiki-inspired file-based wiki platform evolving into a comprehensive digital platform for personal and organizational use. Manager-based architecture with modular plugin system, file-based storage, and standards-first approach.
+**Description:** JSPWiki-inspired file-based wiki platform evolving into a comprehensive digital platform for personal and organizational use. Manager-based architecture with modular plugin system, file-based storage, and standards-first approach.
 
 ### Goals
 
@@ -66,15 +201,11 @@ __Description:__ JSPWiki-inspired file-based wiki platform evolving into a compr
 
 ## Current Status
 
-- __Overall Progress:__ Phase 1 (Core Wiki) 95% complete, Phase 2 (Content Modules) planning
-- __Current Version:__ 1.5.0
-- __Last Updated:__ 2025-12-16
-- __Phase:__ Mature development transitioning to platform expansion
-- __Next Milestone:__ Fix remaining E2E test selectors, Attachment UI Enhancement, TypeScript migration
-
-## Architecture & Tech Stack
-
-See [docs/architecture/](./docs/architecture/) for comprehensive documentation.
+- **Overall Progress:** Phase 1 (Core Wiki) 95% complete, Phase 2 (Content Modules) planning
+- **Current Version:** 1.5.0
+- **Last Updated:** 2025-12-16
+- **Phase:** Mature development transitioning to platform expansion
+- **Next Milestone:** Fix remaining E2E test selectors, Attachment UI Enhancement, TypeScript migration
 
 ### Key Architecture Patterns
 
@@ -151,13 +282,7 @@ WikiDocument should always be used.
 - Semantic Versioning
 - [markdownlint](.vscode/settings.json), .editorconfig, Prettier
 
-## Coding Standards
-
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for comprehensive guidelines.
-
 ### Key Standards
-
-
 
 #### Documentation
 
@@ -190,10 +315,6 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for comprehensive guidelines.
 - GitHub CLI for issues/PRs
 - Server restart required after config changes
 
-## Project Log
-
-See [project_log.md](./project_log.md) for AI agent session tracking. Formated in the method show at top of file.
-
 ## TODO & Next Steps
 
 See [docs/planning/TODO.md](/docs/planning/TODO.md) for comprehensive task list.
@@ -202,20 +323,20 @@ See [docs/planning/TODO.md](/docs/planning/TODO.md) for comprehensive task list.
 
 From TODO.md (Last Updated: October 19, 2025):
 
-1. __Attachment UI Enhancement__ (2-3 weeks)
+1. **Attachment UI Enhancement** (2-3 weeks)
    - Upload widget with drag-drop
    - Inline attachment management panel
    - Image/video preview and optimization
    - Attachment search functionality
    - Status: 📋 Not Started
 
-2. __TypeScript Migration__ (Ongoing)
+2. **TypeScript Migration** (Ongoing)
    - Progressive migration strategy
    - Strict mode enabled
    - CommonJS compatibility maintained
    - Status: 🔄 In Progress
 
-3. __WikiDocument DOM Testing__ (High Priority)
+3. **WikiDocument DOM Testing** (High Priority)
    - Comprehensive WikiDocument.test.js
    - 90%+ coverage target
    - WeakRef garbage collection tests
@@ -251,7 +372,7 @@ See [docs/planning/ROADMAP.md](/docs/planning/ROADMAP.md)
 
 #### Completed (Session 2025-12-15) - Issue #176 CLOSED
 
-__ConfigurationManager Enforcement (DRY Principle):__
+**ConfigurationManager Enforcement (DRY Principle):**
 
 - ✅ Removed legacy Config.js system entirely
 - ✅ All configuration now uses ConfigurationManager.getProperty()
@@ -261,14 +382,14 @@ __ConfigurationManager Enforcement (DRY Principle):__
 - ✅ Fixed #173: Jest --testPathPattern → --testPathPatterns (deprecation)
 - ✅ Deleted obsolete parser integration tests (mock-based, not real integration)
 
-__Files Modified:__
+**Files Modified:**
 
 - WikiEngine.js, WikiRoutes.js, ACLManager.js, ConfigurationManager.js
 - NotificationManager.js, SchemaManager.js, BackupManager.js, InstallService.js
 
-__Key Decision:__ ecosystem.config.js accepted as infrastructure-level (PM2 runs before app)
+**Key Decision:** ecosystem.config.js accepted as infrastructure-level (PM2 runs before app)
 
-__Test Status (2025-12-15):__
+**Test Status (2025-12-15):**
 
 - Test Suites: 21 failed, 48 passed (69 total)
 - Pass Rate: ~86%
@@ -277,7 +398,7 @@ __Test Status (2025-12-15):__
 
 #### Completed (Session 2025-12-12) - v1.5.0 MERGED
 
-__Docker Data Consolidation - PR #171 (MERGED):__
+**Docker Data Consolidation - PR #171 (MERGED):**
 
 - ✅ Consolidated all instance data into `./data/` directory
 - ✅ Updated 6 provider-specific paths in `app-default-config.json`
@@ -288,7 +409,7 @@ __Docker Data Consolidation - PR #171 (MERGED):__
 - ✅ Bumped version to 1.5.0 (BREAKING CHANGE)
 - ✅ Squash-merged PR #171 to master
 
-__New Data Structure (v1.5.0):__
+**New Data Structure (v1.5.0):**
 
 ```
 data/
@@ -302,11 +423,11 @@ data/
 └── versions/     - Page versions
 ```
 
-__Test Status (2025-12-12):__
+**Test Status (2025-12-12):**
 
 - Test Suites: 21 failed, 46 passed (67 total)
 - Tests: 277 failed, 1409 passed (1692 total)
-- __Pass Rate: 83.3%__
+- **Pass Rate: 83.3%**
 
 #### Issues Created (Session 2025-12-12)
 
@@ -329,7 +450,7 @@ __Test Status (2025-12-12):__
 
 #### Previous Completions (Session 2025-12-07)
 
-__Test Suite Fixes:__
+**Test Suite Fixes:**
 
 - ✅ Fixed UserManager.test.js (31 tests) - Complete rewrite to match actual implementation
   - Fixed authentication flow (getUser → verifyPassword)
@@ -342,7 +463,7 @@ __Test Suite Fixes:__
 - ✅ Fixed FilterChain.test.js (28 tests) - Quick win
 - ✅ Fixed SchemaManager.test.js (9 tests) - Quick win
 
-__Infrastructure:__
+**Infrastructure:**
 
 - ✅ Global test setup (jest.setup.js) with provider mocking
 - ✅ Comprehensive KNOWN-TEST-ISSUES.md documentation
@@ -366,37 +487,35 @@ __Infrastructure:__
 
 #### Next Milestones
 
-__Testing:__
+**Testing:**
 
-1. ✅ __DONE:__ Fix high-priority manager tests (WikiContext, PageManager, UserManager)
-2. __NEXT:__ Continue incremental test fixes during feature work (40 suites remaining)
+1. ✅ **DONE:** Fix high-priority manager tests (WikiContext, PageManager, UserManager)
+2. **NEXT:** Continue incremental test fixes during feature work (40 suites remaining)
 3. Target: < 10 failing suites within 1 month
 
-__Installation:__
+**Installation:**
 
-1. ✅ __DONE:__ Fix GitHub issue #167 (PID lock mechanism)
+1. ✅ **DONE:** Fix GitHub issue #167 (PID lock mechanism)
 2. Manual browser testing of install form (now #167 is fixed)
 3. Test partial installation recovery scenario
 4. Attachment UI Enhancement completion
 5. WikiDocument comprehensive testing
 
-## Notes & Context
-
 ### Project Maturity
 
-- __Phase 1__ (Core Wiki): 95% complete
-- __Current Version:__ 1.5.0 (Semantic Versioning)
-- __Architecture:__ Mature, manager-based, well-documented
-- __Documentation:__ 100+ files, 95% JSDoc coverage
-- __Testing:__ 376+ tests, Jest framework
+- **Phase 1** (Core Wiki): 95% complete
+- **Current Version:** 1.5.0 (Semantic Versioning)
+- **Architecture:** Mature, manager-based, well-documented
+- **Documentation:** 100+ files, 95% JSDoc coverage
+- **Testing:** 376+ tests, Jest framework
 
 ### Key Technologies
 
-- __Storage:__ File-based Markdown with YAML frontmatter
-- __Versioning:__ Delta storage (fast-diff) + compression (pako)
-- __Parsing:__ Showdown + custom JSPWiki handlers
-- __Sessions:__ express-session with FileStore
-- __Process Management:__ PM2 with custom server.sh wrapper
+- **Storage:** File-based Markdown with YAML frontmatter
+- **Versioning:** Delta storage (fast-diff) + compression (pako)
+- **Parsing:** Showdown + custom JSPWiki handlers
+- **Sessions:** express-session with FileStore
+- **Process Management:** PM2 with custom server.sh wrapper
 
 ### External Dependencies
 
@@ -406,10 +525,10 @@ __Installation:__
 
 ### Communication
 
-- __GitHub Issues:__ Bug reports and feature requests
-- __GitHub Discussions:__ Questions and general discussion
-- __GitHub CLI:__ Primary interaction method
-- __Draft PRs:__ Early feedback on complex changes
+- **GitHub Issues:** Bug reports and feature requests
+- **GitHub Discussions:** Questions and general discussion
+- **GitHub CLI:** Primary interaction method
+- **Draft PRs:** Early feedback on complex changes
 
 ### Performance Notes
 
@@ -424,7 +543,7 @@ __Installation:__
 
 ### CRITICAL: Preventing Regressions**
 
-⚠️ __Changes breaking previously working services is a known issue.__
+⚠️ **Changes breaking previously working services is a known issue.**
 
 See [docs/development/PREVENTING-REGRESSIONS.md](/docs/development/PREVENTING-REGRESSIONS.md) for comprehensive prevention strategy including:
 
@@ -433,40 +552,40 @@ See [docs/development/PREVENTING-REGRESSIONS.md](/docs/development/PREVENTING-RE
 - Integration testing approach
 - Manager contract enforcement
 
-__Before Starting:__
+**Before Starting:**
 
 - Read this [AGENTS.md](./AGENTS.md) - Project context and current state
 - Review [CONTRIBUTING.md](./CONTRIBUTING.md) - Development standards
 - Check [docs/planning/TODO.md](./docs/planning/TODO.md) - Current tasks and priorities
 - Review [CHANGELOG.md](./CHANGELOG.md) - Recent changes (v1.5.0)
-- __Run smoke tests:__ `npm run smoke` (if available, see PREVENTING-REGRESSIONS.md)
-- __If changing manager APIs:__ Read relevant contract in [docs/development/PREVENTING-REGRESSIONS.md](/docs/development/PREVENTING-REGRESSIONS.md)
+- **Run smoke tests:** `npm run smoke` (if available, see PREVENTING-REGRESSIONS.md)
+- **If changing manager APIs:** Read relevant contract in [docs/development/PREVENTING-REGRESSIONS.md](/docs/development/PREVENTING-REGRESSIONS.md)
 
-__During Work:__
+**During Work:**
 
 - Follow manager-based architecture patterns (extend BaseManager)
 - Use WikiContext for request/user context (single source of truth)
 - Write comprehensive JSDoc documentation (95% coverage standard)
-- __Write tests BEFORE changing code__ (TDD approach prevents regressions)
+- **Write tests BEFORE changing code** (TDD approach prevents regressions)
 - Create tests in `__tests__/` directories (mock all file I/O)
-- __Run tests after each significant change:__ `npm test -- <relevant-file>.test.js`
+- **Run tests after each significant change:** `npm test -- <relevant-file>.test.js`
 - Reference docs, don't duplicate (DRY principle)
 - Use GitHub CLI for issues/PRs
 
-__After Completing Work:__
+**After Completing Work:**
 
-- __Run full test suite:__ `npm test` (MUST PASS before committing)
-- __Run integration tests:__ `npm run test:integration` (if available)
-- __Verify coverage didn't drop:__ `npm test -- --coverage`
+- **Run full test suite:** `npm test` (MUST PASS before committing)
+- **Run integration tests:** `npm run test:integration` (if available)
+- **Verify coverage didn't drop:** `npm test -- --coverage`
 - Update [project_log.md](./docs/project_log.md) with session details
 - Update [docs/planning/TODO.md](./docs/planning/TODO.md) if tasks completed
 - Update [CHANGELOG.md](./CHANGELOG.md) for version releases
 - Restart server if config changes: `./server.sh restart`
-- __If ANY test fails, do NOT commit. Fix first.__
+- **If ANY test fails, do NOT commit. Fix first.**
 
 ### amdWiki-Specific Patterns
 
-__Creating New Managers:__
+**Creating New Managers:**
 
 ```javascript
 // Extend BaseManager, add JSDoc, implement initialize()
@@ -482,7 +601,7 @@ class NewManager extends BaseManager {
 }
 ```
 
-__Using WikiContext:__
+**Using WikiContext:**
 
 ```javascript
 // In route handlers
@@ -496,14 +615,14 @@ const wikiContext = this.createWikiContext(req, {
 const templateData = this.getTemplateDataFromContext(wikiContext);
 ```
 
-__Configuration Access:__
+**Configuration Access:**
 
 ```javascript
 const configManager = engine.getManager('ConfigurationManager');
 const value = configManager.getProperty('amdwiki.category.property', 'default');
 ```
 
-__Server Management:__
+**Server Management:**
 
 ```bash
 ./server.sh start dev    # Development mode
@@ -536,16 +655,16 @@ __Server Management:__
 
 ### Testing & Quality Assurance
 
-- __[docs/testing/Testing-Summary.md](./docs/testing/Testing-Summary.md)__ - Current test status and quick reference
-- __[docs/testing/Complete-Testing-Guide.md](./docs/testing/Complete-Testing-Guide.md)__ - Comprehensive testing documentation
-- __[docs/testing/PREVENTING-REGRESSIONS.md](./docs/testing/PREVENTING-REGRESSIONS.md)__ - Regression prevention strategy
-- __Test Commands:__
+- **[docs/testing/Testing-Summary.md](./docs/testing/Testing-Summary.md)** - Current test status and quick reference
+- **[docs/testing/Complete-Testing-Guide.md](./docs/testing/Complete-Testing-Guide.md)** - Comprehensive testing documentation
+- **[docs/testing/PREVENTING-REGRESSIONS.md](./docs/testing/PREVENTING-REGRESSIONS.md)** - Regression prevention strategy
+- **Test Commands:**
   - Unit tests: `npm test` (Jest)
   - Coverage: `npm run test:coverage`
   - E2E tests: `npm run test:e2e` (Playwright)
   - E2E with UI: `npm run test:e2e:ui`
-- __E2E Test Credentials:__ admin / admin123 (or set E2E_ADMIN_USER, E2E_ADMIN_PASS)
-- __Test Requirements:__
+- **E2E Test Credentials:** admin / admin123 (or set E2E_ADMIN_USER, E2E_ADMIN_PASS)
+- **Test Requirements:**
   - Write tests BEFORE changing code (TDD)
   - All tests must pass before committing
   - Coverage must not decrease
@@ -560,11 +679,11 @@ __Server Management:__
 
 ### API & Development
 
-- __[docs/development/PREVENTING-REGRESSIONS.md](./docs/development/PREVENTING-REGRESSIONS.md)__ - Regression prevention strategy (CI/CD, testing)
+- **[docs/development/PREVENTING-REGRESSIONS.md](./docs/development/PREVENTING-REGRESSIONS.md)** - Regression prevention strategy (CI/CD, testing)
 - [docs/api/](./docs/api/) - API documentation
 - [docs/developer/](./docs/developer/) - Developer guides
 - [docs/migration/](./docs/migration/) - Migration guides
 
 ---
 
-__Important:__ Keep AGENTS.md and project_log.md synchronized. They are the bridge between different agents working on the same project.
+**Important:** Keep AGENTS.md and project_log.md synchronized. They are the bridge between different agents working on the same project.

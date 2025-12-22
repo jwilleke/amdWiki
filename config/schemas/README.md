@@ -7,6 +7,7 @@ This directory is for JSON Schema files used by SchemaManager for validation.
 Place `.json` files containing JSON Schema definitions here. They will be automatically loaded by SchemaManager on startup.
 
 Example schema file structure:
+
 ```json
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
@@ -20,6 +21,7 @@ Example schema file structure:
 ```
 
 Schemas can be retrieved in code via:
+
 ```javascript
 const schemaManager = engine.getManager('SchemaManager');
 const schema = schemaManager.getSchema('my-schema');

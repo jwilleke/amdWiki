@@ -15,6 +15,7 @@ orchestrates user operations through a pluggable provider system, allowing
 different storage backends (file, database, LDAP, etc.) to be used.
 
 Key responsibilities:
+
 - User authentication (login/logout)
 - Password management with hashing
 - Role and permission management
@@ -30,8 +31,8 @@ backends (file, database, LDAP, etc.) to be swapped via configuration.
 
 ## See
 
- - [BaseManager](../../BaseManager/classes/export=.md) for base functionality
- - FileUserProvider for default provider implementation
+- [BaseManager](../../BaseManager/classes/export=.md) for base functionality
+- FileUserProvider for default provider implementation
 
 ## Example
 

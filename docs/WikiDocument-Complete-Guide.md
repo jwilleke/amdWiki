@@ -10,15 +10,15 @@ This comprehensive guide covers everything about WikiDocument in the amdWiki pro
 
 ## Table of Contents
 
-1.  [Overview](#overview)
-2.  [What is WikiDocument?](#what-is-wikidocument)
-3.  [Why WikiDocument Exists](#why-wikidocument-exists)
-4.  [WikiDocument Class API](#wikidocument-class-api)
-5.  [The DOM Extraction Pipeline](#the-dom-extraction-pipeline)
-6.  [Architecture](#architecture)
-7.  [Usage Examples](#usage-examples)
-8.  [Testing](#testing)
-9.  [Performance](#performance)
+1. [Overview](#overview)
+2. [What is WikiDocument?](#what-is-wikidocument)
+3. [Why WikiDocument Exists](#why-wikidocument-exists)
+4. [WikiDocument Class API](#wikidocument-class-api)
+5. [The DOM Extraction Pipeline](#the-dom-extraction-pipeline)
+6. [Architecture](#architecture)
+7. [Usage Examples](#usage-examples)
+8. [Testing](#testing)
+9. [Performance](#performance)
 10. [Migration Guide for Custom Handlers](#migration-guide-for-custom-handlers)
 11. [Troubleshooting](#troubleshooting)
 12. [Related Documentation](#related-documentation)
@@ -43,7 +43,7 @@ This comprehensive guide covers everything about WikiDocument in the amdWiki pro
 - **WikiDocument Class:** Fully implemented and tested, with 100% test coverage. It is considered production-ready.
 - **DOM Extraction Pipeline:** The pipeline that uses `WikiDocument` is also fully implemented and is the default rendering method in the application.
 
---- 
+---
 
 ## What is WikiDocument?
 
@@ -53,10 +53,10 @@ This comprehensive guide covers everything about WikiDocument in the amdWiki pro
 
 Instead of manipulating content as strings through multiple, sequential phases (which causes order-dependency issues), `WikiDocument` enables a more robust process:
 
-1.  JSPWiki-specific syntax is **extracted** from the raw markup.
-2.  These extracted elements are converted into **DOM nodes** within a `WikiDocument` instance.
-3.  The remaining "safe" markdown is processed by a standard markdown parser (Showdown).
-4.  The rendered DOM nodes are **merged** back into the final HTML.
+1. JSPWiki-specific syntax is **extracted** from the raw markup.
+2. These extracted elements are converted into **DOM nodes** within a `WikiDocument` instance.
+3. The remaining "safe" markdown is processed by a standard markdown parser (Showdown).
+4. The rendered DOM nodes are **merged** back into the final HTML.
 
 This separation of concerns ensures that the markdown parser and the JSPWiki syntax handlers do not interfere with each other.
 
@@ -67,7 +67,7 @@ The design is modeled after JSPWiki's `WikiDocument`, which extends a JDOM2 `Doc
 - **JSPWiki:** Uses `org.jdom2.Document` and the JDOM2 API.
 - **amdWiki:** Uses `linkedom` to provide a W3C-compliant DOM API, which is more familiar to JavaScript developers.
 
---- 
+---
 
 ## Why WikiDocument Exists
 
@@ -88,7 +88,7 @@ The `WikiDocument` class enables a modern, robust parsing architecture that sepa
 
 This architecture permanently fixes the escaping and order-dependency issues.
 
---- 
+---
 
 ## WikiDocument Class API
 
@@ -98,8 +98,8 @@ This architecture permanently fixes the escaping and order-dependency issues.
 
 Creates a new `WikiDocument` instance.
 
--   **`pageData`** (string): The original, raw wiki markup.
--   **`context`** (Object | null): The rendering context, stored as a `WeakRef` to prevent memory leaks.
+- **`pageData`** (string): The original, raw wiki markup.
+- **`context`** (Object | null): The rendering context, stored as a `WeakRef` to prevent memory leaks.
 
 ```javascript
 const WikiDocument = require('./src/parsers/dom/WikiDocument');
@@ -109,20 +109,25 @@ const doc = new WikiDocument('!My Page\nSome content.', { pageName: 'MyPage' });
 ### Page Data and Context
 
 #### `getPageData()` / `setPageData(data)`
+
 Gets or sets the original raw wiki markup associated with the document.
 
 #### `getContext()` / `setContext(context)`
+
 Gets the rendering context (if it hasn't been garbage-collected) or sets a new one. The context is stored in a `WeakRef`.
 
 ### Metadata
 
 #### `getMetadata()`
+
 Returns a *copy* of all metadata associated with the document.
 
 #### `setMetadata(key, value)`
+
 Sets a value in the document's metadata.
 
 #### `getMetadataValue(key, defaultValue)`
+
 Retrieves a single metadata value, returning `defaultValue` if the key does not exist.
 
 ```javascript
@@ -133,6 +138,7 @@ const author = doc.getMetadataValue('author', 'Unknown'); // 'John Doe'
 ### DOM Creation
 
 #### `createElement(tag, attributes)`
+
 Creates a new HTML element.
 
 ```javascript
@@ -140,53 +146,59 @@ const heading = doc.createElement('h1', { id: 'title', class: 'wiki-heading' });
 ```
 
 #### `createTextNode(text)`
+
 Creates a text node.
 
 #### `createCommentNode(text)`
+
 Creates an HTML comment node.
 
 ### DOM Manipulation
 
 The class proxies standard DOM manipulation methods to the root element:
 
--   **`appendChild(node)`**: Appends a child to the document's root.
--   **`insertBefore(newNode, referenceNode)`**
--   **`removeChild(node)`**
--   **`replaceChild(newNode, oldNode)`**
+- **`appendChild(node)`**: Appends a child to the document's root.
+- **`insertBefore(newNode, referenceNode)`**
+- **`removeChild(node)`**
+- **`replaceChild(newNode, oldNode)`**
 
 ### DOM Query
 
 The class proxies standard DOM query methods:
 
--   **`querySelector(selector)`**: Finds the first element matching a CSS selector.
--   **`querySelectorAll(selector)`**: Finds all elements matching a CSS selector.
--   **`getElementById(id)`**
--   **`getElementsByClassName(className)`**
--   **`getElementsByTagName(tagName)`**
+- **`querySelector(selector)`**: Finds the first element matching a CSS selector.
+- **`querySelectorAll(selector)`**: Finds all elements matching a CSS selector.
+- **`getElementById(id)`**
+- **`getElementsByClassName(className)`**
+- **`getElementsByTagName(tagName)`**
 
 ### Serialization
 
 #### `toHTML()`
+
 Serializes the document's DOM tree back into an HTML string.
 
 #### `toString()`
+
 Returns a debug-friendly string representation (e.g., `"WikiDocument[5 nodes, 123 chars]"`).
 
 #### `toJSON()`
+
 Serializes the entire `WikiDocument` state (including `pageData`, `html`, and `metadata`) to a plain JavaScript object suitable for caching.
 
 #### `static fromJSON(json, context)`
+
 A static method that reconstructs a `WikiDocument` instance from a JSON object (retrieved from a cache).
 
 ### Utility Methods
 
--   **`getRootElement()`**: Returns the root `<body>` element of the internal DOM.
--   **`clear()`**: Removes all content from the document.
--   **`getChildCount()`**: Returns the number of top-level nodes.
--   **`isEmpty()`**: Returns `true` if the document has no content.
--   **`getStatistics()`**: Returns an object with statistics like node count, content length, etc.
+- **`getRootElement()`**: Returns the root `<body>` element of the internal DOM.
+- **`clear()`**: Removes all content from the document.
+- **`getChildCount()`**: Returns the number of top-level nodes.
+- **`isEmpty()`**: Returns `true` if the document has no content.
+- **`getStatistics()`**: Returns an object with statistics like node count, content length, etc.
 
---- 
+---
 
 ## The DOM Extraction Pipeline
 
@@ -241,7 +253,7 @@ A static method that reconstructs a `WikiDocument` instance from a JSON object (
 
 This architecture ensures that Showdown only ever sees "safe" markdown, and the JSPWiki handlers only operate on the specific syntax they are designed for, preventing conflicts.
 
---- 
+---
 
 ## Architecture
 
@@ -264,8 +276,8 @@ src/parsers/
 
 `WikiContext` and `WikiDocument` work together but have distinct roles:
 
--   **`WikiContext` (High-Level Orchestrator):** Manages the entire request-to-render lifecycle. It *initiates* the parsing process and holds references to the managers.
--   **`WikiDocument` (Low-Level Data Structure):** Represents the content *during* the parsing process. It is created and used internally by `MarkupParser` and its handlers.
+- **`WikiContext` (High-Level Orchestrator):** Manages the entire request-to-render lifecycle. It *initiates* the parsing process and holds references to the managers.
+- **`WikiDocument` (Low-Level Data Structure):** Represents the content *during* the parsing process. It is created and used internally by `MarkupParser` and its handlers.
 
 ```
 Request → WikiContext created
@@ -280,7 +292,7 @@ Request → WikiContext created
           Returns final HTML
 ```
 
---- 
+---
 
 ## Usage Examples
 
@@ -302,53 +314,53 @@ await cache.set(cacheKey, JSON.stringify(doc.toJSON()));
 return doc;
 ```
 
---- 
+---
 
 ## Testing
 
 The `WikiDocument` class and its associated pipeline are thoroughly tested.
 
--   **`src/parsers/dom/__tests__/WikiDocument.test.js`**: Contains **49 tests** covering every method of the `WikiDocument` class, achieving 100% test coverage.
--   **Extraction & Merge Tests**: Over 70 additional tests validate the extraction and merge pipeline in `MarkupParser`.
+- **`src/parsers/dom/__tests__/WikiDocument.test.js`**: Contains **49 tests** covering every method of the `WikiDocument` class, achieving 100% test coverage.
+- **Extraction & Merge Tests**: Over 70 additional tests validate the extraction and merge pipeline in `MarkupParser`.
 
 To run the core `WikiDocument` tests:
 `npm test -- src/parsers/dom/__tests__/WikiDocument.test.js`
 
---- 
+---
 
 ## Performance
 
 `WikiDocument` is built on `linkedom`, a high-performance DOM library for Node.js, chosen over heavier alternatives like `jsdom`.
 
--   **Throughput**: Benchmarks show a throughput of over **2,500 pages/second**.
--   **Memory Usage**: A cached `WikiDocument` instance for a complex page is only around **21 KB**.
--   **Operation Speed**: Most individual DOM operations are sub-millisecond.
+- **Throughput**: Benchmarks show a throughput of over **2,500 pages/second**.
+- **Memory Usage**: A cached `WikiDocument` instance for a complex page is only around **21 KB**.
+- **Operation Speed**: Most individual DOM operations are sub-millisecond.
 
 The entire DOM extraction pipeline is approximately **20% faster** and uses **10% less memory** than the legacy 7-phase string-based parser it replaced.
 
---- 
+---
 
 ## Migration Guide for Custom Handlers
 
 If you have written custom parser handlers for the legacy 7-phase system, you will need to migrate them to the new DOM-based approach. A detailed guide with patterns and examples is available at: **[docs/migration/WikiDocument-DOM-Migration.md](./migration/WikiDocument-DOM-Migration.md)**.
 
---- 
+---
 
 ## Troubleshooting
 
--   **Placeholders visible in output**: This means the merge phase failed. Ensure your custom DOM nodes are being created correctly and have the `data-jspwiki-id` attribute.
--   **JSPWiki syntax not processed**: This points to a failure in the extraction phase. Check that your syntax is not inside a code block and that the extraction regex in `MarkupParser.js` is correct.
+- **Placeholders visible in output**: This means the merge phase failed. Ensure your custom DOM nodes are being created correctly and have the `data-jspwiki-id` attribute.
+- **JSPWiki syntax not processed**: This points to a failure in the extraction phase. Check that your syntax is not inside a code block and that the extraction regex in `MarkupParser.js` is correct.
 
---- 
+---
 
 ## Related Documentation
 
 This guide consolidates information from many original planning and architecture documents. For historical context or deeper details, see:
 
--   **Summary**: [WikiDocument.md](../../WikiDocument.md)
--   **Original Architecture Doc**: [docs/architecture/WikiDocument-DOM-Architecture.md](architecture/WikiDocument-DOM-Architecture.md)
--   **Migration Guide**: [docs/migration/WikiDocument-DOM-Migration.md](migration/WikiDocument-DOM-Migration.md)
--   **API Reference**: [docs/architecture/WikiDocument-API.md](architecture/WikiDocument-API.md)
--   **Initial Research**:
-    -   [docs/planning/WikiDocument-DOM-Solution.md](planning/WikiDocument-DOM-Solution.md)
-    -   [docs/architecture/WikiDocument-DOM-Library-Evaluation.md](architecture/WikiDocument-DOM-Library-Evaluation.md)
+- **Summary**: [WikiDocument.md](../../WikiDocument.md)
+- **Original Architecture Doc**: [docs/architecture/WikiDocument-DOM-Architecture.md](architecture/WikiDocument-DOM-Architecture.md)
+- **Migration Guide**: [docs/migration/WikiDocument-DOM-Migration.md](migration/WikiDocument-DOM-Migration.md)
+- **API Reference**: [docs/architecture/WikiDocument-API.md](architecture/WikiDocument-API.md)
+- **Initial Research**:
+  - [docs/planning/WikiDocument-DOM-Solution.md](planning/WikiDocument-DOM-Solution.md)
+  - [docs/architecture/WikiDocument-DOM-Library-Evaluation.md](architecture/WikiDocument-DOM-Library-Evaluation.md)

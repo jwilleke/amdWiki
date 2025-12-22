@@ -15,6 +15,7 @@ which extends JDOM2 Document. This provides a DOM-based alternative to
 string-based parsing, eliminating order-dependency issues.
 
 Key Features:
+
 - DOM-based structure (using linkedom for performance)
 - Cacheable representation
 - Metadata storage
@@ -22,7 +23,7 @@ Key Features:
 - Standard W3C DOM API
 
 JSPWiki Reference:
-https://jspwiki.apache.org/apidocs/2.12.1/org/apache/wiki/parser/WikiDocument.html
+<https://jspwiki.apache.org/apidocs/2.12.1/org/apache/wiki/parser/WikiDocument.html>
 
 Related: GitHub Issue #93 - Migrate to WikiDocument DOM-Based Parsing
 

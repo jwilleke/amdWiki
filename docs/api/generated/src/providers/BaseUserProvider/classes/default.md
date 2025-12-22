@@ -18,8 +18,8 @@ whether from filesystem (JSON), database, LDAP, or other backends.
 
 ## See
 
- - FileUserProvider for filesystem implementation
- - UserManager for usage
+- FileUserProvider for filesystem implementation
+- UserManager for usage
 
 ## Extended by
 

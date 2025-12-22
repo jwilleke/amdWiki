@@ -17,8 +17,8 @@ configuration files, and other structured data.
 
 ## See
 
- - [BaseManager](../../BaseManager/classes/export=.md) for base functionality
- - ValidationManager for schema usage
+- [BaseManager](../../BaseManager/classes/export=.md) for base functionality
+- ValidationManager for schema usage
 
 ## Example
 

@@ -15,6 +15,7 @@ page versions as deltas. Version 1 stores full content, subsequent versions
 store only the differences from the previous version.
 
 fast-diff returns an array of tuples: [operation, text]
+
 - operation: -1 (delete), 0 (equal), 1 (insert)
 - text: the text content
 

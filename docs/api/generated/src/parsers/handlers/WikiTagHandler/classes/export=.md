@@ -11,6 +11,7 @@ Defined in: [src/parsers/handlers/WikiTagHandler.js:14](https://github.com/jwill
 WikiTagHandler - JSP-like tag processing for conditional content and page inclusion
 
 Supports JSPWiki WikiTags:
+
 - <wiki:If test="condition">content</wiki:If> - Conditional display
 - <wiki:Include page="PageName" /> - Page inclusion
 - <wiki:UserCheck status="authenticated">content</wiki:UserCheck> - User validation

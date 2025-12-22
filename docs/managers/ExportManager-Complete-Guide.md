@@ -74,6 +74,7 @@ async exportPageToHtml(pageName, user = null)
 ```
 
 **Parameters:**
+
 - `pageName` - Name of the page to export
 - `user` - User object for locale-aware timestamps (optional)
 
@@ -82,12 +83,14 @@ async exportPageToHtml(pageName, user = null)
 **Throws:** `Error` if page not found
 
 **Features:**
+
 - Full HTML5 document with `<head>` and `<body>`
 - Responsive CSS styling included
 - Page metadata (modified date, categories, keywords)
 - Print-friendly styles
 
 **Example:**
+
 ```javascript
 const exportManager = engine.getManager('ExportManager');
 const html = await exportManager.exportPageToHtml('Main', req.user);
@@ -109,12 +112,14 @@ async exportPagesToHtml(pageNames, user = null)
 ```
 
 **Parameters:**
+
 - `pageNames` - Array of page names to export
 - `user` - User object for locale-aware timestamps (optional)
 
 **Returns:** `string` - Combined HTML document with TOC
 
 **Features:**
+
 - Auto-generated table of contents
 - Two-column TOC layout
 - Page dividers between sections
@@ -122,6 +127,7 @@ async exportPagesToHtml(pageNames, user = null)
 - Print page-break hints
 
 **Example:**
+
 ```javascript
 const pages = ['Introduction', 'Getting Started', 'Configuration', 'FAQ'];
 const html = await exportManager.exportPagesToHtml(pages);
@@ -138,17 +144,20 @@ async exportToMarkdown(pageNames, user = null)
 ```
 
 **Parameters:**
+
 - `pageNames` - Single page name or array of page names
 - `user` - User object for timestamps (optional)
 
 **Returns:** `string` - Markdown content
 
 **Features:**
+
 - Raw page content (no rendering)
 - Multi-page exports include TOC
 - Page separators between pages
 
 **Example:**
+
 ```javascript
 // Single page
 const md = await exportManager.exportToMarkdown('Main');
@@ -170,6 +179,7 @@ async saveExport(content, filename, format)
 ```
 
 **Parameters:**
+
 - `content` - Content to save
 - `filename` - Base filename (sanitized automatically)
 - `format` - File extension (html, md, etc.)
@@ -179,6 +189,7 @@ async saveExport(content, filename, format)
 **Filename format:** `{sanitized-name}_{YYYY-MM-DD}.{format}`
 
 **Example:**
+
 ```javascript
 const html = await exportManager.exportPageToHtml('Main');
 const path = await exportManager.saveExport(html, 'Main Export', 'html');
@@ -198,6 +209,7 @@ async getExports()
 **Returns:** `Array<Object>` sorted by creation date (newest first)
 
 Each object contains:
+
 - `filename` - File name
 - `path` - Full file path
 - `size` - File size in bytes
@@ -215,6 +227,7 @@ async deleteExport(filename)
 ```
 
 **Parameters:**
+
 - `filename` - Name of file to delete
 
 ---
@@ -230,6 +243,7 @@ getFormattedTimestamp(user = null)
 ```
 
 **Parameters:**
+
 - `user` - User object with locale preferences (optional)
 
 **Returns:** `string` - Formatted date/time string

@@ -45,10 +45,13 @@
     "tsBuildInfoFile": "./.tsbuildinfo"
   },
   "include": [
+    "src/**/*.ts",
+    "eslint.config.mjs",  // Add this line
     "src/**/*",
     "plugins/**/*",
     "app.js",
-    "mcp-server.ts"
+    "mcp-server.ts",
+    "tests/**/*"  // Add this to cover .js test files
   ],
   "exclude": [
     "node_modules",

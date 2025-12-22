@@ -14,6 +14,7 @@ Provides a sophisticated, configurable filter system that processes content thro
 multiple stages with priority-based execution, performance monitoring, and error handling.
 
 Design Principles:
+
 - Complete modularity through app-default-config.json and app-custom-config.json
 - Zero hardcoded values - everything configurable
 - Reusable architecture for any content filtering needs

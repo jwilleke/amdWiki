@@ -274,7 +274,7 @@ Next token or null if EOF
 
 Defined in: [src/parsers/dom/Tokenizer.js:783](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L783)
 
-Parse bold: __text__
+Parse bold: **text**
 
 #### Returns
 
@@ -292,6 +292,7 @@ Defined in: [src/parsers/dom/Tokenizer.js:594](https://github.com/jwilleke/amdWi
 
 Parse bracket directive [{...}]
 Determines type based on content:
+
 - [{$...}] → Variable
 - [{SET ...}] → Metadata
 - [{...}] → Plugin

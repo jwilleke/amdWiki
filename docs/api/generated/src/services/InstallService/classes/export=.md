@@ -11,6 +11,7 @@ Defined in: [src/services/InstallService.js:16](https://github.com/jwilleke/amdW
 InstallService - Handles first-run installation and configuration
 
 Manages the initial setup process including:
+
 - Writing app-custom-config.json with user-provided settings
 - Creating users/organizations.json with Schema.org organization data
 - Copying startup pages from required-pages/ to pages/

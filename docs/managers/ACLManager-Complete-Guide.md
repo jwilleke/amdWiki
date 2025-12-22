@@ -60,6 +60,7 @@ async initialize() {
 ```
 
 ACLManager requires:
+
 - **ConfigurationManager** - For loading policies and settings
 - **PolicyEvaluator** - For global policy evaluation (optional but recommended)
 
@@ -126,6 +127,7 @@ parsePageACL(content) {
 ```
 
 **Returns:** `Map<string, Set<string>>` where:
+
 - Key = action (lowercase)
 - Value = Set of allowed principals
 
@@ -146,12 +148,14 @@ const canEdit = await aclManager.checkPagePermissionWithContext(wikiContext, 'ed
 ```
 
 **Parameters:**
+
 - `wikiContext` - WikiContext with pageName, userContext, content
 - `action` - Action to check: view, edit, delete, create, rename, upload
 
 **Returns:** `Promise<boolean>`
 
 **Evaluation Flow:**
+
 1. Map action to policy action (e.g., `view` → `page:read`)
 2. Call PolicyEvaluator.evaluateAccess() if available
 3. If policy decides, log and return
@@ -174,6 +178,7 @@ async performStandardACLCheck(pageName, action, user, pageContent)
 ```
 
 Standard ACL check without policy evaluation:
+
 - Checks admin:system permission first
 - Parses ACL from content
 - Falls back to role-based defaults
@@ -190,6 +195,7 @@ async checkContextRestrictions(user, context)
 ```
 
 Checks all context restrictions:
+
 1. Maintenance mode
 2. Business hours
 3. Holiday restrictions
@@ -223,6 +229,7 @@ async checkEnhancedTimeRestrictions(user, context)
 ```
 
 Comprehensive time-based checking:
+
 1. Check holidays first (they override all)
 2. Check custom schedules
 3. Fall back to business hours
@@ -234,6 +241,7 @@ async checkHolidayRestrictions(currentDate, holidaysConfig)
 ```
 
 Checks both exact dates and recurring holidays:
+
 - Exact: `"2025-12-25": { "name": "Christmas" }`
 - Recurring: `"*-12-25": { "name": "Christmas" }`
 
@@ -257,6 +265,7 @@ logAccessDecision({
 ```
 
 Logs to:
+
 - Engine logger (info for allowed, warn for denied)
 - NotificationManager for UI surfacing
 

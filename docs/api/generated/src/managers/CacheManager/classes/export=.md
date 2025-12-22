@@ -11,6 +11,7 @@ Defined in: [src/managers/CacheManager.js:37](https://github.com/jwilleke/amdWik
 CacheManager - Centralized cache management for amdWiki
 
 Provides a unified interface for caching across all managers with support for:
+
 - Multiple cache backends via provider pattern (NodeCache, Redis, Null)
 - Cache regions (namespaces) for different managers
 - Configurable TTL and cache policies
@@ -18,6 +19,7 @@ Provides a unified interface for caching across all managers with support for:
 - Provider fallback pattern following #102, #104, #105, #106
 
 Configuration (all lowercase):
+
 - amdwiki.cache.enabled - Enable/disable caching
 - amdwiki.cache.provider.default - Default provider name
 - amdwiki.cache.provider - Active provider name

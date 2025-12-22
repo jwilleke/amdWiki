@@ -192,6 +192,7 @@ if (canDelete) {
 ```
 
 **Permissions:**
+
 - `attachment:upload` - Upload new attachments
 - `attachment:delete` - Delete attachments
 

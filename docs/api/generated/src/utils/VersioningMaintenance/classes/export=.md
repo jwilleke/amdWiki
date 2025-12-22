@@ -11,6 +11,7 @@ Defined in: [src/utils/VersioningMaintenance.js:26](https://github.com/jwilleke/
 VersioningMaintenance - Automated maintenance utilities for VersioningFileProvider
 
 Provides batch operations for:
+
 - Version cleanup (purging old versions)
 - Version compression (gzip old versions)
 - Storage analytics (usage statistics)

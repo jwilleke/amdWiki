@@ -47,6 +47,7 @@ In wiki pages, plugins are invoked with:
 ```
 
 Examples:
+
 ```wiki
 [{CurrentTime format='HH:mm:ss'}]
 [{Search query='wiki' max=10}]

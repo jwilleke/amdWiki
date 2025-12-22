@@ -15,6 +15,7 @@ management for creating new pages from predefined templates and managing
 wiki themes for UI customization.
 
 Key features:
+
 - Page template management
 - Theme loading and switching
 - Default template creation

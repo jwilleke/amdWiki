@@ -11,6 +11,7 @@ Defined in: [src/parsers/handlers/JSPWikiPreprocessor.js:16](https://github.com/
 JSPWikiPreprocessor - Processes JSPWiki syntax BEFORE markdown
 
 This handler runs in Phase 1 (Preprocessing) to:
+
 1. Parse nested %%.../%% style blocks
 2. Convert JSPWiki table syntax (|| header ||, | cell |) to HTML
 3. Apply style classes to tables

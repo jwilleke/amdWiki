@@ -1,4 +1,5 @@
 # Everyday “Must-Do” Functions Every Business Has to Handle  
+
 (Super simple, tangible, day-to-day version)
 
 Here’s what actually has to happen in every business, every week/month, no matter if it’s a coffee shop, software company, or factory:
@@ -17,6 +18,7 @@ Here’s what actually has to happen in every business, every week/month, no mat
 | 10 | Plan next week/month                   | Team meeting, check numbers, decide what to start/stop/improve next       |
 
 ## The 5 things that literally happen every single day in 99 % of businesses
+
 1. Somebody checks email / messages and replies to customers or suppliers  
 2. Somebody looks at the bank balance or accounting software  
 3. Somebody does the actual work that makes the product/service  
@@ -31,7 +33,8 @@ Keep these 10 simple things running smoothly every week and your business stays 
 2. Employee-vendor Interaction
 3. Money Interaction as in Money comes in or goes out (Finacil Transaction)
 
-All business have 
+All business have
+
 - Contact List of persons
 - Finacial transations
 

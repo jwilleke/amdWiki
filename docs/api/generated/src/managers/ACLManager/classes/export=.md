@@ -15,6 +15,7 @@ permissions (time-based, location-based, etc.). Supports both page-level
 ACLs embedded in page content and global policy-based access control.
 
 Key features:
+
 - JSPWiki-style ACL markup parsing ([{ALLOW view Admin}])
 - Context-aware permission evaluation
 - Global policy-based access control
@@ -26,9 +27,9 @@ Key features:
 
 ## See
 
- - [BaseManager](../../BaseManager/classes/export=.md) for base functionality
- - PolicyEvaluator for policy evaluation
- - AuditManager for audit logging
+- [BaseManager](../../BaseManager/classes/export=.md) for base functionality
+- PolicyEvaluator for policy evaluation
+- AuditManager for audit logging
 
 ## Example
 

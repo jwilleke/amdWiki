@@ -14,6 +14,7 @@ Provides the foundation for content filtering with complete modularity through
 app-default-config.json and app-custom-config.json configuration support.
 
 Design Principles:
+
 - Complete configuration modularity and reusability
 - Zero hardcoded values - everything configurable
 - Consistent interface across all filter types

@@ -58,12 +58,14 @@ amdWiki/
 **Purpose:** Stores everyday wiki content created by users
 
 **Characteristics:**
+
 - User-editable content
 - Regular backup schedule
 - Can be moved, renamed, or deleted by editors
 - Standard access permissions apply
 
 **Typical Content:**
+
 - General articles and knowledge base entries
 - User-contributed content
 - Draft pages and work-in-progress
@@ -75,6 +77,7 @@ amdWiki/
 **Purpose:** Stores critical system pages and official documentation
 
 **Characteristics:**
+
 - System-critical content
 - Higher backup priority
 - Restricted editing (admin-only by default)
@@ -82,6 +85,7 @@ amdWiki/
 - Often referenced by system components
 
 **Typical Content:**
+
 - System configuration pages
 - Official documentation
 - Administrative pages
@@ -160,6 +164,7 @@ These categories route pages to the `required-pages/` directory:
 | **developer** | developer | Developer documentation and technical notes | Developer+ |
 
 **Configuration Example:**
+
 ```json
 "documentation": {
   "label": "documentation",
@@ -181,6 +186,7 @@ These categories route pages to the `pages/` directory:
 | **test** | test | Testing and development pages | Editor+ |
 
 **Configuration Example:**
+
 ```json
 "general": {
   "label": "general",
@@ -222,11 +228,13 @@ lastModified: '2025-10-16T19:56:00.000Z'  # ISO 8601 timestamp
 ### Understanding Each Field
 
 #### `title` (Required)
+
 - **Purpose:** Human-readable page name
 - **Display:** Used in navigation, search results, page header
 - **Example:** `"Footnote Example"`, `"User Guide"`
 
 #### `uuid` (Required)
+
 - **Purpose:** Unique identifier for the page
 - **Format:** UUID v4 (lowercase, hyphenated)
 - **Used for:** Filename, internal references, versioning
@@ -234,29 +242,34 @@ lastModified: '2025-10-16T19:56:00.000Z'  # ISO 8601 timestamp
 - **Generation:** Automatic when page is created
 
 #### `system-category` (Required)
+
 - **Purpose:** Determines storage location and access control
 - **Values:** Must match a defined category in configuration
 - **Default:** `general` if not specified
 - **Example:** `documentation`, `system`, `general`, `user`
 
 #### `user-keywords` (Optional)
+
 - **Purpose:** Searchable tags for content discovery
 - **Format:** YAML list
 - **Best Practice:** 3-5 relevant keywords
 - **Example:** `["documentation", "examples", "markdown"]`
 
 #### `slug` (Optional)
+
 - **Purpose:** URL-friendly version of title
 - **Format:** Lowercase, hyphenated
 - **Auto-generated:** From title if not provided
 - **Example:** `footnote-example`, `user-guide`
 
 #### `author` (Optional)
+
 - **Purpose:** Track page creator
 - **Format:** Username or "amdWiki Team"
 - **Display:** In page metadata sidebar
 
 #### `lastModified` (Automatic)
+
 - **Purpose:** Track last edit timestamp
 - **Format:** ISO 8601 timestamp
 - **Managed by:** System automatically updates on save
@@ -317,12 +330,14 @@ The two-directory system provides several important benefits:
 ### 1. **Clear Separation of Concerns**
 
 **Problem:** Mixing system pages with user content makes it hard to:
+
 - Find critical system pages
 - Protect important documentation
 - Apply different backup strategies
 - Manage permissions appropriately
 
 **Solution:** Separate directories with clear purposes:
+
 - `required-pages/` = System-critical, protected, high-priority
 - `pages/` = User content, editable, standard-priority
 
@@ -343,6 +358,7 @@ pages/
 ```
 
 **Benefits:**
+
 - Prevent accidental deletion of critical pages
 - Apply stricter permissions to system content
 - Allow users to freely experiment in `pages/`
@@ -357,6 +373,7 @@ pages/
 | `pages/` | Standard | Every 6 hours | 30 days |
 
 **Benefits:**
+
 - Ensure critical documentation is never lost
 - Optimize backup storage and performance
 - Faster recovery of system pages
@@ -382,6 +399,7 @@ pages/: {
 ```
 
 **Benefits:**
+
 - Faster loading of frequently accessed documentation
 - Better memory management
 - Reduced server load
@@ -389,6 +407,7 @@ pages/: {
 ### 5. **Easier Administration**
 
 **Clear Organization:**
+
 - Administrators know exactly where to find system pages
 - Easier to audit and review critical content
 - Simpler to apply bulk operations (permissions, backups, etc.)
@@ -399,10 +418,12 @@ pages/: {
 **Prioritized Recovery:**
 
 If disaster strikes:
+
 1. **First:** Restore `required-pages/` (system can function)
 2. **Then:** Restore `pages/` (user content recovered)
 
 **Benefits:**
+
 - Wiki can be operational quickly with just system pages
 - Users can continue viewing documentation while user content is restored
 - Clear recovery checklist and priorities
@@ -416,12 +437,14 @@ If disaster strikes:
 #### Choose the Right Category
 
 **Use `documentation` for:**
+
 - ✅ Official user guides and tutorials
 - ✅ API documentation and references
 - ✅ Policy and procedure documents
 - ✅ Help pages and FAQs
 
 **Use `general` or `user` for:**
+
 - ✅ Personal notes and drafts
 - ✅ Project-specific documentation
 - ✅ Meeting notes and brainstorming
@@ -450,10 +473,12 @@ title: Page
 #### Follow Naming Conventions
 
 **Titles:**
+
 - ✅ Use clear, descriptive titles: "Markdown Footnotes Guide"
 - ❌ Avoid vague titles: "Guide", "Notes", "Untitled"
 
 **Keywords:**
+
 - ✅ Use specific, searchable terms: "markdown", "footnotes", "syntax"
 - ❌ Avoid generic terms: "stuff", "things", "page"
 
@@ -462,6 +487,7 @@ title: Page
 #### Regular Audits
 
 **Check category assignments:**
+
 ```bash
 # Find pages in wrong directory
 cd amdWiki
@@ -483,6 +509,7 @@ find required-pages/ -name "*.md" | wc -l
 #### Backup Strategy
 
 **Automated Backups:**
+
 ```json
 {
   "amdwiki.backup.required-pages": {
@@ -536,8 +563,8 @@ author: Technical Writer Team
 ---
 ```
 
-3. **Write content**
-4. **Save** → System automatically:
+1. **Write content**
+2. **Save** → System automatically:
    - Generates UUID: `443c95f1-0b21-494a-b712-08ce0dc933e1`
    - Routes to: `required-pages/443c95f1-0b21-494a-b712-08ce0dc933e1.md`
    - Sets permissions: Editor+ can edit, all can view
@@ -565,8 +592,8 @@ author: jane.smith
 ---
 ```
 
-3. **Write content**
-4. **Save** → System automatically:
+1. **Write content**
+2. **Save** → System automatically:
    - Generates UUID: `7a8b9c0d-1e2f-3g4h-5i6j-7k8l9m0n1o2p`
    - Routes to: `pages/7a8b9c0d-1e2f-3g4h-5i6j-7k8l9m0n1o2p.md`
    - Sets permissions: Standard user access
@@ -578,6 +605,7 @@ author: jane.smith
 **Scenario:** A draft page became official documentation.
 
 **Original Metadata (in `pages/`):**
+
 ```yaml
 ---
 title: API Reference Draft
@@ -586,6 +614,7 @@ system-category: user  # Draft in pages/
 ```
 
 **Updated Metadata:**
+
 ```yaml
 ---
 title: API Reference
@@ -594,6 +623,7 @@ system-category: documentation  # Now official
 ```
 
 **System Behavior:**
+
 1. User edits page and changes `system-category` to `documentation`
 2. User clicks Save
 3. System detects category change
@@ -604,6 +634,7 @@ system-category: documentation  # Now official
 ### Example 4: System Page Categories
 
 **Navigation Menu (System Page):**
+
 ```yaml
 ---
 title: LeftMenu
@@ -611,15 +642,18 @@ uuid: 110fc9ee-90ca-4e6d-b6fa-334ce3074205
 system-category: system  # ← System infrastructure
 ---
 ```
+
 **Stored in:** `required-pages/110fc9ee-90ca-4e6d-b6fa-334ce3074205.md`
 
 **Admin Dashboard (System Page):**
+
 ```yaml
 ---
 title: Admin Dashboard
 system-category: system  # ← Admin-only
 ---
 ```
+
 **Stored in:** `required-pages/[uuid].md` with admin-only access
 
 ---
@@ -631,17 +665,20 @@ system-category: system  # ← Admin-only
 **A:** Not recommended. Always use the metadata approach:
 
 ❌ **Don't do this:**
+
 ```bash
 mv pages/file.md required-pages/file.md
 ```
 
 ✅ **Do this instead:**
+
 1. Edit page in wiki interface
 2. Change `system-category` in frontmatter
 3. Save page
 4. System automatically routes to correct directory
 
 **Why?** Manual moves can break:
+
 - Internal links and references
 - Cache entries
 - Search index
@@ -652,9 +689,11 @@ mv pages/file.md required-pages/file.md
 **A:** The system will use the default category (`general`), routing the page to `pages/`.
 
 **Example:**
+
 ```yaml
 system-category: nonexistent-category
 ```
+
 **Result:** Page saved to `pages/` directory with `general` category.
 
 **Recommendation:** Always use defined categories. Check configuration for available options.
@@ -682,6 +721,7 @@ system-category: nonexistent-category
 ### Q: Why are filenames UUIDs instead of page titles?
 
 **A:** UUID filenames provide:
+
 - **Uniqueness:** No conflicts even with identical titles
 - **Stability:** Renaming page doesn't break file references
 - **Security:** Harder to guess filenames
@@ -691,18 +731,21 @@ system-category: nonexistent-category
 ### Q: How do I find a page file on disk?
 
 **Method 1: Via Web Interface**
+
 1. View page in wiki
 2. Scroll to "More Information" section
 3. Note the UUID
 4. Look for `[uuid].md` in appropriate directory
 
 **Method 2: Via Search**
+
 ```bash
 cd amdWiki
 grep -r "title: Your Page Title" pages/ required-pages/
 ```
 
 **Method 3: Via Filename Pattern**
+
 ```bash
 # Search by title in frontmatter
 find pages/ required-pages/ -name "*.md" -exec grep -l "title: Footnote" {} \;
@@ -715,6 +758,7 @@ find pages/ required-pages/ -name "*.md" -exec grep -l "title: Footnote" {} \;
 ### Q: What if a page has no frontmatter?
 
 **A:** The system will:
+
 1. Add default frontmatter on save
 2. Assign default category (`general`)
 3. Route to `pages/` directory
@@ -742,11 +786,13 @@ find pages/ required-pages/ -name "*.md" -exec grep -l "title: Footnote" {} \;
 ### Issue: Page not appearing after save
 
 **Symptoms:**
+
 - Page saved successfully
 - Can't find page in wiki
 - File exists on disk
 
 **Diagnosis:**
+
 ```bash
 # Check if file exists
 ls -la pages/ required-pages/ | grep [uuid]
@@ -758,6 +804,7 @@ cat pages/[uuid].md | head -15
 **Solutions:**
 
 1. **Check category spelling:**
+
    ```yaml
    # ❌ Typo
    system-category: documentaton
@@ -767,11 +814,13 @@ cat pages/[uuid].md | head -15
    ```
 
 2. **Verify category is enabled:**
+
    ```bash
    grep "documentation" config/app-default-config.json
    ```
 
 3. **Restart server to reload:**
+
    ```bash
    ./server.sh restart
    ```
@@ -779,6 +828,7 @@ cat pages/[uuid].md | head -15
 ### Issue: Page in wrong directory
 
 **Symptoms:**
+
 - Documentation page in `pages/` instead of `required-pages/`
 - Or vice versa
 
@@ -787,11 +837,13 @@ cat pages/[uuid].md | head -15
 **Solution:**
 
 1. **Check category configuration:**
+
    ```bash
    grep -A5 '"documentation"' config/app-default-config.json
    ```
 
 2. **Verify `storageLocation` is correct:**
+
    ```json
    "documentation": {
      "storageLocation": "required"  // Should be "required" not "regular"
@@ -807,6 +859,7 @@ cat pages/[uuid].md | head -15
 ### Issue: Cannot delete page
 
 **Symptoms:**
+
 - "Permission denied" when trying to delete
 - Delete button disabled
 
@@ -815,6 +868,7 @@ cat pages/[uuid].md | head -15
 **Solutions:**
 
 **Option 1:** Change category to move it out:
+
 ```yaml
 # Change from:
 system-category: documentation
@@ -822,11 +876,13 @@ system-category: documentation
 # To:
 system-category: user
 ```
+
 Then admins can safely delete from `pages/`.
 
 **Option 2:** Request admin assistance for deletion
 
 **Option 3:** Archive instead of delete (recommended):
+
 ```yaml
 # Add archived keyword
 user-keywords:
@@ -837,17 +893,20 @@ user-keywords:
 ### Issue: Links broken after page move
 
 **Symptoms:**
+
 - Internal wiki links return 404
 - Page moved between directories
 
 **Cause:** Wiki uses page name/slug for links, not UUID
 
 **Solution:** Links should continue working if:
+
 - Page title unchanged
 - Page slug unchanged
 - Only storage location changed
 
 If links are broken:
+
 1. Search for references to old page name
 2. Update link syntax if needed
 3. Consider using `[{TableOfContents}]` plugin for dynamic navigation
@@ -934,9 +993,10 @@ Located in: `config/app-default-config.json`
 ---
 
 **Questions or Issues?**
+
 - Check the [Troubleshooting](#troubleshooting) section
 - Visit the [Forum](http://localhost:3000/wiki/Forum)
-- Contact support: support@amdwiki.com
+- Contact support: <support@amdwiki.com>
 
 ---
 

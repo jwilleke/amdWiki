@@ -60,6 +60,7 @@ v20 → Full content (checkpoint)
 ```
 
 When retrieving v18, the system:
+
 1. Loads v10 (nearest checkpoint)
 2. Applies diffs v11-v18 (8 operations instead of 17)
 
@@ -72,6 +73,7 @@ When retrieving v18, the system:
 ```
 
 **Recommendations:**
+
 - High-traffic wikis: `5` (faster retrieval, more storage)
 - Large pages: `5-10` (reduce reconstruction time)
 - Storage-constrained: `20` (slower retrieval, less storage)
@@ -96,6 +98,7 @@ Recently accessed versions are cached in memory using an LRU (Least Recently Use
 ```
 
 **Cache size recommendations:**
+
 - Small wiki (<100 pages): `20-30`
 - Medium wiki (100-1000 pages): `50-100`
 - Large wiki (>1000 pages): `100-200`
@@ -110,6 +113,7 @@ Recently accessed versions are cached in memory using an LRU (Least Recently Use
 #### Memory Usage
 
 Approximate memory per cached version:
+
 - Small page (5KB): ~10KB with metadata
 - Medium page (20KB): ~25KB with metadata
 - Large page (100KB): ~110KB with metadata
@@ -202,6 +206,7 @@ console.log(`
 Minimum number of versions to keep, regardless of age.
 
 **Example:** `keepLatest: 20`
+
 - Page with 50 versions: Keep v31-v50 (20 versions)
 - Page with 10 versions: Keep all (below threshold)
 
@@ -210,6 +215,7 @@ Minimum number of versions to keep, regardless of age.
 Keep all versions newer than this many days.
 
 **Example:** `retentionDays: 90`
+
 - Versions created in last 90 days are preserved
 - Older versions may be purged (subject to `keepLatest`)
 
@@ -218,11 +224,13 @@ Keep all versions newer than this many days.
 Preserve milestone versions (v1 and every 10th version).
 
 **Example:** Page with 45 versions, `keepLatest: 20`, `keepMilestones: true`
+
 - Without milestones: Purge v1-v25 (25 versions)
 - With milestones: Purge v2-v9, v11-v19, v21-v25 (23 versions)
 - Preserved: v1, v10, v20, v26-v45
 
 **Why preserve milestones?**
+
 - Historical snapshots at regular intervals
 - Fast access to older versions (checkpoints)
 - Better diff performance
@@ -563,6 +571,7 @@ Run maintenance operations on a schedule:
 ### Storage Optimization Strategy
 
 1. **Run analytics first**
+
    ```bash
    npm run maintain:analyze
    ```
@@ -570,11 +579,13 @@ Run maintenance operations on a schedule:
 2. **Review recommendations** in the report
 
 3. **Cleanup old versions**
+
    ```bash
    npm run maintain:cleanup -- --keep-latest 30 --retention 90
    ```
 
 4. **Compress old versions**
+
    ```bash
    npm run maintain:compress -- --age 60
    ```
@@ -586,6 +597,7 @@ Run maintenance operations on a schedule:
 ### High-Activity Pages
 
 Pages with frequent edits benefit from:
+
 - Lower checkpoint interval (5 instead of 10)
 - Higher cache priority (manually accessed more often)
 - More aggressive cleanup (lower keepLatest)
@@ -633,6 +645,7 @@ Consider creating page-specific retention policies in future versions.
 **Cause:** Operating system may not immediately reflect freed space.
 
 **Solution:**
+
 ```bash
 # Force filesystem sync (Linux/Mac)
 sync
@@ -646,7 +659,9 @@ du -sh data/pages/versions
 **Cause:** Version cache too large or cached versions are large pages.
 
 **Solution:**
+
 1. Reduce cache size:
+
    ```json
    {"amdwiki.page.provider.versioning.cachesize": 20}
    ```
@@ -654,6 +669,7 @@ du -sh data/pages/versions
 2. Restart application to clear cache
 
 3. Monitor with:
+
    ```javascript
    console.log(`Cache entries: ${provider.versionCache.size}`);
    ```
@@ -661,17 +677,21 @@ du -sh data/pages/versions
 ### Issue: Slow Version Retrieval
 
 **Causes:**
+
 - Checkpoint interval too high
 - Cache size too small
 - Large number of versions between checkpoints
 
 **Solutions:**
+
 1. Reduce checkpoint interval:
+
    ```json
    {"amdwiki.page.provider.versioning.checkpointinterval": 5}
    ```
 
 2. Increase cache size:
+
    ```json
    {"amdwiki.page.provider.versioning.cachesize": 100}
    ```
@@ -683,6 +703,7 @@ du -sh data/pages/versions
 **Cause:** Milestone preservation or retention policy keeps more versions.
 
 **Solution:**
+
 ```javascript
 // Disable milestones for more aggressive cleanup
 await provider.purgeOldVersions('PageTitle', {
@@ -696,11 +717,13 @@ await provider.purgeOldVersions('PageTitle', {
 **Cause:** Version was purged during cleanup.
 
 **Solution:**
+
 - Check cleanup report for list of purged versions
 - Verify version existed before cleanup
 - Restore from backup if critical
 
 **Prevention:**
+
 - Always use dry-run first
 - Review purge list before confirming
 - Maintain backups of critical pages
@@ -712,6 +735,7 @@ await provider.purgeOldVersions('PageTitle', {
 **Cause:** Manifest file corrupted or out of sync.
 
 **Solution:**
+
 ```javascript
 // Rebuild manifest (future feature)
 await provider.rebuildManifest('page-uuid');
@@ -733,6 +757,7 @@ await provider.rebuildManifest('page-uuid');
 ## Support
 
 For issues or questions:
+
 - GitHub Issues: [amdWiki Issues](https://github.com/your-repo/amdWiki/issues)
 - Documentation: [docs/README.md](./README.md)
 

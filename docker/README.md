@@ -128,6 +128,7 @@ All instance data is consolidated under a **single volume mount** (`../data:/app
 | `../required-pages` | `/app/required-pages` | System templates (read-only) |
 
 The `data/` directory contains:
+
 - `pages/` - Wiki content
 - `users/` - User accounts
 - `attachments/` - File attachments

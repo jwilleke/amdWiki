@@ -11,7 +11,7 @@ Defined in: [src/parsers/dom/DOMBuilder.js:57](https://github.com/jwilleke/amdWi
 DOMBuilder - Converts tokens into a WikiDocument DOM tree
 
 ============================================================================
-ARCHITECTURE NOTE (Phase 4, Issue #118):
+ARCHITECTURE NOTE (Phase 4, Issue #118)
 ============================================================================
 
 **This DOMBuilder is a REFERENCE IMPLEMENTATION and is NOT actively used
@@ -21,9 +21,11 @@ This builder converts tokens from the Tokenizer into a WikiDocument DOM.
 It was part of the Phase 0 tokenization-based parsing approach, which has
 been superseded by the extraction-based approach in Phases 1-3.
 
-CURRENT ACTIVE APPROACH:
+CURRENT ACTIVE APPROACH
 ------------------------
+
 DOM nodes are now created directly from extracted elements using:
+
 - DOMVariableHandler.createNodeFromExtract()
 - DOMPluginHandler.createNodeFromExtract()
 - DOMLinkHandler.createNodeFromExtract()
@@ -31,14 +33,16 @@ DOM nodes are now created directly from extracted elements using:
 
 These methods create DOM nodes directly without going through tokenization.
 
-WHY THIS DOMBUILDER IS KEPT:
+WHY THIS DOMBUILDER IS KEPT
 ----------------------------
+
 - Reference for token-to-DOM conversion patterns
 - Understanding of DOM tree construction
 - May be useful for future enhancements
 - Educational value
 
 SEE ALSO:
+
 - Tokenizer.js - Detailed architecture notes
 - DOMParser.js - Pipeline documentation
 - MarkupParser.parseWithDOMExtraction() - Current active pipeline
@@ -53,6 +57,7 @@ DOM tree in a WikiDocument. Handles nesting, formatting, and all
 JSPWiki-compatible markup elements.
 
 Key Features:
+
 - Converts tokens to DOM nodes
 - Handles nested structures (lists, tables)
 - Manages formatting contexts (bold, italic)
@@ -242,7 +247,7 @@ Ensures a paragraph context exists for inline content
 
 Defined in: [src/parsers/dom/DOMBuilder.js:338](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/DOMBuilder.js#L338)
 
-Handles bold text __text__
+Handles bold text **text**
 
 #### Parameters
 

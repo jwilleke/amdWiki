@@ -11,7 +11,7 @@ Defined in: [src/parsers/dom/DOMParser.js:63](https://github.com/jwilleke/amdWik
 DOMParser - Complete DOM-based parsing pipeline for wiki markup
 
 ============================================================================
-ARCHITECTURE NOTE (Phase 4, Issue #118):
+ARCHITECTURE NOTE (Phase 4, Issue #118)
 ============================================================================
 
 **This DOMParser is a REFERENCE IMPLEMENTATION and is NOT actively used
@@ -21,24 +21,28 @@ This parser uses the Tokenizer → DOMBuilder pipeline, which was the Phase 0
 approach to WikiDocument DOM parsing. However, it has been superseded by
 the extraction-based approach in Phases 1-3.
 
-CURRENT ACTIVE PIPELINE:
+CURRENT ACTIVE PIPELINE
 ------------------------
+
 Use `MarkupParser.parseWithDOMExtraction()` instead of this DOMParser.
 
 The new pipeline:
+
 1. MarkupParser.extractJSPWikiSyntax() - Extract JSPWiki syntax
 2. MarkupParser.createDOMNode() - Create DOM nodes
 3. Showdown.makeHtml() - Process markdown
 4. MarkupParser.mergeDOMNodes() - Merge nodes into HTML
 
-WHY THIS DOMPARSER IS KEPT:
+WHY THIS DOMPARSER IS KEPT
 ---------------------------
+
 - Reference implementation for token-based parsing
 - Useful for understanding the tokenization approach
 - May be enhanced for specific use cases in the future
 - Educational value for understanding different parsing strategies
 
 SEE ALSO:
+
 - Tokenizer.js - For detailed architecture notes
 - MarkupParser.parseWithDOMExtraction() - Current active pipeline
 - Issue #114 - WikiDocument DOM Solution
@@ -54,6 +58,7 @@ and detailed error messages with position information.
 This follows JSPWiki's MarkupParser architecture.
 
 Key Features:
+
 - Complete parsing pipeline (Tokenizer → DOMBuilder)
 - Error handling with position tracking
 - Helpful error messages
@@ -63,7 +68,7 @@ Key Features:
 Part of Phase 2.5 of WikiDocument DOM Migration (GitHub Issue #93)
 
 JSPWiki Reference:
-https://github.com/apache/jspwiki/blob/master/jspwiki-main/src/main/java/org/apache/wiki/parser/MarkupParser.java
+<https://github.com/apache/jspwiki/blob/master/jspwiki-main/src/main/java/org/apache/wiki/parser/MarkupParser.java>
 
 ## Constructors
 

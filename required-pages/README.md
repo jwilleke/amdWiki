@@ -9,13 +9,17 @@ Startup pages provide a functioning wiki with essential system pages and user do
 ## Page Categories
 
 ### system-category: system (15 pages)
+
 Pages required for wiki operation:
+
 - Navigation (leftmenu, footer)
 - System utilities (Recent Changes, Page Index, Search)
 - Core functionality pages
 
 ### system-category: documentation (18 pages)
+
 User-facing documentation and help pages:
+
 - Getting started guides
 - Syntax examples
 - Feature documentation
@@ -24,12 +28,14 @@ User-facing documentation and help pages:
 ## Important Notes
 
 ### For Users
+
 - These pages are **copied once** at startup to your `pages/` directory
 - After copying, they become your wiki content
 - You can customize them freely
 - They are tracked in your `pages/` directory (gitignored by default)
 
 ### For Developers
+
 - Startup pages are **tracked in git** as part of the application
 - Located in `required-pages/` directory
 - Updated with new releases
@@ -52,6 +58,7 @@ amdWiki/
 ## When Pages Are Updated
 
 When amdWiki releases updates to startup pages:
+
 - You'll be prompted about changes
 - System will show a diff of what changed
 - You can choose to apply updates or keep your customizations

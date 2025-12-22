@@ -67,10 +67,12 @@ async initialize() {
 ```
 
 **Requirements:**
+
 - ConfigurationManager must be initialized first
 - Schema directory must be configured
 
 **Error handling:**
+
 - Missing directory: Logs warning, continues with no schemas
 - Read errors: Logs error, continues with partial schemas
 
@@ -91,6 +93,7 @@ Default location: `./schemas`
 ### File Requirements
 
 Schema files must:
+
 - Be in the configured schemas directory
 - Have `.schema.json` extension
 - Contain valid JSON Schema
@@ -105,6 +108,7 @@ Schema files must:
 ### Example Schema File
 
 **schemas/page.schema.json:**
+
 ```json
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
@@ -149,11 +153,13 @@ getSchema(name)
 ```
 
 **Parameters:**
+
 - `name` - Schema name (without `.schema.json` extension)
 
 **Returns:** `Object|undefined` - JSON Schema object or undefined
 
 **Example:**
+
 ```javascript
 const pageSchema = schemaManager.getSchema('page');
 if (pageSchema) {
@@ -174,6 +180,7 @@ getAllSchemaNames()
 **Returns:** `string[]` - Array of schema names
 
 **Example:**
+
 ```javascript
 const names = schemaManager.getAllSchemaNames();
 // ['page', 'user', 'config', 'attachment']
@@ -205,6 +212,7 @@ amdWiki uses JSON Schema Draft-07. Key properties:
 ### Common Patterns
 
 **String with constraints:**
+
 ```json
 {
   "title": {
@@ -217,6 +225,7 @@ amdWiki uses JSON Schema Draft-07. Key properties:
 ```
 
 **Enum values:**
+
 ```json
 {
   "status": {
@@ -227,6 +236,7 @@ amdWiki uses JSON Schema Draft-07. Key properties:
 ```
 
 **Array of strings:**
+
 ```json
 {
   "tags": {
@@ -238,6 +248,7 @@ amdWiki uses JSON Schema Draft-07. Key properties:
 ```
 
 **Date format:**
+
 ```json
 {
   "createdAt": {

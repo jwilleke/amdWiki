@@ -17,6 +17,7 @@ Unlike a persistent hit counter, this tracks counters within a single page rende
 Useful for numbering items, tracking plugin invocations, or conditional logic.
 
 Counter values can be accessed as variables:
+
 - [{$counter}] - Access default counter value without incrementing
 - [{$counter-name}] - Access named counter value without incrementing
 
@@ -31,8 +32,8 @@ Syntax examples:
 [{Counter increment='-1'}]           - Decrement counter
 
 Based on JSPWiki's Counter.java:
-https://github.com/apache/jspwiki/blob/master/jspwiki-main/src/main/java/org/apache/wiki/plugin/Counter.java
-https://jspwiki-wiki.apache.org/Wiki.jsp?page=Counter
+<https://github.com/apache/jspwiki/blob/master/jspwiki-main/src/main/java/org/apache/wiki/plugin/Counter.java>
+<https://jspwiki-wiki.apache.org/Wiki.jsp?page=Counter>
 
 ## Type Declaration
 

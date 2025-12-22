@@ -11,6 +11,7 @@ Defined in: [src/parsers/handlers/WikiStyleHandler.js:15](https://github.com/jwi
 WikiStyleHandler - CSS class assignment and inline styling for wiki content
 
 Supports JSPWiki WikiStyle syntax:
+
 - %%class-name text content /% - CSS class assignment
 - %%class1 class2 text content /% - Multiple CSS classes
 - %%(color:red) inline styled text/% - Inline CSS (configurable security)

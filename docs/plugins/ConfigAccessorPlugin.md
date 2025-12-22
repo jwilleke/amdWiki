@@ -55,6 +55,7 @@ Displays all system and custom roles in a formatted table.
 Displays the Security Policy Summary - a permissions matrix showing which roles have which permissions. Shows green checkmarks for granted permissions and gray X marks for denied permissions.
 
 Alternative syntax:
+
 ```wiki
 [{ConfigAccessor type='policy-summary'}]
 ```
@@ -66,6 +67,7 @@ Alternative syntax:
 ```
 
 Displays the current user's information, roles, and permissions from WikiContext. Shows:
+
 - User information (username, display name, email)
 - Assigned roles with descriptions
 - All permissions granted by those roles
@@ -106,6 +108,7 @@ Shows all configuration properties for a specific feature.
 **Note:** The `before` and `after` parameters only work when `valueonly='true'`. They are ignored in formatted display mode.
 
 **Smart Default for `after`:**
+
 - **Single value** (no wildcard): `''` (empty string) - Perfect for inline use
 - **Multiple values** (wildcard): `'\n'` (newline) - One value per line by default
 
@@ -128,6 +131,7 @@ The server is running on port [{ConfigAccessor key='amdwiki.server.port' valueon
 ```
 
 **Output:** Formatted card showing:
+
 - **Key:** `amdwiki.server.port`
 - **Value:** `3000`
 
@@ -138,6 +142,7 @@ The server is running on port [{ConfigAccessor key='amdwiki.server.port' valueon
 ```
 
 **Output:** Plain text, one value per line:
+
 ``` text
 3000
 localhost
@@ -152,6 +157,7 @@ localhost
 ```
 
 **Output:** Formatted table showing all keys matching `amdwiki.server.*`:
+
 - `amdwiki.server.port` → `3000`
 - `amdwiki.server.host` → `localhost`
 
@@ -170,6 +176,7 @@ Welcome to [{ConfigAccessor key='amdwiki.applicationName' valueonly='true'}]!
 ```
 
 **Output:** Formatted table with all available roles:
+
 - Role name (code format)
 - Display name (colored)
 - Description
@@ -185,6 +192,7 @@ Includes roles like Admin, Editor, Contributor, Reader, and Anonymous.
 ```
 
 **Output:** Formatted permissions matrix table showing:
+
 - Permission list (e.g., `page:read`, `admin:system`)
 - Permission descriptions
 - Checkmarks (✓) for roles that have each permission
@@ -200,6 +208,7 @@ This creates the same Security Policy Summary table as seen on the `/admin/roles
 ```
 
 **Output:** Formatted card showing:
+
 - User information (username, display name, email)
 - All roles assigned to the current user with descriptions and icons
 - Permissions table showing:
@@ -217,6 +226,7 @@ This creates the same Security Policy Summary table as seen on the `/admin/roles
 ```
 
 **Output:** Formatted table with all UserManager configuration properties such as:
+
 - Session timeout
 - Password policies
 - Authentication settings
@@ -229,6 +239,7 @@ This creates the same Security Policy Summary table as seen on the `/admin/roles
 ```
 
 **Output:** Formatted table with search feature configuration:
+
 - Search index location
 - Indexing options
 - Search result limits
@@ -241,6 +252,7 @@ This creates the same Security Policy Summary table as seen on the `/admin/roles
 ```
 
 **Output:** Plain text, one role name per line:
+
 ``` text
 admin
 editor
@@ -258,6 +270,7 @@ anonymous
 ```
 
 **Output:**
+
 ```text
 ## Server Configuration
 
@@ -284,6 +297,7 @@ Available roles: [{ConfigAccessor key='amdwiki.roles.definitions.*.name' valueon
 ```
 
 **Output:**
+
 ```html
 <ul>
 <li>3000</li>
@@ -296,27 +310,35 @@ Available roles: [{ConfigAccessor key='amdwiki.roles.definitions.*.name' valueon
 The `key` parameter supports wildcards using the `*` character for flexible pattern matching:
 
 ### Single Wildcard
+
 ```wiki
 [{ConfigAccessor key='amdwiki.server.*'}]
 ```
+
 Matches: `amdwiki.server.port`, `amdwiki.server.host`, etc.
 
 ### Multiple Levels
+
 ```wiki
 [{ConfigAccessor key='amdwiki.*.port'}]
 ```
+
 Matches: `amdwiki.server.port`, `amdwiki.database.port`, etc.
 
 ### Nested Wildcards
+
 ```wiki
 [{ConfigAccessor key='amdwiki.roles.definitions.*.name'}]
 ```
+
 Matches all role names in the role definitions.
 
 ### Full Wildcard
+
 ```wiki
 [{ConfigAccessor key='amdwiki.*'}]
 ```
+
 Matches all configuration keys starting with `amdwiki.`
 
 ## Value-Only Mode
@@ -324,6 +346,7 @@ Matches all configuration keys starting with `amdwiki.`
 When `valueonly='true'` is specified:
 
 ### Behavior
+
 - Returns **plain text only** (no HTML formatting)
 - Single value: returns the value with optional `before` and `after` strings
 - Multiple values (wildcard): returns each value with `before` and `after` strings
@@ -333,13 +356,16 @@ When `valueonly='true'` is specified:
 - Default `after`: **Smart default** - `''` (empty) for single values, `'\n'` (newline) for multiple values
 
 ### Smart Defaults
+
 The `after` parameter has intelligent defaults based on usage:
+
 - **Single value** (e.g., `key='amdwiki.server.port'`): Default `after=''` - No trailing newline, perfect for inline use
 - **Multiple values** (e.g., `key='amdwiki.server.*'`): Default `after='\n'` - One value per line, perfect for lists
 
 This means you don't need to specify `after=''` for inline single values - it just works!
 
 ### Format Control with before/after
+
 - `before`: String prepended before each value
 - `after`: String appended after each value (overrides smart default when specified)
 - Both parameters work together to format output
@@ -348,6 +374,7 @@ This means you don't need to specify `after=''` for inline single values - it ju
 - Use `before='<li>'` with `after='</li>\n'` for HTML lists
 
 ### Use Cases
+
 - Embedding config values inline in sentences
 - Creating dynamic bulleted or numbered lists
 - Creating HTML lists with custom formatting
@@ -356,6 +383,7 @@ This means you don't need to specify `after=''` for inline single values - it ju
 - Building dynamic URLs or paths
 
 ### Example Usage in Text
+
 ```wiki
 ## Server Information
 
@@ -372,6 +400,7 @@ and has been up for [{$uptime}].
 The plugin uses these ConfigurationManager methods internally:
 
 ### getAllProperties()
+
 Gets all configuration properties as an object. Used for wildcard matching.
 
 ```javascript
@@ -379,6 +408,7 @@ returns: { 'amdwiki.server.port': 3000, 'amdwiki.server.host': 'localhost', ... 
 ```
 
 ### getProperty(key, defaultValue)
+
 Gets a single configuration property by dot-notation key.
 
 ```javascript
@@ -387,6 +417,7 @@ returns: 3000
 ```
 
 ### getManagerConfig(managerName)
+
 Gets all configuration for a specific manager.
 
 ```javascript
@@ -395,6 +426,7 @@ returns: { sessionTimeout: 3600, ... }
 ```
 
 ### getFeatureConfig(featureName)
+
 Gets all configuration for a specific feature.
 
 ```javascript
@@ -405,25 +437,30 @@ returns: { indexPath: './index', ... }
 ## Common Configuration Keys
 
 ### Server Configuration
+
 - `amdwiki.server.port` - Server port number
 - `amdwiki.server.host` - Server hostname
 - `amdwiki.baseURL` - Base URL for the wiki
 
 ### Application Configuration
+
 - `amdwiki.applicationName` - Application display name
 - `amdwiki.version` - Current version
 - `amdwiki.environment` - Environment (development/production)
 
 ### Roles Configuration
+
 - `amdwiki.roles.definitions` - All role definitions
 - `amdwiki.access.policies` - Access control policies
 
 ### Feature Flags
+
 - `amdwiki.features.search` - Search feature config
 - `amdwiki.features.versioning` - Version control config
 - `amdwiki.features.attachments` - Attachment handling config
 
 ### Manager Configuration
+
 - `amdwiki.managers.pluginManager.searchPaths` - Plugin directories
 - `amdwiki.managers.userManager.*` - User management settings
 - `amdwiki.managers.pageManager.*` - Page management settings
@@ -454,6 +491,7 @@ Built-in roles defined in configuration:
 ## Output Format
 
 ### Roles Display
+
 - Responsive table with sorting (system roles first)
 - Color-coded role names
 - Type badges (System/Custom)
@@ -461,12 +499,14 @@ Built-in roles defined in configuration:
 - Footer with statistics
 
 ### Config Value Display
+
 - Card layout with key-value display
 - JSON formatting for objects/arrays
 - Simple value display for primitives
 - Code formatting for readability
 
 ### Manager/Feature Config Display
+
 - Table format with property-value pairs
 - Automatic JSON formatting for complex values
 - Alphabetical property ordering
@@ -561,6 +601,7 @@ Returns: `No configuration found for feature: nonexistent`
 ## Use Cases
 
 ### 1. Inline Value Embedding
+
 Embed configuration values directly in page text:
 
 ```wiki
@@ -575,6 +616,7 @@ System version: [{ConfigAccessor key='amdwiki.version' valueonly='true'}]
 ```
 
 ### 2. System Information Pages
+
 Display current configuration on admin/status pages:
 
 ```wiki
@@ -590,6 +632,7 @@ Display current configuration on admin/status pages:
 ```
 
 ### 3. Role Documentation
+
 Document available roles for users:
 
 ```wiki
@@ -599,6 +642,7 @@ Document available roles for users:
 ```
 
 ### 3a. Security Policy Documentation
+
 Display the complete security policy showing which roles have which permissions:
 
 ```wiki
@@ -612,6 +656,7 @@ For more information about managing roles and permissions, visit the [Admin Dash
 ```
 
 ### 3b. User Profile/Dashboard Pages
+
 Show users their own roles and permissions:
 
 ```wiki
@@ -625,12 +670,14 @@ If you believe you need additional permissions, please contact your system admin
 ```
 
 **Great for:**
+
 - User profile pages
 - Personal dashboard
 - Help/FAQ pages explaining what users can do
 - Transparency about user access rights
 
 ### 4. Dynamic Lists
+
 Create dynamic lists from configuration:
 
 ```wiki
@@ -647,6 +694,7 @@ Role count: [{ConfigAccessor key='amdwiki.roles.definitions.*' valueonly='true'}
 ```
 
 ### 5. Feature Documentation
+
 Show current feature configuration:
 
 ```wiki
@@ -656,6 +704,7 @@ Show current feature configuration:
 ```
 
 ### 6. Manager Settings
+
 Display manager configuration for troubleshooting:
 
 ```wiki
@@ -665,6 +714,7 @@ Display manager configuration for troubleshooting:
 ```
 
 ### 7. Wildcard Pattern Matching
+
 Find all related configuration values:
 
 ```wiki

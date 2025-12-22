@@ -19,8 +19,8 @@ in the correct dependency order.
 
 ## See
 
- - [Engine](../../core/Engine/classes/export=.md) for base functionality
- - WikiContext for request-scoped context
+- [Engine](../../core/Engine/classes/export=.md) for base functionality
+- WikiContext for request-scoped context
 
 ## Extends
 
@@ -456,6 +456,7 @@ Defined in: [src/WikiEngine.js:127](https://github.com/jwilleke/amdWiki/blob/a35
 Initialize the wiki engine with configuration
 
 This method initializes all 24+ managers in the correct dependency order:
+
 1. ConfigurationManager - Core configuration (no dependencies)
 2. CacheManager - Caching support (used by many managers)
 3. UserManager - User authentication/authorization (critical for security)

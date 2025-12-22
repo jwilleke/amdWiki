@@ -76,6 +76,7 @@ Initializes the provider, creating necessary directories/connections.
 **Returns:** `Promise<void>`
 
 **Example:**
+
 ```javascript
 await provider.initialize();
 ```
@@ -85,6 +86,7 @@ await provider.initialize();
 Retrieves data by identifier.
 
 **Parameters:**
+
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
 | identifier | string | Yes | Unique identifier |
@@ -92,6 +94,7 @@ Retrieves data by identifier.
 **Returns:** `Promise<Object|null>` - The data object or null if not found
 
 **Example:**
+
 ```javascript
 const data = await provider.getData('item-id');
 ```
@@ -101,6 +104,7 @@ const data = await provider.getData('item-id');
 Saves data with the given identifier.
 
 **Parameters:**
+
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
 | identifier | string | Yes | Unique identifier |
@@ -109,6 +113,7 @@ Saves data with the given identifier.
 **Returns:** `Promise<void>`
 
 **Example:**
+
 ```javascript
 await provider.saveData('item-id', { field: 'value' });
 ```

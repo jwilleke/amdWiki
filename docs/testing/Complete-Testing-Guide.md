@@ -419,6 +419,7 @@ test('should save and retrieve page via actual provider', async () => {
 ```
 
 This pattern is used for:
+
 - **PageManager-Storage.test.js** - Tests full save/retrieve/delete flow
 - **FileSystemProvider.test.js** - Tests installation-aware loading
 

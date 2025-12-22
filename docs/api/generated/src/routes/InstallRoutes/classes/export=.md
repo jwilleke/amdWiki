@@ -11,6 +11,7 @@ Defined in: [src/routes/InstallRoutes.js:15](https://github.com/jwilleke/amdWiki
 InstallRoutes - Handles first-run installation routes
 
 Provides routes for:
+
 - GET /install - Display installation form
 - POST /install - Process installation
 

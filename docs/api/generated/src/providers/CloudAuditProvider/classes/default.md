@@ -14,6 +14,7 @@ Stores audit logs in cloud logging services for enterprise cloud deployments.
 Suitable for AWS CloudWatch, Azure Monitor, Google Cloud Logging.
 
 Configuration keys (all lowercase):
+
 - amdwiki.audit.provider.cloud.service - Cloud service (cloudwatch, azuremonitor, stackdriver)
 - amdwiki.audit.provider.cloud.region - Cloud region
 - amdwiki.audit.provider.cloud.loggroup - Log group/namespace

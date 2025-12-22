@@ -1,4 +1,5 @@
-# Apache JSPWiki rendering 
+# Apache JSPWiki rendering
+
 Apache JSPWiki renders pages using a series of Java components orchestrated by its wiki engine. Below is a concise explanation of the page rendering process, focusing on the key Java components involved, including `RenderingManager`, based on the JSPWiki architecture and the provided GitHub repository information (commit `c31d4f284983fd25e37e7ec5682fe2bdfddc439b`).
 
 1. **Request Handling**:
@@ -43,6 +44,7 @@ Apache JSPWiki renders pages using a series of Java components orchestrated by i
    - **AttachmentManager**: Manages attachments (stored in `jspwiki.basicAttachmentProvider.storageDir`), rendering links to them in the page if applicable.
 
 **Summary of Key Java Components**:
+
 - `WikiEngine`: Orchestrates the rendering process.
 - `PageManager`/`PageProvider`: Retrieves page content.
 - `RenderingManager`: Converts wiki markup to HTML, coordinating parsing and filtering.
@@ -52,6 +54,7 @@ Apache JSPWiki renders pages using a series of Java components orchestrated by i
 - `AttachmentManager`: Manages attachment rendering.
 
 ## internal state flags
+
 In JSPWiki’s markup parsing workflow, the following `private boolean` member variables are **internal state flags** that track the current context while parsing wiki text to HTML. They help the parser understand and manage formatting transitions, syntax elements, and block structures:
 
 - **m_isbold**
@@ -81,6 +84,7 @@ In JSPWiki’s markup parsing workflow, the following `private boolean` member v
 - They maintain *stateful parsing*, so transitions between wiki blocks and inline formatting are accurately captured and rendered.
 
 **Example:**  
+
 - Parsing wiki markup with `__bold__`, `'italic'`, `{{{code}}}`, tables, or definition lists, these flags are switched on or off to control the HTML generation for each type of formatting.
 
 **Summary:**  
@@ -116,12 +120,14 @@ So the system works like this:
 ***
 
 **How the parser uses these:**
+
 - When parsing wiki markup, the parser determines the type of each link, based on the syntax and destination.
 - It assigns the corresponding constant value to each link instance.
 - The value affects which rendering method is used—determining the generated HTML (tag, class, attributes, etc.)
 - This system centralizes link behavior, making it easy to adjust styling or logic in one place by using the codes.
 
 **Example:**
+
 - `[SomeWikiPage]` → `READ`
 - `[NonexistentPage?edit]` → `EDIT`
 - `http://example.com` → `EXTERNAL`
@@ -181,6 +187,7 @@ LinkParser is used when **reading (viewing)** a page in JSPWiki.
   5. Return to calling parser for further processing.[1]
 
 **Summary**:  
+
 - **Who calls it:** Primarily `JSPWikiMarkupParser` during wiki page rendering, also possible from plugins.
 - **How it works:** Splits link markup into text, reference, and safe attributes, returning a structured object for HTML output. Handles security by restricting attribute set.
 - **Why?** Ensures robust, flexible and secure linking from wiki syntax to HTML in JSPWiki.

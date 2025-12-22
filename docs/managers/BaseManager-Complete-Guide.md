@@ -36,6 +36,7 @@
 ```
 
 BaseManager provides:
+
 - Standardized initialization pattern
 - Engine reference management
 - Lifecycle hooks for startup/shutdown
@@ -53,9 +54,11 @@ constructor(engine) {
 ```
 
 **Parameters:**
+
 - `engine` - WikiEngine instance that creates this manager
 
 **Usage:**
+
 ```javascript
 class MyManager extends BaseManager {
   constructor(engine) {
@@ -83,11 +86,13 @@ async initialize(config = {}) {
 ```
 
 **Parameters:**
+
 - `config` - Configuration object (optional)
 
 **Returns:** `Promise<void>`
 
 **Usage in subclass:**
+
 ```javascript
 async initialize(config = {}) {
   await super.initialize(config);
@@ -119,6 +124,7 @@ async shutdown() {
 **Returns:** `Promise<void>`
 
 **Usage in subclass:**
+
 ```javascript
 async shutdown() {
   // Cleanup resources
@@ -149,6 +155,7 @@ isInitialized() {
 **Returns:** `boolean`
 
 **Usage:**
+
 ```javascript
 const pageManager = engine.getManager('PageManager');
 if (pageManager.isInitialized()) {
@@ -171,6 +178,7 @@ getEngine() {
 **Returns:** `WikiEngine`
 
 **Usage:**
+
 ```javascript
 // Access other managers from within a manager
 const userManager = this.getEngine().getManager('UserManager');
@@ -198,11 +206,13 @@ async backup() {
 ```
 
 **Returns:** `Promise<Object>` with structure:
+
 - `managerName` - Name of the manager class
 - `timestamp` - ISO timestamp of backup
 - `data` - Manager-specific backup data
 
 **Override example:**
+
 ```javascript
 async backup() {
   return {
@@ -231,6 +241,7 @@ async restore(backupData) {
 ```
 
 **Parameters:**
+
 - `backupData` - Backup object from `backup()` method
 
 **Returns:** `Promise<void>`
@@ -238,6 +249,7 @@ async restore(backupData) {
 **Throws:** `Error` if backupData is missing
 
 **Override example:**
+
 ```javascript
 async restore(backupData) {
   if (!backupData || !backupData.data) {

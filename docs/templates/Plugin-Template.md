@@ -55,6 +55,7 @@ Detailed description of what this plugin provides and when to use it.
 Detailed explanation of param1 and its valid values.
 
 **Valid values:**
+
 - `value1` - Description
 - `value2` - Description
 
@@ -75,6 +76,7 @@ Controls the output format:
 ```
 
 **Output:**
+
 ```text
 Plugin output here
 ```
@@ -86,6 +88,7 @@ Plugin output here
 ```
 
 **Output:**
+
 ```html
 <div class="plugin-output">Custom output</div>
 ```
@@ -97,6 +100,7 @@ Plugin output here
 ```
 
 **Output:**
+
 ```text
 Detailed output with additional information
 ```
@@ -139,6 +143,7 @@ async execute(context, params = {}) {
 ### Context Usage
 
 The plugin receives a WikiContext with:
+
 - `context.engine` - WikiEngine instance
 - `context.pageName` - Current page name
 - `context.user` - Current user (if authenticated)

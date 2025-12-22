@@ -5,6 +5,7 @@ A complete guide to viewing, comparing, and restoring page versions in amdWiki.
 ## Overview
 
 amdWiki's version history feature allows you to:
+
 - View all previous versions of any page
 - Compare changes between versions
 - Restore pages to previous versions
@@ -40,6 +41,7 @@ There are three ways to access a page's version history:
 ### Method 2: Version Info Banner
 
 If you see a version info banner at the top of a page:
+
 1. Click the **View History** button in the banner
 
 ### Method 3: Direct URL
@@ -148,10 +150,12 @@ The comparison view shows two sections:
 #### 1. Version Information Cards
 
 Two side-by-side cards showing:
+
 - **Left (Red)**: Older version metadata
 - **Right (Green)**: Newer version metadata
 
 Each card displays:
+
 - Version number
 - Date and time created
 - Author
@@ -161,11 +165,13 @@ Each card displays:
 #### 2. Change Summary
 
 Statistics showing:
+
 - **Additions** (green): Lines added
 - **Deletions** (red): Lines removed
 - **Unchanged** (gray): Lines that stayed the same
 
 Example:
+
 ```
 Additions: 15 lines
 Deletions: 8 lines
@@ -177,12 +183,14 @@ Unchanged: 142 lines
 Two viewing modes:
 
 **Unified View** (default):
+
 - Single column showing all content
 - Green background: Added lines (+)
 - Red background: Deleted lines (-)
 - White background: Unchanged lines
 
 **Side-by-Side View**:
+
 - Two columns
 - Left column: Old version (deletions in red)
 - Right column: New version (additions in green)
@@ -190,6 +198,7 @@ Two viewing modes:
 ### Switching Views
 
 Click the view mode buttons at the top:
+
 - **Unified View**: Traditional diff format
 - **Side-by-Side**: Dual-pane comparison
 
@@ -218,11 +227,13 @@ Restore a page to a previous version if changes need to be reverted.
 2. Find the version you want to restore to
 3. Click the **↩️ Restore** button for that version
 4. Review the confirmation dialog:
+
    ```
    Are you sure you want to restore "PageName" to version X?
 
    This will create a new version with the content from version X.
    ```
+
 5. Click **OK** to confirm or **Cancel** to abort
 
 ### What Happens During Restore
@@ -237,12 +248,14 @@ Restore a page to a previous version if changes need to be reverted.
 ### Example Restore Scenario
 
 **Before restore:**
+
 - v1: Original content
 - v2: Bad edit (spam added)
 - v3: More spam
 - **Current**: v3 (with spam)
 
 **After restoring to v1:**
+
 - v1: Original content
 - v2: Bad edit
 - v3: More spam
@@ -252,6 +265,7 @@ Restore a page to a previous version if changes need to be reverted.
 ### Undoing a Restore
 
 If you restore by mistake:
+
 1. View the history again
 2. Find the version before the bad edits
 3. Restore to that version
@@ -274,12 +288,14 @@ Located at the top of the page content, shows:
 ```
 
 **What it tells you:**
+
 - **Current version number**: "Version 5"
 - **Total versions**: "of 5"
 - **Last editor**: Who made the most recent change
 - **When**: Timestamp of last change
 
 **Quick access:**
+
 - Click **View History** to jump to the history view
 
 ### When You'll See It
@@ -391,6 +407,7 @@ A: Yes, by the administrator. If disabled, pages revert to single-version storag
 ### Can't Restore Versions
 
 **Causes**:
+
 1. Not logged in → Log in first
 2. No permission → Contact administrator
 3. Versioning disabled → Contact administrator
@@ -426,6 +443,7 @@ A: Yes, by the administrator. If disabled, pages revert to single-version storag
 ## Summary
 
 Version history in amdWiki provides:
+
 - ✅ Complete page history with metadata
 - ✅ Easy comparison between any versions
 - ✅ Safe restoration with full history preservation
@@ -433,6 +451,7 @@ Version history in amdWiki provides:
 - ✅ Fast access from any page
 
 Use version history to:
+
 - Track changes over time
 - Understand who changed what and when
 - Recover from mistakes

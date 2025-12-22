@@ -11,6 +11,7 @@ Defined in: [src/parsers/handlers/WikiFormHandler.js:17](https://github.com/jwil
 WikiFormHandler - Interactive form generation within wiki pages
 
 Supports JSPWiki form syntax:
+
 - [{FormOpen action='SaveData' method='POST'}] - Form opening
 - [{FormInput name='field' type='text' value='default'}] - Input fields
 - [{FormSelect name='choice' options='A,B,C'}] - Select boxes

@@ -300,7 +300,7 @@ class VersioningFileProvider extends FileSystemProvider {
       await fs.ensureDir(dataDir);
     }
 
-    logger.info(`[VersioningFileProvider] Version directories created`);
+    logger.info('[VersioningFileProvider] Version directories created');
     logger.info(`[VersioningFileProvider]   - ${this.pagesVersionsDir}`);
     logger.info(`[VersioningFileProvider]   - ${this.requiredPagesVersionsDir}`);
   }
@@ -336,7 +336,7 @@ class VersioningFileProvider extends FileSystemProvider {
 
       // If still empty after migration, rebuild index from existing manifests
       if (this.pageIndex.pageCount === 0) {
-        logger.info(`[VersioningFileProvider] Rebuilding page index from existing version manifests...`);
+        logger.info('[VersioningFileProvider] Rebuilding page index from existing version manifests...');
         await this.rebuildPageIndexFromManifests();
       }
     }
@@ -391,8 +391,8 @@ class VersioningFileProvider extends FileSystemProvider {
         }
 
         // Determine location (check which directory the page is in)
-        const pagesPath = path.join(this.pagesDirectory!, `${uuid}.md`);
-        const requiredPath = path.join(this.requiredPagesDirectory!, `${uuid}.md`);
+        const pagesPath = path.join(this.pagesDirectory, `${uuid}.md`);
+        const requiredPath = path.join(this.requiredPagesDirectory, `${uuid}.md`);
 
         let location: 'pages' | 'required-pages' = 'pages';
         let pagePath = pagesPath;
@@ -457,8 +457,8 @@ class VersioningFileProvider extends FileSystemProvider {
     for (const [uuid, pageData] of this.pageCache.entries()) {
       try {
         // Determine location
-        const pagesPath = path.join(this.pagesDirectory!, `${uuid}.md`);
-        const requiredPath = path.join(this.requiredPagesDirectory!, `${uuid}.md`);
+        const pagesPath = path.join(this.pagesDirectory, `${uuid}.md`);
+        const requiredPath = path.join(this.requiredPagesDirectory, `${uuid}.md`);
         const location: 'pages' | 'required-pages' = (await fs.pathExists(requiredPath)) ? 'required-pages' : 'pages';
 
         // Load manifest
@@ -842,7 +842,7 @@ class VersioningFileProvider extends FileSystemProvider {
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      logger.error(`[VersioningFileProvider] Failed to read current content:`, errorMessage);
+      logger.error('[VersioningFileProvider] Failed to read current content:', errorMessage);
       currentContent = '';
     }
 
@@ -929,7 +929,7 @@ class VersioningFileProvider extends FileSystemProvider {
     const cacheKey = `${uuid}:${targetVersion}`;
     if (this.versionCache.has(cacheKey)) {
       this.updateCacheAccess(cacheKey);
-      return this.versionCache.get(cacheKey)!;
+      return this.versionCache.get(cacheKey);
     }
 
     const versionDir = this.getVersionDirectory(uuid, location);
@@ -1079,7 +1079,7 @@ class VersioningFileProvider extends FileSystemProvider {
 
     // Convert to VersionHistoryEntry and return in reverse order (newest first)
     let versions = [...manifest.versions].reverse().map(v => ({
-      version: v.version!,
+      version: v.version,
       author: v.editor,
       timestamp: v.dateCreated,
       changeType: v.changeType as 'create' | 'update' | 'minor' | 'major',
@@ -1163,7 +1163,7 @@ class VersioningFileProvider extends FileSystemProvider {
       version: version,
       content: content,
       metadata: {
-        version: versionMetadata.version!,
+        version: versionMetadata.version,
         author: versionMetadata.editor,
         timestamp: versionMetadata.dateCreated,
         changeType: versionMetadata.changeType as 'create' | 'update' | 'minor' | 'major',
@@ -1319,7 +1319,7 @@ class VersioningFileProvider extends FileSystemProvider {
 
     // Determine which versions to purge
     for (const versionMeta of manifest.versions) {
-      const versionNum = versionMeta.version!;
+      const versionNum = versionMeta.version;
 
       // Always keep the last keepLatest versions
       const versionsFromEnd = manifest.currentVersion - versionNum + 1;
@@ -1359,7 +1359,7 @@ class VersioningFileProvider extends FileSystemProvider {
     }
 
     // Update manifest (remove purged versions)
-    manifest.versions = manifest.versions.filter(v => !versionsToPurge.includes(v.version!));
+    manifest.versions = manifest.versions.filter(v => !versionsToPurge.includes(v.version));
     await this.saveManifest(uuid, location, manifest);
 
     logger.info(`[VersioningFileProvider] Purged ${versionsToPurge.length} versions from page ${uuid}`);

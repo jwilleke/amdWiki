@@ -5,6 +5,7 @@ This document compares the rendering pipeline architecture of amdWiki (Node.js) 
 ## Architecture Overview Comparison
 
 ### Apache JSPWiki (Java/JSP)
+
 ```text
 Java Web Application (Servlet API 3.1)
 ├── WikiEngine (Central Controller)
@@ -21,6 +22,7 @@ Java Web Application (Servlet API 3.1)
 ```
 
 ### amdWiki (Node.js/Express)
+
 ```text
 Node.js Web Application (Express Framework)
 ├── WikiEngine (Central Manager Orchestrator)
@@ -51,6 +53,7 @@ Node.js Web Application (Express Framework)
 ### 2. Rendering Pipeline Architecture
 
 #### Apache JSPWiki Rendering Flow
+
 ```text
 Raw Wiki Content
        ↓
@@ -72,6 +75,7 @@ Final HTML Output
 ```
 
 #### amdWiki 7-Phase Pipeline
+
 ```text
 Raw Wiki Content
        ↓
@@ -95,6 +99,7 @@ Final HTML Output
 ### 3. Plugin System Comparison
 
 #### Apache JSPWiki Plugins
+
 - **Interface**: `WikiPlugin` (Java interface)
 - **Manager**: `PluginManager.java` / `DefaultPluginManager.java`
 - **Location**: `org.apache.wiki.plugin` package
@@ -108,6 +113,7 @@ Final HTML Output
   - `TableOfContents`
 
 #### amdWiki Plugins
+
 - **Interface**: JavaScript module exports (`execute` method)
 - **Manager**: `PluginManager.js` with dynamic loading
 - **Location**: `/plugins/` directory
@@ -122,6 +128,7 @@ Final HTML Output
 ### 4. Security Architecture
 
 #### Apache JSPWiki Security
+
 ```text
 JAAS (Java Authentication & Authorization)
 ├── WEB-INF/jspwiki.policy (Access Control)
@@ -131,6 +138,7 @@ JAAS (Java Authentication & Authorization)
 ```
 
 #### amdWiki Security
+
 ```text
 Multi-layered Node.js Security
 ├── SecurityFilter (XSS, CSRF, HTML Sanitization)
@@ -156,12 +164,14 @@ Multi-layered Node.js Security
 ### 1. Processing Philosophy
 
 #### Apache JSPWiki: Strategy Pattern
+
 - **Multiple Renderers**: Different renderer classes for different output formats
 - **Renderer Selection**: Strategy pattern chooses appropriate renderer
 - **Extensibility**: Add new renderers by implementing renderer interface
 - **Focus**: Format-specific rendering strategies
 
 #### amdWiki: Pipeline Processing
+
 - **Single Pipeline**: One 7-phase pipeline handles all processing
 - **Handler Priority**: Ordered handler execution within phases
 - **Extensibility**: Add handlers/filters to existing pipeline phases
@@ -170,18 +180,21 @@ Multi-layered Node.js Security
 ### 2. Plugin Integration
 
 #### Apache JSPWiki
+
 ```java
 public interface WikiPlugin {
     public String execute(WikiContext context, Map<String, String> params)
         throws PluginException;
 }
 ```
+
 - **Compile-time Safety**: Java interface ensures method signatures
 - **Context Object**: Rich `WikiContext` with full engine access
 - **Exception Handling**: Typed exception handling
 - **Performance**: Compiled Java performance
 
 #### amdWiki
+
 ```javascript
 module.exports = {
     async execute(pluginName, pageName, params, context) {
@@ -190,6 +203,7 @@ module.exports = {
     }
 };
 ```
+
 - **Runtime Flexibility**: Dynamic loading and parameter validation
 - **Async Support**: Native Promise/async-await support
 - **Context Isolation**: Controlled context exposure
@@ -198,12 +212,14 @@ module.exports = {
 ### 3. Security Models
 
 #### Apache JSPWiki: Enterprise Security
+
 - **JAAS Integration**: Full Java Authentication and Authorization Service
 - **Container Security**: Leverages servlet container security
 - **Policy Files**: Declarative security policies
 - **Type Safety**: Compile-time security contract validation
 
 #### amdWiki: Layered Web Security
+
 - **Filter Chain**: Multiple security filters in processing pipeline
 - **HTML Protection**: Prevents double-encoding vulnerabilities
 - **Content Validation**: Real-time content security analysis
@@ -222,7 +238,9 @@ module.exports = {
 ## Compatibility Analysis
 
 ### Syntax Compatibility
+
 Both systems support identical JSPWiki markup:
+
 - **Plugin Syntax**: `[{PluginName param=value}]` ✅
 - **Variable Syntax**: `[{$variablename}]` ✅
 - **Escaped Syntax**: `[[{syntax}]` ✅
@@ -230,6 +248,7 @@ Both systems support identical JSPWiki markup:
 - **Inter-wiki Links**: `[WikiName:PageName]` ✅
 
 ### Plugin Compatibility
+
 | Plugin | JSPWiki | amdWiki | Compatibility |
 |--------|---------|---------|---------------|
 | ReferringPages | ✅ | ✅ | Full |
@@ -243,6 +262,7 @@ Both systems support identical JSPWiki markup:
 ### From JSPWiki to amdWiki
 
 **Advantages of amdWiki:**
+
 - **Faster Development**: JavaScript ecosystem and npm packages
 - **Modern Web Stack**: Express.js, modern frontend integration
 - **Enhanced Security**: Multi-layered security with HTML protection
@@ -250,6 +270,7 @@ Both systems support identical JSPWiki markup:
 - **Easier Deployment**: Docker/container-friendly, cloud-native
 
 **Challenges:**
+
 - **Plugin Migration**: Java plugins need JavaScript rewrite
 - **Configuration Changes**: Properties files → JSON configuration
 - **Security Model**: JAAS policies → JSON-based ACL system
@@ -271,6 +292,7 @@ Both Apache JSPWiki and amdWiki provide robust wiki processing capabilities with
 - **amdWiki**: Modern, flexible Node.js platform with enhanced security and web-native features
 
 The choice depends on organizational requirements:
+
 - Choose **JSPWiki** for enterprise Java environments with existing infrastructure
 - Choose **amdWiki** for modern web applications requiring flexibility and rapid development
 

@@ -75,6 +75,7 @@ Item [{Counter}]: Third item
 ```
 
 **Output:**
+
 ```
 Item 1: First item
 Item 2: Second item
@@ -90,6 +91,7 @@ Chapter [{Counter name='chapter'}], Section [{Counter name='section'}]
 ```
 
 **Output:**
+
 ```
 Chapter 1, Section 1
 Chapter 2, Section 2
@@ -105,6 +107,7 @@ Chapter 3, Section 3
 ```
 
 **Output:**
+
 ```
 100
 101
@@ -120,6 +123,7 @@ Chapter 3, Section 3
 ```
 
 **Output:**
+
 ```
 2
 4
@@ -135,6 +139,7 @@ Chapter 3, Section 3
 ```
 
 **Output:**
+
 ```
 10
 9
@@ -151,6 +156,7 @@ The counter is now at: [{$counter}]
 ```
 
 **Output:**
+
 ```
 The counter is now at: 3
 ```
@@ -165,6 +171,7 @@ The counter is now at: 3
 ```
 
 **Output:**
+
 ```
 1
 2
@@ -185,6 +192,7 @@ Final counter value: [{$counter}]
 ```
 
 **Output:**
+
 ```
 1
 2
@@ -202,6 +210,7 @@ Chapter: [{$counter-chapter}], Section: [{$counter-section}]
 ```
 
 **Output:**
+
 ```
 1
 1
@@ -263,6 +272,7 @@ Progress: [{$counter}]/10 steps completed
 - Reloading/refreshing the page resets all counters to their initial state
 
 **Why per-render?** This matches JSPWiki behavior and is designed for:
+
 - Numbering figures, tables, or sections within a page
 - Sequential item numbering that should be consistent on each view
 - Dynamic content that needs consistent numbering regardless of when it's viewed

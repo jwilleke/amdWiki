@@ -15,6 +15,7 @@ placeholders like [{$username}], [{$pageName}] that are replaced with
 actual values during rendering based on the current context.
 
 Supported variable categories:
+
 - Application info: appName, version, baseURL
 - Page context: pageName
 - User context: username, loginStatus, userRoles

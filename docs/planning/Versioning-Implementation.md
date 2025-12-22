@@ -8,7 +8,7 @@ Backup manager runs periodically and creates full backups of all files.
 
 Explore performing abstraction from existing code to FileSystemProvider for what we are doing now.
 
-We would use something like 
+We would use something like
 wikiContext.getEngine().getManager( PageManager.class ).getCurrentPageProvider(); would return the "amdwiki.pageProvider" we are using currently.
 
 All components for pages and page data should make all calls for retrieval and writes to the "amdwiki.pageProvider": "FileSystemProvider"
@@ -19,7 +19,7 @@ This would be in preparation to moving to different pageProviders in the future.
 
 ### Page attributes Required
 
-Use <https://schema.org/DigitalDocument> as JSON. 
+Use <https://schema.org/DigitalDocument> as JSON.
 
 - author - The author of this content or rating. Please note that author is special in that HTML 5 provides a special mechanism for indicating authorship via the rel tag. That is equivalent to this and may be used interchangeably.
 - dateCreated - The date on which the CreativeWork was created or the item was added to a DataFeed.
@@ -34,6 +34,7 @@ Use <https://schema.org/DigitalDocument> as JSON.
 ## VersioningFileProvider Configuration
 
 ### Default Config (app-default-config.json)
+
 Leave FileSystemProvider as the stable default:
 
 ```json
@@ -50,6 +51,7 @@ Leave FileSystemProvider as the stable default:
 ```
 
 ### Custom Config (app-custom-config.json) - Opt-in to Versioning
+
 To enable versioning, add to your custom config:
 
 ```json
@@ -73,6 +75,7 @@ To enable versioning, add to your custom config:
 ```
 
 ### Development Config (app-development-config.json) - Testing Versioning
+
 For testing versioning in development:
 
 ```json
@@ -117,6 +120,7 @@ VersioningFileProvider maintains current page storage locations and adds version
 ```
 
 **Design Rationale:**
+
 - **Centralized index**: `./data/page-index.json` provides fast lookup across all pages
 - **Co-located versions**: Version history lives in `versions/` subfolder within each directory
 - **Minimal migration**: Pages stay in current locations, reducing migration complexity
@@ -124,9 +128,10 @@ VersioningFileProvider maintains current page storage locations and adds version
 - **Scalability**: Nested version folders scale to thousands of versions per page
 - **Single source of truth**: All version metadata (author, date, hash, etc.) stored ONLY in `manifest.json` to prevent inconsistency. Individual v{N}/meta.json files are NOT used.
 
-## Missing Metadata Fields 
+## Missing Metadata Fields
 
 Add to schema.org properties:
+
 - version - version number (integer)
 - contentSize - byte size for integrity checks
 - sha256 - content hash for deduplication & integrity
@@ -138,7 +143,7 @@ Add to schema.org properties:
 
 ### Suggestions & Improvements
 
-## Version History 
+## Version History
 
 ```json
   {
@@ -157,6 +162,7 @@ Add to schema.org properties:
     ]
   }
 ```
+
 ## Provider Interface Design
 
 ```javascript
@@ -181,6 +187,7 @@ Add to schema.org properties:
 ## Performance Optimizations
 
 ### Delta Storage Implementation
+
 - **Library**: Use `fast-diff` (npm package) for efficient text diffing
 - **Storage**: v1 = full content, v2+ = diffs from previous version
 - **Retrieval**: Load v1, sequentially apply diffs to reconstruct any version
@@ -188,18 +195,21 @@ Add to schema.org properties:
 - **Algorithm**: Myers diff algorithm (similar to git)
 
 ### Additional Optimizations
+
 - **Compression**: gzip old versions (especially diffs compress well)
 - **Lazy loading**: Don't load version history unless requested
 - **Caching**: Cache current versions in memory (FileSystemProvider already does this)
 - **Parallel reconstruction**: For frequently accessed versions, cache reconstructed content
 
 ### Implementation Libraries
+
 ```bash
 npm install fast-diff      # Text diffing (fast, lightweight)
 npm install pako           # gzip compression/decompression
 ```
 
 ### Example Delta Storage
+
 ```javascript
 // Creating v2 from v1
 const Diff = require('fast-diff');
@@ -214,14 +224,16 @@ const v2Content = applyDiff(v1Content, diff);
 ## Migration Strategy
 
 Detect on loading VersioningFileProvider if ./data/page-index.json exists if not then
+
 - Initiate BackupManager
-- create a v1 Version of all pages populating 
+- create a v1 Version of all pages populating
   - ./data/page-index.json
-  - Versioning Structure for 
+  - Versioning Structure for
     - ./pages/
     - ./required-pages/
   
 Document the migration path:
+
 1. Backup existing pages
 2. Run migration script to create UUIDs for existing pages
 3. Import into new structure
@@ -231,7 +243,7 @@ Document the migration path:
 ## Additional Features to Consider
 
 - Conflict resolution: For concurrent edits - Imitate Page Lock for page
-- Soft delete: 
+- Soft delete:
   - Mark page as softDelete=true until next run of BackupManager then hard delete
 - Audit trail: Maybe Future Who accessed what and when
 - Bulk operations: Maybe Future: Export/import multiple versions
@@ -260,6 +272,6 @@ This should initiate a PageInfo.jsp?page=Arteriolosclerosis#history
 
 Similar to [Page History](pagehistory.html)
 
-Clicking on a "Changes" opens a tab "Version management" showing "Difference between version "##" and "##" 
+Clicking on a "Changes" opens a tab "Version management" showing "Difference between version "##" and "##"
 
 <http://192.168.68.127:8080/Diff.jsp?page=Arteriolosclerosis&r1=3&r2=2>

@@ -44,24 +44,28 @@ VersioningFileProvider extends FileSystemProvider with full version history trac
 ### Key Features
 
 **Version Management:**
+
 - Full version history for every page
 - Delta-compressed storage (v1 = full, v2+ = diffs)
 - Gzip compression for deltas
 - Unlimited undo/redo
 
 **Storage Efficiency:**
+
 - 80-95% space savings vs full snapshots
 - Checkpoint intervals (full snapshots every N versions)
 - Configurable max versions per page
 - Automatic old version pruning
 
 **Migration & Recovery:**
+
 - Auto-migration from FileSystemProvider
 - Centralized page index for fast lookups
 - Index rebuilding from manifests
 - Version manifest per page
 
 **All FileSystemProvider Features:**
+
 - UUID-based file naming
 - Title-based lookup
 - Plural matching
@@ -265,6 +269,7 @@ Each page has a manifest tracking all versions:
 **Location:** `./data/pages/versions/{uuid}/manifest.json`
 
 **Structure:**
+
 ```json
 {
   "uuid": "550e8400-e29b-41d4-a716-446655440000",
@@ -347,6 +352,7 @@ v20: full snapshot (checkpoint)
 ```
 
 **Benefits:**
+
 - Faster retrieval of old versions
 - Limit delta chain length
 - Recovery point if deltas corrupted
@@ -394,6 +400,7 @@ To retrieve version N:
    - Reconstructed content for version N
 
 **Example:**
+
 ```
 Request: v17
 Checkpoints: v1 (full), v10 (full), v20 (full)
@@ -474,6 +481,7 @@ const history = await provider.getVersionHistory('Home');
 ```
 
 **Why non-destructive?**
+
 - Preserves audit trail
 - Can undo a restore (restore back to v5)
 - No data loss
@@ -522,6 +530,7 @@ const compressed = pako.gzip(deltaJSON);
 ### Space Savings Example
 
 **Without versioning (full snapshots):**
+
 ```
 v1: 10 KB (full)
 v2: 11 KB (full)
@@ -533,6 +542,7 @@ Total: 100 × 11 KB (avg) = 1.1 MB
 ```
 
 **With delta compression:**
+
 ```
 v1: 10 KB (full)
 v2: 200 bytes (delta)
@@ -553,11 +563,13 @@ Savings: 97% reduction!
 The page index provides O(1) lookups without scanning version directories:
 
 **Without index:**
+
 - Must scan all version directories
 - O(n) lookup time
 - Slow for large wikis
 
 **With index:**
+
 - Single JSON file with all page metadata
 - O(1) lookup by UUID
 - Fast even with thousands of pages
@@ -621,6 +633,7 @@ data/pages/
 ```
 
 **Log Output:**
+
 ```
 [VersioningFileProvider] Auto-migrating 42 existing pages...
 [VersioningFileProvider] Migrated 10/42 pages...
@@ -637,15 +650,18 @@ data/pages/
 ### Version Management Methods
 
 #### `async getPageVersion(identifier, version)`
+
 Get specific version of a page.
 
 **Parameters:**
+
 - `identifier` (String) - Page title, UUID, or slug
 - `version` (Number) - Version number
 
 **Returns:** `Promise<Object>` - Page object with content from that version
 
 **Example:**
+
 ```javascript
 const v3 = await provider.getPageVersion('Home', 3);
 console.log(v3.content);  // Content from version 3
@@ -654,14 +670,17 @@ console.log(v3.content);  // Content from version 3
 ---
 
 #### `async getVersionHistory(identifier)`
+
 Get all versions for a page.
 
 **Parameters:**
+
 - `identifier` (String) - Page title, UUID, or slug
 
 **Returns:** `Promise<Array>` - Array of version metadata (newest first)
 
 **Example:**
+
 ```javascript
 const history = await provider.getVersionHistory('Home');
 console.log(history.length);  // Total versions
@@ -671,9 +690,11 @@ console.log(history[0].version);  // Latest version number
 ---
 
 #### `async restoreVersion(identifier, version, options)`
+
 Restore page to previous version (creates new version).
 
 **Parameters:**
+
 - `identifier` (String) - Page title, UUID, or slug
 - `version` (Number) - Version to restore
 - `options` (Object, optional):
@@ -683,6 +704,7 @@ Restore page to previous version (creates new version).
 **Returns:** `Promise<Number>` - New version number
 
 **Example:**
+
 ```javascript
 const newVersion = await provider.restoreVersion('Home', 3, {
   editor: 'admin',
@@ -694,15 +716,18 @@ console.log(`Restored to v3, created v${newVersion}`);
 ---
 
 #### `async deleteVersion(identifier, version)`
+
 Delete a specific version.
 
 **Parameters:**
+
 - `identifier` (String) - Page title, UUID, or slug
 - `version` (Number) - Version to delete
 
 **Returns:** `Promise<Boolean>` - true if deleted
 
 **Example:**
+
 ```javascript
 await provider.deleteVersion('Home', 2);
 ```
@@ -712,15 +737,18 @@ await provider.deleteVersion('Home', 2);
 ---
 
 #### `async pruneVersions(identifier, keepCount)`
+
 Keep only the N most recent versions.
 
 **Parameters:**
+
 - `identifier` (String) - Page title, UUID, or slug
 - `keepCount` (Number) - Number of versions to keep
 
 **Returns:** `Promise<Number>` - Number of versions deleted
 
 **Example:**
+
 ```javascript
 const deleted = await provider.pruneVersions('Home', 50);
 console.log(`Deleted ${deleted} old versions`);
@@ -731,6 +759,7 @@ console.log(`Deleted ${deleted} old versions`);
 ### Inherited Methods
 
 All FileSystemProvider methods available:
+
 - `getPage(identifier)`
 - `getAllPages()`
 - `savePage(identifier, pageData)`
@@ -746,28 +775,33 @@ All FileSystemProvider methods available:
 ### Performance Characteristics
 
 **Version Creation:**
+
 - savePage(): ~15-25ms (includes delta computation)
 - Delta computation: ~5ms for 10KB page
 - Compression: ~3ms
 - File I/O: ~10ms
 
 **Version Retrieval:**
+
 - Current version: ~5ms (no delta application)
 - Recent version (< 10 versions back): ~10-20ms
 - Old version (> 50 versions back): ~50-100ms
 - With checkpoints: ~20-30ms (any version)
 
 **History Operations:**
+
 - getVersionHistory(): ~5ms (reads manifest only)
 - restoreVersion(): Same as version retrieval + savePage()
 
 **Storage:**
+
 - Space savings: 80-95% vs full snapshots
 - Compression ratio: 60-70% additional savings
 
 ### Optimization Strategies
 
 1. **Use Checkpoints for Large Pages**
+
    ```javascript
    // Large documentation page with frequent edits
    'amdwiki.page.provider.versioning.checkpointinterval': 5
@@ -775,6 +809,7 @@ All FileSystemProvider methods available:
    ```
 
 2. **Prune Old Versions**
+
    ```javascript
    // Keep only last 50 versions per page
    for (const page of pages) {
@@ -783,6 +818,7 @@ All FileSystemProvider methods available:
    ```
 
 3. **Limit Max Versions**
+
    ```javascript
    'amdwiki.page.provider.versioning.maxversions': 100
    // Auto-prunes when exceeding limit
@@ -797,11 +833,13 @@ All FileSystemProvider methods available:
 **Symptom:** getPageVersion() returns corrupted content
 
 **Causes:**
+
 - Missing delta files
 - Corrupted compression
 - Manifest out of sync
 
 **Solution:**
+
 - Check delta files exist
 - Verify compression integrity
 - Use checkpoint if available
@@ -812,6 +850,7 @@ All FileSystemProvider methods available:
 **Symptom:** Pages not found or wrong versions
 
 **Solution:**
+
 ```javascript
 await provider._rebuildPageIndexFromManifests();
 ```
@@ -821,6 +860,7 @@ await provider._rebuildPageIndexFromManifests();
 **Symptom:** Auto-migration errors
 
 **Checks:**
+
 1. Verify page files exist
 2. Check file permissions
 3. Ensure sufficient disk space
@@ -831,6 +871,7 @@ await provider._rebuildPageIndexFromManifests();
 **Symptom:** Slow version retrieval
 
 **Solutions:**
+
 1. Enable checkpoints
 2. Prune old versions
 3. Reduce retention days

@@ -15,6 +15,7 @@ capabilities through a pluggable provider system. Supports different search
 backends (Lunr.js, Elasticsearch, etc.) via provider abstraction.
 
 Key features:
+
 - Pluggable search provider system
 - Full-text indexing of page content and metadata
 - Configurable search ranking and filtering
@@ -25,6 +26,7 @@ Follows the provider pattern established in AttachmentManager, PageManager,
 CacheManager, and AuditManager for pluggable search backends.
 
 Configuration (all lowercase):
+
 - amdwiki.search.enabled - Enable/disable search
 - amdwiki.search.provider.default - Default provider name
 - amdwiki.search.provider - Active provider name
@@ -34,8 +36,8 @@ Configuration (all lowercase):
 
 ## See
 
- - [BaseManager](../../BaseManager/classes/export=.md) for base functionality
- - LunrSearchProvider for default provider implementation
+- [BaseManager](../../BaseManager/classes/export=.md) for base functionality
+- LunrSearchProvider for default provider implementation
 
 ## Example
 

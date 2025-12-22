@@ -1,7 +1,7 @@
 > **ARCHIVED**: This document is for historical purposes only. For the current and complete documentation, please see **[WikiDocument Complete Guide](../WikiDocument-Complete-Guide.md)**.
 
-
 ---
+
 title: WikiDocument DOM Migration - TODO List
 uuid: wikidocument-migration-todo
 category: documentation
@@ -22,6 +22,7 @@ lastModified: 2025-10-09
 ## Week 1: Foundation - WikiDocument Class
 
 ### Phase 1.1: Research & Setup
+
 - [ ] Evaluate DOM libraries (jsdom vs cheerio vs custom)
   - [ ] Benchmark jsdom performance
   - [ ] Benchmark cheerio performance
@@ -32,6 +33,7 @@ lastModified: 2025-10-09
 - [ ] Set up test framework for DOM tests
 
 ### Phase 1.2: WikiDocument Core Implementation
+
 - [ ] Create `src/parsers/dom/WikiDocument.js`
   - [ ] Implement constructor(pageData, context)
   - [ ] Add pageData property storage
@@ -44,6 +46,7 @@ lastModified: 2025-10-09
   - [ ] Implement setMetadata()
 
 ### Phase 1.3: DOM Manipulation Methods
+
 - [ ] Implement createElement(tag, attributes)
 - [ ] Implement createTextNode(text)
 - [ ] Implement createCommentNode(text)
@@ -53,6 +56,7 @@ lastModified: 2025-10-09
 - [ ] Implement replaceChild(newNode, oldNode)
 
 ### Phase 1.4: DOM Query Methods
+
 - [ ] Implement querySelector(selector)
 - [ ] Implement querySelectorAll(selector)
 - [ ] Implement getElementById(id)
@@ -60,12 +64,14 @@ lastModified: 2025-10-09
 - [ ] Implement getElementsByTagName(tagName)
 
 ### Phase 1.5: Serialization
+
 - [ ] Implement toHTML() - serialize DOM to HTML string
 - [ ] Implement toString() - for debugging
 - [ ] Implement toJSON() - for caching
 - [ ] Implement static fromJSON() - reconstruct from cache
 
 ### Phase 1.6: Testing
+
 - [ ] Write unit tests for WikiDocument constructor
 - [ ] Write unit tests for DOM creation methods
 - [ ] Write unit tests for DOM manipulation methods
@@ -76,6 +82,7 @@ lastModified: 2025-10-09
 - [ ] Achieve 90%+ code coverage
 
 ### Phase 1.7: Documentation
+
 - [ ] Add JSDoc comments to all methods
 - [ ] Create WikiDocument API documentation
 - [ ] Add usage examples
@@ -86,6 +93,7 @@ lastModified: 2025-10-09
 ## Week 2: Token-Based Parser
 
 ### Phase 2.1: Tokenizer Core
+
 - [ ] Create `src/parsers/dom/Tokenizer.js`
   - [ ] Implement character-by-character reading
   - [ ] Implement pushBack() for lookahead
@@ -96,6 +104,7 @@ lastModified: 2025-10-09
   - [ ] Add line/column tracking for errors
 
 ### Phase 2.2: Token Types
+
 - [ ] Define token types enum
   - [ ] TEXT - plain text
   - [ ] ESCAPED - escaped content (e.g., [[)
@@ -114,6 +123,7 @@ lastModified: 2025-10-09
   - [ ] COMMENT - %%comment%%
 
 ### Phase 2.3: Token Recognition
+
 - [ ] Implement recognizeToken() - determine token type
 - [ ] Implement parseTextToken()
 - [ ] Implement parseEscapedToken() - handles [[
@@ -130,6 +140,7 @@ lastModified: 2025-10-09
 - [ ] Implement parseCommentToken()
 
 ### Phase 2.4: DOM Builder
+
 - [ ] Create `src/parsers/dom/DOMBuilder.js`
 - [ ] Implement buildFromTokens(tokens, wikiDocument)
 - [ ] Implement createNodeFromToken(token)
@@ -147,6 +158,7 @@ lastModified: 2025-10-09
   - [ ] Handle CODE tokens → code/pre elements
 
 ### Phase 2.5: Parser Integration
+
 - [ ] Create `src/parsers/dom/DOMParser.js`
 - [ ] Implement parse(content, context) → WikiDocument
 - [ ] Integrate Tokenizer
@@ -156,6 +168,7 @@ lastModified: 2025-10-09
 - [ ] Add helpful error messages
 
 ### Phase 2.6: Testing
+
 - [ ] Write tokenizer unit tests
   - [ ] Test each token type recognition
   - [ ] Test pushBack/lookahead
@@ -174,6 +187,7 @@ lastModified: 2025-10-09
 - [ ] Achieve 90%+ code coverage
 
 ### Phase 2.7: Fallback Strategy
+
 - [ ] Add config flag: `amdwiki.parser.useDOMParser` (default: false)
 - [ ] Keep string-based parser functional
 - [ ] Add parser selection logic in MarkupParser
@@ -184,6 +198,7 @@ lastModified: 2025-10-09
 ## Week 3: Migrate Variable Handler
 
 ### Phase 3.1: DOM-Based Variable Handler
+
 - [ ] Create `src/parsers/dom/handlers/DOMVariableHandler.js`
 - [ ] Implement processVariables(wikiDocument, context)
 - [ ] Find all variable elements: querySelectorAll('[data-variable]')
@@ -198,6 +213,7 @@ lastModified: 2025-10-09
   - [ ] User variables
 
 ### Phase 3.2: Testing
+
 - [ ] Write unit tests for DOMVariableHandler
 - [ ] Test each variable type
 - [ ] Test escaped variables (should not be processed)
@@ -206,6 +222,7 @@ lastModified: 2025-10-09
 - [ ] Ensure identical behavior
 
 ### Phase 3.3: Integration
+
 - [ ] Add DOMVariableHandler to DOMParser pipeline
 - [ ] Configure execution order
 - [ ] Test with real wiki pages
@@ -216,6 +233,7 @@ lastModified: 2025-10-09
 ## Week 4: Migrate Plugin and Link Handlers
 
 ### Phase 4.1: DOM-Based Plugin Handler
+
 - [ ] Create `src/parsers/dom/handlers/DOMPluginHandler.js`
 - [ ] Implement processPlugins(wikiDocument, context)
 - [ ] Find all plugin elements: querySelectorAll('.wiki-plugin')
@@ -232,6 +250,7 @@ lastModified: 2025-10-09
   - [ ] Custom plugins
 
 ### Phase 4.2: DOM-Based Link Handler
+
 - [ ] Create `src/parsers/dom/handlers/DOMLinkHandler.js`
 - [ ] Implement processLinks(wikiDocument, context)
 - [ ] Find all link elements: querySelectorAll('a[data-wiki-link]')
@@ -244,6 +263,7 @@ lastModified: 2025-10-09
   - [ ] Handle attachment links
 
 ### Phase 4.3: DOM-Based WikiTag Handler
+
 - [ ] Create `src/parsers/dom/handlers/DOMWikiTagHandler.js`
 - [ ] Implement processWikiTags(wikiDocument, context)
 - [ ] Support existing wiki tags
@@ -253,6 +273,7 @@ lastModified: 2025-10-09
   - [ ] Others as needed
 
 ### Phase 4.4: Testing
+
 - [ ] Write unit tests for DOMPluginHandler
 - [ ] Write unit tests for DOMLinkHandler
 - [ ] Write unit tests for DOMWikiTagHandler
@@ -263,6 +284,7 @@ lastModified: 2025-10-09
 - [ ] Compare output with string-based handlers
 
 ### Phase 4.5: Integration
+
 - [ ] Add all handlers to DOMParser pipeline
 - [ ] Configure execution order:
   1. Variables first
@@ -277,6 +299,7 @@ lastModified: 2025-10-09
 ## Week 5: XHTMLRenderer and Integration
 
 ### Phase 5.1: XHTMLRenderer Implementation
+
 - [ ] Create `src/parsers/dom/XHTMLRenderer.js`
 - [ ] Implement render(wikiDocument, context)
 - [ ] Add pre-rendering filters (optional)
@@ -286,11 +309,13 @@ lastModified: 2025-10-09
 - [ ] Add HTML validation
 
 ### Phase 5.2: RenderingManager Integration
+
 - [ ] Update `src/managers/RenderingManager.js`
 - [ ] Add parseToDocument(content, context) method
 - [ ] Update textToHTML() to use DOM pipeline when enabled
 - [ ] Keep string-based pipeline as fallback
 - [ ] Add configuration support:
+
   ```javascript
   if (config.get('amdwiki.parser.useDOMParser')) {
     // Use DOM-based pipeline
@@ -303,6 +328,7 @@ lastModified: 2025-10-09
   ```
 
 ### Phase 5.3: Caching Strategy
+
 - [ ] Create `src/parsers/dom/WikiDocumentCache.js`
 - [ ] Implement cache.set(key, wikiDocument)
 - [ ] Implement cache.get(key) → wikiDocument
@@ -312,7 +338,9 @@ lastModified: 2025-10-09
 - [ ] Configure cache TTL and eviction
 
 ### Phase 5.4: Configuration
+
 - [ ] Add to `config/app-default-config.json`:
+
   ```json
   {
     "amdwiki.parser.useDOMParser": false,
@@ -322,10 +350,12 @@ lastModified: 2025-10-09
     "amdwiki.parser.dom.debug": false
   }
   ```
+
 - [ ] Document configuration options
 - [ ] Add ConfigurationManager validation
 
 ### Phase 5.5: Testing
+
 - [ ] End-to-end tests with DOM pipeline
 - [ ] Test with all wiki pages
 - [ ] Test caching behavior
@@ -335,6 +365,7 @@ lastModified: 2025-10-09
 - [ ] Memory usage analysis
 
 ### Phase 5.6: Bug Fixes
+
 - [ ] Fix [[  escaping (primary issue)
 - [ ] Test escaped content in all contexts
 - [ ] Test variable expansion order
@@ -347,6 +378,7 @@ lastModified: 2025-10-09
 ## Week 6: Testing, Documentation, and Deployment
 
 ### Phase 6.1: Comprehensive Testing
+
 - [ ] Test all wiki pages in development
 - [ ] Test all plugins with DOM pipeline
 - [ ] Test all variables with DOM pipeline
@@ -357,6 +389,7 @@ lastModified: 2025-10-09
 - [ ] Test cache effectiveness
 
 ### Phase 6.2: Performance Optimization
+
 - [ ] Profile DOM parser performance
 - [ ] Optimize hot paths
 - [ ] Optimize DOM creation
@@ -365,6 +398,7 @@ lastModified: 2025-10-09
 - [ ] Benchmark improvements
 
 ### Phase 6.3: Documentation
+
 - [ ] Update [MarkupParser documentation](../../src/parsers/MarkupParser.js)
 - [ ] Create DOM Parser user guide
 - [ ] Document WikiDocument API
@@ -374,6 +408,7 @@ lastModified: 2025-10-09
 - [ ] Create troubleshooting guide
 
 ### Phase 6.4: Migration Guide
+
 - [ ] Write migration guide for existing pages
 - [ ] Document breaking changes (if any)
 - [ ] Document new features enabled by DOM
@@ -381,6 +416,7 @@ lastModified: 2025-10-09
 - [ ] Document rollback procedure
 
 ### Phase 6.5: Enable DOM Parser by Default
+
 - [ ] Set `amdwiki.parser.useDOMParser: true` in config
 - [ ] Monitor for issues
 - [ ] Fix any bugs found
@@ -388,12 +424,14 @@ lastModified: 2025-10-09
 - [ ] Celebrate! 🎉
 
 ### Phase 6.6: Deprecate String-Based Parser
+
 - [ ] Add deprecation warnings to string-based parser
 - [ ] Set timeline for removal
 - [ ] Notify users of deprecation
 - [ ] Update documentation
 
 ### Phase 6.7: Cleanup (Week 7+)
+
 - [ ] Remove string-based parser code
 - [ ] Remove legacy handlers
 - [ ] Clean up tests
@@ -405,18 +443,21 @@ lastModified: 2025-10-09
 ## Success Criteria
 
 ### Primary Goals
+
 - [x] **Fix [[  escaping permanently** - Root cause resolved by DOM architecture
 - [ ] **No regressions** - All existing functionality works
 - [ ] **Performance maintained** - DOM parser as fast or faster (with caching)
 - [ ] **JSPWiki compatible** - Follows proven architecture
 
 ### Secondary Goals
+
 - [ ] **Cacheable parsing** - WikiDocument objects can be cached
 - [ ] **Inspectable DOM** - Can query parsed structure
 - [ ] **Plugin DOM manipulation** - Plugins can modify DOM before rendering
 - [ ] **Better error messages** - Parse errors show line/column
 
 ### Metrics
+
 - [ ] 90%+ test coverage for all new code
 - [ ] Zero escaping issues reported
 - [ ] Parse time < 100ms for typical page
@@ -428,27 +469,35 @@ lastModified: 2025-10-09
 ## Risk Management
 
 ### Risk: Performance Regression
+
 **Mitigation**:
+
 - Benchmark at each phase
 - Implement aggressive caching
 - Optimize hot paths
 - Use lightweight DOM library if needed
 
 ### Risk: Breaking Changes
+
 **Mitigation**:
+
 - Keep string parser as fallback
 - Phased rollout
 - Comprehensive testing
 - Easy rollback mechanism
 
 ### Risk: Scope Creep
+
 **Mitigation**:
+
 - Stick to defined phases
 - Don't add new features during migration
 - Focus on parity first, improvements later
 
 ### Risk: Timeline Slip
+
 **Mitigation**:
+
 - Weekly progress reviews
 - Adjust scope if needed
 - Prioritize core functionality
@@ -461,6 +510,7 @@ lastModified: 2025-10-09
 **Current Status**: Planning Complete ✅
 
 **Next Steps**:
+
 1. Start Phase 1.1: Evaluate DOM libraries
 2. Make library decision
 3. Begin WikiDocument implementation
@@ -468,6 +518,7 @@ lastModified: 2025-10-09
 **Blockers**: None
 
 **Notes**:
+
 - This migration addresses the root cause of recurring escaping issues
 - Follows JSPWiki's proven 20-year-old architecture
 - Will permanently fix the [[  escaping problem

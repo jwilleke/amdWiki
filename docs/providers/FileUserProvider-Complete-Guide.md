@@ -44,18 +44,21 @@ FileUserProvider is the default user storage provider for amdWiki, implementing 
 ### Key Features
 
 **User Storage:**
+
 - JSON file-based persistence (`users.json`)
 - In-memory caching (Map structure for O(1) lookups)
 - Username as primary key
 - Password hashing handled by UserManager (not provider)
 
 **Session Storage:**
+
 - Separate JSON file (`sessions.json`)
 - Automatic expiration cleanup on load
 - Session ID as primary key
 - Timestamp-based expiration
 
 **Operational:**
+
 - Backup/restore support
 - Graceful shutdown with cleanup
 - Error recovery (missing files handled)
@@ -86,6 +89,7 @@ WikiEngine
 ### Data Flow
 
 **User Authentication:**
+
 ```
 User logs in
   → UserManager.authenticateUser('admin', 'password')
@@ -100,6 +104,7 @@ User logs in
 ```
 
 **Session Validation:**
+
 ```
 Request arrives with sessionId
   → express-session middleware
@@ -295,6 +300,7 @@ async createUser(username, userData) {
 ```
 
 **Usage:**
+
 ```javascript
 await provider.createUser('bob', {
   username: 'bob',
@@ -316,6 +322,7 @@ async getUser(username) {
 ```
 
 **Usage:**
+
 ```javascript
 const user = await provider.getUser('admin');
 if (user) {
@@ -344,6 +351,7 @@ async updateUser(username, userData) {
 ```
 
 **Usage:**
+
 ```javascript
 const user = await provider.getUser('admin');
 user.lastLogin = new Date().toISOString();
@@ -368,6 +376,7 @@ async deleteUser(username) {
 ```
 
 **Usage:**
+
 ```javascript
 const deleted = await provider.deleteUser('olduser');
 if (deleted) {
@@ -438,6 +447,7 @@ async createSession(sessionId, sessionData) {
 ```
 
 **Usage:**
+
 ```javascript
 const sessionId = uuidv4();
 await provider.createSession(sessionId, {
@@ -460,6 +470,7 @@ async getSession(sessionId) {
 ```
 
 **Usage:**
+
 ```javascript
 const session = await provider.getSession(sessionId);
 if (session && new Date(session.expiresAt) > new Date()) {
@@ -647,6 +658,7 @@ async backup() {
 ```
 
 **Usage:**
+
 ```javascript
 const backup = await provider.backup();
 // Save to file
@@ -689,6 +701,7 @@ async restore(backupData) {
 ```
 
 **Usage:**
+
 ```javascript
 const backupData = JSON.parse(await fs.readFile('user-backup-2025-01-22.json', 'utf8'));
 await provider.restore(backupData);
@@ -701,36 +714,43 @@ await provider.restore(backupData);
 ### User Methods
 
 #### `async getUser(username)`
+
 Get user by username.
 
 **Returns:** `Promise<Object|null>`
 
 #### `async getAllUsers()`
+
 Get all users (Map copy).
 
 **Returns:** `Promise<Map<string, Object>>`
 
 #### `async getAllUsernames()`
+
 Get array of usernames.
 
 **Returns:** `Promise<Array<string>>`
 
 #### `async createUser(username, userData)`
+
 Create new user.
 
 **Throws:** Error if user exists
 
 #### `async updateUser(username, userData)`
+
 Update existing user.
 
 **Throws:** Error if user not found
 
 #### `async deleteUser(username)`
+
 Delete user.
 
 **Returns:** `Promise<Boolean>` - true if deleted
 
 #### `async userExists(username)`
+
 Check if user exists.
 
 **Returns:** `Promise<Boolean>`
@@ -738,26 +758,31 @@ Check if user exists.
 ### Session Methods
 
 #### `async createSession(sessionId, sessionData)`
+
 Create new session.
 
 **Returns:** `Promise<void>`
 
 #### `async getSession(sessionId)`
+
 Get session by ID.
 
 **Returns:** `Promise<Object|null>`
 
 #### `async getAllSessions()`
+
 Get all sessions (Map copy).
 
 **Returns:** `Promise<Map<string, Object>>`
 
 #### `async deleteSession(sessionId)`
+
 Delete session.
 
 **Returns:** `Promise<Boolean>` - true if deleted
 
 #### `async cleanExpiredSessions()`
+
 Remove expired sessions.
 
 **Returns:** `Promise<number>` - Count removed
@@ -765,21 +790,25 @@ Remove expired sessions.
 ### File Methods
 
 #### `async loadUsers()`
+
 Load users from users.json.
 
 **Returns:** `Promise<void>`
 
 #### `async saveUsers()`
+
 Save users to users.json.
 
 **Returns:** `Promise<void>`
 
 #### `async loadSessions()`
+
 Load sessions from sessions.json (with expiration cleanup).
 
 **Returns:** `Promise<void>`
 
 #### `async saveSessions()`
+
 Save sessions to sessions.json.
 
 **Returns:** `Promise<void>`
@@ -787,11 +816,13 @@ Save sessions to sessions.json.
 ### Backup Methods
 
 #### `async backup()`
+
 Create backup of all data.
 
 **Returns:** `Promise<Object>` - Backup data
 
 #### `async restore(backupData)`
+
 Restore from backup.
 
 **Returns:** `Promise<void>`
@@ -799,16 +830,19 @@ Restore from backup.
 ### Lifecycle Methods
 
 #### `async initialize()`
+
 Initialize provider.
 
 **Returns:** `Promise<void>`
 
 #### `async shutdown()`
+
 Shutdown provider (cleans expired sessions).
 
 **Returns:** `Promise<void>`
 
 #### `getProviderInfo()`
+
 Get provider metadata.
 
 **Returns:** `Object` - Provider info
@@ -820,21 +854,25 @@ Get provider metadata.
 ### Common Errors
 
 **Missing ConfigurationManager:**
+
 ```javascript
 Error: FileUserProvider requires ConfigurationManager
 ```
 
 **Duplicate User:**
+
 ```javascript
 Error: User already exists: bob
 ```
 
 **User Not Found:**
+
 ```javascript
 Error: User not found: nonexistent
 ```
 
 **File Write Error:**
+
 ```javascript
 Error saving users: EACCES: permission denied
 ```
@@ -864,6 +902,7 @@ try {
 ### Performance Characteristics
 
 **User Operations:**
+
 - getUser: O(1) - Map lookup
 - getAllUsers: O(n) - Map copy
 - createUser: O(1) + file write (~10ms)
@@ -871,17 +910,20 @@ try {
 - deleteUser: O(1) + file write (~10ms)
 
 **Session Operations:**
+
 - getSession: O(1) - Map lookup
 - createSession: O(1) + file write (~10ms)
 - cleanExpiredSessions: O(n) - iterate all sessions
 
 **File Operations:**
+
 - loadUsers: O(n) - parse JSON
 - saveUsers: O(n) - stringify JSON + write
 
 ### Optimization Tips
 
 1. **Batch user updates**
+
    ```javascript
    // Update Map for all users
    for (const user of users) {
@@ -892,6 +934,7 @@ try {
    ```
 
 2. **Periodic session cleanup**
+
    ```javascript
    // Run cleanup every hour
    setInterval(async () => {
@@ -900,6 +943,7 @@ try {
    ```
 
 3. **Avoid redundant saves**
+
    ```javascript
    // Bad: Save after each user
    for (const user of users) {
@@ -920,11 +964,13 @@ try {
 ### Password Storage
 
 **Provider does NOT hash passwords:**
+
 - UserManager handles hashing (bcrypt)
 - Provider stores pre-hashed passwords
 - Never store plaintext passwords
 
 **Correct flow:**
+
 ```javascript
 // UserManager hashes password
 const hashedPassword = await bcrypt.hash('password123', 10);
@@ -968,6 +1014,7 @@ chmod 700 data/users/
 **Symptom:** `users.size` is 0 after initialization
 
 **Checks:**
+
 1. Verify users.json exists
 2. Check file permissions
 3. Validate JSON syntax
@@ -978,6 +1025,7 @@ chmod 700 data/users/
 **Symptom:** Sessions expire too quickly
 
 **Solution:**
+
 - Check `expiresAt` timestamps
 - Verify system clock is correct
 - Ensure session creation sets proper expiration
@@ -987,6 +1035,7 @@ chmod 700 data/users/
 **Symptom:** Changes not persisting to disk
 
 **Checks:**
+
 1. Verify directory exists
 2. Check write permissions
 3. Ensure sufficient disk space
@@ -997,6 +1046,7 @@ chmod 700 data/users/
 **Symptom:** Restore doesn't work
 
 **Checks:**
+
 1. Verify backup data structure
 2. Check backup version compatibility
 3. Ensure expired sessions are filtered

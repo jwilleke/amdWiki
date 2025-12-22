@@ -307,22 +307,22 @@ class FileAuditProvider extends BaseAuditProvider {
       // Count by type
       const eventType = log.eventType || log.type;
       if (eventType) {
-        stats.eventsByType![eventType] = (stats.eventsByType![eventType] || 0) + 1;
+        stats.eventsByType[eventType] = (stats.eventsByType[eventType] || 0) + 1;
       }
 
       // Count by result
       if (log.result) {
-        stats.eventsByResult![log.result] = (stats.eventsByResult![log.result] || 0) + 1;
+        stats.eventsByResult[log.result] = (stats.eventsByResult[log.result] || 0) + 1;
       }
 
       // Count by severity
       const severity = log.severity || 'low';
-      stats.eventsBySeverity![severity] = (stats.eventsBySeverity![severity] || 0) + 1;
+      stats.eventsBySeverity[severity] = (stats.eventsBySeverity[severity] || 0) + 1;
 
       // Count by user
       const user = log.user || log.actor;
       if (user) {
-        stats.eventsByUser![user] = (stats.eventsByUser![user] || 0) + 1;
+        stats.eventsByUser[user] = (stats.eventsByUser[user] || 0) + 1;
       }
 
       // Track security incidents

@@ -15,6 +15,7 @@ sources in priority order. This allows for flexible deployment configurations wh
 maintaining sensible defaults.
 
 Configuration merge order (later overrides earlier):
+
 1. app-default-config.json (base defaults - required)
 2. app-{environment}-config.json (environment-specific - optional)
 3. app-custom-config.json (local overrides - optional)
@@ -260,7 +261,7 @@ Get base URL for the wiki
 
 `string`
 
-Base URL (defaults to 'http://localhost:3000')
+Base URL (defaults to '<http://localhost:3000>')
 
 ***
 
@@ -445,6 +446,7 @@ Retrieves a property from the merged configuration with optional default value.
 Checks environment variables first for specific keys (Docker/Traefik support).
 
 Priority order:
+
 1. Environment variables (for Docker/Traefik deployments)
 2. Merged configuration (from config files)
 3. Default value parameter

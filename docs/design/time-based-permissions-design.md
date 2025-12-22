@@ -5,6 +5,7 @@
 The amdWiki already has a solid foundation for time-based permissions:
 
 ### ✅ Existing Infrastructure
+
 - **Business Hours Check**: `checkBusinessHours()` method in ACLManager
 - **Configuration Structure**: Time-based settings in Config.js
 - **Integration Points**: Context-aware permission system
@@ -12,6 +13,7 @@ The amdWiki already has a solid foundation for time-based permissions:
 - **Audit Logging**: Access decisions are logged
 
 ### 🔧 Current Limitations
+
 - **Disabled by Default**: Business hours feature is disabled in config
 - **Basic Scheduling**: Only supports simple business hours (9-5, weekdays)
 - **No Holiday Support**: No way to exclude holidays or special dates
@@ -31,21 +33,25 @@ The amdWiki already has a solid foundation for time-based permissions:
 ### 📋 Implementation Plan
 
 #### Phase 1: Enable Core Business Hours
+
 - Enable business hours in configuration
 - Test existing functionality
 - Add admin controls for business hours management
 
 #### Phase 2: Custom Schedules
+
 - Define schedule templates (business, 24/7, weekend, etc.)
 - Allow per-user/per-role schedule assignment
 - Add schedule validation and conflict detection
 
 #### Phase 3: Holiday & Exception Management
+
 - Holiday calendar integration
 - One-time exceptions (maintenance windows, events)
 - Recurring exceptions (monthly patches, quarterly reviews)
 
 #### Phase 4: Advanced Rules Engine
+
 - Page-specific time restrictions
 - Role-based time windows
 - Conditional time rules (based on user attributes)
@@ -53,6 +59,7 @@ The amdWiki already has a solid foundation for time-based permissions:
 ### 🔧 Technical Architecture
 
 #### Schedule Definition Structure
+
 ```javascript
 {
   name: 'business-hours',
@@ -81,6 +88,7 @@ The amdWiki already has a solid foundation for time-based permissions:
 ```
 
 #### Configuration Enhancement
+
 ```javascript
 accessControl: {
   contextAware: {

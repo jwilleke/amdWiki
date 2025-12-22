@@ -15,6 +15,7 @@ for extending wiki functionality. Plugins are discovered from configured
 search paths and executed during markup parsing.
 
 Key features:
+
 - Dynamic plugin discovery from search paths
 - Plugin registration and metadata management
 - Secure plugin execution with sandboxing
@@ -231,6 +232,7 @@ Defined in: [src/managers/PluginManager.js:180](https://github.com/jwilleke/amdW
 
 Find plugin by name (case-insensitive)
 Supports JSPWiki-style plugin naming where you can use either:
+
 - "Search" or "SearchPlugin"
 - "Index" or "IndexPlugin"
 

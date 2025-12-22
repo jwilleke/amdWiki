@@ -114,6 +114,7 @@ async createNotification(notification)
 **Returns:** `string` - Notification ID (e.g., `notification_1`)
 
 **Example:**
+
 ```javascript
 const id = await notifyManager.createNotification({
   type: 'system',
@@ -142,6 +143,7 @@ async createMaintenanceNotification(enabled, adminUsername, config = {})
 ```
 
 **Parameters:**
+
 - `enabled` - Whether maintenance mode is enabled
 - `adminUsername` - Admin who toggled maintenance mode
 - `config` - Maintenance configuration (optional)
@@ -149,6 +151,7 @@ async createMaintenanceNotification(enabled, adminUsername, config = {})
 **Returns:** `string` - Notification ID
 
 **Example:**
+
 ```javascript
 // Maintenance enabled
 const id = await notifyManager.createMaintenanceNotification(true, 'admin');
@@ -170,12 +173,14 @@ getUserNotifications(username, includeExpired = false)
 ```
 
 **Parameters:**
+
 - `username` - Username to get notifications for
 - `includeExpired` - Include expired notifications (default: false)
 
 **Returns:** `Array<Object>` - Notifications for the user
 
 **Filters:**
+
 - Excludes expired notifications (unless includeExpired is true)
 - Includes notifications targeted to this user or all users
 - Excludes notifications user has dismissed
@@ -203,6 +208,7 @@ getStats()
 ```
 
 **Returns:**
+
 ```javascript
 {
   total: 15,           // Total notifications
@@ -235,6 +241,7 @@ async dismissNotification(notificationId, username)
 ```
 
 **Parameters:**
+
 - `notificationId` - Notification ID to dismiss
 - `username` - Username dismissing the notification
 
@@ -297,6 +304,7 @@ async saveNotifications()
 - Called during shutdown
 
 **Storage format:**
+
 ```json
 {
   "lastSaved": "2025-12-19T12:00:00.000Z",

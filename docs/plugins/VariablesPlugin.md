@@ -43,6 +43,7 @@ Displays only contextual variables that depend on user or page context.
 ```
 
 Shows a tabbed interface with:
+
 - **System Variables tab**: applicationname, version, baseurl, uptime, totalpages, etc.
 - **Contextual Variables tab**: username, pagename, displayname, browser, clientip, etc.
 - **Available Plugins tab**: All registered plugins with descriptions
@@ -76,6 +77,7 @@ Shows only registered plugins in a single table.
 ### System Variables
 
 Variables that don't require user or page context:
+
 - `applicationname` / `appname` - Application name from configuration
 - `version` - amdWiki version number
 - `baseurl` - Base URL for the wiki
@@ -87,6 +89,7 @@ Variables that don't require user or page context:
 ### Contextual Variables
 
 Variables that require user or page context:
+
 - `username` - Current user's name
 - `displayname` - User's display name
 - `loginstatus` - User authentication status
@@ -102,6 +105,7 @@ Variables that require user or page context:
 ## Output
 
 The plugin generates a responsive table or tabbed interface showing:
+
 - Variable name in code format: `[{$variablename}]`
 - Current value in code format
 - Description of what the variable represents

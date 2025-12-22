@@ -15,6 +15,7 @@ Pages are stored as .md files in configurable directories with UUID-based
 filenames for reliable identification.
 
 Key features:
+
 - UUID-based file naming for reliable page identity
 - Title-based lookup with case-insensitive matching
 - Plural name matching support (e.g., "Page" matches "Pages")
@@ -24,6 +25,7 @@ Key features:
 - Configurable encoding support
 
 Configuration keys (all lowercase):
+
 - amdwiki.page.provider.filesystem.storagedir - Main pages directory
 - amdwiki.page.provider.filesystem.requiredpagesdir - Required pages directory
 - amdwiki.page.provider.filesystem.encoding - File encoding (default: utf-8)
@@ -33,8 +35,8 @@ Configuration keys (all lowercase):
 
 ## See
 
- - [BasePageProvider](../../BasePageProvider/classes/default.md) for base interface
- - PageManager for usage
+- [BasePageProvider](../../BasePageProvider/classes/default.md) for base interface
+- PageManager for usage
 
 ## Extends
 

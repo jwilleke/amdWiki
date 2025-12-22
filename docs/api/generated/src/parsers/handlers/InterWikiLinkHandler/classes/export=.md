@@ -11,6 +11,7 @@ Defined in: [src/parsers/handlers/InterWikiLinkHandler.js:16](https://github.com
 InterWikiLinkHandler - External wiki linking support
 
 Supports JSPWiki InterWiki syntax:
+
 - [Wikipedia:Article] - Simple InterWiki link
 - [Wikipedia:Article|Custom Display Text] - InterWiki with custom text
 - [MeatBall:WikiWikiWeb] - Multiple InterWiki sites

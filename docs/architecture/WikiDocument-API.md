@@ -1,6 +1,5 @@
 > **ARCHIVED**: This document is for historical purposes only. For the current and complete documentation, please see **[WikiDocument Complete Guide](../WikiDocument-Complete-Guide.md)**.
 
-
 # WikiDocument API Reference
 
 **Version:** 1.0.0
@@ -12,6 +11,7 @@
 The `WikiDocument` class provides a DOM-based representation of a wiki page, similar to JSPWiki's WikiDocument which extends JDOM2 Document. This class eliminates the order-dependency issues inherent in string-based parsing and provides a robust foundation for wiki content processing.
 
 **Key Features:**
+
 - DOM-based structure using linkedom (W3C DOM API)
 - Cacheable representation (toJSON/fromJSON)
 - Metadata storage for processing flags
@@ -20,6 +20,7 @@ The `WikiDocument` class provides a DOM-based representation of a wiki page, sim
 - Standard W3C DOM methods
 
 **JSPWiki Reference:**
+
 - [WikiDocument JavaDoc](https://jspwiki.apache.org/apidocs/2.12.1/org/apache/wiki/parser/WikiDocument.html)
 
 ## Constructor
@@ -29,12 +30,14 @@ The `WikiDocument` class provides a DOM-based representation of a wiki page, sim
 Creates a new WikiDocument instance.
 
 **Parameters:**
+
 - `pageData` (string) - Original wiki markup content
 - `context` (Object|null) - Rendering context, stored as WeakRef for GC
 
 **Returns:** WikiDocument instance
 
 **Example:**
+
 ```javascript
 const WikiDocument = require('./src/parsers/dom/WikiDocument');
 
@@ -46,6 +49,7 @@ const doc = new WikiDocument('!! Welcome\nThis is a wiki page.', {
 ```
 
 **Internal Structure:**
+
 ```javascript
 {
   document: DOM Document (linkedom),
@@ -67,6 +71,7 @@ Returns the original wiki markup.
 **Returns:** (string) Original page content
 
 **Example:**
+
 ```javascript
 const content = doc.getPageData();
 console.log(content); // "!! Welcome\nThis is a wiki page."
@@ -79,9 +84,11 @@ Updates the original wiki markup.
 **JSPWiki equivalent:** `setPageData(String data)`
 
 **Parameters:**
+
 - `data` (string) - New wiki markup
 
 **Example:**
+
 ```javascript
 doc.setPageData('!! Updated\nNew content.');
 ```
@@ -99,6 +106,7 @@ Returns the rendering context if it hasn't been garbage collected.
 **Returns:** (Object|null) Context object or null if collected
 
 **Example:**
+
 ```javascript
 const context = doc.getContext();
 if (context) {
@@ -110,6 +118,7 @@ if (context) {
 ```
 
 **WeakRef Behavior:**
+
 ```javascript
 // Context is kept alive while referenced
 let context = { pageName: 'Test' };
@@ -129,9 +138,11 @@ Updates or clears the rendering context.
 **JSPWiki equivalent:** `setContext(Context ctx)`
 
 **Parameters:**
+
 - `context` (Object|null) - New context or null to clear
 
 **Example:**
+
 ```javascript
 doc.setContext({ pageName: 'NewPage', user: 'john' });
 
@@ -148,6 +159,7 @@ Returns a copy of all metadata.
 **Returns:** (Object) Copy of metadata object
 
 **Example:**
+
 ```javascript
 const metadata = doc.getMetadata();
 console.log(metadata);
@@ -164,10 +176,12 @@ console.log(metadata);
 Sets a metadata value.
 
 **Parameters:**
+
 - `key` (string) - Metadata key
 - `value` (*) - Any value
 
 **Example:**
+
 ```javascript
 doc.setMetadata('author', 'John Doe');
 doc.setMetadata('tags', ['important', 'draft']);
@@ -176,6 +190,7 @@ doc.setMetadata('parseTime', 1.23);
 ```
 
 **Common Metadata Keys:**
+
 - `author` - Page author
 - `tags` - Array of tags
 - `processed` - Processing flag
@@ -189,12 +204,14 @@ doc.setMetadata('parseTime', 1.23);
 Gets a metadata value with optional default.
 
 **Parameters:**
+
 - `key` (string) - Metadata key
 - `defaultValue` (*) - Default if key not found (default: null)
 
 **Returns:** (*) Metadata value or default
 
 **Example:**
+
 ```javascript
 const author = doc.getMetadataValue('author', 'Unknown');
 const tags = doc.getMetadataValue('tags', []);
@@ -208,12 +225,14 @@ const processed = doc.getMetadataValue('processed', false);
 Creates a new HTML element.
 
 **Parameters:**
+
 - `tag` (string) - Element tag name
 - `attributes` (Object) - Key-value pairs of attributes (optional)
 
 **Returns:** (Element) New element
 
 **Example:**
+
 ```javascript
 // Simple element
 const para = doc.createElement('p');
@@ -239,11 +258,13 @@ const link = doc.createElement('a', {
 Creates a text node.
 
 **Parameters:**
+
 - `text` (string) - Text content
 
 **Returns:** (Text) Text node
 
 **Example:**
+
 ```javascript
 const text = doc.createTextNode('Hello, world!');
 para.appendChild(text);
@@ -257,11 +278,13 @@ const special = doc.createTextNode('Use [[ to escape brackets');
 Creates an HTML comment node.
 
 **Parameters:**
+
 - `text` (string) - Comment text
 
 **Returns:** (Comment) Comment node
 
 **Example:**
+
 ```javascript
 const comment = doc.createCommentNode('This is a comment');
 doc.appendChild(comment);
@@ -278,11 +301,13 @@ const marker = doc.createCommentNode('PLUGIN:IndexPlugin');
 Appends a child to the root element.
 
 **Parameters:**
+
 - `node` (Node) - Node to append
 
 **Returns:** (Node) Appended node
 
 **Example:**
+
 ```javascript
 const para = doc.createElement('p');
 para.textContent = 'New paragraph';
@@ -298,12 +323,14 @@ doc.appendChild(doc.createElement('div'))
 Inserts a node before a reference node.
 
 **Parameters:**
+
 - `newNode` (Node) - Node to insert
 - `referenceNode` (Node) - Reference node
 
 **Returns:** (Node) Inserted node
 
 **Example:**
+
 ```javascript
 const first = doc.createElement('p');
 first.textContent = 'First';
@@ -324,11 +351,13 @@ doc.insertBefore(middle, second);
 Removes a child from the root element.
 
 **Parameters:**
+
 - `node` (Node) - Node to remove
 
 **Returns:** (Node) Removed node
 
 **Example:**
+
 ```javascript
 const para = doc.createElement('p');
 doc.appendChild(para);
@@ -345,12 +374,14 @@ doc.appendChild(para);
 Replaces a child node.
 
 **Parameters:**
+
 - `newNode` (Node) - New node
 - `oldNode` (Node) - Node to replace
 
 **Returns:** (Node) Replaced (old) node
 
 **Example:**
+
 ```javascript
 const old = doc.createElement('p');
 old.textContent = 'Old content';
@@ -368,11 +399,13 @@ doc.replaceChild(newEl, old);
 Finds the first element matching a CSS selector.
 
 **Parameters:**
+
 - `selector` (string) - CSS selector
 
 **Returns:** (Element|null) First matching element or null
 
 **Example:**
+
 ```javascript
 // By ID
 const title = doc.querySelector('#page-title');
@@ -388,6 +421,7 @@ const escaped = doc.querySelector('[data-escaped="true"]');
 ```
 
 **Common Selectors:**
+
 ```javascript
 '#id'                    // Element with ID
 '.class'                 // Element with class
@@ -404,11 +438,13 @@ const escaped = doc.querySelector('[data-escaped="true"]');
 Finds all elements matching a CSS selector.
 
 **Parameters:**
+
 - `selector` (string) - CSS selector
 
 **Returns:** (NodeList) All matching elements
 
 **Example:**
+
 ```javascript
 // All paragraphs
 const paras = doc.querySelectorAll('p');
@@ -431,11 +467,13 @@ const array = Array.from(paras);
 Finds an element by ID.
 
 **Parameters:**
+
 - `id` (string) - Element ID (without #)
 
 **Returns:** (Element|null) Element or null
 
 **Example:**
+
 ```javascript
 const heading = doc.getElementById('section-1');
 if (heading) {
@@ -450,11 +488,13 @@ if (heading) {
 Finds elements by class name.
 
 **Parameters:**
+
 - `className` (string) - Class name (without .)
 
 **Returns:** (HTMLCollection) Live collection of elements
 
 **Example:**
+
 ```javascript
 const wikis = doc.getElementsByClassName('wiki-para');
 console.log(`Found ${wikis.length} wiki paragraphs`);
@@ -470,11 +510,13 @@ const count2 = wikis.length; // count2 > count1
 Finds elements by tag name.
 
 **Parameters:**
+
 - `tagName` (string) - Tag name
 
 **Returns:** (HTMLCollection) Live collection of elements
 
 **Example:**
+
 ```javascript
 const headings = doc.getElementsByTagName('h1');
 const lists = doc.getElementsByTagName('ul');
@@ -490,6 +532,7 @@ Serializes the document to HTML string.
 **Returns:** (string) HTML content (innerHTML of root)
 
 **Example:**
+
 ```javascript
 const html = doc.toHTML();
 console.log(html);
@@ -498,6 +541,7 @@ console.log(html);
 ```
 
 **Use Cases:**
+
 ```javascript
 // Render to page
 response.send(doc.toHTML());
@@ -518,12 +562,14 @@ Returns a debug-friendly string representation.
 **Returns:** (string) Debug string
 
 **Example:**
+
 ```javascript
 console.log(doc.toString());
 // WikiDocument[5 nodes, 123 chars]
 ```
 
 **Use in Logs:**
+
 ```javascript
 logger.debug(`Processing ${doc.toString()}`);
 logger.info(`Created ${doc}`); // toString() called automatically
@@ -536,6 +582,7 @@ Serializes to JSON for caching.
 **Returns:** (Object) JSON-serializable object
 
 **Structure:**
+
 ```javascript
 {
   pageData: string,      // Original markup
@@ -547,6 +594,7 @@ Serializes to JSON for caching.
 ```
 
 **Example:**
+
 ```javascript
 const json = doc.toJSON();
 const jsonString = JSON.stringify(json);
@@ -563,12 +611,14 @@ await fs.writeFile('cached.json', jsonString);
 Deserializes from JSON (cache restore).
 
 **Parameters:**
+
 - `json` (Object) - JSON object from toJSON()
 - `context` (Object|null) - Optional rendering context
 
 **Returns:** (WikiDocument) Restored document
 
 **Example:**
+
 ```javascript
 // Load from cache
 const jsonString = await cache.get('doc-123');
@@ -583,6 +633,7 @@ console.log(doc.getPageData());
 ```
 
 **Cache Strategy:**
+
 ```javascript
 // Check cache first
 const cached = await cache.get(cacheKey);
@@ -605,6 +656,7 @@ Returns the root element (body).
 **Returns:** (Element) Root element
 
 **Example:**
+
 ```javascript
 const root = doc.getRootElement();
 console.log(root.tagName); // 'BODY'
@@ -619,6 +671,7 @@ root.innerHTML = '<p>Direct HTML</p>';
 Removes all content from the document.
 
 **Example:**
+
 ```javascript
 doc.clear();
 console.log(doc.isEmpty()); // true
@@ -626,6 +679,7 @@ console.log(doc.getChildCount()); // 0
 ```
 
 **Use Cases:**
+
 ```javascript
 // Reset document for reuse
 doc.clear();
@@ -643,6 +697,7 @@ Returns the number of child nodes in root.
 **Returns:** (number) Child count
 
 **Example:**
+
 ```javascript
 console.log(`Document has ${doc.getChildCount()} top-level nodes`);
 
@@ -658,6 +713,7 @@ Checks if the document has no content.
 **Returns:** (boolean) True if empty
 
 **Example:**
+
 ```javascript
 if (doc.isEmpty()) {
   console.warn('No content parsed');
@@ -673,6 +729,7 @@ Returns document statistics.
 **Returns:** (Object) Statistics object
 
 **Structure:**
+
 ```javascript
 {
   nodeCount: number,        // Number of child nodes
@@ -684,6 +741,7 @@ Returns document statistics.
 ```
 
 **Example:**
+
 ```javascript
 const stats = doc.getStatistics();
 console.log('Statistics:', stats);
@@ -814,6 +872,7 @@ Based on benchmarks with 1000 iterations:
 | **Complex Page** | 390μs | Full page with headings, lists, paragraphs |
 
 **Capacity:**
+
 - **2,564 pages/second** throughput
 - **2.11 MB** memory for 100 cached pages
 - **Sub-millisecond** operations
@@ -823,6 +882,7 @@ Based on benchmarks with 1000 iterations:
 ### 1. Context Management
 
 ✅ **Do:**
+
 ```javascript
 // Let context be GC'd when done
 function processPage(content) {
@@ -833,6 +893,7 @@ function processPage(content) {
 ```
 
 ❌ **Don't:**
+
 ```javascript
 // Keep context in closure unnecessarily
 const contexts = [];
@@ -846,6 +907,7 @@ function processPage(content) {
 ### 2. Metadata Usage
 
 ✅ **Do:**
+
 ```javascript
 doc.setMetadata('processed', true);
 doc.setMetadata('parseTime', performance.now() - start);
@@ -853,6 +915,7 @@ doc.setMetadata('cacheKey', generateKey(pageName));
 ```
 
 ❌ **Don't:**
+
 ```javascript
 doc.setMetadata('largeObject', hugeArray); // Bloats metadata
 ```
@@ -860,6 +923,7 @@ doc.setMetadata('largeObject', hugeArray); // Bloats metadata
 ### 3. Caching Strategy
 
 ✅ **Do:**
+
 ```javascript
 // Cache serialized JSON
 const json = JSON.stringify(doc.toJSON());
@@ -875,6 +939,7 @@ if (cached) {
 ### 4. DOM Building
 
 ✅ **Do:**
+
 ```javascript
 // Build incrementally
 const container = doc.createElement('div');
@@ -887,6 +952,7 @@ doc.appendChild(container);
 ```
 
 ❌ **Don't:**
+
 ```javascript
 // Build HTML string and parse
 doc.root.innerHTML = items.map(item => `<p>${item}</p>`).join('');
@@ -902,6 +968,7 @@ doc.root.innerHTML = items.map(item => `<p>${item}</p>`).join('');
 ## Version History
 
 ### v1.0.0 (2025-10-12) - Phase 1 Complete
+
 - ✅ Initial implementation with linkedom
 - ✅ Full W3C DOM API
 - ✅ Metadata storage

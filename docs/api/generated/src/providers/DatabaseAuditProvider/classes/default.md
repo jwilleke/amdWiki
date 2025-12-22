@@ -14,6 +14,7 @@ Stores audit logs in SQL or NoSQL database for enterprise deployments.
 Suitable for high-volume auditing, compliance, and long-term retention.
 
 Configuration keys (all lowercase):
+
 - amdwiki.audit.provider.database.type - Database type (postgresql, mysql, mongodb)
 - amdwiki.audit.provider.database.connectionstring - Database connection string
 - amdwiki.audit.provider.database.tablename - Table/collection name

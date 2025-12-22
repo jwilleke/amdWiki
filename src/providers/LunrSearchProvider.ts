@@ -223,7 +223,7 @@ class LunrSearchProvider extends BaseSearchProvider {
       this.documents = documents;
 
       // Build Lunr index
-      const boostConfig = this.config!.boost;
+      const boostConfig = this.config.boost;
       this.searchIndex = lunr(function (this: any) {
         this.ref('id');
         this.field('title', { boost: boostConfig.title });
@@ -257,7 +257,7 @@ class LunrSearchProvider extends BaseSearchProvider {
     }
 
     try {
-      const maxResults = options.maxResults || this.config!.maxResults;
+      const maxResults = options.maxResults || this.config.maxResults;
       const results: LunrSearchResult[] = this.searchIndex.search(query);
 
       return results.slice(0, maxResults).map(result => {
@@ -297,7 +297,7 @@ class LunrSearchProvider extends BaseSearchProvider {
       categories = [],
       userKeywords = [],
       searchIn = ['all'],
-      maxResults = this.config!.maxResults
+      maxResults = this.config.maxResults
     } = options;
 
     // Normalize arrays
@@ -316,7 +316,7 @@ class LunrSearchProvider extends BaseSearchProvider {
         name,
         title: this.documents[name].title || name,
         score: 1.0,
-        snippet: this.documents[name].content.substring(0, this.config!.snippetLength),
+        snippet: this.documents[name].content.substring(0, this.config.snippetLength),
         metadata: {
           systemCategory: this.documents[name].systemCategory,
           userKeywords: this.documents[name].userKeywords,
@@ -370,7 +370,7 @@ class LunrSearchProvider extends BaseSearchProvider {
    * @returns {string} Content snippet
    */
   private generateSnippet(content: string, query: string): string {
-    const maxLength = this.config!.snippetLength;
+    const maxLength = this.config.snippetLength;
     const searchTerms = query.toLowerCase().split(/\s+/);
 
     // Find best position for snippet

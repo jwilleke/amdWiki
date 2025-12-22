@@ -15,6 +15,7 @@ is abstracted behind a provider interface. This allows for different storage
 backends (filesystem, database, cloud, etc.) to be swapped via configuration.
 
 The PageManager acts as a thin coordinator that:
+
 - Loads the configured provider (via "amdwiki.page.provider")
 - Proxies all page operations to the provider
 - Maintains the public API for backward compatibility
@@ -23,8 +24,8 @@ The PageManager acts as a thin coordinator that:
 
 ## See
 
- - [BaseManager](../../BaseManager/classes/export=.md) for base functionality
- - [FileSystemProvider](../../../providers/FileSystemProvider/README.md) for default provider implementation
+- [BaseManager](../../BaseManager/classes/export=.md) for base functionality
+- [FileSystemProvider](../../../providers/FileSystemProvider/README.md) for default provider implementation
 
 ## Example
 

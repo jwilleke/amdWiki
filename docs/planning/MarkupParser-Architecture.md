@@ -20,6 +20,7 @@ This document outlines the architecture for implementing a comprehensive MarkupP
 ### Supported Enhancements (9/19 - 47%)
 
 ✅ **Currently Supported:**
+
 - Basic Plugin Syntax: `[{PluginName param=value}]`
 - Wiki Variables: `[{$variable}]`
 - Wiki Links: `[PageName]`, `[Display|Target]`
@@ -31,6 +32,7 @@ This document outlines the architecture for implementing a comprehensive MarkupP
 - Plugin Manager integration
 
 ❌ **Missing JSPWiki Enhancements:**
+
 - WikiTags (JSP-like): `<wiki:If>`, `<wiki:Include>`
 - WikiForms: `[{FormOpen}]`, `[{FormInput}]`, `[{FormClose}]`
 - Advanced Inline Attachments: `[{ATTACH file.pdf}]`
@@ -69,12 +71,14 @@ class MarkupParser extends BaseManager {
 ### Processing Phases
 
 #### Phase 1: Preprocessing
+
 - Escape handling
 - Code block protection
 - Comment extraction
 - Character normalization
 
 #### Phase 2: Syntax Recognition
+
 - Plugin syntax parsing: `[{PluginName ...}]`
 - WikiTag parsing: `<wiki:TagName ...>`
 - Form syntax parsing: `[{Form...}]`
@@ -83,12 +87,14 @@ class MarkupParser extends BaseManager {
 - Attachment syntax: `[{ATTACH ...}]`
 
 #### Phase 3: Context Resolution
+
 - Variable expansion
 - Plugin parameter resolution
 - Context-aware processing
 - Permission checks
 
 #### Phase 4: Content Transformation
+
 - Plugin execution
 - WikiTag processing
 - Form generation
@@ -96,17 +102,20 @@ class MarkupParser extends BaseManager {
 - Attachment handling
 
 #### Phase 5: Filter Pipeline
+
 - Content filters (spam, profanity, custom)
 - Validation filters
 - Security filters
 - Enhancement filters
 
 #### Phase 6: Markdown Conversion
+
 - Showdown processing
 - Table processing
 - Final HTML generation
 
 #### Phase 7: Post-processing
+
 - HTML cleanup
 - CSS class application
 - Schema.org generation
@@ -278,6 +287,7 @@ class SpamFilter extends BaseFilter {
 ## Implementation Phases
 
 ### Phase 1: Core Infrastructure (Week 1)
+
 - [ ] Create MarkupParser base class
 - [ ] Implement phase-based processing system
 - [ ] Create BaseSyntaxHandler interface
@@ -286,6 +296,7 @@ class SpamFilter extends BaseFilter {
 - [ ] Add comprehensive error handling
 
 ### Phase 2: Basic Syntax Handlers (Week 2)
+
 - [ ] Enhanced PluginSyntaxHandler
 - [ ] WikiTagHandler (If, Include, UserCheck)
 - [ ] FormHandler (FormOpen, FormInput, FormClose)
@@ -294,6 +305,7 @@ class SpamFilter extends BaseFilter {
 - [ ] WikiStyleHandler
 
 ### Phase 3: Filter System (Week 3)
+
 - [ ] FilterChain implementation
 - [ ] SpamFilter
 - [ ] ProfanityFilter
@@ -302,6 +314,7 @@ class SpamFilter extends BaseFilter {
 - [ ] Custom filter plugin system
 
 ### Phase 4: Advanced Features (Week 4)
+
 - [ ] Complex parameter parsing
 - [ ] Context-aware processing
 - [ ] RSS/Atom markup generation
@@ -310,6 +323,7 @@ class SpamFilter extends BaseFilter {
 - [ ] Performance optimizations
 
 ### Phase 5: Integration & Testing (Week 5)
+
 - [ ] RenderingManager integration
 - [ ] Comprehensive test suite
 - [ ] Performance benchmarking
@@ -363,12 +377,14 @@ class SpamFilter extends BaseFilter {
 ## Performance Considerations
 
 ### Caching Strategy
+
 - **Parse Result Caching**: Cache final parsed content with TTL
 - **Handler Result Caching**: Cache expensive plugin/tag results
 - **Pattern Compilation**: Pre-compile all regex patterns
 - **Context Caching**: Cache context-dependent resolutions
 
 ### Optimization Techniques
+
 - **Lazy Loading**: Load handlers only when needed
 - **Parallel Processing**: Process independent syntax in parallel
 - **Stream Processing**: Handle large content efficiently
@@ -377,12 +393,14 @@ class SpamFilter extends BaseFilter {
 ## Security Considerations
 
 ### Input Validation
+
 - Sanitize all plugin parameters
 - Validate WikiTag attributes
 - Escape user-generated content
 - Prevent code injection
 
 ### Permission Checks
+
 - Integrate with PolicyManager
 - Context-aware access control
 - Plugin permission validation
@@ -391,12 +409,14 @@ class SpamFilter extends BaseFilter {
 ## Error Handling & Recovery
 
 ### Graceful Degradation
+
 - Malformed syntax fallback
 - Plugin execution failures
 - Handler registration errors
 - Cache failures
 
 ### Debugging Support
+
 - Comprehensive logging
 - Parse tree visualization
 - Performance metrics
@@ -405,6 +425,7 @@ class SpamFilter extends BaseFilter {
 ## Integration Points
 
 ### Existing Managers
+
 - **RenderingManager**: Primary integration point
 - **PluginManager**: Plugin execution
 - **VariableManager**: Variable resolution
@@ -414,6 +435,7 @@ class SpamFilter extends BaseFilter {
 - **AttachmentManager**: File handling
 
 ### New Dependencies
+
 - Parser libraries (if needed)
 - HTML sanitization libraries
 - Performance monitoring tools
@@ -421,18 +443,21 @@ class SpamFilter extends BaseFilter {
 ## Testing Strategy
 
 ### Unit Tests
+
 - Individual handler testing
 - Filter chain testing
 - Error condition testing
 - Performance benchmarks
 
 ### Integration Tests
+
 - End-to-end parsing tests
 - JSPWiki compatibility tests
 - Real-world content testing
 - Security testing
 
 ### Performance Tests
+
 - Large content handling
 - Concurrent parsing
 - Memory usage profiling
@@ -441,12 +466,14 @@ class SpamFilter extends BaseFilter {
 ## Migration Strategy
 
 ### Backward Compatibility
+
 - Support existing RenderingManager API
 - Gradual feature migration
 - Configuration migration
 - Content migration validation
 
 ### Rollout Plan
+
 1. **Development Environment**: Full testing
 2. **Staging Environment**: Real content testing
 3. **Production Rollout**: Gradual deployment
@@ -456,12 +483,14 @@ class SpamFilter extends BaseFilter {
 ## Success Metrics
 
 ### Compatibility Goals
+
 - **100% JSPWiki Syntax Support**: All documented enhancements
 - **Performance Improvement**: 20% faster rendering
 - **Error Reduction**: 90% fewer parsing errors
 - **Feature Parity**: Match JSPWiki 2.12.x capabilities
 
 ### Technical Metrics
+
 - Parse success rate > 99.9%
 - Average parse time < 10ms
 - Cache hit ratio > 80%

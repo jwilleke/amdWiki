@@ -11,6 +11,7 @@ Defined in: [src/utils/VersioningMigration.js:27](https://github.com/jwilleke/am
 VersioningMigration - Utility for migrating FileSystemProvider to VersioningFileProvider
 
 Provides safe migration of existing amdWiki pages to versioned format with:
+
 - Full data preservation and validation
 - Rollback capability
 - Progress tracking
@@ -169,6 +170,7 @@ Defined in: [src/utils/VersioningMigration.js:69](https://github.com/jwilleke/am
 Migrate existing pages from FileSystemProvider to VersioningFileProvider
 
 Algorithm:
+
 1. Scan all existing .md files in pages/ and required-pages/
 2. For each page:
    a. Read and parse content + frontmatter
@@ -219,6 +221,7 @@ Defined in: [src/utils/VersioningMigration.js:369](https://github.com/jwilleke/a
 Validate migration integrity
 
 Checks:
+
 - All pages have version directories
 - manifest.json files are valid
 - Content hashes match

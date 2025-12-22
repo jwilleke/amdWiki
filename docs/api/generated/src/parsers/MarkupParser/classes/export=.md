@@ -11,10 +11,11 @@ Defined in: [src/parsers/MarkupParser.js:80](https://github.com/jwilleke/amdWiki
 MarkupParser - Comprehensive markup parsing engine for JSPWiki compatibility
 
 ============================================================================
-RENDERING PIPELINE (Phase 6, Issue #120):
+RENDERING PIPELINE (Phase 6, Issue #120)
 ============================================================================
 
 **PRIMARY PIPELINE (Default):** WikiDocument DOM Extraction (Issues #115-#120)
+
 1. Extract JSPWiki syntax before markdown parsing (extractJSPWikiSyntax())
 2. Create WikiDocument DOM nodes (createDOMNode())
 3. Parse markdown with Showdown (makeHtml())
@@ -26,16 +27,18 @@ robust JSPWiki syntax processing without order dependencies.
 **Configuration:** Set `jspwiki.parser.useExtractionPipeline = true` (default)
 
 ============================================================================
-LEGACY PIPELINE (Deprecated, Fallback Only):
+LEGACY PIPELINE (Deprecated, Fallback Only)
 ============================================================================
 
 **@deprecated** The 7-phase string-based pipeline below is DEPRECATED and
 kept only for backward compatibility and emergency fallback. It suffers from:
+
 - Order dependency issues
 - Markdown/JSPWiki conflicts (heading bug)
 - Fragile string manipulation
 
 Legacy 7-phase processing pipeline:
+
 1. Preprocessing - Escape handling, code block protection
 2. Syntax Recognition - Pattern detection and tokenization
 3. Context Resolution - Variable expansion, parameter resolution
@@ -52,8 +55,8 @@ Legacy 7-phase processing pipeline:
 
 ## See
 
- - [BaseManager](../../../managers/BaseManager/classes/export=.md) for base functionality
- - RenderingManager for integration
+- [BaseManager](../../../managers/BaseManager/classes/export=.md) for base functionality
+- RenderingManager for integration
 
 ## Example
 
@@ -693,10 +696,11 @@ Instead of tokenizing both markdown and JSPWiki syntax (which causes conflicts),
 we extract ONLY JSPWiki syntax and let Showdown handle all markdown.
 
 Extraction order:
-1. Variables: [{$username}] → __JSPWIKI_uuid_0__
-2. Plugins: [{TableOfContents}] → __JSPWIKI_uuid_1__
+
+1. Variables: [{$username}] → **JSPWIKI_uuid_0**
+2. Plugins: [{TableOfContents}] → **JSPWIKI_uuid_1**
 3. Escaped: [[{$var}] → __JSPWIKI_uuid_2__ (stores literal [{$var}])
-4. Wiki links: [PageName] → __JSPWIKI_uuid_3__ (but not markdown [text](url))
+4. Wiki links: [PageName] → **JSPWIKI_uuid_3** (but not markdown [text](url))
 
 Code blocks are already protected by Phase 1 preprocessing, so JSPWiki syntax
 inside code blocks won't be extracted.
@@ -1109,12 +1113,14 @@ This method initializes the LEGACY 7-phase string-based parser.
 The legacy parser is kept only for backward compatibility and emergency fallback.
 
 **NEW PRIMARY PIPELINE:** Use `parseWithDOMExtraction()` instead (Issues #115-#120)
+
 - Extraction-based approach
 - No order dependencies
 - Fixes markdown heading bug (#110, #93)
 - Active by default (jspwiki.parser.useExtractionPipeline = true)
 
 **This legacy pipeline is used only when:**
+
 - Configuration sets `jspwiki.parser.useExtractionPipeline = false`
 - New pipeline encounters an error (automatic fallback)
 
@@ -1248,6 +1254,7 @@ Defined in: [src/parsers/MarkupParser.js:1691](https://github.com/jwilleke/amdWi
 Parses wiki markup using DOM extraction strategy (Phase 1-3)
 
 This is the new parsing method that implements the WikiDocument DOM solution:
+
 1. Extract JSPWiki syntax (variables, plugins, links, escaped)
 2. Create DOM nodes from extracted elements
 3. Let Showdown parse the sanitized markdown

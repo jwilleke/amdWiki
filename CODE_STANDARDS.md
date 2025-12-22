@@ -4,292 +4,254 @@ This document outlines the coding standards and best practices for the amdWiki p
 
 ## Overview
 
-amdWiki maintains high code quality through:
+We follow the DRY (Don't Repeat Yourself) principle - every piece of knowledge should have a single, unambiguous, authoritative representation. If you see repeated logic more than twice, refactor it into reusable components.
 
-- **JSDoc documentation** (95% coverage required)
-- **TypeScript for new code** (progressive migration)
-- **CommonJS modules** with TypeScript compatibility
-- **Manager-based patterns** for new features
-- **DRY principle** - reference, don't duplicate
-- **No over-engineering** - implement only what's needed
-- **Jest testing** with >80% coverage target
+## Language & Environment
 
-## JSDoc Documentation
+- Language: English (US) for all code and documentation
+- Runtime: Node.js with TypeScript
+- Target: ES2020
 
-All classes, methods, and functions MUST have JSDoc comments.
+## TypeScript Configuration
 
-### Format Requirements
+We use strict TypeScript settings (`strict: true`) to catch potential bugs at compile time. Key settings:
 
-```javascript
-/**
- * Brief one-line description
- *
- * Optional longer description explaining the "why" not just "what"
- *
- * @param {type} paramName - Description of parameter
- * @returns {type} Description of return value
- * @throws {ErrorType} When this error is thrown
- * @example
- * // Example usage
- * const result = function(arg);
- */
-```
+- Strict null checks enabled
+- No implicit `any` types
+- No unused variables or parameters
+- All functions must have explicit return types (unless inferable)
+- No implicit returns
 
-### Coverage Standards
+See `tsconfig.json` for full configuration.
 
-- **95% JSDoc coverage** across all source files
-- Include `@param`, `@returns`, `@throws`, `@example` tags
-- Document "why" not just "what"
-- See: [CONTRIBUTING.md](./CONTRIBUTING.md) section "JSDoc Documentation Standards"
+## Code Formatting
 
-## Code Style
+### Prettier
 
-### Module Format
+Automatic code formatting using Prettier ensures consistency across the codebase.
 
-- **CommonJS** for current code (`require/module.exports`)
-- **TypeScript** for new code (progressive migration)
-- Maintain backward compatibility with CommonJS
-- Use TypeScript strict mode for new files
+Key settings:
 
-### Naming Conventions
+- Single quotes for strings
+- 2-space indentation
+- 100-character line width
+- Trailing commas disabled
+- Unix line endings (LF)
 
-- **Classes**: PascalCase (e.g., `PageManager`, `WikiContext`)
-- **Functions/methods**: camelCase (e.g., `getPageContent()`, `validateInput()`)
-- **Constants**: UPPER_SNAKE_CASE (e.g., `DEFAULT_TIMEOUT`, `MAX_RETRIES`)
-- **Private methods/properties**: prefix with `#` (e.g., `#validateData()`)
-- **Files**: kebab-case or PascalCase matching exports
-
-### DRY Principle
-
-- Reference code, don't duplicate
-- Extract common patterns into utilities
-- Reuse managers and services across codebase
-- Avoid one-off helpers for single use
-
-### Manager Patterns
-
-New features SHOULD extend BaseManager:
-
-```javascript
-class NewManager extends BaseManager {
-  constructor(engine) {
-    super(engine);
-  }
-
-  async initialize(config = {}) {
-    await super.initialize(config);
-    // Manager initialization
-  }
-
-  // Implement manager methods
-}
-```
-
-### WikiContext Pattern
-
-Request handling MUST use WikiContext for state:
-
-```javascript
-const wikiContext = this.createWikiContext(req, {
-  context: WikiContext.CONTEXT.VIEW,
-  pageName: pageName,
-  content: content
-});
-
-const templateData = this.getTemplateDataFromContext(wikiContext);
-```
-
-### Configuration Access
-
-```javascript
-const configManager = engine.getManager('ConfigurationManager');
-const value = configManager.getProperty('amdwiki.category.property', 'default');
-```
-
-### Avoid Over-Engineering
-
-- Implement only what's needed
-- Don't add features/refactoring beyond the request
-- Don't add error handling for impossible scenarios
-- Don't create helpers for one-time operations
-- Keep solutions simple and focused
-- Trust internal code and framework guarantees
-
-## Testing Standards
-
-### Test Structure
-
-- **Jest framework** for all tests
-- **Co-located pattern**: `__tests__/` directories alongside source
-- **Mock file operations**: No real file I/O in tests
-- Mock `fs-extra` and `gray-matter`
-
-### Coverage Requirements
-
-- **>80% coverage** for all managers
-- **>90% coverage** for critical managers
-- **Integration tests** for cross-component features
-- Unit tests for all public methods
-
-### Test Organization
-
-```
-src/managers/PageManager.js
-src/managers/__tests__/PageManager.test.js
-```
-
-## Version Control
-
-### Commit Messages
-
-- **Semantic format**: `feat:`, `fix:`, `chore:`, `docs:`
-- **Imperative mood**: "Add feature" not "Added feature"
-- **Reference issues**: "Fix #123"
-- Keep messages concise (50 char title)
-
-### Keep a Changelog
-
-- Update [CHANGELOG.md](./CHANGELOG.md) for each release
-- Use [Keep a Changelog](https://keepachangelog.com) format
-- Include version number and date
-- List changes by type: Added, Changed, Fixed, Removed
-
-### Server Restart
-
-Configuration changes require server restart:
+Run formatting:
 
 ```bash
-./server.sh restart
+npm run format
 ```
 
-## File Operations
+### EditorConfig
 
-### Using fs-extra
+EditorConfig settings (`.editorconfig`) ensure consistent editor behavior across different tools and IDEs.
 
-```javascript
-const fs = require('fs-extra');
+## Linting
 
-// Instead of callbacks, use promises
-await fs.ensureDir(dirPath);
-const exists = await fs.pathExists(filePath);
-const data = await fs.readFile(path, 'utf8');
-await fs.writeFile(path, data);
+### ESLint
+
+We use ESLint with TypeScript support to catch code quality issues.
+
+Key rules:
+
+- Prefer `const` over `let` and `var`
+- Unused variables must be prefixed with `_`
+- `console` calls trigger warnings (use proper logging instead)
+- Single quotes required (unless string contains quotes)
+- Semicolons required
+- Explicit function return types (with exceptions)
+- No floating promises - always `await` async operations
+- Proper async/await usage
+
+Run linting:
+
+```bash
+npm run lint          # Runs both code and markdown linting
+npm run lint:code     # ESLint only
 ```
 
-### Configuration Files
+Auto-fix fixable issues:
 
-```javascript
-const configPath = path.join(__dirname, '../../config/app-default-config.json');
-const config = await fs.readJson(configPath);
+```bash
+npm run lint:fix      # Fixes both code and markdown
+npm run lint:code:fix # ESLint only
+```
+
+### Markdownlint
+
+We use Markdownlint to ensure consistent and well-formatted documentation.
+
+Configuration: `.markdownlint.json`
+
+Key rules:
+
+- Consistent heading style
+- 2-space indentation for lists
+- Line length limits (300 chars general, 80 for headings)
+- Blank lines around lists and code blocks
+- Consistent list marker style
+- **No bold text as headings (MD036)** - Use proper heading syntax (`##`, `###`, etc.) instead of `**Bold:**`
+
+Run markdown linting:
+
+```bash
+npm run lint:md       # Check all markdown files
+npm run lint:md:fix   # Auto-fix markdown issues (note: MD036 requires manual fix)
+```
+
+**Heading vs Bold Text:**
+
+```markdown
+<!-- ❌ Bad - bold text used as heading -->
+**Update Requirements:**
+- Item 1
+- Item 2
+
+<!-- ✅ Good - proper heading -->
+### Update Requirements
+
+- Item 1
+- Item 2
+```
+
+## Naming Conventions
+
+- Files: Use kebab-case for file names (e.g., `user-service.ts`, `auth-controller.ts`)
+- Classes: Use PascalCase (e.g., `UserService`, `AuthController`)
+- Functions/Variables: Use camelCase (e.g., `getUserById`, `isActive`)
+- Constants: Use UPPER_SNAKE_CASE (e.g., `MAX_RETRIES`, `DEFAULT_TIMEOUT`)
+- Private members: Prefix with underscore (e.g., `_internalState`, `_validateInput()`)
+
+## Code Organization
+
+### File Structure
+
+### Function Length
+
+- Keep functions focused and single-purpose
+- Prefer functions under 50 lines
+- Extract complex logic into separate functions
+
+### Comments
+
+- Avoid obvious comments
+- Explain *why*, not *what* - the code shows what it does
+- Use JSDoc for public APIs and complex functions
+
+Example:
+
+```typescript
+/**
+ * Validates user email format
+ * @param email - The email to validate
+ * @returns true if valid RFC 5322 format
+ */
+function validateEmail(email: string): boolean {
+  // Implementation...
+}
 ```
 
 ## Error Handling
 
-### Validation
+- Always handle promise rejections
+- Use typed errors when possible
+- Provide meaningful error messages
+- Log errors appropriately
 
-- Validate at system boundaries (user input, external APIs)
-- Trust internal code and framework guarantees
-- Don't validate for impossible scenarios
+## Testing
 
-### Error Messages
+- Write tests for all public functions
+- Use test naming convention: `describe()` for groups, `it()` for specs
+- Aim for >80% code coverage
+- Test behavior, not implementation details
 
-- Be specific about what went wrong
-- Suggest corrective action when possible
-- Include context in error logs
-- Log with appropriate severity level
+## Git Commit Messages
 
-## Code Quality Tools
+Follow conventional commits format:
 
-### markdownlint
+```
+type(scope): description
 
-- All documentation files validated
-- Configuration: `.markdownlint.json`
-- Common rules: MD031 (fenced code blocks spacing), MD041 (first line heading)
+[optional body]
 
-### .editorconfig
+[optional footer]
+```
 
-- Enforces consistent formatting
-- Indentation, line endings, trailing whitespace
-- IDE integration for automatic application
+Types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `chore`
 
-### Prettier
+Example:
 
-- Code formatter for JavaScript/TypeScript
-- Configuration: `.prettierrc.json`
-- Run before committing
+```
+feat(auth): add JWT token refresh mechanism
 
-## TypeScript Migration
+Adds automatic token refresh when access token expires.
+Implements exponential backoff for retry logic.
 
-### Strategy
+Closes #123
+```
 
-- Progressive migration from CommonJS to TypeScript
-- New code written in TypeScript
-- Existing CommonJS modules remain compatible
-- Strict mode enabled for all TypeScript files
+## Pre-commit Hooks
 
-### File Naming
+Husky is configured to run both code and markdown linting before commits. Commits with linting errors will be rejected.
 
-- TypeScript files: `.ts` and `.tsx`
-- JavaScript files: `.js` (legacy)
-- Type definitions: `.d.ts`
+The pre-commit hook runs:
 
-### tsconfig.json Settings
+- ESLint on TypeScript files
+- Markdownlint on all markdown files
 
-- `"strict": true` - Strict type checking
-- `"moduleResolution": "node"` - Node module resolution
-- `"declaration": true` - Generate .d.ts files
+Run the pre-commit check manually:
+
+```bash
+npm run lint          # Runs both code and markdown linting
+```
+
+## Package Standards
+
+Keep dependencies minimal, well-maintained, and secure.
+
+For complete dependency security guidance, see [SECURITY.md](./SECURITY.md#dependency-management).
+
+Quick checklist:
+
+- Regularly audit: `npm audit`
+- Document why each dependency is needed
+- Use exact versions for critical dependencies
+- Update promptly when security issues are found
+
+## Environment Variables
+
+- Store sensitive data in `.env` files (never commit)
+- Document required environment variables in `.env.example`
+- Use meaningful variable names: `DATABASE_URL`, not `DB`
+
+## Performance Considerations
+
+- Avoid N+1 queries in loops
+- Use async/await properly to prevent blocking
+- Cache expensive operations when appropriate
+- Profile before optimizing
 
 ## Documentation
 
-### Required Locations
+- Keep README up to date
+- Document complex algorithms
+- Add examples for public APIs
+- Update [AGENTS.md](./AGENTS.md) when making significant changes
+- See [ARCHITECTURE.md](./ARCHITECTURE.md) for architectural documentation standards
+- All markdown files must pass markdownlint (`npm run lint:md`)
 
-- **API documentation**: `docs/api/`
-- **Architecture**: `docs/architecture/`
-- **Developer guides**: `docs/developer/`
-- **Testing guides**: `docs/testing/`
+## Review Checklist
 
-### README Files
+Before submitting code for review:
 
-- Each major module SHOULD have a README
-- Document purpose, usage, and key concepts
-- Link to related documentation
-
-## Tools & Configuration
-
-### Development Environment
-
-- Node.js v18+ required
-- npm for package management
-- PM2 for local development
-
-### Running Tests
-
-```bash
-npm test                  # Run all tests
-npm run test:coverage     # With coverage report
-npm run test:watch       # Watch mode
-```
-
-### Building & Type Checking
-
-```bash
-npm run build            # Build project
-npm run typecheck        # TypeScript checking
-```
-
-## Best Practices Summary
-
-1. **Document everything** - JSDoc for code, README for features
-2. **Test thoroughly** - >80% coverage, integration tests
-3. **Keep it simple** - Avoid premature optimization
-4. **DRY principle** - Reference, don't duplicate
-5. **Use patterns** - Managers, WikiContext, Providers
-6. **Validate smartly** - Only at boundaries
-7. **Semantic commits** - Clear version history
-8. **Code style** - Use .editorconfig and Prettier
-
-## Related Documentation
-
-- [CONTRIBUTING.md](./CONTRIBUTING.md) - Full development workflow
-- [ARCHITECTURE.md](./ARCHITECTURE.md) - System design patterns
-- [SECURITY.md](./SECURITY.md) - Security best practices
+- [ ] Code passes linting (`npm run lint` - includes both code and markdown)
+- [ ] Code is formatted (`npm run format`)
+- [ ] Tests pass and coverage is adequate
+- [ ] TypeScript compiles without errors
+- [ ] Markdown files pass linting (included in `npm run lint`)
+- [ ] No console.log statements in production code
+- [ ] Commit message follows [conventions](#git-commit-messages)
+- [ ] [AGENTS.md](./AGENTS.md) updated if applicable
+- [ ] No hardcoded secrets or credentials

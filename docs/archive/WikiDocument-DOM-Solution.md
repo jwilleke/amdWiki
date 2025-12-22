@@ -1,11 +1,10 @@
 > **ARCHIVED**: This document is for historical purposes only. For the current and complete documentation, please see **[WikiDocument Complete Guide](../WikiDocument-Complete-Guide.md)**.
 
-
 # WikiDocument DOM Solution - JSPWiki Approach Analysis
 
 **Date**: 2025-10-13
 **Breakthrough**: JSPWiki doesn't parse markdown themselves!
-**Source**: https://github.com/apache/jspwiki/tree/master/jspwiki-markdown
+**Source**: <https://github.com/apache/jspwiki/tree/master/jspwiki-markdown>
 
 ---
 
@@ -31,6 +30,7 @@ public WikiDocument parse() throws IOException {
 ```
 
 **Dependencies** (from pom.xml):
+
 - `flexmark` - Core markdown parser
 - `flexmark-ext-tables` - Table support
 - `flexmark-ext-toc` - Table of contents
@@ -71,6 +71,7 @@ class Tokenizer {
 ```
 
 **Why It Breaks**:
+
 - Tokenizer recognizes `## Heading`
 - DOMBuilder creates wrong element type (list item instead of heading)
 - Showdown never sees the heading markup
@@ -202,6 +203,7 @@ class MarkupParser {
 **Example Flow**:
 
 **Input**:
+
 ```markdown
 ## Features
 
@@ -213,6 +215,7 @@ Visit [HomePage] or [[{$variable}] for more.
 ```
 
 **After Phase 1 (Extract)**:
+
 ```markdown
 ## Features
 
@@ -224,6 +227,7 @@ Visit __JSPWIKI_2__ or __JSPWIKI_3__ for more.
 ```
 
 **WikiDocument DOM**:
+
 ```javascript
 [
   { id: 0, type: 'variable', name: 'username', node: <span data-jspwiki-id="0">JohnDoe</span> },
@@ -234,6 +238,7 @@ Visit __JSPWIKI_2__ or __JSPWIKI_3__ for more.
 ```
 
 **After Phase 3 (Showdown)**:
+
 ```html
 <h2>Features</h2>
 <p>Current user: __JSPWIKI_0__</p>
@@ -242,6 +247,7 @@ Visit __JSPWIKI_2__ or __JSPWIKI_3__ for more.
 ```
 
 **After Phase 4 (Merge)**:
+
 ```html
 <h2>Features</h2>
 <p>Current user: <span data-jspwiki-id="0">JohnDoe</span></p>
@@ -298,11 +304,13 @@ class MarkupParser {
 ```
 
 **Pros**:
+
 - Simpler extraction (HTML comments)
 - Showdown completely unaware of JSPWiki syntax
 - No placeholder replacement needed
 
 **Cons**:
+
 - HTML comments in output (need cleanup)
 - Harder to handle nested elements
 
@@ -347,11 +355,13 @@ const html = marked.parse(content);
 ```
 
 **Pros**:
+
 - Clean integration
 - Markdown parser handles all markdown
 - Custom renderer handles JSPWiki syntax
 
 **Cons**:
+
 - Tied to `marked` library
 - Need to implement renderer for all JSPWiki features
 
@@ -391,6 +401,7 @@ async parse(content, context) {
 ```
 
 **Test**:
+
 ```javascript
 // Test case
 const content = `
@@ -433,6 +444,7 @@ async createNode(element, context) {
 ### Phase 3: Integration Testing (2 days)
 
 Test all combinations:
+
 - ✅ Markdown headings + variables
 - ✅ Markdown lists + plugins
 - ✅ Markdown code blocks + links
@@ -442,6 +454,7 @@ Test all combinations:
 ### Phase 4: Performance Validation (1 day)
 
 Benchmark:
+
 - Parse time should be similar or better (no tokenizing markdown)
 - Memory usage should be lower (fewer DOM nodes)
 - Cache hit ratio should improve
@@ -451,6 +464,7 @@ Benchmark:
 ## Why This Solves the Heading Issue
 
 ### Root Cause
+
 ```javascript
 // OLD: Tokenizer tries to parse markdown headings
 if (char === '#' && this.isStartOfLine()) {
@@ -463,6 +477,7 @@ case 'HEADING':
 ```
 
 ### Solution
+
 ```javascript
 // NEW: Don't tokenize markdown at all!
 extractJSPWikiSyntax(content) {
@@ -473,12 +488,14 @@ extractJSPWikiSyntax(content) {
 ```
 
 **Before**:
+
 - Content: `## Heading`
 - Tokenizer: Creates `{ type: 'HEADING', level: 2, text: 'Heading' }`
 - DOMBuilder: Creates `<li>Heading</li>` (BUG!)
 - Result: ❌ Broken
 
 **After**:
+
 - Content: `## Heading`
 - Extractor: Ignores (not JSPWiki syntax)
 - Showdown: Converts `## Heading` → `<h2>Heading</h2>`
@@ -489,27 +506,32 @@ extractJSPWikiSyntax(content) {
 ## Benefits of This Approach
 
 ### 1. Eliminates Markdown Conflicts
+
 - WikiDocument DOM doesn't parse markdown
 - Showdown handles all markdown syntax
 - No confusion about who handles what
 
 ### 2. Maintains DOM Benefits
+
 - Variables, plugins, links still as DOM nodes
 - Query-based processing: `querySelectorAll('[data-plugin]')`
 - Caching WikiDocument objects
 - No order dependency for JSPWiki syntax
 
 ### 3. Matches JSPWiki Architecture
+
 - JSPWiki: FlexMark handles markdown, WikiDocument handles JSPWiki syntax
 - amdWiki: Showdown handles markdown, WikiDocument handles JSPWiki syntax
 - Same separation of concerns
 
 ### 4. Simpler Implementation
+
 - No need to parse markdown grammar
 - No need to maintain markdown tokenization
 - Leverage existing, tested libraries
 
 ### 5. Performance Gains
+
 - Fewer tokens to create (only JSPWiki elements)
 - Smaller DOM trees (only JSPWiki nodes)
 - Faster parsing (no markdown tokenization)
@@ -519,18 +541,21 @@ extractJSPWikiSyntax(content) {
 ## Migration from Current System
 
 ### What Stays
+
 - ✅ WikiDocument class (no changes)
 - ✅ DOM handlers (minor API changes)
 - ✅ DOMParser infrastructure (used differently)
 - ✅ Showdown integration (enhanced)
 
 ### What Changes
+
 - ⚠️ Tokenizer: Remove markdown tokenization
 - ⚠️ DOMBuilder: Only build JSPWiki nodes
 - ⚠️ MarkupParser.parse(): New extraction-based flow
 - ⚠️ Phase 0: Becomes extraction phase, not full DOM parsing
 
 ### What's Removed
+
 - ❌ Markdown heading tokenization
 - ❌ Markdown list tokenization
 - ❌ Markdown code block tokenization
@@ -541,20 +566,25 @@ extractJSPWikiSyntax(content) {
 ## Risks and Mitigation
 
 ### Risk 1: Placeholder Conflicts
+
 **Risk**: User writes `__JSPWIKI_0__` in content
 **Mitigation**: Use UUID-based placeholders: `__JSPWIKI_${uuid}_0__`
 
 ### Risk 2: JSPWiki Syntax in Code Blocks
+
 **Risk**: `[{$var}]` in code block gets extracted
 **Mitigation**: Protect code blocks first (already done in Phase 1)
 
 ### Risk 3: Nested JSPWiki Syntax
+
 **Risk**: `[{Plugin text="[{$var}]"}]` - variable inside plugin
 **Mitigation**: Extract in correct order (plugins first, then variables in plugin params)
 
 ### Risk 4: Performance Overhead
+
 **Risk**: Multiple passes over content (extract, showdown, merge)
 **Mitigation**:
+
 - Extract and merge are fast (regex-based)
 - Showdown is already in pipeline
 - Overall should be faster (no DOM for markdown)
@@ -564,6 +594,7 @@ extractJSPWikiSyntax(content) {
 ## Success Criteria
 
 ### Functional
+
 - ✅ Markdown headings render correctly (`## → <h2>`)
 - ✅ Variables expand correctly (`[{$username}] → JohnDoe`)
 - ✅ Plugins execute correctly (`[{TOC}] → table of contents`)
@@ -571,12 +602,14 @@ extractJSPWikiSyntax(content) {
 - ✅ Escaping works correctly (`[[{$var}] → [{$var}]`)
 
 ### Non-Functional
+
 - ✅ Parse time < 30ms per page
 - ✅ Memory usage < 50MB per 1000 pages
 - ✅ All existing tests pass
 - ✅ No regressions in escaping behavior
 
 ### Code Quality
+
 - ✅ Simpler codebase (remove markdown tokenization)
 - ✅ Clear separation of concerns
 - ✅ Maintainable architecture
@@ -591,12 +624,14 @@ extractJSPWikiSyntax(content) {
 **The Solution**: Pre-extract JSPWiki syntax, let Showdown handle markdown, merge the results.
 
 **The Benefits**:
+
 - ✅ Fixes heading issue permanently
 - ✅ Maintains WikiDocument DOM benefits
 - ✅ Simpler, more maintainable
 - ✅ Matches JSPWiki's proven approach
 
 **Next Steps**:
+
 1. Prototype extraction approach (2 days)
 2. Test with real content (2 days)
 3. Deploy to canary (1 week)

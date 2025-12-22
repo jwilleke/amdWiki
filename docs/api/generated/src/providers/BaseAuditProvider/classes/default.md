@@ -19,9 +19,9 @@ Audit providers implement different storage backends (file, database, cloud logg
 
 ## See
 
- - FileAuditProvider for file-based implementation
- - DatabaseAuditProvider for database implementation
- - AuditManager for usage
+- FileAuditProvider for file-based implementation
+- DatabaseAuditProvider for database implementation
+- AuditManager for usage
 
 ## Example
 

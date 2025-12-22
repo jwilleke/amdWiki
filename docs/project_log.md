@@ -233,7 +233,7 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
   - Pass Rate: 100% of executed tests
 - Commits: 6849960
 - Files Modified:
-  - src/managers/__tests__/PageManager-Storage.test.js (complete rewrite)
+  - src/managers/**tests**/PageManager-Storage.test.js (complete rewrite)
   - docs/testing/Testing-Summary.md
   - docs/testing/Complete-Testing-Guide.md
   - docs/project_log.md
@@ -271,14 +271,14 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
   - Pass Rate: 100% of executed tests
 - Commits: 958f014, a6334cc, 6bbd682
 - Files Modified:
-  - src/managers/__tests__/NotificationManager.test.js
-  - src/managers/__tests__/PageManager-Storage.test.js
-  - src/parsers/__tests__/MarkupParser.test.js
-  - src/parsers/__tests__/MarkupParser-Performance.test.js
-  - src/parsers/__tests__/MarkupParser-Config.test.js
-  - src/parsers/__tests__/MarkupParser-*.test.js (6 variant files)
-  - src/providers/__tests__/VersioningFileProvider*.test.js
-  - src/utils/__tests__/VersioningMigration.test.js
+  - src/managers/**tests**/NotificationManager.test.js
+  - src/managers/**tests**/PageManager-Storage.test.js
+  - src/parsers/**tests**/MarkupParser.test.js
+  - src/parsers/**tests**/MarkupParser-Performance.test.js
+  - src/parsers/**tests**/MarkupParser-Config.test.js
+  - src/parsers/**tests**/MarkupParser-*.test.js (6 variant files)
+  - src/providers/**tests**/VersioningFileProvider*.test.js
+  - src/utils/**tests**/VersioningMigration.test.js
   - docs/testing/Testing-Summary.md
 
 ---
@@ -444,11 +444,11 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 - Tests Fixed: 5 test suites (30 individual tests)
 - Remaining Failures: Pre-existing issues (VersioningFileProvider, MarkupParser, NotificationManager)
 - Files Modified:
-  - src/managers/__tests__/SchemaManager.test.js
-  - src/managers/__tests__/PluginManager.test.js
-  - src/managers/__tests__/PluginManager.registerPlugins.test.js
-  - plugins/__tests__/SessionsPlugin.test.js
-  - plugins/__tests__/AllPlugins.test.js
+  - src/managers/**tests**/SchemaManager.test.js
+  - src/managers/**tests**/PluginManager.test.js
+  - src/managers/**tests**/PluginManager.registerPlugins.test.js
+  - plugins/**tests**/SessionsPlugin.test.js
+  - plugins/**tests**/AllPlugins.test.js
   - docs/project_log.md
 
 ---
@@ -470,7 +470,7 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
   - Updated docs/testing/Complete-Testing-Guide.md with comprehensive E2E section
   - Updated docs/testing/Testing-Summary.md with E2E overview
 - Test Results (Current):
-  - __17 passed, 9 failed, 2 skipped__
+  - **17 passed, 9 failed, 2 skipped**
   - Passing: auth setup, login form, credentials, session, protected routes, admin dashboard, navigation, user management, home page, wiki navigation, breadcrumbs, search results
   - Failing: mostly search page selectors and missing features (config section)
 - Test Credentials:
@@ -539,9 +539,9 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
   - config/ConfigBridge.js
   - config/DigitalDocumentPermissionConfig.js
   - config/legacy/ (entire folder)
-  - src/parsers/__tests__/MarkupParser-Integration.test.js
-  - src/parsers/__tests__/MarkupParser-DOM-Integration.test.js
-  - src/parsers/__tests__/MarkupParser-DOM-Integration.test.js.bak
+  - src/parsers/**tests**/MarkupParser-Integration.test.js
+  - src/parsers/**tests**/MarkupParser-DOM-Integration.test.js
+  - src/parsers/**tests**/MarkupParser-DOM-Integration.test.js.bak
 
 ---
 
@@ -551,8 +551,8 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 - Subject: Fix Issue #167 - Multiple PM2 Daemons and PIDs (Root Cause)
 - Issue: #167
 - Work Done:
-  - __Root cause identified__: Multiple PM2 daemons can spawn and persist in `~/.pm2/`
-  - __Bug fixed__: Double `npx --no -- npx --no --` on line 93 (was `npx --no -- npx --no -- pm2 start`)
+  - **Root cause identified**: Multiple PM2 daemons can spawn and persist in `~/.pm2/`
+  - **Bug fixed**: Double `npx --no -- npx --no --` on line 93 (was `npx --no -- npx --no -- pm2 start`)
   - Added `ensure_single_pm2_daemon()` function - detects/kills multiple PM2 daemons
   - Added `kill_all_amdwiki()` function - comprehensive process cleanup
   - Improved `start` command:
@@ -633,13 +633,13 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 - Subject: Bug Fixes - Required Pages & ReferringPagesPlugin
 - Issues Closed: #172, #174
 - Work Done:
-  - __Issue #174__: Fixed required-pages showing in operating wiki
+  - **Issue #174**: Fixed required-pages showing in operating wiki
     - Modified FileSystemProvider to only load from required-pages during installation
     - Added `installationComplete` flag checked from `amdwiki.install.completed` config
     - Updated VersioningFileProvider to match parent behavior
     - Fixed RenderingManager.getTotalPagesCount() to use provider cache
     - Extended WikiRoutes.isRequiredPage() to protect system/documentation pages (Admin-only edit)
-  - __Issue #172__: Fixed ReferringPagesPlugin not showing plural-linked pages
+  - **Issue #172**: Fixed ReferringPagesPlugin not showing plural-linked pages
     - Root cause: buildLinkGraph() stored links literally without resolving plurals
     - Fix: Added pageNameMatcher.findMatch() when building link graph
     - Result: "Contextual Variables" (links to `[Plugins]`) now appears on "Plugin" page
@@ -817,11 +817,11 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 - Files Modified:
   - .github/workflows/ci-passing-tests.yml (new)
   - docs/testing/KNOWN-TEST-ISSUES.md
-  - src/managers/__tests__/ExportManager.test.js
-  - src/parsers/handlers/__tests__/PluginSyntaxHandler.test.js
-  - src/routes/__tests__/WikiRoutes.attachments.test.js
-  - src/routes/__tests__/WikiRoutes.schema.test.js
-  - src/routes/__tests__/maintenance-mode.test.js
+  - src/managers/**tests**/ExportManager.test.js
+  - src/parsers/handlers/**tests**/PluginSyntaxHandler.test.js
+  - src/routes/**tests**/WikiRoutes.attachments.test.js
+  - src/routes/**tests**/WikiRoutes.schema.test.js
+  - src/routes/**tests**/maintenance-mode.test.js
 - Next Steps: Continue fixing remaining 26 failing test suites (Option C)
 
 ## 2025-12-08-02

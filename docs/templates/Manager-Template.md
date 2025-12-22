@@ -16,6 +16,7 @@ Brief overview of the manager's purpose and responsibility.
 Detailed description of what this manager handles within the amdWiki system.
 
 **Key Responsibilities:**
+
 - Responsibility 1
 - Responsibility 2
 - Responsibility 3
@@ -62,6 +63,7 @@ Configuration options that affect this manager's behavior.
 Description of what this method does.
 
 **Parameters:**
+
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
 | param1 | string | Yes | Description |
@@ -70,6 +72,7 @@ Description of what this method does.
 **Returns:** `Promise<ReturnType>` - Description of return value
 
 **Example:**
+
 ```javascript
 const result = await manager.methodName('value', { option: true });
 ```

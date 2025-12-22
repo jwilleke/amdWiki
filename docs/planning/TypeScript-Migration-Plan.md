@@ -24,6 +24,7 @@ slug: typescript-migration-plan
 This document outlines a comprehensive plan to migrate amdWiki from JavaScript to TypeScript. The migration will be **incremental** to minimize disruption and allow for continuous deployment.
 
 **Key Statistics**:
+
 - **Total JS Files**: ~8,462 (including node_modules and tests)
 - **Source Files**: ~155 files in `/src`
 - **Current Stack**: Node.js + CommonJS + Jest
@@ -112,6 +113,7 @@ This document outlines a comprehensive plan to migrate amdWiki from JavaScript t
 ### Option 1: Compiled JavaScript (Production Standard) ⭐ **RECOMMENDED**
 
 **How it works**:
+
 ```bash
 # Development
 npm run dev       # tsc --watch + nodemon
@@ -122,6 +124,7 @@ npm start         # node ./dist/app.js
 ```
 
 **Pros**:
+
 - ✅ No runtime dependencies (production uses plain JS)
 - ✅ Fastest production performance
 - ✅ Standard approach for Node.js TypeScript projects
@@ -129,6 +132,7 @@ npm start         # node ./dist/app.js
 - ✅ Works with all Node.js tools and infrastructure
 
 **Cons**:
+
 - ❌ Requires build step before running
 - ❌ Slower development cycle (compile → run → test)
 - ❌ Need to manage compiled output directory
@@ -140,6 +144,7 @@ npm start         # node ./dist/app.js
 ### Option 2: `tsx` (Modern, Fast) 🚀 **RECOMMENDED FOR DEVELOPMENT**
 
 **How it works**:
+
 ```bash
 npm install --save-dev tsx
 
@@ -151,6 +156,7 @@ npx tsx watch src/app.ts
 ```
 
 **Pros**:
+
 - ✅ Extremely fast (uses esbuild internally)
 - ✅ Zero config required
 - ✅ Supports ESM and CommonJS
@@ -159,19 +165,21 @@ npx tsx watch src/app.ts
 - ✅ Faster than ts-node (5-10x speedup)
 
 **Cons**:
+
 - ❌ Relatively new tool (less mature than ts-node)
 - ❌ Not suitable for production (dev-only)
 - ❌ Limited type-checking (relies on separate `tsc --noEmit`)
 
 **Best for**: Development, quick prototyping, hot-reload workflows
 
-**Project**: https://github.com/privatenumber/tsx
+**Project**: <https://github.com/privatenumber/tsx>
 
 ---
 
 ### Option 3: `ts-node` (Traditional)
 
 **How it works**:
+
 ```bash
 npm install --save-dev ts-node @types/node
 
@@ -183,12 +191,14 @@ npx ts-node src/app.ts
 ```
 
 **Pros**:
+
 - ✅ Battle-tested and mature
 - ✅ Full type-checking during execution
 - ✅ Excellent TypeScript ecosystem integration
 - ✅ Works with most Node.js tools
 
 **Cons**:
+
 - ❌ Slower than `tsx` (uses TypeScript compiler directly)
 - ❌ Higher memory usage
 - ❌ Slower startup time for large projects
@@ -201,6 +211,7 @@ npx ts-node src/app.ts
 ### Option 4: Hybrid Approach ⭐ **RECOMMENDED STRATEGY**
 
 **Development**: Use `tsx` for fast iteration
+
 ```json
 {
   "scripts": {
@@ -211,6 +222,7 @@ npx ts-node src/app.ts
 ```
 
 **Production**: Compile to JavaScript
+
 ```json
 {
   "scripts": {
@@ -222,6 +234,7 @@ npx ts-node src/app.ts
 ```
 
 **Type-checking**: Separate from runtime
+
 ```json
 {
   "scripts": {
@@ -232,6 +245,7 @@ npx ts-node src/app.ts
 ```
 
 **Benefits**:
+
 - ⚡ Fast development with `tsx`
 - 🏭 Production-ready compiled JS
 - 🔍 Explicit type-checking step
@@ -266,6 +280,7 @@ Full TypeScript (100% coverage)
 ### File Organization
 
 **Before**:
+
 ```text
 src/
   managers/
@@ -275,6 +290,7 @@ src/
 ```
 
 **During Migration**:
+
 ```text
 src/
   managers/
@@ -285,6 +301,7 @@ src/
 ```
 
 **After**:
+
 ```text
 src/
   managers/
@@ -310,6 +327,7 @@ dist/                       # Compiled output
 #### Tasks
 
 - [ ] Install TypeScript and related packages
+
   ```bash
   npm install --save-dev typescript
   npm install --save-dev @types/node
@@ -318,6 +336,7 @@ dist/                       # Compiled output
   ```
 
 - [ ] Create `tsconfig.json` (permissive initial config)
+
   ```json
   {
     "compilerOptions": {
@@ -343,6 +362,7 @@ dist/                       # Compiled output
   ```
 
 - [ ] Update `package.json` scripts
+
   ```json
   {
     "scripts": {
@@ -358,6 +378,7 @@ dist/                       # Compiled output
   ```
 
 - [ ] Configure Jest for TypeScript
+
   ```javascript
   // jest.config.ts
   module.exports = {
@@ -375,6 +396,7 @@ dist/                       # Compiled output
   ```
 
 - [ ] Create `.gitignore` updates
+
   ```text
   # TypeScript
   dist/
@@ -384,6 +406,7 @@ dist/                       # Compiled output
 - [ ] Document TypeScript setup in `CONTRIBUTING.md`
 
 **Deliverables**:
+
 - TypeScript installed and configured
 - Build pipeline working (`npm run build`)
 - Tests still passing with existing .js files
@@ -396,6 +419,7 @@ dist/                       # Compiled output
 **Objective**: Convert low-risk utility modules first to gain experience
 
 **Priority Files** (lowest coupling, highest value):
+
 1. `src/utils/DeltaStorage.js` → `.ts`
 2. `src/utils/VersionCompression.js` → `.ts`
 3. `src/utils/logger.js` → `.ts`
@@ -406,6 +430,7 @@ dist/                       # Compiled output
 #### Example: Converting DeltaStorage.js
 
 **Before** (`DeltaStorage.js`):
+
 ```javascript
 const diff = require('fast-diff');
 
@@ -423,6 +448,7 @@ module.exports = DeltaStorage;
 ```
 
 **After** (`DeltaStorage.ts`):
+
 ```typescript
 import * as diff from 'fast-diff';
 
@@ -446,6 +472,7 @@ export class DeltaStorage {
 ```
 
 #### Tasks
+
 - [ ] Convert each utility file to `.ts`
 - [ ] Add type annotations to all functions
 - [ ] Create interfaces for complex data structures
@@ -454,6 +481,7 @@ export class DeltaStorage {
 - [ ] Update JSDoc → TypeScript doc comments
 
 **Deliverables**:
+
 - 6-10 utility files converted
 - Type definitions created for common structures
 - All tests passing
@@ -468,6 +496,7 @@ export class DeltaStorage {
 #### Create Type Definition Files
 
 **File**: `src/types/index.ts`
+
 ```typescript
 // Page types
 export interface WikiPage {
@@ -531,6 +560,7 @@ export interface ApiResponse<T = any> {
 ```
 
 **File**: `src/types/providers.ts`
+
 ```typescript
 export interface PageProvider {
   initialize(): Promise<void>;
@@ -550,6 +580,7 @@ export interface VersioningPageProvider extends PageProvider {
 ```
 
 #### Tasks
+
 - [ ] Create `src/types/` directory
 - [ ] Define all core interfaces
 - [ ] Export types from `src/types/index.ts`
@@ -557,6 +588,7 @@ export interface VersioningPageProvider extends PageProvider {
 - [ ] Document complex types with TSDoc comments
 
 **Deliverables**:
+
 - Comprehensive type definitions
 - Shared types available for import
 - Foundation for converting classes
@@ -568,6 +600,7 @@ export interface VersioningPageProvider extends PageProvider {
 **Objective**: Convert provider classes (high complexity, high value)
 
 **Target Files**:
+
 1. `src/providers/BasePageProvider.js` → `.ts` (abstract base)
 2. `src/providers/FileSystemProvider.js` → `.ts`
 3. `src/providers/VersioningFileProvider.js` → `.ts`
@@ -577,6 +610,7 @@ export interface VersioningPageProvider extends PageProvider {
 #### Example: BasePageProvider
 
 **Before** (`BasePageProvider.js`):
+
 ```javascript
 class BasePageProvider {
   constructor(engine) {
@@ -592,6 +626,7 @@ module.exports = BasePageProvider;
 ```
 
 **After** (`BasePageProvider.ts`):
+
 ```typescript
 import { WikiEngine } from '../core/Engine';
 import { WikiPage, UserContext } from '../types';
@@ -620,6 +655,7 @@ export abstract class BasePageProvider {
 ```
 
 #### Tasks
+
 - [ ] Convert `BasePageProvider` to TypeScript
 - [ ] Add abstract method signatures with types
 - [ ] Convert `FileSystemProvider` (extends base)
@@ -628,6 +664,7 @@ export abstract class BasePageProvider {
 - [ ] Verify provider registry still works
 
 **Deliverables**:
+
 - All providers typed
 - Provider interface contracts enforced
 - Tests passing with TypeScript
@@ -639,6 +676,7 @@ export abstract class BasePageProvider {
 **Objective**: Convert manager classes that orchestrate business logic
 
 **Target Files**:
+
 1. `src/managers/PageManager.js` → `.ts`
 2. `src/managers/AttachmentManager.js` → `.ts`
 3. `src/managers/SearchManager.js` → `.ts`
@@ -649,6 +687,7 @@ export abstract class BasePageProvider {
 #### Example: ConfigurationManager
 
 **After** (`ConfigurationManager.ts`):
+
 ```typescript
 import { WikiConfig } from '../types';
 
@@ -681,6 +720,7 @@ export class ConfigurationManager {
 ```
 
 #### Tasks
+
 - [ ] Convert each manager to TypeScript
 - [ ] Add method signatures with return types
 - [ ] Type manager dependencies (engine, providers, config)
@@ -688,6 +728,7 @@ export class ConfigurationManager {
 - [ ] Ensure WikiEngine integration works
 
 **Deliverables**:
+
 - All managers typed
 - Manager APIs fully documented via types
 - Integration tests passing
@@ -699,6 +740,7 @@ export class ConfigurationManager {
 **Objective**: Type Express routes and request/response handlers
 
 **Target Files**:
+
 - `src/routes/WikiRoutes.js` → `.ts`
 - `src/routes/AuthRoutes.js` → `.ts`
 - `src/routes/APIRoutes.js` → `.ts`
@@ -706,6 +748,7 @@ export class ConfigurationManager {
 #### Example: Typed Express Handler
 
 **Before**:
+
 ```javascript
 router.get('/api/pages/:page', async (req, res) => {
   const page = await pageManager.getPage(req.params.page);
@@ -714,6 +757,7 @@ router.get('/api/pages/:page', async (req, res) => {
 ```
 
 **After**:
+
 ```typescript
 import { Request, Response, NextFunction } from 'express';
 import { ApiResponse, WikiPage } from '../types';
@@ -740,6 +784,7 @@ router.get('/api/pages/:page', async (
 ```
 
 #### Tasks
+
 - [ ] Install `@types/express`
 - [ ] Type all route handlers
 - [ ] Create request/response interfaces
@@ -747,6 +792,7 @@ router.get('/api/pages/:page', async (
 - [ ] Add error handler types
 
 **Deliverables**:
+
 - All routes typed
 - API contracts clear from types
 - Integration tests updated
@@ -776,6 +822,7 @@ router.get('/api/pages/:page', async (
 ```
 
 #### Tasks
+
 - [ ] Enable `strict: true`
 - [ ] Fix all type errors file-by-file
 - [ ] Add null checks where needed
@@ -784,6 +831,7 @@ router.get('/api/pages/:page', async (
 - [ ] Fix unused variable warnings
 
 **Deliverables**:
+
 - Zero TypeScript errors with strict mode
 - Null-safety enforced
 - No implicit `any` types
@@ -797,6 +845,7 @@ router.get('/api/pages/:page', async (
 #### Convert Tests
 
 **Before** (`PageManager.test.js`):
+
 ```javascript
 const PageManager = require('../PageManager');
 
@@ -809,6 +858,7 @@ describe('PageManager', () => {
 ```
 
 **After** (`PageManager.test.ts`):
+
 ```typescript
 import { PageManager } from '../PageManager';
 import { WikiEngine } from '../../core/Engine';
@@ -832,6 +882,7 @@ describe('PageManager', () => {
 ```
 
 #### Tasks
+
 - [ ] Convert all test files to `.test.ts`
 - [ ] Add type annotations to test data
 - [ ] Type mock objects properly
@@ -839,6 +890,7 @@ describe('PageManager', () => {
 - [ ] Ensure 100% test coverage maintained
 
 #### Update Documentation
+
 - [ ] Update `CONTRIBUTING.md` with TypeScript guidelines
 - [ ] Create `docs/TypeScript-Style-Guide.md`
 - [ ] Update API documentation with types
@@ -846,6 +898,7 @@ describe('PageManager', () => {
 - [ ] Generate type documentation (TypeDoc)
 
 **Deliverables**:
+
 - All tests in TypeScript
 - Documentation updated
 - Style guide established
@@ -987,6 +1040,7 @@ npm install --save-dev typedoc
 ### ESLint Configuration for TypeScript
 
 **File**: `.eslintrc.json`
+
 ```json
 {
   "parser": "@typescript-eslint/parser",
@@ -1013,6 +1067,7 @@ npm install --save-dev typedoc
 ### Prettier Configuration
 
 **File**: `.prettierrc.json`
+
 ```json
 {
   "semi": true,
@@ -1026,6 +1081,7 @@ npm install --save-dev typedoc
 ### VS Code Settings
 
 **File**: `.vscode/settings.json`
+
 ```json
 {
   "typescript.tsdk": "node_modules/typescript/lib",
@@ -1118,6 +1174,7 @@ npm install --save-dev typedoc
 **Verdict**: ⭐ **Strongly Recommended**
 
 **Rationale**:
+
 1. **High value**: Type safety will prevent entire categories of bugs
 2. **Manageable effort**: 12 weeks for 155 files is reasonable
 3. **Low risk**: Incremental migration allows continuous deployment

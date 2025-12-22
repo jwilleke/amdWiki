@@ -106,4 +106,5 @@ await pageManager.deletePage('My Page');
 ## Developer Documentation
 
 For complete API reference, provider implementation details, and troubleshooting:
+
 - [PageManager-Complete-Guide.md](PageManager-Complete-Guide.md)

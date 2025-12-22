@@ -39,6 +39,7 @@ const result = validationManager.validate(pageData, 'page');
 Schemas must follow the naming pattern: `{name}.schema.json`
 
 Examples:
+
 - `page.schema.json` → accessed as `'page'`
 - `user.schema.json` → accessed as `'user'`
 - `config.schema.json` → accessed as `'config'`
@@ -59,5 +60,6 @@ Examples:
 ## Developer Documentation
 
 For complete API reference, see:
+
 - [SchemaManager-Complete-Guide.md](SchemaManager-Complete-Guide.md)
 - [Generated API Docs](../api/generated/src/managers/SchemaManager/README.md)

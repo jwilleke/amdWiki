@@ -58,5 +58,6 @@ Configurable via `config.exportDirectory` during initialization.
 ## Developer Documentation
 
 For complete API reference, see:
+
 - [ExportManager-Complete-Guide.md](ExportManager-Complete-Guide.md)
 - [Generated API Docs](../api/generated/src/managers/ExportManager/README.md)

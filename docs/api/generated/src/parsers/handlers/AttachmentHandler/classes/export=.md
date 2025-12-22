@@ -11,6 +11,7 @@ Defined in: [src/parsers/handlers/AttachmentHandler.js:19](https://github.com/jw
 AttachmentHandler - Advanced attachment processing with thumbnails and metadata
 
 Supports enhanced JSPWiki attachment syntax:
+
 - [{ATTACH filename.pdf}] - Simple attachment link
 - [{ATTACH filename.pdf|Display Name}] - Custom display text
 - [{ATTACH filename.pdf|Display Name|target=_blank}] - Link parameters
@@ -1211,6 +1212,7 @@ Filename to check
 Defined in: [src/parsers/handlers/AttachmentHandler.js:60](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/AttachmentHandler.js#L60)
 
 Load configuration from multiple modular sources
+
 - app-default-config.json (base configuration)
 - app-custom-config.json (user overrides via ConfigurationManager)
 - Handler-specific settings from MarkupParser

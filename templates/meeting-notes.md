@@ -6,8 +6,8 @@ user-keywords: [{{userKeywords}}]
 # Overview
 
 **Date:** {{date}}  
-**Attendees:** 
-**Location:** 
+**Attendees:**
+**Location:**
 
 ## Agenda
 

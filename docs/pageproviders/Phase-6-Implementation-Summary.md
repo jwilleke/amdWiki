@@ -15,6 +15,7 @@ Phase 6 integrates the VersioningFileProvider backend with the user interface, p
 All API endpoints are located in `src/routes/WikiRoutes.js`:
 
 #### GET /api/page/:identifier/versions
+
 - **Purpose:** Retrieve version history for a page
 - **Response:** JSON array of version metadata (newest first)
 - **Features:**
@@ -23,6 +24,7 @@ All API endpoints are located in `src/routes/WikiRoutes.js`:
   - Graceful degradation if versioning not enabled
 
 #### GET /api/page/:identifier/version/:version
+
 - **Purpose:** Retrieve specific version content
 - **Response:** Version content and metadata
 - **Features:**
@@ -31,6 +33,7 @@ All API endpoints are located in `src/routes/WikiRoutes.js`:
   - Can be used for version preview
 
 #### GET /api/page/:identifier/compare/:v1/:v2
+
 - **Purpose:** Compare two versions
 - **Response:** Diff data and statistics
 - **Features:**
@@ -39,6 +42,7 @@ All API endpoints are located in `src/routes/WikiRoutes.js`:
   - Includes statistics (additions, deletions, unchanged)
 
 #### POST /api/page/:identifier/restore/:version
+
 - **Purpose:** Restore page to previous version
 - **Authentication:** Required
 - **Features:**
@@ -50,9 +54,11 @@ All API endpoints are located in `src/routes/WikiRoutes.js`:
 ### 2. Web Views
 
 #### Page History View (`/history/:page`)
+
 **Template:** `views/page-history.ejs`
 
 **Features:**
+
 - Complete version list in table format
 - Version metadata display (date, author, size, type)
 - Visual indicators for:
@@ -68,15 +74,18 @@ All API endpoints are located in `src/routes/WikiRoutes.js`:
 - Responsive design with Bootstrap 5
 
 **Implementation Details:**
+
 - Uses AJAX for version preview (modal)
 - Integrates marked.js for markdown rendering
 - Confirmation dialog for restore operations
 - Breadcrumb navigation back to page
 
 #### Diff Viewer (`/diff/:page?v1=X&v2=Y`)
+
 **Template:** `views/page-diff.ejs`
 
 **Features:**
+
 - Side-by-side comparison cards
 - Diff statistics (additions/deletions/unchanged)
 - Two view modes:
@@ -90,6 +99,7 @@ All API endpoints are located in `src/routes/WikiRoutes.js`:
 - Breadcrumb navigation
 
 **Implementation Details:**
+
 - Client-side diff rendering from API data
 - Toggle between view modes
 - HTML escaping for security
@@ -98,9 +108,11 @@ All API endpoints are located in `src/routes/WikiRoutes.js`:
 ### 3. Page View Integration
 
 #### Version Info Banner
+
 **Location:** `views/view.ejs` (top of page content)
 
 **Features:**
+
 - Displays current version information:
   - Version number (e.g., "Version 5 of 12")
   - Last editor and timestamp
@@ -110,9 +122,11 @@ All API endpoints are located in `src/routes/WikiRoutes.js`:
 - Responsive layout
 
 #### Header Integration
+
 **Location:** `views/header.ejs` (Info dropdown)
 
 **Updated:**
+
 - "Page History" link now functional
 - Navigates to `/history/:page`
 - Available from any page view or edit page
@@ -141,6 +155,7 @@ async viewPage(req, res) // Now includes version info
 ### Error Handling
 
 All endpoints include comprehensive error handling:
+
 - 400: Invalid parameters
 - 401: Authentication required (restore only)
 - 404: Page or version not found
@@ -164,6 +179,7 @@ All endpoints include comprehensive error handling:
 ### Graceful Degradation
 
 System works seamlessly with both FileSystemProvider and VersioningFileProvider:
+
 - Version features only shown when available
 - Friendly error messages when versioning disabled
 - No breaking changes to existing functionality
@@ -171,11 +187,13 @@ System works seamlessly with both FileSystemProvider and VersioningFileProvider:
 ## File Changes
 
 ### New Files
+
 1. `/views/page-history.ejs` - Version history view
 2. `/views/page-diff.ejs` - Version comparison view
 3. `/docs/Phase-6-Implementation-Summary.md` - This document
 
 ### Modified Files
+
 1. `/src/routes/WikiRoutes.js`
    - Added 4 API endpoint registrations
    - Added 2 view route registrations
@@ -193,6 +211,7 @@ System works seamlessly with both FileSystemProvider and VersioningFileProvider:
 ### Manual Testing Required
 
 #### REST API Endpoints
+
 - [ ] GET /api/page/:page/versions - Returns version list
 - [ ] GET /api/page/:page/version/1 - Returns version content
 - [ ] GET /api/page/:page/compare/1/2 - Returns diff data
@@ -201,6 +220,7 @@ System works seamlessly with both FileSystemProvider and VersioningFileProvider:
 - [ ] Test with non-versioned provider (501 error)
 
 #### Page History View
+
 - [ ] Access via Info → Page History
 - [ ] Access via direct URL /history/:page
 - [ ] Version list displays correctly
@@ -212,6 +232,7 @@ System works seamlessly with both FileSystemProvider and VersioningFileProvider:
 - [ ] Responsive design on mobile
 
 #### Diff Viewer
+
 - [ ] Access from history page
 - [ ] Access via direct URL /diff/:page?v1=1&v2=2
 - [ ] Unified view displays correctly
@@ -222,6 +243,7 @@ System works seamlessly with both FileSystemProvider and VersioningFileProvider:
 - [ ] Responsive design on mobile
 
 #### Page View Integration
+
 - [ ] Version banner displays when versioning enabled
 - [ ] Version banner hidden when versioning disabled
 - [ ] "View History" link works
@@ -229,6 +251,7 @@ System works seamlessly with both FileSystemProvider and VersioningFileProvider:
 - [ ] Info → Page History link works from all pages
 
 ### Integration Testing
+
 - [ ] Test with FileSystemProvider (features hidden)
 - [ ] Test with VersioningFileProvider (features visible)
 - [ ] Test switching between providers (restart required)
@@ -239,6 +262,7 @@ System works seamlessly with both FileSystemProvider and VersioningFileProvider:
 - [ ] Test performance with large page content
 
 ### Edge Cases
+
 - [ ] Page with special characters in name
 - [ ] Page with very long name
 - [ ] Version with empty comment
@@ -258,6 +282,7 @@ System works seamlessly with both FileSystemProvider and VersioningFileProvider:
 ## Future Enhancements
 
 ### Short Term (Phase 6.1)
+
 - Add pagination for version history (>50 versions)
 - Add filtering/search in version history
 - Add keyboard shortcuts (n=next, p=previous in diff)
@@ -265,6 +290,7 @@ System works seamlessly with both FileSystemProvider and VersioningFileProvider:
 - Add version restore preview mode
 
 ### Medium Term (Phase 7)
+
 - Add version comments/annotations
 - Add version tagging (milestone, release, etc.)
 - Add email notifications on restore
@@ -272,6 +298,7 @@ System works seamlessly with both FileSystemProvider and VersioningFileProvider:
 - Add bulk version operations
 
 ### Long Term
+
 - Add visual diff editor with merge capabilities
 - Add version branching (experimental features)
 - Add page version templates
@@ -289,6 +316,7 @@ No additional configuration required. Versioning UI automatically enables when:
 ```
 
 All existing versioning settings from Phase 5 apply:
+
 - `maxversions` - Retention policy
 - `retentiondays` - Age-based cleanup
 - `checkpointinterval` - Performance optimization
@@ -297,11 +325,13 @@ All existing versioning settings from Phase 5 apply:
 ## Dependencies
 
 ### Backend
+
 - Existing: `fast-diff` (Phase 1)
 - Existing: `pako` (Phase 1)
 - Existing: Express, EJS
 
 ### Frontend
+
 - Bootstrap 5 (existing)
 - Font Awesome 5 (existing)
 - marked.js (loaded dynamically for preview)
@@ -359,6 +389,7 @@ Response: { success: true, newVersion: N, restoredFromVersion: M }
 Phase 6 is complete and ready for testing. The UI integration provides a complete, JSPWiki-style version management experience while maintaining backward compatibility with FileSystemProvider.
 
 Next steps:
+
 1. Manual testing (see checklist above)
 2. Create automated tests (Phase 7)
 3. Update user documentation
@@ -367,10 +398,12 @@ Next steps:
 ---
 
 **Related Issues:**
+
 - #124 - Epic: VersioningFileProvider Implementation
 - #130 - Phase 6: UI Integration
 
 **Related Documentation:**
+
 - [Versioning Implementation Plan](./planning/Versioning-Implementation.md)
 - [Versioning Maintenance Guide](./Versioning-Maintenance-Guide.md)
 - [Migration Guide](./migration/Migrate-to-Versioning-Guide.md)

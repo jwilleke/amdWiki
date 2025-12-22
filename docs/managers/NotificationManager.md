@@ -66,5 +66,6 @@ await notifyManager.dismissNotification(id, 'alice');
 ## Developer Documentation
 
 For complete API reference, see:
+
 - [NotificationManager-Complete-Guide.md](NotificationManager-Complete-Guide.md)
 - [Generated API Docs](../api/generated/src/managers/NotificationManager/README.md)

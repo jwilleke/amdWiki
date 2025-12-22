@@ -14,6 +14,7 @@ Provides high-performance in-memory caching with TTL support.
 Suitable for single-instance deployments and development.
 
 Configuration keys (all lowercase):
+
 - amdwiki.cache.provider.nodecache.stdttl - Default TTL in seconds
 - amdwiki.cache.provider.nodecache.checkperiod - Check for expired keys interval
 - amdwiki.cache.provider.nodecache.maxkeys - Maximum number of keys

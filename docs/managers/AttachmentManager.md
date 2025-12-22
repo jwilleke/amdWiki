@@ -88,4 +88,5 @@ await attachmentManager.deleteAttachment(attachment.identifier, wikiContext);
 ## Developer Documentation
 
 For complete API reference, configuration options, provider implementation, and troubleshooting:
+
 - [AttachmentManager-Complete-Guide.md](AttachmentManager-Complete-Guide.md)

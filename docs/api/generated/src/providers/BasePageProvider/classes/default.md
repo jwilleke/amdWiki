@@ -20,8 +20,8 @@ This follows JSPWiki's provider pattern for pluggable storage backends.
 
 ## See
 
- - FileSystemProvider for filesystem implementation
- - PageManager for usage
+- FileSystemProvider for filesystem implementation
+- PageManager for usage
 
 ## Example
 

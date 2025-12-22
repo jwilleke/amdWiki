@@ -93,7 +93,7 @@ class FileUserProvider extends BaseUserProvider {
    */
   private async loadUsers(): Promise<void> {
     try {
-      const usersFilePath = path.join(this.usersDirectory!, this.usersFile!);
+      const usersFilePath = path.join(this.usersDirectory, this.usersFile);
       const usersData = await fs.readFile(usersFilePath, 'utf8');
       const users = JSON.parse(usersData) as Record<string, User>;
 
@@ -117,7 +117,7 @@ class FileUserProvider extends BaseUserProvider {
    */
   private async saveUsers(): Promise<void> {
     try {
-      const usersFilePath = path.join(this.usersDirectory!, this.usersFile!);
+      const usersFilePath = path.join(this.usersDirectory, this.usersFile);
       const users = Object.fromEntries(this.users);
       await fs.writeFile(usersFilePath, JSON.stringify(users, null, 2), 'utf8');
       logger.debug(`📁 Saved ${this.users.size} users to ${usersFilePath}`);
@@ -132,7 +132,7 @@ class FileUserProvider extends BaseUserProvider {
    */
   private async loadSessions(): Promise<void> {
     this.sessions.clear();
-    const sessionsFilePath = path.join(this.usersDirectory!, this.sessionsFile!);
+    const sessionsFilePath = path.join(this.usersDirectory, this.sessionsFile);
 
     try {
       const sessionsData = await fs.readFile(sessionsFilePath, 'utf8');
@@ -170,7 +170,7 @@ class FileUserProvider extends BaseUserProvider {
    * Save sessions to disk
    */
   private async saveSessions(): Promise<void> {
-    const sessionsFilePath = path.join(this.usersDirectory!, this.sessionsFile!);
+    const sessionsFilePath = path.join(this.usersDirectory, this.sessionsFile);
 
     try {
       const sessionsObject = Object.fromEntries(this.sessions);
@@ -322,9 +322,9 @@ class FileUserProvider extends BaseUserProvider {
         version: '1.0.0',
         timestamp: new Date().toISOString(),
         config: {
-          usersDirectory: this.usersDirectory!,
-          usersFile: this.usersFile!,
-          sessionsFile: this.sessionsFile!
+          usersDirectory: this.usersDirectory,
+          usersFile: this.usersFile,
+          sessionsFile: this.sessionsFile
         },
         users: Object.fromEntries(this.users),
         sessions: Object.fromEntries(this.sessions),

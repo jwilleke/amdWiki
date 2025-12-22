@@ -257,4 +257,5 @@ When disabled, SearchManager skips provider loading and returns empty results.
 ## Developer Documentation
 
 For complete provider architecture, custom provider implementation, Lunr.js configuration, and troubleshooting:
+
 - [SearchManager-Complete-Guide.md](SearchManager-Complete-Guide.md)

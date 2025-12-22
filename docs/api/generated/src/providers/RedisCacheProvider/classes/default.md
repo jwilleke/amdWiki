@@ -14,6 +14,7 @@ Provides distributed caching using Redis.
 Suitable for multi-instance deployments and production environments.
 
 Configuration keys (all lowercase):
+
 - amdwiki.cache.provider.redis.url - Redis connection URL
 - amdwiki.cache.provider.redis.keyprefix - Key prefix for all cache keys
 - amdwiki.cache.provider.redis.enablecluster - Enable Redis Cluster support

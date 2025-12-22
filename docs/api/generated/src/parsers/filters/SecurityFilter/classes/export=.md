@@ -15,6 +15,7 @@ detection with complete configurability through app-default-config.json and
 app-custom-config.json override system.
 
 Design Principles:
+
 - Security-by-default with configurable relaxation
 - Complete modularity through JSON configuration
 - Zero hardcoded security rules - everything configurable

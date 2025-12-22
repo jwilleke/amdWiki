@@ -100,6 +100,7 @@ For Docker/Traefik deployments:
 ## Admin Interface
 
 Access `/admin/configuration` with admin privileges to:
+
 - View all active configuration
 - Edit custom overrides
 - Reset properties to defaults
@@ -121,4 +122,5 @@ node scripts/configurationmanage-get-config.js amdwiki.notifications --prefix --
 ## Developer Documentation
 
 For complete property reference, admin interface details, and troubleshooting:
+
 - [ConfigurationManager-Complete-Guide.md](ConfigurationManager-Complete-Guide.md)

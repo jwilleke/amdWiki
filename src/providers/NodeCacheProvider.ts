@@ -163,7 +163,7 @@ class NodeCacheProvider extends BaseCacheProvider {
    */
   async get<T = any>(key: string): Promise<T | undefined> {
     try {
-      const value = this.cache!.get<T>(key);
+      const value = this.cache.get<T>(key);
       return value;
     } catch (error) {
       logger.error('[NodeCacheProvider] Get error:', error);
@@ -182,9 +182,9 @@ class NodeCacheProvider extends BaseCacheProvider {
   async set<T = any>(key: string, value: T, ttlSec?: number): Promise<void> {
     try {
       if (ttlSec !== undefined) {
-        this.cache!.set(key, value, ttlSec);
+        this.cache.set(key, value, ttlSec);
       } else {
-        this.cache!.set(key, value);
+        this.cache.set(key, value);
       }
     } catch (error) {
       logger.error('[NodeCacheProvider] Set error:', error);
@@ -200,9 +200,9 @@ class NodeCacheProvider extends BaseCacheProvider {
   async del(keys: string | string[]): Promise<void> {
     try {
       if (Array.isArray(keys)) {
-        this.cache!.del(keys);
+        this.cache.del(keys);
       } else {
-        this.cache!.del(keys);
+        this.cache.del(keys);
       }
     } catch (error) {
       logger.error('[NodeCacheProvider] Delete error:', error);
@@ -219,12 +219,12 @@ class NodeCacheProvider extends BaseCacheProvider {
     try {
       if (!pattern || pattern === '*') {
         // Clear all keys
-        this.cache!.flushAll();
+        this.cache.flushAll();
       } else {
         // Clear keys matching pattern
         const keys = await this.keys(pattern);
         if (keys.length > 0) {
-          this.cache!.del(keys);
+          this.cache.del(keys);
         }
       }
     } catch (error) {
@@ -240,7 +240,7 @@ class NodeCacheProvider extends BaseCacheProvider {
    */
   async keys(pattern: string = '*'): Promise<string[]> {
     try {
-      const allKeys = this.cache!.keys();
+      const allKeys = this.cache.keys();
 
       if (pattern === '*') {
         return allKeys;
@@ -265,7 +265,7 @@ class NodeCacheProvider extends BaseCacheProvider {
    */
   async stats(): Promise<CacheStats> {
     try {
-      const nodeStats = this.cache!.getStats() as NodeCacheStats;
+      const nodeStats = this.cache.getStats() as NodeCacheStats;
 
       return {
         hits: this.statistics.hits,
@@ -337,7 +337,7 @@ class NodeCacheProvider extends BaseCacheProvider {
     const baseBackup = await super.backup();
     return {
       ...baseBackup,
-      config: { ...this.config! },
+      config: { ...this.config },
       statistics: { ...this.statistics },
       keyCount: this.cache ? this.cache.keys().length : 0
     };

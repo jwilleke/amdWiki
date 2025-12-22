@@ -1,6 +1,7 @@
 # Persons and Relationships
 
 ## Key Direction
+
 ✅ Separate Person from Roles: Person is the identity; roles define relationships
 ✅ Keep Auth Separate: Don't mix Schema.org with security data
 ✅ Use Role Arrays: memberOf, hasOccupation, affiliation for different role types
@@ -146,7 +147,7 @@ Treat being a "Customer" as a membership in your business ecosystem.
 
 Use the base Role type.
 
-[data-radix-scroll-area-viewport]{scrollbar-width:none;-ms-overflow-style:none;-webkit-overflow-scrolling:touch;}[data-radix-scroll-area-viewport]::-webkit-scrollbar{display:none}"hasRole": 
+[data-radix-scroll-area-viewport]{scrollbar-width:none;-ms-overflow-style:none;-webkit-overflow-scrolling:touch;}[data-radix-scroll-area-viewport]::-webkit-scrollbar{display:none}"hasRole":
 
 ```json
 {
@@ -167,7 +168,7 @@ Semantic Clarity: It forces you to decide: Is this phone number attached to the 
 
 The "amdWiki" would be an Organization as defined in users/organizations.json.
 
-Most implementations of amdWiki woulld be 
+Most implementations of amdWiki woulld be
 
 Example Core Person Identity (Immutable)
 
@@ -247,7 +248,7 @@ Member Role (Church/Association Membership)
 }
 ```
 
-Authentication or interaction or transaction data Should stored be out side objects 
+Authentication or interaction or transaction data Should stored be out side objects
 
 ```json
 {

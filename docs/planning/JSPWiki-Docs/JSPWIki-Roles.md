@@ -19,4 +19,3 @@ The Roles system works like this:
 | **IMAGELINK**        | 8     | Clickable image that acts as a link (`<a><img></a>`).                                 |
 | **IMAGEWIKILINK**    | 9     | Wiki page link with a thumbnail image; links image to a wiki page.                     |
 | **ATTACHMENT**       | 10    | Link to an attachment/file uploaded to the wiki (`<a class="attachment">`).            |
-

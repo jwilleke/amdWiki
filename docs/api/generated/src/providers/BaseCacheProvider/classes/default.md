@@ -19,9 +19,9 @@ Cache providers implement different storage backends (node-cache, Redis, etc.)
 
 ## See
 
- - NodeCacheProvider for in-memory implementation
- - RedisCacheProvider for Redis implementation
- - CacheManager for usage
+- NodeCacheProvider for in-memory implementation
+- RedisCacheProvider for Redis implementation
+- CacheManager for usage
 
 ## Extended by
 

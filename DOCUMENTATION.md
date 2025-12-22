@@ -22,6 +22,7 @@ See [docs/](./docs/) directory for comprehensive documentation on:
 ### Developer Documentation Index
 
 **[docs/Developer-Documentation.md](./docs/Developer-Documentation.md)** - Complete index of all developer documentation:
+
 - 18 Managers (quick reference + complete guides)
 - 12 Plugins (developer + user guides)
 - 5 Providers (storage and services)

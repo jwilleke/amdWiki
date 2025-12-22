@@ -145,4 +145,5 @@ const total = renderingManager.getTotalPagesCount();
 ## Developer Documentation
 
 For complete architecture details, parser internals, performance tuning, and troubleshooting:
+
 - [RenderingManager-Complete-Guide.md](RenderingManager-Complete-Guide.md)

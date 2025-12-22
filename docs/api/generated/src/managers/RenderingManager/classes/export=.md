@@ -15,6 +15,7 @@ of markdown/wiki markup to HTML. It supports both legacy Showdown-based renderin
 and the advanced MarkupParser with multi-phase processing.
 
 Key features:
+
 - Pluggable parser system (Showdown vs MarkupParser)
 - Wiki link parsing and resolution
 - Link graph building for backlinks/orphaned pages
@@ -25,8 +26,8 @@ Key features:
 
 ## See
 
- - [BaseManager](../../BaseManager/classes/export=.md) for base functionality
- - MarkupParser for advanced parsing
+- [BaseManager](../../BaseManager/classes/export=.md) for base functionality
+- MarkupParser for advanced parsing
 
 ## Example
 
@@ -602,8 +603,9 @@ Number of pages
 Defined in: [src/managers/RenderingManager.js:789](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/RenderingManager.js#L789)
 
 /**
- * Get server uptime in seconds
- *
+
+- Get server uptime in seconds
+-
 
 #### Returns
 

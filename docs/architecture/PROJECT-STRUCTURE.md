@@ -116,6 +116,7 @@ The `src/` directory contains all application source code, organized by function
 ### Configuration (`config/`)
 
 Contains application configuration files:
+
 - **`Config.js`**: Main application configuration with validation
 - Environment-specific overrides
 - Manager-specific settings
@@ -123,6 +124,7 @@ Contains application configuration files:
 ### Static Assets (`public/`)
 
 Web-accessible static files:
+
 - **`css/`**: Stylesheets
 - **`js/`**: Client-side JavaScript
 - **`images/`**: Static images and assets
@@ -130,6 +132,7 @@ Web-accessible static files:
 ### Templates (`views/`)
 
 Server-side templates using EJS:
+
 - **`*.ejs`**: Page templates
 - **`admin-*.ejs`**: Admin interface templates
 - **`edit.ejs`**: Page editing interface
@@ -137,6 +140,7 @@ Server-side templates using EJS:
 ### Documentation (`docs/`)
 
 Comprehensive documentation organized by purpose:
+
 - **`architecture/`**: System design and technical architecture
 - **`development/`**: Development processes and coding standards
 - **`planning/`**: Project planning and feature roadmaps
@@ -158,16 +162,19 @@ These directories contain runtime-generated data that should not be version cont
 ## File Naming Conventions
 
 ### Source Files
+
 - **PascalCase** for classes: `WikiEngine.js`, `PageManager.js`
 - **camelCase** for utilities: `logger.js`, `version.js`
 - **kebab-case** for config: `Config.js`
 
 ### Documentation Files
+
 - **SCREAMING_SNAKE_CASE** for major docs: `README.md`, `CHANGELOG.md`
 - **Title Case** for feature docs: `Notification Enhancement.md`
 - **Descriptive names** with clear purpose
 
 ### Directory Names
+
 - **lowercase** for technical directories: `src/`, `config/`, `public/`
 - **hyphen-separated** for complex names: `test-coverage/`
 - **Purpose-driven** naming: `user-management/`, `content-validation/`

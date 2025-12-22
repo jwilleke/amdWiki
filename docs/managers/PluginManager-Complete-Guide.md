@@ -59,6 +59,7 @@ async initialize(config = {}) {
 ```
 
 During initialization:
+
 1. Gets search paths from ConfigurationManager
 2. Validates each path exists and is a directory
 3. Scans for `.js` files (excluding `.test.js`)
@@ -95,6 +96,7 @@ async registerPlugins()
 ```
 
 **Process:**
+
 1. Get search paths from ConfigurationManager
 2. Accept array or comma-separated string
 3. Resolve and validate each path
@@ -113,14 +115,17 @@ async loadPlugin(pluginPath)
 ```
 
 **Parameters:**
+
 - `pluginPath` - Path to the plugin file
 
 **Security checks:**
+
 - Resolves canonical path via `fs.realpath()`
 - Verifies path is within allowed roots
 - Blocks plugins outside allowed directories
 
 **Plugin loading:**
+
 - Uses `require()` to load the module
 - Supports both default exports and named exports
 - Calls `plugin.initialize(engine)` if available
@@ -150,6 +155,7 @@ async execute(pluginName, pageName, params, context = {})
 **Returns:** `string` - Plugin output (HTML or text)
 
 **Execution flow:**
+
 1. Find plugin using `findPlugin()`
 2. Build context with engine, pageName, linkGraph
 3. If plugin has `execute()` method, call it
@@ -157,6 +163,7 @@ async execute(pluginName, pageName, params, context = {})
 5. Return result or error message
 
 **Example:**
+
 ```javascript
 const result = await pluginManager.execute(
   'CurrentTime',
@@ -179,17 +186,20 @@ findPlugin(pluginName)
 ```
 
 **Parameters:**
+
 - `pluginName` - Name to search for
 
 **Returns:** `Object|null` - Plugin object or null
 
 **Resolution order:**
+
 1. Exact match (case-sensitive)
 2. Case-insensitive match
 3. With "Plugin" suffix added (e.g., "Search" → "SearchPlugin")
 4. Without "Plugin" suffix (e.g., "SearchPlugin" → "Search")
 
 **Examples:**
+
 ```javascript
 // All of these find SearchPlugin:
 pluginManager.findPlugin('SearchPlugin');    // Exact
@@ -233,6 +243,7 @@ getPluginInfo(pluginName)
 ```
 
 **Returns:**
+
 ```javascript
 {
   name: 'SearchPlugin',
@@ -256,6 +267,7 @@ PluginManager implements strict path validation:
 4. **No traversal:** Prevents `../` attacks via canonical resolution
 
 **Example attack prevention:**
+
 ```javascript
 // This would be blocked:
 await pluginManager.loadPlugin('../../../etc/malicious.js');
@@ -343,11 +355,13 @@ module.exports = SimplePlugin;
 Parameters are parsed from wiki syntax and passed as an object:
 
 **Wiki syntax:**
+
 ```wiki
 [{MyPlugin foo='bar' count=5 enabled=true}]
 ```
 
 **Received params:**
+
 ```javascript
 {
   foo: 'bar',

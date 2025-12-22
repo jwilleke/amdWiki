@@ -20,8 +20,8 @@ Following JSPWiki's attachment provider pattern.
 
 ## See
 
- - BasicAttachmentProvider for filesystem implementation
- - AttachmentManager for usage
+- BasicAttachmentProvider for filesystem implementation
+- AttachmentManager for usage
 
 ## Extended by
 

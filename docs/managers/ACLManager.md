@@ -58,5 +58,6 @@ const acl = aclManager.parsePageACL('[{ALLOW view All}] [{ALLOW edit Admin}]');
 ## Developer Documentation
 
 For complete API reference, configuration options, and implementation details, see:
+
 - [ACLManager-Complete-Guide.md](ACLManager-Complete-Guide.md)
 - [Generated API Docs](../api/generated/src/managers/ACLManager/README.md)

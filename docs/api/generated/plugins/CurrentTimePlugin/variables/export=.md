@@ -14,6 +14,7 @@ CurrentTimePlugin - JSPWiki-style plugin for amdWiki
 Displays current date/time with customizable formatting
 
 Respects user preferences for:
+
 - Locale (from profile settings)
 - Timezone (from profile settings)
 - Date Format (from profile settings)

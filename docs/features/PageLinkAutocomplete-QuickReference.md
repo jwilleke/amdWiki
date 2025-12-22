@@ -89,16 +89,19 @@ GET /api/page-suggestions?q=system&limit=10
 ### 🐛 Troubleshooting
 
 **No dropdown?**
+
 - Type 2+ characters
 - Check browser console (F12)
 - Verify in supported location
 
 **Wrong results?**
+
 - Type more characters
 - Use distinctive words
 - Check category badges
 
 **Keyboard not working?**
+
 - Click input field first
 - Verify dropdown is open
 - Check focus is in field
@@ -134,6 +137,7 @@ GET /api/page-suggestions?q=system&limit=10
 ### 🎓 Common Patterns
 
 **Create link while editing:**
+
 ```
 1. Type: [sys
 2. Arrow Down to System Variables
@@ -142,6 +146,7 @@ GET /api/page-suggestions?q=system&limit=10
 ```
 
 **Quick page navigation:**
+
 ```
 1. Header search: home
 2. Click HomePage
@@ -149,6 +154,7 @@ GET /api/page-suggestions?q=system&limit=10
 ```
 
 **Find page to edit:**
+
 ```
 1. /edit-index search: test
 2. Autocomplete shows options

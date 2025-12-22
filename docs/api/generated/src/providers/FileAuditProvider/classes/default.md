@@ -14,6 +14,7 @@ Stores audit logs in local filesystem files with JSON line format.
 Suitable for single-instance deployments and development.
 
 Configuration keys (all lowercase):
+
 - amdwiki.audit.provider.file.logdirectory - Directory for audit log files
 - amdwiki.audit.provider.file.auditfilename - Main audit log filename
 - amdwiki.audit.provider.file.archivefilename - Archive log filename
