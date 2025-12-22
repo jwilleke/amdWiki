@@ -161,13 +161,13 @@ class NodeCacheProvider extends BaseCacheProvider {
    * @param {string} key - The cache key
    * @returns {Promise<T | undefined>} The cached value or undefined if not found
    */
-  async get<T = any>(key: string): Promise<T | undefined> {
+  get<T = any>(key: string): Promise<T | undefined> {
     try {
       const value = this.cache.get<T>(key);
-      return value;
+      return Promise.resolve(value);
     } catch (error) {
       logger.error('[NodeCacheProvider] Get error:', error);
-      return undefined;
+      return Promise.resolve(undefined);
     }
   }
 
@@ -179,13 +179,14 @@ class NodeCacheProvider extends BaseCacheProvider {
    * @param {number} [ttlSec] - Time to live in seconds
    * @returns {Promise<void>}
    */
-  async set<T = any>(key: string, value: T, ttlSec?: number): Promise<void> {
+  set<T = any>(key: string, value: T, ttlSec?: number): Promise<void> {
     try {
       if (ttlSec !== undefined) {
         this.cache.set(key, value, ttlSec);
       } else {
         this.cache.set(key, value);
       }
+      return Promise.resolve();
     } catch (error) {
       logger.error('[NodeCacheProvider] Set error:', error);
       throw error;
@@ -197,13 +198,14 @@ class NodeCacheProvider extends BaseCacheProvider {
    * @param {string | string[]} keys - Single key or array of keys to delete
    * @returns {Promise<void>}
    */
-  async del(keys: string | string[]): Promise<void> {
+  del(keys: string | string[]): Promise<void> {
     try {
       if (Array.isArray(keys)) {
         this.cache.del(keys);
       } else {
         this.cache.del(keys);
       }
+      return Promise.resolve();
     } catch (error) {
       logger.error('[NodeCacheProvider] Delete error:', error);
       throw error;
@@ -238,12 +240,12 @@ class NodeCacheProvider extends BaseCacheProvider {
    * @param {string} [pattern='*'] - Pattern to match (e.g., 'user:*' or '*' for all)
    * @returns {Promise<string[]>} Array of matching keys
    */
-  async keys(pattern: string = '*'): Promise<string[]> {
+  keys(pattern: string = '*'): Promise<string[]> {
     try {
       const allKeys = this.cache.keys();
 
       if (pattern === '*') {
-        return allKeys;
+        return Promise.resolve(allKeys);
       }
 
       // Simple pattern matching - convert glob-style pattern to regex
@@ -252,10 +254,10 @@ class NodeCacheProvider extends BaseCacheProvider {
         .replace(/\?/g, '.');
       const regex = new RegExp(`^${regexPattern}$`);
 
-      return allKeys.filter(key => regex.test(key));
+      return Promise.resolve(allKeys.filter(key => regex.test(key)));
     } catch (error) {
       logger.error('[NodeCacheProvider] Keys error:', error);
-      return [];
+      return Promise.resolve([]);
     }
   }
 
@@ -263,11 +265,11 @@ class NodeCacheProvider extends BaseCacheProvider {
    * Get cache statistics
    * @returns {Promise<CacheStats>} Cache statistics
    */
-  async stats(): Promise<CacheStats> {
+  stats(): Promise<CacheStats> {
     try {
       const nodeStats = this.cache.getStats() as NodeCacheStats;
 
-      return {
+      return Promise.resolve({
         hits: this.statistics.hits,
         misses: this.statistics.misses,
         keys: nodeStats.keys,
@@ -278,10 +280,10 @@ class NodeCacheProvider extends BaseCacheProvider {
         hitRate: this.statistics.hits + this.statistics.misses > 0
           ? (this.statistics.hits / (this.statistics.hits + this.statistics.misses)) * 100
           : 0
-      };
+      });
     } catch (error) {
       logger.error('[NodeCacheProvider] Stats error:', error);
-      return {
+      return Promise.resolve({
         hits: 0,
         misses: 0,
         keys: 0,
@@ -290,7 +292,7 @@ class NodeCacheProvider extends BaseCacheProvider {
         sets: 0,
         deletes: 0,
         hitRate: 0
-      };
+      });
     }
   }
 

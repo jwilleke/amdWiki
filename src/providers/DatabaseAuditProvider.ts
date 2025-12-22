@@ -98,10 +98,10 @@ class DatabaseAuditProvider extends BaseAuditProvider {
 
   /**
    * Log an audit event
-   * @param {AuditEvent} auditEvent - Audit event data
+   * @param {AuditEvent} _auditEvent - Audit event data
    * @returns {Promise<string>} Event ID
    */
-  async logAuditEvent(auditEvent: AuditEvent): Promise<string> {
+  logAuditEvent(_auditEvent: AuditEvent): Promise<string> {
     // TODO: Implement database insert
     // Example SQL:
     // INSERT INTO audit_logs (id, timestamp, event_type, user, resource, action, result, ...)
@@ -111,11 +111,11 @@ class DatabaseAuditProvider extends BaseAuditProvider {
 
   /**
    * Search audit logs
-   * @param {AuditFilters} filters - Search filters
-   * @param {Record<string, any>} options - Search options
+   * @param {AuditFilters} _filters - Search filters
+   * @param {Record<string, any>} _options - Search options
    * @returns {Promise<AuditSearchResults>} Search results
    */
-  async searchAuditLogs(filters: AuditFilters = {}, options: Record<string, any> = {}): Promise<AuditSearchResults> {
+  searchAuditLogs(_filters: AuditFilters = {}, _options: Record<string, any> = {}): Promise<AuditSearchResults> {
     // TODO: Implement database query with filters
     // Use efficient WHERE clauses and indexes
     throw new Error('DatabaseAuditProvider.searchAuditLogs() not yet implemented');
@@ -123,10 +123,10 @@ class DatabaseAuditProvider extends BaseAuditProvider {
 
   /**
    * Get audit statistics
-   * @param {AuditFilters} filters - Optional filters
+   * @param {AuditFilters} _filters - Optional filters
    * @returns {Promise<AuditStats>} Audit statistics
    */
-  async getAuditStats(filters: AuditFilters = {}): Promise<AuditStats> {
+  getAuditStats(_filters: AuditFilters = {}): Promise<AuditStats> {
     // TODO: Implement aggregation queries
     // Use COUNT, GROUP BY for efficient stats
     throw new Error('DatabaseAuditProvider.getAuditStats() not yet implemented');
@@ -134,11 +134,11 @@ class DatabaseAuditProvider extends BaseAuditProvider {
 
   /**
    * Export audit logs
-   * @param {AuditFilters} filters - Export filters
-   * @param {string} format - Export format ('json', 'csv')
+   * @param {AuditFilters} _filters - Export filters
+   * @param {string} _format - Export format ('json', 'csv')
    * @returns {Promise<string>} Exported data
    */
-  async exportAuditLogs(filters: AuditFilters = {}, format: 'json' | 'csv' = 'json'): Promise<string> {
+  exportAuditLogs(_filters: AuditFilters = {}, _format: 'json' | 'csv' = 'json'): Promise<string> {
     // TODO: Implement database export with streaming for large datasets
     throw new Error('DatabaseAuditProvider.exportAuditLogs() not yet implemented');
   }
@@ -147,15 +147,16 @@ class DatabaseAuditProvider extends BaseAuditProvider {
    * Flush pending audit events (no-op for database - writes are immediate)
    * @returns {Promise<void>}
    */
-  async flush(): Promise<void> {
+  flush(): Promise<void> {
     // Database writes are immediate, no buffering needed
+    return Promise.resolve();
   }
 
   /**
    * Clean up old audit logs based on retention policy
    * @returns {Promise<void>}
    */
-  async cleanup(): Promise<void> {
+  cleanup(): Promise<void> {
     // TODO: Implement DELETE with date filter
     // Example:
     // DELETE FROM audit_logs WHERE timestamp < NOW() - INTERVAL '90 days'
@@ -182,13 +183,14 @@ class DatabaseAuditProvider extends BaseAuditProvider {
    * Close/cleanup the audit provider
    * @returns {Promise<void>}
    */
-  async close(): Promise<void> {
+  close(): Promise<void> {
     // TODO: Implement connection cleanup
     // if (this.client) {
     //   await this.client.end();
     //   this.client = null;
     // }
     this.initialized = false;
+    return Promise.resolve();
   }
 }
 

@@ -216,7 +216,7 @@ abstract class BasePageProvider {
    *   }
    * ]
    */
-  async getVersionHistory(identifier: string, limit?: number): Promise<VersionHistoryEntry[]> {
+  getVersionHistory(_identifier: string, _limit?: number): Promise<VersionHistoryEntry[]> {
     throw new Error('getVersionHistory() must be implemented by versioning providers');
   }
 
@@ -231,7 +231,7 @@ abstract class BasePageProvider {
    * @returns {Promise<VersionContent>} Version content and metadata
    * @throws {Error} If version does not exist
    */
-  async getPageVersion(identifier: string, version: number): Promise<VersionContent> {
+  getPageVersion(_identifier: string, _version: number): Promise<VersionContent> {
     throw new Error('getPageVersion() must be implemented by versioning providers');
   }
 
@@ -246,7 +246,7 @@ abstract class BasePageProvider {
    * @returns {Promise<void>}
    * @throws {Error} If version does not exist or restoration fails
    */
-  async restoreVersion(identifier: string, version: number): Promise<void> {
+  restoreVersion(_identifier: string, _version: number): Promise<void> {
     throw new Error('restoreVersion() must be implemented by versioning providers');
   }
 
@@ -261,7 +261,7 @@ abstract class BasePageProvider {
    * @param {number} v2 - Second version number (newer)
    * @returns {Promise<VersionDiff>} Diff data structure
    */
-  async compareVersions(identifier: string, v1: number, v2: number): Promise<VersionDiff> {
+  compareVersions(_identifier: string, _v1: number, _v2: number): Promise<VersionDiff> {
     throw new Error('compareVersions() must be implemented by versioning providers');
   }
 
@@ -275,7 +275,7 @@ abstract class BasePageProvider {
    * @param {number} keepLatest - Minimum number of recent versions to keep
    * @returns {Promise<number>} Number of versions purged
    */
-  async purgeOldVersions(identifier: string, keepLatest: number): Promise<number> {
+  purgeOldVersions(_identifier: string, _keepLatest: number): Promise<number> {
     throw new Error('purgeOldVersions() must be implemented by versioning providers');
   }
 
@@ -296,7 +296,7 @@ abstract class BasePageProvider {
    * Shutdown the provider (cleanup resources)
    * @returns {Promise<void>}
    */
-  async shutdown(): Promise<void> {
+  shutdown(): void {
     this.initialized = false;
     logger.info(`${this.getProviderInfo().name} shut down`);
   }

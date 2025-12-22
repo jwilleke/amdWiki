@@ -1,4 +1,3 @@
-import logger from '../utils/logger';
 import { AuditEvent } from '../types';
 
 /**
@@ -305,12 +304,12 @@ abstract class BaseAuditProvider {
    * @async
    * @returns {Promise<AuditBackupData>} Backup data
    */
-  async backup(): Promise<AuditBackupData> {
-    return {
+  backup(): Promise<AuditBackupData> {
+    return Promise.resolve({
       provider: this.constructor.name,
       initialized: this.initialized,
       timestamp: new Date().toISOString()
-    };
+    });
   }
 
   /**
@@ -320,10 +319,10 @@ abstract class BaseAuditProvider {
    * Subclasses can override if they support restore functionality.
    *
    * @async
-   * @param {AuditBackupData} backupData - Backup data
+   * @param {AuditBackupData} _backupData - Backup data
    * @returns {Promise<void>}
    */
-  async restore(backupData: AuditBackupData): Promise<void> {
+  async restore(_backupData: AuditBackupData): Promise<void> {
     // Default implementation does nothing
     // Subclasses can override if they support restore
   }

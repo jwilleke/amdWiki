@@ -96,10 +96,10 @@ class CloudAuditProvider extends BaseAuditProvider {
 
   /**
    * Log an audit event
-   * @param {AuditEvent} auditEvent - Audit event data
+   * @param {AuditEvent} _auditEvent - Audit event data
    * @returns {Promise<string>} Event ID
    */
-  async logAuditEvent(auditEvent: AuditEvent): Promise<string> {
+  logAuditEvent(_auditEvent: AuditEvent): Promise<string> {
     // TODO: Implement cloud logging
     // Example for CloudWatch:
     // await this.client.putLogEvents({
@@ -115,11 +115,11 @@ class CloudAuditProvider extends BaseAuditProvider {
 
   /**
    * Search audit logs
-   * @param {AuditFilters} filters - Search filters
-   * @param {Record<string, any>} options - Search options
+   * @param {AuditFilters} _filters - Search filters
+   * @param {Record<string, any>} _options - Search options
    * @returns {Promise<AuditSearchResults>} Search results
    */
-  async searchAuditLogs(filters: AuditFilters = {}, options: Record<string, any> = {}): Promise<AuditSearchResults> {
+  searchAuditLogs(_filters: AuditFilters = {}, _options: Record<string, any> = {}): Promise<AuditSearchResults> {
     // TODO: Implement cloud log query
     // Example for CloudWatch Logs Insights:
     // const query = `
@@ -134,21 +134,21 @@ class CloudAuditProvider extends BaseAuditProvider {
 
   /**
    * Get audit statistics
-   * @param {AuditFilters} filters - Optional filters
+   * @param {AuditFilters} _filters - Optional filters
    * @returns {Promise<AuditStats>} Audit statistics
    */
-  async getAuditStats(filters: AuditFilters = {}): Promise<AuditStats> {
+  getAuditStats(_filters: AuditFilters = {}): Promise<AuditStats> {
     // TODO: Implement aggregation using cloud service query language
     throw new Error('CloudAuditProvider.getAuditStats() not yet implemented');
   }
 
   /**
    * Export audit logs
-   * @param {AuditFilters} filters - Export filters
-   * @param {string} format - Export format ('json', 'csv')
+   * @param {AuditFilters} _filters - Export filters
+   * @param {string} _format - Export format ('json', 'csv')
    * @returns {Promise<string>} Exported data
    */
-  async exportAuditLogs(filters: AuditFilters = {}, format: 'json' | 'csv' = 'json'): Promise<string> {
+  exportAuditLogs(_filters: AuditFilters = {}, _format: 'json' | 'csv' = 'json'): Promise<string> {
     // TODO: Implement cloud log export
     // May need to use cloud-specific export features (S3, Azure Storage)
     throw new Error('CloudAuditProvider.exportAuditLogs() not yet implemented');
@@ -158,18 +158,20 @@ class CloudAuditProvider extends BaseAuditProvider {
    * Flush pending audit events
    * @returns {Promise<void>}
    */
-  async flush(): Promise<void> {
+  flush(): Promise<void> {
     // TODO: Implement batch flush to cloud service
     // Optimize for cost by batching multiple events
+    return Promise.resolve();
   }
 
   /**
    * Clean up old audit logs (cloud services often handle retention automatically)
    * @returns {Promise<void>}
    */
-  async cleanup(): Promise<void> {
+  cleanup(): Promise<void> {
     // Most cloud services handle retention via retention policies
     // May need to configure retention policy on log group/workspace
+    return Promise.resolve();
   }
 
   /**
@@ -194,9 +196,10 @@ class CloudAuditProvider extends BaseAuditProvider {
    * Close/cleanup the audit provider
    * @returns {Promise<void>}
    */
-  async close(): Promise<void> {
+  close(): Promise<void> {
     // Cloud SDKs typically don't need explicit cleanup
     this.initialized = false;
+    return Promise.resolve();
   }
 }
 

@@ -35,36 +35,36 @@ class NullAuditProvider extends BaseAuditProvider {
 
   /**
    * Log an audit event (no-op)
-   * @param {AuditEvent} auditEvent - Audit event data
+   * @param {AuditEvent} _auditEvent - Audit event data
    * @returns {Promise<string>} Dummy event ID
    */
-  async logAuditEvent(auditEvent: AuditEvent): Promise<string> {
-    return 'null-event-id';
+  logAuditEvent(_auditEvent: AuditEvent): Promise<string> {
+    return Promise.resolve('null-event-id');
   }
 
   /**
    * Search audit logs (returns empty results)
-   * @param {AuditFilters} filters - Search filters
+   * @param {AuditFilters} _filters - Search filters
    * @param {Record<string, any>} options - Search options
    * @returns {Promise<AuditSearchResults>} Empty search results
    */
-  async searchAuditLogs(filters: AuditFilters = {}, options: Record<string, any> = {}): Promise<AuditSearchResults> {
-    return {
+  searchAuditLogs(_filters: AuditFilters = {}, options: Record<string, any> = {}): Promise<AuditSearchResults> {
+    return Promise.resolve({
       results: [],
       total: 0,
       limit: options.limit || 100,
       offset: options.offset || 0,
       hasMore: false
-    };
+    });
   }
 
   /**
    * Get audit statistics (returns zeros)
-   * @param {AuditFilters} filters - Optional filters
+   * @param {AuditFilters} _filters - Optional filters
    * @returns {Promise<AuditStats>} Empty statistics
    */
-  async getAuditStats(filters: AuditFilters = {}): Promise<AuditStats> {
-    return {
+  getAuditStats(_filters: AuditFilters = {}): Promise<AuditStats> {
+    return Promise.resolve({
       totalEvents: 0,
       eventsByType: {},
       eventsByResult: {},
@@ -72,52 +72,55 @@ class NullAuditProvider extends BaseAuditProvider {
       eventsByUser: {},
       recentActivity: [],
       securityIncidents: 0
-    };
+    });
   }
 
   /**
    * Export audit logs (returns empty data)
-   * @param {AuditFilters} filters - Export filters
+   * @param {AuditFilters} _filters - Export filters
    * @param {string} format - Export format ('json', 'csv')
    * @returns {Promise<string>} Empty export data
    */
-  async exportAuditLogs(filters: AuditFilters = {}, format: 'json' | 'csv' = 'json'): Promise<string> {
+  exportAuditLogs(_filters: AuditFilters = {}, format: 'json' | 'csv' = 'json'): Promise<string> {
     if (format === 'csv') {
-      return 'timestamp,eventType,user,resource,action,result,severity,reason\n';
+      return Promise.resolve('timestamp,eventType,user,resource,action,result,severity,reason\n');
     }
-    return '[]';
+    return Promise.resolve('[]');
   }
 
   /**
    * Flush pending audit events (no-op)
    * @returns {Promise<void>}
    */
-  async flush(): Promise<void> {
+  flush(): Promise<void> {
     // No-op
+    return Promise.resolve();
   }
 
   /**
    * Clean up old audit logs (no-op)
    * @returns {Promise<void>}
    */
-  async cleanup(): Promise<void> {
+  cleanup(): Promise<void> {
     // No-op
+    return Promise.resolve();
   }
 
   /**
    * Check if the audit provider is healthy (always true)
    * @returns {Promise<boolean>} Always true
    */
-  async isHealthy(): Promise<boolean> {
-    return true;
+  isHealthy(): Promise<boolean> {
+    return Promise.resolve(true);
   }
 
   /**
    * Close/cleanup the audit provider (no-op)
    * @returns {Promise<void>}
    */
-  async close(): Promise<void> {
+  close(): Promise<void> {
     this.initialized = false;
+    return Promise.resolve();
   }
 }
 

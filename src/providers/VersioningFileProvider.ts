@@ -5,12 +5,9 @@ import matter from 'gray-matter';
 import { v4 as uuidv4 } from 'uuid';
 import logger from '../utils/logger';
 import DeltaStorage from '../utils/DeltaStorage';
-import VersionCompression from '../utils/VersionCompression';
 import {
   WikiPage,
   PageFrontmatter,
-  VersionMetadata,
-  VersionManifest,
   VersionContent,
   VersionDiff,
   VersionHistoryEntry
@@ -40,20 +37,6 @@ interface PageIndex {
   pages: Record<string, PageIndexEntry>;
 }
 
-/**
- * Versioning configuration
- */
-interface VersioningConfig {
-  pageIndexPath: string | null;
-  maxVersions: number;
-  retentionDays: number;
-  compressionEnabled: boolean;
-  deltaStorageEnabled: boolean;
-  checkpointInterval: number;
-  versionCacheSize: number;
-  pagesVersionsDir: string | null;
-  requiredPagesVersionsDir: string | null;
-}
 
 /**
  * Version metadata for internal use (matches manifest structure)
@@ -219,7 +202,7 @@ class VersioningFileProvider extends FileSystemProvider {
    * Load versioning configuration from ConfigurationManager
    * @param configManager - ConfigurationManager instance
    */
-  private async loadVersioningConfig(configManager: any): Promise<void> {
+  private loadVersioningConfig(configManager: any): Promise<void> {
     // Page index location
     const indexPath = configManager.getProperty(
       'amdwiki.page.provider.versioning.indexfile',
@@ -276,12 +259,14 @@ class VersioningFileProvider extends FileSystemProvider {
       logger.warn('[VersioningFileProvider] Invalid checkpointInterval, using default: 10');
       this.checkpointInterval = 10;
     }
+
+    return Promise.resolve();
   }
 
   /**
    * Create version directories if they don't exist
    */
-  private async createVersionDirectories(): Promise<void> {
+  private createVersionDirectories(): Promise<void> {
     if (!this.pagesDirectory || !this.requiredPagesDirectory) {
       throw new Error('FileSystemProvider not initialized - directories not set');
     }
@@ -303,6 +288,8 @@ class VersioningFileProvider extends FileSystemProvider {
     logger.info('[VersioningFileProvider] Version directories created');
     logger.info(`[VersioningFileProvider]   - ${this.pagesVersionsDir}`);
     logger.info(`[VersioningFileProvider]   - ${this.requiredPagesVersionsDir}`);
+
+    return Promise.resolve();
   }
 
   /**
@@ -345,20 +332,20 @@ class VersioningFileProvider extends FileSystemProvider {
   /**
    * Create empty page index structure
    */
-  private async createEmptyPageIndex(): Promise<void> {
+  private createEmptyPageIndex(): Promise<void> {
     this.pageIndex = {
       version: '1.0.0',
       lastUpdated: new Date().toISOString(),
       pageCount: 0,
       pages: {}
     };
-    await this.savePageIndex();
+    return this.savePageIndex();
   }
 
   /**
    * Save page index to disk (atomic write)
    */
-  private async savePageIndex(): Promise<void> {
+  private savePageIndex(): Promise<void> {
     if (!this.pageIndex || !this.pageIndexPath) {
       throw new Error('Page index not initialized');
     }
@@ -367,8 +354,8 @@ class VersioningFileProvider extends FileSystemProvider {
 
     // Atomic write: write to temp file, then rename
     const tempPath = `${this.pageIndexPath}.tmp`;
-    await fs.writeFile(tempPath, JSON.stringify(this.pageIndex, null, 2), 'utf8');
-    await fs.rename(tempPath, this.pageIndexPath);
+    return fs.writeFile(tempPath, JSON.stringify(this.pageIndex, null, 2), 'utf8')
+      .then(() => fs.rename(tempPath, this.pageIndexPath));
   }
 
   /**
@@ -501,7 +488,7 @@ class VersioningFileProvider extends FileSystemProvider {
    * @param uuid - Page UUID
    * @param data - Page data to update
    */
-  private async updatePageInIndex(uuid: string, data: PageIndexEntry): Promise<void> {
+  private updatePageInIndex(uuid: string, data: PageIndexEntry): Promise<void> {
     if (!this.pageIndex) {
       throw new Error('Page index not initialized');
     }
@@ -516,14 +503,14 @@ class VersioningFileProvider extends FileSystemProvider {
       uuid: uuid
     };
 
-    await this.savePageIndex();
+    return this.savePageIndex();
   }
 
   /**
    * Remove a page from the page index
    * @param uuid - Page UUID
    */
-  private async removePageFromIndex(uuid: string): Promise<void> {
+  private removePageFromIndex(uuid: string): Promise<void> {
     if (!this.pageIndex) {
       throw new Error('Page index not initialized');
     }
@@ -531,9 +518,10 @@ class VersioningFileProvider extends FileSystemProvider {
     if (this.pageIndex.pages[uuid]) {
       delete this.pageIndex.pages[uuid];
       this.pageIndex.pageCount--;
-      await this.savePageIndex();
       logger.info(`[VersioningFileProvider] Removed page ${uuid} from index`);
+      return this.savePageIndex();
     }
+    return Promise.resolve();
   }
 
   /**
@@ -564,22 +552,23 @@ class VersioningFileProvider extends FileSystemProvider {
    * @param location - 'pages' or 'required-pages'
    * @returns Manifest data or null if doesn't exist
    */
-  private async loadManifest(uuid: string, location: 'pages' | 'required-pages'): Promise<InternalManifest | null> {
+  private loadManifest(uuid: string, location: 'pages' | 'required-pages'): Promise<InternalManifest | null> {
     const versionDir = this.getVersionDirectory(uuid, location);
     const manifestPath = path.join(versionDir, 'manifest.json');
 
-    if (!await fs.pathExists(manifestPath)) {
-      return null;
-    }
+    return fs.pathExists(manifestPath).then(exists => {
+      if (!exists) {
+        return null;
+      }
 
-    try {
-      const manifestData = await fs.readFile(manifestPath, 'utf8');
-      return JSON.parse(manifestData);
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      logger.error(`[VersioningFileProvider] Failed to load manifest for ${uuid}:`, errorMessage);
-      return null;
-    }
+      return fs.readFile(manifestPath, 'utf8')
+        .then(manifestData => JSON.parse(manifestData))
+        .catch(error => {
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          logger.error(`[VersioningFileProvider] Failed to load manifest for ${uuid}:`, errorMessage);
+          return null;
+        });
+    });
   }
 
   /**
@@ -588,16 +577,15 @@ class VersioningFileProvider extends FileSystemProvider {
    * @param location - 'pages' or 'required-pages'
    * @param manifest - Manifest data
    */
-  private async saveManifest(uuid: string, location: 'pages' | 'required-pages', manifest: InternalManifest): Promise<void> {
+  private saveManifest(uuid: string, location: 'pages' | 'required-pages', manifest: InternalManifest): Promise<void> {
     const versionDir = this.getVersionDirectory(uuid, location);
-    await fs.ensureDir(versionDir);
-
     const manifestPath = path.join(versionDir, 'manifest.json');
 
     // Atomic write
     const tempPath = `${manifestPath}.tmp`;
-    await fs.writeFile(tempPath, JSON.stringify(manifest, null, 2), 'utf8');
-    await fs.rename(tempPath, manifestPath);
+    return fs.ensureDir(versionDir)
+      .then(() => fs.writeFile(tempPath, JSON.stringify(manifest, null, 2), 'utf8'))
+      .then(() => fs.rename(tempPath, manifestPath));
   }
 
   /**
@@ -909,9 +897,8 @@ class VersioningFileProvider extends FileSystemProvider {
    * @param location - 'pages' or 'required-pages'
    * @returns Current version number (0 if no versions)
    */
-  private async getCurrentVersion(uuid: string, location: 'pages' | 'required-pages'): Promise<number> {
-    const manifest = await this.loadManifest(uuid, location);
-    return manifest ? manifest.currentVersion : 0;
+  private getCurrentVersion(uuid: string, location: 'pages' | 'required-pages'): Promise<number> {
+    return this.loadManifest(uuid, location).then(manifest => manifest ? manifest.currentVersion : 0);
   }
 
   /**
@@ -1014,34 +1001,37 @@ class VersioningFileProvider extends FileSystemProvider {
    * @param identifier - Page UUID or title
    * @returns UUID and location, or null if not found
    */
-  private async resolveIdentifier(identifier: string): Promise<{ uuid: string; location: 'pages' | 'required-pages' } | null> {
+  private resolveIdentifier(identifier: string): Promise<{ uuid: string; location: 'pages' | 'required-pages' } | null> {
     // Check if identifier is already a UUID (in page index)
     if (this.pageIndex && this.pageIndex.pages[identifier]) {
-      return {
+      return Promise.resolve({
         uuid: identifier,
         location: this.pageIndex.pages[identifier].location || 'pages'
-      };
+      });
     }
 
     // Try to find by title using pageExists and getPage
     if (this.pageExists(identifier)) {
-      try {
-        const pageInfo = await this.getPage(identifier);
-        if (pageInfo && pageInfo.uuid) {
-          // Determine location from page index or default to 'pages'
-          const location = this.pageIndex?.pages[pageInfo.uuid]?.location || 'pages';
-          return {
-            uuid: pageInfo.uuid,
-            location: location
-          };
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        logger.warn(`[VersioningFileProvider] Failed to resolve identifier '${identifier}':`, errorMessage);
-      }
+      return this.getPage(identifier)
+        .then(pageInfo => {
+          if (pageInfo && pageInfo.uuid) {
+            // Determine location from page index or default to 'pages'
+            const location = this.pageIndex?.pages[pageInfo.uuid]?.location || 'pages';
+            return {
+              uuid: pageInfo.uuid,
+              location: location
+            };
+          }
+          return null;
+        })
+        .catch(error => {
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          logger.warn(`[VersioningFileProvider] Failed to resolve identifier '${identifier}':`, errorMessage);
+          return null;
+        });
     }
 
-    return null;
+    return Promise.resolve(null);
   }
 
   /**

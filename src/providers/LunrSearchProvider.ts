@@ -18,7 +18,7 @@
  */
 
 import BaseSearchProvider, { SearchResult, SearchOptions, SearchCriteria, SearchStatistics, BackupData, WikiEngine } from './BaseSearchProvider';
-import { WikiPage, PageSearchResult } from '../types';
+import { WikiPage } from '../types';
 import lunr from 'lunr';
 import logger from '../utils/logger';
 
@@ -488,11 +488,11 @@ class LunrSearchProvider extends BaseSearchProvider {
 
   /**
    * Add or update a page in the search index
-   * @param {string} pageName - Page name
-   * @param {Record<string, any>} pageData - Page data
+   * @param {string} _pageName - Page name
+   * @param {Record<string, any>} _pageData - Page data
    * @returns {Promise<void>}
    */
-  async updatePageInIndex(pageName: string, pageData: Record<string, any>): Promise<void> {
+  async updatePageInIndex(_pageName: string, _pageData: Record<string, any>): Promise<void> {
     // For now, rebuild the entire index
     // In a production system, you'd want incremental updates
     await this.buildIndex();

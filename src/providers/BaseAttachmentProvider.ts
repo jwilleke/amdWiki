@@ -109,15 +109,15 @@ abstract class BaseAttachmentProvider implements AttachmentProvider {
    * Upload/store an attachment with metadata (legacy method for backward compatibility)
    * @param {Buffer} fileBuffer - File data
    * @param {FileInfo} fileInfo - File information (originalName, mimeType, size)
-   * @param {Partial<AttachmentMetadata>} metadata - Attachment metadata
-   * @param {User} user - User uploading the attachment
+   * @param {Partial<AttachmentMetadata>} _metadata - Attachment metadata
+   * @param {User} _user - User uploading the attachment
    * @returns {Promise<AttachmentMetadata>} Attachment metadata with ID
    */
-  async storeAttachment(
+  storeAttachment(
     fileBuffer: Buffer,
     fileInfo: FileInfo,
-    metadata: Partial<AttachmentMetadata> = {},
-    user: User | null = null
+    _metadata: Partial<AttachmentMetadata> = {},
+    _user: User | null = null
   ): Promise<AttachmentMetadata> {
     throw new Error('storeAttachment() must be implemented by provider');
   }
@@ -226,7 +226,7 @@ abstract class BaseAttachmentProvider implements AttachmentProvider {
    * Shutdown the provider (cleanup resources)
    * @returns {Promise<void>}
    */
-  async shutdown(): Promise<void> {
+  shutdown(): void {
     this.initialized = false;
     logger.info(`${this.getProviderInfo().name} shut down`);
   }

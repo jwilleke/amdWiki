@@ -18,8 +18,7 @@
  * Related: GitHub Issue #102 - Configuration reorganization
  */
 
-import logger from '../utils/logger';
-import { WikiPage, PageSearchResult } from '../types';
+// No imports needed for base provider
 
 /**
  * WikiEngine interface (simplified)
@@ -370,12 +369,12 @@ abstract class BaseSearchProvider {
    *
    * @returns Promise resolving to backup data object
    */
-  async backup(): Promise<BackupData> {
-    return {
+  backup(): Promise<BackupData> {
+    return Promise.resolve({
       provider: this.constructor.name,
       initialized: this.initialized,
       timestamp: new Date().toISOString()
-    };
+    });
   }
 
   /**
@@ -385,10 +384,10 @@ abstract class BaseSearchProvider {
    * Default implementation does nothing.
    * Subclasses can override if they support restore functionality.
    *
-   * @param backupData - Backup data to restore from
+   * @param _backupData - Backup data to restore from
    * @returns Promise that resolves when restore is complete
    */
-  async restore(backupData: BackupData): Promise<void> {
+  async restore(_backupData: BackupData): Promise<void> {
     // Default implementation does nothing
     // Subclasses can override if they support restore
   }

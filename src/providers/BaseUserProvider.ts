@@ -248,7 +248,7 @@ abstract class BaseUserProvider {
    * @async
    * @returns {Promise<void>}
    */
-  async shutdown(): Promise<void> {
+  shutdown(): void {
     this.initialized = false;
     logger.info(`${this.getProviderInfo().name} shut down`);
   }

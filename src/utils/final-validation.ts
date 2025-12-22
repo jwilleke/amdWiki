@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import yaml from 'js-yaml';
+import logger from './logger';
 
 /**
  * Page metadata structure
@@ -102,11 +103,11 @@ function scanDirectory(dir: string): ScanResults {
         results.valid++;
         const category = result.metadata.category;
         results.categories[category] = (results.categories[category] || 0) + 1;
-        console.log(`✅ ${file.name} - Category: ${category}`);
+        logger.info(`✅ ${file.name} - Category: ${category}`);
       } else {
         results.invalid++;
         results.errors.push({ file: file.name, error: result.error || 'Unknown error' });
-        console.log(`❌ ${file.name} - ERROR: ${result.error}`);
+        logger.warn(`❌ ${file.name} - ERROR: ${result.error}`);
       }
     }
   });
@@ -115,12 +116,12 @@ function scanDirectory(dir: string): ScanResults {
 }
 
 // Main execution
-console.log('=== FINAL METADATA VALIDATION ===\n');
+logger.info('=== FINAL METADATA VALIDATION ===\n');
 
-console.log('📁 pages directory:');
+logger.info('📁 pages directory:');
 const pagesResults = scanDirectory('pages');
 
-console.log('\n📁 required-pages directory:');
+logger.info('\n📁 required-pages directory:');
 const requiredResults = scanDirectory('required-pages');
 
 const totalValid = pagesResults.valid + requiredResults.valid;
@@ -133,26 +134,26 @@ Object.keys(requiredResults.categories).forEach(cat => {
   allCategories[cat] = (allCategories[cat] || 0) + requiredResults.categories[cat];
 });
 
-console.log('\n============================================================');
-console.log('📊 FINAL METADATA VALIDATION REPORT');
-console.log('============================================================');
-console.log(`✅ Valid files: ${totalValid}/${totalFiles}`);
-console.log(`❌ Invalid files: ${totalInvalid}`);
-console.log(`📈 Success rate: ${Math.round((totalValid / totalFiles) * 100)}%`);
+logger.info('\n============================================================');
+logger.info('📊 FINAL METADATA VALIDATION REPORT');
+logger.info('============================================================');
+logger.info(`✅ Valid files: ${totalValid}/${totalFiles}`);
+logger.info(`❌ Invalid files: ${totalInvalid}`);
+logger.info(`📈 Success rate: ${Math.round((totalValid / totalFiles) * 100)}%`);
 
-console.log('\n📋 Category Distribution:');
+logger.info('\n📋 Category Distribution:');
 Object.entries(allCategories).sort().forEach(([cat, count]) => {
-  console.log(`   ${cat}: ${count} files`);
+  logger.info(`   ${cat}: ${count} files`);
 });
 
 if (totalInvalid > 0) {
-  console.log('\n🚨 Errors found:');
+  logger.warn('\n🚨 Errors found:');
   [...pagesResults.errors, ...requiredResults.errors].forEach(error => {
-    console.log(`   • ${error.file}: ${error.error}`);
+    logger.warn(`   • ${error.file}: ${error.error}`);
   });
 } else {
-  console.log('\n🎉 ALL FILES PASS VALIDATION!');
-  console.log('🏆 Perfect metadata compliance achieved!');
+  logger.info('\n🎉 ALL FILES PASS VALIDATION!');
+  logger.info('🏆 Perfect metadata compliance achieved!');
 }
 
 export { validatePage, scanDirectory };

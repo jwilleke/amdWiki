@@ -1,5 +1,4 @@
-import logger from '../utils/logger';
-import { CacheProvider } from '../types';
+// No imports needed for base provider
 
 /**
  * WikiEngine interface (simplified)
@@ -172,20 +171,20 @@ abstract class BaseCacheProvider {
    * Backup cache configuration and state (optional)
    * @returns {Promise<BackupData>} Backup data
    */
-  async backup(): Promise<BackupData> {
-    return {
+  backup(): Promise<BackupData> {
+    return Promise.resolve({
       provider: this.constructor.name,
       initialized: this.initialized,
       timestamp: new Date().toISOString()
-    };
+    });
   }
 
   /**
    * Restore cache from backup (optional)
-   * @param {BackupData} backupData - Backup data
+   * @param {BackupData} _backupData - Backup data
    * @returns {Promise<void>}
    */
-  async restore(backupData: BackupData): Promise<void> {
+  async restore(_backupData: BackupData): Promise<void> {
     // Default implementation does nothing
     // Subclasses can override if they support restore
   }
