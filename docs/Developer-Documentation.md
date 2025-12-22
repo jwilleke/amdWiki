@@ -2,7 +2,7 @@
 
 **Complete index of amdWiki developer documentation**
 
-Last Updated: 2025-12-21
+Last Updated: 2025-12-22
 
 ---
 
@@ -12,7 +12,7 @@ Last Updated: 2025-12-21
 |----------|-------|-------------|
 | [Managers](#managers) | 21 | Core system managers (quick reference + complete guides) |
 | [Plugins](#plugins) | 12 | Plugin documentation (developer + user guides) |
-| [Providers](#providers) | 5 | Storage and service providers |
+| [Providers](#providers) | 4 | Storage and service providers (quick reference + guides) |
 | [Architecture](#architecture) | 15+ | System design and patterns |
 | [Testing](#testing) | 3 | Testing guides and strategies |
 | [API](#api) | Auto-gen | TypeDoc generated API reference |
@@ -115,19 +115,33 @@ All 12 plugins have user-facing documentation with examples:
 
 ## Providers
 
-Storage and service provider documentation:
+### Quick Reference Guides
 
-| Provider | Description |
-|----------|-------------|
-| [BasicAttachmentProvider](providers/BasicAttachmentProvider.md) | File-based attachment storage |
-| FileSystemProvider | File-based page storage (see PageManager docs) |
-| FileUserProvider | File-based user storage (see UserManager docs) |
-| VersioningFileProvider | Versioned page storage (see pageproviders/) |
+Concise API reference for each provider (~150-250 lines):
 
-### Page Providers
+| Provider | Type | Description |
+|----------|------|-------------|
+| [BasicAttachmentProvider](providers/BasicAttachmentProvider.md) | Attachment | File-based attachment storage with SHA-256 deduplication |
+| [FileSystemProvider](providers/FileSystemProvider.md) | Page | UUID-based file storage with YAML frontmatter |
+| [FileUserProvider](providers/FileUserProvider.md) | User | JSON file-based user and session storage |
+| [VersioningFileProvider](providers/VersioningFileProvider.md) | Page | File storage with delta-compressed version history |
+
+### Complete Guides
+
+In-depth documentation for each provider (500-1000+ lines):
+
+| Provider | Guide |
+|----------|-------|
+| BasicAttachmentProvider | [BasicAttachmentProvider-Complete-Guide.md](providers/BasicAttachmentProvider-Complete-Guide.md) |
+| FileSystemProvider | [FileSystemProvider-Complete-Guide.md](providers/FileSystemProvider-Complete-Guide.md) ✨ **Coming Soon** |
+| FileUserProvider | [FileUserProvider-Complete-Guide.md](providers/FileUserProvider-Complete-Guide.md) ✨ **Coming Soon** |
+| VersioningFileProvider | [VersioningFileProvider-Complete-Guide.md](providers/VersioningFileProvider-Complete-Guide.md) ✨ **Coming Soon** |
+
+### Additional Provider Documentation
 
 - [Versioning-Migration-Guide](pageproviders/Versioning-Migration-Guide.md)
 - [Versioning-Deployment-Guide](admin/Versioning-Deployment-Guide.md)
+- [Versioning-Maintenance-Guide](pageproviders/Versioning-Maintenance-Guide.md)
 
 ---
 
@@ -239,8 +253,21 @@ Before contributing, please review:
 
 ## Documentation Status
 
-All manager documentation is now complete! Each manager has:
+### Completed (Issue #178)
+
+**Managers:** ✅ 21/21 complete (100%)
 - ✅ Quick Reference guide (~100-200 lines)
 - ✅ Complete Guide (~500-1000+ lines)
+
+**Plugins:** ✅ 12/12 complete (100%)
+- ✅ Developer documentation (~150-300 lines)
+- ✅ User documentation with examples
+
+**Providers:** ✅ 4/4 quick references complete (100%)
+- ✅ BasicAttachmentProvider (quick reference + complete guide)
+- ✅ FileSystemProvider (quick reference)
+- ✅ FileUserProvider (quick reference)
+- ✅ VersioningFileProvider (quick reference)
+- 🔄 Complete guides in progress
 
 See [Issue #178](https://github.com/jwilleke/amdWiki/issues/178) for documentation improvement tracking.
