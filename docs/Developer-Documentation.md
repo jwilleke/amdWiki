@@ -133,9 +133,9 @@ In-depth documentation for each provider (500-1000+ lines):
 | Provider | Guide |
 |----------|-------|
 | BasicAttachmentProvider | [BasicAttachmentProvider-Complete-Guide.md](providers/BasicAttachmentProvider-Complete-Guide.md) |
-| FileSystemProvider | [FileSystemProvider-Complete-Guide.md](providers/FileSystemProvider-Complete-Guide.md) ✨ **Coming Soon** |
-| FileUserProvider | [FileUserProvider-Complete-Guide.md](providers/FileUserProvider-Complete-Guide.md) ✨ **Coming Soon** |
-| VersioningFileProvider | [VersioningFileProvider-Complete-Guide.md](providers/VersioningFileProvider-Complete-Guide.md) ✨ **Coming Soon** |
+| FileSystemProvider | [FileSystemProvider-Complete-Guide.md](providers/FileSystemProvider-Complete-Guide.md) |
+| FileUserProvider | [FileUserProvider-Complete-Guide.md](providers/FileUserProvider-Complete-Guide.md) |
+| VersioningFileProvider | [VersioningFileProvider-Complete-Guide.md](providers/VersioningFileProvider-Complete-Guide.md) |
 
 ### Additional Provider Documentation
 
@@ -263,11 +263,10 @@ Before contributing, please review:
 - ✅ Developer documentation (~150-300 lines)
 - ✅ User documentation with examples
 
-**Providers:** ✅ 4/4 quick references complete (100%)
+**Providers:** ✅ 4/4 complete (100%)
 - ✅ BasicAttachmentProvider (quick reference + complete guide)
-- ✅ FileSystemProvider (quick reference)
-- ✅ FileUserProvider (quick reference)
-- ✅ VersioningFileProvider (quick reference)
-- 🔄 Complete guides in progress
+- ✅ FileSystemProvider (quick reference + complete guide)
+- ✅ FileUserProvider (quick reference + complete guide)
+- ✅ VersioningFileProvider (quick reference + complete guide)
 
 See [Issue #178](https://github.com/jwilleke/amdWiki/issues/178) for documentation improvement tracking.
