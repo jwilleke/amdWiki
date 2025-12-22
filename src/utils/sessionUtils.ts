@@ -1,6 +1,6 @@
 // src/utils/sessionUtils.ts
-const ConfigurationManager = require('../managers/ConfigurationManager');
-const UserManager = require('../managers/UserManager');
+import ConfigurationManager from '../managers/ConfigurationManager';
+import UserManager from '../managers/UserManager';
 import { Request } from 'express';
 
 /**
@@ -47,7 +47,7 @@ interface UserData {
  */
 export async function buildUserContext(req: RequestWithSession): Promise<UserContext> {
   const configManager = new ConfigurationManager();
-  const authorizer = configManager.getProperty?.('amdwiki.authorizer') || 'DefaultAuthorizer';
+  const authorizer = String(configManager.getProperty?.('amdwiki.authorizer') || 'DefaultAuthorizer');
 
   const userManager = new UserManager();
 
@@ -61,11 +61,11 @@ export async function buildUserContext(req: RequestWithSession): Promise<UserCon
   let isAuth = false;
   if (userId) {
     // Gather user information using UserManager
-    const fetchedUser = await userManager.getUser(userId); // Assume method like getUser(userId)
+    const fetchedUser = await userManager.getUser(userId) as { username?: string; displayName?: string; roles?: string[] } | null;
     if (fetchedUser) {
       userData = {
-        username: fetchedUser.username || 'Anonymous',
-        displayName: fetchedUser.displayName || fetchedUser.username || 'Anonymous',
+        username: String(fetchedUser.username || 'Anonymous'),
+        displayName: String(fetchedUser.displayName || fetchedUser.username || 'Anonymous'),
         roles: Array.isArray(fetchedUser.roles) ? fetchedUser.roles : ['authenticated']
       };
       isAuth = true;

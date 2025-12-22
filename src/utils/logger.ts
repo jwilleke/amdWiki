@@ -68,7 +68,11 @@ export function createLoggerWithConfig(config: LoggerConfig = {}): Logger {
     level: logConfig.level,
     format: format.combine(
       format.timestamp(),
-      format.printf(({ timestamp, level, message }) => `${timestamp} [${level}]: ${message}`)
+      format.printf((info) => {
+        const ts = typeof info.timestamp === 'string' ? info.timestamp : JSON.stringify(info.timestamp);
+        const msg = typeof info.message === 'string' ? info.message : JSON.stringify(info.message);
+        return `${ts} [${info.level}]: ${msg}`;
+      })
     ),
     transports: [
       new transports.File({
