@@ -63,7 +63,7 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
     - 6 × other minor errors (MD056, MD055, MD059, MD051)
   - TypeScript: 1,052 errors (not addressed yet)
 - Test Status: No test changes (tooling and configuration only)
-- Commits: In progress
+- Commits: 7ce5328
 - Files Modified:
   - `.husky/pre-commit` - changed to use lint-staged
   - `.markdownlint.json` - MD003 style changed to atx, MD060 re-enabled
