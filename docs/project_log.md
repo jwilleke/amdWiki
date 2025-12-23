@@ -22,6 +22,60 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 
 ---
 
+## 2025-12-23-03
+
+- Agent: Claude Code (Sonnet 4.5)
+- Subject: ACLManager Converted to TypeScript - Issue #145
+- Issues: #145 (Convert Managers to TypeScript), #139 (TypeScript Migration Epic)
+- Key Decision: Convert ACLManager as fifth manager (permissions & access control)
+- Work Done:
+  - **Converted ACLManager.js to TypeScript:**
+    - Created src/managers/ACLManager.ts (795 lines)
+    - Added comprehensive type annotations for all 20+ methods
+    - Created 10 new type interfaces for ACL operations
+    - All permission checking methods properly typed
+    - Context-aware permission checking fully typed
+  - **Type Safety Improvements:**
+    - checkPagePermissionWithContext(WikiContext, action): Promise<boolean>
+    - checkPagePermission(...): Promise<boolean> (deprecated but typed)
+    - parsePageACL(content): Map<string, Set<string>>
+    - checkContextRestrictions(user, context): Promise<PermissionResult>
+    - checkMaintenanceMode(user, config): PermissionResult
+    - checkBusinessHours(config, timeZone): PermissionResult
+    - checkEnhancedTimeRestrictions(user, context): Promise<PermissionResult>
+    - checkHolidayRestrictions(currentDate, config): Promise<PermissionResult>
+    - logAccessDecision(...): void (overloaded signatures)
+  - **New Type Interfaces:**
+    - WikiContext (minimal, shared with PageManager)
+    - UserContext (user identity and roles)
+    - AccessPolicy, PermissionResult
+    - MaintenanceConfig, BusinessHoursConfig
+    - HolidayConfig, SchedulesConfig
+    - ContextConfig, AccessDecisionLog
+  - **Code Quality:**
+    - Private methods properly marked (notify, parseACL, etc.)
+    - All context-aware checks fully typed
+    - Proper eslint-disable comments for untyped manager interactions
+  - **Verified no regressions:**
+    - All 1,393 tests passing
+    - ACLManager.test.js passing
+    - Full backward compatibility
+- Impact:
+  - ✅ ACLManager is now type-safe with full TypeScript support
+  - ✅ All permission checking operations have proper type checking
+  - ✅ JavaScript code can still import and use ACLManager
+  - ⚠️ Some linting warnings remain (PolicyEvaluator, NotificationManager untyped)
+- Commits: 0a9967f
+- Files Created:
+  - src/managers/ACLManager.ts (795 lines)
+- Test Status: All 1,393 tests passing
+- Next Steps:
+  - Continue with remaining 18 managers
+  - Week 2 goal: 3 more managers (total 8 of 23)
+- Issue #145 Status: **IN PROGRESS** - 5 of 23 managers converted (22% complete)
+
+---
+
 ## 2025-12-23-02
 
 - Agent: Claude Code (Sonnet 4.5)
