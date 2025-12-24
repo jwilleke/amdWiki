@@ -139,10 +139,10 @@ class VariableManager extends BaseManager {
 
     // System info
     this.registerVariable('uptime', (_context) => {
-       
-      if (this.engine.startTime) {
-         
-        const uptimeMs = Date.now() - (this.engine.startTime as number);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
+      const startTime = (this.engine as any).startTime as number | undefined;
+      if (startTime) {
+        const uptimeMs = Date.now() - startTime;
         const uptimeSec = Math.floor(uptimeMs / 1000);
         const hours = Math.floor(uptimeSec / 3600);
         const minutes = Math.floor((uptimeSec % 3600) / 60);
