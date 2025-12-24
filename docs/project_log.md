@@ -74,7 +74,7 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
   - ✅ SchemaManager is now type-safe
   - ✅ Both managers mentioned in linting warnings are now resolved
   - ✅ JavaScript code can still import and use both managers
-- Commits: (pending)
+- Commits: 6dfb8cc
 - Files Created:
   - src/managers/NotificationManager.ts (449 lines)
   - src/managers/SchemaManager.ts (96 lines)
