@@ -280,7 +280,7 @@ class VariableManager extends BaseManager {
         try {
           const result = handler(context);
           // Handle async handlers (like totalpages)
-          if (result instanceof Promise) {
+          if ((result as unknown) instanceof Promise) {
             logger.warn(`[VAR] Variable '${varName}' returned a Promise - synchronous expansion failed`);
             return match;
           }
@@ -309,7 +309,7 @@ class VariableManager extends BaseManager {
       try {
         const result = handler(context);
         // Handle async handlers
-        if (result instanceof Promise) {
+        if ((result as unknown) instanceof Promise) {
           logger.warn(`[VAR] Variable '${varName}' returned a Promise - returning placeholder`);
           return '[Async]';
         }
