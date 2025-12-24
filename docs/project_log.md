@@ -84,7 +84,7 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
   - ✅ Variable expansion and cache provider pattern fully typed
   - ✅ JavaScript code can still import and use both managers
   - ✅ TypeScript errors resolved (engine.startTime, instanceof Promise)
-- Commits: 5251909, 83abb14
+- Commits: 5251909, 83abb14, 5e43f9c
 - Files Created:
   - src/managers/VariableManager.ts (367 lines)
   - src/managers/CacheManager.ts (405 lines)
