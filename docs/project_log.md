@@ -22,6 +22,107 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 
 ---
 
+## 2025-12-23-10
+
+- Agent: Claude Code (Sonnet 4.5)
+- Subject: ExportManager Converted to TypeScript - Issue #145
+- Issues: #145 (Convert Managers to TypeScript), #139 (TypeScript Migration Epic)
+- Key Decision: Convert ExportManager as fourteenth manager (60% milestone reached)
+- Work Done:
+  - **Converted ExportManager.js to TypeScript:**
+    - Created src/managers/ExportManager.ts (464 lines)
+    - Added 6 type interfaces for export functionality
+    - All 8 methods have explicit return types
+    - HTML and Markdown export capabilities
+  - **Type Safety Improvements (ExportManager):**
+    - initialize(config): Promise<void>
+    - exportPageToHtml(pageName, user): Promise<string>
+    - exportPagesToHtml(pageNames, user): Promise<string>
+    - exportToMarkdown(pageNames, user): Promise<string>
+    - saveExport(content, filename, format): Promise<string>
+    - getExports(): Promise<ExportFileInfo[]>
+    - deleteExport(filename): Promise<void>
+    - getFormattedTimestamp(user): string
+  - **New Type Interfaces (ExportManager):**
+    - ExportFileInfo (export file metadata)
+    - ExportConfig (export configuration)
+    - UserPreferences (user locale preferences)
+    - ExportUser (user object for exports)
+    - PageForExport (page structure for exports)
+  - **Code Quality:**
+    - Type-safe HTML/Markdown generation
+    - Locale-aware timestamp formatting
+    - Export file management with metadata
+    - Proper error handling
+  - **Verified no regressions:**
+    - All 1,393 tests passing
+    - Full backward compatibility
+- Impact:
+  - ✅ ExportManager is now type-safe
+  - ✅ Export system fully typed with proper interfaces
+  - ✅ 60% complete - strong progress toward 100%
+  - ✅ JavaScript code can still import and use ExportManager
+- Commits: 71081bd
+- Files Created:
+  - src/managers/ExportManager.ts (464 lines)
+- Test Status: All 1,393 tests passing
+- Next Steps:
+  - Continue with remaining 9 managers
+  - Consider AttachmentManager, ValidationManager, or TemplateManager next
+- Issue #145 Status: **IN PROGRESS** - 14 of 23 managers converted (60% complete)
+
+---
+
+## 2025-12-23-09
+
+- Agent: Claude Code (Sonnet 4.5)
+- Subject: BackupManager Converted to TypeScript - Issue #145
+- Issues: #145 (Convert Managers to TypeScript), #139 (TypeScript Migration Epic)
+- Key Decision: Convert BackupManager as thirteenth manager
+- Work Done:
+  - **Converted BackupManager.js to TypeScript:**
+    - Created src/managers/BackupManager.ts (467 lines)
+    - Added 5 type interfaces for backup/restore operations
+    - All 9 methods have explicit return types
+    - Private methods properly marked (validateBackupData, cleanupOldBackups)
+  - **Type Safety Improvements (BackupManager):**
+    - initialize(config): Promise<void>
+    - backup(options): Promise<string>
+    - restore(backupPath, options): Promise<RestoreResults>
+    - validateBackupData(backupData): void [private]
+    - listBackups(): Promise<BackupFileInfo[]>
+    - cleanupOldBackups(): Promise<void> [private]
+    - getLatestBackup(): Promise<string | null>
+  - **New Type Interfaces (BackupManager):**
+    - BackupOptions (backup configuration)
+    - RestoreOptions (restore configuration)
+    - BackupData (backup data structure)
+    - RestoreResults (restore operation results)
+    - BackupFileInfo (backup file metadata)
+  - **Code Quality:**
+    - Type-safe backup orchestration across all managers
+    - Gzip compression/decompression support
+    - Comprehensive error handling for individual manager failures
+    - Automatic cleanup of old backups
+  - **Verified no regressions:**
+    - All 1,393 tests passing
+    - Full backward compatibility
+- Impact:
+  - ✅ BackupManager is now type-safe
+  - ✅ Backup/restore system fully typed with proper interfaces
+  - ✅ 56% complete - approaching 60% milestone
+  - ✅ JavaScript code can still import and use BackupManager
+- Commits: e0806ef
+- Files Created:
+  - src/managers/BackupManager.ts (467 lines)
+- Test Status: All 1,393 tests passing
+- Next Steps:
+  - Continue with ExportManager next
+  - Then AttachmentManager, ValidationManager, TemplateManager
+- Issue #145 Status: **IN PROGRESS** - 13 of 23 managers converted (56% complete)
+
+---
+
 ## 2025-12-23-08
 
 - Agent: Claude Code (Sonnet 4.5)
