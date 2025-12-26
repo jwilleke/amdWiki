@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-argument */
 import fs from 'fs-extra';
 import path from 'path';
@@ -182,7 +183,7 @@ class VersioningAnalytics {
     let totalSize = 0;
     let compressedVersions = 0;
     let uncompressedVersions = 0;
-    let compressionSaved = 0;
+    const compressionSaved = 0;
 
     for (const versionMeta of manifest.versions) {
       const vPath = path.join(versionDir, `v${versionMeta.version}`);
@@ -389,15 +390,15 @@ class VersioningAnalytics {
     }
 
     switch (level) {
-      case 'info':
-        logger.info(`[VersioningAnalytics] ${message}`);
-        break;
-      case 'verbose':
-        logger.info(`[VersioningAnalytics] ${message}`);
-        break;
-      case 'error':
-        logger.error(`[VersioningAnalytics] ${message}`);
-        break;
+    case 'info':
+      logger.info(`[VersioningAnalytics] ${message}`);
+      break;
+    case 'verbose':
+      logger.info(`[VersioningAnalytics] ${message}`);
+      break;
+    case 'error':
+      logger.error(`[VersioningAnalytics] ${message}`);
+      break;
     }
   }
 }

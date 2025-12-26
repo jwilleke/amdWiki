@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-argument */
 import fs from 'fs-extra';
 import path from 'path';
@@ -250,7 +251,7 @@ class VersioningMigration {
     // Create data directory
     await fs.ensureDir(this.dataDir);
 
-    this._log('verbose', `Created directory structure`);
+    this._log('verbose', 'Created directory structure');
   }
 
   /**
@@ -588,18 +589,18 @@ class VersioningMigration {
     }
 
     switch (level) {
-      case 'info':
-        logger.info(`[VersioningMigration] ${message}`);
-        break;
-      case 'verbose':
-        logger.info(`[VersioningMigration] ${message}`);
-        break;
-      case 'error':
-        logger.error(`[VersioningMigration] ${message}`);
-        break;
-      case 'warning':
-        logger.warn(`[VersioningMigration] ${message}`);
-        break;
+    case 'info':
+      logger.info(`[VersioningMigration] ${message}`);
+      break;
+    case 'verbose':
+      logger.info(`[VersioningMigration] ${message}`);
+      break;
+    case 'error':
+      logger.error(`[VersioningMigration] ${message}`);
+      break;
+    case 'warning':
+      logger.warn(`[VersioningMigration] ${message}`);
+      break;
     }
   }
 

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-function-return-type, @typescript-eslint/no-unused-vars, no-console */
 /* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-argument */
 /**
  * SchemaGenerator - Generates Schema.org JSON-LD markup from page metadata
@@ -13,17 +14,17 @@ class SchemaGenerator {
   static generatePageSchema(pageData, options = {}) {
     const schemaType = this.determineSchemaType(pageData);
     const baseSchema = {
-      "@context": "https://schema.org",
-      "@type": schemaType,
-      "name": pageData.title,
-      "headline": pageData.title,
-      "url": options.pageUrl || `${options.baseUrl}/view/${encodeURIComponent(pageData.title)}`,
-      "dateModified": pageData.lastModified,
-      "inLanguage": "en-US",
-      "isPartOf": {
-        "@type": "WebSite",
-        "name": "amdWiki Platform",
-        "url": options.baseUrl || "/"
+      '@context': 'https://schema.org',
+      '@type': schemaType,
+      'name': pageData.title,
+      'headline': pageData.title,
+      'url': options.pageUrl || `${options.baseUrl}/view/${encodeURIComponent(pageData.title)}`,
+      'dateModified': pageData.lastModified,
+      'inLanguage': 'en-US',
+      'isPartOf': {
+        '@type': 'WebSite',
+        'name': 'amdWiki Platform',
+        'url': options.baseUrl || '/'
       }
     };
 
@@ -41,17 +42,17 @@ class SchemaGenerator {
     if (pageData.categories && pageData.categories.length > 0) {
       if (schemaType === 'WebPage') {
         baseSchema.about = pageData.categories.map(category => ({
-          "@type": "DefinedTerm",
-          "name": category,
-          "inDefinedTermSet": {
-            "@type": "DefinedTermSet",
-            "name": "amdWiki Categories"
+          '@type': 'DefinedTerm',
+          'name': category,
+          'inDefinedTermSet': {
+            '@type': 'DefinedTermSet',
+            'name': 'amdWiki Categories'
           }
         }));
       } else {
         baseSchema.about = pageData.categories.map(category => ({
-          "@type": "Thing",
-          "name": category
+          '@type': 'Thing',
+          'name': category
         }));
       }
     }
@@ -64,8 +65,8 @@ class SchemaGenerator {
 
     // Add author information
     baseSchema.author = {
-      "@type": "Organization",
-      "name": "amdWiki Platform"
+      '@type': 'Organization',
+      'name': 'amdWiki Platform'
     };
 
     // Add DigitalDocumentPermission objects if engine is available
@@ -126,17 +127,17 @@ class SchemaGenerator {
    */
   static enhanceSchemaByType(baseSchema, pageData, options) {
     switch (baseSchema['@type']) {
-      case 'TechArticle':
-        return this.enhanceTechArticle(baseSchema, pageData, options);
+    case 'TechArticle':
+      return this.enhanceTechArticle(baseSchema, pageData, options);
       
-      case 'CreativeWork':
-        return this.enhanceCreativeWork(baseSchema, pageData, options);
+    case 'CreativeWork':
+      return this.enhanceCreativeWork(baseSchema, pageData, options);
       
-      case 'WebPage':
-        return this.enhanceWebPage(baseSchema, pageData, options);
+    case 'WebPage':
+      return this.enhanceWebPage(baseSchema, pageData, options);
       
-      default:
-        return baseSchema;
+    default:
+      return baseSchema;
     }
   }
 
@@ -148,8 +149,8 @@ class SchemaGenerator {
     
     if (pageData.userKeywords?.includes('plugins')) {
       schema.about = [{
-        "@type": "SoftwareApplication",
-        "name": "amdWiki Plugin System"
+        '@type': 'SoftwareApplication',
+        'name': 'amdWiki Plugin System'
       }];
     }
 
@@ -164,8 +165,8 @@ class SchemaGenerator {
         pageData.userKeywords?.includes('roadmap')) {
       schema.genre = 'Project Planning';
       schema.about = {
-        "@type": "SoftwareProject",
-        "name": "amdWiki Platform Development"
+        '@type': 'SoftwareProject',
+        'name': 'amdWiki Platform Development'
       };
     }
 
@@ -180,36 +181,36 @@ class SchemaGenerator {
     if (pageData.category && pageData.category.includes('/')) {
       const categoryParts = pageData.category.split('/');
       schema.breadcrumb = {
-        "@type": "BreadcrumbList",
-        "itemListElement": categoryParts.map((part, index) => ({
-          "@type": "ListItem",
-          "position": index + 1,
-          "name": part,
-          "item": `${options.baseUrl}/category/${part}`
+        '@type': 'BreadcrumbList',
+        'itemListElement': categoryParts.map((part, index) => ({
+          '@type': 'ListItem',
+          'position': index + 1,
+          'name': part,
+          'item': `${options.baseUrl}/category/${part}`
         }))
       };
     }
 
     // Add main content designation
     schema.mainContentOfPage = {
-      "@type": "WebPageElement",
-      "cssSelector": ".wiki-content"
+      '@type': 'WebPageElement',
+      'cssSelector': '.wiki-content'
     };
 
     // Add specific enhancements based on page type
     if (pageData.title?.toLowerCase().includes('categories')) {
       schema.mainEntity = {
-        "@type": "DefinedTermSet", 
-        "name": "amdWiki Content Categories",
-        "description": "Available categories for organizing wiki content"
+        '@type': 'DefinedTermSet', 
+        'name': 'amdWiki Content Categories',
+        'description': 'Available categories for organizing wiki content'
       };
     }
 
     if (pageData.title?.toLowerCase().includes('keywords')) {
       schema.mainEntity = {
-        "@type": "DefinedTermSet",
-        "name": "amdWiki User Keywords", 
-        "description": "Available user-defined keywords for content tagging"
+        '@type': 'DefinedTermSet',
+        'name': 'amdWiki User Keywords', 
+        'description': 'Available user-defined keywords for content tagging'
       };
     }
 
@@ -288,17 +289,17 @@ class SchemaGenerator {
    */
   static generateSoftwareSchema(configData, options = {}) {
     const schema = {
-      "@context": "https://schema.org",
-      "@type": "SoftwareApplication",
-      "name": configData.application?.name || configData.applicationName || "amdWiki",
-      "version": configData.application?.version || configData.version,
-      "applicationCategory": configData.application?.applicationCategory || "Wiki Software",
-      "operatingSystem": "Cross-platform"
+      '@context': 'https://schema.org',
+      '@type': 'SoftwareApplication',
+      'name': configData.application?.name || configData.applicationName || 'amdWiki',
+      'version': configData.application?.version || configData.version,
+      'applicationCategory': configData.application?.applicationCategory || 'Wiki Software',
+      'operatingSystem': 'Cross-platform'
     };
 
     // Add server configuration
     if (configData.server) {
-      schema.serviceType = "Web Application";
+      schema.serviceType = 'Web Application';
       if (configData.server.port) {
         schema.serverStatus = `Running on port ${configData.server.port}`;
       }
@@ -308,10 +309,10 @@ class SchemaGenerator {
     if (configData.features) {
       const capabilities = [];
       
-      if (configData.features.export?.html) capabilities.push("HTML Export");
-      if (configData.features.export?.pdf) capabilities.push("PDF Export");
-      if (configData.features.attachments?.enabled) capabilities.push("File Attachments");
-      if (configData.features.llm?.enabled) capabilities.push("AI Integration");
+      if (configData.features.export?.html) capabilities.push('HTML Export');
+      if (configData.features.export?.pdf) capabilities.push('PDF Export');
+      if (configData.features.attachments?.enabled) capabilities.push('File Attachments');
+      if (configData.features.llm?.enabled) capabilities.push('AI Integration');
       
       if (capabilities.length > 0) {
         schema.featureList = capabilities;
@@ -319,15 +320,15 @@ class SchemaGenerator {
     }
 
     // Add requirements
-    schema.softwareRequirements = "Node.js";
+    schema.softwareRequirements = 'Node.js';
     
     // Add organization reference
     if (configData.organization) {
       schema.author = configData.organization;
     } else {
       schema.author = {
-        "@type": "Organization",
-        "name": options.organizationName || "amdWiki Platform"
+        '@type': 'Organization',
+        'name': options.organizationName || 'amdWiki Platform'
       };
     }
 
@@ -406,56 +407,56 @@ class SchemaGenerator {
     
     // Default General page permissions
     permissions.push({
-      "@type": "DigitalDocumentPermission",
-      "permissionType": "ReadPermission",
-      "grantee": {
-        "@type": "Audience",
-        "audienceType": "public"
+      '@type': 'DigitalDocumentPermission',
+      'permissionType': 'ReadPermission',
+      'grantee': {
+        '@type': 'Audience',
+        'audienceType': 'public'
       }
     });
     
     permissions.push({
-      "@type": "DigitalDocumentPermission", 
-      "permissionType": "WritePermission",
-      "grantee": {
-        "@type": "Audience",
-        "audienceType": "editor"
+      '@type': 'DigitalDocumentPermission', 
+      'permissionType': 'WritePermission',
+      'grantee': {
+        '@type': 'Audience',
+        'audienceType': 'editor'
       }
     });
     
     permissions.push({
-      "@type": "DigitalDocumentPermission",
-      "permissionType": "CreatePermission",
-      "grantee": {
-        "@type": "Audience", 
-        "audienceType": "editor"
+      '@type': 'DigitalDocumentPermission',
+      'permissionType': 'CreatePermission',
+      'grantee': {
+        '@type': 'Audience', 
+        'audienceType': 'editor'
       }
     });
     
     permissions.push({
-      "@type": "DigitalDocumentPermission",
-      "permissionType": "DeletePermission",
-      "grantee": {
-        "@type": "Person",
-        "name": "admin"
+      '@type': 'DigitalDocumentPermission',
+      'permissionType': 'DeletePermission',
+      'grantee': {
+        '@type': 'Person',
+        'name': 'admin'
       }
     });
     
     permissions.push({
-      "@type": "DigitalDocumentPermission",
-      "permissionType": "CommentPermission",
-      "grantee": {
-        "@type": "Audience",
-        "audienceType": "authenticated"
+      '@type': 'DigitalDocumentPermission',
+      'permissionType': 'CommentPermission',
+      'grantee': {
+        '@type': 'Audience',
+        'audienceType': 'authenticated'
       }
     });
     
     permissions.push({
-      "@type": "DigitalDocumentPermission",
-      "permissionType": "UploadPermission", 
-      "grantee": {
-        "@type": "Audience",
-        "audienceType": "editor"
+      '@type': 'DigitalDocumentPermission',
+      'permissionType': 'UploadPermission', 
+      'grantee': {
+        '@type': 'Audience',
+        'audienceType': 'editor'
       }
     });
     
@@ -474,20 +475,20 @@ class SchemaGenerator {
     
     // System pages: Read for all, admin-only for modifications
     permissions.push({
-      "@type": "DigitalDocumentPermission",
-      "permissionType": "ReadPermission",
-      "grantee": {
-        "@type": "Audience",
-        "audienceType": "public"
+      '@type': 'DigitalDocumentPermission',
+      'permissionType': 'ReadPermission',
+      'grantee': {
+        '@type': 'Audience',
+        'audienceType': 'public'
       }
     });
     
     permissions.push({
-      "@type": "DigitalDocumentPermission",
-      "permissionType": "AdministerPermission",
-      "grantee": {
-        "@type": "Person", 
-        "name": "admin"
+      '@type': 'DigitalDocumentPermission',
+      'permissionType': 'AdministerPermission',
+      'grantee': {
+        '@type': 'Person', 
+        'name': 'admin'
       }
     });
     
@@ -505,29 +506,29 @@ class SchemaGenerator {
     const permissions = [];
     
     permissions.push({
-      "@type": "DigitalDocumentPermission",
-      "permissionType": "ReadPermission",
-      "grantee": {
-        "@type": "Audience",
-        "audienceType": "public" 
+      '@type': 'DigitalDocumentPermission',
+      'permissionType': 'ReadPermission',
+      'grantee': {
+        '@type': 'Audience',
+        'audienceType': 'public' 
       }
     });
     
     permissions.push({
-      "@type": "DigitalDocumentPermission",
-      "permissionType": "WritePermission",
-      "grantee": {
-        "@type": "Audience",
-        "audienceType": "editor"
+      '@type': 'DigitalDocumentPermission',
+      'permissionType': 'WritePermission',
+      'grantee': {
+        '@type': 'Audience',
+        'audienceType': 'editor'
       }
     });
     
     permissions.push({
-      "@type": "DigitalDocumentPermission",
-      "permissionType": "CommentPermission",
-      "grantee": {
-        "@type": "Audience",
-        "audienceType": "authenticated"
+      '@type': 'DigitalDocumentPermission',
+      'permissionType': 'CommentPermission',
+      'grantee': {
+        '@type': 'Audience',
+        'audienceType': 'authenticated'
       }
     });
     
@@ -545,29 +546,29 @@ class SchemaGenerator {
     const permissions = [];
     
     permissions.push({
-      "@type": "DigitalDocumentPermission",
-      "permissionType": "ReadPermission", 
-      "grantee": {
-        "@type": "Audience",
-        "audienceType": "public"
+      '@type': 'DigitalDocumentPermission',
+      'permissionType': 'ReadPermission', 
+      'grantee': {
+        '@type': 'Audience',
+        'audienceType': 'public'
       }
     });
     
     permissions.push({
-      "@type": "DigitalDocumentPermission",
-      "permissionType": "WritePermission",
-      "grantee": {
-        "@type": "Audience",
-        "audienceType": "developer"
+      '@type': 'DigitalDocumentPermission',
+      'permissionType': 'WritePermission',
+      'grantee': {
+        '@type': 'Audience',
+        'audienceType': 'developer'
       }
     });
     
     permissions.push({
-      "@type": "DigitalDocumentPermission",
-      "permissionType": "CreatePermission",
-      "grantee": {
-        "@type": "Audience",
-        "audienceType": "developer"
+      '@type': 'DigitalDocumentPermission',
+      'permissionType': 'CreatePermission',
+      'grantee': {
+        '@type': 'Audience',
+        'audienceType': 'developer'
       }
     });
     
@@ -604,9 +605,9 @@ class SchemaGenerator {
         const grantee = this.mapPrincipalToGrantee(principal, userManager);
         if (grantee) {
           permissions.push({
-            "@type": "DigitalDocumentPermission",
-            "permissionType": permissionType,
-            "grantee": grantee
+            '@type': 'DigitalDocumentPermission',
+            'permissionType': permissionType,
+            'grantee': grantee
           });
         }
       }
@@ -626,10 +627,10 @@ class SchemaGenerator {
     
     // Handle special principals
     const specialMappings = {
-      'all': { "@type": "Audience", "audienceType": "public" },
-      'anonymous': { "@type": "Audience", "audienceType": "anonymous" },
-      'authenticated': { "@type": "Audience", "audienceType": "authenticated" },
-      'asserted': { "@type": "Audience", "audienceType": "asserted" }
+      'all': { '@type': 'Audience', 'audienceType': 'public' },
+      'anonymous': { '@type': 'Audience', 'audienceType': 'anonymous' },
+      'authenticated': { '@type': 'Audience', 'audienceType': 'authenticated' },
+      'asserted': { '@type': 'Audience', 'audienceType': 'asserted' }
     };
     
     if (specialMappings[p]) {
@@ -640,15 +641,15 @@ class SchemaGenerator {
     const role = userManager.getRole(principal);
     if (role) {
       return {
-        "@type": "Audience",
-        "audienceType": principal
+        '@type': 'Audience',
+        'audienceType': principal
       };
     }
     
     // Assume it's a specific user
     return {
-      "@type": "Person",
-      "name": principal
+      '@type': 'Person',
+      'name': principal
     };
   }
 
