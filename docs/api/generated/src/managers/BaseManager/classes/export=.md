@@ -30,8 +30,6 @@ WikiEngine for the main engine
 - [`export=`](../../ExportManager/classes/export=.md)
 - [`export=`](../../NotificationManager/classes/export=.md)
 - [`export=`](../../PageManager/classes/export=.md)
-- [`export=`](../../PageManager.legacy/classes/export=.md)
-- [`export=`](../../PageManagerUuid/classes/export=.md)
 - [`export=`](../../PluginManager/classes/export=.md)
 - [`export=`](../../PolicyEvaluator/classes/export=.md)
 - [`export=`](../../PolicyManager/classes/export=.md)

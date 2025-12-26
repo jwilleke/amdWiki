@@ -116,27 +116,6 @@ src/managers/
 └── ValidationManager.js
 ```
 
-## Additional Files
-
-- **PageManager.legacy.js** - Legacy version (not actively used)
-- **PageManagerUuid.js** - Alternative UUID-based version (not actively used)
-
-## Key Design Principles
-
-1. **Single Responsibility** - Each manager handles one specific aspect
-2. **Dependency Management** - Clear initialization order prevents circular dependencies
-3. **Extensibility** - Plugin system allows custom manager extensions
-4. **Testability** - Modular design enables isolated unit testing
-5. **Configuration-Driven** - Manager behavior controlled by Config.js
-
-## Integration Points
-
-- **WikiEngine** - Central orchestrator that manages all managers
-- **Config.js** - Provides configuration to all managers
-- **Routes** - HTTP endpoints access managers through WikiEngine
-- **Plugins** - Can extend or modify manager behavior
-- **Audit System** - Tracks manager operations for security and debugging
-
 ## Key Design Principles
 
 1. **Single Responsibility** - Each manager handles one specific aspect

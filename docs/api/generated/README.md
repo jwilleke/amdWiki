@@ -1,7 +1,3 @@
-**amdWiki API v1.5.0**
-
-***
-
 # amdWiki API v1.5.0
 
 ## Modules
@@ -38,8 +34,6 @@
 - [src/managers/ExportManager](src/managers/ExportManager/README.md)
 - [src/managers/NotificationManager](src/managers/NotificationManager/README.md)
 - [src/managers/PageManager](src/managers/PageManager/README.md)
-- [src/managers/PageManager.legacy](src/managers/PageManager.legacy/README.md)
-- [src/managers/PageManagerUuid](src/managers/PageManagerUuid/README.md)
 - [src/managers/PluginManager](src/managers/PluginManager/README.md)
 - [src/managers/PolicyEvaluator](src/managers/PolicyEvaluator/README.md)
 - [src/managers/PolicyManager](src/managers/PolicyManager/README.md)
