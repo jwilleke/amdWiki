@@ -96,7 +96,7 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
   - ✅ JavaScript code can still import and use RenderingManager
   - ✅ Dual parser system (advanced + legacy) fully typed
   - ✅ Link graph and wiki link processing typed
-- Commits: [pending]
+- Commits: b0648b3
 - Files Created:
   - src/managers/RenderingManager.ts (1397 lines)
 - Test Status: All 1,393 tests passing
