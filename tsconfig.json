@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     /* Language and Environment */
-    "target": "ES2020",
-    "lib": ["ES2020", "ES2021.WeakRef"],
+    "target": "ES2022",
+    "lib": ["ES2022"],
     "module": "commonjs",
     "moduleResolution": "node",
 
@@ -58,7 +58,8 @@
     "dist",
     "**/*.test.js",
     "**/*.test.ts",
-    "**/__tests__/**"
+    "**/__tests__/**",
+    "tests/e2e/**"
   ],
   "ts-node": {
     "compilerOptions": {

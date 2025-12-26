@@ -9,12 +9,15 @@ We follow the DRY (Don't Repeat Yourself) principle - every piece of knowledge s
 ## Language & Environment
 
 - Language: English (US) for all code and documentation
-- Runtime: Node.js with TypeScript
-- Target: ES2020
+- Runtime: Node.js 18+ with TypeScript
+- Target: ES2022
+- Rationale: Node 18+ fully supports ES2022 features
 
 ## TypeScript Configuration
 
 We use strict TypeScript settings (`strict: true`) to catch potential bugs at compile time. Key settings:
+
+**Note**: `strict: false` is currently set during TypeScript migration (Issue #139). Once migration completes, `strict: true` will be enabled globally.
 
 - Strict null checks enabled
 - No implicit `any` types
