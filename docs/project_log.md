@@ -85,7 +85,7 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
   - ✅ Policy validation system fully typed with comprehensive interfaces
   - ✅ 🎉 **83% MILESTONE ACHIEVED** - 4 managers remaining!
   - ✅ JavaScript code can still import and use PolicyValidator
-- Commits: [pending]
+- Commits: bb26176
 - Files Created:
   - src/managers/PolicyValidator.ts (663 lines)
 - Test Status: All 1,393 tests passing
