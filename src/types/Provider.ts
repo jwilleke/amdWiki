@@ -28,6 +28,12 @@ export interface BaseProvider {
    * @returns Promise that resolves when initialization is complete
    */
   initialize(): Promise<void>;
+
+  /**
+   * Shutdown the provider (optional)
+   * @returns Promise that resolves when shutdown is complete
+   */
+  shutdown?(): Promise<void>;
 }
 
 /**

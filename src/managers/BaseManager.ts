@@ -14,6 +14,8 @@
  *
  * @see {@link WikiEngine} for the main engine
  */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/require-await */
 
 import { WikiEngine } from '../types/WikiEngine';
 
@@ -28,7 +30,19 @@ export interface BackupData {
   timestamp: string;
 
   /** Manager-specific backup data */
-  data: any;
+  data?: any;
+
+  /** Provider class name (for managers with providers) */
+  providerClass?: string | null;
+
+  /** Provider-specific backup data */
+  providerBackup?: any;
+
+  /** Optional note about the backup */
+  note?: string;
+
+  /** Allow additional properties */
+  [key: string]: any;
 }
 
 /**

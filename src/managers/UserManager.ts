@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import BaseManager from './BaseManager';
+import BaseManager, { BackupData } from './BaseManager';
 
 
 import crypto from 'crypto';
@@ -1230,7 +1230,7 @@ class UserManager extends BaseManager {
     }
   }
 
-  async backup(): Promise<Record<string, unknown>> {
+  async backup(): Promise<BackupData> {
     logger.info('[UserManager] Starting backup...');
     if (!this.provider) {
       logger.warn('[UserManager] No provider available for backup');
@@ -1258,7 +1258,7 @@ class UserManager extends BaseManager {
     }
   }
 
-  async restore(backupData: Record<string, unknown>): Promise<void> {
+  async restore(backupData: BackupData): Promise<void> {
     logger.info('[UserManager] Starting restore...');
     if (!backupData) {
       throw new Error('UserManager: No backup data provided for restore');

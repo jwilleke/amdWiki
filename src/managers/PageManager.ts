@@ -1,4 +1,7 @@
-import BaseManager from './BaseManager';
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+
+import BaseManager, { BackupData } from './BaseManager';
 import logger from '../utils/logger';
 import { WikiEngine } from '../types/WikiEngine';
 import { PageProvider } from '../types/Provider';
@@ -123,7 +126,7 @@ class PageManager extends BaseManager {
     try {
       // eslint-disable-next-line @typescript-eslint/no-require-imports
       const ProviderClass = require(`../providers/${this.providerClass}`) as ProviderConstructor;
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+       
       this.provider = new ProviderClass(this.engine);
       await this.provider.initialize();
 
@@ -147,7 +150,7 @@ class PageManager extends BaseManager {
       throw new Error('Provider not initialized');
     }
     // Provider classes have getProviderInfo() method
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
     return (this.provider as any).getProviderInfo();
   }
 
@@ -451,7 +454,7 @@ class PageManager extends BaseManager {
    */
   async shutdown(): Promise<void> {
     if (this.provider) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+       
       await this.provider.shutdown();
     }
     logger.info('PageManager shut down');
@@ -463,9 +466,9 @@ class PageManager extends BaseManager {
    * Delegates to the provider's backup() method to serialize all page data.
    * The backup includes all page content, metadata, and directory structure.
    *
-   * @returns {Promise<Record<string, unknown>>} Backup data from provider
+   * @returns {Promise<BackupData>} Backup data from provider
    */
-  async backup(): Promise<Record<string, unknown>> {
+  async backup(): Promise<BackupData> {
     logger.info('[PageManager] Starting backup...');
 
     if (!this.provider) {
@@ -481,7 +484,7 @@ class PageManager extends BaseManager {
 
     try {
       // Providers have backup() method
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call
       const providerBackup = await (this.provider as any).backup();
 
       return {
@@ -502,10 +505,10 @@ class PageManager extends BaseManager {
    * Delegates to the provider's restore() method to recreate all pages
    * from the backup data.
    *
-   * @param {Record<string, unknown>} backupData - Backup data from backup() method
+   * @param {BackupData} backupData - Backup data from backup() method
    * @returns {Promise<void>}
    */
-  async restore(backupData: Record<string, unknown>): Promise<void> {
+  async restore(backupData: BackupData): Promise<void> {
     logger.info('[PageManager] Starting restore...');
 
     if (!backupData) {
@@ -524,7 +527,7 @@ class PageManager extends BaseManager {
     try {
       if (backupData.providerBackup) {
         // Providers have restore() method
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call
         await (this.provider as any).restore(backupData.providerBackup);
         logger.info('[PageManager] Restore completed successfully');
       } else {
