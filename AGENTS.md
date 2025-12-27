@@ -60,6 +60,14 @@ Each document is the authoritative source for its topic. Other docs reference th
 
 These may be done initially or as the project progresses. Include "Decision and rationale"
 
+- All configuration MUST use ConfigurationManager - no hardcoded fallbacks (DRY)
+- Use Playwright for E2E testing with Chromium browser, integrate into CI/CD
+- Schema.org-compliant front matter, PascalCase naming, TypeDoc for automation
+- Implement lint-staged to only lint staged files (not all files), allowing incremental improvement
+- Move from ES2020 to ES2022
+- ecosystem.config.js accepted as infrastructure-level (PM2 runs before app)
+- Consolidate all instance-specific data into `./data/` directory
+
 ## Architecture & Tech Stack
 
 See [docs/architecture/](./docs/architecture/) for comprehensive documentation.
@@ -133,7 +141,7 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for branching strategy, commit guidelin
 
 **Important:** Keep this file synchronized and updated. This is the bridge between different experts working on the same project.
 
-# amdWiki AI Agent Context
+## amdWiki AI Agent Context
 
 Single source of truth for amdWiki project context. Read this first when working on the project.
 
@@ -387,7 +395,15 @@ See [docs/planning/ROADMAP.md](/docs/planning/ROADMAP.md)
 - WikiEngine.js, WikiRoutes.js, ACLManager.js, ConfigurationManager.js
 - NotificationManager.js, SchemaManager.js, BackupManager.js, InstallService.js
 
-**Key Decision:** ecosystem.config.js accepted as infrastructure-level (PM2 runs before app)
+**Key Decisions:
+
+- All configuration MUST use ConfigurationManager - no hardcoded fallbacks (DRY)
+- Use Playwright for E2E testing with Chromium browser, integrate into CI/CD
+- Schema.org-compliant front matter, PascalCase naming, TypeDoc for automation
+- Implement lint-staged to only lint staged files (not all files), allowing incremental improvement
+- Move from ES2020 to ES2022
+- ecosystem.config.js accepted as infrastructure-level (PM2 runs before app)
+- Consolidate all instance-specific data into `./data/` directory
 
 **Test Status (2025-12-15):**
 
