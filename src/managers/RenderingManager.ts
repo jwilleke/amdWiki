@@ -62,6 +62,7 @@ interface _TableMetadata extends TableParams {
 interface UserContext {
   username?: string;
   userName?: string;
+  displayName?: string;
   [key: string]: unknown;
 }
 
@@ -565,7 +566,7 @@ class RenderingManager extends BaseManager {
     const lines = tableContent.trim().split('\n');
     const markdownLines = [];
     let isFirstRow = true;
-    let currentRowNumber = parseInt(params.rowNumber) || 0;
+    let currentRowNumber = parseInt(String(params.rowNumber), 10) || 0;
     
     for (const line of lines) {
       const trimmedLine = line.trim();
