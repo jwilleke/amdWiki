@@ -1,8 +1,14 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/require-await */
+
 import fs from 'fs-extra';
 import path from 'path';
 import { WikiConfig } from '../types/Config';
-import { WikiEngine } from '../types/WikiEngine';
 import logger from '../utils/logger';
+import BaseManager, { BackupData } from './BaseManager';
 
 /**
  * ConfigurationManager - Handles JSPWiki-compatible configuration management
@@ -37,8 +43,7 @@ import logger from '../utils/logger';
  * const appName = configManager.getApplicationName();
  * const port = configManager.getServerPort();
  */
-class ConfigurationManager {
-  private engine: WikiEngine;
+class ConfigurationManager extends BaseManager {
   private defaultConfig: WikiConfig | null;
   private environmentConfig: Partial<WikiConfig> | null;
   private customConfig: Partial<WikiConfig> | null;
@@ -52,10 +57,12 @@ class ConfigurationManager {
    * Creates a new ConfigurationManager instance
    *
    * @constructor
-   * @param {WikiEngine} engine - The wiki engine instance
+   * @param {any} engine - The wiki engine instance
    */
-  constructor(engine: WikiEngine) {
-    this.engine = engine;
+   
+  constructor(engine: any) {
+     
+    super(engine);
     this.defaultConfig = null;
     this.environmentConfig = null;
     this.customConfig = null;
@@ -77,7 +84,8 @@ class ConfigurationManager {
    * @returns {Promise<void>}
    * @throws {Error} If default configuration file is not found
    */
-  async initialize(): Promise<void> {
+  async initialize(config: Record<string, unknown> = {}): Promise<void> {
+    await super.initialize(config);
     try {
       await this.loadConfigurations();
       logger.info(`ConfigurationManager initialized for environment: ${this.environment}`);
@@ -86,6 +94,16 @@ class ConfigurationManager {
       logger.error('Failed to initialize ConfigurationManager:', error);
       throw error;
     }
+  }
+
+  /**
+   * Reload configuration from disk
+   *
+   * @returns {Promise<void>}
+   */
+  async reload(): Promise<void> {
+    await this.loadConfigurations();
+    logger.info('ConfigurationManager reloaded');
   }
 
   /**
@@ -169,7 +187,7 @@ class ConfigurationManager {
       'amdwiki.baseURL': process.env.AMDWIKI_BASE_URL,
       'amdwiki.hostname': process.env.AMDWIKI_HOSTNAME,
       'amdwiki.server.host': process.env.AMDWIKI_HOST,
-      'amdwiki.server.port': process.env.AMDWIKI_PORT,
+      'amdwiki.server.port': process.env.AMDWIKI_PORT
     };
 
     if (envOverrides[key]) {
@@ -218,7 +236,7 @@ class ConfigurationManager {
    */
   private async saveCustomConfiguration(): Promise<void> {
     const configToSave = {
-      "_comment": "This file overrides values from app-default-config.json",
+      '_comment': 'This file overrides values from app-default-config.json',
       ...this.customConfig
     };
 
@@ -336,7 +354,7 @@ class ConfigurationManager {
     resources: any;
     data: any;
     work: any;
-  } {
+    } {
     return {
       pages: this.getProperty('amdwiki.directories.pages'),
       templates: this.getProperty('amdwiki.directories.templates'),
@@ -414,7 +432,7 @@ class ConfigurationManager {
     dir: any;
     maxSize: any;
     maxFiles: number;
-  } {
+    } {
     return {
       level: this.getProperty('amdwiki.logging.level'),
       dir: this.getProperty('amdwiki.logging.dir'),
@@ -430,7 +448,7 @@ class ConfigurationManager {
   getSearchConfig(): {
     indexDir: any;
     enabled: boolean;
-  } {
+    } {
     return {
       indexDir: this.getProperty('amdwiki.search.provider.lunr.indexdir'),
       enabled: this.getProperty('amdwiki.search.enabled') === true
@@ -452,7 +470,7 @@ class ConfigurationManager {
       end: any;
       days: any;
     };
-  } {
+    } {
     const days = this.getProperty('amdwiki.accessControl.businessHours.days');
     return {
       contextAware: {
@@ -487,7 +505,7 @@ class ConfigurationManager {
       decision: boolean;
       reason: boolean;
     };
-  } {
+    } {
     return {
       enabled: this.getProperty('amdwiki.audit.enabled') === true,
       logDirectory: this.getProperty('amdwiki.audit.provider.file.logdirectory'),
@@ -516,7 +534,7 @@ class ConfigurationManager {
     interval: any;
     channelTitle: any;
     channelDescription: any;
-  } {
+    } {
     return {
       generate: this.getProperty('amdwiki.rss.generate', true),
       fileName: this.getProperty('amdwiki.rss.fileName', 'rss.xml'),
@@ -580,28 +598,9 @@ class ConfigurationManager {
    * to recreate the user's configuration settings. We don't backup default or
    * environment configs as those are part of the codebase.
    *
-   * @returns {Promise<Object>} Backup data containing custom configuration
+   * @returns {Promise<BackupData>} Backup data containing custom configuration
    */
-  async backup(): Promise<{
-    managerName: string;
-    timestamp: string;
-    environment: string;
-    defaultConfig: WikiConfig | null;
-    environmentConfig: Partial<WikiConfig> | null;
-    customConfig: Partial<WikiConfig> | null;
-    mergedConfig: WikiConfig | null;
-    paths: {
-      defaultConfigPath: string;
-      environmentConfigPath: string;
-      customConfigPath: string;
-    };
-    statistics: {
-      defaultPropertiesCount: number;
-      environmentPropertiesCount: number;
-      customPropertiesCount: number;
-      mergedPropertiesCount: number;
-    };
-  }> {
+  async backup(): Promise<BackupData> {
     logger.info('[ConfigurationManager] Starting backup...');
 
     try {
@@ -655,10 +654,10 @@ class ConfigurationManager {
    * This will overwrite the current custom configuration file and reload
    * all configurations to rebuild the merged config.
    *
-   * @param {Object} backupData - Backup data from backup() method
+   * @param {BackupData} backupData - Backup data from backup() method
    * @returns {Promise<void>}
    */
-  async restore(backupData: any): Promise<void> {
+  async restore(backupData: BackupData): Promise<void> {
     logger.info('[ConfigurationManager] Starting restore...');
 
     if (!backupData) {

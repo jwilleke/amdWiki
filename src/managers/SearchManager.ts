@@ -1,4 +1,4 @@
-import BaseManager from './BaseManager';
+import BaseManager, { BackupData } from './BaseManager';
 import logger from '../utils/logger';
 import { WikiEngine } from '../types/WikiEngine';
 
@@ -73,16 +73,6 @@ interface ProviderInfo {
   name: string;
   version?: string;
   features?: string[];
-  [key: string]: unknown;
-}
-
-/**
- * Backup data structure
- */
-interface BackupData {
-  providerClass: string | null;
-  timestamp: string;
-  error?: string;
   [key: string]: unknown;
 }
 
@@ -807,19 +797,27 @@ class SearchManager extends BaseManager {
   async backup(): Promise<BackupData> {
     if (!this.provider) {
       return {
+        managerName: 'SearchManager',
         providerClass: this.providerClass,
         timestamp: new Date().toISOString()
       };
     }
 
     try {
-      return await this.provider.backup();
+      const providerBackup = await this.provider.backup();
+      return {
+        managerName: 'SearchManager',
+        providerClass: this.providerClass,
+        timestamp: new Date().toISOString(),
+        providerBackup
+      };
     } catch (err) {
       logger.error('[SearchManager] Backup failed:', err);
       return {
+        managerName: 'SearchManager',
         providerClass: this.providerClass,
         timestamp: new Date().toISOString(),
-        error: (err as Error).message
+        note: (err as Error).message
       };
     }
   }

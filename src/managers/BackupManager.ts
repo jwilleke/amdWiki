@@ -1,4 +1,6 @@
-import BaseManager from './BaseManager';
+/* eslint-disable @typescript-eslint/require-await */
+
+import BaseManager, { BackupData as BaseBackupData } from './BaseManager';
 import fs from 'fs-extra';
 import path from 'path';
 import zlib from 'zlib';
@@ -129,7 +131,7 @@ class BackupManager extends BaseManager {
     this.maxBackups = configManager.getProperty('amdwiki.backup.maxBackups') as number;
 
     // Ensure backup directory exists
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+     
     await fs.ensureDir(this.backupDirectory);
 
     logger.info('✅ BackupManager initialized');
@@ -138,7 +140,36 @@ class BackupManager extends BaseManager {
   }
 
   /**
-   * Perform a complete backup of all managers
+   * Backup BackupManager's own state (conforms to BaseManager interface)
+   *
+   * @returns {Promise<BaseBackupData>} Backup data for this manager
+   */
+  async backup(): Promise<BaseBackupData> {
+    return {
+      managerName: 'BackupManager',
+      timestamp: new Date().toISOString(),
+      data: {
+        backupDirectory: this.backupDirectory,
+        maxBackups: this.maxBackups
+      }
+    };
+  }
+
+  /**
+   * Restore BackupManager's own state (conforms to BaseManager interface)
+   *
+   * @param {BaseBackupData} backupData - Backup data from backup()
+   * @returns {Promise<void>}
+   */
+  async restoreState(backupData: BaseBackupData): Promise<void> {
+    if (backupData?.data) {
+      // BackupManager state is read from config, so nothing to restore
+      logger.info('[BackupManager] State restore not needed (config-driven)');
+    }
+  }
+
+  /**
+   * Perform a complete backup of all managers to a file
    *
    * Process:
    * 1. Get all registered managers from engine
@@ -153,7 +184,7 @@ class BackupManager extends BaseManager {
    * @param {boolean} options.compress - Whether to compress (default: true)
    * @returns {Promise<string>} Path to created backup file
    */
-  async backup(options: BackupOptions = {}): Promise<string> {
+  async createBackup(options: BackupOptions = {}): Promise<string> {
     const startTime = Date.now();
     logger.info('🔄 Starting backup operation...');
 
@@ -224,7 +255,7 @@ class BackupManager extends BaseManager {
       }
 
       // Write to file
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+       
       await fs.writeFile(backupPath, finalData);
 
       const duration = Date.now() - startTime;
@@ -243,7 +274,7 @@ class BackupManager extends BaseManager {
   }
 
   /**
-   * Restore from a backup file
+   * Restore all managers from a backup file
    *
    * Process:
    * 1. Read and decompress backup file
@@ -257,32 +288,32 @@ class BackupManager extends BaseManager {
    * @param {string[]} options.managerFilter - Only restore specific managers
    * @returns {Promise<RestoreResults>} Restore results
    */
-  async restore(backupPath: string, options: RestoreOptions = {}): Promise<RestoreResults> {
+  async restoreFromFile(backupPath: string, options: RestoreOptions = {}): Promise<RestoreResults> {
     const startTime = Date.now();
     logger.info(`🔄 Starting restore operation from: ${backupPath}`);
 
     try {
       // Verify backup file exists
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+       
       if (!await fs.pathExists(backupPath)) {
         throw new Error(`Backup file not found: ${backupPath}`);
       }
 
       // Read backup file
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+       
       const fileData = await fs.readFile(backupPath);
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+       
       logger.info(`📁 Read backup file: ${(fileData.length / 1024).toFixed(2)} KB`);
 
       // Decompress if needed (detect by extension or try decompression)
       let jsonData: string;
       if (backupPath.endsWith('.gz')) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+         
         const decompressed = await gunzip(fileData);
         jsonData = decompressed.toString('utf8');
         logger.info(`🗜️  Decompressed to: ${(jsonData.length / 1024).toFixed(2)} KB`);
       } else {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+         
         jsonData = fileData.toString('utf8');
       }
 
@@ -384,39 +415,39 @@ class BackupManager extends BaseManager {
    */
   async listBackups(): Promise<BackupFileInfo[]> {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+       
       const files = await fs.readdir(this.backupDirectory);
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+       
       const backupFiles = files.filter(f => {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+         
         return f.startsWith('amdwiki-backup-') && f.endsWith('.json.gz');
       });
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+       
       const backups = await Promise.all(backupFiles.map(async (filename) => {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+         
         const filePath = path.join(this.backupDirectory, filename);
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+         
         const stats = await fs.stat(filePath);
 
         return {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+           
           filename,
           path: filePath,
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+           
           size: stats.size,
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+           
           created: stats.birthtime,
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+           
           modified: stats.mtime
         };
       }));
 
       // Sort by creation time, newest first
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+       
       backups.sort((a, b) => b.created.getTime() - a.created.getTime());
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+       
       return backups;
 
     } catch (error) {
@@ -443,7 +474,7 @@ class BackupManager extends BaseManager {
       logger.info(`🗑️  Cleaning up ${toDelete.length} old backups`);
 
       for (const backup of toDelete) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+         
         await fs.remove(backup.path);
         logger.info(`🗑️  Deleted: ${backup.filename}`);
       }
