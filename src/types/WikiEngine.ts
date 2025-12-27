@@ -4,6 +4,7 @@
  * Defines the core WikiEngine interface and manager registry types.
  * WikiEngine is the central orchestrator that manages all subsystems.
  */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { WikiConfig } from './Config';
 
@@ -29,6 +30,12 @@ export interface WikiEngine {
 
   /** Whether engine is initialized */
   initialized: boolean;
+
+  /** Logger instance */
+  logger?: any;
+
+  /** Engine start time */
+  startTime?: number;
 
   /**
    * Initialize the wiki engine

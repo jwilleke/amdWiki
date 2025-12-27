@@ -95,3 +95,6 @@ export {
   assertVersionMetadata,
   assertUser
 } from './guards';
+
+// Note: Individual type exports are handled by the named exports above
+// Manager and context types are defined in their respective implementation files

@@ -4,9 +4,10 @@
  * This module defines interfaces for all provider types (page, user, attachment,
  * search, cache, audit) following JSPWiki's provider pattern for pluggable backends.
  */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { WikiPage, PageFrontmatter, PageInfo, PageSaveOptions, PageSearchResult, PageListOptions } from './Page';
-import { VersionMetadata, VersionManifest, VersionContent, VersionDiff, VersionHistoryEntry } from './Version';
+import { VersionManifest, VersionContent, VersionDiff, VersionHistoryEntry } from './Version';
 import { User, UserCreateData, UserUpdateData, UserSession } from './User';
 import { WikiEngine } from './WikiEngine';
 
@@ -183,9 +184,9 @@ export interface UserProvider extends BaseProvider {
 
   /**
    * Get all users
-   * @returns Array of user objects
+   * @returns Map of username to user objects
    */
-  getAllUsers(): Promise<User[]>;
+  getAllUsers(): Promise<Map<string, User>>;
 
   /**
    * Create new user
@@ -244,6 +245,25 @@ export interface UserProvider extends BaseProvider {
    * @returns Number of sessions deleted
    */
   cleanupExpiredSessions(): Promise<number>;
+
+  /**
+   * Check if user exists
+   * @param username - Username to check
+   * @returns True if user exists
+   */
+  userExists(username: string): Promise<boolean>;
+
+  /**
+   * Get all usernames
+   * @returns Array of usernames
+   */
+  getAllUsernames(): Promise<string[]>;
+
+  /**
+   * Get all active sessions
+   * @returns Map of session ID to session data
+   */
+  getAllSessions(): Promise<Map<string, UserSession>>;
 }
 
 /**

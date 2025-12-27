@@ -1,4 +1,12 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
+/**
+ * WikiRoutes - Main route handlers for amdWiki
+ *
+ * Phase 6a: Type safety with gradual typing
+ * - Removed @ts-nocheck directive
+ * - Using comprehensive type definitions from src/types
+ * - ESLint rules temporarily disabled (will be removed incrementally)
+ */
+
 /* eslint-disable @typescript-eslint/no-floating-promises */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
@@ -7,13 +15,12 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-explicit-any */
  
- 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable @typescript-eslint/require-await */
 /* eslint-disable @typescript-eslint/no-require-imports */
 /* eslint-disable no-console */
-// @ts-nocheck
+
 
 /**
  * Modern route handlers using manager-based architecture
@@ -21,28 +28,17 @@
  * @module WikiRoutes
  */
 
-import path from 'path';
+import * as path from 'path';
 import multer, { StorageEngine, Multer } from 'multer';
-import fs from 'fs';
+import * as fs from 'fs';
 import { Request, Response } from 'express';
 import SchemaGenerator from '../utils/SchemaGenerator';
 import logger from '../utils/logger';
 import WikiContext from '../context/WikiContext';
+import { WikiEngine } from '../types/WikiEngine';
+import { User as UserContext } from '../types/User';
 
 // TypeScript interfaces for WikiRoutes
-interface WikiEngine {
-  getManager(name: string): any;
-  config?: any;
-}
-
-interface UserContext {
-  username?: string;
-  email?: string;
-  roles?: string[];
-  isSystem?: boolean;
-  [key: string]: any;
-}
-
 interface WikiContextOptions {
   context?: any;
   pageName?: string | null;
@@ -52,6 +48,28 @@ interface WikiContextOptions {
   response?: Response | null;
 }
 
+interface SystemCategoryConfig {
+  enabled?: boolean;
+  label?: string;
+  [key: string]: any;
+}
+
+interface ProfileUpdateData {
+  displayName?: string;
+  email?: string;
+  password?: string;
+  [key: string]: any;
+}
+
+interface PageMetadata {
+  title?: string;
+  'system-category'?: string;
+  'user-keywords'?: string[];
+  author?: string;
+  uuid?: string;
+  [key: string]: any;
+}
+
 interface TemplateData {
   currentUser?: UserContext | null;
   userContext?: UserContext | null;
@@ -59,6 +77,12 @@ interface TemplateData {
   pageName?: string | null;
   wikiContext?: any;
   engine?: WikiEngine;
+  appName?: string;
+  applicationName?: string;
+  faviconPath?: string;
+  pages?: string[];
+  leftMenu?: string;
+  footer?: string;
   [key: string]: any;
 }
 
@@ -137,7 +161,7 @@ class WikiRoutes {
    * @param {object} options - Additional context options (pageName, content, context type)
    * @returns {WikiContext} WikiContext instance
    */
-  createWikiContext(req, options = {}) {
+  createWikiContext(req, options: WikiContextOptions = {}) {
     return new WikiContext(this.engine, {
       context: options.context || WikiContext.CONTEXT.NONE,
       pageName: options.pageName || null,
@@ -230,7 +254,7 @@ class WikiRoutes {
     // Get the user context directly from the request.
     const userContext =
       req.userContext || (await userManager.getCurrentUser(req));
-    const templateData = {
+    const templateData: TemplateData = {
       currentUser: userContext,
       user: userContext, // Add alias for consistency
       appName: configManager?.getProperty(
@@ -245,7 +269,9 @@ class WikiRoutes {
         'amdwiki.faviconPath',
         '/favicon.ico'
       ),
-      pages: await pageManager.getAllPages()
+      pages: await pageManager.getAllPages(),
+      leftMenu: '',
+      footer: ''
     };
 
     // Load LeftMenu
@@ -492,7 +518,7 @@ class WikiRoutes {
       }
 
       // Load system categories from configuration
-      const systemCategories = configManager.getProperty('amdwiki.system-category', {});
+      const systemCategories = configManager.getProperty('amdwiki.system-category', {}) as Record<string, SystemCategoryConfig>;
 
       // Filter enabled categories and extract labels (case-insensitive)
       const categories = [];
@@ -531,7 +557,7 @@ class WikiRoutes {
           const keywords = [];
 
           // Extract all enabled keyword labels from configuration
-          for (const [key, config] of Object.entries(userKeywordsConfig)) {
+          for (const [key, config] of Object.entries(userKeywordsConfig as Record<string, SystemCategoryConfig>)) {
             if (config.enabled !== false && config.label) {
               keywords.push(config.label);
             }
@@ -877,10 +903,15 @@ class WikiRoutes {
         );
       }
 
-      // Update WikiContext with page content for ACL checking
-      wikiContext.content = markdown;
+      // Recreate WikiContext with page content for ACL checking
+      const wikiContextWithContent = this.createWikiContext(req, {
+        context: WikiContext.CONTEXT.VIEW,
+        pageName: pageName,
+        content: markdown,
+        response: res
+      });
 
-      const canView = await aclManager.checkPagePermissionWithContext(wikiContext, 'view');
+      const canView = await aclManager.checkPagePermissionWithContext(wikiContextWithContent, 'view');
       logger.info(`[VIEW] ACL decision for ${pageName}: ${canView}`);
       if (!canView) {
         return await this.renderError(
@@ -893,8 +924,8 @@ class WikiRoutes {
       }
 
       // Check if user can edit this page
-      const canEdit = await aclManager.checkPagePermissionWithContext(wikiContext, 'edit');
-      const html = await renderingManager.textToHTML(wikiContext, markdown);
+      const canEdit = await aclManager.checkPagePermissionWithContext(wikiContextWithContent, 'edit');
+      const html = await renderingManager.textToHTML(wikiContextWithContent, markdown);
 
       // Get page metadata for display
       const metadata = await pageManager.getPageMetadata(pageName);
@@ -1286,11 +1317,16 @@ class WikiRoutes {
       } else {
         // For existing pages, check ACL edit permission
         if (pageData) {
-          // Update WikiContext with page content for ACL checking
-          wikiContext.content = pageData.content;
+          // Recreate WikiContext with page content for ACL checking
+          const wikiContextWithContent = this.createWikiContext(req, {
+            context: WikiContext.CONTEXT.EDIT,
+            pageName: pageName,
+            content: pageData.content,
+            response: res
+          });
 
           const hasEditPermission = await aclManager.checkPagePermissionWithContext(
-            wikiContext,
+            wikiContextWithContent,
             'edit'
           );
 
@@ -1595,7 +1631,7 @@ class WikiRoutes {
       }
 
       // Prepare metadata ONCE, preserving UUID if editing
-      const baseMetadata = {
+      const baseMetadata: PageMetadata = {
         title: title || pageName,
         'system-category': systemCategory,
         'user-keywords': userKeywordsArray,
@@ -1726,11 +1762,16 @@ class WikiRoutes {
         }
       } else {
         // Check ACL delete permission using WikiContext
-        // Update WikiContext with page content for ACL checking
-        wikiContext.content = pageData.content;
+        // Recreate WikiContext with page content for ACL checking
+        const wikiContextWithContent = this.createWikiContext(req, {
+          context: WikiContext.CONTEXT.NONE,
+          pageName: pageName,
+          content: pageData.content,
+          response: res
+        });
 
         const hasDeletePermission = await aclManager.checkPagePermissionWithContext(
-          wikiContext,
+          wikiContextWithContent,
           'delete'
         );
 
@@ -2515,7 +2556,7 @@ class WikiRoutes {
         newPassword,
         confirmPassword
       } = req.body;
-      const updates = {};
+      const updates: ProfileUpdateData = {};
 
       if (displayName) updates.displayName = displayName;
       if (email) updates.email = email;

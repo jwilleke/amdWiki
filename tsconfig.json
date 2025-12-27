@@ -25,7 +25,7 @@
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
 
-    /* Type Checking - Permissive during migration */
+    /* Type Checking - Gradual strictness (Phase 6a: Per-file basis) */
     "strict": false,
     "noImplicitAny": false,
     "strictNullChecks": false,
