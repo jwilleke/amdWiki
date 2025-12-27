@@ -22,6 +22,49 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 
 ---
 
+## 2025-12-27-11
+
+- Agent: Claude Code (Opus 4.5)
+- Subject: Phase 6a - Remove @ts-nocheck from WikiRoutes and fix type errors properly
+- Issues: Milestone 4 (Phase 6: Enable strict TypeScript)
+- Key Decision:
+  - **Removed @ts-nocheck** from WikiRoutes.ts - proper type safety achieved
+  - **User feedback addressed** - No more deferred type fixes with compiler directives
+  - Fixed WikiContext readonly content property by creating new context with content
+  - Extended type definitions to match actual implementations
+- Work Done:
+  - **WikiRoutes.ts Type Fixes (23 errors → 0):**
+    - Added proper type annotations: WikiContextOptions, SystemCategoryConfig, ProfileUpdateData, PageMetadata
+    - Fixed readonly content property: create new WikiContext instead of mutating
+    - Fixed templateData typing: initialized with leftMenu and footer properties
+    - Type assertions for system category config loops
+  - **Type Definition Updates:**
+    - WikiEngine.ts: Added logger and startTime optional properties
+    - WikiEngine class: Now implements IWikiEngine interface
+    - Provider.ts: Fixed getAllUsers return type to Map<string, User>
+    - Provider.ts: Added missing methods: userExists, getAllUsernames, getAllSessions
+    - UserManager.ts: Added displayName and isExternal to UserContext interface
+    - express.d.ts: New file for Express Request/Session type extensions
+    - types/index.ts: Removed duplicate/undefined type exports
+  - **TypeScript Error Reduction:**
+    - Started: ~1148 errors (with strict mode enabled)
+    - WikiRoutes.ts: 0 errors (fixed all 23)
+    - Remaining: 253 errors (in DOM/versioning utilities, non-blocking)
+- Test Status:
+  - All 1,380 tests passing ✅
+  - Zero regressions from type fixes
+- Commits: 003f195
+- Files Modified:
+  - src/routes/WikiRoutes.ts (removed @ts-nocheck, added proper types)
+  - src/WikiEngine.ts (implements IWikiEngine)
+  - src/types/WikiEngine.ts (added logger, startTime)
+  - src/types/Provider.ts (fixed getAllUsers, added methods)
+  - src/types/express.d.ts (new file)
+  - src/types/index.ts (fixed duplicate exports)
+  - src/managers/UserManager.ts (extended UserContext)
+
+---
+
 ## 2025-12-27-10
 
 - Agent: Claude Code (Sonnet 4.5)
