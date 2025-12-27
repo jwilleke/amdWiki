@@ -20,8 +20,9 @@ import {
 import * as path from 'path';
 import * as fs from 'fs-extra';
 
-// Import WikiEngine
+// Import WikiEngine and types
 import WikiEngine from './src/WikiEngine.js';
+import type { WikiConfig } from './src/types/Config.js';
 
 /**
  * Tool arguments interfaces
@@ -79,11 +80,35 @@ interface GetConfigurationArgs {
 interface GetSearchStatisticsArgs {}
 
 /**
+ * Manager type interfaces for type-safe manager access
+ */
+interface SearchManagerType {
+  advancedSearch(options: Record<string, unknown>): Promise<unknown[]>;
+  getAllSystemCategories(): Promise<string[]>;
+  getAllUserKeywords(): Promise<string[]>;
+  validateMetadata(metadata: Record<string, unknown>): Promise<{ valid: boolean; issues: unknown[] }>;
+  generateValidMetadata(title: string, options?: Record<string, unknown>): Promise<Record<string, unknown>>;
+  suggestSimilarPages(pageName: string, limit?: number): Promise<unknown[]>;
+  getStatistics(): Promise<Record<string, unknown>>;
+}
+
+interface PageManagerType {
+  listAttachments(pageName: string): Promise<unknown[]>;
+}
+
+interface ValidationManagerType {
+  getAllSystemCategories(): string[];
+  getAllUserKeywords(): Promise<string[]>;
+  validateMetadata(metadata: Record<string, unknown>): { valid: boolean; issues: unknown[] };
+  generateValidMetadata(title: string, options?: Record<string, unknown>): Record<string, unknown>;
+}
+
+/**
  * Initialize WikiEngine instance
  */
 async function initializeWikiEngine(): Promise<WikiEngine> {
-  const engine = new WikiEngine({}, null);
-  await engine.initialize({});
+  const engine = new WikiEngine({} as WikiConfig, null);
+  await engine.initialize({} as WikiConfig);
   return engine;
 }
 
@@ -499,7 +524,7 @@ class AmdWikiMCPServer {
       max_results = 20,
     } = args;
 
-    const searchManager = this.wikiEngine!.getManager('SearchManager');
+    const searchManager = this.wikiEngine!.getManager('SearchManager') as SearchManagerType;
 
     const options: Record<string, any> = {
       query,
@@ -564,7 +589,7 @@ class AmdWikiMCPServer {
    * Tool Implementation: List Categories
    */
   private async listCategories(args: ListCategoriesArgs) {
-    const validationManager = this.wikiEngine!.getManager('ValidationManager');
+    const validationManager = this.wikiEngine!.getManager('ValidationManager') as ValidationManagerType;
     const categories = validationManager.getAllSystemCategories();
 
     return {
@@ -581,8 +606,8 @@ class AmdWikiMCPServer {
    * Tool Implementation: List Keywords
    */
   private async listKeywords(args: ListKeywordsArgs) {
-    const searchManager = this.wikiEngine!.getManager('SearchManager');
-    const keywords = await searchManager.getAllUserKeywords();
+    const validationManager = this.wikiEngine!.getManager('ValidationManager') as ValidationManagerType;
+    const keywords = await validationManager.getAllUserKeywords();
 
     return {
       content: [
@@ -599,7 +624,7 @@ class AmdWikiMCPServer {
    */
   private async validateMetadata(args: ValidateMetadataArgs) {
     const { metadata } = args;
-    const validationManager = this.wikiEngine!.getManager('ValidationManager');
+    const validationManager = this.wikiEngine!.getManager('ValidationManager') as ValidationManagerType;
 
     const result = validationManager.validateMetadata(metadata);
 
@@ -618,7 +643,7 @@ class AmdWikiMCPServer {
    */
   private async generateMetadata(args: GenerateMetadataArgs) {
     const { title, category, keywords } = args;
-    const validationManager = this.wikiEngine!.getManager('ValidationManager');
+    const validationManager = this.wikiEngine!.getManager('ValidationManager') as ValidationManagerType;
 
     const options: Record<string, any> = {};
     if (category) options['system-category'] = category;
@@ -641,7 +666,7 @@ class AmdWikiMCPServer {
    */
   private async getAttachments(args: GetAttachmentsArgs) {
     const { page_name } = args;
-    const attachmentManager = this.wikiEngine!.getManager('AttachmentManager');
+    const attachmentManager = this.wikiEngine!.getManager('AttachmentManager') as PageManagerType;
 
     const attachments = await attachmentManager.listAttachments(page_name);
 
@@ -660,7 +685,7 @@ class AmdWikiMCPServer {
    */
   private async searchSimilar(args: SearchSimilarArgs) {
     const { page_name, limit = 10 } = args;
-    const searchManager = this.wikiEngine!.getManager('SearchManager');
+    const searchManager = this.wikiEngine!.getManager('SearchManager') as SearchManagerType;
 
     const similar = await searchManager.suggestSimilarPages(page_name, limit);
 
@@ -708,7 +733,7 @@ class AmdWikiMCPServer {
    * Tool Implementation: Get Search Statistics
    */
   private async getSearchStatistics(args: GetSearchStatisticsArgs) {
-    const searchManager = this.wikiEngine!.getManager('SearchManager');
+    const searchManager = this.wikiEngine!.getManager('SearchManager') as SearchManagerType;
     const stats = await searchManager.getStatistics();
 
     return {

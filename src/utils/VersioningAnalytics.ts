@@ -4,6 +4,114 @@ import path from 'path';
 import logger from './logger';
 
 /**
+ * Page info from index
+ */
+interface PageInfo {
+  uuid: string;
+  title: string;
+  location: string;
+  hasVersions: boolean;
+  currentVersion: number;
+  [key: string]: unknown;
+}
+
+/**
+ * Page index structure
+ */
+interface PageIndex {
+  pages: Record<string, PageInfo>;
+}
+
+/**
+ * Versioning provider interface
+ */
+interface VersioningProvider {
+  pageIndex: PageIndex;
+  _getVersionDirectory(uuid: string, location: string): string;
+  _resolveIdentifier(identifier: string): Promise<{ uuid: string; location: string } | null>;
+}
+
+/**
+ * Analytics options
+ */
+interface AnalyticsOptions {
+  provider: VersioningProvider;
+  verbose?: boolean;
+}
+
+/**
+ * Page storage stats
+ */
+interface PageStorageStats {
+  versionCount: number;
+  totalSize: number;
+  compressedVersions: number;
+  uncompressedVersions: number;
+  compressionSaved: number;
+}
+
+/**
+ * Top page entry
+ */
+interface TopPageEntry {
+  title: string;
+  uuid: string;
+  versionCount: number;
+  storage: number;
+  storageMB: string;
+  compressed: number;
+  averageVersionSize: string;
+}
+
+/**
+ * Recommendation entry
+ */
+interface Recommendation {
+  type: string;
+  priority: string;
+  message: string;
+  action: string;
+  command?: string;
+  estimatedSavings?: string;
+  pages?: string[];
+  suggestion?: string;
+}
+
+/**
+ * Storage report structure
+ */
+interface StorageReport {
+  timestamp: string;
+  summary: {
+    totalPages: number;
+    pagesWithVersions: number;
+    totalVersions: number;
+    averageVersionsPerPage: number | string;
+    totalStorage: number;
+    totalStorageMB: number | string;
+    versionStorage: number;
+    versionStorageMB: number | string;
+    compressionRatio: number;
+  };
+  byLocation: {
+    pages: { count: number; storage: number; versions: number };
+    'required-pages': { count: number; storage: number; versions: number };
+    [key: string]: { count: number; storage: number; versions: number };
+  };
+  topPages: TopPageEntry[];
+  versionDistribution: Record<string, number>;
+  compressionStats: {
+    compressedVersions: number;
+    uncompressedVersions: number;
+    spacesSaved: number;
+    potentialSavings: number;
+  };
+  recommendations: Recommendation[];
+  generationTime?: number;
+  generationTimeSeconds?: string;
+}
+
+/**
  * VersioningAnalytics - Storage analytics and reporting for VersioningFileProvider
  *
  * Provides detailed insights into:
@@ -22,13 +130,13 @@ import logger from './logger';
  * console.log(`Total storage: ${report.totalStorageMB} MB`);
  */
 class VersioningAnalytics {
+  private provider: VersioningProvider;
+  private verbose: boolean;
   /**
    * Create a new VersioningAnalytics instance
-   * @param {object} options - Analytics options
-   * @param {object} options.provider - VersioningFileProvider instance
-   * @param {boolean} options.verbose - Enable verbose logging (default: false)
+   * @param options - Analytics options
    */
-  constructor(options) {
+  constructor(options: AnalyticsOptions) {
     if (!options.provider) {
       throw new Error('VersioningAnalytics requires a provider instance');
     }
@@ -42,9 +150,9 @@ class VersioningAnalytics {
    *
    * Analyzes all pages and versions to provide detailed storage statistics.
    *
-   * @returns {Promise<object>} Storage report
+   * @returns Storage report
    */
-  async generateStorageReport() {
+  async generateStorageReport(): Promise<StorageReport> {
     this._log('info', 'Generating storage report');
 
     const startTime = Date.now();
@@ -54,10 +162,10 @@ class VersioningAnalytics {
       throw new Error('Page index not available');
     }
 
-    const pages = Object.values(pageIndex.pages);
+    const pages = Object.values(pageIndex.pages) as PageInfo[];
     const pagesWithVersions = pages.filter(p => p.hasVersions);
 
-    const report = {
+    const report: StorageReport = {
       timestamp: new Date().toISOString(),
       summary: {
         totalPages: pages.length,
@@ -158,11 +266,11 @@ class VersioningAnalytics {
 
   /**
    * Analyze storage for a single page
-   * @param {object} page - Page info from index
-   * @returns {Promise<object>} Page storage statistics
+   * @param page - Page info from index
+   * @returns Page storage statistics
    * @private
    */
-  async _analyzePageStorage(page) {
+  async _analyzePageStorage(page: PageInfo): Promise<PageStorageStats> {
     const versionDir = this.provider._getVersionDirectory(page.uuid, page.location);
 
     // Load manifest
@@ -210,11 +318,11 @@ class VersioningAnalytics {
 
   /**
    * Get total size of a directory recursively
-   * @param {string} dirPath - Directory path
-   * @returns {Promise<number>} Total size in bytes
+   * @param dirPath - Directory path
+   * @returns Total size in bytes
    * @private
    */
-  async _getDirectorySize(dirPath) {
+  async _getDirectorySize(dirPath: string): Promise<number> {
     let totalSize = 0;
 
     if (!await fs.pathExists(dirPath)) {
@@ -238,11 +346,11 @@ class VersioningAnalytics {
 
   /**
    * Get version count bucket for distribution
-   * @param {number} count - Version count
-   * @returns {string} Bucket label
+   * @param count - Version count
+   * @returns Bucket label
    * @private
    */
-  _getVersionBucket(count) {
+  _getVersionBucket(count: number): string {
     if (count === 1) return '1';
     if (count <= 5) return '2-5';
     if (count <= 10) return '6-10';
@@ -253,11 +361,11 @@ class VersioningAnalytics {
 
   /**
    * Generate optimization recommendations
-   * @param {object} report - Storage report
-   * @returns {Array<object>} Recommendations
+   * @param report - Storage report
+   * @returns Recommendations
    * @private
    */
-  _generateRecommendations(report) {
+  _generateRecommendations(report: StorageReport): Recommendation[] {
     const recommendations = [];
 
     // Check for pages with many versions
@@ -317,10 +425,10 @@ class VersioningAnalytics {
   /**
    * Get storage usage for a specific page
    *
-   * @param {string} identifier - Page UUID or title
-   * @returns {Promise<object>} Page storage details
+   * @param identifier - Page UUID or title
+   * @returns Page storage details
    */
-  async getPageStorageDetails(identifier) {
+  async getPageStorageDetails(identifier: string) {
     // Resolve identifier
     const resolved = await this.provider._resolveIdentifier(identifier);
     if (!resolved) {
@@ -379,11 +487,11 @@ class VersioningAnalytics {
 
   /**
    * Log message based on level
-   * @param {string} level - Log level (info, verbose, error)
-   * @param {string} message - Message to log
+   * @param level - Log level (info, verbose, error)
+   * @param message - Message to log
    * @private
    */
-  _log(level, message) {
+  _log(level: string, message: string): void {
     if (level === 'verbose' && !this.verbose) {
       return;
     }

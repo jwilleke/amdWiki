@@ -6,6 +6,64 @@ import logger from './logger';
 import DeltaStorage from './DeltaStorage';
 
 /**
+ * Progress callback data
+ */
+interface ProgressData {
+  current: number;
+  total: number;
+  percentage: string;
+  pageName: string;
+}
+
+/**
+ * Migration options
+ */
+interface MigrationOptions {
+  pagesDir: string;
+  requiredPagesDir: string;
+  dataDir: string;
+  dryRun?: boolean;
+  verbose?: boolean;
+  progressCallback?: ((data: ProgressData) => void) | null;
+}
+
+/**
+ * Migration log entry
+ */
+interface MigrationLogEntry {
+  uuid: string;
+  title: string;
+  location: string;
+  timestamp: string;
+}
+
+/**
+ * Page information for migration
+ */
+interface PageInfo {
+  filePath: string;
+  filename: string;
+  uuid: string;
+  title: string;
+  content: string;
+  frontmatter: Record<string, unknown>;
+  location: string;
+}
+
+/**
+ * Page index entry
+ */
+interface PageIndexEntry {
+  uuid: string;
+  title: string;
+  currentVersion: number;
+  location: string;
+  lastModified: string;
+  author: string;
+  hasVersions: boolean;
+}
+
+/**
  * VersioningMigration - Utility for migrating FileSystemProvider to VersioningFileProvider
  *
  * Provides safe migration of existing amdWiki pages to versioned format with:
@@ -26,6 +84,16 @@ import DeltaStorage from './DeltaStorage';
  * console.log(`Migrated ${report.pagesProcessed} pages`);
  */
 class VersioningMigration {
+  private pagesDir: string;
+  private requiredPagesDir: string;
+  private dataDir: string;
+  private dryRun: boolean;
+  private verbose: boolean;
+  private progressCallback: ((data: ProgressData) => void) | null;
+  private migrationLog: MigrationLogEntry[];
+  private errors: string[];
+  private warnings: string[];
+
   /**
    * Create a new VersioningMigration instance
    * @param {object} options - Migration options
@@ -36,7 +104,7 @@ class VersioningMigration {
    * @param {boolean} options.verbose - Enable verbose logging (default: false)
    * @param {Function} options.progressCallback - Optional callback for progress updates
    */
-  constructor(options) {
+  constructor(options: MigrationOptions) {
     this.pagesDir = options.pagesDir;
     this.requiredPagesDir = options.requiredPagesDir;
     this.dataDir = options.dataDir;
@@ -141,8 +209,8 @@ class VersioningMigration {
    * @returns {Promise<Array>} Array of page info objects
    * @private
    */
-  async _discoverPages() {
-    const pages = [];
+  async _discoverPages(): Promise<PageInfo[]> {
+    const pages: PageInfo[] = [];
 
     // Scan pages directory
     if (await fs.pathExists(this.pagesDir)) {
@@ -175,12 +243,12 @@ class VersioningMigration {
 
   /**
    * Read and parse a page file
-   * @param {string} filePath - Path to page file
-   * @param {string} location - 'pages' or 'required-pages'
-   * @returns {Promise<object|null>} Page info or null if invalid
+   * @param filePath - Path to page file
+   * @param location - 'pages' or 'required-pages'
+   * @returns Page info or null if invalid
    * @private
    */
-  async _readPageFile(filePath, location) {
+  async _readPageFile(filePath: string, location: string): Promise<PageInfo | null> {
     try {
       const fileContent = await fs.readFile(filePath, 'utf8');
       const { data: frontmatter, content } = matter(fileContent);
@@ -213,10 +281,10 @@ class VersioningMigration {
 
   /**
    * Validate pages before migration
-   * @param {Array} pages - Pages to validate
+   * @param pages - Pages to validate
    * @private
    */
-  async _validatePreMigration(pages) {
+  async _validatePreMigration(pages: PageInfo[]): Promise<void> {
     // Check for duplicate UUIDs
     const uuids = new Set();
     for (const page of pages) {
@@ -255,10 +323,10 @@ class VersioningMigration {
 
   /**
    * Migrate a single page
-   * @param {object} page - Page info
+   * @param page - Page info
    * @private
    */
-  async _migratePage(page) {
+  async _migratePage(page: PageInfo): Promise<void> {
     const versionDir = this._getVersionDirectory(page.uuid, page.location);
     const v1Dir = path.join(versionDir, 'v1');
 
@@ -315,10 +383,10 @@ class VersioningMigration {
 
   /**
    * Build centralized page index
-   * @param {Array} pages - Successfully migrated pages
+   * @param pages - Successfully migrated pages
    * @private
    */
-  async _buildPageIndex(pages) {
+  async _buildPageIndex(pages: PageInfo[]): Promise<void> {
     const pageIndex = {
       version: '1.0.0',
       lastUpdated: new Date().toISOString(),
@@ -346,12 +414,12 @@ class VersioningMigration {
 
   /**
    * Get version directory for a page
-   * @param {string} uuid - Page UUID
-   * @param {string} location - 'pages' or 'required-pages'
-   * @returns {string} Version directory path
+   * @param uuid - Page UUID
+   * @param location - 'pages' or 'required-pages'
+   * @returns Version directory path
    * @private
    */
-  _getVersionDirectory(uuid, location) {
+  _getVersionDirectory(uuid: string, location: string): string {
     const baseDir = location === 'required-pages' ? this.requiredPagesDir : this.pagesDir;
     return path.join(baseDir, 'versions', uuid);
   }
@@ -391,7 +459,7 @@ class VersioningMigration {
     }
 
     // Validate each page in index
-    for (const [uuid, pageInfo] of Object.entries(pageIndex.pages)) {
+    for (const [uuid, pageInfo] of Object.entries(pageIndex.pages) as [string, PageIndexEntry][]) {
       // Check version directory exists
       const versionDir = this._getVersionDirectory(uuid, pageInfo.location);
       if (!await fs.pathExists(versionDir)) {
@@ -532,14 +600,14 @@ class VersioningMigration {
 
   /**
    * Generate migration report
-   * @param {number} startTime - Migration start timestamp
-   * @param {number} totalPages - Total pages found
-   * @param {number} successCount - Successfully migrated
-   * @param {number} errorCount - Failed migrations
-   * @returns {object} Migration report
+   * @param startTime - Migration start timestamp
+   * @param totalPages - Total pages found
+   * @param successCount - Successfully migrated
+   * @param errorCount - Failed migrations
+   * @returns Migration report
    * @private
    */
-  _generateReport(startTime, totalPages, successCount, errorCount) {
+  _generateReport(startTime: number, totalPages: number, successCount: number, errorCount: number) {
     const duration = Date.now() - startTime;
 
     return {
@@ -559,12 +627,12 @@ class VersioningMigration {
 
   /**
    * Report progress to callback
-   * @param {number} current - Current page number
-   * @param {number} total - Total pages
-   * @param {string} pageName - Current page name
+   * @param current - Current page number
+   * @param total - Total pages
+   * @param pageName - Current page name
    * @private
    */
-  _reportProgress(current, total, pageName) {
+  _reportProgress(current: number, total: number, pageName: string): void {
     const percentage = ((current / total) * 100).toFixed(1);
     if (this.progressCallback) {
       this.progressCallback({
@@ -578,11 +646,11 @@ class VersioningMigration {
 
   /**
    * Log message based on level
-   * @param {string} level - Log level (info, verbose, error, warning)
-   * @param {string} message - Message to log
+   * @param level - Log level (info, verbose, error, warning)
+   * @param message - Message to log
    * @private
    */
-  _log(level, message) {
+  _log(level: string, message: string): void {
     if (level === 'verbose' && !this.verbose) {
       return;
     }
@@ -605,20 +673,20 @@ class VersioningMigration {
 
   /**
    * Log error message
-   * @param {string} message - Error message
+   * @param message - Error message
    * @private
    */
-  _logError(message) {
+  _logError(message: string): void {
     this.errors.push(message);
     this._log('error', message);
   }
 
   /**
    * Log warning message
-   * @param {string} message - Warning message
+   * @param message - Warning message
    * @private
    */
-  _logWarning(message) {
+  _logWarning(message: string): void {
     this.warnings.push(message);
     this._log('warning', message);
   }
