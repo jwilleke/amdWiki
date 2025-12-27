@@ -98,7 +98,7 @@ class PageManager extends BaseManager {
   async initialize(config: Record<string, unknown> = {}): Promise<void> {
     await super.initialize(config);
 
-    const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
+    const configManager = this.engine.getManager('ConfigurationManager') as ConfigurationManager | undefined;
     if (!configManager) {
       throw new Error('PageManager requires ConfigurationManager');
     }

@@ -14,6 +14,7 @@
  */
 
 import type WikiDocument from '../WikiDocument';
+import type { LinkedomElement } from '../WikiDocument';
 
 /**
  * Context for variable resolution
@@ -180,11 +181,12 @@ class DOMVariableHandler {
     let errorCount = 0;
 
     // Process each variable element
-     
-    for (const varElement of variableElements) {
+
+    for (let i = 0; i < variableElements.length; i++) {
+      const varElement = variableElements[i] as LinkedomElement;
       try {
         // Get variable name from data attribute
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+         
         const varName = varElement.getAttribute('data-variable');
 
         if (!varName) {
@@ -194,17 +196,17 @@ class DOMVariableHandler {
         }
 
         // Resolve variable value (resolveVariable handles context normalization)
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+         
         const value = this.resolveVariable(varName, context);
 
         if (value !== null && value !== undefined) {
           // Update element text content with resolved value
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+           
           varElement.textContent = String(value);
           processedCount++;
         } else {
           // Variable not found - keep original syntax
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+           
           varElement.textContent = `{$${varName}}`;
           // eslint-disable-next-line no-console
           console.warn(`⚠️  Variable not found: ${varName}`);
@@ -216,7 +218,7 @@ class DOMVariableHandler {
         // eslint-disable-next-line no-console
         console.error('❌ Error processing variable:', errorMessage);
         // On error, show error message
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+         
         varElement.textContent = `[Error: ${errorMessage}]`;
       }
     }
@@ -289,7 +291,7 @@ class DOMVariableHandler {
    * // Returns: <span class="wiki-variable" data-variable="username">JohnDoe</span>
    */
   // eslint-disable-next-line @typescript-eslint/require-await
-  async createNodeFromExtract(element: ExtractedElement, context: VariableContext, wikiDocument: WikiDocument): Promise<Element> {
+  async createNodeFromExtract(element: ExtractedElement, context: VariableContext, wikiDocument: WikiDocument): Promise<LinkedomElement> {
     // Get VariableManager dynamically
     if (!this.variableManager) {
       this.variableManager = this.engine.getManager('VariableManager') as VariableManager | null;
@@ -343,19 +345,15 @@ class DOMVariableHandler {
     const uniqueVariablesSet = new Set<string>();
     const variables: VariableInfo[] = [];
 
-     
-    for (const varElement of variableElements) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+
+    for (let i = 0; i < variableElements.length; i++) {
+      const varElement = variableElements[i] as LinkedomElement;
       const varName = varElement.getAttribute('data-variable');
       if (varName) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         uniqueVariablesSet.add(varName);
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
         const textContent = varElement.textContent;
         variables.push({
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           name: varName,
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
           resolved: !textContent.startsWith('{$')
         });
       }

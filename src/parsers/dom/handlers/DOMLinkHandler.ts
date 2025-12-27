@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 /**
  * DOMLinkHandler - DOM-based link processing handler
  *
@@ -23,6 +26,7 @@
 import { LinkParser } from '../../LinkParser';
 import PageNameMatcher from '../../../utils/PageNameMatcher';
 import type WikiDocument from '../WikiDocument';
+import type { LinkedomElement } from '../WikiDocument';
 
 /**
  * Link type enumeration
@@ -323,13 +327,12 @@ class DOMLinkHandler {
     let processedCount = 0;
     let errorCount = 0;
 
-    // Process each link element
-    for (const linkElement of linkElements) {
+    // Process each link element - use index-based loop since LinkedomNodeList doesn't support for...of
+    for (let i = 0; i < linkElements.length; i++) {
+      const linkElement = linkElements[i] as LinkedomElement;
       try {
         // Get link data from element
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-        const target: string = linkElement.getAttribute('data-wiki-link');
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+        const target: string = linkElement.getAttribute('data-wiki-link') || '';
         const displayText: string = linkElement.textContent || target;
 
         if (!target) {
@@ -346,11 +349,17 @@ class DOMLinkHandler {
           originalText: `[${displayText}|${target}]`
         };
 
+        // Create LinkClass for determineLinkType (requires Link class, not LinkInfo)
+        const linkObj = new LinkClass({
+          text: displayText,
+          target: target,
+          originalText: `[${displayText}|${target}]`
+        });
+
         // Determine link type
-        const linkType = this.linkParser.determineLinkType(linkInfo);
+        const linkType = this.linkParser.determineLinkType(linkObj) as LinkType;
 
         // Process link based on type
-         
         await this.processLinkByType(linkElement, linkInfo, linkType, context);
 
         processedCount++;
@@ -362,7 +371,6 @@ class DOMLinkHandler {
         console.error('❌ Error processing link:', errorMessage);
 
         // Add error class on error
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         linkElement.className = linkElement.className + ' wiki-link-error';
       }
     }
@@ -376,13 +384,13 @@ class DOMLinkHandler {
   /**
    * Process a link element based on its type
    *
-   * @param {unknown} linkElement - The link DOM element
-   * @param {LinkInfo} linkInfo - Link information
-   * @param {LinkType} linkType - Link type
-   * @param {RenderContext} context - Rendering context
+   * @param linkElement - The link DOM element
+   * @param linkInfo - Link information
+   * @param linkType - Link type
+   * @param context - Rendering context
    */
   // eslint-disable-next-line @typescript-eslint/require-await
-  async processLinkByType(linkElement: unknown, linkInfo: LinkInfo, linkType: LinkType, context: RenderContext): Promise<void> {
+  async processLinkByType(linkElement: LinkedomElement, linkInfo: LinkInfo, linkType: LinkType, context: RenderContext): Promise<void> {
     switch (linkType) {
     case 'internal':
       this.processInternalLink(linkElement, linkInfo, context);
@@ -407,11 +415,11 @@ class DOMLinkHandler {
   /**
    * Process internal wiki link
    *
-   * @param {unknown} linkElement - The link DOM element
-   * @param {LinkInfo} linkInfo - Link information
-   * @param {RenderContext} _context - Rendering context (unused)
+   * @param linkElement - The link DOM element
+   * @param linkInfo - Link information
+   * @param _context - Rendering context (unused)
    */
-  processInternalLink(linkElement: unknown, linkInfo: LinkInfo, _context: RenderContext): void {
+  processInternalLink(linkElement: LinkedomElement, linkInfo: LinkInfo, _context: RenderContext): void {
     const pageName = linkInfo.target || linkInfo.text;
 
     // Try fuzzy matching if PageNameMatcher is available
@@ -431,7 +439,7 @@ class DOMLinkHandler {
     const href = exists
       ? `/wiki/${encodeURIComponent(targetPage)}`
       : `/edit/${encodeURIComponent(pageName)}`;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+     
     linkElement.setAttribute('href', href);
 
     // Set class
@@ -441,9 +449,9 @@ class DOMLinkHandler {
 
     // Add red link styling
     if (!exists) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+       
       linkElement.setAttribute('style', 'color: red;');
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+       
       linkElement.setAttribute('title', `Create page: ${pageName}`);
     }
   }
@@ -451,15 +459,15 @@ class DOMLinkHandler {
   /**
    * Process external link
    *
-   * @param {unknown} linkElement - The link DOM element
-   * @param {LinkInfo} linkInfo - Link information
-   * @param {RenderContext} _context - Rendering context (unused)
+   * @param linkElement - The link DOM element
+   * @param linkInfo - Link information
+   * @param _context - Rendering context (unused)
    */
-  processExternalLink(linkElement: unknown, linkInfo: LinkInfo, _context: RenderContext): void {
+  processExternalLink(linkElement: LinkedomElement, linkInfo: LinkInfo, _context: RenderContext): void {
     const url = linkInfo.target || linkInfo.text;
 
     // Set href
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+     
     linkElement.setAttribute('href', url);
 
     // Set class
@@ -467,20 +475,20 @@ class DOMLinkHandler {
     linkElement.className = 'wiki-link external-link';
 
     // Set target and rel for security
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+     
     linkElement.setAttribute('target', '_blank');
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+     
     linkElement.setAttribute('rel', 'noopener noreferrer');
   }
 
   /**
    * Process InterWiki link
    *
-   * @param {unknown} linkElement - The link DOM element
-   * @param {LinkInfo} linkInfo - Link information
-   * @param {RenderContext} _context - Rendering context (unused)
+   * @param linkElement - The link DOM element
+   * @param linkInfo - Link information
+   * @param _context - Rendering context (unused)
    */
-  processInterWikiLink(linkElement: unknown, linkInfo: LinkInfo, _context: RenderContext): void {
+  processInterWikiLink(linkElement: LinkedomElement, linkInfo: LinkInfo, _context: RenderContext): void {
     const target = linkInfo.target || linkInfo.text;
 
     // Parse InterWiki format: WikiName:PageName
@@ -506,7 +514,7 @@ class DOMLinkHandler {
     const url = siteConfig.url.replace('%s', encodeURIComponent(pageName));
 
     // Set href
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+     
     linkElement.setAttribute('href', url);
 
     // Set class
@@ -515,15 +523,15 @@ class DOMLinkHandler {
 
     // Set target and rel
     if (siteConfig.openInNewWindow !== false) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+       
       linkElement.setAttribute('target', '_blank');
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+       
       linkElement.setAttribute('rel', 'noopener noreferrer');
     }
 
     // Set title
     if (siteConfig.description) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+       
       linkElement.setAttribute('title', `${siteConfig.description}: ${linkInfo.text}`);
     }
   }
@@ -531,15 +539,15 @@ class DOMLinkHandler {
   /**
    * Process email link
    *
-   * @param {unknown} linkElement - The link DOM element
-   * @param {LinkInfo} linkInfo - Link information
-   * @param {RenderContext} _context - Rendering context (unused)
+   * @param linkElement - The link DOM element
+   * @param linkInfo - Link information
+   * @param _context - Rendering context (unused)
    */
-  processEmailLink(linkElement: unknown, linkInfo: LinkInfo, _context: RenderContext): void {
+  processEmailLink(linkElement: LinkedomElement, linkInfo: LinkInfo, _context: RenderContext): void {
     const email = linkInfo.target || linkInfo.text;
 
     // Set href
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+     
     linkElement.setAttribute('href', email);
 
     // Set class
@@ -550,15 +558,15 @@ class DOMLinkHandler {
   /**
    * Process anchor link
    *
-   * @param {unknown} linkElement - The link DOM element
-   * @param {LinkInfo} linkInfo - Link information
-   * @param {RenderContext} _context - Rendering context (unused)
+   * @param linkElement - The link DOM element
+   * @param linkInfo - Link information
+   * @param _context - Rendering context (unused)
    */
-  processAnchorLink(linkElement: unknown, linkInfo: LinkInfo, _context: RenderContext): void {
+  processAnchorLink(linkElement: LinkedomElement, linkInfo: LinkInfo, _context: RenderContext): void {
     const anchor = linkInfo.target || linkInfo.text;
 
     // Set href
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+     
     linkElement.setAttribute('href', anchor);
 
     // Set class
@@ -588,7 +596,7 @@ class DOMLinkHandler {
    * // Returns: <a class="wiki-link wikipage" href="/wiki/PageName" data-jspwiki-id="1">Click Here</a>
    */
   // eslint-disable-next-line @typescript-eslint/require-await
-  async createNodeFromExtract(element: ExtractedLinkElement, _context: RenderContext, wikiDocument: WikiDocument): Promise<Element> {
+  async createNodeFromExtract(element: ExtractedLinkElement, _context: RenderContext, wikiDocument: WikiDocument): Promise<LinkedomElement> {
     // Get LinkParser dynamically
     if (!this.linkParser) {
       this.linkParser = new LinkParser();
@@ -602,16 +610,15 @@ class DOMLinkHandler {
     const displayText = parts.length > 1 ? parts[0] : parts[0];
     const linkTarget = parts.length > 1 ? parts[1] : parts[0];
 
-    // Create Link object for type determination
-    const linkInfo: LinkInfo = {
+    // Create LinkClass for determineLinkType (requires Link class, not LinkInfo)
+    const linkObj = new LinkClass({
       text: displayText,
       target: linkTarget,
-      attributes: {},
       originalText: element.syntax || `[${element.target}]`
-    };
+    });
 
     // Determine link type (internal, external, interwiki, email, anchor)
-    const linkType = this.linkParser.determineLinkType(linkInfo);
+    const linkType = this.linkParser.determineLinkType(linkObj) as LinkType;
 
     // Create anchor element with base attributes
     const node = wikiDocument.createElement('a', {
@@ -767,30 +774,24 @@ class DOMLinkHandler {
       redLinks: 0
     };
 
-    for (const linkElement of linkElements) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+    // Use index-based loop since LinkedomNodeList doesn't support for...of
+    for (let i = 0; i < linkElements.length; i++) {
+      const linkElement = linkElements[i] as LinkedomElement;
       const className: string = linkElement.className || '';
 
-       
       if (className.includes('error')) {
         stats.linkTypes.error++;
-         
       } else if (className.includes('redlink')) {
         stats.linkTypes.internal++;
         stats.redLinks++;
-         
       } else if (className.includes('wikipage')) {
         stats.linkTypes.internal++;
-         
       } else if (className.includes('external-link')) {
         stats.linkTypes.external++;
-         
       } else if (className.includes('interwiki-link')) {
         stats.linkTypes.interwiki++;
-         
       } else if (className.includes('email-link')) {
         stats.linkTypes.email++;
-         
       } else if (className.includes('anchor-link')) {
         stats.linkTypes.anchor++;
       }

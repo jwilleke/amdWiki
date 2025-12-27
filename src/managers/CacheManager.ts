@@ -1,5 +1,6 @@
 import BaseManager from './BaseManager';
 import RegionCache from '../cache/RegionCache';
+import type ICacheAdapter from '../cache/ICacheAdapter';
 import logger from '../utils/logger';
 import NullCacheProvider from '../providers/NullCacheProvider';
 
@@ -94,7 +95,7 @@ class CacheManager extends BaseManager {
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   constructor(engine: any) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+     
     super(engine);
     this.provider = null;
     this.providerClass = null;
@@ -112,7 +113,7 @@ class CacheManager extends BaseManager {
   async initialize(config: Record<string, unknown> = {}): Promise<void> {
     await super.initialize(config);
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     const configManager = this.engine.getManager('ConfigurationManager');
     if (!configManager) {
       throw new Error('CacheManager requires ConfigurationManager');
@@ -187,6 +188,7 @@ class CacheManager extends BaseManager {
       const isHealthy = await this.provider.isHealthy();
       if (!isHealthy) {
         logger.warn(`Cache provider ${this.providerClass} health check failed, switching to NullCacheProvider`);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         this.provider = new NullCacheProvider(this.engine);
         await this.provider.initialize();
       }
@@ -194,6 +196,7 @@ class CacheManager extends BaseManager {
       logger.error(`Failed to load cache provider: ${this.providerClass}`, error);
       // Fall back to NullCacheProvider on any error
       logger.warn('Falling back to NullCacheProvider due to provider load error');
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       this.provider = new NullCacheProvider(this.engine);
       await this.provider.initialize();
     }
@@ -242,9 +245,9 @@ class CacheManager extends BaseManager {
    */
   region(region: string): RegionCache {
     if (!this.regions.has(region)) {
-      this.regions.set(region, new RegionCache(this.provider, region));
+      this.regions.set(region, new RegionCache(this.provider as unknown as ICacheAdapter, region));
     }
-    return this.regions.get(region);
+    return this.regions.get(region) ?? new RegionCache(this.provider as unknown as ICacheAdapter, region);
   }
 
   /**
@@ -310,7 +313,7 @@ class CacheManager extends BaseManager {
   async stats(region?: string): Promise<CacheStats> {
     if (region) {
       const regionCache = this.region(region);
-      return await regionCache.stats() as CacheStats;
+      return await regionCache.stats() as unknown as CacheStats;
     } else {
       const globalStats = await this.provider.stats();
       const regions = Array.from(this.regions.keys());
@@ -320,6 +323,7 @@ class CacheManager extends BaseManager {
         regions: regions,
         provider: this.providerClass,
         config: {
+          provider: this.providerClass,
           defaultTTL: this.defaultTTL,
           maxKeys: this.maxKeys,
           checkPeriod: this.checkPeriod

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+ 
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
@@ -69,7 +69,7 @@ class PolicyManager extends BaseManager {
    * console.log('Policies loaded');
    */
   async initialize(): Promise<void> {
-    const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
+    const configManager = this.engine.getManager('ConfigurationManager') as ConfigurationManager | undefined;
     if (!configManager) {
       throw new Error('PolicyManager requires ConfigurationManager to be initialized.');
     }

@@ -142,6 +142,8 @@ export interface Token extends PositionInfo {
   value: string;
   /** Additional token-specific data */
   metadata?: TokenMetadata;
+  /** Index signature for additional properties */
+  [key: string]: unknown;
 }
 
 /**

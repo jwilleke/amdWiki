@@ -685,8 +685,10 @@ export class HandlerRegistrationError extends Error {
   }
 }
 
-// Export for ES modules
-export { HandlerRegistry, HandlerRegistrationError };
+// Export class as named export for import { HandlerRegistry } syntax
+export { HandlerRegistry };
+
+// Export for ES modules - HandlerRegistrationError already exported inline above
 export default HandlerRegistry;
 
 // Export for CommonJS (Jest compatibility)

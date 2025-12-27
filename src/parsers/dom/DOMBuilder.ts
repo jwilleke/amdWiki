@@ -1,5 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unsafe-enum-comparison */
 import { TokenType } from './Tokenizer';
-import WikiDocument from './WikiDocument';
+import WikiDocument, {
+  LinkedomElement
+} from './WikiDocument';
 
 /**
  * DOMBuilder - Converts tokens into a WikiDocument DOM tree
@@ -96,9 +99,9 @@ export interface Token {
  */
 interface TableContext {
   /** Table element */
-  table: Element;
+  table: LinkedomElement;
   /** Current row element */
-  currentRow: Element | null;
+  currentRow: LinkedomElement | null;
 }
 
 /**
@@ -108,7 +111,7 @@ interface ListStackItem {
   /** List level (1-indexed) */
   level: number;
   /** List element (ul or ol) */
-  element: Element;
+  element: LinkedomElement;
   /** Whether list is ordered */
   ordered: boolean;
 }
@@ -121,7 +124,7 @@ class DOMBuilder {
   private wikiDocument: WikiDocument;
 
   /** Current parent element */
-  private currentParent: Element | null;
+  private currentParent: LinkedomElement | null;
 
   /** Stack of nested lists */
   private listStack: ListStackItem[];
@@ -130,7 +133,7 @@ class DOMBuilder {
   private tableContext: TableContext | null;
 
   /** Current paragraph context */
-  private paragraphContext: Element | null;
+  private paragraphContext: LinkedomElement | null;
 
   /**
    * Creates a new DOMBuilder
@@ -527,7 +530,7 @@ class DOMBuilder {
       } else {
         // Append to last item in parent list
         const parentList = this.listStack[this.listStack.length - 1].element;
-        const lastChild = parentList.lastChild;
+        const lastChild = parentList.lastChild as LinkedomElement | null;
         if (lastChild) {
           lastChild.appendChild(list);
         } else {
@@ -553,7 +556,7 @@ class DOMBuilder {
           this.currentParent.appendChild(list);
         } else {
           const parentList = this.listStack[this.listStack.length - 1].element;
-          const lastChild = parentList.lastChild;
+          const lastChild = parentList.lastChild as LinkedomElement | null;
           if (lastChild) {
             lastChild.appendChild(list);
           }

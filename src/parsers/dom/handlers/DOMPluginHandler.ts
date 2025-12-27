@@ -14,6 +14,7 @@
  */
 
 import type WikiDocument from '../WikiDocument';
+import type { LinkedomElement, LinkedomNode } from '../WikiDocument';
 
 /**
  * Plugin execution context
@@ -213,11 +214,12 @@ class DOMPluginHandler {
     let errorCount = 0;
 
     // Process each plugin element
-     
-    for (const pluginElement of pluginElements) {
+
+    for (let i = 0; i < pluginElements.length; i++) {
+      const pluginElement = pluginElements[i] as LinkedomElement;
       try {
         // Get plugin info from data attributes
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+         
         const pluginContent = pluginElement.getAttribute('data-plugin-content');
 
         if (!pluginContent) {
@@ -227,7 +229,7 @@ class DOMPluginHandler {
         }
 
         // Parse plugin name and parameters
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+         
         const pluginInfo = this.parsePluginContent(pluginContent);
 
         if (!pluginInfo) {
@@ -258,17 +260,17 @@ class DOMPluginHandler {
           // If result has single root, use that; otherwise keep container
            
           if (resultContainer.childNodes.length === 1) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+             
             pluginElement.replaceWith(resultContainer.firstChild);
           } else {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+             
             pluginElement.replaceWith(resultContainer);
           }
 
           processedCount++;
         } else {
           // Plugin returned nothing - remove element
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+           
           pluginElement.remove();
           // eslint-disable-next-line no-console
           console.warn(`⚠️  Plugin ${pluginInfo.pluginName} returned no output`);
@@ -284,7 +286,7 @@ class DOMPluginHandler {
         const errorDiv = wikiDocument.createElement('div');
         errorDiv.className = 'wiki-plugin-error';
         errorDiv.textContent = `Plugin Error: ${errorMessage}`;
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+         
         pluginElement.replaceWith(errorDiv);
       }
     }
@@ -437,7 +439,7 @@ class DOMPluginHandler {
    * const node = await handler.createNodeFromExtract(element, context, wikiDoc);
    * // Returns: <span class="wiki-plugin" data-plugin="TableOfContents">...plugin output...</span>
    */
-  async createNodeFromExtract(element: ExtractedPluginElement, context: PluginContext, wikiDocument: WikiDocument): Promise<Element> {
+  async createNodeFromExtract(element: ExtractedPluginElement, context: PluginContext, wikiDocument: WikiDocument): Promise<LinkedomElement> {
     // Get PluginManager dynamically
     if (!this.pluginManager) {
       this.pluginManager = this.engine.getManager('PluginManager') as PluginManager | null;
@@ -490,16 +492,16 @@ class DOMPluginHandler {
       tempContainer.innerHTML = result.trim(); // Trim to avoid whitespace text nodes
 
       // Count significant (non-whitespace) child nodes
-       
-      const significantChildren = Array.from(tempContainer.childNodes).filter((node: Node) => {
+
+      const significantChildren = Array.from(tempContainer.childNodes).filter((node: LinkedomNode) => {
         // Keep element nodes, skip empty text nodes
-        return node.nodeType === 1 || (node.nodeType === 3 && node.textContent.trim() !== '');
+        return node.nodeType === 1 || (node.nodeType === 3 && node.textContent && node.textContent.trim() !== '');
       });
 
       // If result has single significant child, return it directly (unwrapped)
       // This avoids double-wrapping for both inline and block content
       if (significantChildren.length === 1 && significantChildren[0].nodeType === 1) {
-        const unwrappedNode = significantChildren[0] as Element;
+        const unwrappedNode = significantChildren[0] as LinkedomElement;
         // Preserve tracking attributes for serialization
         unwrappedNode.setAttribute('data-jspwiki-id', element.id.toString());
         unwrappedNode.setAttribute('data-plugin', pluginInfo.pluginName);
@@ -508,9 +510,10 @@ class DOMPluginHandler {
 
       // Multiple root elements - determine wrapper type based on content
       // Use div for block content, span for inline/mixed content
-      const hasBlockElements = significantChildren.some((node: Node) => {
+      const hasBlockElements = significantChildren.some((node: LinkedomNode) => {
         if (node.nodeType !== 1) return false;
-        const tagName = (node as Element).tagName.toLowerCase();
+        const element = node as LinkedomElement;
+        const tagName = element.tagName.toLowerCase();
         return ['div', 'p', 'table', 'ul', 'ol', 'pre', 'blockquote', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(tagName);
       });
 
@@ -548,12 +551,11 @@ class DOMPluginHandler {
     const uniquePluginsSet = new Set<string>();
     const plugins: PluginInstanceInfo[] = [];
 
-     
-    for (const pluginElement of pluginElements) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+
+    for (let i = 0; i < pluginElements.length; i++) {
+      const pluginElement = pluginElements[i] as LinkedomElement;
       const pluginContent = pluginElement.getAttribute('data-plugin-content');
       if (pluginContent) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         const pluginInfo = this.parsePluginContent(pluginContent);
         if (pluginInfo) {
           uniquePluginsSet.add(pluginInfo.pluginName);

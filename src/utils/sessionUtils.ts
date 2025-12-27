@@ -1,3 +1,5 @@
+ 
+ 
 // src/utils/sessionUtils.ts
 import ConfigurationManager from '../managers/ConfigurationManager';
 import UserManager from '../managers/UserManager';
@@ -46,10 +48,14 @@ interface UserData {
  * @returns userContext with user data and roles
  */
 export async function buildUserContext(req: RequestWithSession): Promise<UserContext> {
-  const configManager = new ConfigurationManager();
+  // Note: These managers are instantiated without a full engine context
+  // They work for basic property access and user lookup operations
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const configManager = new ConfigurationManager(null as any);
   const authorizer = String(configManager.getProperty?.('amdwiki.authorizer') || 'DefaultAuthorizer');
 
-  const userManager = new UserManager();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const userManager = new UserManager(null as any);
 
   const userId = req.session?.userId || null;
   let userData: UserData = {

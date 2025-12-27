@@ -371,7 +371,7 @@ class FilterChain {
    */
   private rebuildPriorityList(): void {
     this.filtersByPriority = this.filters
-      .filter(filter => filter.enabled)
+      .filter(filter => filter.isEnabled())
       .sort((a, b) => {
         // Sort by priority (higher first), then by filterId for consistency
         if (b.priority !== a.priority) {
@@ -452,7 +452,7 @@ class FilterChain {
           setTimeout(() => reject(new Error(`Filter ${filter.filterId} timeout`)), this.config.timeout);
         });
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+         
         const filterPromise = filter.process(processedContent, context);
         processedContent = await Promise.race([filterPromise, timeoutPromise]);
 
@@ -539,7 +539,7 @@ class FilterChain {
     const startTime = Date.now();
 
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+       
       const result = await filter.process(content, context);
 
       // Update stats

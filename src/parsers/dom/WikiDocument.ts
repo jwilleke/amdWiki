@@ -33,35 +33,46 @@ interface LinkedomDocument {
   getElementById(id: string): LinkedomElement | null;
 }
 
-interface LinkedomElement {
+export interface LinkedomElement {
   innerHTML: string;
+  textContent: string;
+  className: string;
+  nodeType: number;
+  tagName: string;
   childNodes: LinkedomNodeList;
+  firstChild: LinkedomNode | null;
+  lastChild: LinkedomNode | null;
   setAttribute(name: string, value: string): void;
+  getAttribute(name: string): string | null;
   appendChild(node: LinkedomNode): LinkedomNode;
   insertBefore(newNode: LinkedomNode, referenceNode: LinkedomNode | null): LinkedomNode;
   removeChild(node: LinkedomNode): LinkedomNode;
   replaceChild(newNode: LinkedomNode, oldNode: LinkedomNode): LinkedomNode;
+  replaceWith(node: LinkedomNode): void;
+  remove(): void;
   querySelector(selector: string): LinkedomElement | null;
   querySelectorAll(selector: string): LinkedomNodeList;
   getElementsByClassName(className: string): LinkedomHTMLCollection;
   getElementsByTagName(tagName: string): LinkedomHTMLCollection;
 }
 
-interface LinkedomText {
+export interface LinkedomText {
   textContent: string;
+  nodeType: number;
 }
 
-interface LinkedomComment {
+export interface LinkedomComment {
   textContent: string;
+  nodeType: number;
 }
 
-type LinkedomNode = LinkedomElement | LinkedomText | LinkedomComment;
+export type LinkedomNode = LinkedomElement | LinkedomText | LinkedomComment;
 
-interface LinkedomNodeList extends ArrayLike<LinkedomNode> {
+export interface LinkedomNodeList extends ArrayLike<LinkedomNode> {
   length: number;
 }
 
-interface LinkedomHTMLCollection extends ArrayLike<LinkedomElement> {
+export interface LinkedomHTMLCollection extends ArrayLike<LinkedomElement> {
   length: number;
 }
 

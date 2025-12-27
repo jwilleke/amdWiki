@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-/* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment, no-console */
+/* eslint-disable no-console */
 import fs from 'fs-extra';
 import path from 'path';
 import matter from 'gray-matter';
@@ -126,6 +126,13 @@ class CategoryStandardizer {
   }
 
   /**
+   * Get the list of errors encountered during processing
+   */
+  getErrors(): ErrorRecord[] {
+    return this.errors;
+  }
+
+  /**
    * Analyze and fix categories
    */
   async standardizeCategories(dryRun: boolean = true): Promise<void> {
@@ -172,7 +179,7 @@ class CategoryStandardizer {
 
     try {
       const fileContent = await fs.readFile(filePath, 'utf-8');
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+       
       const { data: metadata, content } = matter(fileContent) as { data: PageMetadata; content: string };
 
       const currentCategory = metadata.category;
@@ -209,7 +216,7 @@ class CategoryStandardizer {
 
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : String(err);
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+       
       this.errors.push({ file, error: errorMessage });
       console.log(`❌ ${file} - Error: ${errorMessage}`);
     }
@@ -296,7 +303,7 @@ async function main(): Promise<void> {
 
   try {
     await standardizer.standardizeCategories(!isExecute);
-    process.exit(standardizer.errors.length > 0 ? 1 : 0);
+    process.exit(standardizer.getErrors().length > 0 ? 1 : 0);
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : String(err);
     console.error('Standardization failed:', errorMessage);
@@ -304,8 +311,9 @@ async function main(): Promise<void> {
   }
 }
 
-// Run main if executed directly
-if (import.meta.url === `file://${process.argv[1]}`) {
+// Run main if executed directly (CommonJS compatible)
+ 
+if (require.main === module) {
   void main();
 }
 

@@ -704,12 +704,12 @@ abstract class BaseSyntaxHandler {
    * @param overrides - Option overrides
    * @returns Handler configuration for creating new instance
    */
-  clone(overrides: Partial<HandlerOptions> & { handlerId?: string } = {}): HandlerCloneConfig {
+  clone(overrides: Partial<HandlerOptions> & { handlerId?: string; priority?: number } = {}): HandlerCloneConfig {
     // Return a configuration object instead of trying to instantiate
     return {
       handlerId: overrides.handlerId || this.handlerId,
       pattern: this.pattern,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+       
       priority: overrides.priority !== undefined ? overrides.priority : this.priority,
       options: { ...this.options, ...overrides } as Required<HandlerOptions>,
       version: overrides.version || this.version,

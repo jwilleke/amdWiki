@@ -154,38 +154,32 @@ class ParseContext {
     // Context structure: { pageContext: { pageName, userContext, requestInfo }, engine }
     if ('pageContext' in context && context.pageContext) {
       // Nested structure from WikiContext
-      this.pageContext = context.pageContext;
-      this.engine = context.engine || engine;
+      const nestedContext = context as NestedContextOptions;
+      this.pageContext = nestedContext.pageContext;
+      this.engine = nestedContext.engine || engine;
 
       // Extract from nested pageContext
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      this.pageName = context.pageContext.pageName || 'unknown';
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      this.userContext = context.pageContext.userContext || null;
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      this.requestInfo = context.pageContext.requestInfo || null;
+      this.pageName = nestedContext.pageContext.pageName || 'unknown';
+      this.userContext = nestedContext.pageContext.userContext || null;
+      this.requestInfo = nestedContext.pageContext.requestInfo || null;
 
       // Extract userName from userContext if not directly provided
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      this.userName = context.pageContext.userName ||
+      this.userName = nestedContext.pageContext.userName ||
                       this.userContext?.username ||
                       this.userContext?.userName ||
                       'anonymous';
     } else {
       // Direct structure (legacy or alternative calling pattern)
-      this.pageContext = context as PageContext;
+      const directContext = context as DirectContextOptions;
+      this.pageContext = directContext;
       this.engine = engine;
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      this.pageName = context.pageName || 'unknown';
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      this.userContext = context.userContext || null;
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      this.requestInfo = context.requestInfo || null;
+      this.pageName = directContext.pageName || 'unknown';
+      this.userContext = directContext.userContext || null;
+      this.requestInfo = directContext.requestInfo || null;
 
       // Extract userName from userContext if not directly provided
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      this.userName = context.userName ||
+      this.userName = directContext.userName ||
                       this.userContext?.username ||
                       this.userContext?.userName ||
                       'anonymous';
@@ -439,6 +433,9 @@ class ParseContext {
     }
   }
 }
+
+// Export class as named export for type imports
+export { ParseContext };
 
 // Export for ES modules
 export default ParseContext;

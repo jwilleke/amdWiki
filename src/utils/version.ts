@@ -17,11 +17,8 @@
 
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
+// Use CommonJS-compatible path resolution
 const PACKAGE_JSON_PATH = path.join(__dirname, '../../package.json');
 const CHANGELOG_PATH = path.join(__dirname, '../../CHANGELOG.md');
 
@@ -260,7 +257,8 @@ function main(): void {
   }
 }
 
-// Run main if executed directly
-if (import.meta.url === `file://${process.argv[1]}`) {
+// Run main if executed directly (CommonJS compatible)
+ 
+if (require.main === module) {
   main();
 }

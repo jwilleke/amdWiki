@@ -1,4 +1,128 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-return, @typescript-eslint/explicit-function-return-type, @typescript-eslint/no-unused-vars, no-console */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-return, @typescript-eslint/explicit-function-return-type, @typescript-eslint/no-unused-vars, no-console */
+
+/**
+ * Schema generation options
+ */
+interface SchemaOptions {
+  pageUrl?: string;
+  baseUrl?: string;
+  engine?: unknown;
+  user?: unknown;
+  organizationName?: string;
+  repository?: string;
+}
+
+/**
+ * Page data for schema generation
+ */
+interface PageData {
+  title?: string;
+  lastModified?: string;
+  dateCreated?: string;
+  userKeywords?: string[];
+  categories?: string[];
+  category?: string;
+  content?: string;
+  [key: string]: unknown;
+}
+
+/**
+ * Configuration data for software schema
+ */
+interface ConfigData {
+  application?: {
+    name?: string;
+    version?: string;
+    applicationCategory?: string;
+  };
+  applicationName?: string;
+  version?: string;
+  server?: {
+    port?: number;
+  };
+  features?: {
+    export?: {
+      html?: boolean;
+      pdf?: boolean;
+    };
+    attachments?: {
+      enabled?: boolean;
+    };
+    llm?: {
+      enabled?: boolean;
+    };
+  };
+  organization?: unknown;
+}
+
+/**
+ * Person data from Schema.org
+ */
+interface PersonData {
+  identifier?: string;
+  authentication?: unknown;
+  [key: string]: unknown;
+}
+
+/**
+ * Organization data from Schema.org
+ */
+interface OrganizationData {
+  url?: string;
+  [key: string]: unknown;
+}
+
+/**
+ * Site data for comprehensive schema generation
+ */
+interface SiteData {
+  organizations?: OrganizationData[];
+  config?: ConfigData;
+  persons?: Array<PersonData & {
+    hasCredential?: Array<{ credentialCategory?: string }>;
+    isSystem?: boolean;
+  }>;
+}
+
+/**
+ * Base schema object with optional properties
+ */
+interface BaseSchema {
+  '@context': string;
+  '@type': string;
+  name?: unknown;
+  headline?: unknown;
+  url?: unknown;
+  dateModified?: unknown;
+  dateCreated?: unknown;
+  inLanguage?: string;
+  isPartOf?: unknown;
+  keywords?: string;
+  about?: unknown;
+  primaryImageOfPage?: unknown;
+  relatedLink?: string[];
+  author?: unknown;
+  hasDigitalDocumentPermission?: unknown[];
+  articleSection?: string;
+  genre?: string;
+  breadcrumb?: unknown;
+  mainContentOfPage?: unknown;
+  mainEntity?: unknown;
+  significantLink?: string[];
+  serviceType?: string;
+  serverStatus?: string;
+  featureList?: string[];
+  softwareRequirements?: string;
+  [key: string]: unknown;
+}
+
+/**
+ * ACL parsed from page content
+ */
+interface ParsedACL {
+  [action: string]: string[];
+}
+
 /**
  * SchemaGenerator - Generates Schema.org JSON-LD markup from page metadata
  * Provides SEO and semantic web benefits for amdWiki platform
@@ -6,13 +130,13 @@
 class SchemaGenerator {
   /**
    * Generate Schema.org markup for a wiki page
-   * @param {Object} pageData - Page metadata and content
-   * @param {Object} options - Generation options (should include engine and user for permissions)
-   * @returns {Object} JSON-LD schema object
+   * @param pageData - Page metadata and content
+   * @param options - Generation options (should include engine and user for permissions)
+   * @returns JSON-LD schema object
    */
-  static generatePageSchema(pageData, options = {}) {
+  static generatePageSchema(pageData: PageData, options: SchemaOptions = {}): BaseSchema {
     const schemaType = this.determineSchemaType(pageData);
-    const baseSchema = {
+    const baseSchema: BaseSchema = {
       '@context': 'https://schema.org',
       '@type': schemaType,
       'name': pageData.title,
@@ -82,10 +206,10 @@ class SchemaGenerator {
 
   /**
    * Determine appropriate Schema.org type based on page metadata
-   * @param {Object} pageData - Page metadata
-   * @returns {string} Schema.org type
+   * @param pageData - Page metadata
+   * @returns Schema.org type
    */
-  static determineSchemaType(pageData) {
+  static determineSchemaType(pageData: PageData): string {
     const categories = pageData.categories || [];
     const keywords = pageData.userKeywords || [];
     const title = pageData.title || '';
@@ -119,12 +243,12 @@ class SchemaGenerator {
 
   /**
    * Enhance schema based on determined type
-   * @param {Object} baseSchema - Base schema object
-   * @param {Object} pageData - Page metadata
-   * @param {Object} options - Generation options
-   * @returns {Object} Enhanced schema object
+   * @param baseSchema - Base schema object
+   * @param pageData - Page metadata
+   * @param options - Generation options
+   * @returns Enhanced schema object
    */
-  static enhanceSchemaByType(baseSchema, pageData, options) {
+  static enhanceSchemaByType(baseSchema: BaseSchema, pageData: PageData, options: SchemaOptions): BaseSchema {
     switch (baseSchema['@type']) {
     case 'TechArticle':
       return this.enhanceTechArticle(baseSchema, pageData, options);
@@ -143,7 +267,7 @@ class SchemaGenerator {
   /**
    * Enhance TechArticle schema for documentation
    */
-  static enhanceTechArticle(schema, pageData, options) {
+  static enhanceTechArticle(schema: BaseSchema, pageData: PageData, options: SchemaOptions): BaseSchema {
     schema.articleSection = pageData.categories?.join(', ') || 'Documentation';
     
     if (pageData.userKeywords?.includes('plugins')) {
@@ -159,7 +283,7 @@ class SchemaGenerator {
   /**
    * Enhance CreativeWork schema for project pages
    */
-  static enhanceCreativeWork(schema, pageData, options) {
+  static enhanceCreativeWork(schema: BaseSchema, pageData: PageData, options: SchemaOptions): BaseSchema {
     if (pageData.userKeywords?.includes('vision') || 
         pageData.userKeywords?.includes('roadmap')) {
       schema.genre = 'Project Planning';
@@ -175,7 +299,7 @@ class SchemaGenerator {
   /**
    * Enhance WebPage schema for wiki pages
    */
-  static enhanceWebPage(schema, pageData, options) {
+  static enhanceWebPage(schema: BaseSchema, pageData: PageData, options: SchemaOptions): BaseSchema {
     // Add breadcrumb for category hierarchy
     if (pageData.category && pageData.category.includes('/')) {
       const categoryParts = pageData.category.split('/');
@@ -227,30 +351,30 @@ class SchemaGenerator {
 
   /**
    * Generate JSON-LD script tag for HTML injection
-   * @param {Object} schema - Schema.org object
-   * @returns {string} HTML script tag
+   * @param schema - Schema.org object
+   * @returns HTML script tag
    */
-  static generateScriptTag(schema) {
+  static generateScriptTag(schema: BaseSchema): string {
     return `<script type="application/ld+json">\n${JSON.stringify(schema, null, 2)}\n</script>`;
   }
 
   /**
    * Generate schema for multiple pages (site-wide)
-   * @param {Array} pages - Array of page data objects
-   * @param {Object} options - Generation options
-   * @returns {Array} Array of schema objects
+   * @param pages - Array of page data objects
+   * @param options - Generation options
+   * @returns Array of schema objects
    */
-  static generateSiteSchema(pages, options = {}) {
+  static generateSiteSchema(pages: PageData[], options: SchemaOptions = {}): BaseSchema[] {
     return pages.map(page => this.generatePageSchema(page, options));
   }
 
   /**
    * Generate Person schema from Schema.org compliant person data
-   * @param {Object} personData - Schema.org Person data
-   * @param {Object} options - Generation options
-   * @returns {Object} Person schema object
+   * @param personData - Schema.org Person data
+   * @param options - Generation options
+   * @returns Person schema object
    */
-  static generatePersonSchema(personData, options = {}) {
+  static generatePersonSchema(personData: PersonData, options: SchemaOptions = {}) {
     // Person data is already Schema.org compliant, just clean for public use
     const { authentication, ...publicPerson } = personData;
     
@@ -264,11 +388,11 @@ class SchemaGenerator {
 
   /**
    * Generate Organization schema from Schema.org compliant organization data
-   * @param {Object} organizationData - Schema.org Organization data
-   * @param {Object} options - Generation options
-   * @returns {Object} Organization schema object
+   * @param organizationData - Schema.org Organization data
+   * @param options - Generation options
+   * @returns Organization schema object
    */
-  static generateOrganizationSchema(organizationData, options = {}) {
+  static generateOrganizationSchema(organizationData: OrganizationData, options: SchemaOptions = {}) {
     // Organization data is already Schema.org compliant
     const organization = { ...organizationData };
     
@@ -282,12 +406,12 @@ class SchemaGenerator {
 
   /**
    * Generate SoftwareApplication schema from wiki configuration
-   * @param {Object} configData - Configuration from wiki.json
-   * @param {Object} options - Generation options
-   * @returns {Object} SoftwareApplication schema object
+   * @param configData - Configuration from wiki.json
+   * @param options - Generation options
+   * @returns SoftwareApplication schema object
    */
-  static generateSoftwareSchema(configData, options = {}) {
-    const schema = {
+  static generateSoftwareSchema(configData: ConfigData, options: SchemaOptions = {}): BaseSchema {
+    const schema: BaseSchema = {
       '@context': 'https://schema.org',
       '@type': 'SoftwareApplication',
       'name': configData.application?.name || configData.applicationName || 'amdWiki',
@@ -336,12 +460,12 @@ class SchemaGenerator {
 
   /**
    * Generate DigitalDocumentPermission objects for a page
-   * @param {Object} pageData - Page metadata and content
-   * @param {Object} user - Current user context (null for anonymous)
-   * @param {Object} options - Generation options (must include engine)
-   * @returns {Array} Array of DigitalDocumentPermission objects
+   * @param pageData - Page metadata and content
+   * @param user - Current user context (null for anonymous)
+   * @param options - Generation options (must include engine)
+   * @returns Array of DigitalDocumentPermission objects
    */
-  static generateDigitalDocumentPermissions(pageData, user, options = {}) {
+  static generateDigitalDocumentPermissions(pageData: PageData, user: unknown, options: SchemaOptions = {}) {
     const permissions = [];
     const engine = options.engine;
     
@@ -349,9 +473,9 @@ class SchemaGenerator {
       console.warn('Engine not provided to generateDigitalDocumentPermissions');
       return permissions;
     }
-    
-    const userManager = engine.getManager('UserManager');
-    const aclManager = engine.getManager('ACLManager');
+
+    const userManager = (engine as { getManager: (name: string) => unknown }).getManager('UserManager');
+    const aclManager = (engine as { getManager: (name: string) => unknown }).getManager('ACLManager');
     
     if (!userManager || !aclManager) {
       console.warn('UserManager or ACLManager not available for permission generation');
@@ -359,7 +483,7 @@ class SchemaGenerator {
     }
     
     // Parse page-level ACL if present
-    const pageACL = aclManager.parseACL(pageData.content || '');
+    const pageACL = (aclManager as { parseACL?: (content: string) => ParsedACL | null })?.parseACL?.(pageData.content || '') || null;
     
     // Generate permissions based on page type and ACL
     return this.generatePermissionsByContext(pageData, pageACL, userManager, aclManager, options);
@@ -367,14 +491,14 @@ class SchemaGenerator {
 
   /**
    * Generate permissions based on page category and protection level
-   * @param {Object} pageData - Page metadata
-   * @param {Object} pageACL - Parsed ACL from page content
-   * @param {Object} userManager - UserManager instance
-   * @param {Object} aclManager - ACLManager instance
-   * @param {Object} options - Generation options
-   * @returns {Array} Array of DigitalDocumentPermission objects
+   * @param pageData - Page metadata
+   * @param pageACL - Parsed ACL from page content
+   * @param userManager - UserManager instance
+   * @param aclManager - ACLManager instance
+   * @param options - Generation options
+   * @returns Array of DigitalDocumentPermission objects
    */
-  static generatePermissionsByContext(pageData, pageACL, userManager, aclManager, options) {
+  static generatePermissionsByContext(pageData: PageData, pageACL: ParsedACL | null, userManager: unknown, aclManager: unknown, options: SchemaOptions) {
     const category = pageData.category || 'General';
     
     // If page has specific ACL, use ACL-based permissions
@@ -396,12 +520,12 @@ class SchemaGenerator {
 
   /**
    * Generate permissions for General category pages (user content)
-   * @param {Object} pageData - Page metadata
-   * @param {Object} userManager - UserManager instance
-   * @param {Object} options - Generation options
-   * @returns {Array} Array of DigitalDocumentPermission objects
+   * @param pageData - Page metadata
+   * @param userManager - UserManager instance
+   * @param options - Generation options
+   * @returns Array of DigitalDocumentPermission objects
    */
-  static generateGeneralPagePermissions(pageData, userManager, options) {
+  static generateGeneralPagePermissions(pageData: PageData, userManager: unknown, options: SchemaOptions) {
     const permissions = [];
     
     // Default General page permissions
@@ -464,12 +588,12 @@ class SchemaGenerator {
 
   /**
    * Generate permissions for System category pages (app-managed)
-   * @param {Object} pageData - Page metadata
-   * @param {Object} userManager - UserManager instance
-   * @param {Object} options - Generation options
-   * @returns {Array} Array of DigitalDocumentPermission objects
+   * @param pageData - Page metadata
+   * @param userManager - UserManager instance
+   * @param options - Generation options
+   * @returns Array of DigitalDocumentPermission objects
    */
-  static generateSystemPagePermissions(pageData, userManager, options) {
+  static generateSystemPagePermissions(pageData: PageData, userManager: unknown, options: SchemaOptions) {
     const permissions = [];
     
     // System pages: Read for all, admin-only for modifications
@@ -496,12 +620,12 @@ class SchemaGenerator {
 
   /**
    * Generate permissions for Documentation category pages
-   * @param {Object} pageData - Page metadata
-   * @param {Object} userManager - UserManager instance
-   * @param {Object} options - Generation options
-   * @returns {Array} Array of DigitalDocumentPermission objects
+   * @param pageData - Page metadata
+   * @param userManager - UserManager instance
+   * @param options - Generation options
+   * @returns Array of DigitalDocumentPermission objects
    */
-  static generateDocumentationPermissions(pageData, userManager, options) {
+  static generateDocumentationPermissions(pageData: PageData, userManager: unknown, options: SchemaOptions) {
     const permissions = [];
     
     permissions.push({
@@ -536,12 +660,12 @@ class SchemaGenerator {
 
   /**
    * Generate permissions for Developer category pages
-   * @param {Object} pageData - Page metadata
-   * @param {Object} userManager - UserManager instance
-   * @param {Object} options - Generation options
-   * @returns {Array} Array of DigitalDocumentPermission objects
+   * @param pageData - Page metadata
+   * @param userManager - UserManager instance
+   * @param options - Generation options
+   * @returns Array of DigitalDocumentPermission objects
    */
-  static generateDeveloperPermissions(pageData, userManager, options) {
+  static generateDeveloperPermissions(pageData: PageData, userManager: unknown, options: SchemaOptions) {
     const permissions = [];
     
     permissions.push({
@@ -576,12 +700,12 @@ class SchemaGenerator {
 
   /**
    * Generate permissions based on parsed page ACL
-   * @param {Object} pageACL - Parsed ACL object
-   * @param {Object} userManager - UserManager instance  
-   * @param {Object} options - Generation options
-   * @returns {Array} Array of DigitalDocumentPermission objects
+   * @param pageACL - Parsed ACL object
+   * @param userManager - UserManager instance
+   * @param options - Generation options
+   * @returns Array of DigitalDocumentPermission objects
    */
-  static generateACLBasedPermissions(pageACL, userManager, options) {
+  static generateACLBasedPermissions(pageACL: ParsedACL, userManager: unknown, options: SchemaOptions) {
     const permissions = [];
     
     // Map ACL actions to permission types
@@ -617,11 +741,11 @@ class SchemaGenerator {
 
   /**
    * Map ACL principal to Schema.org grantee object
-   * @param {string} principal - ACL principal (user, role, or special)
-   * @param {Object} userManager - UserManager instance
-   * @returns {Object|null} Schema.org Person or Audience object
+   * @param principal - ACL principal (user, role, or special)
+   * @param userManager - UserManager instance
+   * @returns Schema.org Person or Audience object
    */
-  static mapPrincipalToGrantee(principal, userManager) {
+  static mapPrincipalToGrantee(principal: string, userManager: unknown) {
     const p = principal.toLowerCase();
     
     // Handle special principals
@@ -637,7 +761,7 @@ class SchemaGenerator {
     }
     
     // Check if it's a role
-    const role = userManager.getRole(principal);
+    const role = (userManager as { getRole?: (name: string) => unknown } | null)?.getRole?.(principal);
     if (role) {
       return {
         '@type': 'Audience',
@@ -654,11 +778,11 @@ class SchemaGenerator {
 
   /**
    * Generate comprehensive site schema using Schema.org compliant data
-   * @param {Object} siteData - Combined data from SchemaManager
-   * @param {Object} options - Generation options
-   * @returns {Array} Array of schema objects
+   * @param siteData - Combined data from SchemaManager
+   * @param options - Generation options
+   * @returns Array of schema objects
    */
-  static generateComprehensiveSchema(siteData, options = {}) {
+  static generateComprehensiveSchema(siteData: SiteData, options: SchemaOptions = {}) {
     const schemas = [];
 
     // Add organizations (already Schema.org compliant)

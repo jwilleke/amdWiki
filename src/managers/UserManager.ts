@@ -12,7 +12,7 @@ import logger from '../utils/logger';
 import LocaleUtils from '../utils/LocaleUtils';
 import { WikiEngine } from '../types/WikiEngine';
 import { UserProvider } from '../types/Provider';
-import { User, Role, UserPreferences } from '../types/User';
+import { User, Role, UserPreferences, UserSession } from '../types/User';
 import type ConfigurationManager from './ConfigurationManager';
 import type { Request, Response, NextFunction } from 'express';
 
@@ -94,7 +94,7 @@ interface RoleCreateData {
 /**
  * Session creation data
  */
-interface SessionData {
+interface _SessionData {
   id: string;
   username: string;
   expiresAt: string;
@@ -178,7 +178,7 @@ class UserManager extends BaseManager {
   async initialize(config: Record<string, unknown> = {}): Promise<void> {
     await super.initialize(config);
 
-    const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
+    const configManager = this.engine.getManager('ConfigurationManager') as ConfigurationManager | undefined;
     if (!configManager) {
       throw new Error('UserManager requires ConfigurationManager');
     }
@@ -822,7 +822,7 @@ class UserManager extends BaseManager {
     const defaultDateFormat = LocaleUtils.getDateFormatFromLocale(userLocale);
     const defaultTimeFormat = LocaleUtils.getTimeFormatFromLocale(userLocale);
 
-    const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
+    const configManager = this.engine.getManager('ConfigurationManager') as ConfigurationManager | undefined;
     const defaultTimezone = configManager ?
       (configManager.getProperty('amdwiki.default.timezone', 'UTC') as string) : 'UTC';
 
@@ -1191,18 +1191,22 @@ class UserManager extends BaseManager {
       throw new Error('Provider not initialized');
     }
     const sessionId = crypto.randomBytes(16).toString('hex');
+    const now = new Date().toISOString();
     const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
-    const sessionData: SessionData = {
-      id: sessionId,
+    const sessionData: UserSession = {
+      sessionId,
       username,
+      userId: username,
+      createdAt: now,
       expiresAt,
-      ...additionalData
+      lastActivity: now,
+      data: additionalData as Record<string, any>
     };
     await this.provider.createSession(sessionId, sessionData);
     return sessionId;
   }
 
-  async getSession(sessionId: string): Promise<SessionData | null> {
+  async getSession(sessionId: string): Promise<UserSession | null> {
     if (!this.provider) {
       throw new Error('Provider not initialized');
     }

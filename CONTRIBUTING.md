@@ -371,11 +371,159 @@ v4: diff_from_v3.diff.gz               (2.2 KB)
 
 ### Code Style
 
-- Use **CommonJS** modules (`require/module.exports`)
+- Use **CommonJS** modules (`require/module.exports`) with TypeScript
 - Follow **existing patterns** in manager creation and route handling
 - **ESLint** and **Prettier** compliance (if configured)
-- Use **meaningful variable names** and JSDoc comments
+- Use **meaningful variable names** and JSDoc/TSDoc comments
 - **Required**: Comprehensive JSDoc documentation for all classes, methods, and functions (see below)
+
+## 🔷 TypeScript Guidelines
+
+amdWiki is migrating to TypeScript with strict mode enabled. All new code should be written in TypeScript.
+
+### TypeScript Setup
+
+The project uses TypeScript with the following configuration:
+
+- **Strict mode enabled** (`strict: true`)
+- **CommonJS output** for Node.js compatibility
+- **ES2020 target** for modern JavaScript features
+- **ts-jest** for testing TypeScript files
+
+### Writing TypeScript Code
+
+#### File Extensions
+
+- Use `.ts` for new source files
+- Use `.test.ts` for new test files (legacy `.test.js` files work alongside)
+- Type definition files use `.d.ts`
+
+#### Type Annotations
+
+```typescript
+// Always type function parameters and return values
+async function getPage(pageName: string): Promise<PageData | null> {
+  // ...
+}
+
+// Use interfaces for complex types
+interface PageData {
+  title: string;
+  content: string;
+  metadata: PageMetadata;
+}
+
+// Type class properties
+class ExampleManager extends BaseManager {
+  private cache: Map<string, PageData>;
+  private initialized: boolean = false;
+
+  constructor(engine: WikiEngine) {
+    super(engine);
+    this.cache = new Map();
+  }
+}
+```
+
+#### Manager Pattern (TypeScript)
+
+```typescript
+import BaseManager from './BaseManager';
+import type { WikiEngine } from '../types/WikiEngine';
+import type ConfigurationManager from './ConfigurationManager';
+
+class NewManager extends BaseManager {
+  private provider: SomeProvider | null = null;
+
+  constructor(engine: WikiEngine) {
+    super(engine);
+  }
+
+  async initialize(config: Record<string, unknown> = {}): Promise<void> {
+    await super.initialize(config);
+
+    // Use type assertion for getManager calls
+    const configManager = this.engine.getManager('ConfigurationManager') as ConfigurationManager | undefined;
+    if (!configManager) {
+      throw new Error('NewManager requires ConfigurationManager');
+    }
+
+    // Manager initialization...
+  }
+}
+
+export default NewManager;
+```
+
+#### DOM Types (linkedom)
+
+When working with WikiDocument DOM elements, use the exported types:
+
+```typescript
+import type { LinkedomElement, LinkedomNode } from '../parsers/dom/WikiDocument';
+
+function processElement(element: LinkedomElement): void {
+  const className = element.className;
+  const tagName = element.tagName;
+  element.setAttribute('data-processed', 'true');
+}
+
+// LinkedomNodeList doesn't support for...of - use index-based loops
+const elements = wikiDocument.querySelectorAll('.wiki-plugin');
+for (let i = 0; i < elements.length; i++) {
+  const element = elements[i] as LinkedomElement;
+  // Process element...
+}
+```
+
+#### Type Safety Patterns
+
+```typescript
+// Prefer type assertions after calls, not generic parameters
+// ✅ Good
+const manager = engine.getManager('PageManager') as PageManager | undefined;
+
+// ❌ Avoid (getManager doesn't support generics)
+const manager = engine.getManager<PageManager>('PageManager');
+
+// Use unknown instead of any where possible
+function processData(data: unknown): void {
+  if (typeof data === 'string') {
+    // TypeScript now knows data is string
+  }
+}
+
+// Export types for reuse
+export interface PluginContext {
+  pageName: string;
+  userName: string;
+  engine: WikiEngine;
+  // ...
+}
+```
+
+### Running TypeScript
+
+```bash
+# Type checking (no output)
+npm run typecheck
+
+# Build TypeScript to JavaScript
+npm run build
+
+# Watch mode for development
+npm run build:watch
+```
+
+### ESLint for TypeScript
+
+The project uses `typescript-eslint` for linting. Key rules:
+
+- `@typescript-eslint/explicit-function-return-type` - Require return types
+- `@typescript-eslint/no-explicit-any` - Prefer `unknown` over `any`
+- `@typescript-eslint/no-unused-vars` - No unused variables
+
+See `eslint.config.js` for full configuration.
 
 ## 📚 JSDoc Documentation Standards
 

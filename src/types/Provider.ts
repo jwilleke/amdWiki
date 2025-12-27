@@ -226,11 +226,11 @@ export interface UserProvider extends BaseProvider {
 
   /**
    * Create session
-   * @param username - Username
-   * @param expiresIn - Session duration in milliseconds
-   * @returns Session object
+   * @param sessionId - Session ID
+   * @param sessionData - Session data object
+   * @returns Promise that resolves when session is created
    */
-  createSession(username: string, expiresIn: number): Promise<UserSession>;
+  createSession(sessionId: string, sessionData: UserSession): Promise<void>;
 
   /**
    * Get session

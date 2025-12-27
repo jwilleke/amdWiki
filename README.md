@@ -1,6 +1,6 @@
-# Markdown Wiki
+# amdWiki
 
-A simple, file-based wiki application built with Node.js, Express, and Markdown which mimics [JSPWiki](https://github.com/apache/jspwiki)
+A file-based wiki application built with **Node.js**, **Express**, **TypeScript**, and **Markdown**, inspired by [JSPWiki](https://github.com/apache/jspwiki).
 
 📋 **See [docs/planning/ROADMAP.md](docs/planning/ROADMAP.md) for project vision, technical specifications, and feature priorities.**
 
@@ -71,9 +71,19 @@ A simple, file-based wiki application built with Node.js, Express, and Markdown 
 
 ### For Developers
 
-- Follow the setup steps above.
-- Read [docs/development/CONTRIBUTING.md](docs/development/CONTRIBUTING.md) for coding standards, testing, and contribution guidelines.
-- Check [docs/CHANGELOG.md](docs/CHANGELOG.md) for version history and migration notes for breaking changes.
+- Follow the setup steps above
+- The codebase uses **TypeScript with strict mode** enabled
+- Read [CONTRIBUTING.md](CONTRIBUTING.md) for coding standards, TypeScript guidelines, and contribution guidelines
+- Check [CHANGELOG.md](CHANGELOG.md) for version history and migration notes
+
+**TypeScript Commands:**
+
+```bash
+npm run typecheck       # Type checking (no output)
+npm run build           # Build TypeScript to JavaScript
+npm run build:watch     # Watch mode for development
+npm test                # Run all tests (supports .ts and .js)
+```
 
 ### For AI Integration (MCP Server)
 
