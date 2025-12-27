@@ -1,3 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/require-await */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import BaseManager from './BaseManager';
 import { promises as fs } from 'fs';
 import logger from '../utils/logger';
@@ -176,8 +184,8 @@ class ACLManager extends BaseManager {
     logger.info(`📋 Loaded ${this.accessPolicies.size} access policies from ConfigurationManager`);
 
     // Get the PolicyEvaluator instance from the engine
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
-    this.policyEvaluator = this.engine.getManager('PolicyEvaluator') as any;
+     
+    this.policyEvaluator = this.engine.getManager('PolicyEvaluator');
     if (!this.policyEvaluator) {
       logger.warn('[ACL] PolicyEvaluator manager not found. Global policies will not be evaluated.');
     }
@@ -307,24 +315,24 @@ class ACLManager extends BaseManager {
     if (this.policyEvaluator) {
       try {
         const policyContext = { pageName, action: policyAction, userContext };
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+         
         const policyResult = await this.policyEvaluator.evaluateAccess(policyContext);
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+         
         logger.info(`[ACL] PolicyEvaluator decision hasDecision=${policyResult.hasDecision} allowed=${policyResult.allowed} policy=${policyResult.policyName}`);
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+         
         if (policyResult.hasDecision) {
           // Log access decision for audit
           this.logAccessDecision({
             user: userContext,
             pageName,
             action,
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+             
             allowed: policyResult.allowed,
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+             
             reason: policyResult.policyName || 'global_policy',
             context: { wikiContext: wikiContext.context }
           });
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access
+           
           return policyResult.allowed;
         }
       } catch (e) {
@@ -420,13 +428,13 @@ class ACLManager extends BaseManager {
     if (this.policyEvaluator) {
       try {
         const policyContext = { pageName, action: policyAction, userContext };
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+         
         const policyResult = await this.policyEvaluator.evaluateAccess(policyContext);
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+         
         logger.info(`[ACL] PolicyEvaluator decision hasDecision=${policyResult.hasDecision} allowed=${policyResult.allowed} policy=${policyResult.policyName}`);
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+         
         if (policyResult.hasDecision) {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access
+           
           return policyResult.allowed;
         }
       } catch (e) {
@@ -464,14 +472,14 @@ class ACLManager extends BaseManager {
    * @returns {Promise<boolean>} True if permission granted
    */
   async performStandardACLCheck(pageName: string, action: string, user: UserContext | null, pageContent: string): Promise<boolean> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const userManager = this.engine.getManager('UserManager') as any;
+     
+    const userManager = this.engine.getManager('UserManager');
     if (!userManager) {
       throw new Error('UserManager not available');
     }
 
     // If user has admin:system permission, always allow
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+     
     if (user && await userManager.hasPermission(user.username, 'admin:system')) {
       return true;
     }
@@ -560,8 +568,8 @@ class ACLManager extends BaseManager {
    * @returns {Promise<boolean>} True if user has permission, false otherwise
    */
   async checkDefaultPermission(action: string, user: UserContext | null): Promise<boolean> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const userManager = this.engine.getManager('UserManager') as any;
+     
+    const userManager = this.engine.getManager('UserManager');
     if (!userManager) {
       logger.warn('UserManager not available for permission check');
       return false;
@@ -578,10 +586,10 @@ class ACLManager extends BaseManager {
     const permission = permissionMap[action.toLowerCase()] || `page:${action.toLowerCase()}`;
     const username = user ? user.username : null;
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+     
     const result = await userManager.hasPermission(username, permission);
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+     
     return result;
   }
 
@@ -723,15 +731,15 @@ class ACLManager extends BaseManager {
    */
   async checkEnhancedTimeRestrictions(user: UserContext, context: Record<string, unknown>): Promise<PermissionResult> {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const cfg = this.engine?.getManager?.('ConfigurationManager') as any;
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+       
+      const cfg = this.engine?.getManager?.('ConfigurationManager');
+       
       const enabled = cfg?.getProperty?.('amdwiki.schedules.enabled', true);
       if (!enabled) {
         return { allowed: true, reason: 'schedules_disabled' };
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+       
       const schedules = cfg.getProperty('amdwiki.schedules', null);
       if (!schedules || typeof schedules !== 'object' || Object.keys(schedules).length === 0) {
         await this.notify('ACLManager: amdwiki.schedules missing during check', 'error');
@@ -740,10 +748,10 @@ class ACLManager extends BaseManager {
 
       const now = new Date();
       const currentDate = now.toISOString().split('T')[0]; // YYYY-MM-DD format
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+       
       const timeZone = cfg.getProperty('amdwiki.timeZone', 'UTC');
       const currentTime = now.toLocaleTimeString('en-US', {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+         
         timeZone,
         hour12: false,
         hour: '2-digit',
@@ -751,9 +759,9 @@ class ACLManager extends BaseManager {
       });
 
       // Check holidays first (they override all other schedules)
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+       
       if (schedules.holidays?.enabled) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+         
         const holidayCheck = await this.checkHolidayRestrictions(currentDate, schedules.holidays);
         if (!holidayCheck.allowed) {
           return holidayCheck;
@@ -761,16 +769,16 @@ class ACLManager extends BaseManager {
       }
 
       // Check custom schedules if enabled
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+       
       if (schedules.customSchedules?.enabled) {
         const scheduleCheck = await this.checkCustomSchedule(user, context, currentDate, currentTime, schedules as SchedulesConfig);
         if (scheduleCheck.allowed !== undefined) {
-          return scheduleCheck;
+          return scheduleCheck as PermissionResult;
         }
       }
 
       // Fall back to basic business hours
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+       
       return this.checkBusinessHours(schedules.businessHours, schedules.timeZone);
 
     } catch (error) {
@@ -797,23 +805,23 @@ class ACLManager extends BaseManager {
   async checkHolidayRestrictions(currentDate: string, holidaysConfig: HolidayConfig): Promise<PermissionResult> {
     try {
       // Require holidays from ConfigurationManager only (no file fallback)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const cfg = this.engine?.getManager?.('ConfigurationManager') as any;
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+       
+      const cfg = this.engine?.getManager?.('ConfigurationManager');
+       
       if (!cfg?.getProperty) {
         await this.notify('ConfigurationManager not available for holiday checks', 'error');
         throw new Error('Holiday checks require ConfigurationManager');
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+       
       const enabled = cfg.getProperty('amdwiki.holidays.enabled', false);
       if (!enabled) {
         return { allowed: true, reason: 'holidays_disabled' };
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+       
       const dates = cfg.getProperty('amdwiki.holidays.dates', null);
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+       
       const recurring = cfg.getProperty('amdwiki.holidays.recurring', null);
       if (!dates || typeof dates !== 'object' || !recurring || typeof recurring !== 'object') {
         await this.notify('Holiday configuration missing: amdwiki.holidays.dates/recurring', 'error');
@@ -821,14 +829,14 @@ class ACLManager extends BaseManager {
       }
 
       // Exact date match
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+       
       if (dates[currentDate]) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+         
         const holiday = dates[currentDate] || {};
         return {
           allowed: false,
           reason: 'holiday_restriction',
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+           
           message: holiday.message || `Access restricted on ${holiday.name || 'holiday'}`
         };
       }
@@ -836,14 +844,14 @@ class ACLManager extends BaseManager {
       // Recurring holiday match (*-MM-DD)
       const [, month, day] = currentDate.split('-');
       const recurringKey = `*-${month}-${day}`;
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+       
       if (recurring[recurringKey]) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+         
         const holiday = recurring[recurringKey] || {};
         return {
           allowed: false,
           reason: 'recurring_holiday_restriction',
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+           
           message: holiday.message || `Access restricted on ${holiday.name || 'holiday'}`
         };
       }
@@ -861,12 +869,12 @@ class ACLManager extends BaseManager {
    * @private
    */
   private async notify(message: string, level: 'warn' | 'error' = 'warn'): Promise<void> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const nm = this.engine?.getManager?.('NotificationManager') as any;
+     
+    const nm = this.engine?.getManager?.('NotificationManager');
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+       
       if (nm?.addNotification) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+         
         await nm.addNotification({ level, message, source: 'ACLManager', timestamp: new Date().toISOString() });
       } else {
         if (level === 'error') {
@@ -898,18 +906,18 @@ class ACLManager extends BaseManager {
     const username = user?.username || user?.name || 'anonymous';
     const msg = `ACL decision: user=${username} page=${pageName} action=${action} allowed=${!!allowed} reason=${reason || 'n/a'}`;
     if (allowed) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+       
       this.engine?.logger?.info?.(msg);
     } else {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+       
       this.engine?.logger?.warn?.(msg);
     }
     // Optional: forward to NotificationManager for UI surfacing
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const nm = this.engine?.getManager?.('NotificationManager') as any;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+     
+    const nm = this.engine?.getManager?.('NotificationManager');
+     
     if (nm?.addNotification) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+       
       nm.addNotification({
         level: allowed ? 'info' : 'warn',
         message: msg,

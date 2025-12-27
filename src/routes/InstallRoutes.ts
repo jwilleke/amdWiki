@@ -2,20 +2,11 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-redundant-type-constituents */
+ 
 /* eslint-disable no-console */
 
 import express, { Router, Request, Response } from 'express';
 import InstallService from '../services/InstallService';
-
-/**
- * Session data extensions for installation
- */
-interface InstallSessionData {
-  installFormData?: InstallFormData;
-  installError?: string;
-  installSuccess?: string;
-}
 
 /**
  * Installation form data
@@ -71,7 +62,7 @@ interface MissingPagesResult {
  * Extended Request type with session data
  */
 interface InstallRequest extends Request {
-  session: Request['session'] & InstallSessionData;
+  session: any;
   body: any;
 }
 
