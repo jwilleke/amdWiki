@@ -1,6 +1,6 @@
 # TypeScript Style Guide
 
-This guide documents TypeScript conventions and patterns used in amdWiki.
+This guide documents TypeScript conventions and patterns used in amdWiki. For general coding standards (formatting, linting, naming conventions, git commits), see **[CODE_STANDARDS.md](../CODE_STANDARDS.md)**.
 
 ## Overview
 

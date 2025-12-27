@@ -12,12 +12,11 @@ We follow the DRY (Don't Repeat Yourself) principle - every piece of knowledge s
 - Runtime: Node.js 18+ with TypeScript
 - Target: ES2022
 - Rationale: Node 18+ fully supports ES2022 features
+- Always Fix ESLint Errors
 
 ## TypeScript Configuration
 
 We use strict TypeScript settings (`strict: true`) to catch potential bugs at compile time. Key settings:
-
-**Note**: `strict: false` is currently set during TypeScript migration (Issue #139). Once migration completes, `strict: true` will be enabled globally.
 
 - Strict null checks enabled
 - No implicit `any` types
@@ -26,6 +25,8 @@ We use strict TypeScript settings (`strict: true`) to catch potential bugs at co
 - No implicit returns
 
 See `tsconfig.json` for full configuration.
+
+For detailed TypeScript patterns, type definitions, and TSDoc conventions, see **[TypeScript Style Guide](./docs/TypeScript-Style-Guide.md)**.
 
 ## Code Formatting
 
@@ -142,7 +143,7 @@ npm run lint:md:fix   # Auto-fix markdown issues (note: MD036 requires manual fi
 
 - Avoid obvious comments
 - Explain *why*, not *what* - the code shows what it does
-- Use JSDoc for public APIs and complex functions
+- Use TSDoc for public APIs and complex functions (see [TypeScript Style Guide](./docs/TypeScript-Style-Guide.md#tsdoc-comments))
 
 Example:
 
@@ -244,6 +245,7 @@ Quick checklist:
 - Add examples for public APIs
 - Update [AGENTS.md](./AGENTS.md) when making significant changes
 - See [ARCHITECTURE.md](./ARCHITECTURE.md) for architectural documentation standards
+- See [TypeScript Style Guide](./docs/TypeScript-Style-Guide.md) for TypeScript patterns and TSDoc
 - All markdown files must pass markdownlint (`npm run lint:md`)
 
 ## Review Checklist
