@@ -48,7 +48,7 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
   - **GitHub Issues Updated:**
     - Closed Phase 6 issue #147 with completion comment
     - Updated EPIC #139 with progress
-- Commits: 2493755, 7c3e765, d8949da
+- Commits: 2493755, 7c3e765, d8949da, 2e4ae3f, 049426b
 - Files Modified:
   - docs/TypeScript-Style-Guide.md (new)
   - CODE_STANDARDS.md
@@ -59,6 +59,9 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
   - src/parsers/dom/DOMBuilder.ts
   - src/parsers/dom/handlers/DOMLinkHandler.ts
   - src/managers/UserManager.ts
+  - mcp-server.ts (WIP - ESLint fixes pending)
+  - src/utils/VersioningAnalytics.ts (WIP - ESLint fixes pending)
+  - src/utils/VersioningMigration.ts (WIP - ESLint fixes pending)
 
 ---
 
