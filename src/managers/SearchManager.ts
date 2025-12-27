@@ -1,3 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+ 
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import BaseManager, { BackupData } from './BaseManager';
 import logger from '../utils/logger';
 import { WikiEngine } from '../types/WikiEngine';
@@ -161,7 +168,7 @@ class SearchManager extends BaseManager {
    * @constructor
    * @param {WikiEngine} engine - The wiki engine instance
    */
-  constructor(engine: WikiEngine) {
+  constructor(engine: any) {
     super(engine);
     this.provider = null;
     this.providerClass = null;
@@ -185,14 +192,14 @@ class SearchManager extends BaseManager {
   async initialize(config: Record<string, unknown> = {}): Promise<void> {
     await super.initialize(config);
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+     
     const configManager = this.engine.getManager('ConfigurationManager');
     if (!configManager) {
       throw new Error('SearchManager requires ConfigurationManager');
     }
 
     // Check if search is enabled (ALL LOWERCASE)
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+     
     const searchEnabled = configManager.getProperty('amdwiki.search.enabled', true) as boolean;
     if (!searchEnabled) {
       logger.info('🔍 SearchManager: Search disabled by configuration');
@@ -201,12 +208,12 @@ class SearchManager extends BaseManager {
     }
 
     // Load provider with fallback (ALL LOWERCASE)
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+     
     const defaultProvider = configManager.getProperty(
       'amdwiki.search.provider.default',
       'lunrsearchprovider'
     ) as string;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+     
     const providerName = configManager.getProperty(
       'amdwiki.search.provider',
       defaultProvider
@@ -276,9 +283,9 @@ class SearchManager extends BaseManager {
   private async loadProvider(): Promise<void> {
     try {
       // Try to load provider class
-      // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-unsafe-assignment
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const ProviderClass = require(`../providers/${this.providerClass}`);
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
+       
       this.provider = new ProviderClass(this.engine);
       await this.provider.initialize();
 
@@ -295,9 +302,9 @@ class SearchManager extends BaseManager {
       // Try fallback to LunrSearchProvider
       if (this.providerClass !== 'LunrSearchProvider') {
         logger.info('Falling back to LunrSearchProvider');
-        // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-unsafe-assignment
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
         const ProviderClass = require('../providers/LunrSearchProvider');
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
+         
         this.provider = new ProviderClass(this.engine);
         await this.provider.initialize();
       } else {

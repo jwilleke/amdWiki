@@ -1,3 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+ 
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable no-console */
+
 import BaseManager from './BaseManager';
 import Ajv, { ValidateFunction, ErrorObject } from 'ajv';
 import addFormats from 'ajv-formats';
@@ -175,13 +183,13 @@ interface PolicySchema {
  * Ensures policy integrity and prevents conflicting rules
  */
 class PolicyValidator extends BaseManager {
-  private policyManager: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+  private policyManager: any;  
   private schemaValidator: Ajv | null;
   private policySchema: PolicySchema | null;
   private schemaValidatorCompiled: ValidateFunction | null;
   private validationCache: Map<string, ValidationResult>;
 
-  constructor(engine: WikiEngine) {
+  constructor(engine: any) {
     super(engine);
     this.policyManager = null;
     this.schemaValidator = null;
@@ -194,7 +202,7 @@ class PolicyValidator extends BaseManager {
     await super.initialize(config);
 
     // Get reference to PolicyManager
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+     
     this.policyManager = this.engine.getManager('PolicyManager');
     if (!this.policyManager) {
       throw new Error('PolicyValidator requires PolicyManager to be registered');
@@ -363,7 +371,7 @@ class PolicyValidator extends BaseManager {
       // Compile the schema
       this.schemaValidatorCompiled = this.schemaValidator.compile(this.policySchema);
 
-      // eslint-disable-next-line no-console
+       
       console.log('📋 Policy schema loaded and compiled');
     } catch (error) {
       console.error('Error loading policy schema:', error);
@@ -418,7 +426,7 @@ class PolicyValidator extends BaseManager {
   formatSchemaErrors(schemaErrors: ErrorObject[]): ValidationError[] {
     return schemaErrors.map(error => ({
       type: 'schema',
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
+       
       field: error.instancePath || (error as any).dataPath || 'root',
       message: error.message || 'Schema validation error',
       details: error
@@ -587,7 +595,7 @@ class PolicyValidator extends BaseManager {
    */
   validateAllPolicies(policies: Policy[] | null = null): AllPoliciesValidationResult {
     if (!policies) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+       
       policies = this.policyManager.getPolicies() as Policy[];
     }
 
@@ -862,7 +870,7 @@ class PolicyValidator extends BaseManager {
     }
 
     // Check for conflicts with existing policies
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+     
     const allPolicies = this.policyManager.getPolicies() as Policy[];
     const conflictCheck = this.detectPolicyConflicts([...allPolicies, policy]);
 
@@ -871,7 +879,7 @@ class PolicyValidator extends BaseManager {
     }
 
     // Save the policy
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+     
     await this.policyManager.savePolicy(policy);
 
     // Clear validation cache

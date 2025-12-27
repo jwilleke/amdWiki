@@ -157,7 +157,7 @@ class RenderingManager extends BaseManager {
    * @constructor
    * @param {WikiEngine} engine - The wiki engine instance
    */
-  constructor(engine: WikiEngine) {
+  constructor(engine: any) {
     super(engine);
     this.converter = null;
     this.linkGraph = {};

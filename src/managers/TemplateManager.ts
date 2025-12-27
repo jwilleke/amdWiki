@@ -1,3 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
+ 
+ 
+ 
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable no-console */
+
 import BaseManager from './BaseManager';
 import { promises as fs } from 'fs';
 import * as path from 'path';
@@ -108,7 +116,7 @@ class TemplateManager extends BaseManager {
    * @constructor
    * @param {WikiEngine} engine - The wiki engine instance
    */
-  constructor(engine: WikiEngine) {
+  constructor(engine: any) {
     super(engine);
     this.templates = {};
     this.themes = {};

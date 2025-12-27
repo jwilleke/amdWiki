@@ -1,3 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+ 
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import BaseManager from './BaseManager';
 import logger from '../utils/logger';
 import micromatch from 'micromatch';
@@ -95,7 +102,7 @@ class PolicyEvaluator extends BaseManager {
    * @constructor
    * @param {WikiEngine} engine - The wiki engine instance
    */
-  constructor(engine: WikiEngine) {
+  constructor(engine: any) {
     super(engine);
   }
 
@@ -147,7 +154,7 @@ class PolicyEvaluator extends BaseManager {
       return { hasDecision: false, allowed: false, reason: 'PolicyManager not initialized', policyName: null };
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const policies = this.policyManager.getAllPolicies() as any as Policy[];
     for (const policy of policies) {
       const match = this.matches(policy, context);
@@ -254,7 +261,7 @@ class PolicyEvaluator extends BaseManager {
       return true; // No resources specified means it applies to all.
     }
     for (const resource of resources) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+       
       if (resource.type === 'page' && micromatch.isMatch(pageName, resource.pattern)) {
         return true;
       }

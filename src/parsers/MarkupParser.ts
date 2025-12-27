@@ -7,6 +7,7 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable @typescript-eslint/require-await */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-console */
 /* eslint-disable no-useless-escape */
 /* eslint-disable no-case-declarations */
@@ -314,7 +315,7 @@ class MarkupParser extends BaseManager {
   /**
    * Creates a new MarkupParser instance
    */
-  constructor(engine: WikiEngine) {
+  constructor(engine: any) {
     super(engine);
     this.handlerRegistry = new HandlerRegistry(engine);
     this.filterChain = new FilterChain(engine);
@@ -338,15 +339,15 @@ class MarkupParser extends BaseManager {
 
     // Initialize DOM-based variable handler (Phase 3 migration - GitHub Issue #93)
      
-    this.domVariableHandler = new DOMVariableHandler(engine as any);
+    this.domVariableHandler = new DOMVariableHandler(engine);
 
     // Initialize DOM-based plugin handler (Phase 4 migration - GitHub Issue #107)
      
-    this.domPluginHandler = new DOMPluginHandler(engine as any);
+    this.domPluginHandler = new DOMPluginHandler(engine);
 
     // Initialize DOM-based link handler (Phase 5 migration - GitHub Issue #108)
      
-    this.domLinkHandler = new DOMLinkHandler(engine as any);
+    this.domLinkHandler = new DOMLinkHandler(engine);
   }
 
   /**

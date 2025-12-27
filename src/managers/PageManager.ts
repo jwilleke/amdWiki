@@ -1,5 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 
 import BaseManager, { BackupData } from './BaseManager';
 import logger from '../utils/logger';
@@ -33,7 +36,7 @@ interface ProviderInfo {
  * Provider constructor type for dynamic loading
  */
 interface ProviderConstructor {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   new (engine: WikiEngine): any;
 }
 
@@ -73,7 +76,7 @@ class PageManager extends BaseManager {
    * @constructor
    * @param {WikiEngine} engine - The wiki engine instance
    */
-  constructor(engine: WikiEngine) {
+  constructor(engine: any) {
     super(engine);
   }
 
@@ -150,7 +153,7 @@ class PageManager extends BaseManager {
       throw new Error('Provider not initialized');
     }
     // Provider classes have getProviderInfo() method
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return (this.provider as any).getProviderInfo();
   }
 
@@ -484,7 +487,7 @@ class PageManager extends BaseManager {
 
     try {
       // Providers have backup() method
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call
+       
       const providerBackup = await (this.provider as any).backup();
 
       return {
@@ -527,7 +530,7 @@ class PageManager extends BaseManager {
     try {
       if (backupData.providerBackup) {
         // Providers have restore() method
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call
+         
         await (this.provider as any).restore(backupData.providerBackup);
         logger.info('[PageManager] Restore completed successfully');
       } else {

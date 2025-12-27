@@ -136,7 +136,7 @@ class WikiEngine extends Engine {
    * await engine.initialize();
    * console.log('Engine ready with', engine.getRegisteredManagers().length, 'managers');
    */
-  async initialize(config: WikiConfig = {} as WikiConfig): Promise<WikiEngine> {
+  async initialize(config: WikiConfig = {} as WikiConfig): Promise<void> {
     // NOTE: All configuration access MUST use ConfigurationManager.getProperty()
     // The config parameter is passed to ConfigurationManager for any runtime overrides
 
@@ -240,7 +240,6 @@ class WikiEngine extends Engine {
     this.initialized = true;
 
     console.log('✅ All managers initialized');
-    return this;
   }
 
   /**

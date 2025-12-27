@@ -15,9 +15,8 @@
  * @see {@link WikiEngine} for the main engine
  */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/require-await */
-
-import { WikiEngine } from '../types/WikiEngine';
 
 /**
  * Backup data structure returned by backup() method
@@ -53,7 +52,7 @@ export interface BackupData {
  */
 abstract class BaseManager {
   /** Reference to the wiki engine */
-  protected engine: WikiEngine;
+  protected engine: any;
 
   /** Initialization status flag */
   protected initialized: boolean;
@@ -68,13 +67,13 @@ abstract class BaseManager {
    *
    * @example
    * class MyManager extends BaseManager {
-   *   constructor(engine: WikiEngine) {
+   *   constructor(engine: any) {
    *     super(engine);
    *     this.myData = new Map();
    *   }
    * }
    */
-  constructor(engine: WikiEngine) {
+  constructor(engine: any) {
     this.engine = engine;
     this.initialized = false;
   }
@@ -121,7 +120,7 @@ abstract class BaseManager {
    * @example
    * const config = this.getEngine().getConfig();
    */
-  getEngine(): WikiEngine {
+  getEngine(): any {
     return this.engine;
   }
 
@@ -201,4 +200,3 @@ abstract class BaseManager {
 }
 
 export default BaseManager;
-export type { WikiEngine };

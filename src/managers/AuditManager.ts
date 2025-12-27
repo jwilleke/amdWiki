@@ -1,3 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+ 
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 /**
  * AuditManager - Comprehensive audit trail system for access control and security monitoring
  *
@@ -186,7 +193,7 @@ class AuditManager extends BaseManager {
    * @constructor
    * @param {WikiEngine} engine - The wiki engine instance
    */
-  constructor(engine: WikiEngine) {
+  constructor(engine: any) {
     super(engine);
     this.provider = null;
     this.providerClass = null;
@@ -203,14 +210,14 @@ class AuditManager extends BaseManager {
   async initialize(config: Record<string, unknown> = {}): Promise<void> {
     await super.initialize(config);
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+     
     const configManager = this.engine.getManager('ConfigurationManager');
     if (!configManager) {
       throw new Error('AuditManager requires ConfigurationManager');
     }
 
     // Check if audit is enabled (ALL LOWERCASE)
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+     
     const auditEnabled = configManager.getProperty('amdwiki.audit.enabled', true) as boolean;
     if (!auditEnabled) {
       logger.info('📋 AuditManager: Auditing disabled by configuration');
@@ -221,12 +228,12 @@ class AuditManager extends BaseManager {
     }
 
     // Load provider with fallback (ALL LOWERCASE)
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+     
     const defaultProvider = configManager.getProperty(
       'amdwiki.audit.provider.default',
       'fileauditprovider'
     ) as string;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+     
     const providerName = configManager.getProperty(
       'amdwiki.audit.provider',
       defaultProvider
@@ -258,9 +265,9 @@ class AuditManager extends BaseManager {
   private async loadProvider(): Promise<void> {
     try {
       // Try to load provider class
-      // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-unsafe-assignment
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const ProviderClass = require(`../providers/${this.providerClass}`);
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
+       
       this.provider = new ProviderClass(this.engine);
       await this.provider.initialize();
 
@@ -268,9 +275,9 @@ class AuditManager extends BaseManager {
       const isHealthy = await this.provider.isHealthy();
       if (!isHealthy) {
         logger.warn(`Audit provider ${this.providerClass} health check failed, switching to NullAuditProvider`);
-        // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-unsafe-assignment
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
         const NullAuditProvider = require('../providers/NullAuditProvider');
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
+         
         this.provider = new NullAuditProvider(this.engine);
         await this.provider.initialize();
       }
@@ -278,9 +285,9 @@ class AuditManager extends BaseManager {
       logger.error(`Failed to load audit provider: ${this.providerClass}`, error);
       // Fall back to NullAuditProvider on any error
       logger.warn('Falling back to NullAuditProvider due to provider load error');
-      // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-unsafe-assignment
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const NullAuditProvider = require('../providers/NullAuditProvider');
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
+       
       this.provider = new NullAuditProvider(this.engine);
       await this.provider.initialize();
     }

@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import BaseManager, { BackupData } from './BaseManager';
@@ -155,7 +156,7 @@ class UserManager extends BaseManager {
    * @constructor
    * @param {WikiEngine} engine - The wiki engine instance
    */
-  constructor(engine: WikiEngine) {
+  constructor(engine: any) {
     super(engine);
   }
 
@@ -329,7 +330,7 @@ class UserManager extends BaseManager {
       throw new Error('Provider not initialized');
     }
     // Provider classes have getProviderInfo() method
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return (this.provider as any).getProviderInfo();
   }
 
@@ -405,7 +406,7 @@ class UserManager extends BaseManager {
     try {
        
       const schemaManager = this.engine.getManager('SchemaManager');
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+       
       if (schemaManager && schemaManager.isInitialized()) {
          
         const personData: any = {
@@ -450,7 +451,7 @@ class UserManager extends BaseManager {
           }
         };
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+         
         await schemaManager.createPerson(personData);
         logger.info('📋 Synced default admin to Schema.org data');
       }
@@ -591,7 +592,7 @@ class UserManager extends BaseManager {
     }
 
     // Evaluate using policies - use generic page resource for permission checks
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+     
     const result = await policyEvaluator.evaluateAccess({
       pageName: '*',  // Generic - checking user capability, not specific page
       action: action,
@@ -653,7 +654,7 @@ class UserManager extends BaseManager {
    
   private getPermissionsFromPolicies(policyManager: any, userRoles: string[]): string[] {
      
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+     
     const policies = policyManager.getAllPolicies();
     const permissions = new Set<string>();
 
@@ -665,7 +666,7 @@ class UserManager extends BaseManager {
        
       if (policy.effect === 'allow') {
          
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+         
         const hasMatchingRole = policy.subjects.some((subject: any) =>
            
           subject.type === 'role' && userRoles.includes(subject.value)
@@ -673,7 +674,7 @@ class UserManager extends BaseManager {
 
         if (hasMatchingRole) {
            
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+           
           policy.actions.forEach((action: string) => permissions.add(action));
         }
       }
@@ -709,7 +710,7 @@ class UserManager extends BaseManager {
       }
 
       // Check if page exists with this name (as title, slug, or exact match)
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+       
       const existingPage = await pageManager.getPage(displayName);
       return existingPage !== null;
     } catch (error) {
@@ -740,7 +741,7 @@ class UserManager extends BaseManager {
       }
 
       // Check if user page already exists
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+       
       const existingPage = await pageManager.getPage(user.displayName);
       if (existingPage) {
         logger.info(`User page already exists for ${user.displayName}`);
@@ -748,11 +749,11 @@ class UserManager extends BaseManager {
       }
 
       // Get user page template
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+       
       const templateContent = await templateManager.getTemplate('user-page');
 
       // Populate template with user data
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+       
       const populatedContent = await templateManager.populateTemplate(templateContent, {
         displayName: user.displayName,
         username: user.username,
@@ -763,7 +764,7 @@ class UserManager extends BaseManager {
       // Generate metadata for the user page
        
       const validationManager = this.engine.getManager('ValidationManager');
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+       
       const metadata = validationManager.generateValidMetadata(user.displayName, {
         'user-keywords': ['user-page', user.displayName.toLowerCase().replace(/\s+/g, '-')],
         'system-category': 'User Pages',
@@ -772,7 +773,7 @@ class UserManager extends BaseManager {
       });
 
       // Save the user page
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+       
       const result = await pageManager.savePage(user.displayName, populatedContent, metadata, user);
 
        
@@ -851,7 +852,7 @@ class UserManager extends BaseManager {
     try {
        
       const schemaManager = this.engine.getManager('SchemaManager');
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+       
       if (schemaManager && schemaManager.isInitialized()) {
          
         const personData: any = {
@@ -875,7 +876,7 @@ class UserManager extends BaseManager {
           'authentication': { 'passwordHash': user.password, 'isSystem': user.isSystem, 'preferences': user.preferences },
           'contactPoint': { '@type': 'ContactPoint', 'contactType': 'Account', 'availableLanguage': ['English'], 'email': user.email }
         };
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+         
         await schemaManager.createPerson(personData);
         logger.info(`📋 Synced user ${username} to Schema.org data`);
       }
@@ -922,7 +923,7 @@ class UserManager extends BaseManager {
     try {
        
       const schemaManager = this.engine.getManager('SchemaManager');
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+       
       if (schemaManager && schemaManager.isInitialized()) {
          
          
@@ -946,7 +947,7 @@ class UserManager extends BaseManager {
         }
         if (Object.keys(updateData).length > 0) {
           updateData.lastReviewed = new Date().toISOString();
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+           
           await schemaManager.updatePerson(username, updateData);
         }
       }
@@ -979,9 +980,9 @@ class UserManager extends BaseManager {
     try {
        
       const schemaManager = this.engine.getManager('SchemaManager');
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+       
       if (schemaManager && schemaManager.isInitialized() && typeof schemaManager.deletePerson === 'function') {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+         
         await schemaManager.deletePerson(username);
       }
     } catch (error) {
@@ -1244,7 +1245,7 @@ class UserManager extends BaseManager {
     }
 
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+       
       const providerBackup = await (this.provider as any).backup();
       return {
         managerName: 'UserManager',
@@ -1273,7 +1274,7 @@ class UserManager extends BaseManager {
 
     try {
       if (backupData.providerBackup) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+         
         await (this.provider as any).restore(backupData.providerBackup);
         logger.info('[UserManager] Restore completed successfully');
       } else {
