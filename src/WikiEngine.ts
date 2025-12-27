@@ -3,7 +3,6 @@
 import Engine from './core/Engine';
 import type { WikiConfig } from './types/Config';
 import type WikiContext from './context/WikiContext';
-import type { WikiEngine as IWikiEngine } from './types/WikiEngine';
 
 // Managers
 import ConfigurationManager from './managers/ConfigurationManager';
@@ -49,7 +48,7 @@ import MarkupParser from './parsers/MarkupParser';
  * @see {@link Engine} for base functionality
  * @see {@link WikiContext} for request-scoped context
  */
-class WikiEngine extends Engine implements IWikiEngine {
+class WikiEngine extends Engine {
   /** Currently active WikiContext for request scope */
   public context: WikiContext | null;
 

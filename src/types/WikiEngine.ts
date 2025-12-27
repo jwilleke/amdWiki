@@ -37,11 +37,15 @@ export interface WikiEngine {
   /** Engine start time */
   startTime?: number;
 
+  /** Current context (request-scoped) */
+  context?: any;
+
   /**
    * Initialize the wiki engine
    * @param config - Wiki configuration
+   * @returns The initialized engine or void
    */
-  initialize(config: WikiConfig): Promise<void>;
+  initialize(config?: WikiConfig): Promise<any>;
 
   /**
    * Get a manager by name
@@ -67,4 +71,7 @@ export interface WikiEngine {
    * Shutdown the wiki engine
    */
   shutdown(): Promise<void>;
+
+  /** Allow additional properties for extensibility */
+  [key: string]: any;
 }
