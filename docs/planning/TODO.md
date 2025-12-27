@@ -10,7 +10,7 @@ lastModified: '2025-10-19T00:00:00.000Z'
 slug: amdwiki-todo
 ---
 
-# amdWiki Development TODO
+# Project Development TODO
 
 **Last Updated**: October 19, 2025
 **See Also**: [ROADMAP.md](./ROADMAP.md) for overall project vision
