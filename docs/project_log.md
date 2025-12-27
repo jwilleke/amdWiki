@@ -55,7 +55,7 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 - Test Status:
   - DOMPluginHandler: All 38 tests passing ✅
   - Full test suite: All 1,393 tests passing ✅
-- Commits: [pending]
+- Commits: e9ef79a
 - Files Modified:
   - src/parsers/dom/handlers/DOMPluginHandler.ts (created)
   - docs/project_log.md
