@@ -1,6 +1,6 @@
 ---
 project_state: "template"
-last_updated: "2025-12-21"
+lastModified: '2025-10-26T00:00:00.000Z'
 agent_priority_level: "medium"
 blockers: []
 requires_human_review: ["major architectural changes", "security policy modifications", "deployment to production"]
@@ -24,24 +24,27 @@ See YAML frontmatter above for current project state.
 - Update `blockers` array with any current blockers preventing progress
 - Update `agent_priority_level` based on urgency: "low", "medium", "high", "critical"
 
-## CRITICAL
+## ⚠️ CRITICAL Core Documentation (Single Source of Truth)
 
-- Read [GLOBAL-CODE-PREFERENCES.md](./GLOBAL-CODE-PREFERENCES.md) first - This contains overarching principles that govern all work on this project
+- [GLOBAL-CODE-PREFERENCES.md](./GLOBAL-CODE-PREFERENCES.md) - **Single Source of Truth:** Overarching principles (DRY, secrets management, progressive iteration, project logging)
+- [SETUP.md](./SETUP.md) - **Single Source of Truth:** Installation, prerequisites, environment setup, verification steps
+- [CODE_STANDARDS.md](./CODE_STANDARDS.md) - **Single Source of Truth:** Naming conventions, code formatting, linting, testing, commit message format, performance guidelines
+- [ARCHITECTURE.md](./ARCHITECTURE.md) - **Single Source of Truth:** Project structure, directory conventions, file organization, technology stack
+- [SECURITY.md](./SECURITY.md) - **Single Source of Truth:** Secret management, dependency security, authentication, encryption, deployment security
+- [CONTRIBUTING.md](./CONTRIBUTING.md) - **Single Source of Truth:** Development workflow, branching strategy, pull request process, code review
+- [DOCUMENTATION.md](./DOCUMENTATION.md) - **Single Source of Truth:** Documentation navigation, DRY principles applied to docs, finding the right doc
+- [project_log.md](docs/project_log.md) - **Single Source of Truth:** Historical record of work done, next steps, session tracking
 
-## Quick Navigation - Single Source of Truth
+### ⚠️ CRITICAL Preventing Regressions**
 
-Each document is the authoritative source for its topic. Other docs reference these sources, never duplicate content.
+⚠️ **Changes breaking previously working services is a known issue.**
 
-### Core Documentation (Single Source of Truth)
+See [docs/development/PREVENTING-REGRESSIONS.md](/docs/development/PREVENTING-REGRESSIONS.md) for comprehensive prevention strategy including:
 
-- [GLOBAL-CODE-PREFERENCES.md](./GLOBAL-CODE-PREFERENCES.md) - **SSoT:** Overarching principles (DRY, secrets management, progressive iteration, project logging)
-- [SETUP.md](./SETUP.md) - **SSoT:** Installation, prerequisites, environment setup, verification steps
-- [CODE_STANDARDS.md](./CODE_STANDARDS.md) - **SSoT:** Naming conventions, code formatting, linting, testing, commit message format, performance guidelines
-- [ARCHITECTURE.md](./ARCHITECTURE.md) - **SSoT:** Project structure, directory conventions, file organization, technology stack
-- [SECURITY.md](./SECURITY.md) - **SSoT:** Secret management, dependency security, authentication, encryption, deployment security
-- [CONTRIBUTING.md](./CONTRIBUTING.md) - **SSoT:** Development workflow, branching strategy, pull request process, code review
-- [DOCUMENTATION.md](./DOCUMENTATION.md) - **SSoT:** Documentation navigation, DRY principles applied to docs, finding the right doc
-- [project_log.md](docs/project_log.md) - **SSoT:** Historical record of work done, next steps, session tracking
+- Automated testing requirements
+- Pre-commit validation checklist
+- Integration testing approach
+- Manager contract enforcement
 
 ### Auxiliary Documentation
 
@@ -58,7 +61,7 @@ Each document is the authoritative source for its topic. Other docs reference th
 
 ## Key Decisions
 
-These may be done initially or as the project progresses. Include "Decision and rationale"
+Key Decisions may be done initially or decided the project progresses. Include "Decision and rationale"
 
 - All configuration MUST use ConfigurationManager - no hardcoded fallbacks (DRY)
 - Use Playwright for E2E testing with Chromium browser, integrate into CI/CD
@@ -70,15 +73,32 @@ These may be done initially or as the project progresses. Include "Decision and 
 
 ## Architecture & Tech Stack
 
-See [docs/architecture/](./docs/architecture/) for comprehensive documentation.
+See [ARCHITECTURE.md](./ARCHITECTURE.md) for project structure, technology stack, and architectural decisions.
 
 ## Coding Standards
 
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for comprehensive guidelines.
+See [CODE_STANDARDS.md](./CODE_STANDARDS.md) for naming conventions, formatting, linting, testing, and commit message format.
 
 ## Project Constraints
 
 These may be done initially or as the project progresses.
+
+- Node.js v18+ required
+- TypeScript strict mode must remain enabled
+- All code must pass linting and tests before commit
+- No unencrypted secrets in Git (per GLOBAL-CODE-PREFERENCES.md)
+
+### Update Requirements
+
+- Update `last_updated` field whenever making significant changes to this file
+- Update `project_state` to reflect current status: "template", "active", "maintenance", "archived"
+- Update `blockers` array with any current blockers preventing progress
+- Update `agent_priority_level` based on urgency: "low", "medium", "high", "critical"
+
+### Auxiliary Documentation
+
+- [README.md](./README.md) - Project overview and quick start (references above docs)
+- [.github/workflows/README.md](.github/workflows/README.md) - CI/CD pipelines and automation
 
 ## Project Log
 
@@ -144,25 +164,6 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for branching strategy, commit guidelin
 ## amdWiki AI Agent Context
 
 Single source of truth for amdWiki project context. Read this first when working on the project.
-
-## ⚠️ CRITICAL - Read Global Preferences First
-
-Follow for overarching principles:
-
-- Be concise and sacrifice grammar for consistion
-- DRY (Don't Repeat Yourself) principle in Documentation and Code. Refer to other Documents.
-- Iterate Progressively. Start with Core features only: Gather feedback.
-- Present a list of unresolved questions to answer, if any.
-- Questions, Comments and Suggestions are always encouraged!
-- Your primary method for interacting with GitHub should be the CLI.
-- On larger objectives present phased implementation plan
-- NEVER put unencrypted "Secrets" in Git.
-- Always create project_log.md file as aa log of work done on the project in format
-  - yyyy-MM-dd-## - Created new file - "Commit"
-- Use the following
-  - .editorconfig
-  - .prettierrc.json
-  - .prettierignore
 
 ## Quick Navigation
 
@@ -325,372 +326,21 @@ WikiDocument should always be used.
 
 ## TODO & Next Steps
 
-See [docs/planning/TODO.md](/docs/planning/TODO.md) for comprehensive task list.
+Keep [docs/planning/TODO.md](/docs/planning/TODO.md) as the current tasks that need to be addressed.
+
+Once completed and documentes in project_log.md they should be removed from this list.
 
 ### Current High Priority
 
 From TODO.md (Last Updated: October 19, 2025):
 
-1. **Attachment UI Enhancement** (2-3 weeks)
-   - Upload widget with drag-drop
-   - Inline attachment management panel
-   - Image/video preview and optimization
-   - Attachment search functionality
-   - Status: 📋 Not Started
-
-2. **TypeScript Migration** (Ongoing)
-   - Progressive migration strategy
-   - Strict mode enabled
-   - CommonJS compatibility maintained
-   - Status: 🔄 In Progress
-
-3. **WikiDocument DOM Testing** (High Priority)
-   - Comprehensive WikiDocument.test.js
-   - 90%+ coverage target
-   - WeakRef garbage collection tests
-   - Status: 📋 Not Started
-
 ### Platform Roadmap
 
 See [docs/planning/ROADMAP.md](/docs/planning/ROADMAP.md)
 
-#### Phase 2 (Next): Content Modules
+Should contain only High-level targets for enhancments.
 
-- Blog module with RSS/Atom feeds
-- Document management with versioning
-- Photo management with EXIF metadata
-- Asset management tracking
-
-#### Phase 3: Business Modules
-
-- E-Commerce store
-- Event management
-- Project management
-- Client portal
-
-#### Phase 4: Advanced Features
-
-- Real-time collaboration
-- Mobile apps
-- API expansion
-
-## Current Sprint/Focus
-
-### Status Overview
-
-#### Completed (Session 2025-12-15) - Issue #176 CLOSED
-
-**ConfigurationManager Enforcement (DRY Principle):**
-
-- ✅ Removed legacy Config.js system entirely
-- ✅ All configuration now uses ConfigurationManager.getProperty()
-- ✅ Removed all hardcoded path fallbacks from source files
-- ✅ getConfig() method deprecated (throws error pointing to ConfigurationManager)
-- ✅ Deleted: config/Config.js, ConfigBridge.js, DigitalDocumentPermissionConfig.js, legacy/
-- ✅ Fixed #173: Jest --testPathPattern → --testPathPatterns (deprecation)
-- ✅ Deleted obsolete parser integration tests (mock-based, not real integration)
-
-**Files Modified:**
-
-- WikiEngine.js, WikiRoutes.js, ACLManager.js, ConfigurationManager.js
-- NotificationManager.js, SchemaManager.js, BackupManager.js, InstallService.js
-
-**Key Decisions:
-
-**Test Status (2025-12-15):**
-
-- Test Suites: 21 failed, 48 passed (69 total)
-- Pass Rate: ~86%
-
----
-
-#### Completed (Session 2025-12-12) - v1.5.0 MERGED
-
-**Docker Data Consolidation - PR #171 (MERGED):**
-
-- ✅ Consolidated all instance data into `./data/` directory
-- ✅ Updated 6 provider-specific paths in `app-default-config.json`
-- ✅ Created migration script `scripts/migrate-to-data-dir.sh`
-- ✅ Fixed InstallService.js hardcoded paths (use ConfigurationManager)
-- ✅ Fixed TotalPagesPlugin async/await bug
-- ✅ Updated Dockerfile and docker-compose.yml for single data volume
-- ✅ Bumped version to 1.5.0 (BREAKING CHANGE)
-- ✅ Squash-merged PR #171 to master
-
-**New Data Structure (v1.5.0):**
-
-```
-data/
-├── pages/        - Wiki content
-├── users/        - User accounts
-├── attachments/  - File attachments
-├── logs/         - Application logs
-├── search-index/ - Search index
-├── backups/      - Backup files
-├── sessions/     - Session files
-└── versions/     - Page versions
-```
-
-**Test Status (2025-12-12):**
-
-- Test Suites: 21 failed, 46 passed (67 total)
-- Tests: 277 failed, 1409 passed (1692 total)
-- **Pass Rate: 83.3%**
-
-#### Issues Created (Session 2025-12-12)
-
-- #169 - LoggingProvider pattern (future enhancement)
-- #170 - BackupProvider pattern (future enhancement)
-
-#### Bug Fixes (Session 2025-12-12)
-
-- ✅ InstallService.js - 4 hardcoded `../../users/` paths now use ConfigurationManager
-- ✅ TotalPagesPlugin - Missing async/await on getAllPages() call
-- ✅ UserManager.test.js - Fixed with proper engine/provider mocking (30 tests)
-
-#### Documentation Consolidation (Session 2025-12-12)
-
-- ✅ Consolidated testing docs into 3 files:
-  - `docs/testing/Testing-Summary.md` - Current test status
-  - `docs/testing/Complete-Testing-Guide.md` - Comprehensive guide
-  - `docs/testing/PREVENTING-REGRESSIONS.md` - Regression prevention
-- ✅ Deleted 10 obsolete testing docs
-
-#### Previous Completions (Session 2025-12-07)
-
-**Test Suite Fixes:**
-
-- ✅ Fixed UserManager.test.js (31 tests) - Complete rewrite to match actual implementation
-  - Fixed authentication flow (getUser → verifyPassword)
-  - Added PolicyManager mocking for permission tests
-  - Corrected all method names (authenticateUser, getUsers, getRoles)
-  - Password security testing (hash/verify)
-- ✅ Fixed PageManager.test.js (26 tests) - Proxy behavior testing
-- ✅ Fixed PageNameMatcher.test.js (43 tests) - Pure unit tests
-- ✅ Fixed WikiContext.test.js (12 tests) - Core component
-- ✅ Fixed FilterChain.test.js (28 tests) - Quick win
-- ✅ Fixed SchemaManager.test.js (9 tests) - Quick win
-
-**Infrastructure:**
-
-- ✅ Global test setup (jest.setup.js) with provider mocking
-- ✅ Comprehensive KNOWN-TEST-ISSUES.md documentation
-- ✅ Fix-as-needed strategy (Option C) implementation
-
-#### Previous Completions (Session 2025-12-12)
-
-- ✅ Fixed GitHub Issue #174 - Required pages no longer show in operating wiki
-  - FileSystemProvider only loads required-pages during installation
-  - Pages with system-category: system/documentation require Admin to edit
-- ✅ Fixed GitHub Issue #172 - ReferringPagesPlugin now shows plural-linked pages
-  - buildLinkGraph() now uses pageNameMatcher for plural resolution
-
-#### Previous Completions (Session 2025-12-06)
-
-- ✅ Installation system fully working - users can complete setup wizard and login
-- ✅ Fixed GitHub Issue #167 - Server process management (PM2 coordination)
-- ✅ Fixed installation loop issue (partial installation retry)
-- ✅ Email validation fixed (admin@localhost accepted)
-- ✅ ConfigurationManager method call fixed
-
-#### Next Milestones
-
-**Testing:**
-
-1. ✅ **DONE:** Fix high-priority manager tests (WikiContext, PageManager, UserManager)
-2. **NEXT:** Continue incremental test fixes during feature work (40 suites remaining)
-3. Target: < 10 failing suites within 1 month
-
-**Installation:**
-
-1. ✅ **DONE:** Fix GitHub issue #167 (PID lock mechanism)
-2. Manual browser testing of install form (now #167 is fixed)
-3. Test partial installation recovery scenario
-4. Attachment UI Enhancement completion
-5. WikiDocument comprehensive testing
-
-### Project Maturity
-
-- **Phase 1** (Core Wiki): 95% complete
-- **Current Version:** 1.5.0 (Semantic Versioning)
-- **Architecture:** Mature, manager-based, well-documented
-- **Documentation:** 100+ files, 95% JSDoc coverage
-- **Testing:** 376+ tests, Jest framework
-
-### Key Technologies
-
-- **Storage:** File-based Markdown with YAML frontmatter
-- **Versioning:** Delta storage (fast-diff) + compression (pako)
-- **Parsing:** Showdown + custom JSPWiki handlers
-- **Sessions:** express-session with FileStore
-- **Process Management:** PM2 with custom server.sh wrapper
-
-### External Dependencies
-
-- Node.js v18+ required
-- PM2 for production
-- No database required (file-based)
-
-### Communication
-
-- **GitHub Issues:** Bug reports and feature requests
-- **GitHub Discussions:** Questions and general discussion
-- **GitHub CLI:** Primary interaction method
-- **Draft PRs:** Early feedback on complex changes
-
-### Performance Notes
-
-- Delta storage saves 80-95% space for versions
-- Page caching via NodeCache
-- Bootstrap 5 for responsive UI
-- No CDN dependencies (all assets local)
-
-## Agent Guidelines
-
-### For All Agents
-
-### CRITICAL: Preventing Regressions**
-
-⚠️ **Changes breaking previously working services is a known issue.**
-
-See [docs/development/PREVENTING-REGRESSIONS.md](/docs/development/PREVENTING-REGRESSIONS.md) for comprehensive prevention strategy including:
-
-- Automated testing requirements
-- Pre-commit validation checklist
-- Integration testing approach
-- Manager contract enforcement
-
-**Before Starting:**
-
-- Read this [AGENTS.md](./AGENTS.md) - Project context and current state
-- Review [CONTRIBUTING.md](./CONTRIBUTING.md) - Development standards
-- Check [docs/planning/TODO.md](./docs/planning/TODO.md) - Current tasks and priorities
-- Review [CHANGELOG.md](./CHANGELOG.md) - Recent changes (v1.5.0)
-- **Run smoke tests:** `npm run smoke` (if available, see PREVENTING-REGRESSIONS.md)
-- **If changing manager APIs:** Read relevant contract in [docs/development/PREVENTING-REGRESSIONS.md](/docs/development/PREVENTING-REGRESSIONS.md)
-
-**During Work:**
-
-- Follow manager-based architecture patterns (extend BaseManager)
-- Use WikiContext for request/user context (single source of truth)
-- Write comprehensive JSDoc documentation (95% coverage standard)
-- **Write tests BEFORE changing code** (TDD approach prevents regressions)
-- Create tests in `__tests__/` directories (mock all file I/O)
-- **Run tests after each significant change:** `npm test -- <relevant-file>.test.js`
-- Reference docs, don't duplicate (DRY principle)
-- Use GitHub CLI for issues/PRs
-
-**After Completing Work:**
-
-- **Run full test suite:** `npm test` (MUST PASS before committing)
-- **Run integration tests:** `npm run test:integration` (if available)
-- **Verify coverage didn't drop:** `npm test -- --coverage`
-- Update [project_log.md](./docs/project_log.md) with session details
-- Update [docs/planning/TODO.md](./docs/planning/TODO.md) if tasks completed
-- Update [CHANGELOG.md](./CHANGELOG.md) for version releases
-- Restart server if config changes: `./server.sh restart`
-- **If ANY test fails, do NOT commit. Fix first.**
-
-### amdWiki-Specific Patterns
-
-**Creating New Managers:**
-
-```javascript
-// Extend BaseManager, add JSDoc, implement initialize()
-class NewManager extends BaseManager {
-  constructor(engine) {
-    super(engine);
-  }
-
-  async initialize(config = {}) {
-    await super.initialize(config);
-    // Manager initialization
-  }
-}
-```
-
-**Using WikiContext:**
-
-```javascript
-// In route handlers
-const wikiContext = this.createWikiContext(req, {
-  context: WikiContext.CONTEXT.VIEW,
-  pageName: pageName,
-  content: content
-});
-
-// Extract template data
-const templateData = this.getTemplateDataFromContext(wikiContext);
-```
-
-**Configuration Access:**
-
-```javascript
-const configManager = engine.getManager('ConfigurationManager');
-const value = configManager.getProperty('amdwiki.category.property', 'default');
-```
-
-**Server Management:**
-
-```bash
-./server.sh start dev    # Development mode
-./server.sh restart prod # Production restart
-./server.sh logs         # View logs
-./server.sh status       # Check status
-```
-
-## Documentation Map
-
-### Getting Started
-
-- [README.md](./README.md) - Comprehensive project overview
-- [CONTRIBUTING.md](./CONTRIBUTING.md) - Development guide (31KB)
-- [SERVER.md](./SERVER.md) - Server management
-
-### Planning & Status
-
-- [docs/planning/TODO.md](./docs/planning/TODO.md) - Task tracking (32KB)
-- [docs/planning/ROADMAP.md](./docs/planning/ROADMAP.md) - Platform vision
-- [CHANGELOG.md](./CHANGELOG.md) - Version history
-- [project_log.md](./project_log.md) - AI session log
-
-### Architecture
-
-- [docs/architecture/PROJECT-STRUCTURE.md](./docs/architecture/PROJECT-STRUCTURE.md)
-- [docs/architecture/MANAGERS-OVERVIEW.md](./docs/architecture/MANAGERS-OVERVIEW.md)
-- [docs/architecture/WikiDocument-DOM-Architecture.md](./docs/architecture/WikiDocument-DOM-Architecture.md)
-- [docs/architecture/Policies-Roles-Permissions.md](./docs/architecture/Policies-Roles-Permissions.md)
-
-### Testing & Quality Assurance
-
-- **[docs/testing/Testing-Summary.md](./docs/testing/Testing-Summary.md)** - Current test status and quick reference
-- **[docs/testing/Complete-Testing-Guide.md](./docs/testing/Complete-Testing-Guide.md)** - Comprehensive testing documentation
-- **[docs/testing/PREVENTING-REGRESSIONS.md](./docs/testing/PREVENTING-REGRESSIONS.md)** - Regression prevention strategy
-- **Test Commands:**
-  - Unit tests: `npm test` (Jest)
-  - Coverage: `npm run test:coverage`
-  - E2E tests: `npm run test:e2e` (Playwright)
-  - E2E with UI: `npm run test:e2e:ui`
-- **E2E Test Credentials:** admin / admin123 (or set E2E_ADMIN_USER, E2E_ADMIN_PASS)
-- **Test Requirements:**
-  - Write tests BEFORE changing code (TDD)
-  - All tests must pass before committing
-  - Coverage must not decrease
-  - Integration tests for manager interactions
-
-### Configuration
-
-- `config/app-default-config.json` - Base defaults (1150+ properties)
-- `config/app-development-config.json` - Dev overrides
-- `config/app-production-config.json` - Prod overrides
-- `config/app-custom-config.json` - Local overrides (gitignored)
-
-### API & Development
-
-- **[docs/development/PREVENTING-REGRESSIONS.md](./docs/development/PREVENTING-REGRESSIONS.md)** - Regression prevention strategy (CI/CD, testing)
-- [docs/api/](./docs/api/) - API documentation
-- [docs/developer/](./docs/developer/) - Developer guides
-- [docs/migration/](./docs/migration/) - Migration guides
+Once selsected for work they should be added to [docs/planning/TODO.md](/docs/planning/TODO.md) and they should be removed from this list.
 
 ---
 
