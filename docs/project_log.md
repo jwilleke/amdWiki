@@ -22,6 +22,84 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 
 ---
 
+## 2025-12-27-09
+
+- Agent: Claude Code (Sonnet 4.5)
+- Subject: Issue #185 Cleanup Complete + InstallRoutes TypeScript Conversion
+- Issues: #185 (Remove legacy pipeline), #146 (Phase 5: Convert Routes to TypeScript)
+- Key Decision:
+  - **Fully removed all deprecated parser tests** (13 tests deleted)
+  - **Closed Issue #185** with complete legacy pipeline removal
+  - **Converted InstallRoutes to TypeScript** (Phase 5 progress)
+  - All 1,380 tests passing (down from 1,393)
+- Work Done:
+  - **Removed 13 Deprecated Tests:**
+    - 2 tests from MarkupParser.test.js Initialization section (phase init, phase sorting)
+    - 1 commented assertion removed (phaseMetrics)
+    - 2 tests from MarkupParser.test.js Error Handling (phase errors, critical failure)
+    - 1 test from Performance Metrics (phase-specific metrics)
+    - 2 tests from HTML Cleanup section (entire describe block removed)
+    - 3 tests from MarkupParser-Performance.test.js (performance alerts)
+    - 3 tests from Metrics Collection describe block (entire block removed)
+  - **Issue #185 Closure:**
+    - Added final comment documenting all 13 deprecated tests removed
+    - Confirmed test count reduction: 1,701 → 1,688 total (13 removed)
+    - Passing tests: 1,393 → 1,380 (13 deprecated tests successfully removed)
+  - **Converted InstallRoutes.ts (293 lines):**
+    - Added 6 comprehensive TypeScript interfaces:
+      - InstallSessionData - Session data extensions
+      - InstallFormData - Complete installation form structure
+      - InstallResult - Service operation results
+      - PartialInstallationState - Installation state tracking with steps
+      - MissingPagesResult - Pages-only detection
+      - InstallRequest - Extended Express Request with typed session
+    - Full Express type integration (Router, Request, Response)
+    - Type-safe route handlers with explicit return types
+    - Private method #setupRoutes() with proper TypeScript syntax
+    - ESLint disable directives (to be resolved in Phase 6 strict mode):
+      - @typescript-eslint/no-unsafe-assignment
+      - @typescript-eslint/no-unsafe-member-access
+      - @typescript-eslint/no-unsafe-call
+      - @typescript-eslint/no-explicit-any
+      - @typescript-eslint/no-redundant-type-constituents
+      - no-console
+    - Both ES6 and CommonJS exports for compatibility
+  - **Documentation Updates:**
+    - Updated docs/testing/Testing-Summary.md:
+      - Changed test count from 1393 → 1380 passing
+      - Changed total tests from 1701 → 1688
+      - Updated Last Updated date to 2025-12-27
+      - Added 2025-12-27 entry to Recent Progress table
+      - Fixed markdown table formatting for linter compliance
+    - Updated docs/testing/Complete-Testing-Guide.md:
+      - Changed Last Updated date to 2025-12-27
+      - Fixed table formatting (E2E Test Coverage)
+- Test Status:
+  - All 1,380 tests passing ✅ (down from 1,393)
+  - 308 tests skipped (unchanged)
+  - Total tests: 1,688 (down from 1,701 - confirms 13 removed)
+  - All 153 route tests passing ✅
+  - Zero TypeScript compilation errors (pre-existing WikiEngine errors unrelated)
+  - Zero ESLint errors
+- Commits: a6f8d98
+- Files Modified:
+  - src/parsers/**tests**/MarkupParser.test.js (removed 8 deprecated tests)
+  - src/parsers/**tests**/MarkupParser-Performance.test.js (removed 5 deprecated tests, 1 describe block)
+  - src/routes/InstallRoutes.js → src/routes/InstallRoutes.ts (renamed, 293 lines)
+  - docs/testing/Testing-Summary.md (updated test counts, fixed formatting)
+  - docs/testing/Complete-Testing-Guide.md (updated date, fixed formatting)
+  - docs/project_log.md
+- Migration Progress:
+  - **Routes: 1/2 (50% complete)** - InstallRoutes.ts ✅, WikiRoutes.js remaining (5,497 lines)
+  - **Overall TypeScript Migration: ~53% complete** (85/160 files)
+  - Phase 5 in progress - Routes conversion
+- Next Steps:
+  - Convert WikiRoutes.js to TypeScript (large file: 5,497 lines)
+  - Complete Phase 5 (Routes and Controllers)
+  - Begin Phase 6 (Enable strict mode)
+
+---
+
 ## 2025-12-27-08
 
 - Agent: Claude Code (Sonnet 4.5)
