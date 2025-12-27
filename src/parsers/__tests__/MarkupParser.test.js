@@ -107,25 +107,6 @@ describe('MarkupParser', () => {
   });
 
   describe('Initialization', () => {
-    // DEPRECATED: Legacy 7-phase pipeline removed in Issue #185
-    test.skip('should initialize with all 8 phases', () => {
-      expect(markupParser.phases).toHaveLength(8);
-
-      const expectedPhases = [
-        'DOM Parsing',
-        'Preprocessing',
-        'Syntax Recognition',
-        'Context Resolution',
-        'Content Transformation',
-        'Filter Pipeline',
-        'Markdown Conversion',
-        'Post-processing'
-      ];
-
-      const phaseNames = markupParser.phases.map(phase => phase.name);
-      expect(phaseNames).toEqual(expectedPhases);
-    });
-
     test('should initialize cache integration', () => {
       expect(markupParser.cache).toBeTruthy();
     });
@@ -133,14 +114,6 @@ describe('MarkupParser', () => {
     test('should initialize metrics collection', () => {
       expect(markupParser.metrics).toBeDefined();
       expect(markupParser.metrics.parseCount).toBe(0);
-      // DEPRECATED: phaseMetrics removed with legacy pipeline (Issue #185)
-      // expect(markupParser.metrics.phaseMetrics.size).toBe(8);
-    });
-
-    // DEPRECATED: Legacy 7-phase pipeline removed in Issue #185
-    test.skip('should sort phases by priority', () => {
-      const priorities = markupParser.phases.map(phase => phase.priority);
-      expect(priorities).toEqual([50, 100, 200, 300, 400, 500, 600, 700]);
     });
   });
 
@@ -346,24 +319,6 @@ describe('MarkupParser', () => {
   });
 
   describe('Error Handling', () => {
-    // DEPRECATED: Legacy 7-phase pipeline removed in Issue #185
-    test.skip('should handle phase errors gracefully', async () => {
-      // Mock a phase to throw an error
-      const originalPhase = markupParser.phases[0].process;
-      markupParser.phases[0].process = jest.fn().mockRejectedValue(new Error('Phase error'));
-
-      const content = 'test content';
-      const result = await markupParser.parse(content);
-
-      // Should not throw and should continue processing
-      expect(result).toBeDefined();
-      // Error tracking may vary by implementation
-      expect(markupParser.metrics.errorCount).toBeGreaterThanOrEqual(0);
-
-      // Restore original phase
-      markupParser.phases[0].process = originalPhase;
-    });
-
     test('should handle handler errors gracefully', async () => {
       // Create a proper mock handler that extends BaseSyntaxHandler
       const errorHandler = new MockSyntaxHandler(/error/, 100, {
@@ -377,21 +332,6 @@ describe('MarkupParser', () => {
 
       // Should continue processing despite handler error
       expect(result).toBeDefined();
-    });
-
-    // DEPRECATED: Legacy 7-phase pipeline removed in Issue #185
-    test.skip('should return original content on critical failure', async () => {
-      // Mock all phases to fail
-      markupParser.phases.forEach(phase => {
-        phase.process = jest.fn().mockRejectedValue(new Error('Critical error'));
-      });
-
-      const content = 'original content';
-      const result = await markupParser.parse(content);
-
-      expect(result).toBe(content);
-      // Error tracking may vary by implementation - just verify the result is returned
-      expect(markupParser.metrics.errorCount).toBeGreaterThanOrEqual(0);
     });
   });
 
@@ -410,35 +350,17 @@ describe('MarkupParser', () => {
       expect(metrics.totalParseTime).toBeGreaterThanOrEqual(0);
     });
 
-    // DEPRECATED: Legacy 7-phase pipeline removed in Issue #185
-    test.skip('should track phase-specific metrics', async () => {
-      const content = 'test content';
-
-      await markupParser.parse(content);
-
-      const metrics = markupParser.getMetrics();
-
-      expect(metrics.phaseStats).toBeDefined();
-      expect(Object.keys(metrics.phaseStats)).toHaveLength(8); // 8 phases now
-
-      Object.values(metrics.phaseStats).forEach(phaseStats => {
-        // Execution count should be tracked (may be 0 if phase was skipped or uses different tracking)
-        expect(phaseStats.executionCount).toBeGreaterThanOrEqual(0);
-        expect(phaseStats.totalTime).toBeGreaterThanOrEqual(0);
-      });
-    });
-
     test('should calculate cache hit ratio', async () => {
       const content = 'test content';
-      
+
       // First parse (cache miss)
       await markupParser.parse(content);
-      
+
       // Second parse (cache hit)
       await markupParser.parse(content);
-      
+
       const metrics = markupParser.getMetrics();
-      
+
       expect(metrics.cacheHitRatio).toBe(0.5); // 1 hit out of 2 total
     });
 
@@ -446,29 +368,11 @@ describe('MarkupParser', () => {
       // Generate some metrics
       markupParser.metrics.parseCount = 5;
       markupParser.metrics.totalParseTime = 100;
-      
+
       markupParser.resetMetrics();
-      
+
       expect(markupParser.metrics.parseCount).toBe(0);
       expect(markupParser.metrics.totalParseTime).toBe(0);
-    });
-  });
-
-  describe('HTML Cleanup', () => {
-    // DEPRECATED: cleanupHtml() removed with legacy pipeline (Issue #185)
-    test.skip('should clean up generated HTML', () => {
-      const messyHtml = '  <p>  Test  </p>   <p>Another</p>  ';
-      const cleanedHtml = markupParser.cleanupHtml(messyHtml);
-
-      expect(cleanedHtml).toBe('<p> Test </p>\n<p>Another</p>');
-    });
-
-    // DEPRECATED: cleanupHtml() removed with legacy pipeline (Issue #185)
-    test.skip('should remove excessive whitespace', () => {
-      const messyHtml = '<div>   Multiple    spaces   </div>';
-      const cleanedHtml = markupParser.cleanupHtml(messyHtml);
-
-      expect(cleanedHtml).toBe('<div> Multiple spaces </div>');
     });
   });
 

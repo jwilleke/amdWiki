@@ -1,6 +1,6 @@
 # Testing Summary
 
-**Last Updated:** 2025-12-20
+**Last Updated:** 2025-12-27
 **Current Version:** 1.5.0
 
 ## Current Test Status
@@ -10,7 +10,7 @@
 | Metric | Value |
 | --- | --- |
 | Test Suites | 58 passed, 9 skipped (67 total) |
-| Tests | 1393 passed, 308 skipped (1701 total) |
+| Tests | 1380 passed, 308 skipped (1688 total) |
 | **Pass Rate** | **100%** (of executed tests) |
 
 ### End-to-End Tests (Playwright)
@@ -109,8 +109,9 @@ We use **Option C: Fix-As-Needed** approach:
 
 ## Recent Progress
 
-| Date       | Failing Suites | Passing Tests | Notes                                                            |
-| ---------- | -------------- | ------------- | ---------------------------------------------------------------- |
+| Date | Failing Suites | Passing Tests | Notes |
+| --- | --- | --- | --- |
+| 2025-12-27 | 0 (9 skipped) | 1380 | Removed 13 deprecated parser tests (Issue #185), converted InstallRoutes.ts |
 | 2025-12-20 | 0 (9 skipped) | 1393 | Rewrote PageManager-Storage.test.js with 20 integration tests |
 | 2025-12-20 | 0 (10 skipped) | 1373 | Fixed NotificationManager, skipped obsolete tests pending API updates |
 | 2025-12-14 | 19 | 1492 | Fixed FileSystemProvider tests (12), gray-matter/js-yaml 4.x compatibility |
@@ -151,8 +152,8 @@ E2E tests use Playwright with the following configuration:
 
 ### Test Files
 
-| File              | Tests | Description                                                                  |
-| ----------------- | ----- | ---------------------------------------------------------------------------- |
+| File | Tests | Description |
+| --- | --- | --- |
 | `auth.setup.js` | 1 | Authentication setup (saves session state) |
 | `auth.spec.js` | 7 | Login form, invalid credentials, session management, logout, protected routes |
 | `pages.spec.js` | 12 | Homepage, page navigation, editing, creation, categories |

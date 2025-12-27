@@ -1,6 +1,6 @@
 # Complete Testing Guide
 
-**Last Updated:** 2025-12-20
+**Last Updated:** 2025-12-27
 **Version:** 1.5.0
 
 This guide consolidates all testing documentation for amdWiki into a single comprehensive reference.
@@ -610,7 +610,7 @@ test('should protect admin routes', async ({ browser }) => {
 ### E2E Test Coverage
 
 | Test File | Tests | Description |
-|-----------|-------|-------------|
+| --- | --- | --- |
 | auth.setup.js | 1 | Authentication state setup |
 | auth.spec.js | 7 | Login, logout, sessions, protected routes |
 | pages.spec.js | 12 | Page viewing, editing, creation, categories |
