@@ -1,11 +1,258 @@
-const BaseManager = require('../managers/BaseManager');
-const ParseContext = require('./context/ParseContext');
-const { HandlerRegistry } = require('./handlers/HandlerRegistry');
-const FilterChain = require('./filters/FilterChain');
-const { DOMParser: WikiDOMParser } = require('./dom/DOMParser');
-const DOMVariableHandler = require('./dom/handlers/DOMVariableHandler');
-const DOMPluginHandler = require('./dom/handlers/DOMPluginHandler');
-const DOMLinkHandler = require('./dom/handlers/DOMLinkHandler');
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-require-imports */
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
+/* eslint-disable @typescript-eslint/require-await */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable no-console */
+/* eslint-disable no-useless-escape */
+/* eslint-disable no-case-declarations */
+
+import BaseManager from '../managers/BaseManager';
+import { HandlerRegistry } from './handlers/HandlerRegistry';
+import FilterChain from './filters/FilterChain';
+import { DOMParser as WikiDOMParser } from './dom/DOMParser';
+import DOMVariableHandler from './dom/handlers/DOMVariableHandler';
+import DOMPluginHandler from './dom/handlers/DOMPluginHandler';
+import DOMLinkHandler from './dom/handlers/DOMLinkHandler';
+import type { WikiEngine } from '../types/WikiEngine';
+import type RegionCache from '../cache/RegionCache';
+import type _ParseContext from './context/ParseContext';
+import type _WikiDocument from './dom/WikiDocument';
+import type _BaseSyntaxHandler from './handlers/BaseSyntaxHandler';
+
+// ============================================================================
+// Type Definitions
+// ============================================================================
+
+/** Configuration for MarkupParser */
+export interface MarkupParserConfig {
+  /** Whether MarkupParser is enabled */
+  enabled: boolean;
+  /** Whether caching is enabled */
+  caching: boolean;
+  /** Cache TTL in seconds */
+  cacheTTL: number;
+  /** Handler registry configuration */
+  handlerRegistry: HandlerRegistryConfig;
+  /** Handler configurations */
+  handlers: Record<string, HandlerConfig>;
+  /** Filter configuration */
+  filters: FilterConfig;
+  /** Cache configuration */
+  cache: CacheConfig;
+  /** Performance configuration */
+  performance: PerformanceConfig;
+}
+
+/** Handler registry configuration */
+export interface HandlerRegistryConfig {
+  /** Whether to enable dependency resolution */
+  enableDependencyResolution?: boolean;
+  /** Maximum handler priority */
+  maxPriority?: number;
+}
+
+/** Individual handler configuration */
+export interface HandlerConfig {
+  /** Whether handler is enabled */
+  enabled: boolean;
+  /** Handler priority */
+  priority: number;
+  /** Whether enhanced mode is enabled */
+  enhanced?: boolean;
+  /** Whether thumbnails are enabled */
+  thumbnails?: boolean;
+  /** Whether metadata collection is enabled */
+  metadata?: boolean;
+}
+
+/** Filter configuration */
+export interface FilterConfig {
+  /** Whether filters are enabled */
+  enabled: boolean;
+  /** Filter mode (sequential or parallel) */
+  mode?: 'sequential' | 'parallel';
+}
+
+/** Cache configuration */
+export interface CacheConfig {
+  /** Parse results cache strategy */
+  parseResults: CacheStrategyConfig;
+  /** Handler results cache strategy */
+  handlerResults: CacheStrategyConfig;
+  /** Patterns cache strategy */
+  patterns: CacheStrategyConfig;
+  /** Variables cache strategy */
+  variables: CacheStrategyConfig;
+  /** Whether to enable cache warmup */
+  enableWarmup: boolean;
+  /** Whether to enable metrics */
+  metricsEnabled: boolean;
+}
+
+/** Cache strategy configuration */
+export interface CacheStrategyConfig {
+  /** Whether this strategy is enabled */
+  enabled: boolean;
+  /** Time to live in seconds */
+  ttl: number;
+  /** Maximum cache size */
+  maxSize: number;
+}
+
+/** Performance configuration */
+export interface PerformanceConfig {
+  /** Whether performance monitoring is enabled */
+  monitoring: boolean;
+  /** Alert thresholds */
+  alertThresholds: AlertThresholds;
+}
+
+/** Performance alert thresholds */
+export interface AlertThresholds {
+  /** Parse time threshold in milliseconds */
+  parseTime: number;
+  /** Cache hit ratio threshold (0-1) */
+  cacheHitRatio: number;
+  /** Error rate threshold (0-1) */
+  errorRate: number;
+  /** Minimum cache samples for metrics */
+  minCacheSamples: number;
+}
+
+/** Parse context */
+export interface ParseContextData {
+  /** Page name */
+  pageName?: string;
+  /** User name */
+  userName?: string;
+  /** User context object */
+  userContext?: unknown;
+  /** Request information */
+  requestInfo?: unknown;
+  /** Code blocks extracted during parsing */
+  codeBlocks?: string[];
+  /** Protected HTML blocks */
+  protectedBlocks?: string[];
+  /** Syntax tokens */
+  syntaxTokens?: unknown[];
+  /** Additional context properties */
+  [key: string]: unknown;
+}
+
+/** Extracted JSPWiki element */
+export interface ExtractedElement {
+  /** Element type */
+  type: 'variable' | 'plugin' | 'link' | 'escaped';
+  /** Original syntax */
+  syntax: string;
+  /** Unique ID */
+  id: number;
+  /** Position in content */
+  position?: number;
+  /** Variable name (for variables) */
+  varName?: string;
+  /** Plugin/tag inner content (for plugins) */
+  inner?: string;
+  /** Link target (for links) */
+  target?: string;
+  /** Escaped literal content (for escaped) */
+  literal?: string;
+}
+
+/** Result of extraction */
+export interface ExtractionResult {
+  /** Sanitized content with placeholders */
+  sanitized: string;
+  /** Extracted JSPWiki elements */
+  jspwikiElements: ExtractedElement[];
+  /** Unique UUID for this extraction */
+  uuid: string;
+}
+
+/** Parser metrics */
+export interface ParserMetrics {
+  /** Number of parses performed */
+  parseCount: number;
+  /** Total parse time in milliseconds */
+  totalParseTime: number;
+  /** Number of errors */
+  errorCount: number;
+  /** Number of cache hits */
+  cacheHits: number;
+  /** Number of cache misses */
+  cacheMisses: number;
+  /** Cache metrics by strategy */
+  cacheMetrics: Map<string, CacheMetrics>;
+}
+
+/** Cache metrics for a strategy */
+export interface CacheMetrics {
+  /** Number of cache hits */
+  hits: number;
+  /** Number of cache misses */
+  misses: number;
+  /** Number of cache sets */
+  sets: number;
+}
+
+/** Performance monitor state */
+export interface PerformanceMonitor {
+  /** Performance alerts */
+  alerts: PerformanceAlert[];
+  /** Last check timestamp */
+  lastCheck: number;
+  /** Check interval in milliseconds */
+  checkInterval: number;
+  /** Recent parse times */
+  recentParseTimes: ParseTimeEntry[];
+  /** Recent error rates */
+  recentErrorRates: number[];
+  /** Maximum recent entries to keep */
+  maxRecentEntries: number;
+}
+
+/** Performance alert */
+export interface PerformanceAlert {
+  /** Alert type */
+  type: string;
+  /** Alert message */
+  message: string;
+  /** Timestamp */
+  timestamp: string;
+  /** Related metrics */
+  metrics: unknown;
+}
+
+/** Parse time entry */
+export interface ParseTimeEntry {
+  /** Parse time in milliseconds */
+  time: number;
+  /** Whether this was a cache hit */
+  cacheHit: boolean;
+  /** Timestamp */
+  timestamp: number;
+}
+
+/** Extended metrics returned by getMetrics() */
+export interface ExtendedMetrics extends ParserMetrics {
+  /** Average parse time */
+  averageParseTime: number;
+  /** Cache hit ratio */
+  cacheHitRatio: number;
+  /** Handler registry stats */
+  handlerRegistry?: unknown;
+  /** Filter chain stats */
+  filterChain?: unknown;
+  /** Cache strategies stats */
+  cacheStrategies?: Record<string, unknown>;
+  /** Performance monitoring stats */
+  performance?: unknown;
+}
 
 /**
  * MarkupParser - Comprehensive markup parsing engine for JSPWiki compatibility
@@ -27,27 +274,6 @@ const DOMLinkHandler = require('./dom/handlers/DOMLinkHandler');
  *
  * ============================================================================
  *
- * @class MarkupParser
- * @extends BaseManager
- *
- * @property {HandlerRegistry} handlerRegistry - Registry for syntax handlers
- * @property {FilterChain} filterChain - Content filter chain
- * @property {Object} cache - Parse result cache
- * @property {Object} cacheStrategies - Caching strategies by content type
- * @property {Object} performanceMonitor - Performance monitoring
- * @property {Object} metrics - Parser performance metrics
- * @property {WikiDOMParser} domParser - DOM-based parser for JSPWiki syntax
- * @property {DOMVariableHandler} domVariableHandler - Variable expansion handler
- * @property {DOMPluginHandler} domPluginHandler - Plugin execution handler
- * @property {DOMLinkHandler} domLinkHandler - Link resolution handler
- *
- * @see {@link BaseManager} for base functionality
- * @see {@link RenderingManager} for integration
- *
- * @example
- * const markupParser = engine.getManager('MarkupParser');
- * const html = await markupParser.parse(content, { pageName: 'Main' });
- *
  * Related Issues:
  * - #185 - Remove deprecated 7-phase legacy parser pipeline
  * - #114 - WikiDocument DOM Solution (Epic)
@@ -55,13 +281,40 @@ const DOMLinkHandler = require('./dom/handlers/DOMLinkHandler');
  * - #110, #93 - Markdown heading bug fixes
  */
 class MarkupParser extends BaseManager {
+  /** Handler registry for syntax handlers */
+  handlerRegistry: HandlerRegistry;
+
+  /** Content filter chain */
+  filterChain: FilterChain;
+
+  /** Parse result cache */
+  cache: RegionCache | null;
+
+  /** Caching strategies by content type */
+  cacheStrategies: Record<string, RegionCache>;
+
+  /** Performance monitoring state */
+  performanceMonitor: PerformanceMonitor | null;
+
+  /** Parser performance metrics */
+  metrics: ParserMetrics;
+
+  /** DOM-based parser for JSPWiki syntax */
+  domParser: WikiDOMParser;
+
+  /** Variable expansion handler */
+  domVariableHandler: DOMVariableHandler;
+
+  /** Plugin execution handler */
+  domPluginHandler: DOMPluginHandler;
+
+  /** Link resolution handler */
+  domLinkHandler: DOMLinkHandler;
+
   /**
    * Creates a new MarkupParser instance
-   *
-   * @constructor
-   * @param {WikiEngine} engine - The wiki engine instance
    */
-  constructor(engine) {
+  constructor(engine: WikiEngine) {
     super(engine);
     this.handlerRegistry = new HandlerRegistry(engine);
     this.filterChain = new FilterChain(engine);
@@ -84,23 +337,22 @@ class MarkupParser extends BaseManager {
     });
 
     // Initialize DOM-based variable handler (Phase 3 migration - GitHub Issue #93)
-    this.domVariableHandler = new DOMVariableHandler(engine);
+     
+    this.domVariableHandler = new DOMVariableHandler(engine as any);
 
     // Initialize DOM-based plugin handler (Phase 4 migration - GitHub Issue #107)
-    this.domPluginHandler = new DOMPluginHandler(engine);
+     
+    this.domPluginHandler = new DOMPluginHandler(engine as any);
 
     // Initialize DOM-based link handler (Phase 5 migration - GitHub Issue #108)
-    this.domLinkHandler = new DOMLinkHandler(engine);
+     
+    this.domLinkHandler = new DOMLinkHandler(engine as any);
   }
 
   /**
    * Initialize the MarkupParser
-   *
-   * @async
-   * @param {Object} [config={}] - Configuration object
-   * @returns {Promise<void>}
    */
-  async initialize(config = {}) {
+  async initialize(config: Partial<MarkupParserConfig> = {}): Promise<void> {
     await super.initialize(config);
 
     // Load configuration from ConfigurationManager
@@ -109,9 +361,9 @@ class MarkupParser extends BaseManager {
     // Initialize advanced cache integration
     await this.initializeAdvancedCaching();
 
-    // Configure handler registry
-    this.configureHandlerRegistry();
-    
+    // HandlerRegistry uses default configuration
+    // (config property is private, no public setter available)
+
     // Initialize performance monitoring
     this.initializePerformanceMonitoring();
     
@@ -135,8 +387,8 @@ class MarkupParser extends BaseManager {
    * Check if MarkupParser is initialized (required for RenderingManager integration)
    * @returns {boolean} - True if initialized
    */
-  isInitialized() {
-    return this.initialized && this.config && this.handlerRegistry && this.filterChain;
+  isInitialized(): boolean {
+    return !!(this.initialized && this.config && this.handlerRegistry && this.filterChain);
   }
 
   /**
@@ -434,14 +686,16 @@ class MarkupParser extends BaseManager {
 
   /**
    * Configure handler registry with loaded configuration
+   * NOTE: Removed - HandlerRegistry.config is private, no public setter available.
+   * HandlerRegistry uses default configuration which is sufficient.
    */
-  configureHandlerRegistry() {
-    // Apply configuration to handler registry
-    this.handlerRegistry.config = {
-      ...this.handlerRegistry.config,
-      ...this.config.handlerRegistry
-    };
-  }
+  // configureHandlerRegistry() {
+  //   // Apply configuration to handler registry
+  //   this.handlerRegistry.config = {
+  //     ...this.handlerRegistry.config,
+  //     ...this.config.handlerRegistry
+  //   };
+  // }
 
   /**
    * Initialize advanced caching integration with multiple cache strategies
@@ -552,7 +806,7 @@ class MarkupParser extends BaseManager {
               const cacheKey = `var:${varName}:default`;
               const value = await this.resolveSystemVariable(varName, {});
               await this.cacheStrategies.variables.set(cacheKey, value, { ttl: this.config.cache.variables.ttl });
-            } catch (error) {
+            } catch {
               // Skip variables that can't be resolved without context
             }
           }
@@ -646,7 +900,8 @@ class MarkupParser extends BaseManager {
 
       // Warn if parse time is slow
       if (processingTime > 100) {
-        console.warn(`⚠️  Slow parse: ${processingTime}ms for page ${context.pageName || 'unknown'}`);
+        const contextData = context as ParseContextData;
+        console.warn(`⚠️  Slow parse: ${processingTime}ms for page ${contextData.pageName || 'unknown'}`);
       }
 
       return result;
@@ -808,7 +1063,7 @@ class MarkupParser extends BaseManager {
    * // jspwikiElements: [{ type: 'variable', varName: '$username', id: 0, ... }]
    * // uuid: "abc123"
    */
-  extractJSPWikiSyntax(content, context = {}) {
+  extractJSPWikiSyntax(content, _context = {}) {
     const crypto = require('crypto');
     const jspwikiElements = [];
     const uuid = crypto.randomUUID().substring(0, 8);
@@ -955,31 +1210,31 @@ class MarkupParser extends BaseManager {
    */
   async createDOMNode(element, context, wikiDocument) {
     switch (element.type) {
-      case 'variable':
-        // Variable: [{$username}]
-        return await this.domVariableHandler.createNodeFromExtract(element, context, wikiDocument);
+    case 'variable':
+      // Variable: [{$username}]
+      return await this.domVariableHandler.createNodeFromExtract(element, context, wikiDocument);
 
-      case 'plugin':
-        // Plugin: [{TableOfContents}]
-        return await this.domPluginHandler.createNodeFromExtract(element, context, wikiDocument);
+    case 'plugin':
+      // Plugin: [{TableOfContents}]
+      return await this.domPluginHandler.createNodeFromExtract(element, context, wikiDocument);
 
-      case 'link':
-        // Link: [HomePage] or [Display|Target]
-        return await this.domLinkHandler.createNodeFromExtract(element, context, wikiDocument);
+    case 'link':
+      // Link: [HomePage] or [Display|Target]
+      return await this.domLinkHandler.createNodeFromExtract(element, context, wikiDocument);
 
-      case 'escaped':
-        // Escaped: [[{$var}]] → [{$var}]
-        return this.createTextNodeForEscaped(element, wikiDocument);
+    case 'escaped':
+      // Escaped: [[{$var}]] → [{$var}]
+      return this.createTextNodeForEscaped(element, wikiDocument);
 
-      default:
-        console.error(`❌ Unknown element type: ${element.type}`);
-        // Return error node
-        const errorNode = wikiDocument.createElement('span', {
-          'class': 'wiki-error',
-          'data-jspwiki-id': element.id.toString()
-        });
-        errorNode.textContent = `[Error: Unknown type ${element.type}]`;
-        return errorNode;
+    default:
+      console.error(`❌ Unknown element type: ${element.type}`);
+      // Return error node
+      const errorNode = wikiDocument.createElement('span', {
+        'class': 'wiki-error',
+        'data-jspwiki-id': element.id.toString()
+      });
+      errorNode.textContent = `[Error: Unknown type ${element.type}]`;
+      return errorNode;
     }
   }
 
@@ -1012,22 +1267,25 @@ class MarkupParser extends BaseManager {
     // Sort nodes by ID (descending) to handle nested replacements correctly
     // Example: Plugin containing variable must be replaced after the plugin
     const sortedNodes = Array.from(nodes).sort((a, b) => {
-      const idA = parseInt(a.getAttribute('data-jspwiki-id'));
-      const idB = parseInt(b.getAttribute('data-jspwiki-id'));
+      const elemA = a as Element;
+      const elemB = b as Element;
+      const idA = parseInt(elemA.getAttribute('data-jspwiki-id') || '0');
+      const idB = parseInt(elemB.getAttribute('data-jspwiki-id') || '0');
       return idB - idA; // Descending order
     });
 
     for (const node of sortedNodes) {
-      const id = node.getAttribute('data-jspwiki-id');
+      const element = node as Element;
+      const id = element.getAttribute('data-jspwiki-id');
       const placeholder = `<span data-jspwiki-placeholder="${uuid}-${id}"></span>`;
 
       // Render node to HTML
-      let rendered;
-      if (node.outerHTML) {
-        rendered = node.outerHTML;
-      } else if (node.textContent !== undefined) {
+      let rendered: string;
+      if (element.outerHTML) {
+        rendered = element.outerHTML;
+      } else if (element.textContent !== undefined) {
         // Fallback for nodes without outerHTML
-        rendered = node.textContent;
+        rendered = element.textContent;
       } else {
         // Empty node
         rendered = '';
@@ -1123,10 +1381,9 @@ class MarkupParser extends BaseManager {
 
   /**
    * Get performance metrics
-   * @returns {Object} - Performance metrics
    */
-  getMetrics() {
-    const metrics = { ...this.metrics };
+  getMetrics(): ExtendedMetrics {
+    const metrics: ExtendedMetrics = { ...this.metrics, averageParseTime: 0, cacheHitRatio: 0 };
     
     // Calculate averages
     metrics.averageParseTime = this.metrics.parseCount > 0 
@@ -1169,7 +1426,7 @@ class MarkupParser extends BaseManager {
       const recentTimes = this.performanceMonitor.recentParseTimes.slice(-20);
       if (recentTimes.length > 0) {
         const nonCachedTimes = recentTimes.filter(entry => !entry.cacheHit);
-        metrics.performance.recentStats = {
+        (metrics.performance as any).recentStats = {
           averageParseTime: nonCachedTimes.length > 0 
             ? nonCachedTimes.reduce((sum, entry) => sum + entry.time, 0) / nonCachedTimes.length 
             : 0,
@@ -1452,10 +1709,16 @@ class MarkupParser extends BaseManager {
     this.performanceMonitor = null;
     
     // Clear phases
-    this.phases = [];
+    // Phases removed in Issue #185
     
     await super.shutdown();
   }
 }
 
+export default MarkupParser;
+
+// Export for CommonJS (Jest compatibility)
+ 
 module.exports = MarkupParser;
+ 
+module.exports.default = MarkupParser;

@@ -397,14 +397,6 @@ See [docs/planning/ROADMAP.md](/docs/planning/ROADMAP.md)
 
 **Key Decisions:
 
-- All configuration MUST use ConfigurationManager - no hardcoded fallbacks (DRY)
-- Use Playwright for E2E testing with Chromium browser, integrate into CI/CD
-- Schema.org-compliant front matter, PascalCase naming, TypeDoc for automation
-- Implement lint-staged to only lint staged files (not all files), allowing incremental improvement
-- Move from ES2020 to ES2022
-- ecosystem.config.js accepted as infrastructure-level (PM2 runs before app)
-- Consolidate all instance-specific data into `./data/` directory
-
 **Test Status (2025-12-15):**
 
 - Test Suites: 21 failed, 48 passed (69 total)
