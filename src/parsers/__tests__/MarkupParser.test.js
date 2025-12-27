@@ -107,7 +107,8 @@ describe('MarkupParser', () => {
   });
 
   describe('Initialization', () => {
-    test('should initialize with all 8 phases', () => {
+    // DEPRECATED: Legacy 7-phase pipeline removed in Issue #185
+    test.skip('should initialize with all 8 phases', () => {
       expect(markupParser.phases).toHaveLength(8);
 
       const expectedPhases = [
@@ -132,10 +133,12 @@ describe('MarkupParser', () => {
     test('should initialize metrics collection', () => {
       expect(markupParser.metrics).toBeDefined();
       expect(markupParser.metrics.parseCount).toBe(0);
-      expect(markupParser.metrics.phaseMetrics.size).toBe(8);
+      // DEPRECATED: phaseMetrics removed with legacy pipeline (Issue #185)
+      // expect(markupParser.metrics.phaseMetrics.size).toBe(8);
     });
 
-    test('should sort phases by priority', () => {
+    // DEPRECATED: Legacy 7-phase pipeline removed in Issue #185
+    test.skip('should sort phases by priority', () => {
       const priorities = markupParser.phases.map(phase => phase.priority);
       expect(priorities).toEqual([50, 100, 200, 300, 400, 500, 600, 700]);
     });
@@ -343,7 +346,8 @@ describe('MarkupParser', () => {
   });
 
   describe('Error Handling', () => {
-    test('should handle phase errors gracefully', async () => {
+    // DEPRECATED: Legacy 7-phase pipeline removed in Issue #185
+    test.skip('should handle phase errors gracefully', async () => {
       // Mock a phase to throw an error
       const originalPhase = markupParser.phases[0].process;
       markupParser.phases[0].process = jest.fn().mockRejectedValue(new Error('Phase error'));
@@ -375,7 +379,8 @@ describe('MarkupParser', () => {
       expect(result).toBeDefined();
     });
 
-    test('should return original content on critical failure', async () => {
+    // DEPRECATED: Legacy 7-phase pipeline removed in Issue #185
+    test.skip('should return original content on critical failure', async () => {
       // Mock all phases to fail
       markupParser.phases.forEach(phase => {
         phase.process = jest.fn().mockRejectedValue(new Error('Critical error'));
@@ -405,7 +410,8 @@ describe('MarkupParser', () => {
       expect(metrics.totalParseTime).toBeGreaterThanOrEqual(0);
     });
 
-    test('should track phase-specific metrics', async () => {
+    // DEPRECATED: Legacy 7-phase pipeline removed in Issue #185
+    test.skip('should track phase-specific metrics', async () => {
       const content = 'test content';
 
       await markupParser.parse(content);
@@ -449,17 +455,19 @@ describe('MarkupParser', () => {
   });
 
   describe('HTML Cleanup', () => {
-    test('should clean up generated HTML', () => {
+    // DEPRECATED: cleanupHtml() removed with legacy pipeline (Issue #185)
+    test.skip('should clean up generated HTML', () => {
       const messyHtml = '  <p>  Test  </p>   <p>Another</p>  ';
       const cleanedHtml = markupParser.cleanupHtml(messyHtml);
-      
+
       expect(cleanedHtml).toBe('<p> Test </p>\n<p>Another</p>');
     });
 
-    test('should remove excessive whitespace', () => {
+    // DEPRECATED: cleanupHtml() removed with legacy pipeline (Issue #185)
+    test.skip('should remove excessive whitespace', () => {
       const messyHtml = '<div>   Multiple    spaces   </div>';
       const cleanedHtml = markupParser.cleanupHtml(messyHtml);
-      
+
       expect(cleanedHtml).toBe('<div> Multiple spaces </div>');
     });
   });

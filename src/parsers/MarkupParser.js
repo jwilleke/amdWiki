@@ -11,10 +11,10 @@ const DOMLinkHandler = require('./dom/handlers/DOMLinkHandler');
  * MarkupParser - Comprehensive markup parsing engine for JSPWiki compatibility
  *
  * ============================================================================
- * RENDERING PIPELINE (Phase 6, Issue #120):
+ * RENDERING PIPELINE (Issue #120, Issue #185):
  * ============================================================================
  *
- * **PRIMARY PIPELINE (Default):** WikiDocument DOM Extraction (Issues #115-#120)
+ * **WikiDocument DOM Extraction Pipeline** (Issues #115-#120):
  * 1. Extract JSPWiki syntax before markdown parsing (extractJSPWikiSyntax())
  * 2. Create WikiDocument DOM nodes (createDOMNode())
  * 3. Parse markdown with Showdown (makeHtml())
@@ -23,35 +23,13 @@ const DOMLinkHandler = require('./dom/handlers/DOMLinkHandler');
  * This pipeline fixes the markdown heading bug (#110, #93) and provides
  * robust JSPWiki syntax processing without order dependencies.
  *
- * **Configuration:** Set `jspwiki.parser.useExtractionPipeline = true` (default)
- *
- * ============================================================================
- * LEGACY PIPELINE (Deprecated, Fallback Only):
- * ============================================================================
- *
- * **@deprecated** The 7-phase string-based pipeline below is DEPRECATED and
- * kept only for backward compatibility and emergency fallback. It suffers from:
- * - Order dependency issues
- * - Markdown/JSPWiki conflicts (heading bug)
- * - Fragile string manipulation
- *
- * Legacy 7-phase processing pipeline:
- * 1. Preprocessing - Escape handling, code block protection
- * 2. Syntax Recognition - Pattern detection and tokenization
- * 3. Context Resolution - Variable expansion, parameter resolution
- * 4. Content Transformation - Handler execution
- * 5. Filter Pipeline - Content filtering and validation
- * 6. Markdown Conversion - Showdown processing
- * 7. Post-processing - Cleanup and validation
- *
- * **Configuration:** Set `jspwiki.parser.useExtractionPipeline = false` to use legacy
+ * The legacy 7-phase string-based pipeline was removed in Issue #185.
  *
  * ============================================================================
  *
  * @class MarkupParser
  * @extends BaseManager
  *
- * @property {Array} phases - Processing phase definitions
  * @property {HandlerRegistry} handlerRegistry - Registry for syntax handlers
  * @property {FilterChain} filterChain - Content filter chain
  * @property {Object} cache - Parse result cache
@@ -71,11 +49,10 @@ const DOMLinkHandler = require('./dom/handlers/DOMLinkHandler');
  * const html = await markupParser.parse(content, { pageName: 'Main' });
  *
  * Related Issues:
+ * - #185 - Remove deprecated 7-phase legacy parser pipeline
  * - #114 - WikiDocument DOM Solution (Epic)
  * - #115-#120 - Implementation Phases
  * - #110, #93 - Markdown heading bug fixes
- * - #55 - Core Infrastructure and Phase System (original)
- * - #41 - JSPWikiMarkupParser Enhancement (original epic)
  */
 class MarkupParser extends BaseManager {
   /**
@@ -86,7 +63,6 @@ class MarkupParser extends BaseManager {
    */
   constructor(engine) {
     super(engine);
-    this.phases = [];
     this.handlerRegistry = new HandlerRegistry(engine);
     this.filterChain = new FilterChain(engine);
     this.cache = null;
@@ -95,7 +71,6 @@ class MarkupParser extends BaseManager {
     this.metrics = {
       parseCount: 0,
       totalParseTime: 0,
-      phaseMetrics: new Map(),
       errorCount: 0,
       cacheHits: 0,
       cacheMisses: 0,
@@ -131,15 +106,9 @@ class MarkupParser extends BaseManager {
     // Load configuration from ConfigurationManager
     await this.loadConfiguration();
 
-    // Initialize processing phases
-    this.initializePhases();
-    
     // Initialize advanced cache integration
     await this.initializeAdvancedCaching();
-    
-    // Initialize metrics collection
-    this.initializeMetrics();
-    
+
     // Configure handler registry
     this.configureHandlerRegistry();
     
@@ -156,9 +125,8 @@ class MarkupParser extends BaseManager {
 
     // Register default handlers
     await this.registerDefaultHandlers();
-    
-    console.log('✅ MarkupParser initialized with 7-phase processing pipeline');
-    console.log(`🔧 Phases: ${this.phases.map(p => p.name).join(' → ')}`);
+
+    console.log('✅ MarkupParser initialized with DOM extraction pipeline');
     console.log(`⚙️  Configuration loaded: ${this.config.enabled ? 'enabled' : 'disabled'}`);
     console.log(`🗄️  Cache strategies: ${Object.keys(this.cacheStrategies).join(', ')}`);
   }
@@ -476,83 +444,6 @@ class MarkupParser extends BaseManager {
   }
 
   /**
-   * Initialize the 8 processing phases (LEGACY/DEPRECATED)
-   *
-   * @deprecated This method initializes the LEGACY 7-phase string-based parser.
-   * The legacy parser is kept only for backward compatibility and emergency fallback.
-   *
-   * **NEW PRIMARY PIPELINE:** Use `parseWithDOMExtraction()` instead (Issues #115-#120)
-   * - Extraction-based approach
-   * - No order dependencies
-   * - Fixes markdown heading bug (#110, #93)
-   * - Active by default (jspwiki.parser.useExtractionPipeline = true)
-   *
-   * **This legacy pipeline is used only when:**
-   * - Configuration sets `jspwiki.parser.useExtractionPipeline = false`
-   * - New pipeline encounters an error (automatic fallback)
-   *
-   * Phase 0 (DOM Parsing) replaces string-based tokenization
-   * Each phase has a specific responsibility in the parsing pipeline
-   *
-   * Related: GitHub Issues #93, #114-#120
-   */
-  initializePhases() {
-    this.phases = [
-      {
-        // Phase 0: DOM Parsing (NEW - replaces fragile string parsing)
-        name: 'DOM Parsing',
-        priority: 50,
-        process: this.phaseDOMParsing.bind(this)
-      },
-      {
-        // Phase 1: Preprocessing
-        name: 'Preprocessing',
-        priority: 100,
-        process: this.phasePreprocessing.bind(this)
-      },
-      {
-        // Phase 2: Syntax Recognition
-        name: 'Syntax Recognition',
-        priority: 200,
-        process: this.phaseSyntaxRecognition.bind(this)
-      },
-      {
-        // Phase 3: Context Resolution
-        name: 'Context Resolution',
-        priority: 300,
-        process: this.phaseContextResolution.bind(this)
-      },
-      {
-        // Phase 4: Content Transformation
-        name: 'Content Transformation',
-        priority: 400,
-        process: this.phaseContentTransformation.bind(this)
-      },
-      {
-        // Phase 5: Filter Pipeline
-        name: 'Filter Pipeline',
-        priority: 500,
-        process: this.phaseFilterPipeline.bind(this)
-      },
-      {
-        // Phase 6: Markdown Conversion
-        name: 'Markdown Conversion',
-        priority: 600,
-        process: this.phaseMarkdownConversion.bind(this)
-      },
-      {
-        // Pahe 7: Post-processing
-        name: 'Post-processing',
-        priority: 700,
-        process: this.phasePostProcessing.bind(this)
-      }
-    ];
-
-    // Sort phases by priority (should already be ordered)
-    this.phases.sort((a, b) => a.priority - b.priority);
-  }
-
-  /**
    * Initialize advanced caching integration with multiple cache strategies
    */
   async initializeAdvancedCaching() {
@@ -698,21 +589,7 @@ class MarkupParser extends BaseManager {
   }
 
   /**
-   * Initialize metrics collection
-   */
-  initializeMetrics() {
-    // Initialize phase-specific metrics
-    this.phases.forEach(phase => {
-      this.metrics.phaseMetrics.set(phase.name, {
-        executionCount: 0,
-        totalTime: 0,
-        errorCount: 0
-      });
-    });
-  }
-
-  /**
-   * Main parsing method - processes content through all phases
+   * Main parsing method - uses WikiDocument DOM extraction pipeline
    * @param {string} content - Raw content to parse
    * @param {Object} context - Parsing context (page, user, etc.)
    * @returns {Promise<string>} - Processed HTML content
@@ -736,554 +613,51 @@ class MarkupParser extends BaseManager {
     const startTime = Date.now();
     this.metrics.parseCount++;
 
-    // Phase 6 (Issue #120): Check if WikiDocument DOM extraction pipeline should be used
-    const configManager = this.engine.getManager('ConfigurationManager');
-    const useExtractionPipeline = configManager?.getProperty?.(
-      'jspwiki.parser.useExtractionPipeline',
-      true // Default to new pipeline (Phase 6)
-    ) ?? true;
-
-    if (useExtractionPipeline) {
-      // NEW: WikiDocument DOM extraction pipeline (Phases 1-5, Issues #115-#119)
-      try {
-        console.log('🔄 Using WikiDocument DOM extraction pipeline');
-
-        // Check cache first
-        const cacheKey = this.generateCacheKey(content, context);
-        if (this.cacheStrategies.parseResults) {
-          const cached = await this.getCachedParseResult(cacheKey);
-          if (cached) {
-            this.updateCacheMetrics('parseResults', 'hit');
-            this.metrics.cacheHits++;
-            this.updatePerformanceMetrics(Date.now() - startTime, true);
-            console.log(`✅ Cache hit for extraction pipeline (${Date.now() - startTime}ms)`);
-            return cached;
-          }
-          this.updateCacheMetrics('parseResults', 'miss');
-          this.metrics.cacheMisses++;
-        }
-
-        // Parse using extraction pipeline
-        const result = await this.parseWithDOMExtraction(content, context);
-
-        // Cache the result
-        await this.cacheParseResult(cacheKey, result);
-
-        // Update metrics
-        const processingTime = Date.now() - startTime;
-        this.metrics.totalParseTime += processingTime;
-        this.updatePerformanceMetrics(processingTime, false);
-
-        console.log(`✅ Extraction pipeline completed (${processingTime}ms)`);
-
-        // Warn if parse time is slow
-        if (processingTime > 100) {
-          console.warn(`⚠️  Slow parse: ${processingTime}ms for page ${context.pageName || 'unknown'}`);
-        }
-
-        return result;
-
-      } catch (error) {
-        console.error('❌ Extraction pipeline error:', error);
-        console.warn('⚠️  Falling back to legacy 7-phase parser');
-
-        // Fall through to legacy parser on error
-        // (continue below with the old pipeline)
-      }
-    } else {
-      console.log('🔄 Using legacy 7-phase parser (extraction pipeline disabled)');
-    }
-
-    // LEGACY: Original 7-phase parser (fallback)
     try {
-      // Generate cache key
-      const cacheKey = this.generateCacheKey(content, context);
+      console.log('🔄 Using WikiDocument DOM extraction pipeline');
 
-      // Check parse results cache first
+      // Check cache first
+      const cacheKey = this.generateCacheKey(content, context);
       if (this.cacheStrategies.parseResults) {
         const cached = await this.getCachedParseResult(cacheKey);
         if (cached) {
           this.updateCacheMetrics('parseResults', 'hit');
           this.metrics.cacheHits++;
-
-          // Update performance monitoring
           this.updatePerformanceMetrics(Date.now() - startTime, true);
-
+          console.log(`✅ Cache hit for extraction pipeline (${Date.now() - startTime}ms)`);
           return cached;
         }
         this.updateCacheMetrics('parseResults', 'miss');
         this.metrics.cacheMisses++;
       }
 
-      // Create parse context
-      const parseContext = new ParseContext(content, context, this.engine);
+      // Parse using extraction pipeline
+      const result = await this.parseWithDOMExtraction(content, context);
 
-      // Execute all processing phases
-      let processedContent = content;
+      // Cache the result
+      await this.cacheParseResult(cacheKey, result);
 
-      for (const phase of this.phases) {
-        const phaseStartTime = Date.now();
-
-        try {
-          processedContent = await this.executePhase(phase, processedContent, parseContext);
-
-          // Update phase metrics
-          const phaseMetrics = this.metrics.phaseMetrics.get(phase.name);
-          phaseMetrics.executionCount++;
-          phaseMetrics.totalTime += Date.now() - phaseStartTime;
-
-        } catch (error) {
-          console.error(`❌ Error in ${phase.name} phase:`, error);
-
-          // Update error metrics
-          this.metrics.errorCount++;
-          const phaseMetrics = this.metrics.phaseMetrics.get(phase.name);
-          phaseMetrics.errorCount++;
-
-          // Continue with next phase on error (graceful degradation)
-          // In production, you might want to be more strict
-        }
-      }
-
-      // Cache the result using appropriate strategy
-      await this.cacheParseResult(cacheKey, processedContent);
-
-      // Update performance metrics
+      // Update metrics
       const processingTime = Date.now() - startTime;
       this.metrics.totalParseTime += processingTime;
       this.updatePerformanceMetrics(processingTime, false);
 
-      return processedContent;
+      console.log(`✅ Extraction pipeline completed (${processingTime}ms)`);
+
+      // Warn if parse time is slow
+      if (processingTime > 100) {
+        console.warn(`⚠️  Slow parse: ${processingTime}ms for page ${context.pageName || 'unknown'}`);
+      }
+
+      return result;
 
     } catch (error) {
-      console.error('❌ Critical error in MarkupParser.parse():', error);
+      console.error('❌ Extraction pipeline error:', error);
       this.metrics.errorCount++;
 
       // Return original content on critical failure
       return content;
     }
-  }
-
-  /**
-   * Execute a specific processing phase
-   * @param {Object} phase - Phase configuration
-   * @param {string} content - Content to process
-   * @param {ParseContext} context - Parse context
-   * @returns {Promise<string>} - Processed content
-   */
-  async executePhase(phase, content, context) {
-    return await phase.process(content, context);
-  }
-
-  /**
-   * Process JSPWiki-specific syntax (variables, plugins, escaping)
-   * This handles [{$var}], [{Plugin}], and [[escaped]] without breaking markdown
-   *
-   * Related: GitHub Issue #110 - JSPWiki Variable Syntax
-   */
-  async processJSPWikiSyntax(content, context) {
-    let processed = content;
-
-    // Step 1: Protect escaped syntax from further processing
-    // Replace [[content] with placeholders, storing the unescaped content
-    const escapedPlaceholders = new Map();
-    let escapedIndex = 0;
-
-    processed = processed.replace(/\[\[([^\]]+)\]/g, (match, innerContent) => {
-      const placeholder = `__ESCAPED_${escapedIndex}__`;
-      // Store with HTML-encoded brackets to prevent later handlers from processing
-      // [{...}] becomes &#91;{...}&#93; which displays as [{...}] but won't match [...]  patterns
-      escapedPlaceholders.set(placeholder, `&#91;${innerContent}&#93;`);
-      escapedIndex++;
-      return placeholder;
-    });
-
-    // Step 2: Handle variables [{$varname}]
-    const variableManager = this.engine.getManager('VariableManager');
-    if (variableManager && variableManager.variableHandlers) {
-      // Match [{$word}] pattern only
-      processed = processed.replace(/\[\{\$(\w+)\}\]/g, (match, varName) => {
-        const handler = variableManager.variableHandlers.get(varName.toLowerCase());
-        if (handler) {
-          try {
-            const value = handler(context);
-            return value !== undefined && value !== null ? String(value) : match;
-          } catch (error) {
-            console.error(`Error resolving variable ${varName}:`, error);
-            return match;
-          }
-        }
-        return match; // Variable not found, keep original
-      });
-    }
-
-    // Step 3: Handle plugins [{PluginName param=value}]
-    const pluginManager = this.engine.getManager('PluginManager');
-    if (pluginManager) {
-      // Match [{word ...}] pattern (not starting with $)
-      const pluginRegex = /\[\{([A-Z]\w+)(\s+[^\}]+)?\}\]/g;
-      const matches = [];
-      let match;
-
-      // Collect all plugin matches
-      while ((match = pluginRegex.exec(processed)) !== null) {
-        matches.push({
-          fullMatch: match[0],
-          pluginName: match[1],
-          paramsString: match[2] || '',
-          index: match.index
-        });
-      }
-
-      // Process plugins in reverse order to maintain string positions
-      for (let i = matches.length - 1; i >= 0; i--) {
-        const m = matches[i];
-        try {
-          // Parse parameters
-          const params = {};
-          if (m.paramsString) {
-            const paramPairs = m.paramsString.trim().split(/\s+/);
-            for (const pair of paramPairs) {
-              const [key, value] = pair.split('=');
-              if (key && value) {
-                params[key] = value.replace(/^['"]|['"]$/g, '');
-              }
-            }
-          }
-
-          // Execute plugin
-          const result = await pluginManager.execute(m.pluginName, context.pageName || 'Unknown', params, {
-            engine: this.engine,
-            context
-          });
-
-          // Replace in string
-          processed = processed.substring(0, m.index) + result + processed.substring(m.index + m.fullMatch.length);
-        } catch (error) {
-          console.error(`Error executing plugin ${m.pluginName}:`, error);
-          // Leave original syntax on error
-        }
-      }
-    }
-
-    // Step 4: Restore escaped content (now protected from processing)
-    for (const [placeholder, escapedContent] of escapedPlaceholders) {
-      processed = processed.replace(placeholder, escapedContent);
-    }
-
-    return processed;
-  }
-
-  /**
-   * Phase 0: DOM Parsing (DISABLED - causes markdown heading issues)
-   *
-   * The DOM parser converts markdown headings to list items. Instead, we handle
-   * JSPWiki syntax (variables, plugins, escaping) in later phases while preserving
-   * markdown syntax for the markdown converter.
-   *
-   * Related: GitHub Issue #93 - DOM-Based Parsing Architecture
-   * Related: GitHub Issue #110 - JSPWiki Variable Syntax
-   */
-  async phaseDOMParsing(content, context) {
-    // DISABLED: DOM parser breaks markdown headings
-    // JSPWiki syntax will be handled by string-based preprocessing in Phase 1
-    return content;
-  }
-
-  /**
-   * Phase 1: Preprocessing
-   * Handle JSPWiki-specific escaping and normalize content
-   * Protect code blocks from WikiStyleHandler and other Phase 3 handlers
-   * Process variables and escaped syntax without interfering with markdown
-   */
-  async phasePreprocessing(content, context) {
-    let processedContent = content;
-
-    // Step 1: Process JSPWiki-specific syntax BEFORE any other handlers
-    processedContent = await this.processJSPWikiSyntax(processedContent, context);
-
-    // Step 2: Process ALL Phase 1 handlers in priority order
-    const phase1Handlers = this.handlerRegistry.resolveExecutionOrder()
-      .filter(handler => handler.phase === 1);
-
-    console.log(`🔍 Phase 1: Processing ${phase1Handlers.length} Phase 1 handlers`);
-
-    for (const handler of phase1Handlers) {
-      try {
-        console.log(`🔍 Phase 1: Processing ${handler.handlerId}...`);
-        processedContent = await handler.execute(processedContent, context);
-      } catch (error) {
-        console.error(`❌ Error in Phase 1 handler ${handler.handlerId}:`, error.message);
-      }
-    }
-
-    // Convert JSPWiki-style code blocks ({{{}}}) to markdown (```)
-    processedContent = processedContent.replace(/\{\{\{(\w*)\s*\n([\s\S]*?)\n\}\}\}/g, (_match, language, code) => {
-      // Preserve language identifier if present
-      return '```' + (language || '') + '\n' + code + '\n```';
-    });
-
-    // Protect code blocks from WikiStyleHandler and other handlers
-    // They will be restored in Phase 6 before markdown conversion
-    context.codeBlocks = [];
-    processedContent = processedContent.replace(/(```[\s\S]*?```)/g, (match) => {
-      const placeholder = `CODEBLOCK${context.codeBlocks.length}CODEBLOCK`;
-      context.codeBlocks.push(match);
-      return placeholder;
-    });
-
-    // Protect inline code from handlers
-    processedContent = processedContent.replace(/(`[^`]+`)/g, (match) => {
-      const placeholder = `INLINECODE${context.codeBlocks.length}INLINECODE`;
-      context.codeBlocks.push(match);
-      return placeholder;
-    });
-
-    // Normalize line endings
-    processedContent = processedContent.replace(/\r\n/g, '\n');
-
-    // Remove excessive whitespace but preserve intentional formatting
-    processedContent = processedContent.replace(/\n\s*\n\s*\n/g, '\n\n');
-
-    return processedContent;
-  }
-
-  /**
-   * Phase 2: Syntax Recognition
-   * Identify and tokenize markup patterns
-   */
-  async phaseSyntaxRecognition(content, context) {
-    // This phase will identify patterns and create tokens
-    // For now, just pass through - handlers will do pattern matching
-    context.syntaxTokens = [];
-    return content;
-  }
-
-  /**
-   * Phase 3: Context Resolution
-   * Expand variables, resolve parameters
-   *
-   * Uses DOM-based variable resolution if WikiDocument is available (Phase 3 migration)
-   * Falls back to string-based expansion for backward compatibility
-   */
-  async phaseContextResolution(content, context) {
-    // Check if we have a WikiDocument from Phase 0 (DOM parsing)
-    if (context.wikiDocument) {
-      // Use DOM-based variable resolution (Phase 3 migration - GitHub Issue #93)
-      try {
-        await this.domVariableHandler.processVariables(context.wikiDocument, context);
-        // Return updated HTML from WikiDocument
-        content = context.wikiDocument.toHTML();
-        console.log('✅ Phase 3: DOM-based variable resolution complete');
-      } catch (error) {
-        console.error('❌ Error in DOM variable resolution:', error);
-        // Fall through to string-based expansion as fallback
-      }
-    } else {
-      // Phase 1 now handles JSPWiki variable syntax, so Phase 3 is skipped
-      // This prevents double-processing of variables and respects escaped syntax
-      console.log('✅ Phase 3: Skipped (variables already processed in Phase 1)');
-    }
-
-    return content;
-  }
-
-  /**
-   * Phase 4: Content Transformation
-   * Execute syntax handlers in priority order
-   *
-   * Uses DOM-based handlers if WikiDocument is available (Phase 4 migration)
-   * Falls back to string-based handlers for backward compatibility
-   */
-  async phaseContentTransformation(content, context) {
-    // Check if we have a WikiDocument from Phase 0 (DOM parsing)
-    if (context.wikiDocument) {
-      // Use DOM-based processing (Phase 4 & 5 migration - GitHub Issues #107, #108)
-      try {
-        // Process plugins (Phase 4 - Issue #107)
-        await this.domPluginHandler.processPlugins(context.wikiDocument, context);
-
-        // Process links (Phase 5 - Issue #108)
-        await this.domLinkHandler.processLinks(context.wikiDocument, context);
-
-        // Return updated HTML from WikiDocument
-        content = context.wikiDocument.toHTML();
-        console.log('✅ Phase 4: DOM-based plugin and link processing complete');
-      } catch (error) {
-        console.error('❌ Error in DOM processing:', error);
-        // Fall through to string-based handlers as fallback
-      }
-    } else {
-      // Legacy: String-based handlers for backward compatibility
-      // Get handlers in dependency-resolved priority order
-      const sortedHandlers = this.handlerRegistry.resolveExecutionOrder();
-
-      let transformedContent = content;
-
-      // Execute each handler using the registry's execution method
-      // Skip EscapedSyntaxHandler as it's already processed in Phase 1 (Preprocessing)
-      for (const handler of sortedHandlers) {
-        if (handler.handlerId === 'EscapedSyntaxHandler') {
-          continue; // Already processed in Phase 1
-        }
-
-        try {
-          transformedContent = await handler.execute(transformedContent, context);
-        } catch (error) {
-          console.error(`❌ Error in handler ${handler.handlerId}:`, error);
-          // Continue with other handlers
-        }
-      }
-
-      // Protect HTML links generated by handlers from markdown encoding
-      transformedContent = this.protectGeneratedHtml(transformedContent, context);
-
-      content = transformedContent;
-      console.log('✅ Phase 4: String-based handler processing (legacy)');
-    }
-
-    return content;
-  }
-
-  /**
-   * Phase 5: Filter Pipeline
-   * Apply content filters for security, validation, etc. with modular configuration
-   */
-  async phaseFilterPipeline(content, context) {
-    if (!this.filterChain || !this.config.filters.enabled) {
-      return content;
-    }
-
-    try {
-      return await this.filterChain.process(content, context);
-    } catch (error) {
-      console.error('❌ Filter pipeline error:', error.message);
-      
-      // Return original content on filter pipeline failure
-      return content;
-    }
-  }
-
-  /**
-   * Phase 6: Markdown Conversion
-   * Convert markdown to HTML using Showdown
-   * All standard markdown (code blocks, links, lists, etc.) is handled by Showdown natively
-   */
-  async phaseMarkdownConversion(content, context) {
-    // Restore code blocks BEFORE Showdown processes them
-    if (context.codeBlocks) {
-      context.codeBlocks.forEach((block, index) => {
-        const codeBlockPlaceholder = `CODEBLOCK${index}CODEBLOCK`;
-        const inlineCodePlaceholder = `INLINECODE${index}INLINECODE`;
-        content = content.replace(new RegExp(codeBlockPlaceholder, 'g'), block);
-        content = content.replace(new RegExp(inlineCodePlaceholder, 'g'), block);
-      });
-    }
-
-    const renderingManager = this.engine.getManager('RenderingManager');
-    if (renderingManager && renderingManager.converter) {
-      // Pass content directly to Showdown - it handles all standard markdown
-      content = renderingManager.converter.makeHtml(content);
-    }
-    return content;
-  }
-
-  /**
-   * Phase 7: Post-processing
-   * Final cleanup and validation
-   */
-  async phasePostProcessing(content, context) {
-    // Restore protected HTML blocks (from Phase 4 protectHtml)
-    if (context.protectedBlocks) {
-      context.protectedBlocks.forEach((block, index) => {
-        const htmlPlaceholder = `HTMLTOKEN${index}HTMLTOKEN`;
-        content = content.replace(new RegExp(htmlPlaceholder, 'g'), block);
-      });
-    }
-
-    // Apply table classes from WikiStyleHandler markers
-    content = this.applyTableClasses(content);
-
-    // Final HTML validation and cleanup
-    content = this.cleanupHtml(content);
-
-    return content;
-  }
-
-  /**
-   * Apply table classes from WikiStyleHandler %%TABLE_CLASSES{...}%% markers
-   * Handles multiple consecutive markers by merging all classes
-   * @param {string} content - HTML content to process
-   * @returns {string} Content with classes applied to table elements
-   */
-  applyTableClasses(content) {
-    // First, merge consecutive %%TABLE_CLASSES{...}%% markers
-    let mergedContent = content;
-    let hasConsecutiveMarkers = true;
-
-    while (hasConsecutiveMarkers) {
-      // Pattern to find consecutive markers: %%TABLE_CLASSES{class1}%%%%TABLE_CLASSES{class2}%%
-      const consecutivePattern = /%%TABLE_CLASSES\{([^}]+)\}%%%%TABLE_CLASSES\{([^}]+)\}%%/;
-      const match = consecutivePattern.exec(mergedContent);
-
-      if (match) {
-        // Merge the two class sets
-        const mergedClasses = `${match[1]} ${match[2]}`;
-        mergedContent = mergedContent.replace(match[0], `%%TABLE_CLASSES{${mergedClasses}}%%`);
-      } else {
-        hasConsecutiveMarkers = false;
-      }
-    }
-
-    // Now apply the merged classes to table elements
-    // Pattern: %%TABLE_CLASSES{class1 class2}%%...table HTML...
-    const tableClassPattern = /%%TABLE_CLASSES\{([^}]+)\}%%/g;
-
-    let result = mergedContent;
-    let match;
-
-    // Reset regex state
-    tableClassPattern.lastIndex = 0;
-
-    // Collect all markers and their classes
-    const markers = [];
-    while ((match = tableClassPattern.exec(mergedContent)) !== null) {
-      markers.push({
-        fullMatch: match[0],
-        classes: match[1],
-        index: match.index
-      });
-    }
-
-    // Apply classes to the next table after each marker
-    for (const marker of markers) {
-      // Find the next <table> tag after this marker
-      const contentAfterMarker = result.substring(result.indexOf(marker.fullMatch));
-      const tableMatch = contentAfterMarker.match(/<table([^>]*)>/);
-
-      if (tableMatch) {
-        const existingAttrs = tableMatch[1];
-        const classMatch = existingAttrs.match(/class=["']([^"']*)["']/);
-
-        let newTableTag;
-        if (classMatch) {
-          // Merge with existing classes
-          const mergedClasses = `${classMatch[1]} ${marker.classes}`.trim();
-          newTableTag = `<table${existingAttrs.replace(/class=["'][^"']*["']/, `class="${mergedClasses}"`)}>`;
-        } else {
-          // Add new class attribute
-          newTableTag = `<table${existingAttrs} class="${marker.classes}">`;
-        }
-
-        // Replace the old table tag with the new one
-        result = result.replace(tableMatch[0], newTableTag);
-      }
-
-      // Remove the marker
-      result = result.replace(marker.fullMatch, '');
-    }
-
-    return result;
   }
 
   /**
@@ -1748,91 +1122,6 @@ class MarkupParser extends BaseManager {
   }
 
   /**
-   * Protect HTML links and other generated HTML from markdown encoding
-   * @param {string} content - Content with generated HTML
-   * @param {ParseContext} context - Parse context to store protected content
-   * @returns {string} - Content with HTML protected using placeholders
-   */
-  protectGeneratedHtml(content, context) {
-    if (!context.protectedBlocks) {
-      context.protectedBlocks = [];
-    }
-
-    let protectedContent = content;
-
-    // Protect complete HTML structures (protect larger structures first to avoid nesting issues)
-
-    // First protect ul lists (including nested li and a elements)
-    protectedContent = protectedContent.replace(/<ul[^>]*>[\s\S]*?<\/ul>/gi, (match) => {
-      const placeholder = `HTMLTOKEN${context.protectedBlocks.length}HTMLTOKEN`;
-      context.protectedBlocks.push(match);
-      return placeholder;
-    });
-
-    // Then protect ol lists (including nested li and a elements)
-    protectedContent = protectedContent.replace(/<ol[^>]*>[\s\S]*?<\/ol>/gi, (match) => {
-      const placeholder = `HTMLTOKEN${context.protectedBlocks.length}HTMLTOKEN`;
-      context.protectedBlocks.push(match);
-      return placeholder;
-    });
-
-    // Then protect standalone anchor tags (not already inside lists)
-    protectedContent = protectedContent.replace(/<a\s[^>]*>.*?<\/a>/gi, (match) => {
-      const placeholder = `HTMLTOKEN${context.protectedBlocks.length}HTMLTOKEN`;
-      context.protectedBlocks.push(match);
-      return placeholder;
-    });
-
-    // Protect self-closing img tags (like from Image plugin)
-    protectedContent = protectedContent.replace(/<img[^>]*\s*\/?>/gi, (match) => {
-      const placeholder = `HTMLTOKEN${context.protectedBlocks.length}HTMLTOKEN`;
-      context.protectedBlocks.push(match);
-      return placeholder;
-    });
-
-    // Finally protect other HTML tags that handlers might generate
-    protectedContent = protectedContent.replace(/<(span|div|strong|em|code)[^>]*>.*?<\/\1>/gi, (match) => {
-      const placeholder = `HTMLTOKEN${context.protectedBlocks.length}HTMLTOKEN`;
-      context.protectedBlocks.push(match);
-      return placeholder;
-    });
-
-    return protectedContent;
-  }
-
-  /**
-   * Clean up generated HTML
-   * @param {string} html - HTML content to clean
-   * @returns {string} - Cleaned HTML
-   */
-  cleanupHtml(html) {
-    // Protect code blocks from whitespace normalization
-    const codeBlocks = [];
-    html = html.replace(/(<pre><code[^>]*>)([\s\S]*?)(<\/code><\/pre>)/g, (match) => {
-      const placeholder = `CLEANUPCODE${codeBlocks.length}CLEANUPCODE`;
-      codeBlocks.push(match);
-      return placeholder;
-    });
-
-    // Remove excessive whitespace (but not in code blocks)
-    html = html.replace(/\s+/g, ' ');
-
-    // Fix common HTML issues
-    html = html.replace(/>\s+</g, '><');
-
-    // Ensure proper paragraph spacing
-    html = html.replace(/(<\/p>)\s*(<p>)/g, '$1\n$2');
-
-    // Restore code blocks
-    codeBlocks.forEach((block, index) => {
-      const placeholder = `CLEANUPCODE${index}CLEANUPCODE`;
-      html = html.replace(placeholder, block);
-    });
-
-    return html.trim();
-  }
-
-  /**
    * Get performance metrics
    * @returns {Object} - Performance metrics
    */
@@ -1847,15 +1136,6 @@ class MarkupParser extends BaseManager {
     metrics.cacheHitRatio = (this.metrics.cacheHits + this.metrics.cacheMisses) > 0
       ? this.metrics.cacheHits / (this.metrics.cacheHits + this.metrics.cacheMisses)
       : 0;
-
-    // Convert phase metrics
-    metrics.phaseStats = {};
-    this.metrics.phaseMetrics.forEach((stats, phaseName) => {
-      metrics.phaseStats[phaseName] = {
-        ...stats,
-        averageTime: stats.executionCount > 0 ? stats.totalTime / stats.executionCount : 0
-      };
-    });
 
     // Add handler registry metrics
     metrics.handlerRegistry = this.handlerRegistry.getStats();
@@ -1909,13 +1189,11 @@ class MarkupParser extends BaseManager {
     this.metrics = {
       parseCount: 0,
       totalParseTime: 0,
-      phaseMetrics: new Map(),
       errorCount: 0,
       cacheHits: 0,
-      cacheMisses: 0
+      cacheMisses: 0,
+      cacheMetrics: new Map()
     };
-    
-    this.initializeMetrics();
   }
 
   /**
