@@ -10,6 +10,9 @@ module.exports = {
     script: 'app.js',
     cwd: __dirname,
 
+    // Node.js args - enable native TypeScript support (Node 22.6+)
+    node_args: '--experimental-strip-types',
+
     // Environment
     env: {
       NODE_ENV: 'production'

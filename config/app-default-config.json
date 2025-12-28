@@ -159,6 +159,7 @@
   "amdwiki.directories.resources": "./resources",
   "amdwiki.directories.data": "./data",
   "amdwiki.directories.users": "./data/users",
+  "amdwiki.directories.schemas": "./data/schemas",
   "amdwiki.directories.work": "./",
 
   "_comment_managers": "Manager configuration settings",

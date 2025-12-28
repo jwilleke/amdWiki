@@ -556,9 +556,10 @@ class LunrSearchProvider extends BaseSearchProvider {
    */
   async isHealthy() {
     try {
-      // Check if index exists and has documents
-      return this.initialized && this.searchIndex !== null &&
-        Object.keys(this.documents).length > 0;
+      // Check if provider is initialized and ready to accept documents
+      // Note: Documents may not exist yet if buildIndex() hasn't been called
+      // This is normal during startup - the provider is still healthy
+      return this.initialized && this.searchIndex !== null;
     } catch (error) {
       logger.error('[LunrSearchProvider] Health check failed:', error);
       return false;

@@ -22,6 +22,57 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 
 ---
 
+## 2025-12-28-03
+
+- Agent: Claude Code (Opus 4.5)
+- Subject: Server startup fixes and TypeScript migration status assessment
+- Key Decisions:
+  - Added `--experimental-strip-types` to ecosystem.config.js for native TS support
+  - Identified TypeScript migration is ~35% complete (83 TS / 152 JS files)
+  - Critical files converted to TS without .js fallback causing server crash
+- Work Done:
+  - Killed stray server process (PID 30975) running without PM2
+  - Added `node_args: '--experimental-strip-types'` to ecosystem.config.js
+  - Discovered server crash due to require() not resolving .ts files
+  - Assessed migration status: 83 TypeScript files, 152 JavaScript files
+  - Identified files needing .js restoration: MarkupParser, WikiRoutes, InstallRoutes, WikiEngine
+- Issues Found:
+  - Node 22.17 supports --experimental-strip-types but require() still needs .js extension
+  - Migration was done incompletely - .ts files created but .js removed prematurely
+  - Server cannot start until either .js restored OR Node upgraded to 23+
+- Files Modified:
+  - ecosystem.config.js (added node_args for TypeScript)
+- Next Steps:
+  - Either restore .js files for converted modules OR upgrade Node to 23+
+  - Complete TypeScript migration properly with build pipeline
+
+---
+
+## 2025-12-28-02
+
+- Agent: Claude Code (Opus 4.5)
+- Subject: Fix server startup warnings and errors
+- Key Decision:
+  - Add missing config property for schemas directory
+  - Add frontmatter to README.md in data/pages
+  - Relax LunrSearchProvider health check (empty index is valid at startup)
+- Work Done:
+  - Added `amdwiki.directories.schemas` to app-default-config.json (was null causing schema load error)
+  - Created data/schemas directory
+  - Added YAML frontmatter to data/pages/README.md (was causing FileSystemProvider warning)
+  - Updated LunrSearchProvider.isHealthy() to not require documents (JS and TS versions)
+  - Documents may not exist until buildIndex() is called - this is normal startup behavior
+- Testing:
+  - npm run typecheck: PASS (0 errors)
+  - npm test: 58 suites passed, 1380 tests passed
+- Files Modified:
+  - config/app-default-config.json
+  - data/pages/README.md
+  - src/providers/LunrSearchProvider.js
+  - src/providers/LunrSearchProvider.ts
+
+---
+
 ## 2025-12-28-01
 
 - Agent: Claude Code (Opus 4.5)
