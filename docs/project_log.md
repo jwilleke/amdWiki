@@ -11,6 +11,8 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 - Subject: [Brief description]
 - Key Decision: [decision]
 - Current Issue: [issue]
+- Testing:
+  - npm test: 58 suites passed, 1380 tests passed
 - Work Done:
   - [task 1]
   - [task 2]
@@ -19,6 +21,45 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
   - [file1.js]
   - [file2.md]
 ```
+
+---
+
+## 2025-12-28-04
+
+- Agent: Claude Code (Opus 4.5)
+- Subject: Fix critical server startup issues - js-yaml and CommonJS compatibility
+- Issues: #187 (created)
+- Key Decisions:
+  - Use tsx interpreter in ecosystem.config.js instead of --experimental-strip-types
+  - Fix js-yaml version override to allow gray-matter to use 3.x
+  - Fix CommonJS module.exports patterns for instanceof compatibility
+- Work Done:
+  - Diagnosed server returning 404 for all pages
+  - Found js-yaml 4.x override breaking gray-matter (requires 3.x)
+  - Fixed package.json override: `"gray-matter": { "js-yaml": "^3.14.1" }`
+  - Fixed BaseSyntaxHandler.ts and HandlerRegistry.ts exports for instanceof checks
+  - Fixed DOMParser.ts named import support with Object.assign pattern
+  - Fixed DeltaStorage.ts, PageNameMatcher.ts, VersionCompression.ts corrupted exports
+  - Fixed ESLint issues (lexical declarations, unused catch params)
+  - Created GitHub Issue #187 documenting all issues
+  - Server now loads 62 pages and serves requests correctly
+- Testing:
+  - npm test: 58 suites passed, 1380 tests passed
+  - curl <http://localhost:3000/wiki/Administrator>: 200 OK
+- Commits:
+  - `1a85070` fix: Complete TypeScript module.exports fixes and ESLint compliance
+  - `f70e1de` fix: Resolve critical startup issues - js-yaml and CommonJS compatibility
+- Files Modified:
+  - package.json (js-yaml override fix)
+  - package-lock.json
+  - ecosystem.config.js (tsx interpreter)
+  - src/parsers/handlers/BaseSyntaxHandler.ts
+  - src/parsers/handlers/HandlerRegistry.ts
+  - src/parsers/dom/DOMParser.ts
+  - src/utils/DeltaStorage.ts
+  - src/utils/PageNameMatcher.ts
+  - src/utils/VersionCompression.ts
+  - docs/TypeScript-Style-Guide.md
 
 ---
 
