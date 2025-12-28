@@ -355,3 +355,6 @@ class NodeCacheProvider extends BaseCacheProvider {
 }
 
 export default NodeCacheProvider;
+
+// CommonJS compatibility
+module.exports = NodeCacheProvider;

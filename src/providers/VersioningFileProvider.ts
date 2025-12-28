@@ -1416,3 +1416,6 @@ class VersioningFileProvider extends FileSystemProvider {
 }
 
 export default VersioningFileProvider;
+
+// CommonJS compatibility
+module.exports = VersioningFileProvider;

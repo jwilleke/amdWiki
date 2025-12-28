@@ -207,3 +207,6 @@ class RedisCacheProvider extends BaseCacheProvider {
 }
 
 export default RedisCacheProvider;
+
+// CommonJS compatibility
+module.exports = RedisCacheProvider;

@@ -513,3 +513,6 @@ export class ParseError extends Error {
 
 export { DOMParser };
 export default DOMParser;
+
+// CommonJS compatibility
+module.exports = DOMParser;

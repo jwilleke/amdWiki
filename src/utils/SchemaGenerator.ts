@@ -811,3 +811,6 @@ class SchemaGenerator {
 }
 
 export default SchemaGenerator;
+
+// CommonJS compatibility
+module.exports = SchemaGenerator;

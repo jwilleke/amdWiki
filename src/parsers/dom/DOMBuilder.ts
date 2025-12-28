@@ -583,3 +583,6 @@ class DOMBuilder {
 }
 
 export default DOMBuilder;
+
+// CommonJS compatibility
+module.exports = DOMBuilder;

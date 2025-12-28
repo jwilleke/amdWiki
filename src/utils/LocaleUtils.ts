@@ -272,3 +272,6 @@ class LocaleUtils {
 }
 
 export default LocaleUtils;
+
+// CommonJS compatibility
+module.exports = LocaleUtils;

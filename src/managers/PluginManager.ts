@@ -389,3 +389,6 @@ class PluginManager extends BaseManager {
 }
 
 export default PluginManager;
+
+// CommonJS compatibility
+module.exports = PluginManager;

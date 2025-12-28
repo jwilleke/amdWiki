@@ -330,3 +330,6 @@ abstract class BaseAuditProvider {
 
 export default BaseAuditProvider;
 export { WikiEngine, ProviderInfo };
+
+// CommonJS compatibility
+module.exports = BaseAuditProvider;

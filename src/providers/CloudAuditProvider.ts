@@ -204,3 +204,6 @@ class CloudAuditProvider extends BaseAuditProvider {
 }
 
 export default CloudAuditProvider;
+
+// CommonJS compatibility
+module.exports = CloudAuditProvider;

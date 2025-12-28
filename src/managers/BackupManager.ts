@@ -496,3 +496,6 @@ class BackupManager extends BaseManager {
 }
 
 export default BackupManager;
+
+// CommonJS compatibility
+module.exports = BackupManager;

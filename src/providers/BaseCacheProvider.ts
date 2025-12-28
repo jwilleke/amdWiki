@@ -191,3 +191,6 @@ abstract class BaseCacheProvider {
 }
 
 export default BaseCacheProvider;
+
+// CommonJS compatibility
+module.exports = BaseCacheProvider;

@@ -595,3 +595,6 @@ class VersioningMaintenance {
 }
 
 export default VersioningMaintenance;
+
+// CommonJS compatibility
+module.exports = VersioningMaintenance;

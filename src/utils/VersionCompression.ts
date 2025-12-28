@@ -342,3 +342,6 @@ export default class VersionCompression {
     };
   }
 }
+
+// CommonJS compatibility
+module.exports = classVersionCompression{;

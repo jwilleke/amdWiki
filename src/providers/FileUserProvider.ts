@@ -409,3 +409,6 @@ class FileUserProvider extends BaseUserProvider {
 }
 
 export default FileUserProvider;
+
+// CommonJS compatibility
+module.exports = FileUserProvider;

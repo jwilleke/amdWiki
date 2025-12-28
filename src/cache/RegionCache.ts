@@ -232,3 +232,6 @@ class RegionCache {
 }
 
 export default RegionCache;
+
+// CommonJS compatibility
+module.exports = RegionCache;

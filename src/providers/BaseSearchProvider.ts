@@ -395,3 +395,6 @@ abstract class BaseSearchProvider {
 
 export default BaseSearchProvider;
 export { WikiEngine, ProviderInfo };
+
+// CommonJS compatibility
+module.exports = BaseSearchProvider;

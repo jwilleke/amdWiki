@@ -330,3 +330,6 @@ class WikiContext {
 }
 
 export default WikiContext;
+
+// CommonJS compatibility
+module.exports = WikiContext;

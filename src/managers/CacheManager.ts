@@ -412,3 +412,6 @@ class CacheManager extends BaseManager {
 }
 
 export default CacheManager;
+
+// CommonJS compatibility
+module.exports = CacheManager;

@@ -107,3 +107,6 @@ class SchemaManager extends BaseManager {
 }
 
 export default SchemaManager;
+
+// CommonJS compatibility
+module.exports = SchemaManager;

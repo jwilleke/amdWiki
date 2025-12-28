@@ -461,3 +461,6 @@ class NotificationManager extends BaseManager {
 }
 
 export default NotificationManager;
+
+// CommonJS compatibility
+module.exports = NotificationManager;

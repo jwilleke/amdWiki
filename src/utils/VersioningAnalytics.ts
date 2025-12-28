@@ -511,3 +511,6 @@ class VersioningAnalytics {
 }
 
 export default VersioningAnalytics;
+
+// CommonJS compatibility
+module.exports = VersioningAnalytics;

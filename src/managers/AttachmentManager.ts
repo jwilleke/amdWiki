@@ -624,3 +624,6 @@ class AttachmentManager extends BaseManager {
 }
 
 export default AttachmentManager;
+
+// CommonJS compatibility
+module.exports = AttachmentManager;

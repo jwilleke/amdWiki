@@ -462,3 +462,6 @@ class ExportManager extends BaseManager {
 }
 
 export default ExportManager;
+
+// CommonJS compatibility
+module.exports = ExportManager;

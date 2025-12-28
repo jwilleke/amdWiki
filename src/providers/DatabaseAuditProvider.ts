@@ -195,3 +195,6 @@ class DatabaseAuditProvider extends BaseAuditProvider {
 }
 
 export default DatabaseAuditProvider;
+
+// CommonJS compatibility
+module.exports = DatabaseAuditProvider;

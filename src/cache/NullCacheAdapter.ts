@@ -50,3 +50,6 @@ class NullCacheAdapter extends ICacheAdapter {
 }
 
 export default NullCacheAdapter;
+
+// CommonJS compatibility
+module.exports = NullCacheAdapter;

@@ -125,3 +125,6 @@ class NullAuditProvider extends BaseAuditProvider {
 }
 
 export default NullAuditProvider;
+
+// CommonJS compatibility
+module.exports = NullAuditProvider;

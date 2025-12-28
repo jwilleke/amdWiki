@@ -513,3 +513,6 @@ class FileAuditProvider extends BaseAuditProvider {
 }
 
 export default FileAuditProvider;
+
+// CommonJS compatibility
+module.exports = FileAuditProvider;

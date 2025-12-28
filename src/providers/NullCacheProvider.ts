@@ -128,3 +128,6 @@ class NullCacheProvider extends BaseCacheProvider {
 }
 
 export default NullCacheProvider;
+
+// CommonJS compatibility
+module.exports = NullCacheProvider;

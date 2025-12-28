@@ -330,3 +330,6 @@ class NodeCacheAdapter extends ICacheAdapter {
 }
 
 export default NodeCacheAdapter;
+
+// CommonJS compatibility
+module.exports = NodeCacheAdapter;

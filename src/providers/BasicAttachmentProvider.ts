@@ -789,3 +789,6 @@ class BasicAttachmentProvider extends BaseAttachmentProvider {
 }
 
 export default BasicAttachmentProvider;
+
+// CommonJS compatibility
+module.exports = BasicAttachmentProvider;

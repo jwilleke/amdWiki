@@ -693,3 +693,6 @@ class VersioningMigration {
 }
 
 export default VersioningMigration;
+
+// CommonJS compatibility
+module.exports = VersioningMigration;

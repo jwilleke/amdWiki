@@ -197,3 +197,6 @@ class Engine {
 }
 
 export default Engine;
+
+// CommonJS compatibility
+module.exports = Engine;

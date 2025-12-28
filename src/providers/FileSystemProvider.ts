@@ -700,3 +700,6 @@ class FileSystemProvider extends BasePageProvider {
 }
 
 export default FileSystemProvider;
+
+// CommonJS compatibility
+module.exports = FileSystemProvider;

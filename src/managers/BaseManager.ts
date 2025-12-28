@@ -200,3 +200,6 @@ abstract class BaseManager {
 }
 
 export default BaseManager;
+
+// CommonJS compatibility
+module.exports = BaseManager;

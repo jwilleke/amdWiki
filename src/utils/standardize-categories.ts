@@ -319,3 +319,6 @@ if (require.main === module) {
 
 export { CategoryStandardizer, main };
 export default CategoryStandardizer;
+
+// CommonJS compatibility
+module.exports = CategoryStandardizer;

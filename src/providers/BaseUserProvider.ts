@@ -256,3 +256,6 @@ abstract class BaseUserProvider {
 
 export default BaseUserProvider;
 export { WikiEngine, ProviderInfo, BackupData };
+
+// CommonJS compatibility
+module.exports = BaseUserProvider;

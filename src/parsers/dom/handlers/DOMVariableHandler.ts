@@ -371,3 +371,6 @@ class DOMVariableHandler {
 }
 
 export default DOMVariableHandler;
+
+// CommonJS compatibility
+module.exports = DOMVariableHandler;

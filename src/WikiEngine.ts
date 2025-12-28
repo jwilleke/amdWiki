@@ -336,3 +336,6 @@ class WikiEngine extends Engine {
 }
 
 export default WikiEngine;
+
+// CommonJS compatibility for require()
+module.exports = WikiEngine;

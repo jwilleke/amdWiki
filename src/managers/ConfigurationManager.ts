@@ -692,3 +692,6 @@ class ConfigurationManager extends BaseManager {
 }
 
 export default ConfigurationManager;
+
+// CommonJS compatibility
+module.exports = ConfigurationManager;

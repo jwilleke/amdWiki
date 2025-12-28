@@ -684,3 +684,6 @@ class LunrSearchProvider extends BaseSearchProvider {
 }
 
 export default LunrSearchProvider;
+
+// CommonJS compatibility
+module.exports = LunrSearchProvider;

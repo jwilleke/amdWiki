@@ -237,3 +237,6 @@ abstract class BaseAttachmentProvider implements AttachmentProvider {
 
 export default BaseAttachmentProvider;
 export { FileInfo, User, AttachmentResult };
+
+// CommonJS compatibility
+module.exports = BaseAttachmentProvider;

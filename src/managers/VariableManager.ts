@@ -351,3 +351,6 @@ class VariableManager extends BaseManager {
 }
 
 export default VariableManager;
+
+// CommonJS compatibility
+module.exports = VariableManager;

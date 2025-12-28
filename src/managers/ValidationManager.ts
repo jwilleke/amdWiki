@@ -621,3 +621,6 @@ class ValidationManager extends BaseManager {
 }
 
 export default ValidationManager;
+
+// CommonJS compatibility
+module.exports = ValidationManager;

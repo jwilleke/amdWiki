@@ -579,3 +579,6 @@ class DOMPluginHandler {
 }
 
 export default DOMPluginHandler;
+
+// CommonJS compatibility
+module.exports = DOMPluginHandler;

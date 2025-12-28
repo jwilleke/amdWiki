@@ -304,3 +304,6 @@ abstract class BasePageProvider {
 
 export default BasePageProvider;
 export { WikiEngine, ProviderInfo };
+
+// CommonJS compatibility
+module.exports = BasePageProvider;

@@ -811,3 +811,6 @@ class DOMLinkHandler {
 }
 
 export default DOMLinkHandler;
+
+// CommonJS compatibility
+module.exports = DOMLinkHandler;
