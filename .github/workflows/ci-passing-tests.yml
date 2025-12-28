@@ -125,7 +125,8 @@ jobs:
       - name: Test WikiEngine initialization
         run: |
           echo "Testing WikiEngine initialization..."
-          timeout 30 node -e "
+          # Use tsx to handle TypeScript files during migration
+          timeout 30 npx tsx -e "
             const WikiEngine = require('./src/WikiEngine');
             const engine = new WikiEngine();
             engine.initialize().then(() => {
