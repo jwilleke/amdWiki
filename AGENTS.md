@@ -63,6 +63,10 @@ See [docs/testing/PREVENTING-REGRESSIONS.md](/docs/testing/PREVENTING-REGRESSION
 
 Key Decisions may be done initially or decided the project progresses. Include "Decision and rationale"
 
+- "One File Done Right" We found for eaample:
+  - 71 files have both .js and .ts versions but they are NOT equivalent
+  - Example: FileSystemProvider.ts missing `installationComplete` property
+  - Phase 3 requires file-by-file audit before .js deletion
 - All configuration MUST use ConfigurationManager - no hardcoded fallbacks (DRY)
 - Use Playwright for E2E testing with Chromium browser, integrate into CI/CD
 - Schema.org-compliant front matter, PascalCase naming, TypeDoc for automation
