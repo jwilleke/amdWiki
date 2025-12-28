@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 import logger from '../utils/logger';
 import PageNameMatcher from '../utils/PageNameMatcher';
 import { WikiPage, PageFrontmatter, PageInfo, PageSaveOptions, PageListOptions } from '../types';
+import type ConfigurationManager from '../managers/ConfigurationManager';
 
 /**
  * Page cache info (internal)
@@ -127,7 +128,7 @@ class FileSystemProvider extends BasePageProvider {
    * @throws {Error} If ConfigurationManager is not available
    */
   async initialize(): Promise<void> {
-    const configManager = this.engine.getManager('ConfigurationManager');
+    const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
     if (!configManager) {
       throw new Error('FileSystemProvider requires ConfigurationManager');
     }
@@ -136,13 +137,13 @@ class FileSystemProvider extends BasePageProvider {
     const cfgPath = configManager.getProperty(
       'amdwiki.page.provider.filesystem.storagedir',
       './pages'
-    );
+    ) as string;
     this.pagesDirectory = path.isAbsolute(cfgPath) ? cfgPath : path.join(process.cwd(), cfgPath);
 
     const reqCfgPath = configManager.getProperty(
       'amdwiki.page.provider.filesystem.requiredpagesdir',
       './required-pages'
-    );
+    ) as string;
     this.requiredPagesDirectory = path.isAbsolute(reqCfgPath) ? reqCfgPath : path.join(process.cwd(), reqCfgPath);
 
     // Get encoding configuration (ALL LOWERCASE)
@@ -152,12 +153,12 @@ class FileSystemProvider extends BasePageProvider {
     ) as BufferEncoding;
 
     // Initialize PageNameMatcher with plural matching config
-    const matchEnglishPlurals = configManager.getProperty('amdwiki.translator-reader.match-english-plurals', true);
+    const matchEnglishPlurals = configManager.getProperty('amdwiki.translator-reader.match-english-plurals', true) as boolean;
     this.pageNameMatcher = new PageNameMatcher(matchEnglishPlurals);
     logger.info(`[FileSystemProvider] Plural matching: ${matchEnglishPlurals ? 'enabled' : 'disabled'}`);
 
     // Check installation status
-    this.installationComplete = configManager.getProperty('amdwiki.install.completed', false);
+    this.installationComplete = configManager.getProperty('amdwiki.install.completed', false) as boolean;
     logger.info(`[FileSystemProvider] Installation complete: ${this.installationComplete}`);
 
     // Ensure directories exist
@@ -210,9 +211,10 @@ class FileSystemProvider extends BasePageProvider {
     for (const filePath of mdFiles) {
       try {
         const fileContent = await fs.readFile(filePath, this.encoding);
-        const { data: metadata } = matter(fileContent);
+        const { data } = matter(fileContent);
+        const metadata = data as PageFrontmatter;
         const title = metadata.title;
-        const uuid = metadata.uuid || path.basename(filePath, '.md');
+        const uuid = (metadata.uuid) || path.basename(filePath, '.md');
 
         if (!title) {
           logger.warn(`[FileSystemProvider] Skipping file with no title in frontmatter: ${filePath}`);
@@ -220,10 +222,10 @@ class FileSystemProvider extends BasePageProvider {
         }
 
         const pageInfo: PageCacheInfo = {
-          title: title,
-          uuid: uuid,
-          filePath: filePath,
-          metadata: metadata as PageFrontmatter
+          title,
+          uuid,
+          filePath,
+          metadata
         };
 
         // Use title as the canonical key for the main cache
@@ -235,8 +237,9 @@ class FileSystemProvider extends BasePageProvider {
         if (uuid) {
           this.uuidIndex.set(uuid, canonicalKey);
         }
-        if (metadata.slug) {
-          this.slugIndex.set(metadata.slug.toLowerCase(), canonicalKey);
+        const slug = metadata.slug;
+        if (slug) {
+          this.slugIndex.set(slug.toLowerCase(), canonicalKey);
         }
 
       } catch (error) {
@@ -373,9 +376,9 @@ class FileSystemProvider extends BasePageProvider {
    * @param {string} identifier - Page UUID or title
    * @returns {Promise<PageFrontmatter|null>} The page metadata, or null if not found
    */
-  async getPageMetadata(identifier: string): Promise<PageFrontmatter | null> {
+  getPageMetadata(identifier: string): Promise<PageFrontmatter | null> {
     const info = this.resolvePageInfo(identifier);
-    return info ? info.metadata : null;
+    return Promise.resolve(info ? info.metadata : null);
   }
 
   /**
@@ -392,7 +395,7 @@ class FileSystemProvider extends BasePageProvider {
     pageName: string,
     content: string,
     metadata: Partial<PageFrontmatter> = {},
-    options?: PageSaveOptions
+    _options?: PageSaveOptions
   ): Promise<void> {
     const uuid = metadata.uuid || this.resolvePageInfo(pageName)?.uuid || uuidv4();
 
@@ -402,12 +405,12 @@ class FileSystemProvider extends BasePageProvider {
 
     // Determine which directory to save to based on system-category
     // Use ValidationManager to get storage location from config
-    const systemCategory = metadata['system-category'] || (metadata as any).systemCategory || 'general';
+    const systemCategory = String(metadata['system-category'] ?? 'general');
 
-    const validationManager = this.engine.getManager('ValidationManager');
-    const storageLocation = validationManager
-      ? validationManager.getCategoryStorageLocation(systemCategory)
-      : 'regular'; // fallback if ValidationManager not available
+    // Get storage location from ValidationManager (if available)
+    interface ValidationManagerType { getCategoryStorageLocation(category: string): string }
+    const validationManager = this.engine.getManager<ValidationManagerType>('ValidationManager');
+    const storageLocation = validationManager?.getCategoryStorageLocation(systemCategory) ?? 'regular';
 
     // Handle github storage location - these pages should not be saved to wiki
     if (storageLocation === 'github') {
@@ -513,16 +516,16 @@ class FileSystemProvider extends BasePageProvider {
    * Returns a list of all available page titles (sorted)
    * @returns {Promise<string[]>} An array of page titles
    */
-  async getAllPages(): Promise<string[]> {
-    return Array.from(this.pageCache.keys()).sort((a, b) => a.localeCompare(b));
+  getAllPages(): Promise<string[]> {
+    return Promise.resolve(Array.from(this.pageCache.keys()).sort((a, b) => a.localeCompare(b)));
   }
 
   /**
    * Get all page info objects
-   * @param {PageListOptions} options - List options
+   * @param {PageListOptions} _options - List options (unused, for future filtering)
    * @returns {Promise<PageInfo[]>} Array of page info objects
    */
-  async getAllPageInfo(options?: PageListOptions): Promise<PageInfo[]> {
+  getAllPageInfo(_options?: PageListOptions): Promise<PageInfo[]> {
     const pages = Array.from(this.pageCache.values()).map(info => ({
       title: info.title,
       uuid: info.uuid,
@@ -531,7 +534,7 @@ class FileSystemProvider extends BasePageProvider {
     }));
 
     // TODO: Apply filtering and sorting based on options
-    return pages;
+    return Promise.resolve(pages);
   }
 
   /**

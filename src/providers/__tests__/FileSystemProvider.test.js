@@ -15,10 +15,9 @@
 const path = require('path');
 const fs = require('fs-extra');
 
-// Force load the .js version (not .ts which uses default export)
-const providerPath = path.resolve(__dirname, '../FileSystemProvider.js');
-jest.unmock(providerPath);
-const FileSystemProvider = jest.requireActual(providerPath);
+// Force load the TypeScript version - unmock and use requireActual to bypass jest.setup.js mock
+jest.unmock('../FileSystemProvider');
+const FileSystemProvider = jest.requireActual('../FileSystemProvider');
 
 // Unique test directory for each test run
 let TEST_DIR;

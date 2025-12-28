@@ -7,7 +7,7 @@ import { VersionHistoryEntry, VersionContent, VersionDiff } from '../types';
  * TODO: Create full WikiEngine type definition in Phase 4
  */
 interface WikiEngine {
-  getManager(name: string): any;
+  getManager<T = unknown>(name: string): T | undefined;
 }
 
 /**
