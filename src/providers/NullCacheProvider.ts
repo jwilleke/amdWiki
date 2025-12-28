@@ -5,7 +5,7 @@ import BaseCacheProvider, { CacheStats, ProviderInfo } from './BaseCacheProvider
  * TODO: Create full WikiEngine type definition in Phase 4
  */
 interface WikiEngine {
-  getManager(name: string): any;
+  getManager(name: string): unknown;
 }
 
 /**
@@ -23,8 +23,9 @@ class NullCacheProvider extends BaseCacheProvider {
    * Initialize the null cache provider (no-op)
    * @returns {Promise<void>}
    */
-  async initialize(): Promise<void> {
+  initialize(): Promise<void> {
     this.initialized = true;
+    return Promise.resolve();
   }
 
   /**
@@ -46,7 +47,7 @@ class NullCacheProvider extends BaseCacheProvider {
    * @param {string} _key - The cache key
    * @returns {Promise<T | undefined>} Always undefined
    */
-  get<T = any>(_key: string): Promise<T | undefined> {
+  get<T = unknown>(_key: string): Promise<T | undefined> {
     return Promise.resolve(undefined);
   }
 
@@ -58,7 +59,7 @@ class NullCacheProvider extends BaseCacheProvider {
    * @param {number} [_ttlSec] - Time to live in seconds
    * @returns {Promise<void>}
    */
-  set<T = any>(_key: string, _value: T, _ttlSec?: number): Promise<void> {
+  set<T = unknown>(_key: string, _value: T, _ttlSec?: number): Promise<void> {
     // No-op
     return Promise.resolve();
   }
@@ -89,7 +90,7 @@ class NullCacheProvider extends BaseCacheProvider {
    * @returns {Promise<string[]>} Empty array
    */
   keys(_pattern: string = '*'): Promise<string[]> {
-    return Promise.resolve([]);
+    return Promise.resolve([] as string[]);
   }
 
   /**

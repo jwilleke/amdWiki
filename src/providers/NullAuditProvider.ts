@@ -16,15 +16,16 @@ class NullAuditProvider extends BaseAuditProvider {
    * Initialize the null audit provider (no-op)
    * @returns {Promise<void>}
    */
-  async initialize(): Promise<void> {
+  initialize(): Promise<void> {
     this.initialized = true;
+    return Promise.resolve();
   }
 
   /**
    * Get provider information
    * @returns {Object} Provider metadata
    */
-  getProviderInfo() {
+  getProviderInfo(): { name: string; version: string; description: string; features: string[] } {
     return {
       name: 'NullAuditProvider',
       version: '1.0.0',
@@ -45,15 +46,17 @@ class NullAuditProvider extends BaseAuditProvider {
   /**
    * Search audit logs (returns empty results)
    * @param {AuditFilters} _filters - Search filters
-   * @param {Record<string, any>} options - Search options
+   * @param {Record<string, number>} options - Search options
    * @returns {Promise<AuditSearchResults>} Empty search results
    */
-  searchAuditLogs(_filters: AuditFilters = {}, options: Record<string, any> = {}): Promise<AuditSearchResults> {
+  searchAuditLogs(_filters: AuditFilters = {}, options: Record<string, number> = {}): Promise<AuditSearchResults> {
+    const limit: number = options.limit || 100;
+    const offset: number = options.offset || 0;
     return Promise.resolve({
       results: [],
       total: 0,
-      limit: options.limit || 100,
-      offset: options.offset || 0,
+      limit,
+      offset,
       hasMore: false
     });
   }
