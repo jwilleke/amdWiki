@@ -24,6 +24,36 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 
 ---
 
+## 2025-12-28-06
+
+- Agent: Claude Code (Opus 4.5)
+- Subject: TypeScript Build Pipeline - Phase 1 Complete
+- Issues: #186 (in progress)
+- Key Decisions:
+  - Compile src/ → dist/ with tsc, run pre-compiled JavaScript
+  - Remove tsx runtime dependency from PM2 (tsx no longer needed for server)
+  - Keep tslib as dependency for private field compilation
+- Work Done:
+  - Updated tsconfig.json: rootDir changed from "./" to "./src"
+  - Updated app.js to require from ./dist/ instead of ./src/
+  - Updated ecosystem.config.js to remove tsx interpreter (runs pure JS now)
+  - Updated package.json clean script to also remove .tsbuildinfo
+  - Installed tslib@latest for private class field compilation
+  - Verified build pipeline: `npm run build` compiles src/ → dist/
+  - Server now runs from pre-compiled JavaScript (no tsx runtime transpilation)
+- Testing:
+  - npm test: 58 suites passed, 1380 tests passed
+  - curl `http://localhost:3000/wiki/Administrator`: 200 OK
+  - pm2 list: amdWiki-amdWiki online
+- Files Modified:
+  - tsconfig.json (rootDir: "./src")
+  - app.js (requires from ./dist/)
+  - ecosystem.config.js (removed tsx interpreter)
+  - package.json (clean script, tslib dependency)
+  - package-lock.json
+
+---
+
 ## 2025-12-28-05
 
 - Agent: Claude Code (Opus 4.5)

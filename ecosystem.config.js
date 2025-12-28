@@ -10,8 +10,8 @@ module.exports = {
     script: 'app.js',
     cwd: __dirname,
 
-    // Use tsx for TypeScript support (handles .ts requires automatically)
-    interpreter: './node_modules/.bin/tsx',
+    // Run pre-compiled JavaScript from dist/ (no tsx needed)
+    // IMPORTANT: Run 'npm run build' before starting with PM2
 
     // Environment
     env: {

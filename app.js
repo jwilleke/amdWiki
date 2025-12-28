@@ -10,10 +10,11 @@ const session = require('express-session');
 const FileStore = require('session-file-store')(session);
 const fs = require('fs-extra');
 
-const logger = require('./src/utils/logger');
-const WikiEngine = require('./src/WikiEngine');
-const WikiRoutes = require('./src/routes/WikiRoutes');
-const InstallRoutes = require('./src/routes/InstallRoutes');
+// Require from dist/ (pre-compiled TypeScript)
+const logger = require('./dist/utils/logger');
+const WikiEngine = require('./dist/WikiEngine');
+const WikiRoutes = require('./dist/routes/WikiRoutes');
+const InstallRoutes = require('./dist/routes/InstallRoutes');
 
 // --- PID File Lock to Prevent Multiple Instances ---
 const PID_FILE = path.join(__dirname, '.amdwiki.pid');
@@ -103,7 +104,7 @@ checkAndCreatePidLock();
   app.use(cookieParser());
 
   // Install check middleware - must be BEFORE session to allow static assets
-  const InstallService = require('./src/services/InstallService');
+  const InstallService = require('./dist/services/InstallService');
   const installService = new InstallService(engine);
 
   app.use(async (req, res, next) => {

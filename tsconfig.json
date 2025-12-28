@@ -10,9 +10,9 @@
     "allowJs": true,
     "checkJs": false,
 
-    /* Emit */
+    /* Emit - Compile src/ to dist/ with proper structure */
     "outDir": "./dist",
-    "rootDir": "./",
+    "rootDir": "./src",
     "sourceMap": true,
     "declaration": true,
     "declarationMap": true,
@@ -46,20 +46,14 @@
   },
   "include": [
     "src/**/*.ts",
-    "eslint.config.mjs",  // Add this line
-    "src/**/*",
-    "plugins/**/*",
-    "app.js",
-    "mcp-server.ts",
-    "tests/**/*"  // Add this to cover .js test files
+    "src/**/*.js"
   ],
   "exclude": [
     "node_modules",
     "dist",
     "**/*.test.js",
     "**/*.test.ts",
-    "**/__tests__/**",
-    "tests/e2e/**"
+    "**/__tests__/**"
   ],
   "ts-node": {
     "compilerOptions": {

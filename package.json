@@ -52,7 +52,7 @@
     "lint:ci": "npm run lint:code && npm run lint:md",
     "format": "prettier --write \"src/**/*.ts\"",
     "format:check": "prettier --check \"src/**/*.ts\"",
-    "clean": "rm -rf dist",
+    "clean": "rm -rf dist .tsbuildinfo",
     "prebuild": "npm run clean"
   },
   "dependencies": {
@@ -80,6 +80,7 @@
     "session-file-store": "^1.5.0",
     "showdown": "^2.1.0",
     "showdown-footnotes": "^2.1.2",
+    "tslib": "^2.8.1",
     "uuid": "^9.0.0",
     "winston": "^3.17.0"
   },
