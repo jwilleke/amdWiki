@@ -1,4 +1,6 @@
-import BaseAuditProvider, { WikiEngine, AuditFilters, AuditSearchResults, AuditStats } from './BaseAuditProvider';
+import BaseAuditProvider, { AuditFilters, AuditSearchResults, AuditStats } from './BaseAuditProvider';
+import type { WikiEngine } from '../types/WikiEngine';
+import type ConfigurationManager from '../managers/ConfigurationManager';
 import logger from '../utils/logger';
 import { AuditEvent } from '../types';
 
@@ -31,7 +33,8 @@ interface DatabaseConfig {
  * TODO: Implement automatic table/collection creation
  */
 class DatabaseAuditProvider extends BaseAuditProvider {
-  private client: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private client: any; // Database client - type depends on database
   private config: DatabaseConfig | null;
 
   constructor(engine: WikiEngine) {
@@ -44,10 +47,10 @@ class DatabaseAuditProvider extends BaseAuditProvider {
    * Initialize the database audit provider
    * @returns {Promise<void>}
    */
-  async initialize(): Promise<void> {
-    const configManager = this.engine.getManager('ConfigurationManager');
+  initialize(): Promise<void> {
+    const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
     if (!configManager) {
-      throw new Error('DatabaseAuditProvider requires ConfigurationManager');
+      return Promise.reject(new Error('DatabaseAuditProvider requires ConfigurationManager'));
     }
 
     // Load provider-specific settings (ALL LOWERCASE)
@@ -55,19 +58,19 @@ class DatabaseAuditProvider extends BaseAuditProvider {
       type: configManager.getProperty(
         'amdwiki.audit.provider.database.type',
         'postgresql'
-      ),
+      ) as string,
       connectionString: configManager.getProperty(
         'amdwiki.audit.provider.database.connectionstring',
         ''
-      ),
+      ) as string,
       tableName: configManager.getProperty(
         'amdwiki.audit.provider.database.tablename',
         'audit_logs'
-      ),
+      ) as string,
       maxConnections: configManager.getProperty(
         'amdwiki.audit.provider.database.maxconnections',
         10
-      )
+      ) as number
     };
 
     // TODO: Implement database client initialization
@@ -80,14 +83,14 @@ class DatabaseAuditProvider extends BaseAuditProvider {
     // await this.client.connect();
 
     logger.warn('[DatabaseAuditProvider] Database provider not yet implemented, functionality disabled');
-    throw new Error('DatabaseAuditProvider not yet implemented. Use FileAuditProvider instead.');
+    return Promise.reject(new Error('DatabaseAuditProvider not yet implemented. Use FileAuditProvider instead.'));
   }
 
   /**
    * Get provider information
    * @returns {Object} Provider metadata
    */
-  getProviderInfo() {
+  getProviderInfo(): { name: string; version: string; description: string; features: string[] } {
     return {
       name: 'DatabaseAuditProvider',
       version: '0.1.0',
@@ -167,16 +170,10 @@ class DatabaseAuditProvider extends BaseAuditProvider {
    * Check if the audit provider is healthy
    * @returns {Promise<boolean>} True if healthy
    */
-  async isHealthy(): Promise<boolean> {
+  isHealthy(): Promise<boolean> {
     // TODO: Implement database ping/health check
-    try {
-      // await this.client.query('SELECT 1');
-      // return true;
-      return false;
-    } catch (error) {
-      logger.error('[DatabaseAuditProvider] Health check failed:', error);
-      return false;
-    }
+    // For now, always return false since provider is not implemented
+    return Promise.resolve(false);
   }
 
   /**

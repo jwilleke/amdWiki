@@ -1,4 +1,6 @@
-import BaseAuditProvider, { WikiEngine, AuditFilters, AuditSearchResults, AuditStats } from './BaseAuditProvider';
+import BaseAuditProvider, { AuditFilters, AuditSearchResults, AuditStats } from './BaseAuditProvider';
+import type { WikiEngine } from '../types/WikiEngine';
+import type ConfigurationManager from '../managers/ConfigurationManager';
 import logger from '../utils/logger';
 import { AuditEvent } from '../types';
 
@@ -32,7 +34,8 @@ interface CloudConfig {
  * TODO: Add retry logic with exponential backoff
  */
 class CloudAuditProvider extends BaseAuditProvider {
-  private client: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private client: any; // Cloud SDK client - type depends on service
   private config: CloudConfig | null;
 
   constructor(engine: WikiEngine) {
@@ -45,10 +48,10 @@ class CloudAuditProvider extends BaseAuditProvider {
    * Initialize the cloud audit provider
    * @returns {Promise<void>}
    */
-  async initialize(): Promise<void> {
-    const configManager = this.engine.getManager('ConfigurationManager');
+  initialize(): Promise<void> {
+    const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
     if (!configManager) {
-      throw new Error('CloudAuditProvider requires ConfigurationManager');
+      return Promise.reject(new Error('CloudAuditProvider requires ConfigurationManager'));
     }
 
     // Load provider-specific settings (ALL LOWERCASE)
@@ -56,19 +59,19 @@ class CloudAuditProvider extends BaseAuditProvider {
       service: configManager.getProperty(
         'amdwiki.audit.provider.cloud.service',
         'cloudwatch'
-      ),
+      ) as string,
       region: configManager.getProperty(
         'amdwiki.audit.provider.cloud.region',
         'us-east-1'
-      ),
+      ) as string,
       logGroup: configManager.getProperty(
         'amdwiki.audit.provider.cloud.loggroup',
         '/amdwiki/audit'
-      ),
+      ) as string,
       logStream: configManager.getProperty(
         'amdwiki.audit.provider.cloud.logstream',
         'audit-events'
-      )
+      ) as string
     };
 
     // TODO: Implement cloud service client initialization
@@ -78,14 +81,14 @@ class CloudAuditProvider extends BaseAuditProvider {
     // await this.ensureLogGroupExists();
 
     logger.warn('[CloudAuditProvider] Cloud provider not yet implemented, functionality disabled');
-    throw new Error('CloudAuditProvider not yet implemented. Use FileAuditProvider instead.');
+    return Promise.reject(new Error('CloudAuditProvider not yet implemented. Use FileAuditProvider instead.'));
   }
 
   /**
    * Get provider information
    * @returns {Object} Provider metadata
    */
-  getProviderInfo() {
+  getProviderInfo(): { name: string; version: string; description: string; features: string[] } {
     return {
       name: 'CloudAuditProvider',
       version: '0.1.0',
@@ -178,18 +181,10 @@ class CloudAuditProvider extends BaseAuditProvider {
    * Check if the audit provider is healthy
    * @returns {Promise<boolean>} True if healthy
    */
-  async isHealthy(): Promise<boolean> {
+  isHealthy(): Promise<boolean> {
     // TODO: Implement cloud service health check
-    try {
-      // await this.client.describeLogGroups({
-      //   logGroupNamePrefix: this.config.logGroup
-      // }).promise();
-      // return true;
-      return false;
-    } catch (error) {
-      logger.error('[CloudAuditProvider] Health check failed:', error);
-      return false;
-    }
+    // For now, always return false since provider is not implemented
+    return Promise.resolve(false);
   }
 
   /**

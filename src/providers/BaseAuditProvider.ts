@@ -91,6 +91,13 @@ export interface AuditStats {
   /** Events by user */
   eventsByUser?: Record<string, number>;
 
+  /** Recent activity entries */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  recentActivity?: any[];
+
+  /** Number of security incidents (high/critical severity) */
+  securityIncidents?: number;
+
   /** Additional statistics */
   [key: string]: unknown;
 }

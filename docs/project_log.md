@@ -24,6 +24,67 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 
 ---
 
+## 2025-12-28-10
+
+- Agent: Claude Code (Opus 4.5)
+- Subject: Audit Provider TypeScript Fixes
+- Issues: #139 (TypeScript Migration Epic)
+- Key Decisions:
+  - Use `Record<string, unknown>` instead of `as any` for flexible property access
+  - Add missing properties to AuditStats interface (recentActivity, securityIncidents)
+  - Remove async from methods that don't use await, use Promise.resolve/reject
+- Work Done:
+  - CloudAuditProvider.ts: Fixed async methods, added type assertions, return types
+  - DatabaseAuditProvider.ts: Fixed async methods, added type assertions, return types
+  - FileAuditProvider.ts: Major refactor for type safety
+    - Typed getManager<ConfigurationManager>() calls
+    - Added type assertions for configManager.getProperty()
+    - Fixed logAuditEvent() to use Record<string, unknown> instead of as any
+    - Fixed searchAuditLogs() sort to use typed property access
+    - Fixed getAuditStats() forEach to use typed log access
+    - Fixed exportAuditLogs() CSV generation with typed property access
+  - BaseAuditProvider.ts: Added recentActivity and securityIncidents to AuditStats interface
+- Testing:
+  - npm test: 58 suites passed, 1380 tests passed
+- Commits: ce4de59
+- Files Modified:
+  - src/providers/CloudAuditProvider.ts
+  - src/providers/DatabaseAuditProvider.ts
+  - src/providers/FileAuditProvider.ts
+  - src/providers/BaseAuditProvider.ts
+
+## 2025-12-28-09
+
+- Agent: Claude Code (Opus 4.5)
+- Subject: Strong WikiEngine Typing - Type Safety Improvements
+- Issues: #139 (TypeScript Migration Epic)
+- Key Decisions:
+  - Changed BaseManager.engine from `any` to `WikiEngine` type
+  - Propagated type safety to all 21 managers and 7 base providers
+  - Fixed WikiEngine interface to match implementation (optional protected properties)
+- Work Done:
+  - NullAuditProvider.ts, NullCacheProvider.ts: Fixed async/await, return types
+  - BaseManager.ts: Changed engine type from `any` to `WikiEngine`
+  - All 21 managers: Updated constructors to use WikiEngine type
+  - All base providers: Import WikiEngine from types/WikiEngine instead of local definitions
+  - Removed duplicate WikiEngine interface definitions across provider files
+  - Use generics for getManager<T>() calls (e.g., getManager<ConfigurationManager>())
+  - BasicAttachmentProvider: Fixed 16 async/any errors
+  - Cleaned up unused eslint-disable directives
+- Testing:
+  - npm test: 58 suites passed, 1380 tests passed
+- Progress: Significant type safety improvement - WikiEngine properly typed throughout codebase
+- Commits:
+  - `20ecc3e` fix(providers): Complete NullAuditProvider and NullCacheProvider TypeScript migration
+  - `1db3cb9` fix(types): Strong WikiEngine typing across managers and providers
+- Files Modified (28 total):
+  - src/managers/*.ts (21 files)
+  - src/providers/Base*.ts (6 files)
+  - src/providers/BasicAttachmentProvider.ts
+  - src/types/WikiEngine.ts
+
+---
+
 ## 2025-12-28-08
 
 - Agent: Claude Code (Opus 4.5)

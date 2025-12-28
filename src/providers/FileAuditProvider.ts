@@ -1,4 +1,6 @@
-import BaseAuditProvider, { WikiEngine, AuditFilters, AuditSearchResults, AuditStats, AuditBackupData } from './BaseAuditProvider';
+import BaseAuditProvider, { AuditFilters, AuditSearchResults, AuditStats, AuditBackupData } from './BaseAuditProvider';
+import type { WikiEngine } from '../types/WikiEngine';
+import type ConfigurationManager from '../managers/ConfigurationManager';
 import * as path from 'path';
 import * as fs from 'fs-extra';
 import { v4 as uuidv4 } from 'uuid';
@@ -25,7 +27,9 @@ interface ExtendedAuditEvent {
   reason?: string;
   policyId?: string;
   policyName?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   context?: Record<string, any>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   metadata?: Record<string, any>;
   duration?: number;
   severity?: string;
@@ -80,38 +84,38 @@ class FileAuditProvider extends BaseAuditProvider {
    * @returns {Promise<void>}
    */
   async initialize(): Promise<void> {
-    const configManager = this.engine.getManager('ConfigurationManager');
+    const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
     if (!configManager) {
       throw new Error('FileAuditProvider requires ConfigurationManager');
     }
 
     // Load shared audit settings (ALL LOWERCASE)
-    const logLevel = configManager.getProperty('amdwiki.audit.loglevel', 'info');
-    const maxQueueSize = configManager.getProperty('amdwiki.audit.maxqueuesize', 1000);
-    const flushInterval = configManager.getProperty('amdwiki.audit.flushinterval', 30000);
-    const retentionDays = configManager.getProperty('amdwiki.audit.retentiondays', 90);
+    const logLevel = configManager.getProperty('amdwiki.audit.loglevel', 'info') as string;
+    const maxQueueSize = configManager.getProperty('amdwiki.audit.maxqueuesize', 1000) as number;
+    const flushInterval = configManager.getProperty('amdwiki.audit.flushinterval', 30000) as number;
+    const retentionDays = configManager.getProperty('amdwiki.audit.retentiondays', 90) as number;
 
     // Load provider-specific settings (ALL LOWERCASE)
     const logDirectory = configManager.getProperty(
       'amdwiki.audit.provider.file.logdirectory',
       './logs'
-    );
+    ) as string;
     const auditFileName = configManager.getProperty(
       'amdwiki.audit.provider.file.auditfilename',
       'audit.log'
-    );
+    ) as string;
     const archiveFileName = configManager.getProperty(
       'amdwiki.audit.provider.file.archivefilename',
       'audit-archive.log'
-    );
+    ) as string;
     const maxFileSize = configManager.getProperty(
       'amdwiki.audit.provider.file.maxfilesize',
       '10MB'
-    );
+    ) as string;
     const maxFiles = configManager.getProperty(
       'amdwiki.audit.provider.file.maxfiles',
       10
-    );
+    ) as number;
 
     // Ensure logDirectory is absolute
     this.config = {
@@ -133,7 +137,7 @@ class FileAuditProvider extends BaseAuditProvider {
 
     // Set up periodic flush
     this.flushTimer = setInterval(() => {
-      this.flush();
+      void this.flush();
     }, this.config.flushInterval);
 
     // Load existing audit logs
@@ -152,7 +156,7 @@ class FileAuditProvider extends BaseAuditProvider {
    * Get provider information
    * @returns {Object} Provider metadata
    */
-  getProviderInfo() {
+  getProviderInfo(): { name: string; version: string; description: string; features: string[] } {
     return {
       name: 'FileAuditProvider',
       version: '1.0.0',
@@ -167,27 +171,31 @@ class FileAuditProvider extends BaseAuditProvider {
    * @returns {Promise<string>} Event ID
    */
   async logAuditEvent(auditEvent: AuditEvent): Promise<string> {
+    // AuditEvent may come in different shapes - need flexible property access
+    const evt = auditEvent as Record<string, unknown>;
     const event: ExtendedAuditEvent = {
       id: uuidv4(),
       timestamp: new Date().toISOString(),
-      level: (auditEvent as any).level || 'info',
-      eventType: (auditEvent as any).eventType || auditEvent.type,
-      user: (auditEvent as any).user || auditEvent.actor || 'anonymous',
-      userId: (auditEvent as any).userId,
-      sessionId: (auditEvent as any).sessionId,
+      level: (evt.level as string) || 'info',
+      eventType: (evt.eventType as string) || auditEvent.type,
+      user: (evt.user as string) || auditEvent.actor || 'anonymous',
+      userId: evt.userId as string | undefined,
+      sessionId: evt.sessionId as string | undefined,
       ipAddress: auditEvent.ipAddress,
       userAgent: auditEvent.userAgent,
-      resource: (auditEvent as any).resource || auditEvent.target,
-      resourceType: (auditEvent as any).resourceType,
+      resource: (evt.resource as string) || auditEvent.target,
+      resourceType: evt.resourceType as string | undefined,
       action: auditEvent.action,
-      result: (auditEvent as any).result || (auditEvent.result === 'success' ? 'allow' : 'deny'),
-      reason: (auditEvent as any).reason || auditEvent.error,
-      policyId: (auditEvent as any).policyId,
-      policyName: (auditEvent as any).policyName,
-      context: (auditEvent as any).context || {},
-      metadata: (auditEvent as any).metadata || auditEvent.data || {},
-      duration: (auditEvent as any).duration,
-      severity: (auditEvent as any).severity || 'low'
+      result: (evt.result as string) || (auditEvent.result === 'success' ? 'allow' : 'deny'),
+      reason: (evt.reason as string) || auditEvent.error,
+      policyId: evt.policyId as string | undefined,
+      policyName: evt.policyName as string | undefined,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      context: (evt.context as Record<string, any>) || {},
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      metadata: (evt.metadata as Record<string, any>) || auditEvent.data || {},
+      duration: evt.duration as number | undefined,
+      severity: (evt.severity as string) || 'low'
     };
 
     // Add to in-memory queue
@@ -213,10 +221,11 @@ class FileAuditProvider extends BaseAuditProvider {
   /**
    * Search audit logs
    * @param {AuditFilters} filters - Search filters
-   * @param {Record<string, any>} options - Search options
+   * @param {Record<string, unknown>} options - Search options
    * @returns {Promise<AuditSearchResults>} Search results
    */
-  async searchAuditLogs(filters: AuditFilters = {}, options: Record<string, any> = {}): Promise<AuditSearchResults> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  searchAuditLogs(filters: AuditFilters = {}, options: Record<string, any> = {}): Promise<AuditSearchResults> {
     const {
       user,
       eventType,
@@ -230,7 +239,12 @@ class FileAuditProvider extends BaseAuditProvider {
       offset = 0,
       sortBy = 'timestamp',
       sortOrder = 'desc'
-    } = { ...filters, ...options };
+    } = { ...filters, ...options } as AuditFilters & {
+      limit?: number;
+      offset?: number;
+      sortBy?: string;
+      sortOrder?: 'asc' | 'desc';
+    };
 
     let filteredLogs = [...this.auditLogs];
 
@@ -260,29 +274,32 @@ class FileAuditProvider extends BaseAuditProvider {
       filteredLogs = filteredLogs.filter(log => new Date(log.timestamp) <= new Date(endDate));
     }
 
-    // Sort
+    // Sort by sortBy field
     filteredLogs.sort((a, b) => {
-      const aVal = (a as any)[sortBy];
-      const bVal = (b as any)[sortBy];
+      const aRec = a as Record<string, unknown>;
+      const bRec = b as Record<string, unknown>;
+      const aVal = aRec[sortBy];
+      const bVal = bRec[sortBy];
       const order = sortOrder === 'desc' ? -1 : 1;
 
       if (typeof aVal === 'string' && typeof bVal === 'string') {
         return aVal.localeCompare(bVal) * order;
       }
-      return ((aVal as number) - (bVal as number)) * order;
+      return (Number(aVal) - Number(bVal)) * order;
     });
 
     // Paginate
     const total = filteredLogs.length;
-    const results = filteredLogs.slice(offset, offset + limit);
+    const paginatedResults = filteredLogs.slice(offset, offset + limit);
 
-    return {
-      results: results as any, // Cast to AuditEvent[] for interface compliance
+    return Promise.resolve({
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
+      results: paginatedResults as any, // Cast to AuditEvent[] for interface compliance
       total,
       limit,
       offset,
       hasMore: offset + limit < total
-    };
+    });
   }
 
   /**
@@ -303,24 +320,28 @@ class FileAuditProvider extends BaseAuditProvider {
       securityIncidents: 0
     };
 
-    logs.results.forEach((log: any) => {
+    logs.results.forEach((logEntry) => {
+      // Cast to record for flexible property access
+      const log = logEntry as Record<string, unknown>;
+
       // Count by type
-      const eventType = log.eventType || log.type;
+      const eventType = (log.eventType as string) || (log.type as string);
       if (eventType) {
         stats.eventsByType[eventType] = (stats.eventsByType[eventType] || 0) + 1;
       }
 
       // Count by result
-      if (log.result) {
-        stats.eventsByResult[log.result] = (stats.eventsByResult[log.result] || 0) + 1;
+      const resultValue = log.result as string | undefined;
+      if (resultValue) {
+        stats.eventsByResult[resultValue] = (stats.eventsByResult[resultValue] || 0) + 1;
       }
 
       // Count by severity
-      const severity = log.severity || 'low';
+      const severity = (log.severity as string) || 'low';
       stats.eventsBySeverity[severity] = (stats.eventsBySeverity[severity] || 0) + 1;
 
       // Count by user
-      const user = log.user || log.actor;
+      const user = (log.user as string) || (log.actor as string);
       if (user) {
         stats.eventsByUser[user] = (stats.eventsByUser[user] || 0) + 1;
       }
@@ -348,9 +369,18 @@ class FileAuditProvider extends BaseAuditProvider {
 
     if (format === 'csv') {
       const csvHeader = 'timestamp,eventType,user,resource,action,result,severity,reason\n';
-      const csvRows = logs.results.map((log: any) =>
-        `"${log.timestamp}","${log.eventType || log.type}","${log.user || log.actor}","${log.resource || log.target}","${log.action}","${log.result}","${log.severity || 'low'}","${log.reason || log.error || ''}"`
-      ).join('\n');
+      const csvRows = logs.results.map((logEntry) => {
+        const log = logEntry as Record<string, unknown>;
+        const timestamp = log.timestamp as string;
+        const eventType = (log.eventType as string) || (log.type as string);
+        const user = (log.user as string) || (log.actor as string);
+        const resource = (log.resource as string) || (log.target as string);
+        const action = log.action as string;
+        const result = log.result as string;
+        const severity = (log.severity as string) || 'low';
+        const reason = (log.reason as string) || (log.error as string) || '';
+        return `"${timestamp}","${eventType}","${user}","${resource}","${action}","${result}","${severity}","${reason}"`;
+      }).join('\n');
 
       return csvHeader + csvRows;
     }
@@ -420,7 +450,7 @@ class FileAuditProvider extends BaseAuditProvider {
           .map(line => {
             try {
               return JSON.parse(line) as ExtendedAuditEvent;
-            } catch (e) {
+            } catch {
               return null;
             }
           })
