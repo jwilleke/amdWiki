@@ -156,7 +156,7 @@ class ACLManager extends BaseManager {
    * @constructor
    * @param {WikiEngine} engine - The wiki engine instance
    */
-  constructor(engine: any) {
+  constructor(engine: WikiEngine) {
     super(engine);
   }
 
@@ -174,7 +174,7 @@ class ACLManager extends BaseManager {
    * console.log('ACL system ready');
    */
   async initialize(): Promise<void> {
-    const configManager = this.engine.getManager('ConfigurationManager') as ConfigurationManager | undefined;
+    const configManager = this.engine.getManager('ConfigurationManager');
     if (!configManager) {
       throw new Error('ACLManager requires ConfigurationManager');
     }
@@ -195,7 +195,7 @@ class ACLManager extends BaseManager {
    * Initialize audit logging system based on configuration.
    */
   async initializeAuditLogging(): Promise<void> {
-    const configManager = this.engine.getManager('ConfigurationManager') as ConfigurationManager | undefined;
+    const configManager = this.engine.getManager('ConfigurationManager');
     if (!configManager) {
       return;
     }
@@ -217,7 +217,7 @@ class ACLManager extends BaseManager {
    * Load access policies from ConfigurationManager.
    */
   async loadAccessPolicies(): Promise<void> {
-    const configManager = this.engine.getManager('ConfigurationManager') as ConfigurationManager | undefined;
+    const configManager = this.engine.getManager('ConfigurationManager');
     if (!configManager) {
       return;
     }
@@ -600,7 +600,7 @@ class ACLManager extends BaseManager {
    * @returns {Promise<PermissionResult>} Permission result with reason
    */
   async checkContextRestrictions(user: UserContext | null, context: Record<string, unknown>): Promise<PermissionResult> {
-    const configManager = this.engine.getManager('ConfigurationManager') as ConfigurationManager | undefined;
+    const configManager = this.engine.getManager('ConfigurationManager');
     if (!configManager) {
       return { allowed: true, reason: 'no_config' };
     }

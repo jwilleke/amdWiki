@@ -1,6 +1,7 @@
 import BaseManager from './BaseManager';
 import fs from 'fs-extra';
 import path from 'path';
+import type { WikiEngine } from '../types/WikiEngine';
 
 /**
  * Plugin object interface
@@ -81,9 +82,9 @@ class PluginManager extends BaseManager {
    * @constructor
    * @param {any} engine - The wiki engine instance
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  constructor(engine: any) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+   
+  constructor(engine: WikiEngine) {
+     
     super(engine);
     this.plugins = new Map();
     this.searchPaths = [];
@@ -144,24 +145,24 @@ class PluginManager extends BaseManager {
     for (const p of configured) {
       try {
         const abs = path.resolve(process.cwd(), String(p));
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+         
         if (!(await fs.pathExists(abs))) {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
           this.engine.logger?.debug?.(`PluginManager: configured path does not exist: ${abs}`);
           continue;
         }
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+         
         const st = await fs.lstat(abs);
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+         
         if (!st.isDirectory()) {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
           this.engine.logger?.warn?.(`PluginManager: configured path is not a directory: ${abs}`);
           continue;
         }
         // Use realpath to collapse symlinks for later prefix checks
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+         
         const real = await fs.realpath(abs);
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+         
         roots.push(real);
       } catch (e) {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
@@ -179,16 +180,16 @@ class PluginManager extends BaseManager {
     // Enumerate .js files in allowed roots only
     for (const root of this.allowedRoots) {
       try {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+         
         const entries = await fs.readdir(root, { withFileTypes: true });
          
         for (const entry of entries) {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+           
           if (!entry.isFile()) continue;
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+           
           if (!entry.name.endsWith('.js') || entry.name.endsWith('.test.js')) continue;
 
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+           
           const candidate = path.join(root, entry.name);
           await this.loadPlugin(candidate); // loadPlugin re-validates path is under an allowed root
         }
@@ -206,10 +207,10 @@ class PluginManager extends BaseManager {
   async loadPlugin(pluginPath: string): Promise<void> {
     try {
       // Resolve and validate canonical path
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+       
       const realFile = await fs.realpath(path.resolve(pluginPath));
       const isAllowed = this.allowedRoots.some(
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+         
         (root) => realFile === root || realFile.startsWith(root + path.sep)
       );
       if (!isAllowed) {
@@ -218,11 +219,11 @@ class PluginManager extends BaseManager {
         return;
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument
+      // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-unsafe-assignment
       const mod = require(realFile);
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
       const plugin = mod?.default || mod;
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
       const pluginName = plugin?.name || path.parse(realFile).name;
 
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access

@@ -2,6 +2,7 @@ import BaseManager from './BaseManager';
 import fs from 'fs-extra';
 import path from 'path';
 import logger from '../utils/logger';
+import type { WikiEngine } from '../types/WikiEngine';
 
 /**
  * JSON Schema type - represents a JSON Schema object
@@ -35,9 +36,9 @@ class SchemaManager extends BaseManager {
    * @constructor
    * @param {any} engine - The wiki engine instance
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  constructor(engine: any) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+   
+  constructor(engine: WikiEngine) {
+     
     super(engine);
     this.schemas = new Map();
   }
@@ -61,17 +62,17 @@ class SchemaManager extends BaseManager {
     const schemasDir = configManager.getProperty('amdwiki.directories.schemas') as string;
 
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+       
       const files = await fs.readdir(schemasDir);
        
       for (const file of files) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+         
         if (file.endsWith('.schema.json')) {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+           
           const schemaName = path.basename(file, '.schema.json');
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+           
           const schemaPath = path.join(schemasDir, file);
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+           
           const schema = await fs.readJson(schemaPath) as JSONSchema;
           this.schemas.set(schemaName, schema);
         }

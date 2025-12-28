@@ -23,13 +23,10 @@ export interface ManagerRegistry {
  */
 export interface WikiEngine {
   /** Wiki configuration */
-  config: WikiConfig;
+  config?: WikiConfig;
 
-  /** Manager registry */
-  managers: ManagerRegistry;
-
-  /** Whether engine is initialized */
-  initialized: boolean;
+  // Note: `managers` and `initialized` are protected in the class implementation,
+  // so they can't be declared here. They're accessible via [key: string]: any.
 
   /** Logger instance */
   logger?: any;

@@ -1,12 +1,4 @@
-// No imports needed for base provider
-
-/**
- * WikiEngine interface (simplified)
- * TODO: Create full WikiEngine type definition in Phase 4
- */
-interface WikiEngine {
-  getManager(name: string): any;
-}
+import type { WikiEngine } from '../types/WikiEngine';
 
 /**
  * Cache statistics structure
@@ -47,7 +39,7 @@ export interface BackupData {
   provider: string;
   initialized: boolean;
   timestamp: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /**

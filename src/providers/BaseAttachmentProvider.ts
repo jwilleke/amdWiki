@@ -1,9 +1,9 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/require-await */
 
 import logger from '../utils/logger';
 import { AttachmentMetadata, AttachmentProvider } from '../types';
-import { WikiEngine, ProviderInfo } from './BasePageProvider';
+import type { WikiEngine } from '../types/WikiEngine';
+import { ProviderInfo } from './BasePageProvider';
 
 /**
  * File information for attachment uploads
@@ -27,7 +27,7 @@ interface User {
   username?: string;
   /** Email address */
   email?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /**
@@ -60,7 +60,7 @@ interface AttachmentResult {
  */
 abstract class BaseAttachmentProvider implements AttachmentProvider {
   /** Reference to the wiki engine */
-  public engine: any;
+  public engine: WikiEngine;
 
   /** Whether provider has been initialized */
   public initialized: boolean;

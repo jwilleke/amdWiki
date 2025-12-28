@@ -1,5 +1,6 @@
 import BaseManager from './BaseManager';
 import logger from '../utils/logger';
+import type { WikiEngine } from '../types/WikiEngine';
 
 /**
  * Base attachment provider interface
@@ -140,11 +141,9 @@ class AttachmentManager extends BaseManager {
    * Creates a new AttachmentManager instance
    *
    * @constructor
-   * @param {any} engine - The wiki engine instance
+   * @param {WikiEngine} engine - The wiki engine instance
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  constructor(engine: any) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+  constructor(engine: WikiEngine) {
     super(engine);
     this.attachmentProvider = null;
     this.providerClass = null;

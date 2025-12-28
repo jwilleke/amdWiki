@@ -9,6 +9,7 @@ import path from 'path';
 import { WikiConfig } from '../types/Config';
 import logger from '../utils/logger';
 import BaseManager, { BackupData } from './BaseManager';
+import type { WikiEngine } from '../types/WikiEngine';
 
 /**
  * ConfigurationManager - Handles JSPWiki-compatible configuration management
@@ -60,7 +61,7 @@ class ConfigurationManager extends BaseManager {
    * @param {any} engine - The wiki engine instance
    */
    
-  constructor(engine: any) {
+  constructor(engine: WikiEngine) {
      
     super(engine);
     this.defaultConfig = null;

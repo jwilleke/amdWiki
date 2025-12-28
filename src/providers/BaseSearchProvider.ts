@@ -18,15 +18,7 @@
  * Related: GitHub Issue #102 - Configuration reorganization
  */
 
-// No imports needed for base provider
-
-/**
- * WikiEngine interface (simplified)
- * TODO: Create full WikiEngine type definition in Phase 4
- */
-interface WikiEngine {
-  getManager(name: string): any;
-}
+import type { WikiEngine } from '../types/WikiEngine';
 
 /**
  * Provider information
@@ -55,7 +47,7 @@ export interface SearchResult {
   snippet: string;
 
   /** Additional metadata */
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
 }
 
 /**
@@ -98,7 +90,7 @@ export interface SearchCriteria {
   };
 
   /** Additional criteria */
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /**
@@ -115,7 +107,7 @@ export interface SearchStatistics {
   lastIndexUpdate?: string;
 
   /** Additional statistics */
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /**
@@ -132,7 +124,7 @@ export interface BackupData {
   timestamp: string;
 
   /** Additional backup data */
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /**

@@ -1,12 +1,5 @@
 import { AuditEvent } from '../types';
-
-/**
- * WikiEngine interface (simplified)
- * TODO: Create full WikiEngine type definition
- */
-interface WikiEngine {
-  getManager(name: string): any;
-}
+import type { WikiEngine } from '../types/WikiEngine';
 
 /**
  * Provider information
@@ -99,7 +92,7 @@ export interface AuditStats {
   eventsByUser?: Record<string, number>;
 
   /** Additional statistics */
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /**
@@ -116,7 +109,7 @@ export interface AuditBackupData {
   timestamp: string;
 
   /** Additional backup data */
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /**

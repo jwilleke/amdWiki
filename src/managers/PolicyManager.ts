@@ -1,9 +1,9 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
  
-/* eslint-disable @typescript-eslint/no-unsafe-call */
+ 
+ 
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
 /* eslint-disable @typescript-eslint/require-await */
 
 import BaseManager from './BaseManager';
@@ -50,7 +50,7 @@ class PolicyManager extends BaseManager {
    * @constructor
    * @param {WikiEngine} engine - The wiki engine instance
    */
-  constructor(engine: any) {
+  constructor(engine: WikiEngine) {
     super(engine);
   }
 
@@ -69,7 +69,7 @@ class PolicyManager extends BaseManager {
    * console.log('Policies loaded');
    */
   async initialize(): Promise<void> {
-    const configManager = this.engine.getManager('ConfigurationManager') as ConfigurationManager | undefined;
+    const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
     if (!configManager) {
       throw new Error('PolicyManager requires ConfigurationManager to be initialized.');
     }

@@ -1,6 +1,6 @@
 import logger from '../utils/logger';
 import { User, UserCreateData, UserUpdateData, UserSession } from '../types';
-import { WikiEngine } from './BasePageProvider';
+import type { WikiEngine } from '../types/WikiEngine';
 
 /**
  * Provider information
@@ -19,7 +19,7 @@ interface BackupData {
   users?: Map<string, User> | Record<string, User>;
   sessions?: Map<string, UserSession> | Record<string, UserSession>;
   timestamp?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /**

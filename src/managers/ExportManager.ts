@@ -2,6 +2,7 @@ import BaseManager from './BaseManager';
 import fs from 'fs/promises';
 import path from 'path';
 import LocaleUtils from '../utils/LocaleUtils';
+import type { WikiEngine } from '../types/WikiEngine';
 
 /**
  * Export file metadata interface
@@ -74,9 +75,9 @@ class ExportManager extends BaseManager {
    * @constructor
    * @param {any} engine - The wiki engine instance
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  constructor(engine: any) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+   
+  constructor(engine: WikiEngine) {
+     
     super(engine);
     this.exportDirectory = './exports';
     this.supportedFormats = ['html', 'pdf', 'markdown'];

@@ -4,6 +4,8 @@ import fs from 'fs-extra';
 import * as path from 'path';
 import * as crypto from 'crypto';
 import logger from '../utils/logger';
+import type { WikiEngine } from '../types/WikiEngine';
+import type ConfigurationManager from '../managers/ConfigurationManager';
 
 /**
  * Schema.org Person metadata
@@ -103,7 +105,7 @@ class BasicAttachmentProvider extends BaseAttachmentProvider {
   private hashContent: boolean;
   private hashMethod: string;
 
-  constructor(engine: any) {
+  constructor(engine: WikiEngine) {
     super(engine);
     this.storageDirectory = null;
     this.metadataFile = null;
@@ -119,12 +121,13 @@ class BasicAttachmentProvider extends BaseAttachmentProvider {
    * All configuration access via ConfigurationManager
    */
   async initialize(): Promise<void> {
-    const configManager = this.engine.getManager('ConfigurationManager');
+    const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
     if (!configManager) {
       throw new Error('BasicAttachmentProvider requires ConfigurationManager');
     }
 
     // Get storage directory configuration (ALL LOWERCASE)
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const storagePath: string = configManager.getProperty(
       'amdwiki.attachment.provider.basic.storagedir',
       './data/attachments'
@@ -134,6 +137,7 @@ class BasicAttachmentProvider extends BaseAttachmentProvider {
       : path.join(process.cwd(), storagePath);
 
     // Get metadata file location (ALL LOWERCASE)
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const metadataPath: string = configManager.getProperty(
       'amdwiki.attachment.metadatafile',
       './data/attachments/metadata.json'
@@ -143,12 +147,14 @@ class BasicAttachmentProvider extends BaseAttachmentProvider {
       : path.join(process.cwd(), metadataPath);
 
     // Get size limits and allowed types from shared config (ALL LOWERCASE)
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const maxSizeBytes: number = configManager.getProperty(
       'amdwiki.attachment.maxsize',
       10485760
     );
     this.maxFileSize = maxSizeBytes;
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const allowedTypesStr: string = configManager.getProperty(
       'amdwiki.attachment.allowedtypes',
       ''
@@ -158,10 +164,12 @@ class BasicAttachmentProvider extends BaseAttachmentProvider {
       : [];
 
     // Get provider-specific settings (ALL LOWERCASE)
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     this.hashContent = configManager.getProperty(
       'amdwiki.attachment.provider.basic.hashcontent',
       true
     );
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     this.hashMethod = configManager.getProperty(
       'amdwiki.attachment.provider.basic.hashmethod',
       'sha256'
@@ -232,6 +240,7 @@ class BasicAttachmentProvider extends BaseAttachmentProvider {
       }
 
       const data = await fs.readFile(this.metadataFile, 'utf8' as BufferEncoding);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const json: MetadataFile = JSON.parse(data);
 
       // Validate Schema.org format
@@ -459,6 +468,7 @@ class BasicAttachmentProvider extends BaseAttachmentProvider {
     buffer: Buffer,
     metadata: Record<string, any> = {}
   ): Promise<AttachmentMetadata> {
+    /* eslint-disable @typescript-eslint/no-unsafe-assignment */
     const fileInfo: FileInfo = {
       originalName: filename,
       mimeType: metadata.mimeType || 'application/octet-stream',
@@ -470,6 +480,7 @@ class BasicAttachmentProvider extends BaseAttachmentProvider {
       username: metadata.uploadedBy,
       email: metadata.email
     } : null;
+    /* eslint-enable @typescript-eslint/no-unsafe-assignment */
 
     const schemaMetadata = await this.storeAttachmentInternal(buffer, fileInfo, metadata, user);
 
@@ -541,10 +552,10 @@ class BasicAttachmentProvider extends BaseAttachmentProvider {
    * @param attachmentId - Attachment identifier
    * @returns Attachment metadata or null
    */
-  async getAttachmentMetadata(attachmentId: string): Promise<AttachmentMetadata | null> {
+  getAttachmentMetadata(attachmentId: string): Promise<AttachmentMetadata | null> {
     const schemaMetadata = this.attachmentMetadata.get(attachmentId);
     if (!schemaMetadata) {
-      return null;
+      return Promise.resolve(null);
     }
 
     // Convert to AttachmentMetadata format
@@ -560,7 +571,7 @@ class BasicAttachmentProvider extends BaseAttachmentProvider {
       description: schemaMetadata.description
     };
 
-    return attachmentMetadata;
+    return Promise.resolve(attachmentMetadata);
   }
 
   /**
@@ -625,19 +636,19 @@ class BasicAttachmentProvider extends BaseAttachmentProvider {
    * @param attachmentId - Attachment identifier
    * @returns True if exists
    */
-  async attachmentExists(attachmentId: string): Promise<boolean> {
-    return this.attachmentMetadata.has(attachmentId);
+  attachmentExists(attachmentId: string): Promise<boolean> {
+    return Promise.resolve(this.attachmentMetadata.has(attachmentId));
   }
 
   /**
    * Get all attachments metadata
    * @returns Array of attachment metadata
    */
-  async getAllAttachments(): Promise<AttachmentMetadata[]> {
+  getAllAttachments(): Promise<AttachmentMetadata[]> {
     const schemaAttachments = Array.from(this.attachmentMetadata.values())
       .sort((a, b) => new Date(b.dateCreated).getTime() - new Date(a.dateCreated).getTime());
 
-    return schemaAttachments.map((schema): AttachmentMetadata => ({
+    return Promise.resolve(schemaAttachments.map((schema): AttachmentMetadata => ({
       id: schema.identifier,
       filename: schema.name,
       pageUuid: schema.mentions[0]?.name || '',
@@ -647,7 +658,7 @@ class BasicAttachmentProvider extends BaseAttachmentProvider {
       uploadedBy: schema.author?.name || 'Unknown',
       filePath: schema.storageLocation,
       description: schema.description
-    }));
+    })));
   }
 
   /**
@@ -655,7 +666,7 @@ class BasicAttachmentProvider extends BaseAttachmentProvider {
    * @param pageName - Page name/title
    * @returns Array of attachment metadata
    */
-  async getAttachmentsForPage(pageName: string): Promise<AttachmentMetadata[]> {
+  getAttachmentsForPage(pageName: string): Promise<AttachmentMetadata[]> {
     const attachments: SchemaCreativeWork[] = [];
     const allMetadata = Array.from(this.attachmentMetadata.values());
     for (const metadata of allMetadata) {
@@ -673,7 +684,7 @@ class BasicAttachmentProvider extends BaseAttachmentProvider {
       (a, b) => new Date(b.dateCreated).getTime() - new Date(a.dateCreated).getTime()
     );
 
-    return sortedAttachments.map((schema): AttachmentMetadata => ({
+    return Promise.resolve(sortedAttachments.map((schema): AttachmentMetadata => ({
       id: schema.identifier,
       filename: schema.name,
       pageUuid: pageName,
@@ -683,7 +694,7 @@ class BasicAttachmentProvider extends BaseAttachmentProvider {
       uploadedBy: schema.author?.name || 'Unknown',
       filePath: schema.storageLocation,
       description: schema.description
-    }));
+    })));
   }
 
   /**
@@ -747,18 +758,18 @@ class BasicAttachmentProvider extends BaseAttachmentProvider {
    * Backup provider data
    * @returns Backup data
    */
-  async backup(): Promise<BackupData> {
+  backup(): Promise<BackupData> {
     if (!this.metadataFile || !this.storageDirectory) {
-      throw new Error('Provider not properly initialized');
+      return Promise.reject(new Error('Provider not properly initialized'));
     }
 
-    return {
+    return Promise.resolve({
       providerName: 'BasicAttachmentProvider',
       timestamp: new Date().toISOString(),
       metadataFile: this.metadataFile,
       storageDirectory: this.storageDirectory,
       attachments: Array.from(this.attachmentMetadata.entries())
-    };
+    });
   }
 
   /**

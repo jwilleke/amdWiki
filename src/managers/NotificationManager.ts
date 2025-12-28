@@ -2,6 +2,7 @@ import BaseManager from './BaseManager';
 import logger from '../utils/logger';
 import { promises as fs } from 'fs';
 import path from 'path';
+import type { WikiEngine } from '../types/WikiEngine';
 
 /**
  * Notification object structure
@@ -90,9 +91,9 @@ class NotificationManager extends BaseManager {
    * @constructor
    * @param {any} engine - The wiki engine instance
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  constructor(engine: any) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+   
+  constructor(engine: WikiEngine) {
+     
     super(engine);
     this.notifications = new Map();
     this.notificationId = 0;

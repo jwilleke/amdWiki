@@ -1,9 +1,9 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
  
-/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
 
 import BaseManager, { BackupData } from './BaseManager';
 import logger from '../utils/logger';
@@ -168,7 +168,7 @@ class SearchManager extends BaseManager {
    * @constructor
    * @param {WikiEngine} engine - The wiki engine instance
    */
-  constructor(engine: any) {
+  constructor(engine: WikiEngine) {
     super(engine);
     this.provider = null;
     this.providerClass = null;

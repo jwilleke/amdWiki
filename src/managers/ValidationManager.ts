@@ -9,6 +9,7 @@
 import BaseManager from './BaseManager';
 import { v4 as uuidv4, validate as validateUuid } from 'uuid';
 import path from 'path';
+import type { WikiEngine } from '../types/WikiEngine';
 
 /**
  * Validation result interface
@@ -133,9 +134,9 @@ class ValidationManager extends BaseManager {
    * @constructor
    * @param {any} engine - The wiki engine instance
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  constructor(engine: any) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+   
+  constructor(engine: WikiEngine) {
+     
     super(engine);
     this.requiredMetadataFields = ['title', 'uuid', 'slug', 'system-category', 'user-keywords', 'lastModified'];
     // Legacy hardcoded categories (fallback if config not available)
@@ -311,7 +312,7 @@ class ValidationManager extends BaseManager {
     const nameWithoutExt = path.parse(filename).name;
 
     // Check if it's a valid UUID
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+     
     if (!validateUuid(nameWithoutExt)) {
       result.error = `Filename '${filename}' does not follow UUID naming convention. Expected format: {uuid}.md`;
       return result;
@@ -357,7 +358,7 @@ class ValidationManager extends BaseManager {
     }
 
     // UUID validation
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+     
     if (!metadata.uuid || !validateUuid(metadata.uuid as string)) {
       validationErrors.push('uuid must be a valid RFC 4122 UUID v4');
     }
@@ -505,7 +506,7 @@ class ValidationManager extends BaseManager {
    * @returns {PageMetadata} Complete metadata object with all required fields
    */
   generateValidMetadata(title: string, options: GenerateMetadataOptions = {}): PageMetadata {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
+     
     const uuid = options.uuid || uuidv4();
     const slug = options.slug || this.generateSlug(title);
 
@@ -517,7 +518,7 @@ class ValidationManager extends BaseManager {
       'system-category': options['system-category'] || defaultSystemCategory,
        
       'user-keywords': options.userKeywords || options['user-keywords'] || [],
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+       
       uuid: uuid,
       slug: slug,
       lastModified: new Date().toISOString(),
@@ -582,9 +583,9 @@ class ValidationManager extends BaseManager {
     };
 
     // Fix UUID if missing or invalid
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+     
     if (!metadata.uuid || !validateUuid(metadata.uuid as string)) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+       
       fixes.metadata.uuid = uuidv4();
     }
 

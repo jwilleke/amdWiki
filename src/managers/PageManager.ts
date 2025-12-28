@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
+ 
 
 import BaseManager, { BackupData } from './BaseManager';
 import logger from '../utils/logger';
@@ -76,7 +76,7 @@ class PageManager extends BaseManager {
    * @constructor
    * @param {WikiEngine} engine - The wiki engine instance
    */
-  constructor(engine: any) {
+  constructor(engine: WikiEngine) {
     super(engine);
   }
 
@@ -98,7 +98,7 @@ class PageManager extends BaseManager {
   async initialize(config: Record<string, unknown> = {}): Promise<void> {
     await super.initialize(config);
 
-    const configManager = this.engine.getManager('ConfigurationManager') as ConfigurationManager | undefined;
+    const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
     if (!configManager) {
       throw new Error('PageManager requires ConfigurationManager');
     }

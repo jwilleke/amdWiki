@@ -156,7 +156,7 @@ class UserManager extends BaseManager {
    * @constructor
    * @param {WikiEngine} engine - The wiki engine instance
    */
-  constructor(engine: any) {
+  constructor(engine: WikiEngine) {
     super(engine);
   }
 
@@ -178,7 +178,7 @@ class UserManager extends BaseManager {
   async initialize(config: Record<string, unknown> = {}): Promise<void> {
     await super.initialize(config);
 
-    const configManager = this.engine.getManager('ConfigurationManager') as ConfigurationManager | undefined;
+    const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
     if (!configManager) {
       throw new Error('UserManager requires ConfigurationManager');
     }
@@ -822,7 +822,7 @@ class UserManager extends BaseManager {
     const defaultDateFormat = LocaleUtils.getDateFormatFromLocale(userLocale);
     const defaultTimeFormat = LocaleUtils.getTimeFormatFromLocale(userLocale);
 
-    const configManager = this.engine.getManager('ConfigurationManager') as ConfigurationManager | undefined;
+    const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
     const defaultTimezone = configManager ?
       (configManager.getProperty('amdwiki.default.timezone', 'UTC') as string) : 'UTC';
 

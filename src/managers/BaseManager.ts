@@ -10,13 +10,14 @@
  *
  * @property {WikiEngine} engine - Reference to the wiki engine
  * @property {boolean} initialized - Flag indicating initialization status
- * @property {Record<string, any>} config - Configuration object passed during initialization
+ * @property {Record<string, unknown>} config - Configuration object passed during initialization
  *
  * @see {@link WikiEngine} for the main engine
  */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/require-await */
+
+import type { WikiEngine } from '../types/WikiEngine';
 
 /**
  * Backup data structure returned by backup() method
@@ -52,12 +53,13 @@ export interface BackupData {
  */
 abstract class BaseManager {
   /** Reference to the wiki engine */
-  protected engine: any;
+  protected engine: WikiEngine;
 
   /** Initialization status flag */
   protected initialized: boolean;
 
   /** Configuration passed during initialization */
+   
   protected config?: Record<string, any>;
 
   /**
@@ -67,13 +69,13 @@ abstract class BaseManager {
    *
    * @example
    * class MyManager extends BaseManager {
-   *   constructor(engine: any) {
+   *   constructor(engine: WikiEngine) {
    *     super(engine);
    *     this.myData = new Map();
    *   }
    * }
    */
-  constructor(engine: any) {
+  constructor(engine: WikiEngine) {
     this.engine = engine;
     this.initialized = false;
   }
@@ -93,6 +95,7 @@ abstract class BaseManager {
    *   console.log('MyManager initialized');
    * }
    */
+   
   async initialize(config: Record<string, any> = {}): Promise<void> {
     this.config = config;
     this.initialized = true;
@@ -120,7 +123,7 @@ abstract class BaseManager {
    * @example
    * const config = this.getEngine().getConfig();
    */
-  getEngine(): any {
+  getEngine(): WikiEngine {
     return this.engine;
   }
 

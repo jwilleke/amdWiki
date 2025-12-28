@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
  
-/* eslint-disable @typescript-eslint/no-unused-vars */
+ 
 
 import BaseManager from './BaseManager';
 import logger from '../utils/logger';
@@ -102,7 +102,7 @@ class PolicyEvaluator extends BaseManager {
    * @constructor
    * @param {WikiEngine} engine - The wiki engine instance
    */
-  constructor(engine: any) {
+  constructor(engine: WikiEngine) {
     super(engine);
   }
 
@@ -119,7 +119,7 @@ class PolicyEvaluator extends BaseManager {
    */
   // eslint-disable-next-line @typescript-eslint/require-await
   async initialize(): Promise<void> {
-    this.policyManager = this.engine.getManager('PolicyManager') as PolicyManager | undefined;
+    this.policyManager = this.engine.getManager('PolicyManager');
     if (!this.policyManager) {
       throw new Error('PolicyEvaluator requires PolicyManager to be initialized.');
     }

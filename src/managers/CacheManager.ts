@@ -3,6 +3,7 @@ import RegionCache from '../cache/RegionCache';
 import type ICacheAdapter from '../cache/ICacheAdapter';
 import logger from '../utils/logger';
 import NullCacheProvider from '../providers/NullCacheProvider';
+import type { WikiEngine } from '../types/WikiEngine';
 
 /**
  * Cache options for set operations
@@ -93,8 +94,8 @@ class CacheManager extends BaseManager {
    * @constructor
    * @param {any} engine - The wiki engine instance
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  constructor(engine: any) {
+   
+  constructor(engine: WikiEngine) {
      
     super(engine);
     this.provider = null;
@@ -113,7 +114,7 @@ class CacheManager extends BaseManager {
   async initialize(config: Record<string, unknown> = {}): Promise<void> {
     await super.initialize(config);
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const configManager = this.engine.getManager('ConfigurationManager');
     if (!configManager) {
       throw new Error('CacheManager requires ConfigurationManager');
@@ -188,7 +189,7 @@ class CacheManager extends BaseManager {
       const isHealthy = await this.provider.isHealthy();
       if (!isHealthy) {
         logger.warn(`Cache provider ${this.providerClass} health check failed, switching to NullCacheProvider`);
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+         
         this.provider = new NullCacheProvider(this.engine);
         await this.provider.initialize();
       }
@@ -196,7 +197,7 @@ class CacheManager extends BaseManager {
       logger.error(`Failed to load cache provider: ${this.providerClass}`, error);
       // Fall back to NullCacheProvider on any error
       logger.warn('Falling back to NullCacheProvider due to provider load error');
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+       
       this.provider = new NullCacheProvider(this.engine);
       await this.provider.initialize();
     }
