@@ -42,7 +42,7 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
   - Documented process in AGENTS.md and Issue #139 comment
 - Testing:
   - npm test: 58 suites passed, 1380 tests passed
-- Progress: 70 files → 35 files remaining (50% migrated this session!)
+- Progress: 70 files → 26 files remaining (63% migrated this session!)
 - Commits:
   - `c60a798` fix: Complete FileSystemProvider TypeScript migration
   - `15db71e` docs: Add "One File Done Right" process to AGENTS.md
@@ -50,7 +50,8 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
   - `4678381` fix: Complete TypeScript migration for cache and utils modules
   - `7b04281` fix: Complete TypeScript migration for 8 manager files
   - `ffa6141` fix: Complete TypeScript migration for core, managers, parsers, providers
-- Files Deleted (36 total):
+  - `ef50327` fix: Complete TypeScript migration for DOM handlers, utils, WikiEngine
+- Files Deleted (45 total):
   - src/providers/FileSystemProvider.js, BasePageProvider.js, BaseAttachmentProvider.js
   - src/providers/VersioningFileProvider.js
   - src/managers/BaseManager.js, AuditManager.js, CacheManager.js, ConfigurationManager.js
@@ -64,6 +65,11 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
   - src/parsers/handlers/BaseSyntaxHandler.js, HandlerRegistry.js
   - src/utils/logger.js, DeltaStorage.js, VersionCompression.js, PageNameMatcher.js, LocaleUtils.js
   - src/cache/ICacheAdapter.js, NodeCacheAdapter.js, NullCacheAdapter.js, RegionCache.js
+- Additional Files Deleted:
+  - src/WikiEngine.js
+  - src/parsers/dom/Tokenizer.js
+  - src/parsers/dom/handlers/DOMLinkHandler.js, DOMPluginHandler.js, DOMVariableHandler.js
+  - src/utils/SchemaGenerator.js, sessionUtils.js, standardize-categories.js, version.js
 - Compatibility Fixes:
   - DOMParser.ts: Export ParseError in CommonJS module.exports
   - BaseSyntaxHandler.ts: Change abstract handle() to default implementation
