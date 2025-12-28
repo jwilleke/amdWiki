@@ -39,7 +39,7 @@ See YAML frontmatter above for current project state.
 
 ⚠️ **Changes breaking previously working services is a known issue.**
 
-See [docs/development/PREVENTING-REGRESSIONS.md](/docs/development/PREVENTING-REGRESSIONS.md) for comprehensive prevention strategy including:
+See [docs/testing/PREVENTING-REGRESSIONS.md](/docs/testing/PREVENTING-REGRESSIONS.md) for comprehensive prevention strategy including:
 
 - Automated testing requirements
 - Pre-commit validation checklist
@@ -169,7 +169,7 @@ Single source of truth for amdWiki project context. Read this first when working
 
 ### ⚠️ CRITICAL - Read Before Making Changes
 
-**[PREVENTING-REGRESSIONS.md](docs/testing/PREVENTING-REGRESSIONS.md)** - **Prevents breaking existing services** (automated testing strategy)
+**[PREVENTING-REGRESSIONS.md](/docs/testing/PREVENTING-REGRESSIONS.md)** - **Prevents breaking existing services** (automated testing strategy)
 
 ### Root-Level Documentation (Start Here)
 
