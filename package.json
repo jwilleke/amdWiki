@@ -151,7 +151,9 @@
   "keywords": [],
   "type": "commonjs",
   "overrides": {
-    "js-yaml": "^4.1.1",
+    "gray-matter": {
+      "js-yaml": "^3.14.1"
+    },
     "cookie": "^0.7.0"
   },
   "engines": {

@@ -692,6 +692,6 @@ export { HandlerRegistry };
 export default HandlerRegistry;
 
 // Export for CommonJS (Jest compatibility)
-module.exports = { HandlerRegistry, HandlerRegistrationError };
-// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-module.exports.default = HandlerRegistry;
+// Must export class directly for instanceof checks to work
+module.exports = HandlerRegistry;
+Object.assign(module.exports, { HandlerRegistry, HandlerRegistrationError, default: HandlerRegistry });

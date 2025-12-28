@@ -746,6 +746,6 @@ export class HandlerExecutionError extends Error {
 export default BaseSyntaxHandler;
 
 // Export for CommonJS (Jest compatibility)
-module.exports = { BaseSyntaxHandler, HandlerExecutionError };
-// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-module.exports.default = BaseSyntaxHandler;
+// Must export class directly for instanceof checks to work
+module.exports = BaseSyntaxHandler;
+Object.assign(module.exports, { BaseSyntaxHandler, HandlerExecutionError, default: BaseSyntaxHandler });
