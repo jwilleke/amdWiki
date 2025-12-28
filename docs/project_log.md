@@ -24,6 +24,40 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 
 ---
 
+## 2025-12-28-08
+
+- Agent: Claude Code (Opus 4.5)
+- Subject: "One File Done Right" TypeScript Migration
+- Issues: #139 (TypeScript Migration Epic)
+- Key Decisions:
+  - Established "One File Done Right" 6-step process for TypeScript migration
+  - After 100+ hours of partial fixes, complete each file fully before moving on
+  - Added @types/uuid for proper uuid type support
+- Work Done:
+  - FileSystemProvider.ts: Fixed 55 ESLint errors, updated test imports, deleted .js
+  - Batch migrated 10 more files with 0 ESLint errors (deleted .js versions):
+    - BaseManager.ts, WikiContext.ts, logger.ts
+    - ICacheAdapter.ts, NodeCacheAdapter.ts, NullCacheAdapter.ts, RegionCache.ts
+    - DeltaStorage.ts, VersionCompression.ts, PageNameMatcher.ts
+  - Documented process in AGENTS.md and Issue #139 comment
+- Testing:
+  - npm test: 58 suites passed, 1380 tests passed
+- Progress: 70 files → 60 files remaining
+- Commits:
+  - `c60a798` fix: Complete FileSystemProvider TypeScript migration
+  - `15db71e` docs: Add "One File Done Right" process to AGENTS.md
+  - `ac694a0` fix: Complete TypeScript migration for BaseManager, WikiContext, logger
+  - `4678381` fix: Complete TypeScript migration for cache and utils modules
+- Files Deleted (11 total):
+  - src/providers/FileSystemProvider.js
+  - src/managers/BaseManager.js
+  - src/context/WikiContext.js
+  - src/utils/logger.js
+  - src/cache/ICacheAdapter.js, NodeCacheAdapter.js, NullCacheAdapter.js, RegionCache.js
+  - src/utils/DeltaStorage.js, VersionCompression.js, PageNameMatcher.js
+
+---
+
 ## 2025-12-28-07
 
 - Agent: Claude Code (Opus 4.5)
