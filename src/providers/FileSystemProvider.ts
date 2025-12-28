@@ -94,6 +94,9 @@ class FileSystemProvider extends BasePageProvider {
   /** Page name matcher for fuzzy/plural matching */
   protected pageNameMatcher: PageNameMatcher | null;
 
+  /** Whether installation is complete (required-pages should not be used after install) */
+  public installationComplete: boolean;
+
   /**
    * Creates a new FileSystemProvider instance
    *
@@ -104,6 +107,7 @@ class FileSystemProvider extends BasePageProvider {
     super(engine);
     this.pagesDirectory = null;
     this.requiredPagesDirectory = null;
+    this.installationComplete = false; // Will be set during initialize()
     this.encoding = 'utf-8';
     this.pageCache = new Map();
     this.titleIndex = new Map();
@@ -152,11 +156,19 @@ class FileSystemProvider extends BasePageProvider {
     this.pageNameMatcher = new PageNameMatcher(matchEnglishPlurals);
     logger.info(`[FileSystemProvider] Plural matching: ${matchEnglishPlurals ? 'enabled' : 'disabled'}`);
 
+    // Check installation status
+    this.installationComplete = configManager.getProperty('amdwiki.install.completed', false);
+    logger.info(`[FileSystemProvider] Installation complete: ${this.installationComplete}`);
+
     // Ensure directories exist
     await fs.ensureDir(this.pagesDirectory);
-    await fs.ensureDir(this.requiredPagesDirectory);
     logger.info(`[FileSystemProvider] Page directory: ${this.pagesDirectory}`);
-    logger.info(`[FileSystemProvider] Required-pages directory: ${this.requiredPagesDirectory}`);
+
+    // Only ensure required-pages directory exists if installation is NOT complete
+    if (!this.installationComplete) {
+      await fs.ensureDir(this.requiredPagesDirectory);
+      logger.info(`[FileSystemProvider] Required-pages directory (install mode): ${this.requiredPagesDirectory}`);
+    }
 
     // Load all pages into cache
     await this.refreshPageList();
@@ -166,8 +178,11 @@ class FileSystemProvider extends BasePageProvider {
   }
 
   /**
-   * Reads all .md files from both pages and required-pages directories
+   * Reads all .md files from the pages directory (and required-pages during installation)
    * and populates the page cache with multiple indexes.
+   *
+   * After installation is complete, only pages from the main pages directory are loaded.
+   * The required-pages directory is only used during installation to seed the wiki.
    */
   async refreshPageList(): Promise<void> {
     this.pageCache.clear();
@@ -179,10 +194,17 @@ class FileSystemProvider extends BasePageProvider {
       throw new Error('FileSystemProvider not initialized - directories not set');
     }
 
-    // Scan both directories
+    // Only scan required-pages during installation (before install is complete)
     const pagesFiles = await this.walkDir(this.pagesDirectory);
-    const requiredFiles = await this.walkDir(this.requiredPagesDirectory);
-    const allFiles = [...pagesFiles, ...requiredFiles];
+    let allFiles = [...pagesFiles];
+
+    if (!this.installationComplete) {
+      // During installation, also include required-pages
+      const requiredFiles = await this.walkDir(this.requiredPagesDirectory);
+      allFiles = [...pagesFiles, ...requiredFiles];
+      logger.info(`[FileSystemProvider] Install mode: including ${requiredFiles.length} files from required-pages`);
+    }
+
     const mdFiles = allFiles.filter(f => f.toLowerCase().endsWith('.md'));
 
     for (const filePath of mdFiles) {
