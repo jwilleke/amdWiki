@@ -22,6 +22,26 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 
 ---
 
+## 2025-12-28-01
+
+- Agent: Claude Code (Opus 4.5)
+- Subject: Fix final TypeScript errors in DOMLinkHandler.ts
+- Key Decision:
+  - Import missing Link class from LinkParser module
+  - Replace undefined LinkClass references with proper Link import
+- Work Done:
+  - Fixed 2 TypeScript errors in DOMLinkHandler.ts (TS2304: Cannot find name 'LinkClass')
+  - Added Link import to existing LinkParser import statement
+  - Updated both usages of LinkClass to use imported Link class
+  - TypeScript now passes with 0 errors (down from 253 at start of migration)
+- Testing:
+  - npm run typecheck: PASS (0 errors)
+  - npm test: 58 suites passed, 1380 tests passed
+- Files Modified:
+  - src/parsers/dom/handlers/DOMLinkHandler.ts
+
+---
+
 ## 2025-12-27-14
 
 - Agent: Claude Code (Opus 4.5)

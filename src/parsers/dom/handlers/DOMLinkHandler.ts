@@ -1,6 +1,6 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
+ 
+ 
+ 
 /**
  * DOMLinkHandler - DOM-based link processing handler
  *
@@ -23,7 +23,7 @@
  *   This handler processes those elements and sets proper href, class, etc.
  */
 
-import { LinkParser } from '../../LinkParser';
+import { LinkParser, Link } from '../../LinkParser';
 import PageNameMatcher from '../../../utils/PageNameMatcher';
 import type WikiDocument from '../WikiDocument';
 import type { LinkedomElement } from '../WikiDocument';
@@ -349,8 +349,8 @@ class DOMLinkHandler {
           originalText: `[${displayText}|${target}]`
         };
 
-        // Create LinkClass for determineLinkType (requires Link class, not LinkInfo)
-        const linkObj = new LinkClass({
+        // Create Link object for determineLinkType (requires Link class, not LinkInfo)
+        const linkObj = new Link({
           text: displayText,
           target: target,
           originalText: `[${displayText}|${target}]`
@@ -610,8 +610,8 @@ class DOMLinkHandler {
     const displayText = parts.length > 1 ? parts[0] : parts[0];
     const linkTarget = parts.length > 1 ? parts[1] : parts[0];
 
-    // Create LinkClass for determineLinkType (requires Link class, not LinkInfo)
-    const linkObj = new LinkClass({
+    // Create Link object for determineLinkType (requires Link class, not LinkInfo)
+    const linkObj = new Link({
       text: displayText,
       target: linkTarget,
       originalText: element.syntax || `[${element.target}]`
