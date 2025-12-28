@@ -63,10 +63,22 @@ See [docs/testing/PREVENTING-REGRESSIONS.md](/docs/testing/PREVENTING-REGRESSION
 
 Key Decisions may be done initially or decided the project progresses. Include "Decision and rationale"
 
-- "One File Done Right" We found for eaample:
-  - 71 files have both .js and .ts versions but they are NOT equivalent
-  - Example: FileSystemProvider.ts missing `installationComplete` property
-  - Phase 3 requires file-by-file audit before .js deletion
+- **"One File Done Right" TypeScript Migration Process** (Issue #139):
+  1. Fix ALL ESLint errors in .ts file (use proper types, not `any`)
+  2. Install missing `@types/*` packages if needed
+  3. Update test imports to use .ts file (remove `.js` extension, adjust `.default`)
+  4. Delete the .js file only after ESLint passes
+  5. Run full test suite - all tests must pass
+  6. Commit complete migration (one atomic commit per file)
+
+  Key type fixes:
+  - Use `getManager<ManagerType>('Name')` for typed manager access
+  - Add explicit type assertions: `as string`, `as Type`
+  - Use `Promise.resolve()` for sync methods with Promise signatures
+  - Create local interfaces for untyped managers
+
+  Rationale: After 100+ hours of incremental migration with repeated partial fixes,
+  this approach ensures each file is fully migrated before moving to the next.
 - All configuration MUST use ConfigurationManager - no hardcoded fallbacks (DRY)
 - Use Playwright for E2E testing with Chromium browser, integrate into CI/CD
 - Schema.org-compliant front matter, PascalCase naming, TypeDoc for automation
