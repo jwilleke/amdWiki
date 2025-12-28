@@ -23,6 +23,9 @@ We use strict TypeScript settings (`strict: true`) to catch potential bugs at co
 - No unused variables or parameters
 - All functions must have explicit return types (unless inferable)
 - No implicit returns
+- For tests specifically:
+  - New tests - write in TypeScript
+  - Any changes are substantial (like a rewrite), convert to TypeScript
 
 See `tsconfig.json` for full configuration.
 
