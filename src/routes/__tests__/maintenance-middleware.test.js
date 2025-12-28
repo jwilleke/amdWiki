@@ -86,9 +86,39 @@ app.get('/test', (req, res) => {
   res.json({ success: true, message: 'Test route works' });
 });
 
+/**
+ * Helper to start server and get dynamic port
+ * @param {Express} app - Express application
+ * @returns {Promise<{server: Server, port: number}>}
+ */
+function startServer(expressApp) {
+  return new Promise((resolve, reject) => {
+    const srv = expressApp.listen(0, () => {
+      const addr = srv.address();
+      resolve({ server: srv, port: addr.port });
+    });
+    srv.on('error', reject);
+  });
+}
+
+/**
+ * Helper to close server gracefully
+ * @param {Server} server - HTTP server instance
+ * @returns {Promise<void>}
+ */
+function closeServer(server) {
+  return new Promise((resolve) => {
+    if (server) {
+      server.close(() => resolve());
+    } else {
+      resolve();
+    }
+  });
+}
+
 describe('Maintenance Mode Middleware (PR #18)', () => {
   let server;
-  let port = 3001;
+  let port;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -96,18 +126,17 @@ describe('Maintenance Mode Middleware (PR #18)', () => {
     mockWikiEngine.config.features.maintenance.enabled = false;
   });
 
-  afterEach((done) => {
-    if (server) {
-      server.close(done);
-    } else {
-      done();
-    }
+  afterEach(async () => {
+    await closeServer(server);
+    server = null;
   });
 
   test('should allow requests when maintenance mode is disabled', async () => {
     mockWikiEngine.config.features.maintenance.enabled = false;
 
-    server = app.listen(port);
+    const result = await startServer(app);
+    server = result.server;
+    port = result.port;
 
     const response = await fetch(`http://localhost:${port}/test`);
     const data = await response.json();
@@ -122,7 +151,9 @@ describe('Maintenance Mode Middleware (PR #18)', () => {
   test('should skip maintenance check for static files', async () => {
     mockWikiEngine.config.features.maintenance.enabled = true;
 
-    server = app.listen(port);
+    const result = await startServer(app);
+    server = result.server;
+    port = result.port;
 
     const response = await fetch(`http://localhost:${port}/public/style.css`);
     expect(response.status).toBe(404); // 404 because file doesn't exist, but middleware passed
@@ -132,7 +163,9 @@ describe('Maintenance Mode Middleware (PR #18)', () => {
     mockWikiEngine.config.features.maintenance.enabled = true;
     mockUserManager.getCurrentUser.mockResolvedValue(null);
 
-    server = app.listen(port);
+    const result = await startServer(app);
+    server = result.server;
+    port = result.port;
 
     const response = await fetch(`http://localhost:${port}/test`);
     const data = await response.json();
@@ -154,7 +187,9 @@ describe('Maintenance Mode Middleware (PR #18)', () => {
       isAuthenticated: true
     });
 
-    server = app.listen(port);
+    const result = await startServer(app);
+    server = result.server;
+    port = result.port;
 
     const response = await fetch(`http://localhost:${port}/test`);
     const data = await response.json();
@@ -174,7 +209,9 @@ describe('Maintenance Mode Middleware (PR #18)', () => {
       isAuthenticated: true
     });
 
-    server = app.listen(port);
+    const result = await startServer(app);
+    server = result.server;
+    port = result.port;
 
     const response = await fetch(`http://localhost:${port}/test`);
     const data = await response.json();
@@ -189,7 +226,9 @@ describe('Maintenance Mode Middleware (PR #18)', () => {
     mockWikiEngine.config.features.maintenance.message = null;
     mockUserManager.getCurrentUser.mockResolvedValue(null);
 
-    server = app.listen(port);
+    const result = await startServer(app);
+    server = result.server;
+    port = result.port;
 
     const response = await fetch(`http://localhost:${port}/test`);
     const data = await response.json();
@@ -202,7 +241,9 @@ describe('Maintenance Mode Middleware (PR #18)', () => {
     mockWikiEngine.config.features.maintenance.enabled = true;
     mockUserManager.getCurrentUser.mockRejectedValue(new Error('Database error'));
 
-    server = app.listen(port);
+    const result = await startServer(app);
+    server = result.server;
+    port = result.port;
 
     const response = await fetch(`http://localhost:${port}/test`);
     const data = await response.json();
