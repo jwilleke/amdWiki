@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-return, @typescript-eslint/explicit-function-return-type */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return, @typescript-eslint/explicit-function-return-type */
 import fs from 'fs-extra';
 import path from 'path';
 import logger from './logger';
@@ -162,7 +162,7 @@ class VersioningAnalytics {
       throw new Error('Page index not available');
     }
 
-    const pages = Object.values(pageIndex.pages) as PageInfo[];
+    const pages = Object.values(pageIndex.pages);
     const pagesWithVersions = pages.filter(p => p.hasVersions);
 
     const report: StorageReport = {

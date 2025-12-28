@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-call, @typescript-eslint/explicit-function-return-type, @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/explicit-function-return-type */
 import fs from 'fs-extra';
 import path from 'path';
 import matter from 'gray-matter';
@@ -51,9 +51,9 @@ interface PageInfo {
 }
 
 /**
- * Page index entry
+ * Page index entry (reserved for future use)
  */
-interface PageIndexEntry {
+interface _PageIndexEntry {
   uuid: string;
   title: string;
   currentVersion: number;
@@ -459,7 +459,7 @@ class VersioningMigration {
     }
 
     // Validate each page in index
-    for (const [uuid, pageInfo] of Object.entries(pageIndex.pages) as [string, PageIndexEntry][]) {
+    for (const [uuid, pageInfo] of Object.entries(pageIndex.pages as Record<string, { location: string }>)) {
       // Check version directory exists
       const versionDir = this._getVersionDirectory(uuid, pageInfo.location);
       if (!await fs.pathExists(versionDir)) {
