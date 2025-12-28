@@ -63,13 +63,14 @@ See [docs/testing/PREVENTING-REGRESSIONS.md](/docs/testing/PREVENTING-REGRESSION
 
 Key Decisions may be done initially or decided the project progresses. Include "Decision and rationale"
 
-- **"One File Done Right" TypeScript Migration Process** (Issue #139):
-  1. Fix ALL ESLint errors in .ts file (use proper types, not `any`)
-  2. Install missing `@types/*` packages if needed
-  3. Update test imports to use .ts file (remove `.js` extension, adjust `.default`)
-  4. Delete the .js file only after ESLint passes
-  5. Run full test suite - all tests must pass
-  6. Commit complete migration (one atomic commit per file)
+### "One File Done Right" TypeScript Migration Process** (Issue #139)
+
+- Fix ALL ESLint errors in .ts file (use proper types, not `any`)
+- Install missing `@types/*` packages if needed
+- Update test imports to use .ts file (remove `.js` extension, adjust `.default`)
+- Delete the .js file only after ESLint passes
+- Run full test suite - all tests must pass
+- Commit complete migration (one atomic commit per file)
 
   Key type fixes:
   - Use `getManager<ManagerType>('Name')` for typed manager access
