@@ -42,21 +42,31 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
   - Documented process in AGENTS.md and Issue #139 comment
 - Testing:
   - npm test: 58 suites passed, 1380 tests passed
-- Progress: 70 files → 52 files remaining
+- Progress: 70 files → 35 files remaining (50% migrated this session!)
 - Commits:
   - `c60a798` fix: Complete FileSystemProvider TypeScript migration
   - `15db71e` docs: Add "One File Done Right" process to AGENTS.md
   - `ac694a0` fix: Complete TypeScript migration for BaseManager, WikiContext, logger
   - `4678381` fix: Complete TypeScript migration for cache and utils modules
   - `7b04281` fix: Complete TypeScript migration for 8 manager files
-- Files Deleted (19 total):
-  - src/providers/FileSystemProvider.js
-  - src/managers/BaseManager.js, AuditManager.js, CacheManager.js
-  - src/managers/PolicyEvaluator.js, PolicyManager.js, PolicyValidator.js
-  - src/managers/RenderingManager.js, SearchManager.js, TemplateManager.js
+  - `ffa6141` fix: Complete TypeScript migration for core, managers, parsers, providers
+- Files Deleted (36 total):
+  - src/providers/FileSystemProvider.js, BasePageProvider.js, BaseAttachmentProvider.js
+  - src/providers/VersioningFileProvider.js
+  - src/managers/BaseManager.js, AuditManager.js, CacheManager.js, ConfigurationManager.js
+  - src/managers/PolicyEvaluator.js, PolicyManager.js, PolicyValidator.js, PageManager.js
+  - src/managers/RenderingManager.js, SearchManager.js, TemplateManager.js, UserManager.js
+  - src/core/Engine.js
   - src/context/WikiContext.js
-  - src/utils/logger.js, DeltaStorage.js, VersionCompression.js, PageNameMatcher.js
+  - src/parsers/LinkParser.js, context/ParseContext.js
+  - src/parsers/dom/DOMBuilder.js, DOMParser.js, WikiDocument.js
+  - src/parsers/filters/BaseFilter.js, FilterChain.js
+  - src/parsers/handlers/BaseSyntaxHandler.js, HandlerRegistry.js
+  - src/utils/logger.js, DeltaStorage.js, VersionCompression.js, PageNameMatcher.js, LocaleUtils.js
   - src/cache/ICacheAdapter.js, NodeCacheAdapter.js, NullCacheAdapter.js, RegionCache.js
+- Compatibility Fixes:
+  - DOMParser.ts: Export ParseError in CommonJS module.exports
+  - BaseSyntaxHandler.ts: Change abstract handle() to default implementation
 
 ---
 
