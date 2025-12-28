@@ -1,12 +1,7 @@
 import BaseCacheProvider, { CacheStats, ProviderInfo } from './BaseCacheProvider';
+import type { WikiEngine } from '../types/WikiEngine';
+import type ConfigurationManager from '../managers/ConfigurationManager';
 import logger from '../utils/logger';
-
-/**
- * WikiEngine interface (simplified)
- */
-interface WikiEngine {
-  getManager(name: string): any;
-}
 
 /**
  * Redis configuration interface
@@ -36,6 +31,7 @@ interface RedisConfig {
  * TODO: Add pub/sub for cache invalidation across instances
  */
 class RedisCacheProvider extends BaseCacheProvider {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private client: any;
   private config: RedisConfig | null;
 
@@ -49,10 +45,10 @@ class RedisCacheProvider extends BaseCacheProvider {
    * Initialize the Redis provider
    * @returns {Promise<void>}
    */
-  async initialize(): Promise<void> {
-    const configManager = this.engine.getManager('ConfigurationManager');
+  initialize(): Promise<void> {
+    const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
     if (!configManager) {
-      throw new Error('RedisCacheProvider requires ConfigurationManager');
+      return Promise.reject(new Error('RedisCacheProvider requires ConfigurationManager'));
     }
 
     // Load provider-specific settings (ALL LOWERCASE)
@@ -60,19 +56,19 @@ class RedisCacheProvider extends BaseCacheProvider {
       url: configManager.getProperty(
         'amdwiki.cache.provider.redis.url',
         'redis://localhost:6379'
-      ),
+      ) as string,
       keyPrefix: configManager.getProperty(
         'amdwiki.cache.provider.redis.keyprefix',
         'amdwiki:'
-      ),
+      ) as string,
       enableCluster: configManager.getProperty(
         'amdwiki.cache.provider.redis.enablecluster',
         false
-      ),
+      ) as boolean,
       connectTimeout: configManager.getProperty(
         'amdwiki.cache.provider.redis.connecttimeout',
         5000
-      )
+      ) as number
     };
 
     // TODO: Implement Redis client initialization
@@ -82,7 +78,7 @@ class RedisCacheProvider extends BaseCacheProvider {
     // await this.client.connect();
 
     logger.warn('[RedisCacheProvider] Redis provider not yet implemented, functionality disabled');
-    throw new Error('RedisCacheProvider not yet implemented. Use NodeCacheProvider instead.');
+    return Promise.reject(new Error('RedisCacheProvider not yet implemented. Use NodeCacheProvider instead.'));
   }
 
   /**
@@ -101,28 +97,30 @@ class RedisCacheProvider extends BaseCacheProvider {
   /**
    * Get a value from the cache
    * @template T
-   * @param {string} key - The cache key
+   * @param {string} _key - The cache key
    * @returns {Promise<T | undefined>} The cached value or undefined if not found
    */
-  async get<T = any>(key: string): Promise<T | undefined> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  get<T = any>(_key: string): Promise<T | undefined> {
     // TODO: Implement
     // const result = await this.client.get(this.config!.keyPrefix + key);
     // if (result) {
     //   return JSON.parse(result) as T;
     // }
     // return undefined;
-    throw new Error('RedisCacheProvider.get() not yet implemented');
+    return Promise.reject(new Error('RedisCacheProvider.get() not yet implemented'));
   }
 
   /**
    * Set a value in the cache
    * @template T
-   * @param {string} key - The cache key
-   * @param {T} value - The value to cache
-   * @param {number} [ttlSec] - Time to live in seconds
+   * @param {string} _key - The cache key
+   * @param {T} _value - The value to cache
+   * @param {number} [_ttlSec] - Time to live in seconds
    * @returns {Promise<void>}
    */
-  async set<T = any>(key: string, value: T, ttlSec?: number): Promise<void> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  set<T = any>(_key: string, _value: T, _ttlSec?: number): Promise<void> {
     // TODO: Implement
     // const fullKey = this.config!.keyPrefix + key;
     // const serialized = JSON.stringify(value);
@@ -131,78 +129,73 @@ class RedisCacheProvider extends BaseCacheProvider {
     // } else {
     //   await this.client.set(fullKey, serialized);
     // }
-    throw new Error('RedisCacheProvider.set() not yet implemented');
+    return Promise.reject(new Error('RedisCacheProvider.set() not yet implemented'));
   }
 
   /**
    * Delete one or more keys from the cache
-   * @param {string | string[]} keys - Single key or array of keys to delete
+   * @param {string | string[]} _keys - Single key or array of keys to delete
    * @returns {Promise<void>}
    */
-  async del(keys: string | string[]): Promise<void> {
+  del(_keys: string | string[]): Promise<void> {
     // TODO: Implement
     // const keysArray = Array.isArray(keys) ? keys : [keys];
     // const fullKeys = keysArray.map(k => this.config!.keyPrefix + k);
     // await this.client.del(fullKeys);
-    throw new Error('RedisCacheProvider.del() not yet implemented');
+    return Promise.reject(new Error('RedisCacheProvider.del() not yet implemented'));
   }
 
   /**
    * Clear cache entries
-   * @param {string} [pattern] - Optional pattern to match keys
+   * @param {string} [_pattern] - Optional pattern to match keys
    * @returns {Promise<void>}
    */
-  async clear(pattern?: string): Promise<void> {
+  clear(_pattern?: string): Promise<void> {
     // TODO: Implement using SCAN and DEL
-    throw new Error('RedisCacheProvider.clear() not yet implemented');
+    return Promise.reject(new Error('RedisCacheProvider.clear() not yet implemented'));
   }
 
   /**
    * Get keys matching a pattern
-   * @param {string} [pattern='*'] - Pattern to match
+   * @param {string} [_pattern='*'] - Pattern to match
    * @returns {Promise<string[]>} Array of matching keys
    */
-  async keys(pattern: string = '*'): Promise<string[]> {
+  keys(_pattern: string = '*'): Promise<string[]> {
     // TODO: Implement using SCAN (not KEYS for production safety)
-    throw new Error('RedisCacheProvider.keys() not yet implemented');
+    return Promise.reject(new Error('RedisCacheProvider.keys() not yet implemented'));
   }
 
   /**
    * Get cache statistics
    * @returns {Promise<CacheStats>} Cache statistics
    */
-  async stats(): Promise<CacheStats> {
+  stats(): Promise<CacheStats> {
     // TODO: Implement using Redis INFO command
-    throw new Error('RedisCacheProvider.stats() not yet implemented');
+    return Promise.reject(new Error('RedisCacheProvider.stats() not yet implemented'));
   }
 
   /**
    * Check if the cache provider is healthy/connected
    * @returns {Promise<boolean>} True if healthy
    */
-  async isHealthy(): Promise<boolean> {
+  isHealthy(): Promise<boolean> {
     // TODO: Implement using PING command
-    try {
-      // await this.client.ping();
-      // return true;
-      return false;
-    } catch (error) {
-      logger.error('[RedisCacheProvider] Health check failed:', error);
-      return false;
-    }
+    // Not yet implemented, always return false
+    return Promise.resolve(false);
   }
 
   /**
    * Close/cleanup the cache provider
    * @returns {Promise<void>}
    */
-  async close(): Promise<void> {
+  close(): Promise<void> {
     // TODO: Implement
     // if (this.client) {
     //   await this.client.quit();
     //   this.client = null;
     // }
     this.initialized = false;
+    return Promise.resolve();
   }
 }
 

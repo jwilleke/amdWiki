@@ -1,14 +1,8 @@
 import BaseCacheProvider, { CacheStats, ProviderInfo, BackupData } from './BaseCacheProvider';
+import type { WikiEngine } from '../types/WikiEngine';
+import type ConfigurationManager from '../managers/ConfigurationManager';
 import NodeCache from 'node-cache';
 import logger from '../utils/logger';
-
-/**
- * WikiEngine interface (simplified)
- * TODO: Create full WikiEngine type definition in Phase 4
- */
-interface WikiEngine {
-  getManager(name: string): any;
-}
 
 /**
  * NodeCache configuration interface
@@ -85,29 +79,29 @@ class NodeCacheProvider extends BaseCacheProvider {
    * Loads configuration from ConfigurationManager
    * @returns {Promise<void>}
    */
-  async initialize(): Promise<void> {
-    const configManager = this.engine.getManager('ConfigurationManager');
+  initialize(): Promise<void> {
+    const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
     if (!configManager) {
-      throw new Error('NodeCacheProvider requires ConfigurationManager');
+      return Promise.reject(new Error('NodeCacheProvider requires ConfigurationManager'));
     }
 
     // Load provider-specific settings (ALL LOWERCASE)
     const stdTTL = configManager.getProperty(
       'amdwiki.cache.provider.nodecache.stdttl',
       300
-    );
+    ) as number;
     const checkperiod = configManager.getProperty(
       'amdwiki.cache.provider.nodecache.checkperiod',
       120
-    );
+    ) as number;
     const maxKeys = configManager.getProperty(
       'amdwiki.cache.provider.nodecache.maxkeys',
       1000
-    );
+    ) as number;
     const useClones = configManager.getProperty(
       'amdwiki.cache.provider.nodecache.useclones',
       true
-    );
+    ) as boolean;
 
     this.config = {
       stdTTL: stdTTL,
@@ -140,6 +134,7 @@ class NodeCacheProvider extends BaseCacheProvider {
     this.initialized = true;
 
     logger.info(`[NodeCacheProvider] Initialized with maxKeys=${maxKeys}, stdTTL=${stdTTL}s`);
+    return Promise.resolve();
   }
 
   /**
@@ -161,6 +156,7 @@ class NodeCacheProvider extends BaseCacheProvider {
    * @param {string} key - The cache key
    * @returns {Promise<T | undefined>} The cached value or undefined if not found
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   get<T = any>(key: string): Promise<T | undefined> {
     try {
       const value = this.cache.get<T>(key);
@@ -179,6 +175,7 @@ class NodeCacheProvider extends BaseCacheProvider {
    * @param {number} [ttlSec] - Time to live in seconds
    * @returns {Promise<void>}
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   set<T = any>(key: string, value: T, ttlSec?: number): Promise<void> {
     try {
       if (ttlSec !== undefined) {
@@ -254,10 +251,10 @@ class NodeCacheProvider extends BaseCacheProvider {
         .replace(/\?/g, '.');
       const regex = new RegExp(`^${regexPattern}$`);
 
-      return Promise.resolve(allKeys.filter(key => regex.test(key)));
+      return Promise.resolve(allKeys.filter((key: string) => regex.test(key)));
     } catch (error) {
       logger.error('[NodeCacheProvider] Keys error:', error);
-      return Promise.resolve([]);
+      return Promise.resolve([] as string[]);
     }
   }
 
@@ -318,7 +315,7 @@ class NodeCacheProvider extends BaseCacheProvider {
    * Close/cleanup the cache provider
    * @returns {Promise<void>}
    */
-  async close(): Promise<void> {
+  close(): Promise<void> {
     try {
       if (this.cache) {
         this.cache.close();
@@ -326,8 +323,10 @@ class NodeCacheProvider extends BaseCacheProvider {
       }
       this.initialized = false;
       logger.info('[NodeCacheProvider] Closed successfully');
+      return Promise.resolve();
     } catch (error) {
       logger.error('[NodeCacheProvider] Close error:', error);
+      return Promise.resolve();
     }
   }
 

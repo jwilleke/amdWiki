@@ -1,4 +1,5 @@
 import BaseUserProvider, { WikiEngine, BackupData } from './BaseUserProvider';
+import type ConfigurationManager from '../managers/ConfigurationManager';
 import { promises as fs } from 'fs';
 import path from 'path';
 import logger from '../utils/logger';
@@ -58,7 +59,7 @@ class FileUserProvider extends BaseUserProvider {
    * Initialize the provider
    */
   async initialize(): Promise<void> {
-    const configManager = this.engine.getManager('ConfigurationManager');
+    const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
     if (!configManager) {
       throw new Error('FileUserProvider requires ConfigurationManager');
     }
@@ -67,15 +68,15 @@ class FileUserProvider extends BaseUserProvider {
     this.usersDirectory = configManager.getProperty(
       'amdwiki.user.provider.storagedir',
       './users'
-    );
+    ) as string;
     this.usersFile = configManager.getProperty(
       'amdwiki.user.provider.files.users',
       'users.json'
-    );
+    ) as string;
     this.sessionsFile = configManager.getProperty(
       'amdwiki.user.provider.files.sessions',
       'sessions.json'
-    );
+    ) as string;
 
     // Create storage directory
     await fs.mkdir(this.usersDirectory, { recursive: true });
@@ -186,22 +187,22 @@ class FileUserProvider extends BaseUserProvider {
   /**
    * Get a user by username
    */
-  async getUser(username: string): Promise<User | null> {
-    return this.users.get(username) || null;
+  getUser(username: string): Promise<User | null> {
+    return Promise.resolve(this.users.get(username) || null);
   }
 
   /**
    * Get all usernames
    */
-  async getAllUsernames(): Promise<string[]> {
-    return Array.from(this.users.keys());
+  getAllUsernames(): Promise<string[]> {
+    return Promise.resolve(Array.from(this.users.keys()));
   }
 
   /**
    * Get all users
    */
-  async getAllUsers(): Promise<Map<string, User>> {
-    return new Map(this.users);
+  getAllUsers(): Promise<Map<string, User>> {
+    return Promise.resolve(new Map(this.users));
   }
 
   /**
@@ -247,8 +248,8 @@ class FileUserProvider extends BaseUserProvider {
   /**
    * Check if user exists
    */
-  async userExists(username: string): Promise<boolean> {
-    return this.users.has(username);
+  userExists(username: string): Promise<boolean> {
+    return Promise.resolve(this.users.has(username));
   }
 
   /**
@@ -263,15 +264,15 @@ class FileUserProvider extends BaseUserProvider {
   /**
    * Get a session by ID
    */
-  async getSession(sessionId: string): Promise<UserSession | null> {
-    return this.sessions.get(sessionId) || null;
+  getSession(sessionId: string): Promise<UserSession | null> {
+    return Promise.resolve(this.sessions.get(sessionId) || null);
   }
 
   /**
    * Get all sessions
    */
-  async getAllSessions(): Promise<Map<string, UserSession>> {
-    return new Map(this.sessions);
+  getAllSessions(): Promise<Map<string, UserSession>> {
+    return Promise.resolve(new Map(this.sessions));
   }
 
   /**
@@ -313,35 +314,30 @@ class FileUserProvider extends BaseUserProvider {
   /**
    * Backup all user and session data
    */
-  async backup(): Promise<FileUserProviderBackupData> {
+  backup(): Promise<FileUserProviderBackupData> {
     logger.info('[FileUserProvider] Starting backup...');
 
-    try {
-      const backupData: FileUserProviderBackupData = {
-        providerName: 'FileUserProvider',
-        version: '1.0.0',
-        timestamp: new Date().toISOString(),
-        config: {
-          usersDirectory: this.usersDirectory,
-          usersFile: this.usersFile,
-          sessionsFile: this.sessionsFile
-        },
-        users: Object.fromEntries(this.users),
-        sessions: Object.fromEntries(this.sessions),
-        statistics: {
-          totalUsers: this.users.size,
-          activeSessions: this.sessions.size,
-          usernames: Array.from(this.users.keys())
-        }
-      };
+    const backupData: FileUserProviderBackupData = {
+      providerName: 'FileUserProvider',
+      version: '1.0.0',
+      timestamp: new Date().toISOString(),
+      config: {
+        usersDirectory: this.usersDirectory ?? '',
+        usersFile: this.usersFile ?? '',
+        sessionsFile: this.sessionsFile ?? ''
+      },
+      users: Object.fromEntries(this.users),
+      sessions: Object.fromEntries(this.sessions),
+      statistics: {
+        totalUsers: this.users.size,
+        activeSessions: this.sessions.size,
+        usernames: Array.from(this.users.keys())
+      }
+    };
 
-      logger.info(`[FileUserProvider] Backup complete: ${this.users.size} users, ${this.sessions.size} sessions`);
+    logger.info(`[FileUserProvider] Backup complete: ${this.users.size} users, ${this.sessions.size} sessions`);
 
-      return backupData;
-    } catch (error) {
-      logger.error('[FileUserProvider] Backup failed:', error);
-      throw error;
-    }
+    return Promise.resolve(backupData);
   }
 
   /**
@@ -387,7 +383,7 @@ class FileUserProvider extends BaseUserProvider {
   /**
    * Get provider information
    */
-  getProviderInfo() {
+  getProviderInfo(): { name: string; version: string; description: string; features: string[] } {
     return {
       name: 'FileUserProvider',
       version: '1.0.0',
@@ -397,13 +393,13 @@ class FileUserProvider extends BaseUserProvider {
   }
 
   /**
-   * Shutdown the provider
+   * Shutdown the provider - clean up expired sessions then call parent
    */
-  async shutdown(): Promise<void> {
-    // Clean up expired sessions before shutdown
-    await this.cleanExpiredSessions();
+  shutdown(): void {
+    // Clean up expired sessions before shutdown (fire and forget for sync shutdown)
+    void this.cleanExpiredSessions();
 
-    await super.shutdown();
+    super.shutdown();
     logger.info('FileUserProvider shut down');
   }
 }
