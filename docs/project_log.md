@@ -42,19 +42,21 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
   - Documented process in AGENTS.md and Issue #139 comment
 - Testing:
   - npm test: 58 suites passed, 1380 tests passed
-- Progress: 70 files → 60 files remaining
+- Progress: 70 files → 52 files remaining
 - Commits:
   - `c60a798` fix: Complete FileSystemProvider TypeScript migration
   - `15db71e` docs: Add "One File Done Right" process to AGENTS.md
   - `ac694a0` fix: Complete TypeScript migration for BaseManager, WikiContext, logger
   - `4678381` fix: Complete TypeScript migration for cache and utils modules
-- Files Deleted (11 total):
+  - `7b04281` fix: Complete TypeScript migration for 8 manager files
+- Files Deleted (19 total):
   - src/providers/FileSystemProvider.js
-  - src/managers/BaseManager.js
+  - src/managers/BaseManager.js, AuditManager.js, CacheManager.js
+  - src/managers/PolicyEvaluator.js, PolicyManager.js, PolicyValidator.js
+  - src/managers/RenderingManager.js, SearchManager.js, TemplateManager.js
   - src/context/WikiContext.js
-  - src/utils/logger.js
+  - src/utils/logger.js, DeltaStorage.js, VersionCompression.js, PageNameMatcher.js
   - src/cache/ICacheAdapter.js, NodeCacheAdapter.js, NullCacheAdapter.js, RegionCache.js
-  - src/utils/DeltaStorage.js, VersionCompression.js, PageNameMatcher.js
 
 ---
 

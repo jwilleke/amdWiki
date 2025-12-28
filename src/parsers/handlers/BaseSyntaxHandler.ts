@@ -397,7 +397,9 @@ abstract class BaseSyntaxHandler {
    * @param context - Parse context
    * @returns Replacement content
    */
-  abstract handle(match: RegExpMatchArray, context: ParseContext): Promise<string>;
+  handle(_match: RegExpMatchArray, _context: ParseContext): Promise<string> {
+    return Promise.reject(new Error(`Handler ${this.handlerId} must implement handle() method`));
+  }
 
   /**
    * Execute the handler with performance tracking and error handling

@@ -516,4 +516,4 @@ export default DOMParser;
 
 // CommonJS compatibility - support both default and named imports
 module.exports = DOMParser;
-Object.assign(module.exports, { DOMParser, default: DOMParser });
+Object.assign(module.exports, { DOMParser, ParseError, default: DOMParser });
