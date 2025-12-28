@@ -91,7 +91,7 @@ export default class DeltaStorage {
         baseIndex += text.length;
         break;
 
-      case Diff.EQUAL: // 0: equal (keep)
+      case Diff.EQUAL: { // 0: equal (keep)
         // Verify the text matches what we expect in the base
         const expectedText = baseContent.substring(baseIndex, baseIndex + text.length);
         if (expectedText !== text) {
@@ -103,6 +103,7 @@ export default class DeltaStorage {
         result += text;
         baseIndex += text.length;
         break;
+      }
 
       case Diff.INSERT: // 1: insert
         // Add the new text
@@ -248,4 +249,4 @@ export default class DeltaStorage {
 }
 
 // CommonJS compatibility
-module.exports = classDeltaStorage{;
+module.exports = DeltaStorage;

@@ -514,5 +514,6 @@ export class ParseError extends Error {
 export { DOMParser };
 export default DOMParser;
 
-// CommonJS compatibility
+// CommonJS compatibility - support both default and named imports
 module.exports = DOMParser;
+Object.assign(module.exports, { DOMParser, default: DOMParser });

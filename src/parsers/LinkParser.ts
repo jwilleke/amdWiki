@@ -817,4 +817,4 @@ export class Link {
 export default { LinkParser, Link };
 
 // CommonJS compatibility
-module.exports = {LinkParser,Link};
+module.exports = { LinkParser, Link };

@@ -6,6 +6,13 @@ This guide documents TypeScript conventions and patterns used in amdWiki. For ge
 
 amdWiki uses TypeScript with strict mode enabled. The codebase follows CommonJS module conventions for Node.js compatibility.
 
+### TypeScript Migration Rules
+
+- NEVER remove .js file until server starts with .ts version
+- After ANY .ts change: run `./server.sh start` and verify
+- After ANY migration: run `npm test` AND manual server test
+- One file at a time, fully working, before next file
+
 ## Configuration
 
 ```json

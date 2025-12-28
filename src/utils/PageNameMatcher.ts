@@ -162,4 +162,4 @@ export default class PageNameMatcher {
 }
 
 // CommonJS compatibility
-module.exports = classPageNameMatcher{;
+module.exports = PageNameMatcher;

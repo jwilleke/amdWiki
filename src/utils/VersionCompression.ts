@@ -101,7 +101,7 @@ export default class VersionCompression {
       const inputBuffer = Buffer.isBuffer(content) ? content : Buffer.from(content, 'utf8');
 
       // Compress using pako with specified level
-      const compressed = pako.gzip(inputBuffer, { level: level as any });
+      const compressed = pako.gzip(inputBuffer, { level: level as 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 });
 
       return Buffer.from(compressed);
     } catch (error) {
@@ -278,7 +278,7 @@ export default class VersionCompression {
       await fs.close(fd);
 
       return buffer[0] === 0x1f && buffer[1] === 0x8b;
-    } catch (error) {
+    } catch {
       return false;
     }
   }
@@ -329,7 +329,7 @@ export default class VersionCompression {
       const decompressed = this.decompress(compressed);
       originalSize = Buffer.byteLength(decompressed, 'utf8');
       ratio = this.calculateRatio(originalSize, compressedSize);
-    } catch (error) {
+    } catch {
       // If decompression fails, just return what we know
     }
 
@@ -344,4 +344,4 @@ export default class VersionCompression {
 }
 
 // CommonJS compatibility
-module.exports = classVersionCompression{;
+module.exports = VersionCompression;
