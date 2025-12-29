@@ -922,6 +922,40 @@ See [Policies-Roles-Permissions](docs/architecture/Policies-Roles-Permissions.md
 - Handle **file system errors** gracefully to prevent crashes.
 - Use proper **cleanup** in finally blocks for resource management.
 
+## 📋 Markdown Formatting Standards
+
+All markdown files are linted with `markdownlint`. Run `npm run lint:md` to check.
+
+### Table Formatting (MD060)
+
+Tables MUST use consistent spacing. Choose ONE style per table:
+
+**Padded style (recommended):**
+
+```markdown
+| Column 1 | Column 2 | Column 3 |
+| -------- | -------- | -------- |
+| Value 1  | Value 2  | Value 3  |
+```
+
+**Compact style:**
+
+```markdown
+|Column 1|Column 2|Column 3|
+|--------|--------|--------|
+|Value 1|Value 2|Value 3|
+```
+
+**DO NOT mix styles** - this causes MD060 errors:
+
+```markdown
+| Column 1|Column 2 | Column 3|   ❌ WRONG
+```
+
+### Pre-commit Validation
+
+The pre-commit hook runs `markdownlint --fix` on staged `.md` files. Fix any errors before committing.
+
 ## 🧪 Testing
 
 📖 **See [docs/testing/PageManager-Testing-Guide.md](docs/testing/PageManager-Testing-Guide.md) for detailed mocking strategies.**
