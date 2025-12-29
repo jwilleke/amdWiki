@@ -24,6 +24,27 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 
 ---
 
+## 2025-12-29-07
+
+- Agent: Claude Code (Opus 4.5)
+- Subject: Fix Backup Path Error and ESLint Error
+- Issues: #191 (Backup path error), #184 (Lint:code errors)
+- Key Decisions:
+  - Route was calling `backup()` (returns BackupData object) instead of `createBackup()` (returns file path string)
+  - Added proper WikiEngine type import to InstallRoutes.ts
+- Work Done:
+  - Fixed WikiRoutes.ts: Changed `backupManager.backup()` to `backupManager.createBackup()` at line 3467
+  - Fixed InstallRoutes.ts: Added WikiEngine type import and typed constructor parameter
+  - Reduced lint:code errors from 1 to 0 (25 warnings remain)
+- Testing:
+  - npm test: 58 suites passed, 1380 tests passed
+  - ESLint: 0 errors, 25 warnings
+- Commits: f86e4dc
+- Files Modified:
+  - src/routes/WikiRoutes.ts (backup method fix)
+  - src/routes/InstallRoutes.ts (type import and constructor)
+- Note: Markdown lint (Issue #190) has 2500+ formatting warnings in docs/ and data/pages/ - mostly table formatting (MD060) in documentation files
+
 ## 2025-12-29-06
 
 - Agent: Claude Code (Opus 4.5)
