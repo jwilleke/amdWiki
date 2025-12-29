@@ -24,6 +24,27 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 
 ---
 
+## 2025-12-29-05
+
+- Agent: Claude Code (Opus 4.5)
+- Subject: Handler TypeScript Conversion (2 more handlers)
+- Issues: #139 (TypeScript Migration Epic), #186 (Complete TypeScript Migration)
+- Key Decisions:
+  - Use specific param types `Record<string, string | boolean | number | undefined>` instead of `Record<string, unknown>`
+  - Use `typeof params.xxx === 'string'` checks instead of String() coercion
+  - Consistent pattern across all form element handlers
+- Work Done:
+  - Converted InterWikiLinkHandler.js → InterWikiLinkHandler.ts
+  - Converted WikiFormHandler.js → WikiFormHandler.ts
+  - Remaining .js handlers: 3 (AttachmentHandler, WikiStyleHandler, WikiTagHandler)
+- Testing:
+  - npm test: 58 suites passed, 1380 tests passed
+  - ESLint: 0 errors
+- Commits: e94ba39
+- Files Converted:
+  - src/parsers/handlers/InterWikiLinkHandler.js → .ts
+  - src/parsers/handlers/WikiFormHandler.js → .ts
+
 ## 2025-12-29-04
 
 - Agent: Claude Code (Opus 4.5)
