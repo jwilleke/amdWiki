@@ -1,20 +1,16 @@
 ---
 title: ImagePlugin
-uuid: 6bdacfac-300d-4d89-ad4a-2acc98e12bc5
 system-category: documentation
-categories:
-  - Documentation
 user-keywords:
-  - Plugin
-  - Image
-  - Media
+  - default
+uuid: 6bdacfac-300d-4d89-ad4a-2acc98e12bc5
 slug: imageplugin
-lastModified: '2025-10-19T09:58:00.000Z'
-editor: system
+lastModified: '2025-12-29T12:09:49.066Z'
+author: admin
 ---
 # ImagePlugin
 
-The **ImagePlugin** allows you to embed images in your wiki pages with flexible layout and display options. It provides JSPWiki-compatible syntax with enhanced features for modern web layouts.
+[{$pagename}] is a [Plugin] allows you to embed images in pages with flexible layout and display options. It provides JSPWiki-compatible syntax with enhanced features for modern web layouts.
 
 ## Basic Syntax
 
@@ -304,3 +300,10 @@ If text isn't wrapping around your image:
 ---
 
 *For developer documentation on extending or modifying the ImagePlugin, see `/docs/plugins/ImagePlugin.md`*
+
+
+## [BROKEN.pages] -- content
+
+## More Information
+There might be more information for this subject on one of the following:
+[{ReferringPagesPlugin before='*' after='\n' }]
