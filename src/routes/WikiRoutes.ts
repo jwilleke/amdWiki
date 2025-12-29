@@ -3464,7 +3464,7 @@ class WikiRoutes {
       console.log(`📦 Admin backup requested by: ${currentUser.username}`);
 
       // Create backup
-      const backupPath = await backupManager.backup();
+      const backupPath = await backupManager.createBackup();
       console.log(`✅ Backup created: ${backupPath}`);
 
       // Get backup file stats

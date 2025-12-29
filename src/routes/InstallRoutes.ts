@@ -7,6 +7,7 @@
 
 import express, { Router, Request, Response } from 'express';
 import InstallService from '../services/InstallService';
+import type { WikiEngine } from '../types/WikiEngine';
 
 /**
  * Installation form data
@@ -86,9 +87,9 @@ class InstallRoutes {
    * Creates a new InstallRoutes instance
    *
    * @constructor
-   * @param {any} engine - The wiki engine instance
+   * @param {WikiEngine} engine - The wiki engine instance
    */
-  constructor(engine: any) {
+  constructor(engine: WikiEngine) {
     this.engine = engine;
     this.router = express.Router();
     this.installService = new InstallService(engine);
