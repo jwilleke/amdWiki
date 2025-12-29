@@ -1,22 +1,114 @@
-const BaseFilter = require('./BaseFilter');
+import BaseFilter from './BaseFilter';
+
+/**
+ * Validation configuration interface
+ */
+interface ValidationConfig {
+  validateMarkup: boolean;
+  validateLinks: boolean;
+  validateImages: boolean;
+  validateMetadata: boolean;
+  maxContentLength: number;
+  maxLineLength: number;
+  reportErrors: boolean;
+  failOnValidationError: boolean;
+  logValidationErrors: boolean;
+  minWordCount: number;
+  maxDuplicateLines: number;
+  requireTitle: boolean;
+}
+
+/**
+ * Validation rule interface
+ */
+interface ValidationRule {
+  validate: (content: string, context?: ParseContext) => boolean | Promise<boolean>;
+  errorMessage: string;
+  severity: 'error' | 'warning';
+}
+
+/**
+ * Validation error interface
+ */
+interface ValidationError {
+  rule: string;
+  message: string;
+  severity: 'error' | 'warning';
+}
+
+/**
+ * Validation report interface
+ */
+interface ValidationReport {
+  pageName: string;
+  userName: string;
+  errors: ValidationError[];
+  warnings: ValidationError[];
+  timestamp: string;
+}
+
+/**
+ * Parse context interface
+ */
+interface ParseContext {
+  pageName?: string;
+  userName?: string;
+  engine?: {
+    getManager: (name: string) => unknown;
+  };
+}
+
+/**
+ * Initialization context interface
+ */
+interface InitContext {
+  engine?: {
+    getManager: (name: string) => unknown;
+  };
+}
+
+/**
+ * Configuration manager interface
+ */
+interface ConfigManager {
+  getProperty: (key: string, defaultValue: unknown) => unknown;
+}
+
+/**
+ * Notification manager interface
+ */
+interface NotificationManager {
+  addNotification: (notification: {
+    type: string;
+    title: string;
+    message: string;
+    priority: string;
+    source: string;
+  }) => void;
+}
 
 /**
  * ValidationFilter - Content validation with modular configuration
- * 
+ *
  * Provides comprehensive content validation including markup syntax validation,
  * link checking, image validation, and content quality analysis through complete
  * modularity via app-default-config.json and app-custom-config.json.
- * 
+ *
  * Design Principles:
  * - Configurable validation rules and thresholds
  * - Zero hardcoded validation logic
  * - Deployment-specific validation policies
  * - Extensible validation rule system
- * 
+ *
  * Related Issue: Phase 4 - Security Filter Suite (Content Validation)
  * Epic: #41 - Implement JSPWikiMarkupParser for Complete Enhancement Support
  */
 class ValidationFilter extends BaseFilter {
+  declare filterId: string;
+  validationConfig: ValidationConfig | null;
+  validationRules: Map<string, ValidationRule>;
+  errorReports: ValidationReport[];
+
   constructor() {
     super(
       90, // High priority - validate content early
@@ -36,30 +128,37 @@ class ValidationFilter extends BaseFilter {
 
   /**
    * Initialize filter with modular validation configuration
-   * @param {Object} context - Initialization context
+   * @param context - Initialization context
    */
-  async onInitialize(context) {
+  // eslint-disable-next-line @typescript-eslint/require-await
+  async onInitialize(context: InitContext): Promise<void> {
     // Load modular validation configuration from configuration hierarchy
-    await this.loadModularValidationConfiguration(context);
-    
+    this.loadModularValidationConfiguration(context);
+
     // Initialize validation rules based on configuration
     this.initializeValidationRules();
-    
+
+    // eslint-disable-next-line no-console
     console.log('✅ ValidationFilter initialized with modular configuration:');
-    console.log(`   📝 Markup validation: ${this.validationConfig.validateMarkup ? 'enabled' : 'disabled'}`);
-    console.log(`   🔗 Link validation: ${this.validationConfig.validateLinks ? 'enabled' : 'disabled'}`);
-    console.log(`   🖼️  Image validation: ${this.validationConfig.validateImages ? 'enabled' : 'disabled'}`);
-    console.log(`   📊 Max content length: ${this.validationConfig.maxContentLength} bytes`);
-    console.log(`   📋 Report errors: ${this.validationConfig.reportErrors ? 'enabled' : 'disabled'}`);
+    // eslint-disable-next-line no-console
+    console.log(`   📝 Markup validation: ${this.validationConfig?.validateMarkup ? 'enabled' : 'disabled'}`);
+    // eslint-disable-next-line no-console
+    console.log(`   🔗 Link validation: ${this.validationConfig?.validateLinks ? 'enabled' : 'disabled'}`);
+    // eslint-disable-next-line no-console
+    console.log(`   🖼️  Image validation: ${this.validationConfig?.validateImages ? 'enabled' : 'disabled'}`);
+    // eslint-disable-next-line no-console
+    console.log(`   📊 Max content length: ${this.validationConfig?.maxContentLength} bytes`);
+    // eslint-disable-next-line no-console
+    console.log(`   📋 Report errors: ${this.validationConfig?.reportErrors ? 'enabled' : 'disabled'}`);
   }
 
   /**
    * Load modular validation configuration from app-default/custom-config.json
-   * @param {Object} context - Initialization context
+   * @param context - Initialization context
    */
-  async loadModularValidationConfiguration(context) {
-    const configManager = context.engine?.getManager('ConfigurationManager');
-    
+  loadModularValidationConfiguration(context: InitContext): void {
+    const configManager = context.engine?.getManager('ConfigurationManager') as ConfigManager | undefined;
+
     // Default validation configuration
     this.validationConfig = {
       validateMarkup: true,
@@ -71,7 +170,7 @@ class ValidationFilter extends BaseFilter {
       reportErrors: true,
       failOnValidationError: false,
       logValidationErrors: true,
-      
+
       // Content quality thresholds
       minWordCount: 5,
       maxDuplicateLines: 10,
@@ -82,20 +181,22 @@ class ValidationFilter extends BaseFilter {
     if (configManager) {
       try {
         // Validation feature configuration (modular)
-        this.validationConfig.validateMarkup = configManager.getProperty('amdwiki.markup.filters.validation.validateMarkup', this.validationConfig.validateMarkup);
-        this.validationConfig.validateLinks = configManager.getProperty('amdwiki.markup.filters.validation.validateLinks', this.validationConfig.validateLinks);
-        this.validationConfig.validateImages = configManager.getProperty('amdwiki.markup.filters.validation.validateImages', this.validationConfig.validateImages);
-        this.validationConfig.maxContentLength = configManager.getProperty('amdwiki.markup.filters.validation.maxContentLength', this.validationConfig.maxContentLength);
-        this.validationConfig.reportErrors = configManager.getProperty('amdwiki.markup.filters.validation.reportErrors', this.validationConfig.reportErrors);
-        
+        this.validationConfig.validateMarkup = configManager.getProperty('amdwiki.markup.filters.validation.validateMarkup', this.validationConfig.validateMarkup) as boolean;
+        this.validationConfig.validateLinks = configManager.getProperty('amdwiki.markup.filters.validation.validateLinks', this.validationConfig.validateLinks) as boolean;
+        this.validationConfig.validateImages = configManager.getProperty('amdwiki.markup.filters.validation.validateImages', this.validationConfig.validateImages) as boolean;
+        this.validationConfig.maxContentLength = configManager.getProperty('amdwiki.markup.filters.validation.maxContentLength', this.validationConfig.maxContentLength) as number;
+        this.validationConfig.reportErrors = configManager.getProperty('amdwiki.markup.filters.validation.reportErrors', this.validationConfig.reportErrors) as boolean;
+
         // Advanced validation settings (configurable)
-        this.validationConfig.failOnValidationError = configManager.getProperty('amdwiki.markup.filters.validation.failOnValidationError', this.validationConfig.failOnValidationError);
-        this.validationConfig.logValidationErrors = configManager.getProperty('amdwiki.markup.filters.validation.logValidationErrors', this.validationConfig.logValidationErrors);
-        this.validationConfig.minWordCount = configManager.getProperty('amdwiki.markup.filters.validation.minWordCount', this.validationConfig.minWordCount);
-        this.validationConfig.maxLineLength = configManager.getProperty('amdwiki.markup.filters.validation.maxLineLength', this.validationConfig.maxLineLength);
-        
+        this.validationConfig.failOnValidationError = configManager.getProperty('amdwiki.markup.filters.validation.failOnValidationError', this.validationConfig.failOnValidationError) as boolean;
+        this.validationConfig.logValidationErrors = configManager.getProperty('amdwiki.markup.filters.validation.logValidationErrors', this.validationConfig.logValidationErrors) as boolean;
+        this.validationConfig.minWordCount = configManager.getProperty('amdwiki.markup.filters.validation.minWordCount', this.validationConfig.minWordCount) as number;
+        this.validationConfig.maxLineLength = configManager.getProperty('amdwiki.markup.filters.validation.maxLineLength', this.validationConfig.maxLineLength) as number;
+
       } catch (error) {
-        console.warn('⚠️  Failed to load ValidationFilter configuration, using defaults:', error.message);
+        const err = error as Error;
+        // eslint-disable-next-line no-console
+        console.warn('⚠️  Failed to load ValidationFilter configuration, using defaults:', err.message);
       }
     }
   }
@@ -103,24 +204,24 @@ class ValidationFilter extends BaseFilter {
   /**
    * Initialize validation rules based on configuration (modular rule system)
    */
-  initializeValidationRules() {
+  initializeValidationRules(): void {
     this.validationRules.clear();
 
     // Content length validation (configurable)
-    if (this.validationConfig.maxContentLength > 0) {
+    if (this.validationConfig && this.validationConfig.maxContentLength > 0) {
       this.validationRules.set('contentLength', {
-        validate: (content) => content.length <= this.validationConfig.maxContentLength,
+        validate: (content: string) => content.length <= (this.validationConfig?.maxContentLength ?? 0),
         errorMessage: `Content exceeds maximum length: ${this.validationConfig.maxContentLength} characters`,
         severity: 'error'
       });
     }
 
     // Line length validation (configurable)
-    if (this.validationConfig.maxLineLength > 0) {
+    if (this.validationConfig && this.validationConfig.maxLineLength > 0) {
       this.validationRules.set('lineLength', {
-        validate: (content) => {
+        validate: (content: string) => {
           const lines = content.split('\n');
-          return lines.every(line => line.length <= this.validationConfig.maxLineLength);
+          return lines.every(line => line.length <= (this.validationConfig?.maxLineLength ?? 0));
         },
         errorMessage: `Line exceeds maximum length: ${this.validationConfig.maxLineLength} characters`,
         severity: 'warning'
@@ -128,11 +229,11 @@ class ValidationFilter extends BaseFilter {
     }
 
     // Word count validation (configurable)
-    if (this.validationConfig.minWordCount > 0) {
+    if (this.validationConfig && this.validationConfig.minWordCount > 0) {
       this.validationRules.set('wordCount', {
-        validate: (content) => {
+        validate: (content: string) => {
           const wordCount = content.split(/\s+/).filter(word => word.trim()).length;
-          return wordCount >= this.validationConfig.minWordCount;
+          return wordCount >= (this.validationConfig?.minWordCount ?? 0);
         },
         errorMessage: `Content has too few words (minimum: ${this.validationConfig.minWordCount})`,
         severity: 'warning'
@@ -140,27 +241,27 @@ class ValidationFilter extends BaseFilter {
     }
 
     // Markup syntax validation (configurable)
-    if (this.validationConfig.validateMarkup) {
+    if (this.validationConfig?.validateMarkup) {
       this.validationRules.set('markupSyntax', {
-        validate: (content) => this.validateMarkupSyntax(content),
+        validate: (content: string) => this.validateMarkupSyntax(content),
         errorMessage: 'Invalid markup syntax detected',
         severity: 'error'
       });
     }
 
     // Link validation (configurable)
-    if (this.validationConfig.validateLinks) {
+    if (this.validationConfig?.validateLinks) {
       this.validationRules.set('linkValidation', {
-        validate: (content) => this.validateLinks(content),
+        validate: (content: string) => this.validateLinks(content),
         errorMessage: 'Invalid or broken links detected',
         severity: 'warning'
       });
     }
 
     // Image validation (configurable)
-    if (this.validationConfig.validateImages) {
+    if (this.validationConfig?.validateImages) {
       this.validationRules.set('imageValidation', {
-        validate: (content) => this.validateImages(content),
+        validate: (content: string) => this.validateImages(content),
         errorMessage: 'Invalid or inaccessible images detected',
         severity: 'warning'
       });
@@ -169,30 +270,30 @@ class ValidationFilter extends BaseFilter {
 
   /**
    * Process content through validation filters (modular validation)
-   * @param {string} content - Content to validate
-   * @param {ParseContext} context - Parse context
-   * @returns {Promise<string>} - Validated content (with error comments if configured)
+   * @param content - Content to validate
+   * @param context - Parse context
+   * @returns Validated content (with error comments if configured)
    */
-  async process(content, context) {
+  async process(content: string, context: ParseContext): Promise<string> {
     if (!content) {
       return content;
     }
 
-    const validationErrors = [];
-    const validationWarnings = [];
+    const validationErrors: ValidationError[] = [];
+    const validationWarnings: ValidationError[] = [];
 
     // Run all configured validation rules
     for (const [ruleName, rule] of this.validationRules) {
       try {
         const isValid = await rule.validate(content, context);
-        
+
         if (!isValid) {
-          const error = {
+          const error: ValidationError = {
             rule: ruleName,
             message: rule.errorMessage,
             severity: rule.severity
           };
-          
+
           if (rule.severity === 'error') {
             validationErrors.push(error);
           } else {
@@ -200,7 +301,9 @@ class ValidationFilter extends BaseFilter {
           }
         }
       } catch (ruleError) {
-        console.error(`❌ Validation rule ${ruleName} failed:`, ruleError.message);
+        const err = ruleError as Error;
+        // eslint-disable-next-line no-console
+        console.error(`❌ Validation rule ${ruleName} failed:`, err.message);
       }
     }
 
@@ -210,7 +313,7 @@ class ValidationFilter extends BaseFilter {
     }
 
     // Return content with validation comments if configured
-    if (this.validationConfig.reportErrors && (validationErrors.length > 0 || validationWarnings.length > 0)) {
+    if (this.validationConfig?.reportErrors && (validationErrors.length > 0 || validationWarnings.length > 0)) {
       return this.addValidationComments(content, validationErrors, validationWarnings);
     }
 
@@ -219,10 +322,10 @@ class ValidationFilter extends BaseFilter {
 
   /**
    * Validate markup syntax (modular markup validation)
-   * @param {string} content - Content to validate
-   * @returns {boolean} - True if markup is valid
+   * @param content - Content to validate
+   * @returns True if markup is valid
    */
-  validateMarkupSyntax(content) {
+  validateMarkupSyntax(content: string): boolean {
     // Check for common markup syntax errors
     const syntaxErrors = [
       /\[\{[^}]*$/m,                    // Unclosed plugin syntax
@@ -236,13 +339,13 @@ class ValidationFilter extends BaseFilter {
 
   /**
    * Validate links in content (modular link validation)
-   * @param {string} content - Content to validate
-   * @returns {boolean} - True if all links are valid
+   * @param content - Content to validate
+   * @returns True if all links are valid
    */
-  validateLinks(content) {
+  validateLinks(content: string): boolean {
     // Extract and validate markdown links
     const markdownLinks = content.match(/\[([^\]]+)\]\(([^)]+)\)/g) || [];
-    
+
     for (const link of markdownLinks) {
       const urlMatch = link.match(/\]\(([^)]+)\)/);
       if (urlMatch) {
@@ -255,7 +358,7 @@ class ValidationFilter extends BaseFilter {
 
     // Extract and validate HTML links
     const htmlLinks = content.match(/<a\s+[^>]*href\s*=\s*["']([^"']+)["'][^>]*>/gi) || [];
-    
+
     for (const link of htmlLinks) {
       const urlMatch = link.match(/href\s*=\s*["']([^"']+)["']/i);
       if (urlMatch) {
@@ -271,13 +374,13 @@ class ValidationFilter extends BaseFilter {
 
   /**
    * Validate images in content (modular image validation)
-   * @param {string} content - Content to validate
-   * @returns {boolean} - True if all images are valid
+   * @param content - Content to validate
+   * @returns True if all images are valid
    */
-  validateImages(content) {
+  validateImages(content: string): boolean {
     // Extract and validate markdown images
     const markdownImages = content.match(/!\[([^\]]*)\]\(([^)]+)\)/g) || [];
-    
+
     for (const image of markdownImages) {
       const urlMatch = image.match(/\]\(([^)]+)\)/);
       if (urlMatch) {
@@ -290,7 +393,7 @@ class ValidationFilter extends BaseFilter {
 
     // Extract and validate HTML images
     const htmlImages = content.match(/<img\s+[^>]*src\s*=\s*["']([^"']+)["'][^>]*>/gi) || [];
-    
+
     for (const image of htmlImages) {
       const urlMatch = image.match(/src\s*=\s*["']([^"']+)["']/i);
       if (urlMatch) {
@@ -306,10 +409,10 @@ class ValidationFilter extends BaseFilter {
 
   /**
    * Validate URL format and safety (modular URL validation)
-   * @param {string} url - URL to validate
-   * @returns {boolean} - True if valid
+   * @param url - URL to validate
+   * @returns True if valid
    */
-  isValidURL(url) {
+  isValidURL(url: string): boolean {
     if (!url || typeof url !== 'string') {
       return false;
     }
@@ -321,22 +424,22 @@ class ValidationFilter extends BaseFilter {
 
     try {
       const urlObj = new URL(url);
-      
+
       // Allow only safe protocols
       const safeProtocols = ['http:', 'https:', 'mailto:', 'ftp:'];
       return safeProtocols.includes(urlObj.protocol);
-      
-    } catch (error) {
+
+    } catch {
       return false;
     }
   }
 
   /**
    * Validate image URL and format (modular image validation)
-   * @param {string} url - Image URL to validate
-   * @returns {boolean} - True if valid image
+   * @param url - Image URL to validate
+   * @returns True if valid image
    */
-  isValidImageURL(url) {
+  isValidImageURL(url: string): boolean {
     if (!this.isValidURL(url)) {
       return false;
     }
@@ -344,19 +447,19 @@ class ValidationFilter extends BaseFilter {
     // Check for valid image extensions
     const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp'];
     const urlLower = url.toLowerCase();
-    
+
     // Allow if URL ends with image extension or is from allowed domains
-    return imageExtensions.some(ext => urlLower.includes(ext)) || 
+    return imageExtensions.some(ext => urlLower.includes(ext)) ||
            url.startsWith('/') || // Local images
            this.isTrustedImageDomain(url);
   }
 
   /**
    * Check if image domain is trusted (modular domain validation)
-   * @param {string} url - Image URL
-   * @returns {boolean} - True if from trusted domain
+   * @param url - Image URL
+   * @returns True if from trusted domain
    */
-  isTrustedImageDomain(url) {
+  isTrustedImageDomain(url: string): boolean {
     const trustedDomains = [
       'imgur.com',
       'github.com',
@@ -368,25 +471,28 @@ class ValidationFilter extends BaseFilter {
     try {
       const urlObj = new URL(url);
       return trustedDomains.some(domain => urlObj.hostname.includes(domain));
-    } catch (error) {
+    } catch {
       return false;
     }
   }
 
   /**
    * Handle validation results based on configuration (modular error handling)
-   * @param {string} content - Original content
-   * @param {Array} errors - Validation errors
-   * @param {Array} warnings - Validation warnings
-   * @param {ParseContext} context - Parse context
+   * @param _content - Original content
+   * @param errors - Validation errors
+   * @param warnings - Validation warnings
+   * @param context - Parse context
    */
-  async handleValidationResults(content, errors, warnings, context) {
+  // eslint-disable-next-line @typescript-eslint/require-await
+  async handleValidationResults(_content: string, errors: ValidationError[], warnings: ValidationError[], context: ParseContext): Promise<void> {
     // Log validation issues if configured
-    if (this.validationConfig.logValidationErrors) {
+    if (this.validationConfig?.logValidationErrors) {
       if (errors.length > 0) {
+        // eslint-disable-next-line no-console
         console.error(`❌ Validation errors in ${context.pageName}:`, errors);
       }
       if (warnings.length > 0) {
+        // eslint-disable-next-line no-console
         console.warn(`⚠️  Validation warnings in ${context.pageName}:`, warnings);
       }
     }
@@ -394,8 +500,8 @@ class ValidationFilter extends BaseFilter {
     // Store error reports for later review
     if (errors.length > 0 || warnings.length > 0) {
       this.errorReports.push({
-        pageName: context.pageName,
-        userName: context.userName,
+        pageName: context.pageName || '',
+        userName: context.userName || '',
         errors,
         warnings,
         timestamp: new Date().toISOString()
@@ -408,7 +514,7 @@ class ValidationFilter extends BaseFilter {
     }
 
     // Send to notification system if available
-    const notificationManager = context.engine?.getManager('NotificationManager');
+    const notificationManager = context.engine?.getManager('NotificationManager') as NotificationManager | undefined;
     if (notificationManager && errors.length > 0) {
       notificationManager.addNotification({
         type: 'validation',
@@ -420,24 +526,24 @@ class ValidationFilter extends BaseFilter {
     }
 
     // Throw error if configured to fail on validation errors
-    if (this.validationConfig.failOnValidationError && errors.length > 0) {
+    if (this.validationConfig?.failOnValidationError && errors.length > 0) {
       throw new Error(`Content validation failed: ${errors.map(e => e.message).join(', ')}`);
     }
   }
 
   /**
    * Add validation comments to content (modular error reporting)
-   * @param {string} content - Original content
-   * @param {Array} errors - Validation errors
-   * @param {Array} warnings - Validation warnings
-   * @returns {string} - Content with validation comments
+   * @param content - Original content
+   * @param errors - Validation errors
+   * @param warnings - Validation warnings
+   * @returns Content with validation comments
    */
-  addValidationComments(content, errors, warnings) {
+  addValidationComments(content: string, errors: ValidationError[], warnings: ValidationError[]): string {
     let annotatedContent = content;
 
     // Add error comments at the top
     if (errors.length > 0) {
-      const errorComments = errors.map(error => 
+      const errorComments = errors.map(error =>
         `<!-- VALIDATION ERROR [${error.rule}]: ${error.message} -->`
       ).join('\n');
       annotatedContent = errorComments + '\n\n' + annotatedContent;
@@ -445,7 +551,7 @@ class ValidationFilter extends BaseFilter {
 
     // Add warning comments at the top (after errors)
     if (warnings.length > 0) {
-      const warningComments = warnings.map(warning => 
+      const warningComments = warnings.map(warning =>
         `<!-- VALIDATION WARNING [${warning.rule}]: ${warning.message} -->`
       ).join('\n');
       annotatedContent = warningComments + '\n\n' + annotatedContent;
@@ -456,29 +562,29 @@ class ValidationFilter extends BaseFilter {
 
   /**
    * Get validation error reports (modular error reporting)
-   * @param {number} limit - Maximum number of reports to return
-   * @returns {Array} - Recent validation error reports
+   * @param limit - Maximum number of reports to return
+   * @returns Recent validation error reports
    */
-  getValidationReports(limit = 50) {
+  getValidationReports(limit: number = 50): ValidationReport[] {
     return this.errorReports.slice(-limit);
   }
 
   /**
    * Clear validation error reports
    */
-  clearValidationReports() {
+  clearValidationReports(): void {
     this.errorReports = [];
   }
 
   /**
    * Add custom validation rule (modular extensibility)
-   * @param {string} ruleName - Rule identifier
-   * @param {Function} validator - Validation function
-   * @param {string} errorMessage - Error message
-   * @param {string} severity - Error severity (error/warning)
-   * @returns {boolean} - True if rule added
+   * @param ruleName - Rule identifier
+   * @param validator - Validation function
+   * @param errorMessage - Error message
+   * @param severity - Error severity (error/warning)
+   * @returns True if rule added
    */
-  addValidationRule(ruleName, validator, errorMessage, severity = 'warning') {
+  addValidationRule(ruleName: string, validator: (content: string, context?: ParseContext) => boolean | Promise<boolean>, errorMessage: string, severity: 'error' | 'warning' = 'warning'): boolean {
     if (typeof validator !== 'function') {
       return false;
     }
@@ -489,18 +595,20 @@ class ValidationFilter extends BaseFilter {
       severity
     });
 
+    // eslint-disable-next-line no-console
     console.log(`✅ Added custom validation rule: ${ruleName}`);
     return true;
   }
 
   /**
    * Remove custom validation rule (modular management)
-   * @param {string} ruleName - Rule identifier
-   * @returns {boolean} - True if rule removed
+   * @param ruleName - Rule identifier
+   * @returns True if rule removed
    */
-  removeValidationRule(ruleName) {
+  removeValidationRule(ruleName: string): boolean {
     if (this.validationRules.has(ruleName)) {
       this.validationRules.delete(ruleName);
+      // eslint-disable-next-line no-console
       console.log(`🗑️  Removed validation rule: ${ruleName}`);
       return true;
     }
@@ -509,9 +617,9 @@ class ValidationFilter extends BaseFilter {
 
   /**
    * Get validation configuration summary (modular introspection)
-   * @returns {Object} - Validation configuration summary
+   * @returns Validation configuration summary
    */
-  getValidationConfiguration() {
+  getValidationConfiguration(): Record<string, unknown> {
     return {
       features: {
         validateMarkup: this.validationConfig?.validateMarkup || false,
@@ -538,9 +646,9 @@ class ValidationFilter extends BaseFilter {
 
   /**
    * Get filter information for debugging and documentation
-   * @returns {Object} - Filter information
+   * @returns Filter information
    */
-  getInfo() {
+  getInfo(): Record<string, unknown> {
     return {
       ...super.getMetadata(),
       validationConfiguration: this.getValidationConfiguration(),
@@ -566,4 +674,7 @@ class ValidationFilter extends BaseFilter {
   }
 }
 
+export default ValidationFilter;
+
+// CommonJS compatibility
 module.exports = ValidationFilter;
