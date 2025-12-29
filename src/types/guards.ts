@@ -13,34 +13,36 @@ import { AttachmentMetadata, AuditEvent } from './Provider';
 /**
  * Check if value is a valid PageFrontmatter object
  */
-export function isPageFrontmatter(value: any): value is PageFrontmatter {
+export function isPageFrontmatter(value: unknown): value is PageFrontmatter {
   if (!value || typeof value !== 'object') {
     return false;
   }
 
+  const obj = value as Record<string, unknown>;
+
   // Required fields
-  if (typeof value.title !== 'string' || !value.title) {
+  if (typeof obj.title !== 'string' || !obj.title) {
     return false;
   }
 
-  if (typeof value.uuid !== 'string' || !value.uuid) {
+  if (typeof obj.uuid !== 'string' || !obj.uuid) {
     return false;
   }
 
-  if (typeof value.lastModified !== 'string' || !value.lastModified) {
+  if (typeof obj.lastModified !== 'string' || !obj.lastModified) {
     return false;
   }
 
   // Optional fields with type checks
-  if (value['system-category'] !== undefined && typeof value['system-category'] !== 'string') {
+  if (obj['system-category'] !== undefined && typeof obj['system-category'] !== 'string') {
     return false;
   }
 
-  if (value.category !== undefined && typeof value.category !== 'string') {
+  if (obj.category !== undefined && typeof obj.category !== 'string') {
     return false;
   }
 
-  if (value['user-keywords'] !== undefined && !Array.isArray(value['user-keywords'])) {
+  if (obj['user-keywords'] !== undefined && !Array.isArray(obj['user-keywords'])) {
     return false;
   }
 
@@ -50,28 +52,30 @@ export function isPageFrontmatter(value: any): value is PageFrontmatter {
 /**
  * Check if value is a valid WikiPage object
  */
-export function isWikiPage(value: any): value is WikiPage {
+export function isWikiPage(value: unknown): value is WikiPage {
   if (!value || typeof value !== 'object') {
     return false;
   }
 
-  if (typeof value.title !== 'string' || !value.title) {
+  const obj = value as Record<string, unknown>;
+
+  if (typeof obj.title !== 'string' || !obj.title) {
     return false;
   }
 
-  if (typeof value.uuid !== 'string' || !value.uuid) {
+  if (typeof obj.uuid !== 'string' || !obj.uuid) {
     return false;
   }
 
-  if (typeof value.content !== 'string') {
+  if (typeof obj.content !== 'string') {
     return false;
   }
 
-  if (!isPageFrontmatter(value.metadata)) {
+  if (!isPageFrontmatter(obj.metadata)) {
     return false;
   }
 
-  if (typeof value.filePath !== 'string' || !value.filePath) {
+  if (typeof obj.filePath !== 'string' || !obj.filePath) {
     return false;
   }
 
@@ -81,24 +85,26 @@ export function isWikiPage(value: any): value is WikiPage {
 /**
  * Check if value is a valid PageInfo object
  */
-export function isPageInfo(value: any): value is PageInfo {
+export function isPageInfo(value: unknown): value is PageInfo {
   if (!value || typeof value !== 'object') {
     return false;
   }
 
-  if (typeof value.title !== 'string' || !value.title) {
+  const obj = value as Record<string, unknown>;
+
+  if (typeof obj.title !== 'string' || !obj.title) {
     return false;
   }
 
-  if (typeof value.uuid !== 'string' || !value.uuid) {
+  if (typeof obj.uuid !== 'string' || !obj.uuid) {
     return false;
   }
 
-  if (typeof value.filePath !== 'string' || !value.filePath) {
+  if (typeof obj.filePath !== 'string' || !obj.filePath) {
     return false;
   }
 
-  if (!isPageFrontmatter(value.metadata)) {
+  if (!isPageFrontmatter(obj.metadata)) {
     return false;
   }
 
@@ -108,41 +114,43 @@ export function isPageInfo(value: any): value is PageInfo {
 /**
  * Check if value is a valid VersionMetadata object
  */
-export function isVersionMetadata(value: any): value is VersionMetadata {
+export function isVersionMetadata(value: unknown): value is VersionMetadata {
   if (!value || typeof value !== 'object') {
     return false;
   }
 
-  if (typeof value.version !== 'number' || value.version < 1) {
+  const obj = value as Record<string, unknown>;
+
+  if (typeof obj.version !== 'number' || obj.version < 1) {
     return false;
   }
 
-  if (typeof value.author !== 'string' || !value.author) {
+  if (typeof obj.author !== 'string' || !obj.author) {
     return false;
   }
 
-  if (typeof value.timestamp !== 'string' || !value.timestamp) {
+  if (typeof obj.timestamp !== 'string' || !obj.timestamp) {
     return false;
   }
 
   const validChangeTypes = ['create', 'update', 'minor', 'major'];
-  if (!validChangeTypes.includes(value.changeType)) {
+  if (typeof obj.changeType !== 'string' || !validChangeTypes.includes(obj.changeType)) {
     return false;
   }
 
-  if (typeof value.contentHash !== 'string' || !value.contentHash) {
+  if (typeof obj.contentHash !== 'string' || !obj.contentHash) {
     return false;
   }
 
-  if (typeof value.contentSize !== 'number' || value.contentSize < 0) {
+  if (typeof obj.contentSize !== 'number' || obj.contentSize < 0) {
     return false;
   }
 
-  if (typeof value.compressed !== 'boolean') {
+  if (typeof obj.compressed !== 'boolean') {
     return false;
   }
 
-  if (typeof value.isDelta !== 'boolean') {
+  if (typeof obj.isDelta !== 'boolean') {
     return false;
   }
 
@@ -152,43 +160,45 @@ export function isVersionMetadata(value: any): value is VersionMetadata {
 /**
  * Check if value is a valid VersionManifest object
  */
-export function isVersionManifest(value: any): value is VersionManifest {
+export function isVersionManifest(value: unknown): value is VersionManifest {
   if (!value || typeof value !== 'object') {
     return false;
   }
 
-  if (typeof value.pageUuid !== 'string' || !value.pageUuid) {
+  const obj = value as Record<string, unknown>;
+
+  if (typeof obj.pageUuid !== 'string' || !obj.pageUuid) {
     return false;
   }
 
-  if (typeof value.pageTitle !== 'string' || !value.pageTitle) {
+  if (typeof obj.pageTitle !== 'string' || !obj.pageTitle) {
     return false;
   }
 
-  if (typeof value.totalVersions !== 'number' || value.totalVersions < 0) {
+  if (typeof obj.totalVersions !== 'number' || obj.totalVersions < 0) {
     return false;
   }
 
-  if (typeof value.currentVersion !== 'number' || value.currentVersion < 1) {
+  if (typeof obj.currentVersion !== 'number' || obj.currentVersion < 1) {
     return false;
   }
 
-  if (!Array.isArray(value.versions)) {
+  if (!Array.isArray(obj.versions)) {
     return false;
   }
 
   // Validate each version metadata
-  for (const version of value.versions) {
+  for (const version of obj.versions) {
     if (!isVersionMetadata(version)) {
       return false;
     }
   }
 
-  if (typeof value.createdAt !== 'string' || !value.createdAt) {
+  if (typeof obj.createdAt !== 'string' || !obj.createdAt) {
     return false;
   }
 
-  if (typeof value.updatedAt !== 'string' || !value.updatedAt) {
+  if (typeof obj.updatedAt !== 'string' || !obj.updatedAt) {
     return false;
   }
 
@@ -198,52 +208,54 @@ export function isVersionManifest(value: any): value is VersionManifest {
 /**
  * Check if value is a valid User object
  */
-export function isUser(value: any): value is User {
+export function isUser(value: unknown): value is User {
   if (!value || typeof value !== 'object') {
     return false;
   }
 
-  if (typeof value.username !== 'string' || !value.username) {
+  const obj = value as Record<string, unknown>;
+
+  if (typeof obj.username !== 'string' || !obj.username) {
     return false;
   }
 
-  if (typeof value.email !== 'string' || !value.email) {
+  if (typeof obj.email !== 'string' || !obj.email) {
     return false;
   }
 
-  if (typeof value.displayName !== 'string' || !value.displayName) {
+  if (typeof obj.displayName !== 'string' || !obj.displayName) {
     return false;
   }
 
-  if (typeof value.password !== 'string' || !value.password) {
+  if (typeof obj.password !== 'string' || !obj.password) {
     return false;
   }
 
-  if (!Array.isArray(value.roles)) {
+  if (!Array.isArray(obj.roles)) {
     return false;
   }
 
-  if (typeof value.isActive !== 'boolean') {
+  if (typeof obj.isActive !== 'boolean') {
     return false;
   }
 
-  if (typeof value.isSystem !== 'boolean') {
+  if (typeof obj.isSystem !== 'boolean') {
     return false;
   }
 
-  if (typeof value.isExternal !== 'boolean') {
+  if (typeof obj.isExternal !== 'boolean') {
     return false;
   }
 
-  if (typeof value.createdAt !== 'string' || !value.createdAt) {
+  if (typeof obj.createdAt !== 'string' || !obj.createdAt) {
     return false;
   }
 
-  if (typeof value.loginCount !== 'number' || value.loginCount < 0) {
+  if (typeof obj.loginCount !== 'number' || obj.loginCount < 0) {
     return false;
   }
 
-  if (!value.preferences || typeof value.preferences !== 'object') {
+  if (!obj.preferences || typeof obj.preferences !== 'object') {
     return false;
   }
 
@@ -253,32 +265,34 @@ export function isUser(value: any): value is User {
 /**
  * Check if value is a valid UserSession object
  */
-export function isUserSession(value: any): value is UserSession {
+export function isUserSession(value: unknown): value is UserSession {
   if (!value || typeof value !== 'object') {
     return false;
   }
 
-  if (typeof value.sessionId !== 'string' || !value.sessionId) {
+  const obj = value as Record<string, unknown>;
+
+  if (typeof obj.sessionId !== 'string' || !obj.sessionId) {
     return false;
   }
 
-  if (typeof value.username !== 'string' || !value.username) {
+  if (typeof obj.username !== 'string' || !obj.username) {
     return false;
   }
 
-  if (typeof value.userId !== 'string' || !value.userId) {
+  if (typeof obj.userId !== 'string' || !obj.userId) {
     return false;
   }
 
-  if (typeof value.createdAt !== 'string' || !value.createdAt) {
+  if (typeof obj.createdAt !== 'string' || !obj.createdAt) {
     return false;
   }
 
-  if (typeof value.expiresAt !== 'string' || !value.expiresAt) {
+  if (typeof obj.expiresAt !== 'string' || !obj.expiresAt) {
     return false;
   }
 
-  if (typeof value.lastActivity !== 'string' || !value.lastActivity) {
+  if (typeof obj.lastActivity !== 'string' || !obj.lastActivity) {
     return false;
   }
 
@@ -288,40 +302,42 @@ export function isUserSession(value: any): value is UserSession {
 /**
  * Check if value is a valid AttachmentMetadata object
  */
-export function isAttachmentMetadata(value: any): value is AttachmentMetadata {
+export function isAttachmentMetadata(value: unknown): value is AttachmentMetadata {
   if (!value || typeof value !== 'object') {
     return false;
   }
 
-  if (typeof value.id !== 'string' || !value.id) {
+  const obj = value as Record<string, unknown>;
+
+  if (typeof obj.id !== 'string' || !obj.id) {
     return false;
   }
 
-  if (typeof value.filename !== 'string' || !value.filename) {
+  if (typeof obj.filename !== 'string' || !obj.filename) {
     return false;
   }
 
-  if (typeof value.pageUuid !== 'string' || !value.pageUuid) {
+  if (typeof obj.pageUuid !== 'string' || !obj.pageUuid) {
     return false;
   }
 
-  if (typeof value.mimeType !== 'string' || !value.mimeType) {
+  if (typeof obj.mimeType !== 'string' || !obj.mimeType) {
     return false;
   }
 
-  if (typeof value.size !== 'number' || value.size < 0) {
+  if (typeof obj.size !== 'number' || obj.size < 0) {
     return false;
   }
 
-  if (typeof value.uploadedAt !== 'string' || !value.uploadedAt) {
+  if (typeof obj.uploadedAt !== 'string' || !obj.uploadedAt) {
     return false;
   }
 
-  if (typeof value.uploadedBy !== 'string' || !value.uploadedBy) {
+  if (typeof obj.uploadedBy !== 'string' || !obj.uploadedBy) {
     return false;
   }
 
-  if (typeof value.filePath !== 'string' || !value.filePath) {
+  if (typeof obj.filePath !== 'string' || !obj.filePath) {
     return false;
   }
 
@@ -331,37 +347,39 @@ export function isAttachmentMetadata(value: any): value is AttachmentMetadata {
 /**
  * Check if value is a valid AuditEvent object
  */
-export function isAuditEvent(value: any): value is AuditEvent {
+export function isAuditEvent(value: unknown): value is AuditEvent {
   if (!value || typeof value !== 'object') {
     return false;
   }
 
-  if (typeof value.id !== 'string' || !value.id) {
+  const obj = value as Record<string, unknown>;
+
+  if (typeof obj.id !== 'string' || !obj.id) {
     return false;
   }
 
-  if (typeof value.type !== 'string' || !value.type) {
+  if (typeof obj.type !== 'string' || !obj.type) {
     return false;
   }
 
-  if (typeof value.actor !== 'string' || !value.actor) {
+  if (typeof obj.actor !== 'string' || !obj.actor) {
     return false;
   }
 
-  if (typeof value.target !== 'string' || !value.target) {
+  if (typeof obj.target !== 'string' || !obj.target) {
     return false;
   }
 
-  if (typeof value.action !== 'string' || !value.action) {
+  if (typeof obj.action !== 'string' || !obj.action) {
     return false;
   }
 
-  if (typeof value.timestamp !== 'string' || !value.timestamp) {
+  if (typeof obj.timestamp !== 'string' || !obj.timestamp) {
     return false;
   }
 
   const validResults = ['success', 'failure'];
-  if (!validResults.includes(value.result)) {
+  if (typeof obj.result !== 'string' || !validResults.includes(obj.result)) {
     return false;
   }
 
@@ -371,7 +389,7 @@ export function isAuditEvent(value: any): value is AuditEvent {
 /**
  * Check if value is a valid UUID (v4 format)
  */
-export function isUuid(value: any): value is string {
+export function isUuid(value: unknown): value is string {
   if (typeof value !== 'string') {
     return false;
   }
@@ -383,7 +401,7 @@ export function isUuid(value: any): value is string {
 /**
  * Check if value is a valid ISO 8601 timestamp
  */
-export function isIsoTimestamp(value: any): value is string {
+export function isIsoTimestamp(value: unknown): value is string {
   if (typeof value !== 'string') {
     return false;
   }
@@ -399,7 +417,7 @@ export function isIsoTimestamp(value: any): value is string {
 /**
  * Check if value is a valid email address
  */
-export function isEmail(value: any): value is string {
+export function isEmail(value: unknown): value is string {
   if (typeof value !== 'string') {
     return false;
   }
@@ -412,7 +430,7 @@ export function isEmail(value: any): value is string {
  * Validate and assert PageFrontmatter
  * @throws {TypeError} if validation fails
  */
-export function assertPageFrontmatter(value: any): asserts value is PageFrontmatter {
+export function assertPageFrontmatter(value: unknown): asserts value is PageFrontmatter {
   if (!isPageFrontmatter(value)) {
     throw new TypeError('Invalid PageFrontmatter object');
   }
@@ -422,7 +440,7 @@ export function assertPageFrontmatter(value: any): asserts value is PageFrontmat
  * Validate and assert WikiPage
  * @throws {TypeError} if validation fails
  */
-export function assertWikiPage(value: any): asserts value is WikiPage {
+export function assertWikiPage(value: unknown): asserts value is WikiPage {
   if (!isWikiPage(value)) {
     throw new TypeError('Invalid WikiPage object');
   }
@@ -432,7 +450,7 @@ export function assertWikiPage(value: any): asserts value is WikiPage {
  * Validate and assert VersionMetadata
  * @throws {TypeError} if validation fails
  */
-export function assertVersionMetadata(value: any): asserts value is VersionMetadata {
+export function assertVersionMetadata(value: unknown): asserts value is VersionMetadata {
   if (!isVersionMetadata(value)) {
     throw new TypeError('Invalid VersionMetadata object');
   }
@@ -442,7 +460,7 @@ export function assertVersionMetadata(value: any): asserts value is VersionMetad
  * Validate and assert User
  * @throws {TypeError} if validation fails
  */
-export function assertUser(value: any): asserts value is User {
+export function assertUser(value: unknown): asserts value is User {
   if (!isUser(value)) {
     throw new TypeError('Invalid User object');
   }

@@ -24,6 +24,29 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 
 ---
 
+## 2025-12-29-01
+
+- Agent: Claude Code (Opus 4.5)
+- Subject: Type Guards and Session Utils ESLint Fixes
+- Issues: #139 (TypeScript Migration Epic), #186 (Complete TypeScript Migration)
+- Key Decisions:
+  - Change type guard parameters from `any` to `unknown` for proper type safety
+  - Use `Record<string, unknown>` cast pattern for safe property access in guards
+  - Remove unnecessary type assertions after typeof checks (TypeScript already narrows)
+  - Use `null as unknown as WikiEngine` pattern for intentional null contexts
+- Work Done:
+  - guards.ts: Changed all guard functions to use `unknown` parameter type
+  - guards.ts: Implemented `const obj = value as Record<string, unknown>` pattern
+  - guards.ts: Removed 6 unnecessary type assertions after typeof checks
+  - sessionUtils.ts: Fixed unsafe argument errors with proper type casting
+  - Reduced ESLint errors from 117 to 0 (25 warnings remain for intentional any in types)
+- Testing:
+  - ESLint: 0 errors, 25 warnings (all intentional any in type definitions)
+- Commits: ebe60dd
+- Files Modified:
+  - src/types/guards.ts
+  - src/utils/sessionUtils.ts
+
 ## 2025-12-28-11
 
 - Agent: Claude Code (Opus 4.5)

@@ -3,6 +3,7 @@
 // src/utils/sessionUtils.ts
 import ConfigurationManager from '../managers/ConfigurationManager';
 import UserManager from '../managers/UserManager';
+import type { WikiEngine } from '../types/WikiEngine';
 import { Request } from 'express';
 
 /**
@@ -50,12 +51,10 @@ interface UserData {
 export async function buildUserContext(req: RequestWithSession): Promise<UserContext> {
   // Note: These managers are instantiated without a full engine context
   // They work for basic property access and user lookup operations
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const configManager = new ConfigurationManager(null as any);
+  const configManager = new ConfigurationManager(null as unknown as WikiEngine);
   const authorizer = String(configManager.getProperty?.('amdwiki.authorizer') || 'DefaultAuthorizer');
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const userManager = new UserManager(null as any);
+  const userManager = new UserManager(null as unknown as WikiEngine);
 
   const userId = req.session?.userId || null;
   let userData: UserData = {
