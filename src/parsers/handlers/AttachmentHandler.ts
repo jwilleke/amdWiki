@@ -1,10 +1,117 @@
-const { BaseSyntaxHandler } = require('./BaseSyntaxHandler');
-const path = require('path');
-const fs = require('fs').promises;
+import BaseSyntaxHandler, { InitializationContext, ParseContext } from './BaseSyntaxHandler';
+import * as path from 'path';
+import * as fs from 'fs/promises';
+import * as crypto from 'crypto';
+
+/**
+ * Attachment match information
+ */
+interface AttachmentMatch {
+  fullMatch: string;
+  filename: string;
+  displayText: string | null;
+  parameters: string | null;
+  index: number;
+  length: number;
+}
+
+/**
+ * Attachment metadata
+ */
+interface AttachmentMetadata {
+  filename: string;
+  size: number;
+  modified: Date;
+  created: Date;
+  type: string;
+  isImage: boolean;
+  path: string;
+  url: string;
+}
+
+/**
+ * Attachment configuration
+ */
+interface AttachmentConfig {
+  enhanced: boolean;
+  thumbnails: boolean;
+  metadata: boolean;
+  thumbnailSizes: string[];
+  showFileSize: boolean;
+  showModified: boolean;
+  iconPath: string;
+  cacheMetadata: boolean;
+  generateThumbnails: boolean;
+  securityChecks: boolean;
+}
+
+/**
+ * Handler configuration
+ */
+interface HandlerConfig {
+  enabled?: boolean;
+  priority?: number;
+}
+
+/**
+ * Link parameters
+ */
+interface LinkParams {
+  target?: string;
+  class?: string;
+  [key: string]: string | undefined;
+}
+
+/**
+ * Wiki engine interface
+ */
+interface WikiEngine {
+  getManager(name: string): unknown;
+}
+
+/**
+ * Configuration manager interface
+ */
+interface ConfigManager {
+  getProperty<T>(key: string, defaultValue: T): T;
+}
+
+/**
+ * Markup parser interface
+ */
+interface MarkupParser {
+  getHandlerConfig(name: string): HandlerConfig;
+  getCachedHandlerResult(handlerId: string, contentHash: string, contextHash: string): Promise<string | null>;
+  cacheHandlerResult(handlerId: string, contentHash: string, contextHash: string, result: string): Promise<void>;
+}
+
+/**
+ * Attachment manager interface
+ */
+interface AttachmentManager {
+  getAttachmentPath(filename: string): Promise<string>;
+  attachmentExists(filename: string): Promise<boolean>;
+}
+
+/**
+ * Policy manager interface
+ */
+interface PolicyManager {
+  checkPermission(userContext: unknown, permission: string, resource: string): Promise<boolean>;
+}
+
+/**
+ * Extended parse context
+ */
+interface AttachmentParseContext extends ParseContext {
+  getManager(name: string): unknown;
+  userContext?: unknown;
+  isAuthenticated(): boolean;
+}
 
 /**
  * AttachmentHandler - Advanced attachment processing with thumbnails and metadata
- * 
+ *
  * Supports enhanced JSPWiki attachment syntax:
  * - [{ATTACH filename.pdf}] - Simple attachment link
  * - [{ATTACH filename.pdf|Display Name}] - Custom display text
@@ -12,12 +119,17 @@ const fs = require('fs').promises;
  * - Automatic thumbnail generation for images
  * - File metadata display (size, date, type)
  * - Security validation and permission checks
- * 
+ *
  * Related Issue: Advanced Attachment Handler (Phase 3)
  * Epic: #41 - Implement JSPWikiMarkupParser for Complete Enhancement Support
  */
 class AttachmentHandler extends BaseSyntaxHandler {
-  constructor(engine = null) {
+  declare handlerId: string;
+  private engine: WikiEngine | null;
+  private config: HandlerConfig | null;
+  private attachmentConfig: AttachmentConfig;
+
+  constructor(engine: WikiEngine | null = null) {
     super(
       /\[\{ATTACH\s+([^|}\]]+)(?:\|([^|}\]]+))?(?:\|([^}\]]+))?\}\]/g, // Pattern: [{ATTACH filename|display|params}]
       75, // Medium-high priority
@@ -32,48 +144,7 @@ class AttachmentHandler extends BaseSyntaxHandler {
     this.handlerId = 'AttachmentHandler';
     this.engine = engine;
     this.config = null;
-    this.attachmentConfig = null;
-  }
-
-  /**
-   * Initialize handler with modular configuration loading
-   * @param {Object} context - Initialization context
-   */
-  async onInitialize(context) {
-    this.engine = context.engine;
-    
-    // Load modular configuration from multiple sources
-    await this.loadModularConfiguration();
-    
-    console.log(`🔧 AttachmentHandler initialized with modular configuration:`);
-    console.log(`   📎 Enhanced mode: ${this.attachmentConfig.enhanced ? 'enabled' : 'disabled'}`);
-    console.log(`   🖼️  Thumbnails: ${this.attachmentConfig.thumbnails ? 'enabled' : 'disabled'}`);
-    console.log(`   📊 Metadata: ${this.attachmentConfig.metadata ? 'enabled' : 'disabled'}`);
-  }
-
-  /**
-   * Load configuration from multiple modular sources
-   * - app-default-config.json (base configuration)
-   * - app-custom-config.json (user overrides via ConfigurationManager)
-   * - Handler-specific settings from MarkupParser
-   */
-  async loadModularConfiguration() {
-    const configManager = this.engine?.getManager('ConfigurationManager');
-    const markupParser = this.engine?.getManager('MarkupParser');
-    
-    // Get base handler configuration from MarkupParser
-    if (markupParser) {
-      this.config = markupParser.getHandlerConfig('attachment');
-      
-      if (this.config.priority && this.config.priority !== this.priority) {
-        this.priority = this.config.priority;
-        console.log(`🔧 AttachmentHandler priority set to ${this.priority} from configuration`);
-      }
-    }
-
-    // Load detailed attachment configuration from config files
     this.attachmentConfig = {
-      // Default values
       enhanced: true,
       thumbnails: true,
       metadata: true,
@@ -85,6 +156,48 @@ class AttachmentHandler extends BaseSyntaxHandler {
       generateThumbnails: true,
       securityChecks: true
     };
+  }
+
+  /**
+   * Initialize handler with modular configuration loading
+   * @param context - Initialization context
+   */
+  protected async onInitialize(context: InitializationContext): Promise<void> {
+    this.engine = context.engine as WikiEngine | undefined ?? null;
+
+    // Load modular configuration from multiple sources
+    await this.loadModularConfiguration();
+
+    // eslint-disable-next-line no-console
+    console.log('AttachmentHandler initialized with modular configuration:');
+    // eslint-disable-next-line no-console
+    console.log(`   Enhanced mode: ${this.attachmentConfig.enhanced ? 'enabled' : 'disabled'}`);
+    // eslint-disable-next-line no-console
+    console.log(`   Thumbnails: ${this.attachmentConfig.thumbnails ? 'enabled' : 'disabled'}`);
+    // eslint-disable-next-line no-console
+    console.log(`   Metadata: ${this.attachmentConfig.metadata ? 'enabled' : 'disabled'}`);
+  }
+
+  /**
+   * Load configuration from multiple modular sources
+   * - app-default-config.json (base configuration)
+   * - app-custom-config.json (user overrides via ConfigurationManager)
+   * - Handler-specific settings from MarkupParser
+   */
+  // eslint-disable-next-line @typescript-eslint/require-await
+  private async loadModularConfiguration(): Promise<void> {
+    const configManager = this.engine?.getManager('ConfigurationManager') as ConfigManager | undefined;
+    const markupParser = this.engine?.getManager('MarkupParser') as MarkupParser | undefined;
+
+    // Get base handler configuration from MarkupParser
+    if (markupParser) {
+      this.config = markupParser.getHandlerConfig('attachment');
+
+      if (this.config?.priority && this.config.priority !== this.priority) {
+        // eslint-disable-next-line no-console
+        console.log(`AttachmentHandler priority configured as ${this.config.priority} (using ${this.priority})`);
+      }
+    }
 
     // Override with values from app-default-config.json and app-custom-config.json
     if (configManager) {
@@ -93,44 +206,46 @@ class AttachmentHandler extends BaseSyntaxHandler {
         this.attachmentConfig.enhanced = configManager.getProperty('amdwiki.markup.handlers.attachment.enhanced', this.attachmentConfig.enhanced);
         this.attachmentConfig.thumbnails = configManager.getProperty('amdwiki.markup.handlers.attachment.thumbnails', this.attachmentConfig.thumbnails);
         this.attachmentConfig.metadata = configManager.getProperty('amdwiki.markup.handlers.attachment.metadata', this.attachmentConfig.metadata);
-        
+
         // Detailed attachment settings
         const thumbnailSizes = configManager.getProperty('amdwiki.attachment.enhanced.thumbnailSizes', this.attachmentConfig.thumbnailSizes.join(','));
-        this.attachmentConfig.thumbnailSizes = thumbnailSizes.split(',').map(size => size.trim());
-        
+        this.attachmentConfig.thumbnailSizes = thumbnailSizes.split(',').map((size: string) => size.trim());
+
         this.attachmentConfig.showFileSize = configManager.getProperty('amdwiki.attachment.enhanced.showFileSize', this.attachmentConfig.showFileSize);
         this.attachmentConfig.showModified = configManager.getProperty('amdwiki.attachment.enhanced.showModified', this.attachmentConfig.showModified);
         this.attachmentConfig.iconPath = configManager.getProperty('amdwiki.attachment.enhanced.iconPath', this.attachmentConfig.iconPath);
         this.attachmentConfig.cacheMetadata = configManager.getProperty('amdwiki.attachment.enhanced.cacheMetadata', this.attachmentConfig.cacheMetadata);
         this.attachmentConfig.generateThumbnails = configManager.getProperty('amdwiki.attachment.enhanced.generateThumbnails', this.attachmentConfig.generateThumbnails);
-        
+
       } catch (error) {
-        console.warn('⚠️  Failed to load AttachmentHandler configuration, using defaults:', error.message);
+        const err = error as Error;
+        // eslint-disable-next-line no-console
+        console.warn('Failed to load AttachmentHandler configuration, using defaults:', err.message);
       }
     }
   }
 
   /**
    * Process content by finding and enhancing attachment links
-   * @param {string} content - Content to process
-   * @param {ParseContext} context - Parse context
-   * @returns {Promise<string>} - Content with enhanced attachments
+   * @param content - Content to process
+   * @param context - Parse context
+   * @returns Content with enhanced attachments
    */
-  async process(content, context) {
+  async process(content: string, context: ParseContext): Promise<string> {
     if (!content) {
       return content;
     }
 
-    const matches = [];
-    let match;
-    
+    const matches: AttachmentMatch[] = [];
+    let match: RegExpExecArray | null;
+
     // Reset regex state
     this.pattern.lastIndex = 0;
-    
+
     while ((match = this.pattern.exec(content)) !== null) {
       matches.push({
         fullMatch: match[0],
-        filename: match[1].trim(),
+        filename: (match[1] ?? '').trim(),
         displayText: match[2] ? match[2].trim() : null,
         parameters: match[3] ? match[3].trim() : null,
         index: match.index,
@@ -140,23 +255,25 @@ class AttachmentHandler extends BaseSyntaxHandler {
 
     // Process matches in reverse order to maintain string positions
     let processedContent = content;
-    
+
     for (let i = matches.length - 1; i >= 0; i--) {
       const matchInfo = matches[i];
-      
+
       try {
-        const replacement = await this.handle(matchInfo, context);
-        
-        processedContent = 
+        const replacement = await this.handleAttachment(matchInfo, context as AttachmentParseContext);
+
+        processedContent =
           processedContent.slice(0, matchInfo.index) +
           replacement +
           processedContent.slice(matchInfo.index + matchInfo.length);
-          
+
       } catch (error) {
-        console.error(`❌ Attachment processing error for ${matchInfo.filename}:`, error.message);
-        
-        const errorPlaceholder = `<!-- Attachment Error: ${matchInfo.filename} - ${error.message} -->`;
-        processedContent = 
+        const err = error as Error;
+        // eslint-disable-next-line no-console
+        console.error(`Attachment processing error for ${matchInfo.filename}:`, err.message);
+
+        const errorPlaceholder = `<!-- Attachment Error: ${matchInfo.filename} - ${err.message} -->`;
+        processedContent =
           processedContent.slice(0, matchInfo.index) +
           errorPlaceholder +
           processedContent.slice(matchInfo.index + matchInfo.length);
@@ -168,13 +285,13 @@ class AttachmentHandler extends BaseSyntaxHandler {
 
   /**
    * Handle a specific attachment with enhanced features
-   * @param {Object} matchInfo - Attachment match information
-   * @param {ParseContext} context - Parse context
-   * @returns {Promise<string>} - Enhanced attachment HTML
+   * @param matchInfo - Attachment match information
+   * @param context - Parse context
+   * @returns Enhanced attachment HTML
    */
-  async handle(matchInfo, context) {
+  private async handleAttachment(matchInfo: AttachmentMatch, context: AttachmentParseContext): Promise<string> {
     const { filename, displayText, parameters } = matchInfo;
-    
+
     // Check cache for attachment result if caching enabled
     if (this.options.cacheEnabled && this.attachmentConfig.cacheMetadata) {
       const cachedResult = await this.getCachedAttachmentResult(filename, context);
@@ -197,32 +314,32 @@ class AttachmentHandler extends BaseSyntaxHandler {
 
     // Parse additional parameters
     const linkParams = this.parseAttachmentParameters(parameters);
-    
+
     // Generate enhanced attachment HTML based on configuration
-    let attachmentHtml;
-    
+    let attachmentHtml: string;
+
     if (this.isImageFile(filename) && this.attachmentConfig.thumbnails) {
       attachmentHtml = await this.generateImageAttachmentHtml(filename, displayText, attachmentMeta, linkParams, context);
     } else {
-      attachmentHtml = await this.generateFileAttachmentHtml(filename, displayText, attachmentMeta, linkParams, context);
+      attachmentHtml = await this.generateFileAttachmentHtml(filename, displayText, attachmentMeta, linkParams);
     }
 
     // Cache the result if caching enabled
     if (this.options.cacheEnabled && this.attachmentConfig.cacheMetadata) {
       await this.cacheAttachmentResult(filename, context, attachmentHtml);
     }
-    
+
     return attachmentHtml;
   }
 
   /**
    * Get attachment metadata with caching
-   * @param {string} filename - Attachment filename
-   * @param {ParseContext} context - Parse context
-   * @returns {Promise<Object|null>} - Attachment metadata or null
+   * @param filename - Attachment filename
+   * @param context - Parse context
+   * @returns Attachment metadata or null
    */
-  async getAttachmentMetadata(filename, context) {
-    const attachmentManager = context.getManager('AttachmentManager');
+  private async getAttachmentMetadata(filename: string, context: AttachmentParseContext): Promise<AttachmentMetadata | null> {
+    const attachmentManager = context.getManager('AttachmentManager') as AttachmentManager | undefined;
     if (!attachmentManager) {
       throw new Error('AttachmentManager not available');
     }
@@ -231,7 +348,7 @@ class AttachmentHandler extends BaseSyntaxHandler {
       // Get file information
       const attachmentPath = await attachmentManager.getAttachmentPath(filename);
       const stats = await fs.stat(attachmentPath);
-      
+
       return {
         filename,
         size: stats.size,
@@ -242,29 +359,37 @@ class AttachmentHandler extends BaseSyntaxHandler {
         path: attachmentPath,
         url: `/attachments/${encodeURIComponent(filename)}`
       };
-      
+
     } catch (error) {
-      console.warn(`⚠️  Could not get metadata for ${filename}:`, error.message);
+      const err = error as Error;
+      // eslint-disable-next-line no-console
+      console.warn(`Could not get metadata for ${filename}:`, err.message);
       return null;
     }
   }
 
   /**
    * Generate enhanced HTML for image attachments with thumbnails
-   * @param {string} filename - Image filename
-   * @param {string} displayText - Display text
-   * @param {Object} metadata - File metadata
-   * @param {Object} params - Link parameters
-   * @param {ParseContext} context - Parse context
-   * @returns {Promise<string>} - Image attachment HTML
+   * @param filename - Image filename
+   * @param displayText - Display text
+   * @param metadata - File metadata
+   * @param params - Link parameters
+   * @param context - Parse context
+   * @returns Image attachment HTML
    */
-  async generateImageAttachmentHtml(filename, displayText, metadata, params, context) {
+  private async generateImageAttachmentHtml(
+    filename: string,
+    displayText: string | null,
+    metadata: AttachmentMetadata,
+    params: LinkParams,
+    context: AttachmentParseContext
+  ): Promise<string> {
     const thumbnailUrl = await this.generateThumbnail(filename, metadata, context);
     const fullImageUrl = metadata.url;
     const altText = displayText || filename;
-    
-    let imageHtml = `<div class="attachment-image-container">`;
-    
+
+    let imageHtml = '<div class="attachment-image-container">';
+
     if (thumbnailUrl) {
       // Thumbnail with link to full image
       imageHtml += `
@@ -278,136 +403,148 @@ class AttachmentHandler extends BaseSyntaxHandler {
     <img src="${this.escapeHtml(fullImageUrl)}" alt="${this.escapeHtml(altText)}" class="attachment-image">
   </a>`;
     }
-    
+
     // Add metadata if enabled
     if (this.attachmentConfig.metadata) {
-      imageHtml += this.generateMetadataHtml(metadata, displayText);
+      imageHtml += this.generateMetadataHtml(metadata);
     }
-    
-    imageHtml += `</div>`;
-    
+
+    imageHtml += '</div>';
+
     return imageHtml;
   }
 
   /**
    * Generate enhanced HTML for file attachments
-   * @param {string} filename - Attachment filename
-   * @param {string} displayText - Display text
-   * @param {Object} metadata - File metadata
-   * @param {Object} params - Link parameters
-   * @param {ParseContext} context - Parse context
-   * @returns {Promise<string>} - File attachment HTML
+   * @param filename - Attachment filename
+   * @param displayText - Display text
+   * @param metadata - File metadata
+   * @param params - Link parameters
+   * @returns File attachment HTML
    */
-  async generateFileAttachmentHtml(filename, displayText, metadata, params, context) {
+  // eslint-disable-next-line @typescript-eslint/require-await
+  private async generateFileAttachmentHtml(
+    filename: string,
+    displayText: string | null,
+    metadata: AttachmentMetadata,
+    params: LinkParams
+  ): Promise<string> {
     const fileUrl = metadata.url;
     const linkText = displayText || filename;
     const fileIcon = this.getFileIcon(metadata.type);
-    
-    let fileHtml = `<div class="attachment-file-container">`;
-    
+
+    let fileHtml = '<div class="attachment-file-container">';
+
     // File icon and link
     fileHtml += `
   <a href="${this.escapeHtml(fileUrl)}" class="attachment-file-link" data-filename="${this.escapeHtml(filename)}"${params.target ? ` target="${params.target}"` : ''}>`;
-    
+
     if (fileIcon) {
       fileHtml += `<img src="${this.attachmentConfig.iconPath}/${fileIcon}" alt="${metadata.type}" class="attachment-file-icon"> `;
     }
-    
+
     fileHtml += `${this.escapeHtml(linkText)}</a>`;
-    
+
     // Add metadata if enabled
     if (this.attachmentConfig.metadata) {
-      fileHtml += this.generateMetadataHtml(metadata, displayText);
+      fileHtml += this.generateMetadataHtml(metadata);
     }
-    
-    fileHtml += `</div>`;
-    
+
+    fileHtml += '</div>';
+
     return fileHtml;
   }
 
   /**
    * Generate metadata HTML display
-   * @param {Object} metadata - File metadata
-   * @param {string} displayText - Custom display text
-   * @returns {string} - Metadata HTML
+   * @param metadata - File metadata
+   * @returns Metadata HTML
    */
-  generateMetadataHtml(metadata, displayText) {
-    let metaHtml = `<div class="attachment-metadata">`;
-    
+  private generateMetadataHtml(metadata: AttachmentMetadata): string {
+    let metaHtml = '<div class="attachment-metadata">';
+
     if (this.attachmentConfig.showFileSize) {
       metaHtml += `<span class="attachment-size">${this.formatFileSize(metadata.size)}</span>`;
     }
-    
+
     if (this.attachmentConfig.showModified) {
       metaHtml += `<span class="attachment-modified">${this.formatDate(metadata.modified)}</span>`;
     }
-    
+
     metaHtml += `<span class="attachment-type">${metadata.type.toUpperCase()}</span>`;
-    
-    metaHtml += `</div>`;
-    
+
+    metaHtml += '</div>';
+
     return metaHtml;
   }
 
   /**
    * Generate thumbnail for image attachments (modular based on configuration)
-   * @param {string} filename - Image filename
-   * @param {Object} metadata - File metadata
-   * @param {ParseContext} context - Parse context
-   * @returns {Promise<string|null>} - Thumbnail URL or null
+   * @param filename - Image filename
+   * @param metadata - File metadata
+   * @param context - Parse context
+   * @returns Thumbnail URL or null
    */
-  async generateThumbnail(filename, metadata, context) {
+  private async generateThumbnail(
+    filename: string,
+    metadata: AttachmentMetadata,
+    context: AttachmentParseContext
+  ): Promise<string | null> {
     if (!this.attachmentConfig.generateThumbnails || !metadata.isImage) {
       return null;
     }
 
     try {
       // Use first configured thumbnail size
-      const primarySize = this.attachmentConfig.thumbnailSizes[0];
+      const primarySize = this.attachmentConfig.thumbnailSizes[0] ?? '150x150';
       const thumbnailFilename = `thumb_${primarySize}_${filename}`;
-      
+
       // Check if thumbnail already exists
-      const attachmentManager = context.getManager('AttachmentManager');
+      const attachmentManager = context.getManager('AttachmentManager') as AttachmentManager | undefined;
       if (attachmentManager) {
         const thumbnailExists = await attachmentManager.attachmentExists(thumbnailFilename);
         if (thumbnailExists) {
           return `/attachments/${encodeURIComponent(thumbnailFilename)}`;
         }
-        
+
         // Generate thumbnail if it doesn't exist (simplified - would use image processing library)
         await this.createThumbnail(metadata.path, thumbnailFilename, primarySize);
         return `/attachments/${encodeURIComponent(thumbnailFilename)}`;
       }
-      
+
     } catch (error) {
-      console.warn(`⚠️  Failed to generate thumbnail for ${filename}:`, error.message);
+      const err = error as Error;
+      // eslint-disable-next-line no-console
+      console.warn(`Failed to generate thumbnail for ${filename}:`, err.message);
     }
-    
+
     return null;
   }
 
   /**
    * Create thumbnail (placeholder implementation - would use image processing library)
-   * @param {string} sourcePath - Source image path
-   * @param {string} thumbnailFilename - Thumbnail filename
-   * @param {string} size - Size specification (e.g., '150x150')
+   * @param sourcePath - Source image path
+   * @param thumbnailFilename - Thumbnail filename
+   * @param size - Size specification (e.g., '150x150')
    */
-  async createThumbnail(sourcePath, thumbnailFilename, size) {
+  // eslint-disable-next-line @typescript-eslint/require-await
+  private async createThumbnail(sourcePath: string, thumbnailFilename: string, size: string): Promise<void> {
     // Placeholder implementation
     // In production, would use libraries like Sharp, Jimp, or ImageMagick
-    console.log(`📷 Creating thumbnail: ${thumbnailFilename} (${size}) from ${sourcePath}`);
-    
+    // eslint-disable-next-line no-console
+    console.log(`Creating thumbnail: ${thumbnailFilename} (${size}) from ${sourcePath}`);
+
     // For now, just return the original file URL
     // TODO: Implement actual thumbnail generation
   }
 
   /**
    * Check if user has permission to access attachment (modular security)
-   * @param {string} filename - Attachment filename
-   * @param {ParseContext} context - Parse context
-   * @returns {Promise<boolean>} - True if access granted
+   * @param filename - Attachment filename
+   * @param context - Parse context
+   * @returns True if access granted
    */
-  async checkAttachmentPermission(filename, context) {
+  private async checkAttachmentPermission(filename: string, context: AttachmentParseContext): Promise<boolean> {
     if (!this.attachmentConfig.securityChecks) {
       return true; // Security checks disabled
     }
@@ -415,17 +552,17 @@ class AttachmentHandler extends BaseSyntaxHandler {
     // Check basic authentication for sensitive files
     const fileExt = path.extname(filename).toLowerCase();
     const sensitiveExtensions = ['.exe', '.bat', '.sh', '.cmd', '.scr'];
-    
+
     if (sensitiveExtensions.includes(fileExt) && !context.isAuthenticated()) {
       return false;
     }
 
     // Use PolicyManager for detailed permission checks
-    const policyManager = context.getManager('PolicyManager');
+    const policyManager = context.getManager('PolicyManager') as PolicyManager | undefined;
     if (policyManager) {
       return await policyManager.checkPermission(
-        context.userContext, 
-        'attachment:read', 
+        context.userContext,
+        'attachment:read',
         filename
       );
     }
@@ -436,16 +573,16 @@ class AttachmentHandler extends BaseSyntaxHandler {
 
   /**
    * Parse attachment parameters (modular parameter system)
-   * @param {string} paramString - Parameter string
-   * @returns {Object} - Parsed parameters
+   * @param paramString - Parameter string
+   * @returns Parsed parameters
    */
-  parseAttachmentParameters(paramString) {
+  private parseAttachmentParameters(paramString: string | null): LinkParams {
     if (!paramString) {
       return {};
     }
 
-    const params = {};
-    
+    const params: LinkParams = {};
+
     // Simple parameter parsing - can be enhanced
     const paramPairs = paramString.split(/\s+/);
     for (const pair of paramPairs) {
@@ -454,16 +591,16 @@ class AttachmentHandler extends BaseSyntaxHandler {
         params[key] = value;
       }
     }
-    
+
     return params;
   }
 
   /**
    * Check if file is an image (modular file type detection)
-   * @param {string} filename - Filename to check
-   * @returns {boolean} - True if image file
+   * @param filename - Filename to check
+   * @returns True if image file
    */
-  isImageFile(filename) {
+  private isImageFile(filename: string): boolean {
     const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp'];
     const ext = path.extname(filename).toLowerCase();
     return imageExtensions.includes(ext);
@@ -471,13 +608,13 @@ class AttachmentHandler extends BaseSyntaxHandler {
 
   /**
    * Get file type from filename (modular type detection)
-   * @param {string} filename - Filename
-   * @returns {string} - File type
+   * @param filename - Filename
+   * @returns File type
    */
-  getFileType(filename) {
+  private getFileType(filename: string): string {
     const ext = path.extname(filename).toLowerCase();
-    
-    const typeMap = {
+
+    const typeMap: Record<string, string> = {
       '.pdf': 'PDF Document',
       '.doc': 'Word Document',
       '.docx': 'Word Document',
@@ -495,17 +632,17 @@ class AttachmentHandler extends BaseSyntaxHandler {
       '.tar': 'TAR Archive',
       '.gz': 'GZIP Archive'
     };
-    
+
     return typeMap[ext] || 'Unknown File';
   }
 
   /**
    * Get file icon filename (modular icon system)
-   * @param {string} fileType - File type
-   * @returns {string} - Icon filename
+   * @param fileType - File type
+   * @returns Icon filename
    */
-  getFileIcon(fileType) {
-    const iconMap = {
+  private getFileIcon(fileType: string): string {
+    const iconMap: Record<string, string> = {
       'PDF Document': 'pdf.png',
       'Word Document': 'doc.png',
       'Excel Spreadsheet': 'xls.png',
@@ -519,97 +656,95 @@ class AttachmentHandler extends BaseSyntaxHandler {
       'TAR Archive': 'archive.png',
       'GZIP Archive': 'archive.png'
     };
-    
+
     return iconMap[fileType] || 'file.png';
   }
 
   /**
    * Format file size for display (modular formatting)
-   * @param {number} bytes - File size in bytes
-   * @returns {string} - Formatted file size
+   * @param bytes - File size in bytes
+   * @returns Formatted file size
    */
-  formatFileSize(bytes) {
+  private formatFileSize(bytes: number): string {
     if (bytes === 0) return '0 B';
-    
+
     const k = 1024;
     const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    
+
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   }
 
   /**
    * Format date for display (modular date formatting)
-   * @param {Date} date - Date to format
-   * @returns {string} - Formatted date
+   * @param date - Date to format
+   * @returns Formatted date
    */
-  formatDate(date) {
+  private formatDate(date: Date): string {
     if (!date) return 'Unknown';
-    
-    const options = { 
-      year: 'numeric', 
-      month: 'short', 
+
+    const options: Intl.DateTimeFormatOptions = {
+      year: 'numeric',
+      month: 'short',
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
     };
-    
+
     return new Intl.DateTimeFormat('en-US', options).format(new Date(date));
   }
 
   /**
    * Get cached attachment result
-   * @param {string} filename - Attachment filename
-   * @param {ParseContext} context - Parse context
-   * @returns {Promise<string|null>} - Cached result or null
+   * @param filename - Attachment filename
+   * @param context - Parse context
+   * @returns Cached result or null
    */
-  async getCachedAttachmentResult(filename, context) {
-    const markupParser = this.engine?.getManager('MarkupParser');
+  private async getCachedAttachmentResult(filename: string, context: AttachmentParseContext): Promise<string | null> {
+    const markupParser = this.engine?.getManager('MarkupParser') as MarkupParser | undefined;
     if (!markupParser) {
       return null;
     }
-    
+
     const contentHash = this.generateContentHash(filename);
     const contextHash = this.generateContextHash(context);
-    
+
     return await markupParser.getCachedHandlerResult(this.handlerId, contentHash, contextHash);
   }
 
   /**
    * Cache attachment result
-   * @param {string} filename - Attachment filename
-   * @param {ParseContext} context - Parse context
-   * @param {string} result - HTML result to cache
+   * @param filename - Attachment filename
+   * @param context - Parse context
+   * @param result - HTML result to cache
    */
-  async cacheAttachmentResult(filename, context, result) {
-    const markupParser = this.engine?.getManager('MarkupParser');
+  private async cacheAttachmentResult(filename: string, context: AttachmentParseContext, result: string): Promise<void> {
+    const markupParser = this.engine?.getManager('MarkupParser') as MarkupParser | undefined;
     if (!markupParser) {
       return;
     }
-    
+
     const contentHash = this.generateContentHash(filename);
     const contextHash = this.generateContextHash(context);
-    
+
     await markupParser.cacheHandlerResult(this.handlerId, contentHash, contextHash, result);
   }
 
   /**
    * Generate content hash for caching
-   * @param {string} content - Content to hash
-   * @returns {string} - Content hash
+   * @param content - Content to hash
+   * @returns Content hash
    */
-  generateContentHash(content) {
-    const crypto = require('crypto');
+  private generateContentHash(content: string): string {
     return crypto.createHash('md5').update(content).digest('hex');
   }
 
   /**
    * Generate context hash for caching
-   * @param {ParseContext} context - Parse context
-   * @returns {string} - Context hash
+   * @param context - Parse context
+   * @returns Context hash
    */
-  generateContextHash(context) {
-    const crypto = require('crypto');
+  private generateContextHash(context: AttachmentParseContext): string {
     const contextData = {
       pageName: context.pageName,
       userName: context.userName,
@@ -617,20 +752,20 @@ class AttachmentHandler extends BaseSyntaxHandler {
       // Attachment permissions may vary by user
       timeBucket: Math.floor(Date.now() / 1800000) // 30-minute buckets
     };
-    
+
     return crypto.createHash('md5').update(JSON.stringify(contextData)).digest('hex');
   }
 
   /**
    * Escape HTML to prevent XSS (modular security)
-   * @param {string} text - Text to escape
-   * @returns {string} - Escaped text
+   * @param text - Text to escape
+   * @returns Escaped text
    */
-  escapeHtml(text) {
+  private escapeHtml(text: string): string {
     if (typeof text !== 'string') {
       return text;
     }
-    
+
     return text
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
@@ -641,14 +776,14 @@ class AttachmentHandler extends BaseSyntaxHandler {
 
   /**
    * Get configuration summary (for debugging and monitoring)
-   * @returns {Object} - Configuration summary
+   * @returns Configuration summary
    */
-  getConfigurationSummary() {
+  getConfigurationSummary(): Record<string, unknown> {
     return {
       handler: {
         enabled: this.config?.enabled || false,
         priority: this.priority,
-        cacheEnabled: this.options.cacheEnabled
+        cacheEnabled: Boolean(this.options.cacheEnabled)
       },
       features: {
         enhanced: this.attachmentConfig?.enhanced || false,
@@ -666,9 +801,9 @@ class AttachmentHandler extends BaseSyntaxHandler {
 
   /**
    * Get supported attachment patterns
-   * @returns {Array<string>} - Array of supported patterns
+   * @returns Array of supported patterns
    */
-  getSupportedPatterns() {
+  getSupportedPatterns(): string[] {
     return [
       '[{ATTACH filename.pdf}]',
       '[{ATTACH document.pdf|Important Document}]',
@@ -679,9 +814,9 @@ class AttachmentHandler extends BaseSyntaxHandler {
 
   /**
    * Get handler information for debugging and documentation
-   * @returns {Object} - Handler information
+   * @returns Handler information
    */
-  getInfo() {
+  getInfo(): Record<string, unknown> {
     return {
       ...super.getMetadata(),
       supportedPatterns: this.getSupportedPatterns(),
@@ -708,4 +843,7 @@ class AttachmentHandler extends BaseSyntaxHandler {
   }
 }
 
+export default AttachmentHandler;
+
+// CommonJS compatibility
 module.exports = AttachmentHandler;

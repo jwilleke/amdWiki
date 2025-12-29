@@ -1,19 +1,80 @@
-const { BaseSyntaxHandler } = require('./BaseSyntaxHandler');
+import BaseSyntaxHandler, { InitializationContext, ParseContext } from './BaseSyntaxHandler';
+import * as crypto from 'crypto';
+
+/**
+ * Style match information
+ */
+interface StyleMatch {
+  fullMatch: string;
+  styleInfo: string;
+  textContent: string;
+  index: number;
+  length: number;
+}
+
+/**
+ * Style configuration
+ */
+interface StyleConfig {
+  customClasses: boolean;
+  bootstrap: boolean;
+  allowInlineCSS: boolean;
+  securityValidation: boolean;
+  cacheStyles: boolean;
+}
+
+/**
+ * Handler configuration
+ */
+interface HandlerConfig {
+  enabled?: boolean;
+  priority?: number;
+}
+
+/**
+ * Wiki engine interface
+ */
+interface WikiEngine {
+  getManager(name: string): unknown;
+}
+
+/**
+ * Configuration manager interface
+ */
+interface ConfigManager {
+  getProperty<T>(key: string, defaultValue: T): T;
+}
+
+/**
+ * Markup parser interface
+ */
+interface MarkupParser {
+  getHandlerConfig(name: string): HandlerConfig;
+  getCachedHandlerResult(handlerId: string, contentHash: string, contextHash: string): Promise<string | null>;
+  cacheHandlerResult(handlerId: string, contentHash: string, contextHash: string, result: string): Promise<void>;
+}
 
 /**
  * WikiStyleHandler - CSS class assignment and inline styling for wiki content
- * 
+ *
  * Supports JSPWiki WikiStyle syntax:
  * - %%class-name text content /% - CSS class assignment
  * - %%class1 class2 text content /% - Multiple CSS classes
  * - %%(color:red) inline styled text/% - Inline CSS (configurable security)
  * - %%text-center centered content /% - Bootstrap integration
- * 
+ *
  * Related Issue: WikiStyle Handler (Phase 3)
  * Epic: #41 - Implement JSPWikiMarkupParser for Complete Enhancement Support
  */
 class WikiStyleHandler extends BaseSyntaxHandler {
-  constructor(engine = null) {
+  declare handlerId: string;
+  private engine: WikiEngine | null;
+  private config: HandlerConfig | null;
+  private styleConfig: StyleConfig;
+  private predefinedClasses: Set<string>;
+  private allowedCSSProperties: Set<string>;
+
+  constructor(engine: WikiEngine | null = null) {
     super(
       /%%([^%]+?)\s+([\s\S]*?)\s*\/%/g, // Pattern: %%style-info content /% - [\s\S]*? matches across newlines
       70, // Medium priority - process after most content handlers
@@ -28,55 +89,56 @@ class WikiStyleHandler extends BaseSyntaxHandler {
     this.handlerId = 'WikiStyleHandler';
     this.engine = engine;
     this.config = null;
-    this.styleConfig = null;
+    this.styleConfig = {
+      customClasses: true,
+      bootstrap: true,
+      allowInlineCSS: false,
+      securityValidation: true,
+      cacheStyles: true
+    };
     this.predefinedClasses = new Set();
     this.allowedCSSProperties = new Set();
   }
 
   /**
    * Initialize handler with modular configuration system
-   * @param {Object} context - Initialization context
+   * @param context - Initialization context
    */
-  async onInitialize(context) {
-    this.engine = context.engine;
-    
+  protected async onInitialize(context: InitializationContext): Promise<void> {
+    this.engine = context.engine as WikiEngine | undefined ?? null;
+
     // Load modular configuration from multiple sources
     await this.loadModularStyleConfiguration();
-    
-    console.log(`🎨 WikiStyleHandler initialized with modular configuration:`);
-    console.log(`   🎨 Custom classes: ${this.styleConfig.customClasses ? 'enabled' : 'disabled'}`);
-    console.log(`   🅱️  Bootstrap: ${this.styleConfig.bootstrap ? 'enabled' : 'disabled'}`);
-    console.log(`   🔒 Inline CSS: ${this.styleConfig.allowInlineCSS ? 'enabled' : 'disabled'}`);
-    console.log(`   📝 Predefined classes: ${this.predefinedClasses.size} loaded`);
+
+    // eslint-disable-next-line no-console
+    console.log('WikiStyleHandler initialized with modular configuration:');
+    // eslint-disable-next-line no-console
+    console.log(`   Custom classes: ${this.styleConfig.customClasses ? 'enabled' : 'disabled'}`);
+    // eslint-disable-next-line no-console
+    console.log(`   Bootstrap: ${this.styleConfig.bootstrap ? 'enabled' : 'disabled'}`);
+    // eslint-disable-next-line no-console
+    console.log(`   Inline CSS: ${this.styleConfig.allowInlineCSS ? 'enabled' : 'disabled'}`);
+    // eslint-disable-next-line no-console
+    console.log(`   Predefined classes: ${this.predefinedClasses.size} loaded`);
   }
 
   /**
    * Load modular style configuration from app-default-config.json and app-custom-config.json
    * Demonstrates complete configuration modularity and reusability
    */
-  async loadModularStyleConfiguration() {
-    const configManager = this.engine?.getManager('ConfigurationManager');
-    const markupParser = this.engine?.getManager('MarkupParser');
-    
+  private async loadModularStyleConfiguration(): Promise<void> {
+    const configManager = this.engine?.getManager('ConfigurationManager') as ConfigManager | undefined;
+    const markupParser = this.engine?.getManager('MarkupParser') as MarkupParser | undefined;
+
     // Get base handler configuration
     if (markupParser) {
       this.config = markupParser.getHandlerConfig('style');
-      
-      if (this.config.priority && this.config.priority !== this.priority) {
-        this.priority = this.config.priority;
-        console.log(`🔧 WikiStyleHandler priority set to ${this.priority} from configuration`);
+
+      if (this.config?.priority && this.config.priority !== this.priority) {
+        // eslint-disable-next-line no-console
+        console.log(`WikiStyleHandler priority configured as ${this.config.priority} (using ${this.priority})`);
       }
     }
-
-    // Load detailed style configuration with modular approach
-    this.styleConfig = {
-      // Default configuration (base values)
-      customClasses: true,
-      bootstrap: true,
-      allowInlineCSS: false, // Security default
-      securityValidation: true,
-      cacheStyles: true
-    };
 
     // Load from app-default-config.json and allow app-custom-config.json overrides
     if (configManager) {
@@ -85,15 +147,17 @@ class WikiStyleHandler extends BaseSyntaxHandler {
         this.styleConfig.customClasses = configManager.getProperty('amdwiki.style.customClasses.enabled', this.styleConfig.customClasses);
         this.styleConfig.bootstrap = configManager.getProperty('amdwiki.style.bootstrap.integration', this.styleConfig.bootstrap);
         this.styleConfig.allowInlineCSS = configManager.getProperty('amdwiki.style.security.allowInlineCSS', this.styleConfig.allowInlineCSS);
-        
+
         // Load predefined class sets (modular class definitions)
         await this.loadPredefinedClasses(configManager);
-        
+
         // Load allowed CSS properties for security (modular security configuration)
         await this.loadAllowedCSSProperties(configManager);
-        
+
       } catch (error) {
-        console.warn('⚠️  Failed to load WikiStyleHandler configuration, using defaults:', error.message);
+        const err = error as Error;
+        // eslint-disable-next-line no-console
+        console.warn('Failed to load WikiStyleHandler configuration, using defaults:', err.message);
         this.loadDefaultConfiguration();
       }
     } else {
@@ -103,34 +167,36 @@ class WikiStyleHandler extends BaseSyntaxHandler {
 
   /**
    * Load predefined CSS classes from configuration (modular class system)
-   * @param {Object} configManager - Configuration manager
+   * @param configManager - Configuration manager
    */
-  async loadPredefinedClasses(configManager) {
+  // eslint-disable-next-line @typescript-eslint/require-await
+  private async loadPredefinedClasses(configManager: ConfigManager): Promise<void> {
     // Load text styling classes
     const textClasses = configManager.getProperty('amdwiki.style.predefined.text', '').split(',');
-    textClasses.forEach(cls => cls.trim() && this.predefinedClasses.add(cls.trim()));
-    
+    textClasses.forEach((cls: string) => cls.trim() && this.predefinedClasses.add(cls.trim()));
+
     // Load background classes
     const backgroundClasses = configManager.getProperty('amdwiki.style.predefined.background', '').split(',');
-    backgroundClasses.forEach(cls => cls.trim() && this.predefinedClasses.add(cls.trim()));
-    
+    backgroundClasses.forEach((cls: string) => cls.trim() && this.predefinedClasses.add(cls.trim()));
+
     // Load layout classes
     const layoutClasses = configManager.getProperty('amdwiki.style.predefined.layout', '').split(',');
-    layoutClasses.forEach(cls => cls.trim() && this.predefinedClasses.add(cls.trim()));
-    
+    layoutClasses.forEach((cls: string) => cls.trim() && this.predefinedClasses.add(cls.trim()));
+
     // Load any custom predefined classes
     const customClasses = configManager.getProperty('amdwiki.style.predefined.custom', '').split(',');
-    customClasses.forEach(cls => cls.trim() && this.predefinedClasses.add(cls.trim()));
+    customClasses.forEach((cls: string) => cls.trim() && this.predefinedClasses.add(cls.trim()));
   }
 
   /**
    * Load allowed CSS properties for security (modular security configuration)
-   * @param {Object} configManager - Configuration manager
+   * @param configManager - Configuration manager
    */
-  async loadAllowedCSSProperties(configManager) {
+  // eslint-disable-next-line @typescript-eslint/require-await
+  private async loadAllowedCSSProperties(configManager: ConfigManager): Promise<void> {
     const allowedProps = configManager.getProperty('amdwiki.style.security.allowedProperties', '').split(',');
-    allowedProps.forEach(prop => prop.trim() && this.allowedCSSProperties.add(prop.trim()));
-    
+    allowedProps.forEach((prop: string) => prop.trim() && this.allowedCSSProperties.add(prop.trim()));
+
     // Add default safe properties if none configured
     if (this.allowedCSSProperties.size === 0) {
       ['color', 'background-color', 'font-weight', 'font-style', 'text-align'].forEach(prop => {
@@ -142,7 +208,7 @@ class WikiStyleHandler extends BaseSyntaxHandler {
   /**
    * Load default configuration when ConfigurationManager unavailable (modular fallback)
    */
-  loadDefaultConfiguration() {
+  private loadDefaultConfiguration(): void {
     // Default predefined classes (Bootstrap-compatible + JSPWiki table styles)
     const defaultClasses = [
       // Text styling
@@ -181,11 +247,11 @@ class WikiStyleHandler extends BaseSyntaxHandler {
   /**
    * Process content by finding and applying WikiStyle syntax
    * Handles nested blocks by processing them recursively from innermost to outermost
-   * @param {string} content - Content to process
-   * @param {ParseContext} context - Parse context
-   * @returns {Promise<string>} - Content with styles applied
+   * @param content - Content to process
+   * @param context - Parse context
+   * @returns Content with styles applied
    */
-  async process(content, context) {
+  async process(content: string, context: ParseContext): Promise<string> {
     if (!content) {
       return content;
     }
@@ -200,22 +266,23 @@ class WikiStyleHandler extends BaseSyntaxHandler {
       hasChanges = false;
       iterations++;
 
-      const matches = [];
-      let match;
+      const matches: StyleMatch[] = [];
+      let match: RegExpExecArray | null;
 
       // Reset regex state
       this.pattern.lastIndex = 0;
 
       while ((match = this.pattern.exec(processedContent)) !== null) {
-        console.log(`🔍 WikiStyleHandler REGEX MATCH:
+        // eslint-disable-next-line no-console
+        console.log(`WikiStyleHandler REGEX MATCH:
           Full match: "${match[0].substring(0, 100)}..."
           Group 1 (styleInfo): "${match[1]}"
-          Group 2 (content): "${match[2].substring(0, 100)}..."`);
+          Group 2 (content): "${(match[2] ?? '').substring(0, 100)}..."`);
 
         matches.push({
           fullMatch: match[0],
-          styleInfo: match[1].trim(), // CSS classes or inline styles
-          textContent: match[2].trim(), // Content to style
+          styleInfo: (match[1] ?? '').trim(), // CSS classes or inline styles
+          textContent: (match[2] ?? '').trim(), // Content to style
           index: match.index,
           length: match[0].length
         });
@@ -228,11 +295,13 @@ class WikiStyleHandler extends BaseSyntaxHandler {
       // Process matches in reverse order to maintain string positions
       for (let i = matches.length - 1; i >= 0; i--) {
         const matchInfo = matches[i];
-        console.log(`🔍 WikiStyleHandler: Processing match ${i}: styleInfo="${matchInfo.styleInfo}", content preview="${matchInfo.textContent.substring(0, 50)}..."`);
+        // eslint-disable-next-line no-console
+        console.log(`WikiStyleHandler: Processing match ${i}: styleInfo="${matchInfo.styleInfo}", content preview="${matchInfo.textContent.substring(0, 50)}..."`);
 
         try {
-          const replacement = await this.handle(matchInfo, context);
-          console.log(`🔍 WikiStyleHandler: Replacement preview: "${replacement.substring(0, 100)}..."`);
+          const replacement = await this.handleStyle(matchInfo, context);
+          // eslint-disable-next-line no-console
+          console.log(`WikiStyleHandler: Replacement preview: "${replacement.substring(0, 100)}..."`);
 
 
           // Only replace if the content changed
@@ -245,10 +314,12 @@ class WikiStyleHandler extends BaseSyntaxHandler {
           }
 
         } catch (error) {
-          console.error(`❌ WikiStyle processing error:`, error.message);
+          const err = error as Error;
+          // eslint-disable-next-line no-console
+          console.error('WikiStyle processing error:', err.message);
 
           // Leave original content on error for debugging
-          const errorPlaceholder = `<!-- WikiStyle Error: ${error.message} -->`;
+          const errorPlaceholder = `<!-- WikiStyle Error: ${err.message} -->`;
           processedContent =
             processedContent.slice(0, matchInfo.index) +
             errorPlaceholder + matchInfo.textContent +
@@ -259,7 +330,8 @@ class WikiStyleHandler extends BaseSyntaxHandler {
     }
 
     if (iterations >= maxIterations) {
-      console.warn('⚠️  WikiStyleHandler: Max iterations reached, possible infinite loop');
+      // eslint-disable-next-line no-console
+      console.warn('WikiStyleHandler: Max iterations reached, possible infinite loop');
     }
 
     return processedContent;
@@ -267,13 +339,13 @@ class WikiStyleHandler extends BaseSyntaxHandler {
 
   /**
    * Handle a specific WikiStyle match with modular processing
-   * @param {Object} matchInfo - Style match information
-   * @param {ParseContext} context - Parse context
-   * @returns {Promise<string>} - Styled content HTML
+   * @param matchInfo - Style match information
+   * @param context - Parse context
+   * @returns Styled content HTML
    */
-  async handle(matchInfo, context) {
+  private async handleStyle(matchInfo: StyleMatch, context: ParseContext): Promise<string> {
     const { styleInfo, textContent } = matchInfo;
-    
+
     // Check cache for style result if caching enabled
     if (this.options.cacheEnabled) {
       const cachedResult = await this.getCachedStyleResult(matchInfo, context);
@@ -282,61 +354,65 @@ class WikiStyleHandler extends BaseSyntaxHandler {
       }
     }
 
-    let styledHtml;
-    
+    let styledHtml: string;
+
     // Determine if styleInfo contains CSS classes or inline styles
     if (styleInfo.includes(':')) {
       // Inline CSS style: %%(color:red; font-weight:bold) content /%
-      styledHtml = await this.processInlineStyle(styleInfo, textContent, context);
+      styledHtml = await this.processInlineStyle(styleInfo, textContent);
     } else {
       // CSS class assignment: %%class1 class2 content /%
-      styledHtml = await this.processCSSClasses(styleInfo, textContent, context);
+      styledHtml = await this.processCSSClasses(styleInfo, textContent);
     }
 
     // Cache the result if caching enabled
     if (this.options.cacheEnabled && styledHtml) {
       await this.cacheStyleResult(matchInfo, context, styledHtml);
     }
-    
+
     return styledHtml;
   }
 
   /**
    * Process CSS class assignment (modular class handling)
-   * @param {string} classInfo - CSS class information
-   * @param {string} content - Content to style
-   * @param {ParseContext} context - Parse context
-   * @returns {Promise<string>} - Styled HTML
+   * @param classInfo - CSS class information
+   * @param content - Content to style
+   * @returns Styled HTML
    */
-  async processCSSClasses(classInfo, content, context) {
-    console.log(`🔍 processCSSClasses: classInfo="${classInfo}", content preview="${content.substring(0, 50)}"`);
+  // eslint-disable-next-line @typescript-eslint/require-await
+  private async processCSSClasses(classInfo: string, content: string): Promise<string> {
+    // eslint-disable-next-line no-console
+    console.log(`processCSSClasses: classInfo="${classInfo}", content preview="${content.substring(0, 50)}"`);
 
     const classNames = classInfo.split(/\s+/).filter(cls => cls.trim());
-    const validClasses = [];
+    const validClasses: string[] = [];
 
     // Validate each class (modular security)
     for (const className of classNames) {
       if (this.isValidCSSClass(className)) {
         validClasses.push(className);
       } else {
-        console.warn(`⚠️  Invalid or unsafe CSS class rejected: ${className}`);
+        // eslint-disable-next-line no-console
+        console.warn(`Invalid or unsafe CSS class rejected: ${className}`);
       }
     }
 
     if (validClasses.length === 0) {
       // No valid classes, return content without styling
-      console.log(`🔍 processCSSClasses: No valid classes, returning content as-is`);
+      // eslint-disable-next-line no-console
+      console.log('processCSSClasses: No valid classes, returning content as-is');
       return content;
     }
 
     const classAttribute = validClasses.join(' ');
-    console.log(`🔍 processCSSClasses: classAttribute="${classAttribute}"`);
+    // eslint-disable-next-line no-console
+    console.log(`processCSSClasses: classAttribute="${classAttribute}"`);
 
 
     // Table-specific classes that need to be applied to <table> elements
     const tableClasses = ['sortable', 'table-filter', 'zebra-table', 'table-striped',
-                          'table-hover', 'table-fit', 'table-bordered', 'table-sm',
-                          'table-responsive'];
+      'table-hover', 'table-fit', 'table-bordered', 'table-sm',
+      'table-responsive'];
 
     const hasTableClass = validClasses.some(cls => tableClasses.includes(cls));
 
@@ -349,7 +425,7 @@ class WikiStyleHandler extends BaseSyntaxHandler {
 
       // Find the first table row and inject marker before it
       const tableRowMatch = content.match(/^\s*\|\|/m);
-      if (tableRowMatch) {
+      if (tableRowMatch && tableRowMatch.index !== undefined) {
         const tableStartIndex = tableRowMatch.index;
         const before = content.substring(0, tableStartIndex);
         const tableAndAfter = content.substring(tableStartIndex);
@@ -366,14 +442,14 @@ class WikiStyleHandler extends BaseSyntaxHandler {
       const existingTable = content.match(/<table([^>]*)>/i);
       if (existingTable && hasTableClass) {
         // Add classes to existing table tag
-        const existingClasses = existingTable[1].match(/class=["']([^"']*)["']/);
+        const existingClasses = existingTable[1]?.match(/class=["']([^"']*)["']/);
         if (existingClasses) {
           const mergedClasses = `${existingClasses[1]} ${classAttribute}`;
           return content.replace(/<table([^>]*)>/i,
-            `<table${existingTable[1].replace(/class=["'][^"']*["']/, `class="${this.escapeHtml(mergedClasses)}"`)}>`);
+            `<table${(existingTable[1] ?? '').replace(/class=["'][^"']*["']/, `class="${this.escapeHtml(mergedClasses)}"`)}>`);
         } else {
           return content.replace(/<table([^>]*)>/i,
-            `<table${existingTable[1]} class="${this.escapeHtml(classAttribute)}">`);
+            `<table${existingTable[1] ?? ''} class="${this.escapeHtml(classAttribute)}">`);
         }
       }
       // Wrap other HTML content in div
@@ -382,7 +458,7 @@ class WikiStyleHandler extends BaseSyntaxHandler {
 
     // For non-table content or inline content without HTML, use div for block classes
     const blockClasses = ['information', 'warning', 'error', 'quote', 'commentbox',
-                          'center', 'columns', 'collapse', 'collapsebox'];
+      'center', 'columns', 'collapse', 'collapsebox'];
     const hasBlockClass = validClasses.some(cls => blockClasses.includes(cls));
 
     if (hasBlockClass || content.includes('\n')) {
@@ -395,14 +471,15 @@ class WikiStyleHandler extends BaseSyntaxHandler {
 
   /**
    * Process inline CSS styles (modular security validation)
-   * @param {string} styleInfo - Inline style information  
-   * @param {string} content - Content to style
-   * @param {ParseContext} context - Parse context
-   * @returns {Promise<string>} - Styled HTML
+   * @param styleInfo - Inline style information
+   * @param content - Content to style
+   * @returns Styled HTML
    */
-  async processInlineStyle(styleInfo, content, context) {
+  // eslint-disable-next-line @typescript-eslint/require-await
+  private async processInlineStyle(styleInfo: string, content: string): Promise<string> {
     if (!this.styleConfig.allowInlineCSS) {
-      console.warn('⚠️  Inline CSS disabled by security configuration');
+      // eslint-disable-next-line no-console
+      console.warn('Inline CSS disabled by security configuration');
       return content; // Return unstyled content
     }
 
@@ -411,94 +488,99 @@ class WikiStyleHandler extends BaseSyntaxHandler {
     if (!cssMatch) {
       throw new Error('Invalid inline style format, expected: (property:value)');
     }
-    
-    const cssDeclarations = cssMatch[1];
+
+    const cssDeclarations = cssMatch[1] ?? '';
     const validStyles = this.validateInlineCSS(cssDeclarations);
-    
+
     if (validStyles.length === 0) {
-      console.warn('⚠️  No valid CSS properties found in inline style');
+      // eslint-disable-next-line no-console
+      console.warn('No valid CSS properties found in inline style');
       return content;
     }
-    
+
     const styleAttribute = validStyles.join('; ');
     return `<span style="${this.escapeHtml(styleAttribute)}">${content}</span>`;
   }
 
   /**
    * Validate CSS class name (modular validation system)
-   * @param {string} className - CSS class name to validate
-   * @returns {boolean} - True if valid and safe
+   * @param className - CSS class name to validate
+   * @returns True if valid and safe
    */
-  isValidCSSClass(className) {
+  private isValidCSSClass(className: string): boolean {
     // Security validation - prevent dangerous class names
     if (this.containsDangerousContent(className)) {
       return false;
     }
-    
+
     // Check against predefined classes (most secure)
     if (this.predefinedClasses.has(className)) {
       return true;
     }
-    
+
     // Allow custom classes if enabled and they follow naming conventions
     if (this.styleConfig.customClasses) {
       // Valid CSS class name pattern
       const validClassPattern = /^[a-zA-Z][\w-]*$/;
       return validClassPattern.test(className);
     }
-    
+
     return false;
   }
 
   /**
    * Validate inline CSS declarations (modular security system)
-   * @param {string} cssDeclarations - CSS declarations string
-   * @returns {Array<string>} - Array of valid CSS declarations
+   * @param cssDeclarations - CSS declarations string
+   * @returns Array of valid CSS declarations
    */
-  validateInlineCSS(cssDeclarations) {
-    const validDeclarations = [];
+  private validateInlineCSS(cssDeclarations: string): string[] {
+    const validDeclarations: string[] = [];
     const declarations = cssDeclarations.split(';').map(decl => decl.trim()).filter(decl => decl);
-    
+
     for (const declaration of declarations) {
-      const [property, value] = declaration.split(':').map(part => part.trim());
-      
+      const parts = declaration.split(':').map(part => part.trim());
+      const property = parts[0];
+      const value = parts[1];
+
       if (!property || !value) {
         continue;
       }
-      
+
       // Validate CSS property (modular security)
       if (!this.isAllowedCSSProperty(property)) {
-        console.warn(`⚠️  CSS property '${property}' not allowed by security configuration`);
+        // eslint-disable-next-line no-console
+        console.warn(`CSS property '${property}' not allowed by security configuration`);
         continue;
       }
-      
+
       // Validate CSS value (modular security)
       if (!this.isValidCSSValue(value)) {
-        console.warn(`⚠️  CSS value '${value}' contains potentially unsafe content`);
+        // eslint-disable-next-line no-console
+        console.warn(`CSS value '${value}' contains potentially unsafe content`);
         continue;
       }
-      
+
       validDeclarations.push(`${property}: ${value}`);
     }
-    
+
     return validDeclarations;
   }
 
   /**
    * Check if CSS property is allowed (modular security configuration)
-   * @param {string} property - CSS property name
-   * @returns {boolean} - True if allowed
+   * @param property - CSS property name
+   * @returns True if allowed
    */
-  isAllowedCSSProperty(property) {
+  private isAllowedCSSProperty(property: string): boolean {
     return this.allowedCSSProperties.has(property.toLowerCase());
   }
 
   /**
    * Validate CSS value for security (modular security validation)
-   * @param {string} value - CSS value to validate
-   * @returns {boolean} - True if safe
+   * @param value - CSS value to validate
+   * @returns True if safe
    */
-  isValidCSSValue(value) {
+  private isValidCSSValue(value: string): boolean {
     // Prevent dangerous CSS values
     const dangerousPatterns = [
       /javascript:/i,
@@ -508,16 +590,16 @@ class WikiStyleHandler extends BaseSyntaxHandler {
       /behavior\s*:/i,
       /-moz-binding/i
     ];
-    
+
     return !dangerousPatterns.some(pattern => pattern.test(value));
   }
 
   /**
    * Check for dangerous content in class names (modular security)
-   * @param {string} content - Content to check
-   * @returns {boolean} - True if dangerous content found
+   * @param content - Content to check
+   * @returns True if dangerous content found
    */
-  containsDangerousContent(content) {
+  private containsDangerousContent(content: string): boolean {
     const dangerousPatterns = [
       /[<>]/,           // HTML tags
       /javascript:/i,   // JavaScript URLs
@@ -525,82 +607,80 @@ class WikiStyleHandler extends BaseSyntaxHandler {
       /style\s*=/i,     // Inline style attributes
       /expression/i     // CSS expressions
     ];
-    
+
     return dangerousPatterns.some(pattern => pattern.test(content));
   }
 
   /**
    * Get cached style result
-   * @param {Object} matchInfo - Style match information
-   * @param {ParseContext} context - Parse context
-   * @returns {Promise<string|null>} - Cached result or null
+   * @param matchInfo - Style match information
+   * @param context - Parse context
+   * @returns Cached result or null
    */
-  async getCachedStyleResult(matchInfo, context) {
-    const markupParser = this.engine?.getManager('MarkupParser');
+  private async getCachedStyleResult(matchInfo: StyleMatch, context: ParseContext): Promise<string | null> {
+    const markupParser = this.engine?.getManager('MarkupParser') as MarkupParser | undefined;
     if (!markupParser) {
       return null;
     }
-    
+
     const contentHash = this.generateContentHash(matchInfo.fullMatch);
     const contextHash = this.generateContextHash(context);
-    
+
     return await markupParser.getCachedHandlerResult(this.handlerId, contentHash, contextHash);
   }
 
   /**
    * Cache style result
-   * @param {Object} matchInfo - Style match information
-   * @param {ParseContext} context - Parse context
-   * @param {string} result - HTML result to cache
+   * @param matchInfo - Style match information
+   * @param context - Parse context
+   * @param result - HTML result to cache
    */
-  async cacheStyleResult(matchInfo, context, result) {
-    const markupParser = this.engine?.getManager('MarkupParser');
+  private async cacheStyleResult(matchInfo: StyleMatch, context: ParseContext, result: string): Promise<void> {
+    const markupParser = this.engine?.getManager('MarkupParser') as MarkupParser | undefined;
     if (!markupParser) {
       return;
     }
-    
+
     const contentHash = this.generateContentHash(matchInfo.fullMatch);
     const contextHash = this.generateContextHash(context);
-    
+
     await markupParser.cacheHandlerResult(this.handlerId, contentHash, contextHash, result);
   }
 
   /**
    * Generate content hash for caching (modular caching)
-   * @param {string} content - Content to hash
-   * @returns {string} - Content hash
+   * @param content - Content to hash
+   * @returns Content hash
    */
-  generateContentHash(content) {
-    const crypto = require('crypto');
+  private generateContentHash(content: string): string {
     return crypto.createHash('md5').update(content).digest('hex');
   }
 
   /**
    * Generate context hash for caching (modular caching)
-   * @param {ParseContext} context - Parse context
-   * @returns {string} - Context hash
+   * @param _context - Parse context
+   * @returns Context hash
    */
-  generateContextHash(context) {
-    const crypto = require('crypto');
+  private generateContextHash(_context: ParseContext): string {
     const contextData = {
       // Style processing is generally context-independent
       // But include basic context for cache variation
       timeBucket: Math.floor(Date.now() / 3600000) // 1-hour buckets
     };
-    
+
     return crypto.createHash('md5').update(JSON.stringify(contextData)).digest('hex');
   }
 
   /**
    * Escape HTML to prevent XSS (modular security)
-   * @param {string} text - Text to escape
-   * @returns {string} - Escaped text
+   * @param text - Text to escape
+   * @returns Escaped text
    */
-  escapeHtml(text) {
+  private escapeHtml(text: string): string {
     if (typeof text !== 'string') {
       return text;
     }
-    
+
     return text
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
@@ -611,14 +691,14 @@ class WikiStyleHandler extends BaseSyntaxHandler {
 
   /**
    * Get configuration summary for debugging (modular introspection)
-   * @returns {Object} - Configuration summary
+   * @returns Configuration summary
    */
-  getConfigurationSummary() {
+  getConfigurationSummary(): Record<string, unknown> {
     return {
       handler: {
         enabled: this.config?.enabled || false,
         priority: this.priority,
-        cacheEnabled: this.options.cacheEnabled
+        cacheEnabled: Boolean(this.options.cacheEnabled)
       },
       features: {
         customClasses: this.styleConfig?.customClasses || false,
@@ -640,9 +720,9 @@ class WikiStyleHandler extends BaseSyntaxHandler {
 
   /**
    * Get supported style patterns (modular documentation)
-   * @returns {Array<string>} - Array of supported patterns
+   * @returns Array of supported patterns
    */
-  getSupportedPatterns() {
+  getSupportedPatterns(): string[] {
     return [
       '%%text-primary Important text /%',
       '%%bg-warning text-center Warning message /%',
@@ -654,17 +734,17 @@ class WikiStyleHandler extends BaseSyntaxHandler {
 
   /**
    * Get predefined CSS classes organized by category (modular organization)
-   * @returns {Object} - Categorized predefined classes
+   * @returns Categorized predefined classes
    */
-  getPredefinedClassesByCategory() {
-    const categories = {
+  getPredefinedClassesByCategory(): Record<string, string[]> {
+    const categories: Record<string, string[]> = {
       text: [],
       background: [],
       layout: [],
       typography: [],
       other: []
     };
-    
+
     for (const className of this.predefinedClasses) {
       if (className.startsWith('text-')) {
         categories.text.push(className);
@@ -678,19 +758,20 @@ class WikiStyleHandler extends BaseSyntaxHandler {
         categories.other.push(className);
       }
     }
-    
+
     return categories;
   }
 
   /**
    * Add custom CSS class (modular extensibility)
-   * @param {string} className - Class name to add
-   * @returns {boolean} - True if added successfully
+   * @param className - Class name to add
+   * @returns True if added successfully
    */
-  addCustomClass(className) {
+  addCustomClass(className: string): boolean {
     if (this.isValidCSSClass(className) && !this.predefinedClasses.has(className)) {
       this.predefinedClasses.add(className);
-      console.log(`🎨 Added custom CSS class: ${className}`);
+      // eslint-disable-next-line no-console
+      console.log(`Added custom CSS class: ${className}`);
       return true;
     }
     return false;
@@ -698,13 +779,14 @@ class WikiStyleHandler extends BaseSyntaxHandler {
 
   /**
    * Remove custom CSS class (modular management)
-   * @param {string} className - Class name to remove
-   * @returns {boolean} - True if removed successfully
+   * @param className - Class name to remove
+   * @returns True if removed successfully
    */
-  removeCustomClass(className) {
+  removeCustomClass(className: string): boolean {
     if (this.predefinedClasses.has(className)) {
       this.predefinedClasses.delete(className);
-      console.log(`🗑️  Removed custom CSS class: ${className}`);
+      // eslint-disable-next-line no-console
+      console.log(`Removed custom CSS class: ${className}`);
       return true;
     }
     return false;
@@ -712,9 +794,9 @@ class WikiStyleHandler extends BaseSyntaxHandler {
 
   /**
    * Get handler information for debugging and documentation (modular introspection)
-   * @returns {Object} - Handler information
+   * @returns Handler information
    */
-  getInfo() {
+  getInfo(): Record<string, unknown> {
     return {
       ...super.getMetadata(),
       supportedPatterns: this.getSupportedPatterns(),
@@ -749,4 +831,7 @@ class WikiStyleHandler extends BaseSyntaxHandler {
   }
 }
 
+export default WikiStyleHandler;
+
+// CommonJS compatibility
 module.exports = WikiStyleHandler;

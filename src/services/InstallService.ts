@@ -1,6 +1,110 @@
-const fs = require('fs-extra');
-const path = require('path');
-const crypto = require('crypto');
+import * as fs from 'fs-extra';
+import * as path from 'path';
+import * as crypto from 'crypto';
+
+/**
+ * Wiki engine interface
+ */
+interface WikiEngine {
+  getManager(name: string): unknown;
+}
+
+/**
+ * Configuration manager interface
+ */
+interface ConfigManager {
+  getProperty<T>(key: string, defaultValue?: T): T;
+  loadConfigurations(): Promise<void>;
+  reload(): Promise<void>;
+}
+
+/**
+ * User manager interface
+ */
+interface UserManager {
+  hasRole(username: string, role: string): Promise<boolean>;
+  updateUser(username: string, updates: Record<string, unknown>): Promise<void>;
+  provider?: {
+    loadUsers(): Promise<void>;
+  };
+}
+
+/**
+ * Installation data from form
+ */
+interface InstallData {
+  applicationName: string;
+  baseURL: string;
+  adminUsername: string;
+  adminPassword: string;
+  adminPasswordConfirm: string;
+  adminEmail: string;
+  orgName: string;
+  orgLegalName?: string;
+  orgDescription: string;
+  orgFoundingDate?: string;
+  orgAddressLocality?: string;
+  orgAddressRegion?: string;
+  orgAddressCountry?: string;
+  sessionSecret?: string;
+  copyStartupPages?: boolean;
+}
+
+/**
+ * Partial installation state
+ */
+interface PartialInstallationState {
+  isPartial: boolean;
+  steps: {
+    configWritten?: boolean;
+    organizationCreated?: boolean;
+    adminCreated?: boolean;
+    pagesCopied?: boolean;
+  };
+}
+
+/**
+ * Missing pages detection result
+ */
+interface MissingPagesResult {
+  missingPagesOnly: boolean;
+  pagesDirExists?: boolean;
+  pagesDir?: string;
+}
+
+/**
+ * Pages folder creation result
+ */
+interface PagesFolderResult {
+  success: boolean;
+  message?: string;
+  error?: string;
+  copiedCount: number;
+  pagesDir?: string;
+}
+
+/**
+ * Installation result
+ */
+interface InstallationResult {
+  success: boolean;
+  message?: string;
+  error?: string;
+  failedStep?: string;
+  newlyCompleted?: string[];
+  previouslyCompleted?: string[];
+  completedSteps?: string[];
+}
+
+/**
+ * Reset result
+ */
+interface ResetResult {
+  success: boolean;
+  message?: string;
+  error?: string;
+  resetSteps?: string[];
+}
 
 /**
  * InstallService - Handles first-run installation and configuration
@@ -14,23 +118,26 @@ const crypto = require('crypto');
  * @class InstallService
  */
 class InstallService {
+  private engine: WikiEngine;
+  private configManager: ConfigManager;
+
   /**
    * Creates a new InstallService instance
    *
    * @constructor
-   * @param {WikiEngine} engine - The wiki engine instance
+   * @param engine - The wiki engine instance
    */
-  constructor(engine) {
+  constructor(engine: WikiEngine) {
     this.engine = engine;
-    this.configManager = engine.getManager('ConfigurationManager');
+    this.configManager = engine.getManager('ConfigurationManager') as ConfigManager;
   }
 
   /**
    * Check if installation is required
    *
-   * @returns {Promise<boolean>} True if install is needed
+   * @returns True if install is needed
    */
-  async isInstallRequired() {
+  async isInstallRequired(): Promise<boolean> {
     const completed = this.configManager.getProperty('amdwiki.install.completed', false);
 
     if (completed) {
@@ -38,11 +145,11 @@ class InstallService {
     }
 
     // Check if admin user exists
-    const userManager = this.engine.getManager('UserManager');
+    const userManager = this.engine.getManager('UserManager') as UserManager;
     const adminExists = await userManager.hasRole('admin', 'admin');
 
     // Check if pages directory is empty
-    const pagesDir = this.configManager.getProperty('amdwiki.page.provider.filesystem.storagedir');
+    const pagesDir = this.configManager.getProperty<string>('amdwiki.page.provider.filesystem.storagedir');
     const pagesExist = await this.#hasPagesInDirectory(pagesDir);
 
     return !adminExists || !pagesExist;
@@ -51,25 +158,25 @@ class InstallService {
   /**
    * Detect partial installation state
    *
-   * @returns {Promise<Object>} Partial installation status
+   * @returns Partial installation status
    */
-  async detectPartialInstallation() {
+  async detectPartialInstallation(): Promise<PartialInstallationState> {
     const completed = this.configManager.getProperty('amdwiki.install.completed', false);
 
     if (completed) {
       return { isPartial: false, steps: {} };
     }
 
-    const userManager = this.engine.getManager('UserManager');
+    const userManager = this.engine.getManager('UserManager') as UserManager;
     const adminExists = await userManager.hasRole('admin', 'admin');
 
-    const pagesDir = this.configManager.getProperty('amdwiki.page.provider.filesystem.storagedir');
+    const pagesDir = this.configManager.getProperty<string>('amdwiki.page.provider.filesystem.storagedir');
     const pagesExist = await this.#hasPagesInDirectory(pagesDir);
 
     const customConfigPath = path.join(__dirname, '../../config/app-custom-config.json');
     const customConfigExists = await fs.pathExists(customConfigPath);
 
-    const usersDir = this.configManager.getProperty('amdwiki.user.provider.storagedir');
+    const usersDir = this.configManager.getProperty<string>('amdwiki.user.provider.storagedir');
     const organizationsPath = path.join(usersDir, 'organizations.json');
     const organizationsExist = await fs.pathExists(organizationsPath);
 
@@ -90,9 +197,9 @@ class InstallService {
    *
    * Returns true if installation is otherwise complete but pages folder is missing/empty
    *
-   * @returns {Promise<Object>} Result with missingPagesOnly flag and details
+   * @returns Result with missingPagesOnly flag and details
    */
-  async detectMissingPagesOnly() {
+  async detectMissingPagesOnly(): Promise<MissingPagesResult> {
     const completed = this.configManager.getProperty('amdwiki.install.completed', false);
 
     // Only applicable if installation is completed
@@ -100,7 +207,7 @@ class InstallService {
       return { missingPagesOnly: false };
     }
 
-    const pagesDir = this.configManager.getProperty('amdwiki.page.provider.filesystem.storagedir');
+    const pagesDir = this.configManager.getProperty<string>('amdwiki.page.provider.filesystem.storagedir');
     const pagesExist = await this.#hasPagesInDirectory(pagesDir);
 
     // Check if pages directory exists but is empty
@@ -108,7 +215,7 @@ class InstallService {
     try {
       const stats = await fs.stat(pagesDir);
       pagesDirExists = stats.isDirectory();
-    } catch (error) {
+    } catch {
       pagesDirExists = false;
     }
 
@@ -125,9 +232,9 @@ class InstallService {
    * Copies pages from required-pages directory to the pages directory
    *
    * @async
-   * @returns {Promise<Object>} Result with success status and number of pages copied
+   * @returns Result with success status and number of pages copied
    */
-  async createPagesFolder() {
+  async createPagesFolder(): Promise<PagesFolderResult> {
     try {
       const pagesDir = this.configManager.getProperty(
         'amdwiki.page.provider.filesystem.storagedir',
@@ -176,9 +283,10 @@ class InstallService {
         pagesDir
       };
     } catch (error) {
+      const err = error as Error;
       return {
         success: false,
-        error: `Failed to create pages folder: ${error.message}`,
+        error: `Failed to create pages folder: ${err.message}`,
         copiedCount: 0
       };
     }
@@ -188,14 +296,14 @@ class InstallService {
    * Check if pages exist in directory
    *
    * @private
-   * @param {string} dir - Directory to check
-   * @returns {Promise<boolean>}
+   * @param dir - Directory to check
+   * @returns True if pages exist
    */
-  async #hasPagesInDirectory(dir) {
+  async #hasPagesInDirectory(dir: string): Promise<boolean> {
     try {
       const files = await fs.readdir(dir);
       return files.some(f => f.endsWith('.md'));
-    } catch (error) {
+    } catch {
       return false;
     }
   }
@@ -208,12 +316,12 @@ class InstallService {
    * from partial installation states without needing to reset.
    *
    * @async
-   * @param {Object} installData - Installation form data
-   * @returns {Promise<Object>} Result with success status, completed steps, and any errors
+   * @param installData - Installation form data
+   * @returns Result with success status, completed steps, and any errors
    */
-  async processInstallation(installData) {
-    const installSteps = [];
-    const alreadyCompleted = [];
+  async processInstallation(installData: InstallData): Promise<InstallationResult> {
+    const installSteps: string[] = [];
+    const alreadyCompleted: string[] = [];
 
     try {
       // Validate required fields
@@ -271,17 +379,19 @@ class InstallService {
     } catch (error) {
       // Log which step failed
       const failedStep = installSteps[installSteps.length - 1] || 'validation';
+      const err = error as Error;
 
       // DEBUG: Log the error
-      console.error('❌ Installation failed:', {
+      // eslint-disable-next-line no-console
+      console.error('Installation failed:', {
         failedStep,
-        error: error.message,
-        stack: error.stack
+        error: err.message,
+        stack: err.stack
       });
 
       return {
         success: false,
-        error: error.message,
+        error: err.message,
         failedStep,
         completedSteps: [...alreadyCompleted, ...installSteps.slice(0, -1)],
         newlyCompleted: installSteps.slice(0, -1),
@@ -294,9 +404,9 @@ class InstallService {
    * Reset partial installation to allow retry
    *
    * @async
-   * @returns {Promise<Object>} Result with success status
+   * @returns Result with success status
    */
-  async resetInstallation() {
+  async resetInstallation(): Promise<ResetResult> {
     try {
       const partialState = await this.detectPartialInstallation();
 
@@ -307,7 +417,7 @@ class InstallService {
         };
       }
 
-      const resetSteps = [];
+      const resetSteps: string[] = [];
 
       // 1. Remove app-custom-config.json
       const customConfigPath = path.join(__dirname, '../../config/app-custom-config.json');
@@ -320,7 +430,7 @@ class InstallService {
       }
 
       // 2. Remove organizations.json
-      const usersDir = this.configManager.getProperty('amdwiki.user.provider.storagedir');
+      const usersDir = this.configManager.getProperty<string>('amdwiki.user.provider.storagedir');
       const organizationsPath = path.join(usersDir, 'organizations.json');
       if (await fs.pathExists(organizationsPath)) {
         const backupPath = organizationsPath + '.backup-' + Date.now();
@@ -330,7 +440,7 @@ class InstallService {
       }
 
       // 3. Remove admin user
-      const userManager = this.engine.getManager('UserManager');
+      const userManager = this.engine.getManager('UserManager') as UserManager;
       const adminExists = await userManager.hasRole('admin', 'admin');
       if (adminExists) {
         // Get the users file path
@@ -340,7 +450,7 @@ class InstallService {
           await fs.copy(usersPath, backupPath);
 
           // Read, remove admin, write back
-          const usersData = await fs.readJson(usersPath);
+          const usersData = await fs.readJson(usersPath) as Record<string, unknown>;
           if (usersData.admin) {
             delete usersData.admin;
             await fs.writeJson(usersPath, usersData, { spaces: 2 });
@@ -374,7 +484,7 @@ class InstallService {
       }
 
       // 5. Reload UserManager's provider to clear cached user data
-      if (userManager && userManager.provider) {
+      if (userManager?.provider) {
         await userManager.provider.loadUsers();
         resetSteps.push('Reloaded user cache');
       }
@@ -385,9 +495,10 @@ class InstallService {
         resetSteps
       };
     } catch (error) {
+      const err = error as Error;
       return {
         success: false,
-        error: `Reset failed: ${error.message}`
+        error: `Reset failed: ${err.message}`
       };
     }
   }
@@ -396,11 +507,11 @@ class InstallService {
    * Validate installation data
    *
    * @private
-   * @param {Object} data - Installation data
-   * @throws {Error} If validation fails
+   * @param data - Installation data
+   * @throws If validation fails
    */
-  #validateInstallData(data) {
-    const required = [
+  #validateInstallData(data: InstallData): void {
+    const required: (keyof InstallData)[] = [
       'applicationName',
       'baseURL',
       'adminUsername',
@@ -411,7 +522,8 @@ class InstallService {
     ];
 
     for (const field of required) {
-      if (!data[field] || data[field].trim() === '') {
+      const value = data[field];
+      if (!value || (typeof value === 'string' && value.trim() === '')) {
         throw new Error(`Required field missing: ${field}`);
       }
     }
@@ -435,7 +547,7 @@ class InstallService {
     // Validate URL format
     try {
       new URL(data.baseURL);
-    } catch (error) {
+    } catch {
       throw new Error('Invalid base URL');
     }
   }
@@ -444,24 +556,23 @@ class InstallService {
    * Write custom configuration file
    *
    * @private
-   * @param {Object} data - Installation data
-   * @returns {Promise<void>}
+   * @param data - Installation data
    */
-  async #writeCustomConfig(data) {
+  async #writeCustomConfig(data: InstallData): Promise<void> {
     const customConfigPath = path.join(__dirname, '../../config/app-custom-config.json');
 
     // Read existing custom config or start fresh
-    let customConfig = {};
+    let customConfig: Record<string, unknown> = {};
     if (await fs.pathExists(customConfigPath)) {
       try {
-        customConfig = await fs.readJson(customConfigPath);
-      } catch (error) {
+        customConfig = await fs.readJson(customConfigPath) as Record<string, unknown>;
+      } catch {
         customConfig = {};
       }
     }
 
     // Merge installation data using ConfigurationManager's merge strategy
-    const installationProperties = {
+    const installationProperties: Record<string, unknown> = {
       'amdwiki.applicationName': data.applicationName,
       'amdwiki.baseURL': data.baseURL,
       'amdwiki.session.secret': data.sessionSecret || crypto.randomBytes(32).toString('hex'),
@@ -490,11 +601,10 @@ class InstallService {
    * Write organization data to users/organizations.json
    *
    * @private
-   * @param {Object} data - Installation data
-   * @returns {Promise<void>}
+   * @param data - Installation data
    */
-  async #writeOrganizationData(data) {
-    const usersDir = this.configManager.getProperty('amdwiki.user.provider.storagedir');
+  async #writeOrganizationData(data: InstallData): Promise<void> {
+    const usersDir = this.configManager.getProperty<string>('amdwiki.user.provider.storagedir');
     const organizationsPath = path.join(usersDir, 'organizations.json');
 
     const organization = {
@@ -571,24 +681,16 @@ class InstallService {
   }
 
   /**
-   * Create admin user account
-   *
-   * @private
-   * @param {Object} data - Installation data
-   * @returns {Promise<void>}
-   */
-  /**
    * Update admin user password during installation
    *
    * Updates the password for the default admin account created during system initialization.
    * Username (admin) and email (admin@localhost) are fixed and cannot be changed.
    *
    * @private
-   * @param {Object} data - Installation data
-   * @returns {Promise<void>}
+   * @param data - Installation data
    */
-  async #updateAdminPassword(data) {
-    const userManager = this.engine.getManager('UserManager');
+  async #updateAdminPassword(data: InstallData): Promise<void> {
+    const userManager = this.engine.getManager('UserManager') as UserManager;
 
     // Update existing admin user (created during system initialization)
     // Only update the password - username and email are fixed
@@ -605,9 +707,8 @@ class InstallService {
    * Copy startup pages from required-pages/ to pages/
    *
    * @private
-   * @returns {Promise<void>}
    */
-  async #copyStartupPages() {
+  async #copyStartupPages(): Promise<void> {
     const requiredPagesDir = this.configManager.getProperty(
       'amdwiki.page.provider.filesystem.requiredpagesdir',
       './required-pages'
@@ -640,20 +741,19 @@ class InstallService {
    * Mark installation as complete in config
    *
    * @private
-   * @returns {Promise<void>}
    */
-  async #markInstallationComplete() {
+  async #markInstallationComplete(): Promise<void> {
     const customConfigPath = path.join(__dirname, '../../config/app-custom-config.json');
-    
+
     // Read current config
-    const config = await fs.readJson(customConfigPath);
-    
+    const config = await fs.readJson(customConfigPath) as Record<string, unknown>;
+
     // Set the completion flag
     config['amdwiki.install.completed'] = true;
-    
+
     // Write updated config
     await fs.writeJson(customConfigPath, config, { spaces: 2 });
-    
+
     // Reload ConfigurationManager so the flag is available
     await this.configManager.reload();
   }
@@ -661,11 +761,14 @@ class InstallService {
   /**
    * Generate a random session secret
    *
-   * @returns {string} Random hex string
+   * @returns Random hex string
    */
-  generateSessionSecret() {
+  generateSessionSecret(): string {
     return crypto.randomBytes(32).toString('hex');
   }
 }
 
+export default InstallService;
+
+// CommonJS compatibility
 module.exports = InstallService;

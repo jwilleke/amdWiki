@@ -1,18 +1,111 @@
-const { BaseSyntaxHandler } = require('./BaseSyntaxHandler');
+import BaseSyntaxHandler, { InitializationContext, ParseContext } from './BaseSyntaxHandler';
+import * as crypto from 'crypto';
+
+/**
+ * WikiTag match information
+ */
+interface WikiTagMatch {
+  fullMatch: string;
+  tagName: string;
+  attributeString: string;
+  tagContent: string | null;
+  index: number;
+  length: number;
+  selfClosing: boolean;
+}
+
+/**
+ * Tag attributes
+ */
+interface TagAttributes {
+  test?: string;
+  page?: string;
+  section?: string;
+  status?: string;
+  role?: string;
+  group?: string;
+  user?: string;
+  [key: string]: string | undefined;
+}
+
+/**
+ * Handler configuration
+ */
+interface HandlerConfig {
+  priority?: number;
+}
+
+/**
+ * Wiki engine interface
+ */
+interface WikiEngine {
+  getManager(name: string): unknown;
+}
+
+/**
+ * Markup parser interface
+ */
+interface MarkupParser {
+  getHandlerConfig(name: string): HandlerConfig;
+  getCachedHandlerResult(handlerId: string, contentHash: string, contextHash: string): Promise<string | null>;
+  cacheHandlerResult(handlerId: string, contentHash: string, contextHash: string, result: string): Promise<void>;
+  parse(content: string, context: Record<string, unknown>): Promise<string>;
+}
+
+/**
+ * Page manager interface
+ */
+interface PageManager {
+  getPage(pageName: string): Promise<{ content: string } | null>;
+}
+
+/**
+ * Policy manager interface
+ */
+interface PolicyManager {
+  checkPermission(user: string | null, permission: string, resource: string): Promise<boolean>;
+}
+
+/**
+ * Variable manager interface
+ */
+interface VariableManager {
+  expandVariables(template: string, context: Record<string, unknown>): string;
+}
+
+/**
+ * Extended parse context for WikiTag handling
+ */
+interface WikiTagParseContext extends ParseContext {
+  userContext?: unknown;
+  isAuthenticated(): boolean;
+  hasRole(role: string): boolean;
+  hasPermission(permission: string, resource: string): boolean;
+  getUserRoles(): string[];
+  getManager(name: string): unknown;
+  getMetadata(key: string): unknown;
+  setMetadata(key: string, value: unknown): void;
+  clone(overrides: Record<string, unknown>): WikiTagParseContext & { pageContext: Record<string, unknown> };
+}
 
 /**
  * WikiTagHandler - JSP-like tag processing for conditional content and page inclusion
- * 
+ *
  * Supports JSPWiki WikiTags:
  * - <wiki:If test="condition">content</wiki:If> - Conditional display
  * - <wiki:Include page="PageName" /> - Page inclusion
  * - <wiki:UserCheck status="authenticated">content</wiki:UserCheck> - User validation
- * 
+ *
  * Related Issue: #59 - WikiTag Handler (If, Include, UserCheck)
  * Epic: #41 - Implement JSPWikiMarkupParser for Complete Enhancement Support
  */
 class WikiTagHandler extends BaseSyntaxHandler {
-  constructor(engine = null) {
+  declare handlerId: string;
+  private engine: WikiEngine | null;
+  private config: HandlerConfig | null;
+  private supportedTags: Set<string>;
+
+  constructor(engine: WikiEngine | null = null) {
     super(
       /<wiki:(\w+)([^>]*?)(?:\/>|>(.*?)<\/wiki:\1>)/gs, // Pattern: <wiki:TagName attributes>content</wiki:TagName>
       95, // Very high priority - process before other handlers
@@ -20,60 +113,60 @@ class WikiTagHandler extends BaseSyntaxHandler {
         description: 'JSPWiki-style WikiTag handler for conditional content and page inclusion',
         version: '1.0.0',
         dependencies: ['UserManager', 'PolicyManager', 'PageManager'],
-        timeout: 8000,
-        cacheEnabled: true
+        timeout: 8000
       }
     );
     this.handlerId = 'WikiTagHandler';
     this.engine = engine;
     this.config = null;
-    
+
     // Supported WikiTags
     this.supportedTags = new Set(['If', 'Include', 'UserCheck']);
   }
 
   /**
    * Initialize handler with configuration
-   * @param {Object} context - Initialization context
+   * @param context - Initialization context
    */
-  async onInitialize(context) {
-    this.engine = context.engine;
-    
+  // eslint-disable-next-line @typescript-eslint/require-await
+  protected async onInitialize(context: InitializationContext): Promise<void> {
+    this.engine = context.engine as WikiEngine | undefined ?? null;
+
     // Load handler-specific configuration
-    const markupParser = context.engine?.getManager('MarkupParser');
+    const markupParser = context.engine?.getManager('MarkupParser') as MarkupParser | undefined;
     if (markupParser) {
       this.config = markupParser.getHandlerConfig('wikitag');
-      
-      if (this.config.priority && this.config.priority !== this.priority) {
-        this.priority = this.config.priority;
-        console.log(`🔧 WikiTagHandler priority set to ${this.priority} from configuration`);
+
+      if (this.config?.priority && this.config.priority !== this.priority) {
+        // eslint-disable-next-line no-console
+        console.log(`WikiTagHandler priority configured as ${this.config.priority} (using ${this.priority})`);
       }
     }
   }
 
   /**
    * Process content by finding and executing all WikiTag instances
-   * @param {string} content - Content to process
-   * @param {ParseContext} context - Parse context
-   * @returns {Promise<string>} - Content with WikiTags processed
+   * @param content - Content to process
+   * @param context - Parse context
+   * @returns Content with WikiTags processed
    */
-  async process(content, context) {
+  async process(content: string, context: ParseContext): Promise<string> {
     if (!content) {
       return content;
     }
 
-    const matches = [];
-    let match;
-    
+    const matches: WikiTagMatch[] = [];
+    let match: RegExpExecArray | null;
+
     // Reset regex state
     this.pattern.lastIndex = 0;
-    
+
     while ((match = this.pattern.exec(content)) !== null) {
       matches.push({
         fullMatch: match[0],
-        tagName: match[1],
-        attributeString: match[2] || '',
-        tagContent: match[3] || null, // null for self-closing tags
+        tagName: match[1] ?? '',
+        attributeString: match[2] ?? '',
+        tagContent: match[3] ?? null, // null for self-closing tags
         index: match.index,
         length: match[0].length,
         selfClosing: !match[3] // true if no content between tags
@@ -82,24 +175,26 @@ class WikiTagHandler extends BaseSyntaxHandler {
 
     // Process matches in reverse order to maintain string positions
     let processedContent = content;
-    
+
     for (let i = matches.length - 1; i >= 0; i--) {
       const matchInfo = matches[i];
-      
+
       try {
-        const replacement = await this.handle(matchInfo, context);
-        
-        processedContent = 
+        const replacement = await this.handleTag(matchInfo, context as WikiTagParseContext);
+
+        processedContent =
           processedContent.slice(0, matchInfo.index) +
           replacement +
           processedContent.slice(matchInfo.index + matchInfo.length);
-          
+
       } catch (error) {
-        console.error(`❌ WikiTag execution error for ${matchInfo.tagName}:`, error.message);
-        
+        const err = error as Error;
+        // eslint-disable-next-line no-console
+        console.error(`WikiTag execution error for ${matchInfo.tagName}:`, err.message);
+
         // Leave original tag on error for debugging
-        const errorPlaceholder = `<!-- WikiTag Error: ${matchInfo.tagName} - ${error.message} -->`;
-        processedContent = 
+        const errorPlaceholder = `<!-- WikiTag Error: ${matchInfo.tagName} - ${err.message} -->`;
+        processedContent =
           processedContent.slice(0, matchInfo.index) +
           errorPlaceholder +
           processedContent.slice(matchInfo.index + matchInfo.length);
@@ -111,13 +206,13 @@ class WikiTagHandler extends BaseSyntaxHandler {
 
   /**
    * Handle a specific WikiTag match
-   * @param {Object} matchInfo - WikiTag match information
-   * @param {ParseContext} context - Parse context
-   * @returns {Promise<string>} - Tag output HTML
+   * @param matchInfo - WikiTag match information
+   * @param context - Parse context
+   * @returns Tag output HTML
    */
-  async handle(matchInfo, context) {
-    const { tagName, attributeString, tagContent, selfClosing } = matchInfo;
-    
+  private async handleTag(matchInfo: WikiTagMatch, context: WikiTagParseContext): Promise<string> {
+    const { tagName, attributeString, tagContent } = matchInfo;
+
     // Validate tag is supported
     if (!this.supportedTags.has(tagName)) {
       throw new Error(`Unsupported WikiTag: ${tagName}`);
@@ -125,14 +220,14 @@ class WikiTagHandler extends BaseSyntaxHandler {
 
     // Parse tag attributes
     const attributes = this.parseTagAttributes(attributeString);
-    
+
     // Check cache for tag result if caching enabled
-    let cachedResult = null;
+    let cachedResult: string | null = null;
     const contentHash = this.generateContentHash(matchInfo.fullMatch);
     const contextHash = this.generateContextHash(context);
-    
-    if (this.options.cacheEnabled) {
-      const markupParser = this.engine?.getManager('MarkupParser');
+
+    if (this.options.enabled) {
+      const markupParser = this.engine?.getManager('MarkupParser') as MarkupParser | undefined;
       if (markupParser) {
         cachedResult = await markupParser.getCachedHandlerResult(this.handlerId, contentHash, contextHash);
         if (cachedResult) {
@@ -142,40 +237,40 @@ class WikiTagHandler extends BaseSyntaxHandler {
     }
 
     // Route to specific tag handler
-    let result;
+    let result: string;
     switch (tagName) {
-      case 'If':
-        result = await this.handleIfTag(attributes, tagContent, context);
-        break;
-      case 'Include':
-        result = await this.handleIncludeTag(attributes, context);
-        break;
-      case 'UserCheck':
-        result = await this.handleUserCheckTag(attributes, tagContent, context);
-        break;
-      default:
-        throw new Error(`No handler implemented for WikiTag: ${tagName}`);
+    case 'If':
+      result = await this.handleIfTag(attributes, tagContent, context);
+      break;
+    case 'Include':
+      result = await this.handleIncludeTag(attributes, context);
+      break;
+    case 'UserCheck':
+      result = await this.handleUserCheckTag(attributes, tagContent, context);
+      break;
+    default:
+      throw new Error(`No handler implemented for WikiTag: ${tagName}`);
     }
 
     // Cache the result if caching enabled
-    if (this.options.cacheEnabled && result) {
-      const markupParser = this.engine?.getManager('MarkupParser');
+    if (this.options.enabled && result) {
+      const markupParser = this.engine?.getManager('MarkupParser') as MarkupParser | undefined;
       if (markupParser) {
         await markupParser.cacheHandlerResult(this.handlerId, contentHash, contextHash, result);
       }
     }
-    
+
     return result || '';
   }
 
   /**
    * Handle wiki:If tag - conditional content display
-   * @param {Object} attributes - Tag attributes
-   * @param {string} content - Tag content
-   * @param {ParseContext} context - Parse context
-   * @returns {Promise<string>} - Conditional content or empty string
+   * @param attributes - Tag attributes
+   * @param content - Tag content
+   * @param context - Parse context
+   * @returns Conditional content or empty string
    */
-  async handleIfTag(attributes, content, context) {
+  private async handleIfTag(attributes: TagAttributes, content: string | null, context: WikiTagParseContext): Promise<string> {
     if (!content) {
       return ''; // No content to conditionally display
     }
@@ -187,10 +282,10 @@ class WikiTagHandler extends BaseSyntaxHandler {
 
     // Evaluate the condition
     const conditionResult = await this.evaluateCondition(condition, context);
-    
+
     if (conditionResult) {
       // Recursively process the content through MarkupParser
-      const markupParser = this.engine?.getManager('MarkupParser');
+      const markupParser = this.engine?.getManager('MarkupParser') as MarkupParser | undefined;
       if (markupParser) {
         return await markupParser.parse(content, {
           pageName: context.pageName,
@@ -200,17 +295,17 @@ class WikiTagHandler extends BaseSyntaxHandler {
       }
       return content;
     }
-    
+
     return ''; // Condition failed, return empty content
   }
 
   /**
    * Handle wiki:Include tag - page inclusion
-   * @param {Object} attributes - Tag attributes
-   * @param {ParseContext} context - Parse context
-   * @returns {Promise<string>} - Included page content
+   * @param attributes - Tag attributes
+   * @param context - Parse context
+   * @returns Included page content
    */
-  async handleIncludeTag(attributes, context) {
+  private async handleIncludeTag(attributes: TagAttributes, context: WikiTagParseContext): Promise<string> {
     const pageName = attributes.page;
     if (!pageName) {
       throw new Error('wiki:Include tag requires "page" attribute');
@@ -228,7 +323,7 @@ class WikiTagHandler extends BaseSyntaxHandler {
     }
 
     // Get PageManager
-    const pageManager = context.getManager('PageManager');
+    const pageManager = context.getManager('PageManager') as PageManager | undefined;
     if (!pageManager) {
       throw new Error('PageManager not available');
     }
@@ -241,40 +336,42 @@ class WikiTagHandler extends BaseSyntaxHandler {
       }
 
       let includeContent = pageData.content;
-      
+
       // Handle section inclusion if specified
       if (attributes.section) {
         includeContent = this.extractSection(includeContent, attributes.section);
       }
 
       // Create inclusion context to track recursive includes
+      const inclusionStack = (context.getMetadata('inclusionStack') as string[] | undefined) || [];
       const inclusionContext = context.clone({
         pageName: pageName,
-        inclusionStack: [...(context.getMetadata('inclusionStack') || []), context.pageName]
+        inclusionStack: [...inclusionStack, context.pageName ?? '']
       });
       inclusionContext.setMetadata('inclusionStack', inclusionContext.pageContext.inclusionStack);
 
       // Recursively process the included content
-      const markupParser = this.engine?.getManager('MarkupParser');
+      const markupParser = this.engine?.getManager('MarkupParser') as MarkupParser | undefined;
       if (markupParser) {
         return await markupParser.parse(includeContent, inclusionContext.pageContext);
       }
-      
+
       return includeContent;
 
     } catch (error) {
-      throw new Error(`Failed to include page ${pageName}: ${error.message}`);
+      const err = error as Error;
+      throw new Error(`Failed to include page ${pageName}: ${err.message}`);
     }
   }
 
   /**
    * Handle wiki:UserCheck tag - user authentication and authorization checks
-   * @param {Object} attributes - Tag attributes
-   * @param {string} content - Tag content
-   * @param {ParseContext} context - Parse context
-   * @returns {Promise<string>} - Content if user check passes, empty otherwise
+   * @param attributes - Tag attributes
+   * @param content - Tag content
+   * @param context - Parse context
+   * @returns Content if user check passes, empty otherwise
    */
-  async handleUserCheckTag(attributes, content, context) {
+  private async handleUserCheckTag(attributes: TagAttributes, content: string | null, context: WikiTagParseContext): Promise<string> {
     if (!content) {
       return ''; // No content to conditionally display
     }
@@ -310,7 +407,7 @@ class WikiTagHandler extends BaseSyntaxHandler {
 
     if (checkPassed) {
       // Recursively process the content
-      const markupParser = this.engine?.getManager('MarkupParser');
+      const markupParser = this.engine?.getManager('MarkupParser') as MarkupParser | undefined;
       if (markupParser) {
         return await markupParser.parse(content, {
           pageName: context.pageName,
@@ -320,24 +417,24 @@ class WikiTagHandler extends BaseSyntaxHandler {
       }
       return content;
     }
-    
+
     return ''; // User check failed
   }
 
   /**
    * Evaluate conditional expression for wiki:If tags
-   * @param {string} condition - Condition expression to evaluate
-   * @param {ParseContext} context - Parse context
-   * @returns {Promise<boolean>} - True if condition passes
+   * @param condition - Condition expression to evaluate
+   * @param context - Parse context
+   * @returns True if condition passes
    */
-  async evaluateCondition(condition, context) {
+  private async evaluateCondition(condition: string, context: WikiTagParseContext): Promise<boolean> {
     // Simple condition evaluation - can be extended for complex expressions
-    
+
     // Authentication check
     if (condition === 'authenticated') {
       return context.isAuthenticated();
     }
-    
+
     if (condition === 'anonymous') {
       return !context.isAuthenticated();
     }
@@ -346,19 +443,19 @@ class WikiTagHandler extends BaseSyntaxHandler {
     const permissionMatch = condition.match(/^hasPermission:(\w+)$/);
     if (permissionMatch) {
       const permission = permissionMatch[1];
-      return context.hasPermission(permission, context.pageName);
+      return context.hasPermission(permission, context.pageName ?? '');
     }
 
     // Page existence checks: exists:PageName
     const existsMatch = condition.match(/^exists:(.+)$/);
     if (existsMatch) {
       const pageName = existsMatch[1];
-      const pageManager = context.getManager('PageManager');
+      const pageManager = context.getManager('PageManager') as PageManager | undefined;
       if (pageManager) {
         try {
           const page = await pageManager.getPage(pageName);
           return !!page;
-        } catch (error) {
+        } catch {
           return false;
         }
       }
@@ -370,7 +467,7 @@ class WikiTagHandler extends BaseSyntaxHandler {
     if (variableMatch) {
       const [, varName, operator, expectedValue] = variableMatch;
       const actualValue = await this.resolveContextVariable(varName, context);
-      
+
       if (operator === '==') {
         return actualValue === expectedValue;
       } else if (operator === '!=') {
@@ -386,20 +483,21 @@ class WikiTagHandler extends BaseSyntaxHandler {
     // Default: try to parse as boolean
     if (condition === 'true') return true;
     if (condition === 'false') return false;
-    
-    console.warn(`⚠️  Unknown condition in wiki:If: ${condition}`);
+
+    // eslint-disable-next-line no-console
+    console.warn(`Unknown condition in wiki:If: ${condition}`);
     return false;
   }
 
   /**
    * Evaluate complex boolean conditions with && and || operators
-   * @param {string} condition - Complex condition expression
-   * @param {ParseContext} context - Parse context
-   * @returns {Promise<boolean>} - Evaluation result
+   * @param condition - Complex condition expression
+   * @param context - Parse context
+   * @returns Evaluation result
    */
-  async evaluateComplexCondition(condition, context) {
+  private async evaluateComplexCondition(condition: string, context: WikiTagParseContext): Promise<boolean> {
     // Simple implementation - can be enhanced with proper expression parsing
-    
+
     // Handle AND operations: condition1 && condition2
     if (condition.includes('&&')) {
       const parts = condition.split('&&').map(part => part.trim());
@@ -411,7 +509,7 @@ class WikiTagHandler extends BaseSyntaxHandler {
       }
       return true;
     }
-    
+
     // Handle OR operations: condition1 || condition2
     if (condition.includes('||')) {
       const parts = condition.split('||').map(part => part.trim());
@@ -423,50 +521,52 @@ class WikiTagHandler extends BaseSyntaxHandler {
       }
       return false;
     }
-    
+
     return false;
   }
 
   /**
    * Resolve context variable for conditions
-   * @param {string} varName - Variable name
-   * @param {ParseContext} context - Parse context
-   * @returns {Promise<string>} - Variable value
+   * @param varName - Variable name
+   * @param context - Parse context
+   * @returns Variable value
    */
-  async resolveContextVariable(varName, context) {
+  // eslint-disable-next-line @typescript-eslint/require-await
+  private async resolveContextVariable(varName: string, context: WikiTagParseContext): Promise<string> {
     switch (varName) {
-      case 'user':
-      case 'username':
-        return context.userName || 'anonymous';
-      case 'page':
-      case 'pagename':
-        return context.pageName || '';
-      case 'authenticated':
-        return context.isAuthenticated().toString();
-      default:
-        // Try to resolve through VariableManager
-        const variableManager = context.getManager('VariableManager');
-        if (variableManager) {
-          try {
-            return variableManager.expandVariables(`\${${varName}}`, context.pageContext);
-          } catch (error) {
-            return '';
-          }
+    case 'user':
+    case 'username':
+      return context.userName || 'anonymous';
+    case 'page':
+    case 'pagename':
+      return context.pageName || '';
+    case 'authenticated':
+      return context.isAuthenticated().toString();
+    default: {
+      // Try to resolve through VariableManager
+      const variableManager = context.getManager('VariableManager') as VariableManager | undefined;
+      if (variableManager) {
+        try {
+          return variableManager.expandVariables(`\${${varName}}`, {});
+        } catch {
+          return '';
         }
-        return '';
+      }
+      return '';
+    }
     }
   }
 
   /**
    * Check if user has permission to include specified page
-   * @param {string} pageName - Page to include
-   * @param {ParseContext} context - Parse context
-   * @returns {Promise<boolean>} - True if permission granted
+   * @param pageName - Page to include
+   * @param context - Parse context
+   * @returns True if permission granted
    */
-  async checkIncludePermission(pageName, context) {
+  private async checkIncludePermission(pageName: string, context: WikiTagParseContext): Promise<boolean> {
     if (!context.isAuthenticated()) {
       // Check if anonymous users can read the page
-      const policyManager = context.getManager('PolicyManager');
+      const policyManager = context.getManager('PolicyManager') as PolicyManager | undefined;
       if (policyManager) {
         return await policyManager.checkPermission(null, 'read', pageName);
       }
@@ -479,79 +579,78 @@ class WikiTagHandler extends BaseSyntaxHandler {
 
   /**
    * Check for recursive inclusion to prevent infinite loops
-   * @param {string} pageName - Page being included
-   * @param {ParseContext} context - Parse context
-   * @returns {boolean} - True if recursive inclusion detected
+   * @param pageName - Page being included
+   * @param context - Parse context
+   * @returns True if recursive inclusion detected
    */
-  isRecursiveInclusion(pageName, context) {
-    const inclusionStack = context.getMetadata('inclusionStack') || [];
+  private isRecursiveInclusion(pageName: string, context: WikiTagParseContext): boolean {
+    const inclusionStack = (context.getMetadata('inclusionStack') as string[] | undefined) || [];
     return inclusionStack.includes(pageName) || context.pageName === pageName;
   }
 
   /**
    * Extract specific section from page content
-   * @param {string} content - Full page content
-   * @param {string} sectionName - Section name to extract
-   * @returns {string} - Section content or full content if section not found
+   * @param content - Full page content
+   * @param sectionName - Section name to extract
+   * @returns Section content or full content if section not found
    */
-  extractSection(content, sectionName) {
+  private extractSection(content: string, sectionName: string): string {
     // Look for markdown headers that match the section name
-    const sectionRegex = new RegExp(`^#+\\s*${sectionName}\\s*$`, 'im');
     const lines = content.split('\n');
-    
+
     let startIndex = -1;
     let endIndex = lines.length;
     let sectionLevel = 0;
-    
+
     // Find section start
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
       const headerMatch = line.match(/^(#+)\s*(.+)\s*$/);
-      
+
       if (headerMatch && headerMatch[2].trim().toLowerCase() === sectionName.toLowerCase()) {
         startIndex = i;
         sectionLevel = headerMatch[1].length;
         break;
       }
     }
-    
+
     if (startIndex === -1) {
       // Section not found, return empty content with comment
       return `<!-- Section "${sectionName}" not found -->`;
     }
-    
+
     // Find section end (next header of same or higher level)
     for (let i = startIndex + 1; i < lines.length; i++) {
       const line = lines[i];
       const headerMatch = line.match(/^(#+)\s*(.+)\s*$/);
-      
+
       if (headerMatch && headerMatch[1].length <= sectionLevel) {
         endIndex = i;
         break;
       }
     }
-    
+
     return lines.slice(startIndex, endIndex).join('\n');
   }
 
   /**
    * Parse tag attributes from attribute string
-   * @param {string} attributeString - Attribute string to parse
-   * @returns {Object} - Parsed attributes
+   * @param attributeString - Attribute string to parse
+   * @returns Parsed attributes
    */
-  parseTagAttributes(attributeString) {
+  private parseTagAttributes(attributeString: string): TagAttributes {
     if (!attributeString || !attributeString.trim()) {
       return {};
     }
 
-    const attributes = {};
+    const attributes: TagAttributes = {};
     // Enhanced regex to handle quoted attribute values
     const attributeRegex = /(\w+)=(?:"([^"]*)"|'([^']*)'|([^\s]+))/g;
-    let match;
+    let match: RegExpExecArray | null;
 
     while ((match = attributeRegex.exec(attributeString)) !== null) {
       const key = match[1];
-      const value = match[2] || match[3] || match[4] || '';
+      const value = match[2] ?? match[3] ?? match[4] ?? '';
       attributes[key] = value;
     }
 
@@ -560,39 +659,37 @@ class WikiTagHandler extends BaseSyntaxHandler {
 
   /**
    * Generate content hash for caching
-   * @param {string} content - Content to hash
-   * @returns {string} - Content hash
+   * @param content - Content to hash
+   * @returns Content hash
    */
-  generateContentHash(content) {
-    const crypto = require('crypto');
+  private generateContentHash(content: string): string {
     return crypto.createHash('md5').update(content).digest('hex');
   }
 
   /**
    * Generate context hash for caching
-   * @param {ParseContext} context - Parse context
-   * @returns {string} - Context hash
+   * @param context - Parse context
+   * @returns Context hash
    */
-  generateContextHash(context) {
-    const crypto = require('crypto');
+  private generateContextHash(context: WikiTagParseContext): string {
     const contextData = {
       pageName: context.pageName,
       userName: context.userName,
       authenticated: context.isAuthenticated(),
       roles: context.getUserRoles(),
       // Include inclusion stack in hash to handle recursive includes
-      inclusionStack: context.getMetadata('inclusionStack') || [],
+      inclusionStack: (context.getMetadata('inclusionStack') as string[] | undefined) || [],
       timeBucket: Math.floor(Date.now() / 300000) // 5-minute buckets
     };
-    
+
     return crypto.createHash('md5').update(JSON.stringify(contextData)).digest('hex');
   }
 
   /**
    * Get supported WikiTag patterns
-   * @returns {Array<string>} - Array of supported patterns
+   * @returns Array of supported patterns
    */
-  getSupportedPatterns() {
+  getSupportedPatterns(): string[] {
     return [
       '<wiki:If test="condition">content</wiki:If>',
       '<wiki:Include page="PageName" />',
@@ -606,9 +703,9 @@ class WikiTagHandler extends BaseSyntaxHandler {
 
   /**
    * Get supported conditions for wiki:If tags
-   * @returns {Array<string>} - Array of supported conditions
+   * @returns Array of supported conditions
    */
-  getSupportedConditions() {
+  getSupportedConditions(): string[] {
     return [
       'authenticated',
       'anonymous',
@@ -624,9 +721,9 @@ class WikiTagHandler extends BaseSyntaxHandler {
 
   /**
    * Get handler information for debugging and documentation
-   * @returns {Object} - Handler information
+   * @returns Handler information
    */
-  getInfo() {
+  getInfo(): Record<string, unknown> {
     return {
       ...super.getMetadata(),
       supportedTags: Array.from(this.supportedTags),
@@ -647,4 +744,7 @@ class WikiTagHandler extends BaseSyntaxHandler {
   }
 }
 
+export default WikiTagHandler;
+
+// CommonJS compatibility
 module.exports = WikiTagHandler;
