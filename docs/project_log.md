@@ -27,23 +27,29 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 ## 2025-12-29-07
 
 - Agent: Claude Code (Opus 4.5)
-- Subject: Fix Backup Path Error and ESLint Error
-- Issues: #191 (Backup path error), #184 (Lint:code errors)
+- Subject: Fix Bugs #191, #184 and Create Documentation Standards
+- Issues: #191 (Backup path error), #184 (Lint:code errors), #190 (Markdown errors), #197 (MD060 tracking - created)
 - Key Decisions:
   - Route was calling `backup()` (returns BackupData object) instead of `createBackup()` (returns file path string)
   - Added proper WikiEngine type import to InstallRoutes.ts
+  - Created new GitHub issue #197 to track 2,450 MD060 table formatting fixes
+  - Added table formatting guidelines to CONTRIBUTING.md to prevent future errors
 - Work Done:
-  - Fixed WikiRoutes.ts: Changed `backupManager.backup()` to `backupManager.createBackup()` at line 3467
-  - Fixed InstallRoutes.ts: Added WikiEngine type import and typed constructor parameter
+  - Fixed WikiRoutes.ts: Changed `backupManager.backup()` to `backupManager.createBackup()` at line 3467 (fixes #191)
+  - Fixed InstallRoutes.ts: Added WikiEngine type import and typed constructor parameter (fixes #184)
   - Reduced lint:code errors from 1 to 0 (25 warnings remain)
+  - Created GitHub issue #197 for MD060 table formatting cleanup
+  - Added "Markdown Formatting Standards" section to CONTRIBUTING.md with MD060 guidelines
 - Testing:
   - npm test: 58 suites passed, 1380 tests passed
   - ESLint: 0 errors, 25 warnings
-- Commits: f86e4dc
+  - markdownlint CONTRIBUTING.md: 0 errors
+- Commits: f86e4dc, 8f3b281, ef3eb81
 - Files Modified:
   - src/routes/WikiRoutes.ts (backup method fix)
   - src/routes/InstallRoutes.ts (type import and constructor)
-- Note: Markdown lint (Issue #190) has 2500+ formatting warnings in docs/ and data/pages/ - mostly table formatting (MD060) in documentation files
+  - CONTRIBUTING.md (table formatting guidelines)
+  - docs/project_log.md (this update)
 
 ## 2025-12-29-06
 
