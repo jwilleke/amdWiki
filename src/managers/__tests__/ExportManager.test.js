@@ -7,19 +7,17 @@ const {
 } = require("@jest/globals");
 const ExportManager = require("../../managers/ExportManager");
 const LocaleUtils = require("../../utils/LocaleUtils");
-const fs = require("fs").promises;
+const fs = require("fs/promises");
 const path = require("path");
 
 
-// Mock fs module to avoid real file I/O
-jest.mock("fs", () => ({
-    promises: {
-        mkdir: jest.fn(),
-        writeFile: jest.fn(),
-        readdir: jest.fn(),
-        stat: jest.fn(),
-        unlink: jest.fn(),
-    },
+// Mock fs/promises module to avoid real file I/O
+jest.mock("fs/promises", () => ({
+    mkdir: jest.fn(),
+    writeFile: jest.fn(),
+    readdir: jest.fn(),
+    stat: jest.fn(),
+    unlink: jest.fn(),
 }));
 
 // Mock LocaleUtils to control formatted date/time output
