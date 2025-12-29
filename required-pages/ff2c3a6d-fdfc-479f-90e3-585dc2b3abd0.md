@@ -1,19 +1,18 @@
 ---
 title: CounterPlugin
-uuid: ff2c3a6d-fdfc-479f-90e3-585dc2b3abd0
 system-category: documentation
 user-keywords:
-  - plugin
-  - counter
-  - numbering
+  - default
+uuid: ff2c3a6d-fdfc-479f-90e3-585dc2b3abd0
 slug: counterplugin
-lastModified: '2025-11-26T12:00:00.000Z'
-editor: system
+lastModified: '2025-12-29T12:02:44.507Z'
+author: admin
 ---
-
 # CounterPlugin
 
-The **CounterPlugin** maintains page-specific counters that increment each time they render. This is useful for numbering items, tracking plugin invocations, or implementing sequential numbering within a page.
+[{$pagename}] is a [Plugin] that maintains page-specific counters that increment each time they render.
+
+[{$pagename}] is useful for numbering items, tracking plugin invocations, or implementing sequential numbering within a page.
 
 ## Important: Counter Behavior
 
@@ -59,7 +58,7 @@ The **CounterPlugin** maintains page-specific counters that increment each time 
 ## Parameters
 
 | Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
+| ----------- | ------ | --------- | ------------- |
 | `name` | string | `counter` | Distinguishes multiple counters on one page |
 | `increment` | number | `1` | Amount to add to counter (can be negative) |
 | `start` | number | (none) | Resets counter to specified value |
@@ -114,6 +113,8 @@ For named counters, use `[{$counter-name}]`:
 [{Counter name='chapter'}]
 Chapter: [{$counter-chapter}]
 ```
+
+[BROKEN.pages] -- content
 
 ## More Information
 
