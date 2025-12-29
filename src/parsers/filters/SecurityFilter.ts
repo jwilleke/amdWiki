@@ -1,22 +1,91 @@
-const BaseFilter = require('./BaseFilter');
+import BaseFilter from './BaseFilter';
+
+/**
+ * Security configuration interface
+ */
+interface SecurityConfig {
+  preventXSS: boolean;
+  preventCSRF: boolean;
+  sanitizeHTML: boolean;
+  stripDangerousContent: boolean;
+  allowJavaScript: boolean;
+  allowInlineEvents: boolean;
+  allowExternalLinks: boolean;
+  allowDataURIs: boolean;
+  maxContentLength: number;
+  logSecurityViolations: boolean;
+}
+
+/**
+ * Security violation log entry
+ */
+interface SecurityViolation {
+  type: string;
+  pageName: string;
+  userName: string;
+  originalLength: number;
+  filteredLength: number;
+  timestamp: string;
+  severity: string;
+}
+
+/**
+ * Parse context interface
+ */
+interface ParseContext {
+  pageName?: string;
+  userName?: string;
+  engine?: {
+    getManager: (name: string) => unknown;
+  };
+}
+
+/**
+ * Initialization context interface
+ */
+interface InitContext {
+  engine?: {
+    getManager: (name: string) => unknown;
+  };
+}
+
+/**
+ * Configuration manager interface
+ */
+interface ConfigManager {
+  getProperty: (key: string, defaultValue: unknown) => unknown;
+}
+
+/**
+ * Audit manager interface
+ */
+interface AuditManager {
+  logSecurityEvent: (violation: SecurityViolation) => void;
+}
 
 /**
  * SecurityFilter - Comprehensive security validation with modular configuration
- * 
+ *
  * Provides XSS prevention, CSRF protection, HTML sanitization, and dangerous content
  * detection with complete configurability through app-default-config.json and
  * app-custom-config.json override system.
- * 
+ *
  * Design Principles:
  * - Security-by-default with configurable relaxation
  * - Complete modularity through JSON configuration
  * - Zero hardcoded security rules - everything configurable
  * - Deployment-specific security levels
- * 
+ *
  * Related Issue: Phase 4 - Security Filter Suite
  * Epic: #41 - Implement JSPWikiMarkupParser for Complete Enhancement Support
  */
 class SecurityFilter extends BaseFilter {
+  declare filterId: string;
+  securityConfig: SecurityConfig | null;
+  allowedTags: Set<string>;
+  allowedAttributes: Set<string>;
+  dangerousPatterns: RegExp[];
+
   constructor() {
     super(
       110, // Very high priority - execute before most other filters
@@ -37,27 +106,34 @@ class SecurityFilter extends BaseFilter {
 
   /**
    * Initialize filter with modular security configuration
-   * @param {Object} context - Initialization context
+   * @param context - Initialization context
    */
-  async onInitialize(context) {
+  // eslint-disable-next-line @typescript-eslint/require-await
+  async onInitialize(context: InitContext): Promise<void> {
     // Load modular security configuration from app-default/custom-config.json
-    await this.loadModularSecurityConfiguration(context);
-    
+    this.loadModularSecurityConfiguration(context);
+
+    // eslint-disable-next-line no-console
     console.log('🔒 SecurityFilter initialized with modular configuration:');
-    console.log(`   🛡️  XSS Prevention: ${this.securityConfig.preventXSS ? 'enabled' : 'disabled'}`);
-    console.log(`   🔐 CSRF Protection: ${this.securityConfig.preventCSRF ? 'enabled' : 'disabled'}`);
-    console.log(`   🧹 HTML Sanitization: ${this.securityConfig.sanitizeHTML ? 'enabled' : 'disabled'}`);
+    // eslint-disable-next-line no-console
+    console.log(`   🛡️  XSS Prevention: ${this.securityConfig?.preventXSS ? 'enabled' : 'disabled'}`);
+    // eslint-disable-next-line no-console
+    console.log(`   🔐 CSRF Protection: ${this.securityConfig?.preventCSRF ? 'enabled' : 'disabled'}`);
+    // eslint-disable-next-line no-console
+    console.log(`   🧹 HTML Sanitization: ${this.securityConfig?.sanitizeHTML ? 'enabled' : 'disabled'}`);
+    // eslint-disable-next-line no-console
     console.log(`   🏷️  Allowed tags: ${this.allowedTags.size} configured`);
+    // eslint-disable-next-line no-console
     console.log(`   📝 Allowed attributes: ${this.allowedAttributes.size} configured`);
   }
 
   /**
    * Load modular security configuration from configuration hierarchy
-   * @param {Object} context - Initialization context
+   * @param context - Initialization context
    */
-  async loadModularSecurityConfiguration(context) {
-    const configManager = context.engine?.getManager('ConfigurationManager');
-    
+  loadModularSecurityConfiguration(context: InitContext): void {
+    const configManager = context.engine?.getManager('ConfigurationManager') as ConfigManager | undefined;
+
     // Default security configuration (secure by default)
     this.securityConfig = {
       preventXSS: true,
@@ -76,36 +152,38 @@ class SecurityFilter extends BaseFilter {
     if (configManager) {
       try {
         // Security feature configuration (modular)
-        this.securityConfig.preventXSS = configManager.getProperty('amdwiki.markup.filters.security.preventXSS', this.securityConfig.preventXSS);
-        this.securityConfig.preventCSRF = configManager.getProperty('amdwiki.markup.filters.security.preventCSRF', this.securityConfig.preventCSRF);
-        this.securityConfig.sanitizeHTML = configManager.getProperty('amdwiki.markup.filters.security.sanitizeHTML', this.securityConfig.sanitizeHTML);
-        this.securityConfig.stripDangerousContent = configManager.getProperty('amdwiki.markup.filters.security.stripDangerousContent', this.securityConfig.stripDangerousContent);
-        
+        this.securityConfig.preventXSS = configManager.getProperty('amdwiki.markup.filters.security.preventXSS', this.securityConfig.preventXSS) as boolean;
+        this.securityConfig.preventCSRF = configManager.getProperty('amdwiki.markup.filters.security.preventCSRF', this.securityConfig.preventCSRF) as boolean;
+        this.securityConfig.sanitizeHTML = configManager.getProperty('amdwiki.markup.filters.security.sanitizeHTML', this.securityConfig.sanitizeHTML) as boolean;
+        this.securityConfig.stripDangerousContent = configManager.getProperty('amdwiki.markup.filters.security.stripDangerousContent', this.securityConfig.stripDangerousContent) as boolean;
+
         // Load allowed HTML tags (modular security policy)
-        const allowedTagsString = configManager.getProperty('amdwiki.markup.filters.security.allowedTags', '');
+        const allowedTagsString = configManager.getProperty('amdwiki.markup.filters.security.allowedTags', '') as string;
         if (allowedTagsString) {
           allowedTagsString.split(',').forEach(tag => {
             const cleanTag = tag.trim().toLowerCase();
             if (cleanTag) this.allowedTags.add(cleanTag);
           });
         }
-        
+
         // Load allowed HTML attributes (modular security policy)
-        const allowedAttrsString = configManager.getProperty('amdwiki.markup.filters.security.allowedAttributes', '');
+        const allowedAttrsString = configManager.getProperty('amdwiki.markup.filters.security.allowedAttributes', '') as string;
         if (allowedAttrsString) {
           allowedAttrsString.split(',').forEach(attr => {
             const cleanAttr = attr.trim().toLowerCase();
             if (cleanAttr) this.allowedAttributes.add(cleanAttr);
           });
         }
-        
+
         // Advanced security settings (configurable)
-        this.securityConfig.allowJavaScript = configManager.getProperty('amdwiki.markup.filters.security.allowJavaScript', this.securityConfig.allowJavaScript);
-        this.securityConfig.allowDataURIs = configManager.getProperty('amdwiki.markup.filters.security.allowDataURIs', this.securityConfig.allowDataURIs);
-        this.securityConfig.maxContentLength = configManager.getProperty('amdwiki.markup.filters.security.maxContentLength', this.securityConfig.maxContentLength);
-        
+        this.securityConfig.allowJavaScript = configManager.getProperty('amdwiki.markup.filters.security.allowJavaScript', this.securityConfig.allowJavaScript) as boolean;
+        this.securityConfig.allowDataURIs = configManager.getProperty('amdwiki.markup.filters.security.allowDataURIs', this.securityConfig.allowDataURIs) as boolean;
+        this.securityConfig.maxContentLength = configManager.getProperty('amdwiki.markup.filters.security.maxContentLength', this.securityConfig.maxContentLength) as number;
+
       } catch (error) {
-        console.warn('⚠️  Failed to load SecurityFilter configuration, using secure defaults:', error.message);
+        const err = error as Error;
+        // eslint-disable-next-line no-console
+        console.warn('⚠️  Failed to load SecurityFilter configuration, using secure defaults:', err.message);
         this.loadSecureDefaults();
       }
     } else {
@@ -119,11 +197,11 @@ class SecurityFilter extends BaseFilter {
   /**
    * Load secure default configuration when configuration files unavailable
    */
-  loadSecureDefaults() {
+  loadSecureDefaults(): void {
     // Secure defaults for allowed HTML tags
     const defaultTags = ['p', 'div', 'span', 'strong', 'em', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'a', 'img', 'br'];
     defaultTags.forEach(tag => this.allowedTags.add(tag));
-    
+
     // Secure defaults for allowed attributes
     const defaultAttrs = ['class', 'id', 'href', 'src', 'alt', 'title'];
     defaultAttrs.forEach(attr => this.allowedAttributes.add(attr));
@@ -132,10 +210,10 @@ class SecurityFilter extends BaseFilter {
   /**
    * Initialize dangerous patterns based on configuration (modular security patterns)
    */
-  initializeDangerousPatterns() {
+  initializeDangerousPatterns(): void {
     this.dangerousPatterns = [];
-    
-    if (this.securityConfig.preventXSS) {
+
+    if (this.securityConfig?.preventXSS) {
       this.dangerousPatterns.push(
         /<script[\s\S]*?<\/script>/gi,                    // Script tags
         /javascript:/gi,                                   // JavaScript URLs
@@ -147,11 +225,11 @@ class SecurityFilter extends BaseFilter {
       );
     }
 
-    if (!this.securityConfig.allowDataURIs) {
+    if (!this.securityConfig?.allowDataURIs) {
       this.dangerousPatterns.push(/data:/gi);             // Data URIs
     }
 
-    if (this.securityConfig.stripDangerousContent) {
+    if (this.securityConfig?.stripDangerousContent) {
       this.dangerousPatterns.push(
         /<meta[\s\S]*?>/gi,                               // Meta tags
         /<link[\s\S]*?>/gi,                               // Link tags
@@ -163,22 +241,23 @@ class SecurityFilter extends BaseFilter {
 
   /**
    * Process content through security filters with modular validation
-   * @param {string} content - Content to filter
-   * @param {ParseContext} context - Parse context
-   * @returns {Promise<string>} - Securely filtered content
+   * @param content - Content to filter
+   * @param context - Parse context
+   * @returns Securely filtered content
    */
-  async process(content, context) {
+  // eslint-disable-next-line @typescript-eslint/require-await
+  async process(content: string, context: ParseContext): Promise<string> {
     if (!content) {
       return content;
     }
 
     // Check content length limit (configurable)
-    if (content.length > this.securityConfig.maxContentLength) {
+    if (this.securityConfig && content.length > this.securityConfig.maxContentLength) {
       throw new Error(`Content exceeds maximum length limit: ${this.securityConfig.maxContentLength} characters`);
     }
 
     // Preserve HTMLTOKEN placeholders from HTML protection system
-    const htmlTokens = [];
+    const htmlTokens: string[] = [];
     let secureContent = content.replace(/HTMLTOKEN\d+HTMLTOKEN/g, (match) => {
       const placeholder = `SECURITYPROTECTED${htmlTokens.length}SECURITYPROTECTED`;
       htmlTokens.push(match);
@@ -186,26 +265,26 @@ class SecurityFilter extends BaseFilter {
     });
 
     // Apply security filters based on configuration
-    if (this.securityConfig.stripDangerousContent) {
+    if (this.securityConfig?.stripDangerousContent) {
       secureContent = this.stripDangerousContent(secureContent);
     }
 
-    if (this.securityConfig.preventXSS) {
+    if (this.securityConfig?.preventXSS) {
       secureContent = this.preventXSS(secureContent);
     }
 
-    if (this.securityConfig.sanitizeHTML) {
+    if (this.securityConfig?.sanitizeHTML) {
       secureContent = this.sanitizeHTML(secureContent);
     }
 
     // Log security violations if configured
-    if (this.securityConfig.logSecurityViolations && secureContent !== content) {
+    if (this.securityConfig?.logSecurityViolations && secureContent !== content) {
       this.logSecurityViolation(content, secureContent, context);
     }
 
     // Restore HTMLTOKEN placeholders after security filtering
-    secureContent = secureContent.replace(/SECURITYPROTECTED(\d+)SECURITYPROTECTED/g, (match, index) => {
-      return htmlTokens[parseInt(index)] || match;
+    secureContent = secureContent.replace(/SECURITYPROTECTED(\d+)SECURITYPROTECTED/g, (_match, index) => {
+      return htmlTokens[parseInt(index as string)] || _match;
     });
 
     return secureContent;
@@ -213,10 +292,10 @@ class SecurityFilter extends BaseFilter {
 
   /**
    * Strip dangerous content based on configured patterns (modular security)
-   * @param {string} content - Content to clean
-   * @returns {string} - Cleaned content
+   * @param content - Content to clean
+   * @returns Cleaned content
    */
-  stripDangerousContent(content) {
+  stripDangerousContent(content: string): string {
     let cleanedContent = content;
 
     for (const pattern of this.dangerousPatterns) {
@@ -228,10 +307,10 @@ class SecurityFilter extends BaseFilter {
 
   /**
    * Prevent XSS attacks (modular XSS prevention)
-   * @param {string} content - Content to protect
-   * @returns {string} - XSS-safe content
+   * @param content - Content to protect
+   * @returns XSS-safe content
    */
-  preventXSS(content) {
+  preventXSS(content: string): string {
     // Encode potentially dangerous characters
     return content
       .replace(/</g, '&lt;')
@@ -243,10 +322,10 @@ class SecurityFilter extends BaseFilter {
 
   /**
    * Sanitize HTML based on allowed tags and attributes (modular HTML sanitization)
-   * @param {string} content - Content to sanitize
-   * @returns {string} - Sanitized content
+   * @param content - Content to sanitize
+   * @returns Sanitized content
    */
-  sanitizeHTML(content) {
+  sanitizeHTML(content: string): string {
     if (this.allowedTags.size === 0) {
       // If no tags allowed, strip all HTML
       return content.replace(/<[^>]*>/g, '');
@@ -257,9 +336,9 @@ class SecurityFilter extends BaseFilter {
 
     // Remove disallowed tags
     const tagRegex = /<(\/?)([\w-]+)([^>]*)>/g;
-    sanitized = sanitized.replace(tagRegex, (match, closing, tagName, attributes) => {
+    sanitized = sanitized.replace(tagRegex, (match: string, closing: string, tagName: string, attributes: string) => {
       const tag = tagName.toLowerCase();
-      
+
       if (!this.allowedTags.has(tag)) {
         return ''; // Remove disallowed tag
       }
@@ -278,21 +357,21 @@ class SecurityFilter extends BaseFilter {
 
   /**
    * Sanitize HTML attributes based on allowed attributes (modular attribute sanitization)
-   * @param {string} attributeString - Attributes to sanitize
-   * @returns {string} - Sanitized attributes
+   * @param attributeString - Attributes to sanitize
+   * @returns Sanitized attributes
    */
-  sanitizeAttributes(attributeString) {
+  sanitizeAttributes(attributeString: string): string {
     if (this.allowedAttributes.size === 0) {
       return ''; // No attributes allowed
     }
 
-    const sanitizedAttrs = [];
+    const sanitizedAttrs: string[] = [];
     const attrRegex = /(\w+)=["']([^"']*)["']/g;
-    let match;
+    let match: RegExpExecArray | null;
 
     while ((match = attrRegex.exec(attributeString)) !== null) {
-      const attrName = match[1].toLowerCase();
-      const attrValue = match[2];
+      const attrName = (match[1] ?? '').toLowerCase();
+      const attrValue = match[2] ?? '';
 
       if (this.allowedAttributes.has(attrName)) {
         // Additional validation for specific attributes
@@ -312,10 +391,10 @@ class SecurityFilter extends BaseFilter {
 
   /**
    * Validate URL for href and src attributes (modular URL validation)
-   * @param {string} url - URL to validate
-   * @returns {boolean} - True if valid and safe
+   * @param url - URL to validate
+   * @returns True if valid and safe
    */
-  isValidURL(url) {
+  isValidURL(url: string): boolean {
     try {
       // Allow relative URLs
       if (url.startsWith('/') || url.startsWith('./') || url.startsWith('../')) {
@@ -324,7 +403,7 @@ class SecurityFilter extends BaseFilter {
 
       // Validate absolute URLs
       const urlObj = new URL(url);
-      
+
       // Allow only safe protocols
       const safeProtocols = ['http:', 'https:', 'mailto:'];
       if (!safeProtocols.includes(urlObj.protocol)) {
@@ -332,23 +411,23 @@ class SecurityFilter extends BaseFilter {
       }
 
       // Prevent data URIs if configured
-      if (!this.securityConfig.allowDataURIs && urlObj.protocol === 'data:') {
+      if (!this.securityConfig?.allowDataURIs && urlObj.protocol === 'data:') {
         return false;
       }
 
       return true;
-      
-    } catch (error) {
+
+    } catch {
       return false; // Invalid URL format
     }
   }
 
   /**
    * Escape attribute values to prevent injection (modular escaping)
-   * @param {string} value - Attribute value to escape
-   * @returns {string} - Escaped value
+   * @param value - Attribute value to escape
+   * @returns Escaped value
    */
-  escapeAttributeValue(value) {
+  escapeAttributeValue(value: string): string {
     return value
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
@@ -359,25 +438,26 @@ class SecurityFilter extends BaseFilter {
 
   /**
    * Log security violation for monitoring (modular logging)
-   * @param {string} originalContent - Original content
-   * @param {string} filteredContent - Filtered content
-   * @param {ParseContext} context - Parse context
+   * @param originalContent - Original content
+   * @param filteredContent - Filtered content
+   * @param context - Parse context
    */
-  logSecurityViolation(originalContent, filteredContent, context) {
-    const violation = {
+  logSecurityViolation(originalContent: string, filteredContent: string, context: ParseContext): void {
+    const violation: SecurityViolation = {
       type: 'SECURITY_FILTER_VIOLATION',
-      pageName: context.pageName,
-      userName: context.userName,
+      pageName: context.pageName || '',
+      userName: context.userName || '',
       originalLength: originalContent.length,
       filteredLength: filteredContent.length,
       timestamp: new Date().toISOString(),
       severity: 'medium'
     };
 
+    // eslint-disable-next-line no-console
     console.warn('🔒 Security violation detected and filtered:', violation);
 
     // Send to audit system if available
-    const auditManager = context.engine?.getManager('AuditManager');
+    const auditManager = context.engine?.getManager('AuditManager') as AuditManager | null;
     if (auditManager) {
       auditManager.logSecurityEvent(violation);
     }
@@ -385,9 +465,9 @@ class SecurityFilter extends BaseFilter {
 
   /**
    * Get security configuration summary (modular introspection)
-   * @returns {Object} - Security configuration summary
+   * @returns Security configuration summary
    */
-  getSecurityConfiguration() {
+  getSecurityConfiguration(): Record<string, unknown> {
     return {
       features: {
         preventXSS: this.securityConfig?.preventXSS || false,
@@ -414,9 +494,9 @@ class SecurityFilter extends BaseFilter {
 
   /**
    * Get filter information for debugging and documentation
-   * @returns {Object} - Filter information
+   * @returns Filter information
    */
-  getInfo() {
+  getInfo(): Record<string, unknown> {
     return {
       ...super.getMetadata(),
       securityConfiguration: this.getSecurityConfiguration(),
@@ -441,4 +521,7 @@ class SecurityFilter extends BaseFilter {
   }
 }
 
+export default SecurityFilter;
+
+// CommonJS compatibility
 module.exports = SecurityFilter;

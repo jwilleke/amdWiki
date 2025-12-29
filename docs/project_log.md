@@ -24,6 +24,28 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 
 ---
 
+## 2025-12-29-02
+
+- Agent: Claude Code (Opus 4.5)
+- Subject: Remove Duplicate .js Files and Cleanup
+- Issues: #139 (TypeScript Migration Epic), #186 (Complete TypeScript Migration)
+- Key Decisions:
+  - Deleted 15 .js files that had TypeScript (.ts) counterparts
+  - All eslint-disable comments verified as still necessary (no unused directives)
+  - `require-await` disables needed for async interface compatibility pattern
+- Work Done:
+  - Removed duplicate .js files from managers/ and providers/
+  - Fixed ExportManager.test.js to mock 'fs/promises' instead of 'fs'
+  - Verified all eslint-disable comments with --report-unused-disable-directives
+  - Current state: 0 ESLint errors, 25 warnings (intentional any in type definitions)
+  - Remaining .js files to convert: 17 (handlers, filters, extensions)
+- Testing:
+  - npm test: 58 suites passed, 1380 tests passed
+- Commits: 744a228
+- Files Deleted:
+  - src/managers/*.js (8 files: AttachmentManager, BackupManager, etc.)
+  - src/providers/*.js (7 files: BasicAttachmentProvider, CloudAuditProvider, etc.)
+
 ## 2025-12-29-01
 
 - Agent: Claude Code (Opus 4.5)

@@ -1,22 +1,107 @@
-const BaseFilter = require('./BaseFilter');
+import BaseFilter from './BaseFilter';
+
+/**
+ * Spam configuration interface
+ */
+interface SpamConfig {
+  maxLinks: number;
+  maxImages: number;
+  minContentLength: number;
+  maxDuplicateContent: number;
+  cacheBlacklist: boolean;
+  autoBlock: boolean;
+  logSpamAttempts: boolean;
+  whitelistMode: boolean;
+}
+
+/**
+ * Spam analysis result interface
+ */
+interface SpamAnalysis {
+  isSpam: boolean;
+  spamScore: number;
+  threshold: number;
+  reasons: string[];
+  analysis: {
+    linkCount: number;
+    imageCount: number;
+    blacklistMatches: number;
+    suspiciousDomains: number;
+    contentLength: number;
+  };
+}
+
+/**
+ * Spam event interface
+ */
+interface SpamEvent {
+  type: string;
+  pageName: string;
+  userName: string;
+  spamScore: number;
+  reasons: string[];
+  analysis: SpamAnalysis['analysis'];
+  timestamp: string;
+  severity: string;
+}
+
+/**
+ * Parse context interface
+ */
+interface ParseContext {
+  pageName?: string;
+  userName?: string;
+  engine?: {
+    getManager: (name: string) => unknown;
+  };
+}
+
+/**
+ * Initialization context interface
+ */
+interface InitContext {
+  engine?: {
+    getManager: (name: string) => unknown;
+  };
+}
+
+/**
+ * Configuration manager interface
+ */
+interface ConfigManager {
+  getProperty: (key: string, defaultValue: unknown) => unknown;
+}
+
+/**
+ * Audit manager interface
+ */
+interface AuditManager {
+  logSecurityEvent: (event: SpamEvent) => void;
+}
 
 /**
  * SpamFilter - Intelligent spam detection with modular configuration
- * 
+ *
  * Provides configurable spam detection based on link count, blacklisted words,
  * domain whitelisting, and content quality analysis through complete modularity
  * via app-default-config.json and app-custom-config.json.
- * 
+ *
  * Design Principles:
  * - Configurable spam detection rules
  * - Whitelist/blacklist modularity
  * - Zero hardcoded detection rules
  * - Deployment-specific spam policies
- * 
+ *
  * Related Issue: Phase 4 - Security Filter Suite (Spam Detection)
  * Epic: #41 - Implement JSPWikiMarkupParser for Complete Enhancement Support
  */
 class SpamFilter extends BaseFilter {
+  declare filterId: string;
+  spamConfig: SpamConfig | null;
+  blacklistedWords: Set<string>;
+  whitelistedDomains: Set<string>;
+  spamPatterns: RegExp[];
+
   constructor() {
     super(
       100, // High priority - detect spam early
@@ -37,27 +122,34 @@ class SpamFilter extends BaseFilter {
 
   /**
    * Initialize filter with modular spam detection configuration
-   * @param {Object} context - Initialization context
+   * @param context - Initialization context
    */
-  async onInitialize(context) {
+  // eslint-disable-next-line @typescript-eslint/require-await
+  async onInitialize(context: InitContext): Promise<void> {
     // Load modular spam configuration from configuration hierarchy
-    await this.loadModularSpamConfiguration(context);
-    
+    this.loadModularSpamConfiguration(context);
+
+    // eslint-disable-next-line no-console
     console.log('🛡️  SpamFilter initialized with modular configuration:');
-    console.log(`   🔗 Max links: ${this.spamConfig.maxLinks}`);
-    console.log(`   🖼️  Max images: ${this.spamConfig.maxImages}`);
+    // eslint-disable-next-line no-console
+    console.log(`   🔗 Max links: ${this.spamConfig?.maxLinks}`);
+    // eslint-disable-next-line no-console
+    console.log(`   🖼️  Max images: ${this.spamConfig?.maxImages}`);
+    // eslint-disable-next-line no-console
     console.log(`   📝 Blacklisted words: ${this.blacklistedWords.size} configured`);
+    // eslint-disable-next-line no-console
     console.log(`   ✅ Whitelisted domains: ${this.whitelistedDomains.size} configured`);
-    console.log(`   🗄️  Cache blacklist: ${this.spamConfig.cacheBlacklist ? 'enabled' : 'disabled'}`);
+    // eslint-disable-next-line no-console
+    console.log(`   🗄️  Cache blacklist: ${this.spamConfig?.cacheBlacklist ? 'enabled' : 'disabled'}`);
   }
 
   /**
    * Load modular spam configuration from app-default/custom-config.json
-   * @param {Object} context - Initialization context
+   * @param context - Initialization context
    */
-  async loadModularSpamConfiguration(context) {
-    const configManager = context.engine?.getManager('ConfigurationManager');
-    
+  loadModularSpamConfiguration(context: InitContext): void {
+    const configManager = context.engine?.getManager('ConfigurationManager') as ConfigManager | undefined;
+
     // Default spam detection configuration
     this.spamConfig = {
       maxLinks: 10,
@@ -74,35 +166,37 @@ class SpamFilter extends BaseFilter {
     if (configManager) {
       try {
         // Spam detection limits (modular configuration)
-        this.spamConfig.maxLinks = configManager.getProperty('amdwiki.markup.filters.spam.maxLinks', this.spamConfig.maxLinks);
-        this.spamConfig.maxImages = configManager.getProperty('amdwiki.markup.filters.spam.maxImages', this.spamConfig.maxImages);
-        this.spamConfig.cacheBlacklist = configManager.getProperty('amdwiki.markup.filters.spam.cacheBlacklist', this.spamConfig.cacheBlacklist);
-        
+        this.spamConfig.maxLinks = configManager.getProperty('amdwiki.markup.filters.spam.maxLinks', this.spamConfig.maxLinks) as number;
+        this.spamConfig.maxImages = configManager.getProperty('amdwiki.markup.filters.spam.maxImages', this.spamConfig.maxImages) as number;
+        this.spamConfig.cacheBlacklist = configManager.getProperty('amdwiki.markup.filters.spam.cacheBlacklist', this.spamConfig.cacheBlacklist) as boolean;
+
         // Load blacklisted words (modular blacklist)
-        const blacklistWords = configManager.getProperty('amdwiki.markup.filters.spam.blacklistWords', '');
+        const blacklistWords = configManager.getProperty('amdwiki.markup.filters.spam.blacklistWords', '') as string;
         if (blacklistWords) {
           blacklistWords.split(',').forEach(word => {
             const cleanWord = word.trim().toLowerCase();
             if (cleanWord) this.blacklistedWords.add(cleanWord);
           });
         }
-        
+
         // Load whitelisted domains (modular whitelist)
-        const whitelistDomains = configManager.getProperty('amdwiki.markup.filters.spam.whitelistDomains', '');
+        const whitelistDomains = configManager.getProperty('amdwiki.markup.filters.spam.whitelistDomains', '') as string;
         if (whitelistDomains) {
           whitelistDomains.split(',').forEach(domain => {
             const cleanDomain = domain.trim().toLowerCase();
             if (cleanDomain) this.whitelistedDomains.add(cleanDomain);
           });
         }
-        
+
         // Advanced spam detection settings (configurable)
-        this.spamConfig.minContentLength = configManager.getProperty('amdwiki.markup.filters.spam.minContentLength', this.spamConfig.minContentLength);
-        this.spamConfig.autoBlock = configManager.getProperty('amdwiki.markup.filters.spam.autoBlock', this.spamConfig.autoBlock);
-        this.spamConfig.logSpamAttempts = configManager.getProperty('amdwiki.markup.filters.spam.logSpamAttempts', this.spamConfig.logSpamAttempts);
-        
+        this.spamConfig.minContentLength = configManager.getProperty('amdwiki.markup.filters.spam.minContentLength', this.spamConfig.minContentLength) as number;
+        this.spamConfig.autoBlock = configManager.getProperty('amdwiki.markup.filters.spam.autoBlock', this.spamConfig.autoBlock) as boolean;
+        this.spamConfig.logSpamAttempts = configManager.getProperty('amdwiki.markup.filters.spam.logSpamAttempts', this.spamConfig.logSpamAttempts) as boolean;
+
       } catch (error) {
-        console.warn('⚠️  Failed to load SpamFilter configuration, using defaults:', error.message);
+        const err = error as Error;
+        // eslint-disable-next-line no-console
+        console.warn('⚠️  Failed to load SpamFilter configuration, using defaults:', err.message);
         this.loadDefaultSpamConfiguration();
       }
     } else {
@@ -113,11 +207,11 @@ class SpamFilter extends BaseFilter {
   /**
    * Load default spam configuration when configuration unavailable
    */
-  loadDefaultSpamConfiguration() {
+  loadDefaultSpamConfiguration(): void {
     // Default blacklisted words
     const defaultBlacklist = ['spam', 'casino', 'pharmacy', 'viagra', 'cialis', 'lottery', 'winner'];
     defaultBlacklist.forEach(word => this.blacklistedWords.add(word));
-    
+
     // Default whitelisted domains
     const defaultWhitelist = ['wikipedia.org', 'github.com', 'stackoverflow.com', 'mozilla.org'];
     defaultWhitelist.forEach(domain => this.whitelistedDomains.add(domain));
@@ -125,25 +219,25 @@ class SpamFilter extends BaseFilter {
 
   /**
    * Process content through spam detection filters (modular spam detection)
-   * @param {string} content - Content to analyze
-   * @param {ParseContext} context - Parse context
-   * @returns {Promise<string>} - Content (unchanged if not spam, or flagged if spam)
+   * @param content - Content to analyze
+   * @param context - Parse context
+   * @returns Content (unchanged if not spam, or flagged if spam)
    */
-  async process(content, context) {
+  async process(content: string, context: ParseContext): Promise<string> {
     if (!content) {
       return content;
     }
 
     // Perform spam analysis
     const spamAnalysis = await this.analyzeSpam(content, context);
-    
+
     if (spamAnalysis.isSpam) {
       // Log spam attempt if configured
-      if (this.spamConfig.logSpamAttempts) {
+      if (this.spamConfig?.logSpamAttempts) {
         this.logSpamAttempt(content, spamAnalysis, context);
       }
 
-      if (this.spamConfig.autoBlock) {
+      if (this.spamConfig?.autoBlock) {
         // Block spam content
         return `<!-- SPAM BLOCKED: ${spamAnalysis.reasons.join(', ')} -->`;
       } else {
@@ -158,24 +252,24 @@ class SpamFilter extends BaseFilter {
 
   /**
    * Analyze content for spam characteristics (modular spam analysis)
-   * @param {string} content - Content to analyze
-   * @param {ParseContext} context - Parse context
-   * @returns {Promise<Object>} - Spam analysis result
+   * @param content - Content to analyze
+   * @param _context - Parse context
+   * @returns Spam analysis result
    */
-  async analyzeSpam(content, context) {
-    const reasons = [];
+  async analyzeSpam(content: string, _context: ParseContext): Promise<SpamAnalysis> {
+    const reasons: string[] = [];
     let spamScore = 0;
 
     // Check link count (configurable limit)
     const linkCount = this.countLinks(content);
-    if (linkCount > this.spamConfig.maxLinks) {
+    if (this.spamConfig && linkCount > this.spamConfig.maxLinks) {
       reasons.push(`Too many links: ${linkCount}/${this.spamConfig.maxLinks}`);
       spamScore += 30;
     }
 
     // Check image count (configurable limit)
     const imageCount = this.countImages(content);
-    if (imageCount > this.spamConfig.maxImages) {
+    if (this.spamConfig && imageCount > this.spamConfig.maxImages) {
       reasons.push(`Too many images: ${imageCount}/${this.spamConfig.maxImages}`);
       spamScore += 20;
     }
@@ -188,7 +282,7 @@ class SpamFilter extends BaseFilter {
     }
 
     // Check content length (configurable minimum)
-    if (content.length < this.spamConfig.minContentLength) {
+    if (this.spamConfig && content.length < this.spamConfig.minContentLength) {
       reasons.push(`Content too short: ${content.length} characters`);
       spamScore += 15;
     }
@@ -221,10 +315,10 @@ class SpamFilter extends BaseFilter {
 
   /**
    * Count links in content (modular link detection)
-   * @param {string} content - Content to analyze
-   * @returns {number} - Number of links found
+   * @param content - Content to analyze
+   * @returns Number of links found
    */
-  countLinks(content) {
+  countLinks(content: string): number {
     const linkPatterns = [
       /\[([^\]]+)\]\([^)]+\)/g,           // Markdown links
       /https?:\/\/[^\s]+/g,               // URL links
@@ -243,10 +337,10 @@ class SpamFilter extends BaseFilter {
 
   /**
    * Count images in content (modular image detection)
-   * @param {string} content - Content to analyze
-   * @returns {number} - Number of images found
+   * @param content - Content to analyze
+   * @returns Number of images found
    */
-  countImages(content) {
+  countImages(content: string): number {
     const imagePatterns = [
       /!\[([^\]]*)\]\([^)]+\)/g,          // Markdown images
       /<img\s+[^>]*src/gi,                // HTML images
@@ -264,11 +358,11 @@ class SpamFilter extends BaseFilter {
 
   /**
    * Find blacklisted words in content (modular blacklist checking)
-   * @param {string} content - Content to check
-   * @returns {Array<string>} - Found blacklisted words
+   * @param content - Content to check
+   * @returns Found blacklisted words
    */
-  findBlacklistedWords(content) {
-    const found = [];
+  findBlacklistedWords(content: string): string[] {
+    const found: string[] = [];
     const contentLower = content.toLowerCase();
 
     for (const word of this.blacklistedWords) {
@@ -282,19 +376,20 @@ class SpamFilter extends BaseFilter {
 
   /**
    * Find suspicious domains not in whitelist (modular domain checking)
-   * @param {string} content - Content to analyze
-   * @returns {Promise<Array<string>>} - Suspicious domains found
+   * @param content - Content to analyze
+   * @returns Suspicious domains found
    */
-  async findSuspiciousDomains(content) {
-    const urlRegex = /https?:\/\/([^\/\s]+)/g;
-    const domains = new Set();
-    let match;
+  // eslint-disable-next-line @typescript-eslint/require-await
+  async findSuspiciousDomains(content: string): Promise<string[]> {
+    const urlRegex = /https?:\/\/([^/\s]+)/g;
+    const domains = new Set<string>();
+    let match: RegExpExecArray | null;
 
     while ((match = urlRegex.exec(content)) !== null) {
-      domains.add(match[1].toLowerCase());
+      domains.add((match[1] ?? '').toLowerCase());
     }
 
-    const suspicious = [];
+    const suspicious: string[] = [];
     for (const domain of domains) {
       if (!this.whitelistedDomains.has(domain)) {
         suspicious.push(domain);
@@ -306,15 +401,15 @@ class SpamFilter extends BaseFilter {
 
   /**
    * Log spam attempt for monitoring (modular logging)
-   * @param {string} content - Original content
-   * @param {Object} analysis - Spam analysis result
-   * @param {ParseContext} context - Parse context
+   * @param _content - Original content
+   * @param analysis - Spam analysis result
+   * @param context - Parse context
    */
-  logSpamAttempt(content, analysis, context) {
-    const spamEvent = {
+  logSpamAttempt(_content: string, analysis: SpamAnalysis, context: ParseContext): void {
+    const spamEvent: SpamEvent = {
       type: 'SPAM_ATTEMPT',
-      pageName: context.pageName,
-      userName: context.userName,
+      pageName: context.pageName || '',
+      userName: context.userName || '',
       spamScore: analysis.spamScore,
       reasons: analysis.reasons,
       analysis: analysis.analysis,
@@ -322,10 +417,11 @@ class SpamFilter extends BaseFilter {
       severity: analysis.spamScore > 100 ? 'high' : 'medium'
     };
 
+    // eslint-disable-next-line no-console
     console.warn('🛡️  Spam attempt detected:', spamEvent);
 
     // Send to audit system if available
-    const auditManager = context.engine?.getManager('AuditManager');
+    const auditManager = context.engine?.getManager('AuditManager') as AuditManager | undefined;
     if (auditManager) {
       auditManager.logSecurityEvent(spamEvent);
     }
@@ -333,13 +429,14 @@ class SpamFilter extends BaseFilter {
 
   /**
    * Add word to blacklist (modular blacklist management)
-   * @param {string} word - Word to blacklist
-   * @returns {boolean} - True if added
+   * @param word - Word to blacklist
+   * @returns True if added
    */
-  addBlacklistedWord(word) {
+  addBlacklistedWord(word: string): boolean {
     const cleanWord = word.trim().toLowerCase();
     if (cleanWord && !this.blacklistedWords.has(cleanWord)) {
       this.blacklistedWords.add(cleanWord);
+      // eslint-disable-next-line no-console
       console.log(`🚫 Added blacklisted word: ${cleanWord}`);
       return true;
     }
@@ -348,13 +445,14 @@ class SpamFilter extends BaseFilter {
 
   /**
    * Remove word from blacklist (modular blacklist management)
-   * @param {string} word - Word to remove
-   * @returns {boolean} - True if removed
+   * @param word - Word to remove
+   * @returns True if removed
    */
-  removeBlacklistedWord(word) {
+  removeBlacklistedWord(word: string): boolean {
     const cleanWord = word.trim().toLowerCase();
     if (this.blacklistedWords.has(cleanWord)) {
       this.blacklistedWords.delete(cleanWord);
+      // eslint-disable-next-line no-console
       console.log(`✅ Removed blacklisted word: ${cleanWord}`);
       return true;
     }
@@ -363,13 +461,14 @@ class SpamFilter extends BaseFilter {
 
   /**
    * Add domain to whitelist (modular whitelist management)
-   * @param {string} domain - Domain to whitelist
-   * @returns {boolean} - True if added
+   * @param domain - Domain to whitelist
+   * @returns True if added
    */
-  addWhitelistedDomain(domain) {
+  addWhitelistedDomain(domain: string): boolean {
     const cleanDomain = domain.trim().toLowerCase();
     if (cleanDomain && !this.whitelistedDomains.has(cleanDomain)) {
       this.whitelistedDomains.add(cleanDomain);
+      // eslint-disable-next-line no-console
       console.log(`✅ Added whitelisted domain: ${cleanDomain}`);
       return true;
     }
@@ -378,13 +477,14 @@ class SpamFilter extends BaseFilter {
 
   /**
    * Remove domain from whitelist (modular whitelist management)
-   * @param {string} domain - Domain to remove
-   * @returns {boolean} - True if removed
+   * @param domain - Domain to remove
+   * @returns True if removed
    */
-  removeWhitelistedDomain(domain) {
+  removeWhitelistedDomain(domain: string): boolean {
     const cleanDomain = domain.trim().toLowerCase();
     if (this.whitelistedDomains.has(cleanDomain)) {
       this.whitelistedDomains.delete(cleanDomain);
+      // eslint-disable-next-line no-console
       console.log(`🚫 Removed whitelisted domain: ${cleanDomain}`);
       return true;
     }
@@ -393,9 +493,9 @@ class SpamFilter extends BaseFilter {
 
   /**
    * Get spam configuration summary (modular introspection)
-   * @returns {Object} - Spam configuration summary
+   * @returns Spam configuration summary
    */
-  getSpamConfiguration() {
+  getSpamConfiguration(): Record<string, unknown> {
     return {
       limits: {
         maxLinks: this.spamConfig?.maxLinks || 0,
@@ -415,9 +515,9 @@ class SpamFilter extends BaseFilter {
 
   /**
    * Get filter information for debugging and documentation
-   * @returns {Object} - Filter information
+   * @returns Filter information
    */
-  getInfo() {
+  getInfo(): Record<string, unknown> {
     return {
       ...super.getMetadata(),
       spamConfiguration: this.getSpamConfiguration(),
@@ -443,4 +543,7 @@ class SpamFilter extends BaseFilter {
   }
 }
 
+export default SpamFilter;
+
+// CommonJS compatibility
 module.exports = SpamFilter;
