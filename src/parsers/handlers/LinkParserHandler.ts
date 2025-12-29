@@ -1,5 +1,48 @@
-const { BaseSyntaxHandler } = require('./BaseSyntaxHandler');
-const { LinkParser } = require('../LinkParser');
+import BaseSyntaxHandler, { InitializationContext, ParseContext } from './BaseSyntaxHandler';
+import { LinkParser, type InterWikiSiteConfig, type ParserStats } from '../LinkParser';
+import * as fs from 'fs-extra';
+import * as path from 'path';
+
+/**
+ * Wiki engine interface
+ */
+interface WikiEngine {
+  getManager(name: string): unknown;
+}
+
+/**
+ * Page manager interface
+ */
+interface PageManager {
+  getAllPages(): Promise<string[]>;
+}
+
+/**
+ * Configuration manager interface
+ */
+interface ConfigManager {
+  getProperty<T>(key: string, defaultValue?: T): T;
+}
+
+/**
+ * InterWiki site definition from config
+ */
+interface InterWikiSiteDef {
+  url: string;
+  description?: string;
+  icon?: string;
+  enabled?: boolean;
+  openInNewWindow?: boolean;
+}
+
+/**
+ * Local handler statistics (separate from base class stats)
+ */
+interface LocalStats {
+  processCount: number;
+  totalProcessingTime: number;
+  errorCount: number;
+}
 
 /**
  * LinkParserHandler - Unified link processing handler using LinkParser
@@ -20,18 +63,23 @@ const { LinkParser } = require('../LinkParser');
  * Epic: #41 - Implement JSPWikiMarkupParser for Complete Enhancement Support
  */
 class LinkParserHandler extends BaseSyntaxHandler {
-  constructor(engine = null) {
+  declare handlerId: string;
+  private engine: WikiEngine | null;
+  private linkParser: LinkParser;
+  declare initialized: boolean;
+  private localStats: LocalStats;
+
+  constructor(engine: WikiEngine | null = null) {
     super(
       // Use LinkParser's regex pattern - matches all supported link types
       // Excludes markdown footnote syntax [^id] by using negative lookahead (?!\^)
-      /\[(?!\^)([^\|\]]+)(?:\|([^\|\]]+))?(?:\|([^\]]+))?\](?!\()/g,
+      /\[(?!\^)([^|\]]+)(?:\|([^|\]]+))?(?:\|([^\]]+))?\](?!\()/g,
       60, // Medium-high priority - process links after most syntax but before markdown
       {
         description: 'Unified link processor using centralized LinkParser for all link types',
         version: '1.0.0',
         dependencies: ['PageManager'],
-        timeout: 5000,
-        cacheEnabled: true
+        timeout: 5000
       }
     );
 
@@ -39,24 +87,32 @@ class LinkParserHandler extends BaseSyntaxHandler {
     this.engine = engine;
     this.linkParser = new LinkParser();
     this.initialized = false;
+    this.localStats = {
+      processCount: 0,
+      totalProcessingTime: 0,
+      errorCount: 0
+    };
   }
 
   /**
    * Initialize handler with LinkParser configuration
-   * @param {Object} context - Initialization context
+   * @param context - Initialization context
    */
-  async onInitialize(context) {
+  protected async onInitialize(context: InitializationContext): Promise<void> {
     try {
-      this.engine = context.engine;
+      this.engine = context.engine as WikiEngine | undefined ?? null;
 
       // Initialize LinkParser with page names from PageManager
       await this.initializeLinkParser();
 
       this.initialized = true;
-      console.log(`🔗 LinkParserHandler initialized successfully with centralized link processing`);
+      // eslint-disable-next-line no-console
+      console.log('LinkParserHandler initialized successfully with centralized link processing');
 
     } catch (error) {
-      console.error('❌ Failed to initialize LinkParserHandler:', error.message);
+      const err = error as Error;
+      // eslint-disable-next-line no-console
+      console.error('Failed to initialize LinkParserHandler:', err.message);
       throw error;
     }
   }
@@ -64,26 +120,28 @@ class LinkParserHandler extends BaseSyntaxHandler {
   /**
    * Initialize LinkParser with current page names and configuration
    */
-  async initializeLinkParser() {
+  private async initializeLinkParser(): Promise<void> {
     try {
       // Load page names for link validation
-      const pageManager = this.engine?.getManager('PageManager');
+      const pageManager = this.engine?.getManager('PageManager') as PageManager | undefined;
       if (pageManager) {
         const pageNames = await pageManager.getAllPages(); // Returns array of strings
 
         // Get plural matching configuration
-        const configManager = this.engine?.getManager('ConfigurationManager');
+        const configManager = this.engine?.getManager('ConfigurationManager') as ConfigManager | undefined;
         const matchEnglishPlurals = configManager ?
           configManager.getProperty('amdwiki.translator-reader.match-english-plurals', true) :
           true;
 
         this.linkParser.setPageNames(pageNames, matchEnglishPlurals);
-        console.log(`📄 LinkParserHandler loaded ${pageNames.length} page names for link validation (plural matching: ${matchEnglishPlurals ? 'enabled' : 'disabled'})`);
+        // eslint-disable-next-line no-console
+        console.log(`LinkParserHandler loaded ${pageNames.length} page names for link validation (plural matching: ${matchEnglishPlurals ? 'enabled' : 'disabled'})`);
 
         // If no pages were loaded during initialization, schedule a retry
         if (pageNames.length === 0) {
-          console.log('⏰ No pages loaded during LinkParserHandler initialization, scheduling retry...');
-          setTimeout(() => this.refreshPageNames(), 1000);
+          // eslint-disable-next-line no-console
+          console.log('No pages loaded during LinkParserHandler initialization, scheduling retry...');
+          setTimeout(() => void this.refreshPageNames(), 1000);
         }
       }
 
@@ -92,10 +150,13 @@ class LinkParserHandler extends BaseSyntaxHandler {
 
       // Log LinkParser statistics
       const stats = this.linkParser.getStats();
-      console.log(`📊 LinkParser stats: ${stats.pageNamesCount} pages, ${stats.interWikiSitesCount} InterWiki sites, ${stats.allowedAttributes} allowed attributes`);
+      // eslint-disable-next-line no-console
+      console.log(`LinkParser stats: ${stats.pageNamesCount} pages, ${stats.interWikiSitesCount} InterWiki sites, ${stats.allowedAttributes} allowed attributes`);
 
     } catch (error) {
-      console.warn('⚠️  LinkParser initialization had issues:', error.message);
+      const err = error as Error;
+      // eslint-disable-next-line no-console
+      console.warn('LinkParser initialization had issues:', err.message);
       // Continue with default configuration
     }
   }
@@ -103,16 +164,16 @@ class LinkParserHandler extends BaseSyntaxHandler {
   /**
    * Load InterWiki site configuration for LinkParser
    */
-  async loadInterWikiConfiguration() {
+  private async loadInterWikiConfiguration(): Promise<void> {
     try {
-      const cfg = this.engine?.getManager?.('ConfigurationManager');
+      const cfg = this.engine?.getManager?.('ConfigurationManager') as ConfigManager | undefined;
       const globalEnabled = cfg?.getProperty?.('amdwiki.interwiki.enabled', true);
-      if (!globalEnabled) return { enabled: false, sites: {} };
+      if (!globalEnabled) return;
 
       // Prefer ConfigurationManager (object of siteName -> siteObject)
-      const sitesFromCfg = cfg?.getProperty?.('amdwiki.interwiki.sites', null);
+      const sitesFromCfg = cfg?.getProperty<Record<string, InterWikiSiteDef> | null>('amdwiki.interwiki.sites', null);
 
-      let sites = null;
+      let sites: Record<string, InterWikiSiteDef> | null = null;
       if (sitesFromCfg && typeof sitesFromCfg === 'object') {
         sites = sitesFromCfg;
       } else {
@@ -120,7 +181,7 @@ class LinkParserHandler extends BaseSyntaxHandler {
         const filePath = path.resolve(process.cwd(), 'config', 'interwiki.json');
         if (await fs.pathExists(filePath)) {
           try {
-            const json = await fs.readJson(filePath);
+            const json = await fs.readJson(filePath) as { interwiki?: Record<string, InterWikiSiteDef> };
             if (json?.interwiki && typeof json.interwiki === 'object') {
               sites = json.interwiki;
             }
@@ -134,12 +195,12 @@ class LinkParserHandler extends BaseSyntaxHandler {
       if (!sites) {
         sites = {
           Wikipedia: { url: 'https://en.wikipedia.org/wiki/%s', enabled: true, openInNewWindow: true },
-          JSPWiki:   { url: 'https://jspwiki.apache.org/Wiki.jsp?page=%s', enabled: true, openInNewWindow: true }
+          JSPWiki: { url: 'https://jspwiki.apache.org/Wiki.jsp?page=%s', enabled: true, openInNewWindow: true }
         };
       }
 
       // Normalize and filter by per-site enabled flag (default: true)
-      const normalized = {};
+      const normalized: Record<string, InterWikiSiteConfig> = {};
       for (const [name, def] of Object.entries(sites)) {
         if (!def) continue;
         const obj = typeof def === 'string' ? { url: def } : def;
@@ -149,17 +210,18 @@ class LinkParserHandler extends BaseSyntaxHandler {
         normalized[name] = {
           url: String(obj.url),
           description: obj.description || '',
-          icon: obj.icon || '',
-          enabled: true,
           openInNewWindow: obj.openInNewWindow !== false
         };
       }
 
       this.linkParser.setInterWikiSites(normalized);
-      console.log(`🌐 LinkParserHandler loaded ${Object.keys(normalized).length} InterWiki sites from configuration`);
+      // eslint-disable-next-line no-console
+      console.log(`LinkParserHandler loaded ${Object.keys(normalized).length} InterWiki sites from configuration`);
 
     } catch (error) {
-      console.warn('⚠️  Failed to load InterWiki configuration:', error.message);
+      const err = error as Error;
+      // eslint-disable-next-line no-console
+      console.warn('Failed to load InterWiki configuration:', err.message);
       this.loadDefaultInterWikiSites();
     }
   }
@@ -167,8 +229,8 @@ class LinkParserHandler extends BaseSyntaxHandler {
   /**
    * Load default InterWiki sites
    */
-  loadDefaultInterWikiSites() {
-    const defaultSites = {
+  private loadDefaultInterWikiSites(): void {
+    const defaultSites: Record<string, InterWikiSiteConfig> = {
       'Wikipedia': {
         url: 'https://en.wikipedia.org/wiki/%s',
         description: 'Wikipedia English',
@@ -182,44 +244,50 @@ class LinkParserHandler extends BaseSyntaxHandler {
     };
 
     this.linkParser.setInterWikiSites(defaultSites);
-    console.log(`🌐 LinkParserHandler loaded ${Object.keys(defaultSites).length} default InterWiki sites`);
+    // eslint-disable-next-line no-console
+    console.log(`LinkParserHandler loaded ${Object.keys(defaultSites).length} default InterWiki sites`);
   }
 
   /**
    * Process content using LinkParser
-   * @param {string} content - Content to process
-   * @param {ParseContext} context - Parse context
-   * @returns {Promise<string>} - Content with links processed
+   * @param content - Content to process
+   * @param context - Parse context
+   * @returns Content with links processed
    */
-  async process(content, context) {
+  // eslint-disable-next-line @typescript-eslint/require-await
+  async process(content: string, context: ParseContext): Promise<string> {
     if (!content) {
       return content;
     }
 
     if (!this.initialized) {
-      console.warn('⚠️  LinkParserHandler not initialized, skipping link processing');
+      // eslint-disable-next-line no-console
+      console.warn('LinkParserHandler not initialized, skipping link processing');
       return content;
     }
 
     try {
+      const startTime = Date.now();
+
       // Use LinkParser for comprehensive link processing
       const processedContent = this.linkParser.parseLinks(content, {
         pageName: context.pageName || 'unknown',
-        engine: this.engine,
-        userContext: context.userContext || null
+        engine: this.engine
       });
 
       // Update statistics
-      this.stats.processCount++;
-      this.stats.totalProcessingTime += Date.now() - (context.startTime || Date.now());
+      this.localStats.processCount++;
+      this.localStats.totalProcessingTime += Date.now() - startTime;
 
       return processedContent;
 
     } catch (error) {
-      console.error(`❌ LinkParserHandler processing error:`, error.message);
+      const err = error as Error;
+      // eslint-disable-next-line no-console
+      console.error('LinkParserHandler processing error:', err.message);
 
       // Update error statistics
-      this.stats.errorCount++;
+      this.localStats.errorCount++;
 
       // Return original content on error (fail-safe behavior)
       return content;
@@ -228,11 +296,12 @@ class LinkParserHandler extends BaseSyntaxHandler {
 
   /**
    * Handle method - not used since we override process() entirely
-   * @param {Object} match - Match information
-   * @param {ParseContext} context - Parse context
-   * @returns {Promise<string>} - Processed match
+   * @param _match - Match information
+   * @param _context - Parse context
+   * @returns Processed match
    */
-  async handle(match, context) {
+  // eslint-disable-next-line @typescript-eslint/require-await
+  async handle(_match: RegExpMatchArray, _context: ParseContext): Promise<string> {
     // This method is not used since LinkParser handles all matches in process()
     // But we need to implement it to satisfy the BaseSyntaxHandler interface
     throw new Error('LinkParserHandler uses process() method directly, handle() should not be called');
@@ -241,41 +310,47 @@ class LinkParserHandler extends BaseSyntaxHandler {
   /**
    * Refresh page names cache (called when pages are added/removed)
    */
-  async refreshPageNames() {
+  async refreshPageNames(): Promise<void> {
     if (!this.initialized) {
       return;
     }
 
     try {
-      const pageManager = this.engine?.getManager('PageManager');
+      const pageManager = this.engine?.getManager('PageManager') as PageManager | undefined;
       if (pageManager) {
         const pageNames = await pageManager.getAllPages(); // Returns array of strings
         this.linkParser.setPageNames(pageNames);
-        console.log(`🔄 LinkParserHandler refreshed ${pageNames.length} page names`);
+        // eslint-disable-next-line no-console
+        console.log(`LinkParserHandler refreshed ${pageNames.length} page names`);
 
         // Debug: log some page names to see what we actually have
         const testPages = ['PageIndex', 'SystemInfo', 'Everything We Know About You', 'Wiki Documentation'];
-        console.log('🔍 Debug - checking for specific pages:');
+        // eslint-disable-next-line no-console
+        console.log('Debug - checking for specific pages:');
         testPages.forEach(testPage => {
           const exists = pageNames.includes(testPage);
-          console.log(`   ${testPage}: ${exists ? '✓ found' : '✗ not found'}`);
+          // eslint-disable-next-line no-console
+          console.log(`   ${testPage}: ${exists ? 'found' : 'not found'}`);
         });
 
         // Show first few page names for debugging
-        console.log(`📝 First 10 page names: ${pageNames.slice(0, 10).join(', ')}`);
+        // eslint-disable-next-line no-console
+        console.log(`First 10 page names: ${pageNames.slice(0, 10).join(', ')}`);
       }
     } catch (error) {
-      console.warn('⚠️  Failed to refresh page names:', error.message);
+      const err = error as Error;
+      // eslint-disable-next-line no-console
+      console.warn('Failed to refresh page names:', err.message);
     }
   }
 
   /**
    * Get handler information including LinkParser statistics
-   * @returns {Object} - Handler information
+   * @returns Handler information
    */
-  getInfo() {
+  getInfo(): Record<string, unknown> {
     const baseInfo = super.getMetadata();
-    const linkParserStats = this.linkParser ? this.linkParser.getStats() : {};
+    const linkParserStats: ParserStats | Record<string, never> = this.linkParser ? this.linkParser.getStats() : {};
 
     return {
       ...baseInfo,
@@ -306,10 +381,15 @@ class LinkParserHandler extends BaseSyntaxHandler {
   /**
    * Handler-specific shutdown cleanup
    */
-  async onShutdown() {
+  // eslint-disable-next-line @typescript-eslint/require-await
+  protected async onShutdown(): Promise<void> {
     this.initialized = false;
-    console.log('🔗 LinkParserHandler shutdown complete');
+    // eslint-disable-next-line no-console
+    console.log('LinkParserHandler shutdown complete');
   }
 }
 
+export default LinkParserHandler;
+
+// CommonJS compatibility
 module.exports = LinkParserHandler;

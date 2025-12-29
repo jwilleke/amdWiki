@@ -1,16 +1,91 @@
-const { BaseSyntaxHandler } = require('./BaseSyntaxHandler');
+import BaseSyntaxHandler, { InitializationContext, ParseContext } from './BaseSyntaxHandler';
+import * as crypto from 'crypto';
+
+/**
+ * Plugin match information
+ */
+interface PluginMatch {
+  fullMatch: string;
+  pluginName: string;
+  paramString: string;
+  bodyContent: string | null;
+  index: number;
+  length: number;
+}
+
+/**
+ * Plugin validation result
+ */
+interface PluginValidation {
+  isValid: boolean;
+  errors: string[];
+  params: Record<string, unknown>;
+}
+
+/**
+ * Handler configuration
+ */
+interface HandlerConfig {
+  priority?: number;
+}
+
+/**
+ * Wiki engine interface
+ */
+interface WikiEngine {
+  getManager(name: string): unknown;
+}
+
+/**
+ * Markup parser interface
+ */
+interface MarkupParser {
+  getHandlerConfig(name: string): HandlerConfig;
+  getCachedHandlerResult(handlerId: string, contentHash: string, contextHash: string): Promise<string | null>;
+  cacheHandlerResult(handlerId: string, contentHash: string, contextHash: string, result: string): Promise<void>;
+}
+
+/**
+ * Plugin manager interface
+ */
+interface PluginManager {
+  execute(pluginName: string, pageName: string, params: Record<string, unknown>, context: Record<string, unknown>): Promise<string>;
+}
+
+/**
+ * Rendering manager interface
+ */
+interface RenderingManager {
+  getLinkGraph(): Record<string, unknown>;
+}
+
+/**
+ * Extended parse context with manager access
+ */
+interface PluginParseContext extends ParseContext {
+  getManager(name: string): unknown;
+  userContext?: unknown;
+  requestInfo?: unknown;
+  engine?: WikiEngine;
+  isAuthenticated?(): boolean;
+  getUserRoles?(): string[];
+}
 
 /**
  * PluginSyntaxHandler - Enhanced plugin syntax processing
- * 
+ *
  * Handles JSPWiki-style plugin syntax: [{PluginName param=value}]
  * with advanced parameter parsing and validation.
- * 
+ *
  * Related Issue: #58 - Enhanced Plugin Syntax Handler
  * Depends On: #56 - Handler Registration and Priority System
  */
 class PluginSyntaxHandler extends BaseSyntaxHandler {
-  constructor(engine = null) {
+  declare handlerId: string;
+  private engine: WikiEngine | null;
+  private config: HandlerConfig | null;
+
+  constructor(engine: WikiEngine | null = null) {
     super(
       /\[\{(\w+)\s*([^}]*)\}\]/g, // Pattern: [{PluginName params}]
       90, // High priority - process before most other handlers
@@ -18,8 +93,7 @@ class PluginSyntaxHandler extends BaseSyntaxHandler {
         description: 'Enhanced JSPWiki-style plugin syntax handler with advanced parameter parsing',
         version: '2.0.0',
         dependencies: ['PluginManager'],
-        timeout: 10000, // 10 second timeout for plugin execution
-        cacheEnabled: true
+        timeout: 10000 // 10 second timeout for plugin execution
       }
     );
     this.handlerId = 'PluginSyntaxHandler';
@@ -29,20 +103,22 @@ class PluginSyntaxHandler extends BaseSyntaxHandler {
 
   /**
    * Initialize handler with configuration
-   * @param {Object} context - Initialization context
+   * @param context - Initialization context
    */
-  async onInitialize(context) {
-    this.engine = context.engine;
-    
+  // eslint-disable-next-line @typescript-eslint/require-await
+  protected async onInitialize(context: InitializationContext): Promise<void> {
+    this.engine = context.engine as WikiEngine | undefined ?? null;
+
     // Load handler-specific configuration
-    const markupParser = context.engine?.getManager('MarkupParser');
+    const markupParser = context.engine?.getManager('MarkupParser') as MarkupParser | undefined;
     if (markupParser) {
       this.config = markupParser.getHandlerConfig('plugin');
-      
+
       // Override priority if configured
-      if (this.config.priority && this.config.priority !== this.priority) {
-        this.priority = this.config.priority;
-        console.log(`🔧 PluginSyntaxHandler priority set to ${this.priority} from configuration`);
+      if (this.config?.priority && this.config.priority !== this.priority) {
+        // Note: priority is readonly, this is just for logging purposes
+        // eslint-disable-next-line no-console
+        console.log(`PluginSyntaxHandler priority configured as ${this.config.priority} (using ${this.priority})`);
       }
     }
   }
@@ -50,21 +126,21 @@ class PluginSyntaxHandler extends BaseSyntaxHandler {
   /**
    * Process content by finding and executing all plugin instances
    * Supports both simple [{Plugin}] and body syntax [{Plugin}]content[/{Plugin}]
-   * @param {string} content - Content to process
-   * @param {ParseContext} context - Parse context
-   * @returns {Promise<string>} - Content with plugins executed
+   * @param content - Content to process
+   * @param context - Parse context
+   * @returns Content with plugins executed
    */
-  async process(content, context) {
+  async process(content: string, context: ParseContext): Promise<string> {
     if (!content) {
       return content;
     }
 
     // First pass: Handle body-style plugins [{Plugin}]content[/{Plugin}]
-    content = await this.processBodyPlugins(content, context);
+    content = await this.processBodyPlugins(content, context as PluginParseContext);
 
     // Second pass: Handle simple plugins [{Plugin params}]
-    const matches = [];
-    let match;
+    const matches: PluginMatch[] = [];
+    let match: RegExpExecArray | null;
 
     // Reset regex state
     this.pattern.lastIndex = 0;
@@ -72,8 +148,8 @@ class PluginSyntaxHandler extends BaseSyntaxHandler {
     while ((match = this.pattern.exec(content)) !== null) {
       matches.push({
         fullMatch: match[0],
-        pluginName: match[1],
-        paramString: match[2] || '',
+        pluginName: match[1] ?? '',
+        paramString: match[2] ?? '',
         bodyContent: null, // No body for simple plugins
         index: match.index,
         length: match[0].length
@@ -87,7 +163,7 @@ class PluginSyntaxHandler extends BaseSyntaxHandler {
       const matchInfo = matches[i];
 
       try {
-        const replacement = await this.handle(matchInfo, context);
+        const replacement = await this.handlePlugin(matchInfo, context as PluginParseContext);
 
         // Replace the match with the plugin output
         processedContent =
@@ -96,11 +172,14 @@ class PluginSyntaxHandler extends BaseSyntaxHandler {
           processedContent.slice(matchInfo.index + matchInfo.length);
 
       } catch (error) {
-        console.error(`❌ Plugin execution error for ${matchInfo.pluginName}:`, error.message);
-        console.error(`❌ Stack:`, error.stack);
+        const err = error as Error;
+        // eslint-disable-next-line no-console
+        console.error(`Plugin execution error for ${matchInfo.pluginName}:`, err.message);
+        // eslint-disable-next-line no-console
+        console.error('Stack:', err.stack);
 
         // Leave original plugin syntax on error for debugging
-        const errorPlaceholder = `<!-- Plugin Error: ${matchInfo.pluginName} - ${error.message} -->`;
+        const errorPlaceholder = `<!-- Plugin Error: ${matchInfo.pluginName} - ${err.message} -->`;
         processedContent =
           processedContent.slice(0, matchInfo.index) +
           errorPlaceholder +
@@ -113,23 +192,23 @@ class PluginSyntaxHandler extends BaseSyntaxHandler {
 
   /**
    * Process body-style plugins: [{Plugin}]content[/{Plugin}]
-   * @param {string} content - Content to process
-   * @param {ParseContext} context - Parse context
-   * @returns {Promise<string>} - Content with body plugins processed
+   * @param content - Content to process
+   * @param context - Parse context
+   * @returns Content with body plugins processed
    */
-  async processBodyPlugins(content, context) {
+  private async processBodyPlugins(content: string, context: PluginParseContext): Promise<string> {
     // Pattern for body plugins: [{PluginName params}]body content[/{PluginName}]
     const bodyPluginRegex = /\[\{(\w+)\s*([^}]*)\}\](.*?)\[\{\/\1\}\]/gs;
-    
-    const bodyMatches = [];
-    let match;
-    
+
+    const bodyMatches: PluginMatch[] = [];
+    let match: RegExpExecArray | null;
+
     while ((match = bodyPluginRegex.exec(content)) !== null) {
       bodyMatches.push({
         fullMatch: match[0],
-        pluginName: match[1],
-        paramString: match[2] || '',
-        bodyContent: match[3] || '',
+        pluginName: match[1] ?? '',
+        paramString: match[2] ?? '',
+        bodyContent: match[3] ?? '',
         index: match.index,
         length: match[0].length
       });
@@ -137,23 +216,25 @@ class PluginSyntaxHandler extends BaseSyntaxHandler {
 
     // Process body matches in reverse order
     let processedContent = content;
-    
+
     for (let i = bodyMatches.length - 1; i >= 0; i--) {
       const matchInfo = bodyMatches[i];
-      
+
       try {
-        const replacement = await this.handle(matchInfo, context);
-        
-        processedContent = 
+        const replacement = await this.handlePlugin(matchInfo, context);
+
+        processedContent =
           processedContent.slice(0, matchInfo.index) +
           replacement +
           processedContent.slice(matchInfo.index + matchInfo.length);
-          
+
       } catch (error) {
-        console.error(`❌ Body plugin execution error for ${matchInfo.pluginName}:`, error.message);
-        
-        const errorPlaceholder = `<!-- Body Plugin Error: ${matchInfo.pluginName} - ${error.message} -->`;
-        processedContent = 
+        const err = error as Error;
+        // eslint-disable-next-line no-console
+        console.error(`Body plugin execution error for ${matchInfo.pluginName}:`, err.message);
+
+        const errorPlaceholder = `<!-- Body Plugin Error: ${matchInfo.pluginName} - ${err.message} -->`;
+        processedContent =
           processedContent.slice(0, matchInfo.index) +
           errorPlaceholder +
           processedContent.slice(matchInfo.index + matchInfo.length);
@@ -165,15 +246,15 @@ class PluginSyntaxHandler extends BaseSyntaxHandler {
 
   /**
    * Handle a specific plugin match with caching support
-   * @param {Object} matchInfo - Plugin match information
-   * @param {ParseContext} context - Parse context
-   * @returns {Promise<string>} - Plugin output HTML
+   * @param matchInfo - Plugin match information
+   * @param context - Parse context
+   * @returns Plugin output HTML
    */
-  async handle(matchInfo, context) {
+  private async handlePlugin(matchInfo: PluginMatch, context: PluginParseContext): Promise<string> {
     const { pluginName, paramString } = matchInfo;
 
     // Parse plugin parameters
-    const parameters = this.parseParameters(paramString);
+    const parameters = this.parsePluginParameters(paramString);
 
     // Validate parameters
     const validation = this.validatePluginParameters(pluginName, parameters);
@@ -182,12 +263,12 @@ class PluginSyntaxHandler extends BaseSyntaxHandler {
     }
 
     // Check cache for plugin result if caching enabled
-    let cachedResult = null;
+    let cachedResult: string | null = null;
     const contentHash = this.generateContentHash(matchInfo.fullMatch);
     const contextHash = this.generateContextHash(context);
-    
-    if (this.options.cacheEnabled) {
-      const markupParser = this.engine?.getManager('MarkupParser');
+
+    if (this.options.enabled) {
+      const markupParser = this.engine?.getManager('MarkupParser') as MarkupParser | undefined;
       if (markupParser) {
         cachedResult = await markupParser.getCachedHandlerResult(this.handlerId, contentHash, contextHash);
         if (cachedResult) {
@@ -197,13 +278,13 @@ class PluginSyntaxHandler extends BaseSyntaxHandler {
     }
 
     // Get PluginManager
-    const pluginManager = context.getManager('PluginManager');
+    const pluginManager = context.getManager('PluginManager') as PluginManager | undefined;
     if (!pluginManager) {
       throw new Error('PluginManager not available');
     }
 
     // Create enhanced plugin execution context
-    const pluginContext = {
+    const pluginContext: Record<string, unknown> = {
       pageName: context.pageName,
       userName: context.userName,
       userContext: context.userContext,
@@ -213,7 +294,7 @@ class PluginSyntaxHandler extends BaseSyntaxHandler {
       // Enhanced context for JSPWiki compatibility
       wikiContext: context,
       parameters: validation.params,
-      bodyContent: matchInfo.bodyContent || null, // Support for body plugins
+      bodyContent: matchInfo.bodyContent, // Support for body plugins
       handlerId: this.handlerId,
       markupParser: this.engine?.getManager('MarkupParser'),
 
@@ -227,63 +308,61 @@ class PluginSyntaxHandler extends BaseSyntaxHandler {
     };
 
     // Execute plugin with timeout
-    const executionPromise = pluginManager.execute(pluginName, context.pageName, validation.params, pluginContext);
-    const timeoutPromise = new Promise((_, reject) => {
+    const executionPromise = pluginManager.execute(pluginName, context.pageName ?? 'unknown', validation.params, pluginContext);
+    const timeoutPromise = new Promise<string>((_, reject) => {
       setTimeout(() => reject(new Error(`Plugin ${pluginName} execution timeout`)), this.options.timeout);
     });
 
     const result = await Promise.race([executionPromise, timeoutPromise]) || '';
-    
+
     // Cache the result if caching enabled
-    if (this.options.cacheEnabled && result) {
-      const markupParser = this.engine?.getManager('MarkupParser');
+    if (this.options.enabled && result) {
+      const markupParser = this.engine?.getManager('MarkupParser') as MarkupParser | undefined;
       if (markupParser) {
         await markupParser.cacheHandlerResult(this.handlerId, contentHash, contextHash, result);
       }
     }
-    
+
     return result;
   }
 
   /**
    * Generate content hash for caching
-   * @param {string} content - Content to hash
-   * @returns {string} - Content hash
+   * @param content - Content to hash
+   * @returns Content hash
    */
-  generateContentHash(content) {
-    const crypto = require('crypto');
+  private generateContentHash(content: string): string {
     return crypto.createHash('md5').update(content).digest('hex');
   }
 
   /**
    * Generate context hash for caching
-   * @param {ParseContext} context - Parse context
-   * @returns {string} - Context hash
+   * @param context - Parse context
+   * @returns Context hash
    */
-  generateContextHash(context) {
-    const crypto = require('crypto');
+  private generateContextHash(context: PluginParseContext): string {
     const contextData = {
       pageName: context.pageName,
       userName: context.userName,
-      authenticated: context.isAuthenticated(),
-      roles: context.getUserRoles(),
+      authenticated: context.isAuthenticated?.() ?? false,
+      roles: context.getUserRoles?.() ?? [],
       // Round timestamp to 5-minute buckets for cache efficiency
       timeBucket: Math.floor(Date.now() / 300000)
     };
-    
+
     return crypto.createHash('md5').update(JSON.stringify(contextData)).digest('hex');
   }
 
   /**
    * Validate plugin parameters
-   * @param {string} pluginName - Plugin name
-   * @param {Object} parameters - Plugin parameters
-   * @returns {Object} - Validation result
+   * @param pluginName - Plugin name
+   * @param parameters - Plugin parameters
+   * @returns Validation result
    */
-  validatePluginParameters(pluginName, parameters) {
+  private validatePluginParameters(_pluginName: string, parameters: Record<string, unknown>): PluginValidation {
     // Basic validation - can be extended with plugin-specific schemas
-    const errors = [];
-    const validatedParams = {};
+    const errors: string[] = [];
+    const validatedParams: Record<string, unknown> = {};
 
     // Common parameter validation
     for (const [key, value] of Object.entries(parameters)) {
@@ -295,7 +374,7 @@ class PluginSyntaxHandler extends BaseSyntaxHandler {
           continue;
         }
       }
-      
+
       validatedParams[key] = value;
     }
 
@@ -308,24 +387,24 @@ class PluginSyntaxHandler extends BaseSyntaxHandler {
 
   /**
    * Enhanced parameter parsing with support for complex formats
-   * @param {string} paramString - Parameter string to parse
-   * @returns {Object} - Parsed parameters
+   * @param paramString - Parameter string to parse
+   * @returns Parsed parameters
    */
-  parseParameters(paramString) {
+  private parsePluginParameters(paramString: string): Record<string, unknown> {
     if (!paramString || !paramString.trim()) {
       return {};
     }
 
-    const params = {};
+    const params: Record<string, unknown> = {};
     // Enhanced regex to handle quoted values with spaces, special characters, and escaped quotes
     // Matches: key='value with \'escaped\' quotes' or key="value" or key=unquoted
     // Note: [\w-]+ allows word characters and dashes (for param names like 'system-category')
     const paramRegex = /([\w-]+)=(?:'((?:[^'\\]|\\.)*)'|"((?:[^"\\]|\\.)*)"|([^\s]+))/g;
-    let match;
+    let match: RegExpExecArray | null;
 
     while ((match = paramRegex.exec(paramString)) !== null) {
       const key = match[1];
-      let value = match[2] || match[3] || match[4] || '';
+      let value = match[2] ?? match[3] ?? match[4] ?? '';
 
       // Unescape escaped quotes in the value
       if (match[2] || match[3]) {
@@ -352,14 +431,14 @@ class PluginSyntaxHandler extends BaseSyntaxHandler {
 
   /**
    * Get supported plugin patterns for this handler
-   * @returns {Array<string>} - Array of supported patterns
+   * @returns Array of supported patterns
    */
-  getSupportedPatterns() {
+  getSupportedPatterns(): string[] {
     return [
       '[{PluginName}]',
       '[{PluginName param=value}]',
       '[{PluginName param1=value1 param2=value2}]',
-      '[{PluginName param=\'quoted value\'}]',
+      "[{PluginName param='quoted value'}]",
       '[{PluginName param="double quoted"}]',
       '[{PluginName}]body content[/{PluginName}]',
       '[{PluginName param=value}]body content with params[/{PluginName}]'
@@ -368,23 +447,25 @@ class PluginSyntaxHandler extends BaseSyntaxHandler {
 
   /**
    * Get link graph from RenderingManager
-   * @returns {Object} - Link graph object
+   * @returns Link graph object
    */
-  getLinkGraph() {
+  private getLinkGraph(): Record<string, unknown> {
     try {
-      const renderingManager = this.engine?.getManager('RenderingManager');
-      return renderingManager?.getLinkGraph() || {};
+      const renderingManager = this.engine?.getManager('RenderingManager') as RenderingManager | undefined;
+      return renderingManager?.getLinkGraph() ?? {};
     } catch (error) {
-      console.warn('Failed to get link graph for plugin execution:', error.message);
+      const err = error as Error;
+      // eslint-disable-next-line no-console
+      console.warn('Failed to get link graph for plugin execution:', err.message);
       return {};
     }
   }
 
   /**
    * Get handler information for debugging
-   * @returns {Object} - Handler information
+   * @returns Handler information
    */
-  getInfo() {
+  getInfo(): Record<string, unknown> {
     return {
       ...super.getMetadata(),
       supportedPatterns: this.getSupportedPatterns(),
@@ -401,4 +482,7 @@ class PluginSyntaxHandler extends BaseSyntaxHandler {
   }
 }
 
+export default PluginSyntaxHandler;
+
+// CommonJS compatibility
 module.exports = PluginSyntaxHandler;

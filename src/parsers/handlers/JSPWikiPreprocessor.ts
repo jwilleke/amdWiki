@@ -1,4 +1,35 @@
-const { BaseSyntaxHandler } = require('./BaseSyntaxHandler');
+import BaseSyntaxHandler, { ParseContext, HandlerMetadata } from './BaseSyntaxHandler';
+
+/**
+ * Block extraction result
+ */
+interface BlockResult {
+  content: string;
+  endIndex: number;
+}
+
+/**
+ * Parsed table row
+ */
+interface TableRow {
+  isHeader: boolean;
+  cells: string[];
+}
+
+/**
+ * Custom styles extraction result
+ */
+interface CustomStylesResult {
+  classes: string;
+  styles: string | null;
+}
+
+/**
+ * Wiki engine interface
+ */
+interface WikiEngine {
+  getManager(name: string): unknown;
+}
 
 /**
  * JSPWikiPreprocessor - Processes JSPWiki syntax BEFORE markdown
@@ -14,7 +45,12 @@ const { BaseSyntaxHandler } = require('./BaseSyntaxHandler');
  * Related to: #41 - JSPWiki Table Styles Implementation
  */
 class JSPWikiPreprocessor extends BaseSyntaxHandler {
-  constructor(engine) {
+  declare handlerId: string;
+  private phase: number;
+  private engine: WikiEngine | null;
+  private tableClasses: string[];
+
+  constructor(engine: WikiEngine | null = null) {
     // Pass a pattern (we'll override process() anyway), priority, and options
     super(
       /%%[\s\S]*?\/%/g, // Pattern to match %%.../%% blocks
@@ -22,8 +58,7 @@ class JSPWikiPreprocessor extends BaseSyntaxHandler {
       {
         description: 'JSPWiki preprocessor for %%.../%% blocks and table syntax',
         version: '1.0.0',
-        dependencies: [],
-        cacheEnabled: false // Content is too dynamic to cache
+        dependencies: []
       }
     );
     this.handlerId = 'JSPWikiPreprocessor';
@@ -42,7 +77,8 @@ class JSPWikiPreprocessor extends BaseSyntaxHandler {
   /**
    * Process content: find and parse all %%.../%% blocks with nested support
    */
-  async process(content, context) {
+  // eslint-disable-next-line @typescript-eslint/require-await
+  async process(content: string, _context: ParseContext): Promise<string> {
     // Parse all %%.../%% blocks (including nested ones)
     const processedContent = this.parseStyleBlocks(content);
     return processedContent;
@@ -58,9 +94,9 @@ class JSPWikiPreprocessor extends BaseSyntaxHandler {
    * /%
    * /%
    */
-  parseStyleBlocks(content, accumulatedClasses = []) {
+  private parseStyleBlocks(content: string, accumulatedClasses: string[] = []): string {
     const lines = content.split('\n');
-    const result = [];
+    const result: string[] = [];
     let i = 0;
 
     while (i < lines.length) {
@@ -69,7 +105,7 @@ class JSPWikiPreprocessor extends BaseSyntaxHandler {
       // Check if line starts a style block: %%class-name
       if (/^\s*%%([a-zA-Z0-9_-]+)\s*$/.test(line)) {
         const match = line.match(/^\s*%%([a-zA-Z0-9_-]+)\s*$/);
-        const className = match[1];
+        const className = match?.[1] ?? '';
 
         // Find the matching /% and extract block content
         const blockResult = this.extractBlock(lines, i);
@@ -105,7 +141,7 @@ class JSPWikiPreprocessor extends BaseSyntaxHandler {
       // Check if this line contains table syntax
       if (/^\s*\|/.test(line)) {
         // Collect all consecutive table lines
-        const tableLines = [];
+        const tableLines: string[] = [];
         while (i < lines.length && /^\s*\|/.test(lines[i])) {
           tableLines.push(lines[i]);
           i++;
@@ -130,9 +166,9 @@ class JSPWikiPreprocessor extends BaseSyntaxHandler {
    * Extract a %%.../%% block starting at startIndex
    * Returns { content, endIndex } or null if no matching /% found
    */
-  extractBlock(lines, startIndex) {
+  private extractBlock(lines: string[], startIndex: number): BlockResult | null {
     let depth = 1; // We're already at a %% line
-    let contentLines = [];
+    const contentLines: string[] = [];
 
     for (let i = startIndex + 1; i < lines.length; i++) {
       const line = lines[i];
@@ -170,7 +206,7 @@ class JSPWikiPreprocessor extends BaseSyntaxHandler {
    * Check if a class name is table-related
    * Also handles custom color syntax: zebra-HEXCOLOR (e.g., zebra-ffe0e0)
    */
-  isTableClass(className) {
+  private isTableClass(className: string): boolean {
     // Check standard table classes
     if (this.tableClasses.includes(className)) {
       return true;
@@ -187,10 +223,10 @@ class JSPWikiPreprocessor extends BaseSyntaxHandler {
   /**
    * Calculate contrast color (black or white) for a given background color
    * Uses WCAG relative luminance formula
-   * @param {string} hexColor - 6-digit hex color (without #)
-   * @returns {string} - '#000000' or '#ffffff'
+   * @param hexColor - 6-digit hex color (without #)
+   * @returns '#000000' or '#ffffff'
    */
-  getContrastColor(hexColor) {
+  private getContrastColor(hexColor: string): string {
     // Convert hex to RGB
     const r = parseInt(hexColor.substring(0, 2), 16);
     const g = parseInt(hexColor.substring(2, 4), 16);
@@ -208,9 +244,9 @@ class JSPWikiPreprocessor extends BaseSyntaxHandler {
    * Extract custom styles from class names
    * Returns { classes: string, styles: string }
    */
-  extractCustomStyles(classNames) {
-    const classes = [];
-    const styles = [];
+  private extractCustomStyles(classNames: string[]): CustomStylesResult {
+    const classes: string[] = [];
+    const styles: string[] = [];
 
     classNames.forEach(className => {
       // Check for custom zebra color: zebra-HEXCOLOR
@@ -240,10 +276,10 @@ class JSPWikiPreprocessor extends BaseSyntaxHandler {
    * Parse JSPWiki table syntax and convert to HTML
    * Handles both header rows (|| cell ||) and data rows (| cell |)
    *
-   * @param {string} content - Table markup
-   * @param {string} className - CSS classes to apply (space-separated, can be empty)
+   * @param content - Table markup
+   * @param className - CSS classes to apply (space-separated, can be empty)
    */
-  parseTable(content, className) {
+  private parseTable(content: string, className: string): string {
     const lines = content.split('\n').filter(line => /^\s*\|/.test(line));
 
     if (lines.length === 0) {
@@ -308,7 +344,7 @@ class JSPWikiPreprocessor extends BaseSyntaxHandler {
    * Header row: || cell1 || cell2 ||
    * Data row: | cell1 | cell2 |
    */
-  parseTableRow(line) {
+  private parseTableRow(line: string): TableRow {
     const trimmed = line.trim();
 
     // Check if it's a header row (starts with ||)
@@ -329,30 +365,31 @@ class JSPWikiPreprocessor extends BaseSyntaxHandler {
   /**
    * Escape HTML special characters
    */
-  escapeHtml(text) {
-    const map = {
+  private escapeHtml(text: string): string {
+    const map: Record<string, string> = {
       '&': '&amp;',
       '<': '&lt;',
       '>': '&gt;',
       '"': '&quot;',
       "'": '&#039;'
     };
-    return text.replace(/[&<>"']/g, m => map[m]);
+    return text.replace(/[&<>"']/g, m => map[m] ?? m);
   }
 
   /**
    * Get handler metadata
    */
-  getMetadata() {
+  override getMetadata(): HandlerMetadata & { name: string; phase: number } {
     return {
-      handlerId: this.handlerId,
+      ...super.getMetadata(),
+      id: this.handlerId,
       name: 'JSPWiki Preprocessor',
-      description: 'Processes JSPWiki %%.../%% blocks and table syntax before markdown',
-      phase: this.phase,
-      priority: this.priority,
-      version: '1.0.0'
+      phase: this.phase
     };
   }
 }
 
+export default JSPWikiPreprocessor;
+
+// CommonJS compatibility
 module.exports = JSPWikiPreprocessor;

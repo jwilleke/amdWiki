@@ -1,4 +1,33 @@
-const { BaseSyntaxHandler } = require('./BaseSyntaxHandler');
+import BaseSyntaxHandler, { InitializationContext, ParseContext } from './BaseSyntaxHandler';
+
+/**
+ * Variable match information
+ */
+interface VariableMatch {
+  fullMatch: string;
+  varName: string;
+  index: number;
+  length: number;
+}
+
+/**
+ * Variable handler function type
+ */
+type VariableHandler = (context: ParseContext) => string | number | null | undefined | Promise<unknown>;
+
+/**
+ * Variable manager interface
+ */
+interface VariableManager {
+  variableHandlers: Map<string, VariableHandler>;
+}
+
+/**
+ * Wiki engine interface
+ */
+interface WikiEngine {
+  getManager(name: string): unknown;
+}
 
 /**
  * VariableSyntaxHandler - WikiVariable syntax processing
@@ -9,15 +38,18 @@ const { BaseSyntaxHandler } = require('./BaseSyntaxHandler');
  * Part of Issue #110 - Variable Syntax Fix
  */
 class VariableSyntaxHandler extends BaseSyntaxHandler {
-  constructor(engine = null) {
+  declare handlerId: string;
+  private engine: WikiEngine | null;
+  private variableManager: VariableManager | null;
+
+  constructor(engine: WikiEngine | null = null) {
     super(
       /\[\{\$(\w+)\}\]/g, // Pattern: [{$variablename}]
       95, // Higher priority than plugins (90) - process variables first
       {
         description: 'JSPWiki-style variable syntax handler',
         version: '1.0.0',
-        dependencies: [], // No hard dependencies - gracefully handles missing VariableManager
-        cacheEnabled: false // Variables are dynamic
+        dependencies: [] // No hard dependencies - gracefully handles missing VariableManager
       }
     );
     this.handlerId = 'VariableSyntaxHandler';
@@ -27,30 +59,33 @@ class VariableSyntaxHandler extends BaseSyntaxHandler {
 
   /**
    * Initialize handler with configuration
-   * @param {Object} context - Initialization context
+   * @param context - Initialization context
    */
-  async onInitialize(context) {
-    this.engine = context.engine;
-    this.variableManager = this.engine?.getManager('VariableManager');
+  // eslint-disable-next-line @typescript-eslint/require-await
+  protected async onInitialize(context: InitializationContext): Promise<void> {
+    this.engine = context.engine as WikiEngine | undefined ?? null;
+    this.variableManager = this.engine?.getManager('VariableManager') as VariableManager | undefined ?? null;
 
     if (!this.variableManager) {
-      console.warn('⚠️  VariableSyntaxHandler: VariableManager not available');
+      // eslint-disable-next-line no-console
+      console.warn('  VariableSyntaxHandler: VariableManager not available');
     }
   }
 
   /**
    * Process content by finding and resolving all variables
-   * @param {string} content - Content to process
-   * @param {ParseContext} context - Parse context
-   * @returns {Promise<string>} - Content with variables resolved
+   * @param content - Content to process
+   * @param context - Parse context
+   * @returns Content with variables resolved
    */
-  async process(content, context) {
+  // eslint-disable-next-line @typescript-eslint/require-await
+  async process(content: string, context: ParseContext): Promise<string> {
     if (!content || !this.variableManager) {
       return content;
     }
 
-    const matches = [];
-    let match;
+    const matches: VariableMatch[] = [];
+    let match: RegExpExecArray | null;
 
     // Reset regex state
     this.pattern.lastIndex = 0;
@@ -58,8 +93,8 @@ class VariableSyntaxHandler extends BaseSyntaxHandler {
     // Find all variable matches
     while ((match = this.pattern.exec(content)) !== null) {
       matches.push({
-        fullMatch: match[0],      // [{$variablename}]
-        varName: match[1],         // variablename
+        fullMatch: match[0],       // [{$variablename}]
+        varName: match[1] ?? '',   // variablename
         index: match.index,
         length: match[0].length
       });
@@ -81,13 +116,16 @@ class VariableSyntaxHandler extends BaseSyntaxHandler {
                    result.substring(m.index + m.length);
         } else {
           // Variable not found - keep original syntax
-          console.warn(`⚠️  Variable not found: ${m.varName}`);
+          // eslint-disable-next-line no-console
+          console.warn(`  Variable not found: ${m.varName}`);
           // Keep [{$variablename}] as-is
         }
       } catch (error) {
-        console.error(`❌ Error resolving variable '${m.varName}':`, error.message);
+        const err = error as Error;
+        // eslint-disable-next-line no-console
+        console.error(`Error resolving variable '${m.varName}':`, err.message);
         // On error, replace with error message
-        const errorMsg = `[Error: ${error.message}]`;
+        const errorMsg = `[Error: ${err.message}]`;
         result = result.substring(0, m.index) +
                  errorMsg +
                  result.substring(m.index + m.length);
@@ -100,11 +138,11 @@ class VariableSyntaxHandler extends BaseSyntaxHandler {
   /**
    * Resolves a variable name to its value
    *
-   * @param {string} varName - Variable name (without [{$ }])
-   * @param {Object} context - Rendering context
-   * @returns {string|null} Variable value or null if not found
+   * @param varName - Variable name (without [{$ }])
+   * @param context - Rendering context
+   * @returns Variable value or null if not found
    */
-  resolveVariable(varName, context) {
+  private resolveVariable(varName: string, context: ParseContext): string | null {
     if (!this.variableManager || !this.variableManager.variableHandlers) {
       return null;
     }
@@ -121,30 +159,23 @@ class VariableSyntaxHandler extends BaseSyntaxHandler {
 
       // Handle async handlers
       if (result instanceof Promise) {
-        console.warn(`⚠️  Variable '${varName}' returned Promise - cannot resolve synchronously`);
+        // eslint-disable-next-line no-console
+        console.warn(`  Variable '${varName}' returned Promise - cannot resolve synchronously`);
         return null;
       }
 
       return result !== null && result !== undefined ? String(result) : null;
 
     } catch (error) {
-      console.error(`❌ Error resolving variable '${varName}':`, error);
+      // eslint-disable-next-line no-console
+      console.error(`Error resolving variable '${varName}':`, error);
       throw error;
     }
   }
 
-  /**
-   * Validates handler configuration
-   * @returns {boolean} True if valid
-   */
-  async onValidate() {
-    if (!this.engine) {
-      console.warn('⚠️  VariableSyntaxHandler: No engine provided');
-      return false;
-    }
-
-    return true;
-  }
 }
 
+export default VariableSyntaxHandler;
+
+// CommonJS compatibility
 module.exports = VariableSyntaxHandler;

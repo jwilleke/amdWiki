@@ -24,6 +24,42 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 
 ---
 
+## 2025-12-29-04
+
+- Agent: Claude Code (Opus 4.5)
+- Subject: Handler TypeScript Conversion (7 handlers)
+- Issues: #139 (TypeScript Migration Epic), #186 (Complete TypeScript Migration)
+- Key Decisions:
+  - Use `declare handlerId: string` to override base class property (same as filters)
+  - Use default import for BaseSyntaxHandler (not named export)
+  - Rename conflicting `handle()` to private `handleMatch()` when signature differs from base class
+  - Remove unsupported options like `cacheEnabled` from HandlerOptions
+  - Rename conflicting `stats` to `localStats` to avoid base class property conflict
+- Work Done:
+  - Converted ValidationFilter.js → ValidationFilter.ts
+  - Converted EscapedSyntaxHandler.js → EscapedSyntaxHandler.ts
+  - Converted VariableSyntaxHandler.js → VariableSyntaxHandler.ts
+  - Converted WikiTableHandler.js → WikiTableHandler.ts
+  - Converted WikiLinkHandler.js → WikiLinkHandler.ts
+  - Converted LinkParserHandler.js → LinkParserHandler.ts
+  - Converted JSPWikiPreprocessor.js → JSPWikiPreprocessor.ts
+  - Converted PluginSyntaxHandler.js → PluginSyntaxHandler.ts
+  - Deleted corresponding .js files after TypeScript conversion
+  - Remaining .js files to convert: 6 (5 handlers, 1 extension, 1 service)
+- Testing:
+  - npm test: 58 suites passed, 1380 tests passed
+  - ESLint: 0 errors
+- Commits: (in progress)
+- Files Converted:
+  - src/parsers/filters/ValidationFilter.js → .ts
+  - src/parsers/handlers/EscapedSyntaxHandler.js → .ts
+  - src/parsers/handlers/VariableSyntaxHandler.js → .ts
+  - src/parsers/handlers/WikiTableHandler.js → .ts
+  - src/parsers/handlers/WikiLinkHandler.js → .ts
+  - src/parsers/handlers/LinkParserHandler.js → .ts
+  - src/parsers/handlers/JSPWikiPreprocessor.js → .ts
+  - src/parsers/handlers/PluginSyntaxHandler.js → .ts
+
 ## 2025-12-29-03
 
 - Agent: Claude Code (Opus 4.5)

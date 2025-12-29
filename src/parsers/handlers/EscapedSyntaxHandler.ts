@@ -1,4 +1,25 @@
-const { BaseSyntaxHandler } = require('./BaseSyntaxHandler');
+import BaseSyntaxHandler from './BaseSyntaxHandler';
+
+/**
+ * Match information interface
+ */
+interface MatchInfo {
+  fullMatch: string;
+  innerContent: string;
+  index: number;
+  length: number;
+}
+
+/**
+ * Parse context interface
+ */
+interface ParseContext {
+  pageName?: string;
+  userName?: string;
+  engine?: {
+    getManager: (name: string) => unknown;
+  };
+}
 
 /**
  * EscapedSyntaxHandler - JSPWiki double bracket escaping
@@ -12,6 +33,8 @@ const { BaseSyntaxHandler } = require('./BaseSyntaxHandler');
  * - <!--[[PageName]]--> → <!--[PageName]--> (literal, not processed as wiki link)
  */
 class EscapedSyntaxHandler extends BaseSyntaxHandler {
+  declare handlerId: string;
+
   constructor() {
     super(
       /\[\[([^\]]+)\]/g, // Pattern: [[content] - escape any content (no nested ])
@@ -19,8 +42,7 @@ class EscapedSyntaxHandler extends BaseSyntaxHandler {
       {
         description: 'JSPWiki-style double bracket escaping for literal syntax display',
         version: '1.0.0',
-        dependencies: [],
-        cacheEnabled: true
+        dependencies: []
       }
     );
     this.handlerId = 'EscapedSyntaxHandler';
@@ -28,18 +50,18 @@ class EscapedSyntaxHandler extends BaseSyntaxHandler {
 
   /**
    * Process content by finding escaped double bracket patterns
-   * @param {string} content - Content to process
-   * @param {ParseContext} context - Parse context
-   * @returns {Promise<string>} - Content with escaped syntax converted to literals
+   * @param content - Content to process
+   * @param context - Parse context
+   * @returns Content with escaped syntax converted to literals
    */
-  async process(content, context) {
+  async process(content: string, context: ParseContext): Promise<string> {
     if (!content) {
       return content;
     }
 
     // Find all double bracket patterns
-    const matches = [];
-    let match;
+    const matches: MatchInfo[] = [];
+    let match: RegExpExecArray | null;
 
     // Reset regex state
     this.pattern.lastIndex = 0;
@@ -47,7 +69,7 @@ class EscapedSyntaxHandler extends BaseSyntaxHandler {
     while ((match = this.pattern.exec(content)) !== null) {
       matches.push({
         fullMatch: match[0],        // [[content]
-        innerContent: match[1],     // content
+        innerContent: match[1] ?? '',     // content
         index: match.index,
         length: match[0].length
       });
@@ -60,7 +82,7 @@ class EscapedSyntaxHandler extends BaseSyntaxHandler {
       const matchInfo = matches[i];
 
       try {
-        const replacement = await this.handle(matchInfo, context);
+        const replacement = await this.handleMatch(matchInfo, context);
 
         // Replace the match with the escaped output
         processedContent =
@@ -69,7 +91,9 @@ class EscapedSyntaxHandler extends BaseSyntaxHandler {
           processedContent.slice(matchInfo.index + matchInfo.length);
 
       } catch (error) {
-        console.error(`❌ Escape handler error for ${matchInfo.fullMatch}:`, error.message);
+        const err = error as Error;
+        // eslint-disable-next-line no-console
+        console.error(`❌ Escape handler error for ${matchInfo.fullMatch}:`, err.message);
         // Leave original syntax on error
       }
     }
@@ -79,11 +103,12 @@ class EscapedSyntaxHandler extends BaseSyntaxHandler {
 
   /**
    * Handle a specific escaped syntax match
-   * @param {Object} matchInfo - Match information
-   * @param {ParseContext} context - Parse context
-   * @returns {Promise<string>} - Literal output
+   * @param matchInfo - Match information
+   * @param _context - Parse context
+   * @returns Literal output
    */
-  async handle(matchInfo, context) {
+  // eslint-disable-next-line @typescript-eslint/require-await
+  private async handleMatch(matchInfo: MatchInfo, _context: ParseContext): Promise<string> {
     // Convert [[content] to [content] but HTML-encode the brackets to prevent further processing
     const literalContent = `&#91;${matchInfo.innerContent}&#93;`;
     return literalContent;
@@ -91,9 +116,9 @@ class EscapedSyntaxHandler extends BaseSyntaxHandler {
 
   /**
    * Get supported escape patterns for this handler
-   * @returns {Array<string>} - Array of supported patterns
+   * @returns Array of supported patterns
    */
-  getSupportedPatterns() {
+  getSupportedPatterns(): string[] {
     return [
       '[[{PluginName}]',
       '[[{$variable}]',
@@ -104,9 +129,9 @@ class EscapedSyntaxHandler extends BaseSyntaxHandler {
 
   /**
    * Get handler information for debugging
-   * @returns {Object} - Handler information
+   * @returns Handler information
    */
-  getInfo() {
+  getInfo(): Record<string, unknown> {
     return {
       ...super.getMetadata(),
       supportedPatterns: this.getSupportedPatterns(),
@@ -121,4 +146,7 @@ class EscapedSyntaxHandler extends BaseSyntaxHandler {
   }
 }
 
+export default EscapedSyntaxHandler;
+
+// CommonJS compatibility
 module.exports = EscapedSyntaxHandler;

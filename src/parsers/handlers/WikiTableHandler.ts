@@ -1,11 +1,37 @@
-const { BaseSyntaxHandler } = require('./BaseSyntaxHandler');
+import BaseSyntaxHandler, { InitializationContext, ParseContext } from './BaseSyntaxHandler';
+
+/**
+ * Table cell information
+ */
+interface TableCell {
+  type: 'th' | 'td';
+  content: string;
+}
+
+/**
+ * Parsed table row
+ */
+interface ParsedRow {
+  cells: TableCell[];
+  isHeader: boolean;
+}
+
+/**
+ * Wiki engine interface
+ */
+interface WikiEngine {
+  getManager(name: string): unknown;
+}
 
 /**
  * WikiTableHandler - JSPWiki table syntax parser with state-based parsing
  * Inspired by JSPWiki's m_istable state flag approach
  */
 class WikiTableHandler extends BaseSyntaxHandler {
-  constructor(engine = null) {
+  declare handlerId: string;
+  private engine: WikiEngine | null;
+
+  constructor(engine: WikiEngine | null = null) {
     super(
       /^\s*\|.+\|\s*$/gm, // Pattern for table rows
       60,   // Priority - after WikiStyleHandler (70)
@@ -13,20 +39,22 @@ class WikiTableHandler extends BaseSyntaxHandler {
         description: 'JSPWiki-style table parser with state flags',
         version: '2.0.0',
         dependencies: [],
-        timeout: 5000,
-        cacheEnabled: true
+        timeout: 5000
       }
     );
     this.handlerId = 'WikiTableHandler';
     this.engine = engine;
   }
 
-  async onInitialize(context) {
-    this.engine = context.engine;
-    console.log(`📊 WikiTableHandler initialized`);
+  // eslint-disable-next-line @typescript-eslint/require-await
+  protected async onInitialize(context: InitializationContext): Promise<void> {
+    this.engine = context.engine as WikiEngine | undefined ?? null;
+    // eslint-disable-next-line no-console
+    console.log('WikiTableHandler initialized');
   }
 
-  async process(content, context) {
+  // eslint-disable-next-line @typescript-eslint/require-await
+  async process(content: string, _context: ParseContext): Promise<string> {
     if (!content || typeof content !== 'string') {
       return content;
     }
@@ -34,10 +62,10 @@ class WikiTableHandler extends BaseSyntaxHandler {
     // JSPWiki-style state flags
     let m_istable = false;
     let m_tableClasses = '';
-    let m_tableRows = [];
+    let m_tableRows: string[] = [];
 
     const lines = content.split('\n');
-    const result = [];
+    const result: string[] = [];
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
@@ -46,7 +74,7 @@ class WikiTableHandler extends BaseSyntaxHandler {
       // Check for TABLE_CLASSES marker (set by WikiStyleHandler)
       const markerMatch = trimmed.match(/^%%TABLE_CLASSES\{([^}]+)\}%%$/);
       if (markerMatch) {
-        m_tableClasses = markerMatch[1];
+        m_tableClasses = markerMatch[1] ?? '';
         continue; // Don't output the marker itself
       }
 
@@ -89,21 +117,21 @@ class WikiTableHandler extends BaseSyntaxHandler {
   /**
    * Parse a single table row
    */
-  parseTableRow(line) {
+  private parseTableRow(line: string): ParsedRow {
     const trimmed = line.trim();
     const isHeader = trimmed.startsWith('||') && trimmed.endsWith('||');
 
-    let cells;
+    let cells: TableCell[];
     if (isHeader) {
       const content = trimmed.slice(2, -2);
       cells = content.split('||').map(cell => ({
-        type: 'th',
+        type: 'th' as const,
         content: cell.trim()
       }));
     } else {
       const content = trimmed.slice(1, -1);
       cells = content.split('|').map(cell => ({
-        type: 'td',
+        type: 'td' as const,
         content: cell.trim()
       }));
     }
@@ -114,7 +142,7 @@ class WikiTableHandler extends BaseSyntaxHandler {
   /**
    * Build HTML table from collected rows
    */
-  buildTable(rows, classes = '') {
+  private buildTable(rows: string[], classes: string = ''): string {
     if (rows.length === 0) return '';
 
     const parsedRows = rows.map(row => this.parseTableRow(row));
@@ -122,7 +150,7 @@ class WikiTableHandler extends BaseSyntaxHandler {
     const bodyRows = parsedRows.filter(row => !row.isHeader);
 
     // Build class attribute
-    let classAttr = '';
+    let classAttr: string;
     if (classes) {
       const classSet = new Set(classes.split(/\s+/).filter(c => c));
       if (!classSet.has('table')) {
@@ -165,7 +193,7 @@ class WikiTableHandler extends BaseSyntaxHandler {
     return html;
   }
 
-  escapeHtml(text) {
+  private escapeHtml(text: string): string {
     if (typeof text !== 'string') return text;
     return text
       .replace(/&/g, '&amp;')
@@ -175,7 +203,7 @@ class WikiTableHandler extends BaseSyntaxHandler {
       .replace(/'/g, '&#39;');
   }
 
-  getInfo() {
+  getInfo(): Record<string, unknown> {
     return {
       ...super.getMetadata(),
       supportedPatterns: ['|| Header ||', '| Cell |'],
@@ -184,4 +212,7 @@ class WikiTableHandler extends BaseSyntaxHandler {
   }
 }
 
+export default WikiTableHandler;
+
+// CommonJS compatibility
 module.exports = WikiTableHandler;

@@ -1,86 +1,124 @@
-const { BaseSyntaxHandler } = require('./BaseSyntaxHandler');
+import BaseSyntaxHandler, { InitializationContext, ParseContext } from './BaseSyntaxHandler';
+
+/**
+ * Wiki link match information
+ */
+interface WikiLinkMatch {
+  fullMatch: string;
+  displayText: string;
+  target: string | null;
+  parameters: string | null;
+  index: number;
+  length: number;
+}
+
+/**
+ * Page object from PageManager
+ */
+interface PageInfo {
+  name: string;
+}
+
+/**
+ * Page manager interface
+ */
+interface PageManager {
+  getAllPages(): Promise<PageInfo[]>;
+}
+
+/**
+ * Wiki engine interface
+ */
+interface WikiEngine {
+  getManager(name: string): unknown;
+}
 
 /**
  * WikiLinkHandler - Internal wiki link processing (CRITICAL for basic functionality)
- * 
+ *
  * Supports JSPWiki/amdWiki link syntax:
  * - [PageName] - Simple internal links
  * - [DisplayText|TargetPage] - Links with custom display text
  * - [DisplayText|TargetPage|target=_blank] - Links with parameters
- * 
+ *
  * This handler is ESSENTIAL for basic wiki functionality and was missing from our MarkupParser,
  * causing link processing failures on page load.
  */
 class WikiLinkHandler extends BaseSyntaxHandler {
-  constructor(engine = null) {
+  declare handlerId: string;
+  private engine: WikiEngine | null;
+  private cachedPageNames: string[];
+
+  constructor(engine: WikiEngine | null = null) {
     super(
-      /\[([a-zA-Z0-9_\- ]+)(?:\|([a-zA-Z0-9_\-\/ .:?=&]+))?(?:\|([^|\]]+))?\]/g, // Wiki link pattern
+      /\[([a-zA-Z0-9_\- ]+)(?:\|([a-zA-Z0-9_\-/ .:?=&]+))?(?:\|([^|\]]+))?\]/g, // Wiki link pattern
       50, // Lower priority - process after other handlers but before markdown
       {
         description: 'Internal wiki link processor (essential for basic wiki functionality)',
         version: '1.0.0',
         dependencies: ['PageManager'],
-        timeout: 3000,
-        cacheEnabled: true
+        timeout: 3000
       }
     );
     this.handlerId = 'WikiLinkHandler';
     this.engine = engine;
-    this.config = null;
     this.cachedPageNames = [];
   }
 
   /**
    * Initialize handler
-   * @param {Object} context - Initialization context
+   * @param context - Initialization context
    */
-  async onInitialize(context) {
-    this.engine = context.engine;
-    
+  protected async onInitialize(context: InitializationContext): Promise<void> {
+    this.engine = context.engine as WikiEngine | undefined ?? null;
+
     // Load page names for link validation
     await this.loadPageNames();
-    
-    console.log(`🔗 WikiLinkHandler initialized with ${this.cachedPageNames.length} known pages`);
+
+    // eslint-disable-next-line no-console
+    console.log(`WikiLinkHandler initialized with ${this.cachedPageNames.length} known pages`);
   }
 
   /**
    * Load page names for link processing
    */
-  async loadPageNames() {
+  private async loadPageNames(): Promise<void> {
     try {
-      const pageManager = this.engine?.getManager('PageManager');
+      const pageManager = this.engine?.getManager('PageManager') as PageManager | undefined;
       if (pageManager) {
         const pages = await pageManager.getAllPages();
         this.cachedPageNames = pages.map(page => page.name);
       }
     } catch (error) {
-      console.warn('⚠️  Could not load page names for WikiLinkHandler:', error.message);
+      const err = error as Error;
+      // eslint-disable-next-line no-console
+      console.warn('Could not load page names for WikiLinkHandler:', err.message);
     }
   }
 
   /**
    * Process content by converting wiki links to HTML
-   * @param {string} content - Content to process
-   * @param {ParseContext} context - Parse context
-   * @returns {Promise<string>} - Content with wiki links converted
+   * @param content - Content to process
+   * @param context - Parse context
+   * @returns Content with wiki links converted
    */
-  async process(content, context) {
+  async process(content: string, context: ParseContext): Promise<string> {
     if (!content) {
       return content;
     }
 
-    const matches = [];
-    let match;
-    
+    const matches: WikiLinkMatch[] = [];
+    let match: RegExpExecArray | null;
+
     // Reset regex state
     this.pattern.lastIndex = 0;
-    
+
     while ((match = this.pattern.exec(content)) !== null) {
       matches.push({
         fullMatch: match[0],
-        displayText: match[1],
-        target: match[2] || null,
-        parameters: match[3] || null,
+        displayText: match[1] ?? '',
+        target: match[2] ?? null,
+        parameters: match[3] ?? null,
         index: match.index,
         length: match[0].length
       });
@@ -88,20 +126,22 @@ class WikiLinkHandler extends BaseSyntaxHandler {
 
     // Process matches in reverse order to maintain string positions
     let processedContent = content;
-    
+
     for (let i = matches.length - 1; i >= 0; i--) {
       const matchInfo = matches[i];
-      
+
       try {
-        const replacement = await this.handle(matchInfo, context);
-        
-        processedContent = 
+        const replacement = await this.handleMatch(matchInfo, context);
+
+        processedContent =
           processedContent.slice(0, matchInfo.index) +
           replacement +
           processedContent.slice(matchInfo.index + matchInfo.length);
-          
+
       } catch (error) {
-        console.error(`❌ Wiki link processing error:`, error.message);
+        const err = error as Error;
+        // eslint-disable-next-line no-console
+        console.error('Wiki link processing error:', err.message);
         // Leave original link on error
       }
     }
@@ -111,26 +151,27 @@ class WikiLinkHandler extends BaseSyntaxHandler {
 
   /**
    * Handle a specific wiki link match
-   * @param {Object} matchInfo - Wiki link match information
-   * @param {ParseContext} context - Parse context
-   * @returns {Promise<string>} - HTML link
+   * @param matchInfo - Wiki link match information
+   * @param _context - Parse context
+   * @returns HTML link
    */
-  async handle(matchInfo, context) {
+  // eslint-disable-next-line @typescript-eslint/require-await
+  private async handleMatch(matchInfo: WikiLinkMatch, _context: ParseContext): Promise<string> {
     const { displayText, target, parameters } = matchInfo;
-    
+
     // Determine target page (use target if provided, otherwise displayText)
     const targetPage = target || displayText;
     const linkText = displayText;
-    
+
     // Parse parameters if provided
     let linkAttributes = '';
     if (parameters) {
-      linkAttributes = this.parseParameters(parameters);
+      linkAttributes = this.parseLinkParameters(parameters);
     }
-    
+
     // Check if target page exists (default to normal links if page list unavailable)
     const pageExists = this.cachedPageNames.length > 0 ? this.cachedPageNames.includes(targetPage) : true;
-    
+
     if (pageExists || this.cachedPageNames.length === 0) {
       // Create link to existing page (or assume exists if page list unavailable)
       const encodedTarget = encodeURIComponent(targetPage);
@@ -144,12 +185,12 @@ class WikiLinkHandler extends BaseSyntaxHandler {
 
   /**
    * Parse link parameters
-   * @param {string} paramString - Parameter string
-   * @returns {string} - HTML attributes
+   * @param paramString - Parameter string
+   * @returns HTML attributes
    */
-  parseParameters(paramString) {
+  private parseLinkParameters(paramString: string): string {
     let attributes = '';
-    
+
     // Parse target attribute
     const targetMatch = paramString.match(/target=['"]([^'"]+)['"]/);
     if (targetMatch) {
@@ -158,32 +199,32 @@ class WikiLinkHandler extends BaseSyntaxHandler {
         attributes += ' rel="noopener noreferrer"';
       }
     }
-    
+
     // Parse class attribute
     const classMatch = paramString.match(/class=['"]([^'"]+)['"]/);
     if (classMatch) {
       attributes += ` class="${classMatch[1]}"`;
     }
-    
+
     // Parse title attribute
     const titleMatch = paramString.match(/title=['"]([^'"]+)['"]/);
     if (titleMatch) {
       attributes += ` title="${titleMatch[1]}"`;
     }
-    
+
     return attributes;
   }
 
   /**
    * Escape HTML to prevent XSS
-   * @param {string} text - Text to escape
-   * @returns {string} - Escaped text
+   * @param text - Text to escape
+   * @returns Escaped text
    */
-  escapeHtml(text) {
+  private escapeHtml(text: string): string {
     if (typeof text !== 'string') {
       return text;
     }
-    
+
     return text
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
@@ -194,9 +235,9 @@ class WikiLinkHandler extends BaseSyntaxHandler {
 
   /**
    * Get handler information
-   * @returns {Object} - Handler information
+   * @returns Handler information
    */
-  getInfo() {
+  getInfo(): Record<string, unknown> {
     return {
       ...super.getMetadata(),
       features: [
@@ -217,4 +258,7 @@ class WikiLinkHandler extends BaseSyntaxHandler {
   }
 }
 
+export default WikiLinkHandler;
+
+// CommonJS compatibility
 module.exports = WikiLinkHandler;
