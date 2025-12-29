@@ -24,6 +24,38 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 
 ---
 
+## 2025-12-29-06
+
+- Agent: Claude Code (Opus 4.5)
+- Subject: Complete TypeScript Migration for All Handlers
+- Issues: #139 (TypeScript Migration Epic), #186 (Complete TypeScript Migration)
+- Key Decisions:
+  - Add `cacheEnabled` property to HandlerOptions interface in BaseSyntaxHandler.ts
+  - Use require with explicit interface typing for showdown (no @types available)
+  - Use ES private fields (#) for InstallService methods
+- Work Done:
+  - Converted WikiTagHandler.js → WikiTagHandler.ts (650 lines)
+  - Converted AttachmentHandler.js → AttachmentHandler.ts (711 lines)
+  - Converted WikiStyleHandler.js → WikiStyleHandler.ts (752 lines)
+  - Converted showdown-footnotes-fixed.js → showdown-footnotes-fixed.ts
+  - Converted InstallService.js → InstallService.ts
+  - Added cacheEnabled to HandlerOptions interface
+  - All handlers, filters, extension, and service now TypeScript
+  - Only legacy backup files remain as .js
+- Testing:
+  - npm test: 58 suites (56 passed, 2 pre-existing timeout failures)
+  - 1378 tests passed
+  - ESLint: 0 errors
+- Commits: 1f8b675
+- Files Converted:
+  - src/parsers/handlers/WikiTagHandler.js → .ts
+  - src/parsers/handlers/AttachmentHandler.js → .ts
+  - src/parsers/handlers/WikiStyleHandler.js → .ts
+  - src/extensions/showdown-footnotes-fixed.js → .ts
+  - src/services/InstallService.js → .ts
+- Files Modified:
+  - src/parsers/handlers/BaseSyntaxHandler.ts (added cacheEnabled)
+
 ## 2025-12-29-05
 
 - Agent: Claude Code (Opus 4.5)
