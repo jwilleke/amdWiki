@@ -36,7 +36,7 @@ All wiki pages must follow the format: `{uuid}.md` where UUID is a valid RFC 412
 Every page must include these YAML frontmatter fields:
 
 | Field | Type | Description | Validation Rules |
-|-------|------|-------------|------------------|
+| ------- | ------ | ------------- | ------------------ |
 | `title` | string | Page display title | Non-empty string |
 | `uuid` | string | Unique identifier | Valid RFC 4122 UUID v4 |
 | `slug` | string | URL-safe identifier | Lowercase, alphanumeric, hyphens only: `/^[a-z0-9]+(?:-[a-z0-9]+)*$/` |
@@ -49,7 +49,7 @@ Every page must include these YAML frontmatter fields:
 System categories are now configurable via `app-default-config.json` under `amdwiki.system-category`. Each category has:
 
 | Property | Type | Description |
-|----------|------|-------------|
+| ---------- | ------ | ------------- |
 | `label` | string | Display name for the category |
 | `description` | string | Human-readable description |
 | `default` | boolean | Whether this is the default category |
@@ -1025,7 +1025,7 @@ async function validateAllPages() {
 ### Common Validation Errors
 
 | Error | Cause | Solution |
-|-------|-------|----------|
+| ------- | ------- | ---------- |
 | `Filename does not follow UUID naming convention` | Filename is not a valid UUID | Rename file using `generateFilename()` |
 | `UUID mismatch` | Filename UUID ≠ metadata UUID | Update filename or metadata UUID to match |
 | `Required metadata field 'X' is missing` | Missing required field in YAML | Add missing field using `generateValidMetadata()` |

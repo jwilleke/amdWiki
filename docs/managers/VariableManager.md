@@ -259,7 +259,7 @@ The VariableManager protects certain content from variable expansion:
 The VariableManager maintains compatibility with JSPWiki patterns:
 
 | Feature | JSPWiki | amdWiki |
-|---------|---------|----------|
+| --------- | --------- | ---------- |
 | Variable Format | `[{$variable}]` | `[{$variable}]` ✓ |
 | System Variables | Yes | Yes ✓ |
 | Contextual Variables | Yes | Yes ✓ |

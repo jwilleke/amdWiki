@@ -45,7 +45,7 @@ await backupManager.cleanupOldBackups();
 ## Core Methods
 
 | Method | Returns | Description |
-|--------|---------|-------------|
+| -------- | --------- | ------------- |
 | `backup(options)` | `Promise<string>` | Create full system backup, returns path |
 | `restore(backupPath, options)` | `Promise<void>` | Restore from backup file |
 | `listBackups()` | `Promise<Array>` | List all available backups with metadata |
@@ -100,7 +100,7 @@ await backupManager.restore(backupPath, {
 Automatically backs up all registered managers that implement `backup()`:
 
 | Manager | Coverage | Notes |
-|---------|----------|-------|
+| --------- | ---------- | ------- |
 | PageManager | ✅ Full | All pages via provider |
 | UserManager | ✅ Full | All users via provider |
 | ConfigurationManager | ✅ Full | Custom configuration |

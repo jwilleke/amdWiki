@@ -39,7 +39,7 @@ const filePath = await exportManager.saveExport(html, 'MyExport', 'html');
 ## Supported Formats
 
 | Format | Method | Description |
-|--------|--------|-------------|
+| -------- | -------- | ------------- |
 | HTML | `exportPageToHtml()` | Full HTML document with styling |
 | HTML (Multi) | `exportPagesToHtml()` | Combined pages with TOC |
 | Markdown | `exportToMarkdown()` | Raw page content |

@@ -96,7 +96,7 @@ All configuration keys use **lowercase** format per Issue #102 refactoring.
 ### Configuration Reference
 
 | Configuration Key | Type | Default | Description |
-|------------------|------|---------|-------------|
+| ------------------ | ------ | --------- | ------------- |
 | `amdwiki.search.enabled` | boolean | `true` | Enable/disable search functionality |
 | `amdwiki.search.provider.default` | string | `"lunrsearchprovider"` | Fallback provider if primary fails |
 | `amdwiki.search.provider` | string | `"lunrsearchprovider"` | Active search provider |
@@ -128,7 +128,7 @@ All configuration keys use **lowercase** format per Issue #102 refactoring.
 **LunrSearchProvider Configuration:**
 
 | Key | Type | Default | Description |
-|-----|------|---------|-------------|
+| ----- | ------ | --------- | ------------- |
 | `indexdir` | string | `"./search-index"` | Directory for persisted index files |
 | `stemming` | boolean | `true` | Enable word stemming (running → run) |
 | `boost.title` | number | `10` | Relevance boost for title matches |
@@ -748,7 +748,7 @@ await searchManager.shutdown();
 The LunrSearchProvider uses field boosting to improve search relevance:
 
 | Field | Default Boost | Description |
-|-------|--------------|-------------|
+| ------- | -------------- | ------------- |
 | `title` | 10 | Page title (highest priority) |
 | `systemCategory` | 8 | System category field |
 | `userKeywords` | 6 | User-defined keywords |

@@ -579,7 +579,7 @@ test('page renders consistently', () => {
 ## Comparison: Before vs After
 
 | Aspect | Before | After |
-|--------|--------|-------|
+| -------- | -------- | ------- |
 | Regression Detection | Manual testing | Automated in CI |
 | Time to Detect | Days/weeks | Minutes |
 | Prevention | Documentation only | Automated enforcement |

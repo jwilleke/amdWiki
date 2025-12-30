@@ -20,7 +20,7 @@ The IndexPlugin creates a navigable alphabetical index of wiki pages, similar to
 ## Plugin Metadata
 
 | Property | Value |
-|----------|-------|
+| ---------- | ------- |
 | Name | IndexPlugin |
 | Author | amdWiki |
 | Version | 1.0.0 |
@@ -45,7 +45,7 @@ Shows all pages in alphabetical order.
 ## Parameters
 
 | Parameter | Type | Default | Required | Description |
-|-----------|------|---------|----------|-------------|
+| ----------- | ------ | --------- | ---------- | ------------- |
 | include | string | - | No | Regex pattern to include pages |
 | exclude | string | - | No | Regex pattern to exclude pages |
 
@@ -160,7 +160,7 @@ async execute(context, params) {
 ## JSPWiki Compatibility
 
 | Feature | JSPWiki | amdWiki | Notes |
-|---------|---------|---------|-------|
+| --------- | --------- | --------- | ------- |
 | Basic syntax | Yes | Yes | Fully compatible |
 | include filter | Yes | Yes | Same regex syntax |
 | exclude filter | Yes | Yes | Same regex syntax |
@@ -169,7 +169,7 @@ async execute(context, params) {
 ## Error Handling
 
 | Error | Cause | Output |
-|-------|-------|--------|
+| ------- | ------- | -------- |
 | PageManager unavailable | Engine not initialized | Error message |
 | Invalid include pattern | Bad regex syntax | Error with pattern |
 | Invalid exclude pattern | Bad regex syntax | Error with pattern |
@@ -177,7 +177,7 @@ async execute(context, params) {
 ## CSS Classes
 
 | Class | Description |
-|-------|-------------|
+| ------- | ------------- |
 | index-plugin | Container div |
 | index-sections | Jump links container |
 | index-section | Individual letter section |
@@ -195,5 +195,5 @@ async execute(context, params) {
 ## Version History
 
 | Version | Date | Changes |
-|---------|------|---------|
+| --------- | ------ | --------- |
 | 1.0.0 | 2025-10-04 | Initial implementation |

@@ -46,7 +46,7 @@ Shows recent changes in compact format (same as default).
 ## Parameters
 
 | Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
+| ----------- | ------ | --------- | ------------- |
 | `since` | number | `7` | Number of days to look back for changes |
 | `format` | string | `compact` | Display format: `compact` or `full` |
 
@@ -107,7 +107,7 @@ The full format displays a table with:
 Recent Changes (Last 7 days)
 
 | Page            | Last Modified          | Author  | Version |
-|-----------------|------------------------|---------|---------|
+| ----------------- | ------------------------ | --------- | --------- |
 | Home            | Jan 15, 2025 3:45 PM  | admin   | 5       |
 | Getting Started | Jan 15, 2025 12:20 PM | editor  | 3       |
 | Configuration   | Jan 14, 2025 9:15 AM  | admin   | 12      |
@@ -218,7 +218,7 @@ If no pages have been modified within the specified time period:
 This plugin provides similar functionality to JSPWiki's RecentChangesPlugin:
 
 | Feature | JSPWiki | amdWiki | Compatible |
-|---------|---------|---------|------------|
+| --------- | --------- | --------- | ------------ |
 | Basic functionality | ✓ | ✓ | ✓ |
 | `since` parameter | ✓ | ✓ | ✓ |
 | `format` parameter | ✓ | ✓ | ✓ |

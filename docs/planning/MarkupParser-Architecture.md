@@ -336,7 +336,7 @@ class SpamFilter extends BaseFilter {
 ### Syntax Compatibility Matrix
 
 | JSPWiki Enhancement | amdWiki Handler | Implementation Status |
-|---------------------|-----------------|----------------------|
+| --------------------- | ----------------- | ---------------------- |
 | `[{PluginName}]` | PluginSyntaxHandler | ✅ Enhanced |
 | `<wiki:If>` | WikiTagHandler | 🚧 New |
 | `<wiki:Include>` | WikiTagHandler | 🚧 New |

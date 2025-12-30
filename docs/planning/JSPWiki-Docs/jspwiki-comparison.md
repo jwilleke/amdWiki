@@ -43,7 +43,7 @@ Node.js Web Application (Express Framework)
 ### 1. Core Engine Architecture
 
 | Aspect | Apache JSPWiki | amdWiki |
-|--------|----------------|---------|
+| -------- | ---------------- | --------- |
 | **Language** | Java | Node.js/JavaScript |
 | **Runtime** | JVM (JDK 11+) | Node.js Runtime |
 | **Web Framework** | Servlet API 3.1, JSP | Express.js |
@@ -152,7 +152,7 @@ Multi-layered Node.js Security
 ### 5. Configuration Management
 
 | Aspect | Apache JSPWiki | amdWiki |
-|--------|----------------|---------|
+| -------- | ---------------- | --------- |
 | **Primary Config** | `jspwiki-custom.properties` | `app-custom-config.json` |
 | **Format** | Java Properties | Hierarchical JSON |
 | **Override System** | Properties file cascade | JSON merge with defaults |
@@ -228,7 +228,7 @@ module.exports = {
 ### 4. Performance Characteristics
 
 | Aspect | Apache JSPWiki | amdWiki |
-|--------|----------------|---------|
+| -------- | ---------------- | --------- |
 | **Startup Time** | Slower (JVM warmup) | Faster (Node.js startup) |
 | **Runtime Performance** | Optimized JVM execution | V8 JavaScript optimization |
 | **Memory Usage** | Higher JVM overhead | Lower Node.js footprint |
@@ -250,7 +250,7 @@ Both systems support identical JSPWiki markup:
 ### Plugin Compatibility
 
 | Plugin | JSPWiki | amdWiki | Compatibility |
-|--------|---------|---------|---------------|
+| -------- | --------- | --------- | --------------- |
 | ReferringPages | ✅ | ✅ | Full |
 | CurrentTime | ✅ | ⚠️ (as UptimePlugin) | Functional |
 | Search | ✅ | ✅ | Full |

@@ -32,7 +32,7 @@ Manager → Provider Interface → Concrete Provider → Storage
 Methods implemented from the base provider interface:
 
 | Method | Description |
-|--------|-------------|
+| -------- | ------------- |
 | `initialize()` | Provider initialization |
 | `method1()` | Description |
 | `method2()` | Description |
@@ -40,7 +40,7 @@ Methods implemented from the base provider interface:
 ## Configuration
 
 | Property | Type | Default | Description |
-|----------|------|---------|-------------|
+| ---------- | ------ | --------- | ------------- |
 | `amdwiki.provider.option1` | string | "default" | Description |
 | `amdwiki.provider.storagePath` | string | "./data" | Storage location |
 
@@ -88,7 +88,7 @@ Retrieves data by identifier.
 **Parameters:**
 
 | Name | Type | Required | Description |
-|------|------|----------|-------------|
+| ------ | ------ | ---------- | ------------- |
 | identifier | string | Yes | Unique identifier |
 
 **Returns:** `Promise<Object|null>` - The data object or null if not found
@@ -106,7 +106,7 @@ Saves data with the given identifier.
 **Parameters:**
 
 | Name | Type | Required | Description |
-|------|------|----------|-------------|
+| ------ | ------ | ---------- | ------------- |
 | identifier | string | Yes | Unique identifier |
 | data | Object | Yes | Data to save |
 
@@ -140,7 +140,7 @@ const result = await manager.getItem('example');
 ## Error Handling
 
 | Error | Cause | Solution |
-|-------|-------|----------|
+| ------- | ------- | ---------- |
 | StorageNotFound | Storage path doesn't exist | Check configuration path |
 | PermissionDenied | No write access | Check file permissions |
 
@@ -159,5 +159,5 @@ const result = await manager.getItem('example');
 ## Version History
 
 | Version | Date | Changes |
-|---------|------|---------|
+| --------- | ------ | --------- |
 | 1.0.0 | YYYY-MM-DD | Initial implementation |

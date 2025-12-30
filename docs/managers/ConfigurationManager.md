@@ -46,7 +46,7 @@ await configManager.setProperty('amdwiki.applicationName', 'My Wiki');
 ## Core Methods
 
 | Method | Returns | Description |
-|--------|---------|-------------|
+| -------- | --------- | ------------- |
 | `getProperty(key, default)` | `any` | Get property with optional default |
 | `setProperty(key, value)` | `Promise<void>` | Set and persist custom property |
 | `getAllProperties()` | `Object` | Get all merged properties |
@@ -57,7 +57,7 @@ await configManager.setProperty('amdwiki.applicationName', 'My Wiki');
 ## Convenience Methods
 
 | Method | Returns | Config Key |
-|--------|---------|------------|
+| -------- | --------- | ------------ |
 | `getApplicationName()` | `string` | `amdwiki.applicationName` |
 | `getBaseURL()` | `string` | `amdwiki.baseURL` |
 | `getFrontPage()` | `string` | `amdwiki.frontPage` |
@@ -69,7 +69,7 @@ await configManager.setProperty('amdwiki.applicationName', 'My Wiki');
 ## Specialized Config Methods
 
 | Method | Returns | Description |
-|--------|---------|-------------|
+| -------- | --------- | ------------- |
 | `getManagerConfig(name)` | `Object` | Manager-specific settings |
 | `getFeatureConfig(name)` | `Object` | Feature toggle and settings |
 | `getLoggingConfig()` | `Object` | Logging configuration |
@@ -81,7 +81,7 @@ await configManager.setProperty('amdwiki.applicationName', 'My Wiki');
 ## Configuration Files
 
 | File | Purpose | Edit? |
-|------|---------|-------|
+| ------ | --------- | ------- |
 | `config/app-default-config.json` | Base defaults | No |
 | `config/app-{env}-config.json` | Environment-specific | Optional |
 | `config/app-custom-config.json` | Local overrides | Yes |
@@ -91,7 +91,7 @@ await configManager.setProperty('amdwiki.applicationName', 'My Wiki');
 For Docker/Traefik deployments:
 
 | Variable | Config Key |
-|----------|------------|
+| ---------- | ------------ |
 | `AMDWIKI_BASE_URL` | `amdwiki.baseURL` |
 | `AMDWIKI_HOSTNAME` | `amdwiki.hostname` |
 | `AMDWIKI_HOST` | `amdwiki.server.host` |

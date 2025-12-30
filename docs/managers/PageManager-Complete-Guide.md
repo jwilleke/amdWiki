@@ -188,7 +188,7 @@ All PageManager configuration keys use **lowercase** naming:
 #### General Settings
 
 | Key | Type | Default | Description |
-|-----|------|---------|-------------|
+| ----- | ------ | --------- | ------------- |
 | `amdwiki.page.enabled` | boolean | `true` | Enable/disable page storage system |
 | `amdwiki.page.provider.default` | string | `"filesystemprovider"` | Default provider name (fallback) |
 | `amdwiki.page.provider` | string | `"filesystemprovider"` | Active provider name |
@@ -206,7 +206,7 @@ const defaultProvider = getProperty('amdwiki.page.provider.default')
 #### FileSystemProvider Settings
 
 | Key | Type | Default | Description |
-|-----|------|---------|-------------|
+| ----- | ------ | --------- | ------------- |
 | `amdwiki.page.provider.filesystem.storagedir` | string | `"./pages"` | Main pages directory |
 | `amdwiki.page.provider.filesystem.requiredpagesdir` | string | `"./required-pages"` | System pages directory |
 | `amdwiki.page.provider.filesystem.encoding` | string | `"utf-8"` | File encoding |
@@ -217,7 +217,7 @@ const defaultProvider = getProperty('amdwiki.page.provider.default')
 Configuration uses **lowercase** provider names, which are normalized to **PascalCase** class names:
 
 | Configuration Value | Class Name |
-|---------------------|------------|
+| --------------------- | ------------ |
 | `filesystemprovider` | `FileSystemProvider` |
 | `databaseprovider` | `DatabaseProvider` |
 | `databasepageprovider` | `DatabasePageProvider` |
@@ -399,7 +399,7 @@ This is the content of the page in Markdown format...
 ### Frontmatter Schema
 
 | Field | Type | Required | Description |
-|-------|------|----------|-------------|
+| ------- | ------ | ---------- | ------------- |
 | `title` | string | Yes | Page title (human-readable name) |
 | `uuid` | string | Yes | Unique identifier (UUID v4) |
 | `author` | string | Yes | Page creator username |

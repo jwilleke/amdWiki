@@ -47,7 +47,7 @@ await pageManager.deletePage('My Page');
 ## Core Methods
 
 | Method | Returns | Description |
-|--------|---------|-------------|
+| -------- | --------- | ------------- |
 | `getPage(identifier)` | `Promise<Object\|null>` | Get page by title or UUID |
 | `getPageContent(identifier)` | `Promise<string>` | Get content only |
 | `getPageMetadata(identifier)` | `Promise<Object\|null>` | Get metadata only |
@@ -60,7 +60,7 @@ await pageManager.deletePage('My Page');
 ## WikiContext Methods
 
 | Method | Description |
-|--------|-------------|
+| -------- | ------------- |
 | `savePageWithContext(wikiContext, metadata)` | Save using WikiContext |
 | `deletePageWithContext(wikiContext)` | Delete using WikiContext |
 
@@ -91,7 +91,7 @@ await pageManager.deletePage('My Page');
 ## Available Providers
 
 | Provider | Status | Description |
-|----------|--------|-------------|
+| ---------- | -------- | ------------- |
 | `FileSystemProvider` | Production | Filesystem with UUID naming |
 | `DatabaseProvider` | Planned | SQL/NoSQL database storage |
 | `S3Provider` | Planned | AWS S3 cloud storage |

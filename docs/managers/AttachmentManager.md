@@ -44,7 +44,7 @@ await attachmentManager.deleteAttachment(attachment.identifier, wikiContext);
 ## Core Methods
 
 | Method | Returns | Description |
-|--------|---------|-------------|
+| -------- | --------- | ------------- |
 | `uploadAttachment(buffer, fileInfo, options)` | `Promise<Object>` | Upload new attachment |
 | `getAttachment(id)` | `Promise<{buffer, metadata}>` | Get attachment data and metadata |
 | `getAttachmentMetadata(id)` | `Promise<Object>` | Get metadata only |
@@ -73,7 +73,7 @@ await attachmentManager.deleteAttachment(attachment.identifier, wikiContext);
 ## Available Providers
 
 | Provider | Status | Storage |
-|----------|--------|---------|
+| ---------- | -------- | --------- |
 | `BasicAttachmentProvider` | Production | Filesystem with hash-based deduplication |
 | `DatabaseAttachmentProvider` | Planned | SQL database |
 | `S3AttachmentProvider` | Planned | AWS S3 |

@@ -73,7 +73,7 @@ This document outlines a comprehensive plan to migrate amdWiki from JavaScript t
 ### ✅ Pros of TypeScript Migration
 
 | Benefit | Impact | Details |
-|---------|--------|---------|
+| --------- | -------- | --------- |
 | **Type Safety** | 🟢 High | Catch bugs before runtime (null checks, property typos, etc.) |
 | **IDE Support** | 🟢 High | IntelliSense, auto-imports, refactoring tools |
 | **Code Quality** | 🟢 High | Forces explicit interfaces and contracts |
@@ -92,7 +92,7 @@ This document outlines a comprehensive plan to migrate amdWiki from JavaScript t
 ### ❌ Cons of TypeScript Migration
 
 | Challenge | Impact | Mitigation |
-|-----------|--------|------------|
+| ----------- | -------- | ------------ |
 | **Learning Curve** | 🟡 Medium | Team training, gradual adoption, good docs |
 | **Build Step Required** | 🟡 Medium | Use `tsx` or `ts-node` for development |
 | **Compilation Time** | 🟡 Medium | Incremental builds, fast tooling (esbuild/swc) |
@@ -1102,7 +1102,7 @@ npm install --save-dev typedoc
 ## Risk Assessment
 
 | Risk | Probability | Impact | Mitigation |
-|------|-------------|--------|------------|
+| ------ | ------------- | -------- | ------------ |
 | **Breaking changes during migration** | 🟡 Medium | 🔴 High | Incremental migration, comprehensive tests, feature flags |
 | **Team resistance to TypeScript** | 🟢 Low | 🟡 Medium | Training, pair programming, gradual adoption |
 | **Performance degradation** | 🟢 Low | 🟡 Medium | Benchmark critical paths, use compiled JS in production |
@@ -1118,7 +1118,7 @@ npm install --save-dev typedoc
 ### Total Duration: **12 Weeks** (3 months)
 
 | Phase | Duration | Resources | Risk |
-|-------|----------|-----------|------|
+| ------- | ---------- | ----------- | ------ |
 | Phase 0: Setup | 1 week | 1 dev | Low |
 | Phase 1: Utilities | 2 weeks | 1-2 devs | Low |
 | Phase 2: Type Definitions | 1 week | 1 dev | Medium |

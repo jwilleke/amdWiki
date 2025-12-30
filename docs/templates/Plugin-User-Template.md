@@ -39,7 +39,7 @@ Clear explanation of the plugin's purpose in plain language.
 ## Options
 
 | Option | Values | Default | What it does |
-|--------|--------|---------|--------------|
+| -------- | -------- | --------- | -------------- |
 | option1 | text | - | Description |
 | option2 | number | 10 | Description |
 | format | default, compact | default | Changes output style |

@@ -20,7 +20,7 @@ The UptimePlugin shows how long the wiki server has been running since its last 
 ## Plugin Metadata
 
 | Property | Value |
-|----------|-------|
+| ---------- | ------- |
 | Name | UptimePlugin |
 | Author | amdWiki |
 | Version | 1.0.0 |
@@ -60,7 +60,7 @@ Server uptime: [{UptimePlugin}]
 !! System Status
 
 | Metric | Value |
-|--------|-------|
+| -------- | ------- |
 | Server Uptime | [{UptimePlugin}] |
 | Active Sessions | [{SessionsPlugin}] |
 | Total Pages | [{TotalPagesPlugin}] |
@@ -78,7 +78,7 @@ Wiki powered by amdWiki. Uptime: [{UptimePlugin}]
 The uptime is formatted based on duration:
 
 | Duration | Format | Example |
-|----------|--------|---------|
+| ---------- | -------- | --------- |
 | >= 1 day | `Xd Yh Zm` | `3d 12h 45m` |
 | >= 1 hour | `Yh Zm` | `5h 30m` |
 | < 1 hour | `Zm` | `45m` |
@@ -124,14 +124,14 @@ formatUptime(seconds) {
 ## JSPWiki Compatibility
 
 | Feature | JSPWiki | amdWiki | Notes |
-|---------|---------|---------|-------|
+| --------- | --------- | --------- | ------- |
 | Basic syntax | Yes | Yes | Same behavior |
 | Output format | Similar | Yes | Days/hours/minutes |
 
 ## Error Handling
 
 | Error | Cause | Output |
-|-------|-------|--------|
+| ------- | ------- | -------- |
 | No engine | Context missing engine | "Unknown" |
 | No startTime | Engine not initialized properly | "Unknown" |
 
@@ -148,5 +148,5 @@ formatUptime(seconds) {
 ## Version History
 
 | Version | Date | Changes |
-|---------|------|---------|
+| --------- | ------ | --------- |
 | 1.0.0 | 2025-09-07 | Initial implementation |

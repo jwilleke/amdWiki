@@ -44,7 +44,7 @@ await notifyManager.dismissNotification(id, 'alice');
 ## Notification Types
 
 | Type | Description |
-|------|-------------|
+| ------ | ------------- |
 | `system` | General system announcements |
 | `maintenance` | Maintenance mode notifications |
 | `user` | User-specific notifications |
@@ -52,7 +52,7 @@ await notifyManager.dismissNotification(id, 'alice');
 ## Severity Levels
 
 | Level | Description |
-|-------|-------------|
+| ------- | ------------- |
 | `info` | Informational message |
 | `warning` | Warning or caution |
 | `error` | Error or problem |

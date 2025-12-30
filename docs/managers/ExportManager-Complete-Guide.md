@@ -40,7 +40,7 @@
 ### Properties
 
 | Property | Type | Default | Description |
-|----------|------|---------|-------------|
+| ---------- | ------ | --------- | ------------- |
 | `exportDirectory` | `string` | `./exports` | Directory for saved exports |
 | `supportedFormats` | `string[]` | `['html', 'pdf', 'markdown']` | Supported export formats |
 
@@ -257,7 +257,7 @@ If user has `preferences.locale` set, uses LocaleUtils for formatting. Otherwise
 ### Export Methods
 
 | Method | Parameters | Returns |
-|--------|------------|---------|
+| -------- | ------------ | --------- |
 | `exportPageToHtml(pageName, user)` | string, Object? | `Promise<string>` |
 | `exportPagesToHtml(pageNames, user)` | string[], Object? | `Promise<string>` |
 | `exportToMarkdown(pageNames, user)` | string\|string[], Object? | `Promise<string>` |
@@ -265,7 +265,7 @@ If user has `preferences.locale` set, uses LocaleUtils for formatting. Otherwise
 ### File Management
 
 | Method | Parameters | Returns |
-|--------|------------|---------|
+| -------- | ------------ | --------- |
 | `saveExport(content, filename, format)` | string, string, string | `Promise<string>` |
 | `getExports()` | - | `Promise<Array<Object>>` |
 | `deleteExport(filename)` | string | `Promise<void>` |
@@ -273,7 +273,7 @@ If user has `preferences.locale` set, uses LocaleUtils for formatting. Otherwise
 ### Utility
 
 | Method | Parameters | Returns |
-|--------|------------|---------|
+| -------- | ------------ | --------- |
 | `getFormattedTimestamp(user)` | Object? | `string` |
 
 ---

@@ -95,7 +95,7 @@ data/users/
 ## Core Methods
 
 | Method | Purpose | Example |
-|--------|---------|---------|
+| -------- | --------- | --------- |
 | `getUser(username)` | Get user by username | `await provider.getUser('admin')` |
 | `getUsers()` | Get all users | `const users = await provider.getUsers()` |
 | `createUser(userData)` | Create new user | `await provider.createUser({username: 'bob', ...})` |

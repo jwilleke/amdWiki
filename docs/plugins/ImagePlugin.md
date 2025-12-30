@@ -20,7 +20,7 @@ The ImagePlugin implements JSPWiki-style inline image functionality. It supports
 ## Plugin Metadata
 
 | Property | Value |
-|----------|-------|
+| ---------- | ------- |
 | Name | Image |
 | Author | amdWiki |
 | Version | 1.0.0 |
@@ -49,7 +49,7 @@ The ImagePlugin implements JSPWiki-style inline image functionality. It supports
 ## Parameters
 
 | Parameter | Type | Default | Required | Description |
-|-----------|------|---------|----------|-------------|
+| ----------- | ------ | --------- | ---------- | ------------- |
 | src | string | - | Yes | Image source path or URL |
 | alt | string | caption or "Uploaded image" | No | Alt text for accessibility |
 | caption | string | - | No | Caption below image |
@@ -66,7 +66,7 @@ The ImagePlugin implements JSPWiki-style inline image functionality. It supports
 ### Display Modes
 
 | Mode | Description |
-|------|-------------|
+| ------ | ------------- |
 | float | Allows text wrapping around image (default) |
 | block | Image in its own block, no text wrapping |
 | inline | Image flows inline with text |
@@ -75,7 +75,7 @@ The ImagePlugin implements JSPWiki-style inline image functionality. It supports
 ### Alignment Options
 
 | Align | Float Mode | Block Mode | Inline Mode |
-|-------|------------|------------|-------------|
+| ------- | ------------ | ------------ | ------------- |
 | left | Float left, text wraps | Left-aligned, no wrap | Margin-right added |
 | right | Float right, text wraps | Right-aligned, no wrap | Margin-left added |
 | center | Block centered | Block centered | Vertical-align middle |
@@ -134,7 +134,7 @@ This text will wrap around the image on the right side.
 The plugin reads these configuration options:
 
 | Property | Default | Description |
-|----------|---------|-------------|
+| ---------- | --------- | ------------- |
 | `amdwiki.features.images.defaultAlt` | "Uploaded image" | Default alt text |
 | `amdwiki.features.images.defaultClass` | "wiki-image" | Default CSS class |
 
@@ -158,7 +158,7 @@ if (!src.startsWith("http") && !src.startsWith("/")) {
 ## JSPWiki Compatibility
 
 | Feature | JSPWiki | amdWiki | Notes |
-|---------|---------|---------|-------|
+| --------- | --------- | --------- | ------- |
 | Basic syntax | Yes | Yes | Fully compatible |
 | src, alt, width, height | Yes | Yes | Same behavior |
 | align | Yes | Yes | Same values |
@@ -169,14 +169,14 @@ if (!src.startsWith("http") && !src.startsWith("/")) {
 ## Error Handling
 
 | Error | Cause | Output |
-|-------|-------|--------|
+| ------- | ------- | -------- |
 | Missing src | src not provided | Error message span |
 | Invalid path | Image not found | Browser handles 404 |
 
 ## CSS Classes
 
 | Class | Applied To | Description |
-|-------|-----------|-------------|
+| ------- | ----------- | ------------- |
 | wiki-image | img | Default image class |
 | image-plugin-container | div | Container when caption present |
 | image-caption | div | Caption text styling |
@@ -193,5 +193,5 @@ if (!src.startsWith("http") && !src.startsWith("/")) {
 ## Version History
 
 | Version | Date | Changes |
-|---------|------|---------|
+| --------- | ------ | --------- |
 | 1.0.0 | 2025-10-19 | Initial implementation |

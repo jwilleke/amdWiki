@@ -549,7 +549,7 @@ console.log(currentUser.roles); // ["editor", "Authenticated", "All"]
 UserManager automatically adds built-in roles to user contexts:
 
 | Role | Added For | Purpose |
-|------|-----------|---------|
+| ------ | ----------- | --------- |
 | `All` | Everyone | Universal role for all users (including anonymous) |
 | `Authenticated` | Logged-in users | Role for any authenticated user |
 | `Anonymous` | No session | Public access without authentication |

@@ -268,27 +268,27 @@ async restore(backupData) {
 ### Constructor
 
 | Method | Parameters | Description |
-|--------|------------|-------------|
+| -------- | ------------ | ------------- |
 | `constructor(engine)` | WikiEngine | Create manager with engine reference |
 
 ### Lifecycle Methods
 
 | Method | Parameters | Returns | Description |
-|--------|------------|---------|-------------|
+| -------- | ------------ | --------- | ------------- |
 | `initialize(config)` | Object (optional) | `Promise<void>` | Initialize manager |
 | `shutdown()` | - | `Promise<void>` | Shutdown manager |
 
 ### State Methods
 
 | Method | Parameters | Returns | Description |
-|--------|------------|---------|-------------|
+| -------- | ------------ | --------- | ------------- |
 | `isInitialized()` | - | `boolean` | Check initialization state |
 | `getEngine()` | - | `WikiEngine` | Get engine reference |
 
 ### Backup/Restore Methods
 
 | Method | Parameters | Returns | Description |
-|--------|------------|---------|-------------|
+| -------- | ------------ | --------- | ------------- |
 | `backup()` | - | `Promise<Object>` | Create backup of manager data |
 | `restore(backupData)` | Object | `Promise<void>` | Restore from backup |
 

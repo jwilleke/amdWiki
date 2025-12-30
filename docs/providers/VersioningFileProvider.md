@@ -93,7 +93,7 @@ data/versions/
 ### Version History
 
 | Method | Purpose | Example |
-|--------|---------|---------|
+| -------- | --------- | --------- |
 | `getVersionHistory(identifier)` | Get all versions for page | `await provider.getVersionHistory('Home')` |
 | `getPageVersion(identifier, version)` | Get specific version | `await provider.getPageVersion('Home', 5)` |
 | `getLatestVersion(identifier)` | Get current version number | `const v = await provider.getLatestVersion('Home')` |

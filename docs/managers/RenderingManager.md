@@ -48,7 +48,7 @@ const total = renderingManager.getTotalPagesCount();
 ## Core Rendering Methods
 
 | Method | Returns | Description |
-|--------|---------|-------------|
+| -------- | --------- | ------------- |
 | `renderMarkdown(content, pageName, userContext, requestInfo)` | `Promise<string>` | Convert markdown to HTML (auto-selects parser) |
 | `textToHTML(context, content)` | `Promise<string>` | Render using WikiContext |
 | `renderPreview(content, pageName, userContext)` | `Promise<string>` | Render for preview (no cache) |
@@ -59,7 +59,7 @@ const total = renderingManager.getTotalPagesCount();
 ## Link Graph Methods
 
 | Method | Returns | Description |
-|--------|---------|-------------|
+| -------- | --------- | ------------- |
 | `buildLinkGraph()` | `Promise<void>` | Build page relationship graph |
 | `rebuildLinkGraph()` | `Promise<void>` | Rebuild link graph |
 | `getReferringPages(pageName)` | `string[]` | Get pages linking to this page |
@@ -69,7 +69,7 @@ const total = renderingManager.getTotalPagesCount();
 ## Parser Methods
 
 | Method | Returns | Description |
-|--------|---------|-------------|
+| -------- | --------- | ------------- |
 | `getParser()` | `MarkupParser\|null` | Get MarkupParser if enabled |
 | `initializeLinkParser()` | `Promise<void>` | Initialize link parser with page names |
 
@@ -111,7 +111,7 @@ const total = renderingManager.getTotalPagesCount();
 ## Wiki Link Syntax
 
 | Syntax | Result |
-|--------|--------|
+| -------- | -------- |
 | `[PageName]` | Link to PageName |
 | `[Display Text\|Target]` | Link with custom text |
 | `[Text\|http://example.com]` | External link |

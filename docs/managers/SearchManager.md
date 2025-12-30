@@ -55,7 +55,7 @@ const similar = await searchManager.suggestSimilarPages('HomePage', 5);
 ## Core Methods
 
 | Method | Returns | Description |
-|--------|---------|-------------|
+| -------- | --------- | ------------- |
 | `search(query, options)` | `Promise<Array>` | Simple full-text search |
 | `advancedSearch(options)` | `Promise<Array>` | Field-specific advanced search |
 | `searchWithContext(context, query, options)` | `Promise<Array>` | Permission-aware search |
@@ -136,7 +136,7 @@ await searchManager.advancedSearch({
 ## Available Providers
 
 | Provider | Status | Description |
-|----------|--------|-------------|
+| ---------- | -------- | ------------- |
 | `LunrSearchProvider` | ✅ Production | In-memory full-text search |
 | `ElasticsearchProvider` | 🔮 Planned | Distributed search via Elasticsearch |
 | `SolrProvider` | 🔮 Planned | Distributed search via Apache Solr |

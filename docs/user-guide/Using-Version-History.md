@@ -59,7 +59,7 @@ The Page History view shows all versions of a page in a table format.
 ### Version Table Columns
 
 | Column | Description |
-|--------|-------------|
+| -------- | ------------- |
 | **Version** | Version number (e.g., v1, v2, v3) |
 | **Date** | When this version was created |
 | **Author** | Who made the changes |

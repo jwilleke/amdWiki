@@ -826,7 +826,7 @@ policyValidator.clearCache(); // Clear validation cache
 ### Schema Errors
 
 | Field | Message | Cause |
-|-------|---------|-------|
+| ------- | --------- | ------- |
 | `/id` | must be string | ID is not a string |
 | `/priority` | must be number | Priority is not a number |
 | `/effect` | must be equal to one of the allowed values | Effect is not "allow" or "deny" |
@@ -835,7 +835,7 @@ policyValidator.clearCache(); // Clear validation cache
 ### Business Errors
 
 | Field | Message | Cause |
-|-------|---------|-------|
+| ------- | --------- | ------- |
 | `subjects[n]` | Duplicate subject criteria found | Same subject appears twice |
 | `priority` | Priority must be between 0 and 1000 | Priority out of range |
 | `actions` | Duplicate actions found | Same action appears twice |
@@ -843,7 +843,7 @@ policyValidator.clearCache(); // Clear validation cache
 ### Semantic Errors
 
 | Field | Message | Cause |
-|-------|---------|-------|
+| ------- | --------- | ------- |
 | `conditions[n]` | Time range condition must have both startTime and endTime | Missing time |
 | `effect` | Deny policies should not include admin actions | Anti-pattern |
 

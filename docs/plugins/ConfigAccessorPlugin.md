@@ -94,7 +94,7 @@ Shows all configuration properties for a specific feature.
 ## Parameters
 
 | Parameter | Values | Default | Required | Description |
-|-----------|--------|---------|----------|-------------|
+| ----------- | -------- | --------- | ---------- | ------------- |
 | `key` | Config key with optional wildcards (*) | *(none)* | Yes (if no `type`) | Configuration key in dot-notation, supports wildcards |
 | `type` | `roles`, `permissions`, `policy-summary`, `user-summary`, `manager`, `feature` | *(none)* | Yes (if no `key`) | What type of configuration to display |
 | `valueonly` | `true`, `false` | `false` | No | Return only value(s) without HTML formatting |
@@ -470,7 +470,7 @@ returns: { indexPath: './index', ... }
 When displaying roles (`type='roles'`), each role includes:
 
 | Field | Description |
-|-------|-------------|
+| ------- | ------------- |
 | `name` | Internal role identifier (e.g., `admin`, `editor`) |
 | `displayname` | Human-readable name (e.g., "Administrator") |
 | `description` | Role purpose and permissions |

@@ -20,7 +20,7 @@ The SearchPlugin allows embedding search results within wiki content. It support
 ## Plugin Metadata
 
 | Property | Value |
-|----------|-------|
+| ---------- | ------- |
 | Name | SearchPlugin |
 | Author | amdWiki |
 | Version | 2.0.0 |
@@ -49,7 +49,7 @@ The SearchPlugin allows embedding search results within wiki content. It support
 ## Parameters
 
 | Parameter | Type | Default | Required | Description |
-|-----------|------|---------|----------|-------------|
+| ----------- | ------ | --------- | ---------- | ------------- |
 | query | string | * | No | Search text query (* for all pages) |
 | system-category | string | - | No | Filter by system category |
 | user-keywords | string | - | No | Filter by user keywords (pipe-separated for OR) |
@@ -59,7 +59,7 @@ The SearchPlugin allows embedding search results within wiki content. It support
 ### Format Options
 
 | Format | Description |
-|--------|-------------|
+| -------- | ------------- |
 | table | Full table with page names and scores (default) |
 | count | Just the count of matching pages |
 | titles | Bullet list with page links |
@@ -206,7 +206,7 @@ async execute(context, params) {
 ## JSPWiki Compatibility
 
 | Feature | JSPWiki | amdWiki | Notes |
-|---------|---------|---------|-------|
+| --------- | --------- | --------- | ------- |
 | query parameter | Yes | Yes | Same behavior |
 | max parameter | Yes | Yes | Same behavior |
 | Table output | Yes | Yes | Similar format |
@@ -217,7 +217,7 @@ async execute(context, params) {
 ## Error Handling
 
 | Error | Cause | Output |
-|-------|-------|--------|
+| ------- | ------- | -------- |
 | SearchManager unavailable | Engine not ready | Error message |
 | Invalid max | Non-numeric value | Error message |
 | Invalid format | Unknown format type | Error message |
@@ -226,7 +226,7 @@ async execute(context, params) {
 ## CSS Classes
 
 | Class | Description |
-|-------|-------------|
+| ------- | ------------- |
 | search-plugin | Container div |
 | search-summary | Results summary |
 | search-results | Results table |
@@ -243,6 +243,6 @@ async execute(context, params) {
 ## Version History
 
 | Version | Date | Changes |
-|---------|------|---------|
+| --------- | ------ | --------- |
 | 2.0.0 | 2025-11-26 | Added format parameter, category/keyword filters |
 | 1.0.0 | 2025-10-01 | Initial implementation |

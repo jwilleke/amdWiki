@@ -20,7 +20,7 @@ The SessionsPlugin provides real-time information about how many users are curre
 ## Plugin Metadata
 
 | Property | Value |
-|----------|-------|
+| ---------- | ------- |
 | Name | SessionsPlugin |
 | Author | amdWiki |
 | Version | 1.0.0 |
@@ -45,13 +45,13 @@ Shows total session count.
 ## Parameters
 
 | Parameter | Type | Default | Required | Description |
-|-----------|------|---------|----------|-------------|
+| ----------- | ------ | --------- | ---------- | ------------- |
 | property | string | users | No | What to count: "users" or "distinctUsers" |
 
 ### Property Values
 
 | Value | Description |
-|-------|-------------|
+| ------- | ------------- |
 | users | Total number of active sessions (default) |
 | distinctUsers | Number of unique logged-in users |
 
@@ -79,7 +79,7 @@ Currently [{SessionsPlugin}] active sessions.
 !! System Status
 
 | Metric | Value |
-|--------|-------|
+| -------- | ------- |
 | Active Sessions | [{SessionsPlugin}] |
 | Unique Users | [{SessionsPlugin property='distinctUsers'}] |
 | Server Uptime | [{UptimePlugin}] |
@@ -120,14 +120,14 @@ The plugin calls `/api/session-count` which returns:
 ### Configuration
 
 | Property | Default | Description |
-|----------|---------|-------------|
+| ---------- | --------- | ------------- |
 | `amdwiki.server.host` | localhost | Server hostname |
 | `amdwiki.server.port` | 3000 | Server port |
 
 ## JSPWiki Compatibility
 
 | Feature | JSPWiki | amdWiki | Notes |
-|---------|---------|---------|-------|
+| --------- | --------- | --------- | ------- |
 | Basic syntax | Yes | Yes | Same behavior |
 | Session count | Yes | Yes | Via API call |
 | property parameter | Partial | Yes | Extended options |
@@ -135,7 +135,7 @@ The plugin calls `/api/session-count` which returns:
 ## Error Handling
 
 | Error | Cause | Output |
-|-------|-------|--------|
+| ------- | ------- | -------- |
 | API unavailable | Server not responding | "0" |
 | Config error | Invalid configuration | "0" (uses defaults) |
 | Network error | Connection failed | "0" |
@@ -153,5 +153,5 @@ The plugin calls `/api/session-count` which returns:
 ## Version History
 
 | Version | Date | Changes |
-|---------|------|---------|
+| --------- | ------ | --------- |
 | 1.0.0 | 2025-10-05 | Initial implementation |

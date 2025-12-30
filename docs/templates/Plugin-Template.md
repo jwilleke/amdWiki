@@ -20,7 +20,7 @@ Detailed description of what this plugin provides and when to use it.
 ## Plugin Metadata
 
 | Property | Value |
-|----------|-------|
+| ---------- | ------- |
 | Name | PluginName |
 | Author | amdWiki |
 | Version | 1.0.0 |
@@ -43,7 +43,7 @@ Detailed description of what this plugin provides and when to use it.
 ## Parameters
 
 | Parameter | Type | Default | Required | Description |
-|-----------|------|---------|----------|-------------|
+| ----------- | ------ | --------- | ---------- | ------------- |
 | param1 | string | - | Yes | Description of param1 |
 | param2 | number | 10 | No | Description of param2 |
 | format | string | "default" | No | Output format: "default", "compact", "detailed" |
@@ -151,7 +151,7 @@ The plugin receives a WikiContext with:
 ## JSPWiki Compatibility
 
 | Feature | JSPWiki | amdWiki | Notes |
-|---------|---------|---------|-------|
+| --------- | --------- | --------- | ------- |
 | Basic syntax | Yes | Yes | Fully compatible |
 | param1 | Yes | Yes | Same behavior |
 | param2 | Yes | Partial | Different default |
@@ -159,7 +159,7 @@ The plugin receives a WikiContext with:
 ## Error Handling
 
 | Error | Cause | Output |
-|-------|-------|--------|
+| ------- | ------- | -------- |
 | Missing required param | param1 not provided | Error message displayed |
 | Invalid value | param1 has invalid value | Fallback to default |
 
@@ -176,5 +176,5 @@ The plugin receives a WikiContext with:
 ## Version History
 
 | Version | Date | Changes |
-|---------|------|---------|
+| --------- | ------ | --------- |
 | 1.0.0 | YYYY-MM-DD | Initial implementation |

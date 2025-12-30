@@ -61,7 +61,7 @@ required-pages/                                 (Only loaded during installation
 ## Core Methods
 
 | Method | Purpose | Example |
-|--------|---------|---------|
+| -------- | --------- | --------- |
 | `getPage(identifier)` | Get page by title/UUID/slug | `await provider.getPage('Home')` |
 | `getAllPages()` | Get all pages (cached) | `const pages = await provider.getAllPages()` |
 | `pageExists(identifier)` | Check if page exists | `if (await provider.pageExists('MyPage'))` |

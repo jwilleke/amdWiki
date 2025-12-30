@@ -627,7 +627,7 @@ Consider creating page-specific retention policies in future versions.
 ### Configuration Details
 
 | Setting | Type | Default | Description |
-|---------|------|---------|-------------|
+| --------- | ------ | --------- | ------------- |
 | `indexfile` | string | `./data/page-index.json` | Path to page index file |
 | `maxversions` | number | `50` | Maximum versions per page (auto-cleanup) |
 | `retentiondays` | number | `365` | Retention period in days (auto-cleanup) |

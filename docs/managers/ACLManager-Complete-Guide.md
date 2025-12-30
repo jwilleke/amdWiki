@@ -41,7 +41,7 @@
 ### Properties
 
 | Property | Type | Description |
-|----------|------|-------------|
+| ---------- | ------ | ------------- |
 | `accessPolicies` | `Map<string, Object>` | Global access policies loaded from config |
 | `policyEvaluator` | `PolicyEvaluator\|null` | Reference to PolicyEvaluator manager |
 
@@ -276,7 +276,7 @@ Logs to:
 ### Core Methods
 
 | Method | Parameters | Returns |
-|--------|------------|---------|
+| -------- | ------------ | --------- |
 | `initialize()` | - | `Promise<void>` |
 | `parsePageACL(content)` | string | `Map<string, Set<string>>` |
 | `checkPagePermissionWithContext(wikiContext, action)` | WikiContext, string | `Promise<boolean>` |
@@ -287,7 +287,7 @@ Logs to:
 ### Context Methods
 
 | Method | Parameters | Returns |
-|--------|------------|---------|
+| -------- | ------------ | --------- |
 | `checkContextRestrictions(user, context)` | Object, Object | `Promise<Object>` |
 | `checkMaintenanceMode(user, config)` | Object, Object | Object |
 | `checkBusinessHours(config, timeZone)` | Object, string | Object |
@@ -297,7 +297,7 @@ Logs to:
 ### Utility Methods
 
 | Method | Parameters | Returns |
-|--------|------------|---------|
+| -------- | ------------ | --------- |
 | `removeACLMarkup(content)` | string | string |
 | `stripACLMarkup(content)` | string | string |
 | `logAccessDecision(...)` | various | void |

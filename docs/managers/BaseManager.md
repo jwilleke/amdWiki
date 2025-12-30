@@ -42,7 +42,7 @@ class MyManager extends BaseManager {
 ## Core Methods
 
 | Method | Description |
-|--------|-------------|
+| -------- | ------------- |
 | `constructor(engine)` | Receive WikiEngine reference |
 | `initialize(config)` | Initialize the manager |
 | `isInitialized()` | Check initialization state |
@@ -54,7 +54,7 @@ class MyManager extends BaseManager {
 ## Properties
 
 | Property | Type | Description |
-|----------|------|-------------|
+| ---------- | ------ | ------------- |
 | `engine` | WikiEngine | Reference to wiki engine |
 | `initialized` | boolean | True after initialize() |
 | `config` | Object | Config passed to initialize() |

@@ -48,7 +48,7 @@ const sessionId = await userManager.createSession('john');
 ## Authentication Methods
 
 | Method | Returns | Description |
-|--------|---------|-------------|
+| -------- | --------- | ------------- |
 | `authenticateUser(username, password)` | `User\|null` | Authenticate credentials |
 | `createSession(username, data)` | `string` | Create session, return ID |
 | `getSession(sessionId)` | `Object\|null` | Get session data |
@@ -58,7 +58,7 @@ const sessionId = await userManager.createSession('john');
 ## Authorization Methods
 
 | Method | Returns | Description |
-|--------|---------|-------------|
+| -------- | --------- | ------------- |
 | `hasPermission(username, action)` | `Promise<boolean>` | Check permission via policies |
 | `getUserPermissions(username)` | `string[]` | Get all effective permissions |
 | `getCurrentUser(req)` | `Object` | Get user context from request |
@@ -66,7 +66,7 @@ const sessionId = await userManager.createSession('john');
 ## User Management Methods
 
 | Method | Returns | Description |
-|--------|---------|-------------|
+| -------- | --------- | ------------- |
 | `createUser(userData)` | `User` | Create new user |
 | `updateUser(username, updates)` | `User` | Update user info |
 | `deleteUser(username)` | `void` | Delete user |
@@ -76,7 +76,7 @@ const sessionId = await userManager.createSession('john');
 ## Role Methods
 
 | Method | Returns | Description |
-|--------|---------|-------------|
+| -------- | --------- | ------------- |
 | `getRole(roleName)` | `Role\|null` | Get role metadata |
 | `getRoles()` | `Role[]` | Get all role definitions |
 | `assignRole(username, role)` | `void` | Assign role to user |
@@ -85,7 +85,7 @@ const sessionId = await userManager.createSession('john');
 ## Built-in Roles
 
 | Role | Added For | Purpose |
-|------|-----------|---------|
+| ------ | ----------- | --------- |
 | `All` | Everyone | Universal role (including anonymous) |
 | `Authenticated` | Logged-in users | Any authenticated user |
 | `Anonymous` | No session | Public access |

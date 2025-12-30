@@ -31,7 +31,7 @@ Displays only contextual variables that depend on user or page context.
 ## Parameters
 
 | Parameter | Values | Default | Description |
-|-----------|--------|---------|-------------|
+| ----------- | -------- | --------- | ------------- |
 | `type` | `all`, `system`, `contextual`, `plugins` | `all` | Which type of information to display |
 
 ## Examples

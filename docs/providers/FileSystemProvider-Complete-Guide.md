@@ -606,7 +606,7 @@ const match = this.pageNameMatcher.findMatch(
 ### Plural Matching Examples
 
 | Requested | Available | Match | Reason |
-|-----------|-----------|-------|--------|
+| ----------- | ----------- | ------- | -------- |
 | `Page` | `Pages` | ✓ | Singular → Plural |
 | `Pages` | `Page` | ✓ | Plural → Singular |
 | `Plugin` | `Plugins` | ✓ | Singular → Plural |

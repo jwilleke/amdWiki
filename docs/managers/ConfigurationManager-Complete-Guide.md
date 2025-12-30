@@ -388,7 +388,7 @@ When adding new configuration properties:
 The ConfigurationManager maintains compatibility with JSPWiki patterns:
 
 | Feature | JSPWiki | amdWiki |
-|---------|---------|----------|
+| --------- | --------- | ---------- |
 | Property Format | `jspwiki.property` | `amdwiki.property` |
 | Two-tier Config | Yes | Yes ✓ |
 | Property Merging | Yes | Yes ✓ |

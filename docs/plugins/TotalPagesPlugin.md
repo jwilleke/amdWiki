@@ -20,7 +20,7 @@ The TotalPagesPlugin provides a simple count of all wiki pages. It's useful for 
 ## Plugin Metadata
 
 | Property | Value |
-|----------|-------|
+| ---------- | ------- |
 | Name | TotalPagesPlugin |
 | Author | amdWiki |
 | Version | 1.0.0 |
@@ -56,7 +56,7 @@ This wiki contains [{TotalPagesPlugin}] pages.
 !! Wiki Statistics
 
 | Metric | Value |
-|--------|-------|
+| -------- | ------- |
 | Total Pages | [{TotalPagesPlugin}] |
 | Active Sessions | [{SessionsPlugin}] |
 | Server Uptime | [{UptimePlugin}] |
@@ -99,14 +99,14 @@ Returns a plain number string (e.g., `"247"`), making it easy to embed inline.
 ## JSPWiki Compatibility
 
 | Feature | JSPWiki | amdWiki | Notes |
-|---------|---------|---------|-------|
+| --------- | --------- | --------- | ------- |
 | Basic syntax | Yes | Yes | Identical behavior |
 | Output format | Yes | Yes | Plain number |
 
 ## Error Handling
 
 | Error | Cause | Output |
-|-------|-------|--------|
+| ------- | ------- | -------- |
 | No engine | Context missing engine | "0" |
 | No PageManager | Manager not available | "0" |
 | API error | getAllPages fails | "0" |
@@ -126,5 +126,5 @@ Returns a plain number string (e.g., `"247"`), making it easy to embed inline.
 ## Version History
 
 | Version | Date | Changes |
-|---------|------|---------|
+| --------- | ------ | --------- |
 | 1.0.0 | 2025-12-12 | Initial implementation |

@@ -100,7 +100,7 @@ data/attachments/
 ## Core Methods
 
 | Method | Purpose | Example |
-|--------|---------|---------|
+| -------- | --------- | --------- |
 | `uploadAttachment(page, buffer, filename, mimeType, metadata)` | Upload new file | `await provider.uploadAttachment('MyPage', buffer, 'file.pdf', 'application/pdf', {...})` |
 | `getAttachment(attachmentId)` | Get file buffer | `const file = await provider.getAttachment('621c927...')` |
 | `getAttachmentMetadata(attachmentId)` | Get metadata only | `const meta = await provider.getAttachmentMetadata('621c927...')` |

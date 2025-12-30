@@ -342,7 +342,7 @@ policies.forEach(policy => {
 ### Priority Ranges
 
 | Priority | Use Case | Example |
-|----------|----------|---------|
+| ---------- | ---------- | --------- |
 | **90-100** | Critical system policies | Admin full access |
 | **70-89** | High-level role permissions | Editor permissions |
 | **50-69** | Standard role permissions | Contributor permissions |
@@ -446,7 +446,7 @@ function displayPolicyDetails(policyId) {
 ### Default Policies in amdWiki
 
 | Policy ID | Priority | Roles | Description |
-|-----------|----------|-------|-------------|
+| ----------- | ---------- | ------- | ------------- |
 | `admin-full-access` | 100 | admin | Full system access |
 | `editor-permissions` | 80 | editor | Create, edit, delete, rename pages |
 | `contributor-permissions` | 60 | contributor | Create and edit pages |

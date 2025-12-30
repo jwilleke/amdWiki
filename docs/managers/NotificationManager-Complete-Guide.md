@@ -41,7 +41,7 @@
 ### Properties
 
 | Property | Type | Description |
-|----------|------|-------------|
+| ---------- | ------ | ------------- |
 | `notifications` | `Map<string, Object>` | Active notifications by ID |
 | `notificationId` | `number` | Auto-incrementing ID counter |
 | `storagePath` | `string\|null` | Path to JSON storage file |
@@ -82,7 +82,7 @@ async initialize(config = {}) {
 All settings come from ConfigurationManager:
 
 | Property | Type | Default | Description |
-|----------|------|---------|-------------|
+| ---------- | ------ | --------- | ------------- |
 | `amdwiki.directories.data` | string | `./data` | Base data directory |
 | `amdwiki.notifications.dir` | string | (data dir) | Notifications directory |
 | `amdwiki.notifications.file` | string | `notifications.json` | Storage filename |
@@ -103,7 +103,7 @@ async createNotification(notification)
 **Parameters:**
 
 | Field | Type | Required | Description |
-|-------|------|----------|-------------|
+| ------- | ------ | ---------- | ------------- |
 | `type` | string | No | Type: system, maintenance, user (default: system) |
 | `title` | string | No | Notification title (default: "System Notification") |
 | `message` | string | No | Notification message |
@@ -331,7 +331,7 @@ async saveNotifications()
 ### Creation Methods
 
 | Method | Parameters | Returns |
-|--------|------------|---------|
+| -------- | ------------ | --------- |
 | `createNotification(notification)` | Object | `Promise<string>` |
 | `addNotification(notification)` | Object | `Promise<string>` |
 | `createMaintenanceNotification(enabled, admin, config)` | boolean, string, Object? | `Promise<string>` |
@@ -339,7 +339,7 @@ async saveNotifications()
 ### Query Methods
 
 | Method | Parameters | Returns |
-|--------|------------|---------|
+| -------- | ------------ | --------- |
 | `getUserNotifications(username, includeExpired)` | string, boolean? | `Array<Object>` |
 | `getAllNotifications(includeExpired)` | boolean? | `Array<Object>` |
 | `getStats()` | - | `Object` |
@@ -347,7 +347,7 @@ async saveNotifications()
 ### Management Methods
 
 | Method | Parameters | Returns |
-|--------|------------|---------|
+| -------- | ------------ | --------- |
 | `dismissNotification(id, username)` | string, string | `Promise<boolean>` |
 | `cleanupExpiredNotifications()` | - | `Promise<void>` |
 | `clearAllActive()` | - | `Promise<number>` |
@@ -355,7 +355,7 @@ async saveNotifications()
 ### Persistence Methods
 
 | Method | Parameters | Returns |
-|--------|------------|---------|
+| -------- | ------------ | --------- |
 | `loadNotifications()` | - | `Promise<void>` |
 | `saveNotifications()` | - | `Promise<void>` |
 | `shutdown()` | - | `Promise<void>` |

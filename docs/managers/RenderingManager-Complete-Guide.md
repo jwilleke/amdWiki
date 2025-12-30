@@ -179,7 +179,7 @@ The RenderingManager uses **Showdown 2.1.0** with the following GitHub Flavored 
 ### Core Features
 
 | Feature | Syntax | Configuration | Status |
-|---------|--------|---------------|--------|
+| --------- | -------- | --------------- | -------- |
 | **Tables** | `\| Header \| Header \|` | `tables: true` | ✅ Enabled |
 | **Strikethrough** | `~~text~~` | `strikethrough: true` | ✅ Enabled |
 | **Task Lists** | `- [x] Task` | `tasklists: true` | ✅ Enabled |
@@ -445,7 +445,7 @@ Both sources agree[^1][^2] on this point.
 ### Troubleshooting
 
 | Issue | Cause | Solution |
-|-------|-------|----------|
+| ------- | ------- | ---------- |
 | Footnotes render as red links | LinkParser treating `[^1]` as wiki link | Ensure MarkupParser.js:1512 excludes `^` character |
 | Definition shows as literal text | Missing colon `:` after identifier | Use `[^1]:` not `[^1]` |
 | Multi-paragraph not working | Insufficient indentation | Use exactly 4 spaces or 1 tab |
@@ -481,7 +481,7 @@ Located in `config/app-default-config.json`:
 The RenderingManager selects a parser based on configuration and availability:
 
 | Condition | Parser Used | Fallback |
-|-----------|-------------|----------|
+| ----------- | ------------- | ---------- |
 | `useAdvancedParser: true` + MarkupParser available | MarkupParser | Legacy if error |
 | `useAdvancedParser: true` + MarkupParser unavailable | Legacy | None |
 | `useAdvancedParser: false` | Legacy | None |
@@ -1058,7 +1058,7 @@ console.log('Backlinks:', backlinks);
 ## Version History
 
 | Version | Date | Changes |
-|---------|------|---------|
+| --------- | ------ | --------- |
 | 1.3.2 | 2025-10-16 | Added footnotes support via showdown-footnotes extension |
 | 1.3.1 | 2025-10-12 | Integrated MarkupParser with DOM extraction pipeline |
 | 1.3.0 | 2025-10-01 | Added dual-parser architecture with fallback |

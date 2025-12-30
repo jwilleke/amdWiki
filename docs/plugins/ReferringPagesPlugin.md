@@ -20,7 +20,7 @@ The ReferringPagesPlugin displays a list of pages that reference the current pag
 ## Plugin Metadata
 
 | Property | Value |
-|----------|-------|
+| ---------- | ------- |
 | Name | ReferringPagesPlugin |
 | Author | amdWiki |
 | Version | 1.0.0 |
@@ -51,7 +51,7 @@ Lists pages referring to the current page.
 ## Parameters
 
 | Parameter | Type | Default | Required | Description |
-|-----------|------|---------|----------|-------------|
+| ----------- | ------ | --------- | ---------- | ------------- |
 | page | string | current page | No | Target page to find references for |
 | max | number | 10 | No | Maximum pages to display |
 | show | string | list | No | Output mode: "list" or "count" |
@@ -155,7 +155,7 @@ The plugin receives a `linkGraph` object mapping pages to their referrers:
 ## JSPWiki Compatibility
 
 | Feature | JSPWiki | amdWiki | Notes |
-|---------|---------|---------|-------|
+| --------- | --------- | --------- | ------- |
 | Basic syntax | Yes | Yes | Fully compatible |
 | page parameter | Yes | Yes | Same behavior |
 | max parameter | Yes | Yes | Same behavior |
@@ -165,7 +165,7 @@ The plugin receives a `linkGraph` object mapping pages to their referrers:
 ## Error Handling
 
 | Scenario | Behavior |
-|----------|----------|
+| ---------- | ---------- |
 | No link graph | Returns empty list |
 | Page not in graph | Returns "No pages currently refer to this page" |
 | Invalid max value | Uses default (10) |
@@ -204,5 +204,5 @@ With `before='* '` and `after='\n'`, creates bullet list format.
 ## Version History
 
 | Version | Date | Changes |
-|---------|------|---------|
+| --------- | ------ | --------- |
 | 1.0.0 | 2025-10-12 | Initial implementation |

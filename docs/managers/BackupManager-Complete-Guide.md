@@ -197,7 +197,7 @@ By default, BackupManager is controled by values wihtin config/app-default-confi
 ### Fully Implemented (Production Ready)
 
 | Manager | Provider | Data Backed Up | Status |
-|---------|----------|----------------|--------|
+| --------- | ---------- | ---------------- | -------- |
 | **PageManager** | FileSystemProvider | All pages (regular + required), metadata, indices | ✅ Complete |
 | **UserManager** | FileUserProvider | Users, sessions, preferences | ✅ Complete |
 | **ConfigurationManager** | Direct | All config layers (default, environment, custom) | ✅ Complete |
@@ -244,7 +244,7 @@ ACLManager does **not** implement backup/restore because:
 ### Configuration Keys
 
 | Key | Type | Default | Description |
-|-----|------|---------|-------------|
+| ----- | ------ | --------- | ------------- |
 | `amdwiki.backup.enabled` | boolean | `true` | Enable/disable backup system |
 | `amdwiki.backup.directory` | string | `"./backups"` | Directory for backup files |
 | `amdwiki.backup.maxBackups` | number | `10` | Maximum backups to retain |
@@ -1064,7 +1064,7 @@ The **BackupManager** provides comprehensive backup and restore capabilities for
 ### Current Coverage
 
 | Manager | Status |
-|---------|--------|
+| --------- | -------- |
 | PageManager (120 pages) | ✅ Complete |
 | UserManager (5 users) | ✅ Complete |
 | ConfigurationManager (383 properties) | ✅ Complete |

@@ -37,14 +37,14 @@ const manager = engine.getManager('ManagerName');
 ### Services Used
 
 | Service | Purpose |
-|---------|---------|
+| --------- | --------- |
 | ConfigurationManager | Configuration access |
 | LoggerService | Logging |
 
 ### Managers Used
 
 | Manager | Purpose |
-|---------|---------|
+| --------- | --------- |
 | OtherManager | Description of interaction |
 
 ## Configuration
@@ -52,7 +52,7 @@ const manager = engine.getManager('ManagerName');
 Configuration options that affect this manager's behavior.
 
 | Property | Type | Default | Description |
-|----------|------|---------|-------------|
+| ---------- | ------ | --------- | ------------- |
 | `amdwiki.manager.option1` | string | "default" | Description |
 | `amdwiki.manager.option2` | boolean | true | Description |
 
@@ -65,7 +65,7 @@ Description of what this method does.
 **Parameters:**
 
 | Name | Type | Required | Description |
-|------|------|----------|-------------|
+| ------ | ------ | ---------- | ------------- |
 | param1 | string | Yes | Description |
 | param2 | Object | No | Description |
 
@@ -109,7 +109,7 @@ const result = await manager.advancedOperation({
 Common errors and how to handle them.
 
 | Error | Cause | Solution |
-|-------|-------|----------|
+| ------- | ------- | ---------- |
 | ManagerNotInitialized | Manager accessed before init | Ensure WikiEngine is initialized |
 
 ## Lifecycle
@@ -127,5 +127,5 @@ Common errors and how to handle them.
 ## Version History
 
 | Version | Date | Changes |
-|---------|------|---------|
+| --------- | ------ | --------- |
 | 1.0.0 | YYYY-MM-DD | Initial implementation |

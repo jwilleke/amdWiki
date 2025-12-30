@@ -58,7 +58,7 @@ The first two increments are hidden, the third shows: 3
 ## Parameters
 
 | Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
+| ----------- | ------ | --------- | ------------- |
 | `name` | string | `counter` | Distinguishes multiple counters on one page |
 | `increment` | number | `1` | Amount to add to counter (can be negative) |
 | `start` | number | (none) | Resets counter to specified value |
@@ -296,7 +296,7 @@ Progress: [{$counter}]/10 steps completed
 This plugin is fully compatible with JSPWiki's Counter plugin:
 
 | Feature | JSPWiki | amdWiki | Compatible |
-|---------|---------|---------|------------|
+| --------- | --------- | --------- | ------------ |
 | Basic counter | ✓ | ✓ | ✓ |
 | Named counters | ✓ | ✓ | ✓ |
 | Custom increment | ✓ | ✓ | ✓ |

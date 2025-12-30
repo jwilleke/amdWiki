@@ -20,7 +20,7 @@ The CurrentTimePlugin provides JSPWiki-compatible date/time display functionalit
 ## Plugin Metadata
 
 | Property | Value |
-|----------|-------|
+| ---------- | ------- |
 | Name | CurrentTimePlugin |
 | Author | amdWiki |
 | Version | 1.0.0 |
@@ -45,7 +45,7 @@ Uses user preferences for locale, timezone, and time format.
 ## Parameters
 
 | Parameter | Type | Default | Required | Description |
-|-----------|------|---------|----------|-------------|
+| ----------- | ------ | --------- | ---------- | ------------- |
 | format | string | - | No | Java SimpleDateFormat-style pattern |
 
 ### Format Pattern Tokens
@@ -53,7 +53,7 @@ Uses user preferences for locale, timezone, and time format.
 The plugin supports Java SimpleDateFormat-style patterns:
 
 | Token | Description | Example |
-|-------|-------------|---------|
+| ------- | ------------- | --------- |
 | yyyy | 4-digit year | 2025 |
 | yy | 2-digit year | 25 |
 | MMMM | Full month name | December |
@@ -119,7 +119,7 @@ The plugin supports Java SimpleDateFormat-style patterns:
 The plugin respects these user profile settings:
 
 | Setting | Description | Default |
-|---------|-------------|---------|
+| --------- | ------------- | --------- |
 | locale | User's locale code | en-US |
 | timezone | User's timezone | UTC |
 | timeFormat | 12h or 24h format | 12h |
@@ -150,7 +150,7 @@ execute(context, params) {
 ## JSPWiki Compatibility
 
 | Feature | JSPWiki | amdWiki | Notes |
-|---------|---------|---------|-------|
+| --------- | --------- | --------- | ------- |
 | Basic syntax | Yes | Yes | Fully compatible |
 | Format patterns | Yes | Yes | Java SimpleDateFormat-style |
 | User preferences | Partial | Yes | Extended preference support |
@@ -158,7 +158,7 @@ execute(context, params) {
 ## Error Handling
 
 | Error | Cause | Output |
-|-------|-------|--------|
+| ------- | ------- | -------- |
 | Invalid format | Unrecognized pattern | Falls back to locale default |
 | Missing context | No user context | Uses en-US/UTC defaults |
 
@@ -174,5 +174,5 @@ execute(context, params) {
 ## Version History
 
 | Version | Date | Changes |
-|---------|------|---------|
+| --------- | ------ | --------- |
 | 1.0.0 | 2025-10-05 | Initial implementation |

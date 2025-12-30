@@ -42,7 +42,7 @@
 ### Properties
 
 | Property | Type | Description |
-|----------|------|-------------|
+| ---------- | ------ | ------------- |
 | `templates` | `Object<string, Object>` | Loaded page templates |
 | `themes` | `Object<string, Object>` | Loaded CSS themes |
 | `templatesDirectory` | `string` | Path to templates directory |
@@ -76,7 +76,7 @@ During initialization:
 ## Configuration
 
 | Property | Type | Default | Description |
-|----------|------|---------|-------------|
+| ---------- | ------ | --------- | ------------- |
 | `templatesDirectory` | string | `./templates` | Template files location |
 | `themesDirectory` | string | `./themes` | Theme files location |
 
@@ -241,7 +241,7 @@ Templates use `{{variableName}}` syntax for substitution.
 **Default variables (auto-generated):**
 
 | Variable | Description |
-|----------|-------------|
+| ---------- | ------------- |
 | `{{uuid}}` | Generated UUID for the page |
 | `{{date}}` | Current date (YYYY-MM-DD) |
 | `{{timestamp}}` | Current ISO timestamp |
@@ -268,7 +268,7 @@ generateUUID()
 ### Template Methods
 
 | Method | Parameters | Returns |
-|--------|------------|---------|
+| -------- | ------------ | --------- |
 | `getTemplates()` | - | `Array<Object>` |
 | `getTemplate(name)` | string | `Object\|null` |
 | `applyTemplate(name, vars)` | string, Object | `string` |
@@ -278,7 +278,7 @@ generateUUID()
 ### Theme Methods
 
 | Method | Parameters | Returns |
-|--------|------------|---------|
+| -------- | ------------ | --------- |
 | `getThemes()` | - | `Array<Object>` |
 | `getTheme(name)` | string | `Object\|null` |
 | `createTheme(name, content)` | string, string | `Promise<void>` |
@@ -286,7 +286,7 @@ generateUUID()
 ### Utility Methods
 
 | Method | Parameters | Returns |
-|--------|------------|---------|
+| -------- | ------------ | --------- |
 | `generateUUID()` | - | `string` |
 
 ---

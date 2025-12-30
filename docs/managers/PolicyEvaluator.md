@@ -326,7 +326,7 @@ Checks if the resource matches the policy's resource patterns.
 **Pattern Examples:**
 
 | Pattern | Matches | Doesn't Match |
-|---------|---------|---------------|
+| --------- | --------- | --------------- |
 | `*` | Everything | - |
 | `Project*` | `ProjectDocs`, `ProjectPlan` | `UserGuide` |
 | `Admin/*` | `Admin/Users`, `Admin/Config` | `Users` |
@@ -397,7 +397,7 @@ console.log(policyEvaluator.matchesAction(['*'], 'anything'));      // true
 PolicyEvaluator recognizes special built-in roles:
 
 | Role | Added By | Purpose | Matching |
-|------|----------|---------|----------|
+| ------ | ---------- | --------- | ---------- |
 | `All` | UserManager | Universal role for everyone | Matches all users including anonymous |
 | `Authenticated` | UserManager | Role for logged-in users | Matches all authenticated users |
 | `Anonymous` | UserManager | Role for non-logged-in users | Matches unauthenticated users |

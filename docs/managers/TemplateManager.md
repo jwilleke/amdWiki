@@ -42,7 +42,7 @@ const suggestions = templateManager.suggestTemplates('API Documentation', 'docum
 ## Default Templates
 
 | Template | Description |
-|----------|-------------|
+| ---------- | ------------- |
 | `default` | Basic page structure |
 | `documentation` | For guides and docs |
 | `category` | For category pages |

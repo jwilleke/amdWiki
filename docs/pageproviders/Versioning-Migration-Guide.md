@@ -232,7 +232,7 @@ Edit your `app-custom-config.json`:
 **Configuration Options**:
 
 | Option | Default | Description |
-|--------|---------|-------------|
+| -------- | --------- | ------------- |
 | `amdwiki.page.provider` | `FileSystemProvider` | Set to `VersioningFileProvider` to enable versioning |
 | `amdwiki.page.provider.versioning.deltastorage` | `true` | Enable delta storage (v1=full, v2+=diffs) |
 | `amdwiki.page.provider.versioning.compression` | `gzip` | Compression algorithm for old versions |

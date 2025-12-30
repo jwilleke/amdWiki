@@ -42,7 +42,7 @@
 ### Properties
 
 | Property | Type | Description |
-|----------|------|-------------|
+| ---------- | ------ | ------------- |
 | `plugins` | `Map<string, Object>` | Registered plugins by name |
 | `searchPaths` | `string[]` | Directories to search for plugins |
 | `allowedRoots` | `string[]` | Validated root paths for security |
@@ -78,7 +78,7 @@ Plugin search paths come from ConfigurationManager:
 ```
 
 | Property | Type | Description |
-|----------|------|---------|
+| ---------- | ------ | --------- |
 | `amdwiki.managers.pluginManager.searchPaths` | string[] \| string | Directories to search for plugins |
 
 **Note:** No hardcoded fallbacks. If not configured, no plugins are loaded.
@@ -146,7 +146,7 @@ async execute(pluginName, pageName, params, context = {})
 **Parameters:**
 
 | Parameter | Type | Description |
-|-----------|------|-------------|
+| ----------- | ------ | ------------- |
 | `pluginName` | string | Name of the plugin |
 | `pageName` | string | Current page name |
 | `params` | Object | Parsed plugin parameters |
@@ -287,20 +287,20 @@ await pluginManager.loadPlugin('../../../etc/malicious.js');
 ### Discovery Methods
 
 | Method | Parameters | Returns |
-|--------|------------|---------|
+| -------- | ------------ | --------- |
 | `registerPlugins()` | - | `Promise<void>` |
 | `loadPlugin(pluginPath)` | string | `Promise<void>` |
 
 ### Execution Methods
 
 | Method | Parameters | Returns |
-|--------|------------|---------|
+| -------- | ------------ | --------- |
 | `execute(name, page, params, ctx)` | string, string, Object, Object | `Promise<string>` |
 
 ### Query Methods
 
 | Method | Parameters | Returns |
-|--------|------------|---------|
+| -------- | ------------ | --------- |
 | `findPlugin(name)` | string | `Object\|null` |
 | `hasPlugin(name)` | string | `boolean` |
 | `getPluginNames()` | - | `string[]` |
@@ -375,7 +375,7 @@ Parameters are parsed from wiki syntax and passed as an object:
 The `context` object contains:
 
 | Property | Type | Description |
-|----------|------|-------------|
+| ---------- | ------ | ------------- |
 | `engine` | WikiEngine | Wiki engine instance |
 | `pageName` | string | Current page name |
 | `linkGraph` | Object | Page link graph |

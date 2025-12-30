@@ -51,7 +51,7 @@ console.log('Hit rate:', stats.hitRate);
 ## Core Methods
 
 | Method | Returns | Description |
-|--------|---------|-------------|
+| -------- | --------- | ------------- |
 | `region(name)` | `RegionCache` | Get or create cache region |
 | `get(key)` | `Promise<any>` | Get value from default region |
 | `set(key, value, options)` | `Promise<void>` | Set value in default region |
@@ -123,7 +123,7 @@ await cacheManager.set('key', value, {
 ## Available Providers
 
 | Provider | Status | Description |
-|----------|--------|-------------|
+| ---------- | -------- | ------------- |
 | `NodeCacheProvider` | ✅ Production | In-memory cache (single server) |
 | `NullCacheProvider` | ✅ Production | No-op cache (for testing/disabled) |
 | `RedisCacheProvider` | 🔮 Planned | Distributed cache via Redis |
@@ -132,7 +132,7 @@ await cacheManager.set('key', value, {
 ## Common Cache Regions
 
 | Region | Used By | TTL | Description |
-|--------|---------|-----|-------------|
+| -------- | --------- | ----- | ------------- |
 | `pages` | PageManager | 3600 | Rendered page content |
 | `users` | UserManager | 1800 | User session data |
 | `search` | SearchManager | 600 | Search results |

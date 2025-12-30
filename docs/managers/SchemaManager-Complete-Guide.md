@@ -39,7 +39,7 @@
 ### Properties
 
 | Property | Type | Description |
-|----------|------|-------------|
+| ---------- | ------ | ------------- |
 | `schemas` | `Map<string, Object>` | Loaded JSON schemas by name |
 
 ---
@@ -81,7 +81,7 @@ async initialize() {
 ## Configuration
 
 | Property | Type | Description |
-|----------|------|-------------|
+| ---------- | ------ | ------------- |
 | `amdwiki.directories.schemas` | string | Directory containing schema files |
 
 Default location: `./schemas`
