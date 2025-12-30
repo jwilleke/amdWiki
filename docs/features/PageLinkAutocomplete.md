@@ -286,7 +286,7 @@ searchInput.addEventListener('input', function(e) {
 ### Supported Keys
 
 | Key | Action |
-|-----|--------|
+| ----- | -------- |
 | `ArrowDown` | Move to next suggestion |
 | `ArrowUp` | Move to previous suggestion |
 | `Enter` | Select current suggestion |
@@ -295,7 +295,7 @@ searchInput.addEventListener('input', function(e) {
 
 ### Navigation Behavior
 
-**Cycling:**
+#### Cycling:**
 
 - ArrowDown at bottom → wraps to top
 - ArrowUp at top → wraps to bottom
@@ -452,7 +452,7 @@ GET /api/page-suggestions?q=system&limit=5
 **Parameters:**
 
 | Parameter | Type | Required | Default | Description |
-|-----------|------|----------|---------|-------------|
+| ----------- | ------ | ---------- | --------- | ------------- |
 | `q` | string | Yes | - | Search query (2+ chars recommended) |
 | `limit` | integer | No | 10 | Maximum number of results |
 
@@ -759,7 +759,7 @@ With 1000+ pages:
 
 ### Common Issues
 
-**1. Dropdown Not Appearing**
+### Dropdown Not Appearing**
 
 **Symptoms:** Type in input, nothing shows
 
@@ -779,7 +779,7 @@ if (typeof PageAutocomplete === 'undefined') {
 }
 ```
 
-**2. API Returns Empty Results**
+### API Returns Empty Results**
 
 **Symptoms:** Dropdown appears but shows "No suggestions"
 
@@ -798,7 +798,7 @@ curl "http://localhost:3000/api/page-suggestions?q=home"
 # Should return pages containing "home"
 ```
 
-**3. Dropdown Positioned Incorrectly**
+### Dropdown Positioned Incorrectly**
 
 **Symptoms:** Dropdown appears in wrong location
 
@@ -814,7 +814,7 @@ this.dropdown.style.zIndex = '99999';
 this.dropdown.style.position = 'fixed';
 ```
 
-**4. Keyboard Navigation Not Working**
+### Keyboard Navigation Not Working**
 
 **Symptoms:** Arrow keys don't navigate suggestions
 
@@ -837,7 +837,7 @@ inputElement.addEventListener('keydown', (e) => {
 });
 ```
 
-**5. Autocomplete Triggers for Plugins**
+### Autocomplete Triggers for Plugins**
 
 **Symptoms:** Dropdown shows when typing `[{Image...}`
 

@@ -140,7 +140,7 @@ AttachmentManager uses a hierarchical configuration structure with all lowercase
 #### Core Settings
 
 | Key | Type | Default | Description |
-|-----|------|---------|-------------|
+| ----- | ------ | --------- | ------------- |
 | `amdwiki.attachment.enabled` | boolean | `true` | Enable/disable attachment system |
 | `amdwiki.attachment.provider.default` | string | `"basicattachmentprovider"` | Default provider fallback |
 | `amdwiki.attachment.provider` | string | `"basicattachmentprovider"` | Current active provider |
@@ -152,7 +152,7 @@ AttachmentManager uses a hierarchical configuration structure with all lowercase
 #### BasicAttachmentProvider Settings
 
 | Key | Type | Default | Description |
-|-----|------|---------|-------------|
+| ----- | ------ | --------- | ------------- |
 | `amdwiki.attachment.provider.basic.storagedir` | string | `"./data/attachments"` | Filesystem storage directory |
 | `amdwiki.attachment.provider.basic.hashcontent` | boolean | `true` | Enable content-based hashing |
 | `amdwiki.attachment.provider.basic.hashmethod` | string | `"sha256"` | Hash algorithm (sha256, md5) |
@@ -160,7 +160,7 @@ AttachmentManager uses a hierarchical configuration structure with all lowercase
 #### Enhanced Features
 
 | Key | Type | Default | Description |
-|-----|------|---------|-------------|
+| ----- | ------ | --------- | ------------- |
 | `amdwiki.attachment.enhanced.enabled` | boolean | `true` | Enable enhanced features |
 | `amdwiki.attachment.enhanced.thumbnails` | boolean | `true` | Generate thumbnails for images |
 | `amdwiki.attachment.enhanced.thumbnailsizes` | string | `"150x150,300x300"` | Thumbnail sizes |
@@ -182,7 +182,7 @@ This allows administrators to change providers without breaking the system.
 Provider names follow lowercase convention in configuration but are normalized to PascalCase for class loading:
 
 | Config Value | Normalized Class Name |
-|--------------|----------------------|
+| -------------- | ---------------------- |
 | `basicattachmentprovider` | `BasicAttachmentProvider` |
 | `databaseattachmentprovider` | `DatabaseAttachmentProvider` |
 | `s3attachmentprovider` | `S3AttachmentProvider` |
@@ -1069,7 +1069,7 @@ chmod 755 ./data/attachments
 ## Version History
 
 | Version | Date | Changes |
-|---------|------|---------|
+| --------- | ------ | --------- |
 | 1.0.0 | 2025-10-12 | Initial documentation with refactored configuration |
 
 ---
