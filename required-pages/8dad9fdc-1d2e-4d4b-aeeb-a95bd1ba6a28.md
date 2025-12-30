@@ -55,7 +55,7 @@ author: jim
 amdWiki uses different configuration files based on the `NODE_ENV` environment variable:
 
 | Environment | Config File | Use Case |
-|-------------|-------------|----------|
+| ---- | ---- | ---- |
 | **production** | `config/app-production-config.json` | Production deployment (default) |
 | **development** | `config/app-development-config.json` | Local development |
 | **test** | `config/app-test-config.json` | Running tests |
@@ -138,7 +138,7 @@ The server uses a PID lock file (`.amdwiki.pid`) to prevent multiple instances f
 All logs are written to the `./data/logs/` directory:
 
 | Type | Location | Purpose |
-|------|----------|---------|
+| ---- | ---- | ---- |
 | PM2 Output | `./data/logs/pm2-out.log` | stdout, startup messages |
 | PM2 Errors | `./data/logs/pm2-error.log` | stderr, runtime errors |
 | PM2 Combined | `./data/logs/pm2-combined.log` | Combined PM2 logs |
