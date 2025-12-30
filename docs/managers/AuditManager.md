@@ -84,14 +84,14 @@ All configuration keys use **lowercase** format per Issue #102 refactoring.
 ### Configuration Reference
 
 | Configuration Key |Type |Default |Description |
- |------------------ |------ |--------- |------------- |
-| `amdwiki.audit.enabled` |boolean |`true` |Enable/disable audit logging  |
-| `amdwiki.audit.provider.default` |string |`"fileauditprovider"` |Fallback provider if primary fails  |
-| `amdwiki.audit.provider` |string |`"fileauditprovider"` |Active audit provider  |
-| `amdwiki.audit.loglevel` |string |`"info"` |Minimum log level (debug, info, warn, error)  |
-| `amdwiki.audit.maxqueuesize` |number |`1000` |Maximum events in memory before flush  |
-| `amdwiki.audit.flushinterval` |number |`30000` |Flush interval in milliseconds  |
-| `amdwiki.audit.retentiondays` |number |`90` |Days to retain audit logs  |
+| ------------------ | ------ | --------- |
+| `amdwiki.audit.enabled` |boolean |`true` |Enable/disable audit logging |
+| `amdwiki.audit.provider.default` |string |`"fileauditprovider"` |Fallback provider if primary fails |
+| `amdwiki.audit.provider` |string |`"fileauditprovider"` |Active audit provider |
+| `amdwiki.audit.loglevel` |string |`"info"` |Minimum log level (debug, info, warn, error) |
+| `amdwiki.audit.maxqueuesize` |number |`1000` |Maximum events in memory before flush |
+| `amdwiki.audit.flushinterval` |number |`30000` |Flush interval in milliseconds |
+| `amdwiki.audit.retentiondays` |number |`90` |Days to retain audit logs |
 
 ### Provider-Specific Configuration
 
@@ -107,13 +107,13 @@ All configuration keys use **lowercase** format per Issue #102 refactoring.
 }
 ```
 
-| Configuration Key |Type |Default |Description  |
-| ------------------ |------ |--------- |------------- |
-| `amdwiki.audit.provider.file.logdirectory` |string |`"./logs"` |Directory for audit log files  |
-| `amdwiki.audit.provider.file.auditfilename` |string |`"audit.log"` |Main audit log filename  |
-| `amdwiki.audit.provider.file.archivefilename` |string |`"audit-archive.log"` |Archive log filename  |
-| `amdwiki.audit.provider.file.maxfilesize` |string |`"10MB"` |Maximum file size before rotation  |
-| `amdwiki.audit.provider.file.maxfiles` |number |`10` |Maximum archived files to keep  |
+| Configuration Key |Type |Default |Description |
+| ---- | ----- | ----- | ----- | -----
+| `amdwiki.audit.provider.file.logdirectory` |string |`"./logs"` |Directory for audit log files |
+| `amdwiki.audit.provider.file.auditfilename` |string |`"audit.log"` |Main audit log filename |
+| `amdwiki.audit.provider.file.archivefilename` |string |`"audit-archive.log"` |Archive log filename |
+| `amdwiki.audit.provider.file.maxfilesize` |string |`"10MB"` |Maximum file size before rotation |
+| `amdwiki.audit.provider.file.maxfiles` |number |`10` |Maximum archived files to keep |
 
 #### DatabaseAuditProvider (Future)
 
@@ -141,12 +141,12 @@ All configuration keys use **lowercase** format per Issue #102 refactoring.
 
 ### Available Providers
 
-| Provider |Status |Use Case |Features  |
- |---------- |-------- |---------- |---------- |
-| **FileAuditProvider** |✅ Production |Single-instance, development |Local files, rotation, search  |
-| **NullAuditProvider** |✅ Production |Disabled auditing, testing |No-op operations  |
-| **DatabaseAuditProvider** |🚧 Planned |Enterprise, high-volume |SQL/NoSQL, scalable, queryable  |
-| **CloudAuditProvider** |🚧 Planned |Cloud deployments |CloudWatch, Azure, GCP  |
+| Provider | Status | Use Case | Features |
+| ----- | ----- | ----- | ----- |
+| **FileAuditProvider** | ✅ Production | Single-instance, development | Local files, rotation, search |
+| **NullAuditProvider** | ✅ Production | Disabled auditing, testing | No-op operations |
+| **DatabaseAuditProvider** | 🚧 Planned | Enterprise, high-volume | SQL/NoSQL, scalable, queryable |
+| **CloudAuditProvider** | 🚧 Planned | Cloud deployments | CloudWatch, Azure, GCP |
 
 ### Provider Selection Logic
 
@@ -460,26 +460,26 @@ if (!isHealthy) {
 
 ### Event Types
 
-| Event Type |Description |Typical Severity  |
- |----------- |------------- |------------------ |
-| `authentication.success` |User logged in successfully |low  |
-| `authentication.failed` |Failed login attempt |medium  |
-| `authentication.logout` |User logged out |low  |
-| `authorization.allow` |Access granted |low  |
-| `authorization.deny` |Access denied |medium  |
-| `page.view` |Page viewed |low  |
-| `page.create` |New page created |low  |
-| `page.edit` |Page edited |low  |
-| `page.delete` |Page deleted |medium  |
-| `attachment.upload` |File uploaded |low  |
-| `attachment.download` |File downloaded |low  |
-| `attachment.delete` |File deleted |medium  |
-| `user.create` |User account created |medium  |
-| `user.update` |User account updated |medium  |
-| `user.delete` |User account deleted |high  |
-| `policy.evaluate` |Security policy evaluated |low  |
-| `security.breach_attempt` |Security breach detected |critical  |
-| `configuration.change` |System config changed |high  |
+| Event Type | Description | Typical Severity |
+ | ----- | ----- | ----- |
+| `authentication.success` | User logged in successfully | low |
+| `authentication.failed` | Failed login attempt | medium |
+| `authentication.logout` | User logged out | low |
+| `authorization.allow` | Access granted | low |
+| `authorization.deny` | Access denied | medium |
+| `page.view` | Page viewed | low |
+| `page.create` | New page created | low |
+| `page.edit` | Page edited | low |
+| `page.delete` | Page deleted | medium |
+| `attachment.upload` | File uploaded | low |
+| `attachment.download` | File downloaded | low |
+| `attachment.delete` | File deleted | medium |
+| `user.create` | User account created | medium |
+| `user.update` | User account updated | medium |
+| `user.delete` | User account deleted | high |
+| `policy.evaluate` | Security policy evaluated | low |
+| `security.breach_attempt` | Security breach detected | critical |
+| `configuration.change` | System config changed | high |
 
 ### Result Values
 
@@ -1107,14 +1107,14 @@ This will output detailed information about audit operations:
 
 ### Configuration Key Changes
 
-| Old Key (Deprecated) |New Key (Issue #102)  |
- |--------------------- |---------------------- |
-| `audit.enabled` |`amdwiki.audit.enabled`  |
-| `audit.logFile` |`amdwiki.audit.provider.file.auditfilename`  |
-| `audit.retention` |`amdwiki.audit.retentiondays`  |
-| `audit.includeContext` |Removed (always included in context field)  |
-| N/A |`amdwiki.audit.provider` (NEW)  |
-| N/A |`amdwiki.audit.provider.default` (NEW)  |
+| Old Key (Deprecated) | New Key (Issue #102) |
+| --------------------- | ---------------------- |
+| `audit.enabled` | `amdwiki.audit.enabled` |
+| `audit.logFile` | `amdwiki.audit.provider.file.auditfilename` |
+| `audit.retention` | `amdwiki.audit.retentiondays` |
+| `audit.includeContext` | Removed (always included in context field) |
+| N/A | `amdwiki.audit.provider` (NEW) |
+| N/A | `amdwiki.audit.provider.default` (NEW) |
 
 ### Migration Steps
 
@@ -1220,12 +1220,12 @@ This will output detailed information about audit operations:
 
 ### FileAuditProvider
 
-| Operation |Events/sec |Latency (p95) |Memory |Notes  |
- |----------- |----------- |--------------- |--------- |------- |
-| logAuditEvent |10,000 |<1ms |50MB |Queue-based, async flush  |
-| searchAuditLogs |1,000 |5ms |100MB |In-memory search (1000 events)  |
-| exportAuditLogs |100 |500ms |150MB |Limited to 10,000 events  |
-| getAuditStats |500 |10ms |120MB |Aggregation on 10,000 events  |
+| Operation | Events/sec | Latency (p95) | Memory | Notes |
+ | ----------- | ----------- | --------------- | --------- | ------- |
+| logAuditEvent | 10,000 | <1ms | 50MB | Queue-based, async flush |
+| searchAuditLogs | 1,000 | 5ms | 100MB | In-memory search (1000 events) |
+| exportAuditLogs | 100 | 500ms | 150MB | Limited to 10,000 events |
+| getAuditStats | 500 | 10ms | 120MB | Aggregation on 10,000 events |
 
 **Recommendations:**
 
@@ -1234,11 +1234,11 @@ This will output detailed information about audit operations:
 
 ### DatabaseAuditProvider (Projected)
 
-| Operation |Events/sec |Latency (p95) |Notes  |
- |----------- |----------- |--------------- |------- |
-| logAuditEvent |50,000 |<5ms |Batch inserts  |
-| searchAuditLogs |5,000 |20ms |Indexed queries  |
-| exportAuditLogs |1,000 |200ms |Streaming export  |
+| Operation | Events/sec | Latency (p95) | Notes |
+| ----------- | ----------- | --------------- | ------- |
+| logAuditEvent | 50,000 | <5ms | Batch inserts |
+| searchAuditLogs | 5,000 | 20ms | Indexed queries |
+| exportAuditLogs | 1,000 | 200ms | Streaming export |
 
 **Recommendations:**
 

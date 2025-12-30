@@ -12,13 +12,13 @@ Here’s the refined, realistic, still-nextgen architecture we can actually ship
 
 ## Final Stack for All Add-Ons (in /addons folder)
 
-| Layer              | Technology                          | Why it’s perfect for amdWiki                                                                 |
-|-------------------|-------------------|---------------------------------------------------------------------------------------------|
-| Core Storage       | File system + SQLite (with FTS5) | SQLite = single file, zero config, full ACID, SQL power. Lives in `/data/addons/`           |
-| Structured Data    | JSON + schema.org validation        | Every record is valid JSON-LD (Person, Organization, FinancialProduct, Invoice, Payment…) |
-| Reports & Exports  | Markdown files + on-the-fly CSV/JSON/PDF | Generated Markdown pages live alongside normal wiki pages → instantly viewable and editable |
-| Attachments        | Existing amdWiki attachments folder | No new storage system needed                                                                |
-| Search             | Existing amdWiki full-text search + optional SQLite FTS5 | Fast and works out of the box                                                               |
+| Layer | Technology | Why it’s perfect for amdWiki |
+| ------------------- | ------------------- | --------------------------------------------------------------------------------------------- |
+| Core Storage | File system + SQLite (with FTS5) | SQLite = single file, zero config, full ACID, SQL power. Lives in `/data/addons/` |
+| Structured Data | JSON + schema.org validation | Every record is valid JSON-LD (Person, Organization, FinancialProduct, Invoice, Payment…) |
+| Reports & Exports | Markdown files + on-the-fly CSV/JSON/PDF | Generated Markdown pages live alongside normal wiki pages → instantly viewable and editable |
+| Attachments | Existing amdWiki attachments folder | No new storage system needed |
+| Search | Existing amdWiki full-text search + optional SQLite FTS5 | Fast and works out of the box |
 
 ### Proposed /addons Folder Structure (final brainstorm layout)
 
@@ -51,13 +51,13 @@ Here’s the refined, realistic, still-nextgen architecture we can actually ship
 
 ### Ultra-Minimal Viable Launch Plan (4–6 weeks total)
 
-| Week | Deliverable                                | What you get immediately |
-|------|--------------------------------------------|--------------------------|
-| 1    | `person-contacts` add-on + schema.org fields on users | Full contact directory, searchable, embeddable `[{Person id='...'}]` |
-| 2    | `financial-ledger` add-on with SQLite      | Log transactions, running balance, link to any Person/Organization |
-| 3    | Report generator → Markdown + CSV/JSON export | Click “Generate Monthly Report” → new wiki page + downloadable files |
-| 4    | `business-hub` dashboard page              | One single URL that shows: ```<br>• Current cash balance <br>• 5 latest transactions <br>• 5 recent contacts <br>•``` Quick-report buttons |
-| 5–6  | Polish + optional extras                   | PDF export (via puppeteer or md-to-pdf), recurring report scheduling, simple charts with Mermaid |
+| Week | Deliverable | What you get immediately |
+| ------ | -------------------------------------------- | -------------------------- |
+| 1 | `person-contacts` add-on + schema.org fields on users | Full contact directory, searchable, embeddable `[{Person id='...'}]` |
+| 2 | `financial-ledger` add-on with SQLite | Log transactions, running balance, link to any Person/Organization |
+| 3 | Report generator → Markdown + CSV/JSON export | Click “Generate Monthly Report” → new wiki page + downloadable files |
+| 4 | `business-hub` dashboard page | One single URL that shows: ```<br>• Current cash balance <br>• 5 latest transactions <br>• 5 recent contacts <br>•``` Quick-report buttons |
+| 5–6 | Polish + optional extras | PDF export (via puppeteer or md-to-pdf), recurring report scheduling, simple charts with Mermaid |
 
 ### Example of a generated Markdown report (lives as normal wiki page)
 
@@ -72,10 +72,10 @@ Here’s the refined, realistic, still-nextgen architecture we can actually ship
 **Total In**: $15,000.00  
 **Total Out**: $6,580.00  
 
-| Date       | Description           | Contact                     | Amount     | Running |
-|------------|-----------------------|-----------------------------|------------|---------|
-| 2025-11-25 | Invoice #1001 paid    | [{Person id='cust-001'}]    | +$5,000.00 | $8,420  |
-| 2025-11-20 | Office rent           | [{Person id='vendor-003'}]  | –$2,000.00 | $3,420  |
+| Date | Description | Contact | Amount | Running |
+| ------------ | ----------------------- | ----------------------------- | ------------ | --------- |
+| 2025-11-25 | Invoice #1001 paid | [{Person id='cust-001'}] | +$5,000.00 | $8,420 |
+| 2025-11-20 | Office rent | [{Person id='vendor-003'}] | –$2,000.00 | $3,420 |
 ```
 
 → Looks beautiful in amdWiki, is searchable, versioned, and exportable.

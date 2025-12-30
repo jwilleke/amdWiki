@@ -126,26 +126,26 @@ The RenderingManager routes content through either the Advanced Parser (MarkupPa
 
 ### Key Components in the Pipeline
 
-| Component              | Role in Pipeline                                                                 | Location in Repo                      |
-|------------------------|----------------------------------------------------------------------------------|---------------------------------------|
-| **WikiEngine**        | Central orchestrator, manages all managers and lifecycle                         | `src/WikiEngine.js`                   |
-| **Express Routes**    | Handles requests, authentication, and delegates to managers.                     | `src/routes/WikiRoutes.js`            |
-| **PageManager**       | Retrieves/saves Markdown files and metadata.                                     | `src/managers/PageManager.js`         |
-| **RenderingManager**  | Orchestrates rendering, delegates to MarkupParser or legacy pipeline             | `src/managers/RenderingManager.js`    |
-| **MarkupParser**      | 7-phase processing pipeline for JSPWiki syntax                                   | `src/parsers/MarkupParser.js`         |
-| **HandlerRegistry**   | Manages syntax handlers with priority resolution                                 | `src/parsers/handlers/HandlerRegistry.js` |
-| **Syntax Handlers**   | Process specific syntax types (plugins, links, forms, etc.)                      | `src/parsers/handlers/*Handler.js`    |
-| **FilterChain**       | Security, spam, validation filters                                               | `src/parsers/filters/FilterChain.js`  |
-| **VariableManager**   | Expands system variables like `[{$pagename}]`                                    | `src/managers/VariableManager.js`     |
-| **PluginManager**     | Executes plugins like `[{Image}]`, `[{TableOfContents}]`                        | `src/managers/PluginManager.js`       |
-| **Showdown**          | Converts Markdown to HTML                                                        | npm package (configured in RenderingManager) |
-| **TemplateManager**   | Manages EJS templates and wraps HTML in layout                                   | `src/managers/TemplateManager.js`     |
-| **EJS Templates**     | Wraps HTML in layout with Bootstrap styling                                      | `/views/*.ejs`                        |
-| **CacheManager**      | Multi-strategy caching for parse results, handlers, patterns                     | `src/managers/CacheManager.js`        |
-| **ACLManager**        | Validates permissions pre/post-rendering                                         | `src/managers/ACLManager.js`          |
-| **PolicyEvaluator**   | Evaluates policy-based access control                                            | `src/managers/PolicyEvaluator.js`     |
-| **UserManager**       | Three-tier authentication (Anonymous, Authenticated, Admin)                      | `src/managers/UserManager.js`         |
-| **ExportManager**     | Generates HTML/PDF exports                                                       | `src/managers/ExportManager.js`       |
+| Component | Role in Pipeline | Location in Repo |
+| ------------------------ | ---------------------------------------------------------------------------------- | --------------------------------------- |
+| **WikiEngine** | Central orchestrator, manages all managers and lifecycle | `src/WikiEngine.js` |
+| **Express Routes** | Handles requests, authentication, and delegates to managers. | `src/routes/WikiRoutes.js` |
+| **PageManager** | Retrieves/saves Markdown files and metadata. | `src/managers/PageManager.js` |
+| **RenderingManager** | Orchestrates rendering, delegates to MarkupParser or legacy pipeline | `src/managers/RenderingManager.js` |
+| **MarkupParser** | 7-phase processing pipeline for JSPWiki syntax | `src/parsers/MarkupParser.js` |
+| **HandlerRegistry** | Manages syntax handlers with priority resolution | `src/parsers/handlers/HandlerRegistry.js` |
+| **Syntax Handlers** | Process specific syntax types (plugins, links, forms, etc.) | `src/parsers/handlers/*Handler.js` |
+| **FilterChain** | Security, spam, validation filters | `src/parsers/filters/FilterChain.js` |
+| **VariableManager** | Expands system variables like `[{$pagename}]` | `src/managers/VariableManager.js` |
+| **PluginManager** | Executes plugins like `[{Image}]`, `[{TableOfContents}]` | `src/managers/PluginManager.js` |
+| **Showdown** | Converts Markdown to HTML | npm package (configured in RenderingManager) |
+| **TemplateManager** | Manages EJS templates and wraps HTML in layout | `src/managers/TemplateManager.js` |
+| **EJS Templates** | Wraps HTML in layout with Bootstrap styling | `/views/*.ejs` |
+| **CacheManager** | Multi-strategy caching for parse results, handlers, patterns | `src/managers/CacheManager.js` |
+| **ACLManager** | Validates permissions pre/post-rendering | `src/managers/ACLManager.js` |
+| **PolicyEvaluator** | Evaluates policy-based access control | `src/managers/PolicyEvaluator.js` |
+| **UserManager** | Three-tier authentication (Anonymous, Authenticated, Admin) | `src/managers/UserManager.js` |
+| **ExportManager** | Generates HTML/PDF exports | `src/managers/ExportManager.js` |
 
 ## Textual Diagram of the Pipeline
 
@@ -355,26 +355,26 @@ amdWiki's pipeline is built on Node.js with Express.js, using Markdown with comp
 
 ### Comparison Table
 
-| Aspect                    | JSPWiki Rendering Pipeline                          | amdWiki Rendering Pipeline                          |
-|---------------------------|----------------------------------------------------|----------------------------------------------------|
-| **Technology**            | Java, Servlet, JSP                                 | Node.js, Express, EJS                              |
-| **Content Format**        | JSPWiki markup (e.g., `**bold**`, `[{Plugin}]`)    | Markdown + JSPWiki-style syntax (links, plugins, forms, styles) |
-| **Core Controller**       | `WikiEngine` (singleton)                           | `WikiEngine` (manager-based architecture)          |
-| **Context**               | `WikiContext` (page, mode, user)                   | `WikiContext` + `ParseContext` (page, user, request info) |
-| **Storage**               | `PageProvider` (e.g., `FileSystemProvider`)        | File-based (`/pages/*.md`, `/required-pages/*.md`) with YAML frontmatter |
-| **Parsing**               | `JSPWikiMarkupParser` (SPI-extensible)             | `MarkupParser` (7-phase pipeline with HandlerRegistry) |
-| **Parser Phases**         | Single-pass with manager callbacks                 | 7-phase: Preprocessing, Syntax Recognition, Context Resolution, Content Transformation, Filter Pipeline, Markdown Conversion, Post-processing |
-| **Enhancements**          | Plugins, Variables, Forms, Styles, Filters         | Plugins, Variables, Forms, Styles, WikiTags, Attachments via modular handlers |
-| **Handler System**        | Manager-based (PluginManager, VariableManager)     | HandlerRegistry with priority-ordered execution (PluginSyntaxHandler, WikiTagHandler, WikiFormHandler, LinkParserHandler, WikiStyleHandler, AttachmentHandler) |
-| **Filters**               | Pre/post via `PageFilter` (`jspwiki.filters`)      | FilterChain with SecurityFilter, SpamFilter, ValidationFilter |
-| **Link Processing**       | JSPWikiMarkupParser built-in                       | Unified LinkParserHandler (wiki links, InterWiki, external) |
-| **Variable Expansion**    | `VariableManager`                                  | `VariableManager` (Phase 3: Context Resolution)    |
-| **Templating**            | JSP (`view.jsp`, `jspwiki.css`, skins)             | EJS via `TemplateManager` (`wiki-view.ejs`, Bootstrap CSS) |
-| **Markdown Support**      | Via custom parsers (optional)                      | Native via Showdown (Phase 6) with JSPWiki enhancements |
-| **Caching**               | `CacheManager` (Ehcache, configurable)             | `CacheManager` with multi-strategy caching (parse results, handlers, patterns, variables) |
-| **Performance Monitoring**| Limited                                            | Built-in with alert thresholds (parse time, cache hit ratio, error rate) |
-| **Configuration**         | `jspwiki.properties`                               | `app-default-config.json` + `app-custom-config.json` (hierarchical) |
-| **Output**                | HTML via `WikiServlet`                             | HTML via Express response with audit logging       |
+| Aspect | JSPWiki Rendering Pipeline | amdWiki Rendering Pipeline |
+| --------------------------- | ---------------------------------------------------- | ---------------------------------------------------- |
+| **Technology** | Java, Servlet, JSP | Node.js, Express, EJS |
+| **Content Format** | JSPWiki markup (e.g., `**bold**`, `[{Plugin}]`) | Markdown + JSPWiki-style syntax (links, plugins, forms, styles) |
+| **Core Controller** | `WikiEngine` (singleton) | `WikiEngine` (manager-based architecture) |
+| **Context** | `WikiContext` (page, mode, user) | `WikiContext` + `ParseContext` (page, user, request info) |
+| **Storage** | `PageProvider` (e.g., `FileSystemProvider`) | File-based (`/pages/*.md`, `/required-pages/*.md`) with YAML frontmatter |
+| **Parsing** | `JSPWikiMarkupParser` (SPI-extensible) | `MarkupParser` (7-phase pipeline with HandlerRegistry) |
+| **Parser Phases** | Single-pass with manager callbacks | 7-phase: Preprocessing, Syntax Recognition, Context Resolution, Content Transformation, Filter Pipeline, Markdown Conversion, Post-processing |
+| **Enhancements** | Plugins, Variables, Forms, Styles, Filters | Plugins, Variables, Forms, Styles, WikiTags, Attachments via modular handlers |
+| **Handler System** | Manager-based (PluginManager, VariableManager) | HandlerRegistry with priority-ordered execution (PluginSyntaxHandler, WikiTagHandler, WikiFormHandler, LinkParserHandler, WikiStyleHandler, AttachmentHandler) |
+| **Filters** | Pre/post via `PageFilter` (`jspwiki.filters`) | FilterChain with SecurityFilter, SpamFilter, ValidationFilter |
+| **Link Processing** | JSPWikiMarkupParser built-in | Unified LinkParserHandler (wiki links, InterWiki, external) |
+| **Variable Expansion** | `VariableManager` | `VariableManager` (Phase 3: Context Resolution) |
+| **Templating** | JSP (`view.jsp`, `jspwiki.css`, skins) | EJS via `TemplateManager` (`wiki-view.ejs`, Bootstrap CSS) |
+| **Markdown Support** | Via custom parsers (optional) | Native via Showdown (Phase 6) with JSPWiki enhancements |
+| **Caching** | `CacheManager` (Ehcache, configurable) | `CacheManager` with multi-strategy caching (parse results, handlers, patterns, variables) |
+| **Performance Monitoring** | Limited | Built-in with alert thresholds (parse time, cache hit ratio, error rate) |
+| **Configuration** | `jspwiki.properties` | `app-default-config.json` + `app-custom-config.json` (hierarchical) |
+| **Output** | HTML via `WikiServlet` | HTML via Express response with audit logging |
 
 ### Pros and Cons
 
