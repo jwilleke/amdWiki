@@ -4,18 +4,18 @@
 
 Here’s what actually has to happen in every business, every week/month, no matter if it’s a coffee shop, software company, or factory:
 
-| # | Day-to-Day Function                  | What it really looks like in real life                                      |
-|----|--------------------------------------|-----------------------------------------------------------------------------|
-| 1  | Make money                           | Get new customers, send quotes/invoices, chase late payments                |
-| 2  | Get paid                             | Check bank account, record payments, pay suppliers and taxes                |
-| 3  | Deliver the thing you sell           | Make the product, do the service, ship orders, finish the project          |
-| 4  | Keep customers happy                 | Answer emails/phone calls, fix complaints, ask for reviews or repeat orders |
-| 5  | Pay people and bills                 | Run payroll, pay rent/utilities, reimburse expenses                         |
-| 6  | Find and keep good people            | Post job ads, interview, onboard new hires, train, do 1-on-1s              |
-| 7  | Market & be visible                  | Post on social media, run ads, update website, go to networking events     |
-| 8  | Keep the tools working               | Fix Wi-Fi/printer, update software, back up files, pay for subscriptions   |
-| 9  | Stay legal and out of trouble        | File taxes, renew licenses, sign contracts, keep customer data safe     |
-| 10 | Plan next week/month                   | Team meeting, check numbers, decide what to start/stop/improve next       |
+| # | Day-to-Day Function | What it really looks like in real life |
+| ---- | -------------------------------------- | ----------------------------------------------------------------------------- |
+| 1 | Make money | Get new customers, send quotes/invoices, chase late payments |
+| 2 | Get paid | Check bank account, record payments, pay suppliers and taxes |
+| 3 | Deliver the thing you sell | Make the product, do the service, ship orders, finish the project |
+| 4 | Keep customers happy | Answer emails/phone calls, fix complaints, ask for reviews or repeat orders |
+| 5 | Pay people and bills | Run payroll, pay rent/utilities, reimburse expenses |
+| 6 | Find and keep good people | Post job ads, interview, onboard new hires, train, do 1-on-1s |
+| 7 | Market & be visible | Post on social media, run ads, update website, go to networking events |
+| 8 | Keep the tools working | Fix Wi-Fi/printer, update software, back up files, pay for subscriptions |
+| 9 | Stay legal and out of trouble | File taxes, renew licenses, sign contracts, keep customer data safe |
+| 10 | Plan next week/month | Team meeting, check numbers, decide what to start/stop/improve next |
 
 ## The 5 things that literally happen every single day in 99 % of businesses
 

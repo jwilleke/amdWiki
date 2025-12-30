@@ -1,6 +1,6 @@
 # Page Storage in amdWiki
 
-**User Guide: Understanding Where and How Wiki Pages are Stored**
+User Guide: Understanding Where and How Wiki Pages are Stored**
 
 Version: 1.3.2
 Last Updated: 2025-10-16
@@ -158,7 +158,7 @@ System categories are predefined in `config/app-default-config.json` and control
 These categories route pages to the `required-pages/` directory:
 
 | Category | Label | Description | Access Level |
-|----------|-------|-------------|--------------|
+| ---------- | ------- | ------------- | -------------- |
 | **system** | system | System configuration and infrastructure | Admin only |
 | **documentation** | documentation | Official user and technical documentation | Editor+ |
 | **developer** | developer | Developer documentation and technical notes | Developer+ |
@@ -180,7 +180,7 @@ These categories route pages to the `required-pages/` directory:
 These categories route pages to the `pages/` directory:
 
 | Category | Label | Description | Access Level |
-|----------|-------|-------------|--------------|
+| ---------- | ------- | ------------- | -------------- |
 | **general** | general | General wiki pages (default) | All users |
 | **user** | user | User-generated content | All users |
 | **test** | test | Testing and development pages | Editor+ |
@@ -368,7 +368,7 @@ pages/
 **Different Backup Strategies:**
 
 | Directory | Priority | Frequency | Retention |
-|-----------|----------|-----------|-----------|
+| ----------- | ---------- | ----------- | ----------- |
 | `required-pages/` | High | Every hour | 90 days |
 | `pages/` | Standard | Every 6 hours | 30 days |
 
@@ -730,21 +730,21 @@ system-category: nonexistent-category
 
 ### Q: How do I find a page file on disk?
 
-**Method 1: Via Web Interface**
+#### Method 1: Via Web Interface
 
 1. View page in wiki
 2. Scroll to "More Information" section
 3. Note the UUID
 4. Look for `[uuid].md` in appropriate directory
 
-**Method 2: Via Search**
+#### Method 2: Via Search**
 
 ```bash
 cd amdWiki
 grep -r "title: Your Page Title" pages/ required-pages/
 ```
 
-**Method 3: Via Filename Pattern**
+#### Method 3: Via Filename Pattern**
 
 ```bash
 # Search by title in frontmatter
@@ -753,11 +753,11 @@ find pages/ required-pages/ -name "*.md" -exec grep -l "title: Footnote" {} \;
 
 ### Q: Can pages be in both directories?
 
-**A:** No. Each page exists in exactly one directory based on its category. Duplicate pages should be avoided.
+#### A:** No. Each page exists in exactly one directory based on its category. Duplicate pages should be avoided
 
 ### Q: What if a page has no frontmatter?
 
-**A:** The system will:
+#### A:** The system will
 
 1. Add default frontmatter on save
 2. Assign default category (`general`)
@@ -765,12 +765,12 @@ find pages/ required-pages/ -name "*.md" -exec grep -l "title: Footnote" {} \;
 4. Generate UUID
 5. Create slug from first heading
 
-**Better practice:** Always include complete frontmatter.
+#### Better practice:** Always include complete frontmatter
 
 ### Q: How are permissions different between directories?
 
 | Action | `pages/` | `required-pages/` |
-|--------|----------|-------------------|
+| -------- | ---------- | ------------------- |
 | View | All users | All users |
 | Create | Contributor+ | Editor+ |
 | Edit | Contributor+ | Editor+ |
@@ -987,7 +987,7 @@ Located in: `config/app-default-config.json`
 ## Version History
 
 | Version | Date | Changes |
-|---------|------|---------|
+| --------- | ------ | --------- |
 | 1.0.0 | 2025-10-16 | Initial documentation |
 
 ---

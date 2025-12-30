@@ -7,7 +7,7 @@ Schema.org Transaction-Related Types
 Schema.org provides a set of types under the broader umbrella of **Action** and **TradeAction** that model financial and commercial transactions (orders, payments, reservations, donations, etc.). Below is a comprehensive summary of the most important transaction-related types as of November 2025.
 
 | Type | Parent Type | Description | Key Properties | Common Use Cases |
-|------|-------------|-------------|----------------|------------------|
+| ------ | ------------- | ------------- | ---------------- | ------------------ |
 | **Action** | Thing | The root type for all actions performed by a person or organization. | `agent`, `object`, `participant`, `result`, `startTime`, `endTime` | Base for all transactional actions |
 | **TradeAction** | Action | An action that involves the transfer of an item (usually for money) between parties. | `price`, `priceCurrency`, `seller`, `buyer` | Core of most purchase/sale transactions |
 | **BuyAction** | TradeAction | The act of giving money to someone in exchange for goods/services. | — (inherits from TradeAction) | E-commerce purchases |
@@ -32,7 +32,7 @@ Schema.org provides a set of types under the broader umbrella of **Action** and 
 ### Key Enumerations Used in Transactions
 
 | Enumeration | Used in | Important Values |
-|-------------|---------|------------------|
+| ------------- | --------- | ------------------ |
 | **OrderStatus** | Order | `OrderCancelled`, `OrderDelivered`, `OrderInTransit`, `OrderPaymentDue`, `OrderPickupAvailable`, `OrderProblem`, `OrderProcessing`, `OrderReturned` |
 | **PaymentStatusType** | Invoice, Order | `PaymentDue`, `PaymentComplete`, `PaymentDeclined`, `PaymentAutomaticallyApplied` |
 | **ReservationStatusType** | Reservation | `ReservationConfirmed`, `ReservationPending`, `ReservationCancelled` |
@@ -77,7 +77,7 @@ However, since 2014 (and especially after the addition of the **Action** system 
 Here are the practical patterns that are actually used in production today (2025) to express request-response workflows with Schema.org.
 
 | Pattern | Main Types Used | How It Models Request → Response | Real-World Examples |
-|---------|------------------|-------------------------------|-----------------------------|
+| --------- | ------------------ | ------------------------------- | ----------------------------- |
 | **1. InteractAction → PotentialAction (most common)** | `InteractAction` (especially `CommunicateAction` subtypes) + `potentialAction` on the offering entity | The offering entity (website, organization, service) declares a `PotentialAction` that is the “request”. When the user performs it, it becomes an actual `Action` (the response is implied or separately marked up). | Contact forms, “Request a Quote”, “Schedule a Call”, “Ask a Question” buttons |
 | **2. Offer + OrderAction (quote → order flow)** | `Offer` → `potentialAction` → `OrderAction` | User sends a request for quote → merchant responds with an `Offer` → user turns it into `Order` | Price quotes, custom orders, B2B procurement |
 | **3. Question → Answer** | `Question` + `acceptedAnswer` (or `suggestedAnswer`) | Explicit request (the question) and explicit response (the answer). Widely used for FAQs and forums. | FAQ pages, Q&A forums, customer support knowledge bases |
@@ -156,13 +156,13 @@ Here are the practical patterns that are actually used in production today (2025
 
 ### Summary Table of Request-Response Patterns
 
-| Desired Interaction             | Recommended Schema.org Pattern                  | Key Types Involved                              |
-|--------------------------------|------------------------------------------------|-------------------------------------------------|
-| Contact form / quote request   | `potentialAction` → `CommunicateAction`        | `Organization`, `EntryPoint`, `Offer`           |
-| Booking / reservation request  | `ReserveAction` + `Reservation`                | `ReserveAction`, specific `Reservation` subtype |
-| Purchase request               | `OrderAction` → `Order`                        | `OrderAction`, `Order`                          |
-| Support ticket / service req   | `CreateAction` + custom `Action` + `actionStatus` | `Service`, `Action`, `actionStatus`             |
-| FAQ or forum Q&A               | `Question` → `Answer`                          | `Question`, `Answer`                            |
-| Chat or email thread           | `Message` chain                                | `Message`                                       |
+| Desired Interaction | Recommended Schema.org Pattern | Key Types Involved |
+| -------------------------------- | ------------------------------------------------ | ------------------------------------------------- |
+| Contact form / quote request | `potentialAction` → `CommunicateAction` | `Organization`, `EntryPoint`, `Offer` |
+| Booking / reservation request | `ReserveAction` + `Reservation` | `ReserveAction`, specific `Reservation` subtype |
+| Purchase request | `OrderAction` → `Order` | `OrderAction`, `Order` |
+| Support ticket / service req | `CreateAction` + custom `Action` + `actionStatus` | `Service`, `Action`, `actionStatus` |
+| FAQ or forum Q&A | `Question` → `Answer` | `Question`, `Answer` |
+| Chat or email thread | `Message` chain | `Message` |
 
 So while Schema.org has no single “Request” or “Response” type, the combination of **PotentialAction / EntryPoint** + **Action** + **result**/**actionStatus** + **Question/Answer** or **Message** gives you a complete, Google-recognized way to model virtually any request-response system on the modern web.

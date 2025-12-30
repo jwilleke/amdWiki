@@ -44,12 +44,12 @@ If only EXIF reading/integration is needed for a custom UI, the exif-js library 
 
 ### Candidate Feature Comparison
 
-| Solution      | EXIF Support | Video Support | Filesystem Safe | Import/Move Needed | Self-hosted | Scale to 500k+ |
-|---------------|-------------|---------------|-----------------|--------------------|-------------|---------------|
-| Chronoframe   | Yes[2] | Yes[2]   | Yes[2]     | No[2]         | Yes[2] | Yes[2]   |
-| Photoview     | Yes[1]  | Limited[1]| Yes[1]      | No[1]          | Yes[1]  | Yes[1]    |
-| exif-js lib   | Yes[3]  | No            | Yes[3]      | No[3]          | Yes[3]  | Yes[3]    |
-| Lychee        | Yes[4]  | Limited[4]| Partial[4]  | Partial[4]     | Yes[4]  | Not proven    |
+| Solution | EXIF Support | Video Support | Filesystem Safe | Import/Move Needed | Self-hosted | Scale to 500k+ |
+| --------------- | ------------- | --------------- | ----------------- | -------------------- | ------------- | --------------- |
+| Chronoframe | Yes[2] | Yes[2] | Yes[2] | No[2] | Yes[2] | Yes[2] |
+| Photoview | Yes[1] | Limited[1] | Yes[1] | No[1] | Yes[1] | Yes[1] |
+| exif-js lib | Yes[3] | No | Yes[3] | No[3] | Yes[3] | Yes[3] |
+| Lychee | Yes[4] | Limited[4] | Partial[4] | Partial[4] | Yes[4] | Not proven |
 
 ### Key Implementation Notes
 
