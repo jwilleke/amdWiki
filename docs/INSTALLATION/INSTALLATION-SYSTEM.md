@@ -2,10 +2,10 @@
 
 Complete implementation of JSPWiki-style first-run installation wizard for amdWiki (Issue #153).
 
-**Status:** ✅ IMPLEMENTED - READY FOR BROWSER TESTING
-**Last Updated:** 2025-12-06
-**Created:** 2025-11-25
-**Related Issues:** #153 (startup pages), #167 (PID lock - ✅ FIXED)
+Status: ✅ IMPLEMENTED - READY FOR BROWSER TESTING
+Last Updated: 2025-12-06
+Created: 2025-11-25
+Related Issues: #153 (startup pages), #167 (PID lock - ✅ FIXED)
 
 ## Overview
 
@@ -24,7 +24,7 @@ The installation system provides a professional first-run experience with:
 
 #### 1. Installation Service
 
-**File:** `src/services/InstallService.js` (620+ lines)
+File: `src/services/InstallService.js` (620+ lines)
 
 Core service handling:
 
@@ -38,7 +38,7 @@ Core service handling:
 - Missing pages folder detection & recovery
 - Retry support (allows continuing from where previous attempt failed)
 
-**Key Methods:**
+Key Methods:
 
 - `isInstallRequired()` - Checks if installation needed
 - `detectPartialInstallation()` - Detects incomplete setups
@@ -50,7 +50,7 @@ Core service handling:
 
 #### 2. Installation Routes
 
-**File:** `src/routes/InstallRoutes.js` (180+ lines)
+File: `src/routes/InstallRoutes.js` (180+ lines)
 
 HTTP endpoints:
 
@@ -62,7 +62,7 @@ HTTP endpoints:
 
 #### 3. User Interface
 
-**Install Form:** `views/install.ejs` (260+ lines)
+Install Form: `views/install.ejs` (260+ lines)
 
 - Bootstrap 5 responsive design
 - Basic configuration: app name, base URL
@@ -73,7 +73,7 @@ HTTP endpoints:
 - Client-side password validation
 - Partial installation status display
 
-**Success Page:** `views/install-success.ejs` (100+ lines)
+Success Page: `views/install-success.ejs` (100+ lines)
 
 - Success confirmation with installation summary
 - Next steps guidance
@@ -81,7 +81,7 @@ HTTP endpoints:
 
 #### 4. Configuration
 
-**File:** `config/app-default-config.json`
+File: `config/app-default-config.json`
 
 - Added 13 installation tracking properties
 - Installation completion marker
@@ -120,24 +120,24 @@ Subsequent visits bypass install
 
 ## Admin Account Implementation
 
-**Security Design:** Admin account is a fallback for OIDC authentication failure
+Security Design: Admin account is a fallback for OIDC authentication failure
 
-- **Username:** Fixed to "admin" (hardcoded in backend)
+- Username: Fixed to "admin" (hardcoded in backend)
   - NOT editable via form
   - Lines 85 in InstallRoutes.js
   - Protects against user changing critical account
 
-- **Email:** Fixed to "admin@localhost" (hardcoded in backend)
+- Email: Fixed to "admin@localhost" (hardcoded in backend)
   - Fallback for OIDC users who don't have external emails
   - NOT editable via form
   - Lines 88 in InstallRoutes.js
 
-- **Password:** User-changeable during installation
+- Password: User-changeable during installation
   - Minimum 8 characters
   - Hashed with secure algorithm
   - Can be changed again after installation
 
-**Form Security:** Backend doesn't trust form values
+Form Security: Backend doesn't trust form values
 
 - Form may show INPUT fields (UI issue due to #167)
 - Backend ignores any form-submitted username/email
@@ -146,19 +146,19 @@ Subsequent visits bypass install
 
 ## Partial Installation Recovery (NEW)
 
-**Problem Solved:** Previous design blocked retries if partial installation detected
+Problem Solved: Previous design blocked retries if partial installation detected
 
 - User couldn't complete failed installation without reset
 - Poor UX for error recovery
 
-**Solution Implemented:** Allow retrying partial installations
+Solution Implemented: Allow retrying partial installations
 
 - `processInstallation()` now detects completed steps
 - Skips already-completed steps on retry
 - Continues with remaining steps
 - Returns status of what was new vs already done
 
-**Scenarios Supported:**
+Scenarios Supported:
 
 1. Fresh install → config fails → retry → completes
 2. Fresh install → skip pages copy → retry with pages → completes
@@ -206,7 +206,7 @@ Subsequent visits bypass install
 
 ### Known Issues ⚠️
 
-✅ **RESOLVED:** GitHub #167 - Multiple server instances running
+✅ RESOLVED: GitHub #167 - Multiple server instances running
 
 - Implemented 7-step validation and cleanup in server.sh
 - Process validation before startup
@@ -215,14 +215,14 @@ Subsequent visits bypass install
 - Single `.amdwiki.pid` enforcement
 - Tested and verified working correctly
 
-**Pre-existing Issues (Not Installation-Related):**
+Pre-existing Issues (Not Installation-Related):
 
 - Jest tests: 595 failed tests (CacheManager logger mocking issue)
 - Not related to installation system
 
 ## Testing Checklist
 
-**Manual Browser Testing Needed:**
+Manual Browser Testing Needed:
 
 Installation Flow:
 
@@ -283,19 +283,19 @@ User visits any URL → Middleware checks: install completed? YES → Continues 
 
 ## Integration Steps
 
-**Already integrated in this codebase**
+Already integrated in this codebase
 
 - `app.js` lines 16, 106-107, 122-129, 198-200
 - InstallRoutes imported and registered
 - Middleware checks installation state
 - Routes registered before WikiRoutes
 
-**Configuration**
+Configuration
 
 - Default config in `config/app-default-config.json`
 - Environment overrides in `config/app-development-config.json` etc.
 
-**Startup Pages**
+Startup Pages
 
 - 15 system pages + 18 documentation = 33 total
 - Located in `required-pages/`
@@ -382,19 +382,19 @@ User visits any URL → Middleware checks: install completed? YES → Continues 
 
 ## Success Metrics
 
-- ✅ **Code Quality:** 620+ lines of clean, documented code
-- ✅ **Test Coverage:** Manual checklist provided, Jest integration possible
-- ✅ **User Experience:** Professional, guided setup wizard
-- ✅ **Security:** Admin credentials protected, form validation
-- ✅ **Documentation:** 300+ lines of guides and API docs
-- ✅ **Server Stability:** Issue #167 fixed - single instance guaranteed
-- ⏳ **Manual Testing:** Ready to be completed (no blockers)
+- ✅ Code Quality: 620+ lines of clean, documented code
+- ✅ Test Coverage: Manual checklist provided, Jest integration possible
+- ✅ User Experience: Professional, guided setup wizard
+- ✅ Security: Admin credentials protected, form validation
+- ✅ Documentation: 300+ lines of guides and API docs
+- ✅ Server Stability: Issue #167 fixed - single instance guaranteed
+- ⏳ Manual Testing: Ready to be completed (no blockers)
 
 ## Version History
 
-- **v1.3.3** - Current
-- **v1.3.0** - Installation system implementation
-- **v1.0.0** - Original release
+- v1.3.3 - Current
+- v1.3.0 - Installation system implementation
+- v1.0.0 - Original release
 
 ## References
 
