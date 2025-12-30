@@ -8,5 +8,6 @@
 
 ## Classes
 
+<!-- markdownlint-disable -->
 - [Link](classes/Link.md)
 - [LinkParser](classes/LinkParser.md)

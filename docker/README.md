@@ -123,7 +123,7 @@ GID=1000                 # Group ID for container
 All instance data is consolidated under a **single volume mount** (`../data:/app/data`):
 
 | Host Path | Container Path | Purpose |
-|-----------|---------------|---------|
+| ----------- | --------------- | --------- |
 | `../data` | `/app/data` | All instance data (pages, users, logs, etc.) |
 | `../required-pages` | `/app/required-pages` | System templates (read-only) |
 

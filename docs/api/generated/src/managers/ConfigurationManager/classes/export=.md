@@ -505,25 +505,20 @@ Get search configuration
 
 Defined in: [src/managers/ConfigurationManager.js:404](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/ConfigurationManager.js#L404)
 
-##### Returns
-
+Returns
 `any`
 
-#### Call Signature
-
+Call Signature
 > **getSearchConfig**(): `any`
 
 Defined in: [src/managers/ConfigurationManager.js:472](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/ConfigurationManager.js#L472)
 
 Get search configuration
 
-##### Returns
-
+Returns
 `any`
 
 Search configuration
-
-***
 
 ### getServerHost()
 
@@ -533,13 +528,10 @@ Defined in: [src/managers/ConfigurationManager.js:278](https://github.com/jwille
 
 Get server host
 
-#### Returns
-
+Returns
 `string`
 
 Server host
-
-***
 
 ### getServerPort()
 
@@ -549,13 +541,10 @@ Defined in: [src/managers/ConfigurationManager.js:270](https://github.com/jwille
 
 Get server port
 
-#### Returns
-
+Returns
 `number`
 
 Server port
-
-***
 
 ### getSessionHttpOnly()
 
@@ -565,13 +554,10 @@ Defined in: [src/managers/ConfigurationManager.js:310](https://github.com/jwille
 
 Get session httpOnly flag
 
-#### Returns
-
+Returns
 `boolean`
 
 Session httpOnly flag
-
-***
 
 ### getSessionMaxAge()
 
@@ -581,13 +567,10 @@ Defined in: [src/managers/ConfigurationManager.js:294](https://github.com/jwille
 
 Get session max age in milliseconds
 
-#### Returns
-
+Returns
 `number`
 
 Session max age
-
-***
 
 ### getSessionSecret()
 
@@ -597,13 +580,10 @@ Defined in: [src/managers/ConfigurationManager.js:286](https://github.com/jwille
 
 Get session secret
 
-#### Returns
-
+Returns
 `string`
 
 Session secret
-
-***
 
 ### getSessionSecure()
 

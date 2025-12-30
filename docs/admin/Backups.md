@@ -455,7 +455,7 @@ The real data stays in the filesystem:
 
 ## Summary Table
 
-| Manager| Has Data? | What's Backed Up | Where's Real Data
+| Manager | Has Data? | What's Backed Up | Where's Real Data
 | ---- | ---- | ---- | ----
 | AttachmentManager | ✅ Yes | Metadata Map | ./data/attachments/
 | PageManager | ✅ Yes | (Not implemented) | ./pages/

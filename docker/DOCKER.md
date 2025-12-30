@@ -408,7 +408,7 @@ This enables a single Docker volume mount for all persistent data.
 All instance data is consolidated under a **single volume mount**:
 
 | Host Path | Container Path | Purpose |
-|-----------|---------------|---------|
+| ----------- | --------------- | --------- |
 | `./data` | `/app/data` | All instance data |
 | `./required-pages` | `/app/required-pages` | System templates (read-only) |
 | `./config` | `/app/config` | Configuration overrides (optional) |
@@ -416,7 +416,7 @@ All instance data is consolidated under a **single volume mount**:
 The `./data` directory contains all persistent data:
 
 | Subdirectory | ConfigurationManager Property | Purpose |
-|--------------|------------------------------|---------|
+| -------------- | ------------------------------ | --------- |
 | `data/pages/` | `amdwiki.page.provider.filesystem.storagedir` | Wiki content |
 | `data/users/` | `amdwiki.user.provider.storagedir` | User accounts |
 | `data/attachments/` | `amdwiki.attachment.provider.basic.storagedir` | File attachments |
@@ -490,7 +490,7 @@ UID=$(id -u) GID=$(id -g) docker-compose up -d
 #### Common UID/GID values
 
 | Platform | First User | Notes |
-|----------|-----------|-------|
+| ---------- | ----------- | ------- |
 | Linux | 1000:1000 | Standard first user |
 | macOS | 501:20 | Standard first user |
 | Docker default | 1000:1000 | Built-in 'node' user |

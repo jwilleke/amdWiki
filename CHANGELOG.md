@@ -48,7 +48,7 @@ data/
 #### Config Property Changes
 
 | Property | Old Value | New Value |
-|----------|-----------|-----------|
+| ---------- | ----------- | ----------- |
 | `amdwiki.page.provider.filesystem.storagedir` | `./pages` | `./data/pages` |
 | `amdwiki.user.provider.storagedir` | `./users` | `./data/users` |
 | `amdwiki.search.provider.lunr.indexdir` | `./search-index` | `./data/search-index` |

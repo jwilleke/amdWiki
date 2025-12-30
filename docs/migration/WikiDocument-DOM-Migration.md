@@ -1,16 +1,16 @@
-> **ARCHIVED**: This document is for historical purposes only. For the current and complete documentation, please see **[WikiDocument Complete Guide](../WikiDocument-Complete-Guide.md)**.
+> ARCHIVED: This document is for historical purposes only. For the current and complete documentation, please see [WikiDocument Complete Guide](../WikiDocument-Complete-Guide.md).
 
 # WikiDocument DOM Migration Guide
 
-**Version:** 1.3.2
-**Last Updated:** 2025-10-13
-**Target Audience:** Developers with custom handlers or extensions
+Version: 1.3.2
+Last Updated: 2025-10-13
+Target Audience: Developers with custom handlers or extensions
 
 ## Overview
 
 This guide helps developers migrate from the legacy 7-phase string-based parser to the new WikiDocument DOM extraction pipeline (Issues #115-#120).
 
-**Good News:** Most users don't need to do anything! The new pipeline is backward compatible and active by default.
+Good News: Most users don't need to do anything! The new pipeline is backward compatible and active by default.
 
 ## Do You Need to Migrate?
 
@@ -21,7 +21,7 @@ This guide helps developers migrate from the legacy 7-phase string-based parser 
 - ✅ You haven't modified the MarkupParser code
 - ✅ You use amdWiki's standard configuration
 
-**Action:** None required. The new pipeline is active by default.
+Action: None required. The new pipeline is active by default.
 
 ### You DO need to migrate if
 
@@ -30,7 +30,7 @@ This guide helps developers migrate from the legacy 7-phase string-based parser 
 - ⚠️ You modified MarkupParser internals
 - ⚠️ You rely on specific phase execution order
 
-**Action:** Follow the migration steps below.
+Action: Follow the migration steps below.
 
 ---
 
@@ -38,30 +38,30 @@ This guide helps developers migrate from the legacy 7-phase string-based parser 
 
 ### Step 1: Understand the New Architecture
 
-**Old Approach (7-Phase):**
+Old Approach (7-Phase):
 
 ```
 Content → Phase 1 → Phase 2 → ... → Phase 7 → HTML
 (String manipulation at each phase)
 ```
 
-**New Approach (Extraction):**
+New Approach (Extraction):
 
 ```
 Content → Extract JSPWiki → Create DOM Nodes → Showdown → Merge → HTML
 (Separation of concerns, no conflicts)
 ```
 
-**Key Differences:**
+Key Differences:
 
-- **Pre-extraction**: JSPWiki syntax extracted BEFORE markdown parsing
-- **DOM-based**: Nodes created instead of string manipulation
-- **No conflicts**: Markdown and JSPWiki don't interfere
-- **Order-independent**: Extraction order doesn't matter
+- Pre-extraction: JSPWiki syntax extracted BEFORE markdown parsing
+- DOM-based: Nodes created instead of string manipulation
+- No conflicts: Markdown and JSPWiki don't interfere
+- Order-independent: Extraction order doesn't matter
 
 ### Step 2: Assess Your Custom Code
 
-**Check for custom handlers:**
+Check for custom handlers:
 
 ```bash
 # Search for custom phase processors
@@ -71,24 +71,24 @@ grep -r "process.*function\|process.*=>" src/
 grep -r "Handler.*extends\|class.*Handler" src/
 ```
 
-**If found:** Proceed to Step 3
-**If not found:** You're done! No migration needed.
+If found: Proceed to Step 3
+If not found: You're done! No migration needed.
 
 ### Step 3: Choose Migration Strategy
 
-**Option A: DOM Handler (Recommended)**
+Option A: DOM Handler (Recommended)
 
 - Create a new DOM handler class
 - Implement `createNodeFromExtract()` method
 - Integrate with extraction pipeline
 
-**Option B: Keep Legacy (Temporary)**
+Option B: Keep Legacy (Temporary)
 
 - Set `jspwiki.parser.useExtractionPipeline = false`
 - Continue using legacy parser
 - Plan migration for future
 
-**Option C: Hybrid (Advanced)**
+Option C: Hybrid (Advanced)
 
 - Use extraction pipeline for standard syntax
 - Add post-processing for custom syntax
@@ -100,7 +100,7 @@ grep -r "Handler.*extends\|class.*Handler" src/
 
 ### Pattern 1: Simple String Replacement
 
-**Before (Legacy Phase):**
+Before (Legacy Phase):
 
 ```javascript
 // Custom phase in phases array
@@ -116,7 +116,7 @@ grep -r "Handler.*extends\|class.*Handler" src/
 }
 ```
 
-**After (DOM Handler):**
+After (DOM Handler):
 
 ```javascript
 // 1. Add extraction pattern in extractJSPWikiSyntax()
@@ -153,7 +153,7 @@ case 'highlight':
 
 ### Pattern 2: Complex Processing
 
-**Before (Multiple Phases):**
+Before (Multiple Phases):
 
 ```javascript
 // Phase 1: Extract metadata
@@ -182,7 +182,7 @@ case 'highlight':
 }
 ```
 
-**After (Single Handler):**
+After (Single Handler):
 
 ```javascript
 // Extract metadata during extraction phase
@@ -225,7 +225,7 @@ class MetadataHandler {
 
 ### Pattern 3: Context-Dependent Processing
 
-**Before (Using Parse Context):**
+Before (Using Parse Context):
 
 ```javascript
 {
@@ -242,7 +242,7 @@ class MetadataHandler {
 }
 ```
 
-**After (Context in Handler):**
+After (Context in Handler):
 
 ```javascript
 // Extract admin blocks
@@ -285,7 +285,7 @@ class AdminBlockHandler {
 
 ### Adding a Custom Handler
 
-**Step 1: Create Handler Class**
+#### Step 1: Create Handler Class
 
 ```javascript
 // src/parsers/dom/handlers/CustomHandler.js
@@ -313,7 +313,7 @@ class CustomHandler {
 module.exports = CustomHandler;
 ```
 
-**Step 2: Add Extraction Pattern**
+#### Step 2: Add Extraction Pattern
 
 ```javascript
 // In MarkupParser.extractJSPWikiSyntax()
@@ -332,7 +332,7 @@ sanitized = sanitized.replace(/\[\[CUSTOM:(.*?)\]\]/g, (match, content) => {
 });
 ```
 
-**Step 3: Integrate Handler**
+#### Step 3: Integrate Handler
 
 ```javascript
 // In MarkupParser constructor
@@ -349,7 +349,7 @@ case 'custom':
   );
 ```
 
-**Step 4: Test**
+#### Step 4: Test
 
 ```javascript
 // Test your custom syntax
@@ -364,14 +364,14 @@ const html = await parser.parseWithDOMExtraction(content, context);
 
 ### Pitfall 1: Extracting Inside Code Blocks
 
-**Problem:**
+Problem:
 
 ```javascript
 // This extracts from code blocks (wrong!)
 sanitized = sanitized.replace(/pattern/g, ...);
 ```
 
-**Solution:**
+Solution:
 
 ```javascript
 // Code blocks are already protected in extractJSPWikiSyntax()
@@ -380,14 +380,14 @@ sanitized = sanitized.replace(/pattern/g, ...);
 
 ### Pitfall 2: Order Dependency
 
-**Problem:**
+Problem:
 
 ```javascript
 // Assuming variables are expanded before plugins
 const content = element.content.replace(/\[\{\$(\w+)\}\]/g, ...);
 ```
 
-**Solution:**
+Solution:
 
 ```javascript
 // Don't process JSPWiki syntax manually
@@ -399,14 +399,14 @@ const content = element.content.replace(/\[\{\$(\w+)\}\]/g, ...);
 
 ### Pitfall 3: Modifying Sanitized Content
 
-**Problem:**
+Problem:
 
 ```javascript
 // Trying to add markup to sanitized content
 sanitized += '<div>footer</div>';  // Wrong!
 ```
 
-**Solution:**
+Solution:
 
 ```javascript
 // Add elements via extraction/DOM creation
@@ -419,7 +419,7 @@ jspwikiElements.push({
 
 ### Pitfall 4: Synchronous Handlers
 
-**Problem:**
+Problem:
 
 ```javascript
 // Handler is not async
@@ -428,7 +428,7 @@ createNodeFromExtract(element, context, wikiDocument) {
 }
 ```
 
-**Solution:**
+Solution:
 
 ```javascript
 // Always use async
@@ -499,7 +499,7 @@ If you encounter issues with the new pipeline:
 
 ### Temporary Rollback (Immediate)
 
-**config/app-custom-config.json:**
+config/app-custom-config.json:
 
 ```json
 {
@@ -533,7 +533,7 @@ Restart server. Pages will use legacy parser.
 
 ### Handler Performance
 
-**Good:**
+Good:
 
 ```javascript
 async createNodeFromExtract(element, context, wikiDocument) {
@@ -544,7 +544,7 @@ async createNodeFromExtract(element, context, wikiDocument) {
 }
 ```
 
-**Bad:**
+Bad:
 
 ```javascript
 async createNodeFromExtract(element, context, wikiDocument) {
@@ -554,7 +554,7 @@ async createNodeFromExtract(element, context, wikiDocument) {
 }
 ```
 
-**Better:**
+Better:
 
 ```javascript
 async initialize() {
@@ -582,14 +582,14 @@ async createNodeFromExtract(element, context, wikiDocument) {
 
 ### Resources
 
-- **API Documentation:** [MarkupParser API](../api/MarkupParser-API.md)
-- **Architecture:** [WikiDocument DOM Architecture](../architecture/WikiDocument-DOM-Architecture.md)
-- **Examples:** See `src/parsers/dom/handlers/` for reference implementations
+- API Documentation: [MarkupParser API](../api/MarkupParser-API.md)
+- Architecture: [WikiDocument DOM Architecture](../architecture/WikiDocument-DOM-Architecture.md)
+- Examples: See `src/parsers/dom/handlers/` for reference implementations
 
 ### Support
 
-- **GitHub Issues:** <https://github.com/jwilleke/amdWiki/issues>
-- **Documentation:** <https://github.com/jwilleke/amdWiki/tree/master/docs>
+- GitHub Issues: <https://github.com/jwilleke/amdWiki/issues>
+- Documentation: <https://github.com/jwilleke/amdWiki/tree/master/docs>
 
 ### Reporting Issues
 
@@ -606,30 +606,30 @@ Include:
 
 ## FAQ
 
-**Q: Do I need to rewrite all my pages?**
+Q: Do I need to rewrite all my pages?
 
 A: No! Pages are backward compatible. The parser changes how they're processed internally.
 
-**Q: What if my custom handler breaks?**
+Q: What if my custom handler breaks?
 
 A: Set `jspwiki.parser.useExtractionPipeline = false` temporarily, then follow this guide to migrate.
 
-**Q: Can I use both pipelines?**
+Q: Can I use both pipelines?
 
 A: No, only one pipeline is active at a time. Choose via configuration.
 
-**Q: Will the legacy parser be removed?**
+Q: Will the legacy parser be removed?
 
 A: Not in the near term. It's kept for backward compatibility.
 
-**Q: How do I know which pipeline is running?**
+Q: How do I know which pipeline is running?
 
 A: Check server logs on startup. You'll see:
 
 - `"🔄 Using WikiDocument DOM extraction pipeline"` (new)
 - `"🔄 Using legacy 7-phase parser"` (old)
 
-**Q: Can I add custom syntax without modifying MarkupParser.js?**
+Q: Can I add custom syntax without modifying MarkupParser.js?
 
 A: Currently, no. Custom syntax requires modifying extraction patterns. A plugin system for extraction is planned for a future release.
 
@@ -652,6 +652,6 @@ A: Currently, no. Custom syntax requires modifying extraction patterns. A plugin
 
 ---
 
-**Last Updated:** 2025-10-13
-**Status:** Complete
-**Next Review:** Phase 8 (if needed)
+Last Updated: 2025-10-13
+Status: Complete
+Next Review: Phase 8 (if needed)

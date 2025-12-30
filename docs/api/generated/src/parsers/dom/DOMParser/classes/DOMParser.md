@@ -10,9 +10,7 @@ Defined in: [src/parsers/dom/DOMParser.js:63](https://github.com/jwilleke/amdWik
 
 DOMParser - Complete DOM-based parsing pipeline for wiki markup
 
-============================================================================
-ARCHITECTURE NOTE (Phase 4, Issue #118)
-============================================================================
+## ARCHITECTURE NOTE (Phase 4, Issue #118)
 
 **This DOMParser is a REFERENCE IMPLEMENTATION and is NOT actively used
 in the current rendering pipeline.**
@@ -21,8 +19,7 @@ This parser uses the Tokenizer → DOMBuilder pipeline, which was the Phase 0
 approach to WikiDocument DOM parsing. However, it has been superseded by
 the extraction-based approach in Phases 1-3.
 
-CURRENT ACTIVE PIPELINE
-------------------------
+## CURRENT ACTIVE PIPELINE
 
 Use `MarkupParser.parseWithDOMExtraction()` instead of this DOMParser.
 
@@ -34,7 +31,6 @@ The new pipeline:
 4. MarkupParser.mergeDOMNodes() - Merge nodes into HTML
 
 WHY THIS DOMPARSER IS KEPT
----------------------------
 
 - Reference implementation for token-based parsing
 - Useful for understanding the tokenization approach
@@ -47,8 +43,6 @@ SEE ALSO:
 - MarkupParser.parseWithDOMExtraction() - Current active pipeline
 - Issue #114 - WikiDocument DOM Solution
 - Issue #118 - Architecture documentation (this change)
-
-============================================================================
 
 ORIGINAL DESCRIPTION:
 Integrates Tokenizer and DOMBuilder to convert wiki markup into
