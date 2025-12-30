@@ -53,7 +53,7 @@ Wiki powered by amdWiki | Uptime: [{UptimePlugin}]
 
 ```wiki
 | Metric | Value |
-|--------|-------|
+| -------- | ------- |
 | Server Uptime | [{UptimePlugin}] |
 | Total Pages | [{TotalPagesPlugin}] |
 | Active Sessions | [{SessionsPlugin}] |
@@ -64,7 +64,7 @@ Wiki powered by amdWiki | Uptime: [{UptimePlugin}]
 The uptime adapts to show relevant units:
 
 | Duration | Format |
-|----------|--------|
+| ---------- | -------- |
 | Days or more | `3d 12h 45m` |
 | Hours only | `5h 30m` |
 | Minutes only | `15m` |
