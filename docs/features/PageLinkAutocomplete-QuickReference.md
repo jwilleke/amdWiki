@@ -15,7 +15,7 @@ Result:  Click or press Enter to select
 ### 📍 Where It Works
 
 | Location | Trigger | Action |
-|----------|---------|--------|
+| ---------- | --------- | -------- |
 | **Page Editor** | Type `[page` | Inserts `[PageName]` |
 | **Search Page** | Type `query` | Navigate to page |
 | **Header Search** | Type `query` | Navigate to page |
@@ -26,7 +26,7 @@ Result:  Click or press Enter to select
 ### ⌨️ Keyboard Shortcuts
 
 | Key | Action |
-|-----|--------|
+| ----- | -------- |
 | `↓` | Next suggestion |
 | `↑` | Previous suggestion |
 | `Enter` | Select current |

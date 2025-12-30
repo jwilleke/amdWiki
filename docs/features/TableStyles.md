@@ -642,7 +642,7 @@ Text color calculated independently of theme.
 ### CSS Classes
 
 | Class | Applied By | Purpose |
-|-------|-----------|---------|
+| ------- | ----------- | --------- |
 | `table` | JSPWikiPreprocessor | Base table styling |
 | `zebra-table` | JSPWikiPreprocessor | Enables zebra striping |
 | `sortable` | JSPWikiPreprocessor | Enables sorting |
@@ -656,7 +656,7 @@ Text color calculated independently of theme.
 ### CSS Variables
 
 | Variable | Default (Light) | Default (Dark) | Purpose |
-|----------|----------------|----------------|---------|
+| ---------- | ---------------- | ---------------- | --------- |
 | `--zebra-row-even` | `rgba(2,6,19,0.08)` | `#1a1a1a` | Even row background |
 | `--zebra-row-odd` | `transparent` | `transparent` | Odd row background |
 | `--zebra-row-hover` | `rgba(88,166,255,0.24)` | `#21262d` | Hover background |

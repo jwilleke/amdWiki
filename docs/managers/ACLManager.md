@@ -34,7 +34,7 @@ const acl = aclManager.parsePageACL('[{ALLOW view All}] [{ALLOW edit Admin}]');
 ## Supported Actions
 
 | Action | Maps To | Description |
-|--------|---------|-------------|
+| -------- | --------- | ------------- |
 | `view` | `page:read` | Read page content |
 | `edit` | `page:edit` | Modify page content |
 | `delete` | `page:delete` | Delete the page |
