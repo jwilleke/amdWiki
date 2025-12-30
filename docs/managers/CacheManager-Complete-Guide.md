@@ -22,8 +22,6 @@
 10. [Best Practices](#best-practices)
 11. [Troubleshooting](#troubleshooting)
 
----
-
 ## Overview
 
 The CacheManager provides centralized cache management for amdWiki with support for multiple cache backends through a pluggable provider system. It enables caching across all managers with configurable TTL, cache regions (namespaces), and comprehensive statistics.
@@ -106,10 +104,6 @@ Following the provider pattern established in AttachmentManager, PageManager, an
 - Wraps provider with region prefix
 - Enables cache segmentation
 
----
-
-## Architecture
-
 ### Cache Regions (Namespaces)
 
 CacheManager supports cache regions that provide namespace isolation:
@@ -123,8 +117,6 @@ const userCache = cacheManager.region('UserManager');
 await pageCache.set('page:Welcome', pageData);  // Stored as 'PageManager:page:Welcome'
 await userCache.set('user:admin', userData);    // Stored as 'UserManager:user:admin'
 ```
-
----
 
 ## Configuration
 
@@ -165,7 +157,7 @@ All configuration keys follow the lowercase standard from issue #102:
 #### Core Settings
 
 | Key | Type | Default | Description |
-|-----|------|---------|-------------|
+| ----- | ------ | --------- | ------------- |
 | `amdwiki.cache.enabled` | boolean | `true` | Enable/disable caching globally |
 | `amdwiki.cache.provider.default` | string | `nodecacheprovider` | Default provider name (fallback) |
 | `amdwiki.cache.provider` | string | `nodecacheprovider` | Active provider name |
@@ -176,7 +168,7 @@ All configuration keys follow the lowercase standard from issue #102:
 #### NodeCacheProvider Settings
 
 | Key | Type | Default | Description |
-|-----|------|---------|-------------|
+| ----- | ------ | --------- | ------------- |
 | `amdwiki.cache.provider.nodecache.stdttl` | number | `300` | Standard TTL for cache entries |
 | `amdwiki.cache.provider.nodecache.checkperiod` | number | `120` | Check expired keys interval |
 | `amdwiki.cache.provider.nodecache.maxkeys` | number | `1000` | Maximum keys in cache |
@@ -185,7 +177,7 @@ All configuration keys follow the lowercase standard from issue #102:
 #### RedisCacheProvider Settings (Future)
 
 | Key | Type | Default | Description |
-|-----|------|---------|-------------|
+| ----- | ------ | --------- | ------------- |
 | `amdwiki.cache.provider.redis.url` | string | `redis://localhost:6379` | Redis connection URL |
 | `amdwiki.cache.provider.redis.keyprefix` | string | `amdwiki:` | Prefix for all cache keys |
 | `amdwiki.cache.provider.redis.enablecluster` | boolean | `false` | Enable Redis Cluster mode |
