@@ -26,7 +26,7 @@ relatedModules: ["Module1", "Module2"]
 ### Required Fields
 
 | Field | Type | Description |
-|-------|------|-------------|
+| ------- | ------ | ------------- |
 | name | string | Module or document name (PascalCase for modules) |
 | description | string | Brief description (< 160 characters) |
 | dateModified | string | Last modification date (ISO 8601: YYYY-MM-DD) |
@@ -35,7 +35,7 @@ relatedModules: ["Module1", "Module2"]
 ### Optional Fields
 
 | Field | Type | Description |
-|-------|------|-------------|
+| ------- | ------ | ------------- |
 | relatedModules | array | Related modules for cross-referencing |
 | version | string | Module version if applicable |
 | author | string | Original author |
@@ -202,7 +202,7 @@ Use for parameter references and comparisons:
 
 ```markdown
 | Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
+| ----------- | ------ | --------- | ------------- |
 | name | string | required | The parameter name |
 ```
 

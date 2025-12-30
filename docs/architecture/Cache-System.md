@@ -37,7 +37,7 @@ Each manager gets its own isolated cache region to prevent key collisions:
 ### Configuration Properties
 
 | Property | Default | Description |
-|----------|---------|-------------|
+| ---------- | --------- | ------------- |
 | `amdwiki.cache.enabled` | `true` | Enable/disable caching |
 | `amdwiki.cache.provider` | `'node-cache'` | Cache backend (`node-cache`, `redis`, `null`) |
 | `amdwiki.cache.defaultTTL` | `300` | Default TTL in seconds |

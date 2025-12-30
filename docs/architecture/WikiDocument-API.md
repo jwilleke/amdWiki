@@ -813,7 +813,7 @@ console.log('Restored:', restored.toHTML());
 ## Differences from JSPWiki JDOM2
 
 | Feature | JSPWiki (JDOM2) | WikiDocument (linkedom) |
-|---------|-----------------|-------------------------|
+| --------- | ----------------- | ------------------------- |
 | **Base Class** | `org.jdom2.Document` | Custom class with linkedom |
 | **Language** | Java | JavaScript/Node.js |
 | **DOM API** | JDOM2 API | W3C DOM API |
@@ -828,7 +828,7 @@ console.log('Restored:', restored.toHTML());
 
 ### API Mapping
 
-**JSPWiki → WikiDocument**
+#### JSPWiki → WikiDocument
 
 ```java
 // JSPWiki
@@ -845,7 +845,7 @@ elem.textContent = 'Text';
 doc.appendChild(elem);
 ```
 
-**Query Mapping**
+#### Query Mapping
 
 ```java
 // JSPWiki (XPath)
@@ -862,7 +862,7 @@ const elements = doc.querySelectorAll('p.para');
 Based on benchmarks with 1000 iterations:
 
 | Operation | Time | Notes |
-|-----------|------|-------|
+| ----------- | ------ | ------- |
 | **Create Document** | 28μs | Very fast, minimal overhead |
 | **Create 100 Elements** | 690μs | Including attributes and text |
 | **Serialize to HTML** | 54μs | Fast innerHTML access |

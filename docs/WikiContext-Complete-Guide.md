@@ -46,7 +46,7 @@ Inspired by JSPWiki's architectural patterns, `WikiContext` solves the problem o
 **Test Results as of 2025-12-08:**
 
 | Component | Status | Tests Passing | Test File |
-|-----------|--------|---------------|-----------|
+| ----------- | -------- | --------------- | ----------- |
 | **WikiContext Class** | ✅ Complete | 12/12 (100%) | WikiContext.test.js |
 | **Integration** | ✅ Production | Active | In use across all routes |
 
@@ -846,7 +846,7 @@ if (!canView) {
 ### Test Coverage
 
 | Test Category | Tests | Status | File |
-|---------------|-------|--------|------|
+| --------------- | ------- | -------- | ------ |
 | **Constructor** | 3 | ✅ 100% | WikiContext.test.js |
 | **getContext** | 2 | ✅ 100% | WikiContext.test.js |
 | **renderMarkdown** | 4 | ✅ 100% | WikiContext.test.js |
@@ -943,7 +943,7 @@ const context = new WikiContext(mockEngine, {
 WikiContext is designed to be lightweight and performant:
 
 | Operation | Time | Notes |
-|-----------|------|-------|
+| ----------- | ------ | ------- |
 | **Create WikiContext** | ~0.5ms | Very fast, minimal overhead |
 | **getContext()** | <0.01ms | Simple property access |
 | **toParseOptions()** | ~0.1ms | Object construction |

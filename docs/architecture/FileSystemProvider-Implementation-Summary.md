@@ -190,7 +190,7 @@ case 'DatabaseProvider':
 Provider pattern uses these configuration keys:
 
 | Key | Default | Description |
-|-----|---------|-------------|
+| ----- | --------- | ------------- |
 | `amdwiki.pageProvider` | `FileSystemProvider` | Provider class name |
 | `amdwiki.directories.pages` | `./pages` | Regular pages directory |
 | `amdwiki.directories.required-pages` | `./required-pages` | System pages directory |

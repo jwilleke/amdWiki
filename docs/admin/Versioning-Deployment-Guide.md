@@ -210,7 +210,7 @@ Look for:
 **Guidelines**:
 
 | Wiki Size | Max Versions | Retention Days | Rationale |
-|-----------|--------------|----------------|-----------|
+| ----------- | -------------- | ---------------- | ----------- |
 | Small (<100 pages) | 50 | 365 | Keep full history |
 | Medium (100-1000) | 30 | 180 | Balance storage/history |
 | Large (>1000 pages) | 20 | 90 | Optimize storage |

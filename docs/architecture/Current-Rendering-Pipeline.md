@@ -10,7 +10,7 @@ amdWiki is currently in **transition** from a brittle 7-phase string-based parse
 ### Current State
 
 | Component | Status | In Production? | Notes |
-|-----------|--------|---------------|-------|
+| ----------- | -------- | --------------- | ------- |
 | **WikiDocument DOM** | ✅ Implemented | ⚠️ Partially Active | Full implementation exists but Phase 0 DOM parsing is disabled |
 | **7-Phase MarkupParser** | ✅ Active | ✅ Yes | Current primary parser (string-based) |
 | **Legacy RenderingManager** | ✅ Active | ✅ Yes (Fallback) | Used when MarkupParser fails |
@@ -883,7 +883,7 @@ async phaseDOMParsing(content, context) {
 ## Comparison: Current vs. Planned
 
 | Aspect | Current (7-Phase String) | Planned (WikiDocument DOM) |
-|--------|------------------------|---------------------------|
+| -------- | ------------------------ | --------------------------- |
 | **Parsing Method** | String manipulation | DOM tree construction |
 | **Order Dependency** | ⚠️ High (phases must run in sequence) | ✅ Low (independent node processing) |
 | **Escaping** | ⚠️ Fragile (`[[` issues recurring) | ✅ Natural (text nodes) |

@@ -412,7 +412,7 @@ class WikiDocument {
 ## Comparison Matrix
 
 | Feature | jsdom | cheerio | linkedom | Custom |
-|---------|-------|---------|----------|--------|
+| --------- | ------- | --------- | ---------- | -------- |
 | **Size** | 4.7 MB | 1.2 MB | 500 KB | <100 KB |
 | **Performance** | Slow | Fast | Very Fast | Fastest |
 | **Memory Usage** | High | Medium | Low | Lowest |
@@ -451,7 +451,7 @@ console.timeEnd('Create');
 ### Expected Results (estimated)
 
 | Library | Time (1000 iterations) | Memory Peak |
-|---------|------------------------|-------------|
+| --------- | ------------------------ | ------------- |
 | jsdom | ~5000ms | ~500 MB |
 | cheerio | ~1500ms | ~150 MB |
 | linkedom | ~500ms | ~100 MB |

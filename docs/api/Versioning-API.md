@@ -435,7 +435,7 @@ Summary statistics for a comparison.
 ### HTTP Status Codes
 
 | Code | Meaning | Common Causes |
-|------|---------|---------------|
+| ------ | --------- | --------------- |
 | `200` | Success | Request completed successfully |
 | `400` | Bad Request | Invalid version number, missing parameters |
 | `401` | Unauthorized | Not authenticated (restore only) |
@@ -780,7 +780,7 @@ backupPageVersions('Main', './backups');
 ## Changelog
 
 | Version | Date | Changes |
-|---------|------|---------|
+| --------- | ------ | --------- |
 | 1.0 | 2024-10-16 | Initial API documentation |
 
 ---

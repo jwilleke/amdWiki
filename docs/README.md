@@ -179,7 +179,7 @@ This documentation is organized into several key areas to help you understand, d
 ## 🔍 Quick Navigation
 
 | Area | Purpose | Key Documents |
-|------|---------|---------------|
+| ------ | --------- | --------------- |
 | **Getting Started** | Basic usage and setup | [README.md](../README.md) |
 | **Features** | User features and guides | [Page Link Autocomplete](features/PageLinkAutocomplete.md) |
 | **Architecture** | System design and structure | [WikiDocument DOM](architecture/WikiDocument-DOM-Architecture.md), [Project Structure](architecture/PROJECT-STRUCTURE.md) |
