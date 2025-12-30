@@ -92,6 +92,8 @@ We use Markdownlint to ensure consistent and well-formatted documentation.
 
 Configuration: `.markdownlint.json`
 
+For resference see [Mardownlint Guid](https://github.com/DavidAnson/markdownlint/blob/main/README.md)
+
 Key rules:
 
 - Consistent heading style
