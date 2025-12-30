@@ -23,13 +23,13 @@ author: admin
 ### Required Parameters
 
 | Parameter | Description | Example |
-|-----------|-------------|---------|
+| ----------- | ------------- | --------- |
 | `src` | Image source path or URL | `src='/attachments/photo.jpg'` |
 
 ### Optional Parameters
 
 | Parameter | Description | Example | Default |
-|-----------|-------------|---------|---------|
+| ----------- | ------------- | --------- | --------- |
 | `caption` | Image caption (also used as alt if alt not provided) | `caption='Sunset over the ocean'` | None |
 | `alt` | Alt text for accessibility | `alt='Beautiful sunset'` | Uses caption, or "Uploaded image" |
 | `width` | Image width | `width='300'` or `width='50%'` | Original size |
@@ -108,7 +108,7 @@ Full-width image that spans the entire container width.
 The `align` parameter works with all display modes:
 
 | Align | Description | Best Used With |
-|-------|-------------|----------------|
+| ------- | ------------- | ---------------- |
 | `left` | Aligns image to the left | `display='float'` or `display='block'` |
 | `right` | Aligns image to the right | `display='float'` or `display='block'` |
 | `center` | Centers the image | `display='block'` |
