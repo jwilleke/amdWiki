@@ -24,6 +24,31 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 
 ---
 
+## 2026-01-02-03
+
+- Agent: Claude Code (Opus 4.5)
+- Subject: Fix Markdown Lint Errors (Issues #190, #197)
+- Issues: #190 (CLOSED), #197 (CLOSED)
+- Key Decisions:
+  - Added version content, exports, and private dirs to .markdownlintignore
+  - User-generated content should not be linted for strict formatting
+- Work Done:
+  - Fixed MD036 errors (emphasis as heading) in architecture docs
+  - Fixed MD003 error (setext heading) in WikiDocument-DOM-Architecture.md
+  - Fixed MD025 errors (multiple H1) in BasicAttachmentProvider guide
+  - Updated Markdown-Cheat-Sheet to use code blocks for examples
+  - Updated .markdownlintignore to exclude user content
+- Testing:
+  - npm test: 58 suites passed, 1380 tests passed
+  - npm run lint:md: 0 errors
+- Commits: 6f9a75d
+- Files Modified:
+  - .markdownlintignore
+  - docs/architecture/DOM-Parser-Implementation-Summary.md
+  - docs/architecture/WikiDocument-DOM-Architecture.md
+  - docs/providers/BasicAttachmentProvider-Complete-Guide.md
+  - docs/user-guide/Markdown-Cheat-Sheet.md
+
 ## 2026-01-02-02
 
 - Agent: Claude Code (Opus 4.5)
