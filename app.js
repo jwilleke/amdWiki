@@ -10,11 +10,11 @@ const session = require('express-session');
 const FileStore = require('session-file-store')(session);
 const fs = require('fs-extra');
 
-// Require from dist/ (pre-compiled TypeScript)
-const logger = require('./dist/utils/logger');
-const WikiEngine = require('./dist/WikiEngine');
-const WikiRoutes = require('./dist/routes/WikiRoutes');
-const InstallRoutes = require('./dist/routes/InstallRoutes');
+// Require from dist/src/ (pre-compiled TypeScript)
+const logger = require('./dist/src/utils/logger');
+const WikiEngine = require('./dist/src/WikiEngine');
+const WikiRoutes = require('./dist/src/routes/WikiRoutes');
+const InstallRoutes = require('./dist/src/routes/InstallRoutes');
 
 // --- PID File Lock to Prevent Multiple Instances ---
 const PID_FILE = path.join(__dirname, '.amdwiki.pid');
