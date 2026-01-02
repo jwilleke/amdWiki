@@ -104,7 +104,7 @@ checkAndCreatePidLock();
   app.use(cookieParser());
 
   // Install check middleware - must be BEFORE session to allow static assets
-  const InstallService = require('./dist/services/InstallService');
+  const InstallService = require('./dist/src/services/InstallService');
   const installService = new InstallService(engine);
 
   app.use(async (req, res, next) => {
