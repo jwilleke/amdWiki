@@ -177,17 +177,20 @@ class PluginManager extends BaseManager {
       return;
     }
 
-    // Enumerate .js files in allowed roots only
+    // Enumerate .js and .ts files in allowed roots only
     for (const root of this.allowedRoots) {
       try {
-         
+
         const entries = await fs.readdir(root, { withFileTypes: true });
-         
+
         for (const entry of entries) {
-           
+
           if (!entry.isFile()) continue;
-           
-          if (!entry.name.endsWith('.js') || entry.name.endsWith('.test.js')) continue;
+
+          // Skip test files and non-plugin files
+          const isJsPlugin = entry.name.endsWith('.js') && !entry.name.endsWith('.test.js');
+          const isTsPlugin = entry.name.endsWith('.ts') && !entry.name.endsWith('.test.ts') && !entry.name.endsWith('.d.ts');
+          if (!isJsPlugin && !isTsPlugin) continue;
 
            
           const candidate = path.join(root, entry.name);

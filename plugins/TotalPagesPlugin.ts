@@ -3,7 +3,13 @@
  * Returns the total number of pages in the wiki
  */
 
-const TotalPagesPlugin = {
+import type { SimplePlugin, PluginContext, PluginParams } from './types';
+
+interface PageManager {
+  getAllPages(): Promise<unknown[]>;
+}
+
+const TotalPagesPlugin: SimplePlugin = {
   name: 'TotalPagesPlugin',
   description: 'Shows the total number of pages',
   author: 'amdWiki',
@@ -11,25 +17,28 @@ const TotalPagesPlugin = {
 
   /**
    * Execute the plugin
-   * @param {Object} context - Wiki context
-   * @param {Object} params - Plugin parameters
-   * @returns {Promise<string>} HTML output
+   * @param context - Wiki context
+   * @param params - Plugin parameters
+   * @returns HTML output
    */
-  async execute(context, params) {
+  async execute(context: PluginContext, _params: PluginParams): Promise<string> {
     const engine = context.engine;
     if (!engine) {
       return '0';
     }
 
     try {
-      const pageManager = engine.getManager('PageManager');
+      const pageManager = engine.getManager('PageManager') as PageManager | undefined;
       if (pageManager && pageManager.getAllPages) {
         const pages = await pageManager.getAllPages();
         return Array.isArray(pages) ? pages.length.toString() : '0';
       }
       return '0';
     } catch (err) {
-      console.error('TotalPagesPlugin error:', err);
+      const logger = context.engine?.logger;
+      if (logger?.error) {
+        logger.error('TotalPagesPlugin error:', err);
+      }
       return '0';
     }
   }

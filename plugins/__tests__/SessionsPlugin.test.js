@@ -13,14 +13,19 @@ describe('SessionsPlugin (via PluginManager)', () => {
   let consoleErrSpy;
 
   beforeAll(async () => {
-    // Create a temp plugins dir and copy only SessionsPlugin.js into it
+    // Create a temp plugins dir and copy SessionsPlugin.ts and types.ts into it
     tmpPluginsDir = await fs.mkdtemp(path.join(os.tmpdir(), 'pm-sessions-only-'));
     const repoPluginsDir = path.resolve(__dirname, '..');
-    const src = path.join(repoPluginsDir, 'SessionsPlugin.js');
-    const dst = path.join(tmpPluginsDir, 'SessionsPlugin.js');
+    const src = path.join(repoPluginsDir, 'SessionsPlugin.ts');
+    const dst = path.join(tmpPluginsDir, 'SessionsPlugin.ts');
     const exists = await fs.pathExists(src);
-    if (!exists) throw new Error(`SessionsPlugin.js not found at ${src}`);
+    if (!exists) throw new Error(`SessionsPlugin.ts not found at ${src}`);
     await fs.copy(src, dst);
+
+    // Also copy types.ts since SessionsPlugin imports from it
+    const typesSrc = path.join(repoPluginsDir, 'types.ts');
+    const typesDst = path.join(tmpPluginsDir, 'types.ts');
+    await fs.copy(typesSrc, typesDst);
 
     // Wire PluginManager to the temp dir via ConfigurationManager
     const logger = { info: jest.fn(), warn: jest.fn(), debug: jest.fn(), error: jest.fn() };

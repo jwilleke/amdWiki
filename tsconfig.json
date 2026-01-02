@@ -12,7 +12,7 @@
 
     /* Emit - Compile src/ to dist/ with proper structure */
     "outDir": "./dist",
-    "rootDir": "./src",
+    "rootDir": ".",
     "sourceMap": true,
     "declaration": true,
     "declarationMap": true,
@@ -46,7 +46,8 @@
   },
   "include": [
     "src/**/*.ts",
-    "src/**/*.js"
+    "src/**/*.js",
+    "plugins/**/*.ts"
   ],
   "exclude": [
     "node_modules",

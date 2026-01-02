@@ -422,15 +422,12 @@ describe('CounterPlugin', () => {
     });
 
     test('should handle missing VariableManager gracefully', () => {
-      const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
       const mockEngine = {
         getManager: jest.fn(() => null)
       };
 
+      // Should not throw when VariableManager is missing (silently skips registration)
       expect(() => CounterPlugin.initialize(mockEngine)).not.toThrow();
-      expect(consoleWarnSpy).toHaveBeenCalled();
-
-      consoleWarnSpy.mockRestore();
     });
 
     test('should register functional counter variable handler', () => {

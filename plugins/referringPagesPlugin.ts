@@ -3,34 +3,41 @@
  * Generates HTML for referring pages macro
  */
 
-// Plugin metadata
-const pluginInfo = {
-  name: 'ReferringPagesPlugin',
-  description: 'Lists pages that refer to the current page',
-  author: 'amdWiki',
-  version: '1.0.0'
-};
+import type { SimplePlugin, PluginContext, PluginParams } from './types';
 
-// Plugin implementation
-function ReferringPagesPlugin(pageName, params, linkGraph) {
-  // Parse parameters (params is already an object from PluginManager)
+interface ReferringParams extends PluginParams {
+  page?: string;
+  max?: string | number;
+  before?: string;
+  after?: string;
+  show?: string;
+}
+
+type LinkGraph = Record<string, string[]>;
+
+/**
+ * Generate the referring pages output
+ * @param pageName - Current page name
+ * @param params - Plugin parameters
+ * @param linkGraph - Link graph data
+ * @returns HTML output
+ */
+function generateOutput(pageName: string, params: ReferringParams, linkGraph: LinkGraph): string {
   const opts = params || {};
 
   // Use page parameter if provided, otherwise use pageName
-  const targetPage = opts.page || pageName;
+  const targetPage = String(opts.page || pageName);
 
   // Defaults
-  const max = opts.max ? parseInt(opts.max) : 10;
-  const before = opts.before || '';
-  const after = opts.after || '';
+  const max = opts.max ? parseInt(String(opts.max), 10) : 10;
+  const before = String(opts.before || '');
+  const after = String(opts.after || '');
 
   // Find referring pages
-  let referring = [];
-  if (linkGraph && linkGraph[targetPage]) {
-    referring = linkGraph[targetPage];
+  let referring: string[] = [];
+  if (linkGraph && targetPage in linkGraph) {
+    referring = linkGraph[targetPage] || [];
   }
-
-  // Debug: console.log(`[ReferringPagesPlugin] pageName=${pageName} targetPage=${targetPage} referring=${referring.length} linkGraph keys=${linkGraph ? Object.keys(linkGraph).length : 0}`);
 
   if (opts.show === 'count') {
     return String(referring.length);
@@ -55,7 +62,7 @@ function ReferringPagesPlugin(pageName, params, linkGraph) {
 
     // If before contains * or -, create a proper HTML list
     if (isList) {
-      const linksList = referring.map(p =>
+      const linksList = referring.map((p: string) =>
         `<li><a class="wikipage" href="/wiki/${encodeURIComponent(p)}">${p}</a></li>`
       ).join('');
       return `<ul>${linksList}</ul>`;
@@ -67,7 +74,7 @@ function ReferringPagesPlugin(pageName, params, linkGraph) {
     processedAfter = processedAfter.replace(/\*/g, '&#42; ');
 
     // Create links with before/after markers
-    const linksList = referring.map(p =>
+    const linksList = referring.map((p: string) =>
       `${processedBefore}<a class="wikipage" href="/wiki/${encodeURIComponent(p)}">${p}</a>${processedAfter}`
     ).join('');
 
@@ -76,23 +83,43 @@ function ReferringPagesPlugin(pageName, params, linkGraph) {
   }
 
   // Default: wrap in <ul><li> list
-  const linksList = referring.map(p =>
+  const linksList = referring.map((p: string) =>
     `<li><a class="wikipage" href="/wiki/${encodeURIComponent(p)}">${p}</a></li>`
   ).join('');
 
   return `<ul>${linksList}</ul>`;
 }
 
-// Plugin initialization (JSPWiki-style)
-function initialize(engine) {
-  console.log(`Initializing ${pluginInfo.name} v${pluginInfo.version}`);
-  // Any plugin-specific initialization can go here
-}
+/**
+ * ReferringPagesPlugin implementation
+ */
+const ReferringPagesPlugin: SimplePlugin = {
+  name: 'ReferringPagesPlugin',
+  description: 'Lists pages that refer to the current page',
+  author: 'amdWiki',
+  version: '1.0.0',
 
-// Export plugin with metadata
+  /**
+   * Execute the plugin (standard plugin interface)
+   * @param context - Wiki context
+   * @param params - Plugin parameters
+   * @returns HTML output
+   */
+  execute(context: PluginContext, params: PluginParams = {}): string {
+    const opts = (params || {}) as ReferringParams;
+    const pageName = context?.pageName || '';
+    const linkGraph = (context?.linkGraph || {}) as LinkGraph;
+
+    return generateOutput(pageName, opts, linkGraph);
+  },
+
+  /**
+   * Plugin initialization (JSPWiki-style)
+   * @param _engine - Wiki engine instance
+   */
+  initialize(_engine: unknown): void {
+    // Plugin initialized
+  }
+};
+
 module.exports = ReferringPagesPlugin;
-module.exports.name = 'ReferringPagesPlugin';
-module.exports.description = 'Lists pages that refer to the current page';
-module.exports.author = 'amdWiki';
-module.exports.version = '1.0.0';
-module.exports.initialize = initialize;

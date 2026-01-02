@@ -10,10 +10,95 @@
  *   [{VariablesPlugin type='plugins'}]         - Shows only available plugins
  */
 
+import type { SimplePlugin, PluginContext, PluginParams } from './types';
+
+interface VariablesParams extends PluginParams {
+  type?: string;
+}
+
+interface DebugInfo {
+  systemVariables: string[];
+  contextualVariables: string[];
+  totalVariables: number;
+}
+
+interface VariableManager {
+  getDebugInfo(): DebugInfo;
+  getVariable(name: string, context: PluginContext): string;
+}
+
+interface PluginInfo {
+  description?: string;
+  version?: string;
+  author?: string;
+  execute?(context: PluginContext, params: PluginParams): Promise<string> | string;
+}
+
+interface PluginManager {
+  plugins: Map<string, PluginInfo>;
+}
+
+/**
+ * Escape HTML special characters
+ * @param text - Text to escape
+ * @returns Escaped text
+ */
+function escapeHtml(text: unknown): string {
+  if (text === null || text === undefined) return '';
+  // Handle non-string/number values safely
+  if (typeof text !== 'string' && typeof text !== 'number') {
+    return '[Object]';
+  }
+  const str = String(text);
+  const map: Record<string, string> = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    '\'': '&#039;'
+  };
+  return str.replace(/[&<>"']/g, m => map[m] || m);
+}
+
+/**
+ * Get description for a variable
+ * @param varName - Variable name
+ * @returns Description
+ */
+function getVariableDescription(varName: string): string {
+  const descriptions: Record<string, string> = {
+    'applicationname': 'Application name from configuration',
+    'appname': 'Application name (alias)',
+    'baseurl': 'Base URL for the wiki',
+    'version': 'amdWiki version number',
+    'totalpages': 'Total number of pages in wiki',
+    'uptime': 'Server uptime',
+    'timestamp': 'Current ISO timestamp',
+    'date': 'Current date',
+    'time': 'Current time',
+    'year': 'Current year',
+    'month': 'Current month',
+    'day': 'Current day',
+    'username': 'Current user\'s name',
+    'loginstatus': 'User authentication status',
+    'displayname': 'User\'s display name',
+    'pagename': 'Current page name',
+    'userroles': 'User\'s assigned roles',
+    'useragent': 'Browser user agent string',
+    'browser': 'Browser name and version',
+    'clientip': 'Client IP address',
+    'referer': 'HTTP referer',
+    'sessionid': 'Session identifier',
+    'acceptlanguage': 'Accept-Language header'
+  };
+
+  return descriptions[varName.toLowerCase()] || 'Wiki variable';
+}
+
 /**
  * VariablesPlugin implementation
  */
-const VariablesPlugin = {
+const VariablesPlugin: SimplePlugin = {
   name: 'VariablesPlugin',
   description: 'Displays system and contextual variables available in the wiki',
   author: 'amdWiki',
@@ -21,25 +106,22 @@ const VariablesPlugin = {
 
   /**
    * Execute the plugin
-   * @param {Object} context - Wiki context containing engine reference
-   * @param {Object} params - Plugin parameters
-   * @returns {Promise<string>} HTML output
+   * @param context - Wiki context containing engine reference
+   * @param params - Plugin parameters
+   * @returns HTML output
    */
-  async execute(context, params) {
-    const opts = params || {};
-    const type = opts.type || 'all'; // 'system', 'contextual', 'plugins', or 'all'
+  async execute(context: PluginContext, params: PluginParams): Promise<string> {
+    const opts = (params || {}) as VariablesParams;
+    const type = String(opts.type || 'all'); // 'system', 'contextual', 'plugins', or 'all'
 
     try {
       // Get managers from engine
-      const variableManager = context?.engine?.getManager?.('VariableManager');
-      const pluginManager = context?.engine?.getManager?.('PluginManager');
+      const variableManager = context?.engine?.getManager?.('VariableManager') as VariableManager | undefined;
+      const pluginManager = context?.engine?.getManager?.('PluginManager') as PluginManager | undefined;
 
       if (!variableManager) {
         return '<p class="error">VariableManager not available</p>';
       }
-
-      // Use the context directly - PluginManager now passes the full context through
-      const variableContext = context;
 
       // Get debug info with all variables
       const debugInfo = variableManager.getDebugInfo();
@@ -96,8 +178,8 @@ const VariablesPlugin = {
 
         // Add system variables
         for (const varName of debugInfo.systemVariables) {
-          const value = variableManager.getVariable(varName, variableContext);
-          const description = this.getVariableDescription(varName);
+          const value = variableManager.getVariable(varName, context);
+          const description = getVariableDescription(varName);
 
           html += '          <tr>\n';
           html += `            <td><code>[{$${escapeHtml(varName)}}]</code></td>\n`;
@@ -136,8 +218,8 @@ const VariablesPlugin = {
 
         // Add contextual variables
         for (const varName of debugInfo.contextualVariables) {
-          const value = variableManager.getVariable(varName, variableContext);
-          const description = this.getVariableDescription(varName);
+          const value = variableManager.getVariable(varName, context);
+          const description = getVariableDescription(varName);
 
           html += '          <tr>\n';
           html += `            <td><code>[{$${escapeHtml(varName)}}]</code></td>\n`;
@@ -213,14 +295,12 @@ const VariablesPlugin = {
         // Get ConfigAccessorPlugin
         const configAccessorPlugin = pluginManager?.plugins?.get('ConfigAccessorPlugin');
 
-        if (configAccessorPlugin) {
+        if (configAccessorPlugin && configAccessorPlugin.execute) {
           try {
             // Execute ConfigAccessorPlugin to get configuration values
-            // Display all amdwiki.* configuration values
             const configOutput = await configAccessorPlugin.execute(context, { key: 'amdwiki.*' });
             html += configOutput;
-          } catch (error) {
-            console.error('[VariablesPlugin] Error executing ConfigAccessorPlugin:', error);
+          } catch {
             html += '<div class="alert alert-warning">\n';
             html += '  <i class="fas fa-exclamation-triangle"></i> Error loading configuration variables\n';
             html += '</div>\n';
@@ -253,72 +333,18 @@ const VariablesPlugin = {
       return html;
 
     } catch (error) {
-      console.error('[VariablesPlugin] Error:', error);
-      return `<p class="error">Error displaying variables: ${escapeHtml(error.message)}</p>`;
+      const err = error as Error;
+      return `<p class="error">Error displaying variables: ${escapeHtml(err.message)}</p>`;
     }
   },
 
   /**
-   * Get description for a variable
-   * @param {string} varName - Variable name
-   * @returns {string} Description
-   */
-  getVariableDescription(varName) {
-    const descriptions = {
-      'applicationname': 'Application name from configuration',
-      'appname': 'Application name (alias)',
-      'baseurl': 'Base URL for the wiki',
-      'version': 'amdWiki version number',
-      'totalpages': 'Total number of pages in wiki',
-      'uptime': 'Server uptime',
-      'timestamp': 'Current ISO timestamp',
-      'date': 'Current date',
-      'time': 'Current time',
-      'year': 'Current year',
-      'month': 'Current month',
-      'day': 'Current day',
-      'username': 'Current user\'s name',
-      'loginstatus': 'User authentication status',
-      'displayname': 'User\'s display name',
-      'pagename': 'Current page name',
-      'userroles': 'User\'s assigned roles',
-      'useragent': 'Browser user agent string',
-      'browser': 'Browser name and version',
-      'clientip': 'Client IP address',
-      'referer': 'HTTP referer',
-      'sessionid': 'Session identifier',
-      'acceptlanguage': 'Accept-Language header'
-    };
-
-    return descriptions[varName.toLowerCase()] || 'Wiki variable';
-  },
-
-  /**
    * Plugin initialization (JSPWiki-style)
-   * @param {Object} engine - Wiki engine instance
+   * @param _engine - Wiki engine instance
    */
-  initialize(engine) {
-    console.log(`Initializing ${this.name} v${this.version}`);
+  initialize(_engine: unknown): void {
+    // Plugin initialized
   }
 };
 
-/**
- * Escape HTML special characters
- * @param {string} text - Text to escape
- * @returns {string} Escaped text
- */
-function escapeHtml(text) {
-  if (text === null || text === undefined) return '';
-  const str = String(text);
-  const map = {
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#039;'
-  };
-  return str.replace(/[&<>"']/g, m => map[m]);
-}
-
-// Export plugin
 module.exports = VariablesPlugin;

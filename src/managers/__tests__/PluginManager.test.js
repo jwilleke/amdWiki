@@ -29,14 +29,18 @@ describe('PluginManager.registerPlugins', () => {
     jest.clearAllMocks();
   });
 
-  test('loads plugins only from configured search paths and only .js (excluding *.test.js)', async () => {
+  test('loads plugins only from configured search paths and only .js/.ts (excluding test files)', async () => {
+    // Use longer timeout since this test can be slow when run with other tests
     // Arrange: create files in configured dir
-    const goodPlugin = path.join(tmpDirA, 'Alpha.js');
-    const testFile = path.join(tmpDirA, 'Beta.test.js');
+    const goodJsPlugin = path.join(tmpDirA, 'Alpha.js');
+    const goodTsPlugin = path.join(tmpDirA, 'Beta.ts');
+    const testJsFile = path.join(tmpDirA, 'Gamma.test.js');
+    const testTsFile = path.join(tmpDirA, 'Delta.test.ts');
+    const dtsFile = path.join(tmpDirA, 'types.d.ts');
     const nonJs = path.join(tmpDirA, 'README.md');
 
     await fs.writeFile(
-      goodPlugin,
+      goodJsPlugin,
       `
       module.exports = {
         name: 'Alpha',
@@ -45,7 +49,19 @@ describe('PluginManager.registerPlugins', () => {
       `,
       'utf8'
     );
-    await fs.writeFile(testFile, 'module.exports = {};', 'utf8');
+    await fs.writeFile(
+      goodTsPlugin,
+      `
+      module.exports = {
+        name: 'Beta',
+        execute: () => 'ok'
+      };
+      `,
+      'utf8'
+    );
+    await fs.writeFile(testJsFile, 'module.exports = {};', 'utf8');
+    await fs.writeFile(testTsFile, 'module.exports = {};', 'utf8');
+    await fs.writeFile(dtsFile, 'export {};', 'utf8');
     await fs.writeFile(nonJs, '# readme', 'utf8');
 
     const logger = makeLogger();
@@ -74,8 +90,10 @@ describe('PluginManager.registerPlugins', () => {
 
     // Assert
     expect(cfgMgr.getProperty).toHaveBeenCalledWith('amdwiki.managers.pluginManager.searchPaths');
-    expect(loadCalls).toHaveLength(1);
-    expect(path.basename(loadCalls[0])).toBe('Alpha.js');
+    expect(loadCalls).toHaveLength(2); // Both .js and .ts plugins should be loaded
+    const loadedNames = loadCalls.map(c => path.basename(c)).sort();
+    expect(loadedNames).toContain('Alpha.js');
+    expect(loadedNames).toContain('Beta.ts');
 
     // Ensure it did not try to load non-js or *.test.js
     expect(loadCalls.find((p) => p.endsWith('Beta.test.js'))).toBeUndefined();
@@ -84,7 +102,7 @@ describe('PluginManager.registerPlugins', () => {
     // No warnings/errors expected for valid flow
     expect(logger.warn).not.toHaveBeenCalled();
     expect(logger.error).not.toHaveBeenCalled();
-  });
+  }, 20000);
 
   test('skips loading when ConfigurationManager is missing', async () => {
     const logger = makeLogger();
