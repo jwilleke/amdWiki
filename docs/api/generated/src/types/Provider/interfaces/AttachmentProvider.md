@@ -6,7 +6,7 @@
 
 # Interface: AttachmentProvider
 
-Defined in: [src/types/Provider.ts:288](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L288)
+Defined in: [src/types/Provider.ts:315](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L315)
 
 Attachment provider interface
 
@@ -20,9 +20,9 @@ Defines the contract for attachment storage backends.
 
 ### engine
 
-> **engine**: `any`
+> **engine**: [`WikiEngine`](../../WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/types/Provider.ts:19](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L19)
+Defined in: [src/types/Provider.ts:21](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L21)
 
 Reference to WikiEngine
 
@@ -36,7 +36,7 @@ Reference to WikiEngine
 
 > **initialized**: `boolean`
 
-Defined in: [src/types/Provider.ts:22](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L22)
+Defined in: [src/types/Provider.ts:24](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L24)
 
 Whether provider has been initialized
 
@@ -50,7 +50,7 @@ Whether provider has been initialized
 
 > **deleteAttachment**(`attachmentId`): `Promise`\<`boolean`\>
 
-Defined in: [src/types/Provider.ts:325](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L325)
+Defined in: [src/types/Provider.ts:352](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L352)
 
 Delete attachment
 
@@ -74,7 +74,7 @@ True if deleted, false if not found
 
 > **deletePageAttachments**(`pageUuid`): `Promise`\<`number`\>
 
-Defined in: [src/types/Provider.ts:332](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L332)
+Defined in: [src/types/Provider.ts:359](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L359)
 
 Delete all attachments for a page
 
@@ -98,7 +98,7 @@ Number of attachments deleted
 
 > **getAttachment**(`attachmentId`): `Promise`\<\{ `buffer`: `Buffer`; `metadata`: [`AttachmentMetadata`](AttachmentMetadata.md); \}\>
 
-Defined in: [src/types/Provider.ts:304](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L304)
+Defined in: [src/types/Provider.ts:331](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L331)
 
 Get attachment
 
@@ -122,7 +122,7 @@ File buffer and metadata
 
 > **getAttachmentMetadata**(`attachmentId`): `Promise`\<[`AttachmentMetadata`](AttachmentMetadata.md)\>
 
-Defined in: [src/types/Provider.ts:311](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L311)
+Defined in: [src/types/Provider.ts:338](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L338)
 
 Get attachment metadata
 
@@ -146,7 +146,7 @@ Attachment metadata or null
 
 > **initialize**(): `Promise`\<`void`\>
 
-Defined in: [src/types/Provider.ts:28](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L28)
+Defined in: [src/types/Provider.ts:30](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L30)
 
 Initialize the provider
 
@@ -166,7 +166,7 @@ Promise that resolves when initialization is complete
 
 > **listAttachments**(`pageUuid`): `Promise`\<[`AttachmentMetadata`](AttachmentMetadata.md)[]\>
 
-Defined in: [src/types/Provider.ts:318](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L318)
+Defined in: [src/types/Provider.ts:345](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L345)
 
 List attachments for a page
 
@@ -190,7 +190,7 @@ Array of attachment metadata
 
 > **saveAttachment**(`pageUuid`, `filename`, `buffer`, `metadata?`): `Promise`\<[`AttachmentMetadata`](AttachmentMetadata.md)\>
 
-Defined in: [src/types/Provider.ts:297](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L297)
+Defined in: [src/types/Provider.ts:324](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L324)
 
 Save attachment
 
@@ -225,3 +225,23 @@ Additional metadata
 `Promise`\<[`AttachmentMetadata`](AttachmentMetadata.md)\>
 
 Attachment metadata
+
+***
+
+### shutdown()?
+
+> `optional` **shutdown**(): `Promise`\<`void`\>
+
+Defined in: [src/types/Provider.ts:36](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L36)
+
+Shutdown the provider (optional)
+
+#### Returns
+
+`Promise`\<`void`\>
+
+Promise that resolves when shutdown is complete
+
+#### Inherited from
+
+[`BaseProvider`](BaseProvider.md).[`shutdown`](BaseProvider.md#shutdown)

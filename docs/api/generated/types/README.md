@@ -181,6 +181,12 @@ Re-exports [isWikiPage](../src/types/guards/functions/isWikiPage.md)
 
 ***
 
+### ManagerRegistry
+
+Re-exports [ManagerRegistry](../src/types/WikiEngine/interfaces/ManagerRegistry.md)
+
+***
+
 ### PageFrontmatter
 
 Re-exports [PageFrontmatter](../src/types/Page/interfaces/PageFrontmatter.md)
@@ -346,6 +352,12 @@ Re-exports [VersionStorageInfo](../src/types/Version/interfaces/VersionStorageIn
 ### WikiConfig
 
 Re-exports [WikiConfig](../src/types/Config/interfaces/WikiConfig.md)
+
+***
+
+### WikiEngine
+
+Re-exports [WikiEngine](../src/types/WikiEngine/interfaces/WikiEngine.md)
 
 ***
 

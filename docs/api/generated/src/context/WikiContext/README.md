@@ -8,4 +8,13 @@
 
 ## Classes
 
-- [export=](classes/export=.md)
+- [default](classes/default.md)
+
+## Interfaces
+
+- [ContextTypes](interfaces/ContextTypes.md)
+- [PageContext](interfaces/PageContext.md)
+- [ParseOptions](interfaces/ParseOptions.md)
+- [RequestInfo](interfaces/RequestInfo.md)
+- [UserContext](interfaces/UserContext.md)
+- [WikiContextOptions](interfaces/WikiContextOptions.md)

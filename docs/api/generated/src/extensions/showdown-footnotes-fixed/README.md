@@ -6,6 +6,6 @@
 
 # src/extensions/showdown-footnotes-fixed
 
-## Variables
+## Functions
 
-- [export=](variables/export=.md)
+- [default](functions/default.md)

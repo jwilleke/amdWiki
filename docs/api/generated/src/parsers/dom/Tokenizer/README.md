@@ -16,4 +16,12 @@
 
 ## Interfaces
 
+- [PositionInfo](interfaces/PositionInfo.md)
 - [Token](interfaces/Token.md)
+- [TokenMetadata](interfaces/TokenMetadata.md)
+
+## References
+
+### default
+
+Renames and re-exports [Tokenizer](classes/Tokenizer.md)

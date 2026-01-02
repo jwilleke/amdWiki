@@ -6,7 +6,7 @@
 
 # Interface: AuditFilters
 
-Defined in: [src/providers/BaseAuditProvider.ts:25](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAuditProvider.ts#L25)
+Defined in: [src/providers/BaseAuditProvider.ts:17](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L17)
 
 Audit search filters
 
@@ -16,7 +16,7 @@ Audit search filters
 
 > `optional` **action**: `string`
 
-Defined in: [src/providers/BaseAuditProvider.ts:48](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAuditProvider.ts#L48)
+Defined in: [src/providers/BaseAuditProvider.ts:40](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L40)
 
 Filter by action
 
@@ -26,7 +26,7 @@ Filter by action
 
 > `optional` **endDate**: `Date`
 
-Defined in: [src/providers/BaseAuditProvider.ts:42](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAuditProvider.ts#L42)
+Defined in: [src/providers/BaseAuditProvider.ts:34](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L34)
 
 End date filter
 
@@ -36,7 +36,7 @@ End date filter
 
 > `optional` **eventType**: `string`
 
-Defined in: [src/providers/BaseAuditProvider.ts:30](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAuditProvider.ts#L30)
+Defined in: [src/providers/BaseAuditProvider.ts:22](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L22)
 
 Filter by event type
 
@@ -46,7 +46,7 @@ Filter by event type
 
 > `optional` **limit**: `number`
 
-Defined in: [src/providers/BaseAuditProvider.ts:51](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAuditProvider.ts#L51)
+Defined in: [src/providers/BaseAuditProvider.ts:43](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L43)
 
 Maximum results to return
 
@@ -56,7 +56,7 @@ Maximum results to return
 
 > `optional` **offset**: `number`
 
-Defined in: [src/providers/BaseAuditProvider.ts:54](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAuditProvider.ts#L54)
+Defined in: [src/providers/BaseAuditProvider.ts:46](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L46)
 
 Results offset for pagination
 
@@ -66,7 +66,7 @@ Results offset for pagination
 
 > `optional` **resource**: `string`
 
-Defined in: [src/providers/BaseAuditProvider.ts:45](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAuditProvider.ts#L45)
+Defined in: [src/providers/BaseAuditProvider.ts:37](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L37)
 
 Filter by resource
 
@@ -76,7 +76,7 @@ Filter by resource
 
 > `optional` **result**: `string`
 
-Defined in: [src/providers/BaseAuditProvider.ts:33](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAuditProvider.ts#L33)
+Defined in: [src/providers/BaseAuditProvider.ts:25](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L25)
 
 Filter by result (allow, deny, error)
 
@@ -86,7 +86,7 @@ Filter by result (allow, deny, error)
 
 > `optional` **severity**: `string`
 
-Defined in: [src/providers/BaseAuditProvider.ts:36](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAuditProvider.ts#L36)
+Defined in: [src/providers/BaseAuditProvider.ts:28](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L28)
 
 Filter by severity level
 
@@ -96,7 +96,7 @@ Filter by severity level
 
 > `optional` **sortBy**: `string`
 
-Defined in: [src/providers/BaseAuditProvider.ts:57](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAuditProvider.ts#L57)
+Defined in: [src/providers/BaseAuditProvider.ts:49](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L49)
 
 Sort field
 
@@ -106,7 +106,7 @@ Sort field
 
 > `optional` **sortOrder**: `"asc"` \| `"desc"`
 
-Defined in: [src/providers/BaseAuditProvider.ts:60](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAuditProvider.ts#L60)
+Defined in: [src/providers/BaseAuditProvider.ts:52](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L52)
 
 Sort order (asc/desc)
 
@@ -116,7 +116,7 @@ Sort order (asc/desc)
 
 > `optional` **startDate**: `Date`
 
-Defined in: [src/providers/BaseAuditProvider.ts:39](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAuditProvider.ts#L39)
+Defined in: [src/providers/BaseAuditProvider.ts:31](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L31)
 
 Start date filter
 
@@ -126,6 +126,6 @@ Start date filter
 
 > `optional` **user**: `string`
 
-Defined in: [src/providers/BaseAuditProvider.ts:27](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAuditProvider.ts#L27)
+Defined in: [src/providers/BaseAuditProvider.ts:19](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L19)
 
 Filter by username

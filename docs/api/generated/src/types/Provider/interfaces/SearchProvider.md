@@ -6,7 +6,7 @@
 
 # Interface: SearchProvider
 
-Defined in: [src/types/Provider.ts:340](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L340)
+Defined in: [src/types/Provider.ts:367](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L367)
 
 Search provider interface
 
@@ -20,9 +20,9 @@ Defines the contract for search backends (Lunr, Elasticsearch, etc.).
 
 ### engine
 
-> **engine**: `any`
+> **engine**: [`WikiEngine`](../../WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/types/Provider.ts:19](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L19)
+Defined in: [src/types/Provider.ts:21](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L21)
 
 Reference to WikiEngine
 
@@ -36,7 +36,7 @@ Reference to WikiEngine
 
 > **initialized**: `boolean`
 
-Defined in: [src/types/Provider.ts:22](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L22)
+Defined in: [src/types/Provider.ts:24](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L24)
 
 Whether provider has been initialized
 
@@ -50,7 +50,7 @@ Whether provider has been initialized
 
 > **getSuggestions**(`query`, `limit?`): `Promise`\<`string`[]\>
 
-Defined in: [src/types/Provider.ts:369](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L369)
+Defined in: [src/types/Provider.ts:396](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L396)
 
 Get search suggestions
 
@@ -80,7 +80,7 @@ Array of suggestions
 
 > **indexPage**(`page`): `Promise`\<`void`\>
 
-Defined in: [src/types/Provider.ts:346](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L346)
+Defined in: [src/types/Provider.ts:373](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L373)
 
 Index a page
 
@@ -104,7 +104,7 @@ Promise that resolves when indexing is complete
 
 > **initialize**(): `Promise`\<`void`\>
 
-Defined in: [src/types/Provider.ts:28](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L28)
+Defined in: [src/types/Provider.ts:30](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L30)
 
 Initialize the provider
 
@@ -124,7 +124,7 @@ Promise that resolves when initialization is complete
 
 > **rebuildIndex**(): `Promise`\<`void`\>
 
-Defined in: [src/types/Provider.ts:375](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L375)
+Defined in: [src/types/Provider.ts:402](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L402)
 
 Rebuild entire search index
 
@@ -140,7 +140,7 @@ Promise that resolves when rebuild is complete
 
 > **removePage**(`identifier`): `Promise`\<`void`\>
 
-Defined in: [src/types/Provider.ts:353](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L353)
+Defined in: [src/types/Provider.ts:380](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L380)
 
 Remove page from index
 
@@ -164,7 +164,7 @@ Promise that resolves when removal is complete
 
 > **search**(`query`, `options?`): `Promise`\<[`PageSearchResult`](../../Page/interfaces/PageSearchResult.md)[]\>
 
-Defined in: [src/types/Provider.ts:361](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L361)
+Defined in: [src/types/Provider.ts:388](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L388)
 
 Search pages
 
@@ -193,3 +193,23 @@ Search options
 `Promise`\<[`PageSearchResult`](../../Page/interfaces/PageSearchResult.md)[]\>
 
 Array of search results
+
+***
+
+### shutdown()?
+
+> `optional` **shutdown**(): `Promise`\<`void`\>
+
+Defined in: [src/types/Provider.ts:36](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L36)
+
+Shutdown the provider (optional)
+
+#### Returns
+
+`Promise`\<`void`\>
+
+Promise that resolves when shutdown is complete
+
+#### Inherited from
+
+[`BaseProvider`](BaseProvider.md).[`shutdown`](BaseProvider.md#shutdown)

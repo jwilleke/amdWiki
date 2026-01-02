@@ -6,28 +6,26 @@
 
 # Function: parseVersion()
 
-> **parseVersion**(`version`): `object`
+> **parseVersion**(`version`): [`VersionComponents`](../interfaces/VersionComponents.md)
 
-Defined in: [src/utils/version.js:42](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/utils/version.js#L42)
+Defined in: [src/utils/version.ts:86](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/version.ts#L86)
+
+Parse a semantic version string
 
 ## Parameters
 
 ### version
 
-`any`
+`string`
+
+Version string (e.g., "1.2.3")
 
 ## Returns
 
-`object`
+[`VersionComponents`](../interfaces/VersionComponents.md)
 
-### major
+Parsed version components
 
-> **major**: `number`
+## Throws
 
-### minor
-
-> **minor**: `number`
-
-### patch
-
-> **patch**: `number`
+If version format is invalid

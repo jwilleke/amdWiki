@@ -6,7 +6,7 @@
 
 # Class: ParseError
 
-Defined in: [src/parsers/dom/DOMParser.js:358](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/DOMParser.js#L358)
+Defined in: [src/parsers/dom/DOMParser.ts:474](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/DOMParser.ts#L474)
 
 Custom error class for parse errors
 
@@ -18,9 +18,9 @@ Custom error class for parse errors
 
 ### Constructor
 
-> **new ParseError**(`type`, `position`, `line`, `column`, `message`, `cause`): `ParseError`
+> **new ParseError**(`type`, `position`, `line`, `column`, `message`, `cause?`): `ParseError`
 
-Defined in: [src/parsers/dom/DOMParser.js:369](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/DOMParser.js#L369)
+Defined in: [src/parsers/dom/DOMParser.ts:496](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/DOMParser.ts#L496)
 
 Creates a parse error with position information
 
@@ -56,9 +56,9 @@ Column number
 
 Error message
 
-##### cause
+##### cause?
 
-`Error` = `null`
+`Error`
 
 Underlying error
 
@@ -72,11 +72,17 @@ Underlying error
 
 ## Properties
 
-### cause
+### cause?
 
-> **cause**: `Error`
+> `optional` **cause**: `Error`
 
-Defined in: [src/parsers/dom/DOMParser.js:376](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/DOMParser.js#L376)
+Defined in: [src/parsers/dom/DOMParser.ts:484](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/DOMParser.ts#L484)
+
+Underlying error
+
+#### Overrides
+
+`Error.cause`
 
 ***
 
@@ -84,7 +90,9 @@ Defined in: [src/parsers/dom/DOMParser.js:376](https://github.com/jwilleke/amdWi
 
 > **column**: `number`
 
-Defined in: [src/parsers/dom/DOMParser.js:375](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/DOMParser.js#L375)
+Defined in: [src/parsers/dom/DOMParser.ts:482](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/DOMParser.ts#L482)
+
+Column number
 
 ***
 
@@ -92,31 +100,9 @@ Defined in: [src/parsers/dom/DOMParser.js:375](https://github.com/jwilleke/amdWi
 
 > **line**: `number`
 
-Defined in: [src/parsers/dom/DOMParser.js:374](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/DOMParser.js#L374)
+Defined in: [src/parsers/dom/DOMParser.ts:480](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/DOMParser.ts#L480)
 
-***
-
-### message
-
-> **message**: `string`
-
-Defined in: [src/parsers/dom/DOMParser.js:380](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/DOMParser.js#L380)
-
-#### Inherited from
-
-`Error.message`
-
-***
-
-### name
-
-> **name**: `string`
-
-Defined in: [src/parsers/dom/DOMParser.js:371](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/DOMParser.js#L371)
-
-#### Inherited from
-
-`Error.name`
+Line number
 
 ***
 
@@ -124,7 +110,9 @@ Defined in: [src/parsers/dom/DOMParser.js:371](https://github.com/jwilleke/amdWi
 
 > **position**: `number`
 
-Defined in: [src/parsers/dom/DOMParser.js:373](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/DOMParser.js#L373)
+Defined in: [src/parsers/dom/DOMParser.ts:478](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/DOMParser.ts#L478)
+
+Character position
 
 ***
 
@@ -132,4 +120,6 @@ Defined in: [src/parsers/dom/DOMParser.js:373](https://github.com/jwilleke/amdWi
 
 > **type**: `string`
 
-Defined in: [src/parsers/dom/DOMParser.js:372](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/DOMParser.js#L372)
+Defined in: [src/parsers/dom/DOMParser.ts:476](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/DOMParser.ts#L476)
+
+Error type

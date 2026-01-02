@@ -6,7 +6,7 @@
 
 # Abstract Class: default
 
-Defined in: [src/providers/BaseAttachmentProvider.ts:58](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAttachmentProvider.ts#L58)
+Defined in: [src/providers/BaseAttachmentProvider.ts:61](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAttachmentProvider.ts#L61)
 
 BaseAttachmentProvider - Abstract interface for attachment storage providers
 
@@ -20,8 +20,8 @@ Following JSPWiki's attachment provider pattern.
 
 ## See
 
-- BasicAttachmentProvider for filesystem implementation
-- AttachmentManager for usage
+ - BasicAttachmentProvider for filesystem implementation
+ - AttachmentManager for usage
 
 ## Extended by
 
@@ -37,7 +37,7 @@ Following JSPWiki's attachment provider pattern.
 
 > **new default**(`engine`): `BaseAttachmentProvider`
 
-Defined in: [src/providers/BaseAttachmentProvider.ts:72](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAttachmentProvider.ts#L72)
+Defined in: [src/providers/BaseAttachmentProvider.ts:75](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAttachmentProvider.ts#L75)
 
 Create a new attachment provider
 
@@ -45,7 +45,7 @@ Create a new attachment provider
 
 ##### engine
 
-[`WikiEngine`](../../BasePageProvider/interfaces/WikiEngine.md)
+[`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
 The WikiEngine instance
 
@@ -61,9 +61,9 @@ If engine is not provided
 
 ### engine
 
-> **engine**: `any`
+> **engine**: [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/providers/BaseAttachmentProvider.ts:60](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAttachmentProvider.ts#L60)
+Defined in: [src/providers/BaseAttachmentProvider.ts:63](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAttachmentProvider.ts#L63)
 
 Reference to the wiki engine
 
@@ -77,7 +77,7 @@ Reference to the wiki engine
 
 > **initialized**: `boolean`
 
-Defined in: [src/providers/BaseAttachmentProvider.ts:63](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAttachmentProvider.ts#L63)
+Defined in: [src/providers/BaseAttachmentProvider.ts:66](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAttachmentProvider.ts#L66)
 
 Whether provider has been initialized
 
@@ -91,7 +91,7 @@ Whether provider has been initialized
 
 > `abstract` **attachmentExists**(`attachmentId`): `Promise`\<`boolean`\>
 
-Defined in: [src/providers/BaseAttachmentProvider.ts:162](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAttachmentProvider.ts#L162)
+Defined in: [src/providers/BaseAttachmentProvider.ts:165](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAttachmentProvider.ts#L165)
 
 Check if attachment exists
 
@@ -113,7 +113,7 @@ Attachment identifier
 
 > `abstract` **backup**(): `Promise`\<`Record`\<`string`, `any`\>\>
 
-Defined in: [src/providers/BaseAttachmentProvider.ts:216](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAttachmentProvider.ts#L216)
+Defined in: [src/providers/BaseAttachmentProvider.ts:219](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAttachmentProvider.ts#L219)
 
 Backup provider data
 Returns all metadata needed to restore attachments
@@ -130,7 +130,7 @@ Backup data
 
 > `abstract` **deleteAttachment**(`attachmentId`): `Promise`\<`boolean`\>
 
-Defined in: [src/providers/BaseAttachmentProvider.ts:155](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAttachmentProvider.ts#L155)
+Defined in: [src/providers/BaseAttachmentProvider.ts:158](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAttachmentProvider.ts#L158)
 
 Delete an attachment
 
@@ -158,7 +158,7 @@ True if deleted, false if not found
 
 > `abstract` **deletePageAttachments**(`pageUuid`): `Promise`\<`number`\>
 
-Defined in: [src/providers/BaseAttachmentProvider.ts:189](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAttachmentProvider.ts#L189)
+Defined in: [src/providers/BaseAttachmentProvider.ts:192](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAttachmentProvider.ts#L192)
 
 Delete all attachments for a page
 
@@ -186,7 +186,7 @@ Number of attachments deleted
 
 > `abstract` **getAllAttachments**(): `Promise`\<[`AttachmentMetadata`](../../../types/Provider/interfaces/AttachmentMetadata.md)[]\>
 
-Defined in: [src/providers/BaseAttachmentProvider.ts:168](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAttachmentProvider.ts#L168)
+Defined in: [src/providers/BaseAttachmentProvider.ts:171](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAttachmentProvider.ts#L171)
 
 Get all attachments metadata (without file data)
 
@@ -202,7 +202,7 @@ Array of attachment metadata
 
 > `abstract` **getAttachment**(`attachmentId`): `Promise`\<[`AttachmentResult`](../interfaces/AttachmentResult.md)\>
 
-Defined in: [src/providers/BaseAttachmentProvider.ts:130](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAttachmentProvider.ts#L130)
+Defined in: [src/providers/BaseAttachmentProvider.ts:133](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAttachmentProvider.ts#L133)
 
 Get attachment file data
 
@@ -230,7 +230,7 @@ File buffer and metadata
 
 > `abstract` **getAttachmentMetadata**(`attachmentId`): `Promise`\<[`AttachmentMetadata`](../../../types/Provider/interfaces/AttachmentMetadata.md)\>
 
-Defined in: [src/providers/BaseAttachmentProvider.ts:137](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAttachmentProvider.ts#L137)
+Defined in: [src/providers/BaseAttachmentProvider.ts:140](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAttachmentProvider.ts#L140)
 
 Get attachment metadata only (no file data)
 
@@ -258,7 +258,7 @@ Attachment metadata
 
 > `abstract` **getAttachmentsForPage**(`pageName`): `Promise`\<[`AttachmentMetadata`](../../../types/Provider/interfaces/AttachmentMetadata.md)[]\>
 
-Defined in: [src/providers/BaseAttachmentProvider.ts:175](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAttachmentProvider.ts#L175)
+Defined in: [src/providers/BaseAttachmentProvider.ts:178](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAttachmentProvider.ts#L178)
 
 Get attachments used by a specific page
 
@@ -282,7 +282,7 @@ Array of attachment metadata
 
 > **getProviderInfo**(): [`ProviderInfo`](../../BasePageProvider/interfaces/ProviderInfo.md)
 
-Defined in: [src/providers/BaseAttachmentProvider.ts:202](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAttachmentProvider.ts#L202)
+Defined in: [src/providers/BaseAttachmentProvider.ts:205](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAttachmentProvider.ts#L205)
 
 Get provider information
 
@@ -298,7 +298,7 @@ Provider metadata
 
 > `abstract` **initialize**(): `Promise`\<`void`\>
 
-Defined in: [src/providers/BaseAttachmentProvider.ts:91](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAttachmentProvider.ts#L91)
+Defined in: [src/providers/BaseAttachmentProvider.ts:94](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAttachmentProvider.ts#L94)
 
 Initialize the provider
 
@@ -322,7 +322,7 @@ Do NOT read configuration files directly.
 
 > `abstract` **listAttachments**(`pageUuid`): `Promise`\<[`AttachmentMetadata`](../../../types/Provider/interfaces/AttachmentMetadata.md)[]\>
 
-Defined in: [src/providers/BaseAttachmentProvider.ts:182](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAttachmentProvider.ts#L182)
+Defined in: [src/providers/BaseAttachmentProvider.ts:185](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAttachmentProvider.ts#L185)
 
 List attachments for a page (AttachmentProvider interface method)
 
@@ -350,7 +350,7 @@ Array of attachment metadata
 
 > `abstract` **refreshAttachmentList**(): `Promise`\<`void`\>
 
-Defined in: [src/providers/BaseAttachmentProvider.ts:196](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAttachmentProvider.ts#L196)
+Defined in: [src/providers/BaseAttachmentProvider.ts:199](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAttachmentProvider.ts#L199)
 
 Refresh internal cache/index
 Re-scans storage and rebuilds indexes
@@ -365,7 +365,7 @@ Re-scans storage and rebuilds indexes
 
 > `abstract` **restore**(`backupData`): `Promise`\<`void`\>
 
-Defined in: [src/providers/BaseAttachmentProvider.ts:223](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAttachmentProvider.ts#L223)
+Defined in: [src/providers/BaseAttachmentProvider.ts:226](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAttachmentProvider.ts#L226)
 
 Restore provider data from backup
 
@@ -387,7 +387,7 @@ Backup data from backup()
 
 > `abstract` **saveAttachment**(`pageUuid`, `filename`, `buffer`, `metadata?`): `Promise`\<[`AttachmentMetadata`](../../../types/Provider/interfaces/AttachmentMetadata.md)\>
 
-Defined in: [src/providers/BaseAttachmentProvider.ts:101](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAttachmentProvider.ts#L101)
+Defined in: [src/providers/BaseAttachmentProvider.ts:104](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAttachmentProvider.ts#L104)
 
 Save attachment
 
@@ -433,7 +433,7 @@ Attachment metadata
 
 > **shutdown**(): `Promise`\<`void`\>
 
-Defined in: [src/providers/BaseAttachmentProvider.ts:229](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAttachmentProvider.ts#L229)
+Defined in: [src/providers/BaseAttachmentProvider.ts:232](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAttachmentProvider.ts#L232)
 
 Shutdown the provider (cleanup resources)
 
@@ -441,13 +441,17 @@ Shutdown the provider (cleanup resources)
 
 `Promise`\<`void`\>
 
+#### Implementation of
+
+[`AttachmentProvider`](../../../types/Provider/interfaces/AttachmentProvider.md).[`shutdown`](../../../types/Provider/interfaces/AttachmentProvider.md#shutdown)
+
 ***
 
 ### storeAttachment()
 
-> **storeAttachment**(`fileBuffer`, `fileInfo`, `metadata`, `user`): `Promise`\<[`AttachmentMetadata`](../../../types/Provider/interfaces/AttachmentMetadata.md)\>
+> **storeAttachment**(`fileBuffer`, `fileInfo`, `_metadata`, `_user`): `Promise`\<[`AttachmentMetadata`](../../../types/Provider/interfaces/AttachmentMetadata.md)\>
 
-Defined in: [src/providers/BaseAttachmentProvider.ts:116](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAttachmentProvider.ts#L116)
+Defined in: [src/providers/BaseAttachmentProvider.ts:119](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAttachmentProvider.ts#L119)
 
 Upload/store an attachment with metadata (legacy method for backward compatibility)
 
@@ -465,13 +469,13 @@ File data
 
 File information (originalName, mimeType, size)
 
-##### metadata
+##### \_metadata
 
 `Partial`\<[`AttachmentMetadata`](../../../types/Provider/interfaces/AttachmentMetadata.md)\> = `{}`
 
 Attachment metadata
 
-##### user
+##### \_user
 
 [`User`](../interfaces/User.md) = `null`
 
@@ -489,7 +493,7 @@ Attachment metadata with ID
 
 > `abstract` **updateAttachmentMetadata**(`attachmentId`, `metadata`): `Promise`\<`boolean`\>
 
-Defined in: [src/providers/BaseAttachmentProvider.ts:145](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAttachmentProvider.ts#L145)
+Defined in: [src/providers/BaseAttachmentProvider.ts:148](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAttachmentProvider.ts#L148)
 
 Update attachment metadata (e.g., add page reference)
 

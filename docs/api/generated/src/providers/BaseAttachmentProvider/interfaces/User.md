@@ -6,13 +6,13 @@
 
 # Interface: User
 
-Defined in: [src/providers/BaseAttachmentProvider.ts:20](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAttachmentProvider.ts#L20)
+Defined in: [src/providers/BaseAttachmentProvider.ts:23](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAttachmentProvider.ts#L23)
 
 User information
 
 ## Indexable
 
-\[`key`: `string`\]: `any`
+\[`key`: `string`\]: `unknown`
 
 ## Properties
 
@@ -20,7 +20,7 @@ User information
 
 > `optional` **email**: `string`
 
-Defined in: [src/providers/BaseAttachmentProvider.ts:26](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAttachmentProvider.ts#L26)
+Defined in: [src/providers/BaseAttachmentProvider.ts:29](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAttachmentProvider.ts#L29)
 
 Email address
 
@@ -30,7 +30,7 @@ Email address
 
 > `optional` **id**: `string`
 
-Defined in: [src/providers/BaseAttachmentProvider.ts:22](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAttachmentProvider.ts#L22)
+Defined in: [src/providers/BaseAttachmentProvider.ts:25](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAttachmentProvider.ts#L25)
 
 User identifier
 
@@ -40,6 +40,6 @@ User identifier
 
 > `optional` **username**: `string`
 
-Defined in: [src/providers/BaseAttachmentProvider.ts:24](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAttachmentProvider.ts#L24)
+Defined in: [src/providers/BaseAttachmentProvider.ts:27](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAttachmentProvider.ts#L27)
 
 Username

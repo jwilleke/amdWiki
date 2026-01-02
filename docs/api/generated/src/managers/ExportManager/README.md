@@ -8,4 +8,12 @@
 
 ## Classes
 
-- [export=](classes/export=.md)
+- [default](classes/default.md)
+
+## Interfaces
+
+- [ExportConfig](interfaces/ExportConfig.md)
+- [ExportFileInfo](interfaces/ExportFileInfo.md)
+- [ExportUser](interfaces/ExportUser.md)
+- [PageForExport](interfaces/PageForExport.md)
+- [UserPreferences](interfaces/UserPreferences.md)

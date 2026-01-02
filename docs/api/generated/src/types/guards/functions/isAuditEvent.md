@@ -8,7 +8,7 @@
 
 > **isAuditEvent**(`value`): `value is AuditEvent`
 
-Defined in: [src/types/guards.ts:334](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/guards.ts#L334)
+Defined in: [src/types/guards.ts:350](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/guards.ts#L350)
 
 Check if value is a valid AuditEvent object
 
@@ -16,7 +16,7 @@ Check if value is a valid AuditEvent object
 
 ### value
 
-`any`
+`unknown`
 
 ## Returns
 

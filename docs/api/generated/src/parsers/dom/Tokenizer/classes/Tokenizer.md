@@ -6,9 +6,9 @@
 
 # Class: Tokenizer
 
-Defined in: [src/parsers/dom/Tokenizer.js:111](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L111)
+Defined in: [src/parsers/dom/Tokenizer.ts:166](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L166)
 
-Token structure
+Tokenizer class
 
 ## Constructors
 
@@ -16,7 +16,7 @@ Token structure
 
 > **new Tokenizer**(`input`): `Tokenizer`
 
-Defined in: [src/parsers/dom/Tokenizer.js:116](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L116)
+Defined in: [src/parsers/dom/Tokenizer.ts:192](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L192)
 
 Create a new Tokenizer
 
@@ -38,25 +38,9 @@ The wiki markup to tokenize
 
 > **column**: `number`
 
-Defined in: [src/parsers/dom/Tokenizer.js:121](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L121)
+Defined in: [src/parsers/dom/Tokenizer.ts:180](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L180)
 
-Column number where token starts
-
-***
-
-### input
-
-> **input**: `string`
-
-Defined in: [src/parsers/dom/Tokenizer.js:117](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L117)
-
-***
-
-### length
-
-> **length**: `number`
-
-Defined in: [src/parsers/dom/Tokenizer.js:118](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L118)
+Current column number
 
 ***
 
@@ -64,9 +48,9 @@ Defined in: [src/parsers/dom/Tokenizer.js:118](https://github.com/jwilleke/amdWi
 
 > **line**: `number`
 
-Defined in: [src/parsers/dom/Tokenizer.js:120](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L120)
+Defined in: [src/parsers/dom/Tokenizer.ts:177](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L177)
 
-Line number where token starts
+Current line number
 
 ***
 
@@ -74,33 +58,17 @@ Line number where token starts
 
 > **position**: `number`
 
-Defined in: [src/parsers/dom/Tokenizer.js:119](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L119)
+Defined in: [src/parsers/dom/Tokenizer.ts:174](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L174)
 
-Character position in input
-
-***
-
-### pushbackBuffer
-
-> **pushbackBuffer**: `any`[]
-
-Defined in: [src/parsers/dom/Tokenizer.js:122](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L122)
-
-***
-
-### tokens
-
-> **tokens**: `any`[]
-
-Defined in: [src/parsers/dom/Tokenizer.js:123](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L123)
+Current position in input
 
 ## Methods
 
 ### createToken()
 
-> **createToken**(`type`, `value`, `metadata?`): [`Token`](../interfaces/Token.md)
+> **createToken**(`type`, `value`, `metadata`): [`Token`](../interfaces/Token.md)
 
-Defined in: [src/parsers/dom/Tokenizer.js:313](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L313)
+Defined in: [src/parsers/dom/Tokenizer.ts:388](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L388)
 
 Create a token with current position information
 
@@ -118,9 +86,9 @@ Token type from TokenType enum
 
 Token value
 
-##### metadata?
+##### metadata
 
-`any` = `{}`
+[`TokenMetadata`](../interfaces/TokenMetadata.md) = `{}`
 
 Additional token metadata
 
@@ -136,7 +104,7 @@ The created token
 
 > **expect**(`str`): `void`
 
-Defined in: [src/parsers/dom/Tokenizer.js:385](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L385)
+Defined in: [src/parsers/dom/Tokenizer.ts:458](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L458)
 
 Expect a specific string at current position, throw if not found
 
@@ -154,21 +122,21 @@ String to expect
 
 #### Throws
 
-If string not found
+Error if string not found
 
 ***
 
 ### getPosition()
 
-> **getPosition**(): `any`
+> **getPosition**(): [`PositionInfo`](../interfaces/PositionInfo.md)
 
-Defined in: [src/parsers/dom/Tokenizer.js:298](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L298)
+Defined in: [src/parsers/dom/Tokenizer.ts:373](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L373)
 
 Get current position information
 
 #### Returns
 
-`any`
+[`PositionInfo`](../interfaces/PositionInfo.md)
 
 Position information
 
@@ -178,7 +146,7 @@ Position information
 
 > **isEOF**(): `boolean`
 
-Defined in: [src/parsers/dom/Tokenizer.js:282](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L282)
+Defined in: [src/parsers/dom/Tokenizer.ts:357](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L357)
 
 Check if we're at the end of the input
 
@@ -194,7 +162,7 @@ True if at EOF
 
 > **isLineStart**(): `boolean`
 
-Defined in: [src/parsers/dom/Tokenizer.js:290](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L290)
+Defined in: [src/parsers/dom/Tokenizer.ts:365](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L365)
 
 Check if we're at the start of a line
 
@@ -210,7 +178,7 @@ True if at line start
 
 > **match**(`str`, `consume`): `boolean`
 
-Defined in: [src/parsers/dom/Tokenizer.js:368](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L368)
+Defined in: [src/parsers/dom/Tokenizer.ts:441](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L441)
 
 Match a specific string at current position
 
@@ -240,7 +208,7 @@ True if matched
 
 > **nextChar**(): `string`
 
-Defined in: [src/parsers/dom/Tokenizer.js:146](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L146)
+Defined in: [src/parsers/dom/Tokenizer.ts:222](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L222)
 
 Get the next character and advance position
 
@@ -256,7 +224,7 @@ Next character or null if at EOF
 
 > **nextToken**(): [`Token`](../interfaces/Token.md)
 
-Defined in: [src/parsers/dom/Tokenizer.js:443](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L443)
+Defined in: [src/parsers/dom/Tokenizer.ts:516](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L516)
 
 Get the next token from the input
 
@@ -272,9 +240,9 @@ Next token or null if EOF
 
 > **parseBoldToken**(): [`Token`](../interfaces/Token.md)
 
-Defined in: [src/parsers/dom/Tokenizer.js:783](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L783)
+Defined in: [src/parsers/dom/Tokenizer.ts:855](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L855)
 
-Parse bold: **text**
+Parse bold: __text__
 
 #### Returns
 
@@ -288,11 +256,10 @@ Bold token
 
 > **parseBracketDirective**(): [`Token`](../interfaces/Token.md)
 
-Defined in: [src/parsers/dom/Tokenizer.js:594](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L594)
+Defined in: [src/parsers/dom/Tokenizer.ts:666](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L666)
 
 Parse bracket directive [{...}]
 Determines type based on content:
-
 - [{$...}] → Variable
 - [{SET ...}] → Metadata
 - [{...}] → Plugin
@@ -309,7 +276,7 @@ Directive token
 
 > **parseCodeBlockToken**(): [`Token`](../interfaces/Token.md)
 
-Defined in: [src/parsers/dom/Tokenizer.js:837](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L837)
+Defined in: [src/parsers/dom/Tokenizer.ts:909](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L909)
 
 Parse code block: {{{code}}}
 
@@ -325,7 +292,7 @@ Code block token
 
 > **parseCodeInlineToken**(): [`Token`](../interfaces/Token.md)
 
-Defined in: [src/parsers/dom/Tokenizer.js:819](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L819)
+Defined in: [src/parsers/dom/Tokenizer.ts:891](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L891)
 
 Parse inline code: {{text}}
 
@@ -341,7 +308,7 @@ Code inline token
 
 > **parseCommentToken**(): [`Token`](../interfaces/Token.md)
 
-Defined in: [src/parsers/dom/Tokenizer.js:855](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L855)
+Defined in: [src/parsers/dom/Tokenizer.ts:927](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L927)
 
 Parse HTML comment: <!-- comment -->
 
@@ -357,7 +324,7 @@ Comment token
 
 > **parseEscapedToken**(): [`Token`](../interfaces/Token.md)
 
-Defined in: [src/parsers/dom/Tokenizer.js:543](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L543)
+Defined in: [src/parsers/dom/Tokenizer.ts:615](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L615)
 
 Parse escaped text: [[text]
 Syntax: [[content] where [[ outputs literal [
@@ -376,7 +343,7 @@ Escaped token
 
 > **parseHeadingToken**(): [`Token`](../interfaces/Token.md)
 
-Defined in: [src/parsers/dom/Tokenizer.js:709](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L709)
+Defined in: [src/parsers/dom/Tokenizer.ts:781](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L781)
 
 Parse heading: !!!, !!, !
 
@@ -392,7 +359,7 @@ Heading token
 
 > **parseItalicToken**(): [`Token`](../interfaces/Token.md)
 
-Defined in: [src/parsers/dom/Tokenizer.js:801](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L801)
+Defined in: [src/parsers/dom/Tokenizer.ts:873](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L873)
 
 Parse italic: ''text''
 
@@ -408,7 +375,7 @@ Italic token
 
 > **parseListItemToken**(): [`Token`](../interfaces/Token.md)
 
-Defined in: [src/parsers/dom/Tokenizer.js:735](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L735)
+Defined in: [src/parsers/dom/Tokenizer.ts:807](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L807)
 
 Parse list item: *, #, **, ##, etc.
 
@@ -424,7 +391,7 @@ List item token
 
 > **parseMetadataToken**(`pos`): [`Token`](../interfaces/Token.md)
 
-Defined in: [src/parsers/dom/Tokenizer.js:640](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L640)
+Defined in: [src/parsers/dom/Tokenizer.ts:712](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L712)
 
 Parse metadata: [{SET name=value}]
 Called after [{ has been consumed
@@ -433,7 +400,7 @@ Called after [{ has been consumed
 
 ##### pos
 
-`any`
+[`PositionInfo`](../interfaces/PositionInfo.md)
 
 Position object
 
@@ -449,7 +416,7 @@ Metadata token
 
 > **parseNewlineToken**(): [`Token`](../interfaces/Token.md)
 
-Defined in: [src/parsers/dom/Tokenizer.js:526](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L526)
+Defined in: [src/parsers/dom/Tokenizer.ts:598](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L598)
 
 Parse newline token
 
@@ -465,7 +432,7 @@ Newline token
 
 > **parsePluginToken**(`pos`): [`Token`](../interfaces/Token.md)
 
-Defined in: [src/parsers/dom/Tokenizer.js:661](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L661)
+Defined in: [src/parsers/dom/Tokenizer.ts:733](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L733)
 
 Parse plugin: [{PluginName param1=value1}]
 Called after [{ has been consumed
@@ -474,7 +441,7 @@ Called after [{ has been consumed
 
 ##### pos
 
-`any`
+[`PositionInfo`](../interfaces/PositionInfo.md)
 
 Position object
 
@@ -490,7 +457,7 @@ Plugin token
 
 > **parseTableCellToken**(): [`Token`](../interfaces/Token.md)
 
-Defined in: [src/parsers/dom/Tokenizer.js:765](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L765)
+Defined in: [src/parsers/dom/Tokenizer.ts:837](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L837)
 
 Parse table cell: | cell
 
@@ -506,7 +473,7 @@ Table cell token
 
 > **parseTextToken**(): [`Token`](../interfaces/Token.md)
 
-Defined in: [src/parsers/dom/Tokenizer.js:873](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L873)
+Defined in: [src/parsers/dom/Tokenizer.ts:945](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L945)
 
 Parse plain text until next special character
 
@@ -522,7 +489,7 @@ Text token
 
 > **parseVariableToken**(`pos`): [`Token`](../interfaces/Token.md)
 
-Defined in: [src/parsers/dom/Tokenizer.js:619](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L619)
+Defined in: [src/parsers/dom/Tokenizer.ts:691](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L691)
 
 Parse variable: [{$varname}]
 Called after [{has been consumed
@@ -531,7 +498,7 @@ Called after [{has been consumed
 
 ##### pos
 
-`any`
+[`PositionInfo`](../interfaces/PositionInfo.md)
 
 Position object
 
@@ -547,7 +514,7 @@ Variable token
 
 > **parseWikiTagToken**(): [`Token`](../interfaces/Token.md)
 
-Defined in: [src/parsers/dom/Tokenizer.js:677](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L677)
+Defined in: [src/parsers/dom/Tokenizer.ts:749](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L749)
 
 Parse wiki tag or link: [link], [link|text]
 
@@ -563,7 +530,7 @@ Wiki tag or link token
 
 > **peekAhead**(`count`): `string`
 
-Defined in: [src/parsers/dom/Tokenizer.js:220](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L220)
+Defined in: [src/parsers/dom/Tokenizer.ts:295](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L295)
 
 Peek ahead N characters without consuming them
 
@@ -587,7 +554,7 @@ String of next N characters
 
 > **peekChar**(): `string`
 
-Defined in: [src/parsers/dom/Tokenizer.js:130](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L130)
+Defined in: [src/parsers/dom/Tokenizer.ts:206](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L206)
 
 Get the current character without advancing
 
@@ -603,7 +570,7 @@ Current character or null if at EOF
 
 > **pushBack**(`char`): `void`
 
-Defined in: [src/parsers/dom/Tokenizer.js:180](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L180)
+Defined in: [src/parsers/dom/Tokenizer.ts:256](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L256)
 
 Push a character back onto the input stream
 Allows the tokenizer to "undo" reading a character
@@ -626,7 +593,7 @@ Character to push back
 
 > **readUntil**(`delimiters`, `consume`): `string`
 
-Defined in: [src/parsers/dom/Tokenizer.js:330](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L330)
+Defined in: [src/parsers/dom/Tokenizer.ts:405](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L405)
 
 Read until a specific character or string is found
 
@@ -656,7 +623,7 @@ Text read until delimiter
 
 > **reset**(): `void`
 
-Defined in: [src/parsers/dom/Tokenizer.js:407](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L407)
+Defined in: [src/parsers/dom/Tokenizer.ts:480](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L480)
 
 Reset tokenizer to beginning
 
@@ -670,7 +637,7 @@ Reset tokenizer to beginning
 
 > **skipAllWhitespace**(): `number`
 
-Defined in: [src/parsers/dom/Tokenizer.js:264](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L264)
+Defined in: [src/parsers/dom/Tokenizer.ts:339](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L339)
 
 Skip all whitespace including newlines
 
@@ -686,7 +653,7 @@ Number of whitespace characters skipped
 
 > **skipWhitespace**(): `number`
 
-Defined in: [src/parsers/dom/Tokenizer.js:246](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L246)
+Defined in: [src/parsers/dom/Tokenizer.ts:321](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L321)
 
 Skip whitespace characters (space, tab)
 Does NOT skip newlines
@@ -703,7 +670,7 @@ Number of whitespace characters skipped
 
 > **substring**(`start`, `end`): `string`
 
-Defined in: [src/parsers/dom/Tokenizer.js:400](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L400)
+Defined in: [src/parsers/dom/Tokenizer.ts:473](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L473)
 
 Get a substring of the input
 
@@ -733,7 +700,7 @@ Substring
 
 > **tokenize**(): [`Token`](../interfaces/Token.md)[]
 
-Defined in: [src/parsers/dom/Tokenizer.js:423](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L423)
+Defined in: [src/parsers/dom/Tokenizer.ts:496](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L496)
 
 Tokenize the entire input into tokens
 

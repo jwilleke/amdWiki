@@ -6,7 +6,7 @@
 
 # Class: export=
 
-Defined in: [src/legacy/app-new.js:7](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/legacy/app-new.js#L7)
+Defined in: [src/legacy/app-new.js:7](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/legacy/app-new.js#L7)
 
 ## Constructors
 
@@ -14,7 +14,7 @@ Defined in: [src/legacy/app-new.js:7](https://github.com/jwilleke/amdWiki/blob/a
 
 > **new export=**(): `WikiApp`
 
-Defined in: [src/legacy/app-new.js:8](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/legacy/app-new.js#L8)
+Defined in: [src/legacy/app-new.js:8](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/legacy/app-new.js#L8)
 
 #### Returns
 
@@ -26,7 +26,7 @@ Defined in: [src/legacy/app-new.js:8](https://github.com/jwilleke/amdWiki/blob/a
 
 > **app**: `Express`
 
-Defined in: [src/legacy/app-new.js:9](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/legacy/app-new.js#L9)
+Defined in: [src/legacy/app-new.js:9](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/legacy/app-new.js#L9)
 
 ***
 
@@ -34,7 +34,7 @@ Defined in: [src/legacy/app-new.js:9](https://github.com/jwilleke/amdWiki/blob/a
 
 > **engine**: `any`
 
-Defined in: [src/legacy/app-new.js:10](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/legacy/app-new.js#L10)
+Defined in: [src/legacy/app-new.js:10](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/legacy/app-new.js#L10)
 
 ***
 
@@ -42,7 +42,7 @@ Defined in: [src/legacy/app-new.js:10](https://github.com/jwilleke/amdWiki/blob/
 
 > **routes**: `any`
 
-Defined in: [src/legacy/app-new.js:11](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/legacy/app-new.js#L11)
+Defined in: [src/legacy/app-new.js:11](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/legacy/app-new.js#L11)
 
 ***
 
@@ -50,7 +50,7 @@ Defined in: [src/legacy/app-new.js:11](https://github.com/jwilleke/amdWiki/blob/
 
 > **server**: `Server`\<*typeof* `IncomingMessage`, *typeof* `ServerResponse`\>
 
-Defined in: [src/legacy/app-new.js:95](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/legacy/app-new.js#L95)
+Defined in: [src/legacy/app-new.js:95](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/legacy/app-new.js#L95)
 
 ## Methods
 
@@ -58,7 +58,7 @@ Defined in: [src/legacy/app-new.js:95](https://github.com/jwilleke/amdWiki/blob/
 
 > **initialize**(): `Promise`\<`void`\>
 
-Defined in: [src/legacy/app-new.js:14](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/legacy/app-new.js#L14)
+Defined in: [src/legacy/app-new.js:14](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/legacy/app-new.js#L14)
 
 #### Returns
 
@@ -70,7 +70,7 @@ Defined in: [src/legacy/app-new.js:14](https://github.com/jwilleke/amdWiki/blob/
 
 > **setupMiddleware**(): `void`
 
-Defined in: [src/legacy/app-new.js:61](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/legacy/app-new.js#L61)
+Defined in: [src/legacy/app-new.js:61](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/legacy/app-new.js#L61)
 
 #### Returns
 
@@ -82,7 +82,7 @@ Defined in: [src/legacy/app-new.js:61](https://github.com/jwilleke/amdWiki/blob/
 
 > **start**(`port`): `Promise`\<`any`\>
 
-Defined in: [src/legacy/app-new.js:88](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/legacy/app-new.js#L88)
+Defined in: [src/legacy/app-new.js:88](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/legacy/app-new.js#L88)
 
 #### Parameters
 
@@ -100,7 +100,7 @@ Defined in: [src/legacy/app-new.js:88](https://github.com/jwilleke/amdWiki/blob/
 
 > **stop**(): `Promise`\<`any`\>
 
-Defined in: [src/legacy/app-new.js:110](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/legacy/app-new.js#L110)
+Defined in: [src/legacy/app-new.js:110](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/legacy/app-new.js#L110)
 
 #### Returns
 

@@ -6,7 +6,19 @@
 
 # Interface: Token
 
-Defined in: [src/parsers/dom/Tokenizer.js:102](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L102)
+Defined in: [src/parsers/dom/Tokenizer.ts:138](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L138)
+
+Token structure
+
+## Extends
+
+- [`PositionInfo`](PositionInfo.md)
+
+## Indexable
+
+\[`key`: `string`\]: `unknown`
+
+Index signature for additional properties
 
 ## Properties
 
@@ -14,9 +26,13 @@ Defined in: [src/parsers/dom/Tokenizer.js:102](https://github.com/jwilleke/amdWi
 
 > **column**: `number`
 
-Defined in: [src/parsers/dom/Tokenizer.js:106](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L106)
+Defined in: [src/parsers/dom/Tokenizer.ts:132](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L132)
 
-Column number where token starts
+Column number
+
+#### Inherited from
+
+[`PositionInfo`](PositionInfo.md).[`column`](PositionInfo.md#column)
 
 ***
 
@@ -24,17 +40,21 @@ Column number where token starts
 
 > **line**: `number`
 
-Defined in: [src/parsers/dom/Tokenizer.js:105](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L105)
+Defined in: [src/parsers/dom/Tokenizer.ts:130](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L130)
 
-Line number where token starts
+Line number
+
+#### Inherited from
+
+[`PositionInfo`](PositionInfo.md).[`line`](PositionInfo.md#line)
 
 ***
 
 ### metadata?
 
-> `optional` **metadata**: `any`
+> `optional` **metadata**: [`TokenMetadata`](TokenMetadata.md)
 
-Defined in: [src/parsers/dom/Tokenizer.js:108](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L108)
+Defined in: [src/parsers/dom/Tokenizer.ts:144](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L144)
 
 Additional token-specific data
 
@@ -44,9 +64,13 @@ Additional token-specific data
 
 > **position**: `number`
 
-Defined in: [src/parsers/dom/Tokenizer.js:107](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L107)
+Defined in: [src/parsers/dom/Tokenizer.ts:128](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L128)
 
 Character position in input
+
+#### Inherited from
+
+[`PositionInfo`](PositionInfo.md).[`position`](PositionInfo.md#position)
 
 ***
 
@@ -54,7 +78,7 @@ Character position in input
 
 > **type**: `string`
 
-Defined in: [src/parsers/dom/Tokenizer.js:103](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L103)
+Defined in: [src/parsers/dom/Tokenizer.ts:140](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L140)
 
 Token type from TokenType enum
 
@@ -64,6 +88,6 @@ Token type from TokenType enum
 
 > **value**: `string`
 
-Defined in: [src/parsers/dom/Tokenizer.js:104](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L104)
+Defined in: [src/parsers/dom/Tokenizer.ts:142](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L142)
 
 Token value/content

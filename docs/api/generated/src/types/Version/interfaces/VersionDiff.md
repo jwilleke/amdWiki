@@ -6,7 +6,7 @@
 
 # Interface: VersionDiff
 
-Defined in: [src/types/Version.ts:108](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Version.ts#L108)
+Defined in: [src/types/Version.ts:108](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Version.ts#L108)
 
 Version diff result
 
@@ -18,7 +18,7 @@ Result of comparing two versions.
 
 > **diff**: [`DiffTuple`](../../../utils/DeltaStorage/type-aliases/DiffTuple.md)[]
 
-Defined in: [src/types/Version.ts:116](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Version.ts#L116)
+Defined in: [src/types/Version.ts:116](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Version.ts#L116)
 
 Diff operations (from fast-diff)
 
@@ -28,7 +28,7 @@ Diff operations (from fast-diff)
 
 > **fromMetadata**: [`VersionMetadata`](VersionMetadata.md)
 
-Defined in: [src/types/Version.ts:126](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Version.ts#L126)
+Defined in: [src/types/Version.ts:126](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Version.ts#L126)
 
 Old version metadata
 
@@ -38,7 +38,7 @@ Old version metadata
 
 > **fromVersion**: `number`
 
-Defined in: [src/types/Version.ts:110](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Version.ts#L110)
+Defined in: [src/types/Version.ts:110](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Version.ts#L110)
 
 Old version number
 
@@ -48,7 +48,7 @@ Old version number
 
 > **stats**: `object`
 
-Defined in: [src/types/Version.ts:119](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Version.ts#L119)
+Defined in: [src/types/Version.ts:119](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Version.ts#L119)
 
 Diff statistics
 
@@ -70,7 +70,7 @@ Diff statistics
 
 > **toMetadata**: [`VersionMetadata`](VersionMetadata.md)
 
-Defined in: [src/types/Version.ts:129](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Version.ts#L129)
+Defined in: [src/types/Version.ts:129](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Version.ts#L129)
 
 New version metadata
 
@@ -80,6 +80,6 @@ New version metadata
 
 > **toVersion**: `number`
 
-Defined in: [src/types/Version.ts:113](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Version.ts#L113)
+Defined in: [src/types/Version.ts:113](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Version.ts#L113)
 
 New version number

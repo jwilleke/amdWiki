@@ -6,7 +6,7 @@
 
 # Class: default
 
-Defined in: [src/providers/NullAuditProvider.ts:10](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/NullAuditProvider.ts#L10)
+Defined in: [src/providers/NullAuditProvider.ts:10](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/NullAuditProvider.ts#L10)
 
 NullAuditProvider - No-op audit provider
 
@@ -23,13 +23,13 @@ All audit operations are no-ops that return immediately.
 
 > **new default**(`engine`): `NullAuditProvider`
 
-Defined in: [src/providers/NullAuditProvider.ts:11](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/NullAuditProvider.ts#L11)
+Defined in: [src/providers/NullAuditProvider.ts:11](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/NullAuditProvider.ts#L11)
 
 #### Parameters
 
 ##### engine
 
-[`WikiEngine`](../../BaseAuditProvider/interfaces/WikiEngine.md)
+[`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
 #### Returns
 
@@ -43,9 +43,9 @@ Defined in: [src/providers/NullAuditProvider.ts:11](https://github.com/jwilleke/
 
 ### engine
 
-> `protected` **engine**: [`WikiEngine`](../../BaseAuditProvider/interfaces/WikiEngine.md)
+> `protected` **engine**: [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/providers/BaseAuditProvider.ts:157](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAuditProvider.ts#L157)
+Defined in: [src/providers/BaseAuditProvider.ts:156](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L156)
 
 Reference to the wiki engine
 
@@ -59,7 +59,7 @@ Reference to the wiki engine
 
 > **initialized**: `boolean`
 
-Defined in: [src/providers/BaseAuditProvider.ts:160](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAuditProvider.ts#L160)
+Defined in: [src/providers/BaseAuditProvider.ts:159](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L159)
 
 Whether provider has been initialized
 
@@ -73,7 +73,7 @@ Whether provider has been initialized
 
 > **backup**(): `Promise`\<[`AuditBackupData`](../../BaseAuditProvider/interfaces/AuditBackupData.md)\>
 
-Defined in: [src/providers/BaseAuditProvider.ts:308](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAuditProvider.ts#L308)
+Defined in: [src/providers/BaseAuditProvider.ts:307](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L307)
 
 Backup audit configuration and state (optional)
 
@@ -98,7 +98,7 @@ Backup data
 
 > **cleanup**(): `Promise`\<`void`\>
 
-Defined in: [src/providers/NullAuditProvider.ts:103](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/NullAuditProvider.ts#L103)
+Defined in: [src/providers/NullAuditProvider.ts:107](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/NullAuditProvider.ts#L107)
 
 Clean up old audit logs (no-op)
 
@@ -116,7 +116,7 @@ Clean up old audit logs (no-op)
 
 > **close**(): `Promise`\<`void`\>
 
-Defined in: [src/providers/NullAuditProvider.ts:119](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/NullAuditProvider.ts#L119)
+Defined in: [src/providers/NullAuditProvider.ts:124](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/NullAuditProvider.ts#L124)
 
 Close/cleanup the audit provider (no-op)
 
@@ -132,15 +132,15 @@ Close/cleanup the audit provider (no-op)
 
 ### exportAuditLogs()
 
-> **exportAuditLogs**(`filters`, `format`): `Promise`\<`string`\>
+> **exportAuditLogs**(`_filters`, `format`): `Promise`\<`string`\>
 
-Defined in: [src/providers/NullAuditProvider.ts:84](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/NullAuditProvider.ts#L84)
+Defined in: [src/providers/NullAuditProvider.ts:87](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/NullAuditProvider.ts#L87)
 
 Export audit logs (returns empty data)
 
 #### Parameters
 
-##### filters
+##### \_filters
 
 [`AuditFilters`](../../BaseAuditProvider/interfaces/AuditFilters.md) = `{}`
 
@@ -168,7 +168,7 @@ Empty export data
 
 > **flush**(): `Promise`\<`void`\>
 
-Defined in: [src/providers/NullAuditProvider.ts:95](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/NullAuditProvider.ts#L95)
+Defined in: [src/providers/NullAuditProvider.ts:98](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/NullAuditProvider.ts#L98)
 
 Flush pending audit events (no-op)
 
@@ -184,15 +184,15 @@ Flush pending audit events (no-op)
 
 ### getAuditStats()
 
-> **getAuditStats**(`filters`): `Promise`\<[`AuditStats`](../../BaseAuditProvider/interfaces/AuditStats.md)\>
+> **getAuditStats**(`_filters`): `Promise`\<[`AuditStats`](../../BaseAuditProvider/interfaces/AuditStats.md)\>
 
-Defined in: [src/providers/NullAuditProvider.ts:66](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/NullAuditProvider.ts#L66)
+Defined in: [src/providers/NullAuditProvider.ts:69](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/NullAuditProvider.ts#L69)
 
 Get audit statistics (returns zeros)
 
 #### Parameters
 
-##### filters
+##### \_filters
 
 [`AuditFilters`](../../BaseAuditProvider/interfaces/AuditFilters.md) = `{}`
 
@@ -214,7 +214,7 @@ Empty statistics
 
 > **getProviderInfo**(): `object`
 
-Defined in: [src/providers/NullAuditProvider.ts:27](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/NullAuditProvider.ts#L27)
+Defined in: [src/providers/NullAuditProvider.ts:28](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/NullAuditProvider.ts#L28)
 
 Get provider information
 
@@ -226,19 +226,19 @@ Provider metadata
 
 ##### description
 
-> **description**: `string` = `'No-op audit provider (auditing disabled)'`
+> **description**: `string`
 
 ##### features
 
-> **features**: `any`[] = `[]`
+> **features**: `string`[]
 
 ##### name
 
-> **name**: `string` = `'NullAuditProvider'`
+> **name**: `string`
 
 ##### version
 
-> **version**: `string` = `'1.0.0'`
+> **version**: `string`
 
 #### Overrides
 
@@ -250,7 +250,7 @@ Provider metadata
 
 > **initialize**(): `Promise`\<`void`\>
 
-Defined in: [src/providers/NullAuditProvider.ts:19](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/NullAuditProvider.ts#L19)
+Defined in: [src/providers/NullAuditProvider.ts:19](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/NullAuditProvider.ts#L19)
 
 Initialize the null audit provider (no-op)
 
@@ -268,7 +268,7 @@ Initialize the null audit provider (no-op)
 
 > **isHealthy**(): `Promise`\<`boolean`\>
 
-Defined in: [src/providers/NullAuditProvider.ts:111](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/NullAuditProvider.ts#L111)
+Defined in: [src/providers/NullAuditProvider.ts:116](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/NullAuditProvider.ts#L116)
 
 Check if the audit provider is healthy (always true)
 
@@ -286,15 +286,15 @@ Always true
 
 ### logAuditEvent()
 
-> **logAuditEvent**(`auditEvent`): `Promise`\<`string`\>
+> **logAuditEvent**(`_auditEvent`): `Promise`\<`string`\>
 
-Defined in: [src/providers/NullAuditProvider.ts:41](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/NullAuditProvider.ts#L41)
+Defined in: [src/providers/NullAuditProvider.ts:42](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/NullAuditProvider.ts#L42)
 
 Log an audit event (no-op)
 
 #### Parameters
 
-##### auditEvent
+##### \_auditEvent
 
 [`AuditEvent`](../../../types/Provider/interfaces/AuditEvent.md)
 
@@ -314,9 +314,9 @@ Dummy event ID
 
 ### restore()
 
-> **restore**(`backupData`): `Promise`\<`void`\>
+> **restore**(`_backupData`): `Promise`\<`void`\>
 
-Defined in: [src/providers/BaseAuditProvider.ts:326](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAuditProvider.ts#L326)
+Defined in: [src/providers/BaseAuditProvider.ts:325](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L325)
 
 Restore audit from backup (optional)
 
@@ -325,7 +325,7 @@ Subclasses can override if they support restore functionality.
 
 #### Parameters
 
-##### backupData
+##### \_backupData
 
 [`AuditBackupData`](../../BaseAuditProvider/interfaces/AuditBackupData.md)
 
@@ -345,15 +345,15 @@ Backup data
 
 ### searchAuditLogs()
 
-> **searchAuditLogs**(`filters`, `options`): `Promise`\<[`AuditSearchResults`](../../BaseAuditProvider/interfaces/AuditSearchResults.md)\>
+> **searchAuditLogs**(`_filters`, `options`): `Promise`\<[`AuditSearchResults`](../../BaseAuditProvider/interfaces/AuditSearchResults.md)\>
 
-Defined in: [src/providers/NullAuditProvider.ts:51](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/NullAuditProvider.ts#L51)
+Defined in: [src/providers/NullAuditProvider.ts:52](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/NullAuditProvider.ts#L52)
 
 Search audit logs (returns empty results)
 
 #### Parameters
 
-##### filters
+##### \_filters
 
 [`AuditFilters`](../../BaseAuditProvider/interfaces/AuditFilters.md) = `{}`
 
@@ -361,7 +361,7 @@ Search filters
 
 ##### options
 
-`Record`\<`string`, `any`\> = `{}`
+`Record`\<`string`, `number`\> = `{}`
 
 Search options
 

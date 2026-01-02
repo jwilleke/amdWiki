@@ -6,13 +6,13 @@
 
 # Interface: BackupData
 
-Defined in: [src/providers/BaseCacheProvider.ts:47](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseCacheProvider.ts#L47)
+Defined in: [src/providers/BaseCacheProvider.ts:38](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseCacheProvider.ts#L38)
 
 Backup data structure
 
 ## Indexable
 
-\[`key`: `string`\]: `any`
+\[`key`: `string`\]: `unknown`
 
 ## Properties
 
@@ -20,7 +20,7 @@ Backup data structure
 
 > **initialized**: `boolean`
 
-Defined in: [src/providers/BaseCacheProvider.ts:49](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseCacheProvider.ts#L49)
+Defined in: [src/providers/BaseCacheProvider.ts:40](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseCacheProvider.ts#L40)
 
 ***
 
@@ -28,7 +28,7 @@ Defined in: [src/providers/BaseCacheProvider.ts:49](https://github.com/jwilleke/
 
 > **provider**: `string`
 
-Defined in: [src/providers/BaseCacheProvider.ts:48](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseCacheProvider.ts#L48)
+Defined in: [src/providers/BaseCacheProvider.ts:39](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseCacheProvider.ts#L39)
 
 ***
 
@@ -36,4 +36,4 @@ Defined in: [src/providers/BaseCacheProvider.ts:48](https://github.com/jwilleke/
 
 > **timestamp**: `string`
 
-Defined in: [src/providers/BaseCacheProvider.ts:50](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseCacheProvider.ts#L50)
+Defined in: [src/providers/BaseCacheProvider.ts:41](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseCacheProvider.ts#L41)

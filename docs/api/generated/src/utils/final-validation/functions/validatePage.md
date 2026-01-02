@@ -8,7 +8,7 @@
 
 > **validatePage**(`filePath`): [`ValidationResult`](../interfaces/ValidationResult.md)
 
-Defined in: [src/utils/final-validation.ts:50](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/utils/final-validation.ts#L50)
+Defined in: [src/utils/final-validation.ts:51](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/final-validation.ts#L51)
 
 Validate a single page file
 

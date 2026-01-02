@@ -8,4 +8,17 @@
 
 ## Classes
 
-- [export=](classes/export=.md)
+- [default](classes/default.md)
+
+## Interfaces
+
+- [ExtractedLinkElement](interfaces/ExtractedLinkElement.md)
+- [InterWikiSite](interfaces/InterWikiSite.md)
+- [LinkInfo](interfaces/LinkInfo.md)
+- [LinkStatistics](interfaces/LinkStatistics.md)
+- [LinkTypeStats](interfaces/LinkTypeStats.md)
+- [RenderContext](interfaces/RenderContext.md)
+
+## Type Aliases
+
+- [LinkType](type-aliases/LinkType.md)

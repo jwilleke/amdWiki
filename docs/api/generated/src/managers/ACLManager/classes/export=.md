@@ -6,7 +6,7 @@
 
 # Class: export=
 
-Defined in: [src/managers/ACLManager.js:36](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/ACLManager.js#L36)
+Defined in: [src/managers/ACLManager.ts:148](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ACLManager.ts#L148)
 
 ACLManager - Handles Access Control Lists and context-aware permissions
 
@@ -15,7 +15,6 @@ permissions (time-based, location-based, etc.). Supports both page-level
 ACLs embedded in page content and global policy-based access control.
 
 Key features:
-
 - JSPWiki-style ACL markup parsing ([{ALLOW view Admin}])
 - Context-aware permission evaluation
 - Global policy-based access control
@@ -27,9 +26,9 @@ Key features:
 
 ## See
 
-- [BaseManager](../../BaseManager/classes/export=.md) for base functionality
-- PolicyEvaluator for policy evaluation
-- AuditManager for audit logging
+ - [BaseManager](../../BaseManager/classes/default.md) for base functionality
+ - PolicyEvaluator for policy evaluation
+ - AuditManager for audit logging
 
 ## Example
 
@@ -41,7 +40,7 @@ if (canView) console.log('User can view page');
 
 ## Extends
 
-- [`export=`](../../BaseManager/classes/export=.md)
+- [`default`](../../BaseManager/classes/default.md)
 
 ## Constructors
 
@@ -49,7 +48,7 @@ if (canView) console.log('User can view page');
 
 > **new export=**(`engine`): `ACLManager`
 
-Defined in: [src/managers/ACLManager.js:43](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/ACLManager.js#L43)
+Defined in: [src/managers/ACLManager.ts:159](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ACLManager.ts#L159)
 
 Creates a new ACLManager instance
 
@@ -57,7 +56,7 @@ Creates a new ACLManager instance
 
 ##### engine
 
-`WikiEngine`
+[`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
 The wiki engine instance
 
@@ -67,77 +66,57 @@ The wiki engine instance
 
 #### Overrides
 
-[`export=`](../../BaseManager/classes/export=.md).[`constructor`](../../BaseManager/classes/export=.md#constructor)
+[`default`](../../BaseManager/classes/default.md).[`constructor`](../../BaseManager/classes/default.md#constructor)
 
 ## Properties
 
-### accessPolicies
+### config?
 
-> **accessPolicies**: `Map`\<`any`, `any`\>
+> `protected` `optional` **config**: `Record`\<`string`, `any`\>
 
-Defined in: [src/managers/ACLManager.js:45](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/ACLManager.js#L45)
+Defined in: [src/managers/BaseManager.ts:63](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L63)
 
-Global access policies
-
-***
-
-### config
-
-> **config**: `any`
-
-Defined in: [src/managers/BaseManager.js:55](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/BaseManager.js#L55)
-
-Configuration object passed during initialization
+Configuration passed during initialization
 
 #### Inherited from
 
-[`export=`](../../BaseManager/classes/export=.md).[`config`](../../BaseManager/classes/export=.md#config)
+[`default`](../../BaseManager/classes/default.md).[`config`](../../BaseManager/classes/default.md#config)
 
 ***
 
 ### engine
 
-> **engine**: `WikiEngine`
+> `protected` **engine**: [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/managers/BaseManager.js:33](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/BaseManager.js#L33)
+Defined in: [src/managers/BaseManager.ts:56](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L56)
 
 Reference to the wiki engine
 
 #### Inherited from
 
-[`export=`](../../BaseManager/classes/export=.md).[`engine`](../../BaseManager/classes/export=.md#engine)
+[`default`](../../BaseManager/classes/default.md).[`engine`](../../BaseManager/classes/default.md#engine)
 
 ***
 
 ### initialized
 
-> **initialized**: `boolean`
+> `protected` **initialized**: `boolean`
 
-Defined in: [src/managers/BaseManager.js:34](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/BaseManager.js#L34)
+Defined in: [src/managers/BaseManager.ts:59](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L59)
 
-Flag indicating initialization status
+Initialization status flag
 
 #### Inherited from
 
-[`export=`](../../BaseManager/classes/export=.md).[`initialized`](../../BaseManager/classes/export=.md#initialized)
-
-***
-
-### policyEvaluator
-
-> **policyEvaluator**: `any`
-
-Defined in: [src/managers/ACLManager.js:46](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/ACLManager.js#L46)
-
-Policy evaluation engine
+[`default`](../../BaseManager/classes/default.md).[`initialized`](../../BaseManager/classes/default.md#initialized)
 
 ## Methods
 
 ### backup()
 
-> **backup**(): `Promise`\<`any`\>
+> **backup**(): `Promise`\<[`BackupData`](../../BaseManager/interfaces/BackupData.md)\>
 
-Defined in: [src/managers/BaseManager.js:130](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/BaseManager.js#L130)
+Defined in: [src/managers/BaseManager.ts:168](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L168)
 
 Backup manager data
 
@@ -146,11 +125,9 @@ Default implementation returns an empty backup object.
 
 #### Returns
 
-`Promise`\<`any`\>
+`Promise`\<[`BackupData`](../../BaseManager/interfaces/BackupData.md)\>
 
 Backup data object containing all manager state
-
-#### Async
 
 #### Throws
 
@@ -159,7 +136,7 @@ If backup operation fails
 #### Example
 
 ```ts
-async backup() {
+async backup(): Promise<BackupData> {
   return {
     managerName: this.constructor.name,
     timestamp: new Date().toISOString(),
@@ -173,15 +150,15 @@ async backup() {
 
 #### Inherited from
 
-[`export=`](../../BaseManager/classes/export=.md).[`backup`](../../BaseManager/classes/export=.md#backup)
+[`default`](../../BaseManager/classes/default.md).[`backup`](../../BaseManager/classes/default.md#backup)
 
 ***
 
 ### checkBusinessHours()
 
-> **checkBusinessHours**(`businessHoursConfig`, `timeZone`): `any`
+> **checkBusinessHours**(`businessHoursConfig`, `timeZone`): `PermissionResult`
 
-Defined in: [src/managers/ACLManager.js:486](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/ACLManager.js#L486)
+Defined in: [src/managers/ACLManager.ts:678](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ACLManager.ts#L678)
 
 Check business hours restrictions
 
@@ -189,7 +166,7 @@ Check business hours restrictions
 
 ##### businessHoursConfig
 
-`any` = `{}`
+`BusinessHoursConfig` = `{}`
 
 Business hours configuration
 
@@ -201,17 +178,17 @@ Time zone for business hours
 
 #### Returns
 
-`any`
+`PermissionResult`
 
-{ allowed: boolean, reason: string }
+Permission result
 
 ***
 
 ### checkContextRestrictions()
 
-> **checkContextRestrictions**(`user`, `context`): `any`
+> **checkContextRestrictions**(`user`, `context`): `Promise`\<`PermissionResult`\>
 
-Defined in: [src/managers/ACLManager.js:414](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/ACLManager.js#L414)
+Defined in: [src/managers/ACLManager.ts:602](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ACLManager.ts#L602)
 
 Check context-aware restrictions (time-based, maintenance mode)
 
@@ -219,21 +196,21 @@ Check context-aware restrictions (time-based, maintenance mode)
 
 ##### user
 
-`any`
+`UserContext`
 
 User object
 
 ##### context
 
-`any`
+`Record`\<`string`, `unknown`\>
 
 Request context
 
 #### Returns
 
-`any`
+`Promise`\<`PermissionResult`\>
 
-{ allowed: boolean, reason: string }
+Permission result with reason
 
 ***
 
@@ -241,7 +218,7 @@ Request context
 
 > **checkDefaultPermission**(`action`, `user`): `Promise`\<`boolean`\>
 
-Defined in: [src/managers/ACLManager.js:385](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/ACLManager.js#L385)
+Defined in: [src/managers/ACLManager.ts:570](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ACLManager.ts#L570)
 
 Check default permissions for actions using UserManager
 
@@ -255,7 +232,7 @@ Action to check (view, edit, delete, etc.)
 
 ##### user
 
-`any`
+`UserContext`
 
 User object or null for anonymous
 
@@ -269,9 +246,9 @@ True if user has permission, false otherwise
 
 ### checkEnhancedTimeRestrictions()
 
-> **checkEnhancedTimeRestrictions**(`user`, `context`): `any`
+> **checkEnhancedTimeRestrictions**(`user`, `context`): `Promise`\<`PermissionResult`\>
 
-Defined in: [src/managers/ACLManager.js:540](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/ACLManager.js#L540)
+Defined in: [src/managers/ACLManager.ts:732](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ACLManager.ts#L732)
 
 Enhanced time-based permission checking with custom schedules and holidays
 
@@ -279,29 +256,29 @@ Enhanced time-based permission checking with custom schedules and holidays
 
 ##### user
 
-`any`
+`UserContext`
 
 User object
 
 ##### context
 
-`any`
+`Record`\<`string`, `unknown`\>
 
 Access context
 
 #### Returns
 
-`any`
+`Promise`\<`PermissionResult`\>
 
-{ allowed: boolean, reason: string, message: string }
+Permission result
 
 ***
 
 ### checkHolidayRestrictions()
 
-> **checkHolidayRestrictions**(`currentDate`, `holidaysConfig`): `any`
+> **checkHolidayRestrictions**(`currentDate`, `holidaysConfig`): `Promise`\<`PermissionResult`\>
 
-Defined in: [src/managers/ACLManager.js:594](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/ACLManager.js#L594)
+Defined in: [src/managers/ACLManager.ts:805](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ACLManager.ts#L805)
 
 Check holiday restrictions
 
@@ -315,23 +292,23 @@ Current date in YYYY-MM-DD format
 
 ##### holidaysConfig
 
-`any`
+`HolidayConfig`
 
 Holiday configuration
 
 #### Returns
 
-`any`
+`Promise`\<`PermissionResult`\>
 
-{ allowed: boolean, reason: string, message: string }
+Permission result
 
 ***
 
 ### checkMaintenanceMode()
 
-> **checkMaintenanceMode**(`user`, `maintenanceConfig`): `any`
+> **checkMaintenanceMode**(`user`, `maintenanceConfig`): `PermissionResult`
 
-Defined in: [src/managers/ACLManager.js:458](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/ACLManager.js#L458)
+Defined in: [src/managers/ACLManager.ts:650](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ACLManager.ts#L650)
 
 Check maintenance mode restrictions
 
@@ -339,29 +316,29 @@ Check maintenance mode restrictions
 
 ##### user
 
-`any`
+`UserContext`
 
 User object
 
 ##### maintenanceConfig
 
-`any` = `{}`
+`MaintenanceConfig` = `{}`
 
 Maintenance mode configuration
 
 #### Returns
 
-`any`
+`PermissionResult`
 
-{ allowed: boolean, reason: string }
+Permission result
 
 ***
 
 ### ~~checkPagePermission()~~
 
-> **checkPagePermission**(`pageName`, `action`, `userContext`, `pageContent`): `boolean`
+> **checkPagePermission**(`pageName`, `action`, `userContext`, `pageContent`): `Promise`\<`boolean`\>
 
-Defined in: [src/managers/ACLManager.js:277](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/ACLManager.js#L277)
+Defined in: [src/managers/ACLManager.ts:412](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ACLManager.ts#L412)
 
 Check page permission with context-aware and audit logging
 Now includes policy-based access control integration
@@ -382,7 +359,7 @@ Action to check (view, edit, delete, rename, upload)
 
 ##### userContext
 
-`any`
+`UserContext`
 
 User context object (null for anonymous)
 
@@ -394,7 +371,7 @@ Page content to parse ACL from
 
 #### Returns
 
-`boolean`
+`Promise`\<`boolean`\>
 
 True if permission granted
 
@@ -408,7 +385,7 @@ Use checkPagePermissionWithContext() with WikiContext instead
 
 > **checkPagePermissionWithContext**(`wikiContext`, `action`): `Promise`\<`boolean`\>
 
-Defined in: [src/managers/ACLManager.js:162](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/ACLManager.js#L162)
+Defined in: [src/managers/ACLManager.ts:291](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ACLManager.ts#L291)
 
 Check page permission using WikiContext
 
@@ -449,15 +426,15 @@ if (canEdit) console.log('User can edit page');
 
 ### getEngine()
 
-> **getEngine**(): `WikiEngine`
+> **getEngine**(): [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/managers/BaseManager.js:81](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/BaseManager.js#L81)
+Defined in: [src/managers/BaseManager.ts:126](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L126)
 
 Get the wiki engine instance
 
 #### Returns
 
-`WikiEngine`
+[`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
 The wiki engine instance
 
@@ -469,7 +446,7 @@ const config = this.getEngine().getConfig();
 
 #### Inherited from
 
-[`export=`](../../BaseManager/classes/export=.md).[`getEngine`](../../BaseManager/classes/export=.md#getengine)
+[`default`](../../BaseManager/classes/default.md).[`getEngine`](../../BaseManager/classes/default.md#getengine)
 
 ***
 
@@ -477,7 +454,7 @@ const config = this.getEngine().getConfig();
 
 > **initialize**(): `Promise`\<`void`\>
 
-Defined in: [src/managers/ACLManager.js:62](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/ACLManager.js#L62)
+Defined in: [src/managers/ACLManager.ts:176](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ACLManager.ts#L176)
 
 Initializes the ACLManager by loading policies and configurations
 
@@ -499,7 +476,7 @@ console.log('ACL system ready');
 
 #### Overrides
 
-[`export=`](../../BaseManager/classes/export=.md).[`initialize`](../../BaseManager/classes/export=.md#initialize)
+[`default`](../../BaseManager/classes/default.md).[`initialize`](../../BaseManager/classes/default.md#initialize)
 
 ***
 
@@ -507,7 +484,7 @@ console.log('ACL system ready');
 
 > **initializeAuditLogging**(): `Promise`\<`void`\>
 
-Defined in: [src/managers/ACLManager.js:78](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/ACLManager.js#L78)
+Defined in: [src/managers/ACLManager.ts:197](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ACLManager.ts#L197)
 
 Initialize audit logging system based on configuration.
 
@@ -521,7 +498,7 @@ Initialize audit logging system based on configuration.
 
 > **isInitialized**(): `boolean`
 
-Defined in: [src/managers/BaseManager.js:69](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/BaseManager.js#L69)
+Defined in: [src/managers/BaseManager.ts:114](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L114)
 
 Check if manager has been initialized
 
@@ -541,7 +518,7 @@ if (manager.isInitialized()) {
 
 #### Inherited from
 
-[`export=`](../../BaseManager/classes/export=.md).[`isInitialized`](../../BaseManager/classes/export=.md#isinitialized)
+[`default`](../../BaseManager/classes/default.md).[`isInitialized`](../../BaseManager/classes/default.md#isinitialized)
 
 ***
 
@@ -549,7 +526,7 @@ if (manager.isInitialized()) {
 
 > **loadAccessPolicies**(): `Promise`\<`void`\>
 
-Defined in: [src/managers/ACLManager.js:96](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/ACLManager.js#L96)
+Defined in: [src/managers/ACLManager.ts:219](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ACLManager.ts#L219)
 
 Load access policies from ConfigurationManager.
 
@@ -561,9 +538,9 @@ Load access policies from ConfigurationManager.
 
 ### logAccessDecision()
 
-> **logAccessDecision**(`userOrObj`, `pageName`, `action`, `allowed`, `reason`, `context`, ...`args`): `void`
+> **logAccessDecision**(`userOrObj`, `pageName?`, `action?`, `allowed?`, `reason?`, `context?`): `void`
 
-Defined in: [src/managers/ACLManager.js:662](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/ACLManager.js#L662)
+Defined in: [src/managers/ACLManager.ts:895](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ACLManager.ts#L895)
 
 Record/audit an access decision.
 Accepts either a single object or positional args for backward compatibility.
@@ -572,29 +549,27 @@ Accepts either a single object or positional args for backward compatibility.
 
 ##### userOrObj
 
-`any`
+`UserContext` | `AccessDecisionLog`
 
-##### pageName
+##### pageName?
 
-`any`
+`string`
 
-##### action
+##### action?
 
-`any`
+`string`
 
-##### allowed
+##### allowed?
 
-`any`
+`boolean`
 
-##### reason
+##### reason?
 
-`any`
+`string`
 
-##### context
+##### context?
 
-##### args
-
-...`any`[] = `{}`
+`Record`\<`string`, `unknown`\> = `{}`
 
 #### Returns
 
@@ -606,7 +581,7 @@ Accepts either a single object or positional args for backward compatibility.
 
 > **parsePageACL**(`content`): `Map`\<`string`, `Set`\<`string`\>\>
 
-Defined in: [src/managers/ACLManager.js:123](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/ACLManager.js#L123)
+Defined in: [src/managers/ACLManager.ts:250](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ACLManager.ts#L250)
 
 Parses JSPWiki-style ACL markup from page content
 
@@ -639,9 +614,9 @@ const acl = aclManager.parsePageACL('[{ALLOW view All}] [{ALLOW edit Admin}]');
 
 ### performStandardACLCheck()
 
-> **performStandardACLCheck**(`pageName`, `action`, `user`, `pageContent`): `boolean`
+> **performStandardACLCheck**(`pageName`, `action`, `user`, `pageContent`): `Promise`\<`boolean`\>
 
-Defined in: [src/managers/ACLManager.js:335](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/ACLManager.js#L335)
+Defined in: [src/managers/ACLManager.ts:474](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ACLManager.ts#L474)
 
 Perform standard ACL check (original logic)
 
@@ -661,7 +636,7 @@ Action to check
 
 ##### user
 
-`any`
+`UserContext`
 
 User object
 
@@ -673,7 +648,7 @@ Page content
 
 #### Returns
 
-`boolean`
+`Promise`\<`boolean`\>
 
 True if permission granted
 
@@ -681,9 +656,9 @@ True if permission granted
 
 ### removeACLMarkup()
 
-> **removeACLMarkup**(`content`): `any`
+> **removeACLMarkup**(`content`): `string`
 
-Defined in: [src/managers/ACLManager.js:696](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/ACLManager.js#L696)
+Defined in: [src/managers/ACLManager.ts:937](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ACLManager.ts#L937)
 
 Strip ACL markup from page content before rendering menus/partials.
 Supports common patterns: [{ALLOW ...}], [{DENY ...}], %%acl ... %%, (:acl ... :)
@@ -692,11 +667,11 @@ Supports common patterns: [{ALLOW ...}], [{DENY ...}], %%acl ... %%, (:acl ... :
 
 ##### content
 
-`any`
+`string`
 
 #### Returns
 
-`any`
+`string`
 
 ***
 
@@ -704,7 +679,7 @@ Supports common patterns: [{ALLOW ...}], [{DENY ...}], %%acl ... %%, (:acl ... :
 
 > **restore**(`backupData`): `Promise`\<`void`\>
 
-Defined in: [src/managers/BaseManager.js:163](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/BaseManager.js#L163)
+Defined in: [src/managers/BaseManager.ts:196](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L196)
 
 Restore manager data from backup
 
@@ -715,31 +690,13 @@ Default implementation only validates that backup data is provided.
 
 ##### backupData
 
+[`BackupData`](../../BaseManager/interfaces/BackupData.md)
+
 Backup data object from backup() method
-
-###### data
-
-`any`
-
-Manager-specific backup data
-
-###### managerName
-
-`string`
-
-Name of the manager
-
-###### timestamp
-
-`string`
-
-ISO timestamp of backup
 
 #### Returns
 
 `Promise`\<`void`\>
-
-#### Async
 
 #### Throws
 
@@ -748,7 +705,7 @@ If restore operation fails or backup data is missing
 #### Example
 
 ```ts
-async restore(backupData) {
+async restore(backupData: BackupData): Promise<void> {
   if (!backupData || !backupData.data) {
     throw new Error('Invalid backup data');
   }
@@ -759,7 +716,7 @@ async restore(backupData) {
 
 #### Inherited from
 
-[`export=`](../../BaseManager/classes/export=.md).[`restore`](../../BaseManager/classes/export=.md#restore)
+[`default`](../../BaseManager/classes/default.md).[`restore`](../../BaseManager/classes/default.md#restore)
 
 ***
 
@@ -767,7 +724,7 @@ async restore(backupData) {
 
 > **shutdown**(): `Promise`\<`void`\>
 
-Defined in: [src/managers/BaseManager.js:101](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/BaseManager.js#L101)
+Defined in: [src/managers/BaseManager.ts:143](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L143)
 
 Shutdown the manager and cleanup resources
 
@@ -778,12 +735,10 @@ Always call super.shutdown() at the end of overridden implementations.
 
 `Promise`\<`void`\>
 
-#### Async
-
 #### Example
 
 ```ts
-async shutdown() {
+async shutdown(): Promise<void> {
   // Your cleanup logic here
   await this.closeConnections();
   await super.shutdown();
@@ -792,22 +747,22 @@ async shutdown() {
 
 #### Inherited from
 
-[`export=`](../../BaseManager/classes/export=.md).[`shutdown`](../../BaseManager/classes/export=.md#shutdown)
+[`default`](../../BaseManager/classes/default.md).[`shutdown`](../../BaseManager/classes/default.md#shutdown)
 
 ***
 
 ### stripACLMarkup()
 
-> **stripACLMarkup**(`content`): `any`
+> **stripACLMarkup**(`content`): `string`
 
-Defined in: [src/managers/ACLManager.js:708](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/ACLManager.js#L708)
+Defined in: [src/managers/ACLManager.ts:949](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ACLManager.ts#L949)
 
 #### Parameters
 
 ##### content
 
-`any`
+`string`
 
 #### Returns
 
-`any`
+`string`

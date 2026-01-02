@@ -6,7 +6,7 @@
 
 # Interface: AuditSearchResults
 
-Defined in: [src/providers/BaseAuditProvider.ts:66](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAuditProvider.ts#L66)
+Defined in: [src/providers/BaseAuditProvider.ts:58](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L58)
 
 Audit search results
 
@@ -16,7 +16,7 @@ Audit search results
 
 > **hasMore**: `boolean`
 
-Defined in: [src/providers/BaseAuditProvider.ts:80](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAuditProvider.ts#L80)
+Defined in: [src/providers/BaseAuditProvider.ts:72](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L72)
 
 Whether more results are available
 
@@ -26,7 +26,7 @@ Whether more results are available
 
 > **limit**: `number`
 
-Defined in: [src/providers/BaseAuditProvider.ts:74](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAuditProvider.ts#L74)
+Defined in: [src/providers/BaseAuditProvider.ts:66](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L66)
 
 Result limit
 
@@ -36,7 +36,7 @@ Result limit
 
 > **offset**: `number`
 
-Defined in: [src/providers/BaseAuditProvider.ts:77](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAuditProvider.ts#L77)
+Defined in: [src/providers/BaseAuditProvider.ts:69](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L69)
 
 Result offset
 
@@ -46,7 +46,7 @@ Result offset
 
 > **results**: [`AuditEvent`](../../../types/Provider/interfaces/AuditEvent.md)[]
 
-Defined in: [src/providers/BaseAuditProvider.ts:68](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAuditProvider.ts#L68)
+Defined in: [src/providers/BaseAuditProvider.ts:60](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L60)
 
 Array of audit events
 
@@ -56,6 +56,6 @@ Array of audit events
 
 > **total**: `number`
 
-Defined in: [src/providers/BaseAuditProvider.ts:71](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAuditProvider.ts#L71)
+Defined in: [src/providers/BaseAuditProvider.ts:63](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L63)
 
 Total matching events

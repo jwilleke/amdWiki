@@ -6,7 +6,7 @@
 
 # Interface: VersionManifest
 
-Defined in: [src/types/Version.ts:57](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Version.ts#L57)
+Defined in: [src/types/Version.ts:57](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Version.ts#L57)
 
 Version manifest
 
@@ -19,7 +19,7 @@ in the page's version directory.
 
 > `optional` **config**: `object`
 
-Defined in: [src/types/Version.ts:80](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Version.ts#L80)
+Defined in: [src/types/Version.ts:80](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Version.ts#L80)
 
 Versioning configuration at time of creation
 
@@ -41,7 +41,7 @@ Versioning configuration at time of creation
 
 > **createdAt**: `string`
 
-Defined in: [src/types/Version.ts:74](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Version.ts#L74)
+Defined in: [src/types/Version.ts:74](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Version.ts#L74)
 
 Manifest creation timestamp
 
@@ -51,7 +51,7 @@ Manifest creation timestamp
 
 > **currentVersion**: `number`
 
-Defined in: [src/types/Version.ts:68](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Version.ts#L68)
+Defined in: [src/types/Version.ts:68](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Version.ts#L68)
 
 Current version number
 
@@ -61,7 +61,7 @@ Current version number
 
 > **pageTitle**: `string`
 
-Defined in: [src/types/Version.ts:62](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Version.ts#L62)
+Defined in: [src/types/Version.ts:62](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Version.ts#L62)
 
 Page title (for reference)
 
@@ -71,7 +71,7 @@ Page title (for reference)
 
 > **pageUuid**: `string`
 
-Defined in: [src/types/Version.ts:59](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Version.ts#L59)
+Defined in: [src/types/Version.ts:59](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Version.ts#L59)
 
 Page UUID
 
@@ -81,7 +81,7 @@ Page UUID
 
 > **totalVersions**: `number`
 
-Defined in: [src/types/Version.ts:65](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Version.ts#L65)
+Defined in: [src/types/Version.ts:65](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Version.ts#L65)
 
 Total number of versions
 
@@ -91,7 +91,7 @@ Total number of versions
 
 > **updatedAt**: `string`
 
-Defined in: [src/types/Version.ts:77](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Version.ts#L77)
+Defined in: [src/types/Version.ts:77](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Version.ts#L77)
 
 Last manifest update timestamp
 
@@ -101,6 +101,6 @@ Last manifest update timestamp
 
 > **versions**: [`VersionMetadata`](VersionMetadata.md)[]
 
-Defined in: [src/types/Version.ts:71](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Version.ts#L71)
+Defined in: [src/types/Version.ts:71](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Version.ts#L71)
 
 Array of version metadata (sorted by version number)

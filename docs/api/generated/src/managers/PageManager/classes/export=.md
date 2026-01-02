@@ -6,7 +6,7 @@
 
 # Class: export=
 
-Defined in: [src/managers/PageManager.js:31](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PageManager.js#L31)
+Defined in: [src/managers/PageManager.ts:69](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PageManager.ts#L69)
 
 PageManager - Manages wiki page operations through a pluggable provider system
 
@@ -15,7 +15,6 @@ is abstracted behind a provider interface. This allows for different storage
 backends (filesystem, database, cloud, etc.) to be swapped via configuration.
 
 The PageManager acts as a thin coordinator that:
-
 - Loads the configured provider (via "amdwiki.page.provider")
 - Proxies all page operations to the provider
 - Maintains the public API for backward compatibility
@@ -24,8 +23,8 @@ The PageManager acts as a thin coordinator that:
 
 ## See
 
-- [BaseManager](../../BaseManager/classes/export=.md) for base functionality
-- [FileSystemProvider](../../../providers/FileSystemProvider/README.md) for default provider implementation
+ - [BaseManager](../../BaseManager/classes/default.md) for base functionality
+ - FileSystemProvider for default provider implementation
 
 ## Example
 
@@ -37,7 +36,7 @@ console.log(page.content);
 
 ## Extends
 
-- [`export=`](../../BaseManager/classes/export=.md)
+- [`default`](../../BaseManager/classes/default.md)
 
 ## Constructors
 
@@ -45,7 +44,7 @@ console.log(page.content);
 
 > **new export=**(`engine`): `PageManager`
 
-Defined in: [src/managers/PageManager.js:38](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PageManager.js#L38)
+Defined in: [src/managers/PageManager.ts:79](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PageManager.ts#L79)
 
 Creates a new PageManager instance
 
@@ -53,7 +52,7 @@ Creates a new PageManager instance
 
 ##### engine
 
-`WikiEngine`
+[`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
 The wiki engine instance
 
@@ -63,77 +62,57 @@ The wiki engine instance
 
 #### Overrides
 
-[`export=`](../../BaseManager/classes/export=.md).[`constructor`](../../BaseManager/classes/export=.md#constructor)
+[`default`](../../BaseManager/classes/default.md).[`constructor`](../../BaseManager/classes/default.md#constructor)
 
 ## Properties
 
-### config
+### config?
 
-> **config**: `any`
+> `protected` `optional` **config**: `Record`\<`string`, `any`\>
 
-Defined in: [src/managers/BaseManager.js:55](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/BaseManager.js#L55)
+Defined in: [src/managers/BaseManager.ts:63](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L63)
 
-Configuration object passed during initialization
+Configuration passed during initialization
 
 #### Inherited from
 
-[`export=`](../../BaseManager/classes/export=.md).[`config`](../../BaseManager/classes/export=.md#config)
+[`default`](../../BaseManager/classes/default.md).[`config`](../../BaseManager/classes/default.md#config)
 
 ***
 
 ### engine
 
-> **engine**: `WikiEngine`
+> `protected` **engine**: [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/managers/BaseManager.js:33](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/BaseManager.js#L33)
+Defined in: [src/managers/BaseManager.ts:56](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L56)
 
 Reference to the wiki engine
 
 #### Inherited from
 
-[`export=`](../../BaseManager/classes/export=.md).[`engine`](../../BaseManager/classes/export=.md#engine)
+[`default`](../../BaseManager/classes/default.md).[`engine`](../../BaseManager/classes/default.md#engine)
 
 ***
 
 ### initialized
 
-> **initialized**: `boolean`
+> `protected` **initialized**: `boolean`
 
-Defined in: [src/managers/BaseManager.js:34](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/BaseManager.js#L34)
+Defined in: [src/managers/BaseManager.ts:59](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L59)
 
-Flag indicating initialization status
+Initialization status flag
 
 #### Inherited from
 
-[`export=`](../../BaseManager/classes/export=.md).[`initialized`](../../BaseManager/classes/export=.md#initialized)
-
-***
-
-### provider
-
-> **provider**: `any`
-
-Defined in: [src/managers/PageManager.js:40](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PageManager.js#L40)
-
-The active page storage provider
-
-***
-
-### providerClass
-
-> **providerClass**: `string`
-
-Defined in: [src/managers/PageManager.js:84](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PageManager.js#L84)
-
-The class name of the loaded provider
+[`default`](../../BaseManager/classes/default.md).[`initialized`](../../BaseManager/classes/default.md#initialized)
 
 ## Methods
 
 ### backup()
 
-> **backup**(): `Promise`\<`any`\>
+> **backup**(): `Promise`\<[`BackupData`](../../BaseManager/interfaces/BackupData.md)\>
 
-Defined in: [src/managers/PageManager.js:391](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PageManager.js#L391)
+Defined in: [src/managers/PageManager.ts:474](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PageManager.ts#L474)
 
 Backup all pages through the provider
 
@@ -142,13 +121,13 @@ The backup includes all page content, metadata, and directory structure.
 
 #### Returns
 
-`Promise`\<`any`\>
+`Promise`\<[`BackupData`](../../BaseManager/interfaces/BackupData.md)\>
 
 Backup data from provider
 
 #### Overrides
 
-[`export=`](../../BaseManager/classes/export=.md).[`backup`](../../BaseManager/classes/export=.md#backup)
+[`default`](../../BaseManager/classes/default.md).[`backup`](../../BaseManager/classes/default.md#backup)
 
 ***
 
@@ -156,7 +135,7 @@ Backup data from provider
 
 > **deletePage**(`identifier`): `Promise`\<`boolean`\>
 
-Defined in: [src/managers/PageManager.js:314](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PageManager.js#L314)
+Defined in: [src/managers/PageManager.ts:384](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PageManager.ts#L384)
 
 Delete a page
 
@@ -195,7 +174,7 @@ if (deleted) console.log('Page removed');
 
 > **deletePageWithContext**(`wikiContext`): `Promise`\<`boolean`\>
 
-Defined in: [src/managers/PageManager.js:287](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PageManager.js#L287)
+Defined in: [src/managers/PageManager.ts:353](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PageManager.ts#L353)
 
 Delete a page using WikiContext
 
@@ -231,7 +210,7 @@ if (deleted) console.log('Page removed');
 
 > **getAllPages**(): `Promise`\<`string`[]\>
 
-Defined in: [src/managers/PageManager.js:347](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PageManager.js#L347)
+Defined in: [src/managers/PageManager.ts:423](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PageManager.ts#L423)
 
 Get all page titles
 
@@ -256,15 +235,15 @@ console.log('Total pages:', pages.length);
 
 ### getCurrentPageProvider()
 
-> **getCurrentPageProvider**(): `BasePageProvider`
+> **getCurrentPageProvider**(): [`PageProvider`](../../../types/Provider/interfaces/PageProvider.md)
 
-Defined in: [src/managers/PageManager.js:152](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PageManager.js#L152)
+Defined in: [src/managers/PageManager.ts:207](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PageManager.ts#L207)
 
 Get the current page provider instance
 
 #### Returns
 
-`BasePageProvider`
+[`PageProvider`](../../../types/Provider/interfaces/PageProvider.md)
 
 The active provider instance
 
@@ -280,15 +259,15 @@ console.log('Using:', info.name);
 
 ### getEngine()
 
-> **getEngine**(): `WikiEngine`
+> **getEngine**(): [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/managers/BaseManager.js:81](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/BaseManager.js#L81)
+Defined in: [src/managers/BaseManager.ts:126](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L126)
 
 Get the wiki engine instance
 
 #### Returns
 
-`WikiEngine`
+[`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
 The wiki engine instance
 
@@ -300,15 +279,15 @@ const config = this.getEngine().getConfig();
 
 #### Inherited from
 
-[`export=`](../../BaseManager/classes/export=.md).[`getEngine`](../../BaseManager/classes/export=.md#getengine)
+[`default`](../../BaseManager/classes/default.md).[`getEngine`](../../BaseManager/classes/default.md#getengine)
 
 ***
 
 ### getPage()
 
-> **getPage**(`identifier`): `Promise`\<`any`\>
+> **getPage**(`identifier`): `Promise`\<[`WikiPage`](../../../types/Page/interfaces/WikiPage.md)\>
 
-Defined in: [src/managers/PageManager.js:179](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PageManager.js#L179)
+Defined in: [src/managers/PageManager.ts:229](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PageManager.ts#L229)
 
 Get complete page with content and metadata
 
@@ -325,7 +304,7 @@ Page UUID, title, or slug
 
 #### Returns
 
-`Promise`\<`any`\>
+`Promise`\<[`WikiPage`](../../../types/Page/interfaces/WikiPage.md)\>
 
 Page object or null if not found
 
@@ -344,7 +323,7 @@ console.log(page.title, page.metadata.author);
 
 > **getPageContent**(`identifier`): `Promise`\<`string`\>
 
-Defined in: [src/managers/PageManager.js:196](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PageManager.js#L196)
+Defined in: [src/managers/PageManager.ts:249](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PageManager.ts#L249)
 
 Get only page content (without metadata)
 
@@ -377,9 +356,9 @@ console.log(content);
 
 ### getPageMetadata()
 
-> **getPageMetadata**(`identifier`): `Promise`\<`any`\>
+> **getPageMetadata**(`identifier`): `Promise`\<[`PageFrontmatter`](../../../types/Page/interfaces/PageFrontmatter.md)\>
 
-Defined in: [src/managers/PageManager.js:213](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PageManager.js#L213)
+Defined in: [src/managers/PageManager.ts:269](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PageManager.ts#L269)
 
 Get only page metadata (without content)
 
@@ -395,7 +374,7 @@ Page UUID, title, or slug
 
 #### Returns
 
-`Promise`\<`any`\>
+`Promise`\<[`PageFrontmatter`](../../../types/Page/interfaces/PageFrontmatter.md)\>
 
 Metadata object or null if not found
 
@@ -414,7 +393,7 @@ console.log('Author:', meta.author);
 
 > **initialize**(`config?`): `Promise`\<`void`\>
 
-Defined in: [src/managers/PageManager.js:58](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PageManager.js#L58)
+Defined in: [src/managers/PageManager.ts:98](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PageManager.ts#L98)
 
 Initialize the PageManager by loading and initializing the configured provider
 
@@ -425,7 +404,7 @@ The provider name is normalized from lowercase (config) to PascalCase (class nam
 
 ##### config?
 
-`any` = `{}`
+`Record`\<`string`, `unknown`\> = `{}`
 
 Configuration object (unused, reads from ConfigurationManager)
 
@@ -448,7 +427,7 @@ await pageManager.initialize();
 
 #### Overrides
 
-[`export=`](../../BaseManager/classes/export=.md).[`initialize`](../../BaseManager/classes/export=.md#initialize)
+[`default`](../../BaseManager/classes/default.md).[`initialize`](../../BaseManager/classes/default.md#initialize)
 
 ***
 
@@ -456,7 +435,7 @@ await pageManager.initialize();
 
 > **isInitialized**(): `boolean`
 
-Defined in: [src/managers/BaseManager.js:69](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/BaseManager.js#L69)
+Defined in: [src/managers/BaseManager.ts:114](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L114)
 
 Check if manager has been initialized
 
@@ -476,7 +455,7 @@ if (manager.isInitialized()) {
 
 #### Inherited from
 
-[`export=`](../../BaseManager/classes/export=.md).[`isInitialized`](../../BaseManager/classes/export=.md#isinitialized)
+[`default`](../../BaseManager/classes/default.md).[`isInitialized`](../../BaseManager/classes/default.md#isinitialized)
 
 ***
 
@@ -484,7 +463,7 @@ if (manager.isInitialized()) {
 
 > **pageExists**(`identifier`): `boolean`
 
-Defined in: [src/managers/PageManager.js:331](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PageManager.js#L331)
+Defined in: [src/managers/PageManager.ts:404](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PageManager.ts#L404)
 
 Check if page exists
 
@@ -518,7 +497,7 @@ if (pageManager.pageExists('Main')) {
 
 > **refreshPageList**(): `Promise`\<`void`\>
 
-Defined in: [src/managers/PageManager.js:364](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PageManager.js#L364)
+Defined in: [src/managers/PageManager.ts:443](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PageManager.ts#L443)
 
 Refresh internal cache/index
 
@@ -544,7 +523,7 @@ console.log('Page list refreshed');
 
 > **restore**(`backupData`): `Promise`\<`void`\>
 
-Defined in: [src/managers/PageManager.js:429](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PageManager.js#L429)
+Defined in: [src/managers/PageManager.ts:514](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PageManager.ts#L514)
 
 Restore pages from backup data
 
@@ -555,7 +534,7 @@ from the backup data.
 
 ##### backupData
 
-`any`
+[`BackupData`](../../BaseManager/interfaces/BackupData.md)
 
 Backup data from backup() method
 
@@ -565,7 +544,7 @@ Backup data from backup() method
 
 #### Overrides
 
-[`export=`](../../BaseManager/classes/export=.md).[`restore`](../../BaseManager/classes/export=.md#restore)
+[`default`](../../BaseManager/classes/default.md).[`restore`](../../BaseManager/classes/default.md#restore)
 
 ***
 
@@ -573,7 +552,7 @@ Backup data from backup() method
 
 > **savePage**(`pageName`, `content`, `metadata?`): `Promise`\<`void`\>
 
-Defined in: [src/managers/PageManager.js:269](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PageManager.js#L269)
+Defined in: [src/managers/PageManager.ts:332](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PageManager.ts#L332)
 
 Save page content and metadata
 
@@ -596,7 +575,7 @@ Markdown content
 
 ##### metadata?
 
-`any` = `{}`
+`Partial`\<[`PageFrontmatter`](../../../types/Page/interfaces/PageFrontmatter.md)\> = `{}`
 
 Frontmatter metadata
 
@@ -625,7 +604,7 @@ await pageManager.savePage('New Page', '# Hello World', {
 
 > **savePageWithContext**(`wikiContext`, `metadata?`): `Promise`\<`void`\>
 
-Defined in: [src/managers/PageManager.js:233](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PageManager.js#L233)
+Defined in: [src/managers/PageManager.ts:292](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PageManager.ts#L292)
 
 Save page content and metadata using WikiContext
 
@@ -642,7 +621,7 @@ The wiki context containing page and user info
 
 ##### metadata?
 
-`any` = `{}`
+`Partial`\<[`PageFrontmatter`](../../../types/Page/interfaces/PageFrontmatter.md)\> = `{}`
 
 Additional frontmatter metadata
 
@@ -666,7 +645,7 @@ await pageManager.savePageWithContext(wikiContext, {
 
 > **shutdown**(): `Promise`\<`void`\>
 
-Defined in: [src/managers/PageManager.js:376](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PageManager.js#L376)
+Defined in: [src/managers/PageManager.ts:458](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PageManager.ts#L458)
 
 Shutdown the PageManager and its provider
 
@@ -680,4 +659,4 @@ Cleanly shuts down the provider, closing connections and flushing caches.
 
 #### Overrides
 
-[`export=`](../../BaseManager/classes/export=.md).[`shutdown`](../../BaseManager/classes/export=.md#shutdown)
+[`default`](../../BaseManager/classes/default.md).[`shutdown`](../../BaseManager/classes/default.md#shutdown)

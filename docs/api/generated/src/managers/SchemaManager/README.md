@@ -8,4 +8,8 @@
 
 ## Classes
 
-- [export=](classes/export=.md)
+- [default](classes/default.md)
+
+## Type Aliases
+
+- [JSONSchema](type-aliases/JSONSchema.md)

@@ -8,4 +8,13 @@
 
 ## Classes
 
-- [export=](classes/export=.md)
+- [default](classes/default.md)
+
+## Interfaces
+
+- [CacheSetOptions](interfaces/CacheSetOptions.md)
+- [RegionStats](interfaces/RegionStats.md)
+
+## Type Aliases
+
+- [CacheFactory](type-aliases/CacheFactory.md)

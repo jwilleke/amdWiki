@@ -6,7 +6,7 @@
 
 # Interface: SearchOptions
 
-Defined in: [src/providers/BaseSearchProvider.ts:65](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseSearchProvider.ts#L65)
+Defined in: [src/providers/BaseSearchProvider.ts:56](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseSearchProvider.ts#L56)
 
 Search options structure
 
@@ -16,7 +16,7 @@ Search options structure
 
 > `optional` **categories**: `string`[]
 
-Defined in: [src/providers/BaseSearchProvider.ts:73](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseSearchProvider.ts#L73)
+Defined in: [src/providers/BaseSearchProvider.ts:64](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseSearchProvider.ts#L64)
 
 Filter by categories
 
@@ -26,7 +26,7 @@ Filter by categories
 
 > `optional` **maxResults**: `number`
 
-Defined in: [src/providers/BaseSearchProvider.ts:67](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseSearchProvider.ts#L67)
+Defined in: [src/providers/BaseSearchProvider.ts:58](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseSearchProvider.ts#L58)
 
 Maximum number of results to return
 
@@ -36,7 +36,7 @@ Maximum number of results to return
 
 > `optional` **searchIn**: `string`[]
 
-Defined in: [src/providers/BaseSearchProvider.ts:70](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseSearchProvider.ts#L70)
+Defined in: [src/providers/BaseSearchProvider.ts:61](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseSearchProvider.ts#L61)
 
 Fields to search in
 
@@ -46,6 +46,6 @@ Fields to search in
 
 > `optional` **userKeywords**: `string`[]
 
-Defined in: [src/providers/BaseSearchProvider.ts:76](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseSearchProvider.ts#L76)
+Defined in: [src/providers/BaseSearchProvider.ts:67](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseSearchProvider.ts#L67)
 
 Filter by user keywords

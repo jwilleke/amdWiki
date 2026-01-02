@@ -8,7 +8,7 @@
 
 > **isVersionMetadata**(`value`): `value is VersionMetadata`
 
-Defined in: [src/types/guards.ts:111](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/guards.ts#L111)
+Defined in: [src/types/guards.ts:117](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/guards.ts#L117)
 
 Check if value is a valid VersionMetadata object
 
@@ -16,7 +16,7 @@ Check if value is a valid VersionMetadata object
 
 ### value
 
-`any`
+`unknown`
 
 ## Returns
 

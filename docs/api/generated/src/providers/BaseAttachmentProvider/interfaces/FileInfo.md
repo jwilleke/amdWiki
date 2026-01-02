@@ -6,7 +6,7 @@
 
 # Interface: FileInfo
 
-Defined in: [src/providers/BaseAttachmentProvider.ts:8](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAttachmentProvider.ts#L8)
+Defined in: [src/providers/BaseAttachmentProvider.ts:11](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAttachmentProvider.ts#L11)
 
 File information for attachment uploads
 
@@ -16,7 +16,7 @@ File information for attachment uploads
 
 > **mimeType**: `string`
 
-Defined in: [src/providers/BaseAttachmentProvider.ts:12](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAttachmentProvider.ts#L12)
+Defined in: [src/providers/BaseAttachmentProvider.ts:15](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAttachmentProvider.ts#L15)
 
 MIME type
 
@@ -26,7 +26,7 @@ MIME type
 
 > **originalName**: `string`
 
-Defined in: [src/providers/BaseAttachmentProvider.ts:10](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAttachmentProvider.ts#L10)
+Defined in: [src/providers/BaseAttachmentProvider.ts:13](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAttachmentProvider.ts#L13)
 
 Original filename
 
@@ -36,6 +36,6 @@ Original filename
 
 > **size**: `number`
 
-Defined in: [src/providers/BaseAttachmentProvider.ts:14](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAttachmentProvider.ts#L14)
+Defined in: [src/providers/BaseAttachmentProvider.ts:17](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAttachmentProvider.ts#L17)
 
 File size in bytes

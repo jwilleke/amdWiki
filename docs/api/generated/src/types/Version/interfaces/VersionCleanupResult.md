@@ -6,7 +6,7 @@
 
 # Interface: VersionCleanupResult
 
-Defined in: [src/types/Version.ts:227](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Version.ts#L227)
+Defined in: [src/types/Version.ts:227](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Version.ts#L227)
 
 Version cleanup result
 
@@ -18,7 +18,7 @@ Result of running version cleanup/maintenance.
 
 > **deletedVersions**: `number`[]
 
-Defined in: [src/types/Version.ts:244](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Version.ts#L244)
+Defined in: [src/types/Version.ts:244](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Version.ts#L244)
 
 Deleted version numbers
 
@@ -28,7 +28,7 @@ Deleted version numbers
 
 > `optional` **errors**: `string`[]
 
-Defined in: [src/types/Version.ts:247](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Version.ts#L247)
+Defined in: [src/types/Version.ts:247](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Version.ts#L247)
 
 Errors encountered
 
@@ -38,7 +38,7 @@ Errors encountered
 
 > **pageUuid**: `string`
 
-Defined in: [src/types/Version.ts:229](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Version.ts#L229)
+Defined in: [src/types/Version.ts:229](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Version.ts#L229)
 
 Page UUID
 
@@ -48,7 +48,7 @@ Page UUID
 
 > **spaceFreed**: `number`
 
-Defined in: [src/types/Version.ts:241](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Version.ts#L241)
+Defined in: [src/types/Version.ts:241](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Version.ts#L241)
 
 Space freed in bytes
 
@@ -58,7 +58,7 @@ Space freed in bytes
 
 > **versionsAfter**: `number`
 
-Defined in: [src/types/Version.ts:235](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Version.ts#L235)
+Defined in: [src/types/Version.ts:235](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Version.ts#L235)
 
 Number of versions after cleanup
 
@@ -68,7 +68,7 @@ Number of versions after cleanup
 
 > **versionsBefore**: `number`
 
-Defined in: [src/types/Version.ts:232](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Version.ts#L232)
+Defined in: [src/types/Version.ts:232](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Version.ts#L232)
 
 Number of versions before cleanup
 
@@ -78,6 +78,6 @@ Number of versions before cleanup
 
 > **versionsDeleted**: `number`
 
-Defined in: [src/types/Version.ts:238](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Version.ts#L238)
+Defined in: [src/types/Version.ts:238](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Version.ts#L238)
 
 Number of versions deleted

@@ -10,3 +10,20 @@
 
 - [DOMParser](classes/DOMParser.md)
 - [ParseError](classes/ParseError.md)
+
+## Interfaces
+
+- [DOMParserOptions](interfaces/DOMParserOptions.md)
+- [ErrorInfo](interfaces/ErrorInfo.md)
+- [ExtendedStatistics](interfaces/ExtendedStatistics.md)
+- [ParseStatistics](interfaces/ParseStatistics.md)
+- [RenderContext](interfaces/RenderContext.md)
+- [Token](interfaces/Token.md)
+- [ValidationResult](interfaces/ValidationResult.md)
+- [WarningInfo](interfaces/WarningInfo.md)
+
+## References
+
+### default
+
+Renames and re-exports [DOMParser](classes/DOMParser.md)

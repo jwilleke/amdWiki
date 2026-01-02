@@ -1,0 +1,416 @@
+[**amdWiki API v1.5.0**](../../../../README.md)
+
+***
+
+[amdWiki API](../../../../README.md) / [src/managers/BackupManager](../README.md) / default
+
+# Class: default
+
+Defined in: [src/managers/BackupManager.ts:91](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BackupManager.ts#L91)
+
+BackupManager - Coordinates backup and restore operations across all managers
+
+Orchestrates system-wide backup and restore by calling backup()/restore()
+on all registered managers and aggregating their data into compressed archives.
+
+Responsibilities:
+- Call backup() on all registered managers
+- Aggregate backup data into a single .gz file
+- Restore from .gz backup file
+- Call restore() on all registered managers
+
+Architecture:
+- Each manager implements backup() to return its state
+- BackupManager collects all states into one object
+- Serializes to JSON and compresses with gzip
+- Stores as single .gz file
+
+ BackupManager
+
+## See
+
+[BaseManager](../../BaseManager/classes/default.md) for base functionality and backup() pattern
+
+## Example
+
+```ts
+const backupManager = engine.getManager('BackupManager');
+const backupPath = await backupManager.createBackup();
+console.log('Backup created:', backupPath);
+```
+
+## Extends
+
+- [`default`](../../BaseManager/classes/default.md)
+
+## Constructors
+
+### Constructor
+
+> **new default**(`engine`): `BackupManager`
+
+Defined in: [src/managers/BackupManager.ts:102](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BackupManager.ts#L102)
+
+Creates a new BackupManager instance
+
+#### Parameters
+
+##### engine
+
+[`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
+
+The wiki engine instance
+
+#### Returns
+
+`BackupManager`
+
+#### Overrides
+
+[`default`](../../BaseManager/classes/default.md).[`constructor`](../../BaseManager/classes/default.md#constructor)
+
+## Properties
+
+### config?
+
+> `protected` `optional` **config**: `Record`\<`string`, `any`\>
+
+Defined in: [src/managers/BaseManager.ts:63](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L63)
+
+Configuration passed during initialization
+
+#### Inherited from
+
+[`default`](../../BaseManager/classes/default.md).[`config`](../../BaseManager/classes/default.md#config)
+
+***
+
+### engine
+
+> `protected` **engine**: [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
+
+Defined in: [src/managers/BaseManager.ts:56](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L56)
+
+Reference to the wiki engine
+
+#### Inherited from
+
+[`default`](../../BaseManager/classes/default.md).[`engine`](../../BaseManager/classes/default.md#engine)
+
+***
+
+### initialized
+
+> `protected` **initialized**: `boolean`
+
+Defined in: [src/managers/BaseManager.ts:59](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L59)
+
+Initialization status flag
+
+#### Inherited from
+
+[`default`](../../BaseManager/classes/default.md).[`initialized`](../../BaseManager/classes/default.md#initialized)
+
+## Methods
+
+### backup()
+
+> **backup**(): `Promise`\<[`BackupData`](../../BaseManager/interfaces/BackupData.md)\>
+
+Defined in: [src/managers/BackupManager.ts:148](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BackupManager.ts#L148)
+
+Backup BackupManager's own state (conforms to BaseManager interface)
+
+#### Returns
+
+`Promise`\<[`BackupData`](../../BaseManager/interfaces/BackupData.md)\>
+
+Backup data for this manager
+
+#### Overrides
+
+[`default`](../../BaseManager/classes/default.md).[`backup`](../../BaseManager/classes/default.md#backup)
+
+***
+
+### createBackup()
+
+> **createBackup**(`options`): `Promise`\<`string`\>
+
+Defined in: [src/managers/BackupManager.ts:188](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BackupManager.ts#L188)
+
+Perform a complete backup of all managers to a file
+
+Process:
+1. Get all registered managers from engine
+2. Call backup() on each manager
+3. Aggregate all backup data
+4. Compress to .gz file
+5. Save with timestamp
+6. Clean up old backups
+
+#### Parameters
+
+##### options
+
+[`BackupOptions`](../interfaces/BackupOptions.md) = `{}`
+
+Backup options
+
+#### Returns
+
+`Promise`\<`string`\>
+
+Path to created backup file
+
+***
+
+### getEngine()
+
+> **getEngine**(): [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
+
+Defined in: [src/managers/BaseManager.ts:126](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L126)
+
+Get the wiki engine instance
+
+#### Returns
+
+[`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
+
+The wiki engine instance
+
+#### Example
+
+```ts
+const config = this.getEngine().getConfig();
+```
+
+#### Inherited from
+
+[`default`](../../BaseManager/classes/default.md).[`getEngine`](../../BaseManager/classes/default.md#getengine)
+
+***
+
+### getLatestBackup()
+
+> **getLatestBackup**(): `Promise`\<`string`\>
+
+Defined in: [src/managers/BackupManager.ts:493](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BackupManager.ts#L493)
+
+Get the most recent backup file path
+
+#### Returns
+
+`Promise`\<`string`\>
+
+Path to most recent backup, or null if none exist
+
+***
+
+### initialize()
+
+> **initialize**(`config?`): `Promise`\<`void`\>
+
+Defined in: [src/managers/BackupManager.ts:117](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BackupManager.ts#L117)
+
+Initialize BackupManager
+
+#### Parameters
+
+##### config?
+
+`Record`\<`string`, `unknown`\> = `{}`
+
+Configuration object (unused, reads from ConfigurationManager)
+
+#### Returns
+
+`Promise`\<`void`\>
+
+#### Async
+
+#### Throws
+
+If ConfigurationManager is not available
+
+#### Overrides
+
+[`default`](../../BaseManager/classes/default.md).[`initialize`](../../BaseManager/classes/default.md#initialize)
+
+***
+
+### isInitialized()
+
+> **isInitialized**(): `boolean`
+
+Defined in: [src/managers/BaseManager.ts:114](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L114)
+
+Check if manager has been initialized
+
+#### Returns
+
+`boolean`
+
+True if manager is initialized
+
+#### Example
+
+```ts
+if (manager.isInitialized()) {
+  // Safe to use manager
+}
+```
+
+#### Inherited from
+
+[`default`](../../BaseManager/classes/default.md).[`isInitialized`](../../BaseManager/classes/default.md#isinitialized)
+
+***
+
+### listBackups()
+
+> **listBackups**(): `Promise`\<[`BackupFileInfo`](../interfaces/BackupFileInfo.md)[]\>
+
+Defined in: [src/managers/BackupManager.ts:417](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BackupManager.ts#L417)
+
+List all available backups
+
+#### Returns
+
+`Promise`\<[`BackupFileInfo`](../interfaces/BackupFileInfo.md)[]\>
+
+List of backup files with metadata
+
+***
+
+### restore()
+
+> **restore**(`backupData`): `Promise`\<`void`\>
+
+Defined in: [src/managers/BaseManager.ts:196](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L196)
+
+Restore manager data from backup
+
+MUST be overridden by all managers that manage persistent data.
+Default implementation only validates that backup data is provided.
+
+#### Parameters
+
+##### backupData
+
+[`BackupData`](../../BaseManager/interfaces/BackupData.md)
+
+Backup data object from backup() method
+
+#### Returns
+
+`Promise`\<`void`\>
+
+#### Throws
+
+If restore operation fails or backup data is missing
+
+#### Example
+
+```ts
+async restore(backupData: BackupData): Promise<void> {
+  if (!backupData || !backupData.data) {
+    throw new Error('Invalid backup data');
+  }
+  this.users = new Map(backupData.data.users.map(u => [u.id, u]));
+  this.settings = backupData.data.settings;
+}
+```
+
+#### Inherited from
+
+[`default`](../../BaseManager/classes/default.md).[`restore`](../../BaseManager/classes/default.md#restore)
+
+***
+
+### restoreFromFile()
+
+> **restoreFromFile**(`backupPath`, `options`): `Promise`\<[`RestoreResults`](../interfaces/RestoreResults.md)\>
+
+Defined in: [src/managers/BackupManager.ts:292](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BackupManager.ts#L292)
+
+Restore all managers from a backup file
+
+Process:
+1. Read and decompress backup file
+2. Parse JSON data
+3. Validate backup structure
+4. Call restore() on each manager with its data
+
+#### Parameters
+
+##### backupPath
+
+`string`
+
+Path to backup file
+
+##### options
+
+[`RestoreOptions`](../interfaces/RestoreOptions.md) = `{}`
+
+Restore options
+
+#### Returns
+
+`Promise`\<[`RestoreResults`](../interfaces/RestoreResults.md)\>
+
+Restore results
+
+***
+
+### restoreState()
+
+> **restoreState**(`backupData`): `Promise`\<`void`\>
+
+Defined in: [src/managers/BackupManager.ts:165](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BackupManager.ts#L165)
+
+Restore BackupManager's own state (conforms to BaseManager interface)
+
+#### Parameters
+
+##### backupData
+
+[`BackupData`](../../BaseManager/interfaces/BackupData.md)
+
+Backup data from backup()
+
+#### Returns
+
+`Promise`\<`void`\>
+
+***
+
+### shutdown()
+
+> **shutdown**(): `Promise`\<`void`\>
+
+Defined in: [src/managers/BaseManager.ts:143](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L143)
+
+Shutdown the manager and cleanup resources
+
+Override this method in subclasses to perform cleanup logic.
+Always call super.shutdown() at the end of overridden implementations.
+
+#### Returns
+
+`Promise`\<`void`\>
+
+#### Example
+
+```ts
+async shutdown(): Promise<void> {
+  // Your cleanup logic here
+  await this.closeConnections();
+  await super.shutdown();
+}
+```
+
+#### Inherited from
+
+[`default`](../../BaseManager/classes/default.md).[`shutdown`](../../BaseManager/classes/default.md#shutdown)

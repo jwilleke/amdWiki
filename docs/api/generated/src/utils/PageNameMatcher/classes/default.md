@@ -6,7 +6,7 @@
 
 # Class: default
 
-Defined in: [src/utils/PageNameMatcher.ts:12](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/utils/PageNameMatcher.ts#L12)
+Defined in: [src/utils/PageNameMatcher.ts:12](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/PageNameMatcher.ts#L12)
 
 PageNameMatcher - Utility for matching page names with plural and case variations
 
@@ -27,7 +27,7 @@ matcher.findMatch('Categories', ['Category']); // Returns 'Category'
 
 > **new default**(`matchEnglishPlurals`): `PageNameMatcher`
 
-Defined in: [src/utils/PageNameMatcher.ts:20](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/utils/PageNameMatcher.ts#L20)
+Defined in: [src/utils/PageNameMatcher.ts:20](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/PageNameMatcher.ts#L20)
 
 Creates a new PageNameMatcher instance
 
@@ -49,7 +49,7 @@ Enable plural matching (default: true)
 
 > **findConflict**(`newPageName`, `existingNames`): `string`
 
-Defined in: [src/utils/PageNameMatcher.ts:159](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/utils/PageNameMatcher.ts#L159)
+Defined in: [src/utils/PageNameMatcher.ts:159](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/PageNameMatcher.ts#L159)
 
 Check if a page name conflicts with any existing pages (considering plurals)
 Used when creating new pages to prevent creating "Click" when "Clicks" exists
@@ -80,7 +80,7 @@ The conflicting page name, or null if no conflict
 
 > **findMatch**(`searchName`, `existingNames`): `string`
 
-Defined in: [src/utils/PageNameMatcher.ts:116](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/utils/PageNameMatcher.ts#L116)
+Defined in: [src/utils/PageNameMatcher.ts:116](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/PageNameMatcher.ts#L116)
 
 Find a matching page name from a list of existing page names
 
@@ -110,7 +110,7 @@ The matching page name, or null if not found
 
 > **getVariations**(`pageName`): `string`[]
 
-Defined in: [src/utils/PageNameMatcher.ts:41](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/utils/PageNameMatcher.ts#L41)
+Defined in: [src/utils/PageNameMatcher.ts:41](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/PageNameMatcher.ts#L41)
 
 Get all possible plural/singular variations of a page name
 
@@ -134,7 +134,7 @@ Array of possible variations (all lowercase)
 
 > **matches**(`name1`, `name2`): `boolean`
 
-Defined in: [src/utils/PageNameMatcher.ts:99](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/utils/PageNameMatcher.ts#L99)
+Defined in: [src/utils/PageNameMatcher.ts:99](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/PageNameMatcher.ts#L99)
 
 Check if two page names match (considering plurals and case)
 
@@ -164,7 +164,7 @@ True if the names match
 
 > **normalize**(`pageName`): `string`
 
-Defined in: [src/utils/PageNameMatcher.ts:30](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/utils/PageNameMatcher.ts#L30)
+Defined in: [src/utils/PageNameMatcher.ts:30](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/PageNameMatcher.ts#L30)
 
 Normalize a page name for comparison (lowercase)
 

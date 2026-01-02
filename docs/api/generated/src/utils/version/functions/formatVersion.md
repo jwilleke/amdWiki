@@ -8,22 +8,32 @@
 
 > **formatVersion**(`major`, `minor`, `patch`): `string`
 
-Defined in: [src/utils/version.js:54](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/utils/version.js#L54)
+Defined in: [src/utils/version.ts:106](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/version.ts#L106)
+
+Format version components into string
 
 ## Parameters
 
 ### major
 
-`any`
+`number`
+
+Major version
 
 ### minor
 
-`any`
+`number`
+
+Minor version
 
 ### patch
 
-`any`
+`number`
+
+Patch version
 
 ## Returns
 
 `string`
+
+Formatted version string

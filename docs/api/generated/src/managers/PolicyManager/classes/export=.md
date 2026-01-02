@@ -6,14 +6,33 @@
 
 # Class: export=
 
-Defined in: [src/managers/PolicyManager.js:8](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PolicyManager.js#L8)
+Defined in: [src/managers/PolicyManager.ts:44](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyManager.ts#L44)
 
 PolicyManager - Manages the lifecycle of access control policies.
+
 It loads, stores, and provides access to all defined policies.
+Policies are loaded from ConfigurationManager and cached in memory
+for efficient access during permission checks.
+
+ PolicyManager
+
+## See
+
+ - [BaseManager](../../BaseManager/classes/default.md) for base functionality
+ - PolicyEvaluator for policy evaluation
+ - ACLManager for access control
+
+## Example
+
+```ts
+const policyManager = engine.getManager('PolicyManager');
+const policy = policyManager.getPolicy('allow-all-read');
+const allPolicies = policyManager.getAllPolicies(); // sorted by priority
+```
 
 ## Extends
 
-- [`export=`](../../BaseManager/classes/export=.md)
+- [`default`](../../BaseManager/classes/default.md)
 
 ## Constructors
 
@@ -21,13 +40,17 @@ It loads, stores, and provides access to all defined policies.
 
 > **new export=**(`engine`): `PolicyManager`
 
-Defined in: [src/managers/PolicyManager.js:9](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PolicyManager.js#L9)
+Defined in: [src/managers/PolicyManager.ts:53](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyManager.ts#L53)
+
+Creates a new PolicyManager instance
 
 #### Parameters
 
 ##### engine
 
-`any`
+[`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
+
+The wiki engine instance
 
 #### Returns
 
@@ -35,65 +58,57 @@ Defined in: [src/managers/PolicyManager.js:9](https://github.com/jwilleke/amdWik
 
 #### Overrides
 
-[`export=`](../../BaseManager/classes/export=.md).[`constructor`](../../BaseManager/classes/export=.md#constructor)
+[`default`](../../BaseManager/classes/default.md).[`constructor`](../../BaseManager/classes/default.md#constructor)
 
 ## Properties
 
-### config
+### config?
 
-> **config**: `any`
+> `protected` `optional` **config**: `Record`\<`string`, `any`\>
 
-Defined in: [src/managers/BaseManager.js:55](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/BaseManager.js#L55)
+Defined in: [src/managers/BaseManager.ts:63](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L63)
 
-Configuration object passed during initialization
+Configuration passed during initialization
 
 #### Inherited from
 
-[`export=`](../../BaseManager/classes/export=.md).[`config`](../../BaseManager/classes/export=.md#config)
+[`default`](../../BaseManager/classes/default.md).[`config`](../../BaseManager/classes/default.md#config)
 
 ***
 
 ### engine
 
-> **engine**: `WikiEngine`
+> `protected` **engine**: [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/managers/BaseManager.js:33](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/BaseManager.js#L33)
+Defined in: [src/managers/BaseManager.ts:56](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L56)
 
 Reference to the wiki engine
 
 #### Inherited from
 
-[`export=`](../../BaseManager/classes/export=.md).[`engine`](../../BaseManager/classes/export=.md#engine)
+[`default`](../../BaseManager/classes/default.md).[`engine`](../../BaseManager/classes/default.md#engine)
 
 ***
 
 ### initialized
 
-> **initialized**: `boolean`
+> `protected` **initialized**: `boolean`
 
-Defined in: [src/managers/BaseManager.js:34](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/BaseManager.js#L34)
+Defined in: [src/managers/BaseManager.ts:59](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L59)
 
-Flag indicating initialization status
+Initialization status flag
 
 #### Inherited from
 
-[`export=`](../../BaseManager/classes/export=.md).[`initialized`](../../BaseManager/classes/export=.md#initialized)
-
-***
-
-### policies
-
-> **policies**: `Map`\<`any`, `any`\>
-
-Defined in: [src/managers/PolicyManager.js:11](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PolicyManager.js#L11)
+[`default`](../../BaseManager/classes/default.md).[`initialized`](../../BaseManager/classes/default.md#initialized)
 
 ## Methods
 
 ### backup()
 
-> **backup**(): `Promise`\<`any`\>
+> **backup**(): `Promise`\<[`BackupData`](../../BaseManager/interfaces/BackupData.md)\>
 
-Defined in: [src/managers/BaseManager.js:130](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/BaseManager.js#L130)
+Defined in: [src/managers/BaseManager.ts:168](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L168)
 
 Backup manager data
 
@@ -102,11 +117,9 @@ Default implementation returns an empty backup object.
 
 #### Returns
 
-`Promise`\<`any`\>
+`Promise`\<[`BackupData`](../../BaseManager/interfaces/BackupData.md)\>
 
 Backup data object containing all manager state
-
-#### Async
 
 #### Throws
 
@@ -115,7 +128,7 @@ If backup operation fails
 #### Example
 
 ```ts
-async backup() {
+async backup(): Promise<BackupData> {
   return {
     managerName: this.constructor.name,
     timestamp: new Date().toISOString(),
@@ -129,37 +142,47 @@ async backup() {
 
 #### Inherited from
 
-[`export=`](../../BaseManager/classes/export=.md).[`backup`](../../BaseManager/classes/export=.md#backup)
+[`default`](../../BaseManager/classes/default.md).[`backup`](../../BaseManager/classes/default.md#backup)
 
 ***
 
 ### getAllPolicies()
 
-> **getAllPolicies**(): `any`[]
+> **getAllPolicies**(): `Policy`[]
 
-Defined in: [src/managers/PolicyManager.js:58](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PolicyManager.js#L58)
+Defined in: [src/managers/PolicyManager.ts:125](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyManager.ts#L125)
 
 Returns all loaded policies, sorted by priority (descending).
 
+Policies with higher priority values are returned first.
+Policies without a priority are treated as having priority 0.
+
 #### Returns
 
-`any`[]
+`Policy`[]
 
-An array of all policy objects.
+An array of all policy objects, sorted by priority
+
+#### Example
+
+```ts
+const policies = policyManager.getAllPolicies();
+console.log('Highest priority:', policies[0]?.id);
+```
 
 ***
 
 ### getEngine()
 
-> **getEngine**(): `WikiEngine`
+> **getEngine**(): [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/managers/BaseManager.js:81](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/BaseManager.js#L81)
+Defined in: [src/managers/BaseManager.ts:126](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L126)
 
 Get the wiki engine instance
 
 #### Returns
 
-`WikiEngine`
+[`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
 The wiki engine instance
 
@@ -171,15 +194,15 @@ const config = this.getEngine().getConfig();
 
 #### Inherited from
 
-[`export=`](../../BaseManager/classes/export=.md).[`getEngine`](../../BaseManager/classes/export=.md#getengine)
+[`default`](../../BaseManager/classes/default.md).[`getEngine`](../../BaseManager/classes/default.md#getengine)
 
 ***
 
 ### getPolicy()
 
-> **getPolicy**(`id`): `any`
+> **getPolicy**(`id`): `Policy`
 
-Defined in: [src/managers/PolicyManager.js:50](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PolicyManager.js#L50)
+Defined in: [src/managers/PolicyManager.ts:109](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyManager.ts#L109)
 
 Retrieves a policy by its unique ID.
 
@@ -189,13 +212,20 @@ Retrieves a policy by its unique ID.
 
 `string`
 
-The ID of the policy.
+The ID of the policy
 
 #### Returns
 
-`any`
+`Policy`
 
-The policy object, or undefined if not found.
+The policy object, or undefined if not found
+
+#### Example
+
+```ts
+const policy = policyManager.getPolicy('allow-all-read');
+if (policy) console.log('Found policy:', policy.id);
+```
 
 ***
 
@@ -203,17 +233,33 @@ The policy object, or undefined if not found.
 
 > **initialize**(): `Promise`\<`void`\>
 
-Defined in: [src/managers/PolicyManager.js:17](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PolicyManager.js#L17)
+Defined in: [src/managers/PolicyManager.ts:71](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyManager.ts#L71)
 
 Initializes the PolicyManager by loading policies from the ConfigurationManager.
+
+Reads the policy configuration and loads all defined policies into memory.
+Policies must be enabled via 'amdwiki.access.policies.enabled' configuration.
 
 #### Returns
 
 `Promise`\<`void`\>
 
+#### Async
+
+#### Throws
+
+If ConfigurationManager is not available
+
+#### Example
+
+```ts
+await policyManager.initialize();
+console.log('Policies loaded');
+```
+
 #### Overrides
 
-[`export=`](../../BaseManager/classes/export=.md).[`initialize`](../../BaseManager/classes/export=.md#initialize)
+[`default`](../../BaseManager/classes/default.md).[`initialize`](../../BaseManager/classes/default.md#initialize)
 
 ***
 
@@ -221,7 +267,7 @@ Initializes the PolicyManager by loading policies from the ConfigurationManager.
 
 > **isInitialized**(): `boolean`
 
-Defined in: [src/managers/BaseManager.js:69](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/BaseManager.js#L69)
+Defined in: [src/managers/BaseManager.ts:114](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L114)
 
 Check if manager has been initialized
 
@@ -241,7 +287,7 @@ if (manager.isInitialized()) {
 
 #### Inherited from
 
-[`export=`](../../BaseManager/classes/export=.md).[`isInitialized`](../../BaseManager/classes/export=.md#isinitialized)
+[`default`](../../BaseManager/classes/default.md).[`isInitialized`](../../BaseManager/classes/default.md#isinitialized)
 
 ***
 
@@ -249,7 +295,7 @@ if (manager.isInitialized()) {
 
 > **restore**(`backupData`): `Promise`\<`void`\>
 
-Defined in: [src/managers/BaseManager.js:163](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/BaseManager.js#L163)
+Defined in: [src/managers/BaseManager.ts:196](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L196)
 
 Restore manager data from backup
 
@@ -260,31 +306,13 @@ Default implementation only validates that backup data is provided.
 
 ##### backupData
 
+[`BackupData`](../../BaseManager/interfaces/BackupData.md)
+
 Backup data object from backup() method
-
-###### data
-
-`any`
-
-Manager-specific backup data
-
-###### managerName
-
-`string`
-
-Name of the manager
-
-###### timestamp
-
-`string`
-
-ISO timestamp of backup
 
 #### Returns
 
 `Promise`\<`void`\>
-
-#### Async
 
 #### Throws
 
@@ -293,7 +321,7 @@ If restore operation fails or backup data is missing
 #### Example
 
 ```ts
-async restore(backupData) {
+async restore(backupData: BackupData): Promise<void> {
   if (!backupData || !backupData.data) {
     throw new Error('Invalid backup data');
   }
@@ -304,7 +332,7 @@ async restore(backupData) {
 
 #### Inherited from
 
-[`export=`](../../BaseManager/classes/export=.md).[`restore`](../../BaseManager/classes/export=.md#restore)
+[`default`](../../BaseManager/classes/default.md).[`restore`](../../BaseManager/classes/default.md#restore)
 
 ***
 
@@ -312,7 +340,7 @@ async restore(backupData) {
 
 > **shutdown**(): `Promise`\<`void`\>
 
-Defined in: [src/managers/BaseManager.js:101](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/BaseManager.js#L101)
+Defined in: [src/managers/BaseManager.ts:143](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L143)
 
 Shutdown the manager and cleanup resources
 
@@ -323,12 +351,10 @@ Always call super.shutdown() at the end of overridden implementations.
 
 `Promise`\<`void`\>
 
-#### Async
-
 #### Example
 
 ```ts
-async shutdown() {
+async shutdown(): Promise<void> {
   // Your cleanup logic here
   await this.closeConnections();
   await super.shutdown();
@@ -337,4 +363,4 @@ async shutdown() {
 
 #### Inherited from
 
-[`export=`](../../BaseManager/classes/export=.md).[`shutdown`](../../BaseManager/classes/export=.md#shutdown)
+[`default`](../../BaseManager/classes/default.md).[`shutdown`](../../BaseManager/classes/default.md#shutdown)

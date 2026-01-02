@@ -8,4 +8,9 @@
 
 ## Classes
 
-- [export=](classes/export=.md)
+- [default](classes/default.md)
+
+## Interfaces
+
+- [ExtendedCacheStats](interfaces/ExtendedCacheStats.md)
+- [NodeCacheAdapterOptions](interfaces/NodeCacheAdapterOptions.md)

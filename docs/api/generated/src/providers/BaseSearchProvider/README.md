@@ -18,4 +18,9 @@
 - [SearchOptions](interfaces/SearchOptions.md)
 - [SearchResult](interfaces/SearchResult.md)
 - [SearchStatistics](interfaces/SearchStatistics.md)
-- [WikiEngine](interfaces/WikiEngine.md)
+
+## References
+
+### WikiEngine
+
+Re-exports [WikiEngine](../../types/WikiEngine/interfaces/WikiEngine.md)

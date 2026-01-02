@@ -6,14 +6,14 @@
 
 # Class: export=
 
-Defined in: [src/managers/PolicyValidator.js:9](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PolicyValidator.js#L9)
+Defined in: [src/managers/PolicyValidator.ts:185](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyValidator.ts#L185)
 
 PolicyValidator - Validates policy schemas and detects conflicts
 Ensures policy integrity and prevents conflicting rules
 
 ## Extends
 
-- [`export=`](../../BaseManager/classes/export=.md)
+- [`default`](../../BaseManager/classes/default.md)
 
 ## Constructors
 
@@ -21,13 +21,13 @@ Ensures policy integrity and prevents conflicting rules
 
 > **new export=**(`engine`): `PolicyValidator`
 
-Defined in: [src/managers/PolicyValidator.js:10](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PolicyValidator.js#L10)
+Defined in: [src/managers/PolicyValidator.ts:192](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyValidator.ts#L192)
 
 #### Parameters
 
 ##### engine
 
-`any`
+[`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
 #### Returns
 
@@ -35,505 +35,57 @@ Defined in: [src/managers/PolicyValidator.js:10](https://github.com/jwilleke/amd
 
 #### Overrides
 
-[`export=`](../../BaseManager/classes/export=.md).[`constructor`](../../BaseManager/classes/export=.md#constructor)
+[`default`](../../BaseManager/classes/default.md).[`constructor`](../../BaseManager/classes/default.md#constructor)
 
 ## Properties
 
-### config
+### config?
 
-> **config**: `any`
+> `protected` `optional` **config**: `Record`\<`string`, `any`\>
 
-Defined in: [src/managers/BaseManager.js:55](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/BaseManager.js#L55)
+Defined in: [src/managers/BaseManager.ts:63](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L63)
 
-Configuration object passed during initialization
+Configuration passed during initialization
 
 #### Inherited from
 
-[`export=`](../../BaseManager/classes/export=.md).[`config`](../../BaseManager/classes/export=.md#config)
+[`default`](../../BaseManager/classes/default.md).[`config`](../../BaseManager/classes/default.md#config)
 
 ***
 
 ### engine
 
-> **engine**: `WikiEngine`
+> `protected` **engine**: [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/managers/BaseManager.js:33](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/BaseManager.js#L33)
+Defined in: [src/managers/BaseManager.ts:56](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L56)
 
 Reference to the wiki engine
 
 #### Inherited from
 
-[`export=`](../../BaseManager/classes/export=.md).[`engine`](../../BaseManager/classes/export=.md#engine)
+[`default`](../../BaseManager/classes/default.md).[`engine`](../../BaseManager/classes/default.md#engine)
 
 ***
 
 ### initialized
 
-> **initialized**: `boolean`
+> `protected` **initialized**: `boolean`
 
-Defined in: [src/managers/BaseManager.js:34](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/BaseManager.js#L34)
+Defined in: [src/managers/BaseManager.ts:59](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L59)
 
-Flag indicating initialization status
+Initialization status flag
 
 #### Inherited from
 
-[`export=`](../../BaseManager/classes/export=.md).[`initialized`](../../BaseManager/classes/export=.md#initialized)
-
-***
-
-### policyManager
-
-> **policyManager**: `any`
-
-Defined in: [src/managers/PolicyValidator.js:12](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PolicyValidator.js#L12)
-
-***
-
-### policySchema
-
-> **policySchema**: `object`
-
-Defined in: [src/managers/PolicyValidator.js:14](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PolicyValidator.js#L14)
-
-#### properties
-
-> **properties**: `object`
-
-##### properties.actions
-
-> **actions**: `object`
-
-##### properties.actions.items
-
-> **items**: `object`
-
-##### properties.actions.items.enum
-
-> **enum**: `string`[]
-
-##### properties.actions.items.type
-
-> **type**: `string` = `'string'`
-
-##### properties.actions.minItems
-
-> **minItems**: `number` = `1`
-
-##### properties.actions.type
-
-> **type**: `string` = `'array'`
-
-##### properties.conditions
-
-> **conditions**: `object`
-
-##### properties.conditions.items
-
-> **items**: `object`
-
-##### properties.conditions.items.properties
-
-> **properties**: `object`
-
-##### properties.conditions.items.properties.endTime
-
-> **endTime**: `object`
-
-##### properties.conditions.items.properties.endTime.anyOf
-
-> **anyOf**: (\{ `format`: `string`; `pattern?`: `undefined`; \} \| \{ `format?`: `undefined`; `pattern`: `string`; \})[]
-
-##### properties.conditions.items.properties.endTime.type
-
-> **type**: `string` = `'string'`
-
-##### properties.conditions.items.properties.key
-
-> **key**: `object`
-
-##### properties.conditions.items.properties.key.type
-
-> **type**: `string` = `'string'`
-
-##### properties.conditions.items.properties.operator
-
-> **operator**: `object`
-
-##### properties.conditions.items.properties.operator.enum
-
-> **enum**: `string`[]
-
-##### properties.conditions.items.properties.operator.type
-
-> **type**: `string` = `'string'`
-
-##### properties.conditions.items.properties.ranges
-
-> **ranges**: `object`
-
-##### properties.conditions.items.properties.ranges.items
-
-> **items**: `object`
-
-##### properties.conditions.items.properties.ranges.items.type
-
-> **type**: `string` = `'string'`
-
-##### properties.conditions.items.properties.ranges.type
-
-> **type**: `string` = `'array'`
-
-##### properties.conditions.items.properties.startTime
-
-> **startTime**: `object`
-
-##### properties.conditions.items.properties.startTime.anyOf
-
-> **anyOf**: (\{ `format`: `string`; `pattern?`: `undefined`; \} \| \{ `format?`: `undefined`; `pattern`: `string`; \})[]
-
-##### properties.conditions.items.properties.startTime.type
-
-> **type**: `string` = `'string'`
-
-##### properties.conditions.items.properties.type
-
-> **type**: `object`
-
-##### properties.conditions.items.properties.type.enum
-
-> **enum**: `string`[]
-
-##### properties.conditions.items.properties.type.type
-
-> **type**: `string` = `'string'`
-
-##### properties.conditions.items.properties.value
-
-> **value**: `object`
-
-##### properties.conditions.items.properties.value.type
-
-> **type**: `string`[]
-
-##### properties.conditions.items.required
-
-> **required**: `string`[]
-
-##### properties.conditions.items.type
-
-> **type**: `string` = `'object'`
-
-##### properties.conditions.type
-
-> **type**: `string` = `'array'`
-
-##### properties.description
-
-> **description**: `object`
-
-##### properties.description.maxLength
-
-> **maxLength**: `number` = `1000`
-
-##### properties.description.type
-
-> **type**: `string` = `'string'`
-
-##### properties.effect
-
-> **effect**: `object`
-
-##### properties.effect.enum
-
-> **enum**: `string`[]
-
-##### properties.effect.type
-
-> **type**: `string` = `'string'`
-
-##### properties.id
-
-> **id**: `object`
-
-##### properties.id.maxLength
-
-> **maxLength**: `number` = `100`
-
-##### properties.id.minLength
-
-> **minLength**: `number` = `1`
-
-##### properties.id.pattern
-
-> **pattern**: `string` = `'^[a-zA-Z0-9_-]+$'`
-
-##### properties.id.type
-
-> **type**: `string` = `'string'`
-
-##### properties.metadata
-
-> **metadata**: `object`
-
-##### properties.metadata.properties
-
-> **properties**: `object`
-
-##### properties.metadata.properties.author
-
-> **author**: `object`
-
-##### properties.metadata.properties.author.type
-
-> **type**: `string` = `'string'`
-
-##### properties.metadata.properties.created
-
-> **created**: `object`
-
-##### properties.metadata.properties.created.format
-
-> **format**: `string` = `'date-time'`
-
-##### properties.metadata.properties.created.type
-
-> **type**: `string` = `'string'`
-
-##### properties.metadata.properties.modified
-
-> **modified**: `object`
-
-##### properties.metadata.properties.modified.format
-
-> **format**: `string` = `'date-time'`
-
-##### properties.metadata.properties.modified.type
-
-> **type**: `string` = `'string'`
-
-##### properties.metadata.properties.tags
-
-> **tags**: `object`
-
-##### properties.metadata.properties.tags.items
-
-> **items**: `object`
-
-##### properties.metadata.properties.tags.items.type
-
-> **type**: `string` = `'string'`
-
-##### properties.metadata.properties.tags.type
-
-> **type**: `string` = `'array'`
-
-##### properties.metadata.properties.version
-
-> **version**: `object`
-
-##### properties.metadata.properties.version.type
-
-> **type**: `string` = `'string'`
-
-##### properties.metadata.type
-
-> **type**: `string` = `'object'`
-
-##### properties.name
-
-> **name**: `object`
-
-##### properties.name.maxLength
-
-> **maxLength**: `number` = `200`
-
-##### properties.name.minLength
-
-> **minLength**: `number` = `1`
-
-##### properties.name.type
-
-> **type**: `string` = `'string'`
-
-##### properties.priority
-
-> **priority**: `object`
-
-##### properties.priority.default
-
-> **default**: `number` = `50`
-
-##### properties.priority.maximum
-
-> **maximum**: `number` = `1000`
-
-##### properties.priority.minimum
-
-> **minimum**: `number` = `0`
-
-##### properties.priority.type
-
-> **type**: `string` = `'number'`
-
-##### properties.resources
-
-> **resources**: `object`
-
-##### properties.resources.items
-
-> **items**: `object`
-
-##### properties.resources.items.oneOf
-
-> **oneOf**: `object`[]
-
-##### properties.resources.items.properties
-
-> **properties**: `object`
-
-##### properties.resources.items.properties.pattern
-
-> **pattern**: `object`
-
-##### properties.resources.items.properties.pattern.type
-
-> **type**: `string` = `'string'`
-
-##### properties.resources.items.properties.type
-
-> **type**: `object`
-
-##### properties.resources.items.properties.type.enum
-
-> **enum**: `string`[]
-
-##### properties.resources.items.properties.type.type
-
-> **type**: `string` = `'string'`
-
-##### properties.resources.items.properties.value
-
-> **value**: `object`
-
-##### properties.resources.items.properties.value.type
-
-> **type**: `string`[]
-
-##### properties.resources.items.required
-
-> **required**: `string`[]
-
-##### properties.resources.items.type
-
-> **type**: `string` = `'object'`
-
-##### properties.resources.minItems
-
-> **minItems**: `number` = `1`
-
-##### properties.resources.type
-
-> **type**: `string` = `'array'`
-
-##### properties.subjects
-
-> **subjects**: `object`
-
-##### properties.subjects.items
-
-> **items**: `object`
-
-##### properties.subjects.items.oneOf
-
-> **oneOf**: `object`[]
-
-##### properties.subjects.items.properties
-
-> **properties**: `object`
-
-##### properties.subjects.items.properties.key
-
-> **key**: `object`
-
-##### properties.subjects.items.properties.key.type
-
-> **type**: `string` = `'string'`
-
-##### properties.subjects.items.properties.type
-
-> **type**: `object`
-
-##### properties.subjects.items.properties.type.enum
-
-> **enum**: `string`[]
-
-##### properties.subjects.items.properties.type.type
-
-> **type**: `string` = `'string'`
-
-##### properties.subjects.items.properties.value
-
-> **value**: `object`
-
-##### properties.subjects.items.properties.value.type
-
-> **type**: `string`[]
-
-##### properties.subjects.items.required
-
-> **required**: `string`[]
-
-##### properties.subjects.items.type
-
-> **type**: `string` = `'object'`
-
-##### properties.subjects.minItems
-
-> **minItems**: `number` = `1`
-
-##### properties.subjects.type
-
-> **type**: `string` = `'array'`
-
-#### required
-
-> **required**: `string`[]
-
-#### type
-
-> **type**: `string` = `'object'`
-
-***
-
-### schemaValidator
-
-> **schemaValidator**: `any`
-
-Defined in: [src/managers/PolicyValidator.js:13](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PolicyValidator.js#L13)
-
-***
-
-### schemaValidatorCompiled
-
-> **schemaValidatorCompiled**: `any`
-
-Defined in: [src/managers/PolicyValidator.js:186](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PolicyValidator.js#L186)
-
-***
-
-### validationCache
-
-> **validationCache**: `Map`\<`any`, `any`\>
-
-Defined in: [src/managers/PolicyValidator.js:15](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PolicyValidator.js#L15)
+[`default`](../../BaseManager/classes/default.md).[`initialized`](../../BaseManager/classes/default.md#initialized)
 
 ## Methods
 
 ### backup()
 
-> **backup**(): `Promise`\<`any`\>
+> **backup**(): `Promise`\<[`BackupData`](../../BaseManager/interfaces/BackupData.md)\>
 
-Defined in: [src/managers/BaseManager.js:130](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/BaseManager.js#L130)
+Defined in: [src/managers/BaseManager.ts:168](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L168)
 
 Backup manager data
 
@@ -542,11 +94,9 @@ Default implementation returns an empty backup object.
 
 #### Returns
 
-`Promise`\<`any`\>
+`Promise`\<[`BackupData`](../../BaseManager/interfaces/BackupData.md)\>
 
 Backup data object containing all manager state
-
-#### Async
 
 #### Throws
 
@@ -555,7 +105,7 @@ If backup operation fails
 #### Example
 
 ```ts
-async backup() {
+async backup(): Promise<BackupData> {
   return {
     managerName: this.constructor.name,
     timestamp: new Date().toISOString(),
@@ -569,7 +119,7 @@ async backup() {
 
 #### Inherited from
 
-[`export=`](../../BaseManager/classes/export=.md).[`backup`](../../BaseManager/classes/export=.md#backup)
+[`default`](../../BaseManager/classes/default.md).[`backup`](../../BaseManager/classes/default.md#backup)
 
 ***
 
@@ -577,7 +127,7 @@ async backup() {
 
 > **clearCache**(): `void`
 
-Defined in: [src/managers/PolicyValidator.js:648](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PolicyValidator.js#L648)
+Defined in: [src/managers/PolicyValidator.ts:901](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyValidator.ts#L901)
 
 Clear validation cache
 
@@ -589,9 +139,9 @@ Clear validation cache
 
 ### detectPolicyConflicts()
 
-> **detectPolicyConflicts**(`policies`): `object`
+> **detectPolicyConflicts**(`policies`): `ConflictResult`
 
-Defined in: [src/managers/PolicyValidator.js:431](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PolicyValidator.js#L431)
+Defined in: [src/managers/PolicyValidator.ts:641](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyValidator.ts#L641)
 
 Detect conflicting policies
 
@@ -599,27 +149,23 @@ Detect conflicting policies
 
 ##### policies
 
-`any`
+`Policy`[]
+
+Policies to check
 
 #### Returns
 
-`object`
+`ConflictResult`
 
-##### errors
-
-> **errors**: `any`[]
-
-##### warnings
-
-> **warnings**: `any`[]
+Conflict detection result
 
 ***
 
 ### formatSchemaErrors()
 
-> **formatSchemaErrors**(`schemaErrors`): `any`
+> **formatSchemaErrors**(`schemaErrors`): `ValidationError`[]
 
-Defined in: [src/managers/PolicyValidator.js:233](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PolicyValidator.js#L233)
+Defined in: [src/managers/PolicyValidator.ts:426](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyValidator.ts#L426)
 
 Format JSON schema validation errors
 
@@ -627,19 +173,23 @@ Format JSON schema validation errors
 
 ##### schemaErrors
 
-`any`
+`ErrorObject`\<`string`, `Record`\<`string`, `any`\>, `unknown`\>[]
+
+Schema validation errors
 
 #### Returns
 
-`any`
+`ValidationError`[]
+
+Formatted errors
 
 ***
 
 ### generateWarnings()
 
-> **generateWarnings**(`policy`): `object`[]
+> **generateWarnings**(`policy`): `ValidationWarning`[]
 
-Defined in: [src/managers/PolicyValidator.js:347](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PolicyValidator.js#L347)
+Defined in: [src/managers/PolicyValidator.ts:550](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyValidator.ts#L550)
 
 Generate warnings for potential issues
 
@@ -647,25 +197,29 @@ Generate warnings for potential issues
 
 ##### policy
 
-`any`
+`Policy`
+
+Policy to check
 
 #### Returns
 
-`object`[]
+`ValidationWarning`[]
+
+Generated warnings
 
 ***
 
 ### getEngine()
 
-> **getEngine**(): `WikiEngine`
+> **getEngine**(): [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/managers/BaseManager.js:81](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/BaseManager.js#L81)
+Defined in: [src/managers/BaseManager.ts:126](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L126)
 
 Get the wiki engine instance
 
 #### Returns
 
-`WikiEngine`
+[`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
 The wiki engine instance
 
@@ -677,41 +231,31 @@ const config = this.getEngine().getConfig();
 
 #### Inherited from
 
-[`export=`](../../BaseManager/classes/export=.md).[`getEngine`](../../BaseManager/classes/export=.md#getengine)
+[`default`](../../BaseManager/classes/default.md).[`getEngine`](../../BaseManager/classes/default.md#getengine)
 
 ***
 
 ### getStatistics()
 
-> **getStatistics**(): `object`
+> **getStatistics**(): `ValidationStatistics`
 
-Defined in: [src/managers/PolicyValidator.js:655](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PolicyValidator.js#L655)
+Defined in: [src/managers/PolicyValidator.ts:910](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyValidator.ts#L910)
 
 Get validation statistics
 
 #### Returns
 
-`object`
+`ValidationStatistics`
 
-##### cacheSize
-
-> **cacheSize**: `number`
-
-##### schemaLoaded
-
-> **schemaLoaded**: `boolean`
-
-##### validatorReady
-
-> **validatorReady**: `boolean`
+Current statistics
 
 ***
 
 ### groupPoliciesByOverlap()
 
-> **groupPoliciesByOverlap**(`policies`): `any`[]
+> **groupPoliciesByOverlap**(`policies`): `Policy`[][]
 
-Defined in: [src/managers/PolicyValidator.js:482](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PolicyValidator.js#L482)
+Defined in: [src/managers/PolicyValidator.ts:696](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyValidator.ts#L696)
 
 Group policies by overlapping criteria
 
@@ -719,19 +263,23 @@ Group policies by overlapping criteria
 
 ##### policies
 
-`any`
+`Policy`[]
+
+Policies to group
 
 #### Returns
 
-`any`[]
+`Policy`[][]
+
+Grouped policies
 
 ***
 
 ### hasActionOverlap()
 
-> **hasActionOverlap**(`actions1`, `actions2`): `any`
+> **hasActionOverlap**(`actions1`, `actions2`): `boolean`
 
-Defined in: [src/managers/PolicyValidator.js:554](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PolicyValidator.js#L554)
+Defined in: [src/managers/PolicyValidator.ts:784](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyValidator.ts#L784)
 
 Check if action criteria overlap
 
@@ -739,15 +287,21 @@ Check if action criteria overlap
 
 ##### actions1
 
-`any`
+`ActionType`[]
+
+First action list
 
 ##### actions2
 
-`any`
+`ActionType`[]
+
+Second action list
 
 #### Returns
 
-`any`
+`boolean`
+
+True if actions overlap
 
 ***
 
@@ -755,7 +309,7 @@ Check if action criteria overlap
 
 > **hasResourceOverlap**(`resources1`, `resources2`): `boolean`
 
-Defined in: [src/managers/PolicyValidator.js:540](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PolicyValidator.js#L540)
+Defined in: [src/managers/PolicyValidator.ts:766](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyValidator.ts#L766)
 
 Check if resource criteria overlap
 
@@ -763,15 +317,21 @@ Check if resource criteria overlap
 
 ##### resources1
 
-`any`
+`PolicyResource`[]
+
+First resource list
 
 ##### resources2
 
-`any`
+`PolicyResource`[]
+
+Second resource list
 
 #### Returns
 
 `boolean`
+
+True if resources overlap
 
 ***
 
@@ -779,7 +339,7 @@ Check if resource criteria overlap
 
 > **hasSubjectOverlap**(`subjects1`, `subjects2`): `boolean`
 
-Defined in: [src/managers/PolicyValidator.js:526](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PolicyValidator.js#L526)
+Defined in: [src/managers/PolicyValidator.ts:748](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyValidator.ts#L748)
 
 Check if subject criteria overlap
 
@@ -787,15 +347,21 @@ Check if subject criteria overlap
 
 ##### subjects1
 
-`any`
+`PolicySubject`[]
+
+First subject list
 
 ##### subjects2
 
-`any`
+`PolicySubject`[]
+
+Second subject list
 
 #### Returns
 
 `boolean`
+
+True if subjects overlap
 
 ***
 
@@ -803,7 +369,7 @@ Check if subject criteria overlap
 
 > **initialize**(`config`): `Promise`\<`void`\>
 
-Defined in: [src/managers/PolicyValidator.js:18](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PolicyValidator.js#L18)
+Defined in: [src/managers/PolicyValidator.ts:201](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyValidator.ts#L201)
 
 Initialize the manager with configuration
 
@@ -814,18 +380,18 @@ Always call super.initialize() first in overridden implementations.
 
 ##### config
 
+`Record`\<`string`, `unknown`\> = `{}`
+
 Configuration object
 
 #### Returns
 
 `Promise`\<`void`\>
 
-#### Async
-
 #### Example
 
 ```ts
-async initialize(config = {}) {
+async initialize(config: Record<string, any> = {}): Promise<void> {
   await super.initialize(config);
   // Your initialization logic here
   console.log('MyManager initialized');
@@ -834,7 +400,7 @@ async initialize(config = {}) {
 
 #### Overrides
 
-[`export=`](../../BaseManager/classes/export=.md).[`initialize`](../../BaseManager/classes/export=.md#initialize)
+[`default`](../../BaseManager/classes/default.md).[`initialize`](../../BaseManager/classes/default.md#initialize)
 
 ***
 
@@ -842,7 +408,7 @@ async initialize(config = {}) {
 
 > **isInitialized**(): `boolean`
 
-Defined in: [src/managers/BaseManager.js:69](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/BaseManager.js#L69)
+Defined in: [src/managers/BaseManager.ts:114](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L114)
 
 Check if manager has been initialized
 
@@ -862,29 +428,29 @@ if (manager.isInitialized()) {
 
 #### Inherited from
 
-[`export=`](../../BaseManager/classes/export=.md).[`isInitialized`](../../BaseManager/classes/export=.md#isinitialized)
+[`default`](../../BaseManager/classes/default.md).[`isInitialized`](../../BaseManager/classes/default.md#isinitialized)
 
 ***
 
 ### loadPolicySchema()
 
-> **loadPolicySchema**(): `Promise`\<`void`\>
+> **loadPolicySchema**(): `void`
 
-Defined in: [src/managers/PolicyValidator.js:44](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PolicyValidator.js#L44)
+Defined in: [src/managers/PolicyValidator.ts:230](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyValidator.ts#L230)
 
 Load JSON schema for policy validation
 
 #### Returns
 
-`Promise`\<`void`\>
+`void`
 
 ***
 
 ### patternsOverlap()
 
-> **patternsOverlap**(`pattern1`, `pattern2`): `any`
+> **patternsOverlap**(`pattern1`, `pattern2`): `boolean`
 
-Defined in: [src/managers/PolicyValidator.js:603](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PolicyValidator.js#L603)
+Defined in: [src/managers/PolicyValidator.ts:848](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyValidator.ts#L848)
 
 Check if two patterns overlap
 
@@ -892,15 +458,21 @@ Check if two patterns overlap
 
 ##### pattern1
 
-`any`
+`string`
+
+First pattern
 
 ##### pattern2
 
-`any`
+`string`
+
+Second pattern
 
 #### Returns
 
-`any`
+`boolean`
+
+True if patterns overlap
 
 ***
 
@@ -908,7 +480,7 @@ Check if two patterns overlap
 
 > **policiesOverlap**(`policy1`, `policy2`): `boolean`
 
-Defined in: [src/managers/PolicyValidator.js:507](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PolicyValidator.js#L507)
+Defined in: [src/managers/PolicyValidator.ts:725](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyValidator.ts#L725)
 
 Check if two policies have overlapping criteria
 
@@ -916,23 +488,29 @@ Check if two policies have overlapping criteria
 
 ##### policy1
 
-`any`
+`Policy`
+
+First policy
 
 ##### policy2
 
-`any`
+`Policy`
+
+Second policy
 
 #### Returns
 
 `boolean`
 
+True if policies overlap
+
 ***
 
 ### resourcesMatch()
 
-> **resourcesMatch**(`r1`, `r2`): `any`
+> **resourcesMatch**(`r1`, `r2`): `boolean`
 
-Defined in: [src/managers/PolicyValidator.js:583](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PolicyValidator.js#L583)
+Defined in: [src/managers/PolicyValidator.ts:821](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyValidator.ts#L821)
 
 Check if two resources match
 
@@ -940,15 +518,21 @@ Check if two resources match
 
 ##### r1
 
-`any`
+`PolicyResource`
+
+First resource
 
 ##### r2
 
-`any`
+`PolicyResource`
+
+Second resource
 
 #### Returns
 
-`any`
+`boolean`
+
+True if resources match
 
 ***
 
@@ -956,7 +540,7 @@ Check if two resources match
 
 > **restore**(`backupData`): `Promise`\<`void`\>
 
-Defined in: [src/managers/BaseManager.js:163](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/BaseManager.js#L163)
+Defined in: [src/managers/BaseManager.ts:196](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L196)
 
 Restore manager data from backup
 
@@ -967,31 +551,13 @@ Default implementation only validates that backup data is provided.
 
 ##### backupData
 
+[`BackupData`](../../BaseManager/interfaces/BackupData.md)
+
 Backup data object from backup() method
-
-###### data
-
-`any`
-
-Manager-specific backup data
-
-###### managerName
-
-`string`
-
-Name of the manager
-
-###### timestamp
-
-`string`
-
-ISO timestamp of backup
 
 #### Returns
 
 `Promise`\<`void`\>
-
-#### Async
 
 #### Throws
 
@@ -1000,7 +566,7 @@ If restore operation fails or backup data is missing
 #### Example
 
 ```ts
-async restore(backupData) {
+async restore(backupData: BackupData): Promise<void> {
   if (!backupData || !backupData.data) {
     throw new Error('Invalid backup data');
   }
@@ -1011,7 +577,7 @@ async restore(backupData) {
 
 #### Inherited from
 
-[`export=`](../../BaseManager/classes/export=.md).[`restore`](../../BaseManager/classes/export=.md#restore)
+[`default`](../../BaseManager/classes/default.md).[`restore`](../../BaseManager/classes/default.md#restore)
 
 ***
 
@@ -1019,7 +585,7 @@ async restore(backupData) {
 
 > **shutdown**(): `Promise`\<`void`\>
 
-Defined in: [src/managers/BaseManager.js:101](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/BaseManager.js#L101)
+Defined in: [src/managers/BaseManager.ts:143](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L143)
 
 Shutdown the manager and cleanup resources
 
@@ -1030,12 +596,10 @@ Always call super.shutdown() at the end of overridden implementations.
 
 `Promise`\<`void`\>
 
-#### Async
-
 #### Example
 
 ```ts
-async shutdown() {
+async shutdown(): Promise<void> {
   // Your cleanup logic here
   await this.closeConnections();
   await super.shutdown();
@@ -1044,7 +608,7 @@ async shutdown() {
 
 #### Inherited from
 
-[`export=`](../../BaseManager/classes/export=.md).[`shutdown`](../../BaseManager/classes/export=.md#shutdown)
+[`default`](../../BaseManager/classes/default.md).[`shutdown`](../../BaseManager/classes/default.md#shutdown)
 
 ***
 
@@ -1052,7 +616,7 @@ async shutdown() {
 
 > **subjectsMatch**(`s1`, `s2`): `boolean`
 
-Defined in: [src/managers/PolicyValidator.js:561](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PolicyValidator.js#L561)
+Defined in: [src/managers/PolicyValidator.ts:795](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyValidator.ts#L795)
 
 Check if two subjects match
 
@@ -1060,23 +624,29 @@ Check if two subjects match
 
 ##### s1
 
-`any`
+`PolicySubject`
+
+First subject
 
 ##### s2
 
-`any`
+`PolicySubject`
+
+Second subject
 
 #### Returns
 
 `boolean`
 
+True if subjects match
+
 ***
 
 ### validateAllPolicies()
 
-> **validateAllPolicies**(`policies`): `object`
+> **validateAllPolicies**(`policies`): `AllPoliciesValidationResult`
 
-Defined in: [src/managers/PolicyValidator.js:390](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PolicyValidator.js#L390)
+Defined in: [src/managers/PolicyValidator.ts:596](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyValidator.ts#L596)
 
 Validate all policies for conflicts
 
@@ -1084,47 +654,23 @@ Validate all policies for conflicts
 
 ##### policies
 
-`any` = `null`
+`Policy`[] = `null`
+
+Policies to validate (null = get from manager)
 
 #### Returns
 
-`object`
+`AllPoliciesValidationResult`
 
-##### errors
-
-> **errors**: `any`[]
-
-##### isValid
-
-> **isValid**: `boolean`
-
-##### summary
-
-> **summary**: `object`
-
-###### summary.conflicts
-
-> **conflicts**: `number` = `conflicts.errors.length`
-
-###### summary.totalPolicies
-
-> **totalPolicies**: `any` = `policies.length`
-
-###### summary.validPolicies
-
-> **validPolicies**: `number`
-
-##### warnings
-
-> **warnings**: `any`[]
+Validation result
 
 ***
 
 ### validateAndSavePolicy()
 
-> **validateAndSavePolicy**(`policy`): `Promise`\<\{ `conflicts`: `any`[]; `policy`: `any`; `success`: `boolean`; `validation`: `any`; \}\>
+> **validateAndSavePolicy**(`policy`): `Promise`\<`PolicySaveResult`\>
 
-Defined in: [src/managers/PolicyValidator.js:616](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PolicyValidator.js#L616)
+Defined in: [src/managers/PolicyValidator.ts:865](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyValidator.ts#L865)
 
 Validate policy before saving
 
@@ -1132,19 +678,27 @@ Validate policy before saving
 
 ##### policy
 
-`any`
+`Policy`
+
+Policy to validate and save
 
 #### Returns
 
-`Promise`\<\{ `conflicts`: `any`[]; `policy`: `any`; `success`: `boolean`; `validation`: `any`; \}\>
+`Promise`\<`PolicySaveResult`\>
+
+Save result
+
+#### Throws
+
+If validation or conflict check fails
 
 ***
 
 ### validateBusinessLogic()
 
-> **validateBusinessLogic**(`policy`): `object`[]
+> **validateBusinessLogic**(`policy`): `ValidationError`[]
 
-Defined in: [src/managers/PolicyValidator.js:245](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PolicyValidator.js#L245)
+Defined in: [src/managers/PolicyValidator.ts:442](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyValidator.ts#L442)
 
 Validate business logic rules
 
@@ -1152,19 +706,23 @@ Validate business logic rules
 
 ##### policy
 
-`any`
+`Policy`
+
+Policy to validate
 
 #### Returns
 
-`object`[]
+`ValidationError`[]
+
+Business logic errors
 
 ***
 
 ### validatePolicy()
 
-> **validatePolicy**(`policy`): `any`
+> **validatePolicy**(`policy`): `ValidationResult`
 
-Defined in: [src/managers/PolicyValidator.js:198](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PolicyValidator.js#L198)
+Defined in: [src/managers/PolicyValidator.ts:388](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyValidator.ts#L388)
 
 Validate a single policy
 
@@ -1172,19 +730,23 @@ Validate a single policy
 
 ##### policy
 
-`any`
+`Policy`
+
+Policy to validate
 
 #### Returns
 
-`any`
+`ValidationResult`
+
+Validation result
 
 ***
 
 ### validateSemantics()
 
-> **validateSemantics**(`policy`): `object`[]
+> **validateSemantics**(`policy`): `ValidationError`[]
 
-Defined in: [src/managers/PolicyValidator.js:301](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PolicyValidator.js#L301)
+Defined in: [src/managers/PolicyValidator.ts:501](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyValidator.ts#L501)
 
 Validate semantic correctness
 
@@ -1192,8 +754,12 @@ Validate semantic correctness
 
 ##### policy
 
-`any`
+`Policy`
+
+Policy to validate
 
 #### Returns
 
-`object`[]
+`ValidationError`[]
+
+Semantic errors

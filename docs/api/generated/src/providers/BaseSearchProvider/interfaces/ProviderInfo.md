@@ -6,7 +6,7 @@
 
 # Interface: ProviderInfo
 
-Defined in: [src/providers/BaseSearchProvider.ts:35](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseSearchProvider.ts#L35)
+Defined in: [src/providers/BaseSearchProvider.ts:26](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseSearchProvider.ts#L26)
 
 Provider information
 
@@ -16,7 +16,7 @@ Provider information
 
 > **description**: `string`
 
-Defined in: [src/providers/BaseSearchProvider.ts:38](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseSearchProvider.ts#L38)
+Defined in: [src/providers/BaseSearchProvider.ts:29](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseSearchProvider.ts#L29)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [src/providers/BaseSearchProvider.ts:38](https://github.com/jwilleke
 
 > **features**: `string`[]
 
-Defined in: [src/providers/BaseSearchProvider.ts:39](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseSearchProvider.ts#L39)
+Defined in: [src/providers/BaseSearchProvider.ts:30](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseSearchProvider.ts#L30)
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: [src/providers/BaseSearchProvider.ts:39](https://github.com/jwilleke
 
 > **name**: `string`
 
-Defined in: [src/providers/BaseSearchProvider.ts:36](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseSearchProvider.ts#L36)
+Defined in: [src/providers/BaseSearchProvider.ts:27](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseSearchProvider.ts#L27)
 
 ***
 
@@ -40,4 +40,4 @@ Defined in: [src/providers/BaseSearchProvider.ts:36](https://github.com/jwilleke
 
 > **version**: `string`
 
-Defined in: [src/providers/BaseSearchProvider.ts:37](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseSearchProvider.ts#L37)
+Defined in: [src/providers/BaseSearchProvider.ts:28](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseSearchProvider.ts#L28)

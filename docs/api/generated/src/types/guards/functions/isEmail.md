@@ -8,7 +8,7 @@
 
 > **isEmail**(`value`): `value is string`
 
-Defined in: [src/types/guards.ts:402](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/guards.ts#L402)
+Defined in: [src/types/guards.ts:420](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/guards.ts#L420)
 
 Check if value is a valid email address
 
@@ -16,7 +16,7 @@ Check if value is a valid email address
 
 ### value
 
-`any`
+`unknown`
 
 ## Returns
 

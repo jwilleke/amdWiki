@@ -6,7 +6,7 @@
 
 # Interface: CacheStats
 
-Defined in: [src/providers/BaseCacheProvider.ts:15](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseCacheProvider.ts#L15)
+Defined in: [src/providers/BaseCacheProvider.ts:6](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseCacheProvider.ts#L6)
 
 Cache statistics structure
 
@@ -16,7 +16,7 @@ Cache statistics structure
 
 > **deletes**: `number`
 
-Defined in: [src/providers/BaseCacheProvider.ts:29](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseCacheProvider.ts#L29)
+Defined in: [src/providers/BaseCacheProvider.ts:20](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseCacheProvider.ts#L20)
 
 Number of delete operations
 
@@ -26,7 +26,7 @@ Number of delete operations
 
 > **hitRate**: `number`
 
-Defined in: [src/providers/BaseCacheProvider.ts:31](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseCacheProvider.ts#L31)
+Defined in: [src/providers/BaseCacheProvider.ts:22](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseCacheProvider.ts#L22)
 
 Cache hit rate percentage
 
@@ -36,7 +36,7 @@ Cache hit rate percentage
 
 > **hits**: `number`
 
-Defined in: [src/providers/BaseCacheProvider.ts:17](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseCacheProvider.ts#L17)
+Defined in: [src/providers/BaseCacheProvider.ts:8](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseCacheProvider.ts#L8)
 
 Number of cache hits
 
@@ -46,7 +46,7 @@ Number of cache hits
 
 > **keys**: `number`
 
-Defined in: [src/providers/BaseCacheProvider.ts:21](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseCacheProvider.ts#L21)
+Defined in: [src/providers/BaseCacheProvider.ts:12](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseCacheProvider.ts#L12)
 
 Number of keys in cache
 
@@ -56,7 +56,7 @@ Number of keys in cache
 
 > **ksize**: `number`
 
-Defined in: [src/providers/BaseCacheProvider.ts:23](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseCacheProvider.ts#L23)
+Defined in: [src/providers/BaseCacheProvider.ts:14](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseCacheProvider.ts#L14)
 
 Approximate memory usage of keys
 
@@ -66,7 +66,7 @@ Approximate memory usage of keys
 
 > **misses**: `number`
 
-Defined in: [src/providers/BaseCacheProvider.ts:19](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseCacheProvider.ts#L19)
+Defined in: [src/providers/BaseCacheProvider.ts:10](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseCacheProvider.ts#L10)
 
 Number of cache misses
 
@@ -76,7 +76,7 @@ Number of cache misses
 
 > **sets**: `number`
 
-Defined in: [src/providers/BaseCacheProvider.ts:27](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseCacheProvider.ts#L27)
+Defined in: [src/providers/BaseCacheProvider.ts:18](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseCacheProvider.ts#L18)
 
 Number of set operations
 
@@ -86,6 +86,6 @@ Number of set operations
 
 > **vsize**: `number`
 
-Defined in: [src/providers/BaseCacheProvider.ts:25](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseCacheProvider.ts#L25)
+Defined in: [src/providers/BaseCacheProvider.ts:16](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseCacheProvider.ts#L16)
 
 Approximate memory usage of values

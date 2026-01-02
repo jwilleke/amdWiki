@@ -8,7 +8,7 @@
 
 > **reconfigureLogger**(`config`): `Logger`
 
-Defined in: [src/utils/logger.ts:92](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/utils/logger.ts#L92)
+Defined in: [src/utils/logger.ts:96](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/logger.ts#L96)
 
 Reconfigures the global logger instance with new settings
 

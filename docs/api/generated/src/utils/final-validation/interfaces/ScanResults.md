@@ -6,7 +6,7 @@
 
 # Interface: ScanResults
 
-Defined in: [src/utils/final-validation.ts:37](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/utils/final-validation.ts#L37)
+Defined in: [src/utils/final-validation.ts:38](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/final-validation.ts#L38)
 
 Scan results for a directory
 
@@ -16,7 +16,7 @@ Scan results for a directory
 
 > **categories**: `Record`\<`string`, `number`\>
 
-Defined in: [src/utils/final-validation.ts:41](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/utils/final-validation.ts#L41)
+Defined in: [src/utils/final-validation.ts:42](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/final-validation.ts#L42)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [src/utils/final-validation.ts:41](https://github.com/jwilleke/amdWi
 
 > **errors**: `ErrorInfo`[]
 
-Defined in: [src/utils/final-validation.ts:40](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/utils/final-validation.ts#L40)
+Defined in: [src/utils/final-validation.ts:41](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/final-validation.ts#L41)
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: [src/utils/final-validation.ts:40](https://github.com/jwilleke/amdWi
 
 > **invalid**: `number`
 
-Defined in: [src/utils/final-validation.ts:39](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/utils/final-validation.ts#L39)
+Defined in: [src/utils/final-validation.ts:40](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/final-validation.ts#L40)
 
 ***
 
@@ -40,4 +40,4 @@ Defined in: [src/utils/final-validation.ts:39](https://github.com/jwilleke/amdWi
 
 > **valid**: `number`
 
-Defined in: [src/utils/final-validation.ts:38](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/utils/final-validation.ts#L38)
+Defined in: [src/utils/final-validation.ts:39](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/final-validation.ts#L39)

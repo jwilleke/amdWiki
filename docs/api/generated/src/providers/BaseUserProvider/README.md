@@ -19,4 +19,4 @@
 
 ### WikiEngine
 
-Re-exports [WikiEngine](../BasePageProvider/interfaces/WikiEngine.md)
+Re-exports [WikiEngine](../../types/WikiEngine/interfaces/WikiEngine.md)

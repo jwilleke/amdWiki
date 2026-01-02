@@ -6,7 +6,7 @@
 
 # Interface: CacheProvider
 
-Defined in: [src/types/Provider.ts:383](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L383)
+Defined in: [src/types/Provider.ts:410](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L410)
 
 Cache provider interface
 
@@ -20,9 +20,9 @@ Defines the contract for caching backends (in-memory, Redis, etc.).
 
 ### engine
 
-> **engine**: `any`
+> **engine**: [`WikiEngine`](../../WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/types/Provider.ts:19](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L19)
+Defined in: [src/types/Provider.ts:21](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L21)
 
 Reference to WikiEngine
 
@@ -36,7 +36,7 @@ Reference to WikiEngine
 
 > **initialized**: `boolean`
 
-Defined in: [src/types/Provider.ts:22](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L22)
+Defined in: [src/types/Provider.ts:24](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L24)
 
 Whether provider has been initialized
 
@@ -50,7 +50,7 @@ Whether provider has been initialized
 
 > **clear**(): `Promise`\<`void`\>
 
-Defined in: [src/types/Provider.ts:411](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L411)
+Defined in: [src/types/Provider.ts:438](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L438)
 
 Clear all cached values
 
@@ -66,7 +66,7 @@ Promise that resolves when cache is cleared
 
 > **delete**(`key`): `Promise`\<`boolean`\>
 
-Defined in: [src/types/Provider.ts:405](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L405)
+Defined in: [src/types/Provider.ts:432](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L432)
 
 Delete value from cache
 
@@ -90,7 +90,7 @@ True if deleted, false if not found
 
 > **get**\<`T`\>(`key`): `Promise`\<`T`\>
 
-Defined in: [src/types/Provider.ts:389](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L389)
+Defined in: [src/types/Provider.ts:416](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L416)
 
 Get value from cache
 
@@ -120,7 +120,7 @@ Cached value or null if not found/expired
 
 > **has**(`key`): `Promise`\<`boolean`\>
 
-Defined in: [src/types/Provider.ts:418](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L418)
+Defined in: [src/types/Provider.ts:445](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L445)
 
 Check if key exists in cache
 
@@ -144,7 +144,7 @@ True if key exists and not expired
 
 > **initialize**(): `Promise`\<`void`\>
 
-Defined in: [src/types/Provider.ts:28](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L28)
+Defined in: [src/types/Provider.ts:30](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L30)
 
 Initialize the provider
 
@@ -164,7 +164,7 @@ Promise that resolves when initialization is complete
 
 > **set**\<`T`\>(`key`, `value`, `ttl?`): `Promise`\<`void`\>
 
-Defined in: [src/types/Provider.ts:398](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L398)
+Defined in: [src/types/Provider.ts:425](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L425)
 
 Set value in cache
 
@@ -199,3 +199,23 @@ Time to live in seconds (optional)
 `Promise`\<`void`\>
 
 Promise that resolves when value is cached
+
+***
+
+### shutdown()?
+
+> `optional` **shutdown**(): `Promise`\<`void`\>
+
+Defined in: [src/types/Provider.ts:36](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L36)
+
+Shutdown the provider (optional)
+
+#### Returns
+
+`Promise`\<`void`\>
+
+Promise that resolves when shutdown is complete
+
+#### Inherited from
+
+[`BaseProvider`](BaseProvider.md).[`shutdown`](BaseProvider.md#shutdown)

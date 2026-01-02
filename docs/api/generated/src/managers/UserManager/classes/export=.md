@@ -6,7 +6,7 @@
 
 # Class: export=
 
-Defined in: [src/managers/UserManager.js:47](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/UserManager.js#L47)
+Defined in: [src/managers/UserManager.ts:143](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/UserManager.ts#L143)
 
 UserManager - Handles user authentication, authorization, and roles
 
@@ -15,7 +15,6 @@ orchestrates user operations through a pluggable provider system, allowing
 different storage backends (file, database, LDAP, etc.) to be used.
 
 Key responsibilities:
-
 - User authentication (login/logout)
 - Password management with hashing
 - Role and permission management
@@ -31,20 +30,20 @@ backends (file, database, LDAP, etc.) to be swapped via configuration.
 
 ## See
 
-- [BaseManager](../../BaseManager/classes/export=.md) for base functionality
-- FileUserProvider for default provider implementation
+ - [BaseManager](../../BaseManager/classes/default.md) for base functionality
+ - FileUserProvider for default provider implementation
 
 ## Example
 
 ```ts
 const userManager = engine.getManager('UserManager');
-const user = await userManager.authenticate('admin', 'password');
-if (user) console.log('Logged in:', user.username);
+const user = await userManager.authenticateUser('admin', 'password');
+if (user) logger.info('Logged in:', user.username);
 ```
 
 ## Extends
 
-- [`export=`](../../BaseManager/classes/export=.md)
+- [`default`](../../BaseManager/classes/default.md)
 
 ## Constructors
 
@@ -52,7 +51,7 @@ if (user) console.log('Logged in:', user.username);
 
 > **new export=**(`engine`): `UserManager`
 
-Defined in: [src/managers/UserManager.js:54](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/UserManager.js#L54)
+Defined in: [src/managers/UserManager.ts:159](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/UserManager.ts#L159)
 
 Creates a new UserManager instance
 
@@ -60,7 +59,7 @@ Creates a new UserManager instance
 
 ##### engine
 
-`WikiEngine`
+[`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
 The wiki engine instance
 
@@ -70,139 +69,57 @@ The wiki engine instance
 
 #### Overrides
 
-[`export=`](../../BaseManager/classes/export=.md).[`constructor`](../../BaseManager/classes/export=.md#constructor)
+[`default`](../../BaseManager/classes/default.md).[`constructor`](../../BaseManager/classes/default.md#constructor)
 
 ## Properties
 
-### config
+### config?
 
-> **config**: `any`
+> `protected` `optional` **config**: `Record`\<`string`, `any`\>
 
-Defined in: [src/managers/BaseManager.js:55](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/BaseManager.js#L55)
+Defined in: [src/managers/BaseManager.ts:63](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L63)
 
-Configuration object passed during initialization
+Configuration passed during initialization
 
 #### Inherited from
 
-[`export=`](../../BaseManager/classes/export=.md).[`config`](../../BaseManager/classes/export=.md#config)
-
-***
-
-### defaultPassword
-
-> **defaultPassword**: `any`
-
-Defined in: [src/managers/UserManager.js:120](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/UserManager.js#L120)
-
-Default password for new admin user
-
-***
-
-### defaultTimezone
-
-> **defaultTimezone**: `any`
-
-Defined in: [src/managers/UserManager.js:128](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/UserManager.js#L128)
-
-Default timezone for users
+[`default`](../../BaseManager/classes/default.md).[`config`](../../BaseManager/classes/default.md#config)
 
 ***
 
 ### engine
 
-> **engine**: `WikiEngine`
+> `protected` **engine**: [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/managers/BaseManager.js:33](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/BaseManager.js#L33)
+Defined in: [src/managers/BaseManager.ts:56](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L56)
 
 Reference to the wiki engine
 
 #### Inherited from
 
-[`export=`](../../BaseManager/classes/export=.md).[`engine`](../../BaseManager/classes/export=.md#engine)
+[`default`](../../BaseManager/classes/default.md).[`engine`](../../BaseManager/classes/default.md#engine)
 
 ***
 
 ### initialized
 
-> **initialized**: `boolean`
+> `protected` **initialized**: `boolean`
 
-Defined in: [src/managers/BaseManager.js:34](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/BaseManager.js#L34)
+Defined in: [src/managers/BaseManager.ts:59](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L59)
 
-Flag indicating initialization status
+Initialization status flag
 
 #### Inherited from
 
-[`export=`](../../BaseManager/classes/export=.md).[`initialized`](../../BaseManager/classes/export=.md#initialized)
-
-***
-
-### passwordSalt
-
-> **passwordSalt**: `any`
-
-Defined in: [src/managers/UserManager.js:116](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/UserManager.js#L116)
-
-Salt for password hashing
-
-***
-
-### permissions
-
-> **permissions**: `Map`\<`any`, `any`\>
-
-Defined in: [src/managers/UserManager.js:58](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/UserManager.js#L58)
-
-Permission definitions
-
-***
-
-### provider
-
-> **provider**: `any`
-
-Defined in: [src/managers/UserManager.js:56](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/UserManager.js#L56)
-
-The active user storage provider
-
-***
-
-### providerClass
-
-> **providerClass**: `string`
-
-Defined in: [src/managers/UserManager.js:95](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/UserManager.js#L95)
-
-The class name of the loaded provider
-
-***
-
-### roles
-
-> **roles**: `Map`\<`any`, `any`\>
-
-Defined in: [src/managers/UserManager.js:57](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/UserManager.js#L57)
-
-Role definitions
-
-***
-
-### sessionExpiration
-
-> **sessionExpiration**: `any`
-
-Defined in: [src/managers/UserManager.js:124](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/UserManager.js#L124)
-
-Session expiration time in milliseconds
+[`default`](../../BaseManager/classes/default.md).[`initialized`](../../BaseManager/classes/default.md#initialized)
 
 ## Methods
 
 ### assignRole()
 
-> **assignRole**(`username`, `roleName`): `boolean`
+> **assignRole**(`username`, `roleName`): `Promise`\<`boolean`\>
 
-Defined in: [src/managers/UserManager.js:1081](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/UserManager.js#L1081)
-
-Assign a role to a user
+Defined in: [src/managers/UserManager.ts:1137](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/UserManager.ts#L1137)
 
 #### Parameters
 
@@ -210,27 +127,21 @@ Assign a role to a user
 
 `string`
 
-Username
-
 ##### roleName
 
 `string`
 
-Role name to assign
-
 #### Returns
 
-`boolean`
-
-True if successful
+`Promise`\<`boolean`\>
 
 ***
 
 ### authenticateUser()
 
-> **authenticateUser**(`username`, `password`): `any`
+> **authenticateUser**(`username`, `password`): `Promise`\<`Omit`\<[`User`](../../../types/User/interfaces/User.md), `"password"`\> & `object`\>
 
-Defined in: [src/managers/UserManager.js:399](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/UserManager.js#L399)
+Defined in: [src/managers/UserManager.ts:521](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/UserManager.ts#L521)
 
 Authenticate user with username/password
 
@@ -250,40 +161,59 @@ Password
 
 #### Returns
 
-`any`
+`Promise`\<`Omit`\<[`User`](../../../types/User/interfaces/User.md), `"password"`\> & `object`\>
 
-User object if authenticated, including the isAuthenticated flag.
+User object if authenticated
 
 ***
 
 ### backup()
 
-> **backup**(): `Promise`\<`any`\>
+> **backup**(): `Promise`\<[`BackupData`](../../BaseManager/interfaces/BackupData.md)\>
 
-Defined in: [src/managers/UserManager.js:1213](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/UserManager.js#L1213)
+Defined in: [src/managers/UserManager.ts:1238](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/UserManager.ts#L1238)
 
-Backup all user data
+Backup manager data
 
-Delegates to the provider's backup() method to serialize all user and session data.
-The backup includes all user accounts, sessions, and provider-specific data.
+MUST be overridden by all managers that manage persistent data.
+Default implementation returns an empty backup object.
 
 #### Returns
 
-`Promise`\<`any`\>
+`Promise`\<[`BackupData`](../../BaseManager/interfaces/BackupData.md)\>
 
-Backup data from provider
+Backup data object containing all manager state
+
+#### Throws
+
+If backup operation fails
+
+#### Example
+
+```ts
+async backup(): Promise<BackupData> {
+  return {
+    managerName: this.constructor.name,
+    timestamp: new Date().toISOString(),
+    data: {
+      users: Array.from(this.users.values()),
+      settings: this.settings
+    }
+  };
+}
+```
 
 #### Overrides
 
-[`export=`](../../BaseManager/classes/export=.md).[`backup`](../../BaseManager/classes/export=.md#backup)
+[`default`](../../BaseManager/classes/default.md).[`backup`](../../BaseManager/classes/default.md#backup)
 
 ***
 
 ### checkDisplayNamePageConflict()
 
-> **checkDisplayNamePageConflict**(`displayName`, `excludeUsername`): `boolean`
+> **checkDisplayNamePageConflict**(`displayName`, `excludeUsername`): `Promise`\<`boolean`\>
 
-Defined in: [src/managers/UserManager.js:541](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/UserManager.js#L541)
+Defined in: [src/managers/UserManager.ts:692](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/UserManager.ts#L692)
 
 Check if a display name conflicts with existing page names or other users
 
@@ -303,7 +233,7 @@ Username to exclude from the check (for updates)
 
 #### Returns
 
-`boolean`
+`Promise`\<`boolean`\>
 
 True if conflict exists
 
@@ -313,7 +243,7 @@ True if conflict exists
 
 > **createDefaultAdmin**(): `Promise`\<`void`\>
 
-Defined in: [src/managers/UserManager.js:270](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/UserManager.js#L270)
+Defined in: [src/managers/UserManager.ts:381](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/UserManager.ts#L381)
 
 Create default admin user
 
@@ -325,9 +255,9 @@ Create default admin user
 
 ### createOrUpdateExternalUser()
 
-> **createOrUpdateExternalUser**(`externalUserData`): `any`
+> **createOrUpdateExternalUser**(`externalUserData`): `Promise`\<`Omit`\<[`User`](../../../types/User/interfaces/User.md), `"password"`\>\>
 
-Defined in: [src/managers/UserManager.js:351](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/UserManager.js#L351)
+Defined in: [src/managers/UserManager.ts:470](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/UserManager.ts#L470)
 
 Create or update external user from OAuth/JWT token
 
@@ -335,53 +265,41 @@ Create or update external user from OAuth/JWT token
 
 ##### externalUserData
 
-`any`
+`ExternalUserData`
 
 User data from external provider
 
 #### Returns
 
-`any`
+`Promise`\<`Omit`\<[`User`](../../../types/User/interfaces/User.md), `"password"`\>\>
 
 User object
 
 ***
 
-### ~~createRole()~~
+### createRole()
 
-> **createRole**(`roleData`): `Promise`\<`void`\>
+> **createRole**(`roleData`): `never`
 
-Defined in: [src/managers/UserManager.js:919](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/UserManager.js#L919)
-
-Create custom role
-NOTE: Roles are now defined in config files (app-custom-config.json)
-This method is deprecated and will be removed in a future version.
+Defined in: [src/managers/UserManager.ts:1031](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/UserManager.ts#L1031)
 
 #### Parameters
 
 ##### roleData
 
-`any`
-
-Role data
+`RoleCreateData`
 
 #### Returns
 
-`Promise`\<`void`\>
-
-#### Deprecated
-
-Use config files to define roles instead
+`never`
 
 ***
 
 ### createSession()
 
-> **createSession**(`username`, `additionalData?`): `string`
+> **createSession**(`username`, `additionalData`): `Promise`\<`string`\>
 
-Defined in: [src/managers/UserManager.js:1159](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/UserManager.js#L1159)
-
-Create a new session
+Defined in: [src/managers/UserManager.ts:1189](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/UserManager.ts#L1189)
 
 #### Parameters
 
@@ -389,27 +307,21 @@ Create a new session
 
 `string`
 
-The username for the session
+##### additionalData
 
-##### additionalData?
-
-`any` = `{}`
-
-Any additional data to store in the session
+`Record`\<`string`, `unknown`\> = `{}`
 
 #### Returns
 
-`string`
-
-The ID of the created session
+`Promise`\<`string`\>
 
 ***
 
 ### createUser()
 
-> **createUser**(`userData`): `any`
+> **createUser**(`userData`): `Promise`\<`Omit`\<[`User`](../../../types/User/interfaces/User.md), `"password"`\>\>
 
-Defined in: [src/managers/UserManager.js:632](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/UserManager.js#L632)
+Defined in: [src/managers/UserManager.ts:799](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/UserManager.ts#L799)
 
 Create new user
 
@@ -417,13 +329,13 @@ Create new user
 
 ##### userData
 
-`any`
+`UserCreateInput`
 
 User data
 
 #### Returns
 
-`any`
+`Promise`\<`Omit`\<[`User`](../../../types/User/interfaces/User.md), `"password"`\>\>
 
 Created user (without password)
 
@@ -431,9 +343,9 @@ Created user (without password)
 
 ### createUserPage()
 
-> **createUserPage**(`user`): `boolean`
+> **createUserPage**(`user`): `Promise`\<`boolean`\>
 
-Defined in: [src/managers/UserManager.js:570](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/UserManager.js#L570)
+Defined in: [src/managers/UserManager.ts:727](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/UserManager.ts#L727)
 
 Create a user page for a new user
 
@@ -441,27 +353,23 @@ Create a user page for a new user
 
 ##### user
 
-`any`
+[`User`](../../../types/User/interfaces/User.md)
 
 User object
 
 #### Returns
 
-`boolean`
+`Promise`\<`boolean`\>
 
 True if user page was created successfully
 
 ***
 
-### ~~deleteRole()~~
+### deleteRole()
 
-> **deleteRole**(`roleName`): `Promise`\<`void`\>
+> **deleteRole**(`roleName`): `never`
 
-Defined in: [src/managers/UserManager.js:935](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/UserManager.js#L935)
-
-Delete a role
-NOTE: Roles are now defined in config files
-This method is deprecated and will be removed in a future version.
+Defined in: [src/managers/UserManager.ts:1037](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/UserManager.ts#L1037)
 
 #### Parameters
 
@@ -469,15 +377,9 @@ This method is deprecated and will be removed in a future version.
 
 `string`
 
-Name of the role to delete
-
 #### Returns
 
-`Promise`\<`void`\>
-
-#### Deprecated
-
-Use config files to manage roles instead
+`never`
 
 ***
 
@@ -485,17 +387,13 @@ Use config files to manage roles instead
 
 > **deleteSession**(`sessionId`): `Promise`\<`void`\>
 
-Defined in: [src/managers/UserManager.js:1188](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/UserManager.js#L1188)
-
-Delete a session by ID
+Defined in: [src/managers/UserManager.ts:1216](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/UserManager.ts#L1216)
 
 #### Parameters
 
 ##### sessionId
 
 `string`
-
-The ID of the session
 
 #### Returns
 
@@ -507,7 +405,7 @@ The ID of the session
 
 > **deleteUser**(`username`): `Promise`\<`boolean`\>
 
-Defined in: [src/managers/UserManager.js:828](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/UserManager.js#L828)
+Defined in: [src/managers/UserManager.ts:965](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/UserManager.ts#L965)
 
 Delete user
 
@@ -516,8 +414,6 @@ Delete user
 ##### username
 
 `string`
-
-Username
 
 #### Returns
 
@@ -529,17 +425,13 @@ Username
 
 > **deleteUserSessions**(`username`): `Promise`\<`void`\>
 
-Defined in: [src/managers/UserManager.js:1196](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/UserManager.js#L1196)
-
-Delete all sessions for a user
+Defined in: [src/managers/UserManager.ts:1223](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/UserManager.ts#L1223)
 
 #### Parameters
 
 ##### username
 
 `string`
-
-The username of the user
 
 #### Returns
 
@@ -549,108 +441,83 @@ The username of the user
 
 ### ensureAuthenticated()
 
-> **ensureAuthenticated**(`req`, `res`, `next`): `any`
+> **ensureAuthenticated**(`req`, `res`, `next`): `void`
 
-Defined in: [src/managers/UserManager.js:1002](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/UserManager.js#L1002)
-
-Middleware to ensure user is authenticated.
+Defined in: [src/managers/UserManager.ts:1077](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/UserManager.ts#L1077)
 
 #### Parameters
 
 ##### req
 
-`any`
-
-The request object.
+`Request`
 
 ##### res
 
-`any`
-
-The response object.
+`Response`
 
 ##### next
 
-`Function`
-
-The next middleware function.
+`NextFunction`
 
 #### Returns
 
-`any`
+`void`
 
 ***
 
 ### getAnonymousUser()
 
-> **getAnonymousUser**(): `any`
+> **getAnonymousUser**(): `UserContext`
 
-Defined in: [src/managers/UserManager.js:1037](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/UserManager.js#L1037)
-
-Anonymous user access (no login required)
+Defined in: [src/managers/UserManager.ts:1107](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/UserManager.ts#L1107)
 
 #### Returns
 
-`any`
-
-Anonymous user object with built-in roles.
+`UserContext`
 
 ***
 
 ### getAssertedUser()
 
-> **getAssertedUser**(): `any`
+> **getAssertedUser**(): `UserContext`
 
-Defined in: [src/managers/UserManager.js:1051](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/UserManager.js#L1051)
-
-Asserted user with session cookie (expired or invalid session)
-Different from anonymous - they've attempted to authenticate before
+Defined in: [src/managers/UserManager.ts:1116](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/UserManager.ts#L1116)
 
 #### Returns
 
-`any`
-
-Asserted user object
+`UserContext`
 
 ***
 
 ### getCurrentUser()
 
-> **getCurrentUser**(`req`): `Promise`\<`any`\>
+> **getCurrentUser**(`req`): `Promise`\<`UserContext`\>
 
-Defined in: [src/managers/UserManager.js:964](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/UserManager.js#L964)
-
-Gets the current user context from the request session.
-This method is the single source of truth for user context during a request.
-It dynamically adds built-in roles (All, Authenticated, Anonymous) every time.
+Defined in: [src/managers/UserManager.ts:1047](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/UserManager.ts#L1047)
 
 #### Parameters
 
 ##### req
 
-`any`
-
-The Express request object.
+`Request`
 
 #### Returns
 
-`Promise`\<`any`\>
-
-The user context object.
+`Promise`\<`UserContext`\>
 
 ***
 
 ### getCurrentUserProvider()
 
-> **getCurrentUserProvider**(): `BaseUserProvider`
+> **getCurrentUserProvider**(): [`UserProvider`](../../../types/Provider/interfaces/UserProvider.md)
 
-Defined in: [src/managers/UserManager.js:216](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/UserManager.js#L216)
+Defined in: [src/managers/UserManager.ts:320](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/UserManager.ts#L320)
 
 Get the current user provider instance
 
 #### Returns
 
-`BaseUserProvider`
+[`UserProvider`](../../../types/Provider/interfaces/UserProvider.md)
 
 The active provider
 
@@ -658,15 +525,15 @@ The active provider
 
 ### getEngine()
 
-> **getEngine**(): `WikiEngine`
+> **getEngine**(): [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/managers/BaseManager.js:81](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/BaseManager.js#L81)
+Defined in: [src/managers/BaseManager.ts:126](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L126)
 
 Get the wiki engine instance
 
 #### Returns
 
-`WikiEngine`
+[`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
 The wiki engine instance
 
@@ -678,7 +545,7 @@ const config = this.getEngine().getConfig();
 
 #### Inherited from
 
-[`export=`](../../BaseManager/classes/export=.md).[`getEngine`](../../BaseManager/classes/export=.md#getengine)
+[`default`](../../BaseManager/classes/default.md).[`getEngine`](../../BaseManager/classes/default.md#getengine)
 
 ***
 
@@ -686,49 +553,37 @@ const config = this.getEngine().getConfig();
 
 > **getJobTitleFromRoles**(`roles`): `string`
 
-Defined in: [src/managers/UserManager.js:1142](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/UserManager.js#L1142)
-
-Get job title from user roles (for Schema.org sync)
+Defined in: [src/managers/UserManager.ts:1182](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/UserManager.ts#L1182)
 
 #### Parameters
 
 ##### roles
 
-`any`[]
-
-Array of role names
+`string`[]
 
 #### Returns
 
 `string`
 
-Job title string
-
 ***
 
 ### getPermissions()
 
-> **getPermissions**(): `Map`\<`any`, `any`\>
+> **getPermissions**(): `Map`\<`string`, `string`\>
 
-Defined in: [src/managers/UserManager.js:899](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/UserManager.js#L899)
-
-Get all permissions
+Defined in: [src/managers/UserManager.ts:1023](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/UserManager.ts#L1023)
 
 #### Returns
 
-`Map`\<`any`, `any`\>
-
-Map of permissions
+`Map`\<`string`, `string`\>
 
 ***
 
 ### getRole()
 
-> **getRole**(`roleName`): `any`
+> **getRole**(`roleName`): [`Role`](../../../types/User/interfaces/Role.md)
 
-Defined in: [src/managers/UserManager.js:908](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/UserManager.js#L908)
-
-Get role by name
+Defined in: [src/managers/UserManager.ts:1027](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/UserManager.ts#L1027)
 
 #### Parameters
 
@@ -736,23 +591,17 @@ Get role by name
 
 `string`
 
-Role name
-
 #### Returns
 
-`any`
-
-Role object
+[`Role`](../../../types/User/interfaces/Role.md)
 
 ***
 
 ### getRoleCompetencies()
 
-> **getRoleCompetencies**(`role`): `any`[]
+> **getRoleCompetencies**(`role`): `string`[]
 
-Defined in: [src/managers/UserManager.js:1127](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/UserManager.js#L1127)
-
-Get competencies required for a given role (for Schema.org sync)
+Defined in: [src/managers/UserManager.ts:1173](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/UserManager.ts#L1173)
 
 #### Parameters
 
@@ -760,39 +609,29 @@ Get competencies required for a given role (for Schema.org sync)
 
 `string`
 
-Role name
-
 #### Returns
 
-`any`[]
-
-Array of competency strings
+`string`[]
 
 ***
 
 ### getRoles()
 
-> **getRoles**(): `any`[]
+> **getRoles**(): [`Role`](../../../types/User/interfaces/Role.md)[]
 
-Defined in: [src/managers/UserManager.js:891](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/UserManager.js#L891)
-
-Get all roles
+Defined in: [src/managers/UserManager.ts:1019](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/UserManager.ts#L1019)
 
 #### Returns
 
-`any`[]
-
-Array of roles
+[`Role`](../../../types/User/interfaces/Role.md)[]
 
 ***
 
 ### getSession()
 
-> **getSession**(`sessionId`): `any`
+> **getSession**(`sessionId`): `Promise`\<[`UserSession`](../../../types/User/interfaces/UserSession.md)\>
 
-Defined in: [src/managers/UserManager.js:1180](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/UserManager.js#L1180)
-
-Get session data by ID
+Defined in: [src/managers/UserManager.ts:1209](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/UserManager.ts#L1209)
 
 #### Parameters
 
@@ -800,23 +639,17 @@ Get session data by ID
 
 `string`
 
-The ID of the session
-
 #### Returns
 
-`any`
-
-The session data, or null if not found
+`Promise`\<[`UserSession`](../../../types/User/interfaces/UserSession.md)\>
 
 ***
 
 ### getUser()
 
-> **getUser**(`username`): `any`
+> **getUser**(`username`): `Promise`\<`Omit`\<[`User`](../../../types/User/interfaces/User.md), `"password"`\>\>
 
-Defined in: [src/managers/UserManager.js:877](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/UserManager.js#L877)
-
-Get user by username
+Defined in: [src/managers/UserManager.ts:1007](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/UserManager.ts#L1007)
 
 #### Parameters
 
@@ -824,13 +657,9 @@ Get user by username
 
 `string`
 
-Username
-
 #### Returns
 
-`any`
-
-User object (without password)
+`Promise`\<`Omit`\<[`User`](../../../types/User/interfaces/User.md), `"password"`\>\>
 
 ***
 
@@ -838,7 +667,7 @@ User object (without password)
 
 > **getUserPermissions**(`username`): `Promise`\<`string`[]\>
 
-Defined in: [src/managers/UserManager.js:478](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/UserManager.js#L478)
+Defined in: [src/managers/UserManager.ts:611](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/UserManager.ts#L611)
 
 Get user's effective permissions from PolicyManager
 
@@ -860,17 +689,13 @@ Array of permission strings
 
 ### getUsers()
 
-> **getUsers**(): `any`[]
+> **getUsers**(): `Promise`\<`Omit`\<[`User`](../../../types/User/interfaces/User.md), `"password"`\>[]\>
 
-Defined in: [src/managers/UserManager.js:864](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/UserManager.js#L864)
-
-Get all users
+Defined in: [src/managers/UserManager.ts:996](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/UserManager.ts#L996)
 
 #### Returns
 
-`any`[]
-
-Array of users (without passwords)
+`Promise`\<`Omit`\<[`User`](../../../types/User/interfaces/User.md), `"password"`\>[]\>
 
 ***
 
@@ -878,7 +703,7 @@ Array of users (without passwords)
 
 > **hashPassword**(`password`): `string`
 
-Defined in: [src/managers/UserManager.js:234](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/UserManager.js#L234)
+Defined in: [src/managers/UserManager.ts:342](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/UserManager.ts#L342)
 
 Simple password hashing using crypto
 
@@ -902,7 +727,7 @@ Hashed password
 
 > **hasPermission**(`username`, `action`): `Promise`\<`boolean`\>
 
-Defined in: [src/managers/UserManager.js:430](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/UserManager.js#L430)
+Defined in: [src/managers/UserManager.ts:556](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/UserManager.ts#L556)
 
 Check if user has permission using policy-based access control
 
@@ -930,11 +755,9 @@ True if user has permission via policies
 
 ### hasRole()
 
-> **hasRole**(`username`, `roleName`): `boolean`
+> **hasRole**(`username`, `roleName`): `Promise`\<`boolean`\>
 
-Defined in: [src/managers/UserManager.js:1067](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/UserManager.js#L1067)
-
-Check if a user has a specific role
+Defined in: [src/managers/UserManager.ts:1126](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/UserManager.ts#L1126)
 
 #### Parameters
 
@@ -942,19 +765,13 @@ Check if a user has a specific role
 
 `string`
 
-Username to check
-
 ##### roleName
 
 `string`
 
-Role name to check for
-
 #### Returns
 
-`boolean`
-
-True if user has the role
+`Promise`\<`boolean`\>
 
 ***
 
@@ -962,7 +779,7 @@ True if user has the role
 
 > **initialize**(`config?`): `Promise`\<`void`\>
 
-Defined in: [src/managers/UserManager.js:76](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/UserManager.js#L76)
+Defined in: [src/managers/UserManager.ts:178](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/UserManager.ts#L178)
 
 Initialize the UserManager and load the configured provider
 
@@ -973,7 +790,7 @@ user if no users exist.
 
 ##### config?
 
-`any` = `{}`
+`Record`\<`string`, `unknown`\> = `{}`
 
 Configuration object (unused, reads from ConfigurationManager)
 
@@ -996,7 +813,7 @@ await userManager.initialize();
 
 #### Overrides
 
-[`export=`](../../BaseManager/classes/export=.md).[`initialize`](../../BaseManager/classes/export=.md#initialize)
+[`default`](../../BaseManager/classes/default.md).[`initialize`](../../BaseManager/classes/default.md#initialize)
 
 ***
 
@@ -1004,7 +821,7 @@ await userManager.initialize();
 
 > **isAdminUsingDefaultPassword**(): `Promise`\<`boolean`\>
 
-Defined in: [src/managers/UserManager.js:253](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/UserManager.js#L253)
+Defined in: [src/managers/UserManager.ts:361](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/UserManager.ts#L361)
 
 Check if admin user still has the default password
 
@@ -1020,7 +837,7 @@ True if admin has default password
 
 > **isInitialized**(): `boolean`
 
-Defined in: [src/managers/BaseManager.js:69](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/BaseManager.js#L69)
+Defined in: [src/managers/BaseManager.ts:114](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L114)
 
 Check if manager has been initialized
 
@@ -1040,17 +857,15 @@ if (manager.isInitialized()) {
 
 #### Inherited from
 
-[`export=`](../../BaseManager/classes/export=.md).[`isInitialized`](../../BaseManager/classes/export=.md#isinitialized)
+[`default`](../../BaseManager/classes/default.md).[`isInitialized`](../../BaseManager/classes/default.md#isinitialized)
 
 ***
 
 ### removeRole()
 
-> **removeRole**(`username`, `roleName`): `boolean`
+> **removeRole**(`username`, `roleName`): `Promise`\<`boolean`\>
 
-Defined in: [src/managers/UserManager.js:1106](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/UserManager.js#L1106)
-
-Remove a role from a user
+Defined in: [src/managers/UserManager.ts:1156](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/UserManager.ts#L1156)
 
 #### Parameters
 
@@ -1058,29 +873,21 @@ Remove a role from a user
 
 `string`
 
-Username
-
 ##### roleName
 
 `string`
 
-Role name to remove
-
 #### Returns
 
-`boolean`
-
-True if successful
+`Promise`\<`boolean`\>
 
 ***
 
 ### requirePermissions()
 
-> **requirePermissions**(`requiredPermissions`): `Function`
+> **requirePermissions**(`requiredPermissions`): (`req`, `res`, `next`) => `void`
 
-Defined in: [src/managers/UserManager.js:1015](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/UserManager.js#L1015)
-
-Middleware to ensure user has specific permissions.
+Defined in: [src/managers/UserManager.ts:1089](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/UserManager.ts#L1089)
 
 #### Parameters
 
@@ -1088,13 +895,27 @@ Middleware to ensure user has specific permissions.
 
 `string`[] = `[]`
 
-The permissions required.
-
 #### Returns
 
-`Function`
+> (`req`, `res`, `next`): `void`
 
-Middleware function.
+##### Parameters
+
+###### req
+
+`Request`
+
+###### res
+
+`Response`
+
+###### next
+
+`NextFunction`
+
+##### Returns
+
+`void`
 
 ***
 
@@ -1102,28 +923,44 @@ Middleware function.
 
 > **restore**(`backupData`): `Promise`\<`void`\>
 
-Defined in: [src/managers/UserManager.js:1251](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/UserManager.js#L1251)
+Defined in: [src/managers/UserManager.ts:1266](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/UserManager.ts#L1266)
 
-Restore user data from backup
+Restore manager data from backup
 
-Delegates to the provider's restore() method to recreate all users and sessions
-from the backup data.
+MUST be overridden by all managers that manage persistent data.
+Default implementation only validates that backup data is provided.
 
 #### Parameters
 
 ##### backupData
 
-`any`
+[`BackupData`](../../BaseManager/interfaces/BackupData.md)
 
-Backup data from backup() method
+Backup data object from backup() method
 
 #### Returns
 
 `Promise`\<`void`\>
 
+#### Throws
+
+If restore operation fails or backup data is missing
+
+#### Example
+
+```ts
+async restore(backupData: BackupData): Promise<void> {
+  if (!backupData || !backupData.data) {
+    throw new Error('Invalid backup data');
+  }
+  this.users = new Map(backupData.data.users.map(u => [u.id, u]));
+  this.settings = backupData.data.settings;
+}
+```
+
 #### Overrides
 
-[`export=`](../../BaseManager/classes/export=.md).[`restore`](../../BaseManager/classes/export=.md#restore)
+[`default`](../../BaseManager/classes/default.md).[`restore`](../../BaseManager/classes/default.md#restore)
 
 ***
 
@@ -1131,7 +968,7 @@ Backup data from backup() method
 
 > **shutdown**(): `Promise`\<`void`\>
 
-Defined in: [src/managers/BaseManager.js:101](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/BaseManager.js#L101)
+Defined in: [src/managers/BaseManager.ts:143](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L143)
 
 Shutdown the manager and cleanup resources
 
@@ -1142,12 +979,10 @@ Always call super.shutdown() at the end of overridden implementations.
 
 `Promise`\<`void`\>
 
-#### Async
-
 #### Example
 
 ```ts
-async shutdown() {
+async shutdown(): Promise<void> {
   // Your cleanup logic here
   await this.closeConnections();
   await super.shutdown();
@@ -1156,19 +991,15 @@ async shutdown() {
 
 #### Inherited from
 
-[`export=`](../../BaseManager/classes/export=.md).[`shutdown`](../../BaseManager/classes/export=.md#shutdown)
+[`default`](../../BaseManager/classes/default.md).[`shutdown`](../../BaseManager/classes/default.md#shutdown)
 
 ***
 
-### ~~updateRolePermissions()~~
+### updateRolePermissions()
 
-> **updateRolePermissions**(`_roleName`, `_updates`): `Promise`\<`void`\>
+> **updateRolePermissions**(`_roleName`, `_updates`): `never`
 
-Defined in: [src/managers/UserManager.js:949](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/UserManager.js#L949)
-
-Update role permissions
-NOTE: Role permissions are now defined via policies in config files
-This method is deprecated and will be removed in a future version.
+Defined in: [src/managers/UserManager.ts:1042](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/UserManager.ts#L1042)
 
 #### Parameters
 
@@ -1176,29 +1007,21 @@ This method is deprecated and will be removed in a future version.
 
 `string`
 
-Role name to update (unused)
-
 ##### \_updates
 
-`any`
-
-Updates to apply (unused)
+`unknown`
 
 #### Returns
 
-`Promise`\<`void`\>
-
-#### Deprecated
-
-Use policies in config to manage permissions instead
+`never`
 
 ***
 
 ### updateUser()
 
-> **updateUser**(`username`, `updates`): `Promise`\<`any`\>
+> **updateUser**(`username`, `updates`): `Promise`\<[`User`](../../../types/User/interfaces/User.md)\>
 
-Defined in: [src/managers/UserManager.js:761](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/UserManager.js#L761)
+Defined in: [src/managers/UserManager.ts:902](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/UserManager.ts#L902)
 
 Update user
 
@@ -1208,17 +1031,13 @@ Update user
 
 `string`
 
-Username
-
 ##### updates
 
-`any`
-
-Updates to apply
+`UserUpdateInput`
 
 #### Returns
 
-`Promise`\<`any`\>
+`Promise`\<[`User`](../../../types/User/interfaces/User.md)\>
 
 ***
 
@@ -1226,7 +1045,7 @@ Updates to apply
 
 > **verifyPassword**(`password`, `hash`): `boolean`
 
-Defined in: [src/managers/UserManager.js:245](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/UserManager.js#L245)
+Defined in: [src/managers/UserManager.ts:353](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/UserManager.ts#L353)
 
 Verify password against hash
 

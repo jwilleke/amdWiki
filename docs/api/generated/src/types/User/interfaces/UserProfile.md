@@ -6,7 +6,7 @@
 
 # Interface: UserProfile
 
-Defined in: [src/types/User.ts:267](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/User.ts#L267)
+Defined in: [src/types/User.ts:267](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L267)
 
 User profile
 
@@ -18,7 +18,7 @@ Public user profile (safe to expose to other users).
 
 > `optional` **avatar**: `string`
 
-Defined in: [src/types/User.ts:278](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/User.ts#L278)
+Defined in: [src/types/User.ts:278](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L278)
 
 Avatar
 
@@ -28,7 +28,7 @@ Avatar
 
 > **createdAt**: `string`
 
-Defined in: [src/types/User.ts:287](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/User.ts#L287)
+Defined in: [src/types/User.ts:287](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L287)
 
 Account creation date
 
@@ -38,7 +38,7 @@ Account creation date
 
 > **displayName**: `string`
 
-Defined in: [src/types/User.ts:272](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/User.ts#L272)
+Defined in: [src/types/User.ts:272](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L272)
 
 Display name
 
@@ -48,7 +48,7 @@ Display name
 
 > `optional` **email**: `string`
 
-Defined in: [src/types/User.ts:275](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/User.ts#L275)
+Defined in: [src/types/User.ts:275](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L275)
 
 Email (may be hidden based on privacy settings)
 
@@ -58,7 +58,7 @@ Email (may be hidden based on privacy settings)
 
 > **isActive**: `boolean`
 
-Defined in: [src/types/User.ts:284](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/User.ts#L284)
+Defined in: [src/types/User.ts:284](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L284)
 
 Whether user is active
 
@@ -68,7 +68,7 @@ Whether user is active
 
 > `optional` **lastLogin**: `string`
 
-Defined in: [src/types/User.ts:290](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/User.ts#L290)
+Defined in: [src/types/User.ts:290](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L290)
 
 Last login (may be hidden)
 
@@ -78,7 +78,7 @@ Last login (may be hidden)
 
 > `optional` **roles**: `string`[]
 
-Defined in: [src/types/User.ts:281](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/User.ts#L281)
+Defined in: [src/types/User.ts:281](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L281)
 
 Roles (may be filtered based on permissions)
 
@@ -88,6 +88,6 @@ Roles (may be filtered based on permissions)
 
 > **username**: `string`
 
-Defined in: [src/types/User.ts:269](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/User.ts#L269)
+Defined in: [src/types/User.ts:269](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L269)
 
 Username

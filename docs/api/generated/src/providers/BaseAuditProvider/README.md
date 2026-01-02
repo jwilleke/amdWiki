@@ -17,4 +17,9 @@
 - [AuditSearchResults](interfaces/AuditSearchResults.md)
 - [AuditStats](interfaces/AuditStats.md)
 - [ProviderInfo](interfaces/ProviderInfo.md)
-- [WikiEngine](interfaces/WikiEngine.md)
+
+## References
+
+### WikiEngine
+
+Re-exports [WikiEngine](../../types/WikiEngine/interfaces/WikiEngine.md)

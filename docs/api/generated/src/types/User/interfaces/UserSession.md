@@ -6,7 +6,7 @@
 
 # Interface: UserSession
 
-Defined in: [src/types/User.ts:161](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/User.ts#L161)
+Defined in: [src/types/User.ts:161](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L161)
 
 User session data
 
@@ -18,7 +18,7 @@ Active session information stored by session manager.
 
 > **createdAt**: `string`
 
-Defined in: [src/types/User.ts:172](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/User.ts#L172)
+Defined in: [src/types/User.ts:172](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L172)
 
 Session creation timestamp (ISO 8601)
 
@@ -28,7 +28,7 @@ Session creation timestamp (ISO 8601)
 
 > `optional` **data**: `Record`\<`string`, `any`\>
 
-Defined in: [src/types/User.ts:187](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/User.ts#L187)
+Defined in: [src/types/User.ts:187](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L187)
 
 Additional session data
 
@@ -38,7 +38,7 @@ Additional session data
 
 > **expiresAt**: `string`
 
-Defined in: [src/types/User.ts:175](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/User.ts#L175)
+Defined in: [src/types/User.ts:175](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L175)
 
 Session expiration timestamp (ISO 8601)
 
@@ -48,7 +48,7 @@ Session expiration timestamp (ISO 8601)
 
 > `optional` **ipAddress**: `string`
 
-Defined in: [src/types/User.ts:181](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/User.ts#L181)
+Defined in: [src/types/User.ts:181](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L181)
 
 Client IP address
 
@@ -58,7 +58,7 @@ Client IP address
 
 > **lastActivity**: `string`
 
-Defined in: [src/types/User.ts:178](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/User.ts#L178)
+Defined in: [src/types/User.ts:178](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L178)
 
 Last activity timestamp (ISO 8601)
 
@@ -68,7 +68,7 @@ Last activity timestamp (ISO 8601)
 
 > **sessionId**: `string`
 
-Defined in: [src/types/User.ts:163](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/User.ts#L163)
+Defined in: [src/types/User.ts:163](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L163)
 
 Session ID (unique)
 
@@ -78,7 +78,7 @@ Session ID (unique)
 
 > `optional` **userAgent**: `string`
 
-Defined in: [src/types/User.ts:184](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/User.ts#L184)
+Defined in: [src/types/User.ts:184](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L184)
 
 User agent string
 
@@ -88,7 +88,7 @@ User agent string
 
 > **userId**: `string`
 
-Defined in: [src/types/User.ts:169](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/User.ts#L169)
+Defined in: [src/types/User.ts:169](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L169)
 
 User ID (username or external ID)
 
@@ -98,6 +98,6 @@ User ID (username or external ID)
 
 > **username**: `string`
 
-Defined in: [src/types/User.ts:166](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/User.ts#L166)
+Defined in: [src/types/User.ts:166](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L166)
 
 Username

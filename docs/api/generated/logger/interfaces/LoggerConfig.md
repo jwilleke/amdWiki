@@ -6,7 +6,7 @@
 
 # Interface: LoggerConfig
 
-Defined in: [src/utils/logger.ts:21](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/utils/logger.ts#L21)
+Defined in: [src/utils/logger.ts:21](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/logger.ts#L21)
 
 Logger configuration options
 
@@ -16,7 +16,7 @@ Logger configuration options
 
 > `optional` **dir**: `string`
 
-Defined in: [src/utils/logger.ts:25](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/utils/logger.ts#L25)
+Defined in: [src/utils/logger.ts:25](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/logger.ts#L25)
 
 Log directory path
 
@@ -26,7 +26,7 @@ Log directory path
 
 > `optional` **level**: `string`
 
-Defined in: [src/utils/logger.ts:23](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/utils/logger.ts#L23)
+Defined in: [src/utils/logger.ts:23](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/logger.ts#L23)
 
 Log level (error, warn, info, debug)
 
@@ -36,7 +36,7 @@ Log level (error, warn, info, debug)
 
 > `optional` **maxFiles**: `number`
 
-Defined in: [src/utils/logger.ts:29](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/utils/logger.ts#L29)
+Defined in: [src/utils/logger.ts:29](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/logger.ts#L29)
 
 Max number of rotated log files
 
@@ -46,6 +46,6 @@ Max number of rotated log files
 
 > `optional` **maxSize**: `string` \| `number`
 
-Defined in: [src/utils/logger.ts:27](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/utils/logger.ts#L27)
+Defined in: [src/utils/logger.ts:27](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/logger.ts#L27)
 
 Max log file size in bytes or string format (e.g., '1MB')

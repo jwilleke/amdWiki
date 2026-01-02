@@ -8,7 +8,7 @@
 
 > **isAttachmentMetadata**(`value`): `value is AttachmentMetadata`
 
-Defined in: [src/types/guards.ts:291](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/guards.ts#L291)
+Defined in: [src/types/guards.ts:305](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/guards.ts#L305)
 
 Check if value is a valid AttachmentMetadata object
 
@@ -16,7 +16,7 @@ Check if value is a valid AttachmentMetadata object
 
 ### value
 
-`any`
+`unknown`
 
 ## Returns
 

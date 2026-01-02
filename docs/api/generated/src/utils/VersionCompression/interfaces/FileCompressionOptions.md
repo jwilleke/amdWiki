@@ -6,7 +6,7 @@
 
 # Interface: FileCompressionOptions
 
-Defined in: [src/utils/VersionCompression.ts:15](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/utils/VersionCompression.ts#L15)
+Defined in: [src/utils/VersionCompression.ts:15](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/VersionCompression.ts#L15)
 
 File compression options
 
@@ -20,7 +20,7 @@ File compression options
 
 > `optional` **keepOriginal**: `boolean`
 
-Defined in: [src/utils/VersionCompression.ts:17](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/utils/VersionCompression.ts#L17)
+Defined in: [src/utils/VersionCompression.ts:17](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/VersionCompression.ts#L17)
 
 Keep original file after compression (default false)
 
@@ -30,7 +30,7 @@ Keep original file after compression (default false)
 
 > `optional` **level**: `number`
 
-Defined in: [src/utils/VersionCompression.ts:9](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/utils/VersionCompression.ts#L9)
+Defined in: [src/utils/VersionCompression.ts:9](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/VersionCompression.ts#L9)
 
 Compression level (1-9, default 6)
 

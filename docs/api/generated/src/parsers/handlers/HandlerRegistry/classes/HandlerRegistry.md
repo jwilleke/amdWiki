@@ -6,15 +6,9 @@
 
 # Class: HandlerRegistry
 
-Defined in: [src/parsers/handlers/HandlerRegistry.js:12](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/HandlerRegistry.js#L12)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:110](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L110)
 
 HandlerRegistry - Advanced handler registration and management system
-
-Provides sophisticated handler registration with priority management,
-conflict detection, dependency resolution, and dynamic loading capabilities.
-
-Related Issue: #56 - Handler Registration and Priority System
-Epic: #41 - Implement JSPWikiMarkupParser for Complete Enhancement Support
 
 ## Constructors
 
@@ -22,117 +16,17 @@ Epic: #41 - Implement JSPWikiMarkupParser for Complete Enhancement Support
 
 > **new HandlerRegistry**(`engine`): `HandlerRegistry`
 
-Defined in: [src/parsers/handlers/HandlerRegistry.js:13](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/HandlerRegistry.js#L13)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:119](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L119)
 
 #### Parameters
 
 ##### engine
 
-`any` = `null`
+[`WikiEngine`](../interfaces/WikiEngine.md) = `null`
 
 #### Returns
 
 `HandlerRegistry`
-
-## Properties
-
-### config
-
-> **config**: `object`
-
-Defined in: [src/parsers/handlers/HandlerRegistry.js:21](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/HandlerRegistry.js#L21)
-
-#### allowDuplicatePriorities
-
-> **allowDuplicatePriorities**: `boolean` = `true`
-
-#### defaultTimeout
-
-> **defaultTimeout**: `number` = `5000`
-
-#### enableConflictDetection
-
-> **enableConflictDetection**: `boolean` = `true`
-
-#### enableDependencyResolution
-
-> **enableDependencyResolution**: `boolean` = `true`
-
-#### maxHandlers
-
-> **maxHandlers**: `number` = `100`
-
-***
-
-### dependencyGraph
-
-> **dependencyGraph**: `Map`\<`any`, `any`\>
-
-Defined in: [src/parsers/handlers/HandlerRegistry.js:18](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/HandlerRegistry.js#L18)
-
-***
-
-### engine
-
-> **engine**: `any`
-
-Defined in: [src/parsers/handlers/HandlerRegistry.js:14](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/HandlerRegistry.js#L14)
-
-***
-
-### handlers
-
-> **handlers**: `Map`\<`any`, `any`\>
-
-Defined in: [src/parsers/handlers/HandlerRegistry.js:15](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/HandlerRegistry.js#L15)
-
-***
-
-### handlersByPattern
-
-> **handlersByPattern**: `Map`\<`any`, `any`\>
-
-Defined in: [src/parsers/handlers/HandlerRegistry.js:17](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/HandlerRegistry.js#L17)
-
-***
-
-### handlersByPriority
-
-> **handlersByPriority**: `any`[]
-
-Defined in: [src/parsers/handlers/HandlerRegistry.js:16](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/HandlerRegistry.js#L16)
-
-***
-
-### stats
-
-> **stats**: `object`
-
-Defined in: [src/parsers/handlers/HandlerRegistry.js:30](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/HandlerRegistry.js#L30)
-
-#### activeHandlers
-
-> **activeHandlers**: `number` = `0`
-
-#### lastRegistration
-
-> **lastRegistration**: `any` = `null`
-
-#### lastUnregistration
-
-> **lastUnregistration**: `any` = `null`
-
-#### registeredHandlers
-
-> **registeredHandlers**: `number` = `0`
-
-#### totalErrors
-
-> **totalErrors**: `number` = `0`
-
-#### totalExecutions
-
-> **totalExecutions**: `number` = `0`
 
 ## Methods
 
@@ -140,7 +34,7 @@ Defined in: [src/parsers/handlers/HandlerRegistry.js:30](https://github.com/jwil
 
 > **clearAll**(): `Promise`\<`void`\>
 
-Defined in: [src/parsers/handlers/HandlerRegistry.js:512](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/HandlerRegistry.js#L512)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:625](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L625)
 
 Clear all handlers
 
@@ -150,35 +44,11 @@ Clear all handlers
 
 ***
 
-### detectConflicts()
-
-> **detectConflicts**(`newHandler`): [`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md)[]
-
-Defined in: [src/parsers/handlers/HandlerRegistry.js:231](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/HandlerRegistry.js#L231)
-
-Detect conflicts with existing handlers
-
-#### Parameters
-
-##### newHandler
-
-[`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md)
-
-New handler to check
-
-#### Returns
-
-[`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md)[]
-
-- Array of conflicting handlers
-
-***
-
 ### disableHandler()
 
 > **disableHandler**(`handlerId`): `boolean`
 
-Defined in: [src/parsers/handlers/HandlerRegistry.js:374](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/HandlerRegistry.js#L374)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:485](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L485)
 
 Disable handler by ID
 
@@ -194,7 +64,7 @@ Handler ID
 
 `boolean`
 
-- True if successful
+True if successful
 
 ***
 
@@ -202,7 +72,7 @@ Handler ID
 
 > **enableHandler**(`handlerId`): `boolean`
 
-Defined in: [src/parsers/handlers/HandlerRegistry.js:359](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/HandlerRegistry.js#L359)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:470](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L470)
 
 Enable handler by ID
 
@@ -218,55 +88,31 @@ Handler ID
 
 `boolean`
 
-- True if successful
+True if successful
 
 ***
 
 ### exportState()
 
-> **exportState**(): `any`
+> **exportState**(): [`ExportedRegistryState`](../interfaces/ExportedRegistryState.md)
 
-Defined in: [src/parsers/handlers/HandlerRegistry.js:536](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/HandlerRegistry.js#L536)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:650](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L650)
 
 Export registry state for persistence
 
 #### Returns
 
-`any`
+[`ExportedRegistryState`](../interfaces/ExportedRegistryState.md)
 
-- Serializable registry state
-
-***
-
-### getDependentHandlers()
-
-> **getDependentHandlers**(`handlerId`): [`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md)[]
-
-Defined in: [src/parsers/handlers/HandlerRegistry.js:306](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/HandlerRegistry.js#L306)
-
-Get handlers that depend on the specified handler
-
-#### Parameters
-
-##### handlerId
-
-`string`
-
-Handler ID
-
-#### Returns
-
-[`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md)[]
-
-- Dependent handlers
+Serializable registry state
 
 ***
 
 ### getHandler()
 
-> **getHandler**(`handlerId`): [`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md)
+> **getHandler**(`handlerId`): [`default`](../../BaseSyntaxHandler/classes/default.md)
 
-Defined in: [src/parsers/handlers/HandlerRegistry.js:318](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/HandlerRegistry.js#L318)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:429](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L429)
 
 Get handler by ID
 
@@ -280,17 +126,17 @@ Handler ID
 
 #### Returns
 
-[`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md)
+[`default`](../../BaseSyntaxHandler/classes/default.md)
 
-- Handler or null if not found
+Handler or null if not found
 
 ***
 
 ### getHandlersByPattern()
 
-> **getHandlersByPattern**(`pattern`): [`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md)[]
+> **getHandlersByPattern**(`pattern`): [`default`](../../BaseSyntaxHandler/classes/default.md)[]
 
-Defined in: [src/parsers/handlers/HandlerRegistry.js:341](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/HandlerRegistry.js#L341)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:452](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L452)
 
 Get handlers by pattern
 
@@ -304,17 +150,17 @@ Pattern to match
 
 #### Returns
 
-[`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md)[]
+[`default`](../../BaseSyntaxHandler/classes/default.md)[]
 
-- Matching handlers
+Matching handlers
 
 ***
 
 ### getHandlersByPriority()
 
-> **getHandlersByPriority**(`enabledOnly`): [`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md)[]
+> **getHandlersByPriority**(`enabledOnly`): [`default`](../../BaseSyntaxHandler/classes/default.md)[]
 
-Defined in: [src/parsers/handlers/HandlerRegistry.js:327](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/HandlerRegistry.js#L327)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:438](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L438)
 
 Get all handlers sorted by priority
 
@@ -328,85 +174,41 @@ Only return enabled handlers
 
 #### Returns
 
-[`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md)[]
+[`default`](../../BaseSyntaxHandler/classes/default.md)[]
 
-- Handlers sorted by priority
+Handlers sorted by priority
 
 ***
 
 ### getInfo()
 
-> **getInfo**(): `any`
+> **getInfo**(): [`RegistryInfo`](../interfaces/RegistryInfo.md)
 
-Defined in: [src/parsers/handlers/HandlerRegistry.js:549](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/HandlerRegistry.js#L549)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:663](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L663)
 
 Get registry information
 
 #### Returns
 
-`any`
+[`RegistryInfo`](../interfaces/RegistryInfo.md)
 
-- Registry information
+Registry information
 
 ***
 
 ### getStats()
 
-> **getStats**(): `any`
+> **getStats**(): [`ExtendedRegistryStats`](../interfaces/ExtendedRegistryStats.md)
 
-Defined in: [src/parsers/handlers/HandlerRegistry.js:388](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/HandlerRegistry.js#L388)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:499](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L499)
 
 Get registry statistics
 
 #### Returns
 
-`any`
+[`ExtendedRegistryStats`](../interfaces/ExtendedRegistryStats.md)
 
-- Registry statistics
-
-***
-
-### handlersConflict()
-
-> **handlersConflict**(`handler1`, `handler2`): `boolean`
-
-Defined in: [src/parsers/handlers/HandlerRegistry.js:249](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/HandlerRegistry.js#L249)
-
-Check if two handlers conflict
-
-#### Parameters
-
-##### handler1
-
-[`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md)
-
-First handler
-
-##### handler2
-
-[`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md)
-
-Second handler
-
-#### Returns
-
-`boolean`
-
-- True if handlers conflict
-
-***
-
-### rebuildPriorityList()
-
-> **rebuildPriorityList**(): `void`
-
-Defined in: [src/parsers/handlers/HandlerRegistry.js:262](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/HandlerRegistry.js#L262)
-
-Rebuild the priority-sorted handler list
-
-#### Returns
-
-`void`
+Registry statistics
 
 ***
 
@@ -414,7 +216,7 @@ Rebuild the priority-sorted handler list
 
 > **registerHandler**(`handler`, `options`): `Promise`\<`boolean`\>
 
-Defined in: [src/parsers/handlers/HandlerRegistry.js:46](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/HandlerRegistry.js#L46)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:152](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L152)
 
 Register a syntax handler with full validation and conflict detection
 
@@ -422,13 +224,13 @@ Register a syntax handler with full validation and conflict detection
 
 ##### handler
 
-[`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md)
+[`default`](../../BaseSyntaxHandler/classes/default.md)
 
 Handler to register
 
 ##### options
 
-`any` = `{}`
+[`RegistrationOptions`](../interfaces/RegistrationOptions.md) = `{}`
 
 Registration options
 
@@ -436,7 +238,7 @@ Registration options
 
 `Promise`\<`boolean`\>
 
-- True if registration successful
+True if registration successful
 
 ***
 
@@ -444,7 +246,7 @@ Registration options
 
 > **resetStats**(): `void`
 
-Defined in: [src/parsers/handlers/HandlerRegistry.js:411](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/HandlerRegistry.js#L411)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:523](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L523)
 
 Reset all handler statistics
 
@@ -456,17 +258,17 @@ Reset all handler statistics
 
 ### resolveExecutionOrder()
 
-> **resolveExecutionOrder**(): [`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md)[]
+> **resolveExecutionOrder**(): [`default`](../../BaseSyntaxHandler/classes/default.md)[]
 
-Defined in: [src/parsers/handlers/HandlerRegistry.js:431](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/HandlerRegistry.js#L431)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:543](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L543)
 
 Resolve handler execution order considering dependencies
 
 #### Returns
 
-[`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md)[]
+[`default`](../../BaseSyntaxHandler/classes/default.md)[]
 
-- Handlers in dependency-resolved order
+Handlers in dependency-resolved order
 
 ***
 
@@ -474,7 +276,7 @@ Resolve handler execution order considering dependencies
 
 > **unregisterHandler**(`handlerId`): `Promise`\<`boolean`\>
 
-Defined in: [src/parsers/handlers/HandlerRegistry.js:118](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/HandlerRegistry.js#L118)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:225](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L225)
 
 Unregister a syntax handler
 
@@ -490,64 +292,20 @@ ID of handler to unregister
 
 `Promise`\<`boolean`\>
 
-- True if unregistration successful
-
-***
-
-### updateDependencyGraph()
-
-> **updateDependencyGraph**(`handler`): `void`
-
-Defined in: [src/parsers/handlers/HandlerRegistry.js:279](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/HandlerRegistry.js#L279)
-
-Update dependency graph when handler is registered
-
-#### Parameters
-
-##### handler
-
-[`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md)
-
-Handler being registered
-
-#### Returns
-
-`void`
+True if unregistration successful
 
 ***
 
 ### validateDependencies()
 
-> **validateDependencies**(): `any`[]
+> **validateDependencies**(): [`DependencyValidationError`](../interfaces/DependencyValidationError.md)[]
 
-Defined in: [src/parsers/handlers/HandlerRegistry.js:486](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/HandlerRegistry.js#L486)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:599](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L599)
 
 Validate all handler dependencies
 
 #### Returns
 
-`any`[]
+[`DependencyValidationError`](../interfaces/DependencyValidationError.md)[]
 
-- Array of dependency validation errors
-
-***
-
-### validateHandler()
-
-> **validateHandler**(`handler`): `void`
-
-Defined in: [src/parsers/handlers/HandlerRegistry.js:168](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/HandlerRegistry.js#L168)
-
-Validate handler before registration
-
-#### Parameters
-
-##### handler
-
-[`BaseSyntaxHandler`](../../BaseSyntaxHandler/classes/BaseSyntaxHandler.md)
-
-Handler to validate
-
-#### Returns
-
-`void`
+Array of dependency validation errors

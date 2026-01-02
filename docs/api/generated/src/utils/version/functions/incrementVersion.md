@@ -8,18 +8,30 @@
 
 > **incrementVersion**(`currentVersion`, `type`): `string`
 
-Defined in: [src/utils/version.js:58](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/utils/version.js#L58)
+Defined in: [src/utils/version.ts:118](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/version.ts#L118)
+
+Increment version based on type
 
 ## Parameters
 
 ### currentVersion
 
-`any`
+`string`
+
+Current version string
 
 ### type
 
-`any`
+[`VersionIncrementType`](../type-aliases/VersionIncrementType.md)
+
+Type of increment
 
 ## Returns
 
 `string`
+
+New version string
+
+## Throws
+
+If increment type is invalid

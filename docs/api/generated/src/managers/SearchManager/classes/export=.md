@@ -6,7 +6,7 @@
 
 # Class: export=
 
-Defined in: [src/managers/SearchManager.js:43](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/SearchManager.js#L43)
+Defined in: [src/managers/SearchManager.ts:161](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/SearchManager.ts#L161)
 
 SearchManager - Handles search indexing and querying
 
@@ -15,7 +15,6 @@ capabilities through a pluggable provider system. Supports different search
 backends (Lunr.js, Elasticsearch, etc.) via provider abstraction.
 
 Key features:
-
 - Pluggable search provider system
 - Full-text indexing of page content and metadata
 - Configurable search ranking and filtering
@@ -26,7 +25,6 @@ Follows the provider pattern established in AttachmentManager, PageManager,
 CacheManager, and AuditManager for pluggable search backends.
 
 Configuration (all lowercase):
-
 - amdwiki.search.enabled - Enable/disable search
 - amdwiki.search.provider.default - Default provider name
 - amdwiki.search.provider - Active provider name
@@ -36,8 +34,8 @@ Configuration (all lowercase):
 
 ## See
 
-- [BaseManager](../../BaseManager/classes/export=.md) for base functionality
-- LunrSearchProvider for default provider implementation
+ - [BaseManager](../../BaseManager/classes/default.md) for base functionality
+ - LunrSearchProvider for default provider implementation
 
 ## Example
 
@@ -51,7 +49,7 @@ Related: GitHub Issue #102 - Configuration reorganization
 
 ## Extends
 
-- [`export=`](../../BaseManager/classes/export=.md)
+- [`default`](../../BaseManager/classes/default.md)
 
 ## Constructors
 
@@ -59,7 +57,7 @@ Related: GitHub Issue #102 - Configuration reorganization
 
 > **new export=**(`engine`): `SearchManager`
 
-Defined in: [src/managers/SearchManager.js:50](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/SearchManager.js#L50)
+Defined in: [src/managers/SearchManager.ts:171](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/SearchManager.ts#L171)
 
 Creates a new SearchManager instance
 
@@ -67,7 +65,7 @@ Creates a new SearchManager instance
 
 ##### engine
 
-`WikiEngine`
+[`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
 The wiki engine instance
 
@@ -77,69 +75,49 @@ The wiki engine instance
 
 #### Overrides
 
-[`export=`](../../BaseManager/classes/export=.md).[`constructor`](../../BaseManager/classes/export=.md#constructor)
+[`default`](../../BaseManager/classes/default.md).[`constructor`](../../BaseManager/classes/default.md#constructor)
 
 ## Properties
 
-### config
+### config?
 
-> **config**: `any`
+> `protected` `optional` **config**: `Record`\<`string`, `any`\>
 
-Defined in: [src/managers/BaseManager.js:55](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/BaseManager.js#L55)
+Defined in: [src/managers/BaseManager.ts:63](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L63)
 
-Configuration object passed during initialization
+Configuration passed during initialization
 
 #### Inherited from
 
-[`export=`](../../BaseManager/classes/export=.md).[`config`](../../BaseManager/classes/export=.md#config)
+[`default`](../../BaseManager/classes/default.md).[`config`](../../BaseManager/classes/default.md#config)
 
 ***
 
 ### engine
 
-> **engine**: `WikiEngine`
+> `protected` **engine**: [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/managers/BaseManager.js:33](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/BaseManager.js#L33)
+Defined in: [src/managers/BaseManager.ts:56](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L56)
 
 Reference to the wiki engine
 
 #### Inherited from
 
-[`export=`](../../BaseManager/classes/export=.md).[`engine`](../../BaseManager/classes/export=.md#engine)
+[`default`](../../BaseManager/classes/default.md).[`engine`](../../BaseManager/classes/default.md#engine)
 
 ***
 
 ### initialized
 
-> **initialized**: `boolean`
+> `protected` **initialized**: `boolean`
 
-Defined in: [src/managers/BaseManager.js:34](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/BaseManager.js#L34)
+Defined in: [src/managers/BaseManager.ts:59](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L59)
 
-Flag indicating initialization status
+Initialization status flag
 
 #### Inherited from
 
-[`export=`](../../BaseManager/classes/export=.md).[`initialized`](../../BaseManager/classes/export=.md#initialized)
-
-***
-
-### provider
-
-> **provider**: `any`
-
-Defined in: [src/managers/SearchManager.js:52](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/SearchManager.js#L52)
-
-The active search provider
-
-***
-
-### providerClass
-
-> **providerClass**: `string`
-
-Defined in: [src/managers/SearchManager.js:53](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/SearchManager.js#L53)
-
-The class name of the loaded provider
+[`default`](../../BaseManager/classes/default.md).[`initialized`](../../BaseManager/classes/default.md#initialized)
 
 ## Methods
 
@@ -147,7 +125,7 @@ The class name of the loaded provider
 
 > **addToIndex**(`page`): `Promise`\<`void`\>
 
-Defined in: [src/managers/SearchManager.js:601](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/SearchManager.js#L601)
+Defined in: [src/managers/SearchManager.ts:756](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/SearchManager.ts#L756)
 
 Add page to search index
 
@@ -155,7 +133,7 @@ Add page to search index
 
 ##### page
 
-`any`
+`PageData`
 
 Page object to add
 
@@ -167,9 +145,9 @@ Page object to add
 
 ### ~~advancedSearch()~~
 
-> **advancedSearch**(`options`): `Promise`\<`any`[]\>
+> **advancedSearch**(`options`): `Promise`\<`SearchResult`[]\>
 
-Defined in: [src/managers/SearchManager.js:324](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/SearchManager.js#L324)
+Defined in: [src/managers/SearchManager.ts:464](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/SearchManager.ts#L464)
 
 Advanced search with multiple criteria support
 
@@ -177,13 +155,13 @@ Advanced search with multiple criteria support
 
 ##### options
 
-`any` = `{}`
+`AdvancedSearchOptions` = `{}`
 
 Search options
 
 #### Returns
 
-`Promise`\<`any`[]\>
+`Promise`\<`SearchResult`[]\>
 
 Search results
 
@@ -195,9 +173,9 @@ Use advancedSearchWithContext() with WikiContext instead
 
 ### advancedSearchWithContext()
 
-> **advancedSearchWithContext**(`wikiContext`, `options?`): `Promise`\<`any`[]\>
+> **advancedSearchWithContext**(`wikiContext`, `options?`): `Promise`\<`SearchResult`[]\>
 
-Defined in: [src/managers/SearchManager.js:267](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/SearchManager.js#L267)
+Defined in: [src/managers/SearchManager.ts:402](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/SearchManager.ts#L402)
 
 Advanced search with WikiContext
 
@@ -214,45 +192,21 @@ The wiki context containing user info
 
 ##### options?
 
+`AdvancedSearchOptions` = `{}`
+
 Search options
-
-###### categories?
-
-`string`[]
-
-Categories to filter
-
-###### maxResults?
-
-`number`
-
-Maximum results to return
-
-###### query?
-
-`string`
-
-Text query
-
-###### searchIn?
-
-`string`[]
-
-Fields to search in
-
-###### userKeywords?
-
-`string`[]
-
-Keywords to filter
 
 #### Returns
 
-`Promise`\<`any`[]\>
+`Promise`\<`SearchResult`[]\>
 
 Search results
 
 #### Async
+
+#### Throws
+
+If wikiContext is not provided
 
 #### Example
 
@@ -268,21 +222,21 @@ const results = await searchManager.advancedSearchWithContext(wikiContext, {
 
 ### backup()
 
-> **backup**(): `Promise`\<`any`\>
+> **backup**(): `Promise`\<[`BackupData`](../../BaseManager/interfaces/BackupData.md)\>
 
-Defined in: [src/managers/SearchManager.js:646](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/SearchManager.js#L646)
+Defined in: [src/managers/SearchManager.ts:804](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/SearchManager.ts#L804)
 
 Backup search configuration and state
 
 #### Returns
 
-`Promise`\<`any`\>
+`Promise`\<[`BackupData`](../../BaseManager/interfaces/BackupData.md)\>
 
 Backup data
 
 #### Overrides
 
-[`export=`](../../BaseManager/classes/export=.md).[`backup`](../../BaseManager/classes/export=.md#backup)
+[`default`](../../BaseManager/classes/default.md).[`backup`](../../BaseManager/classes/default.md#backup)
 
 ***
 
@@ -290,7 +244,7 @@ Backup data
 
 > **buildSearchIndex**(): `Promise`\<`void`\>
 
-Defined in: [src/managers/SearchManager.js:188](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/SearchManager.js#L188)
+Defined in: [src/managers/SearchManager.ts:322](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/SearchManager.ts#L322)
 
 Build search index from all pages
 
@@ -298,13 +252,17 @@ Build search index from all pages
 
 `Promise`\<`void`\>
 
+#### Throws
+
+If index building fails
+
 ***
 
 ### getAllCategories()
 
 > **getAllCategories**(): `Promise`\<`string`[]\>
 
-Defined in: [src/managers/SearchManager.js:472](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/SearchManager.js#L472)
+Defined in: [src/managers/SearchManager.ts:620](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/SearchManager.ts#L620)
 
 Get all unique categories from indexed documents
 
@@ -320,7 +278,7 @@ List of categories
 
 > **getAllUserKeywords**(): `Promise`\<`string`[]\>
 
-Defined in: [src/managers/SearchManager.js:489](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/SearchManager.js#L489)
+Defined in: [src/managers/SearchManager.ts:638](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/SearchManager.ts#L638)
 
 Get all unique user keywords from indexed documents
 
@@ -336,7 +294,7 @@ List of user keywords
 
 > **getDocumentCount**(): `Promise`\<`number`\>
 
-Defined in: [src/managers/SearchManager.js:571](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/SearchManager.js#L571)
+Defined in: [src/managers/SearchManager.ts:724](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/SearchManager.ts#L724)
 
 Get the total number of indexed documents
 
@@ -350,15 +308,15 @@ Number of documents
 
 ### getEngine()
 
-> **getEngine**(): `WikiEngine`
+> **getEngine**(): [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/managers/BaseManager.js:81](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/BaseManager.js#L81)
+Defined in: [src/managers/BaseManager.ts:126](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L126)
 
 Get the wiki engine instance
 
 #### Returns
 
-`WikiEngine`
+[`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
 The wiki engine instance
 
@@ -370,21 +328,21 @@ const config = this.getEngine().getConfig();
 
 #### Inherited from
 
-[`export=`](../../BaseManager/classes/export=.md).[`getEngine`](../../BaseManager/classes/export=.md#getengine)
+[`default`](../../BaseManager/classes/default.md).[`getEngine`](../../BaseManager/classes/default.md#getengine)
 
 ***
 
 ### getStatistics()
 
-> **getStatistics**(): `Promise`\<`any`\>
+> **getStatistics**(): `Promise`\<`SearchStatistics`\>
 
-Defined in: [src/managers/SearchManager.js:542](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/SearchManager.js#L542)
+Defined in: [src/managers/SearchManager.ts:694](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/SearchManager.ts#L694)
 
 Get search statistics
 
 #### Returns
 
-`Promise`\<`any`\>
+`Promise`\<`SearchStatistics`\>
 
 Search statistics
 
@@ -394,7 +352,7 @@ Search statistics
 
 > **getSuggestions**(`partial`): `Promise`\<`string`[]\>
 
-Defined in: [src/managers/SearchManager.js:362](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/SearchManager.js#L362)
+Defined in: [src/managers/SearchManager.ts:504](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/SearchManager.ts#L504)
 
 Get search suggestions for autocomplete
 
@@ -418,7 +376,7 @@ Suggested completions
 
 > **initialize**(`config?`): `Promise`\<`void`\>
 
-Defined in: [src/managers/SearchManager.js:71](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/SearchManager.js#L71)
+Defined in: [src/managers/SearchManager.ts:192](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/SearchManager.ts#L192)
 
 Initialize the SearchManager and load the configured provider
 
@@ -429,7 +387,7 @@ the search system for queries.
 
 ##### config?
 
-`any` = `{}`
+`Record`\<`string`, `unknown`\> = `{}`
 
 Configuration object (unused, reads from ConfigurationManager)
 
@@ -452,7 +410,7 @@ console.log('Search system ready');
 
 #### Overrides
 
-[`export=`](../../BaseManager/classes/export=.md).[`initialize`](../../BaseManager/classes/export=.md#initialize)
+[`default`](../../BaseManager/classes/default.md).[`initialize`](../../BaseManager/classes/default.md#initialize)
 
 ***
 
@@ -460,7 +418,7 @@ console.log('Search system ready');
 
 > **isInitialized**(): `boolean`
 
-Defined in: [src/managers/BaseManager.js:69](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/BaseManager.js#L69)
+Defined in: [src/managers/BaseManager.ts:114](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L114)
 
 Check if manager has been initialized
 
@@ -480,15 +438,15 @@ if (manager.isInitialized()) {
 
 #### Inherited from
 
-[`export=`](../../BaseManager/classes/export=.md).[`isInitialized`](../../BaseManager/classes/export=.md#isinitialized)
+[`default`](../../BaseManager/classes/default.md).[`isInitialized`](../../BaseManager/classes/default.md#isinitialized)
 
 ***
 
 ### multiSearch()
 
-> **multiSearch**(`criteria`): `Promise`\<`any`[]\>
+> **multiSearch**(`criteria`): `Promise`\<`SearchResult`[]\>
 
-Defined in: [src/managers/SearchManager.js:631](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/SearchManager.js#L631)
+Defined in: [src/managers/SearchManager.ts:788](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/SearchManager.ts#L788)
 
 Perform multi-criteria search
 
@@ -496,13 +454,13 @@ Perform multi-criteria search
 
 ##### criteria
 
-`any`
+`AdvancedSearchOptions`
 
 Search criteria object
 
 #### Returns
 
-`Promise`\<`any`[]\>
+`Promise`\<`SearchResult`[]\>
 
 Search results
 
@@ -512,7 +470,7 @@ Search results
 
 > **rebuildIndex**(): `Promise`\<`void`\>
 
-Defined in: [src/managers/SearchManager.js:379](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/SearchManager.js#L379)
+Defined in: [src/managers/SearchManager.ts:522](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/SearchManager.ts#L522)
 
 Rebuild search index (called after page changes)
 
@@ -526,7 +484,7 @@ Rebuild search index (called after page changes)
 
 > **removeFromIndex**(`pageName`): `Promise`\<`void`\>
 
-Defined in: [src/managers/SearchManager.js:616](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/SearchManager.js#L616)
+Defined in: [src/managers/SearchManager.ts:772](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/SearchManager.ts#L772)
 
 Remove page from search index
 
@@ -548,7 +506,7 @@ Name of page to remove
 
 > **removePageFromIndex**(`pageName`): `Promise`\<`void`\>
 
-Defined in: [src/managers/SearchManager.js:406](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/SearchManager.js#L406)
+Defined in: [src/managers/SearchManager.ts:551](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/SearchManager.ts#L551)
 
 Remove a page from the search index
 
@@ -570,7 +528,7 @@ Page name to remove
 
 > **restore**(`backupData`): `Promise`\<`void`\>
 
-Defined in: [src/managers/SearchManager.js:671](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/SearchManager.js#L671)
+Defined in: [src/managers/SearchManager.ts:838](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/SearchManager.ts#L838)
 
 Restore search from backup
 
@@ -578,7 +536,7 @@ Restore search from backup
 
 ##### backupData
 
-`any`
+[`BackupData`](../../BaseManager/interfaces/BackupData.md)
 
 Backup data
 
@@ -588,15 +546,15 @@ Backup data
 
 #### Overrides
 
-[`export=`](../../BaseManager/classes/export=.md).[`restore`](../../BaseManager/classes/export=.md#restore)
+[`default`](../../BaseManager/classes/default.md).[`restore`](../../BaseManager/classes/default.md#restore)
 
 ***
 
 ### ~~search()~~
 
-> **search**(`query`, `options`): `Promise`\<`any`[]\>
+> **search**(`query`, `options`): `Promise`\<`SearchResult`[]\>
 
-Defined in: [src/managers/SearchManager.js:304](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/SearchManager.js#L304)
+Defined in: [src/managers/SearchManager.ts:443](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/SearchManager.ts#L443)
 
 Search for pages matching the query
 
@@ -610,13 +568,13 @@ Search query
 
 ##### options
 
-`any` = `{}`
+`SearchOptions` = `{}`
 
 Search options
 
 #### Returns
 
-`Promise`\<`any`[]\>
+`Promise`\<`SearchResult`[]\>
 
 Search results
 
@@ -628,9 +586,9 @@ Use searchWithContext() with WikiContext instead
 
 ### searchByCategories()
 
-> **searchByCategories**(`categories`): `Promise`\<`any`[]\>
+> **searchByCategories**(`categories`): `Promise`\<`SearchResult`[]\>
 
-Defined in: [src/managers/SearchManager.js:423](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/SearchManager.js#L423)
+Defined in: [src/managers/SearchManager.ts:569](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/SearchManager.ts#L569)
 
 Search by multiple categories
 
@@ -638,13 +596,13 @@ Search by multiple categories
 
 ##### categories
 
-`any`[]
+`string`[]
 
 Array of category names to search
 
 #### Returns
 
-`Promise`\<`any`[]\>
+`Promise`\<`SearchResult`[]\>
 
 Search results
 
@@ -652,9 +610,9 @@ Search results
 
 ### searchByCategory()
 
-> **searchByCategory**(`category`): `Promise`\<`any`[]\>
+> **searchByCategory**(`category`): `Promise`\<`SearchResult`[]\>
 
-Defined in: [src/managers/SearchManager.js:507](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/SearchManager.js#L507)
+Defined in: [src/managers/SearchManager.ts:657](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/SearchManager.ts#L657)
 
 Search by category only
 
@@ -668,7 +626,7 @@ Category to search for
 
 #### Returns
 
-`Promise`\<`any`[]\>
+`Promise`\<`SearchResult`[]\>
 
 Pages in category
 
@@ -676,9 +634,9 @@ Pages in category
 
 ### searchByKeywords()
 
-> **searchByKeywords**(`keywords`): `Promise`\<`any`[]\>
+> **searchByKeywords**(`keywords`): `Promise`\<`SearchResult`[]\>
 
-Defined in: [src/managers/SearchManager.js:589](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/SearchManager.js#L589)
+Defined in: [src/managers/SearchManager.ts:743](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/SearchManager.ts#L743)
 
 Search by keywords
 
@@ -686,13 +644,13 @@ Search by keywords
 
 ##### keywords
 
-`any`[]
+`string`[]
 
 Keywords to search for
 
 #### Returns
 
-`Promise`\<`any`[]\>
+`Promise`\<`SearchResult`[]\>
 
 Search results
 
@@ -700,9 +658,9 @@ Search results
 
 ### searchByUserKeywords()
 
-> **searchByUserKeywords**(`keyword`): `Promise`\<`any`[]\>
+> **searchByUserKeywords**(`keyword`): `Promise`\<`SearchResult`[]\>
 
-Defined in: [src/managers/SearchManager.js:525](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/SearchManager.js#L525)
+Defined in: [src/managers/SearchManager.ts:676](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/SearchManager.ts#L676)
 
 Search by user keywords only
 
@@ -716,7 +674,7 @@ Keyword to search for
 
 #### Returns
 
-`Promise`\<`any`[]\>
+`Promise`\<`SearchResult`[]\>
 
 Pages with keyword
 
@@ -724,9 +682,9 @@ Pages with keyword
 
 ### searchByUserKeywordsList()
 
-> **searchByUserKeywordsList**(`keywords`): `Promise`\<`any`[]\>
+> **searchByUserKeywordsList**(`keywords`): `Promise`\<`SearchResult`[]\>
 
-Defined in: [src/managers/SearchManager.js:448](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/SearchManager.js#L448)
+Defined in: [src/managers/SearchManager.ts:595](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/SearchManager.ts#L595)
 
 Search by multiple user keywords
 
@@ -734,13 +692,13 @@ Search by multiple user keywords
 
 ##### keywords
 
-`any`[]
+`string`[]
 
 Array of user keywords to search
 
 #### Returns
 
-`Promise`\<`any`[]\>
+`Promise`\<`SearchResult`[]\>
 
 Search results
 
@@ -748,9 +706,9 @@ Search results
 
 ### searchWithContext()
 
-> **searchWithContext**(`wikiContext`, `query`, `options?`): `Promise`\<`any`[]\>
+> **searchWithContext**(`wikiContext`, `query`, `options?`): `Promise`\<`SearchResult`[]\>
 
-Defined in: [src/managers/SearchManager.js:220](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/SearchManager.js#L220)
+Defined in: [src/managers/SearchManager.ts:355](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/SearchManager.ts#L355)
 
 Search for pages using WikiContext
 
@@ -773,17 +731,21 @@ Search query
 
 ##### options?
 
-`any` = `{}`
+`SearchOptions` = `{}`
 
 Additional search options
 
 #### Returns
 
-`Promise`\<`any`[]\>
+`Promise`\<`SearchResult`[]\>
 
 Search results
 
 #### Async
+
+#### Throws
+
+If wikiContext is not provided
 
 #### Example
 
@@ -798,7 +760,7 @@ console.log(`Found ${results.length} pages`);
 
 > **shutdown**(): `Promise`\<`void`\>
 
-Defined in: [src/managers/SearchManager.js:689](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/SearchManager.js#L689)
+Defined in: [src/managers/SearchManager.ts:857](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/SearchManager.ts#L857)
 
 Shutdown search manager and close provider
 
@@ -808,15 +770,15 @@ Shutdown search manager and close provider
 
 #### Overrides
 
-[`export=`](../../BaseManager/classes/export=.md).[`shutdown`](../../BaseManager/classes/export=.md#shutdown)
+[`default`](../../BaseManager/classes/default.md).[`shutdown`](../../BaseManager/classes/default.md#shutdown)
 
 ***
 
 ### suggestSimilarPages()
 
-> **suggestSimilarPages**(`pageName`, `limit`): `Promise`\<`any`[]\>
+> **suggestSimilarPages**(`pageName`, `limit`): `Promise`\<`SearchResult`[]\>
 
-Defined in: [src/managers/SearchManager.js:344](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/SearchManager.js#L344)
+Defined in: [src/managers/SearchManager.ts:485](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/SearchManager.ts#L485)
 
 Suggest similar pages based on content
 
@@ -836,7 +798,7 @@ Maximum suggestions
 
 #### Returns
 
-`Promise`\<`any`[]\>
+`Promise`\<`SearchResult`[]\>
 
 Suggested pages
 
@@ -846,7 +808,7 @@ Suggested pages
 
 > **updatePageInIndex**(`pageName`, `pageData`): `Promise`\<`void`\>
 
-Defined in: [src/managers/SearchManager.js:389](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/SearchManager.js#L389)
+Defined in: [src/managers/SearchManager.ts:533](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/SearchManager.ts#L533)
 
 Add/update a page in the search index
 
@@ -860,7 +822,7 @@ Page name
 
 ##### pageData
 
-`any`
+`PageData`
 
 Page data
 

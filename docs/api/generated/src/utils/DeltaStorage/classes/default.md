@@ -6,7 +6,7 @@
 
 # Class: default
 
-Defined in: [src/utils/DeltaStorage.ts:37](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/utils/DeltaStorage.ts#L37)
+Defined in: [src/utils/DeltaStorage.ts:37](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/DeltaStorage.ts#L37)
 
 DeltaStorage - Utility for creating and applying content diffs
 
@@ -15,7 +15,6 @@ page versions as deltas. Version 1 stores full content, subsequent versions
 store only the differences from the previous version.
 
 fast-diff returns an array of tuples: [operation, text]
-
 - operation: -1 (delete), 0 (equal), 1 (insert)
 - text: the text content
 
@@ -45,7 +44,7 @@ const reconstructed = DeltaStorage.applyDiff("Hello world", diff);
 
 > `static` **applyDiff**(`baseContent`, `diff`): `string`
 
-Defined in: [src/utils/DeltaStorage.ts:75](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/utils/DeltaStorage.ts#L75)
+Defined in: [src/utils/DeltaStorage.ts:75](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/DeltaStorage.ts#L75)
 
 Apply a diff to base content to reconstruct a version
 
@@ -91,7 +90,7 @@ const result = DeltaStorage.applyDiff(base, diff);
 
 > `static` **applyDiffChain**(`v1Content`, `diffArray`): `string`
 
-Defined in: [src/utils/DeltaStorage.ts:146](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/utils/DeltaStorage.ts#L146)
+Defined in: [src/utils/DeltaStorage.ts:147](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/DeltaStorage.ts#L147)
 
 Apply multiple diffs sequentially
 
@@ -140,7 +139,7 @@ const v3 = DeltaStorage.applyDiffChain(v1, diffs);
 
 > `static` **calculateHash**(`content`): `string`
 
-Defined in: [src/utils/DeltaStorage.ts:180](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/utils/DeltaStorage.ts#L180)
+Defined in: [src/utils/DeltaStorage.ts:181](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/DeltaStorage.ts#L181)
 
 Calculate SHA-256 hash of content
 
@@ -167,7 +166,7 @@ SHA-256 hash in hexadecimal format
 
 > `static` **createDiff**(`oldContent`, `newContent`): [`DiffTuple`](../type-aliases/DiffTuple.md)[]
 
-Defined in: [src/utils/DeltaStorage.ts:51](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/utils/DeltaStorage.ts#L51)
+Defined in: [src/utils/DeltaStorage.ts:51](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/DeltaStorage.ts#L51)
 
 Generate diff between old and new content
 
@@ -207,7 +206,7 @@ const diff = DeltaStorage.createDiff("foo", "bar");
 
 > `static` **getDiffStats**(`diff`): [`DiffStats`](../interfaces/DiffStats.md)
 
-Defined in: [src/utils/DeltaStorage.ts:219](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/utils/DeltaStorage.ts#L219)
+Defined in: [src/utils/DeltaStorage.ts:220](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/DeltaStorage.ts#L220)
 
 Calculate diff statistics
 
@@ -241,7 +240,7 @@ const stats = DeltaStorage.getDiffStats(diff);
 
 > `static` **verifyHash**(`content`, `expectedHash`): `boolean`
 
-Defined in: [src/utils/DeltaStorage.ts:198](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/utils/DeltaStorage.ts#L198)
+Defined in: [src/utils/DeltaStorage.ts:199](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/DeltaStorage.ts#L199)
 
 Verify content integrity using hash
 

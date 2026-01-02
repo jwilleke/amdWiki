@@ -6,7 +6,7 @@
 
 # Interface: ProviderInfo
 
-Defined in: [src/providers/BasePageProvider.ts:16](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BasePageProvider.ts#L16)
+Defined in: [src/providers/BasePageProvider.ts:16](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BasePageProvider.ts#L16)
 
 Provider information
 
@@ -16,7 +16,7 @@ Provider information
 
 > **description**: `string`
 
-Defined in: [src/providers/BasePageProvider.ts:19](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BasePageProvider.ts#L19)
+Defined in: [src/providers/BasePageProvider.ts:19](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BasePageProvider.ts#L19)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [src/providers/BasePageProvider.ts:19](https://github.com/jwilleke/a
 
 > **features**: `string`[]
 
-Defined in: [src/providers/BasePageProvider.ts:20](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BasePageProvider.ts#L20)
+Defined in: [src/providers/BasePageProvider.ts:20](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BasePageProvider.ts#L20)
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: [src/providers/BasePageProvider.ts:20](https://github.com/jwilleke/a
 
 > **name**: `string`
 
-Defined in: [src/providers/BasePageProvider.ts:17](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BasePageProvider.ts#L17)
+Defined in: [src/providers/BasePageProvider.ts:17](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BasePageProvider.ts#L17)
 
 ***
 
@@ -40,4 +40,4 @@ Defined in: [src/providers/BasePageProvider.ts:17](https://github.com/jwilleke/a
 
 > **version**: `string`
 
-Defined in: [src/providers/BasePageProvider.ts:18](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BasePageProvider.ts#L18)
+Defined in: [src/providers/BasePageProvider.ts:18](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BasePageProvider.ts#L18)

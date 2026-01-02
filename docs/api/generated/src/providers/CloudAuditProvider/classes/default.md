@@ -6,7 +6,7 @@
 
 # Class: default
 
-Defined in: [src/providers/CloudAuditProvider.ts:34](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/CloudAuditProvider.ts#L34)
+Defined in: [src/providers/CloudAuditProvider.ts:36](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/CloudAuditProvider.ts#L36)
 
 CloudAuditProvider - Cloud logging service integration (FUTURE IMPLEMENTATION)
 
@@ -14,7 +14,6 @@ Stores audit logs in cloud logging services for enterprise cloud deployments.
 Suitable for AWS CloudWatch, Azure Monitor, Google Cloud Logging.
 
 Configuration keys (all lowercase):
-
 - amdwiki.audit.provider.cloud.service - Cloud service (cloudwatch, azuremonitor, stackdriver)
 - amdwiki.audit.provider.cloud.region - Cloud region
 - amdwiki.audit.provider.cloud.loggroup - Log group/namespace
@@ -37,13 +36,13 @@ TODO: Add retry logic with exponential backoff
 
 > **new default**(`engine`): `CloudAuditProvider`
 
-Defined in: [src/providers/CloudAuditProvider.ts:38](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/CloudAuditProvider.ts#L38)
+Defined in: [src/providers/CloudAuditProvider.ts:41](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/CloudAuditProvider.ts#L41)
 
 #### Parameters
 
 ##### engine
 
-[`WikiEngine`](../../BaseAuditProvider/interfaces/WikiEngine.md)
+[`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
 #### Returns
 
@@ -57,9 +56,9 @@ Defined in: [src/providers/CloudAuditProvider.ts:38](https://github.com/jwilleke
 
 ### engine
 
-> `protected` **engine**: [`WikiEngine`](../../BaseAuditProvider/interfaces/WikiEngine.md)
+> `protected` **engine**: [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/providers/BaseAuditProvider.ts:157](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAuditProvider.ts#L157)
+Defined in: [src/providers/BaseAuditProvider.ts:156](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L156)
 
 Reference to the wiki engine
 
@@ -73,7 +72,7 @@ Reference to the wiki engine
 
 > **initialized**: `boolean`
 
-Defined in: [src/providers/BaseAuditProvider.ts:160](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAuditProvider.ts#L160)
+Defined in: [src/providers/BaseAuditProvider.ts:159](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L159)
 
 Whether provider has been initialized
 
@@ -87,7 +86,7 @@ Whether provider has been initialized
 
 > **backup**(): `Promise`\<[`AuditBackupData`](../../BaseAuditProvider/interfaces/AuditBackupData.md)\>
 
-Defined in: [src/providers/BaseAuditProvider.ts:308](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAuditProvider.ts#L308)
+Defined in: [src/providers/BaseAuditProvider.ts:307](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L307)
 
 Backup audit configuration and state (optional)
 
@@ -112,7 +111,7 @@ Backup data
 
 > **cleanup**(): `Promise`\<`void`\>
 
-Defined in: [src/providers/CloudAuditProvider.ts:170](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/CloudAuditProvider.ts#L170)
+Defined in: [src/providers/CloudAuditProvider.ts:174](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/CloudAuditProvider.ts#L174)
 
 Clean up old audit logs (cloud services often handle retention automatically)
 
@@ -130,7 +129,7 @@ Clean up old audit logs (cloud services often handle retention automatically)
 
 > **close**(): `Promise`\<`void`\>
 
-Defined in: [src/providers/CloudAuditProvider.ts:197](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/CloudAuditProvider.ts#L197)
+Defined in: [src/providers/CloudAuditProvider.ts:194](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/CloudAuditProvider.ts#L194)
 
 Close/cleanup the audit provider
 
@@ -146,21 +145,21 @@ Close/cleanup the audit provider
 
 ### exportAuditLogs()
 
-> **exportAuditLogs**(`filters`, `format`): `Promise`\<`string`\>
+> **exportAuditLogs**(`_filters`, `_format`): `Promise`\<`string`\>
 
-Defined in: [src/providers/CloudAuditProvider.ts:151](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/CloudAuditProvider.ts#L151)
+Defined in: [src/providers/CloudAuditProvider.ts:154](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/CloudAuditProvider.ts#L154)
 
 Export audit logs
 
 #### Parameters
 
-##### filters
+##### \_filters
 
 [`AuditFilters`](../../BaseAuditProvider/interfaces/AuditFilters.md) = `{}`
 
 Export filters
 
-##### format
+##### \_format
 
 Export format ('json', 'csv')
 
@@ -182,7 +181,7 @@ Exported data
 
 > **flush**(): `Promise`\<`void`\>
 
-Defined in: [src/providers/CloudAuditProvider.ts:161](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/CloudAuditProvider.ts#L161)
+Defined in: [src/providers/CloudAuditProvider.ts:164](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/CloudAuditProvider.ts#L164)
 
 Flush pending audit events
 
@@ -198,15 +197,15 @@ Flush pending audit events
 
 ### getAuditStats()
 
-> **getAuditStats**(`filters`): `Promise`\<[`AuditStats`](../../BaseAuditProvider/interfaces/AuditStats.md)\>
+> **getAuditStats**(`_filters`): `Promise`\<[`AuditStats`](../../BaseAuditProvider/interfaces/AuditStats.md)\>
 
-Defined in: [src/providers/CloudAuditProvider.ts:140](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/CloudAuditProvider.ts#L140)
+Defined in: [src/providers/CloudAuditProvider.ts:143](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/CloudAuditProvider.ts#L143)
 
 Get audit statistics
 
 #### Parameters
 
-##### filters
+##### \_filters
 
 [`AuditFilters`](../../BaseAuditProvider/interfaces/AuditFilters.md) = `{}`
 
@@ -228,7 +227,7 @@ Audit statistics
 
 > **getProviderInfo**(): `object`
 
-Defined in: [src/providers/CloudAuditProvider.ts:88](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/CloudAuditProvider.ts#L88)
+Defined in: [src/providers/CloudAuditProvider.ts:91](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/CloudAuditProvider.ts#L91)
 
 Get provider information
 
@@ -240,7 +239,7 @@ Provider metadata
 
 ##### description
 
-> **description**: `string` = `'Cloud logging service integration (not yet implemented)'`
+> **description**: `string`
 
 ##### features
 
@@ -248,11 +247,11 @@ Provider metadata
 
 ##### name
 
-> **name**: `string` = `'CloudAuditProvider'`
+> **name**: `string`
 
 ##### version
 
-> **version**: `string` = `'0.1.0'`
+> **version**: `string`
 
 #### Overrides
 
@@ -264,7 +263,7 @@ Provider metadata
 
 > **initialize**(): `Promise`\<`void`\>
 
-Defined in: [src/providers/CloudAuditProvider.ts:48](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/CloudAuditProvider.ts#L48)
+Defined in: [src/providers/CloudAuditProvider.ts:51](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/CloudAuditProvider.ts#L51)
 
 Initialize the cloud audit provider
 
@@ -282,7 +281,7 @@ Initialize the cloud audit provider
 
 > **isHealthy**(): `Promise`\<`boolean`\>
 
-Defined in: [src/providers/CloudAuditProvider.ts:179](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/CloudAuditProvider.ts#L179)
+Defined in: [src/providers/CloudAuditProvider.ts:184](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/CloudAuditProvider.ts#L184)
 
 Check if the audit provider is healthy
 
@@ -300,15 +299,15 @@ True if healthy
 
 ### logAuditEvent()
 
-> **logAuditEvent**(`auditEvent`): `Promise`\<`string`\>
+> **logAuditEvent**(`_auditEvent`): `Promise`\<`string`\>
 
-Defined in: [src/providers/CloudAuditProvider.ts:102](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/CloudAuditProvider.ts#L102)
+Defined in: [src/providers/CloudAuditProvider.ts:105](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/CloudAuditProvider.ts#L105)
 
 Log an audit event
 
 #### Parameters
 
-##### auditEvent
+##### \_auditEvent
 
 [`AuditEvent`](../../../types/Provider/interfaces/AuditEvent.md)
 
@@ -328,9 +327,9 @@ Event ID
 
 ### restore()
 
-> **restore**(`backupData`): `Promise`\<`void`\>
+> **restore**(`_backupData`): `Promise`\<`void`\>
 
-Defined in: [src/providers/BaseAuditProvider.ts:326](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAuditProvider.ts#L326)
+Defined in: [src/providers/BaseAuditProvider.ts:325](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L325)
 
 Restore audit from backup (optional)
 
@@ -339,7 +338,7 @@ Subclasses can override if they support restore functionality.
 
 #### Parameters
 
-##### backupData
+##### \_backupData
 
 [`AuditBackupData`](../../BaseAuditProvider/interfaces/AuditBackupData.md)
 
@@ -359,21 +358,21 @@ Backup data
 
 ### searchAuditLogs()
 
-> **searchAuditLogs**(`filters`, `options`): `Promise`\<[`AuditSearchResults`](../../BaseAuditProvider/interfaces/AuditSearchResults.md)\>
+> **searchAuditLogs**(`_filters`, `_options`): `Promise`\<[`AuditSearchResults`](../../BaseAuditProvider/interfaces/AuditSearchResults.md)\>
 
-Defined in: [src/providers/CloudAuditProvider.ts:122](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/CloudAuditProvider.ts#L122)
+Defined in: [src/providers/CloudAuditProvider.ts:125](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/CloudAuditProvider.ts#L125)
 
 Search audit logs
 
 #### Parameters
 
-##### filters
+##### \_filters
 
 [`AuditFilters`](../../BaseAuditProvider/interfaces/AuditFilters.md) = `{}`
 
 Search filters
 
-##### options
+##### \_options
 
 `Record`\<`string`, `any`\> = `{}`
 

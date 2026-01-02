@@ -1,20 +1,12 @@
+**amdWiki API v1.5.0**
+
+***
+
 # amdWiki API v1.5.0
 
 ## Modules
 
 - [logger](logger/README.md)
-- [plugins/ConfigAccessorPlugin](plugins/ConfigAccessorPlugin/README.md)
-- [plugins/CounterPlugin](plugins/CounterPlugin/README.md)
-- [plugins/CurrentTimePlugin](plugins/CurrentTimePlugin/README.md)
-- [plugins/ImagePlugin](plugins/ImagePlugin/README.md)
-- [plugins/IndexPlugin](plugins/IndexPlugin/README.md)
-- [plugins/RecentChangesPlugin](plugins/RecentChangesPlugin/README.md)
-- [plugins/referringPagesPlugin](plugins/referringPagesPlugin/README.md)
-- [plugins/SearchPlugin](plugins/SearchPlugin/README.md)
-- [plugins/SessionsPlugin](plugins/SessionsPlugin/README.md)
-- [plugins/TotalPagesPlugin](plugins/TotalPagesPlugin/README.md)
-- [plugins/UptimePlugin](plugins/UptimePlugin/README.md)
-- [plugins/VariablesPlugin](plugins/VariablesPlugin/README.md)
 - [src/cache/ICacheAdapter](src/cache/ICacheAdapter/README.md)
 - [src/cache/NodeCacheAdapter](src/cache/NodeCacheAdapter/README.md)
 - [src/cache/NullCacheAdapter](src/cache/NullCacheAdapter/README.md)
@@ -93,13 +85,16 @@
 - [src/providers/RedisCacheProvider](src/providers/RedisCacheProvider/README.md)
 - [src/providers/VersioningFileProvider](src/providers/VersioningFileProvider/README.md)
 - [src/routes/InstallRoutes](src/routes/InstallRoutes/README.md)
+- [src/routes/WikiRoutes](src/routes/WikiRoutes/README.md)
 - [src/services/InstallService](src/services/InstallService/README.md)
 - [src/types/Config](src/types/Config/README.md)
+- [src/types/express](src/types/express/README.md)
 - [src/types/guards](src/types/guards/README.md)
 - [src/types/Page](src/types/Page/README.md)
 - [src/types/Provider](src/types/Provider/README.md)
 - [src/types/User](src/types/User/README.md)
 - [src/types/Version](src/types/Version/README.md)
+- [src/types/WikiEngine](src/types/WikiEngine/README.md)
 - [src/utils/DeltaStorage](src/utils/DeltaStorage/README.md)
 - [src/utils/final-validation](src/utils/final-validation/README.md)
 - [src/utils/LocaleUtils](src/utils/LocaleUtils/README.md)
@@ -114,4 +109,3 @@
 - [src/utils/VersioningMigration](src/utils/VersioningMigration/README.md)
 - [src/WikiEngine](src/WikiEngine/README.md)
 - [types](types/README.md)
-- [WikiRoutes](WikiRoutes/README.md)

@@ -6,7 +6,7 @@
 
 # Interface: VersionRetentionPolicy
 
-Defined in: [src/types/Version.ts:202](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Version.ts#L202)
+Defined in: [src/types/Version.ts:202](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Version.ts#L202)
 
 Version retention policy
 
@@ -18,7 +18,7 @@ Configuration for version retention and cleanup.
 
 > **checkpointInterval**: `number`
 
-Defined in: [src/types/Version.ts:216](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Version.ts#L216)
+Defined in: [src/types/Version.ts:216](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Version.ts#L216)
 
 Checkpoint interval for full snapshots
 
@@ -28,7 +28,7 @@ Checkpoint interval for full snapshots
 
 > **keepBaseline**: `boolean`
 
-Defined in: [src/types/Version.ts:210](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Version.ts#L210)
+Defined in: [src/types/Version.ts:210](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Version.ts#L210)
 
 Always keep version 1 (baseline)
 
@@ -38,7 +38,7 @@ Always keep version 1 (baseline)
 
 > **keepCheckpoints**: `boolean`
 
-Defined in: [src/types/Version.ts:219](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Version.ts#L219)
+Defined in: [src/types/Version.ts:219](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Version.ts#L219)
 
 Keep all checkpoint versions
 
@@ -48,7 +48,7 @@ Keep all checkpoint versions
 
 > **keepCurrent**: `boolean`
 
-Defined in: [src/types/Version.ts:213](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Version.ts#L213)
+Defined in: [src/types/Version.ts:213](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Version.ts#L213)
 
 Always keep current version
 
@@ -58,7 +58,7 @@ Always keep current version
 
 > **maxVersions**: `number`
 
-Defined in: [src/types/Version.ts:204](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Version.ts#L204)
+Defined in: [src/types/Version.ts:204](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Version.ts#L204)
 
 Maximum number of versions to keep (0 = unlimited)
 
@@ -68,6 +68,6 @@ Maximum number of versions to keep (0 = unlimited)
 
 > **retentionDays**: `number`
 
-Defined in: [src/types/Version.ts:207](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Version.ts#L207)
+Defined in: [src/types/Version.ts:207](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Version.ts#L207)
 
 Number of days to retain versions (0 = unlimited)

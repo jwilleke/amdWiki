@@ -6,7 +6,7 @@
 
 # Abstract Class: default
 
-Defined in: [src/providers/BaseSearchProvider.ts:147](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseSearchProvider.ts#L147)
+Defined in: [src/providers/BaseSearchProvider.ts:138](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseSearchProvider.ts#L138)
 
 BaseSearchProvider - Abstract base class for search providers
 
@@ -23,7 +23,7 @@ Provides a consistent interface for different search backend implementations.
 
 > **new default**(`engine`): `BaseSearchProvider`
 
-Defined in: [src/providers/BaseSearchProvider.ts:159](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseSearchProvider.ts#L159)
+Defined in: [src/providers/BaseSearchProvider.ts:150](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseSearchProvider.ts#L150)
 
 Creates a new BaseSearchProvider instance
 
@@ -31,7 +31,7 @@ Creates a new BaseSearchProvider instance
 
 ##### engine
 
-[`WikiEngine`](../interfaces/WikiEngine.md)
+[`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
 Reference to the WikiEngine instance
 
@@ -43,9 +43,9 @@ Reference to the WikiEngine instance
 
 ### engine
 
-> `protected` **engine**: [`WikiEngine`](../interfaces/WikiEngine.md)
+> `protected` **engine**: [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/providers/BaseSearchProvider.ts:149](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseSearchProvider.ts#L149)
+Defined in: [src/providers/BaseSearchProvider.ts:140](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseSearchProvider.ts#L140)
 
 Reference to the wiki engine
 
@@ -55,7 +55,7 @@ Reference to the wiki engine
 
 > `protected` **initialized**: `boolean`
 
-Defined in: [src/providers/BaseSearchProvider.ts:152](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseSearchProvider.ts#L152)
+Defined in: [src/providers/BaseSearchProvider.ts:143](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseSearchProvider.ts#L143)
 
 Whether provider has been initialized
 
@@ -65,7 +65,7 @@ Whether provider has been initialized
 
 > `abstract` **advancedSearch**(`criteria?`): `Promise`\<[`SearchResult`](../interfaces/SearchResult.md)[]\>
 
-Defined in: [src/providers/BaseSearchProvider.ts:226](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseSearchProvider.ts#L226)
+Defined in: [src/providers/BaseSearchProvider.ts:217](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseSearchProvider.ts#L217)
 
 Advanced search with multiple criteria
 
@@ -92,7 +92,7 @@ Promise resolving to array of search results
 
 > **backup**(): `Promise`\<[`BackupData`](../interfaces/BackupData.md)\>
 
-Defined in: [src/providers/BaseSearchProvider.ts:373](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseSearchProvider.ts#L373)
+Defined in: [src/providers/BaseSearchProvider.ts:364](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseSearchProvider.ts#L364)
 
 Backup search index and configuration (optional)
 
@@ -112,7 +112,7 @@ Promise resolving to backup data object
 
 > `abstract` **buildIndex**(): `Promise`\<`void`\>
 
-Defined in: [src/providers/BaseSearchProvider.ts:201](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseSearchProvider.ts#L201)
+Defined in: [src/providers/BaseSearchProvider.ts:192](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseSearchProvider.ts#L192)
 
 Build or rebuild the search index from all pages
 
@@ -131,7 +131,7 @@ Promise that resolves when index building is complete
 
 > `abstract` **close**(): `Promise`\<`void`\>
 
-Defined in: [src/providers/BaseSearchProvider.ts:362](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseSearchProvider.ts#L362)
+Defined in: [src/providers/BaseSearchProvider.ts:353](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseSearchProvider.ts#L353)
 
 Close/cleanup the search provider
 
@@ -150,7 +150,7 @@ Promise that resolves when cleanup is complete
 
 > `abstract` **getAllCategories**(): `Promise`\<`string`[]\>
 
-Defined in: [src/providers/BaseSearchProvider.ts:286](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseSearchProvider.ts#L286)
+Defined in: [src/providers/BaseSearchProvider.ts:277](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseSearchProvider.ts#L277)
 
 Get all unique categories from indexed documents
 
@@ -169,7 +169,7 @@ Promise resolving to array of unique category names
 
 > `abstract` **getAllUserKeywords**(): `Promise`\<`string`[]\>
 
-Defined in: [src/providers/BaseSearchProvider.ts:297](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseSearchProvider.ts#L297)
+Defined in: [src/providers/BaseSearchProvider.ts:288](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseSearchProvider.ts#L288)
 
 Get all unique user keywords from indexed documents
 
@@ -188,7 +188,7 @@ Promise resolving to array of unique keywords
 
 > `abstract` **getDocumentCount**(): `Promise`\<`number`\>
 
-Defined in: [src/providers/BaseSearchProvider.ts:340](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseSearchProvider.ts#L340)
+Defined in: [src/providers/BaseSearchProvider.ts:331](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseSearchProvider.ts#L331)
 
 Get the total number of indexed documents
 
@@ -206,7 +206,7 @@ Promise resolving to document count
 
 > **getProviderInfo**(): [`ProviderInfo`](../interfaces/ProviderInfo.md)
 
-Defined in: [src/providers/BaseSearchProvider.ts:183](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseSearchProvider.ts#L183)
+Defined in: [src/providers/BaseSearchProvider.ts:174](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseSearchProvider.ts#L174)
 
 Get provider information
 
@@ -225,7 +225,7 @@ Provider metadata
 
 > `abstract` **getStatistics**(): `Promise`\<[`SearchStatistics`](../interfaces/SearchStatistics.md)\>
 
-Defined in: [src/providers/BaseSearchProvider.ts:330](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseSearchProvider.ts#L330)
+Defined in: [src/providers/BaseSearchProvider.ts:321](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseSearchProvider.ts#L321)
 
 Get search statistics
 
@@ -244,7 +244,7 @@ Promise resolving to search statistics object
 
 > `abstract` **getSuggestions**(`partial`): `Promise`\<`string`[]\>
 
-Defined in: [src/providers/BaseSearchProvider.ts:238](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseSearchProvider.ts#L238)
+Defined in: [src/providers/BaseSearchProvider.ts:229](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseSearchProvider.ts#L229)
 
 Get search suggestions for autocomplete
 
@@ -271,7 +271,7 @@ Promise resolving to array of suggested completions
 
 > `abstract` **initialize**(): `Promise`\<`void`\>
 
-Defined in: [src/providers/BaseSearchProvider.ts:173](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseSearchProvider.ts#L173)
+Defined in: [src/providers/BaseSearchProvider.ts:164](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseSearchProvider.ts#L164)
 
 Initialize the search provider
 
@@ -290,7 +290,7 @@ Promise that resolves when initialization is complete
 
 > `abstract` **isHealthy**(): `Promise`\<`boolean`\>
 
-Defined in: [src/providers/BaseSearchProvider.ts:351](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseSearchProvider.ts#L351)
+Defined in: [src/providers/BaseSearchProvider.ts:342](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseSearchProvider.ts#L342)
 
 Check if the search provider is healthy/functional
 
@@ -309,7 +309,7 @@ Promise resolving to true if healthy, false otherwise
 
 > `abstract` **removePageFromIndex**(`pageName`): `Promise`\<`void`\>
 
-Defined in: [src/providers/BaseSearchProvider.ts:275](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseSearchProvider.ts#L275)
+Defined in: [src/providers/BaseSearchProvider.ts:266](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseSearchProvider.ts#L266)
 
 Remove a page from the search index
 
@@ -333,9 +333,9 @@ Promise that resolves when removal is complete
 
 ### restore()
 
-> **restore**(`backupData`): `Promise`\<`void`\>
+> **restore**(`_backupData`): `Promise`\<`void`\>
 
-Defined in: [src/providers/BaseSearchProvider.ts:391](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseSearchProvider.ts#L391)
+Defined in: [src/providers/BaseSearchProvider.ts:382](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseSearchProvider.ts#L382)
 
 Restore search index from backup (optional)
 
@@ -345,7 +345,7 @@ Subclasses can override if they support restore functionality.
 
 #### Parameters
 
-##### backupData
+##### \_backupData
 
 [`BackupData`](../interfaces/BackupData.md)
 
@@ -363,7 +363,7 @@ Promise that resolves when restore is complete
 
 > `abstract` **search**(`query`, `options?`): `Promise`\<[`SearchResult`](../interfaces/SearchResult.md)[]\>
 
-Defined in: [src/providers/BaseSearchProvider.ts:214](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseSearchProvider.ts#L214)
+Defined in: [src/providers/BaseSearchProvider.ts:205](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseSearchProvider.ts#L205)
 
 Search for pages matching the query
 
@@ -396,7 +396,7 @@ Promise resolving to array of search results
 
 > `abstract` **searchByCategory**(`category`): `Promise`\<[`SearchResult`](../interfaces/SearchResult.md)[]\>
 
-Defined in: [src/providers/BaseSearchProvider.ts:308](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseSearchProvider.ts#L308)
+Defined in: [src/providers/BaseSearchProvider.ts:299](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseSearchProvider.ts#L299)
 
 Search by category only
 
@@ -422,7 +422,7 @@ Promise resolving to array of pages in the category
 
 > `abstract` **searchByUserKeywords**(`keyword`): `Promise`\<[`SearchResult`](../interfaces/SearchResult.md)[]\>
 
-Defined in: [src/providers/BaseSearchProvider.ts:319](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseSearchProvider.ts#L319)
+Defined in: [src/providers/BaseSearchProvider.ts:310](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseSearchProvider.ts#L310)
 
 Search by user keywords only
 
@@ -448,7 +448,7 @@ Promise resolving to array of pages with the keyword
 
 > `abstract` **suggestSimilarPages**(`pageName`, `limit?`): `Promise`\<[`SearchResult`](../interfaces/SearchResult.md)[]\>
 
-Defined in: [src/providers/BaseSearchProvider.ts:251](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseSearchProvider.ts#L251)
+Defined in: [src/providers/BaseSearchProvider.ts:242](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseSearchProvider.ts#L242)
 
 Suggest similar pages based on content
 
@@ -481,7 +481,7 @@ Promise resolving to array of suggested similar pages
 
 > `abstract` **updatePageInIndex**(`pageName`, `pageData`): `Promise`\<`void`\>
 
-Defined in: [src/providers/BaseSearchProvider.ts:264](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseSearchProvider.ts#L264)
+Defined in: [src/providers/BaseSearchProvider.ts:255](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseSearchProvider.ts#L255)
 
 Add or update a page in the search index
 

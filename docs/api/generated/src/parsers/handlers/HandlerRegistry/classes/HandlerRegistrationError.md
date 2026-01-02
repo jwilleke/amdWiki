@@ -6,7 +6,7 @@
 
 # Class: HandlerRegistrationError
 
-Defined in: [src/parsers/handlers/HandlerRegistry.js:562](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/HandlerRegistry.js#L562)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:676](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L676)
 
 Custom error class for handler registration errors
 
@@ -20,19 +20,21 @@ Custom error class for handler registration errors
 
 > **new HandlerRegistrationError**(`message`, `code`, `context`): `HandlerRegistrationError`
 
-Defined in: [src/parsers/handlers/HandlerRegistry.js:563](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/HandlerRegistry.js#L563)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:680](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L680)
 
 #### Parameters
 
 ##### message
 
-`any`
+`string`
 
 ##### code
 
-`any`
+`string`
 
 ##### context
+
+`Record`\<`string`, `unknown`\> = `{}`
 
 #### Returns
 
@@ -46,26 +48,14 @@ Defined in: [src/parsers/handlers/HandlerRegistry.js:563](https://github.com/jwi
 
 ### code
 
-> **code**: `any`
+> `readonly` **code**: `string`
 
-Defined in: [src/parsers/handlers/HandlerRegistry.js:566](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/HandlerRegistry.js#L566)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:677](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L677)
 
 ***
 
 ### context
 
-> **context**: `object`
+> `readonly` **context**: `Record`\<`string`, `unknown`\>
 
-Defined in: [src/parsers/handlers/HandlerRegistry.js:567](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/HandlerRegistry.js#L567)
-
-***
-
-### name
-
-> **name**: `string`
-
-Defined in: [src/parsers/handlers/HandlerRegistry.js:565](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/HandlerRegistry.js#L565)
-
-#### Inherited from
-
-`Error.name`
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:678](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L678)

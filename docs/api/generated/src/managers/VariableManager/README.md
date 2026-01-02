@@ -8,4 +8,13 @@
 
 ## Classes
 
-- [export=](classes/export=.md)
+- [default](classes/default.md)
+
+## Interfaces
+
+- [VariableContext](interfaces/VariableContext.md)
+- [VariableDebugInfo](interfaces/VariableDebugInfo.md)
+
+## Type Aliases
+
+- [VariableHandler](type-aliases/VariableHandler.md)

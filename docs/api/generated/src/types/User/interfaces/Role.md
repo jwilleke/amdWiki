@@ -6,7 +6,7 @@
 
 # Interface: Role
 
-Defined in: [src/types/User.ts:217](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/User.ts#L217)
+Defined in: [src/types/User.ts:217](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L217)
 
 User role definition
 
@@ -18,7 +18,7 @@ Defines a role and its permissions.
 
 > `optional` **description**: `string`
 
-Defined in: [src/types/User.ts:225](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/User.ts#L225)
+Defined in: [src/types/User.ts:225](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L225)
 
 Role description
 
@@ -28,7 +28,7 @@ Role description
 
 > **displayName**: `string`
 
-Defined in: [src/types/User.ts:222](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/User.ts#L222)
+Defined in: [src/types/User.ts:222](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L222)
 
 Display name
 
@@ -38,7 +38,7 @@ Display name
 
 > `optional` **inherits**: `string`[]
 
-Defined in: [src/types/User.ts:234](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/User.ts#L234)
+Defined in: [src/types/User.ts:234](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L234)
 
 Parent roles (inheritance)
 
@@ -48,7 +48,7 @@ Parent roles (inheritance)
 
 > **isSystem**: `boolean`
 
-Defined in: [src/types/User.ts:231](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/User.ts#L231)
+Defined in: [src/types/User.ts:231](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L231)
 
 Whether this is a system role (cannot be deleted)
 
@@ -58,7 +58,7 @@ Whether this is a system role (cannot be deleted)
 
 > **name**: `string`
 
-Defined in: [src/types/User.ts:219](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/User.ts#L219)
+Defined in: [src/types/User.ts:219](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L219)
 
 Role name (unique identifier)
 
@@ -68,6 +68,6 @@ Role name (unique identifier)
 
 > **permissions**: `string`[]
 
-Defined in: [src/types/User.ts:228](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/User.ts#L228)
+Defined in: [src/types/User.ts:228](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L228)
 
 Permissions granted by this role

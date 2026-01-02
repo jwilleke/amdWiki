@@ -6,7 +6,7 @@
 
 # Class: HandlerExecutionError
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.js:555](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/BaseSyntaxHandler.js#L555)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:737](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L737)
 
 Custom error class for handler execution errors
 
@@ -20,21 +20,21 @@ Custom error class for handler execution errors
 
 > **new HandlerExecutionError**(`message`, `handlerId`, `context`): `HandlerExecutionError`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.js:556](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/BaseSyntaxHandler.js#L556)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:741](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L741)
 
 #### Parameters
 
 ##### message
 
-`any`
+`string`
 
 ##### handlerId
 
-`any`
+`string`
 
 ##### context
 
-`any`
+[`ErrorContext`](../interfaces/ErrorContext.md)
 
 #### Returns
 
@@ -48,26 +48,14 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.js:556](https://github.com/j
 
 ### context
 
-> **context**: `any`
+> `readonly` **context**: [`ErrorContext`](../interfaces/ErrorContext.md)
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.js:560](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/BaseSyntaxHandler.js#L560)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:739](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L739)
 
 ***
 
 ### handlerId
 
-> **handlerId**: `any`
+> `readonly` **handlerId**: `string`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.js:559](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/BaseSyntaxHandler.js#L559)
-
-***
-
-### name
-
-> **name**: `string`
-
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.js:558](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/handlers/BaseSyntaxHandler.js#L558)
-
-#### Inherited from
-
-`Error.name`
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:738](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L738)

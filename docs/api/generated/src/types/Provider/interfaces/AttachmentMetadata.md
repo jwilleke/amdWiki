@@ -6,7 +6,7 @@
 
 # Interface: AttachmentMetadata
 
-Defined in: [src/types/Provider.ts:251](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L251)
+Defined in: [src/types/Provider.ts:278](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L278)
 
 Attachment metadata
 
@@ -22,7 +22,7 @@ Additional metadata
 
 > `optional` **description**: `string`
 
-Defined in: [src/types/Provider.ts:277](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L277)
+Defined in: [src/types/Provider.ts:304](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L304)
 
 Description
 
@@ -32,7 +32,7 @@ Description
 
 > **filename**: `string`
 
-Defined in: [src/types/Provider.ts:256](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L256)
+Defined in: [src/types/Provider.ts:283](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L283)
 
 Filename
 
@@ -42,7 +42,7 @@ Filename
 
 > **filePath**: `string`
 
-Defined in: [src/types/Provider.ts:274](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L274)
+Defined in: [src/types/Provider.ts:301](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L301)
 
 File path
 
@@ -52,7 +52,7 @@ File path
 
 > **id**: `string`
 
-Defined in: [src/types/Provider.ts:253](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L253)
+Defined in: [src/types/Provider.ts:280](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L280)
 
 Attachment ID (UUID)
 
@@ -62,7 +62,7 @@ Attachment ID (UUID)
 
 > **mimeType**: `string`
 
-Defined in: [src/types/Provider.ts:262](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L262)
+Defined in: [src/types/Provider.ts:289](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L289)
 
 MIME type
 
@@ -72,7 +72,7 @@ MIME type
 
 > **pageUuid**: `string`
 
-Defined in: [src/types/Provider.ts:259](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L259)
+Defined in: [src/types/Provider.ts:286](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L286)
 
 Page UUID this attachment belongs to
 
@@ -82,7 +82,7 @@ Page UUID this attachment belongs to
 
 > **size**: `number`
 
-Defined in: [src/types/Provider.ts:265](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L265)
+Defined in: [src/types/Provider.ts:292](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L292)
 
 File size in bytes
 
@@ -92,7 +92,7 @@ File size in bytes
 
 > **uploadedAt**: `string`
 
-Defined in: [src/types/Provider.ts:268](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L268)
+Defined in: [src/types/Provider.ts:295](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L295)
 
 Upload timestamp (ISO 8601)
 
@@ -102,6 +102,6 @@ Upload timestamp (ISO 8601)
 
 > **uploadedBy**: `string`
 
-Defined in: [src/types/Provider.ts:271](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L271)
+Defined in: [src/types/Provider.ts:298](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L298)
 
 Uploader user ID

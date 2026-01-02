@@ -8,7 +8,7 @@
 
 > **isWikiPage**(`value`): `value is WikiPage`
 
-Defined in: [src/types/guards.ts:53](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/guards.ts#L53)
+Defined in: [src/types/guards.ts:55](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/guards.ts#L55)
 
 Check if value is a valid WikiPage object
 
@@ -16,7 +16,7 @@ Check if value is a valid WikiPage object
 
 ### value
 
-`any`
+`unknown`
 
 ## Returns
 

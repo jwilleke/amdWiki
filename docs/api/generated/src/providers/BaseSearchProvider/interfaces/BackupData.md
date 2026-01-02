@@ -6,13 +6,13 @@
 
 # Interface: BackupData
 
-Defined in: [src/providers/BaseSearchProvider.ts:125](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseSearchProvider.ts#L125)
+Defined in: [src/providers/BaseSearchProvider.ts:116](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseSearchProvider.ts#L116)
 
 Backup data structure
 
 ## Indexable
 
-\[`key`: `string`\]: `any`
+\[`key`: `string`\]: `unknown`
 
 Additional backup data
 
@@ -22,7 +22,7 @@ Additional backup data
 
 > **initialized**: `boolean`
 
-Defined in: [src/providers/BaseSearchProvider.ts:130](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseSearchProvider.ts#L130)
+Defined in: [src/providers/BaseSearchProvider.ts:121](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseSearchProvider.ts#L121)
 
 Whether provider was initialized
 
@@ -32,7 +32,7 @@ Whether provider was initialized
 
 > **provider**: `string`
 
-Defined in: [src/providers/BaseSearchProvider.ts:127](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseSearchProvider.ts#L127)
+Defined in: [src/providers/BaseSearchProvider.ts:118](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseSearchProvider.ts#L118)
 
 Provider class name
 
@@ -42,6 +42,6 @@ Provider class name
 
 > **timestamp**: `string`
 
-Defined in: [src/providers/BaseSearchProvider.ts:133](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseSearchProvider.ts#L133)
+Defined in: [src/providers/BaseSearchProvider.ts:124](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseSearchProvider.ts#L124)
 
 Backup timestamp

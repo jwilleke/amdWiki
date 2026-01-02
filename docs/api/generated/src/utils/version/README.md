@@ -6,6 +6,14 @@
 
 # src/utils/version
 
+## Interfaces
+
+- [VersionComponents](interfaces/VersionComponents.md)
+
+## Type Aliases
+
+- [VersionIncrementType](type-aliases/VersionIncrementType.md)
+
 ## Functions
 
 - [formatVersion](functions/formatVersion.md)

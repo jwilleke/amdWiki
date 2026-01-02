@@ -6,7 +6,9 @@
 
 # Class: LinkParser
 
-Defined in: [src/parsers/LinkParser.js:43](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/LinkParser.js#L43)
+Defined in: [src/parsers/LinkParser.ts:188](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L188)
+
+Main LinkParser class
 
 ## Constructors
 
@@ -14,7 +16,7 @@ Defined in: [src/parsers/LinkParser.js:43](https://github.com/jwilleke/amdWiki/b
 
 > **new LinkParser**(`options?`): `LinkParser`
 
-Defined in: [src/parsers/LinkParser.js:53](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/LinkParser.js#L53)
+Defined in: [src/parsers/LinkParser.ts:210](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L210)
 
 Create a new LinkParser instance
 
@@ -22,25 +24,9 @@ Create a new LinkParser instance
 
 ##### options?
 
+`Partial`\<[`LinkParserOptions`](../interfaces/LinkParserOptions.md)\> = `{}`
+
 Configuration options
-
-###### allowedAttributes?
-
-`string`[]
-
-Allowed HTML attributes
-
-###### defaultClasses?
-
-`any`
-
-Default CSS classes for link types
-
-###### security?
-
-`any`
-
-Security settings
 
 #### Returns
 
@@ -50,9 +36,11 @@ Security settings
 
 ### interWikiSites
 
-> **interWikiSites**: `Map`\<`any`, `any`\>
+> **interWikiSites**: `Map`\<`string`, [`InterWikiSiteConfig`](../interfaces/InterWikiSiteConfig.md)\>
 
-Defined in: [src/parsers/LinkParser.js:98](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/LinkParser.js#L98)
+Defined in: [src/parsers/LinkParser.ts:199](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L199)
+
+InterWiki sites configuration
 
 ***
 
@@ -60,67 +48,39 @@ Defined in: [src/parsers/LinkParser.js:98](https://github.com/jwilleke/amdWiki/b
 
 > **linkPattern**: `RegExp`
 
-Defined in: [src/parsers/LinkParser.js:101](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/LinkParser.js#L101)
+Defined in: [src/parsers/LinkParser.ts:202](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L202)
+
+Link pattern regex
 
 ***
 
 ### options
 
-> **options**: `object`
+> **options**: [`LinkParserOptions`](../interfaces/LinkParserOptions.md)
 
-Defined in: [src/parsers/LinkParser.js:54](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/LinkParser.js#L54)
+Defined in: [src/parsers/LinkParser.ts:190](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L190)
 
-#### allowedAttributes
-
-> **allowedAttributes**: `string`[]
-
-#### defaultClasses
-
-> **defaultClasses**: `any`
-
-#### interWikiPattern
-
-> **interWikiPattern**: `RegExp`
-
-#### security
-
-> **security**: `any`
-
-#### urlPatterns
-
-> **urlPatterns**: `object`
-
-##### urlPatterns.absolute
-
-> **absolute**: `RegExp`
-
-##### urlPatterns.anchor
-
-> **anchor**: `RegExp`
-
-##### urlPatterns.email
-
-> **email**: `RegExp`
-
-##### urlPatterns.external
-
-> **external**: `RegExp`
+Parser configuration options
 
 ***
 
 ### pageNameMatcher
 
-> **pageNameMatcher**: `any`
+> **pageNameMatcher**: [`default`](../../../utils/PageNameMatcher/classes/default.md)
 
-Defined in: [src/parsers/LinkParser.js:95](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/LinkParser.js#L95)
+Defined in: [src/parsers/LinkParser.ts:196](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L196)
+
+Page name matcher for fuzzy matching
 
 ***
 
 ### pageNames
 
-> **pageNames**: `Set`\<`any`\>
+> **pageNames**: `Set`\<`string`\>
 
-Defined in: [src/parsers/LinkParser.js:92](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/LinkParser.js#L92)
+Defined in: [src/parsers/LinkParser.ts:193](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L193)
+
+Cache of available page names
 
 ## Methods
 
@@ -128,7 +88,7 @@ Defined in: [src/parsers/LinkParser.js:92](https://github.com/jwilleke/amdWiki/b
 
 > **addPageName**(`pageName`): `void`
 
-Defined in: [src/parsers/LinkParser.js:118](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/LinkParser.js#L118)
+Defined in: [src/parsers/LinkParser.ts:276](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L276)
 
 Add a page name to the known pages
 
@@ -150,7 +110,7 @@ Page name to add
 
 > **buildAttributeString**(`customAttributes`, `defaultAttributes`): `string`
 
-Defined in: [src/parsers/LinkParser.js:459](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/LinkParser.js#L459)
+Defined in: [src/parsers/LinkParser.ts:620](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L620)
 
 Build HTML attribute string
 
@@ -158,13 +118,13 @@ Build HTML attribute string
 
 ##### customAttributes
 
-`any` = `{}`
+[`LinkAttributes`](../interfaces/LinkAttributes.md) = `{}`
 
 Custom attributes from link
 
 ##### defaultAttributes
 
-`any` = `{}`
+`Record`\<`string`, `string` \| `undefined`\> = `{}`
 
 Default attributes
 
@@ -178,9 +138,9 @@ HTML attribute string
 
 ### determineLinkType()
 
-> **determineLinkType**(`link`): `string`
+> **determineLinkType**(`link`): [`LinkType`](../type-aliases/LinkType.md)
 
-Defined in: [src/parsers/LinkParser.js:285](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/LinkParser.js#L285)
+Defined in: [src/parsers/LinkParser.ts:446](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L446)
 
 Determine the type of link
 
@@ -194,9 +154,9 @@ Link object
 
 #### Returns
 
-`string`
+[`LinkType`](../type-aliases/LinkType.md)
 
-Link type ('internal', 'external', 'interwiki', 'email', 'anchor')
+Link type
 
 ***
 
@@ -204,7 +164,7 @@ Link type ('internal', 'external', 'interwiki', 'email', 'anchor')
 
 > **escapeHtml**(`text`): `string`
 
-Defined in: [src/parsers/LinkParser.js:530](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/LinkParser.js#L530)
+Defined in: [src/parsers/LinkParser.ts:691](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L691)
 
 Escape HTML characters
 
@@ -228,7 +188,7 @@ Escaped text
 
 > **findLinks**(`content`): [`Link`](Link.md)[]
 
-Defined in: [src/parsers/LinkParser.js:177](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/LinkParser.js#L177)
+Defined in: [src/parsers/LinkParser.ts:337](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L337)
 
 Find all links in the content
 
@@ -250,9 +210,9 @@ Array of Link objects
 
 ### generateAnchorLink()
 
-> **generateAnchorLink**(`link`, `context`): `string`
+> **generateAnchorLink**(`link`, `_context`): `string`
 
-Defined in: [src/parsers/LinkParser.js:442](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/LinkParser.js#L442)
+Defined in: [src/parsers/LinkParser.ts:603](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L603)
 
 Generate HTML for anchor links
 
@@ -264,11 +224,11 @@ Generate HTML for anchor links
 
 Link object
 
-##### context
+##### \_context
 
-`any`
+[`ParserContext`](../interfaces/ParserContext.md)
 
-Parsing context
+Parsing context (unused)
 
 #### Returns
 
@@ -280,9 +240,9 @@ HTML link
 
 ### generateEmailLink()
 
-> **generateEmailLink**(`link`, `context`): `string`
+> **generateEmailLink**(`link`, `_context`): `string`
 
-Defined in: [src/parsers/LinkParser.js:425](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/LinkParser.js#L425)
+Defined in: [src/parsers/LinkParser.ts:586](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L586)
 
 Generate HTML for email links
 
@@ -294,11 +254,11 @@ Generate HTML for email links
 
 Link object
 
-##### context
+##### \_context
 
-`any`
+[`ParserContext`](../interfaces/ParserContext.md)
 
-Parsing context
+Parsing context (unused)
 
 #### Returns
 
@@ -310,9 +270,9 @@ HTML link
 
 ### generateExternalLink()
 
-> **generateExternalLink**(`link`, `context`): `string`
+> **generateExternalLink**(`link`, `_context`): `string`
 
-Defined in: [src/parsers/LinkParser.js:366](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/LinkParser.js#L366)
+Defined in: [src/parsers/LinkParser.ts:527](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L527)
 
 Generate HTML for external links
 
@@ -324,11 +284,11 @@ Generate HTML for external links
 
 Link object
 
-##### context
+##### \_context
 
-`any`
+[`ParserContext`](../interfaces/ParserContext.md)
 
-Parsing context
+Parsing context (unused)
 
 #### Returns
 
@@ -340,9 +300,9 @@ HTML link
 
 ### generateInternalLink()
 
-> **generateInternalLink**(`link`, `context`): `string`
+> **generateInternalLink**(`link`, `_context`): `string`
 
-Defined in: [src/parsers/LinkParser.js:327](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/LinkParser.js#L327)
+Defined in: [src/parsers/LinkParser.ts:488](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L488)
 
 Generate HTML for internal wiki links
 
@@ -354,11 +314,11 @@ Generate HTML for internal wiki links
 
 Link object
 
-##### context
+##### \_context
 
-`any`
+[`ParserContext`](../interfaces/ParserContext.md)
 
-Parsing context
+Parsing context (unused)
 
 #### Returns
 
@@ -370,9 +330,9 @@ HTML link
 
 ### generateInterWikiLink()
 
-> **generateInterWikiLink**(`link`, `context`): `string`
+> **generateInterWikiLink**(`link`, `_context`): `string`
 
-Defined in: [src/parsers/LinkParser.js:390](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/LinkParser.js#L390)
+Defined in: [src/parsers/LinkParser.ts:551](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L551)
 
 Generate HTML for InterWiki links
 
@@ -384,11 +344,11 @@ Generate HTML for InterWiki links
 
 Link object
 
-##### context
+##### \_context
 
-`any`
+[`ParserContext`](../interfaces/ParserContext.md)
 
-Parsing context
+Parsing context (unused)
 
 #### Returns
 
@@ -402,7 +362,7 @@ HTML link
 
 > **generateLinkHtml**(`link`, `context`): `string`
 
-Defined in: [src/parsers/LinkParser.js:260](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/LinkParser.js#L260)
+Defined in: [src/parsers/LinkParser.ts:421](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L421)
 
 Generate HTML for a link
 
@@ -416,7 +376,7 @@ Link object to process
 
 ##### context
 
-`any`
+[`ParserContext`](../interfaces/ParserContext.md)
 
 Parsing context
 
@@ -430,15 +390,15 @@ HTML link
 
 ### getStats()
 
-> **getStats**(): `any`
+> **getStats**(): [`ParserStats`](../interfaces/ParserStats.md)
 
-Defined in: [src/parsers/LinkParser.js:547](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/LinkParser.js#L547)
+Defined in: [src/parsers/LinkParser.ts:708](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L708)
 
 Get parser statistics
 
 #### Returns
 
-`any`
+[`ParserStats`](../interfaces/ParserStats.md)
 
 Parser statistics
 
@@ -448,7 +408,7 @@ Parser statistics
 
 > **isUrlSafe**(`url`): `boolean`
 
-Defined in: [src/parsers/LinkParser.js:481](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/LinkParser.js#L481)
+Defined in: [src/parsers/LinkParser.ts:642](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L642)
 
 Validate URL safety
 
@@ -470,9 +430,9 @@ True if URL is safe
 
 ### parseAttributes()
 
-> **parseAttributes**(`attributeString`): `any`
+> **parseAttributes**(`attributeString`): [`LinkAttributes`](../interfaces/LinkAttributes.md)
 
-Defined in: [src/parsers/LinkParser.js:210](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/LinkParser.js#L210)
+Defined in: [src/parsers/LinkParser.ts:370](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L370)
 
 Parse link attributes from attribute string
 
@@ -486,7 +446,7 @@ String containing attributes
 
 #### Returns
 
-`any`
+[`LinkAttributes`](../interfaces/LinkAttributes.md)
 
 Parsed attributes object
 
@@ -496,7 +456,7 @@ Parsed attributes object
 
 > **parseLinks**(`content`, `context`): `string`
 
-Defined in: [src/parsers/LinkParser.js:142](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/LinkParser.js#L142)
+Defined in: [src/parsers/LinkParser.ts:300](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L300)
 
 Parse all links in the given content
 
@@ -510,7 +470,7 @@ Content containing wiki links
 
 ##### context
 
-`any` = `{}`
+[`ParserContext`](../interfaces/ParserContext.md) = `{}`
 
 Parsing context (pageName, etc.)
 
@@ -526,7 +486,7 @@ Content with links converted to HTML
 
 > **sanitizeAttributeValue**(`value`): `string`
 
-Defined in: [src/parsers/LinkParser.js:519](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/LinkParser.js#L519)
+Defined in: [src/parsers/LinkParser.ts:680](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L680)
 
 Sanitize attribute value to prevent XSS
 
@@ -550,7 +510,7 @@ Sanitized value
 
 > **sanitizeStyleAttribute**(`style`): `string`
 
-Defined in: [src/parsers/LinkParser.js:506](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/LinkParser.js#L506)
+Defined in: [src/parsers/LinkParser.ts:667](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L667)
 
 Sanitize style attribute value
 
@@ -574,7 +534,7 @@ Sanitized style
 
 > **setInterWikiSites**(`sites`): `void`
 
-Defined in: [src/parsers/LinkParser.js:128](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/LinkParser.js#L128)
+Defined in: [src/parsers/LinkParser.ts:286](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L286)
 
 Set InterWiki sites configuration
 
@@ -582,9 +542,9 @@ Set InterWiki sites configuration
 
 ##### sites
 
-`any`
-
 InterWiki sites configuration
+
+`Map`\<`string`, [`InterWikiSiteConfig`](../interfaces/InterWikiSiteConfig.md)\> | `Record`\<`string`, [`InterWikiSiteConfig`](../interfaces/InterWikiSiteConfig.md)\>
 
 #### Returns
 
@@ -596,7 +556,7 @@ InterWiki sites configuration
 
 > **setPageNames**(`pageNames`, `matchEnglishPlurals`): `void`
 
-Defined in: [src/parsers/LinkParser.js:109](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/LinkParser.js#L109)
+Defined in: [src/parsers/LinkParser.ts:267](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L267)
 
 Set the list of existing wiki page names for link validation
 

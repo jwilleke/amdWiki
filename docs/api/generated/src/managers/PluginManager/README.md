@@ -8,4 +8,11 @@
 
 ## Classes
 
-- [export=](classes/export=.md)
+- [default](classes/default.md)
+
+## Interfaces
+
+- [Plugin](interfaces/Plugin.md)
+- [PluginContext](interfaces/PluginContext.md)
+- [PluginInfo](interfaces/PluginInfo.md)
+- [PluginParams](interfaces/PluginParams.md)

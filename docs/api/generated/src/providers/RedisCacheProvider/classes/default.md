@@ -6,7 +6,7 @@
 
 # Class: default
 
-Defined in: [src/providers/RedisCacheProvider.ts:38](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/RedisCacheProvider.ts#L38)
+Defined in: [src/providers/RedisCacheProvider.ts:33](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/RedisCacheProvider.ts#L33)
 
 RedisCacheProvider - Redis-based cache provider (FUTURE IMPLEMENTATION)
 
@@ -14,7 +14,6 @@ Provides distributed caching using Redis.
 Suitable for multi-instance deployments and production environments.
 
 Configuration keys (all lowercase):
-
 - amdwiki.cache.provider.redis.url - Redis connection URL
 - amdwiki.cache.provider.redis.keyprefix - Key prefix for all cache keys
 - amdwiki.cache.provider.redis.enablecluster - Enable Redis Cluster support
@@ -35,13 +34,13 @@ TODO: Add pub/sub for cache invalidation across instances
 
 > **new default**(`engine`): `RedisCacheProvider`
 
-Defined in: [src/providers/RedisCacheProvider.ts:42](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/RedisCacheProvider.ts#L42)
+Defined in: [src/providers/RedisCacheProvider.ts:38](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/RedisCacheProvider.ts#L38)
 
 #### Parameters
 
 ##### engine
 
-`WikiEngine`
+[`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
 #### Returns
 
@@ -55,9 +54,9 @@ Defined in: [src/providers/RedisCacheProvider.ts:42](https://github.com/jwilleke
 
 ### engine
 
-> `protected` **engine**: `WikiEngine`
+> `protected` **engine**: [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/providers/BaseCacheProvider.ts:76](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseCacheProvider.ts#L76)
+Defined in: [src/providers/BaseCacheProvider.ts:67](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseCacheProvider.ts#L67)
 
 Reference to the wiki engine instance
 
@@ -71,7 +70,7 @@ Reference to the wiki engine instance
 
 > `protected` **initialized**: `boolean`
 
-Defined in: [src/providers/BaseCacheProvider.ts:81](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseCacheProvider.ts#L81)
+Defined in: [src/providers/BaseCacheProvider.ts:72](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseCacheProvider.ts#L72)
 
 Whether the provider has been initialized
 
@@ -85,7 +84,7 @@ Whether the provider has been initialized
 
 > **backup**(): `Promise`\<[`BackupData`](../../BaseCacheProvider/interfaces/BackupData.md)\>
 
-Defined in: [src/providers/BaseCacheProvider.ts:175](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseCacheProvider.ts#L175)
+Defined in: [src/providers/BaseCacheProvider.ts:166](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseCacheProvider.ts#L166)
 
 Backup cache configuration and state (optional)
 
@@ -103,15 +102,15 @@ Backup data
 
 ### clear()
 
-> **clear**(`pattern?`): `Promise`\<`void`\>
+> **clear**(`_pattern?`): `Promise`\<`void`\>
 
-Defined in: [src/providers/RedisCacheProvider.ts:155](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/RedisCacheProvider.ts#L155)
+Defined in: [src/providers/RedisCacheProvider.ts:153](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/RedisCacheProvider.ts#L153)
 
 Clear cache entries
 
 #### Parameters
 
-##### pattern?
+##### \_pattern?
 
 `string`
 
@@ -131,7 +130,7 @@ Optional pattern to match keys
 
 > **close**(): `Promise`\<`void`\>
 
-Defined in: [src/providers/RedisCacheProvider.ts:199](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/RedisCacheProvider.ts#L199)
+Defined in: [src/providers/RedisCacheProvider.ts:191](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/RedisCacheProvider.ts#L191)
 
 Close/cleanup the cache provider
 
@@ -147,15 +146,15 @@ Close/cleanup the cache provider
 
 ### del()
 
-> **del**(`keys`): `Promise`\<`void`\>
+> **del**(`_keys`): `Promise`\<`void`\>
 
-Defined in: [src/providers/RedisCacheProvider.ts:142](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/RedisCacheProvider.ts#L142)
+Defined in: [src/providers/RedisCacheProvider.ts:140](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/RedisCacheProvider.ts#L140)
 
 Delete one or more keys from the cache
 
 #### Parameters
 
-##### keys
+##### \_keys
 
 Single key or array of keys to delete
 
@@ -173,9 +172,9 @@ Single key or array of keys to delete
 
 ### get()
 
-> **get**\<`T`\>(`key`): `Promise`\<`T`\>
+> **get**\<`T`\>(`_key`): `Promise`\<`T`\>
 
-Defined in: [src/providers/RedisCacheProvider.ts:107](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/RedisCacheProvider.ts#L107)
+Defined in: [src/providers/RedisCacheProvider.ts:104](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/RedisCacheProvider.ts#L104)
 
 Get a value from the cache
 
@@ -187,7 +186,7 @@ Get a value from the cache
 
 #### Parameters
 
-##### key
+##### \_key
 
 `string`
 
@@ -209,7 +208,7 @@ The cached value or undefined if not found
 
 > **getProviderInfo**(): [`ProviderInfo`](../../BaseCacheProvider/interfaces/ProviderInfo.md)
 
-Defined in: [src/providers/RedisCacheProvider.ts:92](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/RedisCacheProvider.ts#L92)
+Defined in: [src/providers/RedisCacheProvider.ts:88](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/RedisCacheProvider.ts#L88)
 
 Get provider information
 
@@ -229,7 +228,7 @@ Provider metadata
 
 > **initialize**(): `Promise`\<`void`\>
 
-Defined in: [src/providers/RedisCacheProvider.ts:52](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/RedisCacheProvider.ts#L52)
+Defined in: [src/providers/RedisCacheProvider.ts:48](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/RedisCacheProvider.ts#L48)
 
 Initialize the Redis provider
 
@@ -247,7 +246,7 @@ Initialize the Redis provider
 
 > **isHealthy**(): `Promise`\<`boolean`\>
 
-Defined in: [src/providers/RedisCacheProvider.ts:183](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/RedisCacheProvider.ts#L183)
+Defined in: [src/providers/RedisCacheProvider.ts:181](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/RedisCacheProvider.ts#L181)
 
 Check if the cache provider is healthy/connected
 
@@ -265,15 +264,15 @@ True if healthy
 
 ### keys()
 
-> **keys**(`pattern?`): `Promise`\<`string`[]\>
+> **keys**(`_pattern?`): `Promise`\<`string`[]\>
 
-Defined in: [src/providers/RedisCacheProvider.ts:165](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/RedisCacheProvider.ts#L165)
+Defined in: [src/providers/RedisCacheProvider.ts:163](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/RedisCacheProvider.ts#L163)
 
 Get keys matching a pattern
 
 #### Parameters
 
-##### pattern?
+##### \_pattern?
 
 `string` = `'*'`
 
@@ -293,15 +292,15 @@ Array of matching keys
 
 ### restore()
 
-> **restore**(`backupData`): `Promise`\<`void`\>
+> **restore**(`_backupData`): `Promise`\<`void`\>
 
-Defined in: [src/providers/BaseCacheProvider.ts:188](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseCacheProvider.ts#L188)
+Defined in: [src/providers/BaseCacheProvider.ts:179](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseCacheProvider.ts#L179)
 
 Restore cache from backup (optional)
 
 #### Parameters
 
-##### backupData
+##### \_backupData
 
 [`BackupData`](../../BaseCacheProvider/interfaces/BackupData.md)
 
@@ -319,9 +318,9 @@ Backup data
 
 ### set()
 
-> **set**\<`T`\>(`key`, `value`, `ttlSec?`): `Promise`\<`void`\>
+> **set**\<`T`\>(`_key`, `_value`, `_ttlSec?`): `Promise`\<`void`\>
 
-Defined in: [src/providers/RedisCacheProvider.ts:125](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/RedisCacheProvider.ts#L125)
+Defined in: [src/providers/RedisCacheProvider.ts:123](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/RedisCacheProvider.ts#L123)
 
 Set a value in the cache
 
@@ -333,19 +332,19 @@ Set a value in the cache
 
 #### Parameters
 
-##### key
+##### \_key
 
 `string`
 
 The cache key
 
-##### value
+##### \_value
 
 `T`
 
 The value to cache
 
-##### ttlSec?
+##### \_ttlSec?
 
 `number`
 
@@ -365,7 +364,7 @@ Time to live in seconds
 
 > **stats**(): `Promise`\<[`CacheStats`](../../BaseCacheProvider/interfaces/CacheStats.md)\>
 
-Defined in: [src/providers/RedisCacheProvider.ts:174](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/RedisCacheProvider.ts#L174)
+Defined in: [src/providers/RedisCacheProvider.ts:172](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/RedisCacheProvider.ts#L172)
 
 Get cache statistics
 

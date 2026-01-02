@@ -8,7 +8,7 @@
 
 > **isUuid**(`value`): `value is string`
 
-Defined in: [src/types/guards.ts:374](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/guards.ts#L374)
+Defined in: [src/types/guards.ts:392](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/guards.ts#L392)
 
 Check if value is a valid UUID (v4 format)
 
@@ -16,7 +16,7 @@ Check if value is a valid UUID (v4 format)
 
 ### value
 
-`any`
+`unknown`
 
 ## Returns
 

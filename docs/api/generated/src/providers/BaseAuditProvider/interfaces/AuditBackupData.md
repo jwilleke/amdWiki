@@ -6,13 +6,13 @@
 
 # Interface: AuditBackupData
 
-Defined in: [src/providers/BaseAuditProvider.ts:109](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAuditProvider.ts#L109)
+Defined in: [src/providers/BaseAuditProvider.ts:108](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L108)
 
 Audit backup data
 
 ## Indexable
 
-\[`key`: `string`\]: `any`
+\[`key`: `string`\]: `unknown`
 
 Additional backup data
 
@@ -22,7 +22,7 @@ Additional backup data
 
 > **initialized**: `boolean`
 
-Defined in: [src/providers/BaseAuditProvider.ts:114](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAuditProvider.ts#L114)
+Defined in: [src/providers/BaseAuditProvider.ts:113](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L113)
 
 Initialization state
 
@@ -32,7 +32,7 @@ Initialization state
 
 > **provider**: `string`
 
-Defined in: [src/providers/BaseAuditProvider.ts:111](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAuditProvider.ts#L111)
+Defined in: [src/providers/BaseAuditProvider.ts:110](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L110)
 
 Provider name
 
@@ -42,6 +42,6 @@ Provider name
 
 > **timestamp**: `string`
 
-Defined in: [src/providers/BaseAuditProvider.ts:117](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAuditProvider.ts#L117)
+Defined in: [src/providers/BaseAuditProvider.ts:116](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L116)
 
 Backup timestamp

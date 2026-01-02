@@ -6,7 +6,7 @@
 
 # Interface: UserProvider
 
-Defined in: [src/types/Provider.ts:168](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L168)
+Defined in: [src/types/Provider.ts:176](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L176)
 
 User provider interface
 
@@ -20,9 +20,9 @@ Defines the contract for user storage backends.
 
 ### engine
 
-> **engine**: `any`
+> **engine**: [`WikiEngine`](../../WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/types/Provider.ts:19](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L19)
+Defined in: [src/types/Provider.ts:21](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L21)
 
 Reference to WikiEngine
 
@@ -36,7 +36,7 @@ Reference to WikiEngine
 
 > **initialized**: `boolean`
 
-Defined in: [src/types/Provider.ts:22](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L22)
+Defined in: [src/types/Provider.ts:24](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L24)
 
 Whether provider has been initialized
 
@@ -50,7 +50,7 @@ Whether provider has been initialized
 
 > **cleanupExpiredSessions**(): `Promise`\<`number`\>
 
-Defined in: [src/types/Provider.ts:245](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L245)
+Defined in: [src/types/Provider.ts:253](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L253)
 
 Clean up expired sessions
 
@@ -64,31 +64,31 @@ Number of sessions deleted
 
 ### createSession()
 
-> **createSession**(`username`, `expiresIn`): `Promise`\<[`UserSession`](../../User/interfaces/UserSession.md)\>
+> **createSession**(`sessionId`, `sessionData`): `Promise`\<`void`\>
 
-Defined in: [src/types/Provider.ts:225](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L225)
+Defined in: [src/types/Provider.ts:233](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L233)
 
 Create session
 
 #### Parameters
 
-##### username
+##### sessionId
 
 `string`
 
-Username
+Session ID
 
-##### expiresIn
+##### sessionData
 
-`number`
+[`UserSession`](../../User/interfaces/UserSession.md)
 
-Session duration in milliseconds
+Session data object
 
 #### Returns
 
-`Promise`\<[`UserSession`](../../User/interfaces/UserSession.md)\>
+`Promise`\<`void`\>
 
-Session object
+Promise that resolves when session is created
 
 ***
 
@@ -96,7 +96,7 @@ Session object
 
 > **createUser**(`userData`): `Promise`\<[`User`](../../User/interfaces/User.md)\>
 
-Defined in: [src/types/Provider.ts:194](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L194)
+Defined in: [src/types/Provider.ts:202](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L202)
 
 Create new user
 
@@ -120,7 +120,7 @@ Created user object
 
 > **deleteSession**(`sessionId`): `Promise`\<`boolean`\>
 
-Defined in: [src/types/Provider.ts:239](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L239)
+Defined in: [src/types/Provider.ts:247](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L247)
 
 Delete session
 
@@ -144,7 +144,7 @@ True if deleted, false if not found
 
 > **deleteUser**(`username`): `Promise`\<`boolean`\>
 
-Defined in: [src/types/Provider.ts:209](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L209)
+Defined in: [src/types/Provider.ts:217](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L217)
 
 Delete user
 
@@ -164,19 +164,51 @@ True if deleted, false if not found
 
 ***
 
+### getAllSessions()
+
+> **getAllSessions**(): `Promise`\<`Map`\<`string`, [`UserSession`](../../User/interfaces/UserSession.md)\>\>
+
+Defined in: [src/types/Provider.ts:272](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L272)
+
+Get all active sessions
+
+#### Returns
+
+`Promise`\<`Map`\<`string`, [`UserSession`](../../User/interfaces/UserSession.md)\>\>
+
+Map of session ID to session data
+
+***
+
+### getAllUsernames()
+
+> **getAllUsernames**(): `Promise`\<`string`[]\>
+
+Defined in: [src/types/Provider.ts:266](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L266)
+
+Get all usernames
+
+#### Returns
+
+`Promise`\<`string`[]\>
+
+Array of usernames
+
+***
+
 ### getAllUsers()
 
-> **getAllUsers**(): `Promise`\<[`User`](../../User/interfaces/User.md)[]\>
+> **getAllUsers**(): `Promise`\<`Map`\<`string`, [`User`](../../User/interfaces/User.md)\>\>
 
-Defined in: [src/types/Provider.ts:187](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L187)
+Defined in: [src/types/Provider.ts:195](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L195)
 
 Get all users
 
 #### Returns
 
-`Promise`\<[`User`](../../User/interfaces/User.md)[]\>
+`Promise`\<`Map`\<`string`, [`User`](../../User/interfaces/User.md)\>\>
 
-Array of user objects
+Map of username to user objects
 
 ***
 
@@ -184,7 +216,7 @@ Array of user objects
 
 > **getSession**(`sessionId`): `Promise`\<[`UserSession`](../../User/interfaces/UserSession.md)\>
 
-Defined in: [src/types/Provider.ts:232](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L232)
+Defined in: [src/types/Provider.ts:240](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L240)
 
 Get session
 
@@ -208,7 +240,7 @@ Session object or null if not found/expired
 
 > **getUser**(`username`): `Promise`\<[`User`](../../User/interfaces/User.md)\>
 
-Defined in: [src/types/Provider.ts:174](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L174)
+Defined in: [src/types/Provider.ts:182](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L182)
 
 Get user by username
 
@@ -232,7 +264,7 @@ User object or null if not found
 
 > **getUserByEmail**(`email`): `Promise`\<[`User`](../../User/interfaces/User.md)\>
 
-Defined in: [src/types/Provider.ts:181](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L181)
+Defined in: [src/types/Provider.ts:189](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L189)
 
 Get user by email
 
@@ -256,7 +288,7 @@ User object or null if not found
 
 > **initialize**(): `Promise`\<`void`\>
 
-Defined in: [src/types/Provider.ts:28](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L28)
+Defined in: [src/types/Provider.ts:30](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L30)
 
 Initialize the provider
 
@@ -272,11 +304,31 @@ Promise that resolves when initialization is complete
 
 ***
 
+### shutdown()?
+
+> `optional` **shutdown**(): `Promise`\<`void`\>
+
+Defined in: [src/types/Provider.ts:36](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L36)
+
+Shutdown the provider (optional)
+
+#### Returns
+
+`Promise`\<`void`\>
+
+Promise that resolves when shutdown is complete
+
+#### Inherited from
+
+[`BaseProvider`](BaseProvider.md).[`shutdown`](BaseProvider.md#shutdown)
+
+***
+
 ### updateUser()
 
 > **updateUser**(`username`, `updates`): `Promise`\<[`User`](../../User/interfaces/User.md)\>
 
-Defined in: [src/types/Provider.ts:202](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L202)
+Defined in: [src/types/Provider.ts:210](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L210)
 
 Update user
 
@@ -302,11 +354,35 @@ Updated user object
 
 ***
 
+### userExists()
+
+> **userExists**(`username`): `Promise`\<`boolean`\>
+
+Defined in: [src/types/Provider.ts:260](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L260)
+
+Check if user exists
+
+#### Parameters
+
+##### username
+
+`string`
+
+Username to check
+
+#### Returns
+
+`Promise`\<`boolean`\>
+
+True if user exists
+
+***
+
 ### validateCredentials()
 
 > **validateCredentials**(`username`, `password`): `Promise`\<[`User`](../../User/interfaces/User.md)\>
 
-Defined in: [src/types/Provider.ts:217](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L217)
+Defined in: [src/types/Provider.ts:225](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L225)
 
 Validate user credentials
 

@@ -6,7 +6,7 @@
 
 # Interface: User
 
-Defined in: [src/types/User.ts:53](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/User.ts#L53)
+Defined in: [src/types/User.ts:53](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L53)
 
 User object
 
@@ -18,7 +18,7 @@ Complete user record stored in the user provider.
 
 > `optional` **avatar**: `string`
 
-Defined in: [src/types/User.ts:91](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/User.ts#L91)
+Defined in: [src/types/User.ts:91](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L91)
 
 Profile picture URL or data
 
@@ -28,7 +28,7 @@ Profile picture URL or data
 
 > **createdAt**: `string`
 
-Defined in: [src/types/User.ts:79](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/User.ts#L79)
+Defined in: [src/types/User.ts:79](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L79)
 
 Account creation timestamp (ISO 8601)
 
@@ -38,7 +38,7 @@ Account creation timestamp (ISO 8601)
 
 > **displayName**: `string`
 
-Defined in: [src/types/User.ts:61](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/User.ts#L61)
+Defined in: [src/types/User.ts:61](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L61)
 
 Display name (full name)
 
@@ -48,7 +48,7 @@ Display name (full name)
 
 > **email**: `string`
 
-Defined in: [src/types/User.ts:58](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/User.ts#L58)
+Defined in: [src/types/User.ts:58](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L58)
 
 Email address
 
@@ -58,7 +58,7 @@ Email address
 
 > **isActive**: `boolean`
 
-Defined in: [src/types/User.ts:70](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/User.ts#L70)
+Defined in: [src/types/User.ts:70](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L70)
 
 Whether user account is active
 
@@ -68,7 +68,7 @@ Whether user account is active
 
 > **isExternal**: `boolean`
 
-Defined in: [src/types/User.ts:76](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/User.ts#L76)
+Defined in: [src/types/User.ts:76](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L76)
 
 Whether user is external (LDAP, OAuth)
 
@@ -78,7 +78,7 @@ Whether user is external (LDAP, OAuth)
 
 > **isSystem**: `boolean`
 
-Defined in: [src/types/User.ts:73](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/User.ts#L73)
+Defined in: [src/types/User.ts:73](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L73)
 
 Whether user is system user
 
@@ -88,7 +88,7 @@ Whether user is system user
 
 > `optional` **lastLogin**: `string`
 
-Defined in: [src/types/User.ts:82](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/User.ts#L82)
+Defined in: [src/types/User.ts:82](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L82)
 
 Last login timestamp (ISO 8601)
 
@@ -98,7 +98,7 @@ Last login timestamp (ISO 8601)
 
 > **loginCount**: `number`
 
-Defined in: [src/types/User.ts:85](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/User.ts#L85)
+Defined in: [src/types/User.ts:85](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L85)
 
 Total login count
 
@@ -108,7 +108,7 @@ Total login count
 
 > `optional` **metadata**: `Record`\<`string`, `any`\>
 
-Defined in: [src/types/User.ts:94](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/User.ts#L94)
+Defined in: [src/types/User.ts:94](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L94)
 
 Additional metadata
 
@@ -118,7 +118,7 @@ Additional metadata
 
 > **password**: `string`
 
-Defined in: [src/types/User.ts:64](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/User.ts#L64)
+Defined in: [src/types/User.ts:64](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L64)
 
 Hashed password (SHA-256 or bcrypt)
 
@@ -128,7 +128,7 @@ Hashed password (SHA-256 or bcrypt)
 
 > **preferences**: [`UserPreferences`](UserPreferences.md)
 
-Defined in: [src/types/User.ts:88](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/User.ts#L88)
+Defined in: [src/types/User.ts:88](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L88)
 
 User preferences
 
@@ -138,7 +138,7 @@ User preferences
 
 > **roles**: `string`[]
 
-Defined in: [src/types/User.ts:67](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/User.ts#L67)
+Defined in: [src/types/User.ts:67](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L67)
 
 User roles (admin, editor, viewer, etc.)
 
@@ -148,6 +148,6 @@ User roles (admin, editor, viewer, etc.)
 
 > **username**: `string`
 
-Defined in: [src/types/User.ts:55](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/User.ts#L55)
+Defined in: [src/types/User.ts:55](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L55)
 
 Username (unique identifier for login)

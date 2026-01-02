@@ -6,13 +6,13 @@
 
 # Interface: AuditStats
 
-Defined in: [src/providers/BaseAuditProvider.ts:86](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAuditProvider.ts#L86)
+Defined in: [src/providers/BaseAuditProvider.ts:78](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L78)
 
 Audit statistics
 
 ## Indexable
 
-\[`key`: `string`\]: `any`
+\[`key`: `string`\]: `unknown`
 
 Additional statistics
 
@@ -22,7 +22,7 @@ Additional statistics
 
 > `optional` **eventsByResult**: `Record`\<`string`, `number`\>
 
-Defined in: [src/providers/BaseAuditProvider.ts:94](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAuditProvider.ts#L94)
+Defined in: [src/providers/BaseAuditProvider.ts:86](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L86)
 
 Events by result
 
@@ -32,7 +32,7 @@ Events by result
 
 > `optional` **eventsBySeverity**: `Record`\<`string`, `number`\>
 
-Defined in: [src/providers/BaseAuditProvider.ts:97](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAuditProvider.ts#L97)
+Defined in: [src/providers/BaseAuditProvider.ts:89](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L89)
 
 Events by severity
 
@@ -42,7 +42,7 @@ Events by severity
 
 > `optional` **eventsByType**: `Record`\<`string`, `number`\>
 
-Defined in: [src/providers/BaseAuditProvider.ts:91](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAuditProvider.ts#L91)
+Defined in: [src/providers/BaseAuditProvider.ts:83](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L83)
 
 Events by type
 
@@ -52,9 +52,29 @@ Events by type
 
 > `optional` **eventsByUser**: `Record`\<`string`, `number`\>
 
-Defined in: [src/providers/BaseAuditProvider.ts:100](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAuditProvider.ts#L100)
+Defined in: [src/providers/BaseAuditProvider.ts:92](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L92)
 
 Events by user
+
+***
+
+### recentActivity?
+
+> `optional` **recentActivity**: `any`[]
+
+Defined in: [src/providers/BaseAuditProvider.ts:96](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L96)
+
+Recent activity entries
+
+***
+
+### securityIncidents?
+
+> `optional` **securityIncidents**: `number`
+
+Defined in: [src/providers/BaseAuditProvider.ts:99](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L99)
+
+Number of security incidents (high/critical severity)
 
 ***
 
@@ -62,6 +82,6 @@ Events by user
 
 > **totalEvents**: `number`
 
-Defined in: [src/providers/BaseAuditProvider.ts:88](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAuditProvider.ts#L88)
+Defined in: [src/providers/BaseAuditProvider.ts:80](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L80)
 
 Total number of events

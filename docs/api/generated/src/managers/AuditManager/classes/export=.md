@@ -6,23 +6,16 @@
 
 # Class: export=
 
-Defined in: [src/managers/AuditManager.js:24](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/AuditManager.js#L24)
+Defined in: [src/managers/AuditManager.ts:186](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/AuditManager.ts#L186)
 
-Base Manager class - All managers should extend this
+Base class for all managers
 
-Following JSPWiki's modular manager pattern, this abstract base class
-provides common functionality for all managers including initialization,
-lifecycle management, and backup/restore operations.
-
- BaseManager
-
-## See
-
-WikiEngine for the main engine
+Provides common functionality for initialization, lifecycle management,
+and backup/restore operations.
 
 ## Extends
 
-- [`export=`](../../BaseManager/classes/export=.md)
+- [`default`](../../BaseManager/classes/default.md)
 
 ## Constructors
 
@@ -30,7 +23,7 @@ WikiEngine for the main engine
 
 > **new export=**(`engine`): `AuditManager`
 
-Defined in: [src/managers/AuditManager.js:31](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/AuditManager.js#L31)
+Defined in: [src/managers/AuditManager.ts:196](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/AuditManager.ts#L196)
 
 Creates a new AuditManager instance
 
@@ -38,7 +31,7 @@ Creates a new AuditManager instance
 
 ##### engine
 
-`WikiEngine`
+[`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
 The wiki engine instance
 
@@ -48,97 +41,57 @@ The wiki engine instance
 
 #### Overrides
 
-[`export=`](../../BaseManager/classes/export=.md).[`constructor`](../../BaseManager/classes/export=.md#constructor)
+[`default`](../../BaseManager/classes/default.md).[`constructor`](../../BaseManager/classes/default.md#constructor)
 
 ## Properties
 
-### auditLogs
+### config?
 
-> **auditLogs**: `any`
+> `protected` `optional` **config**: `Record`\<`string`, `any`\>
 
-Defined in: [src/managers/AuditManager.js:464](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/AuditManager.js#L464)
+Defined in: [src/managers/BaseManager.ts:63](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L63)
 
-***
-
-### auditQueue
-
-> **auditQueue**: `any`[]
-
-Defined in: [src/managers/AuditManager.js:450](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/AuditManager.js#L450)
-
-***
-
-### config
-
-> **config**: `any`
-
-Defined in: [src/managers/BaseManager.js:55](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/BaseManager.js#L55)
-
-Configuration object passed during initialization
+Configuration passed during initialization
 
 #### Inherited from
 
-[`export=`](../../BaseManager/classes/export=.md).[`config`](../../BaseManager/classes/export=.md#config)
+[`default`](../../BaseManager/classes/default.md).[`config`](../../BaseManager/classes/default.md#config)
 
 ***
 
 ### engine
 
-> **engine**: `WikiEngine`
+> `protected` **engine**: [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/managers/BaseManager.js:33](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/BaseManager.js#L33)
+Defined in: [src/managers/BaseManager.ts:56](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L56)
 
 Reference to the wiki engine
 
 #### Inherited from
 
-[`export=`](../../BaseManager/classes/export=.md).[`engine`](../../BaseManager/classes/export=.md#engine)
+[`default`](../../BaseManager/classes/default.md).[`engine`](../../BaseManager/classes/default.md#engine)
 
 ***
 
 ### initialized
 
-> **initialized**: `boolean`
+> `protected` **initialized**: `boolean`
 
-Defined in: [src/managers/BaseManager.js:34](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/BaseManager.js#L34)
+Defined in: [src/managers/BaseManager.ts:59](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L59)
 
-Flag indicating initialization status
+Initialization status flag
 
 #### Inherited from
 
-[`export=`](../../BaseManager/classes/export=.md).[`initialized`](../../BaseManager/classes/export=.md#initialized)
-
-***
-
-### isProcessing
-
-> **isProcessing**: `boolean`
-
-Defined in: [src/managers/AuditManager.js:446](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/AuditManager.js#L446)
-
-***
-
-### provider
-
-> **provider**: `any`
-
-Defined in: [src/managers/AuditManager.js:33](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/AuditManager.js#L33)
-
-***
-
-### providerClass
-
-> **providerClass**: `string`
-
-Defined in: [src/managers/AuditManager.js:34](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/AuditManager.js#L34)
+[`default`](../../BaseManager/classes/default.md).[`initialized`](../../BaseManager/classes/default.md#initialized)
 
 ## Methods
 
 ### backup()
 
-> **backup**(): `Promise`\<`any`\>
+> **backup**(): `Promise`\<[`BackupData`](../../BaseManager/interfaces/BackupData.md)\>
 
-Defined in: [src/managers/BaseManager.js:130](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/BaseManager.js#L130)
+Defined in: [src/managers/BaseManager.ts:168](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L168)
 
 Backup manager data
 
@@ -147,11 +100,9 @@ Default implementation returns an empty backup object.
 
 #### Returns
 
-`Promise`\<`any`\>
+`Promise`\<[`BackupData`](../../BaseManager/interfaces/BackupData.md)\>
 
 Backup data object containing all manager state
-
-#### Async
 
 #### Throws
 
@@ -160,7 +111,7 @@ If backup operation fails
 #### Example
 
 ```ts
-async backup() {
+async backup(): Promise<BackupData> {
   return {
     managerName: this.constructor.name,
     timestamp: new Date().toISOString(),
@@ -174,7 +125,7 @@ async backup() {
 
 #### Inherited from
 
-[`export=`](../../BaseManager/classes/export=.md).[`backup`](../../BaseManager/classes/export=.md#backup)
+[`default`](../../BaseManager/classes/default.md).[`backup`](../../BaseManager/classes/default.md#backup)
 
 ***
 
@@ -182,7 +133,7 @@ async backup() {
 
 > **cleanupOldLogs**(): `Promise`\<`void`\>
 
-Defined in: [src/managers/AuditManager.js:512](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/AuditManager.js#L512)
+Defined in: [src/managers/AuditManager.ts:531](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/AuditManager.ts#L531)
 
 Clean up old audit logs based on retention policy
 
@@ -196,7 +147,7 @@ Clean up old audit logs based on retention policy
 
 > **exportAuditLogs**(`filters`, `format`): `Promise`\<`string`\>
 
-Defined in: [src/managers/AuditManager.js:424](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/AuditManager.js#L424)
+Defined in: [src/managers/AuditManager.ts:513](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/AuditManager.ts#L513)
 
 Export audit logs
 
@@ -204,7 +155,7 @@ Export audit logs
 
 ##### filters
 
-`any` = `{}`
+`AuditFilters` = `{}`
 
 Export filters
 
@@ -226,7 +177,7 @@ Exported data
 
 > **flushAuditQueue**(): `Promise`\<`void`\>
 
-Defined in: [src/managers/AuditManager.js:432](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/AuditManager.js#L432)
+Defined in: [src/managers/AuditManager.ts:522](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/AuditManager.ts#L522)
 
 Flush audit queue to disk
 
@@ -238,9 +189,9 @@ Flush audit queue to disk
 
 ### getAuditStats()
 
-> **getAuditStats**(`filters`): `Promise`\<`any`\>
+> **getAuditStats**(`filters`): `Promise`\<`AuditStats`\>
 
-Defined in: [src/managers/AuditManager.js:369](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/AuditManager.js#L369)
+Defined in: [src/managers/AuditManager.ts:502](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/AuditManager.ts#L502)
 
 Get audit statistics
 
@@ -248,13 +199,13 @@ Get audit statistics
 
 ##### filters
 
-`any` = `{}`
+`AuditFilters` = `{}`
 
 Optional filters
 
 #### Returns
 
-`Promise`\<`any`\>
+`Promise`\<`AuditStats`\>
 
 Audit statistics
 
@@ -262,15 +213,15 @@ Audit statistics
 
 ### getEngine()
 
-> **getEngine**(): `WikiEngine`
+> **getEngine**(): [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/managers/BaseManager.js:81](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/BaseManager.js#L81)
+Defined in: [src/managers/BaseManager.ts:126](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L126)
 
 Get the wiki engine instance
 
 #### Returns
 
-`WikiEngine`
+[`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
 The wiki engine instance
 
@@ -282,7 +233,7 @@ const config = this.getEngine().getConfig();
 
 #### Inherited from
 
-[`export=`](../../BaseManager/classes/export=.md).[`getEngine`](../../BaseManager/classes/export=.md#getengine)
+[`default`](../../BaseManager/classes/default.md).[`getEngine`](../../BaseManager/classes/default.md#getengine)
 
 ***
 
@@ -290,7 +241,7 @@ const config = this.getEngine().getConfig();
 
 > **initialize**(`config?`): `Promise`\<`void`\>
 
-Defined in: [src/managers/AuditManager.js:45](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/AuditManager.js#L45)
+Defined in: [src/managers/AuditManager.ts:210](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/AuditManager.ts#L210)
 
 Initialize the AuditManager and load the configured provider
 
@@ -298,7 +249,7 @@ Initialize the AuditManager and load the configured provider
 
 ##### config?
 
-`any` = `{}`
+`Record`\<`string`, `unknown`\> = `{}`
 
 Configuration object (unused, reads from ConfigurationManager)
 
@@ -314,7 +265,7 @@ If ConfigurationManager is not available or provider fails to load
 
 #### Overrides
 
-[`export=`](../../BaseManager/classes/export=.md).[`initialize`](../../BaseManager/classes/export=.md#initialize)
+[`default`](../../BaseManager/classes/default.md).[`initialize`](../../BaseManager/classes/default.md#initialize)
 
 ***
 
@@ -322,7 +273,7 @@ If ConfigurationManager is not available or provider fails to load
 
 > **isInitialized**(): `boolean`
 
-Defined in: [src/managers/BaseManager.js:69](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/BaseManager.js#L69)
+Defined in: [src/managers/BaseManager.ts:114](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L114)
 
 Check if manager has been initialized
 
@@ -342,21 +293,7 @@ if (manager.isInitialized()) {
 
 #### Inherited from
 
-[`export=`](../../BaseManager/classes/export=.md).[`isInitialized`](../../BaseManager/classes/export=.md#isinitialized)
-
-***
-
-### loadExistingLogs()
-
-> **loadExistingLogs**(): `Promise`\<`void`\>
-
-Defined in: [src/managers/AuditManager.js:481](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/AuditManager.js#L481)
-
-Load existing audit logs from disk
-
-#### Returns
-
-`Promise`\<`void`\>
+[`default`](../../BaseManager/classes/default.md).[`isInitialized`](../../BaseManager/classes/default.md#isinitialized)
 
 ***
 
@@ -364,7 +301,7 @@ Load existing audit logs from disk
 
 > **logAccessDecision**(`context`, `result`, `reason`, `policy`): `Promise`\<`string`\>
 
-Defined in: [src/managers/AuditManager.js:173](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/AuditManager.js#L173)
+Defined in: [src/managers/AuditManager.ts:353](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/AuditManager.ts#L353)
 
 Log access control decision
 
@@ -372,7 +309,7 @@ Log access control decision
 
 ##### context
 
-`any`
+`AccessContext`
 
 Access context
 
@@ -390,7 +327,7 @@ Reason for the decision
 
 ##### policy
 
-`any` = `null`
+`PolicyInfo` = `null`
 
 Policy that made the decision
 
@@ -398,13 +335,15 @@ Policy that made the decision
 
 `Promise`\<`string`\>
 
+Event ID
+
 ***
 
 ### logAuditEvent()
 
 > **logAuditEvent**(`auditEvent`): `Promise`\<`string`\>
 
-Defined in: [src/managers/AuditManager.js:162](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/AuditManager.js#L162)
+Defined in: [src/managers/AuditManager.ts:340](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/AuditManager.ts#L340)
 
 Log an audit event
 
@@ -412,7 +351,7 @@ Log an audit event
 
 ##### auditEvent
 
-`any`
+`AuditEvent`
 
 Audit event data
 
@@ -428,7 +367,7 @@ Event ID
 
 > **logAuthentication**(`context`, `result`, `reason`): `Promise`\<`string`\>
 
-Defined in: [src/managers/AuditManager.js:234](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/AuditManager.js#L234)
+Defined in: [src/managers/AuditManager.ts:428](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/AuditManager.ts#L428)
 
 Log authentication event
 
@@ -436,7 +375,7 @@ Log authentication event
 
 ##### context
 
-`any`
+`AuthenticationContext`
 
 Authentication context
 
@@ -456,13 +395,15 @@ Reason for result
 
 `Promise`\<`string`\>
 
+Event ID
+
 ***
 
 ### logPolicyEvaluation()
 
 > **logPolicyEvaluation**(`context`, `policies`, `finalResult`, `duration`): `Promise`\<`string`\>
 
-Defined in: [src/managers/AuditManager.js:208](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/AuditManager.js#L208)
+Defined in: [src/managers/AuditManager.ts:395](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/AuditManager.ts#L395)
 
 Log policy evaluation
 
@@ -470,13 +411,13 @@ Log policy evaluation
 
 ##### context
 
-`any`
+`AccessContext`
 
 Evaluation context
 
 ##### policies
 
-`any`[]
+`PolicyInfo`[]
 
 Policies evaluated
 
@@ -496,13 +437,15 @@ Evaluation duration in ms
 
 `Promise`\<`string`\>
 
+Event ID
+
 ***
 
 ### logSecurityEvent()
 
 > **logSecurityEvent**(`context`, `eventType`, `severity`, `description`): `Promise`\<`string`\>
 
-Defined in: [src/managers/AuditManager.js:259](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/AuditManager.js#L259)
+Defined in: [src/managers/AuditManager.ts:459](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/AuditManager.ts#L459)
 
 Log security event
 
@@ -510,7 +453,7 @@ Log security event
 
 ##### context
 
-`any`
+`SecurityContext`
 
 Security context
 
@@ -522,9 +465,9 @@ Type of security event
 
 ##### severity
 
-`string`
-
 'low', 'medium', 'high', 'critical'
+
+`"low"` | `"medium"` | `"high"` | `"critical"`
 
 ##### description
 
@@ -536,13 +479,15 @@ Event description
 
 `Promise`\<`string`\>
 
+Event ID
+
 ***
 
 ### restore()
 
 > **restore**(`backupData`): `Promise`\<`void`\>
 
-Defined in: [src/managers/BaseManager.js:163](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/BaseManager.js#L163)
+Defined in: [src/managers/BaseManager.ts:196](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L196)
 
 Restore manager data from backup
 
@@ -553,31 +498,13 @@ Default implementation only validates that backup data is provided.
 
 ##### backupData
 
+[`BackupData`](../../BaseManager/interfaces/BackupData.md)
+
 Backup data object from backup() method
-
-###### data
-
-`any`
-
-Manager-specific backup data
-
-###### managerName
-
-`string`
-
-Name of the manager
-
-###### timestamp
-
-`string`
-
-ISO timestamp of backup
 
 #### Returns
 
 `Promise`\<`void`\>
-
-#### Async
 
 #### Throws
 
@@ -586,7 +513,7 @@ If restore operation fails or backup data is missing
 #### Example
 
 ```ts
-async restore(backupData) {
+async restore(backupData: BackupData): Promise<void> {
   if (!backupData || !backupData.data) {
     throw new Error('Invalid backup data');
   }
@@ -597,15 +524,15 @@ async restore(backupData) {
 
 #### Inherited from
 
-[`export=`](../../BaseManager/classes/export=.md).[`restore`](../../BaseManager/classes/export=.md#restore)
+[`default`](../../BaseManager/classes/default.md).[`restore`](../../BaseManager/classes/default.md#restore)
 
 ***
 
 ### searchAuditLogs()
 
-> **searchAuditLogs**(`filters`, `options`): `Promise`\<`any`\>
+> **searchAuditLogs**(`filters`, `options`): `Promise`\<`AuditSearchResults`\>
 
-Defined in: [src/managers/AuditManager.js:283](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/AuditManager.js#L283)
+Defined in: [src/managers/AuditManager.ts:489](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/AuditManager.ts#L489)
 
 Search audit logs
 
@@ -613,19 +540,19 @@ Search audit logs
 
 ##### filters
 
-`any` = `{}`
+`AuditFilters` = `{}`
 
 Search filters
 
 ##### options
 
-`any` = `{}`
+`AuditSearchOptions` = `{}`
 
 Search options
 
 #### Returns
 
-`Promise`\<`any`\>
+`Promise`\<`AuditSearchResults`\>
 
 Search results
 
@@ -635,7 +562,7 @@ Search results
 
 > **shutdown**(): `Promise`\<`void`\>
 
-Defined in: [src/managers/AuditManager.js:546](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/AuditManager.js#L546)
+Defined in: [src/managers/AuditManager.ts:540](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/AuditManager.ts#L540)
 
 Shutdown the audit manager
 
@@ -645,4 +572,4 @@ Shutdown the audit manager
 
 #### Overrides
 
-[`export=`](../../BaseManager/classes/export=.md).[`shutdown`](../../BaseManager/classes/export=.md#shutdown)
+[`default`](../../BaseManager/classes/default.md).[`shutdown`](../../BaseManager/classes/default.md#shutdown)

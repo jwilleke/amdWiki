@@ -8,7 +8,7 @@
 
 > **isIsoTimestamp**(`value`): `value is string`
 
-Defined in: [src/types/guards.ts:386](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/guards.ts#L386)
+Defined in: [src/types/guards.ts:404](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/guards.ts#L404)
 
 Check if value is a valid ISO 8601 timestamp
 
@@ -16,7 +16,7 @@ Check if value is a valid ISO 8601 timestamp
 
 ### value
 
-`any`
+`unknown`
 
 ## Returns
 

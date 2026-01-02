@@ -6,7 +6,7 @@
 
 # Class: Link
 
-Defined in: [src/parsers/LinkParser.js:560](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/LinkParser.js#L560)
+Defined in: [src/parsers/LinkParser.ts:721](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L721)
 
 Link class representing a parsed link
 
@@ -16,11 +16,17 @@ Link class representing a parsed link
 
 > **new Link**(`data`): `Link`
 
-Defined in: [src/parsers/LinkParser.js:561](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/LinkParser.js#L561)
+Defined in: [src/parsers/LinkParser.ts:747](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L747)
+
+Create a new Link instance
 
 #### Parameters
 
 ##### data
+
+[`LinkData`](../interfaces/LinkData.md) = `{}`
+
+Link data
 
 #### Returns
 
@@ -30,57 +36,71 @@ Defined in: [src/parsers/LinkParser.js:561](https://github.com/jwilleke/amdWiki/
 
 ### attributes
 
-> **attributes**: `any`
+> **attributes**: [`LinkAttributes`](../interfaces/LinkAttributes.md)
 
-Defined in: [src/parsers/LinkParser.js:566](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/LinkParser.js#L566)
+Defined in: [src/parsers/LinkParser.ts:735](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L735)
+
+Parsed attributes object
 
 ***
 
 ### attributesString
 
-> **attributesString**: `any`
+> **attributesString**: `string`
 
-Defined in: [src/parsers/LinkParser.js:565](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/LinkParser.js#L565)
+Defined in: [src/parsers/LinkParser.ts:732](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L732)
+
+Raw attributes string
 
 ***
 
 ### endIndex
 
-> **endIndex**: `any`
+> **endIndex**: `number`
 
-Defined in: [src/parsers/LinkParser.js:568](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/LinkParser.js#L568)
+Defined in: [src/parsers/LinkParser.ts:741](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L741)
+
+End index in content
 
 ***
 
 ### originalText
 
-> **originalText**: `any`
+> **originalText**: `string`
 
-Defined in: [src/parsers/LinkParser.js:562](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/LinkParser.js#L562)
+Defined in: [src/parsers/LinkParser.ts:723](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L723)
+
+Original text from content
 
 ***
 
 ### startIndex
 
-> **startIndex**: `any`
+> **startIndex**: `number`
 
-Defined in: [src/parsers/LinkParser.js:567](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/LinkParser.js#L567)
+Defined in: [src/parsers/LinkParser.ts:738](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L738)
+
+Start index in content
 
 ***
 
 ### target
 
-> **target**: `any`
+> **target**: `string`
 
-Defined in: [src/parsers/LinkParser.js:564](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/LinkParser.js#L564)
+Defined in: [src/parsers/LinkParser.ts:729](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L729)
+
+Target page or URL
 
 ***
 
 ### text
 
-> **text**: `any`
+> **text**: `string`
 
-Defined in: [src/parsers/LinkParser.js:563](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/LinkParser.js#L563)
+Defined in: [src/parsers/LinkParser.ts:726](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L726)
+
+Display text for the link
 
 ## Methods
 
@@ -88,7 +108,7 @@ Defined in: [src/parsers/LinkParser.js:563](https://github.com/jwilleke/amdWiki/
 
 > **getAttribute**(`name`): `string`
 
-Defined in: [src/parsers/LinkParser.js:600](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/LinkParser.js#L600)
+Defined in: [src/parsers/LinkParser.ts:786](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L786)
 
 Get attribute value by name
 
@@ -112,7 +132,7 @@ Attribute value
 
 > **getEffectiveTarget**(): `string`
 
-Defined in: [src/parsers/LinkParser.js:583](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/LinkParser.js#L583)
+Defined in: [src/parsers/LinkParser.ts:769](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L769)
 
 Get the effective target (target or text if no target)
 
@@ -128,7 +148,7 @@ Effective target
 
 > **hasAttributes**(): `boolean`
 
-Defined in: [src/parsers/LinkParser.js:591](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/LinkParser.js#L591)
+Defined in: [src/parsers/LinkParser.ts:777](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L777)
 
 Check if link has attributes
 
@@ -144,7 +164,7 @@ True if has attributes
 
 > **isSimple**(): `boolean`
 
-Defined in: [src/parsers/LinkParser.js:575](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/LinkParser.js#L575)
+Defined in: [src/parsers/LinkParser.ts:761](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L761)
 
 Check if this is a simple link (no target specified)
 
@@ -160,7 +180,7 @@ True if simple link
 
 > **setAttribute**(`name`, `value`): `void`
 
-Defined in: [src/parsers/LinkParser.js:609](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/LinkParser.js#L609)
+Defined in: [src/parsers/LinkParser.ts:795](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L795)
 
 Set attribute value
 
@@ -186,14 +206,14 @@ Attribute value
 
 ### toObject()
 
-> **toObject**(): `any`
+> **toObject**(): [`LinkInfo`](../interfaces/LinkInfo.md)
 
-Defined in: [src/parsers/LinkParser.js:619](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/LinkParser.js#L619)
+Defined in: [src/parsers/LinkParser.ts:805](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L805)
 
 Get link information as object
 
 #### Returns
 
-`any`
+[`LinkInfo`](../interfaces/LinkInfo.md)
 
 Link information

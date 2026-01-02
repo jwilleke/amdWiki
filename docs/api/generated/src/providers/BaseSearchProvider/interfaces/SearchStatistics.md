@@ -6,13 +6,13 @@
 
 # Interface: SearchStatistics
 
-Defined in: [src/providers/BaseSearchProvider.ts:108](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseSearchProvider.ts#L108)
+Defined in: [src/providers/BaseSearchProvider.ts:99](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseSearchProvider.ts#L99)
 
 Search statistics
 
 ## Indexable
 
-\[`key`: `string`\]: `any`
+\[`key`: `string`\]: `unknown`
 
 Additional statistics
 
@@ -22,7 +22,7 @@ Additional statistics
 
 > **documentCount**: `number`
 
-Defined in: [src/providers/BaseSearchProvider.ts:110](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseSearchProvider.ts#L110)
+Defined in: [src/providers/BaseSearchProvider.ts:101](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseSearchProvider.ts#L101)
 
 Total number of indexed documents
 
@@ -32,7 +32,7 @@ Total number of indexed documents
 
 > `optional` **indexSize**: `number`
 
-Defined in: [src/providers/BaseSearchProvider.ts:113](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseSearchProvider.ts#L113)
+Defined in: [src/providers/BaseSearchProvider.ts:104](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseSearchProvider.ts#L104)
 
 Index size in bytes
 
@@ -42,6 +42,6 @@ Index size in bytes
 
 > `optional` **lastIndexUpdate**: `string`
 
-Defined in: [src/providers/BaseSearchProvider.ts:116](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseSearchProvider.ts#L116)
+Defined in: [src/providers/BaseSearchProvider.ts:107](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseSearchProvider.ts#L107)
 
 Last index update timestamp

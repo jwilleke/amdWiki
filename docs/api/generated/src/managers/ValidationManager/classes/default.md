@@ -1,0 +1,672 @@
+[**amdWiki API v1.5.0**](../../../../README.md)
+
+***
+
+[amdWiki API](../../../../README.md) / [src/managers/ValidationManager](../README.md) / default
+
+# Class: default
+
+Defined in: [src/managers/ValidationManager.ts:124](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ValidationManager.ts#L124)
+
+ValidationManager - Ensures all files follow UUID naming and metadata conventions
+
+Validates page metadata and enforces architectural constraints including UUID-based
+naming, required metadata fields, valid system categories, and keyword limits.
+
+ ValidationManager
+
+## See
+
+[BaseManager](../../BaseManager/classes/default.md) for base functionality
+
+## Example
+
+```ts
+const validationManager = engine.getManager('ValidationManager');
+const result = validationManager.validatePage(metadata);
+if (!result.valid) console.error(result.errors);
+```
+
+## Extends
+
+- [`default`](../../BaseManager/classes/default.md)
+
+## Constructors
+
+### Constructor
+
+> **new default**(`engine`): `ValidationManager`
+
+Defined in: [src/managers/ValidationManager.ts:138](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ValidationManager.ts#L138)
+
+Creates a new ValidationManager instance
+
+#### Parameters
+
+##### engine
+
+[`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
+
+The wiki engine instance
+
+#### Returns
+
+`ValidationManager`
+
+#### Overrides
+
+[`default`](../../BaseManager/classes/default.md).[`constructor`](../../BaseManager/classes/default.md#constructor)
+
+## Properties
+
+### config?
+
+> `protected` `optional` **config**: `Record`\<`string`, `any`\>
+
+Defined in: [src/managers/BaseManager.ts:63](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L63)
+
+Configuration passed during initialization
+
+#### Inherited from
+
+[`default`](../../BaseManager/classes/default.md).[`config`](../../BaseManager/classes/default.md#config)
+
+***
+
+### engine
+
+> `protected` **engine**: [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
+
+Defined in: [src/managers/BaseManager.ts:56](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L56)
+
+Reference to the wiki engine
+
+#### Inherited from
+
+[`default`](../../BaseManager/classes/default.md).[`engine`](../../BaseManager/classes/default.md#engine)
+
+***
+
+### initialized
+
+> `protected` **initialized**: `boolean`
+
+Defined in: [src/managers/BaseManager.ts:59](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L59)
+
+Initialization status flag
+
+#### Inherited from
+
+[`default`](../../BaseManager/classes/default.md).[`initialized`](../../BaseManager/classes/default.md#initialized)
+
+## Methods
+
+### backup()
+
+> **backup**(): `Promise`\<[`BackupData`](../../BaseManager/interfaces/BackupData.md)\>
+
+Defined in: [src/managers/BaseManager.ts:168](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L168)
+
+Backup manager data
+
+MUST be overridden by all managers that manage persistent data.
+Default implementation returns an empty backup object.
+
+#### Returns
+
+`Promise`\<[`BackupData`](../../BaseManager/interfaces/BackupData.md)\>
+
+Backup data object containing all manager state
+
+#### Throws
+
+If backup operation fails
+
+#### Example
+
+```ts
+async backup(): Promise<BackupData> {
+  return {
+    managerName: this.constructor.name,
+    timestamp: new Date().toISOString(),
+    data: {
+      users: Array.from(this.users.values()),
+      settings: this.settings
+    }
+  };
+}
+```
+
+#### Inherited from
+
+[`default`](../../BaseManager/classes/default.md).[`backup`](../../BaseManager/classes/default.md#backup)
+
+***
+
+### generateFilename()
+
+> **generateFilename**(`metadata`): `string`
+
+Defined in: [src/managers/ValidationManager.ts:548](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ValidationManager.ts#L548)
+
+Generate UUID-based filename from metadata
+
+#### Parameters
+
+##### metadata
+
+[`PageMetadata`](../interfaces/PageMetadata.md)
+
+Page metadata containing UUID
+
+#### Returns
+
+`string`
+
+Filename in UUID.md format
+
+***
+
+### generateFixSuggestions()
+
+> **generateFixSuggestions**(`filename`, `metadata`): [`FixSuggestions`](../interfaces/FixSuggestions.md)
+
+Defined in: [src/managers/ValidationManager.ts:579](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ValidationManager.ts#L579)
+
+Generate suggestions to fix validation issues
+
+#### Parameters
+
+##### filename
+
+`string`
+
+Current filename
+
+##### metadata
+
+`Record`\<`string`, `unknown`\>
+
+Current metadata
+
+#### Returns
+
+[`FixSuggestions`](../interfaces/FixSuggestions.md)
+
+Fix suggestions
+
+***
+
+### generateSlug()
+
+> **generateSlug**(`title`): `string`
+
+Defined in: [src/managers/ValidationManager.ts:535](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ValidationManager.ts#L535)
+
+Generate URL-safe slug from title
+
+#### Parameters
+
+##### title
+
+`string`
+
+Page title
+
+#### Returns
+
+`string`
+
+URL-safe slug
+
+***
+
+### generateValidMetadata()
+
+> **generateValidMetadata**(`title`, `options`): [`PageMetadata`](../interfaces/PageMetadata.md)
+
+Defined in: [src/managers/ValidationManager.ts:508](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ValidationManager.ts#L508)
+
+Generate properly formatted metadata for a new page
+
+#### Parameters
+
+##### title
+
+`string`
+
+Page title
+
+##### options
+
+[`GenerateMetadataOptions`](../interfaces/GenerateMetadataOptions.md) = `{}`
+
+Additional metadata options
+
+#### Returns
+
+[`PageMetadata`](../interfaces/PageMetadata.md)
+
+Complete metadata object with all required fields
+
+***
+
+### getAllSystemCategories()
+
+> **getAllSystemCategories**(): [`CategoryConfig`](../interfaces/CategoryConfig.md)[]
+
+Defined in: [src/managers/ValidationManager.ts:261](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ValidationManager.ts#L261)
+
+Get all enabled system categories
+
+#### Returns
+
+[`CategoryConfig`](../interfaces/CategoryConfig.md)[]
+
+Array of category configurations
+
+***
+
+### getCategoryConfig()
+
+> **getCategoryConfig**(`label`): [`CategoryConfig`](../interfaces/CategoryConfig.md)
+
+Defined in: [src/managers/ValidationManager.ts:232](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ValidationManager.ts#L232)
+
+Get system category configuration by label
+
+#### Parameters
+
+##### label
+
+`string`
+
+Category label (e.g., "General", "System")
+
+#### Returns
+
+[`CategoryConfig`](../interfaces/CategoryConfig.md)
+
+Category configuration or null if not found
+
+***
+
+### getCategoryStorageLocation()
+
+> **getCategoryStorageLocation**(`category`): `string`
+
+Defined in: [src/managers/ValidationManager.ts:252](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ValidationManager.ts#L252)
+
+Get storage location for a category
+
+#### Parameters
+
+##### category
+
+`string`
+
+Category label
+
+#### Returns
+
+`string`
+
+Storage location ('regular' or 'required')
+
+***
+
+### getDefaultSystemCategory()
+
+> **getDefaultSystemCategory**(): `string`
+
+Defined in: [src/managers/ValidationManager.ts:282](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ValidationManager.ts#L282)
+
+Get the default system category
+
+#### Returns
+
+`string`
+
+Default category label
+
+***
+
+### getEngine()
+
+> **getEngine**(): [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
+
+Defined in: [src/managers/BaseManager.ts:126](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L126)
+
+Get the wiki engine instance
+
+#### Returns
+
+[`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
+
+The wiki engine instance
+
+#### Example
+
+```ts
+const config = this.getEngine().getConfig();
+```
+
+#### Inherited from
+
+[`default`](../../BaseManager/classes/default.md).[`getEngine`](../../BaseManager/classes/default.md#getengine)
+
+***
+
+### initialize()
+
+> **initialize**(`config?`): `Promise`\<`void`\>
+
+Defined in: [src/managers/ValidationManager.ts:156](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ValidationManager.ts#L156)
+
+Initialize the ValidationManager
+
+#### Parameters
+
+##### config?
+
+`Record`\<`string`, `unknown`\> = `{}`
+
+Configuration object
+
+#### Returns
+
+`Promise`\<`void`\>
+
+#### Async
+
+#### Overrides
+
+[`default`](../../BaseManager/classes/default.md).[`initialize`](../../BaseManager/classes/default.md#initialize)
+
+***
+
+### isInitialized()
+
+> **isInitialized**(): `boolean`
+
+Defined in: [src/managers/BaseManager.ts:114](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L114)
+
+Check if manager has been initialized
+
+#### Returns
+
+`boolean`
+
+True if manager is initialized
+
+#### Example
+
+```ts
+if (manager.isInitialized()) {
+  // Safe to use manager
+}
+```
+
+#### Inherited from
+
+[`default`](../../BaseManager/classes/default.md).[`isInitialized`](../../BaseManager/classes/default.md#isinitialized)
+
+***
+
+### isValidSlug()
+
+> **isValidSlug**(`slug`): `boolean`
+
+Defined in: [src/managers/ValidationManager.ts:419](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ValidationManager.ts#L419)
+
+Validate slug format (URL-safe)
+
+#### Parameters
+
+##### slug
+
+`string`
+
+The slug to validate
+
+#### Returns
+
+`boolean`
+
+True if valid
+
+***
+
+### loadSystemCategories()
+
+> **loadSystemCategories**(`configManager`): `void`
+
+Defined in: [src/managers/ValidationManager.ts:183](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ValidationManager.ts#L183)
+
+Load system categories from ConfigurationManager
+
+#### Parameters
+
+##### configManager
+
+`any`
+
+Configuration manager instance
+
+#### Returns
+
+`void`
+
+***
+
+### restore()
+
+> **restore**(`backupData`): `Promise`\<`void`\>
+
+Defined in: [src/managers/BaseManager.ts:196](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L196)
+
+Restore manager data from backup
+
+MUST be overridden by all managers that manage persistent data.
+Default implementation only validates that backup data is provided.
+
+#### Parameters
+
+##### backupData
+
+[`BackupData`](../../BaseManager/interfaces/BackupData.md)
+
+Backup data object from backup() method
+
+#### Returns
+
+`Promise`\<`void`\>
+
+#### Throws
+
+If restore operation fails or backup data is missing
+
+#### Example
+
+```ts
+async restore(backupData: BackupData): Promise<void> {
+  if (!backupData || !backupData.data) {
+    throw new Error('Invalid backup data');
+  }
+  this.users = new Map(backupData.data.users.map(u => [u.id, u]));
+  this.settings = backupData.data.settings;
+}
+```
+
+#### Inherited from
+
+[`default`](../../BaseManager/classes/default.md).[`restore`](../../BaseManager/classes/default.md#restore)
+
+***
+
+### shutdown()
+
+> **shutdown**(): `Promise`\<`void`\>
+
+Defined in: [src/managers/BaseManager.ts:143](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L143)
+
+Shutdown the manager and cleanup resources
+
+Override this method in subclasses to perform cleanup logic.
+Always call super.shutdown() at the end of overridden implementations.
+
+#### Returns
+
+`Promise`\<`void`\>
+
+#### Example
+
+```ts
+async shutdown(): Promise<void> {
+  // Your cleanup logic here
+  await this.closeConnections();
+  await super.shutdown();
+}
+```
+
+#### Inherited from
+
+[`default`](../../BaseManager/classes/default.md).[`shutdown`](../../BaseManager/classes/default.md#shutdown)
+
+***
+
+### validateContent()
+
+> **validateContent**(`content`): [`ContentValidationResult`](../interfaces/ContentValidationResult.md)
+
+Defined in: [src/managers/ValidationManager.ts:481](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ValidationManager.ts#L481)
+
+Validate page content (optional checks)
+
+#### Parameters
+
+##### content
+
+`string`
+
+The page content
+
+#### Returns
+
+[`ContentValidationResult`](../interfaces/ContentValidationResult.md)
+
+Content validation result
+
+***
+
+### validateExistingFile()
+
+> **validateExistingFile**(`filePath`, `fileData`): [`PageValidationResult`](../interfaces/PageValidationResult.md)
+
+Defined in: [src/managers/ValidationManager.ts:561](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ValidationManager.ts#L561)
+
+Validate and fix an existing page file
+
+#### Parameters
+
+##### filePath
+
+`string`
+
+Path to the existing file
+
+##### fileData
+
+[`FileData`](../interfaces/FileData.md)
+
+Object with content and metadata from gray-matter
+
+#### Returns
+
+[`PageValidationResult`](../interfaces/PageValidationResult.md)
+
+Validation result with fix suggestions
+
+***
+
+### validateFilename()
+
+> **validateFilename**(`filename`): [`ValidationResult`](../interfaces/ValidationResult.md)
+
+Defined in: [src/managers/ValidationManager.ts:308](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ValidationManager.ts#L308)
+
+Validate that a filename follows UUID naming convention
+
+#### Parameters
+
+##### filename
+
+`string`
+
+The filename to validate
+
+#### Returns
+
+[`ValidationResult`](../interfaces/ValidationResult.md)
+
+Validation result with success and error properties
+
+***
+
+### validateMetadata()
+
+> **validateMetadata**(`metadata`): [`MetadataValidationResult`](../interfaces/MetadataValidationResult.md)
+
+Defined in: [src/managers/ValidationManager.ts:336](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ValidationManager.ts#L336)
+
+Validate page metadata contains all required fields with proper values
+
+#### Parameters
+
+##### metadata
+
+`Record`\<`string`, `unknown`\>
+
+The metadata object to validate
+
+#### Returns
+
+[`MetadataValidationResult`](../interfaces/MetadataValidationResult.md)
+
+Validation result with success, error, and warnings properties
+
+***
+
+### validatePage()
+
+> **validatePage**(`filename`, `metadata`, `content`): [`PageValidationResult`](../interfaces/PageValidationResult.md)
+
+Defined in: [src/managers/ValidationManager.ts:431](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ValidationManager.ts#L431)
+
+Validate a complete page before saving
+
+#### Parameters
+
+##### filename
+
+`string`
+
+The target filename
+
+##### metadata
+
+`Record`\<`string`, `unknown`\>
+
+The page metadata
+
+##### content
+
+`string` = `null`
+
+The page content (optional validation)
+
+#### Returns
+
+[`PageValidationResult`](../interfaces/PageValidationResult.md)
+
+Comprehensive validation result

@@ -6,7 +6,7 @@
 
 # Interface: VersioningPageProvider
 
-Defined in: [src/types/Provider.ts:114](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L114)
+Defined in: [src/types/Provider.ts:122](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L122)
 
 Versioning page provider interface
 
@@ -20,9 +20,9 @@ Extended page provider with version history capabilities.
 
 ### engine
 
-> **engine**: `any`
+> **engine**: [`WikiEngine`](../../WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/types/Provider.ts:19](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L19)
+Defined in: [src/types/Provider.ts:21](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L21)
 
 Reference to WikiEngine
 
@@ -36,7 +36,7 @@ Reference to WikiEngine
 
 > **initialized**: `boolean`
 
-Defined in: [src/types/Provider.ts:22](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L22)
+Defined in: [src/types/Provider.ts:24](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L24)
 
 Whether provider has been initialized
 
@@ -50,7 +50,7 @@ Whether provider has been initialized
 
 > **cleanupVersions**(`identifier`): `Promise`\<`number`\>
 
-Defined in: [src/types/Provider.ts:152](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L152)
+Defined in: [src/types/Provider.ts:160](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L160)
 
 Delete old versions based on retention policy
 
@@ -74,7 +74,7 @@ Number of versions deleted
 
 > **compareVersions**(`identifier`, `fromVersion`, `toVersion`): `Promise`\<[`VersionDiff`](../../Version/interfaces/VersionDiff.md)\>
 
-Defined in: [src/types/Provider.ts:145](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L145)
+Defined in: [src/types/Provider.ts:153](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L153)
 
 Compare two versions
 
@@ -110,7 +110,7 @@ Version diff object
 
 > **compressVersions**(`identifier`, `olderThanDays?`): `Promise`\<`number`\>
 
-Defined in: [src/types/Provider.ts:160](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L160)
+Defined in: [src/types/Provider.ts:168](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L168)
 
 Compress old versions
 
@@ -140,7 +140,7 @@ Number of versions compressed
 
 > **deletePage**(`identifier`): `Promise`\<`boolean`\>
 
-Defined in: [src/types/Provider.ts:73](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L73)
+Defined in: [src/types/Provider.ts:81](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L81)
 
 Delete a page
 
@@ -168,7 +168,7 @@ True if deleted, false if not found
 
 > **findPage**(`identifier`): `string`
 
-Defined in: [src/types/Provider.ts:100](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L100)
+Defined in: [src/types/Provider.ts:108](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L108)
 
 Find page by various identifiers
 
@@ -196,7 +196,7 @@ Canonical page title or null
 
 > **getAllPageInfo**(`options?`): `Promise`\<[`PageInfo`](../../Page/interfaces/PageInfo.md)[]\>
 
-Defined in: [src/types/Provider.ts:93](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L93)
+Defined in: [src/types/Provider.ts:101](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L101)
 
 Get all page info objects
 
@@ -224,7 +224,7 @@ Array of page info objects
 
 > **getAllPages**(): `Promise`\<`string`[]\>
 
-Defined in: [src/types/Provider.ts:86](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L86)
+Defined in: [src/types/Provider.ts:94](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L94)
 
 Get all page titles
 
@@ -244,7 +244,7 @@ Sorted array of page titles
 
 > **getPage**(`identifier`): `Promise`\<[`WikiPage`](../../Page/interfaces/WikiPage.md)\>
 
-Defined in: [src/types/Provider.ts:42](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L42)
+Defined in: [src/types/Provider.ts:50](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L50)
 
 Get complete page with content and metadata
 
@@ -272,7 +272,7 @@ Page object or null if not found
 
 > **getPageContent**(`identifier`): `Promise`\<`string`\>
 
-Defined in: [src/types/Provider.ts:49](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L49)
+Defined in: [src/types/Provider.ts:57](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L57)
 
 Get only page content (without metadata)
 
@@ -300,7 +300,7 @@ Markdown content
 
 > **getPageMetadata**(`identifier`): `Promise`\<[`PageFrontmatter`](../../Page/interfaces/PageFrontmatter.md)\>
 
-Defined in: [src/types/Provider.ts:56](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L56)
+Defined in: [src/types/Provider.ts:64](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L64)
 
 Get only page metadata (without content)
 
@@ -328,7 +328,7 @@ Metadata object or null if not found
 
 > **getVersion**(`identifier`, `version`): `Promise`\<[`VersionContent`](../../Version/interfaces/VersionContent.md)\>
 
-Defined in: [src/types/Provider.ts:129](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L129)
+Defined in: [src/types/Provider.ts:137](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L137)
 
 Get specific version content
 
@@ -358,7 +358,7 @@ Version content object
 
 > **getVersionHistory**(`identifier`, `limit?`): `Promise`\<[`VersionHistoryEntry`](../../Version/interfaces/VersionHistoryEntry.md)[]\>
 
-Defined in: [src/types/Provider.ts:121](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L121)
+Defined in: [src/types/Provider.ts:129](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L129)
 
 Get version history for a page
 
@@ -388,7 +388,7 @@ Array of version history entries
 
 > **getVersionManifest**(`identifier`): `Promise`\<[`VersionManifest`](../../Version/interfaces/VersionManifest.md)\>
 
-Defined in: [src/types/Provider.ts:136](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L136)
+Defined in: [src/types/Provider.ts:144](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L144)
 
 Get version manifest
 
@@ -412,7 +412,7 @@ Version manifest object
 
 > **initialize**(): `Promise`\<`void`\>
 
-Defined in: [src/types/Provider.ts:28](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L28)
+Defined in: [src/types/Provider.ts:30](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L30)
 
 Initialize the provider
 
@@ -432,7 +432,7 @@ Promise that resolves when initialization is complete
 
 > **pageExists**(`identifier`): `boolean`
 
-Defined in: [src/types/Provider.ts:80](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L80)
+Defined in: [src/types/Provider.ts:88](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L88)
 
 Check if page exists
 
@@ -460,7 +460,7 @@ True if page exists
 
 > **refreshPageList**(): `Promise`\<`void`\>
 
-Defined in: [src/types/Provider.ts:106](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L106)
+Defined in: [src/types/Provider.ts:114](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L114)
 
 Refresh page cache
 
@@ -480,7 +480,7 @@ Promise that resolves when refresh is complete
 
 > **savePage**(`pageName`, `content`, `metadata?`, `options?`): `Promise`\<`void`\>
 
-Defined in: [src/types/Provider.ts:66](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Provider.ts#L66)
+Defined in: [src/types/Provider.ts:74](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L74)
 
 Save page content and metadata
 
@@ -519,3 +519,23 @@ Promise that resolves when save is complete
 #### Inherited from
 
 [`PageProvider`](PageProvider.md).[`savePage`](PageProvider.md#savepage)
+
+***
+
+### shutdown()?
+
+> `optional` **shutdown**(): `Promise`\<`void`\>
+
+Defined in: [src/types/Provider.ts:36](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L36)
+
+Shutdown the provider (optional)
+
+#### Returns
+
+`Promise`\<`void`\>
+
+Promise that resolves when shutdown is complete
+
+#### Inherited from
+
+[`PageProvider`](PageProvider.md).[`shutdown`](PageProvider.md#shutdown)

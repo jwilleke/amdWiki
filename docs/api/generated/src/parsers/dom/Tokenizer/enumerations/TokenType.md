@@ -6,7 +6,7 @@
 
 # Enumeration: TokenType
 
-Defined in: [src/parsers/dom/Tokenizer.js:79](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L79)
+Defined in: [src/parsers/dom/Tokenizer.ts:78](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L78)
 
 Token types enum
 
@@ -14,142 +14,142 @@ Token types enum
 
 ### BOLD
 
-> **BOLD**: `string`
+> **BOLD**: `"BOLD"`
 
-Defined in: [src/parsers/dom/Tokenizer.js:91](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L91)
+Defined in: [src/parsers/dom/Tokenizer.ts:90](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L90)
 
 ***
 
 ### CODE\_BLOCK
 
-> **CODE\_BLOCK**: `string`
+> **CODE\_BLOCK**: `"CODE_BLOCK"`
 
-Defined in: [src/parsers/dom/Tokenizer.js:94](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L94)
+Defined in: [src/parsers/dom/Tokenizer.ts:93](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L93)
 
 ***
 
 ### CODE\_INLINE
 
-> **CODE\_INLINE**: `string`
+> **CODE\_INLINE**: `"CODE_INLINE"`
 
-Defined in: [src/parsers/dom/Tokenizer.js:93](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L93)
+Defined in: [src/parsers/dom/Tokenizer.ts:92](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L92)
 
 ***
 
 ### COMMENT
 
-> **COMMENT**: `string`
+> **COMMENT**: `"COMMENT"`
 
-Defined in: [src/parsers/dom/Tokenizer.js:95](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L95)
+Defined in: [src/parsers/dom/Tokenizer.ts:94](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L94)
 
 ***
 
 ### EOF
 
-> **EOF**: `string`
+> **EOF**: `"EOF"`
 
-Defined in: [src/parsers/dom/Tokenizer.js:97](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L97)
+Defined in: [src/parsers/dom/Tokenizer.ts:96](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L96)
 
 ***
 
 ### ESCAPED
 
-> **ESCAPED**: `string`
+> **ESCAPED**: `"ESCAPED"`
 
-Defined in: [src/parsers/dom/Tokenizer.js:81](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L81)
+Defined in: [src/parsers/dom/Tokenizer.ts:80](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L80)
 
 ***
 
 ### HEADING
 
-> **HEADING**: `string`
+> **HEADING**: `"HEADING"`
 
-Defined in: [src/parsers/dom/Tokenizer.js:88](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L88)
+Defined in: [src/parsers/dom/Tokenizer.ts:87](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L87)
 
 ***
 
 ### INTERWIKI
 
-> **INTERWIKI**: `string`
+> **INTERWIKI**: `"INTERWIKI"`
 
-Defined in: [src/parsers/dom/Tokenizer.js:87](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L87)
+Defined in: [src/parsers/dom/Tokenizer.ts:86](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L86)
 
 ***
 
 ### ITALIC
 
-> **ITALIC**: `string`
+> **ITALIC**: `"ITALIC"`
 
-Defined in: [src/parsers/dom/Tokenizer.js:92](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L92)
+Defined in: [src/parsers/dom/Tokenizer.ts:91](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L91)
 
 ***
 
 ### LINK
 
-> **LINK**: `string`
+> **LINK**: `"LINK"`
 
-Defined in: [src/parsers/dom/Tokenizer.js:86](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L86)
+Defined in: [src/parsers/dom/Tokenizer.ts:85](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L85)
 
 ***
 
 ### LIST\_ITEM
 
-> **LIST\_ITEM**: `string`
+> **LIST\_ITEM**: `"LIST_ITEM"`
 
-Defined in: [src/parsers/dom/Tokenizer.js:89](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L89)
+Defined in: [src/parsers/dom/Tokenizer.ts:88](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L88)
 
 ***
 
 ### METADATA
 
-> **METADATA**: `string`
+> **METADATA**: `"METADATA"`
 
-Defined in: [src/parsers/dom/Tokenizer.js:84](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L84)
+Defined in: [src/parsers/dom/Tokenizer.ts:83](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L83)
 
 ***
 
 ### NEWLINE
 
-> **NEWLINE**: `string`
+> **NEWLINE**: `"NEWLINE"`
 
-Defined in: [src/parsers/dom/Tokenizer.js:96](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L96)
+Defined in: [src/parsers/dom/Tokenizer.ts:95](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L95)
 
 ***
 
 ### PLUGIN
 
-> **PLUGIN**: `string`
+> **PLUGIN**: `"PLUGIN"`
 
-Defined in: [src/parsers/dom/Tokenizer.js:83](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L83)
+Defined in: [src/parsers/dom/Tokenizer.ts:82](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L82)
 
 ***
 
 ### TABLE\_CELL
 
-> **TABLE\_CELL**: `string`
+> **TABLE\_CELL**: `"TABLE_CELL"`
 
-Defined in: [src/parsers/dom/Tokenizer.js:90](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L90)
+Defined in: [src/parsers/dom/Tokenizer.ts:89](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L89)
 
 ***
 
 ### TEXT
 
-> **TEXT**: `string`
+> **TEXT**: `"TEXT"`
 
-Defined in: [src/parsers/dom/Tokenizer.js:80](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L80)
+Defined in: [src/parsers/dom/Tokenizer.ts:79](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L79)
 
 ***
 
 ### VARIABLE
 
-> **VARIABLE**: `string`
+> **VARIABLE**: `"VARIABLE"`
 
-Defined in: [src/parsers/dom/Tokenizer.js:82](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L82)
+Defined in: [src/parsers/dom/Tokenizer.ts:81](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L81)
 
 ***
 
 ### WIKI\_TAG
 
-> **WIKI\_TAG**: `string`
+> **WIKI\_TAG**: `"WIKI_TAG"`
 
-Defined in: [src/parsers/dom/Tokenizer.js:85](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/parsers/dom/Tokenizer.js#L85)
+Defined in: [src/parsers/dom/Tokenizer.ts:84](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L84)

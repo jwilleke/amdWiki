@@ -8,4 +8,10 @@
 
 ## Classes
 
-- [export=](classes/export=.md)
+- [default](classes/default.md)
+
+## Interfaces
+
+- [CacheConfig](interfaces/CacheConfig.md)
+- [CacheOptions](interfaces/CacheOptions.md)
+- [CacheStats](interfaces/CacheStats.md)

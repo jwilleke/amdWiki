@@ -6,7 +6,7 @@
 
 # Interface: ConfigValidationResult
 
-Defined in: [src/types/Config.ts:339](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Config.ts#L339)
+Defined in: [src/types/Config.ts:339](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Config.ts#L339)
 
 Configuration validation result
 
@@ -18,7 +18,7 @@ Result of validating configuration.
 
 > **errors**: `object`[]
 
-Defined in: [src/types/Config.ts:344](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Config.ts#L344)
+Defined in: [src/types/Config.ts:344](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Config.ts#L344)
 
 Validation errors
 
@@ -40,7 +40,7 @@ Validation errors
 
 > **valid**: `boolean`
 
-Defined in: [src/types/Config.ts:341](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Config.ts#L341)
+Defined in: [src/types/Config.ts:341](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Config.ts#L341)
 
 Whether configuration is valid
 
@@ -50,7 +50,7 @@ Whether configuration is valid
 
 > **warnings**: `object`[]
 
-Defined in: [src/types/Config.ts:351](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Config.ts#L351)
+Defined in: [src/types/Config.ts:351](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Config.ts#L351)
 
 Validation warnings
 

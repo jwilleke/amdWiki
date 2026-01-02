@@ -8,4 +8,9 @@
 
 ## Classes
 
-- [export=](classes/export=.md)
+- [default](classes/default.md)
+
+## Interfaces
+
+- [Token](interfaces/Token.md)
+- [TokenMetadata](interfaces/TokenMetadata.md)

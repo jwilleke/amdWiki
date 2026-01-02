@@ -6,7 +6,7 @@
 
 # Interface: WikiPage
 
-Defined in: [src/types/Page.ts:65](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Page.ts#L65)
+Defined in: [src/types/Page.ts:65](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Page.ts#L65)
 
 Complete wiki page object
 
@@ -19,7 +19,7 @@ data structure returned by PageProvider.getPage().
 
 > **content**: `string`
 
-Defined in: [src/types/Page.ts:73](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Page.ts#L73)
+Defined in: [src/types/Page.ts:73](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Page.ts#L73)
 
 Markdown content (without frontmatter)
 
@@ -29,7 +29,7 @@ Markdown content (without frontmatter)
 
 > **filePath**: `string`
 
-Defined in: [src/types/Page.ts:79](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Page.ts#L79)
+Defined in: [src/types/Page.ts:79](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Page.ts#L79)
 
 Absolute file path to the page file
 
@@ -39,7 +39,7 @@ Absolute file path to the page file
 
 > `optional` **location**: `"pages"` \| `"required-pages"`
 
-Defined in: [src/types/Page.ts:82](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Page.ts#L82)
+Defined in: [src/types/Page.ts:82](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Page.ts#L82)
 
 Location type (pages or required-pages)
 
@@ -49,7 +49,7 @@ Location type (pages or required-pages)
 
 > **metadata**: [`PageFrontmatter`](PageFrontmatter.md)
 
-Defined in: [src/types/Page.ts:76](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Page.ts#L76)
+Defined in: [src/types/Page.ts:76](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Page.ts#L76)
 
 Frontmatter metadata
 
@@ -59,7 +59,7 @@ Frontmatter metadata
 
 > **title**: `string`
 
-Defined in: [src/types/Page.ts:67](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Page.ts#L67)
+Defined in: [src/types/Page.ts:67](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Page.ts#L67)
 
 Page title
 
@@ -69,6 +69,6 @@ Page title
 
 > **uuid**: `string`
 
-Defined in: [src/types/Page.ts:70](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/Page.ts#L70)
+Defined in: [src/types/Page.ts:70](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Page.ts#L70)
 
 Unique identifier (UUID v4)

@@ -6,7 +6,7 @@
 
 # Abstract Class: default
 
-Defined in: [src/providers/BaseUserProvider.ts:41](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseUserProvider.ts#L41)
+Defined in: [src/providers/BaseUserProvider.ts:41](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseUserProvider.ts#L41)
 
 BaseUserProvider - Abstract interface for user storage providers
 
@@ -18,8 +18,8 @@ whether from filesystem (JSON), database, LDAP, or other backends.
 
 ## See
 
-- FileUserProvider for filesystem implementation
-- UserManager for usage
+ - FileUserProvider for filesystem implementation
+ - UserManager for usage
 
 ## Extended by
 
@@ -31,7 +31,7 @@ whether from filesystem (JSON), database, LDAP, or other backends.
 
 > **new default**(`engine`): `BaseUserProvider`
 
-Defined in: [src/providers/BaseUserProvider.ts:55](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseUserProvider.ts#L55)
+Defined in: [src/providers/BaseUserProvider.ts:55](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseUserProvider.ts#L55)
 
 Create a new user provider
 
@@ -39,7 +39,7 @@ Create a new user provider
 
 ##### engine
 
-[`WikiEngine`](../../BasePageProvider/interfaces/WikiEngine.md)
+[`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
 The WikiEngine instance
 
@@ -55,9 +55,9 @@ If engine is not provided
 
 ### engine
 
-> `protected` **engine**: [`WikiEngine`](../../BasePageProvider/interfaces/WikiEngine.md)
+> `protected` **engine**: [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/providers/BaseUserProvider.ts:43](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseUserProvider.ts#L43)
+Defined in: [src/providers/BaseUserProvider.ts:43](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseUserProvider.ts#L43)
 
 Reference to the wiki engine
 
@@ -67,7 +67,7 @@ Reference to the wiki engine
 
 > **initialized**: `boolean`
 
-Defined in: [src/providers/BaseUserProvider.ts:46](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseUserProvider.ts#L46)
+Defined in: [src/providers/BaseUserProvider.ts:46](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseUserProvider.ts#L46)
 
 Whether provider has been initialized
 
@@ -77,7 +77,7 @@ Whether provider has been initialized
 
 > `abstract` **backup**(): `Promise`\<[`BackupData`](../interfaces/BackupData.md)\>
 
-Defined in: [src/providers/BaseUserProvider.ts:218](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseUserProvider.ts#L218)
+Defined in: [src/providers/BaseUserProvider.ts:218](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseUserProvider.ts#L218)
 
 Backup all user and session data
 
@@ -99,7 +99,7 @@ Always throws - must be implemented by subclass
 
 > `abstract` **cleanExpiredSessions**(): `Promise`\<`number`\>
 
-Defined in: [src/providers/BaseUserProvider.ts:208](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseUserProvider.ts#L208)
+Defined in: [src/providers/BaseUserProvider.ts:208](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseUserProvider.ts#L208)
 
 Clean up expired sessions
 
@@ -121,7 +121,7 @@ Always throws - must be implemented by subclass
 
 > `abstract` **createSession**(`sessionId`, `sessionData`): `Promise`\<`void`\>
 
-Defined in: [src/providers/BaseUserProvider.ts:166](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseUserProvider.ts#L166)
+Defined in: [src/providers/BaseUserProvider.ts:166](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseUserProvider.ts#L166)
 
 Create a new session
 
@@ -155,7 +155,7 @@ Always throws - must be implemented by subclass
 
 > `abstract` **createUser**(`username`, `userData`): `Promise`\<`void`\>
 
-Defined in: [src/providers/BaseUserProvider.ts:120](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseUserProvider.ts#L120)
+Defined in: [src/providers/BaseUserProvider.ts:120](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseUserProvider.ts#L120)
 
 Create a new user
 
@@ -189,7 +189,7 @@ Always throws - must be implemented by subclass
 
 > `abstract` **deleteSession**(`sessionId`): `Promise`\<`boolean`\>
 
-Defined in: [src/providers/BaseUserProvider.ts:198](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseUserProvider.ts#L198)
+Defined in: [src/providers/BaseUserProvider.ts:198](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseUserProvider.ts#L198)
 
 Delete a session
 
@@ -219,7 +219,7 @@ Always throws - must be implemented by subclass
 
 > `abstract` **deleteUser**(`username`): `Promise`\<`boolean`\>
 
-Defined in: [src/providers/BaseUserProvider.ts:143](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseUserProvider.ts#L143)
+Defined in: [src/providers/BaseUserProvider.ts:143](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseUserProvider.ts#L143)
 
 Delete a user
 
@@ -249,7 +249,7 @@ Always throws - must be implemented by subclass
 
 > `abstract` **getAllSessions**(): `Promise`\<`Map`\<`string`, [`UserSession`](../../../types/User/interfaces/UserSession.md)\>\>
 
-Defined in: [src/providers/BaseUserProvider.ts:187](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseUserProvider.ts#L187)
+Defined in: [src/providers/BaseUserProvider.ts:187](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseUserProvider.ts#L187)
 
 Get all sessions
 
@@ -271,7 +271,7 @@ Always throws - must be implemented by subclass
 
 > `abstract` **getAllUsernames**(): `Promise`\<`string`[]\>
 
-Defined in: [src/providers/BaseUserProvider.ts:98](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseUserProvider.ts#L98)
+Defined in: [src/providers/BaseUserProvider.ts:98](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseUserProvider.ts#L98)
 
 Get all usernames
 
@@ -293,7 +293,7 @@ Always throws - must be implemented by subclass
 
 > `abstract` **getAllUsers**(): `Promise`\<`Map`\<`string`, [`User`](../../../types/User/interfaces/User.md)\>\>
 
-Defined in: [src/providers/BaseUserProvider.ts:108](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseUserProvider.ts#L108)
+Defined in: [src/providers/BaseUserProvider.ts:108](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseUserProvider.ts#L108)
 
 Get all users
 
@@ -315,7 +315,7 @@ Always throws - must be implemented by subclass
 
 > **getProviderInfo**(): [`ProviderInfo`](../interfaces/ProviderInfo.md)
 
-Defined in: [src/providers/BaseUserProvider.ts:236](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseUserProvider.ts#L236)
+Defined in: [src/providers/BaseUserProvider.ts:236](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseUserProvider.ts#L236)
 
 Get provider information
 
@@ -331,7 +331,7 @@ Provider metadata
 
 > `abstract` **getSession**(`sessionId`): `Promise`\<[`UserSession`](../../../types/User/interfaces/UserSession.md)\>
 
-Defined in: [src/providers/BaseUserProvider.ts:177](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseUserProvider.ts#L177)
+Defined in: [src/providers/BaseUserProvider.ts:177](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseUserProvider.ts#L177)
 
 Get a session by ID
 
@@ -361,7 +361,7 @@ Always throws - must be implemented by subclass
 
 > `abstract` **getUser**(`username`): `Promise`\<[`User`](../../../types/User/interfaces/User.md)\>
 
-Defined in: [src/providers/BaseUserProvider.ts:88](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseUserProvider.ts#L88)
+Defined in: [src/providers/BaseUserProvider.ts:88](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseUserProvider.ts#L88)
 
 Get a user by username
 
@@ -391,7 +391,7 @@ Always throws - must be implemented by subclass
 
 > `abstract` **initialize**(): `Promise`\<`void`\>
 
-Defined in: [src/providers/BaseUserProvider.ts:77](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseUserProvider.ts#L77)
+Defined in: [src/providers/BaseUserProvider.ts:77](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseUserProvider.ts#L77)
 
 Initialize the provider
 
@@ -417,7 +417,7 @@ Always throws - must be implemented by subclass
 
 > `abstract` **restore**(`backupData`): `Promise`\<`void`\>
 
-Defined in: [src/providers/BaseUserProvider.ts:229](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseUserProvider.ts#L229)
+Defined in: [src/providers/BaseUserProvider.ts:229](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseUserProvider.ts#L229)
 
 Restore user and session data from backup
 
@@ -443,15 +443,15 @@ Always throws - must be implemented by subclass
 
 ### shutdown()
 
-> **shutdown**(): `Promise`\<`void`\>
+> **shutdown**(): `void`
 
-Defined in: [src/providers/BaseUserProvider.ts:251](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseUserProvider.ts#L251)
+Defined in: [src/providers/BaseUserProvider.ts:251](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseUserProvider.ts#L251)
 
 Shutdown the provider (cleanup resources)
 
 #### Returns
 
-`Promise`\<`void`\>
+`void`
 
 #### Async
 
@@ -461,7 +461,7 @@ Shutdown the provider (cleanup resources)
 
 > `abstract` **updateUser**(`username`, `userData`): `Promise`\<`void`\>
 
-Defined in: [src/providers/BaseUserProvider.ts:132](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseUserProvider.ts#L132)
+Defined in: [src/providers/BaseUserProvider.ts:132](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseUserProvider.ts#L132)
 
 Update an existing user
 
@@ -495,7 +495,7 @@ Always throws - must be implemented by subclass
 
 > `abstract` **userExists**(`username`): `Promise`\<`boolean`\>
 
-Defined in: [src/providers/BaseUserProvider.ts:154](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseUserProvider.ts#L154)
+Defined in: [src/providers/BaseUserProvider.ts:154](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseUserProvider.ts#L154)
 
 Check if user exists
 

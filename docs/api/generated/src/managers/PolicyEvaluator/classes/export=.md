@@ -6,14 +6,38 @@
 
 # Class: export=
 
-Defined in: [src/managers/PolicyEvaluator.js:9](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PolicyEvaluator.js#L9)
+Defined in: [src/managers/PolicyEvaluator.ts:96](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyEvaluator.ts#L96)
 
 PolicyEvaluator - Evaluates access policies against a given context.
-PolicyEvaluator mimics how JSPWiki uses Java's built-in security framework (java.security) to load and evaluate security policies from a policy file
+
+PolicyEvaluator mimics how JSPWiki uses Java's built-in security framework
+(java.security) to load and evaluate security policies from a policy file.
+It evaluates policies in priority order and returns the first matching policy's
+decision.
+
+ PolicyEvaluator
+
+## See
+
+ - [BaseManager](../../BaseManager/classes/default.md) for base functionality
+ - [PolicyManager](../../PolicyManager/classes/export=.md) for policy storage
+ - ACLManager for access control integration
+
+## Example
+
+```ts
+const evaluator = engine.getManager('PolicyEvaluator');
+const result = await evaluator.evaluateAccess({
+  pageName: 'Main',
+  action: 'page:read',
+  userContext: { username: 'admin', roles: ['admin'] }
+});
+if (result.allowed) console.log('Access granted');
+```
 
 ## Extends
 
-- [`export=`](../../BaseManager/classes/export=.md)
+- [`default`](../../BaseManager/classes/default.md)
 
 ## Constructors
 
@@ -21,13 +45,17 @@ PolicyEvaluator mimics how JSPWiki uses Java's built-in security framework (java
 
 > **new export=**(`engine`): `PolicyEvaluator`
 
-Defined in: [src/managers/PolicyEvaluator.js:10](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PolicyEvaluator.js#L10)
+Defined in: [src/managers/PolicyEvaluator.ts:105](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyEvaluator.ts#L105)
+
+Creates a new PolicyEvaluator instance
 
 #### Parameters
 
 ##### engine
 
-`any`
+[`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
+
+The wiki engine instance
 
 #### Returns
 
@@ -35,65 +63,57 @@ Defined in: [src/managers/PolicyEvaluator.js:10](https://github.com/jwilleke/amd
 
 #### Overrides
 
-[`export=`](../../BaseManager/classes/export=.md).[`constructor`](../../BaseManager/classes/export=.md#constructor)
+[`default`](../../BaseManager/classes/default.md).[`constructor`](../../BaseManager/classes/default.md#constructor)
 
 ## Properties
 
-### config
+### config?
 
-> **config**: `any`
+> `protected` `optional` **config**: `Record`\<`string`, `any`\>
 
-Defined in: [src/managers/BaseManager.js:55](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/BaseManager.js#L55)
+Defined in: [src/managers/BaseManager.ts:63](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L63)
 
-Configuration object passed during initialization
+Configuration passed during initialization
 
 #### Inherited from
 
-[`export=`](../../BaseManager/classes/export=.md).[`config`](../../BaseManager/classes/export=.md#config)
+[`default`](../../BaseManager/classes/default.md).[`config`](../../BaseManager/classes/default.md#config)
 
 ***
 
 ### engine
 
-> **engine**: `WikiEngine`
+> `protected` **engine**: [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/managers/BaseManager.js:33](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/BaseManager.js#L33)
+Defined in: [src/managers/BaseManager.ts:56](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L56)
 
 Reference to the wiki engine
 
 #### Inherited from
 
-[`export=`](../../BaseManager/classes/export=.md).[`engine`](../../BaseManager/classes/export=.md#engine)
+[`default`](../../BaseManager/classes/default.md).[`engine`](../../BaseManager/classes/default.md#engine)
 
 ***
 
 ### initialized
 
-> **initialized**: `boolean`
+> `protected` **initialized**: `boolean`
 
-Defined in: [src/managers/BaseManager.js:34](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/BaseManager.js#L34)
+Defined in: [src/managers/BaseManager.ts:59](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L59)
 
-Flag indicating initialization status
+Initialization status flag
 
 #### Inherited from
 
-[`export=`](../../BaseManager/classes/export=.md).[`initialized`](../../BaseManager/classes/export=.md#initialized)
-
-***
-
-### policyManager
-
-> **policyManager**: `any`
-
-Defined in: [src/managers/PolicyEvaluator.js:12](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PolicyEvaluator.js#L12)
+[`default`](../../BaseManager/classes/default.md).[`initialized`](../../BaseManager/classes/default.md#initialized)
 
 ## Methods
 
 ### backup()
 
-> **backup**(): `Promise`\<`any`\>
+> **backup**(): `Promise`\<[`BackupData`](../../BaseManager/interfaces/BackupData.md)\>
 
-Defined in: [src/managers/BaseManager.js:130](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/BaseManager.js#L130)
+Defined in: [src/managers/BaseManager.ts:168](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L168)
 
 Backup manager data
 
@@ -102,11 +122,9 @@ Default implementation returns an empty backup object.
 
 #### Returns
 
-`Promise`\<`any`\>
+`Promise`\<[`BackupData`](../../BaseManager/interfaces/BackupData.md)\>
 
 Backup data object containing all manager state
-
-#### Async
 
 #### Throws
 
@@ -115,7 +133,7 @@ If backup operation fails
 #### Example
 
 ```ts
-async backup() {
+async backup(): Promise<BackupData> {
   return {
     managerName: this.constructor.name,
     timestamp: new Date().toISOString(),
@@ -129,59 +147,61 @@ async backup() {
 
 #### Inherited from
 
-[`export=`](../../BaseManager/classes/export=.md).[`backup`](../../BaseManager/classes/export=.md#backup)
+[`default`](../../BaseManager/classes/default.md).[`backup`](../../BaseManager/classes/default.md#backup)
 
 ***
 
 ### evaluateAccess()
 
-> **evaluateAccess**(`context`): `Promise`\<\{ `allowed`: `boolean`; `hasDecision`: `boolean`; `policyName`: `string`; `reason`: `string`; \}\>
+> **evaluateAccess**(`context`): `Promise`\<`EvaluationResult`\>
 
-Defined in: [src/managers/PolicyEvaluator.js:31](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PolicyEvaluator.js#L31)
+Defined in: [src/managers/PolicyEvaluator.ts:148](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyEvaluator.ts#L148)
 
 Evaluates all relevant policies to make an access decision.
+
+Policies are evaluated in priority order (highest first). The first matching
+policy determines the access decision. If no policies match, access is denied.
 
 #### Parameters
 
 ##### context
 
-The context of the access request.
+`AccessContext`
 
-###### action
-
-`string`
-
-The action being performed (e.g., 'view').
-
-###### pageName
-
-`string`
-
-The name of the page being accessed.
-
-###### userContext
-
-`any`
-
-The user's context, including roles.
+The context of the access request
 
 #### Returns
 
-`Promise`\<\{ `allowed`: `boolean`; `hasDecision`: `boolean`; `policyName`: `string`; `reason`: `string`; \}\>
+`Promise`\<`EvaluationResult`\>
+
+Evaluation result with decision and reason
+
+#### Async
+
+#### Example
+
+```ts
+const result = await evaluator.evaluateAccess({
+  pageName: 'AdminPanel',
+  action: 'page:edit',
+  userContext: { username: 'user', roles: ['editor'] }
+});
+console.log('Allowed:', result.allowed, 'Reason:', result.reason);
+```
 
 ***
 
 ### getEngine()
 
-> **getEngine**(): `WikiEngine`
+> **getEngine**(): [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/managers/BaseManager.js:81](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/BaseManager.js#L81)
+Defined in: [src/managers/BaseManager.ts:126](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L126)
 
 Get the wiki engine instance
 
 #### Returns
 
-`WikiEngine`
+[`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
 The wiki engine instance
 
@@ -193,7 +213,7 @@ const config = this.getEngine().getConfig();
 
 #### Inherited from
 
-[`export=`](../../BaseManager/classes/export=.md).[`getEngine`](../../BaseManager/classes/export=.md#getengine)
+[`default`](../../BaseManager/classes/default.md).[`getEngine`](../../BaseManager/classes/default.md#getengine)
 
 ***
 
@@ -201,12 +221,9 @@ const config = this.getEngine().getConfig();
 
 > **initialize**(): `Promise`\<`void`\>
 
-Defined in: [src/managers/PolicyEvaluator.js:15](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PolicyEvaluator.js#L15)
+Defined in: [src/managers/PolicyEvaluator.ts:121](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyEvaluator.ts#L121)
 
-Initialize the manager with configuration
-
-Override this method in subclasses to perform initialization logic.
-Always call super.initialize() first in overridden implementations.
+Initializes the PolicyEvaluator by getting reference to PolicyManager
 
 #### Returns
 
@@ -214,19 +231,20 @@ Always call super.initialize() first in overridden implementations.
 
 #### Async
 
+#### Throws
+
+If PolicyManager is not available
+
 #### Example
 
 ```ts
-async initialize(config = {}) {
-  await super.initialize(config);
-  // Your initialization logic here
-  console.log('MyManager initialized');
-}
+await evaluator.initialize();
+console.log('Policy evaluator ready');
 ```
 
 #### Overrides
 
-[`export=`](../../BaseManager/classes/export=.md).[`initialize`](../../BaseManager/classes/export=.md#initialize)
+[`default`](../../BaseManager/classes/default.md).[`initialize`](../../BaseManager/classes/default.md#initialize)
 
 ***
 
@@ -234,7 +252,7 @@ async initialize(config = {}) {
 
 > **isInitialized**(): `boolean`
 
-Defined in: [src/managers/BaseManager.js:69](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/BaseManager.js#L69)
+Defined in: [src/managers/BaseManager.ts:114](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L114)
 
 Check if manager has been initialized
 
@@ -254,7 +272,7 @@ if (manager.isInitialized()) {
 
 #### Inherited from
 
-[`export=`](../../BaseManager/classes/export=.md).[`isInitialized`](../../BaseManager/classes/export=.md#isinitialized)
+[`default`](../../BaseManager/classes/default.md).[`isInitialized`](../../BaseManager/classes/default.md#isinitialized)
 
 ***
 
@@ -262,29 +280,41 @@ if (manager.isInitialized()) {
 
 > **matches**(`policy`, `context`): `boolean`
 
-Defined in: [src/managers/PolicyEvaluator.js:54](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PolicyEvaluator.js#L54)
+Defined in: [src/managers/PolicyEvaluator.ts:186](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyEvaluator.ts#L186)
 
 Checks if a single policy matches the given context.
+
+A policy matches if ALL of the following conditions are true:
+- Subject matches (user has required role)
+- Resource matches (page name matches pattern)
+- Action matches (action is in policy's action list)
 
 #### Parameters
 
 ##### policy
 
-`any`
+`Policy`
 
-The policy to check.
+The policy to check
 
 ##### context
 
-`any`
+`AccessContext`
 
-The access request context.
+The access request context
 
 #### Returns
 
 `boolean`
 
-True if the policy matches, false otherwise.
+True if the policy matches, false otherwise
+
+#### Example
+
+```ts
+const matches = evaluator.matches(policy, context);
+if (matches) console.log('Policy applies to this request');
+```
 
 ***
 
@@ -292,9 +322,14 @@ True if the policy matches, false otherwise.
 
 > **matchesAction**(`actions`, `action`): `boolean`
 
-Defined in: [src/managers/PolicyEvaluator.js:121](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PolicyEvaluator.js#L121)
+Defined in: [src/managers/PolicyEvaluator.ts:291](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyEvaluator.ts#L291)
 
 Checks if the action matches the policy's actions.
+
+An action matches if:
+- No actions specified (applies to all actions), OR
+- Action is in the policy's action list, OR
+- Policy includes wildcard '*' (matches all actions)
 
 #### Parameters
 
@@ -302,19 +337,29 @@ Checks if the action matches the policy's actions.
 
 `string`[]
 
-The actions array from the policy.
+The actions array from the policy
 
 ##### action
 
 `string`
 
-The action being performed.
+The action being performed
 
 #### Returns
 
 `boolean`
 
-True if the action is in the policy's list.
+True if the action is in the policy's list
+
+#### Example
+
+```ts
+const matches = evaluator.matchesAction(
+  ['page:read', 'page:edit'],
+  'page:read'
+);
+// matches === true
+```
 
 ***
 
@@ -322,29 +367,42 @@ True if the action is in the policy's list.
 
 > **matchesResource**(`resources`, `pageName`): `boolean`
 
-Defined in: [src/managers/PolicyEvaluator.js:103](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PolicyEvaluator.js#L103)
+Defined in: [src/managers/PolicyEvaluator.ts:259](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyEvaluator.ts#L259)
 
 Checks if the resource matches the policy's resources.
+
+Uses glob pattern matching (via micromatch) to check if the page name
+matches any of the policy's resource patterns.
 
 #### Parameters
 
 ##### resources
 
-`any`[]
+`PolicyResource`[]
 
-The resources array from the policy.
+The resources array from the policy
 
 ##### pageName
 
 `string`
 
-The name of the page being accessed.
+The name of the page being accessed
 
 #### Returns
 
 `boolean`
 
-True if a resource matches the page.
+True if a resource matches the page
+
+#### Example
+
+```ts
+const matches = evaluator.matchesResource(
+  [{ type: 'page', pattern: 'Admin*' }],
+  'AdminPanel'
+);
+// matches === true
+```
 
 ***
 
@@ -352,29 +410,44 @@ True if a resource matches the page.
 
 > **matchesSubject**(`policySubjects`, `userContext`): `boolean`
 
-Defined in: [src/managers/PolicyEvaluator.js:68](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/PolicyEvaluator.js#L68)
+Defined in: [src/managers/PolicyEvaluator.ts:213](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyEvaluator.ts#L213)
 
 Check if the user context's roles match the policy's subject requirements.
+
+A user matches if:
+- No subjects specified (applies to everyone), OR
+- Policy includes "All" role (applies to everyone), OR
+- User has at least one role matching a policy subject
 
 #### Parameters
 
 ##### policySubjects
 
-`any`[]
+`PolicySubject`[]
 
-The subjects array from the policy.
+The subjects array from the policy
 
 ##### userContext
 
-`any`
+`UserContext`
 
-The user's context.
+The user's context
 
 #### Returns
 
 `boolean`
 
-True if the user matches the policy subjects.
+True if the user matches the policy subjects
+
+#### Example
+
+```ts
+const matches = evaluator.matchesSubject(
+  [{ type: 'role', value: 'admin' }],
+  { username: 'user', roles: ['admin', 'editor'] }
+);
+// matches === true
+```
 
 ***
 
@@ -382,7 +455,7 @@ True if the user matches the policy subjects.
 
 > **restore**(`backupData`): `Promise`\<`void`\>
 
-Defined in: [src/managers/BaseManager.js:163](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/BaseManager.js#L163)
+Defined in: [src/managers/BaseManager.ts:196](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L196)
 
 Restore manager data from backup
 
@@ -393,31 +466,13 @@ Default implementation only validates that backup data is provided.
 
 ##### backupData
 
+[`BackupData`](../../BaseManager/interfaces/BackupData.md)
+
 Backup data object from backup() method
-
-###### data
-
-`any`
-
-Manager-specific backup data
-
-###### managerName
-
-`string`
-
-Name of the manager
-
-###### timestamp
-
-`string`
-
-ISO timestamp of backup
 
 #### Returns
 
 `Promise`\<`void`\>
-
-#### Async
 
 #### Throws
 
@@ -426,7 +481,7 @@ If restore operation fails or backup data is missing
 #### Example
 
 ```ts
-async restore(backupData) {
+async restore(backupData: BackupData): Promise<void> {
   if (!backupData || !backupData.data) {
     throw new Error('Invalid backup data');
   }
@@ -437,7 +492,7 @@ async restore(backupData) {
 
 #### Inherited from
 
-[`export=`](../../BaseManager/classes/export=.md).[`restore`](../../BaseManager/classes/export=.md#restore)
+[`default`](../../BaseManager/classes/default.md).[`restore`](../../BaseManager/classes/default.md#restore)
 
 ***
 
@@ -445,7 +500,7 @@ async restore(backupData) {
 
 > **shutdown**(): `Promise`\<`void`\>
 
-Defined in: [src/managers/BaseManager.js:101](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/managers/BaseManager.js#L101)
+Defined in: [src/managers/BaseManager.ts:143](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L143)
 
 Shutdown the manager and cleanup resources
 
@@ -456,12 +511,10 @@ Always call super.shutdown() at the end of overridden implementations.
 
 `Promise`\<`void`\>
 
-#### Async
-
 #### Example
 
 ```ts
-async shutdown() {
+async shutdown(): Promise<void> {
   // Your cleanup logic here
   await this.closeConnections();
   await super.shutdown();
@@ -470,4 +523,4 @@ async shutdown() {
 
 #### Inherited from
 
-[`export=`](../../BaseManager/classes/export=.md).[`shutdown`](../../BaseManager/classes/export=.md#shutdown)
+[`default`](../../BaseManager/classes/default.md).[`shutdown`](../../BaseManager/classes/default.md#shutdown)

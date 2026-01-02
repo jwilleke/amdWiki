@@ -6,7 +6,7 @@
 
 # Interface: ProviderInfo
 
-Defined in: [src/providers/BaseAuditProvider.ts:15](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAuditProvider.ts#L15)
+Defined in: [src/providers/BaseAuditProvider.ts:7](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L7)
 
 Provider information
 
@@ -16,7 +16,7 @@ Provider information
 
 > **description**: `string`
 
-Defined in: [src/providers/BaseAuditProvider.ts:18](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAuditProvider.ts#L18)
+Defined in: [src/providers/BaseAuditProvider.ts:10](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L10)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [src/providers/BaseAuditProvider.ts:18](https://github.com/jwilleke/
 
 > **features**: `string`[]
 
-Defined in: [src/providers/BaseAuditProvider.ts:19](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAuditProvider.ts#L19)
+Defined in: [src/providers/BaseAuditProvider.ts:11](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L11)
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: [src/providers/BaseAuditProvider.ts:19](https://github.com/jwilleke/
 
 > **name**: `string`
 
-Defined in: [src/providers/BaseAuditProvider.ts:16](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAuditProvider.ts#L16)
+Defined in: [src/providers/BaseAuditProvider.ts:8](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L8)
 
 ***
 
@@ -40,4 +40,4 @@ Defined in: [src/providers/BaseAuditProvider.ts:16](https://github.com/jwilleke/
 
 > **version**: `string`
 
-Defined in: [src/providers/BaseAuditProvider.ts:17](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/providers/BaseAuditProvider.ts#L17)
+Defined in: [src/providers/BaseAuditProvider.ts:9](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L9)

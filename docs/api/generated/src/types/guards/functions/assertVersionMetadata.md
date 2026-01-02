@@ -8,7 +8,7 @@
 
 > **assertVersionMetadata**(`value`): `asserts value is VersionMetadata`
 
-Defined in: [src/types/guards.ts:435](https://github.com/jwilleke/amdWiki/blob/a3539936e35c848c1c2953d38bbab41386a1cf67/src/types/guards.ts#L435)
+Defined in: [src/types/guards.ts:453](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/guards.ts#L453)
 
 Validate and assert VersionMetadata
 
@@ -16,7 +16,7 @@ Validate and assert VersionMetadata
 
 ### value
 
-`any`
+`unknown`
 
 ## Returns
 
