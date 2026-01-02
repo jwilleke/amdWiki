@@ -234,23 +234,15 @@ class LunrSearchProvider extends BaseSearchProvider {
       const boostConfig = this.config.boost;
       /* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment */
       this.searchIndex = lunr(function () {
-        // @ts-expect-error - lunr callback uses `this` with any type
         this.ref('id');
-        // @ts-expect-error - lunr callback uses `this` with any type
         this.field('title', { boost: boostConfig.title });
-        // @ts-expect-error - lunr callback uses `this` with any type
         this.field('content');
-        // @ts-expect-error - lunr callback uses `this` with any type
         this.field('systemCategory', { boost: boostConfig.systemCategory });
-        // @ts-expect-error - lunr callback uses `this` with any type
         this.field('userKeywords', { boost: boostConfig.userKeywords });
-        // @ts-expect-error - lunr callback uses `this` with any type
         this.field('tags', { boost: boostConfig.tags });
-        // @ts-expect-error - lunr callback uses `this` with any type
         this.field('keywords', { boost: boostConfig.keywords });
 
         Object.values(documents).forEach(doc => {
-          // @ts-expect-error - lunr callback uses `this` with any type
           this.add(doc);
         });
       });
@@ -316,9 +308,9 @@ class LunrSearchProvider extends BaseSearchProvider {
       query = '',
       categories = [],
       userKeywords = [],
-      searchIn = ['all'],
-      maxResults = this.config.maxResults
+      searchIn = ['all']
     } = options;
+    const maxResults: number = (options.maxResults as number) ?? this.config?.maxResults ?? 50;
 
     // Normalize arrays
     const categoryList = Array.isArray(categories) ? categories : (categories ? [categories] : []);
@@ -336,7 +328,7 @@ class LunrSearchProvider extends BaseSearchProvider {
         name,
         title: this.documents[name].title || name,
         score: 1.0,
-        snippet: this.documents[name].content.substring(0, this.config.snippetLength),
+        snippet: this.documents[name].content.substring(0, this.config?.snippetLength ?? 200),
         metadata: {
           systemCategory: this.documents[name].systemCategory,
           userKeywords: this.documents[name].userKeywords,
@@ -392,7 +384,7 @@ class LunrSearchProvider extends BaseSearchProvider {
    * @returns {string} Content snippet
    */
   private generateSnippet(content: string, query: string): string {
-    const maxLength = this.config.snippetLength;
+    const maxLength = this.config?.snippetLength ?? 200;
     const searchTerms = query.toLowerCase().split(/\s+/);
 
     // Find best position for snippet
@@ -705,7 +697,7 @@ class LunrSearchProvider extends BaseSearchProvider {
    */
   async restore(backupData: BackupData): Promise<void> {
     if (backupData.documents) {
-      this.documents = backupData.documents;
+      this.documents = backupData.documents as Record<string, LunrDocument>;
       await this.buildIndex();
       logger.info(`[LunrSearchProvider] Restored ${Object.keys(this.documents).length} documents from backup`);
     }

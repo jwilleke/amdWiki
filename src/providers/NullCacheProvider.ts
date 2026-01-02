@@ -1,12 +1,5 @@
 import BaseCacheProvider, { CacheStats, ProviderInfo } from './BaseCacheProvider';
-
-/**
- * WikiEngine interface (simplified)
- * TODO: Create full WikiEngine type definition in Phase 4
- */
-interface WikiEngine {
-  getManager(name: string): unknown;
-}
+import type { WikiEngine } from '../types/WikiEngine';
 
 /**
  * NullCacheProvider - No-op cache provider

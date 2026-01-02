@@ -172,7 +172,7 @@ class FileAuditProvider extends BaseAuditProvider {
    */
   async logAuditEvent(auditEvent: AuditEvent): Promise<string> {
     // AuditEvent may come in different shapes - need flexible property access
-    const evt = auditEvent as Record<string, unknown>;
+    const evt = auditEvent as unknown as Record<string, unknown>;
     const event: ExtendedAuditEvent = {
       id: uuidv4(),
       timestamp: new Date().toISOString(),
@@ -276,8 +276,8 @@ class FileAuditProvider extends BaseAuditProvider {
 
     // Sort by sortBy field
     filteredLogs.sort((a, b) => {
-      const aRec = a as Record<string, unknown>;
-      const bRec = b as Record<string, unknown>;
+      const aRec = a as unknown as Record<string, unknown>;
+      const bRec = b as unknown as Record<string, unknown>;
       const aVal = aRec[sortBy];
       const bVal = bRec[sortBy];
       const order = sortOrder === 'desc' ? -1 : 1;
@@ -322,7 +322,7 @@ class FileAuditProvider extends BaseAuditProvider {
 
     logs.results.forEach((logEntry) => {
       // Cast to record for flexible property access
-      const log = logEntry as Record<string, unknown>;
+      const log = logEntry as unknown as Record<string, unknown>;
 
       // Count by type
       const eventType = (log.eventType as string) || (log.type as string);
@@ -370,7 +370,7 @@ class FileAuditProvider extends BaseAuditProvider {
     if (format === 'csv') {
       const csvHeader = 'timestamp,eventType,user,resource,action,result,severity,reason\n';
       const csvRows = logs.results.map((logEntry) => {
-        const log = logEntry as Record<string, unknown>;
+        const log = logEntry as unknown as Record<string, unknown>;
         const timestamp = log.timestamp as string;
         const eventType = (log.eventType as string) || (log.type as string);
         const user = (log.user as string) || (log.actor as string);

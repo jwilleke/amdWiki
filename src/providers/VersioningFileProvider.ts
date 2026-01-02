@@ -5,6 +5,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unnecessary-type-assertion */
 import FileSystemProvider from './FileSystemProvider';
 import fs from 'fs-extra';
 import path from 'path';
@@ -663,7 +664,7 @@ class VersioningFileProvider extends FileSystemProvider {
 
     // Determine location based on system-category
     const systemCategory = metadata['system-category'] || (metadata as any).systemCategory || 'General';
-    const configManager = this.engine.getManager('ConfigurationManager');
+    const configManager = this.engine.getManager('ConfigurationManager') as { getProperty: (key: string, defaultValue: unknown) => unknown } | undefined;
     const systemCategoriesConfig = configManager?.getProperty('amdwiki.system-category', null);
 
     let location: 'pages' | 'required-pages' = 'pages';
