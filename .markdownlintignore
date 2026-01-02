@@ -3,3 +3,12 @@ docs/api/generated/**
 
 # Ignore node_modules
 node_modules/
+
+# Ignore version content (user-generated content)
+**/versions/**
+
+# Ignore exports (test output files)
+exports/
+
+# Ignore private development notes
+private/

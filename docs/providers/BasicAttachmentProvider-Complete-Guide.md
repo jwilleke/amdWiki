@@ -99,7 +99,7 @@ Features:
 * Provider features active: content-deduplication, schema-org-metadata, shared-storage, page-mentions-tracking, mime-type-filtering, size-limits
 * The implementation follows all requirements from private/BasicAttachmentProvider.md and is ready for use.
 
-# BasicAttachmentProvider Planning
+## BasicAttachmentProvider Planning
 
 All configuration MUST be from src/managers/ConfigurationManager.js
 

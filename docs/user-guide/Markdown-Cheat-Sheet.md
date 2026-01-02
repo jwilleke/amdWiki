@@ -10,19 +10,23 @@ These are the elements outlined in John Gruber’s original design document. All
 
 ### Heading
 
+```markdown
 # H1
-
 ## H2
-
 ### H3
+```
 
 ### Bold
 
+```markdown
 **bold text**
+```
 
 ### Italic
 
+```markdown
 *italicized text*
+```
 
 ### Blockquote
 
