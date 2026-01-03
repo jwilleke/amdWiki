@@ -166,8 +166,7 @@
   "amdwiki.managers.pageManager.enabled": true,
   "amdwiki.managers.pluginManager.enabled": true,
   "amdwiki.managers.pluginManager.searchPaths": [
-    "./plugins",
-    "./src/plugins"
+    "./dist/plugins"
   ],
   "amdwiki.managers.renderingManager.enabled": true,
   "amdwiki.managers.searchManager.enabled": true,
