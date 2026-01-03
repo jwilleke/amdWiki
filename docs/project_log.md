@@ -24,6 +24,58 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 
 ---
 
+## 2026-01-03-01
+
+- Agent: Claude Code (Opus 4.5)
+- Subject: Fix Plugin Loading - Use Compiled dist/plugins
+- Issues: #186, #139 (EPIC)
+- Key Decisions:
+  - Changed plugin searchPaths from './plugins' (TS source) to './dist/plugins' (compiled JS)
+  - Node.js cannot require TypeScript files directly without ts-node
+- Work Done:
+  - Diagnosed "Plugin not found" errors for all plugins
+  - Updated config/app-default-config.json searchPaths
+  - All plugins now loading correctly (TotalPagesPlugin, SessionsPlugin, etc.)
+- Testing:
+  - npm test: 58 suites passed, 1380 tests passed
+  - Plugins verified working via HTTP (TotalPagesPlugin=34, SessionsPlugin=0)
+- Commits: 26ead31
+- Files Modified:
+  - config/app-default-config.json
+
+---
+
+## 2026-01-02-04
+
+- Agent: Claude Code (Opus 4.5)
+- Subject: Complete Plugin TypeScript Migration, Fix Server Paths
+- Issues: #198 (CLOSED), #186, #139 (EPIC)
+- Key Decisions:
+  - Rewrote ConfigAccessorPlugin.ts with proper TypeScript types (376 ESLint errors fixed)
+  - Fixed app.js to use correct dist/src/ paths after TypeScript compilation
+  - Removed node-fetch dependency from SessionsPlugin.ts (use native fetch)
+- Work Done:
+  - Fixed SearchPlugin.ts (already clean)
+  - Rewrote ConfigAccessorPlugin.ts with interfaces and standalone functions
+  - Fixed SessionsPlugin.ts to use native fetch
+  - Fixed CounterPlugin test (removed unnecessary console.warn expectation)
+  - Fixed SessionsPlugin test to copy types.ts for imports
+  - Closed Issue #198 (Plugin TypeScript Migration)
+  - Fixed app.js dist paths (line 14-17 and line 107)
+  - Server now running successfully on port 3000
+- Testing:
+  - npm test: 58 suites passed, 1380 tests passed
+  - Server responds with 302 on root (redirect working)
+- Commits: d6a3aeb
+- Files Modified:
+  - app.js
+  - plugins/ConfigAccessorPlugin.ts
+  - plugins/SessionsPlugin.ts
+  - plugins/__tests__/CounterPlugin.test.js
+  - plugins/__tests__/SessionsPlugin.test.js
+
+---
+
 ## 2026-01-02-03
 
 - Agent: Claude Code (Opus 4.5)
