@@ -98,27 +98,28 @@ export function reconfigureLogger(config: LoggerConfig): Logger {
     throw new Error('Logger instance not initialized');
   }
 
+  const currentLogger = loggerInstance; // Capture for closure
   const newLogger = createLoggerWithConfig(config);
 
   // Clear existing transports
-  loggerInstance.clear();
+  currentLogger.clear();
 
   // Add new transports from the reconfigured logger
   newLogger.transports.forEach(transport => {
-    loggerInstance.add(transport);
+    currentLogger.add(transport);
   });
 
   // Update logger level
-  loggerInstance.level = newLogger.level;
+  currentLogger.level = newLogger.level;
 
-  return loggerInstance;
+  return currentLogger;
 }
 
-// Create default logger instance
+// Create default logger instance - always initialized before export
 loggerInstance = createLoggerWithConfig();
 
-// Export the logger instance as default
-export default loggerInstance;
+// Export the logger instance as default (non-null assertion safe here)
+export default loggerInstance as Logger;
 
 // CommonJS compatibility
 module.exports = loggerInstance;

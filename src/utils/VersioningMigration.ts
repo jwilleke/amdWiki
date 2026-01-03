@@ -1,9 +1,14 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/explicit-function-return-type */
 import fs from 'fs-extra';
 import path from 'path';
 import matter from 'gray-matter';
 import logger from './logger';
 import DeltaStorage from './DeltaStorage';
+
+/** Extract error message from unknown error type */
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  return String(error);
+}
 
 /**
  * Progress callback data
@@ -174,7 +179,7 @@ class VersioningMigration {
           this._log('verbose', `✓ Migrated: ${page.title} (${page.uuid})`);
         } catch (error) {
           errorCount++;
-          this._logError(`Failed to migrate ${page.filename}: ${error.message}`);
+          this._logError(`Failed to migrate ${page.filename}: ${getErrorMessage(error)}`);
         }
       }
 
@@ -199,7 +204,7 @@ class VersioningMigration {
 
       return this._generateReport(startTime, pages.length, successCount, errorCount);
     } catch (error) {
-      this._logError(`Migration failed: ${error.message}`);
+      this._logError(`Migration failed: ${getErrorMessage(error)}`);
       throw error;
     }
   }
@@ -274,7 +279,7 @@ class VersioningMigration {
         location: location
       };
     } catch (error) {
-      this._logError(`Failed to read ${filePath}: ${error.message}`);
+      this._logError(`Failed to read ${filePath}: ${getErrorMessage(error)}`);
       return null;
     }
   }
@@ -454,7 +459,7 @@ class VersioningMigration {
       const indexData = await fs.readFile(indexPath, 'utf8');
       pageIndex = JSON.parse(indexData);
     } catch (error) {
-      errors.push(`Failed to read page-index.json: ${error.message}`);
+      errors.push(`Failed to read page-index.json: ${getErrorMessage(error)}`);
       return { valid: false, errors, warnings };
     }
 
@@ -491,7 +496,7 @@ class VersioningMigration {
           errors.push(`Manifest versions invalid for ${uuid}`);
         }
       } catch (error) {
-        errors.push(`Failed to validate manifest for ${uuid}: ${error.message}`);
+        errors.push(`Failed to validate manifest for ${uuid}: ${getErrorMessage(error)}`);
         continue;
       }
 
@@ -515,7 +520,7 @@ class VersioningMigration {
           errors.push(`Content hash mismatch for ${uuid}`);
         }
       } catch (error) {
-        errors.push(`Failed to validate content hash for ${uuid}: ${error.message}`);
+        errors.push(`Failed to validate content hash for ${uuid}: ${getErrorMessage(error)}`);
       }
     }
 
@@ -593,7 +598,7 @@ class VersioningMigration {
       this._log('info', `Rollback complete: removed ${removed.versionDirectories} version directories`);
       return removed;
     } catch (error) {
-      this._logError(`Rollback failed: ${error.message}`);
+      this._logError(`Rollback failed: ${getErrorMessage(error)}`);
       throw error;
     }
   }

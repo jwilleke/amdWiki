@@ -238,7 +238,8 @@ class VersioningAnalytics {
 
         this._log('verbose', `Analyzed ${page.title}: ${pageStats.versionCount} versions, ${(pageStats.totalSize / 1024).toFixed(0)} KB`);
       } catch (error) {
-        this._log('error', `Failed to analyze ${page.title}: ${error.message}`);
+        const errorMsg = error instanceof Error ? error.message : String(error);
+        this._log('error', `Failed to analyze ${page.title}: ${errorMsg}`);
       }
     }
 

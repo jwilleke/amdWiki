@@ -259,8 +259,7 @@ class DOMPluginHandler {
           // Replace plugin element with result
           // If result has single root, use that; otherwise keep container
            
-          if (resultContainer.childNodes.length === 1) {
-             
+          if (resultContainer.childNodes.length === 1 && resultContainer.firstChild) {
             pluginElement.replaceWith(resultContainer.firstChild);
           } else {
              

@@ -25,15 +25,8 @@
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
 
-    /* Type Checking - NOT YET STRICT (See GitHub Issue for plan) */
-    "strict": false,
-    "noImplicitAny": false,
-    "strictNullChecks": false,
-    "strictFunctionTypes": false,
-    "strictBindCallApply": false,
-    "strictPropertyInitialization": false,
-    "noImplicitThis": false,
-    "alwaysStrict": false,
+    /* Type Checking - STRICT MODE ENABLED */
+    "strict": true,
 
     /* Completeness */
     "skipLibCheck": true,

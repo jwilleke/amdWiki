@@ -1,21 +1,13 @@
 /**
  * RenderingManager - Handles markdown rendering and macro expansion
- *
- * This manager extensively interacts with dynamically loaded managers (MarkupParser, PluginManager, etc.)
- * and third-party libraries (showdown) that don't have complete TypeScript definitions.
- * ESLint strict type checking is disabled where necessary for these dynamic interactions.
  */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable no-console */
-/* eslint-disable @typescript-eslint/no-redundant-type-constituents */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
 import BaseManager from './BaseManager';
+
+/** Extract error message from unknown error type */
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  return String(error);
+}
 import logger from '../utils/logger';
 import * as showdown from 'showdown';
 // Using fixed version of showdown-footnotes with global flag for all references
@@ -291,7 +283,7 @@ class RenderingManager extends BaseManager {
         this.renderingConfig.logParsingMethod = configManager.getProperty('amdwiki.markup.logParsingMethod', this.renderingConfig.logParsingMethod) as boolean;
       } catch (error) {
          
-        console.warn('⚠️  Failed to load RenderingManager configuration, using defaults:', error.message);
+        console.warn('⚠️  Failed to load RenderingManager configuration, using defaults:', getErrorMessage(error));
       }
     }
   }
@@ -373,7 +365,7 @@ class RenderingManager extends BaseManager {
       return result;
 
     } catch (error) {
-      console.error('❌ AdvancedParser rendering failed:', error.message);
+      console.error('❌ AdvancedParser rendering failed:', getErrorMessage(error));
       
       // Fallback to legacy parser if configured
       if (this.renderingConfig.fallbackToLegacy) {
@@ -457,7 +449,7 @@ class RenderingManager extends BaseManager {
       }
 
     } catch (error) {
-      console.warn('⚠️  Performance comparison failed:', error.message);
+      console.warn('⚠️  Performance comparison failed:', getErrorMessage(error));
     }
   }
 

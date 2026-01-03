@@ -628,7 +628,7 @@ export class LinkParser {
     }
 
     const attrString = filtered
-      .map(([key, value]) => `${key}="${this.escapeHtml(value)}"`)
+      .map(([key, value]) => `${key}="${this.escapeHtml(value as string)}"`)
       .join(' ');
 
     return ` ${attrString}`;

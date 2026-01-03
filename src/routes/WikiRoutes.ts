@@ -1,37 +1,14 @@
 /**
  * WikiRoutes - Main route handlers for amdWiki
  *
- * Phase 6a: Type safety with gradual typing
- * - Removed @ts-nocheck directive
- * - Using comprehensive type definitions from src/types
- * - ESLint rules temporarily disabled (will be removed incrementally)
- */
-
-/* eslint-disable @typescript-eslint/no-floating-promises */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/no-explicit-any */
- 
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
-/* eslint-disable @typescript-eslint/require-await */
-/* eslint-disable @typescript-eslint/no-require-imports */
-/* eslint-disable no-console */
-
-
-/**
- * Modern route handlers using manager-based architecture
- *
+ * Strict TypeScript with proper Express types.
  * @module WikiRoutes
  */
 
 import * as path from 'path';
+import type { Application, Request, Response, NextFunction } from 'express';
 import multer, { StorageEngine, Multer } from 'multer';
 import * as fs from 'fs';
-import { Request, Response } from 'express';
 import SchemaGenerator from '../utils/SchemaGenerator';
 import logger from '../utils/logger';
 import WikiContext from '../context/WikiContext';
@@ -403,7 +380,7 @@ class WikiRoutes {
   /**
    * Session count (uses app.js sessionStore)
    */
-  getActiveSesssionCount(req, res) {
+  getActiveSesssionCount(req: Request, res: Response): void | Response {
     try {
       const store = req.sessionStore;
       if (!store)
@@ -890,7 +867,7 @@ class WikiRoutes {
   /**
    * Display a wiki page
    */
-  async viewPage(req, res) {
+  async viewPage(req: Request, res: Response): Promise<void | Response> {
     try {
       const configManager = this.engine.getManager('ConfigurationManager');
       const frontPage = configManager.getProperty(
@@ -1020,7 +997,7 @@ class WikiRoutes {
   /**
    * Display create new page form with template selection
    */
-  async createPage(req, res) {
+  async createPage(req: Request, res: Response): Promise<void | Response> {
     try {
       const pageName = req.query.name || '';
 
@@ -1112,7 +1089,7 @@ class WikiRoutes {
   /**
    * Handle /edit route without page parameter
    */
-  async editPageIndex(req, res) {
+  async editPageIndex(req: Request, res: Response): Promise<void | Response> {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -1159,7 +1136,7 @@ class WikiRoutes {
   /**
    * Create a new page from template
    */
-  async createPageFromTemplate(req, res) {
+  async createPageFromTemplate(req: Request, res: Response): Promise<void | Response> {
     try {
       const { pageName, templateName, categories, userKeywords } = req.body;
 
@@ -1303,7 +1280,7 @@ class WikiRoutes {
       res.status(500).send('Error creating page');
     }
   }
-  async editPage(req, res) {
+  async editPage(req: Request, res: Response): Promise<void | Response> {
     try {
       const pageName = req.params.page;
 
@@ -1459,7 +1436,7 @@ class WikiRoutes {
    * @param {object} req - Express request object
    * @param {object} res - Express response object
    */
-  async createWikiPage(req, res) {
+  async createWikiPage(req: Request, res: Response): Promise<void | Response> {
     try {
       const pageName = decodeURIComponent(req.params.page);
       const { content, templateName, categories, userKeywords } = req.body;
@@ -1606,7 +1583,7 @@ class WikiRoutes {
   /**
    * Save a page
    */
-  async savePage(req, res) {
+  async savePage(req: Request, res: Response): Promise<void | Response> {
     try {
       const pageName = req.params.page;
       console.log(`💾 Save request received for page: ${pageName}`);
@@ -1749,7 +1726,7 @@ class WikiRoutes {
   /**
    * Delete a page
    */
-  async deletePage(req, res) {
+  async deletePage(req: Request, res: Response): Promise<void | Response> {
     try {
       const pageName = req.params.page;
       console.log(`🗑️ Delete request received for page: ${pageName}`);
@@ -1848,7 +1825,7 @@ class WikiRoutes {
   /**
    * Search pages with advanced options
    */
-  async searchPages(req, res) {
+  async searchPages(req: Request, res: Response): Promise<void | Response> {
     try {
       const query = req.query.q || '';
 
@@ -1947,7 +1924,7 @@ class WikiRoutes {
   /**
    * API endpoint for search suggestions
    */
-  async searchSuggestions(req, res) {
+  async searchSuggestions(req: Request, res: Response): Promise<void | Response> {
     try {
       const partial = req.query.q || '';
       const searchManager = this.engine.getManager('SearchManager');
@@ -1964,7 +1941,7 @@ class WikiRoutes {
   /**
    * API endpoint for getting all page names
    */
-  async getPageNames(req, res) {
+  async getPageNames(req: Request, res: Response): Promise<void | Response> {
     try {
       const pageManager = this.engine.getManager('PageManager');
       const pageNames = await pageManager.getPageNames();
@@ -1979,7 +1956,7 @@ class WikiRoutes {
   /**
    * Home page - show main index
    */
-  async homePage(req, res) {
+  async homePage(req: Request, res: Response): Promise<void | Response> {
     // Redirect to Welcome page instead of rendering a separate home page
     res.redirect('/wiki/Welcome');
   }
@@ -1987,7 +1964,7 @@ class WikiRoutes {
   /**
    * API endpoint to get page preview
    */
-  async previewPage(req, res) {
+  async previewPage(req: Request, res: Response): Promise<void | Response> {
     console.log('!!! PREVIEW PAGE METHOD CALLED !!!');
     try {
       const { content, pageName } = req.body;
@@ -2033,7 +2010,7 @@ class WikiRoutes {
   /**
    * Upload attachment for a page
    */
-  async uploadAttachment(req, res) {
+  async uploadAttachment(req: Request, res: Response): Promise<void | Response> {
     try {
       const { page: pageName } = req.params;
       const attachmentManager = this.engine.getManager('AttachmentManager');
@@ -2092,7 +2069,7 @@ class WikiRoutes {
   /**
    * Upload image file
    */
-  async uploadImage(req, res) {
+  async uploadImage(req: Request, res: Response): Promise<void | Response> {
     try {
       if (!req.file) {
         return res.status(400).json({ error: 'No image file uploaded' });
@@ -2121,7 +2098,7 @@ class WikiRoutes {
   /**
    * Serve attachment file
    */
-  async serveAttachment(req, res) {
+  async serveAttachment(req: Request, res: Response): Promise<void | Response> {
     try {
       const { attachmentId } = req.params;
       const attachmentManager = this.engine.getManager('AttachmentManager');
@@ -2153,7 +2130,7 @@ class WikiRoutes {
   /**
    * Delete attachment
    */
-  async deleteAttachment(req, res) {
+  async deleteAttachment(req: Request, res: Response): Promise<void | Response> {
     try {
       const { attachmentId } = req.params;
       const attachmentManager = this.engine.getManager('AttachmentManager');
@@ -2197,7 +2174,7 @@ class WikiRoutes {
   /**
    * Export page selection form
    */
-  async exportPage(req, res) {
+  async exportPage(req: Request, res: Response): Promise<void | Response> {
     try {
       const commonData = await this.getCommonTemplateData(req);
       const pageManager = this.engine.getManager('PageManager');
@@ -2217,7 +2194,7 @@ class WikiRoutes {
   /**
    * Export page to HTML
    */
-  async exportPageHtml(req, res) {
+  async exportPageHtml(req: Request, res: Response): Promise<void | Response> {
     try {
       const { page: pageName } = req.params;
       const exportManager = this.engine.getManager('ExportManager');
@@ -2235,7 +2212,7 @@ class WikiRoutes {
   /**
    * Export page to Markdown
    */
-  async exportPageMarkdown(req, res) {
+  async exportPageMarkdown(req: Request, res: Response): Promise<void | Response> {
     try {
       const { page: pageName } = req.params;
       const exportManager = this.engine.getManager('ExportManager');
@@ -2254,7 +2231,7 @@ class WikiRoutes {
   /**
    * List available exports
    */
-  async listExports(req, res) {
+  async listExports(req: Request, res: Response): Promise<void | Response> {
     try {
       const commonData = await this.getCommonTemplateData(req);
       const exportManager = this.engine.getManager('ExportManager');
@@ -2274,7 +2251,7 @@ class WikiRoutes {
   /**
    * Download export file
    */
-  async downloadExport(req, res) {
+  async downloadExport(req: Request, res: Response): Promise<void | Response> {
     try {
       const { filename } = req.params;
       const exportManager = this.engine.getManager('ExportManager');
@@ -2295,7 +2272,7 @@ class WikiRoutes {
   /**
    * Delete export file
    */
-  async deleteExport(req, res) {
+  async deleteExport(req: Request, res: Response): Promise<void | Response> {
     try {
       const { filename } = req.params;
       const exportManager = this.engine.getManager('ExportManager');
@@ -2312,7 +2289,7 @@ class WikiRoutes {
   /**
    * Login page
    */
-  async loginPage(req, res) {
+  async loginPage(req: Request, res: Response): Promise<void | Response> {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -2341,7 +2318,7 @@ class WikiRoutes {
   /**
    * Process login
    */
-  async processLogin(req, res) {
+  async processLogin(req: Request, res: Response): Promise<void | Response> {
     try {
       const { username, password, redirect = '/' } = req.body;
       const userManager = this.engine.getManager('UserManager');
@@ -2397,7 +2374,7 @@ class WikiRoutes {
   /**
    * Process logout
    */
-  async processLogout(req, res) {
+  async processLogout(req: Request, res: Response): Promise<void | Response> {
     try {
       // Destroy express-session
       req.session.destroy((err) => {
@@ -2415,7 +2392,7 @@ class WikiRoutes {
   /**
    * User info debug page (shows current user state)
    */
-  async userInfo(req, res) {
+  async userInfo(req: Request, res: Response): Promise<void | Response> {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -2454,7 +2431,7 @@ class WikiRoutes {
   /**
    * Registration page
    */
-  async registerPage(req, res) {
+  async registerPage(req: Request, res: Response): Promise<void | Response> {
     try {
       const commonData = await this.getCommonTemplateData(req);
 
@@ -2473,7 +2450,7 @@ class WikiRoutes {
   /**
    * Process registration
    */
-  async processRegister(req, res) {
+  async processRegister(req: Request, res: Response): Promise<void | Response> {
     try {
       const { username, email, displayName, password, confirmPassword } =
         req.body;
@@ -2516,7 +2493,7 @@ class WikiRoutes {
   /**
    * User profile page
    */
-  async profilePage(req, res) {
+  async profilePage(req: Request, res: Response): Promise<void | Response> {
     console.log('DEBUG: profilePage accessed');
     try {
       const userManager = this.engine.getManager('UserManager');
@@ -2573,7 +2550,7 @@ class WikiRoutes {
   /**
    * Update user profile
    */
-  async updateProfile(req, res) {
+  async updateProfile(req: Request, res: Response): Promise<void | Response> {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -2640,7 +2617,7 @@ class WikiRoutes {
   /**
    * Update user preferences
    */
-  async updatePreferences(req, res) {
+  async updatePreferences(req: Request, res: Response): Promise<void | Response> {
     console.log('=== updatePreferences method called ===');
     try {
       console.log('DEBUG: Request body:', req.body);
@@ -2739,7 +2716,7 @@ class WikiRoutes {
   /**
    * Admin dashboard
    */
-  async adminDashboard(req, res) {
+  async adminDashboard(req: Request, res: Response): Promise<void | Response> {
     try {
       const currentUser = req.userContext;
       const aclManager = this.engine.getManager('ACLManager');
@@ -2839,7 +2816,7 @@ class WikiRoutes {
   /**
    * Toggle maintenance mode (admin only)
    */
-  async adminToggleMaintenance(req, res) {
+  async adminToggleMaintenance(req: Request, res: Response): Promise<void | Response> {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -2923,7 +2900,7 @@ class WikiRoutes {
   /**
    * Admin policy management dashboard
    */
-  async adminPolicies(req, res) {
+  async adminPolicies(req: Request, res: Response): Promise<void | Response> {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -2974,7 +2951,7 @@ class WikiRoutes {
   /**
    * Create a new policy
    */
-  async adminCreatePolicy(req, res) {
+  async adminCreatePolicy(req: Request, res: Response): Promise<void | Response> {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -3015,7 +2992,7 @@ class WikiRoutes {
   /**
    * Get a specific policy
    */
-  async adminGetPolicy(req, res) {
+  async adminGetPolicy(req: Request, res: Response): Promise<void | Response> {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -3053,7 +3030,7 @@ class WikiRoutes {
   /**
    * Update an existing policy
    */
-  async adminUpdatePolicy(req, res) {
+  async adminUpdatePolicy(req: Request, res: Response): Promise<void | Response> {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -3094,7 +3071,7 @@ class WikiRoutes {
   /**
    * Delete a policy
    */
-  async adminDeletePolicy(req, res) {
+  async adminDeletePolicy(req: Request, res: Response): Promise<void | Response> {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -3135,7 +3112,7 @@ class WikiRoutes {
   /**
    * Admin users management
    */
-  async adminUsers(req, res) {
+  async adminUsers(req: Request, res: Response): Promise<void | Response> {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -3175,7 +3152,7 @@ class WikiRoutes {
   /**
    * Create new user (admin)
    */
-  async adminCreateUser(req, res) {
+  async adminCreateUser(req: Request, res: Response): Promise<void | Response> {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -3215,7 +3192,7 @@ class WikiRoutes {
   /**
    * Update user (admin)
    */
-  async adminUpdateUser(req, res) {
+  async adminUpdateUser(req: Request, res: Response): Promise<void | Response> {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -3250,7 +3227,7 @@ class WikiRoutes {
   /**
    * Delete user (admin)
    */
-  async adminDeleteUser(req, res) {
+  async adminDeleteUser(req: Request, res: Response): Promise<void | Response> {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -3281,7 +3258,7 @@ class WikiRoutes {
   /**
    * Admin roles management
    */
-  async adminRoles(req, res) {
+  async adminRoles(req: Request, res: Response): Promise<void | Response> {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -3321,7 +3298,7 @@ class WikiRoutes {
   /**
    * Update role permissions (admin only)
    */
-  async adminUpdateRole(req, res) {
+  async adminUpdateRole(req: Request, res: Response): Promise<void | Response> {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -3365,7 +3342,7 @@ class WikiRoutes {
   /**
    * Create new role (admin only)
    */
-  async adminCreateRole(req, res) {
+  async adminCreateRole(req: Request, res: Response): Promise<void | Response> {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -3420,7 +3397,7 @@ class WikiRoutes {
   /**
    * Delete role (admin only)
    */
-  async adminDeleteRole(req, res) {
+  async adminDeleteRole(req: Request, res: Response): Promise<void | Response> {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -3464,7 +3441,7 @@ class WikiRoutes {
   /**
    * Admin backup - Create and download full system backup
    */
-  async adminBackup(req, res) {
+  async adminBackup(req: Request, res: Response): Promise<void | Response> {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -3524,7 +3501,7 @@ class WikiRoutes {
   /**
    * Admin configuration management page
    */
-  async adminConfiguration(req, res) {
+  async adminConfiguration(req: Request, res: Response): Promise<void | Response> {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -3568,7 +3545,7 @@ class WikiRoutes {
   /**
    * Update configuration property
    */
-  async adminUpdateConfiguration(req, res) {
+  async adminUpdateConfiguration(req: Request, res: Response): Promise<void | Response> {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -3607,7 +3584,7 @@ class WikiRoutes {
   /**
    * Reset configuration to defaults
    */
-  async adminResetConfiguration(req, res) {
+  async adminResetConfiguration(req: Request, res: Response): Promise<void | Response> {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -3633,7 +3610,7 @@ class WikiRoutes {
   /**
    * Admin variable management page
    */
-  async adminVariables(req, res) {
+  async adminVariables(req: Request, res: Response): Promise<void | Response> {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -3693,7 +3670,7 @@ class WikiRoutes {
   /**
    * Test variable expansion
    */
-  async adminTestVariables(req, res) {
+  async adminTestVariables(req: Request, res: Response): Promise<void | Response> {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -3747,7 +3724,7 @@ class WikiRoutes {
   /**
    * Admin settings page
    */
-  async adminSettings(req, res) {
+  async adminSettings(req: Request, res: Response): Promise<void | Response> {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -3793,7 +3770,7 @@ class WikiRoutes {
   /**
    * Restart the system (PM2)
    */
-  async adminRestart(req, res) {
+  async adminRestart(req: Request, res: Response): Promise<void | Response> {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -3842,7 +3819,7 @@ class WikiRoutes {
   /**
    * Admin reindex - Refresh page cache and rebuild search index
    */
-  async adminReindex(req, res) {
+  async adminReindex(req: Request, res: Response): Promise<void | Response> {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -3902,7 +3879,7 @@ class WikiRoutes {
   /**
    * Admin logs page
    */
-  async adminLogs(req, res) {
+  async adminLogs(req: Request, res: Response): Promise<void | Response> {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -3964,7 +3941,7 @@ class WikiRoutes {
   /**
    * Get raw page source (markdown content) for viewing/copying
    */
-  async getPageSource(req, res) {
+  async getPageSource(req: Request, res: Response): Promise<void | Response> {
     try {
       const pageName = decodeURIComponent(req.params.page);
       const pageManager = this.engine.getManager('PageManager');
@@ -3990,7 +3967,7 @@ class WikiRoutes {
   /**
    * Admin Organizations Management Page
    */
-  async adminOrganizations(req, res) {
+  async adminOrganizations(req: Request, res: Response): Promise<void | Response> {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -4052,7 +4029,7 @@ class WikiRoutes {
   /**
    * Create New Organization
    */
-  async adminCreateOrganization(req, res) {
+  async adminCreateOrganization(req: Request, res: Response): Promise<void | Response> {
     try {
       const userManager = this.engine.getManager('UserManager');
       const userContext = req.userContext;
@@ -4090,7 +4067,7 @@ class WikiRoutes {
   /**
    * Update Existing Organization
    */
-  async adminUpdateOrganization(req, res) {
+  async adminUpdateOrganization(req: Request, res: Response): Promise<void | Response> {
     try {
       const userManager = this.engine.getManager('UserManager');
       const userContext = req.userContext;
@@ -4130,7 +4107,7 @@ class WikiRoutes {
   /**
    * Delete Organization
    */
-  async adminDeleteOrganization(req, res) {
+  async adminDeleteOrganization(req: Request, res: Response): Promise<void | Response> {
     try {
       const userManager = this.engine.getManager('UserManager');
       const userContext = req.userContext;
@@ -4166,7 +4143,7 @@ class WikiRoutes {
   /**
    * Get Single Organization (API endpoint)
    */
-  async adminGetOrganization(req, res) {
+  async adminGetOrganization(req: Request, res: Response): Promise<void | Response> {
     try {
       const userManager = this.engine.getManager('UserManager');
       const userContext = req.userContext;
@@ -4192,7 +4169,7 @@ class WikiRoutes {
   /**
    * Admin route to validate all files and check for naming convention compliance
    */
-  async adminValidateFiles(req, res) {
+  async adminValidateFiles(req: Request, res: Response): Promise<void | Response> {
     try {
       const userManager = this.engine.getManager('UserManager');
       const userContext = await userManager.getCurrentUser(req);
@@ -4229,7 +4206,7 @@ class WikiRoutes {
   /**
    * Admin API route to fix all non-compliant files
    */
-  async adminFixFiles(req, res) {
+  async adminFixFiles(req: Request, res: Response): Promise<void | Response> {
     try {
       const userManager = this.engine.getManager('UserManager');
       const userContext = await userManager.getCurrentUser(req);
@@ -4262,7 +4239,7 @@ class WikiRoutes {
   /**
    * Get Organization Schema.org JSON-LD (API endpoint)
    */
-  async adminGetOrganizationSchema(req, res) {
+  async adminGetOrganizationSchema(req: Request, res: Response): Promise<void | Response> {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -4296,7 +4273,7 @@ class WikiRoutes {
   /**
    * Get Schema.org Person schema for a user
    */
-  async adminGetPersonSchema(req, res) {
+  async adminGetPersonSchema(req: Request, res: Response): Promise<void | Response> {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -4334,108 +4311,108 @@ class WikiRoutes {
   registerRoutes(app) {
     // API routes first to prevent conflicts
     console.log('ROUTES DEBUG: Registering /api/preview route');
-    app.post('/api/preview', (req, res) => this.previewPage(req, res));
+    app.post('/api/preview', (req: Request, res: Response) => this.previewPage(req, res));
     console.log('ROUTES DEBUG: Registering /api/test route');
-    app.get('/api/test', (req, res) => res.json({ message: 'API working!' }));
+    app.get('/api/test', (req: Request, res: Response) => res.json({ message: 'API working!' }));
     console.log('ROUTES DEBUG: Registering /api/page-metadata/:page route');
-    app.get('/api/page-metadata/:page', (req, res) =>
+    app.get('/api/page-metadata/:page', (req: Request, res: Response) =>
       this.getPageMetadata(req, res)
     );
     console.log('ROUTES DEBUG: Registering /api/page-source/:page route');
-    app.get('/api/page-source/:page', (req, res) =>
+    app.get('/api/page-source/:page', (req: Request, res: Response) =>
       this.getPageSource(req, res)
     );
     console.log('ROUTES DEBUG: Registering /api/page-suggestions route');
-    app.get('/api/page-suggestions', (req, res) =>
+    app.get('/api/page-suggestions', (req: Request, res: Response) =>
       this.getPageSuggestions(req, res)
     );
 
     // Version management API routes (Phase 6)
     console.log('ROUTES DEBUG: Registering version management API routes');
-    app.get('/api/page/:identifier/versions', (req, res) =>
+    app.get('/api/page/:identifier/versions', (req: Request, res: Response) =>
       this.getPageVersions(req, res)
     );
-    app.get('/api/page/:identifier/version/:version', (req, res) =>
+    app.get('/api/page/:identifier/version/:version', (req: Request, res: Response) =>
       this.getPageVersion(req, res)
     );
-    app.get('/api/page/:identifier/compare/:v1/:v2', (req, res) =>
+    app.get('/api/page/:identifier/compare/:v1/:v2', (req: Request, res: Response) =>
       this.comparePageVersions(req, res)
     );
-    app.post('/api/page/:identifier/restore/:version', (req, res) =>
+    app.post('/api/page/:identifier/restore/:version', (req: Request, res: Response) =>
       this.restorePageVersion(req, res)
     );
 
     // Public routes
-    app.get('/', (req, res) => this.homePage(req, res));
-    app.get('/wiki/:page', (req, res) => this.viewPage(req, res));
-    app.post('/wiki/:page', (req, res) => this.createWikiPage(req, res));
-    app.get('/edit/:page', (req, res) => this.editPage(req, res));
-    app.post('/save/:page', (req, res) => this.savePage(req, res));
-    app.get('/create', (req, res) => this.createPage(req, res));
-    app.post('/create', (req, res) => this.createPageFromTemplate(req, res));
-    app.post('/delete/:page', (req, res) => this.deletePage(req, res));
-    app.get('/search', (req, res) => this.searchPages(req, res));
-    app.get('/login', (req, res) => this.loginPage(req, res));
-    app.post('/login', (req, res) => this.processLogin(req, res));
-    app.get('/logout', (req, res) => this.processLogout(req, res));
-    app.post('/logout', (req, res) => this.processLogout(req, res));
-    app.get('/register', (req, res) => this.registerPage(req, res));
-    app.post('/register', (req, res) => this.processRegister(req, res));
-    app.get('/profile', (req, res) => this.profilePage(req, res));
-    app.post('/profile', (req, res) => this.updateProfile(req, res));
-    app.post('/preferences', (req, res) => this.updatePreferences(req, res));
-    app.get('/user-info', (req, res) => this.userInfo(req, res));
-    app.get('/export', (req, res) => this.exportPage(req, res));
-    app.post('/export/html/:page', (req, res) => this.exportPageHtml(req, res));
-    app.post('/export/markdown/:page', (req, res) => this.exportPageMarkdown(req, res));
-    app.get('/exports', (req, res) => this.listExports(req, res));
-    app.get('/download/:filename', (req, res) => this.downloadExport(req, res));
-    app.delete('/deleteExport/:filename', (req, res) => this.deleteExport(req, res));
+    app.get('/', (req: Request, res: Response) => this.homePage(req, res));
+    app.get('/wiki/:page', (req: Request, res: Response) => this.viewPage(req, res));
+    app.post('/wiki/:page', (req: Request, res: Response) => this.createWikiPage(req, res));
+    app.get('/edit/:page', (req: Request, res: Response) => this.editPage(req, res));
+    app.post('/save/:page', (req: Request, res: Response) => this.savePage(req, res));
+    app.get('/create', (req: Request, res: Response) => this.createPage(req, res));
+    app.post('/create', (req: Request, res: Response) => this.createPageFromTemplate(req, res));
+    app.post('/delete/:page', (req: Request, res: Response) => this.deletePage(req, res));
+    app.get('/search', (req: Request, res: Response) => this.searchPages(req, res));
+    app.get('/login', (req: Request, res: Response) => this.loginPage(req, res));
+    app.post('/login', (req: Request, res: Response) => this.processLogin(req, res));
+    app.get('/logout', (req: Request, res: Response) => this.processLogout(req, res));
+    app.post('/logout', (req: Request, res: Response) => this.processLogout(req, res));
+    app.get('/register', (req: Request, res: Response) => this.registerPage(req, res));
+    app.post('/register', (req: Request, res: Response) => this.processRegister(req, res));
+    app.get('/profile', (req: Request, res: Response) => this.profilePage(req, res));
+    app.post('/profile', (req: Request, res: Response) => this.updateProfile(req, res));
+    app.post('/preferences', (req: Request, res: Response) => this.updatePreferences(req, res));
+    app.get('/user-info', (req: Request, res: Response) => this.userInfo(req, res));
+    app.get('/export', (req: Request, res: Response) => this.exportPage(req, res));
+    app.post('/export/html/:page', (req: Request, res: Response) => this.exportPageHtml(req, res));
+    app.post('/export/markdown/:page', (req: Request, res: Response) => this.exportPageMarkdown(req, res));
+    app.get('/exports', (req: Request, res: Response) => this.listExports(req, res));
+    app.get('/download/:filename', (req: Request, res: Response) => this.downloadExport(req, res));
+    app.delete('/deleteExport/:filename', (req: Request, res: Response) => this.deleteExport(req, res));
 
     // Version management view routes (Phase 6)
-    app.get('/history/:page', (req, res) => this.pageHistory(req, res));
-    app.get('/diff/:page', (req, res) => this.pageDiff(req, res));
+    app.get('/history/:page', (req: Request, res: Response) => this.pageHistory(req, res));
+    app.get('/diff/:page', (req: Request, res: Response) => this.pageDiff(req, res));
 
     // Admin routes
-    app.get('/admin', (req, res) => this.adminDashboard(req, res));
-    app.get('/admin/backup', (req, res) => this.adminBackup(req, res));
-    app.get('/admin/configuration', (req, res) =>
+    app.get('/admin', (req: Request, res: Response) => this.adminDashboard(req, res));
+    app.get('/admin/backup', (req: Request, res: Response) => this.adminBackup(req, res));
+    app.get('/admin/configuration', (req: Request, res: Response) =>
       this.adminConfiguration(req, res)
     );
-    app.post('/admin/configuration', (req, res) =>
+    app.post('/admin/configuration', (req: Request, res: Response) =>
       this.adminUpdateConfiguration(req, res)
     );
-    app.post('/admin/configuration/reset', (req, res) =>
+    app.post('/admin/configuration/reset', (req: Request, res: Response) =>
       this.adminResetConfiguration(req, res)
     );
-    app.get('/admin/variables', (req, res) => this.adminVariables(req, res));
-    app.post('/admin/variables/test', (req, res) =>
+    app.get('/admin/variables', (req: Request, res: Response) => this.adminVariables(req, res));
+    app.post('/admin/variables/test', (req: Request, res: Response) =>
       this.adminTestVariables(req, res)
     );
-    app.post('/admin/maintenance/toggle', (req, res) =>
+    app.post('/admin/maintenance/toggle', (req: Request, res: Response) =>
       this.adminToggleMaintenance(req, res)
     );
-    app.get('/admin/users', (req, res) => this.adminUsers(req, res));
-    app.post('/admin/users', (req, res) => this.adminCreateUser(req, res));
-    app.put('/admin/users/:username', (req, res) =>
+    app.get('/admin/users', (req: Request, res: Response) => this.adminUsers(req, res));
+    app.post('/admin/users', (req: Request, res: Response) => this.adminCreateUser(req, res));
+    app.put('/admin/users/:username', (req: Request, res: Response) =>
       this.adminUpdateUser(req, res)
     );
-    app.delete('/admin/users/:username', (req, res) =>
+    app.delete('/admin/users/:username', (req: Request, res: Response) =>
       this.adminDeleteUser(req, res)
     );
-    app.get('/admin/roles', (req, res) => this.adminRoles(req, res));
-    app.post('/admin/roles', (req, res) => this.adminCreateRole(req, res));
-    app.put('/admin/roles/:role', (req, res) => this.adminUpdateRole(req, res));
-    app.delete('/admin/roles/:role', (req, res) =>
+    app.get('/admin/roles', (req: Request, res: Response) => this.adminRoles(req, res));
+    app.post('/admin/roles', (req: Request, res: Response) => this.adminCreateRole(req, res));
+    app.put('/admin/roles/:role', (req: Request, res: Response) => this.adminUpdateRole(req, res));
+    app.delete('/admin/roles/:role', (req: Request, res: Response) =>
       this.adminDeleteRole(req, res)
     );
-    app.get('/admin/settings', (req, res) => this.adminSettings(req, res));
-    app.get('/admin/logs', (req, res) => this.adminLogs(req, res));
-    app.post('/admin/restart', (req, res) => this.adminRestart(req, res));
-    app.post('/admin/reindex', (req, res) => this.adminReindex(req, res));
+    app.get('/admin/settings', (req: Request, res: Response) => this.adminSettings(req, res));
+    app.get('/admin/logs', (req: Request, res: Response) => this.adminLogs(req, res));
+    app.post('/admin/restart', (req: Request, res: Response) => this.adminRestart(req, res));
+    app.post('/admin/reindex', (req: Request, res: Response) => this.adminReindex(req, res));
 
     // Image upload route with error handling
-    app.post('/images/upload', (req, res) => {
+    app.post('/images/upload', (req: Request, res: Response) => {
       imageUpload.single('image')(req, res, (err) => {
         if (err) {
           // Multer error handling
@@ -4463,7 +4440,7 @@ class WikiRoutes {
     });
 
     // Attachment routes
-    app.post('/attachments/upload/:page', (req, res) => {
+    app.post('/attachments/upload/:page', (req: Request, res: Response) => {
       attachmentUpload.single('file')(req, res, (err) => {
         if (err) {
           if (err instanceof multer.MulterError) {
@@ -4487,33 +4464,33 @@ class WikiRoutes {
       });
     });
 
-    app.get('/attachments/:attachmentId', (req, res) =>
+    app.get('/attachments/:attachmentId', (req: Request, res: Response) =>
       this.serveAttachment(req, res)
     );
 
-    app.delete('/attachments/:attachmentId', (req, res) =>
+    app.delete('/attachments/:attachmentId', (req: Request, res: Response) =>
       this.deleteAttachment(req, res)
     );
 
     // Notification management routes
-    app.post('/admin/notifications/:id/dismiss', (req, res) =>
+    app.post('/admin/notifications/:id/dismiss', (req: Request, res: Response) =>
       this.adminDismissNotification(req, res)
     );
-    app.post('/admin/notifications/clear-all', (req, res) =>
+    app.post('/admin/notifications/clear-all', (req: Request, res: Response) =>
       this.adminClearAllNotifications(req, res)
     );
-    app.get('/admin/notifications', (req, res) =>
+    app.get('/admin/notifications', (req: Request, res: Response) =>
       this.adminNotifications(req, res)
     );
 
     // Cache management routes
-    app.get('/api/admin/cache/stats', (req, res) =>
+    app.get('/api/admin/cache/stats', (req: Request, res: Response) =>
       this.adminCacheStats(req, res)
     );
-    app.post('/api/admin/cache/clear', (req, res) =>
+    app.post('/api/admin/cache/clear', (req: Request, res: Response) =>
       this.adminClearCache(req, res)
     );
-    app.post('/api/admin/cache/clear/:region', (req, res) =>
+    app.post('/api/admin/cache/clear/:region', (req: Request, res: Response) =>
       this.adminClearCacheRegion(req, res)
     );
 
@@ -4537,14 +4514,14 @@ class WikiRoutes {
       this.adminGetOrganizationSchema.bind(this)
     );
 
-    app.get('/api/session-count', (req, res) => {
+    app.get('/api/session-count', (req: Request, res: Response) => {
       this.getActiveSesssionCount(req, res);
     });
     // Schema.org routes
-    app.get('/schema/person/:identifier', (req, res) =>
+    app.get('/schema/person/:identifier', (req: Request, res: Response) =>
       this.adminGetPersonSchema(req, res)
     );
-    app.get('/schema/organization/:identifier', (req, res) =>
+    app.get('/schema/organization/:identifier', (req: Request, res: Response) =>
       this.adminGetOrganizationSchema(req, res)
     );
   }
@@ -4552,7 +4529,7 @@ class WikiRoutes {
   /**
    * Dismiss a notification (admin only)
    */
-  async adminDismissNotification(req, res) {
+  async adminDismissNotification(req: Request, res: Response): Promise<void | Response> {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -4588,7 +4565,7 @@ class WikiRoutes {
   /**
    * Clear all notifications (admin only)
    */
-  async adminClearAllNotifications(req, res) {
+  async adminClearAllNotifications(req: Request, res: Response): Promise<void | Response> {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -4617,7 +4594,7 @@ class WikiRoutes {
   /**
    * Notification management page (admin only)
    */
-  async adminNotifications(req, res) {
+  async adminNotifications(req: Request, res: Response): Promise<void | Response> {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -4673,7 +4650,7 @@ class WikiRoutes {
   /**
    * Admin cache statistics API endpoint
    */
-  async adminCacheStats(req, res) {
+  async adminCacheStats(req: Request, res: Response): Promise<void | Response> {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -4701,7 +4678,7 @@ class WikiRoutes {
   /**
    * Admin clear all cache API endpoint
    */
-  async adminClearCache(req, res) {
+  async adminClearCache(req: Request, res: Response): Promise<void | Response> {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -4736,7 +4713,7 @@ class WikiRoutes {
   /**
    * Admin clear cache region API endpoint
    */
-  async adminClearCacheRegion(req, res) {
+  async adminClearCacheRegion(req: Request, res: Response): Promise<void | Response> {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -4783,7 +4760,7 @@ class WikiRoutes {
   /**
    * Admin audit logs page
    */
-  async adminAuditLogs(req, res) {
+  async adminAuditLogs(req: Request, res: Response): Promise<void | Response> {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = await userManager.getCurrentUser(req);
@@ -4820,7 +4797,7 @@ class WikiRoutes {
   /**
    * API endpoint for audit logs data
    */
-  async adminAuditLogsApi(req, res) {
+  async adminAuditLogsApi(req: Request, res: Response): Promise<void | Response> {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = await userManager.getCurrentUser(req);
@@ -4868,7 +4845,7 @@ class WikiRoutes {
   /**
    * API endpoint for individual audit log details
    */
-  async adminAuditLogDetails(req, res) {
+  async adminAuditLogDetails(req: Request, res: Response): Promise<void | Response> {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = await userManager.getCurrentUser(req);
@@ -4901,7 +4878,7 @@ class WikiRoutes {
   /**
    * Export audit logs
    */
-  async adminAuditExport(req, res) {
+  async adminAuditExport(req: Request, res: Response): Promise<void | Response> {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = await userManager.getCurrentUser(req);
@@ -4983,7 +4960,7 @@ class WikiRoutes {
   /**
    * Get page metadata in a user-friendly format
    */
-  async getPageMetadata(req, res) {
+  async getPageMetadata(req: Request, res: Response): Promise<void | Response> {
     console.log('🔍 getPageMetadata called for page:', req.params.page);
     try {
       const pageName = decodeURIComponent(req.params.page);
@@ -5139,7 +5116,7 @@ class WikiRoutes {
    *
    * Related: GitHub Issue #90 - TypeDown for Internal Page Links
    */
-  async getPageSuggestions(req, res) {
+  async getPageSuggestions(req: Request, res: Response): Promise<void | Response> {
     try {
       const query = req.query.q || '';
       const limit = parseInt(req.query.limit) || 10;
@@ -5227,7 +5204,7 @@ class WikiRoutes {
    * GET /api/page/:identifier/versions
    * Get version history for a page
    */
-  async getPageVersions(req, res) {
+  async getPageVersions(req: Request, res: Response): Promise<void | Response> {
     try {
       const { identifier } = req.params;
       const pageManager = this.engine.getManager('PageManager');
@@ -5277,7 +5254,7 @@ class WikiRoutes {
    * GET /api/page/:identifier/version/:version
    * Get specific version content
    */
-  async getPageVersion(req, res) {
+  async getPageVersion(req: Request, res: Response): Promise<void | Response> {
     try {
       const { identifier, version } = req.params;
       const versionNum = parseInt(version);
@@ -5344,7 +5321,7 @@ class WikiRoutes {
    * GET /api/page/:identifier/compare/:v1/:v2
    * Compare two versions of a page
    */
-  async comparePageVersions(req, res) {
+  async comparePageVersions(req: Request, res: Response): Promise<void | Response> {
     try {
       const { identifier, v1, v2 } = req.params;
       const version1 = parseInt(v1);
@@ -5403,7 +5380,7 @@ class WikiRoutes {
    * POST /api/page/:identifier/restore/:version
    * Restore page to a specific version
    */
-  async restorePageVersion(req, res) {
+  async restorePageVersion(req: Request, res: Response): Promise<void | Response> {
     try {
       const { identifier, version } = req.params;
       const versionNum = parseInt(version);
@@ -5479,7 +5456,7 @@ class WikiRoutes {
    * GET /history/:page
    * Show page history view
    */
-  async pageHistory(req, res) {
+  async pageHistory(req: Request, res: Response): Promise<void | Response> {
     try {
       const pageName = decodeURIComponent(req.params.page);
       logger.info(`[pageHistory] Request for page: "${pageName}"`);
@@ -5556,7 +5533,7 @@ class WikiRoutes {
    * GET /diff/:page?v1=X&v2=Y
    * Show version comparison view
    */
-  async pageDiff(req, res) {
+  async pageDiff(req: Request, res: Response): Promise<void | Response> {
     try {
       const pageName = decodeURIComponent(req.params.page);
       const v1 = parseInt(req.query.v1);

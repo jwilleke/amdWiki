@@ -1323,8 +1323,8 @@ const ConfigAccessorPlugin: SimplePlugin = {
         return displayConfigValue(configManager, key, valueonly, before, after);
       }
 
-      // Otherwise handle type-based display
-      switch (type.toLowerCase()) {
+      // Otherwise handle type-based display (type is guaranteed non-null here due to check above)
+      switch ((type ?? '').toLowerCase()) {
       case 'roles':
         return displayRoles(userManager);
 
