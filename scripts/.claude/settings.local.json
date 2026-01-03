@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh issue list:*)",
+      "Bash(npm run lint:code:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(gh issue view:*)",
+      "Bash(node -e:*)",
+      "Bash(npm test:*)",
+      "Bash(ls:*)",
+      "Bash(npx eslint:*)",
+      "Bash(for f in plugins/*.ts)",
+      "Bash(do echo \"=== $f ===\")",
+      "Bash(done)"
+    ]
+  }
+}
