@@ -38,6 +38,39 @@ import WikiContext from '../context/WikiContext';
 import { WikiEngine } from '../types/WikiEngine';
 import { User as UserContext } from '../types/User';
 
+/**
+ * Safely extract error message from unknown error type
+ * @param error - The caught error (unknown type in strict mode)
+ * @returns The error message string
+ */
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) {
+    return error.message;
+  }
+  if (typeof error === 'string') {
+    return error;
+  }
+  if (error && typeof error === 'object' && 'message' in error) {
+    const msg = (error as { message: unknown }).message;
+    if (typeof msg === 'string') {
+      return msg;
+    }
+  }
+  return 'Unknown error';
+}
+
+/**
+ * Safely extract error stack from unknown error type
+ * @param error - The caught error (unknown type in strict mode)
+ * @returns The error stack string or undefined
+ */
+function getErrorStack(error: unknown): string | undefined {
+  if (error instanceof Error) {
+    return error.stack;
+  }
+  return undefined;
+}
+
 // TypeScript interfaces for WikiRoutes
 interface WikiContextOptions {
   context?: any;
@@ -307,7 +340,7 @@ class WikiRoutes {
       }
     } catch (error) {
       logger.warn('Could not load or render LeftMenu content.', {
-        error: error.message
+        error: getErrorMessage(error)
       });
       templateData.leftMenu = '';
     }
@@ -345,7 +378,7 @@ class WikiRoutes {
       }
     } catch (error) {
       logger.warn('Could not load or render Footer content.', {
-        error: error.message
+        error: getErrorMessage(error)
       });
       templateData.footer = '';
     }
@@ -658,7 +691,7 @@ class WikiRoutes {
       } catch (err) {
         console.warn(
           'SchemaManager not available, using legacy data sources:',
-          err.message
+          getErrorMessage(err)
         );
 
         // Fallback to legacy data structure using ConfigurationManager
@@ -889,7 +922,7 @@ class WikiRoutes {
       const markdown = await pageManager
         .getPageContent(pageName)
         .catch((err) => {
-          if (err.message.includes('not found')) return null;
+          if (getErrorMessage(err).includes('not found')) return null;
           throw err;
         });
 
@@ -947,7 +980,7 @@ class WikiRoutes {
           }
         } catch (error) {
           // Silently fail if versioning not available for this page
-          logger.debug(`[VIEW] Could not get version info for ${pageName}: ${error.message}`);
+          logger.debug(`[VIEW] Could not get version info for ${pageName}: ${getErrorMessage(error)}`);
         }
       }
 
@@ -971,8 +1004,8 @@ class WikiRoutes {
       });
     } catch (error) {
       logger.error('[VIEW] Error viewing page', {
-        error: error.message,
-        stack: error.stack
+        error: getErrorMessage(error),
+        stack: getErrorStack(error)
       });
       await this.renderError(
         req,
@@ -2051,7 +2084,7 @@ class WikiRoutes {
       console.error('Error uploading attachment:', err);
       res.status(500).json({
         success: false,
-        error: err.message || 'Error uploading file'
+        error: getErrorMessage(err) || 'Error uploading file'
       });
     }
   }
@@ -2080,7 +2113,7 @@ class WikiRoutes {
       console.error('Error uploading image:', err);
       res.status(500).json({
         success: false,
-        error: err.message || 'Error uploading image'
+        error: getErrorMessage(err) || 'Error uploading image'
       });
     }
   }
@@ -2156,7 +2189,7 @@ class WikiRoutes {
       console.error('Error deleting attachment:', err);
       res.status(500).json({
         success: false,
-        error: err.message || 'Error deleting attachment'
+        error: getErrorMessage(err) || 'Error deleting attachment'
       });
     }
   }
@@ -2414,7 +2447,7 @@ class WikiRoutes {
       res.json(info);
     } catch (err) {
       console.error('Error getting user info:', err);
-      res.status(500).json({ error: err.message });
+      res.status(500).json({ error: getErrorMessage(err) });
     }
   }
 
@@ -2475,7 +2508,7 @@ class WikiRoutes {
       res.redirect('/login?success=Registration successful');
     } catch (err) {
       console.error('Error processing registration:', err);
-      const errorMessage = err.message || 'Registration failed';
+      const errorMessage = getErrorMessage(err) || 'Registration failed';
       res.redirect('/register?error=' + encodeURIComponent(errorMessage));
     }
   }
@@ -2858,7 +2891,7 @@ class WikiRoutes {
       } catch (notificationError) {
         logger.error('Failed to create maintenance notification', {
           action: 'maintenance_notification_failed',
-          error: notificationError.message,
+          error: getErrorMessage(notificationError),
           mode: config.features.maintenance.enabled ? 'enabled' : 'disabled',
           triggeredBy: currentUser.username,
           timestamp: new Date().toISOString()
@@ -2879,8 +2912,8 @@ class WikiRoutes {
       res.redirect(`/admin?success=${encodeURIComponent(message)}`);
     } catch (err) {
       logger.error('Error toggling maintenance mode', {
-        error: err.message,
-        stack: err.stack,
+        error: getErrorMessage(err),
+        stack: getErrorStack(err),
         user: req.session?.user?.username || 'unknown'
       });
       res.redirect('/admin?error=Failed to toggle maintenance mode');
@@ -2974,7 +3007,7 @@ class WikiRoutes {
       console.error('Error creating policy:', err);
       res.status(500).json({
         error: 'Failed to create policy',
-        details: err.message
+        details: getErrorMessage(err)
       });
     }
   }
@@ -3012,7 +3045,7 @@ class WikiRoutes {
       console.error('Error retrieving policy:', err);
       res.status(500).json({
         error: 'Failed to retrieve policy',
-        details: err.message
+        details: getErrorMessage(err)
       });
     }
   }
@@ -3053,7 +3086,7 @@ class WikiRoutes {
       console.error('Error updating policy:', err);
       res.status(500).json({
         error: 'Failed to update policy',
-        details: err.message
+        details: getErrorMessage(err)
       });
     }
   }
@@ -3094,7 +3127,7 @@ class WikiRoutes {
       console.error('Error deleting policy:', err);
       res.status(500).json({
         error: 'Failed to delete policy',
-        details: err.message
+        details: getErrorMessage(err)
       });
     }
   }
@@ -3174,7 +3207,7 @@ class WikiRoutes {
       }
     } catch (err) {
       console.error('Error creating user:', err);
-      const errorMessage = encodeURIComponent(err.message || 'Error creating user');
+      const errorMessage = encodeURIComponent(getErrorMessage(err) || 'Error creating user');
       res.redirect(`/admin/users?error=${errorMessage}`);
     }
   }
@@ -3372,7 +3405,7 @@ class WikiRoutes {
       }
     } catch (err) {
       console.error('Error creating role:', err);
-      if (err.message === 'Role already exists') {
+      if (getErrorMessage(err) === 'Role already exists') {
         res
           .status(409)
           .json({ success: false, message: 'Role already exists' });
@@ -3414,9 +3447,9 @@ class WikiRoutes {
       res.json({ success: true, message: 'Role deleted successfully' });
     } catch (err) {
       console.error('Error deleting role:', err);
-      if (err.message === 'Role not found') {
+      if (getErrorMessage(err) === 'Role not found') {
         res.status(404).json({ success: false, message: 'Role not found' });
-      } else if (err.message === 'Cannot delete system role') {
+      } else if (getErrorMessage(err) === 'Cannot delete system role') {
         res
           .status(403)
           .json({ success: false, message: 'Cannot delete system role' });
@@ -3484,7 +3517,7 @@ class WikiRoutes {
 
     } catch (err) {
       console.error('Error creating backup:', err);
-      res.status(500).send('Error creating backup: ' + err.message);
+      res.status(500).send('Error creating backup: ' + getErrorMessage(err));
     }
   }
 
@@ -3783,7 +3816,7 @@ class WikiRoutes {
       // Execute pm2 restart command
       exec('pm2 restart amdWiki', (error, stdout, stderr) => {
         if (error) {
-          logger.error(`Restart error: ${error.message}`);
+          logger.error(`Restart error: ${getErrorMessage(error)}`);
           return;
         }
         if (stderr) {
@@ -3861,7 +3894,7 @@ class WikiRoutes {
       console.error('Error reindexing pages:', err);
       res.status(500).json({
         success: false,
-        error: err.message || 'Error reindexing pages'
+        error: getErrorMessage(err) || 'Error reindexing pages'
       });
     }
   }
@@ -3983,7 +4016,7 @@ class WikiRoutes {
         const schemaManager = this.engine.getManager('SchemaManager');
         organizations = schemaManager.getOrganizations();
       } catch (err) {
-        console.warn('SchemaManager not available:', err.message);
+        console.warn('SchemaManager not available:', getErrorMessage(err));
         // Create default organization from ConfigurationManager
         const configManager = this.engine.getManager('ConfigurationManager');
         organizations = [
@@ -4045,10 +4078,10 @@ class WikiRoutes {
     } catch (error) {
       console.error('Error creating organization:', error);
       if (req.headers.accept?.includes('application/json')) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: getErrorMessage(error) });
       } else {
         res.redirect(
-          '/admin/organizations?error=' + encodeURIComponent(error.message)
+          '/admin/organizations?error=' + encodeURIComponent(getErrorMessage(error))
         );
       }
     }
@@ -4085,10 +4118,10 @@ class WikiRoutes {
     } catch (error) {
       console.error('Error updating organization:', error);
       if (req.headers.accept?.includes('application/json')) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: getErrorMessage(error) });
       } else {
         res.redirect(
-          '/admin/organizations?error=' + encodeURIComponent(error.message)
+          '/admin/organizations?error=' + encodeURIComponent(getErrorMessage(error))
         );
       }
     }
@@ -4121,10 +4154,10 @@ class WikiRoutes {
     } catch (error) {
       console.error('Error deleting organization:', error);
       if (req.headers.accept?.includes('application/json')) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: getErrorMessage(error) });
       } else {
         res.redirect(
-          '/admin/organizations?error=' + encodeURIComponent(error.message)
+          '/admin/organizations?error=' + encodeURIComponent(getErrorMessage(error))
         );
       }
     }
@@ -4152,7 +4185,7 @@ class WikiRoutes {
       res.json(organization);
     } catch (error) {
       console.error('Error getting organization:', error);
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: getErrorMessage(error) });
     }
   }
 
@@ -4189,7 +4222,7 @@ class WikiRoutes {
       res.render('admin-validation-report', templateData);
     } catch (err) {
       console.error('Error validating files:', err);
-      await this.renderError(req, res, 500, 'Validation Error', err.message);
+      await this.renderError(req, res, 500, 'Validation Error', getErrorMessage(err));
     }
   }
 
@@ -4221,7 +4254,7 @@ class WikiRoutes {
       console.error('Error fixing files:', err);
       res.status(500).json({
         success: false,
-        error: err.message
+        error: getErrorMessage(err)
       });
     }
   }
@@ -4256,7 +4289,7 @@ class WikiRoutes {
       res.json(schema);
     } catch (error) {
       console.error('Error getting organization schema:', error);
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: getErrorMessage(error) });
     }
   }
 
@@ -4290,7 +4323,7 @@ class WikiRoutes {
       res.json(schema);
     } catch (error) {
       console.error('Error getting person schema:', error);
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: getErrorMessage(error) });
     }
   }
 
@@ -4415,13 +4448,13 @@ class WikiRoutes {
             }
             return res.status(400).json({
               success: false,
-              error: err.message
+              error: getErrorMessage(err)
             });
           }
           // Other errors (e.g., file type validation)
           return res.status(400).json({
             success: false,
-            error: err.message
+            error: getErrorMessage(err)
           });
         }
         // No error, proceed to handler
@@ -4442,12 +4475,12 @@ class WikiRoutes {
             }
             return res.status(400).json({
               success: false,
-              error: err.message
+              error: getErrorMessage(err)
             });
           }
           return res.status(400).json({
             success: false,
-            error: err.message
+            error: getErrorMessage(err)
           });
         }
         this.uploadAttachment(req, res);
@@ -5014,7 +5047,7 @@ class WikiRoutes {
         }
       } catch (error) {
         // Versioning not available or failed - continue without it
-        console.log('Version info not available:', error.message);
+        console.log('Version info not available:', getErrorMessage(error));
       }
 
       // Format the metadata for user-friendly display
@@ -5092,7 +5125,7 @@ class WikiRoutes {
       console.error('Error retrieving page metadata:', error);
       res
         .status(500)
-        .json({ error: 'Internal server error', details: error.message });
+        .json({ error: 'Internal server error', details: getErrorMessage(error) });
     }
   }
 
@@ -5182,7 +5215,7 @@ class WikiRoutes {
       });
     } catch (error) {
       console.error('Error getting page suggestions:', error);
-      res.status(500).json({ error: 'Internal server error', details: error.message });
+      res.status(500).json({ error: 'Internal server error', details: getErrorMessage(error) });
     }
   }
 
@@ -5224,18 +5257,18 @@ class WikiRoutes {
       });
 
     } catch (error) {
-      logger.error(`Error getting page versions: ${error.message}`);
+      logger.error(`Error getting page versions: ${getErrorMessage(error)}`);
 
-      if (error.message.includes('not found')) {
+      if (getErrorMessage(error).includes('not found')) {
         return res.status(404).json({
           error: 'Page not found',
-          message: error.message
+          message: getErrorMessage(error)
         });
       }
 
       res.status(500).json({
         error: 'Internal server error',
-        details: error.message
+        details: getErrorMessage(error)
       });
     }
   }
@@ -5284,25 +5317,25 @@ class WikiRoutes {
       });
 
     } catch (error) {
-      logger.error(`Error getting page version: ${error.message}`);
+      logger.error(`Error getting page version: ${getErrorMessage(error)}`);
 
-      if (error.message.includes('not found')) {
+      if (getErrorMessage(error).includes('not found')) {
         return res.status(404).json({
           error: 'Page or version not found',
-          message: error.message
+          message: getErrorMessage(error)
         });
       }
 
-      if (error.message.includes('does not exist')) {
+      if (getErrorMessage(error).includes('does not exist')) {
         return res.status(404).json({
           error: 'Version not found',
-          message: error.message
+          message: getErrorMessage(error)
         });
       }
 
       res.status(500).json({
         error: 'Internal server error',
-        details: error.message
+        details: getErrorMessage(error)
       });
     }
   }
@@ -5350,18 +5383,18 @@ class WikiRoutes {
       });
 
     } catch (error) {
-      logger.error(`Error comparing page versions: ${error.message}`);
+      logger.error(`Error comparing page versions: ${getErrorMessage(error)}`);
 
-      if (error.message.includes('not found')) {
+      if (getErrorMessage(error).includes('not found')) {
         return res.status(404).json({
           error: 'Page or version not found',
-          message: error.message
+          message: getErrorMessage(error)
         });
       }
 
       res.status(500).json({
         error: 'Internal server error',
-        details: error.message
+        details: getErrorMessage(error)
       });
     }
   }
@@ -5426,18 +5459,18 @@ class WikiRoutes {
       });
 
     } catch (error) {
-      logger.error(`Error restoring page version: ${error.message}`);
+      logger.error(`Error restoring page version: ${getErrorMessage(error)}`);
 
-      if (error.message.includes('not found')) {
+      if (getErrorMessage(error).includes('not found')) {
         return res.status(404).json({
           error: 'Page or version not found',
-          message: error.message
+          message: getErrorMessage(error)
         });
       }
 
       res.status(500).json({
         error: 'Internal server error',
-        details: error.message
+        details: getErrorMessage(error)
       });
     }
   }
@@ -5508,13 +5541,13 @@ class WikiRoutes {
       });
 
     } catch (error) {
-      logger.error(`Error rendering page history: ${error.message}`);
+      logger.error(`Error rendering page history: ${getErrorMessage(error)}`);
       const wikiContext = this.createWikiContext(req, { response: res });
       const templateData = this.getTemplateDataFromContext(wikiContext);
       res.status(500).render('error', {
         ...templateData,
         message: 'Error loading page history',
-        error: error.message
+        error: getErrorMessage(error)
       });
     }
   }
@@ -5597,13 +5630,13 @@ class WikiRoutes {
       });
 
     } catch (error) {
-      logger.error(`Error rendering page diff: ${error.message}`);
+      logger.error(`Error rendering page diff: ${getErrorMessage(error)}`);
       const wikiContext = this.createWikiContext(req, { response: res });
       const templateData = this.getTemplateDataFromContext(wikiContext);
       res.status(500).render('error', {
         ...templateData,
         message: 'Error comparing versions',
-        error: error.message
+        error: getErrorMessage(error)
       });
     }
   }
