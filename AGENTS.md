@@ -63,8 +63,9 @@ See [docs/testing/PREVENTING-REGRESSIONS.md](/docs/testing/PREVENTING-REGRESSION
 
 Key Decisions may be done initially or decided the project progresses. Include "Decision and rationale"
 
-### "One File Done Right" TypeScript Migration Process** (Issue #139)
+### "One File Done Right" TypeScript Migration Process**
 
+- ALWAYS Enable Strict Mode
 - Fix ALL ESLint errors in .ts file (use proper types, not `any`)
 - Install missing `@types/*` packages if needed
 - Update test imports to use .ts file (remove `.js` extension, adjust `.default`)
