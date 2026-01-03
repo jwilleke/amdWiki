@@ -281,6 +281,26 @@ export interface ExtendedMetrics extends ParserMetrics {
  * - #115-#120 - Implementation Phases
  * - #110, #93 - Markdown heading bug fixes
  */
+
+/**
+ * Safely extract error message from unknown error type
+ */
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) {
+    return error.message;
+  }
+  if (typeof error === 'string') {
+    return error;
+  }
+  if (error && typeof error === 'object' && 'message' in error) {
+    const msg = (error as { message: unknown }).message;
+    if (typeof msg === 'string') {
+      return msg;
+    }
+  }
+  return 'Unknown error';
+}
+
 class MarkupParser extends BaseManager {
   /** Handler registry for syntax handlers */
   handlerRegistry: HandlerRegistry;
@@ -425,7 +445,7 @@ class MarkupParser extends BaseManager {
         this.filterChain.addFilter(securityFilter);
         console.log('🔒 SecurityFilter registered successfully');
       } catch (error) {
-        console.warn('⚠️  Failed to register SecurityFilter:', error.message);
+        console.warn('⚠️  Failed to register SecurityFilter:', getErrorMessage(error));
       }
     }
 
@@ -439,7 +459,7 @@ class MarkupParser extends BaseManager {
         this.filterChain.addFilter(spamFilter);
         console.log('🛡️  SpamFilter registered successfully');
       } catch (error) {
-        console.warn('⚠️  Failed to register SpamFilter:', error.message);
+        console.warn('⚠️  Failed to register SpamFilter:', getErrorMessage(error));
       }
     }
 
@@ -453,7 +473,7 @@ class MarkupParser extends BaseManager {
         this.filterChain.addFilter(validationFilter);
         console.log('✅ ValidationFilter registered successfully');
       } catch (error) {
-        console.warn('⚠️  Failed to register ValidationFilter:', error.message);
+        console.warn('⚠️  Failed to register ValidationFilter:', getErrorMessage(error));
       }
     }
   }
@@ -478,7 +498,7 @@ class MarkupParser extends BaseManager {
       await this.registerHandler(jspwikiPreprocessor);
       console.log('📋 JSPWikiPreprocessor registered successfully (Phase 1)');
     } catch (error) {
-      console.warn('⚠️  Failed to register JSPWikiPreprocessor:', error.message);
+      console.warn('⚠️  Failed to register JSPWikiPreprocessor:', getErrorMessage(error));
     }
 
     // Register PluginSyntaxHandler if enabled
@@ -490,7 +510,7 @@ class MarkupParser extends BaseManager {
         await this.registerHandler(pluginHandler);
         console.log('🔌 PluginSyntaxHandler registered successfully');
       } catch (error) {
-        console.warn('⚠️  Failed to register PluginSyntaxHandler:', error.message);
+        console.warn('⚠️  Failed to register PluginSyntaxHandler:', getErrorMessage(error));
       }
     }
 
@@ -503,7 +523,7 @@ class MarkupParser extends BaseManager {
         await this.registerHandler(wikiTagHandler);
         console.log('🏷️  WikiTagHandler registered successfully');
       } catch (error) {
-        console.warn('⚠️  Failed to register WikiTagHandler:', error.message);
+        console.warn('⚠️  Failed to register WikiTagHandler:', getErrorMessage(error));
       }
     }
 
@@ -516,7 +536,7 @@ class MarkupParser extends BaseManager {
         await this.registerHandler(wikiFormHandler);
         console.log('📝 WikiFormHandler registered successfully');
       } catch (error) {
-        console.warn('⚠️  Failed to register WikiFormHandler:', error.message);
+        console.warn('⚠️  Failed to register WikiFormHandler:', getErrorMessage(error));
       }
     }
 
@@ -532,7 +552,7 @@ class MarkupParser extends BaseManager {
         await this.registerHandler(attachmentHandler);
         console.log('📎 AttachmentHandler registered successfully');
       } catch (error) {
-        console.warn('⚠️  Failed to register AttachmentHandler:', error.message);
+        console.warn('⚠️  Failed to register AttachmentHandler:', getErrorMessage(error));
       }
     }
 
@@ -558,7 +578,7 @@ class MarkupParser extends BaseManager {
       await this.registerHandler(linkParserHandler);
       console.log('🔗 LinkParserHandler registered successfully (unified link processing for all link types)');
     } catch (error) {
-      console.warn('⚠️  Failed to register LinkParserHandler - CRITICAL ISSUE:', error.message);
+      console.warn('⚠️  Failed to register LinkParserHandler - CRITICAL ISSUE:', getErrorMessage(error));
     }
 
     const handlerCount = this.getHandlers().length;
@@ -680,7 +700,7 @@ class MarkupParser extends BaseManager {
         this.config.performance.alertThresholds.minCacheSamples = configManager.getProperty('amdwiki.markup.performance.alertThresholds.minCacheSamples', this.config.performance.alertThresholds.minCacheSamples);
         
       } catch (err) {
-        console.warn('⚠️  Failed to load MarkupParser config from ConfigurationManager, using defaults:', err.message);
+        console.warn('⚠️  Failed to load MarkupParser config from ConfigurationManager, using defaults:', getErrorMessage(err));
       }
     }
   }
@@ -817,7 +837,7 @@ class MarkupParser extends BaseManager {
       console.log('🔥 Cache warmup completed');
       
     } catch (error) {
-      console.warn('⚠️  Cache warmup failed:', error.message);
+      console.warn('⚠️  Cache warmup failed:', getErrorMessage(error));
     }
   }
 
@@ -1342,13 +1362,13 @@ class MarkupParser extends BaseManager {
         const node = await this.createDOMNode(element, parseContext, wikiDocument);
         nodes.push(node);
       } catch (error) {
-        console.error(`❌ Error creating DOM node for element ${element.id}:`, error.message);
+        console.error(`❌ Error creating DOM node for element ${element.id}:`, getErrorMessage(error));
         // Create error node
         const errorNode = wikiDocument.createElement('span', {
           'class': 'wiki-error',
           'data-jspwiki-id': element.id.toString()
         });
-        errorNode.textContent = `[Error: ${error.message}]`;
+        errorNode.textContent = `[Error: ${getErrorMessage(error)}]`;
         nodes.push(errorNode);
       }
     }
@@ -1467,7 +1487,7 @@ class MarkupParser extends BaseManager {
     try {
       return await this.cacheStrategies.parseResults.get(cacheKey);
     } catch (error) {
-      console.warn('⚠️  Cache get failed:', error.message);
+      console.warn('⚠️  Cache get failed:', getErrorMessage(error));
       return null;
     }
   }
@@ -1488,7 +1508,7 @@ class MarkupParser extends BaseManager {
       });
       this.updateCacheMetrics('parseResults', 'set');
     } catch (error) {
-      console.warn('⚠️  Cache set failed:', error.message);
+      console.warn('⚠️  Cache set failed:', getErrorMessage(error));
     }
   }
 
@@ -1516,7 +1536,7 @@ class MarkupParser extends BaseManager {
       
       return result;
     } catch (error) {
-      console.warn('⚠️  Handler cache get failed:', error.message);
+      console.warn('⚠️  Handler cache get failed:', getErrorMessage(error));
       return null;
     }
   }
@@ -1540,7 +1560,7 @@ class MarkupParser extends BaseManager {
       });
       this.updateCacheMetrics('handlerResults', 'set');
     } catch (error) {
-      console.warn('⚠️  Handler cache set failed:', error.message);
+      console.warn('⚠️  Handler cache set failed:', getErrorMessage(error));
     }
   }
 
