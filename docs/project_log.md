@@ -24,6 +24,37 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 
 ---
 
+## 2026-01-03-05
+
+- Agent: Claude Code (Opus 4.5)
+- Subject: Enable TypeScript Strict Mode (WIP)
+- Issues: #201, #139 (EPIC)
+- Key Decisions:
+  - Enable `strict: true` in tsconfig.json immediately
+  - Fix errors file by file
+  - Removed eslint-disable comments which exposed underlying issues
+- Work Done:
+  - Enabled strict mode: 1,078 initial errors
+  - Fixed logger export pattern: eliminated 500+ "logger possibly null" errors
+  - Added getErrorMessage() helpers in multiple files
+  - Fixed Express route handler signatures in WikiRoutes.ts
+  - Removed eslint-disable from WikiRoutes, RenderingManager, VersioningMigration
+- Status:
+  - TypeScript errors: ~300 remaining
+  - ESLint errors: ~2,300 (exposed by removing eslint-disable)
+  - Tests: Not passing yet
+- Commits: 7f629c9
+- Files Modified:
+  - tsconfig.json (strict: true)
+  - src/utils/logger.ts
+  - src/routes/WikiRoutes.ts
+  - src/managers/RenderingManager.ts
+  - src/utils/VersioningMigration.ts
+  - plugins/ConfigAccessorPlugin.ts
+  - package.json (@types/express-session)
+
+---
+
 ## 2026-01-03-04
 
 - Agent: Claude Code (Opus 4.5)
