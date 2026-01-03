@@ -24,6 +24,39 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 
 ---
 
+## 2026-01-03-07
+
+- Agent: Claude Code (Opus 4.5)
+- Subject: WikiRoutes.ts TypeScript Strict Mode Complete
+- Issues: #201, #139 (EPIC)
+- Key Decisions:
+  - Added helper functions getQueryString()/getQueryStringArray() for safe query param extraction
+  - Fixed UserContext import to use WikiContext's definition (not User type)
+  - Kept targeted eslint-disable for unsafe-* rules until managers have typed returns
+- Work Done:
+  - Fixed 125+ TypeScript errors in WikiRoutes.ts (largest file - now 0 errors)
+  - Fixed ExtendedRequest interface for multer file types
+  - Added proper type annotations to all callback parameters
+  - Fixed null/undefined checks for userContext, config objects
+  - Fixed Record<string, T> typing for dynamic object indexing
+  - Total: 77 TypeScript errors remaining (down from 270)
+- Testing:
+  - TypeScript: 77 errors remaining across other files
+  - npm test: Pending (need to fix remaining errors first)
+- Remaining Files:
+  - DOMBuilder.ts: 17 errors
+  - Tokenizer.ts: 11 errors
+  - NodeCacheProvider.ts: 10 errors
+  - LunrSearchProvider.ts: 9 errors
+  - FileAuditProvider.ts: 8 errors
+  - Other providers/managers: ~22 errors
+- Commits: 99268bf
+- Files Modified:
+  - src/routes/WikiRoutes.ts
+  - package.json (@types/multer)
+
+---
+
 ## 2026-01-03-06
 
 - Agent: Claude Code (Opus 4.5)
