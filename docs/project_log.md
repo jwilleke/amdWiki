@@ -24,6 +24,57 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 
 ---
 
+## 2026-01-03-04
+
+- Agent: Claude Code (Opus 4.5)
+- Subject: Complete MarkupParser.ts - Remove All eslint-disable Comments
+- Issues: #147, #139 (EPIC)
+- Key Decisions:
+  - "One File Done Right" approach - complete each file fully before moving on
+  - Install @types/showdown for proper TypeScript support
+  - Use generic type parameters with getManager<T>() instead of type assertions
+- Work Done:
+  - MarkupParser.ts: 562 ESLint errors → 0 (after removing eslint-disable)
+  - Converted inline require() to ES imports
+  - Added typed manager interfaces (ConfigurationManagerInterface, etc.)
+  - Fixed regex callback signatures with explicit parameters
+  - Added proper return types to all functions
+  - Installed @types/showdown for type support
+- Testing:
+  - npm test: 58 suites passed, 1380 tests passed
+  - Server: Restarted successfully, no errors
+- Commits: e57c25f
+- Files Modified:
+  - src/parsers/MarkupParser.ts
+  - package.json (@types/showdown)
+  - package-lock.json
+
+---
+
+## 2026-01-03-03
+
+- Agent: Claude Code (Opus 4.5)
+- Subject: Fix Strict Mode Errors (Phase 6)
+- Issues: #147, #139 (EPIC)
+- Key Decisions:
+  - Added getErrorMessage() helper functions to handle unknown error types
+  - Fix all catch block error.message patterns for strict mode compliance
+- Work Done:
+  - WikiRoutes.ts: 61 errors → 0 (commit 9c4b4a6)
+  - MarkupParser.ts: 17 errors → 0 (commit dab1f12)
+- Testing:
+  - npm test: 58 suites passed, 1380 tests passed
+  - Server: 200 OK on /wiki/SystemInfo
+- Remaining:
+  - VersioningMigration.ts: 7 errors
+  - RenderingManager.ts: 3 errors
+  - VersioningAnalytics.ts: 1 error
+- Files Modified:
+  - src/routes/WikiRoutes.ts
+  - src/parsers/MarkupParser.ts
+
+---
+
 ## 2026-01-03-02
 
 - Agent: Claude Code (Opus 4.5)
