@@ -257,6 +257,9 @@ class CacheManager extends BaseManager {
    * @returns {Promise<unknown>} The cached value or undefined if not found
    */
   async get(key: string): Promise<unknown> {
+    if (!this.provider) {
+      throw new Error('Cache provider not initialized');
+    }
     return await this.provider.get(key);
   }
 
@@ -269,6 +272,9 @@ class CacheManager extends BaseManager {
    * @returns {Promise<void>}
    */
   async set(key: string, value: unknown, options: CacheOptions = {}): Promise<void> {
+    if (!this.provider) {
+      throw new Error('Cache provider not initialized');
+    }
     const ttl = options.ttl || this.defaultTTL;
     return await this.provider.set(key, value, ttl);
   }
@@ -279,6 +285,9 @@ class CacheManager extends BaseManager {
    * @returns {Promise<void>}
    */
   async del(keys: string | string[]): Promise<void> {
+    if (!this.provider) {
+      throw new Error('Cache provider not initialized');
+    }
     return await this.provider.del(keys);
   }
 
@@ -293,6 +302,9 @@ class CacheManager extends BaseManager {
       const regionCache = this.region(region);
       return await regionCache.clear(pattern);
     } else {
+      if (!this.provider) {
+        throw new Error('Cache provider not initialized');
+      }
       return await this.provider.clear(pattern);
     }
   }
@@ -303,6 +315,9 @@ class CacheManager extends BaseManager {
    * @returns {Promise<string[]>} Array of matching keys
    */
   async keys(pattern: string = '*'): Promise<string[]> {
+    if (!this.provider) {
+      throw new Error('Cache provider not initialized');
+    }
     return await this.provider.keys(pattern);
   }
 
@@ -316,6 +331,9 @@ class CacheManager extends BaseManager {
       const regionCache = this.region(region);
       return await regionCache.stats() as unknown as CacheStats;
     } else {
+      if (!this.provider) {
+        throw new Error('Cache provider not initialized');
+      }
       const globalStats = await this.provider.stats();
       const regions = Array.from(this.regions.keys());
 
@@ -338,6 +356,9 @@ class CacheManager extends BaseManager {
    * @returns {Promise<boolean>} True if cache is healthy
    */
   async isHealthy(): Promise<boolean> {
+    if (!this.provider) {
+      return false;
+    }
     return await this.provider.isHealthy();
   }
 
@@ -368,7 +389,9 @@ class CacheManager extends BaseManager {
    */
   async flushAll(): Promise<void> {
     logger.warn('CacheManager.flushAll() - clearing ALL cache data');
-    await this.provider.clear('*');
+    if (this.provider) {
+      await this.provider.clear('*');
+    }
     this.regions.clear();
   }
 

@@ -353,7 +353,7 @@ class MarkupParser extends BaseManager {
   handlerRegistry: HandlerRegistry;
 
   /** Content filter chain */
-  filterChain: FilterChain;
+  filterChain: FilterChain | null;
 
   /** Parse result cache */
   cache: RegionCache | null;
@@ -471,12 +471,17 @@ class MarkupParser extends BaseManager {
       return;
     }
 
+    if (!this.filterChain) {
+      logger.warn('🔧 Filter chain not available');
+      return;
+    }
+
     // Initialize the filter chain
     await this.filterChain.initialize({ engine: this.engine });
 
     // Register default filters based on configuration
     await this.registerDefaultFilters();
-    
+
     const filterCount = this.filterChain.getFilters().length;
     logger.debug(`🔄 Filter pipeline initialized with ${filterCount} filters`);
   }
@@ -485,10 +490,14 @@ class MarkupParser extends BaseManager {
    * Register default filters based on modular configuration
    */
   async registerDefaultFilters(): Promise<void> {
+    if (!this.filterChain) {
+      return;
+    }
+
     // Register SecurityFilter if enabled
     if (this.config.filters.security.enabled) {
       const securityFilter = new SecurityFilter();
-      
+
       try {
         await securityFilter.initialize({ engine: this.engine });
         this.filterChain.addFilter(securityFilter);
@@ -1247,7 +1256,7 @@ class MarkupParser extends BaseManager {
     });
 
     // Set the literal text content (already extracted in element.literal)
-    node.textContent = element.literal;
+    node.textContent = element.literal ?? '';
 
     return node;
   }
@@ -1476,10 +1485,10 @@ class MarkupParser extends BaseManager {
     }
 
     // Add advanced cache metrics
-    metrics.cacheStrategies = {};
+    const cacheStrategies: Record<string, unknown> = {};
     this.metrics.cacheMetrics.forEach((cacheStats, strategy) => {
       const total = cacheStats.hits + cacheStats.misses;
-      metrics.cacheStrategies[strategy] = {
+      cacheStrategies[strategy] = {
         ...cacheStats,
         hitRatio: total > 0 ? cacheStats.hits / total : 0,
         total: total
@@ -1537,7 +1546,7 @@ class MarkupParser extends BaseManager {
     }
     
     try {
-      return await this.cacheStrategies.parseResults.get(cacheKey);
+      return await this.cacheStrategies.parseResults.get(cacheKey) ?? null;
     } catch (error) {
       logger.warn('⚠️  Cache get failed:', getErrorMessage(error));
       return null;
@@ -1716,6 +1725,10 @@ class MarkupParser extends BaseManager {
    * @param message - Alert message
    */
   generatePerformanceAlert(type: string, message: string): void {
+    if (!this.performanceMonitor) {
+      return;
+    }
+
     const alert = {
       type,
       message,
@@ -1724,7 +1737,7 @@ class MarkupParser extends BaseManager {
     };
 
     this.performanceMonitor.alerts.push(alert);
-    
+
     // Limit alerts to prevent memory issues
     if (this.performanceMonitor.alerts.length > 100) {
       this.performanceMonitor.alerts.shift();

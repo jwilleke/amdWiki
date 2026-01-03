@@ -233,6 +233,9 @@ class SearchManager extends BaseManager {
 
     logger.info(`🔍 SearchManager initialized with ${this.providerClass}`);
 
+    if (!this.provider) {
+      throw new Error('Search provider not initialized');
+    }
     const providerInfo = this.provider.getProviderInfo();
     if (providerInfo.features && providerInfo.features.length > 0) {
       logger.info(`🔍 Provider features: ${providerInfo.features.join(', ')}`);
@@ -285,8 +288,11 @@ class SearchManager extends BaseManager {
       // Try to load provider class
       // eslint-disable-next-line @typescript-eslint/no-require-imports
       const ProviderClass = require(`../providers/${this.providerClass}`);
-       
+
       this.provider = new ProviderClass(this.engine);
+      if (!this.provider) {
+        throw new Error('Failed to create search provider');
+      }
       await this.provider.initialize();
 
       // Test provider health
@@ -304,8 +310,11 @@ class SearchManager extends BaseManager {
         logger.info('Falling back to LunrSearchProvider');
         // eslint-disable-next-line @typescript-eslint/no-require-imports
         const ProviderClass = require('../providers/LunrSearchProvider');
-         
+
         this.provider = new ProviderClass(this.engine);
+        if (!this.provider) {
+          throw new Error('Failed to create fallback search provider');
+        }
         await this.provider.initialize();
       } else {
         throw new Error(`Failed to load search provider: ${(err as Error).message}`);

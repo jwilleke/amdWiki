@@ -1,6 +1,14 @@
 /**
  * RenderingManager - Handles markdown rendering and macro expansion
  */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable no-console */
+
 import BaseManager from './BaseManager';
 
 /** Extract error message from unknown error type */
@@ -402,6 +410,9 @@ class RenderingManager extends BaseManager {
     expandedContent = await this.processWikiLinks(expandedContent);
 
     // Step 4: Convert to HTML
+    if (!this.converter) {
+      throw new Error('Markdown converter not initialized');
+    }
     const html = this.converter.makeHtml(expandedContent);
 
     // Step 5: Post-process tables with styling
@@ -523,7 +534,7 @@ class RenderingManager extends BaseManager {
    * @returns {Object} Parsed parameters
    */
   parseTableParameters(paramString: string): TableParams {
-    const params = {
+    const params: TableParams = {
       rowNumber: 0,
       style: '',
       dataStyle: '',
@@ -531,20 +542,20 @@ class RenderingManager extends BaseManager {
       evenRowStyle: '',
       oddRowStyle: ''
     };
-    
+
     // Parse param:value pairs
     const paramRegex = /(\w+)\s*:\s*['"](.*?)['"]|(\w+)\s*:\s*([^,\s]+)/g;
     let match;
-    
+
     while ((match = paramRegex.exec(paramString)) !== null) {
       const key = match[1] || match[3];
       const value = match[2] || match[4];
 
-      if (Object.prototype.hasOwnProperty.call(params, key)) {
-        params[key] = value;
+      if (key && Object.prototype.hasOwnProperty.call(params, key)) {
+        (params as unknown as Record<string, unknown>)[key] = value;
       }
     }
-    
+
     return params;
   }
 
@@ -691,7 +702,7 @@ class RenderingManager extends BaseManager {
     let expandedContent = content;
 
     // Step 1: Protect code blocks and escaped syntax
-    const protectedAreas = [];
+    const protectedAreas: Record<string, string> = {};
     let protectionIndex = 0;
 
     // Protect code blocks (```code```)
@@ -705,8 +716,8 @@ class RenderingManager extends BaseManager {
     expandedContent = expandedContent.replace(/'''[\s\S]*?'''/g, (match) => {
       const placeholder = `PROTECTED${protectionIndex++}PROTECTED`;
       // Convert JSPWiki style to markdown style for proper rendering
-      const content = match.replace(/^'''\s*\n?/, '```\n').replace(/\n?\s*'''$/, '\n```');
-      protectedAreas[placeholder] = content;
+      const codeContent = match.replace(/^'''\s*\n?/, '```\n').replace(/\n?\s*'''$/, '\n```');
+      protectedAreas[placeholder] = codeContent;
       return placeholder;
     });
 
@@ -718,9 +729,9 @@ class RenderingManager extends BaseManager {
     });
 
     // Protect escaped plugins/variables ([[{...}])
-    expandedContent = expandedContent.replace(/\[\[\{([^}]+)\}\]/g, (match, content) => {
+    expandedContent = expandedContent.replace(/\[\[\{([^}]+)\}\]/g, (_match, innerContent) => {
       const placeholder = `PROTECTED${protectionIndex++}PROTECTED`;
-      protectedAreas[placeholder] = `[{${content}}]`; // Remove one set of brackets
+      protectedAreas[placeholder] = `[{${innerContent}}]`; // Remove one set of brackets
       return placeholder;
     });
 
@@ -756,7 +767,7 @@ class RenderingManager extends BaseManager {
             // Parse plugin call: PluginName param1=value1 param2=value2
             const parts = matchInfo.content.trim().split(/\s+/);
             const pluginName = parts[0];
-            const params = {};
+            const params: Record<string, string> = {};
 
             // Parse parameters - improved to handle quoted values and spaced syntax
             for (let j = 1; j < parts.length; j++) {
@@ -1044,7 +1055,7 @@ class RenderingManager extends BaseManager {
       if (pageNames.length === 0 && pageManager) {
         try {
           const pages = await pageManager.getAllPages();
-          pageNames = pages.map(page => page.name);
+          pageNames = pages.map((page: { name: string }) => page.name);
           this.cachedPageNames = pageNames; // Update cache
         } catch (err) {
           console.warn('Could not get page names for link processing:', err);
@@ -1136,7 +1147,7 @@ class RenderingManager extends BaseManager {
 
     try {
       const pageNames = await pageManager.getAllPages(); // Returns array of strings
-      const newLinkGraph = {};
+      const newLinkGraph: Record<string, string[]> = {};
 
       // Cache page names for wiki link processing
       this.cachedPageNames = pageNames;
@@ -1386,7 +1397,7 @@ class RenderingManager extends BaseManager {
 
         if (pluginManager.hasPlugin && pluginManager.hasPlugin(pluginName)) {
           // Parse parameters
-          const params = {};
+          const params: Record<string, string> = {};
           for (let j = 1; j < parts.length; j++) {
             const paramParts = parts[j].split('=');
             if (paramParts.length === 2) {

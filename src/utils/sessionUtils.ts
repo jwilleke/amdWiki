@@ -16,8 +16,8 @@ interface SessionData {
 /**
  * Express Request with session
  */
-interface RequestWithSession extends Request {
-  session?: SessionData;
+interface RequestWithSession extends Omit<Request, 'session'> {
+  session?: SessionData & { destroy?: (callback?: (err?: Error) => void) => void };
 }
 
 /**

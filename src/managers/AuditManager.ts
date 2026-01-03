@@ -250,6 +250,9 @@ class AuditManager extends BaseManager {
 
     logger.info(`📋 AuditManager initialized with ${this.providerClass}`);
 
+    if (!this.provider) {
+      throw new Error('Audit provider not initialized');
+    }
     const providerInfo = this.provider.getProviderInfo();
     if (providerInfo.features && providerInfo.features.length > 0) {
       logger.info(`📋 Provider features: ${providerInfo.features.join(', ')}`);
@@ -267,8 +270,11 @@ class AuditManager extends BaseManager {
       // Try to load provider class
       // eslint-disable-next-line @typescript-eslint/no-require-imports
       const ProviderClass = require(`../providers/${this.providerClass}`);
-       
+
       this.provider = new ProviderClass(this.engine);
+      if (!this.provider) {
+        throw new Error('Failed to create audit provider');
+      }
       await this.provider.initialize();
 
       // Test provider health
@@ -277,8 +283,11 @@ class AuditManager extends BaseManager {
         logger.warn(`Audit provider ${this.providerClass} health check failed, switching to NullAuditProvider`);
         // eslint-disable-next-line @typescript-eslint/no-require-imports
         const NullAuditProvider = require('../providers/NullAuditProvider');
-         
+
         this.provider = new NullAuditProvider(this.engine);
+        if (!this.provider) {
+          throw new Error('Failed to create NullAuditProvider');
+        }
         await this.provider.initialize();
       }
     } catch (error) {
@@ -287,8 +296,11 @@ class AuditManager extends BaseManager {
       logger.warn('Falling back to NullAuditProvider due to provider load error');
       // eslint-disable-next-line @typescript-eslint/no-require-imports
       const NullAuditProvider = require('../providers/NullAuditProvider');
-       
+
       this.provider = new NullAuditProvider(this.engine);
+      if (!this.provider) {
+        throw new Error('Failed to create fallback NullAuditProvider');
+      }
       await this.provider.initialize();
     }
   }
@@ -338,6 +350,9 @@ class AuditManager extends BaseManager {
    * @returns {Promise<string>} Event ID
    */
   async logAuditEvent(auditEvent: AuditEvent): Promise<string> {
+    if (!this.provider) {
+      throw new Error('Audit provider not initialized');
+    }
     return await this.provider.logAuditEvent(auditEvent);
   }
 
@@ -490,6 +505,9 @@ class AuditManager extends BaseManager {
     filters: AuditFilters = {},
     options: AuditSearchOptions = {}
   ): Promise<AuditSearchResults> {
+    if (!this.provider) {
+      throw new Error('Audit provider not initialized');
+    }
     return await this.provider.searchAuditLogs(filters, options);
   }
 
@@ -500,6 +518,9 @@ class AuditManager extends BaseManager {
    * @returns {Promise<AuditStats>} Audit statistics
    */
   async getAuditStats(filters: AuditFilters = {}): Promise<AuditStats> {
+    if (!this.provider) {
+      throw new Error('Audit provider not initialized');
+    }
     return await this.provider.getAuditStats(filters);
   }
 
@@ -511,6 +532,9 @@ class AuditManager extends BaseManager {
    * @returns {Promise<string>} Exported data
    */
   async exportAuditLogs(filters: AuditFilters = {}, format = 'json'): Promise<string> {
+    if (!this.provider) {
+      throw new Error('Audit provider not initialized');
+    }
     return await this.provider.exportAuditLogs(filters, format);
   }
 
@@ -520,6 +544,9 @@ class AuditManager extends BaseManager {
    * @returns {Promise<void>}
    */
   async flushAuditQueue(): Promise<void> {
+    if (!this.provider) {
+      return;
+    }
     return await this.provider.flush();
   }
 
@@ -529,6 +556,9 @@ class AuditManager extends BaseManager {
    * @returns {Promise<void>}
    */
   async cleanupOldLogs(): Promise<void> {
+    if (!this.provider) {
+      return;
+    }
     return await this.provider.cleanup();
   }
 

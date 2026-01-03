@@ -4,8 +4,20 @@
  */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-// Import needed for module augmentation
 import 'express';
+import 'express-session';
+
+declare module 'express-session' {
+  interface SessionData {
+    csrfToken?: string;
+    username?: string;
+    userId?: string;
+    user?: any;
+    isAuthenticated?: boolean;
+    roles?: string[];
+    [key: string]: any;
+  }
+}
 
 declare global {
   namespace Express {
@@ -20,13 +32,8 @@ declare global {
         [key: string]: any;
       };
       sessionID?: string;
-    }
-
-    interface SessionData {
-      username?: string;
-      userId?: string;
-      roles?: string[];
-      [key: string]: any;
+      file?: Multer.File;
+      files?: Multer.File[] | { [fieldname: string]: Multer.File[] };
     }
   }
 }

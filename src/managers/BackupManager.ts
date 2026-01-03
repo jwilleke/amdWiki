@@ -190,6 +190,10 @@ class BackupManager extends BaseManager {
     logger.info('🔄 Starting backup operation...');
 
     try {
+      if (!this.backupDirectory) {
+        throw new Error('Backup directory not initialized');
+      }
+
       // Generate filename with timestamp
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
       const filename = options.filename || `amdwiki-backup-${timestamp}.json.gz`;
@@ -416,37 +420,32 @@ class BackupManager extends BaseManager {
    */
   async listBackups(): Promise<BackupFileInfo[]> {
     try {
-       
+      if (!this.backupDirectory) {
+        return [];
+      }
+
       const files = await fs.readdir(this.backupDirectory);
-       
-      const backupFiles = files.filter(f => {
-         
+
+      const backupFiles = files.filter((f: string) => {
         return f.startsWith('amdwiki-backup-') && f.endsWith('.json.gz');
       });
 
-       
-      const backups = await Promise.all(backupFiles.map(async (filename) => {
-         
-        const filePath = path.join(this.backupDirectory, filename);
-         
+      const backupDir = this.backupDirectory;
+      const backups = await Promise.all(backupFiles.map(async (filename: string) => {
+        const filePath = path.join(backupDir, filename);
         const stats = await fs.stat(filePath);
 
         return {
-           
           filename,
           path: filePath,
-           
           size: stats.size,
-           
           created: stats.birthtime,
-           
           modified: stats.mtime
         };
       }));
 
       // Sort by creation time, newest first
-       
-      backups.sort((a, b) => b.created.getTime() - a.created.getTime());
+      backups.sort((a: BackupFileInfo, b: BackupFileInfo) => b.created.getTime() - a.created.getTime());
 
        
       return backups;

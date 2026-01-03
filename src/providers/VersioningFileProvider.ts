@@ -361,9 +361,10 @@ class VersioningFileProvider extends FileSystemProvider {
     this.pageIndex.lastUpdated = new Date().toISOString();
 
     // Atomic write: write to temp file, then rename
-    const tempPath = `${this.pageIndexPath}.tmp`;
+    const indexPath = this.pageIndexPath; // Capture for closure
+    const tempPath = `${indexPath}.tmp`;
     return fs.writeFile(tempPath, JSON.stringify(this.pageIndex, null, 2), 'utf8')
-      .then(() => fs.rename(tempPath, this.pageIndexPath));
+      .then(() => fs.rename(tempPath, indexPath as string));
   }
 
   /**
@@ -386,6 +387,9 @@ class VersioningFileProvider extends FileSystemProvider {
         }
 
         // Determine location (check which directory the page is in)
+        if (!this.pagesDirectory || !this.requiredPagesDirectory) {
+          continue;
+        }
         const pagesPath = path.join(this.pagesDirectory, `${uuid}.md`);
         const requiredPath = path.join(this.requiredPagesDirectory, `${uuid}.md`);
 
@@ -452,6 +456,9 @@ class VersioningFileProvider extends FileSystemProvider {
     for (const [uuid, pageData] of this.pageCache.entries()) {
       try {
         // Determine location
+        if (!this.pagesDirectory || !this.requiredPagesDirectory) {
+          continue;
+        }
         const pagesPath = path.join(this.pagesDirectory, `${uuid}.md`);
         const requiredPath = path.join(this.requiredPagesDirectory, `${uuid}.md`);
         const location: 'pages' | 'required-pages' = (await fs.pathExists(requiredPath)) ? 'required-pages' : 'pages';
@@ -924,7 +931,7 @@ class VersioningFileProvider extends FileSystemProvider {
     const cacheKey = `${uuid}:${targetVersion}`;
     if (this.versionCache.has(cacheKey)) {
       this.updateCacheAccess(cacheKey);
-      return this.versionCache.get(cacheKey);
+      return this.versionCache.get(cacheKey) as string;
     }
 
     const versionDir = this.getVersionDirectory(uuid, location);
@@ -982,7 +989,9 @@ class VersioningFileProvider extends FileSystemProvider {
     // Remove oldest entry if cache is full
     if (this.versionCache.size >= this.versionCacheSize) {
       const firstKey = this.versionCache.keys().next().value;
-      this.versionCache.delete(firstKey);
+      if (firstKey !== undefined) {
+        this.versionCache.delete(firstKey);
+      }
     }
 
     this.versionCache.set(key, content);
@@ -1077,7 +1086,7 @@ class VersioningFileProvider extends FileSystemProvider {
 
     // Convert to VersionHistoryEntry and return in reverse order (newest first)
     let versions = [...manifest.versions].reverse().map(v => ({
-      version: v.version,
+      version: v.version ?? 0,
       author: v.editor,
       timestamp: v.dateCreated,
       changeType: v.changeType as 'create' | 'update' | 'minor' | 'major',
@@ -1161,7 +1170,7 @@ class VersioningFileProvider extends FileSystemProvider {
       version: version,
       content: content,
       metadata: {
-        version: versionMetadata.version,
+        version: versionMetadata.version ?? version,
         author: versionMetadata.editor,
         timestamp: versionMetadata.dateCreated,
         changeType: versionMetadata.changeType as 'create' | 'update' | 'minor' | 'major',
@@ -1318,6 +1327,9 @@ class VersioningFileProvider extends FileSystemProvider {
     // Determine which versions to purge
     for (const versionMeta of manifest.versions) {
       const versionNum = versionMeta.version;
+      if (versionNum === undefined) {
+        continue;
+      }
 
       // Always keep the last keepLatest versions
       const versionsFromEnd = manifest.currentVersion - versionNum + 1;
@@ -1357,7 +1369,7 @@ class VersioningFileProvider extends FileSystemProvider {
     }
 
     // Update manifest (remove purged versions)
-    manifest.versions = manifest.versions.filter(v => !versionsToPurge.includes(v.version));
+    manifest.versions = manifest.versions.filter(v => v.version !== undefined && !versionsToPurge.includes(v.version));
     await this.saveManifest(uuid, location, manifest);
 
     logger.info(`[VersioningFileProvider] Purged ${versionsToPurge.length} versions from page ${uuid}`);

@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
+
 import fs from 'fs-extra';
 import path from 'path';
 import matter from 'gray-matter';
@@ -392,7 +396,20 @@ class VersioningMigration {
    * @private
    */
   async _buildPageIndex(pages: PageInfo[]): Promise<void> {
-    const pageIndex = {
+    const pageIndex: {
+      version: string;
+      lastUpdated: string;
+      pageCount: number;
+      pages: Record<string, {
+        uuid: string;
+        title: string;
+        currentVersion: number;
+        location: string;
+        lastModified: string;
+        author: string;
+        hasVersions: boolean;
+      }>;
+    } = {
       version: '1.0.0',
       lastUpdated: new Date().toISOString(),
       pageCount: pages.length,
@@ -441,8 +458,8 @@ class VersioningMigration {
    * @returns {Promise<object>} Validation result
    */
   async validateMigration() {
-    const errors = [];
-    const warnings = [];
+    const errors: string[] = [];
+    const warnings: string[] = [];
 
     this._log('info', 'Validating migration integrity');
 

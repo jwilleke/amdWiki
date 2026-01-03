@@ -231,7 +231,9 @@ class DOMLinkHandler {
         true;
 
       this.pageNameMatcher = new PageNameMatcher(matchEnglishPlurals);
-      this.linkParser.setPageNames(pageNames, matchEnglishPlurals);
+      if (this.linkParser) {
+        this.linkParser.setPageNames(pageNames, matchEnglishPlurals);
+      }
 
       // eslint-disable-next-line no-console
       console.log(`📄 DOMLinkHandler loaded ${pageNames.length} page names (plural matching: ${matchEnglishPlurals ? 'enabled' : 'disabled'})`);
@@ -252,7 +254,9 @@ class DOMLinkHandler {
       const globalEnabled = cfg?.getProperty('amdwiki.interwiki.enabled', true) as boolean;
 
       if (!globalEnabled) {
-        this.linkParser.setInterWikiSites({});
+        if (this.linkParser) {
+          this.linkParser.setInterWikiSites({});
+        }
         return;
       }
 
@@ -285,7 +289,9 @@ class DOMLinkHandler {
         };
       }
 
-      this.linkParser.setInterWikiSites(normalized);
+      if (this.linkParser) {
+        this.linkParser.setInterWikiSites(normalized);
+      }
       // eslint-disable-next-line no-console
       console.log(`🌐 DOMLinkHandler loaded ${Object.keys(normalized).length} InterWiki sites`);
 
@@ -500,6 +506,9 @@ class DOMLinkHandler {
     }
 
     const [, wikiName, pageName] = match;
+    if (!this.linkParser) {
+      return;
+    }
     const interWikiSites = this.linkParser.interWikiSites;
     const siteConfig = interWikiSites.get(wikiName) ||
                        interWikiSites.get(wikiName.toLowerCase());

@@ -204,6 +204,9 @@ class UserManager extends BaseManager {
       const ProviderClass = require(`../providers/${this.providerClass}`) as UserProviderConstructor;
        
       this.provider = new ProviderClass(this.engine);
+      if (!this.provider) {
+        throw new Error('Failed to create user provider');
+      }
       await this.provider.initialize();
 
       const info = this.getProviderInfo();
@@ -247,12 +250,14 @@ class UserManager extends BaseManager {
     this.initializePermissions();
 
     // Create default admin if needed
-    const allUsers = await this.provider.getAllUsers();
-    if (allUsers.size === 0) {
-      await this.createDefaultAdmin();
+    if (this.provider) {
+      const allUsers = await this.provider.getAllUsers();
+      if (allUsers.size === 0) {
+        await this.createDefaultAdmin();
+      }
     }
 
-    const userCount = (await this.provider.getAllUsers()).size;
+    const userCount = this.provider ? (await this.provider.getAllUsers()).size : 0;
     logger.info(`👤 UserManager initialized with ${userCount} users`);
   }
 
@@ -818,7 +823,7 @@ class UserManager extends BaseManager {
 
     const hashedPassword = isExternal ? '' : this.hashPassword(password);
 
-    const userLocale = LocaleUtils.parseAcceptLanguage(acceptLanguage);
+    const userLocale = LocaleUtils.parseAcceptLanguage(acceptLanguage || 'en-US');
     const defaultDateFormat = LocaleUtils.getDateFormatFromLocale(userLocale);
     const defaultTimeFormat = LocaleUtils.getTimeFormatFromLocale(userLocale);
 

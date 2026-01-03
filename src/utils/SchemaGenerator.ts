@@ -141,7 +141,7 @@ class SchemaGenerator {
       '@type': schemaType,
       'name': pageData.title,
       'headline': pageData.title,
-      'url': options.pageUrl || `${options.baseUrl}/view/${encodeURIComponent(pageData.title)}`,
+      'url': options.pageUrl || `${options.baseUrl}/view/${encodeURIComponent(pageData.title || '')}`,
       'dateModified': pageData.lastModified,
       'inLanguage': 'en-US',
       'isPartOf': {
@@ -466,7 +466,7 @@ class SchemaGenerator {
    * @returns Array of DigitalDocumentPermission objects
    */
   static generateDigitalDocumentPermissions(pageData: PageData, user: unknown, options: SchemaOptions = {}) {
-    const permissions = [];
+    const permissions: unknown[] = [];
     const engine = options.engine;
     
     if (!engine) {
@@ -507,13 +507,13 @@ class SchemaGenerator {
     }
     
     // Base permission strategy by category
-    const categoryStrategies = {
+    const categoryStrategies: Record<string, () => unknown[]> = {
       'General': () => this.generateGeneralPagePermissions(pageData, userManager, options),
       'System': () => this.generateSystemPagePermissions(pageData, userManager, options),
       'Documentation': () => this.generateDocumentationPermissions(pageData, userManager, options),
       'Developer': () => this.generateDeveloperPermissions(pageData, userManager, options)
     };
-    
+
     const strategy = categoryStrategies[category] || categoryStrategies['General'];
     return strategy();
   }
@@ -715,8 +715,8 @@ class SchemaGenerator {
       'delete': 'DeletePermission',
       'rename': 'RenamePermission',
       'upload': 'UploadPermission'
-    };
-    
+    } as Record<string, string>;
+
     for (const [action, principals] of Object.entries(pageACL)) {
       const permissionType = aclToPermissionMap[action];
       if (!permissionType || !principals || principals.length === 0) {
@@ -749,13 +749,13 @@ class SchemaGenerator {
     const p = principal.toLowerCase();
     
     // Handle special principals
-    const specialMappings = {
+    const specialMappings: Record<string, { '@type': string; audienceType: string }> = {
       'all': { '@type': 'Audience', 'audienceType': 'public' },
       'anonymous': { '@type': 'Audience', 'audienceType': 'anonymous' },
       'authenticated': { '@type': 'Audience', 'audienceType': 'authenticated' },
       'asserted': { '@type': 'Audience', 'audienceType': 'asserted' }
     };
-    
+
     if (specialMappings[p]) {
       return specialMappings[p];
     }
