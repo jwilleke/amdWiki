@@ -25,7 +25,7 @@
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
 
-    /* Type Checking - Gradual strictness (Phase 6a: Per-file basis) */
+    /* Type Checking - NOT YET STRICT (See GitHub Issue for plan) */
     "strict": false,
     "noImplicitAny": false,
     "strictNullChecks": false,
