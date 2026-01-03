@@ -12,10 +12,11 @@ We follow the DRY (Don't Repeat Yourself) principle - every piece of knowledge s
 - Runtime: Node.js 18+ with TypeScript
 - Target: ES2022
 - Rationale: Node 18+ fully supports ES2022 features
+- No eslint-disable
 - Always Fix ESLint Errors
 - Enable strict mode
 - Fix ALL errors in each file before moving on
-- No eslint-disable unless absolutely necessary
+
 - Proper types, not `any`
 
 ## TypeScript Configuration
