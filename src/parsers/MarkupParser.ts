@@ -1,29 +1,27 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/no-require-imports */
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
-/* eslint-disable @typescript-eslint/require-await */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable no-console */
-/* eslint-disable no-useless-escape */
-/* eslint-disable no-case-declarations */
-
+import crypto from 'crypto';
+import showdown from 'showdown';
 import BaseManager from '../managers/BaseManager';
 import { HandlerRegistry } from './handlers/HandlerRegistry';
+import BaseSyntaxHandler from './handlers/BaseSyntaxHandler';
 import FilterChain from './filters/FilterChain';
 import { DOMParser as WikiDOMParser } from './dom/DOMParser';
 import DOMVariableHandler from './dom/handlers/DOMVariableHandler';
 import DOMPluginHandler from './dom/handlers/DOMPluginHandler';
 import DOMLinkHandler from './dom/handlers/DOMLinkHandler';
-import type { WikiEngine } from '../types/WikiEngine';
+import logger from '../utils/logger';
+import SecurityFilter from './filters/SecurityFilter';
+import SpamFilter from './filters/SpamFilter';
+import ValidationFilter from './filters/ValidationFilter';
+import JSPWikiPreprocessor from './handlers/JSPWikiPreprocessor';
+import PluginSyntaxHandler from './handlers/PluginSyntaxHandler';
+import WikiTagHandler from './handlers/WikiTagHandler';
+import WikiFormHandler from './handlers/WikiFormHandler';
+import AttachmentHandler from './handlers/AttachmentHandler';
+import LinkParserHandler from './handlers/LinkParserHandler';
+import ParseContext from './context/ParseContext';
+import WikiDocument from './dom/WikiDocument';
 import type RegionCache from '../cache/RegionCache';
-import type _ParseContext from './context/ParseContext';
-import type _WikiDocument from './dom/WikiDocument';
-import type _BaseSyntaxHandler from './handlers/BaseSyntaxHandler';
+import type { WikiEngine } from '../types/WikiEngine';
 
 // ============================================================================
 // Type Definitions
@@ -55,6 +53,14 @@ export interface HandlerRegistryConfig {
   enableDependencyResolution?: boolean;
   /** Maximum handler priority */
   maxPriority?: number;
+  /** Maximum number of handlers */
+  maxHandlers?: number;
+  /** Whether to allow duplicate priorities */
+  allowDuplicatePriorities?: boolean;
+  /** Whether to enable conflict detection */
+  enableConflictDetection?: boolean;
+  /** Default handler timeout in ms */
+  defaultTimeout?: number;
 }
 
 /** Individual handler configuration */
@@ -71,12 +77,24 @@ export interface HandlerConfig {
   metadata?: boolean;
 }
 
+/** Individual filter type configuration */
+export interface FilterTypeConfig {
+  /** Whether this filter type is enabled */
+  enabled: boolean;
+}
+
 /** Filter configuration */
 export interface FilterConfig {
   /** Whether filters are enabled */
   enabled: boolean;
   /** Filter mode (sequential or parallel) */
   mode?: 'sequential' | 'parallel';
+  /** Security filter configuration */
+  security: FilterTypeConfig;
+  /** Spam filter configuration */
+  spam: FilterTypeConfig;
+  /** Validation filter configuration */
+  validation: FilterTypeConfig;
 }
 
 /** Cache configuration */
@@ -163,6 +181,35 @@ export interface ExtractedElement {
   target?: string;
   /** Escaped literal content (for escaped) */
   literal?: string;
+}
+
+/** Configuration manager interface for type safety */
+interface ConfigurationManagerInterface {
+  getProperty<T>(key: string, defaultValue: T): T;
+  isInitialized(): boolean;
+}
+
+/** Cache manager interface for type safety */
+interface CacheManagerInterface {
+  isInitialized(): boolean;
+  region(name: string): RegionCache;
+}
+
+/** Variable manager interface for type safety */
+interface VariableManagerInterface {
+  expandVariables(content: string, context: Record<string, unknown>): Promise<string>;
+}
+
+/** Rendering manager interface for type safety */
+interface RenderingManagerInterface {
+  converter?: {
+    makeHtml(content: string): string;
+  };
+}
+
+/** Notification manager interface for type safety */
+interface NotificationManagerInterface {
+  addNotification(notification: Record<string, unknown>): void;
 }
 
 /** Result of extraction */
@@ -332,10 +379,13 @@ class MarkupParser extends BaseManager {
   /** Link resolution handler */
   domLinkHandler: DOMLinkHandler;
 
+  /** Parser configuration - overrides BaseManager's generic config */
+  protected declare config: MarkupParserConfig;
+
   /**
    * Creates a new MarkupParser instance
    */
-  constructor(engine: any) {
+  constructor(engine: WikiEngine) {
     super(engine);
     this.handlerRegistry = new HandlerRegistry(engine);
     this.filterChain = new FilterChain(engine);
@@ -377,7 +427,7 @@ class MarkupParser extends BaseManager {
     await super.initialize(config);
 
     // Load configuration from ConfigurationManager
-    await this.loadConfiguration();
+    this.loadConfiguration();
 
     // Initialize advanced cache integration
     await this.initializeAdvancedCaching();
@@ -399,9 +449,9 @@ class MarkupParser extends BaseManager {
     // Register default handlers
     await this.registerDefaultHandlers();
 
-    console.log('✅ MarkupParser initialized with DOM extraction pipeline');
-    console.log(`⚙️  Configuration loaded: ${this.config.enabled ? 'enabled' : 'disabled'}`);
-    console.log(`🗄️  Cache strategies: ${Object.keys(this.cacheStrategies).join(', ')}`);
+    logger.debug('✅ MarkupParser initialized with DOM extraction pipeline');
+    logger.debug(`⚙️  Configuration loaded: ${this.config.enabled ? 'enabled' : 'disabled'}`);
+    logger.debug(`🗄️  Cache strategies: ${Object.keys(this.cacheStrategies).join(', ')}`);
   }
 
   /**
@@ -415,9 +465,9 @@ class MarkupParser extends BaseManager {
   /**
    * Initialize filter chain with modular configuration
    */
-  async initializeFilterChain() {
+  async initializeFilterChain(): Promise<void> {
     if (!this.config.filters.enabled) {
-      console.log('🔧 Filter pipeline disabled by configuration');
+      logger.debug('🔧 Filter pipeline disabled by configuration');
       return;
     }
 
@@ -428,52 +478,49 @@ class MarkupParser extends BaseManager {
     await this.registerDefaultFilters();
     
     const filterCount = this.filterChain.getFilters().length;
-    console.log(`🔄 Filter pipeline initialized with ${filterCount} filters`);
+    logger.debug(`🔄 Filter pipeline initialized with ${filterCount} filters`);
   }
 
   /**
    * Register default filters based on modular configuration
    */
-  async registerDefaultFilters() {
+  async registerDefaultFilters(): Promise<void> {
     // Register SecurityFilter if enabled
     if (this.config.filters.security.enabled) {
-      const SecurityFilter = require('./filters/SecurityFilter');
       const securityFilter = new SecurityFilter();
       
       try {
         await securityFilter.initialize({ engine: this.engine });
         this.filterChain.addFilter(securityFilter);
-        console.log('🔒 SecurityFilter registered successfully');
+        logger.debug('🔒 SecurityFilter registered successfully');
       } catch (error) {
-        console.warn('⚠️  Failed to register SecurityFilter:', getErrorMessage(error));
+        logger.warn('⚠️  Failed to register SecurityFilter:', getErrorMessage(error));
       }
     }
 
     // Register SpamFilter if enabled
     if (this.config.filters.spam.enabled) {
-      const SpamFilter = require('./filters/SpamFilter');
       const spamFilter = new SpamFilter();
       
       try {
         await spamFilter.initialize({ engine: this.engine });
         this.filterChain.addFilter(spamFilter);
-        console.log('🛡️  SpamFilter registered successfully');
+        logger.debug('🛡️  SpamFilter registered successfully');
       } catch (error) {
-        console.warn('⚠️  Failed to register SpamFilter:', getErrorMessage(error));
+        logger.warn('⚠️  Failed to register SpamFilter:', getErrorMessage(error));
       }
     }
 
     // Register ValidationFilter if enabled
     if (this.config.filters.validation.enabled) {
-      const ValidationFilter = require('./filters/ValidationFilter');
       const validationFilter = new ValidationFilter();
       
       try {
         await validationFilter.initialize({ engine: this.engine });
         this.filterChain.addFilter(validationFilter);
-        console.log('✅ ValidationFilter registered successfully');
+        logger.debug('✅ ValidationFilter registered successfully');
       } catch (error) {
-        console.warn('⚠️  Failed to register ValidationFilter:', getErrorMessage(error));
+        logger.warn('⚠️  Failed to register ValidationFilter:', getErrorMessage(error));
       }
     }
   }
@@ -481,7 +528,7 @@ class MarkupParser extends BaseManager {
   /**
    * Register default syntax handlers based on configuration
    */
-  async registerDefaultHandlers() {
+  async registerDefaultHandlers(): Promise<void> {
     if (!this.config.enabled) {
       return;
     }
@@ -491,52 +538,48 @@ class MarkupParser extends BaseManager {
     // The DOM parser (Phase 0) handles escaping and variables without regex interference
 
     // Register JSPWikiPreprocessor (Phase 1) - processes %%.../%% blocks and tables BEFORE markdown
-    const JSPWikiPreprocessor = require('./handlers/JSPWikiPreprocessor');
     const jspwikiPreprocessor = new JSPWikiPreprocessor(this.engine);
 
     try {
       await this.registerHandler(jspwikiPreprocessor);
-      console.log('📋 JSPWikiPreprocessor registered successfully (Phase 1)');
+      logger.debug('📋 JSPWikiPreprocessor registered successfully (Phase 1)');
     } catch (error) {
-      console.warn('⚠️  Failed to register JSPWikiPreprocessor:', getErrorMessage(error));
+      logger.warn('⚠️  Failed to register JSPWikiPreprocessor:', getErrorMessage(error));
     }
 
     // Register PluginSyntaxHandler if enabled
     if (this.config.handlers.plugin.enabled) {
-      const PluginSyntaxHandler = require('./handlers/PluginSyntaxHandler');
       const pluginHandler = new PluginSyntaxHandler(this.engine);
 
       try {
         await this.registerHandler(pluginHandler);
-        console.log('🔌 PluginSyntaxHandler registered successfully');
+        logger.debug('🔌 PluginSyntaxHandler registered successfully');
       } catch (error) {
-        console.warn('⚠️  Failed to register PluginSyntaxHandler:', getErrorMessage(error));
+        logger.warn('⚠️  Failed to register PluginSyntaxHandler:', getErrorMessage(error));
       }
     }
 
     // Register WikiTagHandler if enabled
     if (this.config.handlers.wikitag.enabled) {
-      const WikiTagHandler = require('./handlers/WikiTagHandler');
       const wikiTagHandler = new WikiTagHandler(this.engine);
       
       try {
         await this.registerHandler(wikiTagHandler);
-        console.log('🏷️  WikiTagHandler registered successfully');
+        logger.debug('🏷️  WikiTagHandler registered successfully');
       } catch (error) {
-        console.warn('⚠️  Failed to register WikiTagHandler:', getErrorMessage(error));
+        logger.warn('⚠️  Failed to register WikiTagHandler:', getErrorMessage(error));
       }
     }
 
     // Register WikiFormHandler if enabled
     if (this.config.handlers.form.enabled) {
-      const WikiFormHandler = require('./handlers/WikiFormHandler');
       const wikiFormHandler = new WikiFormHandler(this.engine);
       
       try {
         await this.registerHandler(wikiFormHandler);
-        console.log('📝 WikiFormHandler registered successfully');
+        logger.debug('📝 WikiFormHandler registered successfully');
       } catch (error) {
-        console.warn('⚠️  Failed to register WikiFormHandler:', getErrorMessage(error));
+        logger.warn('⚠️  Failed to register WikiFormHandler:', getErrorMessage(error));
       }
     }
 
@@ -545,14 +588,13 @@ class MarkupParser extends BaseManager {
 
     // Register AttachmentHandler if enabled (Phase 3)
     if (this.config.handlers.attachment.enabled) {
-      const AttachmentHandler = require('./handlers/AttachmentHandler');
       const attachmentHandler = new AttachmentHandler(this.engine);
       
       try {
         await this.registerHandler(attachmentHandler);
-        console.log('📎 AttachmentHandler registered successfully');
+        logger.debug('📎 AttachmentHandler registered successfully');
       } catch (error) {
-        console.warn('⚠️  Failed to register AttachmentHandler:', getErrorMessage(error));
+        logger.warn('⚠️  Failed to register AttachmentHandler:', getErrorMessage(error));
       }
     }
 
@@ -571,30 +613,29 @@ class MarkupParser extends BaseManager {
     // await this.registerHandler(tableHandler);
 
     // Register LinkParserHandler (unified link processing replacing WikiLinkHandler + InterWikiLinkHandler)
-    const LinkParserHandler = require('./handlers/LinkParserHandler');
     const linkParserHandler = new LinkParserHandler(this.engine);
 
     try {
       await this.registerHandler(linkParserHandler);
-      console.log('🔗 LinkParserHandler registered successfully (unified link processing for all link types)');
+      logger.debug('🔗 LinkParserHandler registered successfully (unified link processing for all link types)');
     } catch (error) {
-      console.warn('⚠️  Failed to register LinkParserHandler - CRITICAL ISSUE:', getErrorMessage(error));
+      logger.warn('⚠️  Failed to register LinkParserHandler - CRITICAL ISSUE:', getErrorMessage(error));
     }
 
     const handlerCount = this.getHandlers().length;
-    console.log(`🎯 Registered ${handlerCount} syntax handlers total`);
+    logger.debug(`🎯 Registered ${handlerCount} syntax handlers total`);
     
     if (handlerCount > 0) {
-      const handlerNames = this.getHandlers().map(h => h.handlerId).join(', ');
-      console.log(`📋 Active handlers: ${handlerNames}`);
+      const handlerNames = this.getHandlers().map(h => (h as { handlerId: string }).handlerId).join(', ');
+      logger.debug(`📋 Active handlers: ${handlerNames}`);
     }
   }
 
   /**
    * Load configuration from ConfigurationManager
    */
-  async loadConfiguration() {
-    const configManager = this.engine.getManager('ConfigurationManager');
+  loadConfiguration(): void {
+    const configManager = this.engine.getManager<ConfigurationManagerInterface>('ConfigurationManager');
     
     // Default configuration
     this.config = {
@@ -700,7 +741,7 @@ class MarkupParser extends BaseManager {
         this.config.performance.alertThresholds.minCacheSamples = configManager.getProperty('amdwiki.markup.performance.alertThresholds.minCacheSamples', this.config.performance.alertThresholds.minCacheSamples);
         
       } catch (err) {
-        console.warn('⚠️  Failed to load MarkupParser config from ConfigurationManager, using defaults:', getErrorMessage(err));
+        logger.warn('⚠️  Failed to load MarkupParser config from ConfigurationManager, using defaults:', getErrorMessage(err));
       }
     }
   }
@@ -721,15 +762,15 @@ class MarkupParser extends BaseManager {
   /**
    * Initialize advanced caching integration with multiple cache strategies
    */
-  async initializeAdvancedCaching() {
+  async initializeAdvancedCaching(): Promise<void> {
     if (!this.config.caching) {
-      console.log('🗄️  MarkupParser caching disabled by configuration');
+      logger.debug('🗄️  MarkupParser caching disabled by configuration');
       return;
     }
     
-    const cacheManager = this.engine.getManager('CacheManager');
+    const cacheManager = this.engine.getManager<CacheManagerInterface>('CacheManager');
     if (!cacheManager || !cacheManager.isInitialized()) {
-      console.warn('⚠️  CacheManager not available, parsing will not be cached');
+      logger.warn('⚠️  CacheManager not available, parsing will not be cached');
       return;
     }
 
@@ -764,8 +805,8 @@ class MarkupParser extends BaseManager {
     this.cache = this.cacheStrategies.parseResults || null;
 
     const strategiesCount = Object.keys(this.cacheStrategies).length;
-    console.log(`🗄️  MarkupParser advanced caching initialized with ${strategiesCount} strategies`);
-    console.log(`📊 Cache TTLs: parse=${this.config.cache.parseResults.ttl}s, handlers=${this.config.cache.handlerResults.ttl}s, patterns=${this.config.cache.patterns.ttl}s`);
+    logger.debug(`🗄️  MarkupParser advanced caching initialized with ${strategiesCount} strategies`);
+    logger.debug(`📊 Cache TTLs: parse=${this.config.cache.parseResults.ttl}s, handlers=${this.config.cache.handlerResults.ttl}s, patterns=${this.config.cache.patterns.ttl}s`);
 
     // Perform cache warmup if enabled
     if (this.config.cache.enableWarmup) {
@@ -776,7 +817,7 @@ class MarkupParser extends BaseManager {
   /**
    * Initialize performance monitoring system
    */
-  initializePerformanceMonitoring() {
+  initializePerformanceMonitoring(): void {
     if (!this.config.performance.monitoring) {
       return;
     }
@@ -792,14 +833,14 @@ class MarkupParser extends BaseManager {
       maxRecentEntries: 100
     };
 
-    console.log('📊 Performance monitoring initialized with alert thresholds:', this.config.performance.alertThresholds);
+    logger.debug('📊 Performance monitoring initialized with alert thresholds:', this.config.performance.alertThresholds);
   }
 
   /**
    * Perform cache warmup for frequently accessed content
    */
-  async performCacheWarmup() {
-    console.log('🔥 Starting MarkupParser cache warmup...');
+  async performCacheWarmup(): Promise<void> {
+    logger.debug('🔥 Starting MarkupParser cache warmup...');
     
     try {
       // Warm up common patterns
@@ -820,7 +861,7 @@ class MarkupParser extends BaseManager {
       // Warm up common variables
       const commonVariables = ['pagename', 'username', 'applicationname', 'version', 'totalpages'];
       if (this.cacheStrategies.variables) {
-        const variableManager = this.engine.getManager('VariableManager');
+        const variableManager = this.engine.getManager<VariableManagerInterface>('VariableManager');
         if (variableManager) {
           for (const varName of commonVariables) {
             try {
@@ -834,21 +875,21 @@ class MarkupParser extends BaseManager {
         }
       }
 
-      console.log('🔥 Cache warmup completed');
+      logger.debug('🔥 Cache warmup completed');
       
     } catch (error) {
-      console.warn('⚠️  Cache warmup failed:', getErrorMessage(error));
+      logger.warn('⚠️  Cache warmup failed:', getErrorMessage(error));
     }
   }
 
   /**
    * Resolve system variable for cache warmup
-   * @param {string} varName - Variable name
-   * @param {Object} context - Context object
-   * @returns {Promise<string>} - Variable value
+   * @param varName - Variable name
+   * @param context - Context object
+   * @returns Variable value
    */
-  async resolveSystemVariable(varName, context) {
-    const variableManager = this.engine.getManager('VariableManager');
+  async resolveSystemVariable(varName: string, context: Record<string, unknown>): Promise<string> {
+    const variableManager = this.engine.getManager<VariableManagerInterface>('VariableManager');
     if (!variableManager) {
       throw new Error('VariableManager not available');
     }
@@ -865,20 +906,20 @@ class MarkupParser extends BaseManager {
 
   /**
    * Main parsing method - uses WikiDocument DOM extraction pipeline
-   * @param {string} content - Raw content to parse
-   * @param {Object} context - Parsing context (page, user, etc.)
-   * @returns {Promise<string>} - Processed HTML content
+   * @param content - Raw content to parse
+   * @param context - Parsing context (page, user, etc.)
+   * @returns Processed HTML content
    */
-  async parse(content, context = {}) {
+  async parse(content: string, context: Record<string, unknown> = {}): Promise<string> {
     if (!content) {
       return '';
     }
 
     // Check if MarkupParser is enabled
     if (!this.config.enabled) {
-      console.debug('🔧 MarkupParser disabled, falling back to basic rendering');
+      logger.debug('🔧 MarkupParser disabled, falling back to basic rendering');
       // Fall back to basic markdown conversion
-      const renderingManager = this.engine.getManager('RenderingManager');
+      const renderingManager = this.engine.getManager<RenderingManagerInterface>('RenderingManager');
       if (renderingManager && renderingManager.converter) {
         return renderingManager.converter.makeHtml(content);
       }
@@ -889,7 +930,7 @@ class MarkupParser extends BaseManager {
     this.metrics.parseCount++;
 
     try {
-      console.log('🔄 Using WikiDocument DOM extraction pipeline');
+      logger.debug('🔄 Using WikiDocument DOM extraction pipeline');
 
       // Check cache first
       const cacheKey = this.generateCacheKey(content, context);
@@ -899,7 +940,7 @@ class MarkupParser extends BaseManager {
           this.updateCacheMetrics('parseResults', 'hit');
           this.metrics.cacheHits++;
           this.updatePerformanceMetrics(Date.now() - startTime, true);
-          console.log(`✅ Cache hit for extraction pipeline (${Date.now() - startTime}ms)`);
+          logger.debug(`✅ Cache hit for extraction pipeline (${Date.now() - startTime}ms)`);
           return cached;
         }
         this.updateCacheMetrics('parseResults', 'miss');
@@ -917,18 +958,18 @@ class MarkupParser extends BaseManager {
       this.metrics.totalParseTime += processingTime;
       this.updatePerformanceMetrics(processingTime, false);
 
-      console.log(`✅ Extraction pipeline completed (${processingTime}ms)`);
+      logger.debug(`✅ Extraction pipeline completed (${processingTime}ms)`);
 
       // Warn if parse time is slow
       if (processingTime > 100) {
         const contextData = context as ParseContextData;
-        console.warn(`⚠️  Slow parse: ${processingTime}ms for page ${contextData.pageName || 'unknown'}`);
+        logger.warn(`⚠️  Slow parse: ${processingTime}ms for page ${contextData.pageName || 'unknown'}`);
       }
 
       return result;
 
     } catch (error) {
-      console.error('❌ Extraction pipeline error:', error);
+      logger.error('❌ Extraction pipeline error:', error);
       this.metrics.errorCount++;
 
       // Return original content on critical failure
@@ -938,15 +979,15 @@ class MarkupParser extends BaseManager {
 
   /**
    * Register a syntax handler
-   * @param {BaseSyntaxHandler} handler - Handler instance
-   * @param {Object} options - Registration options
-   * @returns {Promise<boolean>} - True if registration successful
+   * @param handler - Handler instance
+   * @param options - Registration options
+   * @returns True if registration successful
    */
-  async registerHandler(handler, options = {}) {
+  async registerHandler(handler: BaseSyntaxHandler, options: Record<string, unknown> = {}): Promise<boolean> {
     // Check if handler type is enabled in configuration
     const handlerType = this.getHandlerTypeFromId(handler.handlerId);
     if (handlerType && this.config.handlers[handlerType] && !this.config.handlers[handlerType].enabled) {
-      console.log(`🔧 Handler ${handler.handlerId} disabled by configuration, skipping registration`);
+      logger.debug(`🔧 Handler ${handler.handlerId} disabled by configuration, skipping registration`);
       return false;
     }
     
@@ -955,11 +996,11 @@ class MarkupParser extends BaseManager {
 
   /**
    * Get handler type from handler ID for configuration lookup (modular mapping)
-   * @param {string} handlerId - Handler ID
-   * @returns {string|null} - Handler type or null
+   * @param handlerId - Handler ID
+   * @returns Handler type or null
    */
-  getHandlerTypeFromId(handlerId) {
-    const typeMap = {
+  getHandlerTypeFromId(handlerId: string): string | null {
+    const typeMap: Record<string, string> = {
       // Phase 2 handlers
       'PluginSyntaxHandler': 'plugin',
       'WikiTagHandler': 'wikitag',
@@ -983,66 +1024,65 @@ class MarkupParser extends BaseManager {
 
   /**
    * Get configuration for a specific handler type
-   * @param {string} handlerType - Handler type (plugin, wikitag, etc.)
-   * @returns {Object} - Handler configuration
+   * @param handlerType - Handler type (plugin, wikitag, etc.)
+   * @returns Handler configuration
    */
-  getHandlerConfig(handlerType) {
+  getHandlerConfig(handlerType: string): HandlerConfig {
     return this.config.handlers[handlerType] || { enabled: true, priority: 100 };
   }
 
   /**
    * Unregister a syntax handler
-   * @param {string} handlerId - Handler identifier
-   * @returns {Promise<boolean>} - True if unregistration successful
+   * @param handlerId - Handler identifier
+   * @returns True if unregistration successful
    */
-  async unregisterHandler(handlerId) {
+  async unregisterHandler(handlerId: string): Promise<boolean> {
     return await this.handlerRegistry.unregisterHandler(handlerId);
   }
 
   /**
    * Get handler by ID
-   * @param {string} handlerId - Handler identifier
-   * @returns {BaseSyntaxHandler|null} - Handler or null if not found
+   * @param handlerId - Handler identifier
+   * @returns Handler or null if not found
    */
-  getHandler(handlerId) {
+  getHandler(handlerId: string): unknown {
     return this.handlerRegistry.getHandler(handlerId);
   }
 
   /**
    * Get all handlers sorted by priority
-   * @param {boolean} enabledOnly - Only return enabled handlers
-   * @returns {Array<BaseSyntaxHandler>} - Handlers sorted by priority
+   * @param enabledOnly - Only return enabled handlers
+   * @returns Handlers sorted by priority
    */
-  getHandlers(enabledOnly = true) {
+  getHandlers(enabledOnly = true): unknown[] {
     return this.handlerRegistry.getHandlersByPriority(enabledOnly);
   }
 
   /**
    * Enable handler by ID
-   * @param {string} handlerId - Handler identifier
-   * @returns {boolean} - True if successful
+   * @param handlerId - Handler identifier
+   * @returns True if successful
    */
-  enableHandler(handlerId) {
+  enableHandler(handlerId: string): boolean {
     return this.handlerRegistry.enableHandler(handlerId);
   }
 
   /**
    * Disable handler by ID
-   * @param {string} handlerId - Handler identifier
-   * @returns {boolean} - True if successful
+   * @param handlerId - Handler identifier
+   * @returns True if successful
    */
-  disableHandler(handlerId) {
+  disableHandler(handlerId: string): boolean {
     return this.handlerRegistry.disableHandler(handlerId);
   }
 
   /**
    * Generate cache key for content and context
-   * @param {string} content - Content to cache
-   * @param {Object} context - Parse context
-   * @returns {string} - Cache key
+   * @param content - Content to cache
+   * @param context - Parse context
+   * @returns Cache key
    */
-  generateCacheKey(content, context) {
-    const crypto = require('crypto');
+  generateCacheKey(content: string, context: ParseContextData): string {
     const contentHash = crypto.createHash('md5').update(content).digest('hex');
     const contextHash = crypto.createHash('md5')
       .update(JSON.stringify({
@@ -1084,9 +1124,8 @@ class MarkupParser extends BaseManager {
    * // jspwikiElements: [{ type: 'variable', varName: '$username', id: 0, ... }]
    * // uuid: "abc123"
    */
-  extractJSPWikiSyntax(content, _context = {}) {
-    const crypto = require('crypto');
-    const jspwikiElements = [];
+  extractJSPWikiSyntax(content: string, _context: Record<string, unknown> = {}): { sanitized: string; jspwikiElements: ExtractedElement[]; uuid: string } {
+    const jspwikiElements: ExtractedElement[] = [];
     const uuid = crypto.randomUUID().substring(0, 8);
     let sanitized = content;
     let id = 0;
@@ -1095,7 +1134,7 @@ class MarkupParser extends BaseManager {
 
     // Step 0: Protect code blocks from JSPWiki extraction
     // Code blocks should not have JSPWiki syntax processed
-    const codeBlocks = [];
+    const codeBlocks: Array<{ placeholder: string; content: string }> = [];
     let codeBlockId = 0;
 
     // Protect fenced code blocks (```...```)
@@ -1115,13 +1154,13 @@ class MarkupParser extends BaseManager {
     // Step 1: Extract ESCAPED syntax FIRST (before anything else)
     // Matches: [[{$var}], [[{Plugin}]
     // Result: Literal [{$var}] or [{Plugin}] in output
-    sanitized = sanitized.replace(/\[\[\{([^}]+)\}\]/g, (match, inner) => {
+    sanitized = sanitized.replace(/\[\[\{([^}]+)\}\]/g, (match: string, inner: string, offset: number) => {
       jspwikiElements.push({
         type: 'escaped',
         syntax: match,
         literal: `[{${inner}}]`, // What should appear in output
         id: id++,
-        position: match.index
+        position: offset
       });
       return `<span data-jspwiki-placeholder="${uuid}-${id - 1}"></span>`;
     });
@@ -1129,13 +1168,13 @@ class MarkupParser extends BaseManager {
     // Step 2: Extract variables [{$varname}]
     // Matches: [{$username}], [{$pagename}], etc.
     // Does NOT match: [{Plugin}], [[{$escaped}] (already extracted)
-    sanitized = sanitized.replace(/\[\{(\$\w+)\}\]/g, (match, varName) => {
+    sanitized = sanitized.replace(/\[\{(\$\w+)\}\]/g, (match: string, varName: string, offset: number) => {
       jspwikiElements.push({
         type: 'variable',
         syntax: match,
         varName: varName, // Includes the $
         id: id++,
-        position: match.index
+        position: offset
       });
       return `<span data-jspwiki-placeholder="${uuid}-${id - 1}"></span>`;
     });
@@ -1144,13 +1183,13 @@ class MarkupParser extends BaseManager {
     // Matches: [{TableOfContents}], [{Search query='wiki'}]
     // Does NOT match: [{$variable}] (already extracted), [{] (malformed)
     // Requires: At least one word character after [{
-    sanitized = sanitized.replace(/\[\{([A-Za-z]\w*[^}]*)\}\]/g, (match, inner) => {
+    sanitized = sanitized.replace(/\[\{([A-Za-z]\w*[^}]*)\}\]/g, (match: string, inner: string, offset: number) => {
       jspwikiElements.push({
         type: 'plugin',
         syntax: match,
         inner: inner.trim(),
         id: id++,
-        position: match.index
+        position: offset
       });
       return `<span data-jspwiki-placeholder="${uuid}-${id - 1}"></span>`;
     });
@@ -1161,13 +1200,13 @@ class MarkupParser extends BaseManager {
     // Does NOT match: [}] (malformed)
     // Does NOT match: [^id] - markdown footnote references
     // Note: This runs last to avoid conflicts with escaped/variable/plugin syntax
-    sanitized = sanitized.replace(/\[([^\]\[\{\^][^\]]*)\](?!\()/g, (match, target) => {
+    sanitized = sanitized.replace(/\[([^\][{^][^\]]*)\](?!\()/g, (match: string, target: string, offset: number) => {
       jspwikiElements.push({
         type: 'link',
         syntax: match,
         target: target.trim(),
         id: id++,
-        position: match.index
+        position: offset
       });
       return `<span data-jspwiki-placeholder="${uuid}-${id - 1}"></span>`;
     });
@@ -1190,16 +1229,16 @@ class MarkupParser extends BaseManager {
    * This is a helper method for Phase 2 DOM node creation (Issue #116).
    * Escaped syntax like [[{$var}]] should render as literal text [{$var}].
    *
-   * @param {Object} element - Extracted escaped element
-   * @param {WikiDocument} wikiDocument - WikiDocument to create node in
-   * @returns {Element} DOM node containing the escaped literal text
+   * @param element - Extracted escaped element
+   * @param wikiDocument - WikiDocument to create node in
+   * @returns DOM node containing the escaped literal text
    *
    * @example
    * const element = { type: 'escaped', literal: '[{$username}]', id: 0, ... };
    * const node = createTextNodeForEscaped(element, wikiDoc);
    * // Returns: <span class="wiki-escaped" data-jspwiki-id="0">[{$username}]</span>
    */
-  createTextNodeForEscaped(element, wikiDocument) {
+  createTextNodeForEscaped(element: ExtractedElement, wikiDocument: WikiDocument): unknown {
     // Create a span element to maintain consistency with other handlers
     // (all handlers return elements with data-jspwiki-id for merge phase)
     const node = wikiDocument.createElement('span', {
@@ -1219,43 +1258,59 @@ class MarkupParser extends BaseManager {
    * This is the dispatcher method for Phase 2 that routes extracted elements
    * to the appropriate handler based on element type.
    *
-   * @param {Object} element - Extracted element from extractJSPWikiSyntax()
-   * @param {Object} context - Rendering context
-   * @param {WikiDocument} wikiDocument - WikiDocument to create node in
-   * @returns {Promise<Element>} DOM node for the element
+   * @param element - Extracted element from extractJSPWikiSyntax()
+   * @param context - Rendering context
+   * @param wikiDocument - WikiDocument to create node in
+   * @returns DOM node for the element
    *
    * @example
    * const element = { type: 'variable', varName: '$username', id: 0 };
    * const node = await createDOMNode(element, context, wikiDoc);
    * // Returns: <span class="wiki-variable">JohnDoe</span>
    */
-  async createDOMNode(element, context, wikiDocument) {
+  async createDOMNode(element: ExtractedElement, context: ParseContext, wikiDocument: WikiDocument): Promise<unknown> {
+    // Cast context to Record for handler compatibility (handlers extract what they need)
+    const handlerContext = context as unknown as Record<string, unknown>;
+
     switch (element.type) {
     case 'variable':
       // Variable: [{$username}]
-      return await this.domVariableHandler.createNodeFromExtract(element, context, wikiDocument);
+      return await this.domVariableHandler.createNodeFromExtract(
+        element as unknown as Parameters<typeof this.domVariableHandler.createNodeFromExtract>[0],
+        handlerContext as Parameters<typeof this.domVariableHandler.createNodeFromExtract>[1],
+        wikiDocument
+      );
 
     case 'plugin':
       // Plugin: [{TableOfContents}]
-      return await this.domPluginHandler.createNodeFromExtract(element, context, wikiDocument);
+      return await this.domPluginHandler.createNodeFromExtract(
+        element as unknown as Parameters<typeof this.domPluginHandler.createNodeFromExtract>[0],
+        handlerContext as Parameters<typeof this.domPluginHandler.createNodeFromExtract>[1],
+        wikiDocument
+      );
 
     case 'link':
       // Link: [HomePage] or [Display|Target]
-      return await this.domLinkHandler.createNodeFromExtract(element, context, wikiDocument);
+      return await this.domLinkHandler.createNodeFromExtract(
+        element as unknown as Parameters<typeof this.domLinkHandler.createNodeFromExtract>[0],
+        handlerContext as Parameters<typeof this.domLinkHandler.createNodeFromExtract>[1],
+        wikiDocument
+      );
 
     case 'escaped':
       // Escaped: [[{$var}]] → [{$var}]
       return this.createTextNodeForEscaped(element, wikiDocument);
 
-    default:
-      console.error(`❌ Unknown element type: ${element.type}`);
+    default: {
+      logger.error(`❌ Unknown element type: ${String(element.type)}`);
       // Return error node
       const errorNode = wikiDocument.createElement('span', {
         'class': 'wiki-error',
         'data-jspwiki-id': element.id.toString()
       });
-      errorNode.textContent = `[Error: Unknown type ${element.type}]`;
+      errorNode.textContent = `[Error: Unknown type ${String(element.type)}]`;
       return errorNode;
+    }
     }
   }
 
@@ -1268,17 +1323,17 @@ class MarkupParser extends BaseManager {
    *
    * Uses HTML comments as placeholders to avoid Showdown interpreting them as markdown.
    *
-   * @param {string} html - HTML from Showdown with placeholders
-   * @param {Array<Element>} nodes - Array of DOM nodes with data-jspwiki-id
-   * @param {string} uuid - UUID from extraction phase
-   * @returns {string} Final HTML with nodes merged in
+   * @param html - HTML from Showdown with placeholders
+   * @param nodes - Array of DOM nodes with data-jspwiki-id
+   * @param uuid - UUID from extraction phase
+   * @returns Final HTML with nodes merged in
    *
    * @example
    * // Input HTML: "<p>User: <!--JSPWIKI-abc123-0--></p>"
    * // Node 0: <span data-jspwiki-id="0">JohnDoe</span>
    * // Output: "<p>User: <span>JohnDoe</span></p>"
    */
-  mergeDOMNodes(html, nodes, uuid) {
+  mergeDOMNodes(html: string, nodes: unknown[], uuid: string): string {
     if (!nodes || nodes.length === 0) {
       return html;
     }
@@ -1333,28 +1388,26 @@ class MarkupParser extends BaseManager {
    * This approach fixes the markdown heading bug by letting Showdown handle
    * ALL markdown parsing while WikiDocument handles ONLY JSPWiki syntax.
    *
-   * @param {string} content - Wiki markup content
-   * @param {Object} context - Rendering context
-   * @returns {Promise<string>} Rendered HTML
+   * @param content - Wiki markup content
+   * @param context - Rendering context
+   * @returns Rendered HTML
    *
    * @example
    * const html = await parser.parseWithDOMExtraction('## Hello\nUser: [{$username}]', context);
    * // Returns: "<h2>Hello</h2>\n<p>User: <span>JohnDoe</span></p>"
    */
-  async parseWithDOMExtraction(content, context) {
-    console.log('🔄 Starting DOM extraction parse...');
+  async parseWithDOMExtraction(content: string, context: Record<string, unknown>): Promise<string> {
+    logger.debug('🔄 Starting DOM extraction parse...');
 
     // Create ParseContext to properly extract nested userContext/requestInfo
-    const ParseContext = require('./context/ParseContext');
     const parseContext = new ParseContext(content, context, this.engine);
 
     // Phase 1: Extract JSPWiki syntax
-    const { sanitized, jspwikiElements, uuid } = this.extractJSPWikiSyntax(content, parseContext);
-    console.log(`📦 Extracted ${jspwikiElements.length} JSPWiki elements`);
+    const { sanitized, jspwikiElements, uuid } = this.extractJSPWikiSyntax(content, parseContext as unknown as Record<string, unknown>);
+    logger.debug(`📦 Extracted ${jspwikiElements.length} JSPWiki elements`);
 
     // Phase 2: Create WikiDocument and build DOM nodes
-    const WikiDocument = require('./dom/WikiDocument');
-    const wikiDocument = new WikiDocument();
+    const wikiDocument = new WikiDocument(content);
 
     const nodes = [];
     for (const element of jspwikiElements) {
@@ -1362,7 +1415,7 @@ class MarkupParser extends BaseManager {
         const node = await this.createDOMNode(element, parseContext, wikiDocument);
         nodes.push(node);
       } catch (error) {
-        console.error(`❌ Error creating DOM node for element ${element.id}:`, getErrorMessage(error));
+        logger.error(`❌ Error creating DOM node for element ${element.id}:`, getErrorMessage(error));
         // Create error node
         const errorNode = wikiDocument.createElement('span', {
           'class': 'wiki-error',
@@ -1372,16 +1425,15 @@ class MarkupParser extends BaseManager {
         nodes.push(errorNode);
       }
     }
-    console.log(`🔨 Created ${nodes.length} DOM nodes`);
+    logger.debug(`🔨 Created ${nodes.length} DOM nodes`);
 
     // Phase 3: Let Showdown parse the sanitized markdown
-    const renderingManager = this.engine.getManager('RenderingManager');
-    let showdownHtml;
+    const renderingManager = this.engine.getManager<RenderingManagerInterface>('RenderingManager');
+    let showdownHtml: string;
     if (renderingManager && renderingManager.converter) {
       showdownHtml = renderingManager.converter.makeHtml(sanitized);
     } else {
       // Fallback if RenderingManager not available (testing)
-      const showdown = require('showdown');
       const converter = new showdown.Converter({
         tables: true,
         strikethrough: true,
@@ -1391,11 +1443,11 @@ class MarkupParser extends BaseManager {
       });
       showdownHtml = converter.makeHtml(sanitized);
     }
-    console.log('📝 Showdown processed markdown');
+    logger.debug('📝 Showdown processed markdown');
 
     // Phase 4: Merge DOM nodes back into the HTML
     const finalHtml = this.mergeDOMNodes(showdownHtml, nodes, uuid);
-    console.log('✅ Merge complete');
+    logger.debug('✅ Merge complete');
 
     return finalHtml;
   }
@@ -1436,25 +1488,25 @@ class MarkupParser extends BaseManager {
 
     // Add performance monitoring data
     if (this.performanceMonitor) {
+      // Calculate recent performance stats first
+      const recentTimes = this.performanceMonitor.recentParseTimes.slice(-20);
+      const nonCachedTimes = recentTimes.filter(entry => !entry.cacheHit);
+
+      const recentStats = recentTimes.length > 0 ? {
+        averageParseTime: nonCachedTimes.length > 0
+          ? nonCachedTimes.reduce((sum, entry) => sum + entry.time, 0) / nonCachedTimes.length
+          : 0,
+        cachedParseCount: recentTimes.filter(entry => entry.cacheHit).length,
+        nonCachedParseCount: nonCachedTimes.length
+      } : null;
+
       metrics.performance = {
         monitoring: this.config.performance.monitoring,
         alertCount: this.performanceMonitor.alerts.length,
         recentParseCount: this.performanceMonitor.recentParseTimes.length,
-        alerts: this.performanceMonitor.alerts.slice(-10) // Last 10 alerts
+        alerts: this.performanceMonitor.alerts.slice(-10), // Last 10 alerts
+        recentStats
       };
-
-      // Calculate recent performance stats
-      const recentTimes = this.performanceMonitor.recentParseTimes.slice(-20);
-      if (recentTimes.length > 0) {
-        const nonCachedTimes = recentTimes.filter(entry => !entry.cacheHit);
-        (metrics.performance as any).recentStats = {
-          averageParseTime: nonCachedTimes.length > 0 
-            ? nonCachedTimes.reduce((sum, entry) => sum + entry.time, 0) / nonCachedTimes.length 
-            : 0,
-          cachedParseCount: recentTimes.filter(entry => entry.cacheHit).length,
-          nonCachedParseCount: nonCachedTimes.length
-        };
-      }
     }
 
     return metrics;
@@ -1463,7 +1515,7 @@ class MarkupParser extends BaseManager {
   /**
    * Reset performance metrics
    */
-  resetMetrics() {
+  resetMetrics(): void {
     this.metrics = {
       parseCount: 0,
       totalParseTime: 0,
@@ -1476,10 +1528,10 @@ class MarkupParser extends BaseManager {
 
   /**
    * Get cached parse result
-   * @param {string} cacheKey - Cache key
-   * @returns {Promise<string|null>} - Cached result or null
+   * @param cacheKey - Cache key
+   * @returns Cached result or null
    */
-  async getCachedParseResult(cacheKey) {
+  async getCachedParseResult(cacheKey: string): Promise<string | null> {
     if (!this.cacheStrategies.parseResults) {
       return null;
     }
@@ -1487,17 +1539,17 @@ class MarkupParser extends BaseManager {
     try {
       return await this.cacheStrategies.parseResults.get(cacheKey);
     } catch (error) {
-      console.warn('⚠️  Cache get failed:', getErrorMessage(error));
+      logger.warn('⚠️  Cache get failed:', getErrorMessage(error));
       return null;
     }
   }
 
   /**
    * Cache parse result
-   * @param {string} cacheKey - Cache key
-   * @param {string} content - Content to cache
+   * @param cacheKey - Cache key
+   * @param content - Content to cache
    */
-  async cacheParseResult(cacheKey, content) {
+  async cacheParseResult(cacheKey: string, content: string): Promise<void> {
     if (!this.cacheStrategies.parseResults) {
       return;
     }
@@ -1508,18 +1560,18 @@ class MarkupParser extends BaseManager {
       });
       this.updateCacheMetrics('parseResults', 'set');
     } catch (error) {
-      console.warn('⚠️  Cache set failed:', getErrorMessage(error));
+      logger.warn('⚠️  Cache set failed:', getErrorMessage(error));
     }
   }
 
   /**
    * Get cached handler result
-   * @param {string} handlerId - Handler ID
-   * @param {string} contentHash - Content hash
-   * @param {string} contextHash - Context hash
-   * @returns {Promise<string|null>} - Cached result or null
+   * @param handlerId - Handler ID
+   * @param contentHash - Content hash
+   * @param contextHash - Context hash
+   * @returns Cached result or null
    */
-  async getCachedHandlerResult(handlerId, contentHash, contextHash) {
+  async getCachedHandlerResult(handlerId: string, contentHash: string, contextHash: string): Promise<string | null> {
     if (!this.cacheStrategies.handlerResults) {
       return null;
     }
@@ -1527,28 +1579,28 @@ class MarkupParser extends BaseManager {
     try {
       const cacheKey = `handler:${handlerId}:${contentHash}:${contextHash}`;
       const result = await this.cacheStrategies.handlerResults.get(cacheKey);
-      
+
       if (result) {
         this.updateCacheMetrics('handlerResults', 'hit');
+        return result as string;
       } else {
         this.updateCacheMetrics('handlerResults', 'miss');
+        return null;
       }
-      
-      return result;
     } catch (error) {
-      console.warn('⚠️  Handler cache get failed:', getErrorMessage(error));
+      logger.warn('⚠️  Handler cache get failed:', getErrorMessage(error));
       return null;
     }
   }
 
   /**
    * Cache handler result
-   * @param {string} handlerId - Handler ID
-   * @param {string} contentHash - Content hash
-   * @param {string} contextHash - Context hash
-   * @param {string} result - Result to cache
+   * @param handlerId - Handler ID
+   * @param contentHash - Content hash
+   * @param contextHash - Context hash
+   * @param result - Result to cache
    */
-  async cacheHandlerResult(handlerId, contentHash, contextHash, result) {
+  async cacheHandlerResult(handlerId: string, contentHash: string, contextHash: string, result: string): Promise<void> {
     if (!this.cacheStrategies.handlerResults) {
       return;
     }
@@ -1560,16 +1612,16 @@ class MarkupParser extends BaseManager {
       });
       this.updateCacheMetrics('handlerResults', 'set');
     } catch (error) {
-      console.warn('⚠️  Handler cache set failed:', getErrorMessage(error));
+      logger.warn('⚠️  Handler cache set failed:', getErrorMessage(error));
     }
   }
 
   /**
    * Update cache metrics for specific strategy
-   * @param {string} strategy - Cache strategy name
-   * @param {string} operation - Operation type (hit, miss, set)
+   * @param strategy - Cache strategy name
+   * @param operation - Operation type (hit, miss, set)
    */
-  updateCacheMetrics(strategy, operation) {
+  updateCacheMetrics(strategy: string, operation: 'hit' | 'miss' | 'set'): void {
     if (!this.config.cache.metricsEnabled) {
       return;
     }
@@ -1582,10 +1634,10 @@ class MarkupParser extends BaseManager {
 
   /**
    * Update performance metrics and check thresholds
-   * @param {number} processingTime - Processing time in milliseconds
-   * @param {boolean} cacheHit - Whether this was a cache hit
+   * @param processingTime - Processing time in milliseconds
+   * @param cacheHit - Whether this was a cache hit
    */
-  updatePerformanceMetrics(processingTime, cacheHit) {
+  updatePerformanceMetrics(processingTime: number, cacheHit: boolean): void {
     if (!this.performanceMonitor) {
       return;
     }
@@ -1609,7 +1661,7 @@ class MarkupParser extends BaseManager {
   /**
    * Check performance thresholds and generate alerts
    */
-  checkPerformanceThresholds() {
+  checkPerformanceThresholds(): void {
     if (!this.performanceMonitor) {
       return;
     }
@@ -1660,10 +1712,10 @@ class MarkupParser extends BaseManager {
 
   /**
    * Generate performance alert
-   * @param {string} type - Alert type
-   * @param {string} message - Alert message
+   * @param type - Alert type
+   * @param message - Alert message
    */
-  generatePerformanceAlert(type, message) {
+  generatePerformanceAlert(type: string, message: string): void {
     const alert = {
       type,
       message,
@@ -1678,10 +1730,10 @@ class MarkupParser extends BaseManager {
       this.performanceMonitor.alerts.shift();
     }
 
-    console.warn(`⚠️  MarkupParser Performance Alert [${type}]: ${message}`);
+    logger.warn(`⚠️  MarkupParser Performance Alert [${type}]: ${message}`);
     
     // Optionally send to notification system
-    const notificationManager = this.engine.getManager('NotificationManager');
+    const notificationManager = this.engine.getManager<NotificationManagerInterface>('NotificationManager');
     if (notificationManager) {
       notificationManager.addNotification({
         type: 'performance',
@@ -1695,23 +1747,23 @@ class MarkupParser extends BaseManager {
 
   /**
    * Get performance alerts
-   * @returns {Array} - Array of performance alerts
+   * @returns Array of performance alerts
    */
-  getPerformanceAlerts() {
+  getPerformanceAlerts(): unknown[] {
     return this.performanceMonitor ? [...this.performanceMonitor.alerts] : [];
   }
 
   /**
    * Clear performance alerts
    */
-  clearPerformanceAlerts() {
+  clearPerformanceAlerts(): void {
     if (this.performanceMonitor) {
       this.performanceMonitor.alerts = [];
     }
   }
 
-  async shutdown() {
-    console.log('🔧 MarkupParser shutting down...');
+  async shutdown(): Promise<void> {
+    logger.debug('🔧 MarkupParser shutting down...');
     
     // Clear handler registry
     await this.handlerRegistry.clearAll();
@@ -1739,7 +1791,5 @@ class MarkupParser extends BaseManager {
 export default MarkupParser;
 
 // Export for CommonJS (Jest compatibility)
- 
 module.exports = MarkupParser;
- 
-module.exports.default = MarkupParser;
+(module.exports as { default?: typeof MarkupParser }).default = MarkupParser;
