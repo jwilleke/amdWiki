@@ -14,7 +14,6 @@
  *
  * @see {@link WikiEngine} for the main engine
  */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/require-await */
 
 import type { WikiEngine } from '../types/WikiEngine';
@@ -30,19 +29,19 @@ export interface BackupData {
   timestamp: string;
 
   /** Manager-specific backup data */
-  data?: any;
+  data?: unknown;
 
   /** Provider class name (for managers with providers) */
   providerClass?: string | null;
 
   /** Provider-specific backup data */
-  providerBackup?: any;
+  providerBackup?: unknown;
 
   /** Optional note about the backup */
   note?: string;
 
   /** Allow additional properties */
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /**
@@ -60,7 +59,7 @@ abstract class BaseManager {
 
   /** Configuration passed during initialization */
 
-  protected config?: Record<string, any>;
+  protected config?: Record<string, unknown>;
 
   /**
    * Creates a new BaseManager instance
@@ -96,7 +95,7 @@ abstract class BaseManager {
    * }
    */
 
-  async initialize(config: Record<string, any> = {}): Promise<void> {
+  async initialize(config: Record<string, unknown> = {}): Promise<void> {
     this.config = config;
     this.initialized = true;
   }

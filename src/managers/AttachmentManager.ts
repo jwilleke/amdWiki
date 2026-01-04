@@ -1,4 +1,4 @@
-import BaseManager from './BaseManager';
+import BaseManager, { BackupData } from './BaseManager';
 import logger from '../utils/logger';
 import type { WikiEngine } from '../types/WikiEngine';
 import type ConfigurationManager from './ConfigurationManager';
@@ -97,13 +97,10 @@ export interface AttachmentMetadataInput {
 /**
  * Attachment backup data
  */
-export interface AttachmentBackupData {
-  managerName: string;
-  timestamp: string;
+export interface AttachmentBackupData extends BackupData {
   providerClass: string | null;
   providerBackup?: unknown;
   data?: null;
-  note?: string;
 }
 
 /**

@@ -28,7 +28,7 @@ import type { WikiEngine } from '../types/WikiEngine';
 // ============================================================================
 
 /** Configuration for MarkupParser */
-export interface MarkupParserConfig {
+export interface MarkupParserConfig extends Record<string, unknown> {
   /** Whether MarkupParser is enabled */
   enabled: boolean;
   /** Whether caching is enabled */

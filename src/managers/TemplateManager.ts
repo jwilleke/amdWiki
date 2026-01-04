@@ -8,7 +8,7 @@ import { WikiEngine } from '../types/WikiEngine';
 /**
  * Configuration options for TemplateManager initialization
  */
-interface TemplateConfig {
+interface TemplateConfig extends Record<string, unknown> {
   templatesDirectory?: string;
   themesDirectory?: string;
 }

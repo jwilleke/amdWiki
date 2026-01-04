@@ -20,7 +20,7 @@ export interface ExportFileInfo {
 /**
  * Export configuration interface
  */
-export interface ExportConfig {
+export interface ExportConfig extends Record<string, unknown> {
   exportDirectory?: string;
 }
 
