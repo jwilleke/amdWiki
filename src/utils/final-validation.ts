@@ -12,7 +12,7 @@ interface PageMetadata {
   'user-keywords': string[];
   uuid: string;
   lastModified: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /**

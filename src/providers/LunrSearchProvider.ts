@@ -503,7 +503,7 @@ class LunrSearchProvider extends BaseSearchProvider {
    * @param {Record<string, any>} _pageData - Page data
    * @returns {Promise<void>}
    */
-  async updatePageInIndex(_pageName: string, _pageData: Record<string, any>): Promise<void> {
+  async updatePageInIndex(_pageName: string, _pageData: Record<string, unknown>): Promise<void> {
     // For now, rebuild the entire index
     // In a production system, you'd want incremental updates
     await this.buildIndex();

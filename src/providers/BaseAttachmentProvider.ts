@@ -105,7 +105,7 @@ abstract class BaseAttachmentProvider implements AttachmentProvider {
     pageUuid: string,
     filename: string,
     buffer: Buffer,
-    metadata?: Record<string, any>
+    metadata?: Record<string, unknown>
   ): Promise<AttachmentMetadata>;
 
   /**
@@ -214,16 +214,16 @@ abstract class BaseAttachmentProvider implements AttachmentProvider {
   /**
    * Backup provider data
    * Returns all metadata needed to restore attachments
-   * @returns {Promise<Record<string, any>>} Backup data
+   * @returns {Promise<Record<string, unknown>>} Backup data
    */
-  abstract backup(): Promise<Record<string, any>>;
+  abstract backup(): Promise<Record<string, unknown>>;
 
   /**
    * Restore provider data from backup
-   * @param {Record<string, any>} backupData - Backup data from backup()
+   * @param {Record<string, unknown>} backupData - Backup data from backup()
    * @returns {Promise<void>}
    */
-  abstract restore(backupData: Record<string, any>): Promise<void>;
+  abstract restore(backupData: Record<string, unknown>): Promise<void>;
 
   /**
    * Shutdown the provider (cleanup resources)

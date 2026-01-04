@@ -61,7 +61,7 @@ interface MetadataFile {
 /**
  * Backup data structure
  */
-interface BackupData {
+interface BackupData extends Record<string, unknown> {
   providerName: string;
   timestamp: string;
   metadataFile: string;
@@ -466,21 +466,19 @@ class BasicAttachmentProvider extends BaseAttachmentProvider {
     pageUuid: string,
     filename: string,
     buffer: Buffer,
-    metadata: Record<string, any> = {}
+    metadata: Record<string, unknown> = {}
   ): Promise<AttachmentMetadata> {
-    /* eslint-disable @typescript-eslint/no-unsafe-assignment */
     const fileInfo: FileInfo = {
       originalName: filename,
-      mimeType: metadata.mimeType || 'application/octet-stream',
+      mimeType: (metadata.mimeType as string) || 'application/octet-stream',
       size: buffer.length
     };
 
     const user: User | null = metadata.uploadedBy ? {
-      id: metadata.uploadedBy,
-      username: metadata.uploadedBy,
-      email: metadata.email
+      id: metadata.uploadedBy as string,
+      username: metadata.uploadedBy as string,
+      email: metadata.email as string
     } : null;
-    /* eslint-enable @typescript-eslint/no-unsafe-assignment */
 
     const schemaMetadata = await this.storeAttachmentInternal(buffer, fileInfo, metadata, user);
 
@@ -777,7 +775,7 @@ class BasicAttachmentProvider extends BaseAttachmentProvider {
    * @param backupData - Backup data
    * @returns Promise that resolves when complete
    */
-  async restore(backupData: Record<string, any>): Promise<void> {
+  async restore(backupData: Record<string, unknown>): Promise<void> {
     if (!backupData || !backupData.attachments) {
       throw new Error('Invalid backup data for BasicAttachmentProvider');
     }

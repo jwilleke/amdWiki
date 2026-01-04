@@ -226,7 +226,7 @@ abstract class BaseAuditProvider {
    */
   abstract searchAuditLogs(
     filters?: AuditFilters,
-    options?: Record<string, any>
+    options?: Record<string, unknown>
   ): Promise<AuditSearchResults>;
 
   /**

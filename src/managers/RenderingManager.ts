@@ -14,6 +14,7 @@ import type PageManager from './PageManager';
 import type PluginManager from './PluginManager';
 import type NotificationManager from './NotificationManager';
 import type MarkupParser from '../parsers/MarkupParser';
+import type WikiContext from '../context/WikiContext';
 
 /** Extract error message from unknown error type */
 function getErrorMessage(error: unknown): string {
@@ -239,7 +240,7 @@ class RenderingManager extends BaseManager {
    * }
    */
 
-  getParser(): any {
+  getParser(): MarkupParser | null {
     if (!this.renderingConfig.useAdvancedParser) {
       return null;
     }
@@ -1400,7 +1401,7 @@ class RenderingManager extends BaseManager {
    * @returns {Promise<string>} The rendered HTML.
    */
 
-  async textToHTML(context: any, content: string): Promise<string> {
+  async textToHTML(context: WikiContext, content: string): Promise<string> {
     logger.info(`[RENDER] textToHTML page=${context?.pageName} ctx=${context?.getContext?.()} contentLen=${content?.length ?? 0}`);
     if (!context || typeof context.renderMarkdown !== 'function') {
       throw new Error('RenderingManager.textToHTML requires a valid WikiContext object.');

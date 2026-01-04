@@ -152,7 +152,7 @@ export interface WikiConfig {
   'amdwiki.audit.provider.default': string;
 
   /** Additional configuration properties */
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /**
@@ -270,7 +270,7 @@ export interface ConfigPropertyDescriptor {
   key: string;
 
   /** Default value */
-  defaultValue: any;
+  defaultValue: unknown;
 
   /** Value type */
   type: 'string' | 'number' | 'boolean' | 'array' | 'object';
@@ -296,7 +296,7 @@ export interface ConfigPropertyDescriptor {
     pattern?: string;
 
     /** Allowed values (enum) */
-    enum?: any[];
+    enum?: unknown[];
   };
 
   /** Property category for grouping */
@@ -316,10 +316,10 @@ export interface ConfigChangeEvent {
   key: string;
 
   /** Old value */
-  oldValue: any;
+  oldValue: unknown;
 
   /** New value */
-  newValue: any;
+  newValue: unknown;
 
   /** Timestamp of change */
   timestamp: string;
@@ -344,13 +344,13 @@ export interface ConfigValidationResult {
   errors: Array<{
     key: string;
     message: string;
-    value?: any;
+    value?: unknown;
   }>;
 
   /** Validation warnings */
   warnings: Array<{
     key: string;
     message: string;
-    value?: any;
+    value?: unknown;
   }>;
 }

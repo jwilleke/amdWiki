@@ -108,7 +108,7 @@ abstract class BaseCacheProvider {
    * @param {string} key - The cache key
    * @returns {Promise<T | undefined>} The cached value or undefined if not found
    */
-  abstract get<T = any>(key: string): Promise<T | undefined>;
+  abstract get<T = unknown>(key: string): Promise<T | undefined>;
 
   /**
    * Set a value in the cache
@@ -118,7 +118,7 @@ abstract class BaseCacheProvider {
    * @param {number} [ttlSec] - Time to live in seconds
    * @returns {Promise<void>}
    */
-  abstract set<T = any>(key: string, value: T, ttlSec?: number): Promise<void>;
+  abstract set<T = unknown>(key: string, value: T, ttlSec?: number): Promise<void>;
 
   /**
    * Delete one or more keys from the cache

@@ -252,7 +252,7 @@ abstract class BaseSearchProvider {
    * @returns Promise that resolves when update is complete
    * @abstract
    */
-  abstract updatePageInIndex(pageName: string, pageData: Record<string, any>): Promise<void>;
+  abstract updatePageInIndex(pageName: string, pageData: Record<string, unknown>): Promise<void>;
 
   /**
    * Remove a page from the search index

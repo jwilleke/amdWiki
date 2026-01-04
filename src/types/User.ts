@@ -42,7 +42,7 @@ export interface UserPreferences {
   locale?: string;
 
   /** Additional custom preferences */
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /**
@@ -91,7 +91,7 @@ export interface User {
   avatar?: string;
 
   /** Additional metadata */
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 /**
@@ -150,7 +150,7 @@ export interface UserUpdateData {
   avatar?: string;
 
   /** Metadata */
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 /**
@@ -184,7 +184,7 @@ export interface UserSession {
   userAgent?: string;
 
   /** Additional session data */
-  data?: Record<string, any>;
+  data?: Record<string, unknown>;
 }
 
 /**

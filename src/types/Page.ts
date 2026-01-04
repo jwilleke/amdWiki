@@ -53,7 +53,7 @@ export interface PageFrontmatter {
   order?: number;
 
   /** Additional custom metadata */
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /**

@@ -122,7 +122,7 @@ class CloudAuditProvider extends BaseAuditProvider {
    * @param {Record<string, any>} _options - Search options
    * @returns {Promise<AuditSearchResults>} Search results
    */
-  searchAuditLogs(_filters: AuditFilters = {}, _options: Record<string, any> = {}): Promise<AuditSearchResults> {
+  searchAuditLogs(_filters: AuditFilters = {}, _options: Record<string, unknown> = {}): Promise<AuditSearchResults> {
     // TODO: Implement cloud log query
     // Example for CloudWatch Logs Insights:
     // const query = `

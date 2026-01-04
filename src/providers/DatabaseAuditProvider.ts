@@ -118,7 +118,7 @@ class DatabaseAuditProvider extends BaseAuditProvider {
    * @param {Record<string, any>} _options - Search options
    * @returns {Promise<AuditSearchResults>} Search results
    */
-  searchAuditLogs(_filters: AuditFilters = {}, _options: Record<string, any> = {}): Promise<AuditSearchResults> {
+  searchAuditLogs(_filters: AuditFilters = {}, _options: Record<string, unknown> = {}): Promise<AuditSearchResults> {
     // TODO: Implement database query with filters
     // Use efficient WHERE clauses and indexes
     throw new Error('DatabaseAuditProvider.searchAuditLogs() not yet implemented');
