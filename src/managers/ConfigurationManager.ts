@@ -1,7 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/require-await */
 
 import fs from 'fs-extra';
@@ -123,7 +119,7 @@ class ConfigurationManager extends BaseManager {
   private async loadConfigurations(): Promise<void> {
     // 1. Load default configuration (required)
     if (await fs.pathExists(this.defaultConfigPath)) {
-      this.defaultConfig = await fs.readJson(this.defaultConfigPath);
+      this.defaultConfig = (await fs.readJson(this.defaultConfigPath)) as WikiConfig;
     } else {
       throw new Error(`Default configuration file not found: ${this.defaultConfigPath}`);
     }
@@ -131,7 +127,7 @@ class ConfigurationManager extends BaseManager {
     // 2. Load environment-specific configuration (optional)
     this.environmentConfig = {};
     if (await fs.pathExists(this.environmentConfigPath)) {
-      const envData = await fs.readJson(this.environmentConfigPath);
+      const envData = (await fs.readJson(this.environmentConfigPath)) as Record<string, unknown>;
       // Filter out comment fields starting with _
       for (const [key, value] of Object.entries(envData)) {
         if (!key.startsWith('_')) {
@@ -144,7 +140,7 @@ class ConfigurationManager extends BaseManager {
     // 3. Load custom configuration (optional, for local overrides)
     this.customConfig = {};
     if (await fs.pathExists(this.customConfigPath)) {
-      const customData = await fs.readJson(this.customConfigPath);
+      const customData = (await fs.readJson(this.customConfigPath)) as Record<string, unknown>;
       // Filter out comment fields starting with _
       for (const [key, value] of Object.entries(customData)) {
         if (!key.startsWith('_')) {
@@ -180,7 +176,7 @@ class ConfigurationManager extends BaseManager {
    * @example
    * const appName = configManager.getProperty('amdwiki.applicationName', 'MyWiki');
    */
-  getProperty(key: string, defaultValue: any = null): any {
+  getProperty(key: string, defaultValue: unknown = null): unknown {
     // Check environment variables for Docker/Traefik deployments
     // Allows dynamic configuration without editing config files
     const envOverrides: { [key: string]: string | undefined } = {
@@ -211,7 +207,7 @@ class ConfigurationManager extends BaseManager {
    * @example
    * await configManager.setProperty('amdwiki.applicationName', 'My Custom Wiki');
    */
-  async setProperty(key: string, value: any): Promise<void> {
+  async setProperty(key: string, value: unknown): Promise<void> {
     if (!this.customConfig) {
       this.customConfig = {};
     }
@@ -349,11 +345,11 @@ class ConfigurationManager extends BaseManager {
    * @returns {Object} Directory configuration
    */
   getDirectories(): {
-    pages: any;
-    templates: any;
-    resources: any;
-    data: any;
-    work: any;
+    pages: unknown;
+    templates: unknown;
+    resources: unknown;
+    data: unknown;
+    work: unknown;
     } {
     return {
       pages: this.getProperty('amdwiki.directories.pages'),
@@ -380,9 +376,9 @@ class ConfigurationManager extends BaseManager {
    *   // Use search manager
    * }
    */
-  getManagerConfig(managerName: string): { enabled: boolean; [key: string]: any } {
-    const enabled = this.getProperty(`amdwiki.managers.${managerName}.enabled`, true);
-    const config: { enabled: boolean; [key: string]: any } = { enabled };
+  getManagerConfig(managerName: string): { enabled: boolean; [key: string]: unknown } {
+    const enabled = this.getProperty(`amdwiki.managers.${managerName}.enabled`, true) as boolean;
+    const config: { enabled: boolean; [key: string]: unknown } = { enabled };
 
     // Get manager-specific settings
     const allProps = this.mergedConfig || {};
@@ -401,9 +397,9 @@ class ConfigurationManager extends BaseManager {
    * @param {string} featureName - Name of feature
    * @returns {Object} Feature configuration
    */
-  getFeatureConfig(featureName: string): { enabled: boolean; [key: string]: any } {
-    const enabled = this.getProperty(`amdwiki.features.${featureName}.enabled`, false);
-    const config: { enabled: boolean; [key: string]: any } = { enabled };
+  getFeatureConfig(featureName: string): { enabled: boolean; [key: string]: unknown } {
+    const enabled = this.getProperty(`amdwiki.features.${featureName}.enabled`, false) as boolean;
+    const config: { enabled: boolean; [key: string]: unknown } = { enabled };
 
     // Get feature-specific settings
     const allProps = this.mergedConfig || {};
@@ -422,9 +418,9 @@ class ConfigurationManager extends BaseManager {
    * @returns {Object} Logging configuration
    */
   getLoggingConfig(): {
-    level: any;
-    dir: any;
-    maxSize: any;
+    level: unknown;
+    dir: unknown;
+    maxSize: unknown;
     maxFiles: number;
     } {
     return {
@@ -440,7 +436,7 @@ class ConfigurationManager extends BaseManager {
    * @returns {Object} Search configuration
    */
   getSearchConfig(): {
-    indexDir: any;
+    indexDir: unknown;
     enabled: boolean;
     } {
     return {
@@ -456,13 +452,13 @@ class ConfigurationManager extends BaseManager {
   getAccessControlConfig(): {
     contextAware: {
       enabled: boolean;
-      timeZone: any;
+      timeZone: unknown;
     };
     businessHours: {
       enabled: boolean;
-      start: any;
-      end: any;
-      days: any;
+      start: unknown;
+      end: unknown;
+      days: unknown;
     };
     } {
     const days = this.getProperty('amdwiki.accessControl.businessHours.days');
@@ -486,11 +482,11 @@ class ConfigurationManager extends BaseManager {
    */
   getAuditConfig(): {
     enabled: boolean;
-    logDirectory: any;
-    logFile: any;
+    logDirectory: unknown;
+    logFile: unknown;
     retention: {
       maxFiles: number;
-      maxAge: any;
+      maxAge: unknown;
     };
     includeContext: {
       ip: boolean;
@@ -523,11 +519,11 @@ class ConfigurationManager extends BaseManager {
    * @returns {Object} RSS configuration
    */
   getRSSConfig(): {
-    generate: any;
-    fileName: any;
-    interval: any;
-    channelTitle: any;
-    channelDescription: any;
+    generate: unknown;
+    fileName: unknown;
+    interval: unknown;
+    channelTitle: unknown;
+    channelDescription: unknown;
     } {
     return {
       generate: this.getProperty('amdwiki.rss.generate', true),

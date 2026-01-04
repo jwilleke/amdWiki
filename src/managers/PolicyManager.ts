@@ -78,7 +78,7 @@ class PolicyManager extends BaseManager {
     }
 
     // Read policies directly from the config object, not a file
-    const policies = configManager.getProperty('amdwiki.access.policies', []) as unknown;
+    const policies = configManager.getProperty('amdwiki.access.policies', []);
     if (!Array.isArray(policies)) {
       logger.error('Policies configuration (amdwiki.access.policies) is invalid or not an array.');
       return;
