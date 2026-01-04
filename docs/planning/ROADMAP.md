@@ -1,67 +1,27 @@
+---
+project_state: "Platform Roadmap"
+lastModified: 2026-01-04-11:38:04'
+---
+
 # amdWiki Digital Platform Roadmap
 
-**Last Updated:** October 2025
-**Current Version:** 1.3.1+
+Last Updated: 2026-01-04
+Current Version: 1.5.x+
 
 ## Platform Vision
 
-**amdWiki** is evolving from a JSPWiki-inspired wiki into a **comprehensive digital platform** for personal and organizational use. The goal is to create a modular, standards-based ecosystem that can be hosted locally or on the internet.
+amdWiki is evolving from a JSPWiki-inspired wiki into a comprehensive digital platform for personal and organizational use. The goal is to create a modular, standards-based ecosystem that can be hosted locally or on the internet.
 
 ### Core Philosophy
 
-* **Modular Architecture**: Plugin-based modules for different use cases
-* **Standards-First**: RFC and widely-adopted standards support
-* **Local-First**: Can run entirely offline while supporting cloud deployment
-* **Universal Platform**: "Jack of all trades" digital workspace
+* Modular Architecture: Plugin-based and add-on modules for different use cases
+* Standards-First: RFC and widely-adopted standards support
+* Local-First: Can run entirely offline while supporting cloud deployment
+* Universal Platform: "Jack of all trades" digital workspace
 
 ## Platform Module Roadmap
 
-### Phase 2: Content Modules (Next Phase)
-
-#### Blog Module
-
-* Multi-author blogging with RSS/Atom feeds
-* Blog post templates and categories
-* Comment system integration
-* Social media sharing
-* Author profiles and attribution
-
-#### Document Management
-
-* File organization and categorization
-* Advanced versioning features
-* Document search and indexing
-* Access control per document
-* Collaborative editing
-
-#### Photo Management
-
-* Gallery creation and management
-* EXIF metadata extraction and display
-* Album organization
-* Image optimization and thumbnails
-* Location-based photo mapping
-
-#### Asset Management
-
-* Digital asset tracking
-* Maintenance logs and histories
-* Depreciation tracking
-* Asset categorization and tagging
-* Custom asset types
-
-### Phase 3: Business Modules
-
-#### E-Commerce Store
-
-* Product catalog management
-* Shopping cart functionality
-* Payment gateway integration (Stripe, PayPal)
-* Order management and fulfillment
-* Customer accounts and order history
-* Inventory tracking
-
-#### CRM Module
+### CRM Module
 
 * Contact management
 * Interaction tracking and history
@@ -70,7 +30,48 @@
 * Email integration
 * Reporting and analytics
 
-#### Project Management
+### Blog Module
+
+* Multi-author blogging with RSS/Atom feeds
+* Blog post templates and categories
+* Comment system integration
+* Social media sharing
+* Author profiles and attribution
+
+### Document Management
+
+* File organization and categorization
+* Advanced versioning features
+* Document search and indexing
+* Access control per document
+* Collaborative editing
+
+### Photo Management
+
+* Gallery creation and management
+* EXIF metadata extraction and display
+* Album organization
+* Image optimization and thumbnails
+* Location-based photo mapping
+
+### Asset Management
+
+* Digital asset tracking
+* Maintenance logs and histories
+* Depreciation tracking
+* Asset categorization and tagging
+* Custom asset types
+
+### E-Commerce Store
+
+* Product catalog management
+* Shopping cart functionality
+* Payment gateway integration (Stripe, PayPal)
+* Order management and fulfillment
+* Customer accounts and order history
+* Inventory tracking
+
+### Project Management
 
 * Task tracking and assignment
 * Timeline and Gantt chart views
@@ -79,7 +80,7 @@
 * Time tracking
 * Resource allocation
 
-#### Knowledge Base
+### Knowledge Base
 
 * FAQ management
 * Documentation organization
@@ -88,9 +89,9 @@
 * Video tutorial embedding
 * Multi-language support
 
-### Phase 4: Advanced Platform
+## Advanced Platform
 
-#### API Gateway
+### API Gateway
 
 * RESTful API for all modules
 * OpenAPI 3.0 specifications
@@ -99,7 +100,7 @@
 * Webhook support
 * GraphQL endpoint consideration
 
-#### Workflow Engine
+### Workflow Engine
 
 * Business process automation
 * Custom workflow creation
@@ -108,7 +109,7 @@
 * Integration with external services
 * Event-driven triggers
 
-#### Reporting Dashboard
+### Reporting Dashboard
 
 * Analytics across all modules
 * Custom report builder
@@ -117,7 +118,7 @@
 * Scheduled reports
 * Real-time metrics
 
-#### Multi-tenant Support
+### Multi-tenant Support
 
 * Organization isolation
 * User and data segregation
@@ -270,42 +271,42 @@
 
 ### Technical Standards (RFC & Widely Adopted)
 
-* **HTTP/REST**: RFC 7231 compliant API design
-* **JSON API**: JSON:API specification for consistent data exchange
-* **OpenAPI 3.0**: API documentation and client generation
-* **OAuth 2.0/OIDC**: Industry-standard authentication protocols
-* **RSS/Atom**: Syndication feeds for blog and content modules
-* **WebDAV**: File management and synchronization protocols
-* **CommonMark**: Markdown specification compliance
-* **Runtime Validation**: Joi/Zod for data validation
-* **Schema.org**: Structured data markup for SEO
+* HTTP/REST: RFC 7231 compliant API design
+* JSON API: JSON:API specification for consistent data exchange
+* OpenAPI 3.0: API documentation and client generation
+* OAuth 2.0/OIDC: Industry-standard authentication protocols
+* RSS/Atom: Syndication feeds for blog and content modules
+* WebDAV: File management and synchronization protocols
+* CommonMark: Markdown specification compliance
+* Runtime Validation: Joi/Zod for data validation
+* Schema.org: Structured data markup for SEO
 
 ### Content Standards
 
-* **Dublin Core**: Metadata schema for digital assets
-* **Schema.org Vocabulary**: Semantic markup for all content types
-* **EXIF**: Photo metadata preservation
-* **MIME Types**: Proper content-type handling
-* **Unicode UTF-8**: Full internationalization support
-* **ISO 8601**: Date/time formatting consistency
+* Dublin Core: Metadata schema for digital assets
+* Schema.org Vocabulary: Semantic markup for all content types
+* EXIF: Photo metadata preservation
+* MIME Types: Proper content-type handling
+* Unicode UTF-8: Full internationalization support
+* ISO 8601: Date/time formatting consistency
 
 ### Platform Architecture Standards
 
-* **Twelve-Factor App**: Deployment and configuration methodology
-* **Semantic Versioning**: Module version management
-* **Container Standards**: Docker/OCI compliance for deployment
-* **Environment Variables**: Configuration management patterns
+* Twelve-Factor App: Deployment and configuration methodology
+* Semantic Versioning: Module version management
+* Container Standards: Docker/OCI compliance for deployment
+* Environment Variables: Configuration management patterns
 
 ## Schema.org Integration Plans
 
 ### Module-Specific Schema Types
 
-* **Wiki Pages**: Article, WebPage, CreativeWork schemas
-* **Blog Module**: BlogPosting, Person (author), Organization schemas
-* **E-commerce Module**: Product, Offer, Review, Organization schemas
-* **Document Management**: DigitalDocument, MediaObject, Dataset schemas
-* **Photo Management**: ImageObject, PhotoAlbum, Place schemas
-* **CRM Module**: Person, Organization, ContactPoint schemas
+* Wiki Pages: Article, WebPage, CreativeWork schemas
+* Blog Module: BlogPosting, Person (author), Organization schemas
+* E-commerce Module: Product, Offer, Review, Organization schemas
+* Document Management: DigitalDocument, MediaObject, Dataset schemas
+* Photo Management: ImageObject, PhotoAlbum, Place schemas
+* CRM Module: Person, Organization, ContactPoint schemas
 
 ### Implementation Goals
 
@@ -353,24 +354,24 @@
 
 ### Technical Goals
 
-* **Standards Compliance**: 100% adherence to chosen standards
-* **API Coverage**: Complete OpenAPI documentation for all endpoints
-* **Test Coverage**: >90% code coverage across all modules
-* **Performance**: <200ms average response times
-* **Security**: Regular security audits and updates
+* Standards Compliance: 100% adherence to chosen standards
+* API Coverage: Complete OpenAPI documentation for all endpoints
+* Test Coverage: >90% code coverage across all modules
+* Performance: <200ms average response times
+* Security: Regular security audits and updates
 
 ### Community Goals
 
-* **Module Ecosystem**: Third-party module marketplace
-* **Documentation Quality**: Comprehensive guides for all audiences
-* **Support Community**: Active forums and community support
-* **Hosting Adoption**: Support for multiple hosting platforms
-* **Contributor Growth**: Active contributor community
+* Module Ecosystem: Third-party module marketplace
+* Documentation Quality: Comprehensive guides for all audiences
+* Support Community: Active forums and community support
+* Hosting Adoption: Support for multiple hosting platforms
+* Contributor Growth: Active contributor community
 
 ## Technical Details
 
-**Repository:** <https://github.com/jwilleke/amdWiki>
-**Technology Stack:**
+Repository: <https://github.com/jwilleke/amdWiki>
+Technology Stack:
 
 * Node.js + Express.js
 * EJS templating
