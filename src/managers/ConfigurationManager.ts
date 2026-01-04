@@ -263,7 +263,7 @@ class ConfigurationManager extends BaseManager {
    * const name = configManager.getApplicationName(); // 'amdWiki'
    */
   getApplicationName(): string {
-    return this.getProperty('amdwiki.applicationName', 'amdWiki');
+    return this.getProperty('amdwiki.applicationName', 'amdWiki') as string;
   }
 
   /**
@@ -272,7 +272,7 @@ class ConfigurationManager extends BaseManager {
    * @returns {string} Base URL (defaults to 'http://localhost:3000')
    */
   getBaseURL(): string {
-    return this.getProperty('amdwiki.baseURL', 'http://localhost:3000');
+    return this.getProperty('amdwiki.baseURL', 'http://localhost:3000') as string;
   }
 
   /**
@@ -281,7 +281,7 @@ class ConfigurationManager extends BaseManager {
    * @returns {string} Front page name (defaults to 'Welcome')
    */
   getFrontPage(): string {
-    return this.getProperty('amdwiki.frontPage', 'Welcome');
+    return this.getProperty('amdwiki.frontPage', 'Welcome') as string;
   }
 
   /**
@@ -289,7 +289,7 @@ class ConfigurationManager extends BaseManager {
    * @returns {string} Encoding
    */
   getEncoding(): string {
-    return this.getProperty('amdwiki.encoding', 'UTF-8');
+    return this.getProperty('amdwiki.encoding', 'UTF-8') as string;
   }
 
   /**
@@ -297,7 +297,7 @@ class ConfigurationManager extends BaseManager {
    * @returns {number} Server port
    */
   getServerPort(): number {
-    return parseInt(this.getProperty('amdwiki.server.port', '3000'));
+    return parseInt(this.getProperty('amdwiki.server.port', '3000') as string);
   }
 
   /**
@@ -305,7 +305,7 @@ class ConfigurationManager extends BaseManager {
    * @returns {string} Server host
    */
   getServerHost(): string {
-    return this.getProperty('amdwiki.server.host', 'localhost');
+    return this.getProperty('amdwiki.server.host', 'localhost') as string;
   }
 
   /**
@@ -313,7 +313,7 @@ class ConfigurationManager extends BaseManager {
    * @returns {string} Session secret
    */
   getSessionSecret(): string {
-    return this.getProperty('amdwiki.session.secret', 'amdwiki-session-secret-change-in-production');
+    return this.getProperty('amdwiki.session.secret', 'amdwiki-session-secret-change-in-production') as string;
   }
 
   /**
@@ -321,7 +321,7 @@ class ConfigurationManager extends BaseManager {
    * @returns {number} Session max age
    */
   getSessionMaxAge(): number {
-    return parseInt(this.getProperty('amdwiki.session.maxAge', '86400000'));
+    return parseInt(this.getProperty('amdwiki.session.maxAge', '86400000') as string);
   }
 
   /**
@@ -427,7 +427,7 @@ class ConfigurationManager extends BaseManager {
       level: this.getProperty('amdwiki.logging.level'),
       dir: this.getProperty('amdwiki.logging.dir'),
       maxSize: this.getProperty('amdwiki.logging.maxSize'),
-      maxFiles: parseInt(this.getProperty('amdwiki.logging.maxFiles'))
+      maxFiles: parseInt(this.getProperty('amdwiki.logging.maxFiles') as string)
     };
   }
 
@@ -501,7 +501,7 @@ class ConfigurationManager extends BaseManager {
       logDirectory: this.getProperty('amdwiki.audit.provider.file.logdirectory'),
       logFile: this.getProperty('amdwiki.audit.provider.file.auditfilename'),
       retention: {
-        maxFiles: parseInt(this.getProperty('amdwiki.audit.provider.file.maxfiles')),
+        maxFiles: parseInt(this.getProperty('amdwiki.audit.provider.file.maxfiles') as string),
         maxAge: this.getProperty('amdwiki.audit.retentiondays')
       },
       includeContext: {

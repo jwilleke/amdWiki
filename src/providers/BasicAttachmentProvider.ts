@@ -127,53 +127,47 @@ class BasicAttachmentProvider extends BaseAttachmentProvider {
     }
 
     // Get storage directory configuration (ALL LOWERCASE)
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const storagePath: string = configManager.getProperty(
       'amdwiki.attachment.provider.basic.storagedir',
       './data/attachments'
-    );
+    ) as string;
     this.storageDirectory = path.isAbsolute(storagePath)
       ? storagePath
       : path.join(process.cwd(), storagePath);
 
     // Get metadata file location (ALL LOWERCASE)
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const metadataPath: string = configManager.getProperty(
       'amdwiki.attachment.metadatafile',
       './data/attachments/metadata.json'
-    );
+    ) as string;
     this.metadataFile = path.isAbsolute(metadataPath)
       ? metadataPath
       : path.join(process.cwd(), metadataPath);
 
     // Get size limits and allowed types from shared config (ALL LOWERCASE)
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const maxSizeBytes: number = configManager.getProperty(
       'amdwiki.attachment.maxsize',
       10485760
-    );
+    ) as number;
     this.maxFileSize = maxSizeBytes;
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const allowedTypesStr: string = configManager.getProperty(
       'amdwiki.attachment.allowedtypes',
       ''
-    );
+    ) as string;
     this.allowedMimeTypes = allowedTypesStr
       ? allowedTypesStr.split(',').map((t: string) => t.trim())
       : [];
 
     // Get provider-specific settings (ALL LOWERCASE)
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     this.hashContent = configManager.getProperty(
       'amdwiki.attachment.provider.basic.hashcontent',
       true
-    );
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    ) as boolean;
     this.hashMethod = configManager.getProperty(
       'amdwiki.attachment.provider.basic.hashmethod',
       'sha256'
-    );
+    ) as string;
 
     // Ensure directories exist
     await fs.ensureDir(this.storageDirectory);

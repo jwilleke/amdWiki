@@ -52,7 +52,8 @@ export async function buildUserContext(req: RequestWithSession): Promise<UserCon
   // Note: These managers are instantiated without a full engine context
   // They work for basic property access and user lookup operations
   const configManager = new ConfigurationManager(null as unknown as WikiEngine);
-  const authorizer = String(configManager.getProperty?.('amdwiki.authorizer') || 'DefaultAuthorizer');
+  const rawAuthorizer = configManager.getProperty?.('amdwiki.authorizer');
+  const authorizer = typeof rawAuthorizer === 'string' ? rawAuthorizer : 'DefaultAuthorizer';
 
   const userManager = new UserManager(null as unknown as WikiEngine);
 
