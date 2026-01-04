@@ -83,7 +83,6 @@ class SchemaManager extends BaseManager {
       if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
         logger.warn(`Schema directory not found at ${schemasDir}. No schemas loaded.`);
       } else {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         logger.error(`Failed to load schemas from ${schemasDir}`, { error });
       }
     }

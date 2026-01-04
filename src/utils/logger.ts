@@ -118,8 +118,8 @@ export function reconfigureLogger(config: LoggerConfig): Logger {
 // Create default logger instance - always initialized before export
 loggerInstance = createLoggerWithConfig();
 
-// Export the logger instance as default (non-null assertion safe here)
-export default loggerInstance as Logger;
+// Export the logger instance as default
+export default loggerInstance;
 
 // CommonJS compatibility
 module.exports = loggerInstance;

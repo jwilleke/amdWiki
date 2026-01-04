@@ -287,7 +287,6 @@ class VariableManager extends BaseManager {
           }
           return result;
         } catch (error) {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           logger.error(`[VAR] Error expanding variable '${varName}'`, { error });
           return `[Error: ${varName}]`;
         }
@@ -316,7 +315,6 @@ class VariableManager extends BaseManager {
         }
         return result;
       } catch (error) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         logger.error(`[VAR] Error getting variable '${varName}'`, { error });
         return `[Error: ${(error as Error).message}]`;
       }

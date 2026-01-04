@@ -89,7 +89,6 @@ interface PageManager {
  * LunrSearchProvider - Full-text search using Lunr.js
  */
 class LunrSearchProvider extends BaseSearchProvider {
-  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   private searchIndex: LunrIndex | null;
   private documents: Record<string, LunrDocument>;
   private config: LunrConfig | null;
@@ -232,7 +231,6 @@ class LunrSearchProvider extends BaseSearchProvider {
         throw new Error('Config not initialized');
       }
       const boostConfig = this.config.boost;
-      /* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment */
       this.searchIndex = lunr(function () {
         this.ref('id');
         this.field('title', { boost: boostConfig.title });
@@ -246,7 +244,7 @@ class LunrSearchProvider extends BaseSearchProvider {
           this.add(doc);
         });
       });
-      /* eslint-enable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment */
+       
 
       logger.info(`[LunrSearchProvider] Index built with ${Object.keys(documents).length} documents`);
     } catch (err) {
@@ -268,7 +266,6 @@ class LunrSearchProvider extends BaseSearchProvider {
 
     try {
       const maxResults = options.maxResults || this.config?.maxResults || 50;
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       const results: LunrSearchResult[] = this.searchIndex.search(query);
 
       const searchResults = results.slice(0, maxResults).map(result => {
