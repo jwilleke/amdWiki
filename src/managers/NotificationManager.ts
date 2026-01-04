@@ -3,6 +3,7 @@ import logger from '../utils/logger';
 import { promises as fs } from 'fs';
 import path from 'path';
 import type { WikiEngine } from '../types/WikiEngine';
+import type ConfigurationManager from './ConfigurationManager';
 
 /**
  * Notification object structure
@@ -91,9 +92,8 @@ class NotificationManager extends BaseManager {
    * @constructor
    * @param {any} engine - The wiki engine instance
    */
-   
+
   constructor(engine: WikiEngine) {
-     
     super(engine);
     this.notifications = new Map();
     this.notificationId = 0;
@@ -115,20 +115,13 @@ class NotificationManager extends BaseManager {
     this.logger = logger.child({ component: 'NotificationManager' });
 
     // Pull settings from ConfigurationManager (with safe fallbacks)
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const cfgMgr =
-      this.engine?.getManager?.('ConfigurationManager') ||
-      this.engine?.getManager?.('ConfigManager');
+    const cfgMgr = this.engine?.getManager<ConfigurationManager>('ConfigurationManager');
 
     // Use ConfigurationManager for data directory (no legacy config fallback)
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-    const defaultDir = cfgMgr?.getProperty?.('amdwiki.directories.data', './data') ?? './data';
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-    const dataDirCfg = cfgMgr?.getProperty?.('amdwiki.notifications.dir', defaultDir) ?? defaultDir;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-    const fileNameCfg = cfgMgr?.getProperty?.('amdwiki.notifications.file', 'notifications.json') ?? 'notifications.json';
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-    const intervalCfg = cfgMgr?.getProperty?.('amdwiki.notifications.autoSaveInterval') ?? (5 * 60 * 1000);
+    const defaultDir = String(cfgMgr?.getProperty?.('amdwiki.directories.data', './data') ?? './data');
+    const dataDirCfg = String(cfgMgr?.getProperty?.('amdwiki.notifications.dir', defaultDir) ?? defaultDir);
+    const fileNameCfg = String(cfgMgr?.getProperty?.('amdwiki.notifications.file', 'notifications.json') ?? 'notifications.json');
+    const intervalCfg = Number(cfgMgr?.getProperty?.('amdwiki.notifications.autoSaveInterval') ?? 5 * 60 * 1000);
 
     // validate values
     const dataDirAbs = path.resolve(process.cwd(), String(dataDirCfg));
@@ -148,13 +141,14 @@ class NotificationManager extends BaseManager {
 
     // Set up periodic save
     if (this.saveInterval) clearInterval(this.saveInterval);
-    this.saveInterval = setInterval(() => {
-      void this.saveNotifications();
-    }, Math.max(1000, intervalMs));
-
-    this.logger.info(
-      `NotificationManager initialized with persistence: path=${this.storagePath}, intervalMs=${Math.max(1000, intervalMs)}`
+    this.saveInterval = setInterval(
+      () => {
+        void this.saveNotifications();
+      },
+      Math.max(1000, intervalMs)
     );
+
+    this.logger.info(`NotificationManager initialized with persistence: path=${this.storagePath}, intervalMs=${Math.max(1000, intervalMs)}`);
   }
 
   /**
@@ -321,15 +315,9 @@ class NotificationManager extends BaseManager {
    * @param {MaintenanceConfig} config - Maintenance configuration
    * @returns {Promise<string>} Notification ID
    */
-  async createMaintenanceNotification(
-    enabled: boolean,
-    adminUsername: string,
-    _config: MaintenanceConfig = {}
-  ): Promise<string> {
+  async createMaintenanceNotification(enabled: boolean, adminUsername: string, _config: MaintenanceConfig = {}): Promise<string> {
     const title = enabled ? 'Maintenance Mode Enabled' : 'Maintenance Mode Disabled';
-    const message = enabled
-      ? `The system is now in maintenance mode. Regular users will see a maintenance page until it is disabled by ${adminUsername}.`
-      : `Maintenance mode has been disabled by ${adminUsername}. The system is now fully accessible to all users.`;
+    const message = enabled ? `The system is now in maintenance mode. Regular users will see a maintenance page until it is disabled by ${adminUsername}.` : `Maintenance mode has been disabled by ${adminUsername}. The system is now fully accessible to all users.`;
 
     const level = enabled ? 'warning' : 'success';
 

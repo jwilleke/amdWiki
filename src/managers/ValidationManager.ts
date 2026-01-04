@@ -4,7 +4,7 @@
  * During the initialization phase of the WikiEngine, it creates instances of its core managers including VariableManager and calls their initialize() method passing context and properties.
  * This setup allows JSPWiki to handle variable substitution and expansion consistently across the wiki pages.
  * The VariableManager is accessible via WikiEngine.getManager('VariableManager') after initialization.
-*/
+ */
 
 import BaseManager from './BaseManager';
 import { v4 as uuidv4, validate as validateUuid } from 'uuid';
@@ -134,15 +134,12 @@ class ValidationManager extends BaseManager {
    * @constructor
    * @param {any} engine - The wiki engine instance
    */
-   
+
   constructor(engine: WikiEngine) {
-     
     super(engine);
     this.requiredMetadataFields = ['title', 'uuid', 'slug', 'system-category', 'user-keywords', 'lastModified'];
     // Legacy hardcoded categories (fallback if config not available)
-    this.validSystemCategories = [
-      'system', 'documentation', 'general', 'user', 'test', 'developer'
-    ];
+    this.validSystemCategories = ['system', 'documentation', 'general', 'user', 'test', 'developer'];
     this.systemCategoriesConfig = null;
   }
 
@@ -159,11 +156,11 @@ class ValidationManager extends BaseManager {
     const configManager = this.engine.getManager('ConfigurationManager');
 
     // Load max keywords
-    this.maxUserKeywords = configManager ?
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-      configManager.getProperty('amdwiki.maximum.user-keywords', 5) as number :
-      (config.maxUserKeywords as number || 5);
-    this.maxCategories = config.maxCategories as number || 3;
+    this.maxUserKeywords = configManager
+      ? // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+      (configManager.getProperty('amdwiki.maximum.user-keywords', 5) as number)
+      : (config.maxUserKeywords as number) || 5;
+    this.maxCategories = (config.maxCategories as number) || 3;
 
     // Load system categories from configuration
     this.loadSystemCategories(configManager);
@@ -261,7 +258,7 @@ class ValidationManager extends BaseManager {
   getAllSystemCategories(): CategoryConfig[] {
     if (!this.systemCategoriesConfig) {
       // Return legacy format
-      return this.validSystemCategories.map(label => ({
+      return this.validSystemCategories.map((label) => ({
         label,
         description: '',
         default: label === 'general',
@@ -312,7 +309,7 @@ class ValidationManager extends BaseManager {
     const nameWithoutExt = path.parse(filename).name;
 
     // Check if it's a valid UUID
-     
+
     if (!validateUuid(nameWithoutExt)) {
       result.error = `Filename '${filename}' does not follow UUID naming convention. Expected format: {uuid}.md`;
       return result;
@@ -353,12 +350,12 @@ class ValidationManager extends BaseManager {
     const validationErrors: string[] = [];
 
     // Title validation
-    if (!metadata.title || typeof metadata.title !== 'string' || (metadata.title).trim().length === 0) {
+    if (!metadata.title || typeof metadata.title !== 'string' || metadata.title.trim().length === 0) {
       validationErrors.push('title must be a non-empty string');
     }
 
     // UUID validation
-     
+
     if (!metadata.uuid || !validateUuid(metadata.uuid as string)) {
       validationErrors.push('uuid must be a valid RFC 4122 UUID v4');
     }
@@ -372,7 +369,7 @@ class ValidationManager extends BaseManager {
     if (metadata['system-category']) {
       if (typeof metadata['system-category'] !== 'string') {
         validationErrors.push('system-category must be a string');
-      } else if (!this.validSystemCategories.map(cat => cat.toLowerCase()).includes((metadata['system-category']).toLowerCase())) {
+      } else if (!this.validSystemCategories.map((cat) => cat.toLowerCase()).includes(metadata['system-category'].toLowerCase())) {
         if (result.warnings) {
           result.warnings.push(`System category '${metadata['system-category']}' is not in the standard list: ${this.validSystemCategories.join(', ')}`);
         }
@@ -388,7 +385,7 @@ class ValidationManager extends BaseManager {
           validationErrors.push(`Maximum ${this.maxUserKeywords} user keywords are allowed, found ${(metadata['user-keywords'] as unknown[]).length}`);
         }
         for (const keyword of metadata['user-keywords']) {
-          if (typeof keyword !== 'string' || (keyword).trim().length === 0) {
+          if (typeof keyword !== 'string' || keyword.trim().length === 0) {
             validationErrors.push('All user keywords must be non-empty strings');
             break;
           }
@@ -512,7 +509,6 @@ class ValidationManager extends BaseManager {
    * @returns {PageMetadata} Complete metadata object with all required fields
    */
   generateValidMetadata(title: string, options: GenerateMetadataOptions = {}): PageMetadata {
-     
     const uuid = options.uuid || uuidv4();
     const slug = options.slug || this.generateSlug(title);
 
@@ -522,13 +518,13 @@ class ValidationManager extends BaseManager {
     return {
       title: title.trim(),
       'system-category': options['system-category'] || defaultSystemCategory,
-       
+
       'user-keywords': options.userKeywords || options['user-keywords'] || [],
-       
+
       uuid: uuid,
       slug: slug,
       lastModified: new Date().toISOString(),
-       
+
       ...options // Allow override of any fields
     };
   }
@@ -589,9 +585,8 @@ class ValidationManager extends BaseManager {
     };
 
     // Fix UUID if missing or invalid
-     
+
     if (!metadata.uuid || !validateUuid(metadata.uuid as string)) {
-       
       fixes.metadata.uuid = uuidv4();
     }
 

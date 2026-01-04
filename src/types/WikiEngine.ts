@@ -9,10 +9,36 @@
 import { WikiConfig } from './Config';
 
 /**
+ * All known manager names as a union type
+ * Use with getManager() for type-safe access when combined with explicit type parameter
+ */
+export type ManagerName =
+  | 'ConfigurationManager'
+  | 'PageManager'
+  | 'UserManager'
+  | 'ACLManager'
+  | 'PluginManager'
+  | 'RenderingManager'
+  | 'SearchManager'
+  | 'VariableManager'
+  | 'ValidationManager'
+  | 'SchemaManager'
+  | 'PolicyManager'
+  | 'PolicyValidator'
+  | 'PolicyEvaluator'
+  | 'ExportManager'
+  | 'TemplateManager'
+  | 'AttachmentManager'
+  | 'BackupManager'
+  | 'CacheManager'
+  | 'AuditManager'
+  | 'NotificationManager';
+
+/**
  * Manager registry - maps manager names to manager instances
  */
 export interface ManagerRegistry {
-  [managerName: string]: any; // Will be typed properly as managers are converted
+  [managerName: string]: any;
 }
 
 /**
@@ -48,6 +74,10 @@ export interface WikiEngine {
    * Get a manager by name
    * @param managerName - Name of the manager
    * @returns Manager instance or undefined
+   *
+   * @example
+   * // Type-safe usage with explicit type parameter:
+   * const pageManager = engine.getManager<PageManager>('PageManager');
    */
   getManager<T = any>(managerName: string): T | undefined;
 

@@ -1,9 +1,6 @@
- 
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
- 
- 
 
 import BaseManager, { BackupData } from './BaseManager';
 import logger from '../utils/logger';
@@ -192,14 +189,13 @@ class SearchManager extends BaseManager {
   async initialize(config: Record<string, unknown> = {}): Promise<void> {
     await super.initialize(config);
 
-     
     const configManager = this.engine.getManager('ConfigurationManager');
     if (!configManager) {
       throw new Error('SearchManager requires ConfigurationManager');
     }
 
     // Check if search is enabled (ALL LOWERCASE)
-     
+
     const searchEnabled = configManager.getProperty('amdwiki.search.enabled', true) as boolean;
     if (!searchEnabled) {
       logger.info('🔍 SearchManager: Search disabled by configuration');
@@ -208,16 +204,10 @@ class SearchManager extends BaseManager {
     }
 
     // Load provider with fallback (ALL LOWERCASE)
-     
-    const defaultProvider = configManager.getProperty(
-      'amdwiki.search.provider.default',
-      'lunrsearchprovider'
-    ) as string;
-     
-    const providerName = configManager.getProperty(
-      'amdwiki.search.provider',
-      defaultProvider
-    ) as string;
+
+    const defaultProvider = configManager.getProperty('amdwiki.search.provider.default', 'lunrsearchprovider') as string;
+
+    const providerName = configManager.getProperty('amdwiki.search.provider', defaultProvider) as string;
 
     // Normalize provider name to PascalCase for class loading
     // lunrsearchprovider -> LunrSearchProvider
@@ -259,9 +249,9 @@ class SearchManager extends BaseManager {
 
     // Handle special cases for known provider names
     const knownProviders: Record<string, string> = {
-      'lunrsearchprovider': 'LunrSearchProvider',
-      'elasticsearchprovider': 'ElasticsearchProvider',
-      'solrsearchprovider': 'SolrSearchProvider'
+      lunrsearchprovider: 'LunrSearchProvider',
+      elasticsearchprovider: 'ElasticsearchProvider',
+      solrsearchprovider: 'SolrSearchProvider'
     };
 
     if (knownProviders[lower]) {
@@ -272,7 +262,7 @@ class SearchManager extends BaseManager {
     // Split on hyphens/underscores and capitalize each part
     return providerName
       .split(/[-_]/)
-      .map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
       .join('');
   }
 
@@ -361,11 +351,7 @@ class SearchManager extends BaseManager {
    * const results = await searchManager.searchWithContext(wikiContext, 'hello world');
    * console.log(`Found ${results.length} pages`);
    */
-  async searchWithContext(
-    wikiContext: WikiContext,
-    query: string,
-    options: SearchOptions = {}
-  ): Promise<SearchResult[]> {
+  async searchWithContext(wikiContext: WikiContext, query: string, options: SearchOptions = {}): Promise<SearchResult[]> {
     if (!wikiContext) {
       throw new Error('SearchManager.searchWithContext requires a WikiContext');
     }
@@ -408,10 +394,7 @@ class SearchManager extends BaseManager {
    *   maxResults: 20
    * });
    */
-  async advancedSearchWithContext(
-    wikiContext: WikiContext,
-    options: AdvancedSearchOptions = {}
-  ): Promise<SearchResult[]> {
+  async advancedSearchWithContext(wikiContext: WikiContext, options: AdvancedSearchOptions = {}): Promise<SearchResult[]> {
     if (!wikiContext) {
       throw new Error('SearchManager.advancedSearchWithContext requires a WikiContext');
     }
@@ -583,7 +566,7 @@ class SearchManager extends BaseManager {
 
     for (const category of categories) {
       const categoryResults = await this.searchByCategory(category);
-      categoryResults.forEach(result => {
+      categoryResults.forEach((result) => {
         if (!seenPages.has(result.name)) {
           seenPages.add(result.name);
           results.push(result);
@@ -609,7 +592,7 @@ class SearchManager extends BaseManager {
 
     for (const keyword of keywords) {
       const keywordResults = await this.searchByUserKeywords(keyword);
-      keywordResults.forEach(result => {
+      keywordResults.forEach((result) => {
         if (!seenPages.has(result.name)) {
           seenPages.add(result.name);
           results.push(result);

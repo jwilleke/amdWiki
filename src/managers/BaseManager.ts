@@ -59,7 +59,7 @@ abstract class BaseManager {
   protected initialized: boolean;
 
   /** Configuration passed during initialization */
-   
+
   protected config?: Record<string, any>;
 
   /**
@@ -95,7 +95,7 @@ abstract class BaseManager {
    *   console.log('MyManager initialized');
    * }
    */
-   
+
   async initialize(config: Record<string, any> = {}): Promise<void> {
     this.config = config;
     this.initialized = true;

@@ -29,9 +29,6 @@ export interface LoggerConfig {
   maxFiles?: number;
 }
 
-// Global logger instance that can be replaced
-let loggerInstance: Logger | null = null;
-
 // Default config (can be overridden)
 const defaultConfig = {
   level: 'info',
@@ -116,7 +113,7 @@ export function reconfigureLogger(config: LoggerConfig): Logger {
 }
 
 // Create default logger instance - always initialized before export
-loggerInstance = createLoggerWithConfig();
+const loggerInstance: Logger = createLoggerWithConfig();
 
 // Export the logger instance as default
 export default loggerInstance;

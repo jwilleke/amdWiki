@@ -74,9 +74,8 @@ class VariableManager extends BaseManager {
    * @constructor
    * @param {any} engine - The wiki engine instance
    */
-   
+
   constructor(engine: WikiEngine) {
-     
     super(engine);
     this.variableHandlers = new Map();
   }
@@ -127,7 +126,7 @@ class VariableManager extends BaseManager {
     this.registerVariable('username', (context) => {
       return context?.userName || context?.userContext?.username || 'Anonymous';
     });
-    this.registerVariable('loginstatus', (context) => context?.userContext?.isAuthenticated ? 'Logged in' : 'Not logged in');
+    this.registerVariable('loginstatus', (context) => (context?.userContext?.isAuthenticated ? 'Logged in' : 'Not logged in'));
     this.registerVariable('userroles', (context) => (context?.userContext?.roles || []).join(', '));
 
     // Date/Time variables
@@ -274,7 +273,7 @@ class VariableManager extends BaseManager {
       return content;
     }
     // Regex to find variables like [{$varname}]
-     
+
     return content.replace(/\[\{\$([^}]+)\}\]/g, (match, varName: string) => {
       const handler = this.variableHandlers.get(varName.toLowerCase().trim());
       if (handler) {
@@ -291,7 +290,7 @@ class VariableManager extends BaseManager {
           return `[Error: ${varName}]`;
         }
       }
-       
+
       logger.debug(`[VAR] No handler found for variable: ${varName}`);
       return match; // Return original string if no handler is found
     });
@@ -330,15 +329,9 @@ class VariableManager extends BaseManager {
     const variables = Array.from(this.variableHandlers.keys());
 
     // Categorize variables
-    const systemVariables = variables.filter(v =>
-      ['appname', 'applicationname', 'version', 'baseurl', 'uptime', 'totalpages'].includes(v)
-    );
+    const systemVariables = variables.filter((v) => ['appname', 'applicationname', 'version', 'baseurl', 'uptime', 'totalpages'].includes(v));
 
-    const contextualVariables = variables.filter(v =>
-      ['pagename', 'username', 'loginstatus', 'userroles', 'displayname',
-        'useragent', 'browser', 'clientip', 'referer', 'sessionid', 'acceptlanguage',
-        'date', 'time', 'timestamp', 'year', 'month', 'day'].includes(v)
-    );
+    const contextualVariables = variables.filter((v) => ['pagename', 'username', 'loginstatus', 'userroles', 'displayname', 'useragent', 'browser', 'clientip', 'referer', 'sessionid', 'acceptlanguage', 'date', 'time', 'timestamp', 'year', 'month', 'day'].includes(v));
 
     return {
       totalVariables: variables.length,

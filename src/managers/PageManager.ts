@@ -2,7 +2,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
- 
 
 import BaseManager, { BackupData } from './BaseManager';
 import logger from '../utils/logger';
@@ -36,7 +35,6 @@ interface ProviderInfo {
  * Provider constructor type for dynamic loading
  */
 interface ProviderConstructor {
-   
   new (engine: WikiEngine): any;
 }
 
@@ -111,14 +109,8 @@ class PageManager extends BaseManager {
     }
 
     // Load provider with fallback (ALL LOWERCASE)
-    const defaultProvider = configManager.getProperty(
-      'amdwiki.page.provider.default',
-      'filesystemprovider'
-    ) as string;
-    const providerName = configManager.getProperty(
-      'amdwiki.page.provider',
-      defaultProvider
-    ) as string;
+    const defaultProvider = configManager.getProperty('amdwiki.page.provider.default', 'filesystemprovider') as string;
+    const providerName = configManager.getProperty('amdwiki.page.provider', defaultProvider) as string;
 
     // Normalize provider name to PascalCase for class loading
     this.providerClass = this.normalizeProviderName(providerName);
@@ -174,13 +166,13 @@ class PageManager extends BaseManager {
 
     // Handle special cases for known provider names
     const knownProviders: Record<string, string> = {
-      'filesystemprovider': 'FileSystemProvider',
-      'versioningfileprovider': 'VersioningFileProvider',
-      'databaseprovider': 'DatabaseProvider',
-      'databasepageprovider': 'DatabasePageProvider',
-      's3provider': 'S3Provider',
-      's3pageprovider': 'S3PageProvider',
-      'cloudstorageprovider': 'CloudStorageProvider'
+      filesystemprovider: 'FileSystemProvider',
+      versioningfileprovider: 'VersioningFileProvider',
+      databaseprovider: 'DatabaseProvider',
+      databasepageprovider: 'DatabasePageProvider',
+      s3provider: 'S3Provider',
+      s3pageprovider: 'S3PageProvider',
+      cloudstorageprovider: 'CloudStorageProvider'
     };
 
     if (knownProviders[lower]) {
@@ -189,9 +181,7 @@ class PageManager extends BaseManager {
 
     // Fallback: Split on common separators and capitalize each word
     const words = lower.split(/[-_]/);
-    const pascalCase = words
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join('');
+    const pascalCase = words.map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join('');
 
     return pascalCase;
   }
@@ -459,7 +449,6 @@ class PageManager extends BaseManager {
    */
   async shutdown(): Promise<void> {
     if (this.provider && this.provider.shutdown) {
-
       await this.provider.shutdown();
     }
     logger.info('PageManager shut down');
@@ -489,7 +478,7 @@ class PageManager extends BaseManager {
 
     try {
       // Providers have backup() method
-       
+
       const providerBackup = await (this.provider as any).backup();
 
       return {
@@ -532,7 +521,7 @@ class PageManager extends BaseManager {
     try {
       if (backupData.providerBackup) {
         // Providers have restore() method
-         
+
         await (this.provider as any).restore(backupData.providerBackup);
         logger.info('[PageManager] Restore completed successfully');
       } else {

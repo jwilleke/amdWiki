@@ -1,15 +1,10 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
- 
- 
 /* eslint-disable no-console */
 
 import BaseManager from './BaseManager';
 import Ajv, { ValidateFunction, ErrorObject } from 'ajv';
 import addFormats from 'ajv-formats';
 import { WikiEngine } from '../types/WikiEngine';
+import type PolicyManager from './PolicyManager';
 
 /**
  * Subject type enumeration
@@ -183,7 +178,7 @@ interface PolicySchema {
  * Ensures policy integrity and prevents conflicting rules
  */
 class PolicyValidator extends BaseManager {
-  private policyManager: any;  
+  private policyManager: PolicyManager | null;
   private schemaValidator: Ajv | null;
   private policySchema: PolicySchema | null;
   private schemaValidatorCompiled: ValidateFunction | null;
@@ -202,8 +197,7 @@ class PolicyValidator extends BaseManager {
     await super.initialize(config);
 
     // Get reference to PolicyManager
-     
-    this.policyManager = this.engine.getManager('PolicyManager');
+    this.policyManager = this.engine.getManager<PolicyManager>('PolicyManager') ?? null;
     if (!this.policyManager) {
       throw new Error('PolicyValidator requires PolicyManager to be registered');
     }
@@ -277,10 +271,7 @@ class PolicyValidator extends BaseManager {
                   type: 'string'
                 }
               },
-              oneOf: [
-                { required: ['type', 'value'] },
-                { required: ['type', 'key', 'value'] }
-              ]
+              oneOf: [{ required: ['type', 'value'] }, { required: ['type', 'key', 'value'] }]
             }
           },
           resources: {
@@ -301,10 +292,7 @@ class PolicyValidator extends BaseManager {
                   type: 'string'
                 }
               },
-              oneOf: [
-                { required: ['type', 'value'] },
-                { required: ['type', 'pattern'] }
-              ]
+              oneOf: [{ required: ['type', 'value'] }, { required: ['type', 'pattern'] }]
             }
           },
           actions: {
@@ -334,19 +322,11 @@ class PolicyValidator extends BaseManager {
                 // Accept RFC 3339 date-time, RFC 3339 time (HH:MM:SS), or HH:MM[(:SS)][TZ]
                 startTime: {
                   type: 'string',
-                  anyOf: [
-                    { format: 'date-time' },
-                    { format: 'time' },
-                    { pattern: '^([01]\\d|2[0-3]):[0-5]\\d(:[0-5]\\d)?(Z|[+-][0-2]\\d:[0-5]\\d)?$' }
-                  ]
+                  anyOf: [{ format: 'date-time' }, { format: 'time' }, { pattern: '^([01]\\d|2[0-3]):[0-5]\\d(:[0-5]\\d)?(Z|[+-][0-2]\\d:[0-5]\\d)?$' }]
                 },
                 endTime: {
                   type: 'string',
-                  anyOf: [
-                    { format: 'date-time' },
-                    { format: 'time' },
-                    { pattern: '^([01]\\d|2[0-3]):[0-5]\\d(:[0-5]\\d)?(Z|[+-][0-2]\\d:[0-5]\\d)?$' }
-                  ]
+                  anyOf: [{ format: 'date-time' }, { format: 'time' }, { pattern: '^([01]\\d|2[0-3]):[0-5]\\d(:[0-5]\\d)?(Z|[+-][0-2]\\d:[0-5]\\d)?$' }]
                 },
                 ranges: {
                   type: 'array',
@@ -373,7 +353,6 @@ class PolicyValidator extends BaseManager {
         this.schemaValidatorCompiled = this.schemaValidator.compile(this.policySchema);
       }
 
-       
       console.log('📋 Policy schema loaded and compiled');
     } catch (error) {
       console.error('Error loading policy schema:', error);
@@ -426,10 +405,10 @@ class PolicyValidator extends BaseManager {
    * @returns {ValidationError[]} Formatted errors
    */
   formatSchemaErrors(schemaErrors: ErrorObject[]): ValidationError[] {
-    return schemaErrors.map(error => ({
+    return schemaErrors.map((error) => ({
       type: 'schema',
-       
-      field: error.instancePath || (error as any).dataPath || 'root',
+
+      field: error.instancePath || (error as { dataPath?: string }).dataPath || 'root',
       message: error.message || 'Schema validation error',
       details: error
     }));
@@ -521,8 +500,7 @@ class PolicyValidator extends BaseManager {
         });
       }
 
-      if ((condition.type === 'user-attribute' || condition.type === 'context-attribute') &&
-          (!condition.key || condition.operator === undefined || condition.value === undefined)) {
+      if ((condition.type === 'user-attribute' || condition.type === 'context-attribute') && (!condition.key || condition.operator === undefined || condition.value === undefined)) {
         errors.push({
           type: 'semantic',
           field: `conditions[${index}]`,
@@ -597,8 +575,7 @@ class PolicyValidator extends BaseManager {
    */
   validateAllPolicies(policies: Policy[] | null = null): AllPoliciesValidationResult {
     if (!policies) {
-       
-      policies = this.policyManager.getPolicies() as Policy[];
+      policies = (this.policyManager as unknown as { getPolicies(): Policy[] })?.getPolicies() ?? [];
     }
 
     const errors: ValidationError[] = [];
@@ -606,7 +583,7 @@ class PolicyValidator extends BaseManager {
 
     // Check for duplicate IDs
     const ids = new Set<string>();
-    policies.forEach(policy => {
+    policies.forEach((policy) => {
       if (ids.has(policy.id)) {
         errors.push({
           type: 'conflict',
@@ -647,28 +624,28 @@ class PolicyValidator extends BaseManager {
     // Group policies by overlapping criteria
     const policyGroups = this.groupPoliciesByOverlap(policies);
 
-    policyGroups.forEach(group => {
+    policyGroups.forEach((group) => {
       if (group.length < 2) return;
 
       // Check for same subjects and resources but different effects
-      const allowPolicies = group.filter(p => p.effect === 'allow');
-      const denyPolicies = group.filter(p => p.effect === 'deny');
+      const allowPolicies = group.filter((p) => p.effect === 'allow');
+      const denyPolicies = group.filter((p) => p.effect === 'deny');
 
       if (allowPolicies.length > 0 && denyPolicies.length > 0) {
         // Find highest priority policy
-        const highestPriority = Math.max(...group.map(p => p.priority));
-        const highestPolicies = group.filter(p => p.priority === highestPriority);
+        const highestPriority = Math.max(...group.map((p) => p.priority));
+        const highestPolicies = group.filter((p) => p.priority === highestPriority);
 
         if (highestPolicies.length === 1) {
           const winner = highestPolicies[0];
-          const losers = group.filter(p => p.id !== winner.id);
+          const losers = group.filter((p) => p.id !== winner.id);
 
           warnings.push({
             type: 'conflict',
-            message: `Policy ${winner.id} (${winner.effect}) overrides ${losers.map(p => p.id).join(', ')} due to higher priority`,
+            message: `Policy ${winner.id} (${winner.effect}) overrides ${losers.map((p) => p.id).join(', ')} due to higher priority`,
             details: {
               winner: winner.id,
-              losers: losers.map(p => p.id),
+              losers: losers.map((p) => p.id),
               priority: winner.priority
             }
           });
@@ -676,9 +653,9 @@ class PolicyValidator extends BaseManager {
           errors.push({
             type: 'conflict',
             field: 'priority',
-            message: `Multiple policies with same highest priority: ${highestPolicies.map(p => p.id).join(', ')}`,
+            message: `Multiple policies with same highest priority: ${highestPolicies.map((p) => p.id).join(', ')}`,
             details: {
-              policies: highestPolicies.map(p => p.id),
+              policies: highestPolicies.map((p) => p.id),
               priority: highestPriority
             }
           });
@@ -698,7 +675,7 @@ class PolicyValidator extends BaseManager {
   groupPoliciesByOverlap(policies: Policy[]): Policy[][] {
     const groups: Policy[][] = [];
 
-    policies.forEach(policy => {
+    policies.forEach((policy) => {
       let foundGroup = false;
 
       for (const group of groups) {
@@ -784,7 +761,7 @@ class PolicyValidator extends BaseManager {
    * @returns {boolean} True if actions overlap
    */
   hasActionOverlap(actions1: ActionType[], actions2: ActionType[]): boolean {
-    return actions1.some(action => actions2.includes(action));
+    return actions1.some((action) => actions2.includes(action));
   }
 
   /**
@@ -831,10 +808,7 @@ class PolicyValidator extends BaseManager {
     case 'page':
     case 'attachment':
     case 'path':
-      return this.patternsOverlap(
-          (r1.pattern || r1.value) as string,
-          (r2.pattern || r2.value) as string
-      );
+      return this.patternsOverlap((r1.pattern || r1.value) as string, (r2.pattern || r2.value) as string);
     default:
       return false;
     }
@@ -852,9 +826,7 @@ class PolicyValidator extends BaseManager {
     if (pattern1 === '*' || pattern2 === '*') return true;
 
     // Simple overlap detection - could be more sophisticated
-    return pattern1.includes('*') || pattern2.includes('*') ||
-           pattern1.startsWith(pattern2.split('*')[0]) ||
-           pattern2.startsWith(pattern1.split('*')[0]);
+    return pattern1.includes('*') || pattern2.includes('*') || pattern1.startsWith(pattern2.split('*')[0]) || pattern2.startsWith(pattern1.split('*')[0]);
   }
 
   /**
@@ -868,21 +840,21 @@ class PolicyValidator extends BaseManager {
     const validation = this.validatePolicy(policy);
 
     if (!validation.isValid) {
-      throw new Error(`Policy validation failed: ${validation.errors.map(e => e.message).join(', ')}`);
+      throw new Error(`Policy validation failed: ${validation.errors.map((e) => e.message).join(', ')}`);
     }
 
     // Check for conflicts with existing policies
-     
-    const allPolicies = this.policyManager.getPolicies() as Policy[];
+
+    const allPolicies = (this.policyManager as unknown as { getPolicies(): Policy[] })?.getPolicies() ?? [];
     const conflictCheck = this.detectPolicyConflicts([...allPolicies, policy]);
 
     if (conflictCheck.errors.length > 0) {
-      throw new Error(`Policy conflicts detected: ${conflictCheck.errors.map(e => e.message).join(', ')}`);
+      throw new Error(`Policy conflicts detected: ${conflictCheck.errors.map((e) => e.message).join(', ')}`);
     }
 
     // Save the policy
-     
-    await this.policyManager.savePolicy(policy);
+
+    await (this.policyManager as unknown as { savePolicy(p: Policy): Promise<void> })?.savePolicy(policy);
 
     // Clear validation cache
     this.clearCache();

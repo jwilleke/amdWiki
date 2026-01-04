@@ -36,9 +36,8 @@ class SchemaManager extends BaseManager {
    * @constructor
    * @param {any} engine - The wiki engine instance
    */
-   
+
   constructor(engine: WikiEngine) {
-     
     super(engine);
     this.schemas = new Map();
   }
@@ -62,18 +61,15 @@ class SchemaManager extends BaseManager {
     const schemasDir = configManager.getProperty('amdwiki.directories.schemas') as string;
 
     try {
-       
       const files = await fs.readdir(schemasDir);
-       
+
       for (const file of files) {
-         
         if (file.endsWith('.schema.json')) {
-           
           const schemaName = path.basename(file, '.schema.json');
-           
+
           const schemaPath = path.join(schemasDir, file);
-           
-          const schema = await fs.readJson(schemaPath) as JSONSchema;
+
+          const schema = (await fs.readJson(schemaPath)) as JSONSchema;
           this.schemas.set(schemaName, schema);
         }
       }

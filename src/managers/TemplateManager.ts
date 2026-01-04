@@ -1,9 +1,3 @@
- 
- 
- 
- 
- 
- 
 /* eslint-disable no-console */
 
 import BaseManager from './BaseManager';
@@ -222,87 +216,10 @@ class TemplateManager extends BaseManager {
    */
   async createDefaultTemplates(): Promise<void> {
     const defaultTemplates: { [key: string]: string } = {
-      'default':
-        '---\n' +
-        'uuid: {{uuid}}\n' +
-        'system-category: {{systemCategory}}\n' +
-        'user-keywords: {{userKeywords}}\n' +
-        '---\n' +
-        '# [{$pagename}]\n\n' +
-        '## Overview\n\n' +
-        '[{$pagename}] is...\n\n' +
-        '## Content\n\n' +
-        'Add your content here.\n\n' +
-        '## More Information\n\n' +
-        'There might be more information for this subject on one of the following:\n' +
-        '[{ReferringPagesPlugin before="*" after="\\n" }]\n',
-      'documentation':
-        '---\n' +
-        'uuid: {{uuid}}\n' +
-        'system-category: Wiki Documentation (Documentation and Hints for this Wiki)\n' +
-        'user-keywords: []\n' +
-        '---\n' +
-        '# [{$pagename}]\n\n' +
-        '## Purpose\n\n' +
-        'This document describes...\n\n' +
-        '## Instructions\n\n' +
-        '1. Step one\n' +
-        '2. Step two\n' +
-        '3. Step three\n\n' +
-        '## Examples\n\n' +
-        '### Example 1\n\n' +
-        '    Example code or content here\n\n' +
-        '## See Also\n\n' +
-        '- [Related Page]\n' +
-        '- [Another Related Page]\n\n' +
-        '## More Information\n\n' +
-        'There might be more information for this subject on one of the following:\n' +
-        '[{ReferringPagesPlugin before="*" after="\\n" }]\n',
-      'category':
-        '---\n' +
-        'uuid: {{uuid}}\n' +
-        'system-category: Wiki Documentation (Documentation and Hints for this Wiki)\n' +
-        'user-keywords: []\n' +
-        '---\n' +
-        '# [{$pagename}]\n\n' +
-        '## Overview\n\n' +
-        '[{$pagename}] contains pages related to...\n\n' +
-        '## Subcategories\n\n' +
-        '* Subcategory 1 (Description of subcategory)\n' +
-        '* Subcategory 2 (Description of subcategory)\n' +
-        '* Subcategory 3 (Description of subcategory)\n\n' +
-        '## Pages in this Category\n\n' +
-        'This section will automatically show pages that use this category.\n\n' +
-        '## More Information\n\n' +
-        'There might be more information for this subject on one of the following:\n' +
-        '[{ReferringPagesPlugin before="*" after="\\n" }]\n',
-      'meeting-notes':
-        '---\n' +
-        'uuid: {{uuid}}\n' +
-        'system-category: {{systemCategory}}\n' +
-        'user-keywords: [{{userKeywords}}]\n' +
-        '---\n' +
-        '# [{$pagename}]\n\n' +
-        '**Date:** {{date}}  \n' +
-        '**Attendees:** \n' +
-        '**Location:** \n\n' +
-        '## Agenda\n\n' +
-        '1. Item 1\n' +
-        '2. Item 2\n' +
-        '3. Item 3\n\n' +
-        '### Topic 1\n\n' +
-        '### Topic 2\n\n' +
-        '### Topic 3\n\n' +
-        '## Action Items\n\n' +
-        '- [ ] Action item 1 - Assigned to: [Person]\n' +
-        '- [ ] Action item 2 - Assigned to: [Person]\n' +
-        '- [ ] Action item 3 - Assigned to: [Person]\n' +
-        '## Next Meeting\n\n' +
-        '**Date:** TBD  \n' +
-        '**Location:** TBD\n\n' +
-        '## More Information\n\n' +
-        'There might be more information for this subject on one of the following:\n' +
-        '[{ReferringPagesPlugin before="*" after="\\n" }]\n'
+      default: '---\n' + 'uuid: {{uuid}}\n' + 'system-category: {{systemCategory}}\n' + 'user-keywords: {{userKeywords}}\n' + '---\n' + '# [{$pagename}]\n\n' + '## Overview\n\n' + '[{$pagename}] is...\n\n' + '## Content\n\n' + 'Add your content here.\n\n' + '## More Information\n\n' + 'There might be more information for this subject on one of the following:\n' + '[{ReferringPagesPlugin before="*" after="\\n" }]\n',
+      documentation: '---\n' + 'uuid: {{uuid}}\n' + 'system-category: Wiki Documentation (Documentation and Hints for this Wiki)\n' + 'user-keywords: []\n' + '---\n' + '# [{$pagename}]\n\n' + '## Purpose\n\n' + 'This document describes...\n\n' + '## Instructions\n\n' + '1. Step one\n' + '2. Step two\n' + '3. Step three\n\n' + '## Examples\n\n' + '### Example 1\n\n' + '    Example code or content here\n\n' + '## See Also\n\n' + '- [Related Page]\n' + '- [Another Related Page]\n\n' + '## More Information\n\n' + 'There might be more information for this subject on one of the following:\n' + '[{ReferringPagesPlugin before="*" after="\\n" }]\n',
+      category: '---\n' + 'uuid: {{uuid}}\n' + 'system-category: Wiki Documentation (Documentation and Hints for this Wiki)\n' + 'user-keywords: []\n' + '---\n' + '# [{$pagename}]\n\n' + '## Overview\n\n' + '[{$pagename}] contains pages related to...\n\n' + '## Subcategories\n\n' + '* Subcategory 1 (Description of subcategory)\n' + '* Subcategory 2 (Description of subcategory)\n' + '* Subcategory 3 (Description of subcategory)\n\n' + '## Pages in this Category\n\n' + 'This section will automatically show pages that use this category.\n\n' + '## More Information\n\n' + 'There might be more information for this subject on one of the following:\n' + '[{ReferringPagesPlugin before="*" after="\\n" }]\n',
+      'meeting-notes': '---\n' + 'uuid: {{uuid}}\n' + 'system-category: {{systemCategory}}\n' + 'user-keywords: [{{userKeywords}}]\n' + '---\n' + '# [{$pagename}]\n\n' + '**Date:** {{date}}  \n' + '**Attendees:** \n' + '**Location:** \n\n' + '## Agenda\n\n' + '1. Item 1\n' + '2. Item 2\n' + '3. Item 3\n\n' + '### Topic 1\n\n' + '### Topic 2\n\n' + '### Topic 3\n\n' + '## Action Items\n\n' + '- [ ] Action item 1 - Assigned to: [Person]\n' + '- [ ] Action item 2 - Assigned to: [Person]\n' + '- [ ] Action item 3 - Assigned to: [Person]\n' + '## Next Meeting\n\n' + '**Date:** TBD  \n' + '**Location:** TBD\n\n' + '## More Information\n\n' + 'There might be more information for this subject on one of the following:\n' + '[{ReferringPagesPlugin before="*" after="\\n" }]\n'
     };
 
     for (const [templateName, content] of Object.entries(defaultTemplates)) {
@@ -476,9 +393,7 @@ class TemplateManager extends BaseManager {
       timestamp: new Date().toISOString(),
       pageName: variables.pageName || 'New Page',
       category: variables.category || '',
-      userKeywords: Array.isArray(variables.userKeywords)
-        ? variables.userKeywords.join(', ')
-        : (variables.userKeywords || '')
+      userKeywords: Array.isArray(variables.userKeywords) ? variables.userKeywords.join(', ') : variables.userKeywords || ''
     };
 
     // Merge with provided variables
@@ -500,8 +415,8 @@ class TemplateManager extends BaseManager {
    */
   generateUUID(): string {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-      const r = Math.random() * 16 | 0;
-      const v = c == 'x' ? r : (r & 0x3 | 0x8);
+      const r = (Math.random() * 16) | 0;
+      const v = c == 'x' ? r : (r & 0x3) | 0x8;
       return v.toString(16);
     });
   }

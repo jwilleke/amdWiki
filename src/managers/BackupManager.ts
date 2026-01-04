@@ -7,6 +7,7 @@ import zlib from 'zlib';
 import { promisify } from 'util';
 import logger from '../utils/logger';
 import type { WikiEngine } from '../types/WikiEngine';
+import type ConfigurationManager from './ConfigurationManager';
 
 const gzip = promisify(zlib.gzip);
 const gunzip = promisify(zlib.gunzip);
@@ -98,9 +99,8 @@ class BackupManager extends BaseManager {
    * @constructor
    * @param {any} engine - The wiki engine instance
    */
-   
+
   constructor(engine: WikiEngine) {
-     
     super(engine);
     this.backupDirectory = null;
     this.maxBackups = 10; // Keep last 10 backups
@@ -118,21 +118,18 @@ class BackupManager extends BaseManager {
     await super.initialize(config);
 
     // Get backup directory from ConfigurationManager
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const configManager = this.engine.getManager('ConfigurationManager');
+    const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
     if (!configManager) {
       throw new Error('BackupManager requires ConfigurationManager to be initialized.');
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-    const backupDir = configManager.getProperty('amdwiki.backup.directory');
-    this.backupDirectory = path.isAbsolute(backupDir as string) ? backupDir as string : path.join(process.cwd(), backupDir as string);
+    const backupDir = String(configManager.getProperty('amdwiki.backup.directory') ?? './backups');
+    this.backupDirectory = path.isAbsolute(backupDir) ? backupDir : path.join(process.cwd(), backupDir);
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     this.maxBackups = configManager.getProperty('amdwiki.backup.maxBackups') as number;
 
     // Ensure backup directory exists
-     
+
     await fs.ensureDir(this.backupDirectory);
 
     logger.info('✅ BackupManager initialized');
@@ -214,7 +211,7 @@ class BackupManager extends BaseManager {
       logger.info(`📋 Found ${managerNames.length} registered managers`);
 
       // Call backup() on each manager
-       
+
       for (const managerName of managerNames) {
         // Skip BackupManager itself
         if (managerName === 'BackupManager') {
@@ -236,7 +233,6 @@ class BackupManager extends BaseManager {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
           backupData.managers[managerName] = managerBackup;
           logger.info(`✅ ${managerName} backed up successfully`);
-
         } catch (error) {
           logger.error(`❌ Failed to backup ${managerName}:`, error);
           // Continue with other managers even if one fails
@@ -260,7 +256,7 @@ class BackupManager extends BaseManager {
       }
 
       // Write to file
-       
+
       await fs.writeFile(backupPath, finalData);
 
       const duration = Date.now() - startTime;
@@ -271,7 +267,6 @@ class BackupManager extends BaseManager {
       await this.cleanupOldBackups();
 
       return backupPath;
-
     } catch (error) {
       logger.error('❌ Backup operation failed:', error);
       throw error;
@@ -299,26 +294,24 @@ class BackupManager extends BaseManager {
 
     try {
       // Verify backup file exists
-       
-      if (!await fs.pathExists(backupPath)) {
+
+      if (!(await fs.pathExists(backupPath))) {
         throw new Error(`Backup file not found: ${backupPath}`);
       }
 
       // Read backup file
-       
+
       const fileData = await fs.readFile(backupPath);
-       
+
       logger.info(`📁 Read backup file: ${(fileData.length / 1024).toFixed(2)} KB`);
 
       // Decompress if needed (detect by extension or try decompression)
       let jsonData: string;
       if (backupPath.endsWith('.gz')) {
-         
         const decompressed = await gunzip(fileData);
         jsonData = decompressed.toString('utf8');
         logger.info(`🗜️  Decompressed to: ${(jsonData.length / 1024).toFixed(2)} KB`);
       } else {
-         
         jsonData = fileData.toString('utf8');
       }
 
@@ -376,7 +369,6 @@ class BackupManager extends BaseManager {
 
           results.success.push(managerName);
           logger.info(`✅ ${managerName} restored successfully`);
-
         } catch (error) {
           logger.error(`❌ Failed to restore ${managerName}:`, error);
           results.failed.push({ manager: managerName, error: (error as Error).message });
@@ -388,7 +380,6 @@ class BackupManager extends BaseManager {
       logger.info(`✅ Success: ${results.success.length}, ❌ Failed: ${results.failed.length}, ⏭️  Skipped: ${results.skipped.length}`);
 
       return results;
-
     } catch (error) {
       logger.error('❌ Restore operation failed:', error);
       throw error;
@@ -431,25 +422,25 @@ class BackupManager extends BaseManager {
       });
 
       const backupDir = this.backupDirectory;
-      const backups = await Promise.all(backupFiles.map(async (filename: string) => {
-        const filePath = path.join(backupDir, filename);
-        const stats = await fs.stat(filePath);
+      const backups = await Promise.all(
+        backupFiles.map(async (filename: string) => {
+          const filePath = path.join(backupDir, filename);
+          const stats = await fs.stat(filePath);
 
-        return {
-          filename,
-          path: filePath,
-          size: stats.size,
-          created: stats.birthtime,
-          modified: stats.mtime
-        };
-      }));
+          return {
+            filename,
+            path: filePath,
+            size: stats.size,
+            created: stats.birthtime,
+            modified: stats.mtime
+          };
+        })
+      );
 
       // Sort by creation time, newest first
       backups.sort((a: BackupFileInfo, b: BackupFileInfo) => b.created.getTime() - a.created.getTime());
 
-       
       return backups;
-
     } catch (error) {
       logger.error('❌ Failed to list backups:', error);
       return [];
@@ -474,11 +465,9 @@ class BackupManager extends BaseManager {
       logger.info(`🗑️  Cleaning up ${toDelete.length} old backups`);
 
       for (const backup of toDelete) {
-         
         await fs.remove(backup.path);
         logger.info(`🗑️  Deleted: ${backup.filename}`);
       }
-
     } catch (error) {
       logger.warn('⚠️  Failed to cleanup old backups:', error);
       // Don't throw - cleanup failure shouldn't fail the backup

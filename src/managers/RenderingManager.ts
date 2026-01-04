@@ -143,7 +143,6 @@ interface _MarkupParser {
  * const html = await renderingManager.renderPage('# Hello World', { pageName: 'Main' });
  */
 class RenderingManager extends BaseManager {
-   
   private converter: showdown.Converter | null;
   private linkGraph: LinkGraph;
   private linkParser: LinkParser;
@@ -186,16 +185,15 @@ class RenderingManager extends BaseManager {
     this.loadRenderingConfiguration();
 
     // Initialize PageNameMatcher with plural matching config
-     
+
     const configManager = this.engine.getManager('ConfigurationManager');
     if (configManager) {
-       
       const matchEnglishPlurals = configManager.getProperty('amdwiki.translator-reader.match-english-plurals', true) as boolean;
       this.pageNameMatcher = new PageNameMatcher(matchEnglishPlurals);
     }
 
     // Initialize Showdown converter with table support and proper list handling
-     
+
     this.converter = new showdown.Converter({
       tables: true,
       strikethrough: true,
@@ -203,23 +201,22 @@ class RenderingManager extends BaseManager {
       simpleLineBreaks: true,
       openLinksInNewWindow: false,
       backslashEscapesHTMLTags: true,
-      disableForced4SpacesIndentedSublists: true,  // Allow 2-space indented sublists
-      literalMidWordUnderscores: true,              // Better underscore handling
-      ghCodeBlocks: true,                           // GitHub-style code blocks
-      extensions: [showdownFootnotes]               // GitHub Flavored Markdown footnotes support
+      disableForced4SpacesIndentedSublists: true, // Allow 2-space indented sublists
+      literalMidWordUnderscores: true, // Better underscore handling
+      ghCodeBlocks: true, // GitHub-style code blocks
+      extensions: [showdownFootnotes] // GitHub Flavored Markdown footnotes support
     });
-    
+
     // Build initial link graph
     await this.buildLinkGraph();
 
     // Initialize LinkParser with page names
     this.initializeLinkParser();
 
-     
     console.log('✅ RenderingManager initialized');
-     
+
     console.log(`🔧 Advanced parser: ${this.renderingConfig.useAdvancedParser ? 'enabled' : 'disabled'}`);
-     
+
     console.log(`🔄 Legacy fallback: ${this.renderingConfig.fallbackToLegacy ? 'enabled' : 'disabled'}`);
   }
 
@@ -237,17 +234,15 @@ class RenderingManager extends BaseManager {
    *   const html = await parser.parse(content, options);
    * }
    */
-   
+
   getParser(): any {
     if (!this.renderingConfig.useAdvancedParser) {
       return null;
     }
 
-     
     const markupParser = this.engine.getManager('MarkupParser');
-     
+
     if (markupParser && typeof markupParser.isInitialized === 'function' && markupParser.isInitialized()) {
-       
       return markupParser;
     }
 
@@ -264,7 +259,6 @@ class RenderingManager extends BaseManager {
    * @returns {void}
    */
   loadRenderingConfiguration(): void {
-     
     const configManager = this.engine.getManager('ConfigurationManager');
 
     // Default configuration
@@ -279,18 +273,16 @@ class RenderingManager extends BaseManager {
     // Load from configuration if available
     if (configManager) {
       try {
-         
         this.renderingConfig.useAdvancedParser = configManager.getProperty('amdwiki.markup.useAdvancedParser', this.renderingConfig.useAdvancedParser) as boolean;
-         
+
         this.renderingConfig.fallbackToLegacy = configManager.getProperty('amdwiki.markup.fallbackToLegacy', this.renderingConfig.fallbackToLegacy) as boolean;
-         
+
         this.renderingConfig.integration = configManager.getProperty('amdwiki.markup.integration.renderingManager', this.renderingConfig.integration) as boolean;
-         
+
         this.renderingConfig.performanceComparison = configManager.getProperty('amdwiki.markup.performanceComparison', this.renderingConfig.performanceComparison) as boolean;
-         
+
         this.renderingConfig.logParsingMethod = configManager.getProperty('amdwiki.markup.logParsingMethod', this.renderingConfig.logParsingMethod) as boolean;
       } catch (error) {
-         
         console.warn('⚠️  Failed to load RenderingManager configuration, using defaults:', getErrorMessage(error));
       }
     }
@@ -308,23 +300,22 @@ class RenderingManager extends BaseManager {
     if (!content) return '';
 
     // Check if MarkupParser integration is enabled and MarkupParser is available
-     
+
     const markupParser = this.engine.getManager('MarkupParser');
-     
+
     const markupParserAvailable = markupParser && typeof markupParser.isInitialized === 'function' && markupParser.isInitialized();
     const useAdvancedParser = this.renderingConfig.useAdvancedParser && markupParserAvailable;
 
     // Debug logging to identify the issue
     if (this.renderingConfig.logParsingMethod) {
-       
       console.log(`🔍 RenderingManager.renderMarkdown debug for ${pageName}:`);
-       
+
       console.log(`   useAdvancedParser config: ${this.renderingConfig.useAdvancedParser}`);
-       
+
       console.log(`   MarkupParser available: ${!!markupParser}`);
-       
+
       console.log(`   MarkupParser initialized: ${markupParserAvailable}`);
-       
+
       console.log(`   Final decision: ${useAdvancedParser ? 'AdvancedParser' : 'LegacyParser'}`);
     }
 
@@ -349,10 +340,10 @@ class RenderingManager extends BaseManager {
     }
 
     const startTime = Date.now();
-    
+
     try {
       const markupParser = this.engine.getManager('MarkupParser');
-      
+
       // Create comprehensive context for MarkupParser
       const parseContext = {
         pageName: pageName,
@@ -364,23 +355,22 @@ class RenderingManager extends BaseManager {
 
       // Use MarkupParser for complete processing
       const result = await markupParser.parse(content, parseContext);
-      
+
       // Performance comparison if enabled
       if (this.renderingConfig.performanceComparison) {
         await this.performPerformanceComparison(content, pageName, userContext, requestInfo, Date.now() - startTime);
       }
 
       return result;
-
     } catch (error) {
       console.error('❌ AdvancedParser rendering failed:', getErrorMessage(error));
-      
+
       // Fallback to legacy parser if configured
       if (this.renderingConfig.fallbackToLegacy) {
         console.log('🔄 Falling back to legacy rendering for', pageName);
         return await this.renderWithLegacyParser(content, pageName, userContext, requestInfo);
       }
-      
+
       throw error;
     }
   }
@@ -399,7 +389,7 @@ class RenderingManager extends BaseManager {
     }
 
     // Original rendering pipeline (preserved for backward compatibility)
-    
+
     // Step 1: Expand macros
     let expandedContent = await this.expandMacros(content, pageName, userContext, requestInfo);
 
@@ -441,7 +431,7 @@ class RenderingManager extends BaseManager {
         advancedTime,
         legacyTime,
         improvement: legacyTime - advancedTime,
-        percentImprovement: legacyTime > 0 ? ((legacyTime - advancedTime) / legacyTime * 100).toFixed(1) : 0,
+        percentImprovement: legacyTime > 0 ? (((legacyTime - advancedTime) / legacyTime) * 100).toFixed(1) : 0,
         timestamp: new Date().toISOString()
       };
 
@@ -449,7 +439,8 @@ class RenderingManager extends BaseManager {
 
       // Send to performance monitoring if available
       const notificationManager = this.engine.getManager('NotificationManager');
-      if (notificationManager && Math.abs(comparison.improvement) > 50) { // Significant difference
+      if (notificationManager && Math.abs(comparison.improvement) > 50) {
+        // Significant difference
         notificationManager.addNotification({
           type: 'performance',
           title: `Rendering Performance: ${pageName}`,
@@ -458,7 +449,6 @@ class RenderingManager extends BaseManager {
           source: 'RenderingManager'
         });
       }
-
     } catch (error) {
       console.warn('⚠️  Performance comparison failed:', getErrorMessage(error));
     }
@@ -472,10 +462,10 @@ class RenderingManager extends BaseManager {
   processJSPWikiTables(content: string): string {
     // First, process %%table-striped syntax
     content = this.processTableStripedSyntax(content);
-    
+
     // Then process [{Table}] plugin syntax
     const tablePluginRegex = /\[\{Table\s+([^}]+)\}\]\s*\n((?:(?:\|\|?[^|\n]*)+\|?\s*\n?)+)/gi;
-    
+
     return content.replace(tablePluginRegex, (match, params, tableContent) => {
       // Parse parameters
       const tableParams = this.parseTableParameters(params);
@@ -485,10 +475,10 @@ class RenderingManager extends BaseManager {
 
       // Add table metadata as HTML comment for post-processing
       const tableMetadata = `<!-- TABLE_METADATA:${JSON.stringify({ ...tableParams, id: tableId })} -->`;
-      
+
       // Convert JSPWiki table syntax to markdown
       const markdownTable = this.convertJSPWikiTableToMarkdown(tableContent, tableParams);
-      
+
       return tableMetadata + '\n' + markdownTable;
     });
   }
@@ -501,7 +491,7 @@ class RenderingManager extends BaseManager {
   processTableStripedSyntax(content: string): string {
     // Match %%table-striped ... /% syntax
     const stripedTableRegex = /%%table-striped\s*\n((?:(?:\|\|?[^|\n]*)+\|?\s*\n?)+)\s*\/%/gi;
-    
+
     return content.replace(stripedTableRegex, (match, tableContent) => {
       // Generate unique ID for this table
       const tableId = `table_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
@@ -517,13 +507,13 @@ class RenderingManager extends BaseManager {
         rowNumber: 0,
         isStriped: true
       };
-      
+
       // Add table metadata as HTML comment for post-processing
       const tableMetadata = `<!-- TABLE_METADATA:${JSON.stringify(tableParams)} -->`;
-      
+
       // Convert to markdown table
       const markdownTable = this.convertJSPWikiTableToMarkdown(tableContent, tableParams);
-      
+
       return tableMetadata + '\n' + markdownTable;
     });
   }
@@ -568,16 +558,16 @@ class RenderingManager extends BaseManager {
   convertJSPWikiTableToMarkdown(tableContent: string, params: TableParams): string {
     const lines = tableContent.trim().split('\n');
     const markdownLines = [];
-    let isFirstRow = true;
+    let _isFirstRow = true;
     let currentRowNumber = parseInt(String(params.rowNumber), 10) || 0;
-    
+
     for (const line of lines) {
       const trimmedLine = line.trim();
       if (!trimmedLine) continue;
-      
+
       // Convert JSPWiki table row to markdown
       let markdownLine = trimmedLine;
-      
+
       // Handle row numbering syntax |# -> convert to current row number
       if (markdownLine.includes('|#')) {
         // For data rows, increment and use the row number
@@ -589,7 +579,7 @@ class RenderingManager extends BaseManager {
           markdownLine = markdownLine.replace(/\|\|#/g, '||Nr');
         }
       }
-      
+
       // Handle double pipes (headers) - convert to single pipes for markdown
       if (trimmedLine.startsWith('||')) {
         markdownLine = markdownLine.replace(/\|\|/g, '|');
@@ -598,13 +588,13 @@ class RenderingManager extends BaseManager {
           markdownLine += '|';
         }
         markdownLines.push(markdownLine);
-        
+
         // Add markdown table separator after header
         const headerCount = (markdownLine.match(/\|/g) || []).length - 1;
         const separator = '|' + '---|'.repeat(headerCount);
         markdownLines.push(separator);
-        
-        isFirstRow = false;
+
+        _isFirstRow = false;
       } else if (trimmedLine.startsWith('|')) {
         // Regular data row
         if (!markdownLine.endsWith('|')) {
@@ -613,7 +603,7 @@ class RenderingManager extends BaseManager {
         markdownLines.push(markdownLine);
       }
     }
-    
+
     return markdownLines.join('\n');
   }
 
@@ -625,7 +615,7 @@ class RenderingManager extends BaseManager {
   postProcessTables(html: string): string {
     // Find table metadata comments and apply styling
     const metadataRegex = /<!--\s*TABLE_METADATA:(.*?)\s*-->\s*<table>/g;
-    
+
     return html.replace(metadataRegex, (match, metadataJson) => {
       try {
         const metadata = JSON.parse(metadataJson);
@@ -643,29 +633,29 @@ class RenderingManager extends BaseManager {
    * @returns {string} Styled table opening tag with CSS
    */
   generateStyledTable(metadata: TableParams & { id: string; isStriped?: boolean }): string {
-    const { id, style, dataStyle, headerStyle, evenRowStyle, oddRowStyle, rowNumber, isStriped } = metadata;
-    
+    const { id, style, dataStyle, headerStyle, evenRowStyle, oddRowStyle, rowNumber: _rowNumber, isStriped } = metadata;
+
     let css = '';
     const tableStyle = style || '';
     let tableClasses = 'table';
-    
+
     // Add Bootstrap striped class if this is a striped table
     if (isStriped) {
       tableClasses += ' table-striped';
     }
-    
+
     // Generate CSS for the table
     if (dataStyle || headerStyle || evenRowStyle || oddRowStyle) {
       css += '<style>';
-      
+
       if (headerStyle) {
         css += `#${id} th { ${headerStyle} }`;
       }
-      
+
       if (dataStyle) {
         css += `#${id} td { ${dataStyle} }`;
       }
-      
+
       if (evenRowStyle) {
         // For striped tables, we need to target the right rows
         // Bootstrap striped tables style odd rows (1st, 3rd, 5th...)
@@ -675,7 +665,7 @@ class RenderingManager extends BaseManager {
           css += `#${id} tr:nth-child(even) { ${evenRowStyle} }`;
         }
       }
-      
+
       if (oddRowStyle) {
         if (isStriped) {
           css += `#${id} tbody tr:nth-child(even) { ${oddRowStyle} }`;
@@ -683,10 +673,10 @@ class RenderingManager extends BaseManager {
           css += `#${id} tr:nth-child(odd) { ${oddRowStyle} }`;
         }
       }
-      
+
       css += '</style>';
     }
-    
+
     return `${css}<table id="${id}" class="${tableClasses}"${tableStyle ? ` style="${tableStyle}"` : ''}>`;
   }
 
@@ -697,7 +687,7 @@ class RenderingManager extends BaseManager {
    * @param {object} userContext - User context for authentication variables
    * @returns {string} Content with expanded macros
    */
-  async expandMacros(content: string, pageName: string, userContext: UserContext | null = null, requestInfo: RequestInfo | null = null): Promise<string> {
+  async expandMacros(content: string, pageName: string, userContext: UserContext | null = null, _requestInfo: RequestInfo | null = null): Promise<string> {
     console.log('DEBUG: expandMacros called with content:', content, 'pageName:', pageName);
     let expandedContent = content;
 
@@ -780,8 +770,7 @@ class RenderingManager extends BaseManager {
                 j++; // Skip the =value part
 
                 // Handle quoted values
-                if ((value.startsWith("'") && !value.endsWith("'")) ||
-                    (value.startsWith('"') && !value.endsWith('"'))) {
+                if ((value.startsWith("'") && !value.endsWith("'")) || (value.startsWith('"') && !value.endsWith('"'))) {
                   const quoteChar = value.charAt(0);
                   while (j + 1 < parts.length && !value.endsWith(quoteChar)) {
                     j++;
@@ -804,8 +793,7 @@ class RenderingManager extends BaseManager {
                 let value = param.substring(equalIndex + 1);
 
                 // Handle quoted values that might span multiple parts
-                if ((value.startsWith("'") && !value.endsWith("'")) ||
-                    (value.startsWith('"') && !value.endsWith('"'))) {
+                if ((value.startsWith("'") && !value.endsWith("'")) || (value.startsWith('"') && !value.endsWith('"'))) {
                   const quoteChar = value.charAt(0);
                   while (j + 1 < parts.length && !value.endsWith(quoteChar)) {
                     j++;
@@ -833,15 +821,11 @@ class RenderingManager extends BaseManager {
           }
 
           // Replace the match in the content
-          expandedContent = expandedContent.substring(0, matchInfo.index) +
-                           replacement +
-                           expandedContent.substring(matchInfo.index + matchInfo.fullMatch.length);
+          expandedContent = expandedContent.substring(0, matchInfo.index) + replacement + expandedContent.substring(matchInfo.index + matchInfo.fullMatch.length);
         } catch (err) {
           console.error(`Macro expansion failed for ${matchInfo.content}:`, err);
           const errorReplacement = `[Error: ${matchInfo.content}]`;
-          expandedContent = expandedContent.substring(0, matchInfo.index) +
-                           errorReplacement +
-                           expandedContent.substring(matchInfo.index + matchInfo.fullMatch.length);
+          expandedContent = expandedContent.substring(0, matchInfo.index) + errorReplacement + expandedContent.substring(matchInfo.index + matchInfo.fullMatch.length);
         }
       }
     } else {
@@ -926,7 +910,6 @@ class RenderingManager extends BaseManager {
    * @returns {number} Uptime in seconds
    */
   getUptime(): number {
-     
     const startTime = this.engine.startTime || Date.now();
     return Math.floor((Date.now() - startTime) / 1000);
   }
@@ -941,14 +924,12 @@ class RenderingManager extends BaseManager {
       const fs = require('fs');
       // eslint-disable-next-line @typescript-eslint/no-require-imports
       const path = require('path');
-       
+
       const packageJsonPath = path.join(process.cwd(), 'package.json');
 
-       
       if (fs.existsSync(packageJsonPath)) {
-         
         const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-         
+
         return packageJson.version || '1.0.0';
       }
 
@@ -967,12 +948,12 @@ class RenderingManager extends BaseManager {
   expandSystemVariables(content: string): string {
     try {
       const pageManager = this.engine.getManager('PageManager');
-      
+
       // Get system information
       const startTime = this.engine.startTime || Date.now();
       const uptime = Math.floor((Date.now() - startTime) / 1000);
       const uptimeFormatted = this.formatUptime(uptime);
-      
+
       // Get total pages count
       let totalPages = 0;
       if (pageManager) {
@@ -983,7 +964,7 @@ class RenderingManager extends BaseManager {
           console.warn('Could not get total pages count:', err);
         }
       }
-      
+
       // Replace system variables
       let expandedContent = content;
       expandedContent = expandedContent.replace(/\[\{\$totalpages\}\]/g, totalPages.toString());
@@ -993,12 +974,11 @@ class RenderingManager extends BaseManager {
       expandedContent = expandedContent.replace(/\[\{\$timestamp\}\]/g, new Date().toISOString());
       expandedContent = expandedContent.replace(/\[\{\$date\}\]/g, new Date().toLocaleDateString());
       expandedContent = expandedContent.replace(/\[\{\$time\}\]/g, new Date().toLocaleTimeString());
-      
+
       // Sessions plugin (simplified)
       expandedContent = expandedContent.replace(/\[\{SessionsPlugin\}\]/g, '1');
-      
+
       return expandedContent;
-      
     } catch (err) {
       console.error('System variable expansion failed:', err);
       return content;
@@ -1014,7 +994,7 @@ class RenderingManager extends BaseManager {
     const days = Math.floor(seconds / 86400);
     const hours = Math.floor((seconds % 86400) / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
-    
+
     if (days > 0) {
       return `${days}d ${hours}h ${minutes}m`;
     } else if (hours > 0) {
@@ -1030,9 +1010,9 @@ class RenderingManager extends BaseManager {
    */
   getBaseUrl(): string {
     // Use configured baseURL from ConfigurationManager
-     
+
     const configManager = this.engine.getManager('ConfigurationManager');
-     
+
     return configManager ? configManager.getBaseURL() : 'http://localhost:3000';
   }
 
@@ -1062,7 +1042,7 @@ class RenderingManager extends BaseManager {
           pageNames = [];
         }
       }
-      
+
       // Process wiki links with extended pipe syntax [DisplayText|Target|Parameters] and simple links [PageName]
       // Use negative lookahead to avoid matching markdown links [text](url)
       return content.replace(/\[([a-zA-Z0-9_\- ]+)(?:\|([a-zA-Z0-9_\- .:?=&]+))?(?:\|([^|\]]+))?\](?!\()/g, (match, displayText, target, params) => {
@@ -1078,26 +1058,24 @@ class RenderingManager extends BaseManager {
               linkAttributes += ' rel="noopener noreferrer"';
             }
           }
-          
+
           // Parse other potential attributes (class, title, etc.)
           const classMatch = params.match(/class=['"]([^'"]+)['"]/);
           if (classMatch) {
             linkAttributes += ` class="${classMatch[1]}"`;
           }
-          
+
           const titleMatch = params.match(/title=['"]([^'"]+)['"]/);
           if (titleMatch) {
             linkAttributes += ` title="${titleMatch[1]}"`;
           }
         }
-        
+
         // If no target specified, it's a simple wiki link
         if (!target) {
           const pageName = displayText;
           // Try fuzzy matching with plurals if enabled
-          const matchedPage = this.pageNameMatcher ?
-            this.pageNameMatcher.findMatch(pageName, pageNames) :
-            (pageNames.includes(pageName) ? pageName : null);
+          const matchedPage = this.pageNameMatcher ? this.pageNameMatcher.findMatch(pageName, pageNames) : pageNames.includes(pageName) ? pageName : null;
 
           if (matchedPage) {
             return `<a href="/wiki/${encodeURIComponent(matchedPage)}" class="wikipage"${linkAttributes}>${pageName}</a>`;
@@ -1105,7 +1083,7 @@ class RenderingManager extends BaseManager {
           // Red link for non-existent pages
           return `<a href="/edit/${encodeURIComponent(pageName)}" style="color: red;" class="redlink"${linkAttributes}>${pageName}</a>`;
         }
-        
+
         // Handle pipe syntax [DisplayText|Target|Parameters]
         // Check if target is a URL (contains :// or starts with /)
         if (target.includes('://') || target.startsWith('/')) {
@@ -1118,9 +1096,7 @@ class RenderingManager extends BaseManager {
         } else {
           // Wiki page target
           // Try fuzzy matching with plurals if enabled
-          const matchedPage = this.pageNameMatcher ?
-            this.pageNameMatcher.findMatch(target, pageNames) :
-            (pageNames.includes(target) ? target : null);
+          const matchedPage = this.pageNameMatcher ? this.pageNameMatcher.findMatch(target, pageNames) : pageNames.includes(target) ? target : null;
 
           if (matchedPage) {
             return `<a href="/wiki/${encodeURIComponent(matchedPage)}" class="wikipage"${linkAttributes}>${displayText}</a>`;
@@ -1242,12 +1218,12 @@ class RenderingManager extends BaseManager {
       // TODO: Add InterWiki sites configuration from config
       // For now, add some common InterWiki sites
       const interWikiSites = {
-        'Wikipedia': {
+        Wikipedia: {
           url: 'https://en.wikipedia.org/wiki/%s',
           description: 'Wikipedia English',
           openInNewWindow: true
         },
-        'JSPWiki': {
+        JSPWiki: {
           url: 'https://jspwiki-wiki.apache.org/Wiki.jsp?page=%s',
           description: 'JSPWiki Documentation',
           openInNewWindow: true
@@ -1308,7 +1284,7 @@ class RenderingManager extends BaseManager {
     if (!userContext || !userContext.username) {
       return 'Anonymous';
     }
-    
+
     // Handle special authentication states
     switch (userContext.username) {
     case 'anonymous':
@@ -1408,21 +1384,17 @@ class RenderingManager extends BaseManager {
           const result = await pluginManager.execute(pluginName, pageName, params, { engine: this.engine });
 
           // Replace the match in the content
-          processedContent = processedContent.substring(0, matchInfo.index) +
-                            result +
-                            processedContent.substring(matchInfo.index + matchInfo.fullMatch.length);
+          processedContent = processedContent.substring(0, matchInfo.index) + result + processedContent.substring(matchInfo.index + matchInfo.fullMatch.length);
         }
-      } catch (error) {
+      } catch {
         const parts = matchInfo.content.trim().split(/\s+/);
         const errorReplacement = `<span class="error">Plugin ${parts[0]} error</span>`;
-        processedContent = processedContent.substring(0, matchInfo.index) +
-                          errorReplacement +
-                          processedContent.substring(matchInfo.index + matchInfo.fullMatch.length);
+        processedContent = processedContent.substring(0, matchInfo.index) + errorReplacement + processedContent.substring(matchInfo.index + matchInfo.fullMatch.length);
       }
     }
 
     return processedContent;
-  } 
+  }
 
   /**
    * Converts wiki markup to HTML using the provided WikiContext.
@@ -1431,7 +1403,7 @@ class RenderingManager extends BaseManager {
    * @param {string} content The raw wiki markup to render.
    * @returns {Promise<string>} The rendered HTML.
    */
-   
+
   async textToHTML(context: any, content: string): Promise<string> {
     logger.info(`[RENDER] textToHTML page=${context?.pageName} ctx=${context?.getContext?.()} contentLen=${content?.length ?? 0}`);
     if (!context || typeof context.renderMarkdown !== 'function') {

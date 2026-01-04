@@ -1,10 +1,3 @@
- 
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
- 
- 
-
 /**
  * AuditManager - Comprehensive audit trail system for access control and security monitoring
  *
@@ -28,6 +21,7 @@
 import BaseManager from './BaseManager';
 import logger from '../utils/logger';
 import { WikiEngine } from '../types/WikiEngine';
+import type ConfigurationManager from './ConfigurationManager';
 
 /**
  * Base audit event structure
@@ -183,6 +177,11 @@ interface BaseAuditProvider {
   getProviderInfo(): ProviderInfo;
 }
 
+/**
+ * Constructor type for audit providers
+ */
+type AuditProviderConstructor = new (engine: WikiEngine) => BaseAuditProvider;
+
 class AuditManager extends BaseManager {
   private provider: BaseAuditProvider | null;
   private providerClass: string | null;
@@ -210,14 +209,12 @@ class AuditManager extends BaseManager {
   async initialize(config: Record<string, unknown> = {}): Promise<void> {
     await super.initialize(config);
 
-     
-    const configManager = this.engine.getManager('ConfigurationManager');
+    const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
     if (!configManager) {
       throw new Error('AuditManager requires ConfigurationManager');
     }
 
     // Check if audit is enabled (ALL LOWERCASE)
-     
     const auditEnabled = configManager.getProperty('amdwiki.audit.enabled', true) as boolean;
     if (!auditEnabled) {
       logger.info('📋 AuditManager: Auditing disabled by configuration');
@@ -228,16 +225,8 @@ class AuditManager extends BaseManager {
     }
 
     // Load provider with fallback (ALL LOWERCASE)
-     
-    const defaultProvider = configManager.getProperty(
-      'amdwiki.audit.provider.default',
-      'fileauditprovider'
-    ) as string;
-     
-    const providerName = configManager.getProperty(
-      'amdwiki.audit.provider',
-      defaultProvider
-    ) as string;
+    const defaultProvider = configManager.getProperty('amdwiki.audit.provider.default', 'fileauditprovider') as string;
+    const providerName = configManager.getProperty('amdwiki.audit.provider', defaultProvider) as string;
 
     // Normalize provider name to PascalCase for class loading
     // fileauditprovider -> FileAuditProvider
@@ -269,7 +258,8 @@ class AuditManager extends BaseManager {
     try {
       // Try to load provider class
       // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const ProviderClass = require(`../providers/${this.providerClass}`);
+      const ProviderModule = require(`../providers/${this.providerClass}`) as { default?: AuditProviderConstructor } | AuditProviderConstructor;
+      const ProviderClass = ('default' in ProviderModule ? ProviderModule.default : ProviderModule) as AuditProviderConstructor;
 
       this.provider = new ProviderClass(this.engine);
       if (!this.provider) {
@@ -282,7 +272,8 @@ class AuditManager extends BaseManager {
       if (!isHealthy) {
         logger.warn(`Audit provider ${this.providerClass} health check failed, switching to NullAuditProvider`);
         // eslint-disable-next-line @typescript-eslint/no-require-imports
-        const NullAuditProvider = require('../providers/NullAuditProvider');
+        const NullModule = require('../providers/NullAuditProvider') as { default?: AuditProviderConstructor } | AuditProviderConstructor;
+        const NullAuditProvider = ('default' in NullModule ? NullModule.default : NullModule) as AuditProviderConstructor;
 
         this.provider = new NullAuditProvider(this.engine);
         if (!this.provider) {
@@ -295,7 +286,8 @@ class AuditManager extends BaseManager {
       // Fall back to NullAuditProvider on any error
       logger.warn('Falling back to NullAuditProvider due to provider load error');
       // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const NullAuditProvider = require('../providers/NullAuditProvider');
+      const NullModule = require('../providers/NullAuditProvider') as { default?: AuditProviderConstructor } | AuditProviderConstructor;
+      const NullAuditProvider = ('default' in NullModule ? NullModule.default : NullModule) as AuditProviderConstructor;
 
       this.provider = new NullAuditProvider(this.engine);
       if (!this.provider) {
@@ -322,12 +314,12 @@ class AuditManager extends BaseManager {
 
     // Handle special cases for known provider names
     const knownProviders: Record<string, string> = {
-      'fileauditprovider': 'FileAuditProvider',
-      'databaseauditprovider': 'DatabaseAuditProvider',
-      'cloudauditprovider': 'CloudAuditProvider',
-      'nullauditprovider': 'NullAuditProvider',
-      'null': 'NullAuditProvider',
-      'disabled': 'NullAuditProvider'
+      fileauditprovider: 'FileAuditProvider',
+      databaseauditprovider: 'DatabaseAuditProvider',
+      cloudauditprovider: 'CloudAuditProvider',
+      nullauditprovider: 'NullAuditProvider',
+      null: 'NullAuditProvider',
+      disabled: 'NullAuditProvider'
     };
 
     if (knownProviders[lower]) {
@@ -336,9 +328,7 @@ class AuditManager extends BaseManager {
 
     // Fallback: Split on common separators and capitalize each word
     const words = lower.split(/[-_]/);
-    const pascalCase = words
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join('');
+    const pascalCase = words.map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join('');
 
     return pascalCase;
   }
@@ -365,12 +355,7 @@ class AuditManager extends BaseManager {
    * @param {PolicyInfo | null} policy - Policy that made the decision
    * @returns {Promise<string>} Event ID
    */
-  async logAccessDecision(
-    context: AccessContext,
-    result: string,
-    reason: string,
-    policy: PolicyInfo | null = null
-  ): Promise<string> {
+  async logAccessDecision(context: AccessContext, result: string, reason: string, policy: PolicyInfo | null = null): Promise<string> {
     const auditEvent: AuditEvent = {
       eventType: 'access_decision',
       user: context.user?.username || 'anonymous',
@@ -407,12 +392,7 @@ class AuditManager extends BaseManager {
    * @param {number} duration - Evaluation duration in ms
    * @returns {Promise<string>} Event ID
    */
-  async logPolicyEvaluation(
-    context: AccessContext,
-    policies: PolicyInfo[],
-    finalResult: string,
-    duration: number
-  ): Promise<string> {
+  async logPolicyEvaluation(context: AccessContext, policies: PolicyInfo[], finalResult: string, duration: number): Promise<string> {
     const auditEvent: AuditEvent = {
       eventType: 'policy_evaluation',
       user: context.user?.username || 'anonymous',
@@ -422,7 +402,7 @@ class AuditManager extends BaseManager {
       reason: `Evaluated ${policies.length} policies`,
       context: {
         policyCount: policies.length,
-        policies: policies.map(p => ({ id: p.id, name: p.name, priority: p.priority })),
+        policies: policies.map((p) => ({ id: p.id, name: p.name, priority: p.priority })),
         evaluationTime: duration
       },
       duration: duration,
@@ -440,11 +420,7 @@ class AuditManager extends BaseManager {
    * @param {string} reason - Reason for result
    * @returns {Promise<string>} Event ID
    */
-  async logAuthentication(
-    context: AuthenticationContext,
-    result: string,
-    reason: string
-  ): Promise<string> {
+  async logAuthentication(context: AuthenticationContext, result: string, reason: string): Promise<string> {
     const auditEvent: AuditEvent = {
       eventType: 'authentication',
       user: context.username || 'unknown',
@@ -471,12 +447,7 @@ class AuditManager extends BaseManager {
    * @param {string} description - Event description
    * @returns {Promise<string>} Event ID
    */
-  async logSecurityEvent(
-    context: SecurityContext,
-    eventType: string,
-    severity: 'low' | 'medium' | 'high' | 'critical',
-    description: string
-  ): Promise<string> {
+  async logSecurityEvent(context: SecurityContext, eventType: string, severity: 'low' | 'medium' | 'high' | 'critical', description: string): Promise<string> {
     const auditEvent: AuditEvent = {
       eventType: 'security_event',
       user: context.user?.username || 'system',
@@ -501,10 +472,7 @@ class AuditManager extends BaseManager {
    * @param {AuditSearchOptions} options - Search options
    * @returns {Promise<AuditSearchResults>} Search results
    */
-  async searchAuditLogs(
-    filters: AuditFilters = {},
-    options: AuditSearchOptions = {}
-  ): Promise<AuditSearchResults> {
+  async searchAuditLogs(filters: AuditFilters = {}, options: AuditSearchOptions = {}): Promise<AuditSearchResults> {
     if (!this.provider) {
       throw new Error('Audit provider not initialized');
     }

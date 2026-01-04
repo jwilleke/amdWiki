@@ -1,9 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
- 
- 
- 
- 
- 
 
 import BaseManager from './BaseManager';
 import logger from '../utils/logger';
@@ -154,7 +149,6 @@ class PolicyEvaluator extends BaseManager {
       return { hasDecision: false, allowed: false, reason: 'PolicyManager not initialized', policyName: null };
     }
 
-     
     const policies = this.policyManager.getAllPolicies() as any as Policy[];
     for (const policy of policies) {
       const match = this.matches(policy, context);
@@ -261,7 +255,6 @@ class PolicyEvaluator extends BaseManager {
       return true; // No resources specified means it applies to all.
     }
     for (const resource of resources) {
-       
       if (resource.type === 'page' && micromatch.isMatch(pageName, resource.pattern)) {
         return true;
       }

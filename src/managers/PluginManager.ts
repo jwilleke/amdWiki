@@ -1,7 +1,12 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+
 import BaseManager from './BaseManager';
 import fs from 'fs-extra';
 import path from 'path';
 import type { WikiEngine } from '../types/WikiEngine';
+import type ConfigurationManager from './ConfigurationManager';
 
 /**
  * Plugin object interface
@@ -82,9 +87,8 @@ class PluginManager extends BaseManager {
    * @constructor
    * @param {any} engine - The wiki engine instance
    */
-   
+
   constructor(engine: WikiEngine) {
-     
     super(engine);
     this.plugins = new Map();
     this.searchPaths = [];
@@ -102,7 +106,7 @@ class PluginManager extends BaseManager {
     await super.initialize(config);
     // Do NOT read search paths from config here; only ConfigurationManager controls them
     await this.registerPlugins();
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+
     this.engine.logger?.info?.('PluginManager initialized');
   }
 
@@ -111,31 +115,25 @@ class PluginManager extends BaseManager {
    * ConfigurationManager at key: amdwiki.managers.pluginManager.searchPaths
    */
   async registerPlugins(): Promise<void> {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const cfgMgr =
-      this.engine.getManager('ConfigurationManager') ||
-      this.engine.getManager('ConfigManager');
+    const cfgMgr = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     if (!cfgMgr || typeof cfgMgr.getProperty !== 'function') {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       this.engine.logger?.warn?.('PluginManager: ConfigurationManager not available; no plugins will be loaded.');
       return;
     }
 
     // MUST come only from config; no fallbacks
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     const raw = cfgMgr.getProperty('amdwiki.managers.pluginManager.searchPaths');
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-    this.engine.logger?.debug?.(
-      `PluginManager: raw searchPaths type=${typeof raw} value=${JSON.stringify(raw)}`
-    );
+    this.engine.logger?.debug?.(`PluginManager: raw searchPaths type=${typeof raw} value=${JSON.stringify(raw)}`);
     // Accept array or comma-separated string
     let configured: string[] = [];
     if (Array.isArray(raw)) configured = raw as string[];
-    else if (typeof raw === 'string') configured = raw.split(',').map(s => s.trim()).filter(Boolean);
+    else if (typeof raw === 'string')
+      configured = raw
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean);
     if (!Array.isArray(configured) || configured.length === 0) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       this.engine.logger?.info?.('PluginManager: No plugin search paths configured; skipping plugin load.');
       return;
     }
@@ -145,34 +143,25 @@ class PluginManager extends BaseManager {
     for (const p of configured) {
       try {
         const abs = path.resolve(process.cwd(), String(p));
-         
         if (!(await fs.pathExists(abs))) {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
           this.engine.logger?.debug?.(`PluginManager: configured path does not exist: ${abs}`);
           continue;
         }
-         
         const st = await fs.lstat(abs);
-         
         if (!st.isDirectory()) {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
           this.engine.logger?.warn?.(`PluginManager: configured path is not a directory: ${abs}`);
           continue;
         }
         // Use realpath to collapse symlinks for later prefix checks
-         
         const real = await fs.realpath(abs);
-         
         roots.push(real);
       } catch (e) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
         this.engine.logger?.warn?.(`PluginManager: failed to validate configured path "${p}": ${(e as Error).message}`);
       }
     }
 
     this.allowedRoots = roots;
     if (this.allowedRoots.length === 0) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       this.engine.logger?.info?.('PluginManager: No valid plugin roots after validation; skipping plugin load.');
       return;
     }
@@ -180,11 +169,8 @@ class PluginManager extends BaseManager {
     // Enumerate .js and .ts files in allowed roots only
     for (const root of this.allowedRoots) {
       try {
-
         const entries = await fs.readdir(root, { withFileTypes: true });
-
         for (const entry of entries) {
-
           if (!entry.isFile()) continue;
 
           // Skip test files and non-plugin files
@@ -192,12 +178,10 @@ class PluginManager extends BaseManager {
           const isTsPlugin = entry.name.endsWith('.ts') && !entry.name.endsWith('.test.ts') && !entry.name.endsWith('.d.ts');
           if (!isJsPlugin && !isTsPlugin) continue;
 
-           
           const candidate = path.join(root, entry.name);
           await this.loadPlugin(candidate); // loadPlugin re-validates path is under an allowed root
         }
       } catch (err) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
         this.engine.logger?.warn?.(`PluginManager: Failed to load plugins from ${root}: ${(err as Error).message}`);
       }
     }
@@ -210,44 +194,30 @@ class PluginManager extends BaseManager {
   async loadPlugin(pluginPath: string): Promise<void> {
     try {
       // Resolve and validate canonical path
-       
       const realFile = await fs.realpath(path.resolve(pluginPath));
-      const isAllowed = this.allowedRoots.some(
-         
-        (root) => realFile === root || realFile.startsWith(root + path.sep)
-      );
+      const isAllowed = this.allowedRoots.some((root) => realFile === root || realFile.startsWith(root + path.sep));
       if (!isAllowed) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
         this.engine.logger?.warn?.(`PluginManager: blocked plugin outside allowed roots: ${realFile}`);
         return;
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-unsafe-assignment
-      const mod = require(realFile);
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-      const plugin = mod?.default || mod;
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-      const pluginName = plugin?.name || path.parse(realFile).name;
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const mod = require(realFile) as { default?: Plugin } | Plugin;
+      const plugin = (mod as { default?: Plugin })?.default || mod;
+      const pluginName = (plugin as Plugin)?.name || path.parse(realFile).name;
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      if (!plugin || (typeof plugin !== 'function' && typeof plugin.execute !== 'function')) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+      if (!plugin || (typeof plugin !== 'function' && typeof (plugin as Plugin).execute !== 'function')) {
         this.engine.logger?.warn?.(`PluginManager: "${pluginName}" is not an executable plugin; skipping.`);
         return;
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      if (typeof plugin.initialize === 'function') {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-        await plugin.initialize(this.engine);
+      if (typeof (plugin as Plugin).initialize === 'function') {
+        await (plugin as Plugin).initialize?.(this.engine);
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       this.plugins.set(pluginName, plugin as Plugin);
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       this.engine.logger?.info?.(`PluginManager: Loaded plugin "${pluginName}" from ${realFile}`);
     } catch (err) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       this.engine.logger?.error?.(`PluginManager: Failed to load plugin ${pluginPath}: ${(err as Error).message}`);
     }
   }
@@ -329,7 +299,7 @@ class PluginManager extends BaseManager {
       // Plugins expect the full ParseContext/WikiContext with all properties
       const pluginContext: PluginContext = {
         ...context, // Spread all context properties
-         
+
         engine: context.engine || this.engine,
         pageName: pageName,
         linkGraph: (context.linkGraph as Record<string, unknown>) || {}

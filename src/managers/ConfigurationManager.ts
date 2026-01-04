@@ -60,9 +60,8 @@ class ConfigurationManager extends BaseManager {
    * @constructor
    * @param {any} engine - The wiki engine instance
    */
-   
+
   constructor(engine: WikiEngine) {
-     
     super(engine);
     this.defaultConfig = null;
     this.environmentConfig = null;
@@ -237,7 +236,7 @@ class ConfigurationManager extends BaseManager {
    */
   private async saveCustomConfiguration(): Promise<void> {
     const configToSave = {
-      '_comment': 'This file overrides values from app-default-config.json',
+      _comment: 'This file overrides values from app-default-config.json',
       ...this.customConfig
     };
 
@@ -387,12 +386,9 @@ class ConfigurationManager extends BaseManager {
 
     // Get manager-specific settings
     const allProps = this.mergedConfig || {};
-    const keys = Object.keys(allProps).filter(key =>
-      key.startsWith(`amdwiki.managers.${managerName}.`) &&
-      !key.endsWith('.enabled')
-    );
+    const keys = Object.keys(allProps).filter((key) => key.startsWith(`amdwiki.managers.${managerName}.`) && !key.endsWith('.enabled'));
 
-    keys.forEach(key => {
+    keys.forEach((key) => {
       const settingName = key.replace(`amdwiki.managers.${managerName}.`, '');
       config[settingName] = this.getProperty(key);
     });
@@ -411,12 +407,9 @@ class ConfigurationManager extends BaseManager {
 
     // Get feature-specific settings
     const allProps = this.mergedConfig || {};
-    const keys = Object.keys(allProps).filter(key =>
-      key.startsWith(`amdwiki.features.${featureName}.`) &&
-      !key.endsWith('.enabled')
-    );
+    const keys = Object.keys(allProps).filter((key) => key.startsWith(`amdwiki.features.${featureName}.`) && !key.endsWith('.enabled'));
 
-    keys.forEach(key => {
+    keys.forEach((key) => {
       const settingName = key.replace(`amdwiki.features.${featureName}.`, '');
       config[settingName] = this.getProperty(key);
     });

@@ -1,16 +1,15 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/require-await */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 
 import BaseManager from './BaseManager';
 import { promises as fs } from 'fs';
 import logger from '../utils/logger';
 import { WikiEngine } from '../types/WikiEngine';
 import type ConfigurationManager from './ConfigurationManager';
+import type UserManager from './UserManager';
 
 /**
  * Minimal WikiContext interface for type safety
@@ -174,17 +173,17 @@ class ACLManager extends BaseManager {
    * console.log('ACL system ready');
    */
   async initialize(): Promise<void> {
-    const configManager = this.engine.getManager('ConfigurationManager');
+    const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
     if (!configManager) {
       throw new Error('ACLManager requires ConfigurationManager');
     }
 
     const policies = configManager.getProperty('amdwiki.access.policies', []) as AccessPolicy[];
-    this.accessPolicies = new Map(policies.map(p => [p.id, p]));
+    this.accessPolicies = new Map(policies.map((p) => [p.id, p]));
     logger.info(`📋 Loaded ${this.accessPolicies.size} access policies from ConfigurationManager`);
 
     // Get the PolicyEvaluator instance from the engine
-     
+
     this.policyEvaluator = this.engine.getManager('PolicyEvaluator');
     if (!this.policyEvaluator) {
       logger.warn('[ACL] PolicyEvaluator manager not found. Global policies will not be evaluated.');
@@ -195,7 +194,7 @@ class ACLManager extends BaseManager {
    * Initialize audit logging system based on configuration.
    */
   async initializeAuditLogging(): Promise<void> {
-    const configManager = this.engine.getManager('ConfigurationManager');
+    const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
     if (!configManager) {
       return;
     }
@@ -217,7 +216,7 @@ class ACLManager extends BaseManager {
    * Load access policies from ConfigurationManager.
    */
   async loadAccessPolicies(): Promise<void> {
-    const configManager = this.engine.getManager('ConfigurationManager');
+    const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
     if (!configManager) {
       return;
     }
@@ -256,8 +255,8 @@ class ACLManager extends BaseManager {
     let match;
 
     while ((match = aclRegex.exec(content)) !== null) {
-      const actions = match[1].split(',').map(s => s.trim().toLowerCase());
-      const principals = match[2].split(',').map(s => s.trim());
+      const actions = match[1].split(',').map((s) => s.trim().toLowerCase());
+      const principals = match[2].split(',').map((s) => s.trim());
 
       for (const action of actions) {
         if (!acl.has(action)) {
@@ -265,7 +264,7 @@ class ACLManager extends BaseManager {
         }
         const principalSet = acl.get(action);
         if (principalSet) {
-          principals.forEach(p => principalSet.add(p));
+          principals.forEach((p) => principalSet.add(p));
         }
       }
     }
@@ -302,12 +301,12 @@ class ACLManager extends BaseManager {
 
     // Map legacy action names to policy action names
     const actionMap: Record<string, string> = {
-      'view': 'page:read',
-      'edit': 'page:edit',
-      'delete': 'page:delete',
-      'create': 'page:create',
-      'rename': 'page:rename',
-      'upload': 'attachment:upload'
+      view: 'page:read',
+      edit: 'page:edit',
+      delete: 'page:delete',
+      create: 'page:create',
+      rename: 'page:rename',
+      upload: 'attachment:upload'
     };
     const policyAction = actionMap[action.toLowerCase()] || action;
 
@@ -315,24 +314,24 @@ class ACLManager extends BaseManager {
     if (this.policyEvaluator) {
       try {
         const policyContext = { pageName, action: policyAction, userContext };
-         
+
         const policyResult = await this.policyEvaluator.evaluateAccess(policyContext);
-         
+
         logger.info(`[ACL] PolicyEvaluator decision hasDecision=${policyResult.hasDecision} allowed=${policyResult.allowed} policy=${policyResult.policyName}`);
-         
+
         if (policyResult.hasDecision) {
           // Log access decision for audit
           this.logAccessDecision({
             user: userContext,
             pageName,
             action,
-             
+
             allowed: policyResult.allowed,
-             
+
             reason: policyResult.policyName || 'global_policy',
             context: { wikiContext: wikiContext.context }
           });
-           
+
           return policyResult.allowed;
         }
       } catch (e) {
@@ -415,12 +414,12 @@ class ACLManager extends BaseManager {
 
     // Map legacy action names to policy action names
     const actionMap: Record<string, string> = {
-      'view': 'page:read',
-      'edit': 'page:edit',
-      'delete': 'page:delete',
-      'create': 'page:create',
-      'rename': 'page:rename',
-      'upload': 'attachment:upload'
+      view: 'page:read',
+      edit: 'page:edit',
+      delete: 'page:delete',
+      create: 'page:create',
+      rename: 'page:rename',
+      upload: 'attachment:upload'
     };
     const policyAction = actionMap[action.toLowerCase()] || action;
 
@@ -428,13 +427,12 @@ class ACLManager extends BaseManager {
     if (this.policyEvaluator) {
       try {
         const policyContext = { pageName, action: policyAction, userContext };
-         
+
         const policyResult = await this.policyEvaluator.evaluateAccess(policyContext);
-         
+
         logger.info(`[ACL] PolicyEvaluator decision hasDecision=${policyResult.hasDecision} allowed=${policyResult.allowed} policy=${policyResult.policyName}`);
-         
+
         if (policyResult.hasDecision) {
-           
           return policyResult.allowed;
         }
       } catch (e) {
@@ -472,15 +470,13 @@ class ACLManager extends BaseManager {
    * @returns {Promise<boolean>} True if permission granted
    */
   async performStandardACLCheck(pageName: string, action: string, user: UserContext | null, pageContent: string): Promise<boolean> {
-     
-    const userManager = this.engine.getManager('UserManager');
+    const userManager = this.engine.getManager<UserManager>('UserManager');
     if (!userManager) {
       throw new Error('UserManager not available');
     }
 
     // If user has admin:system permission, always allow
-     
-    if (user && await userManager.hasPermission(user.username, 'admin:system')) {
+    if (user?.username && (await userManager.hasPermission(user.username, 'admin:system'))) {
       return true;
     }
 
@@ -558,7 +554,7 @@ class ACLManager extends BaseManager {
   private isSystemOrAdminPage(pageName: string): boolean {
     const systemPages = ['admin', 'system', 'config', 'settings'];
     const lowerName = pageName.toLowerCase();
-    return systemPages.some(prefix => lowerName.startsWith(prefix));
+    return systemPages.some((prefix) => lowerName.startsWith(prefix));
   }
 
   /**
@@ -568,8 +564,7 @@ class ACLManager extends BaseManager {
    * @returns {Promise<boolean>} True if user has permission, false otherwise
    */
   async checkDefaultPermission(action: string, user: UserContext | null): Promise<boolean> {
-     
-    const userManager = this.engine.getManager('UserManager');
+    const userManager = this.engine.getManager<UserManager>('UserManager');
     if (!userManager) {
       logger.warn('UserManager not available for permission check');
       return false;
@@ -577,19 +572,17 @@ class ACLManager extends BaseManager {
 
     // Map actions to permission strings
     const permissionMap: Record<string, string> = {
-      'view': 'page:read',
-      'edit': 'page:edit',
-      'delete': 'page:delete',
-      'create': 'page:create'
+      view: 'page:read',
+      edit: 'page:edit',
+      delete: 'page:delete',
+      create: 'page:create'
     };
 
     const permission = permissionMap[action.toLowerCase()] || `page:${action.toLowerCase()}`;
-    const username = user ? user.username : null;
+    const username = user?.username ?? 'anonymous';
 
-     
     const result = await userManager.hasPermission(username, permission);
 
-     
     return result;
   }
 
@@ -600,7 +593,7 @@ class ACLManager extends BaseManager {
    * @returns {Promise<PermissionResult>} Permission result with reason
    */
   async checkContextRestrictions(user: UserContext | null, context: Record<string, unknown>): Promise<PermissionResult> {
-    const configManager = this.engine.getManager('ConfigurationManager');
+    const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
     if (!configManager) {
       return { allowed: true, reason: 'no_config' };
     }
@@ -655,7 +648,7 @@ class ACLManager extends BaseManager {
     // Check if user has allowed role during maintenance
     if (user && user.roles) {
       const allowedRoles = maintenanceConfig.allowedRoles || ['admin'];
-      const hasAllowedRole = user.roles.some(role => allowedRoles.includes(role));
+      const hasAllowedRole = user.roles.some((role) => allowedRoles.includes(role));
 
       if (hasAllowedRole) {
         return { allowed: true, reason: 'maintenance_override' };
@@ -689,10 +682,12 @@ class ACLManager extends BaseManager {
         minute: '2-digit'
       });
 
-      const currentDay = now.toLocaleDateString('en-US', {
-        timeZone,
-        weekday: 'long'
-      }).toLowerCase();
+      const currentDay = now
+        .toLocaleDateString('en-US', {
+          timeZone,
+          weekday: 'long'
+        })
+        .toLowerCase();
 
       const allowedDays = businessHoursConfig.days || ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
       const startTime = businessHoursConfig.start || '09:00';
@@ -731,27 +726,25 @@ class ACLManager extends BaseManager {
    */
   async checkEnhancedTimeRestrictions(user: UserContext, context: Record<string, unknown>): Promise<PermissionResult> {
     try {
-       
       const cfg = this.engine?.getManager?.('ConfigurationManager');
-       
+
       const enabled = cfg?.getProperty?.('amdwiki.schedules.enabled', true);
       if (!enabled) {
         return { allowed: true, reason: 'schedules_disabled' };
       }
 
-       
-      const schedules = cfg.getProperty('amdwiki.schedules', null);
-      if (!schedules || typeof schedules !== 'object' || Object.keys(schedules).length === 0) {
+      const schedulesRaw: unknown = cfg.getProperty('amdwiki.schedules', null);
+      if (!schedulesRaw || typeof schedulesRaw !== 'object' || Object.keys(schedulesRaw).length === 0) {
         await this.notify('ACLManager: amdwiki.schedules missing during check', 'error');
         throw new Error('Schedules configuration missing');
       }
+      const schedules = schedulesRaw as SchedulesConfig;
 
       const now = new Date();
       const currentDate = now.toISOString().split('T')[0]; // YYYY-MM-DD format
-       
-      const timeZone = cfg.getProperty('amdwiki.timeZone', 'UTC');
+
+      const timeZone = String(cfg.getProperty('amdwiki.timeZone', 'UTC'));
       const currentTime = now.toLocaleTimeString('en-US', {
-         
         timeZone,
         hour12: false,
         hour: '2-digit',
@@ -759,9 +752,8 @@ class ACLManager extends BaseManager {
       });
 
       // Check holidays first (they override all other schedules)
-       
+
       if (schedules.holidays?.enabled) {
-         
         const holidayCheck = await this.checkHolidayRestrictions(currentDate, schedules.holidays);
         if (!holidayCheck.allowed) {
           return holidayCheck;
@@ -769,18 +761,17 @@ class ACLManager extends BaseManager {
       }
 
       // Check custom schedules if enabled
-       
+
       if (schedules.customSchedules?.enabled) {
-        const scheduleCheck = await this.checkCustomSchedule(user, context, currentDate, currentTime, schedules as SchedulesConfig);
+        const scheduleCheck = await this.checkCustomSchedule(user, context, currentDate, currentTime, schedules);
         if (scheduleCheck.allowed !== undefined) {
           return scheduleCheck as PermissionResult;
         }
       }
 
       // Fall back to basic business hours
-       
-      return this.checkBusinessHours(schedules.businessHours, schedules.timeZone);
 
+      return this.checkBusinessHours(schedules.businessHours, schedules.timeZone);
     } catch (error) {
       await this.notify(`Error in enhanced time restrictions: ${error instanceof Error ? error.message : String(error)}`, 'error');
       return { allowed: false, reason: 'schedule_check_error', message: error instanceof Error ? error.message : String(error) };
@@ -802,26 +793,24 @@ class ACLManager extends BaseManager {
    * @param {HolidayConfig} holidaysConfig - Holiday configuration
    * @returns {Promise<PermissionResult>} Permission result
    */
-  async checkHolidayRestrictions(currentDate: string, holidaysConfig: HolidayConfig): Promise<PermissionResult> {
+  async checkHolidayRestrictions(currentDate: string, _holidaysConfig: HolidayConfig): Promise<PermissionResult> {
     try {
       // Require holidays from ConfigurationManager only (no file fallback)
-       
+
       const cfg = this.engine?.getManager?.('ConfigurationManager');
-       
+
       if (!cfg?.getProperty) {
         await this.notify('ConfigurationManager not available for holiday checks', 'error');
         throw new Error('Holiday checks require ConfigurationManager');
       }
 
-       
       const enabled = cfg.getProperty('amdwiki.holidays.enabled', false);
       if (!enabled) {
         return { allowed: true, reason: 'holidays_disabled' };
       }
 
-       
       const dates = cfg.getProperty('amdwiki.holidays.dates', null);
-       
+
       const recurring = cfg.getProperty('amdwiki.holidays.recurring', null);
       if (!dates || typeof dates !== 'object' || !recurring || typeof recurring !== 'object') {
         await this.notify('Holiday configuration missing: amdwiki.holidays.dates/recurring', 'error');
@@ -829,14 +818,13 @@ class ACLManager extends BaseManager {
       }
 
       // Exact date match
-       
+
       if (dates[currentDate]) {
-         
         const holiday = dates[currentDate] || {};
         return {
           allowed: false,
           reason: 'holiday_restriction',
-           
+
           message: holiday.message || `Access restricted on ${holiday.name || 'holiday'}`
         };
       }
@@ -844,14 +832,13 @@ class ACLManager extends BaseManager {
       // Recurring holiday match (*-MM-DD)
       const [, month, day] = currentDate.split('-');
       const recurringKey = `*-${month}-${day}`;
-       
+
       if (recurring[recurringKey]) {
-         
         const holiday = recurring[recurringKey] || {};
         return {
           allowed: false,
           reason: 'recurring_holiday_restriction',
-           
+
           message: holiday.message || `Access restricted on ${holiday.name || 'holiday'}`
         };
       }
@@ -869,12 +856,9 @@ class ACLManager extends BaseManager {
    * @private
    */
   private async notify(message: string, level: 'warn' | 'error' = 'warn'): Promise<void> {
-     
     const nm = this.engine?.getManager?.('NotificationManager');
     try {
-       
       if (nm?.addNotification) {
-         
         await nm.addNotification({ level, message, source: 'ACLManager', timestamp: new Date().toISOString() });
       } else {
         if (level === 'error') {
@@ -906,18 +890,15 @@ class ACLManager extends BaseManager {
     const username = user?.username || user?.name || 'anonymous';
     const msg = `ACL decision: user=${username} page=${pageName} action=${action} allowed=${!!allowed} reason=${reason || 'n/a'}`;
     if (allowed) {
-       
       this.engine?.logger?.info?.(msg);
     } else {
-       
       this.engine?.logger?.warn?.(msg);
     }
     // Optional: forward to NotificationManager for UI surfacing
-     
+
     const nm = this.engine?.getManager?.('NotificationManager');
-     
+
     if (nm?.addNotification) {
-       
       nm.addNotification({
         level: allowed ? 'info' : 'warn',
         message: msg,
@@ -936,13 +917,10 @@ class ACLManager extends BaseManager {
    */
   removeACLMarkup(content: string): string {
     if (typeof content !== 'string' || !content) return content;
-    const pluginPattern = /\[\{\s*(ALLOW|DENY)\b[^}]*\}\]/gmi;
-    const percentBlock = /%%acl[\s\S]*?%%/gmi;
-    const directiveParen = /\(:\s*acl\b[^:]*:\)/gmi;
-    return content
-      .replace(pluginPattern, '')
-      .replace(percentBlock, '')
-      .replace(directiveParen, '');
+    const pluginPattern = /\[\{\s*(ALLOW|DENY)\b[^}]*\}\]/gim;
+    const percentBlock = /%%acl[\s\S]*?%%/gim;
+    const directiveParen = /\(:\s*acl\b[^:]*:\)/gim;
+    return content.replace(pluginPattern, '').replace(percentBlock, '').replace(directiveParen, '');
   }
 
   // Alias for compatibility if other code calls stripACLMarkup

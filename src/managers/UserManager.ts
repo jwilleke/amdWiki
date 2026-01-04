@@ -6,7 +6,6 @@
 
 import BaseManager, { BackupData } from './BaseManager';
 
-
 import crypto from 'crypto';
 import logger from '../utils/logger';
 import LocaleUtils from '../utils/LocaleUtils';
@@ -29,7 +28,6 @@ interface ProviderInfo {
  * Provider constructor type for dynamic loading
  */
 interface UserProviderConstructor {
-   
   new (engine: WikiEngine): any;
 }
 
@@ -184,14 +182,8 @@ class UserManager extends BaseManager {
     }
 
     // Load provider with fallback (ALL LOWERCASE)
-    const defaultProvider = configManager.getProperty(
-      'amdwiki.user.provider.default',
-      'fileuserprovider'
-    ) as string;
-    const providerName = configManager.getProperty(
-      'amdwiki.user.provider',
-      defaultProvider
-    ) as string;
+    const defaultProvider = configManager.getProperty('amdwiki.user.provider.default', 'fileuserprovider') as string;
+    const providerName = configManager.getProperty('amdwiki.user.provider', defaultProvider) as string;
 
     // Normalize provider name to PascalCase for class loading
     this.providerClass = this.normalizeProviderName(providerName);
@@ -202,7 +194,7 @@ class UserManager extends BaseManager {
     try {
       // eslint-disable-next-line @typescript-eslint/no-require-imports
       const ProviderClass = require(`../providers/${this.providerClass}`) as UserProviderConstructor;
-       
+
       this.provider = new ProviderClass(this.engine);
       if (!this.provider) {
         throw new Error('Failed to create user provider');
@@ -220,28 +212,13 @@ class UserManager extends BaseManager {
     }
 
     // Load configuration settings (for business logic)
-    this.passwordSalt = configManager.getProperty(
-      'amdwiki.user.security.passwordsalt',
-      'amdwiki-salt'
-    ) as string;
-    this.defaultPassword = configManager.getProperty(
-      'amdwiki.user.security.defaultpassword',
-      'admin123'
-    ) as string;
-    this.sessionExpiration = configManager.getProperty(
-      'amdwiki.user.security.sessionexpiration',
-      86400000
-    ) as number;
-    this.defaultTimezone = configManager.getProperty(
-      'amdwiki.user.defaults.timezone',
-      'utc'
-    ) as string;
+    this.passwordSalt = configManager.getProperty('amdwiki.user.security.passwordsalt', 'amdwiki-salt') as string;
+    this.defaultPassword = configManager.getProperty('amdwiki.user.security.defaultpassword', 'admin123') as string;
+    this.sessionExpiration = configManager.getProperty('amdwiki.user.security.sessionexpiration', 86400000) as number;
+    this.defaultTimezone = configManager.getProperty('amdwiki.user.defaults.timezone', 'utc') as string;
 
     // Load role definitions from config
-    const roleDefinitions = configManager.getProperty(
-      'amdwiki.roles.definitions',
-      {}
-    ) as Record<string, Role>;
+    const roleDefinitions = configManager.getProperty('amdwiki.roles.definitions', {}) as Record<string, Role>;
     this.roles = new Map(Object.entries(roleDefinitions));
 
     logger.info(`👤 Loaded ${this.roles.size} role definitions from configuration`);
@@ -299,10 +276,10 @@ class UserManager extends BaseManager {
 
     // Handle special cases for known provider names
     const knownProviders: Record<string, string> = {
-      'fileuserprovider': 'FileUserProvider',
-      'jsonuserprovider': 'FileUserProvider', // Alias
-      'databaseuserprovider': 'DatabaseUserProvider',
-      'ldapuserprovider': 'LDAPUserProvider'
+      fileuserprovider: 'FileUserProvider',
+      jsonuserprovider: 'FileUserProvider', // Alias
+      databaseuserprovider: 'DatabaseUserProvider',
+      ldapuserprovider: 'LDAPUserProvider'
     };
 
     if (knownProviders[lower]) {
@@ -311,9 +288,7 @@ class UserManager extends BaseManager {
 
     // Fallback: Split on common separators and capitalize each word
     const words = lower.split(/[-_]/);
-    const pascalCase = words
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join('');
+    const pascalCase = words.map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join('');
 
     return pascalCase;
   }
@@ -346,7 +321,10 @@ class UserManager extends BaseManager {
    */
   hashPassword(password: string): string {
     const salt = this.passwordSalt || 'amdwiki-salt';
-    return crypto.createHash('sha256').update(password + salt).digest('hex');
+    return crypto
+      .createHash('sha256')
+      .update(password + salt)
+      .digest('hex');
   }
 
   /**
@@ -409,54 +387,53 @@ class UserManager extends BaseManager {
 
     // Sync default admin to Schema.org data
     try {
-       
       const schemaManager = this.engine.getManager('SchemaManager');
-       
+
       if (schemaManager && schemaManager.isInitialized()) {
-         
         const personData: any = {
           '@context': 'https://schema.org',
           '@type': 'Person',
-          'identifier': 'admin',
-          'name': 'Administrator',
-          'alternateName': ['admin'],
-          'email': 'admin@localhost',
-          'memberOf': {
+          identifier: 'admin',
+          name: 'Administrator',
+          alternateName: ['admin'],
+          email: 'admin@localhost',
+          memberOf: {
             '@type': 'Organization',
-            'identifier': 'amdwiki-platform',
-            'name': 'amdWiki Platform'
+            identifier: 'amdwiki-platform',
+            name: 'amdWiki Platform'
           },
-          'worksFor': {
+          worksFor: {
             '@type': 'Organization',
-            'identifier': 'amdwiki-platform',
-            'name': 'amdWiki Platform'
+            identifier: 'amdwiki-platform',
+            name: 'amdWiki Platform'
           },
-          'hasCredential': [{
-            '@type': 'EducationalOccupationalCredential',
-            'credentialCategory': 'admin',
-            'competencyRequired': ['System Administration', 'User Management', 'Configuration Management'],
-            'issuedBy': {
-              '@type': 'Organization',
-              'identifier': 'amdwiki-platform'
+          hasCredential: [
+            {
+              '@type': 'EducationalOccupationalCredential',
+              credentialCategory: 'admin',
+              competencyRequired: ['System Administration', 'User Management', 'Configuration Management'],
+              issuedBy: {
+                '@type': 'Organization',
+                identifier: 'amdwiki-platform'
+              }
             }
-          }],
-          'jobTitle': 'Administrator',
-          'memberOfStartDate': adminUser.createdAt,
-          'dateCreated': adminUser.createdAt,
-          'authentication': {
-            'passwordHash': adminUser.password,
-            'isSystem': true,
-            'preferences': adminUser.preferences
+          ],
+          jobTitle: 'Administrator',
+          memberOfStartDate: adminUser.createdAt,
+          dateCreated: adminUser.createdAt,
+          authentication: {
+            passwordHash: adminUser.password,
+            isSystem: true,
+            preferences: adminUser.preferences
           },
-          'contactPoint': {
+          contactPoint: {
             '@type': 'ContactPoint',
-            'contactType': 'Account',
-            'availableLanguage': ['English'],
-            'email': 'admin@localhost'
+            contactType: 'Account',
+            availableLanguage: ['English'],
+            email: 'admin@localhost'
           }
         };
 
-         
         await schemaManager.createPerson(personData);
         logger.info('📋 Synced default admin to Schema.org data');
       }
@@ -559,7 +536,6 @@ class UserManager extends BaseManager {
    * @returns {Promise<boolean>} True if user has permission via policies
    */
   async hasPermission(username: string, action: string): Promise<boolean> {
-     
     const policyEvaluator = this.engine?.getManager('PolicyEvaluator');
     if (!policyEvaluator) {
       logger.warn('[UserManager] PolicyEvaluator not available, denying permission');
@@ -597,9 +573,9 @@ class UserManager extends BaseManager {
     }
 
     // Evaluate using policies - use generic page resource for permission checks
-     
+
     const result = await policyEvaluator.evaluateAccess({
-      pageName: '*',  // Generic - checking user capability, not specific page
+      pageName: '*', // Generic - checking user capability, not specific page
       action: action,
       userContext: userContext
     });
@@ -615,7 +591,7 @@ class UserManager extends BaseManager {
    */
   async getUserPermissions(username: string): Promise<string[]> {
     // Query PolicyManager for actual permissions
-     
+
     const policyManager = this.engine.getManager('PolicyManager');
     if (!policyManager) {
       logger.warn('PolicyManager not available, returning empty permissions');
@@ -655,31 +631,18 @@ class UserManager extends BaseManager {
    * @param {string[]} userRoles - Array of role names
    * @returns {string[]} Array of permission strings
    */
-   
-   
+
   private getPermissionsFromPolicies(policyManager: any, userRoles: string[]): string[] {
-     
-     
     const policies = policyManager.getAllPolicies();
     const permissions = new Set<string>();
 
     // Collect permissions from all matching allow policies
-     
-     
+
     for (const policy of policies) {
-       
-       
       if (policy.effect === 'allow') {
-         
-         
-        const hasMatchingRole = policy.subjects.some((subject: any) =>
-           
-          subject.type === 'role' && userRoles.includes(subject.value)
-        );
+        const hasMatchingRole = policy.subjects.some((subject: any) => subject.type === 'role' && userRoles.includes(subject.value));
 
         if (hasMatchingRole) {
-           
-           
           policy.actions.forEach((action: string) => permissions.add(action));
         }
       }
@@ -708,14 +671,13 @@ class UserManager extends BaseManager {
         }
       }
 
-       
       const pageManager = this.engine.getManager('PageManager');
       if (!pageManager) {
         return false; // If no page manager, no conflict possible
       }
 
       // Check if page exists with this name (as title, slug, or exact match)
-       
+
       const existingPage = await pageManager.getPage(displayName);
       return existingPage !== null;
     } catch (error) {
@@ -731,14 +693,12 @@ class UserManager extends BaseManager {
    */
   async createUserPage(user: User): Promise<boolean> {
     try {
-       
       const pageManager = this.engine.getManager('PageManager');
       if (!pageManager) {
         logger.warn('PageManager not available, cannot create user page');
         return false;
       }
 
-       
       const templateManager = this.engine.getManager('TemplateManager');
       if (!templateManager) {
         logger.warn('TemplateManager not available, cannot create user page');
@@ -746,7 +706,7 @@ class UserManager extends BaseManager {
       }
 
       // Check if user page already exists
-       
+
       const existingPage = await pageManager.getPage(user.displayName);
       if (existingPage) {
         logger.info(`User page already exists for ${user.displayName}`);
@@ -754,11 +714,11 @@ class UserManager extends BaseManager {
       }
 
       // Get user page template
-       
+
       const templateContent = await templateManager.getTemplate('user-page');
 
       // Populate template with user data
-       
+
       const populatedContent = await templateManager.populateTemplate(templateContent, {
         displayName: user.displayName,
         username: user.username,
@@ -767,9 +727,9 @@ class UserManager extends BaseManager {
       });
 
       // Generate metadata for the user page
-       
+
       const validationManager = this.engine.getManager('ValidationManager');
-       
+
       const metadata = validationManager.generateValidMetadata(user.displayName, {
         'user-keywords': ['user-page', user.displayName.toLowerCase().replace(/\s+/g, '-')],
         'system-category': 'User Pages',
@@ -778,15 +738,13 @@ class UserManager extends BaseManager {
       });
 
       // Save the user page
-       
+
       const result = await pageManager.savePage(user.displayName, populatedContent, metadata, user);
 
-       
       if (result.success) {
         logger.info(`✅ Created user page for ${user.displayName}`);
         return true;
       } else {
-         
         logger.error(`❌ Failed to create user page for ${user.displayName}:`, result.error);
         return false;
       }
@@ -809,9 +767,8 @@ class UserManager extends BaseManager {
     const { username, email, displayName, password, roles = ['reader'], isExternal = false, isActive = true, acceptLanguage } = userData;
 
     if (await this.provider.userExists(username)) {
-       
       const existingUsers = await this.provider.getAllUsernames();
-       
+
       throw new Error(`Username already exists: "${username}". Existing users: ${existingUsers.join(', ')}`);
     }
 
@@ -828,8 +785,7 @@ class UserManager extends BaseManager {
     const defaultTimeFormat = LocaleUtils.getTimeFormatFromLocale(userLocale);
 
     const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
-    const defaultTimezone = configManager ?
-      (configManager.getProperty('amdwiki.default.timezone', 'UTC') as string) : 'UTC';
+    const defaultTimezone = configManager ? (configManager.getProperty('amdwiki.default.timezone', 'UTC') as string) : 'UTC';
 
     const user: User = {
       username,
@@ -855,33 +811,31 @@ class UserManager extends BaseManager {
 
     // Schema.org sync
     try {
-       
       const schemaManager = this.engine.getManager('SchemaManager');
-       
+
       if (schemaManager && schemaManager.isInitialized()) {
-         
         const personData: any = {
           '@context': 'https://schema.org',
           '@type': 'Person',
-          'identifier': username,
-          'name': user.displayName,
-          'alternateName': [username],
-          'email': user.email,
-          'memberOf': { '@type': 'Organization', 'identifier': 'amdwiki-platform', 'name': 'amdWiki Platform' },
-          'worksFor': { '@type': 'Organization', 'identifier': 'amdwiki-platform', 'name': 'amdWiki Platform' },
-          'hasCredential': roles.map(role => ({
+          identifier: username,
+          name: user.displayName,
+          alternateName: [username],
+          email: user.email,
+          memberOf: { '@type': 'Organization', identifier: 'amdwiki-platform', name: 'amdWiki Platform' },
+          worksFor: { '@type': 'Organization', identifier: 'amdwiki-platform', name: 'amdWiki Platform' },
+          hasCredential: roles.map((role) => ({
             '@type': 'EducationalOccupationalCredential',
-            'credentialCategory': role,
-            'competencyRequired': this.getRoleCompetencies(role),
-            'issuedBy': { '@type': 'Organization', 'identifier': 'amdwiki-platform' }
+            credentialCategory: role,
+            competencyRequired: this.getRoleCompetencies(role),
+            issuedBy: { '@type': 'Organization', identifier: 'amdwiki-platform' }
           })),
-          'jobTitle': this.getJobTitleFromRoles(roles),
-          'memberOfStartDate': user.createdAt,
-          'dateCreated': user.createdAt,
-          'authentication': { 'passwordHash': user.password, 'isSystem': user.isSystem, 'preferences': user.preferences },
-          'contactPoint': { '@type': 'ContactPoint', 'contactType': 'Account', 'availableLanguage': ['English'], 'email': user.email }
+          jobTitle: this.getJobTitleFromRoles(roles),
+          memberOfStartDate: user.createdAt,
+          dateCreated: user.createdAt,
+          authentication: { passwordHash: user.password, isSystem: user.isSystem, preferences: user.preferences },
+          contactPoint: { '@type': 'ContactPoint', contactType: 'Account', availableLanguage: ['English'], email: user.email }
         };
-         
+
         await schemaManager.createPerson(personData);
         logger.info(`📋 Synced user ${username} to Schema.org data`);
       }
@@ -926,12 +880,9 @@ class UserManager extends BaseManager {
 
     // Schema.org sync
     try {
-       
       const schemaManager = this.engine.getManager('SchemaManager');
-       
+
       if (schemaManager && schemaManager.isInitialized()) {
-         
-         
         const updateData: any = {};
         if (updates.displayName) updateData.name = updates.displayName;
         if (updates.email) {
@@ -939,11 +890,11 @@ class UserManager extends BaseManager {
           updateData.contactPoint = { email: updates.email };
         }
         if (updates.roles) {
-          updateData.hasCredential = updates.roles.map(role => ({
+          updateData.hasCredential = updates.roles.map((role) => ({
             '@type': 'EducationalOccupationalCredential',
-            'credentialCategory': role,
-            'competencyRequired': this.getRoleCompetencies(role),
-            'issuedBy': { '@type': 'Organization', 'identifier': 'amdwiki-platform' }
+            credentialCategory: role,
+            competencyRequired: this.getRoleCompetencies(role),
+            issuedBy: { '@type': 'Organization', identifier: 'amdwiki-platform' }
           }));
           updateData.jobTitle = this.getJobTitleFromRoles(updates.roles);
         }
@@ -952,7 +903,7 @@ class UserManager extends BaseManager {
         }
         if (Object.keys(updateData).length > 0) {
           updateData.lastReviewed = new Date().toISOString();
-           
+
           await schemaManager.updatePerson(username, updateData);
         }
       }
@@ -983,11 +934,9 @@ class UserManager extends BaseManager {
     await this.provider.deleteUser(username);
 
     try {
-       
       const schemaManager = this.engine.getManager('SchemaManager');
-       
+
       if (schemaManager && schemaManager.isInitialized() && typeof schemaManager.deletePerson === 'function') {
-         
         await schemaManager.deletePerson(username);
       }
     } catch (error) {
@@ -1003,7 +952,7 @@ class UserManager extends BaseManager {
       throw new Error('Provider not initialized');
     }
     const allUsers = await this.provider.getAllUsers();
-    return Array.from(allUsers.values()).map(user => {
+    return Array.from(allUsers.values()).map((user) => {
       const { password: _pwd, ...userWithoutPassword } = user;
       return userWithoutPassword;
     });
@@ -1054,9 +1003,7 @@ class UserManager extends BaseManager {
       return this.getAnonymousUser();
     }
 
-     
     if ((req as any).session && (req as any).session.user && (req as any).session.user.isAuthenticated) {
-       
       const userFromSession = (req as any).session.user;
       const freshUser = await this.provider.getUser(userFromSession.username);
       if (!freshUser || !freshUser.isActive) {
@@ -1080,10 +1027,8 @@ class UserManager extends BaseManager {
   }
 
   ensureAuthenticated(req: Request, res: Response, next: NextFunction): void {
-     
-     
     const user = (req as any).user;
-     
+
     if (!user || !user.isAuthenticated) {
       res.status(401).json({ error: 'Unauthorized' });
       return;
@@ -1093,14 +1038,13 @@ class UserManager extends BaseManager {
 
   requirePermissions(requiredPermissions: string[] = []) {
     return (req: Request, res: Response, next: NextFunction): void => {
-       
       const user = (req as any).user;
       if (!user || !user.isAuthenticated) {
         res.status(401).json({ error: 'Unauthorized' });
         return;
       }
       // eslint-disable-next-line @typescript-eslint/no-misused-promises
-      const hasPermission = requiredPermissions.some(permission => this.hasPermission(user.username, permission));
+      const hasPermission = requiredPermissions.some((permission) => this.hasPermission(user.username, permission));
       if (!hasPermission) {
         res.status(403).json({ error: 'Forbidden' });
         return;
@@ -1177,9 +1121,9 @@ class UserManager extends BaseManager {
 
   getRoleCompetencies(role: string): string[] {
     const competencies: Record<string, string[]> = {
-      'admin': ['System Administration', 'User Management', 'Configuration Management'],
-      'editor': ['Content Creation', 'Content Editing', 'Wiki Markup'],
-      'reader': ['Content Consumption', 'Basic Navigation']
+      admin: ['System Administration', 'User Management', 'Configuration Management'],
+      editor: ['Content Creation', 'Content Editing', 'Wiki Markup'],
+      reader: ['Content Consumption', 'Basic Navigation']
     };
     return competencies[role] || ['Basic Platform Usage'];
   }
@@ -1229,11 +1173,10 @@ class UserManager extends BaseManager {
     if (!this.provider) {
       throw new Error('Provider not initialized');
     }
-     
+
     const allSessions = await this.provider.getAllSessions();
-     
+
     for (const [sessionId, session] of allSessions.entries()) {
-       
       if (session.username === username) {
         await this.provider.deleteSession(sessionId);
       }
@@ -1254,7 +1197,6 @@ class UserManager extends BaseManager {
     }
 
     try {
-       
       const providerBackup = await (this.provider as any).backup();
       return {
         managerName: 'UserManager',
@@ -1283,7 +1225,6 @@ class UserManager extends BaseManager {
 
     try {
       if (backupData.providerBackup) {
-         
         await (this.provider as any).restore(backupData.providerBackup);
         logger.info('[UserManager] Restore completed successfully');
       } else {

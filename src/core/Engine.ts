@@ -86,7 +86,9 @@ class Engine {
    * @returns {T|undefined} Manager instance or undefined if not found
    *
    * @example
+   * // Type-safe usage with explicit type parameter:
    * const pageManager = engine.getManager<PageManager>('PageManager');
+   * const configManager = engine.getManager<ConfigurationManager>('ConfigurationManager');
    */
   getManager<T = BaseManager>(managerName: string): T | undefined {
     return this.managers.get(managerName) as T | undefined;

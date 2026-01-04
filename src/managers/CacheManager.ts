@@ -4,6 +4,7 @@ import type ICacheAdapter from '../cache/ICacheAdapter';
 import logger from '../utils/logger';
 import NullCacheProvider from '../providers/NullCacheProvider';
 import type { WikiEngine } from '../types/WikiEngine';
+import type ConfigurationManager from './ConfigurationManager';
 
 /**
  * Cache options for set operations
@@ -94,9 +95,8 @@ class CacheManager extends BaseManager {
    * @constructor
    * @param {any} engine - The wiki engine instance
    */
-   
+
   constructor(engine: WikiEngine) {
-     
     super(engine);
     this.provider = null;
     this.providerClass = null;
@@ -114,14 +114,12 @@ class CacheManager extends BaseManager {
   async initialize(config: Record<string, unknown> = {}): Promise<void> {
     await super.initialize(config);
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const configManager = this.engine.getManager('ConfigurationManager');
+    const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
     if (!configManager) {
       throw new Error('CacheManager requires ConfigurationManager');
     }
 
     // Check if cache is enabled (ALL LOWERCASE)
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     const cacheEnabled = configManager.getProperty('amdwiki.cache.enabled', true) as boolean;
     if (!cacheEnabled) {
       logger.info('🗄️  CacheManager: Caching disabled by configuration');
@@ -132,27 +130,16 @@ class CacheManager extends BaseManager {
     }
 
     // Load provider with fallback (ALL LOWERCASE)
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-    const defaultProvider = configManager.getProperty(
-      'amdwiki.cache.provider.default',
-      'nodecacheprovider'
-    ) as string;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-    const providerName = configManager.getProperty(
-      'amdwiki.cache.provider',
-      defaultProvider
-    ) as string;
+    const defaultProvider = configManager.getProperty('amdwiki.cache.provider.default', 'nodecacheprovider') as string;
+    const providerName = configManager.getProperty('amdwiki.cache.provider', defaultProvider) as string;
 
     // Normalize provider name to PascalCase for class loading
     // nodecacheprovider -> NodeCacheProvider
     this.providerClass = this.normalizeProviderName(providerName);
 
     // Load shared cache settings (ALL LOWERCASE)
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     this.defaultTTL = configManager.getProperty('amdwiki.cache.defaultttl', 300) as number;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     this.maxKeys = configManager.getProperty('amdwiki.cache.maxkeys', 1000) as number;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     this.checkPeriod = configManager.getProperty('amdwiki.cache.checkperiod', 120) as number;
 
     logger.info(`🗄️  Loading cache provider: ${providerName} (${this.providerClass})`);
@@ -189,7 +176,7 @@ class CacheManager extends BaseManager {
       const isHealthy = await this.provider.isHealthy();
       if (!isHealthy) {
         logger.warn(`Cache provider ${this.providerClass} health check failed, switching to NullCacheProvider`);
-         
+
         this.provider = new NullCacheProvider(this.engine);
         await this.provider.initialize();
       }
@@ -197,7 +184,7 @@ class CacheManager extends BaseManager {
       logger.error(`Failed to load cache provider: ${this.providerClass}`, error);
       // Fall back to NullCacheProvider on any error
       logger.warn('Falling back to NullCacheProvider due to provider load error');
-       
+
       this.provider = new NullCacheProvider(this.engine);
       await this.provider.initialize();
     }
@@ -219,11 +206,11 @@ class CacheManager extends BaseManager {
 
     // Handle special cases for known provider names
     const knownProviders: Record<string, string> = {
-      'nodecacheprovider': 'NodeCacheProvider',
-      'rediscacheprovider': 'RedisCacheProvider',
-      'nullcacheprovider': 'NullCacheProvider',
-      'null': 'NullCacheProvider',
-      'disabled': 'NullCacheProvider'
+      nodecacheprovider: 'NodeCacheProvider',
+      rediscacheprovider: 'RedisCacheProvider',
+      nullcacheprovider: 'NullCacheProvider',
+      null: 'NullCacheProvider',
+      disabled: 'NullCacheProvider'
     };
 
     if (knownProviders[lower]) {
@@ -232,9 +219,7 @@ class CacheManager extends BaseManager {
 
     // Fallback: Split on common separators and capitalize each word
     const words = lower.split(/[-_]/);
-    const pascalCase = words
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join('');
+    const pascalCase = words.map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join('');
 
     return pascalCase;
   }
@@ -329,7 +314,7 @@ class CacheManager extends BaseManager {
   async stats(region?: string): Promise<CacheStats> {
     if (region) {
       const regionCache = this.region(region);
-      return await regionCache.stats() as unknown as CacheStats;
+      return (await regionCache.stats()) as unknown as CacheStats;
     } else {
       if (!this.provider) {
         throw new Error('Cache provider not initialized');

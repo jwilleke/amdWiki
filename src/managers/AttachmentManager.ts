@@ -1,6 +1,7 @@
 import BaseManager from './BaseManager';
 import logger from '../utils/logger';
 import type { WikiEngine } from '../types/WikiEngine';
+import type ConfigurationManager from './ConfigurationManager';
 
 /**
  * Base attachment provider interface
@@ -160,14 +161,12 @@ class AttachmentManager extends BaseManager {
   async initialize(config: Record<string, unknown> = {}): Promise<void> {
     await super.initialize(config);
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const configManager = this.engine.getManager('ConfigurationManager');
+    const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
     if (!configManager) {
       throw new Error('AttachmentManager requires ConfigurationManager');
     }
 
     // Check if attachments are enabled (ALL LOWERCASE)
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     const attachmentsEnabled = configManager.getProperty('amdwiki.attachment.enabled', true) as boolean;
     if (!attachmentsEnabled) {
       logger.info('📎 AttachmentManager: Attachments disabled by configuration');
@@ -175,27 +174,16 @@ class AttachmentManager extends BaseManager {
     }
 
     // Load provider with fallback (ALL LOWERCASE)
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-    const defaultProvider = configManager.getProperty(
-      'amdwiki.attachment.provider.default',
-      'basicattachmentprovider'
-    ) as string;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-    const providerName = configManager.getProperty(
-      'amdwiki.attachment.provider',
-      defaultProvider
-    ) as string;
+    const defaultProvider = configManager.getProperty('amdwiki.attachment.provider.default', 'basicattachmentprovider') as string;
+    const providerName = configManager.getProperty('amdwiki.attachment.provider', defaultProvider) as string;
 
     // Normalize provider name to PascalCase for class loading
     // basicattachmentprovider -> BasicAttachmentProvider
     this.providerClass = this.normalizeProviderName(providerName);
 
     // Load shared attachment settings
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     this.maxSize = configManager.getProperty('amdwiki.attachment.maxsize', 10485760) as number;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     this.allowedTypes = configManager.getProperty('amdwiki.attachment.allowedtypes', 'image/*,text/*,application/pdf') as string;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     this.forceDownload = configManager.getProperty('amdwiki.attachment.forcedownload', false) as boolean;
 
     logger.info(`📎 Loading attachment provider: ${providerName} (${this.providerClass})`);
@@ -272,10 +260,12 @@ class AttachmentManager extends BaseManager {
     }
 
     // Extract user info from context (context is the full userContext object)
-    const user = options.context ? {
-      name: options.context.username || options.context.name || 'Unknown',
-      email: options.context.email || undefined
-    } : null;
+    const user = options.context
+      ? {
+        name: options.context.username || options.context.name || 'Unknown',
+        email: options.context.email || undefined
+      }
+      : null;
 
     // Create metadata
     const metadata: AttachmentMetadataInput = {
@@ -284,12 +274,7 @@ class AttachmentManager extends BaseManager {
     };
 
     // Store attachment via provider
-    const attachmentMetadata = await this.attachmentProvider.storeAttachment(
-      fileBuffer,
-      fileInfo,
-      metadata,
-      user
-    );
+    const attachmentMetadata = await this.attachmentProvider.storeAttachment(fileBuffer, fileInfo, metadata, user);
 
     // If pageName provided, add to mentions
     if (options.pageName) {
@@ -319,7 +304,7 @@ class AttachmentManager extends BaseManager {
 
     // Check if already attached
     const mentions = metadata.mentions || [];
-    const alreadyAttached = mentions.some(m => m.name === pageName);
+    const alreadyAttached = mentions.some((m) => m.name === pageName);
     if (alreadyAttached) {
       logger.info(`📎 Attachment ${attachmentId} already attached to ${pageName}`);
       return true;
@@ -328,8 +313,8 @@ class AttachmentManager extends BaseManager {
     // Add page to mentions
     mentions.push({
       '@type': 'WebPage',
-      'name': pageName,
-      'url': `/wiki/${encodeURIComponent(pageName)}`
+      name: pageName,
+      url: `/wiki/${encodeURIComponent(pageName)}`
     });
 
     await this.attachmentProvider.updateAttachmentMetadata(attachmentId, { mentions });
@@ -356,7 +341,7 @@ class AttachmentManager extends BaseManager {
     }
 
     // Remove page from mentions
-    const mentions = (metadata.mentions || []).filter(m => m.name !== pageName);
+    const mentions = (metadata.mentions || []).filter((m) => m.name !== pageName);
     await this.attachmentProvider.updateAttachmentMetadata(attachmentId, { mentions });
 
     logger.info(`📎 Detached ${attachmentId} from page ${pageName}`);
@@ -462,8 +447,8 @@ class AttachmentManager extends BaseManager {
     if (context?.user) {
       updates.editor = {
         '@type': 'Person',
-        'name': context.user.name || 'Unknown',
-        'email': context.user.email || undefined
+        name: context.user.name || 'Unknown',
+        email: context.user.email || undefined
       };
     }
 
@@ -589,10 +574,10 @@ class AttachmentManager extends BaseManager {
 
     // Handle special cases for known provider names
     const knownProviders: Record<string, string> = {
-      'basicattachmentprovider': 'BasicAttachmentProvider',
-      'databaseattachmentprovider': 'DatabaseAttachmentProvider',
-      's3attachmentprovider': 'S3AttachmentProvider',
-      'azureblobattachmentprovider': 'AzureBlobAttachmentProvider'
+      basicattachmentprovider: 'BasicAttachmentProvider',
+      databaseattachmentprovider: 'DatabaseAttachmentProvider',
+      s3attachmentprovider: 'S3AttachmentProvider',
+      azureblobattachmentprovider: 'AzureBlobAttachmentProvider'
     };
 
     if (knownProviders[lower]) {
@@ -601,9 +586,7 @@ class AttachmentManager extends BaseManager {
 
     // Fallback: Split on common separators and capitalize each word
     const words = lower.split(/[-_]/);
-    const pascalCase = words
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join('');
+    const pascalCase = words.map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join('');
 
     return pascalCase;
   }
@@ -618,7 +601,7 @@ class AttachmentManager extends BaseManager {
     const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
     if (bytes === 0) return '0 Bytes';
     const i = Math.floor(Math.log(bytes) / Math.log(1024));
-    return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+    return Math.round((bytes / Math.pow(1024, i)) * 100) / 100 + ' ' + sizes[i];
   }
 }
 

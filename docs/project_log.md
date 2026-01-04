@@ -29,6 +29,18 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 - Agent: jwilleke
 - Subject: npm run lint:code:fix
 - Current Issue: Update eslint to match reccomendations for v9+ with prettier
+- Testing: npm run lint:code -- --format summary
+  - errors  1 warnings  0 rule: @typescript-eslint/ban-ts-comment
+  - errors  0 warnings 25 rule: @typescript-eslint/no-explicit-any
+  - errors  2 warnings  0 rule: @typescript-eslint/no-floating-promises
+  - errors  4 warnings  0 rule: @typescript-eslint/no-unsafe-argument
+  - errors 11 warnings  0 rule: @typescript-eslint/no-unsafe-assignment
+  - errors  3 warnings  0 rule: @typescript-eslint/no-unsafe-call
+  - errors  5 warnings  0 rule: @typescript-eslint/no-unused-vars
+  - errors 71 warnings  0 rule: indent
+  - errors  1 warnings  0 rule: prefer-const
+  - 123 problems in total (98 errors, 25 warnings)
+- commits: c99cff3..c80dc31
 - Files Modified:
   - deleted:    .eslintrc.json
   - modified:   docs/project_log.md
@@ -43,6 +55,7 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 - Current Issue: [\[issue\]](https://github.com/jwilleke/amdWiki/issues/184)
 - Testing:
   - Tests: 4 failed, 308 skipped, 1376 passed, 1688 total
+- commits: c99cff3..c80dc31
 - Files Modified:
   - Asrc/managers/ACLManager.ts
   - src/managers/ExportManager.ts

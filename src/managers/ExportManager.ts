@@ -3,6 +3,8 @@ import fs from 'fs/promises';
 import path from 'path';
 import LocaleUtils from '../utils/LocaleUtils';
 import type { WikiEngine } from '../types/WikiEngine';
+import type PageManager from './PageManager';
+import type RenderingManager from './RenderingManager';
 
 /**
  * Export file metadata interface
@@ -75,9 +77,8 @@ class ExportManager extends BaseManager {
    * @constructor
    * @param {any} engine - The wiki engine instance
    */
-   
+
   constructor(engine: WikiEngine) {
-     
     super(engine);
     this.exportDirectory = './exports';
     this.supportedFormats = ['html', 'pdf', 'markdown'];
@@ -110,20 +111,20 @@ class ExportManager extends BaseManager {
    * @returns {Promise<string>} HTML content
    */
   async exportPageToHtml(pageName: string, user: ExportUser | null = null): Promise<string> {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const pageManager = this.engine.getManager('PageManager');
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const renderingManager = this.engine.getManager('RenderingManager');
+    const pageManager = this.engine.getManager<PageManager>('PageManager');
+    const renderingManager = this.engine.getManager<RenderingManager>('RenderingManager');
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-    const page = await pageManager.getPage(pageName) as PageForExport | null;
+    if (!pageManager || !renderingManager) {
+      throw new Error('Required managers not available');
+    }
+
+    const page = (await pageManager.getPage(pageName)) as PageForExport | null;
     if (!page) {
       throw new Error(`Page '${pageName}' not found`);
     }
 
     // Render the page content (without user context for exports)
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-    const renderedContent = await renderingManager.renderMarkdown(page.content, pageName, null) as string;
+    const renderedContent = await renderingManager.renderMarkdown(page.content, pageName, null);
 
     // Create full HTML document
     const html = `<!DOCTYPE html>
@@ -209,20 +210,20 @@ class ExportManager extends BaseManager {
    * @returns {Promise<string>} Combined HTML content
    */
   async exportPagesToHtml(pageNames: string[], user: ExportUser | null = null): Promise<string> {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const pageManager = this.engine.getManager('PageManager');
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const renderingManager = this.engine.getManager('RenderingManager');
+    const pageManager = this.engine.getManager<PageManager>('PageManager');
+    const renderingManager = this.engine.getManager<RenderingManager>('RenderingManager');
+
+    if (!pageManager || !renderingManager) {
+      throw new Error('Required managers not available');
+    }
 
     let combinedContent = '';
     const validPages: (PageForExport & { name: string })[] = [];
 
     for (const pageName of pageNames) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-      const page = await pageManager.getPage(pageName) as PageForExport | null;
+      const page = (await pageManager.getPage(pageName)) as PageForExport | null;
       if (page) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-        const renderedContent = renderingManager.renderMarkdown(page.content, pageName, null) as string;
+        const renderedContent = await renderingManager.renderMarkdown(page.content, pageName, null);
         combinedContent += `
           <div class="page-section" id="page-${pageName.replace(/[^a-zA-Z0-9]/g, '-')}">
             <h1>${pageName}</h1>
@@ -235,9 +236,7 @@ class ExportManager extends BaseManager {
     }
 
     // Create table of contents
-    const toc = validPages.map(page =>
-      `<li><a href="#page-${page.name.replace(/[^a-zA-Z0-9]/g, '-')}">${page.name}</a></li>`
-    ).join('\n');
+    const toc = validPages.map((page) => `<li><a href="#page-${page.name.replace(/[^a-zA-Z0-9]/g, '-')}">${page.name}</a></li>`).join('\n');
 
     const html = `<!DOCTYPE html>
 <html lang="en">
@@ -348,8 +347,10 @@ class ExportManager extends BaseManager {
    * @returns {Promise<string>} Markdown content
    */
   async exportToMarkdown(pageNames: string | string[], user: ExportUser | null = null): Promise<string> {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const pageManager = this.engine.getManager('PageManager');
+    const pageManager = this.engine.getManager<PageManager>('PageManager');
+    if (!pageManager) {
+      throw new Error('PageManager not available');
+    }
     const names = Array.isArray(pageNames) ? pageNames : [pageNames];
 
     let markdown = '';
@@ -366,8 +367,7 @@ class ExportManager extends BaseManager {
     }
 
     for (const pageName of names) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-      const page = await pageManager.getPage(pageName) as PageForExport | null;
+      const page = (await pageManager.getPage(pageName)) as PageForExport | null;
       if (page) {
         if (names.length > 1) {
           markdown += `# ${pageName}\n\n`;
@@ -453,8 +453,7 @@ class ExportManager extends BaseManager {
     const date = new Date();
 
     if (user && user.preferences && user.preferences.locale) {
-      return LocaleUtils.formatDate(date, user.preferences.locale) + ' ' +
-             LocaleUtils.formatTime(date, user.preferences.locale);
+      return LocaleUtils.formatDate(date, user.preferences.locale) + ' ' + LocaleUtils.formatTime(date, user.preferences.locale);
     }
 
     // Fallback to system default
