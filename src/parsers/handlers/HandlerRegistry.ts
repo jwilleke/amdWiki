@@ -49,7 +49,7 @@ export interface RegistrationOptions {
  * Initialization context for handlers
  */
 export interface HandlerInitContext {
-  engine: WikiEngine | null;
+  engine: WikiEngine | undefined;
   handlerRegistry: HandlerRegistry;
   registrationOptions: RegistrationOptions;
 }
@@ -177,7 +177,7 @@ class HandlerRegistry {
     try {
       // Initialize handler
       const initContext: HandlerInitContext = {
-        engine: this.engine,
+        engine: this.engine ?? undefined,
         handlerRegistry: this,
         registrationOptions: options
       };

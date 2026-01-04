@@ -422,8 +422,8 @@ class VersioningMigration {
         title: page.title,
         currentVersion: 1,
         location: page.location,
-        lastModified: page.frontmatter.lastModified || new Date().toISOString(),
-        author: page.frontmatter.author || 'system',
+        lastModified: (page.frontmatter.lastModified as string) || new Date().toISOString(),
+        author: (page.frontmatter.author as string) || 'system',
         hasVersions: true
       };
     }

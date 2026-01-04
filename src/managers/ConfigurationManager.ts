@@ -673,7 +673,7 @@ class ConfigurationManager extends BaseManager {
         // Save custom config to disk
         await this.saveCustomConfiguration();
 
-        logger.info(`[ConfigurationManager] Restored ${Object.keys(this.customConfig).length} custom properties`);
+        logger.info(`[ConfigurationManager] Restored ${Object.keys(this.customConfig ?? {}).length} custom properties`);
       } else {
         logger.warn('[ConfigurationManager] No custom config in backup, resetting to empty');
         this.customConfig = {};

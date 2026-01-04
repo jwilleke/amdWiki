@@ -369,7 +369,9 @@ class PolicyValidator extends BaseManager {
       };
 
       // Compile the schema
-      this.schemaValidatorCompiled = this.schemaValidator.compile(this.policySchema);
+      if (this.schemaValidator) {
+        this.schemaValidatorCompiled = this.schemaValidator.compile(this.policySchema);
+      }
 
        
       console.log('📋 Policy schema loaded and compiled');
@@ -391,7 +393,7 @@ class PolicyValidator extends BaseManager {
 
     // Check cache first
     if (this.validationCache.has(cacheKey)) {
-      return this.validationCache.get(cacheKey);
+      return this.validationCache.get(cacheKey)!;
     }
 
     // Schema validation

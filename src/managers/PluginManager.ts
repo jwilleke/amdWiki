@@ -264,7 +264,7 @@ class PluginManager extends BaseManager {
   findPlugin(pluginName: string): Plugin | null {
     // Try exact match first (for performance)
     if (this.plugins.has(pluginName)) {
-      return this.plugins.get(pluginName);
+      return this.plugins.get(pluginName) ?? null;
     }
 
     // Try case-insensitive match
@@ -279,7 +279,7 @@ class PluginManager extends BaseManager {
     if (!pluginName.toLowerCase().endsWith('plugin')) {
       const withSuffix = pluginName + 'Plugin';
       if (this.plugins.has(withSuffix)) {
-        return this.plugins.get(withSuffix);
+        return this.plugins.get(withSuffix) ?? null;
       }
 
       // Try case-insensitive with suffix
@@ -295,7 +295,7 @@ class PluginManager extends BaseManager {
     if (pluginName.toLowerCase().endsWith('plugin')) {
       const withoutSuffix = pluginName.slice(0, -6); // Remove "Plugin"
       if (this.plugins.has(withoutSuffix)) {
-        return this.plugins.get(withoutSuffix);
+        return this.plugins.get(withoutSuffix) ?? null;
       }
 
       // Try case-insensitive without suffix

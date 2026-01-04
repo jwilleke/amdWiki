@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
  
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+ 
+ 
  
  
 
@@ -119,7 +119,7 @@ class PolicyEvaluator extends BaseManager {
    */
   // eslint-disable-next-line @typescript-eslint/require-await
   async initialize(): Promise<void> {
-    this.policyManager = this.engine.getManager('PolicyManager');
+    this.policyManager = this.engine.getManager('PolicyManager') ?? null;
     if (!this.policyManager) {
       throw new Error('PolicyEvaluator requires PolicyManager to be initialized.');
     }

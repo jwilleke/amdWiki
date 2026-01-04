@@ -129,9 +129,11 @@ class PageManager extends BaseManager {
     try {
       // eslint-disable-next-line @typescript-eslint/no-require-imports
       const ProviderClass = require(`../providers/${this.providerClass}`) as ProviderConstructor;
-       
+
       this.provider = new ProviderClass(this.engine);
-      await this.provider.initialize();
+      if (this.provider) {
+        await this.provider.initialize();
+      }
 
       const info = this.getProviderInfo();
       logger.info(`📄 PageManager initialized with ${info.name} v${info.version}`);
@@ -456,8 +458,8 @@ class PageManager extends BaseManager {
    * @returns {Promise<void>}
    */
   async shutdown(): Promise<void> {
-    if (this.provider) {
-       
+    if (this.provider && this.provider.shutdown) {
+
       await this.provider.shutdown();
     }
     logger.info('PageManager shut down');

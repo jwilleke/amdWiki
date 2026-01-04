@@ -223,11 +223,13 @@ export class Tokenizer {
     // Check pushback buffer first
     if (this.pushbackBuffer.length > 0) {
       const pushed = this.pushbackBuffer.pop();
-      // Restore position to AFTER the character (pushed.position is where the char is)
-      this.position = pushed.position + 1;
-      this.line = pushed.afterLine;
-      this.column = pushed.afterColumn;
-      return pushed.char;
+      if (pushed) {
+        // Restore position to AFTER the character (pushed.position is where the char is)
+        this.position = pushed.position + 1;
+        this.line = pushed.afterLine;
+        this.column = pushed.afterColumn;
+        return pushed.char;
+      }
     }
 
     if (this.position >= this.length) {
@@ -426,7 +428,10 @@ export class Tokenizer {
         break;
       }
 
-      result.push(this.nextChar());
+      const char = this.nextChar();
+      if (char !== null) {
+        result.push(char);
+      }
     }
 
     return result.join('');
@@ -628,20 +633,20 @@ export class Tokenizer {
       if (char === '[') {
         // Nested opening bracket - increment depth
         bracketDepth++;
-        content.push(this.nextChar());
+        content.push(this.nextChar()!);
       } else if (char === ']') {
         if (bracketDepth > 0) {
           // This ] closes a nested [
           bracketDepth--;
-          content.push(this.nextChar());
+          content.push(this.nextChar()!);
         } else {
           // This ] closes the escaped section
-          content.push(this.nextChar()); // include ] in output
+          content.push(this.nextChar()!); // include ] in output
           break;
         }
       } else {
         // Regular character
-        content.push(this.nextChar());
+        content.push(this.nextChar()!);
       }
     }
 
@@ -823,7 +828,7 @@ export class Tokenizer {
       value: text,
       ...pos,
       metadata: {
-        marker: marker, // * or #
+        marker: marker ?? undefined, // * or #
         level: level,
         ordered: marker === '#'
       }
@@ -964,7 +969,7 @@ export class Tokenizer {
         break;
       }
 
-      chars.push(this.nextChar());
+      chars.push(this.nextChar()!);
     }
 
     return {

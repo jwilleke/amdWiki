@@ -249,7 +249,7 @@ class DOMBuilder {
   handleText(token: Token): void {
     this.ensureParagraph();
     const textNode = this.wikiDocument.createTextNode(token.value);
-    this.paragraphContext.appendChild(textNode);
+    this.paragraphContext!.appendChild(textNode);
   }
 
   /**
@@ -259,7 +259,7 @@ class DOMBuilder {
   handleEscaped(token: Token): void {
     this.ensureParagraph();
     const textNode = this.wikiDocument.createTextNode(token.value);
-    this.paragraphContext.appendChild(textNode);
+    this.paragraphContext!.appendChild(textNode);
   }
 
   /**
@@ -272,7 +272,7 @@ class DOMBuilder {
       'data-variable': token.metadata?.varName || ''
     });
     span.textContent = `{$${token.metadata?.varName || ''}}`;
-    this.paragraphContext.appendChild(span);
+    this.paragraphContext!.appendChild(span);
   }
 
   /**
@@ -291,7 +291,7 @@ class DOMBuilder {
     // Otherwise append to current parent for block-level rendering
     if (this.paragraphContext) {
       this.paragraphContext.appendChild(span);
-    } else {
+    } else if (this.currentParent) {
       this.currentParent.appendChild(span);
     }
   }
@@ -308,7 +308,7 @@ class DOMBuilder {
       href: `#${token.value}`
     });
     link.textContent = token.value;
-    this.paragraphContext.appendChild(link);
+    this.paragraphContext!.appendChild(link);
   }
 
   /**
@@ -322,7 +322,7 @@ class DOMBuilder {
       href: `#${token.metadata?.link || ''}`
     });
     link.textContent = token.metadata?.text || token.metadata?.link || '';
-    this.paragraphContext.appendChild(link);
+    this.paragraphContext!.appendChild(link);
   }
 
   /**
@@ -336,7 +336,7 @@ class DOMBuilder {
       href: `#${token.value}`
     });
     link.textContent = token.value;
-    this.paragraphContext.appendChild(link);
+    this.paragraphContext!.appendChild(link);
   }
 
   /**
@@ -357,7 +357,9 @@ class DOMBuilder {
       class: 'wiki-heading'
     });
     heading.textContent = token.value.trim();
-    this.currentParent.appendChild(heading);
+    if (this.currentParent) {
+      this.currentParent.appendChild(heading);
+    }
   }
 
   /**
@@ -397,7 +399,9 @@ class DOMBuilder {
         table: this.wikiDocument.createElement('table', { class: 'wiki-table' }),
         currentRow: null
       };
-      this.currentParent.appendChild(this.tableContext.table);
+      if (this.currentParent) {
+        this.currentParent.appendChild(this.tableContext.table);
+      }
     }
 
     // Create new row if needed
@@ -419,7 +423,7 @@ class DOMBuilder {
     this.ensureParagraph();
     const strong = this.wikiDocument.createElement('strong', { class: 'wiki-bold' });
     strong.textContent = token.value;
-    this.paragraphContext.appendChild(strong);
+    this.paragraphContext!.appendChild(strong);
   }
 
   /**
@@ -429,7 +433,7 @@ class DOMBuilder {
     this.ensureParagraph();
     const em = this.wikiDocument.createElement('em', { class: 'wiki-italic' });
     em.textContent = token.value;
-    this.paragraphContext.appendChild(em);
+    this.paragraphContext!.appendChild(em);
   }
 
   /**
@@ -439,7 +443,7 @@ class DOMBuilder {
     this.ensureParagraph();
     const code = this.wikiDocument.createElement('code', { class: 'wiki-code-inline' });
     code.textContent = token.value;
-    this.paragraphContext.appendChild(code);
+    this.paragraphContext!.appendChild(code);
   }
 
   /**
@@ -451,7 +455,9 @@ class DOMBuilder {
     const code = this.wikiDocument.createElement('code');
     code.textContent = token.value;
     pre.appendChild(code);
-    this.currentParent.appendChild(pre);
+    if (this.currentParent) {
+      this.currentParent.appendChild(pre);
+    }
   }
 
   /**
@@ -462,7 +468,7 @@ class DOMBuilder {
     const comment = this.wikiDocument.createCommentNode(token.value);
     if (this.paragraphContext) {
       this.paragraphContext.appendChild(comment);
-    } else {
+    } else if (this.currentParent) {
       this.currentParent.appendChild(comment);
     }
   }
@@ -496,7 +502,9 @@ class DOMBuilder {
       this.paragraphContext = this.wikiDocument.createElement('p', {
         class: 'wiki-paragraph'
       });
-      this.currentParent.appendChild(this.paragraphContext);
+      if (this.currentParent) {
+        this.currentParent.appendChild(this.paragraphContext);
+      }
     }
   }
 
@@ -525,9 +533,9 @@ class DOMBuilder {
       });
 
       // Append to parent (either root or last list item)
-      if (this.listStack.length === 0) {
+      if (this.listStack.length === 0 && this.currentParent) {
         this.currentParent.appendChild(list);
-      } else {
+      } else if (this.listStack.length > 0) {
         // Append to last item in parent list
         const parentList = this.listStack[this.listStack.length - 1].element;
         const lastChild = parentList.lastChild as LinkedomElement | null;
@@ -552,9 +560,9 @@ class DOMBuilder {
           class: `wiki-list wiki-list-level-${targetLevel}`
         });
 
-        if (this.listStack.length === 0) {
+        if (this.listStack.length === 0 && this.currentParent) {
           this.currentParent.appendChild(list);
-        } else {
+        } else if (this.listStack.length > 0) {
           const parentList = this.listStack[this.listStack.length - 1].element;
           const lastChild = parentList.lastChild as LinkedomElement | null;
           if (lastChild) {

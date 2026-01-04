@@ -326,23 +326,25 @@ class FileAuditProvider extends BaseAuditProvider {
 
       // Count by type
       const eventType = (log.eventType as string) || (log.type as string);
-      if (eventType) {
+      if (eventType && stats.eventsByType) {
         stats.eventsByType[eventType] = (stats.eventsByType[eventType] || 0) + 1;
       }
 
       // Count by result
       const resultValue = log.result as string | undefined;
-      if (resultValue) {
+      if (resultValue && stats.eventsByResult) {
         stats.eventsByResult[resultValue] = (stats.eventsByResult[resultValue] || 0) + 1;
       }
 
       // Count by severity
       const severity = (log.severity as string) || 'low';
-      stats.eventsBySeverity[severity] = (stats.eventsBySeverity[severity] || 0) + 1;
+      if (stats.eventsBySeverity) {
+        stats.eventsBySeverity[severity] = (stats.eventsBySeverity[severity] || 0) + 1;
+      }
 
       // Count by user
       const user = (log.user as string) || (log.actor as string);
-      if (user) {
+      if (user && stats.eventsByUser) {
         stats.eventsByUser[user] = (stats.eventsByUser[user] || 0) + 1;
       }
 

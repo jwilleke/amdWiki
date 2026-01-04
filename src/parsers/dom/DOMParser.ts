@@ -226,7 +226,7 @@ class DOMParser {
       }
 
       // Step 1: Create WikiDocument
-      const wikiDocument = new WikiDocument(validContent, context);
+      const wikiDocument = new WikiDocument(validContent, context ?? undefined);
       wikiDocument.setMetadata('parserVersion', '1.0.0');
       wikiDocument.setMetadata('parseStartTime', startTime);
 
@@ -314,7 +314,7 @@ class DOMParser {
    * @returns Error document
    */
   createErrorDocument(content: string, context: RenderContext | null, error: Error): WikiDocument {
-    const wikiDocument = new WikiDocument(content, context);
+    const wikiDocument = new WikiDocument(content, context ?? undefined);
     wikiDocument.setMetadata('parseSuccess', false);
     wikiDocument.setMetadata('parseError', error.message);
 

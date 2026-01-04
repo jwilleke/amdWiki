@@ -159,6 +159,9 @@ class NodeCacheProvider extends BaseCacheProvider {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   get<T = any>(key: string): Promise<T | undefined> {
     try {
+      if (!this.cache) {
+        return Promise.resolve(undefined);
+      }
       const value = this.cache.get<T>(key);
       return Promise.resolve(value);
     } catch (error) {
@@ -178,6 +181,9 @@ class NodeCacheProvider extends BaseCacheProvider {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   set<T = any>(key: string, value: T, ttlSec?: number): Promise<void> {
     try {
+      if (!this.cache) {
+        throw new Error('NodeCacheProvider not initialized');
+      }
       if (ttlSec !== undefined) {
         this.cache.set(key, value, ttlSec);
       } else {
@@ -197,6 +203,9 @@ class NodeCacheProvider extends BaseCacheProvider {
    */
   del(keys: string | string[]): Promise<void> {
     try {
+      if (!this.cache) {
+        return Promise.resolve();
+      }
       if (Array.isArray(keys)) {
         this.cache.del(keys);
       } else {
@@ -216,6 +225,9 @@ class NodeCacheProvider extends BaseCacheProvider {
    */
   async clear(pattern?: string): Promise<void> {
     try {
+      if (!this.cache) {
+        return;
+      }
       if (!pattern || pattern === '*') {
         // Clear all keys
         this.cache.flushAll();
@@ -239,6 +251,9 @@ class NodeCacheProvider extends BaseCacheProvider {
    */
   keys(pattern: string = '*'): Promise<string[]> {
     try {
+      if (!this.cache) {
+        return Promise.resolve([]);
+      }
       const allKeys = this.cache.keys();
 
       if (pattern === '*') {
@@ -264,6 +279,18 @@ class NodeCacheProvider extends BaseCacheProvider {
    */
   stats(): Promise<CacheStats> {
     try {
+      if (!this.cache) {
+        return Promise.resolve({
+          hits: 0,
+          misses: 0,
+          keys: 0,
+          ksize: 0,
+          vsize: 0,
+          sets: 0,
+          deletes: 0,
+          hitRate: 0
+        });
+      }
       const nodeStats = this.cache.getStats() as NodeCacheStats;
 
       return Promise.resolve({
@@ -336,9 +363,16 @@ class NodeCacheProvider extends BaseCacheProvider {
    */
   async backup(): Promise<NodeCacheBackupData> {
     const baseBackup = await super.backup();
+    const defaultConfig: NodeCacheConfig = {
+      stdTTL: 300,
+      checkperiod: 120,
+      useClones: true,
+      deleteOnExpire: true,
+      maxKeys: 1000
+    };
     return {
       ...baseBackup,
-      config: { ...this.config },
+      config: this.config ? { ...this.config } : defaultConfig,
       statistics: { ...this.statistics },
       keyCount: this.cache ? this.cache.keys().length : 0
     };

@@ -373,7 +373,9 @@ class ValidationManager extends BaseManager {
       if (typeof metadata['system-category'] !== 'string') {
         validationErrors.push('system-category must be a string');
       } else if (!this.validSystemCategories.map(cat => cat.toLowerCase()).includes((metadata['system-category']).toLowerCase())) {
-        result.warnings.push(`System category '${metadata['system-category']}' is not in the standard list: ${this.validSystemCategories.join(', ')}`);
+        if (result.warnings) {
+          result.warnings.push(`System category '${metadata['system-category']}' is not in the standard list: ${this.validSystemCategories.join(', ')}`);
+        }
       }
     }
 
@@ -448,7 +450,9 @@ class ValidationManager extends BaseManager {
     // Validate metadata
     const metadataValidation = this.validateMetadata(metadata);
     result.metadataValid = metadataValidation.success;
-    result.warnings.push(...(metadataValidation.warnings || []));
+    if (result.warnings) {
+      result.warnings.push(...(metadataValidation.warnings || []));
+    }
 
     if (!metadataValidation.success) {
       result.error = metadataValidation.error;
@@ -458,7 +462,7 @@ class ValidationManager extends BaseManager {
     // Validate UUID consistency between filename and metadata
     const filenameUuid = path.parse(filename).name;
     if (metadata.uuid !== filenameUuid) {
-      // eslint-disable-next-line @typescript-eslint/no-base-to-string, @typescript-eslint/restrict-template-expressions
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
       result.error = `UUID mismatch: filename uses '${filenameUuid}' but metadata contains '${metadata.uuid}'`;
       return result;
     }
@@ -466,7 +470,9 @@ class ValidationManager extends BaseManager {
     // Optional content validation
     if (content !== null) {
       const contentValidation = this.validateContent(content);
-      result.warnings.push(...(contentValidation.warnings || []));
+      if (result.warnings) {
+        result.warnings.push(...(contentValidation.warnings || []));
+      }
     }
 
     result.success = true;
@@ -590,7 +596,7 @@ class ValidationManager extends BaseManager {
     }
 
     // Fix filename to match UUID
-    // eslint-disable-next-line @typescript-eslint/no-base-to-string, @typescript-eslint/restrict-template-expressions
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     const targetFilename = `${fixes.metadata.uuid}.md`;
     if (filename !== targetFilename) {
       fixes.filename = targetFilename;

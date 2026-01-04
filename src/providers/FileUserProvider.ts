@@ -93,6 +93,9 @@ class FileUserProvider extends BaseUserProvider {
    * Load users from disk
    */
   private async loadUsers(): Promise<void> {
+    if (!this.usersDirectory || !this.usersFile) {
+      throw new Error('FileUserProvider not initialized');
+    }
     try {
       const usersFilePath = path.join(this.usersDirectory, this.usersFile);
       const usersData = await fs.readFile(usersFilePath, 'utf8');
@@ -117,6 +120,9 @@ class FileUserProvider extends BaseUserProvider {
    * Save users to disk
    */
   private async saveUsers(): Promise<void> {
+    if (!this.usersDirectory || !this.usersFile) {
+      throw new Error('FileUserProvider not initialized');
+    }
     try {
       const usersFilePath = path.join(this.usersDirectory, this.usersFile);
       const users = Object.fromEntries(this.users);
@@ -132,6 +138,9 @@ class FileUserProvider extends BaseUserProvider {
    * Load sessions from disk and clean up expired ones
    */
   private async loadSessions(): Promise<void> {
+    if (!this.usersDirectory || !this.sessionsFile) {
+      throw new Error('FileUserProvider not initialized');
+    }
     this.sessions.clear();
     const sessionsFilePath = path.join(this.usersDirectory, this.sessionsFile);
 
@@ -171,6 +180,9 @@ class FileUserProvider extends BaseUserProvider {
    * Save sessions to disk
    */
   private async saveSessions(): Promise<void> {
+    if (!this.usersDirectory || !this.sessionsFile) {
+      throw new Error('FileUserProvider not initialized');
+    }
     const sessionsFilePath = path.join(this.usersDirectory, this.sessionsFile);
 
     try {
