@@ -6,10 +6,14 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-console */
 
 import BaseManager from './BaseManager';
+import type ConfigurationManager from './ConfigurationManager';
+import type PageManager from './PageManager';
+import type PluginManager from './PluginManager';
+import type NotificationManager from './NotificationManager';
+import type MarkupParser from '../parsers/MarkupParser';
 
 /** Extract error message from unknown error type */
 function getErrorMessage(error: unknown): string {
@@ -186,7 +190,7 @@ class RenderingManager extends BaseManager {
 
     // Initialize PageNameMatcher with plural matching config
 
-    const configManager = this.engine.getManager('ConfigurationManager');
+    const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
     if (configManager) {
       const matchEnglishPlurals = configManager.getProperty('amdwiki.translator-reader.match-english-plurals', true) as boolean;
       this.pageNameMatcher = new PageNameMatcher(matchEnglishPlurals);
@@ -240,7 +244,7 @@ class RenderingManager extends BaseManager {
       return null;
     }
 
-    const markupParser = this.engine.getManager('MarkupParser');
+    const markupParser = this.engine.getManager<MarkupParser>('MarkupParser');
 
     if (markupParser && typeof markupParser.isInitialized === 'function' && markupParser.isInitialized()) {
       return markupParser;
@@ -259,7 +263,7 @@ class RenderingManager extends BaseManager {
    * @returns {void}
    */
   loadRenderingConfiguration(): void {
-    const configManager = this.engine.getManager('ConfigurationManager');
+    const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
 
     // Default configuration
     this.renderingConfig = {
@@ -301,7 +305,7 @@ class RenderingManager extends BaseManager {
 
     // Check if MarkupParser integration is enabled and MarkupParser is available
 
-    const markupParser = this.engine.getManager('MarkupParser');
+    const markupParser = this.engine.getManager<MarkupParser>('MarkupParser');
 
     const markupParserAvailable = markupParser && typeof markupParser.isInitialized === 'function' && markupParser.isInitialized();
     const useAdvancedParser = this.renderingConfig.useAdvancedParser && markupParserAvailable;
@@ -342,7 +346,10 @@ class RenderingManager extends BaseManager {
     const startTime = Date.now();
 
     try {
-      const markupParser = this.engine.getManager('MarkupParser');
+      const markupParser = this.engine.getManager<MarkupParser>('MarkupParser');
+      if (!markupParser) {
+        throw new Error('MarkupParser not available');
+      }
 
       // Create comprehensive context for MarkupParser
       const parseContext = {
@@ -438,16 +445,10 @@ class RenderingManager extends BaseManager {
       console.log(`📊 Performance comparison for ${pageName}:`, comparison);
 
       // Send to performance monitoring if available
-      const notificationManager = this.engine.getManager('NotificationManager');
+      const notificationManager = this.engine.getManager<NotificationManager>('NotificationManager');
       if (notificationManager && Math.abs(comparison.improvement) > 50) {
-        // Significant difference
-        notificationManager.addNotification({
-          type: 'performance',
-          title: `Rendering Performance: ${pageName}`,
-          message: `AdvancedParser vs Legacy: ${comparison.improvement}ms difference (${comparison.percentImprovement}% improvement)`,
-          priority: 'low',
-          source: 'RenderingManager'
-        });
+        // Significant difference - log performance info
+        console.log(`📊 Performance alert for ${pageName}: ${comparison.improvement}ms difference (${comparison.percentImprovement}% improvement)`);
       }
     } catch (error) {
       console.warn('⚠️  Performance comparison failed:', getErrorMessage(error));
@@ -726,7 +727,7 @@ class RenderingManager extends BaseManager {
     });
 
     // Step 2: Expand JSPWiki-style plugins and system variables using PluginManager
-    const pluginManager = this.engine.getManager('PluginManager');
+    const pluginManager = this.engine.getManager<PluginManager>('PluginManager');
     if (pluginManager) {
       // Handle system variables (${variable}) and plugins ({PluginName params})
       const macroRegex = /\[\{([^}]+)\}\]/g;
@@ -892,17 +893,11 @@ class RenderingManager extends BaseManager {
    * @returns {number} Number of pages
    */
   getTotalPagesCount(): number {
-    try {
-      const pageManager = this.engine.getManager('PageManager');
-      if (pageManager && pageManager.provider && pageManager.provider.pageCache) {
-        // Use the provider's page cache for accurate count
-        return pageManager.provider.pageCache.size;
-      }
-      return 0;
-    } catch (err) {
-      console.warn('Could not get total pages count:', err);
-      return 0;
+    // Use cached page names if available (populated by buildLinkGraph)
+    if (this.cachedPageNames && this.cachedPageNames.length > 0) {
+      return this.cachedPageNames.length;
     }
+    return 0;
   }
 
   /**
@@ -947,7 +942,7 @@ class RenderingManager extends BaseManager {
    */
   expandSystemVariables(content: string): string {
     try {
-      const pageManager = this.engine.getManager('PageManager');
+      const pageManager = this.engine.getManager<PageManager>('PageManager');
 
       // Get system information
       const startTime = this.engine.startTime || Date.now();
@@ -1011,7 +1006,7 @@ class RenderingManager extends BaseManager {
   getBaseUrl(): string {
     // Use configured baseURL from ConfigurationManager
 
-    const configManager = this.engine.getManager('ConfigurationManager');
+    const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
 
     return configManager ? configManager.getBaseURL() : 'http://localhost:3000';
   }
@@ -1023,7 +1018,7 @@ class RenderingManager extends BaseManager {
    */
   async processWikiLinks(content: string): Promise<string> {
     try {
-      const pageManager = this.engine.getManager('PageManager');
+      const pageManager = this.engine.getManager<PageManager>('PageManager');
       if (!pageManager) {
         return content;
       }
@@ -1035,7 +1030,8 @@ class RenderingManager extends BaseManager {
       if (pageNames.length === 0 && pageManager) {
         try {
           const pages = await pageManager.getAllPages();
-          pageNames = pages.map((page: { name: string }) => page.name);
+          // getAllPages returns string[] of page names
+          pageNames = pages;
           this.cachedPageNames = pageNames; // Update cache
         } catch (err) {
           console.warn('Could not get page names for link processing:', err);
@@ -1115,7 +1111,7 @@ class RenderingManager extends BaseManager {
    * Build link graph for referring pages
    */
   async buildLinkGraph(): Promise<void> {
-    const pageManager = this.engine.getManager('PageManager');
+    const pageManager = this.engine.getManager<PageManager>('PageManager');
     if (!pageManager) {
       console.warn('PageManager not available for link graph building');
       return;
@@ -1184,9 +1180,9 @@ class RenderingManager extends BaseManager {
       console.log(`📊 Link graph built with ${Object.keys(this.linkGraph).length} entries`);
 
       // Notify LinkParserHandler to refresh its page names if it exists
-      const markupParser = this.engine.getManager('MarkupParser');
+      const markupParser = this.engine.getManager<MarkupParser>('MarkupParser');
       if (markupParser && markupParser.getHandler) {
-        const linkParserHandler = markupParser.getHandler('LinkParserHandler');
+        const linkParserHandler = markupParser.getHandler('LinkParserHandler') as { refreshPageNames?: () => Promise<void> } | null;
         if (linkParserHandler && linkParserHandler.refreshPageNames) {
           await linkParserHandler.refreshPageNames();
           console.log('🔄 Notified LinkParserHandler to refresh page names');
@@ -1347,7 +1343,7 @@ class RenderingManager extends BaseManager {
     if (!content) return '';
 
     // Process plugin syntax [{PluginName param1=value1}]
-    const pluginManager = this.engine.getManager('PluginManager');
+    const pluginManager = this.engine.getManager<PluginManager>('PluginManager');
     if (!pluginManager) return content;
 
     const macroRegex = /\[\{([^}]+)\}\]/g;

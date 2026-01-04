@@ -13,6 +13,22 @@ This file serves as the single source of truth for project context and state. Al
 
 ## Agent Context Protocol
 
+### Eagerness
+
+Do not jump into implementation or change files unless clearly instructed to make changed. When the user's intent is ambiguous, default to providing information, doing research, and providing recommendations rather than taking action. Only proceed with edits, modifications, or implementations when the user explicitly requests them.
+
+### Use parallel tool calls
+
+If you intend to call multiple tools and there are no dependencies between the tool calls, make all of the independent tool calls in parallel. Prioritize calling tools simultaneously whenever the actions can be done in parallel rather than sequentially. For example, when reading 3 files, run 3 tool calls in parallel to read all 3 files into context at the same time. Maximize use of parallel tool calls where possible to increase speed and efficiency.
+However, if some tool calls depend on previous calls to inform dependent values like the parameters, do not call these tools in parallel and instead call them sequentially.
+Never use placeholders or guess missing parameters in tool calls.
+
+### DO not speculate
+
+Never speculate about code you have not opened. If the user references a specific file, you MUST read the file before answering.
+Make sure to investigate and read relevant files BEFORE answering questions about the codebase.
+Never make any claims about code before investigating unless you are certain of the correct answer - give grounded and hallucination-free answers.
+
 ### Machine-Readable Metadata
 
 See YAML frontmatter above for current project state.
@@ -23,6 +39,7 @@ See YAML frontmatter above for current project state.
 - Update `project_state` to reflect current status: "template", "active", "maintenance", "archived"
 - Update `blockers` array with any current blockers preventing progress
 - Update `agent_priority_level` based on urgency: "low", "medium", "high", "critical"
+- After completing a task that involves tool use, provide a quick summary of the work you've done
 
 ## ⚠️ CRITICAL Core Documentation (Single Source of Truth)
 
@@ -34,6 +51,7 @@ See YAML frontmatter above for current project state.
 - [CONTRIBUTING.md](./CONTRIBUTING.md) - **Single Source of Truth:** Development workflow, branching strategy, pull request process, code review
 - [DOCUMENTATION.md](./DOCUMENTATION.md) - **Single Source of Truth:** Documentation navigation, DRY principles applied to docs, finding the right doc
 - [project_log.md](docs/project_log.md) - **Single Source of Truth:** Historical record of work done, next steps, session tracking
+- Use PROJECT_REPOSITORY as defined in [.env](.env)
 
 ### ⚠️ CRITICAL Preventing Regressions**
 
@@ -49,11 +67,11 @@ See [docs/testing/PREVENTING-REGRESSIONS.md](/docs/testing/PREVENTING-REGRESSION
 ### Auxiliary Documentation
 
 - [README.md](./README.md) - Project overview and quick start (references above docs)
-- [.github/workflows/README.md](.github/workflows/README.md) - CI/CD pipelines and automation
+- [.github/workflows](.github/workflows) - CI/CD pipelines and automation
 
 ## Context Overview
 
-- Project Name: `$PROJECT_NAME` (from .env.example)
+- Project Name: `$PROJECT_NAME` (from .env)
 - Description: A brief description of what this project does and its primary purpose.
 - Example Project (for reference):
   - Project Name: `user-auth-service`
@@ -65,8 +83,8 @@ Key Decisions may be done initially or decided the project progresses. Include "
 
 ### "One File Done Right" TypeScript Migration Process**
 
-- ALWAYS Enable Strict Mode
-- Fix ALL ESLint errors in .ts file (use proper types, not `any`)
+- ALWAYS Enable Strict Mode for TypeScript
+- Fix ALL ESLint errors in .ts files
 - Install missing `@types/*` packages if needed
 - Update test imports to use .ts file (remove `.js` extension, adjust `.default`)
 - Delete the .js file only after ESLint passes
@@ -359,7 +377,3 @@ See [docs/planning/ROADMAP.md](/docs/planning/ROADMAP.md)
 Should contain only High-level targets for enhancments.
 
 Once selsected for work they should be added to [docs/planning/TODO.md](/docs/planning/TODO.md) and they should be removed from this list.
-
----
-
-**Important:** Keep AGENTS.md and project_log.md synchronized. They are the bridge between different agents working on the same project.
