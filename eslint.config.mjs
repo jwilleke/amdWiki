@@ -1,6 +1,9 @@
 import eslint from "@eslint/js";
 import tseslint from "typescript-eslint";
 import globals from "globals";
+// ────────────────────────────────────────────────────────────────
+// Add this import
+// import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
 
 export default tseslint.config(
   {
@@ -31,7 +34,6 @@ export default tseslint.config(
           "varsIgnorePattern": "^_"
         }
       ],
-      // ✅ FIXED: Changed "types" to "type" (singular)
       "@typescript-eslint/explicit-function-return-type": [
         "warn",
         {
@@ -59,5 +61,9 @@ export default tseslint.config(
         }
       ]
     }
-  }
+  },
+
+  // ────────────────────────────────────────────────────────────────
+  // Add this as the **very last** item
+  //eslintPluginPrettierRecommended
 );

@@ -24,6 +24,33 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 
 ---
 
+## 2026-01-04-03
+
+- Agent: jwilleke
+- Subject: npm run lint:code:fix
+- Current Issue: Update eslint to match reccomendations for v9+ with prettier
+- Files Modified:
+  - deleted:    .eslintrc.json
+  - modified:   docs/project_log.md
+  - modified:   eslint.config.mjs
+  - modified:   package-lock.json
+  - modified:   package.json
+
+## 2026-01-04-02
+
+- Agent: jwilleke
+- Subject: npm run lint:code:fix
+- Current Issue: [\[issue\]](https://github.com/jwilleke/amdWiki/issues/184)
+- Testing:
+  - Tests: 4 failed, 308 skipped, 1376 passed, 1688 total
+- Files Modified:
+  - Asrc/managers/ACLManager.ts
+  - src/managers/ExportManager.ts
+  - src/managers/ExportManager.ts
+  - src/managers/PluginManager.ts
+  - src/managers/PolicyValidator.ts
+  - src/routes/WikiRoutes.ts
+
 ## 2026-01-04-01
 
 - Agent: Claude Code (Opus 4.5)
