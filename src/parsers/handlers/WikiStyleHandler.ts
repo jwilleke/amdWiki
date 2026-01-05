@@ -1,5 +1,6 @@
 import BaseSyntaxHandler, { InitializationContext, ParseContext } from './BaseSyntaxHandler';
 import * as crypto from 'crypto';
+import logger from '../../utils/logger';
 
 /**
  * Style match information
@@ -110,16 +111,11 @@ class WikiStyleHandler extends BaseSyntaxHandler {
     // Load modular configuration from multiple sources
     await this.loadModularStyleConfiguration();
 
-    // eslint-disable-next-line no-console
-    console.log('WikiStyleHandler initialized with modular configuration:');
-    // eslint-disable-next-line no-console
-    console.log(`   Custom classes: ${this.styleConfig.customClasses ? 'enabled' : 'disabled'}`);
-    // eslint-disable-next-line no-console
-    console.log(`   Bootstrap: ${this.styleConfig.bootstrap ? 'enabled' : 'disabled'}`);
-    // eslint-disable-next-line no-console
-    console.log(`   Inline CSS: ${this.styleConfig.allowInlineCSS ? 'enabled' : 'disabled'}`);
-    // eslint-disable-next-line no-console
-    console.log(`   Predefined classes: ${this.predefinedClasses.size} loaded`);
+    logger.debug('WikiStyleHandler initialized with modular configuration:');
+    logger.debug(`   Custom classes: ${this.styleConfig.customClasses ? 'enabled' : 'disabled'}`);
+    logger.debug(`   Bootstrap: ${this.styleConfig.bootstrap ? 'enabled' : 'disabled'}`);
+    logger.debug(`   Inline CSS: ${this.styleConfig.allowInlineCSS ? 'enabled' : 'disabled'}`);
+    logger.debug(`   Predefined classes: ${this.predefinedClasses.size} loaded`);
   }
 
   /**
@@ -135,8 +131,7 @@ class WikiStyleHandler extends BaseSyntaxHandler {
       this.config = markupParser.getHandlerConfig('style');
 
       if (this.config?.priority && this.config.priority !== this.priority) {
-        // eslint-disable-next-line no-console
-        console.log(`WikiStyleHandler priority configured as ${this.config.priority} (using ${this.priority})`);
+        logger.debug(`WikiStyleHandler priority configured as ${this.config.priority} (using ${this.priority})`);
       }
     }
 
@@ -156,8 +151,7 @@ class WikiStyleHandler extends BaseSyntaxHandler {
 
       } catch (error) {
         const err = error as Error;
-        // eslint-disable-next-line no-console
-        console.warn('Failed to load WikiStyleHandler configuration, using defaults:', err.message);
+        logger.warn('Failed to load WikiStyleHandler configuration, using defaults:', err.message);
         this.loadDefaultConfiguration();
       }
     } else {
@@ -273,8 +267,7 @@ class WikiStyleHandler extends BaseSyntaxHandler {
       this.pattern.lastIndex = 0;
 
       while ((match = this.pattern.exec(processedContent)) !== null) {
-        // eslint-disable-next-line no-console
-        console.log(`WikiStyleHandler REGEX MATCH:
+        logger.debug(`WikiStyleHandler REGEX MATCH:
           Full match: "${match[0].substring(0, 100)}..."
           Group 1 (styleInfo): "${match[1]}"
           Group 2 (content): "${(match[2] ?? '').substring(0, 100)}..."`);
@@ -295,13 +288,11 @@ class WikiStyleHandler extends BaseSyntaxHandler {
       // Process matches in reverse order to maintain string positions
       for (let i = matches.length - 1; i >= 0; i--) {
         const matchInfo = matches[i];
-        // eslint-disable-next-line no-console
-        console.log(`WikiStyleHandler: Processing match ${i}: styleInfo="${matchInfo.styleInfo}", content preview="${matchInfo.textContent.substring(0, 50)}..."`);
+        logger.debug(`WikiStyleHandler: Processing match ${i}: styleInfo="${matchInfo.styleInfo}", content preview="${matchInfo.textContent.substring(0, 50)}..."`);
 
         try {
           const replacement = await this.handleStyle(matchInfo, context);
-          // eslint-disable-next-line no-console
-          console.log(`WikiStyleHandler: Replacement preview: "${replacement.substring(0, 100)}..."`);
+          logger.debug(`WikiStyleHandler: Replacement preview: "${replacement.substring(0, 100)}..."`);
 
 
           // Only replace if the content changed
@@ -315,8 +306,7 @@ class WikiStyleHandler extends BaseSyntaxHandler {
 
         } catch (error) {
           const err = error as Error;
-          // eslint-disable-next-line no-console
-          console.error('WikiStyle processing error:', err.message);
+          logger.error('WikiStyle processing error:', err.message);
 
           // Leave original content on error for debugging
           const errorPlaceholder = `<!-- WikiStyle Error: ${err.message} -->`;
@@ -330,8 +320,7 @@ class WikiStyleHandler extends BaseSyntaxHandler {
     }
 
     if (iterations >= maxIterations) {
-      // eslint-disable-next-line no-console
-      console.warn('WikiStyleHandler: Max iterations reached, possible infinite loop');
+      logger.warn('WikiStyleHandler: Max iterations reached, possible infinite loop');
     }
 
     return processedContent;
@@ -381,8 +370,7 @@ class WikiStyleHandler extends BaseSyntaxHandler {
    */
   // eslint-disable-next-line @typescript-eslint/require-await
   private async processCSSClasses(classInfo: string, content: string): Promise<string> {
-    // eslint-disable-next-line no-console
-    console.log(`processCSSClasses: classInfo="${classInfo}", content preview="${content.substring(0, 50)}"`);
+    logger.debug(`processCSSClasses: classInfo="${classInfo}", content preview="${content.substring(0, 50)}"`);
 
     const classNames = classInfo.split(/\s+/).filter(cls => cls.trim());
     const validClasses: string[] = [];
@@ -392,21 +380,18 @@ class WikiStyleHandler extends BaseSyntaxHandler {
       if (this.isValidCSSClass(className)) {
         validClasses.push(className);
       } else {
-        // eslint-disable-next-line no-console
-        console.warn(`Invalid or unsafe CSS class rejected: ${className}`);
+        logger.warn(`Invalid or unsafe CSS class rejected: ${className}`);
       }
     }
 
     if (validClasses.length === 0) {
       // No valid classes, return content without styling
-      // eslint-disable-next-line no-console
-      console.log('processCSSClasses: No valid classes, returning content as-is');
+      logger.debug('processCSSClasses: No valid classes, returning content as-is');
       return content;
     }
 
     const classAttribute = validClasses.join(' ');
-    // eslint-disable-next-line no-console
-    console.log(`processCSSClasses: classAttribute="${classAttribute}"`);
+    logger.debug(`processCSSClasses: classAttribute="${classAttribute}"`);
 
 
     // Table-specific classes that need to be applied to <table> elements
@@ -478,8 +463,7 @@ class WikiStyleHandler extends BaseSyntaxHandler {
   // eslint-disable-next-line @typescript-eslint/require-await
   private async processInlineStyle(styleInfo: string, content: string): Promise<string> {
     if (!this.styleConfig.allowInlineCSS) {
-      // eslint-disable-next-line no-console
-      console.warn('Inline CSS disabled by security configuration');
+      logger.warn('Inline CSS disabled by security configuration');
       return content; // Return unstyled content
     }
 
@@ -493,8 +477,7 @@ class WikiStyleHandler extends BaseSyntaxHandler {
     const validStyles = this.validateInlineCSS(cssDeclarations);
 
     if (validStyles.length === 0) {
-      // eslint-disable-next-line no-console
-      console.warn('No valid CSS properties found in inline style');
+      logger.warn('No valid CSS properties found in inline style');
       return content;
     }
 
@@ -548,15 +531,13 @@ class WikiStyleHandler extends BaseSyntaxHandler {
 
       // Validate CSS property (modular security)
       if (!this.isAllowedCSSProperty(property)) {
-        // eslint-disable-next-line no-console
-        console.warn(`CSS property '${property}' not allowed by security configuration`);
+        logger.warn(`CSS property '${property}' not allowed by security configuration`);
         continue;
       }
 
       // Validate CSS value (modular security)
       if (!this.isValidCSSValue(value)) {
-        // eslint-disable-next-line no-console
-        console.warn(`CSS value '${value}' contains potentially unsafe content`);
+        logger.warn(`CSS value '${value}' contains potentially unsafe content`);
         continue;
       }
 
@@ -770,8 +751,7 @@ class WikiStyleHandler extends BaseSyntaxHandler {
   addCustomClass(className: string): boolean {
     if (this.isValidCSSClass(className) && !this.predefinedClasses.has(className)) {
       this.predefinedClasses.add(className);
-      // eslint-disable-next-line no-console
-      console.log(`Added custom CSS class: ${className}`);
+      logger.debug(`Added custom CSS class: ${className}`);
       return true;
     }
     return false;
@@ -785,8 +765,7 @@ class WikiStyleHandler extends BaseSyntaxHandler {
   removeCustomClass(className: string): boolean {
     if (this.predefinedClasses.has(className)) {
       this.predefinedClasses.delete(className);
-      // eslint-disable-next-line no-console
-      console.log(`Removed custom CSS class: ${className}`);
+      logger.debug(`Removed custom CSS class: ${className}`);
       return true;
     }
     return false;

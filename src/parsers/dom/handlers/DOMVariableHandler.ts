@@ -14,6 +14,7 @@
  */
 
 import type WikiDocument from '../WikiDocument';
+import logger from '../../../utils/logger';
 import type { LinkedomElement } from '../WikiDocument';
 
 /**
@@ -161,8 +162,7 @@ class DOMVariableHandler {
     }
 
     if (!this.variableManager) {
-      // eslint-disable-next-line no-console
-      console.warn('⚠️  DOMVariableHandler: Cannot process variables without VariableManager');
+      logger.warn('⚠️  DOMVariableHandler: Cannot process variables without VariableManager');
       return wikiDocument;
     }
 
@@ -174,8 +174,7 @@ class DOMVariableHandler {
       return wikiDocument;
     }
 
-    // eslint-disable-next-line no-console
-    console.log(`🔍 DOMVariableHandler: Processing ${variableElements.length} variables`);
+    logger.debug(`🔍 DOMVariableHandler: Processing ${variableElements.length} variables`);
 
     let processedCount = 0;
     let errorCount = 0;
@@ -190,8 +189,7 @@ class DOMVariableHandler {
         const varName = varElement.getAttribute('data-variable');
 
         if (!varName) {
-          // eslint-disable-next-line no-console
-          console.warn('⚠️  Variable element missing data-variable attribute');
+          logger.warn('⚠️  Variable element missing data-variable attribute');
           continue;
         }
 
@@ -208,23 +206,20 @@ class DOMVariableHandler {
           // Variable not found - keep original syntax
            
           varElement.textContent = `{$${varName}}`;
-          // eslint-disable-next-line no-console
-          console.warn(`⚠️  Variable not found: ${varName}`);
+          logger.warn(`⚠️  Variable not found: ${varName}`);
         }
 
       } catch (error) {
         errorCount++;
         const errorMessage = error instanceof Error ? error.message : String(error);
-        // eslint-disable-next-line no-console
-        console.error('❌ Error processing variable:', errorMessage);
+        logger.error('❌ Error processing variable:', errorMessage);
         // On error, show error message
          
         varElement.textContent = `[Error: ${errorMessage}]`;
       }
     }
 
-    // eslint-disable-next-line no-console
-    console.log(`✅ DOMVariableHandler: Processed ${processedCount} variables, ${errorCount} errors`);
+    logger.debug(`✅ DOMVariableHandler: Processed ${processedCount} variables, ${errorCount} errors`);
 
     return wikiDocument;
   }
@@ -259,16 +254,14 @@ class DOMVariableHandler {
 
       // Handle async handlers
       if (result instanceof Promise) {
-        // eslint-disable-next-line no-console
-        console.warn(`⚠️  Variable '${varName}' returned Promise - cannot resolve synchronously`);
+        logger.warn(`⚠️  Variable '${varName}' returned Promise - cannot resolve synchronously`);
         return null;
       }
 
       return result;
 
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error(`❌ Error resolving variable '${varName}':`, error);
+      logger.error(`❌ Error resolving variable '${varName}':`, error);
       throw error;
     }
   }
@@ -315,8 +308,7 @@ class DOMVariableHandler {
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      // eslint-disable-next-line no-console
-      console.error(`❌ Error resolving variable '${varName}':`, errorMessage);
+      logger.error(`❌ Error resolving variable '${varName}':`, errorMessage);
       value = `[Error: ${varName}]`;
     }
 

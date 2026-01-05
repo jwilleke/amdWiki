@@ -1,4 +1,5 @@
 import BaseSyntaxHandler, { InitializationContext, ParseContext } from './BaseSyntaxHandler';
+import logger from '../../utils/logger';
 
 /**
  * Variable match information
@@ -67,8 +68,7 @@ class VariableSyntaxHandler extends BaseSyntaxHandler {
     this.variableManager = this.engine?.getManager('VariableManager') as VariableManager | undefined ?? null;
 
     if (!this.variableManager) {
-      // eslint-disable-next-line no-console
-      console.warn('  VariableSyntaxHandler: VariableManager not available');
+      logger.warn('  VariableSyntaxHandler: VariableManager not available');
     }
   }
 
@@ -116,14 +116,12 @@ class VariableSyntaxHandler extends BaseSyntaxHandler {
                    result.substring(m.index + m.length);
         } else {
           // Variable not found - keep original syntax
-          // eslint-disable-next-line no-console
-          console.warn(`  Variable not found: ${m.varName}`);
+          logger.warn(`  Variable not found: ${m.varName}`);
           // Keep [{$variablename}] as-is
         }
       } catch (error) {
         const err = error as Error;
-        // eslint-disable-next-line no-console
-        console.error(`Error resolving variable '${m.varName}':`, err.message);
+        logger.error(`Error resolving variable '${m.varName}':`, err.message);
         // On error, replace with error message
         const errorMsg = `[Error: ${err.message}]`;
         result = result.substring(0, m.index) +
@@ -159,16 +157,14 @@ class VariableSyntaxHandler extends BaseSyntaxHandler {
 
       // Handle async handlers
       if (result instanceof Promise) {
-        // eslint-disable-next-line no-console
-        console.warn(`  Variable '${varName}' returned Promise - cannot resolve synchronously`);
+        logger.warn(`  Variable '${varName}' returned Promise - cannot resolve synchronously`);
         return null;
       }
 
       return result !== null && result !== undefined ? String(result) : null;
 
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error(`Error resolving variable '${varName}':`, error);
+      logger.error(`Error resolving variable '${varName}':`, error);
       throw error;
     }
   }

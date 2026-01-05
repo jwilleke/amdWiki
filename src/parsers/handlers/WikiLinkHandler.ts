@@ -1,4 +1,5 @@
 import BaseSyntaxHandler, { InitializationContext, ParseContext } from './BaseSyntaxHandler';
+import logger from '../../utils/logger';
 
 /**
  * Wiki link match information
@@ -75,8 +76,7 @@ class WikiLinkHandler extends BaseSyntaxHandler {
     // Load page names for link validation
     await this.loadPageNames();
 
-    // eslint-disable-next-line no-console
-    console.log(`WikiLinkHandler initialized with ${this.cachedPageNames.length} known pages`);
+    logger.debug(`WikiLinkHandler initialized with ${this.cachedPageNames.length} known pages`);
   }
 
   /**
@@ -91,8 +91,7 @@ class WikiLinkHandler extends BaseSyntaxHandler {
       }
     } catch (error) {
       const err = error as Error;
-      // eslint-disable-next-line no-console
-      console.warn('Could not load page names for WikiLinkHandler:', err.message);
+      logger.warn('Could not load page names for WikiLinkHandler:', err.message);
     }
   }
 
@@ -140,8 +139,7 @@ class WikiLinkHandler extends BaseSyntaxHandler {
 
       } catch (error) {
         const err = error as Error;
-        // eslint-disable-next-line no-console
-        console.error('Wiki link processing error:', err.message);
+        logger.error('Wiki link processing error:', err.message);
         // Leave original link on error
       }
     }

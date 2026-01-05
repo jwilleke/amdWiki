@@ -9,6 +9,7 @@
  */
 
 import BaseSyntaxHandler from './BaseSyntaxHandler';
+import logger from '../../utils/logger';
 import type { DependencySpec } from './BaseSyntaxHandler';
 
 // Re-export for use in type assertions
@@ -200,8 +201,7 @@ class HandlerRegistry {
       this.stats.activeHandlers++;
       this.stats.lastRegistration = new Date();
 
-      // eslint-disable-next-line no-console
-      console.log(`🔧 Registered syntax handler: ${handler.handlerId} (priority: ${handler.priority})`);
+      logger.debug(`🔧 Registered syntax handler: ${handler.handlerId} (priority: ${handler.priority})`);
       return true;
 
     } catch (error) {
@@ -256,8 +256,7 @@ class HandlerRegistry {
       this.stats.activeHandlers--;
       this.stats.lastUnregistration = new Date();
 
-      // eslint-disable-next-line no-console
-      console.log(`🗑️  Unregistered syntax handler: ${handlerId}`);
+      logger.debug(`🗑️  Unregistered syntax handler: ${handlerId}`);
       return true;
 
     } catch (error) {
@@ -582,8 +581,7 @@ class HandlerRegistry {
         try {
           visit(handlerId);
         } catch (error) {
-          // eslint-disable-next-line no-console
-          console.error(`❌ Dependency resolution error for handler ${handlerId}:`, (error as Error).message);
+          logger.error(`❌ Dependency resolution error for handler ${handlerId}:`, (error as Error).message);
         }
       }
     }
@@ -629,8 +627,7 @@ class HandlerRegistry {
       try {
         await this.unregisterHandler(handlerId);
       } catch (error) {
-        // eslint-disable-next-line no-console
-        console.error(`❌ Failed to unregister handler ${handlerId}:`, (error as Error).message);
+        logger.error(`❌ Failed to unregister handler ${handlerId}:`, (error as Error).message);
       }
     }
 

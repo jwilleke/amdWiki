@@ -1,5 +1,6 @@
 import BaseSyntaxHandler, { InitializationContext, ParseContext } from './BaseSyntaxHandler';
 import * as crypto from 'crypto';
+import logger from '../../utils/logger';
 
 /**
  * Plugin match information
@@ -117,8 +118,7 @@ class PluginSyntaxHandler extends BaseSyntaxHandler {
       // Override priority if configured
       if (this.config?.priority && this.config.priority !== this.priority) {
         // Note: priority is readonly, this is just for logging purposes
-        // eslint-disable-next-line no-console
-        console.log(`PluginSyntaxHandler priority configured as ${this.config.priority} (using ${this.priority})`);
+        logger.info(`PluginSyntaxHandler priority configured as ${this.config.priority} (using ${this.priority})`);
       }
     }
   }
@@ -173,10 +173,8 @@ class PluginSyntaxHandler extends BaseSyntaxHandler {
 
       } catch (error) {
         const err = error as Error;
-        // eslint-disable-next-line no-console
-        console.error(`Plugin execution error for ${matchInfo.pluginName}:`, err.message);
-        // eslint-disable-next-line no-console
-        console.error('Stack:', err.stack);
+        logger.error(`Plugin execution error for ${matchInfo.pluginName}: ${err.message}`);
+        logger.error(`Stack: ${err.stack}`);
 
         // Leave original plugin syntax on error for debugging
         const errorPlaceholder = `<!-- Plugin Error: ${matchInfo.pluginName} - ${err.message} -->`;
@@ -230,8 +228,7 @@ class PluginSyntaxHandler extends BaseSyntaxHandler {
 
       } catch (error) {
         const err = error as Error;
-        // eslint-disable-next-line no-console
-        console.error(`Body plugin execution error for ${matchInfo.pluginName}:`, err.message);
+        logger.error(`Body plugin execution error for ${matchInfo.pluginName}: ${err.message}`);
 
         const errorPlaceholder = `<!-- Body Plugin Error: ${matchInfo.pluginName} - ${err.message} -->`;
         processedContent =
@@ -455,8 +452,7 @@ class PluginSyntaxHandler extends BaseSyntaxHandler {
       return renderingManager?.getLinkGraph() ?? {};
     } catch (error) {
       const err = error as Error;
-      // eslint-disable-next-line no-console
-      console.warn('Failed to get link graph for plugin execution:', err.message);
+      logger.warn(`Failed to get link graph for plugin execution: ${err.message}`);
       return {};
     }
   }

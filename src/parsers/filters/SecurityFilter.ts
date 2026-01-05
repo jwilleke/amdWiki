@@ -1,4 +1,5 @@
 import BaseFilter from './BaseFilter';
+import logger from '../../utils/logger';
 
 /**
  * Security configuration interface
@@ -113,18 +114,12 @@ class SecurityFilter extends BaseFilter {
     // Load modular security configuration from app-default/custom-config.json
     this.loadModularSecurityConfiguration(context);
 
-    // eslint-disable-next-line no-console
-    console.log('🔒 SecurityFilter initialized with modular configuration:');
-    // eslint-disable-next-line no-console
-    console.log(`   🛡️  XSS Prevention: ${this.securityConfig?.preventXSS ? 'enabled' : 'disabled'}`);
-    // eslint-disable-next-line no-console
-    console.log(`   🔐 CSRF Protection: ${this.securityConfig?.preventCSRF ? 'enabled' : 'disabled'}`);
-    // eslint-disable-next-line no-console
-    console.log(`   🧹 HTML Sanitization: ${this.securityConfig?.sanitizeHTML ? 'enabled' : 'disabled'}`);
-    // eslint-disable-next-line no-console
-    console.log(`   🏷️  Allowed tags: ${this.allowedTags.size} configured`);
-    // eslint-disable-next-line no-console
-    console.log(`   📝 Allowed attributes: ${this.allowedAttributes.size} configured`);
+    logger.debug('🔒 SecurityFilter initialized with modular configuration:');
+    logger.debug(`   🛡️  XSS Prevention: ${this.securityConfig?.preventXSS ? 'enabled' : 'disabled'}`);
+    logger.debug(`   🔐 CSRF Protection: ${this.securityConfig?.preventCSRF ? 'enabled' : 'disabled'}`);
+    logger.debug(`   🧹 HTML Sanitization: ${this.securityConfig?.sanitizeHTML ? 'enabled' : 'disabled'}`);
+    logger.debug(`   🏷️  Allowed tags: ${this.allowedTags.size} configured`);
+    logger.debug(`   📝 Allowed attributes: ${this.allowedAttributes.size} configured`);
   }
 
   /**
@@ -182,8 +177,7 @@ class SecurityFilter extends BaseFilter {
 
       } catch (error) {
         const err = error as Error;
-        // eslint-disable-next-line no-console
-        console.warn('⚠️  Failed to load SecurityFilter configuration, using secure defaults:', err.message);
+        logger.warn('⚠️  Failed to load SecurityFilter configuration, using secure defaults:', err.message);
         this.loadSecureDefaults();
       }
     } else {
@@ -453,8 +447,7 @@ class SecurityFilter extends BaseFilter {
       severity: 'medium'
     };
 
-    // eslint-disable-next-line no-console
-    console.warn('🔒 Security violation detected and filtered:', violation);
+    logger.warn('🔒 Security violation detected and filtered:', violation);
 
     // Send to audit system if available
     const auditManager = context.engine?.getManager('AuditManager') as AuditManager | null;

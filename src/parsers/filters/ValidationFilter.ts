@@ -1,4 +1,5 @@
 import BaseFilter from './BaseFilter';
+import logger from '../../utils/logger';
 
 /**
  * Validation configuration interface
@@ -138,18 +139,12 @@ class ValidationFilter extends BaseFilter {
     // Initialize validation rules based on configuration
     this.initializeValidationRules();
 
-    // eslint-disable-next-line no-console
-    console.log('✅ ValidationFilter initialized with modular configuration:');
-    // eslint-disable-next-line no-console
-    console.log(`   📝 Markup validation: ${this.validationConfig?.validateMarkup ? 'enabled' : 'disabled'}`);
-    // eslint-disable-next-line no-console
-    console.log(`   🔗 Link validation: ${this.validationConfig?.validateLinks ? 'enabled' : 'disabled'}`);
-    // eslint-disable-next-line no-console
-    console.log(`   🖼️  Image validation: ${this.validationConfig?.validateImages ? 'enabled' : 'disabled'}`);
-    // eslint-disable-next-line no-console
-    console.log(`   📊 Max content length: ${this.validationConfig?.maxContentLength} bytes`);
-    // eslint-disable-next-line no-console
-    console.log(`   📋 Report errors: ${this.validationConfig?.reportErrors ? 'enabled' : 'disabled'}`);
+    logger.debug('✅ ValidationFilter initialized with modular configuration:');
+    logger.debug(`   📝 Markup validation: ${this.validationConfig?.validateMarkup ? 'enabled' : 'disabled'}`);
+    logger.debug(`   🔗 Link validation: ${this.validationConfig?.validateLinks ? 'enabled' : 'disabled'}`);
+    logger.debug(`   🖼️  Image validation: ${this.validationConfig?.validateImages ? 'enabled' : 'disabled'}`);
+    logger.debug(`   📊 Max content length: ${this.validationConfig?.maxContentLength} bytes`);
+    logger.debug(`   📋 Report errors: ${this.validationConfig?.reportErrors ? 'enabled' : 'disabled'}`);
   }
 
   /**
@@ -195,8 +190,7 @@ class ValidationFilter extends BaseFilter {
 
       } catch (error) {
         const err = error as Error;
-        // eslint-disable-next-line no-console
-        console.warn('⚠️  Failed to load ValidationFilter configuration, using defaults:', err.message);
+        logger.warn('⚠️  Failed to load ValidationFilter configuration, using defaults:', err.message);
       }
     }
   }
@@ -302,8 +296,7 @@ class ValidationFilter extends BaseFilter {
         }
       } catch (ruleError) {
         const err = ruleError as Error;
-        // eslint-disable-next-line no-console
-        console.error(`❌ Validation rule ${ruleName} failed:`, err.message);
+        logger.error(`❌ Validation rule ${ruleName} failed:`, err.message);
       }
     }
 
@@ -488,12 +481,10 @@ class ValidationFilter extends BaseFilter {
     // Log validation issues if configured
     if (this.validationConfig?.logValidationErrors) {
       if (errors.length > 0) {
-        // eslint-disable-next-line no-console
-        console.error(`❌ Validation errors in ${context.pageName}:`, errors);
+        logger.error(`❌ Validation errors in ${context.pageName}:`, errors);
       }
       if (warnings.length > 0) {
-        // eslint-disable-next-line no-console
-        console.warn(`⚠️  Validation warnings in ${context.pageName}:`, warnings);
+        logger.warn(`⚠️  Validation warnings in ${context.pageName}:`, warnings);
       }
     }
 
@@ -595,8 +586,7 @@ class ValidationFilter extends BaseFilter {
       severity
     });
 
-    // eslint-disable-next-line no-console
-    console.log(`✅ Added custom validation rule: ${ruleName}`);
+    logger.debug(`✅ Added custom validation rule: ${ruleName}`);
     return true;
   }
 
@@ -608,8 +598,7 @@ class ValidationFilter extends BaseFilter {
   removeValidationRule(ruleName: string): boolean {
     if (this.validationRules.has(ruleName)) {
       this.validationRules.delete(ruleName);
-      // eslint-disable-next-line no-console
-      console.log(`🗑️  Removed validation rule: ${ruleName}`);
+      logger.debug(`🗑️  Removed validation rule: ${ruleName}`);
       return true;
     }
     return false;

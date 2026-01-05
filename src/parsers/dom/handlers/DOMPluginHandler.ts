@@ -14,6 +14,7 @@
  */
 
 import type WikiDocument from '../WikiDocument';
+import logger from '../../../utils/logger';
 import type { LinkedomElement, LinkedomNode } from '../WikiDocument';
 
 /**
@@ -194,8 +195,7 @@ class DOMPluginHandler {
     }
 
     if (!this.pluginManager) {
-      // eslint-disable-next-line no-console
-      console.warn('⚠️  DOMPluginHandler: Cannot process plugins without PluginManager');
+      logger.warn('⚠️  DOMPluginHandler: Cannot process plugins without PluginManager');
       return wikiDocument;
     }
 
@@ -207,8 +207,7 @@ class DOMPluginHandler {
       return wikiDocument;
     }
 
-    // eslint-disable-next-line no-console
-    console.log(`🔍 DOMPluginHandler: Processing ${pluginElements.length} plugins`);
+    logger.debug(`🔍 DOMPluginHandler: Processing ${pluginElements.length} plugins`);
 
     let processedCount = 0;
     let errorCount = 0;
@@ -223,8 +222,7 @@ class DOMPluginHandler {
         const pluginContent = pluginElement.getAttribute('data-plugin-content');
 
         if (!pluginContent) {
-          // eslint-disable-next-line no-console
-          console.warn('⚠️  Plugin element missing data-plugin-content attribute');
+          logger.warn('⚠️  Plugin element missing data-plugin-content attribute');
           continue;
         }
 
@@ -233,8 +231,7 @@ class DOMPluginHandler {
         const pluginInfo = this.parsePluginContent(pluginContent);
 
         if (!pluginInfo) {
-          // eslint-disable-next-line no-console
-          console.warn(`⚠️  Failed to parse plugin content: ${pluginContent}`);
+          logger.warn(`⚠️  Failed to parse plugin content: ${pluginContent}`);
           continue;
         }
 
@@ -271,15 +268,13 @@ class DOMPluginHandler {
           // Plugin returned nothing - remove element
            
           pluginElement.remove();
-          // eslint-disable-next-line no-console
-          console.warn(`⚠️  Plugin ${pluginInfo.pluginName} returned no output`);
+          logger.warn(`⚠️  Plugin ${pluginInfo.pluginName} returned no output`);
         }
 
       } catch (error) {
         errorCount++;
         const errorMessage = error instanceof Error ? error.message : String(error);
-        // eslint-disable-next-line no-console
-        console.error('❌ Error processing plugin:', errorMessage);
+        logger.error('❌ Error processing plugin:', errorMessage);
 
         // Replace with error message
         const errorDiv = wikiDocument.createElement('div');
@@ -290,8 +285,7 @@ class DOMPluginHandler {
       }
     }
 
-    // eslint-disable-next-line no-console
-    console.log(`✅ DOMPluginHandler: Processed ${processedCount} plugins, ${errorCount} errors`);
+    logger.debug(`✅ DOMPluginHandler: Processed ${processedCount} plugins, ${errorCount} errors`);
 
     return wikiDocument;
   }
@@ -416,8 +410,7 @@ class DOMPluginHandler {
       return result;
 
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error(`❌ Error executing plugin '${pluginName}':`, error);
+      logger.error(`❌ Error executing plugin '${pluginName}':`, error);
       throw error;
     }
   }
@@ -449,8 +442,7 @@ class DOMPluginHandler {
     const pluginInfo = this.parsePluginContent(element.inner);
 
     if (!pluginInfo) {
-      // eslint-disable-next-line no-console
-      console.warn(`⚠️  Failed to parse plugin: ${element.inner}`);
+      logger.warn(`⚠️  Failed to parse plugin: ${element.inner}`);
       // Return error node
       const errorNode = wikiDocument.createElement('span', {
         'class': 'wiki-plugin-error',
@@ -471,8 +463,7 @@ class DOMPluginHandler {
       );
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      // eslint-disable-next-line no-console
-      console.error(`❌ Error executing plugin '${pluginInfo.pluginName}':`, errorMessage);
+      logger.error(`❌ Error executing plugin '${pluginInfo.pluginName}':`, errorMessage);
       // Return error node
       const errorNode = wikiDocument.createElement('span', {
         'class': 'wiki-plugin-error',

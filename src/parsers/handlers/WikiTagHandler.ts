@@ -1,5 +1,6 @@
 import BaseSyntaxHandler, { InitializationContext, ParseContext } from './BaseSyntaxHandler';
 import * as crypto from 'crypto';
+import logger from '../../utils/logger';
 
 /**
  * WikiTag match information
@@ -138,8 +139,7 @@ class WikiTagHandler extends BaseSyntaxHandler {
       this.config = markupParser.getHandlerConfig('wikitag');
 
       if (this.config?.priority && this.config.priority !== this.priority) {
-        // eslint-disable-next-line no-console
-        console.log(`WikiTagHandler priority configured as ${this.config.priority} (using ${this.priority})`);
+        logger.info(`WikiTagHandler priority configured as ${this.config.priority} (using ${this.priority})`);
       }
     }
   }
@@ -189,8 +189,7 @@ class WikiTagHandler extends BaseSyntaxHandler {
 
       } catch (error) {
         const err = error as Error;
-        // eslint-disable-next-line no-console
-        console.error(`WikiTag execution error for ${matchInfo.tagName}:`, err.message);
+        logger.error(`WikiTag execution error for ${matchInfo.tagName}: ${err.message}`);
 
         // Leave original tag on error for debugging
         const errorPlaceholder = `<!-- WikiTag Error: ${matchInfo.tagName} - ${err.message} -->`;
@@ -484,8 +483,7 @@ class WikiTagHandler extends BaseSyntaxHandler {
     if (condition === 'true') return true;
     if (condition === 'false') return false;
 
-    // eslint-disable-next-line no-console
-    console.warn(`Unknown condition in wiki:If: ${condition}`);
+    logger.warn(`Unknown condition in wiki:If: ${condition}`);
     return false;
   }
 

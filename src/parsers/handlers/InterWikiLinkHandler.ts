@@ -2,6 +2,7 @@ import BaseSyntaxHandler, { InitializationContext, ParseContext } from './BaseSy
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import * as crypto from 'crypto';
+import logger from '../../utils/logger';
 
 /**
  * InterWiki link match information
@@ -125,8 +126,7 @@ class InterWikiLinkHandler extends BaseSyntaxHandler {
       this.config = markupParser.getHandlerConfig('interwiki');
 
       if (this.config?.priority && this.config.priority !== this.priority) {
-        // eslint-disable-next-line no-console
-        console.log(`InterWikiLinkHandler priority configured as ${this.config.priority} (using ${this.priority})`);
+        logger.info(`InterWikiLinkHandler priority configured as ${this.config.priority} (using ${this.priority})`);
       }
     }
 
@@ -155,8 +155,7 @@ class InterWikiLinkHandler extends BaseSyntaxHandler {
           }
         }
 
-        // eslint-disable-next-line no-console
-        console.log(`Loaded ${this.interWikiSites.size} InterWiki sites from config/interwiki.json`);
+        logger.info(`Loaded ${this.interWikiSites.size} InterWiki sites from config/interwiki.json`);
 
       } catch {
         // Fall back to loading from main configuration
@@ -165,8 +164,7 @@ class InterWikiLinkHandler extends BaseSyntaxHandler {
 
     } catch (error) {
       const err = error as Error;
-      // eslint-disable-next-line no-console
-      console.warn('Failed to load InterWiki configuration:', err.message);
+      logger.warn(`Failed to load InterWiki configuration: ${err.message}`);
       // Load default sites
       this.loadDefaultSites();
     }
@@ -202,8 +200,7 @@ class InterWikiLinkHandler extends BaseSyntaxHandler {
       }
     }
 
-    // eslint-disable-next-line no-console
-    console.log(`Loaded ${this.interWikiSites.size} InterWiki sites from main configuration`);
+    logger.info(`Loaded ${this.interWikiSites.size} InterWiki sites from main configuration`);
   }
 
   /**
@@ -235,8 +232,7 @@ class InterWikiLinkHandler extends BaseSyntaxHandler {
       this.interWikiSites.set(siteName, siteConfig);
     }
 
-    // eslint-disable-next-line no-console
-    console.log(`Loaded ${this.interWikiSites.size} default InterWiki sites`);
+    logger.info(`Loaded ${this.interWikiSites.size} default InterWiki sites`);
   }
 
   /**
@@ -283,8 +279,7 @@ class InterWikiLinkHandler extends BaseSyntaxHandler {
 
       } catch (error) {
         const err = error as Error;
-        // eslint-disable-next-line no-console
-        console.error(`InterWiki link error for ${matchInfo.wikiName}:${matchInfo.pageName}:`, err.message);
+        logger.error(`InterWiki link error for ${matchInfo.wikiName}:${matchInfo.pageName}: ${err.message}`);
 
         // Leave original link on error
         const errorPlaceholder = `<!-- InterWiki Error: ${matchInfo.wikiName} - ${err.message} -->`;
@@ -518,15 +513,13 @@ class InterWikiLinkHandler extends BaseSyntaxHandler {
 
     // Validate URL template
     if (!config.url.includes('%s')) {
-      // eslint-disable-next-line no-console
-      console.warn(`InterWiki site ${name} URL should contain %s placeholder`);
+      logger.warn(`InterWiki site ${name} URL should contain %s placeholder`);
     }
 
     // Validate URL safety
     const testUrl = this.generateInterWikiUrl(config.url, 'Test');
     if (!this.isUrlSafe(testUrl)) {
-      // eslint-disable-next-line no-console
-      console.warn(`InterWiki site ${name} generates unsafe URLs`);
+      logger.warn(`InterWiki site ${name} generates unsafe URLs`);
       return false;
     }
 
@@ -538,8 +531,7 @@ class InterWikiLinkHandler extends BaseSyntaxHandler {
       icon: config.icon || null
     });
 
-    // eslint-disable-next-line no-console
-    console.log(`Added InterWiki site: ${name}`);
+    logger.info(`Added InterWiki site: ${name}`);
     return true;
   }
 
@@ -551,8 +543,7 @@ class InterWikiLinkHandler extends BaseSyntaxHandler {
   removeInterWikiSite(name: string): boolean {
     if (this.interWikiSites.has(name)) {
       this.interWikiSites.delete(name);
-      // eslint-disable-next-line no-console
-      console.log(`Removed InterWiki site: ${name}`);
+      logger.info(`Removed InterWiki site: ${name}`);
       return true;
     }
     return false;

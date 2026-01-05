@@ -1,3 +1,5 @@
+import logger from '../../utils/logger';
+
 /**
  * BaseFilter - Abstract base class for all content filters with modular configuration
  *
@@ -249,10 +251,8 @@ abstract class BaseFilter {
           }
         }
       } catch (error) {
-        // eslint-disable-next-line no-console
-        console.warn(
-          `⚠️  Failed to load configuration for filter ${this.filterId}, using defaults:`,
-          error instanceof Error ? error.message : String(error)
+        logger.warn(
+          `Failed to load configuration for filter ${this.filterId}, using defaults: ${error instanceof Error ? error.message : String(error)}`
         );
       }
     }
@@ -322,8 +322,7 @@ abstract class BaseFilter {
       const errorContext = this.createErrorContext(error as Error, content, context);
 
       if (this.config?.reportErrors) {
-        // eslint-disable-next-line no-console
-        console.error(`❌ Filter ${this.filterId} execution failed:`, errorContext);
+        logger.error(`Filter ${this.filterId} execution failed: ${JSON.stringify(errorContext)}`);
       }
 
       // Return original content for graceful degradation

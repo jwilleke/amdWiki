@@ -24,6 +24,7 @@
  */
 
 import { LinkParser, Link } from '../../LinkParser';
+import logger from '../../../utils/logger';
 import PageNameMatcher from '../../../utils/PageNameMatcher';
 import type WikiDocument from '../WikiDocument';
 import type { LinkedomElement } from '../WikiDocument';
@@ -198,8 +199,7 @@ class DOMLinkHandler {
     this.pageManager = this.engine.getManager('PageManager') as PageManager | null;
 
     if (!this.pageManager) {
-      // eslint-disable-next-line no-console
-      console.warn('⚠️  DOMLinkHandler: PageManager not available - red link detection disabled');
+      logger.warn('⚠️  DOMLinkHandler: PageManager not available - red link detection disabled');
     } else {
       // Load page names for link validation
       await this.loadPageNames();
@@ -208,8 +208,7 @@ class DOMLinkHandler {
     // Load InterWiki sites configuration
     await this.loadInterWikiConfiguration();
 
-    // eslint-disable-next-line no-console
-    console.log('🔗 DOMLinkHandler initialized');
+    logger.debug('🔗 DOMLinkHandler initialized');
   }
 
   /**
@@ -235,12 +234,10 @@ class DOMLinkHandler {
         this.linkParser.setPageNames(pageNames, matchEnglishPlurals);
       }
 
-      // eslint-disable-next-line no-console
-      console.log(`📄 DOMLinkHandler loaded ${pageNames.length} page names (plural matching: ${matchEnglishPlurals ? 'enabled' : 'disabled'})`);
+      logger.debug(`📄 DOMLinkHandler loaded ${pageNames.length} page names (plural matching: ${matchEnglishPlurals ? 'enabled' : 'disabled'})`);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      // eslint-disable-next-line no-console
-      console.warn('⚠️  Failed to load page names:', errorMessage);
+      logger.warn('⚠️  Failed to load page names:', errorMessage);
     }
   }
 
@@ -292,13 +289,11 @@ class DOMLinkHandler {
       if (this.linkParser) {
         this.linkParser.setInterWikiSites(normalized);
       }
-      // eslint-disable-next-line no-console
-      console.log(`🌐 DOMLinkHandler loaded ${Object.keys(normalized).length} InterWiki sites`);
+      logger.debug(`🌐 DOMLinkHandler loaded ${Object.keys(normalized).length} InterWiki sites`);
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      // eslint-disable-next-line no-console
-      console.warn('⚠️  Failed to load InterWiki configuration:', errorMessage);
+      logger.warn('⚠️  Failed to load InterWiki configuration:', errorMessage);
     }
   }
 
@@ -314,8 +309,7 @@ class DOMLinkHandler {
    */
   async processLinks(wikiDocument: WikiDocument, context: RenderContext): Promise<WikiDocument> {
     if (!this.linkParser) {
-      // eslint-disable-next-line no-console
-      console.warn('⚠️  DOMLinkHandler: Cannot process links without LinkParser');
+      logger.warn('⚠️  DOMLinkHandler: Cannot process links without LinkParser');
       return wikiDocument;
     }
 
@@ -327,8 +321,7 @@ class DOMLinkHandler {
       return wikiDocument;
     }
 
-    // eslint-disable-next-line no-console
-    console.log(`🔍 DOMLinkHandler: Processing ${linkElements.length} links`);
+    logger.debug(`🔍 DOMLinkHandler: Processing ${linkElements.length} links`);
 
     let processedCount = 0;
     let errorCount = 0;
@@ -342,8 +335,7 @@ class DOMLinkHandler {
         const displayText: string = linkElement.textContent || target;
 
         if (!target) {
-          // eslint-disable-next-line no-console
-          console.warn('⚠️  Link element missing data-wiki-link attribute');
+          logger.warn('⚠️  Link element missing data-wiki-link attribute');
           continue;
         }
 
@@ -373,16 +365,14 @@ class DOMLinkHandler {
       } catch (error) {
         errorCount++;
         const errorMessage = error instanceof Error ? error.message : String(error);
-        // eslint-disable-next-line no-console
-        console.error('❌ Error processing link:', errorMessage);
+        logger.error('❌ Error processing link:', errorMessage);
 
         // Add error class on error
         linkElement.className = linkElement.className + ' wiki-link-error';
       }
     }
 
-    // eslint-disable-next-line no-console
-    console.log(`✅ DOMLinkHandler: Processed ${processedCount} links, ${errorCount} errors`);
+    logger.debug(`✅ DOMLinkHandler: Processed ${processedCount} links, ${errorCount} errors`);
 
     return wikiDocument;
   }
@@ -500,8 +490,7 @@ class DOMLinkHandler {
     // Parse InterWiki format: WikiName:PageName
     const match = target.match(/^([A-Za-z0-9]+):(.+)$/);
     if (!match) {
-      // eslint-disable-next-line no-console
-      console.warn(`⚠️  Invalid InterWiki format: ${target}`);
+      logger.warn(`⚠️  Invalid InterWiki format: ${target}`);
       return;
     }
 
@@ -514,8 +503,7 @@ class DOMLinkHandler {
                        interWikiSites.get(wikiName.toLowerCase());
 
     if (!siteConfig) {
-      // eslint-disable-next-line no-console
-      console.warn(`⚠️  Unknown InterWiki site: ${wikiName}`);
+      logger.warn(`⚠️  Unknown InterWiki site: ${wikiName}`);
       return;
     }
 
@@ -717,8 +705,7 @@ class DOMLinkHandler {
           node.setAttribute('data-target', linkTarget);
         } else {
           // Unknown InterWiki site - treat as internal link
-          // eslint-disable-next-line no-console
-          console.warn(`⚠️  Unknown InterWiki site: ${wikiName}`);
+          logger.warn(`⚠️  Unknown InterWiki site: ${wikiName}`);
           node.setAttribute('href', `/wiki/${encodeURIComponent(linkTarget)}`);
           node.setAttribute('class', 'wiki-link redlink');
           node.setAttribute('style', 'color: red;');

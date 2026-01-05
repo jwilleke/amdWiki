@@ -1,4 +1,5 @@
 import BaseSyntaxHandler, { InitializationContext, ParseContext } from './BaseSyntaxHandler';
+import logger from '../../utils/logger';
 
 /**
  * Table cell information
@@ -49,8 +50,7 @@ class WikiTableHandler extends BaseSyntaxHandler {
   // eslint-disable-next-line @typescript-eslint/require-await
   protected async onInitialize(context: InitializationContext): Promise<void> {
     this.engine = context.engine as WikiEngine | undefined ?? null;
-    // eslint-disable-next-line no-console
-    console.log('WikiTableHandler initialized');
+    logger.debug('WikiTableHandler initialized');
   }
 
   // eslint-disable-next-line @typescript-eslint/require-await

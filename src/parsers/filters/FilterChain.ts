@@ -15,6 +15,7 @@
  */
 
 import BaseFilter from './BaseFilter';
+import logger from '../../utils/logger';
 import type { ParseContext } from '../context/ParseContext';
 
 /**
@@ -216,16 +217,11 @@ class FilterChain {
     // Initialize filter performance monitoring
     this.initializePerformanceMonitoring();
 
-    // eslint-disable-next-line no-console
-    console.log('🔧 FilterChain initialized with modular configuration:');
-    // eslint-disable-next-line no-console
-    console.log(`   🔄 Max filters: ${this.config.maxFilters}`);
-    // eslint-disable-next-line no-console
-    console.log(`   ⏱️  Timeout: ${this.config.timeout}ms`);
-    // eslint-disable-next-line no-console
-    console.log(`   📊 Profiling: ${this.config.enableProfiling ? 'enabled' : 'disabled'}`);
-    // eslint-disable-next-line no-console
-    console.log(`   🛡️  Fail on error: ${this.config.failOnError ? 'enabled' : 'disabled'}`);
+    logger.debug('🔧 FilterChain initialized with modular configuration:');
+    logger.debug(`   🔄 Max filters: ${this.config.maxFilters}`);
+    logger.debug(`   ⏱️  Timeout: ${this.config.timeout}ms`);
+    logger.debug(`   📊 Profiling: ${this.config.enableProfiling ? 'enabled' : 'disabled'}`);
+    logger.debug(`   🛡️  Fail on error: ${this.config.failOnError ? 'enabled' : 'disabled'}`);
   }
 
   /**
@@ -274,8 +270,7 @@ class FilterChain {
         this.config.maxConcurrentFilters = configManager.getProperty('amdwiki.markup.filters.maxConcurrentFilters', this.config.maxConcurrentFilters) as number;
 
       } catch (error) {
-        // eslint-disable-next-line no-console
-        console.warn('⚠️  Failed to load FilterChain configuration, using defaults:', (error as Error).message);
+        logger.warn('⚠️  Failed to load FilterChain configuration, using defaults:', (error as Error).message);
       }
     }
   }
@@ -337,8 +332,7 @@ class FilterChain {
     // Rebuild priority-sorted list
     this.rebuildPriorityList();
 
-    // eslint-disable-next-line no-console
-    console.log(`🔧 Filter added to chain: ${filter.filterId} (priority: ${filter.priority})`);
+    logger.debug(`🔧 Filter added to chain: ${filter.filterId} (priority: ${filter.priority})`);
     return true;
   }
 
@@ -361,8 +355,7 @@ class FilterChain {
     // Rebuild priority list
     this.rebuildPriorityList();
 
-    // eslint-disable-next-line no-console
-    console.log(`🗑️  Filter removed from chain: ${filterId}`);
+    logger.debug(`🗑️  Filter removed from chain: ${filterId}`);
     return true;
   }
 
@@ -428,8 +421,7 @@ class FilterChain {
         throw new Error(`FilterChain execution failed: ${(error as Error).message}`);
       }
 
-      // eslint-disable-next-line no-console
-      console.error('❌ FilterChain execution error (continuing with original content):', (error as Error).message);
+      logger.error('❌ FilterChain execution error (continuing with original content):', (error as Error).message);
       return content; // Return original content on error
     }
   }
@@ -471,8 +463,7 @@ class FilterChain {
           filterStats.errorCount++;
         }
 
-        // eslint-disable-next-line no-console
-        console.error(`❌ Filter ${filter.filterId} failed:`, (error as Error).message);
+        logger.error(`❌ Filter ${filter.filterId} failed:`, (error as Error).message);
 
         if (this.config.failOnError) {
           throw error;
@@ -618,8 +609,7 @@ class FilterChain {
    * @param message - Alert message
    */
   private generateAlert(type: string, message: string): void {
-    // eslint-disable-next-line no-console
-    console.warn(`⚠️  FilterChain Performance Alert [${type}]: ${message}`);
+    logger.warn(`⚠️  FilterChain Performance Alert [${type}]: ${message}`);
 
     // Send to notification system if available
     const notificationManager = this.engine?.getManager('NotificationManager') as NotificationManager | undefined;
@@ -665,8 +655,7 @@ class FilterChain {
     if (filter) {
       filter.enable();
       this.rebuildPriorityList();
-      // eslint-disable-next-line no-console
-      console.log(`✅ Enabled filter: ${filterId}`);
+      logger.debug(`✅ Enabled filter: ${filterId}`);
       return true;
     }
     return false;
@@ -682,8 +671,7 @@ class FilterChain {
     if (filter) {
       filter.disable();
       this.rebuildPriorityList();
-      // eslint-disable-next-line no-console
-      console.log(`❌ Disabled filter: ${filterId}`);
+      logger.debug(`❌ Disabled filter: ${filterId}`);
       return true;
     }
     return false;
@@ -798,8 +786,7 @@ class FilterChain {
       try {
         await filter.shutdown();
       } catch (error) {
-        // eslint-disable-next-line no-console
-        console.error(`❌ Error shutting down filter ${filter.filterId}:`, (error as Error).message);
+        logger.error(`❌ Error shutting down filter ${filter.filterId}:`, (error as Error).message);
       }
     }
 
@@ -808,16 +795,14 @@ class FilterChain {
     this.filterMap.clear();
     this.resetStats();
 
-    // eslint-disable-next-line no-console
-    console.log('🔧 FilterChain cleared');
+    logger.debug('🔧 FilterChain cleared');
   }
 
   /**
    * Shutdown filter chain
    */
   async shutdown(): Promise<void> {
-    // eslint-disable-next-line no-console
-    console.log('🔧 FilterChain shutting down...');
+    logger.debug('🔧 FilterChain shutting down...');
     await this.clearAll();
     this.performanceMonitor = null;
   }

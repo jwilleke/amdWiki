@@ -2,6 +2,7 @@ import BaseSyntaxHandler, { InitializationContext, ParseContext } from './BaseSy
 import * as path from 'path';
 import * as fs from 'fs/promises';
 import * as crypto from 'crypto';
+import logger from '../../utils/logger';
 
 /**
  * Attachment match information
@@ -168,14 +169,10 @@ class AttachmentHandler extends BaseSyntaxHandler {
     // Load modular configuration from multiple sources
     await this.loadModularConfiguration();
 
-    // eslint-disable-next-line no-console
-    console.log('AttachmentHandler initialized with modular configuration:');
-    // eslint-disable-next-line no-console
-    console.log(`   Enhanced mode: ${this.attachmentConfig.enhanced ? 'enabled' : 'disabled'}`);
-    // eslint-disable-next-line no-console
-    console.log(`   Thumbnails: ${this.attachmentConfig.thumbnails ? 'enabled' : 'disabled'}`);
-    // eslint-disable-next-line no-console
-    console.log(`   Metadata: ${this.attachmentConfig.metadata ? 'enabled' : 'disabled'}`);
+    logger.info('AttachmentHandler initialized with modular configuration:');
+    logger.info(`   Enhanced mode: ${this.attachmentConfig.enhanced ? 'enabled' : 'disabled'}`);
+    logger.info(`   Thumbnails: ${this.attachmentConfig.thumbnails ? 'enabled' : 'disabled'}`);
+    logger.info(`   Metadata: ${this.attachmentConfig.metadata ? 'enabled' : 'disabled'}`);
   }
 
   /**
@@ -194,8 +191,7 @@ class AttachmentHandler extends BaseSyntaxHandler {
       this.config = markupParser.getHandlerConfig('attachment');
 
       if (this.config?.priority && this.config.priority !== this.priority) {
-        // eslint-disable-next-line no-console
-        console.log(`AttachmentHandler priority configured as ${this.config.priority} (using ${this.priority})`);
+        logger.info(`AttachmentHandler priority configured as ${this.config.priority} (using ${this.priority})`);
       }
     }
 
@@ -219,8 +215,7 @@ class AttachmentHandler extends BaseSyntaxHandler {
 
       } catch (error) {
         const err = error as Error;
-        // eslint-disable-next-line no-console
-        console.warn('Failed to load AttachmentHandler configuration, using defaults:', err.message);
+        logger.warn(`Failed to load AttachmentHandler configuration, using defaults: ${err.message}`);
       }
     }
   }
@@ -269,8 +264,7 @@ class AttachmentHandler extends BaseSyntaxHandler {
 
       } catch (error) {
         const err = error as Error;
-        // eslint-disable-next-line no-console
-        console.error(`Attachment processing error for ${matchInfo.filename}:`, err.message);
+        logger.error(`Attachment processing error for ${matchInfo.filename}: ${err.message}`);
 
         const errorPlaceholder = `<!-- Attachment Error: ${matchInfo.filename} - ${err.message} -->`;
         processedContent =
@@ -362,8 +356,7 @@ class AttachmentHandler extends BaseSyntaxHandler {
 
     } catch (error) {
       const err = error as Error;
-      // eslint-disable-next-line no-console
-      console.warn(`Could not get metadata for ${filename}:`, err.message);
+      logger.warn(`Could not get metadata for ${filename}: ${err.message}`);
       return null;
     }
   }
@@ -514,8 +507,7 @@ class AttachmentHandler extends BaseSyntaxHandler {
 
     } catch (error) {
       const err = error as Error;
-      // eslint-disable-next-line no-console
-      console.warn(`Failed to generate thumbnail for ${filename}:`, err.message);
+      logger.warn(`Failed to generate thumbnail for ${filename}: ${err.message}`);
     }
 
     return null;
@@ -531,8 +523,7 @@ class AttachmentHandler extends BaseSyntaxHandler {
   private async createThumbnail(sourcePath: string, thumbnailFilename: string, size: string): Promise<void> {
     // Placeholder implementation
     // In production, would use libraries like Sharp, Jimp, or ImageMagick
-    // eslint-disable-next-line no-console
-    console.log(`Creating thumbnail: ${thumbnailFilename} (${size}) from ${sourcePath}`);
+    logger.debug(`Creating thumbnail: ${thumbnailFilename} (${size}) from ${sourcePath}`);
 
     // For now, just return the original file URL
     // TODO: Implement actual thumbnail generation

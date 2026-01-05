@@ -1,5 +1,6 @@
 import BaseSyntaxHandler, { InitializationContext, ParseContext } from './BaseSyntaxHandler';
 import * as crypto from 'crypto';
+import logger from '../../utils/logger';
 
 /**
  * Form element match information
@@ -121,8 +122,7 @@ class WikiFormHandler extends BaseSyntaxHandler {
       this.config = markupParser.getHandlerConfig('form');
 
       if (this.config?.priority && this.config.priority !== this.priority) {
-        // eslint-disable-next-line no-console
-        console.log(`WikiFormHandler priority configured as ${this.config.priority} (using ${this.priority})`);
+        logger.info(`WikiFormHandler priority configured as ${this.config.priority} (using ${this.priority})`);
       }
     }
   }
@@ -177,8 +177,7 @@ class WikiFormHandler extends BaseSyntaxHandler {
 
       } catch (error) {
         const err = error as Error;
-        // eslint-disable-next-line no-console
-        console.error(`WikiForm element error for ${matchInfo.elementType}:`, err.message);
+        logger.error(`WikiForm element error for ${matchInfo.elementType}: ${err.message}`);
 
         const errorPlaceholder = `<!-- Form Error: ${matchInfo.elementType} - ${err.message} -->`;
         const adjustedIndex = matchInfo.index + offset;

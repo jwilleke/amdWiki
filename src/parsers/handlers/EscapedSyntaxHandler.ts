@@ -1,4 +1,5 @@
 import BaseSyntaxHandler from './BaseSyntaxHandler';
+import logger from '../../utils/logger';
 
 /**
  * Match information interface
@@ -92,8 +93,7 @@ class EscapedSyntaxHandler extends BaseSyntaxHandler {
 
       } catch (error) {
         const err = error as Error;
-        // eslint-disable-next-line no-console
-        console.error(`❌ Escape handler error for ${matchInfo.fullMatch}:`, err.message);
+        logger.error(`❌ Escape handler error for ${matchInfo.fullMatch}:`, err.message);
         // Leave original syntax on error
       }
     }

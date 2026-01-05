@@ -2,6 +2,7 @@ import BaseSyntaxHandler, { InitializationContext, ParseContext } from './BaseSy
 import { LinkParser, type InterWikiSiteConfig, type ParserStats } from '../LinkParser';
 import * as fs from 'fs-extra';
 import * as path from 'path';
+import logger from '../../utils/logger';
 
 /**
  * Wiki engine interface
@@ -106,13 +107,11 @@ class LinkParserHandler extends BaseSyntaxHandler {
       await this.initializeLinkParser();
 
       this.initialized = true;
-      // eslint-disable-next-line no-console
-      console.log('LinkParserHandler initialized successfully with centralized link processing');
+      logger.info('LinkParserHandler initialized successfully with centralized link processing');
 
     } catch (error) {
       const err = error as Error;
-      // eslint-disable-next-line no-console
-      console.error('Failed to initialize LinkParserHandler:', err.message);
+      logger.error(`Failed to initialize LinkParserHandler: ${err.message}`);
       throw error;
     }
   }
@@ -134,13 +133,11 @@ class LinkParserHandler extends BaseSyntaxHandler {
           true;
 
         this.linkParser.setPageNames(pageNames, matchEnglishPlurals);
-        // eslint-disable-next-line no-console
-        console.log(`LinkParserHandler loaded ${pageNames.length} page names for link validation (plural matching: ${matchEnglishPlurals ? 'enabled' : 'disabled'})`);
+        logger.info(`LinkParserHandler loaded ${pageNames.length} page names for link validation (plural matching: ${matchEnglishPlurals ? 'enabled' : 'disabled'})`);
 
         // If no pages were loaded during initialization, schedule a retry
         if (pageNames.length === 0) {
-          // eslint-disable-next-line no-console
-          console.log('No pages loaded during LinkParserHandler initialization, scheduling retry...');
+          logger.info('No pages loaded during LinkParserHandler initialization, scheduling retry...');
           setTimeout(() => void this.refreshPageNames(), 1000);
         }
       }
@@ -150,13 +147,11 @@ class LinkParserHandler extends BaseSyntaxHandler {
 
       // Log LinkParser statistics
       const stats = this.linkParser.getStats();
-      // eslint-disable-next-line no-console
-      console.log(`LinkParser stats: ${stats.pageNamesCount} pages, ${stats.interWikiSitesCount} InterWiki sites, ${stats.allowedAttributes} allowed attributes`);
+      logger.info(`LinkParser stats: ${stats.pageNamesCount} pages, ${stats.interWikiSitesCount} InterWiki sites, ${stats.allowedAttributes} allowed attributes`);
 
     } catch (error) {
       const err = error as Error;
-      // eslint-disable-next-line no-console
-      console.warn('LinkParser initialization had issues:', err.message);
+      logger.warn(`LinkParser initialization had issues: ${err.message}`);
       // Continue with default configuration
     }
   }
@@ -215,13 +210,11 @@ class LinkParserHandler extends BaseSyntaxHandler {
       }
 
       this.linkParser.setInterWikiSites(normalized);
-      // eslint-disable-next-line no-console
-      console.log(`LinkParserHandler loaded ${Object.keys(normalized).length} InterWiki sites from configuration`);
+      logger.info(`LinkParserHandler loaded ${Object.keys(normalized).length} InterWiki sites from configuration`);
 
     } catch (error) {
       const err = error as Error;
-      // eslint-disable-next-line no-console
-      console.warn('Failed to load InterWiki configuration:', err.message);
+      logger.warn(`Failed to load InterWiki configuration: ${err.message}`);
       this.loadDefaultInterWikiSites();
     }
   }
@@ -244,8 +237,7 @@ class LinkParserHandler extends BaseSyntaxHandler {
     };
 
     this.linkParser.setInterWikiSites(defaultSites);
-    // eslint-disable-next-line no-console
-    console.log(`LinkParserHandler loaded ${Object.keys(defaultSites).length} default InterWiki sites`);
+    logger.info(`LinkParserHandler loaded ${Object.keys(defaultSites).length} default InterWiki sites`);
   }
 
   /**
@@ -261,8 +253,7 @@ class LinkParserHandler extends BaseSyntaxHandler {
     }
 
     if (!this.initialized) {
-      // eslint-disable-next-line no-console
-      console.warn('LinkParserHandler not initialized, skipping link processing');
+      logger.warn('LinkParserHandler not initialized, skipping link processing');
       return content;
     }
 
@@ -283,8 +274,7 @@ class LinkParserHandler extends BaseSyntaxHandler {
 
     } catch (error) {
       const err = error as Error;
-      // eslint-disable-next-line no-console
-      console.error('LinkParserHandler processing error:', err.message);
+      logger.error(`LinkParserHandler processing error: ${err.message}`);
 
       // Update error statistics
       this.localStats.errorCount++;
@@ -320,27 +310,22 @@ class LinkParserHandler extends BaseSyntaxHandler {
       if (pageManager) {
         const pageNames = await pageManager.getAllPages(); // Returns array of strings
         this.linkParser.setPageNames(pageNames);
-        // eslint-disable-next-line no-console
-        console.log(`LinkParserHandler refreshed ${pageNames.length} page names`);
+        logger.info(`LinkParserHandler refreshed ${pageNames.length} page names`);
 
         // Debug: log some page names to see what we actually have
         const testPages = ['PageIndex', 'SystemInfo', 'Everything We Know About You', 'Wiki Documentation'];
-        // eslint-disable-next-line no-console
-        console.log('Debug - checking for specific pages:');
+        logger.debug('Debug - checking for specific pages:');
         testPages.forEach(testPage => {
           const exists = pageNames.includes(testPage);
-          // eslint-disable-next-line no-console
-          console.log(`   ${testPage}: ${exists ? 'found' : 'not found'}`);
+          logger.debug(`   ${testPage}: ${exists ? 'found' : 'not found'}`);
         });
 
         // Show first few page names for debugging
-        // eslint-disable-next-line no-console
-        console.log(`First 10 page names: ${pageNames.slice(0, 10).join(', ')}`);
+        logger.debug(`First 10 page names: ${pageNames.slice(0, 10).join(', ')}`);
       }
     } catch (error) {
       const err = error as Error;
-      // eslint-disable-next-line no-console
-      console.warn('Failed to refresh page names:', err.message);
+      logger.warn(`Failed to refresh page names: ${err.message}`);
     }
   }
 
@@ -384,8 +369,7 @@ class LinkParserHandler extends BaseSyntaxHandler {
   // eslint-disable-next-line @typescript-eslint/require-await
   protected async onShutdown(): Promise<void> {
     this.initialized = false;
-    // eslint-disable-next-line no-console
-    console.log('LinkParserHandler shutdown complete');
+    logger.info('LinkParserHandler shutdown complete');
   }
 }
 

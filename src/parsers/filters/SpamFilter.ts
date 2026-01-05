@@ -1,4 +1,5 @@
 import BaseFilter from './BaseFilter';
+import logger from '../../utils/logger';
 
 /**
  * Spam configuration interface
@@ -129,18 +130,12 @@ class SpamFilter extends BaseFilter {
     // Load modular spam configuration from configuration hierarchy
     this.loadModularSpamConfiguration(context);
 
-    // eslint-disable-next-line no-console
-    console.log('🛡️  SpamFilter initialized with modular configuration:');
-    // eslint-disable-next-line no-console
-    console.log(`   🔗 Max links: ${this.spamConfig?.maxLinks}`);
-    // eslint-disable-next-line no-console
-    console.log(`   🖼️  Max images: ${this.spamConfig?.maxImages}`);
-    // eslint-disable-next-line no-console
-    console.log(`   📝 Blacklisted words: ${this.blacklistedWords.size} configured`);
-    // eslint-disable-next-line no-console
-    console.log(`   ✅ Whitelisted domains: ${this.whitelistedDomains.size} configured`);
-    // eslint-disable-next-line no-console
-    console.log(`   🗄️  Cache blacklist: ${this.spamConfig?.cacheBlacklist ? 'enabled' : 'disabled'}`);
+    logger.debug('🛡️  SpamFilter initialized with modular configuration:');
+    logger.debug(`   🔗 Max links: ${this.spamConfig?.maxLinks}`);
+    logger.debug(`   🖼️  Max images: ${this.spamConfig?.maxImages}`);
+    logger.debug(`   📝 Blacklisted words: ${this.blacklistedWords.size} configured`);
+    logger.debug(`   ✅ Whitelisted domains: ${this.whitelistedDomains.size} configured`);
+    logger.debug(`   🗄️  Cache blacklist: ${this.spamConfig?.cacheBlacklist ? 'enabled' : 'disabled'}`);
   }
 
   /**
@@ -195,8 +190,7 @@ class SpamFilter extends BaseFilter {
 
       } catch (error) {
         const err = error as Error;
-        // eslint-disable-next-line no-console
-        console.warn('⚠️  Failed to load SpamFilter configuration, using defaults:', err.message);
+        logger.warn('⚠️  Failed to load SpamFilter configuration, using defaults:', err.message);
         this.loadDefaultSpamConfiguration();
       }
     } else {
@@ -417,8 +411,7 @@ class SpamFilter extends BaseFilter {
       severity: analysis.spamScore > 100 ? 'high' : 'medium'
     };
 
-    // eslint-disable-next-line no-console
-    console.warn('🛡️  Spam attempt detected:', spamEvent);
+    logger.warn('🛡️  Spam attempt detected:', spamEvent);
 
     // Send to audit system if available
     const auditManager = context.engine?.getManager('AuditManager') as AuditManager | undefined;
@@ -436,8 +429,7 @@ class SpamFilter extends BaseFilter {
     const cleanWord = word.trim().toLowerCase();
     if (cleanWord && !this.blacklistedWords.has(cleanWord)) {
       this.blacklistedWords.add(cleanWord);
-      // eslint-disable-next-line no-console
-      console.log(`🚫 Added blacklisted word: ${cleanWord}`);
+      logger.debug(`🚫 Added blacklisted word: ${cleanWord}`);
       return true;
     }
     return false;
@@ -452,8 +444,7 @@ class SpamFilter extends BaseFilter {
     const cleanWord = word.trim().toLowerCase();
     if (this.blacklistedWords.has(cleanWord)) {
       this.blacklistedWords.delete(cleanWord);
-      // eslint-disable-next-line no-console
-      console.log(`✅ Removed blacklisted word: ${cleanWord}`);
+      logger.debug(`✅ Removed blacklisted word: ${cleanWord}`);
       return true;
     }
     return false;
@@ -468,8 +459,7 @@ class SpamFilter extends BaseFilter {
     const cleanDomain = domain.trim().toLowerCase();
     if (cleanDomain && !this.whitelistedDomains.has(cleanDomain)) {
       this.whitelistedDomains.add(cleanDomain);
-      // eslint-disable-next-line no-console
-      console.log(`✅ Added whitelisted domain: ${cleanDomain}`);
+      logger.debug(`✅ Added whitelisted domain: ${cleanDomain}`);
       return true;
     }
     return false;
@@ -484,8 +474,7 @@ class SpamFilter extends BaseFilter {
     const cleanDomain = domain.trim().toLowerCase();
     if (this.whitelistedDomains.has(cleanDomain)) {
       this.whitelistedDomains.delete(cleanDomain);
-      // eslint-disable-next-line no-console
-      console.log(`🚫 Removed whitelisted domain: ${cleanDomain}`);
+      logger.debug(`🚫 Removed whitelisted domain: ${cleanDomain}`);
       return true;
     }
     return false;

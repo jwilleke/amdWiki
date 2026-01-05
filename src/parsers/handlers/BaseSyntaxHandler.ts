@@ -1,3 +1,5 @@
+import logger from '../../utils/logger';
+
 /**
  * BaseSyntaxHandler - Abstract base class for all markup syntax handlers
  *
@@ -447,8 +449,7 @@ abstract class BaseSyntaxHandler {
       }
 
       // Log error and return original content for graceful degradation
-      // eslint-disable-next-line no-console
-      console.error(`❌ Handler ${this.handlerId} failed:`, errorContext);
+      logger.error(`Handler ${this.handlerId} failed: ${JSON.stringify(errorContext)}`);
       return content;
     }
   }
