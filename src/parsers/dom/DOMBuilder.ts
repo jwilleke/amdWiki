@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unsafe-enum-comparison */
+/* eslint-disable @typescript-eslint/no-unsafe-enum-comparison -- Token.type is TokenType|string for extensibility */
 import { TokenType } from './Tokenizer';
 import WikiDocument, {
   LinkedomElement
