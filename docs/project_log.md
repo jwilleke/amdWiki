@@ -24,6 +24,27 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 
 ---
 
+## 2026-01-10-04
+
+- Agent: Claude Opus 4.5
+- Subject: Reduce no-explicit-any and remaining no-unsafe-* disables (#202)
+- Current Issue: [#202](https://github.com/jwilleke/amdWiki/issues/202) - TypeScript ESLint Cleanup
+- Testing:
+  - npm run eslint: passes for modified files
+- Work Done:
+  - Reduced no-explicit-any disables from 29 to 25 (removed 4 occurrences)
+  - Reduced no-unsafe-* disables from 32 to 27 (removed 5 occurrences)
+  - CacheManager: typed WikiEngine param, typed getManager<CacheManager>
+  - PluginManager: typed WikiEngine in Plugin and PluginContext interfaces
+  - ACLManager: added PolicyEvaluator type import, typed policyEvaluator property
+- Commits: 4b65b7f
+- Files Modified:
+  - src/managers/ACLManager.ts
+  - src/managers/CacheManager.ts
+  - src/managers/PluginManager.ts
+
+---
+
 ## 2026-01-10-03
 
 - Agent: Claude Opus 4.5
