@@ -24,6 +24,33 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 
 ---
 
+## 2026-01-10-03
+
+- Agent: Claude Opus 4.5
+- Subject: Reduce no-unsafe-* eslint disables with typed generics (#202)
+- Current Issue: [#202](https://github.com/jwilleke/amdWiki/issues/202) - TypeScript ESLint Cleanup
+- Testing:
+  - npm run eslint: passes for modified files
+- Work Done:
+  - Reduced no-unsafe-* disables from 73 to 32 (removed 41 occurrences)
+  - Added typed getManager<T> calls instead of untyped access
+  - SchemaManager: typed ConfigurationManager access, added null check for schemasDir
+  - PolicyManager: added isPolicy() type guard, removed 2 file-level disables
+  - BackupManager: typed getManager<BaseManager> for backup/restore loops, removed 7 disables
+  - ValidationManager: typed getManager<ConfigurationManager> and loadSystemCategories parameter
+  - VariableManager: typed all getManager calls, removed 10 disables
+  - WikiEngine interface: added getRegisteredManagers(): string[] method
+- Commits: a879725
+- Files Modified:
+  - src/managers/SchemaManager.ts
+  - src/managers/PolicyManager.ts
+  - src/managers/BackupManager.ts
+  - src/managers/ValidationManager.ts
+  - src/managers/VariableManager.ts
+  - src/types/WikiEngine.ts
+
+---
+
 ## 2026-01-10-02
 
 - Agent: Claude Opus 4.5
