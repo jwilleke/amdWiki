@@ -24,6 +24,59 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 
 ---
 
+## 2026-01-10-02
+
+- Agent: Claude Opus 4.5
+- Subject: Convert file-level require-await disables to line-level (#202)
+- Current Issue: [#202](https://github.com/jwilleke/amdWiki/issues/202) - TypeScript ESLint Cleanup
+- Testing:
+  - npm run eslint: passes for modified files
+- Work Done:
+  - Converted 4 file-level require-await disables to 7 precise line-level disables
+  - Added explanatory comments to each disable (e.g., "-- Implements async interface from BaseManager")
+  - Remaining file-level disables in: BaseManager.ts (base class), BaseAttachmentProvider.ts (base class), WikiRoutes.ts (legacy @ts-nocheck file)
+  - Files: ConfigurationManager.ts, PolicyManager.ts, BackupManager.ts, ACLManager.ts
+- Commits: 7a6a41a
+- Files Modified:
+  - src/managers/ConfigurationManager.ts
+  - src/managers/PolicyManager.ts
+  - src/managers/BackupManager.ts
+  - src/managers/ACLManager.ts
+
+---
+
+## 2026-01-10-01
+
+- Agent: Claude Opus 4.5
+- Subject: Complete logger migration for Issue #202
+- Current Issue: [#202](https://github.com/jwilleke/amdWiki/issues/202) - TypeScript ESLint Cleanup
+- Testing:
+  - npm run typecheck: passed (no errors)
+- Work Done:
+  - Replaced all `console.*` calls with `logger.*` in 15 non-CLI files
+  - Reduced `no-console` eslint-disable from 29 to 2 (only CLI scripts remain)
+  - Reduced total eslint-disable comments from 212 to 186
+  - Files: WikiEngine.ts, NodeCacheAdapter.ts, ExportManager.ts, PluginManager.ts, PolicyValidator.ts, RenderingManager.ts, TemplateManager.ts, ValidationManager.ts, LinkParser.ts, DOMParser.ts, InstallRoutes.ts, WikiRoutes.ts, InstallService.ts, LocaleUtils.ts, SchemaGenerator.ts
+- Commits: f959496
+- Files Modified:
+  - src/WikiEngine.ts
+  - src/cache/NodeCacheAdapter.ts
+  - src/managers/ExportManager.ts
+  - src/managers/PluginManager.ts
+  - src/managers/PolicyValidator.ts
+  - src/managers/RenderingManager.ts
+  - src/managers/TemplateManager.ts
+  - src/managers/ValidationManager.ts
+  - src/parsers/LinkParser.ts
+  - src/parsers/dom/DOMParser.ts
+  - src/routes/InstallRoutes.ts
+  - src/routes/WikiRoutes.ts
+  - src/services/InstallService.ts
+  - src/utils/LocaleUtils.ts
+  - src/utils/SchemaGenerator.ts
+
+---
+
 ## 2026-01-04-05
 
 - Agent: Claude Opus 4.5

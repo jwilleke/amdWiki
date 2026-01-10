@@ -1,8 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 
-/* eslint-disable @typescript-eslint/require-await */
-
 import BaseManager from './BaseManager';
 import logger from '../utils/logger';
 import { WikiEngine } from '../types/WikiEngine';
@@ -65,6 +63,7 @@ class PolicyManager extends BaseManager {
    * await policyManager.initialize();
    * console.log('Policies loaded');
    */
+  // eslint-disable-next-line @typescript-eslint/require-await -- Synchronous initialization from config
   async initialize(): Promise<void> {
     const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
     if (!configManager) {
