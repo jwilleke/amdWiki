@@ -1,6 +1,8 @@
 import BaseManager from './BaseManager';
 import logger from '../utils/logger';
 import type { WikiEngine } from '../types/WikiEngine';
+import type ConfigurationManager from './ConfigurationManager';
+import type PageManager from './PageManager';
 
 /**
  * Variable handler function type
@@ -96,25 +98,20 @@ class VariableManager extends BaseManager {
    * Registers the default set of JSPWiki-compatible variables.
    */
   private registerCoreVariables(): void {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const configManager = this.engine.getManager('ConfigurationManager');
+    const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
 
     // Application info
     this.registerVariable('appName', (_context) => {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-      return configManager.getProperty('amdwiki.applicationName', 'amdWiki') as string;
+      return configManager?.getProperty('amdwiki.applicationName', 'amdWiki') as string ?? 'amdWiki';
     });
     this.registerVariable('applicationname', (_context) => {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-      return configManager.getProperty('amdwiki.applicationName', 'amdWiki') as string;
+      return configManager?.getProperty('amdwiki.applicationName', 'amdWiki') as string ?? 'amdWiki';
     });
     this.registerVariable('version', (_context) => {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-      return configManager.getProperty('amdwiki.version', '1.0.0') as string;
+      return configManager?.getProperty('amdwiki.version', '1.0.0') as string ?? '1.0.0';
     });
     this.registerVariable('baseurl', (_context) => {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-      return configManager.getProperty('amdwiki.baseURL', 'http://localhost:3000') as string;
+      return configManager?.getProperty('amdwiki.baseURL', 'http://localhost:3000') as string ?? 'http://localhost:3000';
     });
 
     // Page context - ParseContext has pageName directly
@@ -139,8 +136,7 @@ class VariableManager extends BaseManager {
 
     // System info
     this.registerVariable('uptime', (_context) => {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
-      const startTime = (this.engine as any).startTime as number | undefined;
+      const startTime = this.engine.startTime;
       if (startTime) {
         const uptimeMs = Date.now() - startTime;
         const uptimeSec = Math.floor(uptimeMs / 1000);
@@ -153,15 +149,13 @@ class VariableManager extends BaseManager {
     });
 
     this.registerVariable('totalpages', (_context) => {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      const pageManager = this.engine.getManager('PageManager');
+      const pageManager = this.engine.getManager<PageManager>('PageManager');
       if (pageManager) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
         const provider = pageManager.getCurrentPageProvider();
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        if (provider && provider.pageCache) {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-          return (provider.pageCache.size as number).toString();
+        // pageCache is a protected property not on the public interface
+        const providerWithCache = provider as { pageCache?: Map<string, unknown> } | null;
+        if (providerWithCache?.pageCache) {
+          return providerWithCache.pageCache.size.toString();
         }
       }
       return '0';

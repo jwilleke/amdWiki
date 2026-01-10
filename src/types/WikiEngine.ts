@@ -99,6 +99,12 @@ export interface WikiEngine {
    */
   shutdown(): Promise<void>;
 
+  /**
+   * Get all registered manager names
+   * @returns Array of manager names
+   */
+  getRegisteredManagers(): string[];
+
   /** Allow additional properties for extensibility */
   [key: string]: any;
 }

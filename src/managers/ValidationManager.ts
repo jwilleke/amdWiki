@@ -11,6 +11,7 @@ import { v4 as uuidv4, validate as validateUuid } from 'uuid';
 import path from 'path';
 import logger from '../utils/logger';
 import type { WikiEngine } from '../types/WikiEngine';
+import type ConfigurationManager from './ConfigurationManager';
 
 /**
  * Validation result interface
@@ -153,13 +154,11 @@ class ValidationManager extends BaseManager {
    */
   async initialize(config: Record<string, unknown> = {}): Promise<void> {
     await super.initialize(config);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const configManager = this.engine.getManager('ConfigurationManager');
+    const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
 
     // Load max keywords
     this.maxUserKeywords = configManager
-      ? // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-      (configManager.getProperty('amdwiki.maximum.user-keywords', 5) as number)
+      ? (configManager.getProperty('amdwiki.maximum.user-keywords', 5) as number)
       : (config.maxUserKeywords as number) || 5;
     this.maxCategories = (config.maxCategories as number) || 3;
 
@@ -172,11 +171,10 @@ class ValidationManager extends BaseManager {
 
   /**
    * Load system categories from ConfigurationManager
-   * @param {any} configManager - Configuration manager instance
+   * @param {ConfigurationManager | undefined} configManager - Configuration manager instance
    * @returns {void}
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  loadSystemCategories(configManager: any): void {
+  loadSystemCategories(configManager: ConfigurationManager | undefined): void {
     if (!configManager) {
       logger.warn('ConfigurationManager not available, using hardcoded system categories');
       return;
@@ -184,7 +182,6 @@ class ValidationManager extends BaseManager {
 
     try {
       // Get system categories configuration
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       const systemCategoriesConfig = configManager.getProperty('amdwiki.system-category', null) as SystemCategoriesConfig | null;
 
       if (systemCategoriesConfig && typeof systemCategoriesConfig === 'object') {

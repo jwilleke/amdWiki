@@ -3,6 +3,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import logger from '../utils/logger';
 import type { WikiEngine } from '../types/WikiEngine';
+import type ConfigurationManager from './ConfigurationManager';
 
 /**
  * JSON Schema type - represents a JSON Schema object
@@ -50,18 +51,20 @@ class SchemaManager extends BaseManager {
    * @throws {Error} If ConfigurationManager is not available
    */
   async initialize(): Promise<void> {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const configManager = this.engine.getManager('ConfigurationManager');
+    const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
     if (!configManager) {
       throw new Error('SchemaManager requires ConfigurationManager to be initialized.');
     }
 
     // Fetch the schemas directory from ConfigurationManager (no fallback - defined in app-default-config.json)
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-    const schemasDir = configManager.getProperty('amdwiki.directories.schemas') as string;
+    const schemasDir = configManager.getProperty('amdwiki.directories.schemas') as string | undefined;
+    if (!schemasDir) {
+      logger.warn('Schema directory not configured. No schemas loaded.');
+      return;
+    }
 
     try {
-      const files = await fs.readdir(schemasDir);
+      const files: string[] = await fs.readdir(schemasDir);
 
       for (const file of files) {
         if (file.endsWith('.schema.json')) {

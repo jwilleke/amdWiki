@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-
 import BaseManager from './BaseManager';
 import logger from '../utils/logger';
 import { WikiEngine } from '../types/WikiEngine';
@@ -13,6 +10,13 @@ interface Policy {
   id: string;
   priority?: number;
   [key: string]: unknown;
+}
+
+/**
+ * Type guard to check if an object is a valid Policy
+ */
+function isPolicy(obj: unknown): obj is Policy {
+  return typeof obj === 'object' && obj !== null && 'id' in obj && typeof (obj as Policy).id === 'string';
 }
 
 /**
@@ -85,8 +89,8 @@ class PolicyManager extends BaseManager {
 
     this.policies.clear();
     for (const policy of policies) {
-      if (policy && typeof policy === 'object' && 'id' in policy && typeof policy.id === 'string') {
-        this.policies.set(policy.id, policy as Policy);
+      if (isPolicy(policy)) {
+        this.policies.set(policy.id, policy);
       }
     }
     logger.info(`📋 Loaded ${this.policies.size} policies from ConfigurationManager.`);

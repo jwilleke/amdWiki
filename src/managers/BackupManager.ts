@@ -205,9 +205,7 @@ class BackupManager extends BaseManager {
       };
 
       // Get all manager names from engine
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
       const managerNames = this.engine.getRegisteredManagers();
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       logger.info(`📋 Found ${managerNames.length} registered managers`);
 
       // Call backup() on each manager
@@ -219,24 +217,21 @@ class BackupManager extends BaseManager {
         }
 
         try {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument
-          const manager = this.engine.getManager(managerName);
+          const manager = this.engine.getManager<BaseManager>(managerName);
           if (!manager) {
             logger.warn(`⚠️  Manager not found: ${managerName}`);
             continue;
           }
 
           logger.info(`📦 Backing up ${managerName}...`);
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
           const managerBackup = await manager.backup();
 
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
           backupData.managers[managerName] = managerBackup;
           logger.info(`✅ ${managerName} backed up successfully`);
         } catch (error) {
           logger.error(`❌ Failed to backup ${managerName}:`, error);
           // Continue with other managers even if one fails
-          backupData.managers[managerName as string] = {
+          backupData.managers[managerName] = {
             error: (error as Error).message,
             timestamp: new Date().toISOString()
           };
@@ -346,26 +341,24 @@ class BackupManager extends BaseManager {
         }
 
         try {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-          const manager = this.engine.getManager(managerName);
+          const manager = this.engine.getManager<BaseManager>(managerName);
           if (!manager) {
             logger.warn(`⚠️  Manager not found: ${managerName}, skipping`);
             results.skipped.push(managerName);
             continue;
           }
 
-          const managerBackupData = backupData.managers[managerName];
+          const managerBackupData = backupData.managers[managerName] as BaseBackupData | { error?: string };
 
           // Skip if manager backup had an error
-          if ((managerBackupData as { error?: string }).error) {
-            logger.warn(`⚠️  Skipping ${managerName} (backup had error: ${(managerBackupData as { error: string }).error})`);
+          if ('error' in managerBackupData && typeof managerBackupData.error === 'string') {
+            logger.warn(`⚠️  Skipping ${managerName} (backup had error: ${managerBackupData.error})`);
             results.skipped.push(managerName);
             continue;
           }
 
           logger.info(`📦 Restoring ${managerName}...`);
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-          await manager.restore(managerBackupData);
+          await manager.restore(managerBackupData as BaseBackupData);
 
           results.success.push(managerName);
           logger.info(`✅ ${managerName} restored successfully`);
