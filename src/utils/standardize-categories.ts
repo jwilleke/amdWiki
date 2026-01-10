@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-/* eslint-disable no-console */
+/* eslint-disable no-console -- CLI script requires console output for user interaction */
 import fs from 'fs-extra';
 import path from 'path';
 import matter from 'gray-matter';

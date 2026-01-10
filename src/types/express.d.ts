@@ -2,7 +2,6 @@
  * Express type extensions for amdWiki
  * Extends Express Request and Response with custom properties
  */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import 'express';
 import 'express-session';
@@ -12,10 +11,10 @@ declare module 'express-session' {
     csrfToken?: string;
     username?: string;
     userId?: string;
-    user?: any;
+    user?: unknown;
     isAuthenticated?: boolean;
     roles?: string[];
-    [key: string]: any;
+    [key: string]: unknown;
   }
 }
 
@@ -29,7 +28,7 @@ declare global {
         roles?: string[];
         isSystem?: boolean;
         permissions?: string[];
-        [key: string]: any;
+        [key: string]: unknown;
       };
       sessionID?: string;
       file?: Multer.File;

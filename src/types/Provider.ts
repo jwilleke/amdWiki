@@ -4,7 +4,6 @@
  * This module defines interfaces for all provider types (page, user, attachment,
  * search, cache, audit) following JSPWiki's provider pattern for pluggable backends.
  */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { WikiPage, PageFrontmatter, PageInfo, PageSaveOptions, PageSearchResult, PageListOptions } from './Page';
 import { VersionManifest, VersionContent, VersionDiff, VersionHistoryEntry } from './Version';
@@ -304,7 +303,7 @@ export interface AttachmentMetadata {
   description?: string;
 
   /** Additional metadata */
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /**
@@ -321,7 +320,7 @@ export interface AttachmentProvider extends BaseProvider {
    * @param metadata - Additional metadata
    * @returns Attachment metadata
    */
-  saveAttachment(pageUuid: string, filename: string, buffer: Buffer, metadata?: Record<string, any>): Promise<AttachmentMetadata>;
+  saveAttachment(pageUuid: string, filename: string, buffer: Buffer, metadata?: Record<string, unknown>): Promise<AttachmentMetadata>;
 
   /**
    * Get attachment
@@ -413,7 +412,7 @@ export interface CacheProvider extends BaseProvider {
    * @param key - Cache key
    * @returns Cached value or null if not found/expired
    */
-  get<T = any>(key: string): Promise<T | null>;
+  get<T = unknown>(key: string): Promise<T | null>;
 
   /**
    * Set value in cache
@@ -422,7 +421,7 @@ export interface CacheProvider extends BaseProvider {
    * @param ttl - Time to live in seconds (optional)
    * @returns Promise that resolves when value is cached
    */
-  set<T = any>(key: string, value: T, ttl?: number): Promise<void>;
+  set<T = unknown>(key: string, value: T, ttl?: number): Promise<void>;
 
   /**
    * Delete value from cache
@@ -474,7 +473,7 @@ export interface AuditEvent {
   userAgent?: string;
 
   /** Additional event data */
-  data?: Record<string, any>;
+  data?: Record<string, unknown>;
 
   /** Event result (success, failure) */
   result: 'success' | 'failure';

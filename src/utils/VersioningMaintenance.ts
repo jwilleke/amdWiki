@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import fs from 'fs-extra';
 import path from 'path';
 import logger from './logger';
@@ -413,7 +412,7 @@ class VersioningMaintenance {
       return { versionsCompressed: 0, spaceFreed: 0 };
     }
 
-    const manifest: VersionManifest = await fs.readJson(manifestPath);
+    const manifest = await fs.readJson(manifestPath) as unknown as VersionManifest;
     let versionsCompressed = 0;
     let spaceFreed = 0;
 
