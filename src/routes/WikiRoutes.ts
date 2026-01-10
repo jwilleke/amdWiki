@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-// @ts-nocheck
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
@@ -26,6 +24,12 @@ import { Request, Response } from 'express';
 import SchemaGenerator from '../utils/SchemaGenerator';
 import logger from '../utils/logger';
 import WikiContext from '../context/WikiContext';
+
+/** Helper to extract error message from unknown error */
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) return getErrorMessage(error);
+  return String(error);
+}
 
 // TypeScript interfaces for WikiRoutes
 interface WikiEngine {
@@ -135,7 +139,7 @@ class WikiRoutes {
    * @param {object} options - Additional context options (pageName, content, context type)
    * @returns {WikiContext} WikiContext instance
    */
-  createWikiContext(req: ExtendedRequest, options: WikiContextOptions = {}): WikiContext {
+  createWikiContext(req: Request, options: WikiContextOptions = {}): WikiContext {
     return new WikiContext(this.engine as unknown as import('../types/WikiEngine').WikiEngine, {
       context: options.context || WikiContext.CONTEXT.NONE,
       pageName: options.pageName ?? undefined,
@@ -286,9 +290,9 @@ class WikiRoutes {
       } else {
         templateData.leftMenu = '';
       }
-    } catch (error) {
+    } catch (error: unknown) {
       logger.warn('Could not load or render LeftMenu content.', {
-        error: error instanceof Error ? error.message : String(error)
+        error: error instanceof Error ? getErrorMessage(error) : String(error)
       });
       templateData.leftMenu = '';
     }
@@ -324,9 +328,9 @@ class WikiRoutes {
       } else {
         templateData.footer = '';
       }
-    } catch (error) {
+    } catch (error: unknown) {
       logger.warn('Could not load or render Footer content.', {
-        error: error instanceof Error ? error.message : String(error)
+        error: error instanceof Error ? getErrorMessage(error) : String(error)
       });
       templateData.footer = '';
     }
@@ -448,7 +452,7 @@ class WikiRoutes {
       return categories.length > 0
         ? categories
         : ['General', 'Documentation', 'Project', 'Reference'];
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error loading categories:', err);
       return ['General', 'Documentation', 'Project', 'Reference'];
     }
@@ -485,7 +489,7 @@ class WikiRoutes {
       return categories.length > 0
         ? categories
         : ['General', 'Documentation', 'System/Admin'];
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error loading all categories:', err);
       return ['General', 'Documentation', 'System/Admin'];
     }
@@ -520,7 +524,7 @@ class WikiRoutes {
       return categories.length > 0
         ? categories
         : ['general', 'system', 'documentation', 'test'];
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error loading system categories:', err);
       return ['general', 'system', 'documentation', 'test'];
     }
@@ -589,7 +593,7 @@ class WikiRoutes {
         }
       }
       return keywords.length > 0 ? keywords : ['medicine', 'geology', 'test'];
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error loading user keywords:', err);
       return ['medicine', 'geology', 'test'];
     }
@@ -601,7 +605,7 @@ class WikiRoutes {
    * @param {Object} req - Express request object for URL generation
    * @returns {string} HTML script tag with JSON-LD
    */
-  async generatePageSchema(pageData, req) {
+  async generatePageSchema(pageData: Record<string, unknown>, req: Request) {
     try {
       const baseUrl = `${req.protocol}://${req.get('host')}`;
       const pageUrl = `${baseUrl}${req.originalUrl}`;
@@ -618,7 +622,7 @@ class WikiRoutes {
       });
 
       return SchemaGenerator.generateScriptTag(schema);
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error generating page schema:', err);
       return '';
     }
@@ -629,7 +633,7 @@ class WikiRoutes {
    * @param {Object} req - Express request object
    * @returns {string} HTML script tags with JSON-LD
    */
-  async generateSiteSchema(req) {
+  async generateSiteSchema(req: Request) {
     try {
       const baseUrl = `${req.protocol}://${req.get('host')}`;
       const configManager = this.engine.getManager('ConfigurationManager');
@@ -639,10 +643,10 @@ class WikiRoutes {
       try {
         const schemaManager = this.engine.getManager('SchemaManager');
         siteData = await schemaManager.getComprehensiveSiteData();
-      } catch (err) {
+      } catch (err: unknown) {
         logger.warn(
           'SchemaManager not available, using legacy data sources:',
-          err.message
+          getErrorMessage(err)
         );
 
         // Fallback to legacy data structure using ConfigurationManager
@@ -688,7 +692,7 @@ class WikiRoutes {
       return schemas
         .map((schema) => SchemaGenerator.generateScriptTag(schema))
         .join('\n    ');
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error generating site schema:', err);
       return '';
     }
@@ -697,7 +701,7 @@ class WikiRoutes {
   /**
    * Render error page with consistent template data
    */
-  async renderError(req, res, status, title, message) {
+  async renderError(req: Request, res: Response, status: number, title: string, message: string) {
     try {
       // Pass the request object to get all common data
       const commonData = await this.getCommonTemplateData(req);
@@ -709,7 +713,7 @@ class WikiRoutes {
         error: { status: status },
         originalUrl: req.originalUrl || '/'
       });
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error rendering error page:', err);
       return res.status(status).send(`${title}: ${message}`);
     }
@@ -751,7 +755,7 @@ class WikiRoutes {
           return true;
         }
       }
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error checking page category:', err);
     }
 
@@ -783,7 +787,7 @@ class WikiRoutes {
 
       // Format for Bootstrap navigation
       return this.formatLeftMenuContent(renderedContent);
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error loading left menu:', err);
       return null; // Return null to use fallback
     }
@@ -841,7 +845,7 @@ class WikiRoutes {
   /**
    * Display a wiki page
    */
-  async viewPage(req, res) {
+  async viewPage(req: Request, res: Response) {
     try {
       const configManager = this.engine.getManager('ConfigurationManager');
       const frontPage = configManager.getProperty(
@@ -873,7 +877,7 @@ class WikiRoutes {
       const markdown = await pageManager
         .getPageContent(pageName)
         .catch((err) => {
-          if (err.message.includes('not found')) return null;
+          if (getErrorMessage(err).includes('not found')) return null;
           throw err;
         });
 
@@ -924,9 +928,9 @@ class WikiRoutes {
               lastAuthor: latestVersion.author
             };
           }
-        } catch (error) {
+        } catch (error: unknown) {
           // Silently fail if versioning not available for this page
-          logger.debug(`[VIEW] Could not get version info for ${pageName}: ${error.message}`);
+          logger.debug(`[VIEW] Could not get version info for ${pageName}: ${getErrorMessage(error)}`);
         }
       }
 
@@ -948,9 +952,9 @@ class WikiRoutes {
         lastModified: metadata?.lastModified,
         referringPages: [] // TODO: Implement backlink detection
       });
-    } catch (error) {
+    } catch (error: unknown) {
       logger.error('[VIEW] Error viewing page', {
-        error: error.message,
+        error: getErrorMessage(error),
         stack: error.stack
       });
       await this.renderError(
@@ -966,7 +970,7 @@ class WikiRoutes {
   /**
    * Display create new page form with template selection
    */
-  async createPage(req, res) {
+  async createPage(req: Request, res: Response) {
     try {
       const pageName = req.query.name || '';
 
@@ -1049,7 +1053,7 @@ class WikiRoutes {
         maxUserKeywords: maxUserKeywords,
         csrfToken: req.session.csrfToken
       });
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error loading create page:', err);
       res.status(500).send('Error loading create page form');
     }
@@ -1058,7 +1062,7 @@ class WikiRoutes {
   /**
    * Handle /edit route without page parameter
    */
-  async editPageIndex(req, res) {
+  async editPageIndex(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -1096,7 +1100,7 @@ class WikiRoutes {
         title: 'Select Page to Edit',
         pages: sortedPages
       });
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error loading edit page index:', err);
       res.status(500).send('Error loading edit page selector');
     }
@@ -1105,7 +1109,7 @@ class WikiRoutes {
   /**
    * Create a new page from template
    */
-  async createPageFromTemplate(req, res) {
+  async createPageFromTemplate(req: Request, res: Response) {
     try {
       const { pageName, templateName, categories, userKeywords } = req.body;
 
@@ -1244,12 +1248,12 @@ class WikiRoutes {
 
       // Redirect to edit the new page
       res.redirect(`/edit/${pageName}`);
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error creating page from template:', err);
       res.status(500).send('Error creating page');
     }
   }
-  async editPage(req, res) {
+  async editPage(req: Request, res: Response) {
     try {
       const pageName = req.params.page;
 
@@ -1389,7 +1393,7 @@ class WikiRoutes {
         maxUserKeywords: maxUserKeywords,
         csrfToken: req.session.csrfToken
       });
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error loading edit page:', err);
       res.status(500).send('Error loading edit page');
     }
@@ -1400,7 +1404,7 @@ class WikiRoutes {
    * @param {object} req - Express request object
    * @param {object} res - Express response object
    */
-  async createWikiPage(req, res) {
+  async createWikiPage(req: Request, res: Response) {
     try {
       const pageName = decodeURIComponent(req.params.page);
       const { content, templateName, categories, userKeywords } = req.body;
@@ -1532,7 +1536,7 @@ class WikiRoutes {
 
       // Redirect to edit the new page (so user can see template result)
       res.redirect(`/edit/${encodeURIComponent(pageName)}`);
-    } catch (error) {
+    } catch (error: unknown) {
       logger.error('Error creating wiki page:', error);
       return await this.renderError(
         req,
@@ -1547,7 +1551,7 @@ class WikiRoutes {
   /**
    * Save a page
    */
-  async savePage(req, res) {
+  async savePage(req: Request, res: Response) {
     try {
       const pageName = req.params.page;
       logger.debug(`💾 Save request received for page: ${pageName}`);
@@ -1681,7 +1685,7 @@ class WikiRoutes {
       // Redirect to the updated page title if it changed (fallback to original name)
       const redirectName = metadata.title || pageName;
       res.redirect(`/wiki/${encodeURIComponent(redirectName)}`);
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error saving page:', err);
       res.status(500).send('Error saving page');
     }
@@ -1690,7 +1694,7 @@ class WikiRoutes {
   /**
    * Delete a page
    */
-  async deletePage(req, res) {
+  async deletePage(req: Request, res: Response) {
     try {
       const pageName = req.params.page;
       logger.debug(`🗑️ Delete request received for page: ${pageName}`);
@@ -1775,7 +1779,7 @@ class WikiRoutes {
         logger.debug(`❌ Failed to delete page: ${pageName}`);
         res.status(500).send('Failed to delete page');
       }
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('❌ Error deleting page:', err);
       res.status(500).send('Error deleting page');
     }
@@ -1784,7 +1788,7 @@ class WikiRoutes {
   /**
    * Search pages with advanced options
    */
-  async searchPages(req, res) {
+  async searchPages(req: Request, res: Response) {
     try {
       const query = req.query.q || '';
 
@@ -1874,7 +1878,7 @@ class WikiRoutes {
         availableKeywords: userKeywordsList,
         stats: stats
       });
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error searching:', err);
       res.status(500).send('Error performing search');
     }
@@ -1883,7 +1887,7 @@ class WikiRoutes {
   /**
    * API endpoint for search suggestions
    */
-  async searchSuggestions(req, res) {
+  async searchSuggestions(req: Request, res: Response) {
     try {
       const partial = req.query.q || '';
       const searchManager = this.engine.getManager('SearchManager');
@@ -1891,7 +1895,7 @@ class WikiRoutes {
       const suggestions = searchManager.getSuggestions(partial);
 
       res.json({ suggestions });
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error getting suggestions:', err);
       res.status(500).json({ error: 'Error getting suggestions' });
     }
@@ -1900,13 +1904,13 @@ class WikiRoutes {
   /**
    * API endpoint for getting all page names
    */
-  async getPageNames(req, res) {
+  async getPageNames(req: Request, res: Response) {
     try {
       const pageManager = this.engine.getManager('PageManager');
       const pageNames = await pageManager.getPageNames();
 
       res.json(pageNames);
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error getting page names:', err);
       res.status(500).json({ error: 'Error getting page names' });
     }
@@ -1915,7 +1919,7 @@ class WikiRoutes {
   /**
    * Home page - show main index
    */
-  async homePage(req, res) {
+  async homePage(req: Request, res: Response) {
     // Redirect to Welcome page instead of rendering a separate home page
     res.redirect('/wiki/Welcome');
   }
@@ -1923,7 +1927,7 @@ class WikiRoutes {
   /**
    * API endpoint to get page preview
    */
-  async previewPage(req, res) {
+  async previewPage(req: Request, res: Response) {
     logger.debug('!!! PREVIEW PAGE METHOD CALLED !!!');
     try {
       const { content, pageName } = req.body;
@@ -1957,7 +1961,7 @@ class WikiRoutes {
         html: renderedContent,
         success: true
       });
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error generating preview:', err);
       res.status(500).json({
         error: 'Error generating preview',
@@ -1969,7 +1973,7 @@ class WikiRoutes {
   /**
    * Upload attachment for a page
    */
-  async uploadAttachment(req, res) {
+  async uploadAttachment(req: Request, res: Response) {
     try {
       const { page: pageName } = req.params;
       const attachmentManager = this.engine.getManager('AttachmentManager');
@@ -2016,11 +2020,11 @@ class WikiRoutes {
         url: attachment.url,
         message: 'File uploaded successfully'
       });
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error uploading attachment:', err);
       res.status(500).json({
         success: false,
-        error: err.message || 'Error uploading file'
+        error: getErrorMessage(err) || 'Error uploading file'
       });
     }
   }
@@ -2028,7 +2032,7 @@ class WikiRoutes {
   /**
    * Upload image file
    */
-  async uploadImage(req, res) {
+  async uploadImage(req: Request, res: Response) {
     try {
       if (!req.file) {
         return res.status(400).json({ error: 'No image file uploaded' });
@@ -2045,11 +2049,11 @@ class WikiRoutes {
         size: req.file.size,
         message: 'Image uploaded successfully'
       });
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error uploading image:', err);
       res.status(500).json({
         success: false,
-        error: err.message || 'Error uploading image'
+        error: getErrorMessage(err) || 'Error uploading image'
       });
     }
   }
@@ -2057,7 +2061,7 @@ class WikiRoutes {
   /**
    * Serve attachment file
    */
-  async serveAttachment(req, res) {
+  async serveAttachment(req: Request, res: Response) {
     try {
       const { attachmentId } = req.params;
       const attachmentManager = this.engine.getManager('AttachmentManager');
@@ -2080,7 +2084,7 @@ class WikiRoutes {
 
       // Send buffer
       res.send(buffer);
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error serving attachment:', err);
       res.status(500).send('Error serving attachment');
     }
@@ -2089,7 +2093,7 @@ class WikiRoutes {
   /**
    * Delete attachment
    */
-  async deleteAttachment(req, res) {
+  async deleteAttachment(req: Request, res: Response) {
     try {
       const { attachmentId } = req.params;
       const attachmentManager = this.engine.getManager('AttachmentManager');
@@ -2121,11 +2125,11 @@ class WikiRoutes {
         success: true,
         message: 'Attachment deleted successfully'
       });
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error deleting attachment:', err);
       res.status(500).json({
         success: false,
-        error: err.message || 'Error deleting attachment'
+        error: getErrorMessage(err) || 'Error deleting attachment'
       });
     }
   }
@@ -2133,7 +2137,7 @@ class WikiRoutes {
   /**
    * Export page selection form
    */
-  async exportPage(req, res) {
+  async exportPage(req: Request, res: Response) {
     try {
       const commonData = await this.getCommonTemplateData(req);
       const pageManager = this.engine.getManager('PageManager');
@@ -2144,7 +2148,7 @@ class WikiRoutes {
         title: 'Export Pages',
         pageNames: pageNames
       });
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error loading export page:', err);
       res.status(500).send('Error loading export page');
     }
@@ -2153,7 +2157,7 @@ class WikiRoutes {
   /**
    * Export page to HTML
    */
-  async exportPageHtml(req, res) {
+  async exportPageHtml(req: Request, res: Response) {
     try {
       const { page: pageName } = req.params;
       const exportManager = this.engine.getManager('ExportManager');
@@ -2162,7 +2166,7 @@ class WikiRoutes {
       await exportManager.saveExport(html, pageName, 'html');
       res.status(200).send('Export succesfull');
 
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error exporting to HTML:', err);
       res.status(500).send('Error exporting page');
     }
@@ -2171,7 +2175,7 @@ class WikiRoutes {
   /**
    * Export page to Markdown
    */
-  async exportPageMarkdown(req, res) {
+  async exportPageMarkdown(req: Request, res: Response) {
     try {
       const { page: pageName } = req.params;
       const exportManager = this.engine.getManager('ExportManager');
@@ -2181,7 +2185,7 @@ class WikiRoutes {
 
       res.status(200).send('Export succesfull');
 
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error exporting to Markdown:', err);
       res.status(500).send('Error exporting page');
     }
@@ -2190,7 +2194,7 @@ class WikiRoutes {
   /**
    * List available exports
    */
-  async listExports(req, res) {
+  async listExports(req: Request, res: Response) {
     try {
       const commonData = await this.getCommonTemplateData(req);
       const exportManager = this.engine.getManager('ExportManager');
@@ -2201,7 +2205,7 @@ class WikiRoutes {
         title: 'Exports',
         exports: exports
       });
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error listing exports:', err);
       res.status(500).send('Error listing exports');
     }
@@ -2210,7 +2214,7 @@ class WikiRoutes {
   /**
    * Download export file
    */
-  async downloadExport(req, res) {
+  async downloadExport(req: Request, res: Response) {
     try {
       const { filename } = req.params;
       const exportManager = this.engine.getManager('ExportManager');
@@ -2222,7 +2226,7 @@ class WikiRoutes {
       }
 
       res.download(exportFile.path, filename);
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error downloading export:', err);
       res.status(500).send('Error downloading export');
     }
@@ -2231,7 +2235,7 @@ class WikiRoutes {
   /**
    * Delete export file
    */
-  async deleteExport(req, res) {
+  async deleteExport(req: Request, res: Response) {
     try {
       const { filename } = req.params;
       const exportManager = this.engine.getManager('ExportManager');
@@ -2248,7 +2252,7 @@ class WikiRoutes {
   /**
    * Login page
    */
-  async loginPage(req, res) {
+  async loginPage(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -2268,7 +2272,7 @@ class WikiRoutes {
         redirect: req.query.redirect,
         csrfToken: req.session?.csrfToken || ''
       });
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error loading login page:', err);
       res.status(500).send('Error loading login page');
     }
@@ -2277,7 +2281,7 @@ class WikiRoutes {
   /**
    * Process login
    */
-  async processLogin(req, res) {
+  async processLogin(req: Request, res: Response) {
     try {
       const { username, password, redirect = '/' } = req.body;
       const userManager = this.engine.getManager('UserManager');
@@ -2324,7 +2328,7 @@ class WikiRoutes {
           logger.debug('DEBUG: Session saved successfully, now redirecting');
         res.redirect(redirect);
       });
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error processing login:', err);
       res.redirect('/login?error=Login failed');
     }
@@ -2333,7 +2337,7 @@ class WikiRoutes {
   /**
    * Process logout
    */
-  async processLogout(req, res) {
+  async processLogout(req: Request, res: Response) {
     try {
       // Destroy express-session
       req.session.destroy((err) => {
@@ -2342,7 +2346,7 @@ class WikiRoutes {
         }
         res.redirect('/');
       });
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error processing logout:', err);
       res.redirect('/');
     }
@@ -2351,7 +2355,7 @@ class WikiRoutes {
   /**
    * User info debug page (shows current user state)
    */
-  async userInfo(req, res) {
+  async userInfo(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -2381,16 +2385,16 @@ class WikiRoutes {
       };
 
       res.json(info);
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error getting user info:', err);
-      res.status(500).json({ error: err.message });
+      res.status(500).json({ error: getErrorMessage(err) });
     }
   }
 
   /**
    * Registration page
    */
-  async registerPage(req, res) {
+  async registerPage(req: Request, res: Response) {
     try {
       const commonData = await this.getCommonTemplateData(req);
 
@@ -2400,7 +2404,7 @@ class WikiRoutes {
         error: req.query.error,
         csrfToken: req.session.csrfToken
       });
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error loading register page:', err);
       res.status(500).send('Error loading register page');
     }
@@ -2409,7 +2413,7 @@ class WikiRoutes {
   /**
    * Process registration
    */
-  async processRegister(req, res) {
+  async processRegister(req: Request, res: Response) {
     try {
       const { username, email, displayName, password, confirmPassword } =
         req.body;
@@ -2442,9 +2446,9 @@ class WikiRoutes {
 
       logger.debug(`👤 User registered: ${username}`);
       res.redirect('/login?success=Registration successful');
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error processing registration:', err);
-      const errorMessage = err.message || 'Registration failed';
+      const errorMessage = getErrorMessage(err) || 'Registration failed';
       res.redirect('/register?error=' + encodeURIComponent(errorMessage));
     }
   }
@@ -2452,7 +2456,7 @@ class WikiRoutes {
   /**
    * User profile page
    */
-  async profilePage(req, res) {
+  async profilePage(req: Request, res: Response) {
     logger.debug('DEBUG: profilePage accessed');
     try {
       const userManager = this.engine.getManager('UserManager');
@@ -2500,7 +2504,7 @@ class WikiRoutes {
         success: req.query.success,
         csrfToken: req.session.csrfToken
       });
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error loading profile page:', err);
       res.status(500).send('Error loading profile page');
     }
@@ -2509,7 +2513,7 @@ class WikiRoutes {
   /**
    * Update user profile
    */
-  async updateProfile(req, res) {
+  async updateProfile(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -2567,7 +2571,7 @@ class WikiRoutes {
       await userManager.updateUser(currentUser.username, updates);
 
       res.redirect('/profile?success=Profile updated successfully');
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error updating profile:', err);
       res.redirect('/profile?error=Failed to update profile');
     }
@@ -2576,7 +2580,7 @@ class WikiRoutes {
   /**
    * Update user preferences
    */
-  async updatePreferences(req, res) {
+  async updatePreferences(req: Request, res: Response) {
     logger.debug('=== updatePreferences method called ===');
     try {
       logger.debug('DEBUG: Request body:', req.body);
@@ -2666,7 +2670,7 @@ class WikiRoutes {
 
       logger.debug('DEBUG: updatePreferences - preferences saved successfully');
       res.redirect('/profile?success=Preferences saved successfully');
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error updating preferences:', err);
       res.redirect('/profile?error=Failed to save preferences');
     }
@@ -2675,7 +2679,7 @@ class WikiRoutes {
   /**
    * Admin dashboard
    */
-  async adminDashboard(req, res) {
+  async adminDashboard(req: Request, res: Response) {
     try {
       const currentUser = req.userContext;
       const aclManager = this.engine.getManager('ACLManager');
@@ -2740,7 +2744,7 @@ class WikiRoutes {
           'NotificationManager'
         );
         notifications = notificationManager.getAllNotifications().slice(-10); // Get last 10 notifications
-      } catch (error) {
+      } catch (error: unknown) {
         logger.error(
           'Error fetching notifications for admin dashboard:',
           error
@@ -2766,7 +2770,7 @@ class WikiRoutes {
       };
 
       res.render('admin-dashboard', templateData);
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error loading admin dashboard:', err);
       res.status(500).send('Error loading admin dashboard');
     }
@@ -2775,7 +2779,7 @@ class WikiRoutes {
   /**
    * Toggle maintenance mode (admin only)
    */
-  async adminToggleMaintenance(req, res) {
+  async adminToggleMaintenance(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -2846,9 +2850,9 @@ class WikiRoutes {
 
       // Redirect back to admin dashboard with detailed success message
       res.redirect(`/admin?success=${encodeURIComponent(message)}`);
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error toggling maintenance mode', {
-        error: err.message,
+        error: getErrorMessage(err),
         stack: err.stack,
         user: req.session?.user?.username || 'unknown'
       });
@@ -2859,7 +2863,7 @@ class WikiRoutes {
   /**
    * Admin policy management dashboard
    */
-  async adminPolicies(req, res) {
+  async adminPolicies(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -2901,7 +2905,7 @@ class WikiRoutes {
         successMessage: req.query.success || null,
         errorMessage: req.query.error || null
       });
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error loading policy management:', err);
       res.status(500).send('Error loading policy management');
     }
@@ -2910,7 +2914,7 @@ class WikiRoutes {
   /**
    * Create a new policy
    */
-  async adminCreatePolicy(req, res) {
+  async adminCreatePolicy(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -2939,11 +2943,11 @@ class WikiRoutes {
         policy: result.policy,
         message: 'Policy created successfully'
       });
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error creating policy:', err);
       res.status(500).json({
         error: 'Failed to create policy',
-        details: err.message
+        details: getErrorMessage(err)
       });
     }
   }
@@ -2951,7 +2955,7 @@ class WikiRoutes {
   /**
    * Get a specific policy
    */
-  async adminGetPolicy(req, res) {
+  async adminGetPolicy(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -2977,11 +2981,11 @@ class WikiRoutes {
       }
 
       res.json(policy);
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error retrieving policy:', err);
       res.status(500).json({
         error: 'Failed to retrieve policy',
-        details: err.message
+        details: getErrorMessage(err)
       });
     }
   }
@@ -2989,7 +2993,7 @@ class WikiRoutes {
   /**
    * Update an existing policy
    */
-  async adminUpdatePolicy(req, res) {
+  async adminUpdatePolicy(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -3018,11 +3022,11 @@ class WikiRoutes {
         policy: result.policy,
         message: 'Policy updated successfully'
       });
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error updating policy:', err);
       res.status(500).json({
         error: 'Failed to update policy',
-        details: err.message
+        details: getErrorMessage(err)
       });
     }
   }
@@ -3030,7 +3034,7 @@ class WikiRoutes {
   /**
    * Delete a policy
    */
-  async adminDeletePolicy(req, res) {
+  async adminDeletePolicy(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -3059,11 +3063,11 @@ class WikiRoutes {
         success: true,
         message: 'Policy deleted successfully'
       });
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error deleting policy:', err);
       res.status(500).json({
         error: 'Failed to delete policy',
-        details: err.message
+        details: getErrorMessage(err)
       });
     }
   }
@@ -3071,7 +3075,7 @@ class WikiRoutes {
   /**
    * Admin users management
    */
-  async adminUsers(req, res) {
+  async adminUsers(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -3102,7 +3106,7 @@ class WikiRoutes {
         errorMessage: req.query.error || null,
         csrfToken: req.session.csrfToken
       });
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error loading admin users:', err);
       res.status(500).send('Error loading user management');
     }
@@ -3111,7 +3115,7 @@ class WikiRoutes {
   /**
    * Create new user (admin)
    */
-  async adminCreateUser(req, res) {
+  async adminCreateUser(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -3141,9 +3145,9 @@ class WikiRoutes {
       } else {
         res.redirect('/admin/users?error=Failed to create user');
       }
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error creating user:', err);
-      const errorMessage = encodeURIComponent(err.message || 'Error creating user');
+      const errorMessage = encodeURIComponent(getErrorMessage(err) || 'Error creating user');
       res.redirect(`/admin/users?error=${errorMessage}`);
     }
   }
@@ -3151,7 +3155,7 @@ class WikiRoutes {
   /**
    * Update user (admin)
    */
-  async adminUpdateUser(req, res) {
+  async adminUpdateUser(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -3177,7 +3181,7 @@ class WikiRoutes {
           .status(400)
           .json({ success: false, message: 'Failed to update user' });
       }
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error updating user:', err);
       res.status(500).json({ success: false, message: 'Error updating user' });
     }
@@ -3186,7 +3190,7 @@ class WikiRoutes {
   /**
    * Delete user (admin)
    */
-  async adminDeleteUser(req, res) {
+  async adminDeleteUser(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -3208,7 +3212,7 @@ class WikiRoutes {
           .status(400)
           .json({ success: false, message: 'Failed to delete user' });
       }
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error deleting user:', err);
       res.status(500).json({ success: false, message: 'Error deleting user' });
     }
@@ -3217,7 +3221,7 @@ class WikiRoutes {
   /**
    * Admin roles management
    */
-  async adminRoles(req, res) {
+  async adminRoles(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -3248,7 +3252,7 @@ class WikiRoutes {
           description: desc
         }))
       });
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error loading admin roles:', err);
       res.status(500).send('Error loading role management');
     }
@@ -3257,7 +3261,7 @@ class WikiRoutes {
   /**
    * Update role permissions (admin only)
    */
-  async adminUpdateRole(req, res) {
+  async adminUpdateRole(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -3292,7 +3296,7 @@ class WikiRoutes {
           .status(400)
           .json({ success: false, message: 'Failed to update role' });
       }
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error updating role:', err);
       res.status(500).json({ success: false, message: 'Error updating role' });
     }
@@ -3301,7 +3305,7 @@ class WikiRoutes {
   /**
    * Create new role (admin only)
    */
-  async adminCreateRole(req, res) {
+  async adminCreateRole(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -3339,9 +3343,9 @@ class WikiRoutes {
           .status(400)
           .json({ success: false, message: 'Failed to create role' });
       }
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error creating role:', err);
-      if (err.message === 'Role already exists') {
+      if (getErrorMessage(err) === 'Role already exists') {
         res
           .status(409)
           .json({ success: false, message: 'Role already exists' });
@@ -3356,7 +3360,7 @@ class WikiRoutes {
   /**
    * Delete role (admin only)
    */
-  async adminDeleteRole(req, res) {
+  async adminDeleteRole(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -3381,11 +3385,11 @@ class WikiRoutes {
       await userManager.deleteRole(role);
 
       res.json({ success: true, message: 'Role deleted successfully' });
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error deleting role:', err);
-      if (err.message === 'Role not found') {
+      if (getErrorMessage(err) === 'Role not found') {
         res.status(404).json({ success: false, message: 'Role not found' });
-      } else if (err.message === 'Cannot delete system role') {
+      } else if (getErrorMessage(err) === 'Cannot delete system role') {
         res
           .status(403)
           .json({ success: false, message: 'Cannot delete system role' });
@@ -3400,7 +3404,7 @@ class WikiRoutes {
   /**
    * Admin backup - Create and download full system backup
    */
-  async adminBackup(req, res) {
+  async adminBackup(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -3451,16 +3455,16 @@ class WikiRoutes {
         }
       });
 
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error creating backup:', err);
-      res.status(500).send('Error creating backup: ' + err.message);
+      res.status(500).send('Error creating backup: ' + getErrorMessage(err));
     }
   }
 
   /**
    * Admin configuration management page
    */
-  async adminConfiguration(req, res) {
+  async adminConfiguration(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -3495,7 +3499,7 @@ class WikiRoutes {
       };
 
       res.render('admin-configuration', templateData);
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error loading admin configuration:', err);
       res.status(500).send('Error loading configuration management');
     }
@@ -3504,7 +3508,7 @@ class WikiRoutes {
   /**
    * Update configuration property
    */
-  async adminUpdateConfiguration(req, res) {
+  async adminUpdateConfiguration(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -3534,7 +3538,7 @@ class WikiRoutes {
       res.redirect(
         '/admin/configuration?success=Configuration updated successfully'
       );
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error updating configuration:', err);
       res.redirect('/admin/configuration?error=Failed to update configuration');
     }
@@ -3543,7 +3547,7 @@ class WikiRoutes {
   /**
    * Reset configuration to defaults
    */
-  async adminResetConfiguration(req, res) {
+  async adminResetConfiguration(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -3560,7 +3564,7 @@ class WikiRoutes {
       res.redirect(
         '/admin/configuration?success=Configuration reset to defaults'
       );
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error resetting configuration:', err);
       res.redirect('/admin/configuration?error=Failed to reset configuration');
     }
@@ -3569,7 +3573,7 @@ class WikiRoutes {
   /**
    * Admin variable management page
    */
-  async adminVariables(req, res) {
+  async adminVariables(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -3620,7 +3624,7 @@ class WikiRoutes {
       };
 
       res.render('admin-variables', templateData);
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error loading admin variables:', err);
       res.status(500).send('Error loading variable management');
     }
@@ -3629,7 +3633,7 @@ class WikiRoutes {
   /**
    * Test variable expansion
    */
-  async adminTestVariables(req, res) {
+  async adminTestVariables(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -3674,7 +3678,7 @@ class WikiRoutes {
       };
 
       res.render('admin-variables', templateData);
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error testing variables:', err);
       res.redirect('/admin/variables?error=Failed to test variables');
     }
@@ -3683,7 +3687,7 @@ class WikiRoutes {
   /**
    * Admin settings page
    */
-  async adminSettings(req, res) {
+  async adminSettings(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -3720,7 +3724,7 @@ class WikiRoutes {
         leftMenuContent: leftMenuContent,
         settings: settings
       });
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error loading admin settings:', err);
       res.status(500).send('Error loading system settings');
     }
@@ -3729,7 +3733,7 @@ class WikiRoutes {
   /**
    * Restart the system (PM2)
    */
-  async adminRestart(req, res) {
+  async adminRestart(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -3752,7 +3756,7 @@ class WikiRoutes {
       // Execute pm2 restart command
       exec('pm2 restart amdWiki', (error, stdout, stderr) => {
         if (error) {
-          logger.error(`Restart error: ${error.message}`);
+          logger.error(`Restart error: ${getErrorMessage(error)}`);
           return;
         }
         if (stderr) {
@@ -3766,7 +3770,7 @@ class WikiRoutes {
         success: true,
         message: 'System is restarting...'
       });
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error restarting system:', err);
       res.status(500).json({
         success: false,
@@ -3778,7 +3782,7 @@ class WikiRoutes {
   /**
    * Admin reindex - Refresh page cache and rebuild search index
    */
-  async adminReindex(req, res) {
+  async adminReindex(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -3826,11 +3830,11 @@ class WikiRoutes {
           timestamp: new Date().toISOString()
         }
       });
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error reindexing pages:', err);
       res.status(500).json({
         success: false,
-        error: err.message || 'Error reindexing pages'
+        error: getErrorMessage(err) || 'Error reindexing pages'
       });
     }
   }
@@ -3838,7 +3842,7 @@ class WikiRoutes {
   /**
    * Admin logs page
    */
-  async adminLogs(req, res) {
+  async adminLogs(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -3879,7 +3883,7 @@ class WikiRoutes {
             logContent = lines.slice(-100).join('\n');
           }
         }
-      } catch (err) {
+      } catch (err: unknown) {
         logger.error('Error reading logs:', err);
         logContent = 'Error reading log files';
       }
@@ -3891,7 +3895,7 @@ class WikiRoutes {
         logContent,
         csrfToken: req.session.csrfToken
       });
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error loading admin logs:', err);
       res.status(500).send('Error loading system logs');
     }
@@ -3900,7 +3904,7 @@ class WikiRoutes {
   /**
    * Get raw page source (markdown content) for viewing/copying
    */
-  async getPageSource(req, res) {
+  async getPageSource(req: Request, res: Response) {
     try {
       const pageName = decodeURIComponent(req.params.page);
       const pageManager = this.engine.getManager('PageManager');
@@ -3913,7 +3917,7 @@ class WikiRoutes {
       // Return the raw markdown content
       res.setHeader('Content-Type', 'text/plain; charset=utf-8');
       res.send(page.content || '');
-    } catch (error) {
+    } catch (error: unknown) {
       logger.error('Error retrieving page source:', error);
       res.status(500).send('Error retrieving page source');
     }
@@ -3926,7 +3930,7 @@ class WikiRoutes {
   /**
    * Admin Organizations Management Page
    */
-  async adminOrganizations(req, res) {
+  async adminOrganizations(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -3951,8 +3955,8 @@ class WikiRoutes {
       try {
         const schemaManager = this.engine.getManager('SchemaManager');
         organizations = schemaManager.getOrganizations();
-      } catch (err) {
-        logger.warn('SchemaManager not available:', err.message);
+      } catch (err: unknown) {
+        logger.warn('SchemaManager not available:', getErrorMessage(err));
         // Create default organization from ConfigurationManager
         const configManager = this.engine.getManager('ConfigurationManager');
         organizations = [
@@ -3973,7 +3977,7 @@ class WikiRoutes {
       templateData.error = req.query.error;
 
       res.render('admin-organizations', templateData);
-    } catch (error) {
+    } catch (error: unknown) {
       logger.error('Error loading admin organizations page:', error);
       await this.renderError(
         req,
@@ -3988,11 +3992,11 @@ class WikiRoutes {
   /**
    * Create New Organization
    */
-  async adminCreateOrganization(req, res) {
+  async adminCreateOrganization(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
       const userContext = req.userContext;
-      if (!userContext.isAuthenticated || !userContext.isAdmin) {
+      if (!userContext?.isAuthenticated || !userContext?.isAdmin) {
         return res.status(403).json({ error: 'Admin access required' });
       }
 
@@ -4011,13 +4015,13 @@ class WikiRoutes {
           '/admin/organizations?success=Organization created successfully'
         );
       }
-    } catch (error) {
+    } catch (error: unknown) {
       logger.error('Error creating organization:', error);
       if (req.headers.accept?.includes('application/json')) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: getErrorMessage(error) });
       } else {
         res.redirect(
-          '/admin/organizations?error=' + encodeURIComponent(error.message)
+          '/admin/organizations?error=' + encodeURIComponent(getErrorMessage(error))
         );
       }
     }
@@ -4026,11 +4030,11 @@ class WikiRoutes {
   /**
    * Update Existing Organization
    */
-  async adminUpdateOrganization(req, res) {
+  async adminUpdateOrganization(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
       const userContext = req.userContext;
-      if (!userContext.isAuthenticated || !userContext.isAdmin) {
+      if (!userContext?.isAuthenticated || !userContext?.isAdmin) {
         return res.status(403).json({ error: 'Admin access required' });
       }
 
@@ -4051,13 +4055,13 @@ class WikiRoutes {
           '/admin/organizations?success=Organization updated successfully'
         );
       }
-    } catch (error) {
+    } catch (error: unknown) {
       logger.error('Error updating organization:', error);
       if (req.headers.accept?.includes('application/json')) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: getErrorMessage(error) });
       } else {
         res.redirect(
-          '/admin/organizations?error=' + encodeURIComponent(error.message)
+          '/admin/organizations?error=' + encodeURIComponent(getErrorMessage(error))
         );
       }
     }
@@ -4066,11 +4070,11 @@ class WikiRoutes {
   /**
    * Delete Organization
    */
-  async adminDeleteOrganization(req, res) {
+  async adminDeleteOrganization(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
       const userContext = req.userContext;
-      if (!userContext.isAuthenticated || !userContext.isAdmin) {
+      if (!userContext?.isAuthenticated || !userContext?.isAdmin) {
         return res.status(403).json({ error: 'Admin access required' });
       }
 
@@ -4087,13 +4091,13 @@ class WikiRoutes {
           '/admin/organizations?success=Organization deleted successfully'
         );
       }
-    } catch (error) {
+    } catch (error: unknown) {
       logger.error('Error deleting organization:', error);
       if (req.headers.accept?.includes('application/json')) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: getErrorMessage(error) });
       } else {
         res.redirect(
-          '/admin/organizations?error=' + encodeURIComponent(error.message)
+          '/admin/organizations?error=' + encodeURIComponent(getErrorMessage(error))
         );
       }
     }
@@ -4102,11 +4106,11 @@ class WikiRoutes {
   /**
    * Get Single Organization (API endpoint)
    */
-  async adminGetOrganization(req, res) {
+  async adminGetOrganization(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
       const userContext = req.userContext;
-      if (!userContext.isAuthenticated || !userContext.isAdmin) {
+      if (!userContext?.isAuthenticated || !userContext?.isAdmin) {
         return res.status(403).json({ error: 'Admin access required' });
       }
 
@@ -4119,21 +4123,21 @@ class WikiRoutes {
       }
 
       res.json(organization);
-    } catch (error) {
+    } catch (error: unknown) {
       logger.error('Error getting organization:', error);
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: getErrorMessage(error) });
     }
   }
 
   /**
    * Admin route to validate all files and check for naming convention compliance
    */
-  async adminValidateFiles(req, res) {
+  async adminValidateFiles(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
       const userContext = await userManager.getCurrentUser(req);
 
-      if (!userContext.isAuthenticated || !userContext.isAdmin) {
+      if (!userContext?.isAuthenticated || !userContext?.isAdmin) {
         return await this.renderError(
           req,
           res,
@@ -4156,21 +4160,21 @@ class WikiRoutes {
       templateData.dryRun = dryRun;
 
       res.render('admin-validation-report', templateData);
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error validating files:', err);
-      await this.renderError(req, res, 500, 'Validation Error', err.message);
+      await this.renderError(req, res, 500, 'Validation Error', getErrorMessage(err));
     }
   }
 
   /**
    * Admin API route to fix all non-compliant files
    */
-  async adminFixFiles(req, res) {
+  async adminFixFiles(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
       const userContext = await userManager.getCurrentUser(req);
 
-      if (!userContext.isAuthenticated || !userContext.isAdmin) {
+      if (!userContext?.isAuthenticated || !userContext?.isAdmin) {
         return res.status(403).json({ error: 'Admin access required' });
       }
 
@@ -4186,11 +4190,11 @@ class WikiRoutes {
         message: `Fixed ${report.fixedFiles} files out of ${report.invalidFiles} invalid files`,
         report
       });
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error fixing files:', err);
       res.status(500).json({
         success: false,
-        error: err.message
+        error: getErrorMessage(err)
       });
     }
   }
@@ -4198,7 +4202,7 @@ class WikiRoutes {
   /**
    * Get Organization Schema.org JSON-LD (API endpoint)
    */
-  async adminGetOrganizationSchema(req, res) {
+  async adminGetOrganizationSchema(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -4223,16 +4227,16 @@ class WikiRoutes {
       });
 
       res.json(schema);
-    } catch (error) {
+    } catch (error: unknown) {
       logger.error('Error getting organization schema:', error);
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: getErrorMessage(error) });
     }
   }
 
   /**
    * Get Schema.org Person schema for a user
    */
-  async adminGetPersonSchema(req, res) {
+  async adminGetPersonSchema(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -4257,9 +4261,9 @@ class WikiRoutes {
       });
 
       res.json(schema);
-    } catch (error) {
+    } catch (error: unknown) {
       logger.error('Error getting person schema:', error);
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: getErrorMessage(error) });
     }
   }
 
@@ -4270,105 +4274,105 @@ class WikiRoutes {
   registerRoutes(app) {
     // API routes first to prevent conflicts
     logger.debug('ROUTES DEBUG: Registering /api/preview route');
-    app.post('/api/preview', (req, res) => this.previewPage(req, res));
+    app.post('/api/preview', (req: Request, res: Response) => this.previewPage(req, res));
     logger.debug('ROUTES DEBUG: Registering /api/test route');
-    app.get('/api/test', (req, res) => res.json({ message: 'API working!' }));
+    app.get('/api/test', (req: Request, res: Response) => res.json({ message: 'API working!' }));
     logger.debug('ROUTES DEBUG: Registering /api/page-metadata/:page route');
-    app.get('/api/page-metadata/:page', (req, res) =>
+    app.get('/api/page-metadata/:page', (req: Request, res: Response) =>
       this.getPageMetadata(req, res)
     );
     logger.debug('ROUTES DEBUG: Registering /api/page-source/:page route');
-    app.get('/api/page-source/:page', (req, res) =>
+    app.get('/api/page-source/:page', (req: Request, res: Response) =>
       this.getPageSource(req, res)
     );
     logger.debug('ROUTES DEBUG: Registering /api/page-suggestions route');
-    app.get('/api/page-suggestions', (req, res) =>
+    app.get('/api/page-suggestions', (req: Request, res: Response) =>
       this.getPageSuggestions(req, res)
     );
 
     // Version management API routes (Phase 6)
     logger.debug('ROUTES DEBUG: Registering version management API routes');
-    app.get('/api/page/:identifier/versions', (req, res) =>
+    app.get('/api/page/:identifier/versions', (req: Request, res: Response) =>
       this.getPageVersions(req, res)
     );
-    app.get('/api/page/:identifier/version/:version', (req, res) =>
+    app.get('/api/page/:identifier/version/:version', (req: Request, res: Response) =>
       this.getPageVersion(req, res)
     );
-    app.get('/api/page/:identifier/compare/:v1/:v2', (req, res) =>
+    app.get('/api/page/:identifier/compare/:v1/:v2', (req: Request, res: Response) =>
       this.comparePageVersions(req, res)
     );
-    app.post('/api/page/:identifier/restore/:version', (req, res) =>
+    app.post('/api/page/:identifier/restore/:version', (req: Request, res: Response) =>
       this.restorePageVersion(req, res)
     );
 
     // Public routes
-    app.get('/', (req, res) => this.homePage(req, res));
-    app.get('/wiki/:page', (req, res) => this.viewPage(req, res));
-    app.post('/wiki/:page', (req, res) => this.createWikiPage(req, res));
-    app.get('/edit/:page', (req, res) => this.editPage(req, res));
-    app.post('/save/:page', (req, res) => this.savePage(req, res));
-    app.get('/create', (req, res) => this.createPage(req, res));
-    app.post('/create', (req, res) => this.createPageFromTemplate(req, res));
-    app.post('/delete/:page', (req, res) => this.deletePage(req, res));
-    app.get('/search', (req, res) => this.searchPages(req, res));
-    app.get('/login', (req, res) => this.loginPage(req, res));
-    app.post('/login', (req, res) => this.processLogin(req, res));
-    app.get('/logout', (req, res) => this.processLogout(req, res));
-    app.post('/logout', (req, res) => this.processLogout(req, res));
-    app.get('/register', (req, res) => this.registerPage(req, res));
-    app.post('/register', (req, res) => this.processRegister(req, res));
-    app.get('/profile', (req, res) => this.profilePage(req, res));
-    app.post('/profile', (req, res) => this.updateProfile(req, res));
-    app.post('/preferences', (req, res) => this.updatePreferences(req, res));
-    app.get('/user-info', (req, res) => this.userInfo(req, res));
-    app.get('/export', (req, res) => this.exportPage(req, res));
-    app.post('/export/html/:page', (req, res) => this.exportPageHtml(req, res));
-    app.post('/export/markdown/:page', (req, res) => this.exportPageMarkdown(req, res));
-    app.get('/exports', (req, res) => this.listExports(req, res));
-    app.get('/download/:filename', (req, res) => this.downloadExport(req, res));
-    app.delete('/deleteExport/:filename', (req, res) => this.deleteExport(req, res));
+    app.get('/', (req: Request, res: Response) => this.homePage(req, res));
+    app.get('/wiki/:page', (req: Request, res: Response) => this.viewPage(req, res));
+    app.post('/wiki/:page', (req: Request, res: Response) => this.createWikiPage(req, res));
+    app.get('/edit/:page', (req: Request, res: Response) => this.editPage(req, res));
+    app.post('/save/:page', (req: Request, res: Response) => this.savePage(req, res));
+    app.get('/create', (req: Request, res: Response) => this.createPage(req, res));
+    app.post('/create', (req: Request, res: Response) => this.createPageFromTemplate(req, res));
+    app.post('/delete/:page', (req: Request, res: Response) => this.deletePage(req, res));
+    app.get('/search', (req: Request, res: Response) => this.searchPages(req, res));
+    app.get('/login', (req: Request, res: Response) => this.loginPage(req, res));
+    app.post('/login', (req: Request, res: Response) => this.processLogin(req, res));
+    app.get('/logout', (req: Request, res: Response) => this.processLogout(req, res));
+    app.post('/logout', (req: Request, res: Response) => this.processLogout(req, res));
+    app.get('/register', (req: Request, res: Response) => this.registerPage(req, res));
+    app.post('/register', (req: Request, res: Response) => this.processRegister(req, res));
+    app.get('/profile', (req: Request, res: Response) => this.profilePage(req, res));
+    app.post('/profile', (req: Request, res: Response) => this.updateProfile(req, res));
+    app.post('/preferences', (req: Request, res: Response) => this.updatePreferences(req, res));
+    app.get('/user-info', (req: Request, res: Response) => this.userInfo(req, res));
+    app.get('/export', (req: Request, res: Response) => this.exportPage(req, res));
+    app.post('/export/html/:page', (req: Request, res: Response) => this.exportPageHtml(req, res));
+    app.post('/export/markdown/:page', (req: Request, res: Response) => this.exportPageMarkdown(req, res));
+    app.get('/exports', (req: Request, res: Response) => this.listExports(req, res));
+    app.get('/download/:filename', (req: Request, res: Response) => this.downloadExport(req, res));
+    app.delete('/deleteExport/:filename', (req: Request, res: Response) => this.deleteExport(req, res));
 
     // Version management view routes (Phase 6)
-    app.get('/history/:page', (req, res) => this.pageHistory(req, res));
-    app.get('/diff/:page', (req, res) => this.pageDiff(req, res));
+    app.get('/history/:page', (req: Request, res: Response) => this.pageHistory(req, res));
+    app.get('/diff/:page', (req: Request, res: Response) => this.pageDiff(req, res));
 
     // Admin routes
-    app.get('/admin', (req, res) => this.adminDashboard(req, res));
-    app.get('/admin/backup', (req, res) => this.adminBackup(req, res));
-    app.get('/admin/configuration', (req, res) =>
+    app.get('/admin', (req: Request, res: Response) => this.adminDashboard(req, res));
+    app.get('/admin/backup', (req: Request, res: Response) => this.adminBackup(req, res));
+    app.get('/admin/configuration', (req: Request, res: Response) =>
       this.adminConfiguration(req, res)
     );
-    app.post('/admin/configuration', (req, res) =>
+    app.post('/admin/configuration', (req: Request, res: Response) =>
       this.adminUpdateConfiguration(req, res)
     );
-    app.post('/admin/configuration/reset', (req, res) =>
+    app.post('/admin/configuration/reset', (req: Request, res: Response) =>
       this.adminResetConfiguration(req, res)
     );
-    app.get('/admin/variables', (req, res) => this.adminVariables(req, res));
-    app.post('/admin/variables/test', (req, res) =>
+    app.get('/admin/variables', (req: Request, res: Response) => this.adminVariables(req, res));
+    app.post('/admin/variables/test', (req: Request, res: Response) =>
       this.adminTestVariables(req, res)
     );
-    app.post('/admin/maintenance/toggle', (req, res) =>
+    app.post('/admin/maintenance/toggle', (req: Request, res: Response) =>
       this.adminToggleMaintenance(req, res)
     );
-    app.get('/admin/users', (req, res) => this.adminUsers(req, res));
-    app.post('/admin/users', (req, res) => this.adminCreateUser(req, res));
-    app.put('/admin/users/:username', (req, res) =>
+    app.get('/admin/users', (req: Request, res: Response) => this.adminUsers(req, res));
+    app.post('/admin/users', (req: Request, res: Response) => this.adminCreateUser(req, res));
+    app.put('/admin/users/:username', (req: Request, res: Response) =>
       this.adminUpdateUser(req, res)
     );
-    app.delete('/admin/users/:username', (req, res) =>
+    app.delete('/admin/users/:username', (req: Request, res: Response) =>
       this.adminDeleteUser(req, res)
     );
-    app.get('/admin/roles', (req, res) => this.adminRoles(req, res));
-    app.post('/admin/roles', (req, res) => this.adminCreateRole(req, res));
-    app.put('/admin/roles/:role', (req, res) => this.adminUpdateRole(req, res));
-    app.delete('/admin/roles/:role', (req, res) =>
+    app.get('/admin/roles', (req: Request, res: Response) => this.adminRoles(req, res));
+    app.post('/admin/roles', (req: Request, res: Response) => this.adminCreateRole(req, res));
+    app.put('/admin/roles/:role', (req: Request, res: Response) => this.adminUpdateRole(req, res));
+    app.delete('/admin/roles/:role', (req: Request, res: Response) =>
       this.adminDeleteRole(req, res)
     );
-    app.get('/admin/settings', (req, res) => this.adminSettings(req, res));
-    app.get('/admin/logs', (req, res) => this.adminLogs(req, res));
-    app.post('/admin/restart', (req, res) => this.adminRestart(req, res));
-    app.post('/admin/reindex', (req, res) => this.adminReindex(req, res));
+    app.get('/admin/settings', (req: Request, res: Response) => this.adminSettings(req, res));
+    app.get('/admin/logs', (req: Request, res: Response) => this.adminLogs(req, res));
+    app.post('/admin/restart', (req: Request, res: Response) => this.adminRestart(req, res));
+    app.post('/admin/reindex', (req: Request, res: Response) => this.adminReindex(req, res));
 
     // Image upload route with error handling
     app.post('/images/upload', (req, res) => {
@@ -4384,13 +4388,13 @@ class WikiRoutes {
             }
             return res.status(400).json({
               success: false,
-              error: err.message
+              error: getErrorMessage(err)
             });
           }
           // Other errors (e.g., file type validation)
           return res.status(400).json({
             success: false,
-            error: err.message
+            error: getErrorMessage(err)
           });
         }
         // No error, proceed to handler
@@ -4411,45 +4415,45 @@ class WikiRoutes {
             }
             return res.status(400).json({
               success: false,
-              error: err.message
+              error: getErrorMessage(err)
             });
           }
           return res.status(400).json({
             success: false,
-            error: err.message
+            error: getErrorMessage(err)
           });
         }
         void this.uploadAttachment(req, res);
       });
     });
 
-    app.get('/attachments/:attachmentId', (req, res) =>
+    app.get('/attachments/:attachmentId', (req: Request, res: Response) =>
       this.serveAttachment(req, res)
     );
 
-    app.delete('/attachments/:attachmentId', (req, res) =>
+    app.delete('/attachments/:attachmentId', (req: Request, res: Response) =>
       this.deleteAttachment(req, res)
     );
 
     // Notification management routes
-    app.post('/admin/notifications/:id/dismiss', (req, res) =>
+    app.post('/admin/notifications/:id/dismiss', (req: Request, res: Response) =>
       this.adminDismissNotification(req, res)
     );
-    app.post('/admin/notifications/clear-all', (req, res) =>
+    app.post('/admin/notifications/clear-all', (req: Request, res: Response) =>
       this.adminClearAllNotifications(req, res)
     );
-    app.get('/admin/notifications', (req, res) =>
+    app.get('/admin/notifications', (req: Request, res: Response) =>
       this.adminNotifications(req, res)
     );
 
     // Cache management routes
-    app.get('/api/admin/cache/stats', (req, res) =>
+    app.get('/api/admin/cache/stats', (req: Request, res: Response) =>
       this.adminCacheStats(req, res)
     );
-    app.post('/api/admin/cache/clear', (req, res) =>
+    app.post('/api/admin/cache/clear', (req: Request, res: Response) =>
       this.adminClearCache(req, res)
     );
-    app.post('/api/admin/cache/clear/:region', (req, res) =>
+    app.post('/api/admin/cache/clear/:region', (req: Request, res: Response) =>
       this.adminClearCacheRegion(req, res)
     );
 
@@ -4477,10 +4481,10 @@ class WikiRoutes {
       this.getActiveSesssionCount(req, res);
     });
     // Schema.org routes
-    app.get('/schema/person/:identifier', (req, res) =>
+    app.get('/schema/person/:identifier', (req: Request, res: Response) =>
       this.adminGetPersonSchema(req, res)
     );
-    app.get('/schema/organization/:identifier', (req, res) =>
+    app.get('/schema/organization/:identifier', (req: Request, res: Response) =>
       this.adminGetOrganizationSchema(req, res)
     );
   }
@@ -4488,7 +4492,7 @@ class WikiRoutes {
   /**
    * Dismiss a notification (admin only)
    */
-  async adminDismissNotification(req, res) {
+  async adminDismissNotification(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -4515,7 +4519,7 @@ class WikiRoutes {
           '/admin?error=Notification not found or already dismissed'
         );
       }
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error dismissing notification:', err);
       res.redirect('/admin?error=Failed to dismiss notification');
     }
@@ -4524,7 +4528,7 @@ class WikiRoutes {
   /**
    * Clear all notifications (admin only)
    */
-  async adminClearAllNotifications(req, res) {
+  async adminClearAllNotifications(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -4544,7 +4548,7 @@ class WikiRoutes {
       res.redirect(
         `/admin?success=Cleared ${clearedCount} notifications successfully`
       );
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error clearing notifications:', err);
       res.redirect('/admin?error=Failed to clear notifications');
     }
@@ -4553,7 +4557,7 @@ class WikiRoutes {
   /**
    * Notification management page (admin only)
    */
-  async adminNotifications(req, res) {
+  async adminNotifications(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -4596,7 +4600,7 @@ class WikiRoutes {
         successMessage: req.query.success || null,
         errorMessage: req.query.error || null
       });
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error loading notification management:', err);
       res.status(500).send('Error loading notification management');
     }
@@ -4609,7 +4613,7 @@ class WikiRoutes {
   /**
    * Admin cache statistics API endpoint
    */
-  async adminCacheStats(req, res) {
+  async adminCacheStats(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -4628,7 +4632,7 @@ class WikiRoutes {
 
       const stats = await cacheManager.stats();
       res.json(stats);
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error getting cache stats:', err);
       res.status(500).json({ error: 'Failed to get cache statistics' });
     }
@@ -4637,7 +4641,7 @@ class WikiRoutes {
   /**
    * Admin clear all cache API endpoint
    */
-  async adminClearCache(req, res) {
+  async adminClearCache(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -4663,7 +4667,7 @@ class WikiRoutes {
         timestamp: new Date().toISOString(),
         user: currentUser.username
       });
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error clearing cache:', err);
       res.status(500).json({ error: 'Failed to clear cache' });
     }
@@ -4672,7 +4676,7 @@ class WikiRoutes {
   /**
    * Admin clear cache region API endpoint
    */
-  async adminClearCacheRegion(req, res) {
+  async adminClearCacheRegion(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
@@ -4706,7 +4710,7 @@ class WikiRoutes {
         timestamp: new Date().toISOString(),
         user: currentUser.username
       });
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error(`Error clearing cache region '${req.params.region}':`, err);
       res.status(500).json({ error: 'Failed to clear cache region' });
     }
@@ -4719,7 +4723,7 @@ class WikiRoutes {
   /**
    * Admin audit logs page
    */
-  async adminAuditLogs(req, res) {
+  async adminAuditLogs(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = await userManager.getCurrentUser(req);
@@ -4747,7 +4751,7 @@ class WikiRoutes {
         title: 'Audit Logs - Admin',
         currentUser
       });
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error loading audit logs:', err);
       res.status(500).send('Error loading audit logs');
     }
@@ -4756,7 +4760,7 @@ class WikiRoutes {
   /**
    * API endpoint for audit logs data
    */
-  async adminAuditLogsApi(req, res) {
+  async adminAuditLogsApi(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = await userManager.getCurrentUser(req);
@@ -4795,7 +4799,7 @@ class WikiRoutes {
         limit: limit,
         offset: offset
       });
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error retrieving audit logs:', err);
       res.status(500).json({ error: 'Error retrieving audit logs' });
     }
@@ -4804,7 +4808,7 @@ class WikiRoutes {
   /**
    * API endpoint for individual audit log details
    */
-  async adminAuditLogDetails(req, res) {
+  async adminAuditLogDetails(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = await userManager.getCurrentUser(req);
@@ -4828,7 +4832,7 @@ class WikiRoutes {
       }
 
       res.json(logDetails);
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error retrieving audit log details:', err);
       res.status(500).json({ error: 'Error retrieving audit log details' });
     }
@@ -4837,7 +4841,7 @@ class WikiRoutes {
   /**
    * Export audit logs
    */
-  async adminAuditExport(req, res) {
+  async adminAuditExport(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = await userManager.getCurrentUser(req);
@@ -4910,7 +4914,7 @@ class WikiRoutes {
       } else {
         res.status(400).send('Invalid format. Supported formats: json, csv');
       }
-    } catch (err) {
+    } catch (err: unknown) {
       logger.error('Error exporting audit logs:', err);
       res.status(500).send('Error exporting audit logs');
     }
@@ -4919,7 +4923,7 @@ class WikiRoutes {
   /**
    * Get page metadata in a user-friendly format
    */
-  async getPageMetadata(req, res) {
+  async getPageMetadata(req: Request, res: Response) {
     logger.debug('🔍 getPageMetadata called for page:', req.params.page);
     try {
       const pageName = decodeURIComponent(req.params.page);
@@ -4956,7 +4960,7 @@ class WikiRoutes {
           modified: stats.mtime,
           accessed: stats.atime
         };
-      } catch (error) {
+      } catch (error: unknown) {
         // File stats not available
       }
 
@@ -4981,9 +4985,9 @@ class WikiRoutes {
             };
           }
         }
-      } catch (error) {
+      } catch (error: unknown) {
         // Versioning not available or failed - continue without it
-        logger.debug('Version info not available:', error.message);
+        logger.debug('Version info not available:', getErrorMessage(error));
       }
 
       // Format the metadata for user-friendly display
@@ -5057,11 +5061,11 @@ class WikiRoutes {
       }
 
       res.json(formattedMetadata);
-    } catch (error) {
+    } catch (error: unknown) {
       logger.error('Error retrieving page metadata:', error);
       res
         .status(500)
-        .json({ error: 'Internal server error', details: error.message });
+        .json({ error: 'Internal server error', details: getErrorMessage(error) });
     }
   }
 
@@ -5075,7 +5079,7 @@ class WikiRoutes {
    *
    * Related: GitHub Issue #90 - TypeDown for Internal Page Links
    */
-  async getPageSuggestions(req, res) {
+  async getPageSuggestions(req: Request, res: Response) {
     try {
       const query = req.query.q || '';
       const limit = parseInt(req.query.limit) || 10;
@@ -5132,7 +5136,7 @@ class WikiRoutes {
               title: page?.metadata?.title || pageName,
               category: page?.metadata?.['system-category'] || page?.metadata?.category || 'general'
             };
-          } catch (err) {
+          } catch (err: unknown) {
             // If page load fails, return basic info
             return {
               name: pageName,
@@ -5149,9 +5153,9 @@ class WikiRoutes {
         suggestions: matchingPages,
         count: matchingPages.length
       });
-    } catch (error) {
+    } catch (error: unknown) {
       logger.error('Error getting page suggestions:', error);
-      res.status(500).json({ error: 'Internal server error', details: error.message });
+      res.status(500).json({ error: 'Internal server error', details: getErrorMessage(error) });
     }
   }
 
@@ -5163,7 +5167,7 @@ class WikiRoutes {
    * GET /api/page/:identifier/versions
    * Get version history for a page
    */
-  async getPageVersions(req, res) {
+  async getPageVersions(req: Request, res: Response) {
     try {
       const { identifier } = req.params;
       const pageManager = this.engine.getManager('PageManager');
@@ -5192,19 +5196,19 @@ class WikiRoutes {
         versions: versions
       });
 
-    } catch (error) {
-      logger.error(`Error getting page versions: ${error.message}`);
+    } catch (error: unknown) {
+      logger.error(`Error getting page versions: ${getErrorMessage(error)}`);
 
-      if (error.message.includes('not found')) {
+      if (getErrorMessage(error).includes('not found')) {
         return res.status(404).json({
           error: 'Page not found',
-          message: error.message
+          message: getErrorMessage(error)
         });
       }
 
       res.status(500).json({
         error: 'Internal server error',
-        details: error.message
+        details: getErrorMessage(error)
       });
     }
   }
@@ -5213,7 +5217,7 @@ class WikiRoutes {
    * GET /api/page/:identifier/version/:version
    * Get specific version content
    */
-  async getPageVersion(req, res) {
+  async getPageVersion(req: Request, res: Response) {
     try {
       const { identifier, version } = req.params;
       const versionNum = parseInt(version);
@@ -5252,26 +5256,26 @@ class WikiRoutes {
         metadata: versionData.metadata
       });
 
-    } catch (error) {
-      logger.error(`Error getting page version: ${error.message}`);
+    } catch (error: unknown) {
+      logger.error(`Error getting page version: ${getErrorMessage(error)}`);
 
-      if (error.message.includes('not found')) {
+      if (getErrorMessage(error).includes('not found')) {
         return res.status(404).json({
           error: 'Page or version not found',
-          message: error.message
+          message: getErrorMessage(error)
         });
       }
 
-      if (error.message.includes('does not exist')) {
+      if (getErrorMessage(error).includes('does not exist')) {
         return res.status(404).json({
           error: 'Version not found',
-          message: error.message
+          message: getErrorMessage(error)
         });
       }
 
       res.status(500).json({
         error: 'Internal server error',
-        details: error.message
+        details: getErrorMessage(error)
       });
     }
   }
@@ -5280,7 +5284,7 @@ class WikiRoutes {
    * GET /api/page/:identifier/compare/:v1/:v2
    * Compare two versions of a page
    */
-  async comparePageVersions(req, res) {
+  async comparePageVersions(req: Request, res: Response) {
     try {
       const { identifier, v1, v2 } = req.params;
       const version1 = parseInt(v1);
@@ -5318,19 +5322,19 @@ class WikiRoutes {
         comparison: comparison
       });
 
-    } catch (error) {
-      logger.error(`Error comparing page versions: ${error.message}`);
+    } catch (error: unknown) {
+      logger.error(`Error comparing page versions: ${getErrorMessage(error)}`);
 
-      if (error.message.includes('not found')) {
+      if (getErrorMessage(error).includes('not found')) {
         return res.status(404).json({
           error: 'Page or version not found',
-          message: error.message
+          message: getErrorMessage(error)
         });
       }
 
       res.status(500).json({
         error: 'Internal server error',
-        details: error.message
+        details: getErrorMessage(error)
       });
     }
   }
@@ -5339,7 +5343,7 @@ class WikiRoutes {
    * POST /api/page/:identifier/restore/:version
    * Restore page to a specific version
    */
-  async restorePageVersion(req, res) {
+  async restorePageVersion(req: Request, res: Response) {
     try {
       const { identifier, version } = req.params;
       const versionNum = parseInt(version);
@@ -5394,19 +5398,19 @@ class WikiRoutes {
         message: `Successfully restored to version ${versionNum}, created version ${newVersion}`
       });
 
-    } catch (error) {
-      logger.error(`Error restoring page version: ${error.message}`);
+    } catch (error: unknown) {
+      logger.error(`Error restoring page version: ${getErrorMessage(error)}`);
 
-      if (error.message.includes('not found')) {
+      if (getErrorMessage(error).includes('not found')) {
         return res.status(404).json({
           error: 'Page or version not found',
-          message: error.message
+          message: getErrorMessage(error)
         });
       }
 
       res.status(500).json({
         error: 'Internal server error',
-        details: error.message
+        details: getErrorMessage(error)
       });
     }
   }
@@ -5415,7 +5419,7 @@ class WikiRoutes {
    * GET /history/:page
    * Show page history view
    */
-  async pageHistory(req, res) {
+  async pageHistory(req: Request, res: Response) {
     try {
       const pageName = decodeURIComponent(req.params.page);
       logger.info(`[pageHistory] Request for page: "${pageName}"`);
@@ -5476,14 +5480,14 @@ class WikiRoutes {
         versionCount: versions.length
       });
 
-    } catch (error) {
-      logger.error(`Error rendering page history: ${error.message}`);
+    } catch (error: unknown) {
+      logger.error(`Error rendering page history: ${getErrorMessage(error)}`);
       const wikiContext = this.createWikiContext(req, { response: res });
       const templateData = this.getTemplateDataFromContext(wikiContext);
       res.status(500).render('error', {
         ...templateData,
         message: 'Error loading page history',
-        error: error.message
+        error: getErrorMessage(error)
       });
     }
   }
@@ -5492,7 +5496,7 @@ class WikiRoutes {
    * GET /diff/:page?v1=X&v2=Y
    * Show version comparison view
    */
-  async pageDiff(req, res) {
+  async pageDiff(req: Request, res: Response) {
     try {
       const pageName = decodeURIComponent(req.params.page);
       const v1 = parseInt(req.query.v1);
@@ -5565,14 +5569,14 @@ class WikiRoutes {
         stats: comparison.stats
       });
 
-    } catch (error) {
-      logger.error(`Error rendering page diff: ${error.message}`);
+    } catch (error: unknown) {
+      logger.error(`Error rendering page diff: ${getErrorMessage(error)}`);
       const wikiContext = this.createWikiContext(req, { response: res });
       const templateData = this.getTemplateDataFromContext(wikiContext);
       res.status(500).render('error', {
         ...templateData,
         message: 'Error comparing versions',
-        error: error.message
+        error: getErrorMessage(error)
       });
     }
   }
