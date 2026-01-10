@@ -24,6 +24,33 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 
 ---
 
+## 2026-01-10-06
+
+- Agent: Claude Opus 4.5
+- Subject: Continue file-level eslint-disable cleanup (#202)
+- Current Issue: [#202](https://github.com/jwilleke/amdWiki/issues/202) - TypeScript ESLint Cleanup
+- Key Decision: Use typed provider constructors and proper getManager generics
+- Testing:
+  - npm run typecheck: passes
+  - npm run eslint: passes for modified files
+  - Test results unchanged (10 failed vs 10 baseline)
+- Work Done:
+  - SearchManager.ts: Removed 3 file-level no-unsafe-* disables
+    - Added ConfigurationManager type import
+    - Added SearchProviderConstructor type for dynamic provider loading
+    - Handle both default and direct module exports with type safety
+  - PolicyEvaluator.ts: Removed file-level no-explicit-any disable
+    - Use unknown cast for Policy[] compatibility between interfaces
+  - BaseAttachmentProvider.ts: Converted file-level require-await to line-level
+- Progress: Reduced file-level disables from 58 to 53
+- Commits: 5bb4f98
+- Files Modified:
+  - src/managers/SearchManager.ts
+  - src/managers/PolicyEvaluator.ts
+  - src/providers/BaseAttachmentProvider.ts
+
+---
+
 ## 2026-01-10-05
 
 - Agent: Claude Opus 4.5
