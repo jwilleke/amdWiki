@@ -1,6 +1,5 @@
-/* eslint-disable no-console */
-
 import BaseManager from './BaseManager';
+import logger from '../utils/logger';
 import Ajv, { ValidateFunction, ErrorObject } from 'ajv';
 import addFormats from 'ajv-formats';
 import { WikiEngine } from '../types/WikiEngine';
@@ -213,7 +212,7 @@ class PolicyValidator extends BaseManager {
     // Load policy schema
     this.loadPolicySchema();
 
-    console.log('📋 PolicyValidator initialized');
+    logger.info('PolicyValidator initialized');
   }
 
   /**
@@ -353,9 +352,9 @@ class PolicyValidator extends BaseManager {
         this.schemaValidatorCompiled = this.schemaValidator.compile(this.policySchema);
       }
 
-      console.log('📋 Policy schema loaded and compiled');
+      logger.info('Policy schema loaded and compiled');
     } catch (error) {
-      console.error('Error loading policy schema:', error);
+      logger.error('Error loading policy schema:', error);
       this.policySchema = null;
     }
   }

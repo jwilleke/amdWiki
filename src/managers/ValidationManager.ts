@@ -9,6 +9,7 @@
 import BaseManager from './BaseManager';
 import { v4 as uuidv4, validate as validateUuid } from 'uuid';
 import path from 'path';
+import logger from '../utils/logger';
 import type { WikiEngine } from '../types/WikiEngine';
 
 /**
@@ -165,10 +166,8 @@ class ValidationManager extends BaseManager {
     // Load system categories from configuration
     this.loadSystemCategories(configManager);
 
-    // eslint-disable-next-line no-console
-    console.log('✅ ValidationManager initialized');
-    // eslint-disable-next-line no-console
-    console.log(`📋 Loaded ${this.validSystemCategories.length} system categories: ${this.validSystemCategories.join(', ')}`);
+    logger.info('ValidationManager initialized');
+    logger.info(`Loaded ${this.validSystemCategories.length} system categories: ${this.validSystemCategories.join(', ')}`);
   }
 
   /**
@@ -179,8 +178,7 @@ class ValidationManager extends BaseManager {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   loadSystemCategories(configManager: any): void {
     if (!configManager) {
-      // eslint-disable-next-line no-console
-      console.warn('⚠️  ConfigurationManager not available, using hardcoded system categories');
+      logger.warn('ConfigurationManager not available, using hardcoded system categories');
       return;
     }
 
@@ -203,21 +201,16 @@ class ValidationManager extends BaseManager {
 
         if (categories.length > 0) {
           this.validSystemCategories = categories;
-          // eslint-disable-next-line no-console
-          console.log(`🔧 Loaded ${categories.length} system categories from configuration`);
+          logger.info(`Loaded ${categories.length} system categories from configuration`);
         } else {
-          // eslint-disable-next-line no-console
-          console.warn('⚠️  No enabled system categories found in configuration, using defaults');
+          logger.warn('No enabled system categories found in configuration, using defaults');
         }
       } else {
-        // eslint-disable-next-line no-console
-        console.warn('⚠️  System categories configuration not found, using hardcoded defaults');
+        logger.warn('System categories configuration not found, using hardcoded defaults');
       }
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error('❌ Error loading system categories from configuration:', (error as Error).message);
-      // eslint-disable-next-line no-console
-      console.warn('⚠️  Falling back to hardcoded system categories');
+      logger.error('Error loading system categories from configuration:', (error as Error).message);
+      logger.warn('Falling back to hardcoded system categories');
     }
   }
 

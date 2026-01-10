@@ -1,6 +1,7 @@
 import { Tokenizer } from './Tokenizer';
 import DOMBuilder from './DOMBuilder';
 import WikiDocument from './WikiDocument';
+import logger from '../../utils/logger';
 
 /**
  * DOMParser - Complete DOM-based parsing pipeline for wiki markup
@@ -462,8 +463,7 @@ class DOMParser {
    */
   log(message: string): void {
     if (this.options.debug) {
-      // eslint-disable-next-line no-console
-      console.log(`[DOMParser] ${message}`);
+      logger.debug(`[DOMParser] ${message}`);
     }
   }
 }

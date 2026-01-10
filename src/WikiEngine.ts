@@ -1,6 +1,5 @@
-/* eslint-disable no-console */
-
 import Engine from './core/Engine';
+import logger from './utils/logger';
 import type { WikiConfig } from './types/Config';
 import type WikiContext from './context/WikiContext';
 
@@ -239,7 +238,7 @@ class WikiEngine extends Engine {
     // Mark engine as initialized (required for Engine base class contract)
     this.initialized = true;
 
-    console.log('✅ All managers initialized');
+    logger.info('All managers initialized');
   }
 
   /**

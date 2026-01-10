@@ -6,7 +6,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable no-console */
 
 import BaseManager from './BaseManager';
 import type ConfigurationManager from './ConfigurationManager';
@@ -218,11 +217,11 @@ class RenderingManager extends BaseManager {
     // Initialize LinkParser with page names
     this.initializeLinkParser();
 
-    console.log('✅ RenderingManager initialized');
+    logger.info('RenderingManager initialized');
 
-    console.log(`🔧 Advanced parser: ${this.renderingConfig.useAdvancedParser ? 'enabled' : 'disabled'}`);
+    logger.info(`Advanced parser: ${this.renderingConfig.useAdvancedParser ? 'enabled' : 'disabled'}`);
 
-    console.log(`🔄 Legacy fallback: ${this.renderingConfig.fallbackToLegacy ? 'enabled' : 'disabled'}`);
+    logger.info(`Legacy fallback: ${this.renderingConfig.fallbackToLegacy ? 'enabled' : 'disabled'}`);
   }
 
   /**
@@ -288,7 +287,7 @@ class RenderingManager extends BaseManager {
 
         this.renderingConfig.logParsingMethod = configManager.getProperty('amdwiki.markup.logParsingMethod', this.renderingConfig.logParsingMethod) as boolean;
       } catch (error) {
-        console.warn('⚠️  Failed to load RenderingManager configuration, using defaults:', getErrorMessage(error));
+        logger.warn('Failed to load RenderingManager configuration, using defaults:', getErrorMessage(error));
       }
     }
   }
@@ -313,15 +312,15 @@ class RenderingManager extends BaseManager {
 
     // Debug logging to identify the issue
     if (this.renderingConfig.logParsingMethod) {
-      console.log(`🔍 RenderingManager.renderMarkdown debug for ${pageName}:`);
+      logger.debug(`RenderingManager.renderMarkdown debug for ${pageName}:`);
 
-      console.log(`   useAdvancedParser config: ${this.renderingConfig.useAdvancedParser}`);
+      logger.debug(`   useAdvancedParser config: ${this.renderingConfig.useAdvancedParser}`);
 
-      console.log(`   MarkupParser available: ${!!markupParser}`);
+      logger.debug(`   MarkupParser available: ${!!markupParser}`);
 
-      console.log(`   MarkupParser initialized: ${markupParserAvailable}`);
+      logger.debug(`   MarkupParser initialized: ${markupParserAvailable}`);
 
-      console.log(`   Final decision: ${useAdvancedParser ? 'AdvancedParser' : 'LegacyParser'}`);
+      logger.debug(`   Final decision: ${useAdvancedParser ? 'AdvancedParser' : 'LegacyParser'}`);
     }
 
     if (useAdvancedParser) {
@@ -341,7 +340,7 @@ class RenderingManager extends BaseManager {
    */
   async renderWithAdvancedParser(content: string, pageName: string, userContext: UserContext | null, requestInfo: RequestInfo | null): Promise<string> {
     if (this.renderingConfig.logParsingMethod) {
-      console.log(`🔧 Rendering ${pageName} with AdvancedParser (MarkupParser)`);
+      logger.debug(`Rendering ${pageName} with AdvancedParser (MarkupParser)`);
     }
 
     const startTime = Date.now();
@@ -371,11 +370,11 @@ class RenderingManager extends BaseManager {
 
       return result;
     } catch (error) {
-      console.error('❌ AdvancedParser rendering failed:', getErrorMessage(error));
+      logger.error('AdvancedParser rendering failed:', getErrorMessage(error));
 
       // Fallback to legacy parser if configured
       if (this.renderingConfig.fallbackToLegacy) {
-        console.log('🔄 Falling back to legacy rendering for', pageName);
+        logger.info('Falling back to legacy rendering for', pageName);
         return await this.renderWithLegacyParser(content, pageName, userContext, requestInfo);
       }
 
@@ -393,7 +392,7 @@ class RenderingManager extends BaseManager {
    */
   async renderWithLegacyParser(content: string, pageName: string, userContext: UserContext | null, requestInfo: RequestInfo | null): Promise<string> {
     if (this.renderingConfig.logParsingMethod) {
-      console.log(`🔧 Rendering ${pageName} with LegacyParser (Original RenderingManager)`);
+      logger.debug(`Rendering ${pageName} with LegacyParser (Original RenderingManager)`);
     }
 
     // Original rendering pipeline (preserved for backward compatibility)
@@ -443,16 +442,16 @@ class RenderingManager extends BaseManager {
         timestamp: new Date().toISOString()
       };
 
-      console.log(`📊 Performance comparison for ${pageName}:`, comparison);
+      logger.info(`Performance comparison for ${pageName}:`, comparison);
 
       // Send to performance monitoring if available
       const notificationManager = this.engine.getManager<NotificationManager>('NotificationManager');
       if (notificationManager && Math.abs(comparison.improvement) > 50) {
         // Significant difference - log performance info
-        console.log(`📊 Performance alert for ${pageName}: ${comparison.improvement}ms difference (${comparison.percentImprovement}% improvement)`);
+        logger.info(`Performance alert for ${pageName}: ${comparison.improvement}ms difference (${comparison.percentImprovement}% improvement)`);
       }
     } catch (error) {
-      console.warn('⚠️  Performance comparison failed:', getErrorMessage(error));
+      logger.warn('Performance comparison failed:', getErrorMessage(error));
     }
   }
 
@@ -623,7 +622,7 @@ class RenderingManager extends BaseManager {
         const metadata = JSON.parse(metadataJson);
         return this.generateStyledTable(metadata);
       } catch (e) {
-        console.error('Error parsing table metadata:', e);
+        logger.error('Error parsing table metadata:', e);
         return '<table>';
       }
     });
@@ -690,7 +689,7 @@ class RenderingManager extends BaseManager {
    * @returns {string} Content with expanded macros
    */
   async expandMacros(content: string, pageName: string, userContext: UserContext | null = null, _requestInfo: RequestInfo | null = null): Promise<string> {
-    console.log('DEBUG: expandMacros called with content:', content, 'pageName:', pageName);
+    logger.debug('expandMacros called with content:', content, 'pageName:', pageName);
     let expandedContent = content;
 
     // Step 1: Protect code blocks and escaped syntax
@@ -748,12 +747,12 @@ class RenderingManager extends BaseManager {
       for (let i = matches.length - 1; i >= 0; i--) {
         const matchInfo = matches[i];
         try {
-          console.log('DEBUG: RenderingManager found macro:', matchInfo.fullMatch, 'content:', matchInfo.content);
+          logger.debug('RenderingManager found macro:', matchInfo.fullMatch, 'content:', matchInfo.content);
 
           let replacement;
           // Check if it's a system variable (starts with $)
           if (matchInfo.content.startsWith('$')) {
-            console.log('DEBUG: RenderingManager detected system variable, calling expandSystemVariable with pageName:', pageName);
+            logger.debug('RenderingManager detected system variable, calling expandSystemVariable with pageName:', pageName);
             replacement = this.expandSystemVariable(matchInfo.content, pageName, userContext);
           } else {
             // Parse plugin call: PluginName param1=value1 param2=value2
@@ -825,7 +824,7 @@ class RenderingManager extends BaseManager {
           // Replace the match in the content
           expandedContent = expandedContent.substring(0, matchInfo.index) + replacement + expandedContent.substring(matchInfo.index + matchInfo.fullMatch.length);
         } catch (err) {
-          console.error(`Macro expansion failed for ${matchInfo.content}:`, err);
+          logger.error(`Macro expansion failed for ${matchInfo.content}:`, err);
           const errorReplacement = `[Error: ${matchInfo.content}]`;
           expandedContent = expandedContent.substring(0, matchInfo.index) + errorReplacement + expandedContent.substring(matchInfo.index + matchInfo.fullMatch.length);
         }
@@ -878,11 +877,11 @@ class RenderingManager extends BaseManager {
       case '$loginstatus':
         return this.getLoginStatus(userContext);
       default:
-        console.warn(`Unknown system variable: ${variable}`);
+        logger.warn(`Unknown system variable: ${variable}`);
         return `[{${variable}}]`; // Return unchanged if unknown
       }
     } catch (err) {
-      console.error(`Error expanding system variable ${variable}:`, err);
+      logger.error(`Error expanding system variable ${variable}:`, err);
       return `[Error: ${variable}]`;
     }
   }
@@ -931,7 +930,7 @@ class RenderingManager extends BaseManager {
 
       return '1.0.0';
     } catch (err) {
-      console.warn('Could not read version from package.json:', err);
+      logger.warn('Could not read version from package.json:', err);
       return '1.0.0';
     }
   }
@@ -957,7 +956,7 @@ class RenderingManager extends BaseManager {
           const pages = pageManager.getAllPages ? pageManager.getAllPages() : [];
           totalPages = Array.isArray(pages) ? pages.length : 0;
         } catch (err) {
-          console.warn('Could not get total pages count:', err);
+          logger.warn('Could not get total pages count:', err);
         }
       }
 
@@ -976,7 +975,7 @@ class RenderingManager extends BaseManager {
 
       return expandedContent;
     } catch (err) {
-      console.error('System variable expansion failed:', err);
+      logger.error('System variable expansion failed:', err);
       return content;
     }
   }
@@ -1035,7 +1034,7 @@ class RenderingManager extends BaseManager {
           pageNames = pages;
           this.cachedPageNames = pageNames; // Update cache
         } catch (err) {
-          console.warn('Could not get page names for link processing:', err);
+          logger.warn('Could not get page names for link processing:', err);
           pageNames = [];
         }
       }
@@ -1103,7 +1102,7 @@ class RenderingManager extends BaseManager {
         }
       });
     } catch (err) {
-      console.error('Wiki link processing failed:', err);
+      logger.error('Wiki link processing failed:', err);
       return content;
     }
   }
@@ -1114,7 +1113,7 @@ class RenderingManager extends BaseManager {
   async buildLinkGraph(): Promise<void> {
     const pageManager = this.engine.getManager<PageManager>('PageManager');
     if (!pageManager) {
-      console.warn('PageManager not available for link graph building');
+      logger.warn('PageManager not available for link graph building');
       return;
     }
 
@@ -1178,7 +1177,7 @@ class RenderingManager extends BaseManager {
       }
 
       this.linkGraph = newLinkGraph;
-      console.log(`📊 Link graph built with ${Object.keys(this.linkGraph).length} entries`);
+      logger.info(`Link graph built with ${Object.keys(this.linkGraph).length} entries`);
 
       // Notify LinkParserHandler to refresh its page names if it exists
       const markupParser = this.engine.getManager<MarkupParser>('MarkupParser');
@@ -1186,7 +1185,7 @@ class RenderingManager extends BaseManager {
         const linkParserHandler = markupParser.getHandler('LinkParserHandler') as { refreshPageNames?: () => Promise<void> } | null;
         if (linkParserHandler && linkParserHandler.refreshPageNames) {
           await linkParserHandler.refreshPageNames();
-          console.log('🔄 Notified LinkParserHandler to refresh page names');
+          logger.debug('Notified LinkParserHandler to refresh page names');
         }
       }
 
@@ -1194,11 +1193,11 @@ class RenderingManager extends BaseManager {
       if (markupParser && markupParser.domLinkHandler) {
         if (markupParser.domLinkHandler.refreshPageNames) {
           await markupParser.domLinkHandler.refreshPageNames();
-          console.log('🔄 Notified DOMLinkHandler to refresh page names');
+          logger.debug('Notified DOMLinkHandler to refresh page names');
         }
       }
     } catch (err) {
-      console.error('Failed to build link graph:', err);
+      logger.error('Failed to build link graph:', err);
     }
   }
 
@@ -1228,9 +1227,9 @@ class RenderingManager extends BaseManager {
       };
       this.linkParser.setInterWikiSites(interWikiSites);
 
-      console.log(`🔗 LinkParser initialized with ${this.cachedPageNames ? this.cachedPageNames.length : 0} pages and ${Object.keys(interWikiSites).length} InterWiki sites`);
+      logger.info(`LinkParser initialized with ${this.cachedPageNames ? this.cachedPageNames.length : 0} pages and ${Object.keys(interWikiSites).length} InterWiki sites`);
     } catch (error) {
-      console.error('Failed to initialize LinkParser:', error);
+      logger.error('Failed to initialize LinkParser:', error);
     }
   }
 
@@ -1329,7 +1328,7 @@ class RenderingManager extends BaseManager {
         engine: this.engine
       });
     } catch (error) {
-      console.error('LinkParser failed, falling back to original content:', error);
+      logger.error('LinkParser failed, falling back to original content:', error);
       return content;
     }
   }

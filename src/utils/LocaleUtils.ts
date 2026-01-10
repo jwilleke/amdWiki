@@ -2,6 +2,8 @@
  * LocaleUtils - Utility functions for handling browser locale and internationalization
  */
 
+import logger from './logger';
+
 /**
  * Language quality pair from Accept-Language header parsing
  */
@@ -167,8 +169,7 @@ class LocaleUtils {
     try {
       return date.toLocaleDateString(normalizedLocale);
     } catch {
-      // eslint-disable-next-line no-console
-      console.warn(`Invalid locale '${normalizedLocale}', falling back to en-US`);
+      logger.warn(`Invalid locale '${normalizedLocale}', falling back to en-US`);
       return date.toLocaleDateString('en-US');
     }
   }
@@ -189,8 +190,7 @@ class LocaleUtils {
     try {
       return date.toLocaleTimeString(normalizedLocale);
     } catch {
-      // eslint-disable-next-line no-console
-      console.warn(`Invalid locale '${normalizedLocale}', falling back to en-US`);
+      logger.warn(`Invalid locale '${normalizedLocale}', falling back to en-US`);
       return date.toLocaleTimeString('en-US');
     }
   }

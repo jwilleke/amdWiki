@@ -12,7 +12,6 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable @typescript-eslint/require-await */
 /* eslint-disable @typescript-eslint/no-require-imports */
-/* eslint-disable no-console */
 
 /**
  * Modern route handlers using manager-based architecture
@@ -450,7 +449,7 @@ class WikiRoutes {
         ? categories
         : ['General', 'Documentation', 'Project', 'Reference'];
     } catch (err) {
-      console.error('Error loading categories:', err);
+      logger.error('Error loading categories:', err);
       return ['General', 'Documentation', 'Project', 'Reference'];
     }
   }
@@ -487,7 +486,7 @@ class WikiRoutes {
         ? categories
         : ['General', 'Documentation', 'System/Admin'];
     } catch (err) {
-      console.error('Error loading all categories:', err);
+      logger.error('Error loading all categories:', err);
       return ['General', 'Documentation', 'System/Admin'];
     }
   }
@@ -522,7 +521,7 @@ class WikiRoutes {
         ? categories
         : ['general', 'system', 'documentation', 'test'];
     } catch (err) {
-      console.error('Error loading system categories:', err);
+      logger.error('Error loading system categories:', err);
       return ['general', 'system', 'documentation', 'test'];
     }
   }
@@ -549,14 +548,14 @@ class WikiRoutes {
           }
 
           if (keywords.length > 0) {
-            console.log(`✅ Loaded ${keywords.length} user keywords from configuration`);
+            logger.info(`Loaded ${keywords.length} user keywords from configuration`);
             return keywords;
           }
         }
       }
 
       // Fallback: read from User Keywords page (legacy method)
-      console.log('⚠️  Falling back to reading user keywords from page');
+      logger.info('Falling back to reading user keywords from page');
       const pageManager = this.engine.getManager('PageManager');
       const keywordsPage = await pageManager.getPage('User Keywords');
 
@@ -591,7 +590,7 @@ class WikiRoutes {
       }
       return keywords.length > 0 ? keywords : ['medicine', 'geology', 'test'];
     } catch (err) {
-      console.error('Error loading user keywords:', err);
+      logger.error('Error loading user keywords:', err);
       return ['medicine', 'geology', 'test'];
     }
   }
@@ -620,7 +619,7 @@ class WikiRoutes {
 
       return SchemaGenerator.generateScriptTag(schema);
     } catch (err) {
-      console.error('Error generating page schema:', err);
+      logger.error('Error generating page schema:', err);
       return '';
     }
   }
@@ -641,7 +640,7 @@ class WikiRoutes {
         const schemaManager = this.engine.getManager('SchemaManager');
         siteData = await schemaManager.getComprehensiveSiteData();
       } catch (err) {
-        console.warn(
+        logger.warn(
           'SchemaManager not available, using legacy data sources:',
           err.message
         );
@@ -690,7 +689,7 @@ class WikiRoutes {
         .map((schema) => SchemaGenerator.generateScriptTag(schema))
         .join('\n    ');
     } catch (err) {
-      console.error('Error generating site schema:', err);
+      logger.error('Error generating site schema:', err);
       return '';
     }
   }
@@ -711,7 +710,7 @@ class WikiRoutes {
         originalUrl: req.originalUrl || '/'
       });
     } catch (err) {
-      console.error('Error rendering error page:', err);
+      logger.error('Error rendering error page:', err);
       return res.status(status).send(`${title}: ${message}`);
     }
   }
@@ -753,7 +752,7 @@ class WikiRoutes {
         }
       }
     } catch (err) {
-      console.error('Error checking page category:', err);
+      logger.error('Error checking page category:', err);
     }
 
     return false;
@@ -785,7 +784,7 @@ class WikiRoutes {
       // Format for Bootstrap navigation
       return this.formatLeftMenuContent(renderedContent);
     } catch (err) {
-      console.error('Error loading left menu:', err);
+      logger.error('Error loading left menu:', err);
       return null; // Return null to use fallback
     }
   }
@@ -982,20 +981,20 @@ class WikiRoutes {
       const currentUser = wikiContext.userContext;
       const userManager = this.engine.getManager('UserManager');
 
-      console.log(
+      logger.debug(
         '[CREATE-DEBUG] currentUser:',
         currentUser ? currentUser.username : 'null',
         'isAuth:',
         currentUser?.isAuthenticated
       );
-      console.log(
+      logger.debug(
         '[CREATE-DEBUG] checking page:create permission for user:',
         currentUser?.username
       );
 
       // Check if user is authenticated
       if (!currentUser || !currentUser.isAuthenticated) {
-        console.log(
+        logger.debug(
           '[CREATE-DEBUG] User not authenticated, redirecting to login'
         );
         return res.redirect('/login?redirect=' + encodeURIComponent('/create'));
@@ -1005,11 +1004,11 @@ class WikiRoutes {
         currentUser.username,
         'page:create'
       );
-      console.log('[CREATE-DEBUG] hasPermission result:', hasPermission);
+      logger.debug('[CREATE-DEBUG] hasPermission result:', hasPermission);
 
       // Check if user has permission to create pages
       if (!hasPermission) {
-        console.log(
+        logger.debug(
           '[CREATE-DEBUG] Permission denied for user:',
           currentUser.username
         );
@@ -1051,7 +1050,7 @@ class WikiRoutes {
         csrfToken: req.session.csrfToken
       });
     } catch (err) {
-      console.error('Error loading create page:', err);
+      logger.error('Error loading create page:', err);
       res.status(500).send('Error loading create page form');
     }
   }
@@ -1098,7 +1097,7 @@ class WikiRoutes {
         pages: sortedPages
       });
     } catch (err) {
-      console.error('Error loading edit page index:', err);
+      logger.error('Error loading edit page index:', err);
       res.status(500).send('Error loading edit page selector');
     }
   }
@@ -1176,7 +1175,7 @@ class WikiRoutes {
       // Check if page already exists
       const existingPage = await pageManager.getPage(pageName);
       if (existingPage) {
-        console.log(
+        logger.debug(
           `DEBUG: createPageFromTemplate - Page ${pageName} already exists, rendering error template`
         );
         try {
@@ -1209,7 +1208,7 @@ class WikiRoutes {
             ]
           });
         } catch (templateError) {
-          console.log(
+          logger.debug(
             'DEBUG: Error rendering template, falling back to simple message',
             templateError
           );
@@ -1240,13 +1239,13 @@ class WikiRoutes {
       const cacheManager = this.engine.getManager('CacheManager');
       if (cacheManager && cacheManager.isInitialized()) {
         await cacheManager.clear();
-        console.log('🗑️  Cleared cache after page creation to update red links');
+        logger.debug('🗑️  Cleared cache after page creation to update red links');
       }
 
       // Redirect to edit the new page
       res.redirect(`/edit/${pageName}`);
     } catch (err) {
-      console.error('Error creating page from template:', err);
+      logger.error('Error creating page from template:', err);
       res.status(500).send('Error creating page');
     }
   }
@@ -1391,7 +1390,7 @@ class WikiRoutes {
         csrfToken: req.session.csrfToken
       });
     } catch (err) {
-      console.error('Error loading edit page:', err);
+      logger.error('Error loading edit page:', err);
       res.status(500).send('Error loading edit page');
     }
   }
@@ -1528,13 +1527,13 @@ class WikiRoutes {
       const cacheManager = this.engine.getManager('CacheManager');
       if (cacheManager && cacheManager.isInitialized()) {
         await cacheManager.clear();
-        console.log('🗑️  Cleared cache after page creation to update red links');
+        logger.debug('🗑️  Cleared cache after page creation to update red links');
       }
 
       // Redirect to edit the new page (so user can see template result)
       res.redirect(`/edit/${encodeURIComponent(pageName)}`);
     } catch (error) {
-      console.error('Error creating wiki page:', error);
+      logger.error('Error creating wiki page:', error);
       return await this.renderError(
         req,
         res,
@@ -1551,8 +1550,8 @@ class WikiRoutes {
   async savePage(req, res) {
     try {
       const pageName = req.params.page;
-      console.log(`💾 Save request received for page: ${pageName}`);
-      console.log(`💾 Request body keys: ${Object.keys(req.body).join(', ')}`);
+      logger.debug(`💾 Save request received for page: ${pageName}`);
+      logger.debug(`💾 Request body keys: ${Object.keys(req.body).join(', ')}`);
       const { content, title, categories, userKeywords } = req.body;
 
       // Create WikiContext as single source of truth for this operation
@@ -1676,14 +1675,14 @@ class WikiRoutes {
       const cacheManager = this.engine.getManager('CacheManager');
       if (cacheManager && cacheManager.isInitialized()) {
         await cacheManager.clear();
-        console.log('🗑️  Cleared cache after page save to update red links');
+        logger.debug('🗑️  Cleared cache after page save to update red links');
       }
 
       // Redirect to the updated page title if it changed (fallback to original name)
       const redirectName = metadata.title || pageName;
       res.redirect(`/wiki/${encodeURIComponent(redirectName)}`);
     } catch (err) {
-      console.error('Error saving page:', err);
+      logger.error('Error saving page:', err);
       res.status(500).send('Error saving page');
     }
   }
@@ -1694,7 +1693,7 @@ class WikiRoutes {
   async deletePage(req, res) {
     try {
       const pageName = req.params.page;
-      console.log(`🗑️ Delete request received for page: ${pageName}`);
+      logger.debug(`🗑️ Delete request received for page: ${pageName}`);
 
       // Create WikiContext as single source of truth for this operation
       const wikiContext = this.createWikiContext(req, {
@@ -1714,7 +1713,7 @@ class WikiRoutes {
       // Check if page exists
       const pageData = await pageManager.getPage(pageName);
       if (!pageData) {
-        console.log(`❌ Page not found: ${pageName}`);
+        logger.debug(`❌ Page not found: ${pageName}`);
         return res.status(404).send('Page not found');
       }
 
@@ -1756,28 +1755,28 @@ class WikiRoutes {
         }
       }
 
-      console.log(`✅ Page found, proceeding to delete: ${pageName}`);
+      logger.debug(`✅ Page found, proceeding to delete: ${pageName}`);
 
       // Delete the page using WikiContext (includes audit logging with user info)
       const deleteResult = await pageManager.deletePageWithContext(wikiContext);
-      console.log(`🗑️ Delete result: ${deleteResult}`);
+      logger.debug(`🗑️ Delete result: ${deleteResult}`);
 
       if (deleteResult) {
         // Rebuild link graph and search index after deletion
-        console.log('🔄 Rebuilding indexes after deletion...');
+        logger.debug('🔄 Rebuilding indexes after deletion...');
         await renderingManager.rebuildLinkGraph();
         await searchManager.rebuildIndex();
 
-        console.log(`✅ Page deleted successfully: ${pageName}`);
+        logger.debug(`✅ Page deleted successfully: ${pageName}`);
 
         // Redirect to home page
         res.redirect('/');
       } else {
-        console.log(`❌ Failed to delete page: ${pageName}`);
+        logger.debug(`❌ Failed to delete page: ${pageName}`);
         res.status(500).send('Failed to delete page');
       }
     } catch (err) {
-      console.error('❌ Error deleting page:', err);
+      logger.error('❌ Error deleting page:', err);
       res.status(500).send('Error deleting page');
     }
   }
@@ -1876,7 +1875,7 @@ class WikiRoutes {
         stats: stats
       });
     } catch (err) {
-      console.error('Error searching:', err);
+      logger.error('Error searching:', err);
       res.status(500).send('Error performing search');
     }
   }
@@ -1893,7 +1892,7 @@ class WikiRoutes {
 
       res.json({ suggestions });
     } catch (err) {
-      console.error('Error getting suggestions:', err);
+      logger.error('Error getting suggestions:', err);
       res.status(500).json({ error: 'Error getting suggestions' });
     }
   }
@@ -1908,7 +1907,7 @@ class WikiRoutes {
 
       res.json(pageNames);
     } catch (err) {
-      console.error('Error getting page names:', err);
+      logger.error('Error getting page names:', err);
       res.status(500).json({ error: 'Error getting page names' });
     }
   }
@@ -1925,7 +1924,7 @@ class WikiRoutes {
    * API endpoint to get page preview
    */
   async previewPage(req, res) {
-    console.log('!!! PREVIEW PAGE METHOD CALLED !!!');
+    logger.debug('!!! PREVIEW PAGE METHOD CALLED !!!');
     try {
       const { content, pageName } = req.body;
       const renderingManager = this.engine.getManager('RenderingManager');
@@ -1936,20 +1935,20 @@ class WikiRoutes {
       // Get request info for consistency with actual page rendering
       const requestInfo = this.getRequestInfo(req);
 
-      console.log(
+      logger.debug(
         'DEBUG: previewPage calling renderMarkdown with content:',
         content,
         'pageName:',
         pageName
       );
-      console.log('DEBUG: previewPage using user context:', commonData.user);
+      logger.debug('DEBUG: previewPage using user context:', commonData.user);
       const renderedContent = await renderingManager.renderMarkdown(
         content,
         pageName,
         commonData.user,
         requestInfo
       );
-      console.log(
+      logger.debug(
         'DEBUG: previewPage received renderedContent:',
         renderedContent
       );
@@ -1959,7 +1958,7 @@ class WikiRoutes {
         success: true
       });
     } catch (err) {
-      console.error('Error generating preview:', err);
+      logger.error('Error generating preview:', err);
       res.status(500).json({
         error: 'Error generating preview',
         success: false
@@ -2018,7 +2017,7 @@ class WikiRoutes {
         message: 'File uploaded successfully'
       });
     } catch (err) {
-      console.error('Error uploading attachment:', err);
+      logger.error('Error uploading attachment:', err);
       res.status(500).json({
         success: false,
         error: err.message || 'Error uploading file'
@@ -2047,7 +2046,7 @@ class WikiRoutes {
         message: 'Image uploaded successfully'
       });
     } catch (err) {
-      console.error('Error uploading image:', err);
+      logger.error('Error uploading image:', err);
       res.status(500).json({
         success: false,
         error: err.message || 'Error uploading image'
@@ -2082,7 +2081,7 @@ class WikiRoutes {
       // Send buffer
       res.send(buffer);
     } catch (err) {
-      console.error('Error serving attachment:', err);
+      logger.error('Error serving attachment:', err);
       res.status(500).send('Error serving attachment');
     }
   }
@@ -2123,7 +2122,7 @@ class WikiRoutes {
         message: 'Attachment deleted successfully'
       });
     } catch (err) {
-      console.error('Error deleting attachment:', err);
+      logger.error('Error deleting attachment:', err);
       res.status(500).json({
         success: false,
         error: err.message || 'Error deleting attachment'
@@ -2146,7 +2145,7 @@ class WikiRoutes {
         pageNames: pageNames
       });
     } catch (err) {
-      console.error('Error loading export page:', err);
+      logger.error('Error loading export page:', err);
       res.status(500).send('Error loading export page');
     }
   }
@@ -2164,7 +2163,7 @@ class WikiRoutes {
       res.status(200).send('Export succesfull');
 
     } catch (err) {
-      console.error('Error exporting to HTML:', err);
+      logger.error('Error exporting to HTML:', err);
       res.status(500).send('Error exporting page');
     }
   }
@@ -2183,7 +2182,7 @@ class WikiRoutes {
       res.status(200).send('Export succesfull');
 
     } catch (err) {
-      console.error('Error exporting to Markdown:', err);
+      logger.error('Error exporting to Markdown:', err);
       res.status(500).send('Error exporting page');
     }
   }
@@ -2203,7 +2202,7 @@ class WikiRoutes {
         exports: exports
       });
     } catch (err) {
-      console.error('Error listing exports:', err);
+      logger.error('Error listing exports:', err);
       res.status(500).send('Error listing exports');
     }
   }
@@ -2224,7 +2223,7 @@ class WikiRoutes {
 
       res.download(exportFile.path, filename);
     } catch (err) {
-      console.error('Error downloading export:', err);
+      logger.error('Error downloading export:', err);
       res.status(500).send('Error downloading export');
     }
   }
@@ -2241,7 +2240,7 @@ class WikiRoutes {
       res.sendStatus(204);
     }
     catch (err) {
-      console.error('Error deleting export:', err);
+      logger.error('Error deleting export:', err);
       res.status(500).json({ message:'Error deleting export' });
     }
   }
@@ -2270,7 +2269,7 @@ class WikiRoutes {
         csrfToken: req.session?.csrfToken || ''
       });
     } catch (err) {
-      console.error('Error loading login page:', err);
+      logger.error('Error loading login page:', err);
       res.status(500).send('Error loading login page');
     }
   }
@@ -2288,12 +2287,12 @@ class WikiRoutes {
         false
       );
 
-      if (debugLogin) console.log('DEBUG: Login attempt for:', username);
+      if (debugLogin) logger.debug('DEBUG: Login attempt for:', username);
 
       const user = await userManager.authenticateUser(username, password);
       if (!user) {
         if (debugLogin)
-          console.log('DEBUG: Authentication failed for:', username);
+          logger.debug('DEBUG: Authentication failed for:', username);
         return res.redirect(
           '/login?error=Invalid username or password&redirect=' +
             encodeURIComponent(redirect)
@@ -2307,26 +2306,26 @@ class WikiRoutes {
       logger.info(`👤 User logged in: ${username}`);
 
       if (debugLogin) {
-        console.log('DEBUG: Session ID:', req.sessionID);
-        console.log(
+        logger.debug('DEBUG: Session ID:', req.sessionID);
+        logger.debug(
           'DEBUG: Session data before save:',
           JSON.stringify(req.session)
         );
-        console.log('DEBUG: Session set, redirecting to:', redirect);
+        logger.debug('DEBUG: Session set, redirecting to:', redirect);
       }
 
       // Save session before redirect
       req.session.save((err) => {
         if (err) {
-          console.error('Error saving session:', err);
+          logger.error('Error saving session:', err);
           return res.redirect('/login?error=Session save failed');
         }
         if (debugLogin)
-          console.log('DEBUG: Session saved successfully, now redirecting');
+          logger.debug('DEBUG: Session saved successfully, now redirecting');
         res.redirect(redirect);
       });
     } catch (err) {
-      console.error('Error processing login:', err);
+      logger.error('Error processing login:', err);
       res.redirect('/login?error=Login failed');
     }
   }
@@ -2339,12 +2338,12 @@ class WikiRoutes {
       // Destroy express-session
       req.session.destroy((err) => {
         if (err) {
-          console.error('Error destroying session:', err);
+          logger.error('Error destroying session:', err);
         }
         res.redirect('/');
       });
     } catch (err) {
-      console.error('Error processing logout:', err);
+      logger.error('Error processing logout:', err);
       res.redirect('/');
     }
   }
@@ -2383,7 +2382,7 @@ class WikiRoutes {
 
       res.json(info);
     } catch (err) {
-      console.error('Error getting user info:', err);
+      logger.error('Error getting user info:', err);
       res.status(500).json({ error: err.message });
     }
   }
@@ -2402,7 +2401,7 @@ class WikiRoutes {
         csrfToken: req.session.csrfToken
       });
     } catch (err) {
-      console.error('Error loading register page:', err);
+      logger.error('Error loading register page:', err);
       res.status(500).send('Error loading register page');
     }
   }
@@ -2441,10 +2440,10 @@ class WikiRoutes {
         acceptLanguage: req.headers['accept-language'] // Pass browser locale
       });
 
-      console.log(`👤 User registered: ${username}`);
+      logger.debug(`👤 User registered: ${username}`);
       res.redirect('/login?success=Registration successful');
     } catch (err) {
-      console.error('Error processing registration:', err);
+      logger.error('Error processing registration:', err);
       const errorMessage = err.message || 'Registration failed';
       res.redirect('/register?error=' + encodeURIComponent(errorMessage));
     }
@@ -2454,24 +2453,24 @@ class WikiRoutes {
    * User profile page
    */
   async profilePage(req, res) {
-    console.log('DEBUG: profilePage accessed');
+    logger.debug('DEBUG: profilePage accessed');
     try {
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
 
-      console.log(
+      logger.debug(
         'DEBUG: currentUser from req.userContext:',
         currentUser ? currentUser.username : 'null'
       );
 
       if (!currentUser || !currentUser.isAuthenticated) {
-        console.log('DEBUG: No authenticated user, redirecting to login');
+        logger.debug('DEBUG: No authenticated user, redirecting to login');
         return res.redirect('/login?redirect=/profile');
       }
 
       // Get fresh user data from database to ensure we have latest preferences
       const freshUser = await userManager.getUser(currentUser.username);
-      console.log(
+      logger.debug(
         'DEBUG: profilePage - fresh user preferences:',
         freshUser ? freshUser.preferences : 'no fresh user'
       );
@@ -2502,7 +2501,7 @@ class WikiRoutes {
         csrfToken: req.session.csrfToken
       });
     } catch (err) {
-      console.error('Error loading profile page:', err);
+      logger.error('Error loading profile page:', err);
       res.status(500).send('Error loading profile page');
     }
   }
@@ -2569,7 +2568,7 @@ class WikiRoutes {
 
       res.redirect('/profile?success=Profile updated successfully');
     } catch (err) {
-      console.error('Error updating profile:', err);
+      logger.error('Error updating profile:', err);
       res.redirect('/profile?error=Failed to update profile');
     }
   }
@@ -2578,31 +2577,31 @@ class WikiRoutes {
    * Update user preferences
    */
   async updatePreferences(req, res) {
-    console.log('=== updatePreferences method called ===');
+    logger.debug('=== updatePreferences method called ===');
     try {
-      console.log('DEBUG: Request body:', req.body);
+      logger.debug('DEBUG: Request body:', req.body);
       const userManager = this.engine.getManager('UserManager');
       const currentUser = req.userContext;
 
-      console.log(
+      logger.debug(
         'DEBUG: Current user:',
         currentUser ? currentUser.username : 'null'
       );
 
       if (!currentUser || !currentUser.isAuthenticated) {
-        console.log('DEBUG: No current user, redirecting to login');
+        logger.debug('DEBUG: No current user, redirecting to login');
         return res.redirect('/login');
       }
 
-      console.log('DEBUG: updatePreferences - req.body:', req.body);
-      console.log(
+      logger.debug('DEBUG: updatePreferences - req.body:', req.body);
+      logger.debug(
         'DEBUG: updatePreferences - currentUser:',
         currentUser.username
       );
 
       // Get current user's existing preferences
       const currentPreferences = currentUser.preferences || {};
-      console.log(
+      logger.debug(
         'DEBUG: updatePreferences - current preferences:',
         currentPreferences
       );
@@ -2657,7 +2656,7 @@ class WikiRoutes {
         );
       }
 
-      console.log(
+      logger.debug(
         'DEBUG: updatePreferences - preferences to save:',
         preferences
       );
@@ -2665,10 +2664,10 @@ class WikiRoutes {
       // Update user with new preferences
       await userManager.updateUser(currentUser.username, { preferences });
 
-      console.log('DEBUG: updatePreferences - preferences saved successfully');
+      logger.debug('DEBUG: updatePreferences - preferences saved successfully');
       res.redirect('/profile?success=Preferences saved successfully');
     } catch (err) {
-      console.error('Error updating preferences:', err);
+      logger.error('Error updating preferences:', err);
       res.redirect('/profile?error=Failed to save preferences');
     }
   }
@@ -2742,7 +2741,7 @@ class WikiRoutes {
         );
         notifications = notificationManager.getAllNotifications().slice(-10); // Get last 10 notifications
       } catch (error) {
-        console.error(
+        logger.error(
           'Error fetching notifications for admin dashboard:',
           error
         );
@@ -2768,7 +2767,7 @@ class WikiRoutes {
 
       res.render('admin-dashboard', templateData);
     } catch (err) {
-      console.error('Error loading admin dashboard:', err);
+      logger.error('Error loading admin dashboard:', err);
       res.status(500).send('Error loading admin dashboard');
     }
   }
@@ -2903,7 +2902,7 @@ class WikiRoutes {
         errorMessage: req.query.error || null
       });
     } catch (err) {
-      console.error('Error loading policy management:', err);
+      logger.error('Error loading policy management:', err);
       res.status(500).send('Error loading policy management');
     }
   }
@@ -2941,7 +2940,7 @@ class WikiRoutes {
         message: 'Policy created successfully'
       });
     } catch (err) {
-      console.error('Error creating policy:', err);
+      logger.error('Error creating policy:', err);
       res.status(500).json({
         error: 'Failed to create policy',
         details: err.message
@@ -2979,7 +2978,7 @@ class WikiRoutes {
 
       res.json(policy);
     } catch (err) {
-      console.error('Error retrieving policy:', err);
+      logger.error('Error retrieving policy:', err);
       res.status(500).json({
         error: 'Failed to retrieve policy',
         details: err.message
@@ -3020,7 +3019,7 @@ class WikiRoutes {
         message: 'Policy updated successfully'
       });
     } catch (err) {
-      console.error('Error updating policy:', err);
+      logger.error('Error updating policy:', err);
       res.status(500).json({
         error: 'Failed to update policy',
         details: err.message
@@ -3061,7 +3060,7 @@ class WikiRoutes {
         message: 'Policy deleted successfully'
       });
     } catch (err) {
-      console.error('Error deleting policy:', err);
+      logger.error('Error deleting policy:', err);
       res.status(500).json({
         error: 'Failed to delete policy',
         details: err.message
@@ -3104,7 +3103,7 @@ class WikiRoutes {
         csrfToken: req.session.csrfToken
       });
     } catch (err) {
-      console.error('Error loading admin users:', err);
+      logger.error('Error loading admin users:', err);
       res.status(500).send('Error loading user management');
     }
   }
@@ -3126,7 +3125,7 @@ class WikiRoutes {
 
       const { username, email, displayName, password, roles } = req.body;
 
-      console.log(`[admin/users] Attempting to create user: "${username}" with display name: "${displayName}"`);
+      logger.debug(`[admin/users] Attempting to create user: "${username}" with display name: "${displayName}"`);
 
       const success = await userManager.createUser({
         username,
@@ -3143,7 +3142,7 @@ class WikiRoutes {
         res.redirect('/admin/users?error=Failed to create user');
       }
     } catch (err) {
-      console.error('Error creating user:', err);
+      logger.error('Error creating user:', err);
       const errorMessage = encodeURIComponent(err.message || 'Error creating user');
       res.redirect(`/admin/users?error=${errorMessage}`);
     }
@@ -3179,7 +3178,7 @@ class WikiRoutes {
           .json({ success: false, message: 'Failed to update user' });
       }
     } catch (err) {
-      console.error('Error updating user:', err);
+      logger.error('Error updating user:', err);
       res.status(500).json({ success: false, message: 'Error updating user' });
     }
   }
@@ -3210,7 +3209,7 @@ class WikiRoutes {
           .json({ success: false, message: 'Failed to delete user' });
       }
     } catch (err) {
-      console.error('Error deleting user:', err);
+      logger.error('Error deleting user:', err);
       res.status(500).json({ success: false, message: 'Error deleting user' });
     }
   }
@@ -3250,7 +3249,7 @@ class WikiRoutes {
         }))
       });
     } catch (err) {
-      console.error('Error loading admin roles:', err);
+      logger.error('Error loading admin roles:', err);
       res.status(500).send('Error loading role management');
     }
   }
@@ -3294,7 +3293,7 @@ class WikiRoutes {
           .json({ success: false, message: 'Failed to update role' });
       }
     } catch (err) {
-      console.error('Error updating role:', err);
+      logger.error('Error updating role:', err);
       res.status(500).json({ success: false, message: 'Error updating role' });
     }
   }
@@ -3341,7 +3340,7 @@ class WikiRoutes {
           .json({ success: false, message: 'Failed to create role' });
       }
     } catch (err) {
-      console.error('Error creating role:', err);
+      logger.error('Error creating role:', err);
       if (err.message === 'Role already exists') {
         res
           .status(409)
@@ -3383,7 +3382,7 @@ class WikiRoutes {
 
       res.json({ success: true, message: 'Role deleted successfully' });
     } catch (err) {
-      console.error('Error deleting role:', err);
+      logger.error('Error deleting role:', err);
       if (err.message === 'Role not found') {
         res.status(404).json({ success: false, message: 'Role not found' });
       } else if (err.message === 'Cannot delete system role') {
@@ -3431,11 +3430,11 @@ class WikiRoutes {
         );
       }
 
-      console.log(`📦 Admin backup requested by: ${currentUser.username}`);
+      logger.debug(`📦 Admin backup requested by: ${currentUser.username}`);
 
       // Create backup
       const backupPath = await backupManager.backup();
-      console.log(`✅ Backup created: ${backupPath}`);
+      logger.debug(`✅ Backup created: ${backupPath}`);
 
       // Get backup file stats
       const fs = require('fs-extra');
@@ -3445,15 +3444,15 @@ class WikiRoutes {
       // Send backup file as download
       res.download(backupPath, filename, (err) => {
         if (err) {
-          console.error('Error downloading backup:', err);
+          logger.error('Error downloading backup:', err);
           // Don't send response here as headers may already be sent
         } else {
-          console.log(`✅ Backup downloaded by: ${currentUser.username}`);
+          logger.debug(`✅ Backup downloaded by: ${currentUser.username}`);
         }
       });
 
     } catch (err) {
-      console.error('Error creating backup:', err);
+      logger.error('Error creating backup:', err);
       res.status(500).send('Error creating backup: ' + err.message);
     }
   }
@@ -3497,7 +3496,7 @@ class WikiRoutes {
 
       res.render('admin-configuration', templateData);
     } catch (err) {
-      console.error('Error loading admin configuration:', err);
+      logger.error('Error loading admin configuration:', err);
       res.status(500).send('Error loading configuration management');
     }
   }
@@ -3536,7 +3535,7 @@ class WikiRoutes {
         '/admin/configuration?success=Configuration updated successfully'
       );
     } catch (err) {
-      console.error('Error updating configuration:', err);
+      logger.error('Error updating configuration:', err);
       res.redirect('/admin/configuration?error=Failed to update configuration');
     }
   }
@@ -3562,7 +3561,7 @@ class WikiRoutes {
         '/admin/configuration?success=Configuration reset to defaults'
       );
     } catch (err) {
-      console.error('Error resetting configuration:', err);
+      logger.error('Error resetting configuration:', err);
       res.redirect('/admin/configuration?error=Failed to reset configuration');
     }
   }
@@ -3622,7 +3621,7 @@ class WikiRoutes {
 
       res.render('admin-variables', templateData);
     } catch (err) {
-      console.error('Error loading admin variables:', err);
+      logger.error('Error loading admin variables:', err);
       res.status(500).send('Error loading variable management');
     }
   }
@@ -3676,7 +3675,7 @@ class WikiRoutes {
 
       res.render('admin-variables', templateData);
     } catch (err) {
-      console.error('Error testing variables:', err);
+      logger.error('Error testing variables:', err);
       res.redirect('/admin/variables?error=Failed to test variables');
     }
   }
@@ -3722,7 +3721,7 @@ class WikiRoutes {
         settings: settings
       });
     } catch (err) {
-      console.error('Error loading admin settings:', err);
+      logger.error('Error loading admin settings:', err);
       res.status(500).send('Error loading system settings');
     }
   }
@@ -3768,7 +3767,7 @@ class WikiRoutes {
         message: 'System is restarting...'
       });
     } catch (err) {
-      console.error('Error restarting system:', err);
+      logger.error('Error restarting system:', err);
       res.status(500).json({
         success: false,
         error: 'Error restarting system'
@@ -3828,7 +3827,7 @@ class WikiRoutes {
         }
       });
     } catch (err) {
-      console.error('Error reindexing pages:', err);
+      logger.error('Error reindexing pages:', err);
       res.status(500).json({
         success: false,
         error: err.message || 'Error reindexing pages'
@@ -3881,7 +3880,7 @@ class WikiRoutes {
           }
         }
       } catch (err) {
-        console.error('Error reading logs:', err);
+        logger.error('Error reading logs:', err);
         logContent = 'Error reading log files';
       }
 
@@ -3893,7 +3892,7 @@ class WikiRoutes {
         csrfToken: req.session.csrfToken
       });
     } catch (err) {
-      console.error('Error loading admin logs:', err);
+      logger.error('Error loading admin logs:', err);
       res.status(500).send('Error loading system logs');
     }
   }
@@ -3915,7 +3914,7 @@ class WikiRoutes {
       res.setHeader('Content-Type', 'text/plain; charset=utf-8');
       res.send(page.content || '');
     } catch (error) {
-      console.error('Error retrieving page source:', error);
+      logger.error('Error retrieving page source:', error);
       res.status(500).send('Error retrieving page source');
     }
   }
@@ -3953,7 +3952,7 @@ class WikiRoutes {
         const schemaManager = this.engine.getManager('SchemaManager');
         organizations = schemaManager.getOrganizations();
       } catch (err) {
-        console.warn('SchemaManager not available:', err.message);
+        logger.warn('SchemaManager not available:', err.message);
         // Create default organization from ConfigurationManager
         const configManager = this.engine.getManager('ConfigurationManager');
         organizations = [
@@ -3975,7 +3974,7 @@ class WikiRoutes {
 
       res.render('admin-organizations', templateData);
     } catch (error) {
-      console.error('Error loading admin organizations page:', error);
+      logger.error('Error loading admin organizations page:', error);
       await this.renderError(
         req,
         res,
@@ -4013,7 +4012,7 @@ class WikiRoutes {
         );
       }
     } catch (error) {
-      console.error('Error creating organization:', error);
+      logger.error('Error creating organization:', error);
       if (req.headers.accept?.includes('application/json')) {
         res.status(500).json({ error: error.message });
       } else {
@@ -4053,7 +4052,7 @@ class WikiRoutes {
         );
       }
     } catch (error) {
-      console.error('Error updating organization:', error);
+      logger.error('Error updating organization:', error);
       if (req.headers.accept?.includes('application/json')) {
         res.status(500).json({ error: error.message });
       } else {
@@ -4089,7 +4088,7 @@ class WikiRoutes {
         );
       }
     } catch (error) {
-      console.error('Error deleting organization:', error);
+      logger.error('Error deleting organization:', error);
       if (req.headers.accept?.includes('application/json')) {
         res.status(500).json({ error: error.message });
       } else {
@@ -4121,7 +4120,7 @@ class WikiRoutes {
 
       res.json(organization);
     } catch (error) {
-      console.error('Error getting organization:', error);
+      logger.error('Error getting organization:', error);
       res.status(500).json({ error: error.message });
     }
   }
@@ -4158,7 +4157,7 @@ class WikiRoutes {
 
       res.render('admin-validation-report', templateData);
     } catch (err) {
-      console.error('Error validating files:', err);
+      logger.error('Error validating files:', err);
       await this.renderError(req, res, 500, 'Validation Error', err.message);
     }
   }
@@ -4188,7 +4187,7 @@ class WikiRoutes {
         report
       });
     } catch (err) {
-      console.error('Error fixing files:', err);
+      logger.error('Error fixing files:', err);
       res.status(500).json({
         success: false,
         error: err.message
@@ -4225,7 +4224,7 @@ class WikiRoutes {
 
       res.json(schema);
     } catch (error) {
-      console.error('Error getting organization schema:', error);
+      logger.error('Error getting organization schema:', error);
       res.status(500).json({ error: error.message });
     }
   }
@@ -4259,7 +4258,7 @@ class WikiRoutes {
 
       res.json(schema);
     } catch (error) {
-      console.error('Error getting person schema:', error);
+      logger.error('Error getting person schema:', error);
       res.status(500).json({ error: error.message });
     }
   }
@@ -4270,25 +4269,25 @@ class WikiRoutes {
    */
   registerRoutes(app) {
     // API routes first to prevent conflicts
-    console.log('ROUTES DEBUG: Registering /api/preview route');
+    logger.debug('ROUTES DEBUG: Registering /api/preview route');
     app.post('/api/preview', (req, res) => this.previewPage(req, res));
-    console.log('ROUTES DEBUG: Registering /api/test route');
+    logger.debug('ROUTES DEBUG: Registering /api/test route');
     app.get('/api/test', (req, res) => res.json({ message: 'API working!' }));
-    console.log('ROUTES DEBUG: Registering /api/page-metadata/:page route');
+    logger.debug('ROUTES DEBUG: Registering /api/page-metadata/:page route');
     app.get('/api/page-metadata/:page', (req, res) =>
       this.getPageMetadata(req, res)
     );
-    console.log('ROUTES DEBUG: Registering /api/page-source/:page route');
+    logger.debug('ROUTES DEBUG: Registering /api/page-source/:page route');
     app.get('/api/page-source/:page', (req, res) =>
       this.getPageSource(req, res)
     );
-    console.log('ROUTES DEBUG: Registering /api/page-suggestions route');
+    logger.debug('ROUTES DEBUG: Registering /api/page-suggestions route');
     app.get('/api/page-suggestions', (req, res) =>
       this.getPageSuggestions(req, res)
     );
 
     // Version management API routes (Phase 6)
-    console.log('ROUTES DEBUG: Registering version management API routes');
+    logger.debug('ROUTES DEBUG: Registering version management API routes');
     app.get('/api/page/:identifier/versions', (req, res) =>
       this.getPageVersions(req, res)
     );
@@ -4517,7 +4516,7 @@ class WikiRoutes {
         );
       }
     } catch (err) {
-      console.error('Error dismissing notification:', err);
+      logger.error('Error dismissing notification:', err);
       res.redirect('/admin?error=Failed to dismiss notification');
     }
   }
@@ -4546,7 +4545,7 @@ class WikiRoutes {
         `/admin?success=Cleared ${clearedCount} notifications successfully`
       );
     } catch (err) {
-      console.error('Error clearing notifications:', err);
+      logger.error('Error clearing notifications:', err);
       res.redirect('/admin?error=Failed to clear notifications');
     }
   }
@@ -4598,7 +4597,7 @@ class WikiRoutes {
         errorMessage: req.query.error || null
       });
     } catch (err) {
-      console.error('Error loading notification management:', err);
+      logger.error('Error loading notification management:', err);
       res.status(500).send('Error loading notification management');
     }
   }
@@ -4630,7 +4629,7 @@ class WikiRoutes {
       const stats = await cacheManager.stats();
       res.json(stats);
     } catch (err) {
-      console.error('Error getting cache stats:', err);
+      logger.error('Error getting cache stats:', err);
       res.status(500).json({ error: 'Failed to get cache statistics' });
     }
   }
@@ -4656,7 +4655,7 @@ class WikiRoutes {
       }
 
       await cacheManager.clear();
-      console.log(`Cache cleared by admin user: ${currentUser.username}`);
+      logger.debug(`Cache cleared by admin user: ${currentUser.username}`);
 
       res.json({
         success: true,
@@ -4665,7 +4664,7 @@ class WikiRoutes {
         user: currentUser.username
       });
     } catch (err) {
-      console.error('Error clearing cache:', err);
+      logger.error('Error clearing cache:', err);
       res.status(500).json({ error: 'Failed to clear cache' });
     }
   }
@@ -4696,7 +4695,7 @@ class WikiRoutes {
       }
 
       await cacheManager.clear(region);
-      console.log(
+      logger.debug(
         `Cache region '${region}' cleared by admin user: ${currentUser.username}`
       );
 
@@ -4708,7 +4707,7 @@ class WikiRoutes {
         user: currentUser.username
       });
     } catch (err) {
-      console.error(`Error clearing cache region '${req.params.region}':`, err);
+      logger.error(`Error clearing cache region '${req.params.region}':`, err);
       res.status(500).json({ error: 'Failed to clear cache region' });
     }
   }
@@ -4749,7 +4748,7 @@ class WikiRoutes {
         currentUser
       });
     } catch (err) {
-      console.error('Error loading audit logs:', err);
+      logger.error('Error loading audit logs:', err);
       res.status(500).send('Error loading audit logs');
     }
   }
@@ -4797,7 +4796,7 @@ class WikiRoutes {
         offset: offset
       });
     } catch (err) {
-      console.error('Error retrieving audit logs:', err);
+      logger.error('Error retrieving audit logs:', err);
       res.status(500).json({ error: 'Error retrieving audit logs' });
     }
   }
@@ -4830,7 +4829,7 @@ class WikiRoutes {
 
       res.json(logDetails);
     } catch (err) {
-      console.error('Error retrieving audit log details:', err);
+      logger.error('Error retrieving audit log details:', err);
       res.status(500).json({ error: 'Error retrieving audit log details' });
     }
   }
@@ -4912,7 +4911,7 @@ class WikiRoutes {
         res.status(400).send('Invalid format. Supported formats: json, csv');
       }
     } catch (err) {
-      console.error('Error exporting audit logs:', err);
+      logger.error('Error exporting audit logs:', err);
       res.status(500).send('Error exporting audit logs');
     }
   }
@@ -4921,7 +4920,7 @@ class WikiRoutes {
    * Get page metadata in a user-friendly format
    */
   async getPageMetadata(req, res) {
-    console.log('🔍 getPageMetadata called for page:', req.params.page);
+    logger.debug('🔍 getPageMetadata called for page:', req.params.page);
     try {
       const pageName = decodeURIComponent(req.params.page);
       const pageManager = this.engine.getManager('PageManager');
@@ -4984,7 +4983,7 @@ class WikiRoutes {
         }
       } catch (error) {
         // Versioning not available or failed - continue without it
-        console.log('Version info not available:', error.message);
+        logger.debug('Version info not available:', error.message);
       }
 
       // Format the metadata for user-friendly display
@@ -5059,7 +5058,7 @@ class WikiRoutes {
 
       res.json(formattedMetadata);
     } catch (error) {
-      console.error('Error retrieving page metadata:', error);
+      logger.error('Error retrieving page metadata:', error);
       res
         .status(500)
         .json({ error: 'Internal server error', details: error.message });
@@ -5151,7 +5150,7 @@ class WikiRoutes {
         count: matchingPages.length
       });
     } catch (error) {
-      console.error('Error getting page suggestions:', error);
+      logger.error('Error getting page suggestions:', error);
       res.status(500).json({ error: 'Internal server error', details: error.message });
     }
   }

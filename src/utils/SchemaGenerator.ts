@@ -1,4 +1,6 @@
-/* eslint-disable @typescript-eslint/explicit-function-return-type, @typescript-eslint/no-unused-vars, no-console */
+/* eslint-disable @typescript-eslint/explicit-function-return-type, @typescript-eslint/no-unused-vars */
+
+import logger from './logger';
 
 /**
  * Schema generation options
@@ -470,7 +472,7 @@ class SchemaGenerator {
     const engine = options.engine;
     
     if (!engine) {
-      console.warn('Engine not provided to generateDigitalDocumentPermissions');
+      logger.warn('Engine not provided to generateDigitalDocumentPermissions');
       return permissions;
     }
 
@@ -478,7 +480,7 @@ class SchemaGenerator {
     const aclManager = (engine as { getManager: (name: string) => unknown }).getManager('ACLManager');
     
     if (!userManager || !aclManager) {
-      console.warn('UserManager or ACLManager not available for permission generation');
+      logger.warn('UserManager or ACLManager not available for permission generation');
       return permissions;
     }
     

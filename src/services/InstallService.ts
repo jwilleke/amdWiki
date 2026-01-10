@@ -1,6 +1,7 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as crypto from 'crypto';
+import logger from '../utils/logger';
 
 /**
  * Wiki engine interface
@@ -382,8 +383,7 @@ class InstallService {
       const err = error as Error;
 
       // DEBUG: Log the error
-      // eslint-disable-next-line no-console
-      console.error('Installation failed:', {
+      logger.error('Installation failed:', {
         failedStep,
         error: err.message,
         stack: err.stack

@@ -1,6 +1,5 @@
-/* eslint-disable no-console */
-
 import BaseManager from './BaseManager';
+import logger from '../utils/logger';
 import { promises as fs } from 'fs';
 import * as path from 'path';
 import { WikiEngine } from '../types/WikiEngine';
@@ -136,7 +135,7 @@ class TemplateManager extends BaseManager {
     await this.loadTemplates();
     await this.loadThemes();
 
-    console.log('✅ TemplateManager initialized');
+    logger.info('TemplateManager initialized');
   }
 
   /**
@@ -168,9 +167,9 @@ class TemplateManager extends BaseManager {
         }
       }
 
-      console.log(`📋 Loaded ${Object.keys(this.templates).length} page templates`);
+      logger.info(`Loaded ${Object.keys(this.templates).length} page templates`);
     } catch (err) {
-      console.error('Failed to load templates:', err);
+      logger.error('Failed to load templates:', err);
     }
   }
 
@@ -203,9 +202,9 @@ class TemplateManager extends BaseManager {
         }
       }
 
-      console.log(`🎨 Loaded ${Object.keys(this.themes).length} themes`);
+      logger.info(`Loaded ${Object.keys(this.themes).length} themes`);
     } catch (err) {
-      console.error('Failed to load themes:', err);
+      logger.error('Failed to load themes:', err);
     }
   }
 
@@ -231,7 +230,7 @@ class TemplateManager extends BaseManager {
       } catch {
         // Template doesn't exist, create it
         await fs.writeFile(templatePath, content, 'utf8');
-        console.log(`📋 Created default template: ${templateName}`);
+        logger.info(`Created default template: ${templateName}`);
       }
     }
   }
@@ -347,7 +346,7 @@ class TemplateManager extends BaseManager {
     } catch {
       // Theme doesn't exist, create it
       await fs.writeFile(themePath, defaultThemeCSS, 'utf8');
-      console.log('🎨 Created default theme');
+      logger.info('Created default theme');
     }
   }
 
@@ -457,7 +456,7 @@ class TemplateManager extends BaseManager {
       path: templatePath
     };
 
-    console.log(`📋 Created template: ${templateName}`);
+    logger.info(`Created template: ${templateName}`);
   }
 
   /**
@@ -477,7 +476,7 @@ class TemplateManager extends BaseManager {
       path: themePath
     };
 
-    console.log(`🎨 Created theme: ${themeName}`);
+    logger.info(`Created theme: ${themeName}`);
   }
 
   /**

@@ -2,10 +2,9 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-explicit-any */
- 
-/* eslint-disable no-console */
 
 import express, { Router, Request, Response } from 'express';
+import logger from '../utils/logger';
 import InstallService from '../services/InstallService';
 import type { WikiEngine } from '../types/WikiEngine';
 
@@ -134,7 +133,7 @@ class InstallRoutes {
         delete req.session.installError;
         delete req.session.installSuccess;
       } catch (error) {
-        console.error('Error displaying install form:', error);
+        logger.error('Error displaying install form:', error);
         res.status(500).send('Error loading installation page');
       }
     });
@@ -192,7 +191,7 @@ class InstallRoutes {
         });
 
       } catch (error: any) {
-        console.error('Error processing installation:', error);
+        logger.error('Error processing installation:', error);
         req.session.installError = error.message;
         req.session.installFormData = req.body;
         res.redirect('/install');
@@ -213,7 +212,7 @@ class InstallRoutes {
 
         res.redirect('/install');
       } catch (error: any) {
-        console.error('Error resetting installation:', error);
+        logger.error('Error resetting installation:', error);
         req.session.installError = `Reset failed: ${error.message}`;
         res.redirect('/install');
       }
@@ -260,7 +259,7 @@ class InstallRoutes {
 
         res.json(result);
       } catch (error: any) {
-        console.error('Error creating pages folder:', error);
+        logger.error('Error creating pages folder:', error);
         res.status(500).json({
           success: false,
           error: `Failed to create pages folder: ${error.message}`

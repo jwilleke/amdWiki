@@ -1,6 +1,5 @@
-/* eslint-disable no-console */
-
 import NodeCache from 'node-cache';
+import logger from '../utils/logger';
 import ICacheAdapter, { type CacheStats } from './ICacheAdapter';
 
 /**
@@ -111,7 +110,7 @@ class NodeCacheAdapter extends ICacheAdapter {
 
       return Promise.resolve(value);
     } catch (error) {
-      console.error('NodeCacheAdapter.get error:', error);
+      logger.error('NodeCacheAdapter.get error:', error);
       return Promise.resolve(undefined);
     }
   }
@@ -137,7 +136,7 @@ class NodeCacheAdapter extends ICacheAdapter {
       }
       return Promise.resolve();
     } catch (error) {
-      console.error('NodeCacheAdapter.set error:', error);
+      logger.error('NodeCacheAdapter.set error:', error);
       return Promise.reject(error instanceof Error ? error : new Error(String(error)));
     }
   }
@@ -161,7 +160,7 @@ class NodeCacheAdapter extends ICacheAdapter {
       }
       return Promise.resolve();
     } catch (error) {
-      console.error('NodeCacheAdapter.del error:', error);
+      logger.error('NodeCacheAdapter.del error:', error);
       return Promise.reject(error instanceof Error ? error : new Error(String(error)));
     }
   }
@@ -189,7 +188,7 @@ class NodeCacheAdapter extends ICacheAdapter {
         }
       }
     } catch (error) {
-      console.error('NodeCacheAdapter.clear error:', error);
+      logger.error('NodeCacheAdapter.clear error:', error);
       throw error;
     }
   }
@@ -220,7 +219,7 @@ class NodeCacheAdapter extends ICacheAdapter {
       const filtered: string[] = allKeys.filter((key) => regex.test(key));
       return Promise.resolve(filtered);
     } catch (error) {
-      console.error('NodeCacheAdapter.keys error:', error);
+      logger.error('NodeCacheAdapter.keys error:', error);
       const emptyArray: string[] = [];
       return Promise.resolve(emptyArray);
     }
@@ -266,7 +265,7 @@ class NodeCacheAdapter extends ICacheAdapter {
         stdTTL: this.config.stdTTL || 300
       });
     } catch (error) {
-      console.error('NodeCacheAdapter.stats error:', error);
+      logger.error('NodeCacheAdapter.stats error:', error);
       return Promise.resolve({
         hits: 0,
         misses: 0,
@@ -296,7 +295,7 @@ class NodeCacheAdapter extends ICacheAdapter {
       await this.del(testKey);
       return value === 'test';
     } catch (error) {
-      console.error('NodeCacheAdapter health check failed:', error);
+      logger.error('NodeCacheAdapter health check failed:', error);
       return false;
     }
   }
@@ -314,7 +313,7 @@ class NodeCacheAdapter extends ICacheAdapter {
       }
       return Promise.resolve();
     } catch (error) {
-      console.error('NodeCacheAdapter.close error:', error);
+      logger.error('NodeCacheAdapter.close error:', error);
       return Promise.reject(error instanceof Error ? error : new Error(String(error)));
     }
   }

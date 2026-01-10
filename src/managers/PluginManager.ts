@@ -5,6 +5,7 @@
 import BaseManager from './BaseManager';
 import fs from 'fs-extra';
 import path from 'path';
+import logger from '../utils/logger';
 import type { WikiEngine } from '../types/WikiEngine';
 import type ConfigurationManager from './ConfigurationManager';
 
@@ -319,8 +320,7 @@ class PluginManager extends BaseManager {
 
       return `Plugin '${pluginName}' is not executable`;
     } catch (err) {
-      // eslint-disable-next-line no-console
-      console.error(`Plugin '${pluginName}' execution failed:`, err);
+      logger.error(`Plugin '${pluginName}' execution failed:`, err);
       return `Plugin '${pluginName}' error: ${(err as Error).message}`;
     }
   }

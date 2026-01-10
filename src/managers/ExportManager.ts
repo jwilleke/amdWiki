@@ -2,6 +2,7 @@ import BaseManager from './BaseManager';
 import fs from 'fs/promises';
 import path from 'path';
 import LocaleUtils from '../utils/LocaleUtils';
+import logger from '../utils/logger';
 import type { WikiEngine } from '../types/WikiEngine';
 import type PageManager from './PageManager';
 import type RenderingManager from './RenderingManager';
@@ -100,8 +101,7 @@ class ExportManager extends BaseManager {
     // Create exports directory
     await fs.mkdir(this.exportDirectory, { recursive: true });
 
-    // eslint-disable-next-line no-console
-    console.log('📦 ExportManager initialized');
+    logger.info('ExportManager initialized');
   }
 
   /**
@@ -397,8 +397,7 @@ class ExportManager extends BaseManager {
 
     await fs.writeFile(filePath, content, 'utf8');
 
-    // eslint-disable-next-line no-console
-    console.log(`📦 Exported to: ${fullFilename}`);
+    logger.info(`Exported to: ${fullFilename}`);
     return filePath;
   }
 
@@ -426,8 +425,7 @@ class ExportManager extends BaseManager {
 
       return exports.sort((a, b) => b.created.getTime() - a.created.getTime());
     } catch (err) {
-      // eslint-disable-next-line no-console
-      console.error('Error getting exports:', err);
+      logger.error('Error getting exports:', err);
       return [];
     }
   }
@@ -440,8 +438,7 @@ class ExportManager extends BaseManager {
   async deleteExport(filename: string): Promise<void> {
     const filePath = path.join(this.exportDirectory, filename);
     await fs.unlink(filePath);
-    // eslint-disable-next-line no-console
-    console.log(`📦 Deleted export: ${filename}`);
+    logger.info(`Deleted export: ${filename}`);
   }
 
   /**

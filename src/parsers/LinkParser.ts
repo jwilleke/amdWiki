@@ -39,6 +39,7 @@
  */
 
 import PageNameMatcher from '../utils/PageNameMatcher';
+import logger from '../utils/logger';
 
 /**
  * Default CSS classes for different link types
@@ -320,8 +321,7 @@ export class LinkParser {
 
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
-        // eslint-disable-next-line no-console
-        console.warn(`LinkParser: Error processing link "${linkInfo.originalText}":`, errorMessage);
+        logger.warn(`LinkParser: Error processing link "${linkInfo.originalText}":`, errorMessage);
         // Leave original text on error
       }
     }
@@ -404,8 +404,7 @@ export class LinkParser {
             : attrValue;
         }
       } else {
-        // eslint-disable-next-line no-console
-        console.warn(`LinkParser: Ignoring disallowed attribute: ${attrName}`);
+        logger.warn(`LinkParser: Ignoring disallowed attribute: ${attrName}`);
       }
     }
 
