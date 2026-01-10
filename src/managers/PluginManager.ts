@@ -17,8 +17,7 @@ export interface Plugin {
   description?: string;
   author?: string;
   version?: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  initialize?: (engine: any) => Promise<void> | void;
+  initialize?: (engine: WikiEngine) => Promise<void> | void;
   execute?: (context: PluginContext, params: PluginParams) => Promise<string> | string;
   (pageName: string, params: PluginParams, linkGraph: Record<string, unknown>): Promise<string> | string;
 }
@@ -27,8 +26,7 @@ export interface Plugin {
  * Plugin context passed to plugins during execution
  */
 export interface PluginContext {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  engine: any;
+  engine: WikiEngine;
   pageName: string;
   linkGraph: Record<string, unknown>;
   [key: string]: unknown;

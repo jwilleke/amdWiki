@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
+ 
 
 import BaseManager from './BaseManager';
 import { promises as fs } from 'fs';
@@ -9,6 +9,7 @@ import logger from '../utils/logger';
 import { WikiEngine } from '../types/WikiEngine';
 import type ConfigurationManager from './ConfigurationManager';
 import type UserManager from './UserManager';
+import type PolicyEvaluator from './PolicyEvaluator';
 
 /**
  * Minimal WikiContext interface for type safety
@@ -145,8 +146,7 @@ interface AccessDecisionLog {
  */
 class ACLManager extends BaseManager {
   private accessPolicies: Map<string, AccessPolicy> = new Map();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private policyEvaluator: any = null; // Will be typed when PolicyEvaluator is converted
+  private policyEvaluator: PolicyEvaluator | null = null;
 
   /**
    * Creates a new ACLManager instance

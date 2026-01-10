@@ -404,18 +404,13 @@ class CacheManager extends BaseManager {
    * @param {string} [region] - Region name (defaults to calling class name)
    * @returns {RegionCache} Cache instance scoped to the region
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  static getCacheForManager(engine: any, region?: string): RegionCache {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-    const cacheManager = engine.getManager('CacheManager');
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+  static getCacheForManager(engine: WikiEngine, region?: string): RegionCache {
+    const cacheManager = engine.getManager<CacheManager>('CacheManager');
     if (!cacheManager || !cacheManager.isInitialized()) {
       // Return a null cache if CacheManager not available
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       const nullProvider = new NullCacheProvider(engine);
       return new RegionCache(nullProvider, region || 'default');
     }
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return
     return cacheManager.region(region || 'default');
   }
 }
