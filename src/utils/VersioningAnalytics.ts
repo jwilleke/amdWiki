@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/explicit-function-return-type */
 import fs from 'fs-extra';
 import path from 'path';
 import logger from './logger';
@@ -29,6 +28,24 @@ interface VersioningProvider {
   pageIndex: PageIndex;
   _getVersionDirectory(uuid: string, location: string): string;
   _resolveIdentifier(identifier: string): Promise<{ uuid: string; location: string } | null>;
+}
+
+/**
+ * Version metadata from manifest
+ */
+interface VersionMetadata {
+  version: number;
+  dateCreated: string;
+  author?: string;
+  compressed?: boolean;
+  isDelta?: boolean;
+}
+
+/**
+ * Version manifest structure
+ */
+interface VersionManifest {
+  versions: VersionMetadata[];
 }
 
 /**
@@ -286,7 +303,7 @@ class VersioningAnalytics {
       };
     }
 
-    const manifest = await fs.readJson(manifestPath);
+    const manifest = await fs.readJson(manifestPath) as unknown as VersionManifest;
 
     let totalSize = 0;
     let compressedVersions = 0;
@@ -444,7 +461,7 @@ class VersioningAnalytics {
     // Get manifest for version details
     const versionDir = this.provider._getVersionDirectory(uuid, location);
     const manifestPath = path.join(versionDir, 'manifest.json');
-    const manifest = await fs.readJson(manifestPath);
+    const manifest = await fs.readJson(manifestPath) as unknown as VersionManifest;
 
     const versionDetails = [];
     for (const versionMeta of manifest.versions) {

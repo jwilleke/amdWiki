@@ -1,18 +1,10 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-unnecessary-type-assertion */
 import FileSystemProvider from './FileSystemProvider';
 import fs from 'fs-extra';
 import path from 'path';
 import matter from 'gray-matter';
 import { v4 as uuidv4 } from 'uuid';
 import logger from '../utils/logger';
-import DeltaStorage from '../utils/DeltaStorage';
+import DeltaStorage, { DiffTuple } from '../utils/DeltaStorage';
 import {
   WikiPage,
   PageFrontmatter,
@@ -21,6 +13,7 @@ import {
   VersionHistoryEntry
 } from '../types';
 import { WikiEngine, ProviderInfo } from './BasePageProvider';
+import type ConfigurationManager from '../managers/ConfigurationManager';
 
 /**
  * Page index entry structure
@@ -82,6 +75,15 @@ interface PageCacheInfo {
   title: string;
   uuid: string;
   metadata?: PageFrontmatter;
+}
+
+/**
+ * Extended metadata with save options (internal)
+ * Includes properties from both PageFrontmatter and PageSaveOptions
+ */
+interface ExtendedMetadata extends Partial<PageFrontmatter> {
+  comment?: string;
+  changeType?: 'create' | 'update' | 'minor' | 'major' | 'created' | 'updated' | 'restored';
 }
 
 /**
@@ -186,7 +188,7 @@ class VersioningFileProvider extends FileSystemProvider {
     // Call parent initialization (sets up pages directories, caching, etc.)
     await super.initialize();
 
-    const configManager = this.engine.getManager('ConfigurationManager');
+    const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
     if (!configManager) {
       throw new Error('VersioningFileProvider requires ConfigurationManager');
     }
@@ -210,47 +212,47 @@ class VersioningFileProvider extends FileSystemProvider {
    * Load versioning configuration from ConfigurationManager
    * @param configManager - ConfigurationManager instance
    */
-  private loadVersioningConfig(configManager: any): Promise<void> {
+  private loadVersioningConfig(configManager: ConfigurationManager): Promise<void> {
     // Page index location
     const indexPath = configManager.getProperty(
       'amdwiki.page.provider.versioning.indexfile',
       './data/page-index.json'
-    );
+    ) as string;
     this.pageIndexPath = path.isAbsolute(indexPath) ? indexPath : path.join(process.cwd(), indexPath);
 
     // Version retention settings
     this.maxVersions = configManager.getProperty(
       'amdwiki.page.provider.versioning.maxversions',
       50
-    );
+    ) as number;
 
     this.retentionDays = configManager.getProperty(
       'amdwiki.page.provider.versioning.retentiondays',
       365
-    );
+    ) as number;
 
     // Storage optimization settings
     const compressionSetting = configManager.getProperty(
       'amdwiki.page.provider.versioning.compression',
       'gzip'
-    );
+    ) as string;
     this.compressionEnabled = compressionSetting === 'gzip';
 
     this.deltaStorageEnabled = configManager.getProperty(
       'amdwiki.page.provider.versioning.deltastorage',
       true
-    );
+    ) as boolean;
 
     // Performance optimization settings
     this.checkpointInterval = configManager.getProperty(
       'amdwiki.page.provider.versioning.checkpointinterval',
       10
-    );
+    ) as number;
 
     this.versionCacheSize = configManager.getProperty(
       'amdwiki.page.provider.versioning.cachesize',
       50
-    );
+    ) as number;
 
     // Validate configuration
     if (this.maxVersions < 1) {
@@ -312,7 +314,7 @@ class VersioningFileProvider extends FileSystemProvider {
     if (await fs.pathExists(this.pageIndexPath)) {
       try {
         const indexData = await fs.readFile(this.pageIndexPath, 'utf8');
-        this.pageIndex = JSON.parse(indexData);
+        this.pageIndex = JSON.parse(indexData) as PageIndex;
         logger.info(`[VersioningFileProvider] Loaded page index: ${this.pageIndex?.pageCount} pages`);
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
@@ -364,7 +366,7 @@ class VersioningFileProvider extends FileSystemProvider {
     const indexPath = this.pageIndexPath; // Capture for closure
     const tempPath = `${indexPath}.tmp`;
     return fs.writeFile(tempPath, JSON.stringify(this.pageIndex, null, 2), 'utf8')
-      .then(() => fs.rename(tempPath, indexPath as string));
+      .then(() => fs.rename(tempPath, indexPath));
   }
 
   /**
@@ -459,7 +461,7 @@ class VersioningFileProvider extends FileSystemProvider {
         if (!this.pagesDirectory || !this.requiredPagesDirectory) {
           continue;
         }
-        const pagesPath = path.join(this.pagesDirectory, `${uuid}.md`);
+        const _pagesPath = path.join(this.pagesDirectory, `${uuid}.md`);
         const requiredPath = path.join(this.requiredPagesDirectory, `${uuid}.md`);
         const location: 'pages' | 'required-pages' = (await fs.pathExists(requiredPath)) ? 'required-pages' : 'pages';
 
@@ -577,7 +579,7 @@ class VersioningFileProvider extends FileSystemProvider {
       }
 
       return fs.readFile(manifestPath, 'utf8')
-        .then(manifestData => JSON.parse(manifestData))
+        .then(manifestData => JSON.parse(manifestData) as InternalManifest)
         .catch(error => {
           const errorMessage = error instanceof Error ? error.message : String(error);
           logger.error(`[VersioningFileProvider] Failed to load manifest for ${uuid}:`, errorMessage);
@@ -660,7 +662,7 @@ class VersioningFileProvider extends FileSystemProvider {
     if (pageExists) {
       try {
         pageInfo = await this.getPage(pageName);
-      } catch (error) {
+      } catch {
         // Page might exist but not be readable, treat as new
         pageInfo = null;
       }
@@ -670,15 +672,16 @@ class VersioningFileProvider extends FileSystemProvider {
     const uuid = pageInfo?.uuid || metadata.uuid || uuidv4();
 
     // Determine location based on system-category
-    const systemCategory = metadata['system-category'] || (metadata as any).systemCategory || 'General';
-    const configManager = this.engine.getManager('ConfigurationManager') as { getProperty: (key: string, defaultValue: unknown) => unknown } | undefined;
-    const systemCategoriesConfig = configManager?.getProperty('amdwiki.system-category', null);
+    const metadataRecord = metadata as Record<string, unknown>;
+    const systemCategory = (metadataRecord['system-category'] || metadataRecord.systemCategory || 'General') as string;
+    const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
+    const systemCategoriesConfig = configManager?.getProperty('amdwiki.system-category', null) as Record<string, { label?: string; storageLocation?: string }> | null;
 
     let location: 'pages' | 'required-pages' = 'pages';
     if (systemCategoriesConfig) {
-      for (const [key, config] of Object.entries(systemCategoriesConfig)) {
-        if ((config as any).label?.toLowerCase() === systemCategory.toLowerCase()) {
-          location = (config as any).storageLocation === 'required' ? 'required-pages' : 'pages';
+      for (const [_key, config] of Object.entries(systemCategoriesConfig)) {
+        if (config.label?.toLowerCase() === systemCategory.toLowerCase()) {
+          location = config.storageLocation === 'required' ? 'required-pages' : 'pages';
           break;
         }
       }
@@ -708,7 +711,7 @@ class VersioningFileProvider extends FileSystemProvider {
       currentVersion: await this.getCurrentVersion(uuid, location),
       location: location,
       lastModified: new Date().toISOString(),
-      editor: metadata.editor || (metadata as any).author || 'unknown',
+      editor: metadata.editor || metadata.author || 'unknown',
       hasVersions: true
     });
 
@@ -784,9 +787,9 @@ class VersioningFileProvider extends FileSystemProvider {
     const versionMetadata: InternalVersionMetadata = {
       version: 1,
       dateCreated: new Date().toISOString(),
-      editor: metadata.editor || (metadata as any).author || 'unknown',
+      editor: metadata.editor || metadata.author || 'unknown',
       changeType: 'created',
-      comment: (metadata as any).comment || 'Initial version',
+      comment: (metadata as ExtendedMetadata).comment || 'Initial version',
       contentHash: DeltaStorage.calculateHash(content),
       contentSize: Buffer.byteLength(content, 'utf8'),
       compressed: false,
@@ -816,7 +819,7 @@ class VersioningFileProvider extends FileSystemProvider {
     newContent: string,
     metadata: Partial<PageFrontmatter>,
     location: 'pages' | 'required-pages',
-    pageInfo: WikiPage
+    _pageInfo: WikiPage
   ): Promise<void> {
     // Load manifest
     let manifest = await this.loadManifest(uuid, location);
@@ -864,9 +867,9 @@ class VersioningFileProvider extends FileSystemProvider {
 
       versionMetadata = {
         dateCreated: new Date().toISOString(),
-        editor: metadata.editor || (metadata as any).author || 'unknown',
-        changeType: (metadata as any).changeType || 'updated',
-        comment: (metadata as any).comment || `Update to version ${nextVersion}`,
+        editor: metadata.editor || metadata.author || 'unknown',
+        changeType: (metadata as ExtendedMetadata).changeType || 'updated',
+        comment: (metadata as ExtendedMetadata).comment || `Update to version ${nextVersion}`,
         contentHash: DeltaStorage.calculateHash(newContent),
         contentSize: Buffer.byteLength(JSON.stringify(diff), 'utf8'),
         compressed: false,
@@ -879,12 +882,12 @@ class VersioningFileProvider extends FileSystemProvider {
 
       const comment = isCheckpoint
         ? `Checkpoint at version ${nextVersion}`
-        : ((metadata as any).comment || `Update to version ${nextVersion}`);
+        : ((metadata as ExtendedMetadata).comment || `Update to version ${nextVersion}`);
 
       versionMetadata = {
         dateCreated: new Date().toISOString(),
-        editor: metadata.editor || (metadata as any).author || 'unknown',
-        changeType: (metadata as any).changeType || 'updated',
+        editor: metadata.editor || metadata.author || 'unknown',
+        changeType: (metadata as ExtendedMetadata).changeType || 'updated',
         comment: comment,
         contentHash: DeltaStorage.calculateHash(newContent),
         contentSize: Buffer.byteLength(newContent, 'utf8'),
@@ -970,7 +973,7 @@ class VersioningFileProvider extends FileSystemProvider {
       }
 
       const diffData = await fs.readFile(diffPath, 'utf8');
-      const diff = JSON.parse(diffData);
+      const diff = JSON.parse(diffData) as DiffTuple[];
       content = DeltaStorage.applyDiff(content, diff);
     }
 
@@ -1200,7 +1203,7 @@ class VersioningFileProvider extends FileSystemProvider {
    */
   async restoreVersion(identifier: string, version: number): Promise<void> {
     // Get the content from the target version
-    const { content, metadata: versionMetadata } = await this.getPageVersion(identifier, version);
+    const { content, metadata: _versionMetadata } = await this.getPageVersion(identifier, version);
 
     // Resolve identifier to get current page info
     const resolved = await this.resolveIdentifier(identifier);
@@ -1226,7 +1229,7 @@ class VersioningFileProvider extends FileSystemProvider {
       editor: editor,
       comment: comment,
       changeType: 'restored'
-    } as any);
+    } as ExtendedMetadata);
 
     // Get the new version number for logging
     const location = this.pageIndex?.pages[uuid]?.location || 'pages';

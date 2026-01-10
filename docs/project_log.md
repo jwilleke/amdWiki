@@ -24,6 +24,34 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 
 ---
 
+## 2026-01-10-07
+
+- Agent: Claude Opus 4.5
+- Subject: Remove eslint-disable from types and utils (#202)
+- Current Issue: [#202](https://github.com/jwilleke/amdWiki/issues/202) - TypeScript ESLint Cleanup
+- Key Decision: Replace any with unknown in type definitions; add explanatory comments to justified disables
+- Testing:
+  - npm run typecheck: passes
+  - npm run eslint: passes for modified files
+- Work Done:
+  - Provider.ts: Removed file-level disable, changed all any to unknown
+  - express.d.ts: Removed file-level disable, changed all any to unknown
+  - VersioningMaintenance.ts: Removed disable, fixed fs.readJson with type cast
+  - SchemaGenerator.ts: Added explanatory comment to no-unused-vars (placeholder methods)
+  - standardize-categories.ts: Added explanatory comment to no-console (CLI script)
+  - version.ts: Added explanatory comment to no-console (CLI script)
+- Progress: Reduced file-level disables from 58 to 50 (eliminated 8)
+- Commits: b0e1573
+- Files Modified:
+  - src/types/Provider.ts
+  - src/types/express.d.ts
+  - src/utils/VersioningMaintenance.ts
+  - src/utils/SchemaGenerator.ts
+  - src/utils/standardize-categories.ts
+  - src/utils/version.ts
+
+---
+
 ## 2026-01-10-06
 
 - Agent: Claude Opus 4.5

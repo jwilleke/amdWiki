@@ -1,7 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
-
 import fs from 'fs-extra';
 import path from 'path';
 import matter from 'gray-matter';
@@ -260,15 +256,16 @@ class VersioningMigration {
   async _readPageFile(filePath: string, location: string): Promise<PageInfo | null> {
     try {
       const fileContent = await fs.readFile(filePath, 'utf8');
-      const { data: frontmatter, content } = matter(fileContent);
+      const { data, content } = matter(fileContent);
+      const frontmatter = data as Record<string, unknown>;
 
       // Validate required fields
-      if (!frontmatter.uuid) {
+      if (!frontmatter.uuid || typeof frontmatter.uuid !== 'string') {
         this._logWarning(`Page ${filePath} missing UUID, skipping`);
         return null;
       }
 
-      if (!frontmatter.title) {
+      if (!frontmatter.title || typeof frontmatter.title !== 'string') {
         this._logWarning(`Page ${filePath} missing title, skipping`);
         return null;
       }
@@ -471,17 +468,17 @@ class VersioningMigration {
     }
 
     // Load page index
-    let pageIndex;
+    let pageIndex: { pages: Record<string, { location: string }> };
     try {
       const indexData = await fs.readFile(indexPath, 'utf8');
-      pageIndex = JSON.parse(indexData);
+      pageIndex = JSON.parse(indexData) as { pages: Record<string, { location: string }> };
     } catch (error) {
       errors.push(`Failed to read page-index.json: ${getErrorMessage(error)}`);
       return { valid: false, errors, warnings };
     }
 
     // Validate each page in index
-    for (const [uuid, pageInfo] of Object.entries(pageIndex.pages as Record<string, { location: string }>)) {
+    for (const [uuid, pageInfo] of Object.entries(pageIndex.pages)) {
       // Check version directory exists
       const versionDir = this._getVersionDirectory(uuid, pageInfo.location);
       if (!await fs.pathExists(versionDir)) {
@@ -499,7 +496,7 @@ class VersioningMigration {
       // Validate manifest structure
       try {
         const manifestData = await fs.readFile(manifestPath, 'utf8');
-        const manifest = JSON.parse(manifestData);
+        const manifest = JSON.parse(manifestData) as { pageId?: string; currentVersion?: number; versions?: unknown[] };
 
         if (manifest.pageId !== uuid) {
           errors.push(`Manifest pageId mismatch for ${uuid}`);
@@ -531,7 +528,7 @@ class VersioningMigration {
 
         const metaPath = path.join(versionDir, 'v1', 'meta.json');
         const metaData = await fs.readFile(metaPath, 'utf8');
-        const meta = JSON.parse(metaData);
+        const meta = JSON.parse(metaData) as { contentHash?: string };
 
         if (meta.contentHash !== actualHash) {
           errors.push(`Content hash mismatch for ${uuid}`);
