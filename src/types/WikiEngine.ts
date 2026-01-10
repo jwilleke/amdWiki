@@ -4,9 +4,9 @@
  * Defines the core WikiEngine interface and manager registry types.
  * WikiEngine is the central orchestrator that manages all subsystems.
  */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { WikiConfig } from './Config';
+import type { Logger } from 'winston';
 
 /**
  * All known manager names as a union type
@@ -36,8 +36,10 @@ export type ManagerName =
 
 /**
  * Manager registry - maps manager names to manager instances
+ * Note: Uses 'any' for backwards compatibility with existing code
  */
 export interface ManagerRegistry {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [managerName: string]: any;
 }
 
@@ -52,15 +54,16 @@ export interface WikiEngine {
   config?: WikiConfig;
 
   // Note: `managers` and `initialized` are protected in the class implementation,
-  // so they can't be declared here. They're accessible via [key: string]: any.
+  // so they can't be declared here. They're accessible via index signature.
 
-  /** Logger instance */
-  logger?: any;
+  /** Logger instance (winston Logger) */
+  logger?: Logger;
 
   /** Engine start time */
   startTime?: number;
 
   /** Current context (request-scoped) */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   context?: any;
 
   /**
@@ -68,6 +71,7 @@ export interface WikiEngine {
    * @param config - Wiki configuration
    * @returns The initialized engine or void
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   initialize(config?: WikiConfig): Promise<any>;
 
   /**
@@ -79,6 +83,7 @@ export interface WikiEngine {
    * // Type-safe usage with explicit type parameter:
    * const pageManager = engine.getManager<PageManager>('PageManager');
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getManager<T = any>(managerName: string): T | undefined;
 
   /**
@@ -86,6 +91,7 @@ export interface WikiEngine {
    * @param managerName - Name of the manager
    * @param manager - Manager instance
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   registerManager(managerName: string, manager: any): void;
 
   /**
@@ -106,5 +112,6 @@ export interface WikiEngine {
   getRegisteredManagers(): string[];
 
   /** Allow additional properties for extensibility */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 }

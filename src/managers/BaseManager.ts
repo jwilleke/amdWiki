@@ -14,7 +14,6 @@
  *
  * @see {@link WikiEngine} for the main engine
  */
-/* eslint-disable @typescript-eslint/require-await */
 
 import type { WikiEngine } from '../types/WikiEngine';
 
@@ -95,6 +94,7 @@ abstract class BaseManager {
    * }
    */
 
+  // eslint-disable-next-line @typescript-eslint/require-await -- Base class defines async interface for subclasses
   async initialize(config: Record<string, unknown> = {}): Promise<void> {
     this.config = config;
     this.initialized = true;
@@ -139,6 +139,7 @@ abstract class BaseManager {
    *   await super.shutdown();
    * }
    */
+  // eslint-disable-next-line @typescript-eslint/require-await -- Base class defines async interface for subclasses
   async shutdown(): Promise<void> {
     this.initialized = false;
   }
@@ -164,6 +165,7 @@ abstract class BaseManager {
    *   };
    * }
    */
+  // eslint-disable-next-line @typescript-eslint/require-await -- Base class defines async interface for subclasses
   async backup(): Promise<BackupData> {
     // Default implementation returns empty object
     // Managers with data MUST override this method
@@ -192,6 +194,7 @@ abstract class BaseManager {
    *   this.settings = backupData.data.settings;
    * }
    */
+  // eslint-disable-next-line @typescript-eslint/require-await -- Base class defines async interface for subclasses
   async restore(backupData: BackupData): Promise<void> {
     // Default implementation does nothing
     // Managers with data MUST override this method

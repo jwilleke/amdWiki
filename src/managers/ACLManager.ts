@@ -1,8 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
- 
-
 import BaseManager from './BaseManager';
 import { promises as fs } from 'fs';
 import logger from '../utils/logger';
@@ -10,6 +5,7 @@ import { WikiEngine } from '../types/WikiEngine';
 import type ConfigurationManager from './ConfigurationManager';
 import type UserManager from './UserManager';
 import type PolicyEvaluator from './PolicyEvaluator';
+import type NotificationManager from './NotificationManager';
 
 /**
  * Minimal WikiContext interface for type safety
@@ -24,12 +20,14 @@ interface WikiContext {
 
 /**
  * User context for permission checks
+ * Note: Index signature required for PolicyEvaluator compatibility
  */
 interface UserContext {
   username?: string;
   name?: string;
   roles?: string[];
   isAuthenticated?: boolean;
+  [key: string]: unknown;
 }
 
 /**
@@ -183,8 +181,7 @@ class ACLManager extends BaseManager {
     logger.info(`📋 Loaded ${this.accessPolicies.size} access policies from ConfigurationManager`);
 
     // Get the PolicyEvaluator instance from the engine
-
-    this.policyEvaluator = this.engine.getManager('PolicyEvaluator');
+    this.policyEvaluator = this.engine.getManager<PolicyEvaluator>('PolicyEvaluator') ?? null;
     if (!this.policyEvaluator) {
       logger.warn('[ACL] PolicyEvaluator manager not found. Global policies will not be evaluated.');
     }
@@ -427,7 +424,8 @@ class ACLManager extends BaseManager {
     // 1. Evaluate Global Policies first
     if (this.policyEvaluator) {
       try {
-        const policyContext = { pageName, action: policyAction, userContext };
+        // Convert null to undefined for AccessContext compatibility
+        const policyContext = { pageName, action: policyAction, userContext: userContext ?? undefined };
 
         const policyResult = await this.policyEvaluator.evaluateAccess(policyContext);
 
@@ -727,9 +725,13 @@ class ACLManager extends BaseManager {
    */
   async checkEnhancedTimeRestrictions(user: UserContext, context: Record<string, unknown>): Promise<PermissionResult> {
     try {
-      const cfg = this.engine?.getManager?.('ConfigurationManager');
+      const cfg = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
+      if (!cfg) {
+        await this.notify('ConfigurationManager not available for time restrictions', 'error');
+        throw new Error('ConfigurationManager not available');
+      }
 
-      const enabled = cfg?.getProperty?.('amdwiki.schedules.enabled', true);
+      const enabled = cfg.getProperty('amdwiki.schedules.enabled', true);
       if (!enabled) {
         return { allowed: true, reason: 'schedules_disabled' };
       }
@@ -798,36 +800,31 @@ class ACLManager extends BaseManager {
   async checkHolidayRestrictions(currentDate: string, _holidaysConfig: HolidayConfig): Promise<PermissionResult> {
     try {
       // Require holidays from ConfigurationManager only (no file fallback)
-
-      const cfg = this.engine?.getManager?.('ConfigurationManager');
-
-      if (!cfg?.getProperty) {
+      const cfg = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
+      if (!cfg) {
         await this.notify('ConfigurationManager not available for holiday checks', 'error');
         throw new Error('Holiday checks require ConfigurationManager');
       }
 
-      const enabled = cfg.getProperty('amdwiki.holidays.enabled', false);
+      const enabled = cfg.getProperty('amdwiki.holidays.enabled', false) as boolean;
       if (!enabled) {
         return { allowed: true, reason: 'holidays_disabled' };
       }
 
-      const dates = cfg.getProperty('amdwiki.holidays.dates', null);
-
-      const recurring = cfg.getProperty('amdwiki.holidays.recurring', null);
+      const dates = cfg.getProperty('amdwiki.holidays.dates', null) as Record<string, { name?: string; message?: string }> | null;
+      const recurring = cfg.getProperty('amdwiki.holidays.recurring', null) as Record<string, { name?: string; message?: string }> | null;
       if (!dates || typeof dates !== 'object' || !recurring || typeof recurring !== 'object') {
         await this.notify('Holiday configuration missing: amdwiki.holidays.dates/recurring', 'error');
         throw new Error('Holiday configuration missing');
       }
 
       // Exact date match
-
       if (dates[currentDate]) {
-        const holiday = dates[currentDate] || {};
+        const holiday = dates[currentDate] ?? {};
         return {
           allowed: false,
           reason: 'holiday_restriction',
-
-          message: holiday.message || `Access restricted on ${holiday.name || 'holiday'}`
+          message: holiday.message ?? `Access restricted on ${holiday.name ?? 'holiday'}`
         };
       }
 
@@ -836,12 +833,11 @@ class ACLManager extends BaseManager {
       const recurringKey = `*-${month}-${day}`;
 
       if (recurring[recurringKey]) {
-        const holiday = recurring[recurringKey] || {};
+        const holiday = recurring[recurringKey] ?? {};
         return {
           allowed: false,
           reason: 'recurring_holiday_restriction',
-
-          message: holiday.message || `Access restricted on ${holiday.name || 'holiday'}`
+          message: holiday.message ?? `Access restricted on ${holiday.name ?? 'holiday'}`
         };
       }
 
@@ -858,10 +854,12 @@ class ACLManager extends BaseManager {
    * @private
    */
   private async notify(message: string, level: 'warn' | 'error' = 'warn'): Promise<void> {
-    const nm = this.engine?.getManager?.('NotificationManager');
+    const nm = this.engine.getManager<NotificationManager>('NotificationManager');
     try {
       if (nm?.addNotification) {
-        await nm.addNotification({ level, message, source: 'ACLManager', timestamp: new Date().toISOString() });
+        // Map 'warn' to 'warning' for NotificationInput compatibility
+        const notificationLevel: 'info' | 'warning' | 'error' | 'success' = level === 'warn' ? 'warning' : level;
+        await nm.addNotification({ level: notificationLevel, message, title: 'ACLManager' });
       } else {
         if (level === 'error') {
           logger.error(message);
@@ -878,7 +876,7 @@ class ACLManager extends BaseManager {
    * Record/audit an access decision.
    * Accepts either a single object or positional args for backward compatibility.
    */
-  logAccessDecision(userOrObj: UserContext | AccessDecisionLog, pageName?: string, action?: string, allowed?: boolean, reason?: string, context: Record<string, unknown> = {}): void {
+  logAccessDecision(userOrObj: UserContext | AccessDecisionLog, pageName?: string, action?: string, allowed?: boolean, reason?: string, _context: Record<string, unknown> = {}): void {
     let user: UserContext | undefined = userOrObj as UserContext;
     if (arguments.length === 1 && userOrObj && typeof userOrObj === 'object') {
       const obj = userOrObj as AccessDecisionLog;
@@ -887,7 +885,8 @@ class ACLManager extends BaseManager {
       action = obj.action;
       allowed = obj.allowed;
       reason = obj.reason;
-      context = obj.context || {};
+      // context preserved for potential future use or logging
+      void (obj.context || {});
     }
     const username = user?.username || user?.name || 'anonymous';
     const msg = `ACL decision: user=${username} page=${pageName} action=${action} allowed=${!!allowed} reason=${reason || 'n/a'}`;
@@ -897,16 +896,12 @@ class ACLManager extends BaseManager {
       this.engine?.logger?.warn?.(msg);
     }
     // Optional: forward to NotificationManager for UI surfacing
-
-    const nm = this.engine?.getManager?.('NotificationManager');
-
+    const nm = this.engine.getManager<NotificationManager>('NotificationManager');
     if (nm?.addNotification) {
       nm.addNotification({
-        level: allowed ? 'info' : 'warn',
+        level: allowed ? 'info' : 'warning',
         message: msg,
-        source: 'ACLManager',
-        context,
-        timestamp: new Date().toISOString()
+        title: 'ACLManager'
       }).catch(() => {
         // Ignore notification errors
       });

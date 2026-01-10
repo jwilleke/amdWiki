@@ -1,7 +1,3 @@
- 
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-
 import BaseManager from './BaseManager';
 import fs from 'fs-extra';
 import path from 'path';
@@ -10,16 +6,50 @@ import type { WikiEngine } from '../types/WikiEngine';
 import type ConfigurationManager from './ConfigurationManager';
 
 /**
- * Plugin object interface
+ * Plugin function type - old-style callable function plugin
  */
-export interface Plugin {
+export type PluginFunction = (
+  pageName: string,
+  params: PluginParams,
+  linkGraph: Record<string, unknown>
+) => Promise<string> | string;
+
+/**
+ * Plugin object interface - new-style plugin with execute method
+ */
+export interface PluginObject {
   name?: string;
   description?: string;
   author?: string;
   version?: string;
   initialize?: (engine: WikiEngine) => Promise<void> | void;
-  execute?: (context: PluginContext, params: PluginParams) => Promise<string> | string;
-  (pageName: string, params: PluginParams, linkGraph: Record<string, unknown>): Promise<string> | string;
+  execute: (context: PluginContext, params: PluginParams) => Promise<string> | string;
+}
+
+/**
+ * Plugin type - can be either a function or an object with execute method
+ */
+export type Plugin = PluginFunction | PluginObject;
+
+/**
+ * Type guard to check if plugin is an object with execute method
+ */
+function isPluginObject(obj: unknown): obj is PluginObject {
+  return typeof obj === 'object' && obj !== null && typeof (obj as PluginObject).execute === 'function';
+}
+
+/**
+ * Type guard to check if an unknown value is a valid Plugin
+ */
+function isPlugin(obj: unknown): obj is Plugin {
+  return typeof obj === 'function' || isPluginObject(obj);
+}
+
+/**
+ * Type guard to check if a module export has a default export
+ */
+function hasDefaultExport(obj: unknown): obj is { default: unknown } {
+  return typeof obj === 'object' && obj !== null && 'default' in obj;
 }
 
 /**
@@ -201,20 +231,30 @@ class PluginManager extends BaseManager {
       }
 
       // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const mod = require(realFile) as { default?: Plugin } | Plugin;
-      const plugin = (mod as { default?: Plugin })?.default || mod;
-      const pluginName = (plugin as Plugin)?.name || path.parse(realFile).name;
+      const mod: unknown = require(realFile);
 
-      if (!plugin || (typeof plugin !== 'function' && typeof (plugin as Plugin).execute !== 'function')) {
-        this.engine.logger?.warn?.(`PluginManager: "${pluginName}" is not an executable plugin; skipping.`);
+      // Extract the plugin from the module (handle both default and direct exports)
+      const rawPlugin: unknown = hasDefaultExport(mod) ? mod.default : mod;
+
+      // Validate the plugin is executable
+      if (!isPlugin(rawPlugin)) {
+        const fileName = path.parse(realFile).name;
+        this.engine.logger?.warn?.(`PluginManager: "${fileName}" is not an executable plugin; skipping.`);
         return;
       }
 
-      if (typeof (plugin as Plugin).initialize === 'function') {
-        await (plugin as Plugin).initialize?.(this.engine);
+      // Now we know rawPlugin is a valid Plugin
+      const plugin: Plugin = rawPlugin;
+
+      // Get plugin name from metadata or filename
+      const pluginName: string = (isPluginObject(plugin) && plugin.name) || path.parse(realFile).name;
+
+      // Initialize the plugin if it has an initialize method (only object plugins have this)
+      if (isPluginObject(plugin) && typeof plugin.initialize === 'function') {
+        await plugin.initialize(this.engine);
       }
 
-      this.plugins.set(pluginName, plugin as Plugin);
+      this.plugins.set(pluginName, plugin);
       this.engine.logger?.info?.(`PluginManager: Loaded plugin "${pluginName}" from ${realFile}`);
     } catch (err) {
       this.engine.logger?.error?.(`PluginManager: Failed to load plugin ${pluginPath}: ${(err as Error).message}`);
@@ -298,14 +338,13 @@ class PluginManager extends BaseManager {
       // Plugins expect the full ParseContext/WikiContext with all properties
       const pluginContext: PluginContext = {
         ...context, // Spread all context properties
-
-        engine: context.engine || this.engine,
+        engine: this.engine, // Always use the manager's engine instance
         pageName: pageName,
         linkGraph: (context.linkGraph as Record<string, unknown>) || {}
       };
 
       // Check if it's a new-style plugin with execute method
-      if (plugin.execute && typeof plugin.execute === 'function') {
+      if (isPluginObject(plugin)) {
         const result = await plugin.execute(pluginContext, params);
         return result;
       }
@@ -316,6 +355,7 @@ class PluginManager extends BaseManager {
         return result;
       }
 
+      // This should never happen due to type narrowing, but satisfies TypeScript
       return `Plugin '${pluginName}' is not executable`;
     } catch (err) {
       logger.error(`Plugin '${pluginName}' execution failed:`, err);
@@ -342,11 +382,22 @@ class PluginManager extends BaseManager {
       return null;
     }
 
+    // Only PluginObject has metadata properties
+    if (isPluginObject(plugin)) {
+      return {
+        name: pluginName,
+        description: plugin.description || 'No description available',
+        author: plugin.author || 'Unknown',
+        version: plugin.version || '1.0.0'
+      };
+    }
+
+    // Function plugins have no metadata
     return {
       name: pluginName,
-      description: plugin.description || 'No description available',
-      author: plugin.author || 'Unknown',
-      version: plugin.version || '1.0.0'
+      description: 'No description available',
+      author: 'Unknown',
+      version: '1.0.0'
     };
   }
 
