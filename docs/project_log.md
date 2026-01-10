@@ -24,6 +24,37 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 
 ---
 
+## 2026-01-10-05
+
+- Agent: Claude Opus 4.5
+- Subject: Remove file-level eslint-disable comments from managers (#202)
+- Current Issue: [#202](https://github.com/jwilleke/amdWiki/issues/202) - TypeScript ESLint Cleanup
+- Key Decision: Use type guards and proper generics instead of file-level eslint-disable
+- Testing:
+  - npm run typecheck: passes
+  - npm run eslint: passes for modified files
+  - Test failures improved from 34 to 19 (better than baseline master)
+- Work Done:
+  - ACLManager.ts: Removed 3 file-level no-unsafe-* disables
+    - Added proper type annotations for getManager<ConfigurationManager>
+    - Added NotificationManager import and typed addNotification calls
+    - Fixed UserContext with index signature for PolicyEvaluator compatibility
+    - Fixed null to undefined conversion for AccessContext
+  - PluginManager.ts: Removed file-level no-unsafe-* disables
+    - Split Plugin into PluginFunction and PluginObject union type
+    - Added type guards: isPlugin(), isPluginObject(), hasDefaultExport()
+    - Fixed execute() to use properly typed engine reference
+  - BaseManager.ts: Converted file-level require-await to line-level disables
+  - WikiEngine.ts: Added winston Logger type for logger property
+- Commits: 1753ffc
+- Files Modified:
+  - src/managers/ACLManager.ts
+  - src/managers/BaseManager.ts
+  - src/managers/PluginManager.ts
+  - src/types/WikiEngine.ts
+
+---
+
 ## 2026-01-10-04
 
 - Agent: Claude Opus 4.5
