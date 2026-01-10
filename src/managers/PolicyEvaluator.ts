@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import BaseManager from './BaseManager';
 import logger from '../utils/logger';
 import micromatch from 'micromatch';
@@ -149,7 +147,8 @@ class PolicyEvaluator extends BaseManager {
       return { hasDecision: false, allowed: false, reason: 'PolicyManager not initialized', policyName: null };
     }
 
-    const policies = this.policyManager.getAllPolicies() as any as Policy[];
+    // PolicyManager returns Policy[] with different interface - use unknown cast
+    const policies = this.policyManager.getAllPolicies() as unknown as Policy[];
     for (const policy of policies) {
       const match = this.matches(policy, context);
       logger.info(`[POLICY] Check policy=${policy.id} effect=${policy.effect} match=${match}`);

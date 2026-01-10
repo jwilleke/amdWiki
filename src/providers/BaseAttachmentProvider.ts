@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/require-await */
-
 import logger from '../utils/logger';
 import { AttachmentMetadata, AttachmentProvider } from '../types';
 import type { WikiEngine } from '../types/WikiEngine';
@@ -229,6 +227,7 @@ abstract class BaseAttachmentProvider implements AttachmentProvider {
    * Shutdown the provider (cleanup resources)
    * @returns {Promise<void>}
    */
+  // eslint-disable-next-line @typescript-eslint/require-await -- Base class defines async interface for subclasses
   async shutdown(): Promise<void> {
     this.initialized = false;
     logger.info(`${this.getProviderInfo().name} shut down`);
