@@ -1,12 +1,14 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import express, { Router, Request, Response } from 'express';
 import logger from '../utils/logger';
 import InstallService from '../services/InstallService';
 import type { WikiEngine } from '../types/WikiEngine';
+import type ConfigurationManager from '../managers/ConfigurationManager';
+
+/** Helper to extract error message from unknown error */
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  return String(error);
+}
 
 /**
  * Installation form data
@@ -59,11 +61,27 @@ interface MissingPagesResult {
 }
 
 /**
+ * Extended session data for installation
+ */
+interface InstallSessionData {
+  installFormData?: InstallFormData;
+  installSuccess?: string;
+  installError?: string;
+}
+
+/**
+ * Form body data (checkbox comes as 'on' string from HTML)
+ */
+interface InstallFormBody extends Omit<InstallFormData, 'copyStartupPages'> {
+  copyStartupPages?: string | boolean;
+}
+
+/**
  * Extended Request type with session data
  */
 interface InstallRequest extends Request {
-  session: any;
-  body: any;
+  session: Request['session'] & InstallSessionData;
+  body: Partial<InstallFormBody>;
 }
 
 /**
@@ -78,9 +96,9 @@ interface InstallRequest extends Request {
  * @class InstallRoutes
  */
 class InstallRoutes {
-  private engine: any;
+  private engine: WikiEngine;
   private router: Router;
-  private installService: any;
+  private installService: InstallService;
 
   /**
    * Creates a new InstallRoutes instance
@@ -149,23 +167,23 @@ class InstallRoutes {
           return;
         }
 
-        // Extract form data
+        // Extract form data with defaults for optional fields
         const installData: InstallFormData = {
-          applicationName: req.body.applicationName,
-          baseURL: req.body.baseURL,
+          applicationName: req.body.applicationName || '',
+          baseURL: req.body.baseURL || '',
           adminUsername: 'admin', // Fixed - not from form
-          adminPassword: req.body.adminPassword,
-          adminPasswordConfirm: req.body.adminPasswordConfirm,
+          adminPassword: req.body.adminPassword || '',
+          adminPasswordConfirm: req.body.adminPasswordConfirm || '',
           adminEmail: 'admin@localhost', // Fixed - not from form
-          orgName: req.body.orgName,
-          orgLegalName: req.body.orgLegalName,
-          orgDescription: req.body.orgDescription,
-          orgFoundingDate: req.body.orgFoundingDate,
-          orgAddressLocality: req.body.orgAddressLocality,
-          orgAddressRegion: req.body.orgAddressRegion,
-          orgAddressCountry: req.body.orgAddressCountry,
-          sessionSecret: req.body.sessionSecret,
-          copyStartupPages: req.body.copyStartupPages === 'on'
+          orgName: req.body.orgName || '',
+          orgLegalName: req.body.orgLegalName || '',
+          orgDescription: req.body.orgDescription || '',
+          orgFoundingDate: req.body.orgFoundingDate || '',
+          orgAddressLocality: req.body.orgAddressLocality || '',
+          orgAddressRegion: req.body.orgAddressRegion || '',
+          orgAddressCountry: req.body.orgAddressCountry || '',
+          sessionSecret: req.body.sessionSecret || '',
+          copyStartupPages: req.body.copyStartupPages === true || req.body.copyStartupPages === 'on'
         };
 
         // Process installation
@@ -180,7 +198,10 @@ class InstallRoutes {
         }
 
         // Installation successful - reload config
-        await this.engine.getManager('ConfigurationManager').reload();
+        const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
+        if (configManager) {
+          await configManager.reload();
+        }
 
         // Show success page
         res.render('install-success', {
@@ -190,10 +211,10 @@ class InstallRoutes {
           pagesCopied: installData.copyStartupPages
         });
 
-      } catch (error: any) {
+      } catch (error: unknown) {
         logger.error('Error processing installation:', error);
-        req.session.installError = error.message;
-        req.session.installFormData = req.body;
+        req.session.installError = getErrorMessage(error);
+        req.session.installFormData = req.body as InstallFormData;
         res.redirect('/install');
       }
     });
@@ -211,15 +232,15 @@ class InstallRoutes {
         }
 
         res.redirect('/install');
-      } catch (error: any) {
+      } catch (error: unknown) {
         logger.error('Error resetting installation:', error);
-        req.session.installError = `Reset failed: ${error.message}`;
+        req.session.installError = `Reset failed: ${getErrorMessage(error)}`;
         res.redirect('/install');
       }
     });
 
     // GET /install/status - Check installation status (API endpoint)
-    this.router.get('/status', async (req: Request, res: Response): Promise<void> => {
+    this.router.get('/status', async (_req: Request, res: Response): Promise<void> => {
       try {
         const partialState: PartialInstallationState = await this.installService.detectPartialInstallation();
         const installRequired: boolean = await this.installService.isInstallRequired();
@@ -230,13 +251,13 @@ class InstallRoutes {
           partialInstallation: partialState,
           missingPagesOnly: missingPages
         });
-      } catch (error: any) {
-        res.status(500).json({ error: error.message });
+      } catch (error: unknown) {
+        res.status(500).json({ error: getErrorMessage(error) });
       }
     });
 
     // POST /install/create-pages - Create pages folder and copy required pages
-    this.router.post('/create-pages', async (req: Request, res: Response): Promise<void> => {
+    this.router.post('/create-pages', async (_req: Request, res: Response): Promise<void> => {
       try {
         // Check if only pages are missing
         const missingPages: MissingPagesResult = await this.installService.detectMissingPagesOnly();
@@ -258,11 +279,11 @@ class InstallRoutes {
         }
 
         res.json(result);
-      } catch (error: any) {
+      } catch (error: unknown) {
         logger.error('Error creating pages folder:', error);
         res.status(500).json({
           success: false,
-          error: `Failed to create pages folder: ${error.message}`
+          error: `Failed to create pages folder: ${getErrorMessage(error)}`
         });
       }
     });

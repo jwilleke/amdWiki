@@ -1,14 +1,10 @@
 /**
  * WikiContext - Request-scoped context for wiki operations
  *
- * This module interacts with untyped parsers and third-party libraries (showdown).
- * ESLint strict type checking is disabled where necessary.
+ * Provides a request-scoped container for all contextual information needed
+ * during page rendering, including the engine, current page, user, and
+ * request/response objects.
  */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import type { Request, Response } from 'express';
 import * as Showdown from 'showdown';
@@ -19,6 +15,8 @@ import type RenderingManager from '../managers/RenderingManager';
 import type PluginManager from '../managers/PluginManager';
 import type VariableManager from '../managers/VariableManager';
 import type ACLManager from '../managers/ACLManager';
+import type MarkupParser from '../parsers/MarkupParser';
+import type { VariableContext } from '../managers/VariableManager';
 
 /**
  * Request information extracted from Express request
@@ -277,25 +275,28 @@ class WikiContext {
     }
 
     // The advanced parser should be the primary method
-    const parser = (this.renderingManager as any)?.getParser?.();
-    logger.info(`[CTX] renderMarkdown page=${this.pageName ?? 'unknown'} parser=${!!parser} contentLen=${content?.length ?? 0}`);
+    const parser: MarkupParser | null = this.renderingManager.getParser();
+    logger.info(`[CTX] renderMarkdown page=${this.pageName ?? 'unknown'} parser=${!!parser} contentLen=${content.length}`);
 
-    if (parser && typeof parser.parse === 'function') {
-      const html = await parser.parse(content, this.toParseOptions());
-      logger.info(`[CTX] parsed via MarkupParser resultLen=${html?.length ?? 0}`);
+    if (parser) {
+      // Cast to Record<string, unknown> for MarkupParser.parse() compatibility
+      const parseContext = this.toParseOptions() as unknown as Record<string, unknown>;
+      const html: string = await parser.parse(content, parseContext);
+      logger.info(`[CTX] parsed via MarkupParser resultLen=${html.length}`);
       return html;
     }
 
     // Fallback for when the advanced parser is not available
     logger.warn(`[CTX] Using fallback renderer for page ${this.pageName ?? 'unknown'}.`);
-    let expanded = content;
-    if (this.variableManager && typeof (this.variableManager as any).expandVariables === 'function') {
-      expanded = (this.variableManager as any).expandVariables(expanded, this.toParseOptions().pageContext);
-      logger.info(`[CTX] variables expanded len=${expanded?.length ?? 0}`);
+    let expanded: string = content;
+    if (this.variableManager) {
+      const variableContext: VariableContext = this.toVariableContext();
+      expanded = this.variableManager.expandVariables(expanded, variableContext);
+      logger.info(`[CTX] variables expanded len=${expanded.length}`);
     }
 
-    const html = this._fallbackConverter.makeHtml(expanded);
-    logger.info(`[CTX] fallback converter resultLen=${html?.length ?? 0}`);
+    const html: string = this._fallbackConverter.makeHtml(expanded);
+    logger.info(`[CTX] fallback converter resultLen=${html.length}`);
     return html;
   }
 
@@ -321,10 +322,35 @@ class WikiContext {
           userAgent: this.request?.headers?.['user-agent'],
           clientIp: this.request?.ip,
           referer: this.request?.headers?.referer,
-          sessionId: (this.request as any)?.sessionID
+          sessionId: this.request?.sessionID
         }
       },
       engine: this.engine
+    };
+  }
+
+  /**
+   * Converts the current context to a VariableContext for variable expansion
+   *
+   * @returns {VariableContext} Variable context for use with VariableManager
+   * @private
+   */
+  private toVariableContext(): VariableContext {
+    return {
+      pageName: this.pageName ?? undefined,
+      userContext: this.userContext ? {
+        username: this.userContext.username,
+        isAuthenticated: this.userContext.authenticated,
+        roles: this.userContext.roles,
+        displayName: this.userContext.displayName
+      } : undefined,
+      requestInfo: {
+        acceptLanguage: this.request?.headers?.['accept-language'],
+        userAgent: this.request?.headers?.['user-agent'],
+        clientIp: this.request?.ip,
+        referer: this.request?.headers?.referer,
+        sessionId: this.request?.sessionID
+      }
     };
   }
 }
