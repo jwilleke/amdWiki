@@ -129,6 +129,39 @@ interface StorageReport {
 }
 
 /**
+ * Page storage details structure
+ */
+interface PageStorageDetails {
+  page: {
+    title: string;
+    uuid: string;
+    location: string;
+  };
+  summary: {
+    versionCount: number;
+    totalSize: number;
+    totalSizeMB: string;
+    averageVersionSize: string;
+    compressedVersions: number;
+    uncompressedVersions: number;
+  };
+  versions: Array<{
+    version: number;
+    date: string;
+    author: string | undefined;
+    size: number;
+    sizeKB: string;
+    compressed: boolean;
+    isDelta: boolean;
+  }>;
+  storageByType: {
+    fullContent: number;
+    deltas: number;
+    metadata: number;
+  };
+}
+
+/**
  * VersioningAnalytics - Storage analytics and reporting for VersioningFileProvider
  *
  * Provides detailed insights into:
@@ -446,7 +479,7 @@ class VersioningAnalytics {
    * @param identifier - Page UUID or title
    * @returns Page storage details
    */
-  async getPageStorageDetails(identifier: string) {
+  async getPageStorageDetails(identifier: string): Promise<PageStorageDetails> {
     // Resolve identifier
     const resolved = await this.provider._resolveIdentifier(identifier);
     if (!resolved) {

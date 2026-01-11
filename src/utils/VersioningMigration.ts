@@ -69,6 +69,40 @@ interface _PageIndexEntry {
 }
 
 /**
+ * Migration report structure
+ */
+interface MigrationReport {
+  success: boolean;
+  dryRun: boolean;
+  duration: number;
+  durationSeconds: string;
+  pagesDiscovered: number;
+  pagesProcessed: number;
+  pagesFailed: number;
+  errors: string[];
+  warnings: string[];
+  migrationLog: MigrationLogEntry[];
+  timestamp: string;
+}
+
+/**
+ * Rollback result structure
+ */
+interface RollbackResult {
+  versionDirectories: number;
+  pageIndex: boolean;
+}
+
+/**
+ * Validation result structure
+ */
+interface ValidationResult {
+  valid: boolean;
+  errors: string[];
+  warnings: string[];
+}
+
+/**
  * VersioningMigration - Utility for migrating FileSystemProvider to VersioningFileProvider
  *
  * Provides safe migration of existing amdWiki pages to versioned format with:
@@ -137,10 +171,10 @@ class VersioningMigration {
    * 3. Validate migration integrity
    * 4. Generate detailed report
    *
-   * @returns {Promise<object>} Migration report with statistics
+   * @returns {Promise<MigrationReport>} Migration report with statistics
    * @throws {Error} If migration fails critically
    */
-  async migrateFromFileSystemProvider() {
+  async migrateFromFileSystemProvider(): Promise<MigrationReport> {
     const startTime = Date.now();
     this._log('info', 'Starting migration from FileSystemProvider to VersioningFileProvider');
 
@@ -313,7 +347,7 @@ class VersioningMigration {
    * Create directory structure for versioning
    * @private
    */
-  async _createDirectoryStructure() {
+  async _createDirectoryStructure(): Promise<void> {
     // Create version directories
     const pagesVersionsDir = path.join(this.pagesDir, 'versions');
     const requiredPagesVersionsDir = path.join(this.requiredPagesDir, 'versions');
@@ -452,9 +486,9 @@ class VersioningMigration {
    * - Content hashes match
    * - page-index.json is accurate
    *
-   * @returns {Promise<object>} Validation result
+   * @returns {Promise<ValidationResult>} Validation result
    */
-  async validateMigration() {
+  async validateMigration(): Promise<ValidationResult> {
     const errors: string[] = [];
     const warnings: string[] = [];
 
@@ -556,9 +590,9 @@ class VersioningMigration {
    * WARNING: This removes version directories and page-index.json.
    * Original page files are NOT affected.
    *
-   * @returns {Promise<object>} Rollback report
+   * @returns {Promise<RollbackResult>} Rollback result
    */
-  async rollbackMigration() {
+  async rollbackMigration(): Promise<RollbackResult> {
     this._log('info', 'Starting migration rollback');
 
     const removed = {
@@ -626,7 +660,7 @@ class VersioningMigration {
    * @returns Migration report
    * @private
    */
-  _generateReport(startTime: number, totalPages: number, successCount: number, errorCount: number) {
+  _generateReport(startTime: number, totalPages: number, successCount: number, errorCount: number): MigrationReport {
     const duration = Date.now() - startTime;
 
     return {
