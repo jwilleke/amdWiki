@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars -- Placeholder methods have parameters for future implementation */
-
 import logger from './logger';
 
 /**
@@ -269,7 +267,7 @@ class SchemaGenerator {
   /**
    * Enhance TechArticle schema for documentation
    */
-  static enhanceTechArticle(schema: BaseSchema, pageData: PageData, options: SchemaOptions): BaseSchema {
+  static enhanceTechArticle(schema: BaseSchema, pageData: PageData, _options: SchemaOptions): BaseSchema {
     schema.articleSection = pageData.categories?.join(', ') || 'Documentation';
     
     if (pageData.userKeywords?.includes('plugins')) {
@@ -285,7 +283,7 @@ class SchemaGenerator {
   /**
    * Enhance CreativeWork schema for project pages
    */
-  static enhanceCreativeWork(schema: BaseSchema, pageData: PageData, options: SchemaOptions): BaseSchema {
+  static enhanceCreativeWork(schema: BaseSchema, pageData: PageData, _options: SchemaOptions): BaseSchema {
     if (pageData.userKeywords?.includes('vision') || 
         pageData.userKeywords?.includes('roadmap')) {
       schema.genre = 'Project Planning';
@@ -356,7 +354,7 @@ class SchemaGenerator {
    * @param schema - Schema.org object
    * @returns HTML script tag
    */
-  static generateScriptTag(schema: BaseSchema): string {
+  static generateScriptTag(schema: BaseSchema | Record<string, unknown>): string {
     return `<script type="application/ld+json">\n${JSON.stringify(schema, null, 2)}\n</script>`;
   }
 
@@ -376,9 +374,9 @@ class SchemaGenerator {
    * @param options - Generation options
    * @returns Person schema object
    */
-  static generatePersonSchema(personData: PersonData, options: SchemaOptions = {}) {
+  static generatePersonSchema(personData: PersonData, options: SchemaOptions = {}): Record<string, unknown> {
     // Person data is already Schema.org compliant, just clean for public use
-    const { authentication, ...publicPerson } = personData;
+    const { authentication: _authentication, ...publicPerson } = personData;
     
     // Enhance with additional properties if needed
     if (!publicPerson.url && options.baseUrl) {
@@ -394,7 +392,7 @@ class SchemaGenerator {
    * @param options - Generation options
    * @returns Organization schema object
    */
-  static generateOrganizationSchema(organizationData: OrganizationData, options: SchemaOptions = {}) {
+  static generateOrganizationSchema(organizationData: OrganizationData, options: SchemaOptions = {}): Record<string, unknown> {
     // Organization data is already Schema.org compliant
     const organization = { ...organizationData };
     
@@ -467,7 +465,7 @@ class SchemaGenerator {
    * @param options - Generation options (must include engine)
    * @returns Array of DigitalDocumentPermission objects
    */
-  static generateDigitalDocumentPermissions(pageData: PageData, user: unknown, options: SchemaOptions = {}) {
+  static generateDigitalDocumentPermissions(pageData: PageData, user: unknown, options: SchemaOptions = {}): unknown[] {
     const permissions: unknown[] = [];
     const engine = options.engine;
     
@@ -500,7 +498,7 @@ class SchemaGenerator {
    * @param options - Generation options
    * @returns Array of DigitalDocumentPermission objects
    */
-  static generatePermissionsByContext(pageData: PageData, pageACL: ParsedACL | null, userManager: unknown, aclManager: unknown, options: SchemaOptions) {
+  static generatePermissionsByContext(pageData: PageData, pageACL: ParsedACL | null, userManager: unknown, _aclManager: unknown, options: SchemaOptions): unknown[] {
     const category = pageData.category || 'General';
     
     // If page has specific ACL, use ACL-based permissions
@@ -527,7 +525,7 @@ class SchemaGenerator {
    * @param options - Generation options
    * @returns Array of DigitalDocumentPermission objects
    */
-  static generateGeneralPagePermissions(pageData: PageData, userManager: unknown, options: SchemaOptions) {
+  static generateGeneralPagePermissions(_pageData: PageData, _userManager: unknown, _options: SchemaOptions): unknown[] {
     const permissions = [];
     
     // Default General page permissions
@@ -595,7 +593,7 @@ class SchemaGenerator {
    * @param options - Generation options
    * @returns Array of DigitalDocumentPermission objects
    */
-  static generateSystemPagePermissions(pageData: PageData, userManager: unknown, options: SchemaOptions) {
+  static generateSystemPagePermissions(_pageData: PageData, _userManager: unknown, _options: SchemaOptions): unknown[] {
     const permissions = [];
     
     // System pages: Read for all, admin-only for modifications
@@ -627,7 +625,7 @@ class SchemaGenerator {
    * @param options - Generation options
    * @returns Array of DigitalDocumentPermission objects
    */
-  static generateDocumentationPermissions(pageData: PageData, userManager: unknown, options: SchemaOptions) {
+  static generateDocumentationPermissions(_pageData: PageData, _userManager: unknown, _options: SchemaOptions): unknown[] {
     const permissions = [];
     
     permissions.push({
@@ -667,7 +665,7 @@ class SchemaGenerator {
    * @param options - Generation options
    * @returns Array of DigitalDocumentPermission objects
    */
-  static generateDeveloperPermissions(pageData: PageData, userManager: unknown, options: SchemaOptions) {
+  static generateDeveloperPermissions(_pageData: PageData, _userManager: unknown, _options: SchemaOptions): unknown[] {
     const permissions = [];
     
     permissions.push({
@@ -707,7 +705,7 @@ class SchemaGenerator {
    * @param options - Generation options
    * @returns Array of DigitalDocumentPermission objects
    */
-  static generateACLBasedPermissions(pageACL: ParsedACL, userManager: unknown, options: SchemaOptions) {
+  static generateACLBasedPermissions(pageACL: ParsedACL, userManager: unknown, _options: SchemaOptions): unknown[] {
     const permissions = [];
     
     // Map ACL actions to permission types
@@ -747,7 +745,7 @@ class SchemaGenerator {
    * @param userManager - UserManager instance
    * @returns Schema.org Person or Audience object
    */
-  static mapPrincipalToGrantee(principal: string, userManager: unknown) {
+  static mapPrincipalToGrantee(principal: string, userManager: unknown): { '@type': string; name?: string; audienceType?: string } | null {
     const p = principal.toLowerCase();
     
     // Handle special principals
@@ -784,8 +782,8 @@ class SchemaGenerator {
    * @param options - Generation options
    * @returns Array of schema objects
    */
-  static generateComprehensiveSchema(siteData: SiteData, options: SchemaOptions = {}) {
-    const schemas = [];
+  static generateComprehensiveSchema(siteData: SiteData, options: SchemaOptions = {}): (BaseSchema | Record<string, unknown>)[] {
+    const schemas: (BaseSchema | Record<string, unknown>)[] = [];
 
     // Add organizations (already Schema.org compliant)
     if (siteData.organizations) {

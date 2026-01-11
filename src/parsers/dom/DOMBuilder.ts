@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-enum-comparison -- Token.type is TokenType|string for extensibility */
 import { TokenType } from './Tokenizer';
 import WikiDocument, {
   LinkedomElement
@@ -80,8 +79,8 @@ export interface TokenMetadata {
  * Token interface
  */
 export interface Token {
-  /** Token type */
-  type: string;
+  /** Token type - can be TokenType enum or string for extensibility */
+  type: TokenType | string;
   /** Token value */
   value: string;
   /** Token metadata */
@@ -161,8 +160,8 @@ class DOMBuilder {
     for (let i = 0; i < tokens.length; i++) {
       const token = tokens[i];
 
-      // Skip EOF token
-      if (token.type === TokenType.EOF) {
+      // Skip EOF token (type can be TokenType enum or string for extensibility)
+      if ((token.type as TokenType) === TokenType.EOF) {
         break;
       }
 
@@ -184,7 +183,9 @@ class DOMBuilder {
    * @param token - Token to process
    */
   processToken(token: Token): void {
-    switch (token.type) {
+    // Cast token.type to TokenType for switch comparison
+    // (token.type is TokenType | string for extensibility)
+    switch (token.type as TokenType) {
     case TokenType.TEXT:
       this.handleText(token);
       break;
