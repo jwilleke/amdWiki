@@ -24,6 +24,38 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 
 ---
 
+## 2026-01-11-03
+
+- Agent: Claude Opus 4.5
+- Subject: Remove eslint-disable comments from RenderingManager.ts and UserManager.ts
+- Key Decision: Add typed interfaces for schema operations and session handling in UserManager
+- Current Issue: None
+- Testing:
+  - UserManager tests: 86 passed, 5 skipped
+  - RenderingManager tests: 86 passed, 5 skipped
+  - ESLint: 0 errors for both files
+  - TypeScript typecheck: passes
+- Work Done:
+  - RenderingManager.ts: Removed 5 eslint-disable comments
+    - Added explicit fs and path imports at module level
+    - Added type annotations to regex callback parameters (match, params, tableContent)
+    - Fixed getApplicationVersion() to use imported fs/path modules
+  - UserManager.ts: Removed 5 eslint-disable comments
+    - Added SchemaManagerWithPerson interface for Person-related methods
+    - Added SessionUser, SessionWithUser, and RequestWithUser types for Express session handling
+    - Changed UserProviderConstructor to return UserProvider instead of any
+    - Fixed all getManager() calls with proper type parameters
+    - Fixed createUserPage() to use correct applyTemplate() API
+    - Fixed savePage() call to use 3 arguments instead of 4
+    - Added type guards for optional provider methods
+- Commits: 52b7432
+- Files Modified:
+  - src/managers/RenderingManager.ts
+  - src/managers/UserManager.ts
+- Related Issues: #184, #139
+
+---
+
 ## 2026-01-11-02
 
 - Agent: Claude Opus 4.5
