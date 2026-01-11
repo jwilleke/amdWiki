@@ -1,11 +1,6 @@
 /**
  * RenderingManager - Handles markdown rendering and macro expansion
  */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
 
 import BaseManager from './BaseManager';
 import type ConfigurationManager from './ConfigurationManager';
@@ -27,6 +22,8 @@ import showdownFootnotes from '../extensions/showdown-footnotes-fixed';
 import { LinkParser } from '../parsers/LinkParser';
 import PageNameMatcher from '../utils/PageNameMatcher';
 import { WikiEngine } from '../types/WikiEngine';
+import fs from 'fs';
+import path from 'path';
 
 /**
  * Rendering configuration
@@ -467,7 +464,7 @@ class RenderingManager extends BaseManager {
     // Then process [{Table}] plugin syntax
     const tablePluginRegex = /\[\{Table\s+([^}]+)\}\]\s*\n((?:(?:\|\|?[^|\n]*)+\|?\s*\n?)+)/gi;
 
-    return content.replace(tablePluginRegex, (match, params, tableContent) => {
+    return content.replace(tablePluginRegex, (match: string, params: string, tableContent: string) => {
       // Parse parameters
       const tableParams = this.parseTableParameters(params);
 
@@ -493,7 +490,7 @@ class RenderingManager extends BaseManager {
     // Match %%table-striped ... /% syntax
     const stripedTableRegex = /%%table-striped\s*\n((?:(?:\|\|?[^|\n]*)+\|?\s*\n?)+)\s*\/%/gi;
 
-    return content.replace(stripedTableRegex, (match, tableContent) => {
+    return content.replace(stripedTableRegex, (match: string, tableContent: string) => {
       // Generate unique ID for this table
       const tableId = `table_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
 
@@ -617,9 +614,9 @@ class RenderingManager extends BaseManager {
     // Find table metadata comments and apply styling
     const metadataRegex = /<!--\s*TABLE_METADATA:(.*?)\s*-->\s*<table>/g;
 
-    return html.replace(metadataRegex, (match, metadataJson) => {
+    return html.replace(metadataRegex, (match: string, metadataJson: string) => {
       try {
-        const metadata = JSON.parse(metadataJson);
+        const metadata = JSON.parse(metadataJson) as TableParams & { id: string; isStriped?: boolean };
         return this.generateStyledTable(metadata);
       } catch (e) {
         logger.error('Error parsing table metadata:', e);
@@ -915,15 +912,10 @@ class RenderingManager extends BaseManager {
    */
   getApplicationVersion(): string {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const fs = require('fs');
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const path = require('path');
-
       const packageJsonPath = path.join(process.cwd(), 'package.json');
 
       if (fs.existsSync(packageJsonPath)) {
-        const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+        const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8')) as { version?: string };
 
         return packageJson.version || '1.0.0';
       }
@@ -1041,7 +1033,7 @@ class RenderingManager extends BaseManager {
 
       // Process wiki links with extended pipe syntax [DisplayText|Target|Parameters] and simple links [PageName]
       // Use negative lookahead to avoid matching markdown links [text](url)
-      return content.replace(/\[([a-zA-Z0-9_\- ]+)(?:\|([a-zA-Z0-9_\- .:?=&]+))?(?:\|([^|\]]+))?\](?!\()/g, (match, displayText, target, params) => {
+      return content.replace(/\[([a-zA-Z0-9_\- ]+)(?:\|([a-zA-Z0-9_\- .:?=&]+))?(?:\|([^|\]]+))?\](?!\()/g, (match: string, displayText: string, target: string | undefined, params: string | undefined) => {
         // Parse parameters if provided
         let linkAttributes = '';
         if (params) {

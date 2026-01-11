@@ -1,35 +1,61 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import BaseManager, { BackupData } from './BaseManager';
 
 import crypto from 'crypto';
 import logger from '../utils/logger';
 import LocaleUtils from '../utils/LocaleUtils';
 import { WikiEngine } from '../types/WikiEngine';
-import { UserProvider } from '../types/Provider';
+import { UserProvider, ProviderInfo } from '../types/Provider';
 import { User, Role, UserPreferences, UserSession } from '../types/User';
 import type ConfigurationManager from './ConfigurationManager';
+import type SchemaManager from './SchemaManager';
+import type PolicyEvaluator from './PolicyEvaluator';
+import type PolicyManager from './PolicyManager';
+import type PageManager from './PageManager';
+import type TemplateManager from './TemplateManager';
+import type ValidationManager from './ValidationManager';
 import type { Request, Response, NextFunction } from 'express';
-
-/**
- * Provider information returned by getProviderInfo()
- */
-interface ProviderInfo {
-  name: string;
-  version: string;
-  features?: string[];
-}
 
 /**
  * Provider constructor type for dynamic loading
  */
 interface UserProviderConstructor {
-  new (engine: WikiEngine): any;
+  new (engine: WikiEngine): UserProvider;
 }
+
+/**
+ * Extended SchemaManager with Person-related methods
+ * These methods are dynamically added and may not exist in base SchemaManager
+ */
+interface SchemaManagerWithPerson extends SchemaManager {
+  createPerson?(personData: Record<string, unknown>): Promise<void>;
+  updatePerson?(identifier: string, updateData: Record<string, unknown>): Promise<void>;
+  deletePerson?(identifier: string): Promise<void>;
+}
+
+/**
+ * Session user data structure
+ */
+interface SessionUser {
+  username: string;
+  isAuthenticated: boolean;
+}
+
+/**
+ * Express session with user data
+ */
+interface SessionWithUser {
+  user?: SessionUser;
+  username?: string;
+  [key: string]: unknown;
+}
+
+/**
+ * Express request with user context (using type intersection to avoid extends conflict)
+ */
+type RequestWithUser = Request & {
+  user?: SessionUser;
+  session?: SessionWithUser;
+};
 
 /**
  * User creation input data
@@ -309,9 +335,13 @@ class UserManager extends BaseManager {
     if (!this.provider) {
       throw new Error('Provider not initialized');
     }
-    // Provider classes have getProviderInfo() method
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    return (this.provider as any).getProviderInfo();
+    if (this.provider.getProviderInfo) {
+      return this.provider.getProviderInfo();
+    }
+    return {
+      name: 'UnknownProvider',
+      version: '1.0.0'
+    };
   }
 
   /**
@@ -387,10 +417,10 @@ class UserManager extends BaseManager {
 
     // Sync default admin to Schema.org data
     try {
-      const schemaManager = this.engine.getManager('SchemaManager');
+      const schemaManager = this.engine.getManager<SchemaManager>('SchemaManager') as SchemaManagerWithPerson | null;
 
       if (schemaManager && schemaManager.isInitialized()) {
-        const personData: any = {
+        const personData: Record<string, unknown> = {
           '@context': 'https://schema.org',
           '@type': 'Person',
           identifier: 'admin',
@@ -434,7 +464,7 @@ class UserManager extends BaseManager {
           }
         };
 
-        await schemaManager.createPerson(personData);
+        await schemaManager.createPerson?.(personData);
         logger.info('📋 Synced default admin to Schema.org data');
       }
     } catch (error) {
@@ -536,7 +566,7 @@ class UserManager extends BaseManager {
    * @returns {Promise<boolean>} True if user has permission via policies
    */
   async hasPermission(username: string, action: string): Promise<boolean> {
-    const policyEvaluator = this.engine?.getManager('PolicyEvaluator');
+    const policyEvaluator = this.engine?.getManager<PolicyEvaluator>('PolicyEvaluator');
     if (!policyEvaluator) {
       logger.warn('[UserManager] PolicyEvaluator not available, denying permission');
       return false;
@@ -573,14 +603,12 @@ class UserManager extends BaseManager {
     }
 
     // Evaluate using policies - use generic page resource for permission checks
-
     const result = await policyEvaluator.evaluateAccess({
       pageName: '*', // Generic - checking user capability, not specific page
       action: action,
-      userContext: userContext
-    });
+      userContext: userContext as unknown as { username: string; roles: string[]; isAuthenticated: boolean }
+    }) as { allowed: boolean };
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return result.allowed;
   }
 
@@ -591,8 +619,7 @@ class UserManager extends BaseManager {
    */
   async getUserPermissions(username: string): Promise<string[]> {
     // Query PolicyManager for actual permissions
-
-    const policyManager = this.engine.getManager('PolicyManager');
+    const policyManager = this.engine.getManager<PolicyManager>('PolicyManager');
     if (!policyManager) {
       logger.warn('PolicyManager not available, returning empty permissions');
       return [];
@@ -632,15 +659,23 @@ class UserManager extends BaseManager {
    * @returns {string[]} Array of permission strings
    */
 
-  private getPermissionsFromPolicies(policyManager: any, userRoles: string[]): string[] {
-    const policies = policyManager.getAllPolicies();
+  private getPermissionsFromPolicies(policyManager: PolicyManager, userRoles: string[]): string[] {
+    interface PolicySubject {
+      type: string;
+      value: string;
+    }
+    interface Policy {
+      effect: string;
+      subjects: PolicySubject[];
+      actions: string[];
+    }
+    const policies = policyManager.getAllPolicies() as unknown as Policy[];
     const permissions = new Set<string>();
 
     // Collect permissions from all matching allow policies
-
     for (const policy of policies) {
       if (policy.effect === 'allow') {
-        const hasMatchingRole = policy.subjects.some((subject: any) => subject.type === 'role' && userRoles.includes(subject.value));
+        const hasMatchingRole = policy.subjects.some((subject: PolicySubject) => subject.type === 'role' && userRoles.includes(subject.value));
 
         if (hasMatchingRole) {
           policy.actions.forEach((action: string) => permissions.add(action));
@@ -671,13 +706,12 @@ class UserManager extends BaseManager {
         }
       }
 
-      const pageManager = this.engine.getManager('PageManager');
+      const pageManager = this.engine.getManager<PageManager>('PageManager');
       if (!pageManager) {
         return false; // If no page manager, no conflict possible
       }
 
       // Check if page exists with this name (as title, slug, or exact match)
-
       const existingPage = await pageManager.getPage(displayName);
       return existingPage !== null;
     } catch (error) {
@@ -693,33 +727,28 @@ class UserManager extends BaseManager {
    */
   async createUserPage(user: User): Promise<boolean> {
     try {
-      const pageManager = this.engine.getManager('PageManager');
+      const pageManager = this.engine.getManager<PageManager>('PageManager');
       if (!pageManager) {
         logger.warn('PageManager not available, cannot create user page');
         return false;
       }
 
-      const templateManager = this.engine.getManager('TemplateManager');
+      const templateManager = this.engine.getManager<TemplateManager>('TemplateManager');
       if (!templateManager) {
         logger.warn('TemplateManager not available, cannot create user page');
         return false;
       }
 
       // Check if user page already exists
-
       const existingPage = await pageManager.getPage(user.displayName);
       if (existingPage) {
         logger.info(`User page already exists for ${user.displayName}`);
         return true;
       }
 
-      // Get user page template
-
-      const templateContent = await templateManager.getTemplate('user-page');
-
-      // Populate template with user data
-
-      const populatedContent = await templateManager.populateTemplate(templateContent, {
+      // Apply user page template with user data
+      const populatedContent = templateManager.applyTemplate('user-page', {
+        pageName: user.displayName,
         displayName: user.displayName,
         username: user.username,
         createdDate: new Date(user.createdAt).toLocaleDateString(),
@@ -727,8 +756,11 @@ class UserManager extends BaseManager {
       });
 
       // Generate metadata for the user page
-
-      const validationManager = this.engine.getManager('ValidationManager');
+      const validationManager = this.engine.getManager<ValidationManager>('ValidationManager');
+      if (!validationManager) {
+        logger.warn('ValidationManager not available, cannot create user page');
+        return false;
+      }
 
       const metadata = validationManager.generateValidMetadata(user.displayName, {
         'user-keywords': ['user-page', user.displayName.toLowerCase().replace(/\s+/g, '-')],
@@ -738,16 +770,9 @@ class UserManager extends BaseManager {
       });
 
       // Save the user page
-
-      const result = await pageManager.savePage(user.displayName, populatedContent, metadata, user);
-
-      if (result.success) {
-        logger.info(`✅ Created user page for ${user.displayName}`);
-        return true;
-      } else {
-        logger.error(`❌ Failed to create user page for ${user.displayName}:`, result.error);
-        return false;
-      }
+      await pageManager.savePage(user.displayName, populatedContent, metadata);
+      logger.info(`✅ Created user page for ${user.displayName}`);
+      return true;
     } catch (error) {
       logger.error(`❌ Error creating user page for ${user.displayName}:`, error);
       return false;
@@ -811,10 +836,10 @@ class UserManager extends BaseManager {
 
     // Schema.org sync
     try {
-      const schemaManager = this.engine.getManager('SchemaManager');
+      const schemaManager = this.engine.getManager<SchemaManager>('SchemaManager') as SchemaManagerWithPerson | null;
 
       if (schemaManager && schemaManager.isInitialized()) {
-        const personData: any = {
+        const personData: Record<string, unknown> = {
           '@context': 'https://schema.org',
           '@type': 'Person',
           identifier: username,
@@ -836,7 +861,7 @@ class UserManager extends BaseManager {
           contactPoint: { '@type': 'ContactPoint', contactType: 'Account', availableLanguage: ['English'], email: user.email }
         };
 
-        await schemaManager.createPerson(personData);
+        await schemaManager.createPerson?.(personData);
         logger.info(`📋 Synced user ${username} to Schema.org data`);
       }
     } catch (error) {
@@ -880,10 +905,10 @@ class UserManager extends BaseManager {
 
     // Schema.org sync
     try {
-      const schemaManager = this.engine.getManager('SchemaManager');
+      const schemaManager = this.engine.getManager<SchemaManager>('SchemaManager') as SchemaManagerWithPerson | null;
 
       if (schemaManager && schemaManager.isInitialized()) {
-        const updateData: any = {};
+        const updateData: Record<string, unknown> = {};
         if (updates.displayName) updateData.name = updates.displayName;
         if (updates.email) {
           updateData.email = updates.email;
@@ -903,8 +928,7 @@ class UserManager extends BaseManager {
         }
         if (Object.keys(updateData).length > 0) {
           updateData.lastReviewed = new Date().toISOString();
-
-          await schemaManager.updatePerson(username, updateData);
+          await schemaManager.updatePerson?.(username, updateData);
         }
       }
     } catch (error) {
@@ -934,9 +958,9 @@ class UserManager extends BaseManager {
     await this.provider.deleteUser(username);
 
     try {
-      const schemaManager = this.engine.getManager('SchemaManager');
+      const schemaManager = this.engine.getManager<SchemaManager>('SchemaManager') as SchemaManagerWithPerson | null;
 
-      if (schemaManager && schemaManager.isInitialized() && typeof schemaManager.deletePerson === 'function') {
+      if (schemaManager && schemaManager.isInitialized() && schemaManager.deletePerson) {
         await schemaManager.deletePerson(username);
       }
     } catch (error) {
@@ -1003,8 +1027,9 @@ class UserManager extends BaseManager {
       return this.getAnonymousUser();
     }
 
-    if ((req as any).session && (req as any).session.user && (req as any).session.user.isAuthenticated) {
-      const userFromSession = (req as any).session.user;
+    const reqWithUser = req as RequestWithUser;
+    if (reqWithUser.session?.user && reqWithUser.session.user.isAuthenticated) {
+      const userFromSession = reqWithUser.session.user;
       const freshUser = await this.provider.getUser(userFromSession.username);
       if (!freshUser || !freshUser.isActive) {
         return this.getAnonymousUser();
@@ -1027,7 +1052,8 @@ class UserManager extends BaseManager {
   }
 
   ensureAuthenticated(req: Request, res: Response, next: NextFunction): void {
-    const user = (req as any).user;
+    const reqWithUser = req as RequestWithUser;
+    const user = reqWithUser.user;
 
     if (!user || !user.isAuthenticated) {
       res.status(401).json({ error: 'Unauthorized' });
@@ -1038,7 +1064,8 @@ class UserManager extends BaseManager {
 
   requirePermissions(requiredPermissions: string[] = []) {
     return (req: Request, res: Response, next: NextFunction): void => {
-      const user = (req as any).user;
+      const reqWithUser = req as RequestWithUser;
+      const user = reqWithUser.user;
       if (!user || !user.isAuthenticated) {
         res.status(401).json({ error: 'Unauthorized' });
         return;
@@ -1149,7 +1176,7 @@ class UserManager extends BaseManager {
       createdAt: now,
       expiresAt,
       lastActivity: now,
-      data: additionalData as Record<string, any>
+      data: additionalData
     };
     await this.provider.createSession(sessionId, sessionData);
     return sessionId;
@@ -1197,7 +1224,10 @@ class UserManager extends BaseManager {
     }
 
     try {
-      const providerBackup = await (this.provider as any).backup();
+      let providerBackup: Record<string, unknown> | null = null;
+      if (this.provider.backup) {
+        providerBackup = await this.provider.backup();
+      }
       return {
         managerName: 'UserManager',
         timestamp: new Date().toISOString(),
@@ -1224,11 +1254,11 @@ class UserManager extends BaseManager {
     }
 
     try {
-      if (backupData.providerBackup) {
-        await (this.provider as any).restore(backupData.providerBackup);
+      if (backupData.providerBackup && this.provider.restore) {
+        await this.provider.restore(backupData.providerBackup as Record<string, unknown>);
         logger.info('[UserManager] Restore completed successfully');
       } else {
-        logger.warn('[UserManager] No provider backup data found in backup');
+        logger.warn('[UserManager] No provider backup data found in backup or provider does not support restore');
       }
     } catch (error) {
       logger.error('[UserManager] Restore failed:', error);
