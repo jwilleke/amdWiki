@@ -24,6 +24,39 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 
 ---
 
+## 2026-01-11-05
+
+- Agent: Claude Opus 4.5
+- Subject: Fix CI test failures (#180)
+- Key Decision: Tests must use mocked logger instead of console.* spies
+- Current Issue: None - all tests pass
+- Testing:
+  - npm test: 58 suites passed, 1380 tests passed
+  - All CI failures resolved
+- Work Done:
+  - Fixed logger vs console.* mismatch in 6 test files:
+    - DOMPluginHandler.test.js: Added logger mock, fixed 4 tests (warn/error)
+    - DOMLinkHandler.test.js: Added logger mock, fixed 5 tests (warn)
+    - DOMVariableHandler.test.js: Added logger mock, fixed 4 tests (warn/error)
+    - HandlerRegistry.test.js: Added logger mock, fixed 1 test (error)
+    - DOMParser.test.js: Added logger mock, fixed 2 tests (debug mode)
+  - Fixed MarkupParser.ts: Added missing `metrics.cacheStrategies = cacheStrategies;`
+  - Fixed AllPlugins.test.js: Updated test to reflect PluginManager's engine behavior
+  - Closed issues: #180 (CI failures), #204 (WikiRoutes.ts @ts-nocheck)
+  - Updated issue #147 (strict mode status)
+- Commits: 893bd6c
+- Files Modified:
+  - plugins/__tests__/AllPlugins.test.js
+  - src/parsers/MarkupParser.ts
+  - src/parsers/dom/__tests__/DOMParser.test.js
+  - src/parsers/dom/handlers/__tests__/DOMLinkHandler.test.js
+  - src/parsers/dom/handlers/__tests__/DOMPluginHandler.test.js
+  - src/parsers/dom/handlers/__tests__/DOMVariableHandler.test.js
+  - src/parsers/handlers/__tests__/HandlerRegistry.test.js
+- Related Issues: #180, #204, #147
+
+---
+
 ## 2026-01-11-04
 
 - Agent: Claude Opus 4.5
