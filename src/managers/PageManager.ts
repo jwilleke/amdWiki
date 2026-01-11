@@ -1,12 +1,7 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-
 import BaseManager, { BackupData } from './BaseManager';
 import logger from '../utils/logger';
 import { WikiEngine } from '../types/WikiEngine';
-import { PageProvider } from '../types/Provider';
+import { PageProvider, ProviderInfo } from '../types/Provider';
 import { WikiPage, PageFrontmatter } from '../types/Page';
 import type ConfigurationManager from './ConfigurationManager';
 
@@ -23,19 +18,10 @@ interface WikiContext {
 }
 
 /**
- * Provider information returned by getProviderInfo()
- */
-interface ProviderInfo {
-  name: string;
-  version: string;
-  features?: string[];
-}
-
-/**
  * Provider constructor type for dynamic loading
  */
 interface ProviderConstructor {
-  new (engine: WikiEngine): any;
+  new (engine: WikiEngine): PageProvider;
 }
 
 /**
@@ -146,9 +132,13 @@ class PageManager extends BaseManager {
     if (!this.provider) {
       throw new Error('Provider not initialized');
     }
-    // Provider classes have getProviderInfo() method
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    return (this.provider as any).getProviderInfo();
+    if (this.provider.getProviderInfo) {
+      return this.provider.getProviderInfo();
+    }
+    return {
+      name: 'UnknownProvider',
+      version: '1.0.0'
+    };
   }
 
   /**
@@ -477,9 +467,10 @@ class PageManager extends BaseManager {
     }
 
     try {
-      // Providers have backup() method
-
-      const providerBackup = await (this.provider as any).backup();
+      let providerBackup: Record<string, unknown> | null = null;
+      if (this.provider.backup) {
+        providerBackup = await this.provider.backup();
+      }
 
       return {
         managerName: 'PageManager',
@@ -519,13 +510,11 @@ class PageManager extends BaseManager {
     }
 
     try {
-      if (backupData.providerBackup) {
-        // Providers have restore() method
-
-        await (this.provider as any).restore(backupData.providerBackup);
+      if (backupData.providerBackup && this.provider.restore) {
+        await this.provider.restore(backupData.providerBackup as Record<string, unknown>);
         logger.info('[PageManager] Restore completed successfully');
       } else {
-        logger.warn('[PageManager] No provider backup data found in backup');
+        logger.warn('[PageManager] No provider backup data found in backup or provider does not support restore');
       }
     } catch (error) {
       logger.error('[PageManager] Restore failed:', error);

@@ -11,6 +11,23 @@ import { User, UserCreateData, UserUpdateData, UserSession } from './User';
 import { WikiEngine } from './WikiEngine';
 
 /**
+ * Provider information returned by getProviderInfo()
+ */
+export interface ProviderInfo {
+  /** Provider name */
+  name: string;
+
+  /** Provider version */
+  version: string;
+
+  /** Provider description */
+  description?: string;
+
+  /** Provider features */
+  features?: string[];
+}
+
+/**
  * Base provider interface
  *
  * All providers must implement this interface.
@@ -33,6 +50,25 @@ export interface BaseProvider {
    * @returns Promise that resolves when shutdown is complete
    */
   shutdown?(): Promise<void>;
+
+  /**
+   * Get provider information
+   * @returns Provider metadata
+   */
+  getProviderInfo?(): ProviderInfo;
+
+  /**
+   * Backup provider data
+   * @returns Promise resolving to backup data
+   */
+  backup?(): Promise<Record<string, unknown>>;
+
+  /**
+   * Restore provider data from backup
+   * @param backupData - Backup data from backup() method
+   * @returns Promise that resolves when restore is complete
+   */
+  restore?(backupData: Record<string, unknown>): Promise<void>;
 }
 
 /**

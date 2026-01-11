@@ -271,12 +271,14 @@ describe('PageManager', () => {
       expect(pageManager.provider.restore).toHaveBeenCalledWith(providerBackup);
     });
 
-    test('backup() should throw if provider lacks backup method', async () => {
+    test('backup() should return null providerBackup if provider lacks backup method', async () => {
       // Remove backup method from provider
       delete pageManager.provider.backup;
 
-      // Should throw TypeError when trying to call undefined method
-      await expect(pageManager.backup()).rejects.toThrow();
+      // Should return result with null providerBackup when provider lacks backup method
+      const result = await pageManager.backup();
+      expect(result.managerName).toBe('PageManager');
+      expect(result.providerBackup).toBeNull();
     });
   });
 
