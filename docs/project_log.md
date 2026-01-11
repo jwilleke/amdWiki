@@ -24,6 +24,42 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 
 ---
 
+## 2026-01-11-01
+
+- Agent: Claude Opus 4.5
+- Subject: Remove @ts-nocheck from WikiRoutes.ts (#204)
+- Current Issue: [#204](https://github.com/jwilleke/amdWiki/issues/204) - Convert WikiRoutes.ts to proper TypeScript
+- Related: [#202](https://github.com/jwilleke/amdWiki/issues/202) - TypeScript ESLint Cleanup
+- Key Decision: Keep documented file-level disables for getManager() returns (typing 23+ managers would be massive undertaking)
+- Testing:
+  - npm run typecheck: passes
+  - npm run eslint src/routes/WikiRoutes.ts: passes (0 errors, 0 warnings)
+  - WikiRoutes tests: 80 passed
+- Work Done:
+  - WikiRoutes.ts (~5600 lines): Removed @ts-nocheck directive
+  - Fixed infinite recursion bug in getErrorMessage() - was causing test failures
+  - Fixed ~60+ TypeScript errors:
+    - Added proper callback parameter types
+    - Added type assertions for query parameters (req.query.x as string)
+    - Added types for route handler signatures
+    - Fixed readonly property assignments with type assertions
+    - Removed async from methods that don't await
+    - Added Application import from Express
+  - Fixed ~41 ESLint errors:
+    - Fixed unused variables with underscore prefix
+    - Added documented inline disables for legitimate any usages (Express internals)
+    - Added inline disables for dynamic require() calls
+    - Fixed await of non-Promise values
+  - Retained documented file-level disables (all with explanations):
+    - 5 unsafe-* rules (due to getManager returning any)
+    - explicit-function-return-type (TODO item)
+- Progress: Removed @ts-nocheck from largest file in codebase
+- Commits: e5b4321
+- Files Modified:
+  - src/routes/WikiRoutes.ts
+
+---
+
 ## 2026-01-10-08
 
 - Agent: Claude Opus 4.5
