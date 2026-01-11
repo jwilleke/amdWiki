@@ -24,6 +24,34 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 
 ---
 
+## 2026-01-11-04
+
+- Agent: Claude Opus 4.5
+- Subject: Remove eslint-disable comments from DOMBuilder.ts and SchemaGenerator.ts
+- Key Decision: Use type assertions for enum comparisons; prefix unused params with underscore
+- Current Issue: None
+- Testing:
+  - DOMBuilder tests: 43 passed
+  - SchemaGenerator tests: 43 passed
+  - ESLint: 0 errors for both files
+  - TypeScript typecheck: passes
+- Work Done:
+  - DOMBuilder.ts: Removed file-level eslint-disable for no-unsafe-enum-comparison
+    - Changed Token.type from `string` to `TokenType | string` for type-safe enum comparison
+    - Added type assertions in switch statement: `switch (token.type as TokenType)`
+  - SchemaGenerator.ts: Removed file-level eslint-disable for no-unused-vars
+    - Prefixed 16 unused parameters with underscore (_pageData,_userManager, _options, etc.)
+    - Added explicit return types to 11 methods
+    - Updated generateScriptTag to accept `BaseSchema | Record<string, unknown>`
+    - Updated generateComprehensiveSchema return type to `(BaseSchema | Record<string, unknown>)[]`
+- Commits: 17dd2af
+- Files Modified:
+  - src/parsers/dom/DOMBuilder.ts
+  - src/utils/SchemaGenerator.ts
+- Related Issues: #184, #139
+
+---
+
 ## 2026-01-11-03
 
 - Agent: Claude Opus 4.5
