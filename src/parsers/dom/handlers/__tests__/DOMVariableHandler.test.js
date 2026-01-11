@@ -5,6 +5,15 @@
  * Part of Phase 3 of WikiDocument DOM Migration (GitHub Issue #93)
  */
 
+// Mock logger to capture warnings
+jest.mock('../../../../utils/logger', () => ({
+  info: jest.fn(),
+  warn: jest.fn(),
+  error: jest.fn(),
+  debug: jest.fn()
+}));
+
+const logger = require('../../../../utils/logger');
 const DOMVariableHandler = require('../DOMVariableHandler');
 const WikiDocument = require('../../WikiDocument');
 const { DOMParser } = require('../../DOMParser');
@@ -69,7 +78,7 @@ describe('DOMVariableHandler', () => {
     });
 
     test('warns if VariableManager not available during processing', async () => {
-      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+      logger.warn.mockClear();
 
       const badEngine = {
         getManager: jest.fn(() => null)
@@ -80,11 +89,9 @@ describe('DOMVariableHandler', () => {
 
       await badHandler.processVariables(wikiDoc, {});
 
-      expect(consoleSpy).toHaveBeenCalledWith(
+      expect(logger.warn).toHaveBeenCalledWith(
         expect.stringContaining('VariableManager')
       );
-
-      consoleSpy.mockRestore();
     });
   });
 
@@ -166,33 +173,29 @@ describe('DOMVariableHandler', () => {
     test('handles unknown variables gracefully', async () => {
       const wikiDoc = parser.parse('Value: [{$unknown}]', {});
 
-      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+      logger.warn.mockClear();
 
       await handler.processVariables(wikiDoc, {});
 
       const html = wikiDoc.toHTML();
       expect(html).toContain('{$unknown}'); // Original variable name preserved
 
-      expect(consoleSpy).toHaveBeenCalledWith(
+      expect(logger.warn).toHaveBeenCalledWith(
         expect.stringContaining('Variable not found: unknown')
       );
-
-      consoleSpy.mockRestore();
     });
 
     test('handles variable resolution errors', async () => {
       const wikiDoc = parser.parse('Error: [{$error}]', {});
 
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+      logger.error.mockClear();
 
       await handler.processVariables(wikiDoc, {});
 
       const html = wikiDoc.toHTML();
       expect(html).toContain('[Error:');
 
-      expect(consoleSpy).toHaveBeenCalled();
-
-      consoleSpy.mockRestore();
+      expect(logger.error).toHaveBeenCalled();
     });
 
     test('returns unchanged document if no variables', async () => {
@@ -213,12 +216,11 @@ describe('DOMVariableHandler', () => {
       const badHandler = new DOMVariableHandler(badEngine);
 
       const wikiDoc = parser.parse('[{$username}]', {});
-      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+      logger.warn.mockClear();
 
       await badHandler.processVariables(wikiDoc, {});
 
-      expect(consoleSpy).toHaveBeenCalled();
-      consoleSpy.mockRestore();
+      expect(logger.warn).toHaveBeenCalled();
     });
 
     test('processes variables in different contexts', async () => {

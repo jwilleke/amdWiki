@@ -1494,6 +1494,7 @@ class MarkupParser extends BaseManager {
         total: total
       };
     });
+    metrics.cacheStrategies = cacheStrategies;
 
     // Add performance monitoring data
     if (this.performanceMonitor) {

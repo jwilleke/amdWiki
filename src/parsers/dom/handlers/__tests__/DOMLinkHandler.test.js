@@ -5,6 +5,15 @@
  * Part of Phase 5 of WikiDocument DOM Migration (GitHub Issue #108)
  */
 
+// Mock logger to capture warnings
+jest.mock('../../../../utils/logger', () => ({
+  info: jest.fn(),
+  warn: jest.fn(),
+  error: jest.fn(),
+  debug: jest.fn()
+}));
+
+const logger = require('../../../../utils/logger');
 const DOMLinkHandler = require('../DOMLinkHandler');
 const WikiDocument = require('../../WikiDocument');
 const { DOMParser } = require('../../DOMParser');
@@ -67,7 +76,7 @@ describe('DOMLinkHandler', () => {
     });
 
     test('warns if PageManager not available', async () => {
-      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+      logger.warn.mockClear();
 
       const badEngine = {
         getManager: jest.fn(() => null)
@@ -76,11 +85,9 @@ describe('DOMLinkHandler', () => {
       const badHandler = new DOMLinkHandler(badEngine);
       await badHandler.initialize();
 
-      expect(consoleSpy).toHaveBeenCalledWith(
+      expect(logger.warn).toHaveBeenCalledWith(
         expect.stringContaining('PageManager not available')
       );
-
-      consoleSpy.mockRestore();
     });
 
     test('loads InterWiki sites configuration', async () => {
@@ -201,15 +208,14 @@ describe('DOMLinkHandler', () => {
       const originalLinkParser = handler.linkParser;
       handler.linkParser = null;
 
-      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+      logger.warn.mockClear();
 
       await handler.processLinks(wikiDoc, {});
 
-      expect(consoleSpy).toHaveBeenCalledWith(
+      expect(logger.warn).toHaveBeenCalledWith(
         expect.stringContaining('Cannot process links')
       );
 
-      consoleSpy.mockRestore();
       handler.linkParser = originalLinkParser;
     });
   });
@@ -410,15 +416,13 @@ describe('DOMLinkHandler', () => {
     test('warns on unknown InterWiki site', async () => {
       const wikiDoc = parser.parse('[Unknown|UnknownWiki:Page]', {});
 
-      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+      logger.warn.mockClear();
 
       await handler.processLinks(wikiDoc, { pageName: 'TestPage' });
 
-      expect(consoleSpy).toHaveBeenCalledWith(
+      expect(logger.warn).toHaveBeenCalledWith(
         expect.stringContaining('Unknown InterWiki site')
       );
-
-      consoleSpy.mockRestore();
     });
   });
 
@@ -444,15 +448,13 @@ describe('DOMLinkHandler', () => {
       const linkElement = wikiDoc.querySelectorAll('a.wiki-link')[0];
       linkElement.removeAttribute('data-wiki-link');
 
-      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+      logger.warn.mockClear();
 
       await handler.processLinks(wikiDoc, {});
 
-      expect(consoleSpy).toHaveBeenCalledWith(
+      expect(logger.warn).toHaveBeenCalledWith(
         expect.stringContaining('missing data-wiki-link attribute')
       );
-
-      consoleSpy.mockRestore();
     });
 
     test('handles invalid InterWiki format', async () => {
@@ -463,15 +465,11 @@ describe('DOMLinkHandler', () => {
       const linkElement = wikiDoc.querySelectorAll('a.wiki-link')[0];
       linkElement.setAttribute('data-wiki-link', 'WikiWithoutColon');
 
-      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
-
       await handler.processLinks(wikiDoc, {});
 
       // Should process as internal link (fallback behavior)
       const html = wikiDoc.toHTML();
       expect(html).toContain('redlink'); // Non-existing internal page
-
-      consoleSpy.mockRestore();
     });
   });
 });

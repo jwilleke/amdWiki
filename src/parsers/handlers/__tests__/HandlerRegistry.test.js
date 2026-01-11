@@ -1,6 +1,16 @@
 const { HandlerRegistry, HandlerRegistrationError } = require('../HandlerRegistry');
 const { BaseSyntaxHandler } = require('../BaseSyntaxHandler');
 
+// Mock logger to capture error logs
+jest.mock('../../../utils/logger', () => ({
+  info: jest.fn(),
+  warn: jest.fn(),
+  error: jest.fn(),
+  debug: jest.fn()
+}));
+
+const logger = require('../../../utils/logger');
+
 // Test handler implementations
 class TestHandler extends BaseSyntaxHandler {
   constructor(id = 'TestHandler', priority = 100, pattern = null) {
@@ -346,8 +356,8 @@ describe('HandlerRegistry', () => {
         async handle() { return ''; }
       }
 
-      // Capture console.error to verify circular dependency is detected
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      // Clear any previous logger calls
+      logger.error.mockClear();
 
       await registry.registerHandler(new CircularHandler1());
       await registry.registerHandler(new CircularHandler2());
@@ -357,10 +367,8 @@ describe('HandlerRegistry', () => {
 
       // Handlers with circular dependencies are excluded from execution order
       expect(executionOrder).toHaveLength(0);
-      // Circular dependency error should be logged
-      expect(consoleErrorSpy).toHaveBeenCalled();
-
-      consoleErrorSpy.mockRestore();
+      // Circular dependency error should be logged via logger
+      expect(logger.error).toHaveBeenCalled();
     });
 
     test('should validate dependencies', async () => {

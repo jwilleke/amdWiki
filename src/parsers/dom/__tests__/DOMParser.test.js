@@ -3,6 +3,15 @@
  * Tests the complete parsing pipeline from wiki markup to WikiDocument
  */
 
+// Mock logger to capture debug output
+jest.mock('../../../utils/logger', () => ({
+  info: jest.fn(),
+  warn: jest.fn(),
+  error: jest.fn(),
+  debug: jest.fn()
+}));
+
+const logger = require('../../../utils/logger');
 const { DOMParser, ParseError } = require('../DOMParser');
 const WikiDocument = require('../WikiDocument');
 
@@ -421,27 +430,24 @@ function hello() {
 
   describe('Debug mode', () => {
     test('does not log in non-debug mode', () => {
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+      logger.debug.mockClear();
 
       const normalParser = new DOMParser({ debug: false });
       normalParser.parse('Test');
 
-      expect(consoleSpy).not.toHaveBeenCalled();
-      consoleSpy.mockRestore();
+      expect(logger.debug).not.toHaveBeenCalled();
     });
 
     test('logs in debug mode', () => {
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+      logger.debug.mockClear();
 
       const debugParser = new DOMParser({ debug: true });
       debugParser.parse('Test');
 
-      expect(consoleSpy).toHaveBeenCalled();
-      expect(consoleSpy.mock.calls.some(call =>
+      expect(logger.debug).toHaveBeenCalled();
+      expect(logger.debug.mock.calls.some(call =>
         call[0].includes('[DOMParser]')
       )).toBe(true);
-
-      consoleSpy.mockRestore();
     });
   });
 

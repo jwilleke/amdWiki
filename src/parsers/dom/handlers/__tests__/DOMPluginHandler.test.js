@@ -5,6 +5,15 @@
  * Part of Phase 4 of WikiDocument DOM Migration (GitHub Issue #107)
  */
 
+// Mock logger to capture warnings
+jest.mock('../../../../utils/logger', () => ({
+  info: jest.fn(),
+  warn: jest.fn(),
+  error: jest.fn(),
+  debug: jest.fn()
+}));
+
+const logger = require('../../../../utils/logger');
 const DOMPluginHandler = require('../DOMPluginHandler');
 const WikiDocument = require('../../WikiDocument');
 const { DOMParser } = require('../../DOMParser');
@@ -82,7 +91,7 @@ describe('DOMPluginHandler', () => {
     });
 
     test('warns if PluginManager not available during processing', async () => {
-      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+      logger.warn.mockClear();
 
       const badEngine = {
         getManager: jest.fn(() => null)
@@ -93,11 +102,9 @@ describe('DOMPluginHandler', () => {
 
       await badHandler.processPlugins(wikiDoc, {});
 
-      expect(consoleSpy).toHaveBeenCalledWith(
+      expect(logger.warn).toHaveBeenCalledWith(
         expect.stringContaining('PluginManager')
       );
-
-      consoleSpy.mockRestore();
     });
   });
 
@@ -293,29 +300,26 @@ describe('DOMPluginHandler', () => {
     test('handles plugin execution errors gracefully', async () => {
       const wikiDoc = parser.parse('[{ErrorPlugin}]', {});
 
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+      logger.error.mockClear();
 
       await handler.processPlugins(wikiDoc, { pageName: 'TestPage' });
 
       const html = wikiDoc.toHTML();
       expect(html).toContain('Plugin Error');
 
-      expect(consoleSpy).toHaveBeenCalled();
-      consoleSpy.mockRestore();
+      expect(logger.error).toHaveBeenCalled();
     });
 
     test('handles empty plugin output', async () => {
       const wikiDoc = parser.parse('[{EmptyPlugin}]', {});
 
-      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+      logger.warn.mockClear();
 
       await handler.processPlugins(wikiDoc, { pageName: 'TestPage' });
 
-      expect(consoleSpy).toHaveBeenCalledWith(
+      expect(logger.warn).toHaveBeenCalledWith(
         expect.stringContaining('returned no output')
       );
-
-      consoleSpy.mockRestore();
     });
 
     test('returns unchanged document if no plugins', async () => {
@@ -336,12 +340,11 @@ describe('DOMPluginHandler', () => {
       const badHandler = new DOMPluginHandler(badEngine);
 
       const wikiDoc = parser.parse('[{TableOfContents}]', {});
-      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+      logger.warn.mockClear();
 
       await badHandler.processPlugins(wikiDoc, {});
 
-      expect(consoleSpy).toHaveBeenCalled();
-      consoleSpy.mockRestore();
+      expect(logger.warn).toHaveBeenCalled();
     });
   });
 
