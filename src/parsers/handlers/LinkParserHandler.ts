@@ -246,7 +246,7 @@ class LinkParserHandler extends BaseSyntaxHandler {
    * @param context - Parse context
    * @returns Content with links processed
    */
-  // eslint-disable-next-line @typescript-eslint/require-await
+  // eslint-disable-next-line @typescript-eslint/require-await -- Implements BaseSyntaxHandler async interface
   async process(content: string, context: ParseContext): Promise<string> {
     if (!content) {
       return content;
@@ -290,7 +290,7 @@ class LinkParserHandler extends BaseSyntaxHandler {
    * @param _context - Parse context
    * @returns Processed match
    */
-  // eslint-disable-next-line @typescript-eslint/require-await
+  // eslint-disable-next-line @typescript-eslint/require-await -- Implements BaseSyntaxHandler async interface
   async handle(_match: RegExpMatchArray, _context: ParseContext): Promise<string> {
     // This method is not used since LinkParser handles all matches in process()
     // But we need to implement it to satisfy the BaseSyntaxHandler interface
@@ -366,7 +366,7 @@ class LinkParserHandler extends BaseSyntaxHandler {
   /**
    * Handler-specific shutdown cleanup
    */
-  // eslint-disable-next-line @typescript-eslint/require-await
+  // eslint-disable-next-line @typescript-eslint/require-await -- Implements BaseSyntaxHandler async interface
   protected async onShutdown(): Promise<void> {
     this.initialized = false;
     logger.info('LinkParserHandler shutdown complete');

@@ -34,7 +34,7 @@ interface CloudConfig {
  * TODO: Add retry logic with exponential backoff
  */
 class CloudAuditProvider extends BaseAuditProvider {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic type
   private client: any; // Cloud SDK client - type depends on service
   private config: CloudConfig | null;
 

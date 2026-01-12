@@ -105,7 +105,7 @@ class PageManager extends BaseManager {
 
     // Load and initialize provider
     try {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      // eslint-disable-next-line @typescript-eslint/no-require-imports -- Dynamic import
       const ProviderClass = require(`../providers/${this.providerClass}`) as ProviderConstructor;
 
       this.provider = new ProviderClass(this.engine);

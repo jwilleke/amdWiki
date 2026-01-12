@@ -163,11 +163,12 @@ class AttachmentHandler extends BaseSyntaxHandler {
    * Initialize handler with modular configuration loading
    * @param context - Initialization context
    */
+  // eslint-disable-next-line @typescript-eslint/require-await -- Implements BaseSyntaxHandler async interface
   protected async onInitialize(context: InitializationContext): Promise<void> {
     this.engine = context.engine as WikiEngine | undefined ?? null;
 
     // Load modular configuration from multiple sources
-    await this.loadModularConfiguration();
+    this.loadModularConfiguration();
 
     logger.info('AttachmentHandler initialized with modular configuration:');
     logger.info(`   Enhanced mode: ${this.attachmentConfig.enhanced ? 'enabled' : 'disabled'}`);
@@ -181,8 +182,7 @@ class AttachmentHandler extends BaseSyntaxHandler {
    * - app-custom-config.json (user overrides via ConfigurationManager)
    * - Handler-specific settings from MarkupParser
    */
-  // eslint-disable-next-line @typescript-eslint/require-await
-  private async loadModularConfiguration(): Promise<void> {
+  private loadModularConfiguration(): void {
     const configManager = this.engine?.getManager('ConfigurationManager') as ConfigManager | undefined;
     const markupParser = this.engine?.getManager('MarkupParser') as MarkupParser | undefined;
 
@@ -315,7 +315,7 @@ class AttachmentHandler extends BaseSyntaxHandler {
     if (this.isImageFile(filename) && this.attachmentConfig.thumbnails) {
       attachmentHtml = await this.generateImageAttachmentHtml(filename, displayText, attachmentMeta, linkParams, context);
     } else {
-      attachmentHtml = await this.generateFileAttachmentHtml(filename, displayText, attachmentMeta, linkParams);
+      attachmentHtml = this.generateFileAttachmentHtml(filename, displayText, attachmentMeta, linkParams);
     }
 
     // Cache the result if caching enabled
@@ -415,13 +415,12 @@ class AttachmentHandler extends BaseSyntaxHandler {
    * @param params - Link parameters
    * @returns File attachment HTML
    */
-  // eslint-disable-next-line @typescript-eslint/require-await
-  private async generateFileAttachmentHtml(
+  private generateFileAttachmentHtml(
     filename: string,
     displayText: string | null,
     metadata: AttachmentMetadata,
     params: LinkParams
-  ): Promise<string> {
+  ): string {
     const fileUrl = metadata.url;
     const linkText = displayText || filename;
     const fileIcon = this.getFileIcon(metadata.type);
@@ -501,7 +500,7 @@ class AttachmentHandler extends BaseSyntaxHandler {
         }
 
         // Generate thumbnail if it doesn't exist (simplified - would use image processing library)
-        await this.createThumbnail(metadata.path, thumbnailFilename, primarySize);
+        this.createThumbnail(metadata.path, thumbnailFilename, primarySize);
         return `/attachments/${encodeURIComponent(thumbnailFilename)}`;
       }
 
@@ -519,8 +518,7 @@ class AttachmentHandler extends BaseSyntaxHandler {
    * @param thumbnailFilename - Thumbnail filename
    * @param size - Size specification (e.g., '150x150')
    */
-  // eslint-disable-next-line @typescript-eslint/require-await
-  private async createThumbnail(sourcePath: string, thumbnailFilename: string, size: string): Promise<void> {
+  private createThumbnail(sourcePath: string, thumbnailFilename: string, size: string): void {
     // Placeholder implementation
     // In production, would use libraries like Sharp, Jimp, or ImageMagick
     logger.debug(`Creating thumbnail: ${thumbnailFilename} (${size}) from ${sourcePath}`);

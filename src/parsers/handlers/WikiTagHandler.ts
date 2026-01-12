@@ -129,7 +129,7 @@ class WikiTagHandler extends BaseSyntaxHandler {
    * Initialize handler with configuration
    * @param context - Initialization context
    */
-  // eslint-disable-next-line @typescript-eslint/require-await
+  // eslint-disable-next-line @typescript-eslint/require-await -- Implements BaseSyntaxHandler async interface
   protected async onInitialize(context: InitializationContext): Promise<void> {
     this.engine = context.engine as WikiEngine | undefined ?? null;
 
@@ -529,7 +529,7 @@ class WikiTagHandler extends BaseSyntaxHandler {
    * @param context - Parse context
    * @returns Variable value
    */
-  // eslint-disable-next-line @typescript-eslint/require-await
+  // eslint-disable-next-line @typescript-eslint/require-await -- Implements BaseSyntaxHandler async interface
   private async resolveContextVariable(varName: string, context: WikiTagParseContext): Promise<string> {
     switch (varName) {
     case 'user':

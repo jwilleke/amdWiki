@@ -77,7 +77,7 @@ class JSPWikiPreprocessor extends BaseSyntaxHandler {
   /**
    * Process content: find and parse all %%.../%% blocks with nested support
    */
-  // eslint-disable-next-line @typescript-eslint/require-await
+  // eslint-disable-next-line @typescript-eslint/require-await -- Implements BaseSyntaxHandler async interface
   async process(content: string, _context: ParseContext): Promise<string> {
     // Parse all %%.../%% blocks (including nested ones)
     const processedContent = this.parseStyleBlocks(content);

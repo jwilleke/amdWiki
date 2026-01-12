@@ -109,7 +109,7 @@ class SecurityFilter extends BaseFilter {
    * Initialize filter with modular security configuration
    * @param context - Initialization context
    */
-  // eslint-disable-next-line @typescript-eslint/require-await
+  // eslint-disable-next-line @typescript-eslint/require-await -- Implements filter async interface
   async onInitialize(context: InitContext): Promise<void> {
     // Load modular security configuration from app-default/custom-config.json
     this.loadModularSecurityConfiguration(context);
@@ -239,7 +239,7 @@ class SecurityFilter extends BaseFilter {
    * @param context - Parse context
    * @returns Securely filtered content
    */
-  // eslint-disable-next-line @typescript-eslint/require-await
+  // eslint-disable-next-line @typescript-eslint/require-await -- Implements filter async interface
   async process(content: string, context: ParseContext): Promise<string> {
     if (!content) {
       return content;

@@ -218,7 +218,7 @@ class UserManager extends BaseManager {
 
     // Load and initialize provider
     try {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      // eslint-disable-next-line @typescript-eslint/no-require-imports -- Dynamic import
       const ProviderClass = require(`../providers/${this.providerClass}`) as UserProviderConstructor;
 
       this.provider = new ProviderClass(this.engine);
@@ -1070,7 +1070,7 @@ class UserManager extends BaseManager {
         res.status(401).json({ error: 'Unauthorized' });
         return;
       }
-      // eslint-disable-next-line @typescript-eslint/no-misused-promises
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises -- Async callback pattern
       const hasPermission = requiredPermissions.some((permission) => this.hasPermission(user.username, permission));
       if (!hasPermission) {
         res.status(403).json({ error: 'Forbidden' });

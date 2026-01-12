@@ -173,7 +173,7 @@ class InterWikiLinkHandler extends BaseSyntaxHandler {
   /**
    * Load InterWiki sites from main configuration
    */
-  // eslint-disable-next-line @typescript-eslint/require-await
+  // eslint-disable-next-line @typescript-eslint/require-await -- Implements BaseSyntaxHandler async interface
   private async loadFromMainConfiguration(): Promise<void> {
     const configManager = this.engine?.getManager('ConfigurationManager') as ConfigManager | undefined;
     if (!configManager) {

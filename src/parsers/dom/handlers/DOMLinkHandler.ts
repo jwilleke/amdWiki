@@ -206,7 +206,7 @@ class DOMLinkHandler {
     }
 
     // Load InterWiki sites configuration
-    await this.loadInterWikiConfiguration();
+    this.loadInterWikiConfiguration();
 
     logger.debug('🔗 DOMLinkHandler initialized');
   }
@@ -244,8 +244,7 @@ class DOMLinkHandler {
   /**
    * Load InterWiki site configuration
    */
-  // eslint-disable-next-line @typescript-eslint/require-await
-  async loadInterWikiConfiguration(): Promise<void> {
+  loadInterWikiConfiguration(): void {
     try {
       const cfg = this.engine.getManager('ConfigurationManager') as ConfigurationManager | null;
       const globalEnabled = cfg?.getProperty('amdwiki.interwiki.enabled', true) as boolean;
@@ -385,7 +384,7 @@ class DOMLinkHandler {
    * @param linkType - Link type
    * @param context - Rendering context
    */
-  // eslint-disable-next-line @typescript-eslint/require-await
+  // eslint-disable-next-line @typescript-eslint/require-await -- Implements DOM handler async interface
   async processLinkByType(linkElement: LinkedomElement, linkInfo: LinkInfo, linkType: LinkType, context: RenderContext): Promise<void> {
     switch (linkType) {
     case 'internal':
@@ -592,7 +591,7 @@ class DOMLinkHandler {
    * const node = await handler.createNodeFromExtract(element, context, wikiDoc);
    * // Returns: <a class="wiki-link wikipage" href="/wiki/PageName" data-jspwiki-id="1">Click Here</a>
    */
-  // eslint-disable-next-line @typescript-eslint/require-await
+  // eslint-disable-next-line @typescript-eslint/require-await -- Implements DOM handler async interface
   async createNodeFromExtract(element: ExtractedLinkElement, _context: RenderContext, wikiDocument: WikiDocument): Promise<LinkedomElement> {
     // Get LinkParser dynamically
     if (!this.linkParser) {

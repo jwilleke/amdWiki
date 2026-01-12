@@ -39,7 +39,7 @@ export type ManagerName =
  * Note: Uses 'any' for backwards compatibility with existing code
  */
 export interface ManagerRegistry {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic manager types
   [managerName: string]: any;
 }
 
@@ -63,7 +63,7 @@ export interface WikiEngine {
   startTime?: number;
 
   /** Current context (request-scoped) */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- WikiContext type varies by request
   context?: any;
 
   /**
@@ -71,7 +71,7 @@ export interface WikiEngine {
    * @param config - Wiki configuration
    * @returns The initialized engine or void
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Returns WikiEngine or void
   initialize(config?: WikiConfig): Promise<any>;
 
   /**
@@ -83,7 +83,7 @@ export interface WikiEngine {
    * // Type-safe usage with explicit type parameter:
    * const pageManager = engine.getManager<PageManager>('PageManager');
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic type
   getManager<T = any>(managerName: string): T | undefined;
 
   /**
@@ -91,7 +91,7 @@ export interface WikiEngine {
    * @param managerName - Name of the manager
    * @param manager - Manager instance
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic type
   registerManager(managerName: string, manager: any): void;
 
   /**
@@ -112,6 +112,6 @@ export interface WikiEngine {
   getRegisteredManagers(): string[];
 
   /** Allow additional properties for extensibility */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic type
   [key: string]: any;
 }

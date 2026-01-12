@@ -33,7 +33,7 @@ interface DatabaseConfig {
  * TODO: Implement automatic table/collection creation
  */
 class DatabaseAuditProvider extends BaseAuditProvider {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic type
   private client: any; // Database client - type depends on database
   private config: DatabaseConfig | null;
 

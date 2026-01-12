@@ -230,7 +230,7 @@ class PluginManager extends BaseManager {
         return;
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      // eslint-disable-next-line @typescript-eslint/no-require-imports -- Dynamic import
       const mod: unknown = require(realFile);
 
       // Extract the plugin from the module (handle both default and direct exports)

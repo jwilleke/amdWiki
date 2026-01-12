@@ -471,5 +471,5 @@ export default BaseFilter;
 
 // Export for CommonJS (Jest compatibility)
 module.exports = BaseFilter;
-// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- Untyped library
 module.exports.default = BaseFilter;

@@ -156,7 +156,7 @@ class NodeCacheProvider extends BaseCacheProvider {
    * @param {string} key - The cache key
    * @returns {Promise<T | undefined>} The cached value or undefined if not found
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic type
   get<T = any>(key: string): Promise<T | undefined> {
     try {
       if (!this.cache) {
@@ -178,7 +178,7 @@ class NodeCacheProvider extends BaseCacheProvider {
    * @param {number} [ttlSec] - Time to live in seconds
    * @returns {Promise<void>}
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic type
   set<T = any>(key: string, value: T, ttlSec?: number): Promise<void> {
     try {
       if (!this.cache) {

@@ -442,5 +442,5 @@ export default ParseContext;
 
 // Export for CommonJS (Jest compatibility)
 module.exports = ParseContext;
-// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- Untyped library
 module.exports.default = ParseContext;

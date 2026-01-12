@@ -62,7 +62,7 @@ class VariableSyntaxHandler extends BaseSyntaxHandler {
    * Initialize handler with configuration
    * @param context - Initialization context
    */
-  // eslint-disable-next-line @typescript-eslint/require-await
+  // eslint-disable-next-line @typescript-eslint/require-await -- Implements BaseSyntaxHandler async interface
   protected async onInitialize(context: InitializationContext): Promise<void> {
     this.engine = context.engine as WikiEngine | undefined ?? null;
     this.variableManager = this.engine?.getManager('VariableManager') as VariableManager | undefined ?? null;
@@ -78,7 +78,7 @@ class VariableSyntaxHandler extends BaseSyntaxHandler {
    * @param context - Parse context
    * @returns Content with variables resolved
    */
-  // eslint-disable-next-line @typescript-eslint/require-await
+  // eslint-disable-next-line @typescript-eslint/require-await -- Implements BaseSyntaxHandler async interface
   async process(content: string, context: ParseContext): Promise<string> {
     if (!content || !this.variableManager) {
       return content;

@@ -107,7 +107,7 @@ class EscapedSyntaxHandler extends BaseSyntaxHandler {
    * @param _context - Parse context
    * @returns Literal output
    */
-  // eslint-disable-next-line @typescript-eslint/require-await
+  // eslint-disable-next-line @typescript-eslint/require-await -- Implements BaseSyntaxHandler async interface
   private async handleMatch(matchInfo: MatchInfo, _context: ParseContext): Promise<string> {
     // Convert [[content] to [content] but HTML-encode the brackets to prevent further processing
     const literalContent = `&#91;${matchInfo.innerContent}&#93;`;

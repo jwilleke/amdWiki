@@ -449,7 +449,7 @@ class ValidationManager extends BaseManager {
     // Validate UUID consistency between filename and metadata
     const filenameUuid = path.parse(filename).name;
     if (metadata.uuid !== filenameUuid) {
-      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions -- Safe coercion
       result.error = `UUID mismatch: filename uses '${filenameUuid}' but metadata contains '${metadata.uuid}'`;
       return result;
     }
@@ -581,7 +581,7 @@ class ValidationManager extends BaseManager {
     }
 
     // Fix filename to match UUID
-    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions -- Safe coercion
     const targetFilename = `${fixes.metadata.uuid}.md`;
     if (filename !== targetFilename) {
       fixes.filename = targetFilename;

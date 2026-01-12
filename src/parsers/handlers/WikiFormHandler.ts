@@ -112,7 +112,7 @@ class WikiFormHandler extends BaseSyntaxHandler {
    * Initialize handler with configuration
    * @param context - Initialization context
    */
-  // eslint-disable-next-line @typescript-eslint/require-await
+  // eslint-disable-next-line @typescript-eslint/require-await -- Implements BaseSyntaxHandler async interface
   protected async onInitialize(context: InitializationContext): Promise<void> {
     this.engine = context.engine as WikiEngine | undefined ?? null;
 
@@ -512,7 +512,7 @@ document.addEventListener('DOMContentLoaded', function() {
    * @param context - Parse context
    * @returns CSRF token
    */
-  // eslint-disable-next-line @typescript-eslint/require-await
+  // eslint-disable-next-line @typescript-eslint/require-await -- Implements BaseSyntaxHandler async interface
   private async generateCSRFToken(context: FormParseContext): Promise<string> {
     // Create token based on user context and timestamp
     const tokenData = {

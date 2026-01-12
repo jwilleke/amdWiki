@@ -33,7 +33,7 @@ type LunrIndex = ReturnType<typeof lunr>;
 interface LunrSearchResult {
   ref: string;
   score: number;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic type
   matchData?: any;
 }
 

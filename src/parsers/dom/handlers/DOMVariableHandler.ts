@@ -154,7 +154,7 @@ class DOMVariableHandler {
    * @param {VariableContext} context - Rendering context
    * @returns {Promise<WikiDocument>} Updated WikiDocument
    */
-  // eslint-disable-next-line @typescript-eslint/require-await
+  // eslint-disable-next-line @typescript-eslint/require-await -- Implements DOM handler async interface
   async processVariables(wikiDocument: WikiDocument, context: VariableContext): Promise<WikiDocument> {
     // Get VariableManager dynamically (it might not be available during initialization)
     if (!this.variableManager) {
@@ -283,7 +283,7 @@ class DOMVariableHandler {
    * const node = await handler.createNodeFromExtract(element, context, wikiDoc);
    * // Returns: <span class="wiki-variable" data-variable="username">JohnDoe</span>
    */
-  // eslint-disable-next-line @typescript-eslint/require-await
+  // eslint-disable-next-line @typescript-eslint/require-await -- Implements DOM handler async interface
   async createNodeFromExtract(element: ExtractedElement, context: VariableContext, wikiDocument: WikiDocument): Promise<LinkedomElement> {
     // Get VariableManager dynamically
     if (!this.variableManager) {

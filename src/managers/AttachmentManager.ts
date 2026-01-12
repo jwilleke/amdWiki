@@ -187,9 +187,9 @@ class AttachmentManager extends BaseManager {
 
     // Load and initialize provider
     try {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-unsafe-assignment
+      // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-unsafe-assignment -- Dynamic provider loading
       const ProviderClass = require(`../providers/${this.providerClass}`);
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call -- Dynamic provider instantiation
       this.attachmentProvider = new ProviderClass(this.engine) as BaseAttachmentProvider;
       await this.attachmentProvider.initialize();
 
@@ -221,7 +221,7 @@ class AttachmentManager extends BaseManager {
    * @returns {Promise<boolean>} True if allowed
    * @private
    */
-  // eslint-disable-next-line @typescript-eslint/require-await
+  // eslint-disable-next-line @typescript-eslint/require-await -- Implements BaseManager async interface
   private async checkPermission(action: string, userContext?: UserContext): Promise<boolean> {
     // Check if user is authenticated
     if (!userContext || !userContext.isAuthenticated) {

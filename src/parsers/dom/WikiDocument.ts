@@ -19,7 +19,7 @@
  */
 
 // linkedom has no @types package, so we use require and define minimal types
-// eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-unsafe-assignment
+// eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-unsafe-assignment -- No types for linkedom
 const { parseHTML } = require('linkedom');
 
 /**
@@ -139,7 +139,7 @@ class WikiDocument {
    */
   constructor(pageData: string, context?: WikiContext) {
     // Create a minimal HTML document using linkedom
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call -- Untyped linkedom
     const { document }: ParseHTMLResult = parseHTML('<!DOCTYPE html><html><body></body></html>');
 
     this.document = document;
@@ -489,5 +489,5 @@ export default WikiDocument;
 
 // Export for CommonJS (Jest compatibility)
 module.exports = WikiDocument;
-// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- Untyped library
 module.exports.default = WikiDocument;

@@ -125,7 +125,7 @@ class SpamFilter extends BaseFilter {
    * Initialize filter with modular spam detection configuration
    * @param context - Initialization context
    */
-  // eslint-disable-next-line @typescript-eslint/require-await
+  // eslint-disable-next-line @typescript-eslint/require-await -- Implements filter async interface
   async onInitialize(context: InitContext): Promise<void> {
     // Load modular spam configuration from configuration hierarchy
     this.loadModularSpamConfiguration(context);
@@ -373,7 +373,7 @@ class SpamFilter extends BaseFilter {
    * @param content - Content to analyze
    * @returns Suspicious domains found
    */
-  // eslint-disable-next-line @typescript-eslint/require-await
+  // eslint-disable-next-line @typescript-eslint/require-await -- Implements filter async interface
   async findSuspiciousDomains(content: string): Promise<string[]> {
     const urlRegex = /https?:\/\/([^/\s]+)/g;
     const domains = new Set<string>();

@@ -105,11 +105,12 @@ class WikiStyleHandler extends BaseSyntaxHandler {
    * Initialize handler with modular configuration system
    * @param context - Initialization context
    */
+  // eslint-disable-next-line @typescript-eslint/require-await -- Implements BaseSyntaxHandler async interface
   protected async onInitialize(context: InitializationContext): Promise<void> {
     this.engine = context.engine as WikiEngine | undefined ?? null;
 
     // Load modular configuration from multiple sources
-    await this.loadModularStyleConfiguration();
+    this.loadModularStyleConfiguration();
 
     logger.debug('WikiStyleHandler initialized with modular configuration:');
     logger.debug(`   Custom classes: ${this.styleConfig.customClasses ? 'enabled' : 'disabled'}`);
@@ -122,7 +123,7 @@ class WikiStyleHandler extends BaseSyntaxHandler {
    * Load modular style configuration from app-default-config.json and app-custom-config.json
    * Demonstrates complete configuration modularity and reusability
    */
-  private async loadModularStyleConfiguration(): Promise<void> {
+  private loadModularStyleConfiguration(): void {
     const configManager = this.engine?.getManager('ConfigurationManager') as ConfigManager | undefined;
     const markupParser = this.engine?.getManager('MarkupParser') as MarkupParser | undefined;
 
@@ -144,10 +145,10 @@ class WikiStyleHandler extends BaseSyntaxHandler {
         this.styleConfig.allowInlineCSS = configManager.getProperty('amdwiki.style.security.allowInlineCSS', this.styleConfig.allowInlineCSS);
 
         // Load predefined class sets (modular class definitions)
-        await this.loadPredefinedClasses(configManager);
+        this.loadPredefinedClasses(configManager);
 
         // Load allowed CSS properties for security (modular security configuration)
-        await this.loadAllowedCSSProperties(configManager);
+        this.loadAllowedCSSProperties(configManager);
 
       } catch (error) {
         const err = error as Error;
@@ -163,8 +164,7 @@ class WikiStyleHandler extends BaseSyntaxHandler {
    * Load predefined CSS classes from configuration (modular class system)
    * @param configManager - Configuration manager
    */
-  // eslint-disable-next-line @typescript-eslint/require-await
-  private async loadPredefinedClasses(configManager: ConfigManager): Promise<void> {
+  private loadPredefinedClasses(configManager: ConfigManager): void {
     // Load text styling classes
     const textClasses = configManager.getProperty('amdwiki.style.predefined.text', '').split(',');
     textClasses.forEach((cls: string) => cls.trim() && this.predefinedClasses.add(cls.trim()));
@@ -186,8 +186,7 @@ class WikiStyleHandler extends BaseSyntaxHandler {
    * Load allowed CSS properties for security (modular security configuration)
    * @param configManager - Configuration manager
    */
-  // eslint-disable-next-line @typescript-eslint/require-await
-  private async loadAllowedCSSProperties(configManager: ConfigManager): Promise<void> {
+  private loadAllowedCSSProperties(configManager: ConfigManager): void {
     const allowedProps = configManager.getProperty('amdwiki.style.security.allowedProperties', '').split(',');
     allowedProps.forEach((prop: string) => prop.trim() && this.allowedCSSProperties.add(prop.trim()));
 
@@ -348,10 +347,10 @@ class WikiStyleHandler extends BaseSyntaxHandler {
     // Determine if styleInfo contains CSS classes or inline styles
     if (styleInfo.includes(':')) {
       // Inline CSS style: %%(color:red; font-weight:bold) content /%
-      styledHtml = await this.processInlineStyle(styleInfo, textContent);
+      styledHtml = this.processInlineStyle(styleInfo, textContent);
     } else {
       // CSS class assignment: %%class1 class2 content /%
-      styledHtml = await this.processCSSClasses(styleInfo, textContent);
+      styledHtml = this.processCSSClasses(styleInfo, textContent);
     }
 
     // Cache the result if caching enabled
@@ -368,8 +367,7 @@ class WikiStyleHandler extends BaseSyntaxHandler {
    * @param content - Content to style
    * @returns Styled HTML
    */
-  // eslint-disable-next-line @typescript-eslint/require-await
-  private async processCSSClasses(classInfo: string, content: string): Promise<string> {
+  private processCSSClasses(classInfo: string, content: string): string {
     logger.debug(`processCSSClasses: classInfo="${classInfo}", content preview="${content.substring(0, 50)}"`);
 
     const classNames = classInfo.split(/\s+/).filter(cls => cls.trim());
@@ -460,8 +458,7 @@ class WikiStyleHandler extends BaseSyntaxHandler {
    * @param content - Content to style
    * @returns Styled HTML
    */
-  // eslint-disable-next-line @typescript-eslint/require-await
-  private async processInlineStyle(styleInfo: string, content: string): Promise<string> {
+  private processInlineStyle(styleInfo: string, content: string): string {
     if (!this.styleConfig.allowInlineCSS) {
       logger.warn('Inline CSS disabled by security configuration');
       return content; // Return unstyled content

@@ -110,7 +110,7 @@ class PolicyEvaluator extends BaseManager {
    * await evaluator.initialize();
    * console.log('Policy evaluator ready');
    */
-  // eslint-disable-next-line @typescript-eslint/require-await
+  // eslint-disable-next-line @typescript-eslint/require-await -- Implements BaseManager async interface
   async initialize(): Promise<void> {
     this.policyManager = this.engine.getManager('PolicyManager') ?? null;
     if (!this.policyManager) {
@@ -137,7 +137,7 @@ class PolicyEvaluator extends BaseManager {
    * });
    * console.log('Allowed:', result.allowed, 'Reason:', result.reason);
    */
-  // eslint-disable-next-line @typescript-eslint/require-await
+  // eslint-disable-next-line @typescript-eslint/require-await -- Synchronous evaluation, async for API consistency
   async evaluateAccess(context: AccessContext): Promise<EvaluationResult> {
     const { pageName, action, userContext } = context || {};
     const roles = (userContext?.roles || []).join('|');

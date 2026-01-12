@@ -33,7 +33,7 @@ interface ShowdownFilter {
   filter: (text: string) => string;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
+// eslint-disable-next-line @typescript-eslint/no-require-imports -- Dynamic import
 const showdown = require('showdown') as ShowdownModule;
 const converter: ShowdownConverter = new showdown.Converter();
 

@@ -234,7 +234,7 @@ class BasicAttachmentProvider extends BaseAttachmentProvider {
       }
 
       const data = await fs.readFile(this.metadataFile, 'utf8' as BufferEncoding);
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- JSON.parse returns any
       const json: MetadataFile = JSON.parse(data);
 
       // Validate Schema.org format

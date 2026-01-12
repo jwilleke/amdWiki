@@ -27,9 +27,9 @@ interface ExtendedAuditEvent {
   reason?: string;
   policyId?: string;
   policyName?: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic type
   context?: Record<string, any>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic type
   metadata?: Record<string, any>;
   duration?: number;
   severity?: string;
@@ -190,9 +190,9 @@ class FileAuditProvider extends BaseAuditProvider {
       reason: (evt.reason as string) || auditEvent.error,
       policyId: evt.policyId as string | undefined,
       policyName: evt.policyName as string | undefined,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic type
       context: (evt.context as Record<string, any>) || {},
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic type
       metadata: (evt.metadata as Record<string, any>) || auditEvent.data || {},
       duration: evt.duration as number | undefined,
       severity: (evt.severity as string) || 'low'
@@ -224,7 +224,7 @@ class FileAuditProvider extends BaseAuditProvider {
    * @param {Record<string, unknown>} options - Search options
    * @returns {Promise<AuditSearchResults>} Search results
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic type
   searchAuditLogs(filters: AuditFilters = {}, options: Record<string, any> = {}): Promise<AuditSearchResults> {
     const {
       user,
@@ -293,8 +293,8 @@ class FileAuditProvider extends BaseAuditProvider {
     const paginatedResults = filteredLogs.slice(offset, offset + limit);
 
     return Promise.resolve({
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any
-      results: paginatedResults as any, // Cast to AuditEvent[] for interface compliance
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-explicit-any -- Cast for interface compliance
+      results: paginatedResults as any,
       total,
       limit,
       offset,

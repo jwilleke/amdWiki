@@ -47,13 +47,13 @@ class WikiTableHandler extends BaseSyntaxHandler {
     this.engine = engine;
   }
 
-  // eslint-disable-next-line @typescript-eslint/require-await
+  // eslint-disable-next-line @typescript-eslint/require-await -- Implements BaseSyntaxHandler async interface
   protected async onInitialize(context: InitializationContext): Promise<void> {
     this.engine = context.engine as WikiEngine | undefined ?? null;
     logger.debug('WikiTableHandler initialized');
   }
 
-  // eslint-disable-next-line @typescript-eslint/require-await
+  // eslint-disable-next-line @typescript-eslint/require-await -- Implements BaseSyntaxHandler async interface
   async process(content: string, _context: ParseContext): Promise<string> {
     if (!content || typeof content !== 'string') {
       return content;

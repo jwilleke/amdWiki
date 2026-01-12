@@ -3456,9 +3456,9 @@ class WikiRoutes {
       logger.debug(`✅ Backup created: ${backupPath}`);
 
       // Get backup file stats
-      const fs = require('fs-extra'); // eslint-disable-line @typescript-eslint/no-require-imports
+      const fs = require('fs-extra'); // eslint-disable-line @typescript-eslint/no-require-imports -- Lazy load in rarely-used route
       const _stats = await fs.stat(backupPath);
-      const filename = require('path').basename(backupPath); // eslint-disable-line @typescript-eslint/no-require-imports
+      const filename = require('path').basename(backupPath); // eslint-disable-line @typescript-eslint/no-require-imports -- Lazy load in rarely-used route
 
       // Send backup file as download
       res.download(backupPath, filename, (err) => {

@@ -207,7 +207,7 @@ class FilterChain {
    * Initialize FilterChain with complete modular configuration
    * @param context - Initialization context
    */
-  // eslint-disable-next-line @typescript-eslint/require-await
+  // eslint-disable-next-line @typescript-eslint/require-await -- Async for consistent filter chain API
   async initialize(context: FilterChainInitContext = {}): Promise<void> {
     this.engine = context.engine ?? null;
 
@@ -813,5 +813,5 @@ export default FilterChain;
 
 // Export for CommonJS (Jest compatibility)
 module.exports = FilterChain;
-// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- Untyped library
 module.exports.default = FilterChain;

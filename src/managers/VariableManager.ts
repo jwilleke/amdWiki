@@ -88,7 +88,7 @@ class VariableManager extends BaseManager {
    * @async
    * @returns {Promise<void>}
    */
-  // eslint-disable-next-line @typescript-eslint/require-await
+  // eslint-disable-next-line @typescript-eslint/require-await -- Implements BaseManager async interface
   async initialize(): Promise<void> {
     this.registerCoreVariables();
     logger.info('🔧 VariableManager initialized with core variables.');
