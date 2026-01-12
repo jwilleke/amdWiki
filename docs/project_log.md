@@ -24,6 +24,36 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 
 ---
 
+## 2026-01-12-02
+
+- Agent: Claude Opus 4.5
+- Subject: Fix E2E test failures and server-side bugs
+- Key Decision: Server bugs need async/await fixes; E2E tests need specific selectors
+- Current Issue: None
+- Testing:
+  - npm test: 58 suites passed, 1380 tests passed
+  - npm run test:e2e: 25 passed, 3 skipped, 0 failed
+- Work Done:
+  - Fixed server-side bug: missing `category` variable in search-results render
+  - Fixed server-side bug: `getUserKeywords()` not awaited (returns Promise, not array)
+    - searchPages method
+    - createPage method
+    - edit page method
+  - Fixed E2E search.spec.js: Updated selectors to match actual form elements (#query)
+  - Fixed E2E auth.spec.js: Open dropdown before clicking logout link
+  - Fixed E2E pages.spec.js: Use /create route, specific submit button selector
+  - Fixed E2E admin.spec.js: Better error detection for config/security tests
+  - 3 tests correctly skip for optional features (edit, history, header search)
+- Commits: 02421f6
+- Files Modified:
+  - src/routes/WikiRoutes.ts
+  - tests/e2e/admin.spec.js
+  - tests/e2e/auth.spec.js
+  - tests/e2e/pages.spec.js
+  - tests/e2e/search.spec.js
+
+---
+
 ## 2026-01-12-01
 
 - Agent: Claude Opus 4.5
