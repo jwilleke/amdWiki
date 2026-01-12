@@ -24,6 +24,61 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 
 ---
 
+## 2026-01-12-03
+
+- Agent: Claude Opus 4.5
+- Subject: Enable TypeScript strict mode options and remove dead code (#147)
+- Key Decision: Delete truly unused code, don't just prefix with underscores
+- Current Issue: Closed strict mode portion of #147
+- Testing:
+  - npm run typecheck: 0 errors
+  - npm test: 58 suites passed, 1380 tests passed
+- Work Done:
+  - Enabled 4 TypeScript strict compiler options in tsconfig.json:
+    - noUnusedLocals
+    - noUnusedParameters
+    - noImplicitReturns
+    - noFallthroughCasesInSwitch
+  - Deleted 33 truly unused variables/interfaces (not just prefixed):
+    - RenderingManager: _TableMetadata,_PerformanceComparison, _MarkupParser interfaces
+    - UserManager: _SessionData interface, sessionExpiration, defaultTimezone properties
+    - VersioningMigration: _PageIndexEntry interface
+    - LunrSearchProvider: _searchFields variable
+    - VersioningFileProvider: _pagesPath, getDirectorySize dead function
+    - WikiRoutes: Multiple unused manager variables (_userManager,_isAdmin, etc.)
+    - Handler constructors: engine properties that were never used
+  - Fixed 45 TS7030 "Not all code paths return a value" errors in WikiRoutes.ts
+  - Used void expression pattern for intentionally unused stub provider properties
+  - Prefixed callback parameters with underscore for signature compliance
+  - Updated UserManager test to remove checks for deleted dead code
+- Commits: c38db34
+- Files Modified:
+  - tsconfig.json
+  - src/managers/RenderingManager.ts
+  - src/managers/UserManager.ts
+  - src/managers/AttachmentManager.ts
+  - src/managers/ExportManager.ts
+  - src/managers/NotificationManager.ts
+  - src/managers/PluginManager.ts
+  - src/managers/ValidationManager.ts
+  - src/parsers/dom/Tokenizer.ts
+  - src/parsers/handlers/JSPWikiPreprocessor.ts
+  - src/parsers/handlers/WikiFormHandler.ts
+  - src/parsers/handlers/WikiTableHandler.ts
+  - src/providers/BaseAttachmentProvider.ts
+  - src/providers/BasicAttachmentProvider.ts
+  - src/providers/CloudAuditProvider.ts
+  - src/providers/DatabaseAuditProvider.ts
+  - src/providers/LunrSearchProvider.ts
+  - src/providers/RedisCacheProvider.ts
+  - src/providers/VersioningFileProvider.ts
+  - src/routes/WikiRoutes.ts
+  - src/utils/SchemaGenerator.ts
+  - src/utils/VersioningMigration.ts
+  - src/__tests__/UserManager.test.js
+
+---
+
 ## 2026-01-12-02
 
 - Agent: Claude Opus 4.5
