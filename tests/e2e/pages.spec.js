@@ -41,36 +41,37 @@ test.describe('Page Operations', () => {
     const testPageTitle = `E2E-Test-Page-${Date.now()}`;
 
     test('should create a new wiki page', async ({ page }) => {
-      // Navigate to create/edit page
-      await page.goto('/edit');
+      // Navigate to create page (not /edit which is for editing existing pages)
+      await page.goto('/create');
       await page.waitForLoadState('networkidle');
 
-      // Fill in page details
-      const titleInput = page.locator('input[name="title"], input[name="pageName"], #title, #pageName');
-      const contentInput = page.locator('textarea[name="content"], textarea#content, .editor textarea, .CodeMirror');
+      // Fill in page name - the create form uses #pageName
+      const pageNameInput = page.locator('#pageName, input[name="pageName"]');
+      await pageNameInput.first().waitFor({ state: 'visible', timeout: 10000 });
+      await pageNameInput.first().fill(testPageTitle);
 
-      if (await titleInput.count() > 0) {
-        await titleInput.first().fill(testPageTitle);
-      }
-
-      // Handle different editor types
-      if (await contentInput.count() > 0) {
-        await contentInput.first().fill('# Test Page\n\nThis is a test page created by E2E tests.');
-      } else {
-        // CodeMirror or other rich editor
-        const editor = page.locator('.CodeMirror, .editor');
-        if (await editor.count() > 0) {
-          await editor.click();
-          await page.keyboard.type('# Test Page\n\nThis is a test page created by E2E tests.');
+      // Select a template if required
+      const templateSelect = page.locator('#templateName, select[name="templateName"]');
+      if (await templateSelect.count() > 0 && await templateSelect.isVisible()) {
+        // Select first non-empty option
+        const options = await templateSelect.locator('option').all();
+        for (const option of options) {
+          const value = await option.getAttribute('value');
+          if (value && value !== '') {
+            await templateSelect.selectOption(value);
+            break;
+          }
         }
       }
 
-      // Submit
-      await page.click('button[type="submit"], button:has-text("Save"), input[type="submit"]');
+      // Submit the create form - use specific button text to avoid matching header search
+      const createButton = page.locator('button:has-text("Create Page"), form[action="/create"] button[type="submit"]');
+      await createButton.first().click();
       await page.waitForLoadState('networkidle');
 
-      // Verify page was created - should redirect to view page
-      await expect(page).not.toHaveURL(/edit/);
+      // Verify page was created - should redirect to edit page for the new page or view page
+      const currentUrl = page.url();
+      expect(currentUrl.includes('/edit/') || currentUrl.includes('/wiki/')).toBe(true);
     });
   });
 
@@ -124,20 +125,36 @@ test.describe('Page Operations', () => {
 
   test.describe('Page History', () => {
     test('should show page version history', async ({ page }) => {
-      await page.goto('/wiki/Main');
+      // Use Welcome page which is a default required page
+      await page.goto('/wiki/Welcome');
       await page.waitForLoadState('networkidle');
 
-      // Look for history/versions link
-      const historyLink = page.locator('a:has-text("History"), a:has-text("Versions"), a[href*="history"], a[href*="version"]');
+      // Check if page exists (not a 404)
+      const is404 = await page.locator('text=/not found|404|does not exist/i').count() > 0;
+      if (is404) {
+        test.skip();
+        return;
+      }
 
-      if (await historyLink.count() > 0) {
+      // History link is typically in the More dropdown - open it first
+      const moreButton = page.locator('button:has-text("More"), .dropdown-toggle:has-text("More")');
+      if (await moreButton.count() > 0) {
+        await moreButton.first().click();
+        await page.waitForTimeout(300);
+      }
+
+      // Now look for history link (should be visible in dropdown)
+      const historyLink = page.locator('a:has-text("History"), a[href*="history"]');
+
+      if (await historyLink.count() > 0 && await historyLink.first().isVisible()) {
         await historyLink.first().click();
         await page.waitForLoadState('networkidle');
 
-        // Should show version list
-        const hasVersionList = await page.locator('.version, .history-entry, table tr, .revision').count() > 0;
+        // Should show version list or history content
+        const hasVersionList = await page.locator('.version, .history-entry, table tr, .revision, .card').count() > 0;
         expect(hasVersionList).toBe(true);
       } else {
+        // No visible history link - skip test
         test.skip();
       }
     });

@@ -96,11 +96,19 @@ test.describe('Authentication - Unauthenticated', () => {
       await fillLoginForm(page, TEST_USER, TEST_PASS);
       await submitLogin(page);
 
-      // Find and click logout
-      const logoutLink = page.locator('a[href*="logout"], button:has-text("Logout")');
-      if (await logoutLink.count() > 0) {
+      // The logout link is inside a dropdown menu - need to open it first
+      const userDropdown = page.locator('#userDropdown, .dropdown-toggle:has-text("admin"), .dropdown-toggle:has-text("Admin")');
+
+      if (await userDropdown.count() > 0) {
+        // Click dropdown to open it
+        await userDropdown.first().click();
+        await page.waitForTimeout(300); // Wait for dropdown animation
+
+        // Now click logout
+        const logoutLink = page.locator('a[href="/logout"], a[href*="logout"]');
         await logoutLink.first().click();
       } else {
+        // Fallback: navigate directly to logout
         await page.goto('/logout');
       }
       await page.waitForLoadState('networkidle');

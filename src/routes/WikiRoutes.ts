@@ -1036,7 +1036,7 @@ class WikiRoutes {
 
       // Get categories and keywords for the form
       const systemCategories = this.getSystemCategories();
-      const userKeywords = this.getUserKeywords();
+      const userKeywords = await this.getUserKeywords();
 
       const configManager = this.engine.getManager('ConfigurationManager');
       const maxUserKeywords = configManager
@@ -1346,7 +1346,7 @@ class WikiRoutes {
         currentUser &&
         (await userManager.hasPermission(currentUser.username, 'admin:system'));
       const systemCategories = this.getSystemCategories();
-      const userKeywords = this.getUserKeywords();
+      const userKeywords = await this.getUserKeywords();
 
       // If page doesn't exist, create empty page data for new page
       if (!pageData) {
@@ -1867,7 +1867,7 @@ class WikiRoutes {
 
       // Get available categories and keywords for dropdowns
       const systemCategories = this.getSystemCategories();
-      const userKeywordsList = this.getUserKeywords();
+      const userKeywordsList = await this.getUserKeywords();
 
       // Get stats for search results (optional, fallback to empty if not available)
       let stats = {};
@@ -1880,6 +1880,7 @@ class WikiRoutes {
         results: results,
         count: results.length,
         query: query,
+        category: categories.length > 0 ? categories[0] : '', // Singular for template compat
         categories: categories,
         userKeywords: userKeywords,
         searchIn: searchIn,

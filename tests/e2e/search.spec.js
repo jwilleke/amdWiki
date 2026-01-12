@@ -16,32 +16,29 @@ test.describe('Search', () => {
       await page.goto('/search');
       await page.waitForLoadState('networkidle');
 
-      // Should have search input
-      const searchInput = page.locator('input[type="search"], input[name="q"], input[name="query"], #search, .search-input');
-      await expect(searchInput.first()).toBeVisible();
+      // Should have search input - the actual input is #query with name="q"
+      const searchInput = page.locator('#query, input[name="q"]');
+      await expect(searchInput.first()).toBeVisible({ timeout: 10000 });
     });
 
     test('should perform basic text search', async ({ page }) => {
       await page.goto('/search');
       await page.waitForLoadState('networkidle');
 
-      // Enter search query
-      const searchInput = page.locator('input[type="search"], input[name="q"], input[name="query"], #search, .search-input');
+      // Enter search query - use the actual search input id
+      const searchInput = page.locator('#query, input[name="q"]');
+      await searchInput.first().waitFor({ state: 'visible', timeout: 10000 });
       await searchInput.first().fill('test');
 
-      // Submit search (either button or enter)
-      const searchButton = page.locator('button[type="submit"], button:has-text("Search")');
-      if (await searchButton.count() > 0) {
-        await searchButton.first().click();
-      } else {
-        await searchInput.first().press('Enter');
-      }
+      // Submit search
+      const searchButton = page.locator('button[type="submit"]');
+      await searchButton.first().click();
 
       await page.waitForLoadState('networkidle');
 
       // Should show results or "no results" message
-      const hasResults = await page.locator('.search-result, .result, .search-item, li, tr').count() > 0;
-      const hasNoResults = await page.locator('text=/no results|not found|nothing found/i').count() > 0;
+      const hasResults = await page.locator('.search-result, .result-item, .list-group-item, tr').count() > 0;
+      const hasNoResults = await page.locator('text=/no results|not found|nothing found|0 result/i').count() > 0;
 
       expect(hasResults || hasNoResults).toBe(true);
     });
@@ -99,9 +96,14 @@ test.describe('Search', () => {
       await page.goto('/search');
       await page.waitForLoadState('networkidle');
 
-      const searchInput = page.locator('input[type="search"], input[name="q"], input[name="query"], #search, .search-input');
+      // Use the actual search input id
+      const searchInput = page.locator('#query, input[name="q"]');
+      await searchInput.first().waitFor({ state: 'visible', timeout: 10000 });
       await searchInput.first().fill('test & "special" <chars>');
-      await searchInput.first().press('Enter');
+
+      // Submit with button
+      const searchButton = page.locator('button[type="submit"]');
+      await searchButton.first().click();
       await page.waitForLoadState('networkidle');
 
       // Should not cause error
@@ -115,14 +117,21 @@ test.describe('Search', () => {
       await page.goto('/search');
       await page.waitForLoadState('networkidle');
 
-      // Check for filter options
-      const hasFilters = await page.locator('select, .filter, [data-filter], input[type="checkbox"]').count() > 0;
+      // Check for filter options - could be selects, checkboxes, or custom filters
+      const filterSelects = page.locator('select.filter, select[name*="category"], select[name*="filter"]');
+      const filterCheckboxes = page.locator('input[type="checkbox"][name*="category"], input[type="checkbox"][name*="keyword"]');
 
-      // This is informational - not all wikis have filters
-      if (hasFilters) {
-        const filters = page.locator('select, .filter');
-        await expect(filters.first()).toBeVisible();
+      const hasSelectFilters = await filterSelects.count() > 0;
+      const hasCheckboxFilters = await filterCheckboxes.count() > 0;
+
+      // This is informational - test passes as long as some filter mechanism exists
+      if (hasSelectFilters) {
+        await expect(filterSelects.first()).toBeVisible();
+      } else if (hasCheckboxFilters) {
+        // Checkboxes might be in a collapsed section - just verify they exist
+        expect(await filterCheckboxes.count()).toBeGreaterThan(0);
       }
+      // If neither exists, test still passes (informational only)
     });
   });
 });

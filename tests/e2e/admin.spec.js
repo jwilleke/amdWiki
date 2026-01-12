@@ -73,15 +73,20 @@ test.describe('Admin Dashboard', () => {
 
   test.describe('Configuration', () => {
     test('should access configuration section', async ({ page }) => {
-      // Try different config URLs
-      const configUrls = ['/admin/config', '/admin/settings', '/admin/configuration'];
+      // Try different config URLs - use /admin/configuration first as it's the actual route
+      const configUrls = ['/admin/configuration', '/admin/settings', '/admin/config'];
 
       for (const url of configUrls) {
         await page.goto(url);
         await page.waitForLoadState('networkidle');
 
-        if (!page.url().includes('login') && !page.url().includes('404')) {
-          // Found config page
+        // Check for 404/error pages (URL or content-based)
+        const isError = page.url().includes('login') ||
+          page.url().includes('404') ||
+          (await page.locator('text=/Cannot GET|Not Found|404/i').count()) > 0;
+
+        if (!isError) {
+          // Found config page - verify it has form elements
           const hasConfigForm = await page.locator('form, input, select, textarea').count() > 0;
           expect(hasConfigForm).toBe(true);
           return;
@@ -108,8 +113,10 @@ test.describe('Admin Dashboard', () => {
 
   test.describe('Admin Security', () => {
     test('should protect admin routes from non-admin users', async ({ browser }) => {
-      // Create new context without authentication
-      const context = await browser.newContext();
+      // Create new context without authentication - explicitly clear storage
+      const context = await browser.newContext({
+        storageState: { cookies: [], origins: [] }
+      });
       const page = await context.newPage();
 
       await page.goto('/admin');
