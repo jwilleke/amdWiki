@@ -1,17 +1,51 @@
 # Testing Summary
 
-**Last Updated:** 2025-12-27
+**Last Updated:** 2026-01-11
 **Current Version:** 1.5.0
 
 ## Current Test Status
 
-### Unit/Integration Tests (Jest)
+### Unit/Integration Tests (Jest) - 2026-01-11
 
 | Metric | Value |
 | --- | --- |
 | Test Suites | 58 passed, 9 skipped (67 total) |
 | Tests | 1380 passed, 308 skipped (1688 total) |
 | **Pass Rate** | **100%** (of executed tests) |
+
+### End-to-End Tests (Playwright) - 2026-01-11
+
+| Metric | Value |
+| --- | --- |
+| Tests Passed | 18 |
+| Tests Failed | 8 |
+| Tests Skipped | 2 |
+| **Pass Rate** | **64%** (18/28) |
+
+#### E2E Test Results by File
+
+| File | Passed | Failed | Status |
+| --- | --- | --- | --- |
+| auth.setup.js | 1 | 0 | ✅ |
+| auth.spec.js | 5 | 1 | ⚠️ Logout timeout |
+| admin.spec.js | 5 | 2 | ⚠️ Config/security selectors |
+| pages.spec.js | 4 | 2 | ⚠️ Create/history timeout |
+| search.spec.js | 3 | 3 | ⚠️ Search input not found |
+
+#### Failed E2E Tests (UI selector/timeout issues)
+
+| Test | Issue |
+| --- | --- |
+| Configuration section | Form elements not found |
+| Admin route protection | Assertion failure |
+| Logout | 30s timeout |
+| Create page | 30s timeout |
+| Page history | 30s timeout |
+| Search interface | Search input not found |
+| Basic search | Search input not found |
+| Special chars search | Search input not found |
+
+> **Note:** E2E failures are related to UI selectors not matching the actual page structure. The tests need to be updated to match the current UI implementation. These are not related to the TypeScript migration work.
 
 ### End-to-End Tests (Playwright)
 
@@ -111,6 +145,7 @@ We use **Option C: Fix-As-Needed** approach:
 
 | Date | Failing Suites | Passing Tests | Notes |
 | --- | --- | --- | --- |
+| 2026-01-11 | 0 (9 skipped) | 1380 | Fixed CI failures (#180), lint errors (#184), markdownlint (#183). E2E: 18/28 passing |
 | 2025-12-27 | 0 (9 skipped) | 1380 | Removed 13 deprecated parser tests (Issue #185), converted InstallRoutes.ts |
 | 2025-12-20 | 0 (9 skipped) | 1393 | Rewrote PageManager-Storage.test.js with 20 integration tests |
 | 2025-12-20 | 0 (10 skipped) | 1373 | Fixed NotificationManager, skipped obsolete tests pending API updates |
