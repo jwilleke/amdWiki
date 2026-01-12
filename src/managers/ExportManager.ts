@@ -60,7 +60,6 @@ export interface PageForExport {
  * @extends BaseManager
  *
  * @property {string} exportDirectory - Directory for exported files
- * @property {string[]} supportedFormats - Supported export formats
  *
  * @see {@link BaseManager} for base functionality
  *
@@ -70,7 +69,6 @@ export interface PageForExport {
  */
 class ExportManager extends BaseManager {
   private exportDirectory: string;
-  private supportedFormats: string[];
 
   /**
    * Creates a new ExportManager instance
@@ -82,7 +80,6 @@ class ExportManager extends BaseManager {
   constructor(engine: WikiEngine) {
     super(engine);
     this.exportDirectory = './exports';
-    this.supportedFormats = ['html', 'pdf', 'markdown'];
   }
 
   /**

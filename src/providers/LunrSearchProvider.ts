@@ -304,15 +304,13 @@ class LunrSearchProvider extends BaseSearchProvider {
     const {
       query = '',
       categories = [],
-      userKeywords = [],
-      searchIn = ['all']
+      userKeywords = []
     } = options;
     const maxResults: number = (options.maxResults as number) ?? this.config?.maxResults ?? 50;
 
     // Normalize arrays
     const categoryList = Array.isArray(categories) ? categories : (categories ? [categories] : []);
     const keywordList = Array.isArray(userKeywords) ? userKeywords : (userKeywords ? [userKeywords] : []);
-    const _searchFields = Array.isArray(searchIn) ? searchIn : [searchIn]; // Reserved for future use
 
     let results: SearchResult[] = [];
 

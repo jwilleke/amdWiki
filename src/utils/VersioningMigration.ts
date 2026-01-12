@@ -56,19 +56,6 @@ interface PageInfo {
 }
 
 /**
- * Page index entry (reserved for future use)
- */
-interface _PageIndexEntry {
-  uuid: string;
-  title: string;
-  currentVersion: number;
-  location: string;
-  lastModified: string;
-  author: string;
-  hasVersions: boolean;
-}
-
-/**
  * Migration report structure
  */
 interface MigrationReport {

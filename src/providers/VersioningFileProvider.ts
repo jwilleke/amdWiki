@@ -461,7 +461,6 @@ class VersioningFileProvider extends FileSystemProvider {
         if (!this.pagesDirectory || !this.requiredPagesDirectory) {
           continue;
         }
-        const _pagesPath = path.join(this.pagesDirectory, `${uuid}.md`);
         const requiredPath = path.join(this.requiredPagesDirectory, `${uuid}.md`);
         const location: 'pages' | 'required-pages' = (await fs.pathExists(requiredPath)) ? 'required-pages' : 'pages';
 
@@ -1377,33 +1376,6 @@ class VersioningFileProvider extends FileSystemProvider {
 
     logger.info(`[VersioningFileProvider] Purged ${versionsToPurge.length} versions from page ${uuid}`);
     return versionsToPurge.length;
-  }
-
-  /**
-   * Get total size of a directory recursively
-   * @param dirPath - Directory path
-   * @returns Total size in bytes
-   */
-  private async getDirectorySize(dirPath: string): Promise<number> {
-    let totalSize = 0;
-
-    if (!await fs.pathExists(dirPath)) {
-      return 0;
-    }
-
-    const items = await fs.readdir(dirPath);
-    for (const item of items) {
-      const itemPath = path.join(dirPath, item);
-      const stats = await fs.stat(itemPath);
-
-      if (stats.isDirectory()) {
-        totalSize += await this.getDirectorySize(itemPath);
-      } else {
-        totalSize += stats.size;
-      }
-    }
-
-    return totalSize;
   }
 
   /**

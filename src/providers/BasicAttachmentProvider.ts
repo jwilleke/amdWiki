@@ -102,7 +102,6 @@ class BasicAttachmentProvider extends BaseAttachmentProvider {
   private attachmentMetadata: Map<string, SchemaCreativeWork>;
   private maxFileSize: number;
   private allowedMimeTypes: string[];
-  private hashContent: boolean;
   private hashMethod: string;
 
   constructor(engine: WikiEngine) {
@@ -112,7 +111,6 @@ class BasicAttachmentProvider extends BaseAttachmentProvider {
     this.attachmentMetadata = new Map();
     this.maxFileSize = 10 * 1024 * 1024; // 10MB default
     this.allowedMimeTypes = []; // Empty = allow all
-    this.hashContent = true;
     this.hashMethod = 'sha256';
   }
 
@@ -160,10 +158,6 @@ class BasicAttachmentProvider extends BaseAttachmentProvider {
       : [];
 
     // Get provider-specific settings (ALL LOWERCASE)
-    this.hashContent = configManager.getProperty(
-      'amdwiki.attachment.provider.basic.hashcontent',
-      true
-    ) as boolean;
     this.hashMethod = configManager.getProperty(
       'amdwiki.attachment.provider.basic.hashmethod',
       'sha256'
@@ -185,24 +179,6 @@ class BasicAttachmentProvider extends BaseAttachmentProvider {
     logger.info(`[BasicAttachmentProvider] Initialized with ${this.attachmentMetadata.size} attachments.`);
   }
 
-  /**
-   * Parse size string like "10MB" to bytes
-   * @param sizeStr - Size string (e.g., "10MB", "5GB")
-   * @returns Size in bytes
-   * @private
-   */
-  private parseSize(sizeStr: string): number {
-    const units: Record<string, number> = {
-      B: 1,
-      KB: 1024,
-      MB: 1024 * 1024,
-      GB: 1024 * 1024 * 1024
-    };
-    const match = sizeStr.match(/^(\d+(?:\.\d+)?)\s*([KMGT]?B)$/i);
-    if (!match) return 10 * 1024 * 1024; // Default 10MB
-    const [, num, unit] = match;
-    return parseFloat(num) * (units[unit.toUpperCase()] || 1);
-  }
 
   /**
    * Format bytes to human-readable size

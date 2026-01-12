@@ -128,7 +128,6 @@ class ValidationManager extends BaseManager {
   private validSystemCategories: string[];
   private systemCategoriesConfig: SystemCategoriesConfig | null;
   private maxUserKeywords!: number;
-  private maxCategories!: number;
 
   /**
    * Creates a new ValidationManager instance
@@ -160,7 +159,6 @@ class ValidationManager extends BaseManager {
     this.maxUserKeywords = configManager
       ? (configManager.getProperty('amdwiki.maximum.user-keywords', 5) as number)
       : (config.maxUserKeywords as number) || 5;
-    this.maxCategories = (config.maxCategories as number) || 3;
 
     // Load system categories from configuration
     this.loadSystemCategories(configManager);

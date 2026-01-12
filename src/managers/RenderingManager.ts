@@ -51,13 +51,6 @@ interface TableParams {
 }
 
 /**
- * Table metadata (reserved for future use)
- */
-interface _TableMetadata extends TableParams {
-  id: string;
-}
-
-/**
  * User context
  */
 interface UserContext {
@@ -75,42 +68,10 @@ interface RequestInfo {
 }
 
 /**
- * Parse context for MarkupParser
- */
-interface ParseContext {
-  pageName: string;
-  userName: string;
-  userContext: UserContext | null;
-  requestInfo: RequestInfo | null;
-  renderingManager: RenderingManager;
-}
-
-/**
- * Performance comparison result (reserved for future use)
- */
-interface _PerformanceComparison {
-  pageName: string;
-  contentLength: number;
-  advancedTime: number;
-  legacyTime: number;
-  improvement: number;
-  percentImprovement: string;
-  timestamp: string;
-}
-
-/**
  * Link graph structure
  */
 interface LinkGraph {
   [pageName: string]: string[];
-}
-
-/**
- * MarkupParser interface (partial, reserved for future typing)
- */
-interface _MarkupParser {
-  isInitialized(): boolean;
-  parse(content: string, context: ParseContext): Promise<string>;
 }
 
 /**
@@ -464,7 +425,7 @@ class RenderingManager extends BaseManager {
     // Then process [{Table}] plugin syntax
     const tablePluginRegex = /\[\{Table\s+([^}]+)\}\]\s*\n((?:(?:\|\|?[^|\n]*)+\|?\s*\n?)+)/gi;
 
-    return content.replace(tablePluginRegex, (match: string, params: string, tableContent: string) => {
+    return content.replace(tablePluginRegex, (_match: string, params: string, tableContent: string) => {
       // Parse parameters
       const tableParams = this.parseTableParameters(params);
 
@@ -490,7 +451,7 @@ class RenderingManager extends BaseManager {
     // Match %%table-striped ... /% syntax
     const stripedTableRegex = /%%table-striped\s*\n((?:(?:\|\|?[^|\n]*)+\|?\s*\n?)+)\s*\/%/gi;
 
-    return content.replace(stripedTableRegex, (match: string, tableContent: string) => {
+    return content.replace(stripedTableRegex, (_match: string, tableContent: string) => {
       // Generate unique ID for this table
       const tableId = `table_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
 
@@ -556,7 +517,6 @@ class RenderingManager extends BaseManager {
   convertJSPWikiTableToMarkdown(tableContent: string, params: TableParams): string {
     const lines = tableContent.trim().split('\n');
     const markdownLines = [];
-    let _isFirstRow = true;
     let currentRowNumber = parseInt(String(params.rowNumber), 10) || 0;
 
     for (const line of lines) {
@@ -591,8 +551,6 @@ class RenderingManager extends BaseManager {
         const headerCount = (markdownLine.match(/\|/g) || []).length - 1;
         const separator = '|' + '---|'.repeat(headerCount);
         markdownLines.push(separator);
-
-        _isFirstRow = false;
       } else if (trimmedLine.startsWith('|')) {
         // Regular data row
         if (!markdownLine.endsWith('|')) {
@@ -614,7 +572,7 @@ class RenderingManager extends BaseManager {
     // Find table metadata comments and apply styling
     const metadataRegex = /<!--\s*TABLE_METADATA:(.*?)\s*-->\s*<table>/g;
 
-    return html.replace(metadataRegex, (match: string, metadataJson: string) => {
+    return html.replace(metadataRegex, (_match: string, metadataJson: string) => {
       try {
         const metadata = JSON.parse(metadataJson) as TableParams & { id: string; isStriped?: boolean };
         return this.generateStyledTable(metadata);
@@ -1033,7 +991,7 @@ class RenderingManager extends BaseManager {
 
       // Process wiki links with extended pipe syntax [DisplayText|Target|Parameters] and simple links [PageName]
       // Use negative lookahead to avoid matching markdown links [text](url)
-      return content.replace(/\[([a-zA-Z0-9_\- ]+)(?:\|([a-zA-Z0-9_\- .:?=&]+))?(?:\|([^|\]]+))?\](?!\()/g, (match: string, displayText: string, target: string | undefined, params: string | undefined) => {
+      return content.replace(/\[([a-zA-Z0-9_\- ]+)(?:\|([a-zA-Z0-9_\- .:?=&]+))?(?:\|([^|\]]+))?\](?!\()/g, (_match: string, displayText: string, target: string | undefined, params: string | undefined) => {
         // Parse parameters if provided
         let linkAttributes = '';
         if (params) {

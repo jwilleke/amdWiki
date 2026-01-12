@@ -83,12 +83,11 @@ interface FormParseContext extends ParseContext {
  */
 class WikiFormHandler extends BaseSyntaxHandler {
   declare handlerId: string;
-  private engine: WikiEngine | null;
   private config: HandlerConfig | null;
   private activeForms: Map<string, FormState>;
   private formCounter: number;
 
-  constructor(engine: WikiEngine | null = null) {
+  constructor(_engine: WikiEngine | null = null) {
     super(
       /\[\{Form(Open|Input|Select|Textarea|Button|Close)\s*([^}]*)\}\]/g, // Pattern: [{FormElement params}]
       85, // High priority - process before content handlers
@@ -100,7 +99,6 @@ class WikiFormHandler extends BaseSyntaxHandler {
       }
     );
     this.handlerId = 'WikiFormHandler';
-    this.engine = engine;
     this.config = null;
 
     // Form state tracking
@@ -114,7 +112,6 @@ class WikiFormHandler extends BaseSyntaxHandler {
    */
   // eslint-disable-next-line @typescript-eslint/require-await -- Implements BaseSyntaxHandler async interface
   protected async onInitialize(context: InitializationContext): Promise<void> {
-    this.engine = context.engine as WikiEngine | undefined ?? null;
 
     // Load handler-specific configuration
     const markupParser = context.engine?.getManager('MarkupParser') as MarkupParser | undefined;

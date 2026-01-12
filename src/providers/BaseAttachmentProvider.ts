@@ -115,8 +115,8 @@ abstract class BaseAttachmentProvider implements AttachmentProvider {
    * @returns {Promise<AttachmentMetadata>} Attachment metadata with ID
    */
   storeAttachment(
-    fileBuffer: Buffer,
-    fileInfo: FileInfo,
+    _fileBuffer: Buffer,
+    _fileInfo: FileInfo,
     _metadata: Partial<AttachmentMetadata> = {},
     _user: User | null = null
   ): Promise<AttachmentMetadata> {

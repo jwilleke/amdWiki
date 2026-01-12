@@ -30,9 +30,8 @@ interface WikiEngine {
  */
 class WikiTableHandler extends BaseSyntaxHandler {
   declare handlerId: string;
-  private engine: WikiEngine | null;
 
-  constructor(engine: WikiEngine | null = null) {
+  constructor(_engine: WikiEngine | null = null) {
     super(
       /^\s*\|.+\|\s*$/gm, // Pattern for table rows
       60,   // Priority - after WikiStyleHandler (70)
@@ -44,12 +43,10 @@ class WikiTableHandler extends BaseSyntaxHandler {
       }
     );
     this.handlerId = 'WikiTableHandler';
-    this.engine = engine;
   }
 
   // eslint-disable-next-line @typescript-eslint/require-await -- Implements BaseSyntaxHandler async interface
-  protected async onInitialize(context: InitializationContext): Promise<void> {
-    this.engine = context.engine as WikiEngine | undefined ?? null;
+  protected async onInitialize(_context: InitializationContext): Promise<void> {
     logger.debug('WikiTableHandler initialized');
   }
 

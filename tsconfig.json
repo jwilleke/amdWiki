@@ -27,6 +27,10 @@
 
     /* Type Checking - STRICT MODE ENABLED */
     "strict": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
 
     /* Completeness */
     "skipLibCheck": true,

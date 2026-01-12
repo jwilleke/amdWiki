@@ -116,16 +116,6 @@ interface RoleCreateData {
 }
 
 /**
- * Session creation data
- */
-interface _SessionData {
-  id: string;
-  username: string;
-  expiresAt: string;
-  [key: string]: unknown;
-}
-
-/**
  * UserManager - Handles user authentication, authorization, and roles
  *
  * Similar to JSPWiki's UserManager with role-based permissions. This manager
@@ -171,8 +161,6 @@ class UserManager extends BaseManager {
   private permissions: Map<string, string> = new Map();
   private passwordSalt?: string;
   private defaultPassword?: string;
-  private sessionExpiration?: number;
-  private defaultTimezone?: string;
 
   /**
    * Creates a new UserManager instance
@@ -240,8 +228,6 @@ class UserManager extends BaseManager {
     // Load configuration settings (for business logic)
     this.passwordSalt = configManager.getProperty('amdwiki.user.security.passwordsalt', 'amdwiki-salt') as string;
     this.defaultPassword = configManager.getProperty('amdwiki.user.security.defaultpassword', 'admin123') as string;
-    this.sessionExpiration = configManager.getProperty('amdwiki.user.security.sessionexpiration', 86400000) as number;
-    this.defaultTimezone = configManager.getProperty('amdwiki.user.defaults.timezone', 'utc') as string;
 
     // Load role definitions from config
     const roleDefinitions = configManager.getProperty('amdwiki.roles.definitions', {}) as Record<string, Role>;

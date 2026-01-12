@@ -32,13 +32,13 @@ interface RedisConfig {
  */
 class RedisCacheProvider extends BaseCacheProvider {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic type
-  private client: any;
-  private config: RedisConfig | null;
+  private _client: any;
+  private _config: RedisConfig | null;
 
   constructor(engine: WikiEngine) {
     super(engine);
-    this.client = null;
-    this.config = null;
+    this._client = null;
+    this._config = null;
   }
 
   /**
@@ -52,7 +52,7 @@ class RedisCacheProvider extends BaseCacheProvider {
     }
 
     // Load provider-specific settings (ALL LOWERCASE)
-    this.config = {
+    this._config = {
       url: configManager.getProperty(
         'amdwiki.cache.provider.redis.url',
         'redis://localhost:6379'
@@ -74,10 +74,13 @@ class RedisCacheProvider extends BaseCacheProvider {
     // TODO: Implement Redis client initialization
     // Example:
     // const redis = require('redis');
-    // this.client = redis.createClient({ url: this.config.url });
-    // await this.client.connect();
+    // this._client = redis.createClient({ url: this._config.url });
+    // await this._client.connect();
 
     logger.warn('[RedisCacheProvider] Redis provider not yet implemented, functionality disabled');
+    // Mark stub properties as intentionally unused until implementation
+    void this._client;
+    void this._config;
     return Promise.reject(new Error('RedisCacheProvider not yet implemented. Use NodeCacheProvider instead.'));
   }
 
@@ -103,7 +106,7 @@ class RedisCacheProvider extends BaseCacheProvider {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic type
   get<T = any>(_key: string): Promise<T | undefined> {
     // TODO: Implement
-    // const result = await this.client.get(this.config!.keyPrefix + key);
+    // const result = await this._client.get(this._config!.keyPrefix + key);
     // if (result) {
     //   return JSON.parse(result) as T;
     // }
@@ -122,12 +125,12 @@ class RedisCacheProvider extends BaseCacheProvider {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic type
   set<T = any>(_key: string, _value: T, _ttlSec?: number): Promise<void> {
     // TODO: Implement
-    // const fullKey = this.config!.keyPrefix + key;
+    // const fullKey = this._config!.keyPrefix + key;
     // const serialized = JSON.stringify(value);
     // if (ttlSec) {
-    //   await this.client.setEx(fullKey, ttlSec, serialized);
+    //   await this._client.setEx(fullKey, ttlSec, serialized);
     // } else {
-    //   await this.client.set(fullKey, serialized);
+    //   await this._client.set(fullKey, serialized);
     // }
     return Promise.reject(new Error('RedisCacheProvider.set() not yet implemented'));
   }
@@ -140,8 +143,8 @@ class RedisCacheProvider extends BaseCacheProvider {
   del(_keys: string | string[]): Promise<void> {
     // TODO: Implement
     // const keysArray = Array.isArray(keys) ? keys : [keys];
-    // const fullKeys = keysArray.map(k => this.config!.keyPrefix + k);
-    // await this.client.del(fullKeys);
+    // const fullKeys = keysArray.map(k => this._config!.keyPrefix + k);
+    // await this._client.del(fullKeys);
     return Promise.reject(new Error('RedisCacheProvider.del() not yet implemented'));
   }
 
@@ -190,9 +193,9 @@ class RedisCacheProvider extends BaseCacheProvider {
    */
   close(): Promise<void> {
     // TODO: Implement
-    // if (this.client) {
-    //   await this.client.quit();
-    //   this.client = null;
+    // if (this._client) {
+    //   await this._client.quit();
+    //   this._client = null;
     // }
     this.initialized = false;
     return Promise.resolve();

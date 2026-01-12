@@ -47,10 +47,9 @@ interface WikiEngine {
 class JSPWikiPreprocessor extends BaseSyntaxHandler {
   declare handlerId: string;
   private phase: number;
-  private engine: WikiEngine | null;
   private tableClasses: string[];
 
-  constructor(engine: WikiEngine | null = null) {
+  constructor(_engine: WikiEngine | null = null) {
     // Pass a pattern (we'll override process() anyway), priority, and options
     super(
       /%%[\s\S]*?\/%/g, // Pattern to match %%.../%% blocks
@@ -63,7 +62,6 @@ class JSPWikiPreprocessor extends BaseSyntaxHandler {
     );
     this.handlerId = 'JSPWikiPreprocessor';
     this.phase = 1; // Preprocessing phase
-    this.engine = engine;
 
     // JSPWiki table style classes
     this.tableClasses = [

@@ -465,7 +465,7 @@ class SchemaGenerator {
    * @param options - Generation options (must include engine)
    * @returns Array of DigitalDocumentPermission objects
    */
-  static generateDigitalDocumentPermissions(pageData: PageData, user: unknown, options: SchemaOptions = {}): unknown[] {
+  static generateDigitalDocumentPermissions(pageData: PageData, _user: unknown, options: SchemaOptions = {}): unknown[] {
     const permissions: unknown[] = [];
     const engine = options.engine;
     

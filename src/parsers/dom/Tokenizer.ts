@@ -182,9 +182,6 @@ export class Tokenizer {
   /** Pushback buffer for character lookahead */
   private pushbackBuffer: PushbackItem[];
 
-  /** Token array (unused but kept for compatibility) */
-  private tokens: Token[];
-
   /**
    * Create a new Tokenizer
    * @param input - The wiki markup to tokenize
@@ -196,7 +193,6 @@ export class Tokenizer {
     this.line = 1;
     this.column = 1;
     this.pushbackBuffer = [];
-    this.tokens = [];
   }
 
   /**
@@ -487,7 +483,6 @@ export class Tokenizer {
     this.line = 1;
     this.column = 1;
     this.pushbackBuffer = [];
-    this.tokens = [];
   }
 
   // ========================================================================

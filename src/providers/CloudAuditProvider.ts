@@ -35,13 +35,13 @@ interface CloudConfig {
  */
 class CloudAuditProvider extends BaseAuditProvider {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic type
-  private client: any; // Cloud SDK client - type depends on service
-  private config: CloudConfig | null;
+  private _client: any; // Cloud SDK client - type depends on service
+  private _config: CloudConfig | null;
 
   constructor(engine: WikiEngine) {
     super(engine);
-    this.client = null;
-    this.config = null;
+    this._client = null;
+    this._config = null;
   }
 
   /**
@@ -55,7 +55,7 @@ class CloudAuditProvider extends BaseAuditProvider {
     }
 
     // Load provider-specific settings (ALL LOWERCASE)
-    this.config = {
+    this._config = {
       service: configManager.getProperty(
         'amdwiki.audit.provider.cloud.service',
         'cloudwatch'
@@ -77,10 +77,13 @@ class CloudAuditProvider extends BaseAuditProvider {
     // TODO: Implement cloud service client initialization
     // Example for AWS CloudWatch:
     // const AWS = require('aws-sdk');
-    // this.client = new AWS.CloudWatchLogs({ region: this.config.region });
+    // this._client = new AWS.CloudWatchLogs({ region: this._config.region });
     // await this.ensureLogGroupExists();
 
     logger.warn('[CloudAuditProvider] Cloud provider not yet implemented, functionality disabled');
+    // Mark stub properties as intentionally unused until implementation
+    void this._client;
+    void this._config;
     return Promise.reject(new Error('CloudAuditProvider not yet implemented. Use FileAuditProvider instead.'));
   }
 
@@ -105,9 +108,9 @@ class CloudAuditProvider extends BaseAuditProvider {
   logAuditEvent(_auditEvent: AuditEvent): Promise<string> {
     // TODO: Implement cloud logging
     // Example for CloudWatch:
-    // await this.client.putLogEvents({
-    //   logGroupName: this.config.logGroup,
-    //   logStreamName: this.config.logStream,
+    // await this._client.putLogEvents({
+    //   logGroupName: this._config.logGroup,
+    //   logStreamName: this._config.logStream,
     //   logEvents: [{
     //     timestamp: Date.now(),
     //     message: JSON.stringify(auditEvent)
@@ -131,7 +134,7 @@ class CloudAuditProvider extends BaseAuditProvider {
     //   | sort @timestamp desc
     //   | limit ${options.limit}
     // `;
-    // await this.client.startQuery({...}).promise();
+    // await this._client.startQuery({...}).promise();
     throw new Error('CloudAuditProvider.searchAuditLogs() not yet implemented');
   }
 

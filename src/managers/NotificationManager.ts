@@ -70,7 +70,6 @@ interface NotificationsData {
  * @property {Map<string, Notification>} notifications - Active notifications by ID
  * @property {number} notificationId - Auto-incrementing notification ID
  * @property {string|null} storagePath - Path to notifications storage file
- * @property {Set<number>} saveQueue - Notifications pending save
  *
  * @see {@link BaseManager} for base functionality
  *
@@ -82,7 +81,6 @@ class NotificationManager extends BaseManager {
   private notifications: Map<string, Notification>;
   private notificationId: number;
   private storagePath: string | null;
-  private saveQueue: Set<number>;
   private saveInterval: NodeJS.Timeout | null;
   private logger: typeof logger;
 
@@ -98,7 +96,6 @@ class NotificationManager extends BaseManager {
     this.notifications = new Map();
     this.notificationId = 0;
     this.storagePath = null;
-    this.saveQueue = new Set();
     this.saveInterval = null;
     this.logger = logger.child({ component: 'NotificationManager' });
   }

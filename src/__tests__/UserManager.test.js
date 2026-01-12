@@ -136,8 +136,7 @@ describe('UserManager', () => {
 
       expect(userManager.passwordSalt).toBe('test-salt');
       expect(userManager.defaultPassword).toBe('admin123');
-      expect(userManager.sessionExpiration).toBe(86400000);
-      expect(userManager.defaultTimezone).toBe('utc');
+      // sessionExpiration and defaultTimezone were removed as dead code (declared but never used)
     });
   });
 

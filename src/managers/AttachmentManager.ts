@@ -133,7 +133,6 @@ class AttachmentManager extends BaseManager {
   private providerClass: string | null;
   private maxSize!: number;
   private allowedTypes!: string;
-  private forceDownload!: boolean;
 
   /**
    * Creates a new AttachmentManager instance
@@ -181,7 +180,6 @@ class AttachmentManager extends BaseManager {
     // Load shared attachment settings
     this.maxSize = configManager.getProperty('amdwiki.attachment.maxsize', 10485760) as number;
     this.allowedTypes = configManager.getProperty('amdwiki.attachment.allowedtypes', 'image/*,text/*,application/pdf') as string;
-    this.forceDownload = configManager.getProperty('amdwiki.attachment.forcedownload', false) as boolean;
 
     logger.info(`📎 Loading attachment provider: ${providerName} (${this.providerClass})`);
 

@@ -34,13 +34,13 @@ interface DatabaseConfig {
  */
 class DatabaseAuditProvider extends BaseAuditProvider {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Dynamic type
-  private client: any; // Database client - type depends on database
-  private config: DatabaseConfig | null;
+  private _client: any; // Database client - type depends on database
+  private _config: DatabaseConfig | null;
 
   constructor(engine: WikiEngine) {
     super(engine);
-    this.client = null;
-    this.config = null;
+    this._client = null;
+    this._config = null;
   }
 
   /**
@@ -54,7 +54,7 @@ class DatabaseAuditProvider extends BaseAuditProvider {
     }
 
     // Load provider-specific settings (ALL LOWERCASE)
-    this.config = {
+    this._config = {
       type: configManager.getProperty(
         'amdwiki.audit.provider.database.type',
         'postgresql'
@@ -76,13 +76,16 @@ class DatabaseAuditProvider extends BaseAuditProvider {
     // TODO: Implement database client initialization
     // Example for PostgreSQL:
     // const { Pool } = require('pg');
-    // this.client = new Pool({
-    //   connectionString: this.config.connectionString,
-    //   max: this.config.maxConnections
+    // this._client = new Pool({
+    //   connectionString: this._config.connectionString,
+    //   max: this._config.maxConnections
     // });
-    // await this.client.connect();
+    // await this._client.connect();
 
     logger.warn('[DatabaseAuditProvider] Database provider not yet implemented, functionality disabled');
+    // Mark stub properties as intentionally unused until implementation
+    void this._client;
+    void this._config;
     return Promise.reject(new Error('DatabaseAuditProvider not yet implemented. Use FileAuditProvider instead.'));
   }
 
@@ -182,9 +185,9 @@ class DatabaseAuditProvider extends BaseAuditProvider {
    */
   close(): Promise<void> {
     // TODO: Implement connection cleanup
-    // if (this.client) {
-    //   await this.client.end();
-    //   this.client = null;
+    // if (this._client) {
+    //   await this._client.end();
+    //   this._client = null;
     // }
     this.initialized = false;
     return Promise.resolve();

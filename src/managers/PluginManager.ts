@@ -107,7 +107,6 @@ export interface PluginInfo {
  */
 class PluginManager extends BaseManager {
   private plugins: Map<string, Plugin>;
-  private searchPaths: string[];
   private allowedRoots: string[];
 
   /**
@@ -120,7 +119,6 @@ class PluginManager extends BaseManager {
   constructor(engine: WikiEngine) {
     super(engine);
     this.plugins = new Map();
-    this.searchPaths = [];
     this.allowedRoots = [];
   }
 
