@@ -24,6 +24,28 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 
 ---
 
+## 2026-01-12-05
+
+- Agent: Claude Opus 4.5
+- Subject: Fix required-pages and add author: system
+- Key Decision: Move README.md out of required-pages to prevent wiki copy
+- Current Issue: None
+- Testing:
+  - npm test: 58 suites passed, 1380 tests passed
+- Work Done:
+  - Moved required-pages/README.md to docs/startup-pages.md (prevent wiki copy)
+  - Created proper StartupPages wiki page with UUID and frontmatter
+  - Added author: system to all 66 required-pages wiki files
+  - Normalized CRLF to LF line endings in 19 files
+  - Copied all required-pages to data/pages/ with overwrite
+- Commits: f662248, 7f71027, d56cf71
+- Files Modified:
+  - docs/startup-pages.md (moved from required-pages/README.md)
+  - required-pages/c1d696da-3a42-43b6-9775-a6587410d0c5.md (new StartupPages)
+  - required-pages/*.md (62 files - added author: system)
+
+---
+
 ## 2026-01-12-04
 
 - Agent: Claude Opus 4.5
