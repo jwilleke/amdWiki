@@ -5,8 +5,8 @@ user-keywords:
   - default
 uuid: 6bdacfac-300d-4d89-ad4a-2acc98e12bc5
 slug: imageplugin
-lastModified: '2025-12-29T12:09:49.066Z'
-author: system
+lastModified: '2026-01-13T09:20:42.776Z'
+author: admin
 ---
 # ImagePlugin
 
@@ -299,10 +299,8 @@ If text isn't wrapping around your image:
 
 ---
 
-*For developer documentation on extending or modifying the ImagePlugin, see `/docs/plugins/ImagePlugin.md`*
+*For developer documentation on extending or modifying the ImagePlugin, are located on [GitHub Developer Documentation|https://github.com/jwilleke/amdWiki/blob/master/docs/Developer-Documentation.md|target='_blank']
 
-
-## [BROKEN.pages] -- content
 
 ## More Information
 There might be more information for this subject on one of the following:

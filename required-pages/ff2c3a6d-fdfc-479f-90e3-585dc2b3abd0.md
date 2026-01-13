@@ -5,8 +5,8 @@ user-keywords:
   - default
 uuid: ff2c3a6d-fdfc-479f-90e3-585dc2b3abd0
 slug: counterplugin
-lastModified: '2025-12-29T12:02:44.507Z'
-author: system
+lastModified: '2026-01-13T09:17:49.921Z'
+author: admin
 ---
 # CounterPlugin
 
@@ -113,8 +113,6 @@ For named counters, use `[{$counter-name}]`:
 [{Counter name='chapter'}]
 Chapter: [{$counter-chapter}]
 ```
-
-[BROKEN.pages] -- content
 
 ## More Information
 
