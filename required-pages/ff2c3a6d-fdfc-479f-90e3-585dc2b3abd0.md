@@ -6,7 +6,7 @@ user-keywords:
 uuid: ff2c3a6d-fdfc-479f-90e3-585dc2b3abd0
 slug: counterplugin
 lastModified: '2025-12-29T12:02:44.507Z'
-author: admin
+author: system
 ---
 # CounterPlugin
 

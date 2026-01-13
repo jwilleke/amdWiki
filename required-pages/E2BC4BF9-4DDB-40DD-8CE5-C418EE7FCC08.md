@@ -8,7 +8,7 @@ user-keywords:
   - Server
 slug: uptimeplugin
 lastModified: '2025-12-18T12:00:00.000Z'
-author: admin
+author: system
 ---
 # UptimePlugin
 

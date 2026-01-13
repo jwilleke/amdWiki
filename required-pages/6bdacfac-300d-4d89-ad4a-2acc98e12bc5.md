@@ -6,7 +6,7 @@ user-keywords:
 uuid: 6bdacfac-300d-4d89-ad4a-2acc98e12bc5
 slug: imageplugin
 lastModified: '2025-12-29T12:09:49.066Z'
-author: admin
+author: system
 ---
 # ImagePlugin
 

@@ -5,7 +5,7 @@ system-category: documentation
 user-keywords: []
 slug: resource
 lastModified: '2025-10-17T13:24:21.713Z'
-author: jim
+author: system
 ---
 # Overview
 
