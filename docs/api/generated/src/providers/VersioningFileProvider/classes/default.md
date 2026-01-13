@@ -6,7 +6,7 @@
 
 # Class: default
 
-Defined in: [src/providers/VersioningFileProvider.ts:117](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/VersioningFileProvider.ts#L117)
+Defined in: [src/providers/VersioningFileProvider.ts:120](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/VersioningFileProvider.ts#L120)
 
 VersioningFileProvider - File-based storage with version history
 
@@ -46,7 +46,7 @@ Note: Version metadata (author, date, hash, etc.) is stored ONLY in manifest.jso
 
 > **new default**(`engine`): `VersioningFileProvider`
 
-Defined in: [src/providers/VersioningFileProvider.ts:151](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/VersioningFileProvider.ts#L151)
+Defined in: [src/providers/VersioningFileProvider.ts:154](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/VersioningFileProvider.ts#L154)
 
 Create a new VersioningFileProvider
 
@@ -72,7 +72,7 @@ The WikiEngine instance
 
 > `protected` **encoding**: `BufferEncoding`
 
-Defined in: [src/providers/FileSystemProvider.ts:81](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/FileSystemProvider.ts#L81)
+Defined in: [src/providers/FileSystemProvider.ts:81](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileSystemProvider.ts#L81)
 
 File encoding
 
@@ -86,7 +86,7 @@ File encoding
 
 > `protected` **engine**: [`WikiEngine`](../../BasePageProvider/interfaces/WikiEngine.md)
 
-Defined in: [src/providers/BasePageProvider.ts:54](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BasePageProvider.ts#L54)
+Defined in: [src/providers/BasePageProvider.ts:54](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BasePageProvider.ts#L54)
 
 Reference to the wiki engine
 
@@ -100,7 +100,7 @@ Reference to the wiki engine
 
 > **initialized**: `boolean`
 
-Defined in: [src/providers/BasePageProvider.ts:57](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BasePageProvider.ts#L57)
+Defined in: [src/providers/BasePageProvider.ts:57](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BasePageProvider.ts#L57)
 
 Whether provider has been initialized
 
@@ -114,7 +114,7 @@ Whether provider has been initialized
 
 > **installationComplete**: `boolean`
 
-Defined in: [src/providers/FileSystemProvider.ts:99](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/FileSystemProvider.ts#L99)
+Defined in: [src/providers/FileSystemProvider.ts:99](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileSystemProvider.ts#L99)
 
 Whether installation is complete (required-pages should not be used after install)
 
@@ -128,7 +128,7 @@ Whether installation is complete (required-pages should not be used after instal
 
 > `protected` **pageCache**: `Map`\<`string`, `PageCacheInfo`\>
 
-Defined in: [src/providers/FileSystemProvider.ts:84](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/FileSystemProvider.ts#L84)
+Defined in: [src/providers/FileSystemProvider.ts:84](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileSystemProvider.ts#L84)
 
 Main page cache (keyed by title)
 
@@ -140,9 +140,9 @@ Main page cache (keyed by title)
 
 ### pageNameMatcher
 
-> `protected` **pageNameMatcher**: [`default`](../../../utils/PageNameMatcher/classes/default.md)
+> `protected` **pageNameMatcher**: [`default`](../../../utils/PageNameMatcher/classes/default.md) \| `null`
 
-Defined in: [src/providers/FileSystemProvider.ts:96](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/FileSystemProvider.ts#L96)
+Defined in: [src/providers/FileSystemProvider.ts:96](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileSystemProvider.ts#L96)
 
 Page name matcher for fuzzy/plural matching
 
@@ -154,9 +154,9 @@ Page name matcher for fuzzy/plural matching
 
 ### pagesDirectory
 
-> `protected` **pagesDirectory**: `string`
+> `protected` **pagesDirectory**: `string` \| `null`
 
-Defined in: [src/providers/FileSystemProvider.ts:75](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/FileSystemProvider.ts#L75)
+Defined in: [src/providers/FileSystemProvider.ts:75](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileSystemProvider.ts#L75)
 
 Path to regular pages directory
 
@@ -168,9 +168,9 @@ Path to regular pages directory
 
 ### requiredPagesDirectory
 
-> `protected` **requiredPagesDirectory**: `string`
+> `protected` **requiredPagesDirectory**: `string` \| `null`
 
-Defined in: [src/providers/FileSystemProvider.ts:78](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/FileSystemProvider.ts#L78)
+Defined in: [src/providers/FileSystemProvider.ts:78](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileSystemProvider.ts#L78)
 
 Path to required pages directory
 
@@ -184,7 +184,7 @@ Path to required pages directory
 
 > `protected` **slugIndex**: `Map`\<`string`, `string`\>
 
-Defined in: [src/providers/FileSystemProvider.ts:93](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/FileSystemProvider.ts#L93)
+Defined in: [src/providers/FileSystemProvider.ts:93](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileSystemProvider.ts#L93)
 
 Slug index (slug -> canonical title)
 
@@ -198,7 +198,7 @@ Slug index (slug -> canonical title)
 
 > `protected` **titleIndex**: `Map`\<`string`, `string`\>
 
-Defined in: [src/providers/FileSystemProvider.ts:87](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/FileSystemProvider.ts#L87)
+Defined in: [src/providers/FileSystemProvider.ts:87](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileSystemProvider.ts#L87)
 
 Title index (lowercase title -> canonical title)
 
@@ -212,7 +212,7 @@ Title index (lowercase title -> canonical title)
 
 > `protected` **uuidIndex**: `Map`\<`string`, `string`\>
 
-Defined in: [src/providers/FileSystemProvider.ts:90](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/FileSystemProvider.ts#L90)
+Defined in: [src/providers/FileSystemProvider.ts:90](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileSystemProvider.ts#L90)
 
 UUID index (UUID -> canonical title)
 
@@ -226,7 +226,7 @@ UUID index (UUID -> canonical title)
 
 > **backup**(): `Promise`\<`BackupData`\>
 
-Defined in: [src/providers/FileSystemProvider.ts:577](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/FileSystemProvider.ts#L577)
+Defined in: [src/providers/FileSystemProvider.ts:577](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileSystemProvider.ts#L577)
 
 Backup all pages to a serializable format
 
@@ -249,7 +249,7 @@ Backup data containing all pages
 
 > **compareVersions**(`identifier`, `v1`, `v2`): `Promise`\<[`VersionDiff`](../../../types/Version/interfaces/VersionDiff.md)\>
 
-Defined in: [src/providers/VersioningFileProvider.ts:1244](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/VersioningFileProvider.ts#L1244)
+Defined in: [src/providers/VersioningFileProvider.ts:1256](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/VersioningFileProvider.ts#L1256)
 
 Compare two versions of a page
 
@@ -304,7 +304,7 @@ console.log(comparison.diff); // Array of diff operations
 
 > **deletePage**(`identifier`): `Promise`\<`boolean`\>
 
-Defined in: [src/providers/VersioningFileProvider.ts:715](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/VersioningFileProvider.ts#L715)
+Defined in: [src/providers/VersioningFileProvider.ts:725](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/VersioningFileProvider.ts#L725)
 
 Delete a page and its version history
 
@@ -330,9 +330,9 @@ True if deleted, false if not found
 
 ### findPage()
 
-> **findPage**(`identifier`): `string`
+> **findPage**(`identifier`): `string` \| `null`
 
-Defined in: [src/providers/FileSystemProvider.ts:545](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/FileSystemProvider.ts#L545)
+Defined in: [src/providers/FileSystemProvider.ts:545](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileSystemProvider.ts#L545)
 
 Find page by various identifiers
 
@@ -346,7 +346,7 @@ UUID, title, or slug
 
 #### Returns
 
-`string`
+`string` \| `null`
 
 Canonical page title or null
 
@@ -360,7 +360,7 @@ Canonical page title or null
 
 > **getAllPageInfo**(`_options?`): `Promise`\<[`PageInfo`](../../../types/Page/interfaces/PageInfo.md)[]\>
 
-Defined in: [src/providers/FileSystemProvider.ts:528](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/FileSystemProvider.ts#L528)
+Defined in: [src/providers/FileSystemProvider.ts:528](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileSystemProvider.ts#L528)
 
 Get all page info objects
 
@@ -388,7 +388,7 @@ Array of page info objects
 
 > **getAllPages**(): `Promise`\<`string`[]\>
 
-Defined in: [src/providers/FileSystemProvider.ts:519](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/FileSystemProvider.ts#L519)
+Defined in: [src/providers/FileSystemProvider.ts:519](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileSystemProvider.ts#L519)
 
 Returns a list of all available page titles (sorted)
 
@@ -406,9 +406,9 @@ An array of page titles
 
 ### getPage()
 
-> **getPage**(`identifier`): `Promise`\<[`WikiPage`](../../../types/Page/interfaces/WikiPage.md)\>
+> **getPage**(`identifier`): `Promise`\<[`WikiPage`](../../../types/Page/interfaces/WikiPage.md) \| `null`\>
 
-Defined in: [src/providers/FileSystemProvider.ts:333](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/FileSystemProvider.ts#L333)
+Defined in: [src/providers/FileSystemProvider.ts:333](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileSystemProvider.ts#L333)
 
 Get page content and metadata together
 
@@ -422,7 +422,7 @@ Page UUID or title
 
 #### Returns
 
-`Promise`\<[`WikiPage`](../../../types/Page/interfaces/WikiPage.md)\>
+`Promise`\<[`WikiPage`](../../../types/Page/interfaces/WikiPage.md) \| `null`\>
 
 #### Inherited from
 
@@ -434,7 +434,7 @@ Page UUID or title
 
 > **getPageContent**(`identifier`): `Promise`\<`string`\>
 
-Defined in: [src/providers/FileSystemProvider.ts:362](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/FileSystemProvider.ts#L362)
+Defined in: [src/providers/FileSystemProvider.ts:362](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileSystemProvider.ts#L362)
 
 Retrieves the raw markdown content of a page (without frontmatter).
 
@@ -460,9 +460,9 @@ The raw markdown content without frontmatter
 
 ### getPageMetadata()
 
-> **getPageMetadata**(`identifier`): `Promise`\<[`PageFrontmatter`](../../../types/Page/interfaces/PageFrontmatter.md)\>
+> **getPageMetadata**(`identifier`): `Promise`\<[`PageFrontmatter`](../../../types/Page/interfaces/PageFrontmatter.md) \| `null`\>
 
-Defined in: [src/providers/FileSystemProvider.ts:379](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/FileSystemProvider.ts#L379)
+Defined in: [src/providers/FileSystemProvider.ts:379](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileSystemProvider.ts#L379)
 
 Retrieves the metadata (frontmatter) for a given page.
 
@@ -476,7 +476,7 @@ Page UUID or title
 
 #### Returns
 
-`Promise`\<[`PageFrontmatter`](../../../types/Page/interfaces/PageFrontmatter.md)\>
+`Promise`\<[`PageFrontmatter`](../../../types/Page/interfaces/PageFrontmatter.md) \| `null`\>
 
 The page metadata, or null if not found
 
@@ -490,7 +490,7 @@ The page metadata, or null if not found
 
 > **getPageVersion**(`identifier`, `version`): `Promise`\<[`VersionContent`](../../../types/Version/interfaces/VersionContent.md)\>
 
-Defined in: [src/providers/VersioningFileProvider.ts:1113](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/VersioningFileProvider.ts#L1113)
+Defined in: [src/providers/VersioningFileProvider.ts:1125](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/VersioningFileProvider.ts#L1125)
 
 Get specific version content for a page
 
@@ -541,7 +541,7 @@ console.log(metadata.author); // Editor of version 2
 
 > **getProviderInfo**(): [`ProviderInfo`](../../BasePageProvider/interfaces/ProviderInfo.md)
 
-Defined in: [src/providers/VersioningFileProvider.ts:1397](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/VersioningFileProvider.ts#L1397)
+Defined in: [src/providers/VersioningFileProvider.ts:1385](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/VersioningFileProvider.ts#L1385)
 
 Get provider information
 
@@ -561,7 +561,7 @@ Provider metadata
 
 > **getVersionHistory**(`identifier`, `limit?`): `Promise`\<[`VersionHistoryEntry`](../../../types/Version/interfaces/VersionHistoryEntry.md)[]\>
 
-Defined in: [src/providers/VersioningFileProvider.ts:1062](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/VersioningFileProvider.ts#L1062)
+Defined in: [src/providers/VersioningFileProvider.ts:1074](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/VersioningFileProvider.ts#L1074)
 
 Get version history for a page
 
@@ -613,7 +613,7 @@ const history = await provider.getVersionHistory('Main');
 
 > **initialize**(): `Promise`\<`void`\>
 
-Defined in: [src/providers/VersioningFileProvider.ts:184](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/VersioningFileProvider.ts#L184)
+Defined in: [src/providers/VersioningFileProvider.ts:187](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/VersioningFileProvider.ts#L187)
 
 Initialize the versioning provider
 
@@ -638,7 +638,7 @@ Promise<void>
 
 > **pageExists**(`identifier`): `boolean`
 
-Defined in: [src/providers/FileSystemProvider.ts:511](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/FileSystemProvider.ts#L511)
+Defined in: [src/providers/FileSystemProvider.ts:511](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileSystemProvider.ts#L511)
 
 Check if a page exists
 
@@ -664,7 +664,7 @@ Page UUID or title
 
 > **purgeOldVersions**(`identifier`, `keepLatest`): `Promise`\<`number`\>
 
-Defined in: [src/providers/VersioningFileProvider.ts:1291](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/VersioningFileProvider.ts#L1291)
+Defined in: [src/providers/VersioningFileProvider.ts:1303](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/VersioningFileProvider.ts#L1303)
 
 Purge old versions of a page
 
@@ -714,7 +714,7 @@ console.log(`Removed ${count} versions`);
 
 > **refreshPageList**(): `Promise`\<`void`\>
 
-Defined in: [src/providers/FileSystemProvider.ts:188](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/FileSystemProvider.ts#L188)
+Defined in: [src/providers/FileSystemProvider.ts:188](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileSystemProvider.ts#L188)
 
 Reads all .md files from the pages directory (and required-pages during installation)
 and populates the page cache with multiple indexes.
@@ -736,7 +736,7 @@ The required-pages directory is only used during installation to seed the wiki.
 
 > **restore**(`backupData`): `Promise`\<`void`\>
 
-Defined in: [src/providers/FileSystemProvider.ts:660](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/FileSystemProvider.ts#L660)
+Defined in: [src/providers/FileSystemProvider.ts:660](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileSystemProvider.ts#L660)
 
 Restore pages from backup data
 
@@ -765,7 +765,7 @@ Backup data from backup() method
 
 > **restoreVersion**(`identifier`, `version`): `Promise`\<`void`\>
 
-Defined in: [src/providers/VersioningFileProvider.ts:1191](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/VersioningFileProvider.ts#L1191)
+Defined in: [src/providers/VersioningFileProvider.ts:1203](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/VersioningFileProvider.ts#L1203)
 
 Restore page to a specific version
 
@@ -811,7 +811,7 @@ console.log(`Restored to v5`);
 
 > **savePage**(`pageName`, `content`, `metadata`): `Promise`\<`void`\>
 
-Defined in: [src/providers/VersioningFileProvider.ts:646](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/VersioningFileProvider.ts#L646)
+Defined in: [src/providers/VersioningFileProvider.ts:655](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/VersioningFileProvider.ts#L655)
 
 Override savePage to create versions
 
@@ -859,7 +859,7 @@ Promise<void>
 
 > **shutdown**(): `void`
 
-Defined in: [src/providers/BasePageProvider.ts:299](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BasePageProvider.ts#L299)
+Defined in: [src/providers/BasePageProvider.ts:299](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BasePageProvider.ts#L299)
 
 Shutdown the provider (cleanup resources)
 

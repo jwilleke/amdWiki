@@ -6,7 +6,7 @@
 
 # Interface: VariableInfo
 
-Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:96](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMVariableHandler.ts#L96)
+Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:97](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L97)
 
 Information about a single variable
 
@@ -16,7 +16,7 @@ Information about a single variable
 
 > **name**: `string`
 
-Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:98](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMVariableHandler.ts#L98)
+Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:99](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L99)
 
 Variable name
 
@@ -26,6 +26,6 @@ Variable name
 
 > **resolved**: `boolean`
 
-Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:100](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMVariableHandler.ts#L100)
+Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:101](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L101)
 
 Whether the variable was successfully resolved

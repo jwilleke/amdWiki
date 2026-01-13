@@ -6,7 +6,7 @@
 
 # Interface: ValidationResult
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:74](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L74)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:76](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L76)
 
 Parameter validation result
 
@@ -16,7 +16,7 @@ Parameter validation result
 
 > **errors**: `string`[]
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:76](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L76)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:78](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L78)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:76](https://github.com/jw
 
 > **isValid**: `boolean`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:75](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L75)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:77](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L77)
 
 ***
 
@@ -32,4 +32,4 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:75](https://github.com/jw
 
 > **params**: `Record`\<`string`, `unknown`\>
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:77](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L77)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:79](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L79)

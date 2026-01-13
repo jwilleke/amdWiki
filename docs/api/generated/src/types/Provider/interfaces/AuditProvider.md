@@ -6,7 +6,7 @@
 
 # Interface: AuditProvider
 
-Defined in: [src/types/Provider.ts:491](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L491)
+Defined in: [src/types/Provider.ts:526](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L526)
 
 Audit provider interface
 
@@ -22,7 +22,7 @@ Defines the contract for audit logging backends.
 
 > **engine**: [`WikiEngine`](../../WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/types/Provider.ts:21](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L21)
+Defined in: [src/types/Provider.ts:37](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L37)
 
 Reference to WikiEngine
 
@@ -36,7 +36,7 @@ Reference to WikiEngine
 
 > **initialized**: `boolean`
 
-Defined in: [src/types/Provider.ts:24](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L24)
+Defined in: [src/types/Provider.ts:40](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L40)
 
 Whether provider has been initialized
 
@@ -46,11 +46,31 @@ Whether provider has been initialized
 
 ## Methods
 
+### backup()?
+
+> `optional` **backup**(): `Promise`\<`Record`\<`string`, `unknown`\>\>
+
+Defined in: [src/types/Provider.ts:64](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L64)
+
+Backup provider data
+
+#### Returns
+
+`Promise`\<`Record`\<`string`, `unknown`\>\>
+
+Promise resolving to backup data
+
+#### Inherited from
+
+[`BaseProvider`](BaseProvider.md).[`backup`](BaseProvider.md#backup)
+
+***
+
 ### cleanupOldEvents()
 
 > **cleanupOldEvents**(`olderThanDays`): `Promise`\<`number`\>
 
-Defined in: [src/types/Provider.ts:520](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L520)
+Defined in: [src/types/Provider.ts:555](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L555)
 
 Delete old audit events
 
@@ -70,11 +90,31 @@ Number of events deleted
 
 ***
 
+### getProviderInfo()?
+
+> `optional` **getProviderInfo**(): [`ProviderInfo`](ProviderInfo.md)
+
+Defined in: [src/types/Provider.ts:58](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L58)
+
+Get provider information
+
+#### Returns
+
+[`ProviderInfo`](ProviderInfo.md)
+
+Provider metadata
+
+#### Inherited from
+
+[`BaseProvider`](BaseProvider.md).[`getProviderInfo`](BaseProvider.md#getproviderinfo)
+
+***
+
 ### initialize()
 
 > **initialize**(): `Promise`\<`void`\>
 
-Defined in: [src/types/Provider.ts:30](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L30)
+Defined in: [src/types/Provider.ts:46](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L46)
 
 Initialize the provider
 
@@ -94,7 +134,7 @@ Promise that resolves when initialization is complete
 
 > **logEvent**(`event`): `Promise`\<`void`\>
 
-Defined in: [src/types/Provider.ts:497](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L497)
+Defined in: [src/types/Provider.ts:532](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L532)
 
 Log audit event
 
@@ -118,7 +158,7 @@ Promise that resolves when event is logged
 
 > **queryEvents**(`filters`): `Promise`\<[`AuditEvent`](AuditEvent.md)[]\>
 
-Defined in: [src/types/Provider.ts:504](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L504)
+Defined in: [src/types/Provider.ts:539](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L539)
 
 Query audit events
 
@@ -168,11 +208,39 @@ Array of audit events
 
 ***
 
+### restore()?
+
+> `optional` **restore**(`backupData`): `Promise`\<`void`\>
+
+Defined in: [src/types/Provider.ts:71](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L71)
+
+Restore provider data from backup
+
+#### Parameters
+
+##### backupData
+
+`Record`\<`string`, `unknown`\>
+
+Backup data from backup() method
+
+#### Returns
+
+`Promise`\<`void`\>
+
+Promise that resolves when restore is complete
+
+#### Inherited from
+
+[`BaseProvider`](BaseProvider.md).[`restore`](BaseProvider.md#restore)
+
+***
+
 ### shutdown()?
 
 > `optional` **shutdown**(): `Promise`\<`void`\>
 
-Defined in: [src/types/Provider.ts:36](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L36)
+Defined in: [src/types/Provider.ts:52](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L52)
 
 Shutdown the provider (optional)
 

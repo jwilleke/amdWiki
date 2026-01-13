@@ -6,32 +6,12 @@
 
 # Class: default
 
-Defined in: [src/parsers/MarkupParser.ts:284](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L284)
+Defined in: [src/parsers/MarkupParser.ts:351](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L351)
 
-MarkupParser - Comprehensive markup parsing engine for JSPWiki compatibility
+Base class for all managers
 
-============================================================================
-RENDERING PIPELINE (Issue #120, Issue #185):
-============================================================================
-
-**WikiDocument DOM Extraction Pipeline** (Issues #115-#120):
-1. Extract JSPWiki syntax before markdown parsing (extractJSPWikiSyntax())
-2. Create WikiDocument DOM nodes (createDOMNode())
-3. Parse markdown with Showdown (makeHtml())
-4. Merge DOM nodes into HTML (mergeDOMNodes())
-
-This pipeline fixes the markdown heading bug (#110, #93) and provides
-robust JSPWiki syntax processing without order dependencies.
-
-The legacy 7-phase string-based pipeline was removed in Issue #185.
-
-============================================================================
-
-Related Issues:
-- #185 - Remove deprecated 7-phase legacy parser pipeline
-- #114 - WikiDocument DOM Solution (Epic)
-- #115-#120 - Implementation Phases
-- #110, #93 - Markdown heading bug fixes
+Provides common functionality for initialization, lifecycle management,
+and backup/restore operations.
 
 ## Extends
 
@@ -43,7 +23,7 @@ Related Issues:
 
 > **new default**(`engine`): `MarkupParser`
 
-Defined in: [src/parsers/MarkupParser.ts:318](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L318)
+Defined in: [src/parsers/MarkupParser.ts:388](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L388)
 
 Creates a new MarkupParser instance
 
@@ -51,7 +31,7 @@ Creates a new MarkupParser instance
 
 ##### engine
 
-`any`
+[`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
 #### Returns
 
@@ -65,9 +45,9 @@ Creates a new MarkupParser instance
 
 ### cache
 
-> **cache**: [`default`](../../../cache/RegionCache/classes/default.md)
+> **cache**: [`default`](../../../cache/RegionCache/classes/default.md) \| `null`
 
-Defined in: [src/parsers/MarkupParser.ts:292](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L292)
+Defined in: [src/parsers/MarkupParser.ts:359](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L359)
 
 Parse result cache
 
@@ -77,21 +57,21 @@ Parse result cache
 
 > **cacheStrategies**: `Record`\<`string`, [`default`](../../../cache/RegionCache/classes/default.md)\>
 
-Defined in: [src/parsers/MarkupParser.ts:295](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L295)
+Defined in: [src/parsers/MarkupParser.ts:362](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L362)
 
 Caching strategies by content type
 
 ***
 
-### config?
+### config
 
-> `protected` `optional` **config**: `Record`\<`string`, `any`\>
+> `protected` **config**: [`MarkupParserConfig`](../interfaces/MarkupParserConfig.md)
 
-Defined in: [src/managers/BaseManager.ts:63](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L63)
+Defined in: [src/parsers/MarkupParser.ts:383](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L383)
 
-Configuration passed during initialization
+Parser configuration - overrides BaseManager's generic config
 
-#### Inherited from
+#### Overrides
 
 [`default`](../../../managers/BaseManager/classes/default.md).[`config`](../../../managers/BaseManager/classes/default.md#config)
 
@@ -101,7 +81,7 @@ Configuration passed during initialization
 
 > **domLinkHandler**: [`default`](../../dom/handlers/DOMLinkHandler/classes/default.md)
 
-Defined in: [src/parsers/MarkupParser.ts:313](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L313)
+Defined in: [src/parsers/MarkupParser.ts:380](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L380)
 
 Link resolution handler
 
@@ -111,7 +91,7 @@ Link resolution handler
 
 > **domParser**: [`DOMParser`](../../dom/DOMParser/classes/DOMParser.md)
 
-Defined in: [src/parsers/MarkupParser.ts:304](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L304)
+Defined in: [src/parsers/MarkupParser.ts:371](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L371)
 
 DOM-based parser for JSPWiki syntax
 
@@ -121,7 +101,7 @@ DOM-based parser for JSPWiki syntax
 
 > **domPluginHandler**: [`default`](../../dom/handlers/DOMPluginHandler/classes/default.md)
 
-Defined in: [src/parsers/MarkupParser.ts:310](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L310)
+Defined in: [src/parsers/MarkupParser.ts:377](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L377)
 
 Plugin execution handler
 
@@ -131,7 +111,7 @@ Plugin execution handler
 
 > **domVariableHandler**: [`default`](../../dom/handlers/DOMVariableHandler/classes/default.md)
 
-Defined in: [src/parsers/MarkupParser.ts:307](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L307)
+Defined in: [src/parsers/MarkupParser.ts:374](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L374)
 
 Variable expansion handler
 
@@ -141,7 +121,7 @@ Variable expansion handler
 
 > `protected` **engine**: [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/managers/BaseManager.ts:56](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L56)
+Defined in: [src/managers/BaseManager.ts:54](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L54)
 
 Reference to the wiki engine
 
@@ -153,9 +133,9 @@ Reference to the wiki engine
 
 ### filterChain
 
-> **filterChain**: [`default`](../../filters/FilterChain/classes/default.md)
+> **filterChain**: [`default`](../../filters/FilterChain/classes/default.md) \| `null`
 
-Defined in: [src/parsers/MarkupParser.ts:289](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L289)
+Defined in: [src/parsers/MarkupParser.ts:356](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L356)
 
 Content filter chain
 
@@ -165,7 +145,7 @@ Content filter chain
 
 > **handlerRegistry**: [`HandlerRegistry`](../../handlers/HandlerRegistry/classes/HandlerRegistry.md)
 
-Defined in: [src/parsers/MarkupParser.ts:286](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L286)
+Defined in: [src/parsers/MarkupParser.ts:353](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L353)
 
 Handler registry for syntax handlers
 
@@ -175,7 +155,7 @@ Handler registry for syntax handlers
 
 > `protected` **initialized**: `boolean`
 
-Defined in: [src/managers/BaseManager.ts:59](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L59)
+Defined in: [src/managers/BaseManager.ts:57](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L57)
 
 Initialization status flag
 
@@ -189,7 +169,7 @@ Initialization status flag
 
 > **metrics**: [`ParserMetrics`](../interfaces/ParserMetrics.md)
 
-Defined in: [src/parsers/MarkupParser.ts:301](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L301)
+Defined in: [src/parsers/MarkupParser.ts:368](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L368)
 
 Parser performance metrics
 
@@ -197,9 +177,9 @@ Parser performance metrics
 
 ### performanceMonitor
 
-> **performanceMonitor**: [`PerformanceMonitor`](../interfaces/PerformanceMonitor.md)
+> **performanceMonitor**: [`PerformanceMonitor`](../interfaces/PerformanceMonitor.md) \| `null`
 
-Defined in: [src/parsers/MarkupParser.ts:298](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L298)
+Defined in: [src/parsers/MarkupParser.ts:365](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L365)
 
 Performance monitoring state
 
@@ -209,7 +189,7 @@ Performance monitoring state
 
 > **backup**(): `Promise`\<[`BackupData`](../../../managers/BaseManager/interfaces/BackupData.md)\>
 
-Defined in: [src/managers/BaseManager.ts:168](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L168)
+Defined in: [src/managers/BaseManager.ts:169](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L169)
 
 Backup manager data
 
@@ -251,7 +231,7 @@ async backup(): Promise<BackupData> {
 
 > **cacheHandlerResult**(`handlerId`, `contentHash`, `contextHash`, `result`): `Promise`\<`void`\>
 
-Defined in: [src/parsers/MarkupParser.ts:1531](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L1531)
+Defined in: [src/parsers/MarkupParser.ts:1613](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L1613)
 
 Cache handler result
 
@@ -259,25 +239,25 @@ Cache handler result
 
 ##### handlerId
 
-`any`
+`string`
 
 Handler ID
 
 ##### contentHash
 
-`any`
+`string`
 
 Content hash
 
 ##### contextHash
 
-`any`
+`string`
 
 Context hash
 
 ##### result
 
-`any`
+`string`
 
 Result to cache
 
@@ -291,7 +271,7 @@ Result to cache
 
 > **cacheParseResult**(`cacheKey`, `content`): `Promise`\<`void`\>
 
-Defined in: [src/parsers/MarkupParser.ts:1480](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L1480)
+Defined in: [src/parsers/MarkupParser.ts:1562](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L1562)
 
 Cache parse result
 
@@ -299,13 +279,13 @@ Cache parse result
 
 ##### cacheKey
 
-`any`
+`string`
 
 Cache key
 
 ##### content
 
-`any`
+`string`
 
 Content to cache
 
@@ -319,7 +299,7 @@ Content to cache
 
 > **checkPerformanceThresholds**(): `void`
 
-Defined in: [src/parsers/MarkupParser.ts:1592](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L1592)
+Defined in: [src/parsers/MarkupParser.ts:1674](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L1674)
 
 Check performance thresholds and generate alerts
 
@@ -333,7 +313,7 @@ Check performance thresholds and generate alerts
 
 > **clearPerformanceAlerts**(): `void`
 
-Defined in: [src/parsers/MarkupParser.ts:1687](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L1687)
+Defined in: [src/parsers/MarkupParser.ts:1773](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L1773)
 
 Clear performance alerts
 
@@ -345,9 +325,9 @@ Clear performance alerts
 
 ### createDOMNode()
 
-> **createDOMNode**(`element`, `context`, `wikiDocument`): `Promise`\<`any`\>
+> **createDOMNode**(`element`, `context`, `wikiDocument`): `Promise`\<`unknown`\>
 
-Defined in: [src/parsers/MarkupParser.ts:1212](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L1212)
+Defined in: [src/parsers/MarkupParser.ts:1280](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L1280)
 
 Creates a DOM node from an extracted element (Phase 2 dispatcher)
 
@@ -358,25 +338,25 @@ to the appropriate handler based on element type.
 
 ##### element
 
-`any`
+[`ExtractedElement`](../interfaces/ExtractedElement.md)
 
 Extracted element from extractJSPWikiSyntax()
 
 ##### context
 
-`any`
+[`ParseContext`](../../context/ParseContext/classes/ParseContext.md)
 
 Rendering context
 
 ##### wikiDocument
 
-`any`
+[`default`](../../dom/WikiDocument/classes/default.md)
 
 WikiDocument to create node in
 
 #### Returns
 
-`Promise`\<`any`\>
+`Promise`\<`unknown`\>
 
 DOM node for the element
 
@@ -392,9 +372,9 @@ const node = await createDOMNode(element, context, wikiDoc);
 
 ### createTextNodeForEscaped()
 
-> **createTextNodeForEscaped**(`element`, `wikiDocument`): `any`
+> **createTextNodeForEscaped**(`element`, `wikiDocument`): `unknown`
 
-Defined in: [src/parsers/MarkupParser.ts:1182](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L1182)
+Defined in: [src/parsers/MarkupParser.ts:1250](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L1250)
 
 Creates a text node for escaped JSPWiki syntax
 
@@ -405,19 +385,19 @@ Escaped syntax like [[{$var}]] should render as literal text [{$var}].
 
 ##### element
 
-`any`
+[`ExtractedElement`](../interfaces/ExtractedElement.md)
 
 Extracted escaped element
 
 ##### wikiDocument
 
-`any`
+[`default`](../../dom/WikiDocument/classes/default.md)
 
 WikiDocument to create node in
 
 #### Returns
 
-`any`
+`unknown`
 
 DOM node containing the escaped literal text
 
@@ -435,7 +415,7 @@ const node = createTextNodeForEscaped(element, wikiDoc);
 
 > **disableHandler**(`handlerId`): `boolean`
 
-Defined in: [src/parsers/MarkupParser.ts:1014](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L1014)
+Defined in: [src/parsers/MarkupParser.ts:1084](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L1084)
 
 Disable handler by ID
 
@@ -443,7 +423,7 @@ Disable handler by ID
 
 ##### handlerId
 
-`any`
+`string`
 
 Handler identifier
 
@@ -451,7 +431,7 @@ Handler identifier
 
 `boolean`
 
-- True if successful
+True if successful
 
 ***
 
@@ -459,7 +439,7 @@ Handler identifier
 
 > **enableHandler**(`handlerId`): `boolean`
 
-Defined in: [src/parsers/MarkupParser.ts:1005](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L1005)
+Defined in: [src/parsers/MarkupParser.ts:1075](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L1075)
 
 Enable handler by ID
 
@@ -467,7 +447,7 @@ Enable handler by ID
 
 ##### handlerId
 
-`any`
+`string`
 
 Handler identifier
 
@@ -475,7 +455,7 @@ Handler identifier
 
 `boolean`
 
-- True if successful
+True if successful
 
 ***
 
@@ -483,7 +463,7 @@ Handler identifier
 
 > **extractJSPWikiSyntax**(`content`, `_context`): `object`
 
-Defined in: [src/parsers/MarkupParser.ts:1067](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L1067)
+Defined in: [src/parsers/MarkupParser.ts:1136](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L1136)
 
 Extract JSPWiki-specific syntax from content for DOM-based processing
 
@@ -504,11 +484,13 @@ inside code blocks won't be extracted.
 
 ##### content
 
-`any`
+`string`
 
 Raw wiki content
 
 ##### \_context
+
+`Record`\<`string`, `unknown`\> = `{}`
 
 #### Returns
 
@@ -520,15 +502,15 @@ Related: #114 (WikiDocument DOM Solution), #115 (Phase 1 Implementation)
 
 ##### jspwikiElements
 
-> **jspwikiElements**: `any`[]
+> **jspwikiElements**: [`ExtractedElement`](../interfaces/ExtractedElement.md)[]
 
 ##### sanitized
 
-> **sanitized**: `any`
+> **sanitized**: `string`
 
 ##### uuid
 
-> **uuid**: `any`
+> **uuid**: `string`
 
 #### Example
 
@@ -546,7 +528,7 @@ const { sanitized, jspwikiElements, uuid } = parser.extractJSPWikiSyntax(input);
 
 > **generateCacheKey**(`content`, `context`): `string`
 
-Defined in: [src/parsers/MarkupParser.ts:1024](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L1024)
+Defined in: [src/parsers/MarkupParser.ts:1094](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L1094)
 
 Generate cache key for content and context
 
@@ -554,13 +536,13 @@ Generate cache key for content and context
 
 ##### content
 
-`any`
+`string`
 
 Content to cache
 
 ##### context
 
-`any`
+[`ParseContextData`](../interfaces/ParseContextData.md)
 
 Parse context
 
@@ -568,7 +550,7 @@ Parse context
 
 `string`
 
-- Cache key
+Cache key
 
 ***
 
@@ -576,7 +558,7 @@ Parse context
 
 > **generatePerformanceAlert**(`type`, `message`): `void`
 
-Defined in: [src/parsers/MarkupParser.ts:1646](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L1646)
+Defined in: [src/parsers/MarkupParser.ts:1728](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L1728)
 
 Generate performance alert
 
@@ -584,13 +566,13 @@ Generate performance alert
 
 ##### type
 
-`any`
+`string`
 
 Alert type
 
 ##### message
 
-`any`
+`string`
 
 Alert message
 
@@ -602,9 +584,9 @@ Alert message
 
 ### getCachedHandlerResult()
 
-> **getCachedHandlerResult**(`handlerId`, `contentHash`, `contextHash`): `Promise`\<`unknown`\>
+> **getCachedHandlerResult**(`handlerId`, `contentHash`, `contextHash`): `Promise`\<`string` \| `null`\>
 
-Defined in: [src/parsers/MarkupParser.ts:1502](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L1502)
+Defined in: [src/parsers/MarkupParser.ts:1584](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L1584)
 
 Get cached handler result
 
@@ -612,35 +594,35 @@ Get cached handler result
 
 ##### handlerId
 
-`any`
+`string`
 
 Handler ID
 
 ##### contentHash
 
-`any`
+`string`
 
 Content hash
 
 ##### contextHash
 
-`any`
+`string`
 
 Context hash
 
 #### Returns
 
-`Promise`\<`unknown`\>
+`Promise`\<`string` \| `null`\>
 
-- Cached result or null
+Cached result or null
 
 ***
 
 ### getCachedParseResult()
 
-> **getCachedParseResult**(`cacheKey`): `Promise`\<`unknown`\>
+> **getCachedParseResult**(`cacheKey`): `Promise`\<`string` \| `null`\>
 
-Defined in: [src/parsers/MarkupParser.ts:1462](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L1462)
+Defined in: [src/parsers/MarkupParser.ts:1544](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L1544)
 
 Get cached parse result
 
@@ -648,15 +630,15 @@ Get cached parse result
 
 ##### cacheKey
 
-`any`
+`string`
 
 Cache key
 
 #### Returns
 
-`Promise`\<`unknown`\>
+`Promise`\<`string` \| `null`\>
 
-- Cached result or null
+Cached result or null
 
 ***
 
@@ -664,7 +646,7 @@ Cache key
 
 > **getEngine**(): [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/managers/BaseManager.ts:126](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L126)
+Defined in: [src/managers/BaseManager.ts:125](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L125)
 
 Get the wiki engine instance
 
@@ -688,9 +670,9 @@ const config = this.getEngine().getConfig();
 
 ### getHandler()
 
-> **getHandler**(`handlerId`): [`default`](../../handlers/BaseSyntaxHandler/classes/default.md)
+> **getHandler**(`handlerId`): `unknown`
 
-Defined in: [src/parsers/MarkupParser.ts:987](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L987)
+Defined in: [src/parsers/MarkupParser.ts:1057](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L1057)
 
 Get handler by ID
 
@@ -698,23 +680,23 @@ Get handler by ID
 
 ##### handlerId
 
-`any`
+`string`
 
 Handler identifier
 
 #### Returns
 
-[`default`](../../handlers/BaseSyntaxHandler/classes/default.md)
+`unknown`
 
-- Handler or null if not found
+Handler or null if not found
 
 ***
 
 ### getHandlerConfig()
 
-> **getHandlerConfig**(`handlerType`): `any`
+> **getHandlerConfig**(`handlerType`): [`HandlerConfig`](../interfaces/HandlerConfig.md)
 
-Defined in: [src/parsers/MarkupParser.ts:969](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L969)
+Defined in: [src/parsers/MarkupParser.ts:1039](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L1039)
 
 Get configuration for a specific handler type
 
@@ -722,23 +704,23 @@ Get configuration for a specific handler type
 
 ##### handlerType
 
-`any`
+`string`
 
 Handler type (plugin, wikitag, etc.)
 
 #### Returns
 
-`any`
+[`HandlerConfig`](../interfaces/HandlerConfig.md)
 
-- Handler configuration
+Handler configuration
 
 ***
 
 ### getHandlers()
 
-> **getHandlers**(`enabledOnly`): [`default`](../../handlers/BaseSyntaxHandler/classes/default.md)[]
+> **getHandlers**(`enabledOnly`): `unknown`[]
 
-Defined in: [src/parsers/MarkupParser.ts:996](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L996)
+Defined in: [src/parsers/MarkupParser.ts:1066](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L1066)
 
 Get all handlers sorted by priority
 
@@ -752,17 +734,17 @@ Only return enabled handlers
 
 #### Returns
 
-[`default`](../../handlers/BaseSyntaxHandler/classes/default.md)[]
+`unknown`[]
 
-- Handlers sorted by priority
+Handlers sorted by priority
 
 ***
 
 ### getHandlerTypeFromId()
 
-> **getHandlerTypeFromId**(`handlerId`): `any`
+> **getHandlerTypeFromId**(`handlerId`): `string` \| `null`
 
-Defined in: [src/parsers/MarkupParser.ts:941](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L941)
+Defined in: [src/parsers/MarkupParser.ts:1011](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L1011)
 
 Get handler type from handler ID for configuration lookup (modular mapping)
 
@@ -770,15 +752,15 @@ Get handler type from handler ID for configuration lookup (modular mapping)
 
 ##### handlerId
 
-`any`
+`string`
 
 Handler ID
 
 #### Returns
 
-`any`
+`string` \| `null`
 
-- Handler type or null
+Handler type or null
 
 ***
 
@@ -786,7 +768,7 @@ Handler ID
 
 > **getMetrics**(): [`ExtendedMetrics`](../interfaces/ExtendedMetrics.md)
 
-Defined in: [src/parsers/MarkupParser.ts:1386](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L1386)
+Defined in: [src/parsers/MarkupParser.ts:1467](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L1467)
 
 Get performance metrics
 
@@ -798,17 +780,17 @@ Get performance metrics
 
 ### getPerformanceAlerts()
 
-> **getPerformanceAlerts**(): [`PerformanceAlert`](../interfaces/PerformanceAlert.md)[]
+> **getPerformanceAlerts**(): `unknown`[]
 
-Defined in: [src/parsers/MarkupParser.ts:1680](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L1680)
+Defined in: [src/parsers/MarkupParser.ts:1766](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L1766)
 
 Get performance alerts
 
 #### Returns
 
-[`PerformanceAlert`](../interfaces/PerformanceAlert.md)[]
+`unknown`[]
 
-- Array of performance alerts
+Array of performance alerts
 
 ***
 
@@ -816,7 +798,7 @@ Get performance alerts
 
 > **initialize**(`config`): `Promise`\<`void`\>
 
-Defined in: [src/parsers/MarkupParser.ts:356](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L356)
+Defined in: [src/parsers/MarkupParser.ts:426](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L426)
 
 Initialize the MarkupParser
 
@@ -840,7 +822,7 @@ Initialize the MarkupParser
 
 > **initializeAdvancedCaching**(): `Promise`\<`void`\>
 
-Defined in: [src/parsers/MarkupParser.ts:704](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L704)
+Defined in: [src/parsers/MarkupParser.ts:774](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L774)
 
 Initialize advanced caching integration with multiple cache strategies
 
@@ -854,7 +836,7 @@ Initialize advanced caching integration with multiple cache strategies
 
 > **initializeFilterChain**(): `Promise`\<`void`\>
 
-Defined in: [src/parsers/MarkupParser.ts:398](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L398)
+Defined in: [src/parsers/MarkupParser.ts:468](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L468)
 
 Initialize filter chain with modular configuration
 
@@ -868,7 +850,7 @@ Initialize filter chain with modular configuration
 
 > **initializePerformanceMonitoring**(): `void`
 
-Defined in: [src/parsers/MarkupParser.ts:759](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L759)
+Defined in: [src/parsers/MarkupParser.ts:829](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L829)
 
 Initialize performance monitoring system
 
@@ -882,7 +864,7 @@ Initialize performance monitoring system
 
 > **isInitialized**(): `boolean`
 
-Defined in: [src/parsers/MarkupParser.ts:391](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L391)
+Defined in: [src/parsers/MarkupParser.ts:461](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L461)
 
 Check if MarkupParser is initialized (required for RenderingManager integration)
 
@@ -900,23 +882,23 @@ Check if MarkupParser is initialized (required for RenderingManager integration)
 
 ### loadConfiguration()
 
-> **loadConfiguration**(): `Promise`\<`void`\>
+> **loadConfiguration**(): `void`
 
-Defined in: [src/parsers/MarkupParser.ts:576](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L576)
+Defined in: [src/parsers/MarkupParser.ts:646](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L646)
 
 Load configuration from ConfigurationManager
 
 #### Returns
 
-`Promise`\<`void`\>
+`void`
 
 ***
 
 ### mergeDOMNodes()
 
-> **mergeDOMNodes**(`html`, `nodes`, `uuid`): `any`
+> **mergeDOMNodes**(`html`, `nodes`, `uuid`): `string`
 
-Defined in: [src/parsers/MarkupParser.ts:1261](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L1261)
+Defined in: [src/parsers/MarkupParser.ts:1345](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L1345)
 
 Merges DOM nodes back into Showdown-generated HTML (Phase 3)
 
@@ -930,25 +912,25 @@ Uses HTML comments as placeholders to avoid Showdown interpreting them as markdo
 
 ##### html
 
-`any`
+`string`
 
 HTML from Showdown with placeholders
 
 ##### nodes
 
-`any`
+`unknown`[]
 
 Array of DOM nodes with data-jspwiki-id
 
 ##### uuid
 
-`any`
+`string`
 
 UUID from extraction phase
 
 #### Returns
 
-`any`
+`string`
 
 Final HTML with nodes merged in
 
@@ -964,9 +946,9 @@ Final HTML with nodes merged in
 
 ### parse()
 
-> **parse**(`content`, `context`): `Promise`\<`any`\>
+> **parse**(`content`, `context`): `Promise`\<`string`\>
 
-Defined in: [src/parsers/MarkupParser.ts:852](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L852)
+Defined in: [src/parsers/MarkupParser.ts:922](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L922)
 
 Main parsing method - uses WikiDocument DOM extraction pipeline
 
@@ -974,27 +956,29 @@ Main parsing method - uses WikiDocument DOM extraction pipeline
 
 ##### content
 
-`any`
+`string`
 
 Raw content to parse
 
 ##### context
 
+`Record`\<`string`, `unknown`\> = `{}`
+
 Parsing context (page, user, etc.)
 
 #### Returns
 
-`Promise`\<`any`\>
+`Promise`\<`string`\>
 
-- Processed HTML content
+Processed HTML content
 
 ***
 
 ### parseWithDOMExtraction()
 
-> **parseWithDOMExtraction**(`content`, `context`): `Promise`\<`any`\>
+> **parseWithDOMExtraction**(`content`, `context`): `Promise`\<`string`\>
 
-Defined in: [src/parsers/MarkupParser.ts:1324](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L1324)
+Defined in: [src/parsers/MarkupParser.ts:1408](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L1408)
 
 Parses wiki markup using DOM extraction strategy (Phase 1-3)
 
@@ -1011,19 +995,19 @@ ALL markdown parsing while WikiDocument handles ONLY JSPWiki syntax.
 
 ##### content
 
-`any`
+`string`
 
 Wiki markup content
 
 ##### context
 
-`any`
+`Record`\<`string`, `unknown`\>
 
 Rendering context
 
 #### Returns
 
-`Promise`\<`any`\>
+`Promise`\<`string`\>
 
 Rendered HTML
 
@@ -1040,7 +1024,7 @@ const html = await parser.parseWithDOMExtraction('## Hello\nUser: [{$username}]'
 
 > **performCacheWarmup**(): `Promise`\<`void`\>
 
-Defined in: [src/parsers/MarkupParser.ts:781](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L781)
+Defined in: [src/parsers/MarkupParser.ts:851](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L851)
 
 Perform cache warmup for frequently accessed content
 
@@ -1054,7 +1038,7 @@ Perform cache warmup for frequently accessed content
 
 > **registerDefaultFilters**(): `Promise`\<`void`\>
 
-Defined in: [src/parsers/MarkupParser.ts:417](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L417)
+Defined in: [src/parsers/MarkupParser.ts:492](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L492)
 
 Register default filters based on modular configuration
 
@@ -1068,7 +1052,7 @@ Register default filters based on modular configuration
 
 > **registerDefaultHandlers**(): `Promise`\<`void`\>
 
-Defined in: [src/parsers/MarkupParser.ts:464](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L464)
+Defined in: [src/parsers/MarkupParser.ts:540](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L540)
 
 Register default syntax handlers based on configuration
 
@@ -1082,7 +1066,7 @@ Register default syntax handlers based on configuration
 
 > **registerHandler**(`handler`, `options`): `Promise`\<`boolean`\>
 
-Defined in: [src/parsers/MarkupParser.ts:925](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L925)
+Defined in: [src/parsers/MarkupParser.ts:995](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L995)
 
 Register a syntax handler
 
@@ -1090,11 +1074,13 @@ Register a syntax handler
 
 ##### handler
 
-`any`
+[`default`](../../handlers/BaseSyntaxHandler/classes/default.md)
 
 Handler instance
 
 ##### options
+
+`Record`\<`string`, `unknown`\> = `{}`
 
 Registration options
 
@@ -1102,7 +1088,7 @@ Registration options
 
 `Promise`\<`boolean`\>
 
-- True if registration successful
+True if registration successful
 
 ***
 
@@ -1110,7 +1096,7 @@ Registration options
 
 > **resetMetrics**(): `void`
 
-Defined in: [src/parsers/MarkupParser.ts:1446](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L1446)
+Defined in: [src/parsers/MarkupParser.ts:1528](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L1528)
 
 Reset performance metrics
 
@@ -1122,9 +1108,9 @@ Reset performance metrics
 
 ### resolveSystemVariable()
 
-> **resolveSystemVariable**(`varName`, `context`): `Promise`\<`any`\>
+> **resolveSystemVariable**(`varName`, `context`): `Promise`\<`string`\>
 
-Defined in: [src/parsers/MarkupParser.ts:830](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L830)
+Defined in: [src/parsers/MarkupParser.ts:900](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L900)
 
 Resolve system variable for cache warmup
 
@@ -1132,21 +1118,21 @@ Resolve system variable for cache warmup
 
 ##### varName
 
-`any`
+`string`
 
 Variable name
 
 ##### context
 
-`any`
+`Record`\<`string`, `unknown`\>
 
 Context object
 
 #### Returns
 
-`Promise`\<`any`\>
+`Promise`\<`string`\>
 
-- Variable value
+Variable value
 
 ***
 
@@ -1154,7 +1140,7 @@ Context object
 
 > **restore**(`backupData`): `Promise`\<`void`\>
 
-Defined in: [src/managers/BaseManager.ts:196](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L196)
+Defined in: [src/managers/BaseManager.ts:198](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L198)
 
 Restore manager data from backup
 
@@ -1199,7 +1185,7 @@ async restore(backupData: BackupData): Promise<void> {
 
 > **shutdown**(): `Promise`\<`void`\>
 
-Defined in: [src/parsers/MarkupParser.ts:1693](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L1693)
+Defined in: [src/parsers/MarkupParser.ts:1779](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L1779)
 
 Shutdown the manager and cleanup resources
 
@@ -1230,7 +1216,7 @@ async shutdown(): Promise<void> {
 
 > **unregisterHandler**(`handlerId`): `Promise`\<`boolean`\>
 
-Defined in: [src/parsers/MarkupParser.ts:978](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L978)
+Defined in: [src/parsers/MarkupParser.ts:1048](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L1048)
 
 Unregister a syntax handler
 
@@ -1238,7 +1224,7 @@ Unregister a syntax handler
 
 ##### handlerId
 
-`any`
+`string`
 
 Handler identifier
 
@@ -1246,7 +1232,7 @@ Handler identifier
 
 `Promise`\<`boolean`\>
 
-- True if unregistration successful
+True if unregistration successful
 
 ***
 
@@ -1254,7 +1240,7 @@ Handler identifier
 
 > **updateCacheMetrics**(`strategy`, `operation`): `void`
 
-Defined in: [src/parsers/MarkupParser.ts:1552](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L1552)
+Defined in: [src/parsers/MarkupParser.ts:1634](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L1634)
 
 Update cache metrics for specific strategy
 
@@ -1262,15 +1248,15 @@ Update cache metrics for specific strategy
 
 ##### strategy
 
-`any`
+`string`
 
 Cache strategy name
 
 ##### operation
 
-`any`
-
 Operation type (hit, miss, set)
+
+`"set"` | `"hit"` | `"miss"`
 
 #### Returns
 
@@ -1282,7 +1268,7 @@ Operation type (hit, miss, set)
 
 > **updatePerformanceMetrics**(`processingTime`, `cacheHit`): `void`
 
-Defined in: [src/parsers/MarkupParser.ts:1568](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L1568)
+Defined in: [src/parsers/MarkupParser.ts:1650](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L1650)
 
 Update performance metrics and check thresholds
 
@@ -1290,13 +1276,13 @@ Update performance metrics and check thresholds
 
 ##### processingTime
 
-`any`
+`number`
 
 Processing time in milliseconds
 
 ##### cacheHit
 
-`any`
+`boolean`
 
 Whether this was a cache hit
 

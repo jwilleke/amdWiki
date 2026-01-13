@@ -6,7 +6,7 @@
 
 # Class: default
 
-Defined in: [src/utils/VersioningMaintenance.ts:221](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/VersioningMaintenance.ts#L221)
+Defined in: [src/utils/VersioningMaintenance.ts:220](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/VersioningMaintenance.ts#L220)
 
 VersioningMaintenance - Automated maintenance utilities for VersioningFileProvider
 
@@ -36,7 +36,7 @@ const report = await maintenance.cleanupAllPages({
 
 > **new default**(`options`): `VersioningMaintenance`
 
-Defined in: [src/utils/VersioningMaintenance.ts:232](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/VersioningMaintenance.ts#L232)
+Defined in: [src/utils/VersioningMaintenance.ts:231](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/VersioningMaintenance.ts#L231)
 
 Create a new VersioningMaintenance instance
 
@@ -58,7 +58,7 @@ Maintenance options
 
 > **cleanupAllPages**(`options`): `Promise`\<`CleanupReport`\>
 
-Defined in: [src/utils/VersioningMaintenance.ts:261](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/VersioningMaintenance.ts#L261)
+Defined in: [src/utils/VersioningMaintenance.ts:260](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/VersioningMaintenance.ts#L260)
 
 Clean up old versions for all pages
 
@@ -84,7 +84,7 @@ Cleanup report
 
 > **compressAllVersions**(`options`): `Promise`\<`CompressionReport`\>
 
-Defined in: [src/utils/VersioningMaintenance.ts:333](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/VersioningMaintenance.ts#L333)
+Defined in: [src/utils/VersioningMaintenance.ts:332](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/VersioningMaintenance.ts#L332)
 
 Compress old versions for all pages
 
@@ -111,7 +111,7 @@ Compression report
 
 > **runFullMaintenance**(`options`): `Promise`\<`FullMaintenanceReport`\>
 
-Defined in: [src/utils/VersioningMaintenance.ts:505](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/VersioningMaintenance.ts#L505)
+Defined in: [src/utils/VersioningMaintenance.ts:504](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/VersioningMaintenance.ts#L504)
 
 Run full maintenance (cleanup + compression)
 

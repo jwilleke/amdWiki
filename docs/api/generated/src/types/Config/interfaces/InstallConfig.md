@@ -6,7 +6,7 @@
 
 # Interface: InstallConfig
 
-Defined in: [src/types/Config.ts:225](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Config.ts#L225)
+Defined in: [src/types/Config.ts:225](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L225)
 
 Installation configuration
 
@@ -18,7 +18,7 @@ Configuration for first-run installation wizard.
 
 > **amdwiki.install.completed**: `boolean`
 
-Defined in: [src/types/Config.ts:227](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Config.ts#L227)
+Defined in: [src/types/Config.ts:227](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L227)
 
 Installation completed flag
 
@@ -28,7 +28,7 @@ Installation completed flag
 
 > **amdwiki.install.copyStartupPages**: `boolean`
 
-Defined in: [src/types/Config.ts:233](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Config.ts#L233)
+Defined in: [src/types/Config.ts:233](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L233)
 
 Copy startup pages
 
@@ -38,7 +38,7 @@ Copy startup pages
 
 > **amdwiki.install.createAdminUser**: `boolean`
 
-Defined in: [src/types/Config.ts:236](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Config.ts#L236)
+Defined in: [src/types/Config.ts:236](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L236)
 
 Create admin user
 
@@ -48,7 +48,7 @@ Create admin user
 
 > **amdwiki.install.organization.addressCountry**: `string`
 
-Defined in: [src/types/Config.ts:260](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Config.ts#L260)
+Defined in: [src/types/Config.ts:260](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L260)
 
 Address country
 
@@ -58,7 +58,7 @@ Address country
 
 > **amdwiki.install.organization.addressLocality**: `string`
 
-Defined in: [src/types/Config.ts:254](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Config.ts#L254)
+Defined in: [src/types/Config.ts:254](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L254)
 
 Address locality (city)
 
@@ -68,7 +68,7 @@ Address locality (city)
 
 > **amdwiki.install.organization.addressRegion**: `string`
 
-Defined in: [src/types/Config.ts:257](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Config.ts#L257)
+Defined in: [src/types/Config.ts:257](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L257)
 
 Address region (state/province)
 
@@ -78,7 +78,7 @@ Address region (state/province)
 
 > **amdwiki.install.organization.contactEmail**: `string`
 
-Defined in: [src/types/Config.ts:251](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Config.ts#L251)
+Defined in: [src/types/Config.ts:251](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L251)
 
 Contact email
 
@@ -88,7 +88,7 @@ Contact email
 
 > **amdwiki.install.organization.description**: `string`
 
-Defined in: [src/types/Config.ts:245](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Config.ts#L245)
+Defined in: [src/types/Config.ts:245](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L245)
 
 Organization description
 
@@ -98,7 +98,7 @@ Organization description
 
 > **amdwiki.install.organization.foundingDate**: `string`
 
-Defined in: [src/types/Config.ts:248](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Config.ts#L248)
+Defined in: [src/types/Config.ts:248](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L248)
 
 Founding date
 
@@ -108,7 +108,7 @@ Founding date
 
 > **amdwiki.install.organization.legalName**: `string`
 
-Defined in: [src/types/Config.ts:242](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Config.ts#L242)
+Defined in: [src/types/Config.ts:242](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L242)
 
 Organization legal name
 
@@ -118,7 +118,7 @@ Organization legal name
 
 > **amdwiki.install.organization.name**: `string`
 
-Defined in: [src/types/Config.ts:239](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Config.ts#L239)
+Defined in: [src/types/Config.ts:239](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L239)
 
 Organization name
 
@@ -128,6 +128,6 @@ Organization name
 
 > **amdwiki.install.requireSetup**: `boolean`
 
-Defined in: [src/types/Config.ts:230](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Config.ts#L230)
+Defined in: [src/types/Config.ts:230](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Config.ts#L230)
 
 Require setup on first run

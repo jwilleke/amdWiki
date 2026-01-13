@@ -6,7 +6,7 @@
 
 # Interface: UserContext
 
-Defined in: [src/managers/AttachmentManager.ts:46](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/AttachmentManager.ts#L46)
+Defined in: [src/managers/AttachmentManager.ts:47](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/AttachmentManager.ts#L47)
 
 User context for permission checks
 
@@ -16,7 +16,7 @@ User context for permission checks
 
 > `optional` **email**: `string`
 
-Defined in: [src/managers/AttachmentManager.ts:49](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/AttachmentManager.ts#L49)
+Defined in: [src/managers/AttachmentManager.ts:50](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/AttachmentManager.ts#L50)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [src/managers/AttachmentManager.ts:49](https://github.com/jwilleke/a
 
 > `optional` **isAuthenticated**: `boolean`
 
-Defined in: [src/managers/AttachmentManager.ts:50](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/AttachmentManager.ts#L50)
+Defined in: [src/managers/AttachmentManager.ts:51](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/AttachmentManager.ts#L51)
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: [src/managers/AttachmentManager.ts:50](https://github.com/jwilleke/a
 
 > `optional` **name**: `string`
 
-Defined in: [src/managers/AttachmentManager.ts:48](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/AttachmentManager.ts#L48)
+Defined in: [src/managers/AttachmentManager.ts:49](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/AttachmentManager.ts#L49)
 
 ***
 
@@ -40,7 +40,7 @@ Defined in: [src/managers/AttachmentManager.ts:48](https://github.com/jwilleke/a
 
 > `optional` **roles**: `string`[]
 
-Defined in: [src/managers/AttachmentManager.ts:51](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/AttachmentManager.ts#L51)
+Defined in: [src/managers/AttachmentManager.ts:52](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/AttachmentManager.ts#L52)
 
 ***
 
@@ -48,7 +48,7 @@ Defined in: [src/managers/AttachmentManager.ts:51](https://github.com/jwilleke/a
 
 > `optional` **user**: [`User`](User.md)
 
-Defined in: [src/managers/AttachmentManager.ts:52](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/AttachmentManager.ts#L52)
+Defined in: [src/managers/AttachmentManager.ts:53](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/AttachmentManager.ts#L53)
 
 ***
 
@@ -56,4 +56,4 @@ Defined in: [src/managers/AttachmentManager.ts:52](https://github.com/jwilleke/a
 
 > `optional` **username**: `string`
 
-Defined in: [src/managers/AttachmentManager.ts:47](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/AttachmentManager.ts#L47)
+Defined in: [src/managers/AttachmentManager.ts:48](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/AttachmentManager.ts#L48)

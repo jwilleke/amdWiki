@@ -6,7 +6,7 @@
 
 # Interface: VariableContext
 
-Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:22](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMVariableHandler.ts#L22)
+Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:23](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L23)
 
 Context for variable resolution
 
@@ -22,7 +22,7 @@ Additional context properties
 
 > `optional` **engine**: `unknown`
 
-Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:43](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMVariableHandler.ts#L43)
+Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:44](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L44)
 
 WikiEngine reference
 
@@ -32,7 +32,7 @@ WikiEngine reference
 
 > `optional` **pageContext**: `VariableContext`
 
-Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:41](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMVariableHandler.ts#L41)
+Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:42](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L42)
 
 Page context (nested structure from WikiContext)
 
@@ -42,7 +42,7 @@ Page context (nested structure from WikiContext)
 
 > `optional` **pageName**: `string`
 
-Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:24](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMVariableHandler.ts#L24)
+Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:25](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L25)
 
 Page name
 
@@ -52,7 +52,7 @@ Page name
 
 > `optional` **requestInfo**: `object`
 
-Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:34](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMVariableHandler.ts#L34)
+Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:35](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L35)
 
 Request information
 
@@ -78,7 +78,7 @@ Request information
 
 > `optional` **userContext**: `object`
 
-Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:26](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMVariableHandler.ts#L26)
+Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:27](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L27)
 
 User context information
 

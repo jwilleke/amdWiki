@@ -6,7 +6,7 @@
 
 # Interface: ExportFileInfo
 
-Defined in: [src/managers/ExportManager.ts:10](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ExportManager.ts#L10)
+Defined in: [src/managers/ExportManager.ts:13](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ExportManager.ts#L13)
 
 Export file metadata interface
 
@@ -16,7 +16,7 @@ Export file metadata interface
 
 > **created**: `Date`
 
-Defined in: [src/managers/ExportManager.ts:14](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ExportManager.ts#L14)
+Defined in: [src/managers/ExportManager.ts:17](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ExportManager.ts#L17)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [src/managers/ExportManager.ts:14](https://github.com/jwilleke/amdWi
 
 > **filename**: `string`
 
-Defined in: [src/managers/ExportManager.ts:11](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ExportManager.ts#L11)
+Defined in: [src/managers/ExportManager.ts:14](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ExportManager.ts#L14)
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: [src/managers/ExportManager.ts:11](https://github.com/jwilleke/amdWi
 
 > **modified**: `Date`
 
-Defined in: [src/managers/ExportManager.ts:15](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ExportManager.ts#L15)
+Defined in: [src/managers/ExportManager.ts:18](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ExportManager.ts#L18)
 
 ***
 
@@ -40,7 +40,7 @@ Defined in: [src/managers/ExportManager.ts:15](https://github.com/jwilleke/amdWi
 
 > **path**: `string`
 
-Defined in: [src/managers/ExportManager.ts:12](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ExportManager.ts#L12)
+Defined in: [src/managers/ExportManager.ts:15](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ExportManager.ts#L15)
 
 ***
 
@@ -48,4 +48,4 @@ Defined in: [src/managers/ExportManager.ts:12](https://github.com/jwilleke/amdWi
 
 > **size**: `number`
 
-Defined in: [src/managers/ExportManager.ts:13](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ExportManager.ts#L13)
+Defined in: [src/managers/ExportManager.ts:16](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ExportManager.ts#L16)

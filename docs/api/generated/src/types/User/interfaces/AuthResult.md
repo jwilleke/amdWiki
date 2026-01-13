@@ -6,7 +6,7 @@
 
 # Interface: AuthResult
 
-Defined in: [src/types/User.ts:195](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L195)
+Defined in: [src/types/User.ts:195](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/User.ts#L195)
 
 User authentication result
 
@@ -18,7 +18,7 @@ Result of authentication attempt.
 
 > `optional` **error**: `string`
 
-Defined in: [src/types/User.ts:206](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L206)
+Defined in: [src/types/User.ts:206](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/User.ts#L206)
 
 Error message if failed
 
@@ -28,7 +28,7 @@ Error message if failed
 
 > `optional` **errorCode**: `string`
 
-Defined in: [src/types/User.ts:209](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L209)
+Defined in: [src/types/User.ts:209](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/User.ts#L209)
 
 Error code (invalid_credentials, account_disabled, etc.)
 
@@ -38,7 +38,7 @@ Error code (invalid_credentials, account_disabled, etc.)
 
 > `optional` **sessionId**: `string`
 
-Defined in: [src/types/User.ts:203](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L203)
+Defined in: [src/types/User.ts:203](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/User.ts#L203)
 
 Session ID if successful
 
@@ -48,7 +48,7 @@ Session ID if successful
 
 > **success**: `boolean`
 
-Defined in: [src/types/User.ts:197](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L197)
+Defined in: [src/types/User.ts:197](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/User.ts#L197)
 
 Whether authentication succeeded
 
@@ -58,6 +58,6 @@ Whether authentication succeeded
 
 > `optional` **user**: [`User`](User.md)
 
-Defined in: [src/types/User.ts:200](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L200)
+Defined in: [src/types/User.ts:200](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/User.ts#L200)
 
 User object if successful

@@ -6,7 +6,7 @@
 
 # Interface: WikiEngine
 
-Defined in: [src/types/WikiEngine.ts:24](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/WikiEngine.ts#L24)
+Defined in: [src/types/WikiEngine.ts:52](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/WikiEngine.ts#L52)
 
 WikiEngine interface
 
@@ -25,7 +25,7 @@ Allow additional properties for extensibility
 
 > `optional` **config**: [`WikiConfig`](../../Config/interfaces/WikiConfig.md)
 
-Defined in: [src/types/WikiEngine.ts:26](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/WikiEngine.ts#L26)
+Defined in: [src/types/WikiEngine.ts:54](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/WikiEngine.ts#L54)
 
 Wiki configuration
 
@@ -35,7 +35,7 @@ Wiki configuration
 
 > `optional` **context**: `any`
 
-Defined in: [src/types/WikiEngine.ts:38](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/WikiEngine.ts#L38)
+Defined in: [src/types/WikiEngine.ts:67](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/WikiEngine.ts#L67)
 
 Current context (request-scoped)
 
@@ -43,11 +43,11 @@ Current context (request-scoped)
 
 ### logger?
 
-> `optional` **logger**: `any`
+> `optional` **logger**: `Logger`
 
-Defined in: [src/types/WikiEngine.ts:32](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/WikiEngine.ts#L32)
+Defined in: [src/types/WikiEngine.ts:60](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/WikiEngine.ts#L60)
 
-Logger instance
+Logger instance (winston Logger)
 
 ***
 
@@ -55,7 +55,7 @@ Logger instance
 
 > `optional` **startTime**: `number`
 
-Defined in: [src/types/WikiEngine.ts:35](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/WikiEngine.ts#L35)
+Defined in: [src/types/WikiEngine.ts:63](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/WikiEngine.ts#L63)
 
 Engine start time
 
@@ -65,7 +65,7 @@ Engine start time
 
 > **getConfig**(): [`WikiConfig`](../../Config/interfaces/WikiConfig.md)
 
-Defined in: [src/types/WikiEngine.ts:65](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/WikiEngine.ts#L65)
+Defined in: [src/types/WikiEngine.ts:101](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/WikiEngine.ts#L101)
 
 Get wiki configuration
 
@@ -79,9 +79,9 @@ Wiki configuration object
 
 ### getManager()
 
-> **getManager**\<`T`\>(`managerName`): `T`
+> **getManager**\<`T`\>(`managerName`): `T` \| `undefined`
 
-Defined in: [src/types/WikiEngine.ts:52](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/WikiEngine.ts#L52)
+Defined in: [src/types/WikiEngine.ts:87](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/WikiEngine.ts#L87)
 
 Get a manager by name
 
@@ -101,9 +101,32 @@ Name of the manager
 
 #### Returns
 
-`T`
+`T` \| `undefined`
 
 Manager instance or undefined
+
+#### Example
+
+```ts
+// Type-safe usage with explicit type parameter:
+const pageManager = engine.getManager<PageManager>('PageManager');
+```
+
+***
+
+### getRegisteredManagers()
+
+> **getRegisteredManagers**(): `string`[]
+
+Defined in: [src/types/WikiEngine.ts:112](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/WikiEngine.ts#L112)
+
+Get all registered manager names
+
+#### Returns
+
+`string`[]
+
+Array of manager names
 
 ***
 
@@ -111,7 +134,7 @@ Manager instance or undefined
 
 > **initialize**(`config?`): `Promise`\<`any`\>
 
-Defined in: [src/types/WikiEngine.ts:45](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/WikiEngine.ts#L45)
+Defined in: [src/types/WikiEngine.ts:75](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/WikiEngine.ts#L75)
 
 Initialize the wiki engine
 
@@ -135,7 +158,7 @@ The initialized engine or void
 
 > **registerManager**(`managerName`, `manager`): `void`
 
-Defined in: [src/types/WikiEngine.ts:59](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/WikiEngine.ts#L59)
+Defined in: [src/types/WikiEngine.ts:95](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/WikiEngine.ts#L95)
 
 Register a manager
 
@@ -163,7 +186,7 @@ Manager instance
 
 > **shutdown**(): `Promise`\<`void`\>
 
-Defined in: [src/types/WikiEngine.ts:70](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/WikiEngine.ts#L70)
+Defined in: [src/types/WikiEngine.ts:106](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/WikiEngine.ts#L106)
 
 Shutdown the wiki engine
 

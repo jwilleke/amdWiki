@@ -6,7 +6,7 @@
 
 # Class: default
 
-Defined in: [src/utils/LocaleUtils.ts:35](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/LocaleUtils.ts#L35)
+Defined in: [src/utils/LocaleUtils.ts:37](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/LocaleUtils.ts#L37)
 
 Locale utilities for handling browser locale and internationalization
 
@@ -26,7 +26,7 @@ Locale utilities for handling browser locale and internationalization
 
 > `static` **formatDate**(`date`, `locale`): `string`
 
-Defined in: [src/utils/LocaleUtils.ts:160](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/LocaleUtils.ts#L160)
+Defined in: [src/utils/LocaleUtils.ts:162](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/LocaleUtils.ts#L162)
 
 Format date using specified locale
 
@@ -56,7 +56,7 @@ Formatted date string
 
 > `static` **formatTime**(`date`, `locale`): `string`
 
-Defined in: [src/utils/LocaleUtils.ts:182](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/LocaleUtils.ts#L182)
+Defined in: [src/utils/LocaleUtils.ts:183](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/LocaleUtils.ts#L183)
 
 Format time using specified locale
 
@@ -86,7 +86,7 @@ Formatted time string
 
 > `static` **getDateFormatFromLocale**(`locale`): `string`
 
-Defined in: [src/utils/LocaleUtils.ts:110](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/LocaleUtils.ts#L110)
+Defined in: [src/utils/LocaleUtils.ts:112](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/LocaleUtils.ts#L112)
 
 Get date format pattern based on locale
 
@@ -110,7 +110,7 @@ Date format pattern for user preferences
 
 > `static` **getDateFormatOptions**(): `DateFormatOption`[]
 
-Defined in: [src/utils/LocaleUtils.ts:202](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/LocaleUtils.ts#L202)
+Defined in: [src/utils/LocaleUtils.ts:202](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/LocaleUtils.ts#L202)
 
 Get available date format options
 
@@ -126,7 +126,7 @@ Array of date format options
 
 > `static` **getSupportedLocales**(): `SupportedLocale`[]
 
-Defined in: [src/utils/LocaleUtils.ts:218](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/LocaleUtils.ts#L218)
+Defined in: [src/utils/LocaleUtils.ts:218](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/LocaleUtils.ts#L218)
 
 Get supported locales list
 
@@ -142,7 +142,7 @@ Array of supported locale objects
 
 > `static` **getTimeFormatFromLocale**(`locale`): `"12h"` \| `"24h"`
 
-Defined in: [src/utils/LocaleUtils.ts:139](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/LocaleUtils.ts#L139)
+Defined in: [src/utils/LocaleUtils.ts:141](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/LocaleUtils.ts#L141)
 
 Get time format preference based on locale
 
@@ -166,7 +166,7 @@ Time format preference ('12h' or '24h')
 
 > `static` **getTimezoneDisplayName**(`timezone`, `locale`): `string`
 
-Defined in: [src/utils/LocaleUtils.ts:257](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/LocaleUtils.ts#L257)
+Defined in: [src/utils/LocaleUtils.ts:257](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/LocaleUtils.ts#L257)
 
 Get timezone display name
 
@@ -196,7 +196,7 @@ Human-readable timezone name
 
 > `static` **isValidTimezone**(`timezone`): `boolean`
 
-Defined in: [src/utils/LocaleUtils.ts:241](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/LocaleUtils.ts#L241)
+Defined in: [src/utils/LocaleUtils.ts:241](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/LocaleUtils.ts#L241)
 
 Validate timezone string
 
@@ -220,7 +220,7 @@ True if timezone is valid
 
 > `static` **normalizeLocale**(`locale`): `string`
 
-Defined in: [src/utils/LocaleUtils.ts:69](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/LocaleUtils.ts#L69)
+Defined in: [src/utils/LocaleUtils.ts:71](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/LocaleUtils.ts#L71)
 
 Normalize locale string to standard format
 
@@ -244,7 +244,7 @@ Normalized locale (e.g., 'en-US', 'fr-FR')
 
 > `static` **parseAcceptLanguage**(`acceptLanguage`): `string`
 
-Defined in: [src/utils/LocaleUtils.ts:41](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/LocaleUtils.ts#L41)
+Defined in: [src/utils/LocaleUtils.ts:43](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/LocaleUtils.ts#L43)
 
 Parse Accept-Language header to get preferred locale
 

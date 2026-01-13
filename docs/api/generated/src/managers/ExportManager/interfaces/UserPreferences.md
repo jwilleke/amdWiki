@@ -6,7 +6,7 @@
 
 # Interface: UserPreferences
 
-Defined in: [src/managers/ExportManager.ts:28](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ExportManager.ts#L28)
+Defined in: [src/managers/ExportManager.ts:31](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ExportManager.ts#L31)
 
 User preferences interface (for locale support)
 
@@ -16,4 +16,4 @@ User preferences interface (for locale support)
 
 > `optional` **locale**: `string`
 
-Defined in: [src/managers/ExportManager.ts:29](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ExportManager.ts#L29)
+Defined in: [src/managers/ExportManager.ts:32](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ExportManager.ts#L32)

@@ -6,7 +6,7 @@
 
 # Interface: User
 
-Defined in: [src/managers/AttachmentManager.ts:58](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/AttachmentManager.ts#L58)
+Defined in: [src/managers/AttachmentManager.ts:59](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/AttachmentManager.ts#L59)
 
 User object interface
 
@@ -16,7 +16,7 @@ User object interface
 
 > `optional` **email**: `string`
 
-Defined in: [src/managers/AttachmentManager.ts:60](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/AttachmentManager.ts#L60)
+Defined in: [src/managers/AttachmentManager.ts:61](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/AttachmentManager.ts#L61)
 
 ***
 
@@ -24,4 +24,4 @@ Defined in: [src/managers/AttachmentManager.ts:60](https://github.com/jwilleke/a
 
 > **name**: `string`
 
-Defined in: [src/managers/AttachmentManager.ts:59](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/AttachmentManager.ts#L59)
+Defined in: [src/managers/AttachmentManager.ts:60](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/AttachmentManager.ts#L60)

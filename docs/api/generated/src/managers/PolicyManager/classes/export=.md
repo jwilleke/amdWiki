@@ -6,7 +6,7 @@
 
 # Class: export=
 
-Defined in: [src/managers/PolicyManager.ts:44](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyManager.ts#L44)
+Defined in: [src/managers/PolicyManager.ts:43](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PolicyManager.ts#L43)
 
 PolicyManager - Manages the lifecycle of access control policies.
 
@@ -40,7 +40,7 @@ const allPolicies = policyManager.getAllPolicies(); // sorted by priority
 
 > **new export=**(`engine`): `PolicyManager`
 
-Defined in: [src/managers/PolicyManager.ts:53](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyManager.ts#L53)
+Defined in: [src/managers/PolicyManager.ts:52](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PolicyManager.ts#L52)
 
 Creates a new PolicyManager instance
 
@@ -64,9 +64,9 @@ The wiki engine instance
 
 ### config?
 
-> `protected` `optional` **config**: `Record`\<`string`, `any`\>
+> `protected` `optional` **config**: `Record`\<`string`, `unknown`\>
 
-Defined in: [src/managers/BaseManager.ts:63](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L63)
+Defined in: [src/managers/BaseManager.ts:61](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L61)
 
 Configuration passed during initialization
 
@@ -80,7 +80,7 @@ Configuration passed during initialization
 
 > `protected` **engine**: [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/managers/BaseManager.ts:56](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L56)
+Defined in: [src/managers/BaseManager.ts:54](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L54)
 
 Reference to the wiki engine
 
@@ -94,7 +94,7 @@ Reference to the wiki engine
 
 > `protected` **initialized**: `boolean`
 
-Defined in: [src/managers/BaseManager.ts:59](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L59)
+Defined in: [src/managers/BaseManager.ts:57](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L57)
 
 Initialization status flag
 
@@ -108,7 +108,7 @@ Initialization status flag
 
 > **backup**(): `Promise`\<[`BackupData`](../../BaseManager/interfaces/BackupData.md)\>
 
-Defined in: [src/managers/BaseManager.ts:168](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L168)
+Defined in: [src/managers/BaseManager.ts:169](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L169)
 
 Backup manager data
 
@@ -150,7 +150,7 @@ async backup(): Promise<BackupData> {
 
 > **getAllPolicies**(): `Policy`[]
 
-Defined in: [src/managers/PolicyManager.ts:125](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyManager.ts#L125)
+Defined in: [src/managers/PolicyManager.ts:125](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PolicyManager.ts#L125)
 
 Returns all loaded policies, sorted by priority (descending).
 
@@ -176,7 +176,7 @@ console.log('Highest priority:', policies[0]?.id);
 
 > **getEngine**(): [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/managers/BaseManager.ts:126](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L126)
+Defined in: [src/managers/BaseManager.ts:125](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L125)
 
 Get the wiki engine instance
 
@@ -200,9 +200,9 @@ const config = this.getEngine().getConfig();
 
 ### getPolicy()
 
-> **getPolicy**(`id`): `Policy`
+> **getPolicy**(`id`): `Policy` \| `undefined`
 
-Defined in: [src/managers/PolicyManager.ts:109](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyManager.ts#L109)
+Defined in: [src/managers/PolicyManager.ts:109](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PolicyManager.ts#L109)
 
 Retrieves a policy by its unique ID.
 
@@ -216,7 +216,7 @@ The ID of the policy
 
 #### Returns
 
-`Policy`
+`Policy` \| `undefined`
 
 The policy object, or undefined if not found
 
@@ -233,7 +233,7 @@ if (policy) console.log('Found policy:', policy.id);
 
 > **initialize**(): `Promise`\<`void`\>
 
-Defined in: [src/managers/PolicyManager.ts:71](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyManager.ts#L71)
+Defined in: [src/managers/PolicyManager.ts:71](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PolicyManager.ts#L71)
 
 Initializes the PolicyManager by loading policies from the ConfigurationManager.
 
@@ -267,7 +267,7 @@ console.log('Policies loaded');
 
 > **isInitialized**(): `boolean`
 
-Defined in: [src/managers/BaseManager.ts:114](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L114)
+Defined in: [src/managers/BaseManager.ts:113](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L113)
 
 Check if manager has been initialized
 
@@ -295,7 +295,7 @@ if (manager.isInitialized()) {
 
 > **restore**(`backupData`): `Promise`\<`void`\>
 
-Defined in: [src/managers/BaseManager.ts:196](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L196)
+Defined in: [src/managers/BaseManager.ts:198](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L198)
 
 Restore manager data from backup
 
@@ -340,7 +340,7 @@ async restore(backupData: BackupData): Promise<void> {
 
 > **shutdown**(): `Promise`\<`void`\>
 
-Defined in: [src/managers/BaseManager.ts:143](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L143)
+Defined in: [src/managers/BaseManager.ts:143](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L143)
 
 Shutdown the manager and cleanup resources
 

@@ -6,7 +6,7 @@
 
 # Interface: Token
 
-Defined in: [src/parsers/dom/Tokenizer.ts:138](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L138)
+Defined in: [src/parsers/dom/Tokenizer.ts:138](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/Tokenizer.ts#L138)
 
 Token structure
 
@@ -26,7 +26,7 @@ Index signature for additional properties
 
 > **column**: `number`
 
-Defined in: [src/parsers/dom/Tokenizer.ts:132](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L132)
+Defined in: [src/parsers/dom/Tokenizer.ts:132](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/Tokenizer.ts#L132)
 
 Column number
 
@@ -40,7 +40,7 @@ Column number
 
 > **line**: `number`
 
-Defined in: [src/parsers/dom/Tokenizer.ts:130](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L130)
+Defined in: [src/parsers/dom/Tokenizer.ts:130](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/Tokenizer.ts#L130)
 
 Line number
 
@@ -54,7 +54,7 @@ Line number
 
 > `optional` **metadata**: [`TokenMetadata`](TokenMetadata.md)
 
-Defined in: [src/parsers/dom/Tokenizer.ts:144](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L144)
+Defined in: [src/parsers/dom/Tokenizer.ts:144](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/Tokenizer.ts#L144)
 
 Additional token-specific data
 
@@ -64,7 +64,7 @@ Additional token-specific data
 
 > **position**: `number`
 
-Defined in: [src/parsers/dom/Tokenizer.ts:128](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L128)
+Defined in: [src/parsers/dom/Tokenizer.ts:128](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/Tokenizer.ts#L128)
 
 Character position in input
 
@@ -78,7 +78,7 @@ Character position in input
 
 > **type**: `string`
 
-Defined in: [src/parsers/dom/Tokenizer.ts:140](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L140)
+Defined in: [src/parsers/dom/Tokenizer.ts:140](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/Tokenizer.ts#L140)
 
 Token type from TokenType enum
 
@@ -88,6 +88,6 @@ Token type from TokenType enum
 
 > **value**: `string`
 
-Defined in: [src/parsers/dom/Tokenizer.ts:142](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L142)
+Defined in: [src/parsers/dom/Tokenizer.ts:142](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/Tokenizer.ts#L142)
 
 Token value/content

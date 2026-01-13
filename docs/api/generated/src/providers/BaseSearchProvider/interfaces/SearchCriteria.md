@@ -6,7 +6,7 @@
 
 # Interface: SearchCriteria
 
-Defined in: [src/providers/BaseSearchProvider.ts:73](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseSearchProvider.ts#L73)
+Defined in: [src/providers/BaseSearchProvider.ts:73](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseSearchProvider.ts#L73)
 
 Advanced search criteria
 
@@ -22,7 +22,7 @@ Additional criteria
 
 > `optional` **author**: `string`
 
-Defined in: [src/providers/BaseSearchProvider.ts:84](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseSearchProvider.ts#L84)
+Defined in: [src/providers/BaseSearchProvider.ts:84](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseSearchProvider.ts#L84)
 
 Author to filter by
 
@@ -32,7 +32,7 @@ Author to filter by
 
 > `optional` **categories**: `string`[]
 
-Defined in: [src/providers/BaseSearchProvider.ts:78](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseSearchProvider.ts#L78)
+Defined in: [src/providers/BaseSearchProvider.ts:78](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseSearchProvider.ts#L78)
 
 Categories to filter by
 
@@ -42,7 +42,7 @@ Categories to filter by
 
 > `optional` **dateRange**: `object`
 
-Defined in: [src/providers/BaseSearchProvider.ts:87](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseSearchProvider.ts#L87)
+Defined in: [src/providers/BaseSearchProvider.ts:87](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseSearchProvider.ts#L87)
 
 Date range
 
@@ -60,7 +60,7 @@ Date range
 
 > `optional` **query**: `string`
 
-Defined in: [src/providers/BaseSearchProvider.ts:75](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseSearchProvider.ts#L75)
+Defined in: [src/providers/BaseSearchProvider.ts:75](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseSearchProvider.ts#L75)
 
 Search query
 
@@ -70,6 +70,6 @@ Search query
 
 > `optional` **userKeywords**: `string`[]
 
-Defined in: [src/providers/BaseSearchProvider.ts:81](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseSearchProvider.ts#L81)
+Defined in: [src/providers/BaseSearchProvider.ts:81](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseSearchProvider.ts#L81)
 
 User keywords to filter by

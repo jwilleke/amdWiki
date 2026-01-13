@@ -6,7 +6,7 @@
 
 # Interface: HandlerCloneConfig
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:128](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L128)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:130](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L130)
 
 Handler clone configuration
 
@@ -16,7 +16,7 @@ Handler clone configuration
 
 > **dependencies**: (`string` \| [`DependencySpec`](DependencySpec.md))[]
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:135](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L135)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:137](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L137)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:135](https://github.com/j
 
 > **description**: `string`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:134](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L134)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:136](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L136)
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:134](https://github.com/j
 
 > `optional` **handlerId**: `string`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:129](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L129)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:131](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L131)
 
 ***
 
@@ -40,7 +40,7 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:129](https://github.com/j
 
 > **options**: `Required`\<[`HandlerOptions`](HandlerOptions.md)\>
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:132](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L132)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:134](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L134)
 
 ***
 
@@ -48,7 +48,7 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:132](https://github.com/j
 
 > **pattern**: `RegExp`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:130](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L130)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:132](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L132)
 
 ***
 
@@ -56,7 +56,7 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:130](https://github.com/j
 
 > **priority**: `number`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:131](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L131)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:133](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L133)
 
 ***
 
@@ -64,4 +64,4 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:131](https://github.com/j
 
 > **version**: `string`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:133](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L133)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:135](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L135)

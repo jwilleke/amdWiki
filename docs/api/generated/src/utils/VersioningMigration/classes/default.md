@@ -6,7 +6,7 @@
 
 # Class: default
 
-Defined in: [src/utils/VersioningMigration.ts:86](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/VersioningMigration.ts#L86)
+Defined in: [src/utils/VersioningMigration.ts:112](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/VersioningMigration.ts#L112)
 
 VersioningMigration - Utility for migrating FileSystemProvider to VersioningFileProvider
 
@@ -36,7 +36,7 @@ console.log(`Migrated ${report.pagesProcessed} pages`);
 
 > **new default**(`options`): `VersioningMigration`
 
-Defined in: [src/utils/VersioningMigration.ts:107](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/VersioningMigration.ts#L107)
+Defined in: [src/utils/VersioningMigration.ts:133](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/VersioningMigration.ts#L133)
 
 Create a new VersioningMigration instance
 
@@ -56,9 +56,9 @@ Migration options
 
 ### migrateFromFileSystemProvider()
 
-> **migrateFromFileSystemProvider**(): `Promise`\<\{ `dryRun`: `boolean`; `duration`: `number`; `durationSeconds`: `string`; `errors`: `string`[]; `migrationLog`: `MigrationLogEntry`[]; `pagesDiscovered`: `number`; `pagesFailed`: `number`; `pagesProcessed`: `number`; `success`: `boolean`; `timestamp`: `string`; `warnings`: `string`[]; \}\>
+> **migrateFromFileSystemProvider**(): `Promise`\<`MigrationReport`\>
 
-Defined in: [src/utils/VersioningMigration.ts:138](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/VersioningMigration.ts#L138)
+Defined in: [src/utils/VersioningMigration.ts:164](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/VersioningMigration.ts#L164)
 
 Migrate existing pages from FileSystemProvider to VersioningFileProvider
 
@@ -75,7 +75,7 @@ Algorithm:
 
 #### Returns
 
-`Promise`\<\{ `dryRun`: `boolean`; `duration`: `number`; `durationSeconds`: `string`; `errors`: `string`[]; `migrationLog`: `MigrationLogEntry`[]; `pagesDiscovered`: `number`; `pagesFailed`: `number`; `pagesProcessed`: `number`; `success`: `boolean`; `timestamp`: `string`; `warnings`: `string`[]; \}\>
+`Promise`\<`MigrationReport`\>
 
 Migration report with statistics
 
@@ -87,9 +87,9 @@ If migration fails critically
 
 ### rollbackMigration()
 
-> **rollbackMigration**(): `Promise`\<\{ `pageIndex`: `boolean`; `versionDirectories`: `number`; \}\>
+> **rollbackMigration**(): `Promise`\<`RollbackResult`\>
 
-Defined in: [src/utils/VersioningMigration.ts:542](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/VersioningMigration.ts#L542)
+Defined in: [src/utils/VersioningMigration.ts:582](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/VersioningMigration.ts#L582)
 
 Rollback migration (remove all versioning artifacts)
 
@@ -98,17 +98,17 @@ Original page files are NOT affected.
 
 #### Returns
 
-`Promise`\<\{ `pageIndex`: `boolean`; `versionDirectories`: `number`; \}\>
+`Promise`\<`RollbackResult`\>
 
-Rollback report
+Rollback result
 
 ***
 
 ### validateMigration()
 
-> **validateMigration**(): `Promise`\<\{ `errors`: `any`[]; `valid`: `boolean`; `warnings`: `any`[]; \}\>
+> **validateMigration**(): `Promise`\<`ValidationResult`\>
 
-Defined in: [src/utils/VersioningMigration.ts:438](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/VersioningMigration.ts#L438)
+Defined in: [src/utils/VersioningMigration.ts:478](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/VersioningMigration.ts#L478)
 
 Validate migration integrity
 
@@ -120,6 +120,6 @@ Checks:
 
 #### Returns
 
-`Promise`\<\{ `errors`: `any`[]; `valid`: `boolean`; `warnings`: `any`[]; \}\>
+`Promise`\<`ValidationResult`\>
 
 Validation result

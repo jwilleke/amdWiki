@@ -6,7 +6,7 @@
 
 # Interface: CacheConfig
 
-Defined in: [src/parsers/MarkupParser.ts:83](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L83)
+Defined in: [src/parsers/MarkupParser.ts:101](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L101)
 
 Cache configuration
 
@@ -16,7 +16,7 @@ Cache configuration
 
 > **enableWarmup**: `boolean`
 
-Defined in: [src/parsers/MarkupParser.ts:93](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L93)
+Defined in: [src/parsers/MarkupParser.ts:111](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L111)
 
 Whether to enable cache warmup
 
@@ -26,7 +26,7 @@ Whether to enable cache warmup
 
 > **handlerResults**: [`CacheStrategyConfig`](CacheStrategyConfig.md)
 
-Defined in: [src/parsers/MarkupParser.ts:87](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L87)
+Defined in: [src/parsers/MarkupParser.ts:105](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L105)
 
 Handler results cache strategy
 
@@ -36,7 +36,7 @@ Handler results cache strategy
 
 > **metricsEnabled**: `boolean`
 
-Defined in: [src/parsers/MarkupParser.ts:95](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L95)
+Defined in: [src/parsers/MarkupParser.ts:113](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L113)
 
 Whether to enable metrics
 
@@ -46,7 +46,7 @@ Whether to enable metrics
 
 > **parseResults**: [`CacheStrategyConfig`](CacheStrategyConfig.md)
 
-Defined in: [src/parsers/MarkupParser.ts:85](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L85)
+Defined in: [src/parsers/MarkupParser.ts:103](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L103)
 
 Parse results cache strategy
 
@@ -56,7 +56,7 @@ Parse results cache strategy
 
 > **patterns**: [`CacheStrategyConfig`](CacheStrategyConfig.md)
 
-Defined in: [src/parsers/MarkupParser.ts:89](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L89)
+Defined in: [src/parsers/MarkupParser.ts:107](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L107)
 
 Patterns cache strategy
 
@@ -66,6 +66,6 @@ Patterns cache strategy
 
 > **variables**: [`CacheStrategyConfig`](CacheStrategyConfig.md)
 
-Defined in: [src/parsers/MarkupParser.ts:91](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L91)
+Defined in: [src/parsers/MarkupParser.ts:109](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L109)
 
 Variables cache strategy

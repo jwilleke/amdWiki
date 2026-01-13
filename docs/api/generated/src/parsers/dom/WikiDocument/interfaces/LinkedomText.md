@@ -6,7 +6,7 @@
 
 # Interface: LinkedomText
 
-Defined in: [src/parsers/dom/WikiDocument.ts:59](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/WikiDocument.ts#L59)
+Defined in: [src/parsers/dom/WikiDocument.ts:59](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L59)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [src/parsers/dom/WikiDocument.ts:59](https://github.com/jwilleke/amd
 
 > **nodeType**: `number`
 
-Defined in: [src/parsers/dom/WikiDocument.ts:61](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/WikiDocument.ts#L61)
+Defined in: [src/parsers/dom/WikiDocument.ts:61](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L61)
 
 ***
 
@@ -22,4 +22,4 @@ Defined in: [src/parsers/dom/WikiDocument.ts:61](https://github.com/jwilleke/amd
 
 > **textContent**: `string`
 
-Defined in: [src/parsers/dom/WikiDocument.ts:60](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/WikiDocument.ts#L60)
+Defined in: [src/parsers/dom/WikiDocument.ts:60](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L60)

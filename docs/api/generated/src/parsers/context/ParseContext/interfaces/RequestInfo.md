@@ -6,7 +6,7 @@
 
 # Interface: RequestInfo
 
-Defined in: [src/parsers/context/ParseContext.ts:25](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L25)
+Defined in: [src/parsers/context/ParseContext.ts:25](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L25)
 
 Request information
 
@@ -20,7 +20,7 @@ Request information
 
 > `optional` **ip**: `string`
 
-Defined in: [src/parsers/context/ParseContext.ts:28](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L28)
+Defined in: [src/parsers/context/ParseContext.ts:28](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L28)
 
 ***
 
@@ -28,7 +28,7 @@ Defined in: [src/parsers/context/ParseContext.ts:28](https://github.com/jwilleke
 
 > `optional` **method**: `string`
 
-Defined in: [src/parsers/context/ParseContext.ts:26](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L26)
+Defined in: [src/parsers/context/ParseContext.ts:26](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L26)
 
 ***
 
@@ -36,7 +36,7 @@ Defined in: [src/parsers/context/ParseContext.ts:26](https://github.com/jwilleke
 
 > `optional` **path**: `string`
 
-Defined in: [src/parsers/context/ParseContext.ts:27](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L27)
+Defined in: [src/parsers/context/ParseContext.ts:27](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L27)
 
 ***
 
@@ -44,4 +44,4 @@ Defined in: [src/parsers/context/ParseContext.ts:27](https://github.com/jwilleke
 
 > `optional` **userAgent**: `string`
 
-Defined in: [src/parsers/context/ParseContext.ts:29](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L29)
+Defined in: [src/parsers/context/ParseContext.ts:29](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L29)

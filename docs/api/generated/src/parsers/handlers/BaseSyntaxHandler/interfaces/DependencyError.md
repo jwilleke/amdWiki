@@ -6,7 +6,7 @@
 
 # Interface: DependencyError
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:51](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L51)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:53](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L53)
 
 Dependency validation error
 
@@ -16,7 +16,7 @@ Dependency validation error
 
 > `optional` **dependency**: `unknown`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:54](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L54)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:56](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L56)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:54](https://github.com/jw
 
 > `optional` **dependencySpec**: [`DependencySpec`](DependencySpec.md)
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:56](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L56)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:58](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L58)
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:56](https://github.com/jw
 
 > **message**: `string`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:55](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L55)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:57](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L57)
 
 ***
 
@@ -40,7 +40,7 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:55](https://github.com/jw
 
 > `optional` **name**: `string`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:53](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L53)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:55](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L55)
 
 ***
 
@@ -48,4 +48,4 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:53](https://github.com/jw
 
 > **type**: `"manager"` \| `"handler"` \| `"validation_error"`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:52](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L52)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:54](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L54)

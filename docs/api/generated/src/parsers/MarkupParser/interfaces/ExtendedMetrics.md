@@ -6,7 +6,7 @@
 
 # Interface: ExtendedMetrics
 
-Defined in: [src/parsers/MarkupParser.ts:243](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L243)
+Defined in: [src/parsers/MarkupParser.ts:290](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L290)
 
 Extended metrics returned by getMetrics()
 
@@ -20,7 +20,7 @@ Extended metrics returned by getMetrics()
 
 > **averageParseTime**: `number`
 
-Defined in: [src/parsers/MarkupParser.ts:245](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L245)
+Defined in: [src/parsers/MarkupParser.ts:292](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L292)
 
 Average parse time
 
@@ -30,7 +30,7 @@ Average parse time
 
 > **cacheHitRatio**: `number`
 
-Defined in: [src/parsers/MarkupParser.ts:247](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L247)
+Defined in: [src/parsers/MarkupParser.ts:294](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L294)
 
 Cache hit ratio
 
@@ -40,7 +40,7 @@ Cache hit ratio
 
 > **cacheHits**: `number`
 
-Defined in: [src/parsers/MarkupParser.ts:187](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L187)
+Defined in: [src/parsers/MarkupParser.ts:234](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L234)
 
 Number of cache hits
 
@@ -54,7 +54,7 @@ Number of cache hits
 
 > **cacheMetrics**: `Map`\<`string`, [`CacheMetrics`](CacheMetrics.md)\>
 
-Defined in: [src/parsers/MarkupParser.ts:191](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L191)
+Defined in: [src/parsers/MarkupParser.ts:238](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L238)
 
 Cache metrics by strategy
 
@@ -68,7 +68,7 @@ Cache metrics by strategy
 
 > **cacheMisses**: `number`
 
-Defined in: [src/parsers/MarkupParser.ts:189](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L189)
+Defined in: [src/parsers/MarkupParser.ts:236](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L236)
 
 Number of cache misses
 
@@ -82,7 +82,7 @@ Number of cache misses
 
 > `optional` **cacheStrategies**: `Record`\<`string`, `unknown`\>
 
-Defined in: [src/parsers/MarkupParser.ts:253](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L253)
+Defined in: [src/parsers/MarkupParser.ts:300](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L300)
 
 Cache strategies stats
 
@@ -92,7 +92,7 @@ Cache strategies stats
 
 > **errorCount**: `number`
 
-Defined in: [src/parsers/MarkupParser.ts:185](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L185)
+Defined in: [src/parsers/MarkupParser.ts:232](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L232)
 
 Number of errors
 
@@ -106,7 +106,7 @@ Number of errors
 
 > `optional` **filterChain**: `unknown`
 
-Defined in: [src/parsers/MarkupParser.ts:251](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L251)
+Defined in: [src/parsers/MarkupParser.ts:298](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L298)
 
 Filter chain stats
 
@@ -116,7 +116,7 @@ Filter chain stats
 
 > `optional` **handlerRegistry**: `unknown`
 
-Defined in: [src/parsers/MarkupParser.ts:249](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L249)
+Defined in: [src/parsers/MarkupParser.ts:296](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L296)
 
 Handler registry stats
 
@@ -126,7 +126,7 @@ Handler registry stats
 
 > **parseCount**: `number`
 
-Defined in: [src/parsers/MarkupParser.ts:181](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L181)
+Defined in: [src/parsers/MarkupParser.ts:228](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L228)
 
 Number of parses performed
 
@@ -140,7 +140,7 @@ Number of parses performed
 
 > `optional` **performance**: `unknown`
 
-Defined in: [src/parsers/MarkupParser.ts:255](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L255)
+Defined in: [src/parsers/MarkupParser.ts:302](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L302)
 
 Performance monitoring stats
 
@@ -150,7 +150,7 @@ Performance monitoring stats
 
 > **totalParseTime**: `number`
 
-Defined in: [src/parsers/MarkupParser.ts:183](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L183)
+Defined in: [src/parsers/MarkupParser.ts:230](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L230)
 
 Total parse time in milliseconds
 

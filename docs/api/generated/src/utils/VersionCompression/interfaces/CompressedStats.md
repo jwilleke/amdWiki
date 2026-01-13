@@ -6,7 +6,7 @@
 
 # Interface: CompressedStats
 
-Defined in: [src/utils/VersionCompression.ts:49](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/VersionCompression.ts#L49)
+Defined in: [src/utils/VersionCompression.ts:49](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/VersionCompression.ts#L49)
 
 Compressed file stats
 
@@ -16,7 +16,7 @@ Compressed file stats
 
 > **compressedSize**: `number`
 
-Defined in: [src/utils/VersionCompression.ts:51](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/VersionCompression.ts#L51)
+Defined in: [src/utils/VersionCompression.ts:51](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/VersionCompression.ts#L51)
 
 ***
 
@@ -24,15 +24,15 @@ Defined in: [src/utils/VersionCompression.ts:51](https://github.com/jwilleke/amd
 
 > **modified**: `Date`
 
-Defined in: [src/utils/VersionCompression.ts:54](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/VersionCompression.ts#L54)
+Defined in: [src/utils/VersionCompression.ts:54](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/VersionCompression.ts#L54)
 
 ***
 
 ### originalSize
 
-> **originalSize**: `number`
+> **originalSize**: `number` \| `null`
 
-Defined in: [src/utils/VersionCompression.ts:52](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/VersionCompression.ts#L52)
+Defined in: [src/utils/VersionCompression.ts:52](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/VersionCompression.ts#L52)
 
 ***
 
@@ -40,12 +40,12 @@ Defined in: [src/utils/VersionCompression.ts:52](https://github.com/jwilleke/amd
 
 > **path**: `string`
 
-Defined in: [src/utils/VersionCompression.ts:50](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/VersionCompression.ts#L50)
+Defined in: [src/utils/VersionCompression.ts:50](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/VersionCompression.ts#L50)
 
 ***
 
 ### ratio
 
-> **ratio**: `number`
+> **ratio**: `number` \| `null`
 
-Defined in: [src/utils/VersionCompression.ts:53](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/VersionCompression.ts#L53)
+Defined in: [src/utils/VersionCompression.ts:53](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/VersionCompression.ts#L53)

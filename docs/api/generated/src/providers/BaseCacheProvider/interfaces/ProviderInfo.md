@@ -6,7 +6,7 @@
 
 # Interface: ProviderInfo
 
-Defined in: [src/providers/BaseCacheProvider.ts:28](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseCacheProvider.ts#L28)
+Defined in: [src/providers/BaseCacheProvider.ts:28](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseCacheProvider.ts#L28)
 
 Provider information
 
@@ -16,7 +16,7 @@ Provider information
 
 > **description**: `string`
 
-Defined in: [src/providers/BaseCacheProvider.ts:31](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseCacheProvider.ts#L31)
+Defined in: [src/providers/BaseCacheProvider.ts:31](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseCacheProvider.ts#L31)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [src/providers/BaseCacheProvider.ts:31](https://github.com/jwilleke/
 
 > **features**: `string`[]
 
-Defined in: [src/providers/BaseCacheProvider.ts:32](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseCacheProvider.ts#L32)
+Defined in: [src/providers/BaseCacheProvider.ts:32](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseCacheProvider.ts#L32)
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: [src/providers/BaseCacheProvider.ts:32](https://github.com/jwilleke/
 
 > **name**: `string`
 
-Defined in: [src/providers/BaseCacheProvider.ts:29](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseCacheProvider.ts#L29)
+Defined in: [src/providers/BaseCacheProvider.ts:29](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseCacheProvider.ts#L29)
 
 ***
 
@@ -40,4 +40,4 @@ Defined in: [src/providers/BaseCacheProvider.ts:29](https://github.com/jwilleke/
 
 > **version**: `string`
 
-Defined in: [src/providers/BaseCacheProvider.ts:30](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseCacheProvider.ts#L30)
+Defined in: [src/providers/BaseCacheProvider.ts:30](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseCacheProvider.ts#L30)

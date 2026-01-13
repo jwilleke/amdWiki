@@ -6,7 +6,7 @@
 
 # Class: DOMParser
 
-Defined in: [src/parsers/dom/DOMParser.ts:169](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/DOMParser.ts#L169)
+Defined in: [src/parsers/dom/DOMParser.ts:170](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L170)
 
 DOMParser class
 
@@ -16,7 +16,7 @@ DOMParser class
 
 > **new DOMParser**(`options`): `DOMParser`
 
-Defined in: [src/parsers/dom/DOMParser.ts:181](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/DOMParser.ts#L181)
+Defined in: [src/parsers/dom/DOMParser.ts:182](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L182)
 
 Creates a new DOMParser
 
@@ -38,7 +38,7 @@ Parser options
 
 > **checkForWarnings**(`tokens`, `result`): `void`
 
-Defined in: [src/parsers/dom/DOMParser.ts:407](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/DOMParser.ts#L407)
+Defined in: [src/parsers/dom/DOMParser.ts:408](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L408)
 
 Checks tokens for common warnings
 
@@ -66,7 +66,7 @@ Result object to add warnings to
 
 > **createErrorDocument**(`content`, `context`, `error`): [`default`](../../WikiDocument/classes/default.md)
 
-Defined in: [src/parsers/dom/DOMParser.ts:316](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/DOMParser.ts#L316)
+Defined in: [src/parsers/dom/DOMParser.ts:317](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L317)
 
 Creates an error document when parsing fails
 
@@ -83,9 +83,9 @@ Original content
 
 ##### context
 
-[`RenderContext`](../interfaces/RenderContext.md)
-
 Rendering context
+
+[`RenderContext`](../interfaces/RenderContext.md) | `null`
 
 ##### error
 
@@ -105,7 +105,7 @@ Error document
 
 > **getStatistics**(): [`ExtendedStatistics`](../interfaces/ExtendedStatistics.md)
 
-Defined in: [src/parsers/dom/DOMParser.ts:433](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/DOMParser.ts#L433)
+Defined in: [src/parsers/dom/DOMParser.ts:434](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L434)
 
 Gets parser statistics
 
@@ -121,7 +121,7 @@ Parser statistics
 
 > **log**(`message`): `void`
 
-Defined in: [src/parsers/dom/DOMParser.ts:463](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/DOMParser.ts#L463)
+Defined in: [src/parsers/dom/DOMParser.ts:464](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L464)
 
 Logs debug message if debug mode enabled
 
@@ -143,7 +143,7 @@ Message to log
 
 > **parse**(`content`, `context`): [`default`](../../WikiDocument/classes/default.md)
 
-Defined in: [src/parsers/dom/DOMParser.ts:209](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/DOMParser.ts#L209)
+Defined in: [src/parsers/dom/DOMParser.ts:210](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L210)
 
 Parses wiki markup content into a WikiDocument
 
@@ -154,15 +154,15 @@ JSPWiki's MarkupParser.parse() method.
 
 ##### content
 
-`string`
-
 Wiki markup content to parse
+
+`string` | `null` | `undefined`
 
 ##### context
 
-[`RenderContext`](../interfaces/RenderContext.md) = `null`
-
 Rendering context (page info, user, etc.)
+
+[`RenderContext`](../interfaces/RenderContext.md) | `null`
 
 #### Returns
 
@@ -180,7 +180,7 @@ ParseError if throwOnError is true and parsing fails
 
 > **resetStatistics**(): `void`
 
-Defined in: [src/parsers/dom/DOMParser.ts:448](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/DOMParser.ts#L448)
+Defined in: [src/parsers/dom/DOMParser.ts:449](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L449)
 
 Resets parser statistics
 
@@ -194,7 +194,7 @@ Resets parser statistics
 
 > **validate**(`content`): [`ValidationResult`](../interfaces/ValidationResult.md)
 
-Defined in: [src/parsers/dom/DOMParser.ts:371](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/DOMParser.ts#L371)
+Defined in: [src/parsers/dom/DOMParser.ts:372](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L372)
 
 Validates wiki markup without building full DOM
 

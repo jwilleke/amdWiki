@@ -6,7 +6,7 @@
 
 # Interface: VersionComponents
 
-Defined in: [src/utils/version.ts:38](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/version.ts#L38)
+Defined in: [src/utils/version.ts:38](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/version.ts#L38)
 
 Parsed version components
 
@@ -16,7 +16,7 @@ Parsed version components
 
 > **major**: `number`
 
-Defined in: [src/utils/version.ts:39](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/version.ts#L39)
+Defined in: [src/utils/version.ts:39](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/version.ts#L39)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [src/utils/version.ts:39](https://github.com/jwilleke/amdWiki/blob/b
 
 > **minor**: `number`
 
-Defined in: [src/utils/version.ts:40](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/version.ts#L40)
+Defined in: [src/utils/version.ts:40](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/version.ts#L40)
 
 ***
 
@@ -32,4 +32,4 @@ Defined in: [src/utils/version.ts:40](https://github.com/jwilleke/amdWiki/blob/b
 
 > **patch**: `number`
 
-Defined in: [src/utils/version.ts:41](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/version.ts#L41)
+Defined in: [src/utils/version.ts:41](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/version.ts#L41)

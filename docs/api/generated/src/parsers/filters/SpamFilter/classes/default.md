@@ -6,7 +6,7 @@
 
 # Class: default
 
-Defined in: [src/parsers/filters/SpamFilter.ts:98](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/SpamFilter.ts#L98)
+Defined in: [src/parsers/filters/SpamFilter.ts:99](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/SpamFilter.ts#L99)
 
 SpamFilter - Intelligent spam detection with modular configuration
 
@@ -33,7 +33,7 @@ Epic: #41 - Implement JSPWikiMarkupParser for Complete Enhancement Support
 
 > **new default**(): `SpamFilter`
 
-Defined in: [src/parsers/filters/SpamFilter.ts:105](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/SpamFilter.ts#L105)
+Defined in: [src/parsers/filters/SpamFilter.ts:106](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/SpamFilter.ts#L106)
 
 #### Returns
 
@@ -49,7 +49,7 @@ Defined in: [src/parsers/filters/SpamFilter.ts:105](https://github.com/jwilleke/
 
 > **blacklistedWords**: `Set`\<`string`\>
 
-Defined in: [src/parsers/filters/SpamFilter.ts:101](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/SpamFilter.ts#L101)
+Defined in: [src/parsers/filters/SpamFilter.ts:102](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/SpamFilter.ts#L102)
 
 ***
 
@@ -57,7 +57,7 @@ Defined in: [src/parsers/filters/SpamFilter.ts:101](https://github.com/jwilleke/
 
 > `readonly` **category**: `string`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:138](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L138)
+Defined in: [src/parsers/filters/BaseFilter.ts:140](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L140)
 
 #### Inherited from
 
@@ -67,9 +67,9 @@ Defined in: [src/parsers/filters/BaseFilter.ts:138](https://github.com/jwilleke/
 
 ### config
 
-> `protected` **config**: [`FilterConfig`](../../BaseFilter/interfaces/FilterConfig.md)
+> `protected` **config**: [`FilterConfig`](../../BaseFilter/interfaces/FilterConfig.md) \| `null`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:144](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L144)
+Defined in: [src/parsers/filters/BaseFilter.ts:146](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L146)
 
 #### Inherited from
 
@@ -81,7 +81,7 @@ Defined in: [src/parsers/filters/BaseFilter.ts:144](https://github.com/jwilleke/
 
 > `readonly` **description**: `string`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:137](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L137)
+Defined in: [src/parsers/filters/BaseFilter.ts:139](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L139)
 
 #### Inherited from
 
@@ -93,7 +93,7 @@ Defined in: [src/parsers/filters/BaseFilter.ts:137](https://github.com/jwilleke/
 
 > `protected` **enabled**: `boolean`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:142](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L142)
+Defined in: [src/parsers/filters/BaseFilter.ts:144](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L144)
 
 #### Inherited from
 
@@ -105,7 +105,7 @@ Defined in: [src/parsers/filters/BaseFilter.ts:142](https://github.com/jwilleke/
 
 > **filterId**: `string`
 
-Defined in: [src/parsers/filters/SpamFilter.ts:99](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/SpamFilter.ts#L99)
+Defined in: [src/parsers/filters/SpamFilter.ts:100](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/SpamFilter.ts#L100)
 
 #### Overrides
 
@@ -117,7 +117,7 @@ Defined in: [src/parsers/filters/SpamFilter.ts:99](https://github.com/jwilleke/a
 
 > `protected` **initialized**: `boolean`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:143](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L143)
+Defined in: [src/parsers/filters/BaseFilter.ts:145](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L145)
 
 #### Inherited from
 
@@ -129,7 +129,7 @@ Defined in: [src/parsers/filters/BaseFilter.ts:143](https://github.com/jwilleke/
 
 > `protected` **options**: `Required`\<[`FilterOptions`](../../BaseFilter/interfaces/FilterOptions.md)\>
 
-Defined in: [src/parsers/filters/BaseFilter.ts:140](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L140)
+Defined in: [src/parsers/filters/BaseFilter.ts:142](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L142)
 
 #### Inherited from
 
@@ -141,7 +141,7 @@ Defined in: [src/parsers/filters/BaseFilter.ts:140](https://github.com/jwilleke/
 
 > **priority**: `number`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:134](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L134)
+Defined in: [src/parsers/filters/BaseFilter.ts:136](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L136)
 
 #### Inherited from
 
@@ -151,9 +151,9 @@ Defined in: [src/parsers/filters/BaseFilter.ts:134](https://github.com/jwilleke/
 
 ### spamConfig
 
-> **spamConfig**: `SpamConfig`
+> **spamConfig**: `SpamConfig` \| `null`
 
-Defined in: [src/parsers/filters/SpamFilter.ts:100](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/SpamFilter.ts#L100)
+Defined in: [src/parsers/filters/SpamFilter.ts:101](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/SpamFilter.ts#L101)
 
 ***
 
@@ -161,7 +161,7 @@ Defined in: [src/parsers/filters/SpamFilter.ts:100](https://github.com/jwilleke/
 
 > **spamPatterns**: `RegExp`[]
 
-Defined in: [src/parsers/filters/SpamFilter.ts:103](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/SpamFilter.ts#L103)
+Defined in: [src/parsers/filters/SpamFilter.ts:104](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/SpamFilter.ts#L104)
 
 ***
 
@@ -169,7 +169,7 @@ Defined in: [src/parsers/filters/SpamFilter.ts:103](https://github.com/jwilleke/
 
 > `protected` **stats**: [`FilterStats`](../../BaseFilter/interfaces/FilterStats.md)
 
-Defined in: [src/parsers/filters/BaseFilter.ts:141](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L141)
+Defined in: [src/parsers/filters/BaseFilter.ts:143](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L143)
 
 #### Inherited from
 
@@ -181,7 +181,7 @@ Defined in: [src/parsers/filters/BaseFilter.ts:141](https://github.com/jwilleke/
 
 > `readonly` **version**: `string`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:136](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L136)
+Defined in: [src/parsers/filters/BaseFilter.ts:138](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L138)
 
 #### Inherited from
 
@@ -193,7 +193,7 @@ Defined in: [src/parsers/filters/BaseFilter.ts:136](https://github.com/jwilleke/
 
 > **whitelistedDomains**: `Set`\<`string`\>
 
-Defined in: [src/parsers/filters/SpamFilter.ts:102](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/SpamFilter.ts#L102)
+Defined in: [src/parsers/filters/SpamFilter.ts:103](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/SpamFilter.ts#L103)
 
 ## Methods
 
@@ -201,7 +201,7 @@ Defined in: [src/parsers/filters/SpamFilter.ts:102](https://github.com/jwilleke/
 
 > **addBlacklistedWord**(`word`): `boolean`
 
-Defined in: [src/parsers/filters/SpamFilter.ts:435](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/SpamFilter.ts#L435)
+Defined in: [src/parsers/filters/SpamFilter.ts:428](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/SpamFilter.ts#L428)
 
 Add word to blacklist (modular blacklist management)
 
@@ -225,7 +225,7 @@ True if added
 
 > **addWhitelistedDomain**(`domain`): `boolean`
 
-Defined in: [src/parsers/filters/SpamFilter.ts:467](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/SpamFilter.ts#L467)
+Defined in: [src/parsers/filters/SpamFilter.ts:458](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/SpamFilter.ts#L458)
 
 Add domain to whitelist (modular whitelist management)
 
@@ -249,7 +249,7 @@ True if added
 
 > **analyzeSpam**(`content`, `_context`): `Promise`\<`SpamAnalysis`\>
 
-Defined in: [src/parsers/filters/SpamFilter.ts:259](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/SpamFilter.ts#L259)
+Defined in: [src/parsers/filters/SpamFilter.ts:253](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/SpamFilter.ts#L253)
 
 Analyze content for spam characteristics (modular spam analysis)
 
@@ -279,7 +279,7 @@ Spam analysis result
 
 > **countImages**(`content`): `number`
 
-Defined in: [src/parsers/filters/SpamFilter.ts:343](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/SpamFilter.ts#L343)
+Defined in: [src/parsers/filters/SpamFilter.ts:337](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/SpamFilter.ts#L337)
 
 Count images in content (modular image detection)
 
@@ -303,7 +303,7 @@ Number of images found
 
 > **countLinks**(`content`): `number`
 
-Defined in: [src/parsers/filters/SpamFilter.ts:321](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/SpamFilter.ts#L321)
+Defined in: [src/parsers/filters/SpamFilter.ts:315](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/SpamFilter.ts#L315)
 
 Count links in content (modular link detection)
 
@@ -327,7 +327,7 @@ Number of links found
 
 > `protected` **createErrorContext**(`error`, `content`, `context`): [`FilterErrorContext`](../../BaseFilter/interfaces/FilterErrorContext.md)
 
-Defined in: [src/parsers/filters/BaseFilter.ts:341](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L341)
+Defined in: [src/parsers/filters/BaseFilter.ts:340](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L340)
 
 Create error context for debugging (modular error handling)
 
@@ -367,7 +367,7 @@ Error context
 
 > **disable**(): `void`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:367](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L367)
+Defined in: [src/parsers/filters/BaseFilter.ts:366](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L366)
 
 Disable the filter
 
@@ -385,7 +385,7 @@ Disable the filter
 
 > **enable**(): `void`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:360](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L360)
+Defined in: [src/parsers/filters/BaseFilter.ts:359](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L359)
 
 Enable the filter
 
@@ -403,7 +403,7 @@ Enable the filter
 
 > **execute**(`content`, `context`): `Promise`\<`string`\>
 
-Defined in: [src/parsers/filters/BaseFilter.ts:300](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L300)
+Defined in: [src/parsers/filters/BaseFilter.ts:300](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L300)
 
 Execute filter with performance tracking and error handling
 
@@ -437,7 +437,7 @@ Processed content
 
 > **findBlacklistedWords**(`content`): `string`[]
 
-Defined in: [src/parsers/filters/SpamFilter.ts:364](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/SpamFilter.ts#L364)
+Defined in: [src/parsers/filters/SpamFilter.ts:358](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/SpamFilter.ts#L358)
 
 Find blacklisted words in content (modular blacklist checking)
 
@@ -461,7 +461,7 @@ Found blacklisted words
 
 > **findSuspiciousDomains**(`content`): `Promise`\<`string`[]\>
 
-Defined in: [src/parsers/filters/SpamFilter.ts:383](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/SpamFilter.ts#L383)
+Defined in: [src/parsers/filters/SpamFilter.ts:377](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/SpamFilter.ts#L377)
 
 Find suspicious domains not in whitelist (modular domain checking)
 
@@ -485,7 +485,7 @@ Suspicious domains found
 
 > **getConfigurationSummary**(): [`ConfigurationSummary`](../../BaseFilter/interfaces/ConfigurationSummary.md)
 
-Defined in: [src/parsers/filters/BaseFilter.ts:435](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L435)
+Defined in: [src/parsers/filters/BaseFilter.ts:434](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L434)
 
 Get configuration summary for debugging (modular introspection)
 
@@ -503,15 +503,15 @@ Configuration summary
 
 ### getFilterType()
 
-> `protected` **getFilterType**(): `string`
+> `protected` **getFilterType**(): `string` \| `null`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:265](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L265)
+Defined in: [src/parsers/filters/BaseFilter.ts:265](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L265)
 
 Get filter type for configuration lookup (override in subclasses)
 
 #### Returns
 
-`string`
+`string` \| `null`
 
 Filter type for configuration
 
@@ -525,7 +525,7 @@ Filter type for configuration
 
 > **getInfo**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [src/parsers/filters/SpamFilter.ts:520](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/SpamFilter.ts#L520)
+Defined in: [src/parsers/filters/SpamFilter.ts:509](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/SpamFilter.ts#L509)
 
 Get filter information for debugging and documentation
 
@@ -541,7 +541,7 @@ Filter information
 
 > **getMetadata**(): [`FilterMetadata`](../../BaseFilter/interfaces/FilterMetadata.md)
 
-Defined in: [src/parsers/filters/BaseFilter.ts:417](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L417)
+Defined in: [src/parsers/filters/BaseFilter.ts:416](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L416)
 
 Get filter metadata
 
@@ -561,7 +561,7 @@ Filter metadata
 
 > **getSpamConfiguration**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [src/parsers/filters/SpamFilter.ts:498](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/SpamFilter.ts#L498)
+Defined in: [src/parsers/filters/SpamFilter.ts:487](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/SpamFilter.ts#L487)
 
 Get spam configuration summary (modular introspection)
 
@@ -577,7 +577,7 @@ Spam configuration summary
 
 > **getStats**(): [`FilterStats`](../../BaseFilter/interfaces/FilterStats.md) & `object`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:383](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L383)
+Defined in: [src/parsers/filters/BaseFilter.ts:382](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L382)
 
 Get filter statistics
 
@@ -597,7 +597,7 @@ Filter statistics
 
 > **initialize**(`context`): `Promise`\<`void`\>
 
-Defined in: [src/parsers/filters/BaseFilter.ts:199](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L199)
+Defined in: [src/parsers/filters/BaseFilter.ts:201](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L201)
 
 Initialize filter with modular configuration
 
@@ -623,7 +623,7 @@ Initialization context
 
 > **isEnabled**(): `boolean`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:375](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L375)
+Defined in: [src/parsers/filters/BaseFilter.ts:374](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L374)
 
 Check if filter is enabled
 
@@ -643,7 +643,7 @@ True if enabled
 
 > **loadDefaultSpamConfiguration**(): `void`
 
-Defined in: [src/parsers/filters/SpamFilter.ts:210](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/SpamFilter.ts#L210)
+Defined in: [src/parsers/filters/SpamFilter.ts:204](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/SpamFilter.ts#L204)
 
 Load default spam configuration when configuration unavailable
 
@@ -657,7 +657,7 @@ Load default spam configuration when configuration unavailable
 
 > `protected` **loadModularConfiguration**(`context`): `void`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:217](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L217)
+Defined in: [src/parsers/filters/BaseFilter.ts:219](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L219)
 
 Load configuration from app-default-config.json and app-custom-config.json
 
@@ -683,7 +683,7 @@ Initialization context
 
 > **loadModularSpamConfiguration**(`context`): `void`
 
-Defined in: [src/parsers/filters/SpamFilter.ts:150](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/SpamFilter.ts#L150)
+Defined in: [src/parsers/filters/SpamFilter.ts:145](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/SpamFilter.ts#L145)
 
 Load modular spam configuration from app-default/custom-config.json
 
@@ -705,7 +705,7 @@ Initialization context
 
 > **logSpamAttempt**(`_content`, `analysis`, `context`): `void`
 
-Defined in: [src/parsers/filters/SpamFilter.ts:408](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/SpamFilter.ts#L408)
+Defined in: [src/parsers/filters/SpamFilter.ts:402](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/SpamFilter.ts#L402)
 
 Log spam attempt for monitoring (modular logging)
 
@@ -739,7 +739,7 @@ Parse context
 
 > **onInitialize**(`context`): `Promise`\<`void`\>
 
-Defined in: [src/parsers/filters/SpamFilter.ts:128](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/SpamFilter.ts#L128)
+Defined in: [src/parsers/filters/SpamFilter.ts:129](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/SpamFilter.ts#L129)
 
 Initialize filter with modular spam detection configuration
 
@@ -765,7 +765,7 @@ Initialization context
 
 > `protected` **onShutdown**(): `Promise`\<`void`\>
 
-Defined in: [src/parsers/filters/BaseFilter.ts:457](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L457)
+Defined in: [src/parsers/filters/BaseFilter.ts:456](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L456)
 
 Custom shutdown logic (override in subclasses)
 
@@ -783,7 +783,7 @@ Custom shutdown logic (override in subclasses)
 
 > **process**(`content`, `context`): `Promise`\<`string`\>
 
-Defined in: [src/parsers/filters/SpamFilter.ts:226](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/SpamFilter.ts#L226)
+Defined in: [src/parsers/filters/SpamFilter.ts:220](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/SpamFilter.ts#L220)
 
 Process content through spam detection filters (modular spam detection)
 
@@ -817,7 +817,7 @@ Content (unchanged if not spam, or flagged if spam)
 
 > **removeBlacklistedWord**(`word`): `boolean`
 
-Defined in: [src/parsers/filters/SpamFilter.ts:451](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/SpamFilter.ts#L451)
+Defined in: [src/parsers/filters/SpamFilter.ts:443](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/SpamFilter.ts#L443)
 
 Remove word from blacklist (modular blacklist management)
 
@@ -841,7 +841,7 @@ True if removed
 
 > **removeWhitelistedDomain**(`domain`): `boolean`
 
-Defined in: [src/parsers/filters/SpamFilter.ts:483](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/SpamFilter.ts#L483)
+Defined in: [src/parsers/filters/SpamFilter.ts:473](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/SpamFilter.ts#L473)
 
 Remove domain from whitelist (modular whitelist management)
 
@@ -865,7 +865,7 @@ True if removed
 
 > **resetStats**(): `void`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:403](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L403)
+Defined in: [src/parsers/filters/BaseFilter.ts:402](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L402)
 
 Reset filter statistics
 
@@ -883,7 +883,7 @@ Reset filter statistics
 
 > **shutdown**(): `Promise`\<`void`\>
 
-Defined in: [src/parsers/filters/BaseFilter.ts:449](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L449)
+Defined in: [src/parsers/filters/BaseFilter.ts:448](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L448)
 
 Clean up filter resources (optional override)
 
@@ -901,7 +901,7 @@ Clean up filter resources (optional override)
 
 > **toString**(): `string`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:465](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L465)
+Defined in: [src/parsers/filters/BaseFilter.ts:464](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L464)
 
 String representation of filter
 

@@ -6,7 +6,7 @@
 
 # Class: HandlerRegistrationError
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:676](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L676)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:673](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L673)
 
 Custom error class for handler registration errors
 
@@ -20,7 +20,7 @@ Custom error class for handler registration errors
 
 > **new HandlerRegistrationError**(`message`, `code`, `context`): `HandlerRegistrationError`
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:680](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L680)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:677](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L677)
 
 #### Parameters
 
@@ -50,7 +50,7 @@ Defined in: [src/parsers/handlers/HandlerRegistry.ts:680](https://github.com/jwi
 
 > `readonly` **code**: `string`
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:677](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L677)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:674](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L674)
 
 ***
 
@@ -58,4 +58,4 @@ Defined in: [src/parsers/handlers/HandlerRegistry.ts:677](https://github.com/jwi
 
 > `readonly` **context**: `Record`\<`string`, `unknown`\>
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:678](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L678)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:675](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L675)

@@ -6,7 +6,7 @@
 
 # Interface: AttachmentResult
 
-Defined in: [src/providers/BaseAttachmentProvider.ts:36](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAttachmentProvider.ts#L36)
+Defined in: [src/providers/BaseAttachmentProvider.ts:34](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseAttachmentProvider.ts#L34)
 
 Attachment retrieval result
 
@@ -16,7 +16,7 @@ Attachment retrieval result
 
 > **buffer**: `Buffer`
 
-Defined in: [src/providers/BaseAttachmentProvider.ts:38](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAttachmentProvider.ts#L38)
+Defined in: [src/providers/BaseAttachmentProvider.ts:36](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseAttachmentProvider.ts#L36)
 
 File buffer
 
@@ -26,6 +26,6 @@ File buffer
 
 > **metadata**: [`AttachmentMetadata`](../../../types/Provider/interfaces/AttachmentMetadata.md)
 
-Defined in: [src/providers/BaseAttachmentProvider.ts:40](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAttachmentProvider.ts#L40)
+Defined in: [src/providers/BaseAttachmentProvider.ts:38](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseAttachmentProvider.ts#L38)
 
 Attachment metadata

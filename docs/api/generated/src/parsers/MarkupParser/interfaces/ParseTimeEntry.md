@@ -6,7 +6,7 @@
 
 # Interface: ParseTimeEntry
 
-Defined in: [src/parsers/MarkupParser.ts:233](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L233)
+Defined in: [src/parsers/MarkupParser.ts:280](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L280)
 
 Parse time entry
 
@@ -16,7 +16,7 @@ Parse time entry
 
 > **cacheHit**: `boolean`
 
-Defined in: [src/parsers/MarkupParser.ts:237](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L237)
+Defined in: [src/parsers/MarkupParser.ts:284](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L284)
 
 Whether this was a cache hit
 
@@ -26,7 +26,7 @@ Whether this was a cache hit
 
 > **time**: `number`
 
-Defined in: [src/parsers/MarkupParser.ts:235](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L235)
+Defined in: [src/parsers/MarkupParser.ts:282](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L282)
 
 Parse time in milliseconds
 
@@ -36,6 +36,6 @@ Parse time in milliseconds
 
 > **timestamp**: `number`
 
-Defined in: [src/parsers/MarkupParser.ts:239](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L239)
+Defined in: [src/parsers/MarkupParser.ts:286](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L286)
 
 Timestamp

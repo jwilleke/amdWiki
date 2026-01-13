@@ -6,7 +6,7 @@
 
 # Interface: UploadOptions
 
-Defined in: [src/managers/AttachmentManager.ts:37](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/AttachmentManager.ts#L37)
+Defined in: [src/managers/AttachmentManager.ts:38](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/AttachmentManager.ts#L38)
 
 Upload options interface
 
@@ -16,7 +16,7 @@ Upload options interface
 
 > `optional` **context**: [`UserContext`](UserContext.md)
 
-Defined in: [src/managers/AttachmentManager.ts:40](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/AttachmentManager.ts#L40)
+Defined in: [src/managers/AttachmentManager.ts:41](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/AttachmentManager.ts#L41)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [src/managers/AttachmentManager.ts:40](https://github.com/jwilleke/a
 
 > `optional` **description**: `string`
 
-Defined in: [src/managers/AttachmentManager.ts:39](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/AttachmentManager.ts#L39)
+Defined in: [src/managers/AttachmentManager.ts:40](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/AttachmentManager.ts#L40)
 
 ***
 
@@ -32,4 +32,4 @@ Defined in: [src/managers/AttachmentManager.ts:39](https://github.com/jwilleke/a
 
 > `optional` **pageName**: `string`
 
-Defined in: [src/managers/AttachmentManager.ts:38](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/AttachmentManager.ts#L38)
+Defined in: [src/managers/AttachmentManager.ts:39](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/AttachmentManager.ts#L39)

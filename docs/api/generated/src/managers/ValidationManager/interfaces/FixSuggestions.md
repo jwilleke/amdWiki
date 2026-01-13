@@ -6,7 +6,7 @@
 
 # Interface: FixSuggestions
 
-Defined in: [src/managers/ValidationManager.ts:85](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ValidationManager.ts#L85)
+Defined in: [src/managers/ValidationManager.ts:87](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L87)
 
 Fix suggestions for validation issues
 
@@ -14,9 +14,9 @@ Fix suggestions for validation issues
 
 ### filename
 
-> **filename**: `string`
+> **filename**: `string` \| `null`
 
-Defined in: [src/managers/ValidationManager.ts:86](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ValidationManager.ts#L86)
+Defined in: [src/managers/ValidationManager.ts:88](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L88)
 
 ***
 
@@ -24,4 +24,4 @@ Defined in: [src/managers/ValidationManager.ts:86](https://github.com/jwilleke/a
 
 > **metadata**: `Record`\<`string`, `unknown`\>
 
-Defined in: [src/managers/ValidationManager.ts:87](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ValidationManager.ts#L87)
+Defined in: [src/managers/ValidationManager.ts:89](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L89)

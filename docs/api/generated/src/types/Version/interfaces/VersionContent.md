@@ -6,7 +6,7 @@
 
 # Interface: VersionContent
 
-Defined in: [src/types/Version.ts:92](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Version.ts#L92)
+Defined in: [src/types/Version.ts:92](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Version.ts#L92)
 
 Version content
 
@@ -18,7 +18,7 @@ Full content for a specific version, reconstructed from deltas if necessary.
 
 > **content**: `string`
 
-Defined in: [src/types/Version.ts:97](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Version.ts#L97)
+Defined in: [src/types/Version.ts:97](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Version.ts#L97)
 
 Full page content (markdown)
 
@@ -28,7 +28,7 @@ Full page content (markdown)
 
 > **metadata**: [`VersionMetadata`](VersionMetadata.md)
 
-Defined in: [src/types/Version.ts:100](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Version.ts#L100)
+Defined in: [src/types/Version.ts:100](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Version.ts#L100)
 
 Version metadata
 
@@ -38,6 +38,6 @@ Version metadata
 
 > **version**: `number`
 
-Defined in: [src/types/Version.ts:94](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Version.ts#L94)
+Defined in: [src/types/Version.ts:94](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Version.ts#L94)
 
 Version number

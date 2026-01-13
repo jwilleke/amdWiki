@@ -6,7 +6,7 @@
 
 # Interface: DecompressionResult
 
-Defined in: [src/utils/VersionCompression.ts:41](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/VersionCompression.ts#L41)
+Defined in: [src/utils/VersionCompression.ts:41](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/VersionCompression.ts#L41)
 
 Decompression result
 
@@ -16,7 +16,7 @@ Decompression result
 
 > **decompressedPath**: `string`
 
-Defined in: [src/utils/VersionCompression.ts:43](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/VersionCompression.ts#L43)
+Defined in: [src/utils/VersionCompression.ts:43](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/VersionCompression.ts#L43)
 
 ***
 
@@ -24,4 +24,4 @@ Defined in: [src/utils/VersionCompression.ts:43](https://github.com/jwilleke/amd
 
 > **decompressedSize**: `number`
 
-Defined in: [src/utils/VersionCompression.ts:42](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/VersionCompression.ts#L42)
+Defined in: [src/utils/VersionCompression.ts:42](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/VersionCompression.ts#L42)

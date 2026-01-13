@@ -6,7 +6,7 @@
 
 # Interface: PerformanceMonitor
 
-Defined in: [src/parsers/MarkupParser.ts:205](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L205)
+Defined in: [src/parsers/MarkupParser.ts:252](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L252)
 
 Performance monitor state
 
@@ -16,7 +16,7 @@ Performance monitor state
 
 > **alerts**: [`PerformanceAlert`](PerformanceAlert.md)[]
 
-Defined in: [src/parsers/MarkupParser.ts:207](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L207)
+Defined in: [src/parsers/MarkupParser.ts:254](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L254)
 
 Performance alerts
 
@@ -26,7 +26,7 @@ Performance alerts
 
 > **checkInterval**: `number`
 
-Defined in: [src/parsers/MarkupParser.ts:211](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L211)
+Defined in: [src/parsers/MarkupParser.ts:258](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L258)
 
 Check interval in milliseconds
 
@@ -36,7 +36,7 @@ Check interval in milliseconds
 
 > **lastCheck**: `number`
 
-Defined in: [src/parsers/MarkupParser.ts:209](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L209)
+Defined in: [src/parsers/MarkupParser.ts:256](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L256)
 
 Last check timestamp
 
@@ -46,7 +46,7 @@ Last check timestamp
 
 > **maxRecentEntries**: `number`
 
-Defined in: [src/parsers/MarkupParser.ts:217](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L217)
+Defined in: [src/parsers/MarkupParser.ts:264](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L264)
 
 Maximum recent entries to keep
 
@@ -56,7 +56,7 @@ Maximum recent entries to keep
 
 > **recentErrorRates**: `number`[]
 
-Defined in: [src/parsers/MarkupParser.ts:215](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L215)
+Defined in: [src/parsers/MarkupParser.ts:262](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L262)
 
 Recent error rates
 
@@ -66,6 +66,6 @@ Recent error rates
 
 > **recentParseTimes**: [`ParseTimeEntry`](ParseTimeEntry.md)[]
 
-Defined in: [src/parsers/MarkupParser.ts:213](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L213)
+Defined in: [src/parsers/MarkupParser.ts:260](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L260)
 
 Recent parse times

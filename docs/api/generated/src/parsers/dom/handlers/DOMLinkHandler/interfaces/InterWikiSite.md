@@ -6,7 +6,7 @@
 
 # Interface: InterWikiSite
 
-Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:53](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMLinkHandler.ts#L53)
+Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:54](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L54)
 
 InterWiki site configuration
 
@@ -16,7 +16,7 @@ InterWiki site configuration
 
 > `optional` **description**: `string`
 
-Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:57](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMLinkHandler.ts#L57)
+Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:58](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L58)
 
 Site description
 
@@ -26,7 +26,7 @@ Site description
 
 > `optional` **enabled**: `boolean`
 
-Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:61](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMLinkHandler.ts#L61)
+Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:62](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L62)
 
 Whether site is enabled
 
@@ -36,7 +36,7 @@ Whether site is enabled
 
 > `optional` **icon**: `string`
 
-Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:59](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMLinkHandler.ts#L59)
+Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:60](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L60)
 
 Site icon
 
@@ -46,7 +46,7 @@ Site icon
 
 > `optional` **openInNewWindow**: `boolean`
 
-Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:63](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMLinkHandler.ts#L63)
+Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:64](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L64)
 
 Whether to open links in new window
 
@@ -56,6 +56,6 @@ Whether to open links in new window
 
 > **url**: `string`
 
-Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:55](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMLinkHandler.ts#L55)
+Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:56](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L56)
 
 URL template with %s placeholder

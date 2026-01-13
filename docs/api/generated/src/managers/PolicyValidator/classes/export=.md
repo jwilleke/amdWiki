@@ -6,7 +6,7 @@
 
 # Class: export=
 
-Defined in: [src/managers/PolicyValidator.ts:185](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyValidator.ts#L185)
+Defined in: [src/managers/PolicyValidator.ts:179](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PolicyValidator.ts#L179)
 
 PolicyValidator - Validates policy schemas and detects conflicts
 Ensures policy integrity and prevents conflicting rules
@@ -21,7 +21,7 @@ Ensures policy integrity and prevents conflicting rules
 
 > **new export=**(`engine`): `PolicyValidator`
 
-Defined in: [src/managers/PolicyValidator.ts:192](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyValidator.ts#L192)
+Defined in: [src/managers/PolicyValidator.ts:186](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PolicyValidator.ts#L186)
 
 #### Parameters
 
@@ -41,9 +41,9 @@ Defined in: [src/managers/PolicyValidator.ts:192](https://github.com/jwilleke/am
 
 ### config?
 
-> `protected` `optional` **config**: `Record`\<`string`, `any`\>
+> `protected` `optional` **config**: `Record`\<`string`, `unknown`\>
 
-Defined in: [src/managers/BaseManager.ts:63](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L63)
+Defined in: [src/managers/BaseManager.ts:61](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L61)
 
 Configuration passed during initialization
 
@@ -57,7 +57,7 @@ Configuration passed during initialization
 
 > `protected` **engine**: [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/managers/BaseManager.ts:56](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L56)
+Defined in: [src/managers/BaseManager.ts:54](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L54)
 
 Reference to the wiki engine
 
@@ -71,7 +71,7 @@ Reference to the wiki engine
 
 > `protected` **initialized**: `boolean`
 
-Defined in: [src/managers/BaseManager.ts:59](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L59)
+Defined in: [src/managers/BaseManager.ts:57](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L57)
 
 Initialization status flag
 
@@ -85,7 +85,7 @@ Initialization status flag
 
 > **backup**(): `Promise`\<[`BackupData`](../../BaseManager/interfaces/BackupData.md)\>
 
-Defined in: [src/managers/BaseManager.ts:168](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L168)
+Defined in: [src/managers/BaseManager.ts:169](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L169)
 
 Backup manager data
 
@@ -127,7 +127,7 @@ async backup(): Promise<BackupData> {
 
 > **clearCache**(): `void`
 
-Defined in: [src/managers/PolicyValidator.ts:901](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyValidator.ts#L901)
+Defined in: [src/managers/PolicyValidator.ts:874](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PolicyValidator.ts#L874)
 
 Clear validation cache
 
@@ -141,7 +141,7 @@ Clear validation cache
 
 > **detectPolicyConflicts**(`policies`): `ConflictResult`
 
-Defined in: [src/managers/PolicyValidator.ts:641](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyValidator.ts#L641)
+Defined in: [src/managers/PolicyValidator.ts:619](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PolicyValidator.ts#L619)
 
 Detect conflicting policies
 
@@ -165,7 +165,7 @@ Conflict detection result
 
 > **formatSchemaErrors**(`schemaErrors`): `ValidationError`[]
 
-Defined in: [src/managers/PolicyValidator.ts:426](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyValidator.ts#L426)
+Defined in: [src/managers/PolicyValidator.ts:406](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PolicyValidator.ts#L406)
 
 Format JSON schema validation errors
 
@@ -189,7 +189,7 @@ Formatted errors
 
 > **generateWarnings**(`policy`): `ValidationWarning`[]
 
-Defined in: [src/managers/PolicyValidator.ts:550](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyValidator.ts#L550)
+Defined in: [src/managers/PolicyValidator.ts:529](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PolicyValidator.ts#L529)
 
 Generate warnings for potential issues
 
@@ -213,7 +213,7 @@ Generated warnings
 
 > **getEngine**(): [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/managers/BaseManager.ts:126](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L126)
+Defined in: [src/managers/BaseManager.ts:125](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L125)
 
 Get the wiki engine instance
 
@@ -239,7 +239,7 @@ const config = this.getEngine().getConfig();
 
 > **getStatistics**(): `ValidationStatistics`
 
-Defined in: [src/managers/PolicyValidator.ts:910](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyValidator.ts#L910)
+Defined in: [src/managers/PolicyValidator.ts:883](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PolicyValidator.ts#L883)
 
 Get validation statistics
 
@@ -255,7 +255,7 @@ Current statistics
 
 > **groupPoliciesByOverlap**(`policies`): `Policy`[][]
 
-Defined in: [src/managers/PolicyValidator.ts:696](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyValidator.ts#L696)
+Defined in: [src/managers/PolicyValidator.ts:674](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PolicyValidator.ts#L674)
 
 Group policies by overlapping criteria
 
@@ -279,7 +279,7 @@ Grouped policies
 
 > **hasActionOverlap**(`actions1`, `actions2`): `boolean`
 
-Defined in: [src/managers/PolicyValidator.ts:784](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyValidator.ts#L784)
+Defined in: [src/managers/PolicyValidator.ts:762](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PolicyValidator.ts#L762)
 
 Check if action criteria overlap
 
@@ -309,7 +309,7 @@ True if actions overlap
 
 > **hasResourceOverlap**(`resources1`, `resources2`): `boolean`
 
-Defined in: [src/managers/PolicyValidator.ts:766](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyValidator.ts#L766)
+Defined in: [src/managers/PolicyValidator.ts:744](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PolicyValidator.ts#L744)
 
 Check if resource criteria overlap
 
@@ -339,7 +339,7 @@ True if resources overlap
 
 > **hasSubjectOverlap**(`subjects1`, `subjects2`): `boolean`
 
-Defined in: [src/managers/PolicyValidator.ts:748](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyValidator.ts#L748)
+Defined in: [src/managers/PolicyValidator.ts:726](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PolicyValidator.ts#L726)
 
 Check if subject criteria overlap
 
@@ -369,7 +369,7 @@ True if subjects overlap
 
 > **initialize**(`config`): `Promise`\<`void`\>
 
-Defined in: [src/managers/PolicyValidator.ts:201](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyValidator.ts#L201)
+Defined in: [src/managers/PolicyValidator.ts:195](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PolicyValidator.ts#L195)
 
 Initialize the manager with configuration
 
@@ -408,7 +408,7 @@ async initialize(config: Record<string, any> = {}): Promise<void> {
 
 > **isInitialized**(): `boolean`
 
-Defined in: [src/managers/BaseManager.ts:114](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L114)
+Defined in: [src/managers/BaseManager.ts:113](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L113)
 
 Check if manager has been initialized
 
@@ -436,7 +436,7 @@ if (manager.isInitialized()) {
 
 > **loadPolicySchema**(): `void`
 
-Defined in: [src/managers/PolicyValidator.ts:230](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyValidator.ts#L230)
+Defined in: [src/managers/PolicyValidator.ts:223](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PolicyValidator.ts#L223)
 
 Load JSON schema for policy validation
 
@@ -450,7 +450,7 @@ Load JSON schema for policy validation
 
 > **patternsOverlap**(`pattern1`, `pattern2`): `boolean`
 
-Defined in: [src/managers/PolicyValidator.ts:848](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyValidator.ts#L848)
+Defined in: [src/managers/PolicyValidator.ts:823](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PolicyValidator.ts#L823)
 
 Check if two patterns overlap
 
@@ -480,7 +480,7 @@ True if patterns overlap
 
 > **policiesOverlap**(`policy1`, `policy2`): `boolean`
 
-Defined in: [src/managers/PolicyValidator.ts:725](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyValidator.ts#L725)
+Defined in: [src/managers/PolicyValidator.ts:703](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PolicyValidator.ts#L703)
 
 Check if two policies have overlapping criteria
 
@@ -510,7 +510,7 @@ True if policies overlap
 
 > **resourcesMatch**(`r1`, `r2`): `boolean`
 
-Defined in: [src/managers/PolicyValidator.ts:821](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyValidator.ts#L821)
+Defined in: [src/managers/PolicyValidator.ts:799](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PolicyValidator.ts#L799)
 
 Check if two resources match
 
@@ -540,7 +540,7 @@ True if resources match
 
 > **restore**(`backupData`): `Promise`\<`void`\>
 
-Defined in: [src/managers/BaseManager.ts:196](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L196)
+Defined in: [src/managers/BaseManager.ts:198](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L198)
 
 Restore manager data from backup
 
@@ -585,7 +585,7 @@ async restore(backupData: BackupData): Promise<void> {
 
 > **shutdown**(): `Promise`\<`void`\>
 
-Defined in: [src/managers/BaseManager.ts:143](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L143)
+Defined in: [src/managers/BaseManager.ts:143](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L143)
 
 Shutdown the manager and cleanup resources
 
@@ -616,7 +616,7 @@ async shutdown(): Promise<void> {
 
 > **subjectsMatch**(`s1`, `s2`): `boolean`
 
-Defined in: [src/managers/PolicyValidator.ts:795](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyValidator.ts#L795)
+Defined in: [src/managers/PolicyValidator.ts:773](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PolicyValidator.ts#L773)
 
 Check if two subjects match
 
@@ -646,7 +646,7 @@ True if subjects match
 
 > **validateAllPolicies**(`policies`): `AllPoliciesValidationResult`
 
-Defined in: [src/managers/PolicyValidator.ts:596](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyValidator.ts#L596)
+Defined in: [src/managers/PolicyValidator.ts:575](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PolicyValidator.ts#L575)
 
 Validate all policies for conflicts
 
@@ -654,9 +654,9 @@ Validate all policies for conflicts
 
 ##### policies
 
-`Policy`[] = `null`
-
 Policies to validate (null = get from manager)
+
+`Policy`[] | `null`
 
 #### Returns
 
@@ -670,7 +670,7 @@ Validation result
 
 > **validateAndSavePolicy**(`policy`): `Promise`\<`PolicySaveResult`\>
 
-Defined in: [src/managers/PolicyValidator.ts:865](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyValidator.ts#L865)
+Defined in: [src/managers/PolicyValidator.ts:838](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PolicyValidator.ts#L838)
 
 Validate policy before saving
 
@@ -698,7 +698,7 @@ If validation or conflict check fails
 
 > **validateBusinessLogic**(`policy`): `ValidationError`[]
 
-Defined in: [src/managers/PolicyValidator.ts:442](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyValidator.ts#L442)
+Defined in: [src/managers/PolicyValidator.ts:422](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PolicyValidator.ts#L422)
 
 Validate business logic rules
 
@@ -722,7 +722,7 @@ Business logic errors
 
 > **validatePolicy**(`policy`): `ValidationResult`
 
-Defined in: [src/managers/PolicyValidator.ts:388](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyValidator.ts#L388)
+Defined in: [src/managers/PolicyValidator.ts:368](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PolicyValidator.ts#L368)
 
 Validate a single policy
 
@@ -746,7 +746,7 @@ Validation result
 
 > **validateSemantics**(`policy`): `ValidationError`[]
 
-Defined in: [src/managers/PolicyValidator.ts:501](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyValidator.ts#L501)
+Defined in: [src/managers/PolicyValidator.ts:481](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PolicyValidator.ts#L481)
 
 Validate semantic correctness
 

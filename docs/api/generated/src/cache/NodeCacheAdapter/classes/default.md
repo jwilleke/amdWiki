@@ -6,7 +6,7 @@
 
 # Class: default
 
-Defined in: [src/cache/NodeCacheAdapter.ts:54](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/cache/NodeCacheAdapter.ts#L54)
+Defined in: [src/cache/NodeCacheAdapter.ts:53](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/cache/NodeCacheAdapter.ts#L53)
 
 Node-cache based cache adapter
 Provides in-memory caching with TTL support using the node-cache library
@@ -21,7 +21,7 @@ Provides in-memory caching with TTL support using the node-cache library
 
 > **new default**(`options`): `NodeCacheAdapter`
 
-Defined in: [src/cache/NodeCacheAdapter.ts:59](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/cache/NodeCacheAdapter.ts#L59)
+Defined in: [src/cache/NodeCacheAdapter.ts:58](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/cache/NodeCacheAdapter.ts#L58)
 
 #### Parameters
 
@@ -43,7 +43,7 @@ Defined in: [src/cache/NodeCacheAdapter.ts:59](https://github.com/jwilleke/amdWi
 
 > **clear**(`pattern?`): `Promise`\<`void`\>
 
-Defined in: [src/cache/NodeCacheAdapter.ts:175](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/cache/NodeCacheAdapter.ts#L175)
+Defined in: [src/cache/NodeCacheAdapter.ts:174](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/cache/NodeCacheAdapter.ts#L174)
 
 Clear cache entries
 
@@ -69,7 +69,7 @@ Optional pattern to match keys (e.g., 'user:*')
 
 > **close**(): `Promise`\<`void`\>
 
-Defined in: [src/cache/NodeCacheAdapter.ts:309](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/cache/NodeCacheAdapter.ts#L309)
+Defined in: [src/cache/NodeCacheAdapter.ts:308](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/cache/NodeCacheAdapter.ts#L308)
 
 Close/cleanup the cache adapter
 
@@ -87,7 +87,7 @@ Close/cleanup the cache adapter
 
 > **del**(`keys`): `Promise`\<`void`\>
 
-Defined in: [src/cache/NodeCacheAdapter.ts:151](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/cache/NodeCacheAdapter.ts#L151)
+Defined in: [src/cache/NodeCacheAdapter.ts:150](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/cache/NodeCacheAdapter.ts#L150)
 
 Delete one or more keys from the cache
 
@@ -111,9 +111,9 @@ Single key or array of keys to delete
 
 ### get()
 
-> **get**\<`T`\>(`key`): `Promise`\<`T`\>
+> **get**\<`T`\>(`key`): `Promise`\<`T` \| `undefined`\>
 
-Defined in: [src/cache/NodeCacheAdapter.ts:98](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/cache/NodeCacheAdapter.ts#L98)
+Defined in: [src/cache/NodeCacheAdapter.ts:97](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/cache/NodeCacheAdapter.ts#L97)
 
 Get a value from the cache
 
@@ -133,7 +133,7 @@ The cache key
 
 #### Returns
 
-`Promise`\<`T`\>
+`Promise`\<`T` \| `undefined`\>
 
 The cached value or undefined if not found
 
@@ -145,15 +145,15 @@ The cached value or undefined if not found
 
 ### getNodeCache()
 
-> **getNodeCache**(): `NodeCache`
+> **getNodeCache**(): `NodeCache` \| `null`
 
-Defined in: [src/cache/NodeCacheAdapter.ts:327](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/cache/NodeCacheAdapter.ts#L327)
+Defined in: [src/cache/NodeCacheAdapter.ts:326](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/cache/NodeCacheAdapter.ts#L326)
 
 Get the underlying node-cache instance (for advanced usage)
 
 #### Returns
 
-`NodeCache`
+`NodeCache` \| `null`
 
 The node-cache instance
 
@@ -163,7 +163,7 @@ The node-cache instance
 
 > **isHealthy**(): `Promise`\<`boolean`\>
 
-Defined in: [src/cache/NodeCacheAdapter.ts:290](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/cache/NodeCacheAdapter.ts#L290)
+Defined in: [src/cache/NodeCacheAdapter.ts:289](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/cache/NodeCacheAdapter.ts#L289)
 
 Check if the cache adapter is healthy/connected
 
@@ -183,7 +183,7 @@ True if healthy
 
 > **keys**(`pattern`): `Promise`\<`string`[]\>
 
-Defined in: [src/cache/NodeCacheAdapter.ts:203](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/cache/NodeCacheAdapter.ts#L203)
+Defined in: [src/cache/NodeCacheAdapter.ts:202](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/cache/NodeCacheAdapter.ts#L202)
 
 Get keys matching a pattern
 
@@ -211,7 +211,7 @@ Array of matching keys
 
 > **set**(`key`, `value`, `ttlSec?`): `Promise`\<`void`\>
 
-Defined in: [src/cache/NodeCacheAdapter.ts:127](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/cache/NodeCacheAdapter.ts#L127)
+Defined in: [src/cache/NodeCacheAdapter.ts:126](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/cache/NodeCacheAdapter.ts#L126)
 
 Set a value in the cache
 
@@ -249,7 +249,7 @@ Time to live in seconds
 
 > **stats**(): `Promise`\<[`ExtendedCacheStats`](../interfaces/ExtendedCacheStats.md)\>
 
-Defined in: [src/cache/NodeCacheAdapter.ts:234](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/cache/NodeCacheAdapter.ts#L234)
+Defined in: [src/cache/NodeCacheAdapter.ts:233](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/cache/NodeCacheAdapter.ts#L233)
 
 Get cache statistics
 

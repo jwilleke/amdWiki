@@ -6,7 +6,7 @@
 
 # Interface: HandlerOptions
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:14](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L14)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:16](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L16)
 
 Handler configuration options
 
@@ -16,7 +16,7 @@ Handler configuration options
 
 > `optional` **cacheEnabled**: `boolean`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:24](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L24)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:26](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L26)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:24](https://github.com/jw
 
 > `optional` **caseSensitive**: `boolean`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:17](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L17)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:19](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L19)
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:17](https://github.com/jw
 
 > `optional` **dependencies**: (`string` \| [`DependencySpec`](DependencySpec.md))[]
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:22](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L22)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:24](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L24)
 
 ***
 
@@ -40,7 +40,7 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:22](https://github.com/jw
 
 > `optional` **description**: `string`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:21](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L21)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:23](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L23)
 
 ***
 
@@ -48,7 +48,7 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:21](https://github.com/jw
 
 > `optional` **enabled**: `boolean`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:15](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L15)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:17](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L17)
 
 ***
 
@@ -56,7 +56,7 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:15](https://github.com/jw
 
 > `optional` **global**: `boolean`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:19](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L19)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:21](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L21)
 
 ***
 
@@ -64,7 +64,7 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:19](https://github.com/jw
 
 > `optional` **multiline**: `boolean`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:18](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L18)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:20](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L20)
 
 ***
 
@@ -72,7 +72,7 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:18](https://github.com/jw
 
 > `optional` **throwOnError**: `boolean`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:23](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L23)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:25](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L25)
 
 ***
 
@@ -80,7 +80,7 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:23](https://github.com/jw
 
 > `optional` **timeout**: `number`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:16](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L16)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:18](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L18)
 
 ***
 
@@ -88,4 +88,4 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:16](https://github.com/jw
 
 > `optional` **version**: `string`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:20](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L20)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:22](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L22)

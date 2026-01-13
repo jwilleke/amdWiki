@@ -6,7 +6,7 @@
 
 # Class: default
 
-Defined in: [src/cache/RegionCache.ts:35](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/cache/RegionCache.ts#L35)
+Defined in: [src/cache/RegionCache.ts:35](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/cache/RegionCache.ts#L35)
 
 RegionCache - Cache wrapper that provides namespaced access to a cache adapter
 
@@ -19,7 +19,7 @@ providing isolation between different cache users (managers, components, etc.)
 
 > **new default**(`adapter`, `region`): `RegionCache`
 
-Defined in: [src/cache/RegionCache.ts:40](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/cache/RegionCache.ts#L40)
+Defined in: [src/cache/RegionCache.ts:40](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/cache/RegionCache.ts#L40)
 
 #### Parameters
 
@@ -41,7 +41,7 @@ Defined in: [src/cache/RegionCache.ts:40](https://github.com/jwilleke/amdWiki/bl
 
 > **clear**(`pattern?`): `Promise`\<`void`\>
 
-Defined in: [src/cache/RegionCache.ts:113](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/cache/RegionCache.ts#L113)
+Defined in: [src/cache/RegionCache.ts:113](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/cache/RegionCache.ts#L113)
 
 Clear all cache entries for this region
 
@@ -63,7 +63,7 @@ Optional pattern to match keys within the region
 
 > **del**(`keys`): `Promise`\<`void`\>
 
-Defined in: [src/cache/RegionCache.ts:98](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/cache/RegionCache.ts#L98)
+Defined in: [src/cache/RegionCache.ts:98](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/cache/RegionCache.ts#L98)
 
 Delete one or more keys from the cache
 
@@ -83,9 +83,9 @@ Single key or array of keys to delete
 
 ### get()
 
-> **get**\<`T`\>(`key`): `Promise`\<`T`\>
+> **get**\<`T`\>(`key`): `Promise`\<`T` \| `undefined`\>
 
-Defined in: [src/cache/RegionCache.ts:75](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/cache/RegionCache.ts#L75)
+Defined in: [src/cache/RegionCache.ts:75](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/cache/RegionCache.ts#L75)
 
 Get a value from the cache
 
@@ -105,7 +105,7 @@ The cache key
 
 #### Returns
 
-`Promise`\<`T`\>
+`Promise`\<`T` \| `undefined`\>
 
 The cached value or undefined if not found
 
@@ -115,7 +115,7 @@ The cached value or undefined if not found
 
 > **getAdapter**(): [`default`](../../ICacheAdapter/classes/default.md)
 
-Defined in: [src/cache/RegionCache.ts:229](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/cache/RegionCache.ts#L229)
+Defined in: [src/cache/RegionCache.ts:229](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/cache/RegionCache.ts#L229)
 
 Get the underlying adapter
 
@@ -131,7 +131,7 @@ The cache adapter
 
 > **getOrSet**\<`T`\>(`key`, `factory`, `options?`): `Promise`\<`T`\>
 
-Defined in: [src/cache/RegionCache.ts:173](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/cache/RegionCache.ts#L173)
+Defined in: [src/cache/RegionCache.ts:173](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/cache/RegionCache.ts#L173)
 
 Get or set a value (cache-aside pattern)
 
@@ -173,7 +173,7 @@ The cached or generated value
 
 > **getRegion**(): `string`
 
-Defined in: [src/cache/RegionCache.ts:220](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/cache/RegionCache.ts#L220)
+Defined in: [src/cache/RegionCache.ts:220](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/cache/RegionCache.ts#L220)
 
 Get the region name
 
@@ -189,7 +189,7 @@ The region name
 
 > **has**(`key`): `Promise`\<`boolean`\>
 
-Defined in: [src/cache/RegionCache.ts:160](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/cache/RegionCache.ts#L160)
+Defined in: [src/cache/RegionCache.ts:160](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/cache/RegionCache.ts#L160)
 
 Check if a key exists in this region
 
@@ -213,7 +213,7 @@ True if key exists
 
 > **keys**(`pattern?`): `Promise`\<`string`[]\>
 
-Defined in: [src/cache/RegionCache.ts:131](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/cache/RegionCache.ts#L131)
+Defined in: [src/cache/RegionCache.ts:131](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/cache/RegionCache.ts#L131)
 
 Get keys matching a pattern within this region
 
@@ -235,9 +235,9 @@ Array of matching keys (without region prefix)
 
 ### mget()
 
-> **mget**\<`T`\>(`keys`): `Promise`\<`Record`\<`string`, `T`\>\>
+> **mget**\<`T`\>(`keys`): `Promise`\<`Record`\<`string`, `T` \| `undefined`\>\>
 
-Defined in: [src/cache/RegionCache.ts:192](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/cache/RegionCache.ts#L192)
+Defined in: [src/cache/RegionCache.ts:192](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/cache/RegionCache.ts#L192)
 
 Get multiple keys at once
 
@@ -257,7 +257,7 @@ Array of cache keys
 
 #### Returns
 
-`Promise`\<`Record`\<`string`, `T`\>\>
+`Promise`\<`Record`\<`string`, `T` \| `undefined`\>\>
 
 Object with keys as properties and cached values
 
@@ -267,7 +267,7 @@ Object with keys as properties and cached values
 
 > **mset**(`keyValuePairs`, `options?`): `Promise`\<`void`\>
 
-Defined in: [src/cache/RegionCache.ts:209](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/cache/RegionCache.ts#L209)
+Defined in: [src/cache/RegionCache.ts:209](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/cache/RegionCache.ts#L209)
 
 Set multiple keys at once
 
@@ -295,7 +295,7 @@ Cache options
 
 > **set**(`key`, `value`, `options?`): `Promise`\<`void`\>
 
-Defined in: [src/cache/RegionCache.ts:87](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/cache/RegionCache.ts#L87)
+Defined in: [src/cache/RegionCache.ts:87](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/cache/RegionCache.ts#L87)
 
 Set a value in the cache
 
@@ -329,7 +329,7 @@ Cache options
 
 > **stats**(): `Promise`\<[`RegionStats`](../interfaces/RegionStats.md)\>
 
-Defined in: [src/cache/RegionCache.ts:142](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/cache/RegionCache.ts#L142)
+Defined in: [src/cache/RegionCache.ts:142](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/cache/RegionCache.ts#L142)
 
 Get cache statistics for this region
 

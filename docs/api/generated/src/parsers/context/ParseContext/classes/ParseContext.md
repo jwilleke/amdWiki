@@ -6,7 +6,7 @@
 
 # Class: ParseContext
 
-Defined in: [src/parsers/context/ParseContext.ts:129](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L129)
+Defined in: [src/parsers/context/ParseContext.ts:129](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L129)
 
 ParseContext - Context object for markup parsing operations
 
@@ -16,7 +16,7 @@ ParseContext - Context object for markup parsing operations
 
 > **new ParseContext**(`content`, `context`, `engine`): `ParseContext`
 
-Defined in: [src/parsers/context/ParseContext.ts:149](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L149)
+Defined in: [src/parsers/context/ParseContext.ts:149](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L149)
 
 #### Parameters
 
@@ -42,7 +42,7 @@ Defined in: [src/parsers/context/ParseContext.ts:149](https://github.com/jwillek
 
 > `readonly` **engine**: [`WikiEngine`](../interfaces/WikiEngine.md)
 
-Defined in: [src/parsers/context/ParseContext.ts:132](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L132)
+Defined in: [src/parsers/context/ParseContext.ts:132](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L132)
 
 ***
 
@@ -50,7 +50,7 @@ Defined in: [src/parsers/context/ParseContext.ts:132](https://github.com/jwillek
 
 > **handlerResults**: `Map`\<`string`, `unknown`\>
 
-Defined in: [src/parsers/context/ParseContext.ts:142](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L142)
+Defined in: [src/parsers/context/ParseContext.ts:142](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L142)
 
 ***
 
@@ -58,7 +58,7 @@ Defined in: [src/parsers/context/ParseContext.ts:142](https://github.com/jwillek
 
 > **metadata**: `Record`\<`string`, `unknown`\>
 
-Defined in: [src/parsers/context/ParseContext.ts:143](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L143)
+Defined in: [src/parsers/context/ParseContext.ts:143](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L143)
 
 ***
 
@@ -66,7 +66,7 @@ Defined in: [src/parsers/context/ParseContext.ts:143](https://github.com/jwillek
 
 > `readonly` **originalContent**: `string`
 
-Defined in: [src/parsers/context/ParseContext.ts:130](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L130)
+Defined in: [src/parsers/context/ParseContext.ts:130](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L130)
 
 ***
 
@@ -74,7 +74,7 @@ Defined in: [src/parsers/context/ParseContext.ts:130](https://github.com/jwillek
 
 > `readonly` **pageContext**: [`PageContext`](../interfaces/PageContext.md)
 
-Defined in: [src/parsers/context/ParseContext.ts:131](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L131)
+Defined in: [src/parsers/context/ParseContext.ts:131](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L131)
 
 ***
 
@@ -82,7 +82,7 @@ Defined in: [src/parsers/context/ParseContext.ts:131](https://github.com/jwillek
 
 > `readonly` **pageName**: `string`
 
-Defined in: [src/parsers/context/ParseContext.ts:133](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L133)
+Defined in: [src/parsers/context/ParseContext.ts:133](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L133)
 
 ***
 
@@ -90,15 +90,15 @@ Defined in: [src/parsers/context/ParseContext.ts:133](https://github.com/jwillek
 
 > **protectedBlocks**: `unknown`[]
 
-Defined in: [src/parsers/context/ParseContext.ts:139](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L139)
+Defined in: [src/parsers/context/ParseContext.ts:139](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L139)
 
 ***
 
 ### requestInfo
 
-> `readonly` **requestInfo**: [`RequestInfo`](../interfaces/RequestInfo.md)
+> `readonly` **requestInfo**: [`RequestInfo`](../interfaces/RequestInfo.md) \| `null`
 
-Defined in: [src/parsers/context/ParseContext.ts:136](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L136)
+Defined in: [src/parsers/context/ParseContext.ts:136](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L136)
 
 ***
 
@@ -106,15 +106,15 @@ Defined in: [src/parsers/context/ParseContext.ts:136](https://github.com/jwillek
 
 > **syntaxTokens**: `unknown`[]
 
-Defined in: [src/parsers/context/ParseContext.ts:140](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L140)
+Defined in: [src/parsers/context/ParseContext.ts:140](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L140)
 
 ***
 
 ### userContext
 
-> `readonly` **userContext**: [`UserContext`](../interfaces/UserContext.md)
+> `readonly` **userContext**: [`UserContext`](../interfaces/UserContext.md) \| `null`
 
-Defined in: [src/parsers/context/ParseContext.ts:135](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L135)
+Defined in: [src/parsers/context/ParseContext.ts:135](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L135)
 
 ***
 
@@ -122,7 +122,7 @@ Defined in: [src/parsers/context/ParseContext.ts:135](https://github.com/jwillek
 
 > `readonly` **userName**: `string`
 
-Defined in: [src/parsers/context/ParseContext.ts:134](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L134)
+Defined in: [src/parsers/context/ParseContext.ts:134](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L134)
 
 ***
 
@@ -130,7 +130,7 @@ Defined in: [src/parsers/context/ParseContext.ts:134](https://github.com/jwillek
 
 > **variables**: `Map`\<`string`, `unknown`\>
 
-Defined in: [src/parsers/context/ParseContext.ts:141](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L141)
+Defined in: [src/parsers/context/ParseContext.ts:141](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L141)
 
 ## Methods
 
@@ -138,7 +138,7 @@ Defined in: [src/parsers/context/ParseContext.ts:141](https://github.com/jwillek
 
 > **clone**(`overrides`): `ParseContext`
 
-Defined in: [src/parsers/context/ParseContext.ts:352](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L352)
+Defined in: [src/parsers/context/ParseContext.ts:352](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L352)
 
 Clone context for sub-processing
 
@@ -162,7 +162,7 @@ New context instance
 
 > **createErrorContext**(`error`, `phase`): [`ParseErrorContext`](../interfaces/ParseErrorContext.md)
 
-Defined in: [src/parsers/context/ParseContext.ts:374](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L374)
+Defined in: [src/parsers/context/ParseContext.ts:374](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L374)
 
 Create error context for debugging
 
@@ -192,7 +192,7 @@ Error context
 
 > **exportForCache**(): [`CachedContextData`](../interfaces/CachedContextData.md)
 
-Defined in: [src/parsers/context/ParseContext.ts:408](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L408)
+Defined in: [src/parsers/context/ParseContext.ts:408](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L408)
 
 Export context data for caching
 
@@ -208,7 +208,7 @@ Serializable context data
 
 > **getHandlerResult**(`handlerId`): `unknown`
 
-Defined in: [src/parsers/context/ParseContext.ts:293](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L293)
+Defined in: [src/parsers/context/ParseContext.ts:293](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L293)
 
 Get handler result
 
@@ -232,7 +232,7 @@ Handler result or null
 
 > **getManager**(`managerName`): `unknown`
 
-Defined in: [src/parsers/context/ParseContext.ts:205](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L205)
+Defined in: [src/parsers/context/ParseContext.ts:205](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L205)
 
 Get manager instance from engine
 
@@ -256,7 +256,7 @@ Manager instance or null
 
 > **getMetadata**(`key`, `defaultValue`): `unknown`
 
-Defined in: [src/parsers/context/ParseContext.ts:315](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L315)
+Defined in: [src/parsers/context/ParseContext.ts:315](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L315)
 
 Get metadata value
 
@@ -286,7 +286,7 @@ Metadata value
 
 > **getPhaseTiming**(`phaseName`): `number`
 
-Defined in: [src/parsers/context/ParseContext.ts:335](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L335)
+Defined in: [src/parsers/context/ParseContext.ts:335](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L335)
 
 Get phase timing
 
@@ -310,7 +310,7 @@ Duration in milliseconds or 0
 
 > **getSummary**(): [`ContextSummary`](../interfaces/ContextSummary.md)
 
-Defined in: [src/parsers/context/ParseContext.ts:390](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L390)
+Defined in: [src/parsers/context/ParseContext.ts:390](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L390)
 
 Get context summary for logging
 
@@ -326,7 +326,7 @@ Context summary
 
 > **getTotalTime**(): `number`
 
-Defined in: [src/parsers/context/ParseContext.ts:343](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L343)
+Defined in: [src/parsers/context/ParseContext.ts:343](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L343)
 
 Get total processing time
 
@@ -342,7 +342,7 @@ Total time in milliseconds
 
 > **getUserRoles**(): `string`[]
 
-Defined in: [src/parsers/context/ParseContext.ts:242](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L242)
+Defined in: [src/parsers/context/ParseContext.ts:242](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L242)
 
 Get user roles
 
@@ -358,7 +358,7 @@ Array of user roles
 
 > **getVariable**(`name`, `defaultValue`): `unknown`
 
-Defined in: [src/parsers/context/ParseContext.ts:273](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L273)
+Defined in: [src/parsers/context/ParseContext.ts:273](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L273)
 
 Get variable value
 
@@ -388,7 +388,7 @@ Variable value
 
 > **hasPermission**(`permission`, `resource`): `boolean`
 
-Defined in: [src/parsers/context/ParseContext.ts:223](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L223)
+Defined in: [src/parsers/context/ParseContext.ts:223](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L223)
 
 Check if user has specific permission
 
@@ -402,9 +402,9 @@ Permission to check
 
 ##### resource
 
-`string` = `null`
-
 Resource context (optional)
+
+`string` | `null`
 
 #### Returns
 
@@ -418,7 +418,7 @@ True if user has permission
 
 > **hasRole**(`role`): `boolean`
 
-Defined in: [src/parsers/context/ParseContext.ts:254](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L254)
+Defined in: [src/parsers/context/ParseContext.ts:254](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L254)
 
 Check if user has specific role
 
@@ -442,7 +442,7 @@ True if user has role
 
 > **importFromCache**(`data`): `void`
 
-Defined in: [src/parsers/context/ParseContext.ts:427](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L427)
+Defined in: [src/parsers/context/ParseContext.ts:427](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L427)
 
 Import context data from cache
 
@@ -464,7 +464,7 @@ Cached context data
 
 > **isAuthenticated**(): `boolean`
 
-Defined in: [src/parsers/context/ParseContext.ts:213](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L213)
+Defined in: [src/parsers/context/ParseContext.ts:213](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L213)
 
 Check if user is authenticated
 
@@ -480,7 +480,7 @@ True if user is authenticated
 
 > **recordPhaseTiming**(`phaseName`, `duration`): `void`
 
-Defined in: [src/parsers/context/ParseContext.ts:326](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L326)
+Defined in: [src/parsers/context/ParseContext.ts:326](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L326)
 
 Record phase timing
 
@@ -508,7 +508,7 @@ Duration in milliseconds
 
 > **setHandlerResult**(`handlerId`, `result`): `void`
 
-Defined in: [src/parsers/context/ParseContext.ts:284](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L284)
+Defined in: [src/parsers/context/ParseContext.ts:284](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L284)
 
 Store handler result
 
@@ -536,7 +536,7 @@ Handler result
 
 > **setMetadata**(`key`, `value`): `void`
 
-Defined in: [src/parsers/context/ParseContext.ts:304](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L304)
+Defined in: [src/parsers/context/ParseContext.ts:304](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L304)
 
 Set metadata value
 
@@ -564,7 +564,7 @@ Metadata value
 
 > **setVariable**(`name`, `value`): `void`
 
-Defined in: [src/parsers/context/ParseContext.ts:263](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L263)
+Defined in: [src/parsers/context/ParseContext.ts:263](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L263)
 
 Set variable value
 

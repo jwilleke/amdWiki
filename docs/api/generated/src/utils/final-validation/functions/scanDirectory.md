@@ -8,7 +8,7 @@
 
 > **scanDirectory**(`dir`): [`ScanResults`](../interfaces/ScanResults.md)
 
-Defined in: [src/utils/final-validation.ts:93](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/final-validation.ts#L93)
+Defined in: [src/utils/final-validation.ts:93](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/final-validation.ts#L93)
 
 Scan a directory and validate all markdown files
 

@@ -6,7 +6,7 @@
 
 # Interface: ExtendedRegistryStats
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:97](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L97)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:98](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L98)
 
 Extended registry statistics with handler details
 
@@ -16,7 +16,7 @@ Extended registry statistics with handler details
 
 > **config**: [`RegistryConfig`](RegistryConfig.md)
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:104](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L104)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:105](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L105)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [src/parsers/handlers/HandlerRegistry.ts:104](https://github.com/jwi
 
 > **handlers**: `Record`\<`string`, `unknown`\>
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:103](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L103)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:104](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L104)
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: [src/parsers/handlers/HandlerRegistry.ts:103](https://github.com/jwi
 
 > **registry**: [`RegistryStats`](RegistryStats.md) & `object`
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:98](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L98)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:99](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L99)
 
 #### Type Declaration
 

@@ -8,6 +8,6 @@
 
 > **LinkType** = `"internal"` \| `"external"` \| `"interwiki"` \| `"email"` \| `"anchor"`
 
-Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:34](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMLinkHandler.ts#L34)
+Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:35](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L35)
 
 Link type enumeration

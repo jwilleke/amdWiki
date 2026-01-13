@@ -10,3 +10,7 @@
 
 - [ManagerRegistry](interfaces/ManagerRegistry.md)
 - [WikiEngine](interfaces/WikiEngine.md)
+
+## Type Aliases
+
+- [ManagerName](type-aliases/ManagerName.md)

@@ -6,7 +6,7 @@
 
 # Interface: UrlPatterns
 
-Defined in: [src/parsers/LinkParser.ts:60](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L60)
+Defined in: [src/parsers/LinkParser.ts:61](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L61)
 
 URL pattern definitions for link type detection
 
@@ -16,7 +16,7 @@ URL pattern definitions for link type detection
 
 > **absolute**: `RegExp`
 
-Defined in: [src/parsers/LinkParser.ts:68](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L68)
+Defined in: [src/parsers/LinkParser.ts:69](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L69)
 
 Pattern for absolute paths
 
@@ -26,7 +26,7 @@ Pattern for absolute paths
 
 > **anchor**: `RegExp`
 
-Defined in: [src/parsers/LinkParser.ts:66](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L66)
+Defined in: [src/parsers/LinkParser.ts:67](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L67)
 
 Pattern for anchor links
 
@@ -36,7 +36,7 @@ Pattern for anchor links
 
 > **email**: `RegExp`
 
-Defined in: [src/parsers/LinkParser.ts:64](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L64)
+Defined in: [src/parsers/LinkParser.ts:65](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L65)
 
 Pattern for email links
 
@@ -46,6 +46,6 @@ Pattern for email links
 
 > **external**: `RegExp`
 
-Defined in: [src/parsers/LinkParser.ts:62](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L62)
+Defined in: [src/parsers/LinkParser.ts:63](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L63)
 
 Pattern for external HTTP/HTTPS URLs

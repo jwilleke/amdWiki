@@ -6,7 +6,7 @@
 
 # Class: default
 
-Defined in: [src/parsers/filters/FilterChain.ts:179](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/FilterChain.ts#L179)
+Defined in: [src/parsers/filters/FilterChain.ts:180](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L180)
 
 FilterChain - Modular content filtering pipeline
 
@@ -16,13 +16,13 @@ FilterChain - Modular content filtering pipeline
 
 > **new default**(`engine`): `FilterChain`
 
-Defined in: [src/parsers/filters/FilterChain.ts:188](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/FilterChain.ts#L188)
+Defined in: [src/parsers/filters/FilterChain.ts:189](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L189)
 
 #### Parameters
 
 ##### engine
 
-[`WikiEngine`](../interfaces/WikiEngine.md) = `null`
+[`WikiEngine`](../interfaces/WikiEngine.md) | `null`
 
 #### Returns
 
@@ -34,7 +34,7 @@ Defined in: [src/parsers/filters/FilterChain.ts:188](https://github.com/jwilleke
 
 > **addFilter**(`filter`, `_options`): `boolean`
 
-Defined in: [src/parsers/filters/FilterChain.ts:309](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/FilterChain.ts#L309)
+Defined in: [src/parsers/filters/FilterChain.ts:304](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L304)
 
 Add filter to the chain with modular configuration
 
@@ -64,7 +64,7 @@ True if added successfully
 
 > **clearAll**(): `Promise`\<`void`\>
 
-Defined in: [src/parsers/filters/FilterChain.ts:796](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/FilterChain.ts#L796)
+Defined in: [src/parsers/filters/FilterChain.ts:784](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L784)
 
 Clear all filters and reset state
 
@@ -78,7 +78,7 @@ Clear all filters and reset state
 
 > **disableFilter**(`filterId`): `boolean`
 
-Defined in: [src/parsers/filters/FilterChain.ts:680](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/FilterChain.ts#L680)
+Defined in: [src/parsers/filters/FilterChain.ts:669](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L669)
 
 Disable filter by ID
 
@@ -102,7 +102,7 @@ True if successful
 
 > **enableFilter**(`filterId`): `boolean`
 
-Defined in: [src/parsers/filters/FilterChain.ts:663](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/FilterChain.ts#L663)
+Defined in: [src/parsers/filters/FilterChain.ts:653](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L653)
 
 Enable filter by ID
 
@@ -126,7 +126,7 @@ True if successful
 
 > **exportState**(): [`ExportedChainState`](../interfaces/ExportedChainState.md)
 
-Defined in: [src/parsers/filters/FilterChain.ts:774](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/FilterChain.ts#L774)
+Defined in: [src/parsers/filters/FilterChain.ts:762](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L762)
 
 Export filter chain state for persistence or debugging
 
@@ -142,7 +142,7 @@ Serializable state
 
 > **getConfiguration**(): [`ConfigurationSummary`](../interfaces/ConfigurationSummary.md)
 
-Defined in: [src/parsers/filters/FilterChain.ts:761](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/FilterChain.ts#L761)
+Defined in: [src/parsers/filters/FilterChain.ts:749](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L749)
 
 Get configuration summary for debugging (modular introspection)
 
@@ -156,9 +156,9 @@ Configuration summary
 
 ### getFilter()
 
-> **getFilter**(`filterId`): [`default`](../../BaseFilter/classes/default.md)
+> **getFilter**(`filterId`): [`default`](../../BaseFilter/classes/default.md) \| `null`
 
-Defined in: [src/parsers/filters/FilterChain.ts:642](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/FilterChain.ts#L642)
+Defined in: [src/parsers/filters/FilterChain.ts:632](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L632)
 
 Get filter by ID
 
@@ -172,7 +172,7 @@ Filter ID
 
 #### Returns
 
-[`default`](../../BaseFilter/classes/default.md)
+[`default`](../../BaseFilter/classes/default.md) \| `null`
 
 Filter or null if not found
 
@@ -182,7 +182,7 @@ Filter or null if not found
 
 > **getFilters**(`enabledOnly`): [`default`](../../BaseFilter/classes/default.md)[]
 
-Defined in: [src/parsers/filters/FilterChain.ts:651](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/FilterChain.ts#L651)
+Defined in: [src/parsers/filters/FilterChain.ts:641](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L641)
 
 Get all filters sorted by priority
 
@@ -206,7 +206,7 @@ Filters sorted by priority
 
 > **getStats**(): [`ExtendedFilterChainStats`](../interfaces/ExtendedFilterChainStats.md)
 
-Defined in: [src/parsers/filters/FilterChain.ts:696](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/FilterChain.ts#L696)
+Defined in: [src/parsers/filters/FilterChain.ts:684](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L684)
 
 Get comprehensive filter chain statistics (modular monitoring)
 
@@ -222,7 +222,7 @@ Filter chain statistics
 
 > **initialize**(`context`): `Promise`\<`void`\>
 
-Defined in: [src/parsers/filters/FilterChain.ts:210](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/FilterChain.ts#L210)
+Defined in: [src/parsers/filters/FilterChain.ts:211](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L211)
 
 Initialize FilterChain with complete modular configuration
 
@@ -244,7 +244,7 @@ Initialization context
 
 > **loadModularConfiguration**(): `void`
 
-Defined in: [src/parsers/filters/FilterChain.ts:235](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/FilterChain.ts#L235)
+Defined in: [src/parsers/filters/FilterChain.ts:231](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L231)
 
 Load modular configuration from app-default-config.json and app-custom-config.json
 Demonstrates complete configuration modularity and reusability
@@ -259,7 +259,7 @@ Demonstrates complete configuration modularity and reusability
 
 > **process**(`content`, `context`): `Promise`\<`string`\>
 
-Defined in: [src/parsers/filters/FilterChain.ts:390](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/FilterChain.ts#L390)
+Defined in: [src/parsers/filters/FilterChain.ts:383](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L383)
 
 Process content through the filter chain with modular execution
 
@@ -289,7 +289,7 @@ Filtered content
 
 > **removeFilter**(`filterId`): `boolean`
 
-Defined in: [src/parsers/filters/FilterChain.ts:350](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/FilterChain.ts#L350)
+Defined in: [src/parsers/filters/FilterChain.ts:344](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L344)
 
 Remove filter from the chain
 
@@ -313,7 +313,7 @@ True if removed successfully
 
 > **resetStats**(): `void`
 
-Defined in: [src/parsers/filters/FilterChain.ts:733](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/FilterChain.ts#L733)
+Defined in: [src/parsers/filters/FilterChain.ts:721](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L721)
 
 Reset all filter statistics
 
@@ -327,7 +327,7 @@ Reset all filter statistics
 
 > **shutdown**(): `Promise`\<`void`\>
 
-Defined in: [src/parsers/filters/FilterChain.ts:818](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/FilterChain.ts#L818)
+Defined in: [src/parsers/filters/FilterChain.ts:804](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L804)
 
 Shutdown filter chain
 

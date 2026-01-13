@@ -6,7 +6,7 @@
 
 # Interface: AlertThresholds
 
-Defined in: [src/parsers/MarkupParser.ts:117](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L117)
+Defined in: [src/parsers/MarkupParser.ts:135](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L135)
 
 Performance alert thresholds
 
@@ -16,7 +16,7 @@ Performance alert thresholds
 
 > **cacheHitRatio**: `number`
 
-Defined in: [src/parsers/MarkupParser.ts:121](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L121)
+Defined in: [src/parsers/MarkupParser.ts:139](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L139)
 
 Cache hit ratio threshold (0-1)
 
@@ -26,7 +26,7 @@ Cache hit ratio threshold (0-1)
 
 > **errorRate**: `number`
 
-Defined in: [src/parsers/MarkupParser.ts:123](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L123)
+Defined in: [src/parsers/MarkupParser.ts:141](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L141)
 
 Error rate threshold (0-1)
 
@@ -36,7 +36,7 @@ Error rate threshold (0-1)
 
 > **minCacheSamples**: `number`
 
-Defined in: [src/parsers/MarkupParser.ts:125](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L125)
+Defined in: [src/parsers/MarkupParser.ts:143](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L143)
 
 Minimum cache samples for metrics
 
@@ -46,6 +46,6 @@ Minimum cache samples for metrics
 
 > **parseTime**: `number`
 
-Defined in: [src/parsers/MarkupParser.ts:119](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L119)
+Defined in: [src/parsers/MarkupParser.ts:137](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L137)
 
 Parse time threshold in milliseconds

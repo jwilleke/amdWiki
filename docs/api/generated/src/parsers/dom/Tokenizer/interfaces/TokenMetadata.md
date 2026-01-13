@@ -6,7 +6,7 @@
 
 # Interface: TokenMetadata
 
-Defined in: [src/parsers/dom/Tokenizer.ts:102](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L102)
+Defined in: [src/parsers/dom/Tokenizer.ts:102](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/Tokenizer.ts#L102)
 
 Token metadata interface
 
@@ -22,7 +22,7 @@ Additional metadata properties
 
 > `optional` **level**: `number`
 
-Defined in: [src/parsers/dom/Tokenizer.ts:114](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L114)
+Defined in: [src/parsers/dom/Tokenizer.ts:114](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/Tokenizer.ts#L114)
 
 Heading level (for HEADING tokens)
 
@@ -32,7 +32,7 @@ Heading level (for HEADING tokens)
 
 > `optional` **link**: `string`
 
-Defined in: [src/parsers/dom/Tokenizer.ts:110](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L110)
+Defined in: [src/parsers/dom/Tokenizer.ts:110](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/Tokenizer.ts#L110)
 
 Link target (for LINK tokens)
 
@@ -42,7 +42,7 @@ Link target (for LINK tokens)
 
 > `optional` **marker**: `string`
 
-Defined in: [src/parsers/dom/Tokenizer.ts:116](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L116)
+Defined in: [src/parsers/dom/Tokenizer.ts:116](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/Tokenizer.ts#L116)
 
 List marker (* or #) (for LIST_ITEM tokens)
 
@@ -52,7 +52,7 @@ List marker (* or #) (for LIST_ITEM tokens)
 
 > `optional` **metadataContent**: `string`
 
-Defined in: [src/parsers/dom/Tokenizer.ts:108](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L108)
+Defined in: [src/parsers/dom/Tokenizer.ts:108](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/Tokenizer.ts#L108)
 
 Metadata content (for METADATA tokens)
 
@@ -62,7 +62,7 @@ Metadata content (for METADATA tokens)
 
 > `optional` **ordered**: `boolean`
 
-Defined in: [src/parsers/dom/Tokenizer.ts:118](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L118)
+Defined in: [src/parsers/dom/Tokenizer.ts:118](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/Tokenizer.ts#L118)
 
 Whether list is ordered (for LIST_ITEM tokens)
 
@@ -72,7 +72,7 @@ Whether list is ordered (for LIST_ITEM tokens)
 
 > `optional` **pluginContent**: `string`
 
-Defined in: [src/parsers/dom/Tokenizer.ts:106](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L106)
+Defined in: [src/parsers/dom/Tokenizer.ts:106](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/Tokenizer.ts#L106)
 
 Plugin content (for PLUGIN tokens)
 
@@ -82,7 +82,7 @@ Plugin content (for PLUGIN tokens)
 
 > `optional` **text**: `string`
 
-Defined in: [src/parsers/dom/Tokenizer.ts:112](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L112)
+Defined in: [src/parsers/dom/Tokenizer.ts:112](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/Tokenizer.ts#L112)
 
 Link text (for LINK tokens)
 
@@ -92,6 +92,6 @@ Link text (for LINK tokens)
 
 > `optional` **varName**: `string`
 
-Defined in: [src/parsers/dom/Tokenizer.ts:104](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L104)
+Defined in: [src/parsers/dom/Tokenizer.ts:104](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/Tokenizer.ts#L104)
 
 Variable name (for VARIABLE tokens)

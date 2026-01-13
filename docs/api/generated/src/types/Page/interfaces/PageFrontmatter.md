@@ -6,7 +6,7 @@
 
 # Interface: PageFrontmatter
 
-Defined in: [src/types/Page.ts:15](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Page.ts#L15)
+Defined in: [src/types/Page.ts:15](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Page.ts#L15)
 
 Page frontmatter metadata
 
@@ -15,7 +15,7 @@ All pages must have at minimum: title, uuid, and lastModified.
 
 ## Indexable
 
-\[`key`: `string`\]: `any`
+\[`key`: `string`\]: `unknown`
 
 Additional custom metadata
 
@@ -25,7 +25,7 @@ Additional custom metadata
 
 > `optional` **author**: `string`
 
-Defined in: [src/types/Page.ts:38](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Page.ts#L38)
+Defined in: [src/types/Page.ts:38](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Page.ts#L38)
 
 Page author (user ID or 'system')
 
@@ -35,7 +35,7 @@ Page author (user ID or 'system')
 
 > `optional` **category**: `string`
 
-Defined in: [src/types/Page.ts:29](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Page.ts#L29)
+Defined in: [src/types/Page.ts:29](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Page.ts#L29)
 
 User-defined category (optional)
 
@@ -45,7 +45,7 @@ User-defined category (optional)
 
 > `optional` **editor**: `string`
 
-Defined in: [src/types/Page.ts:41](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Page.ts#L41)
+Defined in: [src/types/Page.ts:41](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Page.ts#L41)
 
 Last editor (user ID or 'system')
 
@@ -55,7 +55,7 @@ Last editor (user ID or 'system')
 
 > **lastModified**: `string`
 
-Defined in: [src/types/Page.ts:23](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Page.ts#L23)
+Defined in: [src/types/Page.ts:23](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Page.ts#L23)
 
 Last modification timestamp (ISO 8601 format)
 
@@ -65,7 +65,7 @@ Last modification timestamp (ISO 8601 format)
 
 > `optional` **order**: `number`
 
-Defined in: [src/types/Page.ts:53](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Page.ts#L53)
+Defined in: [src/types/Page.ts:53](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Page.ts#L53)
 
 Sort order for navigation
 
@@ -75,7 +75,7 @@ Sort order for navigation
 
 > `optional` **parent**: `string`
 
-Defined in: [src/types/Page.ts:50](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Page.ts#L50)
+Defined in: [src/types/Page.ts:50](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Page.ts#L50)
 
 Parent page UUID for hierarchical structure
 
@@ -85,7 +85,7 @@ Parent page UUID for hierarchical structure
 
 > `optional` **published**: `boolean`
 
-Defined in: [src/types/Page.ts:47](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Page.ts#L47)
+Defined in: [src/types/Page.ts:47](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Page.ts#L47)
 
 Whether page is published/visible
 
@@ -95,7 +95,7 @@ Whether page is published/visible
 
 > `optional` **slug**: `string`
 
-Defined in: [src/types/Page.ts:35](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Page.ts#L35)
+Defined in: [src/types/Page.ts:35](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Page.ts#L35)
 
 URL slug for pretty URLs
 
@@ -105,7 +105,7 @@ URL slug for pretty URLs
 
 > `optional` **system-category**: `string`
 
-Defined in: [src/types/Page.ts:26](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Page.ts#L26)
+Defined in: [src/types/Page.ts:26](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Page.ts#L26)
 
 System-defined category (optional)
 
@@ -115,7 +115,7 @@ System-defined category (optional)
 
 > `optional` **template**: `string`
 
-Defined in: [src/types/Page.ts:44](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Page.ts#L44)
+Defined in: [src/types/Page.ts:44](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Page.ts#L44)
 
 Page template to use for rendering
 
@@ -125,7 +125,7 @@ Page template to use for rendering
 
 > **title**: `string`
 
-Defined in: [src/types/Page.ts:17](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Page.ts#L17)
+Defined in: [src/types/Page.ts:17](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Page.ts#L17)
 
 Page title (required)
 
@@ -135,7 +135,7 @@ Page title (required)
 
 > `optional` **user-keywords**: `string`[]
 
-Defined in: [src/types/Page.ts:32](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Page.ts#L32)
+Defined in: [src/types/Page.ts:32](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Page.ts#L32)
 
 User-defined keywords/tags
 
@@ -145,6 +145,6 @@ User-defined keywords/tags
 
 > **uuid**: `string`
 
-Defined in: [src/types/Page.ts:20](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Page.ts#L20)
+Defined in: [src/types/Page.ts:20](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Page.ts#L20)
 
 Unique identifier (UUID v4)

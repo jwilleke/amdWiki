@@ -6,7 +6,7 @@
 
 # Interface: CacheStrategyConfig
 
-Defined in: [src/parsers/MarkupParser.ts:99](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L99)
+Defined in: [src/parsers/MarkupParser.ts:117](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L117)
 
 Cache strategy configuration
 
@@ -16,7 +16,7 @@ Cache strategy configuration
 
 > **enabled**: `boolean`
 
-Defined in: [src/parsers/MarkupParser.ts:101](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L101)
+Defined in: [src/parsers/MarkupParser.ts:119](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L119)
 
 Whether this strategy is enabled
 
@@ -26,7 +26,7 @@ Whether this strategy is enabled
 
 > **maxSize**: `number`
 
-Defined in: [src/parsers/MarkupParser.ts:105](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L105)
+Defined in: [src/parsers/MarkupParser.ts:123](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L123)
 
 Maximum cache size
 
@@ -36,6 +36,6 @@ Maximum cache size
 
 > **ttl**: `number`
 
-Defined in: [src/parsers/MarkupParser.ts:103](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L103)
+Defined in: [src/parsers/MarkupParser.ts:121](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L121)
 
 Time to live in seconds

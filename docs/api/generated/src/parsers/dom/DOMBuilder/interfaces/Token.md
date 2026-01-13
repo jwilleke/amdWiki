@@ -6,7 +6,7 @@
 
 # Interface: Token
 
-Defined in: [src/parsers/dom/DOMBuilder.ts:82](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/DOMBuilder.ts#L82)
+Defined in: [src/parsers/dom/DOMBuilder.ts:81](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMBuilder.ts#L81)
 
 Token interface
 
@@ -22,7 +22,7 @@ Additional properties
 
 > `optional` **column**: `number`
 
-Defined in: [src/parsers/dom/DOMBuilder.ts:92](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/DOMBuilder.ts#L92)
+Defined in: [src/parsers/dom/DOMBuilder.ts:91](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMBuilder.ts#L91)
 
 Column number
 
@@ -32,7 +32,7 @@ Column number
 
 > `optional` **line**: `number`
 
-Defined in: [src/parsers/dom/DOMBuilder.ts:90](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/DOMBuilder.ts#L90)
+Defined in: [src/parsers/dom/DOMBuilder.ts:89](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMBuilder.ts#L89)
 
 Line number
 
@@ -42,7 +42,7 @@ Line number
 
 > `optional` **metadata**: [`TokenMetadata`](TokenMetadata.md)
 
-Defined in: [src/parsers/dom/DOMBuilder.ts:88](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/DOMBuilder.ts#L88)
+Defined in: [src/parsers/dom/DOMBuilder.ts:87](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMBuilder.ts#L87)
 
 Token metadata
 
@@ -52,9 +52,9 @@ Token metadata
 
 > **type**: `string`
 
-Defined in: [src/parsers/dom/DOMBuilder.ts:84](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/DOMBuilder.ts#L84)
+Defined in: [src/parsers/dom/DOMBuilder.ts:83](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMBuilder.ts#L83)
 
-Token type
+Token type - can be TokenType enum or string for extensibility
 
 ***
 
@@ -62,6 +62,6 @@ Token type
 
 > **value**: `string`
 
-Defined in: [src/parsers/dom/DOMBuilder.ts:86](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/DOMBuilder.ts#L86)
+Defined in: [src/parsers/dom/DOMBuilder.ts:85](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMBuilder.ts#L85)
 
 Token value

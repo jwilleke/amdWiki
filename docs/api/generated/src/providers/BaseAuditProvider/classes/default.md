@@ -6,7 +6,7 @@
 
 # Abstract Class: default
 
-Defined in: [src/providers/BaseAuditProvider.ts:154](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L154)
+Defined in: [src/providers/BaseAuditProvider.ts:154](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseAuditProvider.ts#L154)
 
 BaseAuditProvider - Abstract base class for audit providers
 
@@ -53,7 +53,7 @@ class MyAuditProvider extends BaseAuditProvider {
 
 > **new default**(`engine`): `BaseAuditProvider`
 
-Defined in: [src/providers/BaseAuditProvider.ts:168](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L168)
+Defined in: [src/providers/BaseAuditProvider.ts:168](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseAuditProvider.ts#L168)
 
 Create a new audit provider
 
@@ -79,7 +79,7 @@ If engine is not provided
 
 > `protected` **engine**: [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/providers/BaseAuditProvider.ts:156](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L156)
+Defined in: [src/providers/BaseAuditProvider.ts:156](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseAuditProvider.ts#L156)
 
 Reference to the wiki engine
 
@@ -89,7 +89,7 @@ Reference to the wiki engine
 
 > **initialized**: `boolean`
 
-Defined in: [src/providers/BaseAuditProvider.ts:159](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L159)
+Defined in: [src/providers/BaseAuditProvider.ts:159](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseAuditProvider.ts#L159)
 
 Whether provider has been initialized
 
@@ -99,7 +99,7 @@ Whether provider has been initialized
 
 > **backup**(): `Promise`\<[`AuditBackupData`](../interfaces/AuditBackupData.md)\>
 
-Defined in: [src/providers/BaseAuditProvider.ts:307](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L307)
+Defined in: [src/providers/BaseAuditProvider.ts:307](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseAuditProvider.ts#L307)
 
 Backup audit configuration and state (optional)
 
@@ -120,7 +120,7 @@ Backup data
 
 > `abstract` **cleanup**(): `Promise`\<`void`\>
 
-Defined in: [src/providers/BaseAuditProvider.ts:276](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L276)
+Defined in: [src/providers/BaseAuditProvider.ts:276](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseAuditProvider.ts#L276)
 
 Clean up old audit logs based on retention policy
 
@@ -140,7 +140,7 @@ Always throws - must be implemented by subclass
 
 > `abstract` **close**(): `Promise`\<`void`\>
 
-Defined in: [src/providers/BaseAuditProvider.ts:296](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L296)
+Defined in: [src/providers/BaseAuditProvider.ts:296](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseAuditProvider.ts#L296)
 
 Close/cleanup the audit provider
 
@@ -160,7 +160,7 @@ Always throws - must be implemented by subclass
 
 > `abstract` **exportAuditLogs**(`filters?`, `format?`): `Promise`\<`string`\>
 
-Defined in: [src/providers/BaseAuditProvider.ts:253](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L253)
+Defined in: [src/providers/BaseAuditProvider.ts:253](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseAuditProvider.ts#L253)
 
 Export audit logs
 
@@ -196,7 +196,7 @@ Always throws - must be implemented by subclass
 
 > `abstract` **flush**(): `Promise`\<`void`\>
 
-Defined in: [src/providers/BaseAuditProvider.ts:266](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L266)
+Defined in: [src/providers/BaseAuditProvider.ts:266](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseAuditProvider.ts#L266)
 
 Flush pending audit events to storage
 
@@ -216,7 +216,7 @@ Always throws - must be implemented by subclass
 
 > `abstract` **getAuditStats**(`filters?`): `Promise`\<[`AuditStats`](../interfaces/AuditStats.md)\>
 
-Defined in: [src/providers/BaseAuditProvider.ts:241](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L241)
+Defined in: [src/providers/BaseAuditProvider.ts:241](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseAuditProvider.ts#L241)
 
 Get audit statistics
 
@@ -246,7 +246,7 @@ Always throws - must be implemented by subclass
 
 > **getProviderInfo**(): [`ProviderInfo`](../interfaces/ProviderInfo.md)
 
-Defined in: [src/providers/BaseAuditProvider.ts:197](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L197)
+Defined in: [src/providers/BaseAuditProvider.ts:197](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseAuditProvider.ts#L197)
 
 Get provider information
 
@@ -262,7 +262,7 @@ Provider metadata
 
 > `abstract` **initialize**(): `Promise`\<`void`\>
 
-Defined in: [src/providers/BaseAuditProvider.ts:190](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L190)
+Defined in: [src/providers/BaseAuditProvider.ts:190](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseAuditProvider.ts#L190)
 
 Initialize the audit provider
 
@@ -288,7 +288,7 @@ Always throws - must be implemented by subclass
 
 > `abstract` **isHealthy**(): `Promise`\<`boolean`\>
 
-Defined in: [src/providers/BaseAuditProvider.ts:286](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L286)
+Defined in: [src/providers/BaseAuditProvider.ts:286](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseAuditProvider.ts#L286)
 
 Check if the audit provider is healthy
 
@@ -310,7 +310,7 @@ Always throws - must be implemented by subclass
 
 > `abstract` **logAuditEvent**(`auditEvent`): `Promise`\<`string`\>
 
-Defined in: [src/providers/BaseAuditProvider.ts:215](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L215)
+Defined in: [src/providers/BaseAuditProvider.ts:215](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseAuditProvider.ts#L215)
 
 Log an audit event
 
@@ -340,7 +340,7 @@ Always throws - must be implemented by subclass
 
 > **restore**(`_backupData`): `Promise`\<`void`\>
 
-Defined in: [src/providers/BaseAuditProvider.ts:325](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L325)
+Defined in: [src/providers/BaseAuditProvider.ts:325](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseAuditProvider.ts#L325)
 
 Restore audit from backup (optional)
 
@@ -367,7 +367,7 @@ Backup data
 
 > `abstract` **searchAuditLogs**(`filters?`, `options?`): `Promise`\<[`AuditSearchResults`](../interfaces/AuditSearchResults.md)\>
 
-Defined in: [src/providers/BaseAuditProvider.ts:227](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L227)
+Defined in: [src/providers/BaseAuditProvider.ts:227](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseAuditProvider.ts#L227)
 
 Search audit logs
 
@@ -381,7 +381,7 @@ Search filters
 
 ##### options?
 
-`Record`\<`string`, `any`\>
+`Record`\<`string`, `unknown`\>
 
 Search options
 

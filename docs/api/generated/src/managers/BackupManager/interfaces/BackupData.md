@@ -6,7 +6,7 @@
 
 # Interface: BackupData
 
-Defined in: [src/managers/BackupManager.ts:33](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BackupManager.ts#L33)
+Defined in: [src/managers/BackupManager.ts:32](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BackupManager.ts#L32)
 
 Backup data structure
 
@@ -16,7 +16,7 @@ Backup data structure
 
 > **application**: `string`
 
-Defined in: [src/managers/BackupManager.ts:36](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BackupManager.ts#L36)
+Defined in: [src/managers/BackupManager.ts:35](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BackupManager.ts#L35)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [src/managers/BackupManager.ts:36](https://github.com/jwilleke/amdWi
 
 > **managers**: `Record`\<`string`, `unknown`\>
 
-Defined in: [src/managers/BackupManager.ts:37](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BackupManager.ts#L37)
+Defined in: [src/managers/BackupManager.ts:36](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BackupManager.ts#L36)
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: [src/managers/BackupManager.ts:37](https://github.com/jwilleke/amdWi
 
 > **timestamp**: `string`
 
-Defined in: [src/managers/BackupManager.ts:35](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BackupManager.ts#L35)
+Defined in: [src/managers/BackupManager.ts:34](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BackupManager.ts#L34)
 
 ***
 
@@ -40,4 +40,4 @@ Defined in: [src/managers/BackupManager.ts:35](https://github.com/jwilleke/amdWi
 
 > **version**: `string`
 
-Defined in: [src/managers/BackupManager.ts:34](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BackupManager.ts#L34)
+Defined in: [src/managers/BackupManager.ts:33](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BackupManager.ts#L33)

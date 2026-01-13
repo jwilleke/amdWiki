@@ -6,7 +6,7 @@
 
 # Class: default
 
-Defined in: [src/utils/VersioningAnalytics.ts:132](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/VersioningAnalytics.ts#L132)
+Defined in: [src/utils/VersioningAnalytics.ts:182](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/VersioningAnalytics.ts#L182)
 
 VersioningAnalytics - Storage analytics and reporting for VersioningFileProvider
 
@@ -34,7 +34,7 @@ console.log(`Total storage: ${report.totalStorageMB} MB`);
 
 > **new default**(`options`): `VersioningAnalytics`
 
-Defined in: [src/utils/VersioningAnalytics.ts:139](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/VersioningAnalytics.ts#L139)
+Defined in: [src/utils/VersioningAnalytics.ts:189](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/VersioningAnalytics.ts#L189)
 
 Create a new VersioningAnalytics instance
 
@@ -56,7 +56,7 @@ Analytics options
 
 > **generateStorageReport**(): `Promise`\<`StorageReport`\>
 
-Defined in: [src/utils/VersioningAnalytics.ts:155](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/VersioningAnalytics.ts#L155)
+Defined in: [src/utils/VersioningAnalytics.ts:205](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/VersioningAnalytics.ts#L205)
 
 Generate comprehensive storage report
 
@@ -72,9 +72,9 @@ Storage report
 
 ### getPageStorageDetails()
 
-> **getPageStorageDetails**(`identifier`): `Promise`\<\{ `page`: \{ `location`: `string`; `title`: `string`; `uuid`: `string`; \}; `storageByType`: \{ `deltas`: `any`; `fullContent`: `any`; `metadata`: `number`; \}; `summary`: \{ `averageVersionSize`: `string`; `compressedVersions`: `number`; `totalSize`: `number`; `totalSizeMB`: `string`; `uncompressedVersions`: `number`; `versionCount`: `number`; \}; `versions`: `any`[]; \}\>
+> **getPageStorageDetails**(`identifier`): `Promise`\<`PageStorageDetails`\>
 
-Defined in: [src/utils/VersioningAnalytics.ts:431](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/VersioningAnalytics.ts#L431)
+Defined in: [src/utils/VersioningAnalytics.ts:482](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/VersioningAnalytics.ts#L482)
 
 Get storage usage for a specific page
 
@@ -88,6 +88,6 @@ Page UUID or title
 
 #### Returns
 
-`Promise`\<\{ `page`: \{ `location`: `string`; `title`: `string`; `uuid`: `string`; \}; `storageByType`: \{ `deltas`: `any`; `fullContent`: `any`; `metadata`: `number`; \}; `summary`: \{ `averageVersionSize`: `string`; `compressedVersions`: `number`; `totalSize`: `number`; `totalSizeMB`: `string`; `uncompressedVersions`: `number`; `versionCount`: `number`; \}; `versions`: `any`[]; \}\>
+`Promise`\<`PageStorageDetails`\>
 
 Page storage details

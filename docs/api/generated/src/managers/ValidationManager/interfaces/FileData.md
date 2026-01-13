@@ -6,7 +6,7 @@
 
 # Interface: FileData
 
-Defined in: [src/managers/ValidationManager.ts:77](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ValidationManager.ts#L77)
+Defined in: [src/managers/ValidationManager.ts:79](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L79)
 
 File data from gray-matter
 
@@ -16,7 +16,7 @@ File data from gray-matter
 
 > **content**: `string`
 
-Defined in: [src/managers/ValidationManager.ts:78](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ValidationManager.ts#L78)
+Defined in: [src/managers/ValidationManager.ts:80](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L80)
 
 ***
 
@@ -24,4 +24,4 @@ Defined in: [src/managers/ValidationManager.ts:78](https://github.com/jwilleke/a
 
 > **data**: `Record`\<`string`, `unknown`\>
 
-Defined in: [src/managers/ValidationManager.ts:79](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ValidationManager.ts#L79)
+Defined in: [src/managers/ValidationManager.ts:81](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L81)

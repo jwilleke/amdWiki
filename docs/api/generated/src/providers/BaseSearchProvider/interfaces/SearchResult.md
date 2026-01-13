@@ -6,7 +6,7 @@
 
 # Interface: SearchResult
 
-Defined in: [src/providers/BaseSearchProvider.ts:36](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseSearchProvider.ts#L36)
+Defined in: [src/providers/BaseSearchProvider.ts:36](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseSearchProvider.ts#L36)
 
 Search result structure
 
@@ -16,7 +16,7 @@ Search result structure
 
 > **metadata**: `Record`\<`string`, `unknown`\>
 
-Defined in: [src/providers/BaseSearchProvider.ts:50](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseSearchProvider.ts#L50)
+Defined in: [src/providers/BaseSearchProvider.ts:50](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseSearchProvider.ts#L50)
 
 Additional metadata
 
@@ -26,7 +26,7 @@ Additional metadata
 
 > **name**: `string`
 
-Defined in: [src/providers/BaseSearchProvider.ts:38](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseSearchProvider.ts#L38)
+Defined in: [src/providers/BaseSearchProvider.ts:38](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseSearchProvider.ts#L38)
 
 Page name/identifier
 
@@ -36,7 +36,7 @@ Page name/identifier
 
 > **score**: `number`
 
-Defined in: [src/providers/BaseSearchProvider.ts:44](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseSearchProvider.ts#L44)
+Defined in: [src/providers/BaseSearchProvider.ts:44](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseSearchProvider.ts#L44)
 
 Relevance score
 
@@ -46,7 +46,7 @@ Relevance score
 
 > **snippet**: `string`
 
-Defined in: [src/providers/BaseSearchProvider.ts:47](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseSearchProvider.ts#L47)
+Defined in: [src/providers/BaseSearchProvider.ts:47](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseSearchProvider.ts#L47)
 
 Content snippet with highlights
 
@@ -56,6 +56,6 @@ Content snippet with highlights
 
 > **title**: `string`
 
-Defined in: [src/providers/BaseSearchProvider.ts:41](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseSearchProvider.ts#L41)
+Defined in: [src/providers/BaseSearchProvider.ts:41](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseSearchProvider.ts#L41)
 
 Page title

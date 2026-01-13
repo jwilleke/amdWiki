@@ -6,7 +6,7 @@
 
 # Interface: ExtractedElement
 
-Defined in: [src/parsers/MarkupParser.ts:149](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L149)
+Defined in: [src/parsers/MarkupParser.ts:167](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L167)
 
 Extracted JSPWiki element
 
@@ -16,7 +16,7 @@ Extracted JSPWiki element
 
 > **id**: `number`
 
-Defined in: [src/parsers/MarkupParser.ts:155](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L155)
+Defined in: [src/parsers/MarkupParser.ts:173](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L173)
 
 Unique ID
 
@@ -26,7 +26,7 @@ Unique ID
 
 > `optional` **inner**: `string`
 
-Defined in: [src/parsers/MarkupParser.ts:161](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L161)
+Defined in: [src/parsers/MarkupParser.ts:179](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L179)
 
 Plugin/tag inner content (for plugins)
 
@@ -36,7 +36,7 @@ Plugin/tag inner content (for plugins)
 
 > `optional` **literal**: `string`
 
-Defined in: [src/parsers/MarkupParser.ts:165](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L165)
+Defined in: [src/parsers/MarkupParser.ts:183](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L183)
 
 Escaped literal content (for escaped)
 
@@ -46,7 +46,7 @@ Escaped literal content (for escaped)
 
 > `optional` **position**: `number`
 
-Defined in: [src/parsers/MarkupParser.ts:157](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L157)
+Defined in: [src/parsers/MarkupParser.ts:175](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L175)
 
 Position in content
 
@@ -56,7 +56,7 @@ Position in content
 
 > **syntax**: `string`
 
-Defined in: [src/parsers/MarkupParser.ts:153](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L153)
+Defined in: [src/parsers/MarkupParser.ts:171](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L171)
 
 Original syntax
 
@@ -66,7 +66,7 @@ Original syntax
 
 > `optional` **target**: `string`
 
-Defined in: [src/parsers/MarkupParser.ts:163](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L163)
+Defined in: [src/parsers/MarkupParser.ts:181](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L181)
 
 Link target (for links)
 
@@ -76,7 +76,7 @@ Link target (for links)
 
 > **type**: `"link"` \| `"plugin"` \| `"variable"` \| `"escaped"`
 
-Defined in: [src/parsers/MarkupParser.ts:151](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L151)
+Defined in: [src/parsers/MarkupParser.ts:169](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L169)
 
 Element type
 
@@ -86,6 +86,6 @@ Element type
 
 > `optional` **varName**: `string`
 
-Defined in: [src/parsers/MarkupParser.ts:159](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L159)
+Defined in: [src/parsers/MarkupParser.ts:177](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L177)
 
 Variable name (for variables)

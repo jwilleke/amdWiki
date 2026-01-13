@@ -6,7 +6,7 @@
 
 # Interface: PageValidationResult
 
-Defined in: [src/managers/ValidationManager.ts:32](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ValidationManager.ts#L32)
+Defined in: [src/managers/ValidationManager.ts:34](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L34)
 
 Page validation result interface
 
@@ -18,9 +18,9 @@ Page validation result interface
 
 ### error
 
-> **error**: `string`
+> **error**: `string` \| `null`
 
-Defined in: [src/managers/ValidationManager.ts:19](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ValidationManager.ts#L19)
+Defined in: [src/managers/ValidationManager.ts:21](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L21)
 
 #### Inherited from
 
@@ -32,7 +32,7 @@ Defined in: [src/managers/ValidationManager.ts:19](https://github.com/jwilleke/a
 
 > **filenameValid**: `boolean`
 
-Defined in: [src/managers/ValidationManager.ts:33](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ValidationManager.ts#L33)
+Defined in: [src/managers/ValidationManager.ts:35](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L35)
 
 ***
 
@@ -40,7 +40,7 @@ Defined in: [src/managers/ValidationManager.ts:33](https://github.com/jwilleke/a
 
 > `optional` **fixes**: [`FixSuggestions`](FixSuggestions.md)
 
-Defined in: [src/managers/ValidationManager.ts:35](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ValidationManager.ts#L35)
+Defined in: [src/managers/ValidationManager.ts:37](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L37)
 
 ***
 
@@ -48,7 +48,7 @@ Defined in: [src/managers/ValidationManager.ts:35](https://github.com/jwilleke/a
 
 > **metadataValid**: `boolean`
 
-Defined in: [src/managers/ValidationManager.ts:34](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ValidationManager.ts#L34)
+Defined in: [src/managers/ValidationManager.ts:36](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L36)
 
 ***
 
@@ -56,7 +56,7 @@ Defined in: [src/managers/ValidationManager.ts:34](https://github.com/jwilleke/a
 
 > **success**: `boolean`
 
-Defined in: [src/managers/ValidationManager.ts:18](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ValidationManager.ts#L18)
+Defined in: [src/managers/ValidationManager.ts:20](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L20)
 
 #### Inherited from
 
@@ -68,7 +68,7 @@ Defined in: [src/managers/ValidationManager.ts:18](https://github.com/jwilleke/a
 
 > `optional` **warnings**: `string`[]
 
-Defined in: [src/managers/ValidationManager.ts:26](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ValidationManager.ts#L26)
+Defined in: [src/managers/ValidationManager.ts:28](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L28)
 
 #### Inherited from
 

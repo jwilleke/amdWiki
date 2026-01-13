@@ -6,7 +6,7 @@
 
 # Interface: WarningInfo
 
-Defined in: [src/parsers/dom/DOMParser.ts:133](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/DOMParser.ts#L133)
+Defined in: [src/parsers/dom/DOMParser.ts:134](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L134)
 
 Warning information
 
@@ -16,7 +16,7 @@ Warning information
 
 > `optional` **column**: `number`
 
-Defined in: [src/parsers/dom/DOMParser.ts:139](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/DOMParser.ts#L139)
+Defined in: [src/parsers/dom/DOMParser.ts:140](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L140)
 
 Column number
 
@@ -26,7 +26,7 @@ Column number
 
 > `optional` **line**: `number`
 
-Defined in: [src/parsers/dom/DOMParser.ts:137](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/DOMParser.ts#L137)
+Defined in: [src/parsers/dom/DOMParser.ts:138](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L138)
 
 Line number
 
@@ -36,6 +36,6 @@ Line number
 
 > **message**: `string`
 
-Defined in: [src/parsers/dom/DOMParser.ts:135](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/DOMParser.ts#L135)
+Defined in: [src/parsers/dom/DOMParser.ts:136](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L136)
 
 Warning message

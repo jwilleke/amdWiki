@@ -6,7 +6,7 @@
 
 # Interface: ValidationResult
 
-Defined in: [src/managers/ValidationManager.ts:17](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ValidationManager.ts#L17)
+Defined in: [src/managers/ValidationManager.ts:19](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L19)
 
 Validation result interface
 
@@ -18,9 +18,9 @@ Validation result interface
 
 ### error
 
-> **error**: `string`
+> **error**: `string` \| `null`
 
-Defined in: [src/managers/ValidationManager.ts:19](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ValidationManager.ts#L19)
+Defined in: [src/managers/ValidationManager.ts:21](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L21)
 
 ***
 
@@ -28,4 +28,4 @@ Defined in: [src/managers/ValidationManager.ts:19](https://github.com/jwilleke/a
 
 > **success**: `boolean`
 
-Defined in: [src/managers/ValidationManager.ts:18](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ValidationManager.ts#L18)
+Defined in: [src/managers/ValidationManager.ts:20](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L20)

@@ -6,13 +6,13 @@
 
 # Interface: PageMetadata
 
-Defined in: [src/utils/final-validation.ts:9](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/final-validation.ts#L9)
+Defined in: [src/utils/final-validation.ts:9](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/final-validation.ts#L9)
 
 Page metadata structure
 
 ## Indexable
 
-\[`key`: `string`\]: `any`
+\[`key`: `string`\]: `unknown`
 
 ## Properties
 
@@ -20,7 +20,7 @@ Page metadata structure
 
 > **category**: `string`
 
-Defined in: [src/utils/final-validation.ts:11](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/final-validation.ts#L11)
+Defined in: [src/utils/final-validation.ts:11](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/final-validation.ts#L11)
 
 ***
 
@@ -28,7 +28,7 @@ Defined in: [src/utils/final-validation.ts:11](https://github.com/jwilleke/amdWi
 
 > **lastModified**: `string`
 
-Defined in: [src/utils/final-validation.ts:14](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/final-validation.ts#L14)
+Defined in: [src/utils/final-validation.ts:14](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/final-validation.ts#L14)
 
 ***
 
@@ -36,7 +36,7 @@ Defined in: [src/utils/final-validation.ts:14](https://github.com/jwilleke/amdWi
 
 > **title**: `string`
 
-Defined in: [src/utils/final-validation.ts:10](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/final-validation.ts#L10)
+Defined in: [src/utils/final-validation.ts:10](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/final-validation.ts#L10)
 
 ***
 
@@ -44,7 +44,7 @@ Defined in: [src/utils/final-validation.ts:10](https://github.com/jwilleke/amdWi
 
 > **user-keywords**: `string`[]
 
-Defined in: [src/utils/final-validation.ts:12](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/final-validation.ts#L12)
+Defined in: [src/utils/final-validation.ts:12](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/final-validation.ts#L12)
 
 ***
 
@@ -52,4 +52,4 @@ Defined in: [src/utils/final-validation.ts:12](https://github.com/jwilleke/amdWi
 
 > **uuid**: `string`
 
-Defined in: [src/utils/final-validation.ts:13](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/final-validation.ts#L13)
+Defined in: [src/utils/final-validation.ts:13](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/final-validation.ts#L13)

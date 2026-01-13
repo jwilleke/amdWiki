@@ -6,7 +6,7 @@
 
 # Interface: PerformanceAlert
 
-Defined in: [src/parsers/MarkupParser.ts:221](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L221)
+Defined in: [src/parsers/MarkupParser.ts:268](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L268)
 
 Performance alert
 
@@ -16,7 +16,7 @@ Performance alert
 
 > **message**: `string`
 
-Defined in: [src/parsers/MarkupParser.ts:225](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L225)
+Defined in: [src/parsers/MarkupParser.ts:272](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L272)
 
 Alert message
 
@@ -26,7 +26,7 @@ Alert message
 
 > **metrics**: `unknown`
 
-Defined in: [src/parsers/MarkupParser.ts:229](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L229)
+Defined in: [src/parsers/MarkupParser.ts:276](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L276)
 
 Related metrics
 
@@ -36,7 +36,7 @@ Related metrics
 
 > **timestamp**: `string`
 
-Defined in: [src/parsers/MarkupParser.ts:227](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L227)
+Defined in: [src/parsers/MarkupParser.ts:274](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L274)
 
 Timestamp
 
@@ -46,6 +46,6 @@ Timestamp
 
 > **type**: `string`
 
-Defined in: [src/parsers/MarkupParser.ts:223](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L223)
+Defined in: [src/parsers/MarkupParser.ts:270](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L270)
 
 Alert type

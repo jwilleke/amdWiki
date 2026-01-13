@@ -6,7 +6,7 @@
 
 # Interface: AuditEvent
 
-Defined in: [src/types/Provider.ts:451](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L451)
+Defined in: [src/types/Provider.ts:486](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L486)
 
 Audit event
 
@@ -16,7 +16,7 @@ Audit event
 
 > **action**: `string`
 
-Defined in: [src/types/Provider.ts:465](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L465)
+Defined in: [src/types/Provider.ts:500](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L500)
 
 Action performed
 
@@ -26,7 +26,7 @@ Action performed
 
 > **actor**: `string`
 
-Defined in: [src/types/Provider.ts:459](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L459)
+Defined in: [src/types/Provider.ts:494](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L494)
 
 Actor (user ID or 'system')
 
@@ -34,9 +34,9 @@ Actor (user ID or 'system')
 
 ### data?
 
-> `optional` **data**: `Record`\<`string`, `any`\>
+> `optional` **data**: `Record`\<`string`, `unknown`\>
 
-Defined in: [src/types/Provider.ts:477](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L477)
+Defined in: [src/types/Provider.ts:512](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L512)
 
 Additional event data
 
@@ -46,7 +46,7 @@ Additional event data
 
 > `optional` **error**: `string`
 
-Defined in: [src/types/Provider.ts:483](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L483)
+Defined in: [src/types/Provider.ts:518](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L518)
 
 Error message if failed
 
@@ -56,7 +56,7 @@ Error message if failed
 
 > **id**: `string`
 
-Defined in: [src/types/Provider.ts:453](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L453)
+Defined in: [src/types/Provider.ts:488](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L488)
 
 Event ID (UUID)
 
@@ -66,7 +66,7 @@ Event ID (UUID)
 
 > `optional` **ipAddress**: `string`
 
-Defined in: [src/types/Provider.ts:471](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L471)
+Defined in: [src/types/Provider.ts:506](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L506)
 
 IP address
 
@@ -76,7 +76,7 @@ IP address
 
 > **result**: `"success"` \| `"failure"`
 
-Defined in: [src/types/Provider.ts:480](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L480)
+Defined in: [src/types/Provider.ts:515](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L515)
 
 Event result (success, failure)
 
@@ -86,7 +86,7 @@ Event result (success, failure)
 
 > **target**: `string`
 
-Defined in: [src/types/Provider.ts:462](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L462)
+Defined in: [src/types/Provider.ts:497](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L497)
 
 Target resource
 
@@ -96,7 +96,7 @@ Target resource
 
 > **timestamp**: `string`
 
-Defined in: [src/types/Provider.ts:468](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L468)
+Defined in: [src/types/Provider.ts:503](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L503)
 
 Event timestamp (ISO 8601)
 
@@ -106,7 +106,7 @@ Event timestamp (ISO 8601)
 
 > **type**: `string`
 
-Defined in: [src/types/Provider.ts:456](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L456)
+Defined in: [src/types/Provider.ts:491](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L491)
 
 Event type
 
@@ -116,6 +116,6 @@ Event type
 
 > `optional` **userAgent**: `string`
 
-Defined in: [src/types/Provider.ts:474](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Provider.ts#L474)
+Defined in: [src/types/Provider.ts:509](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Provider.ts#L509)
 
 User agent

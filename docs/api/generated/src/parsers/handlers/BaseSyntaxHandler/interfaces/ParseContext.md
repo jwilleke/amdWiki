@@ -6,7 +6,7 @@
 
 # Interface: ParseContext
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:154](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L154)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:156](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L156)
 
 ParseContext (minimal interface until ParseContext.ts is converted)
 TODO: Replace with proper ParseContext import once converted
@@ -17,7 +17,7 @@ TODO: Replace with proper ParseContext import once converted
 
 > `optional` **pageName**: `string`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:155](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L155)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:157](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L157)
 
 ***
 
@@ -25,7 +25,7 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:155](https://github.com/j
 
 > `optional` **userName**: `string`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:156](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L156)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:158](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L158)
 
 ## Methods
 
@@ -33,7 +33,7 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:156](https://github.com/j
 
 > `optional` **getTotalTime**(): `number`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:157](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L157)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:159](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L159)
 
 #### Returns
 

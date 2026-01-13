@@ -6,7 +6,7 @@
 
 # Interface: PluginInfo
 
-Defined in: [src/managers/PluginManager.ts:41](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PluginManager.ts#L41)
+Defined in: [src/managers/PluginManager.ts:75](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PluginManager.ts#L75)
 
 Plugin information returned by getPluginInfo
 
@@ -16,7 +16,7 @@ Plugin information returned by getPluginInfo
 
 > **author**: `string`
 
-Defined in: [src/managers/PluginManager.ts:44](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PluginManager.ts#L44)
+Defined in: [src/managers/PluginManager.ts:78](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PluginManager.ts#L78)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [src/managers/PluginManager.ts:44](https://github.com/jwilleke/amdWi
 
 > **description**: `string`
 
-Defined in: [src/managers/PluginManager.ts:43](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PluginManager.ts#L43)
+Defined in: [src/managers/PluginManager.ts:77](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PluginManager.ts#L77)
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: [src/managers/PluginManager.ts:43](https://github.com/jwilleke/amdWi
 
 > **name**: `string`
 
-Defined in: [src/managers/PluginManager.ts:42](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PluginManager.ts#L42)
+Defined in: [src/managers/PluginManager.ts:76](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PluginManager.ts#L76)
 
 ***
 
@@ -40,4 +40,4 @@ Defined in: [src/managers/PluginManager.ts:42](https://github.com/jwilleke/amdWi
 
 > **version**: `string`
 
-Defined in: [src/managers/PluginManager.ts:45](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PluginManager.ts#L45)
+Defined in: [src/managers/PluginManager.ts:79](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PluginManager.ts#L79)

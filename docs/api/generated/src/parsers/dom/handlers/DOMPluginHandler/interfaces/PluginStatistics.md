@@ -6,7 +6,7 @@
 
 # Interface: PluginStatistics
 
-Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:140](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMPluginHandler.ts#L140)
+Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:141](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L141)
 
 Statistics about plugin processing
 
@@ -16,7 +16,7 @@ Statistics about plugin processing
 
 > **plugins**: [`PluginInstanceInfo`](PluginInstanceInfo.md)[]
 
-Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:148](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMPluginHandler.ts#L148)
+Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:149](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L149)
 
 Array of plugin instances
 
@@ -26,7 +26,7 @@ Array of plugin instances
 
 > **totalPlugins**: `number`
 
-Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:142](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMPluginHandler.ts#L142)
+Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:143](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L143)
 
 Total number of plugins in document
 
@@ -36,7 +36,7 @@ Total number of plugins in document
 
 > **uniqueCount**: `number`
 
-Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:144](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMPluginHandler.ts#L144)
+Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:145](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L145)
 
 Number of unique plugins
 
@@ -46,6 +46,6 @@ Number of unique plugins
 
 > **uniquePlugins**: `string`[]
 
-Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:146](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMPluginHandler.ts#L146)
+Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:147](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L147)
 
 Array of unique plugin names

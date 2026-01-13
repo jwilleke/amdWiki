@@ -6,7 +6,7 @@
 
 # Interface: ExportedRegistryState
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:77](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L77)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:78](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L78)
 
 Exported registry state
 
@@ -16,7 +16,7 @@ Exported registry state
 
 > **config**: [`RegistryConfig`](RegistryConfig.md)
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:78](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L78)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:79](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L79)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [src/parsers/handlers/HandlerRegistry.ts:78](https://github.com/jwil
 
 > **dependencies**: `Record`\<`string`, `string`[]\>
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:81](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L81)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:82](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L82)
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: [src/parsers/handlers/HandlerRegistry.ts:81](https://github.com/jwil
 
 > **handlers**: `unknown`[]
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:80](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L80)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:81](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L81)
 
 ***
 
@@ -40,4 +40,4 @@ Defined in: [src/parsers/handlers/HandlerRegistry.ts:80](https://github.com/jwil
 
 > **stats**: [`RegistryStats`](RegistryStats.md)
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:79](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L79)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:80](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L80)

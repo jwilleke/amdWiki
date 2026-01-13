@@ -8,7 +8,7 @@
 
 > **createLoggerWithConfig**(`config`): `Logger`
 
-Defined in: [src/utils/logger.ts:49](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/logger.ts#L49)
+Defined in: [src/utils/logger.ts:46](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/logger.ts#L46)
 
 Creates a winston logger instance with the specified configuration
 

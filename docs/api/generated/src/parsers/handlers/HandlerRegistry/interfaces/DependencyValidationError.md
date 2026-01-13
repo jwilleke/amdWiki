@@ -6,7 +6,7 @@
 
 # Interface: DependencyValidationError
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:67](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L67)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:68](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L68)
 
 Dependency validation error
 
@@ -16,7 +16,7 @@ Dependency validation error
 
 > **dependencyName**: `string`
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:70](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L70)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:71](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L71)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [src/parsers/handlers/HandlerRegistry.ts:70](https://github.com/jwil
 
 > **dependencyType**: `"manager"` \| `"handler"`
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:69](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L69)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:70](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L70)
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: [src/parsers/handlers/HandlerRegistry.ts:69](https://github.com/jwil
 
 > **error**: `string`
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:71](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L71)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:72](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L72)
 
 ***
 
@@ -40,4 +40,4 @@ Defined in: [src/parsers/handlers/HandlerRegistry.ts:71](https://github.com/jwil
 
 > **handlerId**: `string`
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:68](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L68)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:69](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L69)

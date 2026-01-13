@@ -6,7 +6,7 @@
 
 # Interface: RequestInfo
 
-Defined in: [src/context/WikiContext.ts:26](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/context/WikiContext.ts#L26)
+Defined in: [src/context/WikiContext.ts:24](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L24)
 
 Request information extracted from Express request
 
@@ -16,7 +16,7 @@ Request information extracted from Express request
 
 > `optional` **acceptLanguage**: `string`
 
-Defined in: [src/context/WikiContext.ts:28](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/context/WikiContext.ts#L28)
+Defined in: [src/context/WikiContext.ts:26](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L26)
 
 Accept-Language header
 
@@ -26,7 +26,7 @@ Accept-Language header
 
 > `optional` **clientIp**: `string`
 
-Defined in: [src/context/WikiContext.ts:32](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/context/WikiContext.ts#L32)
+Defined in: [src/context/WikiContext.ts:30](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L30)
 
 Client IP address
 
@@ -36,7 +36,7 @@ Client IP address
 
 > `optional` **referer**: `string`
 
-Defined in: [src/context/WikiContext.ts:34](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/context/WikiContext.ts#L34)
+Defined in: [src/context/WikiContext.ts:32](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L32)
 
 Referer header
 
@@ -46,7 +46,7 @@ Referer header
 
 > `optional` **sessionId**: `string`
 
-Defined in: [src/context/WikiContext.ts:36](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/context/WikiContext.ts#L36)
+Defined in: [src/context/WikiContext.ts:34](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L34)
 
 Session ID
 
@@ -56,6 +56,6 @@ Session ID
 
 > `optional` **userAgent**: `string`
 
-Defined in: [src/context/WikiContext.ts:30](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/context/WikiContext.ts#L30)
+Defined in: [src/context/WikiContext.ts:28](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L28)
 
 User-Agent header

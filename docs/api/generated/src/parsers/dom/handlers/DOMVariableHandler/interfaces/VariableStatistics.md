@@ -6,7 +6,7 @@
 
 # Interface: VariableStatistics
 
-Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:106](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMVariableHandler.ts#L106)
+Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:107](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L107)
 
 Statistics about variable processing
 
@@ -16,7 +16,7 @@ Statistics about variable processing
 
 > **totalVariables**: `number`
 
-Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:108](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMVariableHandler.ts#L108)
+Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:109](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L109)
 
 Total number of variables in document
 
@@ -26,7 +26,7 @@ Total number of variables in document
 
 > **uniqueCount**: `number`
 
-Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:110](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMVariableHandler.ts#L110)
+Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:111](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L111)
 
 Number of unique variables
 
@@ -36,7 +36,7 @@ Number of unique variables
 
 > **uniqueVariables**: `string`[]
 
-Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:112](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMVariableHandler.ts#L112)
+Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:113](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L113)
 
 Array of unique variable names
 
@@ -46,6 +46,6 @@ Array of unique variable names
 
 > **variables**: [`VariableInfo`](VariableInfo.md)[]
 
-Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:114](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMVariableHandler.ts#L114)
+Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:115](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L115)
 
 Array of variable information

@@ -6,7 +6,7 @@
 
 # Interface: NodeCacheAdapterOptions
 
-Defined in: [src/cache/NodeCacheAdapter.ts:9](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/cache/NodeCacheAdapter.ts#L9)
+Defined in: [src/cache/NodeCacheAdapter.ts:8](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/cache/NodeCacheAdapter.ts#L8)
 
 NodeCacheAdapter configuration options
 
@@ -22,7 +22,7 @@ Additional node-cache options
 
 > `optional` **checkperiod**: `number`
 
-Defined in: [src/cache/NodeCacheAdapter.ts:13](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/cache/NodeCacheAdapter.ts#L13)
+Defined in: [src/cache/NodeCacheAdapter.ts:12](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/cache/NodeCacheAdapter.ts#L12)
 
 Check period for expired keys in seconds (default: 120)
 
@@ -32,7 +32,7 @@ Check period for expired keys in seconds (default: 120)
 
 > `optional` **deleteOnExpire**: `boolean`
 
-Defined in: [src/cache/NodeCacheAdapter.ts:17](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/cache/NodeCacheAdapter.ts#L17)
+Defined in: [src/cache/NodeCacheAdapter.ts:16](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/cache/NodeCacheAdapter.ts#L16)
 
 Delete keys on expiration (default: true)
 
@@ -42,7 +42,7 @@ Delete keys on expiration (default: true)
 
 > `optional` **maxKeys**: `number`
 
-Defined in: [src/cache/NodeCacheAdapter.ts:19](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/cache/NodeCacheAdapter.ts#L19)
+Defined in: [src/cache/NodeCacheAdapter.ts:18](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/cache/NodeCacheAdapter.ts#L18)
 
 Maximum number of keys (default: 1000)
 
@@ -52,7 +52,7 @@ Maximum number of keys (default: 1000)
 
 > `optional` **stdTTL**: `number`
 
-Defined in: [src/cache/NodeCacheAdapter.ts:11](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/cache/NodeCacheAdapter.ts#L11)
+Defined in: [src/cache/NodeCacheAdapter.ts:10](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/cache/NodeCacheAdapter.ts#L10)
 
 Standard TTL in seconds (default: 300)
 
@@ -62,6 +62,6 @@ Standard TTL in seconds (default: 300)
 
 > `optional` **useClones**: `boolean`
 
-Defined in: [src/cache/NodeCacheAdapter.ts:15](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/cache/NodeCacheAdapter.ts#L15)
+Defined in: [src/cache/NodeCacheAdapter.ts:14](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/cache/NodeCacheAdapter.ts#L14)
 
 Whether to clone objects (default: true)

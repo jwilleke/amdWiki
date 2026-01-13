@@ -6,7 +6,7 @@
 
 # Interface: ExportUser
 
-Defined in: [src/managers/ExportManager.ts:35](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ExportManager.ts#L35)
+Defined in: [src/managers/ExportManager.ts:38](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ExportManager.ts#L38)
 
 User object interface (for locale-aware formatting)
 
@@ -16,4 +16,4 @@ User object interface (for locale-aware formatting)
 
 > `optional` **preferences**: [`UserPreferences`](UserPreferences.md)
 
-Defined in: [src/managers/ExportManager.ts:36](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ExportManager.ts#L36)
+Defined in: [src/managers/ExportManager.ts:39](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ExportManager.ts#L39)

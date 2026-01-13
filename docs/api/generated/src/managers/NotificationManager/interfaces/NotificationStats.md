@@ -6,7 +6,7 @@
 
 # Interface: NotificationStats
 
-Defined in: [src/managers/NotificationManager.ts:37](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/NotificationManager.ts#L37)
+Defined in: [src/managers/NotificationManager.ts:38](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/NotificationManager.ts#L38)
 
 Notification statistics
 
@@ -16,7 +16,7 @@ Notification statistics
 
 > **active**: `number`
 
-Defined in: [src/managers/NotificationManager.ts:39](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/NotificationManager.ts#L39)
+Defined in: [src/managers/NotificationManager.ts:40](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/NotificationManager.ts#L40)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [src/managers/NotificationManager.ts:39](https://github.com/jwilleke
 
 > **byLevel**: `Record`\<`string`, `number`\>
 
-Defined in: [src/managers/NotificationManager.ts:42](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/NotificationManager.ts#L42)
+Defined in: [src/managers/NotificationManager.ts:43](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/NotificationManager.ts#L43)
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: [src/managers/NotificationManager.ts:42](https://github.com/jwilleke
 
 > **byType**: `Record`\<`string`, `number`\>
 
-Defined in: [src/managers/NotificationManager.ts:41](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/NotificationManager.ts#L41)
+Defined in: [src/managers/NotificationManager.ts:42](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/NotificationManager.ts#L42)
 
 ***
 
@@ -40,7 +40,7 @@ Defined in: [src/managers/NotificationManager.ts:41](https://github.com/jwilleke
 
 > **expired**: `number`
 
-Defined in: [src/managers/NotificationManager.ts:40](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/NotificationManager.ts#L40)
+Defined in: [src/managers/NotificationManager.ts:41](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/NotificationManager.ts#L41)
 
 ***
 
@@ -48,4 +48,4 @@ Defined in: [src/managers/NotificationManager.ts:40](https://github.com/jwilleke
 
 > **total**: `number`
 
-Defined in: [src/managers/NotificationManager.ts:38](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/NotificationManager.ts#L38)
+Defined in: [src/managers/NotificationManager.ts:39](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/NotificationManager.ts#L39)

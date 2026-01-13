@@ -20,6 +20,7 @@
 - [ExtractedElement](interfaces/ExtractedElement.md)
 - [ExtractionResult](interfaces/ExtractionResult.md)
 - [FilterConfig](interfaces/FilterConfig.md)
+- [FilterTypeConfig](interfaces/FilterTypeConfig.md)
 - [HandlerConfig](interfaces/HandlerConfig.md)
 - [HandlerRegistryConfig](interfaces/HandlerRegistryConfig.md)
 - [MarkupParserConfig](interfaces/MarkupParserConfig.md)

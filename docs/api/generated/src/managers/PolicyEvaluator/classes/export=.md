@@ -6,7 +6,7 @@
 
 # Class: export=
 
-Defined in: [src/managers/PolicyEvaluator.ts:96](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyEvaluator.ts#L96)
+Defined in: [src/managers/PolicyEvaluator.ts:89](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PolicyEvaluator.ts#L89)
 
 PolicyEvaluator - Evaluates access policies against a given context.
 
@@ -45,7 +45,7 @@ if (result.allowed) console.log('Access granted');
 
 > **new export=**(`engine`): `PolicyEvaluator`
 
-Defined in: [src/managers/PolicyEvaluator.ts:105](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyEvaluator.ts#L105)
+Defined in: [src/managers/PolicyEvaluator.ts:98](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PolicyEvaluator.ts#L98)
 
 Creates a new PolicyEvaluator instance
 
@@ -69,9 +69,9 @@ The wiki engine instance
 
 ### config?
 
-> `protected` `optional` **config**: `Record`\<`string`, `any`\>
+> `protected` `optional` **config**: `Record`\<`string`, `unknown`\>
 
-Defined in: [src/managers/BaseManager.ts:63](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L63)
+Defined in: [src/managers/BaseManager.ts:61](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L61)
 
 Configuration passed during initialization
 
@@ -85,7 +85,7 @@ Configuration passed during initialization
 
 > `protected` **engine**: [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/managers/BaseManager.ts:56](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L56)
+Defined in: [src/managers/BaseManager.ts:54](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L54)
 
 Reference to the wiki engine
 
@@ -99,7 +99,7 @@ Reference to the wiki engine
 
 > `protected` **initialized**: `boolean`
 
-Defined in: [src/managers/BaseManager.ts:59](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L59)
+Defined in: [src/managers/BaseManager.ts:57](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L57)
 
 Initialization status flag
 
@@ -113,7 +113,7 @@ Initialization status flag
 
 > **backup**(): `Promise`\<[`BackupData`](../../BaseManager/interfaces/BackupData.md)\>
 
-Defined in: [src/managers/BaseManager.ts:168](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L168)
+Defined in: [src/managers/BaseManager.ts:169](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L169)
 
 Backup manager data
 
@@ -155,7 +155,7 @@ async backup(): Promise<BackupData> {
 
 > **evaluateAccess**(`context`): `Promise`\<`EvaluationResult`\>
 
-Defined in: [src/managers/PolicyEvaluator.ts:148](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyEvaluator.ts#L148)
+Defined in: [src/managers/PolicyEvaluator.ts:141](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PolicyEvaluator.ts#L141)
 
 Evaluates all relevant policies to make an access decision.
 
@@ -195,7 +195,7 @@ console.log('Allowed:', result.allowed, 'Reason:', result.reason);
 
 > **getEngine**(): [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/managers/BaseManager.ts:126](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L126)
+Defined in: [src/managers/BaseManager.ts:125](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L125)
 
 Get the wiki engine instance
 
@@ -221,7 +221,7 @@ const config = this.getEngine().getConfig();
 
 > **initialize**(): `Promise`\<`void`\>
 
-Defined in: [src/managers/PolicyEvaluator.ts:121](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyEvaluator.ts#L121)
+Defined in: [src/managers/PolicyEvaluator.ts:114](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PolicyEvaluator.ts#L114)
 
 Initializes the PolicyEvaluator by getting reference to PolicyManager
 
@@ -252,7 +252,7 @@ console.log('Policy evaluator ready');
 
 > **isInitialized**(): `boolean`
 
-Defined in: [src/managers/BaseManager.ts:114](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L114)
+Defined in: [src/managers/BaseManager.ts:113](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L113)
 
 Check if manager has been initialized
 
@@ -280,7 +280,7 @@ if (manager.isInitialized()) {
 
 > **matches**(`policy`, `context`): `boolean`
 
-Defined in: [src/managers/PolicyEvaluator.ts:186](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyEvaluator.ts#L186)
+Defined in: [src/managers/PolicyEvaluator.ts:179](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PolicyEvaluator.ts#L179)
 
 Checks if a single policy matches the given context.
 
@@ -322,7 +322,7 @@ if (matches) console.log('Policy applies to this request');
 
 > **matchesAction**(`actions`, `action`): `boolean`
 
-Defined in: [src/managers/PolicyEvaluator.ts:291](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyEvaluator.ts#L291)
+Defined in: [src/managers/PolicyEvaluator.ts:283](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PolicyEvaluator.ts#L283)
 
 Checks if the action matches the policy's actions.
 
@@ -335,9 +335,9 @@ An action matches if:
 
 ##### actions
 
-`string`[]
-
 The actions array from the policy
+
+`string`[] | `undefined`
 
 ##### action
 
@@ -367,7 +367,7 @@ const matches = evaluator.matchesAction(
 
 > **matchesResource**(`resources`, `pageName`): `boolean`
 
-Defined in: [src/managers/PolicyEvaluator.ts:259](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyEvaluator.ts#L259)
+Defined in: [src/managers/PolicyEvaluator.ts:252](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PolicyEvaluator.ts#L252)
 
 Checks if the resource matches the policy's resources.
 
@@ -378,9 +378,9 @@ matches any of the policy's resource patterns.
 
 ##### resources
 
-`PolicyResource`[]
-
 The resources array from the policy
+
+`PolicyResource`[] | `undefined`
 
 ##### pageName
 
@@ -410,7 +410,7 @@ const matches = evaluator.matchesResource(
 
 > **matchesSubject**(`policySubjects`, `userContext`): `boolean`
 
-Defined in: [src/managers/PolicyEvaluator.ts:213](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PolicyEvaluator.ts#L213)
+Defined in: [src/managers/PolicyEvaluator.ts:206](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PolicyEvaluator.ts#L206)
 
 Check if the user context's roles match the policy's subject requirements.
 
@@ -423,15 +423,15 @@ A user matches if:
 
 ##### policySubjects
 
-`PolicySubject`[]
-
 The subjects array from the policy
+
+`PolicySubject`[] | `undefined`
 
 ##### userContext
 
-`UserContext`
-
 The user's context
+
+`UserContext` | `undefined`
 
 #### Returns
 
@@ -455,7 +455,7 @@ const matches = evaluator.matchesSubject(
 
 > **restore**(`backupData`): `Promise`\<`void`\>
 
-Defined in: [src/managers/BaseManager.ts:196](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L196)
+Defined in: [src/managers/BaseManager.ts:198](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L198)
 
 Restore manager data from backup
 
@@ -500,7 +500,7 @@ async restore(backupData: BackupData): Promise<void> {
 
 > **shutdown**(): `Promise`\<`void`\>
 
-Defined in: [src/managers/BaseManager.ts:143](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L143)
+Defined in: [src/managers/BaseManager.ts:143](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L143)
 
 Shutdown the manager and cleanup resources
 

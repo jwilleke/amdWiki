@@ -6,7 +6,7 @@
 
 # Class: default
 
-Defined in: [src/managers/CacheManager.ts:83](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/CacheManager.ts#L83)
+Defined in: [src/managers/CacheManager.ts:84](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/CacheManager.ts#L84)
 
 CacheManager - Centralized cache management for amdWiki
 
@@ -48,7 +48,7 @@ region.set('Main', pageData, 3600);
 
 > **new default**(`engine`): `CacheManager`
 
-Defined in: [src/managers/CacheManager.ts:98](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/CacheManager.ts#L98)
+Defined in: [src/managers/CacheManager.ts:99](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/CacheManager.ts#L99)
 
 Creates a new CacheManager instance
 
@@ -72,9 +72,9 @@ The wiki engine instance
 
 ### config?
 
-> `protected` `optional` **config**: `Record`\<`string`, `any`\>
+> `protected` `optional` **config**: `Record`\<`string`, `unknown`\>
 
-Defined in: [src/managers/BaseManager.ts:63](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L63)
+Defined in: [src/managers/BaseManager.ts:61](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L61)
 
 Configuration passed during initialization
 
@@ -88,7 +88,7 @@ Configuration passed during initialization
 
 > `protected` **engine**: [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/managers/BaseManager.ts:56](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L56)
+Defined in: [src/managers/BaseManager.ts:54](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L54)
 
 Reference to the wiki engine
 
@@ -102,7 +102,7 @@ Reference to the wiki engine
 
 > `protected` **initialized**: `boolean`
 
-Defined in: [src/managers/BaseManager.ts:59](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L59)
+Defined in: [src/managers/BaseManager.ts:57](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L57)
 
 Initialization status flag
 
@@ -116,7 +116,7 @@ Initialization status flag
 
 > **backup**(): `Promise`\<[`BackupData`](../../BaseManager/interfaces/BackupData.md)\>
 
-Defined in: [src/managers/BaseManager.ts:168](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L168)
+Defined in: [src/managers/BaseManager.ts:169](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L169)
 
 Backup manager data
 
@@ -158,7 +158,7 @@ async backup(): Promise<BackupData> {
 
 > **clear**(`region?`, `pattern?`): `Promise`\<`void`\>
 
-Defined in: [src/managers/CacheManager.ts:291](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/CacheManager.ts#L291)
+Defined in: [src/managers/CacheManager.ts:285](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/CacheManager.ts#L285)
 
 Clear cache entries
 
@@ -186,7 +186,7 @@ Optional pattern to match keys
 
 > **del**(`keys`): `Promise`\<`void`\>
 
-Defined in: [src/managers/CacheManager.ts:281](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/CacheManager.ts#L281)
+Defined in: [src/managers/CacheManager.ts:272](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/CacheManager.ts#L272)
 
 Delete one or more keys from the cache
 
@@ -208,7 +208,7 @@ Single key or array of keys to delete
 
 > **flushAll**(): `Promise`\<`void`\>
 
-Defined in: [src/managers/CacheManager.ts:369](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/CacheManager.ts#L369)
+Defined in: [src/managers/CacheManager.ts:375](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/CacheManager.ts#L375)
 
 Flush all caches (dangerous operation)
 
@@ -222,7 +222,7 @@ Flush all caches (dangerous operation)
 
 > **get**(`key`): `Promise`\<`unknown`\>
 
-Defined in: [src/managers/CacheManager.ts:259](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/CacheManager.ts#L259)
+Defined in: [src/managers/CacheManager.ts:244](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/CacheManager.ts#L244)
 
 Get a value from the cache (global scope)
 
@@ -246,7 +246,7 @@ The cached value or undefined if not found
 
 > `static` **getCacheForManager**(`engine`, `region?`): [`default`](../../../cache/RegionCache/classes/default.md)
 
-Defined in: [src/managers/CacheManager.ts:400](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/CacheManager.ts#L400)
+Defined in: [src/managers/CacheManager.ts:407](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/CacheManager.ts#L407)
 
 Helper method to add cache support to BaseManager
 Can be called from any manager to get a cache region
@@ -255,7 +255,7 @@ Can be called from any manager to get a cache region
 
 ##### engine
 
-`any`
+[`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
 WikiEngine instance
 
@@ -277,7 +277,7 @@ Cache instance scoped to the region
 
 > **getConfig**(): [`CacheConfig`](../interfaces/CacheConfig.md)
 
-Defined in: [src/managers/CacheManager.ts:348](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/CacheManager.ts#L348)
+Defined in: [src/managers/CacheManager.ts:354](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/CacheManager.ts#L354)
 
 Get cache configuration
 
@@ -293,7 +293,7 @@ Cache configuration
 
 > **getEngine**(): [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/managers/BaseManager.ts:126](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L126)
+Defined in: [src/managers/BaseManager.ts:125](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L125)
 
 Get the wiki engine instance
 
@@ -319,7 +319,7 @@ const config = this.getEngine().getConfig();
 
 > **getRegions**(): `string`[]
 
-Defined in: [src/managers/CacheManager.ts:361](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/CacheManager.ts#L361)
+Defined in: [src/managers/CacheManager.ts:367](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/CacheManager.ts#L367)
 
 Get all active regions
 
@@ -335,7 +335,7 @@ Array of region names
 
 > **initialize**(`config?`): `Promise`\<`void`\>
 
-Defined in: [src/managers/CacheManager.ts:114](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/CacheManager.ts#L114)
+Defined in: [src/managers/CacheManager.ts:114](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/CacheManager.ts#L114)
 
 Initialize the CacheManager and load the configured provider
 
@@ -367,7 +367,7 @@ If ConfigurationManager is not available
 
 > **isHealthy**(): `Promise`\<`boolean`\>
 
-Defined in: [src/managers/CacheManager.ts:340](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/CacheManager.ts#L340)
+Defined in: [src/managers/CacheManager.ts:343](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/CacheManager.ts#L343)
 
 Check if the cache is healthy
 
@@ -383,7 +383,7 @@ True if cache is healthy
 
 > **isInitialized**(): `boolean`
 
-Defined in: [src/managers/BaseManager.ts:114](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L114)
+Defined in: [src/managers/BaseManager.ts:113](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L113)
 
 Check if manager has been initialized
 
@@ -411,7 +411,7 @@ if (manager.isInitialized()) {
 
 > **keys**(`pattern?`): `Promise`\<`string`[]\>
 
-Defined in: [src/managers/CacheManager.ts:305](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/CacheManager.ts#L305)
+Defined in: [src/managers/CacheManager.ts:302](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/CacheManager.ts#L302)
 
 Get keys matching a pattern
 
@@ -435,7 +435,7 @@ Array of matching keys
 
 > **region**(`region`): [`default`](../../../cache/RegionCache/classes/default.md)
 
-Defined in: [src/managers/CacheManager.ts:247](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/CacheManager.ts#L247)
+Defined in: [src/managers/CacheManager.ts:232](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/CacheManager.ts#L232)
 
 Get a cache region for a specific namespace
 
@@ -459,7 +459,7 @@ Cache instance scoped to the region
 
 > **restore**(`backupData`): `Promise`\<`void`\>
 
-Defined in: [src/managers/BaseManager.ts:196](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L196)
+Defined in: [src/managers/BaseManager.ts:198](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L198)
 
 Restore manager data from backup
 
@@ -504,7 +504,7 @@ async restore(backupData: BackupData): Promise<void> {
 
 > **set**(`key`, `value`, `options?`): `Promise`\<`void`\>
 
-Defined in: [src/managers/CacheManager.ts:271](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/CacheManager.ts#L271)
+Defined in: [src/managers/CacheManager.ts:259](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/CacheManager.ts#L259)
 
 Set a value in the cache (global scope)
 
@@ -538,7 +538,7 @@ Cache options
 
 > **shutdown**(): `Promise`\<`void`\>
 
-Defined in: [src/managers/CacheManager.ts:379](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/CacheManager.ts#L379)
+Defined in: [src/managers/CacheManager.ts:387](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/CacheManager.ts#L387)
 
 Close and cleanup cache resources
 
@@ -556,7 +556,7 @@ Close and cleanup cache resources
 
 > **stats**(`region?`): `Promise`\<[`CacheStats`](../interfaces/CacheStats.md)\>
 
-Defined in: [src/managers/CacheManager.ts:314](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/CacheManager.ts#L314)
+Defined in: [src/managers/CacheManager.ts:314](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/CacheManager.ts#L314)
 
 Get cache statistics
 

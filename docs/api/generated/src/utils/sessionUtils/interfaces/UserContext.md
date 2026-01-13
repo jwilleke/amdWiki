@@ -6,7 +6,7 @@
 
 # Interface: UserContext
 
-Defined in: [src/utils/sessionUtils.ts:26](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/sessionUtils.ts#L26)
+Defined in: [src/utils/sessionUtils.ts:26](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/sessionUtils.ts#L26)
 
 User context returned by buildUserContext
 
@@ -16,7 +16,7 @@ User context returned by buildUserContext
 
 > **displayName**: `string`
 
-Defined in: [src/utils/sessionUtils.ts:31](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/sessionUtils.ts#L31)
+Defined in: [src/utils/sessionUtils.ts:31](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/sessionUtils.ts#L31)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [src/utils/sessionUtils.ts:31](https://github.com/jwilleke/amdWiki/b
 
 > **isAuthenticated**: `boolean`
 
-Defined in: [src/utils/sessionUtils.ts:27](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/sessionUtils.ts#L27)
+Defined in: [src/utils/sessionUtils.ts:27](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/sessionUtils.ts#L27)
 
 ***
 
@@ -32,15 +32,15 @@ Defined in: [src/utils/sessionUtils.ts:27](https://github.com/jwilleke/amdWiki/b
 
 > **roles**: `string`[]
 
-Defined in: [src/utils/sessionUtils.ts:28](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/sessionUtils.ts#L28)
+Defined in: [src/utils/sessionUtils.ts:28](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/sessionUtils.ts#L28)
 
 ***
 
 ### userId
 
-> **userId**: `string`
+> **userId**: `string` \| `null`
 
-Defined in: [src/utils/sessionUtils.ts:29](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/sessionUtils.ts#L29)
+Defined in: [src/utils/sessionUtils.ts:29](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/sessionUtils.ts#L29)
 
 ***
 
@@ -48,4 +48,4 @@ Defined in: [src/utils/sessionUtils.ts:29](https://github.com/jwilleke/amdWiki/b
 
 > **username**: `string`
 
-Defined in: [src/utils/sessionUtils.ts:30](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/sessionUtils.ts#L30)
+Defined in: [src/utils/sessionUtils.ts:30](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/sessionUtils.ts#L30)

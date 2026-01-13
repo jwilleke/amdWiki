@@ -6,7 +6,7 @@
 
 # Interface: ExtractionResult
 
-Defined in: [src/parsers/MarkupParser.ts:169](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L169)
+Defined in: [src/parsers/MarkupParser.ts:216](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L216)
 
 Result of extraction
 
@@ -16,7 +16,7 @@ Result of extraction
 
 > **jspwikiElements**: [`ExtractedElement`](ExtractedElement.md)[]
 
-Defined in: [src/parsers/MarkupParser.ts:173](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L173)
+Defined in: [src/parsers/MarkupParser.ts:220](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L220)
 
 Extracted JSPWiki elements
 
@@ -26,7 +26,7 @@ Extracted JSPWiki elements
 
 > **sanitized**: `string`
 
-Defined in: [src/parsers/MarkupParser.ts:171](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L171)
+Defined in: [src/parsers/MarkupParser.ts:218](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L218)
 
 Sanitized content with placeholders
 
@@ -36,6 +36,6 @@ Sanitized content with placeholders
 
 > **uuid**: `string`
 
-Defined in: [src/parsers/MarkupParser.ts:175](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L175)
+Defined in: [src/parsers/MarkupParser.ts:222](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L222)
 
 Unique UUID for this extraction

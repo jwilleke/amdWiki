@@ -6,7 +6,7 @@
 
 # Class: default
 
-Defined in: [src/routes/InstallRoutes.ts:81](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/routes/InstallRoutes.ts#L81)
+Defined in: [src/routes/InstallRoutes.ts:98](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/InstallRoutes.ts#L98)
 
 InstallRoutes - Handles first-run installation routes
 
@@ -24,7 +24,7 @@ Routes are only accessible when installation is required.
 
 > **new default**(`engine`): `InstallRoutes`
 
-Defined in: [src/routes/InstallRoutes.ts:92](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/routes/InstallRoutes.ts#L92)
+Defined in: [src/routes/InstallRoutes.ts:109](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/InstallRoutes.ts#L109)
 
 Creates a new InstallRoutes instance
 
@@ -46,7 +46,7 @@ The wiki engine instance
 
 > **getRouter**(): `Router`
 
-Defined in: [src/routes/InstallRoutes.ts:277](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/routes/InstallRoutes.ts#L277)
+Defined in: [src/routes/InstallRoutes.ts:297](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/routes/InstallRoutes.ts#L297)
 
 Get the router instance
 

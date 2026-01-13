@@ -6,7 +6,7 @@
 
 # Interface: LinkAttributes
 
-Defined in: [src/parsers/LinkParser.ts:114](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L114)
+Defined in: [src/parsers/LinkParser.ts:115](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L115)
 
 HTML attributes for links
 

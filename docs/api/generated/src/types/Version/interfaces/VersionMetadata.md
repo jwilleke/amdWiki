@@ -6,7 +6,7 @@
 
 # Interface: VersionMetadata
 
-Defined in: [src/types/Version.ts:16](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Version.ts#L16)
+Defined in: [src/types/Version.ts:16](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Version.ts#L16)
 
 Version metadata
 
@@ -19,7 +19,7 @@ source of truth for all version information.
 
 > **author**: `string`
 
-Defined in: [src/types/Version.ts:21](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Version.ts#L21)
+Defined in: [src/types/Version.ts:21](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Version.ts#L21)
 
 Author user ID or 'system'
 
@@ -29,7 +29,7 @@ Author user ID or 'system'
 
 > `optional` **baseVersion**: `number`
 
-Defined in: [src/types/Version.ts:45](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Version.ts#L45)
+Defined in: [src/types/Version.ts:45](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Version.ts#L45)
 
 If delta, the base version number
 
@@ -39,7 +39,7 @@ If delta, the base version number
 
 > **changeType**: `"create"` \| `"update"` \| `"minor"` \| `"major"`
 
-Defined in: [src/types/Version.ts:27](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Version.ts#L27)
+Defined in: [src/types/Version.ts:27](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Version.ts#L27)
 
 Change type
 
@@ -49,7 +49,7 @@ Change type
 
 > **compressed**: `boolean`
 
-Defined in: [src/types/Version.ts:39](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Version.ts#L39)
+Defined in: [src/types/Version.ts:39](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Version.ts#L39)
 
 Whether content is compressed (.gz)
 
@@ -59,7 +59,7 @@ Whether content is compressed (.gz)
 
 > `optional` **compressionRatio**: `number`
 
-Defined in: [src/types/Version.ts:48](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Version.ts#L48)
+Defined in: [src/types/Version.ts:48](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Version.ts#L48)
 
 Compression ratio (0-100) if compressed
 
@@ -69,7 +69,7 @@ Compression ratio (0-100) if compressed
 
 > **contentHash**: `string`
 
-Defined in: [src/types/Version.ts:33](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Version.ts#L33)
+Defined in: [src/types/Version.ts:33](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Version.ts#L33)
 
 SHA-256 hash of content for integrity verification
 
@@ -79,7 +79,7 @@ SHA-256 hash of content for integrity verification
 
 > **contentSize**: `number`
 
-Defined in: [src/types/Version.ts:36](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Version.ts#L36)
+Defined in: [src/types/Version.ts:36](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Version.ts#L36)
 
 Content size in bytes
 
@@ -89,7 +89,7 @@ Content size in bytes
 
 > **isDelta**: `boolean`
 
-Defined in: [src/types/Version.ts:42](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Version.ts#L42)
+Defined in: [src/types/Version.ts:42](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Version.ts#L42)
 
 Whether stored as diff (true) or full content (false)
 
@@ -99,7 +99,7 @@ Whether stored as diff (true) or full content (false)
 
 > `optional` **message**: `string`
 
-Defined in: [src/types/Version.ts:30](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Version.ts#L30)
+Defined in: [src/types/Version.ts:30](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Version.ts#L30)
 
 Change description/commit message
 
@@ -109,7 +109,7 @@ Change description/commit message
 
 > **timestamp**: `string`
 
-Defined in: [src/types/Version.ts:24](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Version.ts#L24)
+Defined in: [src/types/Version.ts:24](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Version.ts#L24)
 
 Timestamp (ISO 8601 format)
 
@@ -119,6 +119,6 @@ Timestamp (ISO 8601 format)
 
 > **version**: `number`
 
-Defined in: [src/types/Version.ts:18](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Version.ts#L18)
+Defined in: [src/types/Version.ts:18](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Version.ts#L18)
 
 Version number (1-based)

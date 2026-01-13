@@ -6,7 +6,7 @@
 
 # Interface: LinkParserOptions
 
-Defined in: [src/parsers/LinkParser.ts:86](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L86)
+Defined in: [src/parsers/LinkParser.ts:87](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L87)
 
 LinkParser configuration options
 
@@ -16,7 +16,7 @@ LinkParser configuration options
 
 > **allowedAttributes**: `string`[]
 
-Defined in: [src/parsers/LinkParser.ts:88](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L88)
+Defined in: [src/parsers/LinkParser.ts:89](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L89)
 
 Allowed HTML attributes for links
 
@@ -26,7 +26,7 @@ Allowed HTML attributes for links
 
 > **defaultClasses**: [`DefaultClasses`](DefaultClasses.md)
 
-Defined in: [src/parsers/LinkParser.ts:90](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L90)
+Defined in: [src/parsers/LinkParser.ts:91](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L91)
 
 Default CSS classes for link types
 
@@ -36,7 +36,7 @@ Default CSS classes for link types
 
 > **interWikiPattern**: `RegExp`
 
-Defined in: [src/parsers/LinkParser.ts:94](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L94)
+Defined in: [src/parsers/LinkParser.ts:95](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L95)
 
 InterWiki site pattern
 
@@ -46,7 +46,7 @@ InterWiki site pattern
 
 > **security**: [`SecurityOptions`](SecurityOptions.md)
 
-Defined in: [src/parsers/LinkParser.ts:96](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L96)
+Defined in: [src/parsers/LinkParser.ts:97](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L97)
 
 Security settings
 
@@ -56,6 +56,6 @@ Security settings
 
 > **urlPatterns**: [`UrlPatterns`](UrlPatterns.md)
 
-Defined in: [src/parsers/LinkParser.ts:92](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L92)
+Defined in: [src/parsers/LinkParser.ts:93](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L93)
 
 URL patterns for validation

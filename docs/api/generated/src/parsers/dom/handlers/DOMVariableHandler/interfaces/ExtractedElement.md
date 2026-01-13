@@ -6,7 +6,7 @@
 
 # Interface: ExtractedElement
 
-Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:76](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMVariableHandler.ts#L76)
+Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:77](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L77)
 
 Extracted element from JSPWiki syntax extraction
 
@@ -22,7 +22,7 @@ Additional properties
 
 > `optional` **endIndex**: `number`
 
-Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:88](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMVariableHandler.ts#L88)
+Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:89](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L89)
 
 End index in content
 
@@ -32,7 +32,7 @@ End index in content
 
 > **id**: `number`
 
-Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:82](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMVariableHandler.ts#L82)
+Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:83](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L83)
 
 Unique ID for tracking
 
@@ -42,7 +42,7 @@ Unique ID for tracking
 
 > `optional` **originalText**: `string`
 
-Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:84](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMVariableHandler.ts#L84)
+Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:85](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L85)
 
 Original text
 
@@ -52,7 +52,7 @@ Original text
 
 > `optional` **startIndex**: `number`
 
-Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:86](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMVariableHandler.ts#L86)
+Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:87](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L87)
 
 Start index in content
 
@@ -62,7 +62,7 @@ Start index in content
 
 > **type**: `string`
 
-Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:78](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMVariableHandler.ts#L78)
+Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:79](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L79)
 
 Element type
 
@@ -72,6 +72,6 @@ Element type
 
 > **varName**: `string`
 
-Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:80](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMVariableHandler.ts#L80)
+Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:81](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L81)
 
 Variable name (may include $ prefix)

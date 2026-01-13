@@ -6,7 +6,7 @@
 
 # Abstract Class: default
 
-Defined in: [src/parsers/filters/BaseFilter.ts:133](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L133)
+Defined in: [src/parsers/filters/BaseFilter.ts:135](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L135)
 
 BaseFilter - Abstract base class for all content filters
 
@@ -22,7 +22,7 @@ BaseFilter - Abstract base class for all content filters
 
 > **new default**(`priority`, `options`): `BaseFilter`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:151](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L151)
+Defined in: [src/parsers/filters/BaseFilter.ts:153](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L153)
 
 Create a content filter
 
@@ -50,15 +50,15 @@ Filter configuration options
 
 > `readonly` **category**: `string`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:138](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L138)
+Defined in: [src/parsers/filters/BaseFilter.ts:140](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L140)
 
 ***
 
 ### config
 
-> `protected` **config**: [`FilterConfig`](../interfaces/FilterConfig.md)
+> `protected` **config**: [`FilterConfig`](../interfaces/FilterConfig.md) \| `null`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:144](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L144)
+Defined in: [src/parsers/filters/BaseFilter.ts:146](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L146)
 
 ***
 
@@ -66,7 +66,7 @@ Defined in: [src/parsers/filters/BaseFilter.ts:144](https://github.com/jwilleke/
 
 > `readonly` **description**: `string`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:137](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L137)
+Defined in: [src/parsers/filters/BaseFilter.ts:139](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L139)
 
 ***
 
@@ -74,7 +74,7 @@ Defined in: [src/parsers/filters/BaseFilter.ts:137](https://github.com/jwilleke/
 
 > `protected` **enabled**: `boolean`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:142](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L142)
+Defined in: [src/parsers/filters/BaseFilter.ts:144](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L144)
 
 ***
 
@@ -82,7 +82,7 @@ Defined in: [src/parsers/filters/BaseFilter.ts:142](https://github.com/jwilleke/
 
 > `readonly` **filterId**: `string`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:135](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L135)
+Defined in: [src/parsers/filters/BaseFilter.ts:137](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L137)
 
 ***
 
@@ -90,7 +90,7 @@ Defined in: [src/parsers/filters/BaseFilter.ts:135](https://github.com/jwilleke/
 
 > `protected` **initialized**: `boolean`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:143](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L143)
+Defined in: [src/parsers/filters/BaseFilter.ts:145](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L145)
 
 ***
 
@@ -98,7 +98,7 @@ Defined in: [src/parsers/filters/BaseFilter.ts:143](https://github.com/jwilleke/
 
 > `protected` **options**: `Required`\<[`FilterOptions`](../interfaces/FilterOptions.md)\>
 
-Defined in: [src/parsers/filters/BaseFilter.ts:140](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L140)
+Defined in: [src/parsers/filters/BaseFilter.ts:142](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L142)
 
 ***
 
@@ -106,7 +106,7 @@ Defined in: [src/parsers/filters/BaseFilter.ts:140](https://github.com/jwilleke/
 
 > **priority**: `number`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:134](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L134)
+Defined in: [src/parsers/filters/BaseFilter.ts:136](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L136)
 
 ***
 
@@ -114,7 +114,7 @@ Defined in: [src/parsers/filters/BaseFilter.ts:134](https://github.com/jwilleke/
 
 > `protected` **stats**: [`FilterStats`](../interfaces/FilterStats.md)
 
-Defined in: [src/parsers/filters/BaseFilter.ts:141](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L141)
+Defined in: [src/parsers/filters/BaseFilter.ts:143](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L143)
 
 ***
 
@@ -122,7 +122,7 @@ Defined in: [src/parsers/filters/BaseFilter.ts:141](https://github.com/jwilleke/
 
 > `readonly` **version**: `string`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:136](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L136)
+Defined in: [src/parsers/filters/BaseFilter.ts:138](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L138)
 
 ## Methods
 
@@ -130,7 +130,7 @@ Defined in: [src/parsers/filters/BaseFilter.ts:136](https://github.com/jwilleke/
 
 > `protected` **createErrorContext**(`error`, `content`, `context`): [`FilterErrorContext`](../interfaces/FilterErrorContext.md)
 
-Defined in: [src/parsers/filters/BaseFilter.ts:341](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L341)
+Defined in: [src/parsers/filters/BaseFilter.ts:340](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L340)
 
 Create error context for debugging (modular error handling)
 
@@ -166,7 +166,7 @@ Error context
 
 > **disable**(): `void`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:367](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L367)
+Defined in: [src/parsers/filters/BaseFilter.ts:366](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L366)
 
 Disable the filter
 
@@ -180,7 +180,7 @@ Disable the filter
 
 > **enable**(): `void`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:360](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L360)
+Defined in: [src/parsers/filters/BaseFilter.ts:359](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L359)
 
 Enable the filter
 
@@ -194,7 +194,7 @@ Enable the filter
 
 > **execute**(`content`, `context`): `Promise`\<`string`\>
 
-Defined in: [src/parsers/filters/BaseFilter.ts:300](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L300)
+Defined in: [src/parsers/filters/BaseFilter.ts:300](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L300)
 
 Execute filter with performance tracking and error handling
 
@@ -224,7 +224,7 @@ Processed content
 
 > **getConfigurationSummary**(): [`ConfigurationSummary`](../interfaces/ConfigurationSummary.md)
 
-Defined in: [src/parsers/filters/BaseFilter.ts:435](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L435)
+Defined in: [src/parsers/filters/BaseFilter.ts:434](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L434)
 
 Get configuration summary for debugging (modular introspection)
 
@@ -238,15 +238,15 @@ Configuration summary
 
 ### getFilterType()
 
-> `protected` **getFilterType**(): `string`
+> `protected` **getFilterType**(): `string` \| `null`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:265](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L265)
+Defined in: [src/parsers/filters/BaseFilter.ts:265](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L265)
 
 Get filter type for configuration lookup (override in subclasses)
 
 #### Returns
 
-`string`
+`string` \| `null`
 
 Filter type for configuration
 
@@ -256,7 +256,7 @@ Filter type for configuration
 
 > **getMetadata**(): [`FilterMetadata`](../interfaces/FilterMetadata.md)
 
-Defined in: [src/parsers/filters/BaseFilter.ts:417](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L417)
+Defined in: [src/parsers/filters/BaseFilter.ts:416](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L416)
 
 Get filter metadata
 
@@ -272,7 +272,7 @@ Filter metadata
 
 > **getStats**(): [`FilterStats`](../interfaces/FilterStats.md) & `object`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:383](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L383)
+Defined in: [src/parsers/filters/BaseFilter.ts:382](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L382)
 
 Get filter statistics
 
@@ -288,7 +288,7 @@ Filter statistics
 
 > **initialize**(`context`): `Promise`\<`void`\>
 
-Defined in: [src/parsers/filters/BaseFilter.ts:199](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L199)
+Defined in: [src/parsers/filters/BaseFilter.ts:201](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L201)
 
 Initialize filter with modular configuration
 
@@ -310,7 +310,7 @@ Initialization context
 
 > **isEnabled**(): `boolean`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:375](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L375)
+Defined in: [src/parsers/filters/BaseFilter.ts:374](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L374)
 
 Check if filter is enabled
 
@@ -326,7 +326,7 @@ True if enabled
 
 > `protected` **loadModularConfiguration**(`context`): `void`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:217](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L217)
+Defined in: [src/parsers/filters/BaseFilter.ts:219](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L219)
 
 Load configuration from app-default-config.json and app-custom-config.json
 
@@ -348,7 +348,7 @@ Initialization context
 
 > `protected` **onInitialize**(`_context`): `Promise`\<`void`\>
 
-Defined in: [src/parsers/filters/BaseFilter.ts:282](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L282)
+Defined in: [src/parsers/filters/BaseFilter.ts:282](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L282)
 
 Custom initialization logic (override in subclasses)
 
@@ -370,7 +370,7 @@ Initialization context
 
 > `protected` **onShutdown**(): `Promise`\<`void`\>
 
-Defined in: [src/parsers/filters/BaseFilter.ts:457](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L457)
+Defined in: [src/parsers/filters/BaseFilter.ts:456](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L456)
 
 Custom shutdown logic (override in subclasses)
 
@@ -384,7 +384,7 @@ Custom shutdown logic (override in subclasses)
 
 > `abstract` **process**(`content`, `context`): `Promise`\<`string`\>
 
-Defined in: [src/parsers/filters/BaseFilter.ts:292](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L292)
+Defined in: [src/parsers/filters/BaseFilter.ts:292](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L292)
 
 Main filter processing method - MUST be implemented by subclasses
 
@@ -414,7 +414,7 @@ Filtered content
 
 > **resetStats**(): `void`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:403](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L403)
+Defined in: [src/parsers/filters/BaseFilter.ts:402](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L402)
 
 Reset filter statistics
 
@@ -428,7 +428,7 @@ Reset filter statistics
 
 > **shutdown**(): `Promise`\<`void`\>
 
-Defined in: [src/parsers/filters/BaseFilter.ts:449](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L449)
+Defined in: [src/parsers/filters/BaseFilter.ts:448](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L448)
 
 Clean up filter resources (optional override)
 
@@ -442,7 +442,7 @@ Clean up filter resources (optional override)
 
 > **toString**(): `string`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:465](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L465)
+Defined in: [src/parsers/filters/BaseFilter.ts:464](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L464)
 
 String representation of filter
 

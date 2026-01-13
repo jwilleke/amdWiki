@@ -8,7 +8,7 @@
 
 > **buildUserContext**(`req`): `Promise`\<[`UserContext`](../interfaces/UserContext.md)\>
 
-Defined in: [src/utils/sessionUtils.ts:51](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/sessionUtils.ts#L51)
+Defined in: [src/utils/sessionUtils.ts:51](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/sessionUtils.ts#L51)
 
 Builds userContext from Express session, using ConfigurationManager for amdwiki.authorizer
 and UserManager to gather user information.

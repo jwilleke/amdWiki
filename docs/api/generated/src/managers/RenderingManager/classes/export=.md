@@ -6,7 +6,7 @@
 
 # Class: export=
 
-Defined in: [src/managers/RenderingManager.ts:145](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/RenderingManager.ts#L145)
+Defined in: [src/managers/RenderingManager.ts:107](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/RenderingManager.ts#L107)
 
 RenderingManager - Handles markdown rendering and macro expansion
 
@@ -26,7 +26,7 @@ Key features:
 ## See
 
  - [BaseManager](../../BaseManager/classes/default.md) for base functionality
- - MarkupParser for advanced parsing
+ - [MarkupParser](../../../parsers/MarkupParser/classes/default.md) for advanced parsing
 
 ## Example
 
@@ -45,7 +45,7 @@ const html = await renderingManager.renderPage('# Hello World', { pageName: 'Mai
 
 > **new export=**(`engine`): `RenderingManager`
 
-Defined in: [src/managers/RenderingManager.ts:160](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/RenderingManager.ts#L160)
+Defined in: [src/managers/RenderingManager.ts:121](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/RenderingManager.ts#L121)
 
 Creates a new RenderingManager instance
 
@@ -69,9 +69,9 @@ The wiki engine instance
 
 ### config?
 
-> `protected` `optional` **config**: `Record`\<`string`, `any`\>
+> `protected` `optional` **config**: `Record`\<`string`, `unknown`\>
 
-Defined in: [src/managers/BaseManager.ts:63](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L63)
+Defined in: [src/managers/BaseManager.ts:61](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L61)
 
 Configuration passed during initialization
 
@@ -85,7 +85,7 @@ Configuration passed during initialization
 
 > `protected` **engine**: [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/managers/BaseManager.ts:56](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L56)
+Defined in: [src/managers/BaseManager.ts:54](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L54)
 
 Reference to the wiki engine
 
@@ -99,7 +99,7 @@ Reference to the wiki engine
 
 > `protected` **initialized**: `boolean`
 
-Defined in: [src/managers/BaseManager.ts:59](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L59)
+Defined in: [src/managers/BaseManager.ts:57](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L57)
 
 Initialization status flag
 
@@ -113,7 +113,7 @@ Initialization status flag
 
 > **backup**(): `Promise`\<[`BackupData`](../../BaseManager/interfaces/BackupData.md)\>
 
-Defined in: [src/managers/BaseManager.ts:168](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L168)
+Defined in: [src/managers/BaseManager.ts:169](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L169)
 
 Backup manager data
 
@@ -155,7 +155,7 @@ async backup(): Promise<BackupData> {
 
 > **buildLinkGraph**(): `Promise`\<`void`\>
 
-Defined in: [src/managers/RenderingManager.ts:1138](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/RenderingManager.ts#L1138)
+Defined in: [src/managers/RenderingManager.ts:1063](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/RenderingManager.ts#L1063)
 
 Build link graph for referring pages
 
@@ -169,7 +169,7 @@ Build link graph for referring pages
 
 > **convertJSPWikiTableToMarkdown**(`tableContent`, `params`): `string`
 
-Defined in: [src/managers/RenderingManager.ts:565](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/RenderingManager.ts#L565)
+Defined in: [src/managers/RenderingManager.ts:517](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/RenderingManager.ts#L517)
 
 Convert JSPWiki table syntax to markdown table syntax
 
@@ -197,9 +197,9 @@ Markdown table
 
 ### expandMacros()
 
-> **expandMacros**(`content`, `pageName`, `userContext`, `requestInfo`): `Promise`\<`string`\>
+> **expandMacros**(`content`, `pageName`, `userContext`, `_requestInfo`): `Promise`\<`string`\>
 
-Defined in: [src/managers/RenderingManager.ts:697](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/RenderingManager.ts#L697)
+Defined in: [src/managers/RenderingManager.ts:646](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/RenderingManager.ts#L646)
 
 Expand macros in content
 
@@ -219,13 +219,13 @@ Current page name
 
 ##### userContext
 
-`UserContext` = `null`
-
 User context for authentication variables
 
-##### requestInfo
+`UserContext` | `null`
 
-`RequestInfo` = `null`
+##### \_requestInfo
+
+`RequestInfo` | `null`
 
 #### Returns
 
@@ -239,7 +239,7 @@ Content with expanded macros
 
 > **expandSystemVariable**(`variable`, `pageName`, `userContext`): `string`
 
-Defined in: [src/managers/RenderingManager.ts:864](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/RenderingManager.ts#L864)
+Defined in: [src/managers/RenderingManager.ts:807](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/RenderingManager.ts#L807)
 
 Expand a single JSPWiki-style system variable
 
@@ -259,9 +259,9 @@ Current page name
 
 ##### userContext
 
-`UserContext` = `null`
-
 User context for authentication variables
+
+`UserContext` | `null`
 
 #### Returns
 
@@ -275,7 +275,7 @@ Expanded value
 
 > **expandSystemVariables**(`content`): `string`
 
-Defined in: [src/managers/RenderingManager.ts:964](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/RenderingManager.ts#L964)
+Defined in: [src/managers/RenderingManager.ts:893](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/RenderingManager.ts#L893)
 
 Expand JSPWiki-style system variables (legacy method for compatibility)
 
@@ -299,7 +299,7 @@ Content with expanded system variables
 
 > **formatUptime**(`seconds`): `string`
 
-Defined in: [src/managers/RenderingManager.ts:1010](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/RenderingManager.ts#L1010)
+Defined in: [src/managers/RenderingManager.ts:938](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/RenderingManager.ts#L938)
 
 Format uptime in human-readable format
 
@@ -323,7 +323,7 @@ Formatted uptime
 
 > **generateStyledTable**(`metadata`): `string`
 
-Defined in: [src/managers/RenderingManager.ts:642](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/RenderingManager.ts#L642)
+Defined in: [src/managers/RenderingManager.ts:591](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/RenderingManager.ts#L591)
 
 Generate styled table HTML with CSS
 
@@ -347,7 +347,7 @@ Styled table opening tag with CSS
 
 > **getApplicationVersion**(): `string`
 
-Defined in: [src/managers/RenderingManager.ts:935](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/RenderingManager.ts#L935)
+Defined in: [src/managers/RenderingManager.ts:871](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/RenderingManager.ts#L871)
 
 Get application version from package.json
 
@@ -363,7 +363,7 @@ Application version
 
 > **getBaseUrl**(): `string`
 
-Defined in: [src/managers/RenderingManager.ts:1028](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/RenderingManager.ts#L1028)
+Defined in: [src/managers/RenderingManager.ts:956](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/RenderingManager.ts#L956)
 
 Get the base URL for the application
 
@@ -379,7 +379,7 @@ Base URL
 
 > **getEngine**(): [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/managers/BaseManager.ts:126](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L126)
+Defined in: [src/managers/BaseManager.ts:125](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L125)
 
 Get the wiki engine instance
 
@@ -405,7 +405,7 @@ const config = this.getEngine().getConfig();
 
 > **getLinkGraph**(): `LinkGraph`
 
-Defined in: [src/managers/RenderingManager.ts:1265](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/RenderingManager.ts#L1265)
+Defined in: [src/managers/RenderingManager.ts:1190](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/RenderingManager.ts#L1190)
 
 Get link graph
 
@@ -421,7 +421,7 @@ Link graph object
 
 > **getLoginStatus**(`userContext`): `string`
 
-Defined in: [src/managers/RenderingManager.ts:1325](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/RenderingManager.ts#L1325)
+Defined in: [src/managers/RenderingManager.ts:1250](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/RenderingManager.ts#L1250)
 
 Get current login status from user context
 
@@ -429,9 +429,9 @@ Get current login status from user context
 
 ##### userContext
 
-`UserContext`
-
 User context object
+
+`UserContext` | `null`
 
 #### Returns
 
@@ -443,9 +443,9 @@ Login status description
 
 ### getParser()
 
-> **getParser**(): `any`
+> **getParser**(): [`default`](../../../parsers/MarkupParser/classes/default.md) \| `null`
 
-Defined in: [src/managers/RenderingManager.ts:241](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/RenderingManager.ts#L241)
+Defined in: [src/managers/RenderingManager.ts:200](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/RenderingManager.ts#L200)
 
 Get the MarkupParser instance (for WikiContext integration)
 
@@ -454,7 +454,7 @@ if using legacy Showdown rendering.
 
 #### Returns
 
-`any`
+[`default`](../../../parsers/MarkupParser/classes/default.md) \| `null`
 
 MarkupParser instance if available and enabled
 
@@ -473,7 +473,7 @@ if (parser) {
 
 > **getReferringPages**(`pageName`): `string`[]
 
-Defined in: [src/managers/RenderingManager.ts:1284](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/RenderingManager.ts#L1284)
+Defined in: [src/managers/RenderingManager.ts:1209](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/RenderingManager.ts#L1209)
 
 Get pages that refer to a specific page
 
@@ -501,7 +501,7 @@ SHOULD BE using plugins/referringPagesPlugin.js
 
 > **getTotalPagesCount**(): `number`
 
-Defined in: [src/managers/RenderingManager.ts:907](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/RenderingManager.ts#L907)
+Defined in: [src/managers/RenderingManager.ts:850](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/RenderingManager.ts#L850)
 
 Get total pages count
 Uses the provider's page cache for an accurate count.
@@ -519,7 +519,7 @@ Number of pages
 
 > **getUptime**(): `number`
 
-Defined in: [src/managers/RenderingManager.ts:925](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/RenderingManager.ts#L925)
+Defined in: [src/managers/RenderingManager.ts:862](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/RenderingManager.ts#L862)
 
 Get server uptime in seconds
 
@@ -535,7 +535,7 @@ Uptime in seconds
 
 > **getUserName**(`userContext`): `string`
 
-Defined in: [src/managers/RenderingManager.ts:1304](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/RenderingManager.ts#L1304)
+Defined in: [src/managers/RenderingManager.ts:1229](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/RenderingManager.ts#L1229)
 
 Get current username from user context
 
@@ -543,9 +543,9 @@ Get current username from user context
 
 ##### userContext
 
-`UserContext`
-
 User context object
+
+`UserContext` | `null`
 
 #### Returns
 
@@ -559,7 +559,7 @@ Username or "Anonymous"
 
 > **initialize**(`config?`): `Promise`\<`void`\>
 
-Defined in: [src/managers/RenderingManager.ts:182](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/RenderingManager.ts#L182)
+Defined in: [src/managers/RenderingManager.ts:143](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/RenderingManager.ts#L143)
 
 Initialize the RenderingManager
 
@@ -597,7 +597,7 @@ console.log('RenderingManager ready');
 
 > **initializeLinkParser**(): `void`
 
-Defined in: [src/managers/RenderingManager.ts:1232](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/RenderingManager.ts#L1232)
+Defined in: [src/managers/RenderingManager.ts:1157](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/RenderingManager.ts#L1157)
 
 Initialize LinkParser with page names and configuration
 
@@ -611,7 +611,7 @@ Initialize LinkParser with page names and configuration
 
 > **isInitialized**(): `boolean`
 
-Defined in: [src/managers/BaseManager.ts:114](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L114)
+Defined in: [src/managers/BaseManager.ts:113](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L113)
 
 Check if manager has been initialized
 
@@ -639,7 +639,7 @@ if (manager.isInitialized()) {
 
 > **parseTableParameters**(`paramString`): `TableParams`
 
-Defined in: [src/managers/RenderingManager.ts:533](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/RenderingManager.ts#L533)
+Defined in: [src/managers/RenderingManager.ts:485](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/RenderingManager.ts#L485)
 
 Parse table parameters from JSPWiki Table plugin syntax
 
@@ -663,7 +663,7 @@ Parsed parameters
 
 > **performPerformanceComparison**(`content`, `pageName`, `userContext`, `requestInfo`, `advancedTime`): `Promise`\<`void`\>
 
-Defined in: [src/managers/RenderingManager.ts:429](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/RenderingManager.ts#L429)
+Defined in: [src/managers/RenderingManager.ts:387](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/RenderingManager.ts#L387)
 
 Perform performance comparison between advanced and legacy parsers (modular benchmarking)
 
@@ -683,15 +683,15 @@ Page name
 
 ##### userContext
 
-`UserContext`
-
 User context
+
+`UserContext` | `null`
 
 ##### requestInfo
 
-`RequestInfo`
-
 Request information
+
+`RequestInfo` | `null`
 
 ##### advancedTime
 
@@ -709,7 +709,7 @@ Time taken by advanced parser
 
 > **postProcessTables**(`html`): `string`
 
-Defined in: [src/managers/RenderingManager.ts:622](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/RenderingManager.ts#L622)
+Defined in: [src/managers/RenderingManager.ts:571](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/RenderingManager.ts#L571)
 
 Post-process rendered HTML tables to apply JSPWiki styling
 
@@ -733,7 +733,7 @@ HTML with styled tables
 
 > **processJSPWikiTables**(`content`): `string`
 
-Defined in: [src/managers/RenderingManager.ts:469](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/RenderingManager.ts#L469)
+Defined in: [src/managers/RenderingManager.ts:421](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/RenderingManager.ts#L421)
 
 Process JSPWiki-style table syntax with styling parameters
 
@@ -757,7 +757,7 @@ Content with processed tables
 
 > **processTableStripedSyntax**(`content`): `string`
 
-Defined in: [src/managers/RenderingManager.ts:498](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/RenderingManager.ts#L498)
+Defined in: [src/managers/RenderingManager.ts:450](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/RenderingManager.ts#L450)
 
 Process %%table-striped syntax for theme-based alternating rows
 
@@ -781,7 +781,7 @@ Content with processed tables
 
 > **processWikiLinks**(`content`): `Promise`\<`string`\>
 
-Defined in: [src/managers/RenderingManager.ts:1041](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/RenderingManager.ts#L1041)
+Defined in: [src/managers/RenderingManager.ts:969](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/RenderingManager.ts#L969)
 
 Process wiki-style links [PageName]
 
@@ -805,7 +805,7 @@ Content with processed links
 
 > **rebuildLinkGraph**(): `Promise`\<`void`\>
 
-Defined in: [src/managers/RenderingManager.ts:1272](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/RenderingManager.ts#L1272)
+Defined in: [src/managers/RenderingManager.ts:1197](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/RenderingManager.ts#L1197)
 
 Rebuild link graph (called after page changes)
 
@@ -819,7 +819,7 @@ Rebuild link graph (called after page changes)
 
 > **renderMarkdown**(`content`, `pageName`, `userContext`, `requestInfo`): `Promise`\<`string`\>
 
-Defined in: [src/managers/RenderingManager.ts:307](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/RenderingManager.ts#L307)
+Defined in: [src/managers/RenderingManager.ts:261](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/RenderingManager.ts#L261)
 
 Render markdown content to HTML with MarkupParser integration
 
@@ -839,15 +839,15 @@ Current page name
 
 ##### userContext
 
-`UserContext` = `null`
-
 User context for authentication variables
+
+`UserContext` | `null`
 
 ##### requestInfo
 
-`RequestInfo` = `null`
-
 Request information
+
+`RequestInfo` | `null`
 
 #### Returns
 
@@ -861,7 +861,7 @@ Rendered HTML
 
 > **renderPlugins**(`content`, `pageName`): `Promise`\<`string`\>
 
-Defined in: [src/managers/RenderingManager.ts:1367](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/RenderingManager.ts#L1367)
+Defined in: [src/managers/RenderingManager.ts:1292](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/RenderingManager.ts#L1292)
 
 Render plugins (JSPWiki-style plugins)
 
@@ -891,7 +891,7 @@ Content with rendered plugins
 
 > **renderPreview**(`content`, `pageName`, `userContext`): `Promise`\<`string`\>
 
-Defined in: [src/managers/RenderingManager.ts:1295](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/RenderingManager.ts#L1295)
+Defined in: [src/managers/RenderingManager.ts:1220](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/RenderingManager.ts#L1220)
 
 Render page preview
 
@@ -911,9 +911,9 @@ Page name for context
 
 ##### userContext
 
-`UserContext` = `null`
-
 User context for authentication variables
+
+`UserContext` | `null`
 
 #### Returns
 
@@ -927,7 +927,7 @@ Rendered HTML preview
 
 > **renderWikiLinks**(`content`): `string`
 
-Defined in: [src/managers/RenderingManager.ts:1346](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/RenderingManager.ts#L1346)
+Defined in: [src/managers/RenderingManager.ts:1271](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/RenderingManager.ts#L1271)
 
 Render wiki links (JSPWiki-style links) using LinkParser
 
@@ -951,7 +951,7 @@ Content with rendered links
 
 > **renderWithAdvancedParser**(`content`, `pageName`, `userContext`, `requestInfo`): `Promise`\<`string`\>
 
-Defined in: [src/managers/RenderingManager.ts:346](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/RenderingManager.ts#L346)
+Defined in: [src/managers/RenderingManager.ts:299](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/RenderingManager.ts#L299)
 
 Render content using the advanced MarkupParser system
 
@@ -971,15 +971,15 @@ Page name
 
 ##### userContext
 
-`UserContext`
-
 User context
+
+`UserContext` | `null`
 
 ##### requestInfo
 
-`RequestInfo`
-
 Request information
+
+`RequestInfo` | `null`
 
 #### Returns
 
@@ -993,7 +993,7 @@ Rendered HTML
 
 > **renderWithLegacyParser**(`content`, `pageName`, `userContext`, `requestInfo`): `Promise`\<`string`\>
 
-Defined in: [src/managers/RenderingManager.ts:396](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/RenderingManager.ts#L396)
+Defined in: [src/managers/RenderingManager.ts:351](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/RenderingManager.ts#L351)
 
 Render content using the legacy rendering system (backward compatibility)
 
@@ -1013,15 +1013,15 @@ Page name
 
 ##### userContext
 
-`UserContext`
-
 User context
+
+`UserContext` | `null`
 
 ##### requestInfo
 
-`RequestInfo`
-
 Request information
+
+`RequestInfo` | `null`
 
 #### Returns
 
@@ -1035,7 +1035,7 @@ Rendered HTML
 
 > **restore**(`backupData`): `Promise`\<`void`\>
 
-Defined in: [src/managers/BaseManager.ts:196](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L196)
+Defined in: [src/managers/BaseManager.ts:198](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L198)
 
 Restore manager data from backup
 
@@ -1080,7 +1080,7 @@ async restore(backupData: BackupData): Promise<void> {
 
 > **shutdown**(): `Promise`\<`void`\>
 
-Defined in: [src/managers/BaseManager.ts:143](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L143)
+Defined in: [src/managers/BaseManager.ts:143](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L143)
 
 Shutdown the manager and cleanup resources
 
@@ -1111,7 +1111,7 @@ async shutdown(): Promise<void> {
 
 > **textToHTML**(`context`, `content`): `Promise`\<`string`\>
 
-Defined in: [src/managers/RenderingManager.ts:1432](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/RenderingManager.ts#L1432)
+Defined in: [src/managers/RenderingManager.ts:1353](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/RenderingManager.ts#L1353)
 
 Converts wiki markup to HTML using the provided WikiContext.
 This is the main entry point for the rendering pipeline.
@@ -1120,7 +1120,7 @@ This is the main entry point for the rendering pipeline.
 
 ##### context
 
-`any`
+[`default`](../../../context/WikiContext/classes/default.md)
 
 The context for the rendering operation.
 

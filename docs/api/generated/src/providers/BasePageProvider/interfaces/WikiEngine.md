@@ -6,7 +6,7 @@
 
 # Interface: WikiEngine
 
-Defined in: [src/providers/BasePageProvider.ts:9](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BasePageProvider.ts#L9)
+Defined in: [src/providers/BasePageProvider.ts:9](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BasePageProvider.ts#L9)
 
 WikiEngine interface (simplified)
 TODO: Create full WikiEngine type definition in Phase 4
@@ -15,9 +15,9 @@ TODO: Create full WikiEngine type definition in Phase 4
 
 ### getManager()
 
-> **getManager**\<`T`\>(`name`): `T`
+> **getManager**\<`T`\>(`name`): `T` \| `undefined`
 
-Defined in: [src/providers/BasePageProvider.ts:10](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BasePageProvider.ts#L10)
+Defined in: [src/providers/BasePageProvider.ts:10](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BasePageProvider.ts#L10)
 
 #### Type Parameters
 
@@ -33,4 +33,4 @@ Defined in: [src/providers/BasePageProvider.ts:10](https://github.com/jwilleke/a
 
 #### Returns
 
-`T`
+`T` \| `undefined`

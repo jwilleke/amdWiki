@@ -6,7 +6,7 @@
 
 # Interface: AlertThresholds
 
-Defined in: [src/parsers/filters/FilterChain.ts:71](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/FilterChain.ts#L71)
+Defined in: [src/parsers/filters/FilterChain.ts:72](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L72)
 
 Alert thresholds
 
@@ -16,7 +16,7 @@ Alert thresholds
 
 > **errorRate**: `number`
 
-Defined in: [src/parsers/filters/FilterChain.ts:73](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/FilterChain.ts#L73)
+Defined in: [src/parsers/filters/FilterChain.ts:74](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L74)
 
 ***
 
@@ -24,4 +24,4 @@ Defined in: [src/parsers/filters/FilterChain.ts:73](https://github.com/jwilleke/
 
 > **executionTime**: `number`
 
-Defined in: [src/parsers/filters/FilterChain.ts:72](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/FilterChain.ts#L72)
+Defined in: [src/parsers/filters/FilterChain.ts:73](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L73)

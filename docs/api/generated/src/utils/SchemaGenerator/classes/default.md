@@ -6,7 +6,7 @@
 
 # Class: default
 
-Defined in: [src/utils/SchemaGenerator.ts:130](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/SchemaGenerator.ts#L130)
+Defined in: [src/utils/SchemaGenerator.ts:130](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L130)
 
 SchemaGenerator - Generates Schema.org JSON-LD markup from page metadata
 Provides SEO and semantic web benefits for amdWiki platform
@@ -27,7 +27,7 @@ Provides SEO and semantic web benefits for amdWiki platform
 
 > `static` **determineSchemaType**(`pageData`): `string`
 
-Defined in: [src/utils/SchemaGenerator.ts:212](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/SchemaGenerator.ts#L212)
+Defined in: [src/utils/SchemaGenerator.ts:212](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L212)
 
 Determine appropriate Schema.org type based on page metadata
 
@@ -49,9 +49,9 @@ Schema.org type
 
 ### enhanceCreativeWork()
 
-> `static` **enhanceCreativeWork**(`schema`, `pageData`, `options`): `BaseSchema`
+> `static` **enhanceCreativeWork**(`schema`, `pageData`, `_options`): `BaseSchema`
 
-Defined in: [src/utils/SchemaGenerator.ts:286](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/SchemaGenerator.ts#L286)
+Defined in: [src/utils/SchemaGenerator.ts:286](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L286)
 
 Enhance CreativeWork schema for project pages
 
@@ -65,7 +65,7 @@ Enhance CreativeWork schema for project pages
 
 `PageData`
 
-##### options
+##### \_options
 
 `SchemaOptions`
 
@@ -79,7 +79,7 @@ Enhance CreativeWork schema for project pages
 
 > `static` **enhanceSchemaByType**(`baseSchema`, `pageData`, `options`): `BaseSchema`
 
-Defined in: [src/utils/SchemaGenerator.ts:251](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/SchemaGenerator.ts#L251)
+Defined in: [src/utils/SchemaGenerator.ts:251](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L251)
 
 Enhance schema based on determined type
 
@@ -113,9 +113,9 @@ Enhanced schema object
 
 ### enhanceTechArticle()
 
-> `static` **enhanceTechArticle**(`schema`, `pageData`, `options`): `BaseSchema`
+> `static` **enhanceTechArticle**(`schema`, `pageData`, `_options`): `BaseSchema`
 
-Defined in: [src/utils/SchemaGenerator.ts:270](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/SchemaGenerator.ts#L270)
+Defined in: [src/utils/SchemaGenerator.ts:270](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L270)
 
 Enhance TechArticle schema for documentation
 
@@ -129,7 +129,7 @@ Enhance TechArticle schema for documentation
 
 `PageData`
 
-##### options
+##### \_options
 
 `SchemaOptions`
 
@@ -143,7 +143,7 @@ Enhance TechArticle schema for documentation
 
 > `static` **enhanceWebPage**(`schema`, `pageData`, `options`): `BaseSchema`
 
-Defined in: [src/utils/SchemaGenerator.ts:302](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/SchemaGenerator.ts#L302)
+Defined in: [src/utils/SchemaGenerator.ts:302](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L302)
 
 Enhance WebPage schema for wiki pages
 
@@ -169,9 +169,9 @@ Enhance WebPage schema for wiki pages
 
 ### generateACLBasedPermissions()
 
-> `static` **generateACLBasedPermissions**(`pageACL`, `userManager`, `options`): `any`[]
+> `static` **generateACLBasedPermissions**(`pageACL`, `userManager`, `_options`): `unknown`[]
 
-Defined in: [src/utils/SchemaGenerator.ts:708](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/SchemaGenerator.ts#L708)
+Defined in: [src/utils/SchemaGenerator.ts:708](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L708)
 
 Generate permissions based on parsed page ACL
 
@@ -189,15 +189,13 @@ Parsed ACL object
 
 UserManager instance
 
-##### options
+##### \_options
 
 `SchemaOptions`
 
-Generation options
-
 #### Returns
 
-`any`[]
+`unknown`[]
 
 Array of DigitalDocumentPermission objects
 
@@ -205,9 +203,9 @@ Array of DigitalDocumentPermission objects
 
 ### generateComprehensiveSchema()
 
-> `static` **generateComprehensiveSchema**(`siteData`, `options`): `any`[]
+> `static` **generateComprehensiveSchema**(`siteData`, `options`): (`Record`\<`string`, `unknown`\> \| `BaseSchema`)[]
 
-Defined in: [src/utils/SchemaGenerator.ts:785](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/SchemaGenerator.ts#L785)
+Defined in: [src/utils/SchemaGenerator.ts:785](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L785)
 
 Generate comprehensive site schema using Schema.org compliant data
 
@@ -227,7 +225,7 @@ Generation options
 
 #### Returns
 
-`any`[]
+(`Record`\<`string`, `unknown`\> \| `BaseSchema`)[]
 
 Array of schema objects
 
@@ -235,35 +233,29 @@ Array of schema objects
 
 ### generateDeveloperPermissions()
 
-> `static` **generateDeveloperPermissions**(`pageData`, `userManager`, `options`): `any`[]
+> `static` **generateDeveloperPermissions**(`_pageData`, `_userManager`, `_options`): `unknown`[]
 
-Defined in: [src/utils/SchemaGenerator.ts:668](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/SchemaGenerator.ts#L668)
+Defined in: [src/utils/SchemaGenerator.ts:668](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L668)
 
 Generate permissions for Developer category pages
 
 #### Parameters
 
-##### pageData
+##### \_pageData
 
 `PageData`
 
-Page metadata
-
-##### userManager
+##### \_userManager
 
 `unknown`
 
-UserManager instance
-
-##### options
+##### \_options
 
 `SchemaOptions`
 
-Generation options
-
 #### Returns
 
-`any`[]
+`unknown`[]
 
 Array of DigitalDocumentPermission objects
 
@@ -271,9 +263,9 @@ Array of DigitalDocumentPermission objects
 
 ### generateDigitalDocumentPermissions()
 
-> `static` **generateDigitalDocumentPermissions**(`pageData`, `user`, `options`): `any`
+> `static` **generateDigitalDocumentPermissions**(`pageData`, `_user`, `options`): `unknown`[]
 
-Defined in: [src/utils/SchemaGenerator.ts:468](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/SchemaGenerator.ts#L468)
+Defined in: [src/utils/SchemaGenerator.ts:468](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L468)
 
 Generate DigitalDocumentPermission objects for a page
 
@@ -285,11 +277,9 @@ Generate DigitalDocumentPermission objects for a page
 
 Page metadata and content
 
-##### user
+##### \_user
 
 `unknown`
-
-Current user context (null for anonymous)
 
 ##### options
 
@@ -299,7 +289,7 @@ Generation options (must include engine)
 
 #### Returns
 
-`any`
+`unknown`[]
 
 Array of DigitalDocumentPermission objects
 
@@ -307,35 +297,29 @@ Array of DigitalDocumentPermission objects
 
 ### generateDocumentationPermissions()
 
-> `static` **generateDocumentationPermissions**(`pageData`, `userManager`, `options`): `any`[]
+> `static` **generateDocumentationPermissions**(`_pageData`, `_userManager`, `_options`): `unknown`[]
 
-Defined in: [src/utils/SchemaGenerator.ts:628](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/SchemaGenerator.ts#L628)
+Defined in: [src/utils/SchemaGenerator.ts:628](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L628)
 
 Generate permissions for Documentation category pages
 
 #### Parameters
 
-##### pageData
+##### \_pageData
 
 `PageData`
 
-Page metadata
-
-##### userManager
+##### \_userManager
 
 `unknown`
 
-UserManager instance
-
-##### options
+##### \_options
 
 `SchemaOptions`
 
-Generation options
-
 #### Returns
 
-`any`[]
+`unknown`[]
 
 Array of DigitalDocumentPermission objects
 
@@ -343,35 +327,29 @@ Array of DigitalDocumentPermission objects
 
 ### generateGeneralPagePermissions()
 
-> `static` **generateGeneralPagePermissions**(`pageData`, `userManager`, `options`): `any`[]
+> `static` **generateGeneralPagePermissions**(`_pageData`, `_userManager`, `_options`): `unknown`[]
 
-Defined in: [src/utils/SchemaGenerator.ts:528](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/SchemaGenerator.ts#L528)
+Defined in: [src/utils/SchemaGenerator.ts:528](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L528)
 
 Generate permissions for General category pages (user content)
 
 #### Parameters
 
-##### pageData
+##### \_pageData
 
 `PageData`
 
-Page metadata
-
-##### userManager
+##### \_userManager
 
 `unknown`
 
-UserManager instance
-
-##### options
+##### \_options
 
 `SchemaOptions`
 
-Generation options
-
 #### Returns
 
-`any`[]
+`unknown`[]
 
 Array of DigitalDocumentPermission objects
 
@@ -379,9 +357,9 @@ Array of DigitalDocumentPermission objects
 
 ### generateOrganizationSchema()
 
-> `static` **generateOrganizationSchema**(`organizationData`, `options`): `object`
+> `static` **generateOrganizationSchema**(`organizationData`, `options`): `Record`\<`string`, `unknown`\>
 
-Defined in: [src/utils/SchemaGenerator.ts:395](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/SchemaGenerator.ts#L395)
+Defined in: [src/utils/SchemaGenerator.ts:395](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L395)
 
 Generate Organization schema from Schema.org compliant organization data
 
@@ -401,13 +379,9 @@ Generation options
 
 #### Returns
 
-`object`
+`Record`\<`string`, `unknown`\>
 
 Organization schema object
-
-##### url?
-
-> `optional` **url**: `string`
 
 ***
 
@@ -415,7 +389,7 @@ Organization schema object
 
 > `static` **generatePageSchema**(`pageData`, `options`): `BaseSchema`
 
-Defined in: [src/utils/SchemaGenerator.ts:137](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/SchemaGenerator.ts#L137)
+Defined in: [src/utils/SchemaGenerator.ts:137](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L137)
 
 Generate Schema.org markup for a wiki page
 
@@ -443,9 +417,9 @@ JSON-LD schema object
 
 ### generatePermissionsByContext()
 
-> `static` **generatePermissionsByContext**(`pageData`, `pageACL`, `userManager`, `aclManager`, `options`): `any`
+> `static` **generatePermissionsByContext**(`pageData`, `pageACL`, `userManager`, `_aclManager`, `options`): `unknown`[]
 
-Defined in: [src/utils/SchemaGenerator.ts:501](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/SchemaGenerator.ts#L501)
+Defined in: [src/utils/SchemaGenerator.ts:501](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L501)
 
 Generate permissions based on page category and protection level
 
@@ -459,9 +433,9 @@ Page metadata
 
 ##### pageACL
 
-`ParsedACL`
-
 Parsed ACL from page content
+
+`ParsedACL` | `null`
 
 ##### userManager
 
@@ -469,11 +443,9 @@ Parsed ACL from page content
 
 UserManager instance
 
-##### aclManager
+##### \_aclManager
 
 `unknown`
-
-ACLManager instance
 
 ##### options
 
@@ -483,7 +455,7 @@ Generation options
 
 #### Returns
 
-`any`
+`unknown`[]
 
 Array of DigitalDocumentPermission objects
 
@@ -491,9 +463,9 @@ Array of DigitalDocumentPermission objects
 
 ### generatePersonSchema()
 
-> `static` **generatePersonSchema**(`personData`, `options`): `object`
+> `static` **generatePersonSchema**(`personData`, `options`): `Record`\<`string`, `unknown`\>
 
-Defined in: [src/utils/SchemaGenerator.ts:377](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/SchemaGenerator.ts#L377)
+Defined in: [src/utils/SchemaGenerator.ts:377](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L377)
 
 Generate Person schema from Schema.org compliant person data
 
@@ -513,13 +485,9 @@ Generation options
 
 #### Returns
 
-`object`
+`Record`\<`string`, `unknown`\>
 
 Person schema object
-
-##### identifier?
-
-> `optional` **identifier**: `string`
 
 ***
 
@@ -527,7 +495,7 @@ Person schema object
 
 > `static` **generateScriptTag**(`schema`): `string`
 
-Defined in: [src/utils/SchemaGenerator.ts:357](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/SchemaGenerator.ts#L357)
+Defined in: [src/utils/SchemaGenerator.ts:357](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L357)
 
 Generate JSON-LD script tag for HTML injection
 
@@ -535,9 +503,9 @@ Generate JSON-LD script tag for HTML injection
 
 ##### schema
 
-`BaseSchema`
-
 Schema.org object
+
+`Record`\<`string`, `unknown`\> | `BaseSchema`
 
 #### Returns
 
@@ -551,7 +519,7 @@ HTML script tag
 
 > `static` **generateSiteSchema**(`pages`, `options`): `BaseSchema`[]
 
-Defined in: [src/utils/SchemaGenerator.ts:367](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/SchemaGenerator.ts#L367)
+Defined in: [src/utils/SchemaGenerator.ts:367](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L367)
 
 Generate schema for multiple pages (site-wide)
 
@@ -581,7 +549,7 @@ Array of schema objects
 
 > `static` **generateSoftwareSchema**(`configData`, `options`): `BaseSchema`
 
-Defined in: [src/utils/SchemaGenerator.ts:413](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/SchemaGenerator.ts#L413)
+Defined in: [src/utils/SchemaGenerator.ts:413](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L413)
 
 Generate SoftwareApplication schema from wiki configuration
 
@@ -609,35 +577,29 @@ SoftwareApplication schema object
 
 ### generateSystemPagePermissions()
 
-> `static` **generateSystemPagePermissions**(`pageData`, `userManager`, `options`): `any`[]
+> `static` **generateSystemPagePermissions**(`_pageData`, `_userManager`, `_options`): `unknown`[]
 
-Defined in: [src/utils/SchemaGenerator.ts:596](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/SchemaGenerator.ts#L596)
+Defined in: [src/utils/SchemaGenerator.ts:596](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L596)
 
 Generate permissions for System category pages (app-managed)
 
 #### Parameters
 
-##### pageData
+##### \_pageData
 
 `PageData`
 
-Page metadata
-
-##### userManager
+##### \_userManager
 
 `unknown`
 
-UserManager instance
-
-##### options
+##### \_options
 
 `SchemaOptions`
 
-Generation options
-
 #### Returns
 
-`any`[]
+`unknown`[]
 
 Array of DigitalDocumentPermission objects
 
@@ -645,9 +607,9 @@ Array of DigitalDocumentPermission objects
 
 ### mapPrincipalToGrantee()
 
-> `static` **mapPrincipalToGrantee**(`principal`, `userManager`): `any`
+> `static` **mapPrincipalToGrantee**(`principal`, `userManager`): \{ `@type`: `string`; `audienceType?`: `string`; `name?`: `string`; \} \| `null`
 
-Defined in: [src/utils/SchemaGenerator.ts:748](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/SchemaGenerator.ts#L748)
+Defined in: [src/utils/SchemaGenerator.ts:748](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/SchemaGenerator.ts#L748)
 
 Map ACL principal to Schema.org grantee object
 
@@ -667,6 +629,6 @@ UserManager instance
 
 #### Returns
 
-`any`
+\{ `@type`: `string`; `audienceType?`: `string`; `name?`: `string`; \} \| `null`
 
 Schema.org Person or Audience object

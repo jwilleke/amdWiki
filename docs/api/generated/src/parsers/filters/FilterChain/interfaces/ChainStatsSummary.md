@@ -6,7 +6,7 @@
 
 # Interface: ChainStatsSummary
 
-Defined in: [src/parsers/filters/FilterChain.ts:117](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/FilterChain.ts#L117)
+Defined in: [src/parsers/filters/FilterChain.ts:118](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L118)
 
 Chain statistics summary
 
@@ -16,7 +16,7 @@ Chain statistics summary
 
 > **averageTime**: `number`
 
-Defined in: [src/parsers/filters/FilterChain.ts:120](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/FilterChain.ts#L120)
+Defined in: [src/parsers/filters/FilterChain.ts:121](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L121)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [src/parsers/filters/FilterChain.ts:120](https://github.com/jwilleke
 
 > **enabledFilterCount**: `number`
 
-Defined in: [src/parsers/filters/FilterChain.ts:124](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/FilterChain.ts#L124)
+Defined in: [src/parsers/filters/FilterChain.ts:125](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L125)
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: [src/parsers/filters/FilterChain.ts:124](https://github.com/jwilleke
 
 > **errorCount**: `number`
 
-Defined in: [src/parsers/filters/FilterChain.ts:121](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/FilterChain.ts#L121)
+Defined in: [src/parsers/filters/FilterChain.ts:122](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L122)
 
 ***
 
@@ -40,7 +40,7 @@ Defined in: [src/parsers/filters/FilterChain.ts:121](https://github.com/jwilleke
 
 > **executionCount**: `number`
 
-Defined in: [src/parsers/filters/FilterChain.ts:118](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/FilterChain.ts#L118)
+Defined in: [src/parsers/filters/FilterChain.ts:119](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L119)
 
 ***
 
@@ -48,15 +48,15 @@ Defined in: [src/parsers/filters/FilterChain.ts:118](https://github.com/jwilleke
 
 > **filterCount**: `number`
 
-Defined in: [src/parsers/filters/FilterChain.ts:123](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/FilterChain.ts#L123)
+Defined in: [src/parsers/filters/FilterChain.ts:124](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L124)
 
 ***
 
 ### lastExecution
 
-> **lastExecution**: `Date`
+> **lastExecution**: `Date` \| `null`
 
-Defined in: [src/parsers/filters/FilterChain.ts:122](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/FilterChain.ts#L122)
+Defined in: [src/parsers/filters/FilterChain.ts:123](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L123)
 
 ***
 
@@ -64,4 +64,4 @@ Defined in: [src/parsers/filters/FilterChain.ts:122](https://github.com/jwilleke
 
 > **totalTime**: `number`
 
-Defined in: [src/parsers/filters/FilterChain.ts:119](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/FilterChain.ts#L119)
+Defined in: [src/parsers/filters/FilterChain.ts:120](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L120)

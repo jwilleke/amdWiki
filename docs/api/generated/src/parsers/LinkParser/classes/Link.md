@@ -6,7 +6,7 @@
 
 # Class: Link
 
-Defined in: [src/parsers/LinkParser.ts:721](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L721)
+Defined in: [src/parsers/LinkParser.ts:720](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L720)
 
 Link class representing a parsed link
 
@@ -16,7 +16,7 @@ Link class representing a parsed link
 
 > **new Link**(`data`): `Link`
 
-Defined in: [src/parsers/LinkParser.ts:747](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L747)
+Defined in: [src/parsers/LinkParser.ts:746](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L746)
 
 Create a new Link instance
 
@@ -38,7 +38,7 @@ Link data
 
 > **attributes**: [`LinkAttributes`](../interfaces/LinkAttributes.md)
 
-Defined in: [src/parsers/LinkParser.ts:735](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L735)
+Defined in: [src/parsers/LinkParser.ts:734](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L734)
 
 Parsed attributes object
 
@@ -46,9 +46,9 @@ Parsed attributes object
 
 ### attributesString
 
-> **attributesString**: `string`
+> **attributesString**: `string` \| `null`
 
-Defined in: [src/parsers/LinkParser.ts:732](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L732)
+Defined in: [src/parsers/LinkParser.ts:731](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L731)
 
 Raw attributes string
 
@@ -58,7 +58,7 @@ Raw attributes string
 
 > **endIndex**: `number`
 
-Defined in: [src/parsers/LinkParser.ts:741](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L741)
+Defined in: [src/parsers/LinkParser.ts:740](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L740)
 
 End index in content
 
@@ -68,7 +68,7 @@ End index in content
 
 > **originalText**: `string`
 
-Defined in: [src/parsers/LinkParser.ts:723](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L723)
+Defined in: [src/parsers/LinkParser.ts:722](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L722)
 
 Original text from content
 
@@ -78,7 +78,7 @@ Original text from content
 
 > **startIndex**: `number`
 
-Defined in: [src/parsers/LinkParser.ts:738](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L738)
+Defined in: [src/parsers/LinkParser.ts:737](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L737)
 
 Start index in content
 
@@ -86,9 +86,9 @@ Start index in content
 
 ### target
 
-> **target**: `string`
+> **target**: `string` \| `null`
 
-Defined in: [src/parsers/LinkParser.ts:729](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L729)
+Defined in: [src/parsers/LinkParser.ts:728](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L728)
 
 Target page or URL
 
@@ -98,7 +98,7 @@ Target page or URL
 
 > **text**: `string`
 
-Defined in: [src/parsers/LinkParser.ts:726](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L726)
+Defined in: [src/parsers/LinkParser.ts:725](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L725)
 
 Display text for the link
 
@@ -106,9 +106,9 @@ Display text for the link
 
 ### getAttribute()
 
-> **getAttribute**(`name`): `string`
+> **getAttribute**(`name`): `string` \| `undefined`
 
-Defined in: [src/parsers/LinkParser.ts:786](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L786)
+Defined in: [src/parsers/LinkParser.ts:785](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L785)
 
 Get attribute value by name
 
@@ -122,7 +122,7 @@ Attribute name
 
 #### Returns
 
-`string`
+`string` \| `undefined`
 
 Attribute value
 
@@ -132,7 +132,7 @@ Attribute value
 
 > **getEffectiveTarget**(): `string`
 
-Defined in: [src/parsers/LinkParser.ts:769](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L769)
+Defined in: [src/parsers/LinkParser.ts:768](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L768)
 
 Get the effective target (target or text if no target)
 
@@ -148,7 +148,7 @@ Effective target
 
 > **hasAttributes**(): `boolean`
 
-Defined in: [src/parsers/LinkParser.ts:777](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L777)
+Defined in: [src/parsers/LinkParser.ts:776](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L776)
 
 Check if link has attributes
 
@@ -164,7 +164,7 @@ True if has attributes
 
 > **isSimple**(): `boolean`
 
-Defined in: [src/parsers/LinkParser.ts:761](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L761)
+Defined in: [src/parsers/LinkParser.ts:760](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L760)
 
 Check if this is a simple link (no target specified)
 
@@ -180,7 +180,7 @@ True if simple link
 
 > **setAttribute**(`name`, `value`): `void`
 
-Defined in: [src/parsers/LinkParser.ts:795](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L795)
+Defined in: [src/parsers/LinkParser.ts:794](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L794)
 
 Set attribute value
 
@@ -208,7 +208,7 @@ Attribute value
 
 > **toObject**(): [`LinkInfo`](../interfaces/LinkInfo.md)
 
-Defined in: [src/parsers/LinkParser.ts:805](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L805)
+Defined in: [src/parsers/LinkParser.ts:804](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L804)
 
 Get link information as object
 

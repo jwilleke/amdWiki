@@ -6,7 +6,7 @@
 
 # Interface: ValidationRule
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:62](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L62)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:64](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L64)
 
 Parameter validation rule
 
@@ -16,7 +16,7 @@ Parameter validation rule
 
 > `optional` **default**: `unknown`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:65](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L65)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:67](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L67)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:65](https://github.com/jw
 
 > `optional` **max**: `number`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:67](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L67)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:69](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L69)
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:67](https://github.com/jw
 
 > `optional` **min**: `number`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:66](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L66)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:68](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L68)
 
 ***
 
@@ -40,7 +40,7 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:66](https://github.com/jw
 
 > `optional` **pattern**: `string`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:68](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L68)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:70](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L70)
 
 ***
 
@@ -48,7 +48,7 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:68](https://github.com/jw
 
 > `optional` **required**: `boolean`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:64](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L64)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:66](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L66)
 
 ***
 
@@ -56,4 +56,4 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:64](https://github.com/jw
 
 > `optional` **type**: `"string"` \| `"number"` \| `"boolean"` \| `"object"`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:63](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L63)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:65](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L65)

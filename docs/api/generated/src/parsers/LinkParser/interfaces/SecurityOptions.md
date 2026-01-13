@@ -6,7 +6,7 @@
 
 # Interface: SecurityOptions
 
-Defined in: [src/parsers/LinkParser.ts:74](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L74)
+Defined in: [src/parsers/LinkParser.ts:75](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L75)
 
 Security configuration options
 
@@ -16,7 +16,7 @@ Security configuration options
 
 > **preventXSS**: `boolean`
 
-Defined in: [src/parsers/LinkParser.ts:80](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L80)
+Defined in: [src/parsers/LinkParser.ts:81](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L81)
 
 Prevent XSS attacks
 
@@ -26,7 +26,7 @@ Prevent XSS attacks
 
 > **sanitizeAttributes**: `boolean`
 
-Defined in: [src/parsers/LinkParser.ts:78](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L78)
+Defined in: [src/parsers/LinkParser.ts:79](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L79)
 
 Sanitize HTML attributes
 
@@ -36,6 +36,6 @@ Sanitize HTML attributes
 
 > **validateUrls**: `boolean`
 
-Defined in: [src/parsers/LinkParser.ts:76](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L76)
+Defined in: [src/parsers/LinkParser.ts:77](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L77)
 
 Validate URLs for safety

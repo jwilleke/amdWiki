@@ -6,7 +6,7 @@
 
 # Interface: MaintenanceConfig
 
-Defined in: [src/managers/NotificationManager.ts:48](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/NotificationManager.ts#L48)
+Defined in: [src/managers/NotificationManager.ts:49](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/NotificationManager.ts#L49)
 
 Maintenance configuration
 

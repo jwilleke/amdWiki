@@ -6,7 +6,7 @@
 
 # Class: HandlerRegistry
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:110](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L110)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:111](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L111)
 
 HandlerRegistry - Advanced handler registration and management system
 
@@ -16,13 +16,13 @@ HandlerRegistry - Advanced handler registration and management system
 
 > **new HandlerRegistry**(`engine`): `HandlerRegistry`
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:119](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L119)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:120](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L120)
 
 #### Parameters
 
 ##### engine
 
-[`WikiEngine`](../interfaces/WikiEngine.md) = `null`
+[`WikiEngine`](../interfaces/WikiEngine.md) | `null`
 
 #### Returns
 
@@ -34,7 +34,7 @@ Defined in: [src/parsers/handlers/HandlerRegistry.ts:119](https://github.com/jwi
 
 > **clearAll**(): `Promise`\<`void`\>
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:625](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L625)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:623](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L623)
 
 Clear all handlers
 
@@ -48,7 +48,7 @@ Clear all handlers
 
 > **disableHandler**(`handlerId`): `boolean`
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:485](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L485)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:484](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L484)
 
 Disable handler by ID
 
@@ -72,7 +72,7 @@ True if successful
 
 > **enableHandler**(`handlerId`): `boolean`
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:470](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L470)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:469](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L469)
 
 Enable handler by ID
 
@@ -96,7 +96,7 @@ True if successful
 
 > **exportState**(): [`ExportedRegistryState`](../interfaces/ExportedRegistryState.md)
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:650](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L650)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:647](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L647)
 
 Export registry state for persistence
 
@@ -110,9 +110,9 @@ Serializable registry state
 
 ### getHandler()
 
-> **getHandler**(`handlerId`): [`default`](../../BaseSyntaxHandler/classes/default.md)
+> **getHandler**(`handlerId`): [`default`](../../BaseSyntaxHandler/classes/default.md) \| `null`
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:429](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L429)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:428](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L428)
 
 Get handler by ID
 
@@ -126,7 +126,7 @@ Handler ID
 
 #### Returns
 
-[`default`](../../BaseSyntaxHandler/classes/default.md)
+[`default`](../../BaseSyntaxHandler/classes/default.md) \| `null`
 
 Handler or null if not found
 
@@ -136,7 +136,7 @@ Handler or null if not found
 
 > **getHandlersByPattern**(`pattern`): [`default`](../../BaseSyntaxHandler/classes/default.md)[]
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:452](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L452)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:451](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L451)
 
 Get handlers by pattern
 
@@ -160,7 +160,7 @@ Matching handlers
 
 > **getHandlersByPriority**(`enabledOnly`): [`default`](../../BaseSyntaxHandler/classes/default.md)[]
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:438](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L438)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:437](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L437)
 
 Get all handlers sorted by priority
 
@@ -184,7 +184,7 @@ Handlers sorted by priority
 
 > **getInfo**(): [`RegistryInfo`](../interfaces/RegistryInfo.md)
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:663](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L663)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:660](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L660)
 
 Get registry information
 
@@ -200,7 +200,7 @@ Registry information
 
 > **getStats**(): [`ExtendedRegistryStats`](../interfaces/ExtendedRegistryStats.md)
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:499](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L499)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:498](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L498)
 
 Get registry statistics
 
@@ -216,7 +216,7 @@ Registry statistics
 
 > **registerHandler**(`handler`, `options`): `Promise`\<`boolean`\>
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:152](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L152)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:153](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L153)
 
 Register a syntax handler with full validation and conflict detection
 
@@ -246,7 +246,7 @@ True if registration successful
 
 > **resetStats**(): `void`
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:523](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L523)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:522](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L522)
 
 Reset all handler statistics
 
@@ -260,7 +260,7 @@ Reset all handler statistics
 
 > **resolveExecutionOrder**(): [`default`](../../BaseSyntaxHandler/classes/default.md)[]
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:543](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L543)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:542](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L542)
 
 Resolve handler execution order considering dependencies
 
@@ -276,7 +276,7 @@ Handlers in dependency-resolved order
 
 > **unregisterHandler**(`handlerId`): `Promise`\<`boolean`\>
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:225](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L225)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:225](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L225)
 
 Unregister a syntax handler
 
@@ -300,7 +300,7 @@ True if unregistration successful
 
 > **validateDependencies**(): [`DependencyValidationError`](../interfaces/DependencyValidationError.md)[]
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:599](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L599)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:597](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L597)
 
 Validate all handler dependencies
 

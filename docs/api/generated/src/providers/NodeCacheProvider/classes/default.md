@@ -6,7 +6,7 @@
 
 # Class: default
 
-Defined in: [src/providers/NodeCacheProvider.ts:60](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/NodeCacheProvider.ts#L60)
+Defined in: [src/providers/NodeCacheProvider.ts:60](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/NodeCacheProvider.ts#L60)
 
 NodeCacheProvider - In-memory cache provider using node-cache
 
@@ -29,7 +29,7 @@ Configuration keys (all lowercase):
 
 > **new default**(`engine`): `NodeCacheProvider`
 
-Defined in: [src/providers/NodeCacheProvider.ts:65](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/NodeCacheProvider.ts#L65)
+Defined in: [src/providers/NodeCacheProvider.ts:65](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/NodeCacheProvider.ts#L65)
 
 #### Parameters
 
@@ -51,7 +51,7 @@ Defined in: [src/providers/NodeCacheProvider.ts:65](https://github.com/jwilleke/
 
 > `protected` **engine**: [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/providers/BaseCacheProvider.ts:67](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseCacheProvider.ts#L67)
+Defined in: [src/providers/BaseCacheProvider.ts:67](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseCacheProvider.ts#L67)
 
 Reference to the wiki engine instance
 
@@ -65,7 +65,7 @@ Reference to the wiki engine instance
 
 > `protected` **initialized**: `boolean`
 
-Defined in: [src/providers/BaseCacheProvider.ts:72](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseCacheProvider.ts#L72)
+Defined in: [src/providers/BaseCacheProvider.ts:72](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseCacheProvider.ts#L72)
 
 Whether the provider has been initialized
 
@@ -79,7 +79,7 @@ Whether the provider has been initialized
 
 > **backup**(): `Promise`\<`NodeCacheBackupData`\>
 
-Defined in: [src/providers/NodeCacheProvider.ts:337](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/NodeCacheProvider.ts#L337)
+Defined in: [src/providers/NodeCacheProvider.ts:364](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/NodeCacheProvider.ts#L364)
 
 Backup cache configuration and statistics
 
@@ -99,7 +99,7 @@ Backup data
 
 > **clear**(`pattern?`): `Promise`\<`void`\>
 
-Defined in: [src/providers/NodeCacheProvider.ts:217](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/NodeCacheProvider.ts#L217)
+Defined in: [src/providers/NodeCacheProvider.ts:226](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/NodeCacheProvider.ts#L226)
 
 Clear cache entries
 
@@ -125,7 +125,7 @@ Optional pattern to match keys (e.g., 'user:*')
 
 > **close**(): `Promise`\<`void`\>
 
-Defined in: [src/providers/NodeCacheProvider.ts:318](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/NodeCacheProvider.ts#L318)
+Defined in: [src/providers/NodeCacheProvider.ts:345](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/NodeCacheProvider.ts#L345)
 
 Close/cleanup the cache provider
 
@@ -143,7 +143,7 @@ Close/cleanup the cache provider
 
 > **del**(`keys`): `Promise`\<`void`\>
 
-Defined in: [src/providers/NodeCacheProvider.ts:198](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/NodeCacheProvider.ts#L198)
+Defined in: [src/providers/NodeCacheProvider.ts:204](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/NodeCacheProvider.ts#L204)
 
 Delete one or more keys from the cache
 
@@ -167,9 +167,9 @@ Single key or array of keys to delete
 
 ### get()
 
-> **get**\<`T`\>(`key`): `Promise`\<`T`\>
+> **get**\<`T`\>(`key`): `Promise`\<`T` \| `undefined`\>
 
-Defined in: [src/providers/NodeCacheProvider.ts:160](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/NodeCacheProvider.ts#L160)
+Defined in: [src/providers/NodeCacheProvider.ts:160](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/NodeCacheProvider.ts#L160)
 
 Get a value from the cache
 
@@ -189,7 +189,7 @@ The cache key
 
 #### Returns
 
-`Promise`\<`T`\>
+`Promise`\<`T` \| `undefined`\>
 
 The cached value or undefined if not found
 
@@ -201,15 +201,15 @@ The cached value or undefined if not found
 
 ### getNodeCache()
 
-> **getNodeCache**(): `NodeCache`
+> **getNodeCache**(): `NodeCache` \| `null`
 
-Defined in: [src/providers/NodeCacheProvider.ts:351](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/NodeCacheProvider.ts#L351)
+Defined in: [src/providers/NodeCacheProvider.ts:385](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/NodeCacheProvider.ts#L385)
 
 Get the underlying node-cache instance (for advanced usage)
 
 #### Returns
 
-`NodeCache`
+`NodeCache` \| `null`
 
 The node-cache instance
 
@@ -219,7 +219,7 @@ The node-cache instance
 
 > **getProviderInfo**(): [`ProviderInfo`](../../BaseCacheProvider/interfaces/ProviderInfo.md)
 
-Defined in: [src/providers/NodeCacheProvider.ts:144](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/NodeCacheProvider.ts#L144)
+Defined in: [src/providers/NodeCacheProvider.ts:144](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/NodeCacheProvider.ts#L144)
 
 Get provider information
 
@@ -239,7 +239,7 @@ Provider metadata
 
 > **initialize**(): `Promise`\<`void`\>
 
-Defined in: [src/providers/NodeCacheProvider.ts:82](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/NodeCacheProvider.ts#L82)
+Defined in: [src/providers/NodeCacheProvider.ts:82](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/NodeCacheProvider.ts#L82)
 
 Initialize the NodeCache provider
 Loads configuration from ConfigurationManager
@@ -258,7 +258,7 @@ Loads configuration from ConfigurationManager
 
 > **isHealthy**(): `Promise`\<`boolean`\>
 
-Defined in: [src/providers/NodeCacheProvider.ts:300](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/NodeCacheProvider.ts#L300)
+Defined in: [src/providers/NodeCacheProvider.ts:327](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/NodeCacheProvider.ts#L327)
 
 Check if the cache provider is healthy/connected
 
@@ -278,7 +278,7 @@ True if healthy
 
 > **keys**(`pattern?`): `Promise`\<`string`[]\>
 
-Defined in: [src/providers/NodeCacheProvider.ts:240](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/NodeCacheProvider.ts#L240)
+Defined in: [src/providers/NodeCacheProvider.ts:252](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/NodeCacheProvider.ts#L252)
 
 Get keys matching a pattern
 
@@ -306,7 +306,7 @@ Array of matching keys
 
 > **restore**(`_backupData`): `Promise`\<`void`\>
 
-Defined in: [src/providers/BaseCacheProvider.ts:179](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseCacheProvider.ts#L179)
+Defined in: [src/providers/BaseCacheProvider.ts:179](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseCacheProvider.ts#L179)
 
 Restore cache from backup (optional)
 
@@ -332,7 +332,7 @@ Backup data
 
 > **set**\<`T`\>(`key`, `value`, `ttlSec?`): `Promise`\<`void`\>
 
-Defined in: [src/providers/NodeCacheProvider.ts:179](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/NodeCacheProvider.ts#L179)
+Defined in: [src/providers/NodeCacheProvider.ts:182](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/NodeCacheProvider.ts#L182)
 
 Set a value in the cache
 
@@ -376,7 +376,7 @@ Time to live in seconds
 
 > **stats**(): `Promise`\<[`CacheStats`](../../BaseCacheProvider/interfaces/CacheStats.md)\>
 
-Defined in: [src/providers/NodeCacheProvider.ts:265](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/NodeCacheProvider.ts#L265)
+Defined in: [src/providers/NodeCacheProvider.ts:280](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/NodeCacheProvider.ts#L280)
 
 Get cache statistics
 

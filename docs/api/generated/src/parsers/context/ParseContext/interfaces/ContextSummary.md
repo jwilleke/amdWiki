@@ -6,7 +6,7 @@
 
 # Interface: ContextSummary
 
-Defined in: [src/parsers/context/ParseContext.ts:80](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L80)
+Defined in: [src/parsers/context/ParseContext.ts:80](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L80)
 
 Context summary for logging
 
@@ -16,7 +16,7 @@ Context summary for logging
 
 > **authenticated**: `boolean`
 
-Defined in: [src/parsers/context/ParseContext.ts:83](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L83)
+Defined in: [src/parsers/context/ParseContext.ts:83](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L83)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [src/parsers/context/ParseContext.ts:83](https://github.com/jwilleke
 
 > **contentLength**: `number`
 
-Defined in: [src/parsers/context/ParseContext.ts:85](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L85)
+Defined in: [src/parsers/context/ParseContext.ts:85](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L85)
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: [src/parsers/context/ParseContext.ts:85](https://github.com/jwilleke
 
 > **handlerResultCount**: `number`
 
-Defined in: [src/parsers/context/ParseContext.ts:87](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L87)
+Defined in: [src/parsers/context/ParseContext.ts:87](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L87)
 
 ***
 
@@ -40,7 +40,7 @@ Defined in: [src/parsers/context/ParseContext.ts:87](https://github.com/jwilleke
 
 > **pageName**: `string`
 
-Defined in: [src/parsers/context/ParseContext.ts:81](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L81)
+Defined in: [src/parsers/context/ParseContext.ts:81](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L81)
 
 ***
 
@@ -48,7 +48,7 @@ Defined in: [src/parsers/context/ParseContext.ts:81](https://github.com/jwilleke
 
 > **phaseCount**: `number`
 
-Defined in: [src/parsers/context/ParseContext.ts:89](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L89)
+Defined in: [src/parsers/context/ParseContext.ts:89](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L89)
 
 ***
 
@@ -56,7 +56,7 @@ Defined in: [src/parsers/context/ParseContext.ts:89](https://github.com/jwilleke
 
 > **processingTime**: `number`
 
-Defined in: [src/parsers/context/ParseContext.ts:88](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L88)
+Defined in: [src/parsers/context/ParseContext.ts:88](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L88)
 
 ***
 
@@ -64,7 +64,7 @@ Defined in: [src/parsers/context/ParseContext.ts:88](https://github.com/jwilleke
 
 > **roles**: `string`[]
 
-Defined in: [src/parsers/context/ParseContext.ts:84](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L84)
+Defined in: [src/parsers/context/ParseContext.ts:84](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L84)
 
 ***
 
@@ -72,7 +72,7 @@ Defined in: [src/parsers/context/ParseContext.ts:84](https://github.com/jwilleke
 
 > **userName**: `string`
 
-Defined in: [src/parsers/context/ParseContext.ts:82](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L82)
+Defined in: [src/parsers/context/ParseContext.ts:82](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L82)
 
 ***
 
@@ -80,4 +80,4 @@ Defined in: [src/parsers/context/ParseContext.ts:82](https://github.com/jwilleke
 
 > **variableCount**: `number`
 
-Defined in: [src/parsers/context/ParseContext.ts:86](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L86)
+Defined in: [src/parsers/context/ParseContext.ts:86](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L86)

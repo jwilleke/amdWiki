@@ -6,7 +6,7 @@
 
 # Interface: RegionStats
 
-Defined in: [src/cache/RegionCache.ts:15](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/cache/RegionCache.ts#L15)
+Defined in: [src/cache/RegionCache.ts:15](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/cache/RegionCache.ts#L15)
 
 Region cache statistics
 
@@ -16,7 +16,7 @@ Region cache statistics
 
 > **globalStats**: [`CacheStats`](../../ICacheAdapter/interfaces/CacheStats.md)
 
-Defined in: [src/cache/RegionCache.ts:21](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/cache/RegionCache.ts#L21)
+Defined in: [src/cache/RegionCache.ts:21](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/cache/RegionCache.ts#L21)
 
 Global cache statistics
 
@@ -26,7 +26,7 @@ Global cache statistics
 
 > **keys**: `number`
 
-Defined in: [src/cache/RegionCache.ts:19](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/cache/RegionCache.ts#L19)
+Defined in: [src/cache/RegionCache.ts:19](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/cache/RegionCache.ts#L19)
 
 Number of keys in this region
 
@@ -36,6 +36,6 @@ Number of keys in this region
 
 > **region**: `string`
 
-Defined in: [src/cache/RegionCache.ts:17](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/cache/RegionCache.ts#L17)
+Defined in: [src/cache/RegionCache.ts:17](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/cache/RegionCache.ts#L17)
 
 Region name

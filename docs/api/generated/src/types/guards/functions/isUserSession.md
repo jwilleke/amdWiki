@@ -8,7 +8,7 @@
 
 > **isUserSession**(`value`): `value is UserSession`
 
-Defined in: [src/types/guards.ts:268](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/guards.ts#L268)
+Defined in: [src/types/guards.ts:268](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/guards.ts#L268)
 
 Check if value is a valid UserSession object
 

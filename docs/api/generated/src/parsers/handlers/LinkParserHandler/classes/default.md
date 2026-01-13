@@ -6,7 +6,7 @@
 
 # Class: default
 
-Defined in: [src/parsers/handlers/LinkParserHandler.ts:65](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/LinkParserHandler.ts#L65)
+Defined in: [src/parsers/handlers/LinkParserHandler.ts:66](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/LinkParserHandler.ts#L66)
 
 LinkParserHandler - Unified link processing handler using LinkParser
 
@@ -35,13 +35,13 @@ Epic: #41 - Implement JSPWikiMarkupParser for Complete Enhancement Support
 
 > **new default**(`engine`): `LinkParserHandler`
 
-Defined in: [src/parsers/handlers/LinkParserHandler.ts:72](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/LinkParserHandler.ts#L72)
+Defined in: [src/parsers/handlers/LinkParserHandler.ts:73](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/LinkParserHandler.ts#L73)
 
 #### Parameters
 
 ##### engine
 
-`WikiEngine` = `null`
+`WikiEngine` | `null`
 
 #### Returns
 
@@ -57,7 +57,7 @@ Defined in: [src/parsers/handlers/LinkParserHandler.ts:72](https://github.com/jw
 
 > `readonly` **dependencies**: (`string` \| [`DependencySpec`](../../BaseSyntaxHandler/interfaces/DependencySpec.md))[]
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:169](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L169)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:171](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L171)
 
 #### Inherited from
 
@@ -69,7 +69,7 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:169](https://github.com/j
 
 > `protected` `optional` **dependencyErrors**: [`DependencyError`](../../BaseSyntaxHandler/interfaces/DependencyError.md)[]
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:176](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L176)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:178](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L178)
 
 #### Inherited from
 
@@ -81,7 +81,7 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:176](https://github.com/j
 
 > `readonly` **description**: `string`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:168](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L168)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:170](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L170)
 
 #### Inherited from
 
@@ -93,7 +93,7 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:168](https://github.com/j
 
 > `protected` **enabled**: `boolean`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:174](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L174)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:176](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L176)
 
 #### Inherited from
 
@@ -105,7 +105,7 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:174](https://github.com/j
 
 > **handlerId**: `string`
 
-Defined in: [src/parsers/handlers/LinkParserHandler.ts:66](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/LinkParserHandler.ts#L66)
+Defined in: [src/parsers/handlers/LinkParserHandler.ts:67](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/LinkParserHandler.ts#L67)
 
 #### Overrides
 
@@ -117,7 +117,7 @@ Defined in: [src/parsers/handlers/LinkParserHandler.ts:66](https://github.com/jw
 
 > `protected` `optional` **initContext**: [`InitializationContext`](../../BaseSyntaxHandler/interfaces/InitializationContext.md)
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:175](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L175)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:177](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L177)
 
 #### Inherited from
 
@@ -129,7 +129,7 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:175](https://github.com/j
 
 > **initialized**: `boolean`
 
-Defined in: [src/parsers/handlers/LinkParserHandler.ts:69](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/LinkParserHandler.ts#L69)
+Defined in: [src/parsers/handlers/LinkParserHandler.ts:70](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/LinkParserHandler.ts#L70)
 
 #### Overrides
 
@@ -141,7 +141,7 @@ Defined in: [src/parsers/handlers/LinkParserHandler.ts:69](https://github.com/jw
 
 > `protected` **options**: `Required`\<[`HandlerOptions`](../../BaseSyntaxHandler/interfaces/HandlerOptions.md)\>
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:171](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L171)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:173](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L173)
 
 #### Inherited from
 
@@ -153,7 +153,7 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:171](https://github.com/j
 
 > `readonly` **pattern**: `RegExp`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:165](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L165)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:167](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L167)
 
 #### Inherited from
 
@@ -165,7 +165,7 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:165](https://github.com/j
 
 > `readonly` **priority**: `number`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:164](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L164)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:166](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L166)
 
 #### Inherited from
 
@@ -177,7 +177,7 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:164](https://github.com/j
 
 > `protected` **stats**: [`HandlerStats`](../../BaseSyntaxHandler/interfaces/HandlerStats.md)
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:172](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L172)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:174](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L174)
 
 #### Inherited from
 
@@ -189,7 +189,7 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:172](https://github.com/j
 
 > `readonly` **version**: `string`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:167](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L167)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:169](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L169)
 
 #### Inherited from
 
@@ -201,7 +201,7 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:167](https://github.com/j
 
 > `protected` **buildRegexFlags**(): `string`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:259](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L259)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:261](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L261)
 
 Build regex flags based on options
 
@@ -221,7 +221,7 @@ Regex flags string
 
 > **clone**(`overrides`): [`HandlerCloneConfig`](../../BaseSyntaxHandler/interfaces/HandlerCloneConfig.md)
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:711](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L711)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:712](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L712)
 
 Create a clone of this handler with different options
 
@@ -249,7 +249,7 @@ Handler configuration for creating new instance
 
 > `protected` **compilePattern**(`pattern`): `RegExp`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:240](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L240)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:242](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L242)
 
 Compile pattern into RegExp if it's a string
 
@@ -277,7 +277,7 @@ Compiled regular expression
 
 > `protected` **createErrorContext**(`error`, `content`, `context`): [`ErrorContext`](../../BaseSyntaxHandler/interfaces/ErrorContext.md)
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:479](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L479)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:480](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L480)
 
 Create error context for debugging
 
@@ -317,7 +317,7 @@ Error context
 
 > `protected` **createTimeoutPromise**(): `Promise`\<`string`\>
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:460](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L460)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:461](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L461)
 
 Create timeout promise for handler execution
 
@@ -337,7 +337,7 @@ Promise that rejects after timeout
 
 > **disable**(): `void`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:629](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L629)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:630](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L630)
 
 Disable the handler
 
@@ -355,7 +355,7 @@ Disable the handler
 
 > **enable**(): `void`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:622](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L622)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:623](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L623)
 
 Enable the handler
 
@@ -373,7 +373,7 @@ Enable the handler
 
 > **execute**(`content`, `context`): `Promise`\<`string`\>
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:412](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L412)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:414](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L414)
 
 Execute the handler with performance tracking and error handling
 
@@ -407,7 +407,7 @@ Processed content
 
 > **getDependencyErrors**(): [`DependencyError`](../../BaseSyntaxHandler/interfaces/DependencyError.md)[]
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:376](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L376)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:378](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L378)
 
 Get dependency validation errors
 
@@ -427,7 +427,7 @@ Array of dependency errors
 
 > **getInfo**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [src/parsers/handlers/LinkParserHandler.ts:351](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/LinkParserHandler.ts#L351)
+Defined in: [src/parsers/handlers/LinkParserHandler.ts:336](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/LinkParserHandler.ts#L336)
 
 Get handler information including LinkParser statistics
 
@@ -443,7 +443,7 @@ Handler information
 
 > **getMetadata**(): [`HandlerMetadata`](../../BaseSyntaxHandler/interfaces/HandlerMetadata.md)
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:677](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L677)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:678](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L678)
 
 Get handler metadata
 
@@ -463,7 +463,7 @@ Handler metadata
 
 > **getStats**(): [`HandlerStats`](../../BaseSyntaxHandler/interfaces/HandlerStats.md) & `object`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:645](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L645)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:646](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L646)
 
 Get handler statistics
 
@@ -483,7 +483,7 @@ Handler statistics
 
 > **handle**(`_match`, `_context`): `Promise`\<`string`\>
 
-Defined in: [src/parsers/handlers/LinkParserHandler.ts:304](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/LinkParserHandler.ts#L304)
+Defined in: [src/parsers/handlers/LinkParserHandler.ts:294](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/LinkParserHandler.ts#L294)
 
 Handle method - not used since we override process() entirely
 
@@ -517,7 +517,7 @@ Processed match
 
 > **hasDependencyErrors**(): `boolean`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:384](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L384)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:386](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L386)
 
 Check if handler has unresolved dependencies
 
@@ -537,7 +537,7 @@ True if there are dependency errors
 
 > **initialize**(`context`): `Promise`\<`void`\>
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:272](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L272)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:274](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L274)
 
 Initialize the handler (optional override)
 Called when handler is registered
@@ -564,7 +564,7 @@ Initialization context
 
 > **isEnabled**(): `boolean`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:637](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L637)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:638](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L638)
 
 Check if handler is enabled
 
@@ -584,7 +584,7 @@ True if enabled
 
 > `protected` **onInitialize**(`context`): `Promise`\<`void`\>
 
-Defined in: [src/parsers/handlers/LinkParserHandler.ts:101](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/LinkParserHandler.ts#L101)
+Defined in: [src/parsers/handlers/LinkParserHandler.ts:102](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/LinkParserHandler.ts#L102)
 
 Initialize handler with LinkParser configuration
 
@@ -610,7 +610,7 @@ Initialization context
 
 > `protected` **onShutdown**(): `Promise`\<`void`\>
 
-Defined in: [src/parsers/handlers/LinkParserHandler.ts:385](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/LinkParserHandler.ts#L385)
+Defined in: [src/parsers/handlers/LinkParserHandler.ts:370](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/LinkParserHandler.ts#L370)
 
 Handler-specific shutdown cleanup
 
@@ -628,7 +628,7 @@ Handler-specific shutdown cleanup
 
 > **parseParameters**(`paramString`): `Record`\<`string`, `unknown`\>
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:502](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L502)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:503](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L503)
 
 Parse parameters from parameter string
 Handles various formats: key=value, key='value', key="value"
@@ -637,9 +637,9 @@ Handles various formats: key=value, key='value', key="value"
 
 ##### paramString
 
-`string`
-
 Parameter string to parse
+
+`string` | `null` | `undefined`
 
 #### Returns
 
@@ -657,7 +657,7 @@ Parsed parameters
 
 > **process**(`content`, `context`): `Promise`\<`string`\>
 
-Defined in: [src/parsers/handlers/LinkParserHandler.ts:258](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/LinkParserHandler.ts#L258)
+Defined in: [src/parsers/handlers/LinkParserHandler.ts:250](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/LinkParserHandler.ts#L250)
 
 Process content using LinkParser
 
@@ -691,7 +691,7 @@ Content with links processed
 
 > **refreshPageNames**(): `Promise`\<`void`\>
 
-Defined in: [src/parsers/handlers/LinkParserHandler.ts:313](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/LinkParserHandler.ts#L313)
+Defined in: [src/parsers/handlers/LinkParserHandler.ts:303](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/LinkParserHandler.ts#L303)
 
 Refresh page names cache (called when pages are added/removed)
 
@@ -705,7 +705,7 @@ Refresh page names cache (called when pages are added/removed)
 
 > **resetStats**(): `void`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:663](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L663)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:664](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L664)
 
 Reset handler statistics
 
@@ -723,7 +723,7 @@ Reset handler statistics
 
 > **shutdown**(): `Promise`\<`void`\>
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:694](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L694)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:695](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L695)
 
 Clean up handler resources (optional override)
 Called when handler is unregistered
@@ -742,7 +742,7 @@ Called when handler is unregistered
 
 > **toString**(): `string`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:729](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L729)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:730](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L730)
 
 String representation of handler
 
@@ -762,7 +762,7 @@ String representation
 
 > `protected` **validateDependencies**(`context`): `void`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:301](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L301)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:303](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L303)
 
 Validate handler dependencies
 
@@ -788,7 +788,7 @@ Initialization context
 
 > `protected` **validateParameter**(`key`, `value`, `rule`): [`ParameterValidationResult`](../../BaseSyntaxHandler/interfaces/ParameterValidationResult.md)
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:574](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L574)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:575](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L575)
 
 Validate a single parameter
 
@@ -828,7 +828,7 @@ Validation result
 
 > **validateParameters**(`params`, `schema`): [`ValidationResult`](../../BaseSyntaxHandler/interfaces/ValidationResult.md)
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:535](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L535)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:536](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L536)
 
 Validate parameters against schema
 
@@ -862,7 +862,7 @@ Validation result
 
 > `protected` **validateSpecificDependency**(`dependency`, `context`): `void`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:338](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L338)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:340](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L340)
 
 Validate specific dependency requirement
 

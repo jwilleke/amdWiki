@@ -6,7 +6,7 @@
 
 # Interface: FileDecompressionOptions
 
-Defined in: [src/utils/VersionCompression.ts:23](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/VersionCompression.ts#L23)
+Defined in: [src/utils/VersionCompression.ts:23](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/VersionCompression.ts#L23)
 
 File decompression options
 
@@ -16,6 +16,6 @@ File decompression options
 
 > `optional` **keepCompressed**: `boolean`
 
-Defined in: [src/utils/VersionCompression.ts:25](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/VersionCompression.ts#L25)
+Defined in: [src/utils/VersionCompression.ts:25](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/VersionCompression.ts#L25)
 
 Keep compressed file after decompression (default false)

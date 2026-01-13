@@ -6,7 +6,7 @@
 
 # Interface: Token
 
-Defined in: [src/parsers/dom/DOMParser.ts:145](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/DOMParser.ts#L145)
+Defined in: [src/parsers/dom/DOMParser.ts:146](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L146)
 
 Token interface (from Tokenizer)
 
@@ -22,7 +22,7 @@ Additional properties
 
 > `optional` **column**: `number`
 
-Defined in: [src/parsers/dom/DOMParser.ts:153](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/DOMParser.ts#L153)
+Defined in: [src/parsers/dom/DOMParser.ts:154](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L154)
 
 Column number
 
@@ -32,7 +32,7 @@ Column number
 
 > `optional` **line**: `number`
 
-Defined in: [src/parsers/dom/DOMParser.ts:151](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/DOMParser.ts#L151)
+Defined in: [src/parsers/dom/DOMParser.ts:152](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L152)
 
 Line number
 
@@ -42,7 +42,7 @@ Line number
 
 > **type**: `string`
 
-Defined in: [src/parsers/dom/DOMParser.ts:147](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/DOMParser.ts#L147)
+Defined in: [src/parsers/dom/DOMParser.ts:148](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L148)
 
 Token type
 
@@ -52,6 +52,6 @@ Token type
 
 > **value**: `string`
 
-Defined in: [src/parsers/dom/DOMParser.ts:149](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/DOMParser.ts#L149)
+Defined in: [src/parsers/dom/DOMParser.ts:150](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L150)
 
 Token value

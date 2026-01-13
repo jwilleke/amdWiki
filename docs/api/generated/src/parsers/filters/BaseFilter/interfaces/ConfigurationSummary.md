@@ -6,7 +6,7 @@
 
 # Interface: ConfigurationSummary
 
-Defined in: [src/parsers/filters/BaseFilter.ts:96](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L96)
+Defined in: [src/parsers/filters/BaseFilter.ts:98](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L98)
 
 Configuration summary
 
@@ -14,9 +14,9 @@ Configuration summary
 
 ### configuration
 
-> **configuration**: [`FilterConfig`](FilterConfig.md)
+> **configuration**: [`FilterConfig`](FilterConfig.md) \| `null`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:100](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L100)
+Defined in: [src/parsers/filters/BaseFilter.ts:102](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L102)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [src/parsers/filters/BaseFilter.ts:100](https://github.com/jwilleke/
 
 > **configurationSource**: `"loaded"` \| `"defaults"`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:101](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L101)
+Defined in: [src/parsers/filters/BaseFilter.ts:103](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L103)
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: [src/parsers/filters/BaseFilter.ts:101](https://github.com/jwilleke/
 
 > **enabled**: `boolean`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:98](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L98)
+Defined in: [src/parsers/filters/BaseFilter.ts:100](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L100)
 
 ***
 
@@ -40,7 +40,7 @@ Defined in: [src/parsers/filters/BaseFilter.ts:98](https://github.com/jwilleke/a
 
 > **filterId**: `string`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:97](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L97)
+Defined in: [src/parsers/filters/BaseFilter.ts:99](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L99)
 
 ***
 
@@ -48,7 +48,7 @@ Defined in: [src/parsers/filters/BaseFilter.ts:97](https://github.com/jwilleke/a
 
 > **options**: `Required`\<[`FilterOptions`](FilterOptions.md)\>
 
-Defined in: [src/parsers/filters/BaseFilter.ts:102](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L102)
+Defined in: [src/parsers/filters/BaseFilter.ts:104](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L104)
 
 ***
 
@@ -56,4 +56,4 @@ Defined in: [src/parsers/filters/BaseFilter.ts:102](https://github.com/jwilleke/
 
 > **priority**: `number`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:99](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L99)
+Defined in: [src/parsers/filters/BaseFilter.ts:101](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L101)

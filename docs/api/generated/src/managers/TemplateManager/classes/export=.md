@@ -6,7 +6,7 @@
 
 # Class: export=
 
-Defined in: [src/managers/TemplateManager.ts:107](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/TemplateManager.ts#L107)
+Defined in: [src/managers/TemplateManager.ts:100](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/TemplateManager.ts#L100)
 
 TemplateManager - Handles page templates and themes
 
@@ -43,7 +43,7 @@ const template = templateManager.getTemplate('Meeting Notes');
 
 > **new export=**(`engine`): `TemplateManager`
 
-Defined in: [src/managers/TemplateManager.ts:119](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/TemplateManager.ts#L119)
+Defined in: [src/managers/TemplateManager.ts:112](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/TemplateManager.ts#L112)
 
 Creates a new TemplateManager instance
 
@@ -67,9 +67,9 @@ The wiki engine instance
 
 ### config?
 
-> `protected` `optional` **config**: `Record`\<`string`, `any`\>
+> `protected` `optional` **config**: `Record`\<`string`, `unknown`\>
 
-Defined in: [src/managers/BaseManager.ts:63](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L63)
+Defined in: [src/managers/BaseManager.ts:61](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L61)
 
 Configuration passed during initialization
 
@@ -83,7 +83,7 @@ Configuration passed during initialization
 
 > `protected` **engine**: [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/managers/BaseManager.ts:56](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L56)
+Defined in: [src/managers/BaseManager.ts:54](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L54)
 
 Reference to the wiki engine
 
@@ -97,7 +97,7 @@ Reference to the wiki engine
 
 > `protected` **initialized**: `boolean`
 
-Defined in: [src/managers/BaseManager.ts:59](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L59)
+Defined in: [src/managers/BaseManager.ts:57](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L57)
 
 Initialization status flag
 
@@ -111,7 +111,7 @@ Initialization status flag
 
 > **applyTemplate**(`templateName`, `variables`): `string`
 
-Defined in: [src/managers/TemplateManager.ts:464](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/TemplateManager.ts#L464)
+Defined in: [src/managers/TemplateManager.ts:380](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/TemplateManager.ts#L380)
 
 Apply template to create page content
 
@@ -145,7 +145,7 @@ If template is not found
 
 > **backup**(): `Promise`\<[`BackupData`](../../BaseManager/interfaces/BackupData.md)\>
 
-Defined in: [src/managers/BaseManager.ts:168](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L168)
+Defined in: [src/managers/BaseManager.ts:169](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L169)
 
 Backup manager data
 
@@ -187,7 +187,7 @@ async backup(): Promise<BackupData> {
 
 > **createDefaultTemplates**(): `Promise`\<`void`\>
 
-Defined in: [src/managers/TemplateManager.ts:223](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/TemplateManager.ts#L223)
+Defined in: [src/managers/TemplateManager.ts:216](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/TemplateManager.ts#L216)
 
 Create default page templates
 
@@ -201,7 +201,7 @@ Create default page templates
 
 > **createDefaultTheme**(): `Promise`\<`void`\>
 
-Defined in: [src/managers/TemplateManager.ts:327](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/TemplateManager.ts#L327)
+Defined in: [src/managers/TemplateManager.ts:243](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/TemplateManager.ts#L243)
 
 Create default theme
 
@@ -215,7 +215,7 @@ Create default theme
 
 > **createTemplate**(`templateName`, `content`): `Promise`\<`void`\>
 
-Defined in: [src/managers/TemplateManager.ts:535](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/TemplateManager.ts#L535)
+Defined in: [src/managers/TemplateManager.ts:449](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/TemplateManager.ts#L449)
 
 Create a new template
 
@@ -243,7 +243,7 @@ Template content
 
 > **createTheme**(`themeName`, `content`): `Promise`\<`void`\>
 
-Defined in: [src/managers/TemplateManager.ts:555](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/TemplateManager.ts#L555)
+Defined in: [src/managers/TemplateManager.ts:469](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/TemplateManager.ts#L469)
 
 Create a new theme
 
@@ -271,7 +271,7 @@ CSS content
 
 > **generateUUID**(): `string`
 
-Defined in: [src/managers/TemplateManager.ts:501](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/TemplateManager.ts#L501)
+Defined in: [src/managers/TemplateManager.ts:415](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/TemplateManager.ts#L415)
 
 Generate UUID for pages
 
@@ -287,7 +287,7 @@ UUID
 
 > **getEngine**(): [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/managers/BaseManager.ts:126](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L126)
+Defined in: [src/managers/BaseManager.ts:125](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L125)
 
 Get the wiki engine instance
 
@@ -311,9 +311,9 @@ const config = this.getEngine().getConfig();
 
 ### getTemplate()
 
-> **getTemplate**(`templateName`): `Template`
+> **getTemplate**(`templateName`): `Template` \| `null`
 
-Defined in: [src/managers/TemplateManager.ts:452](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/TemplateManager.ts#L452)
+Defined in: [src/managers/TemplateManager.ts:368](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/TemplateManager.ts#L368)
 
 Get a specific template
 
@@ -327,7 +327,7 @@ Template name
 
 #### Returns
 
-`Template`
+`Template` \| `null`
 
 Template object or null
 
@@ -337,7 +337,7 @@ Template object or null
 
 > **getTemplates**(): `Template`[]
 
-Defined in: [src/managers/TemplateManager.ts:442](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/TemplateManager.ts#L442)
+Defined in: [src/managers/TemplateManager.ts:358](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/TemplateManager.ts#L358)
 
 Get available templates
 
@@ -351,9 +351,9 @@ Available templates
 
 ### getTheme()
 
-> **getTheme**(`themeName`): `Theme`
+> **getTheme**(`themeName`): `Theme` \| `null`
 
-Defined in: [src/managers/TemplateManager.ts:524](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/TemplateManager.ts#L524)
+Defined in: [src/managers/TemplateManager.ts:438](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/TemplateManager.ts#L438)
 
 Get a specific theme
 
@@ -367,7 +367,7 @@ Theme name
 
 #### Returns
 
-`Theme`
+`Theme` \| `null`
 
 Theme object or null
 
@@ -377,7 +377,7 @@ Theme object or null
 
 > **getThemes**(): `Theme`[]
 
-Defined in: [src/managers/TemplateManager.ts:514](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/TemplateManager.ts#L514)
+Defined in: [src/managers/TemplateManager.ts:428](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/TemplateManager.ts#L428)
 
 Get available themes
 
@@ -393,7 +393,7 @@ Available themes
 
 > **initialize**(`config?`): `Promise`\<`void`\>
 
-Defined in: [src/managers/TemplateManager.ts:134](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/TemplateManager.ts#L134)
+Defined in: [src/managers/TemplateManager.ts:127](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/TemplateManager.ts#L127)
 
 Initialize the TemplateManager and load templates/themes
 
@@ -421,7 +421,7 @@ Configuration object
 
 > **isInitialized**(): `boolean`
 
-Defined in: [src/managers/BaseManager.ts:114](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L114)
+Defined in: [src/managers/BaseManager.ts:113](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L113)
 
 Check if manager has been initialized
 
@@ -449,7 +449,7 @@ if (manager.isInitialized()) {
 
 > **loadTemplates**(): `Promise`\<`void`\>
 
-Defined in: [src/managers/TemplateManager.ts:153](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/TemplateManager.ts#L153)
+Defined in: [src/managers/TemplateManager.ts:146](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/TemplateManager.ts#L146)
 
 Load all page templates
 
@@ -463,7 +463,7 @@ Load all page templates
 
 > **loadThemes**(): `Promise`\<`void`\>
 
-Defined in: [src/managers/TemplateManager.ts:188](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/TemplateManager.ts#L188)
+Defined in: [src/managers/TemplateManager.ts:181](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/TemplateManager.ts#L181)
 
 Load all themes
 
@@ -477,7 +477,7 @@ Load all themes
 
 > **restore**(`backupData`): `Promise`\<`void`\>
 
-Defined in: [src/managers/BaseManager.ts:196](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L196)
+Defined in: [src/managers/BaseManager.ts:198](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L198)
 
 Restore manager data from backup
 
@@ -522,7 +522,7 @@ async restore(backupData: BackupData): Promise<void> {
 
 > **shutdown**(): `Promise`\<`void`\>
 
-Defined in: [src/managers/BaseManager.ts:143](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L143)
+Defined in: [src/managers/BaseManager.ts:143](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L143)
 
 Shutdown the manager and cleanup resources
 
@@ -553,7 +553,7 @@ async shutdown(): Promise<void> {
 
 > **suggestTemplates**(`pageName`, `category`): `string`[]
 
-Defined in: [src/managers/TemplateManager.ts:575](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/TemplateManager.ts#L575)
+Defined in: [src/managers/TemplateManager.ts:489](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/TemplateManager.ts#L489)
 
 Get template suggestions based on page name or category
 

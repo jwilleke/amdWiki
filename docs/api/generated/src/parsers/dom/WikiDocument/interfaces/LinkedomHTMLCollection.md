@@ -6,7 +6,7 @@
 
 # Interface: LinkedomHTMLCollection
 
-Defined in: [src/parsers/dom/WikiDocument.ts:75](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/WikiDocument.ts#L75)
+Defined in: [src/parsers/dom/WikiDocument.ts:75](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L75)
 
 ## Extends
 
@@ -22,7 +22,7 @@ Defined in: [src/parsers/dom/WikiDocument.ts:75](https://github.com/jwilleke/amd
 
 > **length**: `number`
 
-Defined in: [src/parsers/dom/WikiDocument.ts:76](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/WikiDocument.ts#L76)
+Defined in: [src/parsers/dom/WikiDocument.ts:76](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L76)
 
 #### Overrides
 

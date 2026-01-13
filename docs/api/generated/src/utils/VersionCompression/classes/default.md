@@ -6,7 +6,7 @@
 
 # Class: default
 
-Defined in: [src/utils/VersionCompression.ts:73](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/VersionCompression.ts#L73)
+Defined in: [src/utils/VersionCompression.ts:73](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/VersionCompression.ts#L73)
 
 VersionCompression - Utility for compressing and decompressing version content
 
@@ -42,7 +42,7 @@ const decompressed = VersionCompression.decompress(compressed);
 
 > `static` **calculateRatio**(`originalSize`, `compressedSize`): `number`
 
-Defined in: [src/utils/VersionCompression.ts:295](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/VersionCompression.ts#L295)
+Defined in: [src/utils/VersionCompression.ts:295](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/VersionCompression.ts#L295)
 
 Calculate compression ratio
 
@@ -74,7 +74,7 @@ Compression ratio as percentage (e.g., 65.5 means 65.5% smaller)
 
 > `static` **compress**(`content`, `options`): `Buffer`
 
-Defined in: [src/utils/VersionCompression.ts:88](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/VersionCompression.ts#L88)
+Defined in: [src/utils/VersionCompression.ts:88](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/VersionCompression.ts#L88)
 
 Compress content using gzip
 
@@ -118,7 +118,7 @@ console.log('Compression ratio:', compressed.length / original.length);
 
 > `static` **compressFile**(`filePath`, `options`): `Promise`\<[`CompressionResult`](../interfaces/CompressionResult.md)\>
 
-Defined in: [src/utils/VersionCompression.ts:160](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/VersionCompression.ts#L160)
+Defined in: [src/utils/VersionCompression.ts:160](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/VersionCompression.ts#L160)
 
 Compress a file in place
 
@@ -164,7 +164,7 @@ console.log(`Saved ${result.ratio}% space`);
 
 > `static` **decompress**(`compressed`): `string`
 
-Defined in: [src/utils/VersionCompression.ts:127](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/VersionCompression.ts#L127)
+Defined in: [src/utils/VersionCompression.ts:127](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/VersionCompression.ts#L127)
 
 Decompress gzip content
 
@@ -206,7 +206,7 @@ const original = VersionCompression.decompress(compressed);
 
 > `static` **decompressFile**(`filePath`, `options`): `Promise`\<[`DecompressionResult`](../interfaces/DecompressionResult.md)\>
 
-Defined in: [src/utils/VersionCompression.ts:214](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/VersionCompression.ts#L214)
+Defined in: [src/utils/VersionCompression.ts:214](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/VersionCompression.ts#L214)
 
 Decompress a file in place
 
@@ -250,7 +250,7 @@ await VersionCompression.decompressFile('./v1/content.md.gz');
 
 > `static` **getCompressedStats**(`filePath`): `Promise`\<[`CompressedStats`](../interfaces/CompressedStats.md)\>
 
-Defined in: [src/utils/VersionCompression.ts:315](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/VersionCompression.ts#L315)
+Defined in: [src/utils/VersionCompression.ts:315](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/VersionCompression.ts#L315)
 
 Get compressed file stats
 
@@ -276,7 +276,7 @@ File stats
 
 > `static` **isCompressed**(`filePath`): `Promise`\<`boolean`\>
 
-Defined in: [src/utils/VersionCompression.ts:263](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/VersionCompression.ts#L263)
+Defined in: [src/utils/VersionCompression.ts:263](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/VersionCompression.ts#L263)
 
 Check if file is compressed
 

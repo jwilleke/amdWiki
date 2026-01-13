@@ -6,7 +6,7 @@
 
 # Interface: ContextTypes
 
-Defined in: [src/context/WikiContext.ts:98](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/context/WikiContext.ts#L98)
+Defined in: [src/context/WikiContext.ts:96](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L96)
 
 Context type constants
 
@@ -16,7 +16,7 @@ Context type constants
 
 > **DIFF**: `"diff"`
 
-Defined in: [src/context/WikiContext.ts:106](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/context/WikiContext.ts#L106)
+Defined in: [src/context/WikiContext.ts:104](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L104)
 
 Viewing page diff
 
@@ -26,7 +26,7 @@ Viewing page diff
 
 > **EDIT**: `"edit"`
 
-Defined in: [src/context/WikiContext.ts:102](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/context/WikiContext.ts#L102)
+Defined in: [src/context/WikiContext.ts:100](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L100)
 
 Editing a page
 
@@ -36,7 +36,7 @@ Editing a page
 
 > **INFO**: `"info"`
 
-Defined in: [src/context/WikiContext.ts:108](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/context/WikiContext.ts#L108)
+Defined in: [src/context/WikiContext.ts:106](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L106)
 
 Viewing page information/metadata
 
@@ -46,7 +46,7 @@ Viewing page information/metadata
 
 > **NONE**: `"none"`
 
-Defined in: [src/context/WikiContext.ts:110](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/context/WikiContext.ts#L110)
+Defined in: [src/context/WikiContext.ts:108](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L108)
 
 No specific page context
 
@@ -56,7 +56,7 @@ No specific page context
 
 > **PREVIEW**: `"preview"`
 
-Defined in: [src/context/WikiContext.ts:104](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/context/WikiContext.ts#L104)
+Defined in: [src/context/WikiContext.ts:102](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L102)
 
 Previewing page changes
 
@@ -66,6 +66,6 @@ Previewing page changes
 
 > **VIEW**: `"view"`
 
-Defined in: [src/context/WikiContext.ts:100](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/context/WikiContext.ts#L100)
+Defined in: [src/context/WikiContext.ts:98](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L98)
 
 Viewing a page

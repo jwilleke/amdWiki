@@ -6,7 +6,7 @@
 
 # Class: default
 
-Defined in: [src/cache/NullCacheAdapter.ts:7](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/cache/NullCacheAdapter.ts#L7)
+Defined in: [src/cache/NullCacheAdapter.ts:7](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/cache/NullCacheAdapter.ts#L7)
 
 Null cache adapter - no-op implementation
 Used when caching is disabled or for testing
@@ -21,7 +21,7 @@ Used when caching is disabled or for testing
 
 > **new default**(): `NullCacheAdapter`
 
-Defined in: [src/cache/NullCacheAdapter.ts:8](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/cache/NullCacheAdapter.ts#L8)
+Defined in: [src/cache/NullCacheAdapter.ts:8](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/cache/NullCacheAdapter.ts#L8)
 
 #### Returns
 
@@ -37,7 +37,7 @@ Defined in: [src/cache/NullCacheAdapter.ts:8](https://github.com/jwilleke/amdWik
 
 > **clear**(): `Promise`\<`void`\>
 
-Defined in: [src/cache/NullCacheAdapter.ts:24](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/cache/NullCacheAdapter.ts#L24)
+Defined in: [src/cache/NullCacheAdapter.ts:24](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/cache/NullCacheAdapter.ts#L24)
 
 Clear cache entries
 
@@ -55,7 +55,7 @@ Clear cache entries
 
 > **close**(): `Promise`\<`void`\>
 
-Defined in: [src/cache/NullCacheAdapter.ts:47](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/cache/NullCacheAdapter.ts#L47)
+Defined in: [src/cache/NullCacheAdapter.ts:47](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/cache/NullCacheAdapter.ts#L47)
 
 Close/cleanup the cache adapter
 
@@ -73,7 +73,7 @@ Close/cleanup the cache adapter
 
 > **del**(): `Promise`\<`void`\>
 
-Defined in: [src/cache/NullCacheAdapter.ts:20](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/cache/NullCacheAdapter.ts#L20)
+Defined in: [src/cache/NullCacheAdapter.ts:20](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/cache/NullCacheAdapter.ts#L20)
 
 Delete one or more keys from the cache
 
@@ -89,9 +89,9 @@ Delete one or more keys from the cache
 
 ### get()
 
-> **get**\<`T`\>(): `Promise`\<`T`\>
+> **get**\<`T`\>(): `Promise`\<`T` \| `undefined`\>
 
-Defined in: [src/cache/NullCacheAdapter.ts:12](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/cache/NullCacheAdapter.ts#L12)
+Defined in: [src/cache/NullCacheAdapter.ts:12](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/cache/NullCacheAdapter.ts#L12)
 
 Get a value from the cache
 
@@ -103,7 +103,7 @@ Get a value from the cache
 
 #### Returns
 
-`Promise`\<`T`\>
+`Promise`\<`T` \| `undefined`\>
 
 The cached value or undefined if not found
 
@@ -117,7 +117,7 @@ The cached value or undefined if not found
 
 > **isHealthy**(): `Promise`\<`boolean`\>
 
-Defined in: [src/cache/NullCacheAdapter.ts:43](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/cache/NullCacheAdapter.ts#L43)
+Defined in: [src/cache/NullCacheAdapter.ts:43](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/cache/NullCacheAdapter.ts#L43)
 
 Check if the cache adapter is healthy/connected
 
@@ -137,7 +137,7 @@ True if healthy
 
 > **keys**(): `Promise`\<`string`[]\>
 
-Defined in: [src/cache/NullCacheAdapter.ts:28](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/cache/NullCacheAdapter.ts#L28)
+Defined in: [src/cache/NullCacheAdapter.ts:28](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/cache/NullCacheAdapter.ts#L28)
 
 Get keys matching a pattern
 
@@ -157,7 +157,7 @@ Array of matching keys
 
 > **set**(): `Promise`\<`void`\>
 
-Defined in: [src/cache/NullCacheAdapter.ts:16](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/cache/NullCacheAdapter.ts#L16)
+Defined in: [src/cache/NullCacheAdapter.ts:16](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/cache/NullCacheAdapter.ts#L16)
 
 Set a value in the cache
 
@@ -175,7 +175,7 @@ Set a value in the cache
 
 > **stats**(): `Promise`\<[`CacheStats`](../../ICacheAdapter/interfaces/CacheStats.md)\>
 
-Defined in: [src/cache/NullCacheAdapter.ts:33](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/cache/NullCacheAdapter.ts#L33)
+Defined in: [src/cache/NullCacheAdapter.ts:33](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/cache/NullCacheAdapter.ts#L33)
 
 Get cache statistics
 

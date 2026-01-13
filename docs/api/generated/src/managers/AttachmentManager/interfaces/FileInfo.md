@@ -6,7 +6,7 @@
 
 # Interface: FileInfo
 
-Defined in: [src/managers/AttachmentManager.ts:28](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/AttachmentManager.ts#L28)
+Defined in: [src/managers/AttachmentManager.ts:29](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/AttachmentManager.ts#L29)
 
 File information interface
 
@@ -16,7 +16,7 @@ File information interface
 
 > **mimeType**: `string`
 
-Defined in: [src/managers/AttachmentManager.ts:30](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/AttachmentManager.ts#L30)
+Defined in: [src/managers/AttachmentManager.ts:31](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/AttachmentManager.ts#L31)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [src/managers/AttachmentManager.ts:30](https://github.com/jwilleke/a
 
 > **originalName**: `string`
 
-Defined in: [src/managers/AttachmentManager.ts:29](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/AttachmentManager.ts#L29)
+Defined in: [src/managers/AttachmentManager.ts:30](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/AttachmentManager.ts#L30)
 
 ***
 
@@ -32,4 +32,4 @@ Defined in: [src/managers/AttachmentManager.ts:29](https://github.com/jwilleke/a
 
 > **size**: `number`
 
-Defined in: [src/managers/AttachmentManager.ts:31](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/AttachmentManager.ts#L31)
+Defined in: [src/managers/AttachmentManager.ts:32](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/AttachmentManager.ts#L32)

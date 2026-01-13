@@ -6,7 +6,7 @@
 
 # Interface: ParseStatistics
 
-Defined in: [src/parsers/dom/DOMParser.ts:81](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/DOMParser.ts#L81)
+Defined in: [src/parsers/dom/DOMParser.ts:82](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L82)
 
 Parse statistics
 
@@ -20,7 +20,7 @@ Parse statistics
 
 > **failedParses**: `number`
 
-Defined in: [src/parsers/dom/DOMParser.ts:87](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/DOMParser.ts#L87)
+Defined in: [src/parsers/dom/DOMParser.ts:88](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L88)
 
 Number of failed parses
 
@@ -30,7 +30,7 @@ Number of failed parses
 
 > **lastParseTime**: `number`
 
-Defined in: [src/parsers/dom/DOMParser.ts:91](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/DOMParser.ts#L91)
+Defined in: [src/parsers/dom/DOMParser.ts:92](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L92)
 
 Last parse time in milliseconds
 
@@ -40,7 +40,7 @@ Last parse time in milliseconds
 
 > **successfulParses**: `number`
 
-Defined in: [src/parsers/dom/DOMParser.ts:85](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/DOMParser.ts#L85)
+Defined in: [src/parsers/dom/DOMParser.ts:86](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L86)
 
 Number of successful parses
 
@@ -50,7 +50,7 @@ Number of successful parses
 
 > **totalParses**: `number`
 
-Defined in: [src/parsers/dom/DOMParser.ts:83](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/DOMParser.ts#L83)
+Defined in: [src/parsers/dom/DOMParser.ts:84](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L84)
 
 Total number of parses attempted
 
@@ -60,6 +60,6 @@ Total number of parses attempted
 
 > **totalParseTime**: `number`
 
-Defined in: [src/parsers/dom/DOMParser.ts:89](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/DOMParser.ts#L89)
+Defined in: [src/parsers/dom/DOMParser.ts:90](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L90)
 
 Total parse time in milliseconds

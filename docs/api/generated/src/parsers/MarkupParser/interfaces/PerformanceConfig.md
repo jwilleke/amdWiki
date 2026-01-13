@@ -6,7 +6,7 @@
 
 # Interface: PerformanceConfig
 
-Defined in: [src/parsers/MarkupParser.ts:109](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L109)
+Defined in: [src/parsers/MarkupParser.ts:127](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L127)
 
 Performance configuration
 
@@ -16,7 +16,7 @@ Performance configuration
 
 > **alertThresholds**: [`AlertThresholds`](AlertThresholds.md)
 
-Defined in: [src/parsers/MarkupParser.ts:113](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L113)
+Defined in: [src/parsers/MarkupParser.ts:131](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L131)
 
 Alert thresholds
 
@@ -26,6 +26,6 @@ Alert thresholds
 
 > **monitoring**: `boolean`
 
-Defined in: [src/parsers/MarkupParser.ts:111](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L111)
+Defined in: [src/parsers/MarkupParser.ts:129](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L129)
 
 Whether performance monitoring is enabled

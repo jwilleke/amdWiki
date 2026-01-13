@@ -6,7 +6,7 @@
 
 # Class: default
 
-Defined in: [src/providers/NullCacheProvider.ts:10](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/NullCacheProvider.ts#L10)
+Defined in: [src/providers/NullCacheProvider.ts:10](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/NullCacheProvider.ts#L10)
 
 NullCacheProvider - No-op cache provider
 
@@ -23,7 +23,7 @@ All cache operations are no-ops that return immediately.
 
 > **new default**(`engine`): `NullCacheProvider`
 
-Defined in: [src/providers/NullCacheProvider.ts:11](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/NullCacheProvider.ts#L11)
+Defined in: [src/providers/NullCacheProvider.ts:11](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/NullCacheProvider.ts#L11)
 
 #### Parameters
 
@@ -45,7 +45,7 @@ Defined in: [src/providers/NullCacheProvider.ts:11](https://github.com/jwilleke/
 
 > `protected` **engine**: [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/providers/BaseCacheProvider.ts:67](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseCacheProvider.ts#L67)
+Defined in: [src/providers/BaseCacheProvider.ts:67](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseCacheProvider.ts#L67)
 
 Reference to the wiki engine instance
 
@@ -59,7 +59,7 @@ Reference to the wiki engine instance
 
 > `protected` **initialized**: `boolean`
 
-Defined in: [src/providers/BaseCacheProvider.ts:72](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseCacheProvider.ts#L72)
+Defined in: [src/providers/BaseCacheProvider.ts:72](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseCacheProvider.ts#L72)
 
 Whether the provider has been initialized
 
@@ -73,7 +73,7 @@ Whether the provider has been initialized
 
 > **backup**(): `Promise`\<[`BackupData`](../../BaseCacheProvider/interfaces/BackupData.md)\>
 
-Defined in: [src/providers/BaseCacheProvider.ts:166](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseCacheProvider.ts#L166)
+Defined in: [src/providers/BaseCacheProvider.ts:166](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseCacheProvider.ts#L166)
 
 Backup cache configuration and state (optional)
 
@@ -93,7 +93,7 @@ Backup data
 
 > **clear**(`_pattern?`): `Promise`\<`void`\>
 
-Defined in: [src/providers/NullCacheProvider.ts:75](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/NullCacheProvider.ts#L75)
+Defined in: [src/providers/NullCacheProvider.ts:75](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/NullCacheProvider.ts#L75)
 
 Clear cache entries (no-op)
 
@@ -119,7 +119,7 @@ Optional pattern to match keys
 
 > **close**(): `Promise`\<`void`\>
 
-Defined in: [src/providers/NullCacheProvider.ts:118](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/NullCacheProvider.ts#L118)
+Defined in: [src/providers/NullCacheProvider.ts:118](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/NullCacheProvider.ts#L118)
 
 Close/cleanup the cache provider (no-op)
 
@@ -137,7 +137,7 @@ Close/cleanup the cache provider (no-op)
 
 > **del**(`_keys`): `Promise`\<`void`\>
 
-Defined in: [src/providers/NullCacheProvider.ts:65](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/NullCacheProvider.ts#L65)
+Defined in: [src/providers/NullCacheProvider.ts:65](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/NullCacheProvider.ts#L65)
 
 Delete one or more keys from the cache (no-op)
 
@@ -161,9 +161,9 @@ Single key or array of keys to delete
 
 ### get()
 
-> **get**\<`T`\>(`_key`): `Promise`\<`T`\>
+> **get**\<`T`\>(`_key`): `Promise`\<`T` \| `undefined`\>
 
-Defined in: [src/providers/NullCacheProvider.ts:43](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/NullCacheProvider.ts#L43)
+Defined in: [src/providers/NullCacheProvider.ts:43](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/NullCacheProvider.ts#L43)
 
 Get a value from the cache (always returns undefined)
 
@@ -183,7 +183,7 @@ The cache key
 
 #### Returns
 
-`Promise`\<`T`\>
+`Promise`\<`T` \| `undefined`\>
 
 Always undefined
 
@@ -197,7 +197,7 @@ Always undefined
 
 > **getProviderInfo**(): [`ProviderInfo`](../../BaseCacheProvider/interfaces/ProviderInfo.md)
 
-Defined in: [src/providers/NullCacheProvider.ts:28](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/NullCacheProvider.ts#L28)
+Defined in: [src/providers/NullCacheProvider.ts:28](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/NullCacheProvider.ts#L28)
 
 Get provider information
 
@@ -217,7 +217,7 @@ Provider metadata
 
 > **initialize**(): `Promise`\<`void`\>
 
-Defined in: [src/providers/NullCacheProvider.ts:19](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/NullCacheProvider.ts#L19)
+Defined in: [src/providers/NullCacheProvider.ts:19](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/NullCacheProvider.ts#L19)
 
 Initialize the null cache provider (no-op)
 
@@ -235,7 +235,7 @@ Initialize the null cache provider (no-op)
 
 > **isHealthy**(): `Promise`\<`boolean`\>
 
-Defined in: [src/providers/NullCacheProvider.ts:110](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/NullCacheProvider.ts#L110)
+Defined in: [src/providers/NullCacheProvider.ts:110](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/NullCacheProvider.ts#L110)
 
 Check if the cache provider is healthy (always true)
 
@@ -255,7 +255,7 @@ Always true
 
 > **keys**(`_pattern?`): `Promise`\<`string`[]\>
 
-Defined in: [src/providers/NullCacheProvider.ts:85](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/NullCacheProvider.ts#L85)
+Defined in: [src/providers/NullCacheProvider.ts:85](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/NullCacheProvider.ts#L85)
 
 Get keys matching a pattern (always returns empty array)
 
@@ -283,7 +283,7 @@ Empty array
 
 > **restore**(`_backupData`): `Promise`\<`void`\>
 
-Defined in: [src/providers/BaseCacheProvider.ts:179](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseCacheProvider.ts#L179)
+Defined in: [src/providers/BaseCacheProvider.ts:179](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseCacheProvider.ts#L179)
 
 Restore cache from backup (optional)
 
@@ -309,7 +309,7 @@ Backup data
 
 > **set**\<`T`\>(`_key`, `_value`, `_ttlSec?`): `Promise`\<`void`\>
 
-Defined in: [src/providers/NullCacheProvider.ts:55](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/NullCacheProvider.ts#L55)
+Defined in: [src/providers/NullCacheProvider.ts:55](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/NullCacheProvider.ts#L55)
 
 Set a value in the cache (no-op)
 
@@ -353,7 +353,7 @@ Time to live in seconds
 
 > **stats**(): `Promise`\<[`CacheStats`](../../BaseCacheProvider/interfaces/CacheStats.md)\>
 
-Defined in: [src/providers/NullCacheProvider.ts:93](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/NullCacheProvider.ts#L93)
+Defined in: [src/providers/NullCacheProvider.ts:93](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/NullCacheProvider.ts#L93)
 
 Get cache statistics (all zeros)
 

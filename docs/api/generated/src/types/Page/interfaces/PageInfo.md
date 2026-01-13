@@ -6,7 +6,7 @@
 
 # Interface: PageInfo
 
-Defined in: [src/types/Page.ts:91](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Page.ts#L91)
+Defined in: [src/types/Page.ts:91](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Page.ts#L91)
 
 Minimal page information for listings
 
@@ -23,7 +23,7 @@ is not needed. This is stored in page-index.json.
 
 > `optional` **author**: `string`
 
-Defined in: [src/types/Page.ts:111](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Page.ts#L111)
+Defined in: [src/types/Page.ts:111](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Page.ts#L111)
 
 Page author (from metadata)
 
@@ -33,7 +33,7 @@ Page author (from metadata)
 
 > `optional` **category**: `string`
 
-Defined in: [src/types/Page.ts:117](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Page.ts#L117)
+Defined in: [src/types/Page.ts:117](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Page.ts#L117)
 
 Category (from metadata)
 
@@ -43,7 +43,7 @@ Category (from metadata)
 
 > `optional` **editor**: `string`
 
-Defined in: [src/types/Page.ts:114](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Page.ts#L114)
+Defined in: [src/types/Page.ts:114](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Page.ts#L114)
 
 Last editor (from metadata)
 
@@ -53,7 +53,7 @@ Last editor (from metadata)
 
 > **filePath**: `string`
 
-Defined in: [src/types/Page.ts:99](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Page.ts#L99)
+Defined in: [src/types/Page.ts:99](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Page.ts#L99)
 
 Absolute file path to the page file
 
@@ -63,7 +63,7 @@ Absolute file path to the page file
 
 > `optional` **lastModified**: `string`
 
-Defined in: [src/types/Page.ts:108](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Page.ts#L108)
+Defined in: [src/types/Page.ts:108](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Page.ts#L108)
 
 Last modification timestamp (from metadata)
 
@@ -73,7 +73,7 @@ Last modification timestamp (from metadata)
 
 > `optional` **location**: `"pages"` \| `"required-pages"`
 
-Defined in: [src/types/Page.ts:105](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Page.ts#L105)
+Defined in: [src/types/Page.ts:105](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Page.ts#L105)
 
 Location type
 
@@ -83,7 +83,7 @@ Location type
 
 > **metadata**: [`PageFrontmatter`](PageFrontmatter.md)
 
-Defined in: [src/types/Page.ts:102](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Page.ts#L102)
+Defined in: [src/types/Page.ts:102](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Page.ts#L102)
 
 Frontmatter metadata
 
@@ -93,7 +93,7 @@ Frontmatter metadata
 
 > `optional` **slug**: `string`
 
-Defined in: [src/types/Page.ts:120](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Page.ts#L120)
+Defined in: [src/types/Page.ts:120](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Page.ts#L120)
 
 URL slug (from metadata)
 
@@ -103,7 +103,7 @@ URL slug (from metadata)
 
 > **title**: `string`
 
-Defined in: [src/types/Page.ts:93](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Page.ts#L93)
+Defined in: [src/types/Page.ts:93](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Page.ts#L93)
 
 Page title
 
@@ -113,6 +113,6 @@ Page title
 
 > **uuid**: `string`
 
-Defined in: [src/types/Page.ts:96](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Page.ts#L96)
+Defined in: [src/types/Page.ts:96](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Page.ts#L96)
 
 Unique identifier (UUID v4)

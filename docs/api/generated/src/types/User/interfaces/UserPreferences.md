@@ -6,7 +6,7 @@
 
 # Interface: UserPreferences
 
-Defined in: [src/types/User.ts:13](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L13)
+Defined in: [src/types/User.ts:13](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/User.ts#L13)
 
 User preferences
 
@@ -14,7 +14,7 @@ User-specific settings and preferences.
 
 ## Indexable
 
-\[`key`: `string`\]: `any`
+\[`key`: `string`\]: `unknown`
 
 Additional custom preferences
 
@@ -24,7 +24,7 @@ Additional custom preferences
 
 > `optional` **display.dateformat**: `string`
 
-Defined in: [src/types/User.ts:36](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L36)
+Defined in: [src/types/User.ts:36](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/User.ts#L36)
 
 Date format (iso, us, eu, etc.)
 
@@ -34,7 +34,7 @@ Date format (iso, us, eu, etc.)
 
 > `optional` **display.pagesize**: `string`
 
-Defined in: [src/types/User.ts:27](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L27)
+Defined in: [src/types/User.ts:27](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/User.ts#L27)
 
 Display page size for lists
 
@@ -44,7 +44,7 @@ Display page size for lists
 
 > `optional` **display.readermode**: `boolean`
 
-Defined in: [src/types/User.ts:33](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L33)
+Defined in: [src/types/User.ts:33](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/User.ts#L33)
 
 Reader mode enabled
 
@@ -54,7 +54,7 @@ Reader mode enabled
 
 > `optional` **display.tooltips**: `boolean`
 
-Defined in: [src/types/User.ts:30](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L30)
+Defined in: [src/types/User.ts:30](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/User.ts#L30)
 
 Show tooltips
 
@@ -64,7 +64,7 @@ Show tooltips
 
 > `optional` **editor.autoindent**: `boolean`
 
-Defined in: [src/types/User.ts:18](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L18)
+Defined in: [src/types/User.ts:18](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/User.ts#L18)
 
 Editor auto-indent
 
@@ -74,7 +74,7 @@ Editor auto-indent
 
 > `optional` **editor.linenumbers**: `boolean`
 
-Defined in: [src/types/User.ts:21](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L21)
+Defined in: [src/types/User.ts:21](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/User.ts#L21)
 
 Show line numbers in editor
 
@@ -84,7 +84,7 @@ Show line numbers in editor
 
 > `optional` **editor.plain.smartpairs**: `boolean`
 
-Defined in: [src/types/User.ts:15](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L15)
+Defined in: [src/types/User.ts:15](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/User.ts#L15)
 
 Editor smart pairs (auto-close brackets, quotes)
 
@@ -94,7 +94,7 @@ Editor smart pairs (auto-close brackets, quotes)
 
 > `optional` **editor.theme**: `string`
 
-Defined in: [src/types/User.ts:24](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L24)
+Defined in: [src/types/User.ts:24](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/User.ts#L24)
 
 Editor theme (light, dark, etc.)
 
@@ -104,7 +104,7 @@ Editor theme (light, dark, etc.)
 
 > `optional` **locale**: `string`
 
-Defined in: [src/types/User.ts:42](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L42)
+Defined in: [src/types/User.ts:42](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/User.ts#L42)
 
 Language/locale
 
@@ -114,6 +114,6 @@ Language/locale
 
 > `optional` **timezone**: `string`
 
-Defined in: [src/types/User.ts:39](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L39)
+Defined in: [src/types/User.ts:39](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/User.ts#L39)
 
 Timezone

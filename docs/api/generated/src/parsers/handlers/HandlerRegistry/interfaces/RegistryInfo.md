@@ -6,7 +6,7 @@
 
 # Interface: RegistryInfo
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:87](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L87)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:88](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L88)
 
 Registry information summary
 
@@ -16,7 +16,7 @@ Registry information summary
 
 > **activeHandlerCount**: `number`
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:89](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L89)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:90](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L90)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [src/parsers/handlers/HandlerRegistry.ts:89](https://github.com/jwil
 
 > **config**: [`RegistryConfig`](RegistryConfig.md)
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:90](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L90)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:91](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L91)
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: [src/parsers/handlers/HandlerRegistry.ts:90](https://github.com/jwil
 
 > **handlerCount**: `number`
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:88](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L88)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:89](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L89)
 
 ***
 
@@ -40,4 +40,4 @@ Defined in: [src/parsers/handlers/HandlerRegistry.ts:88](https://github.com/jwil
 
 > **stats**: [`RegistryStats`](RegistryStats.md)
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:91](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L91)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:92](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L92)

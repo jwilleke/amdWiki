@@ -6,7 +6,7 @@
 
 # Class: ParseError
 
-Defined in: [src/parsers/dom/DOMParser.ts:474](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/DOMParser.ts#L474)
+Defined in: [src/parsers/dom/DOMParser.ts:474](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L474)
 
 Custom error class for parse errors
 
@@ -20,7 +20,7 @@ Custom error class for parse errors
 
 > **new ParseError**(`type`, `position`, `line`, `column`, `message`, `cause?`): `ParseError`
 
-Defined in: [src/parsers/dom/DOMParser.ts:496](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/DOMParser.ts#L496)
+Defined in: [src/parsers/dom/DOMParser.ts:496](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L496)
 
 Creates a parse error with position information
 
@@ -76,7 +76,7 @@ Underlying error
 
 > `optional` **cause**: `Error`
 
-Defined in: [src/parsers/dom/DOMParser.ts:484](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/DOMParser.ts#L484)
+Defined in: [src/parsers/dom/DOMParser.ts:484](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L484)
 
 Underlying error
 
@@ -90,7 +90,7 @@ Underlying error
 
 > **column**: `number`
 
-Defined in: [src/parsers/dom/DOMParser.ts:482](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/DOMParser.ts#L482)
+Defined in: [src/parsers/dom/DOMParser.ts:482](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L482)
 
 Column number
 
@@ -100,7 +100,7 @@ Column number
 
 > **line**: `number`
 
-Defined in: [src/parsers/dom/DOMParser.ts:480](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/DOMParser.ts#L480)
+Defined in: [src/parsers/dom/DOMParser.ts:480](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L480)
 
 Line number
 
@@ -110,7 +110,7 @@ Line number
 
 > **position**: `number`
 
-Defined in: [src/parsers/dom/DOMParser.ts:478](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/DOMParser.ts#L478)
+Defined in: [src/parsers/dom/DOMParser.ts:478](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L478)
 
 Character position
 
@@ -120,6 +120,6 @@ Character position
 
 > **type**: `string`
 
-Defined in: [src/parsers/dom/DOMParser.ts:476](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/DOMParser.ts#L476)
+Defined in: [src/parsers/dom/DOMParser.ts:476](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L476)
 
 Error type

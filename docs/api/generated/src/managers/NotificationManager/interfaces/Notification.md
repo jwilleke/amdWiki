@@ -6,7 +6,7 @@
 
 # Interface: Notification
 
-Defined in: [src/managers/NotificationManager.ts:10](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/NotificationManager.ts#L10)
+Defined in: [src/managers/NotificationManager.ts:11](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/NotificationManager.ts#L11)
 
 Notification object structure
 
@@ -16,7 +16,7 @@ Notification object structure
 
 > **createdAt**: `Date`
 
-Defined in: [src/managers/NotificationManager.ts:17](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/NotificationManager.ts#L17)
+Defined in: [src/managers/NotificationManager.ts:18](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/NotificationManager.ts#L18)
 
 ***
 
@@ -24,15 +24,15 @@ Defined in: [src/managers/NotificationManager.ts:17](https://github.com/jwilleke
 
 > **dismissedBy**: `string`[]
 
-Defined in: [src/managers/NotificationManager.ts:19](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/NotificationManager.ts#L19)
+Defined in: [src/managers/NotificationManager.ts:20](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/NotificationManager.ts#L20)
 
 ***
 
 ### expiresAt
 
-> **expiresAt**: `Date`
+> **expiresAt**: `Date` \| `null`
 
-Defined in: [src/managers/NotificationManager.ts:18](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/NotificationManager.ts#L18)
+Defined in: [src/managers/NotificationManager.ts:19](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/NotificationManager.ts#L19)
 
 ***
 
@@ -40,7 +40,7 @@ Defined in: [src/managers/NotificationManager.ts:18](https://github.com/jwilleke
 
 > **id**: `string`
 
-Defined in: [src/managers/NotificationManager.ts:11](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/NotificationManager.ts#L11)
+Defined in: [src/managers/NotificationManager.ts:12](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/NotificationManager.ts#L12)
 
 ***
 
@@ -48,7 +48,7 @@ Defined in: [src/managers/NotificationManager.ts:11](https://github.com/jwilleke
 
 > **level**: `"info"` \| `"error"` \| `"success"` \| `"warning"`
 
-Defined in: [src/managers/NotificationManager.ts:15](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/NotificationManager.ts#L15)
+Defined in: [src/managers/NotificationManager.ts:16](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/NotificationManager.ts#L16)
 
 ***
 
@@ -56,7 +56,7 @@ Defined in: [src/managers/NotificationManager.ts:15](https://github.com/jwilleke
 
 > **message**: `string`
 
-Defined in: [src/managers/NotificationManager.ts:14](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/NotificationManager.ts#L14)
+Defined in: [src/managers/NotificationManager.ts:15](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/NotificationManager.ts#L15)
 
 ***
 
@@ -64,7 +64,7 @@ Defined in: [src/managers/NotificationManager.ts:14](https://github.com/jwilleke
 
 > **targetUsers**: `string`[]
 
-Defined in: [src/managers/NotificationManager.ts:16](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/NotificationManager.ts#L16)
+Defined in: [src/managers/NotificationManager.ts:17](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/NotificationManager.ts#L17)
 
 ***
 
@@ -72,12 +72,12 @@ Defined in: [src/managers/NotificationManager.ts:16](https://github.com/jwilleke
 
 > **title**: `string`
 
-Defined in: [src/managers/NotificationManager.ts:13](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/NotificationManager.ts#L13)
+Defined in: [src/managers/NotificationManager.ts:14](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/NotificationManager.ts#L14)
 
 ***
 
 ### type
 
-> **type**: `"user"` \| `"system"` \| `"maintenance"`
+> **type**: `"maintenance"` \| `"system"` \| `"user"`
 
-Defined in: [src/managers/NotificationManager.ts:12](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/NotificationManager.ts#L12)
+Defined in: [src/managers/NotificationManager.ts:13](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/NotificationManager.ts#L13)

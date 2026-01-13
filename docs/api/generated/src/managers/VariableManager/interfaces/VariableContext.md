@@ -6,7 +6,7 @@
 
 # Interface: VariableContext
 
-Defined in: [src/managers/VariableManager.ts:13](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/VariableManager.ts#L13)
+Defined in: [src/managers/VariableManager.ts:15](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/VariableManager.ts#L15)
 
 Variable context interface - contains contextual information for variable expansion
 
@@ -20,7 +20,7 @@ Variable context interface - contains contextual information for variable expans
 
 > `optional` **pageName**: `string`
 
-Defined in: [src/managers/VariableManager.ts:14](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/VariableManager.ts#L14)
+Defined in: [src/managers/VariableManager.ts:16](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/VariableManager.ts#L16)
 
 ***
 
@@ -28,7 +28,7 @@ Defined in: [src/managers/VariableManager.ts:14](https://github.com/jwilleke/amd
 
 > `optional` **requestInfo**: `object`
 
-Defined in: [src/managers/VariableManager.ts:22](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/VariableManager.ts#L22)
+Defined in: [src/managers/VariableManager.ts:24](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/VariableManager.ts#L24)
 
 #### acceptLanguage?
 
@@ -56,7 +56,7 @@ Defined in: [src/managers/VariableManager.ts:22](https://github.com/jwilleke/amd
 
 > `optional` **userContext**: `object`
 
-Defined in: [src/managers/VariableManager.ts:16](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/VariableManager.ts#L16)
+Defined in: [src/managers/VariableManager.ts:18](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/VariableManager.ts#L18)
 
 #### displayName?
 
@@ -80,4 +80,4 @@ Defined in: [src/managers/VariableManager.ts:16](https://github.com/jwilleke/amd
 
 > `optional` **userName**: `string`
 
-Defined in: [src/managers/VariableManager.ts:15](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/VariableManager.ts#L15)
+Defined in: [src/managers/VariableManager.ts:17](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/VariableManager.ts#L17)

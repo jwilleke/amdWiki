@@ -6,7 +6,7 @@
 
 # Interface: WikiDocumentStatistics
 
-Defined in: [src/parsers/dom/WikiDocument.ts:106](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/WikiDocument.ts#L106)
+Defined in: [src/parsers/dom/WikiDocument.ts:106](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L106)
 
 Document statistics
 
@@ -16,7 +16,7 @@ Document statistics
 
 > **hasContext**: `boolean`
 
-Defined in: [src/parsers/dom/WikiDocument.ts:110](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/WikiDocument.ts#L110)
+Defined in: [src/parsers/dom/WikiDocument.ts:110](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L110)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [src/parsers/dom/WikiDocument.ts:110](https://github.com/jwilleke/am
 
 > **htmlLength**: `number`
 
-Defined in: [src/parsers/dom/WikiDocument.ts:109](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/WikiDocument.ts#L109)
+Defined in: [src/parsers/dom/WikiDocument.ts:109](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L109)
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: [src/parsers/dom/WikiDocument.ts:109](https://github.com/jwilleke/am
 
 > **metadata**: `number`
 
-Defined in: [src/parsers/dom/WikiDocument.ts:111](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/WikiDocument.ts#L111)
+Defined in: [src/parsers/dom/WikiDocument.ts:111](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L111)
 
 ***
 
@@ -40,7 +40,7 @@ Defined in: [src/parsers/dom/WikiDocument.ts:111](https://github.com/jwilleke/am
 
 > **nodeCount**: `number`
 
-Defined in: [src/parsers/dom/WikiDocument.ts:107](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/WikiDocument.ts#L107)
+Defined in: [src/parsers/dom/WikiDocument.ts:107](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L107)
 
 ***
 
@@ -48,4 +48,4 @@ Defined in: [src/parsers/dom/WikiDocument.ts:107](https://github.com/jwilleke/am
 
 > **pageDataLength**: `number`
 
-Defined in: [src/parsers/dom/WikiDocument.ts:108](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/WikiDocument.ts#L108)
+Defined in: [src/parsers/dom/WikiDocument.ts:108](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/WikiDocument.ts#L108)

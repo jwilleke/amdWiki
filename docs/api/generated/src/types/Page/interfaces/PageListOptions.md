@@ -6,7 +6,7 @@
 
 # Interface: PageListOptions
 
-Defined in: [src/types/Page.ts:167](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Page.ts#L167)
+Defined in: [src/types/Page.ts:167](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Page.ts#L167)
 
 Page list options
 
@@ -18,7 +18,7 @@ Options for filtering and sorting page lists.
 
 > `optional` **author**: `string`
 
-Defined in: [src/types/Page.ts:172](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Page.ts#L172)
+Defined in: [src/types/Page.ts:172](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Page.ts#L172)
 
 Filter by author
 
@@ -28,7 +28,7 @@ Filter by author
 
 > `optional` **category**: `string`
 
-Defined in: [src/types/Page.ts:169](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Page.ts#L169)
+Defined in: [src/types/Page.ts:169](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Page.ts#L169)
 
 Filter by category
 
@@ -38,7 +38,7 @@ Filter by category
 
 > `optional` **includeRequired**: `boolean`
 
-Defined in: [src/types/Page.ts:190](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Page.ts#L190)
+Defined in: [src/types/Page.ts:190](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Page.ts#L190)
 
 Include required-pages in results
 
@@ -48,7 +48,7 @@ Include required-pages in results
 
 > `optional` **keywords**: `string`[]
 
-Defined in: [src/types/Page.ts:175](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Page.ts#L175)
+Defined in: [src/types/Page.ts:175](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Page.ts#L175)
 
 Filter by keywords (AND logic)
 
@@ -58,7 +58,7 @@ Filter by keywords (AND logic)
 
 > `optional` **limit**: `number`
 
-Defined in: [src/types/Page.ts:184](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Page.ts#L184)
+Defined in: [src/types/Page.ts:184](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Page.ts#L184)
 
 Pagination: number of results per page
 
@@ -68,7 +68,7 @@ Pagination: number of results per page
 
 > `optional` **offset**: `number`
 
-Defined in: [src/types/Page.ts:187](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Page.ts#L187)
+Defined in: [src/types/Page.ts:187](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Page.ts#L187)
 
 Pagination: page offset (0-based)
 
@@ -78,7 +78,7 @@ Pagination: page offset (0-based)
 
 > `optional` **sortBy**: `"title"` \| `"lastModified"` \| `"category"` \| `"author"`
 
-Defined in: [src/types/Page.ts:178](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Page.ts#L178)
+Defined in: [src/types/Page.ts:178](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Page.ts#L178)
 
 Sort field
 
@@ -88,6 +88,6 @@ Sort field
 
 > `optional` **sortOrder**: `"asc"` \| `"desc"`
 
-Defined in: [src/types/Page.ts:181](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Page.ts#L181)
+Defined in: [src/types/Page.ts:181](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Page.ts#L181)
 
 Sort order

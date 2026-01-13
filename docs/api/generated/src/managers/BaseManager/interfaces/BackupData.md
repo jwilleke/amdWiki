@@ -6,13 +6,17 @@
 
 # Interface: BackupData
 
-Defined in: [src/managers/BaseManager.ts:25](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L25)
+Defined in: [src/managers/BaseManager.ts:23](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L23)
 
 Backup data structure returned by backup() method
 
+## Extended by
+
+- [`AttachmentBackupData`](../../AttachmentManager/interfaces/AttachmentBackupData.md)
+
 ## Indexable
 
-\[`key`: `string`\]: `any`
+\[`key`: `string`\]: `unknown`
 
 Allow additional properties
 
@@ -20,9 +24,9 @@ Allow additional properties
 
 ### data?
 
-> `optional` **data**: `any`
+> `optional` **data**: `unknown`
 
-Defined in: [src/managers/BaseManager.ts:33](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L33)
+Defined in: [src/managers/BaseManager.ts:31](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L31)
 
 Manager-specific backup data
 
@@ -32,7 +36,7 @@ Manager-specific backup data
 
 > **managerName**: `string`
 
-Defined in: [src/managers/BaseManager.ts:27](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L27)
+Defined in: [src/managers/BaseManager.ts:25](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L25)
 
 Name of the manager that created this backup
 
@@ -42,7 +46,7 @@ Name of the manager that created this backup
 
 > `optional` **note**: `string`
 
-Defined in: [src/managers/BaseManager.ts:42](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L42)
+Defined in: [src/managers/BaseManager.ts:40](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L40)
 
 Optional note about the backup
 
@@ -50,9 +54,9 @@ Optional note about the backup
 
 ### providerBackup?
 
-> `optional` **providerBackup**: `any`
+> `optional` **providerBackup**: `unknown`
 
-Defined in: [src/managers/BaseManager.ts:39](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L39)
+Defined in: [src/managers/BaseManager.ts:37](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L37)
 
 Provider-specific backup data
 
@@ -60,9 +64,9 @@ Provider-specific backup data
 
 ### providerClass?
 
-> `optional` **providerClass**: `string`
+> `optional` **providerClass**: `string` \| `null`
 
-Defined in: [src/managers/BaseManager.ts:36](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L36)
+Defined in: [src/managers/BaseManager.ts:34](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L34)
 
 Provider class name (for managers with providers)
 
@@ -72,6 +76,6 @@ Provider class name (for managers with providers)
 
 > **timestamp**: `string`
 
-Defined in: [src/managers/BaseManager.ts:30](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L30)
+Defined in: [src/managers/BaseManager.ts:28](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L28)
 
 ISO timestamp when backup was created

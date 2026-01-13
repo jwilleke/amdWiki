@@ -8,7 +8,7 @@
 
 > **main**(): `Promise`\<`void`\>
 
-Defined in: [src/utils/standardize-categories.ts:298](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/standardize-categories.ts#L298)
+Defined in: [src/utils/standardize-categories.ts:298](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/standardize-categories.ts#L298)
 
 Main execution
 

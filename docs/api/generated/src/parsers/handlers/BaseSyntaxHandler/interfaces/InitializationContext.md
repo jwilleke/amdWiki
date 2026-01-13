@@ -6,7 +6,7 @@
 
 # Interface: InitializationContext
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:141](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L141)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:143](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L143)
 
 Initialization context (minimal interface for unconverted dependencies)
 
@@ -16,7 +16,7 @@ Initialization context (minimal interface for unconverted dependencies)
 
 > `optional` **engine**: `object`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:142](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L142)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:144](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L144)
 
 #### getManager()
 
@@ -38,7 +38,7 @@ Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:142](https://github.com/j
 
 > `optional` **handlerRegistry**: `object`
 
-Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:145](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/BaseSyntaxHandler.ts#L145)
+Defined in: [src/parsers/handlers/BaseSyntaxHandler.ts:147](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/BaseSyntaxHandler.ts#L147)
 
 #### getHandler()
 

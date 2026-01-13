@@ -6,7 +6,7 @@
 
 # Interface: HandlerInitContext
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:51](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L51)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:52](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L52)
 
 Initialization context for handlers
 
@@ -14,9 +14,9 @@ Initialization context for handlers
 
 ### engine
 
-> **engine**: [`WikiEngine`](WikiEngine.md)
+> **engine**: [`WikiEngine`](WikiEngine.md) \| `undefined`
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:52](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L52)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:53](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L53)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [src/parsers/handlers/HandlerRegistry.ts:52](https://github.com/jwil
 
 > **handlerRegistry**: [`HandlerRegistry`](../classes/HandlerRegistry.md)
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:53](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L53)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:54](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L54)
 
 ***
 
@@ -32,4 +32,4 @@ Defined in: [src/parsers/handlers/HandlerRegistry.ts:53](https://github.com/jwil
 
 > **registrationOptions**: [`RegistrationOptions`](RegistrationOptions.md)
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:54](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L54)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:55](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L55)

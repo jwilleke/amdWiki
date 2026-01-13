@@ -6,7 +6,7 @@
 
 # Interface: ContentValidationResult
 
-Defined in: [src/managers/ValidationManager.ts:41](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ValidationManager.ts#L41)
+Defined in: [src/managers/ValidationManager.ts:43](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L43)
 
 Content validation result interface
 
@@ -16,4 +16,4 @@ Content validation result interface
 
 > **warnings**: `string`[]
 
-Defined in: [src/managers/ValidationManager.ts:42](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ValidationManager.ts#L42)
+Defined in: [src/managers/ValidationManager.ts:44](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L44)

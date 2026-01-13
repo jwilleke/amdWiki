@@ -6,7 +6,7 @@
 
 # Interface: ParserStats
 
-Defined in: [src/parsers/LinkParser.ts:131](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L131)
+Defined in: [src/parsers/LinkParser.ts:132](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L132)
 
 Parser statistics
 
@@ -16,7 +16,7 @@ Parser statistics
 
 > **allowedAttributes**: `number`
 
-Defined in: [src/parsers/LinkParser.ts:137](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L137)
+Defined in: [src/parsers/LinkParser.ts:138](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L138)
 
 Number of allowed attributes
 
@@ -26,7 +26,7 @@ Number of allowed attributes
 
 > **interWikiSitesCount**: `number`
 
-Defined in: [src/parsers/LinkParser.ts:135](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L135)
+Defined in: [src/parsers/LinkParser.ts:136](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L136)
 
 Number of InterWiki sites configured
 
@@ -36,7 +36,7 @@ Number of InterWiki sites configured
 
 > **pageNamesCount**: `number`
 
-Defined in: [src/parsers/LinkParser.ts:133](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L133)
+Defined in: [src/parsers/LinkParser.ts:134](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L134)
 
 Number of page names in cache
 
@@ -46,6 +46,6 @@ Number of page names in cache
 
 > **securityEnabled**: `boolean`
 
-Defined in: [src/parsers/LinkParser.ts:139](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L139)
+Defined in: [src/parsers/LinkParser.ts:140](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L140)
 
 Whether security features are enabled

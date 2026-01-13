@@ -6,7 +6,7 @@
 
 # Interface: UserCreateData
 
-Defined in: [src/types/User.ts:102](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L102)
+Defined in: [src/types/User.ts:102](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/User.ts#L102)
 
 User creation data
 
@@ -18,7 +18,7 @@ Data required to create a new user (no password hash yet).
 
 > **displayName**: `string`
 
-Defined in: [src/types/User.ts:110](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L110)
+Defined in: [src/types/User.ts:110](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/User.ts#L110)
 
 Display name
 
@@ -28,7 +28,7 @@ Display name
 
 > **email**: `string`
 
-Defined in: [src/types/User.ts:107](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L107)
+Defined in: [src/types/User.ts:107](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/User.ts#L107)
 
 Email address
 
@@ -38,7 +38,7 @@ Email address
 
 > `optional` **isActive**: `boolean`
 
-Defined in: [src/types/User.ts:119](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L119)
+Defined in: [src/types/User.ts:119](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/User.ts#L119)
 
 Whether account starts active
 
@@ -48,7 +48,7 @@ Whether account starts active
 
 > **password**: `string`
 
-Defined in: [src/types/User.ts:113](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L113)
+Defined in: [src/types/User.ts:113](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/User.ts#L113)
 
 Plain text password (will be hashed)
 
@@ -58,7 +58,7 @@ Plain text password (will be hashed)
 
 > `optional` **preferences**: `Partial`\<[`UserPreferences`](UserPreferences.md)\>
 
-Defined in: [src/types/User.ts:122](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L122)
+Defined in: [src/types/User.ts:122](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/User.ts#L122)
 
 User preferences
 
@@ -68,7 +68,7 @@ User preferences
 
 > `optional` **roles**: `string`[]
 
-Defined in: [src/types/User.ts:116](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L116)
+Defined in: [src/types/User.ts:116](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/User.ts#L116)
 
 Initial roles
 
@@ -78,6 +78,6 @@ Initial roles
 
 > **username**: `string`
 
-Defined in: [src/types/User.ts:104](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/User.ts#L104)
+Defined in: [src/types/User.ts:104](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/User.ts#L104)
 
 Username (unique)

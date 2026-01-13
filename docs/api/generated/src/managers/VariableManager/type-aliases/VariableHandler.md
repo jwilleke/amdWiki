@@ -8,7 +8,7 @@
 
 > **VariableHandler** = (`context?`) => `string`
 
-Defined in: [src/managers/VariableManager.ts:8](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/VariableManager.ts#L8)
+Defined in: [src/managers/VariableManager.ts:10](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/VariableManager.ts#L10)
 
 Variable handler function type
 

@@ -6,9 +6,17 @@
 
 # Interface: MarkupParserConfig
 
-Defined in: [src/parsers/MarkupParser.ts:33](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L33)
+Defined in: [src/parsers/MarkupParser.ts:31](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L31)
 
 Configuration for MarkupParser
+
+## Extends
+
+- `Record`\<`string`, `unknown`\>
+
+## Indexable
+
+\[`key`: `string`\]: `unknown`
 
 ## Properties
 
@@ -16,7 +24,7 @@ Configuration for MarkupParser
 
 > **cache**: [`CacheConfig`](CacheConfig.md)
 
-Defined in: [src/parsers/MarkupParser.ts:47](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L47)
+Defined in: [src/parsers/MarkupParser.ts:45](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L45)
 
 Cache configuration
 
@@ -26,7 +34,7 @@ Cache configuration
 
 > **cacheTTL**: `number`
 
-Defined in: [src/parsers/MarkupParser.ts:39](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L39)
+Defined in: [src/parsers/MarkupParser.ts:37](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L37)
 
 Cache TTL in seconds
 
@@ -36,7 +44,7 @@ Cache TTL in seconds
 
 > **caching**: `boolean`
 
-Defined in: [src/parsers/MarkupParser.ts:37](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L37)
+Defined in: [src/parsers/MarkupParser.ts:35](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L35)
 
 Whether caching is enabled
 
@@ -46,7 +54,7 @@ Whether caching is enabled
 
 > **enabled**: `boolean`
 
-Defined in: [src/parsers/MarkupParser.ts:35](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L35)
+Defined in: [src/parsers/MarkupParser.ts:33](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L33)
 
 Whether MarkupParser is enabled
 
@@ -56,7 +64,7 @@ Whether MarkupParser is enabled
 
 > **filters**: [`FilterConfig`](FilterConfig.md)
 
-Defined in: [src/parsers/MarkupParser.ts:45](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L45)
+Defined in: [src/parsers/MarkupParser.ts:43](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L43)
 
 Filter configuration
 
@@ -66,7 +74,7 @@ Filter configuration
 
 > **handlerRegistry**: [`HandlerRegistryConfig`](HandlerRegistryConfig.md)
 
-Defined in: [src/parsers/MarkupParser.ts:41](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L41)
+Defined in: [src/parsers/MarkupParser.ts:39](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L39)
 
 Handler registry configuration
 
@@ -76,7 +84,7 @@ Handler registry configuration
 
 > **handlers**: `Record`\<`string`, [`HandlerConfig`](HandlerConfig.md)\>
 
-Defined in: [src/parsers/MarkupParser.ts:43](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L43)
+Defined in: [src/parsers/MarkupParser.ts:41](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L41)
 
 Handler configurations
 
@@ -86,6 +94,6 @@ Handler configurations
 
 > **performance**: [`PerformanceConfig`](PerformanceConfig.md)
 
-Defined in: [src/parsers/MarkupParser.ts:49](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L49)
+Defined in: [src/parsers/MarkupParser.ts:47](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L47)
 
 Performance configuration

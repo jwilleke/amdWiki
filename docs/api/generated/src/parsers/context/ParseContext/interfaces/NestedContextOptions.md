@@ -6,7 +6,7 @@
 
 # Interface: NestedContextOptions
 
-Defined in: [src/parsers/context/ParseContext.ts:62](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L62)
+Defined in: [src/parsers/context/ParseContext.ts:62](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L62)
 
 Nested context structure (from WikiContext.toParseOptions())
 
@@ -16,7 +16,7 @@ Nested context structure (from WikiContext.toParseOptions())
 
 > `optional` **engine**: [`WikiEngine`](WikiEngine.md)
 
-Defined in: [src/parsers/context/ParseContext.ts:64](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L64)
+Defined in: [src/parsers/context/ParseContext.ts:64](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L64)
 
 ***
 
@@ -24,4 +24,4 @@ Defined in: [src/parsers/context/ParseContext.ts:64](https://github.com/jwilleke
 
 > **pageContext**: [`PageContext`](PageContext.md)
 
-Defined in: [src/parsers/context/ParseContext.ts:63](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L63)
+Defined in: [src/parsers/context/ParseContext.ts:63](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L63)

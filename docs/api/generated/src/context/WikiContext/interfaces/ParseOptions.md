@@ -6,7 +6,7 @@
 
 # Interface: ParseOptions
 
-Defined in: [src/context/WikiContext.ts:70](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/context/WikiContext.ts#L70)
+Defined in: [src/context/WikiContext.ts:68](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L68)
 
 Options for MarkupParser.parse()
 
@@ -16,7 +16,7 @@ Options for MarkupParser.parse()
 
 > **engine**: [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/context/WikiContext.ts:74](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/context/WikiContext.ts#L74)
+Defined in: [src/context/WikiContext.ts:72](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L72)
 
 Wiki engine instance
 
@@ -26,6 +26,6 @@ Wiki engine instance
 
 > **pageContext**: [`PageContext`](PageContext.md)
 
-Defined in: [src/context/WikiContext.ts:72](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/context/WikiContext.ts#L72)
+Defined in: [src/context/WikiContext.ts:70](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L70)
 
 Page-specific context

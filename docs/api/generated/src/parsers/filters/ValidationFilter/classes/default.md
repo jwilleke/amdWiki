@@ -6,7 +6,7 @@
 
 # Class: default
 
-Defined in: [src/parsers/filters/ValidationFilter.ts:106](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/ValidationFilter.ts#L106)
+Defined in: [src/parsers/filters/ValidationFilter.ts:107](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/ValidationFilter.ts#L107)
 
 ValidationFilter - Content validation with modular configuration
 
@@ -33,7 +33,7 @@ Epic: #41 - Implement JSPWikiMarkupParser for Complete Enhancement Support
 
 > **new default**(): `ValidationFilter`
 
-Defined in: [src/parsers/filters/ValidationFilter.ts:112](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/ValidationFilter.ts#L112)
+Defined in: [src/parsers/filters/ValidationFilter.ts:113](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/ValidationFilter.ts#L113)
 
 #### Returns
 
@@ -49,7 +49,7 @@ Defined in: [src/parsers/filters/ValidationFilter.ts:112](https://github.com/jwi
 
 > `readonly` **category**: `string`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:138](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L138)
+Defined in: [src/parsers/filters/BaseFilter.ts:140](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L140)
 
 #### Inherited from
 
@@ -59,9 +59,9 @@ Defined in: [src/parsers/filters/BaseFilter.ts:138](https://github.com/jwilleke/
 
 ### config
 
-> `protected` **config**: [`FilterConfig`](../../BaseFilter/interfaces/FilterConfig.md)
+> `protected` **config**: [`FilterConfig`](../../BaseFilter/interfaces/FilterConfig.md) \| `null`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:144](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L144)
+Defined in: [src/parsers/filters/BaseFilter.ts:146](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L146)
 
 #### Inherited from
 
@@ -73,7 +73,7 @@ Defined in: [src/parsers/filters/BaseFilter.ts:144](https://github.com/jwilleke/
 
 > `readonly` **description**: `string`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:137](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L137)
+Defined in: [src/parsers/filters/BaseFilter.ts:139](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L139)
 
 #### Inherited from
 
@@ -85,7 +85,7 @@ Defined in: [src/parsers/filters/BaseFilter.ts:137](https://github.com/jwilleke/
 
 > `protected` **enabled**: `boolean`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:142](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L142)
+Defined in: [src/parsers/filters/BaseFilter.ts:144](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L144)
 
 #### Inherited from
 
@@ -97,7 +97,7 @@ Defined in: [src/parsers/filters/BaseFilter.ts:142](https://github.com/jwilleke/
 
 > **errorReports**: `ValidationReport`[]
 
-Defined in: [src/parsers/filters/ValidationFilter.ts:110](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/ValidationFilter.ts#L110)
+Defined in: [src/parsers/filters/ValidationFilter.ts:111](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/ValidationFilter.ts#L111)
 
 ***
 
@@ -105,7 +105,7 @@ Defined in: [src/parsers/filters/ValidationFilter.ts:110](https://github.com/jwi
 
 > **filterId**: `string`
 
-Defined in: [src/parsers/filters/ValidationFilter.ts:107](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/ValidationFilter.ts#L107)
+Defined in: [src/parsers/filters/ValidationFilter.ts:108](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/ValidationFilter.ts#L108)
 
 #### Overrides
 
@@ -117,7 +117,7 @@ Defined in: [src/parsers/filters/ValidationFilter.ts:107](https://github.com/jwi
 
 > `protected` **initialized**: `boolean`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:143](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L143)
+Defined in: [src/parsers/filters/BaseFilter.ts:145](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L145)
 
 #### Inherited from
 
@@ -129,7 +129,7 @@ Defined in: [src/parsers/filters/BaseFilter.ts:143](https://github.com/jwilleke/
 
 > `protected` **options**: `Required`\<[`FilterOptions`](../../BaseFilter/interfaces/FilterOptions.md)\>
 
-Defined in: [src/parsers/filters/BaseFilter.ts:140](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L140)
+Defined in: [src/parsers/filters/BaseFilter.ts:142](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L142)
 
 #### Inherited from
 
@@ -141,7 +141,7 @@ Defined in: [src/parsers/filters/BaseFilter.ts:140](https://github.com/jwilleke/
 
 > **priority**: `number`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:134](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L134)
+Defined in: [src/parsers/filters/BaseFilter.ts:136](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L136)
 
 #### Inherited from
 
@@ -153,7 +153,7 @@ Defined in: [src/parsers/filters/BaseFilter.ts:134](https://github.com/jwilleke/
 
 > `protected` **stats**: [`FilterStats`](../../BaseFilter/interfaces/FilterStats.md)
 
-Defined in: [src/parsers/filters/BaseFilter.ts:141](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L141)
+Defined in: [src/parsers/filters/BaseFilter.ts:143](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L143)
 
 #### Inherited from
 
@@ -163,9 +163,9 @@ Defined in: [src/parsers/filters/BaseFilter.ts:141](https://github.com/jwilleke/
 
 ### validationConfig
 
-> **validationConfig**: `ValidationConfig`
+> **validationConfig**: `ValidationConfig` \| `null`
 
-Defined in: [src/parsers/filters/ValidationFilter.ts:108](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/ValidationFilter.ts#L108)
+Defined in: [src/parsers/filters/ValidationFilter.ts:109](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/ValidationFilter.ts#L109)
 
 ***
 
@@ -173,7 +173,7 @@ Defined in: [src/parsers/filters/ValidationFilter.ts:108](https://github.com/jwi
 
 > **validationRules**: `Map`\<`string`, `ValidationRule`\>
 
-Defined in: [src/parsers/filters/ValidationFilter.ts:109](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/ValidationFilter.ts#L109)
+Defined in: [src/parsers/filters/ValidationFilter.ts:110](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/ValidationFilter.ts#L110)
 
 ***
 
@@ -181,7 +181,7 @@ Defined in: [src/parsers/filters/ValidationFilter.ts:109](https://github.com/jwi
 
 > `readonly` **version**: `string`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:136](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L136)
+Defined in: [src/parsers/filters/BaseFilter.ts:138](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L138)
 
 #### Inherited from
 
@@ -193,7 +193,7 @@ Defined in: [src/parsers/filters/BaseFilter.ts:136](https://github.com/jwilleke/
 
 > **addValidationComments**(`content`, `errors`, `warnings`): `string`
 
-Defined in: [src/parsers/filters/ValidationFilter.ts:541](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/ValidationFilter.ts#L541)
+Defined in: [src/parsers/filters/ValidationFilter.ts:532](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/ValidationFilter.ts#L532)
 
 Add validation comments to content (modular error reporting)
 
@@ -229,7 +229,7 @@ Content with validation comments
 
 > **addValidationRule**(`ruleName`, `validator`, `errorMessage`, `severity`): `boolean`
 
-Defined in: [src/parsers/filters/ValidationFilter.ts:587](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/ValidationFilter.ts#L587)
+Defined in: [src/parsers/filters/ValidationFilter.ts:578](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/ValidationFilter.ts#L578)
 
 Add custom validation rule (modular extensibility)
 
@@ -271,7 +271,7 @@ True if rule added
 
 > **clearValidationReports**(): `void`
 
-Defined in: [src/parsers/filters/ValidationFilter.ts:575](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/ValidationFilter.ts#L575)
+Defined in: [src/parsers/filters/ValidationFilter.ts:566](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/ValidationFilter.ts#L566)
 
 Clear validation error reports
 
@@ -285,7 +285,7 @@ Clear validation error reports
 
 > `protected` **createErrorContext**(`error`, `content`, `context`): [`FilterErrorContext`](../../BaseFilter/interfaces/FilterErrorContext.md)
 
-Defined in: [src/parsers/filters/BaseFilter.ts:341](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L341)
+Defined in: [src/parsers/filters/BaseFilter.ts:340](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L340)
 
 Create error context for debugging (modular error handling)
 
@@ -325,7 +325,7 @@ Error context
 
 > **disable**(): `void`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:367](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L367)
+Defined in: [src/parsers/filters/BaseFilter.ts:366](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L366)
 
 Disable the filter
 
@@ -343,7 +343,7 @@ Disable the filter
 
 > **enable**(): `void`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:360](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L360)
+Defined in: [src/parsers/filters/BaseFilter.ts:359](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L359)
 
 Enable the filter
 
@@ -361,7 +361,7 @@ Enable the filter
 
 > **execute**(`content`, `context`): `Promise`\<`string`\>
 
-Defined in: [src/parsers/filters/BaseFilter.ts:300](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L300)
+Defined in: [src/parsers/filters/BaseFilter.ts:300](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L300)
 
 Execute filter with performance tracking and error handling
 
@@ -395,7 +395,7 @@ Processed content
 
 > **getConfigurationSummary**(): [`ConfigurationSummary`](../../BaseFilter/interfaces/ConfigurationSummary.md)
 
-Defined in: [src/parsers/filters/BaseFilter.ts:435](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L435)
+Defined in: [src/parsers/filters/BaseFilter.ts:434](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L434)
 
 Get configuration summary for debugging (modular introspection)
 
@@ -413,15 +413,15 @@ Configuration summary
 
 ### getFilterType()
 
-> `protected` **getFilterType**(): `string`
+> `protected` **getFilterType**(): `string` \| `null`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:265](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L265)
+Defined in: [src/parsers/filters/BaseFilter.ts:265](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L265)
 
 Get filter type for configuration lookup (override in subclasses)
 
 #### Returns
 
-`string`
+`string` \| `null`
 
 Filter type for configuration
 
@@ -435,7 +435,7 @@ Filter type for configuration
 
 > **getInfo**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [src/parsers/filters/ValidationFilter.ts:651](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/ValidationFilter.ts#L651)
+Defined in: [src/parsers/filters/ValidationFilter.ts:640](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/ValidationFilter.ts#L640)
 
 Get filter information for debugging and documentation
 
@@ -451,7 +451,7 @@ Filter information
 
 > **getMetadata**(): [`FilterMetadata`](../../BaseFilter/interfaces/FilterMetadata.md)
 
-Defined in: [src/parsers/filters/BaseFilter.ts:417](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L417)
+Defined in: [src/parsers/filters/BaseFilter.ts:416](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L416)
 
 Get filter metadata
 
@@ -471,7 +471,7 @@ Filter metadata
 
 > **getStats**(): [`FilterStats`](../../BaseFilter/interfaces/FilterStats.md) & `object`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:383](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L383)
+Defined in: [src/parsers/filters/BaseFilter.ts:382](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L382)
 
 Get filter statistics
 
@@ -491,7 +491,7 @@ Filter statistics
 
 > **getValidationConfiguration**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [src/parsers/filters/ValidationFilter.ts:622](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/ValidationFilter.ts#L622)
+Defined in: [src/parsers/filters/ValidationFilter.ts:611](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/ValidationFilter.ts#L611)
 
 Get validation configuration summary (modular introspection)
 
@@ -507,7 +507,7 @@ Validation configuration summary
 
 > **getValidationReports**(`limit`): `ValidationReport`[]
 
-Defined in: [src/parsers/filters/ValidationFilter.ts:568](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/ValidationFilter.ts#L568)
+Defined in: [src/parsers/filters/ValidationFilter.ts:559](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/ValidationFilter.ts#L559)
 
 Get validation error reports (modular error reporting)
 
@@ -531,7 +531,7 @@ Recent validation error reports
 
 > **handleValidationResults**(`_content`, `errors`, `warnings`, `context`): `Promise`\<`void`\>
 
-Defined in: [src/parsers/filters/ValidationFilter.ts:487](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/ValidationFilter.ts#L487)
+Defined in: [src/parsers/filters/ValidationFilter.ts:480](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/ValidationFilter.ts#L480)
 
 Handle validation results based on configuration (modular error handling)
 
@@ -571,7 +571,7 @@ Parse context
 
 > **initialize**(`context`): `Promise`\<`void`\>
 
-Defined in: [src/parsers/filters/BaseFilter.ts:199](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L199)
+Defined in: [src/parsers/filters/BaseFilter.ts:201](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L201)
 
 Initialize filter with modular configuration
 
@@ -597,7 +597,7 @@ Initialization context
 
 > **initializeValidationRules**(): `void`
 
-Defined in: [src/parsers/filters/ValidationFilter.ts:207](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/ValidationFilter.ts#L207)
+Defined in: [src/parsers/filters/ValidationFilter.ts:201](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/ValidationFilter.ts#L201)
 
 Initialize validation rules based on configuration (modular rule system)
 
@@ -611,7 +611,7 @@ Initialize validation rules based on configuration (modular rule system)
 
 > **isEnabled**(): `boolean`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:375](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L375)
+Defined in: [src/parsers/filters/BaseFilter.ts:374](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L374)
 
 Check if filter is enabled
 
@@ -631,7 +631,7 @@ True if enabled
 
 > **isTrustedImageDomain**(`url`): `boolean`
 
-Defined in: [src/parsers/filters/ValidationFilter.ts:462](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/ValidationFilter.ts#L462)
+Defined in: [src/parsers/filters/ValidationFilter.ts:455](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/ValidationFilter.ts#L455)
 
 Check if image domain is trusted (modular domain validation)
 
@@ -655,7 +655,7 @@ True if from trusted domain
 
 > **isValidImageURL**(`url`): `boolean`
 
-Defined in: [src/parsers/filters/ValidationFilter.ts:442](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/ValidationFilter.ts#L442)
+Defined in: [src/parsers/filters/ValidationFilter.ts:435](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/ValidationFilter.ts#L435)
 
 Validate image URL and format (modular image validation)
 
@@ -679,7 +679,7 @@ True if valid image
 
 > **isValidURL**(`url`): `boolean`
 
-Defined in: [src/parsers/filters/ValidationFilter.ts:415](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/ValidationFilter.ts#L415)
+Defined in: [src/parsers/filters/ValidationFilter.ts:408](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/ValidationFilter.ts#L408)
 
 Validate URL format and safety (modular URL validation)
 
@@ -703,7 +703,7 @@ True if valid
 
 > `protected` **loadModularConfiguration**(`context`): `void`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:217](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L217)
+Defined in: [src/parsers/filters/BaseFilter.ts:219](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L219)
 
 Load configuration from app-default-config.json and app-custom-config.json
 
@@ -729,7 +729,7 @@ Initialization context
 
 > **loadModularValidationConfiguration**(`context`): `void`
 
-Defined in: [src/parsers/filters/ValidationFilter.ts:159](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/ValidationFilter.ts#L159)
+Defined in: [src/parsers/filters/ValidationFilter.ts:154](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/ValidationFilter.ts#L154)
 
 Load modular validation configuration from app-default/custom-config.json
 
@@ -751,7 +751,7 @@ Initialization context
 
 > **onInitialize**(`context`): `Promise`\<`void`\>
 
-Defined in: [src/parsers/filters/ValidationFilter.ts:134](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/ValidationFilter.ts#L134)
+Defined in: [src/parsers/filters/ValidationFilter.ts:135](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/ValidationFilter.ts#L135)
 
 Initialize filter with modular validation configuration
 
@@ -777,7 +777,7 @@ Initialization context
 
 > `protected` **onShutdown**(): `Promise`\<`void`\>
 
-Defined in: [src/parsers/filters/BaseFilter.ts:457](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L457)
+Defined in: [src/parsers/filters/BaseFilter.ts:456](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L456)
 
 Custom shutdown logic (override in subclasses)
 
@@ -795,7 +795,7 @@ Custom shutdown logic (override in subclasses)
 
 > **process**(`content`, `context`): `Promise`\<`string`\>
 
-Defined in: [src/parsers/filters/ValidationFilter.ts:277](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/ValidationFilter.ts#L277)
+Defined in: [src/parsers/filters/ValidationFilter.ts:271](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/ValidationFilter.ts#L271)
 
 Process content through validation filters (modular validation)
 
@@ -829,7 +829,7 @@ Validated content (with error comments if configured)
 
 > **removeValidationRule**(`ruleName`): `boolean`
 
-Defined in: [src/parsers/filters/ValidationFilter.ts:608](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/ValidationFilter.ts#L608)
+Defined in: [src/parsers/filters/ValidationFilter.ts:598](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/ValidationFilter.ts#L598)
 
 Remove custom validation rule (modular management)
 
@@ -853,7 +853,7 @@ True if rule removed
 
 > **resetStats**(): `void`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:403](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L403)
+Defined in: [src/parsers/filters/BaseFilter.ts:402](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L402)
 
 Reset filter statistics
 
@@ -871,7 +871,7 @@ Reset filter statistics
 
 > **shutdown**(): `Promise`\<`void`\>
 
-Defined in: [src/parsers/filters/BaseFilter.ts:449](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L449)
+Defined in: [src/parsers/filters/BaseFilter.ts:448](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L448)
 
 Clean up filter resources (optional override)
 
@@ -889,7 +889,7 @@ Clean up filter resources (optional override)
 
 > **toString**(): `string`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:465](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L465)
+Defined in: [src/parsers/filters/BaseFilter.ts:464](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L464)
 
 String representation of filter
 
@@ -909,7 +909,7 @@ String representation
 
 > **validateImages**(`content`): `boolean`
 
-Defined in: [src/parsers/filters/ValidationFilter.ts:380](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/ValidationFilter.ts#L380)
+Defined in: [src/parsers/filters/ValidationFilter.ts:373](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/ValidationFilter.ts#L373)
 
 Validate images in content (modular image validation)
 
@@ -933,7 +933,7 @@ True if all images are valid
 
 > **validateLinks**(`content`): `boolean`
 
-Defined in: [src/parsers/filters/ValidationFilter.ts:345](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/ValidationFilter.ts#L345)
+Defined in: [src/parsers/filters/ValidationFilter.ts:338](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/ValidationFilter.ts#L338)
 
 Validate links in content (modular link validation)
 
@@ -957,7 +957,7 @@ True if all links are valid
 
 > **validateMarkupSyntax**(`content`): `boolean`
 
-Defined in: [src/parsers/filters/ValidationFilter.ts:328](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/ValidationFilter.ts#L328)
+Defined in: [src/parsers/filters/ValidationFilter.ts:321](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/ValidationFilter.ts#L321)
 
 Validate markup syntax (modular markup validation)
 

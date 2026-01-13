@@ -6,7 +6,7 @@
 
 # Interface: ValidationResult
 
-Defined in: [src/utils/final-validation.ts:21](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/final-validation.ts#L21)
+Defined in: [src/utils/final-validation.ts:21](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/final-validation.ts#L21)
 
 Validation result for a single page
 
@@ -16,7 +16,7 @@ Validation result for a single page
 
 > `optional` **error**: `string`
 
-Defined in: [src/utils/final-validation.ts:23](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/final-validation.ts#L23)
+Defined in: [src/utils/final-validation.ts:23](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/final-validation.ts#L23)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [src/utils/final-validation.ts:23](https://github.com/jwilleke/amdWi
 
 > `optional` **metadata**: [`PageMetadata`](PageMetadata.md)
 
-Defined in: [src/utils/final-validation.ts:24](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/final-validation.ts#L24)
+Defined in: [src/utils/final-validation.ts:24](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/final-validation.ts#L24)
 
 ***
 
@@ -32,4 +32,4 @@ Defined in: [src/utils/final-validation.ts:24](https://github.com/jwilleke/amdWi
 
 > **valid**: `boolean`
 
-Defined in: [src/utils/final-validation.ts:22](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/final-validation.ts#L22)
+Defined in: [src/utils/final-validation.ts:22](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/final-validation.ts#L22)

@@ -6,7 +6,7 @@
 
 # Class: default
 
-Defined in: [src/providers/FileAuditProvider.ts:66](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/FileAuditProvider.ts#L66)
+Defined in: [src/providers/FileAuditProvider.ts:66](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileAuditProvider.ts#L66)
 
 FileAuditProvider - File-based audit log storage
 
@@ -30,7 +30,7 @@ Configuration keys (all lowercase):
 
 > **new default**(`engine`): `FileAuditProvider`
 
-Defined in: [src/providers/FileAuditProvider.ts:73](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/FileAuditProvider.ts#L73)
+Defined in: [src/providers/FileAuditProvider.ts:73](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileAuditProvider.ts#L73)
 
 #### Parameters
 
@@ -52,7 +52,7 @@ Defined in: [src/providers/FileAuditProvider.ts:73](https://github.com/jwilleke/
 
 > `protected` **engine**: [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/providers/BaseAuditProvider.ts:156](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L156)
+Defined in: [src/providers/BaseAuditProvider.ts:156](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseAuditProvider.ts#L156)
 
 Reference to the wiki engine
 
@@ -66,7 +66,7 @@ Reference to the wiki engine
 
 > **initialized**: `boolean`
 
-Defined in: [src/providers/BaseAuditProvider.ts:159](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L159)
+Defined in: [src/providers/BaseAuditProvider.ts:159](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseAuditProvider.ts#L159)
 
 Whether provider has been initialized
 
@@ -80,7 +80,7 @@ Whether provider has been initialized
 
 > **backup**(): `Promise`\<[`AuditBackupData`](../../BaseAuditProvider/interfaces/AuditBackupData.md)\>
 
-Defined in: [src/providers/FileAuditProvider.ts:534](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/FileAuditProvider.ts#L534)
+Defined in: [src/providers/FileAuditProvider.ts:536](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileAuditProvider.ts#L536)
 
 Backup audit configuration and statistics
 
@@ -100,7 +100,7 @@ Backup data
 
 > **cleanup**(): `Promise`\<`void`\>
 
-Defined in: [src/providers/FileAuditProvider.ts:470](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/FileAuditProvider.ts#L470)
+Defined in: [src/providers/FileAuditProvider.ts:472](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileAuditProvider.ts#L472)
 
 Clean up old audit logs based on retention policy
 
@@ -118,7 +118,7 @@ Clean up old audit logs based on retention policy
 
 > **close**(): `Promise`\<`void`\>
 
-Defined in: [src/providers/FileAuditProvider.ts:516](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/FileAuditProvider.ts#L516)
+Defined in: [src/providers/FileAuditProvider.ts:518](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileAuditProvider.ts#L518)
 
 Close/cleanup the audit provider
 
@@ -136,7 +136,7 @@ Close/cleanup the audit provider
 
 > **exportAuditLogs**(`filters`, `format`): `Promise`\<`string`\>
 
-Defined in: [src/providers/FileAuditProvider.ts:367](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/FileAuditProvider.ts#L367)
+Defined in: [src/providers/FileAuditProvider.ts:369](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileAuditProvider.ts#L369)
 
 Export audit logs
 
@@ -170,7 +170,7 @@ Exported data
 
 > **flush**(): `Promise`\<`void`\>
 
-Defined in: [src/providers/FileAuditProvider.ts:395](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/FileAuditProvider.ts#L395)
+Defined in: [src/providers/FileAuditProvider.ts:397](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileAuditProvider.ts#L397)
 
 Flush pending audit events to storage
 
@@ -188,7 +188,7 @@ Flush pending audit events to storage
 
 > **getAuditStats**(`filters`): `Promise`\<[`AuditStats`](../../BaseAuditProvider/interfaces/AuditStats.md)\>
 
-Defined in: [src/providers/FileAuditProvider.ts:310](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/FileAuditProvider.ts#L310)
+Defined in: [src/providers/FileAuditProvider.ts:310](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileAuditProvider.ts#L310)
 
 Get audit statistics
 
@@ -216,7 +216,7 @@ Audit statistics
 
 > **getProviderInfo**(): `object`
 
-Defined in: [src/providers/FileAuditProvider.ts:159](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/FileAuditProvider.ts#L159)
+Defined in: [src/providers/FileAuditProvider.ts:159](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileAuditProvider.ts#L159)
 
 Get provider information
 
@@ -252,7 +252,7 @@ Provider metadata
 
 > **initialize**(): `Promise`\<`void`\>
 
-Defined in: [src/providers/FileAuditProvider.ts:86](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/FileAuditProvider.ts#L86)
+Defined in: [src/providers/FileAuditProvider.ts:86](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileAuditProvider.ts#L86)
 
 Initialize the file audit provider
 
@@ -270,7 +270,7 @@ Initialize the file audit provider
 
 > **isHealthy**(): `Promise`\<`boolean`\>
 
-Defined in: [src/providers/FileAuditProvider.ts:497](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/FileAuditProvider.ts#L497)
+Defined in: [src/providers/FileAuditProvider.ts:499](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileAuditProvider.ts#L499)
 
 Check if the audit provider is healthy
 
@@ -290,7 +290,7 @@ True if healthy
 
 > **logAuditEvent**(`auditEvent`): `Promise`\<`string`\>
 
-Defined in: [src/providers/FileAuditProvider.ts:173](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/FileAuditProvider.ts#L173)
+Defined in: [src/providers/FileAuditProvider.ts:173](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileAuditProvider.ts#L173)
 
 Log an audit event
 
@@ -318,7 +318,7 @@ Event ID
 
 > **restore**(`_backupData`): `Promise`\<`void`\>
 
-Defined in: [src/providers/BaseAuditProvider.ts:325](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseAuditProvider.ts#L325)
+Defined in: [src/providers/BaseAuditProvider.ts:325](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseAuditProvider.ts#L325)
 
 Restore audit from backup (optional)
 
@@ -349,7 +349,7 @@ Backup data
 
 > **searchAuditLogs**(`filters`, `options`): `Promise`\<[`AuditSearchResults`](../../BaseAuditProvider/interfaces/AuditSearchResults.md)\>
 
-Defined in: [src/providers/FileAuditProvider.ts:228](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/FileAuditProvider.ts#L228)
+Defined in: [src/providers/FileAuditProvider.ts:228](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/FileAuditProvider.ts#L228)
 
 Search audit logs
 

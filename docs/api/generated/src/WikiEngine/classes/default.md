@@ -6,7 +6,7 @@
 
 # Class: default
 
-Defined in: [src/WikiEngine.ts:51](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/WikiEngine.ts#L51)
+Defined in: [src/WikiEngine.ts:50](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/WikiEngine.ts#L50)
 
 WikiEngine - The core orchestrator for the wiki application
 
@@ -36,7 +36,7 @@ IWikiEngine
 
 > **new default**(`config?`, `context?`): `WikiEngine`
 
-Defined in: [src/WikiEngine.ts:65](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/WikiEngine.ts#L65)
+Defined in: [src/WikiEngine.ts:64](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/WikiEngine.ts#L64)
 
 Creates a new WikiEngine instance
 
@@ -50,9 +50,9 @@ Initial configuration object (not used in constructor)
 
 ##### context?
 
-[`default`](../../context/WikiContext/classes/default.md) = `null`
-
 Initial WikiContext (optional)
+
+[`default`](../../context/WikiContext/classes/default.md) | `null`
 
 #### Returns
 
@@ -68,7 +68,7 @@ Initial WikiContext (optional)
 
 > `optional` **config**: [`WikiConfig`](../../types/Config/interfaces/WikiConfig.md)
 
-Defined in: [src/core/Engine.ts:29](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/core/Engine.ts#L29)
+Defined in: [src/core/Engine.ts:29](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/core/Engine.ts#L29)
 
 Configuration object (inherited from Engine)
 
@@ -80,9 +80,9 @@ Configuration object (inherited from Engine)
 
 ### context
 
-> **context**: [`default`](../../context/WikiContext/classes/default.md)
+> **context**: [`default`](../../context/WikiContext/classes/default.md) \| `null`
 
-Defined in: [src/WikiEngine.ts:53](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/WikiEngine.ts#L53)
+Defined in: [src/WikiEngine.ts:52](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/WikiEngine.ts#L52)
 
 Currently active WikiContext for request scope
 
@@ -92,7 +92,7 @@ Currently active WikiContext for request scope
 
 > `protected` **initialized**: `boolean`
 
-Defined in: [src/core/Engine.ts:26](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/core/Engine.ts#L26)
+Defined in: [src/core/Engine.ts:26](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/core/Engine.ts#L26)
 
 Flag indicating if engine has been initialized
 
@@ -106,7 +106,7 @@ Flag indicating if engine has been initialized
 
 > `protected` **managers**: `Map`\<`string`, [`default`](../../managers/BaseManager/classes/default.md)\>
 
-Defined in: [src/core/Engine.ts:20](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/core/Engine.ts#L20)
+Defined in: [src/core/Engine.ts:20](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/core/Engine.ts#L20)
 
 Map of registered manager instances
 
@@ -120,7 +120,7 @@ Map of registered manager instances
 
 > `protected` **properties**: `Map`\<`string`, `unknown`\>
 
-Defined in: [src/core/Engine.ts:23](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/core/Engine.ts#L23)
+Defined in: [src/core/Engine.ts:23](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/core/Engine.ts#L23)
 
 Map of configuration properties
 
@@ -134,7 +134,7 @@ Map of configuration properties
 
 > `readonly` **startTime**: `number`
 
-Defined in: [src/WikiEngine.ts:56](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/WikiEngine.ts#L56)
+Defined in: [src/WikiEngine.ts:55](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/WikiEngine.ts#L55)
 
 Timestamp when the engine was started
 
@@ -144,7 +144,7 @@ Timestamp when the engine was started
 
 > `static` **createDefault**(`overrides?`): `Promise`\<`WikiEngine`\>
 
-Defined in: [src/WikiEngine.ts:261](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/WikiEngine.ts#L261)
+Defined in: [src/WikiEngine.ts:260](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/WikiEngine.ts#L260)
 
 Create a new WikiEngine with default configuration
 
@@ -183,7 +183,7 @@ const engine = await WikiEngine.createDefault({
 
 > **getApplicationName**(): `string`
 
-Defined in: [src/WikiEngine.ts:277](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/WikiEngine.ts#L277)
+Defined in: [src/WikiEngine.ts:276](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/WikiEngine.ts#L276)
 
 Get application name from configuration
 
@@ -211,7 +211,7 @@ const name = engine.getApplicationName(); // 'amdWiki'
 
 > **getConfig**(): `never`
 
-Defined in: [src/WikiEngine.ts:306](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/WikiEngine.ts#L306)
+Defined in: [src/WikiEngine.ts:305](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/WikiEngine.ts#L305)
 
 Get configuration instance
 
@@ -247,15 +247,15 @@ const value = configManager.getProperty('amdwiki.key', 'default');
 
 ### getContext()
 
-> **getContext**(): [`default`](../../context/WikiContext/classes/default.md)
+> **getContext**(): [`default`](../../context/WikiContext/classes/default.md) \| `null`
 
-Defined in: [src/WikiEngine.ts:101](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/WikiEngine.ts#L101)
+Defined in: [src/WikiEngine.ts:100](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/WikiEngine.ts#L100)
 
 Gets the currently active WikiContext
 
 #### Returns
 
-[`default`](../../context/WikiContext/classes/default.md)
+[`default`](../../context/WikiContext/classes/default.md) \| `null`
 
 The active context or null if none set
 
@@ -272,9 +272,9 @@ if (context) {
 
 ### getManager()
 
-> **getManager**\<`T`\>(`managerName`): `T`
+> **getManager**\<`T`\>(`managerName`): `T` \| `undefined`
 
-Defined in: [src/core/Engine.ts:91](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/core/Engine.ts#L91)
+Defined in: [src/core/Engine.ts:93](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/core/Engine.ts#L93)
 
 Get a manager instance by class/name
 
@@ -294,14 +294,16 @@ Name of the manager to retrieve
 
 #### Returns
 
-`T`
+`T` \| `undefined`
 
 Manager instance or undefined if not found
 
 #### Example
 
 ```ts
+// Type-safe usage with explicit type parameter:
 const pageManager = engine.getManager<PageManager>('PageManager');
+const configManager = engine.getManager<ConfigurationManager>('ConfigurationManager');
 ```
 
 #### Inherited from
@@ -312,15 +314,15 @@ const pageManager = engine.getManager<PageManager>('PageManager');
 
 ### getPageManager()
 
-> **getPageManager**(): [`export=`](../../managers/PageManager/classes/export=.md)
+> **getPageManager**(): [`export=`](../../managers/PageManager/classes/export=.md) \| `undefined`
 
-Defined in: [src/WikiEngine.ts:321](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/WikiEngine.ts#L321)
+Defined in: [src/WikiEngine.ts:320](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/WikiEngine.ts#L320)
 
 Convenience method to get PageManager
 
 #### Returns
 
-[`export=`](../../managers/PageManager/classes/export=.md)
+[`export=`](../../managers/PageManager/classes/export=.md) \| `undefined`
 
 PageManager instance or undefined if not initialized
 
@@ -334,15 +336,15 @@ const page = await engine.getPageManager()?.getPage('Main');
 
 ### getPluginManager()
 
-> **getPluginManager**(): [`default`](../../managers/PluginManager/classes/default.md)
+> **getPluginManager**(): [`default`](../../managers/PluginManager/classes/default.md) \| `undefined`
 
-Defined in: [src/WikiEngine.ts:333](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/WikiEngine.ts#L333)
+Defined in: [src/WikiEngine.ts:332](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/WikiEngine.ts#L332)
 
 Convenience method to get PluginManager
 
 #### Returns
 
-[`default`](../../managers/PluginManager/classes/default.md)
+[`default`](../../managers/PluginManager/classes/default.md) \| `undefined`
 
 PluginManager instance or undefined if not initialized
 
@@ -358,7 +360,7 @@ const plugins = engine.getPluginManager()?.getAllPlugins();
 
 > **getProperties**(): `Map`\<`string`, `unknown`\>
 
-Defined in: [src/core/Engine.ts:142](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/core/Engine.ts#L142)
+Defined in: [src/core/Engine.ts:144](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/core/Engine.ts#L144)
 
 Get all configuration properties
 
@@ -376,9 +378,9 @@ Map of all configuration properties
 
 ### getProperty()
 
-> **getProperty**\<`T`\>(`key`, `defaultValue?`): `T`
+> **getProperty**\<`T`\>(`key`, `defaultValue?`): `T` \| `null`
 
-Defined in: [src/core/Engine.ts:132](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/core/Engine.ts#L132)
+Defined in: [src/core/Engine.ts:134](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/core/Engine.ts#L134)
 
 Get configuration property value
 
@@ -398,13 +400,13 @@ Configuration property key
 
 ##### defaultValue?
 
-`T` = `null`
-
 Default value if property not found
+
+`T` | `null`
 
 #### Returns
 
-`T`
+`T` \| `null`
 
 Property value or default value
 
@@ -424,7 +426,7 @@ const appName = engine.getProperty('applicationName', 'MyWiki');
 
 > **getRegisteredManagers**(): `string`[]
 
-Defined in: [src/core/Engine.ts:118](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/core/Engine.ts#L118)
+Defined in: [src/core/Engine.ts:120](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/core/Engine.ts#L120)
 
 Get all registered manager names
 
@@ -451,7 +453,7 @@ const managers = engine.getRegisteredManagers();
 
 > **getWorkDir**(): `string`
 
-Defined in: [src/core/Engine.ts:169](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/core/Engine.ts#L169)
+Defined in: [src/core/Engine.ts:171](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/core/Engine.ts#L171)
 
 Get working directory path from configuration
 
@@ -471,7 +473,7 @@ Working directory path (defaults to './')
 
 > **initialize**(`config?`): `Promise`\<`void`\>
 
-Defined in: [src/WikiEngine.ts:139](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/WikiEngine.ts#L139)
+Defined in: [src/WikiEngine.ts:138](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/WikiEngine.ts#L138)
 
 Initialize the wiki engine with configuration
 
@@ -534,7 +536,7 @@ console.log('Engine ready with', engine.getRegisteredManagers().length, 'manager
 
 > `protected` **initializeManagers**(): `Promise`\<`void`\>
 
-Defined in: [src/core/Engine.ts:76](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/core/Engine.ts#L76)
+Defined in: [src/core/Engine.ts:76](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/core/Engine.ts#L76)
 
 Initialize all managers
 
@@ -555,7 +557,7 @@ Subclasses can make this async if needed.
 
 > **isConfigured**(): `boolean`
 
-Defined in: [src/core/Engine.ts:151](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/core/Engine.ts#L151)
+Defined in: [src/core/Engine.ts:153](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/core/Engine.ts#L153)
 
 Check if engine has been initialized
 
@@ -575,7 +577,7 @@ True if engine is initialized and configured
 
 > **registerManager**(`name`, `manager`): `void`
 
-Defined in: [src/core/Engine.ts:105](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/core/Engine.ts#L105)
+Defined in: [src/core/Engine.ts:107](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/core/Engine.ts#L107)
 
 Register a manager with the engine
 
@@ -613,7 +615,7 @@ engine.registerManager('PageManager', new PageManager(engine));
 
 > **setContext**(`context`): `WikiEngine`
 
-Defined in: [src/WikiEngine.ts:85](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/WikiEngine.ts#L85)
+Defined in: [src/WikiEngine.ts:84](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/WikiEngine.ts#L84)
 
 Sets the currently active WikiContext for the engine
 
@@ -647,7 +649,7 @@ engine.setContext(context).getPageManager().getPage('Main');
 
 > **shutdown**(): `Promise`\<`void`\>
 
-Defined in: [src/core/Engine.ts:188](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/core/Engine.ts#L188)
+Defined in: [src/core/Engine.ts:190](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/core/Engine.ts#L190)
 
 Shutdown the engine and cleanup all managers
 

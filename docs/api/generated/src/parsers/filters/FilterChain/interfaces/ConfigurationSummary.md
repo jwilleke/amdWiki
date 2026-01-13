@@ -6,7 +6,7 @@
 
 # Interface: ConfigurationSummary
 
-Defined in: [src/parsers/filters/FilterChain.ts:170](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/FilterChain.ts#L170)
+Defined in: [src/parsers/filters/FilterChain.ts:171](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L171)
 
 Configuration summary
 
@@ -20,7 +20,7 @@ Configuration summary
 
 > **cacheResults**: `boolean`
 
-Defined in: [src/parsers/filters/FilterChain.ts:29](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/FilterChain.ts#L29)
+Defined in: [src/parsers/filters/FilterChain.ts:30](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L30)
 
 #### Inherited from
 
@@ -32,7 +32,7 @@ Defined in: [src/parsers/filters/FilterChain.ts:29](https://github.com/jwilleke/
 
 > **cacheTTL**: `number`
 
-Defined in: [src/parsers/filters/FilterChain.ts:30](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/FilterChain.ts#L30)
+Defined in: [src/parsers/filters/FilterChain.ts:31](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L31)
 
 #### Inherited from
 
@@ -44,7 +44,7 @@ Defined in: [src/parsers/filters/FilterChain.ts:30](https://github.com/jwilleke/
 
 > **configurationSource**: `string`
 
-Defined in: [src/parsers/filters/FilterChain.ts:173](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/FilterChain.ts#L173)
+Defined in: [src/parsers/filters/FilterChain.ts:174](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L174)
 
 ***
 
@@ -52,7 +52,7 @@ Defined in: [src/parsers/filters/FilterChain.ts:173](https://github.com/jwilleke
 
 > **enabled**: `boolean`
 
-Defined in: [src/parsers/filters/FilterChain.ts:24](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/FilterChain.ts#L24)
+Defined in: [src/parsers/filters/FilterChain.ts:25](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L25)
 
 #### Inherited from
 
@@ -64,7 +64,7 @@ Defined in: [src/parsers/filters/FilterChain.ts:24](https://github.com/jwilleke/
 
 > **enabledFilterCount**: `number`
 
-Defined in: [src/parsers/filters/FilterChain.ts:172](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/FilterChain.ts#L172)
+Defined in: [src/parsers/filters/FilterChain.ts:173](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L173)
 
 ***
 
@@ -72,7 +72,7 @@ Defined in: [src/parsers/filters/FilterChain.ts:172](https://github.com/jwilleke
 
 > **enableParallelExecution**: `boolean`
 
-Defined in: [src/parsers/filters/FilterChain.ts:34](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/FilterChain.ts#L34)
+Defined in: [src/parsers/filters/FilterChain.ts:35](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L35)
 
 #### Inherited from
 
@@ -84,7 +84,7 @@ Defined in: [src/parsers/filters/FilterChain.ts:34](https://github.com/jwilleke/
 
 > **enableProfiling**: `boolean`
 
-Defined in: [src/parsers/filters/FilterChain.ts:27](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/FilterChain.ts#L27)
+Defined in: [src/parsers/filters/FilterChain.ts:28](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L28)
 
 #### Inherited from
 
@@ -96,7 +96,7 @@ Defined in: [src/parsers/filters/FilterChain.ts:27](https://github.com/jwilleke/
 
 > **failOnError**: `boolean`
 
-Defined in: [src/parsers/filters/FilterChain.ts:28](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/FilterChain.ts#L28)
+Defined in: [src/parsers/filters/FilterChain.ts:29](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L29)
 
 #### Inherited from
 
@@ -108,7 +108,7 @@ Defined in: [src/parsers/filters/FilterChain.ts:28](https://github.com/jwilleke/
 
 > **filterCount**: `number`
 
-Defined in: [src/parsers/filters/FilterChain.ts:171](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/FilterChain.ts#L171)
+Defined in: [src/parsers/filters/FilterChain.ts:172](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L172)
 
 ***
 
@@ -116,7 +116,7 @@ Defined in: [src/parsers/filters/FilterChain.ts:171](https://github.com/jwilleke
 
 > **maxConcurrentFilters**: `number`
 
-Defined in: [src/parsers/filters/FilterChain.ts:35](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/FilterChain.ts#L35)
+Defined in: [src/parsers/filters/FilterChain.ts:36](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L36)
 
 #### Inherited from
 
@@ -128,7 +128,7 @@ Defined in: [src/parsers/filters/FilterChain.ts:35](https://github.com/jwilleke/
 
 > **maxFilters**: `number`
 
-Defined in: [src/parsers/filters/FilterChain.ts:25](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/FilterChain.ts#L25)
+Defined in: [src/parsers/filters/FilterChain.ts:26](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L26)
 
 #### Inherited from
 
@@ -140,7 +140,7 @@ Defined in: [src/parsers/filters/FilterChain.ts:25](https://github.com/jwilleke/
 
 > **preventXSS**: `boolean`
 
-Defined in: [src/parsers/filters/FilterChain.ts:31](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/FilterChain.ts#L31)
+Defined in: [src/parsers/filters/FilterChain.ts:32](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L32)
 
 #### Inherited from
 
@@ -152,7 +152,7 @@ Defined in: [src/parsers/filters/FilterChain.ts:31](https://github.com/jwilleke/
 
 > **sanitizeHTML**: `boolean`
 
-Defined in: [src/parsers/filters/FilterChain.ts:32](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/FilterChain.ts#L32)
+Defined in: [src/parsers/filters/FilterChain.ts:33](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L33)
 
 #### Inherited from
 
@@ -164,7 +164,7 @@ Defined in: [src/parsers/filters/FilterChain.ts:32](https://github.com/jwilleke/
 
 > **stripDangerousContent**: `boolean`
 
-Defined in: [src/parsers/filters/FilterChain.ts:33](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/FilterChain.ts#L33)
+Defined in: [src/parsers/filters/FilterChain.ts:34](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L34)
 
 #### Inherited from
 
@@ -176,7 +176,7 @@ Defined in: [src/parsers/filters/FilterChain.ts:33](https://github.com/jwilleke/
 
 > **timeout**: `number`
 
-Defined in: [src/parsers/filters/FilterChain.ts:26](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/FilterChain.ts#L26)
+Defined in: [src/parsers/filters/FilterChain.ts:27](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/FilterChain.ts#L27)
 
 #### Inherited from
 

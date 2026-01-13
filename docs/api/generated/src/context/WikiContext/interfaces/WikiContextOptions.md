@@ -6,7 +6,7 @@
 
 # Interface: WikiContextOptions
 
-Defined in: [src/context/WikiContext.ts:80](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/context/WikiContext.ts#L80)
+Defined in: [src/context/WikiContext.ts:78](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L78)
 
 Options for WikiContext constructor
 
@@ -16,7 +16,7 @@ Options for WikiContext constructor
 
 > `optional` **content**: `string`
 
-Defined in: [src/context/WikiContext.ts:86](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/context/WikiContext.ts#L86)
+Defined in: [src/context/WikiContext.ts:84](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L84)
 
 Page content (markdown)
 
@@ -26,7 +26,7 @@ Page content (markdown)
 
 > `optional` **context**: `string`
 
-Defined in: [src/context/WikiContext.ts:82](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/context/WikiContext.ts#L82)
+Defined in: [src/context/WikiContext.ts:80](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L80)
 
 Context type (VIEW, EDIT, PREVIEW, etc.)
 
@@ -36,7 +36,7 @@ Context type (VIEW, EDIT, PREVIEW, etc.)
 
 > `optional` **pageName**: `string`
 
-Defined in: [src/context/WikiContext.ts:84](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/context/WikiContext.ts#L84)
+Defined in: [src/context/WikiContext.ts:82](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L82)
 
 Name of the page
 
@@ -44,9 +44,9 @@ Name of the page
 
 ### request?
 
-> `optional` **request**: `Request`
+> `optional` **request**: `Request`\<`ParamsDictionary`, `any`, `any`, `ParsedQs`, `Record`\<`string`, `any`\>\>
 
-Defined in: [src/context/WikiContext.ts:90](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/context/WikiContext.ts#L90)
+Defined in: [src/context/WikiContext.ts:88](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L88)
 
 Express request object
 
@@ -54,9 +54,9 @@ Express request object
 
 ### response?
 
-> `optional` **response**: `Response`
+> `optional` **response**: `Response`\<`any`, `Record`\<`string`, `any`\>\>
 
-Defined in: [src/context/WikiContext.ts:92](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/context/WikiContext.ts#L92)
+Defined in: [src/context/WikiContext.ts:90](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L90)
 
 Express response object
 
@@ -66,6 +66,6 @@ Express response object
 
 > `optional` **userContext**: [`UserContext`](UserContext.md)
 
-Defined in: [src/context/WikiContext.ts:88](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/context/WikiContext.ts#L88)
+Defined in: [src/context/WikiContext.ts:86](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L86)
 
 User context/session

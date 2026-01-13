@@ -6,7 +6,7 @@
 
 # Interface: CacheOptions
 
-Defined in: [src/managers/CacheManager.ts:11](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/CacheManager.ts#L11)
+Defined in: [src/managers/CacheManager.ts:12](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/CacheManager.ts#L12)
 
 Cache options for set operations
 
@@ -16,4 +16,4 @@ Cache options for set operations
 
 > `optional` **ttl**: `number`
 
-Defined in: [src/managers/CacheManager.ts:12](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/CacheManager.ts#L12)
+Defined in: [src/managers/CacheManager.ts:13](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/CacheManager.ts#L13)

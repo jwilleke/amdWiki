@@ -6,7 +6,7 @@
 
 # Interface: ErrorInfo
 
-Defined in: [src/parsers/dom/DOMParser.ts:119](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/DOMParser.ts#L119)
+Defined in: [src/parsers/dom/DOMParser.ts:120](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L120)
 
 Error information
 
@@ -16,7 +16,7 @@ Error information
 
 > `optional` **column**: `number`
 
-Defined in: [src/parsers/dom/DOMParser.ts:127](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/DOMParser.ts#L127)
+Defined in: [src/parsers/dom/DOMParser.ts:128](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L128)
 
 Column number
 
@@ -26,7 +26,7 @@ Column number
 
 > `optional` **line**: `number`
 
-Defined in: [src/parsers/dom/DOMParser.ts:125](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/DOMParser.ts#L125)
+Defined in: [src/parsers/dom/DOMParser.ts:126](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L126)
 
 Line number
 
@@ -36,7 +36,7 @@ Line number
 
 > **message**: `string`
 
-Defined in: [src/parsers/dom/DOMParser.ts:121](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/DOMParser.ts#L121)
+Defined in: [src/parsers/dom/DOMParser.ts:122](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L122)
 
 Error message
 
@@ -46,6 +46,6 @@ Error message
 
 > `optional` **position**: `number`
 
-Defined in: [src/parsers/dom/DOMParser.ts:123](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/DOMParser.ts#L123)
+Defined in: [src/parsers/dom/DOMParser.ts:124](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L124)
 
 Character position

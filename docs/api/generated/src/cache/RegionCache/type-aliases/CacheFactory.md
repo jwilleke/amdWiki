@@ -8,7 +8,7 @@
 
 > **CacheFactory**\<`T`\> = () => `Promise`\<`T`\>
 
-Defined in: [src/cache/RegionCache.ts:27](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/cache/RegionCache.ts#L27)
+Defined in: [src/cache/RegionCache.ts:27](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/cache/RegionCache.ts#L27)
 
 Factory function type for getOrSet
 

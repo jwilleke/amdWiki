@@ -6,7 +6,7 @@
 
 # Class: CategoryStandardizer
 
-Defined in: [src/utils/standardize-categories.ts:115](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/standardize-categories.ts#L115)
+Defined in: [src/utils/standardize-categories.ts:115](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/standardize-categories.ts#L115)
 
 Standardize categories across all pages
 
@@ -16,7 +16,7 @@ Standardize categories across all pages
 
 > **new CategoryStandardizer**(): `CategoryStandardizer`
 
-Defined in: [src/utils/standardize-categories.ts:121](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/standardize-categories.ts#L121)
+Defined in: [src/utils/standardize-categories.ts:121](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/standardize-categories.ts#L121)
 
 #### Returns
 
@@ -28,7 +28,7 @@ Defined in: [src/utils/standardize-categories.ts:121](https://github.com/jwillek
 
 > **getErrors**(): `ErrorRecord`[]
 
-Defined in: [src/utils/standardize-categories.ts:131](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/standardize-categories.ts#L131)
+Defined in: [src/utils/standardize-categories.ts:131](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/standardize-categories.ts#L131)
 
 Get the list of errors encountered during processing
 
@@ -42,7 +42,7 @@ Get the list of errors encountered during processing
 
 > **standardizeCategories**(`dryRun`): `Promise`\<`void`\>
 
-Defined in: [src/utils/standardize-categories.ts:138](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/utils/standardize-categories.ts#L138)
+Defined in: [src/utils/standardize-categories.ts:138](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/utils/standardize-categories.ts#L138)
 
 Analyze and fix categories
 

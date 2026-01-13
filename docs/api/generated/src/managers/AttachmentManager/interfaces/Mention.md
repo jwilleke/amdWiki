@@ -6,7 +6,7 @@
 
 # Interface: Mention
 
-Defined in: [src/managers/AttachmentManager.ts:66](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/AttachmentManager.ts#L66)
+Defined in: [src/managers/AttachmentManager.ts:67](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/AttachmentManager.ts#L67)
 
 Mention object (WebPage reference)
 
@@ -16,7 +16,7 @@ Mention object (WebPage reference)
 
 > **@type**: `string`
 
-Defined in: [src/managers/AttachmentManager.ts:67](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/AttachmentManager.ts#L67)
+Defined in: [src/managers/AttachmentManager.ts:68](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/AttachmentManager.ts#L68)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [src/managers/AttachmentManager.ts:67](https://github.com/jwilleke/a
 
 > **name**: `string`
 
-Defined in: [src/managers/AttachmentManager.ts:68](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/AttachmentManager.ts#L68)
+Defined in: [src/managers/AttachmentManager.ts:69](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/AttachmentManager.ts#L69)
 
 ***
 
@@ -32,4 +32,4 @@ Defined in: [src/managers/AttachmentManager.ts:68](https://github.com/jwilleke/a
 
 > **url**: `string`
 
-Defined in: [src/managers/AttachmentManager.ts:69](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/AttachmentManager.ts#L69)
+Defined in: [src/managers/AttachmentManager.ts:70](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/AttachmentManager.ts#L70)

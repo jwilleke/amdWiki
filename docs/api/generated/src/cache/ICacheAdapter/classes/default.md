@@ -6,7 +6,7 @@
 
 # Abstract Class: default
 
-Defined in: [src/cache/ICacheAdapter.ts:31](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/cache/ICacheAdapter.ts#L31)
+Defined in: [src/cache/ICacheAdapter.ts:31](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/cache/ICacheAdapter.ts#L31)
 
 Cache adapter interface
 All cache adapters must implement these methods
@@ -32,7 +32,7 @@ All cache adapters must implement these methods
 
 > `abstract` **clear**(`pattern?`): `Promise`\<`void`\>
 
-Defined in: [src/cache/ICacheAdapter.ts:64](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/cache/ICacheAdapter.ts#L64)
+Defined in: [src/cache/ICacheAdapter.ts:64](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/cache/ICacheAdapter.ts#L64)
 
 Clear cache entries
 
@@ -54,7 +54,7 @@ Optional pattern to match keys (e.g., 'user:*')
 
 > `abstract` **close**(): `Promise`\<`void`\>
 
-Defined in: [src/cache/ICacheAdapter.ts:93](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/cache/ICacheAdapter.ts#L93)
+Defined in: [src/cache/ICacheAdapter.ts:93](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/cache/ICacheAdapter.ts#L93)
 
 Close/cleanup the cache adapter
 
@@ -68,7 +68,7 @@ Close/cleanup the cache adapter
 
 > `abstract` **del**(`keys`): `Promise`\<`void`\>
 
-Defined in: [src/cache/ICacheAdapter.ts:56](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/cache/ICacheAdapter.ts#L56)
+Defined in: [src/cache/ICacheAdapter.ts:56](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/cache/ICacheAdapter.ts#L56)
 
 Delete one or more keys from the cache
 
@@ -88,9 +88,9 @@ Single key or array of keys to delete
 
 ### get()
 
-> `abstract` **get**\<`T`\>(`key`): `Promise`\<`T`\>
+> `abstract` **get**\<`T`\>(`key`): `Promise`\<`T` \| `undefined`\>
 
-Defined in: [src/cache/ICacheAdapter.ts:38](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/cache/ICacheAdapter.ts#L38)
+Defined in: [src/cache/ICacheAdapter.ts:38](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/cache/ICacheAdapter.ts#L38)
 
 Get a value from the cache
 
@@ -110,7 +110,7 @@ The cache key
 
 #### Returns
 
-`Promise`\<`T`\>
+`Promise`\<`T` \| `undefined`\>
 
 The cached value or undefined if not found
 
@@ -120,7 +120,7 @@ The cached value or undefined if not found
 
 > `abstract` **isHealthy**(): `Promise`\<`boolean`\>
 
-Defined in: [src/cache/ICacheAdapter.ts:86](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/cache/ICacheAdapter.ts#L86)
+Defined in: [src/cache/ICacheAdapter.ts:86](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/cache/ICacheAdapter.ts#L86)
 
 Check if the cache adapter is healthy/connected
 
@@ -136,7 +136,7 @@ True if healthy
 
 > `abstract` **keys**(`pattern?`): `Promise`\<`string`[]\>
 
-Defined in: [src/cache/ICacheAdapter.ts:72](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/cache/ICacheAdapter.ts#L72)
+Defined in: [src/cache/ICacheAdapter.ts:72](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/cache/ICacheAdapter.ts#L72)
 
 Get keys matching a pattern
 
@@ -160,7 +160,7 @@ Array of matching keys
 
 > `abstract` **set**(`key`, `value`, `ttlSec?`): `Promise`\<`void`\>
 
-Defined in: [src/cache/ICacheAdapter.ts:48](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/cache/ICacheAdapter.ts#L48)
+Defined in: [src/cache/ICacheAdapter.ts:48](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/cache/ICacheAdapter.ts#L48)
 
 Set a value in the cache
 
@@ -194,7 +194,7 @@ Time to live in seconds
 
 > `abstract` **stats**(): `Promise`\<[`CacheStats`](../interfaces/CacheStats.md)\>
 
-Defined in: [src/cache/ICacheAdapter.ts:79](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/cache/ICacheAdapter.ts#L79)
+Defined in: [src/cache/ICacheAdapter.ts:79](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/cache/ICacheAdapter.ts#L79)
 
 Get cache statistics
 

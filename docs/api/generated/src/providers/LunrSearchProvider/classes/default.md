@@ -6,7 +6,7 @@
 
 # Class: default
 
-Defined in: [src/providers/LunrSearchProvider.ts:91](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/LunrSearchProvider.ts#L91)
+Defined in: [src/providers/LunrSearchProvider.ts:91](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/LunrSearchProvider.ts#L91)
 
 LunrSearchProvider - Full-text search using Lunr.js
 
@@ -20,7 +20,7 @@ LunrSearchProvider - Full-text search using Lunr.js
 
 > **new default**(`engine`): `LunrSearchProvider`
 
-Defined in: [src/providers/LunrSearchProvider.ts:97](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/LunrSearchProvider.ts#L97)
+Defined in: [src/providers/LunrSearchProvider.ts:96](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/LunrSearchProvider.ts#L96)
 
 #### Parameters
 
@@ -42,7 +42,7 @@ Defined in: [src/providers/LunrSearchProvider.ts:97](https://github.com/jwilleke
 
 > `protected` **engine**: [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/providers/BaseSearchProvider.ts:140](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseSearchProvider.ts#L140)
+Defined in: [src/providers/BaseSearchProvider.ts:140](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseSearchProvider.ts#L140)
 
 Reference to the wiki engine
 
@@ -56,7 +56,7 @@ Reference to the wiki engine
 
 > `protected` **initialized**: `boolean`
 
-Defined in: [src/providers/BaseSearchProvider.ts:143](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/BaseSearchProvider.ts#L143)
+Defined in: [src/providers/BaseSearchProvider.ts:143](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/BaseSearchProvider.ts#L143)
 
 Whether provider has been initialized
 
@@ -70,7 +70,7 @@ Whether provider has been initialized
 
 > **advancedSearch**(`options`): `Promise`\<[`SearchResult`](../../BaseSearchProvider/interfaces/SearchResult.md)[]\>
 
-Defined in: [src/providers/LunrSearchProvider.ts:306](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/LunrSearchProvider.ts#L306)
+Defined in: [src/providers/LunrSearchProvider.ts:303](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/LunrSearchProvider.ts#L303)
 
 Advanced search with multiple criteria
 
@@ -98,7 +98,7 @@ Search results
 
 > **backup**(): `Promise`\<[`BackupData`](../../BaseSearchProvider/interfaces/BackupData.md)\>
 
-Defined in: [src/providers/LunrSearchProvider.ts:682](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/LunrSearchProvider.ts#L682)
+Defined in: [src/providers/LunrSearchProvider.ts:677](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/LunrSearchProvider.ts#L677)
 
 Backup search index and configuration
 
@@ -118,7 +118,7 @@ Backup data
 
 > **buildIndex**(): `Promise`\<`void`\>
 
-Defined in: [src/providers/LunrSearchProvider.ts:182](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/LunrSearchProvider.ts#L182)
+Defined in: [src/providers/LunrSearchProvider.ts:181](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/LunrSearchProvider.ts#L181)
 
 Build search index from all pages
 
@@ -136,7 +136,7 @@ Build search index from all pages
 
 > **close**(): `Promise`\<`void`\>
 
-Defined in: [src/providers/LunrSearchProvider.ts:665](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/LunrSearchProvider.ts#L665)
+Defined in: [src/providers/LunrSearchProvider.ts:660](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/LunrSearchProvider.ts#L660)
 
 Close/cleanup the search provider
 
@@ -154,7 +154,7 @@ Close/cleanup the search provider
 
 > **getAllCategories**(): `Promise`\<`string`[]\>
 
-Defined in: [src/providers/LunrSearchProvider.ts:535](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/LunrSearchProvider.ts#L535)
+Defined in: [src/providers/LunrSearchProvider.ts:530](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/LunrSearchProvider.ts#L530)
 
 Get all unique categories from indexed documents
 
@@ -174,7 +174,7 @@ List of categories
 
 > **getAllUserKeywords**(): `Promise`\<`string`[]\>
 
-Defined in: [src/providers/LunrSearchProvider.ts:549](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/LunrSearchProvider.ts#L549)
+Defined in: [src/providers/LunrSearchProvider.ts:544](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/LunrSearchProvider.ts#L544)
 
 Get all unique user keywords from indexed documents
 
@@ -194,7 +194,7 @@ List of user keywords
 
 > **getDocumentCount**(): `Promise`\<`number`\>
 
-Defined in: [src/providers/LunrSearchProvider.ts:641](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/LunrSearchProvider.ts#L641)
+Defined in: [src/providers/LunrSearchProvider.ts:636](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/LunrSearchProvider.ts#L636)
 
 Get the total number of indexed documents
 
@@ -214,7 +214,7 @@ Number of documents
 
 > **getProviderInfo**(): `object`
 
-Defined in: [src/providers/LunrSearchProvider.ts:169](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/LunrSearchProvider.ts#L169)
+Defined in: [src/providers/LunrSearchProvider.ts:168](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/LunrSearchProvider.ts#L168)
 
 Get provider information
 
@@ -250,7 +250,7 @@ Provider metadata
 
 > **getStatistics**(): `Promise`\<[`SearchStatistics`](../../BaseSearchProvider/interfaces/SearchStatistics.md)\>
 
-Defined in: [src/providers/LunrSearchProvider.ts:621](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/LunrSearchProvider.ts#L621)
+Defined in: [src/providers/LunrSearchProvider.ts:616](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/LunrSearchProvider.ts#L616)
 
 Get search statistics
 
@@ -270,7 +270,7 @@ Search statistics
 
 > **getSuggestions**(`partial`): `Promise`\<`string`[]\>
 
-Defined in: [src/providers/LunrSearchProvider.ts:432](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/LunrSearchProvider.ts#L432)
+Defined in: [src/providers/LunrSearchProvider.ts:427](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/LunrSearchProvider.ts#L427)
 
 Get search suggestions for autocomplete
 
@@ -298,7 +298,7 @@ Suggested completions
 
 > **initialize**(): `Promise`\<`void`\>
 
-Defined in: [src/providers/LunrSearchProvider.ts:109](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/LunrSearchProvider.ts#L109)
+Defined in: [src/providers/LunrSearchProvider.ts:108](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/LunrSearchProvider.ts#L108)
 
 Initialize the Lunr search provider
 Loads configuration from ConfigurationManager
@@ -317,7 +317,7 @@ Loads configuration from ConfigurationManager
 
 > **isHealthy**(): `Promise`\<`boolean`\>
 
-Defined in: [src/providers/LunrSearchProvider.ts:649](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/LunrSearchProvider.ts#L649)
+Defined in: [src/providers/LunrSearchProvider.ts:644](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/LunrSearchProvider.ts#L644)
 
 Check if the search provider is healthy/functional
 
@@ -337,7 +337,7 @@ True if healthy
 
 > **removePageFromIndex**(`pageName`): `Promise`\<`void`\>
 
-Defined in: [src/providers/LunrSearchProvider.ts:520](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/LunrSearchProvider.ts#L520)
+Defined in: [src/providers/LunrSearchProvider.ts:515](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/LunrSearchProvider.ts#L515)
 
 Remove a page from the search index
 
@@ -363,7 +363,7 @@ Page name to remove
 
 > **restore**(`backupData`): `Promise`\<`void`\>
 
-Defined in: [src/providers/LunrSearchProvider.ts:698](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/LunrSearchProvider.ts#L698)
+Defined in: [src/providers/LunrSearchProvider.ts:693](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/LunrSearchProvider.ts#L693)
 
 Restore search index from backup
 
@@ -389,7 +389,7 @@ Backup data
 
 > **search**(`query`, `options`): `Promise`\<[`SearchResult`](../../BaseSearchProvider/interfaces/SearchResult.md)[]\>
 
-Defined in: [src/providers/LunrSearchProvider.ts:264](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/LunrSearchProvider.ts#L264)
+Defined in: [src/providers/LunrSearchProvider.ts:262](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/LunrSearchProvider.ts#L262)
 
 Search for pages matching the query
 
@@ -423,7 +423,7 @@ Search results
 
 > **searchByCategory**(`category`): `Promise`\<[`SearchResult`](../../BaseSearchProvider/interfaces/SearchResult.md)[]\>
 
-Defined in: [src/providers/LunrSearchProvider.ts:569](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/LunrSearchProvider.ts#L569)
+Defined in: [src/providers/LunrSearchProvider.ts:564](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/LunrSearchProvider.ts#L564)
 
 Search by category only
 
@@ -451,7 +451,7 @@ Pages in category
 
 > **searchByUserKeywords**(`keyword`): `Promise`\<[`SearchResult`](../../BaseSearchProvider/interfaces/SearchResult.md)[]\>
 
-Defined in: [src/providers/LunrSearchProvider.ts:596](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/LunrSearchProvider.ts#L596)
+Defined in: [src/providers/LunrSearchProvider.ts:591](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/LunrSearchProvider.ts#L591)
 
 Search by user keywords only
 
@@ -479,7 +479,7 @@ Pages with keyword
 
 > **suggestSimilarPages**(`pageName`, `limit`): `Promise`\<[`SearchResult`](../../BaseSearchProvider/interfaces/SearchResult.md)[]\>
 
-Defined in: [src/providers/LunrSearchProvider.ts:466](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/LunrSearchProvider.ts#L466)
+Defined in: [src/providers/LunrSearchProvider.ts:461](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/LunrSearchProvider.ts#L461)
 
 Suggest similar pages based on content
 
@@ -513,7 +513,7 @@ Suggested pages
 
 > **updatePageInIndex**(`_pageName`, `_pageData`): `Promise`\<`void`\>
 
-Defined in: [src/providers/LunrSearchProvider.ts:509](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/providers/LunrSearchProvider.ts#L509)
+Defined in: [src/providers/LunrSearchProvider.ts:504](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/providers/LunrSearchProvider.ts#L504)
 
 Add or update a page in the search index
 
@@ -527,7 +527,7 @@ Page name
 
 ##### \_pageData
 
-`Record`\<`string`, `any`\>
+`Record`\<`string`, `unknown`\>
 
 Page data
 

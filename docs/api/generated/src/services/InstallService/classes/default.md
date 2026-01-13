@@ -6,7 +6,7 @@
 
 # Class: default
 
-Defined in: [src/services/InstallService.ts:120](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/services/InstallService.ts#L120)
+Defined in: [src/services/InstallService.ts:121](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/services/InstallService.ts#L121)
 
 InstallService - Handles first-run installation and configuration
 
@@ -24,7 +24,7 @@ Manages the initial setup process including:
 
 > **new default**(`engine`): `InstallService`
 
-Defined in: [src/services/InstallService.ts:130](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/services/InstallService.ts#L130)
+Defined in: [src/services/InstallService.ts:131](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/services/InstallService.ts#L131)
 
 Creates a new InstallService instance
 
@@ -46,7 +46,7 @@ The wiki engine instance
 
 > **createPagesFolder**(): `Promise`\<`PagesFolderResult`\>
 
-Defined in: [src/services/InstallService.ts:237](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/services/InstallService.ts#L237)
+Defined in: [src/services/InstallService.ts:238](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/services/InstallService.ts#L238)
 
 Create pages folder and copy required pages
 
@@ -66,7 +66,7 @@ Result with success status and number of pages copied
 
 > **detectMissingPagesOnly**(): `Promise`\<`MissingPagesResult`\>
 
-Defined in: [src/services/InstallService.ts:202](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/services/InstallService.ts#L202)
+Defined in: [src/services/InstallService.ts:203](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/services/InstallService.ts#L203)
 
 Detect if only pages folder is missing
 
@@ -84,7 +84,7 @@ Result with missingPagesOnly flag and details
 
 > **detectPartialInstallation**(): `Promise`\<`PartialInstallationState`\>
 
-Defined in: [src/services/InstallService.ts:163](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/services/InstallService.ts#L163)
+Defined in: [src/services/InstallService.ts:164](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/services/InstallService.ts#L164)
 
 Detect partial installation state
 
@@ -100,7 +100,7 @@ Partial installation status
 
 > **generateSessionSecret**(): `string`
 
-Defined in: [src/services/InstallService.ts:766](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/services/InstallService.ts#L766)
+Defined in: [src/services/InstallService.ts:766](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/services/InstallService.ts#L766)
 
 Generate a random session secret
 
@@ -116,7 +116,7 @@ Random hex string
 
 > **isInstallRequired**(): `Promise`\<`boolean`\>
 
-Defined in: [src/services/InstallService.ts:140](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/services/InstallService.ts#L140)
+Defined in: [src/services/InstallService.ts:141](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/services/InstallService.ts#L141)
 
 Check if installation is required
 
@@ -132,7 +132,7 @@ True if install is needed
 
 > **processInstallation**(`installData`): `Promise`\<`InstallationResult`\>
 
-Defined in: [src/services/InstallService.ts:322](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/services/InstallService.ts#L322)
+Defined in: [src/services/InstallService.ts:323](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/services/InstallService.ts#L323)
 
 Process installation with provided data
 
@@ -162,7 +162,7 @@ Result with success status, completed steps, and any errors
 
 > **resetInstallation**(): `Promise`\<`ResetResult`\>
 
-Defined in: [src/services/InstallService.ts:409](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/services/InstallService.ts#L409)
+Defined in: [src/services/InstallService.ts:409](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/services/InstallService.ts#L409)
 
 Reset partial installation to allow retry
 

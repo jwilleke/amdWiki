@@ -6,7 +6,7 @@
 
 # Interface: DOMParserOptions
 
-Defined in: [src/parsers/dom/DOMParser.ts:67](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/DOMParser.ts#L67)
+Defined in: [src/parsers/dom/DOMParser.ts:68](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L68)
 
 DOMParser options
 
@@ -16,49 +16,29 @@ DOMParser options
 
 > `optional` **debug**: `boolean`
 
-Defined in: [src/parsers/dom/DOMParser.ts:69](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/DOMParser.ts#L69)
+Defined in: [src/parsers/dom/DOMParser.ts:70](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L70)
 
 Enable debug logging
 
 ***
 
-### onError()?
+### onError?
 
-> `optional` **onError**: (`error`) => `void`
+> `optional` **onError**: (`error`) => `void` \| `null`
 
-Defined in: [src/parsers/dom/DOMParser.ts:73](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/DOMParser.ts#L73)
+Defined in: [src/parsers/dom/DOMParser.ts:74](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L74)
 
 Error callback
 
-#### Parameters
-
-##### error
-
-[`ParseError`](../classes/ParseError.md)
-
-#### Returns
-
-`void`
-
 ***
 
-### onWarning()?
+### onWarning?
 
-> `optional` **onWarning**: (`warning`) => `void`
+> `optional` **onWarning**: (`warning`) => `void` \| `null`
 
-Defined in: [src/parsers/dom/DOMParser.ts:75](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/DOMParser.ts#L75)
+Defined in: [src/parsers/dom/DOMParser.ts:76](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L76)
 
 Warning callback
-
-#### Parameters
-
-##### warning
-
-[`WarningInfo`](WarningInfo.md)
-
-#### Returns
-
-`void`
 
 ***
 
@@ -66,6 +46,6 @@ Warning callback
 
 > `optional` **throwOnError**: `boolean`
 
-Defined in: [src/parsers/dom/DOMParser.ts:71](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/DOMParser.ts#L71)
+Defined in: [src/parsers/dom/DOMParser.ts:72](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/DOMParser.ts#L72)
 
 Throw on parse errors instead of creating error document

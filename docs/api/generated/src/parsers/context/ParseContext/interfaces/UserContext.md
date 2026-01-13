@@ -6,7 +6,7 @@
 
 # Interface: UserContext
 
-Defined in: [src/parsers/context/ParseContext.ts:13](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L13)
+Defined in: [src/parsers/context/ParseContext.ts:13](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L13)
 
 User context interface
 
@@ -20,7 +20,7 @@ User context interface
 
 > `optional` **isAuthenticated**: `boolean`
 
-Defined in: [src/parsers/context/ParseContext.ts:16](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L16)
+Defined in: [src/parsers/context/ParseContext.ts:16](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L16)
 
 ***
 
@@ -28,7 +28,7 @@ Defined in: [src/parsers/context/ParseContext.ts:16](https://github.com/jwilleke
 
 > `optional` **permissions**: `string`[]
 
-Defined in: [src/parsers/context/ParseContext.ts:18](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L18)
+Defined in: [src/parsers/context/ParseContext.ts:18](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L18)
 
 ***
 
@@ -36,7 +36,7 @@ Defined in: [src/parsers/context/ParseContext.ts:18](https://github.com/jwilleke
 
 > `optional` **roles**: `string`[]
 
-Defined in: [src/parsers/context/ParseContext.ts:17](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L17)
+Defined in: [src/parsers/context/ParseContext.ts:17](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L17)
 
 ***
 
@@ -44,7 +44,7 @@ Defined in: [src/parsers/context/ParseContext.ts:17](https://github.com/jwilleke
 
 > `optional` **username**: `string`
 
-Defined in: [src/parsers/context/ParseContext.ts:14](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L14)
+Defined in: [src/parsers/context/ParseContext.ts:14](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L14)
 
 ***
 
@@ -52,4 +52,4 @@ Defined in: [src/parsers/context/ParseContext.ts:14](https://github.com/jwilleke
 
 > `optional` **userName**: `string`
 
-Defined in: [src/parsers/context/ParseContext.ts:15](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L15)
+Defined in: [src/parsers/context/ParseContext.ts:15](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L15)

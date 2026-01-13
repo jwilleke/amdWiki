@@ -6,7 +6,7 @@
 
 # Class: default
 
-Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:120](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMVariableHandler.ts#L120)
+Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:121](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L121)
 
 DOMVariableHandler class
 
@@ -16,7 +16,7 @@ DOMVariableHandler class
 
 > **new default**(`engine`): `DOMVariableHandler`
 
-Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:132](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMVariableHandler.ts#L132)
+Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:133](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L133)
 
 Creates a new DOMVariableHandler
 
@@ -38,7 +38,7 @@ WikiEngine instance
 
 > **createNodeFromExtract**(`element`, `context`, `wikiDocument`): `Promise`\<[`LinkedomElement`](../../../WikiDocument/interfaces/LinkedomElement.md)\>
 
-Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:294](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMVariableHandler.ts#L294)
+Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:287](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L287)
 
 Creates a DOM node from an extracted variable element
 
@@ -86,7 +86,7 @@ const node = await handler.createNodeFromExtract(element, context, wikiDoc);
 
 > **getStatistics**(`wikiDocument`): [`VariableStatistics`](../interfaces/VariableStatistics.md)
 
-Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:341](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMVariableHandler.ts#L341)
+Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:333](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L333)
 
 Gets statistics about variable processing
 
@@ -110,7 +110,7 @@ Statistics
 
 > **initialize**(): `Promise`\<`void`\>
 
-Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:141](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMVariableHandler.ts#L141)
+Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:142](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L142)
 
 Initializes the handler
 
@@ -124,7 +124,7 @@ Initializes the handler
 
 > **processVariables**(`wikiDocument`, `context`): `Promise`\<[`default`](../../../WikiDocument/classes/default.md)\>
 
-Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:157](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMVariableHandler.ts#L157)
+Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:158](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L158)
 
 Processes variables in a WikiDocument
 
@@ -155,9 +155,9 @@ Updated WikiDocument
 
 ### resolveVariable()
 
-> **resolveVariable**(`varName`, `context`): `string` \| `number`
+> **resolveVariable**(`varName`, `context`): `string` \| `number` \| `null`
 
-Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:239](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMVariableHandler.ts#L239)
+Defined in: [src/parsers/dom/handlers/DOMVariableHandler.ts:234](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMVariableHandler.ts#L234)
 
 Resolves a variable name to its value
 
@@ -177,6 +177,6 @@ Rendering context
 
 #### Returns
 
-`string` \| `number`
+`string` \| `number` \| `null`
 
 Variable value or null if not found

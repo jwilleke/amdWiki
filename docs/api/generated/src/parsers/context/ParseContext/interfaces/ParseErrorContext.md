@@ -6,7 +6,7 @@
 
 # Interface: ParseErrorContext
 
-Defined in: [src/parsers/context/ParseContext.ts:95](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L95)
+Defined in: [src/parsers/context/ParseContext.ts:95](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L95)
 
 Error context for debugging
 
@@ -16,7 +16,7 @@ Error context for debugging
 
 > **contentLength**: `number`
 
-Defined in: [src/parsers/context/ParseContext.ts:101](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L101)
+Defined in: [src/parsers/context/ParseContext.ts:101](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L101)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [src/parsers/context/ParseContext.ts:101](https://github.com/jwillek
 
 > **error**: `string`
 
-Defined in: [src/parsers/context/ParseContext.ts:96](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L96)
+Defined in: [src/parsers/context/ParseContext.ts:96](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L96)
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: [src/parsers/context/ParseContext.ts:96](https://github.com/jwilleke
 
 > **pageName**: `string`
 
-Defined in: [src/parsers/context/ParseContext.ts:98](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L98)
+Defined in: [src/parsers/context/ParseContext.ts:98](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L98)
 
 ***
 
@@ -40,7 +40,7 @@ Defined in: [src/parsers/context/ParseContext.ts:98](https://github.com/jwilleke
 
 > **phase**: `string`
 
-Defined in: [src/parsers/context/ParseContext.ts:97](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L97)
+Defined in: [src/parsers/context/ParseContext.ts:97](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L97)
 
 ***
 
@@ -48,7 +48,7 @@ Defined in: [src/parsers/context/ParseContext.ts:97](https://github.com/jwilleke
 
 > **processingTime**: `number`
 
-Defined in: [src/parsers/context/ParseContext.ts:100](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L100)
+Defined in: [src/parsers/context/ParseContext.ts:100](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L100)
 
 ***
 
@@ -56,7 +56,7 @@ Defined in: [src/parsers/context/ParseContext.ts:100](https://github.com/jwillek
 
 > **timestamp**: `string`
 
-Defined in: [src/parsers/context/ParseContext.ts:102](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L102)
+Defined in: [src/parsers/context/ParseContext.ts:102](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L102)
 
 ***
 
@@ -64,4 +64,4 @@ Defined in: [src/parsers/context/ParseContext.ts:102](https://github.com/jwillek
 
 > **userName**: `string`
 
-Defined in: [src/parsers/context/ParseContext.ts:99](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L99)
+Defined in: [src/parsers/context/ParseContext.ts:99](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L99)

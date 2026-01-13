@@ -6,7 +6,7 @@
 
 # Interface: ExtractedLinkElement
 
-Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:99](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMLinkHandler.ts#L99)
+Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:100](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L100)
 
 Extracted link element from JSPWiki syntax extraction
 
@@ -22,7 +22,7 @@ Additional properties
 
 > `optional` **endIndex**: `number`
 
-Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:113](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMLinkHandler.ts#L113)
+Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:114](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L114)
 
 End index in content
 
@@ -32,7 +32,7 @@ End index in content
 
 > **id**: `number`
 
-Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:105](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMLinkHandler.ts#L105)
+Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:106](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L106)
 
 Unique ID for tracking
 
@@ -42,7 +42,7 @@ Unique ID for tracking
 
 > `optional` **originalText**: `string`
 
-Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:109](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMLinkHandler.ts#L109)
+Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:110](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L110)
 
 Original text
 
@@ -52,7 +52,7 @@ Original text
 
 > `optional` **startIndex**: `number`
 
-Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:111](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMLinkHandler.ts#L111)
+Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:112](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L112)
 
 Start index in content
 
@@ -62,7 +62,7 @@ Start index in content
 
 > `optional` **syntax**: `string`
 
-Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:107](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMLinkHandler.ts#L107)
+Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:108](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L108)
 
 Original syntax
 
@@ -72,7 +72,7 @@ Original syntax
 
 > **target**: `string`
 
-Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:103](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMLinkHandler.ts#L103)
+Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:104](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L104)
 
 Link target (may include pipe syntax: "Display|Target")
 
@@ -82,6 +82,6 @@ Link target (may include pipe syntax: "Display|Target")
 
 > **type**: `string`
 
-Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:101](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMLinkHandler.ts#L101)
+Defined in: [src/parsers/dom/handlers/DOMLinkHandler.ts:102](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMLinkHandler.ts#L102)
 
 Element type

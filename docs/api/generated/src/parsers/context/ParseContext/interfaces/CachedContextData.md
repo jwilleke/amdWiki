@@ -6,7 +6,7 @@
 
 # Interface: CachedContextData
 
-Defined in: [src/parsers/context/ParseContext.ts:117](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L117)
+Defined in: [src/parsers/context/ParseContext.ts:117](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L117)
 
 Cached context data
 
@@ -16,7 +16,7 @@ Cached context data
 
 > **metadata**: `Record`\<`string`, `unknown`\>
 
-Defined in: [src/parsers/context/ParseContext.ts:122](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L122)
+Defined in: [src/parsers/context/ParseContext.ts:122](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L122)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [src/parsers/context/ParseContext.ts:122](https://github.com/jwillek
 
 > **pageName**: `string`
 
-Defined in: [src/parsers/context/ParseContext.ts:118](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L118)
+Defined in: [src/parsers/context/ParseContext.ts:118](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L118)
 
 ***
 
@@ -32,15 +32,15 @@ Defined in: [src/parsers/context/ParseContext.ts:118](https://github.com/jwillek
 
 > **timestamp**: `number`
 
-Defined in: [src/parsers/context/ParseContext.ts:123](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L123)
+Defined in: [src/parsers/context/ParseContext.ts:123](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L123)
 
 ***
 
 ### userContext
 
-> **userContext**: [`ExportedUserContext`](ExportedUserContext.md)
+> **userContext**: [`ExportedUserContext`](ExportedUserContext.md) \| `null`
 
-Defined in: [src/parsers/context/ParseContext.ts:120](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L120)
+Defined in: [src/parsers/context/ParseContext.ts:120](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L120)
 
 ***
 
@@ -48,7 +48,7 @@ Defined in: [src/parsers/context/ParseContext.ts:120](https://github.com/jwillek
 
 > **userName**: `string`
 
-Defined in: [src/parsers/context/ParseContext.ts:119](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L119)
+Defined in: [src/parsers/context/ParseContext.ts:119](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L119)
 
 ***
 
@@ -56,4 +56,4 @@ Defined in: [src/parsers/context/ParseContext.ts:119](https://github.com/jwillek
 
 > **variables**: `Record`\<`string`, `unknown`\>
 
-Defined in: [src/parsers/context/ParseContext.ts:121](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L121)
+Defined in: [src/parsers/context/ParseContext.ts:121](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L121)

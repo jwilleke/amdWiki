@@ -6,7 +6,7 @@
 
 # Interface: PageContext
 
-Defined in: [src/parsers/context/ParseContext.ts:36](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L36)
+Defined in: [src/parsers/context/ParseContext.ts:36](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L36)
 
 Page context interface
 
@@ -20,23 +20,23 @@ Page context interface
 
 > `optional` **pageName**: `string`
 
-Defined in: [src/parsers/context/ParseContext.ts:37](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L37)
+Defined in: [src/parsers/context/ParseContext.ts:37](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L37)
 
 ***
 
 ### requestInfo?
 
-> `optional` **requestInfo**: [`RequestInfo`](RequestInfo.md)
+> `optional` **requestInfo**: [`RequestInfo`](RequestInfo.md) \| `null`
 
-Defined in: [src/parsers/context/ParseContext.ts:40](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L40)
+Defined in: [src/parsers/context/ParseContext.ts:40](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L40)
 
 ***
 
 ### userContext?
 
-> `optional` **userContext**: [`UserContext`](UserContext.md)
+> `optional` **userContext**: [`UserContext`](UserContext.md) \| `null`
 
-Defined in: [src/parsers/context/ParseContext.ts:39](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L39)
+Defined in: [src/parsers/context/ParseContext.ts:39](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L39)
 
 ***
 
@@ -44,4 +44,4 @@ Defined in: [src/parsers/context/ParseContext.ts:39](https://github.com/jwilleke
 
 > `optional` **userName**: `string`
 
-Defined in: [src/parsers/context/ParseContext.ts:38](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L38)
+Defined in: [src/parsers/context/ParseContext.ts:38](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L38)

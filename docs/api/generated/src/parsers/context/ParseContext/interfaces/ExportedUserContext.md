@@ -6,7 +6,7 @@
 
 # Interface: ExportedUserContext
 
-Defined in: [src/parsers/context/ParseContext.ts:108](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L108)
+Defined in: [src/parsers/context/ParseContext.ts:108](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L108)
 
 Exported user context for caching
 
@@ -16,7 +16,7 @@ Exported user context for caching
 
 > **isAuthenticated**: `boolean`
 
-Defined in: [src/parsers/context/ParseContext.ts:109](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L109)
+Defined in: [src/parsers/context/ParseContext.ts:109](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L109)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [src/parsers/context/ParseContext.ts:109](https://github.com/jwillek
 
 > **permissions**: `string`[]
 
-Defined in: [src/parsers/context/ParseContext.ts:111](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L111)
+Defined in: [src/parsers/context/ParseContext.ts:111](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L111)
 
 ***
 
@@ -32,4 +32,4 @@ Defined in: [src/parsers/context/ParseContext.ts:111](https://github.com/jwillek
 
 > **roles**: `string`[]
 
-Defined in: [src/parsers/context/ParseContext.ts:110](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/context/ParseContext.ts#L110)
+Defined in: [src/parsers/context/ParseContext.ts:110](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/context/ParseContext.ts#L110)

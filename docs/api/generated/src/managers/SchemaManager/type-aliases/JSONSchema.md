@@ -8,6 +8,6 @@
 
 > **JSONSchema** = `Record`\<`string`, `unknown`\>
 
-Defined in: [src/managers/SchemaManager.ts:10](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/SchemaManager.ts#L10)
+Defined in: [src/managers/SchemaManager.ts:11](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/SchemaManager.ts#L11)
 
 JSON Schema type - represents a JSON Schema object

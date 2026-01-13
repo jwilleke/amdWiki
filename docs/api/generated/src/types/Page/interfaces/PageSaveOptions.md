@@ -6,7 +6,7 @@
 
 # Interface: PageSaveOptions
 
-Defined in: [src/types/Page.ts:129](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Page.ts#L129)
+Defined in: [src/types/Page.ts:129](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Page.ts#L129)
 
 Page save options
 
@@ -19,7 +19,7 @@ and other save behaviors.
 
 > `optional` **additionalMetadata**: `Partial`\<[`PageFrontmatter`](PageFrontmatter.md)\>
 
-Defined in: [src/types/Page.ts:143](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Page.ts#L143)
+Defined in: [src/types/Page.ts:143](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Page.ts#L143)
 
 Additional metadata to merge
 
@@ -29,7 +29,7 @@ Additional metadata to merge
 
 > `optional` **author**: `string`
 
-Defined in: [src/types/Page.ts:131](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Page.ts#L131)
+Defined in: [src/types/Page.ts:131](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Page.ts#L131)
 
 User ID performing the save
 
@@ -39,7 +39,7 @@ User ID performing the save
 
 > `optional` **changeType**: `"create"` \| `"update"` \| `"minor"` \| `"major"`
 
-Defined in: [src/types/Page.ts:134](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Page.ts#L134)
+Defined in: [src/types/Page.ts:134](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Page.ts#L134)
 
 Change type (create, update, minor, major)
 
@@ -49,7 +49,7 @@ Change type (create, update, minor, major)
 
 > `optional` **createVersion**: `boolean`
 
-Defined in: [src/types/Page.ts:140](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Page.ts#L140)
+Defined in: [src/types/Page.ts:140](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Page.ts#L140)
 
 Whether to create a version entry
 
@@ -59,6 +59,6 @@ Whether to create a version entry
 
 > `optional` **message**: `string`
 
-Defined in: [src/types/Page.ts:137](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/types/Page.ts#L137)
+Defined in: [src/types/Page.ts:137](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/types/Page.ts#L137)
 
 Commit message/change description

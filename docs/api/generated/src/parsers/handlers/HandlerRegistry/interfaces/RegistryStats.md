@@ -6,7 +6,7 @@
 
 # Interface: RegistryStats
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:31](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L31)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:32](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L32)
 
 Handler registry statistics
 
@@ -16,23 +16,23 @@ Handler registry statistics
 
 > **activeHandlers**: `number`
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:33](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L33)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:34](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L34)
 
 ***
 
 ### lastRegistration
 
-> **lastRegistration**: `Date`
+> **lastRegistration**: `Date` \| `null`
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:36](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L36)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:37](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L37)
 
 ***
 
 ### lastUnregistration
 
-> **lastUnregistration**: `Date`
+> **lastUnregistration**: `Date` \| `null`
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:37](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L37)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:38](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L38)
 
 ***
 
@@ -40,7 +40,7 @@ Defined in: [src/parsers/handlers/HandlerRegistry.ts:37](https://github.com/jwil
 
 > **registeredHandlers**: `number`
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:32](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L32)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:33](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L33)
 
 ***
 
@@ -48,7 +48,7 @@ Defined in: [src/parsers/handlers/HandlerRegistry.ts:32](https://github.com/jwil
 
 > **totalErrors**: `number`
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:35](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L35)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:36](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L36)
 
 ***
 
@@ -56,4 +56,4 @@ Defined in: [src/parsers/handlers/HandlerRegistry.ts:35](https://github.com/jwil
 
 > **totalExecutions**: `number`
 
-Defined in: [src/parsers/handlers/HandlerRegistry.ts:34](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/handlers/HandlerRegistry.ts#L34)
+Defined in: [src/parsers/handlers/HandlerRegistry.ts:35](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/handlers/HandlerRegistry.ts#L35)

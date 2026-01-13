@@ -6,7 +6,7 @@
 
 # Interface: ExtractedPluginElement
 
-Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:110](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMPluginHandler.ts#L110)
+Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:111](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L111)
 
 Extracted element from JSPWiki syntax extraction
 
@@ -22,7 +22,7 @@ Additional properties
 
 > `optional` **endIndex**: `number`
 
-Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:122](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMPluginHandler.ts#L122)
+Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:123](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L123)
 
 End index in content
 
@@ -32,7 +32,7 @@ End index in content
 
 > **id**: `number`
 
-Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:116](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMPluginHandler.ts#L116)
+Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:117](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L117)
 
 Unique ID for tracking
 
@@ -42,7 +42,7 @@ Unique ID for tracking
 
 > **inner**: `string`
 
-Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:114](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMPluginHandler.ts#L114)
+Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:115](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L115)
 
 Plugin inner content (e.g., "TableOfContents" or "Search query='wiki'")
 
@@ -52,7 +52,7 @@ Plugin inner content (e.g., "TableOfContents" or "Search query='wiki'")
 
 > `optional` **originalText**: `string`
 
-Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:118](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMPluginHandler.ts#L118)
+Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:119](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L119)
 
 Original text
 
@@ -62,7 +62,7 @@ Original text
 
 > `optional` **startIndex**: `number`
 
-Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:120](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMPluginHandler.ts#L120)
+Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:121](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L121)
 
 Start index in content
 
@@ -72,6 +72,6 @@ Start index in content
 
 > **type**: `string`
 
-Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:112](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMPluginHandler.ts#L112)
+Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:113](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L113)
 
 Element type

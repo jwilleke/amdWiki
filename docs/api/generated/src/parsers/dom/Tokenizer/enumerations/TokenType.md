@@ -6,7 +6,7 @@
 
 # Enumeration: TokenType
 
-Defined in: [src/parsers/dom/Tokenizer.ts:78](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L78)
+Defined in: [src/parsers/dom/Tokenizer.ts:78](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/Tokenizer.ts#L78)
 
 Token types enum
 
@@ -16,7 +16,7 @@ Token types enum
 
 > **BOLD**: `"BOLD"`
 
-Defined in: [src/parsers/dom/Tokenizer.ts:90](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L90)
+Defined in: [src/parsers/dom/Tokenizer.ts:90](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/Tokenizer.ts#L90)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [src/parsers/dom/Tokenizer.ts:90](https://github.com/jwilleke/amdWik
 
 > **CODE\_BLOCK**: `"CODE_BLOCK"`
 
-Defined in: [src/parsers/dom/Tokenizer.ts:93](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L93)
+Defined in: [src/parsers/dom/Tokenizer.ts:93](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/Tokenizer.ts#L93)
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: [src/parsers/dom/Tokenizer.ts:93](https://github.com/jwilleke/amdWik
 
 > **CODE\_INLINE**: `"CODE_INLINE"`
 
-Defined in: [src/parsers/dom/Tokenizer.ts:92](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L92)
+Defined in: [src/parsers/dom/Tokenizer.ts:92](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/Tokenizer.ts#L92)
 
 ***
 
@@ -40,7 +40,7 @@ Defined in: [src/parsers/dom/Tokenizer.ts:92](https://github.com/jwilleke/amdWik
 
 > **COMMENT**: `"COMMENT"`
 
-Defined in: [src/parsers/dom/Tokenizer.ts:94](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L94)
+Defined in: [src/parsers/dom/Tokenizer.ts:94](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/Tokenizer.ts#L94)
 
 ***
 
@@ -48,7 +48,7 @@ Defined in: [src/parsers/dom/Tokenizer.ts:94](https://github.com/jwilleke/amdWik
 
 > **EOF**: `"EOF"`
 
-Defined in: [src/parsers/dom/Tokenizer.ts:96](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L96)
+Defined in: [src/parsers/dom/Tokenizer.ts:96](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/Tokenizer.ts#L96)
 
 ***
 
@@ -56,7 +56,7 @@ Defined in: [src/parsers/dom/Tokenizer.ts:96](https://github.com/jwilleke/amdWik
 
 > **ESCAPED**: `"ESCAPED"`
 
-Defined in: [src/parsers/dom/Tokenizer.ts:80](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L80)
+Defined in: [src/parsers/dom/Tokenizer.ts:80](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/Tokenizer.ts#L80)
 
 ***
 
@@ -64,7 +64,7 @@ Defined in: [src/parsers/dom/Tokenizer.ts:80](https://github.com/jwilleke/amdWik
 
 > **HEADING**: `"HEADING"`
 
-Defined in: [src/parsers/dom/Tokenizer.ts:87](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L87)
+Defined in: [src/parsers/dom/Tokenizer.ts:87](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/Tokenizer.ts#L87)
 
 ***
 
@@ -72,7 +72,7 @@ Defined in: [src/parsers/dom/Tokenizer.ts:87](https://github.com/jwilleke/amdWik
 
 > **INTERWIKI**: `"INTERWIKI"`
 
-Defined in: [src/parsers/dom/Tokenizer.ts:86](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L86)
+Defined in: [src/parsers/dom/Tokenizer.ts:86](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/Tokenizer.ts#L86)
 
 ***
 
@@ -80,7 +80,7 @@ Defined in: [src/parsers/dom/Tokenizer.ts:86](https://github.com/jwilleke/amdWik
 
 > **ITALIC**: `"ITALIC"`
 
-Defined in: [src/parsers/dom/Tokenizer.ts:91](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L91)
+Defined in: [src/parsers/dom/Tokenizer.ts:91](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/Tokenizer.ts#L91)
 
 ***
 
@@ -88,7 +88,7 @@ Defined in: [src/parsers/dom/Tokenizer.ts:91](https://github.com/jwilleke/amdWik
 
 > **LINK**: `"LINK"`
 
-Defined in: [src/parsers/dom/Tokenizer.ts:85](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L85)
+Defined in: [src/parsers/dom/Tokenizer.ts:85](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/Tokenizer.ts#L85)
 
 ***
 
@@ -96,7 +96,7 @@ Defined in: [src/parsers/dom/Tokenizer.ts:85](https://github.com/jwilleke/amdWik
 
 > **LIST\_ITEM**: `"LIST_ITEM"`
 
-Defined in: [src/parsers/dom/Tokenizer.ts:88](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L88)
+Defined in: [src/parsers/dom/Tokenizer.ts:88](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/Tokenizer.ts#L88)
 
 ***
 
@@ -104,7 +104,7 @@ Defined in: [src/parsers/dom/Tokenizer.ts:88](https://github.com/jwilleke/amdWik
 
 > **METADATA**: `"METADATA"`
 
-Defined in: [src/parsers/dom/Tokenizer.ts:83](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L83)
+Defined in: [src/parsers/dom/Tokenizer.ts:83](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/Tokenizer.ts#L83)
 
 ***
 
@@ -112,7 +112,7 @@ Defined in: [src/parsers/dom/Tokenizer.ts:83](https://github.com/jwilleke/amdWik
 
 > **NEWLINE**: `"NEWLINE"`
 
-Defined in: [src/parsers/dom/Tokenizer.ts:95](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L95)
+Defined in: [src/parsers/dom/Tokenizer.ts:95](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/Tokenizer.ts#L95)
 
 ***
 
@@ -120,7 +120,7 @@ Defined in: [src/parsers/dom/Tokenizer.ts:95](https://github.com/jwilleke/amdWik
 
 > **PLUGIN**: `"PLUGIN"`
 
-Defined in: [src/parsers/dom/Tokenizer.ts:82](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L82)
+Defined in: [src/parsers/dom/Tokenizer.ts:82](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/Tokenizer.ts#L82)
 
 ***
 
@@ -128,7 +128,7 @@ Defined in: [src/parsers/dom/Tokenizer.ts:82](https://github.com/jwilleke/amdWik
 
 > **TABLE\_CELL**: `"TABLE_CELL"`
 
-Defined in: [src/parsers/dom/Tokenizer.ts:89](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L89)
+Defined in: [src/parsers/dom/Tokenizer.ts:89](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/Tokenizer.ts#L89)
 
 ***
 
@@ -136,7 +136,7 @@ Defined in: [src/parsers/dom/Tokenizer.ts:89](https://github.com/jwilleke/amdWik
 
 > **TEXT**: `"TEXT"`
 
-Defined in: [src/parsers/dom/Tokenizer.ts:79](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L79)
+Defined in: [src/parsers/dom/Tokenizer.ts:79](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/Tokenizer.ts#L79)
 
 ***
 
@@ -144,7 +144,7 @@ Defined in: [src/parsers/dom/Tokenizer.ts:79](https://github.com/jwilleke/amdWik
 
 > **VARIABLE**: `"VARIABLE"`
 
-Defined in: [src/parsers/dom/Tokenizer.ts:81](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L81)
+Defined in: [src/parsers/dom/Tokenizer.ts:81](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/Tokenizer.ts#L81)
 
 ***
 
@@ -152,4 +152,4 @@ Defined in: [src/parsers/dom/Tokenizer.ts:81](https://github.com/jwilleke/amdWik
 
 > **WIKI\_TAG**: `"WIKI_TAG"`
 
-Defined in: [src/parsers/dom/Tokenizer.ts:84](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/Tokenizer.ts#L84)
+Defined in: [src/parsers/dom/Tokenizer.ts:84](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/Tokenizer.ts#L84)

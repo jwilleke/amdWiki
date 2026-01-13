@@ -6,7 +6,7 @@
 
 # Interface: PluginContext
 
-Defined in: [src/managers/PluginManager.ts:23](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PluginManager.ts#L23)
+Defined in: [src/managers/PluginManager.ts:58](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PluginManager.ts#L58)
 
 Plugin context passed to plugins during execution
 
@@ -18,9 +18,9 @@ Plugin context passed to plugins during execution
 
 ### engine
 
-> **engine**: `any`
+> **engine**: [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/managers/PluginManager.ts:25](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PluginManager.ts#L25)
+Defined in: [src/managers/PluginManager.ts:59](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PluginManager.ts#L59)
 
 ***
 
@@ -28,7 +28,7 @@ Defined in: [src/managers/PluginManager.ts:25](https://github.com/jwilleke/amdWi
 
 > **linkGraph**: `Record`\<`string`, `unknown`\>
 
-Defined in: [src/managers/PluginManager.ts:27](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PluginManager.ts#L27)
+Defined in: [src/managers/PluginManager.ts:61](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PluginManager.ts#L61)
 
 ***
 
@@ -36,4 +36,4 @@ Defined in: [src/managers/PluginManager.ts:27](https://github.com/jwilleke/amdWi
 
 > **pageName**: `string`
 
-Defined in: [src/managers/PluginManager.ts:26](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/PluginManager.ts#L26)
+Defined in: [src/managers/PluginManager.ts:60](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/PluginManager.ts#L60)

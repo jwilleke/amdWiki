@@ -6,7 +6,7 @@
 
 # Interface: CacheMetrics
 
-Defined in: [src/parsers/MarkupParser.ts:195](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L195)
+Defined in: [src/parsers/MarkupParser.ts:242](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L242)
 
 Cache metrics for a strategy
 
@@ -16,7 +16,7 @@ Cache metrics for a strategy
 
 > **hits**: `number`
 
-Defined in: [src/parsers/MarkupParser.ts:197](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L197)
+Defined in: [src/parsers/MarkupParser.ts:244](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L244)
 
 Number of cache hits
 
@@ -26,7 +26,7 @@ Number of cache hits
 
 > **misses**: `number`
 
-Defined in: [src/parsers/MarkupParser.ts:199](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L199)
+Defined in: [src/parsers/MarkupParser.ts:246](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L246)
 
 Number of cache misses
 
@@ -36,6 +36,6 @@ Number of cache misses
 
 > **sets**: `number`
 
-Defined in: [src/parsers/MarkupParser.ts:201](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/MarkupParser.ts#L201)
+Defined in: [src/parsers/MarkupParser.ts:248](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/MarkupParser.ts#L248)
 
 Number of cache sets

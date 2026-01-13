@@ -6,7 +6,7 @@
 
 # Class: default
 
-Defined in: [src/managers/NotificationManager.ts:80](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/NotificationManager.ts#L80)
+Defined in: [src/managers/NotificationManager.ts:80](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/NotificationManager.ts#L80)
 
 NotificationManager - Handles system notifications and user alerts
 
@@ -36,7 +36,7 @@ notificationManager.addNotification({ title: 'Welcome!', level: 'info' });
 
 > **new default**(`engine`): `NotificationManager`
 
-Defined in: [src/managers/NotificationManager.ts:95](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/NotificationManager.ts#L95)
+Defined in: [src/managers/NotificationManager.ts:94](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/NotificationManager.ts#L94)
 
 Creates a new NotificationManager instance
 
@@ -60,9 +60,9 @@ The wiki engine instance
 
 ### config?
 
-> `protected` `optional` **config**: `Record`\<`string`, `any`\>
+> `protected` `optional` **config**: `Record`\<`string`, `unknown`\>
 
-Defined in: [src/managers/BaseManager.ts:63](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L63)
+Defined in: [src/managers/BaseManager.ts:61](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L61)
 
 Configuration passed during initialization
 
@@ -76,7 +76,7 @@ Configuration passed during initialization
 
 > `protected` **engine**: [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/managers/BaseManager.ts:56](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L56)
+Defined in: [src/managers/BaseManager.ts:54](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L54)
 
 Reference to the wiki engine
 
@@ -90,7 +90,7 @@ Reference to the wiki engine
 
 > `protected` **initialized**: `boolean`
 
-Defined in: [src/managers/BaseManager.ts:59](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L59)
+Defined in: [src/managers/BaseManager.ts:57](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L57)
 
 Initialization status flag
 
@@ -104,7 +104,7 @@ Initialization status flag
 
 > **addNotification**(`notification`): `Promise`\<`string`\>
 
-Defined in: [src/managers/NotificationManager.ts:262](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/NotificationManager.ts#L262)
+Defined in: [src/managers/NotificationManager.ts:253](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/NotificationManager.ts#L253)
 
 Add a notification (alias for createNotification for backward compatibility)
 
@@ -128,7 +128,7 @@ Notification ID
 
 > **backup**(): `Promise`\<[`BackupData`](../../BaseManager/interfaces/BackupData.md)\>
 
-Defined in: [src/managers/BaseManager.ts:168](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L168)
+Defined in: [src/managers/BaseManager.ts:169](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L169)
 
 Backup manager data
 
@@ -170,7 +170,7 @@ async backup(): Promise<BackupData> {
 
 > **cleanupExpiredNotifications**(): `Promise`\<`void`\>
 
-Defined in: [src/managers/NotificationManager.ts:371](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/NotificationManager.ts#L371)
+Defined in: [src/managers/NotificationManager.ts:356](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/NotificationManager.ts#L356)
 
 Clean up expired notifications
 
@@ -184,7 +184,7 @@ Clean up expired notifications
 
 > **clearAllActive**(): `Promise`\<`number`\>
 
-Defined in: [src/managers/NotificationManager.ts:394](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/NotificationManager.ts#L394)
+Defined in: [src/managers/NotificationManager.ts:379](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/NotificationManager.ts#L379)
 
 Clear all active (non-expired) notifications
 
@@ -200,7 +200,7 @@ Number of cleared notifications
 
 > **createMaintenanceNotification**(`enabled`, `adminUsername`, `_config`): `Promise`\<`string`\>
 
-Defined in: [src/managers/NotificationManager.ts:324](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/NotificationManager.ts#L324)
+Defined in: [src/managers/NotificationManager.ts:315](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/NotificationManager.ts#L315)
 
 Create maintenance mode notification
 
@@ -234,7 +234,7 @@ Notification ID
 
 > **createNotification**(`notification`): `Promise`\<`string`\>
 
-Defined in: [src/managers/NotificationManager.ts:229](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/NotificationManager.ts#L229)
+Defined in: [src/managers/NotificationManager.ts:220](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/NotificationManager.ts#L220)
 
 Create a new notification
 
@@ -258,7 +258,7 @@ Notification ID
 
 > **dismissNotification**(`notificationId`, `username`): `Promise`\<`boolean`\>
 
-Defined in: [src/managers/NotificationManager.ts:300](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/NotificationManager.ts#L300)
+Defined in: [src/managers/NotificationManager.ts:291](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/NotificationManager.ts#L291)
 
 Dismiss a notification for a user
 
@@ -288,7 +288,7 @@ Success status
 
 > **getAllNotifications**(`includeExpired`): [`Notification`](../interfaces/Notification.md)[]
 
-Defined in: [src/managers/NotificationManager.ts:354](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/NotificationManager.ts#L354)
+Defined in: [src/managers/NotificationManager.ts:339](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/NotificationManager.ts#L339)
 
 Get all active notifications
 
@@ -312,7 +312,7 @@ Array of all notifications
 
 > **getEngine**(): [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/managers/BaseManager.ts:126](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L126)
+Defined in: [src/managers/BaseManager.ts:125](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L125)
 
 Get the wiki engine instance
 
@@ -338,7 +338,7 @@ const config = this.getEngine().getConfig();
 
 > **getStats**(): [`NotificationStats`](../interfaces/NotificationStats.md)
 
-Defined in: [src/managers/NotificationManager.ts:420](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/NotificationManager.ts#L420)
+Defined in: [src/managers/NotificationManager.ts:405](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/NotificationManager.ts#L405)
 
 Get notification statistics
 
@@ -354,7 +354,7 @@ Statistics object
 
 > **getUserNotifications**(`username`, `includeExpired`): [`Notification`](../interfaces/Notification.md)[]
 
-Defined in: [src/managers/NotificationManager.ts:272](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/NotificationManager.ts#L272)
+Defined in: [src/managers/NotificationManager.ts:263](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/NotificationManager.ts#L263)
 
 Get notifications for a specific user
 
@@ -384,7 +384,7 @@ Array of notifications
 
 > **initialize**(`config?`): `Promise`\<`void`\>
 
-Defined in: [src/managers/NotificationManager.ts:113](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/NotificationManager.ts#L113)
+Defined in: [src/managers/NotificationManager.ts:110](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/NotificationManager.ts#L110)
 
 Initialize the notification manager
 
@@ -412,7 +412,7 @@ Configuration object
 
 > **isInitialized**(): `boolean`
 
-Defined in: [src/managers/BaseManager.ts:114](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L114)
+Defined in: [src/managers/BaseManager.ts:113](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L113)
 
 Check if manager has been initialized
 
@@ -440,7 +440,7 @@ if (manager.isInitialized()) {
 
 > **restore**(`backupData`): `Promise`\<`void`\>
 
-Defined in: [src/managers/BaseManager.ts:196](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L196)
+Defined in: [src/managers/BaseManager.ts:198](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L198)
 
 Restore manager data from backup
 
@@ -485,7 +485,7 @@ async restore(backupData: BackupData): Promise<void> {
 
 > **shutdown**(): `Promise`\<`void`\>
 
-Defined in: [src/managers/NotificationManager.ts:450](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/NotificationManager.ts#L450)
+Defined in: [src/managers/NotificationManager.ts:435](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/NotificationManager.ts#L435)
 
 Shutdown the notification manager
 

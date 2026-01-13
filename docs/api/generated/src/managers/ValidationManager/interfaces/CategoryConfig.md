@@ -6,7 +6,7 @@
 
 # Interface: CategoryConfig
 
-Defined in: [src/managers/ValidationManager.ts:48](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ValidationManager.ts#L48)
+Defined in: [src/managers/ValidationManager.ts:50](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L50)
 
 System category configuration
 
@@ -16,7 +16,7 @@ System category configuration
 
 > `optional` **default**: `boolean`
 
-Defined in: [src/managers/ValidationManager.ts:51](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ValidationManager.ts#L51)
+Defined in: [src/managers/ValidationManager.ts:53](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L53)
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: [src/managers/ValidationManager.ts:51](https://github.com/jwilleke/a
 
 > `optional` **description**: `string`
 
-Defined in: [src/managers/ValidationManager.ts:50](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ValidationManager.ts#L50)
+Defined in: [src/managers/ValidationManager.ts:52](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L52)
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: [src/managers/ValidationManager.ts:50](https://github.com/jwilleke/a
 
 > `optional` **enabled**: `boolean`
 
-Defined in: [src/managers/ValidationManager.ts:53](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ValidationManager.ts#L53)
+Defined in: [src/managers/ValidationManager.ts:55](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L55)
 
 ***
 
@@ -40,7 +40,7 @@ Defined in: [src/managers/ValidationManager.ts:53](https://github.com/jwilleke/a
 
 > `optional` **key**: `string`
 
-Defined in: [src/managers/ValidationManager.ts:54](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ValidationManager.ts#L54)
+Defined in: [src/managers/ValidationManager.ts:56](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L56)
 
 ***
 
@@ -48,7 +48,7 @@ Defined in: [src/managers/ValidationManager.ts:54](https://github.com/jwilleke/a
 
 > **label**: `string`
 
-Defined in: [src/managers/ValidationManager.ts:49](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ValidationManager.ts#L49)
+Defined in: [src/managers/ValidationManager.ts:51](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L51)
 
 ***
 
@@ -56,4 +56,4 @@ Defined in: [src/managers/ValidationManager.ts:49](https://github.com/jwilleke/a
 
 > `optional` **storageLocation**: `string`
 
-Defined in: [src/managers/ValidationManager.ts:52](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/ValidationManager.ts#L52)
+Defined in: [src/managers/ValidationManager.ts:54](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/ValidationManager.ts#L54)

@@ -15,6 +15,7 @@
 - [BaseProvider](interfaces/BaseProvider.md)
 - [CacheProvider](interfaces/CacheProvider.md)
 - [PageProvider](interfaces/PageProvider.md)
+- [ProviderInfo](interfaces/ProviderInfo.md)
 - [SearchProvider](interfaces/SearchProvider.md)
 - [UserProvider](interfaces/UserProvider.md)
 - [VersioningPageProvider](interfaces/VersioningPageProvider.md)

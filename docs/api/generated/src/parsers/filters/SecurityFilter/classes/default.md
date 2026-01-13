@@ -6,7 +6,7 @@
 
 # Class: default
 
-Defined in: [src/parsers/filters/SecurityFilter.ts:82](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/SecurityFilter.ts#L82)
+Defined in: [src/parsers/filters/SecurityFilter.ts:83](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/SecurityFilter.ts#L83)
 
 SecurityFilter - Comprehensive security validation with modular configuration
 
@@ -33,7 +33,7 @@ Epic: #41 - Implement JSPWikiMarkupParser for Complete Enhancement Support
 
 > **new default**(): `SecurityFilter`
 
-Defined in: [src/parsers/filters/SecurityFilter.ts:89](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/SecurityFilter.ts#L89)
+Defined in: [src/parsers/filters/SecurityFilter.ts:90](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/SecurityFilter.ts#L90)
 
 #### Returns
 
@@ -49,7 +49,7 @@ Defined in: [src/parsers/filters/SecurityFilter.ts:89](https://github.com/jwille
 
 > **allowedAttributes**: `Set`\<`string`\>
 
-Defined in: [src/parsers/filters/SecurityFilter.ts:86](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/SecurityFilter.ts#L86)
+Defined in: [src/parsers/filters/SecurityFilter.ts:87](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/SecurityFilter.ts#L87)
 
 ***
 
@@ -57,7 +57,7 @@ Defined in: [src/parsers/filters/SecurityFilter.ts:86](https://github.com/jwille
 
 > **allowedTags**: `Set`\<`string`\>
 
-Defined in: [src/parsers/filters/SecurityFilter.ts:85](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/SecurityFilter.ts#L85)
+Defined in: [src/parsers/filters/SecurityFilter.ts:86](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/SecurityFilter.ts#L86)
 
 ***
 
@@ -65,7 +65,7 @@ Defined in: [src/parsers/filters/SecurityFilter.ts:85](https://github.com/jwille
 
 > `readonly` **category**: `string`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:138](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L138)
+Defined in: [src/parsers/filters/BaseFilter.ts:140](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L140)
 
 #### Inherited from
 
@@ -75,9 +75,9 @@ Defined in: [src/parsers/filters/BaseFilter.ts:138](https://github.com/jwilleke/
 
 ### config
 
-> `protected` **config**: [`FilterConfig`](../../BaseFilter/interfaces/FilterConfig.md)
+> `protected` **config**: [`FilterConfig`](../../BaseFilter/interfaces/FilterConfig.md) \| `null`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:144](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L144)
+Defined in: [src/parsers/filters/BaseFilter.ts:146](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L146)
 
 #### Inherited from
 
@@ -89,7 +89,7 @@ Defined in: [src/parsers/filters/BaseFilter.ts:144](https://github.com/jwilleke/
 
 > **dangerousPatterns**: `RegExp`[]
 
-Defined in: [src/parsers/filters/SecurityFilter.ts:87](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/SecurityFilter.ts#L87)
+Defined in: [src/parsers/filters/SecurityFilter.ts:88](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/SecurityFilter.ts#L88)
 
 ***
 
@@ -97,7 +97,7 @@ Defined in: [src/parsers/filters/SecurityFilter.ts:87](https://github.com/jwille
 
 > `readonly` **description**: `string`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:137](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L137)
+Defined in: [src/parsers/filters/BaseFilter.ts:139](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L139)
 
 #### Inherited from
 
@@ -109,7 +109,7 @@ Defined in: [src/parsers/filters/BaseFilter.ts:137](https://github.com/jwilleke/
 
 > `protected` **enabled**: `boolean`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:142](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L142)
+Defined in: [src/parsers/filters/BaseFilter.ts:144](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L144)
 
 #### Inherited from
 
@@ -121,7 +121,7 @@ Defined in: [src/parsers/filters/BaseFilter.ts:142](https://github.com/jwilleke/
 
 > **filterId**: `string`
 
-Defined in: [src/parsers/filters/SecurityFilter.ts:83](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/SecurityFilter.ts#L83)
+Defined in: [src/parsers/filters/SecurityFilter.ts:84](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/SecurityFilter.ts#L84)
 
 #### Overrides
 
@@ -133,7 +133,7 @@ Defined in: [src/parsers/filters/SecurityFilter.ts:83](https://github.com/jwille
 
 > `protected` **initialized**: `boolean`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:143](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L143)
+Defined in: [src/parsers/filters/BaseFilter.ts:145](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L145)
 
 #### Inherited from
 
@@ -145,7 +145,7 @@ Defined in: [src/parsers/filters/BaseFilter.ts:143](https://github.com/jwilleke/
 
 > `protected` **options**: `Required`\<[`FilterOptions`](../../BaseFilter/interfaces/FilterOptions.md)\>
 
-Defined in: [src/parsers/filters/BaseFilter.ts:140](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L140)
+Defined in: [src/parsers/filters/BaseFilter.ts:142](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L142)
 
 #### Inherited from
 
@@ -157,7 +157,7 @@ Defined in: [src/parsers/filters/BaseFilter.ts:140](https://github.com/jwilleke/
 
 > **priority**: `number`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:134](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L134)
+Defined in: [src/parsers/filters/BaseFilter.ts:136](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L136)
 
 #### Inherited from
 
@@ -167,9 +167,9 @@ Defined in: [src/parsers/filters/BaseFilter.ts:134](https://github.com/jwilleke/
 
 ### securityConfig
 
-> **securityConfig**: `SecurityConfig`
+> **securityConfig**: `SecurityConfig` \| `null`
 
-Defined in: [src/parsers/filters/SecurityFilter.ts:84](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/SecurityFilter.ts#L84)
+Defined in: [src/parsers/filters/SecurityFilter.ts:85](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/SecurityFilter.ts#L85)
 
 ***
 
@@ -177,7 +177,7 @@ Defined in: [src/parsers/filters/SecurityFilter.ts:84](https://github.com/jwille
 
 > `protected` **stats**: [`FilterStats`](../../BaseFilter/interfaces/FilterStats.md)
 
-Defined in: [src/parsers/filters/BaseFilter.ts:141](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L141)
+Defined in: [src/parsers/filters/BaseFilter.ts:143](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L143)
 
 #### Inherited from
 
@@ -189,7 +189,7 @@ Defined in: [src/parsers/filters/BaseFilter.ts:141](https://github.com/jwilleke/
 
 > `readonly` **version**: `string`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:136](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L136)
+Defined in: [src/parsers/filters/BaseFilter.ts:138](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L138)
 
 #### Inherited from
 
@@ -201,7 +201,7 @@ Defined in: [src/parsers/filters/BaseFilter.ts:136](https://github.com/jwilleke/
 
 > `protected` **createErrorContext**(`error`, `content`, `context`): [`FilterErrorContext`](../../BaseFilter/interfaces/FilterErrorContext.md)
 
-Defined in: [src/parsers/filters/BaseFilter.ts:341](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L341)
+Defined in: [src/parsers/filters/BaseFilter.ts:340](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L340)
 
 Create error context for debugging (modular error handling)
 
@@ -241,7 +241,7 @@ Error context
 
 > **disable**(): `void`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:367](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L367)
+Defined in: [src/parsers/filters/BaseFilter.ts:366](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L366)
 
 Disable the filter
 
@@ -259,7 +259,7 @@ Disable the filter
 
 > **enable**(): `void`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:360](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L360)
+Defined in: [src/parsers/filters/BaseFilter.ts:359](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L359)
 
 Enable the filter
 
@@ -277,7 +277,7 @@ Enable the filter
 
 > **escapeAttributeValue**(`value`): `string`
 
-Defined in: [src/parsers/filters/SecurityFilter.ts:430](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/SecurityFilter.ts#L430)
+Defined in: [src/parsers/filters/SecurityFilter.ts:424](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/SecurityFilter.ts#L424)
 
 Escape attribute values to prevent injection (modular escaping)
 
@@ -301,7 +301,7 @@ Escaped value
 
 > **execute**(`content`, `context`): `Promise`\<`string`\>
 
-Defined in: [src/parsers/filters/BaseFilter.ts:300](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L300)
+Defined in: [src/parsers/filters/BaseFilter.ts:300](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L300)
 
 Execute filter with performance tracking and error handling
 
@@ -335,7 +335,7 @@ Processed content
 
 > **getConfigurationSummary**(): [`ConfigurationSummary`](../../BaseFilter/interfaces/ConfigurationSummary.md)
 
-Defined in: [src/parsers/filters/BaseFilter.ts:435](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L435)
+Defined in: [src/parsers/filters/BaseFilter.ts:434](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L434)
 
 Get configuration summary for debugging (modular introspection)
 
@@ -353,15 +353,15 @@ Configuration summary
 
 ### getFilterType()
 
-> `protected` **getFilterType**(): `string`
+> `protected` **getFilterType**(): `string` \| `null`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:265](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L265)
+Defined in: [src/parsers/filters/BaseFilter.ts:265](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L265)
 
 Get filter type for configuration lookup (override in subclasses)
 
 #### Returns
 
-`string`
+`string` \| `null`
 
 Filter type for configuration
 
@@ -375,7 +375,7 @@ Filter type for configuration
 
 > **getInfo**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [src/parsers/filters/SecurityFilter.ts:499](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/SecurityFilter.ts#L499)
+Defined in: [src/parsers/filters/SecurityFilter.ts:492](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/SecurityFilter.ts#L492)
 
 Get filter information for debugging and documentation
 
@@ -391,7 +391,7 @@ Filter information
 
 > **getMetadata**(): [`FilterMetadata`](../../BaseFilter/interfaces/FilterMetadata.md)
 
-Defined in: [src/parsers/filters/BaseFilter.ts:417](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L417)
+Defined in: [src/parsers/filters/BaseFilter.ts:416](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L416)
 
 Get filter metadata
 
@@ -411,7 +411,7 @@ Filter metadata
 
 > **getSecurityConfiguration**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [src/parsers/filters/SecurityFilter.ts:470](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/SecurityFilter.ts#L470)
+Defined in: [src/parsers/filters/SecurityFilter.ts:463](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/SecurityFilter.ts#L463)
 
 Get security configuration summary (modular introspection)
 
@@ -427,7 +427,7 @@ Security configuration summary
 
 > **getStats**(): [`FilterStats`](../../BaseFilter/interfaces/FilterStats.md) & `object`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:383](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L383)
+Defined in: [src/parsers/filters/BaseFilter.ts:382](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L382)
 
 Get filter statistics
 
@@ -447,7 +447,7 @@ Filter statistics
 
 > **initialize**(`context`): `Promise`\<`void`\>
 
-Defined in: [src/parsers/filters/BaseFilter.ts:199](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L199)
+Defined in: [src/parsers/filters/BaseFilter.ts:201](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L201)
 
 Initialize filter with modular configuration
 
@@ -473,7 +473,7 @@ Initialization context
 
 > **initializeDangerousPatterns**(): `void`
 
-Defined in: [src/parsers/filters/SecurityFilter.ts:213](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/SecurityFilter.ts#L213)
+Defined in: [src/parsers/filters/SecurityFilter.ts:207](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/SecurityFilter.ts#L207)
 
 Initialize dangerous patterns based on configuration (modular security patterns)
 
@@ -487,7 +487,7 @@ Initialize dangerous patterns based on configuration (modular security patterns)
 
 > **isEnabled**(): `boolean`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:375](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L375)
+Defined in: [src/parsers/filters/BaseFilter.ts:374](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L374)
 
 Check if filter is enabled
 
@@ -507,7 +507,7 @@ True if enabled
 
 > **isValidURL**(`url`): `boolean`
 
-Defined in: [src/parsers/filters/SecurityFilter.ts:397](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/SecurityFilter.ts#L397)
+Defined in: [src/parsers/filters/SecurityFilter.ts:391](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/SecurityFilter.ts#L391)
 
 Validate URL for href and src attributes (modular URL validation)
 
@@ -531,7 +531,7 @@ True if valid and safe
 
 > `protected` **loadModularConfiguration**(`context`): `void`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:217](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L217)
+Defined in: [src/parsers/filters/BaseFilter.ts:219](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L219)
 
 Load configuration from app-default-config.json and app-custom-config.json
 
@@ -557,7 +557,7 @@ Initialization context
 
 > **loadModularSecurityConfiguration**(`context`): `void`
 
-Defined in: [src/parsers/filters/SecurityFilter.ts:134](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/SecurityFilter.ts#L134)
+Defined in: [src/parsers/filters/SecurityFilter.ts:129](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/SecurityFilter.ts#L129)
 
 Load modular security configuration from configuration hierarchy
 
@@ -579,7 +579,7 @@ Initialization context
 
 > **loadSecureDefaults**(): `void`
 
-Defined in: [src/parsers/filters/SecurityFilter.ts:200](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/SecurityFilter.ts#L200)
+Defined in: [src/parsers/filters/SecurityFilter.ts:194](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/SecurityFilter.ts#L194)
 
 Load secure default configuration when configuration files unavailable
 
@@ -593,7 +593,7 @@ Load secure default configuration when configuration files unavailable
 
 > **logSecurityViolation**(`originalContent`, `filteredContent`, `context`): `void`
 
-Defined in: [src/parsers/filters/SecurityFilter.ts:445](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/SecurityFilter.ts#L445)
+Defined in: [src/parsers/filters/SecurityFilter.ts:439](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/SecurityFilter.ts#L439)
 
 Log security violation for monitoring (modular logging)
 
@@ -627,7 +627,7 @@ Parse context
 
 > **onInitialize**(`context`): `Promise`\<`void`\>
 
-Defined in: [src/parsers/filters/SecurityFilter.ts:112](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/SecurityFilter.ts#L112)
+Defined in: [src/parsers/filters/SecurityFilter.ts:113](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/SecurityFilter.ts#L113)
 
 Initialize filter with modular security configuration
 
@@ -653,7 +653,7 @@ Initialization context
 
 > `protected` **onShutdown**(): `Promise`\<`void`\>
 
-Defined in: [src/parsers/filters/BaseFilter.ts:457](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L457)
+Defined in: [src/parsers/filters/BaseFilter.ts:456](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L456)
 
 Custom shutdown logic (override in subclasses)
 
@@ -671,7 +671,7 @@ Custom shutdown logic (override in subclasses)
 
 > **preventXSS**(`content`): `string`
 
-Defined in: [src/parsers/filters/SecurityFilter.ts:313](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/SecurityFilter.ts#L313)
+Defined in: [src/parsers/filters/SecurityFilter.ts:307](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/SecurityFilter.ts#L307)
 
 Prevent XSS attacks (modular XSS prevention)
 
@@ -695,7 +695,7 @@ XSS-safe content
 
 > **process**(`content`, `context`): `Promise`\<`string`\>
 
-Defined in: [src/parsers/filters/SecurityFilter.ts:249](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/SecurityFilter.ts#L249)
+Defined in: [src/parsers/filters/SecurityFilter.ts:243](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/SecurityFilter.ts#L243)
 
 Process content through security filters with modular validation
 
@@ -729,7 +729,7 @@ Securely filtered content
 
 > **resetStats**(): `void`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:403](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L403)
+Defined in: [src/parsers/filters/BaseFilter.ts:402](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L402)
 
 Reset filter statistics
 
@@ -747,7 +747,7 @@ Reset filter statistics
 
 > **sanitizeAttributes**(`attributeString`): `string`
 
-Defined in: [src/parsers/filters/SecurityFilter.ts:363](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/SecurityFilter.ts#L363)
+Defined in: [src/parsers/filters/SecurityFilter.ts:357](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/SecurityFilter.ts#L357)
 
 Sanitize HTML attributes based on allowed attributes (modular attribute sanitization)
 
@@ -771,7 +771,7 @@ Sanitized attributes
 
 > **sanitizeHTML**(`content`): `string`
 
-Defined in: [src/parsers/filters/SecurityFilter.ts:328](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/SecurityFilter.ts#L328)
+Defined in: [src/parsers/filters/SecurityFilter.ts:322](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/SecurityFilter.ts#L322)
 
 Sanitize HTML based on allowed tags and attributes (modular HTML sanitization)
 
@@ -795,7 +795,7 @@ Sanitized content
 
 > **shutdown**(): `Promise`\<`void`\>
 
-Defined in: [src/parsers/filters/BaseFilter.ts:449](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L449)
+Defined in: [src/parsers/filters/BaseFilter.ts:448](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L448)
 
 Clean up filter resources (optional override)
 
@@ -813,7 +813,7 @@ Clean up filter resources (optional override)
 
 > **stripDangerousContent**(`content`): `string`
 
-Defined in: [src/parsers/filters/SecurityFilter.ts:298](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/SecurityFilter.ts#L298)
+Defined in: [src/parsers/filters/SecurityFilter.ts:292](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/SecurityFilter.ts#L292)
 
 Strip dangerous content based on configured patterns (modular security)
 
@@ -837,7 +837,7 @@ Cleaned content
 
 > **toString**(): `string`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:465](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L465)
+Defined in: [src/parsers/filters/BaseFilter.ts:464](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L464)
 
 String representation of filter
 

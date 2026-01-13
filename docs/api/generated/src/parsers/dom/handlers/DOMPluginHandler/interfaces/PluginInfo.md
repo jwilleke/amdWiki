@@ -6,7 +6,7 @@
 
 # Interface: PluginInfo
 
-Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:70](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMPluginHandler.ts#L70)
+Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:71](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L71)
 
 Parsed plugin information
 
@@ -16,7 +16,7 @@ Parsed plugin information
 
 > **parameters**: `Record`\<`string`, `string`\>
 
-Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:74](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMPluginHandler.ts#L74)
+Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:75](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L75)
 
 Plugin parameters
 
@@ -26,6 +26,6 @@ Plugin parameters
 
 > **pluginName**: `string`
 
-Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:72](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/dom/handlers/DOMPluginHandler.ts#L72)
+Defined in: [src/parsers/dom/handlers/DOMPluginHandler.ts:73](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/dom/handlers/DOMPluginHandler.ts#L73)
 
 Plugin name

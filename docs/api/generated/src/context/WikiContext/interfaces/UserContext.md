@@ -6,7 +6,7 @@
 
 # Interface: UserContext
 
-Defined in: [src/context/WikiContext.ts:42](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/context/WikiContext.ts#L42)
+Defined in: [src/context/WikiContext.ts:40](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L40)
 
 User context - session or authentication context
 
@@ -22,7 +22,7 @@ Additional user context data
 
 > `optional` **authenticated**: `boolean`
 
-Defined in: [src/context/WikiContext.ts:50](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/context/WikiContext.ts#L50)
+Defined in: [src/context/WikiContext.ts:48](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L48)
 
 Whether user is authenticated
 
@@ -32,7 +32,7 @@ Whether user is authenticated
 
 > `optional` **displayName**: `string`
 
-Defined in: [src/context/WikiContext.ts:46](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/context/WikiContext.ts#L46)
+Defined in: [src/context/WikiContext.ts:44](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L44)
 
 User display name
 
@@ -42,7 +42,7 @@ User display name
 
 > `optional` **roles**: `string`[]
 
-Defined in: [src/context/WikiContext.ts:48](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/context/WikiContext.ts#L48)
+Defined in: [src/context/WikiContext.ts:46](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L46)
 
 User roles
 
@@ -52,6 +52,6 @@ User roles
 
 > `optional` **username**: `string`
 
-Defined in: [src/context/WikiContext.ts:44](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/context/WikiContext.ts#L44)
+Defined in: [src/context/WikiContext.ts:42](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/context/WikiContext.ts#L42)
 
 Username

@@ -6,7 +6,7 @@
 
 # Interface: DefaultClasses
 
-Defined in: [src/parsers/LinkParser.ts:46](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L46)
+Defined in: [src/parsers/LinkParser.ts:47](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L47)
 
 Default CSS classes for different link types
 
@@ -16,7 +16,7 @@ Default CSS classes for different link types
 
 > **external**: `string`
 
-Defined in: [src/parsers/LinkParser.ts:50](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L50)
+Defined in: [src/parsers/LinkParser.ts:51](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L51)
 
 Class for external links
 
@@ -26,7 +26,7 @@ Class for external links
 
 > **internal**: `string`
 
-Defined in: [src/parsers/LinkParser.ts:48](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L48)
+Defined in: [src/parsers/LinkParser.ts:49](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L49)
 
 Class for internal wiki links
 
@@ -36,7 +36,7 @@ Class for internal wiki links
 
 > **interwiki**: `string`
 
-Defined in: [src/parsers/LinkParser.ts:52](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L52)
+Defined in: [src/parsers/LinkParser.ts:53](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L53)
 
 Class for InterWiki links
 
@@ -46,6 +46,6 @@ Class for InterWiki links
 
 > **redlink**: `string`
 
-Defined in: [src/parsers/LinkParser.ts:54](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/LinkParser.ts#L54)
+Defined in: [src/parsers/LinkParser.ts:55](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/LinkParser.ts#L55)
 
 Class for red links (non-existent pages)

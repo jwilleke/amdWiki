@@ -6,7 +6,7 @@
 
 # Class: default
 
-Defined in: [src/managers/AttachmentManager.ts:133](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/AttachmentManager.ts#L133)
+Defined in: [src/managers/AttachmentManager.ts:131](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/AttachmentManager.ts#L131)
 
 AttachmentManager - Manages file attachments for wiki pages
 
@@ -43,7 +43,7 @@ https://github.com/apache/jspwiki/blob/master/jspwiki-main/src/main/java/org/apa
 
 > **new default**(`engine`): `AttachmentManager`
 
-Defined in: [src/managers/AttachmentManager.ts:146](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/AttachmentManager.ts#L146)
+Defined in: [src/managers/AttachmentManager.ts:143](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/AttachmentManager.ts#L143)
 
 Creates a new AttachmentManager instance
 
@@ -67,9 +67,9 @@ The wiki engine instance
 
 ### config?
 
-> `protected` `optional` **config**: `Record`\<`string`, `any`\>
+> `protected` `optional` **config**: `Record`\<`string`, `unknown`\>
 
-Defined in: [src/managers/BaseManager.ts:63](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L63)
+Defined in: [src/managers/BaseManager.ts:61](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L61)
 
 Configuration passed during initialization
 
@@ -83,7 +83,7 @@ Configuration passed during initialization
 
 > `protected` **engine**: [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/managers/BaseManager.ts:56](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L56)
+Defined in: [src/managers/BaseManager.ts:54](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L54)
 
 Reference to the wiki engine
 
@@ -97,7 +97,7 @@ Reference to the wiki engine
 
 > `protected` **initialized**: `boolean`
 
-Defined in: [src/managers/BaseManager.ts:59](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L59)
+Defined in: [src/managers/BaseManager.ts:57](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L57)
 
 Initialization status flag
 
@@ -111,7 +111,7 @@ Initialization status flag
 
 > **attachmentExists**(`attachmentId`): `Promise`\<`boolean`\>
 
-Defined in: [src/managers/AttachmentManager.ts:479](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/AttachmentManager.ts#L479)
+Defined in: [src/managers/AttachmentManager.ts:459](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/AttachmentManager.ts#L459)
 
 Check if an attachment exists
 
@@ -133,7 +133,7 @@ Attachment identifier
 
 > **attachToPage**(`attachmentId`, `pageName`): `Promise`\<`boolean`\>
 
-Defined in: [src/managers/AttachmentManager.ts:310](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/AttachmentManager.ts#L310)
+Defined in: [src/managers/AttachmentManager.ts:290](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/AttachmentManager.ts#L290)
 
 Attach an existing attachment to a page
 
@@ -163,7 +163,7 @@ Success status
 
 > **backup**(): `Promise`\<[`AttachmentBackupData`](../interfaces/AttachmentBackupData.md)\>
 
-Defined in: [src/managers/AttachmentManager.ts:517](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/AttachmentManager.ts#L517)
+Defined in: [src/managers/AttachmentManager.ts:497](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/AttachmentManager.ts#L497)
 
 Backup manager data
 Delegates to provider's backup method
@@ -182,7 +182,7 @@ Delegates to provider's backup method
 
 > **deleteAttachment**(`attachmentId`, `context?`): `Promise`\<`boolean`\>
 
-Defined in: [src/managers/AttachmentManager.ts:428](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/AttachmentManager.ts#L428)
+Defined in: [src/managers/AttachmentManager.ts:408](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/AttachmentManager.ts#L408)
 
 Delete an attachment
 
@@ -212,7 +212,7 @@ Success status
 
 > **detachFromPage**(`attachmentId`, `pageName`): `Promise`\<`boolean`\>
 
-Defined in: [src/managers/AttachmentManager.ts:348](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/AttachmentManager.ts#L348)
+Defined in: [src/managers/AttachmentManager.ts:328](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/AttachmentManager.ts#L328)
 
 Detach an attachment from a page
 
@@ -242,7 +242,7 @@ Success status
 
 > **getAllAttachments**(): `Promise`\<[`AttachmentMetadata`](../interfaces/AttachmentMetadata.md)[]\>
 
-Defined in: [src/managers/AttachmentManager.ts:413](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/AttachmentManager.ts#L413)
+Defined in: [src/managers/AttachmentManager.ts:393](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/AttachmentManager.ts#L393)
 
 Get all attachments
 
@@ -254,9 +254,9 @@ Get all attachments
 
 ### getAttachment()
 
-> **getAttachment**(`attachmentId`): `Promise`\<\{ `buffer`: `Buffer`; `metadata`: [`AttachmentMetadata`](../interfaces/AttachmentMetadata.md); \}\>
+> **getAttachment**(`attachmentId`): `Promise`\<\{ `buffer`: `Buffer`; `metadata`: [`AttachmentMetadata`](../interfaces/AttachmentMetadata.md); \} \| `null`\>
 
-Defined in: [src/managers/AttachmentManager.ts:372](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/AttachmentManager.ts#L372)
+Defined in: [src/managers/AttachmentManager.ts:352](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/AttachmentManager.ts#L352)
 
 Get an attachment by ID
 
@@ -270,15 +270,15 @@ Attachment identifier
 
 #### Returns
 
-`Promise`\<\{ `buffer`: `Buffer`; `metadata`: [`AttachmentMetadata`](../interfaces/AttachmentMetadata.md); \}\>
+`Promise`\<\{ `buffer`: `Buffer`; `metadata`: [`AttachmentMetadata`](../interfaces/AttachmentMetadata.md); \} \| `null`\>
 
 ***
 
 ### getAttachmentMetadata()
 
-> **getAttachmentMetadata**(`attachmentId`): `Promise`\<[`AttachmentMetadata`](../interfaces/AttachmentMetadata.md)\>
+> **getAttachmentMetadata**(`attachmentId`): `Promise`\<[`AttachmentMetadata`](../interfaces/AttachmentMetadata.md) \| `null`\>
 
-Defined in: [src/managers/AttachmentManager.ts:386](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/AttachmentManager.ts#L386)
+Defined in: [src/managers/AttachmentManager.ts:366](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/AttachmentManager.ts#L366)
 
 Get attachment metadata only
 
@@ -292,7 +292,7 @@ Attachment identifier
 
 #### Returns
 
-`Promise`\<[`AttachmentMetadata`](../interfaces/AttachmentMetadata.md)\>
+`Promise`\<[`AttachmentMetadata`](../interfaces/AttachmentMetadata.md) \| `null`\>
 
 ***
 
@@ -300,7 +300,7 @@ Attachment identifier
 
 > **getAttachmentsForPage**(`pageName`): `Promise`\<[`AttachmentMetadata`](../interfaces/AttachmentMetadata.md)[]\>
 
-Defined in: [src/managers/AttachmentManager.ts:400](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/AttachmentManager.ts#L400)
+Defined in: [src/managers/AttachmentManager.ts:380](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/AttachmentManager.ts#L380)
 
 Get all attachments for a page
 
@@ -322,7 +322,7 @@ Page name
 
 > **getAttachmentUrl**(`attachmentId`): `string`
 
-Defined in: [src/managers/AttachmentManager.ts:493](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/AttachmentManager.ts#L493)
+Defined in: [src/managers/AttachmentManager.ts:473](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/AttachmentManager.ts#L473)
 
 Get attachment URL
 
@@ -344,15 +344,15 @@ URL path
 
 ### getCurrentAttachmentProvider()
 
-> **getCurrentAttachmentProvider**(): `BaseAttachmentProvider`
+> **getCurrentAttachmentProvider**(): `BaseAttachmentProvider` \| `null`
 
-Defined in: [src/managers/AttachmentManager.ts:227](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/AttachmentManager.ts#L227)
+Defined in: [src/managers/AttachmentManager.ts:210](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/AttachmentManager.ts#L210)
 
 Get current attachment provider
 
 #### Returns
 
-`BaseAttachmentProvider`
+`BaseAttachmentProvider` \| `null`
 
 Current provider instance
 
@@ -362,7 +362,7 @@ Current provider instance
 
 > **getEngine**(): [`WikiEngine`](../../../types/WikiEngine/interfaces/WikiEngine.md)
 
-Defined in: [src/managers/BaseManager.ts:126](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L126)
+Defined in: [src/managers/BaseManager.ts:125](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L125)
 
 Get the wiki engine instance
 
@@ -388,7 +388,7 @@ const config = this.getEngine().getConfig();
 
 > **initialize**(`config?`): `Promise`\<`void`\>
 
-Defined in: [src/managers/AttachmentManager.ts:160](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/AttachmentManager.ts#L160)
+Defined in: [src/managers/AttachmentManager.ts:157](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/AttachmentManager.ts#L157)
 
 Initialize AttachmentManager and load the configured provider
 
@@ -420,7 +420,7 @@ If ConfigurationManager is not available or provider fails to load
 
 > **isInitialized**(): `boolean`
 
-Defined in: [src/managers/BaseManager.ts:114](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/BaseManager.ts#L114)
+Defined in: [src/managers/BaseManager.ts:113](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/BaseManager.ts#L113)
 
 Check if manager has been initialized
 
@@ -448,7 +448,7 @@ if (manager.isInitialized()) {
 
 > **refreshAttachmentList**(): `Promise`\<`void`\>
 
-Defined in: [src/managers/AttachmentManager.ts:502](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/AttachmentManager.ts#L502)
+Defined in: [src/managers/AttachmentManager.ts:482](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/AttachmentManager.ts#L482)
 
 Refresh attachment list (rescan storage)
 
@@ -462,7 +462,7 @@ Refresh attachment list (rescan storage)
 
 > **restore**(`backupData`): `Promise`\<`void`\>
 
-Defined in: [src/managers/AttachmentManager.ts:545](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/AttachmentManager.ts#L545)
+Defined in: [src/managers/AttachmentManager.ts:525](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/AttachmentManager.ts#L525)
 
 Restore manager data from backup
 Delegates to provider's restore method
@@ -489,7 +489,7 @@ Backup data from backup() method
 
 > **shutdown**(): `Promise`\<`void`\>
 
-Defined in: [src/managers/AttachmentManager.ts:568](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/AttachmentManager.ts#L568)
+Defined in: [src/managers/AttachmentManager.ts:548](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/AttachmentManager.ts#L548)
 
 Shutdown the manager
 
@@ -507,7 +507,7 @@ Shutdown the manager
 
 > **updateAttachmentMetadata**(`attachmentId`, `updates`, `context?`): `Promise`\<`boolean`\>
 
-Defined in: [src/managers/AttachmentManager.ts:450](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/AttachmentManager.ts#L450)
+Defined in: [src/managers/AttachmentManager.ts:430](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/AttachmentManager.ts#L430)
 
 Update attachment metadata
 
@@ -543,7 +543,7 @@ Success status
 
 > **uploadAttachment**(`fileBuffer`, `fileInfo`, `options`): `Promise`\<[`AttachmentMetadata`](../interfaces/AttachmentMetadata.md)\>
 
-Defined in: [src/managers/AttachmentManager.ts:263](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/managers/AttachmentManager.ts#L263)
+Defined in: [src/managers/AttachmentManager.ts:246](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/managers/AttachmentManager.ts#L246)
 
 Upload an attachment
 

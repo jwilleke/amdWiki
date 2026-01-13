@@ -6,7 +6,7 @@
 
 # Interface: ParseContext
 
-Defined in: [src/parsers/filters/BaseFilter.ts:118](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L118)
+Defined in: [src/parsers/filters/BaseFilter.ts:120](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L120)
 
 ParseContext (minimal interface until ParseContext.ts is converted)
 TODO: Replace with proper ParseContext import once converted
@@ -17,7 +17,7 @@ TODO: Replace with proper ParseContext import once converted
 
 > `optional` **pageName**: `string`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:119](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L119)
+Defined in: [src/parsers/filters/BaseFilter.ts:121](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L121)
 
 ***
 
@@ -25,4 +25,4 @@ Defined in: [src/parsers/filters/BaseFilter.ts:119](https://github.com/jwilleke/
 
 > `optional` **userName**: `string`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:120](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L120)
+Defined in: [src/parsers/filters/BaseFilter.ts:122](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L122)

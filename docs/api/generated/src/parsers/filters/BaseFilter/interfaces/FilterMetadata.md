@@ -6,7 +6,7 @@
 
 # Interface: FilterMetadata
 
-Defined in: [src/parsers/filters/BaseFilter.ts:58](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L58)
+Defined in: [src/parsers/filters/BaseFilter.ts:60](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L60)
 
 Filter metadata
 
@@ -16,15 +16,15 @@ Filter metadata
 
 > **category**: `string`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:62](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L62)
+Defined in: [src/parsers/filters/BaseFilter.ts:64](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L64)
 
 ***
 
 ### configuration
 
-> **configuration**: [`FilterConfig`](FilterConfig.md)
+> **configuration**: [`FilterConfig`](FilterConfig.md) \| `null`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:73](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L73)
+Defined in: [src/parsers/filters/BaseFilter.ts:75](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L75)
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: [src/parsers/filters/BaseFilter.ts:73](https://github.com/jwilleke/a
 
 > **description**: `string`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:61](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L61)
+Defined in: [src/parsers/filters/BaseFilter.ts:63](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L63)
 
 ***
 
@@ -40,7 +40,7 @@ Defined in: [src/parsers/filters/BaseFilter.ts:61](https://github.com/jwilleke/a
 
 > **enabled**: `boolean`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:64](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L64)
+Defined in: [src/parsers/filters/BaseFilter.ts:66](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L66)
 
 ***
 
@@ -48,7 +48,7 @@ Defined in: [src/parsers/filters/BaseFilter.ts:64](https://github.com/jwilleke/a
 
 > **id**: `string`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:59](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L59)
+Defined in: [src/parsers/filters/BaseFilter.ts:61](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L61)
 
 ***
 
@@ -56,7 +56,7 @@ Defined in: [src/parsers/filters/BaseFilter.ts:59](https://github.com/jwilleke/a
 
 > **options**: `Required`\<[`FilterOptions`](FilterOptions.md)\>
 
-Defined in: [src/parsers/filters/BaseFilter.ts:65](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L65)
+Defined in: [src/parsers/filters/BaseFilter.ts:67](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L67)
 
 ***
 
@@ -64,7 +64,7 @@ Defined in: [src/parsers/filters/BaseFilter.ts:65](https://github.com/jwilleke/a
 
 > **priority**: `number`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:63](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L63)
+Defined in: [src/parsers/filters/BaseFilter.ts:65](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L65)
 
 ***
 
@@ -72,7 +72,7 @@ Defined in: [src/parsers/filters/BaseFilter.ts:63](https://github.com/jwilleke/a
 
 > **stats**: [`FilterStats`](FilterStats.md) & `object`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:66](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L66)
+Defined in: [src/parsers/filters/BaseFilter.ts:68](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L68)
 
 #### Type Declaration
 
@@ -102,4 +102,4 @@ Defined in: [src/parsers/filters/BaseFilter.ts:66](https://github.com/jwilleke/a
 
 > **version**: `string`
 
-Defined in: [src/parsers/filters/BaseFilter.ts:60](https://github.com/jwilleke/amdWiki/blob/bcc115366e1180cb98de40309a75866518be330a/src/parsers/filters/BaseFilter.ts#L60)
+Defined in: [src/parsers/filters/BaseFilter.ts:62](https://github.com/jwilleke/amdWiki/blob/b6a859c7c9297966de89735ea5e8f953df289ac1/src/parsers/filters/BaseFilter.ts#L62)

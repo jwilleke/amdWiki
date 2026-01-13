@@ -12,7 +12,12 @@
 
 ## Interfaces
 
-- [Plugin](interfaces/Plugin.md)
 - [PluginContext](interfaces/PluginContext.md)
 - [PluginInfo](interfaces/PluginInfo.md)
+- [PluginObject](interfaces/PluginObject.md)
 - [PluginParams](interfaces/PluginParams.md)
+
+## Type Aliases
+
+- [Plugin](type-aliases/Plugin.md)
+- [PluginFunction](type-aliases/PluginFunction.md)
