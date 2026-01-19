@@ -678,7 +678,7 @@ class VersioningFileProvider extends FileSystemProvider {
 
     let location: 'pages' | 'required-pages' = 'pages';
     if (systemCategoriesConfig) {
-      for (const [_key, config] of Object.entries(systemCategoriesConfig)) {
+      for (const config of Object.values(systemCategoriesConfig)) {
         if (config.label?.toLowerCase() === systemCategory.toLowerCase()) {
           location = config.storageLocation === 'required' ? 'required-pages' : 'pages';
           break;

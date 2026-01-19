@@ -28,6 +28,11 @@ We use strict TypeScript settings (`strict: true`) to catch potential bugs at co
 - No unused variables or parameters
 - All functions must have explicit return types (unless inferable)
 - No implicit returns
+- Underscore variable policy:
+  - If a variable is truly unused, **DELETE IT** (don't just prefix with `_`)
+  - For required-but-unused callback/interface params, underscore prefix is acceptable (TypeScript `noUnusedParameters` requirement)
+  - Use skip pattern `[, value]` instead of `[_key, value]` in destructuring
+  - Use `.values()` instead of `.entries()` when only values are needed
 - For tests specifically:
   - New tests - write in TypeScript
   - Any changes are substantial (like a rewrite), convert to TypeScript
@@ -69,7 +74,7 @@ We use ESLint with TypeScript support to catch code quality issues.
 Key rules:
 
 - Prefer `const` over `let` and `var`
-- Unused variables must be prefixed with `_`
+- Delete unused variables; prefix with `_` only if required by function signature
 - `console` calls trigger warnings (use proper logging instead)
 - Single quotes required (unless string contains quotes)
 - Semicolons required

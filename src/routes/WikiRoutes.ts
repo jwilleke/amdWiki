@@ -544,7 +544,7 @@ class WikiRoutes {
           const keywords: string[] = [];
 
           // Extract all enabled keyword labels from configuration
-          for (const [_key, config] of Object.entries(userKeywordsConfig)) {
+          for (const config of Object.values(userKeywordsConfig)) {
             const cfg = config as { enabled?: boolean; label?: string };
             if (cfg.enabled !== false && cfg.label) {
               keywords.push(cfg.label);

@@ -496,7 +496,7 @@ class FilterChain {
 
     // Execute each priority group
     const sortedGroups = Array.from(priorityGroups.entries()).sort((a, b) => b[0] - a[0]);
-    for (const [_priority, filtersInGroup] of sortedGroups) {
+    for (const [, filtersInGroup] of sortedGroups) {
       if (filtersInGroup.length === 1) {
         // Single filter, execute normally
         processedContent = await this.executeFilter(filtersInGroup[0], processedContent, context);

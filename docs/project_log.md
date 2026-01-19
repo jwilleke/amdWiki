@@ -1,6 +1,6 @@
 # amdWiki Project Log
 
-AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) for task planning, [CHANGELOG.md](./CHANGELOG.md) for version history.
+AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version history.
 
 ## Format
 
@@ -23,6 +23,64 @@ AI agent session tracking. See [docs/planning/TODO.md](./docs/planning/TODO.md) 
 ```
 
 ---
+
+## 2026-01-19-01
+
+- Agent: Claude Opus 4.5
+- Subject: TypeScript cleanup - remove unnecessary underscore variables
+- Key Decision: Delete truly unused variables; underscore only for signature-required params
+- Current Issue: None
+- Testing:
+  - npm run typecheck: 0 errors
+  - npm run lint:code: 0 errors
+  - npm test: 58 suites passed, 1380 tests passed
+- Work Done:
+  - Removed unnecessary destructuring in UserManager.createRole()
+  - Removed unused `_content` parameter from standardize-categories.ts
+  - Changed 3 loops in NotificationManager from .entries() to .values()
+  - Changed 3 loops in ValidationManager from Object.entries() to Object.values()
+  - Changed Object.entries() to Object.values() in WikiRoutes and VersioningFileProvider
+  - Used skip pattern `[, value]` instead of `[_key, value]` in FilterChain
+  - Clarified underscore variable policy in CODE_STANDARDS.md (resolved contradiction)
+- Files Modified:
+  - CODE_STANDARDS.md
+  - src/managers/UserManager.ts
+  - src/managers/NotificationManager.ts
+  - src/managers/ValidationManager.ts
+  - src/parsers/filters/FilterChain.ts
+  - src/providers/VersioningFileProvider.ts
+  - src/routes/WikiRoutes.ts
+  - src/utils/standardize-categories.ts
+
+---
+
+## 2026-01-13-06
+
+- Agent: jim
+- Subject: Fix content in several pages
+- Created
+  - [BUG] Error loading user management #209 In jwilleke/amdWiki;· jwilleke opened 10 minutes ago
+  - [BUG] /export #208 In jwilleke/amdWiki;· jwilleke opened 38 minutes ago
+  - [BUG] /admin/logs #207 In jwilleke/amdWiki;· jwilleke opened 45 minutes ago
+  - [BUG] <http://localhost:3000/admin/backup> #206 In jwilleke/amdWiki;· jwilleke opened 52 minutes ago
+  - [FEATURE] UndefinedPagesPlugin #205 In jwilleke/amdWiki;
+- Work Done:
+  - Moved and worked on pages and content
+  - User Testing on many pages and admin dasboard
+- Commits: 5856591b9efcc96b651f5a3c3e7d596456a291fa, 1dd05770ab47cf58a3b24d8d72aa0d72c27ce452, 03075ab43b07da888c9da481ee798fa26b75e20d
+- claude doctor  Diagnostics
+  - └ Currently running: native (2.0.76)
+  - └ Path: /Users/jim/.local/bin/claude
+  - └ Invoked: /Users/jim/.local/share/claude/versions/2.0.76
+  - └ Config install method: native
+  - └ Auto-updates: enabled
+  - └ Search: OK (bundled)
+- Version Locks
+    └ No active version locks
+- Context Usage Warnings CAN WE REDUCE THIS?
+  - └ ⚠ Large MCP tools context (~45,504 tokens > 25,000)
+  - └ MCP servers:
+  - └ MCP_DOCKER: 63 tools (~45,504 tokens)
 
 ## 2026-01-12-05
 

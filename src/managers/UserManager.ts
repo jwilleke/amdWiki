@@ -993,8 +993,7 @@ class UserManager extends BaseManager {
   }
 
   createRole(roleData: RoleCreateData): never {
-    const { name, displayName: _displayName, description: _description } = roleData;
-    logger.warn(`[DEPRECATED] createRole() is deprecated. Add role '${name}' to config/app-custom-config.json`);
+    logger.warn(`[DEPRECATED] createRole() is deprecated. Add role '${roleData.name}' to config/app-custom-config.json`);
     throw new Error('createRole() is deprecated. Please add custom roles to config/app-custom-config.json');
   }
 

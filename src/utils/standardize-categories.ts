@@ -71,8 +71,7 @@ const CATEGORY_MAPPING: Record<string, string> = {
 function determineCorrectCategory(
   filePath: string,
   currentCategory: string | undefined,
-  metadata: PageMetadata,
-  _content: string
+  metadata: PageMetadata
 ): string {
   const fileName = path.basename(filePath);
   const directory = path.dirname(filePath).split('/').pop() || '';
@@ -183,7 +182,7 @@ class CategoryStandardizer {
       const { data: metadata, content } = matter(fileContent) as { data: PageMetadata; content: string };
 
       const currentCategory = metadata.category;
-      const correctCategory = determineCorrectCategory(filePath, currentCategory, metadata, content);
+      const correctCategory = determineCorrectCategory(filePath, currentCategory, metadata);
 
       if (currentCategory !== correctCategory) {
         const change: CategoryChange = {

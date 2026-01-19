@@ -264,7 +264,7 @@ class NotificationManager extends BaseManager {
     const now = new Date();
     const userNotifications: Notification[] = [];
 
-    for (const [_id, notification] of this.notifications.entries()) {
+    for (const notification of this.notifications.values()) {
       // Check if notification is expired
       if (!includeExpired && notification.expiresAt && notification.expiresAt < now) {
         continue;
@@ -340,7 +340,7 @@ class NotificationManager extends BaseManager {
     const now = new Date();
     const allNotifications: Notification[] = [];
 
-    for (const [_id, notification] of this.notifications.entries()) {
+    for (const notification of this.notifications.values()) {
       if (!includeExpired && notification.expiresAt && notification.expiresAt < now) {
         continue;
       }
@@ -409,7 +409,7 @@ class NotificationManager extends BaseManager {
     const byType: Record<string, number> = {};
     const byLevel: Record<string, number> = {};
 
-    for (const [_id, notification] of this.notifications.entries()) {
+    for (const notification of this.notifications.values()) {
       if (notification.expiresAt && notification.expiresAt < now) {
         expired++;
       } else {

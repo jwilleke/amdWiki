@@ -187,7 +187,7 @@ class ValidationManager extends BaseManager {
 
         // Build valid categories list from enabled categories
         const categories: string[] = [];
-        for (const [_key, categoryConfig] of Object.entries(systemCategoriesConfig)) {
+        for (const categoryConfig of Object.values(systemCategoriesConfig)) {
           if (categoryConfig.enabled !== false) {
             // Use the label as the valid category value
             categories.push(categoryConfig.label);
@@ -256,7 +256,7 @@ class ValidationManager extends BaseManager {
     }
 
     return Object.entries(this.systemCategoriesConfig)
-      .filter(([_key, config]) => config.enabled !== false)
+      .filter(([, config]) => config.enabled !== false)
       .map(([key, config]) => ({ key, ...config }));
   }
 
@@ -269,14 +269,14 @@ class ValidationManager extends BaseManager {
       return 'general';
     }
 
-    for (const [_key, config] of Object.entries(this.systemCategoriesConfig)) {
+    for (const config of Object.values(this.systemCategoriesConfig)) {
       if (config.default === true && config.enabled !== false) {
         return config.label;
       }
     }
 
     // Fallback to first enabled category
-    for (const [_key, config] of Object.entries(this.systemCategoriesConfig)) {
+    for (const config of Object.values(this.systemCategoriesConfig)) {
       if (config.enabled !== false) {
         return config.label;
       }
