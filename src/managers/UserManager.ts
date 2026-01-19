@@ -102,6 +102,8 @@ interface UserContext {
   displayName?: string;
   roles: string[];
   isAuthenticated: boolean;
+  /** Alias for isAuthenticated - used by WikiContext */
+  authenticated?: boolean;
   isExternal?: boolean;
   hasSessionCookie?: boolean;
 }
@@ -1024,7 +1026,8 @@ class UserManager extends BaseManager {
 
       const currentUserContext: UserContext = {
         ...freshUser,
-        isAuthenticated: true
+        isAuthenticated: true,
+        authenticated: true
       } as UserContext;
 
       const roles = new Set(currentUserContext.roles || []);
@@ -1072,7 +1075,8 @@ class UserManager extends BaseManager {
       username: 'Anonymous',
       displayName: 'Anonymous User',
       roles: ['Anonymous', 'All'],
-      isAuthenticated: false
+      isAuthenticated: false,
+      authenticated: false
     };
   }
 
@@ -1082,6 +1086,7 @@ class UserManager extends BaseManager {
       displayName: 'Asserted User',
       roles: ['reader'],
       isAuthenticated: false,
+      authenticated: false,
       hasSessionCookie: true
     };
   }

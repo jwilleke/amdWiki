@@ -180,7 +180,8 @@ checkAndCreatePidLock();
         req.userContext = {
           ...user,
           roles: Array.from(roles),
-          isAuthenticated: true
+          isAuthenticated: true,
+          authenticated: true  // WikiContext expects this property name
         };
         logger.info(`[SESSION] Restored session for user: ${req.userContext.username}`);
       } else {
