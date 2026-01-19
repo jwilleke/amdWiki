@@ -147,18 +147,54 @@ case "${1:-}" in
     echo "   Logs: ./data/logs/"
     npx --no pm2 start ecosystem.config.js --env $ENV_NAME
 
-    # STEP 8: Write our own PID file with the PM2 process PID
-    sleep 2
+    # STEP 8: Wait for server to start and verify it's running
+    echo "   Waiting for server to start..."
+    MAX_WAIT=30
+    WAIT_COUNT=0
+    while [ $WAIT_COUNT -lt $MAX_WAIT ]; do
+      sleep 1
+      WAIT_COUNT=$((WAIT_COUNT + 1))
+
+      # Check if PM2 shows the app as online
+      PM2_STATUS=$(npx --no pm2 show "$APP_NAME" 2>/dev/null | grep -E "^\s*status" | awk '{print $NF}' || true)
+      if [ "$PM2_STATUS" = "online" ]; then
+        break
+      fi
+
+      # Check if app crashed
+      if [ "$PM2_STATUS" = "errored" ] || [ "$PM2_STATUS" = "stopped" ]; then
+        echo "❌ ERROR: Server failed to start (status: $PM2_STATUS)"
+        echo "   Check logs: npx pm2 logs $APP_NAME --lines 50"
+        rm -f "$PID_FILE"
+        exit 1
+      fi
+
+      # Show progress every 5 seconds
+      if [ $((WAIT_COUNT % 5)) -eq 0 ]; then
+        echo "   Still waiting... ($WAIT_COUNT/$MAX_WAIT seconds)"
+      fi
+    done
+
+    # STEP 9: Verify server started and write PID file
     PM2_PID=$(npx --no pm2 pid "$APP_NAME" 2>/dev/null | grep -oE '[0-9]+' | head -1)
     if [ -n "$PM2_PID" ] && [ "$PM2_PID" != "0" ]; then
-      echo "$PM2_PID" > "$PID_FILE"
-      echo "✅ Server started (PID: $PM2_PID)"
+      # Verify the process is actually running
+      if ps -p "$PM2_PID" > /dev/null 2>&1; then
+        echo "$PM2_PID" > "$PID_FILE"
+        echo "✅ Server started (PID: $PM2_PID)"
+      else
+        echo "❌ ERROR: PID $PM2_PID reported but process not found"
+        rm -f "$PID_FILE"
+        exit 1
+      fi
     else
-      echo "⚠️  Server may have started but PID detection failed"
-      echo "   Check: ./server.sh status"
+      echo "❌ ERROR: Server failed to start - no PID detected"
+      echo "   Check logs: npx pm2 logs $APP_NAME --lines 50"
+      rm -f "$PID_FILE"
+      exit 1
     fi
 
-    # STEP 9: Clean up PM2-generated PID files (keep only .amdwiki.pid as source of truth)
+    # STEP 10: Clean up PM2-generated PID files (keep only .amdwiki.pid as source of truth)
     rm -f "$SCRIPT_DIR"/.amdwiki-*.pid
     ;;
 
