@@ -24,6 +24,30 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-01-19-07
+
+- Agent: Claude Opus 4.5
+- Subject: Date/time variables honor user locale preferences
+- Key Decision: Use LocaleUtils for formatting, check Accept-Language header
+- Current Issue: None
+- Testing:
+  - npm run typecheck: 0 errors
+  - npm test: 58 suites passed, 1380 tests passed
+- Work Done:
+  - Fix #37: Updated VariableManager date/time variables to use user locale
+  - Added UserPreferences interface to WikiContext (locale, timezone, dateFormat)
+  - Updated toVariableContext() to pass preferences through context chain
+  - Variables $date, $time, $timestamp now check user preferences, then Accept-Language
+  - Added cookies.txt to .gitignore and fixed project_log duplicates
+- Commits: 95d0acf, a230902
+- Files Modified:
+  - src/managers/VariableManager.ts
+  - src/context/WikiContext.ts
+  - .gitignore
+  - docs/project_log.md
+
+---
+
 ## 2026-01-19-06
 
 - Agent: Claude Opus 4.5
