@@ -2830,6 +2830,14 @@ class WikiRoutes {
       // Toggle maintenance mode in config
       const config = this.engine.config;
       const currentMode = config.features?.maintenance?.enabled || false;
+
+      // Ensure nested config structure exists before writing
+      if (!config.features) {
+        config.features = {};
+      }
+      if (!config.features.maintenance) {
+        config.features.maintenance = { enabled: false, allowAdmins: true };
+      }
       config.features.maintenance.enabled = !currentMode;
 
       // Log the maintenance mode change
