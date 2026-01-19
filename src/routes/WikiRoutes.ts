@@ -1033,9 +1033,11 @@ class WikiRoutes {
       // Get available templates
       const templates = templateManager.getTemplates();
 
-      // Get categories and keywords for the form
-      const systemCategories = this.getSystemCategories();
-      const userKeywords = await this.getUserKeywords();
+      // Get categories and keywords for the form (defensive array handling)
+      const rawCategories = this.getSystemCategories();
+      const systemCategories = Array.isArray(rawCategories) ? rawCategories : [];
+      const rawKeywords = await this.getUserKeywords();
+      const userKeywords = Array.isArray(rawKeywords) ? rawKeywords : [];
 
       const configManager = this.engine.getManager('ConfigurationManager');
       const maxUserKeywords = configManager
@@ -1340,9 +1342,11 @@ class WikiRoutes {
       const templateData = this.getTemplateDataFromContext(wikiContext);
       const commonData = { ...templateData };
 
-      // Get categories and keywords
-      const systemCategories = this.getSystemCategories();
-      const userKeywords = await this.getUserKeywords();
+      // Get categories and keywords (defensive array handling)
+      const rawCategories = this.getSystemCategories();
+      const systemCategories = Array.isArray(rawCategories) ? rawCategories : [];
+      const rawKeywords = await this.getUserKeywords();
+      const userKeywords = Array.isArray(rawKeywords) ? rawKeywords : [];
 
       // If page doesn't exist, create empty page data for new page
       if (!pageData) {
@@ -1861,8 +1865,11 @@ class WikiRoutes {
       }
 
       // Get available categories and keywords for dropdowns
-      const systemCategories = this.getSystemCategories();
-      const userKeywordsList = await this.getUserKeywords();
+      // Ensure arrays are always returned (defensive handling)
+      const availableCats = this.getSystemCategories();
+      const systemCategories = Array.isArray(availableCats) ? availableCats : [];
+      const availableKws = await this.getUserKeywords();
+      const userKeywordsList = Array.isArray(availableKws) ? availableKws : [];
 
       // Get stats for search results (optional, fallback to empty if not available)
       let stats = {};
