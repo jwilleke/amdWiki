@@ -24,6 +24,25 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-01-19-06
+
+- Agent: Claude Opus 4.5
+- Subject: Bug fixes for search, maintenance mode, and page save validation
+- Key Decision: Add defensive array handling and validation with clear error messages
+- Current Issue: None
+- Testing:
+  - npm run typecheck: 0 errors
+  - npm test: 58 suites passed, 1380 tests passed
+- Work Done:
+  - Fix #196: Added defensive Array.isArray() checks for systemCategories and userKeywordsList in search/create/edit routes to prevent "forEach is not a function" errors
+  - Fix #193: Added null checks to create nested config.features.maintenance object before toggling maintenance mode
+  - Fix #188: Added category validation (case-insensitive match) and improved error messages showing valid categories. Use properly capitalized category name in metadata
+- Commits: 2d0baaa, a6ce4c0, 8fe2a4b
+- Files Modified:
+  - src/routes/WikiRoutes.ts
+
+---
+
 ## 2026-01-19-01
 
 - Agent: Claude Opus 4.5
@@ -54,15 +73,50 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-01-19-02
+
+- Agent: Claude Opus 4.5
+- Subject: Fix #206 - /admin/backup 500 error
+- Key Decision: Route was calling wrong method
+- Current Issue: Closed #206
+- Testing:
+  - npm test: 58 suites passed, 1380 tests passed
+- Work Done:
+  - Fixed admin backup route calling backup() instead of createBackup()
+  - backup() returns BackupData object, createBackup() returns file path
+- Commits: 087df32
+- Files Modified:
+  - src/routes/WikiRoutes.ts
+
+---
+
+## 2026-01-19-03
+
+- Agent: Claude Opus 4.5
+- Subject: Fix #207 - /admin/logs improvements
+- Key Decision: Sort by mtime, add file selection via query param
+- Current Issue: Closed #207
+- Testing:
+  - npm test: 58 suites passed, 1380 tests passed
+- Work Done:
+  - Sort log files by modification time (newest first)
+  - Make log file list clickable with ?file= query parameter
+  - Show file size and modification date
+  - Highlight selected log file
+- Commits: 13d2bc2
+- Files Modified:
+  - src/routes/WikiRoutes.ts
+  - views/admin-logs.ejs
+
 ## 2026-01-13-06
 
 - Agent: jim
 - Subject: Fix content in several pages
-- Created
-  - [BUG] Error loading user management #209 In jwilleke/amdWiki;· jwilleke opened 10 minutes ago
-  - [BUG] /export #208 In jwilleke/amdWiki;· jwilleke opened 38 minutes ago
-  - [BUG] /admin/logs #207 In jwilleke/amdWiki;· jwilleke opened 45 minutes ago
-  - [BUG] <http://localhost:3000/admin/backup> #206 In jwilleke/amdWiki;· jwilleke opened 52 minutes ago
+- Created:
+  - [BUG] Error loading user management #209 In jwilleke/amdWiki
+  - [BUG] /export #208 In jwilleke/amdWiki
+  - [BUG] /admin/logs #207 In jwilleke/amdWiki
+  - [BUG] /admin/backup #206 In jwilleke/amdWiki
   - [FEATURE] UndefinedPagesPlugin #205 In jwilleke/amdWiki;
 - Work Done:
   - Moved and worked on pages and content
@@ -81,6 +135,49 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - └ ⚠ Large MCP tools context (~45,504 tokens > 25,000)
   - └ MCP servers:
   - └ MCP_DOCKER: 63 tools (~45,504 tokens)
+
+## 2026-01-19-04
+
+- Agent: Claude Opus 4.5
+- Subject: Fix #208 - /export file download
+- Key Decision: Use res.download() and blob handling for file downloads
+- Current Issue: Closed #208
+- Testing:
+  - npm test: 58 suites passed, 1380 tests passed
+- Work Done:
+  - Changed export routes to use res.download() for file delivery
+  - Updated JavaScript in export.ejs to handle blob downloads
+  - Added "Back to Dashboard" button
+  - Fixed both HTML and Markdown export endpoints
+- Commits: dfc79d0
+- Files Modified:
+  - src/routes/WikiRoutes.ts
+  - views/export.ejs
+
+---
+
+## 2026-01-19-05
+
+- Agent: Claude Opus 4.5
+- Subject: Fix #209 - Error loading user management
+- Key Decision: Fix createUser signature mismatch between interface and implementation
+- Current Issue: Closed #209
+- Testing:
+  - npm test: 58 suites passed, 1380 tests passed
+- Work Done:
+  - Found root cause: UserProvider interface expected createUser(User) but providers implemented createUser(username, userData)
+  - This caused undefined users to be stored in the Map
+  - Fixed signatures in BaseUserProvider, FileUserProvider, Provider.ts to accept single User object
+  - Added null filter in getUsers() for robustness
+  - Removed unused UserCreateData imports
+- Commits: b78ea8c
+- Files Modified:
+  - src/managers/UserManager.ts
+  - src/providers/FileUserProvider.ts
+  - src/providers/BaseUserProvider.ts
+  - src/types/Provider.ts
+
+---
 
 ## 2026-01-12-05
 
