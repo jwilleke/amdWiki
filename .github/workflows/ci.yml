@@ -114,6 +114,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Build TypeScript
+        run: npm run build
+
       - name: Create required directories
         run: |
           mkdir -p pages data logs sessions
@@ -213,6 +216,9 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Build TypeScript
+        run: npm run build
 
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps chromium
