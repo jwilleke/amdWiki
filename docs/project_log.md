@@ -24,6 +24,35 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-01-19-08
+
+- Agent: Claude Opus 4.5
+- Subject: JSPWiki table styles and authentication status fixes
+- Key Decision: Add style block extraction to DOM pipeline, show auth status in user-summary
+- Current Issue: None (Issues #164, #182 fixed)
+- Testing:
+  - npm run typecheck: 0 errors
+  - npm test: 58 suites passed, 1380 tests passed
+- Work Done:
+  - Fix #164: Added JSPWiki style block (%%class-name ... /%) extraction to MarkupParser
+    - Added style type to ExtractedElement interface
+    - Added createNodeFromStyleBlock() for style block handling
+    - Added createTableNode() to parse JSPWiki table syntax to HTML
+    - Supports: table-striped, sortable, table-hover, table-bordered, zebra-table, etc.
+  - Fix #182: Updated ConfigAccessorPlugin to show authentication status
+    - Added 'authenticated' property to UserContext interface
+    - displayUserSummary() now shows: Authenticated, Not Authenticated, or Anonymous
+    - Added color-coded status badges and actionable messages
+  - Reviewed #195 (BROKEN.pages) - added analysis comment, no code changes needed
+  - Noted #194 already closed
+- Commits: f607015
+- Files Modified:
+  - src/parsers/MarkupParser.ts
+  - plugins/ConfigAccessorPlugin.ts
+  - docs/project_log.md
+
+---
+
 ## 2026-01-19-07
 
 - Agent: Claude Opus 4.5
