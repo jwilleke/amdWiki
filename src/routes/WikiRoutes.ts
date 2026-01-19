@@ -3881,16 +3881,34 @@ class WikiRoutes {
       const configManager = this.engine.getManager('ConfigurationManager');
       const logDir = configManager.getProperty('amdwiki.logging.dir');
       let logContent = '';
-      let logFiles = [];
+      let logFiles: Array<{ name: string; mtime: Date; size: number }> = [];
+      let selectedFile = '';
 
       try {
         if (await fs.pathExists(logDir)) {
-          logFiles = await fs.readdir(logDir);
-          logFiles = logFiles.filter((f: string) => f.endsWith('.log')).sort().reverse();
+          const files = await fs.readdir(logDir);
+          const logFileNames = files.filter((f: string) => f.endsWith('.log'));
 
-          if (logFiles.length > 0) {
-            const latestLog = path.join(logDir, logFiles[0]);
-            const content = await fs.readFile(latestLog, 'utf8');
+          // Get file stats and sort by modification time (newest first)
+          const fileStats = await Promise.all(
+            logFileNames.map(async (name: string) => {
+              const stats = await fs.stat(path.join(logDir, name));
+              return { name, mtime: stats.mtime, size: stats.size };
+            })
+          );
+          logFiles = fileStats.sort((a, b) => b.mtime.getTime() - a.mtime.getTime());
+
+          // Get selected file from query param, or use most recent
+          const requestedFile = req.query.file as string | undefined;
+          if (requestedFile && logFileNames.includes(requestedFile)) {
+            selectedFile = requestedFile;
+          } else if (logFiles.length > 0) {
+            selectedFile = logFiles[0].name;
+          }
+
+          if (selectedFile) {
+            const logPath = path.join(logDir, selectedFile);
+            const content = await fs.readFile(logPath, 'utf8');
             // Get last 100 lines
             const lines = content.split('\n');
             logContent = lines.slice(-100).join('\n');
@@ -3906,6 +3924,7 @@ class WikiRoutes {
         title: 'System Logs',
         logFiles,
         logContent,
+        selectedFile,
         csrfToken: req.session.csrfToken
       });
     } catch (err: unknown) {
