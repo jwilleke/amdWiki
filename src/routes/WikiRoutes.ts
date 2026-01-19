@@ -1587,6 +1587,19 @@ class WikiRoutes {
       ) {
         return res.status(400).send('A system-category is required');
       }
+
+      // Validate that the submitted category is valid (case-insensitive match)
+      const validCategories = this.getSystemCategories();
+      const normalizedSubmitted = systemCategory.trim().toLowerCase();
+      const matchedCategory = validCategories.find(
+        (cat: string) => cat.toLowerCase() === normalizedSubmitted
+      );
+      if (!matchedCategory) {
+        const validCategoryList = validCategories.join(', ');
+        return res.status(400).send(
+          `Invalid system-category: "${systemCategory}". Valid categories are: ${validCategoryList}`
+        );
+      }
       // Validate user keywords (preserve existing if none submitted)
       const submittedUserKeywords =
         typeof req.body.userKeywords !== 'undefined'
@@ -1608,6 +1621,7 @@ class WikiRoutes {
       }
 
       // Prepare metadata ONCE, preserving UUID if editing
+      // Use matchedCategory (properly capitalized) instead of submitted systemCategory
       const baseMetadata: {
         title: string;
         'system-category': string;
@@ -1616,7 +1630,7 @@ class WikiRoutes {
         uuid?: string;
       } = {
         title: title || pageName,
-        'system-category': systemCategory,
+        'system-category': matchedCategory,
         'user-keywords': userKeywordsArray,
         author: currentUser?.username || 'anonymous'  // Add author for versioning
       };
@@ -1691,8 +1705,15 @@ class WikiRoutes {
       const redirectName = metadata.title || pageName;
       res.redirect(`/wiki/${encodeURIComponent(redirectName)}`);
     } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
       logger.error('Error saving page:', err);
-      res.status(500).send('Error saving page');
+      return await this.renderError(
+        req,
+        res,
+        500,
+        'Error Saving Page',
+        `Failed to save page: ${errorMessage}`
+      );
     }
   }
 
