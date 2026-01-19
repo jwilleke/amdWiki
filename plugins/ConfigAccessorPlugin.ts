@@ -47,6 +47,7 @@ interface UserContext {
   displayname?: string;
   email?: string;
   roles?: string[];
+  authenticated?: boolean;
 }
 
 interface ConfigurationManager {
@@ -304,6 +305,10 @@ function displayPermissions(userManager: UserManager | null): string {
 
 /**
  * Display current user summary - roles and permissions from WikiContext
+ * Shows authentication status:
+ * - Authenticated: User has logged in
+ * - Not Authenticated: We know who they probably are but not authenticated
+ * - Anonymous: No user information available
  */
 function displayUserSummary(context: ExtendedPluginContext, userManager: UserManager | null): string {
   if (!userManager) {
@@ -313,8 +318,16 @@ function displayUserSummary(context: ExtendedPluginContext, userManager: UserMan
   // Get current user from context (WikiContext uses userContext, not currentUser)
   const currentUser = context?.userContext || context?.currentUser;
 
-  if (!currentUser) {
-    return '<div class="alert alert-info"><i class="fas fa-info-circle"></i> Not logged in. Please <a href="/login">login</a> to see your user summary.</div>';
+  // Determine authentication status
+  const isAuthenticated = currentUser?.authenticated === true;
+  const hasUserInfo = currentUser && (currentUser.username && currentUser.username !== 'anonymous');
+
+  // Anonymous - no user info at all
+  if (!currentUser || (!hasUserInfo && !isAuthenticated)) {
+    return `<div class="alert alert-secondary">
+      <h5><i class="fas fa-user-secret"></i> Login Status: <span class="badge bg-secondary">Anonymous</span></h5>
+      <p class="mb-0">We have no information about you. Please <a href="/login">login</a> to access personalized features.</p>
+    </div>`;
   }
 
   const username = currentUser.username || 'Unknown';
@@ -342,6 +355,18 @@ function displayUserSummary(context: ExtendedPluginContext, userManager: UserMan
 
   const permissionsArray = Array.from(userPermissions).sort();
 
+  // Determine status badge and message
+  let statusBadge: string;
+  let statusMessage: string;
+  if (isAuthenticated) {
+    statusBadge = '<span class="badge bg-success">Authenticated</span>';
+    statusMessage = 'You are logged in and authenticated.';
+  } else {
+    // Known user but not authenticated (e.g., remembered from cookie but session expired)
+    statusBadge = '<span class="badge bg-warning text-dark">Not Authenticated</span>';
+    statusMessage = 'We recognize you but you are not currently authenticated. <a href="/login">Login</a> to access all features.';
+  }
+
   let html = '<div class="config-accessor-plugin">\n';
   html += '  <div class="card">\n';
   html += '    <div class="card-header">\n';
@@ -349,6 +374,12 @@ function displayUserSummary(context: ExtendedPluginContext, userManager: UserMan
   html += '      <small class="text-muted">Your roles and permissions</small>\n';
   html += '    </div>\n';
   html += '    <div class="card-body">\n';
+
+  // Login Status Section (new)
+  html += '      <h6><i class="fas fa-sign-in-alt"></i> Login Status</h6>\n';
+  html += `      <div class="alert ${isAuthenticated ? 'alert-success' : 'alert-warning'} py-2 mb-3">\n`;
+  html += `        ${statusBadge} <span class="ms-2">${statusMessage}</span>\n`;
+  html += '      </div>\n';
 
   // User Information Section
   html += '      <h6><i class="fas fa-id-card"></i> User Information</h6>\n';

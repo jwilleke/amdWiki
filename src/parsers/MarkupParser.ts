@@ -166,7 +166,7 @@ export interface ParseContextData {
 /** Extracted JSPWiki element */
 export interface ExtractedElement {
   /** Element type */
-  type: 'variable' | 'plugin' | 'link' | 'escaped';
+  type: 'variable' | 'plugin' | 'link' | 'escaped' | 'style';
   /** Original syntax */
   syntax: string;
   /** Unique ID */
@@ -181,6 +181,10 @@ export interface ExtractedElement {
   target?: string;
   /** Escaped literal content (for escaped) */
   literal?: string;
+  /** CSS class name (for style blocks) */
+  className?: string;
+  /** Style block content (for style blocks) */
+  styleContent?: string;
 }
 
 /** Configuration manager interface for type safety */
@@ -1160,6 +1164,24 @@ class MarkupParser extends BaseManager {
       return placeholder;
     });
 
+    // Step 0.5: Extract JSPWiki style blocks %%class-name ... /%
+    // This MUST happen before other extractions because style blocks may contain
+    // JSPWiki syntax (tables, links, etc.) that needs special processing
+    // Matches: %%table-striped\n|| Header ||\n| Data |\n/%
+    // Pattern: %%class-name (on its own line) ... /% (on its own line)
+    const styleBlockPattern = /^%%([a-zA-Z0-9_-]+)\s*$([\s\S]*?)^\/%(?: *)?$/gm;
+    sanitized = sanitized.replace(styleBlockPattern, (match: string, className: string, blockContent: string, offset: number) => {
+      jspwikiElements.push({
+        type: 'style',
+        syntax: match,
+        className: className.trim(),
+        styleContent: blockContent.trim(),
+        id: id++,
+        position: offset
+      });
+      return `<span data-jspwiki-placeholder="${uuid}-${id - 1}"></span>`;
+    });
+
     // Step 1: Extract ESCAPED syntax FIRST (before anything else)
     // Matches: [[{$var}], [[{Plugin}]
     // Result: Literal [{$var}] or [{Plugin}] in output
@@ -1262,6 +1284,134 @@ class MarkupParser extends BaseManager {
   }
 
   /**
+   * Creates a DOM node from a JSPWiki style block (%%class-name ... /%)
+   *
+   * This handles table-related style classes (table-striped, sortable, etc.)
+   * by parsing JSPWiki table syntax and creating HTML tables with proper styling.
+   * For non-table styles, wraps content in a styled div/span.
+   *
+   * @param element - Extracted style element
+   * @param context - Rendering context
+   * @param wikiDocument - WikiDocument to create node in
+   * @returns DOM node for the styled content
+   *
+   * @example
+   * // For table styles:
+   * const element = { type: 'style', className: 'table-striped', styleContent: '|| H1 ||\n| D1 |' };
+   * const node = createNodeFromStyleBlock(element, context, wikiDoc);
+   * // Returns: <table class="table table-striped">...</table>
+   */
+  createNodeFromStyleBlock(element: ExtractedElement, _context: ParseContext, wikiDocument: WikiDocument): unknown {
+    const className = element.className ?? '';
+    const content = element.styleContent ?? '';
+
+    // Table-related classes that need special handling
+    const tableClasses = [
+      'sortable', 'table-sort', 'table-filter',
+      'zebra-table', 'table-striped', 'table-hover',
+      'table-fit', 'table-bordered', 'table-sm', 'table-responsive',
+      'table-condensed'
+    ];
+
+    const isTableClass = tableClasses.includes(className) || /^zebra-[0-9a-fA-F]{6}$/.test(className);
+
+    // Check if content contains JSPWiki table syntax
+    const hasTableSyntax = /^\s*\|/m.test(content);
+
+    if (isTableClass && hasTableSyntax) {
+      // Parse JSPWiki table and create HTML table with style class
+      return this.createTableNode(content, className, element.id, wikiDocument);
+    }
+
+    // For non-table styles or content without table syntax, wrap in div
+    const divNode = wikiDocument.createElement('div', {
+      'class': className,
+      'data-jspwiki-id': element.id.toString()
+    });
+    divNode.textContent = content;
+    return divNode;
+  }
+
+  /**
+   * Creates an HTML table node from JSPWiki table syntax
+   *
+   * @param content - JSPWiki table content (|| header || and | cell | syntax)
+   * @param className - CSS class to apply (e.g., 'table-striped')
+   * @param elementId - Element ID for tracking
+   * @param wikiDocument - WikiDocument to create node in
+   * @returns HTML table element
+   */
+  private createTableNode(content: string, className: string, elementId: number, wikiDocument: WikiDocument): unknown {
+    const lines = content.split('\n').filter(line => /^\s*\|/.test(line));
+
+    // Parse rows
+    const rows: Array<{ isHeader: boolean; cells: string[] }> = [];
+    for (const line of lines) {
+      const trimmed = line.trim();
+      const isHeader = trimmed.startsWith('||') && trimmed.endsWith('||');
+
+      let cells: string[];
+      if (isHeader) {
+        const inner = trimmed.slice(2, -2);
+        cells = inner.split('||').map(c => c.trim());
+      } else {
+        const inner = trimmed.slice(1, -1);
+        cells = inner.split('|').map(c => c.trim());
+      }
+
+      rows.push({ isHeader, cells });
+    }
+
+    // Build CSS classes - always include 'table' base class
+    const classes = ['table'];
+    if (className) {
+      classes.push(className);
+    }
+
+    // Create table element
+    const table = wikiDocument.createElement('table', {
+      'class': classes.join(' '),
+      'data-jspwiki-id': elementId.toString()
+    });
+
+    // Separate header and body rows
+    const headerRows = rows.filter(r => r.isHeader);
+    const bodyRows = rows.filter(r => !r.isHeader);
+
+    // Create thead if there are header rows
+    if (headerRows.length > 0) {
+      const thead = wikiDocument.createElement('thead', {});
+      for (const row of headerRows) {
+        const tr = wikiDocument.createElement('tr', {});
+        for (const cell of row.cells) {
+          const th = wikiDocument.createElement('th', {});
+          th.textContent = cell;
+          tr.appendChild(th);
+        }
+        thead.appendChild(tr);
+      }
+      table.appendChild(thead);
+    }
+
+    // Create tbody if there are body rows
+    if (bodyRows.length > 0) {
+      const tbody = wikiDocument.createElement('tbody', {});
+      for (const row of bodyRows) {
+        const tr = wikiDocument.createElement('tr', {});
+        for (const cell of row.cells) {
+          const td = wikiDocument.createElement('td', {});
+          td.textContent = cell;
+          tr.appendChild(td);
+        }
+        tbody.appendChild(tr);
+      }
+      table.appendChild(tbody);
+    }
+
+    return table;
+  }
+
+  /**
    * Creates a DOM node from an extracted element (Phase 2 dispatcher)
    *
    * This is the dispatcher method for Phase 2 that routes extracted elements
@@ -1309,6 +1459,10 @@ class MarkupParser extends BaseManager {
     case 'escaped':
       // Escaped: [[{$var}]] → [{$var}]
       return this.createTextNodeForEscaped(element, wikiDocument);
+
+    case 'style':
+      // Style block: %%class-name ... /%
+      return this.createNodeFromStyleBlock(element, context, wikiDocument);
 
     default: {
       logger.error(`❌ Unknown element type: ${String(element.type)}`);
