@@ -35,6 +35,20 @@ export interface RequestInfo {
 }
 
 /**
+ * User preferences for date/time formatting, locale, etc.
+ */
+export interface UserPreferences {
+  /** User's preferred locale (e.g., 'en-US') */
+  locale?: string;
+  /** User's timezone (e.g., 'America/New_York') */
+  timezone?: string;
+  /** Date format preference (e.g., 'yyyy-MM-dd') */
+  dateFormat?: string;
+  /** Additional preferences */
+  [key: string]: unknown;
+}
+
+/**
  * User context - session or authentication context
  */
 export interface UserContext {
@@ -46,6 +60,12 @@ export interface UserContext {
   roles?: string[];
   /** Whether user is authenticated */
   authenticated?: boolean;
+  /** User preferences for formatting, locale, etc. */
+  preferences?: UserPreferences;
+  /** Shorthand for preferences.locale */
+  locale?: string;
+  /** Shorthand for preferences.timezone */
+  timezone?: string;
   /** Additional user context data */
   [key: string]: unknown;
 }
@@ -342,7 +362,11 @@ class WikiContext {
         username: this.userContext.username,
         isAuthenticated: this.userContext.authenticated,
         roles: this.userContext.roles,
-        displayName: this.userContext.displayName
+        displayName: this.userContext.displayName,
+        // Include user preferences for date/time formatting
+        locale: this.userContext.locale ?? this.userContext.preferences?.locale,
+        timezone: this.userContext.timezone ?? this.userContext.preferences?.timezone,
+        preferences: this.userContext.preferences
       } : undefined,
       requestInfo: {
         acceptLanguage: this.request?.headers?.['accept-language'],

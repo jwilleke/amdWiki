@@ -1,5 +1,6 @@
 import BaseManager from './BaseManager';
 import logger from '../utils/logger';
+import LocaleUtils from '../utils/LocaleUtils';
 import type { WikiEngine } from '../types/WikiEngine';
 import type ConfigurationManager from './ConfigurationManager';
 import type PageManager from './PageManager';
@@ -20,6 +21,17 @@ export interface VariableContext {
     isAuthenticated?: boolean;
     roles?: string[];
     displayName?: string;
+    /** User's preferred locale (e.g., 'en-US') */
+    locale?: string;
+    /** User's timezone (e.g., 'America/New_York') */
+    timezone?: string;
+    /** Full user preferences object */
+    preferences?: {
+      locale?: string;
+      timezone?: string;
+      dateFormat?: string;
+      [key: string]: unknown;
+    };
   };
   requestInfo?: {
     userAgent?: string;
@@ -126,10 +138,26 @@ class VariableManager extends BaseManager {
     this.registerVariable('loginstatus', (context) => (context?.userContext?.isAuthenticated ? 'Logged in' : 'Not logged in'));
     this.registerVariable('userroles', (context) => (context?.userContext?.roles || []).join(', '));
 
-    // Date/Time variables
-    this.registerVariable('date', (_context) => new Date().toLocaleDateString());
-    this.registerVariable('time', (_context) => new Date().toLocaleTimeString());
-    this.registerVariable('timestamp', (_context) => new Date().toISOString());
+    // Date/Time variables - honor user locale preferences
+    this.registerVariable('date', (context) => {
+      const locale = this.getUserLocale(context);
+      return LocaleUtils.formatDate(new Date(), locale);
+    });
+    this.registerVariable('time', (context) => {
+      const locale = this.getUserLocale(context);
+      return LocaleUtils.formatTime(new Date(), locale);
+    });
+    this.registerVariable('timestamp', (context) => {
+      const locale = this.getUserLocale(context);
+      // Access timezone from userContext using bracket notation for extended properties
+      const userCtx = context?.userContext as Record<string, unknown> | undefined;
+      const timezone = userCtx?.['timezone'] as string | undefined;
+      const now = new Date();
+      if (timezone && LocaleUtils.isValidTimezone(timezone)) {
+        return now.toLocaleString(locale, { timeZone: timezone });
+      }
+      return now.toISOString();
+    });
     this.registerVariable('year', (_context) => new Date().getFullYear().toString());
     this.registerVariable('month', (_context) => (new Date().getMonth() + 1).toString());
     this.registerVariable('day', (_context) => new Date().getDate().toString());
@@ -212,6 +240,30 @@ class VariableManager extends BaseManager {
       }
       return context.requestInfo.acceptLanguage || 'Unknown';
     });
+  }
+
+  /**
+   * Get user's preferred locale from context
+   * Priority: 1) User preferences, 2) Accept-Language header, 3) Default (en-US)
+   * @param {VariableContext} context - Variable context
+   * @returns {string} Locale string (e.g., 'en-US')
+   */
+  private getUserLocale(context?: VariableContext): string {
+    // Access locale from userContext using bracket notation for extended properties
+    const userCtx = context?.userContext as Record<string, unknown> | undefined;
+    const userLocale = userCtx?.['locale'] as string | undefined;
+    if (userLocale) {
+      return LocaleUtils.normalizeLocale(userLocale);
+    }
+
+    // Fall back to Accept-Language header
+    const acceptLanguage = context?.requestInfo?.acceptLanguage;
+    if (acceptLanguage && typeof acceptLanguage === 'string') {
+      return LocaleUtils.parseAcceptLanguage(acceptLanguage);
+    }
+
+    // Default fallback
+    return 'en-US';
   }
 
   /**
