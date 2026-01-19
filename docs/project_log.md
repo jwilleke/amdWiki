@@ -24,6 +24,29 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-01-19-10
+
+- Agent: Claude Opus 4.5
+- Subject: Fix authentication status not updating in WikiContext
+- Key Decision: Add 'authenticated' property alongside 'isAuthenticated' for compatibility
+- Current Issue: None - all bugs resolved
+- Testing:
+  - npm run typecheck: 0 errors
+  - npm test: 58 suites passed, 1380 tests passed
+- Work Done:
+  - Fix #182 (reopened): Authentication status not updating after login/logout
+    - Root cause: UserManager uses 'isAuthenticated' but WikiContext expects 'authenticated'
+    - Added 'authenticated' property to app.js session middleware
+    - Updated UserManager interface to include 'authenticated'
+    - Updated getAnonymousUser(), getAssertedUser(), getCurrentUser() methods
+    - ConfigAccessorPlugin now correctly shows: Authenticated / Not Authenticated / Anonymous
+- Commits: 2526d66
+- Files Modified:
+  - app.js
+  - src/managers/UserManager.ts
+
+---
+
 ## 2026-01-19-09
 
 - Agent: Claude Opus 4.5
