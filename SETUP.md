@@ -68,7 +68,7 @@ Complete the form and the system will:
 - Copy startup pages (if selected)
 - Initialize wiki
 
-See [docs/INSTALLATION-SYSTEM.md](./docs/INSTALLATION-SYSTEM.md) for detailed installation documentation.
+See [docs/INSTALLATION/INSTALLATION-SYSTEM.md](./docs/INSTALLATION/INSTALLATION-SYSTEM.md) for detailed installation documentation.
 
 ## Configuration
 
@@ -288,7 +288,7 @@ curl http://localhost:3000/
 
 ## Getting Help
 
-- **Installation issues**: See [docs/INSTALLATION-SYSTEM.md](./docs/INSTALLATION-SYSTEM.md)
+- **Installation issues**: See [docs/INSTALLATION/INSTALLATION-SYSTEM.md](./docs/INSTALLATION/INSTALLATION-SYSTEM.md)
 - **Server problems**: See [docs/SERVER.md](./docs/SERVER.md)
 - **Development help**: See [CONTRIBUTING.md](./CONTRIBUTING.md)
 - **Security concerns**: See [SECURITY.md](./SECURITY.md)
@@ -296,6 +296,6 @@ curl http://localhost:3000/
 ## Related Documentation
 
 - [README.md](./README.md) - Project overview
-- [docs/INSTALLATION-SYSTEM.md](./docs/INSTALLATION-SYSTEM.md) - Installation wizard details
+- [docs/INSTALLATION/INSTALLATION-SYSTEM.md](./docs/INSTALLATION/INSTALLATION-SYSTEM.md) - Installation wizard details
 - [docs/SERVER.md](./docs/SERVER.md) - Server management
 - [DOCUMENTATION.md](./DOCUMENTATION.md) - All documentation index
