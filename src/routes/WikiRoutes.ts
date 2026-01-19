@@ -2171,8 +2171,18 @@ class WikiRoutes {
       const exportManager = this.engine.getManager('ExportManager');
 
       const html = await exportManager.exportPageToHtml(pageName);
-      await exportManager.saveExport(html, pageName, 'html');
-      return res.status(200).send('Export succesfull');
+      const filePath = await exportManager.saveExport(html, pageName, 'html');
+
+      // eslint-disable-next-line @typescript-eslint/no-require-imports -- Lazy load path module
+      const path = require('path');
+      const filename = path.basename(filePath);
+
+      // Send file as download
+      return res.download(filePath, filename, (err) => {
+        if (err) {
+          logger.error('Error downloading export:', err);
+        }
+      });
 
     } catch (err: unknown) {
       logger.error('Error exporting to HTML:', err);
@@ -2189,13 +2199,22 @@ class WikiRoutes {
       const exportManager = this.engine.getManager('ExportManager');
 
       const markdown = await exportManager.exportToMarkdown(pageName);
-      await exportManager.saveExport(markdown, pageName, 'markdown');
+      const filePath = await exportManager.saveExport(markdown, pageName, 'md');
 
-      res.status(200).send('Export succesfull');
+      // eslint-disable-next-line @typescript-eslint/no-require-imports -- Lazy load path module
+      const path = require('path');
+      const filename = path.basename(filePath);
+
+      // Send file as download
+      return res.download(filePath, filename, (err) => {
+        if (err) {
+          logger.error('Error downloading export:', err);
+        }
+      });
 
     } catch (err: unknown) {
       logger.error('Error exporting to Markdown:', err);
-      res.status(500).send('Error exporting page');
+      return res.status(500).send('Error exporting page');
     }
   }
 

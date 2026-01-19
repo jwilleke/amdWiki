@@ -1,6 +1,11 @@
 <%- include('header', { pageName: '' }) %>
 
-<h1 class="h2 mb-3">Export Pages</h1>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h2 mb-0">Export Pages</h1>
+    <a href="/admin" class="btn" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);">
+        <i class="fas fa-arrow-left"></i> Back to Dashboard
+    </a>
+</div>
 
 <div class="row">
     <div class="col-md-8">
@@ -100,7 +105,7 @@
 <script>
 document.getElementById('single-export-form').addEventListener('submit', async function(e) {
     e.preventDefault();
-    
+
     const pageSelect = document.getElementById('page-select');
     const format = document.querySelector('input[name="format"]:checked').value;
     const pageName = pageSelect.value;
@@ -109,7 +114,7 @@ document.getElementById('single-export-form').addEventListener('submit', async f
         alert('Please select a page to export');
         return;
     }
-    
+
     const url = `/export/${format}/${encodeURIComponent(pageName)}`;
     try {
         const response = await fetch(url, {
@@ -121,10 +126,29 @@ document.getElementById('single-export-form').addEventListener('submit', async f
                 pageName: pageName
             })
         });
-    
+
         if (response.ok) {
-            alert('Export succesfull!');
-        } 
+            // Get the filename from Content-Disposition header or create a default
+            const contentDisposition = response.headers.get('Content-Disposition');
+            let filename = `${pageName}.${format === 'markdown' ? 'md' : 'html'}`;
+            if (contentDisposition) {
+                const match = contentDisposition.match(/filename="?([^";\n]+)"?/);
+                if (match) filename = match[1];
+            }
+
+            // Create blob and trigger download
+            const blob = await response.blob();
+            const downloadUrl = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = downloadUrl;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(downloadUrl);
+        } else {
+            alert('Export failed: ' + response.statusText);
+        }
     }
     catch (error) {
         console.error('Error during export:', error);
