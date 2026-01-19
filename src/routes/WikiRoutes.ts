@@ -3447,7 +3447,7 @@ class WikiRoutes {
       logger.debug(`📦 Admin backup requested by: ${currentUser.username}`);
 
       // Create backup
-      const backupPath = await backupManager.backup();
+      const backupPath = await backupManager.createBackup();
       logger.debug(`✅ Backup created: ${backupPath}`);
 
       // Get backup filename
