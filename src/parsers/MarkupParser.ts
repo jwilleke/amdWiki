@@ -1182,6 +1182,13 @@ class MarkupParser extends BaseManager {
       return `<span data-jspwiki-placeholder="${uuid}-${id - 1}"></span>`;
     });
 
+    // Step 0.6: Convert JSPWiki line break syntax
+    // In JSPWiki, \\ (two backslashes) forces a line break
+    // Must happen after code blocks are protected so we don't break code
+    // Three backslashes (\\\ ) forces a flush after images (also converts to <br>)
+    sanitized = sanitized.replace(/\\\\\\/g, '<br class="wiki-clearfix">'); // \\\ = flush/clearfix
+    sanitized = sanitized.replace(/\\\\/g, '<br>'); // \\ = line break
+
     // Step 1: Extract ESCAPED syntax FIRST (before anything else)
     // Matches: [[{$var}], [[{Plugin}]
     // Result: Literal [{$var}] or [{Plugin}] in output
