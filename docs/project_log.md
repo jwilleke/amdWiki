@@ -45,11 +45,17 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
     - Added color-coded status badges and actionable messages
   - Reviewed #195 (BROKEN.pages) - added analysis comment, no code changes needed
   - Noted #194 already closed
-- Commits: f607015
+- Commits: f607015, 2ca0ed7, 45254cd, bc0f285, 08621ed
 - Files Modified:
   - src/parsers/MarkupParser.ts
   - plugins/ConfigAccessorPlugin.ts
+  - .github/workflows/ci.yml
+  - server.sh
   - docs/project_log.md
+- Additional:
+  - Fix #180: Added build step to CI smoke and e2e tests (missing dist/ folder)
+  - Fix #167: Improved server startup verification to prevent ghost processes and orphan PIDs
+  - Fix #64: Added JSPWiki line break syntax support (\\ → <br>, \\\ → clearfix)
 
 ---
 
