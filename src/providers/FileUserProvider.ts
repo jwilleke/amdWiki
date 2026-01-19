@@ -3,7 +3,7 @@ import type ConfigurationManager from '../managers/ConfigurationManager';
 import { promises as fs } from 'fs';
 import path from 'path';
 import logger from '../utils/logger';
-import { User, UserCreateData, UserUpdateData, UserSession } from '../types';
+import { User, UserUpdateData, UserSession } from '../types';
 
 /**
  * FileUserProvider backup data structure
@@ -220,14 +220,16 @@ class FileUserProvider extends BaseUserProvider {
   /**
    * Create a new user
    */
-  async createUser(username: string, userData: UserCreateData): Promise<void> {
+  async createUser(userData: User): Promise<User> {
+    const username = userData.username;
     if (this.users.has(username)) {
       throw new Error(`User already exists: ${username}`);
     }
 
-    this.users.set(username, userData as User);
+    this.users.set(username, userData);
     await this.saveUsers();
     logger.info(`📁 Created user: ${username}`);
+    return userData;
   }
 
   /**

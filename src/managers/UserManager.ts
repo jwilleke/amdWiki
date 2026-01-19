@@ -962,10 +962,12 @@ class UserManager extends BaseManager {
       throw new Error('Provider not initialized');
     }
     const allUsers = await this.provider.getAllUsers();
-    return Array.from(allUsers.values()).map((user) => {
-      const { password: _pwd, ...userWithoutPassword } = user;
-      return userWithoutPassword;
-    });
+    return Array.from(allUsers.values())
+      .filter((user): user is User => user != null)
+      .map((user) => {
+        const { password: _pwd, ...userWithoutPassword } = user;
+        return userWithoutPassword;
+      });
   }
 
   async getUser(username: string): Promise<Omit<User, 'password'> | undefined> {

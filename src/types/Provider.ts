@@ -7,7 +7,7 @@
 
 import { WikiPage, PageFrontmatter, PageInfo, PageSaveOptions, PageSearchResult, PageListOptions } from './Page';
 import { VersionManifest, VersionContent, VersionDiff, VersionHistoryEntry } from './Version';
-import { User, UserCreateData, UserUpdateData, UserSession } from './User';
+import { User, UserUpdateData, UserSession } from './User';
 import { WikiEngine } from './WikiEngine';
 
 /**
@@ -231,10 +231,10 @@ export interface UserProvider extends BaseProvider {
 
   /**
    * Create new user
-   * @param userData - User creation data
+   * @param userData - User object with all fields populated
    * @returns Created user object
    */
-  createUser(userData: UserCreateData): Promise<User>;
+  createUser(userData: User): Promise<User>;
 
   /**
    * Update user

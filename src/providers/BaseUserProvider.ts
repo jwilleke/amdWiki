@@ -1,5 +1,5 @@
 import logger from '../utils/logger';
-import { User, UserCreateData, UserUpdateData, UserSession } from '../types';
+import { User, UserUpdateData, UserSession } from '../types';
 import type { WikiEngine } from '../types/WikiEngine';
 
 /**
@@ -112,12 +112,11 @@ abstract class BaseUserProvider {
    *
    * @async
    * @abstract
-   * @param {string} username - Username
-   * @param {UserCreateData} userData - User data (password should be hashed by UserManager)
-   * @returns {Promise<void>}
+   * @param {User} userData - User data (password should be hashed by UserManager)
+   * @returns {Promise<User>} Created user object
    * @throws {Error} Always throws - must be implemented by subclass
    */
-  abstract createUser(username: string, userData: UserCreateData): Promise<void>;
+  abstract createUser(userData: User): Promise<User>;
 
   /**
    * Update an existing user
