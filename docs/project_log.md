@@ -24,6 +24,41 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-01-20-02
+
+- Agent: Claude Opus 4.5
+- Subject: Implement AddonsManager for optional add-on modules (#158)
+- Key Decision: Use dynamic import() for add-on loading, standard interface pattern
+- Current Issue: None - AddonsManager implemented and tested
+- Testing:
+  - npm run typecheck: 0 errors
+  - npm run lint:code: 0 errors
+  - npm test: 59 suites passed, 1398 tests passed (18 new AddonsManager tests)
+- Work Done:
+  - Created AddonsManager.ts extending BaseManager
+    - Discover add-ons from configurable ./addons directory
+    - Dependency resolution with topological sort
+    - Enable/disable add-ons via configuration
+    - Standard add-on interface: register(), status(), shutdown()
+    - Graceful error isolation (broken add-on doesn't crash app)
+  - Added configuration entries to app-default-config.json
+  - Registered AddonsManager in WikiEngine.ts after PluginManager
+  - Created /addons directory with .gitkeep and README.md documentation
+  - Updated .gitignore for addon data exclusions
+  - Created comprehensive test suite (18 test cases)
+  - Added implementation plan comment to GitHub issue #158
+- Commits: b94778e
+- Files Modified:
+  - src/managers/AddonsManager.ts (new)
+  - src/managers/__tests__/AddonsManager.test.js (new)
+  - src/WikiEngine.ts
+  - config/app-default-config.json
+  - addons/.gitkeep (new)
+  - addons/README.md (new)
+  - .gitignore
+
+---
+
 ## 2026-01-20-01
 
 - Agent: Claude Opus 4.5
