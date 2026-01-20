@@ -1,0 +1,2 @@
+# This file ensures the addons directory is tracked by git
+# Add-on contents are gitignored - install add-ons separately

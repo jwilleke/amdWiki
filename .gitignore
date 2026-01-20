@@ -187,3 +187,11 @@ node_modules/
 converted/
 .amdwiki*.pid
 cookies.txt
+
+# Add-ons - keep structure, ignore data
+addons/*/node_modules/
+addons/*/*.sqlite
+addons/*/*.db
+addons/*/db.sqlite
+!addons/.gitkeep
+!addons/README.md

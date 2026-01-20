@@ -24,6 +24,7 @@ import AttachmentManager from './managers/AttachmentManager';
 import BackupManager from './managers/BackupManager';
 import CacheManager from './managers/CacheManager';
 import AuditManager from './managers/AuditManager';
+import AddonsManager from './managers/AddonsManager';
 
 // Parsers
 import MarkupParser from './parsers/MarkupParser';
@@ -188,6 +189,12 @@ class WikiEngine extends Engine {
     const pluginManager = new PluginManager(this);
     this.registerManager('PluginManager', pluginManager);
     await pluginManager.initialize();
+
+    // Initialize AddonsManager after PluginManager (add-ons may use plugins)
+    // Add-ons can register their own syntax handlers before MarkupParser initializes
+    const addonsManager = new AddonsManager(this);
+    this.registerManager('AddonsManager', addonsManager);
+    await addonsManager.initialize();
 
     // Initialize MarkupParser before RenderingManager (RenderingManager depends on it)
     const markupParser = new MarkupParser(this);

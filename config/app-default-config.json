@@ -172,6 +172,12 @@
   "amdwiki.managers.searchManager.enabled": true,
   "amdwiki.managers.templateManager.enabled": true,
   "amdwiki.managers.cacheManager.enabled": true,
+  "amdwiki.managers.addonsManager.enabled": true,
+  "amdwiki.managers.addonsManager.addonsPath": "./addons",
+
+  "_comment_addons": "Add-on system configuration - individual add-ons configured under amdwiki.addons.<name>",
+  "amdwiki.addons": {},
+
   "_comment_cache_storage": "Cache storage configuration (ALL LOWERCASE)",
   "amdwiki.cache.enabled": true,
 
