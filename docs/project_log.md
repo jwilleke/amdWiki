@@ -24,6 +24,30 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-01-20-01
+
+- Agent: Claude Opus 4.5
+- Subject: Fix GitHub Dependabot security vulnerabilities
+- Key Decision: Add npm override for hono to force patched version
+- Current Issue: None - HIGH severity vulnerabilities resolved
+- Testing:
+  - npm test: 58 suites passed, 1380 tests passed
+- Work Done:
+  - Fixed 2 HIGH severity hono JWT vulnerabilities (Dependabot alerts #17, #18)
+    - JWT Algorithm Confusion via Unsafe Default (HS256)
+    - JWK Auth Middleware JWT algorithm confusion when JWK lacks "alg"
+  - Added npm override in package.json to force hono ≥4.11.4
+  - Remaining LOW severity issues have no patches available:
+    - pm2 ReDoS (no fix yet)
+    - diff DoS (deep Jest dependency chain)
+  - Disabled MCP_DOCKER server in ~/.claude.json to reduce context usage (~45k tokens)
+- Commits: b51b5db
+- Files Modified:
+  - package.json
+  - package-lock.json
+
+---
+
 ## 2026-01-19-10
 
 - Agent: Claude Opus 4.5
