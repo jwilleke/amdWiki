@@ -24,6 +24,30 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-01-20-03
+
+- Agent: Claude Opus 4.5
+- Subject: Update Schema.org RBAC issue with AddonsManager integration approach (#154)
+- Key Decision: Schema.org RBAC should be implemented as an add-on using AddonsManager
+- Current Issue: None - documentation updated
+- Testing: N/A (documentation only)
+- Work Done:
+  - Analyzed how #154 (Schema.org RBAC) could be implemented as an add-on
+  - Posted comprehensive comment to issue #154 explaining:
+    - Add-on structure for schema-rbac module
+    - How add-on dependencies work (topological sort already implemented)
+    - Three core hooks needed for full context augmentation support:
+      1. augmentUserContext() method in AddonsManager
+      2. Middleware registration via engine.app.use()
+      3. AddonModule interface extension
+    - Configuration approach via amdwiki.addons.schema-rbac.*
+    - Implementation phases recommendation
+- Commits: None (GitHub comment only)
+- Files Modified: None
+- [View the full comment](https://github.com/jwilleke/amdWiki/issues/154#issuecomment-3771992703)
+
+---
+
 ## 2026-01-20-02
 
 - Agent: Claude Opus 4.5
