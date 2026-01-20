@@ -164,7 +164,8 @@
     "gray-matter": {
       "js-yaml": "^3.14.1"
     },
-    "cookie": "^0.7.0"
+    "cookie": "^0.7.0",
+    "hono": "^4.11.4"
   },
   "engines": {
     "node": ">=18.0.0",
