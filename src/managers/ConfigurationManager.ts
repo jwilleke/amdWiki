@@ -47,6 +47,7 @@ class ConfigurationManager extends BaseManager {
   private defaultConfigPath: string;
   private environmentConfigPath: string;
   private customConfigPath: string;
+  private instanceDataFolder: string;
 
   /**
    * Creates a new ConfigurationManager instance
@@ -62,6 +63,10 @@ class ConfigurationManager extends BaseManager {
     this.customConfig = null;
     this.mergedConfig = null;
     this.environment = process.env.NODE_ENV || 'development';
+
+    // Instance data folder from environment variable or default
+    // This allows all instance data to be stored in a configurable location
+    this.instanceDataFolder = process.env.INSTANCE_DATA_FOLDER || './data';
 
     const configDir = path.join(process.cwd(), 'config');
     this.defaultConfigPath = path.join(configDir, 'app-default-config.json');
@@ -136,16 +141,26 @@ class ConfigurationManager extends BaseManager {
     }
 
     // 3. Load custom configuration (optional, for local overrides)
+    // Priority: ./config/app-custom-config.json > INSTANCE_DATA_FOLDER/app-custom-config.json
     this.customConfig = {};
+    const instanceDataCustomConfigPath = path.join(this.getInstanceDataFolder(), 'app-custom-config.json');
+
+    let customConfigSource: string | null = null;
     if (await fs.pathExists(this.customConfigPath)) {
-      const customData = (await fs.readJson(this.customConfigPath)) as Record<string, unknown>;
+      customConfigSource = this.customConfigPath;
+    } else if (await fs.pathExists(instanceDataCustomConfigPath)) {
+      customConfigSource = instanceDataCustomConfigPath;
+    }
+
+    if (customConfigSource) {
+      const customData = (await fs.readJson(customConfigSource)) as Record<string, unknown>;
       // Filter out comment fields starting with _
       for (const [key, value] of Object.entries(customData)) {
         if (!key.startsWith('_')) {
           this.customConfig[key] = value;
         }
       }
-      logger.info(`Loaded custom config: ${this.customConfigPath}`);
+      logger.info(`Loaded custom config: ${customConfigSource}`);
     }
 
     // Merge configurations (later configs override earlier ones)
@@ -356,6 +371,91 @@ class ConfigurationManager extends BaseManager {
       data: this.getProperty('amdwiki.directories.data'),
       work: this.getProperty('amdwiki.directories.work')
     };
+  }
+
+  /**
+   * Get the instance data folder path
+   *
+   * Returns the base folder for all instance-specific data (pages, users,
+   * attachments, logs, etc.). This can be configured via the INSTANCE_DATA_FOLDER
+   * environment variable, allowing instance data to be stored anywhere on the
+   * filesystem.
+   *
+   * @returns {string} Absolute path to the instance data folder
+   *
+   * @example
+   * const dataFolder = configManager.getInstanceDataFolder();
+   * // Returns '/var/lib/amdwiki/data' if INSTANCE_DATA_FOLDER=/var/lib/amdwiki/data
+   * // Returns resolved './data' path if not set
+   */
+  getInstanceDataFolder(): string {
+    return path.resolve(process.cwd(), this.instanceDataFolder);
+  }
+
+  /**
+   * Resolve a data path relative to the instance data folder
+   *
+   * Takes a path that may contain './data/' prefix and resolves it relative
+   * to the configured INSTANCE_DATA_FOLDER. This allows all data paths in
+   * configuration to work correctly regardless of where instance data is stored.
+   *
+   * @param {string} relativePath - Path to resolve (may include './data/' prefix)
+   * @returns {string} Absolute resolved path under instance data folder
+   *
+   * @example
+   * // With INSTANCE_DATA_FOLDER=/var/lib/amdwiki/data
+   * configManager.resolveDataPath('./data/pages');     // '/var/lib/amdwiki/data/pages'
+   * configManager.resolveDataPath('data/users');       // '/var/lib/amdwiki/data/users'
+   * configManager.resolveDataPath('./data/logs/audit.log'); // '/var/lib/amdwiki/data/logs/audit.log'
+   * configManager.resolveDataPath('pages');            // '/var/lib/amdwiki/data/pages'
+   */
+  resolveDataPath(relativePath: string): string {
+    // Normalize the path by removing ./data/ or data/ prefix
+    let normalizedPath = relativePath;
+
+    // Strip leading ./ if present
+    if (normalizedPath.startsWith('./')) {
+      normalizedPath = normalizedPath.substring(2);
+    }
+
+    // Strip leading data/ if present (the base data folder)
+    if (normalizedPath.startsWith('data/')) {
+      normalizedPath = normalizedPath.substring(5);
+    } else if (normalizedPath === 'data') {
+      normalizedPath = '';
+    }
+
+    // Join with instance data folder and resolve to absolute path
+    const instanceFolder = this.getInstanceDataFolder();
+    return normalizedPath ? path.join(instanceFolder, normalizedPath) : instanceFolder;
+  }
+
+  /**
+   * Get a resolved configuration property for data paths
+   *
+   * Convenience method that gets a configuration property and resolves it
+   * if it appears to be a data path (starts with './data' or 'data/').
+   *
+   * @param {string} key - Configuration property key
+   * @param {string} defaultValue - Default value if property not found
+   * @returns {string} Resolved path or original value
+   *
+   * @example
+   * const pagesDir = configManager.getResolvedDataPath(
+   *   'amdwiki.page.provider.filesystem.storagedir',
+   *   './data/pages'
+   * );
+   */
+  getResolvedDataPath(key: string, defaultValue: string): string {
+    const value = this.getProperty(key, defaultValue) as string;
+
+    // Check if this looks like a data path
+    if (value && (value.startsWith('./data') || value.startsWith('data/'))) {
+      return this.resolveDataPath(value);
+    }
+
+    // Return as-is if not a data path (could be absolute or other relative path)
+    return value;
   }
 
   /**

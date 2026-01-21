@@ -96,10 +96,11 @@ class FileAuditProvider extends BaseAuditProvider {
     const retentionDays = configManager.getProperty('amdwiki.audit.retentiondays', 90) as number;
 
     // Load provider-specific settings (ALL LOWERCASE)
-    const logDirectory = configManager.getProperty(
+    // logDirectory uses getResolvedDataPath to support INSTANCE_DATA_FOLDER
+    const logDirectory = configManager.getResolvedDataPath(
       'amdwiki.audit.provider.file.logdirectory',
-      './logs'
-    ) as string;
+      './data/logs'
+    );
     const auditFileName = configManager.getProperty(
       'amdwiki.audit.provider.file.auditfilename',
       'audit.log'
@@ -117,15 +118,13 @@ class FileAuditProvider extends BaseAuditProvider {
       10
     ) as number;
 
-    // Ensure logDirectory is absolute
+    // logDirectory is already resolved by getResolvedDataPath
     this.config = {
       logLevel,
       maxQueueSize,
       flushInterval,
       retentionDays,
-      logDirectory: path.isAbsolute(logDirectory)
-        ? logDirectory
-        : path.join(process.cwd(), logDirectory),
+      logDirectory,
       auditFileName,
       archiveFileName,
       maxFileSize,

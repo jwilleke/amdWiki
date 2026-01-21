@@ -125,22 +125,18 @@ class BasicAttachmentProvider extends BaseAttachmentProvider {
     }
 
     // Get storage directory configuration (ALL LOWERCASE)
-    const storagePath: string = configManager.getProperty(
+    // Uses getResolvedDataPath to support INSTANCE_DATA_FOLDER
+    this.storageDirectory = configManager.getResolvedDataPath(
       'amdwiki.attachment.provider.basic.storagedir',
       './data/attachments'
-    ) as string;
-    this.storageDirectory = path.isAbsolute(storagePath)
-      ? storagePath
-      : path.join(process.cwd(), storagePath);
+    );
 
     // Get metadata file location (ALL LOWERCASE)
-    const metadataPath: string = configManager.getProperty(
+    // Uses getResolvedDataPath to support INSTANCE_DATA_FOLDER
+    this.metadataFile = configManager.getResolvedDataPath(
       'amdwiki.attachment.metadatafile',
       './data/attachments/metadata.json'
-    ) as string;
-    this.metadataFile = path.isAbsolute(metadataPath)
-      ? metadataPath
-      : path.join(process.cwd(), metadataPath);
+    );
 
     // Get size limits and allowed types from shared config (ALL LOWERCASE)
     const maxSizeBytes: number = configManager.getProperty(

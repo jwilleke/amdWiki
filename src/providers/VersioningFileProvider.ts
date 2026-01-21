@@ -213,12 +213,11 @@ class VersioningFileProvider extends FileSystemProvider {
    * @param configManager - ConfigurationManager instance
    */
   private loadVersioningConfig(configManager: ConfigurationManager): Promise<void> {
-    // Page index location
-    const indexPath = configManager.getProperty(
+    // Page index location - uses getResolvedDataPath to support INSTANCE_DATA_FOLDER
+    this.pageIndexPath = configManager.getResolvedDataPath(
       'amdwiki.page.provider.versioning.indexfile',
       './data/page-index.json'
-    ) as string;
-    this.pageIndexPath = path.isAbsolute(indexPath) ? indexPath : path.join(process.cwd(), indexPath);
+    );
 
     // Version retention settings
     this.maxVersions = configManager.getProperty(

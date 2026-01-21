@@ -27,6 +27,13 @@ function createMockEngine(dataDir) {
         return 60000; // 1 minute for tests
       }
       return defaultValue;
+    }),
+    // Support INSTANCE_DATA_FOLDER feature
+    getResolvedDataPath: jest.fn((key, defaultValue) => {
+      if (key === 'amdwiki.notifications.dir') {
+        return dataDir;
+      }
+      return defaultValue;
     })
   };
 

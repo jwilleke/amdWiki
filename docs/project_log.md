@@ -24,6 +24,82 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-01-21-02
+
+- Agent: Claude Opus 4.5
+- Subject: Complete INSTANCE_DATA_FOLDER feature implementation (#210)
+- Key Decision: All data path providers updated to use getResolvedDataPath()
+- Current Issue: #210 - Implementation complete, ready for testing
+- Testing:
+  - npm run typecheck: 0 errors
+  - npm test: 60 suites passed, 1414 tests passed (16 new ConfigurationManager tests)
+- Work Done:
+  - Updated `.env.example` with INSTANCE_DATA_FOLDER documentation
+  - Fixed `amdwiki.notifications.dir` path (`./data` → `./data/notifications`)
+  - Updated 6 providers/managers to use `getResolvedDataPath()`:
+    - BasicAttachmentProvider (storageDirectory, metadataFile)
+    - VersioningFileProvider (pageIndexPath)
+    - FileSystemProvider (pagesDirectory)
+    - FileAuditProvider (logDirectory)
+    - FileUserProvider (usersDirectory)
+    - BackupManager (backupDirectory)
+    - NotificationManager (storagePath)
+  - Created ConfigurationManager.test.js with 16 tests:
+    - getInstanceDataFolder() tests (3)
+    - resolveDataPath() tests (7)
+    - getResolvedDataPath() tests (4)
+    - Custom config loading tests (2)
+  - Updated mock ConfigurationManagers in test files:
+    - FileSystemProvider.test.js
+    - NotificationManager.test.js
+    - PageManager-Storage.test.js
+- Commits: a437afe
+- Files Modified:
+  - .env.example
+  - config/app-default-config.json
+  - src/providers/BasicAttachmentProvider.ts
+  - src/providers/VersioningFileProvider.ts
+  - src/providers/FileSystemProvider.ts
+  - src/providers/FileAuditProvider.ts
+  - src/providers/FileUserProvider.ts
+  - src/managers/BackupManager.ts
+  - src/managers/NotificationManager.ts
+  - src/managers/__tests__/ConfigurationManager.test.js (new)
+  - src/providers/__tests__/FileSystemProvider.test.js
+  - src/managers/__tests__/NotificationManager.test.js
+  - src/managers/__tests__/PageManager-Storage.test.js
+
+---
+
+## 2026-01-21-01
+
+- Agent: Claude Opus 4.5
+- Subject: INSTANCE_DATA_FOLDER feature implementation (#210)
+- Key Decision: Option A - Path resolution at ConfigurationManager level
+- Current Issue: #210 - In progress, ConfigurationManager changes complete
+- Testing: Not run yet (partial implementation)
+- Work Done:
+  - Analyzed issue #210 requirements and impact
+  - Posted implementation plan to GitHub issue #210
+  - Added `instanceDataFolder` property to ConfigurationManager
+  - Added `INSTANCE_DATA_FOLDER` env var support (default: `./data`)
+  - Added `getInstanceDataFolder()` method
+  - Added `resolveDataPath(relativePath)` method for normalizing data paths
+  - Added `getResolvedDataPath(key, defaultValue)` convenience method
+  - Updated `loadConfigurations()` for dual custom config location support:
+    - `./config/app-custom-config.json` (priority)
+    - `INSTANCE_DATA_FOLDER/app-custom-config.json` (fallback)
+- Remaining Work:
+  - Update `.env.example` with `INSTANCE_DATA_FOLDER`
+  - Fix `amdwiki.notifications.dir` in `app-default-config.json`
+  - Update providers to use `resolveDataPath()`
+  - Add unit tests for path resolution
+- Commits: None yet (work in progress)
+- Files Modified:
+  - src/managers/ConfigurationManager.ts
+
+---
+
 ## 2026-01-20-03
 
 - Agent: Claude Opus 4.5

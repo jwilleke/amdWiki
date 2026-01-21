@@ -64,11 +64,11 @@ class FileUserProvider extends BaseUserProvider {
       throw new Error('FileUserProvider requires ConfigurationManager');
     }
 
-    // Load configuration
-    this.usersDirectory = configManager.getProperty(
+    // Load configuration - uses getResolvedDataPath to support INSTANCE_DATA_FOLDER
+    this.usersDirectory = configManager.getResolvedDataPath(
       'amdwiki.user.provider.storagedir',
-      './users'
-    ) as string;
+      './data/users'
+    );
     this.usersFile = configManager.getProperty(
       'amdwiki.user.provider.files.users',
       'users.json'

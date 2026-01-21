@@ -409,7 +409,7 @@
   "amdwiki.logging.debug.session": false,
   "amdwiki.logging.debug.login": false,
   "_comment_notifications": "notifications configuration",
-  "amdwiki.notifications.dir": "./data",
+  "amdwiki.notifications.dir": "./data/notifications",
   "amdwiki.notifications.file": "notifications.json",
   "amdwiki.notifications.autoSaveInterval": 300000,
   "_comment_accessControl": "Access control and security settings",

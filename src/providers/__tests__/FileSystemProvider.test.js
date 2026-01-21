@@ -35,6 +35,13 @@ const createMockConfigManager = (installComplete, pagesDir, requiredDir) => ({
       'amdwiki.translator-reader.match-english-plurals': true
     };
     return config[key] !== undefined ? config[key] : defaultValue;
+  },
+  // Support INSTANCE_DATA_FOLDER feature
+  getResolvedDataPath: (key, defaultValue) => {
+    const config = {
+      'amdwiki.page.provider.filesystem.storagedir': pagesDir
+    };
+    return config[key] !== undefined ? config[key] : defaultValue;
   }
 });
 

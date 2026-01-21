@@ -40,6 +40,13 @@ const createMockConfigManager = () => ({
       'amdwiki.install.completed': true
     };
     return config[key] !== undefined ? config[key] : defaultValue;
+  }),
+  // Support INSTANCE_DATA_FOLDER feature
+  getResolvedDataPath: jest.fn((key, defaultValue) => {
+    if (key === 'amdwiki.page.provider.filesystem.storagedir') {
+      return TEST_PAGES_DIR;
+    }
+    return defaultValue;
   })
 });
 

@@ -134,12 +134,13 @@ class FileSystemProvider extends BasePageProvider {
     }
 
     // Get directory configuration (ALL LOWERCASE with provider-specific keys)
-    const cfgPath = configManager.getProperty(
+    // pagesDirectory uses getResolvedDataPath to support INSTANCE_DATA_FOLDER
+    this.pagesDirectory = configManager.getResolvedDataPath(
       'amdwiki.page.provider.filesystem.storagedir',
-      './pages'
-    ) as string;
-    this.pagesDirectory = path.isAbsolute(cfgPath) ? cfgPath : path.join(process.cwd(), cfgPath);
+      './data/pages'
+    );
 
+    // requiredPagesDirectory is NOT under data folder, resolve manually
     const reqCfgPath = configManager.getProperty(
       'amdwiki.page.provider.filesystem.requiredpagesdir',
       './required-pages'
