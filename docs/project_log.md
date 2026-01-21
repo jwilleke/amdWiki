@@ -29,10 +29,11 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Agent: Claude Opus 4.5
 - Subject: Complete INSTANCE_DATA_FOLDER feature implementation (#210)
 - Key Decision: All data path providers updated to use getResolvedDataPath()
-- Current Issue: #210 - Implementation complete, ready for testing
+- Current Issue: #210 - Closed
 - Testing:
   - npm run typecheck: 0 errors
   - npm test: 60 suites passed, 1414 tests passed (16 new ConfigurationManager tests)
+  - npm run test:e2e: 25 passed, 3 skipped
 - Work Done:
   - Updated `.env.example` with INSTANCE_DATA_FOLDER documentation
   - Fixed `amdwiki.notifications.dir` path (`./data` → `./data/notifications`)
@@ -53,7 +54,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
     - FileSystemProvider.test.js
     - NotificationManager.test.js
     - PageManager-Storage.test.js
-- Commits: a437afe
+- Commits: cee6f32, a45a436
 - Files Modified:
   - .env.example
   - config/app-default-config.json
