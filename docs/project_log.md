@@ -24,6 +24,31 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-01-22-01
+
+- Agent: Claude Opus 4.5
+- Subject: Docker configuration updates for INSTANCE_DATA_FOLDER
+- Key Decision: Sync docker config with new INSTANCE_DATA_FOLDER feature
+- Current Issue: None
+- Testing:
+  - npm run test:e2e: 25 passed, 3 skipped
+- Work Done:
+  - Updated `docker/.dockerignore` with comprehensive exclusions:
+    - TypeScript build artifacts
+    - Linting/formatting configs
+    - Claude/AI config files
+    - Add-ons node_modules and db files
+    - Scripts and deployment files
+  - Added `INSTANCE_DATA_FOLDER` to `docker/.env.example`
+  - Added `INSTANCE_DATA_FOLDER` to `docker/docker-compose.yml` environment
+- Commits: 4fbcc8a, 08d3784
+- Files Modified:
+  - docker/.dockerignore
+  - docker/.env.example
+  - docker/docker-compose.yml
+
+---
+
 ## 2026-01-21-02
 
 - Agent: Claude Opus 4.5
