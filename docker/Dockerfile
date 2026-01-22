@@ -23,6 +23,10 @@ RUN npm install --prefer-offline
 # Copy application files
 COPY . .
 
+# Build TypeScript to JavaScript
+# This compiles src/**/*.ts to dist/**/*.js
+RUN npm run build
+
 # Create necessary directories with proper permissions
 # All instance-specific data is consolidated under /app/data for single volume mount
 # Directory structure:
