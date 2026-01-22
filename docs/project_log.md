@@ -24,6 +24,26 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-01-22-03
+
+- Agent: Claude Opus 4.5
+- Subject: Update example config paths for INSTANCE_DATA_FOLDER
+- Key Decision: Align all config examples with consolidated ./data/ structure
+- Current Issue: None
+- Testing:
+  - npm test: 60 suites passed, 1414 tests passed
+- Work Done:
+  - Updated `config/app-production-config.example.json` with correct paths:
+    - `./pages` → `./data/pages`
+    - `./logs` → `./data/logs`
+  - Added missing provider paths (attachments, search, users, backups)
+  - Added comment about INSTANCE_DATA_FOLDER env var support
+- Commits: 4e026b0
+- Files Modified:
+  - config/app-production-config.example.json
+
+---
+
 ## 2026-01-22-02
 
 - Agent: Claude Opus 4.5
