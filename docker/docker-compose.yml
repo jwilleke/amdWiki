@@ -31,9 +31,11 @@ services:
     # - production: config/app-production-config.json
     # - development: config/app-development-config.json
     # - test: config/app-test-config.json
+    # INSTANCE_DATA_FOLDER: Base path for all instance data (pages, users, logs, etc.)
     # EXTERNAL_PORT: The host port for user-facing URLs (for logging)
     environment:
       - NODE_ENV=production
+      - INSTANCE_DATA_FOLDER=${INSTANCE_DATA_FOLDER:-./data}
       - EXTERNAL_PORT=${HOST_PORT:-3000}
 
     # Volume mounts for persistent data
