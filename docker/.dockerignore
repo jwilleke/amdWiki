@@ -1,73 +1,163 @@
+# amdWiki Docker Build Ignore File
+# Excludes files not needed in the Docker image to minimize size and build time
+
+# =============================================================================
 # Node.js
-node_modules
-npm-debug.log
-yarn-error.log
-package-lock.json
+# =============================================================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.npm
+.yarn
+.pnp.*
 
-# Development files
-.git
+# =============================================================================
+# Git and Version Control
+# =============================================================================
+.git/
 .gitignore
-.github
-*.md
-!README.md
+.github/
 
-# IDE and editor files
-.vscode
-.idea
+# =============================================================================
+# IDE and Editor Files
+# =============================================================================
+.vscode/
+.idea/
 *.swp
 *.swo
 *~
 .DS_Store
+Thumbs.db
+Desktop.ini
+.editorconfig
 
-# Testing
-coverage
+# =============================================================================
+# Testing and Coverage
+# =============================================================================
+coverage/
+.nyc_output/
+*.lcov
+__tests__/
 *.test.js
-__tests__
-test
-tests
-.jest
+*.test.ts
+*.spec.js
+*.spec.ts
+tests/
+test-results/
+playwright-report/
+playwright.config.js
+jest.setup.js
+.jest/
 
-# Documentation
-docs
-jsdocs
+# =============================================================================
+# Documentation (not needed at runtime)
+# =============================================================================
+docs/
+jsdocs/
+*.md
+!README.md
 
-# Logs (will be generated in container)
-logs
-*.log
-.amdwiki.pid
+# =============================================================================
+# TypeScript Build Artifacts
+# =============================================================================
+*.tsbuildinfo
+tsconfig.json
+typedoc.json
 
-# PM2
-.pm2
-pm2.config.js
+# =============================================================================
+# Linting and Formatting Config
+# =============================================================================
+.eslintcache
+.stylelintcache
+eslint.config.mjs
+.prettierrc.json
+.prettierignore
+.markdownlint.json
+.markdownlintignore
+.lintstagedrc.json
+.husky/
 
-# Environment files (should be mounted or configured per environment)
+# =============================================================================
+# Local Development Data (mounted as volumes in production)
+# =============================================================================
+data/
+pages/
+users/
+attachments/
+sessions/
+logs/
+exports/
+reports/
+backups/
+my-exports/
+
+# =============================================================================
+# Instance-specific and Private Files
+# =============================================================================
+private/
 .env
 .env.*
+!.env.example
+config/app-custom-config.json
+.amdwiki*.pid
+cookies.txt
 
-# Build artifacts
-dist
-build
-
-# Temporary files
-tmp
-temp
+# =============================================================================
+# Build and Temporary Files
+# =============================================================================
+dist/
+build/
+tmp/
+temp/
 *.tmp
-
-# Local development data (should be mounted as volumes)
-# Uncomment these if you want to exclude local data from image
-# pages/*
-# data/*
-# sessions/*
-
-# Backup files
 *.bak
 *.backup
+converted/
+archive/
 
-# OS files
-Thumbs.DB
-ehthumbs.db
-Desktop.ini
-$RECYCLE.BIN/
+# =============================================================================
+# Docker Files (not needed inside container)
+# =============================================================================
+docker/
+Dockerfile
+docker-compose*.yml
+.dockerignore
 
-# Local custom config (should be mounted at runtime)
-config/app-custom-config.json
+# =============================================================================
+# Scripts (development/deployment only)
+# =============================================================================
+scripts/
+deploy*.sh
+build-image.sh
+docker-setup.sh
+
+# =============================================================================
+# Claude/AI Configuration
+# =============================================================================
+.claude/
+CLAUDE.md
+AGENTS.md
+
+# =============================================================================
+# Add-ons (structure kept, data excluded)
+# =============================================================================
+addons/*/node_modules/
+addons/*/*.sqlite
+addons/*/*.db
+
+# =============================================================================
+# Miscellaneous
+# =============================================================================
+*.pid
+*.seed
+*.pid.lock
+*.tgz
+*.log
+.crush/
+.users/
+themes/
+mcp-server.ts
+version.js
+ecosystem.config.js
