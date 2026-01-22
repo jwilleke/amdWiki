@@ -29,15 +29,20 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Agent: Claude Opus 4.5
 - Subject: Fix missing npm run build in Dockerfile
 - Key Decision: Add TypeScript compilation step to Dockerfile
-- Current Issue: None
+- Current Issue: #212 - Closed
 - Testing:
   - npm test: 60 suites passed, 1414 tests passed
+  - Docker build: successful
+  - Docker container: all endpoints responding (/, /wiki/Welcome, /search, /login)
 - Work Done:
   - Added `npm run build` step to Dockerfile after copying application files
-  - This compiles TypeScript to JavaScript before the container runs
-- Commits: af6e143
+  - Built and tested Docker image successfully
+  - Verified 63 pages loaded, dist/ folder compiled
+  - Closed #212 (Docker build missing TypeScript compilation step)
+- Commits: af6e143, bc42bd1
 - Files Modified:
   - docker/Dockerfile
+  - docs/project_log.md
 
 ---
 
