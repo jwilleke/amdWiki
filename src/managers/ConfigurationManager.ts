@@ -68,10 +68,14 @@ class ConfigurationManager extends BaseManager {
     // This allows all instance data to be stored in a configurable location
     this.instanceDataFolder = process.env.INSTANCE_DATA_FOLDER || './data';
 
-    const configDir = path.join(process.cwd(), 'config');
-    this.defaultConfigPath = path.join(configDir, 'app-default-config.json');
-    this.environmentConfigPath = path.join(configDir, `app-${this.environment}-config.json`);
-    this.customConfigPath = path.join(configDir, 'app-custom-config.json');
+    // Default config stays in ./config/ (code/repo - base defaults)
+    const codeConfigDir = path.join(process.cwd(), 'config');
+    this.defaultConfigPath = path.join(codeConfigDir, 'app-default-config.json');
+
+    // Environment and custom configs in INSTANCE_DATA_FOLDER/config/ (instance-specific)
+    const instanceConfigDir = path.join(this.getInstanceDataFolder(), 'config');
+    this.environmentConfigPath = path.join(instanceConfigDir, `app-${this.environment}-config.json`);
+    this.customConfigPath = path.join(instanceConfigDir, 'app-custom-config.json');
   }
 
   /**
@@ -141,26 +145,17 @@ class ConfigurationManager extends BaseManager {
     }
 
     // 3. Load custom configuration (optional, for local overrides)
-    // Priority: ./config/app-custom-config.json > INSTANCE_DATA_FOLDER/app-custom-config.json
+    // Custom config is in INSTANCE_DATA_FOLDER/config/app-custom-config.json
     this.customConfig = {};
-    const instanceDataCustomConfigPath = path.join(this.getInstanceDataFolder(), 'app-custom-config.json');
-
-    let customConfigSource: string | null = null;
     if (await fs.pathExists(this.customConfigPath)) {
-      customConfigSource = this.customConfigPath;
-    } else if (await fs.pathExists(instanceDataCustomConfigPath)) {
-      customConfigSource = instanceDataCustomConfigPath;
-    }
-
-    if (customConfigSource) {
-      const customData = (await fs.readJson(customConfigSource)) as Record<string, unknown>;
+      const customData = (await fs.readJson(this.customConfigPath)) as Record<string, unknown>;
       // Filter out comment fields starting with _
       for (const [key, value] of Object.entries(customData)) {
         if (!key.startsWith('_')) {
           this.customConfig[key] = value;
         }
       }
-      logger.info(`Loaded custom config: ${customConfigSource}`);
+      logger.info(`Loaded custom config: ${this.customConfigPath}`);
     }
 
     // Merge configurations (later configs override earlier ones)
@@ -754,6 +749,21 @@ class ConfigurationManager extends BaseManager {
     }
 
     try {
+      // Ensure instance config directory exists
+      const instanceConfigDir = path.join(this.getInstanceDataFolder(), 'config');
+      await fs.ensureDir(instanceConfigDir);
+
+      // Restore environment configuration
+      if (backupData.environmentConfig) {
+        this.environmentConfig = { ...backupData.environmentConfig };
+        const envConfigToSave = {
+          _comment: `Environment-specific overrides for ${this.environment}`,
+          ...this.environmentConfig
+        };
+        await fs.writeJson(this.environmentConfigPath, envConfigToSave, { spaces: 2 });
+        logger.info(`[ConfigurationManager] Restored ${Object.keys(this.environmentConfig ?? {}).length} environment properties`);
+      }
+
       // Restore custom configuration (user overrides)
       if (backupData.customConfig) {
         this.customConfig = { ...backupData.customConfig };

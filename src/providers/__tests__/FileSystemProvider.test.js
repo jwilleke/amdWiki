@@ -42,7 +42,8 @@ const createMockConfigManager = (installComplete, pagesDir, requiredDir) => ({
       'amdwiki.page.provider.filesystem.storagedir': pagesDir
     };
     return config[key] !== undefined ? config[key] : defaultValue;
-  }
+  },
+  getInstanceDataFolder: () => TEST_DIR
 });
 
 // Create mock engine (plain functions, no jest.fn)
@@ -108,6 +109,9 @@ describe('FileSystemProvider', () => {
       await createTestPage(TEST_PAGES_DIR, 'page-1', 'Regular Page');
       await createTestPage(TEST_REQUIRED_DIR, 'req-1', 'Required Page');
 
+      // Create .install-complete marker file (simulates completed installation)
+      await fs.writeFile(path.join(TEST_DIR, '.install-complete'), '');
+
       // Initialize with installation complete
       const provider = new FileSystemProvider(createMockEngine(true));
       await provider.initialize();
@@ -124,7 +128,7 @@ describe('FileSystemProvider', () => {
       await createTestPage(TEST_PAGES_DIR, 'page-1', 'Regular Page');
       await createTestPage(TEST_REQUIRED_DIR, 'req-1', 'Required Page');
 
-      // Initialize with installation NOT complete
+      // No .install-complete file = installation not complete
       const provider = new FileSystemProvider(createMockEngine(false));
       await provider.initialize();
 
@@ -135,17 +139,24 @@ describe('FileSystemProvider', () => {
       expect(provider.pageCache.size).toBe(2);
     });
 
-    test('should set installationComplete flag from config', async () => {
+    test('should set installationComplete flag from .install-complete file', async () => {
+      // With .install-complete file present
+      await fs.writeFile(path.join(TEST_DIR, '.install-complete'), '');
       const providerComplete = new FileSystemProvider(createMockEngine(true));
       await providerComplete.initialize();
       expect(providerComplete.installationComplete).toBe(true);
 
+      // Without .install-complete file (need fresh TEST_DIR)
+      await fs.remove(path.join(TEST_DIR, '.install-complete'));
       const providerIncomplete = new FileSystemProvider(createMockEngine(false));
       await providerIncomplete.initialize();
       expect(providerIncomplete.installationComplete).toBe(false);
     });
 
     test('should always save to pagesDirectory after installation', async () => {
+      // Create .install-complete marker file
+      await fs.writeFile(path.join(TEST_DIR, '.install-complete'), '');
+
       // Initialize with installation complete
       const provider = new FileSystemProvider(createMockEngine(true));
       await provider.initialize();

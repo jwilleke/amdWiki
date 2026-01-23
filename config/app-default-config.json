@@ -18,8 +18,7 @@
   "amdwiki.translator-reader.plain-uris": true,
   "amdwiki.translator-reader.inline-pattern.1": "s/\\{\\{([^}]+)\\}\\}/\\<tt\\>$1\\<\\/tt\\>/g",
 
-  "_comment_install": "First-run installation configuration (Issue #153)",
-  "amdwiki.install.completed": false,
+  "_comment_install": "First-run installation configuration (Issue #153). Install completion tracked via INSTANCE_DATA_FOLDER/.install-complete file, not config.",
   "amdwiki.install.requireSetup": true,
   "amdwiki.install.copyStartupPages": true,
   "amdwiki.install.createAdminUser": true,

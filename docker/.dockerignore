@@ -103,6 +103,7 @@ private/
 config/app-custom-config.json
 .amdwiki*.pid
 cookies.txt
+.install-complete
 
 # =============================================================================
 # Build and Temporary Files

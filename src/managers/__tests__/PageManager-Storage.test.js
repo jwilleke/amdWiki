@@ -47,7 +47,8 @@ const createMockConfigManager = () => ({
       return TEST_PAGES_DIR;
     }
     return defaultValue;
-  })
+  }),
+  getInstanceDataFolder: jest.fn(() => TEST_DIR)
 });
 
 // Create mock engine

@@ -115,6 +115,11 @@ interface ResetResult {
  * - Creating users/organizations.json with Schema.org organization data
  * - Copying startup pages from required-pages/ to pages/
  * - Creating the initial admin user
+ * - Creating .install-complete marker file in INSTANCE_DATA_FOLDER
+ *
+ * Installation state is tracked via INSTANCE_DATA_FOLDER/.install-complete file,
+ * NOT via config property. This ensures each instance (e.g., Docker container)
+ * starts fresh and runs through installation on first access.
  *
  * @class InstallService
  */
@@ -134,12 +139,39 @@ class InstallService {
   }
 
   /**
+   * Get the path to the .install-complete marker file
+   * This file indicates installation has been completed for this instance.
+   * Located in INSTANCE_DATA_FOLDER (not in config or code).
+   *
+   * @returns Path to .install-complete file
+   */
+  getInstallCompleteFilePath(): string {
+    const instanceDataFolder = process.env.INSTANCE_DATA_FOLDER || './data';
+    const resolvedPath = path.isAbsolute(instanceDataFolder)
+      ? instanceDataFolder
+      : path.join(process.cwd(), instanceDataFolder);
+    return path.join(resolvedPath, '.install-complete');
+  }
+
+  /**
+   * Check if installation has been completed
+   * Checks for .install-complete file in INSTANCE_DATA_FOLDER
+   *
+   * @returns True if installation is complete
+   */
+  async isInstallComplete(): Promise<boolean> {
+    const installCompleteFile = this.getInstallCompleteFilePath();
+    return fs.pathExists(installCompleteFile);
+  }
+
+  /**
    * Check if installation is required
    *
    * @returns True if install is needed
    */
   async isInstallRequired(): Promise<boolean> {
-    const completed = this.configManager.getProperty('amdwiki.install.completed', false);
+    // Check for .install-complete file (instance-level state)
+    const completed = await this.isInstallComplete();
 
     if (completed) {
       return false;
@@ -162,7 +194,7 @@ class InstallService {
    * @returns Partial installation status
    */
   async detectPartialInstallation(): Promise<PartialInstallationState> {
-    const completed = this.configManager.getProperty('amdwiki.install.completed', false);
+    const completed = await this.isInstallComplete();
 
     if (completed) {
       return { isPartial: false, steps: {} };
@@ -201,7 +233,7 @@ class InstallService {
    * @returns Result with missingPagesOnly flag and details
    */
   async detectMissingPagesOnly(): Promise<MissingPagesResult> {
-    const completed = this.configManager.getProperty('amdwiki.install.completed', false);
+    const completed = await this.isInstallComplete();
 
     // Only applicable if installation is completed
     if (!completed) {
@@ -553,13 +585,72 @@ class InstallService {
   }
 
   /**
+   * Get the instance config directory path
+   * Config files are stored in INSTANCE_DATA_FOLDER/config/
+   *
+   * @returns Path to instance config directory
+   */
+  getInstanceConfigDir(): string {
+    const instanceDataFolder = process.env.INSTANCE_DATA_FOLDER || './data';
+    const resolvedPath = path.isAbsolute(instanceDataFolder)
+      ? instanceDataFolder
+      : path.join(process.cwd(), instanceDataFolder);
+    return path.join(resolvedPath, 'config');
+  }
+
+  /**
+   * Copy example config files to instance config directory
+   * Copies config/*.example files to INSTANCE_DATA_FOLDER/config/ (with .json extension)
+   * Example: app-custom-config.example → app-custom-config.json
+   *
+   * @returns Number of files copied
+   */
+  async copyExampleConfigs(): Promise<number> {
+    const sourceDir = path.join(process.cwd(), 'config');
+    const targetDir = this.getInstanceConfigDir();
+
+    // Ensure target directory exists
+    await fs.ensureDir(targetDir);
+
+    let copiedCount = 0;
+    try {
+      const files = await fs.readdir(sourceDir);
+      const exampleFiles = files.filter(f => f.endsWith('.example'));
+
+      for (const exampleFile of exampleFiles) {
+        // Replace .example with .json for target filename
+        // e.g., app-custom-config.example → app-custom-config.json
+        const targetFileName = exampleFile.replace('.example', '.json');
+        const sourcePath = path.join(sourceDir, exampleFile);
+        const targetPath = path.join(targetDir, targetFileName);
+
+        // Only copy if target doesn't exist
+        if (!await fs.pathExists(targetPath)) {
+          await fs.copy(sourcePath, targetPath);
+          logger.info(`[InstallService] Copied ${exampleFile} to ${targetPath}`);
+          copiedCount++;
+        }
+      }
+    } catch (error) {
+      logger.error('[InstallService] Failed to copy example configs:', error);
+    }
+
+    return copiedCount;
+  }
+
+  /**
    * Write custom configuration file
    *
    * @private
    * @param data - Installation data
    */
   async #writeCustomConfig(data: InstallData): Promise<void> {
-    const customConfigPath = path.join(__dirname, '../../config/app-custom-config.json');
+    const instanceConfigDir = this.getInstanceConfigDir();
+    const customConfigPath = path.join(instanceConfigDir, 'app-custom-config.json');
+
+    // Ensure config directory exists and copy example configs if needed
+    await fs.ensureDir(instanceConfigDir);
+    await this.copyExampleConfigs();
 
     // Read existing custom config or start fresh
     let customConfig: Record<string, unknown> = {};
@@ -572,11 +663,11 @@ class InstallService {
     }
 
     // Merge installation data using ConfigurationManager's merge strategy
+    // Note: amdwiki.install.completed is NO LONGER used - we use .install-complete file instead
     const installationProperties: Record<string, unknown> = {
       'amdwiki.applicationName': data.applicationName,
       'amdwiki.baseURL': data.baseURL,
       'amdwiki.session.secret': data.sessionSecret || crypto.randomBytes(32).toString('hex'),
-      'amdwiki.install.completed': false,
       'amdwiki.install.organization.name': data.orgName,
       'amdwiki.install.organization.legalName': data.orgLegalName || '',
       'amdwiki.install.organization.description': data.orgDescription,
@@ -738,24 +829,25 @@ class InstallService {
   }
 
   /**
-   * Mark installation as complete in config
+   * Mark installation as complete
+   * Creates .install-complete file in INSTANCE_DATA_FOLDER
    *
    * @private
    */
   async #markInstallationComplete(): Promise<void> {
-    const customConfigPath = path.join(__dirname, '../../config/app-custom-config.json');
+    const installCompleteFile = this.getInstallCompleteFilePath();
 
-    // Read current config
-    const config = await fs.readJson(customConfigPath) as Record<string, unknown>;
+    // Ensure directory exists
+    await fs.ensureDir(path.dirname(installCompleteFile));
 
-    // Set the completion flag
-    config['amdwiki.install.completed'] = true;
+    // Create marker file with timestamp
+    const markerContent = {
+      completedAt: new Date().toISOString(),
+      version: '1.0.0'
+    };
+    await fs.writeJson(installCompleteFile, markerContent, { spaces: 2 });
 
-    // Write updated config
-    await fs.writeJson(customConfigPath, config, { spaces: 2 });
-
-    // Reload ConfigurationManager so the flag is available
-    await this.configManager.reload();
+    logger.info(`[InstallService] Installation marked complete: ${installCompleteFile}`);
   }
 
   /**

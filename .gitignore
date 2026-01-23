@@ -165,8 +165,8 @@ data/*
 reports/*
 /private/
 
-# Configuration - keep custom config local only
-config/app-custom-config.json
+# Instance configs are in INSTANCE_DATA_FOLDER/config/ (not tracked)
+# Templates (*.example) remain in ./config/
 
 .editorconfig
 .claude/settings.local.json
@@ -177,6 +177,10 @@ backups
 
 # Session storage
 data/sessions/
+
+# Installation marker (instance-specific, not code)
+.install-complete
+data/.install-complete
 
 # Ignore the entire versions directory and its contents as these are already tracked by git.
 required-pages/versions/*

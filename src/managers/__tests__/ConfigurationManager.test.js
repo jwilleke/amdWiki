@@ -211,12 +211,14 @@ describe('ConfigurationManager', () => {
 
   describe('custom config loading from instance data folder', () => {
     test('should load custom config from instance data folder when not in config dir', async () => {
-      // Create custom config in instance data folder
+      // Create custom config in instance data folder/config/ subdirectory
       const instanceDataFolder = path.join(tempDir, 'data');
+      const instanceConfigDir = path.join(instanceDataFolder, 'config');
+      await fs.ensureDir(instanceConfigDir);
       const customConfig = {
         'amdwiki.applicationName': 'CustomFromData'
       };
-      await fs.writeJson(path.join(instanceDataFolder, 'app-custom-config.json'), customConfig, { spaces: 2 });
+      await fs.writeJson(path.join(instanceConfigDir, 'app-custom-config.json'), customConfig, { spaces: 2 });
 
       // Initialize fresh manager
       const newConfigManager = new ConfigurationManager(mockEngine);
@@ -227,19 +229,24 @@ describe('ConfigurationManager', () => {
       expect(appName).toBe('CustomFromData');
     });
 
-    test('should prefer config dir custom config over instance data folder custom config', async () => {
-      // Create custom config in both locations
+    test('should only read custom config from instance data folder (not code config dir)', async () => {
+      // Custom config in code config dir should be ignored
+      // Only INSTANCE_DATA_FOLDER/config/ is used for custom and environment configs
       const configDir = path.join(tempDir, 'config');
       const instanceDataFolder = path.join(tempDir, 'data');
+      const instanceConfigDir = path.join(instanceDataFolder, 'config');
+      await fs.ensureDir(instanceConfigDir);
 
+      // This should be ignored - custom config in code dir
       await fs.writeJson(
         path.join(configDir, 'app-custom-config.json'),
         { 'amdwiki.applicationName': 'FromConfigDir' },
         { spaces: 2 }
       );
 
+      // This should be used - custom config in instance data dir
       await fs.writeJson(
-        path.join(instanceDataFolder, 'app-custom-config.json'),
+        path.join(instanceConfigDir, 'app-custom-config.json'),
         { 'amdwiki.applicationName': 'FromDataDir' },
         { spaces: 2 }
       );
@@ -250,7 +257,8 @@ describe('ConfigurationManager', () => {
 
       const appName = newConfigManager.getProperty('amdwiki.applicationName');
 
-      expect(appName).toBe('FromConfigDir');
+      // Should use instance data folder config, NOT code config dir
+      expect(appName).toBe('FromDataDir');
     });
   });
 });

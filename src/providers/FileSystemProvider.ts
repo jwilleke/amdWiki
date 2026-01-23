@@ -158,8 +158,12 @@ class FileSystemProvider extends BasePageProvider {
     this.pageNameMatcher = new PageNameMatcher(matchEnglishPlurals);
     logger.info(`[FileSystemProvider] Plural matching: ${matchEnglishPlurals ? 'enabled' : 'disabled'}`);
 
-    // Check installation status
-    this.installationComplete = configManager.getProperty('amdwiki.install.completed', false) as boolean;
+    // Check installation status via .install-complete file (not config)
+    const installCompleteFile = path.join(
+      configManager.getInstanceDataFolder(),
+      '.install-complete'
+    );
+    this.installationComplete = await fs.pathExists(installCompleteFile);
     logger.info(`[FileSystemProvider] Installation complete: ${this.installationComplete}`);
 
     // Ensure directories exist
