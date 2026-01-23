@@ -24,6 +24,59 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-01-23-01
+
+- Agent: Claude Opus 4.5
+- Subject: Docker deployment fixes - config separation (#168, #213, #214)
+- Key Decision: All instance configs in INSTANCE_DATA_FOLDER/config/, install tracking via .install-complete file
+- Current Issue: #168, #213, #214 - Awaiting Docker testing
+- Testing:
+  - npm test: 60 suites passed, 1414 tests passed
+  - npm run test:e2e: 25 passed, 3 skipped
+- Work Done:
+  - Install completion tracking moved to file:
+    - `INSTANCE_DATA_FOLDER/.install-complete` marker file (not config property)
+    - Added `getInstallCompleteFilePath()`, `isInstallComplete()` to InstallService
+    - Updated FileSystemProvider to check .install-complete file
+    - Removed `amdwiki.install.completed` from app-default-config.json
+  - Config file separation:
+    - `./config/app-default-config.json` - base defaults (repo, code level)
+    - `./config/app-custom-config.example` - template (repo)
+    - `INSTANCE_DATA_FOLDER/config/*.json` - instance configs (not tracked)
+    - Environment and custom configs now read from INSTANCE_DATA_FOLDER/config/
+  - InstallService auto-copies example configs:
+    - `copyExampleConfigs()` method copies `config/*.example` → `INSTANCE_DATA_FOLDER/config/*.json`
+    - Called during installation process
+  - Moved config files to data/config/:
+    - app-custom-config.json
+    - app-development-config.json
+    - app-production-config.json
+    - app-test-config.json
+  - Deleted app-production-config.example.json (redundant)
+  - Updated .gitignore and .dockerignore
+  - BackupManager restore now saves config files to INSTANCE_DATA_FOLDER/config/:
+    - restore() saves environmentConfig to app-{env}-config.json
+    - restore() saves customConfig to app-custom-config.json
+    - Ensures config directory exists before writing
+  - Commented on #168, #213, #214 with progress
+  - Note: .env PORT=3000 not used - app reads from config (added TODO to #168)
+- Commits: 2e96efb
+- Files Modified:
+  - .env.example
+  - .gitignore
+  - docker/.dockerignore
+  - config/app-default-config.json
+  - config/app-custom-config.example (renamed from .json.example)
+  - src/managers/ConfigurationManager.ts
+  - src/managers/__tests__/ConfigurationManager.test.js
+  - src/managers/__tests__/PageManager-Storage.test.js
+  - src/services/InstallService.ts
+  - src/providers/FileSystemProvider.ts
+  - src/providers/__tests__/FileSystemProvider.test.js
+  - data/config/*.json (moved from config/)
+
+---
+
 ## 2026-01-22-03
 
 - Agent: Claude Opus 4.5
