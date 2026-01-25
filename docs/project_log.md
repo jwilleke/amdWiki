@@ -24,6 +24,47 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-01-25-01
+
+- Agent: Claude Opus 4.5
+- Subject: Multi-stage Dockerfile and Kubernetes manifests (#168)
+- Key Decision: Direct node execution (no PM2), multi-stage build for 80% size reduction
+- Current Issue: #168 - Docker & Kubernetes Deployment Improvements
+- Testing:
+  - Docker build: SUCCESS
+  - Fresh install flow: SUCCESS (redirects to /install, pages load after)
+  - Image size: 449MB (down from 2.2GB)
+- Work Done:
+  - Validated #213 and #214 fixes with Docker testing
+  - Implemented multi-stage Dockerfile:
+    - Stage 1 (builder): Install all deps, build TypeScript
+    - Stage 2 (runtime): Production-only deps
+    - Image size reduced from 2.2GB to 449MB (80% reduction)
+  - Removed PM2 - uses direct `node app.js` for K8s compatibility
+  - Fixed missing `micromatch` dependency (added to production deps)
+  - Created Kubernetes manifests in `docker/k8s/`:
+    - deployment.yaml - Pod deployment with health checks
+    - service.yaml - ClusterIP service
+    - configmap.yaml - Custom configuration template
+    - pvc.yaml - Persistent storage (10Gi)
+    - secrets.yaml.example - Template for secrets
+    - ingress.yaml - NGINX Ingress with TLS
+    - README.md - Deployment documentation
+  - Updated GitHub issues #168, #213, #214 with test results
+- Commits: 3f0b490
+- Files Modified:
+  - docker/Dockerfile (multi-stage build)
+  - package.json (added micromatch to dependencies)
+  - docker/k8s/deployment.yaml (new)
+  - docker/k8s/service.yaml (new)
+  - docker/k8s/configmap.yaml (new)
+  - docker/k8s/pvc.yaml (new)
+  - docker/k8s/secrets.yaml.example (new)
+  - docker/k8s/ingress.yaml (new)
+  - docker/k8s/README.md (new)
+
+---
+
 ## 2026-01-23-01
 
 - Agent: Claude Opus 4.5
