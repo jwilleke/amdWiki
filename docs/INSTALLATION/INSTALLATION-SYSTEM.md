@@ -3,7 +3,7 @@
 Complete implementation of JSPWiki-style first-run installation wizard for amdWiki (Issue #153).
 
 Status: ✅ IMPLEMENTED - READY FOR BROWSER TESTING
-Last Updated: 2025-12-06
+Last Updated: 2026-01-25
 Created: 2025-11-25
 Related Issues: #153 (startup pages), #167 (PID lock - ✅ FIXED)
 
@@ -17,23 +17,39 @@ The installation system provides a professional first-run experience with:
 - Automatic startup pages initialization
 - Partial installation detection and recovery
 - Error recovery and retry support
+- Docker and Kubernetes compatibility
 
 ## Architecture
+
+### Instance Data Separation
+
+The installation system separates code from instance data using the `INSTANCE_DATA_FOLDER` environment variable:
+
+- **Code/Config defaults**: `./config/` - Base configuration shipped with code
+- **Instance data**: `INSTANCE_DATA_FOLDER` (default: `./data/`) - All runtime/instance-specific data
+
+This separation allows:
+
+- Docker containers to start fresh on each deployment
+- Multiple instances to share the same codebase
+- Kubernetes deployments with persistent volumes
+- Clean separation between code updates and user data
 
 ### Core Components
 
 #### 1. Installation Service
 
-File: `src/services/InstallService.js` (620+ lines)
+File: `src/services/InstallService.ts` (860+ lines)
 
 Core service handling:
 
 - Form data validation
-- Config file generation (`app-custom-config.json`)
+- Example config copying (`copyExampleConfigs()`)
+- Config file generation to `INSTANCE_DATA_FOLDER/config/app-custom-config.json`
 - Organization JSON creation (Schema.org compliant)
 - Admin user password update with secure hashing
 - Startup pages copying mechanism
-- Installation completion tracking
+- Installation completion tracking via `.install-complete` marker file
 - Partial installation detection
 - Missing pages folder detection & recovery
 - Retry support (allows continuing from where previous attempt failed)
@@ -41,16 +57,20 @@ Core service handling:
 Key Methods:
 
 - `isInstallRequired()` - Checks if installation needed
+- `isInstallComplete()` - Checks for `.install-complete` file in `INSTANCE_DATA_FOLDER`
 - `detectPartialInstallation()` - Detects incomplete setups
-- `validateInstallData()` - Validates form submission
-- `processInstallation()` - Main handler (NEW: supports retry)
+- `#validateInstallData()` - Validates form submission (private)
+- `processInstallation()` - Main handler (supports retry)
 - `resetInstallation()` - Clears partial state
 - `createPagesFolder()` - Recovery: recreate pages folder
 - `detectMissingPagesOnly()` - Recovery: detect missing pages
+- `copyExampleConfigs()` - Copies `config/*.example` to `INSTANCE_DATA_FOLDER/config/*.json`
+- `getInstanceConfigDir()` - Returns `INSTANCE_DATA_FOLDER/config/`
+- `getInstallCompleteFilePath()` - Returns path to `.install-complete` marker
 
 #### 2. Installation Routes
 
-File: `src/routes/InstallRoutes.js` (180+ lines)
+File: `src/routes/InstallRoutes.ts` (200+ lines)
 
 HTTP endpoints:
 
@@ -81,20 +101,102 @@ Success Page: `views/install-success.ejs` (100+ lines)
 
 #### 4. Configuration
 
-File: `config/app-default-config.json`
+**Configuration Files:**
 
-- Added 13 installation tracking properties
-- Installation completion marker
-- Organization metadata fields
-- Startup page copy configuration
+- `config/app-default-config.json` - Base defaults (in codebase, read-only)
+- `config/app-custom-config.example` - Template for custom config
+- `INSTANCE_DATA_FOLDER/config/{INSTANCE_CONFIG_FILE}` - Instance-specific overrides
+
+**Configuration Load Order (ConfigurationManager):**
+
+```text
+1. config/app-default-config.json (base defaults - required, read-only)
+2. INSTANCE_DATA_FOLDER/config/{INSTANCE_CONFIG_FILE} (instance overrides, default: app-custom-config.json)
+```
+
+Custom config overrides default. Environment variables can also override specific properties.
+
+**Environment Variables:**
+
+- `INSTANCE_DATA_FOLDER` - Base path for instance data (default: `./data`)
+- `INSTANCE_CONFIG_FILE` - Config filename to load (default: `app-custom-config.json`)
+
+## Docker and Kubernetes Deployments
+
+### Docker Configuration
+
+The Docker image (`docker/Dockerfile`) is designed for instance data separation:
+
+**Build-time:**
+
+- Copies `config/app-default-config.json` to `/app/config/` (base defaults)
+- Copies `config/app-custom-config.example` to `/app/config/` (template)
+- Creates `/app/data/` directory structure with subdirectories
+
+**Runtime:**
+
+- Sets `INSTANCE_DATA_FOLDER=/app/data`
+- Volume mount: `/app/data` for persistent instance data
+- Installation wizard runs on first access (no `.install-complete` file)
+- `copyExampleConfigs()` copies template to `/app/data/config/app-custom-config.json`
+
+**docker-compose.yml usage:**
+
+```yaml
+environment:
+  - NODE_ENV=production
+  - INSTANCE_DATA_FOLDER=/app/data
+volumes:
+  - ./data:/app/data  # Persistent instance data
+```
+
+### Kubernetes Configuration
+
+The Kubernetes manifests (`docker/k8s/`) provide:
+
+**deployment.yaml:**
+
+- Sets `INSTANCE_DATA_FOLDER=/app/data`
+- Mounts PersistentVolumeClaim at `/app/data`
+- Optionally mounts ConfigMap for pre-configured `app-custom-config.json`
+
+**configmap.yaml:**
+
+- Pre-populates `/app/data/config/app-custom-config.json`
+- Skips interactive installation wizard if config is complete
+- Mounted as read-only file
+
+**Two deployment strategies:**
+
+| Strategy | ConfigMap | Installation Wizard | Use Case |
+| --- | --- | --- | --- |
+| Interactive | Not used | Runs on first access | Development, manual setup |
+| Pre-configured | Mounted | Skipped (if admin exists) | Production, GitOps |
+
+**Pre-configured deployment:**
+
+```yaml
+# configmap.yaml - pre-populate configuration
+data:
+  app-custom-config.json: |
+    {
+      "amdwiki.applicationName": "My Wiki",
+      "amdwiki.baseURL": "https://wiki.example.com"
+    }
+```
+
+Note: Even with ConfigMap, the `.install-complete` marker must exist and admin user must be created for the wizard to be fully bypassed.
 
 ## Installation Flow
 
-```
+```text
 User visits wiki (first time)
     ↓
 Middleware: Install required?
-    ↓ YES
+  - Checks INSTANCE_DATA_FOLDER/.install-complete exists
+  - Checks admin user exists
+  - Checks pages exist
+    ↓ YES (install required)
 Redirect to /install
     ↓
 User fills form:
@@ -104,14 +206,24 @@ User fills form:
     ↓
 Submit → InstallService.processInstallation()
     ↓
-System creates/updates:
-  ✓ config/app-custom-config.json
-  ✓ data/users/organizations.json (Schema.org)
-  ✓ data/users/users.json (admin user)
-  ✓ data/users/persons.json (admin person)
-  ✓ data/pages/*.md (33 startup pages)
+Step 1: copyExampleConfigs()
+  - Copies config/*.example → INSTANCE_DATA_FOLDER/config/*.json
+  - Example: app-custom-config.example → app-custom-config.json
     ↓
-Mark amdwiki.install.completed = true
+Step 2: #writeCustomConfig()
+  - Writes to INSTANCE_DATA_FOLDER/config/app-custom-config.json
+    ↓
+Step 3: #writeOrganizationData()
+  - Writes to INSTANCE_DATA_FOLDER/users/organizations.json
+    ↓
+Step 4: #updateAdminPassword()
+  - Updates admin user in INSTANCE_DATA_FOLDER/users/users.json
+    ↓
+Step 5: #copyStartupPages() (if requested)
+  - Copies required-pages/*.md → INSTANCE_DATA_FOLDER/pages/
+    ↓
+Step 6: #markInstallationComplete()
+  - Creates INSTANCE_DATA_FOLDER/.install-complete marker file
     ↓
 Success page → Login
     ↓
@@ -166,27 +278,51 @@ Scenarios Supported:
 
 ## Files Structure
 
-### Created
+### Source Files
 
-- `src/services/InstallService.js` - Core service
-- `src/routes/InstallRoutes.js` - HTTP routes
+- `src/services/InstallService.ts` - Core installation service
+- `src/routes/InstallRoutes.ts` - HTTP routes for installation
 - `views/install.ejs` - Installation form
 - `views/install-success.ejs` - Success confirmation
-- `docs/developer/INSTALL-INTEGRATION.md` - Integration guide
-- `docs/developer/INSTALL-TESTING.md` - Testing guide
-- `scripts/test-install.sh` - Test backup script
-- `scripts/restore-install-test.sh` - Test restore script
 
-### Modified
+### Configuration Files
 
-- `config/app-default-config.json` - Added install properties
-- `app.js` - Integrated install system and routes
-- `views/install.ejs` - UX improvements for partial installation
+- `config/app-default-config.json` - Base defaults (in codebase)
+- `config/app-custom-config.example` - Template copied during install
 
-### Previously Created
+### Docker/Kubernetes Files
 
-- `required-pages/` - 33 startup pages
-- `docs/developer/` - Developer documentation
+- `docker/Dockerfile` - Multi-stage build with INSTANCE_DATA_FOLDER support
+- `docker/docker-compose.yml` - Development/production compose file
+- `docker/k8s/deployment.yaml` - Kubernetes deployment with volume mounts
+- `docker/k8s/configmap.yaml` - Optional pre-configuration
+- `docker/k8s/pvc.yaml` - PersistentVolumeClaim for data
+- `docker/k8s/service.yaml` - Kubernetes service
+- `docker/k8s/ingress.yaml` - Ingress configuration
+
+### Instance Data Structure (INSTANCE_DATA_FOLDER)
+
+```text
+data/                          # INSTANCE_DATA_FOLDER (default: ./data)
+├── .install-complete          # Marker file indicating installation done
+├── config/
+│   └── app-custom-config.json # Instance-specific configuration
+├── pages/                     # Wiki content
+├── users/
+│   ├── users.json             # User accounts
+│   ├── persons.json           # Person metadata
+│   └── organizations.json     # Organization data (Schema.org)
+├── attachments/               # File attachments
+├── versions/                  # Page version deltas
+├── logs/                      # Application logs
+├── search-index/              # Lunr search index
+├── backups/                   # Backup files
+└── sessions/                  # Session storage
+```
+
+### Required Pages
+
+- `required-pages/` - Startup pages copied during installation
 
 ## Current Status
 
@@ -257,7 +393,7 @@ Startup Pages:
 
 - [ ] Check "Copy startup pages" box
 - [ ] Complete installation
-- [ ] Verify 33 pages exist in data/pages/
+- [ ] Verify pages exist in data/pages/
 - [ ] Verify pages match required-pages/
 
 Recovery Features:
@@ -266,6 +402,16 @@ Recovery Features:
 - [ ] Call POST /install/create-pages
 - [ ] Verify pages folder recreated
 - [ ] Verify startup pages restored
+
+Docker/Kubernetes Testing:
+
+- [ ] Build Docker image: `docker build -f docker/Dockerfile -t amdwiki .`
+- [ ] Run container: `docker run -p 3000:3000 -v ./data:/app/data amdwiki`
+- [ ] Verify installation wizard appears on first access
+- [ ] Complete installation
+- [ ] Verify `.install-complete` created in mounted volume
+- [ ] Restart container - verify wizard is skipped
+- [ ] Test with ConfigMap pre-configuration (K8s)
 
 ## Installation Workflow Summary
 
@@ -283,23 +429,28 @@ User visits any URL → Middleware checks: install completed? YES → Continues 
 
 ## Integration Steps
 
-Already integrated in this codebase
+Already integrated in this codebase:
 
-- `app.js` lines 16, 106-107, 122-129, 198-200
-- InstallRoutes imported and registered
-- Middleware checks installation state
+- `app.js` - InstallRoutes imported and registered
+- Middleware checks installation state via `InstallService.isInstallRequired()`
 - Routes registered before WikiRoutes
 
-Configuration
+Configuration Loading (ConfigurationManager):
 
-- Default config in `config/app-default-config.json`
-- Environment overrides in `config/app-development-config.json` etc.
+```text
+1. config/app-default-config.json                         (in codebase - required, read-only)
+2. INSTANCE_DATA_FOLDER/config/{INSTANCE_CONFIG_FILE}     (instance overrides - optional)
+```
 
-Startup Pages
+Environment variables:
 
-- 15 system pages + 18 documentation = 33 total
-- Located in `required-pages/`
-- Copied to `data/pages/` on installation
+- `INSTANCE_DATA_FOLDER` - Base path (default: `./data`)
+- `INSTANCE_CONFIG_FILE` - Config filename (default: `app-custom-config.json`)
+
+Startup Pages:
+
+- All pages in `required-pages/`
+- Copied to `INSTANCE_DATA_FOLDER/pages/` during installation
 
 ## Security Considerations
 
@@ -329,10 +480,10 @@ Startup Pages
 
 ## Dependencies
 
-- Node.js v18+
+- Node.js v18+ (v20 recommended for Docker)
 - Express.js 5.x
 - EJS template engine
-- PM2 for process management
+- PM2 for process management (local development; not used in Docker/K8s)
 - fs-extra for file operations
 - fast-diff for version deltas
 - pako for compression
@@ -382,17 +533,18 @@ Startup Pages
 
 ## Success Metrics
 
-- ✅ Code Quality: 620+ lines of clean, documented code
+- ✅ Code Quality: 860+ lines of clean, documented TypeScript
 - ✅ Test Coverage: Manual checklist provided, Jest integration possible
 - ✅ User Experience: Professional, guided setup wizard
 - ✅ Security: Admin credentials protected, form validation
-- ✅ Documentation: 300+ lines of guides and API docs
+- ✅ Documentation: Comprehensive guides and API docs
 - ✅ Server Stability: Issue #167 fixed - single instance guaranteed
-- ⏳ Manual Testing: Ready to be completed (no blockers)
+- ✅ Docker/K8s Support: INSTANCE_DATA_FOLDER separation implemented
 
 ## Version History
 
-- v1.3.3 - Current
+- v1.4.0 - Docker/K8s support, INSTANCE_DATA_FOLDER separation, TypeScript migration
+- v1.3.3 - Previous stable
 - v1.3.0 - Installation system implementation
 - v1.0.0 - Original release
 
@@ -400,5 +552,6 @@ Startup Pages
 
 - Issue #153: <https://github.com/jwilleke/amdWiki/issues/153>
 - Issue #167: <https://github.com/jwilleke/amdWiki/issues/167>
+- Issue #168: <https://github.com/jwilleke/amdWiki/issues/168> (Docker/K8s)
 - JSPWiki Install: <https://github.com/apache/jspwiki>
 - Schema.org Organization: <https://schema.org/Organization>

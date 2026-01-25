@@ -125,23 +125,46 @@ VOLUME ["/app/data"]
 CMD ["node", "app.js"]
 
 # =============================================================================
-# Configuration Override Instructions
+# Configuration and Installation
 # =============================================================================
 #
-# ConfigurationManager loads configuration in this order:
-# 1. config/app-default-config.json (base defaults - in image)
-# 2. INSTANCE_DATA_FOLDER/config/app-{NODE_ENV}-config.json (environment-specific)
-# 3. INSTANCE_DATA_FOLDER/config/app-custom-config.json (local overrides)
+# FIRST RUN BEHAVIOR:
+# On first access, the installation wizard runs if:
+#   - /app/data/.install-complete does not exist
+#   - No admin user exists
+# The wizard creates config files in /app/data/config/ and marks install complete.
 #
-# To customize configuration for Docker:
+# CONFIG FILE LOCATIONS:
+# - /app/config/app-default-config.json (in image - base defaults, read-only)
+# - /app/config/app-custom-config.example (in image - template)
+# - /app/data/config/{INSTANCE_CONFIG_FILE} (volume - instance overrides)
 #
-# Option 1: Mount custom config at runtime
+# ConfigurationManager loads (two-tier merge):
+# 1. config/app-default-config.json (required - in image, read-only)
+# 2. INSTANCE_DATA_FOLDER/config/{INSTANCE_CONFIG_FILE} (default: app-custom-config.json)
+#
+# ENVIRONMENT VARIABLES:
+# - INSTANCE_DATA_FOLDER: Base path for instance data (default: /app/data)
+# - INSTANCE_CONFIG_FILE: Config filename to load (default: app-custom-config.json)
+#
+# DEPLOYMENT OPTIONS:
+#
+# Option 1: Interactive Installation (recommended for first deployment)
+#   docker run -p 3000:3000 -v ./data:/app/data amdwiki
+#   # Access http://localhost:3000 and complete installation wizard
+#
+# Option 2: Mount pre-configured config (skip wizard)
 #   docker run -p 3000:3000 \
-#     -v my-config.json:/app/data/config/app-custom-config.json \
+#     -v ./data:/app/data \
+#     -v ./my-config.json:/app/data/config/app-custom-config.json \
 #     amdwiki
+#   # NOTE: You must also create admin user and .install-complete marker
 #
-# Option 2: Use environment variable to change NODE_ENV
-#   docker run -p 3000:3000 -e NODE_ENV=development amdwiki
+# Option 3: Use different config file
+#   docker run -p 3000:3000 \
+#     -e INSTANCE_CONFIG_FILE=app-staging-config.json \
+#     -v ./data:/app/data \
+#     amdwiki
 #
 # Common properties to override:
 # - amdwiki.server.port: Server port (default: 3000)

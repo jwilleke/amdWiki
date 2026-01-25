@@ -1,30 +1,36 @@
 # ConfigurationManager
 
-**Module:** `src/managers/ConfigurationManager.js`
+**Module:** `src/managers/ConfigurationManager.ts`
 **Complete Guide:** [ConfigurationManager-Complete-Guide.md](ConfigurationManager-Complete-Guide.md)
 
 ---
 
 ## Overview
 
-ConfigurationManager provides JSPWiki-compatible configuration management with a hierarchical merge system. Configuration is loaded from multiple sources with later sources overriding earlier ones.
+ConfigurationManager provides JSPWiki-compatible configuration management with a two-tier merge system. Configuration is loaded from default settings and instance-specific overrides.
 
 ## Key Features
 
-- **Three-Tier Configuration** - Default, environment-specific, and custom overrides
+- **Two-Tier Configuration** - Default (read-only) + custom overrides
+- **Instance Data Separation** - Config location controlled by `INSTANCE_DATA_FOLDER`
+- **Configurable Config File** - Config filename controlled by `INSTANCE_CONFIG_FILE`
 - **Property Merging** - Custom properties override defaults automatically
-- **Environment Variables** - Docker/Traefik deployment support
+- **Environment Variables** - Docker/Traefik/Kubernetes deployment support
 - **Runtime Updates** - Change configuration via admin interface
 - **Convenience Methods** - Type-safe getters for common settings
 - **Backup/Restore** - Full configuration backup support
 
 ## Configuration Merge Order
 
+```text
+1. config/app-default-config.json                              (in codebase - required, read-only)
+2. INSTANCE_DATA_FOLDER/config/{INSTANCE_CONFIG_FILE}          (instance overrides - optional)
 ```
-1. app-default-config.json     (base defaults - required)
-2. app-{environment}-config.json (environment-specific - optional)
-3. app-custom-config.json      (local overrides - optional)
-```
+
+**Environment Variables:**
+
+- `INSTANCE_DATA_FOLDER` - Base path for instance data (default: `./data`, Docker: `/app/data`)
+- `INSTANCE_CONFIG_FILE` - Config filename to load (default: `app-custom-config.json`)
 
 ## Quick Example
 
@@ -80,22 +86,23 @@ await configManager.setProperty('amdwiki.applicationName', 'My Wiki');
 
 ## Configuration Files
 
-| File | Purpose | Edit? |
-| ------ | --------- | ------- |
-| `config/app-default-config.json` | Base defaults | No |
-| `config/app-{env}-config.json` | Environment-specific | Optional |
-| `config/app-custom-config.json` | Local overrides | Yes |
+| File | Location | Purpose | Edit? |
+| --- | --- | --- | --- |
+| `app-default-config.json` | `config/` (codebase) | Base defaults | No (read-only) |
+| `app-custom-config.json` | `INSTANCE_DATA_FOLDER/config/` | Instance overrides | Yes |
 
 ## Environment Variable Overrides
 
-For Docker/Traefik deployments:
+For Docker/Traefik/Kubernetes deployments:
 
-| Variable | Config Key |
-| ---------- | ------------ |
-| `AMDWIKI_BASE_URL` | `amdwiki.baseURL` |
-| `AMDWIKI_HOSTNAME` | `amdwiki.hostname` |
-| `AMDWIKI_HOST` | `amdwiki.server.host` |
-| `AMDWIKI_PORT` | `amdwiki.server.port` |
+| Variable | Purpose |
+| --- | --- |
+| `INSTANCE_DATA_FOLDER` | Base path for all instance data (default: `./data`) |
+| `INSTANCE_CONFIG_FILE` | Config filename to load (default: `app-custom-config.json`) |
+| `AMDWIKI_BASE_URL` | Overrides `amdwiki.baseURL` |
+| `AMDWIKI_HOSTNAME` | Overrides `amdwiki.hostname` |
+| `AMDWIKI_HOST` | Overrides `amdwiki.server.host` |
+| `AMDWIKI_PORT` | Overrides `amdwiki.server.port` |
 
 ## Admin Interface
 

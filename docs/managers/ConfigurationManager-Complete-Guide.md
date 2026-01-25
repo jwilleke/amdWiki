@@ -1,27 +1,53 @@
 # ConfigurationManager Complete Guide
 
-**Module:** `src/managers/ConfigurationManager.js`
+**Module:** `src/managers/ConfigurationManager.ts`
 **Quick Reference:** [ConfigurationManager.md](ConfigurationManager.md)
 
 ---
 
 ## Overview
 
-The ConfigurationManager provides JSPWiki-compatible configuration management for amdWiki. It implements a two-tier configuration system with default values and custom overrides, similar to JSPWiki's property management system.
+The ConfigurationManager provides JSPWiki-compatible configuration management for amdWiki. It implements a two-tier configuration system with default values and instance-specific overrides.
 
 ## Architecture
 
-The ConfigurationManager follows JSPWiki's configuration patterns:
+The ConfigurationManager follows JSPWiki's configuration patterns with Docker/Kubernetes support:
 
-- **Default Configuration**: `app-default-config.json` contains all default settings
-- **Custom Overrides**: `app-custom-config.json` contains user customizations
-- **Property Merging**: Custom properties override defaults with precedence handling
+- **Default Configuration**: `config/app-default-config.json` contains all default settings (read-only, in codebase)
+- **Custom Overrides**: `INSTANCE_DATA_FOLDER/config/{INSTANCE_CONFIG_FILE}` contains instance customizations
+- **Instance Separation**: `INSTANCE_DATA_FOLDER` env var controls where instance data is stored
+- **Configurable Filename**: `INSTANCE_CONFIG_FILE` env var controls which config file to load
+- **Property Merging**: Custom config overrides defaults
 - **Runtime Access**: Provides getter methods for commonly used configuration values
 - **Admin Interface**: Web-based configuration management with validation
 
 ## Configuration Files
 
-### app-default-config.json
+### File Locations
+
+```text
+config/                                    # In codebase (read-only)
+├── app-default-config.json               # Base defaults (required)
+└── app-custom-config.example             # Template for custom config
+
+INSTANCE_DATA_FOLDER/config/               # Instance-specific (default: ./data/config/)
+└── {INSTANCE_CONFIG_FILE}                # Custom overrides (default: app-custom-config.json)
+```
+
+**Environment Variables:**
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `INSTANCE_DATA_FOLDER` | `./data` | Base path for all instance data |
+| `INSTANCE_CONFIG_FILE` | `app-custom-config.json` | Config filename to load |
+
+**Deployment examples:**
+
+- **Local development**: `INSTANCE_DATA_FOLDER=./data`
+- **Docker**: `INSTANCE_DATA_FOLDER=/app/data`
+- **Kubernetes**: `INSTANCE_DATA_FOLDER=/app/data` (mounted PVC)
+
+### config/app-default-config.json
 
 Contains all default configuration properties. This file should not be modified directly.
 
@@ -42,9 +68,9 @@ Contains all default configuration properties. This file should not be modified 
 }
 ```
 
-### app-custom-config.json
+### INSTANCE_DATA_FOLDER/config/app-custom-config.json
 
-Contains custom overrides for default properties. This is the file to modify for customization.
+Contains custom overrides for default properties. Created by installation wizard or manually.
 
 **Example:**
 
@@ -60,14 +86,18 @@ Contains custom overrides for default properties. This is the file to modify for
 
 ## How to Test ConfigurationManager
 
-You can test src/managers/ConfigurationManager.js with simple script
-scripts/configurationmanage-get-config.js
-Usage:
+You can test `src/managers/ConfigurationManager.ts` with the test script:
 
-- node scripts/configurationmanage-get-config.js ```<key> [--prefix] [--pretty]```
-- Examples:
-  - node scripts/configurationmanage-get-config.js amdwiki.notifications.dir
-  - node scripts/configurationmanage-get-config.js amdwiki.notifications --prefix --pretty
+```bash
+node scripts/configurationmanage-get-config.js <key> [--prefix] [--pretty]
+```
+
+Examples:
+
+```bash
+node scripts/configurationmanage-get-config.js amdwiki.notifications.dir
+node scripts/configurationmanage-get-config.js amdwiki.notifications --prefix --pretty
+```
 
 ## Property Naming Convention
 
@@ -107,7 +137,7 @@ Gets a configuration property value with optional default.
 
 ##### `setProperty(key, value)`
 
-Sets a custom configuration property (saves to app-custom-config.json).
+Sets a custom configuration property (saves to `INSTANCE_DATA_FOLDER/config/app-custom-config.json`).
 
 **Parameters:**
 
@@ -116,9 +146,35 @@ Sets a custom configuration property (saves to app-custom-config.json).
 
 ##### `getAllProperties()`
 
-Gets merged configuration properties (defaults + custom overrides).
+Gets merged configuration properties (defaults + environment + custom overrides).
 
 **Returns:** object - Complete merged configuration
+
+##### `getInstanceDataFolder()`
+
+Gets the resolved path to the instance data folder.
+
+**Returns:** string - Absolute path to instance data folder
+
+```javascript
+const dataFolder = configManager.getInstanceDataFolder();
+// Returns '/app/data' in Docker, or resolved './data' locally
+```
+
+##### `resolveDataPath(relativePath)`
+
+Resolves a path relative to the instance data folder.
+
+**Parameters:**
+
+- `relativePath` (string): Path relative to instance data folder (e.g., './pages')
+
+**Returns:** string - Absolute path
+
+```javascript
+const pagesDir = configManager.resolveDataPath('./pages');
+// Returns '/app/data/pages' in Docker
+```
 
 ##### `getDefaultProperties()`
 
@@ -294,7 +350,7 @@ class MyManager extends BaseManager {
 const configManager = engine.getManager('ConfigurationManager');
 await configManager.setProperty('amdwiki.server.port', 8080);
 
-// Configuration is automatically saved to app-custom-config.json
+// Configuration is automatically saved to INSTANCE_DATA_FOLDER/config/app-custom-config.json
 ```
 
 ### Application Startup
@@ -315,9 +371,11 @@ async function initializeWikiEngine() {
 }
 ```
 
-## Environment-Specific Configuration
+## Deployment Configuration
 
 ### Development
+
+File: `./data/config/app-custom-config.json`
 
 ```json
 {
@@ -329,6 +387,8 @@ async function initializeWikiEngine() {
 
 ### Production
 
+File: `INSTANCE_DATA_FOLDER/config/app-custom-config.json`
+
 ```json
 {
   "amdwiki.server.port": 80,
@@ -336,6 +396,39 @@ async function initializeWikiEngine() {
   "amdwiki.session.secure": true,
   "amdwiki.session.secret": "production-secret-key-change-this"
 }
+```
+
+### Using Different Config Files
+
+Use `INSTANCE_CONFIG_FILE` to load a different config file:
+
+```bash
+# Load staging config
+INSTANCE_CONFIG_FILE=app-staging-config.json node app.js
+
+# Load test config
+INSTANCE_CONFIG_FILE=app-test-config.json npm test
+```
+
+### Docker/Kubernetes Deployments
+
+For containerized deployments, configuration can be provided via:
+
+- **Environment variables**: `AMDWIKI_BASE_URL`, `AMDWIKI_PORT`, etc.
+- **Volume mount**: Mount config file to `INSTANCE_DATA_FOLDER/config/`
+- **ConfigMap (K8s)**: Mount ConfigMap as config file
+- **Installation wizard**: Complete wizard on first access (writes to PVC)
+
+```yaml
+# Kubernetes example
+env:
+  - name: INSTANCE_DATA_FOLDER
+    value: "/app/data"
+  - name: INSTANCE_CONFIG_FILE
+    value: "app-custom-config.json"
+volumeMounts:
+  - name: amdwiki-data
+    mountPath: /app/data
 ```
 
 ## Property Migration
@@ -449,7 +542,8 @@ console.log('Total properties:', Object.keys(allProps).length);
 
 - Only override what's necessary
 - Document custom configurations
-- Use version control for app-custom-config.json
+- For Docker/K8s: use ConfigMap or volume mounts for `app-custom-config.json`
+- For local dev: `INSTANCE_DATA_FOLDER/config/app-custom-config.json` (default: `./data/config/`)
 
 ### Security
 

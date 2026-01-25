@@ -27,15 +27,18 @@ services:
       - "${HOST_PORT:-3000}:3000"
 
     # Environment variables
-    # NODE_ENV determines which config file is loaded by ConfigurationManager:
-    # - production: config/app-production-config.json
-    # - development: config/app-development-config.json
-    # - test: config/app-test-config.json
+    # NODE_ENV: Application environment (production, development, test)
     # INSTANCE_DATA_FOLDER: Base path for all instance data (pages, users, logs, etc.)
+    # INSTANCE_CONFIG_FILE: Config filename to load from INSTANCE_DATA_FOLDER/config/
     # EXTERNAL_PORT: The host port for user-facing URLs (for logging)
+    #
+    # Configuration merge order:
+    #   1. config/app-default-config.json (read-only, in image)
+    #   2. INSTANCE_DATA_FOLDER/config/{INSTANCE_CONFIG_FILE} (instance overrides)
     environment:
       - NODE_ENV=production
       - INSTANCE_DATA_FOLDER=${INSTANCE_DATA_FOLDER:-./data}
+      - INSTANCE_CONFIG_FILE=${INSTANCE_CONFIG_FILE:-app-custom-config.json}
       - EXTERNAL_PORT=${HOST_PORT:-3000}
 
     # Volume mounts for persistent data

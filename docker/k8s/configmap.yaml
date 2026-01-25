@@ -1,8 +1,21 @@
 # amdWiki Configuration ConfigMap
 # Deploy with: kubectl apply -f configmap.yaml
 #
-# This ConfigMap provides custom configuration for amdWiki.
-# Values here override defaults from app-default-config.json.
+# DEPLOYMENT STRATEGIES:
+#
+# Strategy 1: Interactive Installation (RECOMMENDED for first deployment)
+#   - Do NOT apply this ConfigMap
+#   - The installation wizard runs on first access
+#   - User fills in configuration via web form
+#   - Config is written to PVC at /app/data/config/app-custom-config.json
+#
+# Strategy 2: Pre-configured (GitOps / automated deployments)
+#   - Apply this ConfigMap with your configuration
+#   - ConfigMap is mounted read-only at /app/data/config/app-custom-config.json
+#   - IMPORTANT: You must also:
+#     a) Create admin user in /app/data/users/users.json (use init container)
+#     b) Create /app/data/.install-complete marker file
+#   - Installation wizard will be skipped
 #
 # For complete list of properties, see:
 # https://github.com/jwilleke/amdWiki/blob/master/config/app-default-config.json
@@ -16,6 +29,10 @@ metadata:
 data:
   # Custom configuration file
   # Modify these values for your deployment
+  #
+  # WARNING: If this ConfigMap is mounted, the installation wizard cannot
+  # write to this file (read-only mount). You must pre-create the admin user
+  # and .install-complete marker file for the wizard to be skipped.
   app-custom-config.json: |
     {
       "amdwiki.server.host": "0.0.0.0",

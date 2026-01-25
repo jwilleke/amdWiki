@@ -8,27 +8,25 @@ import type { WikiEngine } from '../types/WikiEngine';
 /**
  * ConfigurationManager - Handles JSPWiki-compatible configuration management
  *
- * Implements a hierarchical configuration system that merges multiple configuration
- * sources in priority order. This allows for flexible deployment configurations while
- * maintaining sensible defaults.
+ * Implements a two-tier configuration system that merges default settings with
+ * instance-specific overrides. This allows for flexible deployment configurations
+ * while maintaining sensible defaults.
  *
  * Configuration merge order (later overrides earlier):
- * 1. app-default-config.json (base defaults - required)
- * 2. app-{environment}-config.json (environment-specific - optional)
- * 3. app-custom-config.json (local overrides - optional)
+ * 1. config/app-default-config.json (base defaults - required, read-only)
+ * 2. INSTANCE_DATA_FOLDER/config/app-custom-config.json (instance overrides - optional)
  *
- * Environment is determined by NODE_ENV environment variable (default: 'development')
+ * INSTANCE_DATA_FOLDER defaults to './data' but can be set via environment variable
+ * for Docker/Kubernetes deployments (typically '/app/data').
  *
  * @class ConfigurationManager
  *
  * @property {WikiEngine} engine - Reference to the wiki engine
  * @property {WikiConfig|null} defaultConfig - Default configuration (required)
- * @property {Partial<WikiConfig>|null} environmentConfig - Environment-specific configuration (optional)
  * @property {Partial<WikiConfig>|null} customConfig - Custom local overrides (optional)
  * @property {WikiConfig|null} mergedConfig - Final merged configuration
  * @property {string} environment - Current environment (from NODE_ENV)
  * @property {string} defaultConfigPath - Path to default config file
- * @property {string} environmentConfigPath - Path to environment config file
  * @property {string} customConfigPath - Path to custom config file
  *
  * @see {@link BaseManager} for base functionality
@@ -40,12 +38,10 @@ import type { WikiEngine } from '../types/WikiEngine';
  */
 class ConfigurationManager extends BaseManager {
   private defaultConfig: WikiConfig | null;
-  private environmentConfig: Partial<WikiConfig> | null;
   private customConfig: Partial<WikiConfig> | null;
   private mergedConfig: WikiConfig | null;
   private environment: string;
   private defaultConfigPath: string;
-  private environmentConfigPath: string;
   private customConfigPath: string;
   private instanceDataFolder: string;
 
@@ -59,7 +55,6 @@ class ConfigurationManager extends BaseManager {
   constructor(engine: WikiEngine) {
     super(engine);
     this.defaultConfig = null;
-    this.environmentConfig = null;
     this.customConfig = null;
     this.mergedConfig = null;
     this.environment = process.env.NODE_ENV || 'development';
@@ -68,14 +63,15 @@ class ConfigurationManager extends BaseManager {
     // This allows all instance data to be stored in a configurable location
     this.instanceDataFolder = process.env.INSTANCE_DATA_FOLDER || './data';
 
-    // Default config stays in ./config/ (code/repo - base defaults)
+    // Default config stays in ./config/ (code/repo - base defaults, read-only)
     const codeConfigDir = path.join(process.cwd(), 'config');
     this.defaultConfigPath = path.join(codeConfigDir, 'app-default-config.json');
 
-    // Environment and custom configs in INSTANCE_DATA_FOLDER/config/ (instance-specific)
+    // Custom config in INSTANCE_DATA_FOLDER/config/ (instance-specific overrides)
+    // Config file name can be overridden via INSTANCE_CONFIG_FILE env var
     const instanceConfigDir = path.join(this.getInstanceDataFolder(), 'config');
-    this.environmentConfigPath = path.join(instanceConfigDir, `app-${this.environment}-config.json`);
-    this.customConfigPath = path.join(instanceConfigDir, 'app-custom-config.json');
+    const configFileName = process.env.INSTANCE_CONFIG_FILE || 'app-custom-config.json';
+    this.customConfigPath = path.join(instanceConfigDir, configFileName);
   }
 
   /**
@@ -92,7 +88,7 @@ class ConfigurationManager extends BaseManager {
     try {
       await this.loadConfigurations();
       logger.info(`ConfigurationManager initialized for environment: ${this.environment}`);
-      logger.info(`Loaded configs: default + ${this.environmentConfig ? 'environment' : 'no environment'} + ${this.customConfig && Object.keys(this.customConfig).length > 0 ? 'custom' : 'no custom'}`);
+      logger.info(`Loaded configs: default + ${this.customConfig && Object.keys(this.customConfig).length > 0 ? 'custom' : 'no custom'}`);
     } catch (error) {
       logger.error('Failed to initialize ConfigurationManager:', error);
       throw error;
@@ -116,7 +112,7 @@ class ConfigurationManager extends BaseManager {
    * configuration object. Fields starting with '_' are treated as comments
    * and excluded from the final configuration.
    *
-   * Priority: default < environment < custom (highest)
+   * Priority: default < custom (highest)
    *
    * @async
    * @private
@@ -124,28 +120,15 @@ class ConfigurationManager extends BaseManager {
    * @throws {Error} If default configuration file cannot be loaded
    */
   private async loadConfigurations(): Promise<void> {
-    // 1. Load default configuration (required)
+    // 1. Load default configuration (required, read-only in codebase)
     if (await fs.pathExists(this.defaultConfigPath)) {
       this.defaultConfig = (await fs.readJson(this.defaultConfigPath)) as WikiConfig;
     } else {
       throw new Error(`Default configuration file not found: ${this.defaultConfigPath}`);
     }
 
-    // 2. Load environment-specific configuration (optional)
-    this.environmentConfig = {};
-    if (await fs.pathExists(this.environmentConfigPath)) {
-      const envData = (await fs.readJson(this.environmentConfigPath)) as Record<string, unknown>;
-      // Filter out comment fields starting with _
-      for (const [key, value] of Object.entries(envData)) {
-        if (!key.startsWith('_')) {
-          this.environmentConfig[key] = value;
-        }
-      }
-      logger.info(`Loaded environment config: ${this.environmentConfigPath}`);
-    }
-
-    // 3. Load custom configuration (optional, for local overrides)
-    // Custom config is in INSTANCE_DATA_FOLDER/config/app-custom-config.json
+    // 2. Load custom configuration (optional, for instance-specific overrides)
+    // Custom config is in INSTANCE_DATA_FOLDER/config/ (filename from INSTANCE_CONFIG_FILE or default)
     this.customConfig = {};
     if (await fs.pathExists(this.customConfigPath)) {
       const customData = (await fs.readJson(this.customConfigPath)) as Record<string, unknown>;
@@ -158,10 +141,9 @@ class ConfigurationManager extends BaseManager {
       logger.info(`Loaded custom config: ${this.customConfigPath}`);
     }
 
-    // Merge configurations (later configs override earlier ones)
+    // Merge configurations (custom overrides default)
     this.mergedConfig = {
       ...this.defaultConfig,
-      ...this.environmentConfig,
       ...this.customConfig
     } as WikiConfig;
   }
@@ -690,7 +672,6 @@ class ConfigurationManager extends BaseManager {
     try {
       // Count total properties in each config layer
       const defaultPropsCount = this.defaultConfig ? Object.keys(this.defaultConfig).length : 0;
-      const envPropsCount = this.environmentConfig ? Object.keys(this.environmentConfig).length : 0;
       const customPropsCount = this.customConfig ? Object.keys(this.customConfig).length : 0;
       const mergedPropsCount = this.mergedConfig ? Object.keys(this.mergedConfig).length : 0;
 
@@ -701,21 +682,18 @@ class ConfigurationManager extends BaseManager {
 
         // Backup all config layers for reference
         defaultConfig: this.defaultConfig ? { ...this.defaultConfig } : null,
-        environmentConfig: this.environmentConfig ? { ...this.environmentConfig } : null,
         customConfig: this.customConfig ? { ...this.customConfig } : null,
         mergedConfig: this.mergedConfig ? { ...this.mergedConfig } : null,
 
         // Config file paths for reference
         paths: {
           defaultConfigPath: this.defaultConfigPath,
-          environmentConfigPath: this.environmentConfigPath,
           customConfigPath: this.customConfigPath
         },
 
         // Statistics
         statistics: {
           defaultPropertiesCount: defaultPropsCount,
-          environmentPropertiesCount: envPropsCount,
           customPropertiesCount: customPropsCount,
           mergedPropertiesCount: mergedPropsCount
         }
@@ -752,17 +730,6 @@ class ConfigurationManager extends BaseManager {
       // Ensure instance config directory exists
       const instanceConfigDir = path.join(this.getInstanceDataFolder(), 'config');
       await fs.ensureDir(instanceConfigDir);
-
-      // Restore environment configuration
-      if (backupData.environmentConfig) {
-        this.environmentConfig = { ...backupData.environmentConfig };
-        const envConfigToSave = {
-          _comment: `Environment-specific overrides for ${this.environment}`,
-          ...this.environmentConfig
-        };
-        await fs.writeJson(this.environmentConfigPath, envConfigToSave, { spaces: 2 });
-        logger.info(`[ConfigurationManager] Restored ${Object.keys(this.environmentConfig ?? {}).length} environment properties`);
-      }
 
       // Restore custom configuration (user overrides)
       if (backupData.customConfig) {

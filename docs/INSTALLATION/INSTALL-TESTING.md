@@ -64,7 +64,7 @@ Creates a clean first-run environment by:
 ### Startup Pages Option
 
 - Checkbox: "Copy startup pages to initialize wiki" (checked by default)
-- Copies 33 pages from `required-pages/` to `pages/`
+- Copies all pages from `required-pages/` to `pages/`
 
 ## Expected Results
 
@@ -146,9 +146,9 @@ After form submission, the following should be created:
 
 **pages/ directory:**
 
-- 33 .md files copied from required-pages/
-- 15 system pages (system-category: system)
-- 18 documentation pages (system-category: documentation)
+- All .md files copied from required-pages/
+- System pages (system-category: system)
+- Documentation pages (system-category: documentation)
 
 ### 5. Success Page
 
@@ -202,8 +202,8 @@ After form submission, the following should be created:
 - [ ] config/app-custom-config.json created
 - [ ] users/organizations.json created with Schema.org structure
 - [ ] users/users.json created with admin user
-- [ ] pages/ populated with 33 startup pages
-- [ ] amdwiki.install.completed set to true
+- [ ] pages/ populated with startup pages from required-pages/
+- [ ] .install-complete marker file created in INSTANCE_DATA_FOLDER
 
 ### Post-Installation
 
@@ -242,7 +242,7 @@ cat config/app-custom-config.json | grep "install.completed"
 cat users/users.json | grep "admin"
 
 # Check pages
-ls pages/*.md | wc -l  # Should show 33
+ls pages/*.md | wc -l  # Should show number of pages from required-pages/
 ```
 
 ### Issue: Form Validation Errors
