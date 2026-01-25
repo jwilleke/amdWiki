@@ -1,0 +1,36 @@
+# amdWiki Kubernetes Service
+# Deploy with: kubectl apply -f service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: amdwiki
+  labels:
+    app: amdwiki
+    app.kubernetes.io/name: amdwiki
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 3000
+      protocol: TCP
+      name: http
+  selector:
+    app: amdwiki
+---
+# Optional: LoadBalancer service for direct external access
+# Uncomment if not using Ingress
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: amdwiki-lb
+#   labels:
+#     app: amdwiki
+# spec:
+#   type: LoadBalancer
+#   ports:
+#     - port: 80
+#       targetPort: 3000
+#       protocol: TCP
+#       name: http
+#   selector:
+#     app: amdwiki

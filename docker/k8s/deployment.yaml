@@ -1,0 +1,98 @@
+# amdWiki Kubernetes Deployment
+# Deploy with: kubectl apply -f deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: amdwiki
+  labels:
+    app: amdwiki
+    app.kubernetes.io/name: amdwiki
+    app.kubernetes.io/component: wiki
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: amdwiki
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: amdwiki
+        app.kubernetes.io/name: amdwiki
+    spec:
+      containers:
+        - name: amdwiki
+          image: amdwiki:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+              name: http
+              protocol: TCP
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: INSTANCE_DATA_FOLDER
+              value: "/app/data"
+            # Session secret from Kubernetes Secret
+            - name: SESSION_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: amdwiki-secrets
+                  key: session-secret
+                  optional: true
+          # Mount persistent volume for wiki data
+          volumeMounts:
+            - name: amdwiki-data
+              mountPath: /app/data
+            # Mount ConfigMap for custom configuration
+            - name: amdwiki-config
+              mountPath: /app/data/config/app-custom-config.json
+              subPath: app-custom-config.json
+              readOnly: true
+          # Resource limits
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
+          # Health checks
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          # Security context
+          securityContext:
+            readOnlyRootFilesystem: false
+            runAsNonRoot: false
+      # Volumes
+      volumes:
+        - name: amdwiki-data
+          persistentVolumeClaim:
+            claimName: amdwiki-data-pvc
+        - name: amdwiki-config
+          configMap:
+            name: amdwiki-config
+            optional: true
+      # Pod-level security
+      securityContext:
+        fsGroup: 1000
+      # Restart policy
+      restartPolicy: Always

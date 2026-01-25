@@ -1,0 +1,44 @@
+# amdWiki Persistent Volume Claim
+# Deploy with: kubectl apply -f pvc.yaml
+#
+# This PVC provides persistent storage for:
+# - Wiki pages (data/pages)
+# - User accounts (data/users)
+# - Attachments (data/attachments)
+# - Logs (data/logs)
+# - Search index (data/search-index)
+# - Backups (data/backups)
+# - Sessions (data/sessions)
+# - Instance config (data/config)
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: amdwiki-data-pvc
+  labels:
+    app: amdwiki
+    app.kubernetes.io/name: amdwiki
+spec:
+  accessModes:
+    # ReadWriteOnce for single-replica deployment
+    # Use ReadWriteMany (RWX) if scaling to multiple replicas
+    - ReadWriteOnce
+  resources:
+    requests:
+      # Adjust size based on expected wiki content
+      storage: 10Gi
+  # Uncomment to specify a storage class
+  # storageClassName: standard
+---
+# Optional: Separate PVC for backups (recommended for production)
+# apiVersion: v1
+# kind: PersistentVolumeClaim
+# metadata:
+#   name: amdwiki-backups-pvc
+#   labels:
+#     app: amdwiki
+# spec:
+#   accessModes:
+#     - ReadWriteOnce
+#   resources:
+#     requests:
+#       storage: 20Gi

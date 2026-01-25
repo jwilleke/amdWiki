@@ -1,0 +1,27 @@
+# amdWiki Configuration ConfigMap
+# Deploy with: kubectl apply -f configmap.yaml
+#
+# This ConfigMap provides custom configuration for amdWiki.
+# Values here override defaults from app-default-config.json.
+#
+# For complete list of properties, see:
+# https://github.com/jwilleke/amdWiki/blob/master/config/app-default-config.json
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: amdwiki-config
+  labels:
+    app: amdwiki
+    app.kubernetes.io/name: amdwiki
+data:
+  # Custom configuration file
+  # Modify these values for your deployment
+  app-custom-config.json: |
+    {
+      "amdwiki.server.host": "0.0.0.0",
+      "amdwiki.server.port": 3000,
+      "amdwiki.baseURL": "https://wiki.example.com",
+      "amdwiki.applicationName": "My Wiki",
+      "amdwiki.session.secure": true,
+      "amdwiki.session.sameSite": "lax"
+    }
