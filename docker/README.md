@@ -99,6 +99,7 @@ docker/
     ├── pages/             # Wiki content
     ├── users/             # User accounts
     ├── attachments/       # File attachments
+    ├── config/            # Instance configuration files
     ├── logs/              # Application logs
     ├── search-index/      # Search index
     ├── backups/           # Backup files
@@ -132,6 +133,7 @@ The `data/` directory contains:
 - `pages/` - Wiki content
 - `users/` - User accounts
 - `attachments/` - File attachments
+- `config/` - Instance configuration files
 - `logs/` - Application logs
 - `search-index/` - Search index
 - `backups/` - Backup files
@@ -142,10 +144,9 @@ The `data/` directory contains:
 
 The Docker setup is fully integrated with amdWiki's ConfigurationManager:
 
-- **NODE_ENV** determines which config file is loaded:
-  - `production` → `config/app-production-config.json`
-  - `development` → `config/app-development-config.json`
-  - `test` → `config/app-test-config.json`
+- **Configuration loading** (two-tier merge):
+  1. `config/app-default-config.json` - Base defaults (read-only, in image)
+  2. `data/config/app-custom-config.json` - Instance overrides (or INSTANCE_CONFIG_FILE)
 
 - **Directory paths** in ConfigurationManager (all under `./data/`):
   - `amdwiki.page.provider.filesystem.storagedir` → `./data/pages`

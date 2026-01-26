@@ -113,22 +113,11 @@ if [ ! -f docker/.env ]; then
     echo ""
 fi
 
-# 4. Optional: Create production config
-if [ ! -f config/app-production-config.json ]; then
-    echo "📋 Production configuration"
-    read -p "   Create production config from example? (y/N): " -n 1 -r
-    echo
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        if [ -f config/app-production-config.example.json ]; then
-            cp config/app-production-config.example.json config/app-production-config.json
-            echo "   ✅ Created config/app-production-config.json"
-            echo "   ⚠️  Remember to edit it with your settings (session secret, baseURL, etc.)"
-        else
-            echo "   ⚠️  Example file not found"
-        fi
-    fi
-    echo ""
-fi
+# 4. Note about configuration
+echo "📋 Configuration"
+echo "   Configuration is handled automatically by the installation wizard on first run."
+echo "   After setup, customize settings in data/config/app-custom-config.json"
+echo ""
 
 # 5. Summary and next steps
 echo "✅ Setup complete!"
@@ -142,10 +131,10 @@ echo "   - Docker status: ✅ Installed and running"
 echo ""
 echo "🚀 Next steps:"
 echo "   1. (Optional) Edit docker/.env to change port or other settings"
-echo "   2. (Optional) Edit config/app-production-config.json with your settings"
-echo "   3. Build image: cd docker && bash build-image.sh"
-echo "   4. Start amdWiki: cd docker && docker-compose up -d"
-echo "   5. View logs: cd docker && docker-compose logs -f"
-echo "   6. Access wiki: http://localhost:$(grep '^HOST_PORT=' docker/.env | cut -d= -f2)"
+echo "   2. Build image: cd docker && bash build-image.sh"
+echo "   3. Start amdWiki: cd docker && docker-compose up -d"
+echo "   4. Complete installation wizard at http://localhost:$(grep '^HOST_PORT=' docker/.env | cut -d= -f2)"
+echo "   5. (Optional) Customize data/config/app-custom-config.json after setup"
+echo "   6. View logs: cd docker && docker-compose logs -f"
 echo ""
 echo "📚 For more information, see docker/DOCKER.md"

@@ -62,9 +62,9 @@ echo "GID=$(id -g)" >> docker/.env
 # Optional: Change port if 3000 is in use
 # Edit docker/.env and set HOST_PORT=8080
 
-# 4. (Optional) Create production configuration
-cp config/app-production-config.example.json config/app-production-config.json
-# Edit config/app-production-config.json with your settings
+# 4. (Optional) Create instance configuration
+# Instance configs are created automatically during installation wizard
+# Or manually create in data/config/app-custom-config.json
 
 # 5. Start the application
 cd docker
@@ -93,17 +93,17 @@ open http://localhost:3000
 
 ## Configuration Overview
 
-amdWiki uses the **ConfigurationManager** which implements a hierarchical configuration system. Configuration files are merged in this order (later overrides earlier):
+amdWiki uses the **ConfigurationManager** which implements a two-tier configuration system:
 
-1. `config/app-default-config.json` - Base defaults (always loaded)
-2. `config/app-{NODE_ENV}-config.json` - Environment-specific (optional)
-3. `config/app-custom-config.json` - Custom overrides (optional)
+1. `config/app-default-config.json` - Base defaults (read-only, in Docker image)
+2. `INSTANCE_DATA_FOLDER/config/{INSTANCE_CONFIG_FILE}` - Instance overrides (default: `app-custom-config.json`)
 
-The `NODE_ENV` environment variable determines which environment config is loaded:
+Instance configuration files are stored in `data/config/` and are created automatically during the installation wizard, or can be mounted manually.
 
-- `production` → loads `app-production-config.json`
-- `development` → loads `app-development-config.json`
-- `test` → loads `app-test-config.json`
+Environment variables:
+
+- `INSTANCE_DATA_FOLDER` - Base path for instance data (default: `/app/data`)
+- `INSTANCE_CONFIG_FILE` - Config filename to load (default: `app-custom-config.json`)
 
 ## Building the Image
 
@@ -318,20 +318,23 @@ docker-compose exec amdwiki sh
 
 ## Configuration Management
 
-### Creating Production Configuration
+### Initial Setup (Installation Wizard)
 
-Step 1. Copy the example configuration:
+On first run, the installation wizard handles all setup automatically:
 
-```bash
-cp config/app-production-config.example.json config/app-production-config.json
-```
+- Creates admin user account
+- Copies example configs to `data/config/`
+- Creates required directories
+- Marks installation complete (`.install-complete` marker)
 
-Step 2. Edit `config/app-production-config.json`:
+Simply start the container and access `http://localhost:3000` to complete the wizard.
+
+### Customizing Configuration (After Setup)
+
+After initial setup, edit `data/config/app-custom-config.json` to customize settings:
 
 ```json
 {
-  "amdwiki.server.host": "0.0.0.0",
-  "amdwiki.server.port": 3000,
   "amdwiki.baseURL": "https://your-domain.com",
   "amdwiki.applicationName": "My Wiki",
   "amdwiki.session.secret": "your-secure-random-secret",
@@ -339,11 +342,10 @@ Step 2. Edit `config/app-production-config.json`:
 }
 ```
 
-Step 3. Rebuild and restart:
+Then restart the container:
 
 ```bash
-docker-compose down
-docker-compose up -d --build
+docker-compose restart
 ```
 
 ### Key Configuration Properties
@@ -607,7 +609,7 @@ server {
 }
 ```
 
-Update `config/app-production-config.json`:
+Update `data/config/app-custom-config.json`:
 
 ```json
 {
@@ -666,13 +668,13 @@ docker-compose exec amdwiki printenv NODE_ENV
 Step B Verify config file exists:
 
 ```bash
-docker-compose exec amdwiki ls -la config/
+docker-compose exec amdwiki ls -la data/config/
 ```
 
 Step C Check config file syntax:
 
 ```bash
-docker-compose exec amdwiki cat config/app-production-config.json | node -e "console.log(JSON.parse(require('fs').readFileSync(0)))"
+docker-compose exec amdwiki cat data/config/app-custom-config.json | node -e "console.log(JSON.parse(require('fs').readFileSync(0)))"
 ```
 
 ### Volume Permissions
