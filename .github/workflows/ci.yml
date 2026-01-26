@@ -245,9 +245,9 @@ jobs:
         run: |
           mkdir -p data/pages data/users data/logs data/sessions data/search-index data/attachments data/backups tests/e2e/.auth
 
-      - name: Create test user for E2E
+      - name: Setup E2E test environment
         run: |
-          # Create minimal user data for E2E tests
+          # Create admin user for E2E tests
           mkdir -p data/users
           cat > data/users/users.json << 'EOF'
           {
@@ -260,6 +260,17 @@ jobs:
             }
           }
           EOF
+
+          # Copy startup pages from required-pages to data/pages
+          cp -r required-pages/*.md data/pages/ 2>/dev/null || true
+
+          # Create .install-complete marker (skips install wizard)
+          touch data/.install-complete
+
+          echo "E2E environment setup complete:"
+          echo "  - Admin user created"
+          echo "  - $(ls data/pages/*.md 2>/dev/null | wc -l) pages copied"
+          echo "  - Installation marked complete"
 
       - name: Run E2E tests
         run: npm run test:e2e
