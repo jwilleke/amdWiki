@@ -27,23 +27,21 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 ## 2026-01-26-01
 
 - Agent: Claude Opus 4.5
-- Subject: Fix CI smoke test for UUID-based page filenames
-- Key Decision: Check pages by frontmatter title instead of filename
-- Current Issue: CI failing due to outdated smoke test expecting Main.md/LeftMenu.md
+- Subject: Fix CI E2E tests and smoke test
+- Key Decision: Trust WikiEngine defaults; seed script does file ops only
+- Current Issue: RESOLVED - CI now passing
 - Testing:
+  - CI: All workflows passing (smoke test, unit tests, E2E tests)
   - Local E2E tests: 25 passed, 3 skipped
-  - Local smoke test check: SUCCESS (finds Welcome and LeftMenu by title)
 - Work Done:
-  - Diagnosed CI failure: smoke test expected `required-pages/Main.md` but system uses UUID filenames
-  - Updated `.github/workflows/ci.yml` smoke test to search by frontmatter `title:` field
-  - Changed required page from "Main" to "Welcome" (actual page name in system)
-  - Fixed E2E test port mismatch: app.js now respects `PORT` env var for CI/Docker/PaaS compatibility
-  - Created `scripts/seed-e2e-test-data.js` - uses app's actual managers for test data setup
-    - Eliminates brittle hardcoded password hashes and user structure
-    - Uses WikiEngine/UserManager to create admin user with correct hashing
-    - Creates directories, copies pages, marks install complete
+  - Fixed smoke test: search by frontmatter `title:` field (UUID filenames)
+  - Fixed PORT env var: app.js respects `PORT` for CI/Docker/PaaS
+  - Created `scripts/seed-e2e-test-data.js` (simplified):
+    - File operations only: create dirs, copy pages, mark install complete
+    - WikiEngine creates default admin (admin/admin123) automatically
+    - No manual password hashing or user structure needed
   - Created GitHub issue #217 for `amdwiki.install.completed` cleanup
-- Commits: 148d3fc, 6a779f2, e2aff14, bd112fd, (pending)
+- Commits: 148d3fc, 6a779f2, e2aff14, bd112fd, 9d08a17, 33387f1
 - Files Modified:
   - .github/workflows/ci.yml
   - app.js
