@@ -125,7 +125,10 @@ checkAndCreatePidLock();
         return res.redirect('/install');
       }
     } catch (error) {
-      console.error('Error checking install status:', error);
+      // If we can't determine install status, redirect to /install as safe default
+      // Note: /install paths are skipped above (line 112), so no loop risk
+      console.error('Error checking install status, redirecting to /install:', error.message);
+      return res.redirect('/install');
     }
 
     next();
