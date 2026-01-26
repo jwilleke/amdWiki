@@ -38,11 +38,16 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Updated `.github/workflows/ci.yml` smoke test to search by frontmatter `title:` field
   - Changed required page from "Main" to "Welcome" (actual page name in system)
   - Fixed E2E test port mismatch: app.js now respects `PORT` env var for CI/Docker/PaaS compatibility
-  - Fixed E2E setup: create `.install-complete` marker and copy pages to skip install wizard
-- Commits: 148d3fc, 6a779f2, (pending)
+  - Created `scripts/seed-e2e-test-data.js` - uses app's actual managers for test data setup
+    - Eliminates brittle hardcoded password hashes and user structure
+    - Uses WikiEngine/UserManager to create admin user with correct hashing
+    - Creates directories, copies pages, marks install complete
+  - Created GitHub issue #217 for `amdwiki.install.completed` cleanup
+- Commits: 148d3fc, 6a779f2, e2aff14, bd112fd, (pending)
 - Files Modified:
   - .github/workflows/ci.yml
   - app.js
+  - scripts/seed-e2e-test-data.js (new)
 
 ---
 

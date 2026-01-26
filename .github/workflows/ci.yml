@@ -241,37 +241,12 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps chromium
 
-      - name: Create required directories
-        run: |
-          mkdir -p data/pages data/users data/logs data/sessions data/search-index data/attachments data/backups tests/e2e/.auth
-
       - name: Setup E2E test environment
         run: |
-          # Create admin user for E2E tests
-          # Password: admin123 (matches E2E_ADMIN_PASS default in auth.setup.js)
-          mkdir -p data/users
-          cat > data/users/users.json << 'EOF'
-          {
-            "admin": {
-              "username": "admin",
-              "password": "$2b$10$5KaPz5Y33axAWX/EX53J3umxvls0iCiTKrNh7g1EFFS6RQ80SAMAy",
-              "email": "admin@localhost",
-              "roles": ["admin"],
-              "active": true
-            }
-          }
-          EOF
-
-          # Copy startup pages from required-pages to data/pages
-          cp -r required-pages/*.md data/pages/ 2>/dev/null || true
-
-          # Create .install-complete marker (skips install wizard)
-          touch data/.install-complete
-
-          echo "E2E environment setup complete:"
-          echo "  - Admin user created"
-          echo "  - $(ls data/pages/*.md 2>/dev/null | wc -l) pages copied"
-          echo "  - Installation marked complete"
+          # Use the seed script to create test data using the app's actual managers
+          # This ensures compatibility with current user structure and password hashing
+          mkdir -p tests/e2e/.auth
+          node scripts/seed-e2e-test-data.js
 
       - name: Run E2E tests
         run: npm run test:e2e
