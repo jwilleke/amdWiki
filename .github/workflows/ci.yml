@@ -248,12 +248,13 @@ jobs:
       - name: Setup E2E test environment
         run: |
           # Create admin user for E2E tests
+          # Password: admin123 (matches E2E_ADMIN_PASS default in auth.setup.js)
           mkdir -p data/users
           cat > data/users/users.json << 'EOF'
           {
             "admin": {
               "username": "admin",
-              "password": "$2b$10$dU7c4Qc0VR8vxnqB9y5JKeGvKrJJdKYbLMJqxkTmLgYZz2D4tYcOi",
+              "password": "$2b$10$5KaPz5Y33axAWX/EX53J3umxvls0iCiTKrNh7g1EFFS6RQ80SAMAy",
               "email": "admin@localhost",
               "roles": ["admin"],
               "active": true
