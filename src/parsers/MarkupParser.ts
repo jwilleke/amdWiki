@@ -185,6 +185,8 @@ export interface ExtractedElement {
   className?: string;
   /** Style block content (for style blocks) */
   styleContent?: string;
+  /** Accumulated CSS classes from parent style blocks (for nested styles) */
+  accumulatedClasses?: string[];
 }
 
 /** Configuration manager interface for type safety */
@@ -1109,6 +1111,113 @@ class MarkupParser extends BaseManager {
   }
 
   /**
+   * Extract style blocks using state-stack parsing for proper nesting support
+   *
+   * Uses JSPWiki-style state tracking:
+   * - When %%class-name found: push to stack with accumulated classes from parents
+   * - When /% found: pop from stack, create element with all accumulated classes
+   *
+   * @param content - Content to extract style blocks from
+   * @param elements - Array to push extracted elements into
+   * @param uuid - UUID for placeholders
+   * @param startId - Starting ID for elements
+   * @returns Object with processed content and next available ID
+   */
+  private extractStyleBlocksWithStack(
+    content: string,
+    elements: ExtractedElement[],
+    uuid: string,
+    startId: number
+  ): { content: string; nextId: number } {
+    const lines = content.split('\n');
+    const result: string[] = [];
+    const stack: Array<{
+      className: string;
+      startLine: number;
+      contentLines: string[];
+      accumulatedClasses: string[];
+    }> = [];
+
+    let id = startId;
+    let i = 0;
+
+    while (i < lines.length) {
+      const line = lines[i];
+
+      // Check for style block opening: %%class-name (on its own line)
+      const openMatch = line.match(/^\s*%%([a-zA-Z0-9_-]+)\s*$/);
+      if (openMatch) {
+        const className = openMatch[1];
+        // Calculate accumulated classes from parent blocks
+        const parentClasses = stack.map(s => s.className);
+        stack.push({
+          className,
+          startLine: i,
+          contentLines: [],
+          accumulatedClasses: [...parentClasses, className]
+        });
+        i++;
+        continue;
+      }
+
+      // Check for style block closing: /% (on its own line)
+      if (/^\s*\/%\s*$/.test(line)) {
+        if (stack.length > 0) {
+          const block = stack.pop()!;
+          const blockContent = block.contentLines.join('\n');
+
+          // Create element with accumulated classes (all parent + this)
+          elements.push({
+            type: 'style',
+            syntax: `%%${block.className}\n${blockContent}\n/%`,
+            className: block.className,
+            styleContent: blockContent,
+            accumulatedClasses: block.accumulatedClasses,
+            id: id++,
+            position: block.startLine
+          });
+
+          // Create placeholder
+          const placeholder = `<span data-jspwiki-placeholder="${uuid}-${id - 1}"></span>`;
+
+          if (stack.length > 0) {
+            // Nested block: add placeholder to parent's content
+            stack[stack.length - 1].contentLines.push(placeholder);
+          } else {
+            // Top-level block: add to result
+            result.push(placeholder);
+          }
+        }
+        i++;
+        continue;
+      }
+
+      // Regular content line
+      if (stack.length > 0) {
+        // Inside a block: accumulate content
+        stack[stack.length - 1].contentLines.push(line);
+      } else {
+        // Outside any block: pass through
+        result.push(line);
+      }
+      i++;
+    }
+
+    // Handle unclosed blocks (error tolerance - output as-is)
+    while (stack.length > 0) {
+      const block = stack.pop()!;
+      // Prepend the opening tag and content to result
+      result.unshift(`%%${block.className}`);
+      result.push(...block.contentLines);
+    }
+
+    return {
+      content: result.join('\n'),
+      nextId: id
+    };
+  }
+
+  /**
    * Extract JSPWiki-specific syntax from content for DOM-based processing
    *
    * This method implements the pre-extraction strategy from Issue #114.
@@ -1167,20 +1276,10 @@ class MarkupParser extends BaseManager {
     // Step 0.5: Extract JSPWiki style blocks %%class-name ... /%
     // This MUST happen before other extractions because style blocks may contain
     // JSPWiki syntax (tables, links, etc.) that needs special processing
-    // Matches: %%table-striped\n|| Header ||\n| Data |\n/%
-    // Pattern: %%class-name (on its own line) ... /% (on its own line)
-    const styleBlockPattern = /^%%([a-zA-Z0-9_-]+)\s*$([\s\S]*?)^\/%(?: *)?$/gm;
-    sanitized = sanitized.replace(styleBlockPattern, (match: string, className: string, blockContent: string, offset: number) => {
-      jspwikiElements.push({
-        type: 'style',
-        syntax: match,
-        className: className.trim(),
-        styleContent: blockContent.trim(),
-        id: id++,
-        position: offset
-      });
-      return `<span data-jspwiki-placeholder="${uuid}-${id - 1}"></span>`;
-    });
+    // Uses state-stack parsing for proper nested block support
+    const styleResult = this.extractStyleBlocksWithStack(sanitized, jspwikiElements, uuid, id);
+    sanitized = styleResult.content;
+    id = styleResult.nextId;
 
     // Step 0.6: Convert JSPWiki line break syntax
     // In JSPWiki, \\ (two backslashes) forces a line break
@@ -1309,34 +1408,31 @@ class MarkupParser extends BaseManager {
    * // Returns: <table class="table table-striped">...</table>
    */
   createNodeFromStyleBlock(element: ExtractedElement, _context: ParseContext, wikiDocument: WikiDocument): unknown {
-    const className = element.className ?? '';
+    // Use accumulated classes (from nested styles) if available, otherwise single class
+    const classes = element.accumulatedClasses || [element.className ?? ''];
+    const classString = classes.filter(c => c).join(' ');
     const content = element.styleContent ?? '';
 
-    // Table-related classes that need special handling
-    const tableClasses = [
-      'sortable', 'table-sort', 'table-filter',
-      'zebra-table', 'table-striped', 'table-hover',
-      'table-fit', 'table-bordered', 'table-sm', 'table-responsive',
-      'table-condensed'
-    ];
-
-    const isTableClass = tableClasses.includes(className) || /^zebra-[0-9a-fA-F]{6}$/.test(className);
-
-    // Check if content contains JSPWiki table syntax
+    // Check if content has JSPWiki table syntax (|| header || or | cell |)
     const hasTableSyntax = /^\s*\|/m.test(content);
 
-    if (isTableClass && hasTableSyntax) {
-      // Parse JSPWiki table and create HTML table with style class
-      return this.createTableNode(content, className, element.id, wikiDocument);
+    if (hasTableSyntax) {
+      // Generate table with all accumulated classes
+      return this.createTableNode(content, classString, element.id, wikiDocument);
     }
 
-    // For non-table styles or content without table syntax, wrap in div
-    const divNode = wikiDocument.createElement('div', {
-      'class': className,
+    // JSPWiki Rule: Determine element type based on content
+    // Block content (newlines, lists) → <div>, inline → <span>
+    const isBlockContent = content.includes('\n') ||
+                           /^\s*[-*#]/m.test(content);  // List syntax
+
+    const tagName = isBlockContent ? 'div' : 'span';
+    const node = wikiDocument.createElement(tagName, {
+      'class': classString,
       'data-jspwiki-id': element.id.toString()
     });
-    divNode.textContent = content;
-    return divNode;
+    node.textContent = content;
+    return node;
   }
 
   /**

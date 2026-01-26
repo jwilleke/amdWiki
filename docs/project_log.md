@@ -24,6 +24,30 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-01-26-02
+
+- Agent: Claude Opus 4.5
+- Subject: Fix Wiki Styles and Tables (Issue #218)
+- Key Decision: Use JSPWiki state-stack parsing for nested %%.../%% blocks
+- Current Issue: #218 - Nested wiki style blocks not rendering correctly
+- Testing:
+  - npm test MarkupParser: 52 passed, 199 skipped
+  - TypeScript: No errors
+  - Manual verification: Nested styles correctly accumulate classes
+- Work Done:
+  - Added `accumulatedClasses` property to ExtractedElement interface
+  - Implemented `extractStyleBlocksWithStack()` method for proper nested block handling
+  - Replaced regex-based style extraction with state-stack parser
+  - Updated `createNodeFromStyleBlock()` to use JSPWiki element type rules:
+    - Table syntax → `<table>`
+    - Block content (newlines, lists) → `<div>`
+    - Inline content → `<span>`
+  - All accumulated classes now flow through to rendered elements
+- Files Modified:
+  - src/parsers/MarkupParser.ts
+
+---
+
 ## 2026-01-26-01
 
 - Agent: Claude Opus 4.5
