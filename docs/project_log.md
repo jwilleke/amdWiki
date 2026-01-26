@@ -44,11 +44,19 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
     - File extensions: `.js` → `.ts` for core files
     - Pages directory: `pages/` → `data/pages/`
     - ES target: ES2020 → ES2022
-- Commits: 656eed3, a342d13
+  - Updated docker documentation for InstallService workflow:
+    - Removed manual config copy instructions (wizard handles this)
+    - Updated config paths to `data/config/`
+    - Added `config/` to data directory listings
+    - Clarified two-tier config system
+- Commits: 656eed3, a342d13, ce63b5f
 - Files Modified:
   - public/css/style.css
   - required-pages/AE600E74-7DC5-4CF1-A702-B9D1A06E77C3.md
   - CONTRIBUTING.md
+  - docker/DOCKER.md
+  - docker/README.md
+  - docker/docker-setup.sh
 
 ---
 
