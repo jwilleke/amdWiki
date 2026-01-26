@@ -89,12 +89,12 @@
   
   /* GitHub-style tables - lighter stripes for better visibility */
   --table-stripe: #1a1a1a;
-  --table-hover: #21262d;
+  --table-hover: rgba(88, 166, 255, 0.15);
 
   /* Zebra row colors for dark mode - high contrast */
   --zebra-row-even: #1a1a1a;
   --zebra-row-odd: transparent;
-  --zebra-row-hover: #21262d;
+  --zebra-row-hover: rgba(88, 166, 255, 0.15);
 }
 
 /* Base theme application - GitHub-inspired */
@@ -1292,12 +1292,12 @@ pre, code {
         --code-bg: #404040;
         --code-border: #6c757d;
         --table-stripe: #252525;
-        --table-hover: #2d2d2d;
+        --table-hover: rgba(88, 166, 255, 0.15);
 
         /* Zebra row colors for system dark mode */
         --zebra-row-even: #252525;
         --zebra-row-odd: transparent;
-        --zebra-row-hover: #2d2d2d;
+        --zebra-row-hover: rgba(88, 166, 255, 0.15);
     }
 }
 
@@ -1389,6 +1389,19 @@ table[data-zebra] tbody tr.zebra-hover,
 /* Hover effect for tables */
 .table-hover tbody tr:hover {
   background-color: var(--table-hover);
+}
+
+/* Brighter text on hover in dark mode */
+[data-theme="dark"] .table-hover tbody tr:hover td,
+[data-theme="dark"] .table-hover tbody tr:hover th {
+  color: #f0f6fc;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .table-hover tbody tr:hover td,
+  :root:not([data-theme]) .table-hover tbody tr:hover th {
+    color: #f0f6fc;
+  }
 }
 
 /* Fit table to content (auto width) */
