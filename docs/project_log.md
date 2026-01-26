@@ -24,6 +24,25 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-01-26-01
+
+- Agent: Claude Opus 4.5
+- Subject: Fix CI smoke test for UUID-based page filenames
+- Key Decision: Check pages by frontmatter title instead of filename
+- Current Issue: CI failing due to outdated smoke test expecting Main.md/LeftMenu.md
+- Testing:
+  - Local E2E tests: 25 passed, 3 skipped
+  - Local smoke test check: SUCCESS (finds Welcome and LeftMenu by title)
+- Work Done:
+  - Diagnosed CI failure: smoke test expected `required-pages/Main.md` but system uses UUID filenames
+  - Updated `.github/workflows/ci.yml` smoke test to search by frontmatter `title:` field
+  - Changed required page from "Main" to "Welcome" (actual page name in system)
+- Commits: (pending)
+- Files Modified:
+  - .github/workflows/ci.yml
+
+---
+
 ## 2026-01-25-01
 
 - Agent: Claude Opus 4.5

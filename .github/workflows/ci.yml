@@ -121,12 +121,30 @@ jobs:
         run: |
           mkdir -p pages data logs sessions
 
-      - name: Check required files exist
+      - name: Check required pages exist
         run: |
-          echo "Verifying required pages..."
-          test -f "required-pages/Main.md" || (echo "Missing required-pages/Main.md" && exit 1)
-          test -f "required-pages/LeftMenu.md" || (echo "Missing required-pages/LeftMenu.md" && exit 1)
-          echo "Required files verified"
+          echo "Verifying required pages by frontmatter title..."
+          # Required pages use UUID filenames with titles in YAML frontmatter
+          check_page() {
+            local title="$1"
+            if grep -l "^title: ${title}$" required-pages/*.md > /dev/null 2>&1; then
+              echo "✓ Found page: ${title}"
+              return 0
+            else
+              echo "✗ Missing required page with title: ${title}"
+              return 1
+            fi
+          }
+
+          failed=0
+          check_page "Welcome" || failed=1
+          check_page "LeftMenu" || failed=1
+
+          if [ $failed -eq 1 ]; then
+            echo "Required pages verification failed"
+            exit 1
+          fi
+          echo "All required pages verified"
 
       - name: Check configuration
         run: |
