@@ -1422,16 +1422,25 @@ class MarkupParser extends BaseManager {
     }
 
     // JSPWiki Rule: Determine element type based on content
-    // Block content (newlines, lists) → <div>, inline → <span>
+    // Block content (newlines, lists, placeholders for nested blocks) → <div>, inline → <span>
+    const hasPlaceholder = content.includes('data-jspwiki-placeholder');
     const isBlockContent = content.includes('\n') ||
-                           /^\s*[-*#]/m.test(content);  // List syntax
+                           /^\s*[-*#]/m.test(content) ||  // List syntax
+                           hasPlaceholder;  // Nested block placeholder
 
     const tagName = isBlockContent ? 'div' : 'span';
     const node = wikiDocument.createElement(tagName, {
       'class': classString,
       'data-jspwiki-id': element.id.toString()
     });
-    node.textContent = content;
+
+    // Use innerHTML for content with placeholders (they need to be rendered as HTML)
+    // Use textContent for plain text (safer, escapes any accidental HTML)
+    if (hasPlaceholder) {
+      node.innerHTML = content;
+    } else {
+      node.textContent = content;
+    }
     return node;
   }
 
