@@ -37,9 +37,11 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Diagnosed CI failure: smoke test expected `required-pages/Main.md` but system uses UUID filenames
   - Updated `.github/workflows/ci.yml` smoke test to search by frontmatter `title:` field
   - Changed required page from "Main" to "Welcome" (actual page name in system)
-- Commits: (pending)
+  - Fixed E2E test port mismatch: app.js now respects `PORT` env var for CI/Docker/PaaS compatibility
+- Commits: 148d3fc, (pending)
 - Files Modified:
   - .github/workflows/ci.yml
+  - app.js
 
 ---
 

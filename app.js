@@ -205,7 +205,10 @@ checkAndCreatePidLock();
   wikiRoutes.registerRoutes(app); // This single file handles ALL routes, including auth.
 
   // 5. Start the Server
-  const port = configManager.getProperty('amdwiki.server.port', 3000);
+  // PORT env var takes precedence (for CI, Docker, PaaS platforms like Heroku/Railway)
+  const port = process.env.PORT
+    ? parseInt(process.env.PORT, 10)
+    : configManager.getProperty('amdwiki.server.port', 3000);
   const hostname = configManager.getProperty('amdwiki.server.host', 'localhost');
 
   // In Docker, the external port may differ from the internal port
