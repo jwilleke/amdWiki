@@ -77,7 +77,7 @@ docker-compose -f authelia-compose.yml restart
 From the docker directory:
 
 ```bash
-cd /Volumes/hd3/GitHub/amdWiki/docker
+cd docker
 
 # Build and start the container
 docker-compose -f docker-compose-traefik.yml up -d
@@ -180,7 +180,7 @@ If you want to bypass authentication for certain paths (e.g., public pages), mod
 
 ### Custom amdWiki Configuration
 
-Create `config/app-production-config.json` and mount it:
+Create `config/app-custom-config.json` with your overrides:
 
 ```json
 {
@@ -197,8 +197,13 @@ Uncomment the volume mount in `docker-compose-traefik.yml`:
 ```yaml
 volumes:
   # ...
-  - ../config/app-production-config.json:/app/config/app-production-config.json
+  - ../config/app-custom-config.json:/app/config/app-custom-config.json
 ```
+
+**Note:** ConfigurationManager loads configuration in two tiers:
+
+- `config/app-default-config.json` (built into image, read-only defaults)
+- `config/app-custom-config.json` (your instance overrides)
 
 ## Troubleshooting
 
@@ -318,23 +323,24 @@ Then update the amdWiki router middleware:
 
 ## Backup and Maintenance
 
-Important directories to backup:
+Important directories to backup (relative to project root, as mounted in docker-compose-traefik.yml):
 
 - `pages/` - Wiki content
-- `data/` - Attachments, users, versions
+- `data/` - Attachments, users, versions, search index
+- `logs/` - Application logs
 - `sessions/` - Active sessions (optional)
-- `config/` - Custom configuration
+- `config/` - Custom configuration (if mounted separately)
 
 Backup command:
 
 ```bash
-tar -czf amdwiki-backup-$(date +%Y%m%d).tar.gz pages/ data/ config/
+tar -czf amdwiki-backup-$(date +%Y%m%d).tar.gz pages/ data/ logs/ config/
 ```
 
 ## Support
 
 For issues:
 
-- amdWiki: <https://github.com/your-repo/amdwiki/issues>
+- amdWiki: <https://github.com/jwilleke/amdWiki/issues>
 - Traefik: <https://doc.traefik.io/traefik/>
 - Authelia: <https://www.authelia.com/>
