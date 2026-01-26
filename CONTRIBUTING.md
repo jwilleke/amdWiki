@@ -44,17 +44,17 @@ amdWiki uses `server.sh` for all server operations. See [SERVER.md](SERVER.md) f
 amdWiki uses a **hierarchical configuration system** with three layers that merge in priority order:
 
 1. `config/app-default-config.json` - Base defaults (required, ~1150 properties)
-2. `config/app-{environment}-config.json` - Environment-specific settings (optional)
+2. `data/config/app-{environment}-config.json` - Environment-specific settings (optional)
    - Environment determined by `NODE_ENV` (development, production, test)
    - Loaded via `./server.sh start [dev|prod]`
-3. `config/app-custom-config.json` - Local overrides (optional, persisted by admin UI)
+3. `data/config/app-custom-config.json` - Local overrides (optional, persisted by admin UI)
 
 ### Configuration Workflow for Contributors
 
 **During Development:**
 
-- Edit `config/app-custom-config.json` for local testing
-- Never commit `app-custom-config.json` (in .gitignore)
+- Edit `data/config/app-custom-config.json` for local testing
+- Never commit instance configs in `data/config/` (in .gitignore)
 - Test with both dev and prod configs
 
 **Adding New Configuration Properties:**
@@ -74,7 +74,7 @@ amdWiki uses a **hierarchical configuration system** with three layers that merg
 **Via Admin UI:**
 
 - Navigate to `/admin/configuration`
-- Changes automatically saved to `app-custom-config.json`
+- Changes automatically saved to `data/config/app-custom-config.json`
 - Restart required: `/admin/restart` or `./server.sh restart`
 
 ### Configuration Property Naming
@@ -88,19 +88,19 @@ Follow JSPWiki-style naming conventions:
 "jspwiki.parser.useExtractionPipeline": true
 ```
 
-**Note:** Properties starting with `_` are treated as comments and ignored during loading (see ConfigurationManager.js:105-109, 118-121).
+**Note:** Properties starting with `_` are treated as comments and ignored during loading (see ConfigurationManager.ts).
 
 ## 🏗️ Architecture Overview
 
 amdWiki follows a **manager-based architecture** inspired by JSPWiki:
 
-- **WikiEngine** - Central orchestrator (`src/WikiEngine.js`)
+- **WikiEngine** - Central orchestrator (`src/WikiEngine.ts`)
 - **Managers** - Modular functionality (`src/managers/`)
-- **MarkupParser** - WikiDocument DOM extraction pipeline (`src/parsers/MarkupParser.js`)
-- **WikiDocument** - DOM-based JSPWiki element representation (`src/parsers/dom/WikiDocument.js`)
+- **MarkupParser** - WikiDocument DOM extraction pipeline (`src/parsers/MarkupParser.ts`)
+- **WikiDocument** - DOM-based JSPWiki element representation (`src/parsers/dom/WikiDocument.ts`)
 - **DOM Handlers** - Variable, plugin, and link processing (`src/parsers/dom/handlers/`)
 - **Plugins** - Extensible features (`plugins/`)
-- **File-based storage** - Pages as Markdown files (`pages/`)
+- **File-based storage** - Pages as Markdown files (`data/pages/`)
 - **Additional technical guides in [docs/](docs/) folder**, such as testing and manager development.
 
 📖 **Read [ARCHITECTURE-PAGE-CLASSIFICATION.md](ARCHITECTURE-PAGE-CLASSIFICATION.md)** for detailed architecture patterns.
@@ -208,7 +208,7 @@ await userManager.getSession(sessionId)
 
 ### WikiContext - Single Source of Truth
 
-**WikiContext** (`src/context/WikiContext.js`) is the central context object that holds all request/user context in one place. Inspired by JSPWiki's WikiContext, it provides access to the engine, page, user, and other contextual information.
+**WikiContext** (`src/context/WikiContext.ts`) is the central context object that holds all request/user context in one place. Inspired by JSPWiki's WikiContext, it provides access to the engine, page, user, and other contextual information.
 
 **Creating WikiContext in Route Handlers:**
 
@@ -387,7 +387,7 @@ The project uses TypeScript with the following configuration:
 
 - **Strict mode enabled** (`strict: true`)
 - **CommonJS output** for Node.js compatibility
-- **ES2020 target** for modern JavaScript features
+- **ES2022 target** for modern JavaScript features
 - **ts-jest** for testing TypeScript files
 
 ### Writing TypeScript Code
@@ -975,22 +975,22 @@ All tests follow the **Jest `__tests__` pattern** co-located with source code:
 ```text
 src/
 ├── managers/
-│   ├── PageManager.js
+│   ├── PageManager.ts
 │   └── __tests__/
 │       ├── PageManager.test.js
 │       └── PageManager-Storage.test.js
 ├── parsers/
-│   ├── MarkupParser.js
+│   ├── MarkupParser.ts
 │   └── __tests__/
 │       ├── MarkupParser.test.js
 │       └── MarkupParser-Integration.test.js
 ├── routes/
-│   ├── WikiRoutes.js
+│   ├── WikiRoutes.ts
 │   └── __tests__/
 │       ├── routes.test.js
 │       └── maintenance-mode.test.js
 └── utils/
-    ├── SchemaGenerator.js
+    ├── SchemaGenerator.ts
     └── __tests__/
         └── SchemaGenerator.test.js
 ```
