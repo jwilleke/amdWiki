@@ -27,13 +27,14 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 ## 2026-01-27-02
 
 - Agent: Claude Opus 4.5
-- Subject: Fix bug issues #220, #221, #217, #222
+- Subject: Fix bug issues #220, #221, #217, #222 + logger export fixes
 - Key Decision: Use hybrid logger approach; implement searchIn field filtering with Lunr queries
 - Current Issues: #220, #221, #217, #222 - ALL CLOSED
 - Testing:
-  - npm test: 60 suites passed (FileSystemProvider: 32 tests, PageManager-Storage: verified)
+  - npm test: 60 suites passed, 1418 tests passed (including 4 new searchIn tests)
   - TypeScript: No errors
   - Build: Successful
+  - Server: Restarted and running on port 3000
 - Work Done:
   - **Issue #220 - Page rename 404 bug**: Fixed slugIndex not being updated in FileSystemProvider.savePage() and deletePage()
   - **Issue #221 - Log files missing**:
@@ -50,7 +51,11 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
     - Implemented searchIn field filtering in LunrSearchProvider using Lunr field-specific queries
     - Added searchIn and maxResults to SearchCriteria interface
     - Added 4 new tests for searchIn functionality
-- Commits: dbbbb4f (#220), 1f4c948 (#221), c7037d1 (#217), a844fba (#222)
+  - **Logger export fixes** (post-test discovery):
+    - Removed manual `module.exports` overwriting TypeScript named exports
+    - Added `reconfigureLogger` to Jest mock in jest.setup.js
+    - Fixed app.js to use `.default` for CommonJS import of ESM default export
+- Commits: dbbbb4f (#220), 1f4c948 (#221), c7037d1 (#217), a844fba (#222), c308bdd, 38e975e
 - Files Modified:
   - src/providers/FileSystemProvider.ts
   - src/providers/BaseSearchProvider.ts
@@ -69,6 +74,8 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - docs/INSTALLATION/INSTALLATION-TESTING-RESULTS.md
   - docs/INSTALLATION/INSTALL-TESTING.md
   - docs/TODO.md
+  - jest.setup.js
+  - app.js
 
 ---
 
