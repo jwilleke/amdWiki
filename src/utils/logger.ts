@@ -119,6 +119,3 @@ const loggerInstance: Logger = createLoggerWithConfig();
 
 // Export the logger instance as default
 export default loggerInstance;
-
-// CommonJS compatibility
-module.exports = loggerInstance;

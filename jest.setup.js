@@ -21,6 +21,10 @@ jest.mock('./src/utils/logger', () => {
       debug: jest.fn()
     }))
   };
+  // Export both default and named exports
+  mockLogger.default = mockLogger;
+  mockLogger.reconfigureLogger = jest.fn(() => mockLogger);
+  mockLogger.createLoggerWithConfig = jest.fn(() => mockLogger);
   return mockLogger;
 });
 
