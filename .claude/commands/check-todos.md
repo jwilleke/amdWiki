@@ -1,8 +1,8 @@
 # Check TODOs Command
 
-Review current TODOs and priorities in the AGENTS.md file.
+Review current docs/TODO.md and priorities AGENTS.md file.
 
-This command helps you focus on high-priority work by showing:
+This command helps you focus on high-priority and current work by showing:
 
 - High priority tasks
 - Medium priority tasks
