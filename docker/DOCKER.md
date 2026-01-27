@@ -5,6 +5,7 @@ This guide explains how to run amdWiki in Docker with proper ConfigurationManage
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [Headless Installation](#headless-installation-automated-deployments)
 - [Configuration Overview](#configuration-overview)
 - [Building the Image](#building-the-image)
 - [Running with Docker](#running-with-docker)
@@ -90,6 +91,83 @@ docker run -d \
 # Access the wiki
 open http://localhost:3000
 ```
+
+## Headless Installation (Automated Deployments)
+
+For Docker/Kubernetes deployments that need to skip the interactive installation wizard, use headless installation mode.
+
+### Enabling Headless Mode
+
+Set `HEADLESS_INSTALL=true` environment variable:
+
+```bash
+# Docker Compose
+HEADLESS_INSTALL=true docker-compose up -d
+
+# Or in .env file
+echo "HEADLESS_INSTALL=true" >> docker/.env
+docker-compose up -d
+
+# Docker CLI
+docker run -d \
+  --name amdwiki \
+  -p 3000:3000 \
+  -e HEADLESS_INSTALL=true \
+  -v $(pwd)/data:/app/data \
+  amdwiki
+```
+
+### What Headless Install Does
+
+When `HEADLESS_INSTALL=true` is set:
+
+- Copies required startup pages to `data/pages/` automatically
+- Copies example configs to `data/config/` automatically
+- Creates `.install-complete` marker file
+- Uses default admin credentials (`admin` / `admin123`)
+- App is immediately ready for use - no wizard required
+
+### Security Note
+
+The default admin password (`admin123`) should be changed immediately after first login. The wiki will display a security warning on the console until you change it.
+
+### Pre-configuring Settings (Optional)
+
+You can pre-configure settings via environment variables or a mounted config file:
+
+```bash
+# Using environment variables
+docker run -d \
+  --name amdwiki \
+  -p 3000:3000 \
+  -e HEADLESS_INSTALL=true \
+  -e AMDWIKI_APP_NAME="My Company Wiki" \
+  -e AMDWIKI_BASE_URL="https://wiki.example.com" \
+  -e AMDWIKI_SESSION_SECRET="your-secure-secret-here" \
+  -v $(pwd)/data:/app/data \
+  amdwiki
+
+# Or mount a pre-configured config file
+docker run -d \
+  --name amdwiki \
+  -p 3000:3000 \
+  -e HEADLESS_INSTALL=true \
+  -v $(pwd)/data:/app/data \
+  -v $(pwd)/my-config.json:/app/data/config/app-custom-config.json \
+  amdwiki
+```
+
+### Environment Variables for Headless Mode
+
+| Variable | Description | Default |
+| --- | --- | --- |
+| `HEADLESS_INSTALL` | Enable headless mode | `false` |
+| `AMDWIKI_APP_NAME` | Application display name | `amdWiki` |
+| `AMDWIKI_BASE_URL` | Base URL for the wiki | (empty) |
+| `AMDWIKI_SESSION_SECRET` | Session encryption key | (from config) |
+| `AMDWIKI_HOST` | Server bind address | `localhost` |
+| `AMDWIKI_PORT` | Server port | `3000` |
+| `INSTANCE_DATA_FOLDER` | Data directory path | `./data` |
 
 ## Configuration Overview
 

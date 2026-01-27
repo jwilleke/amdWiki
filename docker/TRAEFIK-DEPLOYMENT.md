@@ -30,10 +30,10 @@ Copy the example environment file:
 
 ```bash
 cd docker
-cp .env.traefik .env
+cp .env.example .env
 ```
 
-Edit `.env` and set your domain:
+Edit `.env` and set your domain (see "Traefik Reverse Proxy" section):
 
 ```bash
 # Example: wiki.deby.nerdsbythehour.com

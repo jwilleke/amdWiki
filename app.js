@@ -107,6 +107,9 @@ checkAndCreatePidLock();
   const InstallService = require('./dist/src/services/InstallService');
   const installService = new InstallService(engine);
 
+  // Check for headless installation mode (Docker/K8s automated deployments)
+  const headlessInstall = process.env.HEADLESS_INSTALL === 'true';
+
   app.use(async (req, res, next) => {
     // Skip check for install routes, static assets, and favicon
     if (req.path.startsWith('/install') ||
@@ -122,6 +125,24 @@ checkAndCreatePidLock();
     try {
       const installRequired = await installService.isInstallRequired();
       if (installRequired) {
+        // Handle headless installation for automated deployments
+        if (headlessInstall) {
+          console.log('🤖 HEADLESS_INSTALL=true detected, performing automated installation...');
+          const result = await installService.processHeadlessInstallation();
+
+          if (result.success) {
+            console.log('✅ Headless installation completed successfully');
+            console.log(`   - Configs copied: ${result.steps.configsCopied}`);
+            console.log(`   - Pages copied: ${result.steps.pagesCopied}`);
+            // Continue to normal request handling
+            return next();
+          } else {
+            console.error('❌ Headless installation failed:', result.error);
+            return res.status(500).send(`Headless installation failed: ${result.error}`);
+          }
+        }
+
+        // Standard interactive wizard redirect
         return res.redirect('/install');
       }
     } catch (error) {

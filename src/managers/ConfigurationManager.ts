@@ -167,13 +167,16 @@ class ConfigurationManager extends BaseManager {
    * const appName = configManager.getProperty('amdwiki.applicationName', 'MyWiki');
    */
   getProperty(key: string, defaultValue: unknown = null): unknown {
-    // Check environment variables for Docker/Traefik deployments
+    // Check environment variables for Docker/Traefik/K8s deployments
     // Allows dynamic configuration without editing config files
+    // Used especially for headless installation mode (HEADLESS_INSTALL=true)
     const envOverrides: { [key: string]: string | undefined } = {
       'amdwiki.baseURL': process.env.AMDWIKI_BASE_URL,
       'amdwiki.hostname': process.env.AMDWIKI_HOSTNAME,
       'amdwiki.server.host': process.env.AMDWIKI_HOST,
-      'amdwiki.server.port': process.env.AMDWIKI_PORT
+      'amdwiki.server.port': process.env.AMDWIKI_PORT,
+      'amdwiki.session.secret': process.env.AMDWIKI_SESSION_SECRET,
+      'amdwiki.applicationName': process.env.AMDWIKI_APP_NAME
     };
 
     if (envOverrides[key]) {

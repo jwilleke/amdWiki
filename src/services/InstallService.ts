@@ -108,6 +108,20 @@ interface ResetResult {
 }
 
 /**
+ * Headless installation result
+ */
+interface HeadlessInstallResult {
+  success: boolean;
+  message?: string;
+  error?: string;
+  steps: {
+    configsCopied: number;
+    pagesCopied: number;
+    markerCreated: boolean;
+  };
+}
+
+/**
  * InstallService - Handles first-run installation and configuration
  *
  * Manages the initial setup process including:
@@ -533,6 +547,96 @@ class InstallService {
         error: `Reset failed: ${err.message}`
       };
     }
+  }
+
+  /**
+   * Process headless installation for Docker/K8s automated deployments
+   *
+   * When HEADLESS_INSTALL=true environment variable is set:
+   * - Copies example configs to data/config/ if not present
+   * - Copies required pages to data/pages/ if empty
+   * - Creates .install-complete marker
+   * - Skips wizard entirely
+   *
+   * Note: WikiEngine creates default admin (admin/admin123) automatically.
+   * User is prompted to change password on first login (existing behavior).
+   *
+   * @async
+   * @returns Result with success status and details of steps performed
+   */
+  async processHeadlessInstallation(): Promise<HeadlessInstallResult> {
+    const steps = {
+      configsCopied: 0,
+      pagesCopied: 0,
+      markerCreated: false
+    };
+
+    try {
+      logger.info('[InstallService] Starting headless installation...');
+
+      // Step 1: Copy example configs to instance config directory
+      steps.configsCopied = await this.copyExampleConfigs();
+      logger.info(`[InstallService] Copied ${steps.configsCopied} example config(s)`);
+
+      // Step 2: Copy required pages to pages directory
+      const pagesResult = await this.createPagesFolder();
+      if (pagesResult.success) {
+        steps.pagesCopied = pagesResult.copiedCount;
+        logger.info(`[InstallService] Copied ${steps.pagesCopied} required page(s)`);
+      } else {
+        // Log warning but don't fail - pages may already exist
+        logger.warn(`[InstallService] Pages copy note: ${pagesResult.error || pagesResult.message}`);
+      }
+
+      // Step 3: Mark installation as complete
+      await this.markHeadlessInstallationComplete();
+      steps.markerCreated = true;
+      logger.info('[InstallService] Created .install-complete marker');
+
+      logger.info('[InstallService] Headless installation completed successfully');
+
+      return {
+        success: true,
+        message: 'Headless installation completed successfully',
+        steps
+      };
+    } catch (error) {
+      const err = error as Error;
+      logger.error('[InstallService] Headless installation failed:', {
+        error: err.message,
+        stack: err.stack,
+        steps
+      });
+
+      return {
+        success: false,
+        error: err.message,
+        steps
+      };
+    }
+  }
+
+  /**
+   * Mark headless installation as complete
+   * Creates .install-complete file in INSTANCE_DATA_FOLDER with headless flag
+   *
+   * @async
+   */
+  async markHeadlessInstallationComplete(): Promise<void> {
+    const installCompleteFile = this.getInstallCompleteFilePath();
+
+    // Ensure directory exists
+    await fs.ensureDir(path.dirname(installCompleteFile));
+
+    // Create marker file with timestamp and headless flag
+    const markerContent = {
+      completedAt: new Date().toISOString(),
+      version: '1.0.0',
+      headless: true
+    };
+    await fs.writeJson(installCompleteFile, markerContent, { spaces: 2 });
+
+    logger.info(`[InstallService] Headless installation marked complete: ${installCompleteFile}`);
   }
 
   /**

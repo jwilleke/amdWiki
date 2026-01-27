@@ -70,6 +70,48 @@ Complete the form and the system will:
 
 See [docs/INSTALLATION/INSTALLATION-SYSTEM.md](./docs/INSTALLATION/INSTALLATION-SYSTEM.md) for detailed installation documentation.
 
+## Automated Installation (Headless Mode)
+
+For CI/CD, Docker, or Kubernetes deployments that need to skip the interactive wizard:
+
+### Enable Headless Mode
+
+Set the `HEADLESS_INSTALL=true` environment variable:
+
+```bash
+# Docker
+HEADLESS_INSTALL=true docker-compose up -d
+
+# Node.js direct
+HEADLESS_INSTALL=true npm start
+```
+
+### What Headless Install Does
+
+When `HEADLESS_INSTALL=true`:
+
+- Copies required startup pages to `data/pages/`
+- Copies example configs to `data/config/`
+- Creates `.install-complete` marker
+- Uses default admin credentials (`admin` / `admin123`)
+- App is immediately ready - no wizard required
+
+### Security Note
+
+Change the default admin password (`admin123`) immediately after first login. The wiki displays a security warning until you do.
+
+### Pre-configuring via Environment Variables
+
+```bash
+HEADLESS_INSTALL=true \
+AMDWIKI_APP_NAME="My Wiki" \
+AMDWIKI_BASE_URL="https://wiki.example.com" \
+AMDWIKI_SESSION_SECRET="your-secure-secret" \
+npm start
+```
+
+See [docker/DOCKER.md](./docker/DOCKER.md) for complete Docker headless deployment guide.
+
 ## Configuration
 
 ### Environment Variables
