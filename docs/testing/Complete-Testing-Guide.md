@@ -590,6 +590,13 @@ setup('authenticate', async ({ page }) => {
 });
 ```
 
+### Testing
+
+- Write tests for all public functions
+- Use test naming convention: `describe()` for groups, `it()` for specs
+- Aim for >80% code coverage
+- Test behavior, not implementation details
+
 #### Testing Protected Routes
 
 ```javascript

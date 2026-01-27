@@ -51,18 +51,14 @@ See YAML frontmatter above for current project state.
 - [CONTRIBUTING.md](./CONTRIBUTING.md) - **Single Source of Truth:** Development workflow, branching strategy, pull request process, code review
 - [DOCUMENTATION.md](./DOCUMENTATION.md) - **Single Source of Truth:** Documentation navigation, DRY principles applied to docs, finding the right doc
 - [project_log.md](docs/project_log.md) - **Single Source of Truth:** Historical record of work done, next steps, session tracking
+- [TODOs](docs/TODO.md) - WHat we are working on NOW.
 - Use PROJECT_REPOSITORY as defined in [.env](.env)
 
 ### ⚠️ CRITICAL Preventing Regressions**
 
 ⚠️ **Changes breaking previously working services is a known issue.**
 
-See [docs/testing/PREVENTING-REGRESSIONS.md](/docs/testing/PREVENTING-REGRESSIONS.md) for comprehensive prevention strategy including:
-
-- Automated testing requirements
-- Pre-commit validation checklist
-- Integration testing approach
-- Manager contract enforcement
+See [docs/testing/PREVENTING-REGRESSIONS.md](/docs/testing/PREVENTING-REGRESSIONS.md) for comprehensive prevention strategy.
 
 ### Auxiliary Documentation
 
@@ -97,8 +93,8 @@ Key Decisions may be done initially or decided the project progresses. Include "
   - Use `Promise.resolve()` for sync methods with Promise signatures
   - Create local interfaces for untyped managers
 
-  Rationale: After 100+ hours of incremental migration with repeated partial fixes,
-  this approach ensures each file is fully migrated before moving to the next.
+## Project Specifics
+
 - All configuration MUST use ConfigurationManager - no hardcoded fallbacks (DRY)
 - Use Playwright for E2E testing with Chromium browser, integrate into CI/CD
 - Schema.org-compliant front matter, PascalCase naming, TypeDoc for automation
@@ -169,7 +165,7 @@ See [project_log.md](./project_log.md) for AI agent session tracking. Formated i
 
 ### Technical Constraints
 
-- Node.js v18+ required
+- Node.js v20+ required
 - TypeScript strict mode must remain enabled
 - All code must pass linting and tests before commit
 - No unencrypted secrets in Git (per GLOBAL-CODE-PREFERENCES.md)

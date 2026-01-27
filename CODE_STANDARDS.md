@@ -2,9 +2,24 @@
 
 This document outlines the coding standards and best practices for the amdWiki project.
 
-## Overview
+## GLOBAL CODE PREFERENCES
 
-We follow the DRY (Don't Repeat Yourself) principle - every piece of knowledge should have a single, unambiguous, authoritative representation. If you see repeated logic more than twice, refactor it into reusable components.
+In all interactions and commit messages
+
+- READ AGENTS.MD file and update as required.
+- "One File Done Right" make all appropriate chages to each file.
+- Be concise and sacrifice grammar for consistion
+- DRY (Don't Repeat Yourself) principle in Code and Documentation
+  - in Documentation Refer and link to other Documents.
+- Iterate Progressively. Start with Core features only: Gather feedback.
+- Please think first and provide options - Presenting a list of unresolved questions to answer, if any. Questions, Comments and Suggestions are always encouraged!
+- Your primary method for interacting with GitHub should be the CLI.
+- On larger objectives present phased implementation plan
+- NEVER put unencrypted "Secrets" in in Git or other CMS systems.
+- Always create docs/project_log.md file as a log of work done on the project in format specified in document within "## Format"
+- In Markdown documents:
+  - **bold** in list beginings.
+  - do not use "1. Headings" ok to use "## Step 1 ..."
 
 ## Language & Environment
 
@@ -16,7 +31,6 @@ We follow the DRY (Don't Repeat Yourself) principle - every piece of knowledge s
 - Always Fix ESLint Errors
 - Enable strict mode
 - Fix ALL errors in each file before moving on
-
 - Proper types, not `any`
 
 ## TypeScript Configuration
@@ -33,7 +47,7 @@ We use strict TypeScript settings (`strict: true`) to catch potential bugs at co
   - For required-but-unused callback/interface params, underscore prefix is acceptable (TypeScript `noUnusedParameters` requirement)
   - Use skip pattern `[, value]` instead of `[_key, value]` in destructuring
   - Use `.values()` instead of `.entries()` when only values are needed
-- For tests specifically:
+- For tests specifically: (docs/testing/Complete-Testing-Guide.md)
   - New tests - write in TypeScript
   - Any changes are substantial (like a rewrite), convert to TypeScript
 

@@ -23,7 +23,7 @@ amdWiki uses a **central WikiEngine** that orchestrates 23+ specialized managers
 
 ### Manager-Based Architecture
 
-- 23 specialized managers extending BaseManager
+- Specialized managers extending BaseManager
 - Central WikiEngine orchestrator
 - Manager access via `engine.getManager('ManagerName')`
 - Uniform initialization and lifecycle management
@@ -100,6 +100,14 @@ Three-phase extraction for parsing JSPWiki syntax:
 
 ## Project Structure
 
+- All configuration MUST use ConfigurationManager - no hardcoded fallbacks (DRY)
+- Use Playwright for E2E testing with Chromium browser, integrate into CI/CD
+- Schema.org-compliant front matter, PascalCase naming, TypeDoc for automation
+- Implement lint-staged to only lint staged files (not all files), allowing incremental improvement
+- Move from ES2020 to ES2022
+- ecosystem.config.js accepted as infrastructure-level (PM2 runs before app)
+- Consolidate all instance-specific data into `./data/` directory
+
 ```
 amdWiki/
 ├── src/
@@ -111,12 +119,13 @@ amdWiki/
 │   ├── parsers/            # Content parsing
 │   ├── context/            # WikiContext implementation
 │   └── utils/              # Utility functions
-├── config/                 # Configuration files
+├── config/                 # Repo only Configuration files
 ├── data/                   # All instance-specific data (v1.5.0+)
 │   ├── pages/              # User-created wiki pages
 │   ├── users/              # User accounts and profiles
 │   ├── attachments/        # File attachments
 │   ├── logs/               # Application logs
+│   ├── config/             # Instance only Configuration files
 │   ├── search-index/       # Search index files
 │   ├── backups/            # Backup files
 │   ├── sessions/           # Session files
