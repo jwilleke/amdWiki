@@ -16,9 +16,11 @@ slug: amdwiki-todo
 
 ## ✅ COMPLETED - Issue #219 Headless Installation
 
-GH Issue [#219](https://github.com/jwilleke/amdWiki/issues/219) - IMPLEMENTED AND VERIFIED
+GH Issue [#219](https://github.com/jwilleke/amdWiki/issues/219) - **FULLY VERIFIED**
 
-Docker verification completed 2026-01-27:
+All verification tests completed 2026-01-27:
+
+### Docker Tests
 
 - [x] Fresh Docker container with `HEADLESS_INSTALL=true` - works
 - [x] No redirect to `/install` - verified (redirects to `/wiki/Welcome`)
@@ -28,9 +30,20 @@ Docker verification completed 2026-01-27:
 - [x] `.install-complete` marker created with `headless: true` flag
 - [x] 68 pages copied to `data/pages/`
 - [x] Config copied to `data/config/app-custom-config.json`
-- [ ] Test with pre-mounted config file - not tested yet
-- [ ] Test K8s deployment with ConfigMap - not tested yet
+- [x] Env var overrides (`AMDWIKI_APP_NAME`) - works
+- [x] Idempotency (restart doesn't re-run install) - works
+- [x] Pre-mounted config file - works (respects existing config)
+
+### Kubernetes Tests
+
+- [x] ConfigMap with `HEADLESS_INSTALL=true` - works
+- [x] Custom app name from ConfigMap - works ("K8s Headless Test Wiki")
+- [x] Pages and configs copied - works (68 pages, 1 config)
+
+Test image: `ghcr.io/jwilleke/amdwiki:headless-test`
 
 ## 🎯 NEXT STEPS - High Priority
 
-Review and close issue #219, or test remaining K8s scenarios if needed.
+- Close issue #219
+- Merge headless install feature to main branch
+- Update `ghcr.io/jwilleke/amdwiki:latest` with headless feature

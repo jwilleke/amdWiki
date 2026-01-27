@@ -29,11 +29,13 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Agent: Claude Opus 4.5
 - Subject: Add headless installation mode for Docker/K8s deployments
 - Key Decision: Hook headless check in app.js middleware; use existing default admin
-- Current Issue: #219 - IMPLEMENTED
+- Current Issue: #219 - FULLY VERIFIED
 - Testing:
   - npm test: 60 suites passed, 1414 tests passed
   - TypeScript: No errors
   - Build: Successful
+  - Docker tests: All passed (fresh container, env vars, idempotency, pre-mounted config)
+  - K8s tests: All passed (ConfigMap, headless install on 192.168.68.71 cluster)
 - Work Done:
   - Added `processHeadlessInstallation()` method to InstallService
   - Added `HeadlessInstallResult` interface for typed return values
@@ -47,7 +49,11 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Added "Headless Installation" section to docker/DOCKER.md
   - Added "Headless Installation" section to docker/k8s/README.md
   - Added "Automated Installation" section to SETUP.md
-- Commits: fc442dd
+  - Full verification testing:
+    - Docker: env var overrides, idempotency, pre-mounted config
+    - K8s: deployed to amdwiki-test namespace with ConfigMap
+  - Published test image: `ghcr.io/jwilleke/amdwiki:headless-test`
+- Commits: fc442dd, 6cdf1de, 29724e9
 - Files Modified:
   - src/services/InstallService.ts
   - app.js
@@ -57,6 +63,8 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - docker/DOCKER.md
   - docker/k8s/README.md
   - SETUP.md
+  - docs/TODO.md
+  - docs/project_log.md
 
 ---
 
