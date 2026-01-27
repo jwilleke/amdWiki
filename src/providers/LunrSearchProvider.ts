@@ -304,19 +304,46 @@ class LunrSearchProvider extends BaseSearchProvider {
     const {
       query = '',
       categories = [],
-      userKeywords = []
+      userKeywords = [],
+      searchIn = ['all']
     } = options;
     const maxResults: number = (options.maxResults as number) ?? this.config?.maxResults ?? 50;
 
     // Normalize arrays
     const categoryList = Array.isArray(categories) ? categories : (categories ? [categories] : []);
     const keywordList = Array.isArray(userKeywords) ? userKeywords : (userKeywords ? [userKeywords] : []);
+    const searchInList = Array.isArray(searchIn) ? searchIn : (searchIn ? [searchIn] : ['all']);
 
     let results: SearchResult[] = [];
 
     if (query.trim()) {
+      // Build field-specific query based on searchIn option
+      let searchQuery = query;
+
+      // If not searching all fields, construct field-specific query
+      if (!searchInList.includes('all') && searchInList.length > 0) {
+        // Map searchIn values to Lunr field names
+        const fieldMap: Record<string, string> = {
+          'title': 'title',
+          'content': 'content',
+          'category': 'systemCategory',
+          'keywords': 'userKeywords'
+        };
+
+        // Build field-specific queries
+        const fieldQueries = searchInList
+          .filter(field => fieldMap[field])
+          .map(field => `${fieldMap[field]}:${query}`);
+
+        if (fieldQueries.length > 0) {
+          // Combine with OR (Lunr uses space as OR by default)
+          searchQuery = fieldQueries.join(' ');
+          logger.debug(`[LunrSearchProvider] Field-specific search: "${searchQuery}" (searchIn: [${searchInList.join(', ')}])`);
+        }
+      }
+
       // Start with text search
-      results = await this.search(query, { maxResults: maxResults * 2 });
+      results = await this.search(searchQuery, { maxResults: maxResults * 2 });
     } else {
       // No text query, get all documents
       results = Object.keys(this.documents).map(name => ({

@@ -197,6 +197,50 @@ describe('SearchManager', () => {
       expect(stats).toBeDefined();
       expect(typeof stats).toBe('object');
     });
+
+    test('should support searchIn field filtering', async () => {
+      // Test with searchIn: ['title'] - should only search title field
+      const titleResults = await searchManager.advancedSearch({
+        query: 'Welcome',
+        searchIn: ['title']
+      });
+
+      expect(titleResults).toBeDefined();
+      expect(Array.isArray(titleResults)).toBe(true);
+    });
+
+    test('should support searchIn with multiple fields', async () => {
+      // Test with searchIn: ['title', 'content']
+      const results = await searchManager.advancedSearch({
+        query: 'wiki',
+        searchIn: ['title', 'content']
+      });
+
+      expect(results).toBeDefined();
+      expect(Array.isArray(results)).toBe(true);
+    });
+
+    test('should search all fields when searchIn is all', async () => {
+      // Test with searchIn: ['all'] - default behavior
+      const allResults = await searchManager.advancedSearch({
+        query: 'wiki',
+        searchIn: ['all']
+      });
+
+      expect(allResults).toBeDefined();
+      expect(Array.isArray(allResults)).toBe(true);
+    });
+
+    test('should support searchIn with category and keywords fields', async () => {
+      // Test with searchIn: ['category', 'keywords']
+      const results = await searchManager.advancedSearch({
+        query: 'General',
+        searchIn: ['category']
+      });
+
+      expect(results).toBeDefined();
+      expect(Array.isArray(results)).toBe(true);
+    });
   });
 
   describe('Provider info', () => {

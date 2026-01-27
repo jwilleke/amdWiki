@@ -98,9 +98,9 @@
                     <div class="border rounded p-2" style="max-height: 150px; overflow-y: auto;">
                         <% availableKeywords.forEach(keyword => { %>
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="keyword_<%= keyword.replace(/[^a-zA-Z0-9]/g, '_') %>" 
-                                       name="keywords" value="<%= keyword %>" 
-                                       <%= (Array.isArray(userKeywordsList) ? userKeywordsList.includes(keyword) : userKeywords === keyword) ? 'checked' : '' %>>
+                                <input class="form-check-input" type="checkbox" id="keyword_<%= keyword.replace(/[^a-zA-Z0-9]/g, '_') %>"
+                                       name="keywords" value="<%= keyword %>"
+                                       <%= (Array.isArray(userKeywords) ? userKeywords.includes(keyword) : userKeywords === keyword) ? 'checked' : '' %>>
                                 <label class="form-check-label" for="keyword_<%= keyword.replace(/[^a-zA-Z0-9]/g, '_') %>">
                                     <%= keyword %>
                                 </label>

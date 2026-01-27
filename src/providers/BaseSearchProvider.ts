@@ -80,6 +80,9 @@ export interface SearchCriteria {
   /** User keywords to filter by */
   userKeywords?: string[];
 
+  /** Fields to search in (title, content, category, keywords, or all) */
+  searchIn?: string[];
+
   /** Author to filter by */
   author?: string;
 
@@ -88,6 +91,9 @@ export interface SearchCriteria {
     from?: string;
     to?: string;
   };
+
+  /** Maximum results to return */
+  maxResults?: number;
 
   /** Additional criteria */
   [key: string]: unknown;

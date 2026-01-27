@@ -21,7 +21,4 @@ Completed:
 - [x] #220 - Page rename 404 bug - FIXED (slugIndex not updated on rename)
 - [x] #221 - Log files missing - FIXED (hybrid logger with ConfigurationManager)
 - [x] #217 - Remove deprecated amdwiki.install.completed - FIXED (type removed, tests/docs updated)
-
-Remaining:
-
-- [ ] #222 - Feature enhancement (not a true bug)
+- [x] #222 - Broken Search Page - FIXED (template variable bug, searchIn field filtering)
