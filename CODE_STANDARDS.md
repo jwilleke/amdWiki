@@ -20,6 +20,8 @@ In all interactions and commit messages
 - In Markdown documents:
   - **bold** in list beginings.
   - do not use "1. Headings" ok to use "## Step 1 ..."
+  - **NO Bolding in List Headings:** e.g., `- **Project Overview:**` is invalid. Use `- Project Overview:` instead.
+  - **NO Bolding entire lines:** e.g., `**Process:**` is invalid. Use proper headings (e.g., `### Process`) instead.
 
 ## Language & Environment
 
