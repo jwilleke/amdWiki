@@ -106,7 +106,6 @@ After form submission, the following should be created:
   "amdwiki.applicationName": "Test Wiki",
   "amdwiki.baseURL": "http://localhost:3000",
   "amdwiki.session.secret": "[64-char hex string]",
-  "amdwiki.install.completed": true,
   "amdwiki.install.organization.name": "Test Organization",
   "amdwiki.install.organization.description": "Testing the install system",
   "amdwiki.install.organization.contactEmail": "admin@test.com",
@@ -228,18 +227,18 @@ After form submission, the following should be created:
 
 **Possible causes:**
 
-1. `amdwiki.install.completed` not set to true
+1. `.install-complete` marker file missing from INSTANCE_DATA_FOLDER
 2. Admin user not created properly
 3. pages/ directory empty
 
 **Solutions:**
 
 ```bash
-# Check config
-cat config/app-custom-config.json | grep "install.completed"
+# Check for install marker file
+ls -la data/.install-complete
 
 # Check admin user
-cat users/users.json | grep "admin"
+cat data/users/users.json | grep "admin"
 
 # Check pages
 ls pages/*.md | wc -l  # Should show number of pages from required-pages/

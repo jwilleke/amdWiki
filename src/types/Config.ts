@@ -223,9 +223,6 @@ export interface SearchProviderConfig {
  * Configuration for first-run installation wizard.
  */
 export interface InstallConfig {
-  /** Installation completed flag */
-  'amdwiki.install.completed': boolean;
-
   /** Require setup on first run */
   'amdwiki.install.requireSetup': boolean;
 

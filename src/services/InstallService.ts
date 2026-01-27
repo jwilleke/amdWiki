@@ -767,7 +767,6 @@ class InstallService {
     }
 
     // Merge installation data using ConfigurationManager's merge strategy
-    // Note: amdwiki.install.completed is NO LONGER used - we use .install-complete file instead
     const installationProperties: Record<string, unknown> = {
       'amdwiki.applicationName': data.applicationName,
       'amdwiki.baseURL': data.baseURL,

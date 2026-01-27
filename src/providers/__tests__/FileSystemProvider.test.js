@@ -25,10 +25,9 @@ let TEST_PAGES_DIR;
 let TEST_REQUIRED_DIR;
 
 // Create mock engine without jest.fn() to avoid mock interference
-const createMockConfigManager = (installComplete, pagesDir, requiredDir) => ({
+const createMockConfigManager = (pagesDir, requiredDir) => ({
   getProperty: (key, defaultValue) => {
     const config = {
-      'amdwiki.install.completed': installComplete,
       'amdwiki.page.provider.filesystem.storagedir': pagesDir,
       'amdwiki.page.provider.filesystem.requiredpagesdir': requiredDir,
       'amdwiki.page.provider.filesystem.encoding': 'utf-8',
@@ -47,10 +46,10 @@ const createMockConfigManager = (installComplete, pagesDir, requiredDir) => ({
 });
 
 // Create mock engine (plain functions, no jest.fn)
-const createMockEngine = (installComplete = true) => ({
+const createMockEngine = () => ({
   getManager: (name) => {
     if (name === 'ConfigurationManager') {
-      return createMockConfigManager(installComplete, TEST_PAGES_DIR, TEST_REQUIRED_DIR);
+      return createMockConfigManager(TEST_PAGES_DIR, TEST_REQUIRED_DIR);
     }
     return null;
   }
@@ -113,7 +112,7 @@ describe('FileSystemProvider', () => {
       await fs.writeFile(path.join(TEST_DIR, '.install-complete'), '');
 
       // Initialize with installation complete
-      const provider = new FileSystemProvider(createMockEngine(true));
+      const provider = new FileSystemProvider(createMockEngine());
       await provider.initialize();
 
       // Should only see the regular page
@@ -129,7 +128,7 @@ describe('FileSystemProvider', () => {
       await createTestPage(TEST_REQUIRED_DIR, 'req-1', 'Required Page');
 
       // No .install-complete file = installation not complete
-      const provider = new FileSystemProvider(createMockEngine(false));
+      const provider = new FileSystemProvider(createMockEngine());
       await provider.initialize();
 
       // Should see both pages
@@ -142,13 +141,13 @@ describe('FileSystemProvider', () => {
     test('should set installationComplete flag from .install-complete file', async () => {
       // With .install-complete file present
       await fs.writeFile(path.join(TEST_DIR, '.install-complete'), '');
-      const providerComplete = new FileSystemProvider(createMockEngine(true));
+      const providerComplete = new FileSystemProvider(createMockEngine());
       await providerComplete.initialize();
       expect(providerComplete.installationComplete).toBe(true);
 
       // Without .install-complete file (need fresh TEST_DIR)
       await fs.remove(path.join(TEST_DIR, '.install-complete'));
-      const providerIncomplete = new FileSystemProvider(createMockEngine(false));
+      const providerIncomplete = new FileSystemProvider(createMockEngine());
       await providerIncomplete.initialize();
       expect(providerIncomplete.installationComplete).toBe(false);
     });
@@ -158,7 +157,7 @@ describe('FileSystemProvider', () => {
       await fs.writeFile(path.join(TEST_DIR, '.install-complete'), '');
 
       // Initialize with installation complete
-      const provider = new FileSystemProvider(createMockEngine(true));
+      const provider = new FileSystemProvider(createMockEngine());
       await provider.initialize();
 
       // Save a page with system category (previously would go to required-pages)
@@ -179,7 +178,7 @@ describe('FileSystemProvider', () => {
     test('should build indexes during initialization', async () => {
       await createTestPage(TEST_PAGES_DIR, 'test-uuid', 'Test Page');
 
-      const provider = new FileSystemProvider(createMockEngine(true));
+      const provider = new FileSystemProvider(createMockEngine());
       await provider.initialize();
 
       // Check all indexes are populated
@@ -189,7 +188,7 @@ describe('FileSystemProvider', () => {
     });
 
     test('should refresh page list correctly', async () => {
-      const provider = new FileSystemProvider(createMockEngine(true));
+      const provider = new FileSystemProvider(createMockEngine());
       await provider.initialize();
 
       expect(provider.pageCache.size).toBe(0);
@@ -207,7 +206,7 @@ describe('FileSystemProvider', () => {
       const badFile = path.join(TEST_PAGES_DIR, 'bad-file.md');
       await fs.writeFile(badFile, '---\nuuid: bad-uuid\n---\n# No title in frontmatter');
 
-      const provider = new FileSystemProvider(createMockEngine(true));
+      const provider = new FileSystemProvider(createMockEngine());
       await provider.initialize();
 
       // Should not be in cache
@@ -219,7 +218,7 @@ describe('FileSystemProvider', () => {
     test('should get page by title', async () => {
       await createTestPage(TEST_PAGES_DIR, 'test-uuid', 'My Test Page', '# Hello World');
 
-      const provider = new FileSystemProvider(createMockEngine(true));
+      const provider = new FileSystemProvider(createMockEngine());
       await provider.initialize();
 
       const page = await provider.getPage('My Test Page');
@@ -231,7 +230,7 @@ describe('FileSystemProvider', () => {
     test('should get page by UUID', async () => {
       await createTestPage(TEST_PAGES_DIR, 'specific-uuid', 'UUID Test');
 
-      const provider = new FileSystemProvider(createMockEngine(true));
+      const provider = new FileSystemProvider(createMockEngine());
       await provider.initialize();
 
       const page = await provider.getPage('specific-uuid');
@@ -243,7 +242,7 @@ describe('FileSystemProvider', () => {
     test('should check page existence (synchronous)', async () => {
       await createTestPage(TEST_PAGES_DIR, 'exists-uuid', 'Existing Page');
 
-      const provider = new FileSystemProvider(createMockEngine(true));
+      const provider = new FileSystemProvider(createMockEngine());
       await provider.initialize();
 
       // pageExists is synchronous
@@ -257,7 +256,7 @@ describe('FileSystemProvider', () => {
     test('should delete page', async () => {
       await createTestPage(TEST_PAGES_DIR, 'delete-me', 'Delete Me');
 
-      const provider = new FileSystemProvider(createMockEngine(true));
+      const provider = new FileSystemProvider(createMockEngine());
       await provider.initialize();
 
       // pageExists is synchronous
@@ -273,7 +272,7 @@ describe('FileSystemProvider', () => {
     test('should find page by plural form when enabled', async () => {
       await createTestPage(TEST_PAGES_DIR, 'plugin-uuid', 'Plugin');
 
-      const provider = new FileSystemProvider(createMockEngine(true));
+      const provider = new FileSystemProvider(createMockEngine());
       await provider.initialize();
 
       // Verify page was loaded

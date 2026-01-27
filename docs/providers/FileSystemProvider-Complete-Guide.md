@@ -186,12 +186,9 @@ All configuration accessed via ConfigurationManager (lowercase keys):
 
 ### Installation State
 
-```javascript
-'amdwiki.install.completed'
-  Default: false
-  Type: Boolean
-  Purpose: Controls required-pages loading (false = load, true = skip)
-```
+Installation completion is determined by the presence of the `.install-complete` marker file
+in the `INSTANCE_DATA_FOLDER` directory (not a config property). This controls whether
+required-pages are loaded (incomplete = load, complete = skip).
 
 ### Configuration Example
 
@@ -270,11 +267,8 @@ async initialize() {
     ? cfgPath
     : path.join(process.cwd(), cfgPath);
 
-  // 3. Check installation state
-  this.installationComplete = configManager.getProperty(
-    'amdwiki.install.completed',
-    false
-  );
+  // 3. Check installation state (from .install-complete marker file)
+  this.installationComplete = await this.checkInstallationComplete();
 
   // 4. Initialize PageNameMatcher
   const matchPlurals = configManager.getProperty(
@@ -1065,7 +1059,7 @@ To migrate to database provider:
 
 **Symptom:** System pages appear in page listings
 
-**Solution:** Set `amdwiki.install.completed: true` in config
+**Solution:** Ensure the `.install-complete` marker file exists in `INSTANCE_DATA_FOLDER`
 
 ### Cache Out of Sync
 

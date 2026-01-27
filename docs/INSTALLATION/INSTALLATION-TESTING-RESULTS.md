@@ -41,7 +41,7 @@ The amdWiki installation system has been tested comprehensively across 7 major t
 ✅ Organization metadata created (organizations.json)
 ✅ Admin user created with password hash
 ✅ 42 startup pages copied
-✅ Installation marked complete (amdwiki.install.completed: true)
+✅ Installation marked complete (.install-complete marker file created)
 ✅ Success page displayed after completion
 ```
 
@@ -83,7 +83,7 @@ The amdWiki installation system has been tested comprehensively across 7 major t
 ```
 
 **Important Behavior:**
-Once installation is marked complete (`amdwiki.install.completed: true`), the `/install` endpoint is blocked from normal access. This is correct security behavior - prevents unauthorized access to installation form after completion.
+Once installation is marked complete (`.install-complete` marker file exists), the `/install` endpoint is blocked from normal access. This is correct security behavior - prevents unauthorized access to installation form after completion.
 
 **Recovery Note:** Partial recovery works within active installation flow. Post-completion recovery requires reset via `/install/reset` endpoint.
 
@@ -247,7 +247,6 @@ Sample pages copied:
   "amdwiki.applicationName": "TestWiki",
   "amdwiki.baseURL": "http://localhost:3000",
   "amdwiki.session.secret": "[generated random hex]",
-  "amdwiki.install.completed": true,
   "amdwiki.install.organization.name": "TestOrg",
   "amdwiki.install.organization.legalName": "",
   "amdwiki.install.organization.description": "Testing",
@@ -295,10 +294,10 @@ Process Status:
 
 ## Known Limitations & Design Notes
 
-### 1. Cached Configuration
+### 1. Installation State Detection
 
-- Installation form access controlled by cached `amdwiki.install.completed` flag
-- Server restart required to reload configuration after manual file deletion
+- Installation form access controlled by `.install-complete` marker file in INSTANCE_DATA_FOLDER
+- Server restart required to reload state after manual marker file deletion
 - This is correct behavior - prevents re-installation of completed system
 
 ### 2. Partial Recovery Scope

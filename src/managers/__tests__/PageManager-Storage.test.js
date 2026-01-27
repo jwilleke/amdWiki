@@ -36,8 +36,7 @@ const createMockConfigManager = () => ({
       'amdwiki.page.provider.filesystem.storagedir': TEST_PAGES_DIR,
       'amdwiki.page.provider.filesystem.requiredpagesdir': TEST_REQUIRED_DIR,
       'amdwiki.page.provider.filesystem.encoding': 'utf-8',
-      'amdwiki.translator-reader.match-english-plurals': true,
-      'amdwiki.install.completed': true
+      'amdwiki.translator-reader.match-english-plurals': true
     };
     return config[key] !== undefined ? config[key] : defaultValue;
   }),
