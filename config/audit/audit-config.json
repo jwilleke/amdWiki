@@ -2,7 +2,7 @@
   "audit": {
     "enabled": true,
     "level": "info",
-    "logDirectory": "./logs",
+    "logDirectory": "./data/logs",
     "auditFileName": "audit.log",
     "archiveFileName": "audit-archive.log",
     "maxFileSize": "10MB",

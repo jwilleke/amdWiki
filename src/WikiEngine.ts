@@ -1,5 +1,5 @@
 import Engine from './core/Engine';
-import logger from './utils/logger';
+import logger, { reconfigureLogger } from './utils/logger';
 import type { WikiConfig } from './types/Config';
 import type WikiContext from './context/WikiContext';
 
@@ -144,6 +144,16 @@ class WikiEngine extends Engine {
     const configManager = new ConfigurationManager(this);
     this.registerManager('ConfigurationManager', configManager);
     await configManager.initialize(config);
+
+    // Reconfigure logger with settings from ConfigurationManager
+    // Logger starts with defaults, then reconfigures here after config is available
+    reconfigureLogger({
+      level: configManager.getProperty('amdwiki.logging.level', 'info') as string,
+      dir: configManager.getProperty('amdwiki.logging.dir', './data/logs') as string,
+      maxSize: configManager.getProperty('amdwiki.logging.maxSize', '1MB') as string,
+      maxFiles: configManager.getProperty('amdwiki.logging.maxFiles', 5) as number
+    });
+    logger.info('Logger reconfigured from ConfigurationManager');
 
     // 2. Initialize CacheManager early so other managers can use caching
     const cacheManager = new CacheManager(this);

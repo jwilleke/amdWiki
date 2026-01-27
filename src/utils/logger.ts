@@ -30,9 +30,11 @@ export interface LoggerConfig {
 }
 
 // Default config (can be overridden)
+// Note: Log directory should match INSTANCE_DATA_FOLDER pattern (./data/logs)
+// This aligns with PM2 config in ecosystem.config.js and FileAuditProvider
 const defaultConfig = {
   level: 'info',
-  dir: path.join(__dirname, '../../logs'), // Relative to project root
+  dir: path.join(__dirname, '../../data/logs'), // Instance data folder
   maxSize: 1048576, // 1MB
   maxFiles: 5
 } as const;
