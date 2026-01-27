@@ -459,6 +459,11 @@ class FileSystemProvider extends BasePageProvider {
       // Remove old title from cache and indexes
       this.pageCache.delete(oldPageInfo.title);
       this.titleIndex.delete(oldPageInfo.title.toLowerCase());
+      // Remove old slug from index if it existed
+      const oldSlug = oldPageInfo.metadata?.slug;
+      if (oldSlug) {
+        this.slugIndex.delete(oldSlug.toLowerCase());
+      }
       logger.info(`[FileSystemProvider] Page renamed from '${oldPageInfo.title}' to '${finalTitle}'`);
     }
 
@@ -472,6 +477,11 @@ class FileSystemProvider extends BasePageProvider {
     this.pageCache.set(finalTitle, pageInfo);
     this.titleIndex.set(finalTitle.toLowerCase(), finalTitle);
     this.uuidIndex.set(uuid, finalTitle);
+    // Update slug index if the page has a slug
+    const newSlug = updatedMetadata.slug;
+    if (newSlug) {
+      this.slugIndex.set(newSlug.toLowerCase(), finalTitle);
+    }
 
     logger.info(`[FileSystemProvider] Page '${finalTitle}' saved successfully to ${path.basename(filePath)}.`);
   }
@@ -497,6 +507,11 @@ class FileSystemProvider extends BasePageProvider {
       this.titleIndex.delete(info.title.toLowerCase());
       if (info.uuid) {
         this.uuidIndex.delete(info.uuid);
+      }
+      // Remove slug from index if it existed
+      const slug = info.metadata?.slug;
+      if (slug) {
+        this.slugIndex.delete(slug.toLowerCase());
       }
 
       logger.info(`[FileSystemProvider] Deleted page '${info.title}' (${info.uuid})`);
