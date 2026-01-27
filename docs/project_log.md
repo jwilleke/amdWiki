@@ -24,6 +24,42 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-01-27-01
+
+- Agent: Claude Opus 4.5
+- Subject: Add headless installation mode for Docker/K8s deployments
+- Key Decision: Hook headless check in app.js middleware; use existing default admin
+- Current Issue: #219 - IMPLEMENTED
+- Testing:
+  - npm test: 60 suites passed, 1414 tests passed
+  - TypeScript: No errors
+  - Build: Successful
+- Work Done:
+  - Added `processHeadlessInstallation()` method to InstallService
+  - Added `HeadlessInstallResult` interface for typed return values
+  - Added `markHeadlessInstallationComplete()` helper method
+  - Modified app.js install middleware to check `HEADLESS_INSTALL=true`
+  - Extended ConfigurationManager env var support:
+    - `AMDWIKI_SESSION_SECRET` → `amdwiki.session.secret`
+    - `AMDWIKI_APP_NAME` → `amdwiki.applicationName`
+  - Consolidated docker/.env.example with Traefik and headless sections
+  - Updated docker/TRAEFIK-DEPLOYMENT.md reference to .env.example
+  - Added "Headless Installation" section to docker/DOCKER.md
+  - Added "Headless Installation" section to docker/k8s/README.md
+  - Added "Automated Installation" section to SETUP.md
+- Commits: fc442dd
+- Files Modified:
+  - src/services/InstallService.ts
+  - app.js
+  - src/managers/ConfigurationManager.ts
+  - docker/.env.example
+  - docker/TRAEFIK-DEPLOYMENT.md
+  - docker/DOCKER.md
+  - docker/k8s/README.md
+  - SETUP.md
+
+---
+
 ## 2026-01-26-03
 
 - Agent: Claude Opus 4.5
