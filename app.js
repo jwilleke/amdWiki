@@ -11,7 +11,7 @@ const FileStore = require('session-file-store')(session);
 const fs = require('fs-extra');
 
 // Require from dist/src/ (pre-compiled TypeScript)
-const logger = require('./dist/src/utils/logger');
+const logger = require('./dist/src/utils/logger').default;
 const WikiEngine = require('./dist/src/WikiEngine');
 const WikiRoutes = require('./dist/src/routes/WikiRoutes');
 const InstallRoutes = require('./dist/src/routes/InstallRoutes');
