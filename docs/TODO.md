@@ -14,11 +14,6 @@ slug: amdwiki-todo
 
 **Last Updated**: 2026-01-27
 
-Work On GH Open Bug Issues
+Work On GH Issue [#123](https://github.com/jwilleke/amdWiki/issues/123)
 
-Completed:
-
-- [x] #220 - Page rename 404 bug - FIXED (slugIndex not updated on rename)
-- [x] #221 - Log files missing - FIXED (hybrid logger with ConfigurationManager)
-- [x] #217 - Remove deprecated amdwiki.install.completed - FIXED (type removed, tests/docs updated)
-- [x] #222 - Broken Search Page - FIXED (template variable bug, searchIn field filtering)
+There >16k JSPWiki files at /Volumes/jims-1/data/systems/wikis/jimswiki
