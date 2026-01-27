@@ -27,9 +27,9 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 ## 2026-01-27-02
 
 - Agent: Claude Opus 4.5
-- Subject: Fix bug issues #220, #221, #217
-- Key Decision: Use hybrid logger approach - start with defaults, reconfigure after ConfigurationManager
-- Current Issues: #220, #221, #217 - ALL CLOSED
+- Subject: Fix bug issues #220, #221, #217, #222
+- Key Decision: Use hybrid logger approach; implement searchIn field filtering with Lunr queries
+- Current Issues: #220, #221, #217, #222 - ALL CLOSED
 - Testing:
   - npm test: 60 suites passed (FileSystemProvider: 32 tests, PageManager-Storage: verified)
   - TypeScript: No errors
@@ -45,15 +45,24 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
     - Removed `'amdwiki.install.completed'` from InstallConfig interface
     - Updated test mocks in FileSystemProvider.test.js and PageManager-Storage.test.js
     - Updated documentation to reference `.install-complete` marker file
-- Commits: dbbbb4f (#220), 1f4c948 (#221), c7037d1 (#217)
+  - **Issue #222 - Broken Search Page**:
+    - Fixed template bug: keywords checkbox checked wrong variable (userKeywordsList vs userKeywords)
+    - Implemented searchIn field filtering in LunrSearchProvider using Lunr field-specific queries
+    - Added searchIn and maxResults to SearchCriteria interface
+    - Added 4 new tests for searchIn functionality
+- Commits: dbbbb4f (#220), 1f4c948 (#221), c7037d1 (#217), a844fba (#222)
 - Files Modified:
   - src/providers/FileSystemProvider.ts
+  - src/providers/BaseSearchProvider.ts
+  - src/providers/LunrSearchProvider.ts
   - src/utils/logger.ts
   - src/WikiEngine.ts
   - src/types/Config.ts
   - src/services/InstallService.ts
   - src/managers/**tests**/PageManager-Storage.test.js
+  - src/managers/**tests**/SearchManager.test.js
   - src/providers/**tests**/FileSystemProvider.test.js
+  - views/search-results.ejs
   - config/audit/audit-config.json
   - docker/.env.example
   - docs/providers/FileSystemProvider-Complete-Guide.md
