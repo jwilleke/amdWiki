@@ -16,4 +16,13 @@ slug: amdwiki-todo
 
 ## 🎯 NEXT STEPS - High Priority
 
-Work on GH Issue [#219](https://github.com/jwilleke/amdWiki/issues/219)
+We were working on GH Issue [#219](https://github.com/jwilleke/amdWiki/issues/219) as shown in docs/project_log.md.
+Need to do Verification process:
+
+- Start fresh Docker container with HEADLESS_INSTALL=true  
+  - Verify no redirect to /install
+  - Verify Welcome page loads immediately  
+  - Login as admin/admin123
+  - Verify app functions normally
+  - Test with pre-mounted config file
+  - Test K8s deployment with ConfigMap
