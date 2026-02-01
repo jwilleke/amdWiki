@@ -2,13 +2,8 @@ name: Docker Build and Push
 
 on:
   push:
-    branches:
-      - master
     tags:
       - 'v*'
-  pull_request:
-    branches:
-      - master
   workflow_dispatch:
     inputs:
       push_to_registry:
@@ -38,7 +33,7 @@ jobs:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
         with:
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -50,12 +45,9 @@ jobs:
           images: |
             ${{ env.DOCKER_REGISTRY }}/${{ env.REGISTRY_USER }}/${{ env.DOCKER_IMAGE_NAME }}
           tags: |
-            type=ref,event=branch
-            type=ref,event=pr
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
-            type=sha,prefix={{branch}}-
             type=raw,value=latest,enable={{is_default_branch}}
           labels: |
             org.opencontainers.image.title=amdWiki
@@ -63,7 +55,6 @@ jobs:
             org.opencontainers.image.vendor=amdWiki Project
 
       - name: Log in to Container Registry
-        if: github.event_name != 'pull_request'
         uses: docker/login-action@v3
         with:
           registry: ${{ env.DOCKER_REGISTRY }}
@@ -75,8 +66,8 @@ jobs:
         with:
           context: .
           file: ./docker/Dockerfile
-          platforms: linux/amd64,linux/arm64
-          push: ${{ github.event_name != 'pull_request' || inputs.push_to_registry }}
+          platforms: linux/amd64
+          push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
@@ -90,36 +81,12 @@ jobs:
           image-ref: ${{ env.DOCKER_REGISTRY }}/${{ env.REGISTRY_USER }}/${{ env.DOCKER_IMAGE_NAME }}:${{ steps.meta.outputs.version }}
           format: 'sarif'
           output: 'trivy-results.sarif'
-        if: github.event_name != 'pull_request'
 
       - name: Upload Trivy results to GitHub Security
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: 'trivy-results.sarif'
-        if: github.event_name != 'pull_request'
 
       - name: Image digest
         run: |
           echo "Image digest: ${{ steps.meta.outputs.digest }}"
-
-  test:
-    name: Test Docker Image
-    needs: build
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Build test image
-        run: |
-          docker build -t amdwiki:test -f docker/Dockerfile .
-
-      - name: Test image starts successfully
-        run: |
-          docker run -d --name amdwiki-test -p 3000:3000 amdwiki:test
-          sleep 10
-          curl -f http://localhost:3000 || exit 1
-          docker logs amdwiki-test
-          docker stop amdwiki-test

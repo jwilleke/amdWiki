@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 **See [docs/project_log.md](./docs/project_log.md) for detailed AI agent session logs and daily work history.**
 
+## [1.5.2] - 2026-02-01
+
+### Fixed
+
+- Configuration Management save no longer redirects away from page (#227)
+- Admin Dashboard layout updated (#227)
+- User preferences not persisting due to query string nested parsing (#226)
+- Create New Page defaults and system-category handling (#225)
+
+---
+
 ## [1.5.0] - 2025-12-12
 
 ### BREAKING CHANGE - Data Directory Consolidation
