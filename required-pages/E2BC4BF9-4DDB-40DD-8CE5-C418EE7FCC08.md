@@ -1,22 +1,24 @@
 ---
 title: UptimePlugin
-uuid: E2BC4BF9-4DDB-40DD-8CE5-C418EE7FCC08
 system-category: documentation
 user-keywords:
   - Plugins
   - Uptime
   - Server
+uuid: E2BC4BF9-4DDB-40DD-8CE5-C418EE7FCC08
 slug: uptimeplugin
-lastModified: '2025-12-18T12:00:00.000Z'
-author: system
+lastModified: '2026-01-31T10:51:00.241Z'
+author: jim
 ---
 # UptimePlugin
 
 The **UptimePlugin** displays server uptime in a human-readable format.
 
+This server has been up for: [{UptimePlugin}]
+
 ## Description
 
-This plugin shows how long the wiki server has been running since its last restart. The time is formatted as days, hours, and minutes.
+This [Plugin] shows how long the wiki server has been running since its last restart. The time is formatted as days, hours, and minutes.
 
 ## Syntax
 
