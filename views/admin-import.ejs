@@ -265,14 +265,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
         previewTbody.innerHTML = '';
         result.files.forEach(function(file) {
+            const isDuplicate = file.skippedReason === 'duplicate';
             const row = document.createElement('tr');
+            if (isDuplicate) row.classList.add('table-warning');
+            let statusBadge;
+            if (isDuplicate) {
+                statusBadge = '<span class="badge bg-danger">Duplicate — will skip</span>';
+            } else if (file.warnings.length > 0) {
+                statusBadge = '<span class="badge bg-warning">' + file.warnings.length + ' warnings</span>';
+            } else {
+                statusBadge = '<span class="badge bg-success">OK</span>';
+            }
             row.innerHTML = `
                 <td><code>${escapeHtml(file.sourcePath)}</code></td>
-                <td><code>${escapeHtml(file.targetPath)}</code></td>
+                <td><code>${isDuplicate ? escapeHtml(file.existingPageUuid || '') : escapeHtml(file.targetPath)}</code></td>
                 <td><span class="badge bg-secondary">${file.format}</span></td>
-                <td>${file.warnings.length > 0 ?
-                    '<span class="badge bg-warning">' + file.warnings.length + ' warnings</span>' :
-                    '<span class="badge bg-success">OK</span>'}</td>
+                <td>${statusBadge}</td>
             `;
             previewTbody.appendChild(row);
         });

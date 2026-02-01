@@ -105,8 +105,14 @@ export interface ImportedFile {
   /** Conversion warnings */
   warnings: string[];
 
-  /** Whether file was actually written (false for dry runs) */
+  /** Whether file was actually written (false for dry runs or duplicates) */
   written: boolean;
+
+  /** Reason the file was skipped (e.g. 'duplicate') */
+  skippedReason?: string;
+
+  /** UUID of existing page if duplicate */
+  existingPageUuid?: string;
 }
 
 /**
@@ -310,7 +316,11 @@ class ImportManager extends BaseManager {
 
         if (imported) {
           result.files.push(imported);
-          result.converted++;
+          if (imported.skippedReason) {
+            result.skipped++;
+          } else {
+            result.converted++;
+          }
         } else {
           result.skipped++;
         }
@@ -398,6 +408,33 @@ class ImportManager extends BaseManager {
     // Store the original page name as title if not already set
     if (!conversionResult.metadata['title']) {
       conversionResult.metadata['title'] = baseName.replace(/\+/g, ' ');
+    }
+
+    // Check for duplicate page by title
+    const pageTitle = conversionResult.metadata['title'] as string;
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- getManager returns any
+      const pageManager = this.engine.getManager('PageManager');
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call -- getManager returns any
+      const existingPage = await pageManager.getPage(pageTitle);
+      if (existingPage) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- page object
+        const existingUuid = (existingPage.uuid || existingPage.metadata?.uuid || '') as string;
+        logger.info(`[ImportManager] Duplicate detected: "${pageTitle}" already exists as ${existingUuid}`);
+        return {
+          sourcePath: filePath,
+          targetPath,
+          format: formatId,
+          size: 0,
+          metadata: conversionResult.metadata,
+          warnings: [`Page "${pageTitle}" already exists (${existingUuid})`],
+          written: false,
+          skippedReason: 'duplicate',
+          existingPageUuid: existingUuid
+        };
+      }
+    } catch {
+      // PageManager lookup failed — proceed with import
     }
 
     // Build frontmatter if we have metadata

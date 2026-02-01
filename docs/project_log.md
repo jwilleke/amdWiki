@@ -24,6 +24,32 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-01-04
+
+- Agent: Claude Opus 4.5
+- Subject: Add duplicate page detection to ImportManager
+- Key Decision: Check PageManager by title before importing; skip duplicates and flag in preview UI
+- Current Issue: #123 (continued)
+- Testing:
+  - npm test: 62 suites passed, 1478 tests passed
+  - TypeScript: No errors
+  - Build: Successful
+- Work Done:
+  - Added duplicate detection in `importSinglePage` via `pageManager.getPage(title)` lookup
+  - Duplicates return `skippedReason: 'duplicate'` and `existingPageUuid` — file is not written
+  - Duplicates count as `skipped` in results (not `converted`)
+  - Updated preview UI: duplicate rows highlighted yellow with red "Duplicate — will skip" badge
+  - Added `skippedReason` and `existingPageUuid` fields to `ImportedFile` interface
+- Commits: (see below)
+- Files Modified:
+  - src/managers/ImportManager.ts
+  - views/admin-import.ejs
+- Pending (for next session):
+  - Config entries in `app-default-config.json`
+  - Priority 2: Direct .txt rendering (deferred)
+
+---
+
 ## 2026-02-01-03
 
 - Agent: Claude Opus 4.5
