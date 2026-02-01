@@ -622,28 +622,42 @@ docker run --rm \
 
 ## Environment Variables
 
-### NODE_ENV
+Environment variables have the **highest priority** in the configuration system, overriding both default and custom config file values.
 
-Controls which environment configuration is loaded:
+### Configuration Override Variables
+
+| Environment Variable | Config Property | Description |
+| --- | --- | --- |
+| `AMDWIKI_BASE_URL` | `amdwiki.baseURL` | Base URL for the wiki |
+| `AMDWIKI_HOSTNAME` | `amdwiki.hostname` | Server hostname |
+| `AMDWIKI_HOST` | `amdwiki.server.host` | Server bind address |
+| `AMDWIKI_PORT` | `amdwiki.server.port` | Server port |
+| `AMDWIKI_SESSION_SECRET` | `amdwiki.session.secret` | Session encryption key |
+| `AMDWIKI_APP_NAME` | `amdwiki.applicationName` | Application display name |
+
+### Instance Management Variables
+
+| Environment Variable | Description | Default |
+| --- | --- | --- |
+| `NODE_ENV` | Environment (`production`, `development`, `test`) | `production` |
+| `INSTANCE_DATA_FOLDER` | Base path for instance data | `/app/data` |
+| `INSTANCE_CONFIG_FILE` | Config filename to load | `app-custom-config.json` |
+| `HEADLESS_INSTALL` | Skip interactive wizard | `true` |
+
+### Example: Override config with env vars
 
 ```bash
-docker run -e NODE_ENV=production amdwiki
+docker run -d \
+  --name amdwiki \
+  -p 3000:3000 \
+  -e AMDWIKI_APP_NAME="My Company Wiki" \
+  -e AMDWIKI_BASE_URL="https://wiki.example.com" \
+  -e AMDWIKI_SESSION_SECRET="your-secure-secret-here" \
+  -v $(pwd)/data:/app/data \
+  ghcr.io/jwilleke/amdwiki:latest
 ```
 
-Options: `production`, `development`, `test`
-
-### Custom Environment Variables
-
-You can pass environment variables to override configuration:
-
-```bash
-docker run \
-  -e NODE_ENV=production \
-  -e PORT=8080 \
-  amdwiki
-```
-
-Note: ConfigurationManager properties take precedence over environment variables unless explicitly coded to check environment variables first.
+For full details on the configuration priority order, all supported variables, and usage patterns, see [Installation System - Environment Variable Overrides](../docs/INSTALLATION/INSTALLATION-SYSTEM.md#environment-variable-overrides).
 
 ## Security Considerations
 

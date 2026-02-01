@@ -3854,8 +3854,6 @@ class WikiRoutes {
 
       // eslint-disable-next-line @typescript-eslint/no-require-imports -- dynamic import for restart
       const { exec } = require('child_process');
-      // eslint-disable-next-line @typescript-eslint/no-require-imports -- dynamic import
-      const logger = require('../utils/logger');
 
       logger.info(`System restart requested by: ${currentUser.username}`);
 
@@ -3903,8 +3901,6 @@ class WikiRoutes {
         });
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-require-imports -- dynamic import
-      const logger = require('../utils/logger');
       logger.info(`Page reindex requested by: ${currentUser.username}`);
 
       const pageManager = this.engine.getManager('PageManager');

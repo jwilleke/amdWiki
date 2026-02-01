@@ -121,6 +121,110 @@ Custom config overrides default. Environment variables can also override specifi
 - `INSTANCE_DATA_FOLDER` - Base path for instance data (default: `./data`)
 - `INSTANCE_CONFIG_FILE` - Config filename to load (default: `app-custom-config.json`)
 
+## Environment Variable Overrides
+
+The ConfigurationManager supports environment variables that **override** values from both the default and custom config files. Environment variables have the highest priority in the configuration hierarchy.
+
+### Configuration Priority Order
+
+```text
+1. Environment variables          (highest priority - always wins)
+2. Instance custom config         (INSTANCE_DATA_FOLDER/config/{INSTANCE_CONFIG_FILE})
+3. Default config                 (config/app-default-config.json - lowest priority)
+```
+
+### Supported Environment Variables
+
+#### Configuration Override Variables
+
+These override the corresponding config file properties at runtime:
+
+| Environment Variable | Config Property | Description | Default |
+| --- | --- | --- | --- |
+| `AMDWIKI_BASE_URL` | `amdwiki.baseURL` | Base URL for the wiki (e.g., `https://wiki.example.com`) | (empty) |
+| `AMDWIKI_HOSTNAME` | `amdwiki.hostname` | Server hostname | (from config) |
+| `AMDWIKI_HOST` | `amdwiki.server.host` | Server bind address | `localhost` |
+| `AMDWIKI_PORT` | `amdwiki.server.port` | Server port | `3000` |
+| `AMDWIKI_SESSION_SECRET` | `amdwiki.session.secret` | Session encryption key | (from config) |
+| `AMDWIKI_APP_NAME` | `amdwiki.applicationName` | Application display name | `amdWiki` |
+
+These overrides are implemented in `src/managers/ConfigurationManager.ts:173-180`.
+
+#### Instance Management Variables
+
+These control which config files and data directories are used:
+
+| Environment Variable | Description | Default |
+| --- | --- | --- |
+| `INSTANCE_DATA_FOLDER` | Base path for all instance data (pages, users, config, logs, etc.) | `./data` |
+| `INSTANCE_CONFIG_FILE` | Filename of the custom config to load from `INSTANCE_DATA_FOLDER/config/` | `app-custom-config.json` |
+| `NODE_ENV` | Application environment (`production`, `development`, `test`) | `development` |
+
+#### Installation Variables
+
+| Environment Variable | Description | Default |
+| --- | --- | --- |
+| `HEADLESS_INSTALL` | Skip interactive wizard; auto-configure with defaults | `true` (in Docker image) |
+
+### Usage Examples
+
+#### Docker CLI with env overrides
+
+```bash
+docker run -d \
+  --name amdwiki \
+  -p 3000:3000 \
+  -e AMDWIKI_APP_NAME="My Company Wiki" \
+  -e AMDWIKI_BASE_URL="https://wiki.example.com" \
+  -e AMDWIKI_SESSION_SECRET="your-secure-secret-here" \
+  -e AMDWIKI_HOST="0.0.0.0" \
+  -v $(pwd)/data:/app/data \
+  ghcr.io/jwilleke/amdwiki:latest
+```
+
+#### Docker Compose with env overrides
+
+```yaml
+services:
+  amdwiki:
+    image: ghcr.io/jwilleke/amdwiki:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - AMDWIKI_APP_NAME=My Company Wiki
+      - AMDWIKI_BASE_URL=https://wiki.example.com
+      - AMDWIKI_SESSION_SECRET=your-secure-secret-here
+    volumes:
+      - ./data:/app/data
+```
+
+#### Using a .env file
+
+```bash
+# docker/.env
+AMDWIKI_APP_NAME=My Company Wiki
+AMDWIKI_BASE_URL=https://wiki.example.com
+AMDWIKI_SESSION_SECRET=your-secure-secret-here
+AMDWIKI_HOST=0.0.0.0
+```
+
+#### Combining config file with env overrides
+
+You can mount a custom config file for most settings and use environment variables for secrets or deployment-specific values:
+
+```bash
+docker run -d \
+  --name amdwiki \
+  -p 3000:3000 \
+  -e AMDWIKI_SESSION_SECRET="production-secret-from-vault" \
+  -e AMDWIKI_BASE_URL="https://wiki.prod.example.com" \
+  -v $(pwd)/data:/app/data \
+  -v $(pwd)/my-config.json:/app/data/config/app-custom-config.json \
+  ghcr.io/jwilleke/amdwiki:latest
+```
+
+In this example, most settings come from `my-config.json`, but the session secret and base URL are overridden by environment variables (useful for keeping secrets out of config files).
+
 ## Docker and Kubernetes Deployments
 
 ### Docker Configuration
