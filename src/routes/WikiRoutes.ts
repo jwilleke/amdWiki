@@ -2683,52 +2683,68 @@ class WikiRoutes {
       // Extract preference values from form and merge with existing
       const preferences: Record<string, string | boolean | undefined> = { ...currentPreferences };
 
+      // Helper: resolve dotted field names from nested req.body (qs extended parsing)
+      // e.g. form field "editor.plain.smartpairs" is parsed as { editor: { plain: { smartpairs: 'on' } } }
+      const getBodyValue = (key: string): string | undefined => {
+        if (req.body[key] !== undefined) return req.body[key];
+        const parts = key.split('.');
+        let current: unknown = req.body;
+        for (const part of parts) {
+          if (current && typeof current === 'object' && part in (current as Record<string, unknown>)) {
+            current = (current as Record<string, unknown>)[part];
+          } else {
+            return undefined;
+          }
+        }
+        return typeof current === 'string' ? current : undefined;
+      };
+
       // Editor preferences
       preferences['editor.plain.smartpairs'] =
-        req.body['editor.plain.smartpairs'] === 'on';
-      preferences['editor.autoindent'] = req.body['editor.autoindent'] === 'on';
+        getBodyValue('editor.plain.smartpairs') === 'on';
+      preferences['editor.autoindent'] = getBodyValue('editor.autoindent') === 'on';
       preferences['editor.linenumbers'] =
-        req.body['editor.linenumbers'] === 'on';
-      preferences['editor.theme'] = req.body['editor.theme'] || 'default';
+        getBodyValue('editor.linenumbers') === 'on';
+      preferences['editor.theme'] = getBodyValue('editor.theme') || 'default';
 
       // Display preferences
-      preferences['display.pagesize'] = req.body['display.pagesize'] || '25';
-      preferences['display.tooltips'] = req.body['display.tooltips'] === 'on';
+      preferences['display.pagesize'] = getBodyValue('display.pagesize') || '25';
+      preferences['display.tooltips'] = getBodyValue('display.tooltips') === 'on';
       preferences['display.readermode'] =
-        req.body['display.readermode'] === 'on';
-      preferences['display.theme'] = req.body['display.theme'] || 'system';
+        getBodyValue('display.readermode') === 'on';
+      preferences['display.theme'] = getBodyValue('display.theme') || 'system';
 
       // Locale preferences (new system)
-      if (req.body['preferences.locale']) {
-        preferences['locale'] = req.body['preferences.locale'];
+      if (getBodyValue('preferences.locale')) {
+        preferences['locale'] = getBodyValue('preferences.locale');
       }
-      if (req.body['preferences.timeFormat']) {
-        preferences['timeFormat'] = req.body['preferences.timeFormat'];
+      if (getBodyValue('preferences.timeFormat')) {
+        preferences['timeFormat'] = getBodyValue('preferences.timeFormat');
       }
-      if (req.body['preferences.timezone']) {
-        preferences['timezone'] = req.body['preferences.timezone'];
+      if (getBodyValue('preferences.timezone')) {
+        preferences['timezone'] = getBodyValue('preferences.timezone');
       }
 
       // Handle date format preference
-      if (req.body['preferences.dateFormat']) {
-        const selectedDateFormat = req.body['preferences.dateFormat'];
-        if (selectedDateFormat === 'auto') {
+      const dateFormatValue = getBodyValue('preferences.dateFormat');
+      if (dateFormatValue) {
+        if (dateFormatValue === 'auto') {
           // Use locale-based format
           // eslint-disable-next-line @typescript-eslint/no-require-imports -- dynamic import
           const LocaleUtils = require('../utils/LocaleUtils');
           preferences['dateFormat'] = LocaleUtils.getDateFormatFromLocale(
-            req.body['preferences.locale'] || 'en-US'
+            getBodyValue('preferences.locale') || 'en-US'
           );
         } else {
           // Use manually selected format
-          preferences['dateFormat'] = selectedDateFormat;
+          preferences['dateFormat'] = dateFormatValue;
         }
-      } else if (req.body['preferences.locale']) {
+      } else if (getBodyValue('preferences.locale')) {
         // Fallback: Update dateFormat based on locale if locale is provided but no explicit dateFormat
         // eslint-disable-next-line @typescript-eslint/no-require-imports -- dynamic import
         const LocaleUtils = require('../utils/LocaleUtils');
         preferences['dateFormat'] = LocaleUtils.getDateFormatFromLocale(
-          req.body['preferences.locale']
+          getBodyValue('preferences.locale')
         );
       }
 

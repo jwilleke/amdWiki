@@ -24,6 +24,27 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-01-07
+
+- Agent: Claude Opus 4.5
+- Subject: Fix Smart Typing Pairs preference persistence (#226)
+- Key Decision: Add dotted-path resolver for req.body parsed by qs extended mode
+- Current Issue: #226
+- Testing:
+  - npm test: 62 suites passed, 1478 tests passed
+  - TypeScript: No errors
+  - Build: Successful
+- Work Done:
+  - Root cause: Express `urlencoded({ extended: true })` uses `qs` which parses dotted field names as nested objects; `req.body['editor.plain.smartpairs']` was always `undefined`
+  - Added `getBodyValue()` helper in `updatePreferences` to traverse nested req.body by dot-path
+  - Fixed ALL user preferences (not just Smart Typing Pairs): `editor.autoindent`, `editor.linenumbers`, `editor.theme`, `display.*`, `preferences.*`
+  - Smart Typing Pairs JS implementation was already complete (auto-pairing, selection wrapping, skip-closing, backspace-delete-pair)
+- Files Modified:
+  - src/routes/WikiRoutes.ts
+  - docs/project_log.md
+
+---
+
 ## 2026-02-01-06
 
 - Agent: Claude Opus 4.5
