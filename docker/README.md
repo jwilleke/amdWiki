@@ -2,7 +2,19 @@
 
 This directory contains all Docker-related files for deploying amdWiki in containers.
 
-## Quick Start
+## Pre-built Image
+
+Pull and run the pre-built image from GitHub Container Registry — no cloning or building required:
+
+```bash
+docker run -d --name amdwiki -p 3000:3000 \
+  -v $(pwd)/data:/app/data \
+  ghcr.io/jwilleke/amdwiki:latest
+```
+
+See [DOCKER.md - Pre-built Image from GHCR](DOCKER.md#pre-built-image-from-ghcr) for all available tags, Docker Compose setup, and update instructions.
+
+## Quick Start (Build from Source)
 
 ```bash
 # From project root

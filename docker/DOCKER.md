@@ -4,6 +4,7 @@ This guide explains how to run amdWiki in Docker with proper ConfigurationManage
 
 ## Table of Contents
 
+- [Pre-built Image from GHCR](#pre-built-image-from-ghcr)
 - [Quick Start](#quick-start)
 - [Headless Installation](#headless-installation-automated-deployments)
 - [Configuration Overview](#configuration-overview)
@@ -15,6 +16,90 @@ This guide explains how to run amdWiki in Docker with proper ConfigurationManage
 - [Environment Variables](#environment-variables)
 - [Security Considerations](#security-considerations)
 - [Troubleshooting](#troubleshooting)
+
+## Pre-built Image from GHCR
+
+The fastest way to run amdWiki is to pull the pre-built image from GitHub Container Registry. No cloning or building required.
+
+### Available Tags
+
+| Tag | Description |
+| --- | --- |
+| `ghcr.io/jwilleke/amdwiki:latest` | Latest release from the default branch |
+| `ghcr.io/jwilleke/amdwiki:1.5.4` | Specific version (e.g., 1.5.4) |
+| `ghcr.io/jwilleke/amdwiki:1.5` | Latest patch in the 1.5.x series |
+| `ghcr.io/jwilleke/amdwiki:1` | Latest minor/patch in the 1.x.x series |
+
+### Browse Available Versions
+
+View all published versions at: <https://github.com/jwilleke/amdWiki/pkgs/container/amdwiki>
+
+### Pull and Run
+
+```bash
+# Pull the latest image
+docker pull ghcr.io/jwilleke/amdwiki:latest
+
+# Run with persistent data
+docker run -d \
+  --name amdwiki \
+  -p 3000:3000 \
+  -v $(pwd)/data:/app/data \
+  ghcr.io/jwilleke/amdwiki:latest
+
+# Access the wiki
+open http://localhost:3000
+```
+
+### Pull and Run with Docker Compose
+
+Create a `docker-compose.yml`:
+
+```yaml
+services:
+  amdwiki:
+    image: ghcr.io/jwilleke/amdwiki:latest
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+```
+
+Then run:
+
+```bash
+docker-compose up -d
+```
+
+### Verify the Image
+
+```bash
+# Check image details
+docker inspect ghcr.io/jwilleke/amdwiki:latest --format '{{.Config.Labels}}'
+
+# Check the version inside the container
+docker run --rm ghcr.io/jwilleke/amdwiki:latest node -e "console.log(require('./package.json').version)"
+```
+
+### Updating to a New Version
+
+```bash
+# Pull the new version
+docker pull ghcr.io/jwilleke/amdwiki:latest
+
+# Recreate the container (data persists in the volume)
+docker stop amdwiki && docker rm amdwiki
+docker run -d \
+  --name amdwiki \
+  -p 3000:3000 \
+  -v $(pwd)/data:/app/data \
+  ghcr.io/jwilleke/amdwiki:latest
+
+# Or with Docker Compose
+docker-compose pull
+docker-compose up -d
+```
 
 ## Quick Start
 

@@ -14,14 +14,19 @@ Guide for deploying amdWiki to various environments.
 Deploy on your local machine (development or testing):
 
 ```bash
-# Quick setup
+# Option 1: Pre-built image from GHCR (fastest)
+docker run -d --name amdwiki -p 3000:3000 \
+  -v $(pwd)/data:/app/data \
+  ghcr.io/jwilleke/amdwiki:latest
+
+# Option 2: Build from source
 ./docker-setup.sh
 docker-compose up -d
 
 # Access at http://localhost:3000
 ```
 
-See [DOCKER.md](DOCKER.md) for detailed local deployment instructions.
+See [DOCKER.md - Pre-built Image from GHCR](DOCKER.md#pre-built-image-from-ghcr) for available tags and update instructions. See [DOCKER.md](DOCKER.md) for the full Docker usage guide.
 
 ## Remote Linux Server
 

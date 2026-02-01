@@ -27,18 +27,24 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 ## 2026-02-01-11
 
 - Agent: Claude Opus 4.5
-- Subject: version.js now syncs app-default-config.json, v1.5.4 Docker release
-- Key Decision: version.js should update all version references automatically
+- Subject: version.js sync, v1.5.4 Docker release, GHCR pull documentation
+- Key Decision: GHCR documentation lives in docker/DOCKER.md, referenced from other files
 - Testing:
   - npm test: 62 suites passed, 1478 tests passed, 308 skipped
 - Work Done:
   - Fixed stale amdwiki.version in config/app-default-config.json (was 1.5.1, updated to 1.5.3)
   - Updated version.js to automatically sync amdwiki.version in app-default-config.json on every bump
   - Bumped to v1.5.4, tagged and pushed to trigger Docker build to ghcr.io
+  - Added "Pre-built Image from GHCR" section to docker/DOCKER.md (tags, pull, run, compose, update)
+  - Added cross-references from docker/README.md, docker/DEPLOYMENT.md, docker/k8s/README.md
 - Commits: (see git log)
 - Files Modified:
   - config/app-default-config.json
   - version.js
+  - docker/DOCKER.md
+  - docker/README.md
+  - docker/DEPLOYMENT.md
+  - docker/k8s/README.md
   - docs/project_log.md
   - package.json
   - package-lock.json

@@ -23,6 +23,16 @@ kubectl apply -f service.yaml -n amdwiki
 kubectl apply -f ingress.yaml -n amdwiki
 ```
 
+## Container Image
+
+The pre-built image is available from GitHub Container Registry. Update `deployment.yaml` to use it:
+
+```yaml
+image: ghcr.io/jwilleke/amdwiki:latest
+```
+
+See [DOCKER.md - Pre-built Image from GHCR](../DOCKER.md#pre-built-image-from-ghcr) for all available tags.
+
 ## Manifest Files
 
 | File | Purpose |
