@@ -24,6 +24,25 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-01-09
+
+- Agent: Claude Opus 4.5
+- Subject: Configuration Management save redirects away from page (#227)
+- Key Decision: Convert config save forms to AJAX to stay on current tab
+- Current Issue: #227
+- Work Done:
+  - Added JSON response path in `adminUpdateConfiguration` for AJAX requests (checks `X-Requested-With` header)
+  - Added client-side fetch handler in `admin-configuration.ejs` that intercepts form submissions
+  - Save button shows spinner during request, inline alert shows success/error with auto-dismiss
+  - Users can now make multiple config changes without being redirected back to the list
+  - Opened #228 (admin left menu fallback) and #229 (login button visible when authenticated)
+- Files Modified:
+  - src/routes/WikiRoutes.ts
+  - views/admin-configuration.ejs
+  - docs/project_log.md
+
+---
+
 ## 2026-02-01-08
 
 - Agent: Claude Opus 4.5

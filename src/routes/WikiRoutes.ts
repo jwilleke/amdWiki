@@ -3629,11 +3629,21 @@ class WikiRoutes {
       }
 
       await configManager.setProperty(property, value);
+
+      // Return JSON for AJAX requests, redirect for regular form submissions
+      const wantsJson = req.xhr || req.headers['x-requested-with'] === 'XMLHttpRequest';
+      if (wantsJson) {
+        return res.json({ success: true, message: 'Configuration updated successfully' });
+      }
       return res.redirect(
         '/admin/configuration?success=Configuration updated successfully'
       );
     } catch (err: unknown) {
       logger.error('Error updating configuration:', err);
+      const wantsJson = req.xhr || req.headers['x-requested-with'] === 'XMLHttpRequest';
+      if (wantsJson) {
+        return res.status(500).json({ error: 'Failed to update configuration' });
+      }
       return res.redirect('/admin/configuration?error=Failed to update configuration');
     }
   }

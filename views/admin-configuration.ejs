@@ -236,4 +236,73 @@
     </div>
 </div>
 
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle all configuration save forms via AJAX
+    document.querySelectorAll('form[action="/admin/configuration"]').forEach(function(form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            var formData = new FormData(form);
+            var btn = form.querySelector('button[type="submit"]');
+            var originalHtml = btn ? btn.innerHTML : '';
+
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            }
+
+            fetch('/admin/configuration', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: new URLSearchParams(formData).toString()
+            })
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    showConfigAlert('success', data.message || 'Configuration updated successfully');
+                } else {
+                    showConfigAlert('danger', data.error || 'Failed to update configuration');
+                }
+            })
+            .catch(function() {
+                showConfigAlert('danger', 'Failed to update configuration');
+            })
+            .finally(function() {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = originalHtml;
+                }
+            });
+        });
+    });
+
+    function showConfigAlert(type, message) {
+        // Remove any existing config alerts
+        document.querySelectorAll('.config-alert').forEach(function(el) { el.remove(); });
+
+        var icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-triangle';
+        var alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-' + type + ' alert-dismissible fade show config-alert';
+        alertDiv.setAttribute('role', 'alert');
+        alertDiv.innerHTML = '<i class="fas ' + icon + '"></i> ' + message +
+            '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
+
+        var container = document.querySelector('.container.mt-4');
+        container.insertBefore(alertDiv, container.firstChild);
+
+        // Auto-dismiss after 3 seconds
+        setTimeout(function() {
+            if (alertDiv.parentNode) {
+                alertDiv.classList.remove('show');
+                setTimeout(function() { alertDiv.remove(); }, 150);
+            }
+        }, 3000);
+    }
+});
+</script>
+
 <%- include('footer') %>
