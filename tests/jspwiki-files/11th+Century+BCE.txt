@@ -1,0 +1,30 @@
+!!! Overview
+[{$pagename}] comprises all years from [1,100 BCE] to [1,001 BCE]. Although many human societies were literate in this period, some of the individuals mentioned below may be [Apocrypha] rather than historically accurate.
+
+
+
+!! [{$pagename}] Events
+
+* [David] and [King Saul] (1,885) by Julius Kronberg. The two men are considered the first Kings of the [Kingdom of Israel (1047 BCE-930 BCE)]
+* [1,089 BCE]: Melanthus, legendary King of Athens, dies after a reign of 37 years and is succeeded by his son Codrus.
+* [1,069 BCE]: Ramses XI dies, ending the Twentieth Dynasty. He is succeeded by Smendes I, who founds the Twenty-first Dynasty.
+* [1,068 BCE]: Codrus, legendary King of Athens, dies in battle against Dorian invaders after a reign of 21 years. Athenian tradition considers him the last king to have held absolute power. Modern historians consider him the last king whose life account is part of Greek mythology. He is succeeded by his son Medon.
+* [1,050 BCE]: Philistines capture the Ark of the Covenant from Israel in battle. (Approximate date)
+* [1,048 BCE]: Medon, King of Athens, dies after a reign of 20 years and is succeeded by his son Acastus.
+* [1,046 BCE]: King Wu of Zhou overthrows the last Shang dynasty king Di Xin and becomes first king of the Zhou dynasty (1046 BC—256 BC) founded by his father King Wen of Zhou.
+* [1,044 BCE]: On the death of Smendes I, king of Egypt, he is succeeded by two co-regents, Psusennes I[1] and Neferkare Amenemnisu.
+* [1,042 BCE]: King Cheng of Zhou succeeds King Wu as ruler of the Zhou dynasty in China.
+* c. [1,040 BCE]: [David], King of [Kingdom of Israel (1047 BCE-930 BCE)], is born.
+* [1,039 BCE]: Neferkare Amenemnisu, king of Egypt, dies.
+* [1,026 BCE]: [King Saul] becomes the first king of the [Israelites], according to the [Books of Samuel].
+c. [1,020 BCE]: Destruction of Troy VIIb2.
+* [1,020 BCE]: King Kang of Zhou succeeds King Cheng as ruler of the Zhou dynasty in [China].
+* [1,012 BCE]: Acastus, King of Athens, dies after a reign of 36 years and is succeeded by his son Archippus.
+* [1,000s BCE]: Earliest evidence of farming in the Kenya highlands.
+* [1,000s BCE]: Phoenician alphabet invented.
+* c. [1,010 BCE]: [David] succeeds [Ish-bosheth].
+* c. [1,000 BCE]: Latins arrive in Italy.
+
+!! More Information
+There might be more information for this subject on one of the following:
+[{ReferringPagesPlugin before='*' after='\n' }]
