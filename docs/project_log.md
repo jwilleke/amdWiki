@@ -24,6 +24,25 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-01-08
+
+- Agent: Claude Opus 4.5
+- Subject: Update Admin Dashboard layout (#227)
+- Key Decision: Simplify dashboard into stacked full-width rows instead of multi-column grid
+- Current Issue: #227
+- Work Done:
+  - Removed System Statistics card entirely
+  - Removed Quick Actions card (was causing 4+4+6=14 grid overflow)
+  - New layout: User Management (full width, single Manage Users button), System Settings (full width, all config + content buttons), Administrator Tools (full width, all admin actions + maintenance toggle)
+  - Recent Activity and System Notifications side-by-side (col-6 each)
+  - Required Pages moved to full-width final row
+  - All JavaScript functions preserved unchanged
+- Files Modified:
+  - views/admin-dashboard.ejs
+  - docs/project_log.md
+
+---
+
 ## 2026-02-01-07
 
 - Agent: Claude Opus 4.5

@@ -22,101 +22,119 @@
         </div>
     </div>
 
+    <!-- User Management -->
     <div class="row mt-4">
-        <!-- System Stats -->
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-header">
-                    <h5><i class="fas fa-chart-bar"></i> System Statistics</h5>
-                </div>
-                <div class="card-body">
-                    <p><strong>Total Pages:</strong> <%= pages.length %></p>
-                    <p><strong>Total Users:</strong> <%= stats.totalUsers || 'N/A' %></p>
-                    <p><strong>System Uptime:</strong> <%= stats.uptime || 'N/A' %></p>
-                    <p><strong>Version:</strong> amdWiki 1.0.0</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Quick Actions -->
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-header">
-                    <h5><i class="fas fa-bolt"></i> Quick Actions</h5>
-                </div>
-                <div class="card-body">
-                    <a href="/create" class="btn btn-primary btn-block mb-2">
-                        <i class="fas fa-plus"></i> Create New Page
-                    </a>
-                    <a href="/admin/users" class="btn btn-info btn-block mb-2">
-                        <i class="fas fa-users"></i> Manage Users
-                    </a>
-                    <a href="/admin/roles" class="btn btn-warning btn-block mb-2">
-                        <i class="fas fa-shield-alt"></i> Manage Roles
-                    </a>
-                    <a href="/export" class="btn btn-success btn-block mb-2">
-                        <i class="fas fa-download"></i> Export Data
-                    </a>
-                    <a href="/admin/import" class="btn btn-info btn-block mb-2">
-                        <i class="fas fa-file-import"></i> Import Pages
-                    </a>
-
-                    <!-- Maintenance Mode Toggle -->
-                    <div class="mt-3 pt-3 border-top">
-                        <h6><i class="fas fa-wrench"></i> System Control</h6>
-                        <form method="POST" action="/admin/maintenance/toggle" class="d-inline">
-                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                            <% if (maintenanceMode) { %>
-                                <button type="submit" class="btn btn-danger btn-sm btn-block" onclick="return confirm('Disable maintenance mode? Users will be able to access the system again.')">
-                                    <i class="fas fa-play"></i> Disable Maintenance
-                                </button>
-                            <% } else { %>
-                                <button type="submit" class="btn btn-warning btn-sm btn-block" onclick="return confirm('Enable maintenance mode? This will restrict access for regular users.')">
-                                    <i class="fas fa-pause"></i> Enable Maintenance
-                                </button>
-                            <% } %>
-                        </form>
-                        <% if (maintenanceMode) { %>
-                            <div class="mt-2">
-                                <small class="text-danger">
-                                    <i class="fas fa-exclamation-triangle"></i> Maintenance mode is currently <strong>ACTIVE</strong>
-                                </small>
-                            </div>
-                        <% } %>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Required Pages Management -->
-        <div class="col-md-6">
+        <div class="col-12">
             <div class="card mb-4">
                 <div class="card-header">
-                    <h5><i class="fas fa-lock"></i> Required Pages (Admin Only)</h5>
+                    <h5><i class="fas fa-users-cog"></i> User Management</h5>
                 </div>
                 <div class="card-body">
-                    <p class="text-muted">These pages can only be edited by administrators:</p>
-                    <% if (requiredPages && requiredPages.length > 0) { %>
-                        <% requiredPages.forEach(pageName => { %>
-                            <a href="/edit/<%= encodeURIComponent(pageName) %>" class="btn btn-outline-primary btn-block mb-2">
-                                <i class="fas fa-edit"></i> Edit <%= pageName %>
-                            </a>
-                        <% }); %>
-                    <% } else { %>
-                        <p class="text-muted">No required pages found.</p>
-                    <% } %>
-                    <small class="text-muted">
-                        <i class="fas fa-info-circle"></i> All users can view these pages, but only admins can edit them.
-                    </small>
+                    <a href="/admin/users" class="btn btn-info btn-sm">
+                        <i class="fas fa-users"></i> Manage Users
+                    </a>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- System Settings -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5><i class="fas fa-cog"></i> System Settings</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex flex-wrap gap-2">
+                        <a href="/admin/roles" class="btn btn-sm" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);">
+                            <i class="fas fa-shield-alt"></i> Roles
+                        </a>
+                        <a href="/admin/configuration" class="btn btn-sm" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);">
+                            <i class="fas fa-sliders-h"></i> Configuration
+                        </a>
+                        <a href="/admin/variables" class="btn btn-sm" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);">
+                            <i class="fas fa-code"></i> Variables
+                        </a>
+                        <a href="/admin/settings" class="btn btn-sm" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);">
+                            <i class="fas fa-cogs"></i> Settings
+                        </a>
+                        <a href="/create" class="btn btn-primary btn-sm">
+                            <i class="fas fa-plus"></i> Create New Page
+                        </a>
+                        <a href="/export" class="btn btn-success btn-sm">
+                            <i class="fas fa-download"></i> Export Data
+                        </a>
+                        <a href="/admin/import" class="btn btn-info btn-sm">
+                            <i class="fas fa-file-import"></i> Import Pages
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Administrator Tools -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5><i class="fas fa-tools"></i> Administrator Tools</h5>
+                </div>
+                <div class="card-body">
+                    <% if (currentUser.roles.includes('admin')) { %>
+                    <div class="d-flex flex-wrap gap-2">
+                        <button class="btn btn-sm" style="background-color: var(--btn-outline-danger-bg); color: var(--btn-outline-danger-text); border-color: var(--btn-outline-danger-border);" onclick="confirmRestart()">
+                            <i class="fas fa-sync-alt"></i> Restart
+                        </button>
+                        <a href="/admin/backup" class="btn btn-sm" style="background-color: var(--btn-outline-info-bg); color: var(--btn-outline-info-text); border-color: var(--btn-outline-info-border);">
+                            <i class="fas fa-database"></i> Backup
+                        </a>
+                        <a href="/admin/import" class="btn btn-sm" style="background-color: var(--btn-outline-info-bg); color: var(--btn-outline-info-text); border-color: var(--btn-outline-info-border);">
+                            <i class="fas fa-file-import"></i> Import
+                        </a>
+                        <a href="/admin/logs" class="btn btn-sm" style="background-color: var(--btn-outline-secondary-bg); color: var(--btn-outline-secondary-text); border-color: var(--btn-outline-secondary-border);">
+                            <i class="fas fa-file-alt"></i> Logs
+                        </a>
+                        <button class="btn btn-outline-success btn-sm" onclick="clearCache()">
+                            <i class="fas fa-broom"></i> Clear Cache
+                        </button>
+                        <button class="btn btn-outline-primary btn-sm" onclick="reindexPages()">
+                            <i class="fas fa-sync"></i> Reindex
+                        </button>
+                        <form method="POST" action="/admin/maintenance/toggle" class="d-inline">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                            <% if (maintenanceMode) { %>
+                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Disable maintenance mode? Users will be able to access the system again.')">
+                                    <i class="fas fa-play"></i> Disable Maintenance
+                                </button>
+                            <% } else { %>
+                                <button type="submit" class="btn btn-warning btn-sm" onclick="return confirm('Enable maintenance mode? This will restrict access for regular users.')">
+                                    <i class="fas fa-pause"></i> Enable Maintenance
+                                </button>
+                            <% } %>
+                        </form>
+                    </div>
+                    <% if (maintenanceMode) { %>
+                        <div class="mt-2">
+                            <small class="text-danger">
+                                <i class="fas fa-exclamation-triangle"></i> Maintenance mode is currently <strong>ACTIVE</strong>
+                            </small>
+                        </div>
+                    <% } %>
+                    <% } else { %>
+                        <p class="text-muted">Admin role required for these tools.</p>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Row 2: Recent Activity & System Notifications -->
     <div class="row">
         <!-- Recent Activity -->
-        <div class="col-md-12">
-            <div class="card">
+        <div class="col-md-6">
+            <div class="card mb-4">
                 <div class="card-header">
                     <h5><i class="fas fa-history"></i> Recent Activity</h5>
                 </div>
@@ -134,12 +152,10 @@
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- System Notifications -->
-    <div class="row mt-4">
-        <div class="col-md-12">
-            <div class="card">
+        <!-- System Notifications -->
+        <div class="col-md-6">
+            <div class="card mb-4">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5><i class="fas fa-bell"></i> System Notifications</h5>
                     <span class="badge bg-primary"><%= notifications ? notifications.length : 0 %></span>
@@ -170,7 +186,7 @@
                                 </div>
                             </div>
                         <% }); %>
-                        
+
                         <% if (notifications.length > 5) { %>
                             <div class="text-center">
                                 <a href="/admin/notifications" class="btn btn-outline-primary btn-sm">
@@ -207,98 +223,33 @@
         </div>
     </div>
 
-    <div class="row mt-4">
-        <!-- User Management -->
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h5><i class="fas fa-users-cog"></i> User Management</h5>
-                </div>
-                <div class="card-body">
-                    <p>Manage user accounts, roles, and permissions.</p>
-                    <a href="/admin/users" class="btn" style="background-color: var(--btn-primary-bg); color: var(--btn-primary-text); border-color: var(--btn-primary-border);">
-                        <i class="fas fa-users"></i> Go to User Management
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- System Settings -->
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h5><i class="fas fa-cog"></i> System Settings</h5>
-                </div>
-                <div class="card-body">
-                    <p>Configure wiki settings and system preferences.</p>
-                    <div class="btn-group">
-                        <a href="/admin/roles" class="btn" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);">
-                            <i class="fas fa-shield-alt"></i> Roles
-                        </a>
-                        <a href="/admin/configuration" class="btn" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);">
-                            <i class="fas fa-sliders-h"></i> Configuration
-                        </a>
-                        <a href="/admin/variables" class="btn" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);">
-                            <i class="fas fa-code"></i> Variables
-                        </a>
-                        <a href="/admin/settings" class="btn" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);">
-                            <i class="fas fa-cogs"></i> Settings
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <% if (currentUser.roles.includes('admin')) { %>
-    <div class="row mt-4">
+    <!-- Row 3: Required Pages (full width) -->
+    <div class="row">
         <div class="col-12">
-            <div class="card">
+            <div class="card mb-4">
                 <div class="card-header">
-                    <h5><i class="fas fa-tools"></i> Administrator Tools</h5>
+                    <h5><i class="fas fa-lock"></i> Required Pages (Admin Only)</h5>
                 </div>
                 <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-3">
-                            <h6>System Maintenance</h6>
-                            <button class="btn btn-sm" style="background-color: var(--btn-outline-danger-bg); color: var(--btn-outline-danger-text); border-color: var(--btn-outline-danger-border);" onclick="confirmRestart()">
-                                <i class="fas fa-sync-alt"></i> Restart System
-                            </button>
-                        </div>
-                        <div class="col-md-3">
-                            <h6>Data Management</h6>
-                            <div class="d-flex flex-column gap-2">
-                                <a href="/admin/backup" class="btn btn-sm" style="background-color: var(--btn-outline-info-bg); color: var(--btn-outline-info-text); border-color: var(--btn-outline-info-border);">
-                                    <i class="fas fa-database"></i> Backup Data
-                                </a>
-                                <a href="/admin/import" class="btn btn-sm" style="background-color: var(--btn-outline-info-bg); color: var(--btn-outline-info-text); border-color: var(--btn-outline-info-border);">
-                                    <i class="fas fa-file-import"></i> Import Pages
-                                </a>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <h6>Logs</h6>
-                            <a href="/admin/logs" class="btn btn-sm" style="background-color: var(--btn-outline-secondary-bg); color: var(--btn-outline-secondary-text); border-color: var(--btn-outline-secondary-border);">
-                                <i class="fas fa-file-alt"></i> View Logs
+                    <p class="text-muted">These pages can only be edited by administrators:</p>
+                    <% if (requiredPages && requiredPages.length > 0) { %>
+                        <div class="d-flex flex-wrap gap-2">
+                        <% requiredPages.forEach(pageName => { %>
+                            <a href="/edit/<%= encodeURIComponent(pageName) %>" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-edit"></i> Edit <%= pageName %>
                             </a>
+                        <% }); %>
                         </div>
-                        <div class="col-md-3">
-                            <h6>Performance</h6>
-                            <div class="d-flex flex-column gap-2">
-                                <button class="btn btn-outline-success btn-sm" onclick="clearCache()">
-                                    <i class="fas fa-broom"></i> Clear Cache
-                                </button>
-                                <button class="btn btn-outline-primary btn-sm" onclick="reindexPages()">
-                                    <i class="fas fa-sync"></i> Reindex Pages
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                    <% } else { %>
+                        <p class="text-muted">No required pages found.</p>
+                    <% } %>
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle"></i> All users can view these pages, but only admins can edit them.
+                    </small>
                 </div>
             </div>
         </div>
     </div>
-    <% } %>
 </div>
 
 <script>
