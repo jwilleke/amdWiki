@@ -1113,9 +1113,23 @@ class WikiRoutes {
   async createPageFromTemplate(req: Request, res: Response) {
     try {
       const { pageName, templateName, categories, userKeywords } = req.body;
+      const systemCategory = req.body['system-category'] || 'general';
 
       if (!pageName || !templateName) {
         return res.status(400).send('Page name and template are required');
+      }
+
+      // Validate system-category against allowed list (case-insensitive)
+      const validCategories = this.getSystemCategories();
+      const normalizedSubmitted = systemCategory.trim().toLowerCase();
+      const matchedCategory = validCategories.find(
+        (cat: string) => cat.toLowerCase() === normalizedSubmitted
+      );
+      if (!matchedCategory) {
+        const validCategoryList = validCategories.join(', ');
+        return res.status(400).send(
+          `Invalid system-category: "${systemCategory}". Valid categories are: ${validCategoryList}`
+        );
       }
 
       // Ensure categories is an array and always include 'default'
@@ -1224,6 +1238,7 @@ class WikiRoutes {
       // Save the new page using WikiContext
       const metadata = {
         title: pageName,
+        'system-category': matchedCategory,
         categories: categoriesArray,
         'user-keywords': Array.isArray(userKeywords)
           ? userKeywords

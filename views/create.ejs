@@ -21,7 +21,7 @@
                         <select id="templateName" name="templateName" class="form-control" required>
                             <option value="">Select a template...</option>
                             <% templates.forEach(template => { %>
-                                <option value="<%= template.name %>"><%= template.displayName || template.name %></option>
+                                <option value="<%= template.name %>" <%= template.name === 'default' ? 'selected' : '' %>><%= template.displayName || template.name %></option>
                             <% }); %>
                         </select>
                     </div>
@@ -34,7 +34,7 @@
                         <label style="font-weight:bold;">System Category (Admin Only):</label>
                         <select class="form-control" id="systemCategory" name="system-category" required>
                             <% systemCategories.forEach(category => { %>
-                                <option value="<%= category %>"><%= category %></option>
+                                <option value="<%= category %>" <%= category === 'general' ? 'selected' : '' %>><%= category %></option>
                             <% }); %>
                         </select>
                     </div>
@@ -45,7 +45,7 @@
                     </div>
                     <% } %>
                     <div class="col-md-6">
-                        <label style="font-weight:bold;">User Keywords (Optional, Max 3):</label>
+                        <label style="font-weight:bold;">User Keywords (Optional, Max <%= maxUserKeywords %>):</label>
                         <div class="dropdown">
                             <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button" id="userKeywordsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                                 <span id="selectedUserKeywordsText">Select user keywords...</span>
@@ -55,7 +55,7 @@
                                     <li>
                                         <div class="dropdown-item-checkbox px-3 py-2">
                                             <div class="form-check">
-                                                <input class="form-check-input user-keyword-checkbox" type="checkbox" name="userKeywords[]" value="<%= keyword %>" id="user-keyword-<%= keyword %>">
+                                                <input class="form-check-input user-keyword-checkbox" type="checkbox" name="userKeywords[]" value="<%= keyword %>" id="user-keyword-<%= keyword %>" <%= keyword === 'default' ? 'checked' : '' %>>
                                                 <label class="form-check-label ms-2" for="user-keyword-<%= keyword %>"><%= keyword %></label>
                                             </div>
                                         </div>
@@ -116,8 +116,7 @@
         document.getElementById('selectedUserKeywordsText').textContent = text;
     }
     
-    // Initialize dropdowns
-    updateSelectedCategoriesText();
+    // Initialize dropdown text
     updateSelectedUserKeywordsText();
 </script>
 

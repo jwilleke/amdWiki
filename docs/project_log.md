@@ -24,6 +24,32 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-01-06
+
+- Agent: Claude Opus 4.5
+- Subject: Fix Create New Page defaults and bugs (#225)
+- Key Decision: Match savePage() validation pattern for system-category in createPageFromTemplate
+- Current Issue: #225
+- Testing:
+  - npm test: 62 suites passed, 1478 tests passed
+  - TypeScript: No errors
+  - Build: Successful
+- Work Done:
+  - Fixed template dropdown to default to "default" (was unselected)
+  - Fixed system-category dropdown to default to "general" for admins
+  - Pre-checked "default" user keyword checkbox
+  - Changed hardcoded "Max 3" label to use config value (`maxUserKeywords`)
+  - Removed undefined `updateSelectedCategoriesText()` JS call causing console error
+  - Fixed POST /create to extract `system-category` from req.body (was completely ignored)
+  - Added system-category validation against allowed categories list
+  - Added `system-category` to page metadata before save (was missing)
+- Files Modified:
+  - views/create.ejs
+  - src/routes/WikiRoutes.ts
+  - docs/project_log.md
+
+---
+
 ## 2026-02-01-05
 
 - Agent: Claude Opus 4.5
