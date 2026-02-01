@@ -24,6 +24,37 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-01-02
+
+- Agent: Claude Opus 4.5
+- Subject: Fix ImportManager bugs - UUID filenames, logging, single file support, page refresh
+- Key Decision: Import must use UUID as filename, refresh PageManager after import
+- Current Issue: #123 (continued)
+- Testing:
+  - npm test: 62 suites passed, 1478 tests passed
+  - TypeScript: No errors
+  - Build: Successful
+- Bugs Fixed:
+  - Imported files used human-readable names instead of UUID filenames (e.g., `11th+Century.md` instead of `uuid.md`)
+  - ImportManager used `console` instead of app `logger` — no log output
+  - Single file path as sourceDir caused ENOTDIR error — now accepts both files and directories
+  - Imported pages not visible in wiki — now calls `pageManager.refreshPageList()` after import
+- Work Done:
+  - Refactored `importSinglePage` to generate UUID before writing, use it as filename
+  - Added `title` extraction from source filename (with `+` → space conversion)
+  - Replaced `this.logger = console` with `import logger` from utils
+  - Added `fs.stat` check to support single file or directory as source path
+  - Added `refreshPageList()` call after successful non-dry-run import
+  - Added "Import Pages" link to admin dashboard (Quick Actions + Administrator Tools)
+  - Updated import UI label to indicate both file and directory support
+- Commits: (see below)
+- Files Modified:
+  - src/managers/ImportManager.ts
+  - views/admin-dashboard.ejs
+  - views/admin-import.ejs
+
+---
+
 ## 2026-02-01-01
 
 - Agent: Claude Opus 4.5
@@ -42,7 +73,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - POST execute route calls `importManager.importPages()` and returns JSON
   - All handlers check `admin:system` permission
   - Completed the pending item from 2026-01-27-03
-- Commits: (see below)
+- Commits: 0f6874e
 - Files Modified:
   - src/routes/WikiRoutes.ts (added 147 lines)
 

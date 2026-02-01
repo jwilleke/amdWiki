@@ -38,11 +38,11 @@
                 <div class="card-body">
                     <form id="import-form" method="post" action="/admin/import/preview">
                         <div class="mb-3">
-                            <label for="sourceDir" class="form-label">Source Directory</label>
+                            <label for="sourceDir" class="form-label">Source Path</label>
                             <input type="text" class="form-control" id="sourceDir" name="sourceDir"
-                                   placeholder="/path/to/wiki/files" required
+                                   placeholder="/path/to/wiki/files or /path/to/file.txt" required
                                    value="<%= typeof sourceDir !== 'undefined' ? sourceDir : '' %>">
-                            <div class="form-text">Path to directory containing wiki files to import</div>
+                            <div class="form-text">Path to a directory of wiki files or a single file to import</div>
                         </div>
 
                         <div class="row">

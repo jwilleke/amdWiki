@@ -35,6 +35,7 @@ import type { WikiEngine } from '../types/WikiEngine';
 import { IContentConverter, ConversionResult } from '../converters/IContentConverter';
 import JSPWikiConverter from '../converters/JSPWikiConverter';
 import type ConfigurationManager from './ConfigurationManager';
+import logger from '../utils/logger';
 
 /**
  * Options for import operations
@@ -146,13 +147,9 @@ class ImportManager extends BaseManager {
   /** Registry of format converters */
   private converterRegistry: Map<string, IContentConverter>;
 
-  /** Logger instance */
-  private logger: Console;
-
   constructor(engine: WikiEngine) {
     super(engine);
     this.converterRegistry = new Map();
-    this.logger = console;
   }
 
   /**
@@ -164,7 +161,7 @@ class ImportManager extends BaseManager {
     // Register built-in converters
     this.registerConverter(new JSPWikiConverter());
 
-    this.logger.log('[ImportManager] Initialized with converters:', this.getAvailableFormats());
+    logger.info('[ImportManager] Initialized with converters:', this.getAvailableFormats());
   }
 
   /**
@@ -174,7 +171,7 @@ class ImportManager extends BaseManager {
    */
   registerConverter(converter: IContentConverter): void {
     if (this.converterRegistry.has(converter.formatId)) {
-      this.logger.warn(`[ImportManager] Overwriting existing converter: ${converter.formatId}`);
+      logger.warn(`[ImportManager] Overwriting existing converter: ${converter.formatId}`);
     }
     this.converterRegistry.set(converter.formatId, converter);
   }
@@ -256,12 +253,12 @@ class ImportManager extends BaseManager {
       durationMs: 0
     };
 
-    // Validate source directory
+    // Validate source path exists
     if (!await fs.pathExists(options.sourceDir)) {
       result.success = false;
       result.errors.push({
         file: options.sourceDir,
-        message: 'Source directory does not exist'
+        message: 'Source path does not exist'
       });
       result.durationMs = Date.now() - startTime;
       return result;
@@ -275,8 +272,25 @@ class ImportManager extends BaseManager {
     // Determine file extensions to process
     const fileExtensions = this.getFileExtensions(options);
 
-    // Find all files to process
-    const files = await this.findFiles(options.sourceDir, fileExtensions);
+    // Support both single file and directory imports
+    const sourceStat = await fs.stat(options.sourceDir);
+    let files: string[];
+
+    if (sourceStat.isFile()) {
+      // Single file import — use it directly
+      files = [options.sourceDir];
+    } else if (sourceStat.isDirectory()) {
+      // Directory import — find matching files
+      files = await this.findFiles(options.sourceDir, fileExtensions);
+    } else {
+      result.success = false;
+      result.errors.push({
+        file: options.sourceDir,
+        message: 'Source path is neither a file nor a directory'
+      });
+      result.durationMs = Date.now() - startTime;
+      return result;
+    }
     result.total = files.length;
 
     // Apply limit and offset
@@ -284,7 +298,7 @@ class ImportManager extends BaseManager {
     const limit = options.limit ?? files.length;
     const filesToProcess = files.slice(offset, offset + limit);
 
-    this.logger.log(`[ImportManager] Processing ${filesToProcess.length} of ${files.length} files`);
+    logger.info(`[ImportManager] Processing ${filesToProcess.length} of ${files.length} files`);
 
     // Process each file
     for (const filePath of filesToProcess) {
@@ -314,7 +328,19 @@ class ImportManager extends BaseManager {
     result.success = result.failed === 0 || (result.failed / result.total < 0.1);
     result.durationMs = Date.now() - startTime;
 
-    this.logger.log('[ImportManager] Import complete:', {
+    // Refresh page index so imported pages are immediately visible
+    if (!options.dryRun && result.converted > 0) {
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- getManager returns any
+        const pageManager = this.engine.getManager('PageManager');
+        await pageManager.refreshPageList(); // eslint-disable-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call -- getManager returns any
+        logger.info(`[ImportManager] Page index refreshed after importing ${result.converted} pages`);
+      } catch (refreshErr) {
+        logger.warn('[ImportManager] Failed to refresh page index after import:', refreshErr);
+      }
+    }
+
+    logger.info('[ImportManager] Import complete:', {
       converted: result.converted,
       skipped: result.skipped,
       failed: result.failed,
@@ -358,14 +384,26 @@ class ImportManager extends BaseManager {
     // Convert content
     const conversionResult: ConversionResult = converter.convert(content);
 
-    // Generate target path
+    // Determine UUID for filename
     const baseName = path.basename(filename, path.extname(filename));
-    const targetPath = path.join(options.targetDir ?? './data/pages', `${baseName}.md`);
+    let pageUuid: string | undefined;
+    if (options.generateUUIDs !== false) {
+      pageUuid = (conversionResult.metadata['uuid'] as string) || uuidv4();
+    }
+
+    // Use UUID as filename when available, otherwise fall back to baseName
+    const targetFilename = pageUuid ? `${pageUuid}.md` : `${baseName}.md`;
+    const targetPath = path.join(options.targetDir ?? './data/pages', targetFilename);
+
+    // Store the original page name as title if not already set
+    if (!conversionResult.metadata['title']) {
+      conversionResult.metadata['title'] = baseName.replace(/\+/g, ' ');
+    }
 
     // Build frontmatter if we have metadata
     let finalContent = conversionResult.content;
     if (Object.keys(conversionResult.metadata).length > 0 || options.generateUUIDs !== false) {
-      finalContent = this.buildFrontmatter(conversionResult, options) + '\n\n' + conversionResult.content;
+      finalContent = this.buildFrontmatter(conversionResult, pageUuid) + '\n\n' + conversionResult.content;
     }
 
     // Write file (unless dry run)
@@ -440,7 +478,7 @@ class ImportManager extends BaseManager {
    */
   private buildFrontmatter(
     result: ConversionResult,
-    options: ImportOptions
+    pageUuid?: string
   ): string {
     const frontmatter: Record<string, unknown> = {};
 
@@ -449,9 +487,9 @@ class ImportManager extends BaseManager {
       frontmatter['title'] = result.metadata['title'];
     }
 
-    // Generate UUID if requested
-    if (options.generateUUIDs !== false && !result.metadata['uuid']) {
-      frontmatter['uuid'] = uuidv4();
+    // Use pre-generated UUID
+    if (pageUuid) {
+      frontmatter['uuid'] = pageUuid;
     } else if (result.metadata['uuid']) {
       frontmatter['uuid'] = result.metadata['uuid'];
     }
