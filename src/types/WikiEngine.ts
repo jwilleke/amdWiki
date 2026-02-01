@@ -27,6 +27,7 @@ export type ManagerName =
   | 'PolicyValidator'
   | 'PolicyEvaluator'
   | 'ExportManager'
+  | 'ImportManager'
   | 'TemplateManager'
   | 'AttachmentManager'
   | 'BackupManager'

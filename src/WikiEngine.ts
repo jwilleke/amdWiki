@@ -25,6 +25,7 @@ import BackupManager from './managers/BackupManager';
 import CacheManager from './managers/CacheManager';
 import AuditManager from './managers/AuditManager';
 import AddonsManager from './managers/AddonsManager';
+import ImportManager from './managers/ImportManager';
 
 // Parsers
 import MarkupParser from './parsers/MarkupParser';
@@ -236,6 +237,11 @@ class WikiEngine extends Engine {
     const exportManager = new ExportManager(this);
     this.registerManager('ExportManager', exportManager);
     await exportManager.initialize();
+
+    // Add ImportManager for importing content from external wiki formats
+    const importManager = new ImportManager(this);
+    this.registerManager('ImportManager', importManager);
+    await importManager.initialize();
 
     // Add AttachmentManager to the initialization sequence
     const attachmentManager = new AttachmentManager(this);
