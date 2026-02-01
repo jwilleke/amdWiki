@@ -111,6 +111,7 @@ EXPOSE 3000
 # Environment variables
 ENV NODE_ENV=production
 ENV INSTANCE_DATA_FOLDER=/app/data
+ENV HEADLESS_INSTALL=true
 
 # Health check
 # Accepts both 200 (OK) and 302 (Redirect) as healthy responses
