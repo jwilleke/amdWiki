@@ -188,14 +188,14 @@ function hello() {
   });
 
   describe('links conversion', () => {
-    it('should convert [PageName] to [[PageName]]', () => {
+    it('should preserve [PageName] wiki links (amdWiki native syntax)', () => {
       const result = converter.convert('See [MyPage] for details');
-      expect(result.content).toBe('See [[MyPage]] for details');
+      expect(result.content).toBe('See [MyPage] for details');
     });
 
-    it('should convert [text|PageName] to [[PageName|text]]', () => {
+    it('should preserve [text|PageName] wiki links (amdWiki native syntax)', () => {
       const result = converter.convert('[click here|MyPage]');
-      expect(result.content).toBe('[[MyPage|click here]]');
+      expect(result.content).toBe('[click here|MyPage]');
     });
 
     it('should convert external links to markdown format', () => {
@@ -299,7 +299,7 @@ See [Documentation] for more.
       expect(result.content).toContain('## Features');
       expect(result.content).toContain('- Easy to use');
       expect(result.content).toContain('  - Multiple users');
-      expect(result.content).toContain('[[Documentation]]');
+      expect(result.content).toContain('[Documentation]');
       expect(result.content).toContain('---');
       expect(result.content).toContain('[^1]:');
     });

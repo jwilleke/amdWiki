@@ -24,6 +24,31 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-01-03
+
+- Agent: Claude Opus 4.5
+- Subject: Fix JSPWikiConverter link conversion — preserve native wiki link syntax
+- Key Decision: amdWiki uses the same link/variable/plugin syntax as JSPWiki; converter should not transform them
+- Current Issue: #123 (continued)
+- Testing:
+  - npm test: 62 suites passed, 1478 tests passed
+  - TypeScript: No errors
+  - Build: Successful
+- Bug Fixed:
+  - Converter was wrapping wiki links in double brackets `[[PageName]]` but amdWiki uses single `[PageName]`
+  - Converter was reordering piped links `[text|Page]` → `[[Page|text]]` but amdWiki uses JSPWiki order
+  - Variables `[{$pagename}]` and plugins `[{ReferringPagesPlugin ...}]` are native amdWiki syntax — left as-is
+- Work Done:
+  - Simplified `convertLinks` to only convert external links to Markdown format
+  - Removed wiki link, piped link, and literal bracket transformations
+  - Updated 3 test expectations to match new behavior
+- Commits: (see below)
+- Files Modified:
+  - src/converters/JSPWikiConverter.ts
+  - src/converters/__tests__/JSPWikiConverter.test.js
+
+---
+
 ## 2026-02-01-02
 
 - Agent: Claude Opus 4.5

@@ -294,46 +294,22 @@ class JSPWikiConverter implements IContentConverter {
   private convertLinks(content: string, warnings: string[]): string {
     let result = content;
 
-    // External links: [http://url] or [text|http://url]
-    // Convert to Markdown: [text](url) or just the URL
+    // External links with display text: [text|http://url]
+    // Convert to Markdown: [text](url)
     result = result.replace(
       /\[([^|\]]+)\|(https?:\/\/[^\]]+)\]/g,
       '[$1]($2)'
     );
+
+    // Bare external links: [http://url] -> plain URL
     result = result.replace(
       /\[(https?:\/\/[^\]]+)\]/g,
       '$1'
     );
 
-    // Wiki links with display text: [display text|PageName]
-    // Convert to WikiLink format: [[PageName|display text]]
-    result = result.replace(
-      /\[([^|\]]+)\|([^|\]]+)\]/g,
-      (match: string, display: string, page: string) => {
-        // Check if page looks like a URL (should have been caught above)
-        if (page.startsWith('http://') || page.startsWith('https://')) {
-          return match;
-        }
-        return `[[${page}|${display}]]`;
-      }
-    );
-
-    // Simple wiki links: [PageName] -> [[PageName]]
-    // Use negative lookahead to avoid matching markdown links [text](url)
-    result = result.replace(
-      /\[([^\]|]+)\](?!\()/g,
-      (match: string, page: string) => {
-        // Skip if it looks like a footnote reference [1], [#1]
-        if (/^#?\d+$/.test(page)) {
-          return match;
-        }
-        // Skip if it starts with { (plugin syntax)
-        if (page.startsWith('{')) {
-          return match;
-        }
-        return `[[${page}]]`;
-      }
-    );
+    // amdWiki natively supports JSPWiki wiki link syntax:
+    //   [PageName], [DisplayText|PageName], [{$variable}], [{Plugin ...}]
+    // These are left as-is — no conversion needed.
 
     // Detect CamelCase link disable syntax: ~NoLink
     const camelCaseDisable = result.match(/~([A-Z][a-z]+(?:[A-Z][a-z]+)+)/g);
@@ -342,9 +318,6 @@ class JSPWikiConverter implements IContentConverter {
       result = result.replace(/~([A-Z][a-z]+(?:[A-Z][a-z]+)+)/g, '$1');
       warnings.push('CamelCase link prevention (~Word) converted - verify no unintended links');
     }
-
-    // Literal brackets: [[link] -> [link]
-    result = result.replace(/\[\[([^\]]+)\](?!\])/g, '[$1]');
 
     return result;
   }
