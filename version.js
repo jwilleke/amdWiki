@@ -18,6 +18,7 @@ const path = require('path');
 
 const PACKAGE_JSON_PATH = path.join(__dirname, 'package.json');
 const CHANGELOG_PATH = path.join(__dirname, 'CHANGELOG.md');
+const DEFAULT_CONFIG_PATH = path.join(__dirname, 'config', 'app-default-config.json');
 
 function readPackageJson() {
     try {
@@ -159,6 +160,17 @@ function main() {
         // Update package.json
         packageData.version = newVersion;
         writePackageJson(packageData);
+
+        // Update app-default-config.json
+        try {
+            const configContent = fs.readFileSync(DEFAULT_CONFIG_PATH, 'utf8');
+            const config = JSON.parse(configContent);
+            config['amdwiki.version'] = newVersion;
+            fs.writeFileSync(DEFAULT_CONFIG_PATH, JSON.stringify(config, null, 2) + '\n');
+            console.log(`Updated config/app-default-config.json with version ${newVersion}`);
+        } catch (error) {
+            console.warn('Warning: Could not update app-default-config.json:', error.message);
+        }
 
         // Update changelog if incrementing
         if (['patch', 'minor', 'major'].includes(command)) {

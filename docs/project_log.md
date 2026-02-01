@@ -24,6 +24,40 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-01-10
+
+- Agent: Claude Opus 4.5
+- Subject: v1.5.2 release, Docker GHCR push, security fixes, logger bug fix
+- Key Decision: Tag-only Docker workflow triggers (no branch pushes), amd64-only platform
+- Current Issue: #225, #226, #227, #228
+- Testing:
+  - npm test: 62 suites passed, 1478 tests passed, 308 skipped
+- Work Done:
+  - Bumped version 1.5.1 → 1.5.2, updated CHANGELOG with fixes #225 #226 #227
+  - Enabled Docker workflow (renamed from .disabled), set tag-only + workflow_dispatch triggers
+  - Changed Docker platform to linux/amd64 only, removed PR test job
+  - Tagged v1.5.2 and pushed — Docker image built and pushed to ghcr.io/jwilleke/amdwiki
+  - Fixed missing `security-events: write` permission for Trivy SARIF upload
+  - Added `ENV HEADLESS_INSTALL=true` to Dockerfile runtime stage
+  - Triggered manual workflow_dispatch rebuild with Dockerfile + permission fixes
+  - Updated hono override 4.11.4 → 4.11.7 resolving 4 moderate Dependabot alerts
+  - Fixed `logger.info is not a function` in adminReindex/adminRestart — removed redundant dynamic require() that shadowed module-level import
+  - Added environment variable override documentation to docs/INSTALLATION/INSTALLATION-SYSTEM.md
+  - Updated docker/DOCKER.md environment variables section with cross-reference
+  - Bumped version to 1.5.3
+- Commits: 25fa1e5
+- Files Modified:
+  - package.json
+  - package-lock.json
+  - CHANGELOG.md
+  - .github/workflows/docker-build.yml (renamed from .disabled)
+  - docker/Dockerfile
+  - docker/DOCKER.md
+  - docs/INSTALLATION/INSTALLATION-SYSTEM.md
+  - src/routes/WikiRoutes.ts
+
+---
+
 ## 2026-02-01-09
 
 - Agent: Claude Opus 4.5
