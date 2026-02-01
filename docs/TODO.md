@@ -23,5 +23,3 @@ Tasks (3 done, 1 in progress, 0 open) · ctrl+t to hide tasks
   ✔ #1 Create IContentConverter interface
   ✔ #2 Create JSPWikiConverter implementation
   ✔ #3 Create ImportManager with converter registry
-
-2026-01-27-18:11:06 You're out of extra usage · resets Feb 1 at 3am (America/New_York)
