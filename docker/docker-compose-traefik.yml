@@ -12,30 +12,37 @@ services:
     user: "${UID:-1000}:${GID:-1000}"
 
     # Environment variables
-    # EXTERNAL_PORT: Not used with Traefik (accessed via domain)
+    # INSTANCE_DATA_FOLDER: Base path for all instance data (pages, users, logs, etc.)
+    # INSTANCE_CONFIG_FILE: Config filename to load from INSTANCE_DATA_FOLDER/config/
+    # EXTERNAL_PORT: Not used with Traefik (accessed via domain, set to 443 for HTTPS)
     # AMDWIKI_DOMAIN: Automatically set baseURL and hostname from .env
+    #
+    # Configuration merge order:
+    #   1. config/app-default-config.json (read-only, in image)
+    #   2. INSTANCE_DATA_FOLDER/config/{INSTANCE_CONFIG_FILE} (instance overrides)
     environment:
       - NODE_ENV=production
+      - INSTANCE_DATA_FOLDER=${INSTANCE_DATA_FOLDER:-./data}
+      - INSTANCE_CONFIG_FILE=${INSTANCE_CONFIG_FILE:-app-custom-config.json}
       - EXTERNAL_PORT=443
       - AMDWIKI_BASE_URL=https://${AMDWIKI_DOMAIN}
       - AMDWIKI_HOSTNAME=${AMDWIKI_DOMAIN}
 
     # Volume mounts for persistent data
+    # All instance data is consolidated under /app/data (single volume)
+    # Config properties reference subdirectories within data/:
+    # - amdwiki.page.provider.filesystem.storagedir: ./data/pages
+    # - amdwiki.user.provider.storagedir: ./data/users
+    # - amdwiki.attachment.provider.basic.storagedir: ./data/attachments
+    # - amdwiki.logging.dir: ./data/logs
+    # - amdwiki.search.provider.lunr.indexdir: ./data/search-index
+    # - amdwiki.backup.directory: ./data/backups
     volumes:
-      # Wiki pages (persistent)
-      - ../pages:/app/pages
-
-      # Required pages (system pages - persistent)
-      - ../required-pages:/app/required-pages
-
-      # Data directory (attachments, users, versions)
+      # All instance data (pages, users, attachments, logs, search-index, backups, sessions)
       - ../data:/app/data
 
-      # Logs directory
-      - ../logs:/app/logs
-
-      # Sessions directory (optional, for persistence across restarts)
-      - ../sessions:/app/sessions
+      # Required pages (system templates - read-only, copied to data/pages on install)
+      - ../required-pages:/app/required-pages
 
       # Optional: Mount custom configuration
       # - ../config/app-custom-config.json:/app/config/app-custom-config.json

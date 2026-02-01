@@ -24,6 +24,23 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-01-05
+
+- Agent: Claude Opus 4.5
+- Subject: Close #123, fix #224 Docker EROFS config write error
+- Key Decision: No config entries needed for ImportManager — converters registered programmatically; direct JSPWiki rendering deferred
+- Current Issue: #224
+- Work Done:
+  - Closed #123: noted config entries not needed (programmatic converter registry), direct rendering not pursued
+  - Fixed #224: updated `docker/docker-compose-traefik.yml` to add missing `INSTANCE_DATA_FOLDER` and `INSTANCE_CONFIG_FILE` env vars
+  - Consolidated fragmented volume mounts (`../pages`, `../logs`, `../sessions`) into single `../data:/app/data` mount to match standard `docker-compose.yml`
+  - Root cause: Traefik compose missing env vars from #219, overlapping mounts shadowed `/app/data/config/`
+- Files Modified:
+  - docker/docker-compose-traefik.yml
+  - docs/project_log.md
+
+---
+
 ## 2026-02-01-04
 
 - Agent: Claude Opus 4.5
@@ -44,9 +61,6 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Files Modified:
   - src/managers/ImportManager.ts
   - views/admin-import.ejs
-- Pending (for next session):
-  - Config entries in `app-default-config.json`
-  - Priority 2: Direct .txt rendering (deferred)
 
 ---
 
