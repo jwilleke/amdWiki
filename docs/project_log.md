@@ -24,6 +24,30 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-01-01
+
+- Agent: Claude Opus 4.5
+- Subject: Add import routes to WikiRoutes.ts
+- Key Decision: Follow existing admin handler pattern (adminBackup) for permission checks and error handling
+- Current Issue: #123 (continued)
+- Testing:
+  - npm test: 62 suites passed, 1478 tests passed
+  - TypeScript: No errors
+  - Build: Successful
+- Work Done:
+  - Added 3 route handlers to WikiRoutes.ts: `adminImport`, `adminImportPreview`, `adminImportExecute`
+  - Added 3 route registrations: GET `/admin/import`, POST `/admin/import/preview`, POST `/admin/import/execute`
+  - GET route renders `admin-import` view with converter info from ImportManager
+  - POST preview route calls `importManager.previewImport()` (dry-run) and returns JSON
+  - POST execute route calls `importManager.importPages()` and returns JSON
+  - All handlers check `admin:system` permission
+  - Completed the pending item from 2026-01-27-03
+- Commits: (see below)
+- Files Modified:
+  - src/routes/WikiRoutes.ts (added 147 lines)
+
+---
+
 ## 2026-01-27-03
 
 - Agent: Claude Opus 4.5
@@ -63,7 +87,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - src/WikiEngine.ts (added ImportManager)
   - src/types/WikiEngine.ts (added ImportManager to ManagerName)
 - Pending:
-  - Add import routes to WikiRoutes.ts
+  - ~~Add import routes to WikiRoutes.ts~~ (done in 2026-02-01-01)
   - Direct .txt rendering (deferred to future)
 
 ---
