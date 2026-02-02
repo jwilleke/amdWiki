@@ -24,6 +24,28 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-02-13
+
+- Agent: Claude Opus 4.5
+- Subject: Fix broken search page (#222)
+- Key Decision: Added form ID to disambiguate from nav search form
+- Current Issue: #222 (closed)
+- Testing:
+  - npm test: 62 suites passed, 1478 tests passed (1 pre-existing HtmlConverter.test.js failure)
+- Work Done:
+  - Reorganized search form layout: Search Text full-width row, Search In + Categories + Keywords as 3 equal columns, Search Button full-width row
+  - Fixed auto-submit JS selecting nav bar form instead of advanced search form via `document.querySelector('form')` — added `id="advancedSearchForm"` and scoped all JS selectors to it
+  - Fixed empty state never rendering due to truthy empty array check on `userKeywords`
+  - Fixed results description referencing `userKeywordsList` (full dropdown list) instead of `userKeywords` (selected values)
+  - Fixed 4 broken HTML tags with `style=` embedded inside `class=` attributes in stats sidebar
+  - Updated Search Documentation page to reflect new checkbox-based UI layout
+- Commits: aceb8f7
+- Files Modified:
+  - views/search-results.ejs
+  - required-pages/fe7a378d-dfa5-4e37-9891-637568ebe0b4.md
+
+---
+
 ## 2026-02-02-12
 
 - Agent: Claude Opus 4.5
