@@ -20,24 +20,24 @@
     </div>
     <div class="collapse show" id="searchOptions">
     <div class="card-body" style="background-color: var(--card-bg);">
-            <form action="/search" method="GET" class="row g-3">
-                <!-- Text Search -->
-                <div class="col-md-4">
+            <form id="advancedSearchForm" action="/search" method="GET" class="row g-3">
+                <!-- Text Search (full width row) -->
+                <div class="col-12">
                     <label for="query" class="form-label fw-bold">
                         <i class="fas fa-search me-1"></i>Search Text
                     </label>
-                    <input type="text" class="form-control" id="query" name="q" value="<%= query %>" 
+                    <input type="text" class="form-control" id="query" name="q" value="<%= query %>"
                            placeholder="Enter search terms...">
                 </div>
-                
+
                 <!-- Search In -->
                 <div class="col-md-4">
                     <label class="form-label fw-bold">
                         <i class="fas fa-filter me-1"></i>Search In
                     </label>
-                    <div class="border rounded p-2" style="max-height: 120px; overflow-y: auto;">
+                    <div class="border rounded p-2" style="max-height: 150px; overflow-y: auto;">
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="searchIn_all" name="searchIn" value="all" 
+                            <input class="form-check-input" type="checkbox" id="searchIn_all" name="searchIn" value="all"
                                    <%= (Array.isArray(searchIn) ? searchIn.includes('all') : searchIn === 'all') || !searchIn ? 'checked' : '' %>>
                             <label class="form-check-label" for="searchIn_all">All Fields</label>
                         </div>
@@ -63,24 +63,17 @@
                         </div>
                     </div>
                 </div>
-                
-                <!-- Search Button -->
-                <div class="col-md-4 d-flex align-items-end">
-                    <button class="btn btn-primary w-100" type="submit">
-                        <i class="fas fa-search me-1"></i>Search
-                    </button>
-                </div>
-                
+
                 <!-- Include Categories -->
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <label class="form-label fw-bold">
                         <i class="fas fa-folder me-1"></i>Include Categories
                     </label>
                     <div class="border rounded p-2" style="max-height: 150px; overflow-y: auto;">
                         <% availableCategories.forEach(cat => { %>
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="category_<%= cat.replace(/[^a-zA-Z0-9]/g, '_') %>" 
-                                       name="category" value="<%= cat %>" 
+                                <input class="form-check-input" type="checkbox" id="category_<%= cat.replace(/[^a-zA-Z0-9]/g, '_') %>"
+                                       name="category" value="<%= cat %>"
                                        <%= (Array.isArray(categories) ? categories.includes(cat) : category === cat) ? 'checked' : '' %>>
                                 <label class="form-check-label" for="category_<%= cat.replace(/[^a-zA-Z0-9]/g, '_') %>">
                                     <%= cat %>
@@ -89,9 +82,9 @@
                         <% }); %>
                     </div>
                 </div>
-                
+
                 <!-- Include User Keywords -->
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <label class="form-label fw-bold">
                         <i class="fas fa-tags me-1"></i>Include User Keywords
                     </label>
@@ -108,13 +101,20 @@
                         <% }); %>
                     </div>
                 </div>
+
+                <!-- Search Button (full width row) -->
+                <div class="col-12">
+                    <button class="btn btn-primary w-100" type="submit">
+                        <i class="fas fa-search me-1"></i>Search
+                    </button>
+                </div>
             </form>
         </div>
     </div>
 </div>
 
 <!-- Search Results -->
-<% if (query || category || userKeywords) { %>
+<% if (query || (categories && categories.length > 0) || (userKeywords && userKeywords.length > 0)) { %>
     <div class="row" style="background-color: var(--card-bg);">
         <div class="col-md-9">
             <% if (results.length > 0) { %>
@@ -125,17 +125,17 @@
                             for categor<%= categories && categories.length > 1 ? 'ies' : 'y' %> 
                             "<%= Array.isArray(categories) ? categories.join('", "') : category %>"
                         <% } else if (searchType === 'keywords') { %>
-                            for keyword<%= userKeywordsList && userKeywordsList.length > 1 ? 's' : '' %> 
-                            "<%= Array.isArray(userKeywordsList) ? userKeywordsList.join('", "') : userKeywords %>"
+                            for keyword<%= userKeywords && userKeywords.length > 1 ? 's' : '' %>
+                            "<%= Array.isArray(userKeywords) ? userKeywords.join('", "') : userKeywords %>"
                         <% } else if (query) { %>
                             for "<%= query %>"
                             <% if (categories && (Array.isArray(categories) ? categories.length > 0 : category)) { %>
                                 in categor<%= (Array.isArray(categories) ? categories.length > 1 : false) ? 'ies' : 'y' %> 
                                 "<%= Array.isArray(categories) ? categories.join('", "') : category %>"
                             <% } %>
-                            <% if (userKeywordsList && (Array.isArray(userKeywordsList) ? userKeywordsList.length > 0 : userKeywords)) { %>
-                                with keyword<%= (Array.isArray(userKeywordsList) ? userKeywordsList.length > 1 : false) ? 's' : '' %> 
-                                "<%= Array.isArray(userKeywordsList) ? userKeywordsList.join('", "') : userKeywords %>"
+                            <% if (userKeywords && (Array.isArray(userKeywords) ? userKeywords.length > 0 : userKeywords)) { %>
+                                with keyword<%= (Array.isArray(userKeywords) ? userKeywords.length > 1 : false) ? 's' : '' %>
+                                "<%= Array.isArray(userKeywords) ? userKeywords.join('", "') : userKeywords %>"
                             <% } %>
                         <% } %>
                     </small>
@@ -220,15 +220,15 @@
                 <div class="card-body" style="background-color: var(--card-bg);">
                     <table class="table table-sm table-borderless">
                         <tr>
-                            <td><i class="fas fa-file-alt style="color: var(--text-primary);" me-2"></i><strong>Total Pages:</strong></td>
+                            <td><i class="fas fa-file-alt me-2" style="color: var(--text-primary);"></i><strong>Total Pages:</strong></td>
                             <td><span class="badge" style="background-color: var(--badge-primary-bg); color: var(--badge-primary-text);"><%= stats.totalDocuments %></span></td>
                         </tr>
                         <tr>
-                            <td><i class="fas fa-folder style="color: var(--text-secondary);" me-2"></i><strong>Categories:</strong></td>
+                            <td><i class="fas fa-folder me-2" style="color: var(--text-secondary);"></i><strong>Categories:</strong></td>
                             <td><span class="badge" style="background-color: var(--badge-secondary-bg); color: var(--badge-secondary-text);"><%= stats.totalCategories %></span></td>
                         </tr>
                         <tr>
-                            <td><i class="fas fa-tags style="color: var(--text-info);" me-2"></i><strong>Keywords:</strong></td>
+                            <td><i class="fas fa-tags me-2" style="color: var(--text-info);"></i><strong>Keywords:</strong></td>
                             <td><span class="badge" style="background-color: var(--badge-info-bg); color: var(--badge-info-text);"><%= stats.totalUserKeywords %></span></td>
                         </tr>
                     </table>
@@ -345,7 +345,7 @@
             <div class="col-md-8 offset-md-2">
                 <div class="card border-light">
                     <div class="card-body" style="background-color: var(--card-bg);">
-                        <h6><i class="fas fa-lightbulb style="color: var(--text-warning);""></i> Quick Search Tips</h6>
+                        <h6><i class="fas fa-lightbulb" style="color: var(--text-warning);"></i> Quick Search Tips</h6>
                         <div class="row">
                             <div class="col-md-6">
                                 <ul class="list-unstyled small">
@@ -433,8 +433,8 @@ if (document.readyState === 'loading') {
 <script>
 // Auto-submit form when filters change
 document.addEventListener('DOMContentLoaded', function() {
-    const form = document.querySelector('form');
-    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    const form = document.getElementById('advancedSearchForm');
+    const checkboxes = form.querySelectorAll('input[type="checkbox"]');
     
     // Handle multi-select checkboxes
     checkboxes.forEach(checkbox => {
@@ -451,7 +451,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // Handle Search In checkboxes - only allow one selection
-    const searchInCheckboxes = document.querySelectorAll('input[name="searchIn"]');
+    const searchInCheckboxes = form.querySelectorAll('input[name="searchIn"]');
     searchInCheckboxes.forEach(checkbox => {
         checkbox.addEventListener('change', function() {
             if (this.checked) {
