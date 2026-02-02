@@ -3581,9 +3581,11 @@ class WikiRoutes {
       const customProperties = configManager.getCustomProperties();
       const mergedProperties = configManager.getAllProperties();
 
+      const commonData = await this.getCommonTemplateData(req);
+
       const templateData = {
+        ...commonData,
         title: 'Configuration Management',
-        user: currentUser,
         message: req.query.success,
         error: req.query.error,
         defaultProperties,
@@ -3810,7 +3812,6 @@ class WikiRoutes {
       }
 
       const commonData = await this.getCommonTemplateData(req);
-      const leftMenuContent = await this.getLeftMenu();
 
       // System configuration settings (you can expand this)
       const settings = {
@@ -3825,7 +3826,6 @@ class WikiRoutes {
       return res.render('admin-settings', {
         ...commonData,
         title: 'System Settings',
-        leftMenuContent: leftMenuContent,
         settings: settings
       });
     } catch (err: unknown) {

@@ -12,6 +12,7 @@ slug: amdwiki-todo
 
 # Project Development TODO
 
-## In Progress
+Work on
 
-- [#231](https://github.com/jwilleke/amdWiki/issues/231) — `server.sh stop` fails to stop server (PM2 respawn race). Fix implemented in `server.sh`: `kill_all_amdwiki()` now deletes all PM2 apps before killing node processes, `stop` has a retry loop, `unlock` explicitly deletes PM2 apps before killing the daemon. Docker/K8s unaffected (they don't use PM2).
+- Login button visible on admin pages when already authenticated #229
+- Admin pages show fallback Left Menu instead of LeftMenu.md #228

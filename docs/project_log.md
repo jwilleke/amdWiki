@@ -24,6 +24,27 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-02-15
+
+- Agent: Claude Opus 4.5
+- Subject: Fix #229 and #228 — admin pages login button and duplicate left menu
+- Key Decision: Use `getCommonTemplateData()` consistently across all admin handlers; remove duplicate leftMenu rendering from admin templates
+- Current Issues: #229, #228
+- Work Done:
+  - Fixed `adminConfiguration()` in WikiRoutes.ts: added `getCommonTemplateData(req)` call so `currentUser` and `leftMenu` are passed to the template — fixes login button showing when authenticated (#229) and fallback left menu (#228)
+  - Removed redundant `getLeftMenu()` call from `adminSettings()` since `getCommonTemplateData()` already provides `leftMenu`
+  - Removed duplicate `<%- leftMenu %>` column from three admin templates that rendered the left menu inside the page body (header.ejs sidebar already handles it): admin-settings.ejs, admin-import.ejs, admin-organizations.ejs
+  - Changed duplicate-affected templates from `container-fluid` + `col-md-9` to `container` + `col-12` for consistent layout with other admin pages
+- Files Modified:
+  - src/routes/WikiRoutes.ts
+  - views/admin-settings.ejs
+  - views/admin-import.ejs
+  - views/admin-organizations.ejs
+  - docs/TODO.md
+  - docs/project_log.md
+
+---
+
 ## 2026-02-02-14
 
 - Agent: Claude Opus 4.5
