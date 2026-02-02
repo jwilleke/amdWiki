@@ -160,5 +160,5 @@ addons/*/*.db
 .users/
 themes/
 mcp-server.ts
-version.js
+scripts/version.js
 ecosystem.config.js

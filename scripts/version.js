@@ -5,20 +5,25 @@
  *
  * Helps manage semantic versioning for the project.
  *
+ * Updates: package.json, package-lock.json (via npm), app-default-config.json,
+ *          CHANGELOG.md, and creates a git tag (v<version>).
+ *
  * Usage:
- *   node version.js                    - Show current version
- *   node version.js patch              - Increment patch version (bug fixes)
- *   node version.js minor              - Increment minor version (new features)
- *   node version.js major              - Increment major version (breaking changes)
- *   node version.js set <version>      - Set specific version
+ *   node scripts/version.js                    - Show current version
+ *   node scripts/version.js patch              - Increment patch version (bug fixes)
+ *   node scripts/version.js minor              - Increment minor version (new features)
+ *   node scripts/version.js major              - Increment major version (breaking changes)
+ *   node scripts/version.js set <version>      - Set specific version
  */
 
 const fs = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
 
-const PACKAGE_JSON_PATH = path.join(__dirname, 'package.json');
-const CHANGELOG_PATH = path.join(__dirname, 'CHANGELOG.md');
-const DEFAULT_CONFIG_PATH = path.join(__dirname, 'config', 'app-default-config.json');
+const PROJECT_ROOT = path.join(__dirname, '..');
+const PACKAGE_JSON_PATH = path.join(PROJECT_ROOT, 'package.json');
+const CHANGELOG_PATH = path.join(PROJECT_ROOT, 'CHANGELOG.md');
+const DEFAULT_CONFIG_PATH = path.join(PROJECT_ROOT, 'config', 'app-default-config.json');
 
 function readPackageJson() {
     try {
@@ -97,19 +102,46 @@ function showHelp() {
 amdWiki Version Management
 
 Usage:
-  node version.js                    - Show current version and info
-  node version.js patch              - Increment patch (bug fixes: 1.2.0 → 1.2.1)
-  node version.js minor              - Increment minor (new features: 1.2.0 → 1.3.0)
-  node version.js major              - Increment major (breaking changes: 1.2.0 → 2.0.0)
-  node version.js set <version>      - Set specific version (e.g., 1.2.3)
-  node version.js help               - Show this help
+  node scripts/version.js                    - Show current version and info
+  node scripts/version.js patch              - Increment patch (bug fixes: 1.2.0 → 1.2.1)
+  node scripts/version.js minor              - Increment minor (new features: 1.2.0 → 1.3.0)
+  node scripts/version.js major              - Increment major (breaking changes: 1.2.0 → 2.0.0)
+  node scripts/version.js set <version>      - Set specific version (e.g., 1.2.3)
+  node scripts/version.js help               - Show this help
 
 Semantic Versioning:
   MAJOR.MINOR.PATCH
   - MAJOR: Incompatible API changes
   - MINOR: Backward-compatible functionality additions
   - PATCH: Backward-compatible bug fixes
+
+Files updated:
+  - package.json
+  - config/app-default-config.json (amdwiki.version)
+  - CHANGELOG.md (Unreleased → version header)
+  - Git tag v<version> created locally
+
+To publish Docker image after bumping:
+  git push origin v<version>
 `);
+}
+
+function createGitTag(version) {
+    const tag = `v${version}`;
+    try {
+        // Check if tag already exists
+        const existing = execSync(`git tag -l "${tag}"`, { encoding: 'utf8' }).trim();
+        if (existing === tag) {
+            console.warn(`Warning: Git tag ${tag} already exists, skipping tag creation.`);
+            return;
+        }
+
+        execSync(`git tag "${tag}"`, { stdio: 'pipe' });
+        console.log(`Created git tag: ${tag}`);
+    } catch (error) {
+        // git not available or other error, skip tagging
+        console.warn(`Warning: Could not create git tag ${tag}:`, error.message);
+    }
 }
 
 function main() {
@@ -124,7 +156,7 @@ function main() {
             console.log(`Current version: ${currentVersion}`);
             console.log(`Project: ${packageData.name}`);
             console.log(`Description: ${packageData.description || 'No description'}`);
-            console.log('\nRun "node version.js help" for usage information.');
+            console.log('\nRun "node scripts/version.js help" for usage information.');
         } else {
             showHelp();
         }
@@ -153,7 +185,7 @@ function main() {
 
             default:
                 console.error(`Error: Unknown command "${command}"`);
-                console.log('Run "node version.js help" for usage information.');
+                console.log('Run "node scripts/version.js help" for usage information.');
                 process.exit(1);
         }
 
@@ -177,6 +209,9 @@ function main() {
             updateChangelogForRelease(newVersion);
         }
 
+        // Create git tag
+        createGitTag(newVersion);
+
         console.log(`Version updated: ${currentVersion} → ${newVersion}`);
         console.log(`Type: ${command.toUpperCase()}`);
 
@@ -187,6 +222,9 @@ function main() {
         } else if (command === 'patch') {
             console.log('\n🐛 PATCH version bump - bug fixes');
         }
+
+        console.log(`\n🏷️  Git tag v${newVersion} created locally.`);
+        console.log(`   To trigger Docker build: git push origin v${newVersion}`);
 
     } catch (error) {
         console.error('Error:', error.message);

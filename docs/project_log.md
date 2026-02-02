@@ -27,18 +27,29 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 ## 2026-02-02-14
 
 - Agent: Claude Opus 4.5
-- Subject: Fix #231 — server.sh stop fails to stop server (PM2 respawn race)
-- Key Decision: Delete all PM2 apps before killing node processes to prevent autorestart respawn
+- Subject: Fix #231 — server.sh stop fails, version.js enhancements, move to scripts/
+- Key Decision: Delete all PM2 apps before killing node processes to prevent autorestart respawn; move version.js to scripts/ directory
 - Current Issue: #231
 - Work Done:
   - Rewrote `kill_all_amdwiki()` in server.sh: added `pm2 stop all` / `pm2 delete all` fallback after named stop/delete to handle PM2 name mismatches; node processes are now killed only after PM2 apps are deleted so autorestart cannot respawn them
   - Added retry loop (up to 3 attempts) in `stop` command to handle the race condition where PM2 respawns a process between stop and delete; reports error with guidance to use `./server.sh unlock` if all retries fail
   - Added `pm2 delete all` to `unlock` command before `pm2 kill` so apps are explicitly removed before the daemon is destroyed
   - Updated docs/SERVER-MANAGEMENT.md: revised stop procedure code examples, updated unlock/reset examples, added #231 to testing checklist and references, clarified that Docker and K8s deployments are unaffected (they run `node app.js` directly without PM2)
-  - Updated docs/TODO.md with #231 status
+  - Bumped version 1.5.5 → 1.5.6 in package.json, package-lock.json, and config/app-default-config.json; tagged v1.5.6 and pushed to trigger Docker build
+  - Added git tag creation to version.js: automatically creates `v<version>` tag locally after bumping, with duplicate detection and help text showing push command for Docker build trigger
+  - Moved version.js from project root to scripts/version.js; updated `__dirname` paths to use `path.join(__dirname, '..')`, updated all references in package.json scripts, docker/.dockerignore, README.md, docs/SEMVER.md, docs/architecture/PROJECT-STRUCTURE.md, and internal help text
+- Commits: 9fdfd69
 - Files Modified:
   - server.sh
+  - scripts/version.js (moved from version.js)
+  - package.json
+  - package-lock.json
+  - config/app-default-config.json
+  - docker/.dockerignore
+  - README.md
   - docs/SERVER-MANAGEMENT.md
+  - docs/SEMVER.md
+  - docs/architecture/PROJECT-STRUCTURE.md
   - docs/TODO.md
   - docs/project_log.md
 

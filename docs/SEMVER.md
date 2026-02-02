@@ -25,17 +25,17 @@ This represents a MINOR version increment from the baseline due to significant n
 
 ## Tools Implemented
 
-### 1. Version Management Script (`version.js`)
+### 1. Version Management Script (`scripts/version.js`)
 
 **Usage**:
 
 ```bash
-node version.js                    # Show current version
-node version.js patch              # Increment patch version
-node version.js minor              # Increment minor version  
-node version.js major              # Increment major version
-node version.js set <version>      # Set specific version
-node version.js help               # Show help
+node scripts/version.js                    # Show current version
+node scripts/version.js patch              # Increment patch version
+node scripts/version.js minor              # Increment minor version
+node scripts/version.js major              # Increment major version
+node scripts/version.js set <version>      # Set specific version
+node scripts/version.js help               # Show help
 ```
 
 ### 2. NPM Scripts
@@ -45,11 +45,11 @@ Added to `package.json`:
 ```json
 {
   "scripts": {
-    "version:show": "node version.js",
-    "version:patch": "node version.js patch",
-    "version:minor": "node version.js minor", 
-    "version:major": "node version.js major",
-    "version:help": "node version.js help"
+    "version:show": "node scripts/version.js",
+    "version:patch": "node scripts/version.js patch",
+    "version:minor": "node scripts/version.js minor",
+    "version:major": "node scripts/version.js major",
+    "version:help": "node scripts/version.js help"
   }
 }
 ```
@@ -134,7 +134,7 @@ npm run version:minor
 npm run version:major
 
 # Set specific version for hotfix
-node version.js set 1.2.1
+node scripts/version.js set 1.2.1
 ```
 
 ## Integration with Development Workflow

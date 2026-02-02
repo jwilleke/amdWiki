@@ -280,7 +280,7 @@ This project follows [Semantic Versioning](https://semver.org/) (SemVer). Use th
 ```bash
 npm run version:show
 # or
-node version.js
+node scripts/version.js
 ```
 
 ### Increment Version
@@ -294,7 +294,7 @@ npm run version:major    # Breaking changes (1.2.0 → 2.0.0)
 ### Set Specific Version
 
 ```bash
-node version.js set 1.2.3
+node scripts/version.js set 1.2.3
 ```
 
 ### Version Help

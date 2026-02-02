@@ -164,7 +164,7 @@ These directories contain runtime-generated data that should not be version cont
 ### Source Files
 
 - **PascalCase** for classes: `WikiEngine.js`, `PageManager.js`
-- **camelCase** for utilities: `logger.js`, `version.js`
+- **camelCase** for utilities: `logger.js`, `scripts/version.js`
 - **kebab-case** for config: `Config.js`
 
 ### Documentation Files
