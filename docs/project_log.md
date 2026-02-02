@@ -24,6 +24,36 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-02-12
+
+- Agent: Claude Opus 4.5
+- Subject: Import HTML from URL feature (#230), footnote rendering fixes
+- Key Decision: Used turndown for HTML-to-Markdown (purpose-built) + linkedom (already installed) for DOM parsing
+- Current Issue: #230 (Import HTML from URL), #231 (server.sh stop bug filed)
+- Testing:
+  - npm test: 63 suites passed, 1520 tests passed
+- Work Done:
+  - Created HtmlConverter (IContentConverter) with content extraction, metadata/schema.org extraction, citation-to-footnote conversion
+  - Added importFromUrl() to ImportManager with URL fetching, frontmatter building, source citation
+  - Added admin routes POST /admin/import/url/preview and /execute
+  - Added Import from URL UI section to admin-import.ejs with preview/import workflow
+  - Fixed showdown-footnotes-fixed.ts greedy regex merging consecutive footnote definitions
+  - Added auto-linking of bare URLs in footnote content
+  - Filed #231 for server.sh stop vs PM2 name mismatch bug
+  - 42 new HtmlConverter tests
+- Commits: 2c853f8
+- Files Modified:
+  - src/converters/HtmlConverter.ts (new)
+  - src/converters/__tests__/HtmlConverter.test.js (new)
+  - src/managers/ImportManager.ts
+  - src/routes/WikiRoutes.ts
+  - views/admin-import.ejs
+  - src/extensions/showdown-footnotes-fixed.ts
+  - package.json, package-lock.json
+  - config/app-default-config.json
+
+---
+
 ## 2026-02-01-11
 
 - Agent: Claude Opus 4.5
