@@ -4087,6 +4087,100 @@ class WikiRoutes {
   }
 
   /**
+   * Admin URL import preview - fetch URL, convert, return preview JSON
+   */
+  async adminImportUrlPreview(req: Request, res: Response) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = req.userContext;
+
+      if (
+        !currentUser ||
+        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+      ) {
+        return res.status(403).json({
+          success: false,
+          error: 'You do not have permission to import pages'
+        });
+      }
+
+      const { url, title } = req.body;
+
+      if (!url) {
+        return res.status(400).json({
+          success: false,
+          error: 'url is required'
+        });
+      }
+
+      const importManager = this.engine.getManager('ImportManager');
+      const result = await importManager.importFromUrl(url, {
+        title: title || undefined,
+        dryRun: true
+      });
+
+      return res.json({
+        success: true,
+        file: result,
+        content: result.metadata?.['_previewContent'] as string || undefined
+      });
+    } catch (err: unknown) {
+      logger.error('Error previewing URL import:', err);
+      return res.status(500).json({
+        success: false,
+        error: getErrorMessage(err) || 'Error previewing URL import'
+      });
+    }
+  }
+
+  /**
+   * Admin URL import execute - fetch URL, convert, create page
+   */
+  async adminImportUrlExecute(req: Request, res: Response) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = req.userContext;
+
+      if (
+        !currentUser ||
+        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+      ) {
+        return res.status(403).json({
+          success: false,
+          error: 'You do not have permission to import pages'
+        });
+      }
+
+      const { url, title } = req.body;
+
+      if (!url) {
+        return res.status(400).json({
+          success: false,
+          error: 'url is required'
+        });
+      }
+
+      const importManager = this.engine.getManager('ImportManager');
+      const result = await importManager.importFromUrl(url, {
+        title: title || undefined,
+        dryRun: false
+      });
+
+      return res.json({
+        success: !result.skippedReason,
+        file: result,
+        skipped: !!result.skippedReason
+      });
+    } catch (err: unknown) {
+      logger.error('Error executing URL import:', err);
+      return res.status(500).json({
+        success: false,
+        error: getErrorMessage(err) || 'Error executing URL import'
+      });
+    }
+  }
+
+  /**
    * Admin logs page
    */
   async adminLogs(req: Request, res: Response) {
@@ -4640,6 +4734,8 @@ class WikiRoutes {
     app.get('/admin/import', (req: Request, res: Response) => this.adminImport(req, res));
     app.post('/admin/import/preview', (req: Request, res: Response) => this.adminImportPreview(req, res));
     app.post('/admin/import/execute', (req: Request, res: Response) => this.adminImportExecute(req, res));
+    app.post('/admin/import/url/preview', (req: Request, res: Response) => this.adminImportUrlPreview(req, res));
+    app.post('/admin/import/url/execute', (req: Request, res: Response) => this.adminImportUrlExecute(req, res));
 
     // Image upload route with error handling
     app.post('/images/upload', (req: Request, res: Response) => {

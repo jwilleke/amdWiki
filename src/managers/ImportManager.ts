@@ -34,6 +34,7 @@ import BaseManager, { BackupData } from './BaseManager';
 import type { WikiEngine } from '../types/WikiEngine';
 import { IContentConverter, ConversionResult } from '../converters/IContentConverter';
 import JSPWikiConverter from '../converters/JSPWikiConverter';
+import HtmlConverter from '../converters/HtmlConverter';
 import type ConfigurationManager from './ConfigurationManager';
 import logger from '../utils/logger';
 
@@ -166,6 +167,7 @@ class ImportManager extends BaseManager {
 
     // Register built-in converters
     this.registerConverter(new JSPWikiConverter());
+    this.registerConverter(new HtmlConverter());
 
     logger.info('[ImportManager] Initialized with converters:', this.getAvailableFormats());
   }
@@ -459,6 +461,227 @@ class ImportManager extends BaseManager {
       warnings: conversionResult.warnings,
       written
     };
+  }
+
+  /**
+   * Import a page from a URL
+   *
+   * Fetches the URL, converts HTML to Markdown using the html converter,
+   * and writes the page file with schema.org metadata in frontmatter.
+   *
+   * @param url - URL to fetch and import
+   * @param options - Optional overrides (title, dryRun)
+   * @returns Imported file info
+   */
+  async importFromUrl(
+    url: string,
+    options: { title?: string; dryRun?: boolean } = {}
+  ): Promise<ImportedFile> {
+    // Validate URL
+    let parsedUrl: URL;
+    try {
+      parsedUrl = new URL(url);
+    } catch {
+      throw new Error(`Invalid URL: ${url}`);
+    }
+
+    if (!parsedUrl.protocol.startsWith('http')) {
+      throw new Error('Only HTTP and HTTPS URLs are supported');
+    }
+
+    // Fetch the page
+    logger.info(`[ImportManager] Fetching URL: ${url}`);
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'amdWiki/1.0 (URL Import)',
+        'Accept': 'text/html,application/xhtml+xml'
+      },
+      redirect: 'follow',
+      signal: AbortSignal.timeout(30000)
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch URL: HTTP ${response.status} ${response.statusText}`);
+    }
+
+    const contentType = response.headers.get('content-type') || '';
+    if (!contentType.includes('text/html') && !contentType.includes('application/xhtml')) {
+      throw new Error(`URL did not return HTML content (got ${contentType})`);
+    }
+
+    const html = await response.text();
+
+    // Get the HTML converter
+    const converter = this.converterRegistry.get('html');
+    if (!converter) {
+      throw new Error('HTML converter not registered');
+    }
+
+    // Convert HTML to Markdown
+    const conversionResult = converter.convert(html);
+
+    // Override title if provided
+    if (options.title) {
+      conversionResult.metadata['title'] = options.title;
+    }
+
+    // Ensure title exists
+    if (!conversionResult.metadata['title']) {
+      // Derive from URL path
+      const pathSegments = parsedUrl.pathname.split('/').filter(Boolean);
+      conversionResult.metadata['title'] = pathSegments.length > 0
+        ? decodeURIComponent(pathSegments[pathSegments.length - 1]).replace(/[-_]/g, ' ')
+        : parsedUrl.hostname;
+    }
+
+    // Add URL import metadata
+    conversionResult.metadata['sourceUrl'] = url;
+    conversionResult.metadata['importedAt'] = new Date().toISOString();
+
+    // Set system-category
+    if (!conversionResult.metadata['system-category']) {
+      conversionResult.metadata['system-category'] = 'general';
+    }
+
+    // Generate UUID
+    const pageUuid = uuidv4();
+
+    // Check for duplicate page by title
+    const pageTitle = conversionResult.metadata['title'] as string;
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- getManager returns any
+      const pageManager = this.engine.getManager('PageManager');
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call -- getManager returns any
+      const existingPage = await pageManager.getPage(pageTitle);
+      if (existingPage) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- page object
+        const existingUuid = (existingPage.uuid || existingPage.metadata?.uuid || '') as string;
+        return {
+          sourcePath: url,
+          targetPath: '',
+          format: 'html',
+          size: 0,
+          metadata: conversionResult.metadata,
+          warnings: [`Page "${pageTitle}" already exists (${existingUuid})`],
+          written: false,
+          skippedReason: 'duplicate',
+          existingPageUuid: existingUuid
+        };
+      }
+    } catch {
+      // PageManager lookup failed — proceed with import
+    }
+
+    // Build frontmatter and content with source citation
+    const importDate = (conversionResult.metadata['importedAt'] as string).split('T')[0];
+    const sourceCitation = `\n\n----\n* [#1] - [${pageTitle}|${url}|target='_blank'] - based on information obtained ${importDate}\n`;
+    const finalContent = this.buildUrlFrontmatter(conversionResult, pageUuid)
+      + '\n\n' + conversionResult.content + sourceCitation;
+
+    // Determine target path
+    const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
+    const defaultPagesDir = configManager?.getProperty('amdwiki.paths.pages', './data/pages') as string ?? './data/pages';
+    const targetPath = path.join(path.resolve(defaultPagesDir), `${pageUuid}.md`);
+
+    // Write file (unless dry run)
+    const written = !options.dryRun;
+    if (written) {
+      await fs.ensureDir(path.dirname(targetPath));
+      await fs.writeFile(targetPath, finalContent, 'utf-8');
+
+      // Refresh page index
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- getManager returns any
+        const pageManager = this.engine.getManager('PageManager');
+        await pageManager.refreshPageList(); // eslint-disable-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call -- getManager returns any
+        logger.info('[ImportManager] Page index refreshed after URL import');
+      } catch (refreshErr) {
+        logger.warn('[ImportManager] Failed to refresh page index after URL import:', refreshErr);
+      }
+    }
+
+    logger.info(`[ImportManager] URL import ${options.dryRun ? 'preview' : 'complete'}: "${pageTitle}" from ${url}`);
+
+    return {
+      sourcePath: url,
+      targetPath,
+      format: 'html',
+      size: Buffer.byteLength(finalContent, 'utf-8'),
+      metadata: conversionResult.metadata,
+      warnings: conversionResult.warnings,
+      written
+    };
+  }
+
+  /**
+   * Build YAML frontmatter for URL imports with schema.org namespace
+   */
+  private buildUrlFrontmatter(
+    result: ConversionResult,
+    pageUuid: string
+  ): string {
+    const lines = ['---'];
+
+    // Title
+    if (result.metadata['title']) {
+      lines.push(`title: ${this.yamlValue(result.metadata['title'] as string)}`);
+    }
+
+    // UUID
+    lines.push(`uuid: ${pageUuid}`);
+
+    // Source URL
+    if (result.metadata['sourceUrl']) {
+      lines.push(`sourceUrl: "${result.metadata['sourceUrl'] as string}"`);
+    }
+
+    // Import timestamp
+    if (result.metadata['importedAt']) {
+      lines.push(`importedAt: "${result.metadata['importedAt'] as string}"`);
+    }
+
+    // System category
+    lines.push(`system-category: ${(result.metadata['system-category'] as string) || 'general'}`);
+
+    // Schema.org metadata (nested under schema key)
+    const schema = result.metadata['schema'] as Record<string, unknown> | undefined;
+    if (schema && Object.keys(schema).length > 0) {
+      lines.push('schema:');
+      for (const [key, value] of Object.entries(schema)) {
+        if (value === undefined || value === null || value === '') continue;
+        if (Array.isArray(value)) {
+          lines.push(`  ${key}:`);
+          for (const item of value) {
+            lines.push(`    - ${this.yamlValue(String(item))}`);
+          }
+        } else {
+          const strValue = typeof value === 'string' ? value : JSON.stringify(value);
+          lines.push(`  ${key}: ${this.yamlValue(strValue)}`);
+        }
+      }
+    }
+
+    lines.push('---');
+    return lines.join('\n');
+  }
+
+  /**
+   * Quote a YAML string value if needed
+   */
+  private yamlValue(value: string): string {
+    if (
+      value.includes(':') ||
+      value.includes('#') ||
+      value.includes("'") ||
+      value.includes('"') ||
+      value.includes('\n') ||
+      value.startsWith(' ') ||
+      value.startsWith('[') ||
+      value.startsWith('{')
+    ) {
+      return `"${value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
+    }
+    return value;
   }
 
   /**

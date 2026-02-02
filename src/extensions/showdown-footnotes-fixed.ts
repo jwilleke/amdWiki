@@ -56,12 +56,19 @@ function showdownFootnotesFixed(): ShowdownFilter[] {
     }
   }, {
     // Single-line footnote definitions
+    // FIXED: Match only up to end of line (not across lines) to prevent
+    // consecutive [^N]: definitions from being swallowed into one element
     type: 'lang',
     filter: function filter(text: string): string {
       return text.replace(
-        /^\[\^([\d\w-]+)\]:( |\n)((.+\n)*.+)$/mg,
-        function (_str: string, name: string, _: string, content: string): string {
-          return '<small class="footnote" id="footnote-' + name + '"><a href="#footnote-' + name + '"><sup>[' + name + ']</sup></a>: ' + content + '</small>';
+        /^\[\^([\d\w-]+)\]: (.+)$/mg,
+        function (_str: string, name: string, content: string): string {
+          // Auto-link bare URLs in footnote content
+          const linked = content.replace(
+            /(https?:\/\/[^\s<]+)/g,
+            '<a href="$1" target="_blank" rel="noopener">$1</a>'
+          );
+          return '<small class="footnote" id="footnote-' + name + '"><a href="#footnote-' + name + '"><sup>[' + name + ']</sup></a>: ' + linked + '</small>';
         }
       );
     }
