@@ -30,22 +30,27 @@ ensure_single_pm2_daemon() {
 
 # Function to kill all amdWiki processes (nuclear option)
 kill_all_amdwiki() {
-  # 1. Stop via PM2 (graceful attempt)
+  # 1. Stop via PM2 by name (graceful attempt)
   npx --no pm2 stop "$APP_NAME" 2>/dev/null || true
   npx --no pm2 delete "$APP_NAME" 2>/dev/null || true
 
-  # 2. Kill any node processes running app.js from this directory
+  # 2. Fallback: stop/delete ALL PM2 apps (handles name mismatch)
+  #    This is safe because server.sh manages a single-app PM2 instance
+  npx --no pm2 stop all 2>/dev/null || true
+  npx --no pm2 delete all 2>/dev/null || true
+
+  # 3. Now kill any node processes running app.js from this directory
+  #    (PM2 can no longer respawn since all apps are deleted)
   local app_pids=$(pgrep -f "node.*$SCRIPT_DIR/app\.js" 2>/dev/null || true)
   if [ -n "$app_pids" ]; then
     echo "   Killing app.js processes: $app_pids"
     echo "$app_pids" | xargs kill -9 2>/dev/null || true
   fi
 
-  # 3. Kill any process on port 3000 that's ours
+  # 4. Kill any process on port 3000 that's ours
   if command -v lsof &> /dev/null; then
     local port_pid=$(lsof -Pi :3000 -sTCP:LISTEN -t 2>/dev/null)
     if [ -n "$port_pid" ]; then
-      # Check if it's a node process from our directory
       local proc_cmd=$(ps -p "$port_pid" -o args= 2>/dev/null || true)
       if echo "$proc_cmd" | grep -q "$SCRIPT_DIR"; then
         echo "   Killing port 3000 holder: $port_pid"
@@ -54,7 +59,7 @@ kill_all_amdwiki() {
     fi
   fi
 
-  # 4. Remove all PID files
+  # 5. Remove all PID files
   rm -f "$PID_FILE" "$SCRIPT_DIR"/.amdwiki-*.pid "$SCRIPT_DIR"/server.pid
 }
 
@@ -205,14 +210,35 @@ case "${1:-}" in
     kill_all_amdwiki
     sleep 1
 
-    # Verify nothing is left on port 3000
+    # Verify nothing is left on port 3000 (retry up to 3 times for PM2 race condition)
+    STOP_ATTEMPTS=0
+    while [ $STOP_ATTEMPTS -lt 3 ]; do
+      if command -v lsof &> /dev/null; then
+        PORT_PID=$(lsof -Pi :3000 -sTCP:LISTEN -t 2>/dev/null)
+        if [ -n "$PORT_PID" ]; then
+          PORT_CMD=$(ps -p "$PORT_PID" -o args= 2>/dev/null || true)
+          if echo "$PORT_CMD" | grep -q "$SCRIPT_DIR"; then
+            echo "⚠️  Process still on port 3000 (PID $PORT_PID), retrying stop..."
+            kill -9 "$PORT_PID" 2>/dev/null || true
+            npx --no pm2 delete all 2>/dev/null || true
+            sleep 1
+            STOP_ATTEMPTS=$((STOP_ATTEMPTS + 1))
+            continue
+          fi
+        fi
+      fi
+      break
+    done
+
+    # Final check
     if command -v lsof &> /dev/null; then
       PORT_PID=$(lsof -Pi :3000 -sTCP:LISTEN -t 2>/dev/null)
       if [ -n "$PORT_PID" ]; then
         PORT_CMD=$(ps -p "$PORT_PID" -o args= 2>/dev/null || true)
         if echo "$PORT_CMD" | grep -q "$SCRIPT_DIR"; then
-          echo "⚠️  Process still on port 3000, force killing PID $PORT_PID..."
-          kill -9 "$PORT_PID" 2>/dev/null || true
+          echo "❌ ERROR: Failed to stop server after 3 attempts (PID $PORT_PID)"
+          echo "   Try: ./server.sh unlock"
+          exit 1
         fi
       fi
     fi
@@ -313,10 +339,11 @@ case "${1:-}" in
     echo "   Stopping all amdWiki processes..."
     kill_all_amdwiki
 
-    # 2. Check for multiple PM2 daemons and kill them all
+    # 2. Delete all PM2 apps and kill daemons
     DAEMON_COUNT=$(pgrep -f "PM2.*God Daemon" 2>/dev/null | wc -l | tr -d ' ')
     if [ "$DAEMON_COUNT" -gt 0 ]; then
       echo "   Killing $DAEMON_COUNT PM2 daemon(s)..."
+      npx --no pm2 delete all 2>/dev/null || true
       npx --no pm2 kill 2>/dev/null || true
       pkill -9 -f "PM2.*God Daemon" 2>/dev/null || true
     fi

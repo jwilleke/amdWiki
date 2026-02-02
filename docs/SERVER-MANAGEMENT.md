@@ -134,30 +134,36 @@ start_server() {
 
 ### 2. Stop Procedure
 
+The stop sequence is PM2-aware to prevent the respawn race condition (see issue #231).
+PM2's `autorestart: true` will respawn killed processes unless the app is deleted from PM2 first.
+
 ```bash
-stop_server() {
-  if [ ! -f "$PID_FILE" ]; then
-    echo "ℹ️  No PID file found - server not running"
-    return
-  fi
+kill_all_amdwiki() {
+  # 1. Stop via PM2 by name (graceful attempt)
+  npx --no pm2 stop "$APP_NAME" 2>/dev/null || true
+  npx --no pm2 delete "$APP_NAME" 2>/dev/null || true
 
-  EXISTING_PID=$(cat "$PID_FILE")
+  # 2. Fallback: stop/delete ALL PM2 apps (handles name mismatch)
+  npx --no pm2 stop all 2>/dev/null || true
+  npx --no pm2 delete all 2>/dev/null || true
 
-  # Try graceful stop first
-  pm2 stop amdWiki-amdWiki
-  sleep 2
+  # 3. Kill any surviving node processes (PM2 can't respawn now)
+  pgrep -f "node.*$SCRIPT_DIR/app\.js" | xargs kill -9 2>/dev/null || true
 
-  # Verify it's gone
-  if ps -p "$EXISTING_PID" > /dev/null 2>&1; then
-    echo "⚠️  Process didn't stop gracefully, forcing..."
-    kill -9 "$EXISTING_PID"
-  fi
+  # 4. Kill any process on port 3000 that's ours
+  # ... (lsof check with $SCRIPT_DIR ownership verification)
 
-  # Clean up
-  rm -f "$PID_FILE"
-  echo "✅ Server stopped"
+  # 5. Remove all PID files
+  rm -f "$PID_FILE" "$SCRIPT_DIR"/.amdwiki-*.pid "$SCRIPT_DIR"/server.pid
 }
 ```
+
+The `stop` command also includes a retry loop (up to 3 attempts) to handle the race
+where PM2 respawns a process between stop and delete. After retries, it reports an
+error and directs the user to `./server.sh unlock`.
+
+**Key insight:** Always delete the PM2 app entry *before* killing node processes.
+Otherwise `autorestart: true` immediately respawns what you just killed.
 
 ### 3. Status Checking
 
@@ -199,17 +205,19 @@ status_check() {
 unlock_server() {
   echo "🔓 Unlocking server..."
 
-  # 1. Kill any PM2 processes
-  pm2 delete amdWiki-amdWiki 2>/dev/null || true
+  # 1. Run comprehensive kill (stops PM2 apps, kills processes, cleans PIDs)
+  kill_all_amdwiki
 
-  # 2. Kill orphaned Node processes
-  pkill -9 -f "node.*app.js" 2>/dev/null || true
+  # 2. Delete all PM2 apps then kill daemon
+  npx --no pm2 delete all 2>/dev/null || true
+  npx --no pm2 kill 2>/dev/null || true
+  pkill -9 -f "PM2.*God Daemon" 2>/dev/null || true
 
-  # 3. Remove PID file
-  rm -f "$PID_FILE"
+  # 3. Kill any remaining node processes from this directory
+  pgrep -f "node.*$SCRIPT_DIR" | xargs kill -9 2>/dev/null || true
 
-  # 4. Clear PM2 data
-  pm2 flush
+  # 4. Clear PM2 logs
+  npx --no pm2 flush 2>/dev/null || true
 
   echo "✅ Server unlocked. Run: ./server.sh start"
 }
@@ -365,6 +373,8 @@ Check what's using port 3000:
 - [ ] Restart: `./server.sh restart dev` → stops old, starts new
 - [ ] Unlock: `./server.sh unlock` → clears all locks
 - [ ] Status: `./server.sh status` → accurate info
+- [ ] PM2 name mismatch: `pm2 start app.js --name amdWiki` then `./server.sh stop` → still stops (#231)
+- [ ] Stop retry: verify port 3000 is free after `./server.sh stop` (no PM2 respawn race)
 
 ## Documentation Updates Needed
 
@@ -411,6 +421,7 @@ Check what's using port 3000:
 ## References
 
 - GitHub Issue #167: Multiple server instances running
+- GitHub Issue #231: server.sh stop fails to stop server (PM2 respawn race)
 - Current `SERVER.md`: Process management documentation
 - `./server.sh`: Implementation file
 - `ecosystem.config.js`: PM2 configuration
@@ -433,24 +444,30 @@ Check what's using port 3000:
 
 - **Best For:** Development, on-premises servers, single-machine deployments
 - **PM2 Features Used:**
-  - Auto-restart on crash
-  - Memory-limit enforcement (500MB max)
-  - Log rotation with 100MB limit
+  - Auto-restart on crash (`autorestart: true`)
+  - Memory-limit enforcement (1G max)
+  - Log rotation
   - Single instance mode (instances: 1)
-  - Graceful shutdown timeout (5 seconds)
+  - Graceful shutdown timeout
 - **Coordinator:** `server.sh` manages PM2, enforces single instance via `.amdwiki.pid`
+- **Stop strategy (fix for #231):** Delete PM2 app entries *before* killing node processes.
+  This prevents PM2's `autorestart` from respawning killed processes. The stop command
+  includes a `pm2 stop all` / `pm2 delete all` fallback to handle PM2 name mismatches,
+  plus a retry loop to handle the respawn race condition.
 
 ### Docker Deployment (Recommended)
 
 **Strategy:** Option C - Simple Node process (no PM2)
 
-- **Architecture:** Node runs as PID 1 in container
+- **Architecture:** Node runs as PID 1 in container (`CMD ["node", "app.js"]`)
+- **Not affected by #231:** Docker does not use PM2 or `server.sh`. The container
+  runtime handles process lifecycle, so the PM2 respawn race does not apply.
 - **Container Handles:**
   - Process restart (via restart policy: `unless-stopped`)
   - Logging (via log driver: `json-file` with rotation)
   - Resource limits (via `--memory` and `--cpus` flags)
   - Health checks (via `HEALTHCHECK` instruction)
-- **Single Instance Enforcement:** `.amdwiki.pid` lock still applies per container
+- **Single Instance Enforcement:** One process per container, enforced by Docker
 
 **Benefits:**
 
@@ -459,6 +476,7 @@ Check what's using port 3000:
 - ✅ Direct signal forwarding (SIGTERM → app)
 - ✅ Smaller image size (no PM2 dependency)
 - ✅ Better resource efficiency
+- ✅ Immune to PM2 respawn race (#231)
 
 **Implementation:**
 
@@ -516,6 +534,8 @@ services:
 **Strategy:** Option C variant - Simple Node process with K8s orchestration
 
 - **Pod Model:** Node runs as PID 1, K8s manages lifecycle
+- **Not affected by #231:** Like Docker, K8s does not use PM2 or `server.sh`.
+  Pod restart policies and liveness probes handle process lifecycle.
 - **Kubernetes Handles:**
   - Pod restart (via restart policy)
   - Scaling (via Deployment replicas)
