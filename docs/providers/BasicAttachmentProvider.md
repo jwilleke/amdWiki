@@ -26,7 +26,7 @@ BasicAttachmentProvider implements filesystem-based attachment storage with SHA-
 ```javascript
 // All configuration via ConfigurationManager (lowercase keys)
 'amdwiki.attachment.provider.basic.storagedir'  // Storage directory (default: ./data/attachments)
-'amdwiki.attachment.metadatafile'               // Metadata file (default: ./data/attachments/metadata.json)
+'amdwiki.attachment.metadatafile'               // Metadata file (default: ./data/attachments/attachment-metadata.json)
 'amdwiki.attachment.maxsize'                    // Max file size bytes (default: 10485760 = 10MB)
 'amdwiki.attachment.allowedtypes'               // MIME types (default: 'image/*,text/*,application/pdf')
 'amdwiki.attachment.provider.basic.hashcontent' // Enable content hashing (default: true)

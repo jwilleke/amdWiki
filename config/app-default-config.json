@@ -48,7 +48,7 @@
   "amdwiki.attachment.maxsize": 10485760,
   "amdwiki.attachment.allowedtypes": "image/*,text/*,application/pdf",
   "amdwiki.attachment.forcedownload": false,
-  "amdwiki.attachment.metadatafile": "./data/attachments/metadata.json",
+  "amdwiki.attachment.metadatafile": "./data/attachments/attachment-metadata.json",
   "_comment_search_storage": "Search indexing configuration (ALL LOWERCASE)",
   "amdwiki.search.enabled": true,
   "_comment_search_provider": "Search provider with fallback",

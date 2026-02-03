@@ -98,6 +98,51 @@
                     </div>
                 </div>
 
+                <!-- Page Attachments Section -->
+                <div class="form-group mb-3">
+                    <label style="font-weight:bold;">
+                        <i class="fas fa-paperclip"></i> Page Attachments
+                        <span class="badge bg-secondary"><%= typeof pageAttachments !== 'undefined' ? pageAttachments.length : 0 %></span>
+                    </label>
+                    <div id="pageAttachments">
+                        <% if (typeof pageAttachments !== 'undefined' && pageAttachments.length > 0) { %>
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>File</th>
+                                            <th>Type</th>
+                                            <th>Size</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="attachmentTableBody">
+                                        <% pageAttachments.forEach(att => { %>
+                                            <tr>
+                                                <td><code><%= att.name %></code></td>
+                                                <td><small><%= att.encodingFormat %></small></td>
+                                                <td><small><%= Math.round((att.contentSize || 0) / 1024) %> KB</small></td>
+                                                <td>
+                                                    <button type="button" class="btn btn-sm btn-outline-primary"
+                                                        onclick="insertAttachmentMarkup('<%= att.url %>', '<%= att.name %>', '<%= att.encodingFormat %>')">
+                                                        <i class="fas fa-code"></i> Insert
+                                                    </button>
+                                                    <button type="button" class="btn btn-sm btn-outline-secondary"
+                                                        onclick="copyToClipboard('<%= att.url %>')">
+                                                        <i class="fas fa-copy"></i> URL
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        <% }); %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <% } else { %>
+                            <p class="text-muted"><small>No attachments for this page. Use "Insert Image" above or "More... → Upload Attachment" to add files.</small></p>
+                        <% } %>
+                    </div>
+                </div>
+
                 <!-- Form Submit Buttons -->
                 <div class="form-group mt-4">
                     <button type="submit" class="btn btn-primary btn-lg">Save Page</button>
@@ -238,6 +283,9 @@
                 insertBtn.disabled = false;
                 updateImageList();
                 document.getElementById('uploadedImages').style.display = 'block';
+
+                // Add to page attachments panel
+                addAttachmentRow(result.attachment);
             } else {
                 statusDiv.innerHTML = '<div class="alert alert-danger">Upload failed: ' + result.error + '</div>';
             }
@@ -309,6 +357,87 @@
 
         // Update preview
         updatePreview();
+    }
+
+    function insertAttachmentMarkup(url, name, mimeType) {
+        const textarea = document.getElementById('content');
+        let markup;
+
+        if (mimeType && mimeType.startsWith('image/')) {
+            markup = `[{Image src='${url}' alt='${name}'}]`;
+        } else {
+            markup = `[{ATTACH ${name}}]`;
+        }
+
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const text = textarea.value;
+        textarea.value = text.substring(0, start) + markup + text.substring(end);
+        textarea.focus();
+        textarea.setSelectionRange(start + markup.length, start + markup.length);
+        updatePreview();
+    }
+
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(function() {
+            // Brief visual feedback could be added here
+        }).catch(function(err) {
+            // Fallback for older browsers
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+        });
+    }
+
+    function addAttachmentRow(att) {
+        const container = document.getElementById('pageAttachments');
+        let tbody = document.getElementById('attachmentTableBody');
+
+        // If table doesn't exist yet (was "No attachments" message), create it
+        if (!tbody) {
+            container.innerHTML = `
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>File</th>
+                                <th>Type</th>
+                                <th>Size</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attachmentTableBody"></tbody>
+                    </table>
+                </div>`;
+            tbody = document.getElementById('attachmentTableBody');
+        }
+
+        const row = document.createElement('tr');
+        const sizeKB = Math.round((att.contentSize || 0) / 1024);
+        row.innerHTML = `
+            <td><code>${att.name}</code></td>
+            <td><small>${att.encodingFormat}</small></td>
+            <td><small>${sizeKB} KB</small></td>
+            <td>
+                <button type="button" class="btn btn-sm btn-outline-primary"
+                    onclick="insertAttachmentMarkup('${att.url}', '${att.name}', '${att.encodingFormat}')">
+                    <i class="fas fa-code"></i> Insert
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-secondary"
+                    onclick="copyToClipboard('${att.url}')">
+                    <i class="fas fa-copy"></i> URL
+                </button>
+            </td>`;
+        tbody.appendChild(row);
+
+        // Update badge count
+        const badge = container.closest('.form-group').querySelector('.badge');
+        if (badge) {
+            badge.textContent = tbody.querySelectorAll('tr').length;
+        }
     }
 
     // Initialize User Preferences for Smart Typing

@@ -1395,6 +1395,16 @@ class WikiRoutes {
         ? configManager.getProperty('amdwiki.maximum.user-keywords', 5)
         : 5;
 
+      const attachmentManager = this.engine.getManager('AttachmentManager');
+      let pageAttachments: unknown[] = [];
+      try {
+        if (attachmentManager) {
+          pageAttachments = await attachmentManager.getAttachmentsForPage(pageName);
+        }
+      } catch (err) {
+        logger.warn('Could not load attachments for edit page:', err);
+      }
+
       res.render('edit', {
         ...commonData,
         title: `Edit ${pageName}`,
@@ -1406,6 +1416,7 @@ class WikiRoutes {
         userKeywords: userKeywords,
         selectedUserKeywords: selectedUserKeywords,
         maxUserKeywords: maxUserKeywords,
+        pageAttachments: pageAttachments,
         csrfToken: req.session.csrfToken
       });
     } catch (err: unknown) {

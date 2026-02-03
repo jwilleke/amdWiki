@@ -119,7 +119,7 @@ AttachmentManager uses a hierarchical configuration structure with all lowercase
   "amdwiki.attachment.maxsize": 10485760,
   "amdwiki.attachment.allowedtypes": "image/*,text/*,application/pdf",
   "amdwiki.attachment.forcedownload": false,
-  "amdwiki.attachment.metadatafile": "./data/attachments/metadata.json",
+  "amdwiki.attachment.metadatafile": "./data/attachments/attachment-metadata.json",
 
   "_comment_attachment_provider_basic": "BasicAttachmentProvider settings",
   "amdwiki.attachment.provider.basic.storagedir": "./data/attachments",
@@ -147,7 +147,7 @@ AttachmentManager uses a hierarchical configuration structure with all lowercase
 | `amdwiki.attachment.maxsize` | number | `10485760` | Max file size in bytes (10MB) |
 | `amdwiki.attachment.allowedtypes` | string | `"image/*,text/*,application/pdf"` | Allowed MIME types |
 | `amdwiki.attachment.forcedownload` | boolean | `false` | Force download vs inline display |
-| `amdwiki.attachment.metadatafile` | string | `"./data/attachments/metadata.json"` | Metadata file location |
+| `amdwiki.attachment.metadatafile` | string | `"./data/attachments/attachment-metadata.json"` | Metadata file location |
 
 #### BasicAttachmentProvider Settings
 

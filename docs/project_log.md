@@ -24,6 +24,56 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-03-17
+
+- Agent: Claude Opus 4.5
+- Subject: Attachment decisions and TODO cleanup (#232 Part 3)
+- Key Decision: Finalized image/attachment path separation, ImagePlugin resolution order, description auto-populate, JSPWiki migration approach
+- Current Issue: #232
+- Work Done:
+  - Reviewed ImagePlugin path resolution — confirmed it only prepends `/images/` for relative paths, no attachment lookup
+  - Documented decisions: central storage for user content, `public/images/` for app branding only, three-step ImagePlugin resolution order
+  - Decided on "required but auto-populated" description field (pre-fill with filename)
+  - Decided on one-time migration script for JSPWiki `Page/file.png` references
+  - Cleaned up TODO.md: fixed "Decsions??" typo, restructured into dated "Decisions" section, updated "What Works Now" and "What's Missing" lists
+  - Includes uncommitted work from session 2026-02-03-16: attachment panel in editor, metadata filename fix, BasicAttachmentProvider field additions
+- Testing:
+  - npm test: 63 suites passed, 1520 tests passed
+- Files Modified:
+  - docs/TODO.md
+  - docs/project_log.md
+  - config/app-default-config.json
+  - docs/managers/AttachmentManager-Complete-Guide.md
+  - docs/providers/BasicAttachmentProvider.md
+  - src/providers/BasicAttachmentProvider.ts
+  - src/routes/WikiRoutes.ts
+  - views/edit.ejs
+
+---
+
+## 2026-02-03-16
+
+- Agent: Claude Opus 4.5
+- Subject: Attachment panel in editor + [{ATTACH}] insert (#232 Part 2)
+- Key Decision: Add attachment panel below image upload section in edit.ejs; dynamically update panel after uploads
+- Current Issue: #232
+- Work Done:
+  - Added `pageAttachments` loading via `AttachmentManager.getAttachmentsForPage()` in `WikiRoutes.ts editPage()`
+  - Added "Page Attachments" panel to `views/edit.ejs` showing filename, MIME type, size, and action buttons
+  - Implemented `insertAttachmentMarkup()`: inserts `[{Image}]` for images, `[{ATTACH}]` for other files at cursor
+  - Implemented `copyToClipboard()` for attachment URLs
+  - Implemented `addAttachmentRow()` to dynamically add new uploads to the attachment table
+  - Hooked upload success handler to refresh attachment panel after image upload
+- Testing:
+  - npm test: 63 suites passed, 1520 tests passed
+- Files Modified:
+  - src/routes/WikiRoutes.ts
+  - views/edit.ejs
+  - docs/TODO.md
+  - docs/project_log.md
+
+---
+
 ## 2026-02-02-15
 
 - Agent: Claude Opus 4.5

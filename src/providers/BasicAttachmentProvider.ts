@@ -135,7 +135,7 @@ class BasicAttachmentProvider extends BaseAttachmentProvider {
     // Uses getResolvedDataPath to support INSTANCE_DATA_FOLDER
     this.metadataFile = configManager.getResolvedDataPath(
       'amdwiki.attachment.metadatafile',
-      './data/attachments/metadata.json'
+      './data/attachments/attachment-metadata.json'
     );
 
     // Get size limits and allowed types from shared config (ALL LOWERCASE)
@@ -392,11 +392,16 @@ class BasicAttachmentProvider extends BaseAttachmentProvider {
 
     // Convert Schema.org format to AttachmentMetadata
     const attachmentMetadata: AttachmentMetadata = {
+      identifier: schemaMetadata.identifier,
       id: schemaMetadata.identifier,
+      name: schemaMetadata.name,
       filename: schemaMetadata.name,
       pageUuid: metadata.pageUuid || '',
+      encodingFormat: schemaMetadata.encodingFormat,
       mimeType: schemaMetadata.encodingFormat,
+      contentSize: schemaMetadata.contentSize,
       size: schemaMetadata.contentSize,
+      url: `/attachments/${schemaMetadata.identifier}`,
       uploadedAt: schemaMetadata.dateCreated,
       uploadedBy: schemaMetadata.author?.name || 'Unknown',
       filePath: schemaMetadata.storageLocation,
@@ -450,11 +455,16 @@ class BasicAttachmentProvider extends BaseAttachmentProvider {
 
     // Convert Schema.org format to AttachmentMetadata
     const attachmentMetadata: AttachmentMetadata = {
+      identifier: schemaMetadata.identifier,
       id: schemaMetadata.identifier,
+      name: schemaMetadata.name,
       filename: schemaMetadata.name,
       pageUuid: pageUuid,
+      encodingFormat: schemaMetadata.encodingFormat,
       mimeType: schemaMetadata.encodingFormat,
+      contentSize: schemaMetadata.contentSize,
       size: schemaMetadata.contentSize,
+      url: `/attachments/${schemaMetadata.identifier}`,
       uploadedAt: schemaMetadata.dateCreated,
       uploadedBy: schemaMetadata.author?.name || 'Unknown',
       filePath: schemaMetadata.storageLocation,
@@ -649,11 +659,16 @@ class BasicAttachmentProvider extends BaseAttachmentProvider {
     );
 
     return Promise.resolve(sortedAttachments.map((schema): AttachmentMetadata => ({
+      identifier: schema.identifier,
       id: schema.identifier,
+      name: schema.name,
       filename: schema.name,
       pageUuid: pageName,
+      encodingFormat: schema.encodingFormat,
       mimeType: schema.encodingFormat,
+      contentSize: schema.contentSize,
       size: schema.contentSize,
+      url: `/attachments/${schema.identifier}`,
       uploadedAt: schema.dateCreated,
       uploadedBy: schema.author?.name || 'Unknown',
       filePath: schema.storageLocation,
