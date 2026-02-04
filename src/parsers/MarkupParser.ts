@@ -1281,6 +1281,12 @@ class MarkupParser extends BaseManager {
     sanitized = styleResult.content;
     id = styleResult.nextId;
 
+    // Step 0.55: Convert inline JSPWiki styles (%%sup, %%sub, %%strike)
+    // These are inline patterns not handled by block-level extractStyleBlocksWithStack
+    sanitized = sanitized.replace(/%%sup\s+([\s\S]*?)\s*\/%/g, '<sup>$1</sup>');
+    sanitized = sanitized.replace(/%%sub\s+([\s\S]*?)\s*\/%/g, '<sub>$1</sub>');
+    sanitized = sanitized.replace(/%%strike\s+([\s\S]*?)\s*\/%/g, '<del>$1</del>');
+
     // Step 0.6: Convert JSPWiki line break syntax
     // In JSPWiki, \\ (two backslashes) forces a line break
     // Must happen after code blocks are protected so we don't break code

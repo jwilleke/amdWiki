@@ -181,9 +181,19 @@ function hello() {
   });
 
   describe('line breaks conversion', () => {
-    it('should convert \\\\ to <br>', () => {
+    it('should convert \\\\ at end of line to <br>', () => {
       const result = converter.convert('Line 1\\\\');
       expect(result.content).toBe('Line 1<br>');
+    });
+
+    it('should convert \\\\ mid-line to <br>', () => {
+      const result = converter.convert('First\\\\Second');
+      expect(result.content).toBe('First<br>Second');
+    });
+
+    it('should convert multiple mid-line \\\\ occurrences', () => {
+      const result = converter.convert('A\\\\B\\\\C');
+      expect(result.content).toBe('A<br>B<br>C');
     });
   });
 
@@ -263,6 +273,62 @@ function hello() {
       expect(result.content).toContain('| --- | --- |');
       expect(result.content).toContain('| Alice | 30 |');
       expect(result.content).toContain('| Bob | 25 |');
+    });
+
+    it('should not split on pipe inside [wiki link|PageName]', () => {
+      const input = `|| Year || Event ||
+| 2000 | [click here|SomePage] |`;
+      const result = converter.convert(input);
+      expect(result.content).toContain('| Year | Event |');
+      expect(result.content).toContain('| 2000 | [click here|SomePage] |');
+    });
+
+    it('should handle multiple wiki links in data cells', () => {
+      const input = '| [A|PageA] | [B|PageB] |';
+      const result = converter.convert(input);
+      expect(result.content).toContain('| [A|PageA] | [B|PageB] |');
+    });
+
+    it('should handle wiki links in header cells', () => {
+      const input = '|| [Link|Page] || Plain ||';
+      const result = converter.convert(input);
+      expect(result.content).toContain('| [Link|Page] | Plain |');
+    });
+
+    it('should handle \\\\ mid-cell as <br>', () => {
+      const input = `|| Header ||
+| Line1\\\\Line2 |`;
+      const result = converter.convert(input);
+      expect(result.content).toContain('| Line1<br>Line2 |');
+    });
+
+    it('should preserve emphasis in table cells', () => {
+      const input = `|| Header ||
+| __bold__ and ''italic'' |`;
+      const result = converter.convert(input);
+      expect(result.content).toContain('| **bold** and *italic* |');
+    });
+  });
+
+  describe('inline styles conversion', () => {
+    it('should convert %%sup text /% to <sup>text</sup>', () => {
+      const result = converter.convert('H%%sup 2 /%O');
+      expect(result.content).toBe('H<sup>2</sup>O');
+    });
+
+    it('should convert %%sub text /% to <sub>text</sub>', () => {
+      const result = converter.convert('CO%%sub 2 /%');
+      expect(result.content).toBe('CO<sub>2</sub>');
+    });
+
+    it('should convert %%strike text /% to ~~text~~', () => {
+      const result = converter.convert('This is %%strike removed /%.');
+      expect(result.content).toBe('This is ~~removed~~.');
+    });
+
+    it('should handle multiple inline styles in one line', () => {
+      const result = converter.convert('%%sup a /% and %%sub b /%');
+      expect(result.content).toBe('<sup>a</sup> and <sub>b</sub>');
     });
   });
 

@@ -46,6 +46,7 @@ class JSPWikiConverter implements IContentConverter {
     result = this.convertLineBreaks(result);
     result = this.convertLinks(result, warnings);
     result = this.convertFootnotes(result, warnings);
+    result = this.convertInlineStyles(result);
 
     // Tables are handled by JSPWikiPreprocessor at render time,
     // but we can convert simple tables during import too
@@ -286,8 +287,9 @@ class JSPWikiConverter implements IContentConverter {
    * \\ -> <br> or two spaces + newline
    */
   private convertLineBreaks(content: string): string {
-    // \\ at end of line (or before newline) -> <br>
-    return content.replace(/\\\\\s*$/gm, '<br>');
+    // \\ anywhere in text -> <br>
+    // Handles both mid-line and end-of-line occurrences
+    return content.replace(/\\\\/g, '<br>');
   }
 
   /**
@@ -353,6 +355,66 @@ class JSPWikiConverter implements IContentConverter {
   }
 
   /**
+   * Convert JSPWiki inline style patterns to Markdown/HTML
+   * %%sup text /% -> <sup>text</sup>
+   * %%sub text /% -> <sub>text</sub>
+   * %%strike text /% -> ~~text~~
+   */
+  private convertInlineStyles(content: string): string {
+    // %%sup text /% -> <sup>text</sup>
+    let result = content.replace(/%%sup\s+([\s\S]*?)\s*\/%/g, '<sup>$1</sup>');
+
+    // %%sub text /% -> <sub>text</sub>
+    result = result.replace(/%%sub\s+([\s\S]*?)\s*\/%/g, '<sub>$1</sub>');
+
+    // %%strike text /% -> ~~text~~
+    result = result.replace(/%%strike\s+([\s\S]*?)\s*\/%/g, '~~$1~~');
+
+    return result;
+  }
+
+  /**
+   * Split a table row by a delimiter while respecting [...] bracket groups.
+   * Pipes inside [wiki link|PageName] are not treated as cell delimiters.
+   */
+  private splitCellsBracketAware(text: string, delimiter: string): string[] {
+    const cells: string[] = [];
+    let current = '';
+    let bracketDepth = 0;
+    let i = 0;
+
+    while (i < text.length) {
+      // Track bracket nesting
+      if (text[i] === '[') {
+        bracketDepth++;
+        current += text[i];
+        i++;
+        continue;
+      }
+      if (text[i] === ']') {
+        bracketDepth = Math.max(0, bracketDepth - 1);
+        current += text[i];
+        i++;
+        continue;
+      }
+
+      // Only split on delimiter when outside brackets
+      if (bracketDepth === 0 && text.substring(i, i + delimiter.length) === delimiter) {
+        cells.push(current);
+        current = '';
+        i += delimiter.length;
+        continue;
+      }
+
+      current += text[i];
+      i++;
+    }
+    cells.push(current);
+
+    return cells;
+  }
+
+  /**
    * Convert JSPWiki tables to Markdown tables
    * This provides a simpler conversion than JSPWikiPreprocessor (which generates HTML)
    *
@@ -372,8 +434,7 @@ class JSPWikiConverter implements IContentConverter {
       // Check for header row (||)
       if (trimmed.startsWith('||')) {
         // Convert header: || cell || cell || -> | cell | cell |
-        const cells = trimmed
-          .split('||')
+        const cells = this.splitCellsBracketAware(trimmed, '||')
           .filter(c => c.trim())
           .map(c => c.trim());
 
@@ -391,8 +452,7 @@ class JSPWikiConverter implements IContentConverter {
 
       // Check for data row (|)
       if (trimmed.startsWith('|') && !trimmed.startsWith('||')) {
-        const cells = trimmed
-          .split('|')
+        const cells = this.splitCellsBracketAware(trimmed, '|')
           .filter(c => c !== '')
           .map(c => c.trim());
 

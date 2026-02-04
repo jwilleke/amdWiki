@@ -341,6 +341,9 @@ class JSPWikiPreprocessor extends BaseSyntaxHandler {
    * Parse a single table row
    * Header row: || cell1 || cell2 ||
    * Data row: | cell1 | cell2 |
+   *
+   * Uses bracket-aware splitting so that | inside [wiki link|PageName]
+   * is not treated as a cell delimiter.
    */
   private parseTableRow(line: string): TableRow {
     const trimmed = line.trim();
@@ -348,9 +351,9 @@ class JSPWikiPreprocessor extends BaseSyntaxHandler {
     // Check if it's a header row (starts with ||)
     const isHeader = trimmed.startsWith('||');
 
-    // Split by || for headers or | for data
+    // Split by || for headers or | for data, respecting [...] brackets
     const delimiter = isHeader ? '||' : '|';
-    const parts = trimmed.split(delimiter);
+    const parts = this.splitCellsBracketAware(trimmed, delimiter);
 
     // Remove empty first/last elements (from leading/trailing delimiters)
     const cells = parts
@@ -358,6 +361,45 @@ class JSPWikiPreprocessor extends BaseSyntaxHandler {
       .map(cell => cell.trim());
 
     return { isHeader, cells };
+  }
+
+  /**
+   * Split text by a delimiter while respecting [...] bracket groups.
+   * Pipes inside [wiki link|PageName] are not treated as cell delimiters.
+   */
+  private splitCellsBracketAware(text: string, delimiter: string): string[] {
+    const cells: string[] = [];
+    let current = '';
+    let bracketDepth = 0;
+    let i = 0;
+
+    while (i < text.length) {
+      if (text[i] === '[') {
+        bracketDepth++;
+        current += text[i];
+        i++;
+        continue;
+      }
+      if (text[i] === ']') {
+        bracketDepth = Math.max(0, bracketDepth - 1);
+        current += text[i];
+        i++;
+        continue;
+      }
+
+      if (bracketDepth === 0 && text.substring(i, i + delimiter.length) === delimiter) {
+        cells.push(current);
+        current = '';
+        i += delimiter.length;
+        continue;
+      }
+
+      current += text[i];
+      i++;
+    }
+    cells.push(current);
+
+    return cells;
   }
 
   /**
