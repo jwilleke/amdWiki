@@ -6,10 +6,16 @@ const path = require('path');
 const fs = require('fs-extra');
 const ImportManager = require('../ImportManager');
 
+// Mock AttachmentManager
+const mockUploadAttachment = jest.fn().mockResolvedValue({ identifier: 'abc123' });
+
 // Mock WikiEngine
 const mockEngine = {
-  getManager: jest.fn().mockReturnValue({
-    getProperty: jest.fn().mockReturnValue('./data/pages')
+  getManager: jest.fn((name) => {
+    if (name === 'AttachmentManager') {
+      return { uploadAttachment: mockUploadAttachment };
+    }
+    return { getProperty: jest.fn().mockReturnValue('./data/pages') };
   })
 };
 
@@ -41,6 +47,7 @@ describe('ImportManager', () => {
   beforeEach(async () => {
     importManager = new ImportManager(mockEngine);
     await importManager.initialize();
+    mockUploadAttachment.mockClear();
 
     // Create temp test directory
     testDir = path.join('/tmp', `import-test-${Date.now()}`);
@@ -267,6 +274,141 @@ describe('ImportManager', () => {
       expect(backup.managerName).toBe('ImportManager');
       expect(backup.data.registeredFormats).toContain('jspwiki');
       expect(backup.data.registeredFormats).toContain('mock');
+    });
+  });
+
+  describe('JSPWiki attachment import', () => {
+    it('should import attachments from -att/ directory', async () => {
+      // Create JSPWiki page with attachment structure
+      const sourceFile = path.join(testDir, 'Test+Page.txt');
+      await fs.writeFile(sourceFile, '!!! Test Page\nSome content');
+
+      // Create -att/ directory structure
+      const attDir = path.join(testDir, 'Test+Page-att');
+      const fileDir = path.join(attDir, 'photo.jpg-dir');
+      await fs.ensureDir(fileDir);
+      await fs.writeFile(path.join(fileDir, '1.jpg'), Buffer.from('fake-jpg-data'));
+      await fs.writeFile(
+        path.join(fileDir, 'attachment.properties'),
+        'author=JimUser\ndate=2024-01-01'
+      );
+
+      const targetDir = path.join(testDir, 'output');
+
+      const result = await importManager.importSinglePage(sourceFile, {
+        sourceDir: testDir,
+        targetDir,
+        format: 'jspwiki',
+        dryRun: false
+      });
+
+      expect(result).not.toBeNull();
+      expect(result.attachments).toBeDefined();
+      expect(result.attachments.imported).toBe(1);
+      expect(result.attachments.errors.length).toBe(0);
+      expect(mockUploadAttachment).toHaveBeenCalledWith(
+        expect.any(Buffer),
+        expect.objectContaining({
+          originalName: 'photo.jpg',
+          mimeType: 'image/jpeg'
+        }),
+        expect.objectContaining({
+          pageName: 'Test Page',
+          description: 'photo.jpg'
+        })
+      );
+    });
+
+    it('should pick the latest version file', async () => {
+      const sourceFile = path.join(testDir, 'VersionTest.txt');
+      await fs.writeFile(sourceFile, '!!! Version Test');
+
+      const attDir = path.join(testDir, 'VersionTest-att');
+      const fileDir = path.join(attDir, 'doc.pdf-dir');
+      await fs.ensureDir(fileDir);
+      await fs.writeFile(path.join(fileDir, '1.pdf'), Buffer.from('version1'));
+      await fs.writeFile(path.join(fileDir, '3.pdf'), Buffer.from('version3-latest'));
+      await fs.writeFile(path.join(fileDir, '2.pdf'), Buffer.from('version2'));
+
+      const targetDir = path.join(testDir, 'output');
+
+      await importManager.importSinglePage(sourceFile, {
+        sourceDir: testDir,
+        targetDir,
+        format: 'jspwiki',
+        dryRun: false
+      });
+
+      // The uploaded buffer should be the version 3 content
+      const uploadedBuffer = mockUploadAttachment.mock.calls[
+        mockUploadAttachment.mock.calls.length - 1
+      ][0];
+      expect(uploadedBuffer.toString()).toBe('version3-latest');
+    });
+
+    it('should count attachments in dry-run without uploading', async () => {
+      const sourceFile = path.join(testDir, 'DryRun.txt');
+      await fs.writeFile(sourceFile, '!!! Dry Run');
+
+      const attDir = path.join(testDir, 'DryRun-att');
+      const fileDir = path.join(attDir, 'image.png-dir');
+      await fs.ensureDir(fileDir);
+      await fs.writeFile(path.join(fileDir, '1.png'), Buffer.from('fake-png'));
+
+      mockUploadAttachment.mockClear();
+
+      const result = await importManager.importSinglePage(sourceFile, {
+        sourceDir: testDir,
+        format: 'jspwiki',
+        dryRun: true
+      });
+
+      expect(result.attachments).toBeDefined();
+      expect(result.attachments.imported).toBe(1);
+      expect(mockUploadAttachment).not.toHaveBeenCalled();
+    });
+
+    it('should handle pages without attachments gracefully', async () => {
+      const sourceFile = path.join(testDir, 'NoAttach.txt');
+      await fs.writeFile(sourceFile, '!!! No Attachments');
+
+      const result = await importManager.importSinglePage(sourceFile, {
+        sourceDir: testDir,
+        format: 'jspwiki',
+        dryRun: true
+      });
+
+      expect(result.attachments).toBeDefined();
+      expect(result.attachments.imported).toBe(0);
+      expect(result.attachments.errors.length).toBe(0);
+    });
+  });
+
+  describe('JSPWiki page name decoding', () => {
+    it('should decode + as space in page names', async () => {
+      const sourceFile = path.join(testDir, 'Action+potential.txt');
+      await fs.writeFile(sourceFile, 'Content about action potentials');
+
+      const result = await importManager.importSinglePage(sourceFile, {
+        sourceDir: testDir,
+        format: 'jspwiki',
+        dryRun: true
+      });
+
+      expect(result.metadata['title']).toBe('Action potential');
+    });
+
+    it('should decode percent-encoded characters in page names', async () => {
+      const sourceFile = path.join(testDir, '%CE%92-Hydroxybutyric+acid.txt');
+      await fs.writeFile(sourceFile, 'Content about beta-hydroxybutyric acid');
+
+      const result = await importManager.importSinglePage(sourceFile, {
+        sourceDir: testDir,
+        format: 'jspwiki',
+        dryRun: true
+      });
+
+      expect(result.metadata['title']).toBe('\u0392-Hydroxybutyric acid');
     });
   });
 

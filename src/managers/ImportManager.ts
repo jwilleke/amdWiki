@@ -114,6 +114,9 @@ export interface ImportedFile {
 
   /** UUID of existing page if duplicate */
   existingPageUuid?: string;
+
+  /** Attachment import stats (JSPWiki imports only) */
+  attachments?: { imported: number; skipped: number; errors: string[] };
 }
 
 /**
@@ -408,8 +411,14 @@ class ImportManager extends BaseManager {
     const targetPath = path.join(options.targetDir ?? './data/pages', targetFilename);
 
     // Store the original page name as title if not already set
+    // JSPWiki encodes page names: + for space, %XX for special chars
     if (!conversionResult.metadata['title']) {
-      conversionResult.metadata['title'] = baseName.replace(/\+/g, ' ');
+      try {
+        conversionResult.metadata['title'] = decodeURIComponent(baseName.replace(/\+/g, ' '));
+      } catch {
+        // Fall back to simple + replacement if decodeURIComponent fails
+        conversionResult.metadata['title'] = baseName.replace(/\+/g, ' ');
+      }
     }
 
     // Check for duplicate page by title
@@ -452,6 +461,26 @@ class ImportManager extends BaseManager {
       await fs.writeFile(targetPath, finalContent, 'utf-8');
     }
 
+    // Import attachments for JSPWiki pages
+    let attachments: { imported: number; skipped: number; errors: string[] } | undefined;
+    if (formatId === 'jspwiki') {
+      const pageTitle = conversionResult.metadata['title'] as string;
+      try {
+        attachments = await this.importPageAttachments(filePath, pageTitle, options);
+        if (attachments.errors.length > 0) {
+          conversionResult.warnings.push(
+            `Attachment errors: ${attachments.errors.join('; ')}`
+          );
+        }
+        if (attachments.imported > 0) {
+          logger.info(`[ImportManager] Imported ${attachments.imported} attachment(s) for "${pageTitle}"`);
+        }
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        conversionResult.warnings.push(`Failed to import attachments: ${msg}`);
+      }
+    }
+
     return {
       sourcePath: filePath,
       targetPath,
@@ -459,7 +488,8 @@ class ImportManager extends BaseManager {
       size: Buffer.byteLength(finalContent, 'utf-8'),
       metadata: conversionResult.metadata,
       warnings: conversionResult.warnings,
-      written
+      written,
+      attachments
     };
   }
 
@@ -682,6 +712,160 @@ class ImportManager extends BaseManager {
       return `"${value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
     }
     return value;
+  }
+
+  /**
+   * Import attachments from a JSPWiki `-att/` directory alongside a page file.
+   *
+   * @param sourceFilePath - Path to the source `.txt` page file
+   * @param pageName - Decoded page name (used to link attachments)
+   * @param options - Import options (dryRun support)
+   * @returns Stats about imported attachments
+   */
+  private async importPageAttachments(
+    sourceFilePath: string,
+    pageName: string,
+    options: ImportOptions
+  ): Promise<{ imported: number; skipped: number; errors: string[] }> {
+    const stats = { imported: 0, skipped: 0, errors: [] as string[] };
+
+    // Derive the -att/ directory from the source file path
+    const ext = path.extname(sourceFilePath);
+    const attDir = sourceFilePath.replace(ext, '-att');
+
+    if (!await fs.pathExists(attDir)) {
+      return stats;
+    }
+
+    const attDirStat = await fs.stat(attDir);
+    if (!attDirStat.isDirectory()) {
+      return stats;
+    }
+
+    // Each subdirectory is `filename.ext-dir/` containing versioned files
+    const entries = await fs.readdir(attDir, { withFileTypes: true });
+    const subdirs = entries.filter(e => e.isDirectory() && e.name.endsWith('-dir'));
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- getManager returns any
+    const attachmentManager = this.engine.getManager('AttachmentManager');
+
+    for (const subdir of subdirs) {
+      const originalFilename = subdir.name.replace(/-dir$/, '');
+      const versionDir = path.join(attDir, subdir.name);
+
+      try {
+        // Find the latest version file (highest numbered prefix)
+        const versionFiles = await fs.readdir(versionDir);
+        const versionedFiles = versionFiles
+          .filter((f: string) => f !== 'attachment.properties' && !f.startsWith('.'))
+          .sort((a: string, b: string) => {
+            // Extract numeric prefix: "3.jpg" → 3
+            const numA = parseInt(a.split('.')[0], 10) || 0;
+            const numB = parseInt(b.split('.')[0], 10) || 0;
+            return numB - numA; // Descending — highest version first
+          });
+
+        if (versionedFiles.length === 0) {
+          stats.errors.push(`No version files found for ${originalFilename}`);
+          continue;
+        }
+
+        const latestFile = versionedFiles[0];
+        const latestFilePath = path.join(versionDir, latestFile);
+
+        // Read author from attachment.properties if available
+        let author = 'import';
+        const propsPath = path.join(versionDir, 'attachment.properties');
+        if (await fs.pathExists(propsPath)) {
+          try {
+            const propsContent = await fs.readFile(propsPath, 'utf-8');
+            const authorMatch = propsContent.match(/author\s*=\s*(.+)/i);
+            if (authorMatch) {
+              author = authorMatch[1].trim();
+            }
+          } catch {
+            // Ignore properties read errors
+          }
+        }
+
+        if (options.dryRun) {
+          stats.imported++;
+          logger.info(`[ImportManager] (dry-run) Would import attachment: ${originalFilename} for page "${pageName}"`);
+          continue;
+        }
+
+        // Read file and upload
+        const fileBuffer = await fs.readFile(latestFilePath);
+        const mimeType = this.getMimeType(originalFilename);
+
+        const fileInfo = {
+          originalName: originalFilename,
+          mimeType,
+          size: fileBuffer.length
+        };
+
+        const uploadOptions = {
+          pageName,
+          description: originalFilename,
+          context: {
+            username: author,
+            name: author,
+            isAuthenticated: true,
+            roles: ['admin']
+          }
+        };
+
+        await attachmentManager.uploadAttachment(fileBuffer, fileInfo, uploadOptions); // eslint-disable-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call -- getManager returns any
+        stats.imported++;
+        logger.info(`[ImportManager] Imported attachment: ${originalFilename} for page "${pageName}"`);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        stats.errors.push(`${originalFilename}: ${message}`);
+        logger.warn(`[ImportManager] Failed to import attachment ${originalFilename}:`, err);
+      }
+    }
+
+    return stats;
+  }
+
+  /**
+   * Get MIME type from file extension
+   */
+  private getMimeType(filename: string): string {
+    const ext = path.extname(filename).toLowerCase();
+    const mimeTypes: Record<string, string> = {
+      '.jpg': 'image/jpeg',
+      '.jpeg': 'image/jpeg',
+      '.png': 'image/png',
+      '.gif': 'image/gif',
+      '.svg': 'image/svg+xml',
+      '.webp': 'image/webp',
+      '.bmp': 'image/bmp',
+      '.ico': 'image/x-icon',
+      '.tiff': 'image/tiff',
+      '.tif': 'image/tiff',
+      '.pdf': 'application/pdf',
+      '.txt': 'text/plain',
+      '.csv': 'text/csv',
+      '.html': 'text/html',
+      '.htm': 'text/html',
+      '.xml': 'text/xml',
+      '.json': 'application/json',
+      '.zip': 'application/zip',
+      '.gz': 'application/gzip',
+      '.tar': 'application/x-tar',
+      '.doc': 'application/msword',
+      '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      '.xls': 'application/vnd.ms-excel',
+      '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      '.ppt': 'application/vnd.ms-powerpoint',
+      '.pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+      '.mp3': 'audio/mpeg',
+      '.wav': 'audio/wav',
+      '.mp4': 'video/mp4',
+      '.avi': 'video/x-msvideo'
+    };
+    return mimeTypes[ext] || 'application/octet-stream';
   }
 
   /**

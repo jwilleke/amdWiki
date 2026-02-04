@@ -120,12 +120,16 @@ class JSPWikiConverter implements IContentConverter {
       return ''; // Remove the SET directive from content
     });
 
-    // Check for any remaining JSPWiki plugin directives
+    // Detect unhandled plugin directives, excluding known-safe ones
+    // Known safe: Image, ATTACH, SET (already extracted), $ (variables), TableOfContents
     // eslint-disable-next-line no-useless-escape
-    const pluginPattern = /\[\{INSERT\s+[^\}]+\}\]/gi;
+    const pluginPattern = /\[\{(?!Image\s|ATTACH\s|SET\s|\$|TableOfContents[\s\}])([A-Za-z]\w*)\s[^\}]*\}\]/gi;
     const plugins = content.match(pluginPattern);
     if (plugins && plugins.length > 0) {
-      warnings.push(`Found ${plugins.length} JSPWiki plugin(s) that may need manual conversion`);
+      const pluginNames = [...new Set(
+        plugins.map(p => p.match(/\[\{(\w+)/)?.[1]).filter(Boolean)
+      )];
+      warnings.push(`Found ${plugins.length} unhandled JSPWiki plugin(s): ${pluginNames.join(', ')}`);
     }
 
     return result;

@@ -24,6 +24,31 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-04-19
+
+- Agent: Claude Opus 4.5
+- Subject: JSPWiki attachment import integration (#232)
+- Key Decision: Attachment import integrated into ImportManager.importSinglePage() — when importing JSPWiki pages, `-att/` directories are scanned and files uploaded via AttachmentManager
+- Current Issue: #232
+- Work Done:
+  - ImportManager: added `importPageAttachments()` — scans `PageName-att/` dirs, finds latest version file in each `-dir/` subdirectory, reads author from `attachment.properties`, uploads via AttachmentManager
+  - ImportManager: added `getMimeType()` static MIME lookup (30+ types, fallback to `application/octet-stream`)
+  - ImportManager: fixed page name decoding to use `decodeURIComponent()` for `%XX` encoding (e.g., `%CE%92` → β)
+  - ImportManager: added `attachments` field to `ImportedFile` interface for reporting stats
+  - JSPWikiConverter: broadened plugin warning detection — now catches all `[{PluginName ...}]` patterns except known-safe ones (Image, ATTACH, SET, $, TableOfContents)
+  - Tests: added attachment import tests (dry-run, version picking, no-attachment pages), page name decoding tests, plugin warning tests
+- Testing:
+  - npm test: 63 suites passed, 1530 tests passed
+- Files Modified:
+  - src/managers/ImportManager.ts
+  - src/converters/JSPWikiConverter.ts
+  - src/managers/__tests__/ImportManager.test.js
+  - src/converters/__tests__/JSPWikiConverter.test.js
+  - docs/TODO.md
+  - docs/project_log.md
+
+---
+
 ## 2026-02-03-18
 
 - Agent: Claude Opus 4.5
