@@ -4054,6 +4054,67 @@ class WikiRoutes {
   }
 
   /**
+   * Non-admin attachment browser - accessible to editor/contributor roles
+   */
+  async browseAttachments(req: Request, res: Response) {
+    try {
+      const currentUser = req.userContext;
+
+      if (
+        !currentUser ||
+        !currentUser.roles ||
+        !(currentUser.roles.includes('admin') || currentUser.roles.includes('editor') || currentUser.roles.includes('contributor'))
+      ) {
+        return await this.renderError(
+          req,
+          res,
+          403,
+          'Access Denied',
+          'You must be logged in with editor or contributor role to browse attachments'
+        );
+      }
+
+      const attachmentManager = this.engine.getManager('AttachmentManager');
+      const attachments = await attachmentManager.getAllAttachments();
+      const commonData = await this.getCommonTemplateData(req);
+
+      return res.render('browse-attachments', {
+        ...commonData,
+        title: 'Browse Attachments',
+        attachments
+      });
+    } catch (err: unknown) {
+      logger.error('Error loading attachment browser:', err);
+      return res.status(500).send('Error loading attachments page');
+    }
+  }
+
+  /**
+   * Non-admin attachment browser API - return JSON
+   */
+  async browseAttachmentsApi(req: Request, res: Response) {
+    try {
+      const currentUser = req.userContext;
+
+      if (
+        !currentUser ||
+        !currentUser.roles ||
+        !(currentUser.roles.includes('admin') || currentUser.roles.includes('editor') || currentUser.roles.includes('contributor'))
+      ) {
+        return res.status(403).json({ success: false, error: 'Access denied' });
+      }
+
+      const attachmentManager = this.engine.getManager('AttachmentManager');
+      const attachments = await attachmentManager.getAllAttachments();
+
+      return res.json({ success: true, attachments });
+    } catch (err: unknown) {
+      logger.error('Error fetching attachments API:', err);
+      return res.status(500).json({ success: false, error: 'Failed to fetch attachments' });
+    }
+  }
+
+  /**
    * Admin delete attachment from browser - admin only
    */
   async adminDeleteAttachmentFromBrowser(req: Request, res: Response) {
@@ -4867,6 +4928,10 @@ class WikiRoutes {
         return void this.uploadImage(req, res);
       });
     });
+
+    // Non-admin attachment browser (editor/contributor access)
+    app.get('/attachments/browse', (req: Request, res: Response) => this.browseAttachments(req, res));
+    app.get('/attachments/browse/api', (req: Request, res: Response) => this.browseAttachmentsApi(req, res));
 
     // Attachment routes
     app.post('/attachments/upload/:page', (req: Request, res: Response) => {

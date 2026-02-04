@@ -1708,11 +1708,25 @@ class MarkupParser extends BaseManager {
     }
     logger.debug(`🔨 Created ${nodes.length} DOM nodes`);
 
+    // Phase 2.5: Run JSPWikiPreprocessor on sanitized content to convert
+    // bare JSPWiki table syntax (||/|) to HTML before Showdown runs.
+    // Style-block tables are already handled by extractStyleBlocksWithStack,
+    // but bare tables (not in %%.../%% blocks) need processing here.
+    let preprocessed = sanitized;
+    const jspwikiPreprocessor = this.getHandler('JSPWikiPreprocessor') as BaseSyntaxHandler | null;
+    if (jspwikiPreprocessor) {
+      try {
+        preprocessed = await jspwikiPreprocessor.process(preprocessed, parseContext);
+      } catch (error) {
+        logger.warn('⚠️  JSPWikiPreprocessor failed, using raw content:', getErrorMessage(error));
+      }
+    }
+
     // Phase 3: Let Showdown parse the sanitized markdown
     const renderingManager = this.engine.getManager<RenderingManagerInterface>('RenderingManager');
     let showdownHtml: string;
     if (renderingManager && renderingManager.converter) {
-      showdownHtml = renderingManager.converter.makeHtml(sanitized);
+      showdownHtml = renderingManager.converter.makeHtml(preprocessed);
     } else {
       // Fallback if RenderingManager not available (testing)
       const converter = new showdown.Converter({
@@ -1722,7 +1736,7 @@ class MarkupParser extends BaseManager {
         simpleLineBreaks: false,
         ghCodeBlocks: true
       });
-      showdownHtml = converter.makeHtml(sanitized);
+      showdownHtml = converter.makeHtml(preprocessed);
     }
     logger.debug('📝 Showdown processed markdown');
 

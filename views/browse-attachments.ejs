@@ -1,0 +1,336 @@
+<%- include('header', { pageName: '' }) %>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-paperclip"></i> Browse Attachments</h1>
+                <button class="btn" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);" onclick="history.back()">
+                    <i class="fas fa-arrow-left"></i> Back
+                </button>
+            </div>
+
+            <!-- Summary Stats -->
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card text-center">
+                        <div class="card-body py-2">
+                            <h4 class="mb-0" id="stat-total"><%= attachments.length %></h4>
+                            <small class="text-muted">Total Attachments</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-center">
+                        <div class="card-body py-2">
+                            <h4 class="mb-0" id="stat-images">
+                                <%= attachments.filter(a => a.mimeType && a.mimeType.startsWith('image/')).length %>
+                            </h4>
+                            <small class="text-muted">Images</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-center">
+                        <div class="card-body py-2">
+                            <h4 class="mb-0" id="stat-documents">
+                                <%= attachments.filter(a => a.mimeType && (a.mimeType.includes('pdf') || a.mimeType.includes('document') || a.mimeType.includes('spreadsheet') || a.mimeType.includes('text/'))).length %>
+                            </h4>
+                            <small class="text-muted">Documents</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="card mb-4">
+                <div class="card-body py-2">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                <input type="text" class="form-control" id="attachment-search"
+                                       placeholder="Search by filename or description...">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" id="mime-filter">
+                                <option value="all">All Types</option>
+                                <option value="image">Images</option>
+                                <option value="document">Documents</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 text-end">
+                            <span class="text-muted" id="filter-count"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Attachments Table -->
+            <div class="card">
+                <div class="table-responsive">
+                    <table class="table table-striped table-sm mb-0" id="attachments-table">
+                        <thead>
+                            <tr>
+                                <th class="sortable" data-sort="filename" style="cursor:pointer;">
+                                    Filename <i class="fas fa-sort"></i>
+                                </th>
+                                <th class="sortable" data-sort="mimeType" style="cursor:pointer;">
+                                    Type <i class="fas fa-sort"></i>
+                                </th>
+                                <th class="sortable" data-sort="size" style="cursor:pointer;">
+                                    Size <i class="fas fa-sort"></i>
+                                </th>
+                                <th class="sortable" data-sort="uploadedAt" style="cursor:pointer;">
+                                    Date <i class="fas fa-sort"></i>
+                                </th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attachments-tbody">
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Pagination -->
+                <div class="card-footer d-flex justify-content-between align-items-center">
+                    <small class="text-muted" id="page-info"></small>
+                    <nav>
+                        <ul class="pagination pagination-sm mb-0" id="pagination"></ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast notification for copy -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="copyToast" class="toast" role="alert">
+        <div class="toast-body">
+            <i class="fas fa-check text-success"></i> Copied to clipboard
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var PER_PAGE = 25;
+    var currentPage = 1;
+    var sortField = 'uploadedAt';
+    var sortDir = 'desc';
+
+    var allAttachments = <%- JSON.stringify(attachments) %>;
+
+    var searchInput = document.getElementById('attachment-search');
+    var mimeFilter = document.getElementById('mime-filter');
+    var tbody = document.getElementById('attachments-tbody');
+    var pagination = document.getElementById('pagination');
+    var pageInfo = document.getElementById('page-info');
+    var filterCount = document.getElementById('filter-count');
+
+    function escapeHtml(text) {
+        var div = document.createElement('div');
+        div.textContent = text || '';
+        return div.innerHTML;
+    }
+
+    function formatSize(bytes) {
+        if (!bytes || bytes === 0) return '0 B';
+        var sizes = ['B', 'KB', 'MB', 'GB'];
+        var i = Math.floor(Math.log(bytes) / Math.log(1024));
+        return (bytes / Math.pow(1024, i)).toFixed(i > 0 ? 1 : 0) + ' ' + sizes[i];
+    }
+
+    function formatDate(isoStr) {
+        if (!isoStr) return '';
+        try {
+            return new Date(isoStr).toLocaleDateString(undefined, {
+                year: 'numeric', month: 'short', day: 'numeric'
+            });
+        } catch (e) {
+            return isoStr;
+        }
+    }
+
+    function isImageType(mime) {
+        return mime && mime.startsWith('image/');
+    }
+
+    function isDocumentType(mime) {
+        return mime && (mime.includes('pdf') || mime.includes('document') ||
+                        mime.includes('spreadsheet') || mime.startsWith('text/'));
+    }
+
+    function getFilteredAttachments() {
+        var query = searchInput.value.toLowerCase().trim();
+        var mimeType = mimeFilter.value;
+
+        return allAttachments.filter(function(a) {
+            if (query) {
+                var haystack = [a.filename, a.description]
+                    .filter(Boolean).join(' ').toLowerCase();
+                if (!haystack.includes(query)) return false;
+            }
+            if (mimeType === 'image') return isImageType(a.mimeType);
+            if (mimeType === 'document') return isDocumentType(a.mimeType);
+            if (mimeType === 'other') return !isImageType(a.mimeType) && !isDocumentType(a.mimeType);
+            return true;
+        });
+    }
+
+    function getSortedAttachments(list) {
+        return list.slice().sort(function(a, b) {
+            var va = a[sortField];
+            var vb = b[sortField];
+            if (sortField === 'size') {
+                va = va || 0;
+                vb = vb || 0;
+                return sortDir === 'asc' ? va - vb : vb - va;
+            }
+            if (sortField === 'uploadedAt') {
+                va = va ? new Date(va).getTime() : 0;
+                vb = vb ? new Date(vb).getTime() : 0;
+                return sortDir === 'asc' ? va - vb : vb - va;
+            }
+            va = (va || '').toString().toLowerCase();
+            vb = (vb || '').toString().toLowerCase();
+            if (va < vb) return sortDir === 'asc' ? -1 : 1;
+            if (va > vb) return sortDir === 'asc' ? 1 : -1;
+            return 0;
+        });
+    }
+
+    function getWikiSyntax(attachment) {
+        if (isImageType(attachment.mimeType)) {
+            return '[{Image src=\'' + attachment.filename + '\'}]';
+        }
+        return '[{ATTACH ' + attachment.filename + '}]';
+    }
+
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(function() {
+            var toast = new bootstrap.Toast(document.getElementById('copyToast'), { delay: 1500 });
+            toast.show();
+        });
+    }
+
+    function render() {
+        var filtered = getFilteredAttachments();
+        var sorted = getSortedAttachments(filtered);
+        var totalPages = Math.max(1, Math.ceil(sorted.length / PER_PAGE));
+        if (currentPage > totalPages) currentPage = totalPages;
+        var start = (currentPage - 1) * PER_PAGE;
+        var pageItems = sorted.slice(start, start + PER_PAGE);
+
+        filterCount.textContent = filtered.length + ' of ' + allAttachments.length + ' shown';
+
+        tbody.innerHTML = '';
+        if (pageItems.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-4">No attachments found</td></tr>';
+        } else {
+            pageItems.forEach(function(a) {
+                var row = document.createElement('tr');
+                var wikiSyntax = getWikiSyntax(a);
+
+                var actions =
+                    '<button class="btn btn-sm btn-outline-secondary me-1 copy-btn" data-syntax="' + escapeHtml(wikiSyntax) + '" title="Copy wiki syntax">' +
+                        '<i class="fas fa-copy"></i>' +
+                    '</button>' +
+                    '<a href="/attachments/' + encodeURIComponent(a.id) + '" class="btn btn-sm btn-outline-primary" title="Download">' +
+                        '<i class="fas fa-download"></i>' +
+                    '</a>';
+
+                var preview = '';
+                if (isImageType(a.mimeType)) {
+                    preview = '<img src="/attachments/' + encodeURIComponent(a.id) + '" style="max-height:24px;max-width:40px;vertical-align:middle;margin-right:6px;" alt="">';
+                }
+
+                row.innerHTML =
+                    '<td>' + preview + escapeHtml(a.filename) +
+                        (a.description ? '<br><small class="text-muted">' + escapeHtml(a.description) + '</small>' : '') +
+                        '<br><code class="small text-muted">' + escapeHtml(wikiSyntax) + '</code>' +
+                    '</td>' +
+                    '<td><span class="badge bg-info">' + escapeHtml(a.mimeType) + '</span></td>' +
+                    '<td>' + formatSize(a.size) + '</td>' +
+                    '<td>' + formatDate(a.uploadedAt) + '</td>' +
+                    '<td class="text-nowrap">' + actions + '</td>';
+                tbody.appendChild(row);
+            });
+        }
+
+        // Render pagination
+        pageInfo.textContent = 'Page ' + currentPage + ' of ' + totalPages;
+        pagination.innerHTML = '';
+
+        if (totalPages > 1) {
+            var prevLi = document.createElement('li');
+            prevLi.className = 'page-item' + (currentPage === 1 ? ' disabled' : '');
+            prevLi.innerHTML = '<a class="page-link" href="#">&laquo;</a>';
+            prevLi.addEventListener('click', function(e) { e.preventDefault(); if (currentPage > 1) { currentPage--; render(); } });
+            pagination.appendChild(prevLi);
+
+            var startPage = Math.max(1, currentPage - 3);
+            var endPage = Math.min(totalPages, startPage + 6);
+            if (endPage - startPage < 6) startPage = Math.max(1, endPage - 6);
+
+            for (var p = startPage; p <= endPage; p++) {
+                (function(page) {
+                    var li = document.createElement('li');
+                    li.className = 'page-item' + (page === currentPage ? ' active' : '');
+                    li.innerHTML = '<a class="page-link" href="#">' + page + '</a>';
+                    li.addEventListener('click', function(e) { e.preventDefault(); currentPage = page; render(); });
+                    pagination.appendChild(li);
+                })(p);
+            }
+
+            var nextLi = document.createElement('li');
+            nextLi.className = 'page-item' + (currentPage === totalPages ? ' disabled' : '');
+            nextLi.innerHTML = '<a class="page-link" href="#">&raquo;</a>';
+            nextLi.addEventListener('click', function(e) { e.preventDefault(); if (currentPage < totalPages) { currentPage++; render(); } });
+            pagination.appendChild(nextLi);
+        }
+
+        // Bind copy buttons
+        document.querySelectorAll('.copy-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                copyToClipboard(this.getAttribute('data-syntax'));
+            });
+        });
+    }
+
+    // Sort handlers
+    document.querySelectorAll('.sortable').forEach(function(th) {
+        th.addEventListener('click', function() {
+            var field = this.getAttribute('data-sort');
+            if (sortField === field) {
+                sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortField = field;
+                sortDir = 'asc';
+            }
+            document.querySelectorAll('.sortable i').forEach(function(icon) {
+                icon.className = 'fas fa-sort';
+            });
+            this.querySelector('i').className = 'fas fa-sort-' + (sortDir === 'asc' ? 'up' : 'down');
+            currentPage = 1;
+            render();
+        });
+    });
+
+    searchInput.addEventListener('input', function() {
+        currentPage = 1;
+        render();
+    });
+
+    mimeFilter.addEventListener('change', function() {
+        currentPage = 1;
+        render();
+    });
+
+    render();
+});
+</script>
+
+<%- include('footer') %>

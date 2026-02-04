@@ -403,9 +403,21 @@ class JSPWikiPreprocessor extends BaseSyntaxHandler {
   }
 
   /**
-   * Escape HTML special characters
+   * Escape HTML special characters, preserving placeholder spans
+   * that were inserted by extractJSPWikiSyntax (Phase 1)
    */
   private escapeHtml(text: string): string {
+    // Protect placeholder spans before escaping
+    const placeholders: string[] = [];
+    const sentinel = '%%JSPWIKI_PH_';
+    const protected_ = text.replace(
+      /<span data-jspwiki-placeholder="[^"]+"><\/span>/g,
+      (match) => {
+        placeholders.push(match);
+        return `${sentinel}${placeholders.length - 1}%%`;
+      }
+    );
+
     const map: Record<string, string> = {
       '&': '&amp;',
       '<': '&lt;',
@@ -413,7 +425,10 @@ class JSPWikiPreprocessor extends BaseSyntaxHandler {
       '"': '&quot;',
       "'": '&#039;'
     };
-    return text.replace(/[&<>"']/g, m => map[m] ?? m);
+    const escaped = protected_.replace(/[&<>"']/g, m => map[m] ?? m);
+
+    // Restore placeholder spans
+    return escaped.replace(/%%JSPWIKI_PH_(\d+)%%/g, (_match, idx: string) => placeholders[parseInt(idx, 10)]);
   }
 
   /**

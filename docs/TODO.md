@@ -2,7 +2,7 @@
 title: amdWiki Development TODO
 category: System
 user-keywords:
-- todo
+- todo     
 - planning
 - roadmap
 uuid: 124f3d52-75a0-4e61-8008-de37d1da4ef6
@@ -13,6 +13,9 @@ slug: amdwiki-todo
 # Project Development TODO
 
 Work on [FEATURE] Handling of attachments #232
+
+Using v1.5.7 See also <https://github.com/jwilleke/amdWiki/issues/123#issuecomment-3841920418> and
+<https://github.com/jwilleke/amdWiki/issues/123#issuecomment-3846451374>
 
 ## What Works Now
 

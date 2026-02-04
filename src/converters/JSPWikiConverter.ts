@@ -48,9 +48,8 @@ class JSPWikiConverter implements IContentConverter {
     result = this.convertFootnotes(result, warnings);
     result = this.convertInlineStyles(result);
 
-    // Tables are handled by JSPWikiPreprocessor at render time,
-    // but we can convert simple tables during import too
-    result = this.convertTables(result);
+    // Tables are NOT converted during import — JSPWikiPreprocessor handles
+    // ||/| table syntax at render time, preserving wiki links inside cells
 
     return {
       content: result.trim(),
@@ -279,7 +278,24 @@ class JSPWikiConverter implements IContentConverter {
    * ---- (or more dashes) -> ---
    */
   private convertHorizontalRules(content: string): string {
-    return content.replace(/^-{4,}\s*$/gm, '---');
+    // Replace ---- (or more) with --- and ensure a blank line precedes it,
+    // so Markdown doesn't interpret --- as a setext heading underline
+    const lines = content.split('\n');
+    const result: string[] = [];
+
+    for (let i = 0; i < lines.length; i++) {
+      if (/^-{4,}\s*$/.test(lines[i])) {
+        // If previous line has content, insert a blank line first
+        if (i > 0 && result.length > 0 && result[result.length - 1].trim().length > 0) {
+          result.push('');
+        }
+        result.push('---');
+      } else {
+        result.push(lines[i]);
+      }
+    }
+
+    return result.join('\n');
   }
 
   /**
@@ -373,113 +389,8 @@ class JSPWikiConverter implements IContentConverter {
     return result;
   }
 
-  /**
-   * Split a table row by a delimiter while respecting [...] bracket groups.
-   * Pipes inside [wiki link|PageName] are not treated as cell delimiters.
-   */
-  private splitCellsBracketAware(text: string, delimiter: string): string[] {
-    const cells: string[] = [];
-    let current = '';
-    let bracketDepth = 0;
-    let i = 0;
-
-    while (i < text.length) {
-      // Track bracket nesting
-      if (text[i] === '[') {
-        bracketDepth++;
-        current += text[i];
-        i++;
-        continue;
-      }
-      if (text[i] === ']') {
-        bracketDepth = Math.max(0, bracketDepth - 1);
-        current += text[i];
-        i++;
-        continue;
-      }
-
-      // Only split on delimiter when outside brackets
-      if (bracketDepth === 0 && text.substring(i, i + delimiter.length) === delimiter) {
-        cells.push(current);
-        current = '';
-        i += delimiter.length;
-        continue;
-      }
-
-      current += text[i];
-      i++;
-    }
-    cells.push(current);
-
-    return cells;
-  }
-
-  /**
-   * Convert JSPWiki tables to Markdown tables
-   * This provides a simpler conversion than JSPWikiPreprocessor (which generates HTML)
-   *
-   * || Header || Header || -> | Header | Header |
-   * | Cell | Cell | -> | Cell | Cell |
-   */
-  private convertTables(content: string): string {
-    const lines = content.split('\n');
-    const result: string[] = [];
-    let inTable = false;
-    let hasHeader = false;
-
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i];
-      const trimmed = line.trim();
-
-      // Check for header row (||)
-      if (trimmed.startsWith('||')) {
-        // Convert header: || cell || cell || -> | cell | cell |
-        const cells = this.splitCellsBracketAware(trimmed, '||')
-          .filter(c => c.trim())
-          .map(c => c.trim());
-
-        result.push('| ' + cells.join(' | ') + ' |');
-
-        if (!inTable) {
-          inTable = true;
-          hasHeader = true;
-          // Add separator row
-          const separator = '| ' + cells.map(() => '---').join(' | ') + ' |';
-          result.push(separator);
-        }
-        continue;
-      }
-
-      // Check for data row (|)
-      if (trimmed.startsWith('|') && !trimmed.startsWith('||')) {
-        const cells = this.splitCellsBracketAware(trimmed, '|')
-          .filter(c => c !== '')
-          .map(c => c.trim());
-
-        // If this is the first row and it's not a header, add a blank header
-        if (!inTable && !hasHeader) {
-          inTable = true;
-          // Create empty header with correct column count
-          const emptyHeader = '| ' + cells.map(() => ' ').join(' | ') + ' |';
-          const separator = '| ' + cells.map(() => '---').join(' | ') + ' |';
-          result.push(emptyHeader);
-          result.push(separator);
-        }
-
-        result.push('| ' + cells.join(' | ') + ' |');
-        continue;
-      }
-
-      // Not a table line
-      if (inTable) {
-        inTable = false;
-        hasHeader = false;
-      }
-      result.push(line);
-    }
-
-    return result.join('\n');
-  }
+  // Table conversion removed — JSPWikiPreprocessor handles ||/| table syntax
+  // at render time, preserving wiki links and other JSPWiki syntax inside cells
 }
 
 export default JSPWikiConverter;

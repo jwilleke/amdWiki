@@ -269,6 +269,7 @@ class FileSystemProvider extends BasePageProvider {
         const full = path.join(dir, entry.name);
         if (entry.isDirectory()) {
           if (entry.name.startsWith('.')) continue; // Skip hidden dirs
+          if (entry.name === 'versions') continue; // Skip version snapshot dirs
           out.push(...(await this.walkDir(full)));
         } else if (entry.isFile()) {
           out.push(full);

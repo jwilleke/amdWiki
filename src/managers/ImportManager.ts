@@ -36,6 +36,7 @@ import { IContentConverter, ConversionResult } from '../converters/IContentConve
 import JSPWikiConverter from '../converters/JSPWikiConverter';
 import HtmlConverter from '../converters/HtmlConverter';
 import type ConfigurationManager from './ConfigurationManager';
+import type ValidationManager from './ValidationManager';
 import logger from '../utils/logger';
 
 /**
@@ -925,22 +926,42 @@ class ImportManager extends BaseManager {
     pageUuid?: string
   ): string {
     const frontmatter: Record<string, unknown> = {};
+    const title = (result.metadata['title'] as string) || 'Untitled';
+    const uuid = pageUuid || (result.metadata['uuid'] as string) || '';
 
-    // Add extracted metadata
-    if (result.metadata['title']) {
-      frontmatter['title'] = result.metadata['title'];
+    // Use ValidationManager to generate complete metadata with defaults
+    const validationManager = this.engine.getManager<ValidationManager>('ValidationManager');
+    if (validationManager && typeof validationManager.generateValidMetadata === 'function') {
+      const opts: Record<string, unknown> = { uuid };
+      if (result.metadata['system-category']) {
+        opts['system-category'] = result.metadata['system-category'];
+      }
+      if (result.metadata['user-keywords']) {
+        opts['user-keywords'] = result.metadata['user-keywords'];
+      }
+      const validMeta = validationManager.generateValidMetadata(title, opts);
+      frontmatter['title'] = validMeta.title;
+      frontmatter['uuid'] = validMeta.uuid;
+      frontmatter['slug'] = validMeta.slug;
+      frontmatter['system-category'] = validMeta['system-category'];
+      frontmatter['user-keywords'] = validMeta['user-keywords'];
+      frontmatter['lastModified'] = validMeta.lastModified;
+    } else {
+      // Fallback when ValidationManager is not available
+      frontmatter['title'] = title;
+      if (uuid) {
+        frontmatter['uuid'] = uuid;
+      }
+      frontmatter['slug'] = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+      frontmatter['system-category'] = (result.metadata['system-category'] as string) || 'general';
+      frontmatter['user-keywords'] = (result.metadata['user-keywords'] as string[]) || [];
+      frontmatter['lastModified'] = new Date().toISOString();
     }
 
-    // Use pre-generated UUID
-    if (pageUuid) {
-      frontmatter['uuid'] = pageUuid;
-    } else if (result.metadata['uuid']) {
-      frontmatter['uuid'] = result.metadata['uuid'];
-    }
-
-    // Add other metadata
+    // Add other metadata from conversion (aliases, etc.) excluding already-handled keys
+    const handledKeys = new Set(['title', 'uuid', 'slug', 'system-category', 'user-keywords', 'lastModified', 'jspwiki']);
     for (const [key, value] of Object.entries(result.metadata)) {
-      if (key !== 'title' && key !== 'uuid' && key !== 'jspwiki') {
+      if (!handledKeys.has(key)) {
         frontmatter[key] = value;
       }
     }

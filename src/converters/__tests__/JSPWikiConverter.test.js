@@ -169,14 +169,27 @@ function hello() {
   });
 
   describe('horizontal rules conversion', () => {
-    it('should convert ---- to ---', () => {
+    it('should convert ---- to --- with blank line when preceded by content', () => {
       const result = converter.convert('Before\n----\nAfter');
-      expect(result.content).toBe('Before\n---\nAfter');
+      expect(result.content).toBe('Before\n\n---\nAfter');
     });
 
     it('should handle longer dash sequences', () => {
       const result = converter.convert('--------');
       expect(result.content).toBe('---');
+    });
+
+    it('should not double-add blank line when one already exists', () => {
+      const result = converter.convert('Before\n\n----\nAfter');
+      expect(result.content).toBe('Before\n\n---\nAfter');
+    });
+
+    it('should insert blank line after heading to prevent setext interpretation', () => {
+      const input = '!! More Information\nSome text\n----\n* Reference';
+      const result = converter.convert(input);
+      expect(result.content).toContain('Some text\n\n---\n');
+      // Verify --- is not attached to the preceding text
+      expect(result.content).not.toMatch(/Some text\n---/);
     });
   });
 
@@ -256,53 +269,38 @@ function hello() {
     });
   });
 
-  describe('tables conversion', () => {
-    it('should convert JSPWiki table headers', () => {
+  describe('tables preservation', () => {
+    it('should preserve JSPWiki table syntax (rendered by JSPWikiPreprocessor at runtime)', () => {
       const input = '|| Header 1 || Header 2 ||';
       const result = converter.convert(input);
-      expect(result.content).toContain('| Header 1 | Header 2 |');
-      expect(result.content).toContain('| --- | --- |');
+      expect(result.content).toContain('|| Header 1 || Header 2 ||');
     });
 
-    it('should convert full JSPWiki table', () => {
+    it('should preserve full JSPWiki table', () => {
       const input = `|| Name || Age ||
 | Alice | 30 |
 | Bob | 25 |`;
       const result = converter.convert(input);
-      expect(result.content).toContain('| Name | Age |');
-      expect(result.content).toContain('| --- | --- |');
+      expect(result.content).toContain('|| Name || Age ||');
       expect(result.content).toContain('| Alice | 30 |');
       expect(result.content).toContain('| Bob | 25 |');
     });
 
-    it('should not split on pipe inside [wiki link|PageName]', () => {
-      const input = `|| Year || Event ||
-| 2000 | [click here|SomePage] |`;
+    it('should preserve wiki links inside table cells', () => {
+      const input = `|| Month || Days ||
+| [June] | 30 |`;
       const result = converter.convert(input);
-      expect(result.content).toContain('| Year | Event |');
-      expect(result.content).toContain('| 2000 | [click here|SomePage] |');
+      expect(result.content).toContain('| [June] | 30 |');
     });
 
-    it('should handle multiple wiki links in data cells', () => {
-      const input = '| [A|PageA] | [B|PageB] |';
-      const result = converter.convert(input);
-      expect(result.content).toContain('| [A|PageA] | [B|PageB] |');
-    });
-
-    it('should handle wiki links in header cells', () => {
-      const input = '|| [Link|Page] || Plain ||';
-      const result = converter.convert(input);
-      expect(result.content).toContain('| [Link|Page] | Plain |');
-    });
-
-    it('should handle \\\\ mid-cell as <br>', () => {
+    it('should convert \\\\ to <br> inside table cells', () => {
       const input = `|| Header ||
 | Line1\\\\Line2 |`;
       const result = converter.convert(input);
       expect(result.content).toContain('| Line1<br>Line2 |');
     });
 
-    it('should preserve emphasis in table cells', () => {
+    it('should convert emphasis inside table cells', () => {
       const input = `|| Header ||
 | __bold__ and ''italic'' |`;
       const result = converter.convert(input);

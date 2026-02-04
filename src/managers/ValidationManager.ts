@@ -503,6 +503,14 @@ class ValidationManager extends BaseManager {
     // Use the default category from configuration
     const defaultSystemCategory = this.getDefaultSystemCategory();
 
+    // Filter out undefined/null values from options so they don't override defaults
+    const cleanOptions: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(options)) {
+      if (value !== undefined && value !== null) {
+        cleanOptions[key] = value;
+      }
+    }
+
     return {
       title: title.trim(),
       'system-category': options['system-category'] || defaultSystemCategory,
@@ -513,7 +521,7 @@ class ValidationManager extends BaseManager {
       slug: slug,
       lastModified: new Date().toISOString(),
 
-      ...options // Allow override of any fields
+      ...cleanOptions // Allow override of any fields (undefined values excluded)
     };
   }
 

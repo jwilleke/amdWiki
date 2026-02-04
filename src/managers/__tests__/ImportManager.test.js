@@ -437,4 +437,82 @@ See [OtherPage] for more.`;
       expect(result.warnings).toBeDefined();
     });
   });
+
+  describe('frontmatter defaults', () => {
+    it('should include slug, system-category, user-keywords, lastModified in frontmatter', async () => {
+      const content = `!!! Year\nSome content`;
+      const sourceFile = path.join(testDir, 'Year.txt');
+      await fs.writeFile(sourceFile, content);
+
+      // Write to a real file to inspect frontmatter
+      const targetDir = path.join(testDir, 'output');
+      await fs.ensureDir(targetDir);
+
+      const result = await importManager.importSinglePage(sourceFile, {
+        sourceDir: testDir,
+        targetDir,
+        format: 'jspwiki',
+        dryRun: false
+      });
+
+      expect(result).not.toBeNull();
+      expect(result.written).toBe(true);
+
+      // Read the written file and verify frontmatter
+      const written = await fs.readFile(result.targetPath, 'utf-8');
+      expect(written).toContain('slug:');
+      expect(written).toContain('system-category:');
+      expect(written).toContain('user-keywords:');
+      expect(written).toContain('lastModified:');
+      expect(written).toContain('importedFrom: jspwiki');
+    });
+
+    it('should use ValidationManager defaults when available', async () => {
+      // Create a manager with a mock ValidationManager
+      const mockValidationEngine = {
+        getManager: jest.fn((name) => {
+          if (name === 'ValidationManager') {
+            return {
+              generateValidMetadata: jest.fn((title, opts) => ({
+                title,
+                uuid: opts.uuid || 'test-uuid',
+                slug: title.toLowerCase().replace(/\s+/g, '-'),
+                'system-category': 'general',
+                'user-keywords': [],
+                lastModified: '2026-02-04T00:00:00.000Z'
+              }))
+            };
+          }
+          if (name === 'AttachmentManager') {
+            return { uploadAttachment: jest.fn().mockResolvedValue({ identifier: 'abc' }) };
+          }
+          return { getProperty: jest.fn().mockReturnValue('./data/pages') };
+        })
+      };
+
+      const mgr = new ImportManager(mockValidationEngine);
+      await mgr.initialize();
+
+      const content = `!!! Test Page\nBody text`;
+      const sourceFile = path.join(testDir, 'TestPage.txt');
+      await fs.writeFile(sourceFile, content);
+
+      const targetDir = path.join(testDir, 'output2');
+      await fs.ensureDir(targetDir);
+
+      const result = await mgr.importSinglePage(sourceFile, {
+        sourceDir: testDir,
+        targetDir,
+        format: 'jspwiki',
+        dryRun: false
+      });
+
+      expect(result).not.toBeNull();
+      const written = await fs.readFile(result.targetPath, 'utf-8');
+      expect(written).toContain('system-category: general');
+      expect(written).toContain('slug: testpage');
+
+      await mgr.shutdown();
+    });
+  });
 });

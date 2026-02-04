@@ -24,6 +24,63 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-04-22
+
+- Agent: Claude Opus 4.5
+- Subject: Fix import bugs and add non-admin attachment browser (#123, #232)
+- Current Issue: #123, #232
+- Key Decision: Preserve JSPWiki table syntax during import instead of converting to Markdown tables — JSPWikiPreprocessor handles `||`/`|` at render time, which preserves wiki links inside cells
+- Work Done:
+  - `convertHorizontalRules()`: insert blank line before `---` when preceded by content, preventing setext heading interpretation
+  - `buildFrontmatter()`: use `ValidationManager.generateValidMetadata()` to populate `slug`, `system-category`, `user-keywords`, `lastModified` with defaults on import
+  - Removed `convertTables()` from `JSPWikiConverter` — JSPWiki table syntax preserved in `.md` files, rendered at runtime by `JSPWikiPreprocessor`
+  - Added Phase 2.5 in `parseWithDOMExtraction()` — invoke `JSPWikiPreprocessor` on sanitized content before Showdown to handle bare JSPWiki tables
+  - New `/attachments/browse` route and `browse-attachments.ejs` view for editor/contributor access to attachment browser with search, filter, copy wiki syntax
+  - Added "Browse Attachments" to More dropdown in header navbar
+- Testing:
+  - npm test: 63 suites passed, 1543 tests passed (9 skipped pre-existing)
+  - 6 new/updated tests for horizontal rules, frontmatter defaults, table preservation
+- Commits: pending
+- Files Modified:
+  - src/converters/JSPWikiConverter.ts
+  - src/converters/__tests__/JSPWikiConverter.test.js
+  - src/managers/ImportManager.ts
+  - src/managers/__tests__/ImportManager.test.js
+  - src/parsers/MarkupParser.ts
+  - src/routes/WikiRoutes.ts
+  - views/header.ejs
+  - views/browse-attachments.ejs (new)
+  - docs/project_log.md
+
+---
+
+## 2026-02-04-21
+
+- Agent: Claude Opus 4.5
+- Subject: Fix JSPWiki table conversion — mid-line `\\`, bracket-aware splitting, inline styles (#123, #64)
+- Current Issue: #123, #64
+- Key Decision: Apply same bracket-aware cell splitting fix to both import-time (JSPWikiConverter) and render-time (JSPWikiPreprocessor) so imported and hand-edited pages behave identically
+- Work Done:
+  - `convertLineBreaks()`: changed regex from end-of-line only to global match so mid-line `\\` converts to `<br>`
+  - `convertTables()`: replaced naive `split('|')` with `splitCellsBracketAware()` that tracks `[...]` bracket depth — `|` inside `[link|Page]` no longer breaks cell splitting
+  - Added `convertInlineStyles()`: `%%sup text /%` → `<sup>`, `%%sub text /%` → `<sub>`, `%%strike text /%` → `~~strikethrough~~`
+  - JSPWikiPreprocessor: same bracket-aware split fix for render-time table rows
+  - MarkupParser: added step 0.55 for inline `%%sup/sub/strike` conversion at render time
+  - Version bumped 1.5.6 → 1.5.7 via `scripts/version.js`
+- Testing:
+  - npm test: 63 suites passed, 1541 tests passed (9 skipped pre-existing)
+  - 10 new tests: mid-line `\\`, bracket-aware table splits, wiki links in cells, inline styles
+- Commits: 7e6ca37
+- Files Modified:
+  - package.json
+  - config/app-default-config.json
+  - src/converters/JSPWikiConverter.ts
+  - src/converters/__tests__/JSPWikiConverter.test.js
+  - src/parsers/MarkupParser.ts
+  - src/parsers/handlers/JSPWikiPreprocessor.ts
+
+---
+
 ## 2026-02-04-20
 
 - Agent: Claude Opus 4.5
