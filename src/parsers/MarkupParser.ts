@@ -1413,7 +1413,7 @@ class MarkupParser extends BaseManager {
    * const node = createNodeFromStyleBlock(element, context, wikiDoc);
    * // Returns: <table class="table table-striped">...</table>
    */
-  createNodeFromStyleBlock(element: ExtractedElement, _context: ParseContext, wikiDocument: WikiDocument): unknown {
+  async createNodeFromStyleBlock(element: ExtractedElement, _context: ParseContext, wikiDocument: WikiDocument): Promise<unknown> {
     // Use accumulated classes (from nested styles) if available, otherwise single class
     const classes = element.accumulatedClasses || [element.className ?? ''];
     const classString = classes.filter(c => c).join(' ');
@@ -1424,7 +1424,7 @@ class MarkupParser extends BaseManager {
 
     if (hasTableSyntax) {
       // Generate table with all accumulated classes
-      return this.createTableNode(content, classString, element.id, wikiDocument);
+      return await this.createTableNode(content, classString, element.id, wikiDocument);
     }
 
     // JSPWiki Rule: Determine element type based on content
@@ -1459,7 +1459,7 @@ class MarkupParser extends BaseManager {
    * @param wikiDocument - WikiDocument to create node in
    * @returns HTML table element
    */
-  private createTableNode(content: string, className: string, elementId: number, wikiDocument: WikiDocument): unknown {
+  private async createTableNode(content: string, className: string, elementId: number, wikiDocument: WikiDocument): Promise<unknown> {
     const lines = content.split('\n').filter(line => /^\s*\|/.test(line));
 
     // Parse rows using bracket-aware splitting
@@ -1495,16 +1495,90 @@ class MarkupParser extends BaseManager {
     const headerRows = rows.filter(r => r.isHeader);
     const bodyRows = rows.filter(r => !r.isHeader);
 
-    // Helper: set cell content, allowing <br> tags through as HTML
-    const setCellContent = (el: ReturnType<typeof wikiDocument.createElement>, cell: string) => {
-      if (/<br\s*\/?>/.test(cell)) {
-        // Escape HTML first, then restore <br> tags
-        const safe = cell
-          .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-          .replace(/&lt;br\s*\/?&gt;/g, '<br>');
-        el.innerHTML = safe;
-      } else {
-        el.textContent = cell;
+    // Counter for link element IDs within this table
+    let linkIdCounter = elementId * 1000;
+
+    // Helper: populate cell with wiki links resolved to <a> tags, <br> as HTML, rest as text
+    const populateCell = async (el: ReturnType<typeof wikiDocument.createElement>, cell: string) => {
+      // Regex to find wiki link syntax: [Target] or [Display|Target]
+      // Does NOT match [text](url) markdown links
+      const linkPattern = /\[([^\][{^][^\]]*)\](?!\()/g;
+
+      if (!linkPattern.test(cell)) {
+        // No wiki links — use simple path with <br> support
+        if (/<br\s*\/?>/.test(cell)) {
+          const safe = cell
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            .replace(/&lt;br\s*\/?&gt;/g, '<br>');
+          el.innerHTML = safe;
+        } else {
+          el.textContent = cell;
+        }
+        return;
+      }
+
+      // Has wiki links — build cell content as mix of text and <a> nodes
+      linkPattern.lastIndex = 0;
+      let lastIndex = 0;
+      let match: RegExpExecArray | null;
+
+      while ((match = linkPattern.exec(cell)) !== null) {
+        // Add text before this link
+        if (match.index > lastIndex) {
+          const textBefore = cell.substring(lastIndex, match.index);
+          if (/<br\s*\/?>/.test(textBefore)) {
+            const span = wikiDocument.createElement('span', {});
+            const safe = textBefore
+              .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+              .replace(/&lt;br\s*\/?&gt;/g, '<br>');
+            span.innerHTML = safe;
+            el.appendChild(span);
+          } else if (textBefore) {
+            const textNode = wikiDocument.createTextNode(textBefore);
+            el.appendChild(textNode);
+          }
+        }
+
+        // Create link node via domLinkHandler
+        const linkTarget = match[1].trim();
+        const linkElement = {
+          type: 'link' as const,
+          syntax: match[0],
+          target: linkTarget,
+          id: linkIdCounter++,
+          position: match.index
+        };
+
+        try {
+          const linkNode = await this.domLinkHandler.createNodeFromExtract(
+            linkElement as Parameters<typeof this.domLinkHandler.createNodeFromExtract>[0],
+            {} as Parameters<typeof this.domLinkHandler.createNodeFromExtract>[1],
+            wikiDocument
+          );
+          el.appendChild(linkNode);
+        } catch {
+          // Fallback: render as plain text
+          const textNode = wikiDocument.createTextNode(match[0]);
+          el.appendChild(textNode);
+        }
+
+        lastIndex = match.index + match[0].length;
+      }
+
+      // Add remaining text after last link
+      if (lastIndex < cell.length) {
+        const textAfter = cell.substring(lastIndex);
+        if (/<br\s*\/?>/.test(textAfter)) {
+          const span = wikiDocument.createElement('span', {});
+          const safe = textAfter
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            .replace(/&lt;br\s*\/?&gt;/g, '<br>');
+          span.innerHTML = safe;
+          el.appendChild(span);
+        } else if (textAfter) {
+          const textNode = wikiDocument.createTextNode(textAfter);
+          el.appendChild(textNode);
+        }
       }
     };
 
@@ -1515,7 +1589,7 @@ class MarkupParser extends BaseManager {
         const tr = wikiDocument.createElement('tr', {});
         for (const cell of row.cells) {
           const th = wikiDocument.createElement('th', {});
-          setCellContent(th, cell);
+          await populateCell(th, cell);
           tr.appendChild(th);
         }
         thead.appendChild(tr);
@@ -1530,7 +1604,7 @@ class MarkupParser extends BaseManager {
         const tr = wikiDocument.createElement('tr', {});
         for (const cell of row.cells) {
           const td = wikiDocument.createElement('td', {});
-          setCellContent(td, cell);
+          await populateCell(td, cell);
           tr.appendChild(td);
         }
         tbody.appendChild(tr);
@@ -1631,7 +1705,7 @@ class MarkupParser extends BaseManager {
 
     case 'style':
       // Style block: %%class-name ... /%
-      return this.createNodeFromStyleBlock(element, context, wikiDocument);
+      return await this.createNodeFromStyleBlock(element, context, wikiDocument);
 
     default: {
       logger.error(`❌ Unknown element type: ${String(element.type)}`);

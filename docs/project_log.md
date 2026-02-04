@@ -24,6 +24,30 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-04-23
+
+- Agent: Claude Opus 4.5
+- Subject: Style-block table fixes — bracket-aware splitting, `<br>` rendering, wiki link resolution (#123)
+- Current Issue: #123
+- Key Decisions:
+  - Allow `<br>` tags through in table cells via selective innerHTML while escaping all other HTML for safety
+  - Resolve `[wiki link]` syntax inside style-block table cells using `DOMLinkHandler` so links render as `<a>` tags with proper red link detection
+- Work Done:
+  - `createTableNode()`: replaced naive `split('|')` with `splitCellsBracketAware()` so `[link|page]` wiki link syntax inside `%%zebra-table` style-block tables no longer breaks into separate columns
+  - `createTableNode()`: `<br>` tags (from JSPWiki `\\` line breaks) now render as HTML instead of being escaped by `.textContent`
+  - `createTableNode()`: wiki links (`[Page]`, `[Display|Page]`) in table cells now resolved to `<a>` tags via `domLinkHandler.createNodeFromExtract()` — existing pages get `class="wikipage"`, missing pages get `class="redlink"` with red styling
+  - Made `createNodeFromStyleBlock()` and `createTableNode()` async to support `domLinkHandler` calls
+  - New `splitCellsBracketAware()` private method on MarkupParser — tracks bracket depth to skip `|` delimiters inside `[...]`
+  - New `populateCell()` helper parses cell content as mix of text nodes and link `<a>` nodes
+  - Verified Country Code table: Korea rows correct columns, US/Japan `<br>` works, `[Antarctica]` renders as red link, `[United States]` renders as wiki link
+- Testing:
+  - npm test: 63 suites passed, 1543 tests passed (9 skipped pre-existing)
+- Commits: 081c3eb, (pending)
+- Files Modified:
+  - src/parsers/MarkupParser.ts
+
+---
+
 ## 2026-02-04-22
 
 - Agent: Claude Opus 4.5
