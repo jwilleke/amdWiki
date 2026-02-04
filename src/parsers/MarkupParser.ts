@@ -1462,20 +1462,19 @@ class MarkupParser extends BaseManager {
   private createTableNode(content: string, className: string, elementId: number, wikiDocument: WikiDocument): unknown {
     const lines = content.split('\n').filter(line => /^\s*\|/.test(line));
 
-    // Parse rows
+    // Parse rows using bracket-aware splitting
     const rows: Array<{ isHeader: boolean; cells: string[] }> = [];
     for (const line of lines) {
       const trimmed = line.trim();
-      const isHeader = trimmed.startsWith('||') && trimmed.endsWith('||');
+      const isHeader = trimmed.startsWith('||');
 
-      let cells: string[];
-      if (isHeader) {
-        const inner = trimmed.slice(2, -2);
-        cells = inner.split('||').map(c => c.trim());
-      } else {
-        const inner = trimmed.slice(1, -1);
-        cells = inner.split('|').map(c => c.trim());
-      }
+      const delimiter = isHeader ? '||' : '|';
+      const parts = this.splitCellsBracketAware(trimmed, delimiter);
+
+      // Remove empty first/last elements (from leading/trailing delimiters)
+      const cells = parts
+        .slice(1, parts[parts.length - 1].trim() === '' ? -1 : undefined)
+        .map(c => c.trim());
 
       rows.push({ isHeader, cells });
     }
@@ -1496,6 +1495,19 @@ class MarkupParser extends BaseManager {
     const headerRows = rows.filter(r => r.isHeader);
     const bodyRows = rows.filter(r => !r.isHeader);
 
+    // Helper: set cell content, allowing <br> tags through as HTML
+    const setCellContent = (el: ReturnType<typeof wikiDocument.createElement>, cell: string) => {
+      if (/<br\s*\/?>/.test(cell)) {
+        // Escape HTML first, then restore <br> tags
+        const safe = cell
+          .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+          .replace(/&lt;br\s*\/?&gt;/g, '<br>');
+        el.innerHTML = safe;
+      } else {
+        el.textContent = cell;
+      }
+    };
+
     // Create thead if there are header rows
     if (headerRows.length > 0) {
       const thead = wikiDocument.createElement('thead', {});
@@ -1503,7 +1515,7 @@ class MarkupParser extends BaseManager {
         const tr = wikiDocument.createElement('tr', {});
         for (const cell of row.cells) {
           const th = wikiDocument.createElement('th', {});
-          th.textContent = cell;
+          setCellContent(th, cell);
           tr.appendChild(th);
         }
         thead.appendChild(tr);
@@ -1518,7 +1530,7 @@ class MarkupParser extends BaseManager {
         const tr = wikiDocument.createElement('tr', {});
         for (const cell of row.cells) {
           const td = wikiDocument.createElement('td', {});
-          td.textContent = cell;
+          setCellContent(td, cell);
           tr.appendChild(td);
         }
         tbody.appendChild(tr);
@@ -1527,6 +1539,45 @@ class MarkupParser extends BaseManager {
     }
 
     return table;
+  }
+
+  /**
+   * Split text by a delimiter while respecting [...] bracket groups.
+   * Pipes inside [wiki link|PageName] are not treated as cell delimiters.
+   */
+  private splitCellsBracketAware(text: string, delimiter: string): string[] {
+    const cells: string[] = [];
+    let current = '';
+    let bracketDepth = 0;
+    let i = 0;
+
+    while (i < text.length) {
+      if (text[i] === '[') {
+        bracketDepth++;
+        current += text[i];
+        i++;
+        continue;
+      }
+      if (text[i] === ']') {
+        bracketDepth = Math.max(0, bracketDepth - 1);
+        current += text[i];
+        i++;
+        continue;
+      }
+
+      if (bracketDepth === 0 && text.substring(i, i + delimiter.length) === delimiter) {
+        cells.push(current);
+        current = '';
+        i += delimiter.length;
+        continue;
+      }
+
+      current += text[i];
+      i++;
+    }
+    cells.push(current);
+
+    return cells;
   }
 
   /**
