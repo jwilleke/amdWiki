@@ -33,20 +33,30 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Work Done:
   - `convertHorizontalRules()`: insert blank line before `---` when preceded by content, preventing setext heading interpretation
   - `buildFrontmatter()`: use `ValidationManager.generateValidMetadata()` to populate `slug`, `system-category`, `user-keywords`, `lastModified` with defaults on import
+  - Fix `generateValidMetadata()` `...options` spread overwriting defaults with `undefined` — filter out undefined/null values before spread
+  - Only pass defined `system-category`/`user-keywords` to `generateValidMetadata` from ImportManager
   - Removed `convertTables()` from `JSPWikiConverter` — JSPWiki table syntax preserved in `.md` files, rendered at runtime by `JSPWikiPreprocessor`
   - Added Phase 2.5 in `parseWithDOMExtraction()` — invoke `JSPWikiPreprocessor` on sanitized content before Showdown to handle bare JSPWiki tables
+  - `JSPWikiPreprocessor.escapeHtml()`: preserve `<span data-jspwiki-placeholder>` tags so placeholders survive table-to-HTML conversion
+  - `FileSystemProvider.walkDir()`: skip `versions/` directories to stop scanning version snapshots as pages
   - New `/attachments/browse` route and `browse-attachments.ejs` view for editor/contributor access to attachment browser with search, filter, copy wiki syntax
   - Added "Browse Attachments" to More dropdown in header navbar
+  - Version bumped 1.5.7 → 1.5.8 via `scripts/version.js`
 - Testing:
   - npm test: 63 suites passed, 1543 tests passed (9 skipped pre-existing)
   - 6 new/updated tests for horizontal rules, frontmatter defaults, table preservation
-- Commits: pending
+- Commits: 8c7f267
 - Files Modified:
+  - package.json
+  - config/app-default-config.json
   - src/converters/JSPWikiConverter.ts
   - src/converters/__tests__/JSPWikiConverter.test.js
   - src/managers/ImportManager.ts
   - src/managers/__tests__/ImportManager.test.js
+  - src/managers/ValidationManager.ts
   - src/parsers/MarkupParser.ts
+  - src/parsers/handlers/JSPWikiPreprocessor.ts
+  - src/providers/FileSystemProvider.ts
   - src/routes/WikiRoutes.ts
   - views/header.ejs
   - views/browse-attachments.ejs (new)
