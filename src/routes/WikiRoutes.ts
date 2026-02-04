@@ -3993,6 +3993,95 @@ class WikiRoutes {
   }
 
   /**
+   * Admin attachments browser page
+   */
+  async adminAttachments(req: Request, res: Response) {
+    try {
+      const currentUser = req.userContext;
+
+      if (
+        !currentUser ||
+        !currentUser.roles ||
+        !(currentUser.roles.includes('admin') || currentUser.roles.includes('editor'))
+      ) {
+        return await this.renderError(
+          req,
+          res,
+          403,
+          'Access Denied',
+          'You do not have permission to access the attachment browser'
+        );
+      }
+
+      const attachmentManager = this.engine.getManager('AttachmentManager');
+      const attachments = await attachmentManager.getAllAttachments();
+      const commonData = await this.getCommonTemplateData(req);
+
+      return res.render('admin-attachments', {
+        ...commonData,
+        title: 'Attachments',
+        attachments
+      });
+    } catch (err: unknown) {
+      logger.error('Error loading admin attachments:', err);
+      return res.status(500).send('Error loading attachments page');
+    }
+  }
+
+  /**
+   * Admin attachments API - return JSON for client-side refresh
+   */
+  async adminAttachmentsApi(req: Request, res: Response) {
+    try {
+      const currentUser = req.userContext;
+
+      if (
+        !currentUser ||
+        !currentUser.roles ||
+        !(currentUser.roles.includes('admin') || currentUser.roles.includes('editor'))
+      ) {
+        return res.status(403).json({ success: false, error: 'Access denied' });
+      }
+
+      const attachmentManager = this.engine.getManager('AttachmentManager');
+      const attachments = await attachmentManager.getAllAttachments();
+
+      return res.json({ success: true, attachments });
+    } catch (err: unknown) {
+      logger.error('Error fetching attachments API:', err);
+      return res.status(500).json({ success: false, error: 'Failed to fetch attachments' });
+    }
+  }
+
+  /**
+   * Admin delete attachment from browser - admin only
+   */
+  async adminDeleteAttachmentFromBrowser(req: Request, res: Response) {
+    try {
+      const currentUser = req.userContext;
+
+      if (!currentUser || !currentUser.roles || !currentUser.roles.includes('admin')) {
+        return res.status(403).json({ success: false, error: 'Admin role required to delete attachments' });
+      }
+
+      const { attachmentId } = req.params;
+      const attachmentManager = this.engine.getManager('AttachmentManager');
+
+      const deleted = await attachmentManager.deleteAttachment(attachmentId, currentUser);
+
+      if (!deleted) {
+        return res.status(404).json({ success: false, error: 'Attachment not found' });
+      }
+
+      return res.json({ success: true, message: 'Attachment deleted successfully' });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      logger.error('Error deleting attachment from browser:', err);
+      return res.status(500).json({ success: false, error: message });
+    }
+  }
+
+  /**
    * Admin import preview - dry-run import and return JSON results
    */
   async adminImportPreview(req: Request, res: Response) {
@@ -4742,6 +4831,9 @@ class WikiRoutes {
     app.get('/admin/logs', (req: Request, res: Response) => this.adminLogs(req, res));
     app.post('/admin/restart', (req: Request, res: Response) => this.adminRestart(req, res));
     app.post('/admin/reindex', (req: Request, res: Response) => this.adminReindex(req, res));
+    app.get('/admin/attachments', (req: Request, res: Response) => this.adminAttachments(req, res));
+    app.get('/admin/attachments/api', (req: Request, res: Response) => this.adminAttachmentsApi(req, res));
+    app.delete('/admin/attachments/:attachmentId', (req: Request, res: Response) => this.adminDeleteAttachmentFromBrowser(req, res));
     app.get('/admin/import', (req: Request, res: Response) => this.adminImport(req, res));
     app.post('/admin/import/preview', (req: Request, res: Response) => this.adminImportPreview(req, res));
     app.post('/admin/import/execute', (req: Request, res: Response) => this.adminImportExecute(req, res));

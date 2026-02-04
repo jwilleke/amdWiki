@@ -34,7 +34,7 @@ Work on [FEATURE] Handling of attachments #232
 - ~~JSPWiki import migration — One-time migration needed for Page/file.png references; also review src/converters~~ **Done (2026-02-04)** — ImportManager.importSinglePage() now auto-imports `-att/` attachments via AttachmentManager; JSPWikiConverter detects unhandled plugins; page name decoding handles `%XX` encoding
 - No drag-and-drop upload — Editor has no inline attachment upload
 - Private/restricted attachments — Issue #122 mentions private folders; no per-attachment ACL beyond auth/anon
-- No admin attachment management page — No way to browse/search all attachments from admin UI
+- ~~No admin attachment management page — No way to browse/search all attachments from admin UI~~ **Done (2026-02-04)** — `/admin/attachments` page with search, MIME filter, sortable table, pagination, and admin delete
 - Thumbnail generation may be stub — Config exists but actual image processing (sharp/jimp) unclear
 
 ## Decisions (2026-02-03)

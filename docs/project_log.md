@@ -24,6 +24,29 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-04-20
+
+- Agent: Claude Opus 4.5
+- Subject: Attachment browser admin page (#232)
+- Current Issue: #232
+- Work Done:
+  - Created `/admin/attachments` page for browsing all wiki attachments
+  - Route handlers: `adminAttachments`, `adminAttachmentsApi`, `adminDeleteAttachmentFromBrowser`
+  - View: search box, MIME type filter, sortable columns, client-side pagination (25/page), summary stats
+  - Editor and admin roles can view; only admin can delete
+  - Added Attachments link to header Management dropdown and admin dashboard
+- Testing:
+  - npm test: 63 suites passed, 1530 tests passed (9 skipped pre-existing)
+- Files Modified:
+  - views/admin-attachments.ejs (new)
+  - src/routes/WikiRoutes.ts
+  - views/admin-dashboard.ejs
+  - views/header.ejs
+  - docs/TODO.md
+  - docs/project_log.md
+
+---
+
 ## 2026-02-04-19
 
 - Agent: Claude Opus 4.5

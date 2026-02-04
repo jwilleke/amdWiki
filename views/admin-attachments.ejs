@@ -1,0 +1,370 @@
+<%- include('header', { pageName: '' }) %>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-paperclip"></i> Attachments</h1>
+                <a href="/admin" class="btn" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+
+            <!-- Summary Stats -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body py-2">
+                            <h4 class="mb-0" id="stat-total"><%= attachments.length %></h4>
+                            <small class="text-muted">Total Attachments</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body py-2">
+                            <h4 class="mb-0" id="stat-size">
+                                <%= (attachments.reduce((sum, a) => sum + (a.size || 0), 0) / (1024 * 1024)).toFixed(1) %> MB
+                            </h4>
+                            <small class="text-muted">Total Size</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body py-2">
+                            <h4 class="mb-0" id="stat-images">
+                                <%= attachments.filter(a => a.mimeType && a.mimeType.startsWith('image/')).length %>
+                            </h4>
+                            <small class="text-muted">Images</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body py-2">
+                            <h4 class="mb-0" id="stat-documents">
+                                <%= attachments.filter(a => a.mimeType && (a.mimeType.includes('pdf') || a.mimeType.includes('document') || a.mimeType.includes('spreadsheet') || a.mimeType.includes('text/'))).length %>
+                            </h4>
+                            <small class="text-muted">Documents</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="card mb-4">
+                <div class="card-body py-2">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                <input type="text" class="form-control" id="attachment-search"
+                                       placeholder="Search by filename, description, or uploader...">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" id="mime-filter">
+                                <option value="all">All Types</option>
+                                <option value="image">Images</option>
+                                <option value="document">Documents</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 text-end">
+                            <span class="text-muted" id="filter-count"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Attachments Table -->
+            <div class="card">
+                <div class="table-responsive">
+                    <table class="table table-striped table-sm mb-0" id="attachments-table">
+                        <thead>
+                            <tr>
+                                <th class="sortable" data-sort="filename" style="cursor:pointer;">
+                                    Filename <i class="fas fa-sort"></i>
+                                </th>
+                                <th class="sortable" data-sort="mimeType" style="cursor:pointer;">
+                                    Type <i class="fas fa-sort"></i>
+                                </th>
+                                <th class="sortable" data-sort="size" style="cursor:pointer;">
+                                    Size <i class="fas fa-sort"></i>
+                                </th>
+                                <th class="sortable" data-sort="uploadedBy" style="cursor:pointer;">
+                                    Uploaded By <i class="fas fa-sort"></i>
+                                </th>
+                                <th class="sortable" data-sort="uploadedAt" style="cursor:pointer;">
+                                    Date <i class="fas fa-sort"></i>
+                                </th>
+                                <th>Page</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attachments-tbody">
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Pagination -->
+                <div class="card-footer d-flex justify-content-between align-items-center">
+                    <small class="text-muted" id="page-info"></small>
+                    <nav>
+                        <ul class="pagination pagination-sm mb-0" id="pagination"></ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const PER_PAGE = 25;
+    let currentPage = 1;
+    let sortField = 'uploadedAt';
+    let sortDir = 'desc';
+    const isAdmin = <%= JSON.stringify(currentUser.roles.includes('admin')) %>;
+
+    // Embed attachment data from server
+    const allAttachments = <%- JSON.stringify(attachments) %>;
+
+    const searchInput = document.getElementById('attachment-search');
+    const mimeFilter = document.getElementById('mime-filter');
+    const tbody = document.getElementById('attachments-tbody');
+    const pagination = document.getElementById('pagination');
+    const pageInfo = document.getElementById('page-info');
+    const filterCount = document.getElementById('filter-count');
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text || '';
+        return div.innerHTML;
+    }
+
+    function formatSize(bytes) {
+        if (!bytes || bytes === 0) return '0 B';
+        const sizes = ['B', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(1024));
+        return (bytes / Math.pow(1024, i)).toFixed(i > 0 ? 1 : 0) + ' ' + sizes[i];
+    }
+
+    function formatDate(isoStr) {
+        if (!isoStr) return '';
+        try {
+            return new Date(isoStr).toLocaleDateString(undefined, {
+                year: 'numeric', month: 'short', day: 'numeric'
+            });
+        } catch (e) {
+            return isoStr;
+        }
+    }
+
+    function isImageType(mime) {
+        return mime && mime.startsWith('image/');
+    }
+
+    function isDocumentType(mime) {
+        return mime && (mime.includes('pdf') || mime.includes('document') ||
+                        mime.includes('spreadsheet') || mime.startsWith('text/'));
+    }
+
+    function getFilteredAttachments() {
+        const query = searchInput.value.toLowerCase().trim();
+        const mimeType = mimeFilter.value;
+
+        return allAttachments.filter(function(a) {
+            // Search filter
+            if (query) {
+                const haystack = [a.filename, a.description, a.uploadedBy]
+                    .filter(Boolean).join(' ').toLowerCase();
+                if (!haystack.includes(query)) return false;
+            }
+            // MIME type filter
+            if (mimeType === 'image') return isImageType(a.mimeType);
+            if (mimeType === 'document') return isDocumentType(a.mimeType);
+            if (mimeType === 'other') return !isImageType(a.mimeType) && !isDocumentType(a.mimeType);
+            return true;
+        });
+    }
+
+    function getSortedAttachments(list) {
+        return list.slice().sort(function(a, b) {
+            let va = a[sortField];
+            let vb = b[sortField];
+            if (sortField === 'size') {
+                va = va || 0;
+                vb = vb || 0;
+                return sortDir === 'asc' ? va - vb : vb - va;
+            }
+            if (sortField === 'uploadedAt') {
+                va = va ? new Date(va).getTime() : 0;
+                vb = vb ? new Date(vb).getTime() : 0;
+                return sortDir === 'asc' ? va - vb : vb - va;
+            }
+            va = (va || '').toString().toLowerCase();
+            vb = (vb || '').toString().toLowerCase();
+            if (va < vb) return sortDir === 'asc' ? -1 : 1;
+            if (va > vb) return sortDir === 'asc' ? 1 : -1;
+            return 0;
+        });
+    }
+
+    function render() {
+        const filtered = getFilteredAttachments();
+        const sorted = getSortedAttachments(filtered);
+        const totalPages = Math.max(1, Math.ceil(sorted.length / PER_PAGE));
+        if (currentPage > totalPages) currentPage = totalPages;
+        const start = (currentPage - 1) * PER_PAGE;
+        const pageItems = sorted.slice(start, start + PER_PAGE);
+
+        filterCount.textContent = filtered.length + ' of ' + allAttachments.length + ' shown';
+
+        // Render rows
+        tbody.innerHTML = '';
+        if (pageItems.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4">No attachments found</td></tr>';
+        } else {
+            pageItems.forEach(function(a) {
+                var row = document.createElement('tr');
+                row.setAttribute('data-id', a.id);
+
+                var pageLink = '';
+                if (a.pageUuid) {
+                    pageLink = '<span class="badge bg-secondary">' + escapeHtml(a.pageUuid) + '</span>';
+                }
+
+                var actions = '<a href="/attachments/' + encodeURIComponent(a.id) + '" class="btn btn-sm btn-outline-primary me-1" title="Download"><i class="fas fa-download"></i></a>';
+
+                if (isAdmin) {
+                    actions += '<button class="btn btn-sm btn-outline-danger delete-btn" data-id="' + escapeHtml(a.id) + '" data-name="' + escapeHtml(a.filename) + '" title="Delete"><i class="fas fa-trash"></i></button>';
+                }
+
+                row.innerHTML =
+                    '<td>' + escapeHtml(a.filename) + (a.description ? '<br><small class="text-muted">' + escapeHtml(a.description) + '</small>' : '') + '</td>' +
+                    '<td><span class="badge bg-info">' + escapeHtml(a.mimeType) + '</span></td>' +
+                    '<td>' + formatSize(a.size) + '</td>' +
+                    '<td>' + escapeHtml(a.uploadedBy) + '</td>' +
+                    '<td>' + formatDate(a.uploadedAt) + '</td>' +
+                    '<td>' + pageLink + '</td>' +
+                    '<td class="text-nowrap">' + actions + '</td>';
+                tbody.appendChild(row);
+            });
+        }
+
+        // Render pagination
+        pageInfo.textContent = 'Page ' + currentPage + ' of ' + totalPages;
+        pagination.innerHTML = '';
+
+        if (totalPages > 1) {
+            // Previous
+            var prevLi = document.createElement('li');
+            prevLi.className = 'page-item' + (currentPage === 1 ? ' disabled' : '');
+            prevLi.innerHTML = '<a class="page-link" href="#">&laquo;</a>';
+            prevLi.addEventListener('click', function(e) { e.preventDefault(); if (currentPage > 1) { currentPage--; render(); } });
+            pagination.appendChild(prevLi);
+
+            // Page numbers (show max 7)
+            var startPage = Math.max(1, currentPage - 3);
+            var endPage = Math.min(totalPages, startPage + 6);
+            if (endPage - startPage < 6) startPage = Math.max(1, endPage - 6);
+
+            for (var p = startPage; p <= endPage; p++) {
+                (function(page) {
+                    var li = document.createElement('li');
+                    li.className = 'page-item' + (page === currentPage ? ' active' : '');
+                    li.innerHTML = '<a class="page-link" href="#">' + page + '</a>';
+                    li.addEventListener('click', function(e) { e.preventDefault(); currentPage = page; render(); });
+                    pagination.appendChild(li);
+                })(p);
+            }
+
+            // Next
+            var nextLi = document.createElement('li');
+            nextLi.className = 'page-item' + (currentPage === totalPages ? ' disabled' : '');
+            nextLi.innerHTML = '<a class="page-link" href="#">&raquo;</a>';
+            nextLi.addEventListener('click', function(e) { e.preventDefault(); if (currentPage < totalPages) { currentPage++; render(); } });
+            pagination.appendChild(nextLi);
+        }
+
+        // Bind delete buttons
+        document.querySelectorAll('.delete-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var id = this.getAttribute('data-id');
+                var name = this.getAttribute('data-name');
+                deleteAttachment(id, name);
+            });
+        });
+    }
+
+    // Sort handlers
+    document.querySelectorAll('.sortable').forEach(function(th) {
+        th.addEventListener('click', function() {
+            var field = this.getAttribute('data-sort');
+            if (sortField === field) {
+                sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortField = field;
+                sortDir = 'asc';
+            }
+            // Update sort icons
+            document.querySelectorAll('.sortable i').forEach(function(icon) {
+                icon.className = 'fas fa-sort';
+            });
+            this.querySelector('i').className = 'fas fa-sort-' + (sortDir === 'asc' ? 'up' : 'down');
+            currentPage = 1;
+            render();
+        });
+    });
+
+    // Search and filter handlers
+    searchInput.addEventListener('input', function() {
+        currentPage = 1;
+        render();
+    });
+
+    mimeFilter.addEventListener('change', function() {
+        currentPage = 1;
+        render();
+    });
+
+    // Delete attachment
+    async function deleteAttachment(id, name) {
+        if (!confirm('Delete attachment "' + name + '"? This cannot be undone.')) return;
+
+        try {
+            var response = await fetch('/admin/attachments/' + encodeURIComponent(id), {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            var result = await response.json();
+
+            if (result.success) {
+                // Remove from local array
+                var idx = allAttachments.findIndex(function(a) { return a.id === id; });
+                if (idx !== -1) allAttachments.splice(idx, 1);
+                render();
+                updateStats();
+            } else {
+                alert('Delete failed: ' + (result.error || 'Unknown error'));
+            }
+        } catch (err) {
+            alert('Delete failed: ' + err.message);
+        }
+    }
+
+    function updateStats() {
+        document.getElementById('stat-total').textContent = allAttachments.length;
+        var totalSize = allAttachments.reduce(function(sum, a) { return sum + (a.size || 0); }, 0);
+        document.getElementById('stat-size').textContent = (totalSize / (1024 * 1024)).toFixed(1) + ' MB';
+        document.getElementById('stat-images').textContent = allAttachments.filter(function(a) { return isImageType(a.mimeType); }).length;
+        document.getElementById('stat-documents').textContent = allAttachments.filter(function(a) { return isDocumentType(a.mimeType); }).length;
+    }
+
+    // Initial render
+    render();
+});
+</script>
+
+<%- include('footer') %>
