@@ -29,7 +29,8 @@ Work on [FEATURE] Handling of attachments #232
 
 ## What's Missing / Enhancement Opportunities
 
-- ImagePlugin path resolution — ImagePlugin doesn't resolve filenames to attachment URLs (see Decisions below)
+- ~~ImagePlugin path resolution — ImagePlugin doesn't resolve filenames to attachment URLs~~ **Done (2026-02-03)** — three-step resolution: page attachment → cross-page → /images/ fallback
+- ~~Description auto-populate — Upload description pre-filled with filename~~ **Done (2026-02-03)** — navbar modal, editor, and server-side fallback
 - JSPWiki import migration — One-time migration needed for Page/file.png references; also review src/converters
 - No drag-and-drop upload — Editor has no inline attachment upload
 - Private/restricted attachments — Issue #122 mentions private folders; no per-attachment ACL beyond auth/anon

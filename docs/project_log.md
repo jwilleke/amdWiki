@@ -24,6 +24,30 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-03-18
+
+- Agent: Claude Opus 4.5
+- Subject: Implement #232 decisions — ImagePlugin resolution + description auto-populate
+- Key Decision: ImagePlugin now resolves relative src to attachment URLs before falling back to /images/; description field auto-populated with filename
+- Current Issue: #232
+- Work Done:
+  - ImagePlugin: made execute() async, added three-step attachment resolution (current page → cross-page Page/file → /images/ fallback)
+  - header.ejs: changed description label, added JS to auto-populate description with filename on file select, removed "Uploaded from navbar" fallback
+  - edit.ejs: changed hardcoded "Image uploaded from editor" description to use actual filename
+  - WikiRoutes.ts: server-side fallback uses originalname when description is empty
+  - TODO.md: marked ImagePlugin resolution and description auto-populate as done
+- Testing:
+  - npm test: pending
+- Files Modified:
+  - plugins/ImagePlugin.ts
+  - views/header.ejs
+  - views/edit.ejs
+  - src/routes/WikiRoutes.ts
+  - docs/TODO.md
+  - docs/project_log.md
+
+---
+
 ## 2026-02-03-17
 
 - Agent: Claude Opus 4.5

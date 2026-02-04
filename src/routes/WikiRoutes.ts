@@ -2064,7 +2064,7 @@ class WikiRoutes {
       // Prepare options with full user context for permission checks
       const options = {
         pageName: pageName,
-        description: req.body.description || '',
+        description: req.body.description || req.file.originalname,
         context: currentUser // Pass full userContext for PolicyManager
       };
 

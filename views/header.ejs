@@ -1360,7 +1360,7 @@ function showUploadAttachment() {
                             <input type="file" class="form-control" id="attachmentFile">
                         </div>
                         <div class="mb-3">
-                            <label for="attachmentDescription" class="form-label">Description (Optional):</label>
+                            <label for="attachmentDescription" class="form-label">Description:</label>
                             <input type="text" class="form-control" id="attachmentDescription" placeholder="Brief description of the file">
                         </div>
                         <div id="uploadStatus"></div>
@@ -1389,6 +1389,14 @@ function showUploadAttachment() {
     const modal = new bootstrap.Modal(document.getElementById('uploadAttachmentModal'));
     modal.show();
 
+    // Auto-populate description with filename when file is selected
+    document.getElementById('attachmentFile').addEventListener('change', function() {
+        const descInput = document.getElementById('attachmentDescription');
+        if (this.files[0] && !descInput.value) {
+            descInput.value = this.files[0].name;
+        }
+    });
+
     // Clean up when closed
     document.getElementById('uploadAttachmentModal').addEventListener('hidden.bs.modal', function () {
         this.remove();
@@ -1407,7 +1415,7 @@ async function uploadAttachmentFile(pageName) {
 
     const formData = new FormData();
     formData.append('file', fileInput.files[0]);
-    formData.append('description', description || 'Uploaded from navbar');
+    formData.append('description', description);
 
     statusDiv.innerHTML = '<div class="alert alert-info">Uploading...</div>';
 

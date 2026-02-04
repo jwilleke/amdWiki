@@ -35,6 +35,16 @@ interface ConfigManager {
   getProperty(key: string, defaultValue: string): string;
 }
 
+interface AttachmentMeta {
+  name: string;
+  url: string;
+  [key: string]: unknown;
+}
+
+interface AttachmentManager {
+  getAttachmentsForPage(pageName: string): Promise<AttachmentMeta[]>;
+}
+
 interface ImageParams extends PluginParams {
   src?: string;
   alt?: string;
@@ -59,7 +69,7 @@ const ImagePlugin: SimplePlugin = {
    * @param params - Plugin parameters object (parsed from syntax)
    * @returns HTML output
    */
-  execute(context: PluginContext, params: PluginParams): string {
+  async execute(context: PluginContext, params: PluginParams): Promise<string> {
     try {
       const opts = params as ImageParams;
 
@@ -81,15 +91,50 @@ const ImagePlugin: SimplePlugin = {
 
       // Required src attribute
       if (opts.src) {
-        // Handle relative paths - assume images are in /public/images or /attachments
         let src = String(opts.src);
 
         // If it starts with http or /, use as-is (absolute path or URL)
         if (!src.startsWith('http') && !src.startsWith('/')) {
-          // Relative path - prepend with /images/
-          src = `/images/${src}`;
+          // Try to resolve via attachment storage
+          const attachmentManager = context.engine?.getManager('AttachmentManager') as AttachmentManager | undefined;
+          let resolved = false;
+
+          if (attachmentManager) {
+            // Step 1: Check attachments on the current page by exact filename match
+            try {
+              const pageAttachments = await attachmentManager.getAttachmentsForPage(context.pageName);
+              const match = pageAttachments.find(a => a.name === src);
+              if (match) {
+                src = match.url;
+                resolved = true;
+              }
+            } catch {
+              // Attachment lookup failed, continue to next step
+            }
+
+            // Step 2: If src contains '/', treat as Page/filename pattern
+            if (!resolved && src.includes('/')) {
+              try {
+                const slashIndex = src.indexOf('/');
+                const refPageName = src.substring(0, slashIndex);
+                const refFileName = src.substring(slashIndex + 1);
+                const refAttachments = await attachmentManager.getAttachmentsForPage(refPageName);
+                const match = refAttachments.find(a => a.name === refFileName);
+                if (match) {
+                  src = match.url;
+                  resolved = true;
+                }
+              } catch {
+                // Cross-page lookup failed, continue to fallback
+              }
+            }
+          }
+
+          // Step 3: Fall back to /images/ path
+          if (!resolved) {
+            src = `/images/${src}`;
+          }
         }
-        // If path already starts with /images/, use as-is (no double prefix)
 
         imgTag += ` src="${src}"`;
       } else {
