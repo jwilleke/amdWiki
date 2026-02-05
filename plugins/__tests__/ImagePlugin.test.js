@@ -591,6 +591,147 @@ describe("Image (via PluginManager)", () => {
     });
   });
 
+  describe("global filename fallback (Step 2.5)", () => {
+    it("resolves via global filename when page-specific lookup returns no match", async () => {
+      const mockAttachmentManager = {
+        getAttachmentsForPage: jest.fn().mockResolvedValue([]),
+        getAttachmentByFilename: jest.fn().mockResolvedValue({
+          name: "arabian-peninsula.webp",
+          url: "/attachments/98bc3898c535c328abbe6e5c5c7c43ba220b8a035d6bb3f9f54fcadf833aee90",
+        }),
+      };
+
+      const contextWithAttachments = {
+        ...mockContext,
+        pageName: "1b951bb5-a0b8-4c01-8366-3774f9546718",
+        engine: {
+          getManager: jest.fn().mockImplementation((name) => {
+            if (name === "AttachmentManager") return mockAttachmentManager;
+            if (name === "ConfigurationManager") {
+              return {
+                getProperty: jest.fn().mockImplementation((key, def) => {
+                  const configMap = {
+                    "amdwiki.features.images.defaultAlt": "Uploaded image",
+                    "amdwiki.features.images.defaultClass": "wiki-image",
+                  };
+                  return key in configMap ? configMap[key] : def;
+                }),
+              };
+            }
+            return null;
+          }),
+        },
+      };
+
+      const params = { src: "arabian-peninsula.webp" };
+      const result = await ImagePlugin.execute(contextWithAttachments, params);
+
+      expect(result).toContain(
+        'src="/attachments/98bc3898c535c328abbe6e5c5c7c43ba220b8a035d6bb3f9f54fcadf833aee90"'
+      );
+      expect(result).not.toContain("/images/arabian-peninsula.webp");
+      expect(mockAttachmentManager.getAttachmentsForPage).toHaveBeenCalled();
+      expect(mockAttachmentManager.getAttachmentByFilename).toHaveBeenCalledWith(
+        "arabian-peninsula.webp"
+      );
+    });
+
+    it("prefers page-specific match over global filename match", async () => {
+      const mockAttachmentManager = {
+        getAttachmentsForPage: jest.fn().mockResolvedValue([
+          {
+            name: "test-image.jpg",
+            url: "/attachments/page-specific-hash",
+          },
+        ]),
+        getAttachmentByFilename: jest.fn().mockResolvedValue({
+          name: "test-image.jpg",
+          url: "/attachments/global-hash",
+        }),
+      };
+
+      const contextWithAttachments = {
+        ...mockContext,
+        pageName: "test-page",
+        engine: {
+          getManager: jest.fn().mockImplementation((name) => {
+            if (name === "AttachmentManager") return mockAttachmentManager;
+            if (name === "ConfigurationManager") {
+              return {
+                getProperty: jest.fn().mockImplementation((key, def) => def),
+              };
+            }
+            return null;
+          }),
+        },
+      };
+
+      const params = { src: "test-image.jpg" };
+      const result = await ImagePlugin.execute(contextWithAttachments, params);
+
+      expect(result).toContain('src="/attachments/page-specific-hash"');
+      expect(mockAttachmentManager.getAttachmentByFilename).not.toHaveBeenCalled();
+    });
+
+    it("falls back to /images/ when global filename also returns null", async () => {
+      const mockAttachmentManager = {
+        getAttachmentsForPage: jest.fn().mockResolvedValue([]),
+        getAttachmentByFilename: jest.fn().mockResolvedValue(null),
+      };
+
+      const contextWithAttachments = {
+        ...mockContext,
+        pageName: "test-page",
+        engine: {
+          getManager: jest.fn().mockImplementation((name) => {
+            if (name === "AttachmentManager") return mockAttachmentManager;
+            if (name === "ConfigurationManager") {
+              return {
+                getProperty: jest.fn().mockImplementation((key, def) => def),
+              };
+            }
+            return null;
+          }),
+        },
+      };
+
+      const params = { src: "nonexistent.jpg" };
+      const result = await ImagePlugin.execute(contextWithAttachments, params);
+
+      expect(result).toContain('src="/images/nonexistent.jpg"');
+    });
+
+    it("continues to fallback when global filename lookup throws", async () => {
+      const mockAttachmentManager = {
+        getAttachmentsForPage: jest.fn().mockResolvedValue([]),
+        getAttachmentByFilename: jest
+          .fn()
+          .mockRejectedValue(new Error("Provider error")),
+      };
+
+      const contextWithAttachments = {
+        ...mockContext,
+        pageName: "test-page",
+        engine: {
+          getManager: jest.fn().mockImplementation((name) => {
+            if (name === "AttachmentManager") return mockAttachmentManager;
+            if (name === "ConfigurationManager") {
+              return {
+                getProperty: jest.fn().mockImplementation((key, def) => def),
+              };
+            }
+            return null;
+          }),
+        },
+      };
+
+      const params = { src: "broken-lookup.jpg" };
+      const result = await ImagePlugin.execute(contextWithAttachments, params);
+
+      expect(result).toContain('src="/images/broken-lookup.jpg"');
+    });
+  });
+
   describe("real-world examples", () => {
     it("renders left-floating image with text wrap", async () => {
       const params = {

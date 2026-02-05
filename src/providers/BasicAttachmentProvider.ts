@@ -677,6 +677,36 @@ class BasicAttachmentProvider extends BaseAttachmentProvider {
   }
 
   /**
+   * Find an attachment by its original filename across all attachments
+   * @param filename - Original filename to search for
+   * @returns Matching attachment metadata or null
+   */
+  // eslint-disable-next-line @typescript-eslint/require-await -- Synchronous map scan wrapped in async interface
+  async getAttachmentByFilename(filename: string): Promise<AttachmentMetadata | null> {
+    for (const schema of this.attachmentMetadata.values()) {
+      if (schema.name === filename) {
+        return {
+          identifier: schema.identifier,
+          id: schema.identifier,
+          name: schema.name,
+          filename: schema.name,
+          pageUuid: schema.mentions[0]?.name || '',
+          encodingFormat: schema.encodingFormat,
+          mimeType: schema.encodingFormat,
+          contentSize: schema.contentSize,
+          size: schema.contentSize,
+          url: `/attachments/${schema.identifier}`,
+          uploadedAt: schema.dateCreated,
+          uploadedBy: schema.author?.name || 'Unknown',
+          filePath: schema.storageLocation,
+          description: schema.description
+        };
+      }
+    }
+    return null;
+  }
+
+  /**
    * List attachments for a page (AttachmentProvider interface method)
    * @param pageUuid - Page UUID
    * @returns Array of attachment metadata

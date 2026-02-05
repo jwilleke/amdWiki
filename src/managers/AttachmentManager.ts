@@ -12,6 +12,7 @@ interface BaseAttachmentProvider {
   getAttachment(attachmentId: string): Promise<{ buffer: Buffer; metadata: AttachmentMetadata } | null>;
   getAttachmentMetadata(attachmentId: string): Promise<AttachmentMetadata | null>;
   getAttachmentsForPage(pageName: string): Promise<AttachmentMetadata[]>;
+  getAttachmentByFilename(filename: string): Promise<AttachmentMetadata | null>;
   getAllAttachments(): Promise<AttachmentMetadata[]>;
   deleteAttachment(attachmentId: string): Promise<boolean>;
   updateAttachmentMetadata(attachmentId: string, updates: Partial<AttachmentMetadata>): Promise<boolean>;
@@ -383,6 +384,20 @@ class AttachmentManager extends BaseManager {
     }
 
     return await this.attachmentProvider.getAttachmentsForPage(pageName);
+  }
+
+  /**
+   * Find an attachment by its original filename across all attachments
+   *
+   * @param {string} filename - Original filename to search for
+   * @returns {Promise<AttachmentMetadata|null>}
+   */
+  async getAttachmentByFilename(filename: string): Promise<AttachmentMetadata | null> {
+    if (!this.attachmentProvider) {
+      return null;
+    }
+
+    return await this.attachmentProvider.getAttachmentByFilename(filename);
   }
 
   /**

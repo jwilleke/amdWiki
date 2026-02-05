@@ -43,6 +43,7 @@ interface AttachmentMeta {
 
 interface AttachmentManager {
   getAttachmentsForPage(pageName: string): Promise<AttachmentMeta[]>;
+  getAttachmentByFilename(filename: string): Promise<AttachmentMeta | null>;
 }
 
 interface ImageParams extends PluginParams {
@@ -126,6 +127,19 @@ const ImagePlugin: SimplePlugin = {
                 }
               } catch {
                 // Cross-page lookup failed, continue to fallback
+              }
+            }
+
+            // Step 2.5: Global filename search across all attachments
+            if (!resolved) {
+              try {
+                const globalMatch = await attachmentManager.getAttachmentByFilename(src);
+                if (globalMatch) {
+                  src = globalMatch.url;
+                  resolved = true;
+                }
+              } catch {
+                // Global lookup failed, continue to fallback
               }
             }
           }

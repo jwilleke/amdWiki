@@ -190,6 +190,16 @@ abstract class BaseAttachmentProvider implements AttachmentProvider {
   abstract deletePageAttachments(pageUuid: string): Promise<number>;
 
   /**
+   * Find an attachment by its original filename across all attachments
+   * @param {string} filename - Original filename to search for
+   * @returns {Promise<AttachmentMetadata|null>} Matching attachment metadata or null
+   */
+  // eslint-disable-next-line @typescript-eslint/require-await -- Base class defines async interface for subclasses
+  async getAttachmentByFilename(_filename: string): Promise<AttachmentMetadata | null> {
+    return null;
+  }
+
+  /**
    * Refresh internal cache/index
    * Re-scans storage and rebuilds indexes
    * @returns {Promise<void>}
