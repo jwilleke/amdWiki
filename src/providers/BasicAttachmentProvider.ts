@@ -503,11 +503,16 @@ class BasicAttachmentProvider extends BaseAttachmentProvider {
 
       // Convert to AttachmentResult with AttachmentMetadata format
       const attachmentMetadata: AttachmentMetadata = {
+        identifier: metadata.identifier,
         id: metadata.identifier,
+        name: metadata.name,
         filename: metadata.name,
         pageUuid: metadata.mentions[0]?.name || '',
+        encodingFormat: metadata.encodingFormat,
         mimeType: metadata.encodingFormat,
+        contentSize: metadata.contentSize,
         size: metadata.contentSize,
+        url: `/attachments/${metadata.identifier}`,
         uploadedAt: metadata.dateCreated,
         uploadedBy: metadata.author?.name || 'Unknown',
         filePath: metadata.storageLocation,
