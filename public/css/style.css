@@ -591,6 +591,32 @@ main p, main div, main span, main li {
     overflow-x: auto;
 }
 
+/* Wiki image styles — constrain images to content area */
+.wiki-image {
+  max-width: 100%;
+  height: auto;
+}
+
+.image-plugin-container {
+  max-width: 100%;
+}
+
+/* Clear floats before headings so floated images don't overlap sections */
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5,
+.markdown-body h6,
+.jspwiki-content h1,
+.jspwiki-content h2,
+.jspwiki-content h3,
+.jspwiki-content h4,
+.jspwiki-content h5,
+.jspwiki-content h6 {
+  clear: both;
+}
+
 /* Wiki link styles */
 .wikipage {
     color: #0056b3;

@@ -24,6 +24,38 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-05-24
+
+- Agent: Claude Opus 4.5
+- Subject: ImagePlugin global filename fallback for missing mentions (#232)
+- Current Issue: #232
+- Key Decision: Add Step 2.5 (global filename search) to ImagePlugin resolution chain rather than only fixing the data — makes the system resilient to missing mentions for any reason
+- Work Done:
+  - `BaseAttachmentProvider.getAttachmentByFilename()`: default method returning `null`
+  - `BasicAttachmentProvider.getAttachmentByFilename()`: linear scan of metadata map for exact filename match
+  - `AttachmentManager.getAttachmentByFilename()`: delegating method to provider
+  - `ImagePlugin.ts`: added Step 2.5 between cross-page lookup (Step 2) and `/images/` fallback (Step 3) — calls `getAttachmentByFilename(src)` when page-specific and cross-page lookups both miss
+  - Fixed `arabian-peninsula.webp` missing mention in `attachment-metadata.json` (local data fix, gitignored)
+  - Updated `docs/TODO.md` ImagePlugin resolution order documentation
+  - 4 new tests: global fallback resolves, page-specific preferred over global, fallback to `/images/` when global returns null, graceful error handling
+  - Fixed `getAttachment()` in BasicAttachmentProvider — missing Schema.org property aliases (`encodingFormat`, `name`, `contentSize`, `identifier`, `url`) caused `serveAttachment` route to set `Content-Type: undefined` → HTTP 500
+  - Added CSS for `.wiki-image` (`max-width: 100%; height: auto`) and `.image-plugin-container` (`max-width: 100%`) — images were rendering at natural resolution and overflowing the content area
+  - Added `clear: both` on headings inside `.markdown-body` and `.jspwiki-content` so floated images don't overlap subsequent sections
+- Testing:
+  - npm test: 63 suites passed, 1547 tests passed (9 skipped pre-existing)
+- Commits: dba49d0, 43e9c30, (pending)
+- Files Modified:
+  - plugins/ImagePlugin.ts
+  - plugins/__tests__/ImagePlugin.test.js
+  - src/managers/AttachmentManager.ts
+  - src/providers/BaseAttachmentProvider.ts
+  - src/providers/BasicAttachmentProvider.ts
+  - public/css/style.css
+  - docs/TODO.md
+  - data/attachments/attachment-metadata.json (local only, gitignored)
+
+---
+
 ## 2026-02-04-23
 
 - Agent: Claude Opus 4.5
