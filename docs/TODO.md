@@ -63,12 +63,8 @@ Attachment and image searches should consider both `amdwiki.attachment.*` and `a
 
 Required but auto-populated — pre-fill with the filename, let users edit it. This avoids blocking uploads while ensuring every attachment has a description for browsing.
 
-### JSPWiki Import Conversion
+See comments:
 
-Write a one-time migration script that finds all `Page/file.png` references, locates the files, uploads them to central storage, and rewrites the markup. Also review and update converters in `src/converters/`.
-
-### Syntax
-
-```text
-[{Image src='Geolog_path_text.svg.png' caption='Attachment Description' align='left' style='font-size: 120%;background-color: white;'}]\\
-```
+- <https://github.com/jwilleke/amdWiki/issues/232#issuecomment-3851705104>
+- <https://github.com/jwilleke/amdWiki/issues/232#issuecomment-3851737481>
+- <https://github.com/jwilleke/amdWiki/issues/232#issuecomment-3851743731>
