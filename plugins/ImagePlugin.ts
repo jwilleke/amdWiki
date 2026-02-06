@@ -12,8 +12,8 @@
  *   height (optional) - Image height
  *   align (optional) - Horizontal alignment: left, right, center
  *   display (optional) - Display mode:
- *     - float (default): Allows text wrapping around image
- *     - block: Image in its own block, no text wrapping
+ *     - block (default): Image in its own block, no text wrapping
+ *     - float: Allows text wrapping around image
  *     - inline: Image flows inline with text
  *     - full: Full-width image
  *   border (optional) - Border width in pixels
@@ -201,7 +201,7 @@ const ImagePlugin: SimplePlugin = {
       // display="block" - image in its own block, no text wrapping
       // display="inline" - image flows inline with text
       // display="full" - full-width image
-      const display = opts.display ? String(opts.display).toLowerCase() : 'float';
+      const display = opts.display ? String(opts.display).toLowerCase() : 'block';
       const align = opts.align ? String(opts.align).toLowerCase() : null;
 
       // Apply display and alignment styles
