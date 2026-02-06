@@ -137,23 +137,31 @@ start_server() {
 The stop sequence is PM2-aware to prevent the respawn race condition (see issue #231).
 PM2's `autorestart: true` will respawn killed processes unless the app is deleted from PM2 first.
 
+**Key insight:** Delete from PM2 FIRST before killing processes. This disables autorestart
+before any kills happen, preventing the respawn race condition.
+
 ```bash
 kill_all_amdwiki() {
-  # 1. Stop via PM2 by name (graceful attempt)
-  npx --no pm2 stop "$APP_NAME" 2>/dev/null || true
+  # STEP 1: Delete ALL PM2 apps FIRST (disables autorestart before we kill anything)
+  # This must happen before any kill commands to prevent respawn race condition
+  echo "   Removing from PM2 (disabling autorestart)..."
   npx --no pm2 delete "$APP_NAME" 2>/dev/null || true
-
-  # 2. Fallback: stop/delete ALL PM2 apps (handles name mismatch)
-  npx --no pm2 stop all 2>/dev/null || true
   npx --no pm2 delete all 2>/dev/null || true
 
-  # 3. Kill any surviving node processes (PM2 can't respawn now)
-  pgrep -f "node.*$SCRIPT_DIR/app\.js" | xargs kill -9 2>/dev/null || true
+  # Wait for PM2 to process the delete
+  sleep 1
 
-  # 4. Kill any process on port 3000 that's ours
+  # STEP 2: Now safe to kill processes - PM2 won't respawn them
+  local app_pids=$(pgrep -f "node.*$SCRIPT_DIR/app\.js" 2>/dev/null || true)
+  if [ -n "$app_pids" ]; then
+    echo "   Killing app.js processes: $app_pids"
+    echo "$app_pids" | xargs kill -9 2>/dev/null || true
+  fi
+
+  # STEP 3: Kill any process on port 3000 that's ours
   # ... (lsof check with $SCRIPT_DIR ownership verification)
 
-  # 5. Remove all PID files
+  # STEP 4: Remove all PID files
   rm -f "$PID_FILE" "$SCRIPT_DIR"/.amdwiki-*.pid "$SCRIPT_DIR"/server.pid
 }
 ```
