@@ -165,3 +165,11 @@ For <https://github.com/jwilleke/amdWiki/issues/232#issuecomment-3851705104>
 
   If you need specific details from before exiting plan mode (like exact code snippets, error messages, or content you generated), read the full transcript at:
   /Users/jim/.claude/projects/-Volumes-jobd-code-GitHub-amdWiki/f9cfc29d-d490-499f-8235-4831fb5622a6.jsonl
+
+## [BUG] Create Page Code #234
+
+See /Users/jim/.claude/plans/cheeky-shimmying-whisper.md
+
+## [FEATURE] inline images #8
+
+2026-02-06 (FRI) Resets Sun 4:00 AM
