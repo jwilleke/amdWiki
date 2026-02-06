@@ -27,9 +27,12 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 ## 2026-02-06-25
 
 - Agent: Claude Opus 4.5
-- Subject: DRY page creation default metadata (#234)
-- Current Issue: #234
-- Key Decision: Add `buildNewPageMetadata()` helper in WikiRoutes that delegates to `ValidationManager.generateValidMetadata()` — all 4 page creation paths now use this single source of truth
+- Subject: DRY page creation default metadata (#234), Admin restart fix, ReferringPagesPlugin fix (#239)
+- Current Issues: #234, #239
+- Key Decisions:
+  - Add `buildNewPageMetadata()` helper in WikiRoutes — all 4 page creation paths now use this single source of truth
+  - Admin restart now detects PM2 app name dynamically via `pm2 jlist` (matches server.sh convention)
+  - Fix linkGraph regex to include parentheses for page names like "Shang Dynasty (1600 BCE-1046 BCE)"
 - Work Done:
   - Added `buildNewPageMetadata()` helper method that:
     - Delegates to `ValidationManager.generateValidMetadata()` when available
@@ -46,12 +49,16 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Fixed config path in 6 docs: `config/app-custom-config.json` → `data/config/app-custom-config.json`
   - Cleaned up leftover VersioningFileProvider data from `required-pages/versions/`
   - Updated `.gitignore` to ignore versioning runtime files (`pages/versions/`, `required-pages/versions/`, `data/page-index.json`)
+  - Fixed `adminRestart()` to detect PM2 app name dynamically (was hardcoded to "amdWiki", now queries `pm2 jlist`)
+  - Fixed `simpleLinkRegex` in `RenderingManager.buildLinkGraph()` — added `()` to character class so page names with parentheses are indexed (#239)
+  - Deleted stale `./logs/` directory (Winston now writes to `./data/logs/`)
 - Testing:
   - npm test: 64 suites passed, 1569 tests passed (9 skipped pre-existing)
   - Added 22 new tests for `buildNewPageMetadata()` covering delegation, fallback, config resolution, edge cases
-- Commits: 054f21b, 677db1d, 4370aac, b6493d9
+- Commits: 054f21b, 677db1d, 4370aac, b6493d9, db6c841, 5d7a81d, 969d407
 - Files Modified:
   - src/routes/WikiRoutes.ts
+  - src/managers/RenderingManager.ts
   - views/create.ejs
   - src/routes/__tests__/WikiRoutes-buildNewPageMetadata.test.js (new)
   - docs/admin/Versioning-Deployment-Guide.md
