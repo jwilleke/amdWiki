@@ -4,7 +4,7 @@ The amdWiki MCP (Model Context Protocol) Server provides AI assistants like Clau
 
 ## Overview
 
-The MCP server exposes 12 specialized tools that allow AI assistants to:
+The MCP server exposes 14 specialized tools that allow AI assistants to:
 
 - Query and search wiki pages
 - Access metadata and categories
@@ -12,6 +12,7 @@ The MCP server exposes 12 specialized tools that allow AI assistants to:
 - Find similar pages and attachments
 - Query configuration settings
 - Get search statistics
+- Upload attachments (single or bulk)
 
 ## Installation
 
@@ -52,7 +53,7 @@ Add to your Claude Desktop configuration (`~/Library/Application Support/Claude/
 
 ### Integration with Claude Code CLI
 
-Add to your MCP settings file:
+Add to `~/.claude/mcp.json` (or project-level `.claude/mcp.json`):
 
 ```json
 {
@@ -67,6 +68,88 @@ Add to your MCP settings file:
   }
 }
 ```
+
+### Integration with Other AI Agents
+
+The MCP server uses the **Model Context Protocol** — an open standard for AI-tool integration. Any AI agent that implements an MCP client can connect.
+
+**How it works:**
+
+- The server communicates via **stdio transport** (JSON-RPC 2.0 over stdin/stdout)
+- Agents discover available tools by sending a `tools/list` request
+- Agents invoke tools by sending `tools/call` requests with tool name and arguments
+- All responses are JSON-formatted
+
+**Compatible platforms:**
+
+| Platform | Configuration Location |
+| --- | --- |
+| Claude Desktop | `~/Library/Application Support/Claude/claude_desktop_config.json` |
+| Claude Code CLI | `~/.claude/mcp.json` or `.claude/mcp.json` |
+| Cursor | Settings → MCP Servers |
+| Windsurf | MCP configuration in settings |
+| Custom agents | Implement MCP client SDK |
+
+**For custom AI agents**, use the official MCP SDK:
+
+```bash
+npm install @modelcontextprotocol/sdk
+```
+
+Example client connection (Node.js):
+
+```javascript
+import { Client } from '@modelcontextprotocol/sdk/client/index.js';
+import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
+
+const transport = new StdioClientTransport({
+  command: 'node',
+  args: ['/path/to/amdWiki/dist/mcp-server.js'],
+  cwd: '/path/to/amdWiki'
+});
+
+const client = new Client({ name: 'my-agent', version: '1.0.0' });
+await client.connect(transport);
+
+// List available tools
+const tools = await client.listTools();
+
+// Call a tool
+const result = await client.callTool('amdwiki_search', {
+  query: 'validation',
+  max_results: 10
+});
+```
+
+## How to Use
+
+Once the MCP server is configured in Claude Desktop or Claude Code, the AI assistant automatically gains access to all amdWiki tools. You can interact naturally:
+
+**Ask questions about wiki content:**
+
+- "What pages exist about validation?"
+- "Show me the content of the Main page"
+- "Find documentation related to metadata"
+
+**Manage metadata:**
+
+- "Generate metadata for a new page called 'Installation Guide'"
+- "Validate this metadata structure"
+- "What categories are available?"
+
+**Upload attachments:**
+
+- "Upload `/path/to/image.png` to the wiki"
+- "Bulk upload all images from `/path/to/screenshots/`"
+- "Upload `diagram.pdf` and attach it to the Architecture page"
+
+**Explore wiki structure:**
+
+- "List all pages in the documentation category"
+- "What keywords are used across the wiki?"
+- "Find pages similar to ValidationManager"
+
+The AI assistant will select the appropriate tool(s) based on your request and return formatted results.
 
 ## Available Tools
 
@@ -343,7 +426,7 @@ Get wiki configuration value(s).
 
 If no key provided, returns all configuration (large response).
 
-### 12. amdwiki_search_statistics
+### 12. amdwiki_get_search_statistics
 
 Get search index statistics.
 
@@ -356,6 +439,80 @@ Get search index statistics.
   "documentCount": 125,
   "indexSize": "2.3 MB",
   "lastIndexed": "2025-11-26T..."
+}
+```
+
+### 13. amdwiki_upload_attachment
+
+Upload a single file as an attachment, optionally linking it to a page.
+
+**Parameters:**
+
+- `file_path` (string, required): Absolute path to the file to upload
+- `page_name` (string, optional): Page name to attach the file to
+- `description` (string, optional): Description for the attachment
+
+**Example:**
+
+```json
+{
+  "file_path": "/Users/jim/screenshots/diagram.png",
+  "page_name": "Architecture",
+  "description": "System architecture diagram"
+}
+```
+
+**Returns:**
+
+```json
+{
+  "success": true,
+  "attachmentId": "a1b2c3d4...",
+  "filename": "diagram.png",
+  "size": 45678,
+  "mimeType": "image/png",
+  "pageName": "Architecture",
+  "message": "Attachment uploaded successfully and linked to page \"Architecture\""
+}
+```
+
+### 14. amdwiki_bulk_upload_attachments
+
+Upload multiple files from a directory as attachments. Supports glob patterns and recursive directory scanning.
+
+**Parameters:**
+
+- `directory` (string, required): Absolute path to the directory containing files
+- `pattern` (string, optional): Glob pattern to filter files (e.g., `*.png`, `*.pdf`, `image-*`)
+- `page_name` (string, optional): Page name to link all uploaded attachments to
+- `recursive` (boolean, optional): Include files from subdirectories (default: false)
+
+**Example:**
+
+```json
+{
+  "directory": "/Users/jim/wiki-images",
+  "pattern": "*.png",
+  "page_name": "Screenshots",
+  "recursive": true
+}
+```
+
+**Returns:**
+
+```json
+{
+  "success": true,
+  "uploaded": 5,
+  "failed": 0,
+  "total": 5,
+  "totalSize": 234567,
+  "pageName": "Screenshots",
+  "message": "Uploaded 5 of 5 files to page \"Screenshots\"",
+  "files": [
+    { "filename": "screen1.png", "success": true, "attachmentId": "...", "size": 12345 },
+    { "filename": "screen2.png", "success": true, "attachmentId": "...", "size": 23456 }
+  ]
 }
 ```
 
@@ -397,13 +554,22 @@ User: "What categories exist and how many pages in each?"
 AI: Uses amdwiki_list_categories and amdwiki_list_pages
 ```
 
+### 5. Attachment Management
+
+AI can upload files to the wiki:
+
+```text
+User: "Upload all screenshots from /path/to/images to the Tutorial page"
+AI: Uses amdwiki_bulk_upload_attachments with pattern and page_name
+```
+
 ## Architecture
 
 ### Server Structure
 
 ```text
-mcp-server.ts           # TypeScript source
-├── Tool Definitions    # 12 tool schemas
+mcp-server.ts           # TypeScript source (root directory)
+├── Tool Definitions    # 14 tool schemas
 ├── Request Handlers    # ListTools, CallTool
 └── WikiEngine Init     # Lazy initialization
 
@@ -596,6 +762,10 @@ Planned improvements:
 - [ ] Webhook notifications for page changes
 - [ ] Export/import tools
 - [ ] Backup management tools
+
+Completed:
+
+- [x] Attachment upload tools (v1.5.8)
 
 ## References
 
