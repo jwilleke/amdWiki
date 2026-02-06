@@ -44,11 +44,13 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Updated `create.ejs`: admin dropdown and non-admin input use server-provided `defaultCategory`
   - Removed pre-checked 'default' keyword in `create.ejs` (matches `generateValidMetadata` returning `[]`)
 - Testing:
-  - npm test: 63 suites passed, 1547 tests passed (9 skipped pre-existing)
-- Commits: (pending)
+  - npm test: 64 suites passed, 1569 tests passed (9 skipped pre-existing)
+  - Added 22 new tests for `buildNewPageMetadata()` covering delegation, fallback, config resolution, edge cases
+- Commits: 054f21b
 - Files Modified:
   - src/routes/WikiRoutes.ts
   - views/create.ejs
+  - src/routes/__tests__/WikiRoutes-buildNewPageMetadata.test.js (new)
 
 ---
 
