@@ -21,6 +21,7 @@ import path from 'path';
 // Use CommonJS-compatible path resolution
 const PACKAGE_JSON_PATH = path.join(__dirname, '../../package.json');
 const CHANGELOG_PATH = path.join(__dirname, '../../CHANGELOG.md');
+const APP_CONFIG_PATH = path.join(__dirname, '../../config/app-default-config.json');
 
 /**
  * Package.json structure
@@ -73,6 +74,23 @@ function writePackageJson(packageData: PackageJson): void {
   } catch (error) {
     console.error('Error writing package.json:', (error as Error).message);
     process.exit(1);
+  }
+}
+
+/**
+ * Update version in app-default-config.json
+ *
+ * @param {string} newVersion - New version string
+ */
+function updateAppConfig(newVersion: string): void {
+  try {
+    const content = fs.readFileSync(APP_CONFIG_PATH, 'utf8');
+    const config = JSON.parse(content) as Record<string, unknown>;
+    config['amdwiki.version'] = newVersion;
+    fs.writeFileSync(APP_CONFIG_PATH, JSON.stringify(config, null, 2) + '\n');
+    console.log(`Updated app-default-config.json with version ${newVersion}`);
+  } catch (error) {
+    console.warn('Warning: Could not update app-default-config.json:', (error as Error).message);
   }
 }
 
@@ -235,6 +253,9 @@ function main(): void {
     // Update package.json
     packageData.version = newVersion;
     writePackageJson(packageData);
+
+    // Update app-default-config.json
+    updateAppConfig(newVersion);
 
     // Update changelog if incrementing
     if (['patch', 'minor', 'major'].includes(command)) {
