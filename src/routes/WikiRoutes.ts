@@ -3886,6 +3886,7 @@ class WikiRoutes {
 
   /**
    * Restart the system (PM2)
+   * Dynamically detects PM2 app name to match server.sh convention
    */
   async adminRestart(req: Request, res: Response) {
     try {
@@ -3904,19 +3905,48 @@ class WikiRoutes {
 
       // eslint-disable-next-line @typescript-eslint/no-require-imports -- dynamic import for restart
       const { exec } = require('child_process');
+      // eslint-disable-next-line @typescript-eslint/no-require-imports -- dynamic import for path
+      const path = require('path');
+
+      // Detect PM2 app name dynamically (matches server.sh convention: amdWiki-$DIR_NAME)
+      const dirName = path.basename(process.cwd());
+      const expectedAppName = `amdWiki-${dirName}`;
 
       logger.info(`System restart requested by: ${currentUser.username}`);
 
-      // Execute pm2 restart command
-      exec('pm2 restart amdWiki', (error: Error | null, stdout: string, stderr: string) => {
-        if (error) {
-          logger.error(`Restart error: ${getErrorMessage(error)}`);
-          return;
+      // First, try to find actual PM2 app name from running processes
+      exec('pm2 jlist', (listError: Error | null, listStdout: string) => {
+        let appName = expectedAppName;
+
+        if (!listError && listStdout) {
+          try {
+            const apps = JSON.parse(listStdout);
+            // Find app matching our expected name or any amdWiki app
+            const matchingApp = apps.find((app: { name: string }) =>
+              app.name === expectedAppName ||
+              app.name.startsWith('amdWiki')
+            );
+            if (matchingApp) {
+              appName = matchingApp.name;
+            }
+          } catch {
+            // JSON parse failed, use expected name
+          }
         }
-        if (stderr) {
-          logger.error(`Restart stderr: ${stderr}`);
-        }
-        logger.info(`Restart output: ${stdout}`);
+
+        logger.info(`Restarting PM2 app: ${appName}`);
+
+        // Execute pm2 restart with detected app name
+        exec(`pm2 restart "${appName}"`, (error: Error | null, stdout: string, stderr: string) => {
+          if (error) {
+            logger.error(`Restart error: ${getErrorMessage(error)}`);
+            return;
+          }
+          if (stderr) {
+            logger.error(`Restart stderr: ${stderr}`);
+          }
+          logger.info(`Restart output: ${stdout}`);
+        });
       });
 
       // Send response immediately before restart
