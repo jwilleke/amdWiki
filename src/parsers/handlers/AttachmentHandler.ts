@@ -2,6 +2,7 @@ import BaseSyntaxHandler, { InitializationContext, ParseContext } from './BaseSy
 import * as path from 'path';
 import * as fs from 'fs/promises';
 import * as crypto from 'crypto';
+import sharp from 'sharp';
 import logger from '../../utils/logger';
 
 /**
@@ -92,6 +93,11 @@ interface MarkupParser {
 interface AttachmentManager {
   getAttachmentPath(filename: string): Promise<string>;
   attachmentExists(filename: string): Promise<boolean>;
+  uploadAttachment(
+    buffer: Buffer,
+    fileInfo: { originalName: string; mimeType: string; size: number },
+    options: { pageName: string; context: unknown }
+  ): Promise<{ identifier: string } | null>;
 }
 
 /**
@@ -499,9 +505,9 @@ class AttachmentHandler extends BaseSyntaxHandler {
           return `/attachments/${encodeURIComponent(thumbnailFilename)}`;
         }
 
-        // Generate thumbnail if it doesn't exist (simplified - would use image processing library)
-        this.createThumbnail(metadata.path, thumbnailFilename, primarySize);
-        return `/attachments/${encodeURIComponent(thumbnailFilename)}`;
+        // Generate thumbnail if it doesn't exist
+        const thumbnailUrl = await this.createThumbnail(metadata.path, thumbnailFilename, primarySize, attachmentManager);
+        return thumbnailUrl;
       }
 
     } catch (error) {
@@ -513,18 +519,82 @@ class AttachmentHandler extends BaseSyntaxHandler {
   }
 
   /**
-   * Create thumbnail (placeholder implementation - would use image processing library)
+   * Create thumbnail using Sharp image processing library
    * @param sourcePath - Source image path
    * @param thumbnailFilename - Thumbnail filename
    * @param size - Size specification (e.g., '150x150')
+   * @param attachmentManager - AttachmentManager instance
+   * @returns Thumbnail URL or null on failure
    */
-  private createThumbnail(sourcePath: string, thumbnailFilename: string, size: string): void {
-    // Placeholder implementation
-    // In production, would use libraries like Sharp, Jimp, or ImageMagick
-    logger.debug(`Creating thumbnail: ${thumbnailFilename} (${size}) from ${sourcePath}`);
+  private async createThumbnail(
+    sourcePath: string,
+    thumbnailFilename: string,
+    size: string,
+    attachmentManager: AttachmentManager
+  ): Promise<string | null> {
+    try {
+      // Parse size (e.g., '150x150' -> width: 150, height: 150)
+      const [widthStr, heightStr] = size.split('x');
+      const width = parseInt(widthStr, 10) || 150;
+      const height = parseInt(heightStr, 10) || 150;
 
-    // For now, just return the original file URL
-    // TODO: Implement actual thumbnail generation
+      logger.debug(`Creating thumbnail: ${thumbnailFilename} (${width}x${height}) from ${sourcePath}`);
+
+      // Check if source file exists
+      try {
+        await fs.access(sourcePath);
+      } catch {
+        logger.warn(`Source image not found for thumbnail: ${sourcePath}`);
+        return null;
+      }
+
+      // Generate thumbnail using Sharp
+      const thumbnailBuffer = await sharp(sourcePath)
+        .resize(width, height, {
+          fit: 'inside',           // Maintain aspect ratio, fit within dimensions
+          withoutEnlargement: true // Don't upscale small images
+        })
+        .toBuffer();
+
+      // Get the file extension for MIME type
+      const ext = path.extname(thumbnailFilename).toLowerCase();
+      const mimeTypes: Record<string, string> = {
+        '.jpg': 'image/jpeg',
+        '.jpeg': 'image/jpeg',
+        '.png': 'image/png',
+        '.gif': 'image/gif',
+        '.webp': 'image/webp',
+        '.avif': 'image/avif',
+        '.tiff': 'image/tiff',
+        '.tif': 'image/tiff'
+      };
+      const mimeType = mimeTypes[ext] || 'image/jpeg';
+
+      // Store thumbnail via AttachmentManager
+      const result = await attachmentManager.uploadAttachment(
+        thumbnailBuffer,
+        {
+          originalName: thumbnailFilename,
+          mimeType: mimeType,
+          size: thumbnailBuffer.length
+        },
+        {
+          pageName: '_thumbnails', // System page for thumbnails
+          context: { user: { username: 'system' } }
+        }
+      );
+
+      if (result && result.identifier) {
+        logger.info(`Thumbnail created: ${thumbnailFilename} (${thumbnailBuffer.length} bytes)`);
+        return `/attachments/${encodeURIComponent(result.identifier)}`;
+      }
+
+      return null;
+    } catch (error) {
+      const err = error as Error;
+      logger.error(`Failed to create thumbnail ${thumbnailFilename}: ${err.message}`);
+      return null;
+    }
   }
 
   /**

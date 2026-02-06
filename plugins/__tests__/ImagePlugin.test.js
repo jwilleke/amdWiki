@@ -146,7 +146,8 @@ describe("Image (via PluginManager)", () => {
       const params = { src: localTestImage, style: "border: 1px solid black;" };
       const result = await ImagePlugin.execute(mockContext, params);
 
-      expect(result).toContain('style="border: 1px solid black;"');
+      // Custom style should be included (along with default display styles)
+      expect(result).toContain("border: 1px solid black;");
     });
 
     it("returns error when src is missing", async () => {
@@ -180,20 +181,22 @@ describe("Image (via PluginManager)", () => {
       expect(result).toContain(">Test Caption</div>");
     });
 
-    it("applies left alignment", async () => {
+    it("applies left alignment (block mode - default)", async () => {
       const params = { src: localTestImage, align: "left" };
       const result = await ImagePlugin.execute(mockContext, params);
 
-      expect(result).toContain("float: left;");
-      expect(result).toContain("margin-right: 10px;");
+      // Default is block display
+      expect(result).toContain("display: block;");
+      expect(result).toContain("margin-right: auto;");
     });
 
-    it("applies right alignment", async () => {
+    it("applies right alignment (block mode - default)", async () => {
       const params = { src: localTestImage, align: "right" };
       const result = await ImagePlugin.execute(mockContext, params);
 
-      expect(result).toContain("float: right;");
-      expect(result).toContain("margin-left: 10px;");
+      // Default is block display
+      expect(result).toContain("display: block;");
+      expect(result).toContain("margin-left: auto;");
     });
 
     it("applies center alignment", async () => {
@@ -425,7 +428,8 @@ describe("Image (via PluginManager)", () => {
       };
       const result = await ImagePlugin.execute(mockContext, params);
 
-      expect(result).toContain("float: left;");
+      // Default is block display
+      expect(result).toContain("display: block;");
       expect(result).toContain(">Test Caption</div>");
     });
 
@@ -444,6 +448,7 @@ describe("Image (via PluginManager)", () => {
         src: "/attachments/621c9274e39fc77d5e6cce7028c7805a37e5d977f116c20cc8be728d8de90c26",
         caption: "Nerve Action Potentials",
         align: "left",
+        display: "float", // Explicit float for text wrapping
         style: "font-size: 120%;background-color: white;",
       };
       const result = await ImagePlugin.execute(mockContext, params);
@@ -459,8 +464,17 @@ describe("Image (via PluginManager)", () => {
   });
 
   describe("display parameter", () => {
-    it("applies float display with left align (default behavior)", async () => {
+    it("applies block display with left align (default behavior)", async () => {
       const params = { src: localTestImage, align: "left" };
+      const result = await ImagePlugin.execute(mockContext, params);
+
+      // Default is now block, not float
+      expect(result).toContain("display: block;");
+      expect(result).toContain("margin-right: auto;");
+    });
+
+    it("applies float display with left align when explicitly set", async () => {
+      const params = { src: localTestImage, align: "left", display: "float" };
       const result = await ImagePlugin.execute(mockContext, params);
 
       expect(result).toContain("float: left;");
