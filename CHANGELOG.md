@@ -9,6 +9,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 **See [docs/project_log.md](./docs/project_log.md) for detailed AI agent session logs and daily work history.**
 
+## [1.5.9] - 2026-02-06
+
+### Fixed
+
+- server.sh stop race condition - delete from PM2 first (#231)
+- ReferringPagesPlugin regex for page names with parentheses (#239)
+
+### Added
+
+- Thumbnail generation with Sharp library (#232)
+- Insert from Browse Attachments when editing (#232)
+- User-facing Attachments documentation page (#232)
+
+### Changed
+
+- ImagePlugin default display mode from 'float' to 'block' (#236)
+
+---
+
 ## [1.5.2] - 2026-02-01
 
 ### Fixed
