@@ -7309,3 +7309,26 @@ Subject: AGENTS.md implementation and project_log.md creation
 - Testing Results:
   - All tests pass (1570 passed, 308 skipped)
   - Updated ImagePlugin tests for new default display mode
+
+## 2026-02-06-03
+
+- Agent: Claude Code (Opus 4.5)
+- Subject: Version management fix and documentation
+
+- Problem:
+  - version.ts only updated package.json, not config/app-default-config.json
+  - App showed v1.5.8 while package.json had v1.5.9
+
+- Solution:
+  - Added updateAppConfig() function to version.ts
+  - Now updates both package.json and app-default-config.json
+  - Updated CONTRIBUTING.md with correct version management instructions
+
+- Files Modified:
+  - src/utils/version.ts - added APP_CONFIG_PATH and updateAppConfig()
+  - config/app-default-config.json - fixed version to 1.5.9
+  - CONTRIBUTING.md - updated version management section
+
+- Commits:
+  - 2907ed3 - fix: version.ts now updates app-default-config.json
+  - 7097715 - docs: update CONTRIBUTING.md version management section
