@@ -28,26 +28,37 @@ ensure_single_pm2_daemon() {
   fi
 }
 
-# Function to kill all amdWiki processes (nuclear option)
-kill_all_amdwiki() {
-  # 1. Stop via PM2 by name (graceful attempt)
-  npx --no pm2 stop "$APP_NAME" 2>/dev/null || true
-  npx --no pm2 delete "$APP_NAME" 2>/dev/null || true
+# Detect if running in container (Docker/K8s)
+is_container() {
+  # Check for Docker
+  [ -f /.dockerenv ] && return 0
+  # Check for Kubernetes
+  [ -n "$KUBERNETES_SERVICE_HOST" ] && return 0
+  # Check cgroup (Linux containers)
+  grep -q 'docker\|kubepods\|containerd' /proc/1/cgroup 2>/dev/null && return 0
+  return 1
+}
 
-  # 2. Fallback: stop/delete ALL PM2 apps (handles name mismatch)
-  #    This is safe because server.sh manages a single-app PM2 instance
-  npx --no pm2 stop all 2>/dev/null || true
+# Function to kill all amdWiki processes (nuclear option)
+# Key insight: DELETE from PM2 first to disable autorestart, THEN kill processes
+kill_all_amdwiki() {
+  # STEP 1: Delete ALL PM2 apps FIRST (disables autorestart before we kill anything)
+  # This must happen before any kill commands to prevent respawn race condition
+  echo "   Removing from PM2 (disabling autorestart)..."
+  npx --no pm2 delete "$APP_NAME" 2>/dev/null || true
   npx --no pm2 delete all 2>/dev/null || true
 
-  # 3. Now kill any node processes running app.js from this directory
-  #    (PM2 can no longer respawn since all apps are deleted)
+  # Wait for PM2 to process the delete
+  sleep 1
+
+  # STEP 2: Now safe to kill processes - PM2 won't respawn them
   local app_pids=$(pgrep -f "node.*$SCRIPT_DIR/app\.js" 2>/dev/null || true)
   if [ -n "$app_pids" ]; then
     echo "   Killing app.js processes: $app_pids"
     echo "$app_pids" | xargs kill -9 2>/dev/null || true
   fi
 
-  # 4. Kill any process on port 3000 that's ours
+  # STEP 3: Kill any process on port 3000 that's ours
   if command -v lsof &> /dev/null; then
     local port_pid=$(lsof -Pi :3000 -sTCP:LISTEN -t 2>/dev/null)
     if [ -n "$port_pid" ]; then
@@ -59,7 +70,7 @@ kill_all_amdwiki() {
     fi
   fi
 
-  # 5. Remove all PID files
+  # STEP 4: Remove all PID files
   rm -f "$PID_FILE" "$SCRIPT_DIR"/.amdwiki-*.pid "$SCRIPT_DIR"/server.pid
 }
 

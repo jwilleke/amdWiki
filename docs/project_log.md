@@ -7227,3 +7227,46 @@ Subject: AGENTS.md implementation and project_log.md creation
   - Test installation reset workflow
   - Consider adding integration tests for install flow
   
+## 2026-02-06-01
+
+- Agent: Claude Code (Opus 4.5)
+- Subject: Fix #231 - server.sh stop fails due to PM2 autorestart race condition
+
+- Key Decision:
+  - Delete from PM2 FIRST before killing processes to disable autorestart
+  - Use `pm2 delete all` as safety net for name mismatches
+
+- Problem:
+  - `./server.sh stop` reported "Server stopped" but server continued running
+  - PM2 autorestart would respawn process immediately after kill command
+  - Race condition: kill → PM2 respawn → kill → PM2 respawn
+
+- Root Cause:
+  - `kill_all_amdwiki()` was killing processes BEFORE removing from PM2
+  - PM2 detected "crash" and respawned, defeating the stop
+
+- Solution:
+  - Reordered `kill_all_amdwiki()` to delete from PM2 FIRST
+  - Added `npx --no pm2 delete all` as fallback for name mismatches
+  - Added `is_container()` function for future Docker/K8s support
+
+- Work Done:
+  - Modified `kill_all_amdwiki()` in server.sh
+  - Step 1: Delete from PM2 (disables autorestart)
+  - Step 2: Wait for PM2 to process
+  - Step 3: Now safe to kill processes
+  - Tested stop/start cycle - works correctly
+
+- Files Modified:
+  - `server.sh` - reordered kill logic, added container detection
+
+- Testing Results:
+  - `./server.sh stop` - Server stopped cleanly
+  - `./server.sh start` - Server started correctly
+  - No respawn race condition observed
+  - PM2 shows empty process list after stop
+  - Port 3000 available after stop
+
+- Related Issues:
+  - Closes #231
+  - Related to #167 (now properly fixed)
