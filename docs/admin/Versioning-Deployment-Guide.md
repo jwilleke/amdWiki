@@ -101,7 +101,7 @@ tar -tzf backup-before-versioning-*.tar.gz | head
 
 ### Step 2: Update Configuration
 
-Edit `config/app-custom-config.json`:
+Edit `data/config/app-custom-config.json`:
 
 ```json
 {
@@ -612,7 +612,7 @@ find pages/versions -type d -empty
    - `./data/page-index.json`
 
 4. **Configuration**:
-   - `./config/app-custom-config.json`
+   - `./data/config/app-custom-config.json`
 
 #### Backup Script
 
@@ -633,7 +633,7 @@ tar -czf "$BACKUP_DIR/wiki-versions-$DATE.tar.gz" \
   pages/ \
   required-pages/ \
   data/page-index.json \
-  config/app-custom-config.json
+  data/config/app-custom-config.json
 
 # Keep only last 7 days
 find "$BACKUP_DIR" -name "wiki-versions-*.tar.gz" -mtime +7 -delete
@@ -701,7 +701,7 @@ cp -r PAGE-UUID/ /path/to/amdwiki/pages/versions/
 
 ```bash
 # Check configuration
-cat config/app-custom-config.json | grep provider
+cat data/config/app-custom-config.json | grep provider
 
 # Check directories
 ls -la pages/versions/
@@ -957,13 +957,15 @@ amdwiki/
 ├── required-pages/
 │   └── versions/                    # Same structure
 ├── data/
-│   └── page-index.json              # Centralized index
+│   ├── page-index.json              # Centralized index
+│   └── config/
+│       └── app-custom-config.json   # Instance configuration
 └── config/
-    └── app-custom-config.json       # Configuration
+    └── app-default-config.json      # Default configuration (read-only)
 ```
 
 ---
 
-**Last Updated**: 2024-10-16
+**Last Updated**: 2026-02-06
 **Version**: 1.0
 **Applies to**: amdWiki 1.3.2+

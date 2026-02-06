@@ -25,7 +25,7 @@ Complete guide for testing the first-run installation wizard.
 Creates a clean first-run environment by:
 
 1. Backing up existing files to `.install-test-backup-[timestamp]/`
-2. Removing `config/app-custom-config.json`
+2. Removing `data/config/app-custom-config.json`
 3. Removing `users/users.json`
 4. Removing `users/organizations.json`
 5. Moving `pages/` directory to backup
@@ -99,7 +99,7 @@ When accessing any URL with install required, should redirect to `/install`
 
 After form submission, the following should be created:
 
-**config/app-custom-config.json:**
+**data/config/app-custom-config.json:**
 
 ```json
 {
@@ -198,7 +198,7 @@ After form submission, the following should be created:
 
 - [ ] Form submits successfully
 - [ ] No console errors
-- [ ] config/app-custom-config.json created
+- [ ] data/config/app-custom-config.json created
 - [ ] users/organizations.json created with Schema.org structure
 - [ ] users/users.json created with admin user
 - [ ] pages/ populated with startup pages from required-pages/
@@ -319,7 +319,7 @@ ls -d .install-test-backup-*
 ./scripts/restore-install-test.sh .install-test-backup-[timestamp]
 
 # Verify restoration
-ls config/app-custom-config.json
+ls data/config/app-custom-config.json
 ls users/users.json
 ls pages/*.md | wc -l
 ```
@@ -331,13 +331,13 @@ If you prefer manual testing:
 ```bash
 # 1. Backup files manually
 mkdir .manual-backup
-cp config/app-custom-config.json .manual-backup/ 2>/dev/null
+cp data/config/app-custom-config.json .manual-backup/ 2>/dev/null
 cp users/users.json .manual-backup/ 2>/dev/null
 cp users/organizations.json .manual-backup/ 2>/dev/null
 cp -r pages .manual-backup/ 2>/dev/null
 
 # 2. Remove for first-run
-rm config/app-custom-config.json 2>/dev/null
+rm data/config/app-custom-config.json 2>/dev/null
 rm users/users.json 2>/dev/null
 rm users/organizations.json 2>/dev/null
 rm -rf pages && mkdir pages

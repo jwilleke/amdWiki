@@ -700,7 +700,7 @@ system-category: nonexistent-category
 
 ### Q: Can I add custom categories?
 
-**A:** Yes! Add them to `config/app-custom-config.json`:
+**A:** Yes! Add them to `data/config/app-custom-config.json`:
 
 ```json
 {

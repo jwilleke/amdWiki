@@ -499,7 +499,7 @@ If you encounter issues with the new pipeline:
 
 ### Temporary Rollback (Immediate)
 
-config/app-custom-config.json:
+data/config/app-custom-config.json:
 
 ```json
 {

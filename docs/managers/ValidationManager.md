@@ -69,7 +69,7 @@ Custom categories can be added to configuration. Categories not in the configura
 
 ## Configuration
 
-Configuration is loaded from ConfigurationManager via `config/app-default-config.json` and `config/app-custom-config.json`:
+Configuration is loaded from ConfigurationManager via `config/app-default-config.json` and `data/config/app-custom-config.json`:
 
 ### Basic Configuration
 

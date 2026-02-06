@@ -141,7 +141,7 @@ PolicyManager serves as the **policy repository** in amdWiki's access control sy
 
 ### Custom Policies
 
-Add custom policies in `config/app-custom-config.json`:
+Add custom policies in `data/config/app-custom-config.json`:
 
 ```json
 {
