@@ -7332,3 +7332,37 @@ Subject: AGENTS.md implementation and project_log.md creation
 - Commits:
   - 2907ed3 - fix: version.ts now updates app-default-config.json
   - 7097715 - docs: update CONTRIBUTING.md version management section
+
+## 2026-02-06-04
+
+- Agent: Claude Code (Opus 4.5)
+- Subject: MCP Server attachment upload tools and ESLint fixes
+
+- Work Done:
+  - Added attachment upload tools to MCP server
+  - amdwiki_upload_attachment: single file upload
+  - amdwiki_bulk_upload_attachments: directory upload with glob patterns
+  - MIME type detection for 30+ file types
+  - Fixed ESLint issues in mcp-server.ts
+  - Added mcp-server.ts to tsconfig.json include
+
+- TypeScript Improvements:
+  - Changed Record<string, any> to Record<string, unknown>
+  - Added eslint-disable comments for empty interfaces
+  - Removed unnecessary async from synchronous methods
+  - Fixed await on non-Promise values
+
+- Files Modified:
+  - mcp-server.ts - added upload tools and ESLint fixes
+  - tsconfig.json - added mcp-server.ts to include array
+
+- Issues Closed:
+  - #162 - MCP Server for AI Integration (fully implemented)
+
+- Commits:
+  - dc89682 - feat(mcp): add attachment upload tools to MCP server
+
+- Testing Results:
+  - All tests pass (1570 passed, 308 skipped)
+  - Build successful
+  - Server restart verified
