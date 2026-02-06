@@ -182,8 +182,10 @@ data/sessions/
 .install-complete
 data/.install-complete
 
-# Ignore the entire versions directory and its contents as these are already tracked by git.
-required-pages/versions/*
+# VersioningFileProvider directories and index (runtime data, not source)
+pages/versions/
+required-pages/versions/
+data/page-index.json
 CLAUDE.md
 archive
 
