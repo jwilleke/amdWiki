@@ -494,6 +494,64 @@ class WikiRoutes {
   }
 
   /**
+   * Build complete default metadata for a new or existing page.
+   * Single source of truth — delegates to ValidationManager.generateValidMetadata().
+   */
+  buildNewPageMetadata(
+    title: string,
+    options: Record<string, unknown> = {}
+  ): Record<string, unknown> {
+    const validationManager = this.engine.getManager('ValidationManager');
+
+    // Filter undefined/null so generateValidMetadata defaults apply
+    const cleanOptions: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(options)) {
+      if (value !== undefined && value !== null) {
+        cleanOptions[key] = value;
+      }
+    }
+
+    if (validationManager && typeof validationManager.generateValidMetadata === 'function') {
+      return validationManager.generateValidMetadata(title, cleanOptions);
+    }
+
+    // Fallback when ValidationManager unavailable — get defaults from ConfigurationManager
+    const configManager = this.engine.getManager('ConfigurationManager');
+    let defaultCategory = 'general';
+    if (configManager) {
+      const systemCategoriesConfig = configManager.getProperty('amdwiki.system-category', null) as Record<string, { label: string; default?: boolean; enabled?: boolean }> | null;
+      if (systemCategoriesConfig) {
+        // Find category with default: true
+        for (const config of Object.values(systemCategoriesConfig)) {
+          if (config.default === true && config.enabled !== false) {
+            defaultCategory = config.label;
+            break;
+          }
+        }
+        // If no explicit default, use first enabled category
+        if (defaultCategory === 'general') {
+          for (const config of Object.values(systemCategoriesConfig)) {
+            if (config.enabled !== false) {
+              defaultCategory = config.label;
+              break;
+            }
+          }
+        }
+      }
+    }
+
+    return {
+      title: title.trim(),
+      'system-category': cleanOptions['system-category'] || defaultCategory,
+      'user-keywords': cleanOptions['user-keywords'] || [],
+      uuid: cleanOptions.uuid || '',
+      slug: title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''),
+      lastModified: new Date().toISOString(),
+      ...cleanOptions
+    };
+  }
+
+  /**
    * Get system categories from configuration (admin-only)
    */
   getSystemCategories() {
@@ -1044,6 +1102,10 @@ class WikiRoutes {
         ? configManager.getProperty('amdwiki.maximum.user-keywords', 5)
         : 5;
 
+      // Get default system category from ValidationManager (falls back to config)
+      const validationManager = this.engine.getManager('ValidationManager');
+      const defaultCategory = validationManager?.getDefaultSystemCategory?.() || 'general';
+
       res.render('create', {
         ...commonData,
         title: 'Create New Page',
@@ -1052,6 +1114,7 @@ class WikiRoutes {
         systemCategories: systemCategories,
         userKeywords: userKeywords,
         maxUserKeywords: maxUserKeywords,
+        defaultCategory: defaultCategory,
         csrfToken: req.session.csrfToken
       });
     } catch (err: unknown) {
@@ -1236,16 +1299,12 @@ class WikiRoutes {
       }
 
       // Save the new page using WikiContext
-      const metadata = {
-        title: pageName,
+      const metadata = this.buildNewPageMetadata(pageName, {
         'system-category': matchedCategory,
         categories: categoriesArray,
-        'user-keywords': Array.isArray(userKeywords)
-          ? userKeywords
-          : userKeywords
-            ? [userKeywords]
-            : []
-      };
+        'user-keywords': Array.isArray(userKeywords) ? userKeywords : userKeywords ? [userKeywords] : [],
+        author: currentUser?.username || 'anonymous'
+      });
 
       await pageManager.savePageWithContext(wikiContext, metadata);
 
@@ -1367,11 +1426,9 @@ class WikiRoutes {
       if (!pageData) {
         pageData = {
           content: '',
-          metadata: {
-            title: pageName,
-            created: new Date().toISOString(),
+          metadata: this.buildNewPageMetadata(pageName, {
             author: currentUser.username || 'Anonymous'
-          }
+          })
         };
       }
 
@@ -1534,15 +1591,11 @@ class WikiRoutes {
       }
 
       // Create metadata for new page
-      const metadata = {
-        title: pageName,
-        category: categories || 'General',
-        'user-keywords': Array.isArray(userKeywords)
-          ? userKeywords
-          : userKeywords
-            ? [userKeywords]
-            : []
-      };
+      const metadata = this.buildNewPageMetadata(pageName, {
+        'system-category': categories || undefined,
+        'user-keywords': Array.isArray(userKeywords) ? userKeywords : userKeywords ? [userKeywords] : [],
+        author: currentUser?.username || 'anonymous'
+      });
 
       // Save the new page using WikiContext
       await pageManager.savePageWithContext(wikiContext, metadata);
@@ -1596,7 +1649,6 @@ class WikiRoutes {
       const renderingManager = this.engine.getManager('RenderingManager');
       const searchManager = this.engine.getManager('SearchManager');
       const userManager = this.engine.getManager('UserManager');
-      const validationManager = this.engine.getManager('ValidationManager');
 
       // Get user context from WikiContext (single source of truth)
       const currentUser = wikiContext.userContext;
@@ -1648,32 +1700,19 @@ class WikiRoutes {
 
       // Prepare metadata ONCE, preserving UUID if editing
       // Use matchedCategory (properly capitalized) instead of submitted systemCategory
-      const baseMetadata: {
-        title: string;
-        'system-category': string;
-        'user-keywords': string[];
-        author: string;
-        uuid?: string;
-      } = {
-        title: title || pageName,
+      const metadata = this.buildNewPageMetadata(title || pageName, {
         'system-category': matchedCategory,
         'user-keywords': userKeywordsArray,
-        author: currentUser?.username || 'anonymous'  // Add author for versioning
-      };
-      if (existingPage && existingPage.metadata && existingPage.metadata.uuid) {
-        baseMetadata.uuid = existingPage.metadata.uuid;
-      }
-      const metadata = validationManager.generateValidMetadata(
-        baseMetadata.title,
-        baseMetadata
-      );
+        author: currentUser?.username || 'anonymous',
+        uuid: existingPage?.metadata?.uuid || undefined
+      });
 
       // Permission checks
       const isCurrentlyRequired = await this.isRequiredPage(pageName);
       // Check if the new metadata will make this a required page
       const hardcodedRequiredPages = ['System Categories', 'Wiki Documentation'];
       const willBeRequired = hardcodedRequiredPages.includes(pageName) ||
-                            hardcodedRequiredPages.includes(metadata.title) ||
+                            hardcodedRequiredPages.includes(metadata.title as string) ||
                             metadata['system-category'] === 'System' ||
                             metadata['system-category'] === 'System/Admin';
       if (isCurrentlyRequired || willBeRequired) {
@@ -1728,7 +1767,7 @@ class WikiRoutes {
       }
 
       // Redirect to the updated page title if it changed (fallback to original name)
-      const redirectName = metadata.title || pageName;
+      const redirectName = (metadata.title as string) || pageName;
       res.redirect(`/wiki/${encodeURIComponent(redirectName)}`);
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';

@@ -24,6 +24,34 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-06-25
+
+- Agent: Claude Opus 4.5
+- Subject: DRY page creation default metadata (#234)
+- Current Issue: #234
+- Key Decision: Add `buildNewPageMetadata()` helper in WikiRoutes that delegates to `ValidationManager.generateValidMetadata()` — all 4 page creation paths now use this single source of truth
+- Work Done:
+  - Added `buildNewPageMetadata()` helper method that:
+    - Delegates to `ValidationManager.generateValidMetadata()` when available
+    - Falls back to ConfigurationManager for defaults (not hard-coded)
+    - Filters undefined/null options so defaults apply correctly
+  - Updated 4 code paths to use the helper:
+    - `editPage()` — red link new page (fixes non-admin save bug)
+    - `createPageFromTemplate()` — POST `/create`
+    - `createWikiPage()` — POST `/wiki/:page` (migrates legacy `category` to `system-category`)
+    - `savePage()` — POST `/save/:page`
+  - Added `defaultCategory` to `createPage()` GET handler render data
+  - Updated `create.ejs`: admin dropdown and non-admin input use server-provided `defaultCategory`
+  - Removed pre-checked 'default' keyword in `create.ejs` (matches `generateValidMetadata` returning `[]`)
+- Testing:
+  - npm test: 63 suites passed, 1547 tests passed (9 skipped pre-existing)
+- Commits: (pending)
+- Files Modified:
+  - src/routes/WikiRoutes.ts
+  - views/create.ejs
+
+---
+
 ## 2026-02-05-24
 
 - Agent: Claude Opus 4.5

@@ -34,14 +34,14 @@
                         <label style="font-weight:bold;">System Category (Admin Only):</label>
                         <select class="form-control" id="systemCategory" name="system-category" required>
                             <% systemCategories.forEach(category => { %>
-                                <option value="<%= category %>" <%= category === 'general' ? 'selected' : '' %>><%= category %></option>
+                                <option value="<%= category %>" <%= category === defaultCategory ? 'selected' : '' %>><%= category %></option>
                             <% }); %>
                         </select>
                     </div>
                     <% } else { %>
                     <div class="col-md-6">
                         <label style="font-weight:bold;">System Category:</label>
-                        <input type="text" class="form-control" id="systemCategory" name="system-category" value="general" readonly>
+                        <input type="text" class="form-control" id="systemCategory" name="system-category" value="<%= defaultCategory %>" readonly>
                     </div>
                     <% } %>
                     <div class="col-md-6">
@@ -55,7 +55,7 @@
                                     <li>
                                         <div class="dropdown-item-checkbox px-3 py-2">
                                             <div class="form-check">
-                                                <input class="form-check-input user-keyword-checkbox" type="checkbox" name="userKeywords[]" value="<%= keyword %>" id="user-keyword-<%= keyword %>" <%= keyword === 'default' ? 'checked' : '' %>>
+                                                <input class="form-check-input user-keyword-checkbox" type="checkbox" name="userKeywords[]" value="<%= keyword %>" id="user-keyword-<%= keyword %>">
                                                 <label class="form-check-label ms-2" for="user-keyword-<%= keyword %>"><%= keyword %></label>
                                             </div>
                                         </div>
