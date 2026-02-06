@@ -197,7 +197,7 @@
                                     <li><a class="dropdown-item" href="#" onclick="showUploadAttachment()">
                                         <i class="fas fa-paperclip"></i> Upload Attachment
                                     </a></li>
-                                    <li><a class="dropdown-item" href="/attachments/browse">
+                                    <li><a class="dropdown-item" href="#" onclick="openBrowseAttachments(); return false;">
                                         <i class="fas fa-folder-open"></i> Browse Attachments
                                     </a></li>
                                     <li><hr class="dropdown-divider"></li>
@@ -1339,6 +1339,24 @@ function deletePageFromNavbar() {
         } else {
             alert('Can only delete from edit page');
         }
+    }
+}
+
+function openBrowseAttachments() {
+    // Check if we're on the edit page
+    const isEditPage = window.location.pathname.startsWith('/edit/');
+
+    if (isEditPage) {
+        // Open as popup so we can insert into editor
+        const popup = window.open(
+            '/attachments/browse?mode=insert',
+            'browseAttachments',
+            'width=900,height=700,scrollbars=yes,resizable=yes'
+        );
+        if (popup) popup.focus();
+    } else {
+        // Normal navigation
+        window.location.href = '/attachments/browse';
     }
 }
 

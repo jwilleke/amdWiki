@@ -10,6 +10,12 @@
                 </button>
             </div>
 
+            <!-- Insert mode banner (shown via JS when mode=insert) -->
+            <div id="insertModeBanner" class="alert alert-info mb-4" style="display: none;">
+                <i class="fas fa-info-circle"></i>
+                <strong>Insert Mode:</strong> Click the green <strong>Insert</strong> button to add an attachment to your page.
+            </div>
+
             <!-- Summary Stats -->
             <div class="row mb-4">
                 <div class="col-md-4">
@@ -121,6 +127,15 @@ document.addEventListener('DOMContentLoaded', function() {
     var sortField = 'uploadedAt';
     var sortDir = 'desc';
 
+    // Detect insert mode (opened from editor)
+    var urlParams = new URLSearchParams(window.location.search);
+    var isInsertMode = urlParams.get('mode') === 'insert' && window.opener;
+
+    // Show insert mode banner if in insert mode
+    if (isInsertMode) {
+        document.getElementById('insertModeBanner').style.display = 'block';
+    }
+
     var allAttachments = <%- JSON.stringify(attachments) %>;
 
     var searchInput = document.getElementById('attachment-search');
@@ -216,6 +231,15 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    function insertIntoEditor(url, filename, mimeType) {
+        if (window.opener && typeof window.opener.insertAttachmentMarkup === 'function') {
+            window.opener.insertAttachmentMarkup(url, filename, mimeType);
+            window.close();
+        } else {
+            alert('Editor window not found. Please copy the syntax manually.');
+        }
+    }
+
     function render() {
         var filtered = getFilteredAttachments();
         var sorted = getSortedAttachments(filtered);
@@ -234,7 +258,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 var row = document.createElement('tr');
                 var wikiSyntax = getWikiSyntax(a);
 
-                var actions =
+                var actions = '';
+
+                // Add Insert button when in insert mode (opened from editor)
+                if (isInsertMode) {
+                    var url = '/attachments/' + encodeURIComponent(a.id);
+                    actions += '<button class="btn btn-sm btn-success me-1 insert-btn" ' +
+                        'data-url="' + escapeHtml(url) + '" ' +
+                        'data-filename="' + escapeHtml(a.filename) + '" ' +
+                        'data-mimetype="' + escapeHtml(a.mimeType || '') + '" ' +
+                        'title="Insert into editor">' +
+                        '<i class="fas fa-plus"></i> Insert' +
+                    '</button>';
+                }
+
+                actions +=
                     '<button class="btn btn-sm btn-outline-secondary me-1 copy-btn" data-syntax="' + escapeHtml(wikiSyntax) + '" title="Copy wiki syntax">' +
                         '<i class="fas fa-copy"></i>' +
                     '</button>' +
@@ -296,6 +334,16 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.copy-btn').forEach(function(btn) {
             btn.addEventListener('click', function() {
                 copyToClipboard(this.getAttribute('data-syntax'));
+            });
+        });
+
+        // Bind insert buttons (only present in insert mode)
+        document.querySelectorAll('.insert-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var url = this.getAttribute('data-url');
+                var filename = this.getAttribute('data-filename');
+                var mimeType = this.getAttribute('data-mimetype');
+                insertIntoEditor(url, filename, mimeType);
             });
         });
     }

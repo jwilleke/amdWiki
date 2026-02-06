@@ -378,6 +378,9 @@
         updatePreview();
     }
 
+    // Expose for Browse Attachments popup
+    window.insertAttachmentMarkup = insertAttachmentMarkup;
+
     function copyToClipboard(text) {
         navigator.clipboard.writeText(text).then(function() {
             // Brief visual feedback could be added here
