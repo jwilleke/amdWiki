@@ -44,7 +44,8 @@
   "include": [
     "src/**/*.ts",
     "src/**/*.js",
-    "plugins/**/*.ts"
+    "plugins/**/*.ts",
+    "mcp-server.ts"
   ],
   "exclude": [
     "node_modules",
