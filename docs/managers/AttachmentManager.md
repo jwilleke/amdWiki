@@ -56,6 +56,18 @@ await attachmentManager.deleteAttachment(attachment.identifier, wikiContext);
 | `detachFromPage(id, pageName)` | `Promise<boolean>` | Unlink from page |
 | `refreshAttachmentList()` | `Promise<void>` | Rescan storage |
 | `getAttachmentUrl(id)` | `string` | Get attachment URL path |
+| `getAttachmentByFilename(filename)` | `Promise<Object\|null>` | Find attachment by filename |
+
+## UI Features
+
+- **Upload Attachment** - Modal from navbar (More... → Upload Attachment)
+- **Browse Attachments** - Browse all attachments (More... → Browse Attachments)
+- **Insert from Browse** - When editing, Insert button adds syntax at cursor
+- **Admin Management** - Full management at `/admin/attachments`
+
+## User Documentation
+
+See the wiki page [Attachments](/wiki/Attachments) for end-user documentation.
 
 ## Configuration
 
