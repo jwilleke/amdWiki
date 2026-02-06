@@ -1178,13 +1178,23 @@ lastModified: ISO-date-string
 
 ## 🏷️ Version Management
 
-We use **Semantic Versioning** (SemVer):
+We use **Semantic Versioning** (SemVer) via `src/utils/version.ts`:
 
 ```bash
-npm run version:patch    # Bug fixes (1.2.0 → 1.2.1)
-npm run version:minor    # New features (1.2.0 → 1.3.0)  
-npm run version:major    # Breaking changes (1.2.0 → 2.0.0)
+npx tsx src/utils/version.ts          # Show current version
+npx tsx src/utils/version.ts patch    # Bug fixes (1.2.0 → 1.2.1)
+npx tsx src/utils/version.ts minor    # New features (1.2.0 → 1.3.0)
+npx tsx src/utils/version.ts major    # Breaking changes (1.2.0 → 2.0.0)
+npx tsx src/utils/version.ts set 1.2.3  # Set specific version
 ```
+
+The version script automatically updates:
+
+- `package.json` — `version` field
+- `config/app-default-config.json` — `amdwiki.version` field
+- `CHANGELOG.md` — Adds new version section (if [Unreleased] exists)
+
+**Important:** Always use `src/utils/version.ts` for version changes to keep all files in sync.
 
 ## 🐛 Issue Reporting
 
