@@ -24,6 +24,27 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-07-01
+
+- Agent: Claude Opus 4.5
+- Subject: Strip page paths from Image src during JSPWiki import (#123)
+- Current Issue: #123
+- Key Decision: Strip page path components from `[{Image src='...'}]` during import since amdWiki uses flat attachment storage
+- Work Done:
+  - Added `convertImagePaths()` method to `JSPWikiConverter`
+  - Strips page paths from Image plugin src attributes (e.g., `'PageName/file.png'` → `'file.png'`)
+  - Handles single and double quoted src values
+  - Preserves all other Image attributes (caption, align, style, etc.)
+  - Case insensitive matching for 'Image' plugin name
+  - Added 7 new tests for image path conversion
+- Testing:
+  - npm test: 64 suites passed, 1577 tests passed (308 skipped)
+  - Build successful
+- Commits: cd176aa
+- Files Modified:
+  - src/converters/JSPWikiConverter.ts
+  - src/converters/__tests__/JSPWikiConverter.test.js
+
 ## 2026-02-06-25
 
 - Agent: Claude Opus 4.5
