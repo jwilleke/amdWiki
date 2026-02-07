@@ -47,6 +47,7 @@ class JSPWikiConverter implements IContentConverter {
     result = this.convertLinks(result, warnings);
     result = this.convertFootnotes(result, warnings);
     result = this.convertInlineStyles(result);
+    result = this.convertImagePaths(result);
 
     // Tables are NOT converted during import — JSPWikiPreprocessor handles
     // ||/| table syntax at render time, preserving wiki links inside cells
@@ -387,6 +388,42 @@ class JSPWikiConverter implements IContentConverter {
     result = result.replace(/%%strike\s+([\s\S]*?)\s*\/%/g, '~~$1~~');
 
     return result;
+  }
+
+  /**
+   * Strip page paths from Image plugin src attributes
+   *
+   * JSPWiki uses page-level attachments, so image paths include the page name:
+   *   [{Image src='Geological Timeline/Geolog_path_text.svg.png' ...}]
+   *
+   * amdWiki uses a flat attachment structure, so we strip the path:
+   *   [{Image src='Geolog_path_text.svg.png' ...}]
+   */
+  private convertImagePaths(content: string): string {
+    // Match [{Image src='path/to/file.ext' ...}] and strip path from src
+    // Use regex to find and replace src values directly
+    return content.replace(
+      /\[\{Image\s+([^}]*)\}\]/gi,
+      (fullMatch: string, attributes: string) => {
+        // Replace src='path/file' or src="path/file" with just the filename
+        const updatedAttributes = attributes.replace(
+          /src\s*=\s*(['"])([^'"]+)\1/gi,
+          (srcMatch: string, quote: string, srcValue: string) => {
+            // Extract just the filename (after the last slash)
+            if (!srcValue.includes('/')) {
+              return srcMatch; // No path to strip, return original
+            }
+            const filename = srcValue.substring(srcValue.lastIndexOf('/') + 1);
+            return `src=${quote}${filename}${quote}`;
+          }
+        );
+        // Only return modified if attributes changed
+        if (updatedAttributes !== attributes) {
+          return `[{Image ${updatedAttributes}}]`;
+        }
+        return fullMatch;
+      }
+    );
   }
 
   // Table conversion removed — JSPWikiPreprocessor handles ||/| table syntax

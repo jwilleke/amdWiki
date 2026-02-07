@@ -408,4 +408,52 @@ See [Documentation] for more.
       expect(pluginWarnings.length).toBe(0);
     });
   });
+
+  describe('image path conversion', () => {
+    it('should strip page path from Image src attribute with single quotes', () => {
+      const input = "[{Image src='Geological Timeline/Geolog_path_text.svg.png' caption='Twitter Files' align='left'}]";
+      const result = converter.convert(input);
+      expect(result.content).toBe("[{Image src='Geolog_path_text.svg.png' caption='Twitter Files' align='left'}]");
+    });
+
+    it('should strip page path from Image src attribute with double quotes', () => {
+      const input = '[{Image src="Some Page/image.jpg" width=200}]';
+      const result = converter.convert(input);
+      expect(result.content).toBe('[{Image src="image.jpg" width=200}]');
+    });
+
+    it('should handle deeply nested paths', () => {
+      const input = "[{Image src='Category/Subcategory/Page Name/file.png'}]";
+      const result = converter.convert(input);
+      expect(result.content).toBe("[{Image src='file.png'}]");
+    });
+
+    it('should leave src unchanged when no path present', () => {
+      const input = "[{Image src='simple.jpg' width=100}]";
+      const result = converter.convert(input);
+      expect(result.content).toBe("[{Image src='simple.jpg' width=100}]");
+    });
+
+    it('should handle multiple Image plugins in content', () => {
+      const input = `Some text
+[{Image src='Page1/image1.png'}]
+More text
+[{Image src='Page2/image2.jpg' caption='Second'}]`;
+      const result = converter.convert(input);
+      expect(result.content).toContain("[{Image src='image1.png'}]");
+      expect(result.content).toContain("[{Image src='image2.jpg' caption='Second'}]");
+    });
+
+    it('should preserve other Image attributes', () => {
+      const input = "[{Image src='My Page/photo.png' caption='A caption' align='left' style='font-size: 120%;background-color: white;'}]";
+      const result = converter.convert(input);
+      expect(result.content).toBe("[{Image src='photo.png' caption='A caption' align='left' style='font-size: 120%;background-color: white;'}]");
+    });
+
+    it('should be case insensitive for Image plugin name', () => {
+      const input = "[{image src='PageName/file.gif'}]";
+      const result = converter.convert(input);
+      expect(result.content).toBe("[{Image src='file.gif'}]");
+    });
+  });
 });
