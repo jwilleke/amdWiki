@@ -505,8 +505,10 @@ class FileSystemProvider extends BasePageProvider {
       await fs.unlink(info.filePath);
 
       // Remove from all caches and indexes
-      this.pageCache.delete(info.title);
-      this.titleIndex.delete(info.title.toLowerCase());
+      // Ensure title is string for cache operations (YAML may have parsed as number)
+      const titleStr = String(info.title);
+      this.pageCache.delete(titleStr);
+      this.titleIndex.delete(titleStr.toLowerCase());
       if (info.uuid) {
         this.uuidIndex.delete(info.uuid);
       }
