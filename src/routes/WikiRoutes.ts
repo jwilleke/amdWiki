@@ -1777,9 +1777,9 @@ class WikiRoutes {
       if (cacheManager && cacheManager.isInitialized()) {
         // Clear specific page cache and pages that link to it
         const referringPages = renderingManager.getReferringPages(finalTitle);
-        await cacheManager.delete(`page:${finalTitle}`);
+        await cacheManager.del(`page:${finalTitle}`);
         for (const refPage of referringPages) {
-          await cacheManager.delete(`page:${refPage}`);
+          await cacheManager.del(`page:${refPage}`);
         }
         logger.debug(`🗑️  Cleared cache for ${finalTitle} and ${referringPages.length} referring pages`);
       }

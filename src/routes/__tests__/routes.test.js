@@ -197,7 +197,7 @@ jest.mock('../../WikiEngine', () => {
   const mockCacheManager = {
     isInitialized: jest.fn().mockReturnValue(true),
     clear: jest.fn().mockResolvedValue(true),
-    delete: jest.fn().mockResolvedValue(true),
+    del: jest.fn().mockResolvedValue(true),
     get: jest.fn().mockReturnValue(null),
     set: jest.fn().mockResolvedValue(true)
   };
