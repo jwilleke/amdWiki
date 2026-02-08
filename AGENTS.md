@@ -66,3 +66,8 @@ This file is the **Context Map** for AI agents. It directs you to the Single Sou
 - Breaking API changes
 - New 3rd party integrations
 - Database/Schema changes
+
+## Always use
+
+- server.sh to stop and start server
+- src/utils/version.ts to perform SEMVER updates.
