@@ -12,9 +12,11 @@ slug: amdwiki-todo
 
 # Project Development TODO
 
-2026-02-07 Resets Sun 4:00 AM
+## 2026-02-08
 
-Work on:
+You pick the order but Work on:
+
+Questions, Comments and Suggestions are always encouraged!
 
 - <https://github.com/jwilleke/amdWiki/issues/123#issuecomment-3863960355>
 - <https://github.com/jwilleke/amdWiki/issues/123#issuecomment-3847788173>
@@ -22,3 +24,5 @@ Work on:
 - <https://github.com/jwilleke/amdWiki/issues/235>
 - <https://github.com/jwilleke/amdWiki/issues/240>
 - <https://github.com/jwilleke/amdWiki/issues/242>
+- [FEATURE] in Edit Page Replace "Upload Image button" #243
+- [BUG](https://github.com/jwilleke/amdWiki/issues/244)
