@@ -1201,6 +1201,111 @@ class RenderingManager extends BaseManager {
   }
 
   /**
+   * Update link graph for a single page (incremental update)
+   * Much faster than rebuildLinkGraph() for single page saves
+   *
+   * @param {string} pageName - Name of the page that was modified
+   * @param {string} content - New content of the page
+   */
+  updatePageInLinkGraph(pageName: string, content: string): void {
+    // Remove this page from all existing referring pages lists
+    for (const targetPage of Object.keys(this.linkGraph)) {
+      const referrers = this.linkGraph[targetPage];
+      const index = referrers.indexOf(pageName);
+      if (index !== -1) {
+        referrers.splice(index, 1);
+      }
+    }
+
+    // Ensure the page has an entry in the graph
+    if (!this.linkGraph[pageName]) {
+      this.linkGraph[pageName] = [];
+    }
+
+    // Re-add links from the updated content
+    const pageNames = this.cachedPageNames || [];
+
+    // Find markdown links
+    const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+    let match;
+    while ((match = linkRegex.exec(content)) !== null) {
+      const linkedPage = match[2];
+      if (!this.linkGraph[linkedPage]) {
+        this.linkGraph[linkedPage] = [];
+      }
+      if (!this.linkGraph[linkedPage].includes(pageName)) {
+        this.linkGraph[linkedPage].push(pageName);
+      }
+    }
+
+    // Find wiki-style links
+    const simpleLinkRegex = /\[([a-zA-Z0-9\s_.()-]+)(?:\|([a-zA-Z0-9\s_().:?=&-]+))?(?:\|([^|\]]+))?\]/g;
+    while ((match = simpleLinkRegex.exec(content)) !== null) {
+      let linkedPage = match[2] || match[1];
+
+      if (!linkedPage.includes('://') && !linkedPage.startsWith('/') && linkedPage.toLowerCase() !== 'search') {
+        // Resolve plurals/variants
+        if (this.pageNameMatcher && pageNames.length > 0) {
+          const matchedPage = this.pageNameMatcher.findMatch(linkedPage, pageNames);
+          if (matchedPage) {
+            linkedPage = matchedPage;
+          }
+        }
+
+        if (!this.linkGraph[linkedPage]) {
+          this.linkGraph[linkedPage] = [];
+        }
+        if (!this.linkGraph[linkedPage].includes(pageName)) {
+          this.linkGraph[linkedPage].push(pageName);
+        }
+      }
+    }
+
+    logger.debug(`[RenderingManager] Updated link graph for page: ${pageName}`);
+  }
+
+  /**
+   * Add a page name to the cached list (for new pages)
+   * @param {string} pageName - Name of the new page
+   */
+  addPageToCache(pageName: string): void {
+    if (!this.cachedPageNames) {
+      this.cachedPageNames = [];
+    }
+    if (!this.cachedPageNames.includes(pageName)) {
+      this.cachedPageNames.push(pageName);
+    }
+  }
+
+  /**
+   * Remove a page from the link graph and cached names (for deleted pages)
+   * @param {string} pageName - Name of the deleted page
+   */
+  removePageFromLinkGraph(pageName: string): void {
+    // Remove the page's entry
+    delete this.linkGraph[pageName];
+
+    // Remove from all referring pages lists
+    for (const targetPage of Object.keys(this.linkGraph)) {
+      const referrers = this.linkGraph[targetPage];
+      const index = referrers.indexOf(pageName);
+      if (index !== -1) {
+        referrers.splice(index, 1);
+      }
+    }
+
+    // Remove from cached names
+    if (this.cachedPageNames) {
+      const index = this.cachedPageNames.indexOf(pageName);
+      if (index !== -1) {
+        this.cachedPageNames.splice(index, 1);
+      }
+    }
+
+    logger.debug(`[RenderingManager] Removed page from link graph: ${pageName}`);
+  }
+
+  /**
    * Get pages that refer to a specific page
    * @param {string} pageName - Target page name
    * @returns {Array<string>} Array of referring page names

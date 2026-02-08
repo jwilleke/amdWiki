@@ -42,3 +42,5 @@ Questions, Comments and Suggestions are always encouraged!
 - ImportManager.yamlValue(): Quotes numeric-only strings in YAML output
 
 ~~[BUG] Error deleting page: Internal Server Error #246~~ - FIXED v1.5.10: slug.toLowerCase error + JSON response for AJAX delete
+
+You did not use src/utils/version.ts to perform SEMVER patch and so   "amdwiki.version": "1.5.9" in config/app-default-config.json was not updated.

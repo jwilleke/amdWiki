@@ -24,6 +24,32 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-08-09
+
+- Agent: Claude Opus 4.5
+- Subject: Incremental save performance for large wikis (#245)
+- Current Issue: #245
+- Version: 1.5.10
+- Key Decision: Replace full index rebuilds with incremental updates on save/delete
+- Work Done:
+  - Added `updatePageInLinkGraph()` for O(1) incremental link graph updates
+  - Added `addPageToCache()` for new page tracking
+  - Added `removePageFromLinkGraph()` for deleted page cleanup
+  - Modified savePage to use incremental updates instead of rebuildLinkGraph/rebuildIndex
+  - Modified deletePage to use incremental removal
+  - Added `updatePageInIndex()` and `removePageFromIndex()` calls to SearchManager
+  - Added selective cache clearing (only affected page + referring pages)
+  - Fixed version in config/app-default-config.json to match package.json (1.5.10)
+- Testing:
+  - npm test: 64 suites passed, 1608 tests passed (308 skipped)
+  - Build successful
+- Files Modified:
+  - src/managers/RenderingManager.ts
+  - src/routes/WikiRoutes.ts
+  - src/routes/__tests__/routes.test.js
+  - config/app-default-config.json
+- Closes: #245
+
 ## 2026-02-08-08
 
 - Agent: Claude Opus 4.5

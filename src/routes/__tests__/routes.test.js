@@ -161,8 +161,11 @@ jest.mock('../../WikiEngine', () => {
     renderContent: jest.fn().mockReturnValue('<p>This is rendered content</p>'),
     renderMarkdown: jest.fn().mockReturnValue('<p>This is rendered markdown</p>'),
     textToHTML: jest.fn().mockResolvedValue('<p>This is rendered content</p>'),
-    getReferringPages: jest.fn().mockResolvedValue([]),
-    rebuildLinkGraph: jest.fn().mockResolvedValue(true)
+    getReferringPages: jest.fn().mockReturnValue([]),
+    rebuildLinkGraph: jest.fn().mockResolvedValue(true),
+    updatePageInLinkGraph: jest.fn(),
+    addPageToCache: jest.fn(),
+    removePageFromLinkGraph: jest.fn()
   };
 
   const mockSearchManager = {
@@ -173,7 +176,9 @@ jest.mock('../../WikiEngine', () => {
     searchByCategory: jest.fn().mockReturnValue([]),
     searchByUserKeywordsList: jest.fn().mockReturnValue([]),
     searchByUserKeywords: jest.fn().mockReturnValue([]),
-    rebuildIndex: jest.fn().mockResolvedValue(true)
+    rebuildIndex: jest.fn().mockResolvedValue(true),
+    updatePageInIndex: jest.fn().mockResolvedValue(true),
+    removePageFromIndex: jest.fn().mockResolvedValue(true)
   };
 
   const mockTemplateManager = {
@@ -192,6 +197,7 @@ jest.mock('../../WikiEngine', () => {
   const mockCacheManager = {
     isInitialized: jest.fn().mockReturnValue(true),
     clear: jest.fn().mockResolvedValue(true),
+    delete: jest.fn().mockResolvedValue(true),
     get: jest.fn().mockReturnValue(null),
     set: jest.fn().mockResolvedValue(true)
   };
@@ -432,8 +438,11 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
     mockPageManager.isRequiredPage.mockReturnValue(false);
     mockRenderingManager.renderContent.mockReturnValue('<p>This is rendered content</p>');
     mockRenderingManager.renderMarkdown.mockReturnValue('<p>This is rendered markdown</p>');
-    mockRenderingManager.getReferringPages.mockResolvedValue([]);
+    mockRenderingManager.getReferringPages.mockReturnValue([]);
     mockRenderingManager.rebuildLinkGraph.mockResolvedValue(true);
+    mockRenderingManager.updatePageInLinkGraph.mockImplementation(() => {});
+    mockRenderingManager.addPageToCache.mockImplementation(() => {});
+    mockRenderingManager.removePageFromLinkGraph.mockImplementation(() => {});
     mockSearchManager.search.mockResolvedValue([]);
     mockSearchManager.advancedSearch.mockResolvedValue([]);
     mockSearchManager.rebuildIndex.mockResolvedValue(true);
@@ -527,6 +536,12 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
         mockUserManager.getCurrentUser.mockResolvedValue(createUserContext());
         mockUserManager.hasPermission.mockReturnValue(true);
         mockPageManager.savePage.mockResolvedValue(true);
+        mockPageManager.savePageWithContext.mockResolvedValue(true);
+        // Mock existing page for the save operation
+        mockPageManager.getPage.mockResolvedValue({
+          content: '# Test Page',
+          metadata: { title: 'TestPage', 'system-category': 'General', uuid: 'test-uuid' }
+        });
 
         const response = await request(app)
           .post('/save/TestPage')

@@ -1755,15 +1755,33 @@ class WikiRoutes {
       // Save the page using WikiContext (author is automatically extracted from context)
       await pageManager.savePageWithContext(wikiContext, metadata);
 
-      // Rebuild link graph and search index
-      await renderingManager.rebuildLinkGraph();
-      await searchManager.rebuildIndex();
+      // Use incremental updates instead of full rebuilds for performance
+      const isNewPage = !existingPage;
+      const finalTitle = (metadata.title as string) || pageName;
 
-      // Clear rendered page cache to ensure pages with red links are re-rendered
+      // Update link graph incrementally (much faster than full rebuild)
+      if (isNewPage) {
+        renderingManager.addPageToCache(finalTitle);
+      }
+      renderingManager.updatePageInLinkGraph(finalTitle, content);
+
+      // Update search index for just this page
+      await searchManager.updatePageInIndex(finalTitle, {
+        name: finalTitle,
+        content: content,
+        metadata: metadata
+      });
+
+      // Only clear cache entries related to this page, not the entire cache
       const cacheManager = this.engine.getManager('CacheManager');
       if (cacheManager && cacheManager.isInitialized()) {
-        await cacheManager.clear();
-        logger.debug('🗑️  Cleared cache after page save to update red links');
+        // Clear specific page cache and pages that link to it
+        const referringPages = renderingManager.getReferringPages(finalTitle);
+        await cacheManager.delete(`page:${finalTitle}`);
+        for (const refPage of referringPages) {
+          await cacheManager.delete(`page:${refPage}`);
+        }
+        logger.debug(`🗑️  Cleared cache for ${finalTitle} and ${referringPages.length} referring pages`);
       }
 
       // Redirect to the updated page title if it changed (fallback to original name)
@@ -1857,10 +1875,10 @@ class WikiRoutes {
       logger.debug(`🗑️ Delete result: ${deleteResult}`);
 
       if (deleteResult) {
-        // Rebuild link graph and search index after deletion
-        logger.debug('🔄 Rebuilding indexes after deletion...');
-        await renderingManager.rebuildLinkGraph();
-        await searchManager.rebuildIndex();
+        // Use incremental removal instead of full rebuilds for performance
+        logger.debug('🔄 Updating indexes after deletion...');
+        renderingManager.removePageFromLinkGraph(pageName);
+        await searchManager.removePageFromIndex(pageName);
 
         logger.debug(`✅ Page deleted successfully: ${pageName}`);
 
