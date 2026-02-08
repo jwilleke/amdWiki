@@ -79,31 +79,22 @@
                     </div>
                 </div>
                 
-                <!-- Image Upload Section -->
+                <!-- Attachments Section -->
                 <div class="form-group mb-3">
-                    <label style="font-weight:bold;">Insert Image:</label>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <input type="file" id="imageFile" class="form-control" accept="image/*">
-                        </div>
-                        <div class="col-md-6">
-                            <button type="button" id="uploadImageBtn" class="btn btn-primary">Upload Image</button>
-                            <button type="button" id="insertImageBtn" class="btn btn-secondary ms-2" disabled>Insert at Cursor</button>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <label style="font-weight:bold;" class="mb-0">
+                            <i class="fas fa-paperclip"></i> Page Attachments
+                            <span class="badge bg-secondary"><%= typeof pageAttachments !== 'undefined' ? pageAttachments.length : 0 %></span>
+                        </label>
+                        <div class="btn-group btn-group-sm">
+                            <button type="button" class="btn btn-outline-primary" onclick="showUploadAttachment()">
+                                <i class="fas fa-upload"></i> Upload
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="openBrowseAttachments(); return false;">
+                                <i class="fas fa-folder-open"></i> Browse
+                            </button>
                         </div>
                     </div>
-                    <div id="imageUploadStatus" class="mt-2"></div>
-                    <div id="uploadedImages" class="mt-3" style="display: none;">
-                        <h6>Uploaded Images:</h6>
-                        <div id="imageList" class="d-flex flex-wrap gap-2"></div>
-                    </div>
-                </div>
-
-                <!-- Page Attachments Section -->
-                <div class="form-group mb-3">
-                    <label style="font-weight:bold;">
-                        <i class="fas fa-paperclip"></i> Page Attachments
-                        <span class="badge bg-secondary"><%= typeof pageAttachments !== 'undefined' ? pageAttachments.length : 0 %></span>
-                    </label>
                     <div id="pageAttachments">
                         <% if (typeof pageAttachments !== 'undefined' && pageAttachments.length > 0) { %>
                             <div class="table-responsive">
@@ -138,7 +129,7 @@
                                 </table>
                             </div>
                         <% } else { %>
-                            <p class="text-muted"><small>No attachments for this page. Use "Insert Image" above or "More... → Upload Attachment" to add files.</small></p>
+                            <p class="text-muted"><small>No attachments yet. Click "Upload" to add files or "Browse" to insert from existing attachments.</small></p>
                         <% } %>
                     </div>
                 </div>
@@ -240,125 +231,8 @@
     }
     // Initialize dropdowns
     updateSelectedUserKeywordsText();
-    
-    // Image upload functionality
-    let uploadedImages = [];
-    
-    document.getElementById('uploadImageBtn').addEventListener('click', async function() {
-        const fileInput = document.getElementById('imageFile');
-        const statusDiv = document.getElementById('imageUploadStatus');
-        const insertBtn = document.getElementById('insertImageBtn');
 
-        if (!fileInput.files[0]) {
-            statusDiv.innerHTML = '<div class="alert alert-warning">Please select an image file first.</div>';
-            return;
-        }
-
-        const formData = new FormData();
-        formData.append('file', fileInput.files[0]);
-        formData.append('description', fileInput.files[0].name);
-
-        statusDiv.innerHTML = '<div class="alert alert-info">Uploading image...</div>';
-        insertBtn.disabled = true;
-
-        try {
-            // Use new attachment upload endpoint
-            const pageName = '<%= pageName %>';
-            const response = await fetch(`/attachments/upload/${encodeURIComponent(pageName)}`, {
-                method: 'POST',
-                body: formData
-            });
-
-            const result = await response.json();
-
-            if (result.success) {
-                // Store attachment info (with attachmentId)
-                uploadedImages.push({
-                    attachmentId: result.attachmentId,
-                    url: result.url,
-                    originalName: result.attachment.name,
-                    mimeType: result.attachment.encodingFormat
-                });
-                statusDiv.innerHTML = '<div class="alert alert-success">Image uploaded successfully!</div>';
-                insertBtn.disabled = false;
-                updateImageList();
-                document.getElementById('uploadedImages').style.display = 'block';
-
-                // Add to page attachments panel
-                addAttachmentRow(result.attachment);
-            } else {
-                statusDiv.innerHTML = '<div class="alert alert-danger">Upload failed: ' + result.error + '</div>';
-            }
-        } catch (error) {
-            statusDiv.innerHTML = '<div class="alert alert-danger">Upload failed: ' + error.message + '</div>';
-        }
-    });
-    
-    document.getElementById('insertImageBtn').addEventListener('click', function() {
-        if (uploadedImages.length === 0) return;
-
-        const textarea = document.getElementById('content');
-        const lastImage = uploadedImages[uploadedImages.length - 1];
-
-        // Create Image plugin syntax with attachment URL
-        const imageSyntax = `[{Image src='${lastImage.url}' alt='${lastImage.originalName}'}]`;
-
-        // Insert at cursor position or at end
-        const start = textarea.selectionStart;
-        const end = textarea.selectionEnd;
-        const text = textarea.value;
-        const before = text.substring(0, start);
-        const after = text.substring(end, text.length);
-
-        textarea.value = before + imageSyntax + after;
-        textarea.focus();
-        textarea.setSelectionRange(start + imageSyntax.length, start + imageSyntax.length);
-
-        // Update preview
-        updatePreview();
-    });
-    
-    function updateImageList() {
-        const imageList = document.getElementById('imageList');
-        imageList.innerHTML = '';
-
-        uploadedImages.forEach((image, index) => {
-            const imageItem = document.createElement('div');
-            imageItem.className = 'card';
-            imageItem.style.width = '150px';
-            imageItem.innerHTML = `
-                <img src="${image.url}" class="card-img-top" style="height: 100px; object-fit: cover;" alt="${image.originalName}">
-                <div class="card-body p-2">
-                    <p class="card-text small mb-1">${image.originalName}</p>
-                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="insertImageAtIndex(${index})">Insert</button>
-                </div>
-            `;
-            imageList.appendChild(imageItem);
-        });
-    }
-
-    function insertImageAtIndex(index) {
-        const textarea = document.getElementById('content');
-        const image = uploadedImages[index];
-
-        // Create Image plugin syntax with attachment URL
-        const imageSyntax = `[{Image src='${image.url}' alt='${image.originalName}'}]`;
-
-        // Insert at cursor position or at end
-        const start = textarea.selectionStart;
-        const end = textarea.selectionEnd;
-        const text = textarea.value;
-        const before = text.substring(0, start);
-        const after = text.substring(end, text.length);
-
-        textarea.value = before + imageSyntax + after;
-        textarea.focus();
-        textarea.setSelectionRange(start + imageSyntax.length, start + imageSyntax.length);
-
-        // Update preview
-        updatePreview();
-    }
-
+    // Insert attachment markup at cursor position
     function insertAttachmentMarkup(url, name, mimeType) {
         const textarea = document.getElementById('content');
         let markup;
