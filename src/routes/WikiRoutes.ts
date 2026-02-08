@@ -1308,17 +1308,30 @@ class WikiRoutes {
 
       await pageManager.savePageWithContext(wikiContext, metadata);
 
-      // Rebuild search index and link graph
+      // Use incremental updates instead of full rebuilds for performance (#245)
       const renderingManager = this.engine.getManager('RenderingManager');
       const searchManager = this.engine.getManager('SearchManager');
-      await renderingManager.rebuildLinkGraph();
-      await searchManager.rebuildIndex();
 
-      // Clear rendered page cache to ensure pages with red links are re-rendered
+      // Add to page cache and update link graph incrementally
+      renderingManager.addPageToCache(pageName);
+      renderingManager.updatePageInLinkGraph(pageName, content);
+
+      // Update search index for just this page
+      await searchManager.updatePageInIndex(pageName, {
+        name: pageName,
+        content: content,
+        metadata: metadata
+      });
+
+      // Clear cache entries related to this page and pages that might link to it
       const cacheManager = this.engine.getManager('CacheManager');
       if (cacheManager && cacheManager.isInitialized()) {
-        await cacheManager.clear();
-        logger.debug('🗑️  Cleared cache after page creation to update red links');
+        const referringPages = renderingManager.getReferringPages(pageName);
+        await cacheManager.del(`page:${pageName}`);
+        for (const refPage of referringPages) {
+          await cacheManager.del(`page:${refPage}`);
+        }
+        logger.debug(`🗑️  Cleared cache for ${pageName} and ${referringPages.length} referring pages`);
       }
 
       // Redirect to edit the new page
@@ -1600,17 +1613,30 @@ class WikiRoutes {
       // Save the new page using WikiContext
       await pageManager.savePageWithContext(wikiContext, metadata);
 
-      // Rebuild search index and link graph
+      // Use incremental updates instead of full rebuilds for performance (#245)
       const renderingManager = this.engine.getManager('RenderingManager');
       const searchManager = this.engine.getManager('SearchManager');
-      await renderingManager.rebuildLinkGraph();
-      await searchManager.rebuildIndex();
 
-      // Clear rendered page cache to ensure pages with red links are re-rendered
+      // Add to page cache and update link graph incrementally
+      renderingManager.addPageToCache(pageName);
+      renderingManager.updatePageInLinkGraph(pageName, finalContent);
+
+      // Update search index for just this page
+      await searchManager.updatePageInIndex(pageName, {
+        name: pageName,
+        content: finalContent,
+        metadata: metadata
+      });
+
+      // Clear cache entries related to this page and pages that might link to it
       const cacheManager = this.engine.getManager('CacheManager');
       if (cacheManager && cacheManager.isInitialized()) {
-        await cacheManager.clear();
-        logger.debug('🗑️  Cleared cache after page creation to update red links');
+        const referringPages = renderingManager.getReferringPages(pageName);
+        await cacheManager.del(`page:${pageName}`);
+        for (const refPage of referringPages) {
+          await cacheManager.del(`page:${refPage}`);
+        }
+        logger.debug(`🗑️  Cleared cache for ${pageName} and ${referringPages.length} referring pages`);
       }
 
       // Redirect to edit the new page (so user can see template result)

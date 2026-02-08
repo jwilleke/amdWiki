@@ -66,8 +66,12 @@ test.describe('Page Operations', () => {
 
       // Submit the create form - use specific button text to avoid matching header search
       const createButton = page.locator('button:has-text("Create Page"), form[action="/create"] button[type="submit"]');
-      await createButton.first().click();
-      await page.waitForLoadState('networkidle');
+
+      // Click and wait for navigation (form submit causes redirect)
+      await Promise.all([
+        page.waitForURL(/\/(edit|wiki)\//, { timeout: 15000 }),
+        createButton.first().click()
+      ]);
 
       // Verify page was created - should redirect to edit page for the new page or view page
       const currentUrl = page.url();
