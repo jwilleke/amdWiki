@@ -384,13 +384,14 @@ class LunrSearchProvider extends BaseSearchProvider {
       logger.info(`[LunrSearchProvider] Category filter: ${beforeCount} -> ${results.length} results (filter: [${categoryList.join(', ')}])`);
     }
 
-    // Filter by user keywords if specified
+    // Filter by user keywords if specified (exact word matching)
     if (keywordList.length > 0) {
       results = results.filter(result => {
         const rawKeywords = result.metadata.userKeywords;
         const docKeywords = typeof rawKeywords === 'string' ? rawKeywords : '';
+        const docKeywordList = docKeywords.toLowerCase().split(/\s+/).filter(k => k);
         return keywordList.some(keyword =>
-          docKeywords.toLowerCase().includes(keyword.toLowerCase())
+          docKeywordList.includes(keyword.toLowerCase())
         );
       });
     }
@@ -618,8 +619,12 @@ class LunrSearchProvider extends BaseSearchProvider {
   searchByUserKeywords(keyword: string): Promise<SearchResult[]> {
     if (!keyword) return Promise.resolve([] as SearchResult[]);
 
+    const keywordLower = keyword.toLowerCase();
     const results = Object.values(this.documents)
-      .filter(doc => doc.userKeywords.toLowerCase().includes(keyword.toLowerCase()))
+      .filter(doc => {
+        const docKeywordList = doc.userKeywords.toLowerCase().split(/\s+/).filter(k => k);
+        return docKeywordList.includes(keywordLower);
+      })
       .map(doc => ({
         name: doc.id,
         title: doc.title,

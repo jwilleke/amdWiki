@@ -24,6 +24,26 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-08-10
+
+- Agent: Claude Opus 4.5
+- Subject: Fix Search plugin user-keywords partial matching (#247)
+- Current Issue: #247
+- Related: #238 (Code Consolidation)
+- Key Decision: Split user-keywords into array and use exact word matching instead of substring includes()
+- Work Done:
+  - Fixed `advancedSearch()` to split docKeywords and use array includes() for exact matching
+  - Fixed `searchByUserKeywords()` to split keywords and use array includes() for exact matching
+  - Added analysis comment to #238 documenting consolidation opportunities
+- Testing:
+  - npm test: 63 passed, 1 failed (pre-existing routes.test.js issue), 308 skipped
+  - Build successful
+- Commits: pending
+- Files Modified:
+  - src/providers/LunrSearchProvider.ts
+  - docs/TODO.md
+- Closes: #247
+
 ## 2026-02-08-09
 
 - Agent: Claude Opus 4.5

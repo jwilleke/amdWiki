@@ -43,4 +43,10 @@ Questions, Comments and Suggestions are always encouraged!
 
 ~~[BUG] Error deleting page: Internal Server Error #246~~ - FIXED v1.5.10: slug.toLowerCase error + JSON response for AJAX delete
 
-You did not use src/utils/version.ts to perform SEMVER patch and so   "amdwiki.version": "1.5.9" in config/app-default-config.json was not updated.
+~~You did not use src/utils/version.ts to perform SEMVER patch and so   "amdwiki.version": "1.5.9" in config/app-default-config.json was not updated.~~ - FIXED: Updated config to 1.5.10
+
+~~[BUG] SLOW page saves #245~~ - FIXED: Incremental save/delete (commit 65e29a8)
+
+~~Create pages for all user-keywords that do not already exist~~ - DONE: Created 9 pages (default, private, draft, review, published, medicine, meteorology, oceanography, political-science). Existing: geology, psychology, sociology, anthropology, economics.
+
+~~[BUG] Search plugin user-keywords filter uses partial string matching #247~~ - FIXED: Uses exact word matching instead of substring includes()
