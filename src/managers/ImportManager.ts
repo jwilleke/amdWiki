@@ -714,7 +714,9 @@ class ImportManager extends BaseManager {
       value.includes('\n') ||
       value.startsWith(' ') ||
       value.startsWith('[') ||
-      value.startsWith('{')
+      value.startsWith('{') ||
+      // Quote numeric-only strings to prevent YAML parsing as numbers
+      /^-?\d+(\.\d+)?$/.test(value)
     ) {
       return `"${value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
     }
