@@ -27,9 +27,16 @@ Questions, Comments and Suggestions are always encouraged!
 - [FEATURE] in Edit Page Replace "Upload Image button" #243 (You did NOT remove them from the "More..." Dropdown button )
 - ~~[BUG](https://github.com/jwilleke/amdWiki/issues/244)~~ - DONE: ConfigurationManager now deep-merges object-type properties
 
-## Started getting Error: Could not render the page on ALL pages
+## ~~Started getting Error: Could not render the page on ALL pages~~ FIXED
 
-2026-02-08T12:04:30.854Z [error]: [VIEW] Error viewing page
-2026-02-08T12:04:30.854Z [error]: Error rendering error page: a.localeCompare is not a function
+~~2026-02-08T12:04:30.854Z [error]: [VIEW] Error viewing page~~
+~~2026-02-08T12:04:30.854Z [error]: Error rendering error page: a.localeCompare is not a function~~
 
-This was following import from  /tmp/import-pages
+~~This was following import from  /tmp/import-pages~~
+
+**Root cause**: Pages with numeric-only titles (e.g., `149.txt`) were imported with `title: 149` in YAML frontmatter. YAML parsed these as numbers, not strings, causing `localeCompare` to fail.
+
+**Fix (commit 488ea41)**:
+
+- FileSystemProvider: `String(metadata.title)` ensures titles are strings
+- ImportManager.yamlValue(): Quotes numeric-only strings in YAML output
