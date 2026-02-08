@@ -24,6 +24,28 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-08-11
+
+- Agent: Claude Opus 4.5
+- Subject: Fix slow page creation - incremental updates (#245)
+- Current Issue: #245
+- Key Decision: Use incremental updates for page creation instead of full index rebuilds
+- Work Done:
+  - Fixed `createPageFromTemplate()` (POST /create) to use incremental updates
+  - Fixed `createWikiPage()` (POST /wiki/:page) to use incremental updates
+  - Both now use `addPageToCache()`, `updatePageInLinkGraph()`, `updatePageInIndex()`
+  - Selective cache clearing instead of full cache clear
+  - Fixed E2E test: use `waitForURL()` instead of flaky `networkidle`
+  - Page creation time reduced from ~35 seconds to ~2 seconds
+- Testing:
+  - npm test: 64 suites passed, 1608 tests passed (308 skipped)
+  - E2E: 24 passed, 1 pre-existing flaky (search special chars), 3 skipped
+  - Build successful
+- Commits: e4805f4
+- Files Modified:
+  - src/routes/WikiRoutes.ts
+  - tests/e2e/pages.spec.js
+
 ## 2026-02-08-10
 
 - Agent: Claude Opus 4.5
