@@ -1,0 +1,96 @@
+<%- include('header', { pageName: '' }) %>
+
+<div class="container mt-4">
+    <% if (typeof successMessage !== 'undefined' && successMessage) { %>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle"></i> <%= successMessage %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <% } %>
+
+    <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle"></i> <%= errorMessage %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <% } %>
+
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header">
+                    <h4><i class="fas fa-tag"></i> Create New User Keyword</h4>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-4">
+                        User keywords help categorize and group pages by topic.
+                        Enter a label and description for your new keyword.
+                    </p>
+
+                    <form action="/user-keywords/create" method="POST">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+                        <div class="mb-3">
+                            <label for="label" class="form-label">
+                                <strong>Label</strong> <span class="text-danger">*</span>
+                            </label>
+                            <input type="text"
+                                   class="form-control"
+                                   id="label"
+                                   name="label"
+                                   required
+                                   placeholder="e.g., biology, history, tutorial"
+                                   maxlength="50"
+                                   pattern="[A-Za-z0-9\s\-]+"
+                                   title="Letters, numbers, spaces, and hyphens only">
+                            <div class="form-text">
+                                The display name for the keyword. Keep it short and descriptive.
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="description" class="form-label">
+                                <strong>Description</strong> <span class="text-danger">*</span>
+                            </label>
+                            <textarea class="form-control"
+                                      id="description"
+                                      name="description"
+                                      rows="3"
+                                      required
+                                      placeholder="A brief description of what this keyword represents..."
+                                      maxlength="200"></textarea>
+                            <div class="form-text">
+                                A short description explaining when to use this keyword (max 200 characters).
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="/wiki/User%20Keywords" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Create Keyword
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5><i class="fas fa-info-circle"></i> About User Keywords</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="mb-0">
+                        <li>Keywords are stored in the wiki configuration</li>
+                        <li>Once created, keywords can be assigned to pages when editing</li>
+                        <li>Keywords help with searching and organizing content</li>
+                        <li>A maximum of 5 keywords can be assigned to each page</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('footer') %>

@@ -5035,6 +5035,17 @@ class WikiRoutes {
       this.deleteAttachment(req, res)
     );
 
+    // User-keyword management routes (accessible to editors)
+    app.get('/user-keywords/create', (req: Request, res: Response) =>
+      this.userKeywordCreate(req, res)
+    );
+    app.post('/user-keywords/create', (req: Request, res: Response) =>
+      this.userKeywordCreateSubmit(req, res)
+    );
+    app.get('/api/user-keywords', (req: Request, res: Response) =>
+      this.apiGetUserKeywords(req, res)
+    );
+
     // Notification management routes
     app.post('/admin/notifications/:id/dismiss', (req: Request, res: Response) =>
       this.adminDismissNotification(req, res)
@@ -6180,6 +6191,157 @@ class WikiRoutes {
         message: 'Error comparing versions',
         error: getErrorMessage(error)
       });
+    }
+  }
+
+  /**
+   * Display user-keyword creation form
+   * Accessible to users with edit permission
+   */
+  async userKeywordCreate(req: Request, res: Response) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = req.userContext;
+
+      // Check if user can edit (editor role or above)
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'edit:page'))) {
+        return await this.renderError(
+          req,
+          res,
+          403,
+          'Access Denied',
+          'You need editor permissions to create user-keywords'
+        );
+      }
+
+      const commonData = await this.getCommonTemplateData(req);
+
+      res.render('user-keyword-create', {
+        ...commonData,
+        title: 'Create User Keyword',
+        csrfToken: req.session.csrfToken,
+        successMessage: req.query.success || null,
+        errorMessage: req.query.error || null
+      });
+    } catch (err: unknown) {
+      logger.error('Error loading user-keyword create form:', err);
+      res.status(500).send('Error loading form');
+    }
+  }
+
+  /**
+   * Handle user-keyword creation form submission
+   * Creates a new user-keyword in the custom config
+   */
+  async userKeywordCreateSubmit(req: Request, res: Response) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = req.userContext;
+
+      // Check if user can edit
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'edit:page'))) {
+        return res.status(403).json({ success: false, error: 'Access denied' });
+      }
+
+      const { label, description } = req.body as { label?: string; description?: string };
+
+      // Validate input
+      if (!label || !label.trim()) {
+        return res.redirect('/user-keywords/create?error=' + encodeURIComponent('Label is required'));
+      }
+      if (!description || !description.trim()) {
+        return res.redirect(
+          '/user-keywords/create?error=' + encodeURIComponent('Description is required')
+        );
+      }
+
+      const trimmedLabel = label.trim();
+      const trimmedDescription = description.trim();
+
+      // Normalize the internal name (lowercase, alphanumeric with hyphens)
+      const internalName = trimmedLabel
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+
+      if (!internalName) {
+        return res.redirect(
+          '/user-keywords/create?error=' + encodeURIComponent('Invalid label format')
+        );
+      }
+
+      // Get config manager
+      const configManager = this.engine.getManager('ConfigurationManager');
+      if (!configManager) {
+        return res.redirect(
+          '/user-keywords/create?error=' + encodeURIComponent('Configuration manager not available')
+        );
+      }
+
+      // Get existing user-keywords
+      const existingKeywords = (configManager.getProperty('amdwiki.user-keywords') || {}) as Record<
+        string,
+        Record<string, unknown>
+      >;
+
+      // Check if keyword already exists
+      if (existingKeywords[internalName]) {
+        return res.redirect(
+          '/user-keywords/create?error=' +
+            encodeURIComponent(`User-keyword "${trimmedLabel}" already exists`)
+        );
+      }
+
+      // Add new keyword with default values
+      const updatedKeywords = {
+        ...existingKeywords,
+        [internalName]: {
+          label: trimmedLabel,
+          description: trimmedDescription,
+          category: 'general',
+          enabled: true,
+          restrictEditing: false
+        }
+      };
+
+      await configManager.setProperty('amdwiki.user-keywords', updatedKeywords);
+
+      logger.info(`[WikiRoutes] User ${currentUser.username} created user-keyword: ${internalName}`);
+
+      // Redirect to User Keywords page with success message
+      return res.redirect(
+        '/wiki/User%20Keywords?success=' +
+          encodeURIComponent(`User-keyword "${trimmedLabel}" created successfully`)
+      );
+    } catch (err: unknown) {
+      logger.error('Error creating user-keyword:', err);
+      return res.redirect(
+        '/user-keywords/create?error=' + encodeURIComponent('Failed to create user-keyword')
+      );
+    }
+  }
+
+  /**
+   * API endpoint to get all user-keywords
+   */
+  // eslint-disable-next-line @typescript-eslint/require-await -- Express route handler pattern
+  async apiGetUserKeywords(_req: Request, res: Response) {
+    try {
+      const configManager = this.engine.getManager('ConfigurationManager');
+      const userKeywordsConfig = configManager?.getProperty('amdwiki.user-keywords', {}) as Record<
+        string,
+        Record<string, unknown>
+      >;
+
+      const keywords = Object.entries(userKeywordsConfig).map(([key, config]) => ({
+        id: key,
+        ...config
+      }));
+
+      res.json({ success: true, keywords });
+    } catch (err: unknown) {
+      logger.error('Error getting user-keywords:', err);
+      res.status(500).json({ success: false, error: 'Failed to get user-keywords' });
     }
   }
 }
