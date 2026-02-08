@@ -24,6 +24,29 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-08-05
+
+- Agent: Claude Opus 4.5
+- Subject: Add user-keyword creation form for editors (#242)
+- Current Issue: #242
+- Key Decision: Simple form for editors to create user-keywords with just label and description
+- Work Done:
+  - Added GET /user-keywords/create route and form view
+  - Added POST /user-keywords/create handler
+  - Added GET /api/user-keywords API endpoint
+  - Form requires editor permissions
+  - Auto-generates internal name from label
+  - Saves to custom config with defaults (enabled, category: general)
+  - Created views/user-keyword-create.ejs template
+- Testing:
+  - npm test: 64 suites passed, 1601 tests passed (308 skipped)
+  - Build successful
+- Commits: 730e78b
+- Files Modified:
+  - src/routes/WikiRoutes.ts
+  - views/user-keyword-create.ejs (new)
+- Closes: #242
+
 ## 2026-02-08-04
 
 - Agent: Claude Opus 4.5
