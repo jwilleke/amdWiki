@@ -24,6 +24,23 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-08-12
+
+- Agent: Claude Opus 4.5
+- Subject: Fix Search plugin syntax in wiki pages (#247)
+- Current Issue: #247
+- Key Decision: Wiki pages were using wrong Search plugin syntax
+- Work Done:
+  - Discovered 9 wiki pages using `query='user-keywords:X'` (Lunr syntax with substring matching)
+  - Fixed to use `user-keywords='X'` (plugin parameter with exact matching)
+  - Pages fixed: oceanography, meteorology, medicine, published, political-science, review, draft, default, private
+  - Code fix (e11d0a8) was correct - issue was wiki content not code
+- Testing:
+  - npm test: 64 suites passed, 1608 passed (308 skipped)
+  - Build successful
+- Files Modified:
+  - data/pages/*.md (9 wiki pages - not in git)
+
 ## 2026-02-08-11
 
 - Agent: Claude Opus 4.5
