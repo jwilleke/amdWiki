@@ -245,7 +245,7 @@ class FileSystemProvider extends BasePageProvider {
         }
         const slug = metadata.slug;
         if (slug) {
-          this.slugIndex.set(slug.toLowerCase(), canonicalKey);
+          this.slugIndex.set(String(slug).toLowerCase(), canonicalKey);
         }
 
       } catch (error) {
@@ -459,12 +459,13 @@ class FileSystemProvider extends BasePageProvider {
     const titleChanged = oldPageInfo && oldPageInfo.title !== finalTitle;
     if (titleChanged) {
       // Remove old title from cache and indexes
-      this.pageCache.delete(oldPageInfo.title);
-      this.titleIndex.delete(oldPageInfo.title.toLowerCase());
+      const oldTitleStr = String(oldPageInfo.title);
+      this.pageCache.delete(oldTitleStr);
+      this.titleIndex.delete(oldTitleStr.toLowerCase());
       // Remove old slug from index if it existed
       const oldSlug = oldPageInfo.metadata?.slug;
       if (oldSlug) {
-        this.slugIndex.delete(oldSlug.toLowerCase());
+        this.slugIndex.delete(String(oldSlug).toLowerCase());
       }
       logger.info(`[FileSystemProvider] Page renamed from '${oldPageInfo.title}' to '${finalTitle}'`);
     }
@@ -482,7 +483,7 @@ class FileSystemProvider extends BasePageProvider {
     // Update slug index if the page has a slug
     const newSlug = updatedMetadata.slug;
     if (newSlug) {
-      this.slugIndex.set(newSlug.toLowerCase(), finalTitle);
+      this.slugIndex.set(String(newSlug).toLowerCase(), finalTitle);
     }
 
     logger.info(`[FileSystemProvider] Page '${finalTitle}' saved successfully to ${path.basename(filePath)}.`);
@@ -502,6 +503,7 @@ class FileSystemProvider extends BasePageProvider {
 
     try {
       // Delete the file
+      logger.debug(`[FileSystemProvider] Deleting file: ${info.filePath}`);
       await fs.unlink(info.filePath);
 
       // Remove from all caches and indexes
@@ -515,14 +517,18 @@ class FileSystemProvider extends BasePageProvider {
       // Remove slug from index if it existed
       const slug = info.metadata?.slug;
       if (slug) {
-        this.slugIndex.delete(slug.toLowerCase());
+        this.slugIndex.delete(String(slug).toLowerCase());
       }
 
       logger.info(`[FileSystemProvider] Deleted page '${info.title}' (${info.uuid})`);
       return true;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      logger.error(`[FileSystemProvider] Failed to delete page: ${identifier}`, { error: errorMessage });
+      const errorStack = error instanceof Error ? error.stack : '';
+      logger.error(`[FileSystemProvider] Failed to delete page: ${identifier} - ${errorMessage}`);
+      if (errorStack) {
+        logger.error(`[FileSystemProvider] Stack: ${errorStack}`);
+      }
       return false;
     }
   }

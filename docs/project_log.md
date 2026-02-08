@@ -24,6 +24,35 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-08-08
+
+- Agent: Claude Opus 4.5
+- Subject: Fix numeric titles/slugs and delete page errors (#246)
+- Current Issue: #246
+- Version: 1.5.10
+- Key Decision: Convert all metadata fields to String() at runtime; return JSON for AJAX delete
+- Work Done:
+  - Fixed `localeCompare` error: numeric YAML titles parsed as numbers
+  - Fixed `slug.toLowerCase` error: numeric slugs in metadata
+  - Added `String()` conversion for title/slug in FileSystemProvider
+  - ImportManager.yamlValue() now quotes numeric-only strings
+  - Delete endpoint returns JSON for AJAX, redirect for forms
+  - Updated client-side delete handlers to use JSON response
+  - Fixed delete test to expect JSON response
+- Testing:
+  - npm test: 64 suites passed, 1608 tests passed (308 skipped)
+  - Build successful
+  - Manual delete test successful
+- Commits: pending
+- Files Modified:
+  - src/providers/FileSystemProvider.ts
+  - src/managers/ImportManager.ts
+  - src/routes/WikiRoutes.ts
+  - src/routes/__tests__/routes.test.js
+  - views/header.ejs
+  - views/view.ejs
+- Closes: #246
+
 ## 2026-02-08-07
 
 - Agent: Claude Opus 4.5

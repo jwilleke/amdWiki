@@ -1324,14 +1324,16 @@ function deletePageFromNavbar() {
             fetch('/delete/' + encodeURIComponent(pageName), {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
                 }
-            }).then(response => {
-                if (response.ok || response.redirected) {
+            }).then(response => response.json())
+            .then(data => {
+                if (data.success) {
                     // Redirect to home page after successful deletion
-                    window.location.href = '/';
+                    window.location.href = data.redirect || '/';
                 } else {
-                    alert('Error deleting page: ' + response.statusText);
+                    alert('Error deleting page: ' + (data.error || 'Unknown error'));
                 }
             }).catch(error => {
                 alert('Error deleting page: ' + error.message);

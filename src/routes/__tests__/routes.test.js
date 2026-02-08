@@ -597,11 +597,15 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
         // ACL check must pass for delete permission
         mockACLManager.checkPagePermissionWithContext.mockResolvedValue(true);
 
+        // JSON request returns JSON response
         const response = await request(app)
           .post('/delete/TestPage')
+          .set('Accept', 'application/json')
           .send({ _csrf: 'test-csrf-token' });
 
-        expect(response.status).toBe(302);
+        expect(response.status).toBe(200);
+        expect(response.body.success).toBe(true);
+        expect(response.body.redirect).toBe('/');
       });
 
       test('should prevent deletion of required pages', async () => {

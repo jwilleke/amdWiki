@@ -1864,15 +1864,27 @@ class WikiRoutes {
 
         logger.debug(`✅ Page deleted successfully: ${pageName}`);
 
-        // Redirect to home page
-        res.redirect('/');
+        // Return JSON for AJAX requests, redirect for form submissions
+        if (req.xhr || req.headers.accept?.includes('application/json') || req.headers['content-type']?.includes('application/json')) {
+          res.json({ success: true, message: 'Page deleted successfully', redirect: '/' });
+        } else {
+          res.redirect('/');
+        }
       } else {
         logger.debug(`❌ Failed to delete page: ${pageName}`);
-        res.status(500).send('Failed to delete page');
+        if (req.xhr || req.headers.accept?.includes('application/json') || req.headers['content-type']?.includes('application/json')) {
+          res.status(500).json({ success: false, error: 'Failed to delete page' });
+        } else {
+          res.status(500).send('Failed to delete page');
+        }
       }
     } catch (err: unknown) {
       logger.error('❌ Error deleting page:', err);
-      res.status(500).send('Error deleting page');
+      if (req.xhr || req.headers.accept?.includes('application/json') || req.headers['content-type']?.includes('application/json')) {
+        res.status(500).json({ success: false, error: 'Error deleting page' });
+      } else {
+        res.status(500).send('Error deleting page');
+      }
     }
   }
 
