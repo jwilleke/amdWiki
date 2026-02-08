@@ -24,6 +24,27 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-08-02
+
+- Agent: Claude Opus 4.5
+- Subject: Register extracted JSPWiki categories to config
+- Current Issue: #123, #244
+- Key Decision: Auto-add extracted categories to custom config so they appear in user-keywords picker
+- Work Done:
+  - Added `registerUserKeywordsToConfig()` method to ImportManager
+  - Extracts user-keywords from conversion result and adds to config
+  - Creates keyword entries with default structure (enabled, category: imported)
+  - Skips existing keywords to avoid duplicates
+  - Created issue #244 for ConfigurationManager deep-merge bug
+- Testing:
+  - npm test: 64 suites passed, 1588 tests passed (308 skipped)
+  - Build successful
+- Commits: 1cc6eed
+- Files Modified:
+  - src/managers/ImportManager.ts
+- Related Issues:
+  - #244 - ConfigurationManager should deep-merge amdwiki.user-keywords
+
 ## 2026-02-08-01
 
 - Agent: Claude Opus 4.5
