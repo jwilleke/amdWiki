@@ -314,8 +314,18 @@ function hello() {
       expect(result.content).toBe('H<sup>2</sup>O');
     });
 
+    it('should convert %%sup text%% (alternate closing) to <sup>text</sup>', () => {
+      const result = converter.convert('H%%sup 2%%O');
+      expect(result.content).toBe('H<sup>2</sup>O');
+    });
+
     it('should convert %%sub text /% to <sub>text</sub>', () => {
       const result = converter.convert('CO%%sub 2 /%');
+      expect(result.content).toBe('CO<sub>2</sub>');
+    });
+
+    it('should convert %%sub text%% (alternate closing) to <sub>text</sub>', () => {
+      const result = converter.convert('CO%%sub 2%%');
       expect(result.content).toBe('CO<sub>2</sub>');
     });
 
@@ -324,9 +334,82 @@ function hello() {
       expect(result.content).toBe('This is ~~removed~~.');
     });
 
+    it('should convert %%strike text%% (alternate closing) to ~~text~~', () => {
+      const result = converter.convert('This is %%strike removed%%.');
+      expect(result.content).toBe('This is ~~removed~~.');
+    });
+
     it('should handle multiple inline styles in one line', () => {
       const result = converter.convert('%%sup a /% and %%sub b /%');
       expect(result.content).toBe('<sup>a</sup> and <sub>b</sub>');
+    });
+
+    it('should be case insensitive for style names', () => {
+      const result = converter.convert('%%SUP text%% and %%Sub text2/%');
+      expect(result.content).toBe('<sup>text</sup> and <sub>text2</sub>');
+    });
+  });
+
+  describe('status boxes conversion', () => {
+    it('should convert %%information text /% to alert-info div', () => {
+      const result = converter.convert('%%information Important note /%');
+      expect(result.content).toBe('<div class="alert alert-info" role="alert">Important note</div>');
+    });
+
+    it('should convert %%information text%% (alternate closing) to alert-info div', () => {
+      const result = converter.convert('%%information Important note%%');
+      expect(result.content).toBe('<div class="alert alert-info" role="alert">Important note</div>');
+    });
+
+    it('should convert multi-line %%information block with %% closing', () => {
+      const input = `%%information
+This is an informational message!
+%%`;
+      const result = converter.convert(input);
+      expect(result.content).toContain('alert-info');
+      expect(result.content).toContain('This is an informational message!');
+    });
+
+    it('should convert %%warning text /% to alert-warning div', () => {
+      const result = converter.convert('%%warning Be careful! /%');
+      expect(result.content).toBe('<div class="alert alert-warning" role="alert">Be careful!</div>');
+    });
+
+    it('should convert multi-line %%warning block', () => {
+      const input = `%%warning
+This is a warning message.
+Please read carefully.
+%%`;
+      const result = converter.convert(input);
+      expect(result.content).toContain('alert-warning');
+      expect(result.content).toContain('This is a warning message.');
+    });
+
+    it('should convert %%error text /% to alert-danger div', () => {
+      const result = converter.convert('%%error Critical failure! /%');
+      expect(result.content).toBe('<div class="alert alert-danger" role="alert">Critical failure!</div>');
+    });
+
+    it('should convert %%error text%% (alternate closing) to alert-danger div', () => {
+      const result = converter.convert('%%error Critical failure%%');
+      expect(result.content).toBe('<div class="alert alert-danger" role="alert">Critical failure</div>');
+    });
+
+    it('should be case insensitive for status box names', () => {
+      const result = converter.convert('%%INFORMATION upper case%%');
+      expect(result.content).toContain('alert-info');
+    });
+
+    it('should handle multiple status boxes in one document', () => {
+      const input = `%%information Info here /%
+
+%%warning Warning here /%
+
+%%error Error here /%`;
+      const result = converter.convert(input);
+      expect(result.content).toContain('alert-info');
+      expect(result.content).toContain('alert-warning');
+      expect(result.content).toContain('alert-danger');
     });
   });
 

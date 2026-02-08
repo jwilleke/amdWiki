@@ -1160,8 +1160,9 @@ class MarkupParser extends BaseManager {
         continue;
       }
 
-      // Check for style block closing: /% (on its own line)
-      if (/^\s*\/%\s*$/.test(line)) {
+      // Check for style block closing: /% or %% (on its own line)
+      // JSPWiki supports both syntaxes for closing style blocks
+      if (/^\s*(?:\/%|%%)\s*$/.test(line)) {
         if (stack.length > 0) {
           const block = stack.pop()!;
           const blockContent = block.contentLines.join('\n');
@@ -1283,9 +1284,25 @@ class MarkupParser extends BaseManager {
 
     // Step 0.55: Convert inline JSPWiki styles (%%sup, %%sub, %%strike)
     // These are inline patterns not handled by block-level extractStyleBlocksWithStack
-    sanitized = sanitized.replace(/%%sup\s+([\s\S]*?)\s*\/%/g, '<sup>$1</sup>');
-    sanitized = sanitized.replace(/%%sub\s+([\s\S]*?)\s*\/%/g, '<sub>$1</sub>');
-    sanitized = sanitized.replace(/%%strike\s+([\s\S]*?)\s*\/%/g, '<del>$1</del>');
+    // Support both closing syntaxes: /% and %%
+    sanitized = sanitized.replace(/%%sup\s+([\s\S]*?)\s*(?:\/%|%%)/gi, '<sup>$1</sup>');
+    sanitized = sanitized.replace(/%%sub\s+([\s\S]*?)\s*(?:\/%|%%)/gi, '<sub>$1</sub>');
+    sanitized = sanitized.replace(/%%strike\s+([\s\S]*?)\s*(?:\/%|%%)/gi, '<del>$1</del>');
+
+    // Step 0.56: Convert JSPWiki status boxes to Bootstrap alerts
+    // These are typically block-level but handled here for consistency
+    sanitized = sanitized.replace(
+      /%%information\s+([\s\S]*?)\s*(?:\/%|%%)/gi,
+      '<div class="alert alert-info" role="alert">$1</div>'
+    );
+    sanitized = sanitized.replace(
+      /%%warning\s+([\s\S]*?)\s*(?:\/%|%%)/gi,
+      '<div class="alert alert-warning" role="alert">$1</div>'
+    );
+    sanitized = sanitized.replace(
+      /%%error\s+([\s\S]*?)\s*(?:\/%|%%)/gi,
+      '<div class="alert alert-danger" role="alert">$1</div>'
+    );
 
     // Step 0.6: Convert JSPWiki line break syntax
     // In JSPWiki, \\ (two backslashes) forces a line break

@@ -424,19 +424,51 @@ class JSPWikiConverter implements IContentConverter {
 
   /**
    * Convert JSPWiki inline style patterns to Markdown/HTML
-   * %%sup text /% -> <sup>text</sup>
-   * %%sub text /% -> <sub>text</sub>
-   * %%strike text /% -> ~~text~~
+   *
+   * Supports both closing syntaxes: /% and %%
+   *   %%sup text /% -> <sup>text</sup>
+   *   %%sup text%% -> <sup>text</sup>
+   *   %%sub text /% -> <sub>text</sub>
+   *   %%strike text /% -> ~~text~~
+   *
+   * Status boxes (block-level, converted to Bootstrap alerts):
+   *   %%information ... /%  -> <div class="alert alert-info">...</div>
+   *   %%warning ... /%      -> <div class="alert alert-warning">...</div>
+   *   %%error ... /%        -> <div class="alert alert-danger">...</div>
    */
   private convertInlineStyles(content: string): string {
-    // %%sup text /% -> <sup>text</sup>
-    let result = content.replace(/%%sup\s+([\s\S]*?)\s*\/%/g, '<sup>$1</sup>');
+    // Common closing pattern: either /% or %%
+    // Using (?:%%|\/%) to match either closing syntax
 
-    // %%sub text /% -> <sub>text</sub>
-    result = result.replace(/%%sub\s+([\s\S]*?)\s*\/%/g, '<sub>$1</sub>');
+    // %%sup text (/% or %%) -> <sup>text</sup>
+    let result = content.replace(/%%sup\s+([\s\S]*?)\s*(?:\/%|%%)/gi, '<sup>$1</sup>');
 
-    // %%strike text /% -> ~~text~~
-    result = result.replace(/%%strike\s+([\s\S]*?)\s*\/%/g, '~~$1~~');
+    // %%sub text (/% or %%) -> <sub>text</sub>
+    result = result.replace(/%%sub\s+([\s\S]*?)\s*(?:\/%|%%)/gi, '<sub>$1</sub>');
+
+    // %%strike text (/% or %%) -> ~~text~~
+    result = result.replace(/%%strike\s+([\s\S]*?)\s*(?:\/%|%%)/gi, '~~$1~~');
+
+    // Status boxes - convert to Bootstrap alert divs
+    // These are typically block-level but can be inline too
+
+    // %%information ... (/% or %%) -> alert-info
+    result = result.replace(
+      /%%information\s+([\s\S]*?)\s*(?:\/%|%%)/gi,
+      '<div class="alert alert-info" role="alert">$1</div>'
+    );
+
+    // %%warning ... (/% or %%) -> alert-warning
+    result = result.replace(
+      /%%warning\s+([\s\S]*?)\s*(?:\/%|%%)/gi,
+      '<div class="alert alert-warning" role="alert">$1</div>'
+    );
+
+    // %%error ... (/% or %%) -> alert-danger
+    result = result.replace(
+      /%%error\s+([\s\S]*?)\s*(?:\/%|%%)/gi,
+      '<div class="alert alert-danger" role="alert">$1</div>'
+    );
 
     return result;
   }
