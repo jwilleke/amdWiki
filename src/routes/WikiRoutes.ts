@@ -5042,6 +5042,9 @@ class WikiRoutes {
     app.post('/user-keywords/create', (req: Request, res: Response) =>
       this.userKeywordCreateSubmit(req, res)
     );
+    app.post('/user-keywords/create-page/:keywordId', (req: Request, res: Response) =>
+      this.userKeywordCreatePage(req, res)
+    );
     app.get('/api/user-keywords', (req: Request, res: Response) =>
       this.apiGetUserKeywords(req, res)
     );
@@ -6308,10 +6311,42 @@ class WikiRoutes {
 
       logger.info(`[WikiRoutes] User ${currentUser.username} created user-keyword: ${internalName}`);
 
-      // Redirect to User Keywords page with success message
+      // Create a wiki page for the keyword (#240)
+      const pageManager = this.engine.getManager('PageManager');
+      if (pageManager) {
+        const pageName = trimmedLabel;
+        const pageExists = pageManager.pageExists(pageName);
+
+        if (!pageExists) {
+          const pageContent = `# ${trimmedLabel}
+
+${trimmedDescription}
+
+## Overview
+
+*Add more details about "${trimmedLabel}" here.*
+
+## Related Pages
+
+*List pages related to this topic.*
+`;
+          const pageMetadata = {
+            'system-category': 'general',
+            'user-keywords': [internalName],
+            author: currentUser.username
+          };
+
+          await pageManager.savePage(pageName, pageContent, pageMetadata);
+          logger.info(`[WikiRoutes] Created definition page for user-keyword: ${pageName}`);
+        }
+      }
+
+      // Redirect to edit the new keyword's page so user can add more content
       return res.redirect(
-        '/wiki/User%20Keywords?success=' +
-          encodeURIComponent(`User-keyword "${trimmedLabel}" created successfully`)
+        '/edit/' +
+          encodeURIComponent(trimmedLabel) +
+          '?success=' +
+          encodeURIComponent(`User-keyword "${trimmedLabel}" created. Add more details below.`)
       );
     } catch (err: unknown) {
       logger.error('Error creating user-keyword:', err);
@@ -6322,22 +6357,116 @@ class WikiRoutes {
   }
 
   /**
-   * API endpoint to get all user-keywords
+   * Create a wiki page for an existing user-keyword that doesn't have one
+   */
+  async userKeywordCreatePage(req: Request, res: Response) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = req.userContext;
+
+      // Check if user can edit
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'edit:page'))) {
+        return res.status(403).json({ success: false, error: 'Access denied' });
+      }
+
+      const keywordId = req.params.keywordId;
+
+      // Get config manager and find the keyword
+      const configManager = this.engine.getManager('ConfigurationManager');
+      const userKeywordsConfig = (configManager?.getProperty('amdwiki.user-keywords') || {}) as Record<
+        string,
+        Record<string, unknown>
+      >;
+
+      const keywordConfig = userKeywordsConfig[keywordId];
+      if (!keywordConfig) {
+        return res.redirect(
+          '/wiki/User%20Keywords?error=' + encodeURIComponent('User-keyword not found')
+        );
+      }
+
+      const label = (keywordConfig.label as string) || keywordId;
+      const description = (keywordConfig.description as string) || '';
+
+      // Check if page already exists
+      const pageManager = this.engine.getManager('PageManager');
+      if (pageManager.pageExists(label)) {
+        return res.redirect('/wiki/' + encodeURIComponent(label));
+      }
+
+      // Create the page
+      const pageContent = `# ${label}
+
+${description}
+
+## Overview
+
+*Add more details about "${label}" here.*
+
+## Related Pages
+
+*List pages related to this topic.*
+`;
+      const pageMetadata = {
+        'system-category': 'general',
+        'user-keywords': [keywordId],
+        author: currentUser.username
+      };
+
+      await pageManager.savePage(label, pageContent, pageMetadata);
+      logger.info(`[WikiRoutes] User ${currentUser.username} created page for keyword: ${label}`);
+
+      // Redirect to edit so user can add more content
+      return res.redirect(
+        '/edit/' +
+          encodeURIComponent(label) +
+          '?success=' +
+          encodeURIComponent(`Page created for "${label}". Add more details below.`)
+      );
+    } catch (err: unknown) {
+      logger.error('Error creating user-keyword page:', err);
+      return res.redirect(
+        '/wiki/User%20Keywords?error=' + encodeURIComponent('Failed to create page')
+      );
+    }
+  }
+
+  /**
+   * API endpoint to get all user-keywords with page status
    */
   apiGetUserKeywords(_req: Request, res: Response): void {
     try {
       const configManager = this.engine.getManager('ConfigurationManager');
+      const pageManager = this.engine.getManager('PageManager');
       const userKeywordsConfig = configManager?.getProperty('amdwiki.user-keywords', {}) as Record<
         string,
         Record<string, unknown>
       >;
 
-      const keywords = Object.entries(userKeywordsConfig).map(([key, config]) => ({
-        id: key,
-        ...config
-      }));
+      const keywords = Object.entries(userKeywordsConfig).map(([key, config]) => {
+        const label = (config.label as string) || key;
+        const hasPage = pageManager ? pageManager.pageExists(label) : false;
 
-      res.json({ success: true, keywords });
+        return {
+          id: key,
+          hasPage,
+          pageUrl: hasPage ? `/wiki/${encodeURIComponent(label)}` : null,
+          createPageUrl: !hasPage ? `/user-keywords/create-page/${encodeURIComponent(key)}` : null,
+          ...config
+        };
+      });
+
+      const missingPages = keywords.filter(k => !k.hasPage).length;
+
+      res.json({
+        success: true,
+        keywords,
+        stats: {
+          total: keywords.length,
+          withPages: keywords.length - missingPages,
+          missingPages
+        }
+      });
     } catch (err: unknown) {
       logger.error('Error getting user-keywords:', err);
       res.status(500).json({ success: false, error: 'Failed to get user-keywords' });
