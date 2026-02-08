@@ -24,6 +24,29 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-08-01
+
+- Agent: Claude Opus 4.5
+- Subject: Extract JSPWiki %%category%% blocks to user-keywords during import
+- Current Issue: #123
+- Key Decision: Convert JSPWiki category blocks to user-keywords metadata; strip blocks from content
+- Work Done:
+  - Added `extractCategories()` method to `JSPWikiConverter`
+  - Matches `%%category [Name]%%` and `%%category [Name] /%` syntax
+  - Normalizes category names to lowercase
+  - Deduplicates repeated categories
+  - Merges into user-keywords metadata array
+  - Strips category blocks from content (no runtime renderer needed)
+  - Warns if total user-keywords exceeds 5
+  - Added 11 new tests for category extraction
+- Testing:
+  - npm test: 64 suites passed, 1588 tests passed (308 skipped)
+  - Build successful
+- Commits: 3aa4b31
+- Files Modified:
+  - src/converters/JSPWikiConverter.ts
+  - src/converters/__tests__/JSPWikiConverter.test.js
+
 ## 2026-02-07-01
 
 - Agent: Claude Opus 4.5
