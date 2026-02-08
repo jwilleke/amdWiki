@@ -6324,8 +6324,7 @@ class WikiRoutes {
   /**
    * API endpoint to get all user-keywords
    */
-  // eslint-disable-next-line @typescript-eslint/require-await -- Express route handler pattern
-  async apiGetUserKeywords(_req: Request, res: Response) {
+  apiGetUserKeywords(_req: Request, res: Response): void {
     try {
       const configManager = this.engine.getManager('ConfigurationManager');
       const userKeywordsConfig = configManager?.getProperty('amdwiki.user-keywords', {}) as Record<
