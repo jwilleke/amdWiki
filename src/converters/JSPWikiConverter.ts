@@ -32,6 +32,9 @@ class JSPWikiConverter implements IContentConverter {
     // Extract [{SET name=value}] attributes first
     let result = this.extractAttributes(content, metadata, warnings);
 
+    // Extract %%category [Name]%% blocks and convert to user-keywords
+    result = this.extractCategories(result, metadata, warnings);
+
     // Process in order to avoid conflicts:
     // - Code blocks first (protect their content from other conversions)
     // - Lists BEFORE headings (so JSPWiki `#` lists are converted before JSPWiki `!` headings become Markdown `#`)
@@ -131,6 +134,54 @@ class JSPWikiConverter implements IContentConverter {
         plugins.map(p => p.match(/\[\{(\w+)/)?.[1]).filter(Boolean)
       )];
       warnings.push(`Found ${plugins.length} unhandled JSPWiki plugin(s): ${pluginNames.join(', ')}`);
+    }
+
+    return result;
+  }
+
+  /**
+   * Extract %%category [Name]%% blocks and convert to user-keywords
+   *
+   * JSPWiki uses category blocks for page categorization:
+   *   %%category [CategoryName]%%      - single line, %% closing
+   *   %%category [CategoryName] /%     - may span lines, /% closing
+   *
+   * These are converted to amdWiki's user-keywords metadata array.
+   */
+  private extractCategories(
+    content: string,
+    metadata: Record<string, unknown>,
+    warnings: string[]
+  ): string {
+    const categories: string[] = [];
+
+    // Match %%category [Name]%% or %%category [Name] /%
+    const categoryPattern = /%%category\s+\[([^\]]+)\]\s*(?:%%|\/%)/gi;
+
+    const result = content.replace(
+      categoryPattern,
+      (_match: string, categoryName: string) => {
+        const trimmedName = categoryName.trim();
+        if (trimmedName) {
+          const normalizedName = trimmedName.toLowerCase();
+          if (!categories.includes(normalizedName)) {
+            categories.push(normalizedName);
+          }
+        }
+        return ''; // Remove the category block from content
+      }
+    );
+
+    if (categories.length > 0) {
+      const existingKeywords = (metadata['user-keywords'] as string[]) || [];
+      const mergedKeywords = [...new Set([...existingKeywords, ...categories])];
+      metadata['user-keywords'] = mergedKeywords;
+
+      if (mergedKeywords.length > 5) {
+        warnings.push(
+          `Extracted ${categories.length} categories, total ${mergedKeywords.length} user-keywords exceeds limit of 5`
+        );
+      }
     }
 
     return result;

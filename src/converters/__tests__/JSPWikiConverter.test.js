@@ -409,6 +409,83 @@ See [Documentation] for more.
     });
   });
 
+  describe('category extraction', () => {
+    it('should extract %%category [Name]%% syntax to user-keywords', () => {
+      const result = converter.convert('Some text\n%%category [Science]%%\nMore text');
+      expect(result.metadata['user-keywords']).toEqual(['science']);
+      expect(result.content).toBe('Some text\n\nMore text');
+    });
+
+    it('should extract %%category [Name] /% alternate syntax', () => {
+      const result = converter.convert('Text %%category [History] /% more');
+      expect(result.metadata['user-keywords']).toEqual(['history']);
+      expect(result.content).toBe('Text  more');
+    });
+
+    it('should handle multiple categories on one page', () => {
+      const input = `%%category [Science]%%
+Some content
+%%category [Biology]%%
+More content
+%%category [Research]%%`;
+      const result = converter.convert(input);
+      expect(result.metadata['user-keywords']).toEqual(['science', 'biology', 'research']);
+    });
+
+    it('should normalize category names to lowercase', () => {
+      const result = converter.convert('%%category [UPPERCASE]%% and %%category [MixedCase]%%');
+      expect(result.metadata['user-keywords']).toEqual(['uppercase', 'mixedcase']);
+    });
+
+    it('should handle spaces in category names', () => {
+      const result = converter.convert('%%category [Earth Science]%%');
+      expect(result.metadata['user-keywords']).toEqual(['earth science']);
+    });
+
+    it('should deduplicate repeated categories', () => {
+      const input = '%%category [Science]%%\n%%category [science]%%\n%%category [SCIENCE]%%';
+      const result = converter.convert(input);
+      expect(result.metadata['user-keywords']).toEqual(['science']);
+    });
+
+    it('should be case insensitive for "category" keyword', () => {
+      const input = '%%CATEGORY [Test1]%% %%Category [Test2]%% %%category [Test3]%%';
+      const result = converter.convert(input);
+      expect(result.metadata['user-keywords']).toEqual(['test1', 'test2', 'test3']);
+    });
+
+    it('should warn when exceeding 5 user-keywords', () => {
+      const input = `%%category [Cat1]%%
+%%category [Cat2]%%
+%%category [Cat3]%%
+%%category [Cat4]%%
+%%category [Cat5]%%
+%%category [Cat6]%%`;
+      const result = converter.convert(input);
+      expect(result.metadata['user-keywords']).toHaveLength(6);
+      expect(result.warnings.some(w => w.includes('exceeds limit of 5'))).toBe(true);
+    });
+
+    it('should handle empty brackets gracefully', () => {
+      const result = converter.convert('%%category []%% valid %%category [Valid]%%');
+      expect(result.metadata['user-keywords']).toEqual(['valid']);
+    });
+
+    it('should strip category blocks but preserve surrounding content', () => {
+      const input = 'Before %%category [Test]%% After';
+      const result = converter.convert(input);
+      expect(result.content).toBe('Before  After');
+      expect(result.metadata['user-keywords']).toEqual(['test']);
+    });
+
+    it('should merge with existing user-keywords from SET directive', () => {
+      // Simulate a scenario where user-keywords might already exist
+      const input = '%%category [NewCategory]%%';
+      const result = converter.convert(input);
+      expect(result.metadata['user-keywords']).toContain('newcategory');
+    });
+  });
+
   describe('image path conversion', () => {
     it('should strip page path from Image src attribute with single quotes', () => {
       const input = "[{Image src='Geological Timeline/Geolog_path_text.svg.png' caption='Twitter Files' align='left'}]";
