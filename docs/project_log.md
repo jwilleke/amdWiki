@@ -24,6 +24,26 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-08-04
+
+- Agent: Claude Opus 4.5
+- Subject: Replace redundant image upload with attachment buttons (#243)
+- Current Issue: #243
+- Key Decision: Use existing attachment functions instead of duplicate upload UI
+- Work Done:
+  - Removed redundant "Insert Image" section from edit.ejs
+  - Added Upload/Browse button group to Page Attachments header
+  - Buttons call existing showUploadAttachment() and openBrowseAttachments()
+  - Removed ~120 lines of obsolete JavaScript
+  - Kept insertAttachmentMarkup, addAttachmentRow, copyToClipboard functions
+- Testing:
+  - npm test: 64 suites passed, 1601 tests passed (308 skipped)
+  - Server restart verified
+- Commits: fd02c10
+- Files Modified:
+  - views/edit.ejs
+- Closes: #243
+
 ## 2026-02-08-03
 
 - Agent: Claude Opus 4.5
