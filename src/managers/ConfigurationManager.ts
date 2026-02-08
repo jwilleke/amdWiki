@@ -141,11 +141,161 @@ class ConfigurationManager extends BaseManager {
       logger.info(`Loaded custom config: ${this.customConfigPath}`);
     }
 
-    // Merge configurations (custom overrides default)
-    this.mergedConfig = {
-      ...this.defaultConfig,
-      ...this.customConfig
-    } as WikiConfig;
+    // Merge configurations with deep-merge for object-type properties
+    this.mergedConfig = this.deepMergeConfigs(this.defaultConfig, this.customConfig);
+  }
+
+  /**
+   * Deep merge configurations, handling object-type properties recursively
+   *
+   * Merge strategy:
+   * - Plain objects: recursively merge properties (custom overrides default)
+   * - Arrays with id-based objects: merge by id (custom overrides default with same id)
+   * - Other arrays: custom replaces default entirely
+   * - Primitives: custom overrides default
+   *
+   * @private
+   * @param {WikiConfig} defaultConfig - Base default configuration
+   * @param {Partial<WikiConfig>} customConfig - Custom overrides
+   * @returns {WikiConfig} Merged configuration
+   */
+  private deepMergeConfigs(
+    defaultConfig: WikiConfig,
+    customConfig: Partial<WikiConfig>
+  ): WikiConfig {
+    const result = { ...defaultConfig } as WikiConfig;
+
+    for (const key of Object.keys(customConfig)) {
+      const customValue = customConfig[key];
+      const defaultValue = result[key];
+
+      if (customValue === undefined) {
+        // Skip undefined values
+        continue;
+      } else if (customValue === null) {
+        // Explicit null overrides
+        result[key] = customValue;
+      } else if (Array.isArray(customValue) && Array.isArray(defaultValue)) {
+        // Merge arrays intelligently
+        result[key] = this.mergeArrays(defaultValue, customValue);
+      } else if (
+        this.isPlainObject(customValue) &&
+        this.isPlainObject(defaultValue)
+      ) {
+        // Deep merge plain objects
+        result[key] = this.deepMergeObjects(
+          defaultValue as Record<string, unknown>,
+          customValue as Record<string, unknown>
+        );
+      } else {
+        // Primitive or type mismatch: custom overrides
+        result[key] = customValue;
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * Check if value is a plain object (not array, not null)
+   *
+   * @private
+   * @param {unknown} value - Value to check
+   * @returns {boolean} True if plain object
+   */
+  private isPlainObject(value: unknown): boolean {
+    return (
+      typeof value === 'object' &&
+      value !== null &&
+      !Array.isArray(value)
+    );
+  }
+
+  /**
+   * Deep merge two plain objects
+   *
+   * @private
+   * @param {Record<string, unknown>} defaultObj - Default object
+   * @param {Record<string, unknown>} customObj - Custom object to merge
+   * @returns {Record<string, unknown>} Merged object
+   */
+  private deepMergeObjects(
+    defaultObj: Record<string, unknown>,
+    customObj: Record<string, unknown>
+  ): Record<string, unknown> {
+    const result = { ...defaultObj };
+
+    for (const key of Object.keys(customObj)) {
+      const customValue = customObj[key];
+      const defaultValue = result[key];
+
+      if (customValue === undefined) {
+        continue;
+      } else if (customValue === null) {
+        result[key] = customValue;
+      } else if (Array.isArray(customValue) && Array.isArray(defaultValue)) {
+        result[key] = this.mergeArrays(
+          defaultValue as unknown[],
+          customValue as unknown[]
+        );
+      } else if (
+        this.isPlainObject(customValue) &&
+        this.isPlainObject(defaultValue)
+      ) {
+        result[key] = this.deepMergeObjects(
+          defaultValue as Record<string, unknown>,
+          customValue as Record<string, unknown>
+        );
+      } else {
+        result[key] = customValue;
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * Merge two arrays intelligently
+   *
+   * If array items have 'id' fields, merge by id (custom overrides default with same id).
+   * Otherwise, custom array replaces default entirely.
+   *
+   * @private
+   * @param {unknown[]} defaultArray - Default array
+   * @param {unknown[]} customArray - Custom array to merge
+   * @returns {unknown[]} Merged array
+   */
+  private mergeArrays(defaultArray: unknown[], customArray: unknown[]): unknown[] {
+    // Check if arrays contain objects with 'id' field for smart merging
+    const defaultHasIds =
+      defaultArray.length > 0 &&
+      this.isPlainObject(defaultArray[0]) &&
+      'id' in (defaultArray[0] as Record<string, unknown>);
+
+    const customHasIds =
+      customArray.length > 0 &&
+      this.isPlainObject(customArray[0]) &&
+      'id' in (customArray[0] as Record<string, unknown>);
+
+    if (defaultHasIds && customHasIds) {
+      // Merge by id: custom overrides default with same id, adds new ones
+      const merged = new Map<string, unknown>();
+
+      for (const item of defaultArray) {
+        const id = (item as Record<string, unknown>).id as string;
+        merged.set(id, item);
+      }
+
+      for (const item of customArray) {
+        const id = (item as Record<string, unknown>).id as string;
+        merged.set(id, item);
+      }
+
+      return Array.from(merged.values());
+    }
+
+    // No id-based merging possible: custom replaces default
+    return customArray;
   }
 
   /**

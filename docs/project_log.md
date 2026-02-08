@@ -24,6 +24,29 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-08-07
+
+- Agent: Claude Opus 4.5
+- Subject: ConfigurationManager deep-merge for object-type properties (#244)
+- Current Issue: #244
+- Key Decision: Deep-merge all object-type config properties at runtime; arrays with id fields merge by id
+- Work Done:
+  - Implemented `deepMergeConfigs()` method replacing shallow spread merge
+  - Added `deepMergeObjects()` for recursive object property merging
+  - Added `mergeArrays()` with id-based merging for arrays like access.policies
+  - Added `isPlainObject()` helper to distinguish objects from arrays
+  - Now user-keywords, interwiki.sites, roles.definitions, etc. properly merge
+  - Custom config adds/overrides specific keys without replacing entire objects
+- Testing:
+  - npm test: 64 suites passed, 1608 tests passed (308 skipped)
+  - Added 7 new deep-merge tests
+  - Build successful
+- Commits: pending
+- Files Modified:
+  - src/managers/ConfigurationManager.ts
+  - src/managers/__tests__/ConfigurationManager.test.js
+- Closes: #244
+
 ## 2026-02-08-06
 
 - Agent: Claude Opus 4.5

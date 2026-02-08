@@ -261,4 +261,279 @@ describe('ConfigurationManager', () => {
       expect(appName).toBe('FromDataDir');
     });
   });
+
+  describe('deep-merge configurations', () => {
+    test('should deep-merge object-type properties', async () => {
+      // Default config with user-keywords
+      const defaultConfig = {
+        'amdwiki.applicationName': 'TestWiki',
+        'amdwiki.user-keywords': {
+          'default': {
+            'label': 'default',
+            'description': 'Default keyword',
+            'enabled': true
+          },
+          'draft': {
+            'label': 'draft',
+            'description': 'Work in progress',
+            'enabled': true
+          }
+        }
+      };
+      await fs.writeJson(
+        path.join(tempDir, 'config', 'app-default-config.json'),
+        defaultConfig,
+        { spaces: 2 }
+      );
+
+      // Custom config adds new keyword
+      const instanceConfigDir = path.join(tempDir, 'data', 'config');
+      await fs.ensureDir(instanceConfigDir);
+      const customConfig = {
+        'amdwiki.user-keywords': {
+          'immigration': {
+            'label': 'immigration',
+            'description': 'Immigration content',
+            'enabled': true
+          }
+        }
+      };
+      await fs.writeJson(
+        path.join(instanceConfigDir, 'app-custom-config.json'),
+        customConfig,
+        { spaces: 2 }
+      );
+
+      const newConfigManager = new ConfigurationManager(mockEngine);
+      await newConfigManager.initialize();
+
+      const keywords = newConfigManager.getProperty('amdwiki.user-keywords');
+
+      // Should have all three keywords: default, draft, and immigration
+      expect(keywords).toHaveProperty('default');
+      expect(keywords).toHaveProperty('draft');
+      expect(keywords).toHaveProperty('immigration');
+      expect(keywords.default.label).toBe('default');
+      expect(keywords.draft.label).toBe('draft');
+      expect(keywords.immigration.label).toBe('immigration');
+    });
+
+    test('should allow custom to override default object properties', async () => {
+      const defaultConfig = {
+        'amdwiki.applicationName': 'TestWiki',
+        'amdwiki.user-keywords': {
+          'draft': {
+            'label': 'draft',
+            'description': 'Default description',
+            'enabled': true
+          }
+        }
+      };
+      await fs.writeJson(
+        path.join(tempDir, 'config', 'app-default-config.json'),
+        defaultConfig,
+        { spaces: 2 }
+      );
+
+      const instanceConfigDir = path.join(tempDir, 'data', 'config');
+      await fs.ensureDir(instanceConfigDir);
+      const customConfig = {
+        'amdwiki.user-keywords': {
+          'draft': {
+            'label': 'draft',
+            'description': 'Custom description override',
+            'enabled': false
+          }
+        }
+      };
+      await fs.writeJson(
+        path.join(instanceConfigDir, 'app-custom-config.json'),
+        customConfig,
+        { spaces: 2 }
+      );
+
+      const newConfigManager = new ConfigurationManager(mockEngine);
+      await newConfigManager.initialize();
+
+      const keywords = newConfigManager.getProperty('amdwiki.user-keywords');
+
+      // Custom should override default with same key
+      expect(keywords.draft.description).toBe('Custom description override');
+      expect(keywords.draft.enabled).toBe(false);
+    });
+
+    test('should deep-merge nested objects', async () => {
+      const defaultConfig = {
+        'amdwiki.applicationName': 'TestWiki',
+        'amdwiki.interwiki.sites': {
+          'Wikipedia': {
+            'url': 'https://en.wikipedia.org/wiki/%s',
+            'enabled': true
+          }
+        }
+      };
+      await fs.writeJson(
+        path.join(tempDir, 'config', 'app-default-config.json'),
+        defaultConfig,
+        { spaces: 2 }
+      );
+
+      const instanceConfigDir = path.join(tempDir, 'data', 'config');
+      await fs.ensureDir(instanceConfigDir);
+      const customConfig = {
+        'amdwiki.interwiki.sites': {
+          'GitHub': {
+            'url': 'https://github.com/%s',
+            'enabled': true
+          }
+        }
+      };
+      await fs.writeJson(
+        path.join(instanceConfigDir, 'app-custom-config.json'),
+        customConfig,
+        { spaces: 2 }
+      );
+
+      const newConfigManager = new ConfigurationManager(mockEngine);
+      await newConfigManager.initialize();
+
+      const sites = newConfigManager.getProperty('amdwiki.interwiki.sites');
+
+      // Should have both Wikipedia and GitHub
+      expect(sites).toHaveProperty('Wikipedia');
+      expect(sites).toHaveProperty('GitHub');
+    });
+
+    test('should merge arrays with id-based objects', async () => {
+      const defaultConfig = {
+        'amdwiki.applicationName': 'TestWiki',
+        'amdwiki.access.policies': [
+          { 'id': 'admin-full-access', 'name': 'Admin Access', 'priority': 100 },
+          { 'id': 'reader-permissions', 'name': 'Reader', 'priority': 60 }
+        ]
+      };
+      await fs.writeJson(
+        path.join(tempDir, 'config', 'app-default-config.json'),
+        defaultConfig,
+        { spaces: 2 }
+      );
+
+      const instanceConfigDir = path.join(tempDir, 'data', 'config');
+      await fs.ensureDir(instanceConfigDir);
+      const customConfig = {
+        'amdwiki.access.policies': [
+          { 'id': 'custom-policy', 'name': 'Custom Policy', 'priority': 50 },
+          { 'id': 'reader-permissions', 'name': 'Custom Reader', 'priority': 65 }
+        ]
+      };
+      await fs.writeJson(
+        path.join(instanceConfigDir, 'app-custom-config.json'),
+        customConfig,
+        { spaces: 2 }
+      );
+
+      const newConfigManager = new ConfigurationManager(mockEngine);
+      await newConfigManager.initialize();
+
+      const policies = newConfigManager.getProperty('amdwiki.access.policies');
+
+      // Should have admin-full-access from default, custom-policy from custom,
+      // and reader-permissions overridden by custom
+      expect(policies).toHaveLength(3);
+      const adminPolicy = policies.find(p => p.id === 'admin-full-access');
+      const customPolicy = policies.find(p => p.id === 'custom-policy');
+      const readerPolicy = policies.find(p => p.id === 'reader-permissions');
+
+      expect(adminPolicy.name).toBe('Admin Access');
+      expect(customPolicy.name).toBe('Custom Policy');
+      expect(readerPolicy.name).toBe('Custom Reader');
+      expect(readerPolicy.priority).toBe(65);
+    });
+
+    test('should replace arrays without id fields', async () => {
+      const defaultConfig = {
+        'amdwiki.applicationName': 'TestWiki',
+        'amdwiki.managers.pluginManager.searchPaths': ['./dist/plugins']
+      };
+      await fs.writeJson(
+        path.join(tempDir, 'config', 'app-default-config.json'),
+        defaultConfig,
+        { spaces: 2 }
+      );
+
+      const instanceConfigDir = path.join(tempDir, 'data', 'config');
+      await fs.ensureDir(instanceConfigDir);
+      const customConfig = {
+        'amdwiki.managers.pluginManager.searchPaths': ['./custom-plugins', './more-plugins']
+      };
+      await fs.writeJson(
+        path.join(instanceConfigDir, 'app-custom-config.json'),
+        customConfig,
+        { spaces: 2 }
+      );
+
+      const newConfigManager = new ConfigurationManager(mockEngine);
+      await newConfigManager.initialize();
+
+      const searchPaths = newConfigManager.getProperty('amdwiki.managers.pluginManager.searchPaths');
+
+      // Arrays without id should be replaced entirely
+      expect(searchPaths).toEqual(['./custom-plugins', './more-plugins']);
+    });
+
+    test('should handle primitives being overridden by custom', async () => {
+      const defaultConfig = {
+        'amdwiki.applicationName': 'DefaultWiki',
+        'amdwiki.server.port': 3000
+      };
+      await fs.writeJson(
+        path.join(tempDir, 'config', 'app-default-config.json'),
+        defaultConfig,
+        { spaces: 2 }
+      );
+
+      const instanceConfigDir = path.join(tempDir, 'data', 'config');
+      await fs.ensureDir(instanceConfigDir);
+      const customConfig = {
+        'amdwiki.applicationName': 'CustomWiki',
+        'amdwiki.server.port': 8080
+      };
+      await fs.writeJson(
+        path.join(instanceConfigDir, 'app-custom-config.json'),
+        customConfig,
+        { spaces: 2 }
+      );
+
+      const newConfigManager = new ConfigurationManager(mockEngine);
+      await newConfigManager.initialize();
+
+      expect(newConfigManager.getProperty('amdwiki.applicationName')).toBe('CustomWiki');
+      expect(newConfigManager.getProperty('amdwiki.server.port')).toBe(8080);
+    });
+
+    test('should preserve defaults when custom config is empty', async () => {
+      const defaultConfig = {
+        'amdwiki.applicationName': 'TestWiki',
+        'amdwiki.user-keywords': {
+          'default': { 'label': 'default', 'enabled': true },
+          'draft': { 'label': 'draft', 'enabled': true }
+        }
+      };
+      await fs.writeJson(
+        path.join(tempDir, 'config', 'app-default-config.json'),
+        defaultConfig,
+        { spaces: 2 }
+      );
+
+      // No custom config file
+
+      const newConfigManager = new ConfigurationManager(mockEngine);
+      await newConfigManager.initialize();
+
+      const keywords = newConfigManager.getProperty('amdwiki.user-keywords');
+
+      expect(keywords).toHaveProperty('default');
+      expect(keywords).toHaveProperty('draft');
+    });
+  });
 });
