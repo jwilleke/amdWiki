@@ -40,3 +40,5 @@ Questions, Comments and Suggestions are always encouraged!
 
 - FileSystemProvider: `String(metadata.title)` ensures titles are strings
 - ImportManager.yamlValue(): Quotes numeric-only strings in YAML output
+
+[BUG] Error deleting page: Internal Server Error #246
