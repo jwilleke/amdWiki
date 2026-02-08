@@ -400,6 +400,12 @@ class ImportManager extends BaseManager {
     // Convert content
     const conversionResult: ConversionResult = converter.convert(content);
 
+    // Register any extracted user-keywords (e.g., from JSPWiki %%category%% blocks) to config
+    const extractedKeywords = conversionResult.metadata['user-keywords'] as string[] | undefined;
+    if (extractedKeywords && extractedKeywords.length > 0) {
+      await this.registerUserKeywordsToConfig(extractedKeywords);
+    }
+
     // Determine UUID for filename
     const baseName = path.basename(filename, path.extname(filename));
     let pageUuid: string | undefined;
@@ -992,6 +998,65 @@ class ImportManager extends BaseManager {
     lines.push('---');
 
     return lines.join('\n');
+  }
+
+  /**
+   * Register new user-keywords to the custom configuration
+   *
+   * When importing JSPWiki pages with %%category%% blocks, this method
+   * adds extracted categories to the config so they appear in the
+   * user-keywords picker when editing pages.
+   *
+   * @param keywords - Array of keyword names to register
+   * @returns Number of new keywords added
+   */
+  private async registerUserKeywordsToConfig(keywords: string[]): Promise<number> {
+    if (!keywords || keywords.length === 0) {
+      return 0;
+    }
+
+    const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
+    if (!configManager) {
+      logger.warn('[ImportManager] ConfigurationManager not available, cannot register user-keywords');
+      return 0;
+    }
+
+    // Get existing user-keywords from config
+    const existingKeywords = (configManager.getProperty('amdwiki.user-keywords') || {}) as Record<
+      string,
+      Record<string, unknown>
+    >;
+
+    let addedCount = 0;
+    const updatedKeywords = { ...existingKeywords };
+
+    for (const keyword of keywords) {
+      const normalizedKeyword = keyword.toLowerCase().trim();
+      if (!normalizedKeyword) continue;
+
+      // Skip if keyword already exists
+      if (updatedKeywords[normalizedKeyword]) {
+        continue;
+      }
+
+      // Add new keyword with default structure
+      updatedKeywords[normalizedKeyword] = {
+        label: normalizedKeyword,
+        description: `Imported from JSPWiki category: ${keyword}`,
+        category: 'imported',
+        enabled: true,
+        restrictEditing: false
+      };
+      addedCount++;
+      logger.info(`[ImportManager] Registered new user-keyword: ${normalizedKeyword}`);
+    }
+
+    if (addedCount > 0) {
+      await configManager.setProperty('amdwiki.user-keywords', updatedKeywords);
+      logger.info(`[ImportManager] Added ${addedCount} new user-keywords to config`);
+    }
+
+    return addedCount;
   }
 
   /**
