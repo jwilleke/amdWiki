@@ -6263,7 +6263,7 @@ class WikiRoutes {
       const currentUser = req.userContext;
 
       // Check if user can edit (editor role or above)
-      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'edit:page'))) {
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'page:edit'))) {
         return await this.renderError(
           req,
           res,
@@ -6298,7 +6298,7 @@ class WikiRoutes {
       const currentUser = req.userContext;
 
       // Check if user can edit
-      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'edit:page'))) {
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'page:edit'))) {
         return res.status(403).json({ success: false, error: 'Access denied' });
       }
 
@@ -6421,7 +6421,7 @@ ${trimmedDescription}
       const currentUser = req.userContext;
 
       // Check if user can edit
-      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'edit:page'))) {
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'page:edit'))) {
         return res.status(403).json({ success: false, error: 'Access denied' });
       }
 
