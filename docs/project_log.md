@@ -27,7 +27,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 ## 2026-02-08-10
 
 - Agent: Claude Opus 4.5
-- Subject: Fix Search plugin user-keywords partial matching (#247)
+- Subject: Fix Search plugin user-keywords partial matching (#247) + CacheManager fix
 - Current Issue: #247
 - Related: #238 (Code Consolidation)
 - Key Decision: Split user-keywords into array and use exact word matching instead of substring includes()
@@ -35,12 +35,17 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Fixed `advancedSearch()` to split docKeywords and use array includes() for exact matching
   - Fixed `searchByUserKeywords()` to split keywords and use array includes() for exact matching
   - Added analysis comment to #238 documenting consolidation opportunities
+  - Fixed WikiRoutes.ts: changed `cacheManager.delete()` to `cacheManager.del()` (correct method name)
+  - Fixed routes.test.js mock to use `del` instead of `delete`
 - Testing:
-  - npm test: 63 passed, 1 failed (pre-existing routes.test.js issue), 308 skipped
+  - npm test: 64 suites passed, 1608 tests passed (308 skipped)
+  - E2E: 24 passed, 1 failed (timeout - flaky create page test), 3 skipped
   - Build successful
-- Commits: e11d0a8
+- Commits: e11d0a8, b68de12, a61d281
 - Files Modified:
   - src/providers/LunrSearchProvider.ts
+  - src/routes/WikiRoutes.ts
+  - src/routes/__tests__/routes.test.js
   - docs/TODO.md
 - Closes: #247
 
