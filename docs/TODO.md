@@ -30,5 +30,7 @@ slug: amdwiki-todo
 
 - ✅ Replace getPage() with getPageMetadata() where only metadata is needed (done: 12 conversions)
 - Review existing performance monitoring code in MarkupParser
-
-[FEATURE] Show the short description with the user-keyword #251
+- ✅ [FEATURE] Show the short description with the user-keyword #251
+  - Updated getUserKeywordsWithDescriptions() to return {label, description} objects
+  - Updated edit.ejs, create.ejs, search-results.ejs to display descriptions
+  - Descriptions shown inline and as tooltips

@@ -89,13 +89,16 @@
                         <i class="fas fa-tags me-1"></i>Include User Keywords
                     </label>
                     <div class="border rounded p-2" style="max-height: 150px; overflow-y: auto;">
-                        <% availableKeywords.forEach(keyword => { %>
+                        <% availableKeywords.forEach(kw => {
+                            const kwLabel = typeof kw === 'object' ? kw.label : kw;
+                            const kwDesc = typeof kw === 'object' ? kw.description : '';
+                        %>
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="keyword_<%= keyword.replace(/[^a-zA-Z0-9]/g, '_') %>"
-                                       name="keywords" value="<%= keyword %>"
-                                       <%= (Array.isArray(userKeywords) ? userKeywords.includes(keyword) : userKeywords === keyword) ? 'checked' : '' %>>
-                                <label class="form-check-label" for="keyword_<%= keyword.replace(/[^a-zA-Z0-9]/g, '_') %>">
-                                    <%= keyword %>
+                                <input class="form-check-input" type="checkbox" id="keyword_<%= kwLabel.replace(/[^a-zA-Z0-9]/g, '_') %>"
+                                       name="keywords" value="<%= kwLabel %>"
+                                       <%= (Array.isArray(userKeywords) ? userKeywords.includes(kwLabel) : userKeywords === kwLabel) ? 'checked' : '' %>>
+                                <label class="form-check-label" for="keyword_<%= kwLabel.replace(/[^a-zA-Z0-9]/g, '_') %>"<% if (kwDesc) { %> title="<%= kwDesc %>"<% } %>>
+                                    <%= kwLabel %><% if (kwDesc) { %> <small class="text-muted">- <%= kwDesc %></small><% } %>
                                 </label>
                             </div>
                         <% }); %>
@@ -308,14 +311,17 @@
                     </div>
                     <div class="card-body" style="background-color: var(--card-bg);">
                         <div class="d-flex flex-wrap gap-2 browse-buttons">
-                            <% availableKeywords.slice(0, 10).forEach(keyword => { %>
-                                <a href="/search?keywords=<%= encodeURIComponent(keyword) %>" 
-                                   class="btn btn-sm" style="background-color: var(--btn-outline-info-bg); color: var(--btn-outline-info-text); border-color: var(--btn-outline-info-border);">
-                                    <i class="fas fa-tag"></i> <%= keyword %>
+                            <% availableKeywords.slice(0, 10).forEach(kw => {
+                                const kwLabel = typeof kw === 'object' ? kw.label : kw;
+                                const kwDesc = typeof kw === 'object' ? kw.description : '';
+                            %>
+                                <a href="/search?keywords=<%= encodeURIComponent(kwLabel) %>"
+                                   class="btn btn-sm" style="background-color: var(--btn-outline-info-bg); color: var(--btn-outline-info-text); border-color: var(--btn-outline-info-border);"<% if (kwDesc) { %> title="<%= kwDesc %>"<% } %>>
+                                    <i class="fas fa-tag"></i> <%= kwLabel %>
                                 </a>
                             <% }); %>
                             <% if (availableKeywords.length > 10) { %>
-                                <button class="btn btn-sm" style="background-color: var(--btn-outline-secondary-bg); color: var(--btn-outline-secondary-text); border-color: var(--btn-outline-secondary-border);" type="button" 
+                                <button class="btn btn-sm" style="background-color: var(--btn-outline-secondary-bg); color: var(--btn-outline-secondary-text); border-color: var(--btn-outline-secondary-border);" type="button"
                                         onclick="toggleMoreKeywords()" id="moreKeywordsBtn">
                                     +<%= availableKeywords.length - 10 %> more keywords...
                                 </button>
@@ -324,10 +330,13 @@
                         <% if (availableKeywords.length > 10) { %>
                             <div id="moreKeywords" class="d-none mt-2">
                                 <div class="d-flex flex-wrap gap-2 browse-buttons">
-                                    <% availableKeywords.slice(10).forEach(keyword => { %>
-                                        <a href="/search?keywords=<%= encodeURIComponent(keyword) %>" 
-                                           class="btn btn-sm" style="background-color: var(--btn-outline-info-bg); color: var(--btn-outline-info-text); border-color: var(--btn-outline-info-border);">
-                                            <i class="fas fa-tag"></i> <%= keyword %>
+                                    <% availableKeywords.slice(10).forEach(kw => {
+                                        const kwLabel = typeof kw === 'object' ? kw.label : kw;
+                                        const kwDesc = typeof kw === 'object' ? kw.description : '';
+                                    %>
+                                        <a href="/search?keywords=<%= encodeURIComponent(kwLabel) %>"
+                                           class="btn btn-sm" style="background-color: var(--btn-outline-info-bg); color: var(--btn-outline-info-text); border-color: var(--btn-outline-info-border);"<% if (kwDesc) { %> title="<%= kwDesc %>"<% } %>>
+                                            <i class="fas fa-tag"></i> <%= kwLabel %>
                                         </a>
                                     <% }); %>
                                 </div>

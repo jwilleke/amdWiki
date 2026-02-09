@@ -24,6 +24,30 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-09-05
+
+- Agent: Claude Opus 4.5
+- Subject: Show short description with user-keywords (#251)
+- Key Decision: Display descriptions inline with small text and also as tooltip
+- Work Done:
+  - Added getUserKeywordsWithDescriptions() method in WikiRoutes.ts
+  - Updated edit page route to use getUserKeywordsWithDescriptions()
+  - Updated create page route to use getUserKeywordsWithDescriptions()
+  - Updated search results route to use getUserKeywordsWithDescriptions()
+  - Modified edit.ejs to display keyword descriptions
+  - Modified create.ejs to display keyword descriptions
+  - Modified search-results.ejs to display keyword descriptions (both in filter and browse sections)
+  - Descriptions shown as "label - description" with tooltip for hover
+- Testing:
+  - npm test: 64 suites passed, 1608 tests passed (308 skipped)
+  - Build successful
+- Files Modified:
+  - src/routes/WikiRoutes.ts (added method + updated 3 routes)
+  - views/edit.ejs (updated keyword dropdown)
+  - views/create.ejs (updated keyword dropdown)
+  - views/search-results.ejs (updated keyword filter and browse sections)
+  - docs/TODO.md (marked #251 complete)
+
 ## 2026-02-09-04
 
 - Agent: Claude Opus 4.5

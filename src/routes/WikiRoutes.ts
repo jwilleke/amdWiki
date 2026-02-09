@@ -658,6 +658,52 @@ class WikiRoutes {
   }
 
   /**
+   * Get user keywords with their descriptions for display in dropdowns
+   * @returns Array of {label, description} objects sorted alphabetically
+   */
+  getUserKeywordsWithDescriptions(): Array<{ label: string; description: string }> {
+    try {
+      const configManager = this.engine.getManager('ConfigurationManager');
+
+      if (configManager) {
+        const userKeywordsConfig = configManager.getProperty('amdwiki.user-keywords', null);
+
+        if (userKeywordsConfig && typeof userKeywordsConfig === 'object') {
+          const keywords: Array<{ label: string; description: string }> = [];
+
+          for (const config of Object.values(userKeywordsConfig)) {
+            const cfg = config as { enabled?: boolean; label?: string; description?: string };
+            if (cfg.enabled !== false && cfg.label) {
+              keywords.push({
+                label: cfg.label,
+                description: cfg.description || ''
+              });
+            }
+          }
+
+          if (keywords.length > 0) {
+            return keywords.sort((a, b) => a.label.localeCompare(b.label));
+          }
+        }
+      }
+
+      // Fallback: return basic keywords without descriptions
+      return [
+        { label: 'geology', description: '' },
+        { label: 'medicine', description: '' },
+        { label: 'test', description: '' }
+      ];
+    } catch (err: unknown) {
+      logger.error('Error loading user keywords with descriptions:', err);
+      return [
+        { label: 'geology', description: '' },
+        { label: 'medicine', description: '' },
+        { label: 'test', description: '' }
+      ];
+    }
+  }
+
+  /**
    * Generate Schema.org JSON-LD markup for a page
    * @param {Object} pageData - Page metadata and content
    * @param {Object} req - Express request object for URL generation
@@ -1094,7 +1140,7 @@ class WikiRoutes {
       // Get categories and keywords for the form (defensive array handling)
       const rawCategories = this.getSystemCategories();
       const systemCategories = Array.isArray(rawCategories) ? rawCategories : [];
-      const rawKeywords = await this.getUserKeywords();
+      const rawKeywords = this.getUserKeywordsWithDescriptions();
       const userKeywords = Array.isArray(rawKeywords) ? rawKeywords : [];
 
       const configManager = this.engine.getManager('ConfigurationManager');
@@ -1432,7 +1478,7 @@ class WikiRoutes {
       // Get categories and keywords (defensive array handling)
       const rawCategories = this.getSystemCategories();
       const systemCategories = Array.isArray(rawCategories) ? rawCategories : [];
-      const rawKeywords = await this.getUserKeywords();
+      const rawKeywords = this.getUserKeywordsWithDescriptions();
       const userKeywords = Array.isArray(rawKeywords) ? rawKeywords : [];
 
       // If page doesn't exist, create empty page data for new page
@@ -2010,7 +2056,7 @@ class WikiRoutes {
       // Ensure arrays are always returned (defensive handling)
       const availableCats = this.getSystemCategories();
       const systemCategories = Array.isArray(availableCats) ? availableCats : [];
-      const availableKws = await this.getUserKeywords();
+      const availableKws = this.getUserKeywordsWithDescriptions();
       const userKeywordsList = Array.isArray(availableKws) ? availableKws : [];
 
       // Get stats for search results (optional, fallback to empty if not available)

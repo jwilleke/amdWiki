@@ -41,12 +41,15 @@
                                 <span id="selectedUserKeywordsText">Select user keywords...</span>
                             </button>
                             <ul class="dropdown-menu w-100" aria-labelledby="userKeywordsDropdown">
-                                <% userKeywords.forEach(keyword => { %>
+                                <% userKeywords.forEach(kw => {
+                                    const label = typeof kw === 'object' ? kw.label : kw;
+                                    const description = typeof kw === 'object' ? kw.description : '';
+                                %>
                                     <li>
                                         <div class="dropdown-item-checkbox px-3 py-2">
                                             <div class="form-check">
-                                                <input class="form-check-input user-keyword-checkbox" type="checkbox" name="user-keywords[]" value="<%= keyword %>" id="user-keyword-<%= keyword %>" <%= selectedUserKeywords.includes(keyword) ? 'checked' : '' %>>
-                                                <label class="form-check-label ms-2" for="user-keyword-<%= keyword %>"><%= keyword %></label>
+                                                <input class="form-check-input user-keyword-checkbox" type="checkbox" name="user-keywords[]" value="<%= label %>" id="user-keyword-<%= label %>" <%= selectedUserKeywords.includes(label) ? 'checked' : '' %>>
+                                                <label class="form-check-label ms-2" for="user-keyword-<%= label %>"<% if (description) { %> title="<%= description %>"<% } %>><%= label %><% if (description) { %> <small class="text-muted">- <%= description %></small><% } %></label>
                                             </div>
                                         </div>
                                     </li>
