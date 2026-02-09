@@ -68,9 +68,14 @@
       <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
           <h5 class="mb-0">All Keywords</h5>
-          <button class="btn btn-sm" style="background-color: var(--btn-info-bg); color: var(--btn-info-text); border-color: var(--btn-info-border);" data-bs-toggle="modal" data-bs-target="#consolidateModal">
-            <i class="fas fa-compress-arrows-alt"></i> Consolidate
-          </button>
+          <div class="btn-group">
+            <button class="btn btn-sm" style="background-color: var(--btn-primary-bg); color: var(--btn-primary-text); border-color: var(--btn-primary-border);" data-bs-toggle="modal" data-bs-target="#createKeywordModal">
+              <i class="fas fa-plus"></i> Create Keyword
+            </button>
+            <button class="btn btn-sm" style="background-color: var(--btn-info-bg); color: var(--btn-info-text); border-color: var(--btn-info-border);" data-bs-toggle="modal" data-bs-target="#consolidateModal">
+              <i class="fas fa-compress-arrows-alt"></i> Consolidate
+            </button>
+          </div>
         </div>
         <div class="card-body">
           <div class="table-responsive">
@@ -144,6 +149,73 @@
           </div>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Create Keyword Modal -->
+<div class="modal fade" id="createKeywordModal" tabindex="-1" aria-labelledby="createKeywordModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="createKeywordModalLabel">
+          <i class="fas fa-plus"></i> Create Keyword
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form id="createKeywordForm">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="createId" class="form-label">Keyword ID</label>
+            <input type="text" class="form-control" id="createId" required pattern="[a-z0-9-]+" title="Lowercase letters, numbers, and hyphens only">
+            <div class="form-text">Unique identifier (lowercase, no spaces). Example: marine-biology</div>
+          </div>
+
+          <div class="mb-3">
+            <label for="createLabel" class="form-label">Label</label>
+            <input type="text" class="form-control" id="createLabel" required>
+            <div class="form-text">The display name for this keyword. Example: Marine Biology</div>
+          </div>
+
+          <div class="mb-3">
+            <label for="createDescription" class="form-label">Description</label>
+            <textarea class="form-control" id="createDescription" rows="2"></textarea>
+            <div class="form-text">Optional description of this keyword.</div>
+          </div>
+
+          <div class="mb-3">
+            <label for="createCategory" class="form-label">Category</label>
+            <input type="text" class="form-control" id="createCategory">
+            <div class="form-text">Optional category for grouping keywords.</div>
+          </div>
+
+          <div class="mb-3">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="createEnabled" checked>
+              <label class="form-check-label" for="createEnabled">
+                Enabled
+              </label>
+              <div class="form-text">Disabled keywords won't appear in the keyword selector.</div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="createRestrictEditing">
+              <label class="form-check-label" for="createRestrictEditing">
+                Restrict Editing
+              </label>
+              <div class="form-text">Only admins can add/remove this keyword from pages.</div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn" style="background-color: var(--btn-primary-bg); color: var(--btn-primary-text); border-color: var(--btn-primary-border);">
+            <i class="fas fa-plus"></i> Create Keyword
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 </div>
@@ -335,9 +407,54 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+  const createModal = document.getElementById('createKeywordModal');
   const editModal = document.getElementById('editKeywordModal');
   const deleteModal = document.getElementById('deleteKeywordModal');
   const consolidateModal = document.getElementById('consolidateModal');
+
+  // Auto-generate ID from label
+  document.getElementById('createLabel').addEventListener('input', function() {
+    const idField = document.getElementById('createId');
+    if (!idField.dataset.manual) {
+      idField.value = this.value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    }
+  });
+
+  document.getElementById('createId').addEventListener('input', function() {
+    this.dataset.manual = 'true';
+  });
+
+  // Create keyword functionality
+  document.getElementById('createKeywordForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const createData = {
+      id: document.getElementById('createId').value,
+      label: document.getElementById('createLabel').value,
+      description: document.getElementById('createDescription').value,
+      category: document.getElementById('createCategory').value,
+      enabled: document.getElementById('createEnabled').checked,
+      restrictEditing: document.getElementById('createRestrictEditing').checked
+    };
+
+    try {
+      const response = await fetch('/admin/keywords', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(createData)
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        window.location.href = '/admin/keywords?success=' + encodeURIComponent('Keyword created successfully');
+      } else {
+        alert('Error: ' + result.error);
+      }
+    } catch (error) {
+      alert('Error creating keyword: ' + error.message);
+    }
+  });
 
   // Edit keyword functionality
   document.querySelectorAll('.edit-keyword-btn').forEach(btn => {

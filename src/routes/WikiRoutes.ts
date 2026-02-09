@@ -5109,6 +5109,9 @@ class WikiRoutes {
     app.get('/admin/keywords', (req: Request, res: Response) =>
       this.adminKeywords(req, res)
     );
+    app.post('/admin/keywords', (req: Request, res: Response) =>
+      this.adminCreateKeyword(req, res)
+    );
     app.get('/api/admin/keywords/:id/usage', (req: Request, res: Response) =>
       this.adminKeywordUsage(req, res)
     );
@@ -6629,6 +6632,69 @@ ${description}
     } catch (err: unknown) {
       logger.error('Error loading admin keywords page:', err);
       res.status(500).send('Failed to load keywords page');
+    }
+  }
+
+  /**
+   * Create a new user-keyword
+   */
+  async adminCreateKeyword(req: Request, res: Response): Promise<void> {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = req.userContext;
+
+      if (
+        !currentUser ||
+        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+      ) {
+        res.status(403).json({ error: 'Access denied' });
+        return;
+      }
+
+      const { id, label, description, category, enabled, restrictEditing } = req.body;
+
+      if (!id || !label) {
+        res.status(400).json({ error: 'Keyword ID and label are required' });
+        return;
+      }
+
+      // Validate ID format (lowercase, numbers, hyphens only)
+      if (!/^[a-z0-9-]+$/.test(id)) {
+        res.status(400).json({ error: 'Keyword ID must contain only lowercase letters, numbers, and hyphens' });
+        return;
+      }
+
+      const configManager = this.engine.getManager('ConfigurationManager');
+      const userKeywordsConfig = configManager?.getProperty('amdwiki.user-keywords', {}) as Record<
+        string,
+        Record<string, unknown>
+      >;
+
+      // Check if keyword ID already exists
+      if (userKeywordsConfig[id]) {
+        res.status(400).json({ error: 'A keyword with this ID already exists' });
+        return;
+      }
+
+      // Create the new keyword
+      userKeywordsConfig[id] = {
+        label,
+        description: description || '',
+        category: category || '',
+        enabled: enabled !== false,
+        restrictEditing: restrictEditing === true
+      };
+
+      await configManager.setProperty('amdwiki.user-keywords', userKeywordsConfig);
+
+      res.json({
+        success: true,
+        message: 'Keyword created successfully',
+        keyword: { id, ...userKeywordsConfig[id] }
+      });
+    } catch (err: unknown) {
+      logger.error('Error creating keyword:', err);
+      res.status(500).json({ error: 'Failed to create keyword' });
     }
   }
 
