@@ -30,3 +30,5 @@ slug: amdwiki-todo
 
 - ✅ Replace getPage() with getPageMetadata() where only metadata is needed (done: 12 conversions)
 - Review existing performance monitoring code in MarkupParser
+
+[FEATURE] Show the short description with the user-keyword #251
