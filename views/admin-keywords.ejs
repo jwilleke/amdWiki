@@ -1,0 +1,510 @@
+<%- include('header', { title: 'Keyword Management' }) %>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>
+          <i class="fas fa-tags"></i>
+          Keyword Management
+        </h2>
+        <a href="/admin" class="btn" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);">
+          <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+      </div>
+
+      <!-- Success/Error Messages -->
+      <% if (successMessage) { %>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+          <i class="fas fa-check-circle"></i> <%= successMessage %>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      <% } %>
+
+      <% if (errorMessage) { %>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+          <i class="fas fa-exclamation-circle"></i> <%= errorMessage %>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      <% } %>
+
+      <!-- Keyword Statistics -->
+      <div class="row mb-4">
+        <div class="col-md-3">
+          <div class="card" style="background-color: var(--card-primary-bg); color: var(--card-primary-text);">
+            <div class="card-body">
+              <h5 class="card-title">Total Keywords</h5>
+              <h3><%= stats.total %></h3>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card" style="background-color: var(--card-success-bg); color: var(--card-success-text);">
+            <div class="card-body">
+              <h5 class="card-title">Enabled</h5>
+              <h3><%= stats.enabled %></h3>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card" style="background-color: var(--card-info-bg); color: var(--card-info-text);">
+            <div class="card-body">
+              <h5 class="card-title">With Pages</h5>
+              <h3><%= stats.withPages %></h3>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card" style="background-color: var(--card-warning-bg); color: var(--card-warning-text);">
+            <div class="card-body">
+              <h5 class="card-title">In Use</h5>
+              <h3><%= stats.inUse %></h3>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Keywords Table -->
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">All Keywords</h5>
+          <button class="btn btn-sm" style="background-color: var(--btn-info-bg); color: var(--btn-info-text); border-color: var(--btn-info-border);" data-bs-toggle="modal" data-bs-target="#consolidateModal">
+            <i class="fas fa-compress-arrows-alt"></i> Consolidate
+          </button>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Label</th>
+                  <th>Category</th>
+                  <th>Status</th>
+                  <th>Usage</th>
+                  <th>Page</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% keywords.forEach(keyword => { %>
+                <tr data-keyword-id="<%= keyword.id %>">
+                  <td><code><%= keyword.id %></code></td>
+                  <td><%= keyword.label %></td>
+                  <td><%= keyword.category || '-' %></td>
+                  <td>
+                    <% if (keyword.enabled) { %>
+                      <span class="badge" style="background-color: var(--badge-success-bg); color: var(--badge-success-text);">Enabled</span>
+                    <% } else { %>
+                      <span class="badge" style="background-color: var(--badge-danger-bg); color: var(--badge-danger-text);">Disabled</span>
+                    <% } %>
+                    <% if (keyword.restrictEditing) { %>
+                      <span class="badge" style="background-color: var(--badge-warning-bg); color: var(--badge-warning-text);" title="Editing restricted">
+                        <i class="fas fa-lock"></i>
+                      </span>
+                    <% } %>
+                  </td>
+                  <td>
+                    <span class="badge bg-secondary"><%= keyword.usageCount %> page(s)</span>
+                  </td>
+                  <td>
+                    <% if (keyword.hasPage) { %>
+                      <a href="<%= keyword.pageUrl %>" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-file"></i> View
+                      </a>
+                    <% } else { %>
+                      <span class="text-muted">No page</span>
+                    <% } %>
+                  </td>
+                  <td>
+                    <div class="btn-group btn-group-sm">
+                      <button class="btn btn-outline-primary edit-keyword-btn"
+                              title="Edit Keyword"
+                              data-id="<%= keyword.id %>"
+                              data-label="<%= keyword.label %>"
+                              data-description="<%= keyword.description || '' %>"
+                              data-category="<%= keyword.category || '' %>"
+                              data-enabled="<%= keyword.enabled %>"
+                              data-restrictedit="<%= keyword.restrictEditing %>">
+                        <i class="fas fa-edit"></i>
+                      </button>
+                      <button class="btn btn-outline-danger delete-keyword-btn"
+                              title="Delete Keyword"
+                              data-id="<%= keyword.id %>"
+                              data-label="<%= keyword.label %>"
+                              data-usage="<%= keyword.usageCount %>">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Keyword Modal -->
+<div class="modal fade" id="editKeywordModal" tabindex="-1" aria-labelledby="editKeywordModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editKeywordModalLabel">
+          <i class="fas fa-edit"></i> Edit Keyword
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form id="editKeywordForm">
+        <div class="modal-body">
+          <input type="hidden" id="editKeywordId">
+
+          <div class="mb-3">
+            <label for="editLabel" class="form-label">Label</label>
+            <input type="text" class="form-control" id="editLabel" required>
+            <div class="form-text">The display name for this keyword.</div>
+          </div>
+
+          <div class="mb-3">
+            <label for="editDescription" class="form-label">Description</label>
+            <textarea class="form-control" id="editDescription" rows="2"></textarea>
+            <div class="form-text">Optional description of this keyword.</div>
+          </div>
+
+          <div class="mb-3">
+            <label for="editCategory" class="form-label">Category</label>
+            <input type="text" class="form-control" id="editCategory">
+            <div class="form-text">Optional category for grouping keywords.</div>
+          </div>
+
+          <div class="mb-3">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="editEnabled">
+              <label class="form-check-label" for="editEnabled">
+                Enabled
+              </label>
+              <div class="form-text">Disabled keywords won't appear in the keyword selector.</div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="editRestrictEditing">
+              <label class="form-check-label" for="editRestrictEditing">
+                Restrict Editing
+              </label>
+              <div class="form-text">Only admins can add/remove this keyword from pages.</div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn" style="background-color: var(--btn-primary-bg); color: var(--btn-primary-text); border-color: var(--btn-primary-border);">
+            <i class="fas fa-save"></i> Save Changes
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Keyword Modal -->
+<div class="modal fade" id="deleteKeywordModal" tabindex="-1" aria-labelledby="deleteKeywordModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteKeywordModalLabel">
+          <i class="fas fa-trash"></i> Delete Keyword
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form id="deleteKeywordForm">
+        <div class="modal-body">
+          <input type="hidden" id="deleteKeywordId">
+
+          <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            You are about to delete keyword: <strong id="deleteKeywordLabel"></strong>
+          </div>
+
+          <div id="deleteUsageInfo" class="mb-3">
+            <p>This keyword is used on <strong id="deleteUsageCount">0</strong> page(s).</p>
+            <div id="deletePagesList" class="mb-3" style="max-height: 150px; overflow-y: auto;"></div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">What should happen to pages using this keyword?</label>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="deleteAction" id="actionRemove" value="remove" checked>
+              <label class="form-check-label" for="actionRemove">
+                Remove keyword from all pages
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="deleteAction" id="actionReassign" value="reassign">
+              <label class="form-check-label" for="actionReassign">
+                Reassign to another keyword
+              </label>
+            </div>
+          </div>
+
+          <div class="mb-3" id="reassignKeywordGroup" style="display: none;">
+            <label for="reassignKeyword" class="form-label">Reassign to:</label>
+            <select class="form-select" id="reassignKeyword">
+              <option value="">Select a keyword...</option>
+              <% keywords.forEach(k => { %>
+                <option value="<%= k.id %>"><%= k.label %> (<%= k.id %>)</option>
+              <% }); %>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-danger">
+            <i class="fas fa-trash"></i> Delete Keyword
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Consolidate Keywords Modal -->
+<div class="modal fade" id="consolidateModal" tabindex="-1" aria-labelledby="consolidateModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="consolidateModalLabel">
+          <i class="fas fa-compress-arrows-alt"></i> Consolidate Keywords
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form id="consolidateForm">
+        <div class="modal-body">
+          <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i>
+            Consolidation merges the source keyword into the target. All pages using the source keyword will be updated to use the target keyword instead.
+          </div>
+
+          <div class="mb-3">
+            <label for="sourceKeyword" class="form-label">Source Keyword (to merge from)</label>
+            <select class="form-select" id="sourceKeyword" required>
+              <option value="">Select source keyword...</option>
+              <% keywords.forEach(k => { %>
+                <option value="<%= k.id %>"><%= k.label %> (<%= k.usageCount %> pages)</option>
+              <% }); %>
+            </select>
+          </div>
+
+          <div class="text-center mb-3">
+            <i class="fas fa-arrow-down fa-2x text-muted"></i>
+          </div>
+
+          <div class="mb-3">
+            <label for="targetKeyword" class="form-label">Target Keyword (to merge into)</label>
+            <select class="form-select" id="targetKeyword" required>
+              <option value="">Select target keyword...</option>
+              <% keywords.forEach(k => { %>
+                <option value="<%= k.id %>"><%= k.label %> (<%= k.usageCount %> pages)</option>
+              <% }); %>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="deleteSourceAfter" checked>
+              <label class="form-check-label" for="deleteSourceAfter">
+                Delete source keyword after consolidation
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn" style="background-color: var(--btn-info-bg); color: var(--btn-info-text); border-color: var(--btn-info-border);">
+            <i class="fas fa-compress-arrows-alt"></i> Consolidate
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const editModal = document.getElementById('editKeywordModal');
+  const deleteModal = document.getElementById('deleteKeywordModal');
+  const consolidateModal = document.getElementById('consolidateModal');
+
+  // Edit keyword functionality
+  document.querySelectorAll('.edit-keyword-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.getElementById('editKeywordId').value = this.dataset.id;
+      document.getElementById('editLabel').value = this.dataset.label;
+      document.getElementById('editDescription').value = this.dataset.description;
+      document.getElementById('editCategory').value = this.dataset.category;
+      document.getElementById('editEnabled').checked = this.dataset.enabled === 'true';
+      document.getElementById('editRestrictEditing').checked = this.dataset.restrictedit === 'true';
+
+      new bootstrap.Modal(editModal).show();
+    });
+  });
+
+  document.getElementById('editKeywordForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const keywordId = document.getElementById('editKeywordId').value;
+    const updateData = {
+      label: document.getElementById('editLabel').value,
+      description: document.getElementById('editDescription').value,
+      category: document.getElementById('editCategory').value,
+      enabled: document.getElementById('editEnabled').checked,
+      restrictEditing: document.getElementById('editRestrictEditing').checked
+    };
+
+    try {
+      const response = await fetch(`/admin/keywords/${encodeURIComponent(keywordId)}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updateData)
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        window.location.href = '/admin/keywords?success=' + encodeURIComponent('Keyword updated successfully');
+      } else {
+        alert('Error: ' + result.error);
+      }
+    } catch (error) {
+      alert('Error updating keyword: ' + error.message);
+    }
+  });
+
+  // Delete keyword functionality
+  const deleteActionRadios = document.querySelectorAll('input[name="deleteAction"]');
+  const reassignGroup = document.getElementById('reassignKeywordGroup');
+
+  deleteActionRadios.forEach(radio => {
+    radio.addEventListener('change', function() {
+      reassignGroup.style.display = this.value === 'reassign' ? 'block' : 'none';
+    });
+  });
+
+  document.querySelectorAll('.delete-keyword-btn').forEach(btn => {
+    btn.addEventListener('click', async function() {
+      const keywordId = this.dataset.id;
+      const keywordLabel = this.dataset.label;
+
+      document.getElementById('deleteKeywordId').value = keywordId;
+      document.getElementById('deleteKeywordLabel').textContent = keywordLabel;
+
+      // Remove the keyword being deleted from reassign options
+      const reassignSelect = document.getElementById('reassignKeyword');
+      Array.from(reassignSelect.options).forEach(opt => {
+        opt.style.display = opt.value === keywordId ? 'none' : '';
+      });
+
+      // Fetch usage info
+      try {
+        const response = await fetch(`/api/admin/keywords/${encodeURIComponent(keywordId)}/usage`);
+        const result = await response.json();
+
+        if (result.success) {
+          document.getElementById('deleteUsageCount').textContent = result.count;
+          const pagesList = document.getElementById('deletePagesList');
+
+          if (result.pages.length > 0) {
+            pagesList.innerHTML = '<ul class="list-group">' +
+              result.pages.map(p => `<li class="list-group-item list-group-item-sm">${p}</li>`).join('') +
+              '</ul>';
+          } else {
+            pagesList.innerHTML = '<p class="text-muted">No pages are using this keyword.</p>';
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching usage:', error);
+      }
+
+      new bootstrap.Modal(deleteModal).show();
+    });
+  });
+
+  document.getElementById('deleteKeywordForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const keywordId = document.getElementById('deleteKeywordId').value;
+    const deleteAction = document.querySelector('input[name="deleteAction"]:checked').value;
+    const reassignTo = document.getElementById('reassignKeyword').value;
+
+    const deleteData = {
+      removeFromPages: deleteAction === 'remove',
+      reassignTo: deleteAction === 'reassign' ? reassignTo : null
+    };
+
+    if (deleteAction === 'reassign' && !reassignTo) {
+      alert('Please select a keyword to reassign to.');
+      return;
+    }
+
+    try {
+      const response = await fetch(`/admin/keywords/${encodeURIComponent(keywordId)}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(deleteData)
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        window.location.href = '/admin/keywords?success=' + encodeURIComponent(result.message);
+      } else {
+        alert('Error: ' + result.error);
+      }
+    } catch (error) {
+      alert('Error deleting keyword: ' + error.message);
+    }
+  });
+
+  // Consolidate keywords functionality
+  document.getElementById('consolidateForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const sourceId = document.getElementById('sourceKeyword').value;
+    const targetId = document.getElementById('targetKeyword').value;
+    const deleteSource = document.getElementById('deleteSourceAfter').checked;
+
+    if (sourceId === targetId) {
+      alert('Source and target keywords must be different.');
+      return;
+    }
+
+    if (!confirm(`Are you sure you want to merge "${sourceId}" into "${targetId}"? This will update all pages using the source keyword.`)) {
+      return;
+    }
+
+    try {
+      const response = await fetch('/admin/keywords/consolidate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sourceId, targetId, deleteSource })
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        window.location.href = '/admin/keywords?success=' + encodeURIComponent(result.message);
+      } else {
+        alert('Error: ' + result.error);
+      }
+    } catch (error) {
+      alert('Error consolidating keywords: ' + error.message);
+    }
+  });
+});
+</script>
+
+<%- include('footer') %>

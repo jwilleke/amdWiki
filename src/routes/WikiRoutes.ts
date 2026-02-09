@@ -5105,6 +5105,23 @@ class WikiRoutes {
       this.apiGetUserKeywords(req, res)
     );
 
+    // Admin keyword management routes
+    app.get('/admin/keywords', (req: Request, res: Response) =>
+      this.adminKeywords(req, res)
+    );
+    app.get('/api/admin/keywords/:id/usage', (req: Request, res: Response) =>
+      this.adminKeywordUsage(req, res)
+    );
+    app.put('/admin/keywords/:id', (req: Request, res: Response) =>
+      this.adminUpdateKeyword(req, res)
+    );
+    app.delete('/admin/keywords/:id', (req: Request, res: Response) =>
+      this.adminDeleteKeyword(req, res)
+    );
+    app.post('/admin/keywords/consolidate', (req: Request, res: Response) =>
+      this.adminConsolidateKeywords(req, res)
+    );
+
     // Notification management routes
     app.post('/admin/notifications/:id/dismiss', (req: Request, res: Response) =>
       this.adminDismissNotification(req, res)
@@ -6526,6 +6543,349 @@ ${description}
     } catch (err: unknown) {
       logger.error('Error getting user-keywords:', err);
       res.status(500).json({ success: false, error: 'Failed to get user-keywords' });
+    }
+  }
+
+  /**
+   * Admin page for managing user-keywords
+   */
+  async adminKeywords(req: Request, res: Response): Promise<void> {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = req.userContext;
+
+      if (
+        !currentUser ||
+        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+      ) {
+        res.status(403).send('Access denied');
+        return;
+      }
+
+      const configManager = this.engine.getManager('ConfigurationManager');
+      const pageManager = this.engine.getManager('PageManager');
+      const userKeywordsConfig = configManager?.getProperty('amdwiki.user-keywords', {}) as Record<
+        string,
+        Record<string, unknown>
+      >;
+
+      // Get all pages to find keyword usage
+      const allPages = pageManager ? await pageManager.getAllPages() : [];
+      const keywordUsage: Record<string, string[]> = {};
+
+      for (const pageName of allPages) {
+        const page = await pageManager.getPage(pageName);
+        const pageKeywords = (page?.metadata?.['user-keywords'] as string[]) || [];
+        for (const kw of pageKeywords) {
+          if (!keywordUsage[kw]) {
+            keywordUsage[kw] = [];
+          }
+          keywordUsage[kw].push(pageName);
+        }
+      }
+
+      // Build keywords array with stats
+      const keywords = Object.entries(userKeywordsConfig).map(([key, config]) => {
+        const label = (config.label as string) || key;
+        const hasPage = pageManager ? pageManager.pageExists(label) : false;
+        const usageCount = keywordUsage[key]?.length || 0;
+
+        return {
+          id: key,
+          label,
+          description: (config.description as string) || '',
+          category: (config.category as string) || '',
+          enabled: config.enabled !== false,
+          restrictEditing: config.restrictEditing === true,
+          hasPage,
+          usageCount,
+          pageUrl: hasPage ? `/wiki/${encodeURIComponent(label)}` : null
+        };
+      });
+
+      // Calculate stats
+      const totalKeywords = keywords.length;
+      const enabledKeywords = keywords.filter(k => k.enabled).length;
+      const keywordsWithPages = keywords.filter(k => k.hasPage).length;
+      const keywordsInUse = keywords.filter(k => k.usageCount > 0).length;
+
+      const successMessage = req.query.success as string | undefined;
+      const errorMessage = req.query.error as string | undefined;
+
+      res.render('admin-keywords', {
+        title: 'Keyword Management',
+        currentUser,
+        keywords,
+        stats: {
+          total: totalKeywords,
+          enabled: enabledKeywords,
+          withPages: keywordsWithPages,
+          inUse: keywordsInUse
+        },
+        successMessage,
+        errorMessage,
+        csrfToken: req.session?.csrfToken || ''
+      });
+    } catch (err: unknown) {
+      logger.error('Error loading admin keywords page:', err);
+      res.status(500).send('Failed to load keywords page');
+    }
+  }
+
+  /**
+   * API endpoint to get pages using a specific keyword
+   */
+  async adminKeywordUsage(req: Request, res: Response): Promise<void> {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = req.userContext;
+
+      if (
+        !currentUser ||
+        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+      ) {
+        res.status(403).json({ error: 'Access denied' });
+        return;
+      }
+
+      const keywordId = req.params.id;
+      const pageManager = this.engine.getManager('PageManager');
+      const allPages = pageManager ? await pageManager.getAllPages() : [];
+      const pagesUsingKeyword: string[] = [];
+
+      for (const pageName of allPages) {
+        const page = await pageManager.getPage(pageName);
+        const pageKeywords = (page?.metadata?.['user-keywords'] as string[]) || [];
+        if (pageKeywords.includes(keywordId)) {
+          pagesUsingKeyword.push(pageName);
+        }
+      }
+
+      res.json({
+        success: true,
+        keywordId,
+        pages: pagesUsingKeyword,
+        count: pagesUsingKeyword.length
+      });
+    } catch (err: unknown) {
+      logger.error('Error getting keyword usage:', err);
+      res.status(500).json({ error: 'Failed to get keyword usage' });
+    }
+  }
+
+  /**
+   * Update a user-keyword
+   */
+  async adminUpdateKeyword(req: Request, res: Response): Promise<void> {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = req.userContext;
+
+      if (
+        !currentUser ||
+        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+      ) {
+        res.status(403).json({ error: 'Access denied' });
+        return;
+      }
+
+      const keywordId = req.params.id;
+      const { label, description, category, enabled, restrictEditing } = req.body;
+
+      const configManager = this.engine.getManager('ConfigurationManager');
+      const userKeywordsConfig = configManager?.getProperty('amdwiki.user-keywords', {}) as Record<
+        string,
+        Record<string, unknown>
+      >;
+
+      if (!userKeywordsConfig[keywordId]) {
+        res.status(404).json({ error: 'Keyword not found' });
+        return;
+      }
+
+      // Update the keyword
+      userKeywordsConfig[keywordId] = {
+        ...userKeywordsConfig[keywordId],
+        label: label || userKeywordsConfig[keywordId].label,
+        description: description !== undefined ? description : userKeywordsConfig[keywordId].description,
+        category: category !== undefined ? category : userKeywordsConfig[keywordId].category,
+        enabled: enabled !== undefined ? enabled : userKeywordsConfig[keywordId].enabled,
+        restrictEditing: restrictEditing !== undefined ? restrictEditing : userKeywordsConfig[keywordId].restrictEditing
+      };
+
+      await configManager.setProperty('amdwiki.user-keywords', userKeywordsConfig);
+
+      res.json({
+        success: true,
+        message: 'Keyword updated successfully',
+        keyword: { id: keywordId, ...userKeywordsConfig[keywordId] }
+      });
+    } catch (err: unknown) {
+      logger.error('Error updating keyword:', err);
+      res.status(500).json({ error: 'Failed to update keyword' });
+    }
+  }
+
+  /**
+   * Delete a user-keyword
+   */
+  async adminDeleteKeyword(req: Request, res: Response): Promise<void> {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = req.userContext;
+
+      if (
+        !currentUser ||
+        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+      ) {
+        res.status(403).json({ error: 'Access denied' });
+        return;
+      }
+
+      const keywordId = req.params.id;
+      const { reassignTo, removeFromPages } = req.body;
+
+      const configManager = this.engine.getManager('ConfigurationManager');
+      const pageManager = this.engine.getManager('PageManager');
+      const userKeywordsConfig = configManager?.getProperty('amdwiki.user-keywords', {}) as Record<
+        string,
+        Record<string, unknown>
+      >;
+
+      if (!userKeywordsConfig[keywordId]) {
+        res.status(404).json({ error: 'Keyword not found' });
+        return;
+      }
+
+      // Get pages using this keyword
+      const allPages = pageManager ? await pageManager.getAllPages() : [];
+      let pagesUpdated = 0;
+
+      for (const pageName of allPages) {
+        const page = await pageManager.getPage(pageName);
+        const pageKeywords = (page?.metadata?.['user-keywords'] as string[]) || [];
+
+        if (pageKeywords.includes(keywordId)) {
+          let newKeywords: string[];
+
+          if (removeFromPages) {
+            // Remove the keyword from pages
+            newKeywords = pageKeywords.filter(k => k !== keywordId);
+          } else if (reassignTo && userKeywordsConfig[reassignTo]) {
+            // Replace with reassign target (avoid duplicates)
+            newKeywords = pageKeywords
+              .map(k => (k === keywordId ? reassignTo : k))
+              .filter((k, i, arr) => arr.indexOf(k) === i);
+          } else {
+            // Default: remove from pages
+            newKeywords = pageKeywords.filter(k => k !== keywordId);
+          }
+
+          await pageManager.savePage(pageName, page.content, {
+            ...page.metadata,
+            'user-keywords': newKeywords
+          });
+          pagesUpdated++;
+        }
+      }
+
+      // Delete the keyword from config
+      delete userKeywordsConfig[keywordId];
+      await configManager.setProperty('amdwiki.user-keywords', userKeywordsConfig);
+
+      res.json({
+        success: true,
+        message: `Keyword deleted successfully. ${pagesUpdated} page(s) updated.`,
+        pagesUpdated
+      });
+    } catch (err: unknown) {
+      logger.error('Error deleting keyword:', err);
+      res.status(500).json({ error: 'Failed to delete keyword' });
+    }
+  }
+
+  /**
+   * Consolidate (merge) two keywords
+   */
+  async adminConsolidateKeywords(req: Request, res: Response): Promise<void> {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = req.userContext;
+
+      if (
+        !currentUser ||
+        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+      ) {
+        res.status(403).json({ error: 'Access denied' });
+        return;
+      }
+
+      const { sourceId, targetId, deleteSource } = req.body;
+
+      if (!sourceId || !targetId) {
+        res.status(400).json({ error: 'Source and target keyword IDs are required' });
+        return;
+      }
+
+      if (sourceId === targetId) {
+        res.status(400).json({ error: 'Source and target must be different keywords' });
+        return;
+      }
+
+      const configManager = this.engine.getManager('ConfigurationManager');
+      const pageManager = this.engine.getManager('PageManager');
+      const userKeywordsConfig = configManager?.getProperty('amdwiki.user-keywords', {}) as Record<
+        string,
+        Record<string, unknown>
+      >;
+
+      if (!userKeywordsConfig[sourceId]) {
+        res.status(404).json({ error: 'Source keyword not found' });
+        return;
+      }
+
+      if (!userKeywordsConfig[targetId]) {
+        res.status(404).json({ error: 'Target keyword not found' });
+        return;
+      }
+
+      // Update all pages: replace source with target
+      const allPages = pageManager ? await pageManager.getAllPages() : [];
+      let pagesUpdated = 0;
+
+      for (const pageName of allPages) {
+        const page = await pageManager.getPage(pageName);
+        const pageKeywords = (page?.metadata?.['user-keywords'] as string[]) || [];
+
+        if (pageKeywords.includes(sourceId)) {
+          // Replace source with target, avoiding duplicates
+          const newKeywords = pageKeywords
+            .map(k => (k === sourceId ? targetId : k))
+            .filter((k, i, arr) => arr.indexOf(k) === i);
+
+          await pageManager.savePage(pageName, page.content, {
+            ...page.metadata,
+            'user-keywords': newKeywords
+          });
+          pagesUpdated++;
+        }
+      }
+
+      // Optionally delete the source keyword
+      if (deleteSource) {
+        delete userKeywordsConfig[sourceId];
+        await configManager.setProperty('amdwiki.user-keywords', userKeywordsConfig);
+      }
+
+      res.json({
+        success: true,
+        message: `Keywords consolidated successfully. ${pagesUpdated} page(s) updated.${deleteSource ? ' Source keyword deleted.' : ''}`,
+        pagesUpdated,
+        sourceDeleted: !!deleteSource
+      });
+    } catch (err: unknown) {
+      logger.error('Error consolidating keywords:', err);
+      res.status(500).json({ error: 'Failed to consolidate keywords' });
     }
   }
 }
