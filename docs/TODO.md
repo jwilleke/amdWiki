@@ -12,41 +12,22 @@ slug: amdwiki-todo
 
 # Project Development TODO
 
-## 2026-02-08
+[FEATURE] Admin Dashboard: User-Keyword Management (CRUD + Consolidate) #248
+And
+[FEATURE] Alphabetize User Keywords #249
 
-You pick the order but Work on:
+Are there any pages with no User-Keyword assigned?
+⏺ Yes, there are 7 pages without user-keywords assigned (out of 2832 total):
 
-Questions, Comments and Suggestions are always encouraged!
+- Install System Integration Guide
 
-- <https://github.com/jwilleke/amdWiki/issues/123#issuecomment-3863960355>
-- <https://github.com/jwilleke/amdWiki/issues/123#issuecomment-3847788173>
-- <https://github.com/jwilleke/amdWiki/issues/123#issuecomment-3864004599>
-- <https://github.com/jwilleke/amdWiki/issues/235>
-- <https://github.com/jwilleke/amdWiki/issues/240>
-- <https://github.com/jwilleke/amdWiki/issues/242>
-- [FEATURE] in Edit Page Replace "Upload Image button" #243 (You did NOT remove them from the "More..." Dropdown button )
-- ~~[BUG](https://github.com/jwilleke/amdWiki/issues/244)~~ - DONE: ConfigurationManager now deep-merges object-type properties
+- Policies, Roles, and Permissions Architecture
+- Paleolithic age
+- Apple
 
-## ~~Started getting Error: Could not render the page on ALL pages~~ FIXED
+❯ My guess is it maybe in caching and maintaining indexes\
+  It takes 30 seconds or more to restart server.
 
-~~2026-02-08T12:04:30.854Z [error]: [VIEW] Error viewing page~~
-~~2026-02-08T12:04:30.854Z [error]: Error rendering error page: a.localeCompare is not a function~~
+We have a lot of code and test entries for ....performance.monitoring (and simialer) Can we look at them?
 
-~~This was following import from  /tmp/import-pages~~
-
-**Root cause**: Pages with numeric-only titles (e.g., `149.txt`) were imported with `title: 149` in YAML frontmatter. YAML parsed these as numbers, not strings, causing `localeCompare` to fail.
-
-**Fix (commit 488ea41)**:
-
-- FileSystemProvider: `String(metadata.title)` ensures titles are strings
-- ImportManager.yamlValue(): Quotes numeric-only strings in YAML output
-
-~~[BUG] Error deleting page: Internal Server Error #246~~ - FIXED v1.5.10: slug.toLowerCase error + JSON response for AJAX delete
-
-~~You did not use src/utils/version.ts to perform SEMVER patch and so   "amdwiki.version": "1.5.9" in config/app-default-config.json was not updated.~~ - FIXED: Updated config to 1.5.10
-
-~~[BUG] SLOW page saves #245~~ - FIXED: Incremental save/delete (commit 65e29a8)
-
-~~Create pages for all user-keywords that do not already exist~~ - DONE: Created 9 pages (default, private, draft, review, published, medicine, meteorology, oceanography, political-science). Existing: geology, psychology, sociology, anthropology, economics.
-
-~~[BUG] Search plugin user-keywords filter uses partial string matching #247~~ - FIXED: Uses exact word matching instead of substring includes()
+Quick win: Replace getPage() with getPageMetadata() where only metadata is needed
