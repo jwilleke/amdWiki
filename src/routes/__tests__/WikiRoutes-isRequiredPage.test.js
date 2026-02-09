@@ -22,7 +22,7 @@ describe('WikiRoutes.isRequiredPage()', () => {
   beforeEach(() => {
     // Create mock PageManager
     mockPageManager = {
-      getPage: jest.fn()
+      getPageMetadata: jest.fn()
     };
 
     // Create mock Engine
@@ -56,12 +56,9 @@ describe('WikiRoutes.isRequiredPage()', () => {
 
   describe('System Category Protection (Issue #174)', () => {
     test('should return true for system-category: system (lowercase)', async () => {
-      mockPageManager.getPage.mockResolvedValue({
-        content: '# Test',
-        metadata: {
-          title: 'Test Page',
-          'system-category': 'system'
-        }
+      mockPageManager.getPageMetadata.mockResolvedValue({
+        title: 'Test Page',
+        'system-category': 'system'
       });
 
       const result = await wikiRoutes.isRequiredPage('Test Page');
@@ -69,12 +66,9 @@ describe('WikiRoutes.isRequiredPage()', () => {
     });
 
     test('should return true for system-category: System (uppercase)', async () => {
-      mockPageManager.getPage.mockResolvedValue({
-        content: '# Test',
-        metadata: {
-          title: 'Test Page',
-          'system-category': 'System'
-        }
+      mockPageManager.getPageMetadata.mockResolvedValue({
+        title: 'Test Page',
+        'system-category': 'System'
       });
 
       const result = await wikiRoutes.isRequiredPage('Test Page');
@@ -82,12 +76,9 @@ describe('WikiRoutes.isRequiredPage()', () => {
     });
 
     test('should return true for system-category: documentation', async () => {
-      mockPageManager.getPage.mockResolvedValue({
-        content: '# Test',
-        metadata: {
-          title: 'Test Page',
-          'system-category': 'documentation'
-        }
+      mockPageManager.getPageMetadata.mockResolvedValue({
+        title: 'Test Page',
+        'system-category': 'documentation'
       });
 
       const result = await wikiRoutes.isRequiredPage('Test Page');
@@ -95,12 +86,9 @@ describe('WikiRoutes.isRequiredPage()', () => {
     });
 
     test('should return true for system-category: Documentation (uppercase)', async () => {
-      mockPageManager.getPage.mockResolvedValue({
-        content: '# Test',
-        metadata: {
-          title: 'Test Page',
-          'system-category': 'Documentation'
-        }
+      mockPageManager.getPageMetadata.mockResolvedValue({
+        title: 'Test Page',
+        'system-category': 'Documentation'
       });
 
       const result = await wikiRoutes.isRequiredPage('Test Page');
@@ -108,12 +96,9 @@ describe('WikiRoutes.isRequiredPage()', () => {
     });
 
     test('should return true for system-category: System/Admin', async () => {
-      mockPageManager.getPage.mockResolvedValue({
-        content: '# Test',
-        metadata: {
-          title: 'Test Page',
-          'system-category': 'System/Admin'
-        }
+      mockPageManager.getPageMetadata.mockResolvedValue({
+        title: 'Test Page',
+        'system-category': 'System/Admin'
       });
 
       const result = await wikiRoutes.isRequiredPage('Test Page');
@@ -121,12 +106,9 @@ describe('WikiRoutes.isRequiredPage()', () => {
     });
 
     test('should return true for category: System/Admin (legacy)', async () => {
-      mockPageManager.getPage.mockResolvedValue({
-        content: '# Test',
-        metadata: {
-          title: 'Test Page',
-          category: 'System/Admin'
-        }
+      mockPageManager.getPageMetadata.mockResolvedValue({
+        title: 'Test Page',
+        category: 'System/Admin'
       });
 
       const result = await wikiRoutes.isRequiredPage('Test Page');
@@ -136,12 +118,9 @@ describe('WikiRoutes.isRequiredPage()', () => {
 
   describe('Non-Protected Pages', () => {
     test('should return false for system-category: General', async () => {
-      mockPageManager.getPage.mockResolvedValue({
-        content: '# Test',
-        metadata: {
-          title: 'Test Page',
-          'system-category': 'General'
-        }
+      mockPageManager.getPageMetadata.mockResolvedValue({
+        title: 'Test Page',
+        'system-category': 'General'
       });
 
       const result = await wikiRoutes.isRequiredPage('Test Page');
@@ -149,12 +128,9 @@ describe('WikiRoutes.isRequiredPage()', () => {
     });
 
     test('should return false for system-category: Developer', async () => {
-      mockPageManager.getPage.mockResolvedValue({
-        content: '# Test',
-        metadata: {
-          title: 'Test Page',
-          'system-category': 'Developer'
-        }
+      mockPageManager.getPageMetadata.mockResolvedValue({
+        title: 'Test Page',
+        'system-category': 'Developer'
       });
 
       const result = await wikiRoutes.isRequiredPage('Test Page');
@@ -162,11 +138,8 @@ describe('WikiRoutes.isRequiredPage()', () => {
     });
 
     test('should return false when no system-category is set', async () => {
-      mockPageManager.getPage.mockResolvedValue({
-        content: '# Test',
-        metadata: {
-          title: 'Test Page'
-        }
+      mockPageManager.getPageMetadata.mockResolvedValue({
+        title: 'Test Page'
       });
 
       const result = await wikiRoutes.isRequiredPage('Test Page');
@@ -174,7 +147,7 @@ describe('WikiRoutes.isRequiredPage()', () => {
     });
 
     test('should return false when page does not exist', async () => {
-      mockPageManager.getPage.mockResolvedValue(null);
+      mockPageManager.getPageMetadata.mockResolvedValue(null);
 
       const result = await wikiRoutes.isRequiredPage('NonExistent Page');
       expect(result).toBe(false);
@@ -183,17 +156,14 @@ describe('WikiRoutes.isRequiredPage()', () => {
 
   describe('Error Handling', () => {
     test('should return false when PageManager throws error', async () => {
-      mockPageManager.getPage.mockRejectedValue(new Error('Database error'));
+      mockPageManager.getPageMetadata.mockRejectedValue(new Error('Database error'));
 
       const result = await wikiRoutes.isRequiredPage('Error Page');
       expect(result).toBe(false);
     });
 
     test('should return false when metadata is null', async () => {
-      mockPageManager.getPage.mockResolvedValue({
-        content: '# Test',
-        metadata: null
-      });
+      mockPageManager.getPageMetadata.mockResolvedValue(null);
 
       const result = await wikiRoutes.isRequiredPage('Test Page');
       expect(result).toBe(false);

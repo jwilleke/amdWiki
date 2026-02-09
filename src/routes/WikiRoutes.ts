@@ -799,10 +799,10 @@ class WikiRoutes {
     // Check if page has a protected system-category
     try {
       const pageManager = this.engine.getManager('PageManager');
-      const pageData = await pageManager.getPage(pageName);
-      if (pageData && pageData.metadata) {
-        const systemCategory = (pageData.metadata['system-category'] || '').toLowerCase();
-        const category = (pageData.metadata.category || '').toLowerCase();
+      const metadata = await pageManager.getPageMetadata(pageName);
+      if (metadata) {
+        const systemCategory = (metadata['system-category'] || '').toLowerCase();
+        const category = (metadata.category || '').toLowerCase();
 
         // Protected categories that require admin permission to edit
         const protectedCategories = ['system', 'system/admin', 'documentation'];
@@ -5817,16 +5817,16 @@ class WikiRoutes {
         })
         .slice(0, limit);
 
-      // Load full details for matching pages
+      // Load metadata for matching pages (no content needed)
       const matchingPages = await Promise.all(
         matchingNames.map(async (pageName: string) => {
           try {
-            const page = await pageManager.getPage(pageName);
+            const metadata = await pageManager.getPageMetadata(pageName);
             return {
               name: pageName,
-              slug: page?.metadata?.slug || pageName,
-              title: page?.metadata?.title || pageName,
-              category: page?.metadata?.['system-category'] || page?.metadata?.category || 'general'
+              slug: metadata?.slug || pageName,
+              title: metadata?.title || pageName,
+              category: metadata?.['system-category'] || metadata?.category || 'general'
             };
           } catch {
             // If page load fails, return basic info
@@ -6153,9 +6153,9 @@ class WikiRoutes {
         });
       }
 
-      // Get page info
-      const pageInfo = await pageManager.getPage(pageName);
-      logger.info(`[pageHistory] Page info - UUID: ${pageInfo.uuid}, Title: ${pageInfo.title}`);
+      // Get page metadata (only need uuid and title)
+      const pageMetadata = await pageManager.getPageMetadata(pageName);
+      logger.info(`[pageHistory] Page info - UUID: ${pageMetadata?.uuid}, Title: ${pageMetadata?.title}`);
 
       // Get version history
       logger.info(`[pageHistory] Fetching version history for: "${pageName}"`);
@@ -6167,7 +6167,7 @@ class WikiRoutes {
 
       res.render('page-history', {
         ...templateData,
-        pageUuid: pageInfo.uuid,
+        pageUuid: pageMetadata?.uuid,
         versions: versions,
         versionCount: versions.length
       });
@@ -6239,8 +6239,8 @@ class WikiRoutes {
         });
       }
 
-      // Get page info
-      const pageInfo = await pageManager.getPage(pageName);
+      // Get page metadata (only need uuid)
+      const pageMetadata = await pageManager.getPageMetadata(pageName);
 
       // Compare versions
       const comparison = await provider.compareVersions(pageName, v1, v2);
@@ -6254,7 +6254,7 @@ class WikiRoutes {
       res.render('page-diff', {
         ...templateData,
         leftMenu,
-        pageUuid: pageInfo.uuid,
+        pageUuid: pageMetadata?.uuid,
         version1: comparison.version1,
         version2: comparison.version2,
         diff: comparison.diff,
@@ -6572,13 +6572,13 @@ ${description}
         Record<string, unknown>
       >;
 
-      // Get all pages to find keyword usage
+      // Get all pages to find keyword usage (metadata only - no content needed)
       const allPages = pageManager ? await pageManager.getAllPages() : [];
       const keywordUsage: Record<string, string[]> = {};
 
       for (const pageName of allPages) {
-        const page = await pageManager.getPage(pageName);
-        const pageKeywords = (page?.metadata?.['user-keywords'] as string[]) || [];
+        const metadata = await pageManager.getPageMetadata(pageName);
+        const pageKeywords = (metadata?.['user-keywords'] as string[]) || [];
         for (const kw of pageKeywords) {
           if (!keywordUsage[kw]) {
             keywordUsage[kw] = [];
@@ -6719,9 +6719,10 @@ ${description}
       const allPages = pageManager ? await pageManager.getAllPages() : [];
       const pagesUsingKeyword: string[] = [];
 
+      // Only need metadata, not content
       for (const pageName of allPages) {
-        const page = await pageManager.getPage(pageName);
-        const pageKeywords = (page?.metadata?.['user-keywords'] as string[]) || [];
+        const metadata = await pageManager.getPageMetadata(pageName);
+        const pageKeywords = (metadata?.['user-keywords'] as string[]) || [];
         if (pageKeywords.includes(keywordId)) {
           pagesUsingKeyword.push(pageName);
         }

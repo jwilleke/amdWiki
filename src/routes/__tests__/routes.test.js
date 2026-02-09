@@ -625,6 +625,11 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
 
       test('should prevent deletion of required pages', async () => {
         // Page metadata with System/Admin category makes isRequiredPage() return true
+        // isRequiredPage() uses getPageMetadata() for the category check
+        mockPageManager.getPageMetadata.mockResolvedValue({
+          title: 'TestPage',
+          'system-category': 'System/Admin'
+        });
         mockPageManager.getPage.mockResolvedValue({
           content: '# Test Page\nThis is a test page.',
           metadata: { title: 'TestPage', 'system-category': 'System/Admin' }

@@ -428,16 +428,16 @@ class ImportManager extends BaseManager {
       }
     }
 
-    // Check for duplicate page by title
+    // Check for duplicate page by title (metadata only - no content needed)
     const pageTitle = conversionResult.metadata['title'] as string;
     try {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- getManager returns any
       const pageManager = this.engine.getManager('PageManager');
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call -- getManager returns any
-      const existingPage = await pageManager.getPage(pageTitle);
-      if (existingPage) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- page object
-        const existingUuid = (existingPage.uuid || existingPage.metadata?.uuid || '') as string;
+      const existingMetadata = await pageManager.getPageMetadata(pageTitle);
+      if (existingMetadata) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- metadata object
+        const existingUuid = (existingMetadata.uuid || '') as string;
         logger.info(`[ImportManager] Duplicate detected: "${pageTitle}" already exists as ${existingUuid}`);
         return {
           sourcePath: filePath,
@@ -583,16 +583,16 @@ class ImportManager extends BaseManager {
     // Generate UUID
     const pageUuid = uuidv4();
 
-    // Check for duplicate page by title
+    // Check for duplicate page by title (metadata only - no content needed)
     const pageTitle = conversionResult.metadata['title'] as string;
     try {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- getManager returns any
       const pageManager = this.engine.getManager('PageManager');
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call -- getManager returns any
-      const existingPage = await pageManager.getPage(pageTitle);
-      if (existingPage) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- page object
-        const existingUuid = (existingPage.uuid || existingPage.metadata?.uuid || '') as string;
+      const existingMetadata = await pageManager.getPageMetadata(pageTitle);
+      if (existingMetadata) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- metadata object
+        const existingUuid = (existingMetadata.uuid || '') as string;
         return {
           sourcePath: url,
           targetPath: '',

@@ -700,8 +700,7 @@ class UserManager extends BaseManager {
       }
 
       // Check if page exists with this name (as title, slug, or exact match)
-      const existingPage = await pageManager.getPage(displayName);
-      return existingPage !== null;
+      return pageManager.pageExists(displayName);
     } catch (error) {
       logger.error('Error checking display name page conflict:', error);
       return false; // On error, assume no conflict to avoid blocking registration
@@ -728,8 +727,7 @@ class UserManager extends BaseManager {
       }
 
       // Check if user page already exists
-      const existingPage = await pageManager.getPage(user.displayName);
-      if (existingPage) {
+      if (pageManager.pageExists(user.displayName)) {
         logger.info(`User page already exists for ${user.displayName}`);
         return true;
       }
