@@ -24,6 +24,28 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-09-01
+
+- Agent: Claude Opus 4.5
+- Subject: Admin Dashboard User-Keyword Management (#248)
+- Current Issue: #248
+- Key Decision: Full CRUD + Consolidate for user-keywords in admin dashboard
+- Work Done:
+  - Added 5 routes: GET /admin/keywords, GET /api/admin/keywords/:id/usage, PUT /admin/keywords/:id, DELETE /admin/keywords/:id, POST /admin/keywords/consolidate
+  - Implemented handlers: adminKeywords(), adminKeywordUsage(), adminUpdateKeyword(), adminDeleteKeyword(), adminConsolidateKeywords()
+  - Created admin-keywords.ejs template with stats cards, table, edit/delete/consolidate modals
+  - Added Keywords button to admin-dashboard.ejs System Settings section
+  - Delete supports: remove from pages OR reassign to another keyword
+  - Consolidate merges source keyword into target, updates all affected pages
+- Testing:
+  - npm test: 64 suites passed, 1608 tests passed (308 skipped)
+  - Build successful
+- Commits: 5651566
+- Files Modified:
+  - src/routes/WikiRoutes.ts
+  - views/admin-keywords.ejs (new)
+  - views/admin-dashboard.ejs
+
 ## 2026-02-08-13
 
 - Agent: Claude Opus 4.5
