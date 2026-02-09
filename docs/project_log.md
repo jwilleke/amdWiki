@@ -24,6 +24,29 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-09-03
+
+- Agent: Claude Opus 4.5
+- Subject: Server Startup Performance Optimization (#250)
+- Current Issue: #250
+- Key Decision: Parallel page loading + PageNameMatcher index for O(1) lookups
+- Work Done:
+  - Added content caching in FileSystemProvider (cache populated during refreshPageList)
+  - Added buildIndex() method to PageNameMatcher for O(1) lookups instead of O(n)
+  - Modified RenderingManager.buildLinkGraph() to use parallel Promise.all for page loading
+  - Updated jest.setup.js mock to include buildIndex/clearIndex methods
+  - Performance improvement: Link graph build reduced from ~54 seconds to ~0.15 seconds (360x speedup)
+  - Total startup time reduced from ~48+ seconds to ~3 seconds
+- Testing:
+  - npm test: 64 suites passed, 1608 tests passed (308 skipped)
+  - Build successful
+  - Server restart verified with 3225 pages
+- Files Modified:
+  - src/providers/FileSystemProvider.ts (content caching)
+  - src/utils/PageNameMatcher.ts (buildIndex, clearIndex, findMatch optimization)
+  - src/managers/RenderingManager.ts (parallel page loading, index usage)
+  - jest.setup.js (mock updates)
+
 ## 2026-02-09-02
 
 - Agent: Claude Opus 4.5

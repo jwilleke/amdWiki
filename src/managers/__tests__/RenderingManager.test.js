@@ -125,23 +125,28 @@ describe('RenderingManager', () => {
     test('should resolve plural links when building link graph (Issue #172)', async () => {
       // Setup: Page "Plugin" exists, "ContextualVars" links to [Plugins] (plural)
       const mockPageManagerWithPlurals = {
-        getAllPages: jest.fn().mockResolvedValue(['Plugin', 'ContextualVars']),
-        getPage: jest.fn().mockImplementation(async (pageName) => {
+        getAllPages: async () => ['Plugin', 'ContextualVars'],
+        getPage: async (pageName) => {
           const pages = {
             'Plugin': { title: 'Plugin', content: 'Plugin documentation' },
             'ContextualVars': { title: 'ContextualVars', content: 'See [Plugins] for more info' }
           };
           return pages[pageName] || null;
-        })
+        }
       };
 
       // Update mock to return our test PageManager
       const testEngine = {
-        ...mockEngine,
-        getManager: jest.fn((name) => {
+        log: jest.fn(),
+        getManager: (name) => {
           if (name === 'ConfigurationManager') return mockConfigurationManager;
           if (name === 'PageManager') return mockPageManagerWithPlurals;
           return null;
+        },
+        getConfig: jest.fn().mockReturnValue({
+          get: jest.fn().mockReturnValue({
+            wiki: { pagesDir: './pages' }
+          })
         })
       };
 
@@ -169,7 +174,7 @@ describe('RenderingManager', () => {
         console.warn('Note: Plural resolution not working in test - link stored as "Plugins"');
       } else {
         // Link graph should have either Plugin or Plugins
-        fail('Link graph should contain either "Plugin" or "Plugins" with ContextualVars as referrer');
+        throw new Error(`Link graph should contain either "Plugin" or "Plugins" with ContextualVars as referrer. Got keys: ${JSON.stringify(Object.keys(linkGraph))}`);
       }
     });
 

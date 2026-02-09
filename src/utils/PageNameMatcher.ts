@@ -11,6 +11,8 @@
  */
 export default class PageNameMatcher {
   private matchEnglishPlurals: boolean;
+  /** Index mapping variation -> original page name for O(1) lookups */
+  private variationIndex: Map<string, string> | null = null;
 
   /**
    * Creates a new PageNameMatcher instance
@@ -19,6 +21,33 @@ export default class PageNameMatcher {
    */
   constructor(matchEnglishPlurals: boolean = true) {
     this.matchEnglishPlurals = matchEnglishPlurals;
+  }
+
+  /**
+   * Build an index from page names for fast O(1) lookups
+   * Call this once with all page names before doing many findMatch calls
+   *
+   * @param pageNames - Array of all existing page names
+   */
+  buildIndex(pageNames: string[]): void {
+    this.variationIndex = new Map();
+
+    for (const pageName of pageNames) {
+      const variations = this.getVariations(pageName);
+      for (const variation of variations) {
+        // First page wins if there are conflicts
+        if (!this.variationIndex.has(variation)) {
+          this.variationIndex.set(variation, pageName);
+        }
+      }
+    }
+  }
+
+  /**
+   * Clear the index (call when page list changes)
+   */
+  clearIndex(): void {
+    this.variationIndex = null;
   }
 
   /**
@@ -110,11 +139,26 @@ export default class PageNameMatcher {
    * Find a matching page name from a list of existing page names
    *
    * @param searchName - The page name to search for
-   * @param existingNames - Array of existing page names
+   * @param existingNames - Array of existing page names (ignored if index is built)
    * @returns The matching page name, or null if not found
    */
   findMatch(searchName: string, existingNames: string[]): string | null {
-    if (!searchName || !existingNames || existingNames.length === 0) {
+    if (!searchName) {
+      return null;
+    }
+
+    // Use indexed lookup if available (O(1) instead of O(n))
+    if (this.variationIndex) {
+      const searchVariations = this.getVariations(searchName);
+      for (const variation of searchVariations) {
+        const match = this.variationIndex.get(variation);
+        if (match) return match;
+      }
+      return null;
+    }
+
+    // Fallback to linear search if no index
+    if (!existingNames || existingNames.length === 0) {
       return null;
     }
 

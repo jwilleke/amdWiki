@@ -1074,9 +1074,21 @@ class RenderingManager extends BaseManager {
       // Cache page names for wiki link processing
       this.cachedPageNames = pageNames;
 
-      for (const pageName of pageNames) {
-        // Load the actual page data
-        const pageData = await pageManager.getPage(pageName);
+      // Build PageNameMatcher index for O(1) lookups instead of O(n) per link
+      if (this.pageNameMatcher) {
+        this.pageNameMatcher.buildIndex(pageNames);
+      }
+
+      // Load all page content in parallel for better performance
+      const pageDataArray = await Promise.all(
+        pageNames.map(async (pageName) => {
+          const pageData = await pageManager.getPage(pageName);
+          return { pageName, pageData };
+        })
+      );
+
+      // Process link graph synchronously after all content is loaded
+      for (const { pageName, pageData } of pageDataArray) {
         if (!pageData) {
           continue; // Skip if page can't be loaded
         }

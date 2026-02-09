@@ -140,6 +140,32 @@ jest.mock('./src/utils/PageNameMatcher', () => {
   return class MockPageNameMatcher {
     constructor(matchEnglishPlurals) {
       this.matchEnglishPlurals = matchEnglishPlurals;
+      this.variationIndex = null;
+    }
+    buildIndex(pageNames) {
+      // Build simple index mapping lowercase names to original names
+      this.variationIndex = new Map();
+      for (const name of pageNames) {
+        const lower = name.toLowerCase();
+        if (!this.variationIndex.has(lower)) {
+          this.variationIndex.set(lower, name);
+        }
+        // Also add plural/singular variations
+        if (lower.endsWith('s')) {
+          const singular = lower.slice(0, -1);
+          if (!this.variationIndex.has(singular)) {
+            this.variationIndex.set(singular, name);
+          }
+        } else {
+          const plural = lower + 's';
+          if (!this.variationIndex.has(plural)) {
+            this.variationIndex.set(plural, name);
+          }
+        }
+      }
+    }
+    clearIndex() {
+      this.variationIndex = null;
     }
     findBestMatch(pageName, allPages) {
       // Try exact match first
@@ -152,7 +178,12 @@ jest.mock('./src/utils/PageNameMatcher', () => {
       return match || null;
     }
     findMatch(pageName, allPages) {
-      // Alias for findBestMatch - used by DOMLinkHandler
+      // Use index if available
+      if (this.variationIndex) {
+        const lower = pageName.toLowerCase();
+        return this.variationIndex.get(lower) || null;
+      }
+      // Fallback to linear search
       return this.findBestMatch(pageName, allPages);
     }
     matchesPage(linkText, pageName) {

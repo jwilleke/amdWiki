@@ -95,6 +95,9 @@ class FileSystemProvider extends BasePageProvider {
   /** Page name matcher for fuzzy/plural matching */
   protected pageNameMatcher: PageNameMatcher | null;
 
+  /** Content cache (title -> parsed content without frontmatter) */
+  protected contentCache: Map<string, string>;
+
   /** Whether installation is complete (required-pages should not be used after install) */
   public installationComplete: boolean;
 
@@ -114,6 +117,7 @@ class FileSystemProvider extends BasePageProvider {
     this.titleIndex = new Map();
     this.uuidIndex = new Map();
     this.slugIndex = new Map();
+    this.contentCache = new Map();
     this.pageNameMatcher = null;
   }
 
@@ -195,6 +199,7 @@ class FileSystemProvider extends BasePageProvider {
     this.titleIndex.clear();
     this.uuidIndex.clear();
     this.slugIndex.clear();
+    this.contentCache.clear();
 
     if (!this.pagesDirectory || !this.requiredPagesDirectory) {
       throw new Error('FileSystemProvider not initialized - directories not set');
@@ -216,7 +221,7 @@ class FileSystemProvider extends BasePageProvider {
     for (const filePath of mdFiles) {
       try {
         const fileContent = await fs.readFile(filePath, this.encoding);
-        const { data } = matter(fileContent);
+        const { data, content } = matter(fileContent);
         const metadata = data as PageFrontmatter;
         // Ensure title is always a string (YAML may parse numeric titles as numbers)
         const title = metadata.title != null ? String(metadata.title) : '';
@@ -237,6 +242,9 @@ class FileSystemProvider extends BasePageProvider {
         // Use title as the canonical key for the main cache
         const canonicalKey = title;
         this.pageCache.set(canonicalKey, pageInfo);
+
+        // Cache the content (already parsed, no extra cost)
+        this.contentCache.set(canonicalKey, content);
 
         // Build lookup indexes
         this.titleIndex.set(title.toLowerCase(), canonicalKey);
@@ -343,9 +351,25 @@ class FileSystemProvider extends BasePageProvider {
       return null;
     }
 
+    // Check content cache first (populated during initialization)
+    const cachedContent = this.contentCache.get(info.title);
+    if (cachedContent !== undefined) {
+      return {
+        content: cachedContent,
+        metadata: info.metadata,
+        title: info.title,
+        uuid: info.uuid,
+        filePath: info.filePath
+      };
+    }
+
+    // Fallback to disk read (for pages added after initialization)
     try {
       const fullContent = await fs.readFile(info.filePath, this.encoding);
       const { content, data: metadata } = matter(fullContent);
+
+      // Update cache for future requests
+      this.contentCache.set(info.title, content);
 
       return {
         content,
@@ -372,8 +396,21 @@ class FileSystemProvider extends BasePageProvider {
       logger.warn(`[FileSystemProvider] Not found: ${identifier}`);
       throw new Error(`Page '${identifier}' not found.`);
     }
+
+    // Check content cache first
+    const cachedContent = this.contentCache.get(info.title);
+    if (cachedContent !== undefined) {
+      logger.info(`[FileSystemProvider] Loaded ${info.title} from cache (${cachedContent.length} bytes)`);
+      return cachedContent;
+    }
+
+    // Fallback to disk read
     const fullContent = await fs.readFile(info.filePath, this.encoding);
     const { content } = matter(fullContent);
+
+    // Update cache
+    this.contentCache.set(info.title, content);
+
     logger.info(`[FileSystemProvider] Loaded ${info.title} from ${path.basename(info.filePath)} (${content.length} bytes)`);
     return content;
   }
@@ -480,6 +517,12 @@ class FileSystemProvider extends BasePageProvider {
     this.pageCache.set(finalTitle, pageInfo);
     this.titleIndex.set(finalTitle.toLowerCase(), finalTitle);
     this.uuidIndex.set(uuid, finalTitle);
+    // Update content cache
+    this.contentCache.set(finalTitle, content);
+    // Remove old title from content cache if renamed
+    if (titleChanged && oldPageInfo) {
+      this.contentCache.delete(String(oldPageInfo.title));
+    }
     // Update slug index if the page has a slug
     const newSlug = updatedMetadata.slug;
     if (newSlug) {
@@ -510,6 +553,7 @@ class FileSystemProvider extends BasePageProvider {
       // Ensure title is string for cache operations (YAML may have parsed as number)
       const titleStr = String(info.title);
       this.pageCache.delete(titleStr);
+      this.contentCache.delete(titleStr);
       this.titleIndex.delete(titleStr.toLowerCase());
       if (info.uuid) {
         this.uuidIndex.delete(info.uuid);
