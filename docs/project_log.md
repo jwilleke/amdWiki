@@ -24,6 +24,23 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-09-02
+
+- Agent: Claude Opus 4.5
+- Subject: Alphabetize User Keywords dropdown (#249)
+- Current Issue: #249
+- Key Decision: Sort keywords at the source in getUserKeywords()
+- Work Done:
+  - Added localeCompare sort when returning keywords from config
+  - Added localeCompare sort when returning keywords from page content
+  - Updated fallback arrays to be alphabetically sorted
+- Testing:
+  - npm test: 64 suites passed, 1608 tests passed (308 skipped)
+  - Build successful
+- Commits: f458a60
+- Files Modified:
+  - src/routes/WikiRoutes.ts
+
 ## 2026-02-09-01
 
 - Agent: Claude Opus 4.5
