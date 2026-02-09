@@ -611,7 +611,7 @@ class WikiRoutes {
 
           if (keywords.length > 0) {
             logger.info(`Loaded ${keywords.length} user keywords from configuration`);
-            return keywords;
+            return keywords.sort((a, b) => a.localeCompare(b));
           }
         }
       }
@@ -622,7 +622,7 @@ class WikiRoutes {
       const keywordsPage = await pageManager.getPage('User Keywords');
 
       if (!keywordsPage) {
-        return ['medicine', 'geology', 'test'];
+        return ['geology', 'medicine', 'test'];
       }
 
       // Extract keywords only from the bullet list under '## Current User Keywords'
@@ -650,10 +650,10 @@ class WikiRoutes {
           }
         }
       }
-      return keywords.length > 0 ? keywords : ['medicine', 'geology', 'test'];
+      return keywords.length > 0 ? keywords.sort((a, b) => a.localeCompare(b)) : ['geology', 'medicine', 'test'];
     } catch (err: unknown) {
       logger.error('Error loading user keywords:', err);
-      return ['medicine', 'geology', 'test'];
+      return ['geology', 'medicine', 'test'];
     }
   }
 
