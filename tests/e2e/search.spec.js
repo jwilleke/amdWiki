@@ -106,9 +106,15 @@ test.describe('Search', () => {
       await searchButton.first().click();
       await page.waitForLoadState('networkidle');
 
-      // Should not cause error
-      const hasServerError = await page.getByText(/500|server error|internal error/i).count() > 0;
-      expect(hasServerError).toBe(false);
+      // Should not cause server error - check for error page elements, not text in search results
+      const hasErrorPage = await page.locator('.error-500, .error-page, [data-error="500"]').count() > 0;
+      const hasErrorTitle = await page.locator('h1:has-text("Error"), h1:has-text("500")').count() > 0;
+      const hasSearchResults = await page.locator('h1:has-text("Search")').count() > 0;
+
+      // Either no error page elements, or we're on a valid search page
+      expect(hasErrorPage).toBe(false);
+      expect(hasErrorTitle).toBe(false);
+      expect(hasSearchResults).toBe(true);
     });
   });
 
