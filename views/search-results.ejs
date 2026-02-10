@@ -2,390 +2,330 @@
 
 <div class="search-page">
 <h1 class="h2"><i class="fas fa-search"></i> Search</h1>
-<div class="mb-3">
-    <span class="badge" style="background-color: var(--badge-info-bg); color: var(--badge-info-text);">
-        <%= count %> result<%= count === 1 ? '' : 's' %>
-    </span>
-</div>
 
-<!-- Advanced Search Form -->
-<div class="card mb-4 shadow-sm">
-    <div class="card-header" style="background-color: var(--card-bg);">
-        <h5 class="mb-0 d-flex justify-content-between align-items-center">
-            <span><i class="fas fa-cog me-2"></i>Search Options</span>
-            <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#searchOptions">
-                <i class="fas fa-chevron-down"></i> Toggle
-            </button>
-        </h5>
-    </div>
-    <div class="collapse show" id="searchOptions">
-    <div class="card-body" style="background-color: var(--card-bg);">
-            <form id="advancedSearchForm" action="/search" method="GET" class="row g-3">
-                <!-- Text Search (full width row) -->
-                <div class="col-12">
-                    <label for="query" class="form-label fw-bold">
-                        <i class="fas fa-search me-1"></i>Search Text
-                    </label>
-                    <input type="text" class="form-control" id="query" name="q" value="<%= query %>"
-                           placeholder="Enter search terms...">
-                </div>
+<!-- Search Tabs -->
+<ul class="nav nav-tabs mb-3" id="searchTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link <%= searchTab !== 'attachments' ? 'active' : '' %>" id="pages-tab" data-bs-toggle="tab"
+                data-bs-target="#pages-search" type="button" role="tab">
+            <i class="fas fa-file-alt me-1"></i>Pages
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link <%= searchTab === 'attachments' ? 'active' : '' %>" id="attachments-tab" data-bs-toggle="tab"
+                data-bs-target="#attachments-search" type="button" role="tab">
+            <i class="fas fa-paperclip me-1"></i>Attachments
+        </button>
+    </li>
+</ul>
 
-                <!-- Search In -->
-                <div class="col-md-4">
-                    <label class="form-label fw-bold">
-                        <i class="fas fa-filter me-1"></i>Search In
-                    </label>
-                    <div class="border rounded p-2" style="max-height: 150px; overflow-y: auto;">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="searchIn_all" name="searchIn" value="all"
-                                   <%= (Array.isArray(searchIn) ? searchIn.includes('all') : searchIn === 'all') || !searchIn ? 'checked' : '' %>>
-                            <label class="form-check-label" for="searchIn_all">All Fields</label>
+<div class="tab-content" id="searchTabsContent">
+    <!-- Pages Search Tab -->
+    <div class="tab-pane fade <%= searchTab !== 'attachments' ? 'show active' : '' %>" id="pages-search" role="tabpanel">
+        <!-- Simplified Search Form -->
+        <div class="card mb-4 shadow-sm">
+            <div class="card-body" style="background-color: var(--card-bg);">
+                <form id="advancedSearchForm" action="/search" method="GET">
+                    <div class="row g-3">
+                        <!-- Search Input -->
+                        <div class="col-md-8">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                <input type="text" class="form-control form-control-lg" id="query" name="q"
+                                       value="<%= query %>" placeholder="Search pages...">
+                                <button class="btn btn-primary" type="submit">Search</button>
+                            </div>
                         </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="searchIn_title" name="searchIn" value="title"
-                                   <%= (Array.isArray(searchIn) ? searchIn.includes('title') : searchIn === 'title') ? 'checked' : '' %>>
-                            <label class="form-check-label" for="searchIn_title">Page Titles</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="searchIn_content" name="searchIn" value="content"
-                                   <%= (Array.isArray(searchIn) ? searchIn.includes('content') : searchIn === 'content') ? 'checked' : '' %>>
-                            <label class="form-check-label" for="searchIn_content">Page Content</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="searchIn_category" name="searchIn" value="category"
-                                   <%= (Array.isArray(searchIn) ? searchIn.includes('category') : searchIn === 'category') ? 'checked' : '' %>>
-                            <label class="form-check-label" for="searchIn_category">Categories</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="searchIn_keywords" name="searchIn" value="keywords"
-                                   <%= (Array.isArray(searchIn) ? searchIn.includes('keywords') : searchIn === 'keywords') ? 'checked' : '' %>>
-                            <label class="form-check-label" for="searchIn_keywords">Keywords</label>
+
+                        <!-- Search In Dropdown -->
+                        <div class="col-md-4">
+                            <select class="form-select form-select-lg" name="searchIn" id="searchIn">
+                                <option value="all" <%= (!searchIn || searchIn === 'all' || (Array.isArray(searchIn) && searchIn.includes('all'))) ? 'selected' : '' %>>All Fields</option>
+                                <option value="title" <%= (searchIn === 'title' || (Array.isArray(searchIn) && searchIn.includes('title'))) ? 'selected' : '' %>>Titles Only</option>
+                                <option value="content" <%= (searchIn === 'content' || (Array.isArray(searchIn) && searchIn.includes('content'))) ? 'selected' : '' %>>Content Only</option>
+                            </select>
                         </div>
                     </div>
-                </div>
 
-                <!-- Include Categories -->
-                <div class="col-md-4">
-                    <label class="form-label fw-bold">
-                        <i class="fas fa-folder me-1"></i>Include Categories
-                    </label>
-                    <div class="border rounded p-2" style="max-height: 150px; overflow-y: auto;">
-                        <% availableCategories.forEach(cat => { %>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="category_<%= cat.replace(/[^a-zA-Z0-9]/g, '_') %>"
-                                       name="category" value="<%= cat %>"
-                                       <%= (Array.isArray(categories) ? categories.includes(cat) : category === cat) ? 'checked' : '' %>>
-                                <label class="form-check-label" for="category_<%= cat.replace(/[^a-zA-Z0-9]/g, '_') %>">
-                                    <%= cat %>
-                                </label>
-                            </div>
-                        <% }); %>
+                    <!-- Collapsible Filters -->
+                    <div class="mt-3">
+                        <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#filterOptions" aria-expanded="<%= (categories && categories.length > 0) || (userKeywords && userKeywords.length > 0) ? 'true' : 'false' %>">
+                            <i class="fas fa-filter me-1"></i>Filters
+                            <% if ((categories && categories.length > 0) || (userKeywords && userKeywords.length > 0)) { %>
+                                <span class="badge bg-primary ms-1"><%= (categories?.length || 0) + (userKeywords?.length || 0) %></span>
+                            <% } %>
+                        </button>
                     </div>
-                </div>
 
-                <!-- Include User Keywords -->
-                <div class="col-md-4">
-                    <label class="form-label fw-bold">
-                        <i class="fas fa-tags me-1"></i>Include User Keywords
-                    </label>
-                    <div class="border rounded p-2" style="max-height: 150px; overflow-y: auto;">
-                        <% availableKeywords.forEach(kw => {
-                            const kwLabel = typeof kw === 'object' ? kw.label : kw;
-                            const kwDesc = typeof kw === 'object' ? kw.description : '';
-                        %>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="keyword_<%= kwLabel.replace(/[^a-zA-Z0-9]/g, '_') %>"
-                                       name="keywords" value="<%= kwLabel %>"
-                                       <%= (Array.isArray(userKeywords) ? userKeywords.includes(kwLabel) : userKeywords === kwLabel) ? 'checked' : '' %>>
-                                <label class="form-check-label" for="keyword_<%= kwLabel.replace(/[^a-zA-Z0-9]/g, '_') %>"<% if (kwDesc) { %> title="<%= kwDesc %>"<% } %>>
-                                    <%= kwLabel %><% if (kwDesc) { %> <small class="text-muted">- <%= kwDesc %></small><% } %>
-                                </label>
-                            </div>
-                        <% }); %>
-                    </div>
-                </div>
-
-                <!-- Search Button (full width row) -->
-                <div class="col-12">
-                    <button class="btn btn-primary w-100" type="submit">
-                        <i class="fas fa-search me-1"></i>Search
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- Search Results -->
-<% if (query || (categories && categories.length > 0) || (userKeywords && userKeywords.length > 0)) { %>
-    <div class="row" style="background-color: var(--card-bg);">
-        <div class="col-md-9">
-            <% if (results.length > 0) { %>
-                <div class="mb-3">
-                    <small class="text-muted">
-                        Showing <%= results.length %> result<%= results.length === 1 ? '' : 's' %>
-                        <% if (searchType === 'category') { %>
-                            for categor<%= categories && categories.length > 1 ? 'ies' : 'y' %> 
-                            "<%= Array.isArray(categories) ? categories.join('", "') : category %>"
-                        <% } else if (searchType === 'keywords') { %>
-                            for keyword<%= userKeywords && userKeywords.length > 1 ? 's' : '' %>
-                            "<%= Array.isArray(userKeywords) ? userKeywords.join('", "') : userKeywords %>"
-                        <% } else if (query) { %>
-                            for "<%= query %>"
-                            <% if (categories && (Array.isArray(categories) ? categories.length > 0 : category)) { %>
-                                in categor<%= (Array.isArray(categories) ? categories.length > 1 : false) ? 'ies' : 'y' %> 
-                                "<%= Array.isArray(categories) ? categories.join('", "') : category %>"
-                            <% } %>
-                            <% if (userKeywords && (Array.isArray(userKeywords) ? userKeywords.length > 0 : userKeywords)) { %>
-                                with keyword<%= (Array.isArray(userKeywords) ? userKeywords.length > 1 : false) ? 's' : '' %>
-                                "<%= Array.isArray(userKeywords) ? userKeywords.join('", "') : userKeywords %>"
-                            <% } %>
-                        <% } %>
-                    </small>
-                </div>
-
-                <div class="list-group search-results" style="background-color: var(--card-bg); border: 1px solid var(--card-border); border-radius: 0.5rem;">
-                    <% results.forEach((result, index) => { %>
-                        <div class="list-group-item search-result-enter" style="background-color: var(--card-bg); border-bottom: 1px solid var(--card-border); color: var(--text-content);">
-                            <div class="d-flex w-100 justify-content-between">
-                                <h6 class="mb-1">
-                                    <a href="/wiki/<%= encodeURIComponent(result.name) %>" class="text-decoration-none">
-                                        <i class="fas fa-file-alt"></i> <%= result.title %>
-                                    </a>
-                                    <small class="text-muted">(Score: <%= result.score.toFixed(3) %>)</small>
-                                </h6>
-                            </div>
-                            
-                            <% if (result.snippet) { %>
-                                <p class="mb-2 text-muted"><%= result.snippet %>...</p>
-                            <% } %>
-                            
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <% if (result.metadata.category) { %>
-                                        <span class="badge bg-primary me-2">
-                                            <i class="fas fa-folder me-1"></i><%= result.metadata.category %>
-                                        </span>
-                                    <% } %>
-                                    
-                                    <% if (result.metadata.userKeywords && result.metadata.userKeywords.length > 0) { %>
-                                        <%
-                                        // Handle both string and array formats
-                                        const keywords = Array.isArray(result.metadata.userKeywords)
-                                            ? result.metadata.userKeywords
-                                            : (typeof result.metadata.userKeywords === 'string'
-                                                ? result.metadata.userKeywords.split(' ').filter(k => k.trim())
-                                                : []);
-                                        keywords.slice(0, 3).forEach(keyword => {
-                                        %>
-                                            <span class="badge bg-info me-1">
-                                                <i class="fas fa-tag me-1"></i><%= keyword %>
-                                            </span>
-                                        <% }); %>
-                                        <% if (keywords.length > 3) { %>
-                                            <span class="badge" style="background-color: var(--badge-light-bg); color: var(--badge-light-text);">+<%= keywords.length - 3 %> more</span>
-                                        <% } %>
-                                    <% } %>
+                    <div class="collapse <%= (categories && categories.length > 0) || (userKeywords && userKeywords.length > 0) ? 'show' : '' %>" id="filterOptions">
+                        <div class="row mt-3 g-3">
+                            <!-- Categories -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold"><i class="fas fa-folder me-1"></i>Categories</label>
+                                <div class="border rounded p-2" style="max-height: 150px; overflow-y: auto;">
+                                    <% availableCategories.forEach(cat => { %>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox"
+                                                   id="cat_<%= cat.replace(/[^a-zA-Z0-9]/g, '_') %>"
+                                                   name="category" value="<%= cat %>"
+                                                   <%= (Array.isArray(categories) ? categories.includes(cat) : category === cat) ? 'checked' : '' %>>
+                                            <label class="form-check-label" for="cat_<%= cat.replace(/[^a-zA-Z0-9]/g, '_') %>"><%= cat %></label>
+                                        </div>
+                                    <% }); %>
                                 </div>
-                                
-                                <small class="text-muted">
-                                    <%= result.metadata.wordCount %> words
-                                    <% if (result.metadata.lastModified) { %>
-                                        • Modified: <%= new Date(result.metadata.lastModified).toLocaleDateString() %>
-                                    <% } %>
-                                </small>
+                            </div>
+
+                            <!-- Keywords -->
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold"><i class="fas fa-tags me-1"></i>Keywords</label>
+                                <div class="border rounded p-2" style="max-height: 150px; overflow-y: auto;">
+                                    <% availableKeywords.forEach(kw => {
+                                        const kwLabel = typeof kw === 'object' ? kw.label : kw;
+                                        const kwDesc = typeof kw === 'object' ? kw.description : '';
+                                    %>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox"
+                                                   id="kw_<%= kwLabel.replace(/[^a-zA-Z0-9]/g, '_') %>"
+                                                   name="keywords" value="<%= kwLabel %>"
+                                                   <%= (Array.isArray(userKeywords) ? userKeywords.includes(kwLabel) : userKeywords === kwLabel) ? 'checked' : '' %>>
+                                            <label class="form-check-label" for="kw_<%= kwLabel.replace(/[^a-zA-Z0-9]/g, '_') %>"
+                                                   <% if (kwDesc) { %>title="<%= kwDesc %>"<% } %>>
+                                                <%= kwLabel %><% if (kwDesc) { %> <small class="text-muted">- <%= kwDesc %></small><% } %>
+                                            </label>
+                                        </div>
+                                    <% }); %>
+                                </div>
                             </div>
                         </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Page Search Results -->
+        <% if (query || (categories && categories.length > 0) || (userKeywords && userKeywords.length > 0)) { %>
+            <div class="mb-3">
+                <span class="badge bg-info"><%= count %> result<%= count === 1 ? '' : 's' %></span>
+                <% if (query) { %><span class="ms-2">for "<strong><%= query %></strong>"</span><% } %>
+                <% if (categories && categories.length > 0) { %>
+                    <span class="ms-2">in <%= categories.map(c => `<span class="badge bg-primary">${c}</span>`).join(' ') %></span>
+                <% } %>
+                <% if (userKeywords && userKeywords.length > 0) { %>
+                    <span class="ms-2">with <%= userKeywords.map(k => `<span class="badge bg-info">${k}</span>`).join(' ') %></span>
+                <% } %>
+            </div>
+
+            <% if (results.length > 0) { %>
+                <div class="list-group">
+                    <% results.forEach(result => { %>
+                        <a href="/wiki/<%= encodeURIComponent(result.name) %>" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1"><i class="fas fa-file-alt me-2"></i><%= result.title %></h6>
+                                <small class="text-muted">Score: <%= result.score.toFixed(2) %></small>
+                            </div>
+                            <% if (result.snippet) { %>
+                                <p class="mb-1 small text-muted"><%= result.snippet %>...</p>
+                            <% } %>
+                            <div>
+                                <% if (result.metadata.category) { %>
+                                    <span class="badge bg-primary me-1"><i class="fas fa-folder me-1"></i><%= result.metadata.category %></span>
+                                <% } %>
+                                <% if (result.metadata.userKeywords && result.metadata.userKeywords.length > 0) { %>
+                                    <% const kws = Array.isArray(result.metadata.userKeywords) ? result.metadata.userKeywords : []; %>
+                                    <% kws.slice(0, 3).forEach(kw => { %>
+                                        <span class="badge bg-info me-1"><%= kw %></span>
+                                    <% }); %>
+                                    <% if (kws.length > 3) { %><span class="badge bg-secondary">+<%= kws.length - 3 %></span><% } %>
+                                <% } %>
+                            </div>
+                        </a>
                     <% }); %>
                 </div>
             <% } else { %>
                 <div class="alert alert-info">
-                    <h5><i class="fas fa-info-circle"></i> No Results Found</h5>
-                    <p class="mb-0">
-                        No pages found matching your search criteria. Try:
-                    </p>
-                    <ul class="mb-0">
-                        <li>Using different search terms</li>
-                        <li>Checking your spelling</li>
-                        <li>Using broader categories or keywords</li>
-                        <li>Searching in all fields instead of specific ones</li>
-                    </ul>
+                    <i class="fas fa-info-circle me-2"></i>No pages found matching your search.
                 </div>
             <% } %>
-        </div>
-        
-        <!-- Search Statistics Sidebar -->
-        <div class="col-md-3">
-            <div class="card shadow-sm">
-                <div class="card-header" style="background-color: var(--card-bg); color: var(--info-text, #0dcaf0);">
-                    <h6 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Search Statistics</h6>
-                </div>
-                <div class="card-body" style="background-color: var(--card-bg);">
-                    <table class="table table-sm table-borderless">
-                        <tr>
-                            <td><i class="fas fa-file-alt me-2" style="color: var(--text-primary);"></i><strong>Total Pages:</strong></td>
-                            <td><span class="badge" style="background-color: var(--badge-primary-bg); color: var(--badge-primary-text);"><%= stats.totalDocuments %></span></td>
-                        </tr>
-                        <tr>
-                            <td><i class="fas fa-folder me-2" style="color: var(--text-secondary);"></i><strong>Categories:</strong></td>
-                            <td><span class="badge" style="background-color: var(--badge-secondary-bg); color: var(--badge-secondary-text);"><%= stats.totalCategories %></span></td>
-                        </tr>
-                        <tr>
-                            <td><i class="fas fa-tags me-2" style="color: var(--text-info);"></i><strong>Keywords:</strong></td>
-                            <td><span class="badge" style="background-color: var(--badge-info-bg); color: var(--badge-info-text);"><%= stats.totalUserKeywords %></span></td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
-            
-            <div class="card mt-3 shadow-sm">
-                <div class="card-header" style="background-color: var(--card-bg); color: var(--warning-text, #ffc107);">
-                    <h6 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Search Tips</h6>
-                </div>
-                <div class="card-body" style="background-color: var(--card-bg);">
-                    <div class="small">
-                        <ul class="list-unstyled mb-0">
-                            <li class="mb-2"><strong>Exact phrase:</strong> <code>"your phrase"</code></li>
-                            <li class="mb-2"><strong>Required word:</strong> <code>+required</code></li>
-                            <li class="mb-2"><strong>Excluded word:</strong> <code>-excluded</code></li>
-                            <li class="mb-2"><strong>Wildcard:</strong> <code>word*</code></li>
-                            <li class="mb-0"><strong>Field search:</strong> <code>title:word</code></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-<% } else { %>
-    <!-- Empty search state -->
-    <div class="text-center py-5">
-        <i class="fas fa-search fa-3x text-muted mb-3"></i>
-        <h4>Search the Wiki</h4>
-        <p class="text-muted">
-            Enter search terms above to find pages, or use the filters to browse by category and keywords.
-        </p>
-        
-        <div class="row mt-4">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header" style="background-color: var(--card-bg); color: var(--primary-text, #0d6efd);"> 
-                        <h6 class="mb-0"><i class="fas fa-folder"></i> Browse by Category</h6>
-                    </div>
-                    <div class="card-body">
-                        <div class="d-flex flex-wrap gap-2 browse-buttons">
-                            <% availableCategories.slice(0, 8).forEach(cat => { %>
-                                <a href="/search?category=<%= encodeURIComponent(cat) %>" 
-                                   class="btn btn-sm" style="background-color: var(--btn-outline-primary-bg); color: var(--btn-outline-primary-text); border-color: var(--btn-outline-primary-border);">
-                                    <i class="fas fa-folder-open"></i> <%= cat %>
-                                </a>
-                            <% }); %>
-                            <% if (availableCategories.length > 8) { %>
-                                <button class="btn btn-sm" style="background-color: var(--btn-outline-secondary-bg); color: var(--btn-outline-secondary-text); border-color: var(--btn-outline-secondary-border);" type="button" 
-                                        onclick="toggleMoreCategories()" id="moreCategoriesBtn">
-                                    +<%= availableCategories.length - 8 %> more categories...
-                                </button>
-                            <% } %>
-                        </div>
-                        <% if (availableCategories.length > 8) { %>
-                            <div id="moreCategories" class="d-none mt-2">
-                                <div class="d-flex flex-wrap gap-2 browse-buttons">
-                                    <% availableCategories.slice(8).forEach(cat => { %>
-                                        <a href="/search?category=<%= encodeURIComponent(cat) %>" 
-                                           class="btn btn-sm" style="background-color: var(--btn-outline-primary-bg); color: var(--btn-outline-primary-text); border-color: var(--btn-outline-primary-border);">
-                                            <i class="fas fa-folder-open"></i> <%= cat %>
-                                        </a>
-                                    <% }); %>
-                                </div>
-                                <button class="btn btn-link btn-sm p-0 mt-2" onclick="toggleMoreCategories()">
-                                    <i class="fas fa-chevron-up"></i> Show fewer
-                                </button>
-                            </div>
-                        <% } %>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header" style="background-color: var(--card-bg); color: var(--info-text, #0dcaf0);">
-                        <h6 class="mb-0"><i class="fas fa-tags"></i> Browse by Keywords</h6>
-                    </div>
-                    <div class="card-body" style="background-color: var(--card-bg);">
-                        <div class="d-flex flex-wrap gap-2 browse-buttons">
-                            <% availableKeywords.slice(0, 10).forEach(kw => {
-                                const kwLabel = typeof kw === 'object' ? kw.label : kw;
-                                const kwDesc = typeof kw === 'object' ? kw.description : '';
-                            %>
-                                <a href="/search?keywords=<%= encodeURIComponent(kwLabel) %>"
-                                   class="btn btn-sm" style="background-color: var(--btn-outline-info-bg); color: var(--btn-outline-info-text); border-color: var(--btn-outline-info-border);"<% if (kwDesc) { %> title="<%= kwDesc %>"<% } %>>
-                                    <i class="fas fa-tag"></i> <%= kwLabel %>
-                                </a>
-                            <% }); %>
-                            <% if (availableKeywords.length > 10) { %>
-                                <button class="btn btn-sm" style="background-color: var(--btn-outline-secondary-bg); color: var(--btn-outline-secondary-text); border-color: var(--btn-outline-secondary-border);" type="button"
-                                        onclick="toggleMoreKeywords()" id="moreKeywordsBtn">
-                                    +<%= availableKeywords.length - 10 %> more keywords...
-                                </button>
-                            <% } %>
-                        </div>
-                        <% if (availableKeywords.length > 10) { %>
-                            <div id="moreKeywords" class="d-none mt-2">
-                                <div class="d-flex flex-wrap gap-2 browse-buttons">
-                                    <% availableKeywords.slice(10).forEach(kw => {
-                                        const kwLabel = typeof kw === 'object' ? kw.label : kw;
-                                        const kwDesc = typeof kw === 'object' ? kw.description : '';
-                                    %>
-                                        <a href="/search?keywords=<%= encodeURIComponent(kwLabel) %>"
-                                           class="btn btn-sm" style="background-color: var(--btn-outline-info-bg); color: var(--btn-outline-info-text); border-color: var(--btn-outline-info-border);"<% if (kwDesc) { %> title="<%= kwDesc %>"<% } %>>
-                                            <i class="fas fa-tag"></i> <%= kwLabel %>
-                                        </a>
-                                    <% }); %>
-                                </div>
-                                <button class="btn btn-link btn-sm p-0 mt-2" onclick="toggleMoreKeywords()">
-                                    <i class="fas fa-chevron-up"></i> Show fewer
-                                </button>
-                            </div>
-                        <% } %>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="row mt-4">
-            <div class="col-md-8 offset-md-2">
-                <div class="card border-light">
-                    <div class="card-body" style="background-color: var(--card-bg);">
-                        <h6><i class="fas fa-lightbulb" style="color: var(--text-warning);"></i> Quick Search Tips</h6>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <ul class="list-unstyled small">
-                                    <li><code>"exact phrase"</code> - Search for exact phrases</li>
-                                    <li><code>+required</code> - Require specific words</li>
-                                    <li><code>-excluded</code> - Exclude specific words</li>
-                                </ul>
-                            </div>
-                            <div class="col-md-6">
-                                <ul class="list-unstyled small">
-                                    <li><code>word*</code> - Wildcard matching</li>
-                                    <li><code>title:word</code> - Search in titles only</li>
-                                    <li>Use categories and keywords for filtering</li>
-                                </ul>
+        <% } else { %>
+            <!-- Quick Browse -->
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header"><i class="fas fa-folder me-2"></i>Browse by Category</div>
+                        <div class="card-body">
+                            <div class="d-flex flex-wrap gap-2">
+                                <% availableCategories.slice(0, 12).forEach(cat => { %>
+                                    <a href="/search?category=<%= encodeURIComponent(cat) %>" class="btn btn-sm btn-outline-primary">
+                                        <%= cat %>
+                                    </a>
+                                <% }); %>
+                                <% if (availableCategories.length > 12) { %>
+                                    <span class="btn btn-sm btn-outline-secondary disabled">+<%= availableCategories.length - 12 %> more</span>
+                                <% } %>
                             </div>
                         </div>
-                        <div class="text-center mt-2">
-                            <a href="/wiki/Search%20Documentation" class="btn btn-sm" style="background-color: var(--btn-outline-info-bg); color: var(--btn-outline-info-text); border-color: var(--btn-outline-info-border);">
-                                <i class="fas fa-book me-1"></i>Complete Search Documentation
-                            </a>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header"><i class="fas fa-tags me-2"></i>Browse by Keyword</div>
+                        <div class="card-body">
+                            <div class="d-flex flex-wrap gap-2">
+                                <% availableKeywords.slice(0, 12).forEach(kw => {
+                                    const kwLabel = typeof kw === 'object' ? kw.label : kw;
+                                %>
+                                    <a href="/search?keywords=<%= encodeURIComponent(kwLabel) %>" class="btn btn-sm btn-outline-info">
+                                        <%= kwLabel %>
+                                    </a>
+                                <% }); %>
+                                <% if (availableKeywords.length > 12) { %>
+                                    <span class="btn btn-sm btn-outline-secondary disabled">+<%= availableKeywords.length - 12 %> more</span>
+                                <% } %>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-<% } %>
 
-<!-- Page Link Autocomplete - Issue #90 -->
+            <!-- Search Tips -->
+            <div class="card">
+                <div class="card-header"><i class="fas fa-lightbulb me-2"></i>Search Tips</div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <code>"exact phrase"</code> - Exact match
+                        </div>
+                        <div class="col-md-4">
+                            <code>+required -excluded</code> - Include/exclude
+                        </div>
+                        <div class="col-md-4">
+                            <code>word*</code> - Wildcard
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <% } %>
+    </div>
+
+    <!-- Attachments Search Tab -->
+    <div class="tab-pane fade <%= searchTab === 'attachments' ? 'show active' : '' %>" id="attachments-search" role="tabpanel">
+        <div class="card mb-4 shadow-sm">
+            <div class="card-body" style="background-color: var(--card-bg);">
+                <form id="attachmentSearchForm" action="/search" method="GET">
+                    <input type="hidden" name="tab" value="attachments">
+                    <div class="row g-3">
+                        <!-- Filename Search -->
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-file"></i></span>
+                                <input type="text" class="form-control" id="attachmentQuery" name="attachmentQuery"
+                                       value="<%= attachmentQuery || '' %>" placeholder="Search by filename...">
+                            </div>
+                        </div>
+
+                        <!-- MIME Type Filter -->
+                        <div class="col-md-4">
+                            <select class="form-select" name="mimeType" id="mimeType">
+                                <option value="">All Types</option>
+                                <option value="image/" <%= mimeType === 'image/' ? 'selected' : '' %>>Images</option>
+                                <option value="application/pdf" <%= mimeType === 'application/pdf' ? 'selected' : '' %>>PDFs</option>
+                                <option value="text/" <%= mimeType === 'text/' ? 'selected' : '' %>>Text Files</option>
+                                <option value="application/" <%= mimeType === 'application/' ? 'selected' : '' %>>Applications</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-2">
+                            <button class="btn btn-primary w-100" type="submit">
+                                <i class="fas fa-search me-1"></i>Search
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Attachment Results -->
+        <% if (searchTab === 'attachments' && attachmentResults && attachmentResults.length > 0) { %>
+            <div class="mb-3">
+                <span class="badge bg-info"><%= attachmentResults.length %> attachment<%= attachmentResults.length === 1 ? '' : 's' %></span>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Filename</th>
+                            <th>Type</th>
+                            <th>Size</th>
+                            <th>Page</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% attachmentResults.forEach(att => { %>
+                            <tr>
+                                <td>
+                                    <i class="fas fa-<%= att.mimeType && att.mimeType.startsWith('image/') ? 'image' : 'file' %> me-2"></i>
+                                    <%= att.originalName || att.filename || att.identifier %>
+                                </td>
+                                <td><code><%= att.mimeType || 'unknown' %></code></td>
+                                <td><%= att.size ? (att.size / 1024).toFixed(1) + ' KB' : '-' %></td>
+                                <td>
+                                    <% if (att.pageName) { %>
+                                        <a href="/wiki/<%= encodeURIComponent(att.pageName) %>"><%= att.pageName %></a>
+                                    <% } else { %>
+                                        -
+                                    <% } %>
+                                </td>
+                                <td>
+                                    <a href="/attachments/<%= att.identifier %>" class="btn btn-sm btn-outline-primary" target="_blank">
+                                        <i class="fas fa-download"></i>
+                                    </a>
+                                    <% if (att.mimeType && att.mimeType.startsWith('image/')) { %>
+                                        <a href="/attachments/<%= att.identifier %>" class="btn btn-sm btn-outline-info" target="_blank">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    <% } %>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+        <% } else if (searchTab === 'attachments' && (attachmentQuery || mimeType)) { %>
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>No attachments found matching your search.
+            </div>
+        <% } else if (searchTab === 'attachments') { %>
+            <div class="text-center py-4 text-muted">
+                <i class="fas fa-paperclip fa-3x mb-3"></i>
+                <p>Search for attachments by filename or filter by type.</p>
+            </div>
+        <% } %>
+    </div>
+</div>
+
+</div> <!-- Close search-page div -->
+
 <script>
-// Page autocomplete for search input
+// Auto-submit on filter change
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('advancedSearchForm');
+    const checkboxes = form.querySelectorAll('input[type="checkbox"]');
+
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const hasQuery = document.getElementById('query').value.trim();
+            const hasFilter = document.querySelector('input[name="category"]:checked, input[name="keywords"]:checked');
+            if (hasQuery || hasFilter) {
+                form.submit();
+            }
+        });
+    });
+});
+
+// Page autocomplete
 function initSearchPageAutocomplete() {
     if (typeof PageAutocomplete === 'undefined') {
         setTimeout(initSearchPageAutocomplete, 100);
@@ -395,20 +335,16 @@ function initSearchPageAutocomplete() {
     const searchInput = document.getElementById('query');
     if (!searchInput) return;
 
-    // Initialize page autocomplete
     const autocomplete = new PageAutocomplete({
         minChars: 2,
         maxSuggestions: 10,
         onSelect: function(suggestion) {
-            // Navigate directly to the selected page
             window.location.href = `/wiki/${encodeURIComponent(suggestion.name)}`;
         }
     });
 
-    // Show autocomplete as user types
-    searchInput.addEventListener('input', function(e) {
+    searchInput.addEventListener('input', function() {
         const query = searchInput.value.trim();
-
         if (query.length >= 2) {
             autocomplete.search(query, searchInput);
         } else {
@@ -416,15 +352,12 @@ function initSearchPageAutocomplete() {
         }
     });
 
-    // Handle keyboard navigation in autocomplete
     searchInput.addEventListener('keydown', function(e) {
         if (autocomplete.handleKeydown(e)) {
-            // Autocomplete handled the key, prevent default
             e.preventDefault();
         }
     });
 
-    // Hide autocomplete when clicking outside
     document.addEventListener('click', function(e) {
         if (e.target !== searchInput) {
             autocomplete.hideDropdown();
@@ -438,68 +371,5 @@ if (document.readyState === 'loading') {
     initSearchPageAutocomplete();
 }
 </script>
-
-<script>
-// Auto-submit form when filters change
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('advancedSearchForm');
-    const checkboxes = form.querySelectorAll('input[type="checkbox"]');
-    
-    // Handle multi-select checkboxes
-    checkboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', function() {
-            // Only auto-submit if there's already a search query or filter
-            const hasQuery = document.getElementById('query').value.trim();
-            const hasCategory = document.querySelector('input[name="category"]:checked');
-            const hasKeywords = document.querySelector('input[name="keywords"]:checked');
-            
-            if (hasQuery || hasCategory || hasKeywords) {
-                form.submit();
-            }
-        });
-    });
-    
-    // Handle Search In checkboxes - only allow one selection
-    const searchInCheckboxes = form.querySelectorAll('input[name="searchIn"]');
-    searchInCheckboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', function() {
-            if (this.checked) {
-                searchInCheckboxes.forEach(cb => {
-                    if (cb !== this) cb.checked = false;
-                });
-            }
-        });
-    });
-});
-
-// Toggle functions for expandable sections
-function toggleMoreKeywords() {
-    const moreSection = document.getElementById('moreKeywords');
-    const btn = document.getElementById('moreKeywordsBtn');
-    
-    if (moreSection.classList.contains('d-none')) {
-        moreSection.classList.remove('d-none');
-        btn.style.display = 'none';
-    } else {
-        moreSection.classList.add('d-none');
-        btn.style.display = 'inline-block';
-    }
-}
-
-function toggleMoreCategories() {
-    const moreSection = document.getElementById('moreCategories');
-    const btn = document.getElementById('moreCategoriesBtn');
-    
-    if (moreSection.classList.contains('d-none')) {
-        moreSection.classList.remove('d-none');
-        btn.style.display = 'none';
-    } else {
-        moreSection.classList.add('d-none');
-        btn.style.display = 'inline-block';
-    }
-}
-</script>
-
-</div> <!-- Close search-page div -->
 
 <%- include('footer') %>

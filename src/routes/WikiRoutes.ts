@@ -2064,6 +2064,38 @@ class WikiRoutes {
       if (searchManager.getStats) {
         stats = searchManager.getStats();
       }
+
+      // Handle attachment search
+      const searchTab = (req.query.tab as string) || '';
+      const attachmentQuery = (req.query.attachmentQuery as string) || '';
+      const mimeType = (req.query.mimeType as string) || '';
+      let attachmentResults: Array<{ identifier: string; originalName?: string; filename?: string; mimeType?: string; size?: number; pageName?: string }> = [];
+
+      if (searchTab === 'attachments') {
+        try {
+          const attachmentManager = this.engine.getManager('AttachmentManager');
+          if (attachmentManager && attachmentManager.getAllAttachments) {
+            const allAttachments = await attachmentManager.getAllAttachments();
+
+            // Filter by query and mime type
+            attachmentResults = allAttachments.filter((att: { identifier: string; originalName?: string; filename?: string; mimeType?: string }) => {
+              const filename = (att.originalName || att.filename || att.identifier || '').toLowerCase();
+              const attMimeType = (att.mimeType || '').toLowerCase();
+
+              // Match filename if query provided
+              const matchesQuery = !attachmentQuery || filename.includes(attachmentQuery.toLowerCase());
+
+              // Match mime type if filter provided
+              const matchesMime = !mimeType || attMimeType.startsWith(mimeType.toLowerCase());
+
+              return matchesQuery && matchesMime;
+            });
+          }
+        } catch (attachErr) {
+          logger.warn('Error searching attachments:', attachErr);
+        }
+      }
+
       res.render('search-results', {
         ...commonData,
         title: 'Search Results',
@@ -2079,7 +2111,12 @@ class WikiRoutes {
         userKeywordsList: userKeywordsList,
         availableCategories: systemCategories,
         availableKeywords: userKeywordsList,
-        stats: stats
+        stats: stats,
+        // Attachment search
+        searchTab: searchTab,
+        attachmentQuery: attachmentQuery,
+        mimeType: mimeType,
+        attachmentResults: attachmentResults
       });
     } catch (err: unknown) {
       logger.error('Error searching:', err);

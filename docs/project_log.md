@@ -24,6 +24,26 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-10-03
+
+- Agent: Claude Opus 4.5
+- Subject: Search enhancements - simplified UI and attachment search (#237)
+- Current Issue: #237
+- Key Decision: Use tabs for Pages/Attachments search, simplify form with collapsible filters
+- Work Done:
+  - Simplified search UI with cleaner layout
+  - Added tabbed interface: Pages and Attachments tabs
+  - Replaced multiple checkboxes with dropdown for "Search In"
+  - Made category/keyword filters collapsible with count badge
+  - Added attachment search by filename and MIME type filter
+  - Attachment results show filename, type, size, linked page, download link
+- Testing:
+  - npm test: 65 suites passed, 1663 tests passed (308 skipped)
+  - Build successful
+- Files Modified:
+  - views/search-results.ejs (complete rewrite with tabs)
+  - src/routes/WikiRoutes.ts (added attachment search handling)
+
 ## 2026-02-10-02
 
 - Agent: Claude Opus 4.5
