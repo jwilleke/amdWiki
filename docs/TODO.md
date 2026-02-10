@@ -12,25 +12,6 @@ slug: amdwiki-todo
 
 # Project Development TODO
 
-## Completed
+Can we implement a "[{location:name}]" and "[{location:latitude-longitude}]" functionality to be able to open a map sjpwing the location?
 
-- ✅ [FEATURE] Admin Dashboard: User-Keyword Management (CRUD + Consolidate) #248
-- ✅ [FEATURE] Alphabetize User Keywords #249
-- ✅ [PERF] Server startup performance optimization #250
-  - Content caching in FileSystemProvider
-  - PageNameMatcher index for O(1) lookups
-  - Parallel page loading in buildLinkGraph
-  - Result: Startup reduced from ~48s to ~3s (360x speedup for link graph)
-
-## In Progress
-
-- Pages without user-keywords (7 pages): Install System Integration Guide, Policies Roles and Permissions Architecture, Paleolithic age, Apple
-
-## Future Optimizations
-
-- ✅ Replace getPage() with getPageMetadata() where only metadata is needed (done: 12 conversions)
-- Review existing performance monitoring code in MarkupParser
-- ✅ [FEATURE] Show the short description with the user-keyword #251
-  - Updated getUserKeywordsWithDescriptions() to return {label, description} objects
-  - Updated edit.ejs, create.ejs, search-results.ejs to display descriptions
-  - Descriptions shown inline and as tooltips
+Create documentation for this feature in docs/plugins/ and appropriate end-user documentation for required-pages/ andcopy to data/pages/

@@ -7,7 +7,7 @@ The LocationPlugin displays locations with map links and optional embedded map p
 ```wiki
 [{Location name='Paris, France'}]
 [{Location coords='48.8566,2.3522'}]
-[{Location name='Eiffel Tower' embed=true}]
+[{Location coords='48.8566,2.3522' name='Eiffel Tower' embed=true}]
 [{Location coords='48.8566,2.3522' zoom=15}]
 [{Location name='NYC' provider='google'}]
 ```
@@ -18,7 +18,7 @@ The LocationPlugin displays locations with map links and optional embedded map p
 | --- | --- | --- | --- |
 | `name` | string | - | Location name (geocoded by map service) |
 | `coords` | string | - | Latitude,longitude (e.g., "48.8566,2.3522") |
-| `embed` | boolean | false | Show embedded map preview |
+| `embed` | boolean | false | Show embedded map preview (requires coords) |
 | `zoom` | number | 13 | Map zoom level (1-18) |
 | `width` | string | "100%" | Embedded map width |
 | `height` | string | "300px" | Embedded map height |

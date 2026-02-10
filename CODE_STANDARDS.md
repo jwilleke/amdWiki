@@ -11,6 +11,7 @@ In all interactions and commit messages
 - Be concise and sacrifice grammar for consistion
 - DRY (Don't Repeat Yourself) principle in Code and Documentation
   - in Documentation Refer and link to other Documents.
+- We ONLY do Test-Driven Development (TDD)
 - Iterate Progressively. Start with Core features only: Gather feedback.
 - Please think first and provide options - Presenting a list of unresolved questions to answer, if any. Questions, Comments and Suggestions are always encouraged!
 - Your primary method for interacting with GitHub should be the CLI.
