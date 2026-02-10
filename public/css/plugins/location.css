@@ -1,0 +1,138 @@
+/**
+ * LocationPlugin CSS Styles
+ * Styles for the Location plugin map links and embedded previews
+ */
+
+/* Inline location link wrapper */
+.location-plugin {
+  display: inline;
+}
+
+/* Location link styling */
+.location-link {
+  color: var(--link-color, #0066cc);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.location-link:hover {
+  text-decoration: underline;
+  color: var(--link-hover-color, #004499);
+}
+
+/* Map marker icon */
+.location-link i {
+  color: #e74c3c;
+  margin-right: 0.25em;
+}
+
+.location-link:hover i {
+  color: #c0392b;
+}
+
+/* Embedded map container */
+.location-plugin-container {
+  margin: 1em 0;
+  border: 1px solid var(--border-color, #ddd);
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--card-bg, #fff);
+}
+
+/* Header with link above embedded map */
+.location-header {
+  padding: 0.5em 1em;
+  background: var(--card-header-bg, #f5f5f5);
+  border-bottom: 1px solid var(--border-color, #ddd);
+}
+
+/* Embedded map wrapper */
+.location-map {
+  background: #eee;
+  position: relative;
+}
+
+/* Loading state for iframe */
+.location-map::before {
+  content: "Loading map...";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #666;
+  font-size: 0.9em;
+  z-index: 0;
+}
+
+.location-map iframe {
+  position: relative;
+  z-index: 1;
+}
+
+/* Message when embed is unavailable for provider */
+.location-map-unavailable {
+  padding: 2em 1em;
+  text-align: center;
+  color: #666;
+  font-style: italic;
+  background: #f9f9f9;
+}
+
+/* Error styling */
+.location-error {
+  color: #dc3545;
+  font-style: italic;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .location-link {
+    color: var(--link-color, #6cb2ff);
+  }
+
+  .location-link:hover {
+    color: var(--link-hover-color, #8fc9ff);
+  }
+
+  .location-plugin-container {
+    border-color: var(--border-color, #444);
+    background: var(--card-bg, #2a2a2a);
+  }
+
+  .location-header {
+    background: var(--card-header-bg, #333);
+    border-color: var(--border-color, #444);
+  }
+
+  .location-map {
+    background: #333;
+  }
+
+  .location-map::before {
+    color: #999;
+  }
+
+  .location-map-unavailable {
+    background: #2a2a2a;
+    color: #999;
+  }
+
+  .location-error {
+    color: #ff6b6b;
+  }
+}
+
+/* Print styles */
+@media print {
+  .location-plugin-container {
+    border: 1px solid #999;
+  }
+
+  .location-map {
+    display: none;
+  }
+
+  .location-map-unavailable {
+    display: none;
+  }
+}

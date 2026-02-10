@@ -363,6 +363,8 @@
   "amdwiki.features.images.uploadDir": "./public/images",
   "amdwiki.features.images.defaultAlt": "Uploaded image",
   "amdwiki.features.images.defaultClass": "wiki-image",
+  "_comment_location": "Location plugin configuration",
+  "amdwiki.location.defaultProvider": "osm",
   "amdwiki.features.maintenance.enabled": false,
   "amdwiki.features.maintenance.message": "System is currently under maintenance. Please try again later.",
   "amdwiki.features.maintenance.allowAdmins": true,

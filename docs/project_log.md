@@ -24,6 +24,35 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-10-01
+
+- Agent: Claude Opus 4.5
+- Subject: LocationPlugin - Map Integration for Wiki Pages
+- Key Decision: Use OSM as default provider with embed support; geo: URI for mobile deep linking
+- Work Done:
+  - Created LocationPlugin.ts with support for 4 providers (geo, osm, google, apple)
+  - Supports coordinates and name-based lookups
+  - Embedded map previews (OSM only)
+  - Coordinate validation and HTML escaping for security
+  - Created 55 unit tests covering all functionality
+  - Created 10 E2E tests for browser integration
+  - Created CSS styling with dark mode support
+  - Created developer documentation (docs/plugins/LocationPlugin.md)
+  - Created end-user wiki page documentation
+  - Added amdwiki.location.defaultProvider config option
+- Testing:
+  - npm test: 65 suites passed, 1663 tests passed (308 skipped)
+  - Build successful
+- Files Created:
+  - plugins/LocationPlugin.ts
+  - plugins/__tests__/LocationPlugin.test.js
+  - public/css/plugins/location.css
+  - docs/plugins/LocationPlugin.md
+  - tests/e2e/location-plugin.spec.js
+  - required-pages/29AEF3F9-206F-4478-B79D-6C3A08307FE7.md
+- Files Modified:
+  - config/app-default-config.json (added location config)
+
 ## 2026-02-09-05
 
 - Agent: Claude Opus 4.5
