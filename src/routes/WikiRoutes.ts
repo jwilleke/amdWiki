@@ -4419,6 +4419,93 @@ class WikiRoutes {
   }
 
   /**
+   * Admin import execute with SSE streaming progress
+   * Streams progress events as each file is imported
+   */
+  async adminImportExecuteStream(req: Request, res: Response): Promise<void> {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = req.userContext;
+
+      if (
+        !currentUser ||
+        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+      ) {
+        res.status(403).json({
+          success: false,
+          error: 'You do not have permission to import pages'
+        });
+        return;
+      }
+
+      const { sourceDir, format, limit, generateUUIDs } = req.body;
+
+      if (!sourceDir) {
+        res.status(400).json({
+          success: false,
+          error: 'sourceDir is required'
+        });
+        return;
+      }
+
+      // Set up SSE headers
+      res.setHeader('Content-Type', 'text/event-stream');
+      res.setHeader('Cache-Control', 'no-cache');
+      res.setHeader('Connection', 'keep-alive');
+      res.flushHeaders();
+
+      const importManager = this.engine.getManager('ImportManager');
+
+      // Define progress callback
+      const onProgress = (event: {
+        type: 'start' | 'progress' | 'complete';
+        file?: string;
+        index?: number;
+        total?: number;
+        status?: 'success' | 'skipped' | 'failed';
+        error?: string;
+        result?: unknown;
+      }) => {
+        res.write(`data: ${JSON.stringify(event)}\n\n`);
+      };
+
+      // Execute import with progress callback
+      const result = await importManager.importPagesWithProgress({
+        sourceDir,
+        format: format || 'auto',
+        limit: limit ? Number(limit) : undefined,
+        generateUUIDs: generateUUIDs !== false,
+        dryRun: false,
+        onProgress
+      });
+
+      // Send final complete event
+      onProgress({
+        type: 'complete',
+        result: {
+          success: result.success,
+          converted: result.converted,
+          skipped: result.skipped,
+          failed: result.failed,
+          durationMs: result.durationMs
+        }
+      });
+
+      res.end();
+      return;
+    } catch (err: unknown) {
+      logger.error('Error in streaming import:', err);
+      // Try to send error event if connection still open
+      try {
+        res.write(`data: ${JSON.stringify({ type: 'error', error: getErrorMessage(err) })}\n\n`);
+        res.end();
+      } catch {
+        // Connection already closed
+      }
+    }
+  }
+
+  /**
    * Admin URL import preview - fetch URL, convert, return preview JSON
    */
   async adminImportUrlPreview(req: Request, res: Response) {
@@ -5069,6 +5156,7 @@ class WikiRoutes {
     app.get('/admin/import', (req: Request, res: Response) => this.adminImport(req, res));
     app.post('/admin/import/preview', (req: Request, res: Response) => this.adminImportPreview(req, res));
     app.post('/admin/import/execute', (req: Request, res: Response) => this.adminImportExecute(req, res));
+    app.post('/admin/import/execute/stream', (req: Request, res: Response) => this.adminImportExecuteStream(req, res));
     app.post('/admin/import/url/preview', (req: Request, res: Response) => this.adminImportUrlPreview(req, res));
     app.post('/admin/import/url/execute', (req: Request, res: Response) => this.adminImportUrlExecute(req, res));
 

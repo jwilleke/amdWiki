@@ -24,6 +24,28 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-10-02
+
+- Agent: Claude Opus 4.5
+- Subject: Import pages - live progress in table (#241)
+- Current Issue: #241
+- Key Decision: Use Server-Sent Events (SSE) for real-time progress updates
+- Work Done:
+  - Added SSE endpoint `/admin/import/execute/stream` for streaming progress
+  - Added `onProgress` callback to ImportManager.importPages()
+  - Added `importPagesWithProgress()` alias method
+  - Updated admin-import.ejs with Status column in preview table
+  - Status updates live as each file is imported (Pending → Imported/Skipped/Failed)
+  - Live counter in button shows progress (e.g., "5/20")
+  - No more confirmation popup - progress shown inline in table
+- Testing:
+  - npm test: 65 suites passed, 1663 tests passed (308 skipped)
+  - Build successful
+- Files Modified:
+  - src/routes/WikiRoutes.ts (added adminImportExecuteStream)
+  - src/managers/ImportManager.ts (added onProgress callback, ImportProgressEvent type)
+  - views/admin-import.ejs (Status column, SSE handler)
+
 ## 2026-02-10-01
 
 - Agent: Claude Opus 4.5

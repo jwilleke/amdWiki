@@ -69,6 +69,29 @@ export interface ImportOptions {
 
   /** Skip first N files (for resuming imports) */
   offset?: number;
+
+  /** Progress callback for streaming updates */
+  onProgress?: (event: ImportProgressEvent) => void;
+}
+
+/**
+ * Progress event for streaming import updates
+ */
+export interface ImportProgressEvent {
+  /** Event type */
+  type: 'start' | 'progress' | 'complete' | 'error';
+  /** Source file path */
+  file?: string;
+  /** Current file index (0-based) */
+  index?: number;
+  /** Total files to process */
+  total?: number;
+  /** Status of the file import */
+  status?: 'success' | 'skipped' | 'failed';
+  /** Error message if failed */
+  error?: string;
+  /** Final result (for complete event) */
+  result?: unknown;
 }
 
 /**
@@ -247,6 +270,17 @@ class ImportManager extends BaseManager {
   }
 
   /**
+   * Import pages with streaming progress updates
+   * Alias for importPages that makes the progress callback more explicit
+   *
+   * @param options - Import options with onProgress callback
+   * @returns Import result with statistics and file details
+   */
+  async importPagesWithProgress(options: ImportOptions): Promise<ImportResult> {
+    return this.importPages(options);
+  }
+
+  /**
    * Import pages from source directory
    *
    * @param options - Import options
@@ -312,8 +346,17 @@ class ImportManager extends BaseManager {
 
     logger.info(`[ImportManager] Processing ${filesToProcess.length} of ${files.length} files`);
 
+    // Send start event if progress callback provided
+    if (options.onProgress) {
+      options.onProgress({
+        type: 'start',
+        total: filesToProcess.length
+      });
+    }
+
     // Process each file
-    for (const filePath of filesToProcess) {
+    for (let i = 0; i < filesToProcess.length; i++) {
+      const filePath = filesToProcess[i];
       try {
         const imported = await this.importSinglePage(filePath, {
           ...options,
@@ -324,19 +367,61 @@ class ImportManager extends BaseManager {
           result.files.push(imported);
           if (imported.skippedReason) {
             result.skipped++;
+            // Send progress event for skipped file
+            if (options.onProgress) {
+              options.onProgress({
+                type: 'progress',
+                file: filePath,
+                index: i,
+                total: filesToProcess.length,
+                status: 'skipped'
+              });
+            }
           } else {
             result.converted++;
+            // Send progress event for successful import
+            if (options.onProgress) {
+              options.onProgress({
+                type: 'progress',
+                file: filePath,
+                index: i,
+                total: filesToProcess.length,
+                status: 'success'
+              });
+            }
           }
         } else {
           result.skipped++;
+          // Send progress event for skipped file
+          if (options.onProgress) {
+            options.onProgress({
+              type: 'progress',
+              file: filePath,
+              index: i,
+              total: filesToProcess.length,
+              status: 'skipped'
+            });
+          }
         }
       } catch (error) {
         result.failed++;
+        const errorMessage = error instanceof Error ? error.message : String(error);
         result.errors.push({
           file: filePath,
-          message: error instanceof Error ? error.message : String(error),
+          message: errorMessage,
           stack: error instanceof Error ? error.stack : undefined
         });
+        // Send progress event for failed file
+        if (options.onProgress) {
+          options.onProgress({
+            type: 'progress',
+            file: filePath,
+            index: i,
+            total: filesToProcess.length,
+            status: 'failed',
+            error: errorMessage
+          });
+        }
       }
     }
 

@@ -164,6 +164,7 @@
                                     <th>Target File</th>
                                     <th>Format</th>
                                     <th>Warnings</th>
+                                    <th>Status</th>
                                 </tr>
                             </thead>
                             <tbody id="preview-tbody">
@@ -291,7 +292,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Execute handler
+    // Execute handler - uses Server-Sent Events for real-time progress
     executeBtn.addEventListener('click', async function() {
         if (!currentPreviewData) return;
 
@@ -300,24 +301,99 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         executeBtn.disabled = true;
+        previewBtn.disabled = true;
         executeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Importing...';
 
+        // Reset all status cells to "Pending"
+        const rows = previewTbody.querySelectorAll('tr');
+        rows.forEach(function(row) {
+            const statusCell = row.querySelector('td:last-child');
+            if (statusCell) {
+                statusCell.innerHTML = '<span class="badge bg-secondary">Pending</span>';
+            }
+        });
+
+        // Track progress
+        let converted = 0, skipped = 0, failed = 0;
+
         try {
-            const response = await fetch('/admin/import/execute', {
+            // Use fetch with streaming for SSE-like behavior via POST
+            const response = await fetch('/admin/import/execute/stream', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(currentPreviewData)
             });
 
-            const result = await response.json();
-            displayResults(result);
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let buffer = '';
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                buffer += decoder.decode(value, { stream: true });
+
+                // Process complete SSE events (data: ...\\n\\n)
+                const events = buffer.split('\\n\\n');
+                buffer = events.pop() || ''; // Keep incomplete event in buffer
+
+                for (const eventStr of events) {
+                    if (!eventStr.startsWith('data: ')) continue;
+                    try {
+                        const event = JSON.parse(eventStr.substring(6));
+                        handleProgressEvent(event, rows);
+
+                        // Update counters
+                        if (event.type === 'progress') {
+                            if (event.status === 'success') converted++;
+                            else if (event.status === 'skipped') skipped++;
+                            else if (event.status === 'failed') failed++;
+
+                            // Update live counter in button
+                            executeBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${converted + skipped + failed}/${rows.length}`;
+                        } else if (event.type === 'complete') {
+                            displayResults(event.result);
+                        } else if (event.type === 'error') {
+                            alert('Import error: ' + event.error);
+                        }
+                    } catch (parseErr) {
+                        console.warn('Failed to parse SSE event:', eventStr);
+                    }
+                }
+            }
         } catch (err) {
             alert('Import failed: ' + err.message);
         } finally {
             executeBtn.disabled = false;
+            previewBtn.disabled = false;
             executeBtn.innerHTML = '<i class="fas fa-play"></i> Execute Import';
         }
     });
+
+    // Handle SSE progress events
+    function handleProgressEvent(event, rows) {
+        if (event.type !== 'progress' || event.index === undefined) return;
+
+        const row = rows[event.index];
+        if (!row) return;
+
+        const statusCell = row.querySelector('td:last-child');
+        if (!statusCell) return;
+
+        if (event.status === 'success') {
+            statusCell.innerHTML = '<span class="badge bg-success"><i class="fas fa-check"></i> Imported</span>';
+            row.classList.remove('table-warning');
+            row.classList.add('table-success');
+        } else if (event.status === 'skipped') {
+            statusCell.innerHTML = '<span class="badge bg-warning"><i class="fas fa-forward"></i> Skipped</span>';
+            row.classList.add('table-warning');
+        } else if (event.status === 'failed') {
+            statusCell.innerHTML = `<span class="badge bg-danger" title="${escapeHtml(event.error || 'Unknown error')}"><i class="fas fa-times"></i> Failed</span>`;
+            row.classList.remove('table-warning');
+            row.classList.add('table-danger');
+        }
+    }
 
     function displayPreview(result) {
         previewResults.style.display = 'block';
@@ -328,19 +404,28 @@ document.addEventListener('DOMContentLoaded', function() {
         result.files.forEach(function(file) {
             const isDuplicate = file.skippedReason === 'duplicate';
             const row = document.createElement('tr');
+            row.dataset.sourcePath = file.sourcePath; // Store for matching during import
             if (isDuplicate) row.classList.add('table-warning');
-            let statusBadge;
+
+            let warningsBadge;
             if (isDuplicate) {
-                statusBadge = '<span class="badge bg-danger">Duplicate — will skip</span>';
-            } else if (file.warnings.length > 0) {
-                statusBadge = '<span class="badge bg-warning">' + file.warnings.length + ' warnings</span>';
+                warningsBadge = '<span class="badge bg-danger">Duplicate — will skip</span>';
+            } else if (file.warnings && file.warnings.length > 0) {
+                warningsBadge = '<span class="badge bg-warning">' + file.warnings.length + ' warnings</span>';
             } else {
-                statusBadge = '<span class="badge bg-success">OK</span>';
+                warningsBadge = '<span class="badge bg-success">OK</span>';
             }
+
+            // Status column shows "Ready" before import
+            const statusBadge = isDuplicate
+                ? '<span class="badge bg-secondary">Will Skip</span>'
+                : '<span class="badge bg-info">Ready</span>';
+
             row.innerHTML = `
                 <td><code>${escapeHtml(file.sourcePath)}</code></td>
                 <td><code>${isDuplicate ? escapeHtml(file.existingPageUuid || '') : escapeHtml(file.targetPath)}</code></td>
                 <td><span class="badge bg-secondary">${file.format}</span></td>
+                <td>${warningsBadge}</td>
                 <td>${statusBadge}</td>
             `;
             previewTbody.appendChild(row);
