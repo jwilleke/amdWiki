@@ -125,7 +125,7 @@
                                 <small class="text-muted">Score: <%= result.score.toFixed(2) %></small>
                             </div>
                             <% if (result.snippet) { %>
-                                <p class="mb-1 small text-muted"><%= result.snippet %>...</p>
+                                <p class="mb-1 small text-muted"><%- result.snippet %></p>
                             <% } %>
                             <div>
                                 <% if (result.metadata.category) { %>
