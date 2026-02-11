@@ -24,6 +24,37 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-11-02
+
+- Agent: Claude Opus 4.5
+- Subject: Fix search results display and contrast (#237)
+- Current Issue: #237
+- Key Decision: Override Bootstrap list-group styles with CSS variables for proper theme support
+- Work Done:
+  - Fixed search results layout: title + category on left, score badge on right
+  - Removed `text-muted` from snippets for better readability
+  - Added CSS variable overrides for `.list-group-item-action` in both light/dark modes
+  - Added `--text-heading` and `--text-content` variables to light theme
+  - Fixed contrast issues in dark mode
+- Commits: b6817a9
+- Files Modified:
+  - views/search-results.ejs
+  - public/css/style.css
+
+## 2026-02-11-01
+
+- Agent: Claude Opus 4.5
+- Subject: Fix JSPWiki line break conversion
+- Key Decision: Use CommonMark backslash line breaks instead of HTML `<br>` tags
+- Work Done:
+  - Fixed JSPWikiConverter to output `\` + newline instead of `<br>`
+  - Created migration script `scripts/migrate-br-to-backslash.js`
+  - Migrated 732 existing pages (1,447 `<br>` tags replaced)
+- Commits: 6f541b8
+- Files Modified:
+  - src/converters/JSPWikiConverter.ts
+  - scripts/migrate-br-to-backslash.js (new)
+
 ## 2026-02-10-03
 
 - Agent: Claude Opus 4.5

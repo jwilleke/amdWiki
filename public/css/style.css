@@ -7,6 +7,8 @@
   --text-primary: #212529;
   --text-secondary: #495057;
   --text-muted: #6c757d;
+  --text-heading: #212529;
+  --text-content: #333333;
   --border-color: #dee2e6;
   --border-color-strong: #adb5bd;
   --link-color: #007bff;
@@ -666,14 +668,40 @@ main p, main div, main span, main li {
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
-.search-results .list-group-item {
+.search-page .list-group a.list-group-item-action {
     border-left: 4px solid transparent;
-    transition: border-left-color 0.2s ease;
+    transition: border-left-color 0.2s ease, background-color 0.2s ease;
+    background-color: var(--card-bg) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-color);
+    text-decoration: none;
 }
 
-.search-results .list-group-item:hover {
+.search-page .list-group a.list-group-item-action:hover,
+.search-page .list-group a.list-group-item-action:focus {
     border-left-color: #007bff;
-    background-color: var(--bg-secondary);
+    background-color: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+}
+
+.search-page .list-group a.list-group-item-action h6 {
+    color: var(--text-heading) !important;
+    font-weight: 600;
+}
+
+.search-page .list-group a.list-group-item-action p {
+    color: var(--text-content) !important;
+}
+
+.search-page .list-group a.list-group-item-action small.text-muted {
+    color: var(--text-muted) !important;
+}
+
+.search-page .list-group a.list-group-item-action mark {
+    background-color: #ffc107;
+    color: #000;
+    padding: 0.1em 0.2em;
+    border-radius: 2px;
 }
 
 .search-badge-group {
