@@ -352,12 +352,14 @@ class JSPWikiConverter implements IContentConverter {
 
   /**
    * Convert JSPWiki line breaks to Markdown
-   * \\ -> <br> or two spaces + newline
+   * \\ -> backslash + newline (CommonMark hard line break)
    */
   private convertLineBreaks(content: string): string {
-    // \\ anywhere in text -> <br>
-    // Handles both mid-line and end-of-line occurrences
-    return content.replace(/\\\\/g, '<br>');
+    // Handle \\ at end of line (before newline) - replace with backslash
+    let result = content.replace(/\\\\(\r?\n)/g, '\\\n');
+    // Handle \\ mid-line - replace with backslash + newline
+    result = result.replace(/\\\\/g, '\\\n');
+    return result;
   }
 
   /**
