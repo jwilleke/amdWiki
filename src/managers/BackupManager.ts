@@ -196,7 +196,7 @@ class BackupManager extends BaseManager {
 
       // Generate filename with timestamp
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-      const filename = options.filename || `amdwiki-backup-${timestamp}.json.gz`;
+      const filename = options.filename || `${timestamp}-amdwiki-backup.json.gz`;
       const backupPath = path.join(this.backupDirectory, filename);
 
       // Collect backup data from all managers
@@ -414,7 +414,8 @@ class BackupManager extends BaseManager {
       const files = await fs.readdir(this.backupDirectory);
 
       const backupFiles = files.filter((f: string) => {
-        return f.startsWith('amdwiki-backup-') && f.endsWith('.json.gz');
+        // Support both old format (amdwiki-backup-{timestamp}) and new format ({timestamp}-amdwiki-backup)
+        return (f.startsWith('amdwiki-backup-') || f.endsWith('-amdwiki-backup.json.gz')) && f.endsWith('.json.gz');
       });
 
       const backupDir = this.backupDirectory;
