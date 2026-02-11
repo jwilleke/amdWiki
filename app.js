@@ -157,7 +157,7 @@ checkAndCreatePidLock();
 
   // Setup express-session with file store
   const configManager = engine.getManager('ConfigurationManager');
-  const sessionPath = path.join(__dirname, 'data', 'sessions');
+  const sessionPath = configManager.getResolvedDataPath('amdwiki.session.storagedir', './data/sessions');
   await fs.ensureDir(sessionPath);
 
   app.use(session({

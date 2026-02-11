@@ -84,11 +84,12 @@ function escapeHtml(text: unknown): string {
 
 /**
  * Load page-index.json for version information
+ * @param indexPath - Path to page-index.json (optional, uses default if not provided)
  * @returns Page index data or null if not available
  */
-async function loadPageIndex(): Promise<PageIndex | null> {
+async function loadPageIndex(indexPath?: string): Promise<PageIndex | null> {
   try {
-    const pageIndexPath = path.join(process.cwd(), 'data', 'page-index.json');
+    const pageIndexPath = indexPath || path.join(process.cwd(), 'data', 'page-index.json');
     if (await fs.pathExists(pageIndexPath)) {
       const data = await fs.readFile(pageIndexPath, 'utf8');
       return JSON.parse(data) as PageIndex;
@@ -251,8 +252,12 @@ const RecentChangesPlugin: SimplePlugin = {
         return '<p class="error">Invalid "format" parameter: must be "full" or "compact"</p>';
       }
 
+      // Get page index path from config
+      const configManager = context?.engine?.getManager?.('ConfigurationManager') as { getResolvedDataPath?: (key: string, fallback: string) => string } | undefined;
+      const pageIndexPath = configManager?.getResolvedDataPath?.('amdwiki.page.provider.versioning.indexfile', './data/page-index.json');
+
       // Load page-index.json for version information
-      const pageIndex = await loadPageIndex();
+      const pageIndex = await loadPageIndex(pageIndexPath);
 
       // Get all pages
       const allPageNames = await pageManager.getAllPages();
