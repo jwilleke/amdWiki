@@ -24,6 +24,21 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-11-04
+
+- Agent: Claude Opus 4.5
+- Subject: Change backup filename to date-first format
+- Key Decision: Put timestamp first for chronological file sorting
+- Testing:
+  - npm test: 65 suites passed, 1663 tests passed (308 skipped)
+  - Build successful
+- Work Done:
+  - Changed backup filename from `amdwiki-backup-{timestamp}.json.gz` to `{timestamp}-amdwiki-backup.json.gz`
+  - Added backward compatibility to recognize old format when listing backups
+- Commits: 08c3127
+- Files Modified:
+  - src/managers/BackupManager.ts
+
 ## 2026-02-11-03
 
 - Agent: Claude Opus 4.5
