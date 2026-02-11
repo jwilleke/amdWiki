@@ -194,19 +194,20 @@ function hello() {
   });
 
   describe('line breaks conversion', () => {
-    it('should convert \\\\ at end of line to <br>', () => {
+    it('should convert \\\\ at end of line to backslash (trailing newline trimmed)', () => {
       const result = converter.convert('Line 1\\\\');
-      expect(result.content).toBe('Line 1<br>');
+      // Final output is trimmed, so trailing newline is removed
+      expect(result.content).toBe('Line 1\\');
     });
 
-    it('should convert \\\\ mid-line to <br>', () => {
+    it('should convert \\\\ mid-line to backslash line break', () => {
       const result = converter.convert('First\\\\Second');
-      expect(result.content).toBe('First<br>Second');
+      expect(result.content).toBe('First\\\nSecond');
     });
 
     it('should convert multiple mid-line \\\\ occurrences', () => {
       const result = converter.convert('A\\\\B\\\\C');
-      expect(result.content).toBe('A<br>B<br>C');
+      expect(result.content).toBe('A\\\nB\\\nC');
     });
   });
 
@@ -293,11 +294,11 @@ function hello() {
       expect(result.content).toContain('| [June] | 30 |');
     });
 
-    it('should convert \\\\ to <br> inside table cells', () => {
+    it('should convert \\\\ to backslash line break inside table cells', () => {
       const input = `|| Header ||
 | Line1\\\\Line2 |`;
       const result = converter.convert(input);
-      expect(result.content).toContain('| Line1<br>Line2 |');
+      expect(result.content).toContain('| Line1\\\nLine2 |');
     });
 
     it('should convert emphasis inside table cells', () => {
