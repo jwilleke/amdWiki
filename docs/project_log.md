@@ -24,6 +24,19 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-15-08
+
+- Agent: Claude Opus 4.6
+- Subject: ReferringPagesPlugin show all pages by default (#238)
+- Current Issue: #238
+- Key Decision: Remove default 10-page limit; show all referring pages unless max parameter is explicitly set
+- Work Done:
+  - Changed default `max` from 10 to 0 (unlimited) in referringPagesPlugin.ts
+  - Added comment to issue #238
+- Commits: e227991
+- Files Modified:
+  - plugins/referringPagesPlugin.ts
+
 ## 2026-02-15-07
 
 - Agent: Claude Opus 4.6
