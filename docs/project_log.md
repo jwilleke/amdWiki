@@ -24,6 +24,23 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-15-06
+
+- Agent: Claude Opus 4.6
+- Subject: Startup docs update, PM2_MAX_MEMORY env var, remove unused attachments (#254)
+- Current Issue: #254
+- Key Decision: Document the restructured startup process and make PM2 memory limit configurable via environment variable
+- Work Done:
+  - Rewrote Startup-Process.md to reflect new app.js bootstrap order (maintenance page during startup, admin maintenance mode)
+  - Added PM2_MAX_MEMORY env var to .env.example, docker/.env.example, and docs
+  - Removed unused attachments/ directory from data folder references (not referenced anywhere in codebase)
+- Commits: a997985, f2c0ef0
+- Files Modified:
+  - docs/INSTALLATION/Startup-Process.md
+  - .env.example
+  - docker/.env.example
+  - docs/project_log.md
+
 ## 2026-02-15-05
 
 - Agent: Claude Opus 4.6
