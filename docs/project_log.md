@@ -24,6 +24,29 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-15-03
+
+- Agent: Claude Opus 4.6
+- Subject: Fix server startup issues on jminim4.nerdsbythehour.com (#253)
+- Current Issue: #253
+- Key Decision: Reinstall sharp for darwin-arm64 and bind server to 0.0.0.0 for IPv4+IPv6 localhost access
+- Testing:
+  - npm test: 58 suites passed, 1594 tests passed (109 skipped, 2 failed)
+  - Build: clean TypeScript compilation
+  - Server: running on PID 16379 at <http://localhost:3000>
+- Work Done:
+  - Reinstalled sharp module for darwin-arm64 (fixed 13 test suite failures and server crash)
+  - Fixed localhost IPv6 issue by setting amdwiki.server.host to 0.0.0.0 in custom config
+  - Created missing .install-complete marker in ./data/
+  - Diagnosed slow startup (~2 min) caused by stale page index UUIDs triggering NAS directory scan
+  - Commented on issue #253 with startup verification results
+- Note: This configuration is for hostname jminim4.nerdsbythehour.com
+- Commits: d128056
+- Files Modified:
+  - package-lock.json (sharp reinstall)
+  - data/config/app-custom-config.json (gitignored — added server.host 0.0.0.0)
+  - docs/project_log.md
+
 ## 2026-02-15-02
 
 - Agent: Claude Opus 4.6
