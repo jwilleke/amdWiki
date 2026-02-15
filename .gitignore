@@ -201,3 +201,4 @@ addons/*/*.db
 addons/*/db.sqlite
 !addons/.gitkeep
 !addons/README.md
+.DS_Store
