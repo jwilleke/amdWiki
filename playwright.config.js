@@ -62,15 +62,28 @@ module.exports = defineConfig({
       timeout: 150000,
     },
 
-    // Chromium tests (main browser)
+    // Chromium tests (main browser) - excludes admin-maintenance which modifies global server state
     {
       name: 'chromium',
+      testIgnore: /admin-maintenance\.spec\.js/,
       use: {
         browserName: 'chromium',
         // Use setup project for authenticated tests
         storageState: './tests/e2e/.auth/user.json',
       },
       dependencies: ['setup'],
+    },
+
+    // Admin maintenance tests run LAST since they toggle server-wide maintenance mode
+    // which would cause other parallel tests to get 503 responses
+    {
+      name: 'chromium-maintenance',
+      testMatch: /admin-maintenance\.spec\.js/,
+      use: {
+        browserName: 'chromium',
+        storageState: './tests/e2e/.auth/user.json',
+      },
+      dependencies: ['chromium'],
     },
   ],
 
