@@ -24,17 +24,24 @@ server.sh start [env]
               ▼
          app.js
             │
-            ├── PID lock check (process-level)
-            ├── new WikiEngine()
-            ├── engine.initialize()
-            │     └── ConfigurationManager.initialize()
-            │           ├── Load config/app-default-config.json (required)
-            │           └── Load INSTANCE_DATA_FOLDER/config/{INSTANCE_CONFIG_FILE} (optional)
-            ├── Express middleware setup
-            ├── Installation check middleware
-            ├── Session setup (using ConfigurationManager paths)
-            ├── Route registration (InstallRoutes, WikiRoutes)
-            └── app.listen(port)
+            ├── 1. PID lock check (process-level)
+            ├── 2. Express setup (view engine, static files)
+            ├── 3. Initialization gate middleware (serves 503 maintenance page)
+            ├── 4. app.listen(port) ← SERVER ACCEPTS CONNECTIONS
+            │        (users see maintenance page while engine initializes)
+            ├── 5. WikiEngine initialization (may take 1-2 min on large wikis)
+            │     ├── new WikiEngine()
+            │     └── engine.initialize()
+            │           └── ConfigurationManager.initialize()
+            │                 ├── Load config/app-default-config.json (required)
+            │                 └── Load INSTANCE_DATA_FOLDER/config/{INSTANCE_CONFIG_FILE}
+            ├── 6. Post-init middleware setup
+            │     ├── Installation check middleware
+            │     ├── Session setup (using ConfigurationManager paths)
+            │     ├── User context middleware
+            │     └── Admin maintenance mode middleware
+            ├── 7. Route registration (InstallRoutes, WikiRoutes)
+            └── 8. engineReady = true ← maintenance page stops, normal routes serve
 ```
 
 ## Configuration Loading
@@ -78,6 +85,7 @@ These environment variables override the corresponding config file properties at
 | `INSTANCE_CONFIG_FILE`   | Config filename to load from `INSTANCE_DATA_FOLDER/config/` | `app-custom-config.json` |
 | `NODE_ENV`               | Application environment (`production`, `development`, `test`) | `development`          |
 | `PORT`                   | HTTP port (overrides config value)                       | `3000`                   |
+| `PM2_MAX_MEMORY`         | PM2 max memory before restart (e.g., `4G`, `2G`)        | `4G`                     |
 
 ### What NODE_ENV Does (and Does Not Do)
 
@@ -152,7 +160,38 @@ The `.env` file is a template/reference for the developer. The app does not use 
 
 Creates `.amdwiki.pid` with the current process ID. If a PID file already exists and the process is running, the app exits with an error.
 
-### Step 2: WikiEngine Initialization
+### Step 2: Express Setup (Pre-Engine)
+
+Sets up the minimum Express configuration needed to serve the maintenance page:
+
+- View engine (EJS)
+- Static file serving (`public/`)
+
+### Step 3: Initialization Gate Middleware (Maintenance Mode During Startup)
+
+An `engineReady` flag (initially `false`) gates all incoming requests. While the engine is initializing, all non-static requests receive a **503** response with the `maintenance.ejs` page:
+
+```javascript
+app.use((req, res, next) => {
+  if (engineReady) return next();
+  // Allow static assets (CSS/JS/images/favicon) through
+  // All other requests → 503 maintenance page
+  return res.status(503).render('maintenance', { ... });
+});
+```
+
+The maintenance page includes `<meta http-equiv="refresh" content="10">` so browsers automatically retry every 10 seconds.
+
+### Step 4: Listen Immediately
+
+```javascript
+const port = parseInt(process.env.PORT || '3000', 10);
+app.listen(port);
+```
+
+The server begins accepting connections **before** the engine initializes. Users see the maintenance page instead of "connection refused." This is especially important for large wikis (14K+ pages) where initialization can take 1-2 minutes.
+
+### Step 5: WikiEngine Initialization
 
 ```javascript
 engine = new WikiEngine();
@@ -168,42 +207,39 @@ await engine.initialize();
 5. Deep-merges custom over default
 6. Initializes remaining managers (24+ managers) using merged config
 
-### Step 3: Express Middleware
+During this step, the server continues accepting connections and serving the maintenance page.
 
-- View engine (EJS)
-- JSON/URL-encoded body parsing
-- Static file serving (`public/`)
-- Cookie parser
+### Step 6: Post-Engine Middleware Setup
 
-### Step 4: Installation Check
+After the engine is ready, the remaining middleware is registered:
 
-Middleware checks if installation is required on every non-static request:
+- JSON/URL-encoded body parsing, cookie parser
+- **Installation check middleware**: If `INSTANCE_DATA_FOLDER/.install-complete` is missing → redirect to `/install`. If `HEADLESS_INSTALL=true` → auto-configure without the wizard.
+- **Session setup**: Storage path and options from ConfigurationManager (`amdwiki.session.storagedir`, `amdwiki.session.secret`, `amdwiki.session.maxAge`)
+- **User context middleware**: Attaches user info from session to each request
+- **Admin maintenance mode middleware**: When `engine.config.features.maintenance.enabled` is true, returns 503 to non-admin users (allows admin/login/logout routes through so admins can disable it)
 
-- If `INSTANCE_DATA_FOLDER/.install-complete` is missing → redirect to `/install`
-- If `HEADLESS_INSTALL=true` → auto-configure without the wizard
-- If installation is complete → continue to the requested page
-
-### Step 5: Session Setup
-
-Session storage path and options come from ConfigurationManager:
-
-- Storage directory: `amdwiki.session.storagedir` (resolved via `INSTANCE_DATA_FOLDER`)
-- Secret: `amdwiki.session.secret`
-- Max age: `amdwiki.session.maxAge`
-
-### Step 6: Route Registration
+### Step 7: Route Registration
 
 1. `InstallRoutes` mounted at `/install`
 2. `WikiRoutes` handles all other routes (pages, auth, API, etc.)
 
-### Step 7: Listen
+### Step 8: Engine Ready
 
 ```javascript
-const port = process.env.PORT || configManager.getProperty('amdwiki.server.port', 3000);
-app.listen(port);
+engineReady = true;
 ```
 
-`PORT` env var takes precedence over config (for Docker/CI/PaaS platforms).
+The initialization gate middleware now passes all requests through to the normal middleware stack. Users see the wiki instead of the maintenance page.
+
+### Admin-Triggered Maintenance Mode
+
+Separate from the startup maintenance gate, admins can enable maintenance mode at runtime via the admin dashboard. When enabled:
+
+- All non-admin users receive a 503 maintenance page
+- Admin routes (`/admin/*`), login, and logout are allowed through
+- Admins with the `admin` role bypass the maintenance page
+- The maintenance message is configurable via `engine.config.features.maintenance.message`
 
 ## Configuration Files on Disk
 
