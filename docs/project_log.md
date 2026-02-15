@@ -24,6 +24,29 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-15-07
+
+- Agent: Claude Opus 4.6
+- Subject: TDD coverage for maintenance mode and write queue (#254)
+- Current Issue: #254
+- Key Decision: Isolate admin-maintenance E2E tests into separate Playwright project to prevent parallel test interference
+- Testing:
+  - Unit tests: 8/8 passed (VersioningFileProvider-WriteQueue)
+  - E2E tests: 45/45 passed, 2 skipped (full suite including new tests)
+- Work Done:
+  - Added unit tests for savePageIndex() write queue (8 tests: serialization, concurrent writes, temp file cleanup, error handling)
+  - Added E2E tests for startup 503 maintenance page (3 tests: page structure, 503 status, transition to ready)
+  - Added E2E tests for admin maintenance mode lifecycle (6 tests: enable, admin bypass, non-admin 503, login accessible, disable, normal resume)
+  - Fixed Playwright anonymous context: browser.newContext({ storageState: undefined }) needed to override project defaults
+  - Added chromium-maintenance project to playwright.config.js (runs after all other tests to avoid global state interference)
+- Commits: 73b6bb6
+- Files Modified:
+  - src/providers/__tests__/VersioningFileProvider-WriteQueue.test.js (new)
+  - tests/e2e/admin-maintenance.spec.js (new)
+  - tests/e2e/startup-maintenance.spec.js (new)
+  - playwright.config.js
+  - docs/project_log.md
+
 ## 2026-02-15-06
 
 - Agent: Claude Opus 4.6
