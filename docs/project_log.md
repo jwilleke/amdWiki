@@ -24,6 +24,35 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-15-05
+
+- Agent: Claude Opus 4.6
+- Subject: Admin maintenance mode, page-index race condition fix, E2E test stability (#254)
+- Current Issue: #254
+- Key Decision: Fix three root causes of E2E test failures: PM2 OOM restarts, page-index concurrent write race condition, and parallel test overload
+- Testing:
+  - npm test: 65 suites passed, 1663 tests passed
+  - E2E tests: 36 passed, 0 failed, 2 skipped (was 17 failures)
+  - Build: clean TypeScript compilation
+- Work Done:
+  - Added admin-triggered maintenance mode middleware in app.js (returns 503 to non-admin users, allows admin/login/logout routes)
+  - Fixed race condition in VersioningFileProvider.savePageIndex() - serialized writes via queue, unique temp file names
+  - Increased PM2 max_memory_restart from 1G to 4G (configurable via PM2_MAX_MEMORY env var) - search index rebuild spikes to ~3GB with 14K+ pages
+  - Made location-plugin E2E tests serial to prevent server overload from parallel page creation
+  - Added waitForServerReady() E2E helper for startup maintenance page handling
+  - Increased E2E timeouts for page creation operations
+  - Root cause of 17 E2E failures: PM2 killed process during search index rebuild (memory > 1G), plus concurrent page-index.json writes causing ENOENT errors
+- Commits: 63c2790
+- Files Modified:
+  - app.js
+  - ecosystem.config.js
+  - src/providers/VersioningFileProvider.ts
+  - playwright.config.js
+  - tests/e2e/auth.setup.js
+  - tests/e2e/fixtures/helpers.js
+  - tests/e2e/location-plugin.spec.js
+  - docs/project_log.md
+
 ## 2026-02-15-04
 
 - Agent: Claude Opus 4.6
