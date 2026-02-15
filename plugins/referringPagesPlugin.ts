@@ -29,7 +29,8 @@ function generateOutput(pageName: string, params: ReferringParams, linkGraph: Li
   const targetPage = String(opts.page || pageName);
 
   // Defaults
-  const max = opts.max ? parseInt(String(opts.max), 10) : 10;
+  // Show all referring pages by default; use max parameter to limit
+  const max = opts.max ? parseInt(String(opts.max), 10) : 0;
   const before = String(opts.before || '');
   const after = String(opts.after || '');
 
@@ -48,8 +49,10 @@ function generateOutput(pageName: string, params: ReferringParams, linkGraph: Li
     return '<p><em>No pages currently refer to this page.</em></p>';
   }
 
-  // Limit and format
-  referring = referring.slice(0, max);
+  // Limit if max is specified
+  if (max > 0) {
+    referring = referring.slice(0, max);
+  }
 
   // If before/after are provided, format each link with those markers
   if (before || after) {
