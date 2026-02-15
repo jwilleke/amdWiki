@@ -24,6 +24,24 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-15-02
+
+- Agent: Claude Opus 4.6
+- Subject: Fix SSD storage paths for jminim4.nerdsbythehour.com (#253)
+- Current Issue: #253
+- Key Decision: Update SSD volume from /Volumes/hd1 to /Volumes/hd2 to match current hardware on jminim4.nerdsbythehour.com
+- Work Done:
+  - Tested all configured storage paths — SSD volume hd1 not mounted, NAS paths missing
+  - Updated SSD paths from /Volumes/hd1/jimstest-wiki to /Volumes/hd2/jimstest-wiki in config/app-production-config.json
+  - Updated same paths in data/config/app-custom-config.json (gitignored, instance-specific)
+  - Verified all paths (SSD + NAS + backup) now exist and are accessible
+- Note: This configuration is for hostname jminim4.nerdsbythehour.com
+- Commits: c8b95b7
+- Files Modified:
+  - config/app-production-config.json
+  - data/config/app-custom-config.json (gitignored)
+  - docs/project_log.md
+
 ## 2026-02-15-01
 
 - Agent: Claude Opus 4.6
