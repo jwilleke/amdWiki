@@ -145,6 +145,9 @@ class VersioningFileProvider extends FileSystemProvider {
   /** In-memory page index cache */
   private pageIndex: PageIndex | null;
 
+  /** Write queue to serialize page index saves and prevent race conditions */
+  private pageIndexWriteQueue: Promise<void>;
+
   /** Version cache for performance (LRU cache) */
   private versionCache: Map<string, string>;
   private versionCacheSize: number;
@@ -170,6 +173,9 @@ class VersioningFileProvider extends FileSystemProvider {
 
     // In-memory page index cache
     this.pageIndex = null;
+
+    // Write queue to serialize page index saves
+    this.pageIndexWriteQueue = Promise.resolve();
 
     // Version cache for performance (LRU cache)
     this.versionCache = new Map();
@@ -566,7 +572,8 @@ class VersioningFileProvider extends FileSystemProvider {
   }
 
   /**
-   * Save page index to disk (atomic write)
+   * Save page index to disk (atomic write, serialized via queue)
+   * Uses a write queue to prevent concurrent saves from conflicting.
    */
   private savePageIndex(): Promise<void> {
     if (!this.pageIndex || !this.pageIndexPath) {
@@ -575,11 +582,24 @@ class VersioningFileProvider extends FileSystemProvider {
 
     this.pageIndex.lastUpdated = new Date().toISOString();
 
-    // Atomic write: write to temp file, then rename
-    const indexPath = this.pageIndexPath; // Capture for closure
-    const tempPath = `${indexPath}.tmp`;
-    return fs.writeFile(tempPath, JSON.stringify(this.pageIndex, null, 2), 'utf8')
-      .then(() => fs.rename(tempPath, indexPath));
+    // Serialize writes through the queue to prevent race conditions
+    const indexPath = this.pageIndexPath;
+    const data = JSON.stringify(this.pageIndex, null, 2);
+
+    this.pageIndexWriteQueue = this.pageIndexWriteQueue.then(async () => {
+      // Use unique temp file to prevent collisions
+      const tempPath = `${indexPath}.tmp.${process.pid}.${Date.now()}`;
+      try {
+        await fs.writeFile(tempPath, data, 'utf8');
+        await fs.rename(tempPath, indexPath);
+      } catch (err) {
+        // Clean up temp file on error
+        try { await fs.unlink(tempPath); } catch { /* ignore */ }
+        throw err;
+      }
+    });
+
+    return this.pageIndexWriteQueue;
   }
 
   /**

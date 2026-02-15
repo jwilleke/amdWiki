@@ -14,6 +14,13 @@ test.describe('LocationPlugin', () => {
   // Use authenticated state from setup
   test.use({ storageState: './tests/e2e/.auth/user.json' });
 
+  // Run serially - each test creates a page which triggers a search index rebuild
+  // on large wikis (14K+ pages). Parallel execution overwhelms the server.
+  test.describe.configure({ mode: 'serial' });
+
+  // Increase timeout for page creation + save + index rebuild
+  test.setTimeout(60000);
+
   const testPageName = `LocationTest-${Date.now()}`;
 
   test.describe('Basic Location Links', () => {
@@ -42,7 +49,7 @@ test.describe('LocationPlugin', () => {
       // Submit create form
       const createButton = page.locator('button:has-text("Create Page"), form[action="/create"] button[type="submit"]');
       await Promise.all([
-        page.waitForURL(/\/(edit|wiki)\//, { timeout: 15000 }),
+        page.waitForURL(/\/(edit|wiki)\//, { timeout: 30000 }),
         createButton.first().click()
       ]);
 
@@ -58,7 +65,7 @@ test.describe('LocationPlugin', () => {
         // Save
         const saveButton = page.locator('button:has-text("Save"), button[type="submit"]:has-text("Save")');
         await Promise.all([
-          page.waitForURL(/\/wiki\//, { timeout: 15000 }),
+          page.waitForURL(/\/wiki\//, { timeout: 30000 }),
           saveButton.first().click()
         ]);
       }
@@ -97,7 +104,7 @@ test.describe('LocationPlugin', () => {
 
       const createButton = page.locator('button:has-text("Create Page"), form[action="/create"] button[type="submit"]');
       await Promise.all([
-        page.waitForURL(/\/(edit|wiki)\//, { timeout: 15000 }),
+        page.waitForURL(/\/(edit|wiki)\//, { timeout: 30000 }),
         createButton.first().click()
       ]);
 
@@ -110,7 +117,7 @@ test.describe('LocationPlugin', () => {
 
         const saveButton = page.locator('button:has-text("Save"), button[type="submit"]:has-text("Save")');
         await Promise.all([
-          page.waitForURL(/\/wiki\//, { timeout: 15000 }),
+          page.waitForURL(/\/wiki\//, { timeout: 30000 }),
           saveButton.first().click()
         ]);
       }
@@ -150,7 +157,7 @@ test.describe('LocationPlugin', () => {
 
       const createButton = page.locator('button:has-text("Create Page"), form[action="/create"] button[type="submit"]');
       await Promise.all([
-        page.waitForURL(/\/(edit|wiki)\//, { timeout: 15000 }),
+        page.waitForURL(/\/(edit|wiki)\//, { timeout: 30000 }),
         createButton.first().click()
       ]);
 
@@ -163,7 +170,7 @@ test.describe('LocationPlugin', () => {
 
         const saveButton = page.locator('button:has-text("Save"), button[type="submit"]:has-text("Save")');
         await Promise.all([
-          page.waitForURL(/\/wiki\//, { timeout: 15000 }),
+          page.waitForURL(/\/wiki\//, { timeout: 30000 }),
           saveButton.first().click()
         ]);
       }
@@ -197,7 +204,7 @@ test.describe('LocationPlugin', () => {
 
       const createButton = page.locator('button:has-text("Create Page"), form[action="/create"] button[type="submit"]');
       await Promise.all([
-        page.waitForURL(/\/(edit|wiki)\//, { timeout: 15000 }),
+        page.waitForURL(/\/(edit|wiki)\//, { timeout: 30000 }),
         createButton.first().click()
       ]);
 
@@ -210,7 +217,7 @@ test.describe('LocationPlugin', () => {
 
         const saveButton = page.locator('button:has-text("Save"), button[type="submit"]:has-text("Save")');
         await Promise.all([
-          page.waitForURL(/\/wiki\//, { timeout: 15000 }),
+          page.waitForURL(/\/wiki\//, { timeout: 30000 }),
           saveButton.first().click()
         ]);
       }
@@ -246,7 +253,7 @@ test.describe('LocationPlugin', () => {
 
       const createButton = page.locator('button:has-text("Create Page"), form[action="/create"] button[type="submit"]');
       await Promise.all([
-        page.waitForURL(/\/(edit|wiki)\//, { timeout: 15000 }),
+        page.waitForURL(/\/(edit|wiki)\//, { timeout: 30000 }),
         createButton.first().click()
       ]);
 
@@ -259,7 +266,7 @@ test.describe('LocationPlugin', () => {
 
         const saveButton = page.locator('button:has-text("Save"), button[type="submit"]:has-text("Save")');
         await Promise.all([
-          page.waitForURL(/\/wiki\//, { timeout: 15000 }),
+          page.waitForURL(/\/wiki\//, { timeout: 30000 }),
           saveButton.first().click()
         ]);
       }
@@ -297,7 +304,7 @@ test.describe('LocationPlugin', () => {
 
       const createButton = page.locator('button:has-text("Create Page"), form[action="/create"] button[type="submit"]');
       await Promise.all([
-        page.waitForURL(/\/(edit|wiki)\//, { timeout: 15000 }),
+        page.waitForURL(/\/(edit|wiki)\//, { timeout: 30000 }),
         createButton.first().click()
       ]);
 
@@ -310,7 +317,7 @@ test.describe('LocationPlugin', () => {
 
         const saveButton = page.locator('button:has-text("Save"), button[type="submit"]:has-text("Save")');
         await Promise.all([
-          page.waitForURL(/\/wiki\//, { timeout: 15000 }),
+          page.waitForURL(/\/wiki\//, { timeout: 30000 }),
           saveButton.first().click()
         ]);
       }
@@ -349,7 +356,7 @@ test.describe('LocationPlugin', () => {
 
       const createButton = page.locator('button:has-text("Create Page"), form[action="/create"] button[type="submit"]');
       await Promise.all([
-        page.waitForURL(/\/(edit|wiki)\//, { timeout: 15000 }),
+        page.waitForURL(/\/(edit|wiki)\//, { timeout: 30000 }),
         createButton.first().click()
       ]);
 
@@ -363,7 +370,7 @@ test.describe('LocationPlugin', () => {
 
         const saveButton = page.locator('button:has-text("Save"), button[type="submit"]:has-text("Save")');
         await Promise.all([
-          page.waitForURL(/\/wiki\//, { timeout: 15000 }),
+          page.waitForURL(/\/wiki\//, { timeout: 30000 }),
           saveButton.first().click()
         ]);
       }
@@ -400,7 +407,7 @@ test.describe('LocationPlugin', () => {
 
       const createButton = page.locator('button:has-text("Create Page"), form[action="/create"] button[type="submit"]');
       await Promise.all([
-        page.waitForURL(/\/(edit|wiki)\//, { timeout: 15000 }),
+        page.waitForURL(/\/(edit|wiki)\//, { timeout: 30000 }),
         createButton.first().click()
       ]);
 
@@ -414,7 +421,7 @@ test.describe('LocationPlugin', () => {
 
         const saveButton = page.locator('button:has-text("Save"), button[type="submit"]:has-text("Save")');
         await Promise.all([
-          page.waitForURL(/\/wiki\//, { timeout: 15000 }),
+          page.waitForURL(/\/wiki\//, { timeout: 30000 }),
           saveButton.first().click()
         ]);
       }
@@ -453,7 +460,7 @@ test.describe('LocationPlugin', () => {
 
       const createButton = page.locator('button:has-text("Create Page"), form[action="/create"] button[type="submit"]');
       await Promise.all([
-        page.waitForURL(/\/(edit|wiki)\//, { timeout: 15000 }),
+        page.waitForURL(/\/(edit|wiki)\//, { timeout: 30000 }),
         createButton.first().click()
       ]);
 
@@ -466,7 +473,7 @@ test.describe('LocationPlugin', () => {
 
         const saveButton = page.locator('button:has-text("Save"), button[type="submit"]:has-text("Save")');
         await Promise.all([
-          page.waitForURL(/\/wiki\//, { timeout: 15000 }),
+          page.waitForURL(/\/wiki\//, { timeout: 30000 }),
           saveButton.first().click()
         ]);
       }
@@ -501,7 +508,7 @@ test.describe('LocationPlugin', () => {
 
       const createButton = page.locator('button:has-text("Create Page"), form[action="/create"] button[type="submit"]');
       await Promise.all([
-        page.waitForURL(/\/(edit|wiki)\//, { timeout: 15000 }),
+        page.waitForURL(/\/(edit|wiki)\//, { timeout: 30000 }),
         createButton.first().click()
       ]);
 
@@ -514,7 +521,7 @@ test.describe('LocationPlugin', () => {
 
         const saveButton = page.locator('button:has-text("Save"), button[type="submit"]:has-text("Save")');
         await Promise.all([
-          page.waitForURL(/\/wiki\//, { timeout: 15000 }),
+          page.waitForURL(/\/wiki\//, { timeout: 30000 }),
           saveButton.first().click()
         ]);
       }

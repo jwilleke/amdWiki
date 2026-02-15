@@ -55,10 +55,11 @@ module.exports = defineConfig({
 
   // Test projects for different browsers
   projects: [
-    // Setup project for authentication
+    // Setup project for authentication (longer timeout to allow for engine initialization)
     {
       name: 'setup',
       testMatch: /.*\.setup\.js/,
+      timeout: 150000,
     },
 
     // Chromium tests (main browser)

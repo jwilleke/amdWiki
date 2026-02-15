@@ -1,5 +1,6 @@
 // @ts-check
 const { test: setup, expect } = require('@playwright/test');
+const { waitForServerReady } = require('./fixtures/helpers');
 
 const STORAGE_STATE = './tests/e2e/.auth/user.json';
 
@@ -10,6 +11,9 @@ const STORAGE_STATE = './tests/e2e/.auth/user.json';
  * The saved state is reused by authenticated tests to avoid logging in repeatedly.
  */
 setup('authenticate', async ({ page }) => {
+  // Wait for server to finish initializing (may show maintenance page during engine startup)
+  await waitForServerReady(page);
+
   // Test credentials from env or defaults
   const adminUser = process.env.E2E_ADMIN_USER || 'admin';
   const adminPass = process.env.E2E_ADMIN_PASS || 'admin123';

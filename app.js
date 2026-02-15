@@ -250,7 +250,38 @@ checkAndCreatePidLock();
     next();
   });
 
-  // 6. Register Routes
+  // 6. Admin-triggered maintenance mode middleware
+  // Serves maintenance page to non-admin users when maintenance is enabled via admin dashboard
+  app.use((req, res, next) => {
+    const maintenanceEnabled = engine.config?.features?.maintenance?.enabled;
+    if (!maintenanceEnabled) return next();
+
+    // Allow static assets, admin routes, and login through
+    if (req.path.startsWith('/css') || req.path.startsWith('/js') ||
+        req.path.startsWith('/images') || req.path === '/favicon.ico' ||
+        req.path === '/favicon.svg' || req.path.startsWith('/admin') ||
+        req.path.startsWith('/login') || req.path.startsWith('/logout')) {
+      return next();
+    }
+
+    // Allow admins through if configured
+    const allowAdmins = engine.config.features.maintenance.allowAdmins !== false;
+    if (allowAdmins && req.userContext && req.userContext.roles &&
+        req.userContext.roles.includes('admin')) {
+      return next();
+    }
+
+    const maintenanceConfig = engine.config.features.maintenance;
+    return res.status(503).render('maintenance', {
+      message: maintenanceConfig.message || 'The system is currently under maintenance.',
+      estimatedDuration: maintenanceConfig.estimatedDuration || null,
+      notifications: [],
+      allowAdmins: allowAdmins,
+      isAdmin: req.userContext && req.userContext.roles && req.userContext.roles.includes('admin')
+    });
+  });
+
+  // 7. Register Routes
 
   // Install routes (must be first, before WikiRoutes)
   const installRoutes = new InstallRoutes(engine);

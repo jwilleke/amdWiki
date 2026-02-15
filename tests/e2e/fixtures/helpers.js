@@ -6,6 +6,29 @@ const { expect } = require('@playwright/test');
  */
 
 /**
+ * Wait for the server to finish initialization (stop returning 503 maintenance page).
+ * Call this once before running tests (e.g., in auth.setup.js).
+ * @param {import('@playwright/test').Page} page
+ * @param {object} [options]
+ * @param {number} [options.timeout=120000] - Max time to wait in ms
+ * @param {number} [options.interval=2000] - Poll interval in ms
+ */
+async function waitForServerReady(page, { timeout = 120000, interval = 2000 } = {}) {
+  const baseURL = page.context()._options?.baseURL || 'http://localhost:3000';
+  const start = Date.now();
+
+  while (Date.now() - start < timeout) {
+    const response = await page.goto('/login', { waitUntil: 'domcontentloaded' });
+    if (response && response.status() !== 503) {
+      return;
+    }
+    await page.waitForTimeout(interval);
+  }
+
+  throw new Error(`Server did not become ready within ${timeout}ms (still returning 503)`);
+}
+
+/**
  * Wait for page to be fully loaded
  * @param {import('@playwright/test').Page} page
  */
@@ -82,6 +105,7 @@ async function hasText(page, text) {
 }
 
 module.exports = {
+  waitForServerReady,
   waitForPageReady,
   createPage,
   navigateToPage,
