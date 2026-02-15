@@ -79,28 +79,59 @@ checkAndCreatePidLock();
 (async () => {
   const app = express();
   let engine;
+  let engineReady = false;
 
+  // 1. Setup View Engine and static files first so we can serve the maintenance page
+  app.set('views', path.join(__dirname, 'views'));
+  app.set('view engine', 'ejs');
+  app.set('view cache', false);
+  app.use(express.static(path.join(__dirname, 'public')));
+
+  // 2. Initialization gate middleware - serves maintenance page while engine starts
+  app.use((req, res, next) => {
+    if (engineReady) return next();
+
+    // Allow static assets through
+    if (req.path.startsWith('/css') || req.path.startsWith('/js') ||
+        req.path.startsWith('/images') || req.path === '/favicon.ico' ||
+        req.path === '/favicon.svg') {
+      return next();
+    }
+
+    // Serve maintenance page with 503 status
+    return res.status(503).render('maintenance', {
+      message: 'The wiki engine is starting up. This may take a moment while pages are indexed.',
+      estimatedDuration: null,
+      notifications: [],
+      allowAdmins: false,
+      isAdmin: false
+    });
+  });
+
+  // 3. Start listening immediately so the server accepts connections during initialization
+  // PORT env var takes precedence (for CI, Docker, PaaS platforms like Heroku/Railway)
+  const defaultPort = parseInt(process.env.PORT || '3000', 10);
+  const defaultHostname = 'localhost';
+
+  app.listen(defaultPort, () => {
+    console.log(`🚀 Server listening on port ${defaultPort} (initializing engine...)`);
+  });
+
+  // 4. Initialize the WikiEngine in the background
   try {
-    // 1. Create and initialize the WikiEngine. This is the single source of truth.
     console.log('🚀 Initializing amdWiki Engine...');
     engine = new WikiEngine();
-    await engine.initialize(); // Engine now handles its own configuration loading.
+    await engine.initialize();
     console.log('✅ amdWiki Engine initialized successfully.');
-
   } catch (error) {
-    // Catch any error during engine or manager initialization
     console.error('🔥🔥🔥 FATAL: Failed to initialize amdWiki Engine.');
     console.error(error);
-    process.exit(1); // Exit with an error code
+    process.exit(1);
   }
 
-  // 2. Setup View Engine and Middleware
-  app.set('views', path.join(__dirname, 'views')); // Correct path for views
-  app.set('view engine', 'ejs');
-  app.set('view cache', false); // Disable template caching for development
+  // 5. Now that the engine is ready, set up the remaining middleware and routes
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
-  app.use(express.static(path.join(__dirname, 'public')));
   app.use(cookieParser());
 
   // Install check middleware - must be BEFORE session to allow static assets
@@ -147,7 +178,7 @@ checkAndCreatePidLock();
       }
     } catch (error) {
       // If we can't determine install status, redirect to /install as safe default
-      // Note: /install paths are skipped above (line 112), so no loop risk
+      // Note: /install paths are skipped above, so no loop risk
       console.error('Error checking install status, redirecting to /install:', error.message);
       return res.redirect('/install');
     }
@@ -219,49 +250,47 @@ checkAndCreatePidLock();
     next();
   });
 
-  // 4. Register Custom Middleware and Routes
+  // 6. Register Routes
 
   // Install routes (must be first, before WikiRoutes)
   const installRoutes = new InstallRoutes(engine);
   app.use('/install', installRoutes.getRouter());
 
   const wikiRoutes = new WikiRoutes(engine);
-  wikiRoutes.registerRoutes(app); // This single file handles ALL routes, including auth.
+  wikiRoutes.registerRoutes(app);
 
-  // 5. Start the Server
-  // PORT env var takes precedence (for CI, Docker, PaaS platforms like Heroku/Railway)
+  // 7. Mark engine as ready - requests will now pass through to normal routes
+  engineReady = true;
+
+  // Read configured port/hostname now that config is available
   const port = process.env.PORT
     ? parseInt(process.env.PORT, 10)
     : configManager.getProperty('amdwiki.server.port', 3000);
   const hostname = configManager.getProperty('amdwiki.server.host', 'localhost');
 
-  // In Docker, the external port may differ from the internal port
-  // Check for EXTERNAL_PORT environment variable set by docker-compose
   const externalPort = process.env.EXTERNAL_PORT ? parseInt(process.env.EXTERNAL_PORT) : port;
   const displayPort = externalPort !== port ? externalPort : port;
   const baseURL = `http://${hostname}:${displayPort}`;
 
-  app.listen(port, async () => {
-    console.log('\n' + '='.repeat(60));
-    if (externalPort !== port) {
-      console.log(`🚀 Running amdWiki on port ${port} (container internal)`);
-      console.log(`🌐 External port: ${externalPort}`);
-    } else {
-      console.log(`🚀 Running amdWiki on port ${port}`);
-    }
-    console.log(`🌐 Visit: ${baseURL}`);
+  console.log('\n' + '='.repeat(60));
+  if (externalPort !== port) {
+    console.log(`🚀 Running amdWiki on port ${port} (container internal)`);
+    console.log(`🌐 External port: ${externalPort}`);
+  } else {
+    console.log(`🚀 amdWiki Engine ready on port ${port}`);
+  }
+  console.log(`🌐 Visit: ${baseURL}`);
 
-    // Check if admin is using default password
-    const userManager = engine.getManager('UserManager');
-    const isDefaultPassword = await userManager.isAdminUsingDefaultPassword();
-    if (isDefaultPassword) {
-      const defaultPassword = configManager.getProperty('amdwiki.user.security.defaultpassword', 'admin123');
-      console.log(`⚠️  Use user 'admin' and password '${defaultPassword}' to login.`);
-      console.log(`⚠️  SECURITY WARNING: Change the admin password immediately!`);
-    }
+  // Check if admin is using default password
+  const userManager = engine.getManager('UserManager');
+  const isDefaultPassword = await userManager.isAdminUsingDefaultPassword();
+  if (isDefaultPassword) {
+    const defaultPassword = configManager.getProperty('amdwiki.user.security.defaultpassword', 'admin123');
+    console.log(`⚠️  Use user 'admin' and password '${defaultPassword}' to login.`);
+    console.log(`⚠️  SECURITY WARNING: Change the admin password immediately!`);
+  }
 
-    console.log('='.repeat(60) + '\n');
-    logger.info(`Wiki app listening at ${baseURL}`);
-  });
+  console.log('='.repeat(60) + '\n');
+  logger.info(`Wiki engine ready, accepting requests at ${baseURL}`);
 
 })();

@@ -24,6 +24,28 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-15-04
+
+- Agent: Claude Opus 4.6
+- Subject: Show maintenance page during server initialization (#254)
+- Current Issue: #254
+- Key Decision: Restructure app.js startup order so Express listens immediately, serving maintenance.ejs while engine initializes
+- Testing:
+  - npm test: 65 suites passed, 1663 tests passed
+  - Build: clean TypeScript compilation
+  - Server: returns 503 with maintenance page during init, then 200 once engine ready
+- Work Done:
+  - Restructured app.js to move Express setup and app.listen() before engine.initialize()
+  - Added initialization gate middleware that serves maintenance.ejs with 503 status
+  - Added auto-refresh meta tag (10s) to maintenance.ejs so browsers retry automatically
+  - After engine.initialize() completes, remaining middleware/routes registered and engineReady flag flipped
+  - Created GitHub issue #254 with full feature request details
+- Commits: f4d2da9
+- Files Modified:
+  - app.js
+  - views/maintenance.ejs
+  - docs/project_log.md
+
 ## 2026-02-15-03
 
 - Agent: Claude Opus 4.6
