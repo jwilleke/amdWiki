@@ -24,6 +24,24 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-15-01
+
+- Agent: Claude Opus 4.6
+- Subject: Document startup process (#253)
+- Current Issue: #253
+- Key Decision: Document actual two-tier config system (default + custom), clarifying that environment-specific config files are not loaded
+- Work Done:
+  - Investigated startup chain: server.sh → ecosystem.config.js → app.js → WikiEngine → ConfigurationManager
+  - Confirmed server.sh displays misleading config file info and does not source .env
+  - Confirmed config/README.md incorrectly describes a three-tier system
+  - Created docs/INSTALLATION/Startup-Process.md with complete startup sequence documentation
+  - Commented on issue #253 with findings and remaining work items
+- Commits: 20143e8
+- Files Created:
+  - docs/INSTALLATION/Startup-Process.md
+- Files Modified:
+  - docs/project_log.md
+
 ## 2026-02-11-04
 
 - Agent: Claude Opus 4.5
