@@ -267,7 +267,6 @@ data/                              # INSTANCE_DATA_FOLDER (default: ./data)
 │   └── app-custom-config.json     # Instance-specific configuration
 ├── pages/                         # Wiki content
 ├── users/                         # User accounts
-├── attachments/                   # File attachments
 ├── logs/                          # Application and PM2 logs
 ├── search-index/                  # Lunr search index
 ├── sessions/                      # Session storage (high I/O)
