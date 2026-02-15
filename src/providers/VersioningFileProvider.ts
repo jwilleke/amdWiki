@@ -5,6 +5,7 @@ import matter from 'gray-matter';
 import { v4 as uuidv4 } from 'uuid';
 import logger from '../utils/logger';
 import DeltaStorage, { DiffTuple } from '../utils/DeltaStorage';
+import PageNameMatcher from '../utils/PageNameMatcher';
 import {
   WikiPage,
   PageFrontmatter,
@@ -69,12 +70,13 @@ interface InternalManifest {
 }
 
 /**
- * Page cache info (internal)
+ * Page cache info (internal) - matches FileSystemProvider's PageCacheInfo
  */
 interface PageCacheInfo {
   title: string;
   uuid: string;
-  metadata?: PageFrontmatter;
+  filePath: string;
+  metadata: PageFrontmatter;
 }
 
 /**
@@ -177,35 +179,247 @@ class VersioningFileProvider extends FileSystemProvider {
   /**
    * Initialize the versioning provider
    *
-   * 1. Calls parent FileSystemProvider.initialize()
-   * 2. Loads versioning configuration
-   * 3. Creates version directories
-   * 4. Loads or creates page-index.json
+   * Optimized startup flow:
+   * 1. Load config and check for existing page index
+   * 2. If page index exists with entries, populate cache from index (fast - avoids NAS dir scan)
+   * 3. If no index, fall back to parent's directory scanning
+   * 4. Create version directories
+   * 5. Load or create page-index.json
    *
    * @returns Promise<void>
    */
   async initialize(): Promise<void> {
-    // Call parent initialization (sets up pages directories, caching, etc.)
-    await super.initialize();
-
     const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
     if (!configManager) {
       throw new Error('VersioningFileProvider requires ConfigurationManager');
     }
 
-    // Load versioning configuration (ALL LOWERCASE)
+    // Load versioning configuration FIRST (to get page index path)
     await this.loadVersioningConfig(configManager);
+
+    // Check if we can use fast index-based initialization
+    const canUseFastInit = await this.canUseFastInitialization();
+
+    if (canUseFastInit) {
+      // FAST PATH: Populate cache from page index (avoids slow NAS directory scanning)
+      logger.info('[VersioningFileProvider] Using fast initialization from page index');
+      await this.initializeFromIndex(configManager);
+    } else {
+      // SLOW PATH: Fall back to parent's directory scanning
+      logger.info('[VersioningFileProvider] Using standard initialization (directory scan)');
+      await super.initialize();
+    }
 
     // Create version directories
     await this.createVersionDirectories();
 
-    // Load or create page index
-    await this.loadOrCreatePageIndex();
+    // Load or create page index (if not already loaded via fast init)
+    if (!this.pageIndex) {
+      await this.loadOrCreatePageIndex();
+    }
 
     logger.info('[VersioningFileProvider] Initialized with versioning enabled');
     logger.info(`[VersioningFileProvider] Delta storage: ${this.deltaStorageEnabled ? 'enabled' : 'disabled'}`);
     logger.info(`[VersioningFileProvider] Compression: ${this.compressionEnabled ? 'enabled' : 'disabled'}`);
     logger.info(`[VersioningFileProvider] Max versions: ${this.maxVersions}, Retention: ${this.retentionDays} days`);
+  }
+
+  /**
+   * Check if fast index-based initialization is possible
+   * @returns true if page index exists, has entries, and has valid UUIDs
+   */
+  private async canUseFastInitialization(): Promise<boolean> {
+    if (!this.pageIndexPath) {
+      return false;
+    }
+
+    try {
+      if (!await fs.pathExists(this.pageIndexPath)) {
+        return false;
+      }
+
+      const indexData = await fs.readFile(this.pageIndexPath, 'utf8');
+      const index = JSON.parse(indexData) as PageIndex;
+
+      // Only use fast init if index has pages
+      if (index.pageCount === 0) {
+        return false;
+      }
+
+      // Validate that index entries have proper UUIDs (not titles used as UUIDs)
+      // A valid UUID looks like: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+      const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      const entries = Object.values(index.pages);
+      if (entries.length > 0) {
+        // Check first few entries to verify UUIDs are valid
+        const sampleSize = Math.min(10, entries.length);
+        let validUuids = 0;
+        for (let i = 0; i < sampleSize; i++) {
+          if (uuidPattern.test(entries[i].uuid)) {
+            validUuids++;
+          }
+        }
+        // If less than 50% of sample has valid UUIDs, index is stale
+        if (validUuids < sampleSize * 0.5) {
+          logger.warn('[VersioningFileProvider] Page index has stale UUIDs, will rebuild via directory scan');
+          return false;
+        }
+      }
+
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Initialize from page index (fast path - avoids directory scanning)
+   * Populates caches directly from index entries by reading page files
+   */
+  private async initializeFromIndex(configManager: ConfigurationManager): Promise<void> {
+    const startTime = Date.now();
+
+    // Set up directories (same as parent, but without calling refreshPageList)
+    this.pagesDirectory = configManager.getResolvedDataPath(
+      'amdwiki.page.provider.filesystem.storagedir',
+      './data/pages'
+    );
+
+    const reqCfgPath = configManager.getProperty(
+      'amdwiki.page.provider.filesystem.requiredpagesdir',
+      './required-pages'
+    ) as string;
+    this.requiredPagesDirectory = path.isAbsolute(reqCfgPath)
+      ? reqCfgPath
+      : path.join(process.cwd(), reqCfgPath);
+
+    this.encoding = configManager.getProperty(
+      'amdwiki.page.provider.filesystem.encoding',
+      'utf-8'
+    ) as BufferEncoding;
+
+    // Initialize page name matcher
+    const matchEnglishPlurals = configManager.getProperty(
+      'amdwiki.translator-reader.match-english-plurals',
+      true
+    ) as boolean;
+    this.pageNameMatcher = new PageNameMatcher(matchEnglishPlurals);
+
+    // Check installation status
+    const installCompleteFile = path.join(
+      configManager.getInstanceDataFolder(),
+      '.install-complete'
+    );
+    this.installationComplete = await fs.pathExists(installCompleteFile);
+
+    // Ensure directories exist
+    await fs.ensureDir(this.pagesDirectory);
+
+    // Load page index
+    const indexData = await fs.readFile(this.pageIndexPath!, 'utf8');
+    this.pageIndex = JSON.parse(indexData) as PageIndex;
+
+    // Clear caches
+    this.pageCache.clear();
+    this.titleIndex.clear();
+    this.uuidIndex.clear();
+    this.slugIndex.clear();
+    this.contentCache.clear();
+
+    // Populate cache from index entries
+    const entries = Object.values(this.pageIndex.pages);
+    logger.info(`[VersioningFileProvider] Loading ${entries.length} pages from index...`);
+
+    // Process in parallel batches for speed
+    const BATCH_SIZE = 50;
+    let loadedCount = 0;
+    let errorCount = 0;
+
+    for (let i = 0; i < entries.length; i += BATCH_SIZE) {
+      const batch = entries.slice(i, i + BATCH_SIZE);
+      const results = await Promise.allSettled(
+        batch.map(entry => this.loadPageFromIndexEntry(entry))
+      );
+
+      for (const result of results) {
+        if (result.status === 'fulfilled' && result.value) {
+          loadedCount++;
+        } else {
+          errorCount++;
+        }
+      }
+    }
+
+    const elapsed = Date.now() - startTime;
+    logger.info(`[VersioningFileProvider] Fast init complete: ${loadedCount} pages in ${elapsed}ms (${errorCount} errors)`);
+
+    this.initialized = true;
+  }
+
+  /**
+   * Load a single page from an index entry
+   * @param entry - Page index entry
+   * @returns true if loaded successfully
+   */
+  private async loadPageFromIndexEntry(entry: PageIndexEntry): Promise<boolean> {
+    try {
+      const baseDir = entry.location === 'required-pages'
+        ? this.requiredPagesDirectory
+        : this.pagesDirectory;
+
+      if (!baseDir) {
+        return false;
+      }
+
+      // Try new structure first: {uuid}/{uuid}.md
+      let filePath = path.join(baseDir, entry.uuid, `${entry.uuid}.md`);
+
+      if (!await fs.pathExists(filePath)) {
+        // Fall back to flat structure: {uuid}.md
+        filePath = path.join(baseDir, `${entry.uuid}.md`);
+
+        if (!await fs.pathExists(filePath)) {
+          // Page file not found, may have been deleted
+          return false;
+        }
+      }
+
+      // Read and parse the page
+      const content = await fs.readFile(filePath, this.encoding);
+      const parsed = matter(content);
+      const metadata = parsed.data as PageFrontmatter;
+
+      // Use title from frontmatter, falling back to index entry
+      const title = String(metadata.title || entry.title);
+      const uuid = entry.uuid;
+
+      // Build cache entry
+      const pageInfo: PageCacheInfo = {
+        title,
+        uuid,
+        filePath,
+        metadata
+      };
+
+      // Add to caches
+      this.pageCache.set(title, pageInfo);
+      this.titleIndex.set(title.toLowerCase(), title);
+      this.uuidIndex.set(uuid, title);
+
+      // Add slug to index if present
+      if (metadata.slug) {
+        this.slugIndex.set(String(metadata.slug).toLowerCase(), title);
+      }
+
+      // Cache content
+      this.contentCache.set(title, content);
+
+      return true;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      logger.debug(`[VersioningFileProvider] Failed to load page ${entry.uuid}: ${errorMessage}`);
+      return false;
+    }
   }
 
   /**
