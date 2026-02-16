@@ -24,6 +24,21 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-16-03
+
+- Agent: Claude Opus 4.6
+- Subject: Add telemetry admin documentation (#256)
+- Key Decision: Comprehensive reference doc covering config, metrics, Prometheus integration
+- Current Issue: #256
+- Work Done:
+  - Created docs/admin/Telemetry.md with full metrics reference
+  - Documented configuration properties, endpoints, counters, histograms, labels
+  - Added Prometheus scrape config example and PromQL query examples
+  - Documented architecture and instrumented code paths
+- Files Modified:
+  - docs/admin/Telemetry.md (new)
+  - docs/project_log.md
+
 ## 2026-02-16-02
 
 - Agent: Claude Opus 4.6
