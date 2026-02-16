@@ -29,13 +29,31 @@ const mockGetMetricsRequestHandler = jest.fn();
 const mockPrometheusExporter = {
   getMetricsRequestHandler: mockGetMetricsRequestHandler
 };
+const mockOtlpReaderShutdown = jest.fn().mockResolvedValue(undefined);
+const mockOtlpReader = {
+  shutdown: mockOtlpReaderShutdown
+};
+const mockOtlpExporter = {};
 
 jest.mock('@opentelemetry/sdk-metrics', () => ({
-  MeterProvider: jest.fn(() => mockMeterProvider)
+  MeterProvider: jest.fn(() => mockMeterProvider),
+  PeriodicExportingMetricReader: jest.fn(() => mockOtlpReader)
 }));
 
 jest.mock('@opentelemetry/exporter-prometheus', () => ({
   PrometheusExporter: jest.fn(() => mockPrometheusExporter)
+}));
+
+jest.mock('@opentelemetry/exporter-metrics-otlp-http', () => ({
+  OTLPMetricExporter: jest.fn(() => mockOtlpExporter)
+}));
+
+jest.mock('@opentelemetry/resources', () => ({
+  resourceFromAttributes: jest.fn((attrs) => ({ attributes: attrs }))
+}));
+
+jest.mock('@opentelemetry/semantic-conventions', () => ({
+  ATTR_SERVICE_NAME: 'service.name'
 }));
 
 jest.mock('@opentelemetry/api', () => ({
@@ -204,6 +222,42 @@ describe('MetricsManager', () => {
       expect(mockHistogram.record).toHaveBeenCalledWith(25, attrs);
     });
 
+    test('should set service.name resource from telemetry.serviceName config', async () => {
+      const { MeterProvider } = require('@opentelemetry/sdk-metrics');
+      const { resourceFromAttributes } = require('@opentelemetry/resources');
+
+      mockConfigManager.getProperty = jest.fn((key, defaultValue) => {
+        const config = {
+          'amdwiki.telemetry.enabled': true,
+          'amdwiki.applicationName': 'jimstest',
+          'amdwiki.telemetry.serviceName': 'jimstest-wiki',
+          'amdwiki.telemetry.metrics.port': 9464,
+          'amdwiki.telemetry.metrics.host': '0.0.0.0',
+          'amdwiki.telemetry.metrics.path': '/metrics',
+          'amdwiki.telemetry.metrics.interval': 15000
+        };
+        return key in config ? config[key] : defaultValue;
+      });
+
+      await manager.initialize();
+
+      expect(resourceFromAttributes).toHaveBeenCalledWith({ 'service.name': 'jimstest-wiki' });
+      expect(MeterProvider).toHaveBeenCalledWith(
+        expect.objectContaining({
+          resource: expect.objectContaining({ attributes: { 'service.name': 'jimstest-wiki' } })
+        })
+      );
+    });
+
+    test('should fall back to prefix for service.name when serviceName not configured', async () => {
+      const { resourceFromAttributes } = require('@opentelemetry/resources');
+
+      // Default config has no serviceName — falls back to prefix
+      await manager.initialize();
+
+      expect(resourceFromAttributes).toHaveBeenCalledWith({ 'service.name': 'amdwiki' });
+    });
+
     test('should return a metrics handler when enabled', async () => {
       await manager.initialize();
       const handler = manager.getMetricsHandler();
@@ -236,6 +290,110 @@ describe('MetricsManager', () => {
     test('should handle shutdown gracefully when disabled', async () => {
       await manager.initialize();
       await expect(manager.shutdown()).resolves.not.toThrow();
+    });
+  });
+
+  describe('OTLP export', () => {
+    const { PeriodicExportingMetricReader } = require('@opentelemetry/sdk-metrics');
+    const { OTLPMetricExporter } = require('@opentelemetry/exporter-metrics-otlp-http');
+
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
+    test('should create OTLP reader when otlp.enabled=true and endpoint is set', async () => {
+      mockConfigManager.getProperty = jest.fn((key, defaultValue) => {
+        const config = {
+          'amdwiki.telemetry.enabled': true,
+          'amdwiki.telemetry.metrics.port': 9464,
+          'amdwiki.telemetry.metrics.host': '0.0.0.0',
+          'amdwiki.telemetry.metrics.path': '/metrics',
+          'amdwiki.telemetry.metrics.interval': 15000,
+          'amdwiki.telemetry.otlp.enabled': true,
+          'amdwiki.telemetry.otlp.endpoint': 'https://otel.example.com/v1/metrics',
+          'amdwiki.telemetry.otlp.headers': {},
+          'amdwiki.telemetry.otlp.interval': 15000,
+          'amdwiki.telemetry.otlp.timeout': 30000
+        };
+        return key in config ? config[key] : defaultValue;
+      });
+
+      await manager.initialize();
+
+      expect(OTLPMetricExporter).toHaveBeenCalledWith({
+        url: 'https://otel.example.com/v1/metrics',
+        headers: {},
+        timeoutMillis: 30000
+      });
+      expect(PeriodicExportingMetricReader).toHaveBeenCalledWith({
+        exporter: mockOtlpExporter,
+        exportIntervalMillis: 15000,
+        exportTimeoutMillis: 30000
+      });
+    });
+
+    test('should NOT create OTLP reader when otlp.enabled=false', async () => {
+      mockConfigManager.getProperty = jest.fn((key, defaultValue) => {
+        const config = {
+          'amdwiki.telemetry.enabled': true,
+          'amdwiki.telemetry.metrics.port': 9464,
+          'amdwiki.telemetry.metrics.host': '0.0.0.0',
+          'amdwiki.telemetry.metrics.path': '/metrics',
+          'amdwiki.telemetry.metrics.interval': 15000,
+          'amdwiki.telemetry.otlp.enabled': false,
+          'amdwiki.telemetry.otlp.endpoint': 'https://otel.example.com/v1/metrics'
+        };
+        return key in config ? config[key] : defaultValue;
+      });
+
+      await manager.initialize();
+
+      expect(OTLPMetricExporter).not.toHaveBeenCalled();
+      expect(PeriodicExportingMetricReader).not.toHaveBeenCalled();
+    });
+
+    test('should NOT create OTLP reader when endpoint is empty', async () => {
+      mockConfigManager.getProperty = jest.fn((key, defaultValue) => {
+        const config = {
+          'amdwiki.telemetry.enabled': true,
+          'amdwiki.telemetry.metrics.port': 9464,
+          'amdwiki.telemetry.metrics.host': '0.0.0.0',
+          'amdwiki.telemetry.metrics.path': '/metrics',
+          'amdwiki.telemetry.metrics.interval': 15000,
+          'amdwiki.telemetry.otlp.enabled': true,
+          'amdwiki.telemetry.otlp.endpoint': ''
+        };
+        return key in config ? config[key] : defaultValue;
+      });
+
+      await manager.initialize();
+
+      expect(OTLPMetricExporter).not.toHaveBeenCalled();
+      expect(PeriodicExportingMetricReader).not.toHaveBeenCalled();
+    });
+
+    test('should shut down OTLP reader on shutdown', async () => {
+      mockConfigManager.getProperty = jest.fn((key, defaultValue) => {
+        const config = {
+          'amdwiki.telemetry.enabled': true,
+          'amdwiki.telemetry.metrics.port': 9464,
+          'amdwiki.telemetry.metrics.host': '0.0.0.0',
+          'amdwiki.telemetry.metrics.path': '/metrics',
+          'amdwiki.telemetry.metrics.interval': 15000,
+          'amdwiki.telemetry.otlp.enabled': true,
+          'amdwiki.telemetry.otlp.endpoint': 'https://otel.example.com/v1/metrics',
+          'amdwiki.telemetry.otlp.headers': {},
+          'amdwiki.telemetry.otlp.interval': 15000,
+          'amdwiki.telemetry.otlp.timeout': 30000
+        };
+        return key in config ? config[key] : defaultValue;
+      });
+
+      await manager.initialize();
+      await manager.shutdown();
+
+      expect(mockOtlpReaderShutdown).toHaveBeenCalled();
+      expect(mockMeterProvider.shutdown).toHaveBeenCalled();
     });
   });
 

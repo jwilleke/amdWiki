@@ -6,8 +6,11 @@ import type { Request, Response, RequestHandler } from 'express';
 
 // OpenTelemetry imports
 import { metrics, type Meter, type Counter, type Histogram } from '@opentelemetry/api';
-import { MeterProvider } from '@opentelemetry/sdk-metrics';
+import { MeterProvider, PeriodicExportingMetricReader } from '@opentelemetry/sdk-metrics';
+import { resourceFromAttributes } from '@opentelemetry/resources';
+import { ATTR_SERVICE_NAME } from '@opentelemetry/semantic-conventions';
 import { PrometheusExporter } from '@opentelemetry/exporter-prometheus';
+import { OTLPMetricExporter } from '@opentelemetry/exporter-metrics-otlp-http';
 
 /**
  * MetricsManager - OpenTelemetry metrics with Prometheus export
@@ -23,6 +26,7 @@ class MetricsManager extends BaseManager {
   private enabled: boolean = false;
   private meterProvider: MeterProvider | null = null;
   private prometheusExporter: PrometheusExporter | null = null;
+  private otlpReader: PeriodicExportingMetricReader | null = null;
   private meter: Meter | null = null;
   private prefix: string = 'amdwiki';
 
@@ -80,8 +84,38 @@ class MetricsManager extends BaseManager {
         endpoint: metricsPath
       });
 
+      // Build readers array: always Prometheus, optionally OTLP
+      const readers: (PrometheusExporter | PeriodicExportingMetricReader)[] = [this.prometheusExporter];
+
+      const otlpEnabled = configManager.getProperty('amdwiki.telemetry.otlp.enabled', false) as boolean;
+      const otlpEndpoint = configManager.getProperty('amdwiki.telemetry.otlp.endpoint', '') as string;
+
+      if (otlpEnabled && otlpEndpoint) {
+        const otlpHeaders = configManager.getProperty('amdwiki.telemetry.otlp.headers', {}) as Record<string, string>;
+        const otlpInterval = configManager.getProperty('amdwiki.telemetry.otlp.interval', 15000) as number;
+        const otlpTimeout = configManager.getProperty('amdwiki.telemetry.otlp.timeout', 30000) as number;
+
+        const otlpExporter = new OTLPMetricExporter({
+          url: otlpEndpoint,
+          headers: otlpHeaders,
+          timeoutMillis: otlpTimeout
+        });
+
+        this.otlpReader = new PeriodicExportingMetricReader({
+          exporter: otlpExporter,
+          exportIntervalMillis: otlpInterval,
+          exportTimeoutMillis: otlpTimeout
+        });
+
+        readers.push(this.otlpReader);
+        logger.info(`[MetricsManager] OTLP metric export enabled → ${otlpEndpoint} (interval: ${otlpInterval}ms)`);
+      }
+
+      const serviceName = configManager.getProperty('amdwiki.telemetry.serviceName', this.prefix) as string;
+
       this.meterProvider = new MeterProvider({
-        readers: [this.prometheusExporter]
+        resource: resourceFromAttributes({ [ATTR_SERVICE_NAME]: serviceName }),
+        readers
       });
 
       metrics.setGlobalMeterProvider(this.meterProvider);
@@ -211,6 +245,15 @@ class MetricsManager extends BaseManager {
   }
 
   async shutdown(): Promise<void> {
+    if (this.otlpReader) {
+      try {
+        await this.otlpReader.shutdown();
+        logger.info('[MetricsManager] OTLP reader shut down');
+      } catch (err) {
+        logger.error('[MetricsManager] Error shutting down OTLP reader:', err);
+      }
+      this.otlpReader = null;
+    }
     if (this.meterProvider) {
       try {
         await this.meterProvider.shutdown();

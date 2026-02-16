@@ -9,10 +9,16 @@ All settings live in the configuration hierarchy (`app-default-config.json`, ove
 | Property | Default | Description |
 |----------|---------|-------------|
 | `amdwiki.telemetry.enabled` | `false` | Enable or disable metrics collection |
+| `amdwiki.telemetry.serviceName` | `""` | OTLP `service.name` resource attribute (falls back to metric prefix if empty) |
 | `amdwiki.telemetry.metrics.port` | `9464` | Port for the standalone Prometheus exporter |
 | `amdwiki.telemetry.metrics.host` | `0.0.0.0` | Bind address for the Prometheus exporter |
 | `amdwiki.telemetry.metrics.path` | `/metrics` | HTTP path for metrics endpoint |
 | `amdwiki.telemetry.metrics.interval` | `15000` | Collection interval in milliseconds |
+| `amdwiki.telemetry.otlp.enabled` | `false` | Enable OTLP HTTP push-based export |
+| `amdwiki.telemetry.otlp.endpoint` | `""` | OTLP collector URL (e.g., `https://otel.example.com/v1/metrics`) |
+| `amdwiki.telemetry.otlp.headers` | `{}` | Custom headers for OTLP requests (e.g., auth tokens) |
+| `amdwiki.telemetry.otlp.interval` | `15000` | Push interval in milliseconds |
+| `amdwiki.telemetry.otlp.timeout` | `30000` | Export timeout in milliseconds |
 
 To enable telemetry, add the following to your custom config (`data/config/app-custom-config.json`):
 
@@ -75,13 +81,34 @@ The `http_requests_total` counter and `http_request_duration_ms` histogram inclu
 - **route** -- Normalized path (e.g., `/wiki/:page`, `/edit/:page`) to avoid high-cardinality page names
 - **status** -- HTTP status code as a string (`200`, `404`, `500`, etc.)
 
+## OTLP Export (Push-Based)
+
+In addition to the Prometheus pull-based exporter, MetricsManager can push metrics to a remote [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/) via OTLP HTTP. This is useful when the remote Prometheus instance cannot scrape the local host directly.
+
+To enable OTLP export alongside Prometheus, add to your custom config:
+
+```json
+"amdwiki.telemetry.otlp.enabled": true,
+"amdwiki.telemetry.otlp.endpoint": "https://otel.example.com/v1/metrics"
+```
+
+If the collector requires authentication, pass headers:
+
+```json
+"amdwiki.telemetry.otlp.headers": { "Authorization": "Bearer <token>" }
+```
+
+Both exporters run simultaneously -- Prometheus for local scraping and OTLP for centralized collection.
+
 ## Architecture
 
 ```
 MetricsManager (src/managers/MetricsManager.ts)
-  ├── PrometheusExporter  →  standalone HTTP server on port 9464
-  ├── MeterProvider       →  OpenTelemetry SDK meter provider
-  └── Meter ('{app}')     →  creates all counters and histograms
+  ├── PrometheusExporter              →  standalone HTTP server on port 9464
+  ├── PeriodicExportingMetricReader   →  OTLP HTTP push (optional)
+  │     └── OTLPMetricExporter        →  sends to remote collector
+  ├── MeterProvider                   →  OpenTelemetry SDK meter provider
+  └── Meter ('{app}')                 →  creates all counters and histograms
 ```
 
 MetricsManager extends `BaseManager` and is registered in WikiEngine after CacheManager. Other code records metrics by calling methods like:
@@ -144,6 +171,7 @@ The telemetry system adds three npm packages:
 - `@opentelemetry/api` -- OpenTelemetry API
 - `@opentelemetry/sdk-metrics` -- Metrics SDK
 - `@opentelemetry/exporter-prometheus` -- Prometheus exporter
+- `@opentelemetry/exporter-metrics-otlp-http` -- OTLP HTTP metric exporter
 
 These are production dependencies but only initialize when `amdwiki.telemetry.enabled` is `true`.
 
