@@ -24,6 +24,26 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-16-04
+
+- Agent: Claude Opus 4.6
+- Subject: Dynamic metric prefix from applicationName (#256)
+- Key Decision: Derive metric name prefix from `amdwiki.applicationName` config
+- Current Issue: #256
+- Testing:
+  - npm test: 67 suites passed, 1684 tests passed (13 MetricsManager tests)
+- Work Done:
+  - MetricsManager reads `amdwiki.applicationName`, sanitizes for Prometheus (lowercase, underscores)
+  - All metric names and meter name use dynamic prefix (e.g., `jimstest_page_views_total`)
+  - Falls back to `amdwiki_` when applicationName is not set
+  - Added unit test for custom prefix derivation
+  - Updated Telemetry.md to document dynamic prefix behavior
+- Files Modified:
+  - src/managers/MetricsManager.ts
+  - src/managers/__tests__/MetricsManager.test.js
+  - docs/admin/Telemetry.md
+  - docs/project_log.md
+
 ## 2026-02-16-03
 
 - Agent: Claude Opus 4.6

@@ -162,6 +162,31 @@ describe('MetricsManager', () => {
       expect(histogramNames).toContain('amdwiki_http_request_duration_ms');
     });
 
+    test('should derive metric prefix from applicationName', async () => {
+      mockConfigManager.getProperty = jest.fn((key, defaultValue) => {
+        const config = {
+          'amdwiki.telemetry.enabled': true,
+          'amdwiki.applicationName': 'jimstest',
+          'amdwiki.telemetry.metrics.port': 9464,
+          'amdwiki.telemetry.metrics.host': '0.0.0.0',
+          'amdwiki.telemetry.metrics.path': '/metrics',
+          'amdwiki.telemetry.metrics.interval': 15000
+        };
+        return key in config ? config[key] : defaultValue;
+      });
+
+      await manager.initialize();
+
+      const counterNames = mockMeter.createCounter.mock.calls.map(c => c[0]);
+      expect(counterNames).toContain('jimstest_page_views_total');
+      expect(counterNames).toContain('jimstest_http_requests_total');
+
+      const histogramNames = mockMeter.createHistogram.mock.calls.map(c => c[0]);
+      expect(histogramNames).toContain('jimstest_page_view_duration_ms');
+
+      expect(mockMeterProvider.getMeter).toHaveBeenCalledWith('jimstest', '1.0.0');
+    });
+
     test('should record page view metrics', async () => {
       await manager.initialize();
       manager.recordPageView(150);

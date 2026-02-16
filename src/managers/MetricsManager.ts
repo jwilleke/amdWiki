@@ -24,6 +24,7 @@ class MetricsManager extends BaseManager {
   private meterProvider: MeterProvider | null = null;
   private prometheusExporter: PrometheusExporter | null = null;
   private meter: Meter | null = null;
+  private prefix: string = 'amdwiki';
 
   // Counters
   private pageViewsTotal: Counter | null = null;
@@ -63,6 +64,10 @@ class MetricsManager extends BaseManager {
       return;
     }
 
+    // Derive metric prefix from applicationName (sanitized for Prometheus)
+    const appName = configManager.getProperty('amdwiki.applicationName', 'amdwiki') as string;
+    this.prefix = appName.toLowerCase().replace(/[^a-z0-9]/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '');
+
     try {
       const port = configManager.getProperty('amdwiki.telemetry.metrics.port', 9464) as number;
       const host = configManager.getProperty('amdwiki.telemetry.metrics.host', '0.0.0.0') as string;
@@ -80,7 +85,7 @@ class MetricsManager extends BaseManager {
       });
 
       metrics.setGlobalMeterProvider(this.meterProvider);
-      this.meter = this.meterProvider.getMeter('amdwiki', '1.0.0');
+      this.meter = this.meterProvider.getMeter(this.prefix, '1.0.0');
 
       this.createInstruments();
 
@@ -95,54 +100,54 @@ class MetricsManager extends BaseManager {
     if (!this.meter) return;
 
     // Counters
-    this.pageViewsTotal = this.meter.createCounter('amdwiki_page_views_total', {
+    this.pageViewsTotal = this.meter.createCounter(`${this.prefix}_page_views_total`, {
       description: 'Total number of page views'
     });
-    this.pageSavesTotal = this.meter.createCounter('amdwiki_page_saves_total', {
+    this.pageSavesTotal = this.meter.createCounter(`${this.prefix}_page_saves_total`, {
       description: 'Total number of page saves'
     });
-    this.pageDeletesTotal = this.meter.createCounter('amdwiki_page_deletes_total', {
+    this.pageDeletesTotal = this.meter.createCounter(`${this.prefix}_page_deletes_total`, {
       description: 'Total number of page deletes'
     });
-    this.searchRebuildsTotal = this.meter.createCounter('amdwiki_search_rebuilds_total', {
+    this.searchRebuildsTotal = this.meter.createCounter(`${this.prefix}_search_rebuilds_total`, {
       description: 'Total number of search index rebuilds'
     });
-    this.pageIndexSavesTotal = this.meter.createCounter('amdwiki_page_index_saves_total', {
+    this.pageIndexSavesTotal = this.meter.createCounter(`${this.prefix}_page_index_saves_total`, {
       description: 'Total number of page index saves'
     });
-    this.loginAttemptsTotal = this.meter.createCounter('amdwiki_login_attempts_total', {
+    this.loginAttemptsTotal = this.meter.createCounter(`${this.prefix}_login_attempts_total`, {
       description: 'Total number of login attempts'
     });
-    this.httpRequestsTotal = this.meter.createCounter('amdwiki_http_requests_total', {
+    this.httpRequestsTotal = this.meter.createCounter(`${this.prefix}_http_requests_total`, {
       description: 'Total number of HTTP requests'
     });
 
     // Histograms
-    this.pageViewDuration = this.meter.createHistogram('amdwiki_page_view_duration_ms', {
+    this.pageViewDuration = this.meter.createHistogram(`${this.prefix}_page_view_duration_ms`, {
       description: 'Page view duration in milliseconds',
       unit: 'ms'
     });
-    this.pageSaveDuration = this.meter.createHistogram('amdwiki_page_save_duration_ms', {
+    this.pageSaveDuration = this.meter.createHistogram(`${this.prefix}_page_save_duration_ms`, {
       description: 'Page save duration in milliseconds',
       unit: 'ms'
     });
-    this.pageDeleteDuration = this.meter.createHistogram('amdwiki_page_delete_duration_ms', {
+    this.pageDeleteDuration = this.meter.createHistogram(`${this.prefix}_page_delete_duration_ms`, {
       description: 'Page delete duration in milliseconds',
       unit: 'ms'
     });
-    this.searchRebuildDuration = this.meter.createHistogram('amdwiki_search_rebuild_duration_ms', {
+    this.searchRebuildDuration = this.meter.createHistogram(`${this.prefix}_search_rebuild_duration_ms`, {
       description: 'Search index rebuild duration in milliseconds',
       unit: 'ms'
     });
-    this.pageIndexSaveDuration = this.meter.createHistogram('amdwiki_page_index_save_duration_ms', {
+    this.pageIndexSaveDuration = this.meter.createHistogram(`${this.prefix}_page_index_save_duration_ms`, {
       description: 'Page index save duration in milliseconds',
       unit: 'ms'
     });
-    this.engineInitDuration = this.meter.createHistogram('amdwiki_engine_init_duration_ms', {
+    this.engineInitDuration = this.meter.createHistogram(`${this.prefix}_engine_init_duration_ms`, {
       description: 'Engine initialization duration in milliseconds',
       unit: 'ms'
     });
-    this.httpRequestDuration = this.meter.createHistogram('amdwiki_http_request_duration_ms', {
+    this.httpRequestDuration = this.meter.createHistogram(`${this.prefix}_http_request_duration_ms`, {
       description: 'HTTP request duration in milliseconds',
       unit: 'ms'
     });

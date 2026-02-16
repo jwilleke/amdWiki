@@ -35,7 +35,9 @@ The standalone exporter on port 9464 is intended for Prometheus scrape targets. 
 
 ## Metrics Reference
 
-All metric names are prefixed with `amdwiki_`.
+All metric names are prefixed with the application name from `amdwiki.applicationName`, sanitized for Prometheus (lowercased, non-alphanumeric characters replaced with underscores). For example, if `applicationName` is `jimstest`, metrics are prefixed `jimstest_`. The default prefix is `amdwiki_`.
+
+The tables below use `{app}` as a placeholder for the prefix.
 
 ### Counters
 
@@ -43,13 +45,13 @@ Counters are monotonically increasing values that reset on restart.
 
 | Metric | Description | Labels |
 |--------|-------------|--------|
-| `amdwiki_page_views_total` | Total page views | -- |
-| `amdwiki_page_saves_total` | Total page saves | -- |
-| `amdwiki_page_deletes_total` | Total page deletions | -- |
-| `amdwiki_search_rebuilds_total` | Total search index rebuilds | -- |
-| `amdwiki_page_index_saves_total` | Total page-index.json writes | -- |
-| `amdwiki_login_attempts_total` | Total login attempts | -- |
-| `amdwiki_http_requests_total` | Total HTTP requests | `method`, `route`, `status` |
+| `{app}_page_views_total` | Total page views | -- |
+| `{app}_page_saves_total` | Total page saves | -- |
+| `{app}_page_deletes_total` | Total page deletions | -- |
+| `{app}_search_rebuilds_total` | Total search index rebuilds | -- |
+| `{app}_page_index_saves_total` | Total page-index.json writes | -- |
+| `{app}_login_attempts_total` | Total login attempts | -- |
+| `{app}_http_requests_total` | Total HTTP requests | `method`, `route`, `status` |
 
 ### Histograms
 
@@ -57,13 +59,13 @@ Histograms track the distribution of durations (in milliseconds).
 
 | Metric | Description | Labels |
 |--------|-------------|--------|
-| `amdwiki_page_view_duration_ms` | Time to render a page view | -- |
-| `amdwiki_page_save_duration_ms` | Time to save a page | -- |
-| `amdwiki_page_delete_duration_ms` | Time to delete a page | -- |
-| `amdwiki_search_rebuild_duration_ms` | Time to rebuild the search index | -- |
-| `amdwiki_page_index_save_duration_ms` | Time to write page-index.json | -- |
-| `amdwiki_engine_init_duration_ms` | Time for engine initialization | -- |
-| `amdwiki_http_request_duration_ms` | Time to handle an HTTP request | `method`, `route`, `status` |
+| `{app}_page_view_duration_ms` | Time to render a page view | -- |
+| `{app}_page_save_duration_ms` | Time to save a page | -- |
+| `{app}_page_delete_duration_ms` | Time to delete a page | -- |
+| `{app}_search_rebuild_duration_ms` | Time to rebuild the search index | -- |
+| `{app}_page_index_save_duration_ms` | Time to write page-index.json | -- |
+| `{app}_engine_init_duration_ms` | Time for engine initialization | -- |
+| `{app}_http_request_duration_ms` | Time to handle an HTTP request | `method`, `route`, `status` |
 
 ### HTTP Request Labels
 
@@ -79,7 +81,7 @@ The `http_requests_total` counter and `http_request_duration_ms` histogram inclu
 MetricsManager (src/managers/MetricsManager.ts)
   ├── PrometheusExporter  →  standalone HTTP server on port 9464
   ├── MeterProvider       →  OpenTelemetry SDK meter provider
-  └── Meter ('amdwiki')   →  creates all counters and histograms
+  └── Meter ('{app}')     →  creates all counters and histograms
 ```
 
 MetricsManager extends `BaseManager` and is registered in WikiEngine after CacheManager. Other code records metrics by calling methods like:
@@ -119,18 +121,20 @@ For Docker deployments, use the container hostname or service name instead of `l
 
 ### Example Queries
 
+Replace `{app}` with your actual prefix (e.g., `jimstest`, `amdwiki`).
+
 ```promql
 # Average page view duration over the last 5 minutes
-rate(amdwiki_page_view_duration_ms_sum[5m]) / rate(amdwiki_page_view_duration_ms_count[5m])
+rate({app}_page_view_duration_ms_sum[5m]) / rate({app}_page_view_duration_ms_count[5m])
 
 # Request rate by route
-sum(rate(amdwiki_http_requests_total[5m])) by (route)
+sum(rate({app}_http_requests_total[5m])) by (route)
 
 # Search rebuild duration (last value)
-amdwiki_search_rebuild_duration_ms_sum
+{app}_search_rebuild_duration_ms_sum
 
 # Error rate (5xx responses)
-sum(rate(amdwiki_http_requests_total{status=~"5.."}[5m]))
+sum(rate({app}_http_requests_total{status=~"5.."}[5m]))
 ```
 
 ## Dependencies
