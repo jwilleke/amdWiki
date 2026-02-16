@@ -24,6 +24,34 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-16-05
+
+- Agent: Claude Opus 4.6
+- Subject: Add OTLP HTTP metric export and service.name resource (#256)
+- Key Decision: Push metrics via OTLP HTTP to remote OTel Collector; set service.name resource attribute for Grafana filtering
+- Current Issue: #256
+- Testing:
+  - npm test: 67 suites passed, 1689 tests passed (19 MetricsManager tests)
+- Work Done:
+  - Installed `@opentelemetry/exporter-metrics-otlp-http` dependency
+  - MetricsManager conditionally creates `PeriodicExportingMetricReader` with `OTLPMetricExporter` alongside Prometheus
+  - Added `resourceFromAttributes` with `service.name` to `MeterProvider` (configurable via `amdwiki.telemetry.serviceName`)
+  - 6 new config defaults: `telemetry.serviceName`, `otlp.enabled`, `otlp.endpoint`, `otlp.headers`, `otlp.interval`, `otlp.timeout`
+  - Custom config sets `serviceName: jimstest-wiki`, OTLP endpoint to `https://otel.nerdsbythehour.com/v1/metrics`
+  - 6 new unit tests (4 OTLP + 2 service.name)
+  - Updated Telemetry.md with OTLP section, config table, architecture diagram
+  - Reviewed mj-infra-flux Telemetry.md to confirm Option 1 (OTLP push external) is correct for this deployment
+- Commits: 6b5d973
+- Files Modified:
+  - src/managers/MetricsManager.ts
+  - src/managers/__tests__/MetricsManager.test.js
+  - config/app-default-config.json
+  - data/config/app-custom-config.json
+  - docs/admin/Telemetry.md
+  - package.json
+  - package-lock.json
+  - docs/project_log.md
+
 ## 2026-02-16-04
 
 - Agent: Claude Opus 4.6
