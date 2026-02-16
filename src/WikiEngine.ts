@@ -26,6 +26,7 @@ import CacheManager from './managers/CacheManager';
 import AuditManager from './managers/AuditManager';
 import AddonsManager from './managers/AddonsManager';
 import ImportManager from './managers/ImportManager';
+import MetricsManager from './managers/MetricsManager';
 
 // Parsers
 import MarkupParser from './parsers/MarkupParser';
@@ -161,6 +162,11 @@ class WikiEngine extends Engine {
     this.registerManager('CacheManager', cacheManager);
     await cacheManager.initialize();
 
+    // 2b. Initialize MetricsManager early so other managers can record metrics
+    const metricsManager = new MetricsManager(this);
+    this.registerManager('MetricsManager', metricsManager);
+    await metricsManager.initialize();
+
     // 3. Initialize UserManager early as it's critical for security and context
     const userManager = new UserManager(this);
     this.registerManager('UserManager', userManager);
@@ -260,6 +266,9 @@ class WikiEngine extends Engine {
 
     // Mark engine as initialized (required for Engine base class contract)
     this.initialized = true;
+
+    // Record engine initialization duration
+    metricsManager.recordEngineInit(Date.now() - this.startTime);
 
     logger.info('All managers initialized');
   }

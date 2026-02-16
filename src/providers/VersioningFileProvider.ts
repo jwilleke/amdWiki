@@ -15,6 +15,7 @@ import {
 } from '../types';
 import { WikiEngine, ProviderInfo } from './BasePageProvider';
 import type ConfigurationManager from '../managers/ConfigurationManager';
+import type MetricsManager from '../managers/MetricsManager';
 
 /**
  * Page index entry structure
@@ -585,6 +586,7 @@ class VersioningFileProvider extends FileSystemProvider {
     // Serialize writes through the queue to prevent race conditions
     const indexPath = this.pageIndexPath;
     const data = JSON.stringify(this.pageIndex, null, 2);
+    const _metricsStart = Date.now();
 
     this.pageIndexWriteQueue = this.pageIndexWriteQueue.then(async () => {
       // Use unique temp file to prevent collisions
@@ -592,7 +594,9 @@ class VersioningFileProvider extends FileSystemProvider {
       try {
         await fs.writeFile(tempPath, data, 'utf8');
         await fs.rename(tempPath, indexPath);
+        this.engine.getManager<MetricsManager>('MetricsManager')?.recordPageIndexSave?.(Date.now() - _metricsStart);
       } catch (err) {
+        this.engine.getManager<MetricsManager>('MetricsManager')?.recordPageIndexSave?.(Date.now() - _metricsStart);
         // Clean up temp file on error
         try { await fs.unlink(tempPath); } catch { /* ignore */ }
         throw err;

@@ -1173,6 +1173,12 @@
       ]
     }
   ],
+  "_comment_telemetry": "OpenTelemetry metrics configuration",
+  "amdwiki.telemetry.enabled": false,
+  "amdwiki.telemetry.metrics.port": 9464,
+  "amdwiki.telemetry.metrics.host": "0.0.0.0",
+  "amdwiki.telemetry.metrics.path": "/metrics",
+  "amdwiki.telemetry.metrics.interval": 15000,
   "_comment_backup": "Backup and restore configuration (see Issue #170 for BackupProvider pattern)",
   "amdwiki.backup.directory": "./data/backups",
   "amdwiki.backup.maxBackups": 10,

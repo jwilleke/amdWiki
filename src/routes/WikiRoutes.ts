@@ -949,6 +949,7 @@ class WikiRoutes {
    * Display a wiki page
    */
   async viewPage(req: Request, res: Response) {
+    const _metricsStart = Date.now();
     try {
       const configManager = this.engine.getManager('ConfigurationManager');
       const frontPage = configManager.getProperty(
@@ -1044,6 +1045,7 @@ class WikiRoutes {
       const viewMode = req.query.view;
       const template = viewMode === 'reader' ? 'reader' : 'view';
 
+      this.engine.getManager('MetricsManager')?.recordPageView?.(Date.now() - _metricsStart);
       res.render(template, {
         ...templateData,
         pageName,
@@ -1056,6 +1058,7 @@ class WikiRoutes {
         referringPages: [] // TODO: Implement backlink detection
       });
     } catch (error: unknown) {
+      this.engine.getManager('MetricsManager')?.recordPageView?.(Date.now() - _metricsStart);
       logger.error('[VIEW] Error viewing page', {
         error: getErrorMessage(error),
         stack: error instanceof Error ? error.stack : undefined
@@ -1703,6 +1706,7 @@ class WikiRoutes {
    * Save a page
    */
   async savePage(req: Request, res: Response) {
+    const _metricsStart = Date.now();
     try {
       const pageName = req.params.page;
       logger.debug(`💾 Save request received for page: ${pageName}`);
@@ -1858,8 +1862,10 @@ class WikiRoutes {
 
       // Redirect to the updated page title if it changed (fallback to original name)
       const redirectName = (metadata.title as string) || pageName;
+      this.engine.getManager('MetricsManager')?.recordPageSave?.(Date.now() - _metricsStart);
       res.redirect(`/wiki/${encodeURIComponent(redirectName)}`);
     } catch (err: unknown) {
+      this.engine.getManager('MetricsManager')?.recordPageSave?.(Date.now() - _metricsStart);
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
       logger.error('Error saving page:', err);
       return await this.renderError(
@@ -1876,6 +1882,7 @@ class WikiRoutes {
    * Delete a page
    */
   async deletePage(req: Request, res: Response) {
+    const _metricsStart = Date.now();
     try {
       const pageName = req.params.page;
       logger.debug(`🗑️ Delete request received for page: ${pageName}`);
@@ -1953,6 +1960,7 @@ class WikiRoutes {
         await searchManager.removePageFromIndex(pageName);
 
         logger.debug(`✅ Page deleted successfully: ${pageName}`);
+        this.engine.getManager('MetricsManager')?.recordPageDelete?.(Date.now() - _metricsStart);
 
         // Return JSON for AJAX requests, redirect for form submissions
         if (req.xhr || req.headers.accept?.includes('application/json') || req.headers['content-type']?.includes('application/json')) {
@@ -1961,6 +1969,7 @@ class WikiRoutes {
           res.redirect('/');
         }
       } else {
+        this.engine.getManager('MetricsManager')?.recordPageDelete?.(Date.now() - _metricsStart);
         logger.debug(`❌ Failed to delete page: ${pageName}`);
         if (req.xhr || req.headers.accept?.includes('application/json') || req.headers['content-type']?.includes('application/json')) {
           res.status(500).json({ success: false, error: 'Failed to delete page' });
@@ -1969,6 +1978,7 @@ class WikiRoutes {
         }
       }
     } catch (err: unknown) {
+      this.engine.getManager('MetricsManager')?.recordPageDelete?.(Date.now() - _metricsStart);
       logger.error('❌ Error deleting page:', err);
       if (req.xhr || req.headers.accept?.includes('application/json') || req.headers['content-type']?.includes('application/json')) {
         res.status(500).json({ success: false, error: 'Error deleting page' });
@@ -2548,6 +2558,8 @@ class WikiRoutes {
         'amdwiki.logging.debug.login',
         false
       );
+
+      this.engine.getManager('MetricsManager')?.recordLoginAttempt?.();
 
       if (debugLogin) logger.debug('DEBUG: Login attempt for:', username);
 

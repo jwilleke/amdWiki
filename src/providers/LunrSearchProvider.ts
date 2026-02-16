@@ -21,6 +21,7 @@ import BaseSearchProvider, { SearchResult, SearchOptions, SearchCriteria, Search
 import { WikiPage } from '../types';
 import lunr from 'lunr';
 import logger from '../utils/logger';
+import type MetricsManager from '../managers/MetricsManager';
 
 /**
  * Lunr search index type (lunr types not fully typed)
@@ -179,6 +180,7 @@ class LunrSearchProvider extends BaseSearchProvider {
    * @returns {Promise<void>}
    */
   async buildIndex(): Promise<void> {
+    const _metricsStart = Date.now();
     const pageManager = this.engine.getManager<PageManager>('PageManager');
     if (!pageManager) {
       logger.warn('[LunrSearchProvider] PageManager not available for indexing');
@@ -246,8 +248,10 @@ class LunrSearchProvider extends BaseSearchProvider {
       });
        
 
+      this.engine.getManager<MetricsManager>('MetricsManager')?.recordSearchRebuild?.(Date.now() - _metricsStart);
       logger.info(`[LunrSearchProvider] Index built with ${Object.keys(documents).length} documents`);
     } catch (err) {
+      this.engine.getManager<MetricsManager>('MetricsManager')?.recordSearchRebuild?.(Date.now() - _metricsStart);
       logger.error('[LunrSearchProvider] Failed to build search index:', err);
       throw err;
     }

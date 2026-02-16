@@ -250,6 +250,25 @@ checkAndCreatePidLock();
     next();
   });
 
+  // 5b. HTTP request duration metrics middleware
+  const metricsManager = engine.getManager('MetricsManager');
+  if (metricsManager && metricsManager.isEnabled()) {
+    app.use((req, res, next) => {
+      const start = Date.now();
+      res.on('finish', () => {
+        const route = req.route?.path || req.path
+          .replace(/\/wiki\/[^/]+/, '/wiki/:page')
+          .replace(/\/edit\/[^/]+/, '/edit/:page');
+        metricsManager.recordHttpRequest(Date.now() - start, {
+          method: req.method,
+          route,
+          status: String(res.statusCode)
+        });
+      });
+      next();
+    });
+  }
+
   // 6. Admin-triggered maintenance mode middleware
   // Serves maintenance page to non-admin users when maintenance is enabled via admin dashboard
   app.use((req, res, next) => {
@@ -289,6 +308,19 @@ checkAndCreatePidLock();
 
   const wikiRoutes = new WikiRoutes(engine);
   wikiRoutes.registerRoutes(app);
+
+  // 7b. Admin-protected /metrics endpoint on main app
+  if (metricsManager && metricsManager.isEnabled()) {
+    const metricsHandler = metricsManager.getMetricsHandler();
+    if (metricsHandler) {
+      app.get('/metrics', (req, res) => {
+        if (!req.userContext || !req.userContext.roles || !req.userContext.roles.includes('admin')) {
+          return res.status(403).send('Admin access required');
+        }
+        return metricsHandler(req, res);
+      });
+    }
+  }
 
   // 7. Mark engine as ready - requests will now pass through to normal routes
   engineReady = true;
