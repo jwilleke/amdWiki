@@ -17,7 +17,7 @@ All settings live in the configuration hierarchy (`app-default-config.json`, ove
 | `amdwiki.telemetry.otlp.enabled` | `false` | Enable OTLP HTTP push-based export |
 | `amdwiki.telemetry.otlp.endpoint` | `""` | OTLP collector URL (e.g., `https://otel.example.com/v1/metrics`) |
 | `amdwiki.telemetry.otlp.headers` | `{}` | Custom headers for OTLP requests (e.g., auth tokens) |
-| `amdwiki.telemetry.otlp.interval` | `15000` | Push interval in milliseconds |
+| `amdwiki.telemetry.otlp.interval` | `30000` | Push interval in milliseconds (must be >= timeout) |
 | `amdwiki.telemetry.otlp.timeout` | `30000` | Export timeout in milliseconds |
 
 To enable telemetry, add the following to your custom config (`data/config/app-custom-config.json`):

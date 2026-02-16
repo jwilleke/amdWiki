@@ -24,6 +24,27 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-16-06
+
+- Agent: Claude Opus 4.6
+- Subject: Fix OTLP interval/timeout constraint and clean up test pages (#256)
+- Key Decision: OTLP exportIntervalMillis must be >= exportTimeoutMillis; changed default interval from 15s to 30s
+- Current Issue: #256
+- Testing:
+  - npm test: 67 suites passed, 1690 tests passed
+- Work Done:
+  - Fixed OTLP init failure: `exportIntervalMillis (15000) < exportTimeoutMillis (30000)` — SDK requires interval >= timeout
+  - Changed `amdwiki.telemetry.otlp.interval` default from 15000 to 30000 (matches mj-infra-flux recommendation)
+  - Verified OTLP export initializes: logs show `OTLP metric export enabled → https://otel.nerdsbythehour.com/v1/metrics (interval: 30000ms)`
+  - Verified `service_name="jimstest-wiki"` appears in Prometheus output
+  - Cleaned up 191 junk pages from NAS: 30 numeric-titled (121-152), 44 numeric-titled (300-343), 7 DELETEME-tagged, 110 LocationTest-* E2E leftovers
+  - Updated Telemetry.md to note interval >= timeout constraint
+- Commits: (this commit)
+- Files Modified:
+  - config/app-default-config.json
+  - docs/admin/Telemetry.md
+  - docs/project_log.md
+
 ## 2026-02-16-05
 
 - Agent: Claude Opus 4.6

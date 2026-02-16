@@ -1184,7 +1184,7 @@
   "amdwiki.telemetry.otlp.enabled": false,
   "amdwiki.telemetry.otlp.endpoint": "",
   "amdwiki.telemetry.otlp.headers": {},
-  "amdwiki.telemetry.otlp.interval": 15000,
+  "amdwiki.telemetry.otlp.interval": 30000,
   "amdwiki.telemetry.otlp.timeout": 30000,
   "_comment_backup": "Backup and restore configuration (see Issue #170 for BackupProvider pattern)",
   "amdwiki.backup.directory": "./data/backups",
