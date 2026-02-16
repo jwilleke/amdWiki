@@ -25,5 +25,8 @@
 
   "_comment_security": "Enhanced security for production",
   "amdwiki.features.maintenance.enabled": false,
-  "amdwiki.features.maintenance.allowAdmins": true
+  "amdwiki.features.maintenance.allowAdmins": true,
+
+  "_comment_telemetry": "OpenTelemetry metrics",
+  "amdwiki.telemetry.enabled": true
 }

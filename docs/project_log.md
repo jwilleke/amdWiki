@@ -24,6 +24,48 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-16-02
+
+- Agent: Claude Opus 4.6
+- Subject: Fix LeftMenu data corruption from Fairways repo (#257)
+- Key Decision: Manual data repair — deleted stale file, fixed page-index entry, copied correct file to NAS
+- Current Issue: #257
+- Work Done:
+  - Discovered two LeftMenu files with same title but different UUIDs
+  - 907abcd4...md had Fairways-specific content (committed accidentally in e619846)
+  - f6d47002...md is the correct LeftMenu
+  - Deleted 907abcd4...md from required-pages/, data/pages/, and NAS
+  - Fixed corrupted page-index.json entry: uuid was "LeftMenu" (title) instead of real UUID, location was "pages" instead of "required-pages"
+  - Copied f6d47002...md to NAS pages directory
+  - Created issue #257 for missing duplicate title/UUID validation
+
+## 2026-02-16-01
+
+- Agent: Claude Opus 4.6
+- Subject: Add OpenTelemetry metrics with Prometheus export (#256)
+- Key Decision: Centralized MetricsManager pattern with no-ops when disabled
+- Current Issue: #256, #257
+- Testing:
+  - npm test: 67 suites passed, 1683 tests passed (12 new MetricsManager tests)
+- Work Done:
+  - Created MetricsManager with 7 counters and 7 histograms
+  - Instrumented viewPage, savePage, deletePage, processLogin, buildIndex, savePageIndex
+  - Added HTTP request duration middleware and admin-protected /metrics route
+  - Added telemetry config defaults (disabled by default)
+- Commits: bb0b11b, 8a51d67
+- Files Modified:
+  - src/managers/MetricsManager.ts (new)
+  - src/managers/__tests__/MetricsManager.test.js (new)
+  - src/WikiEngine.ts
+  - src/routes/WikiRoutes.ts
+  - src/providers/LunrSearchProvider.ts
+  - src/providers/VersioningFileProvider.ts
+  - app.js
+  - config/app-default-config.json
+  - package.json
+- Files Deleted:
+  - required-pages/907abcd4-1449-47aa-a1f5-7dcc4c0dde00.md
+
 ## 2026-02-15-08
 
 - Agent: Claude Opus 4.6
