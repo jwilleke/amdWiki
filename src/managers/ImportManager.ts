@@ -312,7 +312,7 @@ class ImportManager extends BaseManager {
 
     // Get target directory (default to data/pages)
     const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
-    const defaultPagesDir = configManager?.getProperty('amdwiki.paths.pages', './data/pages') as string ?? './data/pages';
+    const defaultPagesDir = configManager?.getProperty('amdwiki.page.provider.filesystem.storagedir', './data/pages') as string ?? './data/pages';
     const targetDir = options.targetDir ?? path.resolve(defaultPagesDir);
 
     // Determine file extensions to process
@@ -702,7 +702,7 @@ class ImportManager extends BaseManager {
 
     // Determine target path
     const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
-    const defaultPagesDir = configManager?.getProperty('amdwiki.paths.pages', './data/pages') as string ?? './data/pages';
+    const defaultPagesDir = configManager?.getProperty('amdwiki.page.provider.filesystem.storagedir', './data/pages') as string ?? './data/pages';
     const targetPath = path.join(path.resolve(defaultPagesDir), `${pageUuid}.md`);
 
     // Write file (unless dry run)
