@@ -24,6 +24,27 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-17-02
+
+- Agent: Claude Opus 4.6
+- Subject: Fix ./data recreated when INSTANCE_DATA_FOLDER points elsewhere (#261)
+- Key Decision: Logger starts console-only; file transport added only after ConfigurationManager resolves paths
+- Current Issue: #261
+- Testing:
+  - npm test: 67 suites passed, 1694 tests passed
+- Work Done:
+  - PM2 log paths in `ecosystem.config.js` now read `INSTANCE_DATA_FOLDER` env var
+  - Logger default transport is console-only (no filesystem touched on import)
+  - WikiEngine logger reconfiguration uses `getResolvedDataPath()` instead of `getProperty()`
+  - NotificationManager fallback uses `INSTANCE_DATA_FOLDER` env var
+  - Verified: deleting `./data` and restarting does not recreate it
+- Commits: 3ab1dfa
+- Files Modified:
+  - ecosystem.config.js
+  - src/utils/logger.ts
+  - src/WikiEngine.ts
+  - src/managers/NotificationManager.ts
+
 ## 2026-02-17-01
 
 - Agent: Claude Opus 4.6
