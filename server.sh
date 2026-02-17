@@ -169,7 +169,7 @@ case "${1:-}" in
     echo "🚀 Starting amdWiki in $ENV_NAME mode..."
     echo "   Base config: config/app-default-config.json"
     echo "   Instance config: ${INSTANCE_DATA_FOLDER:-./data}/config/${INSTANCE_CONFIG_FILE:-app-custom-config.json}"
-    echo "   Logs: ./data/logs/"
+    echo "   Logs: ${INSTANCE_DATA_FOLDER:-./data}/logs/"
     npx --no pm2 start ecosystem.config.js --env $ENV_NAME
 
     # STEP 8: Wait for server to start and verify it's running

@@ -18,10 +18,22 @@
 import fs from 'fs';
 import path from 'path';
 
-// Use CommonJS-compatible path resolution
-const PACKAGE_JSON_PATH = path.join(__dirname, '../../package.json');
-const CHANGELOG_PATH = path.join(__dirname, '../../CHANGELOG.md');
-const APP_CONFIG_PATH = path.join(__dirname, '../../config/app-default-config.json');
+// Find project root by walking up from __dirname until we find package.json
+function findProjectRoot(): string {
+  let dir = __dirname;
+  while (dir !== path.dirname(dir)) {
+    if (fs.existsSync(path.join(dir, 'package.json'))) {
+      return dir;
+    }
+    dir = path.dirname(dir);
+  }
+  throw new Error('Could not find project root (no package.json found)');
+}
+
+const PROJECT_ROOT = findProjectRoot();
+const PACKAGE_JSON_PATH = path.join(PROJECT_ROOT, 'package.json');
+const CHANGELOG_PATH = path.join(PROJECT_ROOT, 'CHANGELOG.md');
+const APP_CONFIG_PATH = path.join(PROJECT_ROOT, 'config/app-default-config.json');
 
 /**
  * Package.json structure
