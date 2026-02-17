@@ -24,6 +24,42 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-17-01
+
+- Agent: Claude Opus 4.6
+- Subject: Config system cleanup — .env sourcing, accurate messaging, dev debug logging (#260)
+- Key Decision: Keep two-tier config system (default + custom), remove orphaned env-specific configs, add .env sourcing to server.sh
+- Current Issue: #260
+- Testing:
+  - npm test: 67 suites passed, 1694 tests passed
+  - E2E: 45 passed, 2 skipped
+- Work Done:
+  - Deleted orphaned `config/app-production-config.json` and `data/config/app-{env}-config.json` files
+  - Added `.env` sourcing to `server.sh` (shell exports and CLI args still override)
+  - Fixed `server.sh` start/env/help to show actual two-tier config system
+  - `NODE_ENV=development` now defaults logging to debug unless custom config overrides
+  - Added 4 unit tests for NODE_ENV logging level override
+  - Fixed `version.ts` project root resolution (dynamic lookup instead of relative path)
+  - Fixed ImportManager using wrong config key (`amdwiki.paths.pages` → `amdwiki.page.provider.filesystem.storagedir`)
+  - Updated `STARTUP-PROCESS.md` for .env sourcing and dev logging
+  - Set `INSTANCE_DATA_FOLDER=/Volumes/hd2/jimstest-wiki` in `.env` for this instance
+  - Bumped version to 1.5.12
+- Commits: e495460, 745a215, 8b67e16, 8983454
+- Files Modified:
+  - config/app-production-config.json (deleted)
+  - data/config/app-development-config.json (deleted from git)
+  - data/config/app-production-config.json (deleted from git)
+  - data/config/app-test-config.json (deleted from git)
+  - server.sh
+  - src/managers/ConfigurationManager.ts
+  - src/managers/__tests__/ConfigurationManager.test.js
+  - src/managers/ImportManager.ts
+  - src/utils/version.ts
+  - docs/INSTALLATION/Startup-Process.md
+  - package.json
+  - config/app-default-config.json
+  - .gitignore
+
 ## 2026-02-16-06
 
 - Agent: Claude Opus 4.6
