@@ -1,17 +1,25 @@
 #!/bin/bash
 # amdWiki Server Management Script
 #
-# Environment Configuration:
-# - Default: Production (config/app-production-config.json)
-# - Set NODE_ENV to change: development, test, staging, production
+# Configuration: Two-tier system
+# - Base defaults: config/app-default-config.json (always loaded)
+# - Instance overrides: ${INSTANCE_DATA_FOLDER:-./data}/config/app-custom-config.json
+# - .env file sourced automatically if present
 #
 # Examples:
-#   ./server.sh start              # Uses production config
-#   ./server.sh start dev          # Uses development config
-#   NODE_ENV=staging ./server.sh start  # Uses staging config
+#   ./server.sh start              # Production (default)
+#   ./server.sh start dev          # Development mode
+#   ./server.sh env                # Show config file paths
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PID_FILE="$SCRIPT_DIR/.amdwiki.pid"
+
+# Source .env if present (shell exports and CLI args still override)
+if [ -f "$SCRIPT_DIR/.env" ]; then
+  set -a
+  source "$SCRIPT_DIR/.env"
+  set +a
+fi
 
 # Generate unique PM2 app name from directory name
 DIR_NAME=$(basename "$SCRIPT_DIR")
@@ -159,7 +167,8 @@ case "${1:-}" in
 
     # STEP 7: Start via PM2
     echo "🚀 Starting amdWiki in $ENV_NAME mode..."
-    echo "   Config: config/app-$ENV_NAME-config.json"
+    echo "   Base config: config/app-default-config.json"
+    echo "   Instance config: ${INSTANCE_DATA_FOLDER:-./data}/config/${INSTANCE_CONFIG_FILE:-app-custom-config.json}"
     echo "   Logs: ./data/logs/"
     npx --no pm2 start ecosystem.config.js --env $ENV_NAME
 
@@ -335,12 +344,19 @@ case "${1:-}" in
     ;;
 
   env)
-    echo "Current Environment Configuration:"
+    echo "Configuration:"
     echo "  NODE_ENV: ${NODE_ENV:-production}"
-    echo "  Config file: config/app-${NODE_ENV:-production}-config.json"
+    echo "  INSTANCE_DATA_FOLDER: ${INSTANCE_DATA_FOLDER:-./data}"
+    echo "  INSTANCE_CONFIG_FILE: ${INSTANCE_CONFIG_FILE:-app-custom-config.json}"
     echo ""
-    echo "Available configs:"
-    ls -1 config/app-*-config.json 2>/dev/null | sed 's/^/  /'
+    echo "Config files loaded:"
+    echo "  1. config/app-default-config.json (base defaults)"
+    CUSTOM_PATH="${INSTANCE_DATA_FOLDER:-./data}/config/${INSTANCE_CONFIG_FILE:-app-custom-config.json}"
+    if [ -f "$SCRIPT_DIR/$CUSTOM_PATH" ] || [ -f "$CUSTOM_PATH" ]; then
+      echo "  2. $CUSTOM_PATH (instance overrides)"
+    else
+      echo "  2. $CUSTOM_PATH (not found)"
+    fi
     ;;
 
   unlock)
@@ -412,12 +428,13 @@ case "${1:-}" in
     echo "  Multiple processes running:"
     echo "    ./server.sh unlock  # Clears all locks and processes"
     echo ""
-    echo "Config Files (loaded based on NODE_ENV):"
-    echo "  config/app-development-config.json  - Development settings"
-    echo "  config/app-production-config.json   - Production settings"
-    echo "  config/app-staging-config.json      - Staging settings (if exists)"
-    echo "  config/app-test-config.json         - Test settings (if exists)"
-    echo "  config/app-custom-config.json       - Custom overrides (not tracked)"
+    echo "Config Files (two-tier system):"
+    echo "  1. config/app-default-config.json              - Base defaults (read-only)"
+    echo "  2. \${INSTANCE_DATA_FOLDER}/config/app-custom-config.json - Instance overrides"
+    echo ""
+    echo "Environment:"
+    echo "  .env file is sourced automatically if present"
+    echo "  Shell exports and CLI args override .env values"
     exit 1
     ;;
 esac

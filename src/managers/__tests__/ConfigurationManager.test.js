@@ -536,4 +536,98 @@ describe('ConfigurationManager', () => {
       expect(keywords).toHaveProperty('draft');
     });
   });
+
+  describe('NODE_ENV logging level override', () => {
+    test('development mode without custom logging.level defaults to debug', async () => {
+      process.env.NODE_ENV = 'development';
+
+      const defaultConfig = {
+        'amdwiki.applicationName': 'TestWiki',
+        'amdwiki.logging.level': 'info'
+      };
+      await fs.writeJson(
+        path.join(tempDir, 'config', 'app-default-config.json'),
+        defaultConfig,
+        { spaces: 2 }
+      );
+
+      const newConfigManager = new ConfigurationManager(mockEngine);
+      await newConfigManager.initialize();
+
+      expect(newConfigManager.getProperty('amdwiki.logging.level')).toBe('debug');
+    });
+
+    test('development mode with custom logging.level preserves custom value', async () => {
+      process.env.NODE_ENV = 'development';
+
+      const defaultConfig = {
+        'amdwiki.applicationName': 'TestWiki',
+        'amdwiki.logging.level': 'info'
+      };
+      await fs.writeJson(
+        path.join(tempDir, 'config', 'app-default-config.json'),
+        defaultConfig,
+        { spaces: 2 }
+      );
+
+      const instanceConfigDir = path.join(tempDir, 'data', 'config');
+      await fs.ensureDir(instanceConfigDir);
+      await fs.writeJson(
+        path.join(instanceConfigDir, 'app-custom-config.json'),
+        { 'amdwiki.logging.level': 'warn' },
+        { spaces: 2 }
+      );
+
+      const newConfigManager = new ConfigurationManager(mockEngine);
+      await newConfigManager.initialize();
+
+      expect(newConfigManager.getProperty('amdwiki.logging.level')).toBe('warn');
+    });
+
+    test('production mode without custom logging.level uses default (info)', async () => {
+      process.env.NODE_ENV = 'production';
+
+      const defaultConfig = {
+        'amdwiki.applicationName': 'TestWiki',
+        'amdwiki.logging.level': 'info'
+      };
+      await fs.writeJson(
+        path.join(tempDir, 'config', 'app-default-config.json'),
+        defaultConfig,
+        { spaces: 2 }
+      );
+
+      const newConfigManager = new ConfigurationManager(mockEngine);
+      await newConfigManager.initialize();
+
+      expect(newConfigManager.getProperty('amdwiki.logging.level')).toBe('info');
+    });
+
+    test('production mode does not override logging level', async () => {
+      process.env.NODE_ENV = 'production';
+
+      const defaultConfig = {
+        'amdwiki.applicationName': 'TestWiki',
+        'amdwiki.logging.level': 'info'
+      };
+      await fs.writeJson(
+        path.join(tempDir, 'config', 'app-default-config.json'),
+        defaultConfig,
+        { spaces: 2 }
+      );
+
+      const instanceConfigDir = path.join(tempDir, 'data', 'config');
+      await fs.ensureDir(instanceConfigDir);
+      await fs.writeJson(
+        path.join(instanceConfigDir, 'app-custom-config.json'),
+        { 'amdwiki.logging.level': 'error' },
+        { spaces: 2 }
+      );
+
+      const newConfigManager = new ConfigurationManager(mockEngine);
+      await newConfigManager.initialize();
+
+      expect(newConfigManager.getProperty('amdwiki.logging.level')).toBe('error');
+    });
+  });
 });

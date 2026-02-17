@@ -93,6 +93,7 @@ These environment variables override the corresponding config file properties at
 
 - PM2 environment selection in `ecosystem.config.js` (sets env vars for the process)
 - Display messages in `server.sh`
+- `development` mode defaults logging level to `debug` (unless `amdwiki.logging.level` is set in custom config)
 
 `NODE_ENV` does **not**:
 
@@ -139,18 +140,19 @@ env_production: { NODE_ENV: 'production' }
 
 ### .env File
 
-`server.sh` does **not** source a `.env` file. Environment variables must be set in the shell before running `server.sh`, or passed inline:
+`server.sh` automatically sources a `.env` file if present in the project root. Variables defined in `.env` are exported into the shell environment before any other processing occurs.
 
 ```bash
-# These work:
-INSTANCE_DATA_FOLDER=/var/lib/amdwiki/data ./server.sh start
-export INSTANCE_DATA_FOLDER=/var/lib/amdwiki/data && ./server.sh start
+# .env file (sourced automatically by server.sh)
+INSTANCE_DATA_FOLDER=/var/lib/amdwiki/data
+NODE_ENV=production
+PM2_MAX_MEMORY=4G
 
-# This does NOT work (no dotenv loading):
-# Editing .env and expecting server.sh to read it
+# Shell exports and CLI args still override .env values:
+INSTANCE_DATA_FOLDER=/override ./server.sh start   # overrides .env
 ```
 
-The `.env` file is a template/reference for the developer. The app does not use `dotenv` to load it automatically.
+The `.env` file is gitignored. The app does not use `dotenv` at runtime — only `server.sh` sources it.
 
 ## app.js Bootstrap
 
@@ -343,8 +345,9 @@ NODE_ENV=production node app.js
 
 ### Environment variables not working
 
-- `server.sh` does not source `.env` — set variables in your shell or pass them inline
-- The app does not use `dotenv` — environment variables must be set before the process starts
+- `server.sh` sources `.env` automatically — check that your `.env` file is in the project root
+- Shell exports and CLI args override `.env` values
+- The app does not use `dotenv` at runtime — environment variables must be set before the process starts
 - PM2 passes env vars through `ecosystem.config.js` env blocks
 
 ### Port already in use

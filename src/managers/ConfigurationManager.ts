@@ -143,6 +143,11 @@ class ConfigurationManager extends BaseManager {
 
     // Merge configurations with deep-merge for object-type properties
     this.mergedConfig = this.deepMergeConfigs(this.defaultConfig, this.customConfig);
+
+    // Development mode defaults to debug logging unless explicitly overridden
+    if (this.environment === 'development' && !this.customConfig?.['amdwiki.logging.level']) {
+      this.mergedConfig['amdwiki.logging.level'] = 'debug';
+    }
   }
 
   /**
