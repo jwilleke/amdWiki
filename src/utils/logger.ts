@@ -30,11 +30,10 @@ export interface LoggerConfig {
 }
 
 // Default config (can be overridden)
-// Note: Log directory should match INSTANCE_DATA_FOLDER pattern (./data/logs)
-// This aligns with PM2 config in ecosystem.config.js and FileAuditProvider
+// Note: File transport is only added when 'dir' is explicitly provided
+// (e.g., during reconfiguration from WikiEngine after ConfigurationManager resolves paths)
 const defaultConfig = {
   level: 'info',
-  dir: path.join(__dirname, '../../data/logs'), // Instance data folder
   maxSize: 1048576, // 1MB
   maxFiles: 5
 } as const;
@@ -63,6 +62,22 @@ export function createLoggerWithConfig(config: LoggerConfig = {}): Logger {
     }
   }
 
+  const logTransports: (transports.ConsoleTransportInstance | transports.FileTransportInstance)[] = [
+    new transports.Console()
+  ];
+
+  // Only add file transport when dir is explicitly provided
+  // (avoids creating ./data/logs before ConfigurationManager resolves paths)
+  if (logConfig.dir) {
+    logTransports.push(
+      new transports.File({
+        filename: path.join(logConfig.dir, 'app.log'),
+        maxsize: maxSize,
+        maxFiles: logConfig.maxFiles
+      })
+    );
+  }
+
   const logger = createLogger({
     level: logConfig.level,
     format: format.combine(
@@ -73,14 +88,7 @@ export function createLoggerWithConfig(config: LoggerConfig = {}): Logger {
         return `${ts} [${info.level}]: ${msg}`;
       })
     ),
-    transports: [
-      new transports.File({
-        filename: path.join(logConfig.dir, 'app.log'),
-        maxsize: maxSize,
-        maxFiles: logConfig.maxFiles
-      }),
-      new transports.Console()
-    ]
+    transports: logTransports
   });
 
   return logger;

@@ -151,7 +151,7 @@ class WikiEngine extends Engine {
     // Logger starts with defaults, then reconfigures here after config is available
     reconfigureLogger({
       level: configManager.getProperty('amdwiki.logging.level', 'info') as string,
-      dir: configManager.getProperty('amdwiki.logging.dir', './data/logs') as string,
+      dir: configManager.getResolvedDataPath('amdwiki.logging.dir', './data/logs'),
       maxSize: configManager.getProperty('amdwiki.logging.maxSize', '1MB') as string,
       maxFiles: configManager.getProperty('amdwiki.logging.maxFiles', 5) as number
     });

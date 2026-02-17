@@ -24,10 +24,10 @@ module.exports = {
       NODE_ENV: 'production'
     },
 
-    // Logging - all logs go to ./data/logs directory
-    out_file: './data/logs/pm2-out.log',
-    error_file: './data/logs/pm2-error.log',
-    log_file: './data/logs/pm2-combined.log',
+    // Logging - use INSTANCE_DATA_FOLDER if set, otherwise ./data
+    out_file: path.join(process.env.INSTANCE_DATA_FOLDER || './data', 'logs/pm2-out.log'),
+    error_file: path.join(process.env.INSTANCE_DATA_FOLDER || './data', 'logs/pm2-error.log'),
+    log_file: path.join(process.env.INSTANCE_DATA_FOLDER || './data', 'logs/pm2-combined.log'),
 
     // Log rotation
     log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
