@@ -40,6 +40,9 @@ export interface PageFrontmatter {
   /** Last editor (user ID or 'system') */
   editor?: string;
 
+  /** Whether a system/documentation page has been user-modified */
+  'user-modified'?: boolean;
+
   /** Page template to use for rendering */
   template?: string;
 

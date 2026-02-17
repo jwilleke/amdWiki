@@ -447,8 +447,7 @@ class FileSystemProvider extends BasePageProvider {
       throw new Error('FileSystemProvider not initialized - directories not set');
     }
 
-    // Determine which directory to save to based on system-category
-    // Use ValidationManager to get storage location from config
+    // Determine storage location to check for github-only pages
     const systemCategory = String(metadata['system-category'] ?? 'general');
 
     // Get storage location from ValidationManager (if available)
@@ -461,23 +460,11 @@ class FileSystemProvider extends BasePageProvider {
       throw new Error(`Cannot save page with system-category '${systemCategory}' - pages with storageLocation 'github' are not stored in the wiki (docs/ folder only)`);
     }
 
-    // Determine target directory based on storage location
-    const targetDirectory = storageLocation === 'required' ? this.requiredPagesDirectory : this.pagesDirectory;
-
-    const filePath = path.join(targetDirectory, `${uuid}.md`);
+    // Always save to pagesDirectory — required-pages/ is read-only (install source only)
+    const filePath = path.join(this.pagesDirectory, `${uuid}.md`);
     await fs.ensureDir(path.dirname(filePath));
 
-    // If the file exists in the wrong directory, remove it
     const oldPageInfo = this.resolvePageInfo(pageName);
-    if (oldPageInfo && oldPageInfo.filePath !== filePath) {
-      try {
-        await fs.unlink(oldPageInfo.filePath);
-        logger.info(`[FileSystemProvider] Moved page from ${oldPageInfo.filePath} to ${filePath}`);
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : String(err);
-        logger.warn(`[FileSystemProvider] Could not remove old file: ${oldPageInfo.filePath}`, { error: errorMessage });
-      }
-    }
 
     const now = new Date().toISOString();
     // Use metadata.title if provided (for renames), otherwise use pageName

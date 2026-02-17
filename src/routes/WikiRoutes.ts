@@ -1783,6 +1783,12 @@ class WikiRoutes {
         uuid: existingPage?.metadata?.uuid || undefined
       });
 
+      // Mark system/documentation pages as user-modified
+      const protectedSaveCategories = ['System', 'System/Admin', 'Documentation'];
+      if (protectedSaveCategories.includes(matchedCategory)) {
+        metadata['user-modified'] = true;
+      }
+
       // Permission checks
       const isCurrentlyRequired = await this.isRequiredPage(pageName);
       // Check if the new metadata will make this a required page
@@ -2999,11 +3005,15 @@ class WikiRoutes {
       // Get all required pages for the admin dashboard
       const pageManager = this.engine.getManager('PageManager');
       const allPageNames = await pageManager.getAllPages();
-      const requiredPages = [];
+      const requiredPages: Array<{ name: string; userModified: boolean }> = [];
 
       for (const pageName of allPageNames) {
         if (await this.isRequiredPage(pageName)) {
-          requiredPages.push(pageName);
+          const page = await pageManager.getPage(pageName);
+          requiredPages.push({
+            name: pageName,
+            userModified: page?.metadata?.['user-modified'] === true
+          });
         }
       }
 
