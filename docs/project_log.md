@@ -24,6 +24,27 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-17-03
+
+- Agent: Claude Opus 4.6
+- Subject: Fix page moved from NAS pages/ to required-pages/ on save (#264)
+- Key Decision: required-pages/ is read-only install source; all saves go to pagesDirectory; user-modified frontmatter marker added
+- Current Issue: #264
+- Testing:
+  - npm test: 67 suites passed, 1694 tests passed
+  - E2E: 45 tests passed
+- Work Done:
+  - Removed move/relocate logic from FileSystemProvider.savePage() — always saves to pagesDirectory
+  - Added `user-modified` field to PageFrontmatter interface
+  - Set `user-modified: true` on System/Documentation page saves in WikiRoutes
+  - Admin dashboard shows 'modified' badge on user-modified required pages
+- Commits: 8f6a755
+- Files Modified:
+  - src/providers/FileSystemProvider.ts
+  - src/routes/WikiRoutes.ts
+  - src/types/Page.ts
+  - views/admin-dashboard.ejs
+
 ## 2026-02-17-02
 
 - Agent: Claude Opus 4.6
