@@ -233,6 +233,21 @@ class FileSystemProvider extends BasePageProvider {
           continue;
         }
 
+        // Detect duplicate titles (first entry wins)
+        const existingTitleKey = this.titleIndex.get(title.toLowerCase());
+        if (existingTitleKey) {
+          const existingInfo = this.pageCache.get(existingTitleKey);
+          logger.warn(`[FileSystemProvider] Duplicate title "${title}" in ${path.basename(filePath)} (UUID: ${uuid}) — already indexed from ${existingInfo ? path.basename(existingInfo.filePath) : 'unknown'} (UUID: ${existingInfo?.uuid || 'unknown'}). Skipping duplicate.`);
+          continue;
+        }
+
+        // Detect duplicate UUIDs (first entry wins)
+        if (uuid && this.uuidIndex.has(uuid)) {
+          const existingTitle = this.uuidIndex.get(uuid);
+          logger.warn(`[FileSystemProvider] Duplicate UUID "${uuid}" in ${path.basename(filePath)} (title: "${title}") — already indexed for "${existingTitle}". Skipping duplicate.`);
+          continue;
+        }
+
         const pageInfo: PageCacheInfo = {
           title,
           uuid,
@@ -470,6 +485,22 @@ class FileSystemProvider extends BasePageProvider {
     const now = new Date().toISOString();
     // Use metadata.title if provided (for renames), otherwise use pageName
     const finalTitle = metadata.title || pageName;
+
+    // Check for duplicate title (different page already has this title)
+    if (this.titleExistsForDifferentPage(finalTitle, uuid)) {
+      const conflictKey = this.titleIndex.get(finalTitle.toLowerCase());
+      const conflictInfo = conflictKey ? this.pageCache.get(conflictKey) : null;
+      throw new Error(`Title "${finalTitle}" is already in use by page ${conflictInfo?.uuid || 'unknown'}`);
+    }
+
+    // Check for duplicate UUID (different page already has this UUID)
+    // Use the old title (from oldPageInfo) for exclusion since on rename the UUID
+    // is still mapped to the old title in the index
+    const existingTitleForUuid = oldPageInfo?.title || finalTitle;
+    if (this.uuidExistsForDifferentPage(uuid, existingTitleForUuid)) {
+      const conflictTitle = this.uuidIndex.get(uuid);
+      throw new Error(`UUID "${uuid}" is already assigned to page "${conflictTitle || 'unknown'}"`);
+    }
     const updatedMetadata: Partial<PageFrontmatter> = {
       ...metadata,
       title: finalTitle, // Ensure title is set after spread
@@ -572,6 +603,38 @@ class FileSystemProvider extends BasePageProvider {
    */
   pageExists(identifier: string): boolean {
     return !!this.resolvePageInfo(identifier);
+  }
+
+  /**
+   * Check if a title is already in use by a different page.
+   * Used to prevent duplicate titles on save/rename.
+   *
+   * @param {string} title - The title to check
+   * @param {string} [excludeUuid] - UUID of the page being saved (excluded from conflict check)
+   * @returns {boolean} True if another page already has this title
+   */
+  titleExistsForDifferentPage(title: string, excludeUuid?: string): boolean {
+    const canonicalKey = this.titleIndex.get(title.toLowerCase());
+    if (!canonicalKey) return false;
+    const existing = this.pageCache.get(canonicalKey);
+    if (!existing) return false;
+    if (excludeUuid && existing.uuid === excludeUuid) return false;
+    return true;
+  }
+
+  /**
+   * Check if a UUID is already assigned to a different page.
+   * Used to prevent duplicate UUIDs on save.
+   *
+   * @param {string} uuid - The UUID to check
+   * @param {string} [excludeTitle] - Title of the page being saved (excluded from conflict check)
+   * @returns {boolean} True if another page already has this UUID
+   */
+  uuidExistsForDifferentPage(uuid: string, excludeTitle?: string): boolean {
+    const canonicalKey = this.uuidIndex.get(uuid);
+    if (!canonicalKey) return false;
+    if (excludeTitle && canonicalKey === excludeTitle) return false;
+    return true;
   }
 
   /**

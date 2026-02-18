@@ -290,4 +290,146 @@ describe('FileSystemProvider', () => {
       }
     });
   });
+
+  describe('Duplicate Prevention (#257)', () => {
+    describe('titleExistsForDifferentPage', () => {
+      test('should return false for nonexistent title', async () => {
+        const provider = new FileSystemProvider(createMockEngine());
+        await provider.initialize();
+
+        expect(provider.titleExistsForDifferentPage('Nonexistent')).toBe(false);
+      });
+
+      test('should return true when different page has the title', async () => {
+        await createTestPage(TEST_PAGES_DIR, 'uuid-1', 'Existing Page');
+
+        const provider = new FileSystemProvider(createMockEngine());
+        await provider.initialize();
+
+        expect(provider.titleExistsForDifferentPage('Existing Page', 'uuid-other')).toBe(true);
+      });
+
+      test('should return false for same UUID (self-save)', async () => {
+        await createTestPage(TEST_PAGES_DIR, 'uuid-1', 'My Page');
+
+        const provider = new FileSystemProvider(createMockEngine());
+        await provider.initialize();
+
+        expect(provider.titleExistsForDifferentPage('My Page', 'uuid-1')).toBe(false);
+      });
+
+      test('should be case-insensitive', async () => {
+        await createTestPage(TEST_PAGES_DIR, 'uuid-1', 'Test Page');
+
+        const provider = new FileSystemProvider(createMockEngine());
+        await provider.initialize();
+
+        expect(provider.titleExistsForDifferentPage('test page', 'uuid-other')).toBe(true);
+        expect(provider.titleExistsForDifferentPage('TEST PAGE', 'uuid-other')).toBe(true);
+      });
+    });
+
+    describe('uuidExistsForDifferentPage', () => {
+      test('should return false for nonexistent UUID', async () => {
+        const provider = new FileSystemProvider(createMockEngine());
+        await provider.initialize();
+
+        expect(provider.uuidExistsForDifferentPage('nonexistent-uuid')).toBe(false);
+      });
+
+      test('should return true when different page has the UUID', async () => {
+        await createTestPage(TEST_PAGES_DIR, 'uuid-1', 'Page One');
+
+        const provider = new FileSystemProvider(createMockEngine());
+        await provider.initialize();
+
+        expect(provider.uuidExistsForDifferentPage('uuid-1', 'Different Title')).toBe(true);
+      });
+
+      test('should return false for same title (self-save)', async () => {
+        await createTestPage(TEST_PAGES_DIR, 'uuid-1', 'Page One');
+
+        const provider = new FileSystemProvider(createMockEngine());
+        await provider.initialize();
+
+        expect(provider.uuidExistsForDifferentPage('uuid-1', 'Page One')).toBe(false);
+      });
+    });
+
+    describe('savePage duplicate rejection', () => {
+      test('should reject rename to existing title', async () => {
+        await createTestPage(TEST_PAGES_DIR, 'uuid-1', 'Page One');
+        await createTestPage(TEST_PAGES_DIR, 'uuid-2', 'Page Two');
+
+        const provider = new FileSystemProvider(createMockEngine());
+        await provider.initialize();
+
+        // Try to rename Page Two to Page One (conflict)
+        await expect(
+          provider.savePage('Page Two', '# Content', { title: 'Page One', uuid: 'uuid-2' })
+        ).rejects.toThrow('is already in use');
+      });
+
+      test('should allow saving with own title (normal save)', async () => {
+        await createTestPage(TEST_PAGES_DIR, 'uuid-1', 'My Page', '# Original');
+
+        const provider = new FileSystemProvider(createMockEngine());
+        await provider.initialize();
+
+        // Save with same title should work fine
+        await expect(
+          provider.savePage('My Page', '# Updated content', { title: 'My Page', uuid: 'uuid-1' })
+        ).resolves.not.toThrow();
+      });
+
+      test('should allow rename to unused title', async () => {
+        await createTestPage(TEST_PAGES_DIR, 'uuid-1', 'Old Title');
+
+        const provider = new FileSystemProvider(createMockEngine());
+        await provider.initialize();
+
+        // Rename to a title that doesn't exist should work
+        await expect(
+          provider.savePage('Old Title', '# Content', { title: 'New Title', uuid: 'uuid-1' })
+        ).resolves.not.toThrow();
+
+        // Verify the rename took effect
+        expect(provider.pageExists('New Title')).toBe(true);
+        expect(provider.pageExists('Old Title')).toBe(false);
+      });
+    });
+
+    describe('refreshPageList duplicate detection', () => {
+      test('should keep first entry on duplicate titles and log warning', async () => {
+        // Create two pages with the same title but different UUIDs
+        await createTestPage(TEST_PAGES_DIR, 'aaa-first', 'Duplicate Title', '# First');
+        await createTestPage(TEST_PAGES_DIR, 'zzz-second', 'Duplicate Title', '# Second');
+
+        const provider = new FileSystemProvider(createMockEngine());
+        await provider.initialize();
+
+        // Only one page should be in the cache
+        expect(provider.pageCache.size).toBe(1);
+
+        // The page in cache should exist
+        const page = await provider.getPage('Duplicate Title');
+        expect(page).not.toBeNull();
+      });
+
+      test('should keep first entry on duplicate UUIDs and log warning', async () => {
+        // Create two files with the same UUID but different titles
+        // (simulate corruption - manually write files with same UUID)
+        const file1 = path.join(TEST_PAGES_DIR, 'shared-uuid.md');
+        await fs.writeFile(file1, '---\ntitle: "First Title"\nuuid: shared-uuid\n---\n# First');
+        const file2 = path.join(TEST_PAGES_DIR, 'other-file.md');
+        await fs.writeFile(file2, '---\ntitle: "Second Title"\nuuid: shared-uuid\n---\n# Second');
+
+        const provider = new FileSystemProvider(createMockEngine());
+        await provider.initialize();
+
+        // Only one page should be in the cache
+        expect(provider.pageCache.size).toBe(1);
+      });
+    });
+  });
 });

@@ -1874,6 +1874,18 @@ class WikiRoutes {
       this.engine.getManager('MetricsManager')?.recordPageSave?.(Date.now() - _metricsStart);
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
       logger.error('Error saving page:', err);
+
+      // Return 409 for duplicate title/UUID conflicts
+      if (errorMessage.includes('is already in use') || errorMessage.includes('is already assigned')) {
+        return await this.renderError(
+          req,
+          res,
+          409,
+          'Page Conflict',
+          errorMessage
+        );
+      }
+
       return await this.renderError(
         req,
         res,
