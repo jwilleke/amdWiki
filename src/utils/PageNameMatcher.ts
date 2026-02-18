@@ -11,6 +11,7 @@
  */
 export default class PageNameMatcher {
   private matchEnglishPlurals: boolean;
+  private matchCamelCase: boolean;
   /** Index mapping variation -> original page name for O(1) lookups */
   private variationIndex: Map<string, string> | null = null;
 
@@ -18,9 +19,11 @@ export default class PageNameMatcher {
    * Creates a new PageNameMatcher instance
    *
    * @param matchEnglishPlurals - Enable plural matching (default: true)
+   * @param matchCamelCase - Enable CamelCase splitting/joining matching (default: false)
    */
-  constructor(matchEnglishPlurals: boolean = true) {
+  constructor(matchEnglishPlurals: boolean = true, matchCamelCase: boolean = false) {
     this.matchEnglishPlurals = matchEnglishPlurals;
+    this.matchCamelCase = matchCamelCase;
   }
 
   /**
@@ -62,6 +65,22 @@ export default class PageNameMatcher {
   }
 
   /**
+   * Split a CamelCase name into separate words
+   * e.g., "HealthCare" → ["Health", "Care"], "XMLParser" → ["XML", "Parser"]
+   */
+  private splitCamelCase(name: string): string[] {
+    return name.match(/[A-Z]+(?=[A-Z][a-z])|[A-Z][a-z]*|[a-z]+/g) || [name];
+  }
+
+  /**
+   * Join space-separated words into CamelCase
+   * e.g., "Health Care" → "HealthCare"
+   */
+  private joinCamelCase(name: string): string {
+    return name.split(/\s+/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('');
+  }
+
+  /**
    * Get all possible plural/singular variations of a page name
    *
    * @param pageName - The base page name
@@ -71,46 +90,70 @@ export default class PageNameMatcher {
     if (!pageName) return [];
 
     const normalized = this.normalize(pageName);
-    const variations: string[] = [normalized];
 
-    if (!this.matchEnglishPlurals) {
-      return variations;
-    }
+    // Build base forms: original + CamelCase variations
+    const baseForms: string[] = [normalized];
 
-    // Check if it ends with common plural patterns and generate singular/plural forms
+    if (this.matchCamelCase) {
+      // Split CamelCase: "healthcare" from "HealthCare" → "health care"
+      const parts = this.splitCamelCase(pageName);
+      if (parts.length > 1) {
+        const spaced = parts.join(' ').toLowerCase();
+        if (spaced !== normalized) {
+          baseForms.push(spaced);
+        }
+      }
 
-    // Pattern 1: ends with 'ies' -> try 'y' form (e.g., "categories" <-> "category")
-    if (normalized.endsWith('ies') && normalized.length > 3) {
-      const base = normalized.slice(0, -3);
-      variations.push(base + 'y');
-    } else if (normalized.endsWith('y') && normalized.length > 1) {
-      const base = normalized.slice(0, -1);
-      // Only add 'ies' if it doesn't end in a vowel + y (e.g., "day" shouldn't become "daies")
-      const charBeforeY = normalized.charAt(normalized.length - 2);
-      if (!'aeiou'.includes(charBeforeY)) {
-        variations.push(base + 'ies');
+      // Join spaced words: "health care" → "healthcare"
+      if (pageName.includes(' ')) {
+        const joined = this.joinCamelCase(pageName).toLowerCase();
+        if (joined !== normalized) {
+          baseForms.push(joined);
+        }
       }
     }
 
-    // Pattern 2: ends with 'es' -> try without 'es' (e.g., "boxes" <-> "box", "classes" <-> "class")
-    if (normalized.endsWith('es') && normalized.length > 2) {
-      const base = normalized.slice(0, -2);
-      variations.push(base);
-      // Also try just removing 's' (e.g., "pages" -> "page")
-      variations.push(base + 'e');
+    if (!this.matchEnglishPlurals) {
+      return [...new Set(baseForms)];
     }
 
-    // Pattern 3: ends with 's' -> try without 's' (e.g., "clicks" <-> "click")
-    if (normalized.endsWith('s') && normalized.length > 1 && !normalized.endsWith('ss')) {
-      const base = normalized.slice(0, -1);
-      variations.push(base);
-    } else if (!normalized.endsWith('s')) {
-      // Add 's' to singular form (e.g., "click" -> "clicks")
-      variations.push(normalized + 's');
+    // Apply plural expansion to each base form
+    const variations: string[] = [...baseForms];
 
-      // Also try 'es' for words ending in s, x, z, ch, sh
-      if (normalized.match(/[sxz]$/) || normalized.endsWith('ch') || normalized.endsWith('sh')) {
-        variations.push(normalized + 'es');
+    for (const form of baseForms) {
+      // Pattern 1: ends with 'ies' -> try 'y' form (e.g., "categories" <-> "category")
+      if (form.endsWith('ies') && form.length > 3) {
+        const base = form.slice(0, -3);
+        variations.push(base + 'y');
+      } else if (form.endsWith('y') && form.length > 1) {
+        const base = form.slice(0, -1);
+        // Only add 'ies' if it doesn't end in a vowel + y (e.g., "day" shouldn't become "daies")
+        const charBeforeY = form.charAt(form.length - 2);
+        if (!'aeiou'.includes(charBeforeY)) {
+          variations.push(base + 'ies');
+        }
+      }
+
+      // Pattern 2: ends with 'es' -> try without 'es' (e.g., "boxes" <-> "box", "classes" <-> "class")
+      if (form.endsWith('es') && form.length > 2) {
+        const base = form.slice(0, -2);
+        variations.push(base);
+        // Also try just removing 's' (e.g., "pages" -> "page")
+        variations.push(base + 'e');
+      }
+
+      // Pattern 3: ends with 's' -> try without 's' (e.g., "clicks" <-> "click")
+      if (form.endsWith('s') && form.length > 1 && !form.endsWith('ss')) {
+        const base = form.slice(0, -1);
+        variations.push(base);
+      } else if (!form.endsWith('s')) {
+        // Add 's' to singular form (e.g., "click" -> "clicks")
+        variations.push(form + 's');
+
+        // Also try 'es' for words ending in s, x, z, ch, sh
+        if (form.match(/[sxz]$/) || form.endsWith('ch') || form.endsWith('sh')) {
+          variations.push(form + 'es');
+        }
       }
     }
 

@@ -223,15 +223,18 @@ class DOMLinkHandler {
       const pageNames = await this.pageManager.getAllPages();
       this.pageNames = new Set(pageNames || []);
 
-      // Get plural matching configuration
+      // Get plural matching and CamelCase configuration
       const configManager = this.engine.getManager('ConfigurationManager') as ConfigurationManager | null;
       const matchEnglishPlurals = configManager ?
         configManager.getProperty('amdwiki.translator-reader.match-english-plurals', true) as boolean :
         true;
+      const matchCamelCase = configManager ?
+        configManager.getProperty('amdwiki.translator-reader.camel-case-links', false) as boolean :
+        false;
 
-      this.pageNameMatcher = new PageNameMatcher(matchEnglishPlurals);
+      this.pageNameMatcher = new PageNameMatcher(matchEnglishPlurals, matchCamelCase);
       if (this.linkParser) {
-        this.linkParser.setPageNames(pageNames, matchEnglishPlurals);
+        this.linkParser.setPageNames(pageNames, matchEnglishPlurals, matchCamelCase);
       }
 
       logger.debug(`📄 DOMLinkHandler loaded ${pageNames.length} page names (plural matching: ${matchEnglishPlurals ? 'enabled' : 'disabled'})`);

@@ -157,10 +157,11 @@ class FileSystemProvider extends BasePageProvider {
       'utf-8'
     ) as BufferEncoding;
 
-    // Initialize PageNameMatcher with plural matching config
+    // Initialize PageNameMatcher with plural matching and CamelCase config
     const matchEnglishPlurals = configManager.getProperty('amdwiki.translator-reader.match-english-plurals', true) as boolean;
-    this.pageNameMatcher = new PageNameMatcher(matchEnglishPlurals);
-    logger.info(`[FileSystemProvider] Plural matching: ${matchEnglishPlurals ? 'enabled' : 'disabled'}`);
+    const matchCamelCase = configManager.getProperty('amdwiki.translator-reader.camel-case-links', false) as boolean;
+    this.pageNameMatcher = new PageNameMatcher(matchEnglishPlurals, matchCamelCase);
+    logger.info(`[FileSystemProvider] Plural matching: ${matchEnglishPlurals ? 'enabled' : 'disabled'}, CamelCase matching: ${matchCamelCase ? 'enabled' : 'disabled'}`);
 
     // Check installation status via .install-complete file (not config)
     const installCompleteFile = path.join(

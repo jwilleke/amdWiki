@@ -69,6 +69,8 @@ class LinkParserHandler extends BaseSyntaxHandler {
   private linkParser: LinkParser;
   declare initialized: boolean;
   private localStats: LocalStats;
+  private matchEnglishPlurals: boolean = true;
+  private matchCamelCase: boolean = false;
 
   constructor(engine: WikiEngine | null = null) {
     super(
@@ -126,14 +128,21 @@ class LinkParserHandler extends BaseSyntaxHandler {
       if (pageManager) {
         const pageNames = await pageManager.getAllPages(); // Returns array of strings
 
-        // Get plural matching configuration
+        // Get plural matching and CamelCase configuration
         const configManager = this.engine?.getManager('ConfigurationManager') as ConfigManager | undefined;
         const matchEnglishPlurals = configManager ?
-          configManager.getProperty('amdwiki.translator-reader.match-english-plurals', true) :
+          configManager.getProperty('amdwiki.translator-reader.match-english-plurals', true) as boolean :
           true;
+        const matchCamelCase = configManager ?
+          configManager.getProperty('amdwiki.translator-reader.camel-case-links', false) as boolean :
+          false;
 
-        this.linkParser.setPageNames(pageNames, matchEnglishPlurals);
-        logger.info(`LinkParserHandler loaded ${pageNames.length} page names for link validation (plural matching: ${matchEnglishPlurals ? 'enabled' : 'disabled'})`);
+        // Store config for use in refreshPageNames()
+        this.matchEnglishPlurals = matchEnglishPlurals;
+        this.matchCamelCase = matchCamelCase;
+
+        this.linkParser.setPageNames(pageNames, matchEnglishPlurals, matchCamelCase);
+        logger.info(`LinkParserHandler loaded ${pageNames.length} page names for link validation (plural matching: ${matchEnglishPlurals ? 'enabled' : 'disabled'}, CamelCase: ${matchCamelCase ? 'enabled' : 'disabled'})`);
 
         // If no pages were loaded during initialization, schedule a retry
         if (pageNames.length === 0) {
@@ -309,7 +318,7 @@ class LinkParserHandler extends BaseSyntaxHandler {
       const pageManager = this.engine?.getManager('PageManager') as PageManager | undefined;
       if (pageManager) {
         const pageNames = await pageManager.getAllPages(); // Returns array of strings
-        this.linkParser.setPageNames(pageNames);
+        this.linkParser.setPageNames(pageNames, this.matchEnglishPlurals, this.matchCamelCase);
         logger.info(`LinkParserHandler refreshed ${pageNames.length} page names`);
 
         // Debug: log some page names to see what we actually have

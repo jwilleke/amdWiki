@@ -264,10 +264,11 @@ export class LinkParser {
    * Set the list of existing wiki page names for link validation
    * @param {string[]} pageNames - Array of page names
    * @param {boolean} matchEnglishPlurals - Enable plural matching (default: true)
+   * @param {boolean} matchCamelCase - Enable CamelCase matching (default: false)
    */
-  setPageNames(pageNames: string[], matchEnglishPlurals: boolean = true): void {
+  setPageNames(pageNames: string[], matchEnglishPlurals: boolean = true, matchCamelCase: boolean = false): void {
     this.pageNames = new Set(pageNames || []);
-    this.pageNameMatcher = new PageNameMatcher(matchEnglishPlurals);
+    this.pageNameMatcher = new PageNameMatcher(matchEnglishPlurals, matchCamelCase);
   }
 
   /**

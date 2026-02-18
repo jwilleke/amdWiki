@@ -151,7 +151,8 @@ class RenderingManager extends BaseManager {
     const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
     if (configManager) {
       const matchEnglishPlurals = configManager.getProperty('amdwiki.translator-reader.match-english-plurals', true) as boolean;
-      this.pageNameMatcher = new PageNameMatcher(matchEnglishPlurals);
+      const matchCamelCase = configManager.getProperty('amdwiki.translator-reader.camel-case-links', false) as boolean;
+      this.pageNameMatcher = new PageNameMatcher(matchEnglishPlurals, matchCamelCase);
     }
 
     // Initialize Showdown converter with table support and proper list handling

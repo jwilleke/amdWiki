@@ -364,6 +364,80 @@ describe('PageNameMatcher', () => {
     });
   });
 
+  describe('CamelCase matching', () => {
+    describe('getVariations() - with CamelCase enabled', () => {
+      let matcher;
+
+      beforeEach(() => {
+        matcher = new PageNameMatcher(true, true);
+      });
+
+      test('should split CamelCase "HealthCare" → "health care"', () => {
+        const variations = matcher.getVariations('HealthCare');
+        expect(variations).toContain('healthcare');
+        expect(variations).toContain('health care');
+      });
+
+      test('should join spaced "Health Care" → "healthcare"', () => {
+        const variations = matcher.getVariations('Health Care');
+        expect(variations).toContain('health care');
+        expect(variations).toContain('healthcare');
+      });
+
+      test('should handle three-word CamelCase "MyHealthCare" → "my health care"', () => {
+        const variations = matcher.getVariations('MyHealthCare');
+        expect(variations).toContain('myhealthcare');
+        expect(variations).toContain('my health care');
+      });
+
+      test('should handle consecutive caps "XMLParser" → "xml parser"', () => {
+        const variations = matcher.getVariations('XMLParser');
+        expect(variations).toContain('xmlparser');
+        expect(variations).toContain('xml parser');
+      });
+
+      test('should not expand single word "Health"', () => {
+        const variations = matcher.getVariations('Health');
+        // Single word has no space-separated form different from normalized
+        expect(variations).not.toContain('h ealth');
+      });
+    });
+
+    describe('findMatch() - with CamelCase enabled', () => {
+      let matcher;
+
+      beforeEach(() => {
+        matcher = new PageNameMatcher(true, true);
+      });
+
+      test('should find "Health Care" when searching "HealthCare"', () => {
+        expect(matcher.findMatch('HealthCare', ['Health Care'])).toBe('Health Care');
+      });
+
+      test('should find "HealthCare" when searching "Health Care"', () => {
+        expect(matcher.findMatch('Health Care', ['HealthCare'])).toBe('HealthCare');
+      });
+
+      test('should combine with plural matching: "HealthCare" matches "Health Cares"', () => {
+        expect(matcher.findMatch('HealthCare', ['Health Cares'])).toBe('Health Cares');
+      });
+    });
+
+    describe('getVariations() - with CamelCase disabled', () => {
+      let matcher;
+
+      beforeEach(() => {
+        matcher = new PageNameMatcher(true, false);
+      });
+
+      test('should not generate CamelCase variations', () => {
+        const variations = matcher.getVariations('HealthCare');
+        expect(variations).toContain('healthcare');
+        expect(variations).not.toContain('health care');
+      });
+    });
+  });
+
   describe('Performance and edge cases', () => {
     let matcher;
 
