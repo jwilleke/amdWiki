@@ -13,14 +13,18 @@
  * - amdwiki.search.provider.lunr.boost.tags - Tags boost
  * - amdwiki.search.provider.lunr.maxresults - Maximum results to return
  * - amdwiki.search.provider.lunr.snippetlength - Snippet length in characters
+ * - amdwiki.search.provider.lunr.flushinterval - Document persistence flush interval (ms)
  *
  * Related: GitHub Issue #102 - Configuration reorganization
+ * Related: GitHub Issue #267 - Incremental search index + document persistence
  */
 
 import BaseSearchProvider, { SearchResult, SearchOptions, SearchCriteria, SearchStatistics, BackupData, WikiEngine } from './BaseSearchProvider';
 import { WikiPage } from '../types';
 import lunr from 'lunr';
 import logger from '../utils/logger';
+import fs from 'fs-extra';
+import path from 'path';
 import type MetricsManager from '../managers/MetricsManager';
 
 /**
@@ -76,6 +80,7 @@ interface LunrConfig {
  */
 interface ConfigurationManager {
   getProperty<T>(key: string, defaultValue: T): T;
+  getResolvedDataPath(key: string, defaultValue: string): string;
 }
 
 /**
@@ -93,6 +98,8 @@ class LunrSearchProvider extends BaseSearchProvider {
   private searchIndex: LunrIndex | null;
   private documents: Record<string, LunrDocument>;
   private config: LunrConfig | null;
+  private flushInterval: NodeJS.Timeout | null = null;
+  private documentsPath: string | null = null;
 
   constructor(engine: WikiEngine) {
     super(engine);
@@ -106,18 +113,21 @@ class LunrSearchProvider extends BaseSearchProvider {
    * Loads configuration from ConfigurationManager
    * @returns {Promise<void>}
    */
-  initialize(): Promise<void> {
+  async initialize(): Promise<void> {
     const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
     if (!configManager) {
-      return Promise.reject(new Error('LunrSearchProvider requires ConfigurationManager'));
+      throw new Error('LunrSearchProvider requires ConfigurationManager');
     }
+
+    // indexDir uses getResolvedDataPath to support INSTANCE_DATA_FOLDER
+    const indexDir = configManager.getResolvedDataPath(
+      'amdwiki.search.provider.lunr.indexdir',
+      './search-index'
+    );
 
     // Load provider-specific settings (ALL LOWERCASE)
     this.config = {
-      indexDir: configManager.getProperty<string>(
-        'amdwiki.search.provider.lunr.indexdir',
-        './search-index'
-      ),
+      indexDir,
       stemming: configManager.getProperty<boolean>(
         'amdwiki.search.provider.lunr.stemming',
         true
@@ -154,12 +164,108 @@ class LunrSearchProvider extends BaseSearchProvider {
       )
     };
 
+    // Set up documents persistence
+    this.documentsPath = path.resolve(indexDir, 'documents.json');
+    fs.mkdirSync(indexDir, { recursive: true });
+    await this.loadPersistedDocuments();
+
+    // Set up periodic flush (default 5 minutes)
+    const intervalMs = configManager.getProperty<number>(
+      'amdwiki.search.provider.lunr.flushinterval',
+      300000
+    );
+    this.flushInterval = setInterval(() => { void this.persistDocuments(); }, intervalMs).unref();
+
     this.initialized = true;
 
     logger.info('[LunrSearchProvider] Initialized with stemming=' +
       this.config.stemming + ', maxResults=' + this.config.maxResults);
+    logger.info(`[LunrSearchProvider] Documents path: ${this.documentsPath}, flush interval: ${intervalMs}ms`);
+  }
 
-    return Promise.resolve();
+  /**
+   * Load persisted documents from disk
+   */
+  private async loadPersistedDocuments(): Promise<void> {
+    if (!this.documentsPath) return;
+    try {
+      const raw = await fs.readFile(this.documentsPath, 'utf8');
+      const data = JSON.parse(raw) as { savedAt: string; documents: Record<string, LunrDocument> };
+      this.documents = data.documents;
+      logger.info(`[LunrSearchProvider] Loaded ${Object.keys(this.documents).length} documents from disk`);
+    } catch (err) {
+      if ((err as NodeJS.ErrnoException).code === 'ENOENT') {
+        logger.info('[LunrSearchProvider] No persisted documents found, will build from pages');
+      } else {
+        logger.warn('[LunrSearchProvider] Failed to load persisted documents:', (err as Error).message);
+      }
+    }
+  }
+
+  /**
+   * Persist documents to disk
+   */
+  private async persistDocuments(): Promise<void> {
+    if (!this.documentsPath || Object.keys(this.documents).length === 0) return;
+    try {
+      const data = { savedAt: new Date().toISOString(), documents: this.documents };
+      await fs.writeFile(this.documentsPath, JSON.stringify(data, null, 2), 'utf8');
+      logger.debug(`[LunrSearchProvider] Persisted ${Object.keys(this.documents).length} documents to disk`);
+    } catch (err) {
+      logger.error('[LunrSearchProvider] Failed to persist documents:', (err as Error).message);
+    }
+  }
+
+  /**
+   * Rebuild the Lunr index from in-memory documents — no NAS reads, pure CPU
+   */
+  private rebuildLunrFromDocuments(): void {
+    if (!this.config) return;
+    const boostConfig = this.config.boost;
+    const docs = this.documents;
+    this.searchIndex = lunr(function () {
+      this.ref('id');
+      this.field('title', { boost: boostConfig.title });
+      this.field('content');
+      this.field('systemCategory', { boost: boostConfig.systemCategory });
+      this.field('userKeywords', { boost: boostConfig.userKeywords });
+      this.field('tags', { boost: boostConfig.tags });
+      this.field('keywords', { boost: boostConfig.keywords });
+      Object.values(docs).forEach(doc => { this.add(doc); });
+    });
+  }
+
+  /**
+   * Convert page data from WikiRoutes into a LunrDocument
+   */
+  private buildDocumentFromPageData(pageName: string, pageData: Record<string, unknown>): LunrDocument {
+    const toStr = (val: unknown, fallback = ''): string => {
+      if (typeof val === 'string') return val;
+      if (typeof val === 'number' || typeof val === 'boolean') return String(val);
+      return fallback;
+    };
+
+    const metadata = (pageData.metadata as Record<string, unknown>) || {};
+    const userKeywordsRaw = metadata['user-keywords'];
+    const userKeywords = Array.isArray(userKeywordsRaw)
+      ? userKeywordsRaw.join(' ')
+      : toStr(userKeywordsRaw);
+    const tagsRaw = metadata['tags'];
+    const tags = Array.isArray(tagsRaw) ? tagsRaw.join(' ') : toStr(tagsRaw);
+    const content = toStr(pageData.content);
+
+    return {
+      id: pageName,
+      title: toStr(metadata.title) || pageName,
+      content,
+      body: content,
+      systemCategory: toStr(metadata['system-category']),
+      userKeywords,
+      tags,
+      keywords: `${userKeywords} ${tags}`,
+      lastModified: toStr(metadata.lastModified),
+      uuid: toStr(metadata.uuid)
+    };
   }
 
   /**
@@ -180,7 +286,18 @@ class LunrSearchProvider extends BaseSearchProvider {
    * @returns {Promise<void>}
    */
   async buildIndex(): Promise<void> {
-    const _metricsStart = Date.now();
+    const metricsStart = Date.now();
+
+    // Fast path: documents already loaded from disk — skip NAS reads entirely
+    if (Object.keys(this.documents).length > 0) {
+      this.rebuildLunrFromDocuments();
+      this.engine.getManager<MetricsManager>('MetricsManager')
+        ?.recordSearchRebuild?.(Date.now() - metricsStart);
+      logger.info(`[LunrSearchProvider] Index rebuilt from ${Object.keys(this.documents).length} persisted documents (no NAS reads)`);
+      return;
+    }
+
+    // Cold path: no documents in memory — read all pages from NAS (existing logic)
     const pageManager = this.engine.getManager<PageManager>('PageManager');
     if (!pageManager) {
       logger.warn('[LunrSearchProvider] PageManager not available for indexing');
@@ -227,31 +344,13 @@ class LunrSearchProvider extends BaseSearchProvider {
       }
 
       this.documents = documents;
+      this.rebuildLunrFromDocuments();
 
-      // Build Lunr index - lunr uses callback with `this` context that has any type
-      if (!this.config) {
-        throw new Error('Config not initialized');
-      }
-      const boostConfig = this.config.boost;
-      this.searchIndex = lunr(function () {
-        this.ref('id');
-        this.field('title', { boost: boostConfig.title });
-        this.field('content');
-        this.field('systemCategory', { boost: boostConfig.systemCategory });
-        this.field('userKeywords', { boost: boostConfig.userKeywords });
-        this.field('tags', { boost: boostConfig.tags });
-        this.field('keywords', { boost: boostConfig.keywords });
-
-        Object.values(documents).forEach(doc => {
-          this.add(doc);
-        });
-      });
-       
-
-      this.engine.getManager<MetricsManager>('MetricsManager')?.recordSearchRebuild?.(Date.now() - _metricsStart);
+      this.engine.getManager<MetricsManager>('MetricsManager')?.recordSearchRebuild?.(Date.now() - metricsStart);
       logger.info(`[LunrSearchProvider] Index built with ${Object.keys(documents).length} documents`);
+      await this.persistDocuments();
     } catch (err) {
-      this.engine.getManager<MetricsManager>('MetricsManager')?.recordSearchRebuild?.(Date.now() - _metricsStart);
+      this.engine.getManager<MetricsManager>('MetricsManager')?.recordSearchRebuild?.(Date.now() - metricsStart);
       logger.error('[LunrSearchProvider] Failed to build search index:', err);
       throw err;
     }
@@ -528,15 +627,16 @@ class LunrSearchProvider extends BaseSearchProvider {
   }
 
   /**
-   * Add or update a page in the search index
-   * @param {string} _pageName - Page name
-   * @param {Record<string, any>} _pageData - Page data
+   * Add or update a page in the search index incrementally
+   * @param {string} pageName - Page name
+   * @param {Record<string, unknown>} pageData - Page data
    * @returns {Promise<void>}
    */
-  async updatePageInIndex(_pageName: string, _pageData: Record<string, unknown>): Promise<void> {
-    // For now, rebuild the entire index
-    // In a production system, you'd want incremental updates
-    await this.buildIndex();
+  async updatePageInIndex(pageName: string, pageData: Record<string, unknown>): Promise<void> {
+    this.documents[pageName] = this.buildDocumentFromPageData(pageName, pageData);
+    this.rebuildLunrFromDocuments();
+    await this.persistDocuments();
+    logger.debug(`[LunrSearchProvider] Incrementally updated index for page: ${pageName}`);
   }
 
   /**
@@ -550,9 +650,8 @@ class LunrSearchProvider extends BaseSearchProvider {
     }
 
     delete this.documents[pageName];
-
-    // Rebuild index without the removed document
-    await this.buildIndex();
+    this.rebuildLunrFromDocuments();
+    await this.persistDocuments();
   }
 
   /**
@@ -690,19 +789,22 @@ class LunrSearchProvider extends BaseSearchProvider {
   }
 
   /**
-   * Close/cleanup the search provider
+   * Close/cleanup the search provider, flushing documents to disk
    * @returns {Promise<void>}
    */
-  close(): Promise<void> {
+  async close(): Promise<void> {
     try {
+      if (this.flushInterval) {
+        clearInterval(this.flushInterval);
+        this.flushInterval = null;
+      }
+      await this.persistDocuments();
       this.searchIndex = null;
       this.documents = {};
       this.initialized = false;
-      logger.info('[LunrSearchProvider] Closed successfully');
-      return Promise.resolve();
+      logger.info('[LunrSearchProvider] Closed and documents flushed to disk');
     } catch (error) {
       logger.error('[LunrSearchProvider] Close error:', error);
-      return Promise.resolve();
     }
   }
 
