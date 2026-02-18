@@ -199,7 +199,7 @@ class ACLManager extends BaseManager {
     const auditEnabled = configManager.getProperty('amdwiki.audit.enabled', true) as boolean;
 
     if (auditEnabled) {
-      const logDir = configManager.getProperty('amdwiki.audit.provider.file.logdirectory') as string;
+      const logDir = configManager.getResolvedDataPath('amdwiki.audit.provider.file.logdirectory', './data/logs');
       try {
         await fs.mkdir(logDir, { recursive: true });
         logger.info('📋 Audit logging initialized');

@@ -4699,7 +4699,7 @@ class WikiRoutes {
 
       // Read recent logs from configured directory
       const configManager = this.engine.getManager('ConfigurationManager');
-      const logDir = configManager.getProperty('amdwiki.logging.dir');
+      const logDir = configManager.getResolvedDataPath('amdwiki.logging.dir', './data/logs');
       let logContent = '';
       let logFiles: Array<{ name: string; mtime: Date; size: number }> = [];
       let selectedFile = '';

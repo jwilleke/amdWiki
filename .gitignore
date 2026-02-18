@@ -203,3 +203,4 @@ addons/*/db.sqlite
 !addons/README.md
 .DS_Store
 xxx*/
+zzz*/

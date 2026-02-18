@@ -24,6 +24,51 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-18-03
+
+- Agent: Claude Opus 4.6
+- Subject: Consolidate data paths and use getResolvedDataPath consistently
+- Key Decision: INSTANCE_DATA_FOLDER points to data/ dir; all config paths use ./data/ prefix resolved via getResolvedDataPath
+- Testing:
+  - npm test: 67 suites passed, 1715 tests passed
+- Work Done:
+  - Updated custom config to use relative ./data/ paths for SSD data (sessions, logs, search-index, users, notifications, schemas, attachment-metadata)
+  - NAS paths (pages, attachments, backups) remain absolute
+  - Fixed SchemaManager, ACLManager, and WikiRoutes to use getResolvedDataPath instead of raw getProperty for data paths
+  - Updated SchemaManager test mock to include getResolvedDataPath
+  - Added zzz*/ to .gitignore, removed zzz-data/ from project root
+  - Updated .env INSTANCE_DATA_FOLDER to point to /data subdirectory
+- Files Modified:
+  - .gitignore
+  - src/managers/SchemaManager.ts
+  - src/managers/ACLManager.ts
+  - src/routes/WikiRoutes.ts
+  - src/managers/__tests__/SchemaManager.test.js
+
+---
+
+## 2026-02-18-02
+
+- Agent: Claude Opus 4.6
+- Subject: Duplicate title/UUID prevention (#257)
+- Key Decision: First-entry-wins for init dedup; savePage rejects conflicts with 409
+- Current Issue: #257
+- Testing:
+  - npm test: 67 suites passed, 1713 tests passed
+- Work Done:
+  - Added duplicate title/UUID detection in refreshPageList() (first entry wins, warns on duplicates)
+  - Added titleExistsForDifferentPage() and uuidExistsForDifferentPage() utility methods
+  - savePage() now rejects duplicate titles and UUIDs with descriptive errors
+  - WikiRoutes returns HTTP 409 for duplicate conflicts
+  - Added 10 new unit tests covering all duplicate scenarios
+- Commits: 8ebe265
+- Files Modified:
+  - src/providers/FileSystemProvider.ts
+  - src/providers/__tests__/FileSystemProvider.test.js
+  - src/routes/WikiRoutes.ts
+
+---
+
 ## 2026-02-18-01
 
 - Agent: Claude Opus 4.6

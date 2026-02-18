@@ -9,7 +9,7 @@ jest.mock('fs-extra', () => ({
 
 const fs = require('fs-extra');
 
-const mockCfgMgr = { getProperty: jest.fn().mockReturnValue('./config/schemas') };
+const mockCfgMgr = { getProperty: jest.fn().mockReturnValue('./config/schemas'), getResolvedDataPath: jest.fn().mockReturnValue('./config/schemas') };
 const mockEngine = { getManager: jest.fn(n => n==='ConfigurationManager'?mockCfgMgr:null) };
 
 describe("SchemaManager", () => {
@@ -61,12 +61,12 @@ describe("SchemaManager", () => {
     });
 
     it("should use custom schema directory from config", async () => {
-      mockCfgMgr.getProperty.mockReturnValueOnce('/custom/schemas');
+      mockCfgMgr.getResolvedDataPath.mockReturnValueOnce('/custom/schemas');
       fs.readdir.mockResolvedValue([]);
 
       await schemaManager.initialize({});
 
-      expect(mockCfgMgr.getProperty).toHaveBeenCalledWith('amdwiki.directories.schemas');
+      expect(mockCfgMgr.getResolvedDataPath).toHaveBeenCalledWith('amdwiki.directories.schemas', './data/schemas');
       expect(fs.readdir).toHaveBeenCalledWith('/custom/schemas');
     });
   });
