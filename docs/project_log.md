@@ -24,6 +24,29 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-18-04
+
+- Agent: Claude Sonnet 4.6
+- Subject: Incremental search index + document persistence (#267)
+- Key Decision: Persist documents.json to indexDir; fast path in buildIndex() skips NAS reads when file exists; updatePageInIndex() updates one entry in memory instead of full rebuild
+- Current Issue: #267
+- Testing:
+  - npm test: 67 suites passed, 1715 tests passed
+- Work Done:
+  - Added document persistence: documents.json written on every page save, periodic 5-min flush, and guaranteed flush on close()
+  - Added fast path in buildIndex(): if documents.json loaded on startup, rebuild Lunr index from memory (no NAS reads)
+  - Replaced updatePageInIndex() full rebuild (16,872 NAS reads) with incremental update + persist
+  - Replaced removePageFromIndex() full rebuild with rebuildLunrFromDocuments() + persist
+  - Added private helpers: loadPersistedDocuments(), persistDocuments(), rebuildLunrFromDocuments(), buildDocumentFromPageData()
+  - Added setInterval(.unref()) for 5-minute periodic flush (config: amdwiki.search.provider.lunr.flushinterval)
+  - Switched indexDir to use getResolvedDataPath (consistent with INSTANCE_DATA_FOLDER)
+  - Fixed @typescript-eslint/no-base-to-string lint errors with safe toStr() helper
+- Commits: 3cd1a27
+- Files Modified:
+  - src/providers/LunrSearchProvider.ts
+
+---
+
 ## 2026-02-18-03
 
 - Agent: Claude Opus 4.6
