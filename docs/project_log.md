@@ -24,6 +24,32 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-18-01
+
+- Agent: Claude Opus 4.6
+- Subject: CamelCase page name resolution (#262)
+- Key Decision: Resolution-time matching only (stored titles unchanged); apostrophe cases like "PeopleS" are manual-fix only
+- Current Issue: #262
+- Testing:
+  - npm test: 67 suites passed, 1703 tests passed
+- Work Done:
+  - Added CamelCase splitting/joining to PageNameMatcher (splitCamelCase, joinCamelCase)
+  - CamelCase variations generated before plural expansion so both compose
+  - Wired existing `camel-case-links` config through all 5 call sites
+  - Fixed LinkParserHandler.refreshPageNames() losing config values on refresh
+  - Added 8 new unit tests for CamelCase matching
+- Commits: 332eb92
+- Files Modified:
+  - src/utils/PageNameMatcher.ts
+  - src/utils/__tests__/PageNameMatcher.test.js
+  - src/parsers/LinkParser.ts
+  - src/providers/FileSystemProvider.ts
+  - src/parsers/dom/handlers/DOMLinkHandler.ts
+  - src/parsers/handlers/LinkParserHandler.ts
+  - src/managers/RenderingManager.ts
+
+---
+
 ## 2026-02-17-03
 
 - Agent: Claude Opus 4.6
