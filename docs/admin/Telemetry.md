@@ -184,3 +184,83 @@ Set `amdwiki.telemetry.enabled` to `false` (the default). When disabled:
 - All `record*()` calls are no-ops (null instrument handles with optional chaining)
 - The `/metrics` route is not registered on the main app
 - No measurable performance overhead
+
+## Grafana
+
+With OTLP export enabled, the following panel queries work against a Grafana data source pointed at your OpenTelemetry collector. Replace `{app}` with your prefix (e.g., `jimstest`).
+
+### Useful panels
+
+Page save latency (p95 over 5 min):
+
+```promql
+histogram_quantile(0.95,
+  sum(rate({app}_page_save_duration_ms_bucket[5m])) by (le)
+)
+```
+
+Search rebuild duration trend:
+
+```promql
+rate({app}_search_rebuild_duration_ms_sum[10m])
+/ rate({app}_search_rebuild_duration_ms_count[10m])
+```
+
+Request rate by route:
+
+```promql
+sum(rate({app}_http_requests_total[5m])) by (route)
+```
+
+Error rate (5xx responses):
+
+```promql
+sum(rate({app}_http_requests_total{status=~"5.."}[5m]))
+```
+
+Engine init duration (useful after restarts):
+
+```promql
+{app}_engine_init_duration_ms_sum
+```
+
+Login attempts per minute:
+
+```promql
+rate({app}_login_attempts_total[1m]) * 60
+```
+
+## Troubleshooting
+
+### Health check warning on startup
+
+```
+Search provider LunrSearchProvider health check failed after initialization
+```
+
+This is expected on every cold start. The health check runs immediately after `initialize()` completes, before `buildIndex()` has been called. The index is empty at that point, so the check fails. Once `buildIndex()` finishes and the engine logs `Wiki engine ready`, the provider is healthy and the warning can be ignored.
+
+### Metrics showing zero after restart
+
+Counters reset to zero on every restart. Histograms also reset. If you are graphing rates (`rate()`) in Prometheus/Grafana, the graph will show a gap at the restart boundary — this is normal Prometheus counter-reset behavior.
+
+### Port 9464 already in use
+
+If another process is on port 9464, MetricsManager will fail to initialize and log an error. Either stop the conflicting process or change the port:
+
+```json
+"amdwiki.telemetry.metrics.port": 9465
+```
+
+### OTLP export silently failing
+
+If OTLP export is enabled but metrics are not appearing in your collector:
+
+1. Check the endpoint URL includes the full path: `https://collector.example.com/v1/metrics`
+2. Verify any required auth headers are set in `amdwiki.telemetry.otlp.headers`
+3. Confirm `amdwiki.telemetry.otlp.interval` is less than or equal to `amdwiki.telemetry.otlp.timeout`
+4. Look for OTLP export errors in the server log — MetricsManager logs failed exports at `error` level
+
+### No data on port 3000 /metrics
+
+The `/metrics` route on port 3000 requires an authenticated session with the `admin` role. Unauthenticated requests receive `403 Admin access required`. Use port 9464 for unauthenticated Prometheus scraping.
