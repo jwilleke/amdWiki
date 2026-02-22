@@ -24,6 +24,21 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-22-03
+
+- Agent: Claude Sonnet 4.6
+- Subject: Renames and Referring Pages / Page move to required-pages (#268, #264)
+- Testing:
+  - npm test: 67 suites passed, 1720 tests passed
+- Work Done:
+  - #264: Confirmed already fixed in prior session (commit 8f6a755) — savePage() always writes to pagesDirectory, user-modified tracking in place. Closed.
+  - #268: Fixed link graph and cache not cleaned up on page rename. On rename: removePageFromLinkGraph(oldTitle), removePageFromIndex(oldTitle), invalidate render cache for old title and its referring pages. RED-LINKs now resolve immediately.
+- Commits: 5acf5fb
+- Files Modified:
+  - src/routes/WikiRoutes.ts
+
+---
+
 ## 2026-02-22-02
 
 - Agent: Claude Sonnet 4.6
