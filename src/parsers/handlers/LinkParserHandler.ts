@@ -147,7 +147,7 @@ class LinkParserHandler extends BaseSyntaxHandler {
         // If no pages were loaded during initialization, schedule a retry
         if (pageNames.length === 0) {
           logger.info('No pages loaded during LinkParserHandler initialization, scheduling retry...');
-          setTimeout(() => void this.refreshPageNames(), 1000);
+          setTimeout(() => void this.refreshPageNames(), 1000).unref();
         }
       }
 

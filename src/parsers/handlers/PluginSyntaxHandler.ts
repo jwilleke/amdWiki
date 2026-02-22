@@ -307,7 +307,8 @@ class PluginSyntaxHandler extends BaseSyntaxHandler {
     // Execute plugin with timeout
     const executionPromise = pluginManager.execute(pluginName, context.pageName ?? 'unknown', validation.params, pluginContext);
     const timeoutPromise = new Promise<string>((_, reject) => {
-      setTimeout(() => reject(new Error(`Plugin ${pluginName} execution timeout`)), this.options.timeout);
+      const timer = setTimeout(() => reject(new Error(`Plugin ${pluginName} execution timeout`)), this.options.timeout);
+      timer.unref();
     });
 
     const result = await Promise.race([executionPromise, timeoutPromise]) || '';

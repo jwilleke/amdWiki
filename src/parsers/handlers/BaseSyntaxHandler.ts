@@ -464,9 +464,10 @@ abstract class BaseSyntaxHandler {
     }
 
     return new Promise((_, reject) => {
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         reject(new Error(`Handler ${this.handlerId} timed out after ${this.options.timeout}ms`));
       }, this.options.timeout);
+      timer.unref();
     });
   }
 
