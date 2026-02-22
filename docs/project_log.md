@@ -24,6 +24,23 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-22-04
+
+- Agent: Claude Sonnet 4.6
+- Subject: Fix Jest worker process leak from setTimeout without .unref()
+- Testing:
+  - DeltaStorage.test.js: 41 tests passed, no worker exit warning
+  - BaseSyntaxHandler.test.js: 32 tests passed
+- Work Done:
+  - Added `.unref()` to setTimeout timers in BaseSyntaxHandler.createTimeoutPromise(), PluginSyntaxHandler plugin execution timeout, and LinkParserHandler retry timer. These were keeping the Node.js event loop alive after Jest tests completed, causing "A worker process has failed to exit gracefully" warnings.
+- Commits: e588af2
+- Files Modified:
+  - src/parsers/handlers/BaseSyntaxHandler.ts
+  - src/parsers/handlers/PluginSyntaxHandler.ts
+  - src/parsers/handlers/LinkParserHandler.ts
+
+---
+
 ## 2026-02-22-03
 
 - Agent: Claude Sonnet 4.6
