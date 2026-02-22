@@ -271,6 +271,9 @@
         }
     }
     
+    // Holds the most recently loaded page info for use by copyPageInfo()
+    let _currentPageInfo = null;
+
     // JSPWiki-style Info dropdown functions
     function showPageInfo() {
         const currentPage = window.location.pathname.split('/wiki/')[1];
@@ -350,6 +353,11 @@
     }
 
     function showPageInfoModal(pageName, metadata, isLoading, errorMessage) {
+        // Store for use by copyPageInfo()
+        if (!isLoading && !errorMessage && metadata) {
+            _currentPageInfo = { pageName, metadata };
+        }
+
         // Clean up any existing modal completely before creating new one
         cleanupExistingModal();
 
@@ -569,8 +577,8 @@
                             ` : ''}
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="copyPageUrl()">
-                                <i class="fas fa-copy"></i> Copy URL
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="copyPageInfo()">
+                                <i class="fas fa-copy"></i> Copy Information
                             </button>
                             <button type="button" class="btn" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);" data-bs-dismiss="modal">Close</button>
                         </div>
@@ -580,31 +588,61 @@
         `;
     }
 
-    function copyPageUrl() {
-        const url = window.location.href;
-        if (navigator.clipboard && window.isSecureContext) {
-            navigator.clipboard.writeText(url).then(() => {
-                showTemporaryMessage('Page URL copied to clipboard!', 'success');
-            }).catch(() => {
-                showTemporaryMessage('Failed to copy URL', 'error');
+    function copyPageInfo() {
+        if (!_currentPageInfo) {
+            showTemporaryMessage('No page information available', 'error');
+            return;
+        }
+        const { pageName, metadata } = _currentPageInfo;
+
+        function fmtDate(d) {
+            if (!d) return 'Not available';
+            try { return new Date(d).toLocaleString(); } catch(e) { return d; }
+        }
+
+        const lines = [
+            `Title:         ${metadata.title || pageName}`,
+            `Page Name:     ${pageName}`,
+            `Slug:          ${metadata.slug || 'Not set'}`,
+            `UUID:          ${metadata.uuid || 'Not available'}`,
+            `Version:       ${metadata.version || 'Not versioned'}`,
+            `URL:           ${window.location.href}`,
+            `Created:       ${fmtDate(metadata.created)}`,
+            `Last Modified: ${fmtDate(metadata.lastModified)}`,
+            `Last Accessed: ${fmtDate(metadata.lastAccessed)}`,
+        ];
+        if (metadata.author) lines.push(`Author:        ${metadata.author}`);
+        if (metadata.category) lines.push(`Category:      ${metadata.category}`);
+
+        const text = lines.join('\n');
+
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(text).then(() => {
+                showTemporaryMessage('Page information copied to clipboard!', 'success');
+            }).catch((err) => {
+                console.error('Clipboard write failed:', err);
+                execCopy(text);
             });
         } else {
-            // Fallback for older browsers
+            execCopy(text);
+        }
+
+        function execCopy(str) {
+            // Append inside the modal so Bootstrap's focus trap doesn't block selection
+            const container = document.getElementById('pageInfoModal') || document.body;
             const textArea = document.createElement('textarea');
-            textArea.value = url;
-            textArea.style.position = 'fixed';
-            textArea.style.left = '-999999px';
-            textArea.style.top = '-999999px';
-            document.body.appendChild(textArea);
+            textArea.value = str;
+            textArea.style.cssText = 'position:fixed;left:-9999px;top:-9999px;opacity:0;';
+            container.appendChild(textArea);
             textArea.focus();
             textArea.select();
             try {
-                document.execCommand('copy');
-                showTemporaryMessage('Page URL copied to clipboard!', 'success');
+                const ok = document.execCommand('copy');
+                showTemporaryMessage(ok ? 'Page information copied to clipboard!' : 'Failed to copy information', ok ? 'success' : 'error');
             } catch (err) {
-                showTemporaryMessage('Failed to copy URL', 'error');
+                showTemporaryMessage('Failed to copy information', 'error');
             }
-            document.body.removeChild(textArea);
+            container.removeChild(textArea);
         }
     }
 

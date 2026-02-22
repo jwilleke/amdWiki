@@ -5849,7 +5849,7 @@ class WikiRoutes {
       let fileStats = null;
 
       try {
-        const filePath = path.join(process.cwd(), 'pages', `${page.uuid}.md`);
+        const filePath = page.filePath;
         const stats = await fs.stat(filePath);
         fileStats = {
           size: stats.size,
