@@ -24,6 +24,24 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-22-01
+
+- Agent: Claude Sonnet 4.6
+- Subject: Page Info bug fixes (#269)
+- Current Issue: #269 [BUG] Page Info
+- Testing:
+  - npm test: 67 suites passed, 1715 tests passed
+- Work Done:
+  - Fixed Created/Last Accessed always showing 'Not available' — root cause was wrong file path construction in `getPageMetadata()` (used `process.cwd()/pages/{uuid}.md` instead of `page.filePath`)
+  - Replaced 'Copy URL' button with 'Copy Information' that copies title, page name, slug, UUID, version, URL, and dates to clipboard
+  - Fixed clipboard fallback to work over HTTP by appending textarea inside modal element (avoids Bootstrap focus-trap)
+- Commits: f43d06f
+- Files Modified:
+  - src/routes/WikiRoutes.ts
+  - views/header.ejs
+
+---
+
 ## 2026-02-18-04
 
 - Agent: Claude Sonnet 4.6
