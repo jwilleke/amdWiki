@@ -50,7 +50,7 @@ test.describe('Search', () => {
       await page.waitForLoadState('networkidle');
 
       // Find header search input
-      const headerSearch = page.locator('header input[type="search"], nav input[type="search"], .header-search, #quick-search');
+      const headerSearch = page.locator('#headerSearchInput, header input[type="search"], nav input[type="search"], .header-search, #quick-search');
 
       if (await headerSearch.count() > 0) {
         await headerSearch.first().fill('wiki');

@@ -140,10 +140,10 @@ test.describe('Page Operations', () => {
         return;
       }
 
-      // History link is typically in the More dropdown - open it first
-      const moreButton = page.locator('button:has-text("More"), .dropdown-toggle:has-text("More")');
-      if (await moreButton.count() > 0) {
-        await moreButton.first().click();
+      // History link is in the Info dropdown - open it first
+      const infoButton = page.locator('button:has-text("Info"), .dropdown-toggle:has-text("Info")');
+      if (await infoButton.count() > 0) {
+        await infoButton.first().click();
         await page.waitForTimeout(300);
       }
 

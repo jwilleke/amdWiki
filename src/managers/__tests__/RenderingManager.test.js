@@ -208,11 +208,7 @@ describe('RenderingManager', () => {
   });
 
   describe('Markdown Rendering', () => {
-    // Note: renderMarkdown() and expandMacros() tests skipped due to RenderingManager.js bug
-    // Bug: Line 709 calls this.expandAllVariables() which doesn't exist
-    // These methods work when MarkupParser is properly initialized with handlers
-
-    test.skip('should render basic markdown to HTML - SKIPPED (requires MarkupParser)', async () => {
+    test('should render basic markdown to HTML', async () => {
       const markdown = '# Hello World\n\nThis is **bold** text.';
       const result = await renderingManager.renderMarkdown(markdown, 'TestPage');
 
@@ -227,7 +223,7 @@ describe('RenderingManager', () => {
       expect(typeof result).toBe('string');
     });
 
-    test.skip('should accept user context parameter - SKIPPED (requires MarkupParser)', async () => {
+    test('should accept user context parameter', async () => {
       const markdown = '# Test';
       const userContext = { username: 'testuser', roles: ['viewer'] };
 
@@ -236,7 +232,7 @@ describe('RenderingManager', () => {
       ).resolves.toBeDefined();
     });
 
-    test.skip('should render preview mode - SKIPPED (requires MarkupParser)', async () => {
+    test('should render preview mode', async () => {
       const markdown = '# Preview Test';
       const result = await renderingManager.renderPreview(markdown, 'TestPage');
 
@@ -266,7 +262,7 @@ describe('RenderingManager', () => {
   });
 
   describe('Macro Expansion', () => {
-    test.skip('should expand macros in content - SKIPPED (requires MarkupParser)', async () => {
+    test('should expand macros in content', async () => {
       const content = 'Total pages: [{$totalpages}]';
       const result = await renderingManager.expandMacros(content, 'TestPage');
 
@@ -274,7 +270,7 @@ describe('RenderingManager', () => {
       expect(typeof result).toBe('string');
     });
 
-    test.skip('should handle content without macros - SKIPPED (requires MarkupParser)', async () => {
+    test('should handle content without macros', async () => {
       const content = 'Plain text without macros';
       const result = await renderingManager.expandMacros(content, 'TestPage');
 
