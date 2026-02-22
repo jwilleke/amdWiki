@@ -1840,14 +1840,26 @@ class WikiRoutes {
       // Use incremental updates instead of full rebuilds for performance
       const isNewPage = !existingPage;
       const finalTitle = (metadata.title as string) || pageName;
+      const isRename = !isNewPage && pageName !== finalTitle;
+
+      // Capture old referring pages BEFORE removing from link graph (used for cache invalidation)
+      const oldReferringPages = isRename ? renderingManager.getReferringPages(pageName) : [];
 
       // Update link graph incrementally (much faster than full rebuild)
       if (isNewPage) {
         renderingManager.addPageToCache(finalTitle);
+      } else if (isRename) {
+        // Remove old title from link graph and register new title
+        renderingManager.removePageFromLinkGraph(pageName);
+        renderingManager.addPageToCache(finalTitle);
+        logger.info(`[WikiRoutes] Page renamed: '${pageName}' → '${finalTitle}', link graph updated`);
       }
       renderingManager.updatePageInLinkGraph(finalTitle, content);
 
-      // Update search index for just this page
+      // Update search index — on rename, remove old title entry first
+      if (isRename) {
+        await searchManager.removePageFromIndex(pageName);
+      }
       await searchManager.updatePageInIndex(finalTitle, {
         name: finalTitle,
         content: content,
@@ -1862,6 +1874,14 @@ class WikiRoutes {
         await cacheManager.del(`page:${finalTitle}`);
         for (const refPage of referringPages) {
           await cacheManager.del(`page:${refPage}`);
+        }
+        // On rename: also invalidate old title and its referring pages so RED-LINKs resolve
+        if (isRename) {
+          await cacheManager.del(`page:${pageName}`);
+          for (const refPage of oldReferringPages) {
+            await cacheManager.del(`page:${refPage}`);
+          }
+          logger.debug(`🗑️  Cleared cache for old title '${pageName}' and ${oldReferringPages.length} referring pages`);
         }
         logger.debug(`🗑️  Cleared cache for ${finalTitle} and ${referringPages.length} referring pages`);
       }
