@@ -24,6 +24,26 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-22-02
+
+- Agent: Claude Sonnet 4.6
+- Subject: Fix skipped unit and E2E tests (#265)
+- Current Issue: #265 Fix skipped unit and E2E tests
+- Testing:
+  - npm test: 67 suites passed, 1720 tests passed, 303 skipped (was 308)
+- Work Done:
+  - Unskipped 5 RenderingManager tests — expandAllVariables bug no longer exists; all pass with legacy parser
+  - Fixed E2E header search selector to use #headerSearchInput (template has no header tag)
+  - Fixed E2E history test to open Info dropdown instead of More dropdown
+  - Remaining 303 skipped: VersioningFileProvider API mismatch, MarkupParser output format mismatches, timing-dependent performance tests, intentional emoji limitation
+- Commits: 19869e6
+- Files Modified:
+  - src/managers/__tests__/RenderingManager.test.js
+  - tests/e2e/search.spec.js
+  - tests/e2e/pages.spec.js
+
+---
+
 ## 2026-02-22-01
 
 - Agent: Claude Sonnet 4.6
