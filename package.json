@@ -62,7 +62,7 @@
     "@opentelemetry/exporter-prometheus": "^0.212.0",
     "@opentelemetry/sdk-metrics": "^2.5.1",
     "@types/turndown": "^5.0.6",
-    "ajv": "^8.17.1",
+    "ajv": "^8.18.0",
     "ajv-formats": "^3.0.1",
     "bcrypt": "^6.0.0",
     "body-parser": "^2.2.1",
