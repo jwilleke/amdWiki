@@ -1,0 +1,261 @@
+<%- include('header', { pageName: '' }) %>
+
+<div class="container mt-4">
+    <% if (typeof successMessage !== 'undefined' && successMessage) { %>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle"></i> <%= successMessage %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <% } %>
+
+    <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle"></i> <%= errorMessage %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <% } %>
+
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/admin">Admin Dashboard</a></li>
+                    <li class="breadcrumb-item active">Required Pages Sync</li>
+                </ol>
+            </nav>
+            <h1><i class="fas fa-sync-alt"></i> Required Pages Sync</h1>
+            <p class="lead">Compare the <code>required-pages/</code> source files against the live wiki pages and sync any that are new or out of date.</p>
+        </div>
+    </div>
+
+    <!-- Status Summary -->
+    <div class="row mt-3">
+        <div class="col-12">
+            <div class="d-flex gap-3 align-items-center flex-wrap mb-3">
+                <span class="badge bg-primary fs-6 px-3 py-2">
+                    <i class="fas fa-plus-circle me-1"></i> <%= counts.new %> New
+                </span>
+                <span class="badge bg-warning text-dark fs-6 px-3 py-2">
+                    <i class="fas fa-edit me-1"></i> <%= counts.modified %> Modified
+                </span>
+                <span class="badge bg-success fs-6 px-3 py-2">
+                    <i class="fas fa-check me-1"></i> <%= counts.current %> Current
+                </span>
+                <span class="text-muted"><%= comparison.length %> total source pages</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <% if (counts.new > 0 || counts.modified > 0) { %>
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="d-flex gap-2 flex-wrap">
+                <% if (counts.new > 0) { %>
+                <button class="btn btn-primary" onclick="syncByStatus('new')">
+                    <i class="fas fa-plus-circle me-1"></i> Sync All New (<%= counts.new %>)
+                </button>
+                <% } %>
+                <% if (counts.new > 0 || counts.modified > 0) { %>
+                <button class="btn btn-warning" onclick="syncByStatus('outdated')">
+                    <i class="fas fa-sync me-1"></i> Sync All Outdated (<%= counts.new + counts.modified %>)
+                </button>
+                <% } %>
+                <button class="btn btn-outline-secondary" onclick="syncSelected()">
+                    <i class="fas fa-check-square me-1"></i> Sync Selected
+                </button>
+            </div>
+        </div>
+    </div>
+    <% } %>
+
+    <!-- Comparison Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-file-alt"></i> Source Pages</h5>
+                    <div>
+                        <button class="btn btn-sm btn-outline-secondary me-1" onclick="selectAll(true)">Select All</button>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="selectAll(false)">Deselect All</button>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <% if (comparison.length === 0) { %>
+                        <div class="p-4 text-muted">No required-pages source files found.</div>
+                    <% } else { %>
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0" id="pagesTable">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width: 40px;">
+                                        <input type="checkbox" id="selectAllCheck" onchange="selectAll(this.checked)" title="Select all">
+                                    </th>
+                                    <th>Title</th>
+                                    <th>Slug</th>
+                                    <th>Status</th>
+                                    <th>Source Modified</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% comparison.forEach(page => { %>
+                                <tr data-uuid="<%= page.uuid %>" data-status="<%= page.status %>">
+                                    <td>
+                                        <% if (page.status !== 'current') { %>
+                                        <input type="checkbox" class="page-checkbox" value="<%= page.uuid %>">
+                                        <% } %>
+                                    </td>
+                                    <td>
+                                        <strong><%= page.title %></strong>
+                                        <br><small class="text-muted font-monospace"><%= page.uuid %></small>
+                                    </td>
+                                    <td><code><%= page.slug || '—' %></code></td>
+                                    <td>
+                                        <% if (page.status === 'new') { %>
+                                            <span class="badge bg-primary">New</span>
+                                        <% } else if (page.status === 'modified') { %>
+                                            <span class="badge bg-warning text-dark">Modified</span>
+                                        <% } else { %>
+                                            <span class="badge bg-success">Current</span>
+                                        <% } %>
+                                    </td>
+                                    <td><small class="text-muted"><%= page.lastModified || '—' %></small></td>
+                                    <td>
+                                        <% if (page.status !== 'current') { %>
+                                        <button class="btn btn-sm btn-outline-primary"
+                                                onclick="syncOne('<%= page.uuid %>', '<%= page.title.replace(/'/g, '\\\'') %>')">
+                                            <i class="fas fa-sync-alt"></i> Sync
+                                        </button>
+                                        <% } %>
+                                        <% if (page.slug) { %>
+                                        <a href="/wiki/<%= encodeURIComponent(page.slug) %>"
+                                           class="btn btn-sm btn-outline-secondary" target="_blank"
+                                           title="View live page">
+                                            <i class="fas fa-external-link-alt"></i>
+                                        </a>
+                                        <% } %>
+                                    </td>
+                                </tr>
+                                <% }); %>
+                            </tbody>
+                        </table>
+                    </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Result Toast -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="syncToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <i class="fas fa-sync-alt me-2 text-primary"></i>
+                <strong class="me-auto">Required Pages Sync</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+            <div class="toast-body" id="syncToastBody"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+const CSRF_TOKEN = '<%= csrfToken %>';
+
+function selectAll(checked) {
+    document.querySelectorAll('.page-checkbox').forEach(cb => cb.checked = checked);
+    const master = document.getElementById('selectAllCheck');
+    if (master) master.checked = checked;
+}
+
+function getUuidsByStatus(status) {
+    const uuids = [];
+    document.querySelectorAll('tr[data-status]').forEach(row => {
+        if (status === 'outdated') {
+            if (row.dataset.status === 'new' || row.dataset.status === 'modified') {
+                uuids.push(row.dataset.uuid);
+            }
+        } else if (row.dataset.status === status) {
+            uuids.push(row.dataset.uuid);
+        }
+    });
+    return uuids;
+}
+
+function getSelectedUuids() {
+    return Array.from(document.querySelectorAll('.page-checkbox:checked')).map(cb => cb.value);
+}
+
+async function syncOne(uuid, title) {
+    await doSync([uuid], `Syncing "${title}"…`);
+}
+
+async function syncByStatus(status) {
+    const uuids = getUuidsByStatus(status);
+    if (uuids.length === 0) {
+        showToast('No pages to sync.');
+        return;
+    }
+    await doSync(uuids, `Syncing ${uuids.length} page${uuids.length !== 1 ? 's' : ''}…`);
+}
+
+async function syncSelected() {
+    const uuids = getSelectedUuids();
+    if (uuids.length === 0) {
+        showToast('No pages selected. Check the boxes next to pages you want to sync.');
+        return;
+    }
+    await doSync(uuids, `Syncing ${uuids.length} selected page${uuids.length !== 1 ? 's' : ''}…`);
+}
+
+async function doSync(uuids, statusMsg) {
+    showToast(statusMsg);
+
+    try {
+        const response = await fetch('/admin/required-pages/sync', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': CSRF_TOKEN
+            },
+            body: JSON.stringify({ uuids })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            showToast(`✓ ${result.message}`);
+            // Mark synced rows as current
+            result.uuids.forEach(uuid => {
+                const row = document.querySelector(`tr[data-uuid="${uuid}"]`);
+                if (row) {
+                    row.dataset.status = 'current';
+                    row.querySelector('td:nth-child(4)').innerHTML =
+                        '<span class="badge bg-success">Current</span>';
+                    const checkbox = row.querySelector('.page-checkbox');
+                    if (checkbox) checkbox.remove();
+                    const syncBtn = row.querySelector('button.btn-outline-primary');
+                    if (syncBtn) syncBtn.remove();
+                }
+            });
+            // Update summary badges after a short delay
+            setTimeout(() => location.reload(), 2000);
+        } else {
+            showToast(`✗ Error: ${result.error}`);
+        }
+    } catch (err) {
+        showToast(`✗ Network error: ${err.message}`);
+    }
+}
+
+function showToast(message) {
+    const toastBody = document.getElementById('syncToastBody');
+    const toastEl = document.getElementById('syncToast');
+    toastBody.textContent = message;
+    const toast = new bootstrap.Toast(toastEl, { delay: 4000 });
+    toast.show();
+}
+</script>
+
+<%- include('footer') %>

@@ -3082,6 +3082,45 @@ class WikiRoutes {
         );
       }
 
+      // Count required-pages that need syncing (new or modified vs data/pages/)
+      let requiredPagesSyncNeeded = 0;
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports -- lazy load for rarely-used dashboard count
+        const fse = require('fs-extra');
+        const configManager = this.engine.getManager('ConfigurationManager');
+        const requiredDir: string = configManager.getProperty(
+          'amdwiki.page.provider.filesystem.requiredpagesdir',
+          './required-pages'
+        );
+        const pagesDir: string = configManager.getProperty(
+          'amdwiki.page.provider.filesystem.storagedir',
+          './data/pages'
+        );
+        const requiredDirResolved = path.isAbsolute(requiredDir)
+          ? requiredDir
+          : path.join(process.cwd(), requiredDir);
+        const pagesDirResolved = path.isAbsolute(pagesDir)
+          ? pagesDir
+          : path.join(process.cwd(), pagesDir);
+
+        const allFiles: string[] = await fse.readdir(requiredDirResolved);
+        for (const file of allFiles.filter((f: string) => f.endsWith('.md'))) {
+          const destPath = path.join(pagesDirResolved, file);
+          if (!(await fse.pathExists(destPath))) {
+            requiredPagesSyncNeeded++;
+          } else {
+            const src: string = await fse.readFile(
+              path.join(requiredDirResolved, file),
+              'utf8'
+            );
+            const dst: string = await fse.readFile(destPath, 'utf8');
+            if (src !== dst) requiredPagesSyncNeeded++;
+          }
+        }
+      } catch {
+        // non-fatal — badge just won't show
+      }
+
       const templateData = {
         ...commonData,
         title: 'Admin Dashboard',
@@ -3092,6 +3131,7 @@ class WikiRoutes {
         stats: stats,
         recentActivity: recentActivity,
         requiredPages: requiredPages,
+        requiredPagesSyncNeeded,
         notifications: notifications,
         maintenanceMode:
           this.engine.config?.features?.maintenance?.enabled || false,
@@ -4216,6 +4256,189 @@ class WikiRoutes {
   }
 
   /**
+   * Admin required-pages sync — compare required-pages/ source against live data/pages/
+   */
+  async adminRequiredPages(req: Request, res: Response) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = req.userContext;
+
+      if (
+        !currentUser ||
+        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+      ) {
+        return res.status(403).send('Access denied');
+      }
+
+      const configManager = this.engine.getManager('ConfigurationManager');
+      // eslint-disable-next-line @typescript-eslint/no-require-imports -- dynamic load
+      const fse = require('fs-extra');
+      // eslint-disable-next-line @typescript-eslint/no-require-imports -- dynamic load
+      const matter = require('gray-matter');
+
+      const requiredDir: string = configManager.getProperty(
+        'amdwiki.page.provider.filesystem.requiredpagesdir',
+        './required-pages'
+      );
+      const pagesDir: string = configManager.getProperty(
+        'amdwiki.page.provider.filesystem.storagedir',
+        './data/pages'
+      );
+
+      const requiredDirResolved = path.isAbsolute(requiredDir)
+        ? requiredDir
+        : path.join(process.cwd(), requiredDir);
+      const pagesDirResolved = path.isAbsolute(pagesDir)
+        ? pagesDir
+        : path.join(process.cwd(), pagesDir);
+
+      const allFiles: string[] = await fse.readdir(requiredDirResolved);
+      const mdFiles = allFiles.filter((f: string) => f.endsWith('.md'));
+
+      const comparison: Array<{
+        uuid: string;
+        title: string;
+        slug: string;
+        lastModified: string;
+        status: 'new' | 'modified' | 'current';
+      }> = [];
+
+      for (const file of mdFiles) {
+        const uuid = path.basename(file, '.md');
+        const sourcePath = path.join(requiredDirResolved, file);
+        const sourceContent: string = await fse.readFile(sourcePath, 'utf8');
+
+        let title = uuid;
+        let slug = '';
+        let lastModified = '';
+        try {
+          const { data } = matter(sourceContent);
+          title = (data.title as string) || uuid;
+          slug = (data.slug as string) || '';
+          lastModified = (data.lastModified as string) || '';
+        } catch {
+          // use defaults
+        }
+
+        const destPath = path.join(pagesDirResolved, file);
+        let status: 'new' | 'modified' | 'current';
+
+        if (!(await fse.pathExists(destPath))) {
+          status = 'new';
+        } else {
+          const destContent: string = await fse.readFile(destPath, 'utf8');
+          status = sourceContent === destContent ? 'current' : 'modified';
+        }
+
+        comparison.push({ uuid, title, slug, lastModified, status });
+      }
+
+      const statusOrder: Record<string, number> = { new: 0, modified: 1, current: 2 };
+      comparison.sort((a, b) => statusOrder[a.status] - statusOrder[b.status]);
+
+      const counts = {
+        new: comparison.filter(p => p.status === 'new').length,
+        modified: comparison.filter(p => p.status === 'modified').length,
+        current: comparison.filter(p => p.status === 'current').length
+      };
+
+      const commonData = await this.getCommonTemplateData(req);
+      return res.render('admin-required-pages', {
+        ...commonData,
+        title: 'Required Pages Sync',
+        comparison,
+        counts,
+        csrfToken: req.session.csrfToken,
+        successMessage: req.query.success || null,
+        errorMessage: req.query.error || null
+      });
+    } catch (err: unknown) {
+      logger.error('Error loading required pages sync:', err);
+      return res.status(500).send('Error loading required pages sync');
+    }
+  }
+
+  /**
+   * Admin required-pages sync — copy selected pages from required-pages/ to data/pages/
+   */
+  async adminSyncRequiredPages(req: Request, res: Response) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = req.userContext;
+
+      if (
+        !currentUser ||
+        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+      ) {
+        return res.status(403).json({ success: false, error: 'Access denied' });
+      }
+
+      const configManager = this.engine.getManager('ConfigurationManager');
+      // eslint-disable-next-line @typescript-eslint/no-require-imports -- dynamic load
+      const fse = require('fs-extra');
+
+      const requiredDir: string = configManager.getProperty(
+        'amdwiki.page.provider.filesystem.requiredpagesdir',
+        './required-pages'
+      );
+      const pagesDir: string = configManager.getProperty(
+        'amdwiki.page.provider.filesystem.storagedir',
+        './data/pages'
+      );
+
+      const requiredDirResolved = path.isAbsolute(requiredDir)
+        ? requiredDir
+        : path.join(process.cwd(), requiredDir);
+      const pagesDirResolved = path.isAbsolute(pagesDir)
+        ? pagesDir
+        : path.join(process.cwd(), pagesDir);
+
+      const body = req.body as { uuids?: string[] };
+      const uuids = body.uuids;
+
+      if (!uuids || !Array.isArray(uuids) || uuids.length === 0) {
+        return res.status(400).json({ success: false, error: 'No pages selected' });
+      }
+
+      await fse.ensureDir(pagesDirResolved);
+
+      const synced: string[] = [];
+      for (const uuid of uuids) {
+        const fileName = `${uuid}.md`;
+        const sourcePath = path.join(requiredDirResolved, fileName);
+        const destPath = path.join(pagesDirResolved, fileName);
+
+        if (await fse.pathExists(sourcePath)) {
+          await fse.copy(sourcePath, destPath, { overwrite: true });
+          synced.push(uuid);
+        }
+      }
+
+      const pageManager = this.engine.getManager('PageManager');
+      const searchManager = this.engine.getManager('SearchManager');
+      await pageManager.refreshPageList();
+      await searchManager.rebuildIndex();
+
+      logger.info(
+        `Required pages sync: ${synced.length} pages synced by ${currentUser.username}`
+      );
+
+      return res.json({
+        success: true,
+        message: `${synced.length} page${synced.length !== 1 ? 's' : ''} synced successfully`,
+        synced: synced.length,
+        uuids: synced
+      });
+    } catch (err: unknown) {
+      logger.error('Error syncing required pages:', err);
+      return res.status(500).json({
+        success: false,
+        error: getErrorMessage(err) || 'Error syncing required pages'
+      });
+    }
+  }
+
+  /**
    * Admin import page - render import UI with converter info
    */
   async adminImport(req: Request, res: Response) {
@@ -5241,6 +5464,12 @@ class WikiRoutes {
     app.get('/admin/logs', (req: Request, res: Response) => this.adminLogs(req, res));
     app.post('/admin/restart', (req: Request, res: Response) => this.adminRestart(req, res));
     app.post('/admin/reindex', (req: Request, res: Response) => this.adminReindex(req, res));
+    app.get('/admin/required-pages', (req: Request, res: Response) =>
+      this.adminRequiredPages(req, res)
+    );
+    app.post('/admin/required-pages/sync', (req: Request, res: Response) =>
+      this.adminSyncRequiredPages(req, res)
+    );
     app.get('/admin/attachments', (req: Request, res: Response) => this.adminAttachments(req, res));
     app.get('/admin/attachments/api', (req: Request, res: Response) => this.adminAttachmentsApi(req, res));
     app.delete('/admin/attachments/:attachmentId', (req: Request, res: Response) => this.adminDeleteAttachmentFromBrowser(req, res));
