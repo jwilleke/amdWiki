@@ -1,4 +1,5 @@
 <%- include('header', { pageName: '' }) %>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/diff2html@3.4.56/bundles/css/diff2html.min.css" />
 
 <div class="container mt-4">
     <% if (typeof successMessage !== 'undefined' && successMessage) { %>
@@ -122,6 +123,12 @@
                                     </td>
                                     <td><small class="text-muted"><%= page.lastModified || '—' %></small></td>
                                     <td>
+                                        <% if (page.status === 'modified') { %>
+                                        <button class="btn btn-sm btn-outline-info"
+                                                onclick="showDiff('<%= page.uuid %>', '<%= page.title.replace(/'/g, '\\\'') %>')">
+                                            <i class="fas fa-code-branch"></i> Diff
+                                        </button>
+                                        <% } %>
                                         <% if (page.status !== 'current') { %>
                                         <button class="btn btn-sm btn-outline-primary"
                                                 onclick="syncOne('<%= page.uuid %>', '<%= page.title.replace(/'/g, '\\\'') %>')">
@@ -147,6 +154,45 @@
         </div>
     </div>
 
+    <!-- Diff Modal -->
+    <div class="modal fade" id="diffModal" tabindex="-1" aria-labelledby="diffModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="diffModalLabel">
+                        <i class="fas fa-code-branch me-2"></i>
+                        <span id="diffModalTitle"></span>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="d-flex gap-2 px-3 py-2 border-bottom align-items-center">
+                        <div class="btn-group btn-group-sm" role="group">
+                            <button type="button" class="btn btn-outline-secondary active"
+                                    id="modalBtnUnified" onclick="renderModalDiff('line-by-line')">
+                                <i class="fas fa-align-left me-1"></i>Unified
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary"
+                                    id="modalBtnSideBySide" onclick="renderModalDiff('side-by-side')">
+                                <i class="fas fa-columns me-1"></i>Side-by-side
+                            </button>
+                        </div>
+                        <a id="diffFullPageLink" href="#" target="_blank"
+                           class="btn btn-sm btn-outline-primary ms-auto">
+                            <i class="fas fa-external-link-alt me-1"></i>Open full page
+                        </a>
+                    </div>
+                    <div id="modalDiffContainer" class="p-3">
+                        <div class="text-center py-4 text-muted">
+                            <i class="fas fa-spinner fa-spin fa-2x"></i>
+                            <p class="mt-2">Loading diff…</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Result Toast -->
     <div class="toast-container position-fixed bottom-0 end-0 p-3">
         <div id="syncToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
@@ -160,8 +206,58 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/diff2html@3.4.56/bundles/js/diff2html.min.js"></script>
 <script>
 const CSRF_TOKEN = '<%= csrfToken %>';
+let currentDiffString = null;
+let diffModal = null;
+
+async function showDiff(uuid, title) {
+    document.getElementById('diffModalTitle').textContent = `${title}: source vs live`;
+    document.getElementById('diffFullPageLink').href = `/admin/diff?uuid=${encodeURIComponent(uuid)}&source=required`;
+    document.getElementById('modalDiffContainer').innerHTML =
+        '<div class="text-center py-4 text-muted"><i class="fas fa-spinner fa-spin fa-2x"></i><p class="mt-2">Loading diff…</p></div>';
+
+    if (!diffModal) {
+        diffModal = new bootstrap.Modal(document.getElementById('diffModal'));
+    }
+    diffModal.show();
+
+    try {
+        const response = await fetch(`/api/admin/diff?uuid=${encodeURIComponent(uuid)}&source=required`, {
+            headers: { 'X-CSRF-Token': CSRF_TOKEN }
+        });
+        const result = await response.json();
+        if (!result.success) {
+            document.getElementById('modalDiffContainer').innerHTML =
+                `<div class="alert alert-danger m-3">Error: ${result.error}</div>`;
+            return;
+        }
+        currentDiffString = result.diffString;
+        renderModalDiff('line-by-line');
+    } catch (err) {
+        document.getElementById('modalDiffContainer').innerHTML =
+            `<div class="alert alert-danger m-3">Network error: ${err.message}</div>`;
+    }
+}
+
+function renderModalDiff(format) {
+    if (!currentDiffString) return;
+    document.getElementById('modalBtnUnified').classList.toggle('active', format === 'line-by-line');
+    document.getElementById('modalBtnSideBySide').classList.toggle('active', format === 'side-by-side');
+
+    const container = document.getElementById('modalDiffContainer');
+    if (!currentDiffString.trim()) {
+        container.innerHTML = '<div class="alert alert-success m-3"><i class="fas fa-check-circle me-2"></i>Files are identical.</div>';
+        return;
+    }
+    const html = Diff2Html.html(currentDiffString, {
+        drawFileList: false,
+        matching: 'lines',
+        outputFormat: format
+    });
+    container.innerHTML = html;
+}
 
 function selectAll(checked) {
     document.querySelectorAll('.page-checkbox').forEach(cb => cb.checked = checked);

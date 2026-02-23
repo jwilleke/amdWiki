@@ -4428,6 +4428,187 @@ class WikiRoutes {
   }
 
   /**
+   * Resolve diff content for two sides.
+   * source=required: compares required-pages/{uuid} vs data/pages/{uuid}
+   * a+b: compares two live pages by UUID or slug
+   */
+  private async resolveDiffContent(
+    req: Request
+  ): Promise<{
+    contentA: string;
+    contentB: string;
+    titleA: string;
+    titleB: string;
+    uuidA: string;
+    uuidB: string;
+  } | null> {
+    const fse = require('fs-extra'); // eslint-disable-line @typescript-eslint/no-require-imports -- dynamic load
+    const matter = require('gray-matter'); // eslint-disable-line @typescript-eslint/no-require-imports -- dynamic load
+    const configManager = this.engine.getManager('ConfigurationManager');
+    const pageManager = this.engine.getManager('PageManager');
+
+    const requiredDirRaw: string = configManager.getProperty(
+      'amdwiki.page.provider.filesystem.requiredpagesdir',
+      './required-pages'
+    );
+    const requiredDirResolved = path.isAbsolute(requiredDirRaw)
+      ? requiredDirRaw
+      : path.join(process.cwd(), requiredDirRaw);
+    const pagesDirResolved: string = configManager.getResolvedDataPath(
+      'amdwiki.page.provider.filesystem.storagedir',
+      './data/pages'
+    );
+
+    const { uuid, source, a, b } = req.query as Record<string, string>;
+
+    if (uuid && source === 'required') {
+      // Compare required-pages source vs live page
+      const sourcePath = path.join(requiredDirResolved, `${uuid}.md`);
+      const destPath = path.join(pagesDirResolved, `${uuid}.md`);
+
+      if (!(await fse.pathExists(sourcePath))) return null;
+
+      const contentA: string = await fse.readFile(sourcePath, 'utf8');
+      let contentB = '';
+      if (await fse.pathExists(destPath)) {
+        contentB = await fse.readFile(destPath, 'utf8');
+      }
+
+      let titleA = uuid;
+      let titleB = uuid;
+      try {
+        titleA = (matter(contentA).data.title as string) || uuid;
+        titleB = contentB ? (matter(contentB).data.title as string) || uuid : uuid;
+      } catch {
+        // use defaults
+      }
+
+      return {
+        contentA,
+        contentB,
+        titleA: `${titleA} (source)`,
+        titleB: contentB ? `${titleB} (live)` : `${titleB} (not yet installed)`,
+        uuidA: uuid,
+        uuidB: uuid
+      };
+    }
+
+    if (a && b) {
+      // Compare two live pages by UUID or slug
+      const pageA = await pageManager.getPage(a);
+      const pageB = await pageManager.getPage(b);
+
+      if (!pageA || !pageB) return null;
+
+      return {
+        contentA: pageA.content || '',
+        contentB: pageB.content || '',
+        titleA: pageA.metadata?.title || pageA.name || a,
+        titleB: pageB.metadata?.title || pageB.name || b,
+        uuidA: a,
+        uuidB: b
+      };
+    }
+
+    return null;
+  }
+
+  /**
+   * Admin diff — full-page view comparing two pages or required-pages source vs live
+   * GET /admin/diff?uuid={uuid}&source=required
+   * GET /admin/diff?a={uuid}&b={uuid}
+   */
+  async adminDiff(req: Request, res: Response) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = req.userContext;
+
+      if (
+        !currentUser ||
+        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+      ) {
+        return res.status(403).send('Access denied');
+      }
+
+      const resolved = await this.resolveDiffContent(req);
+      if (!resolved) {
+        return res.status(400).send('Could not resolve pages for comparison');
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-require-imports -- dynamic load
+      const { createPatch } = require('diff');
+      const diffString: string = createPatch(
+        resolved.titleA,
+        resolved.contentA,
+        resolved.contentB,
+        resolved.titleA,
+        resolved.titleB
+      );
+
+      const commonData = await this.getCommonTemplateData(req);
+      return res.render('admin-diff', {
+        ...commonData,
+        title: `Diff: ${resolved.titleA} vs ${resolved.titleB}`,
+        titleA: resolved.titleA,
+        titleB: resolved.titleB,
+        diffString,
+        uuidA: resolved.uuidA,
+        uuidB: resolved.uuidB,
+        sourceMode: req.query.source === 'required'
+      });
+    } catch (err: unknown) {
+      logger.error('Error computing diff:', err);
+      return res.status(500).send('Error computing diff');
+    }
+  }
+
+  /**
+   * Admin diff API — returns diff data as JSON for modal use
+   * GET /api/admin/diff?uuid={uuid}&source=required
+   * GET /api/admin/diff?a={uuid}&b={uuid}
+   */
+  async adminDiffApi(req: Request, res: Response) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = req.userContext;
+
+      if (
+        !currentUser ||
+        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+      ) {
+        return res.status(403).json({ error: 'Access denied' });
+      }
+
+      const resolved = await this.resolveDiffContent(req);
+      if (!resolved) {
+        return res.status(400).json({ error: 'Could not resolve pages for comparison' });
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-require-imports -- dynamic load
+      const { createPatch } = require('diff');
+      const diffString: string = createPatch(
+        resolved.titleA,
+        resolved.contentA,
+        resolved.contentB,
+        resolved.titleA,
+        resolved.titleB
+      );
+
+      return res.json({
+        success: true,
+        diffString,
+        titleA: resolved.titleA,
+        titleB: resolved.titleB,
+        uuidA: resolved.uuidA,
+        uuidB: resolved.uuidB
+      });
+    } catch (err: unknown) {
+      logger.error('Error computing diff (API):', err);
+      return res.status(500).json({ error: getErrorMessage(err) || 'Error computing diff' });
+    }
+  }
+
+  /**
    * Admin import page - render import UI with converter info
    */
   async adminImport(req: Request, res: Response) {
@@ -5459,6 +5640,8 @@ class WikiRoutes {
     app.post('/admin/required-pages/sync', (req: Request, res: Response) =>
       this.adminSyncRequiredPages(req, res)
     );
+    app.get('/admin/diff', (req: Request, res: Response) => this.adminDiff(req, res));
+    app.get('/api/admin/diff', (req: Request, res: Response) => this.adminDiffApi(req, res));
     app.get('/admin/attachments', (req: Request, res: Response) => this.adminAttachments(req, res));
     app.get('/admin/attachments/api', (req: Request, res: Response) => this.adminAttachmentsApi(req, res));
     app.delete('/admin/attachments/:attachmentId', (req: Request, res: Response) => this.adminDeleteAttachmentFromBrowser(req, res));
