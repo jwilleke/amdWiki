@@ -24,6 +24,30 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-23-05
+
+- Agent: Claude Sonnet 4.6
+- Subject: Page diff view using diff2html (#275)
+- Testing:
+  - npm test: 67 suites passed, 1720 tests passed
+- Work Done:
+  - Added diff (^8.0.3) and diff2html (^3.4.56) dependencies
+  - GET /admin/diff?uuid=&source=required: full-page diff of required-pages source vs live page
+  - GET /admin/diff?a=uuid&b=uuid: diff any two wiki pages
+  - GET /api/admin/diff: JSON endpoint for modal use (returns diffString)
+  - views/admin-diff.ejs: full-page diff view with Unified/Side-by-side toggle via diff2html CDN
+  - views/admin-required-pages.ejs: Diff button on Modified rows opens Bootstrap modal; toggle + Open full page link
+  - Closed issue #275
+- Commits: 76c8564
+- Files Modified:
+  - src/routes/WikiRoutes.ts
+  - views/admin-diff.ejs (new)
+  - views/admin-required-pages.ejs
+  - package.json
+  - package-lock.json
+
+---
+
 ## 2026-02-23-04
 
 - Agent: Claude Sonnet 4.6
