@@ -4461,9 +4461,12 @@ class WikiRoutes {
       }
 
       const pageManager = this.engine.getManager('PageManager');
-      const searchManager = this.engine.getManager('SearchManager');
       await pageManager.refreshPageList();
-      await searchManager.rebuildIndex();
+      // Rebuild search index in the background — avoid blocking the response on a 14K-page corpus
+      const searchManager = this.engine.getManager('SearchManager');
+      searchManager.rebuildIndex().catch((err: unknown) => {
+        logger.warn('Required pages sync: background search index rebuild failed:', err);
+      });
 
       logger.info(
         `Required pages sync: ${synced.length} pages synced by ${currentUser.username}`
