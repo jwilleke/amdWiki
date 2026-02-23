@@ -59,8 +59,13 @@
         <div class="col-12">
             <div class="d-flex gap-2 flex-wrap">
                 <% if (counts.uuidMismatch > 0) { %>
-                <button class="btn btn-danger" onclick="reconcileAllMismatches()">
-                    <i class="fas fa-exchange-alt me-1"></i> Reconcile All Mismatches (<%= counts.uuidMismatch %>)
+                <button class="btn btn-warning" onclick="adoptUuidAll()"
+                        title="Keep NAS page content; rename file to canonical UUID">
+                    <i class="fas fa-id-card me-1"></i> Adopt UUID for All (<%= counts.uuidMismatch %>)
+                </button>
+                <button class="btn btn-outline-danger" onclick="reconcileAllMismatches()"
+                        title="Overwrite live content with required-pages/ source">
+                    <i class="fas fa-exchange-alt me-1"></i> Replace with Source (<%= counts.uuidMismatch %>)
                 </button>
                 <% } %>
                 <% if (counts.new > 0) { %>
@@ -148,12 +153,19 @@
                                         <% } %>
                                         <% if (page.status === 'uuid-mismatch') { %>
                                         <button class="btn btn-sm btn-outline-info"
-                                                onclick="showDiff('<%= page.uuid %>', '<%= page.title.replace(/'/g, '\\\'') %>', '<%= page.liveUuid %>')">
+                                                onclick="showDiff('<%= page.uuid %>', '<%= page.title.replace(/'/g, '\\\'') %>', '<%= page.liveUuid %>')"
+                                                title="Compare source vs live content">
                                             <i class="fas fa-code-branch"></i> Diff
                                         </button>
+                                        <button class="btn btn-sm btn-warning"
+                                                onclick="adoptUuidOne('<%= page.uuid %>', '<%= page.liveUuid %>', '<%= page.title.replace(/'/g, '\\\'') %>')"
+                                                title="Keep NAS content, rename to canonical UUID">
+                                            <i class="fas fa-id-card"></i> Adopt UUID
+                                        </button>
                                         <button class="btn btn-sm btn-outline-danger"
-                                                onclick="reconcileOne('<%= page.uuid %>', '<%= page.liveUuid %>', '<%= page.title.replace(/'/g, '\\\'') %>')">
-                                            <i class="fas fa-exchange-alt"></i> Reconcile
+                                                onclick="reconcileOne('<%= page.uuid %>', '<%= page.liveUuid %>', '<%= page.title.replace(/'/g, '\\\'') %>')"
+                                                title="Replace live content with required-pages/ source">
+                                            <i class="fas fa-exchange-alt"></i> Replace
                                         </button>
                                         <% } %>
                                         <% if (page.status !== 'current' && page.status !== 'uuid-mismatch') { %>
@@ -410,6 +422,52 @@ async function doReconcile(items, statusMsg) {
                     row.dataset.status = 'current';
                     row.querySelector('td:nth-child(4)').innerHTML =
                         '<span class="badge bg-success">Current</span>';
+                    row.querySelectorAll('.page-checkbox').forEach(el => el.remove());
+                    row.querySelectorAll('td:last-child button').forEach(el => el.remove());
+                }
+            });
+            setTimeout(() => location.reload(), 2000);
+        } else {
+            showToast(`✗ Error: ${result.error}`);
+        }
+    } catch (err) {
+        showToast(`✗ Network error: ${err.message}`);
+    }
+}
+
+async function adoptUuidOne(sourceUuid, liveUuid, title) {
+    await doAdoptUuid([{ sourceUuid, liveUuid }], `Adopting UUID for "${title}"…`);
+}
+
+function adoptUuidAll() {
+    const items = [];
+    document.querySelectorAll('tr[data-status="uuid-mismatch"]').forEach(row => {
+        items.push({ sourceUuid: row.dataset.uuid, liveUuid: row.dataset.liveUuid });
+    });
+    if (items.length === 0) {
+        showToast('No mismatches to fix.');
+        return;
+    }
+    doAdoptUuid(items, `Adopting UUID for ${items.length} page${items.length !== 1 ? 's' : ''}…`);
+}
+
+async function doAdoptUuid(items, statusMsg) {
+    showToast(statusMsg);
+    try {
+        const response = await fetch('/admin/required-pages/sync', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': CSRF_TOKEN
+            },
+            body: JSON.stringify({ adoptUuid: items })
+        });
+        const result = await response.json();
+        if (result.success) {
+            showToast(`✓ ${result.message}`);
+            result.uuids.forEach(uuid => {
+                const row = document.querySelector(`tr[data-uuid="${uuid}"]`);
+                if (row) {
                     row.querySelectorAll('.page-checkbox').forEach(el => el.remove());
                     row.querySelectorAll('td:last-child button').forEach(el => el.remove());
                 }

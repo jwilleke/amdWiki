@@ -4393,14 +4393,19 @@ class WikiRoutes {
         './data/pages'
       );
 
+      // eslint-disable-next-line @typescript-eslint/no-require-imports -- dynamic load
+      const matter = require('gray-matter');
+
       const body = req.body as {
         uuids?: string[];
         reconcile?: { sourceUuid: string; liveUuid: string }[];
+        adoptUuid?: { sourceUuid: string; liveUuid: string }[];
       };
       const uuids = Array.isArray(body.uuids) ? body.uuids : [];
       const reconcileItems = Array.isArray(body.reconcile) ? body.reconcile : [];
+      const adoptItems = Array.isArray(body.adoptUuid) ? body.adoptUuid : [];
 
-      if (uuids.length === 0 && reconcileItems.length === 0) {
+      if (uuids.length === 0 && reconcileItems.length === 0 && adoptItems.length === 0) {
         return res.status(400).json({ success: false, error: 'No pages selected' });
       }
 
@@ -4429,6 +4434,26 @@ class WikiRoutes {
         if (await fse.pathExists(sourcePath)) {
           await fse.copy(sourcePath, canonicalPath, { overwrite: true });
           if (liveUuid !== sourceUuid && (await fse.pathExists(oldPath))) {
+            await fse.remove(oldPath);
+          }
+          synced.push(sourceUuid);
+        }
+      }
+
+      // Adopt UUID: preserve live (NAS) page content, rename file to canonical UUID
+      // Updates the uuid frontmatter field and renames the file; live content is unchanged.
+      for (const { sourceUuid, liveUuid } of adoptItems) {
+        const oldPath = path.join(pagesDirResolved, `${liveUuid}.md`);
+        const canonicalPath = path.join(pagesDirResolved, `${sourceUuid}.md`);
+
+        if (await fse.pathExists(oldPath)) {
+          const liveContent: string = await fse.readFile(oldPath, 'utf8');
+          const parsed = matter(liveContent) as { data: Record<string, unknown>; content: string };
+          // Update the UUID in frontmatter to the canonical source UUID
+          parsed.data.uuid = sourceUuid;
+          const updatedContent: string = matter.stringify(parsed.content, parsed.data) as string;
+          await fse.writeFile(canonicalPath, updatedContent, 'utf8');
+          if (liveUuid !== sourceUuid) {
             await fse.remove(oldPath);
           }
           synced.push(sourceUuid);
