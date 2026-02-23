@@ -3088,20 +3088,17 @@ class WikiRoutes {
         // eslint-disable-next-line @typescript-eslint/no-require-imports -- lazy load for rarely-used dashboard count
         const fse = require('fs-extra');
         const configManager = this.engine.getManager('ConfigurationManager');
-        const requiredDir: string = configManager.getProperty(
+        const requiredDirRaw: string = configManager.getProperty(
           'amdwiki.page.provider.filesystem.requiredpagesdir',
           './required-pages'
         );
-        const pagesDir: string = configManager.getProperty(
+        const requiredDirResolved = path.isAbsolute(requiredDirRaw)
+          ? requiredDirRaw
+          : path.join(process.cwd(), requiredDirRaw);
+        const pagesDirResolved: string = configManager.getResolvedDataPath(
           'amdwiki.page.provider.filesystem.storagedir',
           './data/pages'
         );
-        const requiredDirResolved = path.isAbsolute(requiredDir)
-          ? requiredDir
-          : path.join(process.cwd(), requiredDir);
-        const pagesDirResolved = path.isAbsolute(pagesDir)
-          ? pagesDir
-          : path.join(process.cwd(), pagesDir);
 
         const allFiles: string[] = await fse.readdir(requiredDirResolved);
         for (const file of allFiles.filter((f: string) => f.endsWith('.md'))) {
@@ -4276,21 +4273,17 @@ class WikiRoutes {
       // eslint-disable-next-line @typescript-eslint/no-require-imports -- dynamic load
       const matter = require('gray-matter');
 
-      const requiredDir: string = configManager.getProperty(
+      const requiredDirRaw: string = configManager.getProperty(
         'amdwiki.page.provider.filesystem.requiredpagesdir',
         './required-pages'
       );
-      const pagesDir: string = configManager.getProperty(
+      const requiredDirResolved = path.isAbsolute(requiredDirRaw)
+        ? requiredDirRaw
+        : path.join(process.cwd(), requiredDirRaw);
+      const pagesDirResolved: string = configManager.getResolvedDataPath(
         'amdwiki.page.provider.filesystem.storagedir',
         './data/pages'
       );
-
-      const requiredDirResolved = path.isAbsolute(requiredDir)
-        ? requiredDir
-        : path.join(process.cwd(), requiredDir);
-      const pagesDirResolved = path.isAbsolute(pagesDir)
-        ? pagesDir
-        : path.join(process.cwd(), pagesDir);
 
       const allFiles: string[] = await fse.readdir(requiredDirResolved);
       const mdFiles = allFiles.filter((f: string) => f.endsWith('.md'));
@@ -4377,21 +4370,17 @@ class WikiRoutes {
       // eslint-disable-next-line @typescript-eslint/no-require-imports -- dynamic load
       const fse = require('fs-extra');
 
-      const requiredDir: string = configManager.getProperty(
+      const requiredDirRaw: string = configManager.getProperty(
         'amdwiki.page.provider.filesystem.requiredpagesdir',
         './required-pages'
       );
-      const pagesDir: string = configManager.getProperty(
+      const requiredDirResolved = path.isAbsolute(requiredDirRaw)
+        ? requiredDirRaw
+        : path.join(process.cwd(), requiredDirRaw);
+      const pagesDirResolved: string = configManager.getResolvedDataPath(
         'amdwiki.page.provider.filesystem.storagedir',
         './data/pages'
       );
-
-      const requiredDirResolved = path.isAbsolute(requiredDir)
-        ? requiredDir
-        : path.join(process.cwd(), requiredDir);
-      const pagesDirResolved = path.isAbsolute(pagesDir)
-        ? pagesDir
-        : path.join(process.cwd(), pagesDir);
 
       const body = req.body as { uuids?: string[] };
       const uuids = body.uuids;
