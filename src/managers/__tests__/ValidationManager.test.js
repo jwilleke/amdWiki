@@ -253,6 +253,84 @@ describe('ValidationManager', () => {
     });
   });
 
+  describe('checkConflicts', () => {
+    let mockPageManager;
+
+    beforeEach(() => {
+      mockPageManager = { getPage: jest.fn() };
+      mockEngine.getManager.mockReturnValue(mockPageManager);
+    });
+
+    test('returns no conflict when page does not exist', async () => {
+      mockPageManager.getPage.mockResolvedValue(null);
+      const uuid = uuidv4();
+
+      const result = await validationManager.checkConflicts(uuid, 'Test Page', 'test-page');
+
+      expect(result.hasConflict).toBe(false);
+      expect(result.conflictType).toBeNull();
+    });
+
+    test('detects uuid-mismatch when slug exists under different UUID', async () => {
+      const sourceUuid = uuidv4();
+      const liveUuid = uuidv4();
+      mockPageManager.getPage.mockResolvedValue({ uuid: liveUuid });
+
+      const result = await validationManager.checkConflicts(sourceUuid, 'Test Page', 'test-page');
+
+      expect(result.hasConflict).toBe(true);
+      expect(result.conflictType).toBe('uuid-mismatch');
+      expect(result.conflictingUuid).toBe(liveUuid);
+    });
+
+    test('returns no conflict when slug exists under same UUID', async () => {
+      const uuid = uuidv4();
+      mockPageManager.getPage.mockResolvedValue({ uuid });
+
+      const result = await validationManager.checkConflicts(uuid, 'Test Page', 'test-page');
+
+      expect(result.hasConflict).toBe(false);
+      expect(result.conflictType).toBeNull();
+    });
+
+    test('detects title-duplicate when title exists under different UUID', async () => {
+      const sourceUuid = uuidv4();
+      const liveUuid = uuidv4();
+      // slug lookup returns null, title lookup returns conflicting page
+      mockPageManager.getPage
+        .mockResolvedValueOnce(null)       // slug check
+        .mockResolvedValue({ uuid: liveUuid }); // title check
+
+      const result = await validationManager.checkConflicts(sourceUuid, 'Test Page', 'test-page');
+
+      expect(result.hasConflict).toBe(true);
+      expect(result.conflictType).toBe('title-duplicate');
+      expect(result.conflictingUuid).toBe(liveUuid);
+    });
+
+    test('treats getPage error as no conflict', async () => {
+      mockPageManager.getPage.mockRejectedValue(new Error('Provider error'));
+      const uuid = uuidv4();
+
+      const result = await validationManager.checkConflicts(uuid, 'Test Page', 'test-page');
+
+      expect(result.hasConflict).toBe(false);
+      expect(result.conflictType).toBeNull();
+    });
+
+    test('skips slug check when slug is empty', async () => {
+      const sourceUuid = uuidv4();
+      const liveUuid = uuidv4();
+      mockPageManager.getPage.mockResolvedValue({ uuid: liveUuid });
+
+      const result = await validationManager.checkConflicts(sourceUuid, 'Test Page', '');
+
+      // No slug to check, falls through to title check → title-duplicate
+      expect(result.hasConflict).toBe(true);
+      expect(result.conflictType).toBe('title-duplicate');
+    });
+  });
+
   describe('generateFixSuggestions', () => {
     test('should suggest fixes for incomplete metadata', () => {
       const filename = 'old-filename.md';
