@@ -24,6 +24,41 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-23-04
+
+- Agent: Claude Sonnet 4.6
+- Subject: Admin required-pages sync page + GH releases + diff issue #275
+- Testing:
+  - npm test: 67 suites passed, 1720 tests passed
+- Work Done:
+  - Created GH issue #275: [FEATURE] Compare two wiki pages (diff view)
+  - Created GitHub Releases for all existing tags (v1.5.3–v1.5.8) and tagged/released v1.5.12 from current HEAD
+  - Added GET /admin/required-pages: compares required-pages/*.md source against data/pages/ by UUID — reports new/modified/current with counts
+  - Added POST /admin/required-pages/sync: copies selected UUIDs from required-pages/ to data/pages/, then refreshPageList() + rebuildIndex()
+  - Created views/admin-required-pages.ejs: status badge summary, table with checkboxes, Sync All New / Sync All Outdated / Sync Selected buttons, Bootstrap toast feedback
+  - Updated views/admin-dashboard.ejs Required Pages card: sync-needed badge, link to new sync page, existing edit buttons collapsed in <details>
+- Commits: e45f435
+- Files Modified:
+  - src/routes/WikiRoutes.ts
+  - views/admin-required-pages.ejs (new)
+  - views/admin-dashboard.ejs
+
+---
+
+## 2026-02-23-03
+
+- Agent: Claude Sonnet 4.6
+- Subject: Update attachment insert buttons to use named ATTACH syntax (#274)
+- Work Done:
+  - edit.ejs: insertAttachmentMarkup() now generates [{ATTACH src='name'}] for all attachments (was [{Image src='url'}] for images and [{ATTACH name}] positional for files)
+  - browse-attachments.ejs: getWikiSyntax() same change — single [{ATTACH src='name'}] form for all file types
+- Commits: 230c2d8
+- Files Modified:
+  - views/edit.ejs
+  - views/browse-attachments.ejs
+
+---
+
 ## 2026-02-23-02
 
 - Agent: Claude Sonnet 4.6
