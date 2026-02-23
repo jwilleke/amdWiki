@@ -1,0 +1,249 @@
+---
+name: "AttachPlugin"
+description: "Renders wiki attachments inline — images as clickable thumbnails, other files as download links"
+dateModified: "2026-02-23"
+category: "plugins"
+relatedModules: ["PluginManager", "AttachmentManager", "ConfigurationManager"]
+version: "1.0.0"
+---
+
+# AttachPlugin
+
+Displays page attachments inline in wiki content. Image attachments render as clickable thumbnails linking to the full file; all other attachments render as styled download links with a file-type icon.
+
+**Source:** `plugins/AttachPlugin.ts`
+
+## Plugin Metadata
+
+| Property | Value |
+| ---------- | ------- |
+| Name | ATTACH |
+| Author | amdWiki |
+| Version | 1.0.0 |
+| JSPWiki Compatible | Partial (positional syntax compatible) |
+
+## Usage
+
+### Named Parameters (Preferred)
+
+```wiki
+[{ATTACH src='filename.pdf'}]
+[{ATTACH src='photo.jpg' caption='My Photo' align='left' display='float'}]
+```
+
+### Positional Syntax (Legacy / JSPWiki-style)
+
+```wiki
+[{ATTACH filename.pdf}]
+[{ATTACH photo.jpg|Caption Text}]
+```
+
+### Full Example
+
+```wiki
+[{ATTACH src='report.pdf' caption='Q4 Report' target='_blank' class='featured-doc'}]
+```
+
+## Parameters
+
+| Parameter | Type | Default | Required | Description |
+| ----------- | ------ | --------- | ---------- | ------------- |
+| src | string | - | Yes* | Attachment filename. Resolved via AttachmentManager. |
+| caption | string | - | No | Caption/link text. Also used as alt text for images. |
+| align | string | - | No | Alignment: `left`, `right`, `center` |
+| display | string | `block` | No | Image display mode: `block`, `float`, `inline`, `full` (images only) |
+| style | string | - | No | Custom inline CSS |
+| class | string | - | No | Custom CSS class |
+| target | string | `_blank` (files) | No | Link target. Defaults to `_blank` for file downloads; empty for images. |
+| width | string\|number | - | No | Image width (images only) |
+| height | string\|number | - | No | Image height (images only) |
+
+\* `src` is required via named params. In positional syntax the filename is the first positional argument.
+
+## Attachment Resolution
+
+The plugin resolves filenames in the same order as ImagePlugin:
+
+1. **Page-local attachments** — `AttachmentManager.getAttachmentsForPage(pageName)` (exact filename match)
+2. **Global search** — `AttachmentManager.getAttachmentByFilename(filename)` across all pages
+3. **Not found** — renders `<span class="attachment-missing">[Attachment not found: filename]</span>`
+
+## Image Attachments
+
+Files with extensions `.jpg`, `.jpeg`, `.png`, `.gif`, `.webp`, `.svg`, `.bmp` are treated as images.
+
+### Display Modes (images only)
+
+| Mode | Description |
+| ------ | ------------- |
+| `block` | Image in its own block; no text wrapping (default) |
+| `float` | Image floats left or right; text wraps around it |
+| `inline` | Image flows inline with surrounding text |
+| `full` | Full-width image spanning the container (100%) |
+
+### Alignment Options
+
+| Align | Float Mode | Block Mode | Inline Mode |
+| ------- | ------------ | ------------ | ------------- |
+| `left` | Float left, text wraps right | Left-aligned, no wrap | Margin-right added |
+| `right` | Float right, text wraps left | Right-aligned, no wrap | Margin-left added |
+| `center` | Block centered | Block centered | Vertical-align middle |
+
+### Image Output Structure
+
+Without caption:
+
+```html
+<a href="/attachments/..." class="attach-image-link">
+  <img src="/attachments/..." alt="caption or filename" class="wiki-image" style="..." />
+</a>
+```
+
+With caption:
+
+```html
+<div class="image-plugin-container">
+  <a href="/attachments/..." class="attach-image-link">
+    <img src="/attachments/..." alt="My Photo" class="wiki-image" style="..." />
+  </a>
+  <div class="image-caption" style="font-size: 0.9em; color: #666; margin-top: 5px;">My Photo</div>
+</div>
+```
+
+## File Attachments
+
+All non-image attachments render as download links with a semantic file-type icon class.
+
+### File Type Icons
+
+| File Types | Icon Class |
+| ------------ | ------------ |
+| `.pdf` | `attachment-icon-pdf` |
+| `.doc`, `.docx` | `attachment-icon-word` |
+| `.xls`, `.xlsx` | `attachment-icon-excel` |
+| `.ppt`, `.pptx` | `attachment-icon-powerpoint` |
+| `.zip`, `.tar`, `.gz`, `.7z` | `attachment-icon-archive` |
+| `.mp3`, `.wav`, `.ogg`, `.m4a` | `attachment-icon-audio` |
+| `.mp4`, `.mov`, `.avi`, `.webm` | `attachment-icon-video` |
+| `.txt`, `.csv`, `.md` | `attachment-icon-text` |
+| (other) | `attachment-icon-generic` |
+
+### File Output Structure
+
+```html
+<a href="/attachments/..." target="_blank" class="attachment-link">
+  <span class="attachment-icon attachment-icon-pdf" aria-hidden="true"></span>
+  Report Q4.pdf
+</a>
+```
+
+## Examples
+
+### Example 1: Download Link (PDF)
+
+```wiki
+[{ATTACH src='mwg_guidance.pdf'}]
+```
+
+Output: a download link labeled `mwg_guidance.pdf` with a PDF icon.
+
+### Example 2: PDF with Custom Caption
+
+```wiki
+[{ATTACH src='mwg_guidance.pdf' caption='MWG Guidance Document'}]
+```
+
+### Example 3: Image Thumbnail Floating Left
+
+```wiki
+[{ATTACH src='photo.jpg' align='left' display='float' caption='Team Photo 2025'}]
+```
+
+### Example 4: Full-Width Image
+
+```wiki
+[{ATTACH src='banner.jpg' display='full' caption='Welcome Banner'}]
+```
+
+### Example 5: Positional Syntax (Legacy)
+
+```wiki
+[{ATTACH photo.jpg|Caption Text}]
+[{ATTACH report.pdf}]
+```
+
+### Example 6: Custom Styling
+
+```wiki
+[{ATTACH src='photo.jpg' style='border-radius: 8px;' class='featured-image' width='400'}]
+```
+
+## Technical Implementation
+
+### Positional Syntax Parsing
+
+When `src=` is not provided, the plugin parses `context.originalMatch` (the full `[{ATTACH ...}]` string):
+
+```typescript
+function parsePositional(originalMatch: string): { filename: string; caption: string | null } | null {
+  const inner = originalMatch.replace(/^\[\{ATTACH\s+/, '').replace(/\s*\}\]$/, '').trim();
+  if (!inner || inner.includes('=')) return null; // named params — already handled
+  const parts = inner.split('|').map(p => p.trim());
+  return parts[0] ? { filename: parts[0], caption: parts[1] || null } : null;
+}
+```
+
+### Why AttachmentHandler Was Disabled
+
+`PluginSyntaxHandler` (priority 90) intercepts all `[{...}]` syntax before `AttachmentHandler` (priority 75) can run. AttachPlugin supersedes AttachmentHandler for inline rendering. See issue #274.
+
+### Context Usage
+
+- `context.engine.getManager('AttachmentManager')` — for attachment URL resolution
+- `context.pageName` — for page-local attachment lookup
+- `context.originalMatch` — for positional syntax fallback
+
+## JSPWiki Compatibility
+
+| Feature | JSPWiki | amdWiki | Notes |
+| --------- | --------- | --------- | ------- |
+| `[{ATTACH filename}]` | Yes | Yes | Positional syntax supported |
+| `[{ATTACH filename\|caption}]` | Yes | Yes | Pipe-separated caption |
+| `src=` named param | No | Yes | Preferred form |
+| align, display, style, class | No | Yes | Extended options |
+
+## Error Handling
+
+| Error | Cause | Output |
+| ------- | ------- | -------- |
+| Missing src | No filename in params or positional | `<span class="error">ATTACH plugin: src is required</span>` |
+| Attachment not found | File not in AttachmentManager | `<span class="attachment-missing">[Attachment not found: filename]</span>` |
+| Plugin exception | Unexpected error in execute() | `<span class="error">ATTACH plugin error</span>` |
+
+## CSS Classes
+
+| Class | Applied To | Description |
+| ------- | ----------- | ------------- |
+| `wiki-image` | `img` | Default image class |
+| `attach-image-link` | `a` | Anchor wrapping an image attachment |
+| `image-plugin-container` | `div` | Container div when caption is present |
+| `image-caption` | `div` | Caption text below image |
+| `attachment-link` | `a` | Anchor for non-image file downloads |
+| `attachment-icon` | `span` | Icon span inside file download links |
+| `attachment-icon-{type}` | `span` | Type-specific icon class (pdf, word, etc.) |
+| `attachment-missing` | `span` | Error span when attachment is not found |
+
+## Related Plugins
+
+- [ImagePlugin](./ImagePlugin.md) — inline images from paths or URLs (not attachment-resolved)
+
+## Related Documentation
+
+- [Plugin System Architecture](../architecture/Plugin-Architecture.md)
+- [AttachmentManager](../architecture/AttachmentManager.md)
+
+## Version History
+
+| Version | Date | Changes |
+| --------- | ------ | --------- |
+| 1.0.0 | 2026-02-23 | Initial implementation — fixes #274 |
