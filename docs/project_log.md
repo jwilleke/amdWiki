@@ -24,6 +24,20 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-23-02
+
+- Agent: Claude Sonnet 4.6
+- Subject: Update attachment insert buttons to use named ATTACH syntax (#274)
+- Work Done:
+  - edit.ejs: insertAttachmentMarkup() now generates [{ATTACH src='name'}] for all attachments (was [{Image src='url'}] for images and [{ATTACH name}] positional for files)
+  - browse-attachments.ejs: getWikiSyntax() same change — single [{ATTACH src='name'}] form for all file types
+- Commits: 230c2d8
+- Files Modified:
+  - views/edit.ejs
+  - views/browse-attachments.ejs
+
+---
+
 ## 2026-02-23-01
 
 - Agent: Claude Sonnet 4.6
