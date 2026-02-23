@@ -669,7 +669,7 @@ class MarkupParser extends BaseManager {
         wikitag: { enabled: true, priority: 95 },
         form: { enabled: true, priority: 85 },
         interwiki: { enabled: true, priority: 80 },
-        attachment: { enabled: true, priority: 75, enhanced: true, thumbnails: true, metadata: true },
+        attachment: { enabled: false, priority: 75, enhanced: true, thumbnails: true, metadata: true }, // Superseded by AttachPlugin (#274)
         style: { enabled: true, priority: 70 },
         wikilink: { enabled: true, priority: 50 }, // ESSENTIAL for basic functionality
         search: { enabled: true, priority: 65 },
