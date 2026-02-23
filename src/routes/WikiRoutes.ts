@@ -4288,12 +4288,15 @@ class WikiRoutes {
       const allFiles: string[] = await fse.readdir(requiredDirResolved);
       const mdFiles = allFiles.filter((f: string) => f.endsWith('.md'));
 
+      const validationManager = this.engine.getManager('ValidationManager');
+
       const comparison: Array<{
         uuid: string;
         title: string;
         slug: string;
         lastModified: string;
-        status: 'new' | 'modified' | 'current';
+        status: 'new' | 'modified' | 'current' | 'uuid-mismatch';
+        liveUuid?: string;
       }> = [];
 
       for (const file of mdFiles) {
@@ -4314,22 +4317,30 @@ class WikiRoutes {
         }
 
         const destPath = path.join(pagesDirResolved, file);
-        let status: 'new' | 'modified' | 'current';
+        let status: 'new' | 'modified' | 'current' | 'uuid-mismatch';
+        let liveUuid: string | undefined;
 
         if (!(await fse.pathExists(destPath))) {
           status = 'new';
+          // Check for slug/title conflict: page exists under a different UUID
+          const conflict = await validationManager.checkConflicts(uuid, title, slug);
+          if (conflict.hasConflict && conflict.conflictingUuid) {
+            status = 'uuid-mismatch';
+            liveUuid = conflict.conflictingUuid;
+          }
         } else {
           const destContent: string = await fse.readFile(destPath, 'utf8');
           status = sourceContent === destContent ? 'current' : 'modified';
         }
 
-        comparison.push({ uuid, title, slug, lastModified, status });
+        comparison.push({ uuid, title, slug, lastModified, status, liveUuid });
       }
 
-      const statusOrder: Record<string, number> = { new: 0, modified: 1, current: 2 };
+      const statusOrder: Record<string, number> = { 'uuid-mismatch': 0, new: 1, modified: 2, current: 3 };
       comparison.sort((a, b) => statusOrder[a.status] - statusOrder[b.status]);
 
       const counts = {
+        uuidMismatch: comparison.filter(p => p.status === 'uuid-mismatch').length,
         new: comparison.filter(p => p.status === 'new').length,
         modified: comparison.filter(p => p.status === 'modified').length,
         current: comparison.filter(p => p.status === 'current').length
@@ -4382,16 +4393,22 @@ class WikiRoutes {
         './data/pages'
       );
 
-      const body = req.body as { uuids?: string[] };
-      const uuids = body.uuids;
+      const body = req.body as {
+        uuids?: string[];
+        reconcile?: { sourceUuid: string; liveUuid: string }[];
+      };
+      const uuids = Array.isArray(body.uuids) ? body.uuids : [];
+      const reconcileItems = Array.isArray(body.reconcile) ? body.reconcile : [];
 
-      if (!uuids || !Array.isArray(uuids) || uuids.length === 0) {
+      if (uuids.length === 0 && reconcileItems.length === 0) {
         return res.status(400).json({ success: false, error: 'No pages selected' });
       }
 
       await fse.ensureDir(pagesDirResolved);
 
       const synced: string[] = [];
+
+      // Normal sync: copy source UUID file to pages dir
       for (const uuid of uuids) {
         const fileName = `${uuid}.md`;
         const sourcePath = path.join(requiredDirResolved, fileName);
@@ -4400,6 +4417,21 @@ class WikiRoutes {
         if (await fse.pathExists(sourcePath)) {
           await fse.copy(sourcePath, destPath, { overwrite: true });
           synced.push(uuid);
+        }
+      }
+
+      // Reconcile uuid-mismatch: create canonical UUID file from source, remove the old UUID file
+      for (const { sourceUuid, liveUuid } of reconcileItems) {
+        const sourcePath = path.join(requiredDirResolved, `${sourceUuid}.md`);
+        const canonicalPath = path.join(pagesDirResolved, `${sourceUuid}.md`);
+        const oldPath = path.join(pagesDirResolved, `${liveUuid}.md`);
+
+        if (await fse.pathExists(sourcePath)) {
+          await fse.copy(sourcePath, canonicalPath, { overwrite: true });
+          if (liveUuid !== sourceUuid && (await fse.pathExists(oldPath))) {
+            await fse.remove(oldPath);
+          }
+          synced.push(sourceUuid);
         }
       }
 
@@ -4459,12 +4491,14 @@ class WikiRoutes {
       './data/pages'
     );
 
-    const { uuid, source, a, b } = req.query as Record<string, string>;
+    const { uuid, source, a, b, liveUuid } = req.query as Record<string, string>;
 
     if (uuid && source === 'required') {
-      // Compare required-pages source vs live page
+      // Compare required-pages source vs live page.
+      // liveUuid param used for uuid-mismatch case (different UUID, same slug).
       const sourcePath = path.join(requiredDirResolved, `${uuid}.md`);
-      const destPath = path.join(pagesDirResolved, `${uuid}.md`);
+      const destUuid = liveUuid || uuid;
+      const destPath = path.join(pagesDirResolved, `${destUuid}.md`);
 
       if (!(await fse.pathExists(sourcePath))) return null;
 
@@ -4475,21 +4509,22 @@ class WikiRoutes {
       }
 
       let titleA = uuid;
-      let titleB = uuid;
+      let titleB = destUuid;
       try {
         titleA = (matter(contentA).data.title as string) || uuid;
-        titleB = contentB ? (matter(contentB).data.title as string) || uuid : uuid;
+        titleB = contentB ? (matter(contentB).data.title as string) || destUuid : destUuid;
       } catch {
         // use defaults
       }
 
+      const liveSuffix = liveUuid ? ` (live — UUID: ${liveUuid})` : ' (live)';
       return {
         contentA,
         contentB,
         titleA: `${titleA} (source)`,
-        titleB: contentB ? `${titleB} (live)` : `${titleB} (not yet installed)`,
+        titleB: contentB ? `${titleB}${liveSuffix}` : `${titleB} (not yet installed)`,
         uuidA: uuid,
-        uuidB: uuid
+        uuidB: destUuid
       };
     }
 

@@ -33,6 +33,12 @@
     <div class="row mt-3">
         <div class="col-12">
             <div class="d-flex gap-3 align-items-center flex-wrap mb-3">
+                <% if (counts.uuidMismatch > 0) { %>
+                <span class="badge bg-danger fs-6 px-3 py-2"
+                      title="Page exists at this slug under a different UUID — reconcile required">
+                    <i class="fas fa-exclamation-triangle me-1"></i> <%= counts.uuidMismatch %> UUID Mismatch
+                </span>
+                <% } %>
                 <span class="badge bg-primary fs-6 px-3 py-2">
                     <i class="fas fa-plus-circle me-1"></i> <%= counts.new %> New
                 </span>
@@ -48,10 +54,15 @@
     </div>
 
     <!-- Action Buttons -->
-    <% if (counts.new > 0 || counts.modified > 0) { %>
+    <% if (counts.uuidMismatch > 0 || counts.new > 0 || counts.modified > 0) { %>
     <div class="row mb-3">
         <div class="col-12">
             <div class="d-flex gap-2 flex-wrap">
+                <% if (counts.uuidMismatch > 0) { %>
+                <button class="btn btn-danger" onclick="reconcileAllMismatches()">
+                    <i class="fas fa-exchange-alt me-1"></i> Reconcile All Mismatches (<%= counts.uuidMismatch %>)
+                </button>
+                <% } %>
                 <% if (counts.new > 0) { %>
                 <button class="btn btn-primary" onclick="syncByStatus('new')">
                     <i class="fas fa-plus-circle me-1"></i> Sync All New (<%= counts.new %>)
@@ -101,7 +112,7 @@
                             </thead>
                             <tbody>
                                 <% comparison.forEach(page => { %>
-                                <tr data-uuid="<%= page.uuid %>" data-status="<%= page.status %>">
+                                <tr data-uuid="<%= page.uuid %>" data-status="<%= page.status %>" data-live-uuid="<%= page.liveUuid || '' %>">
                                     <td>
                                         <% if (page.status !== 'current') { %>
                                         <input type="checkbox" class="page-checkbox" value="<%= page.uuid %>">
@@ -113,7 +124,13 @@
                                     </td>
                                     <td><code><%= page.slug || '—' %></code></td>
                                     <td>
-                                        <% if (page.status === 'new') { %>
+                                        <% if (page.status === 'uuid-mismatch') { %>
+                                            <span class="badge bg-danger"
+                                                  title="Source UUID: <%= page.uuid %> | Live UUID: <%= page.liveUuid %>">
+                                                UUID Mismatch
+                                            </span>
+                                            <br><small class="text-muted font-monospace">live: <%= page.liveUuid %></small>
+                                        <% } else if (page.status === 'new') { %>
                                             <span class="badge bg-primary">New</span>
                                         <% } else if (page.status === 'modified') { %>
                                             <span class="badge bg-warning text-dark">Modified</span>
@@ -129,7 +146,17 @@
                                             <i class="fas fa-code-branch"></i> Diff
                                         </button>
                                         <% } %>
-                                        <% if (page.status !== 'current') { %>
+                                        <% if (page.status === 'uuid-mismatch') { %>
+                                        <button class="btn btn-sm btn-outline-info"
+                                                onclick="showDiff('<%= page.uuid %>', '<%= page.title.replace(/'/g, '\\\'') %>', '<%= page.liveUuid %>')">
+                                            <i class="fas fa-code-branch"></i> Diff
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger"
+                                                onclick="reconcileOne('<%= page.uuid %>', '<%= page.liveUuid %>', '<%= page.title.replace(/'/g, '\\\'') %>')">
+                                            <i class="fas fa-exchange-alt"></i> Reconcile
+                                        </button>
+                                        <% } %>
+                                        <% if (page.status !== 'current' && page.status !== 'uuid-mismatch') { %>
                                         <button class="btn btn-sm btn-outline-primary"
                                                 onclick="syncOne('<%= page.uuid %>', '<%= page.title.replace(/'/g, '\\\'') %>')">
                                             <i class="fas fa-sync-alt"></i> Sync
@@ -212,9 +239,11 @@ const CSRF_TOKEN = '<%= csrfToken %>';
 let currentDiffString = null;
 let diffModal = null;
 
-async function showDiff(uuid, title) {
+async function showDiff(uuid, title, liveUuid = '') {
     document.getElementById('diffModalTitle').textContent = `${title}: source vs live`;
-    document.getElementById('diffFullPageLink').href = `/admin/diff?uuid=${encodeURIComponent(uuid)}&source=required`;
+    const fullPageParams = new URLSearchParams({ uuid, source: 'required' });
+    if (liveUuid) fullPageParams.set('liveUuid', liveUuid);
+    document.getElementById('diffFullPageLink').href = `/admin/diff?${fullPageParams}`;
     document.getElementById('modalDiffContainer').innerHTML =
         '<div class="text-center py-4 text-muted"><i class="fas fa-spinner fa-spin fa-2x"></i><p class="mt-2">Loading diff…</p></div>';
 
@@ -224,7 +253,9 @@ async function showDiff(uuid, title) {
     diffModal.show();
 
     try {
-        const response = await fetch(`/api/admin/diff?uuid=${encodeURIComponent(uuid)}&source=required`, {
+        const apiParams = new URLSearchParams({ uuid, source: 'required' });
+        if (liveUuid) apiParams.set('liveUuid', liveUuid);
+        const response = await fetch(`/api/admin/diff?${apiParams}`, {
             headers: { 'X-CSRF-Token': CSRF_TOKEN }
         });
         const result = await response.json();
@@ -329,13 +360,60 @@ async function doSync(uuids, statusMsg) {
                     row.dataset.status = 'current';
                     row.querySelector('td:nth-child(4)').innerHTML =
                         '<span class="badge bg-success">Current</span>';
-                    const checkbox = row.querySelector('.page-checkbox');
-                    if (checkbox) checkbox.remove();
-                    const syncBtn = row.querySelector('button.btn-outline-primary');
-                    if (syncBtn) syncBtn.remove();
+                    row.querySelectorAll('.page-checkbox').forEach(el => el.remove());
+                    row.querySelectorAll('td:last-child button').forEach(el => el.remove());
                 }
             });
-            // Update summary badges after a short delay
+            // Reload to update summary badges
+            setTimeout(() => location.reload(), 2000);
+        } else {
+            showToast(`✗ Error: ${result.error}`);
+        }
+    } catch (err) {
+        showToast(`✗ Network error: ${err.message}`);
+    }
+}
+
+async function reconcileOne(sourceUuid, liveUuid, title) {
+    await doReconcile([{ sourceUuid, liveUuid }], `Reconciling "${title}"…`);
+}
+
+function reconcileAllMismatches() {
+    const items = [];
+    document.querySelectorAll('tr[data-status="uuid-mismatch"]').forEach(row => {
+        items.push({ sourceUuid: row.dataset.uuid, liveUuid: row.dataset.liveUuid });
+    });
+    if (items.length === 0) {
+        showToast('No mismatches to reconcile.');
+        return;
+    }
+    doReconcile(items, `Reconciling ${items.length} mismatch${items.length !== 1 ? 'es' : ''}…`);
+}
+
+async function doReconcile(items, statusMsg) {
+    showToast(statusMsg);
+    try {
+        const response = await fetch('/admin/required-pages/sync', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': CSRF_TOKEN
+            },
+            body: JSON.stringify({ reconcile: items })
+        });
+        const result = await response.json();
+        if (result.success) {
+            showToast(`✓ ${result.message}`);
+            result.uuids.forEach(uuid => {
+                const row = document.querySelector(`tr[data-uuid="${uuid}"]`);
+                if (row) {
+                    row.dataset.status = 'current';
+                    row.querySelector('td:nth-child(4)').innerHTML =
+                        '<span class="badge bg-success">Current</span>';
+                    row.querySelectorAll('.page-checkbox').forEach(el => el.remove());
+                    row.querySelectorAll('td:last-child button').forEach(el => el.remove());
+                }
+            });
             setTimeout(() => location.reload(), 2000);
         } else {
             showToast(`✗ Error: ${result.error}`);

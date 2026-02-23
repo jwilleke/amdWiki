@@ -12,6 +12,7 @@ import path from 'path';
 import logger from '../utils/logger';
 import type { WikiEngine } from '../types/WikiEngine';
 import type ConfigurationManager from './ConfigurationManager';
+import type PageManager from './PageManager';
 
 /**
  * Validation result interface
@@ -79,6 +80,19 @@ export interface GenerateMetadataOptions {
 export interface FileData {
   content: string;
   data: Record<string, unknown>;
+}
+
+/**
+ * Result of a cross-page conflict check
+ */
+export interface ConflictCheckResult {
+  hasConflict: boolean;
+  /** Type of conflict detected, or null if none */
+  conflictType: 'uuid-mismatch' | 'slug-duplicate' | 'title-duplicate' | null;
+  /** UUID of the conflicting page, if any */
+  conflictingUuid?: string;
+  /** Human-readable description */
+  message?: string;
 }
 
 /**
@@ -536,6 +550,58 @@ class ValidationManager extends BaseManager {
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '')
       .replace(/-+/g, '-');
+  }
+
+  /**
+   * Check for conflicts with existing pages (duplicate title, slug, or UUID mismatch).
+   *
+   * Used when saving a new page or comparing required-pages sources against live pages.
+   * Checks slug first (most precise), then title.
+   *
+   * @async
+   * @param {string} uuid - The UUID of the page being checked
+   * @param {string} title - The page title
+   * @param {string} slug - The page slug
+   * @returns {Promise<ConflictCheckResult>} Conflict result
+   */
+  async checkConflicts(uuid: string, title: string, slug: string): Promise<ConflictCheckResult> {
+    const pageManager = this.engine.getManager<PageManager>('PageManager');
+
+    // Check slug conflict first — most specific identifier
+    if (slug && pageManager) {
+      try {
+        const existing = await pageManager.getPage(slug);
+        if (existing && existing.uuid && existing.uuid !== uuid) {
+          return {
+            hasConflict: true,
+            conflictType: 'uuid-mismatch',
+            conflictingUuid: existing.uuid,
+            message: `A page with slug '${slug}' already exists under UUID ${existing.uuid}`
+          };
+        }
+      } catch {
+        // treat as no conflict
+      }
+    }
+
+    // Check title conflict
+    if (title && pageManager) {
+      try {
+        const existing = await pageManager.getPage(title);
+        if (existing && existing.uuid && existing.uuid !== uuid) {
+          return {
+            hasConflict: true,
+            conflictType: 'title-duplicate',
+            conflictingUuid: existing.uuid,
+            message: `A page with title '${title}' already exists under UUID ${existing.uuid}`
+          };
+        }
+      } catch {
+        // treat as no conflict
+      }
+    }
+
+    return { hasConflict: false, conflictType: null };
   }
 
   /**
