@@ -24,6 +24,27 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-23-06
+
+- Agent: Claude Sonnet 4.6
+- Subject: UUID-mismatch detection and reconcile on required-pages sync (#6)
+- Key Decision: Conflict-checking logic lives in ValidationManager.checkConflicts() so it can be reused by save flows; reconcile creates canonical UUID file from source and removes the old conflicting file.
+- Testing:
+  - npm test: 67 suites passed, 1720 tests passed
+- Work Done:
+  - Added ConflictCheckResult interface and checkConflicts(uuid, title, slug) to ValidationManager
+  - Required-pages sync: detect uuid-mismatch via validationManager.checkConflicts()
+  - Required-pages sync: new 'uuid-mismatch' status shown with red badge and liveUuid
+  - POST /admin/required-pages/sync: accepts reconcile:[{sourceUuid, liveUuid}] items
+  - Reconcile action: copy source → data/pages/{sourceUuid}.md, remove data/pages/{liveUuid}.md
+  - Diff modal: passes liveUuid param so correct live content shown for mismatch rows
+  - View: "Reconcile All Mismatches" bulk button, per-row Reconcile + Diff buttons
+- Commits: ef4b796
+- Files Modified:
+  - src/managers/ValidationManager.ts
+  - src/routes/WikiRoutes.ts
+  - views/admin-required-pages.ejs
+
 ## 2026-02-23-05
 
 - Agent: Claude Sonnet 4.6
