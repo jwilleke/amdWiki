@@ -240,11 +240,7 @@
         const textarea = document.getElementById('content');
         let markup;
 
-        if (mimeType && mimeType.startsWith('image/')) {
-            markup = `[{Image src='${url}' alt='${name}'}]`;
-        } else {
-            markup = `[{ATTACH ${name}}]`;
-        }
+        markup = `[{ATTACH src='${name}'}]`;
 
         const start = textarea.selectionStart;
         const end = textarea.selectionEnd;

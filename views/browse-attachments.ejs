@@ -218,10 +218,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function getWikiSyntax(attachment) {
-        if (isImageType(attachment.mimeType)) {
-            return '[{Image src=\'' + attachment.filename + '\'}]';
-        }
-        return '[{ATTACH ' + attachment.filename + '}]';
+        return '[{ATTACH src=\'' + attachment.filename + '\'}]';
     }
 
     function copyToClipboard(text) {
