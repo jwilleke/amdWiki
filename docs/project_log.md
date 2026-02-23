@@ -24,6 +24,27 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-23-01
+
+- Agent: Claude Sonnet 4.6
+- Subject: Add AttachPlugin to fix [{ATTACH filename}] (#274) + docs
+- Testing:
+  - npm test: 67 suites passed, 1720 tests passed
+- Work Done:
+  - #274: Created plugins/AttachPlugin.ts — PluginSyntaxHandler (priority 90) always intercepted [{ATTACH...}] before AttachmentHandler (75) could run and no ATTACH plugin existed, causing "Plugin 'ATTACH' not found". New plugin follows ImagePlugin pattern: named params (src=, caption=, align=, display=, style=, class=, target=, width=, height=) and positional fallback via context.originalMatch. Images render as clickable thumbnails; files render as download links with file-type icons.
+  - Disabled AttachmentHandler in MarkupParser defaults (superseded by AttachPlugin)
+  - docs/plugins/AttachPlugin.md: developer reference following ImagePlugin.md pattern
+  - required-pages/7b487295-af7e-4b4a-a2cb-6e3b6877a413.md: end-user wiki page (slug: attachplugin, system-category: documentation)
+  - Closed issue #274
+- Commits: cc2ea87, 1fab458
+- Files Modified:
+  - plugins/AttachPlugin.ts (new)
+  - src/parsers/MarkupParser.ts
+  - docs/plugins/AttachPlugin.md (new)
+  - required-pages/7b487295-af7e-4b4a-a2cb-6e3b6877a413.md (new)
+
+---
+
 ## 2026-02-22-05
 
 - Agent: Claude Sonnet 4.6
