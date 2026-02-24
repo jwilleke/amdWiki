@@ -638,7 +638,9 @@ class VersioningFileProvider extends FileSystemProvider {
     let migratedCount = 0;
     let errorCount = 0;
 
-    for (const [uuid, pageData] of this.pageCache.entries()) {
+    for (const [, pageData] of this.pageCache.entries()) {
+      // pageCache is keyed by title — use pageData.uuid for the actual UUID
+      const uuid = (pageData as PageCacheInfo).uuid;
       try {
         // Check if page already has versions
         const versionDir = this.getVersionDirectory(uuid);
@@ -716,7 +718,9 @@ class VersioningFileProvider extends FileSystemProvider {
     let rebuiltCount = 0;
     let errorCount = 0;
 
-    for (const [uuid, pageData] of this.pageCache.entries()) {
+    for (const [, pageData] of this.pageCache.entries()) {
+      // pageCache is keyed by title — use pageData.uuid for the actual UUID
+      const uuid = (pageData as PageCacheInfo).uuid;
       try {
         // Determine location
         if (!this.pagesDirectory || !this.requiredPagesDirectory) {

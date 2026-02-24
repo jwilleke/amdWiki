@@ -144,6 +144,9 @@ export interface PageSaveOptions {
 
   /** Additional metadata to merge */
   additionalMetadata?: Partial<PageFrontmatter>;
+
+  /** Preserve lastModified from metadata instead of setting to now (for import/migration use) */
+  preserveLastModified?: boolean;
 }
 
 /**

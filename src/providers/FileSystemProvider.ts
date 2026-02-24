@@ -466,7 +466,7 @@ class FileSystemProvider extends BasePageProvider {
     pageName: string,
     content: string,
     metadata: Partial<PageFrontmatter> = {},
-    _options?: PageSaveOptions
+    options?: PageSaveOptions
   ): Promise<void> {
     const uuid = metadata.uuid || this.resolvePageInfo(pageName)?.uuid || uuidv4();
 
@@ -493,7 +493,9 @@ class FileSystemProvider extends BasePageProvider {
 
     const oldPageInfo = this.resolvePageInfo(pageName);
 
-    const now = new Date().toISOString();
+    const now = (options?.preserveLastModified && metadata.lastModified)
+      ? metadata.lastModified
+      : new Date().toISOString();
     // Use metadata.title if provided (for renames), otherwise use pageName
     const finalTitle = metadata.title || pageName;
 

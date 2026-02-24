@@ -24,6 +24,30 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-24-02
+
+- Agent: Claude Sonnet 4.6
+- Subject: Fix versioning UUID bug + add preserveLastModified + storage path updates
+- Key Decision: Keep `autoMigrateExistingPages` using `createInitialVersion` directly (not `savePage`) to avoid clobbering original JSPWiki `lastModified` timestamps; fix cache-key bug separately
+- Current Issue: #278 (FAST_STORAGE/SLOW_STORAGE feature)
+- Testing:
+  - npm test: 67 suites passed, 1726 tests passed
+- Work Done:
+  - Fix `autoMigrateExistingPages` and `rebuildPageIndexFromManifests` — pageCache is keyed by title not UUID; loop variable `[uuid, pageData]` was actually the title, causing 14,360 version dirs named after page titles with 0-byte content.md
+  - Deleted 14,360 legacy title-named version directories from pages/versions/
+  - Add `preserveLastModified?: boolean` to `PageSaveOptions` — allows import/migration callers to preserve original timestamps instead of overwriting with `now`
+  - Wire `preserveLastModified` into `FileSystemProvider.savePage()` (was using ignored `_options` param)
+  - Update `app-custom-config.json` pages and attachments paths from NAS to local hd2A storage
+  - Reverted `.env` `INSTANCE_DATA_FOLDER` back to `/Volumes/hd2/jimstest-wiki/data` (data folder did not move)
+  - Created GitHub issue #278 for FAST_STORAGE/SLOW_STORAGE env var feature
+- Commits: TBD
+- Files Modified:
+  - src/providers/VersioningFileProvider.ts
+  - src/providers/FileSystemProvider.ts
+  - src/types/Page.ts
+
+---
+
 ## 2026-02-24-01
 
 - Agent: Claude Sonnet 4.6
