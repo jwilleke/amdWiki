@@ -4330,7 +4330,8 @@ class WikiRoutes {
           }
         } else {
           const destContent: string = await fse.readFile(destPath, 'utf8');
-          status = sourceContent === destContent ? 'current' : 'modified';
+          const normalize = (s: string) => s.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+          status = normalize(sourceContent) === normalize(destContent) ? 'current' : 'modified';
         }
 
         comparison.push({ uuid, title, slug, lastModified, status, liveUuid });
