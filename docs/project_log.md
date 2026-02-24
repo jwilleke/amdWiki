@@ -40,7 +40,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Update `app-custom-config.json` pages and attachments paths from NAS to local hd2A storage
   - Reverted `.env` `INSTANCE_DATA_FOLDER` back to `/Volumes/hd2/jimstest-wiki/data` (data folder did not move)
   - Created GitHub issue #278 for FAST_STORAGE/SLOW_STORAGE env var feature
-- Commits: TBD
+- Commits: 4312bf0
 - Files Modified:
   - src/providers/VersioningFileProvider.ts
   - src/providers/FileSystemProvider.ts
