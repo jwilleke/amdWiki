@@ -212,8 +212,11 @@ class SearchManager extends BaseManager {
     // Load and initialize provider
     await this.loadProvider();
 
-    // Build initial search index
-    await this.buildSearchIndex();
+    // Build initial search index in background — don't block engine initialization
+    this.buildSearchIndex().catch((err: unknown) => {
+      const msg = err instanceof Error ? err.message : String(err);
+      logger.error(`🔍 Search index build failed: ${msg}`);
+    });
 
     logger.info(`🔍 SearchManager initialized with ${this.providerClass}`);
 

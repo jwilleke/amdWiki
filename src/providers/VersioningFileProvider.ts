@@ -23,6 +23,11 @@ import type MetricsManager from '../managers/MetricsManager';
 interface PageIndexEntry {
   title: string;
   uuid: string;
+  slug?: string;
+  /** Actual basename of the page file on disk (e.g. "20d28d6a-....md").
+   *  Stored because the uuid field may differ from the filename for legacy pages
+   *  where the frontmatter uuid was set to the page title rather than a UUID. */
+  filename?: string;
   currentVersion: number;
   location: 'pages' | 'required-pages';
   lastModified: string;
@@ -211,6 +216,10 @@ class VersioningFileProvider extends FileSystemProvider {
       // FAST PATH: Populate cache from page index (avoids slow NAS directory scanning)
       logger.info('[VersioningFileProvider] Using fast initialization from page index');
       await this.initializeFromIndex(configManager);
+
+      // Legacy pages with non-UUID identifiers were skipped above (their actual
+      // filenames can't be derived without a NAS scan). These will return 404 until
+      // the page-index.json is updated the next time each page is saved.
     } else {
       // SLOW PATH: Fall back to parent's directory scanning
       logger.info('[VersioningFileProvider] Using standard initialization (directory scan)');
@@ -253,26 +262,24 @@ class VersioningFileProvider extends FileSystemProvider {
         return false;
       }
 
-      // Validate that index entries have proper UUIDs (not titles used as UUIDs)
+      // Validate that the index has at least some UUID-format entries.
       // A valid UUID looks like: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+      // Note: some pages legitimately use non-UUID identifiers (e.g. numeric titles like "13").
+      // V8 sorts integer-keyed object properties first, so sampling only the first N entries
+      // would incorrectly flag a valid mixed index as stale. Instead we check whether ANY
+      // entry has a proper UUID; a truly pre-UUID index would have none.
       const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
       const entries = Object.values(index.pages);
       if (entries.length > 0) {
-        // Check first few entries to verify UUIDs are valid
-        const sampleSize = Math.min(10, entries.length);
-        let validUuids = 0;
-        for (let i = 0; i < sampleSize; i++) {
-          if (uuidPattern.test(entries[i].uuid)) {
-            validUuids++;
-          }
-        }
-        // If less than 50% of sample has valid UUIDs, index is stale
-        if (validUuids < sampleSize * 0.5) {
+        const hasAnyValidUuid = entries.some(e => uuidPattern.test(e.uuid));
+        if (!hasAnyValidUuid) {
           logger.warn('[VersioningFileProvider] Page index has stale UUIDs, will rebuild via directory scan');
           return false;
         }
       }
 
+      // Cache the parsed index so initializeFromIndex doesn't need to re-read the file
+      this.pageIndex = index;
       return true;
     } catch {
       return false;
@@ -322,9 +329,11 @@ class VersioningFileProvider extends FileSystemProvider {
     // Ensure directories exist
     await fs.ensureDir(this.pagesDirectory);
 
-    // Load page index
-    const indexData = await fs.readFile(this.pageIndexPath!, 'utf8');
-    this.pageIndex = JSON.parse(indexData) as PageIndex;
+    // Use already-cached index from canUseFastInitialization (avoid double file read)
+    if (!this.pageIndex) {
+      const indexData = await fs.readFile(this.pageIndexPath!, 'utf8');
+      this.pageIndex = JSON.parse(indexData) as PageIndex;
+    }
 
     // Clear caches
     this.pageCache.clear();
@@ -333,100 +342,115 @@ class VersioningFileProvider extends FileSystemProvider {
     this.slugIndex.clear();
     this.contentCache.clear();
 
-    // Populate cache from index entries
+    // Populate metadata caches from index only — no NAS reads.
+    // Content is loaded on-demand when pages are first accessed.
+    const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     const entries = Object.values(this.pageIndex.pages);
-    logger.info(`[VersioningFileProvider] Loading ${entries.length} pages from index...`);
+    logger.info(`[VersioningFileProvider] Loading ${entries.length} pages from index (metadata only)...`);
 
-    // Process in parallel batches for speed
-    const BATCH_SIZE = 50;
     let loadedCount = 0;
-    let errorCount = 0;
-
-    for (let i = 0; i < entries.length; i += BATCH_SIZE) {
-      const batch = entries.slice(i, i + BATCH_SIZE);
-      const results = await Promise.allSettled(
-        batch.map(entry => this.loadPageFromIndexEntry(entry))
-      );
-
-      for (const result of results) {
-        if (result.status === 'fulfilled' && result.value) {
-          loadedCount++;
-        } else {
-          errorCount++;
-        }
-      }
-    }
-
-    const elapsed = Date.now() - startTime;
-    logger.info(`[VersioningFileProvider] Fast init complete: ${loadedCount} pages in ${elapsed}ms (${errorCount} errors)`);
-
-    this.initialized = true;
-  }
-
-  /**
-   * Load a single page from an index entry
-   * @param entry - Page index entry
-   * @returns true if loaded successfully
-   */
-  private async loadPageFromIndexEntry(entry: PageIndexEntry): Promise<boolean> {
-    try {
+    let skippedCount = 0;
+    for (const entry of entries) {
       const baseDir = entry.location === 'required-pages'
         ? this.requiredPagesDirectory
         : this.pagesDirectory;
 
-      if (!baseDir) {
-        return false;
+      if (!baseDir) continue;
+
+      // Determine the actual filename on disk.
+      // - If the index stores an explicit filename, use it (most reliable).
+      // - If uuid is a proper UUID format, the file is named {uuid}.md (correct for new pages).
+      // - Otherwise the uuid is a legacy title-based identifier and the actual file is
+      //   named with a proper UUID we don't know yet; skip and let the background NAS
+      //   scan populate these entries with correct filePaths.
+      let basename: string;
+      if (entry.filename) {
+        basename = entry.filename;
+      } else if (uuidPattern.test(entry.uuid)) {
+        basename = `${entry.uuid}.md`;
+      } else {
+        // Legacy page: cannot derive correct filename without NAS scan.
+        // Background scan will add this to the cache when it finds the actual file.
+        skippedCount++;
+        continue;
       }
 
-      // Try new structure first: {uuid}/{uuid}.md
-      let filePath = path.join(baseDir, entry.uuid, `${entry.uuid}.md`);
+      const filePath = path.join(baseDir, basename);
+      const title = entry.title;
 
-      if (!await fs.pathExists(filePath)) {
-        // Fall back to flat structure: {uuid}.md
-        filePath = path.join(baseDir, `${entry.uuid}.md`);
+      const pageInfo: PageCacheInfo = {
+        title,
+        uuid: entry.uuid,
+        filePath,
+        metadata: { title, uuid: entry.uuid } as PageFrontmatter
+      };
 
-        if (!await fs.pathExists(filePath)) {
-          // Page file not found, may have been deleted
-          return false;
+      this.pageCache.set(title, pageInfo);
+      this.titleIndex.set(title.toLowerCase(), title);
+      this.uuidIndex.set(entry.uuid, title);
+
+      if (entry.slug) {
+        this.slugIndex.set(entry.slug.toLowerCase(), title);
+      }
+
+      loadedCount++;
+    }
+
+    // Also scan the local required-pages directory for any files not already indexed.
+    // Required-pages are local (not NAS) so reading them is fast and safe regardless
+    // of installationComplete status. This ensures system pages like Welcome and Footer
+    // are always available even if they haven't been synced to NAS/index yet.
+    if (this.requiredPagesDirectory && await fs.pathExists(this.requiredPagesDirectory)) {
+      let reqFiles: string[];
+      try {
+        reqFiles = (await fs.readdir(this.requiredPagesDirectory))
+          .filter(f => f.toLowerCase().endsWith('.md'))
+          .map(f => path.join(this.requiredPagesDirectory!, f));
+      } catch {
+        reqFiles = [];
+      }
+
+      let reqLoaded = 0;
+      for (const filePath of reqFiles) {
+        const uuid = path.basename(filePath, '.md');
+        if (this.uuidIndex.has(uuid)) continue; // already loaded from index
+
+        try {
+          const fileContent = await fs.readFile(filePath, this.encoding || 'utf-8');
+          const parsed = matter(fileContent);
+          const title = parsed.data?.title ? String(parsed.data.title) : '';
+          if (!title) continue;
+
+          if (this.titleIndex.has(title.toLowerCase())) continue; // duplicate title
+
+          const slug = parsed.data?.slug ? String(parsed.data.slug) : undefined;
+          const pageInfo: PageCacheInfo = {
+            title,
+            uuid,
+            filePath,
+            metadata: { title, uuid, ...parsed.data } as PageFrontmatter
+          };
+
+          this.pageCache.set(title, pageInfo);
+          this.titleIndex.set(title.toLowerCase(), title);
+          this.uuidIndex.set(uuid, title);
+          if (slug) this.slugIndex.set(slug.toLowerCase(), title);
+          reqLoaded++;
+          loadedCount++;
+        } catch {
+          // skip unreadable files
         }
       }
 
-      // Read and parse the page
-      const content = await fs.readFile(filePath, this.encoding);
-      const parsed = matter(content);
-      const metadata = parsed.data as PageFrontmatter;
-
-      // Use title from frontmatter, falling back to index entry
-      const title = String(metadata.title || entry.title);
-      const uuid = entry.uuid;
-
-      // Build cache entry
-      const pageInfo: PageCacheInfo = {
-        title,
-        uuid,
-        filePath,
-        metadata
-      };
-
-      // Add to caches
-      this.pageCache.set(title, pageInfo);
-      this.titleIndex.set(title.toLowerCase(), title);
-      this.uuidIndex.set(uuid, title);
-
-      // Add slug to index if present
-      if (metadata.slug) {
-        this.slugIndex.set(String(metadata.slug).toLowerCase(), title);
+      if (reqLoaded > 0) {
+        logger.info(`[VersioningFileProvider] Loaded ${reqLoaded} additional required-pages not in index`);
       }
-
-      // Cache content
-      this.contentCache.set(title, content);
-
-      return true;
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      logger.debug(`[VersioningFileProvider] Failed to load page ${entry.uuid}: ${errorMessage}`);
-      return false;
     }
+
+    const elapsed = Date.now() - startTime;
+    logger.info(`[VersioningFileProvider] Fast init complete: ${loadedCount} pages in ${elapsed}ms (${skippedCount} legacy pages deferred to background scan)`);
+
+    this.initialized = true;
   }
 
   /**
@@ -778,6 +802,22 @@ class VersioningFileProvider extends FileSystemProvider {
   }
 
   /**
+   * Rename a UUID in the page index (used by adopt-UUID operations that move a file to a new UUID).
+   * Updates the index entry key and uuid field, then persists the index.
+   * No-op if oldUuid is not in the index.
+   */
+  public async renamePageInIndex(oldUuid: string, newUuid: string): Promise<void> {
+    if (!this.pageIndex) return;
+    const entry = this.pageIndex.pages[oldUuid];
+    if (entry) {
+      this.pageIndex.pages[newUuid] = { ...entry, uuid: newUuid, filename: `${newUuid}.md` };
+      delete this.pageIndex.pages[oldUuid];
+      logger.info(`[VersioningFileProvider] Renamed page index entry ${oldUuid} → ${newUuid}`);
+      await this.savePageIndex();
+    }
+  }
+
+  /**
    * Get version directory for a page
    * @param uuid - Page UUID
    * @param location - 'pages' or 'required-pages'
@@ -940,10 +980,12 @@ class VersioningFileProvider extends FileSystemProvider {
     // Call parent to save current content
     await super.savePage(pageName, content, { ...metadata, uuid });
 
-    // Update page index
+    // Update page index — always store filename so fast init uses the correct path
     await this.updatePageInIndex(uuid, {
       title: pageName,
       uuid: uuid,
+      slug: metadata.slug ? String(metadata.slug) : undefined,
+      filename: `${uuid}.md`,
       currentVersion: await this.getCurrentVersion(uuid, location),
       location: location,
       lastModified: new Date().toISOString(),

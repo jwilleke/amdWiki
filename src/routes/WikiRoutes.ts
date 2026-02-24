@@ -4440,28 +4440,68 @@ class WikiRoutes {
         }
       }
 
-      // Adopt UUID: preserve live (NAS) page content, rename file to canonical UUID
-      // Updates the uuid frontmatter field and renames the file; live content is unchanged.
+      // Adopt UUID: preserve live page content, rename file to canonical UUID.
+      // Updates the uuid frontmatter field and writes to data/pages/{sourceUuid}.md.
+      // Falls back to required-pages/{liveUuid}.md if not found in data/pages/ (stale copy).
+      // Also always removes stale required-pages/{liveUuid}.md copies when found.
+      const adoptedUuids: Array<{ sourceUuid: string; liveUuid: string }> = [];
       for (const { sourceUuid, liveUuid } of adoptItems) {
-        const oldPath = path.join(pagesDirResolved, `${liveUuid}.md`);
+        const oldDataPath = path.join(pagesDirResolved, `${liveUuid}.md`);
+        const oldRequiredPath = path.join(requiredDirResolved, `${liveUuid}.md`);
         const canonicalPath = path.join(pagesDirResolved, `${sourceUuid}.md`);
 
-        if (await fse.pathExists(oldPath)) {
+        let oldPath: string | null = null;
+        let removeOldData = false;
+        if (await fse.pathExists(oldDataPath)) {
+          oldPath = oldDataPath;
+          removeOldData = true;
+        } else if (await fse.pathExists(oldRequiredPath)) {
+          // Live file is a stale copy in required-pages/ — write canonical to data/pages/
+          // and remove the stale required-pages copy to prevent it loading on restart.
+          oldPath = oldRequiredPath;
+        }
+
+        if (oldPath) {
           const liveContent: string = await fse.readFile(oldPath, 'utf8');
           const parsed = matter(liveContent) as { data: Record<string, unknown>; content: string };
           // Update the UUID in frontmatter to the canonical source UUID
           parsed.data.uuid = sourceUuid;
           const updatedContent: string = matter.stringify(parsed.content, parsed.data) as string;
+          await fse.ensureDir(pagesDirResolved);
           await fse.writeFile(canonicalPath, updatedContent, 'utf8');
           if (liveUuid !== sourceUuid) {
-            await fse.remove(oldPath);
+            // Remove old NAS file if it existed there
+            if (removeOldData) {
+              await fse.remove(oldDataPath);
+            }
+            // Always clean up stale required-pages copy (may exist alongside a NAS copy)
+            if (await fse.pathExists(oldRequiredPath)) {
+              await fse.remove(oldRequiredPath);
+              logger.info(`Adopt UUID: removed stale required-pages copy ${liveUuid}`);
+            }
           }
+          adoptedUuids.push({ sourceUuid, liveUuid });
           synced.push(sourceUuid);
+        } else {
+          logger.warn(`Adopt UUID: live file not found for liveUuid=${liveUuid}, skipping`);
         }
       }
 
       const pageManager = this.engine.getManager('PageManager');
       await pageManager.refreshPageList();
+
+      // Update page-index.json for each adopted UUID so next restart uses fast init.
+      // Access VersioningFileProvider directly via the provider property.
+      if (adoptedUuids.length > 0) {
+        const provider = (pageManager as unknown as { provider: { renamePageInIndex?: (o: string, n: string) => Promise<void> } }).provider;
+        if (provider?.renamePageInIndex) {
+          for (const { sourceUuid, liveUuid } of adoptedUuids) {
+            await provider.renamePageInIndex(liveUuid, sourceUuid).catch((err: unknown) => {
+              logger.warn(`Adopt UUID: failed to update page index for ${liveUuid} → ${sourceUuid}:`, err);
+            });
+          }
+        }
+      }
       // Rebuild search index in the background — avoid blocking the response on a 14K-page corpus
       const searchManager = this.engine.getManager('SearchManager');
       searchManager.rebuildIndex().catch((err: unknown) => {

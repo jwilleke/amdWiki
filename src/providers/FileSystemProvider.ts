@@ -421,14 +421,25 @@ class FileSystemProvider extends BasePageProvider {
     }
 
     // Fallback to disk read
-    const fullContent = await fs.readFile(info.filePath, this.encoding);
-    const { content } = matter(fullContent);
+    try {
+      const fullContent = await fs.readFile(info.filePath, this.encoding);
+      const { content } = matter(fullContent);
 
-    // Update cache
-    this.contentCache.set(info.title, content);
+      // Update cache
+      this.contentCache.set(info.title, content);
 
-    logger.info(`[FileSystemProvider] Loaded ${info.title} from ${path.basename(info.filePath)} (${content.length} bytes)`);
-    return content;
+      logger.info(`[FileSystemProvider] Loaded ${info.title} from ${path.basename(info.filePath)} (${content.length} bytes)`);
+      return content;
+    } catch (err: unknown) {
+      if (err instanceof Error && (err as NodeJS.ErrnoException).code === 'ENOENT') {
+        // File not found at expected path — stale cache entry (e.g. from fast init
+        // using an incorrect path for a legacy page). Treat as page not found so the
+        // caller can handle it gracefully rather than rendering a 500 error.
+        logger.warn(`[FileSystemProvider] Page file missing (stale cache path?): ${info.title} at ${info.filePath}`);
+        throw new Error(`Page '${identifier}' not found.`);
+      }
+      throw err;
+    }
   }
 
   /**
