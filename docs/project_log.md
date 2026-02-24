@@ -42,7 +42,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Result: Server now initializes in ~42–47 seconds (was hanging for 20+ min or never completing).
   - Note: Must use `server.sh start` (not `npx pm2 start` directly) — server.sh sources .env which sets INSTANCE_DATA_FOLDER; bypassing it causes install screen to appear and wrong data paths.
   - **Fix 8 — VersioningFileProvider.ts required-pages scan in fast init**: After loading index entries, `initializeFromIndex()` now scans the local `required-pages/` directory for `.md` files not already in `uuidIndex`. Reads frontmatter (title, uuid, slug) and adds to all caches. Fixes 404 on Welcome, Footer, and other system pages after fast init was introduced. 61 pages loaded in <1ms (local I/O, not NAS). Log: `Loaded 61 additional required-pages not in index`.
-- Commits: (pending)
+- Commits: 34b42b8
 - Files Modified:
   - src/routes/WikiRoutes.ts
   - src/providers/VersioningFileProvider.ts
