@@ -16,6 +16,7 @@
 import fs from 'fs-extra';
 import path from 'path';
 import type { SimplePlugin, PluginContext, PluginParams } from './types';
+import { escapeHtml } from '../src/utils/pluginFormatters';
 
 interface RecentChangesParams extends PluginParams {
   since?: string | number;
@@ -59,27 +60,6 @@ interface PageIndex {
 interface PageManager {
   getAllPages(): Promise<string[]>;
   getPage(name: string): Promise<Page | null>;
-}
-
-/**
- * Escape HTML special characters
- * @param text - Text to escape
- * @returns Escaped text
- */
-function escapeHtml(text: unknown): string {
-  if (text === null || text === undefined) return '';
-  if (typeof text !== 'string' && typeof text !== 'number') {
-    return '[Object]';
-  }
-  const str = String(text);
-  const map: Record<string, string> = {
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    '\'': '&#039;'
-  };
-  return str.replace(/[&<>"']/g, m => map[m] || m);
 }
 
 /**

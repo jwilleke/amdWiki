@@ -26,6 +26,7 @@
  */
 
 import type { PluginContext, PluginParams, SimplePlugin } from './types';
+import { escapeHtml } from '../src/utils/pluginFormatters';
 
 // ============================================================================
 // Type Definitions
@@ -116,22 +117,6 @@ interface ExtendedPluginContext extends PluginContext {
 // ============================================================================
 // Helper Functions
 // ============================================================================
-
-/**
- * Escape HTML special characters
- */
-function escapeHtml(text: unknown): string {
-  if (text === null || text === undefined) return '';
-  const str = typeof text === 'object' ? JSON.stringify(text) : String(text as string | number | boolean);
-  const map: Record<string, string> = {
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    '\'': '&#039;'
-  };
-  return str.replace(/[&<>"']/g, m => map[m]);
-}
 
 /**
  * Process escape sequences in strings (e.g., \n, \t, \\)
@@ -1174,7 +1159,7 @@ function displayConfigValue(
     html += '      <p><strong>Value:</strong></p>\n';
     html += `      <pre><code>${escapeHtml(JSON.stringify(value, null, 2))}</code></pre>\n`;
   } else {
-    html += `      <p><strong>Value:</strong> <code>${escapeHtml(value)}</code></p>\n`;
+    html += `      <p><strong>Value:</strong> <code>${escapeHtml(String(value as string | number | boolean))}</code></p>\n`;
   }
 
   html += '    </div>\n';

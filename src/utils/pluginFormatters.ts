@@ -41,9 +41,11 @@ export function applyMax<T>(items: T[], max: number): T[] {
 }
 
 /**
- * Escape HTML special characters in a plain-text string.
+ * Escape HTML special characters.
+ * Accepts any primitive value; null/undefined return an empty string.
  */
-export function escapeHtml(text: string): string {
+export function escapeHtml(text: string | number | boolean | null | undefined): string {
+  if (text === null || text === undefined) return '';
   const map: Record<string, string> = {
     '&': '&amp;',
     '<': '&lt;',
@@ -51,7 +53,7 @@ export function escapeHtml(text: string): string {
     '"': '&quot;',
     "'": '&#039;'
   };
-  return text.replace(/[&<>"']/g, m => map[m]);
+  return String(text).replace(/[&<>"']/g, m => map[m]);
 }
 
 /**

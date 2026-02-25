@@ -7,6 +7,7 @@
  */
 
 import type { SimplePlugin, PluginContext, PluginParams } from './types';
+import { escapeHtml } from '../src/utils/pluginFormatters';
 
 interface PageManager {
   getAllPages(): Promise<string[]>;
@@ -15,22 +16,6 @@ interface PageManager {
 interface IndexParams extends PluginParams {
   include?: string;
   exclude?: string;
-}
-
-/**
- * Escape HTML special characters
- * @param text - Text to escape
- * @returns Escaped text
- */
-function escapeHtml(text: string): string {
-  const map: Record<string, string> = {
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#039;'
-  };
-  return text.replace(/[&<>"']/g, m => map[m]);
 }
 
 const IndexPlugin: SimplePlugin = {
