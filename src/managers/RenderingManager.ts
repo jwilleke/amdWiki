@@ -19,6 +19,7 @@ import logger from '../utils/logger';
 import * as showdown from 'showdown';
 // Using fixed version of showdown-footnotes with global flag for all references
 import showdownFootnotes from '../extensions/showdown-footnotes-fixed';
+import showdownSubSuperscript from '../extensions/showdown-sub-superscript';
 import { LinkParser } from '../parsers/LinkParser';
 import PageNameMatcher from '../utils/PageNameMatcher';
 import { WikiEngine } from '../types/WikiEngine';
@@ -160,8 +161,6 @@ class RenderingManager extends BaseManager {
     this.converter = new showdown.Converter({
       tables: true,
       strikethrough: true,
-      subscript: true,   // H~2~O → H<sub>2</sub>O
-      superscript: true, // X^2^ → X<sup>2</sup>
       tasklists: true,
       simpleLineBreaks: true,
       openLinksInNewWindow: false,
@@ -169,7 +168,7 @@ class RenderingManager extends BaseManager {
       disableForced4SpacesIndentedSublists: true, // Allow 2-space indented sublists
       literalMidWordUnderscores: true, // Better underscore handling
       ghCodeBlocks: true, // GitHub-style code blocks
-      extensions: [showdownFootnotes] // GitHub Flavored Markdown footnotes support
+      extensions: [showdownFootnotes, showdownSubSuperscript] // footnotes + sub/superscript
     });
 
     // Build initial link graph

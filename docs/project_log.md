@@ -27,14 +27,16 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 ## 2026-02-25-09
 
 - Agent: Claude Sonnet 4.6
-- Subject: Enable subscript and superscript rendering (#288)
-- Key Decision: Showdown has built-in subscript/superscript options — just needed enabling; no conflict with strikethrough (~~double~~)
+- Subject: Fix subscript and superscript rendering (#288)
+- Key Decision: Showdown 2.1.0 silently ignores subscript/superscript options — needed a custom lang extension. Negative lookbehind/lookahead in subscript regex prevents matching inside ~~strikethrough~~.
 - Current Issue: Closes #288
 - Testing:
   - npm test: 67 suites passed, 1726 tests passed
 - Work Done:
-  - `src/managers/RenderingManager.ts` — added `subscript: true` and `superscript: true` to Showdown converter options
+  - `src/extensions/showdown-sub-superscript.ts` — new lang extension: `~text~` → `<sub>text</sub>`, `^text^` → `<sup>text</sup>`
+  - `src/managers/RenderingManager.ts` — import and register extension; remove ineffective subscript/superscript options
 - Files Modified:
+  - src/extensions/showdown-sub-superscript.ts (new)
   - src/managers/RenderingManager.ts
 
 ---
