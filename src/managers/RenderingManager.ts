@@ -1120,7 +1120,8 @@ class RenderingManager extends BaseManager {
           let linkedPage = match[2] || match[1];
 
           // Only add to link graph if it's a wiki page (not external URLs or special pages)
-          if (!linkedPage.includes('://') && !linkedPage.startsWith('/') && linkedPage.toLowerCase() !== 'search') {
+          // Skip blank/whitespace targets — e.g. task-list checkboxes [ ] match the wiki-link regex
+          if (linkedPage.trim() !== '' && !linkedPage.includes('://') && !linkedPage.startsWith('/') && linkedPage.toLowerCase() !== 'search') {
             // Use pageNameMatcher to resolve plurals/variants to actual page names
             // This ensures [Plugins] links to "Plugin" page and appears in its referring pages
             if (this.pageNameMatcher) {
@@ -1256,7 +1257,8 @@ class RenderingManager extends BaseManager {
     while ((match = simpleLinkRegex.exec(content)) !== null) {
       let linkedPage = match[2] || match[1];
 
-      if (!linkedPage.includes('://') && !linkedPage.startsWith('/') && linkedPage.toLowerCase() !== 'search') {
+      // Skip blank/whitespace targets — e.g. task-list checkboxes [ ] match the wiki-link regex
+      if (linkedPage.trim() !== '' && !linkedPage.includes('://') && !linkedPage.startsWith('/') && linkedPage.toLowerCase() !== 'search') {
         // Resolve plurals/variants
         if (this.pageNameMatcher && pageNames.length > 0) {
           const matchedPage = this.pageNameMatcher.findMatch(linkedPage, pageNames);

@@ -24,6 +24,21 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-25-08
+
+- Agent: Claude Sonnet 4.6
+- Subject: Fix task-list checkboxes [ ] parsed as wiki links in link graph (#287)
+- Key Decision: Guard condition — skip any linkedPage where trim() is empty; same one-liner fix in both buildLinkGraph and updatePageInLinkGraph
+- Current Issue: Closes #287
+- Testing:
+  - npm test: 67 suites passed, 1726 tests passed
+- Work Done:
+  - `src/managers/RenderingManager.ts` — added `linkedPage.trim() !== ''` guard in both `buildLinkGraph` and `updatePageInLinkGraph`; markdown task-list `[ ]` no longer creates phantom link graph entry
+- Files Modified:
+  - src/managers/RenderingManager.ts
+
+---
+
 ## 2026-02-25-07
 
 - Agent: Claude Sonnet 4.6
