@@ -24,6 +24,48 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-25-06
+
+- Agent: Claude Sonnet 4.6
+- Subject: Graduate LocationPlugin from required-pages to live data
+- Key Decision: Live wiki page (UUID 29AEF3F9-...) now served from instance data pages/ dir; required-pages entry removed from git
+- Current Issue: n/a
+- Testing: n/a (data change only)
+- Work Done:
+  - Removed `required-pages/29AEF3F9-206F-4478-B79D-6C3A08307FE7.md` from project (page content preserved in live data)
+  - Updated page-index.json: location → 'pages', hasVersions → false
+  - Restarted server to apply change
+- Commits: f993fc6
+- Files Modified:
+  - required-pages/29AEF3F9-206F-4478-B79D-6C3A08307FE7.md (deleted)
+  - /Volumes/hd2/jimstest-wiki/data/page-index.json (live data, not in git)
+
+---
+
+## 2026-02-25-05
+
+- Agent: Claude Sonnet 4.6
+- Subject: Adopt pluginFormatters.ts across all applicable plugins (#283)
+- Key Decision: Extend escapeHtml to accept string|number|boolean|null|undefined; fully refactor ReferringPagesPlugin; replace local escapeHtml in SearchPlugin, RecentChangesPlugin, ConfigAccessorPlugin, IndexPlugin
+- Current Issue: Closes #283
+- Testing:
+  - npm test: 67 suites passed, 1726 tests passed
+- Work Done:
+  - Updated `src/utils/pluginFormatters.ts`: escapeHtml now accepts primitives and null/undefined
+  - Refactored `plugins/referringPagesPlugin.ts`: uses parseMaxParam, applyMax, formatAsList, formatAsCount; added format= param (show= backward compat)
+  - Replaced local escapeHtml with shared import in: SearchPlugin, RecentChangesPlugin, ConfigAccessorPlugin, IndexPlugin
+  - Net: ~176 lines of duplicated code removed across 5 plugins
+- Commits: 966dfb4
+- Files Modified:
+  - src/utils/pluginFormatters.ts
+  - plugins/referringPagesPlugin.ts
+  - plugins/SearchPlugin.ts
+  - plugins/RecentChangesPlugin.ts
+  - plugins/ConfigAccessorPlugin.ts
+  - plugins/IndexPlugin.ts
+
+---
+
 ## 2026-02-25-04
 
 - Agent: Claude Sonnet 4.6
