@@ -60,18 +60,19 @@ Shows each undefined page alongside the number of pages that currently link to i
 | --- | --- | --- | --- | --- |
 | max | integer | 0 (unlimited) | No | Maximum number of results to display. `count` format always returns the total regardless of `max`. |
 | format | string | `list` | No | Output format: `list`, `count`, or `table` |
-| before | string | — | No | Text/markup before each item (`list` format only) |
-| after | string | — | No | Text/markup after each item (`list` format only) |
+| before | string | — | No | Text/markup before each item (`list` format only, ignored when `showReferring='true'`) |
+| after | string | — | No | Text/markup after each item (`list` format only, ignored when `showReferring='true'`) |
 | include | regex | — | No | Only include undefined pages matching this pattern |
 | exclude | regex | — | No | Exclude undefined pages matching this pattern |
+| showReferring | boolean | `false` | No | Expand referring page info. `list`: nested `<ul class="referring-pages">` per item. `table`: page links instead of count in Referenced By column. No effect on `count` format. |
 
 ## Output Formats
 
-| Format | Description |
-| --- | --- |
-| `list` | `<ul>` of create links styled as red links (default) |
-| `count` | Plain number — total undefined pages (ignores `max`) |
-| `table` | Two-column table: Undefined Page \| Referenced By |
+| Format | `showReferring='false'` (default) | `showReferring='true'` |
+| --- | --- | --- |
+| `list` | `<ul>` of red create-links | Same `<ul>`, each `<li>` has a nested `<ul class="referring-pages">` |
+| `count` | Plain integer total (ignores `max`) | Unchanged — `showReferring` has no effect |
+| `table` | Two columns: Undefined Page \| count | Two columns: Undefined Page \| comma-separated page links |
 
 ## Examples
 
@@ -123,6 +124,42 @@ Only shows undefined pages whose titles start with "Project".
 [{UndefinedPagesPlugin before='* ' after='\n'}]
 ```
 
+### Example 8: List with Referring Pages Expanded
+
+```wiki
+[{UndefinedPagesPlugin showReferring='true'}]
+```
+
+Each `<li>` contains the red create-link followed by a nested `<ul class="referring-pages">` of the existing pages that link to it. Equivalent to running `[{ReferringPagesPlugin page='X'}]` inline for every undefined page X.
+
+```html
+<ul>
+  <li><a class="redlink" href="/edit/MissingPage" ...>MissingPage</a>
+    <ul class="referring-pages">
+      <li><a class="wikipage" href="/wiki/PageA">PageA</a></li>
+      <li><a class="wikipage" href="/wiki/PageB">PageB</a></li>
+    </ul>
+  </li>
+  ...
+</ul>
+```
+
+### Example 9: Table with Referring Pages Expanded
+
+```wiki
+[{UndefinedPagesPlugin format='table' showReferring='true'}]
+```
+
+The **Referenced By** column shows comma-separated `<a class="wikipage">` links instead of an integer count. Pages with no referrers still show `0`.
+
+### Example 10: Filtered Audit — Project Pages Only
+
+```wiki
+[{UndefinedPagesPlugin include='^Project.*' showReferring='true'}]
+```
+
+Scoped audit: only undefined pages in the "Project" namespace, with full referrer detail.
+
 ## Technical Implementation
 
 ### Data Source
@@ -166,6 +203,7 @@ Output is generated via `src/utils/pluginFormatters.ts`:
 | `include`/`exclude` filters | No | Yes | amdWiki extension |
 | `format='table'` | No | Yes | amdWiki extension |
 | `before`/`after` | No | Yes | amdWiki extension |
+| `showReferring` | No | Yes | amdWiki extension |
 
 ## Error Handling
 
@@ -181,6 +219,8 @@ Output is generated via `src/utils/pluginFormatters.ts`:
 | --- | --- | --- |
 | `redlink` | `<a>` | Marks the link as a create (red) link |
 | `plugin-table` | `<table>` | Table wrapper (from `formatAsTable`) |
+| `wikipage` | `<a>` | Applied to referring page links when `showReferring='true'` |
+| `referring-pages` | `<ul>` | Nested list of referring pages in `list` format with `showReferring='true'` |
 
 ## Related Plugins
 
@@ -198,4 +238,5 @@ Output is generated via `src/utils/pluginFormatters.ts`:
 
 | Version | Date | Changes |
 | --- | --- | --- |
+| 1.1.0 | 2026-02-25 | Add `showReferring` parameter — inline referring page expansion for list and table formats |
 | 1.0.0 | 2026-02-25 | Initial implementation — list, count, table formats; include/exclude filters |

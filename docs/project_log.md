@@ -24,6 +24,24 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-25-07
+
+- Agent: Claude Sonnet 4.6
+- Subject: Add showReferring parameter to UndefinedPagesPlugin (#286)
+- Key Decision: Logic stays in the plugin (not pluginFormatters.ts) — showReferring is domain-specific to undefined-page auditing, not a generic formatting primitive. Essentially a batch ReferringPagesPlugin applied to all undefined pages at once.
+- Current Issue: n/a
+- Testing: n/a
+- Work Done:
+  - `plugins/UndefinedPagesPlugin.ts` v1.1.0 — new `showReferring='true'` param: list format gets nested `<ul class="referring-pages">` per item; table format expands Referenced By column from count to comma-separated `<a class="wikipage">` links
+  - `docs/plugins/UndefinedPagesPlugin.md` — updated parameters table, output formats matrix, CSS classes, JSPWiki compat table, version history, examples 8–10
+  - `required-pages/a433c5a4-905a-448a-a0d3-dc063163d6f6.md` — added showReferring to parameter table, new examples section, updated Output Formats note
+- Files Modified:
+  - plugins/UndefinedPagesPlugin.ts
+  - docs/plugins/UndefinedPagesPlugin.md
+  - required-pages/a433c5a4-905a-448a-a0d3-dc063163d6f6.md
+
+---
+
 ## 2026-02-25-06
 
 - Agent: Claude Sonnet 4.6

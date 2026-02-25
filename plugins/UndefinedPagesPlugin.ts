@@ -12,12 +12,13 @@
  *   [{UndefinedPagesPlugin include='pattern' exclude='pattern'}]
  *
  * Parameters:
- *   max     - Maximum number of results (default: 0 = unlimited)
- *   format  - Output format: 'list' (default), 'count', 'table'
- *   before  - Text/markup before each item (list format only)
- *   after   - Text/markup after each item (list format only)
- *   include - Regex: only include pages matching this pattern
- *   exclude - Regex: exclude pages matching this pattern
+ *   max           - Maximum number of results (default: 0 = unlimited)
+ *   format        - Output format: 'list' (default), 'count', 'table'
+ *   before        - Text/markup before each item (list format only)
+ *   after         - Text/markup after each item (list format only)
+ *   include       - Regex: only include pages matching this pattern
+ *   exclude       - Regex: exclude pages matching this pattern
+ *   showReferring - 'true' to expand referring pages (list: nested sub-list; table: links instead of count)
  *
  * JSPWiki reference:
  *   https://jspwiki-wiki.apache.org/Wiki.jsp?page=UndefinedPagesPlugin
@@ -35,12 +36,13 @@ import {
 } from '../src/utils/pluginFormatters';
 
 interface UndefinedPagesParams extends PluginParams {
-  max?:     string | number;
-  format?:  string;
-  before?:  string;
-  after?:   string;
-  include?: string;
-  exclude?: string;
+  max?:           string | number;
+  format?:        string;
+  before?:        string;
+  after?:         string;
+  include?:       string;
+  exclude?:       string;
+  showReferring?: string;
 }
 
 interface PageManager {
@@ -53,7 +55,7 @@ const UndefinedPagesPlugin: SimplePlugin = {
   name: 'UndefinedPagesPlugin',
   description: 'Lists pages that are linked to (RED-LINKs) but do not exist',
   author: 'amdWiki',
-  version: '1.0.0',
+  version: '1.1.0',
 
   async execute(context: PluginContext, params: PluginParams): Promise<string> {
     const opts = (params ?? {}) as UndefinedPagesParams;
@@ -97,7 +99,8 @@ const UndefinedPagesPlugin: SimplePlugin = {
       // Always sort alphabetically
       undefinedPages.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
 
-      const format = String(opts.format ?? 'list').toLowerCase();
+      const format        = String(opts.format ?? 'list').toLowerCase();
+      const showReferring = String(opts.showReferring ?? 'false').toLowerCase() === 'true';
 
       // count: return total before applying max (matches JSPWiki behaviour)
       if (format === 'count') {
@@ -123,14 +126,35 @@ const UndefinedPagesPlugin: SimplePlugin = {
 
       if (format === 'table') {
         const rows = links.map(link => {
-          const referrerCount = (linkGraph[link.text] ?? []).length;
-          const anchor = `<a class="${link.cssClass}" href="${link.href}" style="${link.style ?? ''}" title="${escapeHtml(link.title ?? '')}">${escapeHtml(link.text)}</a>`;
-          return [anchor, String(referrerCount)];
+          const referrers = linkGraph[link.text] ?? [];
+          const anchor    = `<a class="${link.cssClass}" href="${link.href}" style="${link.style ?? ''}" title="${escapeHtml(link.title ?? '')}">${escapeHtml(link.text)}</a>`;
+          if (showReferring && referrers.length > 0) {
+            const referrerLinks = referrers
+              .map(r => `<a class="wikipage" href="/wiki/${encodeURIComponent(r)}">${escapeHtml(r)}</a>`)
+              .join(', ');
+            return [anchor, referrerLinks];
+          }
+          return [anchor, String(referrers.length)];
         });
         return formatAsTable(['Undefined Page', 'Referenced By'], rows);
       }
 
       // Default: list format
+      // showReferring adds a nested <ul> of referring pages beneath each item
+      if (showReferring) {
+        const items = limited.map(page => {
+          const link      = links.find(l => l.text === page)!;
+          const referrers = linkGraph[page] ?? [];
+          const anchor    = `<a class="${link.cssClass}" href="${link.href}" style="${link.style ?? ''}" title="${escapeHtml(link.title ?? '')}">${escapeHtml(link.text)}</a>`;
+          if (referrers.length === 0) return `<li>${anchor}</li>`;
+          const subItems = referrers
+            .map(r => `<li><a class="wikipage" href="/wiki/${encodeURIComponent(r)}">${escapeHtml(r)}</a></li>`)
+            .join('\n');
+          return `<li>${anchor}\n<ul class="referring-pages">\n${subItems}\n</ul>\n</li>`;
+        }).join('\n');
+        return `<ul>\n${items}\n</ul>`;
+      }
+
       return formatAsList(links, {
         before: opts.before ? String(opts.before) : '',
         after:  opts.after  ? String(opts.after)  : ''
