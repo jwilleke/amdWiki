@@ -806,6 +806,27 @@ class DOMLinkHandler {
       await this.loadPageNames();
     }
   }
+
+  /**
+   * Add a single page name to the known pages set (incremental update on page create/rename).
+   * Avoids the full getAllPages() reload cost of refreshPageNames().
+   * @param {string} pageName - Page name to add
+   */
+  addPageName(pageName: string): void {
+    this.pageNames.add(pageName);
+    if (this.linkParser) {
+      this.linkParser.addPageName(pageName);
+    }
+  }
+
+  /**
+   * Remove a single page name from the known pages set (incremental update on page delete/rename).
+   * @param {string} pageName - Page name to remove
+   */
+  removePageName(pageName: string): void {
+    this.pageNames.delete(pageName);
+    // LinkParser has no targeted remove; stale entry is harmless until next refreshPageNames()
+  }
 }
 
 export default DOMLinkHandler;

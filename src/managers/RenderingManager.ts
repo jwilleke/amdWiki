@@ -1288,6 +1288,11 @@ class RenderingManager extends BaseManager {
     if (!this.cachedPageNames.includes(pageName)) {
       this.cachedPageNames.push(pageName);
     }
+    // Keep DOMLinkHandler in sync so RED-LINKs resolve immediately on next render
+    const markupParser = this.engine.getManager<MarkupParser>('MarkupParser');
+    if (markupParser?.domLinkHandler) {
+      markupParser.domLinkHandler.addPageName(pageName);
+    }
   }
 
   /**
@@ -1313,6 +1318,12 @@ class RenderingManager extends BaseManager {
       if (index !== -1) {
         this.cachedPageNames.splice(index, 1);
       }
+    }
+
+    // Keep DOMLinkHandler in sync so old title shows as RED-LINK immediately on next render
+    const markupParser = this.engine.getManager<MarkupParser>('MarkupParser');
+    if (markupParser?.domLinkHandler) {
+      markupParser.domLinkHandler.removePageName(pageName);
     }
 
     logger.debug(`[RenderingManager] Removed page from link graph: ${pageName}`);
