@@ -160,6 +160,8 @@ class RenderingManager extends BaseManager {
     this.converter = new showdown.Converter({
       tables: true,
       strikethrough: true,
+      subscript: true,   // H~2~O → H<sub>2</sub>O
+      superscript: true, // X^2^ → X<sup>2</sup>
       tasklists: true,
       simpleLineBreaks: true,
       openLinksInNewWindow: false,
