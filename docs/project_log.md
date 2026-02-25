@@ -24,6 +24,122 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-25-04
+
+- Agent: Claude Sonnet 4.6
+- Subject: Add UndefinedPagesPlugin documentation (#205)
+
+- Work Done:
+  - docs/plugins/UndefinedPagesPlugin.md — developer reference: parameters,
+    formats, JSPWiki compatibility table, CSS classes, shared formatter usage,
+    implementation details, error handling
+  - required-pages/a433c5a4-905a-448a-a0d3-dc063163d6f6.md — end-user wiki page
+    (system-category: documentation) with syntax, examples for all formats,
+    parameter table, See Also links, ReferringPagesPlugin footer
+  - Wiki Documentation required-page updated to list UndefinedPagesPlugin
+  - UndefinedPagesPlugin added to page-index.json (location: required-pages)
+
+- Commits:
+  - 8299361 - docs: add UndefinedPagesPlugin documentation (#205)
+
+- Files Modified:
+  - docs/plugins/UndefinedPagesPlugin.md (new)
+  - required-pages/a433c5a4-905a-448a-a0d3-dc063163d6f6.md (new)
+  - required-pages/4c0c0fa8-66dc-4cb3-9726-b007f874700c.md (Wiki Documentation updated)
+
+---
+
+## 2026-02-25-03
+
+- Agent: Claude Sonnet 4.6
+- Subject: Add UndefinedPagesPlugin and shared pluginFormatters utility (#205, #238)
+
+- Work Done:
+  - Implemented UndefinedPagesPlugin — lists all RED-LINK pages (referenced in
+    link graph but not existing in wiki), each rendered as a create link (/edit/)
+    styled as a red link, consistent with inline RED-LINK rendering
+  - Parameters: max, format (list/count/table), before, after, include, exclude
+  - count format returns total before applying max (matches JSPWiki behaviour)
+  - table format shows page name + "Referenced By" count columns
+  - Created src/utils/pluginFormatters.ts (#238 Code Consolidation) with
+    shared helpers: parseMaxParam, applyMax, formatAsList, formatAsCount,
+    formatAsTable, escapeHtml — establishes standard pattern for all plugins
+
+- Issues Closed:
+  - #205 - [FEATURE] UndefinedPagesPlugin
+  - #238 partially addressed - pluginFormatters.ts foundation created
+
+- Commits:
+  - b35cdd3 - feat: add UndefinedPagesPlugin and shared pluginFormatters utility (#205, #238)
+
+- Files Modified:
+  - plugins/UndefinedPagesPlugin.ts (new)
+  - src/utils/pluginFormatters.ts (new)
+
+- Testing Results:
+  - All tests pass (1726 passed, 303 skipped)
+  - Build successful
+  - Server restart verified
+
+---
+
+## 2026-02-25-02
+
+- Agent: Claude Sonnet 4.6
+- Subject: Fix RED-LINK persistence after page create/rename (#268)
+
+- Root Cause:
+  - Two separate page-name caches existed for RED-LINK detection:
+    1. `RenderingManager.cachedPageNames` — updated incrementally on save ✅
+    2. `DOMLinkHandler.pageNames` (Set) — loaded only at startup, never updated ❌
+  - The primary rendering path (MarkupParser → DOMLinkHandler) used the stale Set,
+    so links stayed red after page create/rename until server restart
+
+- Fix:
+  - Added `addPageName(name)` and `removePageName(name)` to DOMLinkHandler
+  - `RenderingManager.addPageToCache()` now also calls `domLinkHandler.addPageName()`
+  - `RenderingManager.removePageFromLinkGraph()` now also calls `domLinkHandler.removePageName()`
+  - RED-LINKs resolve immediately on page create and rename
+
+- Issues Closed:
+  - #268 - [BUG] Renames and Referring Pages
+
+- Commits:
+  - 62a34b2 - fix: sync DOMLinkHandler page names on create/rename to resolve RED-LINKs (#268)
+
+- Files Modified:
+  - src/parsers/dom/handlers/DOMLinkHandler.ts - added addPageName(), removePageName()
+  - src/managers/RenderingManager.ts - call DOMLinkHandler on addPageToCache/removePageFromLinkGraph
+
+- Testing Results:
+  - All tests pass (1726 passed, 303 skipped)
+  - Build successful
+  - Server restart verified
+
+---
+
+## 2026-02-25-01
+
+- Agent: Claude Sonnet 4.6
+- Subject: Restore missing wiki pages from backup after pages folder move
+
+- Work Done:
+  - Investigated missing pages reported after 2026-02-24 NAS-to-hd2A pages folder move
+  - Compared backup `2026-02-16T15-03-57-593Z-amdwiki-backup-2.json.gz` (14,352 pages) against current wiki (16,521 pages)
+  - Found 119 missing UUIDs; filtered to 3 genuinely missing content pages (rest were LocationTest E2E artifacts and intentionally-removed old-UUID required pages)
+  - Restored `Language` (e9e305b4-170f-440a-875b-7a50837767ca) — confirmed missing from current instance
+  - `Wuhan Institute of Virology` — found to already exist under new UUID (457cd98e), no action needed
+  - Restored `'Reliance on Cloud '` (a3845744-58b6-44be-9e3e-df74aab14838) — more complete copy of two duplicate backup entries
+  - Added both restored pages to page-index.json and restarted server
+  - Confirmed no further genuinely missing pages after restoration
+
+- Files Modified:
+  - /Volumes/hd2A/jimstest-wiki/data/pages/e9e305b4-170f-440a-875b-7a50837767ca.md (restored)
+  - /Volumes/hd2A/jimstest-wiki/data/pages/a3845744-58b6-44be-9e3e-df74aab14838.md (restored)
+  - /Volumes/hd2/jimstest-wiki/data/page-index.json (updated, now 16,523 pages)
+
+---
+
 ## 2026-02-24-04
 
 - Agent: Claude Sonnet 4.6
