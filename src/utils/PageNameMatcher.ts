@@ -30,15 +30,25 @@ export default class PageNameMatcher {
    * Build an index from page names for fast O(1) lookups
    * Call this once with all page names before doing many findMatch calls
    *
+   * Uses two passes so that exact page names always take priority over
+   * plural/singular variants. Without this, "Plugin" would register "plugins"
+   * as a variation and steal the index entry from the real "Plugins" page.
+   *
    * @param pageNames - Array of all existing page names
    */
   buildIndex(pageNames: string[]): void {
     this.variationIndex = new Map();
 
+    // First pass: register every exact (normalized) page name.
+    // These entries must never be overwritten by a variation from another page.
+    for (const pageName of pageNames) {
+      this.variationIndex.set(this.normalize(pageName), pageName);
+    }
+
+    // Second pass: add plural/case variations — only if the slot is still free.
     for (const pageName of pageNames) {
       const variations = this.getVariations(pageName);
       for (const variation of variations) {
-        // First page wins if there are conflicts
         if (!this.variationIndex.has(variation)) {
           this.variationIndex.set(variation, pageName);
         }

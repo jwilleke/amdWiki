@@ -5,11 +5,7 @@ user-keywords: {{userKeywords}}
 ---
 # Overview
 
-[{$pagename}] is...
-
-## Content
-
-Add your content here.
+[{$pagename}]
 
 ## More Information
 
