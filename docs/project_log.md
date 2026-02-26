@@ -24,6 +24,29 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-26-09
+
+- Agent: Claude Sonnet 4.6
+- Subject: Fix external URLs and markdown link bracket text polluting link graph (#294); close #287
+- Current Issue: #294
+- Testing:
+  - 1783/1783 unit tests passed (4 new regression tests added)
+- Work Done:
+  - Root cause: two bugs in RenderingManager.buildLinkGraph() and updatePageInLinkGraph():
+    1. linkRegex added ALL [text](url) targets to link graph including external https:// URLs
+    2. simpleLinkRegex matched [text] bracket from markdown links [text](url) as wiki links
+  - Fix 1: skip linkRegex entries containing '://' or starting with '/'
+  - Fix 2: add (?!\() negative lookahead to simpleLinkRegex to exclude markdown link brackets
+  - Both buildLinkGraph() and updatePageInLinkGraph() patched identically
+  - Closed issue #287 (already fixed in f959603 — task-list checkbox blank-target guard)
+  - SEMVER 1.5.14 → 1.5.15
+- Commits: 13bd25b
+- Files Modified:
+  - src/managers/RenderingManager.ts
+  - src/managers/__tests__/RenderingManager.test.js
+
+---
+
 ## 2026-02-26-08
 
 - Agent: Claude Sonnet 4.6
