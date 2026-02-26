@@ -561,6 +561,52 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
 
         expect(response.status).toBe(403);
       });
+
+      test('should return 409 when rename target title is already in use (#280)', async () => {
+        mockUserManager.getCurrentUser.mockResolvedValue(createUserContext());
+        mockUserManager.hasPermission.mockReturnValue(true);
+        mockPageManager.getPage.mockResolvedValue({
+          content: '# Old Title',
+          metadata: { title: 'OldTitle', 'system-category': 'general', uuid: 'uuid-old' }
+        });
+        // Provider throws when the new title is already taken by another page
+        mockPageManager.savePageWithContext.mockRejectedValueOnce(
+          new Error('Title "Existing Title" is already in use by page uuid-other')
+        );
+
+        const response = await request(app)
+          .post('/save/OldTitle')
+          .send({
+            content: '# Existing Title',
+            title: 'Existing Title',
+            'system-category': 'general',
+            _csrf: 'test-csrf-token'
+          });
+
+        expect(response.status).toBe(409);
+      });
+
+      test('should return 409 when UUID is already assigned to another page (#280)', async () => {
+        mockUserManager.getCurrentUser.mockResolvedValue(createUserContext());
+        mockUserManager.hasPermission.mockReturnValue(true);
+        mockPageManager.getPage.mockResolvedValue({
+          content: '# Page A',
+          metadata: { title: 'PageA', 'system-category': 'general', uuid: 'shared-uuid' }
+        });
+        mockPageManager.savePageWithContext.mockRejectedValueOnce(
+          new Error('UUID "shared-uuid" is already assigned to page "PageB"')
+        );
+
+        const response = await request(app)
+          .post('/save/PageA')
+          .send({
+            content: '# Page A',
+            'system-category': 'general',
+            _csrf: 'test-csrf-token'
+          });
+
+        expect(response.status).toBe(409);
+      });
     });
 
     describe('GET /create', () => {
@@ -598,6 +644,37 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
           });
 
         expect(response.status).toBe(302);
+      });
+
+      test('should return 409 when page with same name already exists (#280)', async () => {
+        mockUserManager.getCurrentUser.mockResolvedValue(createUserContext());
+        mockUserManager.hasPermission.mockReturnValue(true);
+        // getPage returns an existing page for the requested name
+        mockPageManager.getPage.mockImplementation((pageName) => {
+          if (pageName === 'Markdown Cheat Sheet') {
+            return Promise.resolve({
+              content: '# Markdown Cheat Sheet',
+              metadata: {
+                title: 'Markdown Cheat Sheet',
+                uuid: '0ba6544e-ec5e-4e25-9c58-5d32a4e3d695',
+                slug: 'markdown-cheat-sheet',
+                'system-category': 'general'
+              }
+            });
+          }
+          return Promise.resolve(null);
+        });
+
+        const response = await request(app)
+          .post('/create')
+          .send({
+            pageName: 'Markdown Cheat Sheet',
+            templateName: 'basic',
+            categories: ['general'],
+            _csrf: 'test-csrf-token'
+          });
+
+        expect(response.status).toBe(409);
       });
     });
 
