@@ -430,6 +430,17 @@ class PageManager extends BaseManager {
   }
 
   /**
+   * Flush any pending write queues in the provider (e.g. page-index writes).
+   * Call before process exit to prevent data loss on unclean shutdown.
+   */
+  async flushWriteQueue(): Promise<void> {
+    const provider = this.provider as { flushWriteQueue?: () => Promise<void> } | null;
+    if (provider?.flushWriteQueue) {
+      await provider.flushWriteQueue();
+    }
+  }
+
+  /**
    * Shutdown the PageManager and its provider
    *
    * Cleanly shuts down the provider, closing connections and flushing caches.

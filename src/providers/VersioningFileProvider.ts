@@ -447,6 +447,55 @@ class VersioningFileProvider extends FileSystemProvider {
       }
     }
 
+    // Recovery scan: find UUID.md files in pagesDirectory that are missing from the index.
+    // This happens when the server was killed before pending page-index writes completed.
+    if (this.pagesDirectory && await fs.pathExists(this.pagesDirectory)) {
+      try {
+        const dirFiles = await fs.readdir(this.pagesDirectory);
+        const missingFiles = dirFiles.filter((f: string) => {
+          if (!f.toLowerCase().endsWith('.md')) return false;
+          const uuid = f.slice(0, -3);
+          return uuidPattern.test(uuid) && !this.uuidIndex.has(uuid);
+        });
+
+        if (missingFiles.length > 0) {
+          logger.warn(`[VersioningFileProvider] Found ${missingFiles.length} page(s) on disk missing from index — recovering (likely from unclean shutdown)`);
+          let recoveredCount = 0;
+          for (const filename of missingFiles) {
+            const filePath = path.join(this.pagesDirectory, filename);
+            try {
+              const fileContent = await fs.readFile(filePath, this.encoding || 'utf-8');
+              const parsed = matter(fileContent);
+              const title = parsed.data?.title ? String(parsed.data.title) : '';
+              if (!title) continue;
+              if (this.titleIndex.has(title.toLowerCase())) continue;
+              const uuid = path.basename(filename, '.md');
+              const slug = parsed.data?.slug ? String(parsed.data.slug) : undefined;
+              const pageInfo: PageCacheInfo = {
+                title,
+                uuid,
+                filePath,
+                metadata: { title, uuid, ...parsed.data } as PageFrontmatter
+              };
+              this.pageCache.set(title, pageInfo);
+              this.titleIndex.set(title.toLowerCase(), title);
+              this.uuidIndex.set(uuid, title);
+              if (slug) this.slugIndex.set(slug.toLowerCase(), title);
+              loadedCount++;
+              recoveredCount++;
+            } catch {
+              // skip unreadable files
+            }
+          }
+          if (recoveredCount > 0) {
+            logger.warn(`[VersioningFileProvider] Recovered ${recoveredCount} page(s) into cache. Page index will be updated on next save, or run Admin → Reindex.`);
+          }
+        }
+      } catch (err) {
+        logger.warn('[VersioningFileProvider] Failed to scan pagesDirectory for missing pages:', err);
+      }
+    }
+
     const elapsed = Date.now() - startTime;
     logger.info(`[VersioningFileProvider] Fast init complete: ${loadedCount} pages in ${elapsed}ms (${skippedCount} legacy pages deferred to background scan)`);
 
@@ -594,6 +643,13 @@ class VersioningFileProvider extends FileSystemProvider {
       pages: {}
     };
     return this.savePageIndex();
+  }
+
+  /**
+   * Await any pending page-index writes. Call before process exit to prevent data loss.
+   */
+  async flushWriteQueue(): Promise<void> {
+    await this.pageIndexWriteQueue;
   }
 
   /**

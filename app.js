@@ -59,7 +59,17 @@ function checkAndCreatePidLock() {
 
     process.on('exit', cleanup);
     process.on('SIGINT', () => { cleanup(); process.exit(0); });
-    process.on('SIGTERM', () => { cleanup(); process.exit(0); });
+    process.on('SIGTERM', async () => {
+      // Flush any pending page-index writes before exiting so we don't lose pages
+      try {
+        const pageManager = engineRef && engineRef.getManager ? engineRef.getManager('PageManager') : null;
+        if (pageManager && pageManager.flushWriteQueue) {
+          await pageManager.flushWriteQueue();
+        }
+      } catch (e) { /* ignore flush errors during shutdown */ }
+      cleanup();
+      process.exit(0);
+    });
     process.on('uncaughtException', (err) => {
       console.error('Uncaught Exception:', err);
       cleanup();
@@ -71,6 +81,9 @@ function checkAndCreatePidLock() {
     process.exit(1);
   }
 }
+
+// Mutable reference populated once the engine is ready — used by the SIGTERM handler
+let engineRef = null;
 
 // Check for existing instance before starting
 checkAndCreatePidLock();
@@ -122,6 +135,7 @@ checkAndCreatePidLock();
     console.log('🚀 Initializing amdWiki Engine...');
     engine = new WikiEngine();
     await engine.initialize();
+    engineRef = engine; // expose to graceful-shutdown SIGTERM handler
     console.log('✅ amdWiki Engine initialized successfully.');
   } catch (error) {
     console.error('🔥🔥🔥 FATAL: Failed to initialize amdWiki Engine.');
