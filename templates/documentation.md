@@ -1,9 +1,11 @@
 ---
 uuid: {{uuid}}
-category: Wiki Documentation (Documentation and Hints for this Wiki)
+system-category: documentation
 user-keywords: []
 ---
 # Overview
+
+{{pageName}} describes pages related to...
 
 [{$pagename}] describes...
 

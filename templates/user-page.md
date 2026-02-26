@@ -1,11 +1,11 @@
 ---
 uuid: {{uuid}}
-category: User Pages
+category: default
 user-keywords: {{userKeywords}}
 ---
-# {{displayName}}
+# Overview
 
-Welcome to {{displayName}}'s personal wiki page!
+[{$pagename}]
 
 ## About Me
 
