@@ -24,6 +24,31 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-26-14
+
+- Agent: Claude Sonnet 4.6
+- Subject: Add route-level 409 tests for duplicate page title/uuid (#280)
+
+- Work Done:
+  - Confirmed full duplicate-prevention chain already in place end-to-end
+  - FileSystemProvider throws on duplicate title/uuid at save time
+  - WikiRoutes catches "is already in use" / "is already assigned" → 409
+  - Added missing route-level 409 tests (none existed in routes.test.js)
+  - Used mockRejectedValueOnce (not mockRejectedValue) to prevent mock bleed between tests
+
+- Files Modified:
+  - src/routes/__tests__/routes.test.js - 3 new 409 tests for duplicate page scenarios
+
+- Issues Closed:
+  - #280 - [BUG] More than one page with same name?
+
+- Commits:
+  - 9e5caab - test: add 409 route-level tests for duplicate page title/uuid (#280)
+
+- Testing Results:
+  - All tests pass (1786 passed, +3 new)
+  - Build already current
+
 ## 2026-02-26-13
 
 - Agent: Claude Sonnet 4.6
