@@ -4472,14 +4472,26 @@ class WikiRoutes {
 
       const synced: string[] = [];
 
-      // Normal sync: copy source UUID file to pages dir
+      /**
+       * Write source content to dest, stripping user-modified so a synced page
+       * immediately shows as 'current' on the next Required Pages Sync load.
+       */
+      const syncFile = async (srcPath: string, dstPath: string): Promise<void> => {
+        const raw: string = await fse.readFile(srcPath, 'utf8');
+        const parsed = matter(raw) as { data: Record<string, unknown>; content: string };
+        delete parsed.data['user-modified'];
+        const cleaned: string = matter.stringify(parsed.content, parsed.data) as string;
+        await fse.writeFile(dstPath, cleaned, 'utf8');
+      };
+
+      // Normal sync: copy source UUID file to pages dir (stripping user-modified)
       for (const uuid of uuids) {
         const fileName = `${uuid}.md`;
         const sourcePath = path.join(requiredDirResolved, fileName);
         const destPath = path.join(pagesDirResolved, fileName);
 
         if (await fse.pathExists(sourcePath)) {
-          await fse.copy(sourcePath, destPath, { overwrite: true });
+          await syncFile(sourcePath, destPath);
           synced.push(uuid);
         }
       }
@@ -4491,7 +4503,7 @@ class WikiRoutes {
         const oldPath = path.join(pagesDirResolved, `${liveUuid}.md`);
 
         if (await fse.pathExists(sourcePath)) {
-          await fse.copy(sourcePath, canonicalPath, { overwrite: true });
+          await syncFile(sourcePath, canonicalPath);
           if (liveUuid !== sourceUuid && (await fse.pathExists(oldPath))) {
             await fse.remove(oldPath);
           }
