@@ -24,6 +24,25 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-26-10
+
+- Agent: Claude Sonnet 4.6
+- Subject: Remove duplicate "Plugins" required-page; keep "Plugin" as canonical (#284)
+- Current Issue: #284
+- Testing:
+  - No code changes; data-only fix; server restarts cleanly
+- Work Done:
+  - Both "Plugin" (bfcb36e2) and "Plugins" (A054D197) existed as required pages
+  - PageNameMatcher resolved [Plugins] to literal "Plugins" instead of "Plugin" via plural-match
+  - Removed A054D197 from required-pages/, live data/pages/, and page-index.json
+  - pageCount: 16540 → 16539; "Plugin" page and its content preserved unchanged
+- Commits: 2da14b1
+- Files Modified:
+  - required-pages/A054D197-3843-4FFA-BC56-48A48395653A.md (deleted)
+  - package.json (v1.5.15 bump missed from prior commit)
+
+---
+
 ## 2026-02-26-09
 
 - Agent: Claude Sonnet 4.6
