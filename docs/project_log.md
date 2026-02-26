@@ -24,6 +24,24 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-26-06
+
+- Agent: Claude Sonnet 4.6
+- Subject: Extend FAST_STORAGE/SLOW_STORAGE to all storage paths in both config files
+- Current Issue: #278
+- Testing:
+  - Server started clean after rebuild; all paths resolved correctly
+- Work Done:
+  - Updated all remaining ./data/... paths in live app-custom-config.json to use ${FAST_STORAGE} or ${SLOW_STORAGE}
+  - Updated all ./data/... paths in app-default-config.json (15 paths) to use ${FAST_STORAGE} or ${SLOW_STORAGE}
+  - No more hardcoded ./data/ references in either config file
+- Commits: 3a8629c
+- Files Modified:
+  - config/app-default-config.json
+  - /Volumes/hd2/jimstest-wiki/data/config/app-custom-config.json (live instance, not in repo)
+
+---
+
 ## 2026-02-26-05
 
 - Agent: Claude Sonnet 4.6
