@@ -1540,6 +1540,10 @@ class WikiRoutes {
         ? configManager.getProperty('amdwiki.maximum.user-keywords', 5)
         : 5;
 
+      // Default system category — used when the page has no system-category in its metadata
+      const validationManager = this.engine.getManager('ValidationManager');
+      const defaultCategory = validationManager?.getDefaultSystemCategory?.() || 'general';
+
       const attachmentManager = this.engine.getManager('AttachmentManager');
       let pageAttachments: unknown[] = [];
       try {
@@ -1561,6 +1565,7 @@ class WikiRoutes {
         userKeywords: userKeywords,
         selectedUserKeywords: selectedUserKeywords,
         maxUserKeywords: maxUserKeywords,
+        defaultCategory: defaultCategory,
         pageAttachments: pageAttachments,
         csrfToken: req.session.csrfToken
       });

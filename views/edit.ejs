@@ -20,7 +20,7 @@
                         <label style="font-weight:bold;">System Category (Admin Only):</label>
                         <select class="form-control" id="systemCategory" name="system-category" required>
                             <% systemCategories.forEach(category => {
-                                const currentCategory = (metadata['system-category'] || '').toLowerCase();
+                                const currentCategory = (metadata['system-category'] || defaultCategory || '').toLowerCase();
                                 const isSelected = currentCategory === category.toLowerCase();
                             %>
                                 <option value="<%= category %>" <%= isSelected ? 'selected' : '' %>><%= category %></option>
