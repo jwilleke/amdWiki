@@ -24,6 +24,51 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-26-02
+
+- Agent: Claude Sonnet 4.6
+- Subject: Use user-modified flag for Required Pages Sync status (#293)
+- Key Decision: storageLocation from amdwiki.system-category config drives all category protection decisions — replaces every hardcoded ['System', 'System/Admin', 'Documentation'] list. Auto-heal rewrites legacy System/Admin → system on admin page visit.
+- Current Issue: Closes #293
+- Testing:
+  - UndefinedPagesPlugin unit tests: 53 passed
+- Work Done:
+  - `src/routes/WikiRoutes.ts` — add `getRequiredPageCategories()` helper (storageLocation=required); fix `user-modified` flag trigger (required+github storage); add github-page save warning; fix `isRequiredPage()` and `willBeRequired` to use helper; fix `adminRequiredPages` to use `user-modified` flag for status; add `lastModified` mtime fallback; auto-heal `System/Admin` → `system`
+  - `views/view.ejs` — add dismissible warning banner for `?warning=github-page`
+- Commits: 2aa5ad8
+- Files Modified:
+  - src/routes/WikiRoutes.ts
+  - views/view.ejs
+
+---
+
+## 2026-02-26-01
+
+- Agent: Claude Sonnet 4.6
+- Subject: Add sort, pagination to UndefinedPagesPlugin; update docs with rendered examples (#286)
+- Key Decision: `pageSize=`/`page=` pagination and `sort=` are server-side; `?page=N` query string overrides static `page=` param at runtime. `context.query` plumbed through WikiContext → RenderingManager so plugins read URL params. `data-sort` attribute on table cells preserves numeric sort for referrer-link columns.
+- Current Issue: Closes #286
+- Testing:
+  - UndefinedPagesPlugin unit tests: 53 passed
+- Work Done:
+  - `plugins/UndefinedPagesPlugin.ts` — add `sort=`, `pageSize=`, `page=` params; server-side sort (name/count asc/desc); prev/next pagination; table sortable column hints; version → 1.2.0
+  - `src/utils/pluginFormatters.ts` — add `parseSortParam`, `parsePageParam`, `parsePageSizeParam`, `applyPagination`, `formatPaginationLinks`, `TableOptions.cellDataSort`/`defaultSortColumn`/`defaultSortOrder`
+  - `src/context/WikiContext.ts` — add `query` field to `RequestInfo`; populate from `request.query`
+  - `src/managers/RenderingManager.ts` — pass `requestInfo.query` into plugin context via `expandMacros`
+  - `plugins/__tests__/UndefinedPagesPlugin.test.js` — 53 unit tests (sort, pagination, count independence, table data-sort)
+  - `docs/plugins/UndefinedPagesPlugin.md` — 14 examples updated with fully-rendered HTML output (realistic page names, redlink/wikipage anchors, table/pagination HTML)
+- Commits: d20e7ae
+- Files Modified:
+  - plugins/UndefinedPagesPlugin.ts
+  - src/utils/pluginFormatters.ts
+  - src/context/WikiContext.ts
+  - src/managers/RenderingManager.ts
+  - plugins/__tests__/UndefinedPagesPlugin.test.js (new)
+  - docs/project_log.md
+  - docs/plugins/UndefinedPagesPlugin.md
+
+---
+
 ## 2026-02-25-09
 
 - Agent: Claude Sonnet 4.6
@@ -298,16 +343,16 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Testing:
   - Not run (adopt UUID still pending; NAS intermittently flaky this session)
 - Work Done:
-  - **Fix 1 — WikiRoutes.ts adopt UUID handler**: Added fallback to check `required-pages/{liveUuid}.md` if not found on NAS. Always removes stale required-pages copy. Calls `provider.renamePageInIndex(liveUuid, sourceUuid)` after adopt to keep page-index.json current.
-  - **Fix 2 — VersioningFileProvider.ts stale UUID check**: Changed `canUseFastInitialization()` from sampling first 10 entries to `entries.some(e => uuidPattern.test(e.uuid))`. Fixes false-positive stale detection due to V8 integer-key sorting.
-  - **Fix 3 — VersioningFileProvider.ts renamePageInIndex()**: New public method to rename page-index.json entries after adopt UUID.
-  - **Fix 4 — VersioningFileProvider.ts fast init metadata-only**: Rewrote `initializeFromIndex()` to build caches from index data without any NAS file reads. Eliminated `loadPageFromIndexEntry()` (was reading all 14K pages from NAS). Result: 14534 pages cached in 13ms (was 20+ min hang).
-  - **Fix 5 — VersioningFileProvider.ts double file read**: `canUseFastInitialization()` now stores parsed index to `this.pageIndex`; `initializeFromIndex()` uses it directly — eliminates second `readFile` of the 3.7MB index which was hanging the startup.
-  - **Fix 6 — VersioningFileProvider.ts slug in index**: Added `slug?: string` to `PageIndexEntry`; `savePage()` now passes slug to `updatePageInIndex()`. Fast init populates `slugIndex` from index without NAS reads.
-  - **Fix 7 — SearchManager.ts background index build**: Changed `buildSearchIndex()` call in `initialize()` from `await` to fire-and-forget (`.catch()` only). Prevents NAS hang during search index rebuild from blocking engine initialization.
+  - __Fix 1 — WikiRoutes.ts adopt UUID handler__: Added fallback to check `required-pages/{liveUuid}.md` if not found on NAS. Always removes stale required-pages copy. Calls `provider.renamePageInIndex(liveUuid, sourceUuid)` after adopt to keep page-index.json current.
+  - __Fix 2 — VersioningFileProvider.ts stale UUID check__: Changed `canUseFastInitialization()` from sampling first 10 entries to `entries.some(e => uuidPattern.test(e.uuid))`. Fixes false-positive stale detection due to V8 integer-key sorting.
+  - __Fix 3 — VersioningFileProvider.ts renamePageInIndex()__: New public method to rename page-index.json entries after adopt UUID.
+  - __Fix 4 — VersioningFileProvider.ts fast init metadata-only__: Rewrote `initializeFromIndex()` to build caches from index data without any NAS file reads. Eliminated `loadPageFromIndexEntry()` (was reading all 14K pages from NAS). Result: 14534 pages cached in 13ms (was 20+ min hang).
+  - __Fix 5 — VersioningFileProvider.ts double file read__: `canUseFastInitialization()` now stores parsed index to `this.pageIndex`; `initializeFromIndex()` uses it directly — eliminates second `readFile` of the 3.7MB index which was hanging the startup.
+  - __Fix 6 — VersioningFileProvider.ts slug in index__: Added `slug?: string` to `PageIndexEntry`; `savePage()` now passes slug to `updatePageInIndex()`. Fast init populates `slugIndex` from index without NAS reads.
+  - __Fix 7 — SearchManager.ts background index build__: Changed `buildSearchIndex()` call in `initialize()` from `await` to fire-and-forget (`.catch()` only). Prevents NAS hang during search index rebuild from blocking engine initialization.
   - Result: Server now initializes in ~42–47 seconds (was hanging for 20+ min or never completing).
   - Note: Must use `server.sh start` (not `npx pm2 start` directly) — server.sh sources .env which sets INSTANCE_DATA_FOLDER; bypassing it causes install screen to appear and wrong data paths.
-  - **Fix 8 — VersioningFileProvider.ts required-pages scan in fast init**: After loading index entries, `initializeFromIndex()` now scans the local `required-pages/` directory for `.md` files not already in `uuidIndex`. Reads frontmatter (title, uuid, slug) and adds to all caches. Fixes 404 on Welcome, Footer, and other system pages after fast init was introduced. 61 pages loaded in <1ms (local I/O, not NAS). Log: `Loaded 61 additional required-pages not in index`.
+  - __Fix 8 — VersioningFileProvider.ts required-pages scan in fast init__: After loading index entries, `initializeFromIndex()` now scans the local `required-pages/` directory for `.md` files not already in `uuidIndex`. Reads frontmatter (title, uuid, slug) and adds to all caches. Fixes 404 on Welcome, Footer, and other system pages after fast init was introduced. 61 pages loaded in <1ms (local I/O, not NAS). Log: `Loaded 61 additional required-pages not in index`.
 - Commits: 34b42b8
 - Files Modified:
   - src/routes/WikiRoutes.ts
@@ -498,7 +543,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Remaining 303 skipped: VersioningFileProvider API mismatch, MarkupParser output format mismatches, timing-dependent performance tests, intentional emoji limitation
 - Commits: 19869e6
 - Files Modified:
-  - src/managers/**tests**/RenderingManager.test.js
+  - src/managers/__tests__/RenderingManager.test.js
   - tests/e2e/search.spec.js
   - tests/e2e/pages.spec.js
 
@@ -564,7 +609,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - src/managers/SchemaManager.ts
   - src/managers/ACLManager.ts
   - src/routes/WikiRoutes.ts
-  - src/managers/**tests**/SchemaManager.test.js
+  - src/managers/__tests__/SchemaManager.test.js
 
 ---
 
@@ -585,7 +630,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Commits: 8ebe265
 - Files Modified:
   - src/providers/FileSystemProvider.ts
-  - src/providers/**tests**/FileSystemProvider.test.js
+  - src/providers/__tests__/FileSystemProvider.test.js
   - src/routes/WikiRoutes.ts
 
 ---
@@ -607,7 +652,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Commits: 332eb92
 - Files Modified:
   - src/utils/PageNameMatcher.ts
-  - src/utils/**tests**/PageNameMatcher.test.js
+  - src/utils/__tests__/PageNameMatcher.test.js
   - src/parsers/LinkParser.ts
   - src/providers/FileSystemProvider.ts
   - src/parsers/dom/handlers/DOMLinkHandler.ts
@@ -686,7 +731,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - data/config/app-test-config.json (deleted from git)
   - server.sh
   - src/managers/ConfigurationManager.ts
-  - src/managers/**tests**/ConfigurationManager.test.js
+  - src/managers/__tests__/ConfigurationManager.test.js
   - src/managers/ImportManager.ts
   - src/utils/version.ts
   - docs/INSTALLATION/Startup-Process.md
@@ -735,7 +780,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Commits: 6b5d973
 - Files Modified:
   - src/managers/MetricsManager.ts
-  - src/managers/**tests**/MetricsManager.test.js
+  - src/managers/__tests__/MetricsManager.test.js
   - config/app-default-config.json
   - data/config/app-custom-config.json
   - docs/admin/Telemetry.md
@@ -759,7 +804,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Updated Telemetry.md to document dynamic prefix behavior
 - Files Modified:
   - src/managers/MetricsManager.ts
-  - src/managers/**tests**/MetricsManager.test.js
+  - src/managers/__tests__/MetricsManager.test.js
   - docs/admin/Telemetry.md
   - docs/project_log.md
 
@@ -809,7 +854,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Commits: bb0b11b, 8a51d67
 - Files Modified:
   - src/managers/MetricsManager.ts (new)
-  - src/managers/**tests**/MetricsManager.test.js (new)
+  - src/managers/__tests__/MetricsManager.test.js (new)
   - src/WikiEngine.ts
   - src/routes/WikiRoutes.ts
   - src/providers/LunrSearchProvider.ts
@@ -850,7 +895,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Added chromium-maintenance project to playwright.config.js (runs after all other tests to avoid global state interference)
 - Commits: 73b6bb6
 - Files Modified:
-  - src/providers/**tests**/VersioningFileProvider-WriteQueue.test.js (new)
+  - src/providers/__tests__/VersioningFileProvider-WriteQueue.test.js (new)
   - tests/e2e/admin-maintenance.spec.js (new)
   - tests/e2e/startup-maintenance.spec.js (new)
   - playwright.config.js
@@ -1018,7 +1063,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Files Created:
   - required-pages/e67d5e25-76d4-43fb-bce0-6f7675654f17.md
 - Files Modified:
-  - src/converters/**tests**/JSPWikiConverter.test.js
+  - src/converters/__tests__/JSPWikiConverter.test.js
 
 ## 2026-02-11-02
 
@@ -1114,7 +1159,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Build successful
 - Files Created:
   - plugins/LocationPlugin.ts
-  - plugins/**tests**/LocationPlugin.test.js
+  - plugins/__tests__/LocationPlugin.test.js
   - public/css/plugins/location.css
   - docs/plugins/LocationPlugin.md
   - tests/e2e/location-plugin.spec.js
@@ -1164,8 +1209,8 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - src/routes/WikiRoutes.ts (8 conversions)
   - src/managers/UserManager.ts (2 conversions to pageExists)
   - src/managers/ImportManager.ts (2 conversions)
-  - src/routes/**tests**/WikiRoutes-isRequiredPage.test.js (mock updates)
-  - src/routes/**tests**/routes.test.js (mock updates)
+  - src/routes/__tests__/WikiRoutes-isRequiredPage.test.js (mock updates)
+  - src/routes/__tests__/routes.test.js (mock updates)
 
 ## 2026-02-09-03
 
@@ -1307,7 +1352,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Files Modified:
   - src/providers/LunrSearchProvider.ts
   - src/routes/WikiRoutes.ts
-  - src/routes/**tests**/routes.test.js
+  - src/routes/__tests__/routes.test.js
   - docs/TODO.md
 - Closes: #247
 
@@ -1334,7 +1379,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Files Modified:
   - src/managers/RenderingManager.ts
   - src/routes/WikiRoutes.ts
-  - src/routes/**tests**/routes.test.js
+  - src/routes/__tests__/routes.test.js
   - config/app-default-config.json
 - Closes: #245
 
@@ -1362,7 +1407,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - src/providers/FileSystemProvider.ts
   - src/managers/ImportManager.ts
   - src/routes/WikiRoutes.ts
-  - src/routes/**tests**/routes.test.js
+  - src/routes/__tests__/routes.test.js
   - views/header.ejs
   - views/view.ejs
 - Closes: #246
@@ -1387,7 +1432,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Commits: 070b070
 - Files Modified:
   - src/managers/ConfigurationManager.ts
-  - src/managers/**tests**/ConfigurationManager.test.js
+  - src/managers/__tests__/ConfigurationManager.test.js
 - Closes: #244
 
 ## 2026-02-08-06
@@ -1472,7 +1517,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Commits: ebc9224
 - Files Modified:
   - src/converters/JSPWikiConverter.ts
-  - src/converters/**tests**/JSPWikiConverter.test.js
+  - src/converters/__tests__/JSPWikiConverter.test.js
   - src/parsers/MarkupParser.ts
 - Closes: #235
 
@@ -1518,7 +1563,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Commits: 3aa4b31
 - Files Modified:
   - src/converters/JSPWikiConverter.ts
-  - src/converters/**tests**/JSPWikiConverter.test.js
+  - src/converters/__tests__/JSPWikiConverter.test.js
 
 ## 2026-02-07-01
 
@@ -1539,7 +1584,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Commits: cd176aa
 - Files Modified:
   - src/converters/JSPWikiConverter.ts
-  - src/converters/**tests**/JSPWikiConverter.test.js
+  - src/converters/__tests__/JSPWikiConverter.test.js
 
 ## 2026-02-06-25
 
@@ -1577,7 +1622,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - src/routes/WikiRoutes.ts
   - src/managers/RenderingManager.ts
   - views/create.ejs
-  - src/routes/**tests**/WikiRoutes-buildNewPageMetadata.test.js (new)
+  - src/routes/__tests__/WikiRoutes-buildNewPageMetadata.test.js (new)
   - docs/admin/Versioning-Deployment-Guide.md
   - docs/INSTALLATION/INSTALL-TESTING.md
   - docs/managers/PolicyManager.md
@@ -1610,7 +1655,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Commits: dba49d0, 43e9c30, (pending)
 - Files Modified:
   - plugins/ImagePlugin.ts
-  - plugins/**tests**/ImagePlugin.test.js
+  - plugins/__tests__/ImagePlugin.test.js
   - src/managers/AttachmentManager.ts
   - src/providers/BaseAttachmentProvider.ts
   - src/providers/BasicAttachmentProvider.ts
@@ -1670,9 +1715,9 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - package.json
   - config/app-default-config.json
   - src/converters/JSPWikiConverter.ts
-  - src/converters/**tests**/JSPWikiConverter.test.js
+  - src/converters/__tests__/JSPWikiConverter.test.js
   - src/managers/ImportManager.ts
-  - src/managers/**tests**/ImportManager.test.js
+  - src/managers/__tests__/ImportManager.test.js
   - src/managers/ValidationManager.ts
   - src/parsers/MarkupParser.ts
   - src/parsers/handlers/JSPWikiPreprocessor.ts
@@ -1705,7 +1750,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - package.json
   - config/app-default-config.json
   - src/converters/JSPWikiConverter.ts
-  - src/converters/**tests**/JSPWikiConverter.test.js
+  - src/converters/__tests__/JSPWikiConverter.test.js
   - src/parsers/MarkupParser.ts
   - src/parsers/handlers/JSPWikiPreprocessor.ts
 
@@ -1752,8 +1797,8 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Files Modified:
   - src/managers/ImportManager.ts
   - src/converters/JSPWikiConverter.ts
-  - src/managers/**tests**/ImportManager.test.js
-  - src/converters/**tests**/JSPWikiConverter.test.js
+  - src/managers/__tests__/ImportManager.test.js
+  - src/converters/__tests__/JSPWikiConverter.test.js
   - docs/TODO.md
   - docs/project_log.md
 
@@ -1927,7 +1972,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Commits: 2c853f8
 - Files Modified:
   - src/converters/HtmlConverter.ts (new)
-  - src/converters/**tests**/HtmlConverter.test.js (new)
+  - src/converters/__tests__/HtmlConverter.test.js (new)
   - src/managers/ImportManager.ts
   - src/routes/WikiRoutes.ts
   - views/admin-import.ejs
@@ -2144,7 +2189,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Commits: (see below)
 - Files Modified:
   - src/converters/JSPWikiConverter.ts
-  - src/converters/**tests**/JSPWikiConverter.test.js
+  - src/converters/__tests__/JSPWikiConverter.test.js
 
 ---
 
@@ -2217,7 +2262,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Created `src/converters/IContentConverter.ts` - interface for extensible format converters
   - Created `src/converters/JSPWikiConverter.ts` - converts JSPWiki syntax to Markdown
     - Headings (!!! → #, !! → ##, ! → ###)
-    - Emphasis (**bold** → **bold**, ''italic'' → *italic*)
+    - Emphasis (__bold__ → __bold__, ''italic'' → *italic*)
     - Lists (* → -, # → 1.)
     - Code blocks ({{{ }}} → ``` ```)
     - Links, footnotes, definition lists, horizontal rules
@@ -2259,22 +2304,22 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Build: Successful
   - Server: Restarted and running on port 3000
 - Work Done:
-  - **Issue #220 - Page rename 404 bug**: Fixed slugIndex not being updated in FileSystemProvider.savePage() and deletePage()
-  - **Issue #221 - Log files missing**:
+  - __Issue #220 - Page rename 404 bug__: Fixed slugIndex not being updated in FileSystemProvider.savePage() and deletePage()
+  - __Issue #221 - Log files missing__:
     - Fixed logger.ts default path from `./logs` to `./data/logs`
     - Added `reconfigureLogger()` function for runtime config updates
     - Added reconfigureLogger call in WikiEngine after ConfigurationManager initializes
     - Fixed audit-config.json and docker/.env.example log paths
-  - **Issue #217 - Remove deprecated config property**:
+  - __Issue #217 - Remove deprecated config property__:
     - Removed `'amdwiki.install.completed'` from InstallConfig interface
     - Updated test mocks in FileSystemProvider.test.js and PageManager-Storage.test.js
     - Updated documentation to reference `.install-complete` marker file
-  - **Issue #222 - Broken Search Page**:
+  - __Issue #222 - Broken Search Page__:
     - Fixed template bug: keywords checkbox checked wrong variable (userKeywordsList vs userKeywords)
     - Implemented searchIn field filtering in LunrSearchProvider using Lunr field-specific queries
     - Added searchIn and maxResults to SearchCriteria interface
     - Added 4 new tests for searchIn functionality
-  - **Logger export fixes** (post-test discovery):
+  - __Logger export fixes__ (post-test discovery):
     - Removed manual `module.exports` overwriting TypeScript named exports
     - Added `reconfigureLogger` to Jest mock in jest.setup.js
     - Fixed app.js to use `.default` for CommonJS import of ESM default export
@@ -2287,9 +2332,9 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - src/WikiEngine.ts
   - src/types/Config.ts
   - src/services/InstallService.ts
-  - src/managers/**tests**/PageManager-Storage.test.js
-  - src/managers/**tests**/SearchManager.test.js
-  - src/providers/**tests**/FileSystemProvider.test.js
+  - src/managers/__tests__/PageManager-Storage.test.js
+  - src/managers/__tests__/SearchManager.test.js
+  - src/providers/__tests__/FileSystemProvider.test.js
   - views/search-results.ejs
   - config/audit/audit-config.json
   - docker/.env.example
@@ -2516,11 +2561,11 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - config/app-default-config.json
   - config/app-custom-config.example (renamed from .json.example)
   - src/managers/ConfigurationManager.ts
-  - src/managers/**tests**/ConfigurationManager.test.js
-  - src/managers/**tests**/PageManager-Storage.test.js
+  - src/managers/__tests__/ConfigurationManager.test.js
+  - src/managers/__tests__/PageManager-Storage.test.js
   - src/services/InstallService.ts
   - src/providers/FileSystemProvider.ts
-  - src/providers/**tests**/FileSystemProvider.test.js
+  - src/providers/__tests__/FileSystemProvider.test.js
   - data/config/*.json (moved from config/)
 
 ---
@@ -2633,10 +2678,10 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - src/providers/FileUserProvider.ts
   - src/managers/BackupManager.ts
   - src/managers/NotificationManager.ts
-  - src/managers/**tests**/ConfigurationManager.test.js (new)
-  - src/providers/**tests**/FileSystemProvider.test.js
-  - src/managers/**tests**/NotificationManager.test.js
-  - src/managers/**tests**/PageManager-Storage.test.js
+  - src/managers/__tests__/ConfigurationManager.test.js (new)
+  - src/providers/__tests__/FileSystemProvider.test.js
+  - src/managers/__tests__/NotificationManager.test.js
+  - src/managers/__tests__/PageManager-Storage.test.js
 
 ---
 
@@ -2719,7 +2764,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Commits: b94778e
 - Files Modified:
   - src/managers/AddonsManager.ts (new)
-  - src/managers/**tests**/AddonsManager.test.js (new)
+  - src/managers/__tests__/AddonsManager.test.js (new)
   - src/WikiEngine.ts
   - config/app-default-config.json
   - addons/.gitkeep (new)
@@ -3118,7 +3163,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - src/routes/WikiRoutes.ts
   - src/utils/SchemaGenerator.ts
   - src/utils/VersioningMigration.ts
-  - src/**tests**/UserManager.test.js
+  - src/__tests__/UserManager.test.js
 
 ---
 
@@ -3230,13 +3275,13 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Updated issue #147 (strict mode status)
 - Commits: 893bd6c
 - Files Modified:
-  - plugins/**tests**/AllPlugins.test.js
+  - plugins/__tests__/AllPlugins.test.js
   - src/parsers/MarkupParser.ts
-  - src/parsers/dom/**tests**/DOMParser.test.js
-  - src/parsers/dom/handlers/**tests**/DOMLinkHandler.test.js
-  - src/parsers/dom/handlers/**tests**/DOMPluginHandler.test.js
-  - src/parsers/dom/handlers/**tests**/DOMVariableHandler.test.js
-  - src/parsers/handlers/**tests**/HandlerRegistry.test.js
+  - src/parsers/dom/__tests__/DOMParser.test.js
+  - src/parsers/dom/handlers/__tests__/DOMLinkHandler.test.js
+  - src/parsers/dom/handlers/__tests__/DOMPluginHandler.test.js
+  - src/parsers/dom/handlers/__tests__/DOMVariableHandler.test.js
+  - src/parsers/handlers/__tests__/HandlerRegistry.test.js
 - Related Issues: #180, #204, #147
 
 ---
@@ -3322,7 +3367,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Files Modified:
   - src/managers/PageManager.ts
   - src/types/Provider.ts
-  - src/managers/**tests**/PageManager.test.js
+  - src/managers/__tests__/PageManager.test.js
 - Related Issues: #184, #139
 
 ---
@@ -3939,8 +3984,8 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - app.js
   - plugins/ConfigAccessorPlugin.ts
   - plugins/SessionsPlugin.ts
-  - plugins/**tests**/CounterPlugin.test.js
-  - plugins/**tests**/SessionsPlugin.test.js
+  - plugins/__tests__/CounterPlugin.test.js
+  - plugins/__tests__/SessionsPlugin.test.js
 
 ---
 
@@ -3996,8 +4041,8 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Files Modified:
   - plugins/ConfigAccessorPlugin.ts (complete rewrite)
   - plugins/SessionsPlugin.ts (removed node-fetch)
-  - plugins/**tests**/CounterPlugin.test.js (removed console.warn expectation)
-  - plugins/**tests**/SessionsPlugin.test.js (copy types.ts for imports)
+  - plugins/__tests__/CounterPlugin.test.js (removed console.warn expectation)
+  - plugins/__tests__/SessionsPlugin.test.js (copy types.ts for imports)
   - All other plugin .ts files (ESLint auto-fixes from pre-commit)
   - src/legacy/ (DELETED - 3 files)
 
@@ -4436,7 +4481,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - `6ab57b9` fix: Resolve flaky maintenance-middleware tests causing CI failures
   - `164fd70` fix: Use tsx in CI smoke tests for TypeScript file resolution
 - Files Modified:
-  - src/routes/**tests**/maintenance-middleware.test.js
+  - src/routes/__tests__/maintenance-middleware.test.js
   - .github/workflows/ci.yml
   - .github/workflows/ci-passing-tests.yml
 
@@ -4555,27 +4600,27 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 ## 2025-12-27-14
 
 - Agent: Claude Code (Opus 4.5)
-- Subject: **Phase 6 Documentation & ESLint Cleanup**
+- Subject: __Phase 6 Documentation & ESLint Cleanup__
 - Issues: #147 (closed), #139 (EPIC updated)
 - Key Decision:
-  - **Fixed ESLint errors properly** - No file-level disables, only line-specific where necessary
-  - **TSDoc conventions added** - Documentation standard for TypeScript codebase
-  - **Cross-linked documentation** - CODE_STANDARDS.md ↔ TypeScript-Style-Guide.md
+  - __Fixed ESLint errors properly__ - No file-level disables, only line-specific where necessary
+  - __TSDoc conventions added__ - Documentation standard for TypeScript codebase
+  - __Cross-linked documentation__ - CODE_STANDARDS.md ↔ TypeScript-Style-Guide.md
 - Work Done:
-  - **ESLint Errors Fixed Properly:**
+  - __ESLint Errors Fixed Properly:__
     - CacheManager.ts - fixed unsafe type assertions and removed unnecessary disables
     - DOMBuilder.ts - removed unused imports (LinkedomNode, LinkedomText, LinkedomComment)
     - DOMLinkHandler.ts - removed unused imports, added targeted disables
     - UserManager.ts - prefixed unused interface with underscore
-  - **Documentation Created:**
+  - __Documentation Created:__
     - docs/TypeScript-Style-Guide.md with TSDoc conventions and examples
     - CONTRIBUTING.md updated with TypeScript guidelines section
     - README.md updated with TypeScript commands
-  - **Documentation Cross-Links Added:**
+  - __Documentation Cross-Links Added:__
     - CODE_STANDARDS.md references TypeScript Style Guide for detailed patterns
     - Comments section updated to reference TSDoc
     - TypeScript Style Guide references CODE_STANDARDS.md for general standards
-  - **GitHub Issues Updated:**
+  - __GitHub Issues Updated:__
     - Closed Phase 6 issue #147 with completion comment
     - Updated EPIC #139 with progress
 - Commits: 2493755, 7c3e765, d8949da, 2e4ae3f, 049426b
@@ -4598,51 +4643,51 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 ## 2025-12-27-13
 
 - Agent: Claude Code (Opus 4.5)
-- Subject: **Phase 6 COMPLETE - TypeScript strict mode migration finished**
+- Subject: __Phase 6 COMPLETE - TypeScript strict mode migration finished__
 - Issues: Milestone 4 (Phase 6: Enable strict TypeScript)
 - Key Decision:
-  - **Zero TypeScript errors achieved** - All 224 errors eliminated
-  - **Type safety patterns established** - LinkedomElement types, manager casts, CommonJS compatibility
-  - **Backward compatibility maintained** - All 1,380 tests passing
+  - __Zero TypeScript errors achieved__ - All 224 errors eliminated
+  - __Type safety patterns established__ - LinkedomElement types, manager casts, CommonJS compatibility
+  - __Backward compatibility maintained__ - All 1,380 tests passing
 - Work Done:
-  - **TypeScript Error Reduction: 224 → 0 errors** 🎉
-  - **WikiDocument/DOM Types Enhanced:**
+  - __TypeScript Error Reduction: 224 → 0 errors__ 🎉
+  - __WikiDocument/DOM Types Enhanced:__
     - Added `tagName`, `nodeType`, `remove()` to LinkedomElement interface
     - Added `nodeType` to LinkedomText and LinkedomComment interfaces
     - Exported types for use across codebase
-  - **DOMPluginHandler.ts Fixed (8 errors):**
+  - __DOMPluginHandler.ts Fixed (8 errors):__
     - Converted for...of loops to index-based (LinkedomNodeList compatibility)
     - Changed return type from Element to LinkedomElement
     - Updated filter functions to use LinkedomNode types
-  - **DOMVariableHandler.ts Fixed (3 errors):**
+  - __DOMVariableHandler.ts Fixed (3 errors):__
     - Same for...of loop conversions
     - Return type and import updates
-  - **Manager getManager Calls Fixed (10 files):**
+  - __Manager getManager Calls Fixed (10 files):__
     - ACLManager, PageManager, PolicyEvaluator, PolicyManager, UserManager
     - Changed `getManager<T>()` to `getManager() as T | undefined`
-  - **CacheManager.ts Fixed (3 errors):**
+  - __CacheManager.ts Fixed (3 errors):__
     - Added ICacheAdapter import and cast for RegionCache
     - Fixed CacheStats type compatibility
-  - **DOMParser Token Type Fixed:**
+  - __DOMParser Token Type Fixed:__
     - Added index signature to Tokenizer.Token interface
-  - **HandlerRegistry/MarkupParser Export Fixed:**
+  - __HandlerRegistry/MarkupParser Export Fixed:__
     - Added named export for HandlerRegistry class
-  - **FilterChain.ts Fixed:**
+  - __FilterChain.ts Fixed:__
     - Used `isEnabled()` method instead of protected `enabled` property
-  - **BaseSyntaxHandler.ts Fixed:**
+  - __BaseSyntaxHandler.ts Fixed:__
     - Added `priority` to clone() overrides type
-  - **VersioningFileProvider.ts Fixed:**
+  - __VersioningFileProvider.ts Fixed:__
     - Added `async` to createVersionDirectories()
-  - **ParseContext.ts Fixed:**
+  - __ParseContext.ts Fixed:__
     - Added named export for class
-  - **UserManager Session Types Fixed:**
+  - __UserManager Session Types Fixed:__
     - Updated to use UserSession type from types/User.ts
     - Fixed Provider interface signature
-  - **SchemaGenerator.ts Fixed:**
+  - __SchemaGenerator.ts Fixed:__
     - Added `repository` to SchemaOptions interface
-  - **sessionUtils.ts Fixed:**
+  - __sessionUtils.ts Fixed:__
     - Added engine parameter casts for manager instantiation
-  - **Utility Scripts Fixed (CommonJS compatibility):**
+  - __Utility Scripts Fixed (CommonJS compatibility):__
     - version.ts, standardize-categories.ts
     - Replaced import.meta with require.main === module
     - Added getErrors() getter to CategoryStandardizer
@@ -4662,7 +4707,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - src/types/Provider.ts
   - src/routes/WikiRoutes.ts
   - src/utils/SchemaGenerator.ts, sessionUtils.ts, version.ts, standardize-categories.ts
-- **Next Steps:**
+- __Next Steps:__
   - Phase 6 is complete!
   - Ready to proceed with Phase 7 or other planned work
 
@@ -4674,34 +4719,34 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Subject: Phase 6b - Continue TypeScript strict mode migration
 - Issues: Milestone 4 (Phase 6: Enable strict TypeScript)
 - Key Decision:
-  - **Manager interface consistency** - All managers now extend BaseManager with uniform backup/restore signatures
-  - **Migration approach** - Using `any` type for engine parameter during migration
-  - **ESLint disables** - Added per-file disables for TypeScript-related rules during migration period
+  - __Manager interface consistency__ - All managers now extend BaseManager with uniform backup/restore signatures
+  - __Migration approach__ - Using `any` type for engine parameter during migration
+  - __ESLint disables__ - Added per-file disables for TypeScript-related rules during migration period
 - Work Done:
-  - **TypeScript Error Reduction: 226 → 214 errors**
-  - **BackupManager Refactoring:**
+  - __TypeScript Error Reduction: 226 → 214 errors__
+  - __BackupManager Refactoring:__
     - Renamed `backup()` → `createBackup()` (file operations)
     - Renamed `restore()` → `restoreFromFile()` (file operations)
     - Added proper `backup()` → `Promise<BackupData>` conforming to BaseManager
     - Added `restoreState()` for BackupManager's own state
-  - **ConfigurationManager Refactoring:**
+  - __ConfigurationManager Refactoring:__
     - Now extends BaseManager (was standalone class)
     - Added proper `backup()` and `restore()` methods
     - Added `reload()` method for configuration refresh
-  - **SearchManager:**
+  - __SearchManager:__
     - Removed local BackupData interface (uses BaseManager's)
     - Fixed backup() to include `managerName` field
-  - **BaseManager Updates:**
+  - __BaseManager Updates:__
     - Engine type changed to `any` for migration flexibility
     - Added `no-unsafe-assignment` ESLint disable
-  - **WikiEngine.ts:**
+  - __WikiEngine.ts:__
     - `initialize()` now returns `Promise<void>` (matches Engine base)
     - Removed `return this;` at end of initialize
-  - **Manager Constructor Updates:**
+  - __Manager Constructor Updates:__
     - All managers now accept `any` for engine parameter
     - Files: ACLManager, AuditManager, PageManager, PolicyEvaluator, PolicyManager,
       PolicyValidator, RenderingManager, SearchManager, TemplateManager, UserManager, MarkupParser
-  - **ESLint Disables Added:**
+  - __ESLint Disables Added:__
     - PolicyManager, PolicyValidator, TemplateManager, UserManager, PageManager, MarkupParser
 - Test Status:
   - All 1,380 tests passing ✅
@@ -4727,17 +4772,17 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Subject: Phase 6a - Remove @ts-nocheck from WikiRoutes and fix type errors properly
 - Issues: Milestone 4 (Phase 6: Enable strict TypeScript)
 - Key Decision:
-  - **Removed @ts-nocheck** from WikiRoutes.ts - proper type safety achieved
-  - **User feedback addressed** - No more deferred type fixes with compiler directives
+  - __Removed @ts-nocheck__ from WikiRoutes.ts - proper type safety achieved
+  - __User feedback addressed__ - No more deferred type fixes with compiler directives
   - Fixed WikiContext readonly content property by creating new context with content
   - Extended type definitions to match actual implementations
 - Work Done:
-  - **WikiRoutes.ts Type Fixes (23 errors → 0):**
+  - __WikiRoutes.ts Type Fixes (23 errors → 0):__
     - Added proper type annotations: WikiContextOptions, SystemCategoryConfig, ProfileUpdateData, PageMetadata
     - Fixed readonly content property: create new WikiContext instead of mutating
     - Fixed templateData typing: initialized with leftMenu and footer properties
     - Type assertions for system category config loops
-  - **Type Definition Updates:**
+  - __Type Definition Updates:__
     - WikiEngine.ts: Added logger and startTime optional properties
     - WikiEngine class: Now implements IWikiEngine interface
     - Provider.ts: Fixed getAllUsers return type to Map<string, User>
@@ -4745,7 +4790,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
     - UserManager.ts: Added displayName and isExternal to UserContext interface
     - express.d.ts: New file for Express Request/Session type extensions
     - types/index.ts: Removed duplicate/undefined type exports
-  - **TypeScript Error Reduction:**
+  - __TypeScript Error Reduction:__
     - Started: ~1148 errors (with strict mode enabled)
     - WikiRoutes.ts: 0 errors (fixed all 23)
     - Remaining: 253 errors (in DOM/versioning utilities, non-blocking)
@@ -4770,12 +4815,12 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Subject: Phase 5 COMPLETE - WikiRoutes TypeScript Conversion (5,565 lines)
 - Issues: #146 (Phase 5: Convert Routes to TypeScript), Milestone 4
 - Key Decision:
-  - **Phase 5 COMPLETE** - All routes converted to TypeScript
-  - **Phased migration strategy** - Use @ts-nocheck now, fix in Phase 6
+  - __Phase 5 COMPLETE__ - All routes converted to TypeScript
+  - __Phased migration strategy__ - Use @ts-nocheck now, fix in Phase 6
   - Largest single file conversion: 5,565 lines
   - Fixed bug: this.getCurrentUser() → userManager.getCurrentUser()
 - Work Done:
-  - **Converted WikiRoutes.js → WikiRoutes.ts (5,565 lines):**
+  - __Converted WikiRoutes.js → WikiRoutes.ts (5,565 lines):__
     - Added 7 comprehensive TypeScript interfaces:
       - WikiEngine (with config support)
       - UserContext (authentication/session data)
@@ -4793,21 +4838,21 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
     - Added type annotations to method signatures
     - Private engine property with WikiEngine type
     - Both ES6 default export and CommonJS module.exports
-  - **Bug Fix Found During Conversion:**
+  - __Bug Fix Found During Conversion:__
     - Line 4708, 4745, 4793, 4826: Fixed `this.getCurrentUser(req)`
     - Changed to `userManager.getCurrentUser(req)`
     - Original code called non-existent method on WikiRoutes class
     - Now properly delegates to UserManager
-  - **Phased Migration Strategy:**
+  - __Phased Migration Strategy:__
     - Added @ts-nocheck directive (temporary)
     - Added 14 ESLint disable directives (temporary)
     - Will be removed in Phase 6 strict mode
     - Recommended TypeScript migration pattern
-  - **Phase 5 Summary - Routes Conversion:**
+  - __Phase 5 Summary - Routes Conversion:__
     - InstallRoutes.ts: 293 lines ✅
     - WikiRoutes.ts: 5,565 lines ✅
     - Total: 5,858 lines of route code converted
-    - **Phase 5: 100% COMPLETE** ✅
+    - __Phase 5: 100% COMPLETE__ ✅
 - Test Status:
   - All 153 route tests passing ✅ (9 test suites)
   - All 1,380 tests passing ✅ (58 test suites)
@@ -4818,8 +4863,8 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - src/routes/WikiRoutes.js → src/routes/WikiRoutes.ts (renamed, 5,565 lines)
   - docs/project_log.md
 - Migration Progress:
-  - **Phase 5: COMPLETE** ✅ (Routes & Controllers: 2/2 files, 5,858 lines)
-  - **Overall TypeScript Migration: ~54% complete** (86/160 files)
+  - __Phase 5: COMPLETE__ ✅ (Routes & Controllers: 2/2 files, 5,858 lines)
+  - __Overall TypeScript Migration: ~54% complete__ (86/160 files)
   - Routes conversion complete: InstallRoutes.ts + WikiRoutes.ts
 - Next Steps - Phase 6:
   - Enable strict mode in tsconfig.json
@@ -4840,12 +4885,12 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Subject: Issue #185 Cleanup Complete + InstallRoutes TypeScript Conversion
 - Issues: #185 (Remove legacy pipeline), #146 (Phase 5: Convert Routes to TypeScript)
 - Key Decision:
-  - **Fully removed all deprecated parser tests** (13 tests deleted)
-  - **Closed Issue #185** with complete legacy pipeline removal
-  - **Converted InstallRoutes to TypeScript** (Phase 5 progress)
+  - __Fully removed all deprecated parser tests__ (13 tests deleted)
+  - __Closed Issue #185__ with complete legacy pipeline removal
+  - __Converted InstallRoutes to TypeScript__ (Phase 5 progress)
   - All 1,380 tests passing (down from 1,393)
 - Work Done:
-  - **Removed 13 Deprecated Tests:**
+  - __Removed 13 Deprecated Tests:__
     - 2 tests from MarkupParser.test.js Initialization section (phase init, phase sorting)
     - 1 commented assertion removed (phaseMetrics)
     - 2 tests from MarkupParser.test.js Error Handling (phase errors, critical failure)
@@ -4853,11 +4898,11 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
     - 2 tests from HTML Cleanup section (entire describe block removed)
     - 3 tests from MarkupParser-Performance.test.js (performance alerts)
     - 3 tests from Metrics Collection describe block (entire block removed)
-  - **Issue #185 Closure:**
+  - __Issue #185 Closure:__
     - Added final comment documenting all 13 deprecated tests removed
     - Confirmed test count reduction: 1,701 → 1,688 total (13 removed)
     - Passing tests: 1,393 → 1,380 (13 deprecated tests successfully removed)
-  - **Converted InstallRoutes.ts (293 lines):**
+  - __Converted InstallRoutes.ts (293 lines):__
     - Added 6 comprehensive TypeScript interfaces:
       - InstallSessionData - Session data extensions
       - InstallFormData - Complete installation form structure
@@ -4876,7 +4921,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
       - @typescript-eslint/no-redundant-type-constituents
       - no-console
     - Both ES6 and CommonJS exports for compatibility
-  - **Documentation Updates:**
+  - __Documentation Updates:__
     - Updated docs/testing/Testing-Summary.md:
       - Changed test count from 1393 → 1380 passing
       - Changed total tests from 1701 → 1688
@@ -4895,15 +4940,15 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Zero ESLint errors
 - Commits: a6f8d98
 - Files Modified:
-  - src/parsers/**tests**/MarkupParser.test.js (removed 8 deprecated tests)
-  - src/parsers/**tests**/MarkupParser-Performance.test.js (removed 5 deprecated tests, 1 describe block)
+  - src/parsers/__tests__/MarkupParser.test.js (removed 8 deprecated tests)
+  - src/parsers/__tests__/MarkupParser-Performance.test.js (removed 5 deprecated tests, 1 describe block)
   - src/routes/InstallRoutes.js → src/routes/InstallRoutes.ts (renamed, 293 lines)
   - docs/testing/Testing-Summary.md (updated test counts, fixed formatting)
   - docs/testing/Complete-Testing-Guide.md (updated date, fixed formatting)
   - docs/project_log.md
 - Migration Progress:
-  - **Routes: 1/2 (50% complete)** - InstallRoutes.ts ✅, WikiRoutes.js remaining (5,497 lines)
-  - **Overall TypeScript Migration: ~53% complete** (85/160 files)
+  - __Routes: 1/2 (50% complete)__ - InstallRoutes.ts ✅, WikiRoutes.js remaining (5,497 lines)
+  - __Overall TypeScript Migration: ~53% complete__ (85/160 files)
   - Phase 5 in progress - Routes conversion
 - Next Steps:
   - Convert WikiRoutes.js to TypeScript (large file: 5,497 lines)
@@ -4918,16 +4963,16 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Subject: Parser Phase 6 Complete - MarkupParser Legacy Removal & TypeScript Conversion
 - Issues: #185 (Remove legacy 7-phase pipeline), #139 (TypeScript Migration Epic)
 - Key Decision:
-  - **Removed deprecated 7-phase legacy parser pipeline** (~430 lines)
-  - **Converted MarkupParser to TypeScript** (1,723 lines)
+  - __Removed deprecated 7-phase legacy parser pipeline__ (~430 lines)
+  - __Converted MarkupParser to TypeScript__ (1,723 lines)
   - DOM extraction pipeline is now the ONLY parser (no fallback)
   - All 1,380 tests passing (321 legacy tests appropriately skipped)
 - Work Done:
-  - **Created GitHub Issue #185:**
+  - __Created GitHub Issue #185:__
     - Documented deprecation of 7-phase legacy pipeline
     - Explained extraction pipeline benefits (fixes heading bug #110, #93)
     - Detailed components being removed
-  - **Removed Legacy 7-Phase Pipeline:**
+  - __Removed Legacy 7-Phase Pipeline:__
     - Removed 8 phase methods (phaseDOMParsing through phasePostProcessing)
     - Removed initializePhases() and executePhase() infrastructure
     - Removed legacy helper methods (processJSPWikiSyntax, protectGeneratedHtml, applyTableClasses, cleanupHtml)
@@ -4935,38 +4980,38 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
     - Updated parse() to call parseWithDOMExtraction() directly (no fallback)
     - Skipped 11 legacy phase-related tests with deprecation comments
     - Total reduction: ~430 lines
-  - **Converted MarkupParser.ts (1,723 lines):**
-    - **15+ comprehensive type interfaces:**
+  - __Converted MarkupParser.ts (1,723 lines):__
+    - __15+ comprehensive type interfaces:__
       - MarkupParserConfig - Complete configuration structure
       - ExtractedElement - JSPWiki syntax elements (variable, plugin, link, escaped)
       - ExtractionResult - Pre-extraction pipeline results (sanitized, elements, uuid)
       - ExtendedMetrics - Enhanced metrics with computed properties
       - ParserMetrics, PhaseMetrics, CacheMetrics, PerformanceMonitor
       - Additional config interfaces for handlers, filters, cache, performance
-    - **Type Safety Improvements:**
+    - __Type Safety Improvements:__
       - Full type annotations for all methods and properties
       - Explicit boolean return type for isInitialized() matching BaseManager
       - Type-safe DOM handler integration with any casts for compatibility
       - Type-safe metrics collection and performance monitoring
-    - **Import Structure:**
+    - __Import Structure:__
       - Converted all imports to ES6 syntax
       - Used type-only imports for unused types (ParseContext, WikiDocument, BaseSyntaxHandler)
       - Named import for HandlerRegistry (added named export to HandlerRegistry.ts)
-    - **ESLint Configuration:**
+    - __ESLint Configuration:__
       - Added eslint-disable directives for necessary dynamic code patterns
       - Disabled rules: no-unsafe-*, no-require-imports, explicit-function-return-type, no-console
       - Zero ESLint errors (4 minor warnings about unused directives)
-  - **HandlerRegistry Export Updates:**
+  - __HandlerRegistry Export Updates:__
     - Added named exports: `export { HandlerRegistry, HandlerRegistrationError }`
     - Maintains both named and default exports for compatibility
     - Enables both `import HandlerRegistry` and `import { HandlerRegistry }`
-  - **Test Updates:**
+  - __Test Updates:__
     - Skipped 11 legacy phase tests in MarkupParser.test.js and MarkupParser-Performance.test.js
     - Added deprecation comments referencing Issue #185
     - Updated 2 configuration tests to expect HandlerRegistry default values
     - HandlerRegistry.config is private, so removed configureHandlerRegistry() method
     - All 1,380 tests passing (321 skipped legacy tests)
-  - **CommonJS Compatibility:**
+  - __CommonJS Compatibility:__
     - Added module.exports for Jest compatibility
     - Both ES6 and CommonJS exports supported
 - Test Status:
@@ -4978,13 +5023,13 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Files Modified:
   - src/parsers/MarkupParser.js → src/parsers/MarkupParser.ts (renamed, 1,723 lines)
   - src/parsers/handlers/HandlerRegistry.ts (added named exports)
-  - src/parsers/**tests**/MarkupParser.test.js (skipped legacy tests)
-  - src/parsers/**tests**/MarkupParser-Performance.test.js (skipped legacy tests, updated config expectations)
-  - src/parsers/**tests**/MarkupParser-Config.test.js (updated config expectations)
+  - src/parsers/__tests__/MarkupParser.test.js (skipped legacy tests)
+  - src/parsers/__tests__/MarkupParser-Performance.test.js (skipped legacy tests, updated config expectations)
+  - src/parsers/__tests__/MarkupParser-Config.test.js (updated config expectations)
   - docs/project_log.md
 - Migration Progress:
-  - **Parsers: 14/36 (39% complete)** - up from 13/36 (36%)
-  - **Overall project: 84/160 (52.5% complete)** - up from 83/160 (52%)
+  - __Parsers: 14/36 (39% complete)__ - up from 13/36 (36%)
+  - __Overall project: 84/160 (52.5% complete)__ - up from 83/160 (52%)
   - ✅ Phase 6 Complete: MarkupParser.ts converted
 - Next Steps: Phase 7 - Convert remaining parser filters and handlers
 
@@ -4996,40 +5041,40 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Subject: Parser Phase 5 Complete - Tokenizer TypeScript Conversion
 - Issues: #139 (TypeScript Migration Epic)
 - Key Decision:
-  - **Phase 5 Complete!** All 3 DOM parsers now converted to TypeScript
+  - __Phase 5 Complete!__ All 3 DOM parsers now converted to TypeScript
   - Converted Tokenizer (final and largest DOM parser at 910 lines)
   - All 78 Tokenizer tests passing with zero regressions
 - Work Done:
-  - **Converted Tokenizer.ts (979 lines):**
+  - __Converted Tokenizer.ts (979 lines):__
     - 5 comprehensive interfaces (TokenType enum, TokenMetadata, PositionInfo, Token, PushbackItem)
     - Character-by-character parsing with position tracking
     - 15 token parsing methods covering all JSPWiki syntax
     - Pushback buffer for complex token recognition
     - Lookahead support via peekChar() and peekAhead()
     - 18 distinct token types (TEXT, ESCAPED, VARIABLE, PLUGIN, etc.)
-  - **Type Safety Improvements:**
+  - __Type Safety Improvements:__
     - Full typing for tokenize() pipeline returning Token[]
     - Type-safe position tracking (line, column, character position)
     - Pushback buffer with state preservation
     - Token metadata with type-specific fields
     - Enum-based token type system
-  - **ESLint Compliance:**
+  - __ESLint Compliance:__
     - Auto-fixed 8 unnecessary type assertions
     - Removed 2 unused variables
     - Zero errors/warnings in final code
-  - **Testing:**
+  - __Testing:__
     - All 78 Tokenizer tests passing (100%) - 2 test files
     - All 1,393 tests passing (100%)
     - 100% backward compatibility maintained
-  - **Architecture Note:**
+  - __Architecture Note:__
     - Tokenizer is a reference implementation (not actively used in production)
     - Current pipeline uses MarkupParser.extractJSPWikiSyntax() (regex-based, faster)
     - Kept for educational value and JSPWiki syntax documentation
-  - **Phase 5 Summary:**
+  - __Phase 5 Summary:__
     - DOMParser.ts (471 lines) - Session 2025-12-27-05
     - DOMBuilder.ts (574 lines) - Session 2025-12-27-06
     - Tokenizer.ts (979 lines) - Session 2025-12-27-07 ✅ COMPLETE
-  - **Parser Migration Progress:**
+  - __Parser Migration Progress:__
     - Parsers: 13/36 (36% complete, up from 33%)
     - Overall project: ~52% complete (83/160 files)
 - Test Status:
@@ -5053,30 +5098,30 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Converted DOMBuilder (token-to-DOM conversion)
   - All 27 DOMBuilder tests passing with zero regressions
 - Work Done:
-  - **Converted DOMBuilder.ts (574 lines):**
+  - __Converted DOMBuilder.ts (574 lines):__
     - 4 comprehensive interfaces (TokenMetadata, Token, TableContext, ListStackItem)
     - Complete token-to-DOM conversion pipeline
     - 15 token handler methods (text, escaped, variable, plugin, etc.)
     - Context management for paragraphs, lists, and tables
     - Proper nesting and formatting handling
-  - **Type Safety Improvements:**
+  - __Type Safety Improvements:__
     - Full typing for buildFromTokens() pipeline
     - Type-safe token processing with metadata extraction
     - Proper null checking for optional contexts
     - Type-safe list stack management with proper nesting
-  - **ESLint Compliance:**
+  - __ESLint Compliance:__
     - Auto-fixed 51 indentation errors (switch case statements)
     - Auto-fixed 17 unnecessary type assertions
     - Zero errors/warnings in final code
-  - **Testing:**
+  - __Testing:__
     - All 27 DOMBuilder tests passing (100%)
     - All 1,393 tests passing (100%)
     - 100% backward compatibility maintained
-  - **Architecture Note:**
+  - __Architecture Note:__
     - DOMBuilder is a reference implementation (not actively used in production)
     - Kept for educational value and token-to-DOM conversion patterns
     - Current pipeline uses direct DOM node creation from extracted elements
-  - **Parser Migration Progress:**
+  - __Parser Migration Progress:__
     - Parsers: 12/36 (33% complete, up from 31%)
     - Overall project: ~51% complete (82/160 files)
 - Test Status:
@@ -5100,31 +5145,31 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Converted DOMParser (reference implementation for token-based parsing)
   - All 50 DOMParser tests passing with zero regressions
 - Work Done:
-  - **Converted DOMParser.ts (471 lines):**
+  - __Converted DOMParser.ts (471 lines):__
     - 10 comprehensive interfaces (DOMParserOptions, ParseStatistics, ExtendedStatistics, ValidationResult, ErrorInfo, WarningInfo, Token, RenderContext, and ParseError class)
     - Complete parsing pipeline (Tokenizer → DOMBuilder)
     - Error handling with position tracking and graceful degradation
     - Validation with detailed error/warning reporting
     - Statistics collection (total parses, success rate, average time)
-  - **Type Safety Improvements:**
+  - __Type Safety Improvements:__
     - Full typing for parse() pipeline with WikiDocument return type
     - Type-safe error handling with ParseError class extending Error
     - Optional callbacks for errors and warnings
     - Validation result with typed errors/warnings arrays
     - Statistics with computed values (averageParseTime, successRate)
-  - **ESLint Compliance:**
+  - __ESLint Compliance:__
     - Auto-fixed 5 unused directive warnings
     - Removed 3 unnecessary type assertions
     - Zero errors/warnings in final code
-  - **Testing:**
+  - __Testing:__
     - All 50 DOMParser tests passing (100%)
     - All 1,393 tests passing (100%)
     - 100% backward compatibility maintained
-  - **Architecture Note:**
+  - __Architecture Note:__
     - DOMParser is a reference implementation (not actively used in production)
     - Current pipeline uses MarkupParser.parseWithDOMExtraction()
     - Kept for educational value and token-based parsing approach
-  - **Parser Migration Progress:**
+  - __Parser Migration Progress:__
     - Parsers: 11/36 (31% complete, up from 28%)
     - Overall project: ~50% complete (81/160 files)
 - Test Status:
@@ -5144,36 +5189,36 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Subject: Parser Phase 4 Complete - DOMLinkHandler TypeScript Conversion
 - Issues: #139 (TypeScript Migration Epic)
 - Key Decision:
-  - **Phase 4 Complete**: All 3 DOM handlers now converted to TypeScript
+  - __Phase 4 Complete__: All 3 DOM handlers now converted to TypeScript
   - Converted DOMLinkHandler (final and largest DOM handler at 611 lines)
   - All 36 DOMLinkHandler tests passing with zero regressions
 - Work Done:
-  - **Converted DOMLinkHandler.ts (808 lines):**
+  - __Converted DOMLinkHandler.ts (808 lines):__
     - 10 comprehensive interfaces (LinkInfo, InterWikiSite, LinkStatistics, LinkTypeStats, ExtractedLinkElement, RenderContext, PageManager, ConfigurationManager, WikiEngine, LinkType)
     - DOM-based link processing with WikiDocument queries
     - Fuzzy page name matching integration with PageNameMatcher
     - InterWiki link resolution with configuration support
     - Link type determination (internal, external, interwiki, email, anchor)
     - Statistics collection for link usage analysis
-  - **Type Safety Improvements:**
+  - __Type Safety Improvements:__
     - Full typing for all link processing methods (processInternalLink, processExternalLink, processInterWikiLink, processEmailLink, processAnchorLink)
     - Type-safe page existence checking with fuzzy matching
     - ExtractedLinkElement support for Phase 2 extraction-based parsing
     - Comprehensive link statistics interface
-  - **ESLint Compliance:**
+  - __ESLint Compliance:__
     - Applied @typescript-eslint/require-await disables for async methods without await
     - Targeted @typescript-eslint/no-unsafe-* disables for linkedom DOM operations
     - Auto-fixed 7 unused directive warnings
     - Zero errors/warnings in final code
-  - **Testing:**
+  - __Testing:__
     - All 36 DOMLinkHandler tests passing (100%)
     - All 1,393 tests passing (100%)
     - 100% backward compatibility maintained
-  - **Phase 4 Summary:**
+  - __Phase 4 Summary:__
     - DOMVariableHandler.ts (370 lines) - Session 2025-12-27-02
     - DOMPluginHandler.ts (576 lines) - Session 2025-12-27-03
     - DOMLinkHandler.ts (808 lines) - Session 2025-12-27-04 ✅ COMPLETE
-  - **Parser Migration Progress:**
+  - __Parser Migration Progress:__
     - Parsers: 10/36 (28% complete, up from 25%)
     - Overall project: ~49% complete (80/160 files)
 - Test Status:
@@ -5197,25 +5242,25 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Converted DOMPluginHandler (plugin execution system)
   - All 38 DOMPluginHandler tests passing with zero regressions
 - Work Done:
-  - **Converted DOMPluginHandler.ts (576 lines):**
+  - __Converted DOMPluginHandler.ts (576 lines):__
     - 7 comprehensive interfaces (PluginContext, PluginInfo, ExtractedPluginElement, PluginInstanceInfo, PluginStatistics, PluginManager, RenderingManager)
     - DOM-based plugin execution with WikiDocument queries
     - Integration with PluginManager for dynamic plugin execution
     - Intelligent unwrapping of single-root plugin output
     - Statistics tracking for plugin usage analysis
-  - **Type Safety Improvements:**
+  - __Type Safety Improvements:__
     - Proper typing for async processPlugins() and executePlugin() methods
     - Type-safe parameter parsing with quoted value support
     - ExtractedPluginElement support for Phase 2 extraction-based parsing
     - Comprehensive plugin context with link graph integration
-  - **ESLint Compliance:**
+  - __ESLint Compliance:__
     - Auto-fixed 12 warnings (unused directives)
     - Zero errors/warnings in final code
-  - **Testing:**
+  - __Testing:__
     - All 38 DOMPluginHandler tests passing (100%)
     - All 1,393 tests passing (100%)
     - 100% backward compatibility maintained
-  - **Parser Migration Progress:**
+  - __Parser Migration Progress:__
     - Parsers: 9/36 (25% complete, up from 22%)
 - Test Status:
   - DOMPluginHandler: All 38 tests passing ✅
@@ -5238,25 +5283,25 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Converted DOMVariableHandler (first of 3 DOM handlers)
   - All 27 DOMVariableHandler tests passing with zero regressions
 - Work Done:
-  - **Converted DOMVariableHandler.ts (370 lines):**
+  - __Converted DOMVariableHandler.ts (370 lines):__
     - 7 comprehensive interfaces (VariableContext, VariableHandler, ExtractedElement, VariableInfo, VariableStatistics, VariableManager, WikiEngine)
     - DOM-based variable expansion with WikiDocument queries
     - Integration with VariableManager for dynamic variable resolution
     - Statistics tracking for variable usage analysis
-  - **Type Safety Improvements:**
+  - __Type Safety Improvements:__
     - Proper typing for async processVariables() method
     - Type-safe variable resolution with context normalization
     - ExtractedElement support for Phase 2 extraction-based parsing
     - Comprehensive statistics interface
-  - **ESLint Compliance:**
+  - __ESLint Compliance:__
     - Added targeted disable comments for linkedom's untyped DOM methods
     - Explained unsafe boundaries with WikiDocument.querySelectorAll()
     - Zero errors/warnings in final code
-  - **Testing:**
+  - __Testing:__
     - All 27 DOMVariableHandler tests passing (100%)
     - All 1,393 tests passing (100%)
     - 100% backward compatibility maintained
-  - **Parser Migration Progress:**
+  - __Parser Migration Progress:__
     - Updated /tmp/typescript_migration_status.md: 48% complete (77/160 files)
     - Parsers: 8/36 (22% complete, up from 19%)
 - Test Status:
@@ -5281,23 +5326,23 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Converted LinkParser (centralized link parsing system)
   - All 53 LinkParser tests passing with zero regressions
 - Work Done:
-  - **Converted LinkParser.ts (724 lines):**
+  - __Converted LinkParser.ts (724 lines):__
     - 11 comprehensive interfaces (LinkParserOptions, DefaultClasses, UrlPatterns, SecurityOptions, InterWikiSiteConfig, LinkAttributes, ParserContext, ParserStats, LinkData, LinkInfo, LinkType)
     - LinkParser class with full type safety for all link types
     - Link class with proper typing
     - Security-focused attribute validation and XSS prevention
     - Support for internal, external, InterWiki, email, and anchor links
-  - **Type Safety Improvements:**
+  - __Type Safety Improvements:__
     - Proper typing for all public methods (parseLinks, findLinks, parseAttributes, generateLinkHtml, determineLinkType)
     - Type-safe link generation methods for each link type
     - Comprehensive security validation with typed configurations
     - PageNameMatcher integration with fuzzy matching
-  - **ESLint Compliance:**
+  - __ESLint Compliance:__
     - Fixed 24 ESLint errors (unused parameters, console warnings, indentation, type assertions)
     - Used underscore prefix for unused context parameters (_context)
     - Added eslint-disable comments for intentional console.warn statements
     - Zero errors/warnings in final code
-  - **Testing:**
+  - __Testing:__
     - All 53 LinkParser tests passing (100%)
     - All 1,393 tests passing (100%)
     - 100% backward compatibility maintained
@@ -5322,11 +5367,11 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Converted registry components (HandlerRegistry and FilterChain)
   - Fixed ESLint issues using proper accessor methods for protected properties
 - Work Done:
-  - **Converted HandlerRegistry.ts (572 lines):**
+  - __Converted HandlerRegistry.ts (572 lines):__
     - 13 comprehensive interfaces
     - Dependency resolution with topological sorting
     - Circular dependency detection and pattern conflict detection
-  - **Converted FilterChain.ts (635 lines):**
+  - __Converted FilterChain.ts (635 lines):__
     - 18 comprehensive interfaces
     - Sequential and parallel execution modes
     - Performance monitoring with alert thresholds
@@ -5382,15 +5427,15 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Subject: Version Utility Converted to TypeScript
 - Issues: #139 (TypeScript Migration Epic)
 - Key Decision: Continue utilities conversion with version.ts
-- Issue #139 Status: 🔄 **IN PROGRESS** - Utilities 7/17 (41%) - Overall 42%
+- Issue #139 Status: 🔄 __IN PROGRESS__ - Utilities 7/17 (41%) - Overall 42%
 - Work Done:
-  - **Converted version.ts (262 lines):**
+  - __Converted version.ts (262 lines):__
     - Semantic version management CLI tool
     - ES modules with import/export
     - Added interfaces: PackageJson, VersionComponents, VersionIncrementType
     - Proper shebang for ES modules (#!<boltExport path="/usr/bin/env node">)
     - Fixed 27 ESLint errors (indentation, template literal with never type)
-  - **All 1,393 tests passing**
+  - __All 1,393 tests passing__
 - Commits: [pending]
 - Files Modified:
   - src/utils/version.ts (converted from .js)
@@ -5404,24 +5449,24 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Subject: WikiEngine Converted to TypeScript - Core Infrastructure 100% Complete! 🎉
 - Issues: #139 (TypeScript Migration Epic)
 - Key Decision: Convert WikiEngine.js to complete core infrastructure before moving to parsers
-- Issue #139 Status: 🔄 **IN PROGRESS** - Core Infrastructure 100% Complete (42% overall: 60/144 files)
+- Issue #139 Status: 🔄 __IN PROGRESS__ - Core Infrastructure 100% Complete (42% overall: 60/144 files)
 - Work Done:
-  - **Converted WikiEngine.ts (339 lines):**
+  - __Converted WikiEngine.ts (339 lines):__
     - Main application orchestrator
     - Initializes all 21 managers in dependency order
     - Type-safe manager initialization with local variables
     - Generic type support for manager accessors
     - Proper typing for WikiContext integration
     - Factory method: createDefault(overrides: WikiConfig)
-  - **ESLint Compliance:**
+  - __ESLint Compliance:__
     - Removed unnecessary type assertions (!operator)
     - Fixed unsafe any returns with proper type casting
     - Zero errors/warnings
-  - **Testing:**
+  - __Testing:__
     - All 1,393 tests passing (100%)
     - 100% backward compatibility
     - TypeScript engine works seamlessly with JavaScript tests
-  - **Core Infrastructure Complete:**
+  - __Core Infrastructure Complete:__
     - ✅ WikiContext.ts (333 lines)
     - ✅ Engine.ts (201 lines)
     - ✅ WikiEngine.ts (339 lines) - NEW!
@@ -5440,29 +5485,29 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Subject: Phase 1 Core Infrastructure - TypeScript Migration Complete
 - Issues: #139 (TypeScript Migration Epic)
 - Key Decision: Complete Phase 1 core infrastructure before proceeding to parsers or WikiEngine
-- Issue #139 Status: 🔄 **IN PROGRESS** - Phase 1 Complete (41% overall: 59/144 files)
+- Issue #139 Status: 🔄 __IN PROGRESS__ - Phase 1 Complete (41% overall: 59/144 files)
 - Work Done:
-  - **Converted WikiContext.js to TypeScript:**
+  - __Converted WikiContext.js to TypeScript:__
     - Created src/context/WikiContext.ts (333 lines)
     - Added 6 type interfaces (WikiContextOptions, RequestInfo, UserContext, PageContext, ParseOptions, ContextTypes)
     - Fixed express-session typing for sessionID property
     - All request/response handling properly typed
-  - **Converted Engine.js to TypeScript:**
+  - __Converted Engine.js to TypeScript:__
     - Created src/core/Engine.ts (201 lines)
     - Abstract base class for WikiEngine
     - Generic type support: getManager<T>(name): T | undefined
     - Manager registry with proper typing
-  - **Converted Cache Adapters to TypeScript (4 files):**
+  - __Converted Cache Adapters to TypeScript (4 files):__
     - Created src/cache/ICacheAdapter.ts (96 lines) - Abstract interface with CacheStats
     - Created src/cache/NodeCacheAdapter.ts (330 lines) - node-cache implementation
     - Created src/cache/NullCacheAdapter.ts (52 lines) - No-op implementation for testing
     - Created src/cache/RegionCache.ts (248 lines) - Namespaced cache wrapper
-  - **Testing & Quality:**
+  - __Testing & Quality:__
     - All 1,393 tests passing (100%)
     - 31 cache-specific tests passing
     - Zero ESLint errors/warnings
     - 100% backward compatibility maintained
-  - **Migration Progress:**
+  - __Migration Progress:__
     - Core: 2/4 (50%) - NEW: WikiContext, Engine
     - Cache: 4/4 (100%) - COMPLETE: All cache adapters
     - Overall: 59/144 files (41% complete, up from 37%)
@@ -5481,16 +5526,16 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 ## 2025-12-26-05
 
 - Agent: Claude Code (Sonnet 4.5)
-- Subject: RenderingManager Converted to TypeScript - Issue #145 🎉 **100% COMPLETE!**
+- Subject: RenderingManager Converted to TypeScript - Issue #145 🎉 __100% COMPLETE!__
 - Issues: #145 (Convert Managers to TypeScript), #139 (TypeScript Migration Epic)
 - Key Decision: Convert RenderingManager as twenty-first and FINAL manager (largest manager at 1297 lines!)
 - Work Done:
-  - **Converted RenderingManager.js to TypeScript:**
+  - __Converted RenderingManager.js to TypeScript:__
     - Created src/managers/RenderingManager.ts (1397 lines - LARGEST manager!)
     - Added 9 type interfaces for rendering system
     - All 42 public methods have explicit return types
     - Dual parser system (MarkupParser + Legacy Showdown) fully typed
-  - **Type Safety Improvements (RenderingManager):**
+  - __Type Safety Improvements (RenderingManager):__
     - initialize(config): Promise<void>
     - getParser(): MarkupParser | null
     - loadRenderingConfiguration(): Promise<void>
@@ -5524,7 +5569,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
     - renderWikiLinks(content): string
     - renderPlugins(content, pageName): Promise<string>
     - textToHTML(context, content): Promise<string>
-  - **New Type Interfaces (RenderingManager):**
+  - __New Type Interfaces (RenderingManager):__
     - RenderingConfig (parser selection and configuration)
     - TableParams (JSPWiki table parameters)
     - TableMetadata (extended table metadata)
@@ -5534,25 +5579,25 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
     - PerformanceComparison (performance metrics)
     - LinkGraph (link graph structure)
     - MarkupParser (parser interface)
-  - **Code Quality:**
+  - __Code Quality:__
     - Fixed deprecated substr() calls → substring()
     - Fixed expandAllVariables references → expandSystemVariable/expandSystemVariables
     - Added ESLint disable comments for ConfigurationManager access
     - Added ESLint disable comments for dynamic require statements
     - Fixed engine.startTime access with proper unsafe annotations
     - Proper typing for all method parameters (42 methods)
-  - **Verified no regressions:**
+  - __Verified no regressions:__
     - All 1,393 tests passing
     - Full backward compatibility
     - RenderingManager.test.js passing with TypeScript version
 - Impact:
   - ✅ RenderingManager is now type-safe
   - ✅ Largest manager converted successfully (1297 lines!)
-  - ✅ 🎉🎉🎉 **100% COMPLETION ACHIEVED!** All 21 managers converted! 🎉🎉🎉
+  - ✅ 🎉🎉🎉 __100% COMPLETION ACHIEVED!__ All 21 managers converted! 🎉🎉🎉
   - ✅ JavaScript code can still import and use RenderingManager
   - ✅ Dual parser system (advanced + legacy) fully typed
   - ✅ Link graph and wiki link processing typed
-  - ✅ **Issue #145 COMPLETE** - All manager TypeScript conversions finished!
+  - ✅ __Issue #145 COMPLETE__ - All manager TypeScript conversions finished!
 - Commits: b0648b3
 - Files Created:
   - src/managers/RenderingManager.ts (1397 lines)
@@ -5561,7 +5606,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - ✅ All managers converted!
   - Consider converting remaining infrastructure (utilities, parsers, routes)
   - Issue #145 can be closed as COMPLETE
-- Issue #145 Status: ✅ **COMPLETED** - All 21 managers converted (100% complete) 🎉🎉🎉
+- Issue #145 Status: ✅ __COMPLETED__ - All 21 managers converted (100% complete) 🎉🎉🎉
 - Note: The "23 managers" count included 2 legacy files (PageManager.legacy.js, PageManagerUuid.js) that don't require conversion. All 21 active managers are now TypeScript!
 
 ---
@@ -5573,12 +5618,12 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Issues: #145 (Convert Managers to TypeScript), #139 (TypeScript Migration Epic)
 - Key Decision: Convert SearchManager as twentieth manager (87% milestone reached)
 - Work Done:
-  - **Converted SearchManager.js to TypeScript:**
+  - __Converted SearchManager.js to TypeScript:__
     - Created src/managers/SearchManager.ts (701 lines)
     - Added 10 type interfaces for search system
     - All 28 public methods have explicit return types
     - Provider-based search architecture fully typed
-  - **Type Safety Improvements (SearchManager):**
+  - __Type Safety Improvements (SearchManager):__
     - initialize(config): Promise<void>
     - buildSearchIndex(): Promise<void>
     - searchWithContext(wikiContext, query, options): Promise<SearchResult[]>
@@ -5605,7 +5650,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
     - backup(): Promise<BackupData>
     - restore(backupData): Promise<void>
     - shutdown(): Promise<void>
-  - **New Type Interfaces (SearchManager):**
+  - __New Type Interfaces (SearchManager):__
     - SearchResult (search result structure)
     - SearchOptions (basic search options)
     - AdvancedSearchOptions (advanced search options)
@@ -5615,19 +5660,19 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
     - BackupData (backup data structure)
     - WikiContext (context interface)
     - BaseSearchProvider (provider interface with all 17 required methods)
-  - **Code Quality:**
+  - __Code Quality:__
     - Provider pattern with pluggable search backends
     - Full-text indexing with metadata support
     - WikiContext integration for user tracking
     - Comprehensive search capabilities (basic, advanced, similarity, autocomplete)
     - Backup and restore functionality
-  - **Verified no regressions:**
+  - __Verified no regressions:__
     - All 1,393 tests passing
     - Full backward compatibility
 - Impact:
   - ✅ SearchManager is now type-safe
   - ✅ Search system fully typed with comprehensive interfaces
-  - ✅ 🎉 **87% MILESTONE ACHIEVED** - 3 managers remaining!
+  - ✅ 🎉 __87% MILESTONE ACHIEVED__ - 3 managers remaining!
   - ✅ JavaScript code can still import and use SearchManager
 - Commits: 889dd68
 - Files Created:
@@ -5636,7 +5681,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Next Steps:
   - Continue with remaining 3 managers: RenderingManager (1297 lines - the largest!), plus 2 others
   - 87% complete - approaching 90% milestone!
-- Issue #145 Status: **IN PROGRESS** - 20 of 23 managers converted (87% complete) 🎉
+- Issue #145 Status: __IN PROGRESS__ - 20 of 23 managers converted (87% complete) 🎉
 
 ---
 
@@ -5647,12 +5692,12 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Issues: #145 (Convert Managers to TypeScript), #139 (TypeScript Migration Epic)
 - Key Decision: Convert PolicyValidator as nineteenth manager (83% milestone reached)
 - Work Done:
-  - **Converted PolicyValidator.js to TypeScript:**
+  - __Converted PolicyValidator.js to TypeScript:__
     - Created src/managers/PolicyValidator.ts (663 lines)
     - Added 16 type interfaces for policy validation system
     - All 19 public methods have explicit return types
     - Comprehensive policy schema validation fully typed
-  - **Type Safety Improvements (PolicyValidator):**
+  - __Type Safety Improvements (PolicyValidator):__
     - initialize(config): Promise<void>
     - loadPolicySchema(): Promise<void>
     - validatePolicy(policy): ValidationResult
@@ -5673,7 +5718,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
     - validateAndSavePolicy(policy): Promise<PolicySaveResult>
     - clearCache(): void
     - getStatistics(): ValidationStatistics
-  - **New Type Interfaces (PolicyValidator):**
+  - __New Type Interfaces (PolicyValidator):__
     - SubjectType, ResourceType, ActionType (type enumerations)
     - PolicyEffect, ConditionOperator, ConditionType (enumerations)
     - PolicySubject (subject definition)
@@ -5689,19 +5734,19 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
     - PolicySaveResult (policy save result)
     - ValidationStatistics (statistics structure)
     - PolicySchema (JSON Schema definition)
-  - **Code Quality:**
+  - __Code Quality:__
     - JSON Schema validation with Ajv
     - Business logic and semantic validation
     - Conflict detection between policies
     - Validation caching for performance
     - Comprehensive error and warning generation
-  - **Verified no regressions:**
+  - __Verified no regressions:__
     - All 1,393 tests passing
     - Full backward compatibility
 - Impact:
   - ✅ PolicyValidator is now type-safe
   - ✅ Policy validation system fully typed with comprehensive interfaces
-  - ✅ 🎉 **83% MILESTONE ACHIEVED** - 4 managers remaining!
+  - ✅ 🎉 __83% MILESTONE ACHIEVED__ - 4 managers remaining!
   - ✅ JavaScript code can still import and use PolicyValidator
 - Commits: bb26176
 - Files Created:
@@ -5710,7 +5755,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Next Steps:
   - Continue with remaining 4 managers: SearchManager (701 lines), RenderingManager (1297 lines - largest!)
   - 83% complete - approaching final milestone!
-- Issue #145 Status: **IN PROGRESS** - 19 of 23 managers converted (83% complete) 🎉
+- Issue #145 Status: __IN PROGRESS__ - 19 of 23 managers converted (83% complete) 🎉
 
 ---
 
@@ -5721,12 +5766,12 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Issues: #145 (Convert Managers to TypeScript), #139 (TypeScript Migration Epic)
 - Key Decision: Convert AuditManager as eighteenth manager (78% milestone reached)
 - Work Done:
-  - **Converted AuditManager.js to TypeScript:**
+  - __Converted AuditManager.js to TypeScript:__
     - Created src/managers/AuditManager.ts (558 lines)
     - Added 11 type interfaces for audit system
     - All 11 public methods have explicit return types
     - Provider-based architecture fully typed
-  - **Type Safety Improvements (AuditManager):**
+  - __Type Safety Improvements (AuditManager):__
     - initialize(config): Promise<void>
     - logAuditEvent(auditEvent): Promise<string>
     - logAccessDecision(context, result, reason, policy): Promise<string>
@@ -5739,7 +5784,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
     - flushAuditQueue(): Promise<void>
     - cleanupOldLogs(): Promise<void>
     - shutdown(): Promise<void>
-  - **New Type Interfaces (AuditManager):**
+  - __New Type Interfaces (AuditManager):__
     - AuditEvent (base audit event structure)
     - AuditUser (user information for audit events)
     - AccessContext (context for access control decisions)
@@ -5751,19 +5796,19 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
     - AuditSearchResults (search results structure)
     - AuditStats (statistics structure)
     - BaseAuditProvider (provider interface)
-  - **Code Quality:**
+  - __Code Quality:__
     - Provider pattern with pluggable audit storage
     - Comprehensive audit trail for security monitoring
     - Type-safe event logging with severity levels
     - Access control decision tracking
     - Authentication and security event logging
-  - **Verified no regressions:**
+  - __Verified no regressions:__
     - All 1,393 tests passing
     - Full backward compatibility
 - Impact:
   - ✅ AuditManager is now type-safe
   - ✅ Audit system fully typed with comprehensive interfaces
-  - ✅ 🎉 **78% MILESTONE ACHIEVED** - 5 managers remaining!
+  - ✅ 🎉 __78% MILESTONE ACHIEVED__ - 5 managers remaining!
   - ✅ JavaScript code can still import and use AuditManager
 - Commits: 7f2669a
 - Files Created:
@@ -5772,7 +5817,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Next Steps:
   - Continue with remaining 5 managers: PolicyValidator (663 lines), SearchManager (701 lines), RenderingManager (1297 lines - largest!)
   - 78% complete - nearing 80% milestone!
-- Issue #145 Status: **IN PROGRESS** - 18 of 23 managers converted (78% complete) 🎉
+- Issue #145 Status: __IN PROGRESS__ - 18 of 23 managers converted (78% complete) 🎉
 
 ---
 
@@ -5783,12 +5828,12 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Issues: #145 (Convert Managers to TypeScript), #139 (TypeScript Migration Epic)
 - Key Decision: Convert TemplateManager as seventeenth manager (74% milestone reached)
 - Work Done:
-  - **Converted TemplateManager.js to TypeScript:**
+  - __Converted TemplateManager.js to TypeScript:__
     - Created src/managers/TemplateManager.ts (513 lines)
     - Added 7 type interfaces for template system
     - All 15 methods have explicit return types
     - Template and theme management fully typed
-  - **Type Safety Improvements (TemplateManager):**
+  - __Type Safety Improvements (TemplateManager):__
     - initialize(config): Promise<void>
     - loadTemplates(): Promise<void>
     - loadThemes(): Promise<void>
@@ -5803,7 +5848,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
     - createTemplate(templateName, content): Promise<void>
     - createTheme(themeName, content): Promise<void>
     - suggestTemplates(pageName, category): string[]
-  - **New Type Interfaces (TemplateManager):**
+  - __New Type Interfaces (TemplateManager):__
     - TemplateConfig (initialization configuration)
     - Template (template object structure)
     - Theme (theme object structure)
@@ -5811,19 +5856,19 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
     - DefaultTemplateVariables (default variables)
     - TemplateMap (template name to template object mapping)
     - ThemeMap (theme name to theme object mapping)
-  - **Code Quality:**
+  - __Code Quality:__
     - Type-safe template variable substitution
     - Template and theme loading with proper typing
     - Default template creation for pages
     - Template suggestion system based on page name/category
     - Proper error handling for missing templates
-  - **Verified no regressions:**
+  - __Verified no regressions:__
     - All 1,393 tests passing
     - Full backward compatibility
 - Impact:
   - ✅ TemplateManager is now type-safe
   - ✅ Template and theme system fully typed with proper interfaces
-  - ✅ 🎉 **74% MILESTONE ACHIEVED** - 6 managers remaining!
+  - ✅ 🎉 __74% MILESTONE ACHIEVED__ - 6 managers remaining!
   - ✅ JavaScript code can still import and use TemplateManager
 - Commits: 192fc30
 - Files Created:
@@ -5832,7 +5877,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Next Steps:
   - Continue with remaining 6 managers: AuditManager (558 lines), PolicyValidator (663 lines), SearchManager (701 lines), RenderingManager (1297 lines - largest!)
   - 74% complete - excellent progress toward 100%
-- Issue #145 Status: **IN PROGRESS** - 17 of 23 managers converted (74% complete) 🎉
+- Issue #145 Status: __IN PROGRESS__ - 17 of 23 managers converted (74% complete) 🎉
 
 ---
 
@@ -5843,12 +5888,12 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Issues: #145 (Convert Managers to TypeScript), #139 (TypeScript Migration Epic)
 - Key Decision: Convert ValidationManager as sixteenth manager (70% milestone reached)
 - Work Done:
-  - **Converted ValidationManager.js to TypeScript:**
+  - __Converted ValidationManager.js to TypeScript:__
     - Created src/managers/ValidationManager.ts (623 lines)
     - Added 10 type interfaces for validation system
     - All 17 methods have explicit return types
     - UUID-based filename validation
-  - **Type Safety Improvements (ValidationManager):**
+  - __Type Safety Improvements (ValidationManager):__
     - initialize(config): Promise<void>
     - loadSystemCategories(configManager): void
     - getCategoryConfig(label): CategoryConfig | null
@@ -5865,7 +5910,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
     - generateFilename(metadata): string
     - validateExistingFile(filePath, fileData): PageValidationResult
     - generateFixSuggestions(filename, metadata): FixSuggestions
-  - **New Type Interfaces (ValidationManager):**
+  - __New Type Interfaces (ValidationManager):__
     - ValidationResult (basic validation result)
     - MetadataValidationResult (with warnings)
     - PageValidationResult (comprehensive validation)
@@ -5876,19 +5921,19 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
     - FileData (gray-matter file data)
     - FixSuggestions (auto-fix suggestions)
     - PageMetadata (page metadata structure)
-  - **Code Quality:**
+  - __Code Quality:__
     - Type-safe UUID validation using uuid package
     - System category management from configuration
     - Comprehensive metadata validation
     - Auto-fix suggestions for validation issues
     - Proper error handling
-  - **Verified no regressions:**
+  - __Verified no regressions:__
     - All 1,393 tests passing
     - Full backward compatibility
 - Impact:
   - ✅ ValidationManager is now type-safe
   - ✅ Validation system fully typed with proper interfaces
-  - ✅ 🎉 **70% MILESTONE ACHIEVED** - 7 managers remaining!
+  - ✅ 🎉 __70% MILESTONE ACHIEVED__ - 7 managers remaining!
   - ✅ JavaScript code can still import and use ValidationManager
 - Commits: 59b0fff
 - Files Created:
@@ -5897,7 +5942,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Next Steps:
   - Continue with remaining 7 managers: TemplateManager, AuditManager, PolicyValidator, SearchManager, RenderingManager
   - 70% complete - strong momentum toward 100%
-- Issue #145 Status: **IN PROGRESS** - 16 of 23 managers converted (70% complete) 🎉
+- Issue #145 Status: __IN PROGRESS__ - 16 of 23 managers converted (70% complete) 🎉
 
 ---
 
@@ -5908,12 +5953,12 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Issues: #145 (Convert Managers to TypeScript), #139 (TypeScript Migration Epic)
 - Key Decision: Convert AttachmentManager as fifteenth manager (65% milestone)
 - Work Done:
-  - **Converted AttachmentManager.js to TypeScript:**
+  - __Converted AttachmentManager.js to TypeScript:__
     - Created src/managers/AttachmentManager.ts (626 lines)
     - Added 8 type interfaces for attachment system
     - All 19 methods have explicit return types
     - Private methods converted from # to private keyword
-  - **Type Safety Improvements (AttachmentManager):**
+  - __Type Safety Improvements (AttachmentManager):__
     - initialize(config): Promise<void>
     - getCurrentAttachmentProvider(): BaseAttachmentProvider | null
     - checkPermission(action, userContext): Promise<boolean> [private]
@@ -5934,7 +5979,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
     - shutdown(): Promise<void>
     - normalizeProviderName(providerName): string [private]
     - formatSize(bytes): string [private]
-  - **New Type Interfaces (AttachmentManager):**
+  - __New Type Interfaces (AttachmentManager):__
     - BaseAttachmentProvider (provider interface)
     - FileInfo (file information)
     - UploadOptions (upload configuration)
@@ -5943,12 +5988,12 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
     - Mention (WebPage reference)
     - AttachmentMetadata (attachment metadata)
     - AttachmentBackupData (backup data structure)
-  - **Code Quality:**
+  - __Code Quality:__
     - Provider pattern with pluggable attachment storage
     - Permission checking for authenticated users
     - Attachment-to-page relationship tracking
     - Proper backup/restore support
-  - **Verified no regressions:**
+  - __Verified no regressions:__
     - All 1,393 tests passing
     - Full backward compatibility
 - Impact:
@@ -5963,7 +6008,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Next Steps:
   - Continue with ValidationManager next
   - Then TemplateManager, AuditManager, PolicyValidator, SearchManager, RenderingManager
-- Issue #145 Status: **IN PROGRESS** - 15 of 23 managers converted (65% complete)
+- Issue #145 Status: __IN PROGRESS__ - 15 of 23 managers converted (65% complete)
 
 ---
 
@@ -5974,12 +6019,12 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Issues: #145 (Convert Managers to TypeScript), #139 (TypeScript Migration Epic)
 - Key Decision: Convert ExportManager as fourteenth manager (60% milestone reached)
 - Work Done:
-  - **Converted ExportManager.js to TypeScript:**
+  - __Converted ExportManager.js to TypeScript:__
     - Created src/managers/ExportManager.ts (464 lines)
     - Added 6 type interfaces for export functionality
     - All 8 methods have explicit return types
     - HTML and Markdown export capabilities
-  - **Type Safety Improvements (ExportManager):**
+  - __Type Safety Improvements (ExportManager):__
     - initialize(config): Promise<void>
     - exportPageToHtml(pageName, user): Promise<string>
     - exportPagesToHtml(pageNames, user): Promise<string>
@@ -5988,18 +6033,18 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
     - getExports(): Promise<ExportFileInfo[]>
     - deleteExport(filename): Promise<void>
     - getFormattedTimestamp(user): string
-  - **New Type Interfaces (ExportManager):**
+  - __New Type Interfaces (ExportManager):__
     - ExportFileInfo (export file metadata)
     - ExportConfig (export configuration)
     - UserPreferences (user locale preferences)
     - ExportUser (user object for exports)
     - PageForExport (page structure for exports)
-  - **Code Quality:**
+  - __Code Quality:__
     - Type-safe HTML/Markdown generation
     - Locale-aware timestamp formatting
     - Export file management with metadata
     - Proper error handling
-  - **Verified no regressions:**
+  - __Verified no regressions:__
     - All 1,393 tests passing
     - Full backward compatibility
 - Impact:
@@ -6014,7 +6059,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Next Steps:
   - Continue with remaining 9 managers
   - Consider AttachmentManager, ValidationManager, or TemplateManager next
-- Issue #145 Status: **IN PROGRESS** - 14 of 23 managers converted (60% complete)
+- Issue #145 Status: __IN PROGRESS__ - 14 of 23 managers converted (60% complete)
 
 ---
 
@@ -6025,12 +6070,12 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Issues: #145 (Convert Managers to TypeScript), #139 (TypeScript Migration Epic)
 - Key Decision: Convert BackupManager as thirteenth manager
 - Work Done:
-  - **Converted BackupManager.js to TypeScript:**
+  - __Converted BackupManager.js to TypeScript:__
     - Created src/managers/BackupManager.ts (467 lines)
     - Added 5 type interfaces for backup/restore operations
     - All 9 methods have explicit return types
     - Private methods properly marked (validateBackupData, cleanupOldBackups)
-  - **Type Safety Improvements (BackupManager):**
+  - __Type Safety Improvements (BackupManager):__
     - initialize(config): Promise<void>
     - backup(options): Promise<string>
     - restore(backupPath, options): Promise<RestoreResults>
@@ -6038,18 +6083,18 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
     - listBackups(): Promise<BackupFileInfo[]>
     - cleanupOldBackups(): Promise<void> [private]
     - getLatestBackup(): Promise<string | null>
-  - **New Type Interfaces (BackupManager):**
+  - __New Type Interfaces (BackupManager):__
     - BackupOptions (backup configuration)
     - RestoreOptions (restore configuration)
     - BackupData (backup data structure)
     - RestoreResults (restore operation results)
     - BackupFileInfo (backup file metadata)
-  - **Code Quality:**
+  - __Code Quality:__
     - Type-safe backup orchestration across all managers
     - Gzip compression/decompression support
     - Comprehensive error handling for individual manager failures
     - Automatic cleanup of old backups
-  - **Verified no regressions:**
+  - __Verified no regressions:__
     - All 1,393 tests passing
     - Full backward compatibility
 - Impact:
@@ -6064,7 +6109,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Next Steps:
   - Continue with ExportManager next
   - Then AttachmentManager, ValidationManager, TemplateManager
-- Issue #145 Status: **IN PROGRESS** - 13 of 23 managers converted (56% complete)
+- Issue #145 Status: __IN PROGRESS__ - 13 of 23 managers converted (56% complete)
 
 ---
 
@@ -6075,12 +6120,12 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Issues: #145 (Convert Managers to TypeScript), #139 (TypeScript Migration Epic)
 - Key Decision: Convert PluginManager as twelfth manager, surpassing 50% completion
 - Work Done:
-  - **Converted PluginManager.js to TypeScript:**
+  - __Converted PluginManager.js to TypeScript:__
     - Created src/managers/PluginManager.ts (366 lines)
     - Added 4 type interfaces for plugin system
     - All 9 methods have explicit return types
     - Secure plugin loading with path validation
-  - **Type Safety Improvements (PluginManager):**
+  - __Type Safety Improvements (PluginManager):__
     - initialize(): Promise<void>
     - registerPlugins(): Promise<void>
     - loadPlugin(pluginPath): Promise<void>
@@ -6089,23 +6134,23 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
     - getPluginNames(): string[]
     - getPluginInfo(pluginName): PluginInfo | null
     - hasPlugin(pluginName): boolean
-  - **New Type Interfaces (PluginManager):**
+  - __New Type Interfaces (PluginManager):__
     - Plugin (plugin object with execute method)
     - PluginContext (context passed to plugins during execution)
     - PluginParams (plugin parameter object)
     - PluginInfo (plugin metadata)
-  - **Code Quality:**
+  - __Code Quality:__
     - Type-safe plugin discovery from configured search paths
     - Secure path validation (allowed roots only)
     - JSPWiki-compatible plugin naming support
     - Proper error handling and logging
-  - **Verified no regressions:**
+  - __Verified no regressions:__
     - All 1,393 tests passing
     - Full backward compatibility
 - Impact:
   - ✅ PluginManager is now type-safe
   - ✅ Plugin system fully typed with proper interfaces
-  - ✅ 🎉 **50% MILESTONE ACHIEVED** - Over halfway done!
+  - ✅ 🎉 __50% MILESTONE ACHIEVED__ - Over halfway done!
   - ✅ JavaScript code can still import and use PluginManager
 - Commits: b97ff2d
 - Files Created:
@@ -6114,7 +6159,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Next Steps:
   - Continue with remaining 11 managers
   - Consider BackupManager, ExportManager, or ValidationManager next
-- Issue #145 Status: **IN PROGRESS** - 12 of 23 managers converted (52% complete) 🎉
+- Issue #145 Status: __IN PROGRESS__ - 12 of 23 managers converted (52% complete) 🎉
 
 ---
 
@@ -6125,27 +6170,27 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Issues: #145 (Convert Managers to TypeScript), #139 (TypeScript Migration Epic)
 - Key Decision: Convert VariableManager and CacheManager as tenth and eleventh managers
 - Work Done:
-  - **Converted VariableManager.js to TypeScript:**
+  - __Converted VariableManager.js to TypeScript:__
     - Created src/managers/VariableManager.ts (367 lines)
     - Added 3 type interfaces for variable handling
     - All 6 public methods have explicit return types
     - Private methods properly marked (registerCoreVariables, getBrowserInfo)
-  - **Type Safety Improvements (VariableManager):**
+  - __Type Safety Improvements (VariableManager):__
     - initialize(): Promise<void>
     - registerVariable(name, handler): void
     - expandVariables(content, context): string
     - getVariable(varName, context): string
     - getDebugInfo(): VariableDebugInfo
-  - **New Type Interfaces (VariableManager):**
+  - __New Type Interfaces (VariableManager):__
     - VariableHandler (function type for handlers)
     - VariableContext (contextual information for variables)
     - VariableDebugInfo (debug information structure)
-  - **Converted CacheManager.js to TypeScript:**
+  - __Converted CacheManager.js to TypeScript:__
     - Created src/managers/CacheManager.ts (405 lines)
     - Added 4 type interfaces for cache operations
     - All 14 methods have explicit return types
     - Private methods properly marked (loadProvider, normalizeProviderName)
-  - **Type Safety Improvements (CacheManager):**
+  - __Type Safety Improvements (CacheManager):__
     - initialize(config): Promise<void>
     - region(region): RegionCache
     - get(key): Promise<unknown>
@@ -6160,18 +6205,18 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
     - flushAll(): Promise<void>
     - shutdown(): Promise<void>
     - static getCacheForManager(engine, region): RegionCache
-  - **New Type Interfaces (CacheManager):**
+  - __New Type Interfaces (CacheManager):__
     - CacheOptions (options for set operations)
     - CacheConfig (cache configuration)
     - CacheStats (cache statistics)
     - BaseCacheProvider (provider interface)
-  - **Code Quality:**
+  - __Code Quality:__
     - Proper error type narrowing
     - Type-safe Map operations
     - Added eslint-disable for engine typing (no WikiEngine type yet)
     - Added eslint-disable for dynamic require (provider loading)
     - Added type annotation for replace callback parameter
-  - **Verified no regressions:**
+  - __Verified no regressions:__
     - All 1,393 tests passing
     - Full backward compatibility
 - Impact:
@@ -6188,7 +6233,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Next Steps:
   - Continue with remaining 12 managers
   - Consider converting PluginManager, BackupManager, or TemplateManager next
-- Issue #145 Status: **IN PROGRESS** - 11 of 23 managers converted (48% complete)
+- Issue #145 Status: __IN PROGRESS__ - 11 of 23 managers converted (48% complete)
 
 ---
 
@@ -6199,12 +6244,12 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Issues: #145 (Convert Managers to TypeScript), #139 (TypeScript Migration Epic)
 - Key Decision: Convert NotificationManager and SchemaManager as eighth and ninth managers
 - Work Done:
-  - **Converted NotificationManager.js to TypeScript:**
+  - __Converted NotificationManager.js to TypeScript:__
     - Created src/managers/NotificationManager.ts (449 lines)
     - Added 5 type interfaces for notifications
     - All 13 methods have explicit return types
     - Private methods properly marked (loadNotifications, saveNotifications)
-  - **Type Safety Improvements (NotificationManager):**
+  - __Type Safety Improvements (NotificationManager):__
     - initialize(config): Promise<void>
     - createNotification(notification): Promise<string>
     - addNotification(notification): Promise<string>
@@ -6216,27 +6261,27 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
     - clearAllActive(): Promise<number>
     - getStats(): NotificationStats
     - shutdown(): Promise<void>
-  - **New Type Interfaces (NotificationManager):**
+  - __New Type Interfaces (NotificationManager):__
     - Notification (id, type, title, message, level, targetUsers, createdAt, expiresAt, dismissedBy)
     - NotificationInput (input for createNotification)
     - NotificationStats (total, active, expired, byType, byLevel)
     - MaintenanceConfig (extensible config object)
     - NotificationsData (storage structure)
-  - **Converted SchemaManager.js to TypeScript:**
+  - __Converted SchemaManager.js to TypeScript:__
     - Created src/managers/SchemaManager.ts (96 lines)
     - Added JSONSchema type
     - All 3 methods have explicit return types
-  - **Type Safety Improvements (SchemaManager):**
+  - __Type Safety Improvements (SchemaManager):__
     - initialize(): Promise<void>
     - getSchema(name): JSONSchema | undefined
     - getAllSchemaNames(): string[]
-  - **New Type Interfaces (SchemaManager):**
+  - __New Type Interfaces (SchemaManager):__
     - JSONSchema (Record<string, unknown>)
-  - **Code Quality:**
+  - __Code Quality:__
     - Proper error type narrowing with NodeJS.ErrnoException
     - Type-safe Map operations
     - Proper null checks and optional chaining
-  - **Verified no regressions:**
+  - __Verified no regressions:__
     - All 1,393 tests passing
     - Full backward compatibility
 - Impact:
@@ -6252,7 +6297,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Next Steps:
   - Continue with remaining 14 managers
   - Consider converting managers in dependency order (e.g., RenderingManager, SearchManager)
-- Issue #145 Status: **IN PROGRESS** - 9 of 23 managers converted (39% complete)
+- Issue #145 Status: __IN PROGRESS__ - 9 of 23 managers converted (39% complete)
 
 ---
 
@@ -6263,31 +6308,31 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Issues: #145 (Convert Managers to TypeScript), #139 (TypeScript Migration Epic)
 - Key Decision: Convert PolicyEvaluator as seventh manager (small, used by ACLManager)
 - Work Done:
-  - **Converted PolicyEvaluator.js to TypeScript:**
+  - __Converted PolicyEvaluator.js to TypeScript:__
     - Created src/managers/PolicyEvaluator.ts (293 lines)
     - Added 6 type interfaces for policy evaluation
     - All 6 methods have explicit return types
     - Private policyManager reference properly typed
-  - **Type Safety Improvements:**
+  - __Type Safety Improvements:__
     - initialize(): Promise<void>
     - evaluateAccess(context): Promise<EvaluationResult>
     - matches(policy, context): boolean
     - matchesSubject(subjects, userContext): boolean
     - matchesResource(resources, pageName): boolean
     - matchesAction(actions, action): boolean
-  - **New Type Interfaces:**
+  - __New Type Interfaces:__
     - UserContext (username, roles, extensible)
     - PolicySubject (type, value)
     - PolicyResource (type, pattern)
     - Policy (id, effect, subjects, resources, actions, priority)
     - AccessContext (pageName, action, userContext)
     - EvaluationResult (hasDecision, allowed, reason, policyName)
-  - **Code Quality:**
+  - __Code Quality:__
     - Type guards for policy matching logic
     - Proper null checks and optional chaining
     - Added eslint-disable comments for async methods without await (API compatibility)
     - Added eslint-disable for micromatch library (lacks TypeScript types)
-  - **Verified no regressions:**
+  - __Verified no regressions:__
     - All 1,393 tests passing
     - Full backward compatibility
 - Impact:
@@ -6302,7 +6347,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Convert NotificationManager.js to TypeScript (mentioned in linting warnings)
   - Convert SchemaManager.js to TypeScript (mentioned in linting warnings)
   - Continue with remaining 16 managers
-- Issue #145 Status: **IN PROGRESS** - 7 of 23 managers converted (30% complete)
+- Issue #145 Status: __IN PROGRESS__ - 7 of 23 managers converted (30% complete)
 
 ---
 
@@ -6313,21 +6358,21 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Issues: #145 (Convert Managers to TypeScript), #139 (TypeScript Migration Epic)
 - Key Decision: Convert PolicyManager as sixth manager (small, used by ACLManager)
 - Work Done:
-  - **Converted PolicyManager.js to TypeScript:**
+  - __Converted PolicyManager.js to TypeScript:__
     - Created src/managers/PolicyManager.ts (118 lines)
     - Added Policy interface for policy objects
     - All 3 methods have explicit return types
     - Private policies map properly typed
-  - **Type Safety Improvements:**
+  - __Type Safety Improvements:__
     - initialize(): Promise<void>
     - getPolicy(id): Policy | undefined
     - getAllPolicies(): Policy[] (sorted by priority)
-  - **New Type Interfaces:**
+  - __New Type Interfaces:__
     - Policy (id, priority, extensible properties)
-  - **Code Quality:**
+  - __Code Quality:__
     - Type guards for policy validation
     - Proper null checks and type assertions
-  - **Verified no regressions:**
+  - __Verified no regressions:__
     - All 1,393 tests passing
     - Full backward compatibility
 - Impact:
@@ -6341,7 +6386,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Next Steps:
   - Convert PolicyEvaluator.js to TypeScript (used by ACLManager)
   - Continue with remaining 17 managers
-- Issue #145 Status: **IN PROGRESS** - 6 of 23 managers converted (26% complete)
+- Issue #145 Status: __IN PROGRESS__ - 6 of 23 managers converted (26% complete)
 
 ---
 
@@ -6352,13 +6397,13 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Issues: #145 (Convert Managers to TypeScript), #139 (TypeScript Migration Epic)
 - Key Decision: Convert ACLManager as fifth manager (permissions & access control)
 - Work Done:
-  - **Converted ACLManager.js to TypeScript:**
+  - __Converted ACLManager.js to TypeScript:__
     - Created src/managers/ACLManager.ts (795 lines)
     - Added comprehensive type annotations for all 20+ methods
     - Created 10 new type interfaces for ACL operations
     - All permission checking methods properly typed
     - Context-aware permission checking fully typed
-  - **Type Safety Improvements:**
+  - __Type Safety Improvements:__
     - checkPagePermissionWithContext(WikiContext, action): Promise<boolean>
     - checkPagePermission(...): Promise<boolean> (deprecated but typed)
     - parsePageACL(content): Map<string, Set<string>>
@@ -6368,18 +6413,18 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
     - checkEnhancedTimeRestrictions(user, context): Promise<PermissionResult>
     - checkHolidayRestrictions(currentDate, config): Promise<PermissionResult>
     - logAccessDecision(...): void (overloaded signatures)
-  - **New Type Interfaces:**
+  - __New Type Interfaces:__
     - WikiContext (minimal, shared with PageManager)
     - UserContext (user identity and roles)
     - AccessPolicy, PermissionResult
     - MaintenanceConfig, BusinessHoursConfig
     - HolidayConfig, SchedulesConfig
     - ContextConfig, AccessDecisionLog
-  - **Code Quality:**
+  - __Code Quality:__
     - Private methods properly marked (notify, parseACL, etc.)
     - All context-aware checks fully typed
     - Proper eslint-disable comments for untyped manager interactions
-  - **Verified no regressions:**
+  - __Verified no regressions:__
     - All 1,393 tests passing
     - ACLManager.test.js passing
     - Full backward compatibility
@@ -6395,7 +6440,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Next Steps:
   - Continue with remaining 18 managers
   - Week 2 goal: 3 more managers (total 8 of 23)
-- Issue #145 Status: **IN PROGRESS** - 5 of 23 managers converted (22% complete)
+- Issue #145 Status: __IN PROGRESS__ - 5 of 23 managers converted (22% complete)
 
 ---
 
@@ -6406,13 +6451,13 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Issues: #145 (Convert Managers to TypeScript), #139 (TypeScript Migration Epic)
 - Key Decision: Convert UserManager as fourth manager (authentication/authorization)
 - Work Done:
-  - **Converted UserManager.js to TypeScript:**
+  - __Converted UserManager.js to TypeScript:__
     - Created src/managers/UserManager.ts (1,265 lines - largest conversion so far!)
     - Added comprehensive type annotations for all 40+ methods
     - Created 8 new type interfaces for user operations
     - All proxy methods properly typed with UserProvider interface
     - Express middleware methods typed with Request/Response/NextFunction
-  - **Type Safety Improvements:**
+  - __Type Safety Improvements:__
     - authenticateUser(): Promise<(Omit<User, 'password'> & { isAuthenticated: boolean }) | null>
     - createUser(UserCreateInput): Promise<Omit<User, 'password'>>
     - updateUser(username, UserUpdateInput): Promise<User>
@@ -6420,18 +6465,18 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
     - getUserPermissions(username): Promise<string[]>
     - All session management properly typed
     - All role management properly typed
-  - **New Type Interfaces:**
+  - __New Type Interfaces:__
     - UserCreateInput, UserUpdateInput
     - ExternalUserData (OAuth/JWT)
     - UserContext (permission evaluation)
     - RoleCreateData, SessionData
     - ProviderInfo, UserProviderConstructor
-  - **Code Quality:**
+  - __Code Quality:__
     - Replaced all console.* with logger methods
     - Fixed unused variable warnings (_pwd)
     - Deprecated async methods converted to sync
     - Proper eslint-disable comments for unavoidable unsafe operations
-  - **Verified no regressions:**
+  - __Verified no regressions:__
     - All 1,393 tests passing
     - UserManager.test.js passing
     - Full backward compatibility
@@ -6448,7 +6493,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Next Steps:
   - Convert ACLManager.js to TypeScript (permissions)
   - Continue with remaining 19 managers
-- Issue #145 Status: **IN PROGRESS** - 4 of 23 managers converted (17% complete)
+- Issue #145 Status: __IN PROGRESS__ - 4 of 23 managers converted (17% complete)
 
 ---
 
@@ -6459,27 +6504,27 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Issues: #145 (Convert Managers to TypeScript), #139 (TypeScript Migration Epic)
 - Key Decision: Convert PageManager as third manager (core wiki functionality)
 - Work Done:
-  - **Converted PageManager.js to TypeScript:**
+  - __Converted PageManager.js to TypeScript:__
     - Created src/managers/PageManager.ts (539 lines)
     - Added comprehensive type annotations for all 24+ methods
     - Created WikiContext minimal interface (TODO: full conversion later)
     - Created ProviderInfo interface for getProviderInfo()
     - Created ProviderConstructor interface for dynamic loading
     - All proxy methods properly typed with PageProvider interface
-  - **Type Safety Improvements:**
+  - __Type Safety Improvements:__
     - getPage(): Promise<WikiPage | null>
     - getPageContent(): Promise<string>
     - getPageMetadata(): Promise<PageFrontmatter | null>
     - savePage/savePageWithContext: Partial<PageFrontmatter>
     - backup/restore: Record<string, unknown>
     - ConfigurationManager: getManager<ConfigurationManager>()
-  - **Linting Compliance:**
+  - __Linting Compliance:__
     - Import logger from TypeScript module (not from .js)
     - Use Record<string, unknown> instead of any where possible
     - Add eslint-disable comments for unavoidable any usage
     - Type-only import for ConfigurationManager
     - Handle dynamic require() with proper typing
-  - **Verified no regressions:**
+  - __Verified no regressions:__
     - All 1,392 tests passing
     - PageManager.test.js passing
     - PageManager-Storage.test.js passing
@@ -6497,7 +6542,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Convert UserManager.js to TypeScript (authentication)
   - Convert ACLManager.js to TypeScript (permissions)
   - Continue with remaining 20 managers
-- Issue #145 Status: **IN PROGRESS** - 3 of 23 managers converted (13% complete)
+- Issue #145 Status: __IN PROGRESS__ - 3 of 23 managers converted (13% complete)
 
 ---
 
@@ -6508,18 +6553,18 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Issues: #145 (Convert Managers to TypeScript), #139 (TypeScript Migration Epic)
 - Key Decision: Convert ConfigurationManager as second manager (most widely used)
 - Work Done:
-  - **Converted ConfigurationManager.js to TypeScript:**
+  - __Converted ConfigurationManager.js to TypeScript:__
     - Created src/managers/ConfigurationManager.ts (695 lines, up from 628)
     - Added comprehensive type annotations for all 24+ methods
     - Used existing WikiConfig type from types/Config.ts
     - Replaced all console.log/warn/error with logger methods
     - All class properties properly typed (WikiConfig, WikiEngine, etc.)
-  - **Type Safety Improvements:**
+  - __Type Safety Improvements:__
     - getProperty() properly typed with WikiConfig keys
     - All getter methods have explicit return types (string, number, boolean, etc.)
     - Private methods marked with TypeScript private keyword
     - Configuration loading properly typed with Promise<void>
-  - **Key Methods Typed:**
+  - __Key Methods Typed:__
     - getApplicationName(): string
     - getServerPort(): number
     - getSessionSecret(): string
@@ -6527,7 +6572,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
     - backup(): Promise<Record<string, any>>
     - restore(backupData): Promise<void>
     - Plus 20+ configuration getter methods
-  - **Verified no regressions:**
+  - __Verified no regressions:__
     - All 1,393 tests passing
     - JavaScript code can still import and use ConfigurationManager
 - Impact:
@@ -6547,7 +6592,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Convert UserManager.js to TypeScript (authentication)
   - Convert ACLManager.js to TypeScript (permissions)
   - Continue with remaining 20 managers
-- Issue #145 Status: **IN PROGRESS** - 2 of 23 managers converted (9% complete)
+- Issue #145 Status: __IN PROGRESS__ - 2 of 23 managers converted (9% complete)
 
 ---
 
@@ -6558,20 +6603,20 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Issues: #145 (Convert Managers to TypeScript), #139 (TypeScript Migration Epic)
 - Key Decision: Start Phase 4 with BaseManager as foundation for all other managers
 - Work Done:
-  - **Converted BaseManager.js to TypeScript:**
+  - __Converted BaseManager.js to TypeScript:__
     - Created src/managers/BaseManager.ts (172 lines)
     - Added proper type annotations for all methods
     - Created BackupData interface for backup/restore operations
     - Maintains backward compatibility with JavaScript managers
-  - **Created WikiEngine type definitions:**
+  - __Created WikiEngine type definitions:__
     - Created src/types/WikiEngine.ts with WikiEngine interface
     - Defined ManagerRegistry type for manager lookup
     - Provides proper typing for getManager<T>() method
-  - **Updated type system:**
+  - __Updated type system:__
     - Provider.ts: Changed engine from 'any' to 'WikiEngine'
     - index.ts: Exported WikiEngine and ManagerRegistry types
     - All providers now have properly typed engine reference
-  - **Verified no regressions:**
+  - __Verified no regressions:__
     - All 1,393 tests passing
     - JavaScript managers can still extend TypeScript BaseManager
     - Build system working (TypeScript compiles successfully)
@@ -6594,7 +6639,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Convert PageManager.js to TypeScript (core functionality)
   - Convert UserManager.js to TypeScript (authentication)
   - Continue with remaining 19 managers
-- Issue #145 Status: **IN PROGRESS** - 1 of 23 managers converted (4% complete)
+- Issue #145 Status: __IN PROGRESS__ - 1 of 23 managers converted (4% complete)
 
 ---
 
@@ -6620,10 +6665,10 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
     - Issue #145: Added context about linting errors, prioritized manager list
   - Verified all tests still passing after Phases 1-3 (1,393 tests passed)
 - Analysis Results:
-  - **Root Cause:** TypeScript providers import JavaScript managers (no types)
-  - **Impact:** ~800 unsafe operation errors in .ts files using managers
-  - **Solution:** Convert 23 managers to TypeScript (Issue #145)
-  - **Priority Managers:** BaseManager, ConfigurationManager, WikiEngine, UserManager, PageManager
+  - __Root Cause:__ TypeScript providers import JavaScript managers (no types)
+  - __Impact:__ ~800 unsafe operation errors in .ts files using managers
+  - __Solution:__ Convert 23 managers to TypeScript (Issue #145)
+  - __Priority Managers:__ BaseManager, ConfigurationManager, WikiEngine, UserManager, PageManager
 - Next Steps:
   - Focus on Issue #145: [Phase 4] Convert Managers to TypeScript
   - Start with core managers: BaseManager → ConfigurationManager → WikiEngine
@@ -6681,7 +6726,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Phase 2: Convert require() to ES6 imports (~20 errors)
   - Phase 3: Fix critical type safety in logger.ts and sessionUtils.ts (~100 errors)
   - Phase 4: Fix unsafe operations in provider implementations (~600 errors)
-- Issue #184 Status: **OPEN** - Phase 1 complete (102 fixes), 967 problems remain
+- Issue #184 Status: __OPEN__ - Phase 1 complete (102 fixes), 967 problems remain
 
 ---
 
@@ -6736,8 +6781,8 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - `docs/project_log.md` - updated with session details
 - Files Created:
   - `.lintstagedrc.json` - lint-staged configuration
-- Issue #183 Status: **OPEN** - 2,741 markdown errors remain (real quality issues needing manual fixes)
-- Issue #184 Status: **OPEN** - Systematic fix plan created, implementation not started
+- Issue #183 Status: __OPEN__ - 2,741 markdown errors remain (real quality issues needing manual fixes)
+- Issue #184 Status: __OPEN__ - Systematic fix plan created, implementation not started
 
 ---
 
@@ -6788,7 +6833,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Files Modified:
   - docs/Developer-Documentation.md
   - docs/project_log.md
-- Issue #178 Status: **COMPLETE** ✅
+- Issue #178 Status: __COMPLETE__ ✅
   - Managers: 21/21 (100%) - quick reference + complete guide
   - Plugins: 12/12 (100%) - developer docs + user docs with examples
   - Providers: 4/4 (100%) - quick reference + complete guide
@@ -6803,7 +6848,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Issue: #178 Documentation Explosion
 - Key Decision: Create both quick references AND complete guides for all providers (two-file pattern)
 - Work Done:
-  **Quick References (Session 1):**
+  __Quick References (Session 1):__
   - Created FileSystemProvider.md (~200 lines)
     - UUID-based file naming, title lookup, plural matching
     - Installation-aware loading (required-pages)
@@ -6819,7 +6864,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Reorganized BasicAttachmentProvider.md into two-file pattern
     - Renamed existing to BasicAttachmentProvider-Complete-Guide.md
     - Created new quick reference (~250 lines)
-  **Complete Guides (Session 2):**
+  __Complete Guides (Session 2):__
   - Created FileSystemProvider-Complete-Guide.md (~650 lines)
     - Architecture, component relationships, data flow
     - Caching system (pageCache, titleIndex, uuidIndex, slugIndex)
@@ -6870,17 +6915,17 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Work Done:
   - Cleaned up temporary test directories (25 test-pages-* folders)
   - Verified PageManager-Storage.test.js passing (20 tests)
-  **Managers (21 total - 100% complete):**
+  __Managers (21 total - 100% complete):__
   - Created RenderingManager.md quick reference (~170 lines)
   - Created BackupManager.md quick reference (~180 lines)
   - Created CacheManager.md quick reference (~200 lines)
   - Created SearchManager.md quick reference (~220 lines)
   - All 21 managers now have two-file documentation (quick + complete)
-  **Plugins (12 total - 100% complete):**
+  __Plugins (12 total - 100% complete):__
   - Created RecentChangesPlugin user documentation (~100 lines)
   - Created VariablesPlugin user documentation (~95 lines)
   - All 12 plugins now have user-facing docs with examples
-  **Developer Index:**
+  __Developer Index:__
   - Created Developer-Documentation.md comprehensive index (~290 lines)
   - Updated DOCUMENTATION.md with link to developer index
   - Indexed all 21 managers and 12 plugins
@@ -6952,7 +6997,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Pass Rate: 100% of executed tests
 - Commits: 6849960
 - Files Modified:
-  - src/managers/**tests**/PageManager-Storage.test.js (complete rewrite)
+  - src/managers/__tests__/PageManager-Storage.test.js (complete rewrite)
   - docs/testing/Testing-Summary.md
   - docs/testing/Complete-Testing-Guide.md
   - docs/project_log.md
@@ -6990,14 +7035,14 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Pass Rate: 100% of executed tests
 - Commits: 958f014, a6334cc, 6bbd682
 - Files Modified:
-  - src/managers/**tests**/NotificationManager.test.js
-  - src/managers/**tests**/PageManager-Storage.test.js
-  - src/parsers/**tests**/MarkupParser.test.js
-  - src/parsers/**tests**/MarkupParser-Performance.test.js
-  - src/parsers/**tests**/MarkupParser-Config.test.js
-  - src/parsers/**tests**/MarkupParser-*.test.js (6 variant files)
-  - src/providers/**tests**/VersioningFileProvider*.test.js
-  - src/utils/**tests**/VersioningMigration.test.js
+  - src/managers/__tests__/NotificationManager.test.js
+  - src/managers/__tests__/PageManager-Storage.test.js
+  - src/parsers/__tests__/MarkupParser.test.js
+  - src/parsers/__tests__/MarkupParser-Performance.test.js
+  - src/parsers/__tests__/MarkupParser-Config.test.js
+  - src/parsers/__tests__/MarkupParser-*.test.js (6 variant files)
+  - src/providers/__tests__/VersioningFileProvider*.test.js
+  - src/utils/__tests__/VersioningMigration.test.js
   - docs/testing/Testing-Summary.md
 
 ---
@@ -7163,11 +7208,11 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Tests Fixed: 5 test suites (30 individual tests)
 - Remaining Failures: Pre-existing issues (VersioningFileProvider, MarkupParser, NotificationManager)
 - Files Modified:
-  - src/managers/**tests**/SchemaManager.test.js
-  - src/managers/**tests**/PluginManager.test.js
-  - src/managers/**tests**/PluginManager.registerPlugins.test.js
-  - plugins/**tests**/SessionsPlugin.test.js
-  - plugins/**tests**/AllPlugins.test.js
+  - src/managers/__tests__/SchemaManager.test.js
+  - src/managers/__tests__/PluginManager.test.js
+  - src/managers/__tests__/PluginManager.registerPlugins.test.js
+  - plugins/__tests__/SessionsPlugin.test.js
+  - plugins/__tests__/AllPlugins.test.js
   - docs/project_log.md
 
 ---
@@ -7189,7 +7234,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Updated docs/testing/Complete-Testing-Guide.md with comprehensive E2E section
   - Updated docs/testing/Testing-Summary.md with E2E overview
 - Test Results (Current):
-  - **17 passed, 9 failed, 2 skipped**
+  - __17 passed, 9 failed, 2 skipped__
   - Passing: auth setup, login form, credentials, session, protected routes, admin dashboard, navigation, user management, home page, wiki navigation, breadcrumbs, search results
   - Failing: mostly search page selectors and missing features (config section)
 - Test Credentials:
@@ -7258,9 +7303,9 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - config/ConfigBridge.js
   - config/DigitalDocumentPermissionConfig.js
   - config/legacy/ (entire folder)
-  - src/parsers/**tests**/MarkupParser-Integration.test.js
-  - src/parsers/**tests**/MarkupParser-DOM-Integration.test.js
-  - src/parsers/**tests**/MarkupParser-DOM-Integration.test.js.bak
+  - src/parsers/__tests__/MarkupParser-Integration.test.js
+  - src/parsers/__tests__/MarkupParser-DOM-Integration.test.js
+  - src/parsers/__tests__/MarkupParser-DOM-Integration.test.js.bak
 
 ---
 
@@ -7270,8 +7315,8 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Subject: Fix Issue #167 - Multiple PM2 Daemons and PIDs (Root Cause)
 - Issue: #167
 - Work Done:
-  - **Root cause identified**: Multiple PM2 daemons can spawn and persist in `~/.pm2/`
-  - **Bug fixed**: Double `npx --no -- npx --no --` on line 93 (was `npx --no -- npx --no -- pm2 start`)
+  - __Root cause identified__: Multiple PM2 daemons can spawn and persist in `~/.pm2/`
+  - __Bug fixed__: Double `npx --no -- npx --no --` on line 93 (was `npx --no -- npx --no -- pm2 start`)
   - Added `ensure_single_pm2_daemon()` function - detects/kills multiple PM2 daemons
   - Added `kill_all_amdwiki()` function - comprehensive process cleanup
   - Improved `start` command:
@@ -7352,13 +7397,13 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Subject: Bug Fixes - Required Pages & ReferringPagesPlugin
 - Issues Closed: #172, #174
 - Work Done:
-  - **Issue #174**: Fixed required-pages showing in operating wiki
+  - __Issue #174__: Fixed required-pages showing in operating wiki
     - Modified FileSystemProvider to only load from required-pages during installation
     - Added `installationComplete` flag checked from `amdwiki.install.completed` config
     - Updated VersioningFileProvider to match parent behavior
     - Fixed RenderingManager.getTotalPagesCount() to use provider cache
     - Extended WikiRoutes.isRequiredPage() to protect system/documentation pages (Admin-only edit)
-  - **Issue #172**: Fixed ReferringPagesPlugin not showing plural-linked pages
+  - __Issue #172__: Fixed ReferringPagesPlugin not showing plural-linked pages
     - Root cause: buildLinkGraph() stored links literally without resolving plurals
     - Fix: Added pageNameMatcher.findMatch() when building link graph
     - Result: "Contextual Variables" (links to `[Plugins]`) now appears on "Plugin" page
@@ -7536,11 +7581,11 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Files Modified:
   - .github/workflows/ci-passing-tests.yml (new)
   - docs/testing/KNOWN-TEST-ISSUES.md
-  - src/managers/**tests**/ExportManager.test.js
-  - src/parsers/handlers/**tests**/PluginSyntaxHandler.test.js
-  - src/routes/**tests**/WikiRoutes.attachments.test.js
-  - src/routes/**tests**/WikiRoutes.schema.test.js
-  - src/routes/**tests**/maintenance-mode.test.js
+  - src/managers/__tests__/ExportManager.test.js
+  - src/parsers/handlers/__tests__/PluginSyntaxHandler.test.js
+  - src/routes/__tests__/WikiRoutes.attachments.test.js
+  - src/routes/__tests__/WikiRoutes.schema.test.js
+  - src/routes/__tests__/maintenance-mode.test.js
 - Next Steps: Continue fixing remaining 26 failing test suites (Option C)
 
 ## 2025-12-08-02
