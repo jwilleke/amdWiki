@@ -540,17 +540,50 @@ class ValidationManager extends BaseManager {
   }
 
   /**
-   * Generate URL-safe slug from title
+   * Generate URL-safe slug from title.
+   * Unicode characters are transliterated to ASCII equivalents before stripping
+   * so that titles like "Aβ" produce "abeta" rather than "a" (#295).
    * @param {string} title - Page title
    * @returns {string} URL-safe slug
    */
   generateSlug(title: string): string {
     return title
+      .normalize('NFC')
+      .replace(/[\u0080-\uFFFF]/g, (ch) => ValidationManager.UNICODE_MAP[ch] ?? '')
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '')
       .replace(/-+/g, '-');
   }
+
+  /** Transliteration table for common non-ASCII characters (#295). */
+  private static readonly UNICODE_MAP: Record<string, string> = {
+    // Greek lowercase
+    'α': 'alpha', 'β': 'beta',  'γ': 'gamma', 'δ': 'delta',   'ε': 'epsilon',
+    'ζ': 'zeta',  'η': 'eta',   'θ': 'theta', 'ι': 'iota',    'κ': 'kappa',
+    'λ': 'lambda','μ': 'mu',    'ν': 'nu',    'ξ': 'xi',      'ο': 'omicron',
+    'π': 'pi',    'ρ': 'rho',   'σ': 'sigma', 'τ': 'tau',     'υ': 'upsilon',
+    'φ': 'phi',   'χ': 'chi',   'ψ': 'psi',   'ω': 'omega',
+    // Greek uppercase
+    'Α': 'alpha', 'Β': 'beta',  'Γ': 'gamma', 'Δ': 'delta',   'Ε': 'epsilon',
+    'Ζ': 'zeta',  'Η': 'eta',   'Θ': 'theta', 'Ι': 'iota',    'Κ': 'kappa',
+    'Λ': 'lambda','Μ': 'mu',    'Ν': 'nu',    'Ξ': 'xi',      'Ο': 'omicron',
+    'Π': 'pi',    'Ρ': 'rho',   'Σ': 'sigma', 'Τ': 'tau',     'Υ': 'upsilon',
+    'Φ': 'phi',   'Χ': 'chi',   'Ψ': 'psi',   'Ω': 'omega',
+    // Latin extended (accented vowels / common diacritics)
+    'à':'a','á':'a','â':'a','ã':'a','ä':'a','å':'a','æ':'ae',
+    'ç':'c','è':'e','é':'e','ê':'e','ë':'e','ì':'i','í':'i','î':'i','ï':'i',
+    'ð':'d','ñ':'n','ò':'o','ó':'o','ô':'o','õ':'o','ö':'o','ø':'o',
+    'ù':'u','ú':'u','û':'u','ü':'u','ý':'y','þ':'th','ÿ':'y',
+    'À':'a','Á':'a','Â':'a','Ã':'a','Ä':'a','Å':'a','Æ':'ae',
+    'Ç':'c','È':'e','É':'e','Ê':'e','Ë':'e','Ì':'i','Í':'i','Î':'i','Ï':'i',
+    'Ð':'d','Ñ':'n','Ò':'o','Ó':'o','Ô':'o','Õ':'o','Ö':'o','Ø':'o',
+    'Ù':'u','Ú':'u','Û':'u','Ü':'u','Ý':'y','Þ':'th',
+    // German
+    'ß': 'ss',
+    // Ligatures
+    'œ':'oe','Œ':'oe','ﬁ':'fi','ﬂ':'fl'
+  };
 
   /**
    * Check for conflicts with existing pages (duplicate title, slug, or UUID mismatch).

@@ -232,6 +232,28 @@ describe('ValidationManager', () => {
       expect(validationManager.generateSlug('Special@#$Characters')).toBe('special-characters');
       expect(validationManager.generateSlug('  Leading and Trailing  ')).toBe('leading-and-trailing');
     });
+
+    test('should transliterate Greek characters (#295)', () => {
+      expect(validationManager.generateSlug('Aβ')).toBe('abeta');
+      expect(validationManager.generateSlug('α-helix')).toBe('alpha-helix');
+      expect(validationManager.generateSlug('Ω')).toBe('omega');
+      expect(validationManager.generateSlug('π')).toBe('pi');
+    });
+
+    test('should transliterate Latin extended / accented characters (#295)', () => {
+      expect(validationManager.generateSlug('Über')).toBe('uber');
+      expect(validationManager.generateSlug('café')).toBe('cafe');
+      expect(validationManager.generateSlug('naïve')).toBe('naive');
+      expect(validationManager.generateSlug('Ångström')).toBe('angstrom');
+    });
+
+    test('Aβ and A should produce different slugs (#295)', () => {
+      const slugA  = validationManager.generateSlug('A');
+      const slugAb = validationManager.generateSlug('Aβ');
+      expect(slugA).toBe('a');
+      expect(slugAb).toBe('abeta');
+      expect(slugA).not.toBe(slugAb);
+    });
   });
 
   describe('generateFilename', () => {
