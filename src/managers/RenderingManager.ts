@@ -645,7 +645,7 @@ class RenderingManager extends BaseManager {
    * @param {object} userContext - User context for authentication variables
    * @returns {string} Content with expanded macros
    */
-  async expandMacros(content: string, pageName: string, userContext: UserContext | null = null, _requestInfo: RequestInfo | null = null): Promise<string> {
+  async expandMacros(content: string, pageName: string, userContext: UserContext | null = null, requestInfo: RequestInfo | null = null): Promise<string> {
     logger.debug('expandMacros called with content:', content, 'pageName:', pageName);
     let expandedContent = content;
 
@@ -774,7 +774,8 @@ class RenderingManager extends BaseManager {
             replacement = await pluginManager.execute(pluginName, pageName, params, {
               linkGraph: this.linkGraph,
               engine: this.engine,
-              pageName: pageName
+              pageName: pageName,
+              query: requestInfo?.query ?? {}
             });
           }
 

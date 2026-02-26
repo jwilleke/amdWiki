@@ -32,6 +32,8 @@ export interface RequestInfo {
   referer?: string;
   /** Session ID */
   sessionId?: string;
+  /** Parsed query-string parameters (e.g. `?page=2&sort=count-desc`) */
+  query?: Record<string, string>;
 }
 
 /**
@@ -342,7 +344,8 @@ class WikiContext {
           userAgent: this.request?.headers?.['user-agent'],
           clientIp: this.request?.ip,
           referer: this.request?.headers?.referer,
-          sessionId: this.request?.sessionID
+          sessionId: this.request?.sessionID,
+          query: this.request?.query as Record<string, string> | undefined
         }
       },
       engine: this.engine

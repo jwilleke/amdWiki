@@ -32,7 +32,13 @@ import {
   formatAsCount,
   formatAsTable,
   escapeHtml,
-  type PageLink
+  parseSortParam,
+  parsePageParam,
+  parsePageSizeParam,
+  applyPagination,
+  formatPaginationLinks,
+  type PageLink,
+  type TableOptions
 } from '../src/utils/pluginFormatters';
 
 interface UndefinedPagesParams extends PluginParams {
@@ -43,6 +49,9 @@ interface UndefinedPagesParams extends PluginParams {
   include?:       string;
   exclude?:       string;
   showReferring?: string;
+  sort?:          string;
+  page?:          string | number;
+  pageSize?:      string | number;
 }
 
 interface PageManager {
@@ -55,7 +64,7 @@ const UndefinedPagesPlugin: SimplePlugin = {
   name: 'UndefinedPagesPlugin',
   description: 'Lists pages that are linked to (RED-LINKs) but do not exist',
   author: 'amdWiki',
-  version: '1.1.0',
+  version: '1.2.0',
 
   async execute(context: PluginContext, params: PluginParams): Promise<string> {
     const opts = (params ?? {}) as UndefinedPagesParams;
@@ -96,20 +105,53 @@ const UndefinedPagesPlugin: SimplePlugin = {
         }
       }
 
-      // Always sort alphabetically
-      undefinedPages.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+      // Sort: parse sort= param; default alphabetical ascending
+      const sort = parseSortParam(
+        opts.sort,
+        ['name', 'count'],
+        'name',
+        'asc'
+      );
+
+      if (sort.key === 'count') {
+        undefinedPages.sort((a, b) => {
+          const diff = (linkGraph[a]?.length ?? 0) - (linkGraph[b]?.length ?? 0);
+          return sort.order === 'asc' ? diff : -diff;
+        });
+      } else {
+        // sort by name
+        undefinedPages.sort((a, b) => {
+          const cmp = a.toLowerCase().localeCompare(b.toLowerCase());
+          return sort.order === 'asc' ? cmp : -cmp;
+        });
+      }
 
       const format        = String(opts.format ?? 'list').toLowerCase();
       const showReferring = String(opts.showReferring ?? 'false').toLowerCase() === 'true';
 
-      // count: return total before applying max (matches JSPWiki behaviour)
+      // count: return total before applying max/pagination (matches JSPWiki behaviour)
       if (format === 'count') {
         return formatAsCount(undefinedPages.length);
       }
 
-      // Apply max limit for list/table formats
-      const max     = parseMaxParam(opts.max);
-      const limited = applyMax(undefinedPages, max);
+      // Pagination vs max
+      const pageSize = parsePageSizeParam(opts.pageSize);
+      let limited: string[];
+      let paginationHtml = '';
+
+      if (pageSize > 0) {
+        // Use pageSize= pagination; page can come from query string or param
+        const queryPage = (context as Record<string, unknown>).query as Record<string, string> | undefined;
+        const rawPage = queryPage?.['page'] ?? opts.page;
+        const page = parsePageParam(rawPage);
+        const paged = applyPagination(undefinedPages, page, pageSize);
+        limited = paged.items;
+        paginationHtml = formatPaginationLinks(paged.currentPage, paged.totalPages, context.pageName);
+      } else {
+        // Apply max limit (existing behaviour)
+        const max = parseMaxParam(opts.max);
+        limited = applyMax(undefinedPages, max);
+      }
 
       if (limited.length === 0) {
         return '<p><em>No undefined pages found.</em></p>';
@@ -125,6 +167,23 @@ const UndefinedPagesPlugin: SimplePlugin = {
       }));
 
       if (format === 'table') {
+        // Column 0 = page name, column 1 = referrer count/links
+        const sortColIndex = sort.key === 'count' ? 1 : 0;
+        const tableOptions: TableOptions = {
+          sortable: true,
+          defaultSortColumn: sortColIndex,
+          defaultSortOrder: sort.order
+        };
+
+        // When showReferring=true, column 1 holds HTML links rather than a plain
+        // number.  Supply a cellDataSort callback so tableSort.js still sorts by
+        // the underlying referrer count.
+        if (showReferring) {
+          tableOptions.cellDataSort = {
+            1: (_row, rowIndex) => String((linkGraph[limited[rowIndex]] ?? []).length)
+          };
+        }
+
         const rows = links.map(link => {
           const referrers = linkGraph[link.text] ?? [];
           const anchor    = `<a class="${link.cssClass}" href="${link.href}" style="${link.style ?? ''}" title="${escapeHtml(link.title ?? '')}">${escapeHtml(link.text)}</a>`;
@@ -136,7 +195,9 @@ const UndefinedPagesPlugin: SimplePlugin = {
           }
           return [anchor, String(referrers.length)];
         });
-        return formatAsTable(['Undefined Page', 'Referenced By'], rows);
+
+        const tableHtml = formatAsTable(['Undefined Page', 'Referenced By'], rows, tableOptions);
+        return tableHtml + paginationHtml;
       }
 
       // Default: list format
@@ -152,13 +213,14 @@ const UndefinedPagesPlugin: SimplePlugin = {
             .join('\n');
           return `<li>${anchor}\n<ul class="referring-pages">\n${subItems}\n</ul>\n</li>`;
         }).join('\n');
-        return `<ul>\n${items}\n</ul>`;
+        return `<ul>\n${items}\n</ul>${paginationHtml}`;
       }
 
-      return formatAsList(links, {
+      const listHtml = formatAsList(links, {
         before: opts.before ? String(opts.before) : '',
         after:  opts.after  ? String(opts.after)  : ''
       });
+      return listHtml + paginationHtml;
 
     } catch (error) {
       const err = error as Error;
