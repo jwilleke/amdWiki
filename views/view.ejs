@@ -1,6 +1,13 @@
 
 <%- include('header', { pageName: pageName }) %>
 
+<% if (typeof warningMessage !== 'undefined' && warningMessage) { %>
+<div class="alert alert-warning alert-dismissible fade show mx-3 mt-3" role="alert">
+    <i class="fas fa-exclamation-triangle me-2"></i><%= warningMessage %>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+<% } %>
+
 <!-- Page content -->
 <div class="markdown-body mb-4">
     <%- content %>

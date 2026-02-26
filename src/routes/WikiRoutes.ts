@@ -552,6 +552,28 @@ class WikiRoutes {
   }
 
   /**
+   * Get category labels whose storageLocation is 'required' (i.e. tracked in required-pages/).
+   * Used to determine whether to set the user-modified flag and whether a page is protected.
+   */
+  getRequiredPageCategories(): string[] {
+    try {
+      const configManager = this.engine.getManager('ConfigurationManager');
+      if (!configManager) return ['system', 'documentation'];
+      const systemCategories = configManager.getProperty('amdwiki.system-category', {}) as
+        Record<string, { storageLocation?: string; label?: string; enabled?: boolean }>;
+      const labels: string[] = [];
+      for (const [key, cfg] of Object.entries(systemCategories)) {
+        if (cfg.enabled !== false && cfg.storageLocation === 'required') {
+          labels.push((cfg.label || key).toLowerCase());
+        }
+      }
+      return labels.length > 0 ? labels : ['system', 'documentation'];
+    } catch {
+      return ['system', 'documentation'];
+    }
+  }
+
+  /**
    * Get system categories from configuration (admin-only)
    */
   getSystemCategories() {
@@ -850,8 +872,8 @@ class WikiRoutes {
         const systemCategory = (metadata['system-category'] || '').toLowerCase();
         const category = (metadata.category || '').toLowerCase();
 
-        // Protected categories that require admin permission to edit
-        const protectedCategories = ['system', 'system/admin', 'documentation'];
+        // Protected categories that require admin permission to edit (config-driven)
+        const protectedCategories = this.getRequiredPageCategories();
 
         if (protectedCategories.includes(systemCategory) ||
             protectedCategories.includes(category)) {
@@ -1046,6 +1068,9 @@ class WikiRoutes {
       const template = viewMode === 'reader' ? 'reader' : 'view';
 
       this.engine.getManager('MetricsManager')?.recordPageView?.(Date.now() - _metricsStart);
+      const warningMessage = req.query.warning === 'github-page'
+        ? 'This page is managed in GitHub — edits here will not be reflected in the source repository.'
+        : null;
       res.render(template, {
         ...templateData,
         pageName,
@@ -1055,7 +1080,8 @@ class WikiRoutes {
         metadata,
         versionInfo,
         lastModified: metadata?.lastModified,
-        referringPages: [] // TODO: Implement backlink detection
+        referringPages: [], // TODO: Implement backlink detection
+        warningMessage
       });
     } catch (error: unknown) {
       this.engine.getManager('MetricsManager')?.recordPageView?.(Date.now() - _metricsStart);
@@ -1783,11 +1809,24 @@ class WikiRoutes {
         uuid: existingPage?.metadata?.uuid || undefined
       });
 
-      // Mark system/documentation pages as user-modified
-      const protectedSaveCategories = ['System', 'System/Admin', 'Documentation'];
-      if (protectedSaveCategories.includes(matchedCategory)) {
+      // Mark pages as user-modified based on their storageLocation in config
+      const _catConfigManager = this.engine.getManager('ConfigurationManager');
+      const _allCategoryConfig = (_catConfigManager
+        ? _catConfigManager.getProperty('amdwiki.system-category', {})
+        : {}) as Record<string, { storageLocation?: string; label?: string }>;
+      const _catKey = Object.keys(_allCategoryConfig).find(
+        k => (_allCategoryConfig[k].label || k).toLowerCase() === matchedCategory.toLowerCase()
+      );
+      const storageLocation = _catKey
+        ? (_allCategoryConfig[_catKey].storageLocation || 'regular')
+        : 'regular';
+      if (storageLocation === 'required' || storageLocation === 'github') {
         metadata['user-modified'] = true;
       }
+      // Warn when editing a page whose source lives in GitHub, not in required-pages/
+      const saveWarning = storageLocation === 'github'
+        ? 'This page is managed in GitHub — edits here will not be reflected in the source repository.'
+        : undefined;
 
       // Permission checks
       const isCurrentlyRequired = await this.isRequiredPage(pageName);
@@ -1795,8 +1834,9 @@ class WikiRoutes {
       const hardcodedRequiredPages = ['System Categories', 'Wiki Documentation'];
       const willBeRequired = hardcodedRequiredPages.includes(pageName) ||
                             hardcodedRequiredPages.includes(metadata.title as string) ||
-                            metadata['system-category'] === 'System' ||
-                            metadata['system-category'] === 'System/Admin';
+                            this.getRequiredPageCategories().includes(
+                              ((metadata['system-category'] as string) || '').toLowerCase()
+                            );
       if (isCurrentlyRequired || willBeRequired) {
         if (
           !currentUser ||
@@ -1810,7 +1850,7 @@ class WikiRoutes {
             res,
             403,
             'Access Denied',
-            'Only administrators can edit this page or assign System/Admin category'
+            'Only administrators can edit this page or assign a system category'
           );
         }
       } else {
@@ -1889,7 +1929,8 @@ class WikiRoutes {
       // Redirect to the updated page title if it changed (fallback to original name)
       const redirectName = (metadata.title as string) || pageName;
       this.engine.getManager('MetricsManager')?.recordPageSave?.(Date.now() - _metricsStart);
-      res.redirect(`/wiki/${encodeURIComponent(redirectName)}`);
+      const warnParam = saveWarning ? `?warning=${encodeURIComponent('github-page')}` : '';
+      res.redirect(`/wiki/${encodeURIComponent(redirectName)}${warnParam}`);
     } catch (err: unknown) {
       this.engine.getManager('MetricsManager')?.recordPageSave?.(Date.now() - _metricsStart);
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
@@ -4315,6 +4356,15 @@ class WikiRoutes {
         } catch {
           // use defaults
         }
+        // Fall back to filesystem mtime when front-matter has no lastModified
+        if (!lastModified) {
+          try {
+            const stat = await fse.stat(sourcePath);
+            lastModified = stat.mtime.toISOString();
+          } catch {
+            // leave empty
+          }
+        }
 
         const destPath = path.join(pagesDirResolved, file);
         let status: 'new' | 'modified' | 'current' | 'uuid-mismatch';
@@ -4330,8 +4380,16 @@ class WikiRoutes {
           }
         } else {
           const destContent: string = await fse.readFile(destPath, 'utf8');
-          const normalize = (s: string) => s.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-          status = normalize(sourceContent) === normalize(destContent) ? 'current' : 'modified';
+          const { data: destData } = matter(destContent);
+          // Auto-heal System/Admin → system (invalid legacy category)
+          if ((destData['system-category'] as string | undefined)?.toLowerCase() === 'system/admin') {
+            destData['system-category'] = 'system';
+            const healed = matter.stringify(destContent.replace(/^---[\s\S]*?---\n?/, ''), destData);
+            await fse.writeFile(destPath, healed, 'utf8');
+            logger.info(`auto-healed system-category System/Admin → system for ${uuid}`);
+          }
+          // Use user-modified flag as the authoritative "was this edited by a human?" signal
+          status = destData['user-modified'] === true ? 'modified' : 'current';
         }
 
         comparison.push({ uuid, title, slug, lastModified, status, liveUuid });
