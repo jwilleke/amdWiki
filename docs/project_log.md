@@ -24,6 +24,25 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-26-04
+
+- Agent: Claude Sonnet 4.6
+- Subject: Fix startup RED-LINKs from unclean shutdown
+- Current Issue: #291
+- Testing:
+  - 53/53 UndefinedPagesPlugin unit tests passed
+- Work Done:
+  - Added `flushWriteQueue()` to VersioningFileProvider and PageManager
+  - Added recovery scan in `initializeFromIndex()` for UUID.md files on disk but missing from page-index.json
+  - Made SIGTERM handler in app.js async; awaits write queue drain before exit
+- Commits: 6b2d5ac
+- Files Modified:
+  - src/providers/VersioningFileProvider.ts
+  - src/managers/PageManager.ts
+  - app.js
+
+---
+
 ## 2026-02-26-03
 
 - Agent: Claude Sonnet 4.6
