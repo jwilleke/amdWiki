@@ -24,6 +24,36 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-26-13
+
+- Agent: Claude Sonnet 4.6
+- Subject: Format plugin number outputs with locale thousands separators (#290)
+
+- Work Done:
+  - Updated `formatAsCount()` in `pluginFormatters.ts` to use `toLocaleString('en-US')` — single source of truth
+  - `UndefinedPagesPlugin format='count'` and `ReferringPagesPlugin format='count'` fixed automatically via `formatAsCount()`
+  - `TotalPagesPlugin` — page count output now locale-formatted (e.g. 16,959)
+  - `SearchPlugin` — `formatCount()` span and "Found N results" summary text now locale-formatted
+  - `VariableManager` — `[{$totalpages}]` variable now locale-formatted
+  - `CounterPlugin` intentionally left unformatted (small sequential integers for item numbering)
+
+- Files Modified:
+  - src/utils/pluginFormatters.ts - formatAsCount() uses toLocaleString('en-US')
+  - plugins/TotalPagesPlugin.ts - locale-format page count
+  - plugins/SearchPlugin.ts - locale-format count span and "Found N results" text
+  - src/managers/VariableManager.ts - locale-format totalpages variable
+
+- Issues Closed:
+  - #290 - [FEATURE] Formatting of Numbers from plugins
+
+- Commits:
+  - 78014bc - fix: format plugin number outputs with locale thousands separators (#290)
+
+- Testing Results:
+  - All tests pass (1783 passed)
+  - Build successful
+  - Server restart verified
+
 ## 2026-02-26-12
 
 - Agent: Claude Sonnet 4.6
