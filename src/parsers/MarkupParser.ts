@@ -2055,6 +2055,23 @@ class MarkupParser extends BaseManager {
   }
 
   /**
+   * Flush the handler-results cache.
+   * Call this whenever the set of known pages changes (page created or deleted) so
+   * that cached RED-LINK resolutions are discarded and the next render re-evaluates
+   * link targets against the updated page inventory.
+   */
+  async invalidateHandlerCache(): Promise<void> {
+    if (this.cacheStrategies.handlerResults) {
+      try {
+        await this.cacheStrategies.handlerResults.clear();
+        logger.debug('🗑️  MarkupParser handler-results cache flushed (page inventory changed)');
+      } catch (error) {
+        logger.warn('⚠️  Failed to flush handler-results cache:', getErrorMessage(error));
+      }
+    }
+  }
+
+  /**
    * Update cache metrics for specific strategy
    * @param strategy - Cache strategy name
    * @param operation - Operation type (hit, miss, set)

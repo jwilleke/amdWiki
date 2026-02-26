@@ -1303,6 +1303,12 @@ class RenderingManager extends BaseManager {
     if (markupParser?.domLinkHandler) {
       markupParser.domLinkHandler.addPageName(pageName);
     }
+    // Flush handler-results cache so cached RED-LINK resolutions for this page
+    // are discarded — otherwise the 5-minute context-hash bucket keeps serving
+    // stale results until it rotates (issue #291)
+    if (markupParser) {
+      markupParser.invalidateHandlerCache().catch(() => { /* non-fatal */ });
+    }
   }
 
   /**
@@ -1334,6 +1340,11 @@ class RenderingManager extends BaseManager {
     const markupParser = this.engine.getManager<MarkupParser>('MarkupParser');
     if (markupParser?.domLinkHandler) {
       markupParser.domLinkHandler.removePageName(pageName);
+    }
+    // Flush handler-results cache so cached valid-link resolutions for this page
+    // are discarded immediately (issue #291)
+    if (markupParser) {
+      markupParser.invalidateHandlerCache().catch(() => { /* non-fatal */ });
     }
 
     logger.debug(`[RenderingManager] Removed page from link graph: ${pageName}`);
