@@ -160,7 +160,7 @@ class InstallService {
    * @returns Path to .install-complete file
    */
   getInstallCompleteFilePath(): string {
-    const instanceDataFolder = process.env.INSTANCE_DATA_FOLDER || './data';
+    const instanceDataFolder = process.env.FAST_STORAGE || process.env.INSTANCE_DATA_FOLDER || './data';
     const resolvedPath = path.isAbsolute(instanceDataFolder)
       ? instanceDataFolder
       : path.join(process.cwd(), instanceDataFolder);
@@ -695,7 +695,7 @@ class InstallService {
    * @returns Path to instance config directory
    */
   getInstanceConfigDir(): string {
-    const instanceDataFolder = process.env.INSTANCE_DATA_FOLDER || './data';
+    const instanceDataFolder = process.env.FAST_STORAGE || process.env.INSTANCE_DATA_FOLDER || './data';
     const resolvedPath = path.isAbsolute(instanceDataFolder)
       ? instanceDataFolder
       : path.join(process.cwd(), instanceDataFolder);
