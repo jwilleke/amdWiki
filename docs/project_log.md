@@ -24,6 +24,32 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-26-05
+
+- Agent: Claude Sonnet 4.6
+- Subject: Introduce FAST_STORAGE/SLOW_STORAGE env vars; eliminate hardcoded paths
+- Current Issue: #278, #276
+- Testing:
+  - 53/53 UndefinedPagesPlugin unit tests passed
+  - Server started clean, 16,961 pages loaded; backup dir resolved to ${SLOW_STORAGE}/backup-wikis
+- Work Done:
+  - Added ${ENV_VAR} expansion to ConfigurationManager.getProperty() for all string config values
+  - FAST_STORAGE (operational: sessions/logs/users/config/.env/search-index) replaces INSTANCE_DATA_FOLDER
+  - SLOW_STORAGE (bulk: pages/attachments/backups) — both default to ./data for single-drive setups
+  - server.sh loads ${FAST_STORAGE}/.env as second-pass after project-root .env (fixes #276)
+  - Live app-custom-config.json updated to use ${SLOW_STORAGE}/pages, ${SLOW_STORAGE}/attachments, ${SLOW_STORAGE}/backup-wikis
+  - INSTANCE_DATA_FOLDER kept as deprecated fallback
+- Commits: 94e2c32
+- Files Modified:
+  - src/managers/ConfigurationManager.ts
+  - src/managers/NotificationManager.ts
+  - ecosystem.config.js
+  - server.sh
+  - .env / .env.example
+  - /Volumes/hd2/jimstest-wiki/data/config/app-custom-config.json (live instance)
+
+---
+
 ## 2026-02-26-04
 
 - Agent: Claude Sonnet 4.6
