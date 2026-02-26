@@ -183,7 +183,7 @@ class VariableManager extends BaseManager {
         // pageCache is a protected property not on the public interface
         const providerWithCache = provider as { pageCache?: Map<string, unknown> } | null;
         if (providerWithCache?.pageCache) {
-          return providerWithCache.pageCache.size.toString();
+          return providerWithCache.pageCache.size.toLocaleString('en-US');
         }
       }
       return '0';

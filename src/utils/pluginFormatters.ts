@@ -99,10 +99,10 @@ export function formatAsList(links: PageLink[], options: FormatOptions = {}): st
 }
 
 /**
- * Format a count as a plain numeric string.
+ * Format a count with locale-appropriate thousands separators (e.g. 32,227).
  */
 export function formatAsCount(n: number): string {
-  return String(n);
+  return n.toLocaleString('en-US');
 }
 
 // ---------------------------------------------------------------------------

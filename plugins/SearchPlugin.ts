@@ -93,7 +93,7 @@ function parseMultiValue(value: string | undefined): string[] {
  */
 function formatCount(results: SearchResult[]): string {
   const count = results ? results.length : 0;
-  return `<span class="search-count">${count}</span>`;
+  return `<span class="search-count">${count.toLocaleString('en-US')}</span>`;
 }
 
 /**
@@ -186,7 +186,7 @@ function formatResultsTable(results: SearchResult[], options: FormatOptions): st
 
   // Add search summary
   html += '<div class="search-summary">\n';
-  html += `  <p>Found <strong>${results.length}</strong> result${results.length !== 1 ? 's' : ''}`;
+  html += `  <p>Found <strong>${results.length.toLocaleString('en-US')}</strong> result${results.length !== 1 ? 's' : ''}`;
   if (options.query && options.query !== '*') {
     html += ` for <strong>"${escapeHtml(options.query)}"</strong>`;
   }
