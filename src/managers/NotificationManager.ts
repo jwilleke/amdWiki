@@ -118,7 +118,7 @@ class NotificationManager extends BaseManager {
     const dataDirAbs = cfgMgr?.getResolvedDataPath?.(
       'amdwiki.notifications.dir',
       './data/notifications'
-    ) ?? path.resolve(process.cwd(), process.env.INSTANCE_DATA_FOLDER || './data', 'notifications');
+    ) ?? path.resolve(process.cwd(), process.env.FAST_STORAGE || process.env.INSTANCE_DATA_FOLDER || './data', 'notifications');
     const fileNameCfg = (cfgMgr?.getProperty?.('amdwiki.notifications.file', 'notifications.json') as string | null) ?? 'notifications.json';
     const intervalCfg = Number(cfgMgr?.getProperty?.('amdwiki.notifications.autoSaveInterval') ?? 5 * 60 * 1000);
 

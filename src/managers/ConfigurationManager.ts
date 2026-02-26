@@ -59,9 +59,9 @@ class ConfigurationManager extends BaseManager {
     this.mergedConfig = null;
     this.environment = process.env.NODE_ENV || 'development';
 
-    // Instance data folder from environment variable or default
-    // This allows all instance data to be stored in a configurable location
-    this.instanceDataFolder = process.env.INSTANCE_DATA_FOLDER || './data';
+    // Fast-storage data folder: operational data (sessions, logs, users, search-index, config).
+    // FAST_STORAGE is preferred; falls back to legacy INSTANCE_DATA_FOLDER, then './data'.
+    this.instanceDataFolder = process.env.FAST_STORAGE || process.env.INSTANCE_DATA_FOLDER || './data';
 
     // Default config stays in ./config/ (code/repo - base defaults, read-only)
     const codeConfigDir = path.join(process.cwd(), 'config');
@@ -338,7 +338,18 @@ class ConfigurationManager extends BaseManager {
       return envOverrides[key];
     }
 
-    return this.mergedConfig?.[key] ?? defaultValue;
+    const raw = this.mergedConfig?.[key] ?? defaultValue;
+
+    // Expand ${ENV_VAR} placeholders in string config values.
+    // Only replaces a placeholder when the env var is actually set — leaves
+    // unresolved placeholders intact so missing vars are obvious at runtime.
+    if (typeof raw === 'string' && raw.includes('${')) {
+      return raw.replace(/\$\{([^}]+)\}/g, (match: string, varName: string) =>
+        varName in process.env ? (process.env[varName] as string) : match
+      );
+    }
+
+    return raw;
   }
 
   /**

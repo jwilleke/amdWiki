@@ -3,7 +3,7 @@
 #
 # Configuration: Two-tier system
 # - Base defaults: config/app-default-config.json (always loaded)
-# - Instance overrides: ${INSTANCE_DATA_FOLDER:-./data}/config/app-custom-config.json
+# - Instance overrides: ${FAST_STORAGE:-${INSTANCE_DATA_FOLDER:-./data}}/config/app-custom-config.json
 # - .env file sourced automatically if present
 #
 # Examples:
@@ -20,6 +20,17 @@ if [ -f "$SCRIPT_DIR/.env" ]; then
   source "$SCRIPT_DIR/.env"
   set +a
 fi
+
+# Source per-instance .env from FAST_STORAGE if present.
+# FAST_STORAGE is the operational data directory (sessions, logs, users, config).
+# Falls back to legacy INSTANCE_DATA_FOLDER, then ./data.
+_FAST="${FAST_STORAGE:-${INSTANCE_DATA_FOLDER:-./data}}"
+if [ -f "$_FAST/.env" ]; then
+  set -a
+  source "$_FAST/.env"
+  set +a
+fi
+unset _FAST
 
 # Generate unique PM2 app name from directory name
 DIR_NAME=$(basename "$SCRIPT_DIR")
@@ -168,8 +179,8 @@ case "${1:-}" in
     # STEP 7: Start via PM2
     echo "🚀 Starting amdWiki in $ENV_NAME mode..."
     echo "   Base config: config/app-default-config.json"
-    echo "   Instance config: ${INSTANCE_DATA_FOLDER:-./data}/config/${INSTANCE_CONFIG_FILE:-app-custom-config.json}"
-    echo "   Logs: ${INSTANCE_DATA_FOLDER:-./data}/logs/"
+    echo "   Instance config: ${FAST_STORAGE:-${INSTANCE_DATA_FOLDER:-./data}}/config/${INSTANCE_CONFIG_FILE:-app-custom-config.json}"
+    echo "   Logs: ${FAST_STORAGE:-${INSTANCE_DATA_FOLDER:-./data}}/logs/"
     npx --no pm2 start ecosystem.config.js --env $ENV_NAME
 
     # STEP 8: Wait for server to start and verify it's running
@@ -346,12 +357,13 @@ case "${1:-}" in
   env)
     echo "Configuration:"
     echo "  NODE_ENV: ${NODE_ENV:-production}"
-    echo "  INSTANCE_DATA_FOLDER: ${INSTANCE_DATA_FOLDER:-./data}"
+    echo "  FAST_STORAGE: ${FAST_STORAGE:-${INSTANCE_DATA_FOLDER:-./data}}"
+    echo "  SLOW_STORAGE: ${SLOW_STORAGE:-${FAST_STORAGE:-${INSTANCE_DATA_FOLDER:-./data}}}"
     echo "  INSTANCE_CONFIG_FILE: ${INSTANCE_CONFIG_FILE:-app-custom-config.json}"
     echo ""
     echo "Config files loaded:"
     echo "  1. config/app-default-config.json (base defaults)"
-    CUSTOM_PATH="${INSTANCE_DATA_FOLDER:-./data}/config/${INSTANCE_CONFIG_FILE:-app-custom-config.json}"
+    CUSTOM_PATH="${FAST_STORAGE:-${INSTANCE_DATA_FOLDER:-./data}}/config/${INSTANCE_CONFIG_FILE:-app-custom-config.json}"
     if [ -f "$SCRIPT_DIR/$CUSTOM_PATH" ] || [ -f "$CUSTOM_PATH" ]; then
       echo "  2. $CUSTOM_PATH (instance overrides)"
     else
@@ -429,11 +441,16 @@ case "${1:-}" in
     echo "    ./server.sh unlock  # Clears all locks and processes"
     echo ""
     echo "Config Files (two-tier system):"
-    echo "  1. config/app-default-config.json              - Base defaults (read-only)"
-    echo "  2. \${INSTANCE_DATA_FOLDER}/config/app-custom-config.json - Instance overrides"
+    echo "  1. config/app-default-config.json                    - Base defaults (read-only)"
+    echo "  2. \${FAST_STORAGE}/config/app-custom-config.json      - Instance overrides"
+    echo ""
+    echo "Storage:"
+    echo "  FAST_STORAGE - Operational data: sessions, logs, users, search-index, config"
+    echo "  SLOW_STORAGE - Bulk content: pages, attachments, backups"
+    echo "  Both default to ./data (single-drive setup)"
     echo ""
     echo "Environment:"
-    echo "  .env file is sourced automatically if present"
+    echo "  .env files loaded in order: \$SCRIPT_DIR/.env, then \${FAST_STORAGE}/.env"
     echo "  Shell exports and CLI args override .env values"
     exit 1
     ;;
