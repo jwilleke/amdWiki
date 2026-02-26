@@ -168,6 +168,10 @@ reports/*
 # Instance configs are in INSTANCE_DATA_FOLDER/config/ (not tracked)
 # Templates (*.example) remain in ./config/
 
+# Literal env-var directories (created when FAST_STORAGE/SLOW_STORAGE not set at startup)
+${FAST_STORAGE}/
+${SLOW_STORAGE}/
+
 .editorconfig
 .claude/settings.local.json
 src/managers/__tests__/temp.test.js

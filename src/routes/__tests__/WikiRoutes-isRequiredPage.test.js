@@ -95,24 +95,24 @@ describe('WikiRoutes.isRequiredPage()', () => {
       expect(result).toBe(true);
     });
 
-    test('should return true for system-category: System/Admin', async () => {
+    test('should return false for system-category: System/Admin (invalid legacy category, not in required list)', async () => {
       mockPageManager.getPageMetadata.mockResolvedValue({
         title: 'Test Page',
         'system-category': 'System/Admin'
       });
 
       const result = await wikiRoutes.isRequiredPage('Test Page');
-      expect(result).toBe(true);
+      expect(result).toBe(false);
     });
 
-    test('should return true for category: System/Admin (legacy)', async () => {
+    test('should return false for category: System/Admin (invalid legacy category, not in required list)', async () => {
       mockPageManager.getPageMetadata.mockResolvedValue({
         title: 'Test Page',
         category: 'System/Admin'
       });
 
       const result = await wikiRoutes.isRequiredPage('Test Page');
-      expect(result).toBe(true);
+      expect(result).toBe(false);
     });
   });
 

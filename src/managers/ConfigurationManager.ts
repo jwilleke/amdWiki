@@ -595,6 +595,15 @@ class ConfigurationManager extends BaseManager {
   getResolvedDataPath(key: string, defaultValue: string): string {
     const value = this.getProperty(key, defaultValue) as string;
 
+    // If the value still contains an unresolved ${VAR} placeholder (env var not set),
+    // extract the path suffix and resolve it under instanceDataFolder to avoid
+    // creating literal '${VAR}/...' directories in the cwd.
+    if (value && value.includes('${')) {
+      const suffix = value.replace(/^\$\{[^}]+\}[/\\]?/, '');
+      const base = this.getInstanceDataFolder();
+      return suffix ? path.join(base, suffix) : base;
+    }
+
     // Check if this looks like a data path
     if (value && (value.startsWith('./data') || value.startsWith('data/'))) {
       return this.resolveDataPath(value);
