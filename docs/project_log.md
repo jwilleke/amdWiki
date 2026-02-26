@@ -24,6 +24,100 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-26-19
+
+- Agent: Claude Sonnet 4.6
+- Subject: Create GH issue #296 — trim whitespace from page metadata
+
+- Work Done:
+  - Created GH bug issue to add .trim() to all metadata string values on create/edit
+  - Proposed central sanitizeMetadata() helper in ValidationManager called from every save path
+
+- Issues Created:
+  - #296 - [BUG] trim leading/trailing whitespace from all page metadata fields
+
+## 2026-02-26-18
+
+- Agent: Claude Sonnet 4.6
+- Subject: Resolve all duplicate page title/slug conflicts (#280)
+
+- Work Done:
+  - Ran check-duplicate-pages.js; found 15 real conflicts across 16,974 live pages
+  - Resolved each conflict interactively (user selected which copy to keep)
+  - Renamed "Real Time Bidding" → "Real-Time Bidding" (preserved rich content)
+  - Renamed "National Geospatial-Intelligence Agency" (preserved rich content)
+  - Deleted sparse/[TODO] duplicate copies; removed from page-index.json
+  - Final scan: 16,963 live pages, 0 duplicate titles/slugs/UUIDs
+
+- Files Modified:
+  - /Volumes/hd2A/jimstest-wiki/data/pages/ — deleted duplicate .md files
+  - /Volumes/hd2/jimstest-wiki/data/page-index.json — removed deleted UUIDs, updated titles
+
+## 2026-02-26-17
+
+- Agent: Claude Sonnet 4.6
+- Subject: Fix InstallService to read FAST_STORAGE for .install-complete path (#276)
+
+- Work Done:
+  - InstallService.getInstallCompleteFilePath() used INSTANCE_DATA_FOLDER only
+  - After .env restructure removed INSTANCE_DATA_FOLDER, install check fell back to ./data
+  - Server showed install page on every restart
+  - Fixed both path resolutions to check FAST_STORAGE first, then INSTANCE_DATA_FOLDER, then ./data
+  - Recreated minimal bootstrap .env at project root (2 lines: FAST_STORAGE + SLOW_STORAGE)
+
+- Files Modified:
+  - src/services/InstallService.ts — FAST_STORAGE fallback in getInstallCompleteFilePath()
+  - .env (project root, gitignored) — recreated as bootstrap for server.sh
+
+- Issues Closed:
+  - #276 - [BUG] .env file MUST be in INSTANCE_DATA_FOLDER
+
+- Commits:
+  - 60b296f - fix: InstallService reads FAST_STORAGE for .install-complete path (#276)
+
+## 2026-02-26-16
+
+- Agent: Claude Sonnet 4.6
+- Subject: Transliterate Unicode chars in generateSlug() (#295)
+
+- Work Done:
+  - "Aβ" page had slug "a", colliding with page "A"
+  - Added UNICODE_MAP static table to ValidationManager (Greek, Latin-extended, ligatures)
+  - generateSlug() now calls .normalize('NFC') then replaces [\u0080-\uFFFF] via map before slugifying
+  - Fixed no-control-regex ESLint error (use \u0080 start, not \u0000)
+  - Updated live Aβ page front-matter slug from "a" to "abeta"
+  - Added 4 unit tests (Greek transliteration, accented Latin, Aβ ≠ A)
+
+- Files Modified:
+  - src/managers/ValidationManager.ts — UNICODE_MAP + updated generateSlug()
+  - src/managers/__tests__/ValidationManager.test.js — 4 new tests
+  - /Volumes/hd2A/jimstest-wiki/data/pages/[Aβ uuid].md — slug: abeta
+
+- Issues Closed:
+  - #295 - [FEATURE] Support Unicode characters in page titles / slugs
+
+- Commits:
+  - 6aed524 - feat: transliterate Unicode chars in generateSlug() (#295)
+
+## 2026-02-26-15
+
+- Agent: Claude Sonnet 4.6
+- Subject: Add check-duplicate-pages.js script (#280)
+
+- Work Done:
+  - Created scripts/check-duplicate-pages.js to scan all live + required pages
+  - Detects duplicates by title, slug, and UUID across both page directories
+  - Required-page + live-copy pairs (same UUID) are NOT flagged (expected design)
+  - Only flags same value under different UUIDs as a conflict
+  - Uses SLOW_STORAGE env var; exits 0 = clean, 1 = conflicts found
+  - Found 15 real conflicts on first run against 16,974 live pages
+
+- Files Modified:
+  - scripts/check-duplicate-pages.js — new file
+
+- Commits:
+  - 632b1aa - feat: add check-duplicate-pages.js script (#280)
+
 ## 2026-02-26-14
 
 - Agent: Claude Sonnet 4.6
