@@ -6,6 +6,8 @@
  * Policies must be configured in the engine config, not saved dynamically.
  */
 
+const fs = require('fs');
+const path = require('path');
 const WikiEngine = require('../../WikiEngine');
 
 describe('Policy System Integration', () => {
@@ -89,6 +91,14 @@ describe('Policy System Integration', () => {
   afterAll(async () => {
     if (engine) {
       await engine.shutdown();
+    }
+    // Clean up ./data/ directories created by WikiEngine.createDefault() when
+    // FAST_STORAGE/SLOW_STORAGE env vars are not set in the test environment.
+    const dataDir = path.join(process.cwd(), 'data');
+    try {
+      fs.rmSync(dataDir, { recursive: true, force: true });
+    } catch {
+      // Ignore cleanup errors
     }
   });
 

@@ -23,6 +23,12 @@ describe('WikiEngine', () => {
     } catch (err) {
       // Directory might not exist
     }
+    // Clean up ./data/ created when FAST_STORAGE/SLOW_STORAGE are not set in test env
+    try {
+      await fs.remove(path.join(process.cwd(), 'data'));
+    } catch {
+      // Ignore
+    }
   });
 
   describe('initialization', () => {
