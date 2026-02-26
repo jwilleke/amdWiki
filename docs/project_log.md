@@ -24,6 +24,59 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-26-12
+
+- Agent: Claude Sonnet 4.6
+- Subject: Fix system-category defaulting to 'developer' on /edit pages (#225)
+
+- Work Done:
+  - Root cause: `getSystemCategories()` sorts alphabetically; "developer" is first option
+  - `/create` already passed `defaultCategory` to template; `/edit` did not
+  - Added `defaultCategory` resolution in `editPage()` via `ValidationManager.getDefaultSystemCategory()`
+  - Passed `defaultCategory` to `res.render('edit', {...})`
+  - Updated `edit.ejs` to use `metadata['system-category'] || defaultCategory` as selection fallback
+
+- Files Modified:
+  - src/routes/WikiRoutes.ts - added defaultCategory to editPage() render call
+  - views/edit.ejs - use defaultCategory as fallback when no system-category in metadata
+
+- Issues Closed:
+  - #225 - [FEATURE] Create New Page /create or /edit
+
+- Commits:
+  - 44f4c66 - fix: pass defaultCategory to edit template so system-category doesn't default to 'developer' (#225)
+
+- Testing Results:
+  - All tests pass (1783 passed)
+  - Build successful
+  - Server restart verified
+
+## 2026-02-26-11
+
+- Agent: Claude Sonnet 4.6
+- Subject: Flush MarkupParser handler-results cache on page create/delete (#291)
+
+- Work Done:
+  - Root cause: THREE cache layers; only CacheManager was invalidated on page create
+  - `MarkupParser-HandlerResults` (TTL=600s) key includes 5-min time bucket causing ~6min RED-LINK persistence
+  - Added `invalidateHandlerCache()` method to `MarkupParser` that calls `cacheStrategies.handlerResults.clear()`
+  - Called from `RenderingManager.addPageToCache()` and `removePageFromLinkGraph()`
+
+- Files Modified:
+  - src/parsers/MarkupParser.ts - added invalidateHandlerCache() method
+  - src/managers/RenderingManager.ts - call invalidateHandlerCache() on page inventory changes
+
+- Issues Closed:
+  - #291 - [BUG] page created but still shows as red link
+
+- Commits:
+  - d7a9887 - fix: flush MarkupParser handler-results cache on page create/delete (#291)
+
+- Testing Results:
+  - All tests pass (1783 passed)
+  - Build successful
+  - Server restart verified
+
 ## 2026-02-26-10
 
 - Agent: Claude Sonnet 4.6
