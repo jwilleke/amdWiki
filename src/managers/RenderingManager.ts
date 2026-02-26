@@ -1106,6 +1106,8 @@ class RenderingManager extends BaseManager {
         let match;
         while ((match = linkRegex.exec(content)) !== null) {
           const linkedPage = match[2];
+          // Skip external URLs and absolute paths — only internal wiki page links matter
+          if (!linkedPage || linkedPage.includes('://') || linkedPage.startsWith('/')) continue;
           if (!newLinkGraph[linkedPage]) {
             newLinkGraph[linkedPage] = [];
           }
@@ -1116,7 +1118,8 @@ class RenderingManager extends BaseManager {
 
         // Find wiki-style links including extended pipe syntax
         // Include parentheses () in character class for page names like "Shang Dynasty (1600 BCE-1046 BCE)"
-        const simpleLinkRegex = /\[([a-zA-Z0-9\s_.()-]+)(?:\|([a-zA-Z0-9\s_().  :?=&-]+))?(?:\|([^|\]]+))?\]/g;
+        // Negative lookahead (?!\() skips [text](url) markdown links — their bracket text is not a wiki link
+        const simpleLinkRegex = /\[([a-zA-Z0-9\s_.()-]+)(?:\|([a-zA-Z0-9\s_().  :?=&-]+))?(?:\|([^|\]]+))?\](?!\()/g;
         while ((match = simpleLinkRegex.exec(content)) !== null) {
           // For pipe syntax [DisplayText|Target|Parameters], use the target; otherwise use the display text
           let linkedPage = match[2] || match[1];
@@ -1246,6 +1249,8 @@ class RenderingManager extends BaseManager {
     let match;
     while ((match = linkRegex.exec(content)) !== null) {
       const linkedPage = match[2];
+      // Skip external URLs and absolute paths — only internal wiki page links matter
+      if (!linkedPage || linkedPage.includes('://') || linkedPage.startsWith('/')) continue;
       if (!this.linkGraph[linkedPage]) {
         this.linkGraph[linkedPage] = [];
       }
@@ -1255,7 +1260,8 @@ class RenderingManager extends BaseManager {
     }
 
     // Find wiki-style links
-    const simpleLinkRegex = /\[([a-zA-Z0-9\s_.()-]+)(?:\|([a-zA-Z0-9\s_().:?=&-]+))?(?:\|([^|\]]+))?\]/g;
+    // Negative lookahead (?!\() skips [text](url) markdown links — their bracket text is not a wiki link
+    const simpleLinkRegex = /\[([a-zA-Z0-9\s_.()-]+)(?:\|([a-zA-Z0-9\s_().:?=&-]+))?(?:\|([^|\]]+))?\](?!\()/g;
     while ((match = simpleLinkRegex.exec(content)) !== null) {
       let linkedPage = match[2] || match[1];
 

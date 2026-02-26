@@ -205,6 +205,72 @@ describe('RenderingManager', () => {
       expect(linkGraph['NonExistentPage']).toBeDefined();
       expect(linkGraph['NonExistentPage']).toContain('TestPage');
     });
+
+    test('should not add external URLs from markdown links to the link graph (#294)', async () => {
+      // Issue #294: [text](https://...) adds the URL as a link graph key, which then
+      // shows up in UndefinedPagesPlugin as an "undefined page".
+      const mockPM = {
+        getAllPages: jest.fn().mockResolvedValue(['Sarcopenia']),
+        getPage: jest.fn().mockImplementation(async (pageName) => {
+          if (pageName === 'Sarcopenia') {
+            return {
+              title: 'Sarcopenia',
+              content: '* [#1] - [ A short-lived vertebrate model](https://onlinelibrary.wiley.com/doi/10.1111/acel.13862|target=\'_blank\')'
+            };
+          }
+          return null;
+        })
+      };
+      const testEngine = {
+        log: jest.fn(),
+        getManager: (name) => {
+          if (name === 'ConfigurationManager') return mockConfigurationManager;
+          if (name === 'PageManager') return mockPM;
+          return null;
+        },
+        getConfig: jest.fn().mockReturnValue({ get: jest.fn().mockReturnValue({ wiki: { pagesDir: './pages' } }) })
+      };
+      const testManager = new RenderingManager(testEngine);
+      await testManager.initialize();
+      const linkGraph = testManager.getLinkGraph();
+
+      // No key should be an external URL
+      const externalKeys = Object.keys(linkGraph).filter(k => k.includes('://'));
+      expect(externalKeys).toHaveLength(0);
+
+      // The footnote bracket text should not appear as a wiki-link target either
+      const footnoteLinkKeys = Object.keys(linkGraph).filter(k => k.trim().startsWith('A short-lived'));
+      expect(footnoteLinkKeys).toHaveLength(0);
+    });
+
+    test('updatePageInLinkGraph should not add external URLs from markdown links (#294)', () => {
+      renderingManager.linkGraph = {};
+      const content = 'See [External Site](https://example.com) for details.';
+      renderingManager.updatePageInLinkGraph('TestPage', content);
+
+      const externalKeys = Object.keys(renderingManager.linkGraph).filter(k => k.includes('://'));
+      expect(externalKeys).toHaveLength(0);
+    });
+
+    test('updatePageInLinkGraph should not treat [text](url) bracket text as a wiki link (#294)', () => {
+      renderingManager.linkGraph = {};
+      const content = '[ A footnote text](https://example.com)';
+      renderingManager.updatePageInLinkGraph('TestPage', content);
+
+      // The text " A footnote text" should not be a link-graph key
+      const keys = Object.keys(renderingManager.linkGraph).filter(k => k.includes('footnote'));
+      expect(keys).toHaveLength(0);
+    });
+
+    test('updatePageInLinkGraph should still add internal markdown links to the link graph', () => {
+      renderingManager.linkGraph = {};
+      const content = 'See [Internal Page](InternalPage) for details.';
+      renderingManager.updatePageInLinkGraph('TestPage', content);
+
+      // Internal page link should be captured
+      expect(renderingManager.linkGraph['InternalPage']).toBeDefined();
+      expect(renderingManager.linkGraph['InternalPage']).toContain('TestPage');
+    });
   });
 
   describe('Markdown Rendering', () => {
