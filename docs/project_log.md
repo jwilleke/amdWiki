@@ -24,6 +24,31 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-26-07
+
+- Agent: Claude Sonnet 4.6
+- Subject: Fix literal \${FAST_STORAGE}/\${SLOW_STORAGE} directories; fix stale System/Admin tests; SEMVER 1.5.14
+- Current Issue: #278
+- Testing:
+  - 1779/1779 unit tests passed
+  - 41/41 E2E tests passed
+- Work Done:
+  - Fixed getResolvedDataPath() to fall back to instanceDataFolder when env var placeholder is unresolved, preventing literal '\${FAST_STORAGE}' directories in project root
+  - Added \${FAST_STORAGE}/ and \${SLOW_STORAGE}/ to .gitignore as safety net
+  - Updated stale tests: isRequiredPage() now correctly returns false for System/Admin (invalid legacy category)
+  - routes.test.js deletion test now uses 'system' category instead of 'System/Admin'
+  - Bumped SEMVER to 1.5.14 (patch)
+- Commits: 92694a6 (fix), 3a8629c (default config paths)
+- Files Modified:
+  - src/managers/ConfigurationManager.ts
+  - .gitignore
+  - config/app-default-config.json
+  - package.json
+  - src/routes/__tests__/WikiRoutes-isRequiredPage.test.js
+  - src/routes/__tests__/routes.test.js
+
+---
+
 ## 2026-02-26-06
 
 - Agent: Claude Sonnet 4.6
