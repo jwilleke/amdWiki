@@ -24,6 +24,25 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-26-08
+
+- Agent: Claude Sonnet 4.6
+- Subject: Fix ./data/ directory created in project root by unit tests (#278)
+- Current Issue: #278
+- Testing:
+  - 1779/1779 unit tests passed; ./data/ no longer created after test run
+- Work Done:
+  - Root cause: WikiEngine.test.js and policy-system.test.js initialize real WikiEngine
+    without FAST_STORAGE in Jest env, causing BackupManager/NotificationManager to
+    create ./data/backups and ./data/notifications in project root
+  - Added afterEach/afterAll cleanup to remove ./data/ after these tests complete
+- Commits: 30817a3
+- Files Modified:
+  - src/__tests__/WikiEngine.test.js
+  - src/managers/__tests__/policy-system.test.js
+
+---
+
 ## 2026-02-26-07
 
 - Agent: Claude Sonnet 4.6
