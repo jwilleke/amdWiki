@@ -283,10 +283,14 @@ class PageManager extends BaseManager {
     const pageName = wikiContext.pageName;
     const content = wikiContext.content;
 
-    // Extract author from WikiContext user context
+    // Preserve author from existing page — author is the original creator and must
+    // never change. Only set it when creating a new page (no existing author found).
+    const existingPage = pageName ? await this.provider.getPage(pageName) : null;
+    const originalAuthor = existingPage?.metadata?.author;
+
     const enrichedMetadata: Partial<PageFrontmatter> = {
       ...metadata,
-      author: wikiContext.userContext?.username || metadata.author || 'anonymous'
+      author: originalAuthor || wikiContext.userContext?.username || metadata.author || 'anonymous'
     };
 
     return this.provider.savePage(pageName, content, enrichedMetadata);

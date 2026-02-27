@@ -6517,8 +6517,10 @@ class WikiRoutes {
           fileSize: fileStats?.size || null
         },
 
-        // Additional metadata - enhanced with version info
-        author: versionInfo?.lastAuthor || metadata.author || null,
+        // Additional metadata - author is the immutable original creator (from frontmatter);
+        // editor is the last person to modify (from version history).
+        author: metadata.author || null,
+        editor: versionInfo?.lastAuthor || null,
         description: metadata.description || null,
         version: versionInfo ? `v${versionInfo.currentVersion} of ${versionInfo.totalVersions}` : metadata.version || null,
         versionInfo: versionInfo, // Include full version info for advanced use

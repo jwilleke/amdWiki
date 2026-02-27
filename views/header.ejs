@@ -534,6 +534,7 @@
                                     <table class="table table-bordered table-sm">
                                         <tr><td><strong>User Keywords:</strong></td><td>${formatKeywords(metadata.keywords)}</td></tr>
                                         <tr><td><strong>Author:</strong></td><td>${metadata.author || 'Not specified'}</td></tr>
+                                        <tr><td><strong>Editor:</strong></td><td>${metadata.editor || 'Not specified'}</td></tr>
                                         <tr><td><strong>Description:</strong></td><td>${metadata.description || 'No description available'}</td></tr>
                                         <tr><td><strong>Version:</strong></td><td>${metadata.version || 'Not versioned'}</td></tr>
                                     </table>
@@ -612,7 +613,9 @@
             `Last Accessed: ${fmtDate(metadata.lastAccessed)}`,
         ];
         if (metadata.author) lines.push(`Author:        ${metadata.author}`);
+        if (metadata.editor) lines.push(`Editor:        ${metadata.editor}`);
         if (metadata.category) lines.push(`Category:      ${metadata.category}`);
+        if (metadata.keywords?.length) lines.push(`User Keywords: ${metadata.keywords.join(', ')}`);
 
         const text = lines.join('\n');
 
