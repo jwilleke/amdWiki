@@ -24,6 +24,22 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-27-02
+
+- Agent: Claude Sonnet 4.6
+- Subject: Move "Wiki Documentation" page to required-pages with system-category: system
+
+- Work Done:
+  - Updated `required-pages/4c0c0fa8-66dc-4cb3-9726-b007f874700c.md` (Wiki Documentation) — frontmatter set to `system-category: system`, `user-keywords: [default]`, content updated to latest (2026-02-27) version
+  - Copied version history from slow-storage `pages/versions/` to `required-pages/versions/`
+  - Updated `page-index.json` entry: `location` changed from `pages` to `required-pages`
+  - Restarted server via `server.sh`
+
+- Files Modified:
+  - `required-pages/4c0c0fa8-66dc-4cb3-9726-b007f874700c.md`
+
+---
+
 ## 2026-02-27-01
 
 - Agent: Claude Sonnet 4.6
