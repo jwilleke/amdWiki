@@ -24,6 +24,29 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-27-01
+
+- Agent: Claude Sonnet 4.6
+- Subject: Implementation plan for private folders (#122), private attachments (#232), MediaManager stub (#273); WikiContext docs accuracy pass
+
+- Work Done:
+  - Drafted `docs/planning/plan-private-folder.md` — 3-phase plan covering:
+    - Phase 1: private page storage (`pages/private/{owner}/{uuid}.md`), config-driven via `amdwiki.user-keywords.private.storageLocation`, `WikiContext`-based ACL, search exclusion, file move on keyword change (1.8), admin visibility deferred (1.11)
+    - Phase 2: private attachment storage (`attachments/private/{owner}/`), single `checkPrivatePageAccess(WikiContext)` helper reused across pages, attachments, and MediaManager
+    - Phase 3: MediaManager stub — `BaseMediaProvider`, `FileSystemMediaProvider` (exiftool-vendored + Sharp, incremental scan, media-index.json), metadata-only grouping by year (no pre-built albums), clean boundary from AttachmentManager
+  - Clarified `amdwiki.user-keywords` vs `amdwiki.system-category` vs `amdwiki.system-keywords` distinction in plan
+  - Fixed CONTRIBUTING.md: `getManager<T>()` generics ARE supported; `UserContext.authenticated` vs `isAuthenticated` note; migration status "Manager Methods (In Progress)"
+  - Rewrote `docs/WikiContext-Complete-Guide.md` to reflect actual TypeScript code: correct file extensions (.ts), `createWikiContext()` factory as primary pattern, `getTemplateDataFromContext()` in pipeline, full `UserContext` typed interface, `ACLManager.checkPagePermissionWithContext(wikiContext)` correct signature, immutability note, updated date/line count
+  - Trimmed CONTRIBUTING.md WikiContext section to essentials + link to complete guide
+  - Added plan link comment to GH issue #122
+
+- Files Modified:
+  - `docs/planning/plan-private-folder.md`
+  - `CONTRIBUTING.md`
+  - `docs/WikiContext-Complete-Guide.md`
+
+---
+
 ## 2026-02-26-19
 
 - Agent: Claude Sonnet 4.6

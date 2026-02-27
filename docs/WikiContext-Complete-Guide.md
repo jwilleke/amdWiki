@@ -1,10 +1,11 @@
 # WikiContext Complete Guide
 
-**Version:** 1.0.0
-**Last Updated:** 2025-12-08
+**Version:** 1.1.0
+**Last Updated:** 2026-02-27
 **Status:** Production Ready
+**Source:** `src/context/WikiContext.ts`
 
-This comprehensive guide covers everything about WikiContext in the amdWiki project, including its purpose, implementation, usage, and its role as the central rendering orchestrator.
+This guide covers everything about WikiContext in amdWiki — its purpose, TypeScript API, usage patterns, and role as the central rendering orchestrator.
 
 ---
 
@@ -27,83 +28,63 @@ This comprehensive guide covers everything about WikiContext in the amdWiki proj
 
 ## Overview
 
-**`WikiContext` is the central orchestrator for content rendering in amdWiki.** For each page request, a `WikiContext` instance is created to act as a request-scoped container, bundling all information related to the request, such as page details, user information, and the HTTP request itself.
+**`WikiContext` is the central orchestrator for content rendering in amdWiki.** For each page request, a `WikiContext` instance is created to act as a request-scoped container, bundling all information related to the request — page details, user info, HTTP request, and manager references.
 
-Inspired by JSPWiki's architectural patterns, `WikiContext` solves the problem of "parameter explosion" by providing a single, consistent object to the upper levels of the application, while ensuring the lower-level components remain decoupled and reusable.
+Inspired by JSPWiki's architectural patterns, `WikiContext` solves "parameter explosion" by providing a single, consistent object to the upper levels of the application, while keeping lower-level components decoupled and reusable.
 
 ### Key Features
 
-- **Request-scoped container** for all contextual information.
-- **Orchestration**: It manages the entire rendering pipeline, from variable expansion and plugin execution to the final conversion of Markdown to HTML.
-- **Data Provision**: It gathers and packages contextual data. Its primary role in the rendering pipeline is to create a plain JavaScript object (containing a `pageContext` property) via its `toParseOptions()` method. This object is then passed to the lower-level rendering systems.
-- **Decoupling**: By passing a plain data object instead of its own instance, `WikiContext` ensures that components like `MarkupParser`, `VariableManager`, and plugins are not dependent on the `WikiContext` class itself. They depend only on the simple data structure it provides.
-- **Manager Access**: The `WikiContext` object holds direct references to all core engine managers (e.g., `RenderingManager`, `PluginManager`), using them to orchestrate the rendering process.
-- **Fallback handling** - graceful degradation when managers are unavailable.
-- **JSPWiki compatibility** - follows JSPWiki's proven architectural patterns.
+- **Request-scoped container** for all contextual information
+- **Orchestration**: manages the rendering pipeline (variable expansion, plugin execution, Markdown → HTML)
+- **Decoupling**: passes a plain `pageContext` data object to lower-level systems via `toParseOptions()` — parsers and plugins do not depend on `WikiContext` itself
+- **Manager access**: holds direct references to all core engine managers
+- **Single source of truth**: all user and page context flows through one object
+- **Fallback handling**: graceful degradation when managers are unavailable
+- **JSPWiki compatibility**: follows JSPWiki's proven architectural patterns
 
 ### Implementation Status
 
-**Test Results as of 2025-12-08:**
-
-| Component | Status | Tests Passing | Test File |
-| ----------- | -------- | --------------- | ----------- |
-| **WikiContext Class** | ✅ Complete | 12/12 (100%) | WikiContext.test.js |
-| **Integration** | ✅ Production | Active | In use across all routes |
-
-**Status:**
-
-- ✅ Fully implemented and tested
-- ✅ Production-ready since October 2025
-- ✅ Active in all rendering paths
-- ✅ 100% test coverage
+| Component | Status | Tests |
+|---|---|---|
+| **WikiContext class** (`src/context/WikiContext.ts`) | ✅ Production | 12/12 |
+| **Route integration** (`src/routes/WikiRoutes.ts`) | ✅ Active | All routes |
+| **Manager method migration** | 🔄 In Progress | `savePageWithContext()` done; new managers start with WikiContext |
 
 ---
 
 ## What is WikiContext?
 
-WikiContext is a request-scoped object that encapsulates everything needed for rendering a wiki page:
+WikiContext is a request-scoped object that encapsulates everything needed for rendering a wiki page.
 
 ### Core Concept
 
-Instead of passing multiple parameters through the rendering pipeline, WikiContext provides a single object containing:
+Instead of passing multiple parameters through the rendering pipeline, WikiContext provides one object containing:
 
-- **Page information** (name, content)
-- **User context** (authentication, session)
-- **Request details** (headers, IP, user agent)
-- **Manager references** (RenderingManager, PluginManager, etc.)
-- **Rendering context type** (VIEW, EDIT, PREVIEW, etc.)
+- **Page information** (`pageName`, `content`)
+- **User context** (`userContext` — authentication, roles, session)
+- **Request details** (`request`, `response`)
+- **Manager references** (`pageManager`, `renderingManager`, `pluginManager`, `variableManager`, `aclManager`)
+- **Rendering context type** (`WikiContext.CONTEXT.VIEW`, `EDIT`, `PREVIEW`, etc.)
 
 ### JSPWiki Inspiration
 
-```java
-// JSPWiki (Java)
-public class WikiContext {
-    private WikiPage page;
-    private HttpServletRequest request;
-    private String requestContext;
-    private WikiEngine engine;
-
-    public String getRequestContext();
-    public WikiPage getPage();
-    public WikiEngine getEngine();
-}
-```
-
-```javascript
-// amdWiki (JavaScript)
+```typescript
+// JSPWiki (Java concept → amdWiki TypeScript)
 class WikiContext {
-    constructor(engine, options) {
-        this.engine = engine;
-        this.context = options.context;
-        this.pageName = options.pageName;
-        this.userContext = options.userContext;
-        this.request = options.request;
+  constructor(engine: WikiEngine, options: WikiContextOptions) {
+    this.engine = engine;
+    this.context = options.context ?? WikiContext.CONTEXT.NONE;
+    this.pageName = options.pageName ?? null;
+    this.userContext = options.userContext ?? null;
+    this.request = options.request ?? null;
 
-        // Manager references
-        this.renderingManager = engine.getManager('RenderingManager');
-        this.variableManager = engine.getManager('VariableManager');
-        // ... more managers
-    }
+    // Manager references resolved at construction time
+    this.pageManager = engine.getManager<PageManager>('PageManager')!;
+    this.renderingManager = engine.getManager<RenderingManager>('RenderingManager')!;
+    this.pluginManager = engine.getManager<PluginManager>('PluginManager')!;
+    this.variableManager = engine.getManager<VariableManager>('VariableManager')!;
+    this.aclManager = engine.getManager<ACLManager>('ACLManager')!;
+  }
 }
 ```
 
@@ -113,288 +94,230 @@ class WikiContext {
 
 ### The Problem: Parameter Explosion
 
-Before WikiContext, rendering required passing many parameters:
+Before WikiContext, rendering required many parameters:
 
-```javascript
+```typescript
 // OLD: Parameter explosion
 async function renderMarkdown(
-    content,
-    pageName,
-    userName,
-    userRoles,
-    requestIp,
-    sessionId,
-    userAgent,
-    linkGraph,
-    // ... 10+ more parameters
-) {
-    // Complex function signature
-}
+  content: string,
+  pageName: string,
+  userName: string,
+  userRoles: string[],
+  requestIp: string,
+  sessionId: string,
+  // ... 10+ more parameters
+): Promise<string> { ... }
 ```
 
 ### The Solution: Context Object Pattern
 
-WikiContext consolidates everything into one object:
-
-```javascript
+```typescript
 // NEW: Single context object
-const context = new WikiContext(engine, {
-    pageName: 'Main',
-    content: pageContent,
-    userContext: user,
-    request: req
+const wikiContext = this.createWikiContext(req, {
+  context: WikiContext.CONTEXT.VIEW,
+  pageName,
+  content,
 });
 
-const html = await context.renderMarkdown();
+const html = await wikiContext.renderMarkdown();
 ```
 
 **Benefits:**
 
-1. **Cleaner APIs** - Single parameter instead of many
-2. **Easier testing** - Mock one object instead of many parameters
-3. **Better maintainability** - Add new context without changing signatures
-4. **JSPWiki compatibility** - Matches proven architecture pattern
-5. **Type safety** - Single object easier to type-check
+1. Cleaner APIs — single parameter instead of many
+2. Easier testing — mock one object
+3. Better maintainability — add new context without changing signatures
+4. JSPWiki compatibility
+5. Type safety — single typed object
 
 ### Architectural Role
-
-WikiContext sits at the **orchestration layer**:
 
 ```
 HTTP Request
     ↓
-WikiRoutes (creates WikiContext)
+WikiRoutes.createWikiContext(req, options)   ← ALWAYS use this helper
     ↓
-WikiContext.renderMarkdown() ← ORCHESTRATOR
+WikiContext.renderMarkdown()                 ← ORCHESTRATOR
     ↓
-├─ RenderingManager
-│  └─ MarkupParser
-│     └─ WikiDocument (DOM operations)
-├─ VariableManager
-├─ PluginManager
-└─ LinkManager
+├─ RenderingManager.getParser()
+│  └─ MarkupParser.parse(content, toParseOptions())
+│     └─ WikiDocument DOM operations
+├─ VariableManager.expandVariables()
+├─ PluginManager.execute()
+└─ (returns HTML)
     ↓
-HTML Response
+WikiRoutes.getTemplateDataFromContext()      ← ALWAYS use for template data
+    ↓
+res.render(template, templateData)
 ```
 
 ---
 
 ## WikiContext Class API
 
-### Constructor
+### TypeScript Interfaces
 
-```javascript
-const context = new WikiContext(engine, options);
+```typescript
+// src/context/WikiContext.ts
+
+export interface UserContext {
+  username?: string;
+  displayName?: string;
+  roles?: string[];
+  authenticated?: boolean;        // Use this — NOT isAuthenticated
+  preferences?: UserPreferences;
+  locale?: string;
+  timezone?: string;
+  [key: string]: unknown;         // Allows extension
+}
+
+// Note: req.userContext set by session middleware also carries
+// isAuthenticated: true as a runtime alias. Use userContext.authenticated
+// when writing typed TypeScript against the UserContext interface.
+
+export interface WikiContextOptions {
+  context?: string;               // WikiContext.CONTEXT.VIEW etc.
+  pageName?: string;
+  content?: string;
+  userContext?: UserContext;
+  request?: Request;
+  response?: Response;
+}
+
+export interface RequestInfo {
+  acceptLanguage?: string;
+  userAgent?: string;
+  clientIp?: string;
+  referer?: string;
+  sessionId?: string;
+  query?: Record<string, string>;
+}
+
+export interface PageContext {
+  pageName: string | null;
+  userContext: UserContext | null;
+  requestInfo: RequestInfo;
+}
+
+export interface ParseOptions {
+  pageContext: PageContext;
+  engine: WikiEngine;
+}
 ```
 
-**Parameters:**
+### Constructor
 
-- `engine` (WikiEngine) - Required. The wiki engine instance
-- `options` (Object) - Configuration options
+**In route handlers, always use `this.createWikiContext()` — not the constructor directly.**
 
-**Options:**
+```typescript
+// ✅ Correct — always use the factory in WikiRoutes
+const wikiContext = this.createWikiContext(req, {
+  context: WikiContext.CONTEXT.VIEW,
+  pageName,
+  content,
+});
 
-- `context` (string) - Context type (VIEW, EDIT, PREVIEW, etc.)
-- `pageName` (string) - Name of the page
-- `content` (string) - Page content (markdown)
-- `userContext` (Object) - User session/authentication info
-- `request` (Object) - Express request object
-- `response` (Object) - Express response object
-
-**Example:**
-
-```javascript
-const WikiContext = require('./src/context/WikiContext');
-
-const context = new WikiContext(engine, {
-    context: WikiContext.CONTEXT.VIEW,
-    pageName: 'Main',
-    content: '# Welcome to [{$pagename}]',
-    userContext: {
-        isAuthenticated: true,
-        username: 'admin',
-        roles: ['user', 'admin']
-    },
-    request: req,
-    response: res
+// ✅ Also correct — direct construction for tests or non-route code
+const wikiContext = new WikiContext(engine, {
+  context: WikiContext.CONTEXT.VIEW,
+  pageName: 'Main',
+  userContext: { username: 'admin', authenticated: true, roles: ['admin'] },
+  request: req,
+  response: res,
 });
 ```
 
-**Throws:**
+`createWikiContext()` (`src/routes/WikiRoutes.ts:132`) populates `userContext` from `req.userContext` (set by session middleware) automatically.
 
-- `Error` if engine is not provided
+**Throws:** `Error` if `engine` is not provided.
 
 ### Context Type Constants
 
-```javascript
+```typescript
 WikiContext.CONTEXT = {
-    VIEW: 'view',        // Viewing a page
-    EDIT: 'edit',        // Editing a page
-    PREVIEW: 'preview',  // Previewing changes
-    DIFF: 'diff',        // Viewing diff
-    INFO: 'info',        // Viewing page info
-    NONE: 'none'         // No specific context
+  VIEW:    'view',     // Viewing a page
+  EDIT:    'edit',     // Editing a page
+  PREVIEW: 'preview',  // Previewing changes
+  DIFF:    'diff',     // Viewing diff
+  INFO:    'info',     // Viewing page info/metadata
+  NONE:    'none'      // No specific context
 };
-```
-
-**Usage:**
-
-```javascript
-const context = new WikiContext(engine, {
-    context: WikiContext.CONTEXT.EDIT,
-    pageName: 'MyPage'
-});
-
-if (context.getContext() === WikiContext.CONTEXT.EDIT) {
-    // Show edit-specific UI
-}
 ```
 
 ### Instance Properties
 
-#### Core Properties
+All properties are **`readonly`** — `WikiContext` is immutable after construction.
 
-```javascript
-context.engine          // WikiEngine instance
-context.context         // Context type (VIEW, EDIT, etc.)
-context.pageName        // Current page name
-context.content         // Page content (markdown)
-context.userContext     // User session/auth info
-context.request         // Express request object
-context.response        // Express response object
+```typescript
+// Core
+wikiContext.engine          // WikiEngine
+wikiContext.context         // string — context type ('view', 'edit', ...)
+wikiContext.pageName        // string | null
+wikiContext.content         // string | null
+wikiContext.userContext     // UserContext | null
+wikiContext.request         // Request | null
+wikiContext.response        // Response | null
+
+// Manager shortcuts (resolved at construction)
+wikiContext.pageManager         // PageManager
+wikiContext.renderingManager    // RenderingManager
+wikiContext.pluginManager       // PluginManager
+wikiContext.variableManager     // VariableManager
+wikiContext.aclManager          // ACLManager
 ```
 
-#### Manager References
-
-```javascript
-context.pageManager         // PageManager instance
-context.renderingManager    // RenderingManager instance
-context.pluginManager       // PluginManager instance
-context.variableManager     // VariableManager instance
-context.aclManager          // ACLManager instance
-```
+> **Immutability note**: all properties are `readonly`. If you need a different `pageName` with the same user context (e.g. in MediaManager), construct a new instance:
+>
+> ```typescript
+> const linkedPageContext = new WikiContext(this.engine, {
+>   context: WikiContext.CONTEXT.VIEW,
+>   pageName: linkedPageName,
+>   userContext: wikiContext.userContext ?? undefined,
+>   request: wikiContext.request ?? undefined,
+> });
+> ```
 
 ### Methods
 
-#### getContext()
+#### `getContext(): string`
 
 Returns the current rendering context type.
 
-```javascript
-const contextType = context.getContext();
-// Returns: 'view', 'edit', 'preview', 'diff', 'info', or 'none'
-```
-
-**Example:**
-
-```javascript
-if (context.getContext() === WikiContext.CONTEXT.EDIT) {
-    console.log('User is editing the page');
+```typescript
+if (wikiContext.getContext() === WikiContext.CONTEXT.EDIT) {
+  // Show edit-specific UI
 }
 ```
 
-#### renderMarkdown(content)
+#### `async renderMarkdown(content?): Promise<string>`
 
 Renders markdown content through the full rendering pipeline.
 
-```javascript
-async renderMarkdown(content = this.content): Promise<string>
-```
-
-**Parameters:**
-
-- `content` (string, optional) - Content to render. Defaults to `this.content`
-
-**Returns:**
-
-- `Promise<string>` - Rendered HTML
-
-**Example:**
-
-```javascript
+```typescript
 // Render stored content
-const html = await context.renderMarkdown();
+const html = await wikiContext.renderMarkdown();
 
-// Render custom content
-const html = await context.renderMarkdown('# Custom Content');
-
-// With JSPWiki syntax
-const html = await context.renderMarkdown(`
-## Welcome [{$username}]
-
-Current page: [{$pagename}]
-
-[{TableOfContents}]
-
-See also: [HomePage]
-`);
+// Render explicit content
+const html = await wikiContext.renderMarkdown('# Custom Content [{$pagename}]');
 ```
 
-**Processing Pipeline:**
+**Processing pipeline:**
 
-1. **Try MarkupParser** (primary)
-   - Uses advanced parser with WikiDocument DOM
-   - Handles variables, plugins, links
-   - Multi-phase processing
+1. **MarkupParser** (primary) — WikiDocument DOM, variables, plugins, links
+2. **Showdown fallback** (if parser unavailable) — variables expanded, basic Markdown
 
-2. **Fallback to Showdown** (if parser unavailable)
-   - Expands variables via VariableManager
-   - Converts markdown to HTML
-   - Basic rendering without plugins
+#### `toParseOptions(): ParseOptions`
 
-**Logging:**
+Creates the plain object passed to `MarkupParser.parse()`. Decouples the parser from `WikiContext` — the parser only sees `{ pageContext, engine }`.
 
-- Logs parser availability
-- Logs content length
-- Logs result length
-- Logs which path was taken (parser vs fallback)
-
-#### toParseOptions()
-
-Creates the options object for MarkupParser.
-
-```javascript
-toParseOptions(): Object
-```
-
-**Returns:**
-
-- Object with `pageContext` and `engine` properties
-
-**Structure:**
-
-```javascript
-{
-    pageContext: {
-        pageName: string,
-        userContext: Object,
-        requestInfo: {
-            acceptLanguage: string,
-            userAgent: string,
-            clientIp: string,
-            referer: string,
-            sessionId: string
-        }
-    },
-    engine: WikiEngine
-}
-```
-
-**Example:**
-
-```javascript
-const options = context.toParseOptions();
-
-// Pass to parser
-const parser = engine.getManager('MarkupParser');
+```typescript
+const options = wikiContext.toParseOptions();
+// {
+//   pageContext: { pageName, userContext, requestInfo: { ... } },
+//   engine: WikiEngine
+// }
 const html = await parser.parse(content, options);
 ```
-
-**Use Cases:**
-
-- Custom parsing with MarkupParser
-- Testing with specific options
-- Debugging parse options
 
 ---
 
@@ -405,437 +328,251 @@ const html = await parser.parse(content, options);
 ```
 src/
 ├── context/
-│   ├── WikiContext.js                 # Main WikiContext class
+│   ├── WikiContext.ts                 # Main WikiContext class (~390 lines)
 │   └── __tests__/
 │       └── WikiContext.test.js        # Unit tests (12 tests)
 │
 ├── routes/
-│   └── WikiRoutes.js                  # Creates WikiContext per request
+│   └── WikiRoutes.ts                  # createWikiContext() factory + route handlers
 │
 └── managers/
-    ├── RenderingManager.js            # Uses WikiContext
-    ├── VariableManager.js             # Accessed via WikiContext
-    └── PluginManager.js               # Accessed via WikiContext
-```
-
-### Class Structure
-
-```
-WikiContext
-│
-├── Properties
-│   ├── engine: WikiEngine
-│   ├── context: string (VIEW, EDIT, etc.)
-│   ├── pageName: string
-│   ├── content: string
-│   ├── userContext: Object
-│   ├── request: Object
-│   ├── response: Object
-│   │
-│   └── Manager References
-│       ├── pageManager: PageManager
-│       ├── renderingManager: RenderingManager
-│       ├── pluginManager: PluginManager
-│       ├── variableManager: VariableManager
-│       └── aclManager: ACLManager
-│
-└── Methods
-    ├── getContext(): string
-    ├── renderMarkdown(content?): Promise<string>
-    └── toParseOptions(): Object
-```
-
-### Architectural Note on Decoupling
-
-A key architectural aspect of `WikiContext` is how it interacts with the rendering pipeline. While the `WikiContext` instance holds all information and manager references, it does **not** pass itself directly to lower-level systems like `MarkupParser`, `VariableManager`, or `PluginManager`.
-
-Instead, it uses the `toParseOptions()` method to generate a plain JavaScript object. This object contains a `pageContext` property with the necessary data (page name, user info, etc.) and a reference to the `engine`.
-
-```
-WikiContext Instance -> toParseOptions() -> { pageContext: {...}, engine: ... } -> MarkupParser -> (Variables & Plugins)
-```
-
-This design intentionally **decouples** the rendering components from the `WikiContext` class. Plugins and variable handlers only need to know about the simple `pageContext` data structure, making them more modular, easier to test, and independent of `WikiContext`'s implementation details.
-
-### Integration Points
-
-#### With WikiRoutes
-
-WikiRoutes creates a WikiContext for each request:
-
-```javascript
-// src/routes/WikiRoutes.js
-async viewPage(req, res) {
-    const pageName = req.params.pageName;
-    const user = await this.userManager.getCurrentUser(req);
-
-    // Create WikiContext
-    const wikiContext = new WikiContext(this.engine, {
-        context: WikiContext.CONTEXT.VIEW,
-        pageName: pageName,
-        content: pageContent,
-        userContext: user,
-        request: req,
-        response: res
-    });
-
-    // Render
-    const html = await wikiContext.renderMarkdown(pageContent);
-
-    // Return response
-    res.render('wiki-view', { content: html });
-}
-```
-
-#### With RenderingManager
-
-RenderingManager uses WikiContext for rendering:
-
-```javascript
-// src/managers/RenderingManager.js
-async renderMarkdown(content, pageName, userContext, requestInfo) {
-    // Get parser
-    const parser = this.getParser();
-
-    // Create parse options (WikiContext would do this)
-    const options = {
-        pageContext: {
-            pageName,
-            userContext,
-            requestInfo
-        },
-        engine: this.engine
-    };
-
-    // Parse
-    return await parser.parse(content, options);
-}
-```
-
-#### With MarkupParser
-
-`MarkupParser` receives a plain options object that is generated by `WikiContext.toParseOptions()`:
-
-```javascript
-// src/parsers/MarkupParser.js
-// 'options' here is the plain object from toParseOptions(), not a WikiContext instance.
-async parse(content, options) {
-    const pageContext = options.pageContext || {};
-    const engine = options.engine;
-
-    // The parser and its handlers use the data from pageContext
-    const pageName = pageContext.pageName;
-    const userContext = pageContext.userContext;
-
-    // ... parsing logic
-}
+    ├── RenderingManager.ts            # Accessed via WikiContext
+    ├── VariableManager.ts             # Accessed via WikiContext
+    └── PluginManager.ts               # Accessed via WikiContext
 ```
 
 ### Rendering Pipeline
 
 ```
-┌──────────────────────────────────────────────────────┐
-│  HTTP Request (GET /wiki/PageName)                   │
-└──────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────┐
+│  HTTP Request (GET /wiki/PageName)                  │
+└─────────────────────────────────────────────────────┘
                       ↓
-┌──────────────────────────────────────────────────────┐
-│  WikiRoutes.viewPage(req, res)                       │
-│  • Extract pageName from URL                         │
-│  • Load page content from PageManager                │
-│  • Get user context from UserManager                 │
-└──────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────┐
+│  WikiRoutes handler                                  │
+│  • Load page content from PageManager               │
+│  • wikiContext = this.createWikiContext(req, opts)  │
+└─────────────────────────────────────────────────────┘
                       ↓
-┌──────────────────────────────────────────────────────┐
-│  Create WikiContext                                   │
-│  new WikiContext(engine, {                           │
-│    context: VIEW,                                    │
-│    pageName, content, userContext, request           │
-│  })                                                   │
-└──────────────────────────────────────────────────────┘
-                      ↓
-┌──────────────────────────────────────────────────────┐
+┌─────────────────────────────────────────────────────┐
 │  WikiContext.renderMarkdown()                        │
-│  • Get RenderingManager.getParser()                  │
-│  • Create toParseOptions()                           │
-│  • Call parser.parse(content, options)               │
-└──────────────────────────────────────────────────────┘
+│  • RenderingManager.getParser()                     │
+│  • parser.parse(content, this.toParseOptions())     │
+└─────────────────────────────────────────────────────┘
                       ↓
-┌──────────────────────────────────────────────────────┐
+┌─────────────────────────────────────────────────────┐
 │  MarkupParser.parse(content, options)                │
-│  • Extract JSPWiki syntax (Phase 1)                  │
-│  • Create WikiDocument DOM nodes (Phase 2)           │
-│  • Showdown markdown parsing                         │
-│  • Merge DOM nodes into HTML (Phase 3)              │
-└──────────────────────────────────────────────────────┘
+│  • Phase 1: Extract JSPWiki syntax                  │
+│  • Phase 2: Create WikiDocument DOM nodes           │
+│  • Showdown markdown conversion                     │
+│  • Phase 3: Merge DOM nodes → HTML                  │
+└─────────────────────────────────────────────────────┘
                       ↓
-┌──────────────────────────────────────────────────────┐
-│  Return HTML                                          │
-│  • Back to WikiContext                               │
-│  • Back to WikiRoutes                                │
-│  • Render template (EJS)                             │
-│  • Send HTTP response                                │
-└──────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────┐
+│  WikiRoutes handler (continued)                      │
+│  • templateData = this.getTemplateDataFromContext() │
+│  • res.render('template', { ...templateData, ... }) │
+└─────────────────────────────────────────────────────┘
 ```
+
+### Architectural Note: Decoupling via toParseOptions()
+
+`WikiContext` does **not** pass itself to lower-level systems. It passes a plain object:
+
+```
+WikiContext → toParseOptions() → { pageContext, engine } → MarkupParser → plugins/variables
+```
+
+This means plugins and variable handlers depend only on the plain `pageContext` data structure, not on `WikiContext` — making them independently testable and reusable.
 
 ---
 
 ## Usage Examples
 
-### Example 1: Basic Page View
+### Example 1: Standard Page View (route handler)
 
-```javascript
-const WikiContext = require('./src/context/WikiContext');
+```typescript
+// src/routes/WikiRoutes.ts — pattern used throughout
+async viewPage(req: Request, res: Response): Promise<void> {
+  const pageName = req.params.pageName as string;
 
-// In route handler
-async function viewPage(req, res) {
-    const pageName = req.params.pageName;
-    const pageContent = await pageManager.getPage(pageName);
-    const user = await userManager.getCurrentUser(req);
+  // ✅ Always use createWikiContext() in route handlers
+  const wikiContext = this.createWikiContext(req, {
+    context: WikiContext.CONTEXT.VIEW,
+    pageName,
+  });
 
-    // Create context
-    const context = new WikiContext(engine, {
-        context: WikiContext.CONTEXT.VIEW,
-        pageName: pageName,
-        content: pageContent,
-        userContext: user,
-        request: req,
-        response: res
-    });
+  const page = await wikiContext.pageManager.getPage(pageName);
+  const html = await wikiContext.renderMarkdown(page?.content ?? '');
 
-    // Render
-    const html = await context.renderMarkdown();
-
-    // Send response
-    res.render('wiki-view', {
-        pageName: pageName,
-        content: html,
-        user: user
-    });
+  // ✅ Always use getTemplateDataFromContext() for template data
+  const templateData = this.getTemplateDataFromContext(wikiContext);
+  res.render('wiki-view', {
+    ...templateData,
+    content: html,
+  });
 }
 ```
 
-### Example 2: Page Preview
+### Example 2: Save Page (passing WikiContext to manager)
 
-```javascript
-async function previewPage(req, res) {
-    const { pageName, content } = req.body;
+```typescript
+async savePage(req: Request, res: Response): Promise<void> {
+  const { pageName, content } = req.body as { pageName: string; content: string };
 
-    // Create preview context
-    const context = new WikiContext(engine, {
-        context: WikiContext.CONTEXT.PREVIEW,
-        pageName: pageName,
-        content: content,
-        userContext: req.session.user,
-        request: req
-    });
+  const wikiContext = this.createWikiContext(req, {
+    context: WikiContext.CONTEXT.EDIT,
+    pageName,
+    content,
+  });
 
-    // Render preview
-    const html = await context.renderMarkdown(content);
+  const pageManager = this.engine.getManager<PageManager>('PageManager');
+  // savePageWithContext() receives WikiContext — manager derives user from it
+  await pageManager.savePageWithContext(wikiContext, { category: 'general' });
 
-    // Return JSON for AJAX preview
-    res.json({
-        success: true,
-        html: html
-    });
+  res.redirect(`/wiki/${encodeURIComponent(pageName)}`);
 }
 ```
 
-### Example 3: Custom Content Rendering
+### Example 3: Access control check
 
-```javascript
-async function renderCustomContent(content, pageName) {
-    const context = new WikiContext(engine, {
-        context: WikiContext.CONTEXT.NONE,
-        pageName: pageName,
-        content: content
-    });
-
-    // Render without user context
-    const html = await context.renderMarkdown(content);
-    return html;
+```typescript
+// Private page guard using ACLManager (note: authenticated field, not isAuthenticated)
+function checkPrivatePageAccess(wikiContext: WikiContext): boolean {
+  const index = wikiContext.pageObject?.metadata?.['index-entry'] as PageIndexEntry | undefined;
+  if (index?.location !== 'private') return true;
+  if (!wikiContext.userContext?.authenticated) return false;
+  if (wikiContext.userContext.roles?.includes('admin')) return true;
+  return wikiContext.userContext.username === index.owner;
 }
 
-// Use it
-const html = await renderCustomContent(
-    '## Welcome to [{$pagename}]\n\nThis is custom content.',
-    'CustomPage'
-);
+// In route handler:
+const wikiContext = this.createWikiContext(req, { pageName });
+if (!checkPrivatePageAccess(wikiContext)) {
+  return res.status(403).render('error', { code: 403 });
+}
 ```
 
-### Example 4: Checking Context Type
+### Example 4: Page Preview
 
-```javascript
-function handlePageRequest(req, res) {
-    const context = new WikiContext(engine, {
-        context: req.query.mode === 'edit'
-            ? WikiContext.CONTEXT.EDIT
-            : WikiContext.CONTEXT.VIEW,
-        pageName: req.params.pageName,
-        request: req
-    });
+```typescript
+async previewPage(req: Request, res: Response): Promise<void> {
+  const { pageName, content } = req.body as { pageName: string; content: string };
 
-    // Conditional logic based on context
-    if (context.getContext() === WikiContext.CONTEXT.EDIT) {
-        // Show editor
-        return res.render('wiki-edit', { context });
-    } else {
-        // Show view
-        const html = await context.renderMarkdown();
-        return res.render('wiki-view', { content: html });
-    }
+  const wikiContext = this.createWikiContext(req, {
+    context: WikiContext.CONTEXT.PREVIEW,
+    pageName,
+    content,
+  });
+
+  const html = await wikiContext.renderMarkdown(content);
+  res.json({ success: true, html });
 }
 ```
 
 ### Example 5: Testing with Mock Context
 
-```javascript
-// In tests
-describe('Page Rendering', () => {
-    test('renders page with variables', async () => {
-        const mockEngine = createMockEngine();
+```typescript
+// In tests — direct construction (no req available in tests)
+const mockEngine = {
+  getManager: jest.fn((name: string) => {
+    if (name === 'RenderingManager') return mockRenderingManager;
+    if (name === 'VariableManager') return mockVariableManager;
+    if (name === 'PageManager') return mockPageManager;
+    if (name === 'PluginManager') return mockPluginManager;
+    if (name === 'ACLManager') return mockAclManager;
+    return null;
+  }),
+};
 
-        const context = new WikiContext(mockEngine, {
-            pageName: 'TestPage',
-            content: 'Welcome to [{$pagename}]',
-            userContext: { username: 'testuser' }
-        });
-
-        const html = await context.renderMarkdown();
-
-        expect(html).toContain('Welcome to TestPage');
-    });
+const wikiContext = new WikiContext(mockEngine as unknown as WikiEngine, {
+  pageName: 'TestPage',
+  content: 'Welcome to [{$pagename}]',
+  userContext: { username: 'testuser', authenticated: true, roles: ['user'] },
 });
+
+const html = await wikiContext.renderMarkdown();
+expect(html).toContain('Welcome to TestPage');
 ```
 
-### Example 6: Parse Options
+### Example 6: toParseOptions() — custom parsing
 
-```javascript
-// Custom parsing with specific options
-const context = new WikiContext(engine, {
-    pageName: 'Main',
-    userContext: { username: 'admin' },
-    request: req
+```typescript
+const wikiContext = new WikiContext(engine, {
+  pageName: 'Main',
+  userContext: { username: 'admin', authenticated: true },
+  request: req,
 });
 
-// Get parse options
-const options = context.toParseOptions();
-
-console.log(options);
+const options = wikiContext.toParseOptions();
 // {
 //   pageContext: {
 //     pageName: 'Main',
-//     userContext: { username: 'admin' },
-//     requestInfo: { ... }
+//     userContext: { username: 'admin', authenticated: true },
+//     requestInfo: { clientIp: '...', sessionId: '...', ... }
 //   },
-//   engine: WikiEngine { ... }
+//   engine: WikiEngine
 // }
 
-// Use with custom parser
-const customParser = new CustomMarkupParser();
-const html = await customParser.parse(content, options);
+const parser = wikiContext.renderingManager.getParser();
+if (parser) {
+  const html = await parser.parse(content, options as unknown as Record<string, unknown>);
+}
 ```
 
 ---
 
 ## Integration with Managers
 
-WikiContext provides direct access to all engine managers. When orchestrating rendering, it generates and passes a `pageContext` object to the pipeline, which the managers' handlers consume.
+### PageManager
+
+```typescript
+// Page access via WikiContext reference
+const page = await wikiContext.pageManager.getPage(wikiContext.pageName!);
+
+// Save with full context (manager derives author from wikiContext.userContext)
+await wikiContext.pageManager.savePageWithContext(wikiContext, metadata);
+```
 
 ### VariableManager
 
-Access system variables:
-
-```javascript
-const context = new WikiContext(engine, {
-    pageName: 'Main',
-    userContext: { username: 'john' }
-});
-
-// VariableManager is available
-const variableManager = context.variableManager;
-
-// Expand variables manually
-const expanded = variableManager.expandVariables(
-    'User [{$username}] on page [{$pagename}]',
-    context.toParseOptions().pageContext
+```typescript
+// Manual variable expansion (renderMarkdown() does this automatically)
+const expanded = wikiContext.variableManager.expandVariables(
+  'User [{$username}] on [{$pagename}]',
+  wikiContext.toParseOptions().pageContext
 );
-// Result: "User john on page Main"
+// "User john on Main"
 ```
 
 ### PluginManager
 
-Execute plugins:
-
-```javascript
-const context = new WikiContext(engine, {
-    pageName: 'Main'
-});
-
-// PluginManager is available
-const pluginManager = context.pluginManager;
-
-// Check if plugin exists
-if (pluginManager.hasPlugin('TableOfContents')) {
-    // Plugin is available
+```typescript
+if (wikiContext.pluginManager.hasPlugin('TableOfContents')) {
+  // Plugin available
 }
 ```
 
 ### RenderingManager
 
-Access the parser:
-
-```javascript
-const context = new WikiContext(engine, {
-    pageName: 'Main'
-});
-
-// Get parser from RenderingManager
-const parser = context.renderingManager?.getParser?.();
-
+```typescript
+const parser = wikiContext.renderingManager.getParser();
 if (parser) {
-    // Use advanced parser
-    const html = await parser.parse(content, context.toParseOptions());
+  const html = await parser.parse(content, wikiContext.toParseOptions() as unknown as Record<string, unknown>);
 }
-```
-
-### PageManager
-
-Access page data:
-
-```javascript
-const context = new WikiContext(engine, {
-    pageName: 'Main'
-});
-
-// PageManager is available
-const pageManager = context.pageManager;
-
-// Get page metadata
-const metadata = await pageManager.getPageMetadata('Main');
 ```
 
 ### ACLManager
 
-Check permissions:
-
-```javascript
-const context = new WikiContext(engine, {
-    pageName: 'SecretPage',
-    userContext: { username: 'john', roles: ['user'] }
-});
-
-// ACLManager is available
-const aclManager = context.aclManager;
-
-// Check if user can view page
-const canView = await aclManager.checkPermission(
-    context.userContext,
-    'SecretPage',
-    'view'
+```typescript
+// checkPagePermissionWithContext() takes a WikiContext directly
+const canEdit = await wikiContext.aclManager.checkPagePermissionWithContext(
+  wikiContext,   // ← pass WikiContext, not separate (userContext, pageName)
+  'edit'
 );
 
-if (!canView) {
-    throw new Error('Access denied');
+if (!canEdit) {
+  return res.status(403).render('error', { code: 403 });
 }
 ```
 
@@ -845,92 +582,39 @@ if (!canView) {
 
 ### Test Coverage
 
-| Test Category | Tests | Status | File |
-| --------------- | ------- | -------- | ------ |
-| **Constructor** | 3 | ✅ 100% | WikiContext.test.js |
-| **getContext** | 2 | ✅ 100% | WikiContext.test.js |
-| **renderMarkdown** | 4 | ✅ 100% | WikiContext.test.js |
-| **toParseOptions** | 2 | ✅ 100% | WikiContext.test.js |
-| **Context constants** | 1 | ✅ 100% | WikiContext.test.js |
-| **Total** | **12** | **✅ 100%** | |
+| Category | Tests | Status |
+|---|---|---|
+| Constructor | 3 | ✅ 100% |
+| `getContext()` | 2 | ✅ 100% |
+| `renderMarkdown()` | 4 | ✅ 100% |
+| `toParseOptions()` | 2 | ✅ 100% |
+| Context constants | 1 | ✅ 100% |
+| **Total** | **12** | **✅ 100%** |
 
 ### Running Tests
 
 ```bash
-# Run WikiContext tests
-npm test -- WikiContext.test.js
-
-# With coverage
+npm test -- WikiContext.test.js --verbose
 npm test -- WikiContext.test.js --coverage
-
-# Watch mode
-npm test -- WikiContext.test.js --watch
-```
-
-### Test Structure
-
-```javascript
-describe('WikiContext', () => {
-    describe('Constructor', () => {
-        test('should initialize with correct properties');
-        test('should throw error if engine not provided');
-        test('should use defaults for optional properties');
-    });
-
-    describe('getContext', () => {
-        test('should return the context type');
-        test('should return NONE for default context');
-    });
-
-    describe('renderMarkdown', () => {
-        test('should use MarkupParser when available');
-        test('should use default content if none provided');
-        test('should fallback to Showdown when parser not available');
-        test('should expand variables in fallback mode');
-    });
-
-    describe('toParseOptions', () => {
-        test('should create correct parse options object');
-        test('should handle missing request object');
-    });
-
-    describe('Context constants', () => {
-        test('should have all context type constants');
-    });
-});
 ```
 
 ### Mock Setup
 
-```javascript
-// Mock engine
+```typescript
 const mockEngine = {
-    getManager: jest.fn((managerName) => {
-        switch (managerName) {
-            case 'RenderingManager':
-                return mockRenderingManager;
-            case 'VariableManager':
-                return mockVariableManager;
-            default:
-                return null;
-        }
-    })
+  getManager: jest.fn((name: string) => ({
+    RenderingManager: { getParser: jest.fn(() => ({ parse: jest.fn().mockResolvedValue('<p>html</p>') })) },
+    VariableManager: { expandVariables: jest.fn((s: string) => s) },
+    PageManager: { getPage: jest.fn(), savePageWithContext: jest.fn() },
+    PluginManager: { hasPlugin: jest.fn(() => false) },
+    ACLManager: { checkPagePermissionWithContext: jest.fn().mockResolvedValue(true) },
+  }[name] ?? null)),
 };
 
-// Mock rendering manager
-const mockRenderingManager = {
-    getParser: jest.fn(() => mockParser)
-};
-
-// Mock parser
-const mockParser = {
-    parse: jest.fn((content) => `<p>Parsed: ${content}</p>`)
-};
-
-// Create context
-const context = new WikiContext(mockEngine, {
-    pageName: 'TestPage',
-    content: 'Test content'
+const wikiContext = new WikiContext(mockEngine as unknown as WikiEngine, {
+  pageName: 'TestPage',
+  content: 'Test content',
+  userContext: { username: 'testuser', authenticated: true },
 });
 ```
 
@@ -938,280 +622,137 @@ const context = new WikiContext(mockEngine, {
 
 ## Performance
 
-### Benchmarks
+| Operation | Notes |
+|---|---|
+| Create WikiContext | Very fast — manager references are cheap pointer assignments |
+| `getContext()` | Simple property access |
+| `toParseOptions()` | Object construction (~0.1ms) |
+| `renderMarkdown()` | Depends on parser and content (20–30ms typical) |
 
-WikiContext is designed to be lightweight and performant:
+**Key:** `WikiContext` is created once per request. Manager references are stored as pointers — no copying. Always create one instance per request and reuse it for multiple operations within that request.
 
-| Operation | Time | Notes |
-| ----------- | ------ | ------- |
-| **Create WikiContext** | ~0.5ms | Very fast, minimal overhead |
-| **getContext()** | <0.01ms | Simple property access |
-| **toParseOptions()** | ~0.1ms | Object construction |
-| **renderMarkdown()** | 20-30ms | Depends on parser and content |
-
-### Performance Characteristics
-
-1. **Creation Overhead** - Minimal (~0.5ms)
-2. **Memory Footprint** - Small (~2KB per instance)
-3. **Per-Request** - Created once per request, not cached
-4. **Manager References** - Stored references, not copies
-
-### Optimization Tips
-
-**Good:**
-
-```javascript
-// Reuse context for multiple operations
-const context = new WikiContext(engine, options);
-const html1 = await context.renderMarkdown(content1);
-const html2 = await context.renderMarkdown(content2);
-```
-
-**Avoid:**
-
-```javascript
-// Don't create multiple contexts unnecessarily
-for (const content of contents) {
-    const context = new WikiContext(engine, options); // Wasteful!
-    await context.renderMarkdown(content);
-}
+```typescript
+// ✅ One context, multiple operations
+const wikiContext = this.createWikiContext(req, { pageName });
+const html = await wikiContext.renderMarkdown(pageContent);
+const leftMenuHtml = await wikiContext.renderMarkdown(leftMenuContent);
 ```
 
 ---
 
 ## Migration Guide
 
-### From Inline Regex
+### From inline regex processing
 
-If you're migrating from inline regex processing:
-
-**Before:**
-
-```javascript
-function renderMarkdown(content, pageName) {
-    let result = content;
-
-    // Expand variables
-    result = result.replace(/\[\{\$pagename\}\]/g, pageName);
-
-    // Expand plugins
-    result = result.replace(/\[\{TOC\}\]/g, generateTOC());
-
-    // Convert markdown
-    result = converter.makeHtml(result);
-
-    return result;
+```typescript
+// Before
+function renderMarkdown(content: string, pageName: string): string {
+  let result = content.replace(/\[\{\$pagename\}\]/g, pageName);
+  return converter.makeHtml(result);
 }
+
+// After
+const wikiContext = this.createWikiContext(req, { pageName, content });
+const html = await wikiContext.renderMarkdown();
 ```
 
-**After:**
+### From legacy RenderingManager calls
 
-```javascript
-async function renderMarkdown(content, pageName, userContext) {
-    const context = new WikiContext(engine, {
-        pageName: pageName,
-        content: content,
-        userContext: userContext
-    });
+```typescript
+// Before
+const html = await renderingManager.renderMarkdown(content, pageName, userContext, requestInfo);
 
-    return await context.renderMarkdown();
-}
+// After
+const wikiContext = this.createWikiContext(req, { pageName, content });
+const html = await wikiContext.renderMarkdown();
 ```
 
-### From Legacy RenderingManager
+### Passing context to managers (migration in progress)
 
-**Before:**
+```typescript
+// Current hybrid approach (acceptable while migration is in progress)
+const wikiContext = this.createWikiContext(req, { context: WikiContext.CONTEXT.EDIT, pageName, content });
+const currentUser = wikiContext.userContext;
+const metadata = { ...otherMetadata, author: currentUser?.username ?? 'anonymous' };
+await pageManager.savePage(pageName, content, metadata);  // old signature
 
-```javascript
-const html = await renderingManager.renderMarkdown(
-    content,
-    pageName,
-    userContext,
-    requestInfo
-);
+// Target pattern (use where manager supports it)
+await pageManager.savePageWithContext(wikiContext, metadata);  // WikiContext-aware
 ```
 
-**After:**
-
-```javascript
-const context = new WikiContext(engine, {
-    pageName: pageName,
-    content: content,
-    userContext: userContext,
-    request: req
-});
-
-const html = await context.renderMarkdown();
-```
+When refactoring existing code, add a `// TODO: use savePageWithContext(wikiContext)` comment to mark legacy call sites.
 
 ---
 
 ## Troubleshooting
 
-### Common Issues
+### "WikiContext requires a valid WikiEngine instance"
 
-#### Issue 1: "WikiContext requires a valid WikiEngine instance"**
+`engine` was `null` or `undefined`. Ensure WikiEngine is fully initialized before constructing.
 
-Symptom: Error thrown on creation
+### Fallback renderer always used ("Using fallback renderer" in logs)
 
-Solution:
+MarkupParser not initialized. Check:
 
-```javascript
-// Ensure engine is provided
-const context = new WikiContext(engine, options); // engine must not be null
-```
-
-#### Issue 2: Fallback rendering always used**
-
-Symptom: Logs show "Using fallback renderer"
-
-Solution: Check that MarkupParser is initialized:
-
-```javascript
+```typescript
 const parser = engine.getManager('MarkupParser');
-console.log('Parser available:', !!parser);
-console.log('Parser initialized:', parser?.isInitialized());
+console.log('Parser available:', !!parser, 'initialized:', parser?.isInitialized());
 ```
 
-#### Issue 3: Variables not expanded**
+### Variables not expanded (`[{$pagename}]` appears literally)
 
-Symptom: `[{$pagename}]` appears literally in output
+VariableManager not available:
 
-Solution: Check VariableManager is available:
-
-```javascript
-console.log('VariableManager:', !!context.variableManager);
+```typescript
+console.log('VariableManager:', !!wikiContext.variableManager);
 ```
 
-#### Issue 4: Request info missing**
+### Request info missing from `toParseOptions()`
 
-Symptom: `toParseOptions()` has undefined request info
+Must pass `request: req` in options:
 
-Solution: Ensure request object is passed:
-
-```javascript
-const context = new WikiContext(engine, {
-    pageName: 'Main',
-    request: req  // ← Must provide request
-});
+```typescript
+const wikiContext = this.createWikiContext(req, { pageName, request: req });
+// or: new WikiContext(engine, { ..., request: req })
 ```
 
-### Debug Mode
+### `userContext.isAuthenticated` is `undefined` in typed code
 
-Enable debug logging:
+The typed `UserContext` interface uses `authenticated?: boolean`. The `isAuthenticated` alias is set by the session middleware at runtime on `req.userContext`. In typed TypeScript, use:
 
-```javascript
-// In WikiContext.js, uncomment debug logs
-logger.debug(`[CTX] Created context for ${this.pageName}`);
-logger.debug(`[CTX] Managers: ${Object.keys(this).filter(k => k.includes('Manager'))}`);
+```typescript
+if (wikiContext.userContext?.authenticated) { ... }
 ```
 
 ---
 
 ## Related Documentation
 
-### WikiContext Documentation Files
-
-**Core Documentation:**
-
-- [docs/WikiContext.md](WikiContext.md) - Original WikiContext documentation
-- [docs/architecture/Current-Rendering-Pipeline.md](architecture/Current-Rendering-Pipeline.md) - How WikiContext fits in the rendering pipeline
-
-**Architecture Documentation:**
-
-- [ARCHITECTURE.md](../ARCHITECTURE.md) - Overall amdWiki architecture including WikiContext
-- [docs/WikiDocument-Complete-Guide.md](WikiDocument-Complete-Guide.md) - WikiDocument (used internally by MarkupParser)
-
-**Related GitHub Issues:**
-
-- Issue #67 - Create WikiContext Class ✅
-- Issue #66 - [EPIC] Implement WikiContext and Manager ✅
-- Issue #132 - Refactor to use WikiContext as Single Source of Truth ✅
-- Issue #68 - Integrate VariableManager.js into WikiContext ✅
-- Issue #71 - Refactor Rendering Pipeline in app.js ✅
+- [WikiContext.md](WikiContext.md) — original shorter reference
+- [CONTRIBUTING.md](../CONTRIBUTING.md#wikicontext---single-source-of-truth) — contributing guidelines for WikiContext usage
+- [docs/architecture/Current-Rendering-Pipeline.md](architecture/Current-Rendering-Pipeline.md) — rendering pipeline detail
+- [ARCHITECTURE.md](../ARCHITECTURE.md) — overall amdWiki architecture
+- [docs/WikiDocument-Complete-Guide.md](WikiDocument-Complete-Guide.md) — WikiDocument (used internally by MarkupParser)
 
 ### Relationship with WikiDocument
 
-WikiContext and WikiDocument serve different purposes at different layers:
+| | WikiContext | WikiDocument |
+|---|---|---|
+| File | `src/context/WikiContext.ts` | `src/parsers/dom/WikiDocument.ts` |
+| Scope | Request-scoped | Created during parse phase only |
+| Role | Orchestrator — holds all context | Internal DOM for parsed content |
+| Lifetime | Full HTTP request | Within `MarkupParser.parse()` call |
+| Created by | `WikiRoutes.createWikiContext()` | `MarkupParser` internally |
 
-- **WikiContext** (src/context/WikiContext.js) - High-level orchestrator
-  - Request-scoped container
-  - Manages full rendering pipeline
-  - Provides access to all managers
-  - Created per HTTP request
-  - Lives for duration of request
+### Related Issues
 
-- **WikiDocument** (src/parsers/dom/WikiDocument.js) - Low-level DOM representation
-  - Internal DOM structure for parsed content
-  - Used by MarkupParser during parsing
-  - Created during parse phase
-  - Short-lived (within parse operation)
-
-**Flow:**
-
-```
-Request → WikiRoutes creates WikiContext
-              ↓
-          WikiContext.renderMarkdown()
-              ↓
-          RenderingManager.getParser()
-              ↓
-          MarkupParser.parse()
-              ↓
-          Creates WikiDocument internally
-              ↓
-          Extract → DOM → Merge
-              ↓
-          Returns HTML to WikiContext
-              ↓
-          Returns to route handler
-```
-
-### Source Code
-
-**Core Implementation:**
-
-- `src/context/WikiContext.js` - WikiContext class (192 lines)
-- `src/context/__tests__/WikiContext.test.js` - Unit tests (182 lines, 12 tests)
-
-**Integration Points:**
-
-- `src/routes/WikiRoutes.js` - Creates WikiContext per request
-- `src/managers/RenderingManager.js` - Uses WikiContext options
-- `src/parsers/MarkupParser.js` - Receives options from WikiContext
+- Issue #67 — Create WikiContext Class ✅
+- Issue #66 — \[EPIC\] Implement WikiContext and Manager ✅
+- Issue #132 — Refactor to use WikiContext as Single Source of Truth ✅
+- Issue #68 — Integrate VariableManager.js into WikiContext ✅
+- Issue #71 — Refactor Rendering Pipeline in app.js ✅
 
 ---
 
-## Summary
-
-WikiContext is the central orchestrator for wiki rendering in amdWiki:
-
-✅ **Production Ready** - Fully implemented and tested (12/12 tests passing)
-✅ **Request-Scoped** - Created once per HTTP request
-✅ **Manager Access** - Provides unified interface to all managers
-✅ **JSPWiki Compatible** - Follows JSPWiki's proven architecture
-✅ **Actively Used** - In production since October 2025
-
-**Key Benefits:**
-
-- Simplifies API signatures (single context object vs many parameters)
-- Encapsulates all request-scoped information
-- Provides fallback rendering when managers unavailable
-- Makes testing easier with mock contexts
-- Follows JSPWiki's TranslatorReader pattern
-
-**Best Practices:**
-
-- Create one WikiContext per request
-- Pass to all managers and handlers
-- Use context types appropriately (VIEW, EDIT, etc.)
-- Let WikiContext manage the rendering pipeline
-- Mock WikiContext for testing
-
-**Version History:**
-
-- v1.0.0 (Oct 2025) - Initial implementation with full manager integration
-- Current (Dec 2025) - Production-ready, 100% test coverage
-
-**Last Updated:** 2025-12-08
+**Last Updated:** 2026-02-27
 **Maintained By:** amdWiki Development Team

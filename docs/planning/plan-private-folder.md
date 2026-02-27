@@ -117,7 +117,7 @@ function checkPrivatePageAccess(wikiContext: WikiContext): boolean {
   // WikiContext.pageObject carries the loaded page (added via engine.buildWikiContext)
   const index = wikiContext.pageObject?.metadata?.['index-entry'] as PageIndexEntry;
   if (index?.location !== 'private') return true;            // public page — allow
-  if (!wikiContext.userContext?.isAuthenticated) return false; // anonymous — deny
+  if (!wikiContext.userContext?.authenticated) return false;   // anonymous — deny
   if (wikiContext.userContext.roles?.includes('admin')) return true; // admin — allow
   return wikiContext.userContext.username === index.owner;    // owner — allow
 }
@@ -391,13 +391,19 @@ When a media item is linked to a wiki page (`mentions` field), `MediaManager.get
 // wikiContext is created in WikiRoutes via this.createWikiContext(req, { pageName })
 // and passed through to the manager — MediaManager never holds a req reference directly
 if (item.linkedPageName && wikiContext) {
-  // Reuse wikiContext with the linked page name substituted
-  const pageWikiContext = wikiContext.withPageName(item.linkedPageName);
+  // WikiContext is immutable (all readonly fields) — create a new one with the
+  // linked page name, preserving userContext and request from the caller's context
+  const pageWikiContext = new WikiContext(this.engine, {
+    context: WikiContext.CONTEXT.VIEW,
+    pageName: item.linkedPageName,
+    userContext: wikiContext.userContext ?? undefined,
+    request: wikiContext.request ?? undefined,
+  });
   if (!checkPrivatePageAccess(pageWikiContext)) return null;  // treat as not found
 }
 ```
 
-`WikiContext.withPageName()` (or equivalent clone method — verify in `docs/WikiContext-Complete-Guide.md`) creates a copy with a different `pageName` while preserving `userContext`. One access-check function used consistently across pages, attachments, and media items.
+`WikiContext` has no clone/withPageName helper — all properties are `readonly`. Construct a new instance directly. One access-check function used consistently across pages, attachments, and media items.
 
 ### 3.9 — Config keys (`config/app-default-config.json`)
 

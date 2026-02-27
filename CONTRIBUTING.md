@@ -208,109 +208,47 @@ await userManager.getSession(sessionId)
 
 ### WikiContext - Single Source of Truth
 
-**WikiContext** (`src/context/WikiContext.ts`) is the central context object that holds all request/user context in one place. Inspired by JSPWiki's WikiContext, it provides access to the engine, page, user, and other contextual information.
+📖 **Full reference: [docs/WikiContext-Complete-Guide.md](docs/WikiContext-Complete-Guide.md)**
 
-**Creating WikiContext in Route Handlers:**
+**`WikiContext`** (`src/context/WikiContext.ts`) is the request-scoped container for all page, user, and engine context. All rendering and access-control flows through it.
 
-```javascript
-// Use the helper method in WikiRoutes
+**The two rules:**
+
+```typescript
+// 1. Always create via the factory in route handlers
 const wikiContext = this.createWikiContext(req, {
-  context: WikiContext.CONTEXT.VIEW,  // or EDIT, PREVIEW, DIFF, INFO
-  pageName: pageName,
-  content: content,  // optional
-  response: res
+  context: WikiContext.CONTEXT.VIEW,  // VIEW | EDIT | PREVIEW | DIFF | INFO | NONE
+  pageName,
+  content,   // optional
 });
 
-// Extract template data from context
+// 2. Always get template data via the extractor
 const templateData = this.getTemplateDataFromContext(wikiContext);
-
-// Render template with consistent data structure
-res.render('template-name', {
-  ...templateData,
-  // additional template-specific properties
-});
+res.render('template-name', { ...templateData, content: html });
 ```
 
-**WikiContext Properties:**
+**Key properties** (all `readonly`):
 
-- `context` - The rendering context (VIEW, EDIT, PREVIEW, DIFF, INFO, NONE)
-- `pageName` - Current page name
-- `content` - Page content (if applicable)
-- `userContext` - Complete user context with roles and authentication status
-- `request` - Express request object
-- `response` - Express response object
-- `engine` - WikiEngine instance
-- Manager references: `pageManager`, `renderingManager`, `pluginManager`, `variableManager`, `aclManager`
-
-**Key Benefits:**
-
-- ✅ **Single Source of Truth** - All context data in one place
-- ✅ **Consistent Template Data** - All templates receive the same structure
-- ✅ **Easy Maintenance** - Add new properties in one location
-- ✅ **Type Safety** - Clear contract for available data
-- ✅ **Rendering Context** - Used by parsers, plugins, and handlers
-
-**Template Data Structure:**
-
-```javascript
-{
-  currentUser: userContext,    // For header template compatibility
-  userContext: userContext,    // For ACL and other logic
-  user: userContext,           // Alias for convenience
-  pageName: pageName,          // Current page
-  wikiContext: wikiContext,    // Full context for advanced usage
-  engine: engine               // WikiEngine reference
-}
-```
-
-**DO NOT:**
-
-- ❌ Pass individual `req.userContext` directly to templates
-- ❌ Create separate user context objects in route handlers
-- ❌ Manually construct template data objects
+| Property | Type | Description |
+|---|---|---|
+| `pageName` | `string \| null` | Current page |
+| `userContext` | `UserContext \| null` | User — use `.authenticated`, not `.isAuthenticated` |
+| `request` / `response` | `Request \| null` | Express objects |
+| `engine` | `WikiEngine` | Engine instance |
+| `pageManager`, `renderingManager`, `pluginManager`, `variableManager`, `aclManager` | managers | Direct manager shortcuts |
 
 **DO:**
 
-- ✅ Always use `createWikiContext()` helper in route handlers
-- ✅ Use `getTemplateDataFromContext()` to extract template data
-- ✅ Pass WikiContext to plugins, parsers, and handlers
-- ✅ Use appropriate context type for the operation
+- ✅ Use `createWikiContext()` in every route handler
+- ✅ Use `getTemplateDataFromContext()` for all template rendering
+- ✅ Pass `WikiContext` to managers and access-control helpers
+- ✅ Use `userContext.authenticated` (typed field) not `userContext.isAuthenticated`
 
-**Migration Strategy:**
+**DO NOT:**
 
-The codebase is gradually being refactored to use WikiContext everywhere:
-
-1. **Route Handlers** (In Progress) - Create WikiContext at the start of each handler
-2. **Template Rendering** (Done) - Extract template data from WikiContext
-3. **Manager Methods** (Future) - Update manager signatures to accept WikiContext
-4. **Provider Methods** (Future) - Update provider signatures to accept WikiContext
-
-Example of current hybrid approach:
-
-```javascript
-async savePage(req, res) {
-  // Create WikiContext (single source of truth)
-  const wikiContext = this.createWikiContext(req, {
-    context: WikiContext.CONTEXT.EDIT,
-    pageName: pageName,
-    content: content
-  });
-
-  // Extract user info from context
-  const currentUser = wikiContext.userContext;
-
-  // Prepare metadata with author from context
-  const metadata = {
-    ...otherMetadata,
-    author: currentUser?.username || 'anonymous'
-  };
-
-  // TODO: Eventually this should be: pageManager.savePage(wikiContext, metadata)
-  await pageManager.savePage(pageName, content, metadata);
-}
-```
-
-When refactoring existing code, add TODO comments indicating where WikiContext should be used.
+- ❌ Pass `req.userContext` directly to templates
+- ❌ Construct template data objects manually
+- ❌ Create a new `WikiContext` per sub-operation in the same request — reuse the one you have
 
 ## 📦 Key Dependencies
 
@@ -479,12 +417,12 @@ for (let i = 0; i < elements.length; i++) {
 #### Type Safety Patterns
 
 ```typescript
-// Prefer type assertions after calls, not generic parameters
-// ✅ Good
-const manager = engine.getManager('PageManager') as PageManager | undefined;
-
-// ❌ Avoid (getManager doesn't support generics)
+// Both forms work — generics are supported by getManager<T>():
+// ✅ Generic form (used internally in WikiContext.ts)
 const manager = engine.getManager<PageManager>('PageManager');
+
+// ✅ Type assertion form — equivalent, use consistently within a file
+const manager = engine.getManager('PageManager') as PageManager | undefined;
 
 // Use unknown instead of any where possible
 function processData(data: unknown): void {
