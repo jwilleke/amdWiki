@@ -24,6 +24,22 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-27-03
+
+- Agent: Claude Sonnet 4.6
+- Subject: Fix stale stub metadata returned by getPage() after fast-init
+
+- Key Decision: `FileSystemProvider.getPage()` updated `contentCache` but not `pageCache` after disk read; on the second call (AJAX metadata request) the contentCache hit path returned the fast-init stub `{ title, uuid }` as metadata instead of the full frontmatter
+- Work Done:
+  - Fixed `src/providers/FileSystemProvider.ts` `getPage()` — update `pageCache` with full parsed metadata alongside `contentCache` after disk read
+  - Root cause diagnosed via log analysis: `characterCount: 5180` vs `fileSize: 5410` confirmed cache was stale; metadata API returning `category: general`, `keywords: []`, `slug: "Wiki Documentation"` all traced to missing `pageCache` update
+  - Filed GitHub issue [#300](https://github.com/jwilleke/amdWiki/issues/300) for the related required-pages edit-migration bug
+
+- Files Modified:
+  - `src/providers/FileSystemProvider.ts`
+
+---
+
 ## 2026-02-27-02
 
 - Agent: Claude Sonnet 4.6

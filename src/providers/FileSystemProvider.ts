@@ -384,8 +384,11 @@ class FileSystemProvider extends BasePageProvider {
       const fullContent = await fs.readFile(info.filePath, this.encoding);
       const { content, data: metadata } = matter(fullContent);
 
-      // Update cache for future requests
+      // Update caches for future requests — store full metadata so subsequent
+      // getPage() calls (e.g. AJAX metadata requests) return complete frontmatter
+      // instead of the stub { title, uuid } populated during fast-init.
       this.contentCache.set(info.title, content);
+      this.pageCache.set(info.title, { ...info, metadata: metadata as PageFrontmatter });
 
       return {
         content,
