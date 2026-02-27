@@ -24,6 +24,28 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-02-27-04
+
+- Agent: Claude Sonnet 4.6
+- Subject: Separate author/editor semantics; improve Page Information dialog and Copy button
+
+- Work Done:
+  - `PageManager.savePageWithContext()` — preserve existing `author` on page update; only set author when creating a new page (original creator never changes)
+  - `WikiRoutes.getPageMetadata()` — split `author` (immutable, from frontmatter) and `editor` (last modifier, from `versionInfo.lastAuthor`) into separate API fields
+  - `views/header.ejs` — added Editor row to Page Information dialog Classification section
+  - `views/header.ejs` `copyPageInfo()` — added User Keywords and Editor lines to copied text
+  - GitHub: commented on #300 with need for developer script to promote pages to required-pages/
+  - GitHub: created [#301](https://github.com/jwilleke/amdWiki/issues/301) [FEATURE] for dialog improvements (closed by this commit)
+  - GitHub: created and closed [#302](https://github.com/jwilleke/amdWiki/issues/302) [BUG] for stub metadata bug (already fixed in da8f5d1)
+
+- Commits: 522c8dc
+- Files Modified:
+  - `src/managers/PageManager.ts`
+  - `src/routes/WikiRoutes.ts`
+  - `views/header.ejs`
+
+---
+
 ## 2026-02-27-03
 
 - Agent: Claude Sonnet 4.6
