@@ -24,6 +24,22 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-03-01
+
+- Agent: Claude Sonnet 4.6
+- Subject: Fix BCE date links incorrectly resolving to "1,047 BCE" page (issue #305)
+- Key Decision: Fix `splitCamelCase` regex in `PageNameMatcher` to treat consecutive uppercase sequences (acronyms) as single units rather than splitting each letter
+- Current Issue: Issue #305 closed
+- Testing:
+  - npx jest PageNameMatcher: 52 tests passed
+- Work Done:
+  - Root cause: `camel-case-links: true` (default). `splitCamelCase` regex `[A-Z][a-z]*` matched each uppercase letter individually, so "BCE" → ["B","C","E"] → variation "b c e". ALL pages with "BCE" in the title shared this variation, causing any unresolved BCE date link to fuzzy-match the first BCE page alphabetically ("1,047 BCE")
+  - Fix: changed `[A-Z][a-z]*` to `[A-Z][a-z]+|[A-Z]+` in `splitCamelCase` — all-uppercase sequences ("BCE", "USA", "HTML") are now treated as single units and generate no spurious spaced variation
+  - CamelCase matching for actual CamelCase words (HealthCare → health care, XMLParser → xml parser) is unchanged
+- Commits: see below
+- Files Modified:
+  - src/utils/PageNameMatcher.ts
+
 ## 2026-02-27-04
 
 - Agent: Claude Sonnet 4.6

@@ -77,9 +77,18 @@ export default class PageNameMatcher {
   /**
    * Split a CamelCase name into separate words
    * e.g., "HealthCare" → ["Health", "Care"], "XMLParser" → ["XML", "Parser"]
+   *
+   * Acronyms/abbreviations are kept as single units:
+   * e.g., "BCE", "USA", "HTML" → ["BCE"], ["USA"], ["HTML"]
+   * This prevents false matches where "550 BCE" and "330 BCE" would both
+   * generate the variation "b c e" and incorrectly match each other.
    */
   private splitCamelCase(name: string): string[] {
-    return name.match(/[A-Z]+(?=[A-Z][a-z])|[A-Z][a-z]*|[a-z]+/g) || [name];
+    // [A-Z]+(?=[A-Z][a-z]) — uppercase run before a CamelCase word (e.g. "XML" in "XMLParser")
+    // [A-Z][a-z]+          — CamelCase word with at least one lowercase (e.g. "Health")
+    // [A-Z]+               — standalone acronym/abbreviation (e.g. "BCE", "USA")
+    // [a-z]+               — all-lowercase run (e.g. "amd" in "amdWiki")
+    return name.match(/[A-Z]+(?=[A-Z][a-z])|[A-Z][a-z]+|[A-Z]+|[a-z]+/g) || [name];
   }
 
   /**
