@@ -32,6 +32,7 @@ This file is the **Context Map** for AI agents. It directs you to the Single Sou
 - **Code Style:** [CODE_STANDARDS.md](./CODE_STANDARDS.md) (Naming, formatting, linting, **Markdown Rules: No bold headings/list items**)
 - **Security:** [SECURITY.md](./SECURITY.md) (Secrets, auth, dependencies)
 - **Testing:** [docs/testing/PREVENTING-REGRESSIONS.md](docs/testing/PREVENTING-REGRESSIONS.md) (CRITICAL: Read before modifying code)
+- **Glossary:** [docs/GLOSSARY.md](docs/GLOSSARY.md) (Canonical terms: Build vs Restart vs Directory Scan vs Page Index vs Search Index Rebuild)
 
 **Process:**
 
