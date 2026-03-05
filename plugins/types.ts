@@ -24,6 +24,8 @@ export interface PluginContext {
   engine?: WikiEngine;
   pageName: string;
   linkGraph: Record<string, unknown>;
+  /** Query-string parameters from the current HTTP request (e.g. { page: '2' }) */
+  query?: Record<string, string>;
   [key: string]: unknown;
 }
 

@@ -383,6 +383,9 @@ class DOMPluginHandler {
         userName: context.userName || 'anonymous',
         userContext: context.userContext,
         requestInfo: context.requestInfo,
+        // Expose query params at top level so plugins can read context.query['page'] etc.
+        // This matches the legacy expandMacros path which sets query directly on the context.
+        query: (context.requestInfo as Record<string, unknown>)?.['query'] ?? {},
         engine: this.engine,
 
         // Enhanced context

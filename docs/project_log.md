@@ -24,6 +24,25 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-04-01
+
+- Agent: Claude Sonnet 4.6
+- Subject: Fix pagination Next/Prev links stuck on page 1 in UndefinedPagesPlugin (issue #297)
+- Key Decision: Fix in DOMPluginHandler — expose query params at top level of plugin context to match legacy path
+- Current Issue: Issue #297 closed
+- Testing:
+  - curl /wiki/ALL%20Undefind%20Pages?page=2 → now shows Page 2 with correct Prev/Next links
+- Work Done:
+  - Root cause: DOMPluginHandler (advanced parser path) set query params at context.requestInfo.query; UndefinedPagesPlugin read them from top-level context.query (matching the legacy expandMacros path). So context.query was always undefined and page always rendered as 1.
+  - Fix: added `query: context.requestInfo?.query ?? {}` to plugin context in DOMPluginHandler
+  - Added `query?: Record<string, string>` to PluginContext interface in plugins/types.ts
+  - Simplified UndefinedPagesPlugin to use typed `context.query?.['page']` directly
+- Commits: see below
+- Files Modified:
+  - src/parsers/dom/handlers/DOMPluginHandler.ts
+  - plugins/types.ts
+  - plugins/UndefinedPagesPlugin.ts
+
 ## 2026-03-03-01
 
 - Agent: Claude Sonnet 4.6

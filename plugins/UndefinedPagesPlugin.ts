@@ -141,8 +141,7 @@ const UndefinedPagesPlugin: SimplePlugin = {
 
       if (pageSize > 0) {
         // Use pageSize= pagination; page can come from query string or param
-        const queryPage = (context as Record<string, unknown>).query as Record<string, string> | undefined;
-        const rawPage = queryPage?.['page'] ?? opts.page;
+        const rawPage = context.query?.['page'] ?? opts.page;
         const page = parsePageParam(rawPage);
         const paged = applyPagination(undefinedPages, page, pageSize);
         limited = paged.items;
