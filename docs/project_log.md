@@ -36,7 +36,8 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Root cause 1: create.ejs submitted `userKeywords[]` (camelCase); edit.ejs submitted `user-keywords[]` (kebab-case) — inconsistent field names
   - Root cause 2: both forms stored display labels (e.g., "Performance") in metadata but admin usage counts and delete/merge operations look up by internal ID (e.g., "performance") — so usage counts were always 0 and delete/merge failed to find tagged pages
   - Fix: getUserKeywordsWithDescriptions() now returns `id` field (config key); both forms use `id` as checkbox value with `data-label` for display; create.ejs field renamed to `user-keywords[]`; createPageFromTemplate reads `req.body['user-keywords']` with camelCase fallback; edit.ejs pre-selection checks both id and label
-- Commits: d0ba30b
+  - Follow-up: edit.ejs label was hardcoded "Recommended Max 3" instead of maxUserKeywords; adminKeywords now sorts by label to match form dropdown order
+- Commits: d0ba30b, d8e8e20
 - Files Modified:
   - src/routes/WikiRoutes.ts
   - views/create.ejs
