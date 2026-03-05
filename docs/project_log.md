@@ -24,6 +24,22 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-04-02
+
+- Agent: Claude Sonnet 4.6
+- Subject: Fix MarkupParser cache key ignoring query string — pagination always served page 1 from cache
+- Key Decision: Include query params in parse-result cache key; also fix pageName/userName extraction to use nested pageContext path
+- Current Issue: Issue #297 closed
+- Testing:
+  - curl pages 1, 2, 5 each show correct page number and correct Prev/Next links
+- Work Done:
+  - Root cause: generateCacheKey hashed only pageName+userName+timestamp. For the same wiki page, content hash is identical for all ?page=N requests, so every paginated request got page-1 from cache
+  - Additionally: pageName/userName were read from context.pageName (flat), but the context is nested under pageContext — so both were always undefined, making the context hash identical for all pages (only content hash differed)
+  - Fix: extract requestInfo.query from context.pageContext.requestInfo (with flat fallback) and include it in the hash; also extract pageName/userName from pageContext properly
+- Commits: ce1282d
+- Files Modified:
+  - src/parsers/MarkupParser.ts
+
 ## 2026-03-04-01
 
 - Agent: Claude Sonnet 4.6
