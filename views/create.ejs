@@ -52,14 +52,15 @@
                             </button>
                             <ul class="dropdown-menu w-100" aria-labelledby="userKeywordsDropdown">
                                 <% userKeywords.forEach(kw => {
+                                    const id = typeof kw === 'object' ? kw.id : kw;
                                     const label = typeof kw === 'object' ? kw.label : kw;
                                     const description = typeof kw === 'object' ? kw.description : '';
                                 %>
                                     <li>
                                         <div class="dropdown-item-checkbox px-3 py-2">
                                             <div class="form-check">
-                                                <input class="form-check-input user-keyword-checkbox" type="checkbox" name="userKeywords[]" value="<%= label %>" id="user-keyword-<%= label %>">
-                                                <label class="form-check-label ms-2" for="user-keyword-<%= label %>"<% if (description) { %> title="<%= description %>"<% } %>><%= label %><% if (description) { %> <small class="text-muted">- <%= description %></small><% } %></label>
+                                                <input class="form-check-input user-keyword-checkbox" type="checkbox" name="user-keywords[]" value="<%= id %>" data-label="<%= label %>" id="user-keyword-<%= id %>">
+                                                <label class="form-check-label ms-2" for="user-keyword-<%= id %>"<% if (description) { %> title="<%= description %>"<% } %>><%= label %><% if (description) { %> <small class="text-muted">- <%= description %></small><% } %></label>
                                             </div>
                                         </div>
                                     </li>
@@ -114,7 +115,7 @@
     // Removed obsolete category UI update
     
     function updateSelectedUserKeywordsText() {
-        const checkedKeywords = Array.from(document.querySelectorAll('.user-keyword-checkbox:checked')).map(cb => cb.value);
+        const checkedKeywords = Array.from(document.querySelectorAll('.user-keyword-checkbox:checked')).map(cb => cb.dataset.label || cb.value);
         const text = checkedKeywords.length > 0 ? checkedKeywords.join(', ') : 'Select user keywords...';
         document.getElementById('selectedUserKeywordsText').textContent = text;
     }

@@ -24,6 +24,26 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-05-01
+
+- Agent: Claude Sonnet 4.6
+- Subject: Fix user-keywords inconsistency — form field names and stored values diverged between create/edit
+- Key Decision: Forms now submit internal ID (config key) instead of display label; pre-selection in edit checks both ID and label for backward compat with existing pages
+- Current Issue: Issue #304 closed
+- Testing:
+  - npm test: 68 suites passed, 1789 tests passed
+- Work Done:
+  - Root cause 1: create.ejs submitted `userKeywords[]` (camelCase); edit.ejs submitted `user-keywords[]` (kebab-case) — inconsistent field names
+  - Root cause 2: both forms stored display labels (e.g., "Performance") in metadata but admin usage counts and delete/merge operations look up by internal ID (e.g., "performance") — so usage counts were always 0 and delete/merge failed to find tagged pages
+  - Fix: getUserKeywordsWithDescriptions() now returns `id` field (config key); both forms use `id` as checkbox value with `data-label` for display; create.ejs field renamed to `user-keywords[]`; createPageFromTemplate reads `req.body['user-keywords']` with camelCase fallback; edit.ejs pre-selection checks both id and label
+- Commits: TBD
+- Files Modified:
+  - src/routes/WikiRoutes.ts
+  - views/create.ejs
+  - views/edit.ejs
+
+---
+
 ## 2026-03-04-02
 
 - Agent: Claude Sonnet 4.6

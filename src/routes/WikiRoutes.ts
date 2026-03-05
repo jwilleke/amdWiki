@@ -681,9 +681,9 @@ class WikiRoutes {
 
   /**
    * Get user keywords with their descriptions for display in dropdowns
-   * @returns Array of {label, description} objects sorted alphabetically
+   * @returns Array of {id, label, description} objects sorted alphabetically
    */
-  getUserKeywordsWithDescriptions(): Array<{ label: string; description: string }> {
+  getUserKeywordsWithDescriptions(): Array<{ id: string; label: string; description: string }> {
     try {
       const configManager = this.engine.getManager('ConfigurationManager');
 
@@ -691,12 +691,13 @@ class WikiRoutes {
         const userKeywordsConfig = configManager.getProperty('amdwiki.user-keywords', null);
 
         if (userKeywordsConfig && typeof userKeywordsConfig === 'object') {
-          const keywords: Array<{ label: string; description: string }> = [];
+          const keywords: Array<{ id: string; label: string; description: string }> = [];
 
-          for (const config of Object.values(userKeywordsConfig)) {
+          for (const [key, config] of Object.entries(userKeywordsConfig)) {
             const cfg = config as { enabled?: boolean; label?: string; description?: string };
             if (cfg.enabled !== false && cfg.label) {
               keywords.push({
+                id: key,
                 label: cfg.label,
                 description: cfg.description || ''
               });
@@ -711,16 +712,16 @@ class WikiRoutes {
 
       // Fallback: return basic keywords without descriptions
       return [
-        { label: 'geology', description: '' },
-        { label: 'medicine', description: '' },
-        { label: 'test', description: '' }
+        { id: 'geology', label: 'geology', description: '' },
+        { id: 'medicine', label: 'medicine', description: '' },
+        { id: 'test', label: 'test', description: '' }
       ];
     } catch (err: unknown) {
       logger.error('Error loading user keywords with descriptions:', err);
       return [
-        { label: 'geology', description: '' },
-        { label: 'medicine', description: '' },
-        { label: 'test', description: '' }
+        { id: 'geology', label: 'geology', description: '' },
+        { id: 'medicine', label: 'medicine', description: '' },
+        { id: 'test', label: 'test', description: '' }
       ];
     }
   }
@@ -1250,7 +1251,8 @@ class WikiRoutes {
    */
   async createPageFromTemplate(req: Request, res: Response) {
     try {
-      const { pageName, templateName, categories, userKeywords } = req.body;
+      const { pageName, templateName, categories } = req.body;
+      const userKeywords = req.body['user-keywords'] || req.body.userKeywords;
       const systemCategory = req.body['system-category'] || 'general';
 
       if (!pageName || !templateName) {
