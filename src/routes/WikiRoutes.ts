@@ -7396,7 +7396,7 @@ ${description}
         }
       }
 
-      // Build keywords array with stats
+      // Build keywords array with stats, sorted alphabetically by label to match the form dropdowns
       const keywords = Object.entries(userKeywordsConfig).map(([key, config]) => {
         const label = (config.label as string) || key;
         const hasPage = pageManager ? pageManager.pageExists(label) : false;
@@ -7413,7 +7413,7 @@ ${description}
           usageCount,
           pageUrl: hasPage ? `/wiki/${encodeURIComponent(label)}` : null
         };
-      });
+      }).sort((a, b) => a.label.localeCompare(b.label));
 
       // Calculate stats
       const totalKeywords = keywords.length;
