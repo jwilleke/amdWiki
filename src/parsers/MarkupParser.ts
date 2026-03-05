@@ -1099,14 +1099,23 @@ class MarkupParser extends BaseManager {
    */
   generateCacheKey(content: string, context: ParseContextData): string {
     const contentHash = crypto.createHash('md5').update(content).digest('hex');
+
+    // Context may arrive nested ({ pageContext: { pageName, requestInfo } }) or flat.
+    // Handle both so the cache key is correct regardless of call site.
+    const pageCtx = (context.pageContext ?? context) as Record<string, unknown>;
+    const requestInfo = (pageCtx.requestInfo ?? context.requestInfo) as Record<string, unknown> | undefined;
+    // Include query-string params so paginated pages (?page=2) get distinct cache entries
+    const query = (requestInfo?.['query'] ?? {}) as Record<string, unknown>;
+
     const contextHash = crypto.createHash('md5')
       .update(JSON.stringify({
-        pageName: context.pageName,
-        userName: context.userName,
+        pageName: pageCtx.pageName ?? context.pageName,
+        userName: pageCtx.userName ?? context.userName,
+        query,
         timestamp: Math.floor(Date.now() / 300000) // 5-minute buckets
       }))
       .digest('hex');
-    
+
     return `parse:${contentHash}:${contextHash}`;
   }
 
