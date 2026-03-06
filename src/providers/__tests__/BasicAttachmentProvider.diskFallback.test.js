@@ -63,8 +63,11 @@ describe('BasicAttachmentProvider — getAttachment() disk-scan fallback', () =>
     expect(result).not.toBeNull();
     expect(result.buffer.toString()).toBe('fake-webp-data');
     expect(result.metadata.mimeType).toBe('image/webp');
+    expect(result.metadata.encodingFormat).toBe('image/webp'); // route uses this for Content-Type
     expect(result.metadata.id).toBe(attachmentId);
+    expect(result.metadata.name).toBe(`${attachmentId}.webp`); // route uses this for Content-Disposition
     expect(result.metadata.filename).toBe(`${attachmentId}.webp`);
+    expect(result.metadata.contentSize).toBe(14);             // route uses this for Content-Length
   });
 
   it('file {id}.png exists, no metadata → returns buffer and image/png', async () => {

@@ -588,10 +588,15 @@ class BasicAttachmentProvider extends BaseAttachmentProvider {
 
       const attachmentMetadata: AttachmentMetadata = {
         id: attachmentId,
+        identifier: attachmentId,
+        name: match,                // route uses metadata.name for Content-Disposition
         filename: match,
         pageUuid: '',
+        encodingFormat: mimeType,   // route uses metadata.encodingFormat for Content-Type
         mimeType,
+        contentSize: buffer.length, // route uses metadata.contentSize for Content-Length
         size: buffer.length,
+        url: `/attachments/${attachmentId}`,
         uploadedAt: new Date().toISOString(),
         uploadedBy: 'Unknown',
         filePath
