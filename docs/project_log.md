@@ -38,7 +38,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - WikiRoutes.ts adminKeywords(): sort keywords by label alphabetically to match dropdown order
   - admin-keywords.ejs: swapped column order — Label now first column, ID second
   - Data: consolidated "nuclear energy" keyword (label="energy") into "energy" keyword; removed from config; 7 pages migrated
-- Commits: 96b896c, 835d4c5, TBD
+- Commits: 96b896c, 835d4c5, b00f9ec
 - Files Modified:
   - public/css/style.css
   - src/routes/WikiRoutes.ts
