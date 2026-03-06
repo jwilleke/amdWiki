@@ -286,6 +286,7 @@ class PluginSyntaxHandler extends BaseSyntaxHandler {
       userName: context.userName,
       userContext: context.userContext,
       requestInfo: context.requestInfo,
+      query: (context.requestInfo as { query?: Record<string, string> })?.query ?? {},
       engine: context.engine,
 
       // Enhanced context for JSPWiki compatibility
