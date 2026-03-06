@@ -248,7 +248,7 @@ class LunrSearchProvider extends BaseSearchProvider {
     const metadata = (pageData.metadata as Record<string, unknown>) || {};
     const userKeywordsRaw = metadata['user-keywords'];
     const userKeywords = Array.isArray(userKeywordsRaw)
-      ? userKeywordsRaw.join(' ')
+      ? userKeywordsRaw.join(',')
       : toStr(userKeywordsRaw);
     const tagsRaw = metadata['tags'];
     const tags = Array.isArray(tagsRaw) ? tagsRaw.join(' ') : toStr(tagsRaw);
@@ -320,7 +320,7 @@ class LunrSearchProvider extends BaseSearchProvider {
         const systemCategory = String(metadata['system-category'] || '');
         const userKeywordsArray = metadata['user-keywords'];
         const userKeywords = Array.isArray(userKeywordsArray) ?
-          userKeywordsArray.join(' ') :
+          userKeywordsArray.join(',') :
           String(userKeywordsArray || '');
         const metadataRecord = metadata as Record<string, unknown>;
         const tagsValue = metadataRecord.tags;
@@ -492,9 +492,9 @@ class LunrSearchProvider extends BaseSearchProvider {
       results = results.filter(result => {
         const rawKeywords = result.metadata.userKeywords;
         const docKeywords = typeof rawKeywords === 'string' ? rawKeywords : '';
-        const docKeywordList = docKeywords.toLowerCase().split(/\s+/).filter(k => k);
+        const docKeywordList = docKeywords.toLowerCase().split(',').map(k => k.trim()).filter(k => k);
         return keywordList.some(keyword =>
-          docKeywordList.includes(keyword.toLowerCase())
+          docKeywordList.includes(keyword.toLowerCase().trim())
         );
       });
     }
