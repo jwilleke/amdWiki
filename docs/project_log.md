@@ -24,6 +24,37 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-06-02
+
+- Agent: Claude Sonnet 4.6
+- Subject: Consolidate image/attachment resolution — MIME-based detection, shared renderer, orphan fallback (#311)
+- Key Decision: resolveAttachmentSrc() returns { url, mimeType } so AttachPlugin can detect image vs file from metadata MIME type rather than filename extension; shared renderImageHtml() eliminates duplicated rendering logic
+- Current Issue: #311
+- Testing:
+  - npm test: 71 suites passed, 1833 tests passed (303 skipped, pre-existing)
+- Work Done:
+  - AttachmentManager.resolveAttachmentSrc() return type: string | null → { url, mimeType } | null; mimeType from attachment.encodingFormat
+  - Added name?, url?, encodingFormat? to AttachmentManager.AttachmentMetadata interface
+  - plugins/renderImage.ts: new shared image HTML builder (display, align, float, caption, link wrapping)
+  - ImagePlugin.ts: simplified — uses resolveAttachmentSrc + renderImageHtml; removed local AttachmentMeta and multi-step resolution
+  - AttachPlugin.ts: replaces isImageFile() with resolved.mimeType.startsWith('image/'); image case delegates to renderImageHtml
+  - BasicAttachmentProvider.getAttachment(): disk-scan fallback for orphaned files (file exists, no metadata) — EXTENSION_MIME_MAP lookup, warning log
+  - New tests: AttachPlugin.test.js (23), resolveAttachmentSrc.test.js (12), diskFallback.test.js (6); jest.unmock() for disk fallback test
+  - ImagePlugin.test.js: updated to mock resolveAttachmentSrc directly; removed stale /images/ prefix tests and old multi-step mocks
+- Commits: 2aeb784
+- Files Modified:
+  - plugins/renderImage.ts (new)
+  - plugins/AttachPlugin.ts
+  - plugins/ImagePlugin.ts
+  - plugins/__tests__/AttachPlugin.test.js (new)
+  - plugins/__tests__/ImagePlugin.test.js
+  - src/managers/AttachmentManager.ts
+  - src/managers/__tests__/AttachmentManager.resolveAttachmentSrc.test.js (new)
+  - src/providers/BasicAttachmentProvider.ts
+  - src/providers/__tests__/BasicAttachmentProvider.diskFallback.test.js (new)
+
+---
+
 ## 2026-03-06-01
 
 - Agent: Claude Sonnet 4.6
