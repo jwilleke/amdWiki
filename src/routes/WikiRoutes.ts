@@ -705,7 +705,15 @@ class WikiRoutes {
           }
 
           if (keywords.length > 0) {
-            return keywords.sort((a, b) => a.label.localeCompare(b.label));
+            const sorted = keywords.sort((a, b) => a.label.localeCompare(b.label));
+            // Disambiguate entries that share the same label by appending (id)
+            const labelCounts = new Map<string, number>();
+            for (const kw of sorted) {
+              labelCounts.set(kw.label, (labelCounts.get(kw.label) || 0) + 1);
+            }
+            return sorted.map(kw =>
+              labelCounts.get(kw.label)! > 1 ? { ...kw, label: `${kw.label} (${kw.id})` } : kw
+            );
           }
         }
       }

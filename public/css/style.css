@@ -984,6 +984,11 @@ main p, main div, main span, main li {
     margin-bottom: 0;
 }
 
+.dropdown-item-checkbox .form-check-input {
+    border-color: var(--text-secondary);
+    flex-shrink: 0;
+}
+
 .dropdown-item-checkbox .form-check-input:disabled {
     opacity: 0.4;
 }
