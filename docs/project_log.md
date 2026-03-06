@@ -24,6 +24,29 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-06-01
+
+- Agent: Claude Sonnet 4.6
+- Subject: Further user-keywords consistency fixes — contrast, duplicate labels, admin column order, data consolidation (#304)
+- Key Decision: Treat keyword dropdown contrast and label/id ordering as part of the same consistency issue; consolidate bad data directly
+- Current Issue: Issue #304 (continued)
+- Testing:
+  - npm test: 68 suites passed, 1789 tests passed
+- Work Done:
+  - style.css: checkbox border-color set to --text-secondary in keyword dropdowns — was nearly invisible in dark mode (--input-border #30363d on dark background)
+  - WikiRoutes.ts getUserKeywordsWithDescriptions(): disambiguate duplicate labels by appending (id) — prevents two identical "energy" entries in dropdown
+  - WikiRoutes.ts adminKeywords(): sort keywords by label alphabetically to match dropdown order
+  - admin-keywords.ejs: swapped column order — Label now first column, ID second
+  - Data: consolidated "nuclear energy" keyword (label="energy") into "energy" keyword; removed from config; 7 pages migrated
+- Commits: 96b896c, 835d4c5, TBD
+- Files Modified:
+  - public/css/style.css
+  - src/routes/WikiRoutes.ts
+  - views/admin-keywords.ejs
+  - views/edit.ejs
+
+---
+
 ## 2026-03-05-01
 
 - Agent: Claude Sonnet 4.6
