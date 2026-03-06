@@ -80,6 +80,31 @@ interface ProviderInfo {
 }
 
 /**
+ * MIME type lookup table for disk-scan orphan fallback.
+ * Used only when an attachment file exists on disk but has no metadata record.
+ */
+const EXTENSION_MIME_MAP: Record<string, string> = {
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.png': 'image/png',
+  '.gif': 'image/gif',
+  '.webp': 'image/webp',
+  '.svg': 'image/svg+xml',
+  '.bmp': 'image/bmp',
+  '.ico': 'image/x-icon',
+  '.pdf': 'application/pdf',
+  '.mp4': 'video/mp4',
+  '.webm': 'video/webm',
+  '.mp3': 'audio/mpeg',
+  '.wav': 'audio/wav',
+  '.ogg': 'audio/ogg',
+  '.txt': 'text/plain',
+  '.csv': 'text/csv',
+  '.json': 'application/json',
+  '.zip': 'application/zip'
+};
+
+/**
  * BasicAttachmentProvider - Filesystem-based attachment storage
  *
  * Implements attachment storage using filesystem with Schema.org CreativeWork metadata.
@@ -488,14 +513,20 @@ class BasicAttachmentProvider extends BaseAttachmentProvider {
 
   /**
    * Get attachment file and metadata
+   *
+   * Falls back to a disk scan when metadata is missing but a file matching
+   * `{attachmentId}.*` exists in the storage directory (orphaned file). This
+   * handles the case where attachment metadata was lost without requiring a
+   * data repair before the file can be served. A warning is logged so operators
+   * know the metadata repair is still needed.
+   *
    * @param attachmentId - Attachment identifier
    * @returns File buffer and metadata or null
    */
   async getAttachment(attachmentId: string): Promise<AttachmentResult | null> {
     const metadata = this.attachmentMetadata.get(attachmentId);
     if (!metadata) {
-      logger.warn(`[BasicAttachmentProvider] Attachment not found: ${attachmentId}`);
-      return null;
+      return this.getOrphanedAttachment(attachmentId);
     }
 
     try {
@@ -522,6 +553,53 @@ class BasicAttachmentProvider extends BaseAttachmentProvider {
       return { buffer, metadata: attachmentMetadata };
     } catch (error: unknown) {
       logger.error(`[BasicAttachmentProvider] Failed to read attachment file: ${attachmentId}`, error);
+      return null;
+    }
+  }
+
+  /**
+   * Disk-scan fallback for orphaned attachment files (file on disk, no metadata record).
+   * @param attachmentId - Attachment identifier (SHA-256 hash)
+   * @returns File buffer and synthetic metadata, or null if not found
+   * @private
+   */
+  private async getOrphanedAttachment(attachmentId: string): Promise<AttachmentResult | null> {
+    if (!this.storageDirectory) {
+      logger.warn(`[BasicAttachmentProvider] Attachment not found: ${attachmentId}`);
+      return null;
+    }
+
+    try {
+      const files = await fs.readdir(this.storageDirectory);
+      const match = files.find(f => f.startsWith(attachmentId + '.') || f === attachmentId);
+      if (!match) {
+        logger.warn(`[BasicAttachmentProvider] Attachment not found: ${attachmentId}`);
+        return null;
+      }
+
+      const ext = path.extname(match).toLowerCase();
+      const mimeType = EXTENSION_MIME_MAP[ext] || 'application/octet-stream';
+      logger.warn(
+        `[BasicAttachmentProvider] Serving orphaned file without metadata: ${match} (${mimeType}) — metadata repair needed`
+      );
+
+      const filePath = path.join(this.storageDirectory, match);
+      const buffer = await fs.readFile(filePath);
+
+      const attachmentMetadata: AttachmentMetadata = {
+        id: attachmentId,
+        filename: match,
+        pageUuid: '',
+        mimeType,
+        size: buffer.length,
+        uploadedAt: new Date().toISOString(),
+        uploadedBy: 'Unknown',
+        filePath
+      };
+
+      return { buffer, metadata: attachmentMetadata };
+    } catch (error: unknown) {
+      logger.error(`[BasicAttachmentProvider] Error during orphan fallback scan: ${attachmentId}`, error);
       return null;
     }
   }

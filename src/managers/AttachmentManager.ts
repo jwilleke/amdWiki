@@ -76,6 +76,9 @@ export interface Mention {
  */
 export interface AttachmentMetadata {
   identifier: string;
+  name?: string;
+  url?: string;
+  encodingFormat?: string;
   description?: string;
   isFamilyFriendly?: boolean;
   mentions?: Mention[];
@@ -487,6 +490,67 @@ class AttachmentManager extends BaseManager {
    */
   getAttachmentUrl(attachmentId: string): string {
     return `/attachments/${attachmentId}`;
+  }
+
+  /**
+   * Resolve an attachment src value (from plugin syntax) to a serving URL and MIME type.
+   *
+   * This is the canonical resolution method used by all plugins (ImagePlugin,
+   * AttachPlugin, and future media plugins). Centralising here means Media
+   * Manager (#273), private folders (#122), and any other media source only
+   * need to be wired in once.
+   *
+   * Resolution order:
+   *   1. External URL (starts with http:// or https://) — returned as-is, mimeType: ''
+   *   2. Absolute path (starts with /) — returned as-is, mimeType: ''
+   *   3. Filename lookup on the current page's attachments (exact name match)
+   *   4. Global filename search across all attachments
+   *   5. Returns null if unresolvable (caller decides how to render the error)
+   *
+   * @param {string} src - The raw src value from plugin syntax
+   * @param {string} pageName - Page name for step 3 context
+   * @returns {Promise<{ url: string; mimeType: string } | null>} Resolved result or null
+   */
+  async resolveAttachmentSrc(src: string, pageName: string): Promise<{ url: string; mimeType: string } | null> {
+    if (!src) return null;
+
+    // Steps 1 & 2: external URLs and absolute paths are already resolved
+    if (src.startsWith('http://') || src.startsWith('https://') || src.startsWith('/')) {
+      return { url: src, mimeType: '' };
+    }
+
+    if (!this.attachmentProvider) return null;
+
+    // Step 3: current page attachments by exact filename
+    try {
+      const pageAttachments = await this.attachmentProvider.getAttachmentsForPage(pageName);
+      const match = pageAttachments.find(a => a.name === src);
+      if (match) {
+        return {
+          url: match.url || `/attachments/${match.identifier}`,
+          mimeType: match.encodingFormat || ''
+        };
+      }
+    } catch {
+      // continue
+    }
+
+    // Step 4: global filename search
+    try {
+      const globalMatch = await this.attachmentProvider.getAttachmentByFilename(src);
+      if (globalMatch) {
+        return {
+          url: globalMatch.url || `/attachments/${globalMatch.identifier}`,
+          mimeType: globalMatch.encodingFormat || ''
+        };
+      }
+    } catch {
+      // continue
+    }
+
+    // Future steps (e.g. Media Manager #273, private folders #122) go here
+
+    return null;
   }
 
   /**

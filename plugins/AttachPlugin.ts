@@ -19,35 +19,33 @@
  *   display  (optional) - Display mode for images: block (default) | float | inline | full
  *   style    (optional) - Custom inline CSS
  *   class    (optional) - Custom CSS class
- *   target   (optional) - Link target (default: _blank for file downloads, empty for images)
+ *   target   (optional) - Link target (default: _blank for file downloads, none for images)
  *   width    (optional) - Image width (images only)
  *   height   (optional) - Image height (images only)
  *
- * For image attachments (.jpg, .jpeg, .png, .gif, .webp, .svg, .bmp):
+ * For image attachments (MIME type image/*):
  *   Renders as a clickable image linking to the full attachment URL.
  *
  * For all other attachments (pdf, doc, zip, etc.):
  *   Renders as a download link with a file-type icon.
  *
- * Resolution order (same as ImagePlugin):
- *   1. Attachments on the current page (exact filename match)
- *   2. Global attachment search across all pages
- *   3. Error span if not found
+ * Resolution uses AttachmentManager.resolveAttachmentSrc() — the same canonical
+ * method as ImagePlugin. See docs/managers/AttachmentManager.md for the full
+ * resolution order.
+ *
+ * When to use:
+ *   Use [{ATTACH}] as the default for inserting wiki attachments.
+ *   Use [{Image}] only when you need captions, float/display control, or external URLs.
+ *   See docs/user-guide/Content-Management.md for guidance.
  *
  * Related issue: #274 [{ATTACH filename}] produces "Plugin 'ATTACH' not found"
  */
 
 import type { SimplePlugin, PluginContext, PluginParams } from './types';
-
-interface AttachmentMeta {
-  name: string;
-  url: string;
-  [key: string]: unknown;
-}
+import { renderImageHtml } from './renderImage';
 
 interface AttachmentManager {
-  getAttachmentsForPage(pageName: string): Promise<AttachmentMeta[]>;
-  getAttachmentByFilename(filename: string): Promise<AttachmentMeta | null>;
+  resolveAttachmentSrc(src: string, pageName: string): Promise<{ url: string; mimeType: string } | null>;
 }
 
 interface AttachParams extends PluginParams {
@@ -60,14 +58,6 @@ interface AttachParams extends PluginParams {
   target?: string;
   width?: string | number;
   height?: string | number;
-}
-
-const IMAGE_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp']);
-
-function isImageFile(filename: string): boolean {
-  const dot = filename.lastIndexOf('.');
-  if (dot === -1) return false;
-  return IMAGE_EXTENSIONS.has(filename.slice(dot).toLowerCase());
 }
 
 function escapeHtml(str: string): string {
@@ -139,107 +129,49 @@ const AttachPlugin: SimplePlugin = {
         return '<span class="error">ATTACH plugin: src is required</span>';
       }
 
-      // Resolve attachment via AttachmentManager (same strategy as ImagePlugin)
+      // Resolve attachment via AttachmentManager (canonical resolution shared with ImagePlugin)
       const attachmentManager = context.engine?.getManager('AttachmentManager') as AttachmentManager | undefined;
-      let attachmentUrl = '';
-      let attachmentName = filename;
+      const resolved = attachmentManager
+        ? await attachmentManager.resolveAttachmentSrc(filename, context.pageName)
+        : null;
 
-      if (attachmentManager) {
-        // Step 1: Current page attachments
-        try {
-          const pageAttachments = await attachmentManager.getAttachmentsForPage(context.pageName);
-          const match = pageAttachments.find(a => a.name === filename);
-          if (match) {
-            attachmentUrl = match.url;
-            attachmentName = match.name;
-          }
-        } catch {
-          // Continue to global search
-        }
-
-        // Step 2: Global filename search across all attachments
-        if (!attachmentUrl) {
-          try {
-            const globalMatch = await attachmentManager.getAttachmentByFilename(filename);
-            if (globalMatch) {
-              attachmentUrl = globalMatch.url;
-              attachmentName = globalMatch.name;
-            }
-          } catch {
-            // Not found
-          }
-        }
-      }
-
-      if (!attachmentUrl) {
+      if (!resolved) {
         return `<span class="attachment-missing">[Attachment not found: ${escapeHtml(filename)}]</span>`;
       }
 
-      const align = opts.align ? String(opts.align).toLowerCase() : null;
-      const display = opts.display ? String(opts.display).toLowerCase() : 'block';
-      const customStyle = opts.style ? String(opts.style) : '';
-      const customClass = opts.class ? String(opts.class) : '';
       const target = opts.target ? String(opts.target) : null;
 
-      if (isImageFile(attachmentName)) {
+      if (resolved.mimeType.startsWith('image/')) {
         // ── Image attachment ──────────────────────────────────────────────────
-        // Build img styles (same logic as ImagePlugin)
-        const styles: string[] = [];
-        if (customStyle) styles.push(customStyle);
+        // Use MIME type from metadata (not filename extension) for detection.
+        // Delegate to shared image renderer — same output as ImagePlugin.
+        const altText = escapeHtml(caption || filename);
+        const escapedUrl = escapeHtml(resolved.url);
 
-        if (display === 'full') {
-          styles.push('display: block; width: 100%; height: auto; margin: 10px 0;');
-        } else if (display === 'block') {
-          if (align === 'left') styles.push('display: block; margin-right: auto; margin-bottom: 10px;');
-          else if (align === 'right') styles.push('display: block; margin-left: auto; margin-bottom: 10px;');
-          else styles.push('display: block; margin: 0 auto 10px auto;');
-        } else if (display === 'inline') {
-          styles.push('vertical-align: middle;');
-          if (align === 'left') styles.push('margin-right: 5px;');
-          else if (align === 'right') styles.push('margin-left: 5px;');
-        } else {
-          // float (default when align is left/right)
-          if (align === 'left') styles.push('float: left; margin-right: 10px; margin-bottom: 10px;');
-          else if (align === 'right') styles.push('float: right; margin-left: 10px; margin-bottom: 10px;');
-          else styles.push('display: block; margin: 0 auto 10px auto;');
-        }
-
-        const classes = [customClass || 'wiki-image'];
-        const altText = escapeHtml(caption || attachmentName);
-        const styleAttr = styles.length ? ` style="${styles.join(' ')}"` : '';
-        const classAttr = ` class="${classes.join(' ')}"`;
-        const widthAttr = opts.width ? ` width="${opts.width}"` : '';
-        const heightAttr = opts.height ? ` height="${opts.height}"` : '';
-
-        let imgTag = `<img src="${escapeHtml(attachmentUrl)}" alt="${altText}"${classAttr}${styleAttr}${widthAttr}${heightAttr} />`;
-
-        // Wrap in anchor linking to the full attachment
-        const targetAttr = target ? ` target="${escapeHtml(target)}"` : '';
-        imgTag = `<a href="${escapeHtml(attachmentUrl)}"${targetAttr} class="attach-image-link">${imgTag}</a>`;
-
-        if (caption) {
-          const alignClass = align ? `text-${align}` : '';
-          const containerStyles: string[] = [];
-          if (display === 'float') {
-            if (align === 'left') containerStyles.push('float: left; margin-right: 10px; margin-bottom: 10px;');
-            else if (align === 'right') containerStyles.push('float: right; margin-left: 10px; margin-bottom: 10px;');
-            else containerStyles.push('display: block; margin: 0 auto 10px auto;');
-          }
-          const containerStyle = containerStyles.length ? ` style="${containerStyles.join(' ')}"` : '';
-          imgTag = `\n<div class="image-plugin-container ${alignClass}"${containerStyle}>\n  ${imgTag}\n  <div class="image-caption" style="font-size: 0.9em; color: #666; margin-top: 5px;">${escapeHtml(caption)}</div>\n</div>`;
-        }
-
-        return imgTag;
+        return renderImageHtml({
+          url: escapedUrl,
+          alt: altText,
+          caption: caption ? escapeHtml(caption) : undefined,
+          width: opts.width,
+          height: opts.height,
+          align: opts.align ? String(opts.align) : null,
+          display: opts.display ? String(opts.display) : undefined,
+          style: opts.style ? String(opts.style) : undefined,
+          cssClass: opts.class ? String(opts.class) : undefined,
+          link: escapedUrl,
+          linkTarget: target ?? undefined,
+          linkClass: 'attach-image-link'
+        });
 
       } else {
         // ── File attachment ───────────────────────────────────────────────────
-        const linkText = escapeHtml(caption || attachmentName);
+        const linkText = escapeHtml(caption || filename);
         const targetAttr = target ? ` target="${escapeHtml(target)}"` : ' target="_blank"';
-        const iconClass = getFileIconClass(attachmentName);
-        const extraClass = customClass ? ` ${escapeHtml(customClass)}` : '';
-        const styleAttr = customStyle ? ` style="${escapeHtml(customStyle)}"` : '';
+        const iconClass = getFileIconClass(filename);
+        const extraClass = opts.class ? ` ${escapeHtml(String(opts.class))}` : '';
+        const styleAttr = opts.style ? ` style="${escapeHtml(String(opts.style))}"` : '';
 
-        return `<a href="${escapeHtml(attachmentUrl)}"${targetAttr} class="attachment-link${extraClass}"${styleAttr}><span class="attachment-icon ${iconClass}" aria-hidden="true"></span>${linkText}</a>`;
+        return `<a href="${escapeHtml(resolved.url)}"${targetAttr} class="attachment-link${extraClass}"${styleAttr}><span class="attachment-icon ${iconClass}" aria-hidden="true"></span>${linkText}</a>`;
       }
 
     } catch {
