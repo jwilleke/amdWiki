@@ -1,7 +1,7 @@
 ---
 name: "SearchPlugin"
 description: "Embeds search results directly in wiki pages"
-dateModified: "2025-12-18"
+dateModified: "2026-03-06"
 category: "plugins"
 relatedModules: ["PluginManager", "SearchManager"]
 version: "2.0.0"
@@ -53,7 +53,9 @@ The SearchPlugin allows embedding search results within wiki content. It support
 | query | string | * | No | Search text query (* for all pages) |
 | system-category | string | - | No | Filter by system category |
 | user-keywords | string | - | No | Filter by user keywords (pipe-separated for OR) |
-| max | number | 50 | No | Maximum results to return |
+| max | number | 50 | No | Maximum total results (0 = unlimited) |
+| pageSize | number | 0 | No | Results per page; enables pagination when > 0 |
+| page | number | 1 | No | Current page (also read from `?page=N` query string) |
 | format | string | table | No | Output format: table, count, titles, list |
 
 ### Format Options
@@ -142,6 +144,20 @@ Searches for "manager" within system-categorized pages.
 
 Pages tagged with economics OR geology OR history.
 
+### Example 8: Paginated Results
+
+```wiki
+[{Search system-category='documentation' pageSize=10}]
+```
+
+Shows the first 10 documentation pages with Prev/Next navigation. The `?page=N` query string controls the current page automatically.
+
+```wiki
+[{Search query='manager' max=100 pageSize=20}]
+```
+
+Fetches up to 100 results and paginates them 20 per page.
+
 ## Output Formats
 
 ### Table Format (Default)
@@ -219,9 +235,10 @@ async execute(context, params) {
 | Error | Cause | Output |
 | ------- | ------- | -------- |
 | SearchManager unavailable | Engine not ready | Error message |
-| Invalid max | Non-numeric value | Error message |
 | Invalid format | Unknown format type | Error message |
 | Search failure | Internal error | Error with message |
+
+> **Note:** Invalid `max`, `page`, or `pageSize` values fall back to their defaults rather than returning an error.
 
 ## CSS Classes
 
@@ -233,6 +250,7 @@ async execute(context, params) {
 | search-titles | Titles format container |
 | search-list | List format container |
 | search-count | Count format span |
+| plugin-pagination | Pagination nav (Prev/Next links) |
 
 ## Related Documentation
 
@@ -244,5 +262,6 @@ async execute(context, params) {
 
 | Version | Date | Changes |
 | --------- | ------ | --------- |
+| 2.0.1 | 2026-03-06 | Added `pageSize` / `page` pagination parameters |
 | 2.0.0 | 2025-11-26 | Added format parameter, category/keyword filters |
 | 1.0.0 | 2025-10-01 | Initial implementation |

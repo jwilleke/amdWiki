@@ -18,7 +18,9 @@
  * - query: Search text query (default: '*' for all pages)
  * - system-category: Filter by system category
  * - user-keywords: Filter by user keywords (OR logic for multiple values)
- * - max: Maximum number of results (default: 50)
+ * - max: Maximum number of results (default: 50, 0 = unlimited)
+ * - pageSize: Results per page — enables pagination (default: 0 = disabled)
+ * - page: Current page number (default: 1, also read from ?page= query string)
  * - format: Output format (default: 'table')
  *   - 'table': Full table with page names and scores (default)
  *   - 'count': Just the count of matching pages (e.g., "13")
@@ -29,7 +31,15 @@
  */
 
 import type { SimplePlugin, PluginContext, PluginParams } from './types';
-import { escapeHtml } from '../src/utils/pluginFormatters';
+import {
+  escapeHtml,
+  parseMaxParam,
+  applyMax,
+  parsePageSizeParam,
+  parsePageParam,
+  applyPagination,
+  formatPaginationLinks
+} from '../src/utils/pluginFormatters';
 
 interface SearchParams extends PluginParams {
   query?: string;
@@ -37,6 +47,8 @@ interface SearchParams extends PluginParams {
   'user-keywords'?: string;
   max?: string | number;
   format?: string;
+  page?: string | number;
+  pageSize?: string | number;
 }
 
 interface SearchResult {
@@ -283,13 +295,8 @@ const SearchPlugin: SimplePlugin = {
       const query = String(opts.query || '*');
       const systemCategory = opts['system-category'];
       const userKeywords = opts['user-keywords'];
-      const maxResults = parseInt(String(opts.max || '50'), 10);
+      const maxResults = parseMaxParam(opts.max, 50);
       const format = String(opts.format || 'table').toLowerCase();
-
-      // Validate max parameter
-      if (isNaN(maxResults) || maxResults < 1) {
-        return '<p class="error">Invalid max parameter: must be a positive number</p>';
-      }
 
       // Validate format parameter
       const validFormats = ['table', 'count', 'titles', 'list'];
@@ -328,14 +335,26 @@ const SearchPlugin: SimplePlugin = {
         }
       }
 
+      // Apply pagination or max limit
+      let limited: SearchResult[];
+      let paginationHtml = '';
+      const pageSize = parsePageSizeParam(opts.pageSize);
+      if (pageSize > 0) {
+        const rawPage = context.query?.['page'] ?? opts.page;
+        const page = parsePageParam(rawPage);
+        const paged = applyPagination(results, page, pageSize);
+        limited = paged.items;
+        paginationHtml = formatPaginationLinks(paged.currentPage, paged.totalPages, context.pageName);
+      } else {
+        limited = applyMax(results, maxResults);
+      }
+
       // Format results based on format parameter
-      return formatResults(results, {
-        query,
-        systemCategory,
-        userKeywords,
-        maxResults,
-        format
-      });
+      // count format uses the full result set; paginated formats use the sliced set
+      if (format === 'count') {
+        return formatResults(results, { query, systemCategory, userKeywords, maxResults, format });
+      }
+      return formatResults(limited, { query, systemCategory, userKeywords, maxResults, format }) + paginationHtml;
 
     } catch (error) {
       const err = error as Error;
