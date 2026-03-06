@@ -82,8 +82,8 @@
             <table class="table table-striped">
               <thead>
                 <tr>
-                  <th>ID</th>
                   <th>Label</th>
+                  <th>ID</th>
                   <th>Category</th>
                   <th>Status</th>
                   <th>Usage</th>
@@ -94,8 +94,8 @@
               <tbody>
                 <% keywords.forEach(keyword => { %>
                 <tr data-keyword-id="<%= keyword.id %>">
-                  <td><code><%= keyword.id %></code></td>
                   <td><%= keyword.label %></td>
+                  <td><code><%= keyword.id %></code></td>
                   <td><%= keyword.category || '-' %></td>
                   <td>
                     <% if (keyword.enabled) { %>
