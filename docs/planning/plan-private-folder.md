@@ -466,6 +466,149 @@ Parameter names follow #238 conventions: `max` not `limit`, `output` for mode. S
 
 ---
 
+---
+
+## Privacy vs Encryption
+
+### Implementation sequence
+
+**Phase 1 and Phase 2 of this plan implement isolation without encryption (Option A below).** Encryption (Option B) is a natural follow-on that can be added later without restructuring the storage layout — the folder structure `pages/private/{owner}/` is the same either way.
+
+---
+
+### Option A — Access control + filesystem isolation (this plan)
+
+Private pages are stored in a separate subdirectory (`pages/private/{owner}/`) and guarded by route-level checks (`checkPrivatePageAccess()`). Unauthorized wiki users receive a 403. Files on disk are plaintext.
+
+**What it protects against:** other authenticated wiki users reading your private pages through the wiki UI.
+
+**What it does NOT protect against:**
+
+| Gap | Risk |
+|-----|------|
+| No encryption at rest | Anyone with filesystem or OS access reads files in plaintext |
+| Search index | Private content is stored in `search-index.json` on disk; the filter prevents retrieval via the wiki UI but the data is present in the file |
+| Version history | Each version file is plaintext at `versions/private/{uuid}/` |
+| Attachments (Phase 2) | Moved to `attachments/private/{owner}/` but remain plaintext |
+| Admin bypass | Admins can read all private pages by design — admin account compromise exposes all users' private content |
+| Backup / snapshots | Any backup of the data directory includes all private content in plaintext |
+
+**Appropriate use cases:**
+
+- Drafts and work-in-progress kept away from other wiki users
+- Personal notes that don't need to be shared
+- Threat model is "other authenticated users", not "server operators or admins"
+
+**Not appropriate without encryption:**
+
+- Credentials, secrets, or API keys
+- Medical, legal, or financial records
+- Any content where server operators must not be able to read it
+- Regulatory compliance (HIPAA, GDPR sensitive categories, etc.)
+
+---
+
+### Option B — Application-level encryption (future phase)
+
+Option A establishes the folder structure. Option B adds AES-256-GCM encryption on top of it — the same paths, the same provider, encrypt-on-write and decrypt-on-read added to `VersioningFileProvider`. No restructuring required.
+
+The hard part of encryption is not the cryptography (Node's built-in `crypto` module provides AES-256-GCM) — it is key management.
+
+#### Per-user encryption (recommended)
+
+Each user's private folder (`pages/private/{owner}/`) is encrypted with a key derived from that user's own login password using PBKDF2 or Argon2. The derived key lives in the server-side session only — never persisted to disk. It is discarded on logout.
+
+```
+session.privateKey['alice'] = deriveKey(alicePassword, aliceSalt)  // memory only
+session.privateKey['bob']   = deriveKey(bobPassword,   bobSalt)    // memory only
+
+pages/private/alice/  ← encrypted with Alice's key; Bob and server operator cannot read
+pages/private/bob/    ← encrypted with Bob's key;   Alice and server operator cannot read
+```
+
+- Server process cannot decrypt without an active login session
+- Alice's content is unreadable to Bob, to admins, and to anyone with OS/disk access
+- Each user's key is independent — compromising one user's password does not affect others
+- Key must thread through `WikiContext` → `PageManager` → `VersioningFileProvider` for every read/write
+- ~2 weeks implementation + UX for the key lifecycle
+- **Security value: high**
+
+#### Per-wiki-instance encryption (simpler, weaker)
+
+A single encryption key for the entire wiki instance, derived from an admin-set master passphrase. All private folders encrypted with the same key.
+
+```
+pages/private/alice/  ← encrypted with instance master key
+pages/private/bob/    ← encrypted with same instance master key
+```
+
+- Simpler to implement (~1 week) — one key, no per-user session management
+- Admin knows the master key and can therefore decrypt any user's private content
+- Protects against OS/disk access by non-admins, but not against admin compromise
+- Suitable when the threat model is "disk theft" rather than "admin access"
+- **Security value: medium**
+
+#### Comparison
+
+| | Per-user | Per-instance |
+|---|---|---|
+| Protects against other users | Yes | Yes |
+| Protects against server operator / admin | Yes | No |
+| Protects against disk theft | Yes | Yes |
+| Key management complexity | Per-user session key | Single admin passphrase |
+| Lost password = lost data | Yes (per user) | Only if admin loses master passphrase |
+| Implementation effort | ~2 weeks | ~1 week |
+
+#### Encrypted backup / download
+
+Because the server holds ciphertext on disk, backup is straightforward and does not require server-side decryption. The user downloads the encrypted folder as a zip — the zip is unreadable to anyone without their password.
+
+```
+Server disk:    pages/private/alice/   ← AES-256-GCM ciphertext
+Alice downloads: alice-private-backup.zip  ← same ciphertext; useless without Alice's password
+```
+
+The zip must include a `key-params.json` file with the PBKDF2 salt and parameters so Alice can re-derive her key from her password on restore. The salt is not secret — it is safe to include in the backup.
+
+**What this enables:**
+
+- Alice can restore her encrypted backup to any amdWiki instance using the same key derivation
+- If Alice loses her wiki password she cannot recover on the server, but a local backup + her original password restores everything — the "lost password = lost data" liability becomes "lost password AND lost backup = lost data"
+- Alice owns her data in a meaningful sense; the server is a convenience, not the custodian
+- A small standalone decrypt tool (trivial Node.js or Python script using the same PBKDF2 + AES-256-GCM parameters) lets Alice read her pages locally without the wiki server
+
+**Routes needed:**
+
+| Route | Notes |
+|-------|-------|
+| `GET /user/private/backup` | Streams a zip of `pages/private/{owner}/` ciphertext as-is — no server-side decryption |
+| `POST /user/private/restore` | Uploads zip, verifies it decrypts with current key, extracts |
+
+**Effort:** ~2–3 days on top of the encryption implementation.
+
+#### Cross-cutting concerns for Option B
+
+| Problem | Notes |
+|---------|-------|
+| Search indexing | Lunr indexes plaintext — encrypted pages cannot be full-text indexed; private pages must be excluded from search, or a separate encrypted index built (significant additional work) |
+| Key rotation | When a user changes their password, all files in their private folder must be re-encrypted with the new key |
+| Admin recovery | Per-user encryption means lost password = permanently unreadable pages; requires explicit user-facing warnings before the feature is enabled |
+| Version history | Each version file must be encrypted/decrypted with the same key — same code path, more files |
+| Attachments | `BasicAttachmentProvider` needs the same encrypt/decrypt wrapper for `attachments/private/{owner}/` |
+| Session expiry | If a session expires while a user is editing, the next save cannot encrypt; requires graceful error handling and re-authentication prompt |
+
+---
+
+### Decision record
+
+**Phase 1 and Phase 2 implement Option A** — filesystem isolation and route-level access control. Files remain plaintext. This is appropriate for the "keep other wiki users out" threat model.
+
+**Option B (per-user encryption) is the recommended next step** if stronger privacy is required. The folder structure established in Phase 1 requires no changes — encryption is additive. Per-user is preferred over per-instance because it protects content even from admin access and supports independent encrypted backups per user.
+
+Per-instance encryption may be appropriate for simpler deployments where admin access to private content is acceptable and the primary concern is disk-level protection.
+
+---
+
 ## New npm Dependency
 
 - **`exiftool-vendored`** — MWG-compliant EXIF/IPTC/XMP metadata for MediaManager. ExifTool binary is bundled by this package (no system Perl required). `sharp` (already a dependency) remains for thumbnail generation only.
