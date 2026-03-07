@@ -4,6 +4,7 @@
  */
 
 import type { SimplePlugin, PluginContext, PluginParams } from './types';
+import { formatAsCount } from '../src/utils/pluginFormatters';
 
 interface PageManager {
   getAllPages(): Promise<unknown[]>;
@@ -31,7 +32,7 @@ const TotalPagesPlugin: SimplePlugin = {
       const pageManager = engine.getManager('PageManager') as PageManager | undefined;
       if (pageManager && pageManager.getAllPages) {
         const pages = await pageManager.getAllPages();
-        return Array.isArray(pages) ? pages.length.toLocaleString('en-US') : '0';
+        return Array.isArray(pages) ? formatAsCount(pages.length) : '0';
       }
       return '0';
     } catch (err) {
