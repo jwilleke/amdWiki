@@ -36,7 +36,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - `LocaleUtils.ts`: added `formatDateWithPattern(date, pattern, timezone?)` and `formatTimeWithPrefs(date, timeFormat, locale, timezone?)`
   - `VariableManager.ts`: fixed `getUserLocale` to check `preferences.locale`; added `getUserDateFormat`, `getUserTimeFormat`, `getUserTimezone` helpers; updated `date`, `time`, `timestamp` handlers to apply all three preferences
   - 9 new tests in `src/utils/__tests__/LocaleUtils.test.js`
-- Commits: (pending)
+- Commits: b02e25a
 - Files Modified:
   - src/utils/LocaleUtils.ts
   - src/managers/VariableManager.ts
@@ -55,7 +55,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Work Done:
   - Added 3 regression tests to `MarkupParser.test.js` for #307: (1) different pageName → different cache key (flat context), (2) different pageName → different cache key (nested pageContext), (3) flat and nested same-pageName produce identical keys
   - Closed #307 (already fixed by ce1282d — no code change needed)
-- Commits: (pending)
+- Commits: 24dd96a
 - Files Modified:
   - src/parsers/__tests__/MarkupParser.test.js
 
@@ -4712,7 +4712,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - npm test: 58 suites passed, 1380 tests passed
   - npm run lint:code: 0 errors, 25 warnings
   - npx typedoc: 0 errors, 178 warnings (theme-related, not code issues)
-- Commits: (pending)
+- Commits: b02e25a
 - Files Modified:
   - src/providers/FileAuditProvider.ts (5 type cast fixes)
   - src/providers/LunrSearchProvider.ts (10 error fixes)
@@ -8175,7 +8175,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Moved 8 documentation pages from docs/developer/ to required-pages/
   - All pages already had proper frontmatter (title, uuid, system-category, etc.)
   - Pages moved: Asset, Documentation for Developers, Roles, System Pages, Permissions, Resource, User Documentation Pages, Future Enhancement
-- Commits: (pending)
+- Commits: b02e25a
 - Files Modified:
   - Deleted from docs/developer/: 8 .md files
   - Added to required-pages/: 8 .md files (same UUIDs preserved)
@@ -8196,7 +8196,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Updated `docs/WikiContext.md`:
     - Replaced its content with a concise summary.
     - Added a link to the `WikiContext-Complete-Guide.md` for full details.
-- Commits: (pending)
+- Commits: b02e25a
 - Files Modified:
   - `docs/WikiContext-Complete-Guide.md`
   - `docs/WikiContext.md`
