@@ -24,6 +24,26 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-07-03
+
+- Agent: Claude Sonnet 4.6
+- Subject: Honor user date/time profile preferences in [{$date}], [{$time}], [{$timestamp}] (#37)
+- Key Decision: Bug had two layers: (1) `getUserLocale` read `userContext.locale` but locale lives in `userContext.preferences.locale`; (2) `date`/`time` handlers ignored `dateFormat`/`timeFormat` preference entirely. Added `getUserDateFormat`, `getUserTimeFormat`, `getUserTimezone` helpers; added `LocaleUtils.formatDateWithPattern` and `formatTimeWithPrefs` for explicit format/12h24h/timezone control.
+- Current Issue: #37
+- Testing:
+  - npm test: 72 suites passed, 1853 tests passed
+- Work Done:
+  - `LocaleUtils.ts`: added `formatDateWithPattern(date, pattern, timezone?)` and `formatTimeWithPrefs(date, timeFormat, locale, timezone?)`
+  - `VariableManager.ts`: fixed `getUserLocale` to check `preferences.locale`; added `getUserDateFormat`, `getUserTimeFormat`, `getUserTimezone` helpers; updated `date`, `time`, `timestamp` handlers to apply all three preferences
+  - 9 new tests in `src/utils/__tests__/LocaleUtils.test.js`
+- Commits: (pending)
+- Files Modified:
+  - src/utils/LocaleUtils.ts
+  - src/managers/VariableManager.ts
+  - src/utils/__tests__/LocaleUtils.test.js
+
+---
+
 ## 2026-03-07-02
 
 - Agent: Claude Sonnet 4.6

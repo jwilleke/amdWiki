@@ -175,6 +175,62 @@ class LocaleUtils {
   }
 
   /**
+   * Format date using an explicit pattern string (e.g. 'yyyy-MM-dd').
+   * Supports the subset of patterns offered in the profile date-format picker.
+   * @param date - Date to format
+   * @param pattern - Format pattern ('yyyy-MM-dd', 'MM/dd/yyyy', 'dd/MM/yyyy', 'dd.MM.yyyy', 'yyyy/MM/dd')
+   * @param timezone - Optional IANA timezone (e.g. 'America/New_York', 'UTC')
+   * @returns Formatted date string
+   */
+  static formatDateWithPattern(date: Date, pattern: string, timezone?: string): string {
+    if (!date || !(date instanceof Date)) return '';
+
+    const opts: Intl.DateTimeFormatOptions = { year: 'numeric', month: '2-digit', day: '2-digit' };
+    if (timezone && this.isValidTimezone(timezone)) opts.timeZone = timezone;
+
+    try {
+      const parts: Record<string, string> = {};
+      for (const part of new Intl.DateTimeFormat('en-US', opts).formatToParts(date)) {
+        parts[part.type] = part.value;
+      }
+      return pattern
+        .replace('yyyy', parts.year ?? '')
+        .replace('MM', parts.month ?? '')
+        .replace('dd', parts.day ?? '');
+    } catch {
+      return date.toLocaleDateString('en-US');
+    }
+  }
+
+  /**
+   * Format time honoring an explicit 12h/24h preference and optional timezone.
+   * @param date - Date to format
+   * @param timeFormat - '12h' or '24h'
+   * @param locale - Locale string (used for AM/PM labels in 12h mode)
+   * @param timezone - Optional IANA timezone
+   * @returns Formatted time string
+   */
+  static formatTimeWithPrefs(date: Date, timeFormat: string, locale: string = 'en-US', timezone?: string): string {
+    if (!date || !(date instanceof Date)) return '';
+
+    const hour12 = timeFormat === '12h';
+    const opts: Intl.DateTimeFormatOptions = {
+      hour: hour12 ? 'numeric' : '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12
+    };
+    if (timezone && this.isValidTimezone(timezone)) opts.timeZone = timezone;
+
+    const normalizedLocale = this.normalizeLocale(locale);
+    try {
+      return date.toLocaleTimeString(normalizedLocale, opts);
+    } catch {
+      return date.toLocaleTimeString('en-US', opts);
+    }
+  }
+
+  /**
    * Format time using specified locale
    * @param date - Date to format
    * @param locale - Locale string

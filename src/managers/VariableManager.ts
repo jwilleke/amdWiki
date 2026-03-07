@@ -138,22 +138,37 @@ class VariableManager extends BaseManager {
     this.registerVariable('loginstatus', (context) => (context?.userContext?.isAuthenticated ? 'Logged in' : 'Not logged in'));
     this.registerVariable('userroles', (context) => (context?.userContext?.roles || []).join(', '));
 
-    // Date/Time variables - honor user locale preferences
+    // Date/Time variables - honor user locale and format preferences (#37)
     this.registerVariable('date', (context) => {
+      const now = new Date();
+      const dateFormat = this.getUserDateFormat(context);
+      const timezone = this.getUserTimezone(context);
+      if (dateFormat) {
+        return LocaleUtils.formatDateWithPattern(now, dateFormat, timezone ?? undefined);
+      }
       const locale = this.getUserLocale(context);
-      return LocaleUtils.formatDate(new Date(), locale);
+      const opts: Intl.DateTimeFormatOptions = timezone ? { timeZone: timezone } : {};
+      try {
+        return now.toLocaleDateString(locale, opts);
+      } catch {
+        return now.toLocaleDateString('en-US', opts);
+      }
     });
     this.registerVariable('time', (context) => {
+      const now = new Date();
+      const timeFormat = this.getUserTimeFormat(context);
       const locale = this.getUserLocale(context);
-      return LocaleUtils.formatTime(new Date(), locale);
+      const timezone = this.getUserTimezone(context);
+      if (timeFormat) {
+        return LocaleUtils.formatTimeWithPrefs(now, timeFormat, locale, timezone ?? undefined);
+      }
+      return LocaleUtils.formatTime(now, locale);
     });
     this.registerVariable('timestamp', (context) => {
-      const locale = this.getUserLocale(context);
-      // Access timezone from userContext using bracket notation for extended properties
-      const userCtx = context?.userContext as Record<string, unknown> | undefined;
-      const timezone = userCtx?.['timezone'] as string | undefined;
       const now = new Date();
-      if (timezone && LocaleUtils.isValidTimezone(timezone)) {
+      const timezone = this.getUserTimezone(context);
+      const locale = this.getUserLocale(context);
+      if (timezone) {
         return now.toLocaleString(locale, { timeZone: timezone });
       }
       return now.toISOString();
@@ -243,27 +258,48 @@ class VariableManager extends BaseManager {
   }
 
   /**
-   * Get user's preferred locale from context
-   * Priority: 1) User preferences, 2) Accept-Language header, 3) Default (en-US)
-   * @param {VariableContext} context - Variable context
-   * @returns {string} Locale string (e.g., 'en-US')
+   * Get user's preferred locale from context.
+   * Priority: 1) preferences.locale, 2) userContext.locale, 3) Accept-Language header, 4) en-US
    */
   private getUserLocale(context?: VariableContext): string {
-    // Access locale from userContext using bracket notation for extended properties
     const userCtx = context?.userContext as Record<string, unknown> | undefined;
-    const userLocale = userCtx?.['locale'] as string | undefined;
+    const prefs = userCtx?.['preferences'] as Record<string, unknown> | undefined;
+    const userLocale = (prefs?.['locale'] ?? userCtx?.['locale']) as string | undefined;
     if (userLocale) {
       return LocaleUtils.normalizeLocale(userLocale);
     }
 
-    // Fall back to Accept-Language header
     const acceptLanguage = context?.requestInfo?.acceptLanguage;
     if (acceptLanguage && typeof acceptLanguage === 'string') {
       return LocaleUtils.parseAcceptLanguage(acceptLanguage);
     }
 
-    // Default fallback
     return 'en-US';
+  }
+
+  /** Get user's preferred date format string (e.g. 'yyyy-MM-dd') from context, or null. */
+  private getUserDateFormat(context?: VariableContext): string | null {
+    const userCtx = context?.userContext as Record<string, unknown> | undefined;
+    const prefs = userCtx?.['preferences'] as Record<string, unknown> | undefined;
+    const fmt = (prefs?.['dateFormat'] ?? prefs?.['display.dateformat']) as string | undefined;
+    return (fmt && fmt !== 'auto') ? fmt : null;
+  }
+
+  /** Get user's preferred time format ('12h' | '24h') from context, or null. */
+  private getUserTimeFormat(context?: VariableContext): string | null {
+    const userCtx = context?.userContext as Record<string, unknown> | undefined;
+    const prefs = userCtx?.['preferences'] as Record<string, unknown> | undefined;
+    const fmt = prefs?.['timeFormat'] as string | undefined;
+    if (fmt === '12h' || fmt === '24h') return fmt;
+    return null;
+  }
+
+  /** Get user's preferred timezone from context, or null. */
+  private getUserTimezone(context?: VariableContext): string | null {
+    const userCtx = context?.userContext as Record<string, unknown> | undefined;
+    const prefs = userCtx?.['preferences'] as Record<string, unknown> | undefined;
+    const tz = (prefs?.['timezone'] ?? userCtx?.['timezone']) as string | undefined;
+    return (tz && LocaleUtils.isValidTimezone(tz)) ? tz : null;
   }
 
   /**
