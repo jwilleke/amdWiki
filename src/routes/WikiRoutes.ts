@@ -987,7 +987,7 @@ class WikiRoutes {
         'amdwiki.frontPage',
         'Welcome'
       );
-      const pageName = req.params.page || frontPage;
+      const pageName = (req.params.page || frontPage).trim();
 
       // Create WikiContext as single source of truth for this operation
       const wikiContext = this.createWikiContext(req, {

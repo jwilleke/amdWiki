@@ -1019,7 +1019,7 @@ class ImportManager extends BaseManager {
     pageUuid?: string
   ): string {
     const frontmatter: Record<string, unknown> = {};
-    const title = (result.metadata['title'] as string) || 'Untitled';
+    const title = ((result.metadata['title'] as string) || 'Untitled').trim();
     const uuid = pageUuid || (result.metadata['uuid'] as string) || '';
 
     // Use ValidationManager to generate complete metadata with defaults

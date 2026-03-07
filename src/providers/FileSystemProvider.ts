@@ -225,7 +225,7 @@ class FileSystemProvider extends BasePageProvider {
         const { data, content } = matter(fileContent);
         const metadata = data as PageFrontmatter;
         // Ensure title is always a string (YAML may parse numeric titles as numbers)
-        const title = metadata.title != null ? String(metadata.title) : '';
+        const title = metadata.title != null ? String(metadata.title).trim() : '';
         const uuid = (metadata.uuid) || path.basename(filePath, '.md');
 
         if (!title) {
