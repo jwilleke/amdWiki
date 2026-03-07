@@ -24,6 +24,27 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-07-01
+
+- Agent: Claude Sonnet 4.6
+- Subject: Metadata whitespace sanitization (#296); close Unicode slug issue (#295)
+- Key Decision: Single `sanitizeMetadata()` in ValidationManager called from `PageManager.savePageWithContext()` covers all save paths; URL-decode before trim handles %09-prefixed values
+- Current Issue: #296, #295
+- Testing:
+  - npm test: 71 suites passed, 1841 tests passed
+- Work Done:
+  - Added `ValidationManager.sanitizeMetadata()` — URL-decodes + trims Unicode whitespace from title, slug, system-category, uuid, lastModified, author; trims/filters user-keywords array
+  - Called from `PageManager.savePageWithContext()` so all three WikiRoutes save paths are covered
+  - 8 new unit tests in `ValidationManager.test.js`
+  - Closed #295 (Unicode slug transliteration was already implemented in a prior session)
+- Commits: 603c96e
+- Files Modified:
+  - src/managers/ValidationManager.ts
+  - src/managers/PageManager.ts
+  - src/managers/__tests__/ValidationManager.test.js
+
+---
+
 ## 2026-03-06-03
 
 - Agent: Claude Sonnet 4.6
