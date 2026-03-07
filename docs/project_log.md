@@ -24,6 +24,21 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-07-05
+
+- Agent: Claude Sonnet 4.6
+- Subject: Fix VersioningFileProvider-WriteQueue CI failure (#180)
+- Key Decision: Root cause was two bugs: (1) test required from `dist/` which doesn't exist in CI, (2) global jest.setup.js mocks VersioningFileProvider — test needs jest.unmock(). TypeScript `private` keyword IS accessible via bracket notation at runtime; dist/ was never needed.
+- Current Issue: #180
+- Testing:
+  - npm test: 9 skipped suites (intentional describe.skip), 72 passed, 1853 tests passed
+- Work Done:
+  - Fixed VersioningFileProvider-WriteQueue.test.js: added jest.unmock(), changed require from dist/ to source
+  - All 8 write queue tests now pass without a build step
+- Commits: TBD
+- Files Modified:
+  - src/providers/__tests__/VersioningFileProvider-WriteQueue.test.js
+
 ## 2026-03-07-04
 
 - Agent: Claude Sonnet 4.6

@@ -9,12 +9,15 @@
  * serializes saves and uses unique temp file names.
  */
 
+// Opt out of the global VersioningFileProvider mock so we test the real implementation
+jest.unmock('../../providers/VersioningFileProvider');
+
 const fs = require('fs-extra');
 const path = require('path');
 const os = require('os');
 
-// Require from dist/ to get compiled JS where private methods are accessible
-const VersioningFileProvider = require('../../../dist/src/providers/VersioningFileProvider');
+// TypeScript 'private' keyword is compile-time only; bracket notation works at runtime via ts-jest
+const VersioningFileProvider = require('../VersioningFileProvider');
 
 describe('VersioningFileProvider - Write Queue', () => {
   let testDir;
