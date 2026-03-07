@@ -24,6 +24,26 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-07-06
+
+- Agent: Claude Sonnet 4.6
+- Subject: Version bump to 1.5.16; close issues #180 and #265
+- Key Decision: PATCH bump after all day's fixes; issues #180 and #265 were committed but not closed on GitHub
+- Current Issue: none
+- Testing:
+  - npm test: 9 skipped suites, 72 passed, 1853 tests passed
+  - E2E: 47 passed
+- Work Done:
+  - Bumped version 1.5.15 → 1.5.16 (patch)
+  - Closed #180 (CI failure fix — bfd2eff)
+  - Closed #265 (E2E skipped tests fix — 92d2d6a)
+  - Updated project log TBD commits for sessions 04 and 05
+- Commits: TBD
+- Files Modified:
+  - package.json
+  - config/app-default-config.json
+  - docs/project_log.md
+
 ## 2026-03-07-05
 
 - Agent: Claude Sonnet 4.6
@@ -35,7 +55,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Work Done:
   - Fixed VersioningFileProvider-WriteQueue.test.js: added jest.unmock(), changed require from dist/ to source
   - All 8 write queue tests now pass without a build step
-- Commits: TBD
+- Commits: bfd2eff
 - Files Modified:
   - src/providers/__tests__/VersioningFileProvider-WriteQueue.test.js
 
@@ -53,7 +73,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Fixed search.spec.js: removed conditional skip, use waitFor on #headerSearchInput
   - Fixed pages.spec.js edit test: use /wiki/Welcome (required page) instead of /wiki/Main
   - Fixed pages.spec.js history test: use waitFor on dropdown item instead of waitForTimeout(300)
-- Commits: TBD
+- Commits: 92d2d6a
 - Files Modified:
   - tests/e2e/search.spec.js
   - tests/e2e/pages.spec.js
