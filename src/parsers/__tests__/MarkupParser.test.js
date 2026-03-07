@@ -228,11 +228,35 @@ describe('MarkupParser', () => {
 
     test('should generate different cache keys for different content', () => {
       const context = { pageName: 'Test' };
-      
+
       const key1 = markupParser.generateCacheKey('content 1', context);
       const key2 = markupParser.generateCacheKey('content 2', context);
-      
+
       expect(key1).not.toBe(key2);
+    });
+
+    // Regression test for #307: same content on different pages must produce different
+    // cache keys, otherwise page A's cached HTML (with [{$pagename}] → 'PageA') would
+    // be served for page B (showing wrong value 'PageA' instead of 'PageB').
+    test('should generate different cache keys for different pageName (flat context) (#307)', () => {
+      const content = 'Hello [{$pagename}]';
+      const keyA = markupParser.generateCacheKey(content, { pageName: 'PageA' });
+      const keyB = markupParser.generateCacheKey(content, { pageName: 'PageB' });
+      expect(keyA).not.toBe(keyB);
+    });
+
+    test('should generate different cache keys for different pageName (nested pageContext) (#307)', () => {
+      const content = 'Hello [{$pagename}]';
+      const keyA = markupParser.generateCacheKey(content, { pageContext: { pageName: 'PageA' } });
+      const keyB = markupParser.generateCacheKey(content, { pageContext: { pageName: 'PageB' } });
+      expect(keyA).not.toBe(keyB);
+    });
+
+    test('flat and nested pageContext structures with same pageName produce the same cache key (#307)', () => {
+      const content = 'Hello [{$pagename}]';
+      const flatKey = markupParser.generateCacheKey(content, { pageName: 'Physics' });
+      const nestedKey = markupParser.generateCacheKey(content, { pageContext: { pageName: 'Physics' } });
+      expect(flatKey).toBe(nestedKey);
     });
   });
 

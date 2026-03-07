@@ -24,6 +24,23 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-07-02
+
+- Agent: Claude Sonnet 4.6
+- Subject: Close #307 — `[{$pagename}]` wrong value; add regression tests
+- Key Decision: Root cause was already fixed in ce1282d: `generateCacheKey` used `context.pageName` (undefined for the nested WikiContext path) so all pages with same content shared one cache entry, serving wrong pageName for up to 5 min. Fix used `pageCtx.pageName` from nested `pageContext`. Added 3 regression tests to lock this in.
+- Current Issue: #307
+- Testing:
+  - npm test: 71 suites passed, 1844 tests passed
+- Work Done:
+  - Added 3 regression tests to `MarkupParser.test.js` for #307: (1) different pageName → different cache key (flat context), (2) different pageName → different cache key (nested pageContext), (3) flat and nested same-pageName produce identical keys
+  - Closed #307 (already fixed by ce1282d — no code change needed)
+- Commits: (pending)
+- Files Modified:
+  - src/parsers/__tests__/MarkupParser.test.js
+
+---
+
 ## 2026-03-07-01
 
 - Agent: Claude Sonnet 4.6
