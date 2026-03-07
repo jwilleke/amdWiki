@@ -24,6 +24,25 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-07-04
+
+- Agent: Claude Sonnet 4.6
+- Subject: Fix skipped E2E tests; close #311; put #59 and #60 on hold (#265)
+- Key Decision: Edit test uses Welcome (required page, always exists) instead of Main; history test uses waitFor instead of fixed timeout; search test removes fragile conditional skip
+- Current Issue: #265
+- Testing:
+  - npm test: 9 skipped suites (missing deps), 72 passed, 1853 tests passed
+- Work Done:
+  - Closed #311 (image/attachment consolidation — already implemented in prior commits)
+  - Added "on-hold" label to #59 (WikiTag handler) and #60 (WikiForm handler) per user request
+  - Fixed search.spec.js: removed conditional skip, use waitFor on #headerSearchInput
+  - Fixed pages.spec.js edit test: use /wiki/Welcome (required page) instead of /wiki/Main
+  - Fixed pages.spec.js history test: use waitFor on dropdown item instead of waitForTimeout(300)
+- Commits: TBD
+- Files Modified:
+  - tests/e2e/search.spec.js
+  - tests/e2e/pages.spec.js
+
 ## 2026-03-07-03
 
 - Agent: Claude Sonnet 4.6

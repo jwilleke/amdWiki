@@ -82,25 +82,20 @@ test.describe('Page Operations', () => {
   test.describe('Edit Page', () => {
     test('should be able to edit an existing page', async ({ page }) => {
       // Go to home or main page
-      await page.goto('/wiki/Main');
+      // Use Welcome — a required page that always exists
+      await page.goto('/wiki/Welcome');
       await page.waitForLoadState('networkidle');
 
-      // Find and click edit button/link
-      const editLink = page.locator('a:has-text("Edit"), button:has-text("Edit"), a[href*="edit"]');
+      // Find and click edit button/link (rendered when canEdit=true for authenticated user)
+      const editLink = page.locator('a[href*="/edit/"], a:has-text("Edit")');
+      await editLink.first().waitFor({ state: 'visible', timeout: 5000 });
+      await editLink.first().click();
+      await page.waitForLoadState('networkidle');
 
-      if (await editLink.count() > 0) {
-        await editLink.first().click();
-        await page.waitForLoadState('networkidle');
-
-        // Should be on edit page
-        const onEditPage = page.url().includes('edit');
-        const hasEditor = await page.locator('textarea, .editor, .CodeMirror').count() > 0;
-
-        expect(onEditPage || hasEditor).toBe(true);
-      } else {
-        // No edit link - might be permissions or page doesn't exist
-        test.skip();
-      }
+      // Should be on edit page
+      const onEditPage = page.url().includes('edit');
+      const hasEditor = await page.locator('textarea, .editor, .CodeMirror').count() > 0;
+      expect(onEditPage || hasEditor).toBe(true);
     });
   });
 
@@ -140,27 +135,18 @@ test.describe('Page Operations', () => {
         return;
       }
 
-      // History link is in the Info dropdown - open it first
-      const infoButton = page.locator('button:has-text("Info"), .dropdown-toggle:has-text("Info")');
-      if (await infoButton.count() > 0) {
-        await infoButton.first().click();
-        await page.waitForTimeout(300);
-      }
+      // Open the Info dropdown
+      await page.locator('button:has-text("Info")').first().click();
 
-      // Now look for history link (should be visible in dropdown)
-      const historyLink = page.locator('a:has-text("History"), a[href*="history"]');
+      // Wait for the dropdown item to become visible
+      const historyLink = page.locator('.dropdown-menu a:has-text("History")');
+      await historyLink.waitFor({ state: 'visible', timeout: 3000 });
+      await historyLink.first().click();
+      await page.waitForLoadState('networkidle');
 
-      if (await historyLink.count() > 0 && await historyLink.first().isVisible()) {
-        await historyLink.first().click();
-        await page.waitForLoadState('networkidle');
-
-        // Should show version list or history content
-        const hasVersionList = await page.locator('.version, .history-entry, table tr, .revision, .card').count() > 0;
-        expect(hasVersionList).toBe(true);
-      } else {
-        // No visible history link - skip test
-        test.skip();
-      }
+      // Should show version list or history content
+      const hasVersionList = await page.locator('.version, .history-entry, table tr, .revision, .card').count() > 0;
+      expect(hasVersionList).toBe(true);
     });
   });
 });

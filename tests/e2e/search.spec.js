@@ -49,21 +49,15 @@ test.describe('Search', () => {
       await page.goto('/');
       await page.waitForLoadState('networkidle');
 
-      // Find header search input
-      const headerSearch = page.locator('#headerSearchInput, header input[type="search"], nav input[type="search"], .header-search, #quick-search');
+      // Header always renders #headerSearchInput
+      const headerSearch = page.locator('#headerSearchInput');
+      await headerSearch.waitFor({ state: 'visible', timeout: 5000 });
+      await headerSearch.fill('wiki');
+      await headerSearch.press('Enter');
+      await page.waitForLoadState('networkidle');
 
-      if (await headerSearch.count() > 0) {
-        await headerSearch.first().fill('wiki');
-        await headerSearch.first().press('Enter');
-        await page.waitForLoadState('networkidle');
-
-        // Should navigate to search results
-        const onSearchPage = page.url().includes('search');
-        expect(onSearchPage).toBe(true);
-      } else {
-        // No header search - skip test
-        test.skip();
-      }
+      // Should navigate to search results
+      expect(page.url()).toContain('search');
     });
   });
 
