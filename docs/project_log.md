@@ -24,6 +24,26 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-07-07
+
+- Agent: Claude Sonnet 4.6
+- Subject: Fix 404 for pages with trailing spaces in title (#313)
+- Key Decision: Root cause is browsers stripping trailing `%20` from URLs before sending HTTP request. Three-point fix: trim title at index time (FileSystemProvider), trim at import time (ImportManager), trim req.params.page at route level (WikiRoutes).
+- Current Issue: #313
+- Testing:
+  - npm test: 9 skipped suites, 72 passed, 1853 tests passed
+  - E2E: 47 passed
+- Work Done:
+  - `FileSystemProvider.ts`: `.trim()` on title when reading from frontmatter during indexing
+  - `ImportManager.ts`: `.trim()` on title extracted from import result
+  - `WikiRoutes.ts`: `.trim()` on `req.params.page` before page lookup
+  - Opened and fixed #313
+- Commits: 710766d
+- Files Modified:
+  - src/providers/FileSystemProvider.ts
+  - src/managers/ImportManager.ts
+  - src/routes/WikiRoutes.ts
+
 ## 2026-03-07-06
 
 - Agent: Claude Sonnet 4.6
