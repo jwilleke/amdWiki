@@ -4,6 +4,7 @@ import { WikiEngine } from '../types/WikiEngine';
 import { PageProvider, ProviderInfo } from '../types/Provider';
 import { WikiPage, PageFrontmatter } from '../types/Page';
 import type ConfigurationManager from './ConfigurationManager';
+import type ValidationManager from './ValidationManager';
 
 /**
  * Minimal WikiContext interface for type safety
@@ -288,10 +289,17 @@ class PageManager extends BaseManager {
     const existingPage = pageName ? await this.provider.getPage(pageName) : null;
     const originalAuthor = existingPage?.metadata?.author;
 
-    const enrichedMetadata: Partial<PageFrontmatter> = {
+    const rawMetadata: Partial<PageFrontmatter> = {
       ...metadata,
       author: originalAuthor || wikiContext.userContext?.username || metadata.author || 'anonymous'
     };
+
+    // Sanitize all string fields — trims Unicode whitespace and decodes percent-encoded
+    // characters (e.g. %09 → tab) before they reach the provider (#296)
+    const validationManager = this.engine.getManager<ValidationManager>('ValidationManager');
+    const enrichedMetadata = validationManager
+      ? validationManager.sanitizeMetadata(rawMetadata as Record<string, unknown>) as Partial<PageFrontmatter>
+      : rawMetadata;
 
     return this.provider.savePage(pageName, content, enrichedMetadata);
   }

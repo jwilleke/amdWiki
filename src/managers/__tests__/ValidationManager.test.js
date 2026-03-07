@@ -390,4 +390,79 @@ describe('ValidationManager', () => {
       expect(fixes.filename).toBeNull(); // No filename change needed
     });
   });
+
+  describe('sanitizeMetadata', () => {
+    test('trims leading and trailing spaces from string fields', () => {
+      const result = validationManager.sanitizeMetadata({
+        title: '  My Page  ',
+        slug: ' my-page ',
+        'system-category': ' general ',
+        lastModified: ' 2026-01-01T00:00:00.000Z ',
+        author: ' alice ',
+      });
+      expect(result.title).toBe('My Page');
+      expect(result.slug).toBe('my-page');
+      expect(result['system-category']).toBe('general');
+      expect(result.lastModified).toBe('2026-01-01T00:00:00.000Z');
+      expect(result.author).toBe('alice');
+    });
+
+    test('decodes percent-encoded whitespace (%09 tab) before trimming', () => {
+      const result = validationManager.sanitizeMetadata({
+        title: '%09Illinois',
+        'system-category': '%20general%20',
+      });
+      expect(result.title).toBe('Illinois');
+      expect(result['system-category']).toBe('general');
+    });
+
+    test('trims tabs and newlines', () => {
+      const result = validationManager.sanitizeMetadata({
+        title: '\t My Page \n',
+        slug: '\nmy-page\t',
+      });
+      expect(result.title).toBe('My Page');
+      expect(result.slug).toBe('my-page');
+    });
+
+    test('trims each user-keyword and removes empty ones', () => {
+      const result = validationManager.sanitizeMetadata({
+        'user-keywords': ['  economics  ', '\tArtificial Intelligence\n', '  ', ''],
+      });
+      expect(result['user-keywords']).toEqual(['economics', 'Artificial Intelligence']);
+    });
+
+    test('decodes percent-encoded characters in user-keywords', () => {
+      const result = validationManager.sanitizeMetadata({
+        'user-keywords': ['%09Illinois', ' economics '],
+      });
+      expect(result['user-keywords']).toEqual(['Illinois', 'economics']);
+    });
+
+    test('does not mutate the input object', () => {
+      const input = { title: '  My Page  ', 'user-keywords': ['  tag  '] };
+      validationManager.sanitizeMetadata(input);
+      expect(input.title).toBe('  My Page  ');
+      expect(input['user-keywords'][0]).toBe('  tag  ');
+    });
+
+    test('leaves non-string fields unchanged', () => {
+      const result = validationManager.sanitizeMetadata({
+        title: '  My Page  ',
+        someNumber: 42,
+        someObject: { nested: true },
+      });
+      expect(result.someNumber).toBe(42);
+      expect(result.someObject).toEqual({ nested: true });
+    });
+
+    test('handles missing optional fields without error', () => {
+      const result = validationManager.sanitizeMetadata({
+        title: '  My Page  ',
+      });
+      expect(result.title).toBe('My Page');
+      expect(result.slug).toBeUndefined();
+      expect(result['user-keywords']).toBeUndefined();
+    });
+  });
 });

@@ -300,6 +300,48 @@ class ValidationManager extends BaseManager {
   }
 
   /**
+   * Sanitize all string metadata fields before saving.
+   *
+   * - URL-decodes values so that `%09Illinois` becomes `\tIllinois` before trimming
+   * - Trims all leading/trailing Unicode whitespace (spaces, tabs, newlines, NBSP, etc.)
+   * - For `user-keywords`: trims each element and removes any that become empty
+   *
+   * Should be called once at the top of every save path so callers never need
+   * to remember to sanitize individually.
+   *
+   * @param {Record<string, unknown>} metadata - Raw metadata from request or front-matter
+   * @returns {Record<string, unknown>} New object with sanitized values (original unchanged)
+   */
+  sanitizeMetadata(metadata: Record<string, unknown>): Record<string, unknown> {
+    const sanitized = { ...metadata };
+
+    const sanitizeString = (value: unknown): string => {
+      if (typeof value !== 'string') return value as string;
+      let s = value;
+      // Decode percent-encoded characters (e.g. %09 → tab) before trimming
+      try { s = decodeURIComponent(s.replace(/\+/g, ' ')); } catch { /* leave as-is */ }
+      // Trim all Unicode whitespace from both ends
+      return s.replace(/^[\s\u00A0\u200B\uFEFF]+|[\s\u00A0\u200B\uFEFF]+$/gu, '');
+    };
+
+    const stringFields = ['title', 'slug', 'system-category', 'uuid', 'lastModified', 'author'];
+    for (const field of stringFields) {
+      if (sanitized[field] != null) {
+        sanitized[field] = sanitizeString(sanitized[field]);
+      }
+    }
+
+    // Sanitize each keyword; drop any that are empty after trimming
+    if (Array.isArray(sanitized['user-keywords'])) {
+      sanitized['user-keywords'] = (sanitized['user-keywords'] as unknown[])
+        .map(k => sanitizeString(k))
+        .filter(k => typeof k === 'string' && (k).length > 0);
+    }
+
+    return sanitized;
+  }
+
+  /**
    * Validate that a filename follows UUID naming convention
    * @param {string} filename - The filename to validate
    * @returns {ValidationResult} Validation result with success and error properties
