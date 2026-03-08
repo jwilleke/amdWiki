@@ -685,7 +685,7 @@
     },
     {
       "value": "America/Sao_Paulo",
-      "label": "BRT (São Paulo)",
+      "label": "BRT (S\u00e3o Paulo)",
       "category": "South America"
     },
     {
@@ -1193,17 +1193,24 @@
   "amdwiki.backup.compress": true,
   "amdwiki.backup.autoBackup": false,
   "amdwiki.backup.autoBackupInterval": 86400000,
-
   "_comment_media": "MediaManager configuration (Issue #273). Media scanning/indexing of external photo/video libraries.",
   "amdwiki.media.enabled": false,
   "amdwiki.media.folders": [],
   "amdwiki.media.maxdepth": 5,
   "amdwiki.media.scaninterval": 3600000,
   "amdwiki.media.readonly": true,
-  "amdwiki.media.index.file": "",
-  "amdwiki.media.thumbnail.dir": "",
   "amdwiki.media.thumbnail.sizes": "300x300,150x150",
-  "amdwiki.media.metadata.priority": ["EXIF", "IPTC", "XMP"],
-  "amdwiki.media.ignoredirs": [".dtrash", ".ts"],
-  "amdwiki.media.ignorefiles": [".photoviewignore", ".plexignore"]
+  "amdwiki.media.metadata.priority": [
+    "EXIF",
+    "IPTC",
+    "XMP"
+  ],
+  "amdwiki.media.ignoredirs": [
+    ".dtrash",
+    ".ts"
+  ],
+  "amdwiki.media.ignorefiles": [
+    ".photoviewignore",
+    ".plexignore"
+  ]
 }

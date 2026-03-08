@@ -92,8 +92,10 @@ document.getElementById('rescan-btn')?.addEventListener('click', async function 
         const data = await res.json();
         if (data.success) {
             const r = data.result;
+            const elapsed = r.elapsedMs != null ? ` in ${(r.elapsedMs/1000).toFixed(1)}s` : '';
+            const rate = (r.scanned > 0 && r.elapsedMs) ? ` (~${(r.elapsedMs/r.scanned).toFixed(0)}ms/file)` : '';
             status.className = 'alert alert-success';
-            status.innerHTML = `<i class="fas fa-check-circle"></i> Scan complete — scanned: ${r.scanned}, added: ${r.added}, updated: ${r.updated}, errors: ${r.errors}`;
+            status.innerHTML = `<i class="fas fa-check-circle"></i> Scan complete${elapsed}${rate} — scanned: ${r.scanned}, added: ${r.added}, updated: ${r.updated}, errors: ${r.errors}`;
         } else {
             status.className = 'alert alert-danger';
             status.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${data.error || 'Scan failed'}`;

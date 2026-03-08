@@ -48,6 +48,8 @@ export interface ScanResult {
   updated: number;
   /** Number of files that could not be processed */
   errors: number;
+  /** Total elapsed time in milliseconds */
+  elapsedMs?: number;
 }
 
 /**

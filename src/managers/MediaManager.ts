@@ -55,15 +55,15 @@ class MediaManager extends BaseManager {
       throw new Error('[MediaManager] ConfigurationManager not available during initialization');
     }
 
-    const thumbnailDir = configManager.getResolvedDataPath(
-      'amdwiki.media.thumbnail.dir',
-      path.join(process.env.FAST_STORAGE ?? './data', 'media', 'thumbs')
-    );
+    const defaultThumbDir = path.join(process.env.FAST_STORAGE ?? './data', 'media', 'thumbs');
+    const thumbnailDir =
+      configManager.getResolvedDataPath('amdwiki.media.thumbnail.dir', defaultThumbDir) ||
+      defaultThumbDir;
 
-    const indexFile = configManager.getResolvedDataPath(
-      'amdwiki.media.index.file',
-      path.join(process.env.FAST_STORAGE ?? './data', 'media-index.json')
-    );
+    const defaultIndexFile = path.join(process.env.FAST_STORAGE ?? './data', 'media-index.json');
+    const indexFile =
+      configManager.getResolvedDataPath('amdwiki.media.index.file', defaultIndexFile) ||
+      defaultIndexFile;
 
     // Ensure thumbnail directory exists
     try {

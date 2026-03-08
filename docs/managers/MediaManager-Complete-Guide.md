@@ -89,7 +89,7 @@ All keys are in `amdwiki.media.*`. Set them in your instance
 ```json
 {
   "amdwiki.media.enabled": true,
-  "amdwiki.media.folders": ["/Volumes/photos/2020s", "/Volumes/photos/older"]
+  "amdwiki.media.folders": ["/Volumes/hd2A/media/photos/2020s", "/Volumes/hd2A/media/photos/older"]
 }
 ```
 
@@ -194,11 +194,11 @@ interface MediaItem {
   "items": {
     "a3f7c2d1e8b4690f2a1c3d5e7f9b0c12": {
       "id": "a3f7c2d1e8b4690f2a1c3d5e7f9b0c12",
-      "filePath": "/Volumes/photos/2023-06-15-Birthday-001.jpg",
+      "filePath": "/Volumes/hd2A/media/photos/2023-06-15-Birthday-001.jpg",
       "filename": "2023-06-15-Birthday-001.jpg",
       "mimeType": "image/jpeg",
       "year": 2023,
-      "dirPath": "/Volumes/photos",
+      "dirPath": "/Volumes/hd2A/media/photos",
       "eventName": "Birthday",
       "mtime": 1686825600000,
       "metadata": {

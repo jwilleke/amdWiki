@@ -165,6 +165,7 @@ class FileSystemMediaProvider extends BaseMediaProvider {
     }
 
     const counters: ScanCounters = { scanned: 0, added: 0, updated: 0, errors: 0 };
+    const startMs = Date.now();
     logger.info(
       `[FileSystemMediaProvider] Starting scan (force=${force}) — folders: [${this.config.folders.join(', ')}]`
     );
@@ -174,15 +175,18 @@ class FileSystemMediaProvider extends BaseMediaProvider {
         logger.warn(`[FileSystemMediaProvider] Folder not found, skipping: ${folder}`);
         continue;
       }
-      await this.walkDirectory(folder, 0, counters, force);
+      await this.walkDirectory(folder, 0, counters, force, true);
     }
 
     await this.saveIndex();
+    const elapsedMs = Date.now() - startMs;
+    const msPerFile = counters.scanned > 0 ? (elapsedMs / counters.scanned).toFixed(0) : 'n/a';
     logger.info(
-      `[FileSystemMediaProvider] Scan complete — scanned=${counters.scanned} ` +
-        `added=${counters.added} updated=${counters.updated} errors=${counters.errors}`
+      `[FileSystemMediaProvider] Scan complete in ${elapsedMs}ms — ` +
+        `scanned=${counters.scanned} added=${counters.added} updated=${counters.updated} errors=${counters.errors} ` +
+        `(~${msPerFile}ms/file)`
     );
-    return counters;
+    return { ...counters, elapsedMs };
   }
 
   // ---------------------------------------------------------------------------
@@ -304,12 +308,18 @@ class FileSystemMediaProvider extends BaseMediaProvider {
 
   /**
    * Recursively walk a directory, processing media files.
+   *
+   * @param isConfiguredRoot - true when dirPath is one of the explicitly
+   *   configured root folders; sentinel-file exclusion is skipped for roots
+   *   so that a .plexignore / .photoviewignore at the top level does not
+   *   accidentally block an entire configured folder.
    */
   private async walkDirectory(
     dirPath: string,
     depth: number,
     counters: ScanCounters,
-    force: boolean
+    force: boolean,
+    isConfiguredRoot = false
   ): Promise<void> {
     // Enforce maxDepth (0 = unlimited)
     if (this.config.maxDepth > 0 && depth > this.config.maxDepth) return;
@@ -323,12 +333,16 @@ class FileSystemMediaProvider extends BaseMediaProvider {
       return;
     }
 
-    // Check for sentinel files that exclude the entire directory
-    const fileNames = new Set(entries.filter(e => e.isFile()).map(e => e.name));
-    for (const sentinel of this.config.ignoreFiles) {
-      if (fileNames.has(sentinel)) {
-        logger.debug(`[FileSystemMediaProvider] Skipping dir ${dirPath} — found ${sentinel}`);
-        return;
+    // Check for sentinel files that exclude the entire directory.
+    // Skipped for explicitly-configured root folders so that a top-level
+    // .plexignore/.photoviewignore does not silently block everything.
+    if (!isConfiguredRoot) {
+      const fileNames = new Set(entries.filter(e => e.isFile()).map(e => e.name));
+      for (const sentinel of this.config.ignoreFiles) {
+        if (fileNames.has(sentinel)) {
+          logger.debug(`[FileSystemMediaProvider] Skipping dir ${dirPath} — found ${sentinel}`);
+          return;
+        }
       }
     }
 
