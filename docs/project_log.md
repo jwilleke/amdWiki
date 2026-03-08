@@ -24,6 +24,38 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-08-01
+
+- Agent: Claude Sonnet 4.6
+- Subject: Implement private folder Phase 1 — private pages (#122)
+- Key Decision: Use `creator`/`editor` as canonical terms (per Page-Metadata.md); bulk migration on first boot assigns `location`/`creator` to all existing page-index entries; required-pages can never be private (guarded at route + provider level); `Private` doc page moved to required-pages/
+- Current Issue: #122
+- Testing:
+  - npm test: 9 skipped suites, 72 passed, 1853 tests passed
+  - E2E: 47 passed
+- Work Done:
+  - VersioningFileProvider: `'private'` location type, `creator` field, bulk migration, private version dir, file move on location change
+  - FileSystemProvider: `resolvePageFilePath()` for private subdirectory routing
+  - PageManager: detect `storageLocation:'private'` on user-keywords; inject system-location/page-creator; skip for required pages; fix undefined YAML serialization bug
+  - WikiRoutes: `checkPrivatePageAccess()` 403 guard on view/edit/history/delete; 400 guard preventing required pages from being marked private
+  - SearchManager + LunrSearchProvider: `isPrivate`/`creator` on search docs; filter for non-admin non-creator users
+  - Config: `storageLocation:'private'` on `amdwiki.user-keywords.private`
+  - required-pages: `Private` doc page moved from data/pages/ with system category
+  - plan-private-folder.md: owner→creator throughout; sections 1.1a, 1.9 added
+  - Commented on #122 and #232
+- Commits: 41d0d5e
+- Files Modified:
+  - src/providers/VersioningFileProvider.ts
+  - src/providers/FileSystemProvider.ts
+  - src/managers/PageManager.ts
+  - src/managers/SearchManager.ts
+  - src/providers/BaseSearchProvider.ts
+  - src/providers/LunrSearchProvider.ts
+  - src/routes/WikiRoutes.ts
+  - config/app-default-config.json
+  - docs/planning/plan-private-folder.md
+  - required-pages/951d576e-8afe-4697-b0fb-71c1c799dac2.md (new)
+
 ## 2026-03-07-07
 
 - Agent: Claude Sonnet 4.6
