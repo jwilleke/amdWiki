@@ -32,7 +32,7 @@ The `private` entry already exists in `amdwiki.user-keywords`. This plan adds `s
 
 ### 1.1 — Extend PageIndexEntry in `VersioningFileProvider.ts`
 
-Add `'private'` as a third location type and an `owner` field:
+Add `'private'` as a third location type and a `creator` field:
 
 ```typescript
 // src/providers/VersioningFileProvider.ts
@@ -43,10 +43,36 @@ interface PageIndexEntry {
   filename: string;        // still `{uuid}.md`
   currentVersion: string;
   location: 'pages' | 'required-pages' | 'private';  // NEW: 'private'
-  owner?: string;          // NEW: required when location === 'private'
+  creator?: string;        // NEW: username that created the page; required when location === 'private'
   lastModified: string;
-  editor: string;
+  editor: string;          // username that last modified the page
   hasVersions: boolean;
+}
+```
+
+### 1.1a — Bulk migration of existing `page-index.json` entries
+
+On first boot after upgrade, `loadOrCreatePageIndex()` calls `migratePageIndexEntries()` immediately after loading. It assigns missing `location` and `creator` fields in one pass and writes the index back — a no-op on all subsequent boots:
+
+```typescript
+private async migratePageIndexEntries(): Promise<void> {
+  if (!this.pageIndex) return;
+  let migrated = 0;
+  for (const entry of Object.values(this.pageIndex.pages)) {
+    if (!entry.location) {
+      entry.location = entry.location ?? 'pages';   // existing entries default to 'pages'
+      migrated++;
+    }
+    if (!entry.creator) {
+      // required-pages are system-owned; all others default to 'jim' for this instance
+      entry.creator = entry.location === 'required-pages' ? 'system' : 'jim';
+      migrated++;
+    }
+  }
+  if (migrated > 0) {
+    logger.info(`[VersioningFileProvider] Migrated ${migrated} index entries (added location/creator)`);
+    await this.savePageIndex();
+  }
 }
 ```
 
@@ -55,9 +81,9 @@ interface PageIndexEntry {
 Add a helper `resolvePageFilePath(entry)` that constructs the path based on location:
 
 ```typescript
-private resolvePageFilePath(uuid: string, location: string, owner?: string): string {
-  if (location === 'private' && owner) {
-    return path.join(this.pagesDirectory, 'private', owner, `${uuid}.md`);
+private resolvePageFilePath(uuid: string, location: string, creator?: string): string {
+  if (location === 'private' && creator) {
+    return path.join(this.pagesDirectory, 'private', creator, `${uuid}.md`);
   }
   return path.join(this.pagesDirectory, `${uuid}.md`);  // existing default
 }
@@ -98,13 +124,13 @@ const privateLocation = userKeywords
 
 const enrichedMetadata = {
   ...metadata,
-  author: wikiContext.userContext?.username || 'anonymous',
+  creator: wikiContext.userContext?.username || 'anonymous',
   'system-location': privateLocation ?? undefined,  // consumed by provider
-  'page-owner': privateLocation ? wikiContext.userContext?.username : undefined,
+  'page-creator': privateLocation ? wikiContext.userContext?.username : undefined,
 };
 ```
 
-`VersioningFileProvider.savePage()` reads `metadata['system-location']` and `metadata['page-owner']` to determine storage path, exactly as it currently reads `system-category` → `storageLocation`.
+`VersioningFileProvider.savePage()` reads `metadata['system-location']` and `metadata['page-creator']` to determine storage path, exactly as it currently reads `system-category` → `storageLocation`.
 
 ### 1.5 — Enforce access via `WikiContext` in `WikiRoutes.ts`
 
@@ -119,7 +145,7 @@ function checkPrivatePageAccess(wikiContext: WikiContext): boolean {
   if (index?.location !== 'private') return true;            // public page — allow
   if (!wikiContext.userContext?.authenticated) return false;   // anonymous — deny
   if (wikiContext.userContext.roles?.includes('admin')) return true; // admin — allow
-  return wikiContext.userContext.username === index.owner;    // owner — allow
+  return wikiContext.userContext.username === index.creator;  // creator — allow
 }
 ```
 
@@ -142,7 +168,7 @@ Return **403** (not 404) so the user knows the page exists but is restricted.
 
 ### 1.6 — Exclude private pages from search
 
-In `SearchManager.updatePageInIndex()` / `LunrSearchProvider`: store `isPrivate: true` and `owner: username` in the index document.
+In `SearchManager.updatePageInIndex()` / `LunrSearchProvider`: store `isPrivate: true` and `creator: username` in the index document.
 
 Pass `WikiContext` through `SearchManager.search(query, options)` — add optional `wikiContext?: WikiContext` to `SearchOptions` (replaces any raw userContext). Filter private results in the search provider:
 
@@ -151,7 +177,7 @@ Pass `WikiContext` through `SearchManager.search(query, options)` — add option
 results = results.filter(doc => {
   if (!doc.isPrivate) return true;
   const uc = options.wikiContext?.userContext;
-  return uc?.roles?.includes('admin') || uc?.username === doc.owner;
+  return uc?.roles?.includes('admin') || uc?.username === doc.creator;
 });
 ```
 
@@ -163,12 +189,12 @@ The `private` entry already exists in `config/app-default-config.json` under `am
 // config/app-default-config.json → amdwiki.user-keywords → private
 "private": {
   "label": "private",
-  "description": "Private content editable only by author and admins",
+  "description": "Private content editable only by creator and admins",
   "category": "access",
   "enabled": true,
   "restrictEditing": true,
   "storageLocation": "private",    // NEW — triggers private subdirectory storage
-  "allowedRoles": ["admin", "author"]
+  "allowedRoles": ["admin", "creator"]
 }
 ```
 
@@ -183,18 +209,34 @@ When a user edits a private page and removes the `private` user-keyword, `PageMa
 const currentEntry = this.pageIndex.get(uuid);
 const newLocation = resolveLocationFromMetadata(enrichedMetadata);  // 'pages' | 'private'
 if (currentEntry?.location !== newLocation) {
-  await this.movePageFile(uuid, currentEntry.location, currentEntry.owner, newLocation, newOwner);
+  await this.movePageFile(uuid, currentEntry.location, currentEntry.creator, newLocation, newCreator);
   await this.moveVersionDirectory(uuid, currentEntry.location, newLocation);
 }
 ```
 
-Same logic applies in reverse: making a public page private moves it from `pages/` to `pages/private/{owner}/`.
+Same logic applies in reverse: making a public page private moves it from `pages/` to `pages/private/{creator}/`.
 
-### 1.9 — URL scheme stays unchanged
+### 1.9 — Required-pages can never be private
+
+Pages with `location: 'required-pages'` are stored in the source repository (`required-pages/`) and committed to GitHub. They are public by definition and must be excluded from any private-folder logic.
+
+Two guards are applied:
+
+1. **Route-level (WikiRoutes.ts)** — reject any save that includes `private` in `user-keywords` for a required page:
+
+```typescript
+if (isCurrentlyRequired && userKeywordsArray.includes('private')) {
+  return res.status(400).send('Required pages cannot be marked as private');
+}
+```
+
+1. **Provider-level (1.4)** — `savePageWithContext()` skips the `system-location` enrichment when `currentEntry.location === 'required-pages'`, so even if the keyword somehow reaches the provider, no file move occurs.
+
+### 1.10 — URL scheme stays unchanged
 
 Private pages remain at `/wiki/PageName` — no URL change. Privacy is enforced at the route handler level (1.5), not in the URL structure. A private page's existence can be acknowledged with a 403, but the URL does not leak the ownership path.
 
-### 1.10 — `WikiContext` construction uses existing `WikiRoutes.createWikiContext()`
+### 1.11 — `WikiContext` construction uses existing `WikiRoutes.createWikiContext()`
 
 `WikiContext` is already the central orchestrator per `docs/WikiContext-Complete-Guide.md`. The existing factory in `WikiRoutes` is `this.createWikiContext(req, options)` (`src/routes/WikiRoutes.ts:132`). All access checks throughout this plan use it:
 
@@ -206,9 +248,9 @@ if (!checkPrivatePageAccess(wikiContext)) return res.status(403).render('error',
 
 No new factory method needed on WikiEngine.
 
-### 1.11 — Admin visibility of private pages
+### 1.12 — Admin visibility of private pages
 
-Admins can read any private page (enforced in 1.5). Add a `/admin/pages?filter=private` view listing all private pages across all owners — queries the page index filtered by `location === 'private'`. Deferred to a follow-up issue, but the `owner` field in `PageIndexEntry` is required from the start to support this query.
+Admins can read any private page (enforced in 1.5). Add a `/admin/pages?filter=private` view listing all private pages across all creators — queries the page index filtered by `location === 'private'`. Deferred to a follow-up issue, but the `creator` field in `PageIndexEntry` is required from the start to support this query.
 
 ---
 
@@ -227,24 +269,24 @@ In `storeAttachmentInternal()`, check if the associated page is private:
 
 ```typescript
 const isPrivatePage = options?.isPrivatePage ?? false;
-const pageOwner = options?.pageOwner;
-const targetDir = isPrivatePage && pageOwner
-  ? path.join(this.privateStorageDir, pageOwner)
+const pageCreator = options?.pageCreator;
+const targetDir = isPrivatePage && pageCreator
+  ? path.join(this.privateStorageDir, pageCreator)
   : this.storageDirectory;
 ```
 
 File path: `{targetDir}/{sha256hash}{ext}` — same content-addressing, different directory.
 
-Add `isPrivate: boolean` and `owner?: string` to `SchemaCreativeWork` metadata.
+Add `isPrivate: boolean` and `creator?: string` to `SchemaCreativeWork` metadata.
 
 ### 2.2 — Propagate privacy to AttachmentManager via `WikiContext`
 
-Replace the separate `isPrivatePage`/`pageOwner` flags in `UploadOptions` with a `WikiContext`. The manager derives all page and user data from it — DRY, consistent with the rest of the engine.
+Replace the separate `isPrivatePage`/`pageCreator` flags in `UploadOptions` with a `WikiContext`. The manager derives all page and user data from it — DRY, consistent with the rest of the engine.
 
 ```typescript
 interface UploadOptions {
   description?: string;
-  wikiContext: WikiContext;   // carries pageName AND userContext — replaces old context/isPrivatePage/pageOwner
+  wikiContext: WikiContext;   // carries pageName AND userContext — replaces old context/isPrivatePage/pageCreator
 }
 ```
 
@@ -255,7 +297,7 @@ const pageName = options.wikiContext.pageName;
 const page = pageName ? await pageManager.getPage(pageName) : null;
 const index = page?.metadata?.['index-entry'] as PageIndexEntry | undefined;
 const isPrivate = index?.location === 'private';
-const pageOwner = index?.owner;
+const pageCreator = index?.creator;
 ```
 
 ### 2.3 — Guard attachment serving route via `WikiContext`
@@ -399,7 +441,7 @@ if (item.linkedPageName && wikiContext) {
     userContext: wikiContext.userContext ?? undefined,
     request: wikiContext.request ?? undefined,
   });
-  if (!checkPrivatePageAccess(pageWikiContext)) return null;  // treat as not found
+  if (!checkPrivatePageAccess(pageWikiContext)) return null;  // treat as not found — creator/admin check
 }
 ```
 
@@ -451,11 +493,11 @@ Parameter names follow #238 conventions: `max` not `limit`, `output` for mode. S
 
 | File | Change |
 |------|--------|
-| `src/providers/VersioningFileProvider.ts` | Add `'private'` location type, `owner` to PageIndexEntry, version dir for private |
+| `src/providers/VersioningFileProvider.ts` | Add `'private'` location type, `creator` to PageIndexEntry, version dir for private |
 | `src/providers/FileSystemProvider.ts` | `resolvePageFilePath()` helper for location-aware path building |
 | `src/managers/PageManager.ts` | Detect "private" keyword in `savePageWithContext()`, pass location metadata |
-| `src/managers/SearchManager.ts` | Add optional userContext to SearchOptions; filter private docs for non-owners |
-| `src/providers/BasicAttachmentProvider.ts` | Private subdirectory, `isPrivate` + `owner` in SchemaCreativeWork metadata |
+| `src/managers/SearchManager.ts` | Add optional userContext to SearchOptions; filter private docs for non-creators |
+| `src/providers/BasicAttachmentProvider.ts` | Private subdirectory, `isPrivate` + `creator` in SchemaCreativeWork metadata |
 | `src/managers/AttachmentManager.ts` | Resolve page privacy from PageManager, pass flags to provider |
 | `src/routes/WikiRoutes.ts` | `checkPrivatePageAccess()` guard on page/attachment routes; add `/media/*` routes |
 | `src/WikiEngine.ts` | Register MediaManager after AttachmentManager (conditional on config) |
@@ -472,13 +514,13 @@ Parameter names follow #238 conventions: `max` not `limit`, `output` for mode. S
 
 ### Implementation sequence
 
-**Phase 1 and Phase 2 of this plan implement isolation without encryption (Option A below).** Encryption (Option B) is a natural follow-on that can be added later without restructuring the storage layout — the folder structure `pages/private/{owner}/` is the same either way.
+**Phase 1 and Phase 2 of this plan implement isolation without encryption (Option A below).** Encryption (Option B) is a natural follow-on that can be added later without restructuring the storage layout — the folder structure `pages/private/{creator}/` is the same either way.
 
 ---
 
 ### Option A — Access control + filesystem isolation (this plan)
 
-Private pages are stored in a separate subdirectory (`pages/private/{owner}/`) and guarded by route-level checks (`checkPrivatePageAccess()`). Unauthorized wiki users receive a 403. Files on disk are plaintext.
+Private pages are stored in a separate subdirectory (`pages/private/{creator}/`) and guarded by route-level checks (`checkPrivatePageAccess()`). Unauthorized wiki users receive a 403. Files on disk are plaintext.
 
 **What it protects against:** other authenticated wiki users reading your private pages through the wiki UI.
 
@@ -489,7 +531,7 @@ Private pages are stored in a separate subdirectory (`pages/private/{owner}/`) a
 | No encryption at rest | Anyone with filesystem or OS access reads files in plaintext |
 | Search index | Private content is stored in `search-index.json` on disk; the filter prevents retrieval via the wiki UI but the data is present in the file |
 | Version history | Each version file is plaintext at `versions/private/{uuid}/` |
-| Attachments (Phase 2) | Moved to `attachments/private/{owner}/` but remain plaintext |
+| Attachments (Phase 2) | Moved to `attachments/private/{creator}/` but remain plaintext |
 | Admin bypass | Admins can read all private pages by design — admin account compromise exposes all users' private content |
 | Backup / snapshots | Any backup of the data directory includes all private content in plaintext |
 
@@ -516,7 +558,7 @@ The hard part of encryption is not the cryptography (Node's built-in `crypto` mo
 
 #### Per-user encryption (recommended)
 
-Each user's private folder (`pages/private/{owner}/`) is encrypted with a key derived from that user's own login password using PBKDF2 or Argon2. The derived key lives in the server-side session only — never persisted to disk. It is discarded on logout.
+Each user's private folder (`pages/private/{creator}/`) is encrypted with a key derived from that user's own login password using PBKDF2 or Argon2. The derived key lives in the server-side session only — never persisted to disk. It is discarded on logout.
 
 ```
 session.privateKey['alice'] = deriveKey(alicePassword, aliceSalt)  // memory only
@@ -524,6 +566,7 @@ session.privateKey['bob']   = deriveKey(bobPassword,   bobSalt)    // memory onl
 
 pages/private/alice/  ← encrypted with Alice's key; Bob and server operator cannot read
 pages/private/bob/    ← encrypted with Bob's key;   Alice and server operator cannot read
+
 ```
 
 - Server process cannot decrypt without an active login session
@@ -540,6 +583,7 @@ A single encryption key for the entire wiki instance, derived from an admin-set 
 ```
 pages/private/alice/  ← encrypted with instance master key
 pages/private/bob/    ← encrypted with same instance master key
+
 ```
 
 - Simpler to implement (~1 week) — one key, no per-user session management
@@ -581,7 +625,7 @@ The zip must include a `key-params.json` file with the PBKDF2 salt and parameter
 
 | Route | Notes |
 |-------|-------|
-| `GET /user/private/backup` | Streams a zip of `pages/private/{owner}/` ciphertext as-is — no server-side decryption |
+| `GET /user/private/backup` | Streams a zip of `pages/private/{creator}/` ciphertext as-is — no server-side decryption |
 | `POST /user/private/restore` | Uploads zip, verifies it decrypts with current key, extracts |
 
 **Effort:** ~2–3 days on top of the encryption implementation.
@@ -594,7 +638,7 @@ The zip must include a `key-params.json` file with the PBKDF2 salt and parameter
 | Key rotation | When a user changes their password, all files in their private folder must be re-encrypted with the new key |
 | Admin recovery | Per-user encryption means lost password = permanently unreadable pages; requires explicit user-facing warnings before the feature is enabled |
 | Version history | Each version file must be encrypted/decrypted with the same key — same code path, more files |
-| Attachments | `BasicAttachmentProvider` needs the same encrypt/decrypt wrapper for `attachments/private/{owner}/` |
+| Attachments | `BasicAttachmentProvider` needs the same encrypt/decrypt wrapper for `attachments/private/{creator}/` |
 | Session expiry | If a session expires while a user is editing, the next save cannot encrypt; requires graceful error handling and re-authentication prompt |
 
 ---

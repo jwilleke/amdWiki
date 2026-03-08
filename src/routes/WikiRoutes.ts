@@ -123,6 +123,50 @@ class WikiRoutes {
   }
 
   /**
+   * Check whether the current user may access a private page.
+   * Reads the page index entry for pageName and applies the following rules:
+   * - If the page is not private (location !== 'private') → allow
+   * - If not authenticated → deny
+   * - If admin role → allow
+   * - If username === entry.creator → allow
+   * - Otherwise → deny
+   *
+   * Returns true to allow, false to deny (caller should return 403).
+   */
+  private async checkPrivatePageAccess(wikiContext: WikiContext, pageName: string): Promise<boolean> {
+    try {
+      const pageManager = this.engine.getManager('PageManager');
+      if (!pageManager) return true; // No page manager — allow (will fail elsewhere)
+
+      // Get page metadata to find the UUID
+      const pageMetadata = await pageManager.getPageMetadata(pageName);
+      if (!pageMetadata?.uuid) return true; // No UUID — cannot check index, allow
+
+      // Access the provider's page index entry via provider reference
+       
+      const provider = pageManager.getCurrentPageProvider?.() ?? (pageManager).provider;
+      if (!provider) return true;
+
+       
+      const pageIndex = (provider).pageIndex as { pages: Record<string, { location?: string; creator?: string }> } | null;
+      if (!pageIndex) return true;
+
+      const entry = pageIndex.pages[pageMetadata.uuid];
+      if (!entry || entry.location !== 'private') return true; // Not a private page
+
+      // Page is private — apply access rules
+      const userContext = wikiContext.userContext as UserContext | null | undefined;
+      if (!userContext?.username) return false; // Not authenticated
+      if (Array.isArray(userContext.roles) && userContext.roles.includes('admin')) return true; // Admin
+      if (userContext.username === entry.creator) return true; // Creator
+      return false; // Deny
+    } catch {
+      // If check fails for any reason, allow (conservative — will fail elsewhere if truly missing)
+      return true;
+    }
+  }
+
+  /**
    * Create a WikiContext for the given request and page
    * This should be the single source of truth for all context information
    * @param {object} req - Express request object
@@ -1026,6 +1070,12 @@ class WikiRoutes {
         );
       }
 
+      // Check private page access before rendering
+      const canAccessPrivate = await this.checkPrivatePageAccess(wikiContext, pageName);
+      if (!canAccessPrivate) {
+        return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to view this page.');
+      }
+
       // Update WikiContext with page content for ACL checking
       (wikiContext as { content: string | null }).content = markdown;
 
@@ -1453,6 +1503,14 @@ class WikiRoutes {
       // Get page data to check ACL (if page exists)
       let pageData = await pageManager.getPage(pageName);
 
+      // Check private page access for existing pages
+      if (pageData) {
+        const canAccessPrivate = await this.checkPrivatePageAccess(wikiContext, pageName);
+        if (!canAccessPrivate) {
+          return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to edit this page.');
+        }
+      }
+
       // Check if this is a required page that needs admin access
       if (await this.isRequiredPage(pageName)) {
         if (
@@ -1843,8 +1901,12 @@ class WikiRoutes {
         ? 'This page is managed in GitHub — edits here will not be reflected in the source repository.'
         : undefined;
 
-      // Permission checks
+      // Prevent required-pages from being marked private (they live in GitHub)
       const isCurrentlyRequired = await this.isRequiredPage(pageName);
+      if (isCurrentlyRequired && userKeywordsArray.includes('private')) {
+        return res.status(400).send('Required pages cannot be marked as private');
+      }
+
       // Check if the new metadata will make this a required page
       const hardcodedRequiredPages = ['System Categories', 'Wiki Documentation'];
       const willBeRequired = hardcodedRequiredPages.includes(pageName) ||
@@ -2001,6 +2063,12 @@ class WikiRoutes {
       if (!pageData) {
         logger.debug(`❌ Page not found: ${pageName}`);
         return res.status(404).send('Page not found');
+      }
+
+      // Check private page access
+      const canAccessPrivateForDelete = await this.checkPrivatePageAccess(wikiContext, pageName);
+      if (!canAccessPrivateForDelete) {
+        return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to delete this page.');
       }
 
       // Check if this is a required page that needs admin access
@@ -6967,6 +7035,16 @@ class WikiRoutes {
         return res.status(404).render('error', {
           ...templateData,
           message: `Page "${pageName}" not found`
+        });
+      }
+
+      // Check private page access for history
+      const canAccessPrivateHistory = await this.checkPrivatePageAccess(wikiContext, pageName);
+      if (!canAccessPrivateHistory) {
+        const templateData = this.getTemplateDataFromContext(wikiContext);
+        return res.status(403).render('error', {
+          ...templateData,
+          message: 'You do not have permission to view this page history.'
         });
       }
 

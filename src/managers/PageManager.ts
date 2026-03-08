@@ -294,12 +294,44 @@ class PageManager extends BaseManager {
       author: originalAuthor || wikiContext.userContext?.username || metadata.author || 'anonymous'
     };
 
+    // Detect whether any applied user-keyword requests private storage.
+    // Only applies to non-required pages (required pages are always public).
+    const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
+    const userKeywordDefs = (configManager
+      ? configManager.getProperty('amdwiki.user-keywords', {}) as Record<string, { storageLocation?: string }>
+      : {}) as Record<string, { storageLocation?: string }>;
+    const userKeywords = (rawMetadata['user-keywords'] || []);
+
+    // Determine if this is a required page by checking the system-category config.
+    // Required pages (storageLocation === 'required') cannot be marked private.
+    const systemCategoriesConfig = (configManager
+      ? configManager.getProperty('amdwiki.system-category', {}) as Record<string, { label?: string; storageLocation?: string }>
+      : {}) as Record<string, { label?: string; storageLocation?: string }>;
+    const pageSystemCategory = ((rawMetadata as Record<string, unknown>)['system-category'] as string | undefined)
+      || ((existingPage?.metadata as Record<string, unknown> | undefined)?.['system-category'] as string | undefined)
+      || '';
+    const isRequiredPage = Object.values(systemCategoriesConfig).some(
+      (cfg) => ((cfg.label || '').toLowerCase() === pageSystemCategory.toLowerCase() && cfg.storageLocation === 'required')
+    );
+
+    const privateStorageLocation = !isRequiredPage
+      ? userKeywords.map(kw => userKeywordDefs[kw]?.storageLocation).find(loc => loc === 'private')
+      : undefined;
+
+    const metadataWithLocation: Partial<PageFrontmatter> & Record<string, unknown> = {
+      ...rawMetadata,
+      ...(privateStorageLocation ? {
+        'system-location': privateStorageLocation,
+        'page-creator': wikiContext.userContext?.username || 'anonymous'
+      } : {})
+    };
+
     // Sanitize all string fields — trims Unicode whitespace and decodes percent-encoded
     // characters (e.g. %09 → tab) before they reach the provider (#296)
     const validationManager = this.engine.getManager<ValidationManager>('ValidationManager');
     const enrichedMetadata = validationManager
-      ? validationManager.sanitizeMetadata(rawMetadata as Record<string, unknown>) as Partial<PageFrontmatter>
-      : rawMetadata;
+      ? validationManager.sanitizeMetadata(metadataWithLocation as Record<string, unknown>) as Partial<PageFrontmatter>
+      : metadataWithLocation;
 
     return this.provider.savePage(pageName, content, enrichedMetadata);
   }

@@ -51,6 +51,20 @@ export interface SearchResult {
 }
 
 /**
+ * Minimal WikiContext shape needed by search providers to filter private results.
+ * The full WikiContext lives in src/context/WikiContext.ts (JavaScript).
+ */
+export interface SearchWikiContext {
+  userContext?: {
+    username?: string;
+    roles?: string[];
+    authenticated?: boolean;
+    [key: string]: unknown;
+  };
+  [key: string]: unknown;
+}
+
+/**
  * Search options structure
  */
 export interface SearchOptions {
@@ -65,6 +79,9 @@ export interface SearchOptions {
 
   /** Filter by user keywords */
   userKeywords?: string[];
+
+  /** WikiContext for the current request — used to filter private search results */
+  wikiContext?: SearchWikiContext;
 }
 
 /**

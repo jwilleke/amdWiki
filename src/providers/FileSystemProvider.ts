@@ -456,6 +456,23 @@ class FileSystemProvider extends BasePageProvider {
   }
 
   /**
+   * Resolve the on-disk file path for a page given its uuid, location, and optional creator.
+   * Private pages are stored at: {pagesDirectory}/private/{creator}/{uuid}.md
+   * All other pages are stored at: {pagesDirectory}/{uuid}.md
+   *
+   * @param {string} uuid - Page UUID
+   * @param {string} location - Storage location ('pages', 'required-pages', or 'private')
+   * @param {string} [creator] - Username of the page creator (required when location === 'private')
+   * @returns {string} Absolute path to the page file
+   */
+  private resolvePageFilePath(uuid: string, location: string, creator?: string): string {
+    if (location === 'private' && creator && this.pagesDirectory) {
+      return path.join(this.pagesDirectory, 'private', creator, `${uuid}.md`);
+    }
+    return path.join(this.pagesDirectory || '', `${uuid}.md`);
+  }
+
+  /**
    * Saves content to a wiki page, creating it if it doesn't exist.
    * Determines storage location based on system-category metadata.
    *
@@ -490,8 +507,10 @@ class FileSystemProvider extends BasePageProvider {
       throw new Error(`Cannot save page with system-category '${systemCategory}' - pages with storageLocation 'github' are not stored in the wiki (docs/ folder only)`);
     }
 
-    // Always save to pagesDirectory — required-pages/ is read-only (install source only)
-    const filePath = path.join(this.pagesDirectory, `${uuid}.md`);
+    // Resolve file path — private pages go to pagesDirectory/private/{creator}/{uuid}.md
+    const systemLocation = (metadata as Record<string, unknown>)['system-location'] as string | undefined;
+    const pageCreator = (metadata as Record<string, unknown>)['page-creator'] as string | undefined;
+    const filePath = this.resolvePageFilePath(uuid, systemLocation || 'pages', pageCreator);
     await fs.ensureDir(path.dirname(filePath));
 
     const oldPageInfo = this.resolvePageInfo(pageName);

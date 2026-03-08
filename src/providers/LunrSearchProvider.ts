@@ -56,6 +56,10 @@ interface LunrDocument {
   keywords: string;
   lastModified: string;
   uuid: string;
+  /** True if this page has location === 'private' in the page index */
+  isPrivate?: boolean;
+  /** Username that created the page (only set when isPrivate === true) */
+  creator?: string;
 }
 
 /**
@@ -254,6 +258,11 @@ class LunrSearchProvider extends BaseSearchProvider {
     const tags = Array.isArray(tagsRaw) ? tagsRaw.join(' ') : toStr(tagsRaw);
     const content = toStr(pageData.content);
 
+    const isPrivate = pageData.isPrivate === true || metadata['system-location'] === 'private';
+    const creator = typeof pageData.creator === 'string' ? pageData.creator
+      : typeof metadata['page-creator'] === 'string' ? metadata['page-creator']
+        : undefined;
+
     return {
       id: pageName,
       title: toStr(metadata.title) || pageName,
@@ -264,7 +273,9 @@ class LunrSearchProvider extends BaseSearchProvider {
       tags,
       keywords: `${userKeywords} ${tags}`,
       lastModified: toStr(metadata.lastModified),
-      uuid: toStr(metadata.uuid)
+      uuid: toStr(metadata.uuid),
+      isPrivate: isPrivate || undefined,
+      creator: isPrivate ? creator : undefined
     };
   }
 
@@ -371,26 +382,43 @@ class LunrSearchProvider extends BaseSearchProvider {
       const maxResults = options.maxResults || this.config?.maxResults || 50;
       const results: LunrSearchResult[] = this.searchIndex.search(query);
 
-      const searchResults = results.slice(0, maxResults).map(result => {
-        const doc = this.documents[result.ref];
+      // Extract user context for private-page filtering
+      const wikiContext = options.wikiContext;
+      const userRoles = wikiContext?.userContext?.roles;
+      const username = wikiContext?.userContext?.username;
 
-        // Generate snippet
-        const snippet = this.generateSnippet(doc.content, query);
+      const searchResults = results
+        .map(result => {
+          const doc = this.documents[result.ref];
+          if (!doc) return null;
 
-        return {
-          name: result.ref,
-          title: doc.title,
-          score: result.score,
-          snippet: snippet,
-          metadata: {
-            wordCount: doc.content.split(/\s+/).length,
-            tags: doc.tags,
-            systemCategory: doc.systemCategory,
-            userKeywords: doc.userKeywords,
-            lastModified: doc.lastModified
+          // Filter out private pages the current user cannot access
+          if (doc.isPrivate) {
+            const isAdmin = Array.isArray(userRoles) && userRoles.includes('admin');
+            const isCreator = username !== undefined && username === doc.creator;
+            if (!isAdmin && !isCreator) return null;
           }
-        };
-      });
+
+          // Generate snippet
+          const snippet = this.generateSnippet(doc.content, query);
+
+          return {
+            name: result.ref,
+            title: doc.title,
+            score: result.score,
+            snippet: snippet,
+            metadata: {
+              wordCount: doc.content.split(/\s+/).length,
+              tags: doc.tags,
+              systemCategory: doc.systemCategory,
+              userKeywords: doc.userKeywords,
+              lastModified: doc.lastModified
+            }
+          };
+        })
+        .filter((r): r is NonNullable<typeof r> => r !== null)
+        .slice(0, maxResults);
+
       return Promise.resolve(searchResults);
     } catch (err) {
       logger.error('[LunrSearchProvider] Search failed:', err);

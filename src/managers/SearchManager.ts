@@ -26,6 +26,8 @@ interface SearchOptions {
   offset?: number;
   searchIn?: string[];
   boost?: Record<string, number>;
+  /** WikiContext for the current request — used to filter private search results */
+  wikiContext?: WikiContext;
   [key: string]: unknown;
 }
 
@@ -381,7 +383,8 @@ class SearchManager extends BaseManager {
     logger.info(`[SearchManager] Search query="${query}" user=${username} options=${JSON.stringify(options)}`);
 
     try {
-      const results = await this.provider.search(query, options);
+      // Pass wikiContext in options so the provider can filter private results
+      const results = await this.provider.search(query, { ...options, wikiContext });
       logger.info(`[SearchManager] Search completed query="${query}" user=${username} results=${results.length}`);
       return results;
     } catch (err) {

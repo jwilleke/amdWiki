@@ -29,8 +29,11 @@ interface PageIndexEntry {
    *  where the frontmatter uuid was set to the page title rather than a UUID. */
   filename?: string;
   currentVersion: number;
-  location: 'pages' | 'required-pages';
+  location: 'pages' | 'required-pages' | 'private';
+  /** Username that created the page; required when location === 'private' */
+  creator?: string;
   lastModified: string;
+  /** Username that last modified the page */
   editor: string;
   hasVersions: boolean;
 }
@@ -147,6 +150,7 @@ class VersioningFileProvider extends FileSystemProvider {
   /** Version directories (created during initialize) */
   private pagesVersionsDir: string | null;
   private requiredPagesVersionsDir: string | null;
+  private privateVersionsDir: string | null;
 
   /** In-memory page index cache */
   private pageIndex: PageIndex | null;
@@ -176,6 +180,7 @@ class VersioningFileProvider extends FileSystemProvider {
     // Version directories (created during initialize)
     this.pagesVersionsDir = null;
     this.requiredPagesVersionsDir = null;
+    this.privateVersionsDir = null;
 
     // In-memory page index cache
     this.pageIndex = null;
@@ -375,7 +380,13 @@ class VersioningFileProvider extends FileSystemProvider {
         continue;
       }
 
-      const filePath = path.join(baseDir, basename);
+      // Private pages are stored under pagesDirectory/private/{creator}/
+      let filePath: string;
+      if (entry.location === 'private' && entry.creator) {
+        filePath = path.join(baseDir, 'private', entry.creator, basename);
+      } else {
+        filePath = path.join(baseDir, basename);
+      }
       const title = entry.title;
 
       const pageInfo: PageCacheInfo = {
@@ -582,6 +593,10 @@ class VersioningFileProvider extends FileSystemProvider {
     this.requiredPagesVersionsDir = path.join(this.requiredPagesDirectory, 'versions');
     await fs.ensureDir(this.requiredPagesVersionsDir);
 
+    // Create private versions subdirectory (no creator in path — UUID is unique)
+    this.privateVersionsDir = path.join(this.pagesVersionsDir, 'private');
+    await fs.ensureDir(this.privateVersionsDir);
+
     // Create data directory for page index
     if (this.pageIndexPath) {
       const dataDir = path.dirname(this.pageIndexPath);
@@ -591,6 +606,7 @@ class VersioningFileProvider extends FileSystemProvider {
     logger.info('[VersioningFileProvider] Version directories created');
     logger.info(`[VersioningFileProvider]   - ${this.pagesVersionsDir}`);
     logger.info(`[VersioningFileProvider]   - ${this.requiredPagesVersionsDir}`);
+    logger.info(`[VersioningFileProvider]   - ${this.privateVersionsDir}`);
 
     return Promise.resolve();
   }
@@ -609,6 +625,7 @@ class VersioningFileProvider extends FileSystemProvider {
         const indexData = await fs.readFile(this.pageIndexPath, 'utf8');
         this.pageIndex = JSON.parse(indexData) as PageIndex;
         logger.info(`[VersioningFileProvider] Loaded page index: ${this.pageIndex?.pageCount} pages`);
+        await this.migratePageIndexEntries();
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         logger.error('[VersioningFileProvider] Failed to load page index, creating new:', errorMessage);
@@ -643,6 +660,29 @@ class VersioningFileProvider extends FileSystemProvider {
       pages: {}
     };
     return this.savePageIndex();
+  }
+
+  /**
+   * Migrate existing page index entries to add missing location and creator fields.
+   * Runs once on first boot after upgrade; subsequent boots are a no-op.
+   */
+  private async migratePageIndexEntries(): Promise<void> {
+    if (!this.pageIndex) return;
+    let migrated = 0;
+    for (const entry of Object.values(this.pageIndex.pages)) {
+      if (!entry.location) {
+        entry.location = 'pages';
+        migrated++;
+      }
+      if (!entry.creator) {
+        entry.creator = entry.location === 'required-pages' ? 'system' : 'jim';
+        migrated++;
+      }
+    }
+    if (migrated > 0) {
+      logger.info(`[VersioningFileProvider] Migrated ${migrated} index entries (added location/creator)`);
+      await this.savePageIndex();
+    }
   }
 
   /**
@@ -714,7 +754,7 @@ class VersioningFileProvider extends FileSystemProvider {
         const pagesPath = path.join(this.pagesDirectory, `${uuid}.md`);
         const requiredPath = path.join(this.requiredPagesDirectory, `${uuid}.md`);
 
-        let location: 'pages' | 'required-pages' = 'pages';
+        let location: 'pages' | 'required-pages' | 'private' = 'pages';
         let pagePath = pagesPath;
 
         if (await fs.pathExists(requiredPath)) {
@@ -783,7 +823,7 @@ class VersioningFileProvider extends FileSystemProvider {
           continue;
         }
         const requiredPath = path.join(this.requiredPagesDirectory, `${uuid}.md`);
-        const location: 'pages' | 'required-pages' = (await fs.pathExists(requiredPath)) ? 'required-pages' : 'pages';
+        const location: 'pages' | 'required-pages' | 'private' = (await fs.pathExists(requiredPath)) ? 'required-pages' : 'pages';
 
         // Load manifest
         const versionDir = this.getVersionDirectory(uuid, location);
@@ -883,7 +923,14 @@ class VersioningFileProvider extends FileSystemProvider {
    * @param location - 'pages' or 'required-pages'
    * @returns Version directory path
    */
-  private getVersionDirectory(uuid: string, location: 'pages' | 'required-pages' = 'pages'): string {
+  private getVersionDirectory(uuid: string, location: 'pages' | 'required-pages' | 'private' = 'pages'): string {
+    if (location === 'private') {
+      if (!this.privateVersionsDir) {
+        throw new Error('Version directories not initialized');
+      }
+      return path.join(this.privateVersionsDir, uuid);
+    }
+
     const baseDir = location === 'required-pages'
       ? this.requiredPagesVersionsDir
       : this.pagesVersionsDir;
@@ -905,7 +952,7 @@ class VersioningFileProvider extends FileSystemProvider {
    * @param location - 'pages' or 'required-pages'
    * @returns Manifest data or null if doesn't exist
    */
-  private loadManifest(uuid: string, location: 'pages' | 'required-pages'): Promise<InternalManifest | null> {
+  private loadManifest(uuid: string, location: 'pages' | 'required-pages' | 'private'): Promise<InternalManifest | null> {
     const versionDir = this.getVersionDirectory(uuid, location);
     const manifestPath = path.join(versionDir, 'manifest.json');
 
@@ -930,7 +977,7 @@ class VersioningFileProvider extends FileSystemProvider {
    * @param location - 'pages' or 'required-pages'
    * @param manifest - Manifest data
    */
-  private saveManifest(uuid: string, location: 'pages' | 'required-pages', manifest: InternalManifest): Promise<void> {
+  private saveManifest(uuid: string, location: 'pages' | 'required-pages' | 'private', manifest: InternalManifest): Promise<void> {
     const versionDir = this.getVersionDirectory(uuid, location);
     const manifestPath = path.join(versionDir, 'manifest.json');
 
@@ -1007,19 +1054,44 @@ class VersioningFileProvider extends FileSystemProvider {
     // Determine UUID (existing or new)
     const uuid = pageInfo?.uuid || metadata.uuid || uuidv4();
 
-    // Determine location based on system-category
+    // Determine location:
+    // 1. If metadata carries 'system-location' === 'private' (set by PageManager for private pages), use 'private'
+    // 2. Otherwise fall back to system-category → storageLocation mapping
     const metadataRecord = metadata as Record<string, unknown>;
-    const systemCategory = (metadataRecord['system-category'] || metadataRecord.systemCategory || 'General') as string;
-    const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
-    const systemCategoriesConfig = configManager?.getProperty('amdwiki.system-category', null) as Record<string, { label?: string; storageLocation?: string }> | null;
+    const systemLocation = metadataRecord['system-location'] as string | undefined;
+    const newCreator = (metadataRecord['page-creator'] as string | undefined) || metadata.author || 'anonymous';
 
-    let location: 'pages' | 'required-pages' = 'pages';
-    if (systemCategoriesConfig) {
-      for (const config of Object.values(systemCategoriesConfig)) {
-        if (config.label?.toLowerCase() === systemCategory.toLowerCase()) {
-          location = config.storageLocation === 'required' ? 'required-pages' : 'pages';
-          break;
+    let location: 'pages' | 'required-pages' | 'private' = 'pages';
+
+    if (systemLocation === 'private') {
+      location = 'private';
+    } else {
+      const systemCategory = (metadataRecord['system-category'] || metadataRecord.systemCategory || 'General') as string;
+      const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
+      const systemCategoriesConfig = configManager?.getProperty('amdwiki.system-category', null) as Record<string, { label?: string; storageLocation?: string }> | null;
+
+      if (systemCategoriesConfig) {
+        for (const config of Object.values(systemCategoriesConfig)) {
+          if (config.label?.toLowerCase() === systemCategory.toLowerCase()) {
+            location = config.storageLocation === 'required' ? 'required-pages' : 'pages';
+            break;
+          }
         }
+      }
+    }
+
+    // Detect location change (e.g. private → public or public → private) and move files
+    const currentEntry = this.pageIndex?.pages[uuid];
+    if (currentEntry && currentEntry.location !== location) {
+      const currentCreator = currentEntry.creator;
+      try {
+        await this.movePageFile(uuid, currentEntry.location, currentCreator, location, location === 'private' ? newCreator : undefined);
+        await this.moveVersionDirectory(uuid, currentEntry.location, location);
+        logger.info(`[VersioningFileProvider] Moved page '${pageName}' (${uuid}) from '${currentEntry.location}' to '${location}'`);
+      } catch (moveError) {
+        const errorMessage = moveError instanceof Error ? moveError.message : String(moveError);
+        logger.error(`[VersioningFileProvider] Failed to move page files for '${pageName}':`, errorMessage);
+        // Continue to save current content even if move fails
       }
     }
 
@@ -1037,10 +1109,13 @@ class VersioningFileProvider extends FileSystemProvider {
       // Continue with parent savePage even if versioning fails
     }
 
-    // Call parent to save current content
+    // Call parent to save current content (uses FileSystemProvider path logic)
     await super.savePage(pageName, content, { ...metadata, uuid });
 
     // Update page index — always store filename so fast init uses the correct path
+    const creator = location === 'private'
+      ? (newCreator || currentEntry?.creator || 'anonymous')
+      : currentEntry?.creator;
     await this.updatePageInIndex(uuid, {
       title: pageName,
       uuid: uuid,
@@ -1048,12 +1123,64 @@ class VersioningFileProvider extends FileSystemProvider {
       filename: `${uuid}.md`,
       currentVersion: await this.getCurrentVersion(uuid, location),
       location: location,
+      creator: creator,
       lastModified: new Date().toISOString(),
       editor: metadata.editor || metadata.author || 'unknown',
       hasVersions: true
     });
 
     logger.info(`[VersioningFileProvider] Saved page '${pageName}' with versioning`);
+  }
+
+  /**
+   * Move a page file from one location to another.
+   * Used when the page's privacy status changes (e.g. public → private or private → public).
+   */
+  private async movePageFile(
+    uuid: string,
+    fromLocation: 'pages' | 'required-pages' | 'private',
+    fromCreator: string | undefined,
+    toLocation: 'pages' | 'required-pages' | 'private',
+    toCreator: string | undefined
+  ): Promise<void> {
+    if (!this.pagesDirectory) return;
+
+    const fromPath = fromLocation === 'private' && fromCreator
+      ? path.join(this.pagesDirectory, 'private', fromCreator, `${uuid}.md`)
+      : path.join(this.pagesDirectory, `${uuid}.md`);
+
+    const toPath = toLocation === 'private' && toCreator
+      ? path.join(this.pagesDirectory, 'private', toCreator, `${uuid}.md`)
+      : path.join(this.pagesDirectory, `${uuid}.md`);
+
+    if (fromPath === toPath) return;
+
+    if (await fs.pathExists(fromPath)) {
+      await fs.ensureDir(path.dirname(toPath));
+      await fs.move(fromPath, toPath, { overwrite: true });
+      logger.info(`[VersioningFileProvider] Moved page file: ${fromPath} → ${toPath}`);
+    }
+  }
+
+  /**
+   * Move a version directory from one location to another.
+   * Used when the page's privacy status changes.
+   */
+  private async moveVersionDirectory(
+    uuid: string,
+    fromLocation: 'pages' | 'required-pages' | 'private',
+    toLocation: 'pages' | 'required-pages' | 'private'
+  ): Promise<void> {
+    const fromDir = this.getVersionDirectory(uuid, fromLocation);
+    const toDir = this.getVersionDirectory(uuid, toLocation);
+
+    if (fromDir === toDir) return;
+
+    if (await fs.pathExists(fromDir)) {
+      await fs.ensureDir(path.dirname(toDir));
+      await fs.move(fromDir, toDir, { overwrite: true });
+      logger.info(`[VersioningFileProvider] Moved version directory: ${fromDir} → ${toDir}`);
+    }
   }
 
   /**
@@ -1070,7 +1197,10 @@ class VersioningFileProvider extends FileSystemProvider {
     }
 
     const uuid = pageData.uuid;
-    const location: 'pages' | 'required-pages' = pageData.metadata?.['system-category']?.toLowerCase() === 'system' ? 'required-pages' : 'pages';
+    // Use page index entry for accurate location (handles 'private' pages too)
+    const location: 'pages' | 'required-pages' | 'private' =
+      this.pageIndex?.pages[uuid]?.location ||
+      (pageData.metadata?.['system-category']?.toLowerCase() === 'system' ? 'required-pages' : 'pages');
 
     try {
       // Call parent to delete main file and clear caches
@@ -1112,7 +1242,7 @@ class VersioningFileProvider extends FileSystemProvider {
     pageName: string,
     content: string,
     metadata: Partial<PageFrontmatter>,
-    location: 'pages' | 'required-pages'
+    location: 'pages' | 'required-pages' | 'private'
   ): Promise<void> {
     const versionDir = this.getVersionDirectory(uuid, location);
     const v1Dir = path.join(versionDir, 'v1');
@@ -1156,7 +1286,7 @@ class VersioningFileProvider extends FileSystemProvider {
     pageName: string,
     newContent: string,
     metadata: Partial<PageFrontmatter>,
-    location: 'pages' | 'required-pages',
+    location: 'pages' | 'required-pages' | 'private',
     _pageInfo: WikiPage
   ): Promise<void> {
     // Load manifest
@@ -1253,7 +1383,7 @@ class VersioningFileProvider extends FileSystemProvider {
    * @param location - 'pages' or 'required-pages'
    * @returns Current version number (0 if no versions)
    */
-  private getCurrentVersion(uuid: string, location: 'pages' | 'required-pages'): Promise<number> {
+  private getCurrentVersion(uuid: string, location: 'pages' | 'required-pages' | 'private'): Promise<number> {
     return this.loadManifest(uuid, location).then(manifest => manifest ? manifest.currentVersion : 0);
   }
 
@@ -1267,7 +1397,7 @@ class VersioningFileProvider extends FileSystemProvider {
    * @param targetVersion - Version to reconstruct
    * @returns Reconstructed content
    */
-  private async reconstructVersion(uuid: string, location: 'pages' | 'required-pages', targetVersion: number): Promise<string> {
+  private async reconstructVersion(uuid: string, location: 'pages' | 'required-pages' | 'private', targetVersion: number): Promise<string> {
     // Check cache first
     const cacheKey = `${uuid}:${targetVersion}`;
     if (this.versionCache.has(cacheKey)) {
@@ -1359,7 +1489,7 @@ class VersioningFileProvider extends FileSystemProvider {
    * @param identifier - Page UUID or title
    * @returns UUID and location, or null if not found
    */
-  private resolveIdentifier(identifier: string): Promise<{ uuid: string; location: 'pages' | 'required-pages' } | null> {
+  private resolveIdentifier(identifier: string): Promise<{ uuid: string; location: 'pages' | 'required-pages' | 'private' } | null> {
     // Check if identifier is already a UUID (in page index)
     if (this.pageIndex && this.pageIndex.pages[identifier]) {
       return Promise.resolve({
