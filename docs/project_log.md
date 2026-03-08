@@ -24,6 +24,24 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-08-07
+
+- Agent: Claude Sonnet 4.6
+- Subject: Media item prev/next navigation, dark metadata panel, GPS map link (#273)
+- Current Issue: #273
+- Work Done:
+  - Added prev/next navigation arrows below image on `/media/item/:id` — navigates within same year, sorted by filename
+  - `mediaItemDetail` route fetches year's item list and passes `prevItem`/`nextItem` to template
+  - Metadata Details card restyled: `bg-dark text-white`, `text-white-50` labels, `text-info` links
+  - GPS coordinates now render as a clickable OpenStreetMap link (matching LocationPlugin output) instead of plain text
+  - Fixed AttachmentsPlugin/MediaPlugin "not found" on startup — missing `npm run build` after last commit
+- Commits: 2211997
+- Files Modified:
+  - src/routes/WikiRoutes.ts
+  - views/media-item.ejs
+
+---
+
 ## 2026-03-08-06
 
 - Agent: Claude Sonnet 4.6
