@@ -24,6 +24,37 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-08-04
+
+- Agent: Claude Sonnet 4.6
+- Subject: Implement MediaManager Phase 4 — real filesystem scan, EXIF, thumbnails (#273)
+- Key Decision: exiftool-vendored for EXIF/IPTC/XMP; SHA-256(filePath) for stable IDs; Sharp for thumbnail generation; incremental scan via mtime change detection; video thumbnails deferred (need ffmpeg); 5 new EJS views
+- Current Issue: #273
+- Testing:
+  - npm test: 9 skipped suites, 72 passed, 1853 tests passed
+  - E2E: 47 passed
+- Work Done:
+  - Install exiftool-vendored
+  - BaseMediaProvider: add initialize() lifecycle hook; add abstract getYears()
+  - FileSystemMediaProvider: full implementation — recursive dir walk, ignoreDirs/ignoreFiles, EXIF extraction, year/eventName parsing, in-memory + persistent JSON index, keyword search, Sharp thumbnails with disk cache
+  - MediaManager: call provider.initialize() on startup; add getYears()
+  - WikiRoutes: mediaHome uses real year list; adminMedia passes years to view
+  - NEW views: media-home, media-year, media-item, media-search, admin-media
+  - docs/planning/plan-media-manager.md
+- Commits: 91d4319
+- Files Modified:
+  - src/providers/FileSystemMediaProvider.ts
+  - src/providers/BaseMediaProvider.ts
+  - src/managers/MediaManager.ts
+  - src/routes/WikiRoutes.ts
+  - views/media-home.ejs (NEW)
+  - views/media-year.ejs (NEW)
+  - views/media-item.ejs (NEW)
+  - views/media-search.ejs (NEW)
+  - views/admin-media.ejs (NEW)
+  - docs/planning/plan-media-manager.md (NEW)
+  - package.json / package-lock.json
+
 ## 2026-03-08-03
 
 - Agent: Claude Sonnet 4.6
