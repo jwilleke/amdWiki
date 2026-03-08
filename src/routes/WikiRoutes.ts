@@ -2478,6 +2478,27 @@ class WikiRoutes {
       const { attachmentId } = req.params;
       const attachmentManager = this.engine.getManager('AttachmentManager');
 
+      // 🔒 PRIVACY: Check if this attachment belongs to a private page before serving
+      const meta = await attachmentManager.getAttachmentMetadata(attachmentId);
+      if (meta?.isPrivate) {
+        // Determine linked page name from mentions (first mention) or pageName field
+        const linkedPageName: string =
+          (Array.isArray(meta.mentions) && meta.mentions.length > 0
+            ? (meta.mentions[0] as { name?: string }).name
+            : undefined) ??
+          (meta.pageName as string | undefined) ??
+          '';
+        const wikiContext = this.createWikiContext(req, { pageName: linkedPageName });
+        const canAccess = await this.checkPrivatePageAccess(wikiContext, linkedPageName);
+        if (!canAccess) {
+          return res.status(403).render('error', {
+            code: 403,
+            message: 'You do not have permission to access this attachment',
+            currentUser: req.userContext
+          });
+        }
+      }
+
       // Get attachment with buffer and metadata
       const result = await attachmentManager.getAttachment(attachmentId);
       if (!result) {

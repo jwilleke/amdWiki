@@ -2,6 +2,7 @@ import BaseManager, { BackupData } from './BaseManager';
 import logger from '../utils/logger';
 import type { WikiEngine } from '../types/WikiEngine';
 import type ConfigurationManager from './ConfigurationManager';
+import type PageManager from './PageManager';
 
 /**
  * Base attachment provider interface
@@ -40,6 +41,8 @@ export interface UploadOptions {
   pageName?: string;
   description?: string;
   context?: UserContext;
+  /** WikiContext for the current request — used to resolve page privacy */
+  wikiContext?: import('../context/WikiContext').default;
 }
 
 /**
@@ -266,10 +269,31 @@ class AttachmentManager extends BaseManager {
       }
       : null;
 
-    // Create metadata
-    const metadata: AttachmentMetadataInput = {
+    // Resolve page privacy from the linked page's index entry
+    const pageName = options.pageName;
+    let isPrivatePage = false;
+    let pageCreator: string | undefined;
+    if (pageName) {
+      try {
+        const pageManager = this.engine.getManager<PageManager>('PageManager');
+        const page = pageManager ? await pageManager.getPage(pageName) : null;
+        // page metadata is dynamic
+        const indexEntry = page?.metadata?.['index-entry'] as { location?: string; creator?: string } | undefined;
+        if (indexEntry?.location === 'private') {
+          isPrivatePage = true;
+          pageCreator = indexEntry.creator;
+        }
+      } catch (err) {
+        logger.warn(`📎 Could not resolve page privacy for "${pageName}": ${String(err)}`);
+      }
+    }
+
+    // Create metadata (include privacy flags for provider)
+    const metadata: AttachmentMetadataInput & { isPrivatePage?: boolean; pageCreator?: string } = {
       description: options.description || '',
-      isFamilyFriendly: true
+      isFamilyFriendly: true,
+      isPrivatePage,
+      pageCreator
     };
 
     // Store attachment via provider
@@ -280,7 +304,7 @@ class AttachmentManager extends BaseManager {
       await this.attachToPage(attachmentMetadata.identifier, options.pageName);
     }
 
-    logger.info(`📎 Uploaded attachment: ${fileInfo.originalName} (${attachmentMetadata.identifier})`);
+    logger.info(`📎 Uploaded attachment: ${fileInfo.originalName} (${attachmentMetadata.identifier})${isPrivatePage ? ` [private page: ${pageName ?? ''}, creator: ${pageCreator ?? 'unknown'}]` : ''}`);
     return attachmentMetadata;
   }
 

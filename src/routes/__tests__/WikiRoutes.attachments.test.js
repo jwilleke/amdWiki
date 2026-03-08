@@ -5,6 +5,7 @@ const WikiRoutes = require('../WikiRoutes');
 const mockAttachmentManager = {
   uploadAttachment: jest.fn(),
   getAttachment: jest.fn(),
+  getAttachmentMetadata: jest.fn().mockResolvedValue(null), // null = not private
   deleteAttachment: jest.fn(),
   getAttachmentPath: jest.fn()
 };

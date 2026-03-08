@@ -45,6 +45,20 @@ interface SchemaCreativeWork {
   isFamilyFriendly?: boolean;
   isBasedOn?: string;
   mentions: SchemaMention[];
+  /** Whether this attachment belongs to a private page */
+  isPrivate?: boolean;
+  /** Username of the page creator; set when isPrivate is true */
+  creator?: string;
+}
+
+/**
+ * Options passed to storeAttachmentInternal for privacy-aware storage
+ */
+interface StoreAttachmentOptions {
+  /** Whether the linked page is private */
+  isPrivatePage?: boolean;
+  /** Username of the private page creator */
+  pageCreator?: string;
 }
 
 /**
@@ -123,6 +137,7 @@ const EXTENSION_MIME_MAP: Record<string, string> = {
  */
 class BasicAttachmentProvider extends BaseAttachmentProvider {
   private storageDirectory: string | null;
+  private privateStorageDir: string | null;
   private metadataFile: string | null;
   private attachmentMetadata: Map<string, SchemaCreativeWork>;
   private maxFileSize: number;
@@ -132,6 +147,7 @@ class BasicAttachmentProvider extends BaseAttachmentProvider {
   constructor(engine: WikiEngine) {
     super(engine);
     this.storageDirectory = null;
+    this.privateStorageDir = null;
     this.metadataFile = null;
     this.attachmentMetadata = new Map();
     this.maxFileSize = 10 * 1024 * 1024; // 10MB default
@@ -183,6 +199,9 @@ class BasicAttachmentProvider extends BaseAttachmentProvider {
       'amdwiki.attachment.provider.basic.hashmethod',
       'sha256'
     ) as string;
+
+    // Derive private storage subdirectory
+    this.privateStorageDir = path.join(this.storageDirectory, 'private');
 
     // Ensure directories exist
     await fs.ensureDir(this.storageDirectory);
@@ -330,6 +349,7 @@ class BasicAttachmentProvider extends BaseAttachmentProvider {
    * @param fileInfo - { originalName, mimeType, size }
    * @param metadata - Schema.org CreativeWork metadata
    * @param user - User object { name, email }
+   * @param options - Privacy-aware storage options
    * @returns Complete attachment metadata
    * @private
    */
@@ -337,7 +357,8 @@ class BasicAttachmentProvider extends BaseAttachmentProvider {
     fileBuffer: Buffer,
     fileInfo: FileInfo,
     metadata: Partial<SchemaCreativeWork> = {},
-    user: User | null = null
+    user: User | null = null,
+    options: StoreAttachmentOptions = {}
   ): Promise<SchemaCreativeWork> {
     // Validate file
     this.validateFile(fileInfo);
@@ -356,10 +377,21 @@ class BasicAttachmentProvider extends BaseAttachmentProvider {
       throw new Error('Storage directory not initialized');
     }
 
+    // Determine target directory: private pages get per-creator subdirectory
+    const isPrivatePage = options.isPrivatePage ?? false;
+    const pageCreator = options.pageCreator;
+    const targetDir =
+      isPrivatePage && pageCreator && this.privateStorageDir
+        ? path.join(this.privateStorageDir, pageCreator)
+        : this.storageDirectory;
+
+    // Ensure target directory exists (private dir may not yet exist)
+    await fs.ensureDir(targetDir);
+
     // Determine file extension from original name
     const ext = path.extname(fileInfo.originalName) || '';
     const fileName = `${attachmentId}${ext}`;
-    const filePath = path.join(this.storageDirectory, fileName);
+    const filePath = path.join(targetDir, fileName);
 
     // Write file to storage
     await fs.writeFile(filePath, fileBuffer);
@@ -388,14 +420,16 @@ class BasicAttachmentProvider extends BaseAttachmentProvider {
       'storageLocation': filePath,
       'isFamilyFriendly': metadata.isFamilyFriendly !== undefined ? metadata.isFamilyFriendly : true,
       'isBasedOn': metadata.isBasedOn,
-      'mentions': [] // Array of pages using this attachment
+      'mentions': [], // Array of pages using this attachment
+      'isPrivate': isPrivatePage,
+      'creator': isPrivatePage && pageCreator ? pageCreator : undefined
     };
 
     // Store metadata
     this.attachmentMetadata.set(attachmentId, attachmentMetadata);
     await this.saveMetadata();
 
-    logger.info(`[BasicAttachmentProvider] Stored attachment: ${fileInfo.originalName} (${attachmentId})`);
+    logger.info(`[BasicAttachmentProvider] Stored attachment: ${fileInfo.originalName} (${attachmentId})${isPrivatePage ? ` [private, creator: ${pageCreator ?? 'unknown'}]` : ''}`);
     return attachmentMetadata;
   }
 
@@ -413,7 +447,19 @@ class BasicAttachmentProvider extends BaseAttachmentProvider {
     metadata: Partial<AttachmentMetadata> = {},
     user: User | null = null
   ): Promise<AttachmentMetadata> {
-    const schemaMetadata = await this.storeAttachmentInternal(fileBuffer, fileInfo, metadata as Partial<SchemaCreativeWork>, user);
+    // Extract privacy options from metadata (passed by AttachmentManager)
+    const storeOptions: StoreAttachmentOptions = {
+      isPrivatePage: metadata.isPrivatePage as boolean | undefined,
+      pageCreator: metadata.pageCreator as string | undefined
+    };
+
+    const schemaMetadata = await this.storeAttachmentInternal(
+      fileBuffer,
+      fileInfo,
+      metadata as Partial<SchemaCreativeWork>,
+      user,
+      storeOptions
+    );
 
     // Convert Schema.org format to AttachmentMetadata
     const attachmentMetadata: AttachmentMetadata = {
@@ -430,7 +476,9 @@ class BasicAttachmentProvider extends BaseAttachmentProvider {
       uploadedAt: schemaMetadata.dateCreated,
       uploadedBy: schemaMetadata.author?.name || 'Unknown',
       filePath: schemaMetadata.storageLocation,
-      description: schemaMetadata.description
+      description: schemaMetadata.description,
+      isPrivate: schemaMetadata.isPrivate,
+      creator: schemaMetadata.creator
     };
 
     // Add page mention if pageUuid is provided
@@ -630,7 +678,10 @@ class BasicAttachmentProvider extends BaseAttachmentProvider {
       uploadedAt: schemaMetadata.dateCreated,
       uploadedBy: schemaMetadata.author?.name || 'Unknown',
       filePath: schemaMetadata.storageLocation,
-      description: schemaMetadata.description
+      description: schemaMetadata.description,
+      isPrivate: schemaMetadata.isPrivate,
+      creator: schemaMetadata.creator,
+      mentions: schemaMetadata.mentions
     };
 
     return Promise.resolve(attachmentMetadata);
