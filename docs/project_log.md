@@ -24,6 +24,24 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-08-06
+
+- Agent: Claude Sonnet 4.6
+- Subject: AttachmentsPlugin, MediaPlugin, EXIF Orientation thumbnail fix (#273, #238)
+- Key Decision: Sharp's `.rotate()` (no-arg) auto-corrects all 8 EXIF Orientation values including mirroring; orientation included in thumbnail cache key to bypass stale incorrectly-rotated cached files; new plugins use pluginFormatters.ts for consistent count/list/max output
+- Current Issue: #273, #238
+- Testing:
+  - npm test: 9 skipped suites, 72 passed, 1853 tests passed
+- Work Done:
+  - plugins/AttachmentsPlugin.ts: [{AttachmentsPlugin}] count and format='list' with max= support
+  - plugins/MediaPlugin.ts: [{MediaPlugin}] count, format='list', year= filter, max= support
+  - FileSystemMediaProvider: store EXIF Orientation in metadata; add Sharp .rotate() before resize; include orientation in thumbnail cache key (${id}-${size}-o${orientation}.jpg)
+- Commits: 5f7f9d6
+- Files Modified:
+  - plugins/AttachmentsPlugin.ts (new)
+  - plugins/MediaPlugin.ts (new)
+  - src/providers/FileSystemMediaProvider.ts
+
 ## 2026-03-08-05
 
 - Agent: Claude Sonnet 4.6
