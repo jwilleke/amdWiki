@@ -21,6 +21,7 @@ import PolicyEvaluator from './managers/PolicyEvaluator';
 import ExportManager from './managers/ExportManager';
 import TemplateManager from './managers/TemplateManager';
 import AttachmentManager from './managers/AttachmentManager';
+import MediaManager from './managers/MediaManager';
 import BackupManager from './managers/BackupManager';
 import CacheManager from './managers/CacheManager';
 import AuditManager from './managers/AuditManager';
@@ -253,6 +254,14 @@ class WikiEngine extends Engine {
     const attachmentManager = new AttachmentManager(this);
     this.registerManager('AttachmentManager', attachmentManager);
     await attachmentManager.initialize();
+
+    // Conditionally register MediaManager when amdwiki.media.enabled is true
+    const mediaEnabled = configManager.getProperty('amdwiki.media.enabled', false) as boolean;
+    if (mediaEnabled) {
+      const mediaManager = new MediaManager(this);
+      this.registerManager('MediaManager', mediaManager);
+      await mediaManager.initialize();
+    }
 
     // Add AuditManager for audit trail logging
     const auditManager = new AuditManager(this);

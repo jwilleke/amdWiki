@@ -6081,6 +6081,17 @@ class WikiRoutes {
     app.get('/schema/organization/:identifier', (req: Request, res: Response) =>
       this.adminGetOrganizationSchema(req, res)
     );
+
+    // Media routes (Phase 3 stub)
+    app.get('/media', (req: Request, res: Response) => void this.mediaHome(req, res));
+    app.get('/media/year/:year', (req: Request, res: Response) => void this.mediaByYear(req, res));
+    app.get('/media/item/:id', (req: Request, res: Response) => void this.mediaItemDetail(req, res));
+    app.get('/media/search', (req: Request, res: Response) => void this.mediaSearch(req, res));
+    app.get('/media/api/item/:id', (req: Request, res: Response) => void this.mediaApiItem(req, res));
+    app.get('/media/api/year/:year', (req: Request, res: Response) => void this.mediaApiYear(req, res));
+    app.get('/media/thumb/:id', (req: Request, res: Response) => void this.mediaThumb(req, res));
+    app.get('/admin/media', (req: Request, res: Response) => void this.adminMedia(req, res));
+    app.post('/admin/media/rescan', (req: Request, res: Response) => void this.adminMediaRescan(req, res));
   }
 
   /**
@@ -7869,6 +7880,241 @@ ${description}
     } catch (err: unknown) {
       logger.error('Error consolidating keywords:', err);
       res.status(500).json({ error: 'Failed to consolidate keywords' });
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Media routes (Phase 3 stub — MediaManager not yet doing real scanning)
+  // ---------------------------------------------------------------------------
+
+  /**
+   * GET /media
+   * Media home page — groups items by year.
+   * Stub: returns a "not yet available" page when MediaManager is not registered.
+   */
+  async mediaHome(req: Request, res: Response) {
+    const mediaManager = this.engine.getManager('MediaManager');
+    if (!mediaManager) {
+      return res.status(503).send('Media manager not enabled');
+    }
+    try {
+      const wikiContext = this.createWikiContext(req, { context: WikiContext.CONTEXT.VIEW });
+      const commonData = await this.getCommonTemplateData(req);
+      return res.render('media-home', {
+        ...commonData,
+        wikiContext,
+        years: [] as number[],
+        title: 'Media Browser'
+      });
+    } catch (err: unknown) {
+      logger.error('[media] Error rendering media home:', err);
+      return res.status(500).send('Internal server error');
+    }
+  }
+
+  /**
+   * GET /media/year/:year
+   * Items for a given year.
+   * Stub: returns empty list.
+   */
+  async mediaByYear(req: Request, res: Response) {
+    const mediaManager = this.engine.getManager('MediaManager');
+    if (!mediaManager) {
+      return res.status(503).send('Media manager not enabled');
+    }
+    try {
+      const year = parseInt(req.params.year, 10);
+      if (isNaN(year)) {
+        return res.status(400).send('Invalid year');
+      }
+      const wikiContext = this.createWikiContext(req, { context: WikiContext.CONTEXT.VIEW });
+      const items = await mediaManager.listByYear(year, wikiContext);
+      const commonData = await this.getCommonTemplateData(req);
+      return res.render('media-year', {
+        ...commonData,
+        wikiContext,
+        year,
+        items,
+        title: `Media — ${year}`
+      });
+    } catch (err: unknown) {
+      logger.error('[media] Error rendering media year:', err);
+      return res.status(500).send('Internal server error');
+    }
+  }
+
+  /**
+   * GET /media/item/:id
+   * Item detail page.
+   * Stub: returns 404 when item is not found.
+   */
+  async mediaItemDetail(req: Request, res: Response) {
+    const mediaManager = this.engine.getManager('MediaManager');
+    if (!mediaManager) {
+      return res.status(503).send('Media manager not enabled');
+    }
+    try {
+      const wikiContext = this.createWikiContext(req, { context: WikiContext.CONTEXT.VIEW });
+      const item = await mediaManager.getItem(req.params.id, wikiContext);
+      if (!item) {
+        return res.status(404).send('Media item not found');
+      }
+      const commonData = await this.getCommonTemplateData(req);
+      return res.render('media-item', {
+        ...commonData,
+        wikiContext,
+        item,
+        title: `Media — ${item.filename}`
+      });
+    } catch (err: unknown) {
+      logger.error('[media] Error rendering media item:', err);
+      return res.status(500).send('Internal server error');
+    }
+  }
+
+  /**
+   * GET /media/search
+   * Search results.
+   * Stub: returns empty results.
+   */
+  async mediaSearch(req: Request, res: Response) {
+    const mediaManager = this.engine.getManager('MediaManager');
+    if (!mediaManager) {
+      return res.status(503).send('Media manager not enabled');
+    }
+    try {
+      const query = (req.query.q as string) || '';
+      const wikiContext = this.createWikiContext(req, { context: WikiContext.CONTEXT.VIEW });
+      const items = query ? await mediaManager.search(query, wikiContext) : [];
+      const commonData = await this.getCommonTemplateData(req);
+      return res.render('media-search', {
+        ...commonData,
+        wikiContext,
+        query,
+        items,
+        title: 'Media Search'
+      });
+    } catch (err: unknown) {
+      logger.error('[media] Error rendering media search:', err);
+      return res.status(500).send('Internal server error');
+    }
+  }
+
+  /**
+   * GET /media/api/item/:id
+   * JSON metadata for a single item.
+   */
+  async mediaApiItem(req: Request, res: Response) {
+    const mediaManager = this.engine.getManager('MediaManager');
+    if (!mediaManager) {
+      return res.status(503).json({ error: 'Media manager not enabled' });
+    }
+    try {
+      const wikiContext = this.createWikiContext(req, { context: WikiContext.CONTEXT.VIEW });
+      const item = await mediaManager.getItem(req.params.id, wikiContext);
+      if (!item) {
+        return res.status(404).json({ error: 'Not found' });
+      }
+      return res.json(item);
+    } catch (err: unknown) {
+      logger.error('[media] Error fetching media item API:', err);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
+  /**
+   * GET /media/api/year/:year
+   * JSON item list for a year.
+   */
+  async mediaApiYear(req: Request, res: Response) {
+    const mediaManager = this.engine.getManager('MediaManager');
+    if (!mediaManager) {
+      return res.status(503).json({ error: 'Media manager not enabled' });
+    }
+    try {
+      const year = parseInt(req.params.year, 10);
+      if (isNaN(year)) {
+        return res.status(400).json({ error: 'Invalid year' });
+      }
+      const wikiContext = this.createWikiContext(req, { context: WikiContext.CONTEXT.VIEW });
+      const items = await mediaManager.listByYear(year, wikiContext);
+      return res.json({ year, items });
+    } catch (err: unknown) {
+      logger.error('[media] Error fetching media year API:', err);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
+  /**
+   * GET /media/thumb/:id
+   * Lazy-generated thumbnail.
+   * Stub: returns 404 (no thumbnails generated yet).
+   * Query param: size (e.g. "300x300")
+   */
+  async mediaThumb(req: Request, res: Response) {
+    const mediaManager = this.engine.getManager('MediaManager');
+    if (!mediaManager) {
+      return res.status(503).send('Media manager not enabled');
+    }
+    try {
+      const size = (req.query.size as string) || '300x300';
+      const buffer = await mediaManager.getThumbnailBuffer(req.params.id, size);
+      if (!buffer) {
+        return res.status(404).send('Thumbnail not available');
+      }
+      res.set('Content-Type', 'image/jpeg');
+      res.set('Cache-Control', 'public, max-age=86400');
+      return res.send(buffer);
+    } catch (err: unknown) {
+      logger.error('[media] Error serving thumbnail:', err);
+      return res.status(500).send('Internal server error');
+    }
+  }
+
+  /**
+   * GET /admin/media
+   * Admin scan status and index statistics.
+   */
+  async adminMedia(req: Request, res: Response) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = req.userContext;
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:system'))) {
+        return res.status(403).send('Access denied');
+      }
+      const mediaManager = this.engine.getManager('MediaManager');
+      const commonData = await this.getCommonTemplateData(req);
+      return res.render('admin-media', {
+        ...commonData,
+        mediaEnabled: !!mediaManager,
+        title: 'Admin — Media'
+      });
+    } catch (err: unknown) {
+      logger.error('[media] Error rendering admin media page:', err);
+      return res.status(500).send('Internal server error');
+    }
+  }
+
+  /**
+   * POST /admin/media/rescan
+   * Trigger a full media rescan.
+   */
+  async adminMediaRescan(req: Request, res: Response) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = req.userContext;
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:system'))) {
+        return res.status(403).json({ error: 'Access denied' });
+      }
+      const mediaManager = this.engine.getManager('MediaManager');
+      if (!mediaManager) {
+        return res.status(503).json({ error: 'Media manager not enabled' });
+      }
+      const result = await mediaManager.scanFolders(true);
+      return res.json({ success: true, result });
+    } catch (err: unknown) {
+      logger.error('[media] Error triggering rescan:', err);
+      return res.status(500).json({ error: 'Internal server error' });
     }
   }
 }
