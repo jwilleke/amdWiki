@@ -274,7 +274,10 @@ class FileSystemMediaProvider extends BaseMediaProvider {
     // Video thumbnails not supported yet
     if (!item.mimeType.startsWith('image/')) return null;
 
-    const thumbPath = path.join(this.config.thumbnailDir, `${id}-${size}.jpg`);
+    // Include orientation in cache key so that if a file is rescanned with a
+    // different orientation the old thumbnail is automatically bypassed.
+    const orientation = typeof item.metadata?.orientation === 'number' ? item.metadata.orientation : 1;
+    const thumbPath = path.join(this.config.thumbnailDir, `${id}-${size}-o${orientation}.jpg`);
 
     // Return cached thumbnail if it exists
     if (await fs.pathExists(thumbPath)) {
@@ -288,6 +291,7 @@ class FileSystemMediaProvider extends BaseMediaProvider {
 
     try {
       const buffer = await sharp(item.filePath)
+        .rotate()                          // auto-rotate using EXIF Orientation (handles mirroring too)
         .resize(w, h, { fit: 'cover' })
         .jpeg({ quality: 85 })
         .toBuffer();
@@ -381,6 +385,9 @@ class FileSystemMediaProvider extends BaseMediaProvider {
       const ext = path.extname(filePath).slice(1).toLowerCase();
       const mimeType = MIME_MAP[ext] ?? 'application/octet-stream';
 
+      const rawTags = tags as Record<string, unknown>;
+      const orientation = typeof rawTags.Orientation === 'number' ? rawTags.Orientation : 1;
+
       const entry: MediaIndexEntry = {
         id,
         filePath,
@@ -391,16 +398,14 @@ class FileSystemMediaProvider extends BaseMediaProvider {
         eventName,
         mtime: stat.mtimeMs,
         metadata: {
-          title: (tags as Record<string, unknown>).Title ?? null,
-          description:
-            (tags as Record<string, unknown>).Description ??
-            (tags as Record<string, unknown>).ImageDescription ??
-            null,
-          keywords: (tags as Record<string, unknown>).Keywords ?? null,
-          make: (tags as Record<string, unknown>).Make ?? null,
-          model: (tags as Record<string, unknown>).Model ?? null,
-          gpsLatitude: (tags as Record<string, unknown>).GPSLatitude ?? null,
-          gpsLongitude: (tags as Record<string, unknown>).GPSLongitude ?? null
+          title: rawTags.Title ?? null,
+          description: rawTags.Description ?? rawTags.ImageDescription ?? null,
+          keywords: rawTags.Keywords ?? null,
+          make: rawTags.Make ?? null,
+          model: rawTags.Model ?? null,
+          gpsLatitude: rawTags.GPSLatitude ?? null,
+          gpsLongitude: rawTags.GPSLongitude ?? null,
+          orientation
         }
       };
 
