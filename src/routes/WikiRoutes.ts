@@ -7899,11 +7899,12 @@ ${description}
     }
     try {
       const wikiContext = this.createWikiContext(req, { context: WikiContext.CONTEXT.VIEW });
+      const years = (await mediaManager.getYears(wikiContext)) as number[];
       const commonData = await this.getCommonTemplateData(req);
       return res.render('media-home', {
         ...commonData,
         wikiContext,
-        years: [] as number[],
+        years,
         title: 'Media Browser'
       });
     } catch (err: unknown) {
@@ -8083,10 +8084,12 @@ ${description}
         return res.status(403).send('Access denied');
       }
       const mediaManager = this.engine.getManager('MediaManager');
+      const years = mediaManager ? ((await mediaManager.getYears()) as number[]) : [];
       const commonData = await this.getCommonTemplateData(req);
       return res.render('admin-media', {
         ...commonData,
         mediaEnabled: !!mediaManager,
+        years,
         title: 'Admin — Media'
       });
     } catch (err: unknown) {

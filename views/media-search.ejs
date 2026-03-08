@@ -1,0 +1,80 @@
+<%- include('header', { pageName: 'Media Search' }) %>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-search"></i> Media Search</h1>
+                <a href="/media" class="btn btn-sm" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);">
+                    <i class="fas fa-arrow-left"></i> Browse
+                </a>
+            </div>
+
+            <!-- Search form -->
+            <form action="/media/search" method="GET" class="mb-4">
+                <div class="input-group">
+                    <input
+                        type="text"
+                        class="form-control form-control-lg"
+                        name="q"
+                        value="<%= query %>"
+                        placeholder="Search by filename, event, year, title, description, keywords…"
+                        autofocus
+                    >
+                    <button class="btn" type="submit" style="background-color: var(--btn-primary-bg); color: var(--btn-primary-text); border-color: var(--btn-primary-border);">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                </div>
+            </form>
+
+            <% if (query) { %>
+                <p class="text-muted mb-3">
+                    <% if (items && items.length > 0) { %>
+                        <%= items.length %> result<%= items.length !== 1 ? 's' : '' %> for <strong><%= query %></strong>
+                    <% } else { %>
+                        No results for <strong><%= query %></strong>
+                    <% } %>
+                </p>
+            <% } %>
+
+            <% if (items && items.length > 0) { %>
+                <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 g-2">
+                    <% items.forEach(function(item) { %>
+                        <div class="col">
+                            <a href="/media/item/<%= item.id %>" class="text-decoration-none">
+                                <div class="card h-100">
+                                    <% if (item.mimeType && item.mimeType.startsWith('image/')) { %>
+                                        <img
+                                            src="/media/thumb/<%= item.id %>?size=300x300"
+                                            class="card-img-top"
+                                            alt="<%= item.filename %>"
+                                            style="object-fit:cover; height:140px;"
+                                            loading="lazy"
+                                            onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
+                                        >
+                                        <div class="d-none align-items-center justify-content-center bg-light" style="height:140px;">
+                                            <i class="fas fa-image fa-3x text-muted"></i>
+                                        </div>
+                                    <% } else { %>
+                                        <div class="d-flex align-items-center justify-content-center bg-light" style="height:140px;">
+                                            <i class="fas fa-film fa-3x text-muted"></i>
+                                        </div>
+                                    <% } %>
+                                    <div class="card-body p-2">
+                                        <small class="text-muted d-block text-truncate" title="<%= item.filename %>"><%= item.filename %></small>
+                                        <% if (item.year) { %><small class="text-muted"><%= item.year %></small><% } %>
+                                        <% if (item.eventName) { %>
+                                            <small class="badge bg-secondary ms-1"><%= item.eventName %></small>
+                                        <% } %>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    <% }); %>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</div>
+
+<%- include('footer') %>

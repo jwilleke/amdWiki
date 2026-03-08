@@ -1,0 +1,118 @@
+<%- include('header', { pageName: item.filename }) %>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-image"></i> <%= item.filename %></h1>
+                <div>
+                    <% if (item.year) { %>
+                        <a href="/media/year/<%= item.year %>" class="btn btn-sm me-2" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);">
+                            <i class="fas fa-calendar-alt"></i> <%= item.year %>
+                        </a>
+                    <% } %>
+                    <a href="/media" class="btn btn-sm" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);">
+                        <i class="fas fa-arrow-left"></i> Media
+                    </a>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Image / video preview -->
+                <div class="col-md-8 mb-4">
+                    <% if (item.mimeType && item.mimeType.startsWith('image/')) { %>
+                        <img
+                            src="/media/thumb/<%= item.id %>?size=800x600"
+                            class="img-fluid rounded shadow"
+                            alt="<%= item.filename %>"
+                            style="max-width:100%;"
+                        >
+                    <% } else { %>
+                        <div class="d-flex align-items-center justify-content-center bg-light rounded" style="min-height:300px;">
+                            <div class="text-center text-muted">
+                                <i class="fas fa-film fa-5x mb-3"></i>
+                                <p>Video preview not available</p>
+                            </div>
+                        </div>
+                    <% } %>
+                </div>
+
+                <!-- Metadata panel -->
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header"><i class="fas fa-info-circle"></i> Details</div>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span class="text-muted">Filename</span>
+                                <span class="text-end" style="max-width:60%;overflow-wrap:break-word;"><%= item.filename %></span>
+                            </li>
+                            <% if (item.year) { %>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span class="text-muted">Year</span>
+                                <a href="/media/year/<%= item.year %>"><%= item.year %></a>
+                            </li>
+                            <% } %>
+                            <% if (item.eventName) { %>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span class="text-muted">Event</span>
+                                <span><%= item.eventName %></span>
+                            </li>
+                            <% } %>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span class="text-muted">Type</span>
+                                <span><%= item.mimeType %></span>
+                            </li>
+                            <% if (item.metadata && item.metadata.make) { %>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span class="text-muted">Camera</span>
+                                <span><%= item.metadata.make %><% if (item.metadata.model) { %> <%= item.metadata.model %><% } %></span>
+                            </li>
+                            <% } %>
+                            <% if (item.metadata && item.metadata.title) { %>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span class="text-muted">Title</span>
+                                <span><%= item.metadata.title %></span>
+                            </li>
+                            <% } %>
+                            <% if (item.metadata && item.metadata.description) { %>
+                            <li class="list-group-item">
+                                <span class="text-muted d-block">Description</span>
+                                <span><%= item.metadata.description %></span>
+                            </li>
+                            <% } %>
+                            <% if (item.metadata && item.metadata.keywords) { %>
+                            <li class="list-group-item">
+                                <span class="text-muted d-block">Keywords</span>
+                                <span>
+                                    <% const kw = Array.isArray(item.metadata.keywords) ? item.metadata.keywords : [item.metadata.keywords]; %>
+                                    <% kw.forEach(function(k) { %><span class="badge bg-secondary me-1"><%= k %></span><% }); %>
+                                </span>
+                            </li>
+                            <% } %>
+                            <% if (item.metadata && (item.metadata.gpsLatitude || item.metadata.gpsLongitude)) { %>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span class="text-muted">GPS</span>
+                                <span><%= item.metadata.gpsLatitude %>, <%= item.metadata.gpsLongitude %></span>
+                            </li>
+                            <% } %>
+                            <% if (item.linkedPageName) { %>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span class="text-muted">Page</span>
+                                <a href="/wiki/<%= item.linkedPageName %>"><%= item.linkedPageName %></a>
+                            </li>
+                            <% } %>
+                        </ul>
+                    </div>
+
+                    <% if (item.dirPath) { %>
+                    <div class="mt-3">
+                        <small class="text-muted"><i class="fas fa-folder"></i> <%= item.dirPath %></small>
+                    </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('footer') %>

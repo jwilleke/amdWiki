@@ -92,6 +92,9 @@ class MediaManager extends BaseManager {
       readonly: true
     });
 
+    // Load persisted index so queries work before the first background scan
+    await this.provider.initialize();
+
     const scanInterval = configManager.getProperty('amdwiki.media.scaninterval', 3600000) as number;
     if (scanInterval > 0) {
       this.scanTimer = setInterval(() => {
@@ -198,6 +201,20 @@ class MediaManager extends BaseManager {
   async getThumbnailBuffer(id: string, size: string): Promise<Buffer | null> {
     if (!this.provider) return null;
     return this.provider.getThumbnailBuffer(id, size);
+  }
+
+  /**
+   * Return the list of years that have at least one media item, sorted
+   * descending (most recent first), filtered by the caller's access level.
+   *
+   * Currently all years are public — private filtering is at the item level.
+   *
+   * @param _wikiContext - Caller's WikiContext (reserved for future per-year ACL).
+   * @returns Sorted year list.
+   */
+  async getYears(_wikiContext?: WikiContext): Promise<number[]> {
+    if (!this.provider) return [];
+    return this.provider.getYears();
   }
 
   /**

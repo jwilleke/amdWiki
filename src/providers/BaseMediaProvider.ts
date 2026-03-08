@@ -58,12 +58,28 @@ export interface ScanResult {
  */
 abstract class BaseMediaProvider {
   /**
+   * Lifecycle method called once after construction to load persisted state.
+   * Default implementation is a no-op; override to load an index from disk.
+   */
+  initialize(): Promise<void> {
+    return Promise.resolve();
+  }
+
+  /**
    * Scan configured media folders and update the in-memory/persisted index.
    *
    * @param force - When true, re-scan all files even if mtime is unchanged.
    * @returns Summary of what was scanned/added/updated/errored.
    */
   abstract scan(force?: boolean): Promise<ScanResult>;
+
+  /**
+   * Return the list of years that have at least one media item, sorted
+   * descending (most recent first).
+   *
+   * @returns Array of four-digit years.
+   */
+  abstract getYears(): Promise<number[]>;
 
   /**
    * Retrieve a single media item by its unique identifier.

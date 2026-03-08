@@ -1,0 +1,41 @@
+<%- include('header', { pageName: 'Media Browser' }) %>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-photo-video"></i> Media Browser</h1>
+                <a href="/media/search" class="btn" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);">
+                    <i class="fas fa-search"></i> Search
+                </a>
+            </div>
+
+            <% if (years && years.length > 0) { %>
+                <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-6 g-3">
+                    <% years.forEach(function(year) { %>
+                        <div class="col">
+                            <a href="/media/year/<%= year %>" class="text-decoration-none">
+                                <div class="card h-100 text-center" style="cursor:pointer;">
+                                    <div class="card-body py-4">
+                                        <i class="fas fa-calendar-alt fa-2x mb-2" style="color: var(--link-color);"></i>
+                                        <h5 class="card-title mb-0"><%= year %></h5>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    <% }); %>
+                </div>
+            <% } else { %>
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    No media items indexed yet.
+                    <% if (typeof currentUser !== 'undefined' && currentUser && currentUser.roles && currentUser.roles.includes('admin')) { %>
+                        <a href="/admin/media">Trigger a scan</a> to start indexing.
+                    <% } %>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</div>
+
+<%- include('footer') %>
