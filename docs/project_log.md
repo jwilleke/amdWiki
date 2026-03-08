@@ -24,6 +24,32 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-08-05
+
+- Agent: Claude Sonnet 4.6
+- Subject: Fix media scan bugs — sentinel exclusion on root, empty thumbnailDir, scan timing (#273)
+- Key Decision: Sentinel files (.plexignore etc.) should never exclude an explicitly-configured root folder; empty-string config values must be guarded against; scan timing useful for capacity planning
+- Current Issue: #273
+- Testing:
+  - npm test: 9 skipped suites, 72 passed, 1853 tests passed
+  - E2E: 47 passed
+- Work Done:
+  - FileSystemMediaProvider: skip ignoreFiles check on configured root folders; add elapsed time and ms/file rate to scan log
+  - BaseMediaProvider: add elapsedMs to ScanResult
+  - MediaManager: guard empty-string thumbnailDir/indexFile from config defaults
+  - config/app-default-config.json: remove empty-string media path keys so fallbacks apply
+  - admin-dashboard.ejs: add Media link to quick-actions row
+  - admin-media.ejs: show elapsed time and ms/file rate in rescan result
+  - instance config: set amdwiki.media.enabled=true, folders=[/Volumes/hd2A/media/photos/2020s]
+- Commits: e4dc7bb
+- Files Modified:
+  - src/providers/FileSystemMediaProvider.ts
+  - src/providers/BaseMediaProvider.ts
+  - src/managers/MediaManager.ts
+  - config/app-default-config.json
+  - views/admin-dashboard.ejs
+  - views/admin-media.ejs
+
 ## 2026-03-08-04
 
 - Agent: Claude Sonnet 4.6
