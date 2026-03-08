@@ -7960,11 +7960,24 @@ ${description}
       if (!item) {
         return res.status(404).send('Media item not found');
       }
+
+      // Prev/next navigation within the same year
+      let prevItem: { id: string; filename: string } | null = null;
+      let nextItem: { id: string; filename: string } | null = null;
+      if (item.year) {
+        const siblings: { id: string; filename: string }[] = await mediaManager.listByYear(item.year, wikiContext);
+        const idx = siblings.findIndex((s: { id: string }) => s.id === item.id);
+        if (idx > 0) prevItem = siblings[idx - 1];
+        if (idx >= 0 && idx < siblings.length - 1) nextItem = siblings[idx + 1];
+      }
+
       const commonData = await this.getCommonTemplateData(req);
       return res.render('media-item', {
         ...commonData,
         wikiContext,
         item,
+        prevItem,
+        nextItem,
         title: `Media — ${item.filename}`
       });
     } catch (err: unknown) {

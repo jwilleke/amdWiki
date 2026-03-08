@@ -35,54 +35,70 @@
                             </div>
                         </div>
                     <% } %>
+                    <% if (prevItem || nextItem) { %>
+                    <div class="d-flex justify-content-between mt-2">
+                        <% if (prevItem) { %>
+                            <a href="/media/item/<%= prevItem.id %>" class="btn btn-sm" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);" title="<%= prevItem.filename %>">
+                                &laquo; Prev
+                            </a>
+                        <% } else { %>
+                            <span></span>
+                        <% } %>
+                        <% if (nextItem) { %>
+                            <a href="/media/item/<%= nextItem.id %>" class="btn btn-sm" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);" title="<%= nextItem.filename %>">
+                                Next &raquo;
+                            </a>
+                        <% } %>
+                    </div>
+                    <% } %>
                 </div>
 
                 <!-- Metadata panel -->
                 <div class="col-md-4">
-                    <div class="card">
-                        <div class="card-header"><i class="fas fa-info-circle"></i> Details</div>
+                    <div class="card bg-dark text-white">
+                        <div class="card-header bg-dark text-white border-secondary"><i class="fas fa-info-circle"></i> Details</div>
                         <ul class="list-group list-group-flush">
-                            <li class="list-group-item d-flex justify-content-between">
-                                <span class="text-muted">Filename</span>
+                            <li class="list-group-item bg-dark text-white border-secondary d-flex justify-content-between">
+                                <span class="text-white-50">Filename</span>
                                 <span class="text-end" style="max-width:60%;overflow-wrap:break-word;"><%= item.filename %></span>
                             </li>
                             <% if (item.year) { %>
-                            <li class="list-group-item d-flex justify-content-between">
-                                <span class="text-muted">Year</span>
-                                <a href="/media/year/<%= item.year %>"><%= item.year %></a>
+                            <li class="list-group-item bg-dark text-white border-secondary d-flex justify-content-between">
+                                <span class="text-white-50">Year</span>
+                                <a href="/media/year/<%= item.year %>" class="text-info"><%= item.year %></a>
                             </li>
                             <% } %>
                             <% if (item.eventName) { %>
-                            <li class="list-group-item d-flex justify-content-between">
-                                <span class="text-muted">Event</span>
+                            <li class="list-group-item bg-dark text-white border-secondary d-flex justify-content-between">
+                                <span class="text-white-50">Event</span>
                                 <span><%= item.eventName %></span>
                             </li>
                             <% } %>
-                            <li class="list-group-item d-flex justify-content-between">
-                                <span class="text-muted">Type</span>
+                            <li class="list-group-item bg-dark text-white border-secondary d-flex justify-content-between">
+                                <span class="text-white-50">Type</span>
                                 <span><%= item.mimeType %></span>
                             </li>
                             <% if (item.metadata && item.metadata.make) { %>
-                            <li class="list-group-item d-flex justify-content-between">
-                                <span class="text-muted">Camera</span>
+                            <li class="list-group-item bg-dark text-white border-secondary d-flex justify-content-between">
+                                <span class="text-white-50">Camera</span>
                                 <span><%= item.metadata.make %><% if (item.metadata.model) { %> <%= item.metadata.model %><% } %></span>
                             </li>
                             <% } %>
                             <% if (item.metadata && item.metadata.title) { %>
-                            <li class="list-group-item d-flex justify-content-between">
-                                <span class="text-muted">Title</span>
+                            <li class="list-group-item bg-dark text-white border-secondary d-flex justify-content-between">
+                                <span class="text-white-50">Title</span>
                                 <span><%= item.metadata.title %></span>
                             </li>
                             <% } %>
                             <% if (item.metadata && item.metadata.description) { %>
-                            <li class="list-group-item">
-                                <span class="text-muted d-block">Description</span>
+                            <li class="list-group-item bg-dark text-white border-secondary">
+                                <span class="text-white-50 d-block">Description</span>
                                 <span><%= item.metadata.description %></span>
                             </li>
                             <% } %>
                             <% if (item.metadata && item.metadata.keywords) { %>
-                            <li class="list-group-item">
-                                <span class="text-muted d-block">Keywords</span>
+                            <li class="list-group-item bg-dark text-white border-secondary">
+                                <span class="text-white-50 d-block">Keywords</span>
                                 <span>
                                     <% const kw = Array.isArray(item.metadata.keywords) ? item.metadata.keywords : [item.metadata.keywords]; %>
                                     <% kw.forEach(function(k) { %><span class="badge bg-secondary me-1"><%= k %></span><% }); %>
@@ -90,15 +106,16 @@
                             </li>
                             <% } %>
                             <% if (item.metadata && (item.metadata.gpsLatitude || item.metadata.gpsLongitude)) { %>
-                            <li class="list-group-item d-flex justify-content-between">
-                                <span class="text-muted">GPS</span>
-                                <span><%= item.metadata.gpsLatitude %>, <%= item.metadata.gpsLongitude %></span>
+                            <% const lat = parseFloat(item.metadata.gpsLatitude); const lon = parseFloat(item.metadata.gpsLongitude); %>
+                            <li class="list-group-item bg-dark text-white border-secondary d-flex justify-content-between">
+                                <span class="text-white-50">GPS</span>
+                                <span class="location-plugin"><a href="https://www.openstreetmap.org/?mlat=<%= lat %>&mlon=<%= lon %>#map=13/<%= lat %>/<%= lon %>" target="_blank" rel="noopener" class="location-link text-info" title="Open in OpenStreetMap"><i class="fas fa-map-marker-alt"></i> <%= lat.toFixed(4) %>, <%= lon.toFixed(4) %></a></span>
                             </li>
                             <% } %>
                             <% if (item.linkedPageName) { %>
-                            <li class="list-group-item d-flex justify-content-between">
-                                <span class="text-muted">Page</span>
-                                <a href="/wiki/<%= item.linkedPageName %>"><%= item.linkedPageName %></a>
+                            <li class="list-group-item bg-dark text-white border-secondary d-flex justify-content-between">
+                                <span class="text-white-50">Page</span>
+                                <a href="/wiki/<%= item.linkedPageName %>" class="text-info"><%= item.linkedPageName %></a>
                             </li>
                             <% } %>
                         </ul>
