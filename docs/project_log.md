@@ -24,6 +24,28 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-08-02
+
+- Agent: Claude Sonnet 4.6
+- Subject: Implement private folder Phase 2 — private attachments (#232)
+- Key Decision: Attachment privacy derived from linked page's index entry at upload time; serving guard uses existing `checkPrivatePageAccess()`; ESLint fix required typed `getManager<PageManager>()` import
+- Current Issue: #232
+- Testing:
+  - npm test: 9 skipped suites, 72 passed, 1853 tests passed
+  - E2E: 47 passed
+- Work Done:
+  - BasicAttachmentProvider: private storage at `attachments/private/{creator}/`; `isPrivate`/`creator` on SchemaCreativeWork; `getAttachmentMetadata` returns fields needed by route guard
+  - AttachmentManager: import PageManager type; resolve page privacy from page index at upload; pass flags to provider
+  - WikiRoutes: `serveAttachment()` 403 guard when `meta.isPrivate` and access denied
+  - WikiRoutes.attachments.test.js: mock `getAttachmentMetadata` for existing tests
+  - Commented on #232
+- Commits: b286323
+- Files Modified:
+  - src/providers/BasicAttachmentProvider.ts
+  - src/managers/AttachmentManager.ts
+  - src/routes/WikiRoutes.ts
+  - src/routes/__tests__/WikiRoutes.attachments.test.js
+
 ## 2026-03-08-01
 
 - Agent: Claude Sonnet 4.6
