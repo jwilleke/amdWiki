@@ -109,6 +109,16 @@ abstract class BaseMediaProvider {
   abstract getThumbnailBuffer(id: string, size: string): Promise<Buffer | null>;
 
   /**
+   * Retrieve all media items linked to a specific wiki page.
+   *
+   * @param pageName - The wiki page name to match against `linkedPageName`.
+   * @returns Array of matching MediaItem objects (may be empty).
+   */
+  getItemsByPage(_pageName: string): Promise<MediaItem[]> {
+    return Promise.resolve([]);
+  }
+
+  /**
    * Full-text / keyword search across the media index.
    *
    * @param query - Search query string.

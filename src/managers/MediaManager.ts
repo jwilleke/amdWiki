@@ -178,6 +178,20 @@ class MediaManager extends BaseManager {
   }
 
   /**
+   * List all media items linked to a specific wiki page, filtering out
+   * private items that the current user cannot access.
+   *
+   * @param pageName    - Wiki page name to match against item.linkedPageName.
+   * @param wikiContext - Caller's WikiContext (pass undefined for admin/internal calls).
+   * @returns Array of accessible MediaItem objects.
+   */
+  async listByPage(pageName: string, wikiContext?: WikiContext): Promise<MediaItem[]> {
+    if (!this.provider) return [];
+    const items = await this.provider.getItemsByPage(pageName);
+    return this.filterPrivateItems(items, wikiContext);
+  }
+
+  /**
    * Search media items, filtering out private items that the current user
    * cannot access.
    *

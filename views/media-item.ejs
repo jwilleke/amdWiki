@@ -111,7 +111,7 @@
                                 <span class="text-white-50 d-block">Keywords</span>
                                 <span>
                                     <% const kw = Array.isArray(item.metadata.keywords) ? item.metadata.keywords : [item.metadata.keywords]; %>
-                                    <% kw.forEach(function(k) { %><span class="badge bg-secondary me-1"><%= k %></span><% }); %>
+                                    <% kw.forEach(function(k) { %><a href="/wiki/<%= encodeURIComponent(k) %>" class="badge bg-secondary me-1 text-decoration-none text-white"><%= k %></a><% }); %>
                                 </span>
                             </li>
                             <% } %>
@@ -136,6 +136,58 @@
                         <small class="text-muted"><i class="fas fa-folder"></i> <%= item.dirPath %></small>
                     </div>
                     <% } %>
+
+                    <!-- Media Information (collapsible) -->
+                    <div class="mt-3">
+                        <button class="btn btn-sm w-100 text-start"
+                                style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#mediaInfoPanel"
+                                aria-expanded="false">
+                            <i class="fas fa-info-circle"></i> Media Information
+                        </button>
+                        <div class="collapse" id="mediaInfoPanel">
+                            <div class="card bg-dark text-white border-secondary mt-1">
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item bg-dark text-white border-secondary">
+                                        <span class="text-white-50 d-block" style="font-size:0.8em;">Item ID</span>
+                                        <span class="font-monospace" style="font-size:0.85em; word-break:break-all;"><%= item.id %></span>
+                                        <button class="btn btn-sm btn-outline-secondary ms-1 py-0 px-1" title="Copy ID" onclick="navigator.clipboard.writeText('<%= item.id %>')"><i class="fas fa-copy"></i></button>
+                                    </li>
+                                    <li class="list-group-item bg-dark text-white border-secondary">
+                                        <span class="text-white-50 d-block" style="font-size:0.8em;">URL</span>
+                                        <span class="font-monospace" style="font-size:0.85em;">/media/item/<%= item.id %></span>
+                                        <button class="btn btn-sm btn-outline-secondary ms-1 py-0 px-1" title="Copy URL" onclick="navigator.clipboard.writeText(window.location.origin + '/media/item/<%= item.id %>')"><i class="fas fa-copy"></i></button>
+                                    </li>
+                                    <li class="list-group-item bg-dark text-white border-secondary">
+                                        <span class="text-white-50 d-block" style="font-size:0.8em;">Plugin Syntax</span>
+                                        <span class="font-monospace" style="font-size:0.85em;">[{MediaPlugin format='list' page='current'}]</span>
+                                        <button class="btn btn-sm btn-outline-secondary ms-1 py-0 px-1" title="Copy syntax" onclick="navigator.clipboard.writeText(&quot;[{MediaPlugin format='list' page='current'}]&quot;)"><i class="fas fa-copy"></i></button>
+                                    </li>
+                                    <% if (item.filePath) { %>
+                                    <li class="list-group-item bg-dark text-white border-secondary">
+                                        <span class="text-white-50 d-block" style="font-size:0.8em;">File Path</span>
+                                        <span class="font-monospace" style="font-size:0.75em; word-break:break-all;"><%= item.filePath %></span>
+                                        <button class="btn btn-sm btn-outline-secondary ms-1 py-0 px-1" title="Copy path" data-copy="<%= item.filePath %>" onclick="navigator.clipboard.writeText(this.dataset.copy)"><i class="fas fa-copy"></i></button>
+                                    </li>
+                                    <% } %>
+                                    <% if (item.metadata && item.metadata.imageWidth && item.metadata.imageHeight) { %>
+                                    <li class="list-group-item bg-dark text-white border-secondary d-flex justify-content-between">
+                                        <span class="text-white-50">Dimensions</span>
+                                        <span><%= item.metadata.imageWidth %> × <%= item.metadata.imageHeight %></span>
+                                    </li>
+                                    <% } %>
+                                    <% if (item.metadata && item.metadata.fileSize) { %>
+                                    <li class="list-group-item bg-dark text-white border-secondary d-flex justify-content-between">
+                                        <span class="text-white-50">File Size</span>
+                                        <span><%= Math.round(Number(item.metadata.fileSize) / 1024) %> KB</span>
+                                    </li>
+                                    <% } %>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

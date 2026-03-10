@@ -225,6 +225,16 @@ class FileSystemMediaProvider extends BaseMediaProvider {
   }
 
   /**
+   * Retrieve all items linked to a specific wiki page.
+   */
+  getItemsByPage(pageName: string): Promise<MediaItem[]> {
+    const items = Object.values(this.index)
+      .filter(item => item.linkedPageName === pageName)
+      .sort((a, b) => a.filename.localeCompare(b.filename));
+    return Promise.resolve(items);
+  }
+
+  /**
    * Full-text keyword search across filename, eventName, year, title,
    * description, and keywords fields.
    *

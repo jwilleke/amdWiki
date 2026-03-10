@@ -2,10 +2,13 @@
  * MediaPlugin - Shows total media item count or a list of media items
  *
  * Usage:
- *   [{MediaPlugin}]                           — count of all indexed media items
- *   [{MediaPlugin format='list'}]             — list of media filenames as links
- *   [{MediaPlugin format='list' max='10'}]    — limit list to 10 items
- *   [{MediaPlugin format='list' year='2023'}] — items from a specific year
+ *   [{MediaPlugin}]                              — count of all indexed media items
+ *   [{MediaPlugin format='list'}]                — list of media filenames as links
+ *   [{MediaPlugin format='list' max='10'}]       — limit list to 10 items
+ *   [{MediaPlugin format='list' year='2023'}]    — items from a specific year
+ *   [{MediaPlugin format='list' page='MyPage'}]  — items linked to a specific wiki page
+ *   [{MediaPlugin format='list' page='current'}] — items linked to the current page
+ *   [{MediaPlugin format='count' page='current'}]— count of items on the current page
  */
 
 import type { SimplePlugin, PluginContext, PluginParams } from './types';
@@ -22,13 +25,14 @@ interface MediaItem {
 interface MediaManager {
   getYears(): Promise<number[]>;
   listByYear(year: number): Promise<MediaItem[]>;
+  listByPage(pageName: string): Promise<MediaItem[]>;
 }
 
 const MediaPlugin: SimplePlugin = {
   name: 'MediaPlugin',
   description: 'Shows total media item count or a list of indexed media items',
   author: 'amdWiki',
-  version: '1.0.0',
+  version: '1.1.0',
 
   async execute(context: PluginContext, params: PluginParams): Promise<string> {
     const engine = context.engine;
@@ -40,10 +44,15 @@ const MediaPlugin: SimplePlugin = {
 
       const format = typeof params.format === 'string' ? params.format : 'count';
       const yearParam = params.year != null ? parseInt(String(params.year), 10) : null;
+      const pageParam = params.page != null ? String(params.page) : null;
 
       let items: MediaItem[];
 
-      if (yearParam && !isNaN(yearParam)) {
+      if (pageParam) {
+        // Resolve 'current' to the context page name
+        const pageName = pageParam === 'current' ? (context.pageName ?? '') : pageParam;
+        items = pageName ? await mediaManager.listByPage(pageName) : [];
+      } else if (yearParam && !isNaN(yearParam)) {
         items = await mediaManager.listByYear(yearParam);
       } else {
         const years = await mediaManager.getYears();
