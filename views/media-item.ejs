@@ -4,7 +4,7 @@
     <div class="row">
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1><i class="fas fa-image"></i> <%= item.filename %></h1>
+                <h1><i class="fas <%= item.mimeType && item.mimeType.startsWith('video/') ? 'fa-film' : 'fa-image' %>"></i> <%= item.filename %></h1>
                 <div>
                     <% if (item.year) { %>
                         <a href="/media/year/<%= item.year %>" class="btn btn-sm me-2" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);">
@@ -27,11 +27,21 @@
                             alt="<%= item.filename %>"
                             style="max-width:100%;"
                         >
+                    <% } else if (item.mimeType && item.mimeType.startsWith('video/')) { %>
+                        <video
+                            controls
+                            preload="metadata"
+                            style="max-width:100%; width:100%; border-radius:0.375rem; box-shadow:0 .5rem 1rem rgba(0,0,0,.15);"
+                        >
+                            <source src="/media/file/<%= item.id %>" type="<%= item.mimeType %>">
+                            Your browser does not support the video tag.
+                        </video>
                     <% } else { %>
                         <div class="d-flex align-items-center justify-content-center bg-light rounded" style="min-height:300px;">
                             <div class="text-center text-muted">
-                                <i class="fas fa-film fa-5x mb-3"></i>
-                                <p>Video preview not available</p>
+                                <i class="fas fa-file fa-5x mb-3"></i>
+                                <p><%= item.filename %></p>
+                                <a href="/media/file/<%= item.id %>" class="btn btn-sm btn-secondary">Download</a>
                             </div>
                         </div>
                     <% } %>

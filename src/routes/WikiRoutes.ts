@@ -6116,6 +6116,7 @@ class WikiRoutes {
     app.get('/media/search', (req: Request, res: Response) => void this.mediaSearch(req, res));
     app.get('/media/api/item/:id', (req: Request, res: Response) => void this.mediaApiItem(req, res));
     app.get('/media/api/year/:year', (req: Request, res: Response) => void this.mediaApiYear(req, res));
+    app.get('/media/file/:id', (req: Request, res: Response) => void this.mediaFile(req, res));
     app.get('/media/thumb/:id', (req: Request, res: Response) => void this.mediaThumb(req, res));
     app.get('/admin/media', (req: Request, res: Response) => void this.adminMedia(req, res));
     app.post('/admin/media/rescan', (req: Request, res: Response) => void this.adminMediaRescan(req, res));
@@ -8083,6 +8084,65 @@ ${description}
     } catch (err: unknown) {
       logger.error('[media] Error fetching media year API:', err);
       return res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
+  /**
+   * GET /media/file/:id
+   * Stream the raw media file (video, image, etc.) with HTTP Range support.
+   * Range requests are required for browser <video> seeking.
+   */
+  async mediaFile(req: Request, res: Response) {
+    const mediaManager = this.engine.getManager('MediaManager');
+    if (!mediaManager) {
+      return res.status(503).send('Media manager not enabled');
+    }
+    try {
+      const wikiContext = this.createWikiContext(req, { context: WikiContext.CONTEXT.VIEW });
+      const item = await mediaManager.getItem(req.params.id, wikiContext);
+      if (!item) {
+        return res.status(404).send('Media item not found');
+      }
+
+      const filePath: string = item.filePath as string;
+      let stat: { size: number };
+      try {
+        stat = fs.statSync(filePath);
+      } catch {
+        return res.status(404).send('Media file not found on disk');
+      }
+
+      const mimeType: string = (item.mimeType as string) || 'application/octet-stream';
+      const fileSize = stat.size;
+      const rangeHeader = req.headers.range;
+
+      if (rangeHeader) {
+        // Parse "bytes=start-end"
+        const parts = rangeHeader.replace(/bytes=/, '').split('-');
+        const start = parseInt(parts[0], 10);
+        const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+        const chunkSize = end - start + 1;
+
+        res.writeHead(206, {
+          'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+          'Accept-Ranges': 'bytes',
+          'Content-Length': chunkSize,
+          'Content-Type': mimeType
+        });
+        fs.createReadStream(filePath, { start, end }).pipe(res);
+        return;
+      }
+
+      res.writeHead(200, {
+        'Accept-Ranges': 'bytes',
+        'Content-Length': fileSize,
+        'Content-Type': mimeType
+      });
+      fs.createReadStream(filePath).pipe(res);
+      return;
+    } catch (err: unknown) {
+      logger.error('[media] Error serving media file:', err);
+      return res.status(500).send('Internal server error');
     }
   }
 
