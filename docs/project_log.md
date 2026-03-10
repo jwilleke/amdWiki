@@ -53,6 +53,22 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-10-08
+
+- Agent: Claude Sonnet 4.6
+- Subject: Fix MediaPlugin `page=` always returning 0 (#316)
+- Key Decision: `linkedPageName` is never populated during indexing; the only association mechanism is EXIF keywords. Fixed `getItemsByPage()` to match items where `linkedPageName === pageName` OR EXIF keywords include `pageName`.
+- Current Issue: #316
+- Testing:
+  - npm test: 72 suites passed, 1855 tests passed
+- Work Done:
+  - `FileSystemMediaProvider.getItemsByPage()`: added keyword fallback — checks `metadata.keywords` when `linkedPageName` does not match
+- Commits: (pending)
+- Files Modified:
+  - src/providers/FileSystemMediaProvider.ts
+
+---
+
 ## 2026-03-10-07
 
 - Agent: Claude Sonnet 4.6
