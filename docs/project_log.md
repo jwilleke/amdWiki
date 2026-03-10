@@ -53,6 +53,22 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-10-11
+
+- Agent: Claude Sonnet 4.6
+- Subject: MediaPlugin format='album' — inline thumbnail grid on wiki pages (#321)
+- Key Decision: album rendering is media-specific (needs id/mimeType for thumbnails), so formatAsAlbum() lives in MediaPlugin rather than pluginFormatters; supports same keyword=/page=/year= filters as list/count
+- Current Issue: #321
+- Testing:
+  - npm test: 72 suites passed, 1855 tests passed
+- Work Done:
+  - `plugins/MediaPlugin.ts`: added `formatAsAlbum()` helper; added `format='album'` branch; bumped version to 1.2.0; updated usage doc comment
+- Commits: (pending)
+- Files Modified:
+  - plugins/MediaPlugin.ts
+
+---
+
 ## 2026-03-10-10
 
 - Agent: Claude Sonnet 4.6

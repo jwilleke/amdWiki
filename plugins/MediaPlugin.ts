@@ -2,24 +2,27 @@
  * MediaPlugin - Shows total media item count or a list of media items
  *
  * Usage:
- *   [{MediaPlugin}]                              — count of all indexed media items
- *   [{MediaPlugin format='list'}]                — list of media filenames as links
- *   [{MediaPlugin format='list' max='10'}]       — limit list to 10 items
- *   [{MediaPlugin format='list' year='2023'}]    — items from a specific year
- *   [{MediaPlugin format='list' page='MyPage'}]       — items linked to a specific wiki page
- *   [{MediaPlugin format='list' page='current'}]      — items linked to the current page
- *   [{MediaPlugin format='count' page='current'}]     — count of items on the current page
- *   [{MediaPlugin format='list' keyword='current'}]   — items whose EXIF keywords include the current page name
- *   [{MediaPlugin format='list' keyword='Molly'}]     — items whose EXIF keywords include 'Molly'
+ *   [{MediaPlugin}]                               — count of all indexed media items
+ *   [{MediaPlugin format='list'}]                 — list of media filenames as links
+ *   [{MediaPlugin format='list' max='10'}]        — limit list to 10 items
+ *   [{MediaPlugin format='list' year='2023'}]     — items from a specific year
+ *   [{MediaPlugin format='list' page='MyPage'}]        — items linked to a specific wiki page
+ *   [{MediaPlugin format='list' page='current'}]       — items linked to the current page
+ *   [{MediaPlugin format='count' page='current'}]      — count of items on the current page
+ *   [{MediaPlugin format='list' keyword='current'}]    — items whose EXIF keywords include the current page name
+ *   [{MediaPlugin format='list' keyword='Molly'}]      — items whose EXIF keywords include 'Molly'
+ *   [{MediaPlugin format='album' keyword='current'}]   — thumbnail grid of items matching the current page name
+ *   [{MediaPlugin format='album' keyword="Molly's Cooking"}] — thumbnail grid for a keyword
  */
 
 import type { SimplePlugin, PluginContext, PluginParams } from './types';
-import { formatAsCount, formatAsList, parseMaxParam, applyMax } from '../src/utils/pluginFormatters';
+import { formatAsCount, formatAsList, parseMaxParam, applyMax, escapeHtml } from '../src/utils/pluginFormatters';
 import type { PageLink } from '../src/utils/pluginFormatters';
 
 interface MediaItem {
   id: string;
   filename: string;
+  mimeType?: string;
   year?: number;
 }
 
@@ -30,11 +33,29 @@ interface MediaManager {
   listByKeyword(keyword: string): Promise<MediaItem[]>;
 }
 
+function formatAsAlbum(items: MediaItem[], max: number): string {
+  const visible = applyMax(items, max);
+  if (visible.length === 0) {
+    return '<p><em>No media items found.</em></p>';
+  }
+  const cards = visible.map(item => {
+    const href = `/media/item/${encodeURIComponent(item.id)}`;
+    const alt  = escapeHtml(item.filename);
+    const isImage = item.mimeType?.startsWith('image/');
+    const isVideo = item.mimeType?.startsWith('video/');
+    const thumb = isImage
+      ? `<img src="/media/thumb/${encodeURIComponent(item.id)}?size=300x300" alt="${alt}" loading="lazy" style="object-fit:cover;height:120px;width:100%;">`
+      : `<div style="height:120px;display:flex;align-items:center;justify-content:center;background:#f0f0f0;"><i class="fas ${isVideo ? 'fa-film' : 'fa-file'} fa-3x" style="color:#aaa;"></i></div>`;
+    return `<div style="width:160px;display:inline-block;vertical-align:top;margin:4px;"><a href="${href}" style="text-decoration:none;">${thumb}<div style="font-size:0.75em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:2px 4px;" title="${alt}">${alt}</div></a></div>`;
+  }).join('');
+  return `<div class="media-plugin-album" style="line-height:1.2;">${cards}</div>`;
+}
+
 const MediaPlugin: SimplePlugin = {
   name: 'MediaPlugin',
-  description: 'Shows total media item count or a list of indexed media items',
+  description: 'Shows total media item count, a list, or a thumbnail album of indexed media items',
   author: 'amdWiki',
-  version: '1.1.0',
+  version: '1.2.0',
 
   async execute(context: PluginContext, params: PluginParams): Promise<string> {
     const engine = context.engine;
@@ -67,9 +88,14 @@ const MediaPlugin: SimplePlugin = {
         items = perYear.flat();
       }
 
+      const rawMax = params.max;
+      const max = parseMaxParam(typeof rawMax === 'boolean' ? undefined : rawMax);
+
+      if (format === 'album') {
+        return formatAsAlbum(items, max);
+      }
+
       if (format === 'list') {
-        const rawMax = params.max;
-        const max = parseMaxParam(typeof rawMax === 'boolean' ? undefined : rawMax);
         const links: PageLink[] = applyMax(items, max).map(item => ({
           text: item.filename,
           href: `/media/item/${encodeURIComponent(item.id)}`
