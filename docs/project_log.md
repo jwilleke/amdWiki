@@ -24,6 +24,48 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-10-04
+
+- Agent: Claude Sonnet 4.6
+- Subject: Media keywords as wiki links, MediaPlugin page= param, Media Information panel (#316, #317, #318, #319)
+- Key Decision: Split #316 into three sub-issues; getItemsByPage() added to provider chain; data-copy attribute avoids EJS/HTML entity conflict in onclick handlers
+- Current Issue: #316, #317, #318, #319
+- Testing:
+  - npm test: 72 suites passed, 1855 tests passed
+- Work Done:
+  - #317: Keywords in media-item.ejs now render as `<a href="/wiki/{k}">` badge links instead of plain spans
+  - #318: Added `getItemsByPage(pageName)` to BaseMediaProvider (default no-op), FileSystemMediaProvider (filters by `linkedPageName`), and MediaManager (`listByPage()` with privacy filtering); added `page=` param to MediaPlugin (page='current' resolves to context.pageName)
+  - #319: Added collapsible "Media Information" panel to media-item.ejs with Item ID, URL, plugin syntax, file path (copy buttons), dimensions, and file size
+  - Fix: EJS syntax error — replaced invalid `&quot;` entity inside `<%= %>` JS expression with `data-copy` attribute + `this.dataset.copy` in onclick
+- Commits: ea38249
+- Files Modified:
+  - plugins/MediaPlugin.ts
+  - src/managers/MediaManager.ts
+  - src/providers/BaseMediaProvider.ts
+  - src/providers/FileSystemMediaProvider.ts
+  - views/media-item.ejs
+
+---
+
+## 2026-03-10-03
+
+- Agent: Claude Sonnet 4.6
+- Subject: Fix video not playing on media item page (#315)
+- Key Decision: Stream via new `/media/file/:id` route with HTTP Range support; `<video>` tag in template
+- Current Issue: #315
+- Testing:
+  - npm test: 72 suites passed, 1855 tests passed
+- Work Done:
+  - Root cause: `media-item.ejs` only rendered `<img>` for `image/*` types; all other types (video) showed a static placeholder; no route existed to serve raw media files
+  - Added `GET /media/file/:id` to WikiRoutes.ts — streams `item.filePath` with HTTP Range request support (required for browser video seeking); respects privacy access control
+  - Updated `media-item.ejs`: `video/*` → `<video controls preload="metadata">` with `/media/file/:id` source; fallback card includes Download link; title icon uses `fa-film` for video
+- Commits: 47a19bc
+- Files Modified:
+  - src/routes/WikiRoutes.ts
+  - views/media-item.ejs
+
+---
+
 ## 2026-03-10-02
 
 - Agent: Claude Sonnet 4.6
