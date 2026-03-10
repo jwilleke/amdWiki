@@ -192,6 +192,20 @@ class MediaManager extends BaseManager {
   }
 
   /**
+   * List all media items whose EXIF/XMP keywords contain the given keyword,
+   * filtering out private items the current user cannot access.
+   *
+   * @param keyword     - Exact keyword to match (e.g. "Molly's Cooking").
+   * @param wikiContext - Caller's WikiContext (pass undefined for admin/internal calls).
+   * @returns Array of accessible MediaItem objects.
+   */
+  async listByKeyword(keyword: string, wikiContext?: WikiContext): Promise<MediaItem[]> {
+    if (!this.provider) return [];
+    const items = await this.provider.getItemsByKeyword(keyword);
+    return this.filterPrivateItems(items, wikiContext);
+  }
+
+  /**
    * Search media items, filtering out private items that the current user
    * cannot access.
    *

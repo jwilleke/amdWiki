@@ -78,12 +78,6 @@
                                 <a href="/media/year/<%= item.year %>" class="text-info"><%= item.year %></a>
                             </li>
                             <% } %>
-                            <% if (item.eventName) { %>
-                            <li class="list-group-item bg-dark text-white border-secondary d-flex justify-content-between">
-                                <span class="text-white-50">Event</span>
-                                <span><%= item.eventName %></span>
-                            </li>
-                            <% } %>
                             <li class="list-group-item bg-dark text-white border-secondary d-flex justify-content-between">
                                 <span class="text-white-50">Type</span>
                                 <span><%= item.mimeType %></span>
@@ -162,8 +156,20 @@
                                     </li>
                                     <li class="list-group-item bg-dark text-white border-secondary">
                                         <span class="text-white-50 d-block" style="font-size:0.8em;">Plugin Syntax</span>
-                                        <span class="font-monospace" style="font-size:0.85em;">[{MediaPlugin format='list' page='current'}]</span>
-                                        <button class="btn btn-sm btn-outline-secondary ms-1 py-0 px-1" title="Copy syntax" onclick="navigator.clipboard.writeText(&quot;[{MediaPlugin format='list' page='current'}]&quot;)"><i class="fas fa-copy"></i></button>
+                                        <% const pluginKws = item.metadata && item.metadata.keywords ? (Array.isArray(item.metadata.keywords) ? item.metadata.keywords : [item.metadata.keywords]) : []; %>
+                                        <% if (pluginKws.length > 0) { %>
+                                            <% pluginKws.forEach(function(kw) { const q = String(kw).includes("'") ? '"' : "'"; const syn = "[{MediaPlugin format='list' keyword=" + q + kw + q + "}]"; %>
+                                            <div class="d-flex align-items-center mb-1">
+                                                <span class="font-monospace" style="font-size:0.85em;flex:1;word-break:break-all;"><%= syn %></span>
+                                                <button class="btn btn-sm btn-outline-secondary ms-1 py-0 px-1 flex-shrink-0" title="Copy syntax" data-copy="<%= syn %>" onclick="navigator.clipboard.writeText(this.dataset.copy)"><i class="fas fa-copy"></i></button>
+                                            </div>
+                                            <% }); %>
+                                        <% } else { %>
+                                            <div class="d-flex align-items-center">
+                                                <span class="font-monospace" style="font-size:0.85em;">[{MediaPlugin format='list' keyword='current'}]</span>
+                                                <button class="btn btn-sm btn-outline-secondary ms-1 py-0 px-1" title="Copy syntax" onclick="navigator.clipboard.writeText(&quot;[{MediaPlugin format='list' keyword='current'}]&quot;)"><i class="fas fa-copy"></i></button>
+                                            </div>
+                                        <% } %>
                                     </li>
                                     <% if (item.filePath) { %>
                                     <li class="list-group-item bg-dark text-white border-secondary">
@@ -193,5 +199,18 @@
         </div>
     </div>
 </div>
+
+<script>
+window.amdwikiMediaItem = <%- JSON.stringify({
+    id: item.id,
+    filename: item.filename,
+    filePath: item.filePath || null,
+    mimeType: item.mimeType || null,
+    keywords: (item.metadata && item.metadata.keywords) ? (Array.isArray(item.metadata.keywords) ? item.metadata.keywords : [item.metadata.keywords]) : [],
+    imageWidth: (item.metadata && item.metadata.imageWidth) ? item.metadata.imageWidth : null,
+    imageHeight: (item.metadata && item.metadata.imageHeight) ? item.metadata.imageHeight : null,
+    fileSize: (item.metadata && item.metadata.fileSize) ? item.metadata.fileSize : null
+}) %>;
+</script>
 
 <%- include('footer') %>

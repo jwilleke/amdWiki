@@ -276,6 +276,12 @@
 
     // JSPWiki-style Info dropdown functions
     function showPageInfo() {
+        // Media item page: show media info modal instead
+        if (window.amdwikiMediaItem) {
+            showMediaInfoModal(window.amdwikiMediaItem);
+            return;
+        }
+
         const currentPage = window.location.pathname.split('/wiki/')[1];
         if (!currentPage) {
             alert('No page selected for information');
@@ -647,6 +653,92 @@
             }
             container.removeChild(textArea);
         }
+    }
+
+    function showMediaInfoModal(item) {
+        cleanupExistingModal();
+
+        function fmtSize(bytes) {
+            if (!bytes) return 'Not available';
+            const kb = Math.round(Number(bytes) / 1024);
+            return kb >= 1024 ? (kb / 1024).toFixed(2) + ' MB' : kb + ' KB';
+        }
+
+        const itemUrl = `/media/item/${item.id}`;
+        const keywords = Array.isArray(item.keywords) ? item.keywords : [];
+        function kwSyntax(kw) {
+            const q = String(kw).includes("'") ? '"' : "'";
+            return `[{MediaPlugin format='list' keyword=${q}${kw}${q}}]`;
+        }
+        const pluginSyntaxRows = keywords.length > 0
+            ? keywords.map(kw => {
+                const syn = kwSyntax(kw);
+                const safeKw = String(kw).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+                const safeSyn = syn.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+                return `<tr><td><strong>Plugin Syntax</strong><br><small class="text-white-50">${safeKw}</small></td><td><code class="small">${safeSyn}</code> <button class="btn btn-sm btn-outline-secondary py-0 px-1" title="Copy" data-syn="${safeSyn}" onclick="navigator.clipboard.writeText(this.dataset.syn)"><i class="fas fa-copy"></i></button></td></tr>`;
+              }).join('')
+            : `<tr><td><strong>Plugin Syntax</strong></td><td><code class="small">[{MediaPlugin format='list' keyword='current'}]</code> <button class="btn btn-sm btn-outline-secondary py-0 px-1" title="Copy" onclick="navigator.clipboard.writeText(&quot;[{MediaPlugin format=&apos;list&apos; keyword=&apos;current&apos;}]&quot;)"><i class="fas fa-copy"></i></button></td></tr>`;
+
+        const modalHtml = `
+            <div class="modal fade" id="pageInfoModal" tabindex="-1">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title"><i class="fas fa-info-circle"></i> Media Information: ${item.filename}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <table class="table table-bordered table-sm">
+                                <tr>
+                                    <td style="width:35%"><strong>Item ID</strong></td>
+                                    <td><code class="small">${item.id}</code>
+                                        <button class="btn btn-sm btn-outline-secondary ms-1 py-0 px-1" title="Copy" onclick="navigator.clipboard.writeText('${item.id}')"><i class="fas fa-copy"></i></button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>URL</strong></td>
+                                    <td><code class="small">${itemUrl}</code>
+                                        <button class="btn btn-sm btn-outline-secondary ms-1 py-0 px-1" title="Copy" onclick="navigator.clipboard.writeText(window.location.origin + '${itemUrl}')"><i class="fas fa-copy"></i></button>
+                                    </td>
+                                </tr>
+                                ${pluginSyntaxRows}
+                                ${item.filePath ? `
+                                <tr>
+                                    <td><strong>File Path</strong></td>
+                                    <td><code class="small" style="word-break:break-all">${item.filePath}</code>
+                                        <button class="btn btn-sm btn-outline-secondary ms-1 py-0 px-1" title="Copy" data-copy="${item.filePath.replace(/"/g, '&quot;')}" onclick="navigator.clipboard.writeText(this.dataset.copy)"><i class="fas fa-copy"></i></button>
+                                    </td>
+                                </tr>` : ''}
+                                ${(item.imageWidth && item.imageHeight) ? `
+                                <tr>
+                                    <td><strong>Dimensions</strong></td>
+                                    <td>${item.imageWidth} &times; ${item.imageHeight}</td>
+                                </tr>` : ''}
+                                ${item.fileSize ? `
+                                <tr>
+                                    <td><strong>File Size</strong></td>
+                                    <td>${fmtSize(item.fileSize)}</td>
+                                </tr>` : ''}
+                            </table>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+        requestAnimationFrame(() => {
+            const el = document.getElementById('pageInfoModal');
+            if (!el) return;
+            const modal = new bootstrap.Modal(el);
+            el.addEventListener('hidden.bs.modal', function () {
+                modal.dispose();
+                if (el.parentNode) el.remove();
+            });
+            modal.show();
+        });
     }
 
     function showTemporaryMessage(message, type) {

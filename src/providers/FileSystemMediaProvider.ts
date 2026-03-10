@@ -234,8 +234,21 @@ class FileSystemMediaProvider extends BaseMediaProvider {
     return Promise.resolve(items);
   }
 
+  getItemsByKeyword(keyword: string): Promise<MediaItem[]> {
+    const items = Object.values(this.index)
+      .filter(item => {
+        const kw = item.metadata?.keywords;
+        if (!kw) return false;
+        return Array.isArray(kw)
+          ? (kw as string[]).includes(keyword)
+          : kw === keyword;
+      })
+      .sort((a, b) => a.filename.localeCompare(b.filename));
+    return Promise.resolve(items);
+  }
+
   /**
-   * Full-text keyword search across filename, eventName, year, title,
+   * Full-text keyword search across filename, year, title,
    * description, and keywords fields.
    *
    * All query tokens must match (AND semantics).
@@ -254,7 +267,6 @@ class FileSystemMediaProvider extends BaseMediaProvider {
         : toStr(keywords);
       const haystack = [
         item.filename,
-        item.eventName ?? '',
         item.year !== undefined ? String(item.year) : '',
         toStr(item.metadata?.title),
         toStr(item.metadata?.description),
@@ -391,7 +403,6 @@ class FileSystemMediaProvider extends BaseMediaProvider {
 
       const tags = await this.exiftoolInstance.read(filePath);
       const year = this.extractYear(tags as Record<string, unknown>, filePath, stat.mtime);
-      const eventName = this.parseEventName(filePath);
       const ext = path.extname(filePath).slice(1).toLowerCase();
       const mimeType = MIME_MAP[ext] ?? 'application/octet-stream';
 
@@ -405,7 +416,6 @@ class FileSystemMediaProvider extends BaseMediaProvider {
         mimeType,
         year,
         dirPath: path.dirname(filePath),
-        eventName,
         mtime: stat.mtimeMs,
         metadata: {
           title: rawTags.Title ?? null,
@@ -485,18 +495,6 @@ class FileSystemMediaProvider extends BaseMediaProvider {
 
     // 4. File mtime
     return mtime.getFullYear();
-  }
-
-  /**
-   * Parse an event name from a filename following the convention:
-   *   YYYY-MM-DD-EventName[-NNN].ext
-   *
-   * Returns the EventName part, or null if the filename doesn't match.
-   */
-  private parseEventName(filePath: string): string | null {
-    const basename = path.basename(filePath, path.extname(filePath));
-    const m = basename.match(/^\d{4}-\d{2}-\d{2}-(.+?)(?:-\d+)?$/);
-    return m ? (m[1] ?? null) : null;
   }
 
   // ---------------------------------------------------------------------------

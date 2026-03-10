@@ -24,6 +24,35 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-10-06
+
+- Agent: Claude Sonnet 4.6
+- Subject: MediaPlugin keyword= filter, Page Info modal for media, eventName removal, plugin syntax copy (#319, #273)
+- Key Decision: keyword= resolves 'current' to context.pageName for exact EXIF keyword match; apostrophes in keyword values require double-quote param syntax; eventName derived from filename pattern is unreliable — removed entirely in favour of IPTC Keywords only; plugin syntax copy buttons generate correct single/double-quote form per keyword
+- Current Issue: #319, #273
+- Testing:
+  - npm test: 72 suites passed, 1855 tests passed
+- Work Done:
+  - `BaseMediaProvider`: added `getItemsByKeyword()` default no-op; removed `eventName` from `MediaItem` interface
+  - `FileSystemMediaProvider`: `getItemsByKeyword()` exact match against `metadata.keywords` (string or string[]); removed `parseEventName()` and all `eventName` usage from index entry and search haystack
+  - `MediaManager`: `listByKeyword(keyword, wikiContext?)` with private filtering
+  - `MediaPlugin`: `keyword=` param (resolves 'current' to pageName); list format uses `item.filename` only (no eventName)
+  - `header.ejs`: `showPageInfo()` delegates to `showMediaInfoModal()` on `/media/item/` pages; modal shows Item ID, URL, per-keyword plugin syntax (correct quoting), file path, dimensions, file size
+  - `media-item.ejs`: `window.amdwikiMediaItem` includes keywords; collapsible panel plugin syntax shows one row per keyword with correct single/double-quote form; removed eventName Event row
+  - `media-search.ejs`, `media-year.ejs`: removed eventName badge
+- Commits: (pending)
+- Files Modified:
+  - src/providers/BaseMediaProvider.ts
+  - src/providers/FileSystemMediaProvider.ts
+  - src/managers/MediaManager.ts
+  - plugins/MediaPlugin.ts
+  - views/header.ejs
+  - views/media-item.ejs
+  - views/media-search.ejs
+  - views/media-year.ejs
+
+---
+
 ## 2026-03-10-05
 
 - Agent: Claude Sonnet 4.6

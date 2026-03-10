@@ -6,9 +6,11 @@
  *   [{MediaPlugin format='list'}]                — list of media filenames as links
  *   [{MediaPlugin format='list' max='10'}]       — limit list to 10 items
  *   [{MediaPlugin format='list' year='2023'}]    — items from a specific year
- *   [{MediaPlugin format='list' page='MyPage'}]  — items linked to a specific wiki page
- *   [{MediaPlugin format='list' page='current'}] — items linked to the current page
- *   [{MediaPlugin format='count' page='current'}]— count of items on the current page
+ *   [{MediaPlugin format='list' page='MyPage'}]       — items linked to a specific wiki page
+ *   [{MediaPlugin format='list' page='current'}]      — items linked to the current page
+ *   [{MediaPlugin format='count' page='current'}]     — count of items on the current page
+ *   [{MediaPlugin format='list' keyword='current'}]   — items whose EXIF keywords include the current page name
+ *   [{MediaPlugin format='list' keyword='Molly'}]     — items whose EXIF keywords include 'Molly'
  */
 
 import type { SimplePlugin, PluginContext, PluginParams } from './types';
@@ -19,13 +21,13 @@ interface MediaItem {
   id: string;
   filename: string;
   year?: number;
-  eventName?: string | null;
 }
 
 interface MediaManager {
   getYears(): Promise<number[]>;
   listByYear(year: number): Promise<MediaItem[]>;
   listByPage(pageName: string): Promise<MediaItem[]>;
+  listByKeyword(keyword: string): Promise<MediaItem[]>;
 }
 
 const MediaPlugin: SimplePlugin = {
@@ -45,10 +47,15 @@ const MediaPlugin: SimplePlugin = {
       const format = typeof params.format === 'string' ? params.format : 'count';
       const yearParam = params.year != null ? parseInt(String(params.year), 10) : null;
       const pageParam = params.page != null ? String(params.page) : null;
+      const keywordParam = params.keyword != null ? String(params.keyword) : null;
 
       let items: MediaItem[];
 
-      if (pageParam) {
+      if (keywordParam) {
+        // Resolve 'current' to the context page name
+        const keyword = keywordParam === 'current' ? (context.pageName ?? '') : keywordParam;
+        items = keyword ? await mediaManager.listByKeyword(keyword) : [];
+      } else if (pageParam) {
         // Resolve 'current' to the context page name
         const pageName = pageParam === 'current' ? (context.pageName ?? '') : pageParam;
         items = pageName ? await mediaManager.listByPage(pageName) : [];
@@ -64,7 +71,7 @@ const MediaPlugin: SimplePlugin = {
         const rawMax = params.max;
         const max = parseMaxParam(typeof rawMax === 'boolean' ? undefined : rawMax);
         const links: PageLink[] = applyMax(items, max).map(item => ({
-          text: item.eventName ?? item.filename,
+          text: item.filename,
           href: `/media/item/${encodeURIComponent(item.id)}`
         }));
         return formatAsList(links, {});

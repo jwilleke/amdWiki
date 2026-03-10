@@ -24,8 +24,6 @@ export interface MediaItem {
   year?: number;
   /** Source directory path (for display purposes) */
   dirPath?: string;
-  /** Event name parsed from catalog-export filenames (YYYY-MM-DD-EventName-…); null when absent */
-  eventName?: string | null;
   /** Wiki page name this item is linked to (when the item appears in a page context) */
   linkedPageName?: string;
   /** Whether this item is associated with a private wiki page */
@@ -115,6 +113,19 @@ abstract class BaseMediaProvider {
    * @returns Array of matching MediaItem objects (may be empty).
    */
   getItemsByPage(_pageName: string): Promise<MediaItem[]> {
+    return Promise.resolve([]);
+  }
+
+  /**
+   * Retrieve all media items whose EXIF/XMP keyword list contains the given keyword.
+   *
+   * Performs an exact, case-sensitive match against each entry in
+   * `metadata.keywords` (string or string[]). Items with no keywords are excluded.
+   *
+   * @param keyword - The keyword to match (e.g. "Molly's Cooking").
+   * @returns Array of matching MediaItem objects (may be empty).
+   */
+  getItemsByKeyword(_keyword: string): Promise<MediaItem[]> {
     return Promise.resolve([]);
   }
 
