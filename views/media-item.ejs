@@ -46,16 +46,17 @@
                         </div>
                     <% } %>
                     <% if (prevItem || nextItem) { %>
+                    <% const kwSuffix = albumKeyword ? '?keyword=' + encodeURIComponent(albumKeyword) : ''; %>
                     <div class="d-flex justify-content-between mt-2">
                         <% if (prevItem) { %>
-                            <a href="/media/item/<%= prevItem.id %>" class="btn btn-sm" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);" title="<%= prevItem.filename %>">
+                            <a href="/media/item/<%= prevItem.id %><%= kwSuffix %>" class="btn btn-sm" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);" title="<%= prevItem.filename %>">
                                 &laquo; Prev
                             </a>
                         <% } else { %>
                             <span></span>
                         <% } %>
                         <% if (nextItem) { %>
-                            <a href="/media/item/<%= nextItem.id %>" class="btn btn-sm" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);" title="<%= nextItem.filename %>">
+                            <a href="/media/item/<%= nextItem.id %><%= kwSuffix %>" class="btn btn-sm" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);" title="<%= nextItem.filename %>">
                                 Next &raquo;
                             </a>
                         <% } %>

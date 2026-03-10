@@ -53,6 +53,26 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-10-12
+
+- Agent: Claude Sonnet 4.6
+- Subject: Fix keyword album prev/next navigation showing wrong items (#321)
+- Key Decision: Album links append ?keyword= so item detail page uses keyword-scoped siblings; prev/next links propagate the keyword param to maintain album context across navigation
+- Current Issue: #321
+- Testing:
+  - npm test: 72 suites passed, 1855 tests passed
+- Work Done:
+  - `mediaItemDetail`: reads `req.query.keyword`, uses `listByKeyword()` for siblings when present, falls back to year-based; passes `albumKeyword` to template
+  - `views/media-item.ejs`: prev/next links append `?keyword=` when `albumKeyword` is set
+  - `plugins/MediaPlugin.ts`: `formatAsAlbum()` appends `?keyword=` to each item link
+- Commits: (pending)
+- Files Modified:
+  - src/routes/WikiRoutes.ts
+  - views/media-item.ejs
+  - plugins/MediaPlugin.ts
+
+---
+
 ## 2026-03-10-11
 
 - Agent: Claude Sonnet 4.6

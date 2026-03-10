@@ -8017,10 +8017,17 @@ ${description}
         return res.status(404).send('Media item not found');
       }
 
-      // Prev/next navigation within the same year
+      // Prev/next navigation — keyword-scoped when arriving from a keyword album,
+      // otherwise year-scoped.
+      const albumKeyword = typeof req.query.keyword === 'string' ? req.query.keyword : null;
       let prevItem: { id: string; filename: string } | null = null;
       let nextItem: { id: string; filename: string } | null = null;
-      if (item.year) {
+      if (albumKeyword) {
+        const siblings: { id: string; filename: string }[] = await mediaManager.listByKeyword(albumKeyword, wikiContext);
+        const idx = siblings.findIndex((s: { id: string }) => s.id === item.id);
+        if (idx > 0) prevItem = siblings[idx - 1];
+        if (idx >= 0 && idx < siblings.length - 1) nextItem = siblings[idx + 1];
+      } else if (item.year) {
         const siblings: { id: string; filename: string }[] = await mediaManager.listByYear(item.year, wikiContext);
         const idx = siblings.findIndex((s: { id: string }) => s.id === item.id);
         if (idx > 0) prevItem = siblings[idx - 1];
@@ -8047,6 +8054,7 @@ ${description}
         item,
         prevItem,
         nextItem,
+        albumKeyword,
         keywordPageExists,
         title: `Media — ${item.filename}`
       });

@@ -33,13 +33,14 @@ interface MediaManager {
   listByKeyword(keyword: string): Promise<MediaItem[]>;
 }
 
-function formatAsAlbum(items: MediaItem[], max: number): string {
+function formatAsAlbum(items: MediaItem[], max: number, keyword?: string): string {
   const visible = applyMax(items, max);
   if (visible.length === 0) {
     return '<p><em>No media items found.</em></p>';
   }
+  const kwParam = keyword ? `?keyword=${encodeURIComponent(keyword)}` : '';
   const cards = visible.map(item => {
-    const href = `/media/item/${encodeURIComponent(item.id)}`;
+    const href = `/media/item/${encodeURIComponent(item.id)}${kwParam}`;
     const alt  = escapeHtml(item.filename);
     const isImage = item.mimeType?.startsWith('image/');
     const isVideo = item.mimeType?.startsWith('video/');
@@ -71,11 +72,12 @@ const MediaPlugin: SimplePlugin = {
       const keywordParam = params.keyword != null ? String(params.keyword) : null;
 
       let items: MediaItem[];
+      let resolvedKeyword: string | undefined;
 
       if (keywordParam) {
         // Resolve 'current' to the context page name
-        const keyword = keywordParam === 'current' ? (context.pageName ?? '') : keywordParam;
-        items = keyword ? await mediaManager.listByKeyword(keyword) : [];
+        resolvedKeyword = keywordParam === 'current' ? (context.pageName ?? '') : keywordParam;
+        items = resolvedKeyword ? await mediaManager.listByKeyword(resolvedKeyword) : [];
       } else if (pageParam) {
         // Resolve 'current' to the context page name
         const pageName = pageParam === 'current' ? (context.pageName ?? '') : pageParam;
@@ -92,7 +94,7 @@ const MediaPlugin: SimplePlugin = {
       const max = parseMaxParam(typeof rawMax === 'boolean' ? undefined : rawMax);
 
       if (format === 'album') {
-        return formatAsAlbum(items, max);
+        return formatAsAlbum(items, max, resolvedKeyword);
       }
 
       if (format === 'list') {
