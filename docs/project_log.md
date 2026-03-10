@@ -53,6 +53,24 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-10-07
+
+- Agent: Claude Sonnet 4.6
+- Subject: Fix `[[{Plugin}]` escape — display literal plugin syntax without executing (#316)
+- Key Decision: Use negative lookbehind `(?<!\[)` in PluginSyntaxHandler regex so `[[{...}]` is not executed; unescape `[[{...}]` → `[{...}]` after all plugin execution completes
+- Current Issue: #316
+- Testing:
+  - All 72 unit test suites pass
+- Work Done:
+  - Changed constructor pattern to `/(?<!\[)\[\{(\w+)\s*([^}]*)\}\]/g`
+  - Changed body plugin regex to `/(?<!\[)\[\{(\w+)\s*([^}]*)\}\](.*?)\[\{\/\1\}\]/gs`
+  - Added unescape pass at end of `process()`: `processedContent.replace(/\[\[\{([^}]*)\}\]/g, '[{$1}]')`
+- Commits: (pending)
+- Files Modified:
+  - src/parsers/handlers/PluginSyntaxHandler.ts
+
+---
+
 ## 2026-03-10-05
 
 - Agent: Claude Sonnet 4.6

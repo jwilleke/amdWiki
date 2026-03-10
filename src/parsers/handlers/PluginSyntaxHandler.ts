@@ -88,7 +88,7 @@ class PluginSyntaxHandler extends BaseSyntaxHandler {
 
   constructor(engine: WikiEngine | null = null) {
     super(
-      /\[\{(\w+)\s*([^}]*)\}\]/g, // Pattern: [{PluginName params}]
+      /(?<!\[)\[\{(\w+)\s*([^}]*)\}\]/g, // Pattern: [{PluginName params}] — [[{ prefix is escape (not executed)
       90, // High priority - process before most other handlers
       {
         description: 'Enhanced JSPWiki-style plugin syntax handler with advanced parameter parsing',
@@ -185,6 +185,9 @@ class PluginSyntaxHandler extends BaseSyntaxHandler {
       }
     }
 
+    // Unescape [[{...}] → [{...}] (display literal plugin syntax without executing)
+    processedContent = processedContent.replace(/\[\[\{([^}]*)\}\]/g, '[{$1}]');
+
     return processedContent;
   }
 
@@ -196,7 +199,8 @@ class PluginSyntaxHandler extends BaseSyntaxHandler {
    */
   private async processBodyPlugins(content: string, context: PluginParseContext): Promise<string> {
     // Pattern for body plugins: [{PluginName params}]body content[/{PluginName}]
-    const bodyPluginRegex = /\[\{(\w+)\s*([^}]*)\}\](.*?)\[\{\/\1\}\]/gs;
+    // [[{ prefix is the escape sequence — not executed
+    const bodyPluginRegex = /(?<!\[)\[\{(\w+)\s*([^}]*)\}\](.*?)\[\{\/\1\}\]/gs;
 
     const bodyMatches: PluginMatch[] = [];
     let match: RegExpExecArray | null;
