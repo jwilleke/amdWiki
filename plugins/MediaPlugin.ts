@@ -11,8 +11,9 @@
  *   [{MediaPlugin format='count' page='current'}]      — count of items on the current page
  *   [{MediaPlugin format='list' keyword='current'}]    — items whose EXIF keywords include the current page name
  *   [{MediaPlugin format='list' keyword='Molly'}]      — items whose EXIF keywords include 'Molly'
- *   [{MediaPlugin format='album' keyword='current'}]   — thumbnail grid of items matching the current page name
+ *   [{MediaPlugin format='album' keyword='current'}]        — thumbnail grid of items matching the current page name
  *   [{MediaPlugin format='album' keyword="Molly's Cooking"}] — thumbnail grid for a keyword
+ *   [{MediaPlugin format='album-link' keyword='current'}]   — button linking to the keyword album page
  */
 
 import type { SimplePlugin, PluginContext, PluginParams } from './types';
@@ -95,6 +96,14 @@ const MediaPlugin: SimplePlugin = {
 
       if (format === 'album') {
         return formatAsAlbum(items, max, resolvedKeyword);
+      }
+
+      if (format === 'album-link') {
+        if (!resolvedKeyword) return '<p><em>album-link requires a keyword= parameter.</em></p>';
+        const label = escapeHtml(`${resolvedKeyword} Album`);
+        const href  = `/media/keyword/${encodeURIComponent(resolvedKeyword)}`;
+        const count = items.length;
+        return `<a href="${href}" class="btn btn-sm" style="background-color:var(--btn-secondary-bg);color:var(--btn-secondary-text);border-color:var(--btn-secondary-border);"><i class="fas fa-images"></i> ${label} (${count} item${count !== 1 ? 's' : ''})</a>`;
       }
 
       if (format === 'list') {
