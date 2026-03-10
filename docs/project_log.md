@@ -24,6 +24,43 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-10-02
+
+- Agent: Claude Sonnet 4.6
+- Subject: Update GLOSSARY.md with accurate, code-verified entries
+- Key Decision: Docs-only change — no build/restart required
+- Current Issue: N/A
+- Testing:
+  - npm test: 72 suites passed, 1855 tests passed
+- Work Done:
+  - Rewrote GLOSSARY.md (142 → 409 lines) with code-verified content
+  - Added sections: Attachments (resolveAttachmentSrc 4-step order, metadata fields, stale storageLocation note), Media (media-index.json, rescan route), Plugins (19 built-in plugins table, plugin shapes, PluginManager loading), Rendering (WikiContext, ParseContext, MarkupParser handler table, Showdown fallback), Private Pages, Managers & Providers
+  - Updated Storage Layout to full config-key table, updated Quick Reference
+- Commits: 9d31061
+- Files Modified:
+  - docs/GLOSSARY.md
+
+---
+
+## 2026-03-10-01
+
+- Agent: Claude Sonnet 4.6
+- Subject: Fix images and attachments not displaying (#314)
+- Key Decision: Derive attachment file path from ConfigurationManager-sourced `storageDirectory` (basename only from metadata), not from stale `metadata.storageLocation`
+- Current Issue: #314
+- Testing:
+  - npm test: 72 suites passed, 1855 tests passed
+- Work Done:
+  - Root cause: `BasicAttachmentProvider.getAttachment()` read files using `metadata.storageLocation` which retained old NAS path (`/Volumes/jims/...`) after data migration; NAS not mounted so all attachment reads failed
+  - Fix: use `this.storageDirectory` (from `amdwiki.attachment.provider.basic.storagedir` via ConfigurationManager) + basename of stored file; private attachments use `privateStorageDir + creator + basename`
+  - Added tests for stale-path fallback (public and private) in `BasicAttachmentProvider.diskFallback.test.js`
+- Commits: 04c891a
+- Files Modified:
+  - src/providers/BasicAttachmentProvider.ts
+  - src/providers/__tests__/BasicAttachmentProvider.diskFallback.test.js
+
+---
+
 ## 2026-03-08-07
 
 - Agent: Claude Sonnet 4.6

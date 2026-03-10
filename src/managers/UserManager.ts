@@ -81,6 +81,7 @@ interface UserUpdateInput {
   roles?: string[];
   isActive?: boolean;
   preferences?: Partial<UserPreferences>;
+  profilePage?: string;
 }
 
 /**
@@ -857,7 +858,11 @@ class UserManager extends BaseManager {
     logger.info(`👤 Created user: ${username} (${isExternal ? 'External' : 'Local'})`);
 
     try {
-      await this.createUserPage(user);
+      const pageCreated = await this.createUserPage(user);
+      if (pageCreated) {
+        user.profilePage = user.displayName;
+        await this.provider.updateUser(username, user);
+      }
     } catch (error) {
       logger.warn(`⚠️  Failed to create user page for ${username}:`, error instanceof Error ? error.message : String(error));
     }

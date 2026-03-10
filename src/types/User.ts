@@ -90,6 +90,9 @@ export interface User {
   /** Profile picture URL or data */
   avatar?: string;
 
+  /** Wiki page name for this user's profile page */
+  profilePage?: string;
+
   /** Additional metadata */
   metadata?: Record<string, unknown>;
 }

@@ -31,6 +31,9 @@
                                     <p><strong>Username:</strong> <%= user.username %></p>
                                     <p><strong>Email:</strong> <%= user.email %></p>
                                     <p><strong>Display Name:</strong> <%= user.displayName %></p>
+                                    <% if (user.profilePage) { %>
+                                    <p><strong>Profile Page:</strong> <a href="/wiki/<%= encodeURIComponent(user.profilePage) %>"><%= user.profilePage %></a></p>
+                                    <% } %>
                                     <p><strong>Account Type:</strong> 
                                         <% if (user.isExternal) { %>
                                             <span class="badge" style="background-color: var(--badge-info-bg); color: var(--badge-info-text);">OAuth/External</span>
@@ -291,8 +294,26 @@
                                 
                                 <div class="form-group mb-3">
                                     <label for="email">Email:</label>
-                                    <input type="email" class="form-control" id="email" name="email" 
+                                    <input type="email" class="form-control" id="email" name="email"
                                            value="<%= user.email %>" required>
+                                </div>
+
+                                <input type="hidden" name="originalProfilePage" value="<%= user.profilePage || '' %>">
+
+                                <div class="form-group mb-3">
+                                    <label for="profilePage">Profile Page:</label>
+                                    <input type="text" class="form-control" id="profilePage" name="profilePage"
+                                           value="<%= user.profilePage || '' %>"
+                                           placeholder="e.g. Jim Willeke">
+                                    <small class="form-text text-muted">Wiki page name for your profile (leave blank to unset)</small>
+                                </div>
+
+                                <div id="renameProfilePageSection" class="form-check mb-3" style="display:none;">
+                                    <input class="form-check-input" type="checkbox" id="renameProfilePage" name="renameProfilePage">
+                                    <label class="form-check-label" for="renameProfilePage">
+                                        <strong>Also rename wiki page</strong>
+                                        <br><small class="text-muted">Rename "<span id="renameFrom"></span>" to "<span id="renameTo"></span>"</small>
+                                    </label>
                                 </div>
                             </div>
                             
@@ -350,6 +371,31 @@
 </div>
 
 <script>
+// Profile page rename prompt
+(function() {
+    const profilePageInput = document.getElementById('profilePage');
+    const originalProfilePage = document.querySelector('input[name="originalProfilePage"]');
+    const renameSection = document.getElementById('renameProfilePageSection');
+    const renameCheckbox = document.getElementById('renameProfilePage');
+    const renameFrom = document.getElementById('renameFrom');
+    const renameTo = document.getElementById('renameTo');
+
+    if (!profilePageInput || !originalProfilePage) return;
+
+    profilePageInput.addEventListener('input', function() {
+        const original = (originalProfilePage.value || '').trim();
+        const current = this.value.trim();
+        if (original && current && original !== current) {
+            renameFrom.textContent = original;
+            renameTo.textContent = current;
+            renameSection.style.display = '';
+        } else {
+            renameSection.style.display = 'none';
+            renameCheckbox.checked = false;
+        }
+    });
+})();
+
 // Client-side password confirmation validation
 document.getElementById('confirmPassword')?.addEventListener('input', function() {
     const newPassword = document.getElementById('newPassword').value;

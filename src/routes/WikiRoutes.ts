@@ -2979,14 +2979,18 @@ class WikiRoutes {
       const {
         displayName,
         email,
+        profilePage,
+        originalProfilePage,
+        renameProfilePage,
         currentPassword,
         newPassword,
         confirmPassword
       } = req.body;
-      const updates: { displayName?: string; email?: string; password?: string } = {};
+      const updates: { displayName?: string; email?: string; password?: string; profilePage?: string } = {};
 
       if (displayName) updates.displayName = displayName;
       if (email) updates.email = email;
+      updates.profilePage = (profilePage as string || '').trim() || undefined;
 
       // Handle password change for local users only
       if (newPassword && !currentUser.isExternal) {
@@ -3023,6 +3027,29 @@ class WikiRoutes {
       }
 
       await userManager.updateUser(currentUser.username, updates);
+
+      // Rename profile page if requested
+      const oldPageName = (originalProfilePage as string || '').trim();
+      const newPageName = updates.profilePage || '';
+      if (renameProfilePage === 'on' && oldPageName && newPageName && oldPageName !== newPageName) {
+        const pageManager = this.engine.getManager('PageManager');
+        if (pageManager) {
+          try {
+            if (pageManager.pageExists(newPageName)) {
+              return res.redirect('/profile?error=Cannot rename: a page named "' + newPageName + '" already exists&success=Profile updated successfully');
+            }
+            const page = await pageManager.getPage(oldPageName);
+            if (page) {
+              const { content, ...meta } = page;
+              await pageManager.savePage(newPageName, content, { ...meta, title: newPageName });
+              await pageManager.deletePage(oldPageName);
+            }
+          } catch (renameErr: unknown) {
+            logger.error('Error renaming profile page:', renameErr);
+            return res.redirect('/profile?error=Profile updated but page rename failed&success=Profile updated successfully');
+          }
+        }
+      }
 
       res.redirect('/profile?success=Profile updated successfully');
     } catch (err: unknown) {
