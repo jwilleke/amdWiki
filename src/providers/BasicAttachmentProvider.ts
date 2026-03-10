@@ -577,8 +577,23 @@ class BasicAttachmentProvider extends BaseAttachmentProvider {
       return this.getOrphanedAttachment(attachmentId);
     }
 
+    // Derive the file path from the configured storage directory (via ConfigurationManager)
+    // rather than trusting metadata.storageLocation, which may point to a stale path
+    // (e.g. an old NAS mount after data migration).
+    const basename = path.basename(metadata.storageLocation);
+    let filePath: string;
+    if (this.storageDirectory) {
+      if (metadata.isPrivate && metadata.creator && this.privateStorageDir) {
+        filePath = path.join(this.privateStorageDir, metadata.creator, basename);
+      } else {
+        filePath = path.join(this.storageDirectory, basename);
+      }
+    } else {
+      filePath = metadata.storageLocation;
+    }
+
     try {
-      const buffer = await fs.readFile(metadata.storageLocation);
+      const buffer = await fs.readFile(filePath);
 
       // Convert to AttachmentResult with AttachmentMetadata format
       const attachmentMetadata: AttachmentMetadata = {
@@ -594,13 +609,13 @@ class BasicAttachmentProvider extends BaseAttachmentProvider {
         url: `/attachments/${metadata.identifier}`,
         uploadedAt: metadata.dateCreated,
         uploadedBy: metadata.author?.name || 'Unknown',
-        filePath: metadata.storageLocation,
+        filePath,
         description: metadata.description
       };
 
       return { buffer, metadata: attachmentMetadata };
     } catch (error: unknown) {
-      logger.error(`[BasicAttachmentProvider] Failed to read attachment file: ${attachmentId}`, error);
+      logger.error(`[BasicAttachmentProvider] Failed to read attachment file: ${attachmentId} at ${filePath}`, error);
       return null;
     }
   }
