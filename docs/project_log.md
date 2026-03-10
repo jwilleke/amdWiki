@@ -53,6 +53,26 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-10-10
+
+- Agent: Claude Sonnet 4.6
+- Subject: Media keyword album view — /media/keyword/:keyword (#321)
+- Key Decision: New route/view mirrors /media/year/:year but filters by EXIF keyword via listByKeyword(); keyword links on media-item detail page get a small album icon linking to the new view
+- Current Issue: #321
+- Testing:
+  - npm test: 72 suites passed, 1855 tests passed
+- Work Done:
+  - Added `GET /media/keyword/:keyword` route and `mediaByKeyword()` handler in `WikiRoutes.ts`
+  - Created `views/media-keyword.ejs` — same thumbnail grid as media-year, headed by keyword name
+  - Updated keyword links in `views/media-item.ejs` — added `fa-images` album icon linking to `/media/keyword/:keyword`
+- Commits: (pending)
+- Files Modified:
+  - src/routes/WikiRoutes.ts
+  - views/media-keyword.ejs (new)
+  - views/media-item.ejs
+
+---
+
 ## 2026-03-10-09
 
 - Agent: Claude Sonnet 4.6

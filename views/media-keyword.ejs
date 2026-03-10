@@ -1,0 +1,59 @@
+<%- include('header', { pageName: 'Media — ' + keyword }) %>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-tag"></i> Media — <%= keyword %></h1>
+                <div>
+                    <a href="/media/search" class="btn btn-sm me-2" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);">
+                        <i class="fas fa-search"></i> Search
+                    </a>
+                    <a href="/media" class="btn btn-sm" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);">
+                        <i class="fas fa-arrow-left"></i> Media
+                    </a>
+                </div>
+            </div>
+
+            <% if (items && items.length > 0) { %>
+                <p class="text-muted mb-3"><%= items.length %> item<%= items.length !== 1 ? 's' : '' %></p>
+                <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 g-2">
+                    <% items.forEach(function(item) { %>
+                        <div class="col">
+                            <a href="/media/item/<%= item.id %>" class="text-decoration-none">
+                                <div class="card h-100">
+                                    <% if (item.mimeType && item.mimeType.startsWith('image/')) { %>
+                                        <img
+                                            src="/media/thumb/<%= item.id %>?size=300x300"
+                                            class="card-img-top"
+                                            alt="<%= item.filename %>"
+                                            style="object-fit:cover; height:160px;"
+                                            loading="lazy"
+                                            onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
+                                        >
+                                        <div class="d-none align-items-center justify-content-center bg-light" style="height:160px;">
+                                            <i class="fas fa-image fa-3x text-muted"></i>
+                                        </div>
+                                    <% } else { %>
+                                        <div class="d-flex align-items-center justify-content-center bg-light" style="height:160px;">
+                                            <i class="fas fa-film fa-3x text-muted"></i>
+                                        </div>
+                                    <% } %>
+                                    <div class="card-body p-2">
+                                        <small class="text-muted d-block text-truncate" title="<%= item.filename %>"><%= item.filename %></small>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    <% }); %>
+                </div>
+            <% } else { %>
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> No media items found for keyword <strong><%= keyword %></strong>.
+                </div>
+            <% } %>
+        </div>
+    </div>
+</div>
+
+<%- include('footer') %>

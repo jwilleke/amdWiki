@@ -6112,6 +6112,7 @@ class WikiRoutes {
     // Media routes (Phase 3 stub)
     app.get('/media', (req: Request, res: Response) => void this.mediaHome(req, res));
     app.get('/media/year/:year', (req: Request, res: Response) => void this.mediaByYear(req, res));
+    app.get('/media/keyword/:keyword', (req: Request, res: Response) => void this.mediaByKeyword(req, res));
     app.get('/media/item/:id', (req: Request, res: Response) => void this.mediaItemDetail(req, res));
     app.get('/media/search', (req: Request, res: Response) => void this.mediaSearch(req, res));
     app.get('/media/api/item/:id', (req: Request, res: Response) => void this.mediaApiItem(req, res));
@@ -7968,6 +7969,33 @@ ${description}
       });
     } catch (err: unknown) {
       logger.error('[media] Error rendering media year:', err);
+      return res.status(500).send('Internal server error');
+    }
+  }
+
+  /**
+   * GET /media/keyword/:keyword
+   * Album view — all media items whose EXIF/XMP keywords include the given keyword.
+   */
+  async mediaByKeyword(req: Request, res: Response) {
+    const mediaManager = this.engine.getManager('MediaManager');
+    if (!mediaManager) {
+      return res.status(503).send('Media manager not enabled');
+    }
+    try {
+      const keyword = decodeURIComponent(req.params.keyword);
+      const wikiContext = this.createWikiContext(req, { context: WikiContext.CONTEXT.VIEW });
+      const items = await mediaManager.listByKeyword(keyword, wikiContext);
+      const commonData = await this.getCommonTemplateData(req);
+      return res.render('media-keyword', {
+        ...commonData,
+        wikiContext,
+        keyword,
+        items,
+        title: `Media — ${keyword}`
+      });
+    } catch (err: unknown) {
+      logger.error('[media] Error rendering media keyword album:', err);
       return res.status(500).send('Internal server error');
     }
   }
