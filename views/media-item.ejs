@@ -111,7 +111,7 @@
                                 <span class="text-white-50 d-block">Keywords</span>
                                 <span>
                                     <% const kw = Array.isArray(item.metadata.keywords) ? item.metadata.keywords : [item.metadata.keywords]; %>
-                                    <% kw.forEach(function(k) { %><a href="/wiki/<%= encodeURIComponent(k) %>" class="badge bg-secondary me-1 text-decoration-none text-white"><%= k %></a><% }); %>
+                                    <% kw.forEach(function(k, i) { var exists = keywordPageExists && keywordPageExists[k]; var href = exists ? '/wiki/' + encodeURIComponent(k) : '/edit/' + encodeURIComponent(k); %><a href="<%= href %>" class="<%= exists ? 'text-info' : 'redlink' %>"<% if (!exists) { %> title="Create page: <%= k %>"<% } %>><%= k %></a><% if (i < kw.length - 1) { %>, <% } %><% }); %>
                                 </span>
                             </li>
                             <% } %>

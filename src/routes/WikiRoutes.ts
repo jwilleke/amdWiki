@@ -7999,6 +7999,19 @@ ${description}
         if (idx >= 0 && idx < siblings.length - 1) nextItem = siblings[idx + 1];
       }
 
+      // Check which keywords have existing wiki pages for red-link support
+      const keywordPageExists: Record<string, boolean> = {};
+      const rawKeywords = item.metadata?.keywords;
+      if (rawKeywords) {
+        const kw = Array.isArray(rawKeywords) ? rawKeywords : [rawKeywords];
+        const pageManager = this.engine.getManager('PageManager');
+        if (pageManager) {
+          for (const k of kw) {
+            keywordPageExists[k] = pageManager.pageExists(k);
+          }
+        }
+      }
+
       const commonData = await this.getCommonTemplateData(req);
       return res.render('media-item', {
         ...commonData,
@@ -8006,6 +8019,7 @@ ${description}
         item,
         prevItem,
         nextItem,
+        keywordPageExists,
         title: `Media — ${item.filename}`
       });
     } catch (err: unknown) {

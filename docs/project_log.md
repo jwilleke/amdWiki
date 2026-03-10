@@ -24,6 +24,26 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-10-05
+
+- Agent: Claude Sonnet 4.6
+- Subject: Fix keyword link styling on media item page (#316)
+- Key Decision: Drop badge format for keyword links; use `text-info` for existing pages and `.redlink` for non-existent pages to match GPS/Year link style; check page existence in route before rendering
+- Current Issue: #316
+- Testing:
+  - No unit tests required (template + route data change only)
+- Work Done:
+  - `mediaItemDetail` now calls `pageManager.pageExists(k)` for each keyword and passes `keywordPageExists` map to template
+  - Existing keywords: `text-info` link to `/wiki/:name` (matches GPS/Year style)
+  - Non-existent keywords: `redlink` class (red text) linking to `/edit/:name` with `title="Create page: ..."` tooltip
+  - Removed badge/blob styling that caused solid red appearance
+- Commits: (pending)
+- Files Modified:
+  - src/routes/WikiRoutes.ts
+  - views/media-item.ejs
+
+---
+
 ## 2026-03-10-04
 
 - Agent: Claude Sonnet 4.6
