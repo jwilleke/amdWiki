@@ -386,6 +386,8 @@ class FileSystemMediaProvider extends BaseMediaProvider {
         if (this.config.ignoreDirs.includes(entry.name)) continue;
         await this.walkDirectory(path.join(dirPath, entry.name), depth + 1, counters, force);
       } else if (entry.isFile()) {
+        // Skip dotfiles (.trashed-*, .DS_Store, etc.)
+        if (entry.name.startsWith('.')) continue;
         const ext = path.extname(entry.name).slice(1).toLowerCase();
         if (!MEDIA_EXTENSIONS.has(ext)) continue;
         counters.scanned++;

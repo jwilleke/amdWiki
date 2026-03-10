@@ -53,6 +53,22 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-10-09
+
+- Agent: Claude Sonnet 4.6
+- Subject: Skip dotfiles (.trashed-*, .DS_Store) during media scan (#322)
+- Key Decision: Any filename starting with `.` is a system/trash file and should never be indexed as media. Single-line guard added before the extension check in `walkDirectory`.
+- Current Issue: #322
+- Testing:
+  - npm test: 72 suites passed, 1855 tests passed
+- Work Done:
+  - `FileSystemMediaProvider.walkDirectory()`: skip files whose name starts with `.`
+- Commits: (pending)
+- Files Modified:
+  - src/providers/FileSystemMediaProvider.ts
+
+---
+
 ## 2026-03-10-08
 
 - Agent: Claude Sonnet 4.6
