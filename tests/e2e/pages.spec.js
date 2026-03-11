@@ -1,5 +1,6 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
+const { TEST_PAGE_PREFIX, deletePage } = require('./fixtures/helpers');
 
 /**
  * Page Operations E2E Tests
@@ -38,7 +39,14 @@ test.describe('Page Operations', () => {
   });
 
   test.describe('Create Page', () => {
-    const testPageTitle = `E2E-Test-Page-${Date.now()}`;
+    const testPageTitle = `${TEST_PAGE_PREFIX}-Page-${Date.now()}`;
+
+    test.afterAll(async ({ browser }) => {
+      const context = await browser.newContext({ storageState: './tests/e2e/.auth/user.json' });
+      const p = await context.newPage();
+      await deletePage(p, testPageTitle);
+      await context.close();
+    });
 
     test('should create a new wiki page', async ({ page }) => {
       // Navigate to create page (not /edit which is for editing existing pages)

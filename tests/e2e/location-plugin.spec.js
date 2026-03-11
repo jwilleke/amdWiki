@@ -1,6 +1,6 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
-const { waitForPageReady } = require('./fixtures/helpers');
+const { TEST_PAGE_PREFIX, waitForPageReady, deletePage } = require('./fixtures/helpers');
 
 /**
  * LocationPlugin E2E Tests
@@ -21,7 +21,19 @@ test.describe('LocationPlugin', () => {
   // Increase timeout for page creation + save + index rebuild
   test.setTimeout(60000);
 
-  const testPageName = `LocationTest-${Date.now()}`;
+  const testPageName = `${TEST_PAGE_PREFIX}-LocationTest-${Date.now()}`;
+
+  // Suffixes used across all tests in this describe block
+  const PAGE_SUFFIXES = ['-name', '-coords', '-google', '-geo', '-embed', '-noembed', '-error', '-invalid', '-attrs', '-icon'];
+
+  test.afterAll(async ({ browser }) => {
+    const context = await browser.newContext({ storageState: './tests/e2e/.auth/user.json' });
+    const p = await context.newPage();
+    for (const suffix of PAGE_SUFFIXES) {
+      await deletePage(p, `${testPageName}${suffix}`);
+    }
+    await context.close();
+  });
 
   test.describe('Basic Location Links', () => {
     test('should render location link with name parameter', async ({ page }) => {

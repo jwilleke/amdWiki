@@ -6,6 +6,28 @@ const { expect } = require('@playwright/test');
  */
 
 /**
+ * Prefix applied to every wiki page created by E2E tests.
+ * Makes test-created pages easy to identify and bulk-delete.
+ */
+const TEST_PAGE_PREFIX = 'AMDWIKI-test';
+
+/**
+ * Delete a wiki page via the HTTP delete route (requires admin auth).
+ * Silently ignores 404 (page already gone).
+ * @param {import('@playwright/test').Page} page
+ * @param {string} pageName
+ */
+async function deletePage(page, pageName) {
+  const response = await page.request.post(`/delete/${encodeURIComponent(pageName)}`, {
+    headers: { 'Accept': 'application/json' }
+  });
+  // 200 = deleted, 404 = already gone — both are acceptable
+  if (response.status() !== 200 && response.status() !== 404) {
+    console.warn(`[helpers] deletePage: unexpected status ${response.status()} for "${pageName}"`);
+  }
+}
+
+/**
  * Wait for the server to finish initialization (stop returning 503 maintenance page).
  * Call this once before running tests (e.g., in auth.setup.js).
  * @param {import('@playwright/test').Page} page
@@ -105,9 +127,11 @@ async function hasText(page, text) {
 }
 
 module.exports = {
+  TEST_PAGE_PREFIX,
   waitForServerReady,
   waitForPageReady,
   createPage,
+  deletePage,
   navigateToPage,
   performSearch,
   getNotifications,
