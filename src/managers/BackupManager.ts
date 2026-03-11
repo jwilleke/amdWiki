@@ -87,9 +87,24 @@ export interface BackupFileInfo {
  * const backupPath = await backupManager.createBackup();
  * console.log('Backup created:', backupPath);
  */
+/** Auto-backup schedule configuration */
+export interface AutoBackupConfig {
+  enabled: boolean;
+  time: string;       // HH:MM (24-hour)
+  days: string;       // "daily" | "monthly" | comma-separated day names e.g. "Mon,Wed,Fri"
+  maxBackups: number;
+  directory: string;
+}
+
+const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
 class BackupManager extends BaseManager {
   private backupDirectory: string | null;
   private maxBackups: number;
+  private schedulerTimer: ReturnType<typeof setInterval> | null;
+  private autoBackupEnabled: boolean;
+  private autoBackupTime: string;   // HH:MM
+  private autoBackupDays: string;   // "daily" | "monthly" | "Mon,Wed,..."
 
   /**
    * Creates a new BackupManager instance
@@ -101,7 +116,11 @@ class BackupManager extends BaseManager {
   constructor(engine: WikiEngine) {
     super(engine);
     this.backupDirectory = null;
-    this.maxBackups = 10; // Keep last 10 backups
+    this.maxBackups = 10;
+    this.schedulerTimer = null;
+    this.autoBackupEnabled = false;
+    this.autoBackupTime = '02:00';
+    this.autoBackupDays = 'daily';
   }
 
   /**
@@ -128,14 +147,22 @@ class BackupManager extends BaseManager {
     );
 
     this.maxBackups = configManager.getProperty('amdwiki.backup.maxBackups') as number;
+    this.autoBackupEnabled = configManager.getProperty('amdwiki.backup.autoBackup') as boolean ?? false;
+    this.autoBackupTime = configManager.getProperty('amdwiki.backup.autoBackupTime') as string ?? '02:00';
+    this.autoBackupDays = configManager.getProperty('amdwiki.backup.autoBackupDays') as string ?? 'daily';
 
     // Ensure backup directory exists
-
     await fs.ensureDir(this.backupDirectory);
+
+    // Start scheduler if auto-backup is enabled
+    if (this.autoBackupEnabled) {
+      this.startScheduler();
+    }
 
     logger.info('✅ BackupManager initialized');
     logger.info(`📁 Backup directory: ${this.backupDirectory}`);
     logger.info(`📊 Max backups to retain: ${this.maxBackups}`);
+    logger.info(`🕐 Auto backup: ${this.autoBackupEnabled ? `enabled at ${this.autoBackupTime} (${this.autoBackupDays})` : 'disabled'}`);
   }
 
   /**
@@ -478,6 +505,116 @@ class BackupManager extends BaseManager {
   async getLatestBackup(): Promise<string | null> {
     const backups = await this.listBackups();
     return backups.length > 0 ? backups[0].path : null;
+  }
+
+  /**
+   * Return current auto-backup configuration and last backup info for the admin UI.
+   */
+  async getAutoBackupStatus(): Promise<{ config: AutoBackupConfig; lastBackup: Date | null }> {
+    const backups = await this.listBackups();
+    return {
+      config: {
+        enabled: this.autoBackupEnabled,
+        time: this.autoBackupTime,
+        days: this.autoBackupDays,
+        maxBackups: this.maxBackups,
+        directory: this.backupDirectory ?? ''
+      },
+      lastBackup: backups.length > 0 ? backups[0].created : null
+    };
+  }
+
+  /**
+   * Update auto-backup configuration and persist to config store.
+   * Restarts the scheduler with the new settings.
+   */
+  async updateAutoBackupConfig(config: Partial<AutoBackupConfig>): Promise<void> {
+    const configManager = this.engine.getManager<ConfigurationManager>('ConfigurationManager');
+    if (!configManager) throw new Error('ConfigurationManager not available');
+
+    if (config.enabled !== undefined) {
+      await configManager.setProperty('amdwiki.backup.autoBackup', config.enabled);
+      this.autoBackupEnabled = config.enabled;
+    }
+    if (config.time !== undefined) {
+      await configManager.setProperty('amdwiki.backup.autoBackupTime', config.time);
+      this.autoBackupTime = config.time;
+    }
+    if (config.days !== undefined) {
+      await configManager.setProperty('amdwiki.backup.autoBackupDays', config.days);
+      this.autoBackupDays = config.days;
+    }
+    if (config.maxBackups !== undefined) {
+      await configManager.setProperty('amdwiki.backup.maxBackups', config.maxBackups);
+      this.maxBackups = config.maxBackups;
+    }
+    if (config.directory !== undefined) {
+      await configManager.setProperty('amdwiki.backup.directory', config.directory);
+      this.backupDirectory = config.directory;
+      await fs.ensureDir(this.backupDirectory);
+    }
+
+    // Restart scheduler with updated settings
+    this.stopScheduler();
+    if (this.autoBackupEnabled) {
+      this.startScheduler();
+    }
+
+    logger.info(`✅ Auto-backup config updated: ${this.autoBackupEnabled ? `enabled at ${this.autoBackupTime} (${this.autoBackupDays})` : 'disabled'}`);
+  }
+
+  /**
+   * Start the auto-backup scheduler. Checks every minute whether a backup is due.
+   */
+  private startScheduler(): void {
+    this.stopScheduler();
+    logger.info(`🕐 Auto-backup scheduler started — ${this.autoBackupTime} (${this.autoBackupDays})`);
+
+    const timer = setInterval(() => {
+      void this.checkAndRunScheduledBackup();
+    }, 60_000); // check every minute
+
+    timer.unref(); // don't prevent process exit
+    this.schedulerTimer = timer;
+  }
+
+  /**
+   * Stop the auto-backup scheduler.
+   */
+  private stopScheduler(): void {
+    if (this.schedulerTimer) {
+      clearInterval(this.schedulerTimer);
+      this.schedulerTimer = null;
+      logger.info('🛑 Auto-backup scheduler stopped');
+    }
+  }
+
+  /**
+   * Called every minute by the scheduler. Runs a backup if the current
+   * time matches the configured schedule (within the same minute).
+   */
+  private async checkAndRunScheduledBackup(): Promise<void> {
+    try {
+      const now = new Date();
+      const hhmm = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+      if (hhmm !== this.autoBackupTime) return;
+
+      const dayName = DAY_NAMES[now.getDay()];
+      const dom = now.getDate();
+      const days = this.autoBackupDays.toLowerCase();
+
+      const shouldRun =
+        days === 'daily' ||
+        (days === 'monthly' && dom === 1) ||
+        days.split(',').map(d => d.trim().toLowerCase()).includes(dayName.toLowerCase());
+
+      if (!shouldRun) return;
+
+      logger.info(`⏰ Scheduled auto-backup triggered at ${hhmm} (${dayName})`);
+      await this.createBackup();
+    } catch (err) {
+      logger.error('❌ Scheduled auto-backup failed:', err);
+    }
   }
 }
 

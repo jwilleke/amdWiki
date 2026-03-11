@@ -1,0 +1,208 @@
+<%- include('header', { pageName: 'Backup Management' }) %>
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-database"></i> Backup Management</h1>
+        <a href="/admin" class="btn btn-sm" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);">
+            <i class="fas fa-arrow-left"></i> Admin
+        </a>
+    </div>
+
+    <% if (success) { %>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle"></i> <%= success %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <% } %>
+    <% if (error) { %>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle"></i> <%= error %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <% } %>
+
+    <!-- ================================================================ -->
+    <!-- Manual Backup                                                     -->
+    <!-- ================================================================ -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fas fa-download"></i> Manual Backup</h5>
+        </div>
+        <div class="card-body">
+            <p>Creates a compressed backup file (<code>.json.gz</code>) and downloads it to your browser immediately.</p>
+
+            <h6 class="mt-3">What is included</h6>
+            <ul>
+                <li>Configuration settings</li>
+                <li>User accounts and roles</li>
+                <li>Access control lists (ACLs)</li>
+                <li>Attachment metadata (filenames, page links, hashes)</li>
+                <li>Search index</li>
+            </ul>
+
+            <h6 class="mt-3">What is <strong>not</strong> included</h6>
+            <ul class="text-warning-emphasis">
+                <li><strong>Wiki page files</strong> — back up <code>$SLOW_STORAGE/pages/</code> separately</li>
+                <li><strong>Attachment binary files</strong> — back up <code>$SLOW_STORAGE/attachments/</code> separately</li>
+                <li><strong>Media files</strong> — back up your media source folders independently</li>
+            </ul>
+
+            <div class="alert alert-warning mt-3 mb-3" role="alert">
+                <i class="fas fa-exclamation-triangle"></i>
+                <strong>This is not a complete backup.</strong>
+                See the <a href="/wiki/Backup" class="alert-link">Backup wiki page</a> for the full recommended backup process.
+            </div>
+
+            <form method="POST" action="/admin/backup/create">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-database"></i> Create &amp; Download Backup
+                </button>
+            </form>
+
+            <% if (recentBackups && recentBackups.length > 0) { %>
+            <h6 class="mt-4">Recent Backups (stored on server)</h6>
+            <table class="table table-sm table-striped mt-2">
+                <thead><tr><th>Filename</th><th>Size</th><th>Created</th></tr></thead>
+                <tbody>
+                <% recentBackups.slice(0, 5).forEach(function(b) { %>
+                    <tr>
+                        <td><code style="font-size:0.8em;"><%= b.filename %></code></td>
+                        <td><%= Math.round(b.size / 1024) %> KB</td>
+                        <td><%= new Date(b.created).toLocaleString() %></td>
+                    </tr>
+                <% }); %>
+                </tbody>
+            </table>
+            <% } %>
+        </div>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- Auto Backup                                                       -->
+    <!-- ================================================================ -->
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="fas fa-clock"></i> Auto Backup</h5>
+            <span class="badge <%= status.config.enabled ? 'bg-success' : 'bg-secondary' %>">
+                <%= status.config.enabled ? 'Enabled' : 'Disabled' %>
+            </span>
+        </div>
+        <div class="card-body">
+            <table class="table table-sm mb-3" style="max-width:400px;">
+                <tr><th>Status</th><td><%= status.config.enabled ? 'Enabled' : 'Disabled' %></td></tr>
+                <tr><th>Time</th><td><%= status.config.time %></td></tr>
+                <tr><th>Days</th><td><%= status.config.days %></td></tr>
+                <tr><th>Max backups kept</th><td><%= status.config.maxBackups %></td></tr>
+                <tr><th>Backup directory</th><td><code style="font-size:0.8em;"><%= status.config.directory %></code></td></tr>
+                <tr>
+                    <th>Last backup</th>
+                    <td>
+                        <% if (status.lastBackup) { %>
+                            <%= new Date(status.lastBackup).toLocaleString() %>
+                        <% } else { %>
+                            <em class="text-muted">None recorded</em>
+                        <% } %>
+                    </td>
+                </tr>
+            </table>
+
+            <!-- Configure Auto Backup (collapsible) -->
+            <button class="btn btn-sm" type="button"
+                    style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);"
+                    data-bs-toggle="collapse" data-bs-target="#autoBackupConfig" aria-expanded="false">
+                <i class="fas fa-cog"></i> Configure Auto Backup
+            </button>
+
+            <div class="collapse mt-3" id="autoBackupConfig">
+                <div class="card card-body border-secondary">
+                    <form method="POST" action="/admin/backup/config">
+
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="autoBackupEnabled"
+                                       name="autoBackup" value="true"
+                                       <%= status.config.enabled ? 'checked' : '' %>>
+                                <label class="form-check-label" for="autoBackupEnabled">Enable Auto Backup</label>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="autoBackupTime" class="form-label">Time of day (24-hour HH:MM)</label>
+                            <input type="time" class="form-control" id="autoBackupTime"
+                                   name="autoBackupTime" value="<%= status.config.time %>" style="max-width:140px;">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label d-block">Days</label>
+                            <div class="d-flex flex-wrap gap-2 mb-2">
+                                <% const dayOpts = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']; %>
+                                <% const selectedDays = status.config.days; %>
+                                <% dayOpts.forEach(function(d) { %>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input day-checkbox" type="checkbox"
+                                               id="day_<%= d %>" value="<%= d %>"
+                                               <%= (selectedDays !== 'daily' && selectedDays !== 'monthly' && selectedDays.toLowerCase().includes(d.toLowerCase())) ? 'checked' : '' %>>
+                                        <label class="form-check-label" for="day_<%= d %>"><%= d %></label>
+                                    </div>
+                                <% }); %>
+                            </div>
+                            <div class="d-flex gap-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="autoBackupDays"
+                                           id="days_daily" value="daily"
+                                           <%= selectedDays === 'daily' ? 'checked' : '' %>>
+                                    <label class="form-check-label" for="days_daily">Daily</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="autoBackupDays"
+                                           id="days_monthly" value="monthly"
+                                           <%= selectedDays === 'monthly' ? 'checked' : '' %>>
+                                    <label class="form-check-label" for="days_monthly">Monthly (1st of month)</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="autoBackupDays"
+                                           id="days_custom" value=""
+                                           <%= (selectedDays !== 'daily' && selectedDays !== 'monthly') ? 'checked' : '' %>>
+                                    <label class="form-check-label" for="days_custom">Custom (use checkboxes above)</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="maxBackups" class="form-label">Max backups to keep</label>
+                            <input type="number" class="form-control" id="maxBackups"
+                                   name="maxBackups" value="<%= status.config.maxBackups %>"
+                                   min="1" max="100" style="max-width:100px;">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="directory" class="form-label">Backup directory</label>
+                            <input type="text" class="form-control" id="directory"
+                                   name="directory" value="<%= status.config.directory %>">
+                            <div class="form-text">Absolute path. Leave unchanged to keep current location.</div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save Configuration
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+// When "Custom" radio is selected, build the autoBackupDays value from checked day checkboxes on submit
+document.querySelector('form[action="/admin/backup/config"]').addEventListener('submit', function(e) {
+    const customRadio = document.getElementById('days_custom');
+    if (customRadio && customRadio.checked) {
+        const checked = Array.from(document.querySelectorAll('.day-checkbox:checked')).map(cb => cb.value);
+        customRadio.value = checked.join(',') || 'daily';
+    }
+});
+</script>
+
+<%- include('footer') %>

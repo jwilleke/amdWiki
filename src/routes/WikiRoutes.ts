@@ -3952,6 +3952,77 @@ class WikiRoutes {
   /**
    * Admin backup - Create and download full system backup
    */
+  /**
+   * GET /admin/backup — Backup management page
+   */
+  async adminBackupPage(req: Request, res: Response) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = req.userContext;
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:system'))) {
+        return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to manage backups');
+      }
+      const backupManager = this.engine.getManager('BackupManager');
+      if (!backupManager) {
+        return await this.renderError(req, res, 500, 'Backup Unavailable', 'BackupManager is not available');
+      }
+      const status = await backupManager.getAutoBackupStatus();
+      const recentBackups = await backupManager.listBackups();
+      const commonData = await this.getCommonTemplateData(req);
+      return res.render('admin-backup', {
+        ...commonData,
+        status,
+        recentBackups,
+        success: req.query.success as string | undefined,
+        error: req.query.error as string | undefined,
+        title: 'Backup Management'
+      });
+    } catch (err: unknown) {
+      logger.error('Error rendering backup page:', err);
+      return res.status(500).send('Internal server error');
+    }
+  }
+
+  /**
+   * POST /admin/backup/config — Save auto-backup configuration
+   */
+  async adminBackupConfig(req: Request, res: Response) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = req.userContext;
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:system'))) {
+        return await this.renderError(req, res, 403, 'Access Denied', 'You do not have permission to manage backups');
+      }
+      const backupManager = this.engine.getManager('BackupManager');
+      if (!backupManager) {
+        return res.redirect('/admin/backup?error=BackupManager+not+available');
+      }
+
+      const body = req.body as Record<string, string>;
+      const enabled = body.autoBackup === 'true' || body.autoBackup === 'on';
+      const time = body.autoBackupTime ?? '02:00';
+      const days = body.autoBackupDays ?? 'daily';
+      const maxBackups = parseInt(body.maxBackups ?? '10', 10);
+      const directory = body.directory ?? '';
+
+      await backupManager.updateAutoBackupConfig({
+        enabled,
+        time,
+        days,
+        maxBackups: isNaN(maxBackups) ? 10 : maxBackups,
+        ...(directory ? { directory } : {})
+      });
+
+      return res.redirect('/admin/backup?success=Auto-backup+configuration+saved');
+    } catch (err: unknown) {
+      logger.error('Error saving backup config:', err);
+      return res.redirect('/admin/backup?error=' + encodeURIComponent(getErrorMessage(err)));
+    }
+  }
+
+  /**
+   * POST /admin/backup/create — Create backup and download
+   */
   async adminBackup(req: Request, res: Response) {
     try {
       const userManager = this.engine.getManager('UserManager');
@@ -5904,7 +5975,9 @@ class WikiRoutes {
 
     // Admin routes
     app.get('/admin', (req: Request, res: Response) => this.adminDashboard(req, res));
-    app.get('/admin/backup', (req: Request, res: Response) => this.adminBackup(req, res));
+    app.get('/admin/backup', (req: Request, res: Response) => void this.adminBackupPage(req, res));
+    app.post('/admin/backup/create', (req: Request, res: Response) => this.adminBackup(req, res));
+    app.post('/admin/backup/config', (req: Request, res: Response) => void this.adminBackupConfig(req, res));
     app.get('/admin/configuration', (req: Request, res: Response) =>
       this.adminConfiguration(req, res)
     );

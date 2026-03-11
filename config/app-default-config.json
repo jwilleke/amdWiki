@@ -1193,6 +1193,8 @@
   "amdwiki.backup.compress": true,
   "amdwiki.backup.autoBackup": false,
   "amdwiki.backup.autoBackupInterval": 86400000,
+  "amdwiki.backup.autoBackupTime": "02:00",
+  "amdwiki.backup.autoBackupDays": "daily",
   "_comment_media": "MediaManager configuration (Issue #273). Media scanning/indexing of external photo/video libraries.",
   "amdwiki.media.enabled": false,
   "amdwiki.media.folders": [],
