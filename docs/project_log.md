@@ -53,6 +53,70 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-11-06
+
+- Agent: Claude Sonnet 4.6
+- Subject: Fix e2e test pages left behind in wiki — prefix + cleanup (#326)
+- Key Decision: Single TEST_PAGE_PREFIX='AMDWIKI-test' constant in helpers.js; deletePage() uses POST /delete/:page; afterAll hooks delete all pages created by each spec; PAGE_SUFFIXES array in location-plugin covers all 10 variants
+- Current Issue: #326
+- Testing:
+  - npm test: 72 suites passed, 1855 tests passed
+- Work Done:
+  - `tests/e2e/fixtures/helpers.js`: added `TEST_PAGE_PREFIX` constant and `deletePage()` helper
+  - `tests/e2e/pages.spec.js`: renamed to `AMDWIKI-test-Page-<ts>`; added `afterAll` cleanup
+  - `tests/e2e/location-plugin.spec.js`: renamed to `AMDWIKI-test-LocationTest-<ts>`; added `afterAll` deleting all 10 suffix variants
+- Issues Closed:
+  - #326 — test pages left behind
+- Commits: 77e3e90
+- Files Modified:
+  - tests/e2e/fixtures/helpers.js
+  - tests/e2e/pages.spec.js
+  - tests/e2e/location-plugin.spec.js
+
+---
+
+## 2026-03-11-05
+
+- Agent: Claude Sonnet 4.6
+- Subject: Enhance Media Management wiki page and MediaManager docs to v1.2.0
+- Key Decision: required-pages/Media Management is the canonical user-facing guide; MediaManager-Complete-Guide.md is the technical reference — both updated to cover all features added since v1.0.0 (keyword albums, MediaPlugin, video playback, extensions config)
+- Current Issue: #321, #325
+- Testing:
+  - npm test: 72 suites passed, 1855 tests passed
+- Work Done:
+  - `required-pages/e36d72ac` (Media Management): added Browsing by Keyword section, MediaPlugin embedding section (all formats + params + apostrophe quoting), video playback note, keyword wiki links, Page Info media modal, extensions config in Config Reference
+  - `docs/managers/MediaManager.md`: added `listByKeyword()`, `/media/keyword/:keyword` route, `amdwiki.media.extensions`, removed `eventName`; bumped v1.2.0
+  - `docs/managers/MediaManager-Complete-Guide.md`: added Keyword Browsing and MediaPlugin Integration sections; updated `MediaItem` (no `eventName`); new troubleshooting entries; updated roadmap; bumped v1.2.0
+- Commits: 439095a
+- Files Modified:
+  - required-pages/e36d72ac-3d76-4fc8-9e55-47dfeb09d456.md
+  - docs/managers/MediaManager.md
+  - docs/managers/MediaManager-Complete-Guide.md
+
+---
+
+## 2026-03-11-04
+
+- Agent: Claude Sonnet 4.6
+- Subject: Make indexed media file extensions configurable via amdwiki.media.extensions (#325)
+- Key Decision: DEFAULT_MEDIA_EXTENSIONS exported from FileSystemMediaProvider so MediaManager can use it as fallback; Set<string> passed into provider config; leading dots stripped for safety; no behaviour change for existing installs
+- Current Issue: #325
+- Testing:
+  - npm test: 72 suites passed, 1855 tests passed
+- Work Done:
+  - `src/providers/FileSystemMediaProvider.ts`: replaced hardcoded `MEDIA_EXTENSIONS` const with `extensions: Set<string>` in config interface; exported `DEFAULT_MEDIA_EXTENSIONS` array
+  - `src/managers/MediaManager.ts`: reads `amdwiki.media.extensions` config key, normalises entries, passes `Set` to provider
+  - `config/app-default-config.json`: added `amdwiki.media.extensions` with full default list
+- Issues Closed:
+  - #325 — configurable media extensions
+- Commits: b9809b6
+- Files Modified:
+  - src/providers/FileSystemMediaProvider.ts
+  - src/managers/MediaManager.ts
+  - config/app-default-config.json
+
+---
+
 ## 2026-03-11-03
 
 - Agent: Claude Sonnet 4.6
