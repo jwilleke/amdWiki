@@ -23,7 +23,7 @@ import BaseManager from './BaseManager';
 import type { WikiEngine } from '../types/WikiEngine';
 import WikiContext from '../context/WikiContext';
 import BaseMediaProvider, { MediaItem, ScanResult } from '../providers/BaseMediaProvider';
-import FileSystemMediaProvider from '../providers/FileSystemMediaProvider';
+import FileSystemMediaProvider, { DEFAULT_MEDIA_EXTENSIONS } from '../providers/FileSystemMediaProvider';
 import type ConfigurationManager from './ConfigurationManager';
 
 class MediaManager extends BaseManager {
@@ -79,6 +79,8 @@ class MediaManager extends BaseManager {
     const maxDepth = configManager.getProperty('amdwiki.media.maxdepth', 5) as number;
     const thumbnailSizes = configManager.getProperty('amdwiki.media.thumbnail.sizes', '300x300,150x150') as string;
     const metadataPriority = configManager.getProperty('amdwiki.media.metadata.priority', ['EXIF', 'IPTC', 'XMP']) as string[];
+    const extensionList = configManager.getProperty('amdwiki.media.extensions', DEFAULT_MEDIA_EXTENSIONS) as string[];
+    const extensions = new Set(extensionList.map(e => e.toLowerCase().replace(/^\./, '')));
 
     this.provider = new FileSystemMediaProvider({
       folders,
@@ -89,7 +91,8 @@ class MediaManager extends BaseManager {
       thumbnailDir,
       thumbnailSizes,
       metadataPriority,
-      readonly: true
+      readonly: true,
+      extensions
     });
 
     // Load persisted index so queries work before the first background scan

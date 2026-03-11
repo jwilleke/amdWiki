@@ -43,16 +43,18 @@ export interface FileSystemMediaProviderConfig {
   metadataPriority: string[];
   /** Whether the provider may write to source media folders (always false) */
   readonly: boolean;
+  /** Set of file extensions (lowercase, no dot) to index */
+  extensions: Set<string>;
 }
 
-/** Supported media file extensions */
-const MEDIA_EXTENSIONS = new Set([
+/** Default supported media file extensions — used when no config override is provided */
+export const DEFAULT_MEDIA_EXTENSIONS: string[] = [
   // Images
   'jpg', 'jpeg', 'png', 'gif', 'heic', 'heif', 'tiff', 'tif',
   'webp', 'raw', 'orf', 'cr2', 'nef', 'arw', 'dng', 'bmp',
   // Videos
   'mp4', 'mov', 'avi', 'mkv', 'm4v', 'wmv', '3gp'
-]);
+];
 
 /** MIME type lookup by extension */
 const MIME_MAP: Record<string, string> = {
@@ -389,7 +391,7 @@ class FileSystemMediaProvider extends BaseMediaProvider {
         // Skip dotfiles (.trashed-*, .DS_Store, etc.)
         if (entry.name.startsWith('.')) continue;
         const ext = path.extname(entry.name).slice(1).toLowerCase();
-        if (!MEDIA_EXTENSIONS.has(ext)) continue;
+        if (!this.config.extensions.has(ext)) continue;
         counters.scanned++;
         await this.processFile(path.join(dirPath, entry.name), counters, force);
       }

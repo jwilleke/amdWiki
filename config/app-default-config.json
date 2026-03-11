@@ -1214,5 +1214,10 @@
   "amdwiki.media.ignorefiles": [
     ".photoviewignore",
     ".plexignore"
+  ],
+  "amdwiki.media.extensions": [
+    "jpg", "jpeg", "png", "gif", "heic", "heif", "tiff", "tif",
+    "webp", "raw", "orf", "cr2", "nef", "arw", "dng", "bmp",
+    "mp4", "mov", "avi", "mkv", "m4v", "wmv", "3gp"
   ]
 }
