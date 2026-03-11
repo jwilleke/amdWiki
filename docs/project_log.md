@@ -40,7 +40,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - `header.ejs`: `showPageInfo()` delegates to `showMediaInfoModal()` on `/media/item/` pages; modal shows Item ID, URL, per-keyword plugin syntax (correct quoting), file path, dimensions, file size
   - `media-item.ejs`: `window.amdwikiMediaItem` includes keywords; collapsible panel plugin syntax shows one row per keyword with correct single/double-quote form; removed eventName Event row
   - `media-search.ejs`, `media-year.ejs`: removed eventName badge
-- Commits: (pending)
+- Commits: 3786dd7
 - Files Modified:
   - src/providers/BaseMediaProvider.ts
   - src/providers/FileSystemMediaProvider.ts
@@ -50,6 +50,25 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - views/media-item.ejs
   - views/media-search.ejs
   - views/media-year.ejs
+
+---
+
+## 2026-03-11-01
+
+- Agent: Claude Sonnet 4.6
+- Subject: MediaPlugin format='album-link' button; version bump 1.5.16 → 1.6.0 (#321)
+- Key Decision: album-link renders a styled button linking to /media/keyword/:keyword rather than embedding thumbnails inline — better for keywords with many items; MINOR bump for new media album features
+- Current Issue: #321
+- Testing:
+  - npm test: 72 suites passed, 1855 tests passed
+- Work Done:
+  - `plugins/MediaPlugin.ts`: `format='album-link'` renders `📷 <Keyword> Album (N items)` button linking to `/media/keyword/:keyword`
+  - Version bumped 1.5.16 → 1.6.0 (MINOR)
+- Commits: cd9363a, 14506dc
+- Files Modified:
+  - plugins/MediaPlugin.ts
+  - package.json
+  - config/app-default-config.json
 
 ---
 
@@ -65,7 +84,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - `mediaItemDetail`: reads `req.query.keyword`, uses `listByKeyword()` for siblings when present, falls back to year-based; passes `albumKeyword` to template
   - `views/media-item.ejs`: prev/next links append `?keyword=` when `albumKeyword` is set
   - `plugins/MediaPlugin.ts`: `formatAsAlbum()` appends `?keyword=` to each item link
-- Commits: (pending)
+- Commits: 17d2a7e
 - Files Modified:
   - src/routes/WikiRoutes.ts
   - views/media-item.ejs
@@ -83,7 +102,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - npm test: 72 suites passed, 1855 tests passed
 - Work Done:
   - `plugins/MediaPlugin.ts`: added `formatAsAlbum()` helper; added `format='album'` branch; bumped version to 1.2.0; updated usage doc comment
-- Commits: (pending)
+- Commits: 07b3354
 - Files Modified:
   - plugins/MediaPlugin.ts
 
@@ -101,7 +120,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Added `GET /media/keyword/:keyword` route and `mediaByKeyword()` handler in `WikiRoutes.ts`
   - Created `views/media-keyword.ejs` — same thumbnail grid as media-year, headed by keyword name
   - Updated keyword links in `views/media-item.ejs` — added `fa-images` album icon linking to `/media/keyword/:keyword`
-- Commits: (pending)
+- Commits: a20af03
 - Files Modified:
   - src/routes/WikiRoutes.ts
   - views/media-keyword.ejs (new)
@@ -119,7 +138,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - npm test: 72 suites passed, 1855 tests passed
 - Work Done:
   - `FileSystemMediaProvider.walkDirectory()`: skip files whose name starts with `.`
-- Commits: (pending)
+- Commits: c3998e2
 - Files Modified:
   - src/providers/FileSystemMediaProvider.ts
 
@@ -135,7 +154,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - npm test: 72 suites passed, 1855 tests passed
 - Work Done:
   - `FileSystemMediaProvider.getItemsByPage()`: added keyword fallback — checks `metadata.keywords` when `linkedPageName` does not match
-- Commits: (pending)
+- Commits: 09d9b70
 - Files Modified:
   - src/providers/FileSystemMediaProvider.ts
 
@@ -153,7 +172,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Changed constructor pattern to `/(?<!\[)\[\{(\w+)\s*([^}]*)\}\]/g`
   - Changed body plugin regex to `/(?<!\[)\[\{(\w+)\s*([^}]*)\}\](.*?)\[\{\/\1\}\]/gs`
   - Added unescape pass at end of `process()`: `processedContent.replace(/\[\[\{([^}]*)\}\]/g, '[{$1}]')`
-- Commits: (pending)
+- Commits: 4cf4a13
 - Files Modified:
   - src/parsers/handlers/PluginSyntaxHandler.ts
 
@@ -172,7 +191,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Existing keywords: `text-info` link to `/wiki/:name` (matches GPS/Year style)
   - Non-existent keywords: `redlink` class (red text) linking to `/edit/:name` with `title="Create page: ..."` tooltip
   - Removed badge/blob styling that caused solid red appearance
-- Commits: (pending)
+- Commits: 83f7e15
 - Files Modified:
   - src/routes/WikiRoutes.ts
   - views/media-item.ejs
