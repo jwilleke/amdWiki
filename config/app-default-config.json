@@ -2,7 +2,7 @@
   "amdwiki.applicationName": "amdWiki",
   "amdwiki.faviconPath": "/favicon.svg",
   "amdwiki.application.category": "Digital Platform",
-  "amdwiki.version": "1.5.16",
+  "amdwiki.version": "1.6.0",
   "amdwiki.baseURL": "http://localhost:3000",
   "amdwiki.encoding": "UTF-8",
   "amdwiki.frontPage": "Welcome",
@@ -685,7 +685,7 @@
     },
     {
       "value": "America/Sao_Paulo",
-      "label": "BRT (S\u00e3o Paulo)",
+      "label": "BRT (São Paulo)",
       "category": "South America"
     },
     {
