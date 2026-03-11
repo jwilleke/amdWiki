@@ -421,6 +421,27 @@ describe('PageNameMatcher', () => {
       test('should combine with plural matching: "HealthCare" matches "Health Cares"', () => {
         expect(matcher.findMatch('HealthCare', ['Health Cares'])).toBe('Health Cares');
       });
+
+      test('should not match "5th Century" to "10th Century" via stripped numeric prefix', () => {
+        // Bug: without ordinal-number handling in splitCamelCase, "5th Century" and
+        // "10th Century" both split to ["th", "Century"], generating the shared variation
+        // "th century". The 10th Century entry wins the index slot and "5th Century"
+        // incorrectly resolves to it.
+        const matcher2 = new PageNameMatcher(true, true);
+        matcher2.buildIndex(['10th Century']);
+        expect(matcher2.findMatch('5th Century', [])).toBeNull();
+        expect(matcher2.findMatch('6th Century', [])).toBeNull();
+        expect(matcher2.findMatch('18th-Century', [])).toBeNull();
+      });
+
+      test('should correctly resolve ordinal-prefix pages that exist', () => {
+        const matcher2 = new PageNameMatcher(true, true);
+        matcher2.buildIndex(['5th Century', '10th Century']);
+        expect(matcher2.findMatch('5th Century', [])).toBe('5th Century');
+        expect(matcher2.findMatch('10th Century', [])).toBe('10th Century');
+        // Non-existing century should not match either
+        expect(matcher2.findMatch('6th Century', [])).toBeNull();
+      });
     });
 
     describe('getVariations() - with CamelCase disabled', () => {

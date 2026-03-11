@@ -24,6 +24,25 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-11-01
+
+- Agent: Claude Sonnet 4.6
+- Subject: Fix wrong wiki links for pages with numeric/ordinal prefixes (#327)
+- Key Decision: Add `[0-9]+[a-z]*` token to `splitCamelCase` regex so ordinal numbers like "5th", "10th" are kept as whole tokens instead of being stripped to just "th", which caused all "Nth Century" pages to collide on the shared CamelCase variation "th century" and incorrectly resolve to whichever century page happened to register it first.
+- Current Issue: #327
+- Testing:
+  - npm test: 72 suites passed, 1857 tests passed
+- Work Done:
+  - `PageNameMatcher.splitCamelCase()`: added `[0-9]+[a-z]*` to the regex before `[a-z]+` — numeric/ordinal tokens ("5th", "10th", "550") are now preserved as whole units; without this, "5th Century" and "10th Century" both reduced to ["th", "Century"], generating the shared variation "th century" and causing cross-page matches
+  - Added 2 regression tests to `PageNameMatcher.test.js` covering the Nth-Century collision and the correct per-ordinal resolution
+  - Also fixes `[18th-Century]` which previously resolved to "10th Century" instead of "18th Century"
+- Commits: TBD
+- Files Modified:
+  - src/utils/PageNameMatcher.ts
+  - src/utils/__tests__/PageNameMatcher.test.js
+
+---
+
 ## 2026-03-10-06
 
 - Agent: Claude Sonnet 4.6

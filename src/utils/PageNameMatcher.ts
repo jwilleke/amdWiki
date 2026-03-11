@@ -82,13 +82,19 @@ export default class PageNameMatcher {
    * e.g., "BCE", "USA", "HTML" → ["BCE"], ["USA"], ["HTML"]
    * This prevents false matches where "550 BCE" and "330 BCE" would both
    * generate the variation "b c e" and incorrectly match each other.
+   *
+   * Ordinal/numeric prefixes are also kept as single units:
+   * e.g., "5th Century" → ["5th", "Century"], "10th Century" → ["10th", "Century"]
+   * Without this, "5th" and "10th" both reduce to "th", causing all "Nth Century"
+   * pages to collide on the same CamelCase variation.
    */
   private splitCamelCase(name: string): string[] {
     // [A-Z]+(?=[A-Z][a-z]) — uppercase run before a CamelCase word (e.g. "XML" in "XMLParser")
     // [A-Z][a-z]+          — CamelCase word with at least one lowercase (e.g. "Health")
     // [A-Z]+               — standalone acronym/abbreviation (e.g. "BCE", "USA")
+    // [0-9]+[a-z]*         — numeric/ordinal token (e.g. "5th", "10th", "550")
     // [a-z]+               — all-lowercase run (e.g. "amd" in "amdWiki")
-    return name.match(/[A-Z]+(?=[A-Z][a-z])|[A-Z][a-z]+|[A-Z]+|[a-z]+/g) || [name];
+    return name.match(/[A-Z]+(?=[A-Z][a-z])|[A-Z][a-z]+|[A-Z]+|[0-9]+[a-z]*|[a-z]+/g) || [name];
   }
 
   /**
