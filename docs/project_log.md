@@ -53,7 +53,33 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
-## 2026-03-11-01
+## 2026-03-11-03
+
+- Agent: Claude Sonnet 4.6
+- Subject: Backup management page, auto-backup scheduler, updated Backup documentation (#258)
+- Key Decision: GET /admin/backup renders a page (not immediate download); POST /admin/backup/create triggers download; auto-backup scheduler uses setInterval every 60s, compares HH:MM + day name; supports daily/monthly/custom day selection; collapsible config form on same page (no modal)
+- Current Issue: #258
+- Testing:
+  - npm test: 72 suites passed, 1855 tests passed
+- Work Done:
+  - `BackupManager`: auto-backup scheduler (`setInterval` every 60s); `checkAndRunScheduledBackup()` checks HH:MM + day; `updateAutoBackupConfig()` persists via configManager and restarts scheduler; `getAutoBackupStatus()` returns config + last backup date; new config keys: `amdwiki.backup.autoBackupTime` ("02:00"), `amdwiki.backup.autoBackupDays` ("daily")
+  - `WikiRoutes.ts`: `GET /admin/backup` → `adminBackupPage()`; `POST /admin/backup/create` → `adminBackup()` (download); `POST /admin/backup/config` → `adminBackupConfig()`
+  - `views/admin-backup.ejs`: Manual Backup section (what's included/not, recent backups table); Auto Backup section (status table, collapsible Configure form with on/off, time, day checkboxes + Daily/Monthly/Custom radio, maxBackups, directory)
+  - `config/app-default-config.json`: added `amdwiki.backup.autoBackupTime` and `amdwiki.backup.autoBackupDays`
+  - `required-pages/Backup`: full rewrite — what IS/isn't backed up (tables), filesystem paths, media note, auto backup section with ConfigAccessorPlugin, 3-step recommended process, restore guide (structured + filesystem + new machine)
+  - `docs/user-guide/Backups.md`: new user-facing backup guide
+- Commits: b1dd152, 2a1e624
+- Files Modified:
+  - src/managers/BackupManager.ts
+  - src/routes/WikiRoutes.ts
+  - views/admin-backup.ejs
+  - config/app-default-config.json
+  - required-pages/aad73bf5-0aaf-40ed-b5a7-ae0a96457919.md
+  - docs/user-guide/Backups.md
+
+---
+
+## 2026-03-11-02
 
 - Agent: Claude Sonnet 4.6
 - Subject: MediaPlugin format='album-link' button; version bump 1.5.16 → 1.6.0 (#321)
