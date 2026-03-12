@@ -17,7 +17,7 @@ import crypto from 'crypto';
 import path from 'path';
 import fs from 'fs-extra';
 import sharp from 'sharp';
-import { ExifTool, ExifDateTime } from 'exiftool-vendored';
+import { ExifTool } from 'exiftool-vendored';
 import logger from '../utils/logger';
 import BaseMediaProvider, { MediaItem, ScanResult } from './BaseMediaProvider';
 
@@ -482,8 +482,9 @@ class FileSystemMediaProvider extends BaseMediaProvider {
     // 1. EXIF date fields
     for (const field of ['DateTimeOriginal', 'CreateDate', 'MediaCreateDate']) {
       const dt = tags[field];
-      if (dt instanceof ExifDateTime && dt.year && dt.year > 1900 && dt.year < 2100) {
-        return dt.year;
+      const year = dt != null ? (dt as { year?: unknown }).year : undefined;
+      if (typeof year === 'number' && year > 1900 && year < 2100) {
+        return year;
       }
     }
 

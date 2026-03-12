@@ -24,6 +24,27 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-12-01
+
+- Agent: Claude Sonnet 4.6
+- Subject: Fix media items assigned wrong year due to instanceof ExifDateTime fragility (#329)
+- Key Decision: Replace `instanceof ExifDateTime` with duck-type check on `.year` property to guard against cross-module class instance mismatch
+- Current Issue: #329 (closed)
+- Testing:
+  - npm test: 73 suites passed, 1874 tests passed
+- Work Done:
+  - Investigated why media item `fd142f86e38313025bd38369e4460419` appeared in 2026 album despite EXIF DateTimeOriginal showing 2024
+  - Identified `instanceof ExifDateTime` as fragile — silently fails when two class instances are loaded, falling through to mtime fallback
+  - Fixed `extractYear()` to duck-type check `.year` property instead of `instanceof`
+  - Removed now-unused `ExifDateTime` import
+  - Added 17-test unit test suite for `extractYear()` covering all 4 tiers and priority ordering
+- Commits: TBD
+- Files Modified:
+  - `src/providers/FileSystemMediaProvider.ts`
+  - `src/providers/__tests__/FileSystemMediaProvider.extractYear.test.js` (new)
+
+---
+
 ## 2026-03-11-01
 
 - Agent: Claude Sonnet 4.6
