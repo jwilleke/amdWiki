@@ -37,7 +37,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Added global `copyText(text)` + `execCommandCopy(text)` helpers in `header.ejs`
   - Consolidated `copyPageInfo`, `copySourceToClipboard`, `copyToClipboard`/`fallbackCopyToClipboard` to all use `copyText()`
   - Updated all media modal copy buttons in `header.ejs` and `media-item.ejs`
-- Commits: TBD
+- Commits: 9105de3
 - Files Modified:
   - `views/header.ejs`
   - `views/media-item.ejs`
