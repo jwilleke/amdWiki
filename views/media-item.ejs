@@ -148,12 +148,12 @@
                                     <li class="list-group-item bg-dark text-white border-secondary">
                                         <span class="text-white-50 d-block" style="font-size:0.8em;">Item ID</span>
                                         <span class="font-monospace" style="font-size:0.85em; word-break:break-all;"><%= item.id %></span>
-                                        <button class="btn btn-sm btn-outline-secondary ms-1 py-0 px-1" title="Copy ID" onclick="navigator.clipboard.writeText('<%= item.id %>')"><i class="fas fa-copy"></i></button>
+                                        <button class="btn btn-sm btn-outline-secondary ms-1 py-0 px-1" title="Copy ID" onclick="copyText('<%= item.id %>')"><i class="fas fa-copy"></i></button>
                                     </li>
                                     <li class="list-group-item bg-dark text-white border-secondary">
                                         <span class="text-white-50 d-block" style="font-size:0.8em;">URL</span>
                                         <span class="font-monospace" style="font-size:0.85em;">/media/item/<%= item.id %></span>
-                                        <button class="btn btn-sm btn-outline-secondary ms-1 py-0 px-1" title="Copy URL" onclick="navigator.clipboard.writeText(window.location.origin + '/media/item/<%= item.id %>')"><i class="fas fa-copy"></i></button>
+                                        <button class="btn btn-sm btn-outline-secondary ms-1 py-0 px-1" title="Copy URL" onclick="copyText(window.location.origin + '/media/item/<%= item.id %>')"><i class="fas fa-copy"></i></button>
                                     </li>
                                     <li class="list-group-item bg-dark text-white border-secondary">
                                         <span class="text-white-50 d-block" style="font-size:0.8em;">Plugin Syntax</span>
@@ -162,13 +162,13 @@
                                             <% pluginKws.forEach(function(kw) { const q = String(kw).includes("'") ? '"' : "'"; const syn = "[{MediaPlugin format='list' keyword=" + q + kw + q + "}]"; %>
                                             <div class="d-flex align-items-center mb-1">
                                                 <span class="font-monospace" style="font-size:0.85em;flex:1;word-break:break-all;"><%= syn %></span>
-                                                <button class="btn btn-sm btn-outline-secondary ms-1 py-0 px-1 flex-shrink-0" title="Copy syntax" data-copy="<%= syn %>" onclick="navigator.clipboard.writeText(this.dataset.copy)"><i class="fas fa-copy"></i></button>
+                                                <button class="btn btn-sm btn-outline-secondary ms-1 py-0 px-1 flex-shrink-0" title="Copy syntax" data-copy="<%= syn %>" onclick="copyText(this.dataset.copy)"><i class="fas fa-copy"></i></button>
                                             </div>
                                             <% }); %>
                                         <% } else { %>
                                             <div class="d-flex align-items-center">
                                                 <span class="font-monospace" style="font-size:0.85em;">[{MediaPlugin format='list' keyword='current'}]</span>
-                                                <button class="btn btn-sm btn-outline-secondary ms-1 py-0 px-1" title="Copy syntax" onclick="navigator.clipboard.writeText(&quot;[{MediaPlugin format='list' keyword='current'}]&quot;)"><i class="fas fa-copy"></i></button>
+                                                <button class="btn btn-sm btn-outline-secondary ms-1 py-0 px-1" title="Copy syntax" onclick="copyText(&quot;[{MediaPlugin format='list' keyword='current'}]&quot;)"><i class="fas fa-copy"></i></button>
                                             </div>
                                         <% } %>
                                     </li>
@@ -176,7 +176,7 @@
                                     <li class="list-group-item bg-dark text-white border-secondary">
                                         <span class="text-white-50 d-block" style="font-size:0.8em;">File Path</span>
                                         <span class="font-monospace" style="font-size:0.75em; word-break:break-all;"><%= item.filePath %></span>
-                                        <button class="btn btn-sm btn-outline-secondary ms-1 py-0 px-1" title="Copy path" data-copy="<%= item.filePath %>" onclick="navigator.clipboard.writeText(this.dataset.copy)"><i class="fas fa-copy"></i></button>
+                                        <button class="btn btn-sm btn-outline-secondary ms-1 py-0 px-1" title="Copy path" data-copy="<%= item.filePath %>" onclick="copyText(this.dataset.copy)"><i class="fas fa-copy"></i></button>
                                     </li>
                                     <% } %>
                                     <% if (item.metadata && item.metadata.imageWidth && item.metadata.imageHeight) { %>

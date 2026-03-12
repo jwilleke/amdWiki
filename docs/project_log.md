@@ -24,6 +24,26 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-12-02
+
+- Agent: Claude Sonnet 4.6
+- Subject: Fix copy-to-clipboard buttons broken on media pages over HTTP (#331)
+- Key Decision: Introduce single global `copyText()` helper with execCommand fallback to replace 4 separate clipboard implementations (DRY)
+- Current Issue: #331 (closed)
+- Testing:
+  - npm test: 73 suites passed, 1874 tests passed
+- Work Done:
+  - Diagnosed: media copy buttons used bare `navigator.clipboard.writeText()` — no fallback for HTTP contexts
+  - Added global `copyText(text)` + `execCommandCopy(text)` helpers in `header.ejs`
+  - Consolidated `copyPageInfo`, `copySourceToClipboard`, `copyToClipboard`/`fallbackCopyToClipboard` to all use `copyText()`
+  - Updated all media modal copy buttons in `header.ejs` and `media-item.ejs`
+- Commits: TBD
+- Files Modified:
+  - `views/header.ejs`
+  - `views/media-item.ejs`
+
+---
+
 ## 2026-03-12-01
 
 - Agent: Claude Sonnet 4.6

@@ -264,6 +264,35 @@
             <main role="main" class="col-md-9 ms-sm-auto col-lg-10 px-4 jspwiki-content main-content">
 
 <script>
+    /**
+     * Copy text to clipboard. Uses the async Clipboard API where available,
+     * falls back to execCommand for HTTP (non-secure) contexts.
+     * Returns a Promise that resolves on success and rejects on failure.
+     */
+    function copyText(text) {
+        if (navigator.clipboard) {
+            return navigator.clipboard.writeText(text).catch(() => execCommandCopy(text));
+        }
+        return new Promise((resolve, reject) => {
+            try { execCommandCopy(text); resolve(); } catch(e) { reject(e); }
+        });
+    }
+
+    function execCommandCopy(text) {
+        const el = document.createElement('textarea');
+        el.value = text;
+        el.style.cssText = 'position:fixed;left:-9999px;top:-9999px;opacity:0;';
+        document.body.appendChild(el);
+        el.focus();
+        el.select();
+        el.setSelectionRange(0, 99999);
+        try {
+            if (!document.execCommand('copy')) throw new Error('execCommand copy failed');
+        } finally {
+            document.body.removeChild(el);
+        }
+    }
+
     function createNewPage() {
         const pageName = prompt('Enter the name for the new page:');
         if (pageName) {
@@ -625,34 +654,9 @@
 
         const text = lines.join('\n');
 
-        if (navigator.clipboard) {
-            navigator.clipboard.writeText(text).then(() => {
-                showTemporaryMessage('Page information copied to clipboard!', 'success');
-            }).catch((err) => {
-                console.error('Clipboard write failed:', err);
-                execCopy(text);
-            });
-        } else {
-            execCopy(text);
-        }
-
-        function execCopy(str) {
-            // Append inside the modal so Bootstrap's focus trap doesn't block selection
-            const container = document.getElementById('pageInfoModal') || document.body;
-            const textArea = document.createElement('textarea');
-            textArea.value = str;
-            textArea.style.cssText = 'position:fixed;left:-9999px;top:-9999px;opacity:0;';
-            container.appendChild(textArea);
-            textArea.focus();
-            textArea.select();
-            try {
-                const ok = document.execCommand('copy');
-                showTemporaryMessage(ok ? 'Page information copied to clipboard!' : 'Failed to copy information', ok ? 'success' : 'error');
-            } catch (err) {
-                showTemporaryMessage('Failed to copy information', 'error');
-            }
-            container.removeChild(textArea);
-        }
+        copyText(text)
+            .then(() => showTemporaryMessage('Page information copied to clipboard!', 'success'))
+            .catch(() => showTemporaryMessage('Failed to copy information', 'error'));
     }
 
     function showMediaInfoModal(item) {
@@ -675,9 +679,9 @@
                 const syn = kwSyntax(kw);
                 const safeKw = String(kw).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
                 const safeSyn = syn.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
-                return `<tr><td><strong>Plugin Syntax</strong><br><small class="text-white-50">${safeKw}</small></td><td><code class="small">${safeSyn}</code> <button class="btn btn-sm btn-outline-secondary py-0 px-1" title="Copy" data-syn="${safeSyn}" onclick="navigator.clipboard.writeText(this.dataset.syn)"><i class="fas fa-copy"></i></button></td></tr>`;
+                return `<tr><td><strong>Plugin Syntax</strong><br><small class="text-white-50">${safeKw}</small></td><td><code class="small">${safeSyn}</code> <button class="btn btn-sm btn-outline-secondary py-0 px-1" title="Copy" data-syn="${safeSyn}" onclick="copyText(this.dataset.syn)"><i class="fas fa-copy"></i></button></td></tr>`;
               }).join('')
-            : `<tr><td><strong>Plugin Syntax</strong></td><td><code class="small">[{MediaPlugin format='list' keyword='current'}]</code> <button class="btn btn-sm btn-outline-secondary py-0 px-1" title="Copy" onclick="navigator.clipboard.writeText(&quot;[{MediaPlugin format=&apos;list&apos; keyword=&apos;current&apos;}]&quot;)"><i class="fas fa-copy"></i></button></td></tr>`;
+            : `<tr><td><strong>Plugin Syntax</strong></td><td><code class="small">[{MediaPlugin format='list' keyword='current'}]</code> <button class="btn btn-sm btn-outline-secondary py-0 px-1" title="Copy" onclick="copyText(&quot;[{MediaPlugin format=&apos;list&apos; keyword=&apos;current&apos;}]&quot;)"><i class="fas fa-copy"></i></button></td></tr>`;
 
         const modalHtml = `
             <div class="modal fade" id="pageInfoModal" tabindex="-1">
@@ -692,13 +696,13 @@
                                 <tr>
                                     <td style="width:35%"><strong>Item ID</strong></td>
                                     <td><code class="small">${item.id}</code>
-                                        <button class="btn btn-sm btn-outline-secondary ms-1 py-0 px-1" title="Copy" onclick="navigator.clipboard.writeText('${item.id}')"><i class="fas fa-copy"></i></button>
+                                        <button class="btn btn-sm btn-outline-secondary ms-1 py-0 px-1" title="Copy" onclick="copyText('${item.id}')"><i class="fas fa-copy"></i></button>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td><strong>URL</strong></td>
                                     <td><code class="small">${itemUrl}</code>
-                                        <button class="btn btn-sm btn-outline-secondary ms-1 py-0 px-1" title="Copy" onclick="navigator.clipboard.writeText(window.location.origin + '${itemUrl}')"><i class="fas fa-copy"></i></button>
+                                        <button class="btn btn-sm btn-outline-secondary ms-1 py-0 px-1" title="Copy" onclick="copyText(window.location.origin + '${itemUrl}')"><i class="fas fa-copy"></i></button>
                                     </td>
                                 </tr>
                                 ${pluginSyntaxRows}
@@ -706,7 +710,7 @@
                                 <tr>
                                     <td><strong>File Path</strong></td>
                                     <td><code class="small" style="word-break:break-all">${item.filePath}</code>
-                                        <button class="btn btn-sm btn-outline-secondary ms-1 py-0 px-1" title="Copy" data-copy="${item.filePath.replace(/"/g, '&quot;')}" onclick="navigator.clipboard.writeText(this.dataset.copy)"><i class="fas fa-copy"></i></button>
+                                        <button class="btn btn-sm btn-outline-secondary ms-1 py-0 px-1" title="Copy" data-copy="${item.filePath.replace(/"/g, '&quot;')}" onclick="copyText(this.dataset.copy)"><i class="fas fa-copy"></i></button>
                                     </td>
                                 </tr>` : ''}
                                 ${(item.imageWidth && item.imageHeight) ? `
@@ -887,54 +891,10 @@
             }, 2000);
         }
         
-        // Modern clipboard API (preferred method)
-        if (navigator.clipboard && window.isSecureContext) {
-            navigator.clipboard.writeText(sourceContent).then(() => {
-                console.log('Clipboard API copy successful');
-                showSuccess();
-            }).catch(err => {
-                console.warn('Clipboard API failed, trying fallback method:', err);
-                tryFallbackCopy();
-            });
-        } else {
-            console.log('Clipboard API not available, using fallback method');
-            // Fallback for older browsers or non-secure contexts
-            tryFallbackCopy();
-        }
-        
-        function tryFallbackCopy() {
-            try {
-                // Create a temporary textarea element
-                const textArea = document.createElement('textarea');
-                textArea.value = sourceContent;
-                textArea.style.position = 'fixed';
-                textArea.style.left = '-999999px';
-                textArea.style.top = '-999999px';
-                textArea.style.opacity = '0';
-                document.body.appendChild(textArea);
-                
-                // Select and copy the content
-                textArea.focus();
-                textArea.select();
-                textArea.setSelectionRange(0, 99999); // For mobile devices
-                
-                const successful = document.execCommand('copy');
-                document.body.removeChild(textArea);
-                
-                if (successful) {
-                    console.log('Fallback copy successful');
-                    showSuccess();
-                } else {
-                    throw new Error('execCommand copy failed');
-                }
-            } catch (err) {
-                console.error('All copy methods failed:', err);
-                showError(err.message);
-                
-                // As a last resort, provide manual copy instructions
-                showManualCopyInstructions();
-            }
-        }
+        copyText(sourceContent).then(showSuccess).catch(err => {
+            showError(err.message);
+            showManualCopyInstructions();
+        });
         
         function showManualCopyInstructions() {
             const modal = document.createElement('div');
@@ -1611,32 +1571,9 @@ async function uploadAttachmentFile(pageName) {
 }
 
 function copyToClipboard(text) {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text).then(() => {
-            alert('URL copied to clipboard!');
-        }).catch(err => {
-            console.error('Copy failed:', err);
-            fallbackCopyToClipboard(text);
-        });
-    } else {
-        fallbackCopyToClipboard(text);
-    }
-}
-
-function fallbackCopyToClipboard(text) {
-    const textArea = document.createElement('textarea');
-    textArea.value = text;
-    textArea.style.position = 'fixed';
-    textArea.style.left = '-999999px';
-    document.body.appendChild(textArea);
-    textArea.select();
-    try {
-        document.execCommand('copy');
-        alert('URL copied to clipboard!');
-    } catch (err) {
-        alert('Could not copy URL. Please copy manually: ' + text);
-    }
-    document.body.removeChild(textArea);
+    copyText(text)
+        .then(() => alert('URL copied to clipboard!'))
+        .catch(() => alert('Could not copy URL. Please copy manually: ' + text));
 }
 
 // Page autocomplete for header search - Issue #90
