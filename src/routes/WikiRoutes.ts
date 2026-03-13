@@ -8290,7 +8290,9 @@ ${description}
       const keywordPageExists: Record<string, boolean> = {};
       const rawKeywords = item.metadata?.keywords;
       if (rawKeywords) {
-        const kw = Array.isArray(rawKeywords) ? rawKeywords : [rawKeywords];
+        const kw = (Array.isArray(rawKeywords) ? rawKeywords : [rawKeywords])
+          .map((k: unknown) => (typeof k === 'string' ? k : String(k)))
+          .filter(Boolean);
         const pageManager = this.engine.getManager('PageManager');
         if (pageManager) {
           for (const k of kw) {

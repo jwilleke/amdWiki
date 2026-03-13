@@ -320,7 +320,7 @@ class FileSystemProvider extends BasePageProvider {
    * @private
    */
   private resolvePageInfo(identifier: string): PageCacheInfo | null {
-    if (!identifier) return null;
+    if (!identifier || typeof identifier !== 'string') return null;
 
     // 1. Try UUID index first
     let canonicalKey = this.uuidIndex.get(identifier);
