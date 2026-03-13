@@ -37,7 +37,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Fixed EJS input to render arrays/objects as `JSON.stringify(value)`
   - Fixed `adminUpdateConfiguration` to try `JSON.parse` on submitted value before calling `setProperty`
   - Added defensive comma-split in `MediaManager.initialize()` for any existing legacy string values
-- Commits: TBD
+- Commits: 9e87343
 - Files Modified:
   - `views/admin-configuration.ejs`
   - `src/routes/WikiRoutes.ts`
