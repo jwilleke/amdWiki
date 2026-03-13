@@ -4206,6 +4206,175 @@ class WikiRoutes {
   }
 
   /**
+   * Admin InterWiki management page
+   */
+  async adminInterwiki(req: Request, res: Response) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = req.userContext;
+
+      if (
+        !currentUser ||
+        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+      ) {
+        return await this.renderError(
+          req,
+          res,
+          403,
+          'Access Denied',
+          'You do not have permission to access InterWiki management'
+        );
+      }
+
+      const configManager = this.engine.getManager('ConfigurationManager');
+      const sites = configManager.getProperty('amdwiki.interwiki.sites', {}) as Record<string, Record<string, unknown>>;
+      const enabled = configManager.getProperty('amdwiki.interwiki.enabled', true) as boolean;
+      const options = configManager.getProperty('amdwiki.interwiki.options', {}) as Record<string, unknown>;
+
+      const commonData = await this.getCommonTemplateData(req);
+
+      const templateData = {
+        ...commonData,
+        title: 'InterWiki Management',
+        message: req.query.success,
+        error: req.query.error,
+        sites,
+        enabled,
+        options,
+        csrfToken: req.session.csrfToken
+      };
+
+      return res.render('admin-interwiki', templateData);
+    } catch (err: unknown) {
+      logger.error('Error loading admin interwiki page:', err);
+      return res.status(500).send('Error loading InterWiki management');
+    }
+  }
+
+  /**
+   * Add or update an InterWiki site
+   */
+  async adminInterwikiSaveSite(req: Request, res: Response) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = req.userContext;
+
+      if (
+        !currentUser ||
+        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+      ) {
+        return res.redirect('/admin/interwiki?error=Access denied');
+      }
+
+      const configManager = this.engine.getManager('ConfigurationManager');
+      const { siteName, url, description, icon, enabled, openInNewWindow, originalName } = req.body;
+
+      if (!siteName || !(siteName as string).trim()) {
+        return res.redirect('/admin/interwiki?error=Site name is required');
+      }
+      if (!url || !(url as string).trim()) {
+        return res.redirect('/admin/interwiki?error=URL is required');
+      }
+      if (!(url as string).includes('%s')) {
+        return res.redirect('/admin/interwiki?error=URL must contain %25s as the page placeholder');
+      }
+
+      const sites = configManager.getProperty('amdwiki.interwiki.sites', {}) as Record<string, Record<string, unknown>>;
+      const name = (siteName as string).trim();
+
+      // If renaming, remove old key
+      if (originalName && (originalName as string) !== name) {
+        delete sites[originalName as string];
+      }
+
+      sites[name] = {
+        url: (url as string).trim(),
+        description: ((description as string) || '').trim(),
+        icon: ((icon as string) || '').trim(),
+        enabled: enabled === 'on' || enabled === 'true' || enabled === '1',
+        openInNewWindow: openInNewWindow === 'on' || openInNewWindow === 'true' || openInNewWindow === '1'
+      };
+
+      await configManager.setProperty('amdwiki.interwiki.sites', sites);
+      return res.redirect('/admin/interwiki?success=Site saved. Restart required for changes to take effect.');
+    } catch (err: unknown) {
+      logger.error('Error saving interwiki site:', err);
+      return res.redirect('/admin/interwiki?error=Failed to save site');
+    }
+  }
+
+  /**
+   * Delete an InterWiki site
+   */
+  async adminInterwikiDeleteSite(req: Request, res: Response) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = req.userContext;
+
+      if (
+        !currentUser ||
+        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+      ) {
+        return res.redirect('/admin/interwiki?error=Access denied');
+      }
+
+      const configManager = this.engine.getManager('ConfigurationManager');
+      const siteName = decodeURIComponent(req.params.siteName);
+      const sites = configManager.getProperty('amdwiki.interwiki.sites', {}) as Record<string, Record<string, unknown>>;
+
+      if (!sites[siteName]) {
+        return res.redirect(`/admin/interwiki?error=Site not found: ${siteName}`);
+      }
+
+      delete sites[siteName];
+      await configManager.setProperty('amdwiki.interwiki.sites', sites);
+      return res.redirect('/admin/interwiki?success=Site deleted. Restart required for changes to take effect.');
+    } catch (err: unknown) {
+      logger.error('Error deleting interwiki site:', err);
+      return res.redirect('/admin/interwiki?error=Failed to delete site');
+    }
+  }
+
+  /**
+   * Save InterWiki global options
+   */
+  async adminInterwikiSaveOptions(req: Request, res: Response) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = req.userContext;
+
+      if (
+        !currentUser ||
+        !(await userManager.hasPermission(currentUser.username, 'admin:system'))
+      ) {
+        return res.redirect('/admin/interwiki?error=Access denied');
+      }
+
+      const configManager = this.engine.getManager('ConfigurationManager');
+      const { globalEnabled, openInNewWindow, addIconIndicator, caseSensitive, showTooltips } = req.body;
+
+      await configManager.setProperty(
+        'amdwiki.interwiki.enabled',
+        globalEnabled === 'on' || globalEnabled === 'true' || globalEnabled === '1'
+      );
+
+      const currentOptions = configManager.getProperty('amdwiki.interwiki.options', {}) as Record<string, unknown>;
+      await configManager.setProperty('amdwiki.interwiki.options', {
+        ...currentOptions,
+        openInNewWindow: openInNewWindow === 'on' || openInNewWindow === 'true' || openInNewWindow === '1',
+        addIconIndicator: addIconIndicator === 'on' || addIconIndicator === 'true' || addIconIndicator === '1',
+        caseSensitive: caseSensitive === 'on' || caseSensitive === 'true' || caseSensitive === '1',
+        showTooltips: showTooltips === 'on' || showTooltips === 'true' || showTooltips === '1'
+      });
+
+      return res.redirect('/admin/interwiki?success=Options saved. Restart required for changes to take effect.');
+    } catch (err: unknown) {
+      logger.error('Error saving interwiki options:', err);
+      return res.redirect('/admin/interwiki?error=Failed to save options');
+    }
+  }
+
+  /**
    * Admin variable management page
    */
   async adminVariables(req: Request, res: Response) {
@@ -5993,6 +6162,10 @@ class WikiRoutes {
     app.post('/admin/configuration/reset', (req: Request, res: Response) =>
       this.adminResetConfiguration(req, res)
     );
+    app.get('/admin/interwiki', (req: Request, res: Response) => void this.adminInterwiki(req, res));
+    app.post('/admin/interwiki/sites', (req: Request, res: Response) => void this.adminInterwikiSaveSite(req, res));
+    app.post('/admin/interwiki/sites/:siteName/delete', (req: Request, res: Response) => void this.adminInterwikiDeleteSite(req, res));
+    app.post('/admin/interwiki/options', (req: Request, res: Response) => void this.adminInterwikiSaveOptions(req, res));
     app.get('/admin/variables', (req: Request, res: Response) => this.adminVariables(req, res));
     app.post('/admin/variables/test', (req: Request, res: Response) =>
       this.adminTestVariables(req, res)

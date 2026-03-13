@@ -96,10 +96,7 @@
   "amdwiki.plugin.searchresult.maxItems": 50,
   "amdwiki.plugin.versioning.use": true,
   "amdwiki.approver.workflow.saveWikiPage": "Admin",
-  "amdwiki.interWikiRef.1": "JSPWiki http://www.jspwiki.org/wiki/",
-  "amdwiki.interWikiRef.2": "Doc http://doc.jspwiki.org/2.4/wiki/",
-  "amdwiki.interWikiRef.3": "Wikipedia http://en.wikipedia.org/wiki/",
-  "amdwiki.specialpage.login": "Login.jsp",
+"amdwiki.specialpage.login": "Login.jsp",
   "amdwiki.specialpage.userpreferences": "UserPreferences.jsp",
   "amdwiki.specialpage.search": "Search.jsp",
   "amdwiki.specialpage.findpage": "FindPage.jsp",
@@ -348,6 +345,20 @@
       "description": "C2 Wiki (Portland Pattern Repository)",
       "icon": "c2.png",
       "enabled": false,
+      "openInNewWindow": true
+    },
+    "GVP": {
+      "url": "https://volcano.si.edu/volcano.cfm?vn=%s",
+      "description": "GVP (Global Volcanism Program)",
+      "icon": "gvp-icon.jpg",
+      "enabled": true,
+      "openInNewWindow": true
+    },
+    "GVP-COUNTRY": {
+      "url": "https://volcano.si.edu/volcanolist_countries.cfm?country=%s",
+      "description": "GVP (Global Volcanism Program) — Volcanoes by Country",
+      "icon": "gvp-icon.jpg",
+      "enabled": true,
       "openInNewWindow": true
     }
   },
