@@ -73,7 +73,13 @@ class MediaManager extends BaseManager {
       logger.warn(`[MediaManager] Could not create thumbnail dir ${thumbnailDir}: ${String(err)}`);
     }
 
-    const folders = configManager.getProperty('amdwiki.media.folders', []) as string[];
+    // Defensive: if stored as a legacy comma-separated string instead of a JSON array, split it.
+    const rawFolders = configManager.getProperty('amdwiki.media.folders', []);
+    const folders: string[] = Array.isArray(rawFolders)
+      ? (rawFolders as string[])
+      : typeof rawFolders === 'string' && rawFolders.trim()
+        ? rawFolders.split(',').map((f: string) => f.trim()).filter(Boolean)
+        : [];
     const ignoreDirs = configManager.getProperty('amdwiki.media.ignoredirs', ['.dtrash', '.ts']) as string[];
     const ignoreFiles = configManager.getProperty('amdwiki.media.ignorefiles', ['.photoviewignore', '.plexignore']) as string[];
     const maxDepth = configManager.getProperty('amdwiki.media.maxdepth', 5) as number;

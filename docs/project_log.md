@@ -24,6 +24,27 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-13-01
+
+- Agent: Claude Sonnet 4.6
+- Subject: Fix amdwiki.media.folders stored as string instead of JSON array via admin UI
+- Key Decision: JSON.parse incoming config values in the route so arrays round-trip correctly; defensive comma-split in MediaManager for legacy data
+- Current Issue: n/a
+- Testing:
+  - n/a
+- Work Done:
+  - Diagnosed: admin config UI rendered array values via `<%= value %>` (JS default stringification, no brackets), and route stored raw string body value without parsing
+  - Fixed EJS input to render arrays/objects as `JSON.stringify(value)`
+  - Fixed `adminUpdateConfiguration` to try `JSON.parse` on submitted value before calling `setProperty`
+  - Added defensive comma-split in `MediaManager.initialize()` for any existing legacy string values
+- Commits: TBD
+- Files Modified:
+  - `views/admin-configuration.ejs`
+  - `src/routes/WikiRoutes.ts`
+  - `src/managers/MediaManager.ts`
+
+---
+
 ## 2026-03-12-02
 
 - Agent: Claude Sonnet 4.6

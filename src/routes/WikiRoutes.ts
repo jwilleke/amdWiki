@@ -4153,7 +4153,13 @@ class WikiRoutes {
           .json({ error: 'Property must start with amdwiki. or log4j.' });
       }
 
-      await configManager.setProperty(property, value);
+      // Attempt JSON parse so array/object values entered in the UI (e.g. ["/a","/b"]) are
+      // stored as native JSON types rather than raw strings.
+      let parsedValue: unknown = value;
+      if (typeof value === 'string') {
+        try { parsedValue = JSON.parse(value); } catch { /* keep as string */ }
+      }
+      await configManager.setProperty(property, parsedValue);
 
       // Return JSON for AJAX requests, redirect for regular form submissions
       const wantsJson = req.xhr || req.headers['x-requested-with'] === 'XMLHttpRequest';

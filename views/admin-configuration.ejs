@@ -137,7 +137,7 @@
                                                         <form method="POST" action="/admin/configuration" class="d-inline">
                                                             <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                                                             <input type="hidden" name="property" value="<%= key %>">
-                                                            <input type="text" name="value" value="<%= value %>" class="form-control form-control-sm">
+                                                            <input type="text" name="value" value="<%= typeof value === 'object' ? JSON.stringify(value) : value %>" class="form-control form-control-sm">
                                                         </td>
                                                         <td>
                                                             <button type="submit" class="btn btn-sm btn-primary">
