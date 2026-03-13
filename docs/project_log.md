@@ -24,6 +24,26 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-13-03
+
+- Agent: Claude Sonnet 4.6
+- Subject: Fix MediaManager Internal Server Error on media item pages (#333)
+- Key Decision: Fix at both call site (coerce keywords to string) and in resolvePageInfo (typeof guard)
+- Current Issue: #333 (closed)
+- Testing:
+  - npm test: 73 suites passed, 1874 tests passed
+- Work Done:
+  - Diagnosed via logs: `identifier.toLowerCase is not a function` in `FileSystemProvider.resolvePageInfo()`
+  - Root cause: EXIF keyword metadata can contain non-string values (numbers, objects); `pageExists(k)` was called with raw EXIF values
+  - Fixed `resolvePageInfo` guard: `if (!identifier || typeof identifier !== 'string') return null`
+  - Fixed `mediaItemDetail`: coerce keyword entries to strings before calling `pageExists`
+- Commits: ca4b17a
+- Files Modified:
+  - `src/providers/FileSystemProvider.ts`
+  - `src/routes/WikiRoutes.ts`
+
+---
+
 ## 2026-03-13-02
 
 - Agent: Claude Sonnet 4.6
