@@ -24,6 +24,29 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-13-02
+
+- Agent: Claude Sonnet 4.6
+- Subject: Add /admin/interwiki UI and GVP/GVP-COUNTRY InterWiki sites (#299)
+- Key Decision: Persist via ConfigurationManager (no live reload — restart required, acceptable for low-frequency config changes); removed dead interWikiRef.N keys
+- Current Issue: #299
+- Testing:
+  - npm test: 73 suites passed, 1874 tests passed
+- Work Done:
+  - Removed deprecated `amdwiki.interWikiRef.N` keys from `app-default-config.json` (dead config, nothing read them)
+  - Added GVP and GVP-COUNTRY sites to `amdwiki.interwiki.sites`
+  - Created `views/admin-interwiki.ejs` — 3-tab UI: Sites table (inline edit/delete), Add Site form, Global Options
+  - Added 4 route handlers to `WikiRoutes.ts`: GET page, POST save-site, POST delete-site, POST save-options
+  - Added InterWiki link to admin dashboard System Settings section
+- Commits: 69893ca
+- Files Modified:
+  - `config/app-default-config.json`
+  - `src/routes/WikiRoutes.ts`
+  - `views/admin-interwiki.ejs` (new)
+  - `views/admin-dashboard.ejs`
+
+---
+
 ## 2026-03-13-01
 
 - Agent: Claude Sonnet 4.6
