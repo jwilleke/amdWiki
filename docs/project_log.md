@@ -24,6 +24,26 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-14-04
+
+- Agent: Claude Sonnet 4.6
+- Subject: Clean up ghost and malformed page index entries; fix 'Reliance on Cloud' 404 (#324)
+- Key Decision: Direct data repair of page-index.json and search-index/documents.json — no code change needed (trim was already added in #296/#313). Removed 10 ghost index entries (no file on disk), fixed 2 whitespace titles.
+- Current Issue: #324
+- Testing:
+  - npm test: 73 suites passed, 1874 tests passed (no code changed)
+- Work Done:
+  - Fixed `809df51b.md` frontmatter title: `'Reliance on Cloud '` → `Reliance on Cloud`
+  - `page-index.json`: removed 10 ghost entries (no file exists), fixed whitespace on `305 BCE` and `Reliance on Cloud`
+  - `search-index/documents.json`: removed 12 matching ghost doc entries, fixed `305 BCE`
+- Commits: data-only (not committed — wiki data files are not in the git repo)
+- Files Modified (data, not code):
+  - /Volumes/hd2A/jimstest-wiki/data/pages/809df51b-1955-4c75-b1f0-2faf831f8b89.md
+  - /Volumes/hd2/jimstest-wiki/data/page-index.json
+  - /Volumes/hd2/jimstest-wiki/data/search-index/documents.json
+
+---
+
 ## 2026-03-14-03
 
 - Agent: Claude Sonnet 4.6
