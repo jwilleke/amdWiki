@@ -34,7 +34,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - npm test: 73 suites passed, 1874 tests passed (9 skipped suites, 303 skipped tests)
 - Work Done:
   - Fixed `VersioningFileProvider.savePage()` to write the new title (from `metadata.title`) to `page-index.json` on rename — previously it always stored the old `pageName` from the URL parameter, causing the page to revert to the old name after a server restart
-- Commits: tbd
+- Commits: 5e5d358
 - Files Modified:
   - src/providers/VersioningFileProvider.ts
 
