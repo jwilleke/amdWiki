@@ -1467,11 +1467,46 @@ class MarkupParser extends BaseManager {
     });
 
     // Use innerHTML for content with placeholders (they need to be rendered as HTML)
-    // Use textContent for plain text (safer, escapes any accidental HTML)
+    // For non-placeholder content, process wiki links so [PageName] becomes <a> tags
     if (hasPlaceholder) {
       node.innerHTML = content;
     } else {
-      node.textContent = content;
+      const linkPattern = /\[([^\][{^][^\]]*)\](?!\()/g;
+      if (linkPattern.test(content)) {
+        // Has wiki links — build content as mix of text nodes and <a> elements
+        linkPattern.lastIndex = 0;
+        let lastIndex = 0;
+        let match: RegExpExecArray | null;
+        let linkIdCounter = element.id * 1000;
+        while ((match = linkPattern.exec(content)) !== null) {
+          if (match.index > lastIndex) {
+            node.appendChild(wikiDocument.createTextNode(content.substring(lastIndex, match.index)));
+          }
+          const linkElement = {
+            type: 'link' as const,
+            syntax: match[0],
+            target: match[1].trim(),
+            id: linkIdCounter++,
+            position: match.index
+          };
+          try {
+            const linkNode = await this.domLinkHandler.createNodeFromExtract(
+              linkElement as Parameters<typeof this.domLinkHandler.createNodeFromExtract>[0],
+              {} as Parameters<typeof this.domLinkHandler.createNodeFromExtract>[1],
+              wikiDocument
+            );
+            node.appendChild(linkNode);
+          } catch {
+            node.appendChild(wikiDocument.createTextNode(match[0]));
+          }
+          lastIndex = match.index + match[0].length;
+        }
+        if (lastIndex < content.length) {
+          node.appendChild(wikiDocument.createTextNode(content.substring(lastIndex)));
+        }
+      } else {
+        node.textContent = content;
+      }
     }
     return node;
   }
