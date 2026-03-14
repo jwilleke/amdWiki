@@ -24,6 +24,25 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-14-05
+
+- Agent: Claude Sonnet 4.6
+- Subject: Fix wiki links not expanding inside %%information/warning/error style blocks (#328)
+- Key Decision: Process wiki links in createNodeFromStyleBlock() via domLinkHandler before assigning to DOM node, matching the populateCell() approach used for table cells
+- Current Issue: #328
+- Testing:
+  - npm test: 53 tests passed (MarkupParser/WikiStyle/LinkParser suites)
+  - E2E: 40 passed, 1 pre-existing flaky (location-plugin cleanup)
+- Work Done:
+  - Fixed `createNodeFromStyleBlock()` in `src/parsers/MarkupParser.ts` to detect `[wiki link]` syntax in style block content and process each link via `domLinkHandler.createNodeFromExtract()`, building mixed text + `<a>` child nodes instead of using `node.textContent` which HTML-escaped the syntax
+  - Verified fix on Country Code page: `[Standard Disclaimer]` inside `%%information` block now renders as `<a>` tag
+  - Bumped SEMVER patch to 1.6.1
+- Commits: 16150b7
+- Files Modified:
+  - src/parsers/MarkupParser.ts
+  - package.json
+  - config/app-default-config.json
+
 ## 2026-03-14-04
 
 - Agent: Claude Sonnet 4.6
