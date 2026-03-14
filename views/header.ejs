@@ -282,14 +282,16 @@
         const el = document.createElement('textarea');
         el.value = text;
         el.style.cssText = 'position:fixed;left:-9999px;top:-9999px;opacity:0;';
-        document.body.appendChild(el);
+        // Append inside an open modal if present, so Bootstrap's focus trap doesn't block selection
+        const container = document.querySelector('.modal.show') || document.body;
+        container.appendChild(el);
         el.focus();
         el.select();
         el.setSelectionRange(0, 99999);
         try {
             if (!document.execCommand('copy')) throw new Error('execCommand copy failed');
         } finally {
-            document.body.removeChild(el);
+            container.removeChild(el);
         }
     }
 

@@ -24,6 +24,22 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-14-02
+
+- Agent: Claude Sonnet 4.6
+- Subject: Fix "Copy Information" button in Page Info modal (#337)
+- Key Decision: Restore the pre-#331 behaviour of appending the `execCommandCopy` textarea *inside* the open Bootstrap modal rather than `document.body`. Bootstrap 5's focus trap intercepts `focusin` events for elements outside the modal and redirects focus back, so the hidden textarea never held focus, `execCommand('copy')` silently returned `true`, and the "Success" toast fired with nothing on the clipboard.
+- Current Issue: #337
+- Testing:
+  - npm test: 73 suites passed, 1874 tests passed (9 skipped suites, 303 skipped tests)
+- Work Done:
+  - Fixed `execCommandCopy()` in header.ejs to use `document.querySelector('.modal.show') || document.body` as the container (restoring the logic from the original `execCopy` that was removed in #331)
+- Commits: tbd
+- Files Modified:
+  - views/header.ejs
+
+---
+
 ## 2026-03-14-01
 
 - Agent: Claude Sonnet 4.6
