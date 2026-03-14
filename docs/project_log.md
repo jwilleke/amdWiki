@@ -24,6 +24,26 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-14-03
+
+- Agent: Claude Sonnet 4.6
+- Subject: Fix media thumbnail cropping / aspect ratio (#332)
+- Key Decision: Switch Sharp resize from `fit: 'cover'` (crops to fill exact dimensions) to `fit: 'inside'` (scales to fit without cropping). Update all grid view CSS from `object-fit:cover` to `object-fit:contain` with a light-gray background. Bump thumbnail cache key from `*-o{n}.jpg` to `*-inside-o{n}.jpg` to bypass stale cropped thumbnails automatically.
+- Current Issue: #332
+- Testing:
+  - npm test: 73 suites passed, 1874 tests passed (9 skipped suites, 303 skipped tests)
+- Work Done:
+  - `FileSystemMediaProvider.getThumbnailBuffer()`: `fit: 'cover'` → `fit: 'inside'`; cache key gains `-inside-` segment
+  - `views/media-year.ejs`, `views/media-keyword.ejs`, `views/media-search.ejs`: `object-fit:cover` → `object-fit:contain; background:#f8f9fa`
+- Commits: tbd
+- Files Modified:
+  - src/providers/FileSystemMediaProvider.ts
+  - views/media-year.ejs
+  - views/media-keyword.ejs
+  - views/media-search.ejs
+
+---
+
 ## 2026-03-14-02
 
 - Agent: Claude Sonnet 4.6

@@ -307,10 +307,10 @@ class FileSystemMediaProvider extends BaseMediaProvider {
     // Video thumbnails not supported yet
     if (!item.mimeType.startsWith('image/')) return null;
 
-    // Include orientation in cache key so that if a file is rescanned with a
-    // different orientation the old thumbnail is automatically bypassed.
+    // Include orientation and fit mode in cache key so that changes to either
+    // automatically bypass stale cached thumbnails.
     const orientation = typeof item.metadata?.orientation === 'number' ? item.metadata.orientation : 1;
-    const thumbPath = path.join(this.config.thumbnailDir, `${id}-${size}-o${orientation}.jpg`);
+    const thumbPath = path.join(this.config.thumbnailDir, `${id}-${size}-inside-o${orientation}.jpg`);
 
     // Return cached thumbnail if it exists
     if (await fs.pathExists(thumbPath)) {
@@ -325,7 +325,7 @@ class FileSystemMediaProvider extends BaseMediaProvider {
     try {
       const buffer = await sharp(item.filePath)
         .rotate()                          // auto-rotate using EXIF Orientation (handles mirroring too)
-        .resize(w, h, { fit: 'cover' })
+        .resize(w, h, { fit: 'inside' })  // preserve full image; no cropping
         .jpeg({ quality: 85 })
         .toBuffer();
       await fs.ensureDir(this.config.thumbnailDir);
