@@ -895,17 +895,8 @@ class ACLManager extends BaseManager {
     } else {
       this.engine?.logger?.warn?.(msg);
     }
-    // Optional: forward to NotificationManager for UI surfacing
-    const nm = this.engine.getManager<NotificationManager>('NotificationManager');
-    if (nm?.addNotification) {
-      nm.addNotification({
-        level: allowed ? 'info' : 'warning',
-        message: msg,
-        title: 'ACLManager'
-      }).catch(() => {
-        // Ignore notification errors
-      });
-    }
+    // ACL decisions are audit-log entries only — do NOT forward to NotificationManager
+    // as they fire on every page view and flood the notification UI (#334)
   }
 
   /**

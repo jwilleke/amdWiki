@@ -167,6 +167,7 @@ class FileSystemMediaProvider extends BaseMediaProvider {
     }
 
     const counters: ScanCounters = { scanned: 0, added: 0, updated: 0, errors: 0 };
+    const missingFolders: string[] = [];
     const startMs = Date.now();
     logger.info(
       `[FileSystemMediaProvider] Starting scan (force=${force}) — folders: [${this.config.folders.join(', ')}]`
@@ -175,6 +176,7 @@ class FileSystemMediaProvider extends BaseMediaProvider {
     for (const folder of this.config.folders) {
       if (!(await fs.pathExists(folder))) {
         logger.warn(`[FileSystemMediaProvider] Folder not found, skipping: ${folder}`);
+        missingFolders.push(folder);
         continue;
       }
       await this.walkDirectory(folder, 0, counters, force, true);
@@ -188,7 +190,7 @@ class FileSystemMediaProvider extends BaseMediaProvider {
         `scanned=${counters.scanned} added=${counters.added} updated=${counters.updated} errors=${counters.errors} ` +
         `(~${msPerFile}ms/file)`
     );
-    return { ...counters, elapsedMs };
+    return { ...counters, elapsedMs, missingFolders };
   }
 
   // ---------------------------------------------------------------------------

@@ -199,10 +199,10 @@
                             </div>
                         <% }); %>
 
-                        <% if (notifications.length > 5) { %>
+                        <% if (totalNotificationCount > 5) { %>
                             <div class="text-center">
                                 <a href="/admin/notifications" class="btn btn-outline-primary btn-sm">
-                                    <i class="fas fa-list"></i> View All Notifications (<%= notifications.length %>)
+                                    <i class="fas fa-list"></i> View All Notifications (<%= totalNotificationCount %>)
                                 </a>
                             </div>
                         <% } %>

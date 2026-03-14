@@ -48,6 +48,8 @@ export interface ScanResult {
   errors: number;
   /** Total elapsed time in milliseconds */
   elapsedMs?: number;
+  /** Folder paths that were configured but not found on disk */
+  missingFolders?: string[];
 }
 
 /**

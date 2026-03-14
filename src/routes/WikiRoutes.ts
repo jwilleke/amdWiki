@@ -3242,11 +3242,14 @@ class WikiRoutes {
 
       // Get system notifications
       let notifications = [];
+      let totalNotificationCount = 0;
       try {
         const notificationManager = this.engine.getManager(
           'NotificationManager'
         );
-        notifications = notificationManager.getAllNotifications().slice(-10); // Get last 10 notifications
+        const allNotifications = notificationManager.getAllNotifications();
+        notifications = allNotifications.slice(-10); // Show last 10 on dashboard
+        totalNotificationCount = allNotifications.length; // Pass true total for "View All" button
       } catch (error: unknown) {
         logger.error(
           'Error fetching notifications for admin dashboard:',
@@ -3302,6 +3305,7 @@ class WikiRoutes {
         requiredPages: requiredPages,
         requiredPagesSyncNeeded,
         notifications: notifications,
+        totalNotificationCount: totalNotificationCount,
         maintenanceMode:
           this.engine.config?.features?.maintenance?.enabled || false,
         csrfToken: req.session.csrfToken,

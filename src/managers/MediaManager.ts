@@ -138,6 +138,22 @@ class MediaManager extends BaseManager {
       `[MediaManager] Scan complete: scanned=${result.scanned} added=${result.added} ` +
         `updated=${result.updated} errors=${result.errors}`
     );
+
+    // Surface missing folders as notifications so admins see them in /admin/notifications
+    if (result.missingFolders && result.missingFolders.length > 0) {
+      const nm = this.engine.getManager('NotificationManager') as { addNotification?: (n: unknown) => Promise<string> } | null;
+      if (nm?.addNotification) {
+        for (const folder of result.missingFolders) {
+          nm.addNotification({
+            type: 'system',
+            level: 'warning',
+            title: 'Media folder not found',
+            message: `Configured media folder does not exist on disk and was skipped during scan: ${folder}`
+          }).catch(() => { /* ignore */ });
+        }
+      }
+    }
+
     return result;
   }
 
