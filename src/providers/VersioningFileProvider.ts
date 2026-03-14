@@ -1117,7 +1117,7 @@ class VersioningFileProvider extends FileSystemProvider {
       ? (newCreator || currentEntry?.creator || 'anonymous')
       : currentEntry?.creator;
     await this.updatePageInIndex(uuid, {
-      title: pageName,
+      title: (metadata.title as string) || pageName,
       uuid: uuid,
       slug: metadata.slug ? String(metadata.slug) : undefined,
       filename: `${uuid}.md`,
