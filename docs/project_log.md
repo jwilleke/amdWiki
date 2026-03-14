@@ -35,7 +35,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 - Work Done:
   - `FileSystemMediaProvider.getThumbnailBuffer()`: `fit: 'cover'` → `fit: 'inside'`; cache key gains `-inside-` segment
   - `views/media-year.ejs`, `views/media-keyword.ejs`, `views/media-search.ejs`: `object-fit:cover` → `object-fit:contain; background:#f8f9fa`
-- Commits: tbd
+- Commits: f2e6983
 - Files Modified:
   - src/providers/FileSystemMediaProvider.ts
   - views/media-year.ejs
