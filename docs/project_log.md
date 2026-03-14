@@ -24,6 +24,30 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-14-06
+
+- Agent: Claude Sonnet 4.6
+- Subject: Add author/editor filtering to SearchPlugin; store author in page-index.json (#339)
+- Key Decision: Author stored in LunrDocument from frontmatter metadata; editor post-filter uses same Lunr metadata; SearchPlugin formatters refactored to use pluginFormatters utilities
+- Current Issue: #339
+- Testing:
+  - npm test: 73 suites passed, 1874 tests passed
+- Work Done:
+  - Added `editor?` to `SearchCriteria` in `BaseSearchProvider.ts`
+  - Added `author`/`editor` fields to `LunrDocument`; populated from `metadata.author`/`metadata.editor` in both `buildDocumentFromPageData()` and `buildIndex()`; included in search result metadata; added post-filters in `advancedSearch()`
+  - Added `author?` to `PageIndexEntry` in `VersioningFileProvider.ts`; written from `metadata.author` on every page save
+  - Refactored `SearchPlugin` formatters to use `formatAsTable`, `formatAsList`, `formatAsCount` from `pluginFormatters.ts`; added `author`/`editor` params; updated filter description in table output
+  - Usage: `[{Search author='jim'}]`, `[{Search editor='jim' format='titles'}]`
+  - Bumped SEMVER patch to 1.6.2
+- Commits: TBD
+- Files Modified:
+  - src/providers/BaseSearchProvider.ts
+  - src/providers/LunrSearchProvider.ts
+  - src/providers/VersioningFileProvider.ts
+  - plugins/SearchPlugin.ts
+  - package.json
+  - config/app-default-config.json
+
 ## 2026-03-14-05
 
 - Agent: Claude Sonnet 4.6

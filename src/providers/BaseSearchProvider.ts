@@ -100,8 +100,11 @@ export interface SearchCriteria {
   /** Fields to search in (title, content, category, keywords, or all) */
   searchIn?: string[];
 
-  /** Author to filter by */
+  /** Author to filter by (page creator — matches metadata.author) */
   author?: string;
+
+  /** Editor to filter by (last modifier — matches metadata.editor) */
+  editor?: string;
 
   /** Date range */
   dateRange?: {

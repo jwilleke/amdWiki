@@ -35,6 +35,8 @@ interface PageIndexEntry {
   lastModified: string;
   /** Username that last modified the page */
   editor: string;
+  /** Username that originally created the page (from metadata.author) */
+  author?: string;
   hasVersions: boolean;
 }
 
@@ -1126,6 +1128,7 @@ class VersioningFileProvider extends FileSystemProvider {
       creator: creator,
       lastModified: new Date().toISOString(),
       editor: metadata.editor || metadata.author || 'unknown',
+      author: metadata.author ? String(metadata.author) : undefined,
       hasVersions: true
     });
 

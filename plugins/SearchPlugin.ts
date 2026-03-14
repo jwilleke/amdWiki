@@ -13,11 +13,16 @@
  * [{Search system-category='system' format='count'}]
  * [{Search system-category='documentation' format='titles'}]
  * [{Search user-keywords='test' format='list'}]
+ * [{Search author='jim'}]
+ * [{Search editor='jim'}]
+ * [{Search author='jim' format='titles'}]
  *
  * Parameters:
  * - query: Search text query (default: '*' for all pages)
  * - system-category: Filter by system category
  * - user-keywords: Filter by user keywords (OR logic for multiple values)
+ * - author: Filter by page author (original creator, from metadata.author)
+ * - editor: Filter by last editor (from metadata.editor)
  * - max: Maximum number of results (default: 50, 0 = unlimited)
  * - pageSize: Results per page — enables pagination (default: 0 = disabled)
  * - page: Current page number (default: 1, also read from ?page= query string)
@@ -38,13 +43,19 @@ import {
   parsePageSizeParam,
   parsePageParam,
   applyPagination,
-  formatPaginationLinks
+  formatPaginationLinks,
+  formatAsTable,
+  formatAsList,
+  formatAsCount,
+  type PageLink
 } from '../src/utils/pluginFormatters';
 
 interface SearchParams extends PluginParams {
   query?: string;
   'system-category'?: string;
   'user-keywords'?: string;
+  author?: string;
+  editor?: string;
   max?: string | number;
   format?: string;
   page?: string | number;
@@ -66,6 +77,8 @@ interface SearchOptions {
   maxResults: number;
   categories?: string[];
   userKeywords?: string[];
+  author?: string;
+  editor?: string;
 }
 
 interface SearchManager {
@@ -77,6 +90,8 @@ interface FormatOptions {
   query: string;
   systemCategory?: string;
   userKeywords?: string;
+  author?: string;
+  editor?: string;
   maxResults: number;
   format: string;
 }
@@ -104,8 +119,7 @@ function parseMultiValue(value: string | undefined): string[] {
  * @returns Count as text
  */
 function formatCount(results: SearchResult[]): string {
-  const count = results ? results.length : 0;
-  return `<span class="search-count">${count.toLocaleString('en-US')}</span>`;
+  return `<span class="search-count">${formatAsCount(results ? results.length : 0)}</span>`;
 }
 
 /**
@@ -121,27 +135,13 @@ function formatTitles(results: SearchResult[], options: FormatOptions): string {
 </div>`;
   }
 
-  let html = '<div class="search-plugin search-titles">\n';
-  html += '<ul>\n';
+  const links: PageLink[] = results.map(result => ({
+    href: `/wiki/${encodeURIComponent(result.name || result.title || 'Unknown')}`,
+    text: result.title || result.name || 'Unknown',
+    cssClass: 'wikipage'
+  }));
 
-  for (const result of results) {
-    const pageName = result.name || result.title || 'Unknown';
-    const title = result.title || result.name || 'Unknown';
-
-    html += `  <li><a class="wikipage" href="/wiki/${encodeURIComponent(pageName)}">${escapeHtml(title)}</a>`;
-
-    // Add metadata badges if available
-    if (result.metadata && result.metadata.systemCategory) {
-      html += ` <span class="badge badge-secondary">${escapeHtml(result.metadata.systemCategory)}</span>`;
-    }
-
-    html += '</li>\n';
-  }
-
-  html += '</ul>\n';
-  html += '</div>\n';
-
-  return html;
+  return `<div class="search-plugin search-titles">\n${formatAsList(links)}\n</div>\n`;
 }
 
 /**
@@ -186,62 +186,33 @@ function formatResultsTable(results: SearchResult[], options: FormatOptions): st
 
   // Build filter description
   let filterDesc = '';
-  if (options.systemCategory) {
-    filterDesc += ` in category: ${escapeHtml(options.systemCategory)}`;
-  }
-  if (options.userKeywords) {
-    filterDesc += ` with keywords: ${escapeHtml(options.userKeywords)}`;
-  }
+  if (options.systemCategory) filterDesc += ` in category: ${escapeHtml(options.systemCategory)}`;
+  if (options.userKeywords) filterDesc += ` with keywords: ${escapeHtml(options.userKeywords)}`;
+  if (options.author) filterDesc += ` by author: ${escapeHtml(options.author)}`;
+  if (options.editor) filterDesc += ` last edited by: ${escapeHtml(options.editor)}`;
 
-  // Start building HTML table (JSPWiki style: 2 columns - page name and score)
   let html = '<div class="search-plugin">\n';
-
-  // Add search summary
   html += '<div class="search-summary">\n';
-  html += `  <p>Found <strong>${results.length.toLocaleString('en-US')}</strong> result${results.length !== 1 ? 's' : ''}`;
+  html += `  <p>Found <strong>${formatAsCount(results.length)}</strong> result${results.length !== 1 ? 's' : ''}`;
   if (options.query && options.query !== '*') {
     html += ` for <strong>"${escapeHtml(options.query)}"</strong>`;
   }
-  if (filterDesc) {
-    html += filterDesc;
-  }
-  html += '</p>\n';
-  html += '</div>\n\n';
+  if (filterDesc) html += filterDesc;
+  html += '</p>\n</div>\n\n';
 
-  // Build results table
-  html += '<table class="search-results" border="1">\n';
-  html += '  <thead>\n';
-  html += '    <tr>\n';
-  html += '      <th>Page</th>\n';
-  html += '      <th>Score</th>\n';
-  html += '    </tr>\n';
-  html += '  </thead>\n';
-  html += '  <tbody>\n';
-
-  // Add each result row
-  for (const result of results) {
+  const rows = results.map(result => {
     const pageName = result.name || result.title || 'Unknown';
     const title = result.title || result.name || 'Unknown';
     const score = result.score ? result.score.toFixed(3) : '1.000';
-
-    html += '    <tr>\n';
-    html += `      <td><a class="wikipage" href="/wiki/${encodeURIComponent(pageName)}">${escapeHtml(title)}</a>`;
-
-    // Add metadata badges if available
-    if (result.metadata) {
-      if (result.metadata.systemCategory) {
-        html += ` <span class="badge badge-secondary">${escapeHtml(result.metadata.systemCategory)}</span>`;
-      }
+    let pageCell = `<a class="wikipage" href="/wiki/${encodeURIComponent(pageName)}">${escapeHtml(title)}</a>`;
+    if (result.metadata?.systemCategory) {
+      pageCell += ` <span class="badge badge-secondary">${escapeHtml(result.metadata.systemCategory)}</span>`;
     }
+    return [pageCell, score];
+  });
 
-    html += '</td>\n';
-    html += `      <td class="text-right">${score}</td>\n`;
-    html += '    </tr>\n';
-  }
-
-  html += '  </tbody>\n';
-  html += '</table>\n';
-  html += '</div>\n';
+  html += formatAsTable(['Page', 'Score'], rows);
+  html += '\n</div>\n';
 
   return html;
 }
@@ -295,6 +266,8 @@ const SearchPlugin: SimplePlugin = {
       const query = String(opts.query || '*');
       const systemCategory = opts['system-category'];
       const userKeywords = opts['user-keywords'];
+      const author = opts.author ? String(opts.author) : undefined;
+      const editor = opts.editor ? String(opts.editor) : undefined;
       const maxResults = parseMaxParam(opts.max, 50);
       const format = String(opts.format || 'table').toLowerCase();
 
@@ -320,9 +293,13 @@ const SearchPlugin: SimplePlugin = {
         searchOptions.userKeywords = parseMultiValue(userKeywords);
       }
 
+      // Add author/editor filters if specified
+      if (author) searchOptions.author = author;
+      if (editor) searchOptions.editor = editor;
+
       // Execute search
       let results: SearchResult[];
-      if (systemCategory || userKeywords) {
+      if (systemCategory || userKeywords || author || editor) {
         // Use advanced search for filtering
         results = await searchManager.advancedSearch(searchOptions);
       } else {
@@ -352,9 +329,9 @@ const SearchPlugin: SimplePlugin = {
       // Format results based on format parameter
       // count format uses the full result set; paginated formats use the sliced set
       if (format === 'count') {
-        return formatResults(results, { query, systemCategory, userKeywords, maxResults, format });
+        return formatResults(results, { query, systemCategory, userKeywords, author, editor, maxResults, format });
       }
-      return formatResults(limited, { query, systemCategory, userKeywords, maxResults, format }) + paginationHtml;
+      return formatResults(limited, { query, systemCategory, userKeywords, author, editor, maxResults, format }) + paginationHtml;
 
     } catch (error) {
       const err = error as Error;

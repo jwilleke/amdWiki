@@ -56,6 +56,10 @@ interface LunrDocument {
   keywords: string;
   lastModified: string;
   uuid: string;
+  /** Original page author (from metadata.author frontmatter field) */
+  author?: string;
+  /** Last editor (from metadata.editor frontmatter field) */
+  editor?: string;
   /** True if this page has location === 'private' in the page index */
   isPrivate?: boolean;
   /** Username that created the page (only set when isPrivate === true) */
@@ -274,6 +278,8 @@ class LunrSearchProvider extends BaseSearchProvider {
       keywords: `${userKeywords} ${tags}`,
       lastModified: toStr(metadata.lastModified),
       uuid: toStr(metadata.uuid),
+      author: toStr(metadata.author) || undefined,
+      editor: toStr(metadata.editor) || undefined,
       isPrivate: isPrivate || undefined,
       creator: isPrivate ? creator : undefined
     };
@@ -350,7 +356,9 @@ class LunrSearchProvider extends BaseSearchProvider {
           tags: tags,
           keywords: `${userKeywords} ${tags}`,
           lastModified: String(metadata.lastModified || ''),
-          uuid: String(metadata.uuid || '')
+          uuid: String(metadata.uuid || ''),
+          author: String(metadata.author || '') || undefined,
+          editor: String(metadata.editor || '') || undefined
         };
       }
 
@@ -412,7 +420,9 @@ class LunrSearchProvider extends BaseSearchProvider {
               tags: doc.tags,
               systemCategory: doc.systemCategory,
               userKeywords: doc.userKeywords,
-              lastModified: doc.lastModified
+              lastModified: doc.lastModified,
+              author: doc.author,
+              editor: doc.editor
             }
           };
         })
@@ -436,7 +446,9 @@ class LunrSearchProvider extends BaseSearchProvider {
       query = '',
       categories = [],
       userKeywords = [],
-      searchIn = ['all']
+      searchIn = ['all'],
+      author = '',
+      editor = ''
     } = options;
     const maxResults: number = (options.maxResults as number) ?? this.config?.maxResults ?? 50;
 
@@ -486,7 +498,9 @@ class LunrSearchProvider extends BaseSearchProvider {
           systemCategory: this.documents[name].systemCategory,
           userKeywords: this.documents[name].userKeywords,
           tags: this.documents[name].tags,
-          lastModified: this.documents[name].lastModified
+          lastModified: this.documents[name].lastModified,
+          author: this.documents[name].author,
+          editor: this.documents[name].editor
         }
       }));
     }
@@ -524,6 +538,24 @@ class LunrSearchProvider extends BaseSearchProvider {
         return keywordList.some(keyword =>
           docKeywordList.includes(keyword.toLowerCase().trim())
         );
+      });
+    }
+
+    // Filter by author if specified (case-insensitive exact match against metadata.author)
+    if (author) {
+      const authorLower = author.toLowerCase();
+      results = results.filter(result => {
+        const docAuthor = typeof result.metadata.author === 'string' ? result.metadata.author : '';
+        return docAuthor.toLowerCase() === authorLower;
+      });
+    }
+
+    // Filter by editor if specified (case-insensitive exact match against metadata.editor)
+    if (editor) {
+      const editorLower = editor.toLowerCase();
+      results = results.filter(result => {
+        const docEditor = typeof result.metadata.editor === 'string' ? result.metadata.editor : '';
+        return docEditor.toLowerCase() === editorLower;
       });
     }
 
