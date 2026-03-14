@@ -165,9 +165,8 @@
                                 <li><a class="dropdown-item" href="#" onclick="showPageHistory()">
                                     <i class="fas fa-history"></i> Page History
                                 </a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="#" onclick="showPageStats()">
-                                    <i class="fas fa-chart-bar"></i> Page Statistics
+                                <li><a class="dropdown-item" href="#" onclick="showPageSource()">
+                                    <i class="fas fa-code"></i> View Page Source
                                 </a></li>
                                 <li><a class="dropdown-item" href="/wiki/Recent%20Changes">
                                     <i class="fas fa-clock"></i> Recent Changes
@@ -202,9 +201,6 @@
                                     </a></li>
                                     <li><hr class="dropdown-divider"></li>
                                 <% } %>
-                                <li><a class="dropdown-item" href="#" onclick="showPageSource()">
-                                    <i class="fas fa-code"></i> View Page Source
-                                </a></li>
                                 <% if (typeof pageName !== 'undefined' && pageName) { %>
                                     <li><a class="dropdown-item" href="/wiki/<%= encodeURIComponent(pageName) %>?view=reader">
                                         <i class="fas fa-book-reader"></i> Show Reader View
@@ -213,13 +209,6 @@
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="/export">
                                     <i class="fas fa-download"></i> Export
-                                </a></li>
-                                <li><a class="dropdown-item" href="/wiki/System%20Variables">
-                                    <i class="fas fa-cog"></i> System Variables
-                                </a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="/wiki/Search%20Documentation">
-                                    <i class="fas fa-question-circle"></i> Search Help
                                 </a></li>
                             </ul>
                         </div>
