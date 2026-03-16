@@ -24,6 +24,27 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-16-02
+
+- Agent: Claude Sonnet 4.6
+- Subject: Log shutdown events and call engine.shutdown() on SIGTERM/SIGINT; widen extractYear to 1800–2100 (#343, #342)
+- Key Decision: Replace manual `pageManager.flushWriteQueue()` in signal handlers with `engine.shutdown()` so all managers shut down cleanly and shutdown is visible in app.log. Widen year bounds from `(1900, 2100)` to `[1800, 2100]` so 1800s-era photos resolve correctly; year 2100 now included at upper boundary.
+- Current Issue: #343
+- Testing:
+  - npm test: 75 suites passed, 1917 tests passed (2 new boundary tests)
+- Work Done:
+  - SIGTERM/SIGINT handlers in `app.js` now call `await engineRef.shutdown()` and log start/complete via `logger` to `app.log`
+  - Removed manual `pageManager.flushWriteQueue()` — superseded by `engine.shutdown()`
+  - `extractYear()` bounds changed from `y > 1900 && y < 2100` to `y >= 1800 && y <= 2100` in all three tiers (EXIF, filename, path component)
+  - Updated boundary tests: 1800 and 2100 now expect valid year return; invalid boundary moved to 1799
+- Commits: 807a432
+- Files Modified:
+  - app.js
+  - src/providers/FileSystemMediaProvider.ts
+  - src/providers/__tests__/FileSystemMediaProvider.extractYear.test.js
+
+---
+
 ## 2026-03-16-01
 
 - Agent: Claude Sonnet 4.6
