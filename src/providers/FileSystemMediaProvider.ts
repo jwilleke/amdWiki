@@ -531,7 +531,7 @@ class FileSystemMediaProvider extends BaseMediaProvider {
     for (const field of ['DateTimeOriginal', 'CreateDate', 'MediaCreateDate']) {
       const dt = tags[field];
       const year = dt != null ? (dt as { year?: unknown }).year : undefined;
-      if (typeof year === 'number' && year > 1900 && year < 2100) {
+      if (typeof year === 'number' && year >= 1800 && year <= 2100) {
         return year;
       }
     }
@@ -542,7 +542,7 @@ class FileSystemMediaProvider extends BaseMediaProvider {
     const fnMatch = basename.match(/^(\d{4})[-_]/);
     if (fnMatch) {
       const y = parseInt(fnMatch[1], 10);
-      if (y > 1900 && y < 2100) return y;
+      if (y >= 1800 && y <= 2100) return y;
     }
 
     // 3. Path components
@@ -551,7 +551,7 @@ class FileSystemMediaProvider extends BaseMediaProvider {
       const m = parts[i]?.match(/^(\d{4})$/);
       if (m) {
         const y = parseInt(m[1], 10);
-        if (y > 1900 && y < 2100) return y;
+        if (y >= 1800 && y <= 2100) return y;
       }
     }
 

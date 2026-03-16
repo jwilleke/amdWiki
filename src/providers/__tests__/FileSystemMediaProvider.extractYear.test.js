@@ -76,8 +76,18 @@ describe('FileSystemMediaProvider.extractYear()', () => {
       expect(provider['extractYear']({ DateTimeOriginal: plainDateLike }, '/photos/img.jpg', mtime2026)).toBe(2024);
     });
 
-    it('ignores EXIF year outside valid range', () => {
+    it('accepts EXIF year 1800 (lower boundary)', () => {
       const tags = { DateTimeOriginal: new ExifDateTime(1800) };
+      expect(provider['extractYear'](tags, '/photos/img.jpg', mtime2026)).toBe(1800);
+    });
+
+    it('accepts EXIF year 2100 (upper boundary)', () => {
+      const tags = { DateTimeOriginal: new ExifDateTime(2100) };
+      expect(provider['extractYear'](tags, '/photos/img.jpg', mtime2026)).toBe(2100);
+    });
+
+    it('ignores EXIF year outside valid range', () => {
+      const tags = { DateTimeOriginal: new ExifDateTime(1799) };
       // Should fall through to mtime
       expect(provider['extractYear'](tags, '/photos/img.jpg', mtime2026)).toBe(2026);
     });
@@ -113,7 +123,7 @@ describe('FileSystemMediaProvider.extractYear()', () => {
     });
 
     it('ignores 4-digit path segments outside valid year range', () => {
-      expect(provider['extractYear']({}, '/media/1800/img.jpg', mtime2026)).toBe(2026);
+      expect(provider['extractYear']({}, '/media/1799/img.jpg', mtime2026)).toBe(2026);
     });
   });
 

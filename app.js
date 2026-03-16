@@ -58,15 +58,22 @@ function checkAndCreatePidLock() {
     };
 
     process.on('exit', cleanup);
-    process.on('SIGINT', () => { cleanup(); process.exit(0); });
-    process.on('SIGTERM', async () => {
-      // Flush any pending page-index writes before exiting so we don't lose pages
+    process.on('SIGINT', async () => {
+      logger.info('[APP] SIGINT received — shutting down');
       try {
-        const pageManager = engineRef && engineRef.getManager ? engineRef.getManager('PageManager') : null;
-        if (pageManager && pageManager.flushWriteQueue) {
-          await pageManager.flushWriteQueue();
-        }
-      } catch (e) { /* ignore flush errors during shutdown */ }
+        if (engineRef) await engineRef.shutdown();
+      } catch (e) { /* ignore */ }
+      cleanup();
+      process.exit(0);
+    });
+    process.on('SIGTERM', async () => {
+      logger.info('[APP] SIGTERM received — shutting down gracefully');
+      try {
+        if (engineRef) await engineRef.shutdown();
+      } catch (e) {
+        logger.warn(`[APP] Error during engine shutdown: ${e.message}`);
+      }
+      logger.info('[APP] Shutdown complete');
       cleanup();
       process.exit(0);
     });
