@@ -134,6 +134,16 @@ abstract class BaseMediaProvider {
   }
 
   /**
+   * Rebuild the media index from scratch, discarding all existing entries.
+   *
+   * Default implementation returns an empty ScanResult; override in providers
+   * that maintain a persistent index.
+   */
+  rebuild(): Promise<ScanResult> {
+    return Promise.resolve({ scanned: 0, added: 0, updated: 0, errors: 0 });
+  }
+
+  /**
    * Full-text / keyword search across the media index.
    *
    * @param query - Search query string.

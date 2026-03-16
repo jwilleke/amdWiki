@@ -117,6 +117,29 @@ class MediaManager extends BaseManager {
   }
 
   /**
+   * Rebuild the media index from scratch.
+   *
+   * Clears the in-memory index, deletes the persisted index file, then runs a
+   * full scan. All items on disk are re-indexed; stale entries for deleted
+   * files are removed because the index starts empty.
+   *
+   * @returns ScanResult summary.
+   */
+  async rebuildIndex(): Promise<ScanResult> {
+    if (!this.provider) {
+      logger.warn('[MediaManager] rebuildIndex() called before initialization');
+      return { scanned: 0, added: 0, updated: 0, errors: 0 };
+    }
+    logger.info('[MediaManager] rebuildIndex() — full media index rebuild');
+    const result = await this.provider.rebuild();
+    logger.info(
+      `[MediaManager] Rebuild complete: scanned=${result.scanned} added=${result.added} ` +
+        `updated=${result.updated} errors=${result.errors}`
+    );
+    return result;
+  }
+
+  /**
    * Trigger a media folder scan.
    *
    * STUB: Delegates to FileSystemMediaProvider.scan() which logs a warning and

@@ -150,6 +150,22 @@ class FileSystemMediaProvider extends BaseMediaProvider {
     return this.exiftoolInstance.end();
   }
 
+  /**
+   * Rebuild the media index from scratch.
+   *
+   * Clears the in-memory index and deletes the persisted index file, then
+   * runs a forced full scan so the result reflects only files currently on disk.
+   */
+  async rebuild(): Promise<ScanResult> {
+    logger.info('[FileSystemMediaProvider] rebuild() — clearing index and rescanning');
+    this.index = {};
+    if (this.config.indexFile && await fs.pathExists(this.config.indexFile)) {
+      await fs.remove(this.config.indexFile);
+      logger.debug(`[FileSystemMediaProvider] Deleted index file: ${this.config.indexFile}`);
+    }
+    return this.scan(true);
+  }
+
   // ---------------------------------------------------------------------------
   // Scanning
   // ---------------------------------------------------------------------------

@@ -208,3 +208,4 @@ addons/*/db.sqlite
 .DS_Store
 xxx*/
 zzz*/
+amdWiki.code-workspace

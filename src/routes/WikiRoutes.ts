@@ -6377,6 +6377,7 @@ class WikiRoutes {
     app.get('/media/thumb/:id', (req: Request, res: Response) => void this.mediaThumb(req, res));
     app.get('/admin/media', (req: Request, res: Response) => void this.adminMedia(req, res));
     app.post('/admin/media/rescan', (req: Request, res: Response) => void this.adminMediaRescan(req, res));
+    app.post('/admin/media/rebuild', (req: Request, res: Response) => void this.adminMediaRebuild(req, res));
   }
 
   /**
@@ -8525,6 +8526,29 @@ ${description}
       return res.json({ success: true, result });
     } catch (err: unknown) {
       logger.error('[media] Error triggering rescan:', err);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
+  /**
+   * POST /admin/media/rebuild
+   * Rebuild the media index from scratch (clears index, rescans all folders).
+   */
+  async adminMediaRebuild(req: Request, res: Response) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = req.userContext;
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:system'))) {
+        return res.status(403).json({ error: 'Access denied' });
+      }
+      const mediaManager = this.engine.getManager('MediaManager');
+      if (!mediaManager) {
+        return res.status(503).json({ error: 'Media manager not enabled' });
+      }
+      const result = await mediaManager.rebuildIndex();
+      return res.json({ success: true, result });
+    } catch (err: unknown) {
+      logger.error('[media] Error triggering rebuild:', err);
       return res.status(500).json({ error: 'Internal server error' });
     }
   }

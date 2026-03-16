@@ -13,10 +13,23 @@ This file is the **Context Map** for AI agents. It directs you to the Single Sou
 
 ## 🤖 Operational Protocol
 
+- Look at the app and architecture.
+- Understand deeply how it works inside and out.
+- Do not guess. Be sure you understand the issue and as any clarifying questions before proceeding.
+- Check top of docs/project_log.md and GitHub commits for recent work performed.
+- After completing a task that involves tool use, provide a quick summary of the work you've done
+- This will be the basis for the rest of our conversation.
+
+Do not guess. Be sure you understand the issue and as any clarifying questions before proceeding.
+
 1. **Be Precise:** Do not speculate. Read the code/docs first.
 2. **Parallel Execution:** Use parallel tool calls for independent reads/searches.
 3. **Safety First:** Explain modifying commands before execution.
 4. **No Regressions:** Run tests before and after changes.
+
+## GitHub Issue
+
+Always use the appriate .github/ISSUE_TEMPLATE
 
 ## 🗺️ Knowledge Map (Single Source of Truth)
 

@@ -62,15 +62,33 @@
             </div>
             <% } %>
 
-            <!-- Rescan -->
+            <!-- Rescan / Rebuild -->
             <div class="card mb-4">
-                <div class="card-header"><i class="fas fa-sync-alt"></i> Scan</div>
+                <div class="card-header"><i class="fas fa-sync-alt"></i> Index Operations</div>
                 <div class="card-body">
-                    <p class="text-muted">Trigger a full rescan of all configured media folders. This may take a while for large libraries.</p>
-                    <button id="rescan-btn" class="btn" style="background-color: var(--btn-primary-bg); color: var(--btn-primary-text); border-color: var(--btn-primary-border);">
-                        <i class="fas fa-sync-alt"></i> Trigger Rescan
-                    </button>
-                    <div id="rescan-status" class="mt-3" style="display:none;"></div>
+                    <div class="mb-4">
+                        <h6>Reindex Media
+                            <a href="/wiki/media" class="ms-1 text-muted" title="Documentation" target="_blank"><i class="fas fa-question-circle fa-sm"></i></a>
+                        </h6>
+                        <p class="text-muted small">Re-scans all configured media folders and updates the index. New, changed, and excluded files are processed. Previously indexed files that no longer exist on disk are <strong>not</strong> removed — use Rebuild for that.</p>
+                        <button id="rescan-btn" class="btn" style="background-color: var(--btn-primary-bg); color: var(--btn-primary-text); border-color: var(--btn-primary-border);">
+                            <i class="fas fa-sync-alt"></i> Reindex Media
+                        </button>
+                        <div id="rescan-status" class="mt-3" style="display:none;"></div>
+                    </div>
+
+                    <hr>
+
+                    <div>
+                        <h6>Rebuild Media Index
+                            <a href="/wiki/media" class="ms-1 text-muted" title="Documentation" target="_blank"><i class="fas fa-question-circle fa-sm"></i></a>
+                        </h6>
+                        <p class="text-muted small">Deletes the existing index and rebuilds it from scratch by scanning all configured folders. Stale entries for deleted or moved files are removed. This may take several minutes for large libraries.</p>
+                        <button id="rebuild-btn" class="btn btn-warning">
+                            <i class="fas fa-database"></i> Rebuild Media Index
+                        </button>
+                        <div id="rebuild-status" class="mt-3" style="display:none;"></div>
+                    </div>
                 </div>
             </div>
 
@@ -80,35 +98,59 @@
 </div>
 
 <script>
+function formatScanResult(r, verb) {
+    const elapsed = r.elapsedMs != null ? ` in ${(r.elapsedMs/1000).toFixed(1)}s` : '';
+    const rate = (r.scanned > 0 && r.elapsedMs) ? ` (~${(r.elapsedMs/r.scanned).toFixed(0)}ms/file)` : '';
+    const excluded = r.excluded != null ? `, excluded: ${r.excluded}` : '';
+    return `<i class="fas fa-check-circle"></i> ${verb} complete${elapsed}${rate} — scanned: ${r.scanned}, added: ${r.added}, updated: ${r.updated}, errors: ${r.errors}${excluded}`;
+}
+
 document.getElementById('rescan-btn')?.addEventListener('click', async function () {
     const btn = this;
     const status = document.getElementById('rescan-status');
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Scanning…';
     status.style.display = 'none';
-
     try {
         const res = await fetch('/admin/media/rescan', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
         const data = await res.json();
-        if (data.success) {
-            const r = data.result;
-            const elapsed = r.elapsedMs != null ? ` in ${(r.elapsedMs/1000).toFixed(1)}s` : '';
-            const rate = (r.scanned > 0 && r.elapsedMs) ? ` (~${(r.elapsedMs/r.scanned).toFixed(0)}ms/file)` : '';
-            status.className = 'alert alert-success';
-            status.innerHTML = `<i class="fas fa-check-circle"></i> Scan complete${elapsed}${rate} — scanned: ${r.scanned}, added: ${r.added}, updated: ${r.updated}, errors: ${r.errors}`;
-        } else {
-            status.className = 'alert alert-danger';
-            status.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${data.error || 'Scan failed'}`;
-        }
+        status.className = data.success ? 'alert alert-success' : 'alert alert-danger';
+        status.innerHTML = data.success
+            ? formatScanResult(data.result, 'Reindex')
+            : `<i class="fas fa-exclamation-triangle"></i> ${data.error || 'Scan failed'}`;
     } catch (e) {
         status.className = 'alert alert-danger';
         status.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Request failed';
     } finally {
         btn.disabled = false;
-        btn.innerHTML = '<i class="fas fa-sync-alt"></i> Trigger Rescan';
+        btn.innerHTML = '<i class="fas fa-sync-alt"></i> Reindex Media';
         status.style.display = 'block';
-        // Refresh year count after scan
         setTimeout(() => location.reload(), 2000);
+    }
+});
+
+document.getElementById('rebuild-btn')?.addEventListener('click', async function () {
+    if (!confirm('This will delete the existing media index and rebuild it from scratch by scanning all configured folders.\n\nStale entries for deleted or moved files will be removed. This may take several minutes for large libraries.\n\nContinue?')) return;
+    const btn = this;
+    const status = document.getElementById('rebuild-status');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Rebuilding…';
+    status.style.display = 'none';
+    try {
+        const res = await fetch('/admin/media/rebuild', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+        const data = await res.json();
+        status.className = data.success ? 'alert alert-success' : 'alert alert-danger';
+        status.innerHTML = data.success
+            ? formatScanResult(data.result, 'Rebuild')
+            : `<i class="fas fa-exclamation-triangle"></i> ${data.error || 'Rebuild failed'}`;
+    } catch (e) {
+        status.className = 'alert alert-danger';
+        status.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Request failed';
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-database"></i> Rebuild Media Index';
+        status.style.display = 'block';
+        setTimeout(() => location.reload(), 3000);
     }
 });
 </script>
