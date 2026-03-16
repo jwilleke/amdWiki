@@ -1222,10 +1222,6 @@
     ".dtrash",
     ".ts"
   ],
-  "amdwiki.media.ignorefiles": [
-    ".photoviewignore",
-    ".plexignore"
-  ],
   "amdwiki.media.extensions": [
     "jpg",
     "jpeg",

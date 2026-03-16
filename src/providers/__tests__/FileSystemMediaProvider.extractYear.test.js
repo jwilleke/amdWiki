@@ -35,7 +35,6 @@ const { ExifDateTime } = require('exiftool-vendored');
 const minimalConfig = {
   folders: [],
   ignoreDirs: [],
-  ignoreFiles: [],
   maxDepth: 0,
   indexFile: '/tmp/test-media-index.json',
   thumbnailDir: '/tmp/test-thumbs',

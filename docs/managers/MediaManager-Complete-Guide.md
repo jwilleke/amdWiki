@@ -15,19 +15,20 @@
 3. [Configuration](#configuration)
 4. [Initialization Sequence](#initialization-sequence)
 5. [Scanning](#scanning)
-6. [Media Index](#media-index)
-7. [Querying](#querying)
-8. [Keyword Browsing](#keyword-browsing)
-9. [Thumbnail Generation](#thumbnail-generation)
-10. [Privacy and Access Control](#privacy-and-access-control)
-11. [MediaPlugin Integration](#mediaplugin-integration)
-12. [HTTP Routes](#http-routes)
-13. [API Reference](#api-reference)
-14. [Provider System](#provider-system)
-15. [Background Scanning](#background-scanning)
-16. [Shutdown](#shutdown)
-17. [Troubleshooting](#troubleshooting)
-18. [Future Roadmap](#future-roadmap)
+6. [Excluding Files and Directories](#excluding-files-and-directories)
+7. [Media Index](#media-index)
+8. [Querying](#querying)
+9. [Keyword Browsing](#keyword-browsing)
+10. [Thumbnail Generation](#thumbnail-generation)
+11. [Privacy and Access Control](#privacy-and-access-control)
+12. [MediaPlugin Integration](#mediaplugin-integration)
+13. [HTTP Routes](#http-routes)
+14. [API Reference](#api-reference)
+15. [Provider System](#provider-system)
+16. [Background Scanning](#background-scanning)
+17. [Shutdown](#shutdown)
+18. [Troubleshooting](#troubleshooting)
+19. [Future Roadmap](#future-roadmap)
 
 ---
 
@@ -88,8 +89,7 @@ All keys are in `amdwiki.media.*`. Set them in your instance
 | `amdwiki.media.folders` | string[] | `[]` | Absolute paths to scan |
 | `amdwiki.media.maxdepth` | number | `5` | Max recursion depth (0 = unlimited) |
 | `amdwiki.media.scaninterval` | number | `3600000` | Background rescan interval in ms; `0` = disabled |
-| `amdwiki.media.ignoredirs` | string[] | `[".dtrash", ".ts"]` | Directory names to skip |
-| `amdwiki.media.ignorefiles` | string[] | `[".photoviewignore", ".plexignore"]` | Sentinel filenames that exclude a directory |
+| `amdwiki.media.ignoredirs` | string[] | `[".dtrash", ".ts"]` | Directory names to skip unconditionally |
 | `amdwiki.media.extensions` | string[] | *(built-in list)* | File extensions to index; overrides `DEFAULT_MEDIA_EXTENSIONS` when non-empty |
 | `amdwiki.media.index.file` | string | *(FAST_STORAGE/media-index.json)* | Absolute path to index file |
 | `amdwiki.media.thumbnail.dir` | string | *(FAST_STORAGE/media/thumbs)* | Absolute path to thumbnail cache |
@@ -165,6 +165,60 @@ interface ScanResult {
   elapsedMs?: number;  // Optional: elapsed time in ms
 }
 ```
+
+---
+
+## Excluding Files and Directories
+
+Two complementary mechanisms allow files and folders to be excluded from the index.
+
+### `.amdwikiignore` pattern file
+
+Place a `.amdwikiignore` file in any directory within a configured media folder. The scanner reads its contents and applies the patterns to files and subdirectories in that directory before calling ExifTool — excluded items incur no metadata-read overhead.
+
+**Pattern syntax** (gitignore-compatible):
+
+| Pattern | Effect |
+|---------|--------|
+| `*.wmv` | Skip all `.wmv` files in this directory |
+| `outtakes/` | Skip the `outtakes` subdirectory (trailing `/` = dirs only) |
+| `vacation-embarrassing.jpg` | Skip a specific file |
+| `# comment` | Line is ignored |
+| *(blank line)* | Line is ignored |
+
+```
+# /Volumes/photos/2023/.amdwikiignore
+
+# skip raw unedited files
+*.orf
+*.cr2
+
+# skip the rejects folder
+rejects/
+
+# skip a specific file
+IMG_0001.jpg
+```
+
+Patterns apply only to the directory containing the `.amdwikiignore` file, not recursively to all descendants. Place additional `.amdwikiignore` files in subdirectories as needed.
+
+`amdwiki.media.ignoredirs` entries (e.g. `.dtrash`, `.ts`) are still applied unconditionally by directory name across the entire tree, independently of `.amdwikiignore`.
+
+### `amdwikiignore` EXIF keyword
+
+Add the keyword `amdwikiignore` to a file's EXIF or XMP metadata using any photo management tool (Lightroom, Capture One, Bridge, or `exiftool` on the command line):
+
+```bash
+exiftool -Keywords+=amdwikiignore /path/to/photo.jpg
+```
+
+On the next scan, the file is excluded from the index. If it was previously indexed it is evicted immediately. The keyword travels with the file if it is moved between indexed folders, and does not require any filesystem changes to the scan configuration.
+
+This mechanism is most useful for per-file exclusion on metadata-capable formats (JPEG, HEIC, TIFF, PNG, most RAW formats). It is not applicable to video files that carry no keyword metadata.
+
+### `ScanResult.excluded`
+
+Both mechanisms increment `ScanResult.excluded` so admin tooling can surface how many files were skipped in a given scan.
 
 ---
 

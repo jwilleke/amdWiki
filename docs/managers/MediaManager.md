@@ -97,7 +97,6 @@ All routes return **503** when `amdwiki.media.enabled = false`.
   "amdwiki.media.maxdepth": 5,
   "amdwiki.media.scaninterval": 3600000,
   "amdwiki.media.ignoredirs": [".dtrash", ".ts"],
-  "amdwiki.media.ignorefiles": [".photoviewignore", ".plexignore"],
   "amdwiki.media.extensions": [],
   "amdwiki.media.index.file": "",
   "amdwiki.media.thumbnail.dir": "",
@@ -107,6 +106,29 @@ All routes return **503** when `amdwiki.media.enabled = false`.
 ```
 
 Leave `amdwiki.media.extensions` empty (or omit it) to use the built-in default extension list. Provide a non-empty array to override it entirely.
+
+## Excluding Files and Directories
+
+Two mechanisms are available to prevent specific files or folders from being indexed:
+
+### `.amdwikiignore` pattern file
+
+Place a `.amdwikiignore` file in any media directory. Patterns follow gitignore syntax — blank lines and `#` comments are ignored, `*` is a wildcard, and a trailing `/` restricts the pattern to directories only. Patterns apply to files and subdirectories within the same directory.
+
+```
+# skip all Windows Media Video files
+*.wmv
+
+# skip an outtakes subdirectory
+outtakes/
+
+# skip a specific file
+vacation-embarrassing.jpg
+```
+
+### `amdwikiignore` EXIF keyword
+
+For image files that support EXIF/XMP metadata, add the keyword `amdwikiignore` using any photo management tool (Lightroom, Capture One, exiftool, etc.). On the next scan the file is excluded from the index and evicted if it was previously indexed. This mechanism requires no filesystem changes and travels with the file if it is moved between indexed folders.
 
 ## Provider
 

@@ -81,7 +81,6 @@ class MediaManager extends BaseManager {
         ? rawFolders.split(',').map((f: string) => f.trim()).filter(Boolean)
         : [];
     const ignoreDirs = configManager.getProperty('amdwiki.media.ignoredirs', ['.dtrash', '.ts']) as string[];
-    const ignoreFiles = configManager.getProperty('amdwiki.media.ignorefiles', ['.photoviewignore', '.plexignore']) as string[];
     const maxDepth = configManager.getProperty('amdwiki.media.maxdepth', 5) as number;
     const thumbnailSizes = configManager.getProperty('amdwiki.media.thumbnail.sizes', '300x300,150x150') as string;
     const metadataPriority = configManager.getProperty('amdwiki.media.metadata.priority', ['EXIF', 'IPTC', 'XMP']) as string[];
@@ -91,7 +90,6 @@ class MediaManager extends BaseManager {
     this.provider = new FileSystemMediaProvider({
       folders,
       ignoreDirs,
-      ignoreFiles,
       maxDepth,
       indexFile,
       thumbnailDir,

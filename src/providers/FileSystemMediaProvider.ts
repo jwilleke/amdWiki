@@ -18,6 +18,7 @@ import path from 'path';
 import fs from 'fs-extra';
 import sharp from 'sharp';
 import { ExifTool } from 'exiftool-vendored';
+import { minimatch } from 'minimatch';
 import logger from '../utils/logger';
 import BaseMediaProvider, { MediaItem, ScanResult } from './BaseMediaProvider';
 
@@ -29,8 +30,6 @@ export interface FileSystemMediaProviderConfig {
   folders: string[];
   /** Directory names to skip during scan (e.g. [".dtrash", ".ts"]) */
   ignoreDirs: string[];
-  /** File names that signal their containing directory should be excluded */
-  ignoreFiles: string[];
   /** Maximum directory depth to recurse into (0 = unlimited) */
   maxDepth: number;
   /** Absolute path to the media-index.json file */
@@ -105,6 +104,7 @@ interface ScanCounters {
   added: number;
   updated: number;
   errors: number;
+  excluded: number;
 }
 
 /**
@@ -166,7 +166,7 @@ class FileSystemMediaProvider extends BaseMediaProvider {
       return { scanned: 0, added: 0, updated: 0, errors: 0 };
     }
 
-    const counters: ScanCounters = { scanned: 0, added: 0, updated: 0, errors: 0 };
+    const counters: ScanCounters = { scanned: 0, added: 0, updated: 0, errors: 0, excluded: 0 };
     const missingFolders: string[] = [];
     const startMs = Date.now();
     logger.info(
@@ -179,7 +179,7 @@ class FileSystemMediaProvider extends BaseMediaProvider {
         missingFolders.push(folder);
         continue;
       }
-      await this.walkDirectory(folder, 0, counters, force, true);
+      await this.walkDirectory(folder, 0, counters, force);
     }
 
     await this.saveIndex();
@@ -348,17 +348,15 @@ class FileSystemMediaProvider extends BaseMediaProvider {
   /**
    * Recursively walk a directory, processing media files.
    *
-   * @param isConfiguredRoot - true when dirPath is one of the explicitly
-   *   configured root folders; sentinel-file exclusion is skipped for roots
-   *   so that a .plexignore / .photoviewignore at the top level does not
-   *   accidentally block an entire configured folder.
+   * If an `.amdwikiignore` file is present in a directory, its gitignore-style
+   * patterns are applied to files and subdirectories within that directory.
+   * Patterns ending with `/` match directories only; all others match both.
    */
   private async walkDirectory(
     dirPath: string,
     depth: number,
     counters: ScanCounters,
-    force: boolean,
-    isConfiguredRoot = false
+    force: boolean
   ): Promise<void> {
     // Enforce maxDepth (0 = unlimited)
     if (this.config.maxDepth > 0 && depth > this.config.maxDepth) return;
@@ -372,32 +370,65 @@ class FileSystemMediaProvider extends BaseMediaProvider {
       return;
     }
 
-    // Check for sentinel files that exclude the entire directory.
-    // Skipped for explicitly-configured root folders so that a top-level
-    // .plexignore/.photoviewignore does not silently block everything.
-    if (!isConfiguredRoot) {
-      const fileNames = new Set(entries.filter(e => e.isFile()).map(e => e.name));
-      for (const sentinel of this.config.ignoreFiles) {
-        if (fileNames.has(sentinel)) {
-          logger.debug(`[FileSystemMediaProvider] Skipping dir ${dirPath} — found ${sentinel}`);
-          return;
-        }
-      }
-    }
+    // Load .amdwikiignore patterns for this directory, if present.
+    const ignorePatterns = await this.loadIgnorePatterns(dirPath, entries);
 
     for (const entry of entries) {
       if (entry.isDirectory()) {
         if (this.config.ignoreDirs.includes(entry.name)) continue;
+        if (ignorePatterns.length && this.matchesIgnorePattern(entry.name, ignorePatterns, true)) {
+          logger.debug(`[FileSystemMediaProvider] Skipping dir ${entry.name} — matched .amdwikiignore`);
+          continue;
+        }
         await this.walkDirectory(path.join(dirPath, entry.name), depth + 1, counters, force);
       } else if (entry.isFile()) {
         // Skip dotfiles (.trashed-*, .DS_Store, etc.)
         if (entry.name.startsWith('.')) continue;
         const ext = path.extname(entry.name).slice(1).toLowerCase();
         if (!this.config.extensions.has(ext)) continue;
+        if (ignorePatterns.length && this.matchesIgnorePattern(entry.name, ignorePatterns, false)) {
+          logger.debug(`[FileSystemMediaProvider] Skipping file ${entry.name} — matched .amdwikiignore`);
+          counters.excluded++;
+          continue;
+        }
         counters.scanned++;
         await this.processFile(path.join(dirPath, entry.name), counters, force);
       }
     }
+  }
+
+  /**
+   * Read and parse `.amdwikiignore` from the given directory if it exists.
+   * Returns an array of pattern strings (blank lines and `#` comments stripped).
+   */
+  private async loadIgnorePatterns(dirPath: string, entries: fs.Dirent[]): Promise<string[]> {
+    if (!entries.some(e => e.isFile() && e.name === '.amdwikiignore')) return [];
+    try {
+      const content = await fs.readFile(path.join(dirPath, '.amdwikiignore'), 'utf8');
+      const patterns = content
+        .split('\n')
+        .map(l => l.trim())
+        .filter(l => l && !l.startsWith('#'));
+      logger.debug(`[FileSystemMediaProvider] Loaded ${patterns.length} pattern(s) from ${dirPath}/.amdwikiignore`);
+      return patterns;
+    } catch (err) {
+      logger.warn(`[FileSystemMediaProvider] Could not read .amdwikiignore in ${dirPath}: ${String(err)}`);
+      return [];
+    }
+  }
+
+  /**
+   * Test a filename against a list of .amdwikiignore patterns.
+   * Patterns ending with `/` are directory-only; all others match both files and dirs.
+   */
+  private matchesIgnorePattern(name: string, patterns: string[], isDir: boolean): boolean {
+    for (const pattern of patterns) {
+      const isDirPattern = pattern.endsWith('/');
+      if (isDirPattern && !isDir) continue;
+      const pat = isDirPattern ? pattern.slice(0, -1) : pattern;
+      if (minimatch(name, pat, { dot: false })) return true;
+    }
+    return false;
   }
 
   /**
@@ -417,11 +448,26 @@ class FileSystemMediaProvider extends BaseMediaProvider {
       if (!force && existing && existing.mtime === stat.mtimeMs) return;
 
       const tags = await this.exiftoolInstance.read(filePath);
-      const year = this.extractYear(tags as Record<string, unknown>, filePath, stat.mtime);
+      const rawTags = tags as Record<string, unknown>;
+
+      // Check for the amdwikiignore keyword — exclude (and evict) the file.
+      const rawKeywords = rawTags.Keywords;
+      const keywordList: string[] = Array.isArray(rawKeywords)
+        ? (rawKeywords as string[])
+        : typeof rawKeywords === 'string'
+          ? [rawKeywords]
+          : [];
+      if (keywordList.includes('amdwikiignore')) {
+        logger.debug(`[FileSystemMediaProvider] Excluding ${filePath} — amdwikiignore keyword`);
+        delete this.index[id]; // evict if previously indexed
+        counters.excluded++;
+        return;
+      }
+
+      const year = this.extractYear(rawTags, filePath, stat.mtime);
       const ext = path.extname(filePath).slice(1).toLowerCase();
       const mimeType = MIME_MAP[ext] ?? 'application/octet-stream';
 
-      const rawTags = tags as Record<string, unknown>;
       const orientation = typeof rawTags.Orientation === 'number' ? rawTags.Orientation : 1;
 
       const entry: MediaIndexEntry = {
