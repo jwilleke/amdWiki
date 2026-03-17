@@ -24,6 +24,25 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-17-01
+
+- Agent: Claude Sonnet 4.6
+- Subject: Fix keyword-scoped media navigation; keyboard arrow key support (#346)
+- Key Decision: Root cause was missing `?keyword=` on thumbnail links in media-keyword.ejs — the server already supported keyword-scoped prev/next but never received the context. No backend changes needed.
+- Current Issue: #346
+- Testing:
+  - npm test: 75 suites passed, 1917 tests passed (no new tests — view-only changes)
+- Work Done:
+  - `views/media-keyword.ejs`: append `?keyword=<encoded>` to each item thumbnail link
+  - `views/media-item.ejs`: back button returns to `/media/keyword/:kw` when albumKeyword present
+  - `views/media-item.ejs`: left/right arrow key navigation; keyword context preserved
+- Commits: c466060
+- Files Modified:
+  - views/media-keyword.ejs
+  - views/media-item.ejs
+
+---
+
 ## 2026-03-16-03
 
 - Agent: Claude Sonnet 4.6
