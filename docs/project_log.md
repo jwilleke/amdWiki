@@ -24,6 +24,30 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-17-02
+
+- Agent: Claude Sonnet 4.6
+- Subject: Server-side sort for media listing pages (#347)
+- Key Decision: Sort via query params (?sort=date|caption&order=asc|desc) so sorted URLs are shareable. Default oldest-first (date asc). Caption resolves caption → imageDescription → filename. Date resolves dateTimeOriginal → createDate → year.
+- Current Issue: #347
+- Testing:
+  - npm test: 75 suites passed, 1917 tests passed
+- Work Done:
+  - `applyMediaSort()` private helper added to WikiRoutes; parses sort/order from req.query and sorts in-place
+  - `mediaByYear`, `mediaByKeyword`, `mediaSearch` handlers updated to call helper and pass sort/order to templates
+  - `mediaItemDetail` applies same sort to siblings for consistent prev/next; forwards sortParam through all nav links
+  - Four-button sort control (Date ↑/↓, Caption A–Z/Z–A) added to media-year.ejs, media-keyword.ejs, media-search.ejs
+  - media-item.ejs: navSuffix computed at top of template; all links (prev, next, back, keyboard) include sort params
+- Commits: 7137430
+- Files Modified:
+  - src/routes/WikiRoutes.ts
+  - views/media-year.ejs
+  - views/media-keyword.ejs
+  - views/media-search.ejs
+  - views/media-item.ejs
+
+---
+
 ## 2026-03-17-01
 
 - Agent: Claude Sonnet 4.6
