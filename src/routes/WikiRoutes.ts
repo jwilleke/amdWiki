@@ -8174,6 +8174,50 @@ ${description}
   // ---------------------------------------------------------------------------
 
   /**
+   * Sort an array of media items by date or caption.
+   *
+   * Reads `?sort` (date|caption) and `?order` (asc|desc) from req.query.
+   * Default: sort=date, order=asc (oldest first).
+   * Caption resolves as: metadata.caption → metadata.imageDescription → filename.
+   * Date resolves as: metadata.dateTimeOriginal → metadata.createDate → year → 0.
+   */
+  private applyMediaSort(
+    req: Request,
+    items: Record<string, unknown>[]
+  ): { sort: string; order: string; items: Record<string, unknown>[] } {
+    const sort = typeof req.query.sort === 'string' && req.query.sort === 'caption' ? 'caption' : 'date';
+    const order = typeof req.query.order === 'string' && req.query.order === 'desc' ? 'desc' : 'asc';
+    const asc = order === 'asc';
+
+    const sorted = [...items].sort((a, b) => {
+      let cmp = 0;
+      if (sort === 'caption') {
+        const getMeta = (item: Record<string, unknown>) => item['metadata'] as Record<string, unknown> | undefined;
+        const getCaption = (item: Record<string, unknown>) => {
+          const m = getMeta(item);
+          const val = m?.['caption'] ?? m?.['imageDescription'] ?? item['filename'] ?? '';
+          return (typeof val === 'string' ? val : '').toLowerCase();
+        };
+        cmp = getCaption(a).localeCompare(getCaption(b));
+      } else {
+        const getDate = (item: Record<string, unknown>): number => {
+          const m = item['metadata'] as Record<string, unknown> | undefined;
+          const raw = m?.['dateTimeOriginal'] ?? m?.['createDate'];
+          if (typeof raw === 'string' && raw) {
+            const d = new Date(raw);
+            if (!isNaN(d.getTime())) return d.getTime();
+          }
+          return ((item['year'] as number) ?? 0) * 10000;
+        };
+        cmp = getDate(a) - getDate(b);
+      }
+      return asc ? cmp : -cmp;
+    });
+
+    return { sort, order, items: sorted };
+  }
+
+  /**
    * GET /media
    * Media home page — groups items by year.
    * Stub: returns a "not yet available" page when MediaManager is not registered.
@@ -8215,13 +8259,16 @@ ${description}
         return res.status(400).send('Invalid year');
       }
       const wikiContext = this.createWikiContext(req, { context: WikiContext.CONTEXT.VIEW });
-      const items = await mediaManager.listByYear(year, wikiContext);
+      const raw = await mediaManager.listByYear(year, wikiContext);
+      const { sort, order, items } = this.applyMediaSort(req, raw as Record<string, unknown>[]);
       const commonData = await this.getCommonTemplateData(req);
       return res.render('media-year', {
         ...commonData,
         wikiContext,
         year,
         items,
+        sort,
+        order,
         title: `Media — ${year}`
       });
     } catch (err: unknown) {
@@ -8242,13 +8289,16 @@ ${description}
     try {
       const keyword = decodeURIComponent(req.params.keyword);
       const wikiContext = this.createWikiContext(req, { context: WikiContext.CONTEXT.VIEW });
-      const items = await mediaManager.listByKeyword(keyword, wikiContext);
+      const raw = await mediaManager.listByKeyword(keyword, wikiContext);
+      const { sort, order, items } = this.applyMediaSort(req, raw as Record<string, unknown>[]);
       const commonData = await this.getCommonTemplateData(req);
       return res.render('media-keyword', {
         ...commonData,
         wikiContext,
         keyword,
         items,
+        sort,
+        order,
         title: `Media — ${keyword}`
       });
     } catch (err: unknown) {
@@ -8277,18 +8327,23 @@ ${description}
       // Prev/next navigation — keyword-scoped when arriving from a keyword album,
       // otherwise year-scoped.
       const albumKeyword = typeof req.query.keyword === 'string' ? req.query.keyword : null;
+      const sort = typeof req.query.sort === 'string' ? req.query.sort : 'date';
+      const order = typeof req.query.order === 'string' ? req.query.order : 'asc';
+      const sortParam = (sort !== 'date' || order !== 'asc') ? `sort=${encodeURIComponent(sort)}&order=${encodeURIComponent(order)}` : '';
       let prevItem: { id: string; filename: string } | null = null;
       let nextItem: { id: string; filename: string } | null = null;
       if (albumKeyword) {
-        const siblings: { id: string; filename: string }[] = await mediaManager.listByKeyword(albumKeyword, wikiContext);
-        const idx = siblings.findIndex((s: { id: string }) => s.id === item.id);
-        if (idx > 0) prevItem = siblings[idx - 1];
-        if (idx >= 0 && idx < siblings.length - 1) nextItem = siblings[idx + 1];
+        const raw = await mediaManager.listByKeyword(albumKeyword, wikiContext);
+        const { items: siblings } = this.applyMediaSort(req, raw as Record<string, unknown>[]);
+        const idx = siblings.findIndex((s: Record<string, unknown>) => s['id'] === item.id);
+        if (idx > 0) prevItem = siblings[idx - 1] as { id: string; filename: string };
+        if (idx >= 0 && idx < siblings.length - 1) nextItem = siblings[idx + 1] as { id: string; filename: string };
       } else if (item.year) {
-        const siblings: { id: string; filename: string }[] = await mediaManager.listByYear(item.year, wikiContext);
-        const idx = siblings.findIndex((s: { id: string }) => s.id === item.id);
-        if (idx > 0) prevItem = siblings[idx - 1];
-        if (idx >= 0 && idx < siblings.length - 1) nextItem = siblings[idx + 1];
+        const raw = await mediaManager.listByYear(item.year, wikiContext);
+        const { items: siblings } = this.applyMediaSort(req, raw as Record<string, unknown>[]);
+        const idx = siblings.findIndex((s: Record<string, unknown>) => s['id'] === item.id);
+        if (idx > 0) prevItem = siblings[idx - 1] as { id: string; filename: string };
+        if (idx >= 0 && idx < siblings.length - 1) nextItem = siblings[idx + 1] as { id: string; filename: string };
       }
 
       // Check which keywords have existing wiki pages for red-link support
@@ -8314,6 +8369,7 @@ ${description}
         prevItem,
         nextItem,
         albumKeyword,
+        sortParam,
         keywordPageExists,
         title: `Media — ${item.filename}`
       });
@@ -8336,13 +8392,16 @@ ${description}
     try {
       const query = (req.query.q as string) || '';
       const wikiContext = this.createWikiContext(req, { context: WikiContext.CONTEXT.VIEW });
-      const items = query ? await mediaManager.search(query, wikiContext) : [];
+      const raw = query ? await mediaManager.search(query, wikiContext) : [];
+      const { sort, order, items } = this.applyMediaSort(req, raw as Record<string, unknown>[]);
       const commonData = await this.getCommonTemplateData(req);
       return res.render('media-search', {
         ...commonData,
         wikiContext,
         query,
         items,
+        sort,
+        order,
         title: 'Media Search'
       });
     } catch (err: unknown) {

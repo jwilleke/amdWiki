@@ -16,11 +16,31 @@
             </div>
 
             <% if (items && items.length > 0) { %>
-                <p class="text-muted mb-3"><%= items.length %> item<%= items.length !== 1 ? 's' : '' %></p>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <p class="text-muted mb-0"><%= items.length %> item<%= items.length !== 1 ? 's' : '' %></p>
+                    <%
+                      const base = '/media/year/' + year;
+                      const sorts = [
+                        { s: 'date',    o: 'asc',  label: 'Date ↑' },
+                        { s: 'date',    o: 'desc', label: 'Date ↓' },
+                        { s: 'caption', o: 'asc',  label: 'Caption A–Z' },
+                        { s: 'caption', o: 'desc', label: 'Caption Z–A' }
+                      ];
+                    %>
+                    <div class="btn-group btn-group-sm" role="group" aria-label="Sort">
+                        <% sorts.forEach(function(opt) { %>
+                            <% const active = (sort === opt.s && order === opt.o); %>
+                            <a href="<%= base %>?sort=<%= opt.s %>&order=<%= opt.o %>"
+                               class="btn <%= active ? 'btn-primary' : 'btn-outline-secondary' %>">
+                                <%= opt.label %>
+                            </a>
+                        <% }); %>
+                    </div>
+                </div>
                 <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 g-2">
                     <% items.forEach(function(item) { %>
                         <div class="col">
-                            <a href="/media/item/<%= item.id %>" class="text-decoration-none">
+                            <a href="/media/item/<%= item.id %>?sort=<%= sort %>&order=<%= order %>" class="text-decoration-none">
                                 <div class="card h-100">
                                     <% if (item.mimeType && item.mimeType.startsWith('image/')) { %>
                                         <img

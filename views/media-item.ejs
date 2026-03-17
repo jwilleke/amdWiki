@@ -1,4 +1,10 @@
 <%- include('header', { pageName: item.filename }) %>
+<%
+  const _navParts = [];
+  if (albumKeyword) _navParts.push('keyword=' + encodeURIComponent(albumKeyword));
+  if (sortParam) _navParts.push(sortParam);
+  const navSuffix = _navParts.length ? '?' + _navParts.join('&') : '';
+%>
 
 <div class="container mt-4">
     <div class="row">
@@ -12,7 +18,8 @@
                         </a>
                     <% } %>
                     <% if (albumKeyword) { %>
-                        <a href="/media/keyword/<%= encodeURIComponent(albumKeyword) %>" class="btn btn-sm" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);">
+                        <% const backSuffix = sortParam ? '?' + sortParam : ''; %>
+                        <a href="/media/keyword/<%= encodeURIComponent(albumKeyword) %><%= backSuffix %>" class="btn btn-sm" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);">
                             <i class="fas fa-arrow-left"></i> <%= albumKeyword %>
                         </a>
                     <% } else { %>
@@ -52,17 +59,16 @@
                         </div>
                     <% } %>
                     <% if (prevItem || nextItem) { %>
-                    <% const kwSuffix = albumKeyword ? '?keyword=' + encodeURIComponent(albumKeyword) : ''; %>
                     <div class="d-flex justify-content-between mt-2">
                         <% if (prevItem) { %>
-                            <a href="/media/item/<%= prevItem.id %><%= kwSuffix %>" class="btn btn-sm" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);" title="<%= prevItem.filename %>">
+                            <a href="/media/item/<%= prevItem.id %><%= navSuffix %>" class="btn btn-sm" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);" title="<%= prevItem.filename %>">
                                 &laquo; Prev
                             </a>
                         <% } else { %>
                             <span></span>
                         <% } %>
                         <% if (nextItem) { %>
-                            <a href="/media/item/<%= nextItem.id %><%= kwSuffix %>" class="btn btn-sm" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);" title="<%= nextItem.filename %>">
+                            <a href="/media/item/<%= nextItem.id %><%= navSuffix %>" class="btn btn-sm" style="background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); border-color: var(--btn-secondary-border);" title="<%= nextItem.filename %>">
                                 Next &raquo;
                             </a>
                         <% } %>
@@ -210,8 +216,8 @@
 <script>
 // Keyboard navigation
 (function () {
-    const prev = '<% if (prevItem) { %>/media/item/<%= prevItem.id %><%= albumKeyword ? "?keyword=" + encodeURIComponent(albumKeyword) : "" %><% } %>';
-    const next = '<% if (nextItem) { %>/media/item/<%= nextItem.id %><%= albumKeyword ? "?keyword=" + encodeURIComponent(albumKeyword) : "" %><% } %>';
+    const prev = '<% if (prevItem) { %>/media/item/<%= prevItem.id %><%= navSuffix %><% } %>';
+    const next = '<% if (nextItem) { %>/media/item/<%= nextItem.id %><%= navSuffix %><% } %>';
     document.addEventListener('keydown', function (e) {
         if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
         if (e.key === 'ArrowLeft'  && prev) { window.location.href = prev; }
