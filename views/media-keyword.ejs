@@ -20,7 +20,7 @@
                 <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 g-2">
                     <% items.forEach(function(item) { %>
                         <div class="col">
-                            <a href="/media/item/<%= item.id %>" class="text-decoration-none">
+                            <a href="/media/item/<%= item.id %>?keyword=<%= encodeURIComponent(keyword) %>" class="text-decoration-none">
                                 <div class="card h-100">
                                     <% if (item.mimeType && item.mimeType.startsWith('image/')) { %>
                                         <img
