@@ -24,6 +24,29 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-20-01
+
+- Agent: Claude Sonnet 4.6
+- Subject: Display caption instead of filename in media gallery views (#348)
+- Key Decision: Store `caption` (IPTC Caption-Abstract / XMP Description) and `imageDescription` (EXIF ImageDescription) in indexed metadata so sort and display both resolve correctly. Views fall back to filename when no caption exists.
+- Current Issue: #348
+- Testing:
+  - npm test: 75 suites passed, 1917 tests passed
+- Work Done:
+  - Added `caption` and `imageDescription` fields to FileSystemMediaProvider metadata indexing
+  - Updated media-keyword, media-year, media-search gallery cards to show caption over filename
+  - Updated media-item page title and h1 to show caption when available
+  - Fixed Caption A–Z sort (was looking for metadata.caption which was never stored)
+- Commits: d579991
+- Files Modified:
+  - src/providers/FileSystemMediaProvider.ts
+  - views/media-item.ejs
+  - views/media-keyword.ejs
+  - views/media-search.ejs
+  - views/media-year.ejs
+
+---
+
 ## 2026-03-17-02
 
 - Agent: Claude Sonnet 4.6
