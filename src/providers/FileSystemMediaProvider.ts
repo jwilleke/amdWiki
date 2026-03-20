@@ -496,13 +496,21 @@ class FileSystemMediaProvider extends BaseMediaProvider {
         mtime: stat.mtimeMs,
         metadata: {
           title: rawTags.Title ?? null,
+          caption: (rawTags.Description ?? null) as string | null,
+          imageDescription: (rawTags.ImageDescription ?? null) as string | null,
           description: rawTags.Description ?? rawTags.ImageDescription ?? null,
           keywords: rawTags.Keywords ?? null,
           make: rawTags.Make ?? null,
           model: rawTags.Model ?? null,
           gpsLatitude: rawTags.GPSLatitude ?? null,
           gpsLongitude: rawTags.GPSLongitude ?? null,
-          orientation
+          orientation,
+          dateTimeOriginal: (() => {
+            const dt = rawTags.DateTimeOriginal as { year?: number; month?: number; day?: number; hour?: number; minute?: number; second?: number } | null | undefined;
+            if (!dt || typeof dt.year !== 'number') return null;
+            const pad = (n: number) => String(n).padStart(2, '0');
+            return `${dt.year}-${pad(dt.month ?? 1)}-${pad(dt.day ?? 1)} ${pad(dt.hour ?? 0)}:${pad(dt.minute ?? 0)}:${pad(dt.second ?? 0)}`;
+          })()
         }
       };
 
