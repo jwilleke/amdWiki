@@ -10650,6 +10650,27 @@ Subject: AGENTS.md implementation and project_log.md creation
   - 2907ed3 - fix: version.ts now updates app-default-config.json
   - 7097715 - docs: update CONTRIBUTING.md version management section
 
+## 2026-03-22-07
+
+### Rename amdWiki to ngdpbase (#360)
+
+- Replaced all `amdwiki.*` config key prefixes with `ngdpbase.*` across src/, config/, plugins/, addons/, tests/, app.js, ecosystem.config.js (176 source files)
+- Updated brand strings (amdWiki → ngdpbase) in views, docs, shell scripts, package.json, README, themes (712+ files)
+- Renamed PM2 app prefix and PID file reference (`.amdwiki.pid` → `.ngdpbase.pid`)
+- Added `scripts/migrate-config-keys.js` — one-time migration for deployed instances to rewrite `app-custom-config.json` keys
+- Fixed MetricsManager unit test expectations for updated metric name prefix
+- TypeScript class names (WikiEngine, WikiContext, WikiDocument, etc.) intentionally unchanged
+
+- Files Modified: 767 files
+- Tests: 1917 passed, 0 failed
+- Server: running as `ngdpbase-amdWiki` on port 3000
+
+- Issues Closed:
+  - #360 — feat: rename amdWiki to ngdpbase
+
+- Commits:
+  - 9ffd305 - feat: rename amdWiki to ngdpbase (#360)
+
 ## 2026-03-22-06
 
 ### Platform Vision: ngdpbase as a Base Platform
