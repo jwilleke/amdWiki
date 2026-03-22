@@ -773,8 +773,8 @@ describe.skip('VersioningFileProvider', () => {
 
       const uuid = 'version-uuid-2';
       const v1 = 'Hello world';
-      const v2 = 'Hello amdWiki';
-      const v3 = 'Hello amdWiki community';
+      const v2 = 'Hello ngdpbase';
+      const v3 = 'Hello ngdpbase community';
 
       await provider.savePage('Test', v1, { uuid, author: 'user1' });
       await provider.savePage('Test', v2, { uuid, author: 'user2' });
@@ -944,7 +944,7 @@ describe.skip('VersioningFileProvider', () => {
 
       const uuid = 'compare-uuid-1';
       await provider.savePage('Test', 'Hello world', { uuid, author: 'user1' });
-      await provider.savePage('Test', 'Hello amdWiki', { uuid, author: 'user2' });
+      await provider.savePage('Test', 'Hello ngdpbase', { uuid, author: 'user2' });
 
       const comparison = await provider.compareVersions('Test', 1, 2);
 

@@ -2,7 +2,7 @@
 const { defineConfig } = require('@playwright/test');
 
 /**
- * Playwright E2E Test Configuration for amdWiki
+ * Playwright E2E Test Configuration for ngdpbase
  * @see https://playwright.dev/docs/test-configuration
  */
 module.exports = defineConfig({

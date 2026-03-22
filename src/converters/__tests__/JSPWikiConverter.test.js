@@ -212,12 +212,12 @@ function hello() {
   });
 
   describe('links conversion', () => {
-    it('should preserve [PageName] wiki links (amdWiki native syntax)', () => {
+    it('should preserve [PageName] wiki links (ngdpbase native syntax)', () => {
       const result = converter.convert('See [MyPage] for details');
       expect(result.content).toBe('See [MyPage] for details');
     });
 
-    it('should preserve [text|PageName] wiki links (amdWiki native syntax)', () => {
+    it('should preserve [text|PageName] wiki links (ngdpbase native syntax)', () => {
       const result = converter.convert('[click here|MyPage]');
       expect(result.content).toBe('[click here|MyPage]');
     });

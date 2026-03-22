@@ -1,4 +1,4 @@
-# amdWiki Persistent Volume Claim
+# ngdpbase Persistent Volume Claim
 # Deploy with: kubectl apply -f pvc.yaml
 #
 # This PVC provides persistent storage for:
@@ -13,10 +13,10 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: amdwiki-data-pvc
+  name: ngdpbase-data-pvc
   labels:
-    app: amdwiki
-    app.kubernetes.io/name: amdwiki
+    app: ngdpbase
+    app.kubernetes.io/name: ngdpbase
 spec:
   accessModes:
     # ReadWriteOnce for single-replica deployment
@@ -33,9 +33,9 @@ spec:
 # apiVersion: v1
 # kind: PersistentVolumeClaim
 # metadata:
-#   name: amdwiki-backups-pvc
+#   name: ngdpbase-backups-pvc
 #   labels:
-#     app: amdwiki
+#     app: ngdpbase
 # spec:
 #   accessModes:
 #     - ReadWriteOnce

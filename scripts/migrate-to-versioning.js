@@ -3,7 +3,7 @@
 /**
  * migrate-to-versioning.js - Interactive CLI migration script
  *
- * Migrates existing amdWiki FileSystemProvider data to VersioningFileProvider format.
+ * Migrates existing ngdpbase FileSystemProvider data to VersioningFileProvider format.
  *
  * Usage:
  *   node scripts/migrate-to-versioning.js [options]
@@ -103,7 +103,7 @@ function printInfo(message) {
  * Show help message
  */
 function showHelp() {
-  printHeader('amdWiki Migration Tool - FileSystemProvider to VersioningFileProvider');
+  printHeader('ngdpbase Migration Tool - FileSystemProvider to VersioningFileProvider');
 
   console.log('Usage:');
   console.log('  node scripts/migrate-to-versioning.js [options]');
@@ -121,7 +121,7 @@ function showHelp() {
   console.log('  node scripts/migrate-to-versioning.js --auto');
   console.log('');
   console.log('Description:');
-  console.log('  Migrates existing amdWiki pages to versioned format with:');
+  console.log('  Migrates existing ngdpbase pages to versioned format with:');
   console.log('  - Full data preservation');
   console.log('  - Content integrity validation (SHA-256 hashes)');
   console.log('  - Detailed migration report');
@@ -195,8 +195,8 @@ function getDirectoryPaths(config) {
   const cwd = process.cwd();
 
   return {
-    pagesDir: path.resolve(cwd, config['amdwiki.page.provider.filesystem.storagedir'] || './pages'),
-    requiredPagesDir: path.resolve(cwd, config['amdwiki.page.provider.filesystem.requiredpagesdir'] || './required-pages'),
+    pagesDir: path.resolve(cwd, config['ngdpbase.page.provider.filesystem.storagedir'] || './pages'),
+    requiredPagesDir: path.resolve(cwd, config['ngdpbase.page.provider.filesystem.requiredpagesdir'] || './required-pages'),
     dataDir: path.resolve(cwd, './data')
   };
 }
@@ -332,7 +332,7 @@ async function main() {
       process.exit(0);
     }
 
-    printHeader('amdWiki Migration Tool');
+    printHeader('ngdpbase Migration Tool');
 
     // Load configuration
     printInfo('Loading configuration...');
@@ -429,8 +429,8 @@ async function main() {
       console.log('  3. Update app-custom-config.json to use VersioningFileProvider');
     } else {
       console.log('  1. Update app-custom-config.json:');
-      console.log('     "amdwiki.page.provider": "VersioningFileProvider"');
-      console.log('  2. Restart your amdWiki application');
+      console.log('     "ngdpbase.page.provider": "VersioningFileProvider"');
+      console.log('  2. Restart your ngdpbase application');
       console.log('  3. Test page editing and version history');
       console.log('  4. Verify all pages are accessible');
     }

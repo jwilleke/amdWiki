@@ -13,7 +13,7 @@ We release patches for security vulnerabilities. Which versions are eligible for
 
 **Please do not report security vulnerabilities through public GitHub issues.**
 
-If you discover a security vulnerability in amdWiki, please report it to us privately. This allows us to assess and fix the issue before it becomes public knowledge.
+If you discover a security vulnerability in ngdpbase, please report it to us privately. This allows us to assess and fix the issue before it becomes public knowledge.
 
 ### How to Report
 
@@ -48,7 +48,7 @@ If you discover a security vulnerability in amdWiki, please report it to us priv
 
 ## Security Best Practices for Users
 
-When running amdWiki:
+When running ngdpbase:
 
 1. **Keep Updated**: Always run the latest stable version
 2. **Dependencies**: Regularly update npm dependencies (`npm audit`)

@@ -13,7 +13,7 @@ interface PageManager {
 const TotalPagesPlugin: SimplePlugin = {
   name: 'TotalPagesPlugin',
   description: 'Shows the total number of pages',
-  author: 'amdWiki',
+  author: 'ngdpbase',
   version: '1.0.0',
 
   /**

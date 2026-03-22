@@ -1,5 +1,5 @@
 /**
- * SearchPlugin - JSPWiki-style search plugin for amdWiki
+ * SearchPlugin - JSPWiki-style search plugin for ngdpbase
  * Embeds search results directly in wiki pages
  *
  * Based on JSPWiki's SearchPlugin:
@@ -243,7 +243,7 @@ function formatResults(results: SearchResult[], options: FormatOptions): string 
 const SearchPlugin: SimplePlugin = {
   name: 'SearchPlugin',
   description: 'JSPWiki-style search plugin for embedding search results in pages',
-  author: 'amdWiki',
+  author: 'ngdpbase',
   version: '2.0.0',
 
   /**

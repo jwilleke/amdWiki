@@ -23,7 +23,7 @@ const createMockEngine = () => {
   // Register test variables
   variableHandlers.set('username', (context) => context?.userName || 'JohnDoe');
   variableHandlers.set('pagename', (context) => context?.pageName || 'TestPage');
-  variableHandlers.set('applicationname', () => 'amdWiki');
+  variableHandlers.set('applicationname', () => 'ngdpbase');
   variableHandlers.set('version', () => '1.0.0');
 
   const pluginManager = {
@@ -214,7 +214,7 @@ describe.skip('MarkupParser - Merge Pipeline (Phase 3)', () => {
 
       expect(result).toContain('JohnDoe');
       expect(result).toContain('TestPage');
-      expect(result).toContain('amdWiki');
+      expect(result).toContain('ngdpbase');
       expect(result).not.toContain('<!--JSPWIKI-');
     });
 
@@ -367,7 +367,7 @@ Time: [{CurrentTimePlugin}]
       // Variables
       expect(result).toContain('JohnDoe');
       expect(result).toContain('TestPage');
-      expect(result).toContain('amdWiki');
+      expect(result).toContain('ngdpbase');
 
       // Plugins
       expect(result).toContain('class="toc"');

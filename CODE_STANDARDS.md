@@ -1,6 +1,6 @@
 # Code Standards
 
-This document outlines the coding standards and best practices for the amdWiki project.
+This document outlines the coding standards and best practices for the ngdpbase project.
 
 ## GLOBAL CODE PREFERENCES
 

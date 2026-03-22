@@ -25,7 +25,7 @@ describe.skip('WikiDocument DOM Pipeline - Comprehensive Integration', () => {
         if (name === 'VariableManager') {
           const variableHandlers = new Map();
           variableHandlers.set('username', (ctx) => ctx?.userName || 'TestUser');
-          variableHandlers.set('applicationname', () => 'amdWiki');
+          variableHandlers.set('applicationname', () => 'ngdpbase');
           variableHandlers.set('pagename', (ctx) => ctx?.pageName || 'TestPage');
           return { variableHandlers };
         }
@@ -193,7 +193,7 @@ describe.skip('WikiDocument DOM Pipeline - Comprehensive Integration', () => {
       const result = await parser.parseWithDOMExtraction(content, context);
 
       expect(result).toContain('JohnDoe');
-      expect(result).toContain('amdWiki');
+      expect(result).toContain('ngdpbase');
       expect(result).toContain('TestPage');
     });
 
@@ -308,7 +308,7 @@ describe.skip('WikiDocument DOM Pipeline - Comprehensive Integration', () => {
 
       expect(result).toContain('<ul>');
       expect(result).toContain('JohnDoe');
-      expect(result).toContain('amdWiki');
+      expect(result).toContain('ngdpbase');
     });
 
     test('markdown code blocks + JSPWiki syntax outside', async () => {
@@ -332,7 +332,7 @@ describe.skip('WikiDocument DOM Pipeline - Comprehensive Integration', () => {
     });
 
     test('full complex page', async () => {
-      const content = `# Welcome to amdWiki
+      const content = `# Welcome to ngdpbase
 
 Current user: [{$username}]
 
@@ -349,7 +349,7 @@ Current user: [{$username}]
 ## Code Example
 
 \`\`\`javascript
-const wiki = 'amdWiki';
+const wiki = 'ngdpbase';
 console.log(wiki);
 \`\`\`
 
@@ -367,7 +367,7 @@ You are on: [{$pagename}]`;
 
       // Markdown headings
       expect(result).toContain('<h1');
-      expect(result).toContain('Welcome to amdWiki');
+      expect(result).toContain('Welcome to ngdpbase');
       expect(result).toContain('<h2');
       expect(result).toContain('Table of Contents');
       expect(result).toContain('Features');
@@ -510,7 +510,7 @@ You are on: [{$pagename}]`;
 
       const johndoeCount = (result.match(/JohnDoe/g) || []).length;
       expect(johndoeCount).toBe(2);
-      expect(result).toContain('amdWiki');
+      expect(result).toContain('ngdpbase');
       expect(result).toContain('TestPage');
     });
 
@@ -519,7 +519,7 @@ You are on: [{$pagename}]`;
       const result = await parser.parseWithDOMExtraction(content, context);
 
       expect(result).toContain('JohnDoe');
-      expect(result).toContain('amdWiki');
+      expect(result).toContain('ngdpbase');
       expect(result).toContain('<div class="toc">');
       expect(result).toContain('HomePage');
     });
@@ -545,7 +545,7 @@ You are on: [{$pagename}]`;
 
       // First is escaped (literal), second is expanded
       expect(result).toContain('[{$applicationname}]');
-      expect(result).toContain('amdWiki');
+      expect(result).toContain('ngdpbase');
     });
 
     test('heading issue from #114 and #93 fixed', async () => {
@@ -715,7 +715,7 @@ Text content with [HomePage] link.
       expect(result).toContain('JohnDoe');
       expect(result).toContain('Middle');
       expect(result).toContain('After');
-      expect(result).toContain('amdWiki');
+      expect(result).toContain('ngdpbase');
     });
 
     test('malformed markdown does not break JSPWiki processing', async () => {

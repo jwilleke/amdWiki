@@ -1,5 +1,5 @@
 /**
- * Test utilities for amdWiki testing
+ * Test utilities for ngdpbase testing
  */
 const fs = require('fs-extra');
 const path = require('path');

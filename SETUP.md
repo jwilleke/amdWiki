@@ -1,6 +1,6 @@
 # Setup & Installation
 
-Quick setup instructions for getting amdWiki running locally or in production.
+Quick setup instructions for getting ngdpbase running locally or in production.
 
 ## Prerequisites
 
@@ -15,7 +15,7 @@ Quick setup instructions for getting amdWiki running locally or in production.
 
 ```bash
 git clone https://github.com/jwilleke/ngdpbase.git
-cd amdWiki
+cd ngdpbase
 ```
 
 ### 2. Install Dependencies
@@ -104,9 +104,9 @@ Change the default admin password (`admin123`) immediately after first login. Th
 
 ```bash
 HEADLESS_INSTALL=true \
-AMDWIKI_APP_NAME="My Wiki" \
-AMDWIKI_BASE_URL="https://wiki.example.com" \
-AMDWIKI_SESSION_SECRET="your-secure-secret" \
+NGDPBASE_APP_NAME="My Wiki" \
+NGDPBASE_BASE_URL="https://wiki.example.com" \
+NGDPBASE_SESSION_SECRET="your-secure-secret" \
 npm start
 ```
 
@@ -179,7 +179,7 @@ See [docs/SERVER.md](./docs/SERVER.md) for complete server management guide.
 ## Project Structure
 
 ```
-amdWiki/
+ngdpbase/
 ├── src/                   # Source code
 │   ├── managers/          # Business logic managers
 │   ├── routes/            # Express routes
@@ -227,7 +227,7 @@ npm run lint              # Run linter
 
 ## File-Based Storage
 
-amdWiki uses file-based storage:
+ngdpbase uses file-based storage:
 
 - **Pages**: `pages/` directory (UUID-named .md files)
 - **Users**: `users/` directory (users.json, organizations.json)
@@ -240,7 +240,7 @@ No database required - fully local-first capable.
 
 If running behind a reverse proxy (nginx, Apache, etc.):
 
-1. Set `amdwiki.baseURL` to your public URL
+1. Set `ngdpbase.baseURL` to your public URL
 2. Ensure proxy passes X-Forwarded-For headers
 3. Configure PM2 for your reverse proxy
 

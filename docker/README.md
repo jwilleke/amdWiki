@@ -1,15 +1,15 @@
-# Docker Deployment for amdWiki
+# Docker Deployment for ngdpbase
 
-This directory contains all Docker-related files for deploying amdWiki in containers.
+This directory contains all Docker-related files for deploying ngdpbase in containers.
 
 ## Pre-built Image
 
 Pull and run the pre-built image from GitHub Container Registry — no cloning or building required:
 
 ```bash
-docker run -d --name amdwiki -p 3000:3000 \
+docker run -d --name ngdpbase -p 3000:3000 \
   -v $(pwd)/data:/app/data \
-  ghcr.io/jwilleke/amdwiki:latest
+  ghcr.io/jwilleke/ngdpbase:latest
 ```
 
 See [DOCKER.md - Pre-built Image from GHCR](DOCKER.md#pre-built-image-from-ghcr) for all available tags, Docker Compose setup, and update instructions.
@@ -154,23 +154,23 @@ The `data/` directory contains:
 
 ## ConfigurationManager Integration
 
-The Docker setup is fully integrated with amdWiki's ConfigurationManager:
+The Docker setup is fully integrated with ngdpbase's ConfigurationManager:
 
 - **Configuration loading** (two-tier merge):
   1. `config/app-default-config.json` - Base defaults (read-only, in image)
   2. `data/config/app-custom-config.json` - Instance overrides (or INSTANCE_CONFIG_FILE)
 
 - **Directory paths** in ConfigurationManager (all under `./data/`):
-  - `amdwiki.page.provider.filesystem.storagedir` → `./data/pages`
-  - `amdwiki.user.provider.storagedir` → `./data/users`
-  - `amdwiki.attachment.provider.basic.storagedir` → `./data/attachments`
-  - `amdwiki.logging.dir` → `./data/logs`
-  - `amdwiki.search.provider.lunr.indexdir` → `./data/search-index`
-  - `amdwiki.backup.directory` → `./data/backups`
+  - `ngdpbase.page.provider.filesystem.storagedir` → `./data/pages`
+  - `ngdpbase.user.provider.storagedir` → `./data/users`
+  - `ngdpbase.attachment.provider.basic.storagedir` → `./data/attachments`
+  - `ngdpbase.logging.dir` → `./data/logs`
+  - `ngdpbase.search.provider.lunr.indexdir` → `./data/search-index`
+  - `ngdpbase.backup.directory` → `./data/backups`
 
 - **Server configuration**:
-  - `amdwiki.server.host` → `0.0.0.0` (for Docker)
-  - `amdwiki.server.port` → `3000` (internal)
+  - `ngdpbase.server.host` → `0.0.0.0` (for Docker)
+  - `ngdpbase.server.port` → `3000` (internal)
 
 ## Troubleshooting
 
@@ -221,7 +221,7 @@ Quick remote deployment:
 cd docker
 export REMOTE_USER="username"
 export REMOTE_HOST="server-ip"
-export REMOTE_PATH="/opt/amdwiki"
+export REMOTE_PATH="/opt/ngdpbase"
 ./deploy-remote.sh
 ```
 

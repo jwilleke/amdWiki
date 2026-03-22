@@ -1,4 +1,4 @@
-# amdWiki Kubernetes Deployment
+# ngdpbase Kubernetes Deployment
 # Deploy with: kubectl apply -f deployment.yaml
 #
 # DEPLOYMENT STRATEGIES:
@@ -22,16 +22,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: amdwiki
+  name: ngdpbase
   labels:
-    app: amdwiki
-    app.kubernetes.io/name: amdwiki
+    app: ngdpbase
+    app.kubernetes.io/name: ngdpbase
     app.kubernetes.io/component: wiki
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: amdwiki
+      app: ngdpbase
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -40,12 +40,12 @@ spec:
   template:
     metadata:
       labels:
-        app: amdwiki
-        app.kubernetes.io/name: amdwiki
+        app: ngdpbase
+        app.kubernetes.io/name: ngdpbase
     spec:
       containers:
-        - name: amdwiki
-          image: amdwiki:latest
+        - name: ngdpbase
+          image: ngdpbase:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000
@@ -63,20 +63,20 @@ spec:
             - name: SESSION_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: amdwiki-secrets
+                  name: ngdpbase-secrets
                   key: session-secret
                   optional: true
           # Mount persistent volume for wiki data
           # All instance data stored here: pages, users, config, logs, etc.
           volumeMounts:
-            - name: amdwiki-data
+            - name: ngdpbase-data
               mountPath: /app/data
             # Mount ConfigMap for custom configuration (optional)
             # WARNING: This mount is read-only. If ConfigMap exists:
             #   - Installation wizard CANNOT write to this file
             #   - You must pre-create admin user and .install-complete marker
             # For interactive installation, do NOT apply the ConfigMap
-            - name: amdwiki-config
+            - name: ngdpbase-config
               mountPath: /app/data/config/app-custom-config.json
               subPath: app-custom-config.json
               readOnly: true
@@ -111,12 +111,12 @@ spec:
             runAsNonRoot: false
       # Volumes
       volumes:
-        - name: amdwiki-data
+        - name: ngdpbase-data
           persistentVolumeClaim:
-            claimName: amdwiki-data-pvc
-        - name: amdwiki-config
+            claimName: ngdpbase-data-pvc
+        - name: ngdpbase-config
           configMap:
-            name: amdwiki-config
+            name: ngdpbase-config
             optional: true
       # Pod-level security
       securityContext:

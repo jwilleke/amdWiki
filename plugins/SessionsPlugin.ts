@@ -24,7 +24,7 @@ type FetchFunction = (url: string, init?: { method: string }) => Promise<FetchRe
 const SessionsPlugin: SimplePlugin = {
   name: 'SessionsPlugin',
   description: 'Shows the number of active sessions',
-  author: 'amdWiki',
+  author: 'ngdpbase',
   version: '1.0.0',
 
   /**

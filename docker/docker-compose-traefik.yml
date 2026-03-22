@@ -1,11 +1,11 @@
 version: '3.8'
 
 services:
-  amdwiki:
+  ngdpbase:
     build:
       context: ..
       dockerfile: docker/Dockerfile
-    container_name: amdwiki
+    container_name: ngdpbase
     restart: unless-stopped
 
     # User configuration
@@ -15,7 +15,7 @@ services:
     # INSTANCE_DATA_FOLDER: Base path for all instance data (pages, users, logs, etc.)
     # INSTANCE_CONFIG_FILE: Config filename to load from INSTANCE_DATA_FOLDER/config/
     # EXTERNAL_PORT: Not used with Traefik (accessed via domain, set to 443 for HTTPS)
-    # AMDWIKI_DOMAIN: Automatically set baseURL and hostname from .env
+    # NGDPBASE_DOMAIN: Automatically set baseURL and hostname from .env
     #
     # Configuration merge order:
     #   1. config/app-default-config.json (read-only, in image)
@@ -25,18 +25,18 @@ services:
       - INSTANCE_DATA_FOLDER=${INSTANCE_DATA_FOLDER:-./data}
       - INSTANCE_CONFIG_FILE=${INSTANCE_CONFIG_FILE:-app-custom-config.json}
       - EXTERNAL_PORT=443
-      - AMDWIKI_BASE_URL=https://${AMDWIKI_DOMAIN}
-      - AMDWIKI_HOSTNAME=${AMDWIKI_DOMAIN}
+      - NGDPBASE_BASE_URL=https://${NGDPBASE_DOMAIN}
+      - NGDPBASE_HOSTNAME=${NGDPBASE_DOMAIN}
 
     # Volume mounts for persistent data
     # All instance data is consolidated under /app/data (single volume)
     # Config properties reference subdirectories within data/:
-    # - amdwiki.page.provider.filesystem.storagedir: ./data/pages
-    # - amdwiki.user.provider.storagedir: ./data/users
-    # - amdwiki.attachment.provider.basic.storagedir: ./data/attachments
-    # - amdwiki.logging.dir: ./data/logs
-    # - amdwiki.search.provider.lunr.indexdir: ./data/search-index
-    # - amdwiki.backup.directory: ./data/backups
+    # - ngdpbase.page.provider.filesystem.storagedir: ./data/pages
+    # - ngdpbase.user.provider.storagedir: ./data/users
+    # - ngdpbase.attachment.provider.basic.storagedir: ./data/attachments
+    # - ngdpbase.logging.dir: ./data/logs
+    # - ngdpbase.search.provider.lunr.indexdir: ./data/search-index
+    # - ngdpbase.backup.directory: ./data/backups
     volumes:
       # All instance data (pages, users, attachments, logs, search-index, backups, sessions)
       - ../data:/app/data
@@ -71,23 +71,23 @@ services:
       - "traefik.enable=true"
 
       # HTTP Router - Redirect to HTTPS
-      - "traefik.http.routers.amdwiki-http.rule=Host(`${AMDWIKI_DOMAIN}`)"
-      - "traefik.http.routers.amdwiki-http.entrypoints=web"
-      - "traefik.http.routers.amdwiki-http.middlewares=amdwiki-redirect-https"
+      - "traefik.http.routers.ngdpbase-http.rule=Host(`${NGDPBASE_DOMAIN}`)"
+      - "traefik.http.routers.ngdpbase-http.entrypoints=web"
+      - "traefik.http.routers.ngdpbase-http.middlewares=ngdpbase-redirect-https"
 
       # HTTPS Router with Authelia
-      - "traefik.http.routers.amdwiki.rule=Host(`${AMDWIKI_DOMAIN}`)"
-      - "traefik.http.routers.amdwiki.entrypoints=websecure"
-      - "traefik.http.routers.amdwiki.tls=true"
-      - "traefik.http.routers.amdwiki.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.amdwiki.middlewares=authelia@docker"
+      - "traefik.http.routers.ngdpbase.rule=Host(`${NGDPBASE_DOMAIN}`)"
+      - "traefik.http.routers.ngdpbase.entrypoints=websecure"
+      - "traefik.http.routers.ngdpbase.tls=true"
+      - "traefik.http.routers.ngdpbase.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.ngdpbase.middlewares=authelia@docker"
 
       # Service definition
-      - "traefik.http.services.amdwiki.loadbalancer.server.port=3000"
+      - "traefik.http.services.ngdpbase.loadbalancer.server.port=3000"
 
       # Middleware: Redirect HTTP to HTTPS
-      - "traefik.http.middlewares.amdwiki-redirect-https.redirectscheme.scheme=https"
-      - "traefik.http.middlewares.amdwiki-redirect-https.redirectscheme.permanent=true"
+      - "traefik.http.middlewares.ngdpbase-redirect-https.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.ngdpbase-redirect-https.redirectscheme.permanent=true"
 
     # Connect to Traefik network
     networks:

@@ -1,4 +1,4 @@
-# amdWiki Docker Build Ignore File
+# ngdpbase Docker Build Ignore File
 # Excludes files not needed in the Docker image to minimize size and build time
 
 # =============================================================================
@@ -101,7 +101,7 @@ private/
 .env.*
 !.env.example
 config/app-custom-config.json
-.amdwiki*.pid
+.ngdpbase*.pid
 cookies.txt
 .install-complete
 

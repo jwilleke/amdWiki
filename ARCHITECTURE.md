@@ -1,6 +1,6 @@
 # Architecture
 
-amdWiki is built on a manager-based architecture designed for modularity, extensibility, and separation of concerns.
+ngdpbase is built on a manager-based architecture designed for modularity, extensibility, and separation of concerns.
 This document outlines the project structure and architectural decisions. All architectural decisions follow the principles in [GLOBAL-CODE-PREFERENCES.md](GLOBAL-CODE-PREFERENCES.md)
 
 Related documents:
@@ -12,11 +12,11 @@ Related documents:
 
 ## High-Level Overview
 
-amdWiki uses a **central WikiEngine** that orchestrates 23+ specialized managers, each responsible for specific domains.
+ngdpbase uses a **central WikiEngine** that orchestrates 23+ specialized managers, each responsible for specific domains.
 
 ### Key Componets
 
-- [WikiContext-Complete-Guide.md](docs/WikiContext-Complete-Guide.md) - WikiContext is the central orchestrator for wiki content rendering in amdWiki and replaces inline regex processing with a modular, manager-based approach.
+- [WikiContext-Complete-Guide.md](docs/WikiContext-Complete-Guide.md) - WikiContext is the central orchestrator for wiki content rendering in ngdpbase and replaces inline regex processing with a modular, manager-based approach.
 - [WikiDocument-Complete-Guide](docs/WikiDocument-Complete-Guide.md) -  WikiDocument is a DOM-based representation of a wiki page.
 
 ## Key Architecture Patterns
@@ -57,7 +57,7 @@ Three-phase extraction for parsing JSPWiki syntax:
 
 - Hierarchical: default → environment → custom configs
 - 1150+ properties in `config/app-default-config.json`
-- JSPWiki-style naming: `amdwiki.{category}.{property}`
+- JSPWiki-style naming: `ngdpbase.{category}.{property}`
 - ConfigurationManager for centralized access
 - Server restart required for configuration changes
 
@@ -109,7 +109,7 @@ Three-phase extraction for parsing JSPWiki syntax:
 - Consolidate all instance-specific data into `./data/` directory
 
 ```
-amdWiki/
+ngdpbase/
 ├── src/
 │   ├── managers/           # 23+ domain-specific managers
 │   ├── providers/          # Storage providers (Page, User, Search, etc.)

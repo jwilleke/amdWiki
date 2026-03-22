@@ -1,5 +1,5 @@
 /**
- * Location plugin for amdWiki
+ * Location plugin for ngdpbase
  * Displays locations with map links and optional embedded map previews.
  *
  * Syntax: [{Location name='Paris, France'}]
@@ -92,7 +92,7 @@ function escapeHtml(str: string): string {
 const LocationPlugin: SimplePlugin = {
   name: 'Location',
   description: 'Display locations with map links and embedded previews',
-  author: 'amdWiki',
+  author: 'ngdpbase',
   version: '1.0.0',
 
   /**

@@ -414,7 +414,7 @@ INSTANCE_CONFIG_FILE=app-test-config.json npm test
 
 For containerized deployments, configuration can be provided via:
 
-- **Environment variables**: `AMDWIKI_BASE_URL`, `AMDWIKI_PORT`, etc.
+- **Environment variables**: `NGDPBASE_BASE_URL`, `NGDPBASE_PORT`, etc.
 - **Volume mount**: Mount config file to `INSTANCE_DATA_FOLDER/config/`
 - **ConfigMap (K8s)**: Mount ConfigMap as config file
 - **Installation wizard**: Complete wizard on first access (writes to PVC)

@@ -1,6 +1,6 @@
 # Documentation
 
-Complete documentation for amdWiki is organized in the `docs/` directory. This file provides high-level reference to all available documentation.
+Complete documentation for ngdpbase is organized in the `docs/` directory. This file provides high-level reference to all available documentation.
 
 ## Project Documentation Structure
 
@@ -78,7 +78,7 @@ For first-time installation:
 
 ## Development
 
-For developers contributing to amdWiki:
+For developers contributing to ngdpbase:
 
 1. Start with [CONTRIBUTING.md](./CONTRIBUTING.md)
 2. Review [ARCHITECTURE.md](./ARCHITECTURE.md) for system design
@@ -105,7 +105,7 @@ For operations and deployment:
 
 ### For New Users
 
-- [README.md](./README.md) - What is amdWiki?
+- [README.md](./README.md) - What is ngdpbase?
 - [docs/INSTALLATION-SYSTEM.md](./docs/INSTALLATION-SYSTEM.md) - Getting started
 - Help & Support - See README.md
 
@@ -120,7 +120,7 @@ For operations and deployment:
 
 ### For Operations
 
-- [docs/SERVER.md](./docs/SERVER.md) - Running amdWiki
+- [docs/SERVER.md](./docs/SERVER.md) - Running ngdpbase
 - [docs/SERVER-MANAGEMENT.md](./docs/SERVER-MANAGEMENT.md) - Best practices
 - [SECURITY.md](./SECURITY.md) - Security setup
 
@@ -170,7 +170,7 @@ All documentation in this project follows these standards:
 ## File Organization
 
 ```
-amdWiki/
+ngdpbase/
 ├── README.md                           # Project overview
 ├── AGENTS.md                           # AI context
 ├── ARCHITECTURE.md                     # System design

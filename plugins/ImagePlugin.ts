@@ -1,5 +1,5 @@
 /**
- * Image plugin for amdWiki
+ * Image plugin for ngdpbase
  * Implements inline image functionality similar to JSPWiki's Image plugin
  *
  * Syntax: [{Image src='path/to/image.jpg' alt='description' width='200' height='150'}]

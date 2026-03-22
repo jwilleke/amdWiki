@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Test the MCP server's amdwiki_bulk_upload_attachments tool
+ * Test the MCP server's ngdpbase_bulk_upload_attachments tool
  * Sends JSON-RPC requests via stdio to the MCP server
  */
 
@@ -104,9 +104,9 @@ async function testMCPBulkUpload() {
     console.log('\n2. Listing available tools...');
     const toolsResponse = await sendRequest('tools/list', {});
     const tools = toolsResponse.result?.tools || [];
-    const bulkUploadTool = tools.find(t => t.name === 'amdwiki_bulk_upload_attachments');
+    const bulkUploadTool = tools.find(t => t.name === 'ngdpbase_bulk_upload_attachments');
     console.log(`   Found ${tools.length} tools`);
-    console.log(`   amdwiki_bulk_upload_attachments: ${bulkUploadTool ? 'Available' : 'NOT FOUND'}`);
+    console.log(`   ngdpbase_bulk_upload_attachments: ${bulkUploadTool ? 'Available' : 'NOT FOUND'}`);
 
     if (!bulkUploadTool) {
       throw new Error('Bulk upload tool not found!');
@@ -114,12 +114,12 @@ async function testMCPBulkUpload() {
 
     // Step 4: Call the bulk upload tool with limit pattern
     // We'll use a pattern that matches only 5 specific files
-    console.log('\n3. Calling amdwiki_bulk_upload_attachments...');
+    console.log('\n3. Calling ngdpbase_bulk_upload_attachments...');
     console.log('   Directory: /Volumes/jims/data/systems/wikis/images/');
     console.log('   Pattern: * (all files)');
 
     const uploadResponse = await sendRequest('tools/call', {
-      name: 'amdwiki_bulk_upload_attachments',
+      name: 'ngdpbase_bulk_upload_attachments',
       arguments: {
         directory: '/Volumes/jims/data/systems/wikis/images/',
         pattern: '*',

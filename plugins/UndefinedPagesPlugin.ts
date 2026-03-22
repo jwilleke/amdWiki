@@ -1,5 +1,5 @@
 /**
- * UndefinedPagesPlugin - JSPWiki-style plugin for amdWiki
+ * UndefinedPagesPlugin - JSPWiki-style plugin for ngdpbase
  *
  * Lists pages that are linked to (RED-LINKs) but do not exist in the wiki.
  * Each entry is rendered as a create link (/edit/PageName) styled like a red link.
@@ -63,7 +63,7 @@ type LinkGraph = Record<string, string[]>;
 const UndefinedPagesPlugin: SimplePlugin = {
   name: 'UndefinedPagesPlugin',
   description: 'Lists pages that are linked to (RED-LINKs) but do not exist',
-  author: 'amdWiki',
+  author: 'ngdpbase',
   version: '1.2.0',
 
   async execute(context: PluginContext, params: PluginParams): Promise<string> {

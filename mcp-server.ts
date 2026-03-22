@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
 /**
- * amdWiki MCP Server
+ * ngdpbase MCP Server
  *
  * Model Context Protocol server providing AI assistants with direct access
- * to amdWiki content, search, validation, and metadata operations.
+ * to ngdpbase content, search, validation, and metadata operations.
  *
  * @see https://modelcontextprotocol.io
  */
@@ -241,14 +241,14 @@ async function initializeWikiEngine(): Promise<WikiEngine> {
 /**
  * MCP Server Implementation
  */
-class AmdWikiMCPServer {
+class NgdpbaseMCPServer {
   private server: Server;
   private wikiEngine: WikiEngine | null = null;
 
   constructor() {
     this.server = new Server(
       {
-        name: 'amdwiki-mcp-server',
+        name: 'ngdpbase-mcp-server',
         version: '1.0.0'
       },
       {
@@ -269,7 +269,7 @@ class AmdWikiMCPServer {
     this.server.setRequestHandler(ListToolsRequestSchema, () => {
       const tools: Tool[] = [
         {
-          name: 'amdwiki_query_page',
+          name: 'ngdpbase_query_page',
           description: 'Get page content and metadata by identifier (title, UUID, or slug)',
           inputSchema: {
             type: 'object',
@@ -288,7 +288,7 @@ class AmdWikiMCPServer {
           }
         },
         {
-          name: 'amdwiki_list_pages',
+          name: 'ngdpbase_list_pages',
           description: 'List all pages with optional filtering by category or keywords',
           inputSchema: {
             type: 'object',
@@ -311,7 +311,7 @@ class AmdWikiMCPServer {
           }
         },
         {
-          name: 'amdwiki_search',
+          name: 'ngdpbase_search',
           description: 'Full-text search across wiki pages with advanced filtering',
           inputSchema: {
             type: 'object',
@@ -346,7 +346,7 @@ class AmdWikiMCPServer {
           }
         },
         {
-          name: 'amdwiki_get_metadata',
+          name: 'ngdpbase_get_metadata',
           description: 'Get page metadata only (fast query without content)',
           inputSchema: {
             type: 'object',
@@ -360,7 +360,7 @@ class AmdWikiMCPServer {
           }
         },
         {
-          name: 'amdwiki_list_categories',
+          name: 'ngdpbase_list_categories',
           description: 'Get all system categories with their configurations',
           inputSchema: {
             type: 'object',
@@ -368,7 +368,7 @@ class AmdWikiMCPServer {
           }
         },
         {
-          name: 'amdwiki_list_keywords',
+          name: 'ngdpbase_list_keywords',
           description: 'Get all user keywords currently in use across pages',
           inputSchema: {
             type: 'object',
@@ -376,7 +376,7 @@ class AmdWikiMCPServer {
           }
         },
         {
-          name: 'amdwiki_validate_metadata',
+          name: 'ngdpbase_validate_metadata',
           description: 'Validate page metadata structure and values',
           inputSchema: {
             type: 'object',
@@ -390,7 +390,7 @@ class AmdWikiMCPServer {
           }
         },
         {
-          name: 'amdwiki_generate_metadata',
+          name: 'ngdpbase_generate_metadata',
           description: 'Generate valid metadata template for a new page',
           inputSchema: {
             type: 'object',
@@ -413,7 +413,7 @@ class AmdWikiMCPServer {
           }
         },
         {
-          name: 'amdwiki_get_attachments',
+          name: 'ngdpbase_get_attachments',
           description: 'List attachments for a specific page',
           inputSchema: {
             type: 'object',
@@ -427,7 +427,7 @@ class AmdWikiMCPServer {
           }
         },
         {
-          name: 'amdwiki_search_similar',
+          name: 'ngdpbase_search_similar',
           description: 'Find pages similar to a given page',
           inputSchema: {
             type: 'object',
@@ -446,20 +446,20 @@ class AmdWikiMCPServer {
           }
         },
         {
-          name: 'amdwiki_get_configuration',
+          name: 'ngdpbase_get_configuration',
           description: 'Get wiki configuration value(s)',
           inputSchema: {
             type: 'object',
             properties: {
               key: {
                 type: 'string',
-                description: 'Configuration key (e.g., "amdwiki.page.provider")'
+                description: 'Configuration key (e.g., "ngdpbase.page.provider")'
               }
             }
           }
         },
         {
-          name: 'amdwiki_get_search_statistics',
+          name: 'ngdpbase_get_search_statistics',
           description: 'Get search index statistics',
           inputSchema: {
             type: 'object',
@@ -467,7 +467,7 @@ class AmdWikiMCPServer {
           }
         },
         {
-          name: 'amdwiki_upload_attachment',
+          name: 'ngdpbase_upload_attachment',
           description: 'Upload a single file as an attachment, optionally linking it to a page.',
           inputSchema: {
             type: 'object',
@@ -489,7 +489,7 @@ class AmdWikiMCPServer {
           }
         },
         {
-          name: 'amdwiki_bulk_upload_attachments',
+          name: 'ngdpbase_bulk_upload_attachments',
           description: 'Upload multiple files from a directory as attachments. Supports glob patterns and recursive directory scanning.',
           inputSchema: {
             type: 'object',
@@ -530,46 +530,46 @@ class AmdWikiMCPServer {
         }
 
         switch (name) {
-        case 'amdwiki_query_page':
+        case 'ngdpbase_query_page':
           return await this.queryPage(args as unknown as QueryPageArgs);
 
-        case 'amdwiki_list_pages':
+        case 'ngdpbase_list_pages':
           return await this.listPages(args as unknown as ListPagesArgs);
 
-        case 'amdwiki_search':
+        case 'ngdpbase_search':
           return await this.search(args as unknown as SearchArgs);
 
-        case 'amdwiki_get_metadata':
+        case 'ngdpbase_get_metadata':
           return await this.getMetadata(args as unknown as GetMetadataArgs);
 
-        case 'amdwiki_list_categories':
+        case 'ngdpbase_list_categories':
           return this.listCategories(args as unknown as ListCategoriesArgs);
 
-        case 'amdwiki_list_keywords':
+        case 'ngdpbase_list_keywords':
           return await this.listKeywords(args as unknown as ListKeywordsArgs);
 
-        case 'amdwiki_validate_metadata':
+        case 'ngdpbase_validate_metadata':
           return this.validateMetadata(args as unknown as ValidateMetadataArgs);
 
-        case 'amdwiki_generate_metadata':
+        case 'ngdpbase_generate_metadata':
           return this.generateMetadata(args as unknown as GenerateMetadataArgs);
 
-        case 'amdwiki_get_attachments':
+        case 'ngdpbase_get_attachments':
           return await this.getAttachments(args as unknown as GetAttachmentsArgs);
 
-        case 'amdwiki_search_similar':
+        case 'ngdpbase_search_similar':
           return await this.searchSimilar(args as unknown as SearchSimilarArgs);
 
-        case 'amdwiki_get_configuration':
+        case 'ngdpbase_get_configuration':
           return this.getConfiguration(args as unknown as GetConfigurationArgs);
 
-        case 'amdwiki_get_search_statistics':
+        case 'ngdpbase_get_search_statistics':
           return await this.getSearchStatistics(args as unknown as GetSearchStatisticsArgs);
 
-        case 'amdwiki_upload_attachment':
+        case 'ngdpbase_upload_attachment':
           return await this.uploadAttachment(args as unknown as UploadAttachmentArgs);
 
-        case 'amdwiki_bulk_upload_attachments':
+        case 'ngdpbase_bulk_upload_attachments':
           return await this.bulkUploadAttachments(args as unknown as BulkUploadAttachmentsArgs);
 
         default:
@@ -1123,10 +1123,10 @@ class AmdWikiMCPServer {
   async start(): Promise<void> {
     const transport = new StdioServerTransport();
     await this.server.connect(transport);
-    console.error('amdWiki MCP Server started');
+    console.error('ngdpbase MCP Server started');
   }
 }
 
 // Start the server
-const server = new AmdWikiMCPServer();
+const server = new NgdpbaseMCPServer();
 server.start().catch(console.error);

@@ -80,7 +80,7 @@ class MockVariableManager {
     return content.replace(/\$\{(\w+)\}/g, (match, varName) => {
       if (varName === 'pagename') return context.pageName || 'TestPage';
       if (varName === 'username') return context.userName || 'TestUser';
-      if (varName === 'applicationname') return 'amdWiki';
+      if (varName === 'applicationname') return 'ngdpbase';
       return match;
     });
   }

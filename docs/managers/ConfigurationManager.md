@@ -99,10 +99,10 @@ For Docker/Traefik/Kubernetes deployments:
 | --- | --- |
 | `INSTANCE_DATA_FOLDER` | Base path for all instance data (default: `./data`) |
 | `INSTANCE_CONFIG_FILE` | Config filename to load (default: `app-custom-config.json`) |
-| `AMDWIKI_BASE_URL` | Overrides `ngdpbase.baseURL` |
-| `AMDWIKI_HOSTNAME` | Overrides `ngdpbase.hostname` |
-| `AMDWIKI_HOST` | Overrides `ngdpbase.server.host` |
-| `AMDWIKI_PORT` | Overrides `ngdpbase.server.port` |
+| `NGDPBASE_BASE_URL` | Overrides `ngdpbase.baseURL` |
+| `NGDPBASE_HOSTNAME` | Overrides `ngdpbase.hostname` |
+| `NGDPBASE_HOST` | Overrides `ngdpbase.server.host` |
+| `NGDPBASE_PORT` | Overrides `ngdpbase.server.port` |
 
 ## Admin Interface
 

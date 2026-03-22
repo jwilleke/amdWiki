@@ -1,5 +1,5 @@
 /**
- * ReferringPagesPlugin - JSPWiki-style plugin for amdWiki
+ * ReferringPagesPlugin - JSPWiki-style plugin for ngdpbase
  * Lists pages that link to the current (or specified) page.
  *
  * Syntax:
@@ -41,7 +41,7 @@ type LinkGraph = Record<string, string[]>;
 const ReferringPagesPlugin: SimplePlugin = {
   name: 'ReferringPagesPlugin',
   description: 'Lists pages that refer to the current page',
-  author: 'amdWiki',
+  author: 'ngdpbase',
   version: '1.0.0',
 
   execute(context: PluginContext, params: PluginParams = {}): string {

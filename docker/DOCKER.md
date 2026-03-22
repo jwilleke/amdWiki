@@ -1,6 +1,6 @@
-# Docker Deployment Guide for amdWiki
+# Docker Deployment Guide for ngdpbase
 
-This guide explains how to run amdWiki in Docker with proper ConfigurationManager awareness.
+This guide explains how to run ngdpbase in Docker with proper ConfigurationManager awareness.
 
 ## Table of Contents
 
@@ -19,33 +19,33 @@ This guide explains how to run amdWiki in Docker with proper ConfigurationManage
 
 ## Pre-built Image from GHCR
 
-The fastest way to run amdWiki is to pull the pre-built image from GitHub Container Registry. No cloning or building required.
+The fastest way to run ngdpbase is to pull the pre-built image from GitHub Container Registry. No cloning or building required.
 
 ### Available Tags
 
 | Tag | Description |
 | --- | --- |
-| `ghcr.io/jwilleke/amdwiki:latest` | Latest release from the default branch |
-| `ghcr.io/jwilleke/amdwiki:1.5.4` | Specific version (e.g., 1.5.4) |
-| `ghcr.io/jwilleke/amdwiki:1.5` | Latest patch in the 1.5.x series |
-| `ghcr.io/jwilleke/amdwiki:1` | Latest minor/patch in the 1.x.x series |
+| `ghcr.io/jwilleke/ngdpbase:latest` | Latest release from the default branch |
+| `ghcr.io/jwilleke/ngdpbase:1.5.4` | Specific version (e.g., 1.5.4) |
+| `ghcr.io/jwilleke/ngdpbase:1.5` | Latest patch in the 1.5.x series |
+| `ghcr.io/jwilleke/ngdpbase:1` | Latest minor/patch in the 1.x.x series |
 
 ### Browse Available Versions
 
-View all published versions at: <https://github.com/jwilleke/ngdpbase/pkgs/container/amdwiki>
+View all published versions at: <https://github.com/jwilleke/ngdpbase/pkgs/container/ngdpbase>
 
 ### Pull and Run
 
 ```bash
 # Pull the latest image
-docker pull ghcr.io/jwilleke/amdwiki:latest
+docker pull ghcr.io/jwilleke/ngdpbase:latest
 
 # Run with persistent data
 docker run -d \
-  --name amdwiki \
+  --name ngdpbase \
   -p 3000:3000 \
   -v $(pwd)/data:/app/data \
-  ghcr.io/jwilleke/amdwiki:latest
+  ghcr.io/jwilleke/ngdpbase:latest
 
 # Access the wiki
 open http://localhost:3000
@@ -57,8 +57,8 @@ Create a `docker-compose.yml`:
 
 ```yaml
 services:
-  amdwiki:
-    image: ghcr.io/jwilleke/amdwiki:latest
+  ngdpbase:
+    image: ghcr.io/jwilleke/ngdpbase:latest
     ports:
       - "3000:3000"
     volumes:
@@ -76,25 +76,25 @@ docker-compose up -d
 
 ```bash
 # Check image details
-docker inspect ghcr.io/jwilleke/amdwiki:latest --format '{{.Config.Labels}}'
+docker inspect ghcr.io/jwilleke/ngdpbase:latest --format '{{.Config.Labels}}'
 
 # Check the version inside the container
-docker run --rm ghcr.io/jwilleke/amdwiki:latest node -e "console.log(require('./package.json').version)"
+docker run --rm ghcr.io/jwilleke/ngdpbase:latest node -e "console.log(require('./package.json').version)"
 ```
 
 ### Updating to a New Version
 
 ```bash
 # Pull the new version
-docker pull ghcr.io/jwilleke/amdwiki:latest
+docker pull ghcr.io/jwilleke/ngdpbase:latest
 
 # Recreate the container (data persists in the volume)
-docker stop amdwiki && docker rm amdwiki
+docker stop ngdpbase && docker rm ngdpbase
 docker run -d \
-  --name amdwiki \
+  --name ngdpbase \
   -p 3000:3000 \
   -v $(pwd)/data:/app/data \
-  ghcr.io/jwilleke/amdwiki:latest
+  ghcr.io/jwilleke/ngdpbase:latest
 
 # Or with Docker Compose
 docker-compose pull
@@ -108,7 +108,7 @@ docker-compose up -d
 ```bash
 # 1. Clone the repository
 git clone <repository-url>
-cd amdWiki
+cd ngdpbase
 
 # 2. Run the automated setup script
 ./docker/docker-setup.sh
@@ -133,7 +133,7 @@ The `docker-setup.sh` script automatically:
 ```bash
 # 1. Clone the repository
 git clone <repository-url>
-cd amdWiki
+cd ngdpbase
 
 # 2. Create required directories
 mkdir -p pages data logs sessions
@@ -164,14 +164,14 @@ open http://localhost:3000
 
 ```bash
 # Build the image
-docker build -t amdwiki .
+docker build -t ngdpbase .
 
 # Run the container (single data volume)
 docker run -d \
-  --name amdwiki \
+  --name ngdpbase \
   -p 3000:3000 \
   -v $(pwd)/data:/app/data \
-  amdwiki
+  ngdpbase
 
 # Access the wiki
 open http://localhost:3000
@@ -195,11 +195,11 @@ docker-compose up -d
 
 # Docker CLI
 docker run -d \
-  --name amdwiki \
+  --name ngdpbase \
   -p 3000:3000 \
   -e HEADLESS_INSTALL=true \
   -v $(pwd)/data:/app/data \
-  amdwiki
+  ngdpbase
 ```
 
 ### What Headless Install Does
@@ -223,23 +223,23 @@ You can pre-configure settings via environment variables or a mounted config fil
 ```bash
 # Using environment variables
 docker run -d \
-  --name amdwiki \
+  --name ngdpbase \
   -p 3000:3000 \
   -e HEADLESS_INSTALL=true \
-  -e AMDWIKI_APP_NAME="My Company Wiki" \
-  -e AMDWIKI_BASE_URL="https://wiki.example.com" \
-  -e AMDWIKI_SESSION_SECRET="your-secure-secret-here" \
+  -e NGDPBASE_APP_NAME="My Company Wiki" \
+  -e NGDPBASE_BASE_URL="https://wiki.example.com" \
+  -e NGDPBASE_SESSION_SECRET="your-secure-secret-here" \
   -v $(pwd)/data:/app/data \
-  amdwiki
+  ngdpbase
 
 # Or mount a pre-configured config file
 docker run -d \
-  --name amdwiki \
+  --name ngdpbase \
   -p 3000:3000 \
   -e HEADLESS_INSTALL=true \
   -v $(pwd)/data:/app/data \
   -v $(pwd)/my-config.json:/app/data/config/app-custom-config.json \
-  amdwiki
+  ngdpbase
 ```
 
 ### Environment Variables for Headless Mode
@@ -247,16 +247,16 @@ docker run -d \
 | Variable | Description | Default |
 | --- | --- | --- |
 | `HEADLESS_INSTALL` | Enable headless mode | `false` |
-| `AMDWIKI_APP_NAME` | Application display name | `amdWiki` |
-| `AMDWIKI_BASE_URL` | Base URL for the wiki | (empty) |
-| `AMDWIKI_SESSION_SECRET` | Session encryption key | (from config) |
-| `AMDWIKI_HOST` | Server bind address | `localhost` |
-| `AMDWIKI_PORT` | Server port | `3000` |
+| `NGDPBASE_APP_NAME` | Application display name | `ngdpbase` |
+| `NGDPBASE_BASE_URL` | Base URL for the wiki | (empty) |
+| `NGDPBASE_SESSION_SECRET` | Session encryption key | (from config) |
+| `NGDPBASE_HOST` | Server bind address | `localhost` |
+| `NGDPBASE_PORT` | Server port | `3000` |
 | `INSTANCE_DATA_FOLDER` | Data directory path | `./data` |
 
 ## Configuration Overview
 
-amdWiki uses the **ConfigurationManager** which implements a two-tier configuration system:
+ngdpbase uses the **ConfigurationManager** which implements a two-tier configuration system:
 
 1. `config/app-default-config.json` - Base defaults (read-only, in Docker image)
 2. `INSTANCE_DATA_FOLDER/config/{INSTANCE_CONFIG_FILE}` - Instance overrides (default: `app-custom-config.json`)
@@ -273,14 +273,14 @@ Environment variables:
 ### Basic Build
 
 ```bash
-docker build -t amdwiki .
+docker build -t ngdpbase .
 ```
 
 ### Build with Custom Tag
 
 ```bash
-docker build -t amdwiki:1.3.2 .
-docker build -t mycompany/amdwiki:latest .
+docker build -t ngdpbase:1.3.2 .
+docker build -t mycompany/ngdpbase:latest .
 ```
 
 ### Multi-stage Build for Production
@@ -299,9 +299,9 @@ The Dockerfile is optimized for production with:
 
 ```bash
 docker run -d \
-  --name amdwiki \
+  --name ngdpbase \
   -p 3000:3000 \
-  amdwiki
+  ngdpbase
 ```
 
 ### Run with Different Port
@@ -311,18 +311,18 @@ If port 3000 is already in use:
 ```bash
 # Use port 8080 instead
 docker run -d \
-  --name amdwiki \
+  --name ngdpbase \
   -p 8080:3000 \
-  amdwiki
+  ngdpbase
 
 # Let Docker auto-assign a port
 docker run -d \
-  --name amdwiki \
+  --name ngdpbase \
   -p 3000 \
-  amdwiki
+  ngdpbase
 
 # Find the assigned port
-docker port amdwiki 3000
+docker port ngdpbase 3000
 ```
 
 ### Run with Volume Mounts
@@ -330,10 +330,10 @@ docker port amdwiki 3000
 ```bash
 # Single data volume (recommended)
 docker run -d \
-  --name amdwiki \
+  --name ngdpbase \
   -p 3000:3000 \
   -v $(pwd)/data:/app/data \
-  amdwiki
+  ngdpbase
 ```
 
 ### Run with Custom Configuration
@@ -341,19 +341,19 @@ docker run -d \
 ```bash
 # Option 1: Mount custom config file
 docker run -d \
-  --name amdwiki \
+  --name ngdpbase \
   -p 3000:3000 \
   -v $(pwd)/data:/app/data \
   -v $(pwd)/config/app-custom-config.json:/app/config/app-custom-config.json \
-  amdwiki
+  ngdpbase
 
 # Option 2: Mount entire config directory
 docker run -d \
-  --name amdwiki \
+  --name ngdpbase \
   -p 3000:3000 \
   -v $(pwd)/data:/app/data \
   -v $(pwd)/config:/app/config \
-  amdwiki
+  ngdpbase
 ```
 
 ### Run with Different Environment
@@ -361,17 +361,17 @@ docker run -d \
 ```bash
 # Run in development mode
 docker run -d \
-  --name amdwiki-dev \
+  --name ngdpbase-dev \
   -p 3000:3000 \
   -e NODE_ENV=development \
-  amdwiki
+  ngdpbase
 
 # Run in production mode (default)
 docker run -d \
-  --name amdwiki-prod \
+  --name ngdpbase-prod \
   -p 3000:3000 \
   -e NODE_ENV=production \
-  amdwiki
+  ngdpbase
 ```
 
 ## Running with Docker Compose
@@ -380,7 +380,7 @@ The `docker-compose.yml` file provides a complete deployment configuration.
 
 ### Port Configuration
 
-By default, amdWiki runs on port 3000. If this port is already in use, you have several options:
+By default, ngdpbase runs on port 3000. If this port is already in use, you have several options:
 
 #### Option 1: Use .env file (Recommended)
 
@@ -413,7 +413,7 @@ HOST_PORT=8080 docker-compose up -d
 HOST_PORT= docker-compose up -d
 
 # Find the assigned port
-docker-compose port amdwiki 3000
+docker-compose port ngdpbase 3000
 # Output: 0.0.0.0:32768 (example)
 ```
 
@@ -476,7 +476,7 @@ docker-compose restart
 docker-compose ps
 
 # Execute command in container
-docker-compose exec amdwiki sh
+docker-compose exec ngdpbase sh
 ```
 
 ## Configuration Management
@@ -498,10 +498,10 @@ After initial setup, edit `data/config/app-custom-config.json` to customize sett
 
 ```json
 {
-  "amdwiki.baseURL": "https://your-domain.com",
-  "amdwiki.applicationName": "My Wiki",
-  "amdwiki.session.secret": "your-secure-random-secret",
-  "amdwiki.session.secure": true
+  "ngdpbase.baseURL": "https://your-domain.com",
+  "ngdpbase.applicationName": "My Wiki",
+  "ngdpbase.session.secret": "your-secure-random-secret",
+  "ngdpbase.session.secure": true
 }
 ```
 
@@ -517,8 +517,8 @@ docker-compose restart
 
 ```json
 {
-  "amdwiki.server.host": "0.0.0.0",
-  "amdwiki.server.port": 3000
+  "ngdpbase.server.host": "0.0.0.0",
+  "ngdpbase.server.port": 3000
 }
 ```
 
@@ -528,7 +528,7 @@ docker-compose restart
 
 ```json
 {
-  "amdwiki.baseURL": "https://your-domain.com"
+  "ngdpbase.baseURL": "https://your-domain.com"
 }
 ```
 
@@ -538,10 +538,10 @@ Set this to your actual domain or IP address.
 
 ```json
 {
-  "amdwiki.session.secret": "CHANGE-THIS-TO-A-SECURE-RANDOM-STRING",
-  "amdwiki.session.secure": true,
-  "amdwiki.session.httpOnly": true,
-  "amdwiki.session.maxAge": 86400000
+  "ngdpbase.session.secret": "CHANGE-THIS-TO-A-SECURE-RANDOM-STRING",
+  "ngdpbase.session.secure": true,
+  "ngdpbase.session.httpOnly": true,
+  "ngdpbase.session.maxAge": 86400000
 }
 ```
 
@@ -557,12 +557,12 @@ All instance data is consolidated under `./data/`:
 
 ```json
 {
-  "amdwiki.page.provider.filesystem.storagedir": "./data/pages",
-  "amdwiki.user.provider.storagedir": "./data/users",
-  "amdwiki.attachment.provider.basic.storagedir": "./data/attachments",
-  "amdwiki.logging.dir": "./data/logs",
-  "amdwiki.search.provider.lunr.indexdir": "./data/search-index",
-  "amdwiki.backup.directory": "./data/backups"
+  "ngdpbase.page.provider.filesystem.storagedir": "./data/pages",
+  "ngdpbase.user.provider.storagedir": "./data/users",
+  "ngdpbase.attachment.provider.basic.storagedir": "./data/attachments",
+  "ngdpbase.logging.dir": "./data/logs",
+  "ngdpbase.search.provider.lunr.indexdir": "./data/search-index",
+  "ngdpbase.backup.directory": "./data/backups"
 }
 ```
 
@@ -582,12 +582,12 @@ The `./data` directory contains all persistent data:
 
 | Subdirectory | ConfigurationManager Property | Purpose |
 | -------------- | ------------------------------ | --------- |
-| `data/pages/` | `amdwiki.page.provider.filesystem.storagedir` | Wiki content |
-| `data/users/` | `amdwiki.user.provider.storagedir` | User accounts |
-| `data/attachments/` | `amdwiki.attachment.provider.basic.storagedir` | File attachments |
-| `data/logs/` | `amdwiki.logging.dir` | Application logs |
-| `data/search-index/` | `amdwiki.search.provider.lunr.indexdir` | Search index |
-| `data/backups/` | `amdwiki.backup.directory` | Backup files |
+| `data/pages/` | `ngdpbase.page.provider.filesystem.storagedir` | Wiki content |
+| `data/users/` | `ngdpbase.user.provider.storagedir` | User accounts |
+| `data/attachments/` | `ngdpbase.attachment.provider.basic.storagedir` | File attachments |
+| `data/logs/` | `ngdpbase.logging.dir` | Application logs |
+| `data/search-index/` | `ngdpbase.search.provider.lunr.indexdir` | Search index |
+| `data/backups/` | `ngdpbase.backup.directory` | Backup files |
 | `data/sessions/` | (session file store) | User sessions |
 | `data/versions/` | (versioning provider) | Page versions |
 
@@ -681,12 +681,12 @@ For better portability, use Docker named volumes:
 
 ```yaml
 volumes:
-  amdwiki-data:
+  ngdpbase-data:
 
 services:
-  amdwiki:
+  ngdpbase:
     volumes:
-      - amdwiki-data:/app/data
+      - ngdpbase-data:/app/data
 ```
 
 ### Backing Up Volumes
@@ -694,15 +694,15 @@ services:
 ```bash
 # Backup all data
 docker run --rm \
-  -v amdwiki_data:/data \
+  -v ngdpbase_data:/data \
   -v $(pwd)/backup:/backup \
-  alpine tar czf /backup/amdwiki-data-backup.tar.gz -C /data .
+  alpine tar czf /backup/ngdpbase-data-backup.tar.gz -C /data .
 
 # Restore all data
 docker run --rm \
-  -v amdwiki_data:/data \
+  -v ngdpbase_data:/data \
   -v $(pwd)/backup:/backup \
-  alpine tar xzf /backup/amdwiki-data-backup.tar.gz -C /data
+  alpine tar xzf /backup/ngdpbase-data-backup.tar.gz -C /data
 ```
 
 ## Environment Variables
@@ -713,12 +713,12 @@ Environment variables have the **highest priority** in the configuration system,
 
 | Environment Variable | Config Property | Description |
 | --- | --- | --- |
-| `AMDWIKI_BASE_URL` | `amdwiki.baseURL` | Base URL for the wiki |
-| `AMDWIKI_HOSTNAME` | `amdwiki.hostname` | Server hostname |
-| `AMDWIKI_HOST` | `amdwiki.server.host` | Server bind address |
-| `AMDWIKI_PORT` | `amdwiki.server.port` | Server port |
-| `AMDWIKI_SESSION_SECRET` | `amdwiki.session.secret` | Session encryption key |
-| `AMDWIKI_APP_NAME` | `amdwiki.applicationName` | Application display name |
+| `NGDPBASE_BASE_URL` | `ngdpbase.baseURL` | Base URL for the wiki |
+| `NGDPBASE_HOSTNAME` | `ngdpbase.hostname` | Server hostname |
+| `NGDPBASE_HOST` | `ngdpbase.server.host` | Server bind address |
+| `NGDPBASE_PORT` | `ngdpbase.server.port` | Server port |
+| `NGDPBASE_SESSION_SECRET` | `ngdpbase.session.secret` | Session encryption key |
+| `NGDPBASE_APP_NAME` | `ngdpbase.applicationName` | Application display name |
 
 ### Instance Management Variables
 
@@ -733,13 +733,13 @@ Environment variables have the **highest priority** in the configuration system,
 
 ```bash
 docker run -d \
-  --name amdwiki \
+  --name ngdpbase \
   -p 3000:3000 \
-  -e AMDWIKI_APP_NAME="My Company Wiki" \
-  -e AMDWIKI_BASE_URL="https://wiki.example.com" \
-  -e AMDWIKI_SESSION_SECRET="your-secure-secret-here" \
+  -e NGDPBASE_APP_NAME="My Company Wiki" \
+  -e NGDPBASE_BASE_URL="https://wiki.example.com" \
+  -e NGDPBASE_SESSION_SECRET="your-secure-secret-here" \
   -v $(pwd)/data:/app/data \
-  ghcr.io/jwilleke/amdwiki:latest
+  ghcr.io/jwilleke/ngdpbase:latest
 ```
 
 For full details on the configuration priority order, all supported variables, and usage patterns, see [Installation System - Environment Variable Overrides](../docs/INSTALLATION/INSTALLATION-SYSTEM.md#environment-variable-overrides).
@@ -748,11 +748,11 @@ For full details on the configuration priority order, all supported variables, a
 
 ### Production Checklist
 
-- [ ] Change `amdwiki.session.secret` to a secure random string
-- [ ] Set `amdwiki.session.secure` to `true` (requires HTTPS)
-- [ ] Set `amdwiki.server.host` to `0.0.0.0` for Docker
-- [ ] Set `amdwiki.baseURL` to your actual domain
-- [ ] Keep `amdwiki.translator-reader.allow-html` as `false`
+- [ ] Change `ngdpbase.session.secret` to a secure random string
+- [ ] Set `ngdpbase.session.secure` to `true` (requires HTTPS)
+- [ ] Set `ngdpbase.server.host` to `0.0.0.0` for Docker
+- [ ] Set `ngdpbase.baseURL` to your actual domain
+- [ ] Keep `ngdpbase.translator-reader.allow-html` as `false`
 - [ ] Enable HTTPS with reverse proxy (nginx, traefik, etc.)
 - [ ] Use strong passwords for user accounts
 - [ ] Regularly backup volumes
@@ -790,8 +790,8 @@ Update `data/config/app-custom-config.json`:
 
 ```json
 {
-  "amdwiki.baseURL": "https://wiki.example.com",
-  "amdwiki.session.secure": true
+  "ngdpbase.baseURL": "https://wiki.example.com",
+  "ngdpbase.session.secure": true
 }
 ```
 
@@ -803,7 +803,7 @@ Check logs:
 
 ```bash
 docker-compose logs -f
-docker logs amdwiki
+docker logs ngdpbase
 ```
 
 Common issues:
@@ -823,13 +823,13 @@ docker-compose ps
 Step 2. Check port mapping:
 
 ```bash
-docker port amdwiki
+docker port ngdpbase
 ```
 
 Step 3. Test from within container:
 
 ```bash
-docker-compose exec amdwiki wget -O- http://localhost:3000
+docker-compose exec ngdpbase wget -O- http://localhost:3000
 ```
 
 Step 4. Check firewall rules on host
@@ -839,19 +839,19 @@ Step 4. Check firewall rules on host
 Step A Check NODE_ENV:
 
 ```bash
-docker-compose exec amdwiki printenv NODE_ENV
+docker-compose exec ngdpbase printenv NODE_ENV
 ```
 
 Step B Verify config file exists:
 
 ```bash
-docker-compose exec amdwiki ls -la data/config/
+docker-compose exec ngdpbase ls -la data/config/
 ```
 
 Step C Check config file syntax:
 
 ```bash
-docker-compose exec amdwiki cat data/config/app-custom-config.json | node -e "console.log(JSON.parse(require('fs').readFileSync(0)))"
+docker-compose exec ngdpbase cat data/config/app-custom-config.json | node -e "console.log(JSON.parse(require('fs').readFileSync(0)))"
 ```
 
 ### Volume Permissions
@@ -867,7 +867,7 @@ id -g
 sudo chown -R 1000:1000 pages data logs sessions
 
 # Or run container with specific user
-docker run --user 1000:1000 amdwiki
+docker run --user 1000:1000 ngdpbase
 ```
 
 ### Health Check Failing
@@ -875,13 +875,13 @@ docker run --user 1000:1000 amdwiki
 Check health status:
 
 ```bash
-docker inspect --format='{{json .State.Health}}' amdwiki | jq
+docker inspect --format='{{json .State.Health}}' ngdpbase | jq
 ```
 
 Test manually:
 
 ```bash
-docker-compose exec amdwiki wget -O- http://localhost:3000/
+docker-compose exec ngdpbase wget -O- http://localhost:3000/
 ```
 
 ## Advanced Topics
@@ -895,7 +895,7 @@ docker buildx create --use
 # Build for multiple platforms
 docker buildx build \
   --platform linux/amd64,linux/arm64,linux/arm/v7 \
-  -t mycompany/amdwiki:latest \
+  -t mycompany/ngdpbase:latest \
   --push .
 ```
 
@@ -905,7 +905,7 @@ For sensitive configuration:
 
 ```yaml
 services:
-  amdwiki:
+  ngdpbase:
     secrets:
       - session_secret
 
@@ -920,7 +920,7 @@ Limit CPU and memory:
 
 ```yaml
 services:
-  amdwiki:
+  ngdpbase:
     deploy:
       resources:
         limits:
@@ -937,7 +937,7 @@ Add monitoring with Prometheus:
 
 ```yaml
 services:
-  amdwiki:
+  ngdpbase:
     labels:
       - "prometheus.scrape=true"
       - "prometheus.port=3000"

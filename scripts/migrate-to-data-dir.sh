@@ -1,6 +1,6 @@
 #!/bin/bash
 # migrate-to-data-dir.sh
-# Migration script for amdWiki v1.4.0+
+# Migration script for ngdpbase v1.4.0+
 #
 # Migrates existing data directories into the consolidated ./data/ structure.
 # Run this BEFORE upgrading to v1.4.0 if you have an existing installation.
@@ -29,7 +29,7 @@ if [[ "$1" == "--dry-run" ]]; then
 fi
 
 echo "=========================================="
-echo "amdWiki Data Directory Migration Script"
+echo "ngdpbase Data Directory Migration Script"
 echo "=========================================="
 echo ""
 

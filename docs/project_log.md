@@ -27,14 +27,14 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 ## 2026-03-22-11
 
 - Agent: Claude Sonnet 4.6
-- Subject: Rename GitHub repository from amdWiki to ngdpbase
-- Key Decision: Renamed GitHub repo `jwilleke/amdWiki` → `jwilleke/ngdpbase`. GitHub auto-redirects old URLs. Updated local git remote and all hardcoded repo URLs in docs, required-pages, scripts, and docker configs.
+- Subject: Rename GitHub repository from ngdpbase to ngdpbase
+- Key Decision: Renamed GitHub repo `jwilleke/ngdpbase` → `jwilleke/ngdpbase`. GitHub auto-redirects old URLs. Updated local git remote and all hardcoded repo URLs in docs, required-pages, scripts, and docker configs.
 - Current Issue: n/a
 - Testing: n/a (docs-only change)
 - Work Done:
   - `gh repo rename ngdpbase`
   - Updated git remote URL to `https://github.com/jwilleke/ngdpbase.git`
-  - Updated 15 files referencing `jwilleke/amdWiki` (SETUP.md, docker docs, required-pages, scripts, k8s configmap)
+  - Updated 15 files referencing `jwilleke/ngdpbase` (SETUP.md, docker docs, required-pages, scripts, k8s configmap)
   - Left `private/dev-notes.md` historical references unchanged
 - Commits: 17453f7
 - Files Modified:
@@ -4173,8 +4173,8 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Added `markHeadlessInstallationComplete()` helper method
   - Modified app.js install middleware to check `HEADLESS_INSTALL=true`
   - Extended ConfigurationManager env var support:
-    - `AMDWIKI_SESSION_SECRET` → `ngdpbase.session.secret`
-    - `AMDWIKI_APP_NAME` → `ngdpbase.applicationName`
+    - `NGDPBASE_SESSION_SECRET` → `ngdpbase.session.secret`
+    - `NGDPBASE_APP_NAME` → `ngdpbase.applicationName`
   - Consolidated docker/.env.example with Traefik and headless sections
   - Updated docker/TRAEFIK-DEPLOYMENT.md reference to .env.example
   - Added "Headless Installation" section to docker/DOCKER.md
@@ -10735,24 +10735,24 @@ Subject: AGENTS.md implementation and project_log.md creation
 
 ## 2026-03-22-07
 
-### Rename amdWiki to ngdpbase (#360)
+### Rename ngdpbase to ngdpbase (#360)
 
-- Replaced all `amdwiki.*` config key prefixes with `ngdpbase.*` across src/, config/, plugins/, addons/, tests/, app.js, ecosystem.config.js (176 source files)
-- Updated brand strings (amdWiki → ngdpbase) in views, docs, shell scripts, package.json, README, themes (712+ files)
-- Renamed PM2 app prefix and PID file reference (`.amdwiki.pid` → `.ngdpbase.pid`)
+- Replaced all `ngdpbase.*` config key prefixes with `ngdpbase.*` across src/, config/, plugins/, addons/, tests/, app.js, ecosystem.config.js (176 source files)
+- Updated brand strings (ngdpbase → ngdpbase) in views, docs, shell scripts, package.json, README, themes (712+ files)
+- Renamed PM2 app prefix and PID file reference (`.ngdpbase.pid` → `.ngdpbase.pid`)
 - Added `scripts/migrate-config-keys.js` — one-time migration for deployed instances to rewrite `app-custom-config.json` keys
 - Fixed MetricsManager unit test expectations for updated metric name prefix
 - TypeScript class names (WikiEngine, WikiContext, WikiDocument, etc.) intentionally unchanged
 
 - Files Modified: 767 files
 - Tests: 1917 passed, 0 failed
-- Server: running as `ngdpbase-amdWiki` on port 3000
+- Server: running as `ngdpbase-ngdpbase` on port 3000
 
 - Issues Closed:
-  - #360 — feat: rename amdWiki to ngdpbase
+  - #360 — feat: rename ngdpbase to ngdpbase
 
 - Commits:
-  - 9ffd305 - feat: rename amdWiki to ngdpbase (#360)
+  - 9ffd305 - feat: rename ngdpbase to ngdpbase (#360)
 
 ## 2026-03-22-06
 

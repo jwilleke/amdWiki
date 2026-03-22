@@ -28,7 +28,7 @@ gh label create "attachment-system" --description "File attachment and upload fe
 echo "🎯 Creating Epic issue..."
 EPIC_BODY='## 🎯 Epic Overview
 
-Implement a comprehensive MarkupParser to achieve 100% JSPWiki enhancement compatibility, transforming amdWiki from basic wiki functionality (47% compatibility) to full JSPWiki-compatible system.
+Implement a comprehensive MarkupParser to achieve 100% JSPWiki enhancement compatibility, transforming ngdpbase from basic wiki functionality (47% compatibility) to full JSPWiki-compatible system.
 
 ## 🔗 Related Documentation
 - [MarkupParser Architecture Design](docs/planning/MarkupParser-Architecture.md)
@@ -430,7 +430,7 @@ const cacheConfig = {
 \`\`\`javascript
 // config/markup-parser.json
 {
-  \"amdwiki.markup.cache\": {
+  \"ngdpbase.markup.cache\": {
     \"enabled\": true,
     \"parseResults\": { \"ttl\": 300, \"maxSize\": 1000 },
     \"handlerResults\": { \"ttl\": 600, \"maxSize\": 2000 },

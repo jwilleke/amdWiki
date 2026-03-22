@@ -1,5 +1,5 @@
 /**
- * Plugin types for amdWiki plugins
+ * Plugin types for ngdpbase plugins
  *
  * These types provide proper TypeScript definitions for plugins
  * that use the object-with-execute pattern.

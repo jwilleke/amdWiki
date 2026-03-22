@@ -1,4 +1,4 @@
-# amdWiki Kubernetes Ingress
+# ngdpbase Kubernetes Ingress
 # Deploy with: kubectl apply -f ingress.yaml
 #
 # Prerequisites:
@@ -10,10 +10,10 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: amdwiki
+  name: ngdpbase
   labels:
-    app: amdwiki
-    app.kubernetes.io/name: amdwiki
+    app: ngdpbase
+    app.kubernetes.io/name: ngdpbase
   annotations:
     # NGINX Ingress annotations
     kubernetes.io/ingress.class: nginx
@@ -31,7 +31,7 @@ spec:
   # tls:
   #   - hosts:
   #       - wiki.example.com
-  #     secretName: amdwiki-tls
+  #     secretName: ngdpbase-tls
   rules:
     - host: wiki.example.com
       http:
@@ -40,7 +40,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: amdwiki
+                name: ngdpbase
                 port:
                   number: 80
 ---

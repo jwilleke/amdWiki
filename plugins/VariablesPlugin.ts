@@ -1,5 +1,5 @@
 /**
- * VariablesPlugin - JSPWiki-style plugin for amdWiki
+ * VariablesPlugin - JSPWiki-style plugin for ngdpbase
  * Displays system variables, contextual variables, available plugins, and configuration variables
  *
  * Usage:
@@ -70,7 +70,7 @@ function getVariableDescription(varName: string): string {
     'applicationname': 'Application name from configuration',
     'appname': 'Application name (alias)',
     'baseurl': 'Base URL for the wiki',
-    'version': 'amdWiki version number',
+    'version': 'ngdpbase version number',
     'totalpages': 'Total number of pages in wiki',
     'uptime': 'Server uptime',
     'timestamp': 'Current ISO timestamp',
@@ -101,7 +101,7 @@ function getVariableDescription(varName: string): string {
 const VariablesPlugin: SimplePlugin = {
   name: 'VariablesPlugin',
   description: 'Displays system and contextual variables available in the wiki',
-  author: 'amdWiki',
+  author: 'ngdpbase',
   version: '1.0.0',
 
   /**

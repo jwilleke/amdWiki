@@ -227,7 +227,7 @@ Or use the `display='full'` mode for full-width responsive images:
 ```wiki
 [{Image src='/attachments/banner.jpg'
   display='full'
-  caption='Welcome to amdWiki'}]
+  caption='Welcome to ngdpbase'}]
 ```wiki
 
 ### Thumbnail Grid (Manual)

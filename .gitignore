@@ -148,7 +148,7 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 
-# amdWiki - User content and runtime data (not tracked in git)
+# ngdpbase - User content and runtime data (not tracked in git)
 /pages/
 pages/*
 /users/
@@ -195,7 +195,7 @@ archive
 
 node_modules/
 converted/
-.amdwiki*.pid
+.ngdpbase*.pid
 cookies.txt
 
 # Add-ons - keep structure, ignore data
@@ -208,4 +208,5 @@ addons/*/db.sqlite
 .DS_Store
 xxx*/
 zzz*/
+ngdpbase.code-workspace
 amdWiki.code-workspace

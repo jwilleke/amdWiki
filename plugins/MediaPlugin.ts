@@ -56,7 +56,7 @@ function formatAsAlbum(items: MediaItem[], max: number, keyword?: string): strin
 const MediaPlugin: SimplePlugin = {
   name: 'MediaPlugin',
   description: 'Shows total media item count, a list, or a thumbnail album of indexed media items',
-  author: 'amdWiki',
+  author: 'ngdpbase',
   version: '1.2.0',
 
   async execute(context: PluginContext, params: PluginParams): Promise<string> {

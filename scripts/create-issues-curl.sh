@@ -6,7 +6,7 @@
 # 2. Replace REPO_OWNER and REPO_NAME with your values
 
 REPO_OWNER="jwilleke"
-REPO_NAME="amdWiki"
+REPO_NAME="ngdpbase"
 API_URL="https://api.github.com/repos/$REPO_OWNER/$REPO_NAME"
 
 # Check if GitHub token is set
@@ -63,7 +63,7 @@ echo "🎯 Creating Epic issue..."
 EPIC_TITLE="EPIC: Implement JSPWikiMarkupParser for Complete Enhancement Support"
 EPIC_BODY="## 🎯 Epic Overview
 
-Implement a comprehensive MarkupParser to achieve 100% JSPWiki enhancement compatibility, transforming amdWiki from basic wiki functionality (47% compatibility) to full JSPWiki-compatible system.
+Implement a comprehensive MarkupParser to achieve 100% JSPWiki enhancement compatibility, transforming ngdpbase from basic wiki functionality (47% compatibility) to full JSPWiki-compatible system.
 
 ## 🔗 Related Documentation
 - [MarkupParser Architecture Design](docs/planning/MarkupParser-Architecture.md)

@@ -5,21 +5,21 @@
 
   "_example_overrides": {
     "_comment_branding": "Customize application branding",
-    "amdwiki.applicationName": "My Wiki",
-    "amdwiki.faviconPath": "/favicon.svg",
+    "ngdpbase.applicationName": "My Wiki",
+    "ngdpbase.faviconPath": "/favicon.svg",
 
     "_comment_server": "Server configuration",
-    "amdwiki.server.port": 3000,
-    "amdwiki.server.host": "localhost",
-    "amdwiki.baseURL": "http://localhost:3000",
+    "ngdpbase.server.port": 3000,
+    "ngdpbase.server.host": "localhost",
+    "ngdpbase.baseURL": "http://localhost:3000",
 
     "_comment_debugging": "Enable debug logging",
-    "amdwiki.logging.debug.session": true,
-    "amdwiki.logging.debug.login": true,
+    "ngdpbase.logging.debug.session": true,
+    "ngdpbase.logging.debug.login": true,
 
     "_comment_directories": "Custom directory locations",
-    "amdwiki.directories.pages": "./pages",
-    "amdwiki.directories.required-pages": "./required-pages",
-    "amdwiki.directories.attachments": "./attachments"
+    "ngdpbase.directories.pages": "./pages",
+    "ngdpbase.directories.required-pages": "./required-pages",
+    "ngdpbase.directories.attachments": "./attachments"
   }
 }

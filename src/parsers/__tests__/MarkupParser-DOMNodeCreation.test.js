@@ -22,7 +22,7 @@ const createMockEngine = () => {
   // Register test variables
   variableHandlers.set('username', (context) => context?.userName || 'TestUser');
   variableHandlers.set('pagename', (context) => context?.pageName || 'TestPage');
-  variableHandlers.set('applicationname', () => 'amdWiki');
+  variableHandlers.set('applicationname', () => 'ngdpbase');
 
   const pluginManager = {
     execute: jest.fn(async (pluginName, pageName, params, context) => {
@@ -151,7 +151,7 @@ describe.skip('MarkupParser - DOM Node Creation (Phase 2)', () => {
       expect(node.className).toBe('wiki-variable');
       expect(node.getAttribute('data-variable')).toBe('applicationname');
       expect(node.getAttribute('data-jspwiki-id')).toBe('0');
-      // applicationname should resolve to 'amdWiki' or similar
+      // applicationname should resolve to 'ngdpbase' or similar
       expect(node.textContent).toBeTruthy();
     });
 

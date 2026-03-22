@@ -1,4 +1,4 @@
-# amdWiki Docker Image - Multi-Stage Build
+# ngdpbase Docker Image - Multi-Stage Build
 # JSPWiki-style wiki with advanced search capabilities
 #
 # Multi-stage build:
@@ -41,9 +41,9 @@ RUN npm prune --omit=dev
 FROM node:${NODE_VERSION}-alpine AS runtime
 
 # Labels for container metadata
-LABEL org.opencontainers.image.title="amdWiki"
+LABEL org.opencontainers.image.title="ngdpbase"
 LABEL org.opencontainers.image.description="JSPWiki-style wiki with advanced search capabilities"
-LABEL org.opencontainers.image.source="https://github.com/jwilleke/amdWiki"
+LABEL org.opencontainers.image.source="https://github.com/jwilleke/ngdpbase"
 
 WORKDIR /app
 
@@ -105,7 +105,7 @@ RUN mkdir -p \
 # Note: chmod 777 on /app/data allows any user to write (needed for docker-compose user override)
 # This is safe in Docker since the container is isolated
 
-# Expose port (configurable via amdwiki.server.port)
+# Expose port (configurable via ngdpbase.server.port)
 EXPOSE 3000
 
 # Environment variables
@@ -151,24 +151,24 @@ CMD ["node", "app.js"]
 # DEPLOYMENT OPTIONS:
 #
 # Option 1: Interactive Installation (recommended for first deployment)
-#   docker run -p 3000:3000 -v ./data:/app/data amdwiki
+#   docker run -p 3000:3000 -v ./data:/app/data ngdpbase
 #   # Access http://localhost:3000 and complete installation wizard
 #
 # Option 2: Mount pre-configured config (skip wizard)
 #   docker run -p 3000:3000 \
 #     -v ./data:/app/data \
 #     -v ./my-config.json:/app/data/config/app-custom-config.json \
-#     amdwiki
+#     ngdpbase
 #   # NOTE: You must also create admin user and .install-complete marker
 #
 # Option 3: Use different config file
 #   docker run -p 3000:3000 \
 #     -e INSTANCE_CONFIG_FILE=app-staging-config.json \
 #     -v ./data:/app/data \
-#     amdwiki
+#     ngdpbase
 #
 # Common properties to override:
-# - amdwiki.server.port: Server port (default: 3000)
-# - amdwiki.server.host: Server host (default: 0.0.0.0 for Docker)
-# - amdwiki.baseURL: Base URL for the wiki
-# - amdwiki.session.secret: Session secret (MUST change in production!)
+# - ngdpbase.server.port: Server port (default: 3000)
+# - ngdpbase.server.host: Server host (default: 0.0.0.0 for Docker)
+# - ngdpbase.baseURL: Base URL for the wiki
+# - ngdpbase.session.secret: Session secret (MUST change in production!)

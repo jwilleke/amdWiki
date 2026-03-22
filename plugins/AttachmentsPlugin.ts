@@ -24,7 +24,7 @@ interface AttachmentManager {
 const AttachmentsPlugin: SimplePlugin = {
   name: 'AttachmentsPlugin',
   description: 'Shows total attachment count or a list of attachments',
-  author: 'amdWiki',
+  author: 'ngdpbase',
   version: '1.0.0',
 
   async execute(context: PluginContext, params: PluginParams): Promise<string> {

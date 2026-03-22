@@ -1,6 +1,6 @@
-# amdWiki Deployment with Traefik and Authelia
+# ngdpbase Deployment with Traefik and Authelia
 
-This guide explains how to deploy amdWiki behind Traefik reverse proxy with Authelia authentication.
+This guide explains how to deploy ngdpbase behind Traefik reverse proxy with Authelia authentication.
 
 ## Prerequisites
 
@@ -37,7 +37,7 @@ Edit `.env` and set your domain (see "Traefik Reverse Proxy" section):
 
 ```bash
 # Example: wiki.deby.nerdsbythehour.com
-AMDWIKI_DOMAIN=wiki.example.com
+NGDPBASE_DOMAIN=wiki.example.com
 
 # Set user permissions (optional)
 UID=1000
@@ -46,7 +46,7 @@ GID=1000
 
 ### 3. Configure Authelia Access Control
 
-On your Authelia server (192.168.68.71), add amdWiki to the access control configuration.
+On your Authelia server (192.168.68.71), add ngdpbase to the access control configuration.
 
 Edit `/opt/traefik/authelia/config/configuration.yml` and add:
 
@@ -56,7 +56,7 @@ access_control:
   rules:
     # ... your existing rules ...
 
-    # amdWiki access
+    # ngdpbase access
     - domain: "wiki.example.com"  # Replace with your domain
       policy: two_factor  # or 'one_factor' for less security
       # Optional: Restrict to specific users/groups
@@ -72,7 +72,7 @@ cd /opt/traefik
 docker-compose -f authelia-compose.yml restart
 ```
 
-### 4. Deploy amdWiki
+### 4. Deploy ngdpbase
 
 From the docker directory:
 
@@ -90,7 +90,7 @@ docker-compose -f docker-compose-traefik.yml logs -f
 
 1. Visit your domain (e.g., `https://wiki.example.com`)
 2. You should be redirected to Authelia login
-3. After authentication, you'll be redirected to amdWiki
+3. After authentication, you'll be redirected to ngdpbase
 4. Verify SSL certificate is working (Let's Encrypt)
 
 ## Architecture
@@ -116,7 +116,7 @@ docker-compose -f docker-compose-traefik.yml logs -f
        │
        ▼
 ┌──────────────────┐
-│     amdWiki      │
+│     ngdpbase      │
 │   (Container)    │
 │   Port 3000      │
 └──────────────────┘
@@ -127,8 +127,8 @@ docker-compose -f docker-compose-traefik.yml logs -f
 1. **HTTP to HTTPS Redirect**: Traefik automatically redirects HTTP to HTTPS
 2. **SSL/TLS**: Traefik handles SSL termination using Let's Encrypt certificates
 3. **Authentication**: Traefik forwards authentication requests to Authelia
-4. **Routing**: After authentication, Traefik forwards requests to amdWiki container
-5. **Session Management**: amdWiki handles its own session management after initial auth
+4. **Routing**: After authentication, Traefik forwards requests to ngdpbase container
+5. **Session Management**: ngdpbase handles its own session management after initial auth
 
 ## Configuration Details
 
@@ -139,26 +139,26 @@ docker-compose -f docker-compose-traefik.yml logs -f
 traefik.enable=true
 
 # HTTP Router (redirect to HTTPS)
-traefik.http.routers.amdwiki-http.rule=Host(`wiki.example.com`)
-traefik.http.routers.amdwiki-http.entrypoints=web
-traefik.http.routers.amdwiki-http.middlewares=amdwiki-redirect-https
+traefik.http.routers.ngdpbase-http.rule=Host(`wiki.example.com`)
+traefik.http.routers.ngdpbase-http.entrypoints=web
+traefik.http.routers.ngdpbase-http.middlewares=ngdpbase-redirect-https
 
 # HTTPS Router with Authelia protection
-traefik.http.routers.amdwiki.rule=Host(`wiki.example.com`)
-traefik.http.routers.amdwiki.entrypoints=websecure
-traefik.http.routers.amdwiki.tls=true
-traefik.http.routers.amdwiki.tls.certresolver=letsencrypt
-traefik.http.routers.amdwiki.middlewares=authelia@docker
+traefik.http.routers.ngdpbase.rule=Host(`wiki.example.com`)
+traefik.http.routers.ngdpbase.entrypoints=websecure
+traefik.http.routers.ngdpbase.tls=true
+traefik.http.routers.ngdpbase.tls.certresolver=letsencrypt
+traefik.http.routers.ngdpbase.middlewares=authelia@docker
 
 # Service definition (container port)
-traefik.http.services.amdwiki.loadbalancer.server.port=3000
+traefik.http.services.ngdpbase.loadbalancer.server.port=3000
 ```
 
 ### Authelia Middleware
 
 The `authelia@docker` middleware:
 
-- Intercepts all requests before they reach amdWiki
+- Intercepts all requests before they reach ngdpbase
 - Redirects unauthenticated users to Authelia login
 - Validates authentication tokens
 - Passes authenticated requests with user headers
@@ -171,24 +171,24 @@ If you want to bypass authentication for certain paths (e.g., public pages), mod
 
 ```yaml
 # Add a second router without Authelia for public paths
-- "traefik.http.routers.amdwiki-public.rule=Host(`wiki.example.com`) && PathPrefix(`/public`)"
-- "traefik.http.routers.amdwiki-public.entrypoints=websecure"
-- "traefik.http.routers.amdwiki-public.tls=true"
-- "traefik.http.routers.amdwiki-public.tls.certresolver=letsencrypt"
+- "traefik.http.routers.ngdpbase-public.rule=Host(`wiki.example.com`) && PathPrefix(`/public`)"
+- "traefik.http.routers.ngdpbase-public.entrypoints=websecure"
+- "traefik.http.routers.ngdpbase-public.tls=true"
+- "traefik.http.routers.ngdpbase-public.tls.certresolver=letsencrypt"
 # Note: No Authelia middleware for this router
 ```
 
-### Custom amdWiki Configuration
+### Custom ngdpbase Configuration
 
 Create `config/app-custom-config.json` with your overrides:
 
 ```json
 {
-  "amdwiki.server.host": "0.0.0.0",
-  "amdwiki.server.port": 3000,
-  "amdwiki.baseURL": "https://wiki.example.com",
-  "amdwiki.session.secret": "your-secure-random-secret-here",
-  "amdwiki.session.secure": true
+  "ngdpbase.server.host": "0.0.0.0",
+  "ngdpbase.server.port": 3000,
+  "ngdpbase.baseURL": "https://wiki.example.com",
+  "ngdpbase.session.secret": "your-secure-random-secret-here",
+  "ngdpbase.session.secure": true
 }
 ```
 
@@ -212,27 +212,27 @@ volumes:
 Check if the container is running:
 
 ```bash
-docker ps | grep amdwiki
+docker ps | grep ngdpbase
 ```
 
 Check container logs:
 
 ```bash
-docker logs amdwiki
+docker logs ngdpbase
 ```
 
 ### 502 Bad Gateway
 
-1. Verify amdWiki is healthy:
+1. Verify ngdpbase is healthy:
 
    ```bash
-   docker exec amdwiki wget -O- http://localhost:3000
+   docker exec ngdpbase wget -O- http://localhost:3000
    ```
 
 2. Check Traefik can reach the container:
 
    ```bash
-   docker exec traefik ping amdwiki
+   docker exec traefik ping ngdpbase
    ```
 
 3. Verify both containers are on `traefik_net`:
@@ -315,10 +315,10 @@ http:
         referrerPolicy: "strict-origin-when-cross-origin"
 ```
 
-Then update the amdWiki router middleware:
+Then update the ngdpbase router middleware:
 
 ```yaml
-- "traefik.http.routers.amdwiki.middlewares=authelia@docker,security-headers@file"
+- "traefik.http.routers.ngdpbase.middlewares=authelia@docker,security-headers@file"
 ```
 
 ## Backup and Maintenance
@@ -334,13 +334,13 @@ Important directories to backup (relative to project root, as mounted in docker-
 Backup command:
 
 ```bash
-tar -czf amdwiki-backup-$(date +%Y%m%d).tar.gz pages/ data/ logs/ config/
+tar -czf ngdpbase-backup-$(date +%Y%m%d).tar.gz pages/ data/ logs/ config/
 ```
 
 ## Support
 
 For issues:
 
-- amdWiki: <https://github.com/jwilleke/ngdpbase/issues>
+- ngdpbase: <https://github.com/jwilleke/ngdpbase/issues>
 - Traefik: <https://doc.traefik.io/traefik/>
 - Authelia: <https://www.authelia.com/>

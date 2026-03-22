@@ -52,7 +52,7 @@ author: system
 
 ## Environment Configuration
 
-amdWiki uses different configuration files based on the `NODE_ENV` environment variable:
+ngdpbase uses different configuration files based on the `NODE_ENV` environment variable:
 
 | Environment | Config File | Use Case |
 | ---- | ---- | ---- |
@@ -104,7 +104,7 @@ npm start                      # Production (default)
 
 ## Multiple Instance Prevention
 
-The server uses a PID lock file (`.amdwiki.pid`) to prevent multiple instances from running simultaneously. This ensures:
+The server uses a PID lock file (`.ngdpbase.pid`) to prevent multiple instances from running simultaneously. This ensures:
 
 - ✅ Only one server instance runs at a time
 - ✅ Data consistency (no conflicting writes)
@@ -151,19 +151,19 @@ All logs are written to the `./data/logs/` directory:
 
 ```bash
 # Start
-pm2 start npm --name "amdWiki" -- start
+pm2 start npm --name "ngdpbase" -- start
 
 # Stop
-pm2 stop amdWiki
+pm2 stop ngdpbase
 
 # Restart
-pm2 restart amdWiki
+pm2 restart ngdpbase
 
 # View logs
-pm2 logs amdWiki
+pm2 logs ngdpbase
 
 # Delete from PM2
-pm2 delete amdWiki
+pm2 delete ngdpbase
 ```
 
 ### Using npm (Not Recommended for Production)
@@ -236,7 +236,7 @@ pm2 startup
 
 ## PID Lock File
 
-- **Location:** `.amdwiki.pid` in the project root
+- **Location:** `.ngdpbase.pid` in the project root
 - **Purpose:** Prevents multiple server instances
 - **Cleanup:** Automatically removed on clean shutdown
 - **Manual Cleanup:** Use `./server.sh unlock` if needed

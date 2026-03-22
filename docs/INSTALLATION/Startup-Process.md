@@ -58,7 +58,7 @@ The custom config file defaults to `app-custom-config.json` unless overridden by
 ### Configuration Priority (highest wins)
 
 ```text
-1. Environment variables       (e.g., AMDWIKI_BASE_URL, AMDWIKI_PORT)
+1. Environment variables       (e.g., NGDPBASE_BASE_URL, NGDPBASE_PORT)
 2. Instance custom config      (INSTANCE_DATA_FOLDER/config/app-custom-config.json)
 3. Default config              (config/app-default-config.json)
 4. Hard-coded fallback values  (in ConfigurationManager.ts)
@@ -70,12 +70,12 @@ These environment variables override the corresponding config file properties at
 
 | Environment Variable       | Config Property              | Default     |
 | -------------------------- | ---------------------------- | ----------- |
-| `AMDWIKI_BASE_URL`         | `ngdpbase.baseURL`            | (from config) |
-| `AMDWIKI_HOSTNAME`         | `ngdpbase.hostname`           | (from config) |
-| `AMDWIKI_HOST`             | `ngdpbase.server.host`        | `localhost` |
-| `AMDWIKI_PORT`             | `ngdpbase.server.port`        | `3000`      |
-| `AMDWIKI_SESSION_SECRET`   | `ngdpbase.session.secret`     | (from config) |
-| `AMDWIKI_APP_NAME`         | `ngdpbase.applicationName`    | `ngdpbase`   |
+| `NGDPBASE_BASE_URL`         | `ngdpbase.baseURL`            | (from config) |
+| `NGDPBASE_HOSTNAME`         | `ngdpbase.hostname`           | (from config) |
+| `NGDPBASE_HOST`             | `ngdpbase.server.host`        | `localhost` |
+| `NGDPBASE_PORT`             | `ngdpbase.server.port`        | `3000`      |
+| `NGDPBASE_SESSION_SECRET`   | `ngdpbase.session.secret`     | (from config) |
+| `NGDPBASE_APP_NAME`         | `ngdpbase.applicationName`    | `ngdpbase`   |
 
 ### Instance Management Variables
 
@@ -312,8 +312,8 @@ INSTANCE_CONFIG_FILE=my-wiki-config.json \
 ```bash
 docker run -d \
   -p 3000:3000 \
-  -e AMDWIKI_BASE_URL="https://wiki.example.com" \
-  -e AMDWIKI_SESSION_SECRET="your-secret" \
+  -e NGDPBASE_BASE_URL="https://wiki.example.com" \
+  -e NGDPBASE_SESSION_SECRET="your-secret" \
   -v $(pwd)/data:/app/data \
   ghcr.io/jwilleke/ngdpbase:latest
 ```

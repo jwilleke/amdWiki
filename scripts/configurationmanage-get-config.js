@@ -4,8 +4,8 @@
  * Usage:
  *   node scripts/configurationmanage-get-config.js <key> [--prefix] [--pretty]
  * Examples:
- *   node scripts/configurationmanage-get-config.js amdwiki.notifications.dir
- *   node scripts/configurationmanage-get-config.js amdwiki.notifications --prefix --pretty
+ *   node scripts/configurationmanage-get-config.js ngdpbase.notifications.dir
+ *   node scripts/configurationmanage-get-config.js ngdpbase.notifications --prefix --pretty
  */
 
 const fs = require('fs-extra');

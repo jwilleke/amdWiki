@@ -1,5 +1,5 @@
 /**
- * RecentChangesPlugin - JSPWiki-style plugin for amdWiki
+ * RecentChangesPlugin - JSPWiki-style plugin for ngdpbase
  * Displays recent page changes in order
  *
  * Based on JSPWiki's RecentChangesPlugin:
@@ -201,7 +201,7 @@ function generateCompactFormat(pages: PageWithDate[], since: number): string {
 const RecentChangesPlugin: SimplePlugin = {
   name: 'RecentChangesPlugin',
   description: 'Displays recent page changes in chronological order',
-  author: 'amdWiki',
+  author: 'ngdpbase',
   version: '1.0.0',
 
   /**

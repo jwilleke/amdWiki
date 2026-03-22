@@ -1,5 +1,5 @@
 /**
- * MediaItem - Stub plugin for amdWiki MediaManager (Phase 3)
+ * MediaItem - Stub plugin for ngdpbase MediaManager (Phase 3)
  *
  * Embeds a single media item (image, video, etc.) inline on a wiki page.
  * Full implementation is deferred to Phase 4 (MediaManager real scan).
@@ -17,7 +17,7 @@ import type { PluginContext, PluginParams } from './types';
 const MediaItemPlugin = {
   name: 'MediaItem',
   description: 'Embeds a single media item inline (stub — MediaManager not yet available)',
-  author: 'amdWiki',
+  author: 'ngdpbase',
   version: '0.1.0',
 
   /**

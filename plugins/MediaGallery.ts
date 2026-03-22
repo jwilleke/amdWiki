@@ -1,5 +1,5 @@
 /**
- * MediaGallery - Stub plugin for amdWiki MediaManager (Phase 3)
+ * MediaGallery - Stub plugin for ngdpbase MediaManager (Phase 3)
  *
  * Renders a grid or list of media items for a given year or keyword filter.
  * Full implementation is deferred to Phase 4 (MediaManager real scan).
@@ -18,7 +18,7 @@ import type { PluginContext, PluginParams } from './types';
 const MediaGalleryPlugin = {
   name: 'MediaGallery',
   description: 'Displays a gallery of media items (stub — MediaManager not yet available)',
-  author: 'amdWiki',
+  author: 'ngdpbase',
   version: '0.1.0',
 
   /**

@@ -1,6 +1,6 @@
-# amdWiki Deployment Guide
+# ngdpbase Deployment Guide
 
-Guide for deploying amdWiki to various environments.
+Guide for deploying ngdpbase to various environments.
 
 ## Table of Contents
 
@@ -15,9 +15,9 @@ Deploy on your local machine (development or testing):
 
 ```bash
 # Option 1: Pre-built image from GHCR (fastest)
-docker run -d --name amdwiki -p 3000:3000 \
+docker run -d --name ngdpbase -p 3000:3000 \
   -v $(pwd)/data:/app/data \
-  ghcr.io/jwilleke/amdwiki:latest
+  ghcr.io/jwilleke/ngdpbase:latest
 
 # Option 2: Build from source
 ./docker-setup.sh
@@ -52,7 +52,7 @@ Deploy to a remote Linux server via SSH.
 # Set server details
 export REMOTE_USER="your-username"
 export REMOTE_HOST="your-server.com"
-export REMOTE_PATH="~/amdwiki"
+export REMOTE_PATH="~/ngdpbase"
 
 # Deploy
 ./deploy-remote.sh
@@ -79,9 +79,9 @@ ssh root@192.168.68.71  # or your server
 
 # 2. Choose deployment location and clean if needed
 cd /opt/dosckers  # or your preferred location
-rm -rf amdwiki/   # if starting fresh
-mkdir -p amdwiki
-cd amdwiki
+rm -rf ngdpbase/   # if starting fresh
+mkdir -p ngdpbase
+cd ngdpbase
 
 # 3. Clone the repository (note the trailing dot to clone into current dir)
 git clone https://github.com/jwilleke/ngdpbase.git .
@@ -100,7 +100,7 @@ docker-compose up -d --build
 
 # 7. Verify deployment
 docker-compose ps
-docker-compose logs -f amdwiki
+docker-compose logs -f ngdpbase
 
 # 8. Test access
 curl http://localhost:3000
@@ -121,12 +121,12 @@ To update code on an already-deployed server:
 
 ```bash
 ssh user@server
-cd /opt/dosckers/amdwiki
+cd /opt/dosckers/ngdpbase
 git pull origin master
 cd docker
 docker-compose down
 docker-compose up -d --build
-docker-compose logs -f amdwiki
+docker-compose logs -f ngdpbase
 ```
 
 **Note:** Updates preserve your `pages/`, `data/`, `logs/`, and `sessions/` directories.
@@ -194,10 +194,10 @@ export NODE_ENV=production
 
 ```bash
 # Check container status
-ssh user@server "cd ~/amdwiki && docker-compose ps"
+ssh user@server "cd ~/ngdpbase && docker-compose ps"
 
 # View logs
-ssh user@server "cd ~/amdwiki && docker-compose logs -f"
+ssh user@server "cd ~/ngdpbase && docker-compose logs -f"
 
 # Test access
 curl http://your-server:3000
@@ -213,7 +213,7 @@ To update an existing deployment:
 
 # Or manually on server
 ssh user@server
-cd ~/amdwiki
+cd ~/ngdpbase
 git pull  # if using git method
 docker-compose down
 docker-compose up -d --build
@@ -253,7 +253,7 @@ export REMOTE_HOST=$(gcloud compute instances describe instance-name --format='g
 ./deploy-remote.sh
 
 # 4. Configure firewall
-gcloud compute firewall-rules create amdwiki --allow tcp:3000
+gcloud compute firewall-rules create ngdpbase --allow tcp:3000
 ```
 
 ### DigitalOcean Droplet
@@ -286,7 +286,7 @@ export REMOTE_HOST=<vm-public-ip>
 az network nsg rule create \
   --resource-group myResourceGroup \
   --nsg-name myNetworkSecurityGroup \
-  --name allow-amdwiki \
+  --name allow-ngdpbase \
   --priority 1000 \
   --destination-port-ranges 3000
 ```
@@ -297,19 +297,19 @@ Before deploying to production:
 
 ### Security
 
-- [ ] Change `amdwiki.session.secret` to a secure random value
-- [ ] Set `amdwiki.session.secure` to `true` (requires HTTPS)
+- [ ] Change `ngdpbase.session.secret` to a secure random value
+- [ ] Set `ngdpbase.session.secure` to `true` (requires HTTPS)
 - [ ] Configure firewall (only allow necessary ports)
 - [ ] Set up SSH key authentication (disable password auth)
-- [ ] Keep `amdwiki.translator-reader.allow-html` as `false`
+- [ ] Keep `ngdpbase.translator-reader.allow-html` as `false`
 - [ ] Review user permissions and access control
 
 ### Configuration
 
-- [ ] Set `amdwiki.server.host` to `0.0.0.0` in Docker
-- [ ] Configure `amdwiki.baseURL` with your actual domain
+- [ ] Set `ngdpbase.server.host` to `0.0.0.0` in Docker
+- [ ] Configure `ngdpbase.baseURL` with your actual domain
 - [ ] Set appropriate `NODE_ENV=production`
-- [ ] Configure logging level (`amdwiki.logging.level`)
+- [ ] Configure logging level (`ngdpbase.logging.level`)
 - [ ] Review and customize all ConfigurationManager settings
 
 ### Infrastructure
@@ -352,14 +352,14 @@ server {
 ```bash
 # Automated backup script (example)
 #!/bin/bash
-BACKUP_DIR="/backups/amdwiki"
+BACKUP_DIR="/backups/ngdpbase"
 DATE=$(date +%Y%m%d_%H%M%S)
 
-docker-compose exec -T amdwiki tar czf - /app/pages /app/data \
-  > "$BACKUP_DIR/amdwiki_backup_$DATE.tar.gz"
+docker-compose exec -T ngdpbase tar czf - /app/pages /app/data \
+  > "$BACKUP_DIR/ngdpbase_backup_$DATE.tar.gz"
 
 # Keep last 7 days
-find "$BACKUP_DIR" -name "amdwiki_backup_*.tar.gz" -mtime +7 -delete
+find "$BACKUP_DIR" -name "ngdpbase_backup_*.tar.gz" -mtime +7 -delete
 ```
 
 ### Monitoring
@@ -380,14 +380,14 @@ Set up monitoring for:
 
 # Or manually
 ssh user@server
-cd ~/amdwiki
+cd ~/ngdpbase
 git pull
 docker-compose pull
 docker-compose up -d --build
 
 # Backup before updates
-docker-compose exec amdwiki tar czf /tmp/backup.tar.gz /app/pages /app/data
-docker cp amdwiki:/tmp/backup.tar.gz ./backup_$(date +%Y%m%d).tar.gz
+docker-compose exec ngdpbase tar czf /tmp/backup.tar.gz /app/pages /app/data
+docker cp ngdpbase:/tmp/backup.tar.gz ./backup_$(date +%Y%m%d).tar.gz
 ```
 
 ## Troubleshooting

@@ -1,0 +1,13 @@
+{
+	"folders": [
+    {
+      "path": "."
+    },
+    {
+      "path": "../../../../hd2/jimstest-wiki/data"
+    }
+  ],
+  "settings": {
+    "git.confirmSync": false
+  }
+}

@@ -1,5 +1,5 @@
 /**
- * IndexPlugin - JSPWiki-style plugin for amdWiki
+ * IndexPlugin - JSPWiki-style plugin for ngdpbase
  * Generates an alphabetical index of all wiki pages
  *
  * Based on JSPWiki's IndexPlugin:
@@ -21,7 +21,7 @@ interface IndexParams extends PluginParams {
 const IndexPlugin: SimplePlugin = {
   name: 'IndexPlugin',
   description: 'Generates an alphabetical index of all wiki pages',
-  author: 'amdWiki',
+  author: 'ngdpbase',
   version: '1.0.0',
 
   /**

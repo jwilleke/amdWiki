@@ -1,7 +1,7 @@
 #!/bin/bash
 #
-# amdWiki Remote Deployment Script
-# Deploys amdWiki to a remote Linux server via SSH
+# ngdpbase Remote Deployment Script
+# Deploys ngdpbase to a remote Linux server via SSH
 #
 
 set -e  # Exit on error
@@ -17,10 +17,10 @@ NC='\033[0m' # No Color
 REMOTE_USER="${REMOTE_USER:-}"
 REMOTE_HOST="${REMOTE_HOST:-}"
 REMOTE_PORT="${REMOTE_PORT:-22}"
-REMOTE_PATH="${REMOTE_PATH:-~/amdwiki}"
+REMOTE_PATH="${REMOTE_PATH:-~/ngdpbase}"
 DEPLOY_METHOD="${DEPLOY_METHOD:-rsync}"  # rsync or git
 
-echo -e "${BLUE}🚀 amdWiki Remote Deployment${NC}"
+echo -e "${BLUE}🚀 ngdpbase Remote Deployment${NC}"
 echo "=============================="
 echo ""
 
@@ -50,8 +50,8 @@ if [ -z "$REMOTE_USER" ]; then
 fi
 
 if [ -z "$REMOTE_PATH" ]; then
-    read -p "Remote path (default: ~/amdwiki): " input_path
-    REMOTE_PATH="${input_path:-~/amdwiki}"
+    read -p "Remote path (default: ~/ngdpbase): " input_path
+    REMOTE_PATH="${input_path:-~/ngdpbase}"
 fi
 
 echo ""
@@ -115,7 +115,7 @@ if [ "$DEPLOY_METHOD" = "rsync" ]; then
         --exclude 'node_modules' \
         --exclude 'logs' \
         --exclude '*.log' \
-        --exclude '.amdwiki.pid' \
+        --exclude '.ngdpbase.pid' \
         --exclude 'coverage' \
         --exclude 'jsdocs' \
         --exclude '.DS_Store' \
@@ -178,7 +178,7 @@ print_info "Setting up environment on remote server..."
 
 ssh -p "$REMOTE_PORT" "${REMOTE_USER}@${REMOTE_HOST}" << 'EOF'
 set -e
-cd ~/amdwiki || exit 1
+cd ~/ngdpbase || exit 1
 
 # Run setup script if available
 if [ -f docker-setup.sh ]; then
@@ -209,7 +209,7 @@ if [[ ! $REPLY =~ ^[Nn]$ ]]; then
 
     ssh -p "$REMOTE_PORT" "${REMOTE_USER}@${REMOTE_HOST}" << 'EOF'
 set -e
-cd ~/amdwiki
+cd ~/ngdpbase
 
 # Build and start containers
 docker-compose down 2>/dev/null || true

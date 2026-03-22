@@ -104,8 +104,8 @@ class ComprehensiveMockEngine {
       getPage: (pageName) => {
         const pages = {
           'ExistingPage': { content: '# Existing Page\n\nThis page exists with **bold** content and [internal links].' },
-          'FooterPage': { content: '---\n\n© 2025 amdWiki. All rights reserved.' },
-          'HeaderPage': { content: '# Welcome to amdWiki\n\nYour collaborative wiki platform.' },
+          'FooterPage': { content: '---\n\n© 2025 ngdpbase. All rights reserved.' },
+          'HeaderPage': { content: '# Welcome to ngdpbase\n\nYour collaborative wiki platform.' },
           'SectionPage': { content: '# Main Title\n\n## Introduction\n\nIntro content here.\n\n## Details\n\nDetailed information.\n\n## Conclusion\n\nFinal thoughts.' }
         };
         
@@ -130,7 +130,7 @@ class ComprehensiveMockEngine {
         return content
           .replace(/\$\{pagename\}/g, context.pageName || 'TestPage')
           .replace(/\$\{username\}/g, context.userName || 'TestUser')
-          .replace(/\$\{applicationname\}/g, 'amdWiki')
+          .replace(/\$\{applicationname\}/g, 'ngdpbase')
           .replace(/\$\{version\}/g, '2.0.0')
           .replace(/\$\{totalpages\}/g, '42');
       }
@@ -261,7 +261,7 @@ Check out [Wikipedia:Wiki] and [JSPWiki:PluginDevelopment] for more info.
       expect(result).toContain('<form'); // WikiForm
       expect(result).toContain('https://en.wikipedia.org/wiki/Wiki'); // InterWiki
       expect(result).toContain('class="text-primary"'); // WikiStyle
-      expect(result).toContain('© 2025 amdWiki'); // Include
+      expect(result).toContain('© 2025 ngdpbase'); // Include
       expect(result).toContain('only visible to authenticated'); // UserCheck
       expect(result).toContain('<h1>JSPWiki Compatibility Test</h1>'); // Markdown
     });
@@ -299,7 +299,7 @@ Check out [Wikipedia:Wiki] and [JSPWiki:PluginDevelopment] for more info.
       const result = await markupParser.parse(content, context);
 
       // Should process all nested syntax correctly
-      expect(result).toContain('Welcome to amdWiki'); // Include processed
+      expect(result).toContain('Welcome to ngdpbase'); // Include processed
       expect(result).toContain('AdminUser on AdminPage'); // Variables expanded
       expect(result).toContain('<select'); // Form processed inside UserCheck
       expect(result).toContain('https://en.wikipedia.org/wiki/Software'); // InterWiki

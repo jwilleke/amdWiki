@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Version Management Script for amdWiki
+ * Version Management Script for ngdpbase
  *
  * Helps manage semantic versioning for the project.
  *
@@ -99,7 +99,7 @@ function updateChangelogForRelease(newVersion) {
 
 function showHelp() {
     console.log(`
-amdWiki Version Management
+ngdpbase Version Management
 
 Usage:
   node scripts/version.js                    - Show current version and info
@@ -117,7 +117,7 @@ Semantic Versioning:
 
 Files updated:
   - package.json
-  - config/app-default-config.json (amdwiki.version)
+  - config/app-default-config.json (ngdpbase.version)
   - CHANGELOG.md (Unreleased → version header)
   - Git tag v<version> created locally
 
@@ -197,7 +197,7 @@ function main() {
         try {
             const configContent = fs.readFileSync(DEFAULT_CONFIG_PATH, 'utf8');
             const config = JSON.parse(configContent);
-            config['amdwiki.version'] = newVersion;
+            config['ngdpbase.version'] = newVersion;
             fs.writeFileSync(DEFAULT_CONFIG_PATH, JSON.stringify(config, null, 2) + '\n');
             console.log(`Updated config/app-default-config.json with version ${newVersion}`);
         } catch (error) {

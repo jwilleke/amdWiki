@@ -1,12 +1,12 @@
-# amdWiki Kubernetes Service
+# ngdpbase Kubernetes Service
 # Deploy with: kubectl apply -f service.yaml
 apiVersion: v1
 kind: Service
 metadata:
-  name: amdwiki
+  name: ngdpbase
   labels:
-    app: amdwiki
-    app.kubernetes.io/name: amdwiki
+    app: ngdpbase
+    app.kubernetes.io/name: ngdpbase
 spec:
   type: ClusterIP
   ports:
@@ -15,16 +15,16 @@ spec:
       protocol: TCP
       name: http
   selector:
-    app: amdwiki
+    app: ngdpbase
 ---
 # Optional: LoadBalancer service for direct external access
 # Uncomment if not using Ingress
 # apiVersion: v1
 # kind: Service
 # metadata:
-#   name: amdwiki-lb
+#   name: ngdpbase-lb
 #   labels:
-#     app: amdwiki
+#     app: ngdpbase
 # spec:
 #   type: LoadBalancer
 #   ports:
@@ -33,4 +33,4 @@ spec:
 #       protocol: TCP
 #       name: http
 #   selector:
-#     app: amdwiki
+#     app: ngdpbase

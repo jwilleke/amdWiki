@@ -46,7 +46,7 @@ Server uptime: [{UptimePlugin}]
 
 ```wiki
 ----
-Wiki powered by amdWiki | Uptime: [{UptimePlugin}]
+Wiki powered by ngdpbase | Uptime: [{UptimePlugin}]
 ```
 
 ### Status Dashboard

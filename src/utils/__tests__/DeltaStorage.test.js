@@ -14,11 +14,11 @@ describe('DeltaStorage', () => {
 
     test('should create diff with partial changes', () => {
       const old = 'Hello world';
-      const new_ = 'Hello amdWiki';
+      const new_ = 'Hello ngdpbase';
       const diff = DeltaStorage.createDiff(old, new_);
 
       // fast-diff optimizes by finding common characters
-      // It keeps the common "d" between "world" and "amdWiki"
+      // It keeps the common "d" between "world" and "ngdpbase"
       expect(diff).toContainEqual([0, 'Hello ']);
       expect(diff.some(op => op[0] === -1)).toBe(true); // Has deletions
       expect(diff.some(op => op[0] === 1)).toBe(true); // Has insertions
@@ -74,10 +74,10 @@ describe('DeltaStorage', () => {
   describe('applyDiff', () => {
     test('should apply diff to reconstruct content', () => {
       const base = 'Hello world';
-      const diff = [[0, 'Hello '], [-1, 'world'], [1, 'amdWiki']];
+      const diff = [[0, 'Hello '], [-1, 'world'], [1, 'ngdpbase']];
       const result = DeltaStorage.applyDiff(base, diff);
 
-      expect(result).toBe('Hello amdWiki');
+      expect(result).toBe('Hello ngdpbase');
     });
 
     test('should handle empty diff (no changes)', () => {
@@ -192,13 +192,13 @@ describe('DeltaStorage', () => {
     test('should handle complex content evolution', () => {
       const v1 = 'Hello world';
       const diffs = [
-        [[0, 'Hello '], [-1, 'world'], [1, 'amdWiki']],                    // "Hello amdWiki"
-        [[0, 'Hello amdWiki'], [1, ' version 2']],                         // "Hello amdWiki version 2"
-        [[0, 'Hello amdWiki'], [-1, ' version 2'], [1, ' is awesome']]    // "Hello amdWiki is awesome"
+        [[0, 'Hello '], [-1, 'world'], [1, 'ngdpbase']],                    // "Hello ngdpbase"
+        [[0, 'Hello ngdpbase'], [1, ' version 2']],                         // "Hello ngdpbase version 2"
+        [[0, 'Hello ngdpbase'], [-1, ' version 2'], [1, ' is awesome']]    // "Hello ngdpbase is awesome"
       ];
 
       const result = DeltaStorage.applyDiffChain(v1, diffs);
-      expect(result).toBe('Hello amdWiki is awesome');
+      expect(result).toBe('Hello ngdpbase is awesome');
     });
 
     test('should throw TypeError for invalid inputs', () => {
@@ -377,7 +377,7 @@ describe('DeltaStorage', () => {
     });
 
     test('should handle realistic wiki page scenario', () => {
-      const v1 = `# Welcome to amdWiki
+      const v1 = `# Welcome to ngdpbase
 
 This is the first version of our wiki page.
 
@@ -385,7 +385,7 @@ This is the first version of our wiki page.
 - Markdown support
 - Fast search`;
 
-      const v2 = `# Welcome to amdWiki
+      const v2 = `# Welcome to ngdpbase
 
 This is the second version of our wiki page.
 
@@ -394,7 +394,7 @@ This is the second version of our wiki page.
 - Fast search
 - Version control`;
 
-      const v3 = `# Welcome to amdWiki
+      const v3 = `# Welcome to ngdpbase
 
 This is the third version of our wiki page with more content.
 

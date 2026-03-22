@@ -26,7 +26,7 @@ const createMockEngine = () => {
   variableHandlers.set('username', (context) => context?.userName || 'TestUser');
   variableHandlers.set('pagename', (context) => context?.pageName || 'TestPage');
   variableHandlers.set('date', () => '2025-10-12');
-  variableHandlers.set('appname', () => 'amdWiki');
+  variableHandlers.set('appname', () => 'ngdpbase');
   variableHandlers.set('version', () => '1.0.0');
   variableHandlers.set('error', () => {
     throw new Error('Test error');
@@ -232,7 +232,7 @@ describe('DOMVariableHandler', () => {
       await handler.processVariables(wikiDoc, {});
 
       const html = wikiDoc.toHTML();
-      expect(html).toContain('amdWiki');
+      expect(html).toContain('ngdpbase');
       expect(html).toContain('1.0.0');
     });
   });

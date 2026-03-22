@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Performance Testing Script for amdWiki
+ * Performance Testing Script for ngdpbase
  *
  * Gathers metrics from various components and runs performance benchmarks.
  *
@@ -266,7 +266,7 @@ async function main() {
   const runAll = args.length === 0 || args.includes('--all');
 
   console.log('═══════════════════════════════════════════════════════════');
-  console.log('           amdWiki Performance Test Suite');
+  console.log('           ngdpbase Performance Test Suite');
   console.log('═══════════════════════════════════════════════════════════');
 
   await gatherEnvironment();

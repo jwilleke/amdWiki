@@ -85,7 +85,7 @@ function printInfo(message) {
 }
 
 function showHelp() {
-  printHeader('amdWiki Version Maintenance Tool');
+  printHeader('ngdpbase Version Maintenance Tool');
 
   console.log('Usage:');
   console.log('  node scripts/maintain-versions.js [command] [options]');
@@ -159,7 +159,7 @@ async function loadProvider() {
 
     if (!provider || provider.constructor.name !== 'VersioningFileProvider') {
       printError('VersioningFileProvider is not configured');
-      printInfo('Set "amdwiki.page.provider": "VersioningFileProvider" in app-custom-config.json');
+      printInfo('Set "ngdpbase.page.provider": "VersioningFileProvider" in app-custom-config.json');
       process.exit(1);
     }
 
@@ -413,7 +413,7 @@ async function main() {
       process.exit(0);
     }
 
-    printHeader('amdWiki Version Maintenance Tool');
+    printHeader('ngdpbase Version Maintenance Tool');
 
     // Load provider
     printInfo('Loading VersioningFileProvider...');

@@ -1,5 +1,5 @@
 /**
- * Attach plugin for amdWiki
+ * Attach plugin for ngdpbase
  * Renders wiki attachments inline in page content.
  *
  * Supports two syntax forms (consistent with ImagePlugin):

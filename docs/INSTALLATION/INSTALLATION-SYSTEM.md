@@ -141,12 +141,12 @@ These override the corresponding config file properties at runtime:
 
 | Environment Variable | Config Property | Description | Default |
 | --- | --- | --- | --- |
-| `AMDWIKI_BASE_URL` | `ngdpbase.baseURL` | Base URL for the wiki (e.g., `https://wiki.example.com`) | (empty) |
-| `AMDWIKI_HOSTNAME` | `ngdpbase.hostname` | Server hostname | (from config) |
-| `AMDWIKI_HOST` | `ngdpbase.server.host` | Server bind address | `localhost` |
-| `AMDWIKI_PORT` | `ngdpbase.server.port` | Server port | `3000` |
-| `AMDWIKI_SESSION_SECRET` | `ngdpbase.session.secret` | Session encryption key | (from config) |
-| `AMDWIKI_APP_NAME` | `ngdpbase.applicationName` | Application display name | `ngdpbase` |
+| `NGDPBASE_BASE_URL` | `ngdpbase.baseURL` | Base URL for the wiki (e.g., `https://wiki.example.com`) | (empty) |
+| `NGDPBASE_HOSTNAME` | `ngdpbase.hostname` | Server hostname | (from config) |
+| `NGDPBASE_HOST` | `ngdpbase.server.host` | Server bind address | `localhost` |
+| `NGDPBASE_PORT` | `ngdpbase.server.port` | Server port | `3000` |
+| `NGDPBASE_SESSION_SECRET` | `ngdpbase.session.secret` | Session encryption key | (from config) |
+| `NGDPBASE_APP_NAME` | `ngdpbase.applicationName` | Application display name | `ngdpbase` |
 
 These overrides are implemented in `src/managers/ConfigurationManager.ts:173-180`.
 
@@ -174,10 +174,10 @@ These control which config files and data directories are used:
 docker run -d \
   --name ngdpbase \
   -p 3000:3000 \
-  -e AMDWIKI_APP_NAME="My Company Wiki" \
-  -e AMDWIKI_BASE_URL="https://wiki.example.com" \
-  -e AMDWIKI_SESSION_SECRET="your-secure-secret-here" \
-  -e AMDWIKI_HOST="0.0.0.0" \
+  -e NGDPBASE_APP_NAME="My Company Wiki" \
+  -e NGDPBASE_BASE_URL="https://wiki.example.com" \
+  -e NGDPBASE_SESSION_SECRET="your-secure-secret-here" \
+  -e NGDPBASE_HOST="0.0.0.0" \
   -v $(pwd)/data:/app/data \
   ghcr.io/jwilleke/ngdpbase:latest
 ```
@@ -191,9 +191,9 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - AMDWIKI_APP_NAME=My Company Wiki
-      - AMDWIKI_BASE_URL=https://wiki.example.com
-      - AMDWIKI_SESSION_SECRET=your-secure-secret-here
+      - NGDPBASE_APP_NAME=My Company Wiki
+      - NGDPBASE_BASE_URL=https://wiki.example.com
+      - NGDPBASE_SESSION_SECRET=your-secure-secret-here
     volumes:
       - ./data:/app/data
 ```
@@ -202,10 +202,10 @@ services:
 
 ```bash
 # docker/.env
-AMDWIKI_APP_NAME=My Company Wiki
-AMDWIKI_BASE_URL=https://wiki.example.com
-AMDWIKI_SESSION_SECRET=your-secure-secret-here
-AMDWIKI_HOST=0.0.0.0
+NGDPBASE_APP_NAME=My Company Wiki
+NGDPBASE_BASE_URL=https://wiki.example.com
+NGDPBASE_SESSION_SECRET=your-secure-secret-here
+NGDPBASE_HOST=0.0.0.0
 ```
 
 #### Combining config file with env overrides
@@ -216,8 +216,8 @@ You can mount a custom config file for most settings and use environment variabl
 docker run -d \
   --name ngdpbase \
   -p 3000:3000 \
-  -e AMDWIKI_SESSION_SECRET="production-secret-from-vault" \
-  -e AMDWIKI_BASE_URL="https://wiki.prod.example.com" \
+  -e NGDPBASE_SESSION_SECRET="production-secret-from-vault" \
+  -e NGDPBASE_BASE_URL="https://wiki.prod.example.com" \
   -v $(pwd)/data:/app/data \
   -v $(pwd)/my-config.json:/app/data/config/app-custom-config.json \
   ghcr.io/jwilleke/ngdpbase:latest

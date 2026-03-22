@@ -1,5 +1,5 @@
 /**
- * ConfigAccessorPlugin - JSPWiki-style plugin for amdWiki
+ * ConfigAccessorPlugin - JSPWiki-style plugin for ngdpbase
  * Displays configuration values including roles, features, and system settings
  *
  * Usage:
@@ -1305,7 +1305,7 @@ function displayFeatureConfig(configManager: ConfigurationManager, featureName: 
 const ConfigAccessorPlugin: SimplePlugin = {
   name: 'ConfigAccessorPlugin',
   description: 'Access configuration values including roles, features, and system settings',
-  author: 'amdWiki',
+  author: 'ngdpbase',
   version: '2.7.0',
 
   /**

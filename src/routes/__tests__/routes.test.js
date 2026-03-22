@@ -269,7 +269,7 @@ jest.mock('../../WikiEngine', () => {
       };
       return mockManagers[name] || {};
     }),
-    getApplicationName: jest.fn().mockReturnValue('amdWiki'),
+    getApplicationName: jest.fn().mockReturnValue('ngdpbase'),
     config: {
       features: {
         maintenance: { enabled: false, allowAdmins: true }

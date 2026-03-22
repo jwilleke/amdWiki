@@ -5,7 +5,7 @@
   "out": "docs/api/generated",
   "plugin": ["typedoc-plugin-markdown"],
   "readme": "none",
-  "name": "amdWiki API",
+  "name": "ngdpbase API",
   "excludePrivate": true,
   "excludeProtected": false,
   "excludeInternal": true,

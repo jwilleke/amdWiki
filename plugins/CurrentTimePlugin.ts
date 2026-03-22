@@ -1,5 +1,5 @@
 /**
- * CurrentTimePlugin - JSPWiki-style plugin for amdWiki
+ * CurrentTimePlugin - JSPWiki-style plugin for ngdpbase
  * Displays current date/time with customizable formatting
  *
  * Respects user preferences for:
@@ -227,7 +227,7 @@ function formatWithPattern(
 const CurrentTimePlugin: SimplePlugin = {
   name: 'CurrentTimePlugin',
   description: 'Displays current date and time with user locale/timezone preferences',
-  author: 'amdWiki',
+  author: 'ngdpbase',
   version: '1.0.0',
 
   /**

@@ -2,7 +2,7 @@
 /**
  * migrate-config-keys.js
  *
- * One-time migration script: renames all amdwiki.* config keys to ngdpbase.*
+ * One-time migration script: renames all ngdpbase.* config keys to ngdpbase.*
  * in a deployed instance's app-custom-config.json.
  *
  * Usage:
@@ -38,8 +38,8 @@ try {
 let migrated = 0;
 const newConfig = {};
 for (const [key, value] of Object.entries(config)) {
-  if (key.startsWith('amdwiki.')) {
-    const newKey = 'ngdpbase.' + key.slice('amdwiki.'.length);
+  if (key.startsWith('ngdpbase.')) {
+    const newKey = 'ngdpbase.' + key.slice('ngdpbase.'.length);
     newConfig[newKey] = value;
     console.log(`  ${key} → ${newKey}`);
     migrated++;
@@ -49,7 +49,7 @@ for (const [key, value] of Object.entries(config)) {
 }
 
 if (migrated === 0) {
-  console.log('No amdwiki.* keys found — already migrated or empty config.');
+  console.log('No ngdpbase.* keys found — already migrated or empty config.');
   process.exit(0);
 }
 

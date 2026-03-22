@@ -8,7 +8,7 @@ import type { SimplePlugin, PluginContext } from './types';
 const UptimePlugin: SimplePlugin = {
   name: 'UptimePlugin',
   description: 'Shows the server uptime',
-  author: 'amdWiki',
+  author: 'ngdpbase',
   version: '1.0.0',
 
   /**

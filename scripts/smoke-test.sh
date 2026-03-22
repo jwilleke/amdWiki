@@ -20,9 +20,9 @@ echo "✓ Verifying configuration..."
 node -e "
   const config = require('./config/app-default-config.json');
   const required = [
-    'amdwiki.server.port',
-    'amdwiki.applicationName',
-    'amdwiki.page.provider.filesystem.storagedir'
+    'ngdpbase.server.port',
+    'ngdpbase.applicationName',
+    'ngdpbase.page.provider.filesystem.storagedir'
   ];
   required.forEach(key => {
     if (!config[key]) throw new Error('Missing config: ' + key);

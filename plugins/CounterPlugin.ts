@@ -1,5 +1,5 @@
 /**
- * CounterPlugin - JSPWiki-style plugin for amdWiki
+ * CounterPlugin - JSPWiki-style plugin for ngdpbase
  * Maintains page-specific counters that increment each time they render
  *
  * Unlike a persistent hit counter, this tracks counters within a single page render cycle.
@@ -94,7 +94,7 @@ function parseBoolean(value: unknown, defaultValue: boolean): boolean {
 const CounterPlugin = {
   name: 'CounterPlugin',
   description: 'Maintains page-specific counters for numbering and tracking',
-  author: 'amdWiki',
+  author: 'ngdpbase',
   version: '1.0.0',
 
   // Export helper methods for testing

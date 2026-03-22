@@ -1,6 +1,6 @@
 # Configuration System
 
-amdWiki uses a layered configuration system inspired by JSPWiki's properties files.
+ngdpbase uses a layered configuration system inspired by JSPWiki's properties files.
 
 ## Configuration Files
 
@@ -86,9 +86,9 @@ To add your own local overrides:
 
 If you have:
 
-- `app-default-config.json`: `{ "amdwiki.port": 3000 }`
-- `app-development-config.json`: `{ "amdwiki.port": 3001 }`
-- `app-custom-config.json`: `{ "amdwiki.port": 8080 }`
+- `app-default-config.json`: `{ "ngdpbase.port": 3000 }`
+- `app-development-config.json`: `{ "ngdpbase.port": 3001 }`
+- `app-custom-config.json`: `{ "ngdpbase.port": 8080 }`
 
 Result in development: `port = 8080` (custom wins)
 
@@ -96,33 +96,33 @@ Result in development: `port = 8080` (custom wins)
 
 ### Application
 
-- `amdwiki.applicationName` - Site name
-- `amdwiki.baseURL` - Base URL for the wiki
-- `amdwiki.port` - HTTP port (default: 3000)
+- `ngdpbase.applicationName` - Site name
+- `ngdpbase.baseURL` - Base URL for the wiki
+- `ngdpbase.port` - HTTP port (default: 3000)
 
 ### Logging
 
-- `amdwiki.logging.level` - `debug`, `info`, `warn`, `error`
-- `amdwiki.logging.debug.enabled` - Master debug flag
-- `amdwiki.logging.debug.session` - Session debugging
-- `amdwiki.logging.debug.login` - Login debugging
+- `ngdpbase.logging.level` - `debug`, `info`, `warn`, `error`
+- `ngdpbase.logging.debug.enabled` - Master debug flag
+- `ngdpbase.logging.debug.session` - Session debugging
+- `ngdpbase.logging.debug.login` - Login debugging
 
 ### Rendering
 
-- `amdwiki.rendering.useAdvancedParser` - Enable MarkupParser
-- `amdwiki.rendering.logParsingMethod` - Log which parser is used
+- `ngdpbase.rendering.useAdvancedParser` - Enable MarkupParser
+- `ngdpbase.rendering.logParsingMethod` - Log which parser is used
 
 ### Security
 
-- `amdwiki.session.cookie.secure` - HTTPS-only cookies
-- `amdwiki.session.cookie.httpOnly` - No JavaScript access
-- `amdwiki.session.cookie.sameSite` - CSRF protection
+- `ngdpbase.session.cookie.secure` - HTTPS-only cookies
+- `ngdpbase.session.cookie.httpOnly` - No JavaScript access
+- `ngdpbase.session.cookie.sameSite` - CSRF protection
 
 ### Performance
 
-- `amdwiki.cache.enabled` - Enable caching
-- `amdwiki.cache.ttl` - Cache time-to-live (seconds)
-- `amdwiki.search.indexOnStartup` - Build search index on start
+- `ngdpbase.cache.enabled` - Enable caching
+- `ngdpbase.cache.ttl` - Cache time-to-live (seconds)
+- `ngdpbase.search.indexOnStartup` - Build search index on start
 
 ## Best Practices
 
@@ -146,5 +146,5 @@ To see all merged config values, use ConfigurationManager methods in code:
 
 ```javascript
 const configManager = engine.getManager('ConfigurationManager');
-const port = configManager.getProperty('amdwiki.port');
+const port = configManager.getProperty('ngdpbase.port');
 ```

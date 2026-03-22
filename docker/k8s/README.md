@@ -1,26 +1,26 @@
-# amdWiki Kubernetes Deployment
+# ngdpbase Kubernetes Deployment
 
-Deploy amdWiki to Kubernetes.
+Deploy ngdpbase to Kubernetes.
 
 ## Quick Start
 
 ```bash
 # Create namespace (optional)
-kubectl create namespace amdwiki
+kubectl create namespace ngdpbase
 
 # Create secrets first
-kubectl create secret generic amdwiki-secrets \
+kubectl create secret generic ngdpbase-secrets \
   --from-literal=session-secret=$(openssl rand -base64 32) \
-  -n amdwiki
+  -n ngdpbase
 
 # Deploy all manifests
-kubectl apply -f pvc.yaml -n amdwiki
-kubectl apply -f configmap.yaml -n amdwiki
-kubectl apply -f deployment.yaml -n amdwiki
-kubectl apply -f service.yaml -n amdwiki
+kubectl apply -f pvc.yaml -n ngdpbase
+kubectl apply -f configmap.yaml -n ngdpbase
+kubectl apply -f deployment.yaml -n ngdpbase
+kubectl apply -f service.yaml -n ngdpbase
 
 # Optional: Deploy ingress
-kubectl apply -f ingress.yaml -n amdwiki
+kubectl apply -f ingress.yaml -n ngdpbase
 ```
 
 ## Container Image
@@ -28,7 +28,7 @@ kubectl apply -f ingress.yaml -n amdwiki
 The pre-built image is available from GitHub Container Registry. Update `deployment.yaml` to use it:
 
 ```yaml
-image: ghcr.io/jwilleke/amdwiki:latest
+image: ghcr.io/jwilleke/ngdpbase:latest
 ```
 
 See [DOCKER.md - Pre-built Image from GHCR](../DOCKER.md#pre-built-image-from-ghcr) for all available tags.
@@ -56,14 +56,14 @@ Add `HEADLESS_INSTALL: "true"` to your ConfigMap:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: amdwiki-env
-  namespace: amdwiki
+  name: ngdpbase-env
+  namespace: ngdpbase
 data:
   HEADLESS_INSTALL: "true"
-  AMDWIKI_HOST: "0.0.0.0"
-  AMDWIKI_PORT: "3000"
-  AMDWIKI_APP_NAME: "My Company Wiki"
-  AMDWIKI_BASE_URL: "https://wiki.example.com"
+  NGDPBASE_HOST: "0.0.0.0"
+  NGDPBASE_PORT: "3000"
+  NGDPBASE_APP_NAME: "My Company Wiki"
+  NGDPBASE_BASE_URL: "https://wiki.example.com"
 ```
 
 ### Deployment with Headless Install
@@ -73,13 +73,13 @@ Reference the ConfigMap in your deployment:
 ```yaml
 spec:
   containers:
-  - name: amdwiki
-    image: amdwiki:latest
+  - name: ngdpbase
+    image: ngdpbase:latest
     envFrom:
     - configMapRef:
-        name: amdwiki-env
+        name: ngdpbase-env
     - secretRef:
-        name: amdwiki-secrets
+        name: ngdpbase-secrets
 ```
 
 ### What Headless Install Does
@@ -109,11 +109,11 @@ For production, always set a secure session secret via Kubernetes Secret:
 apiVersion: v1
 kind: Secret
 metadata:
-  name: amdwiki-secrets
-  namespace: amdwiki
+  name: ngdpbase-secrets
+  namespace: ngdpbase
 type: Opaque
 stringData:
-  AMDWIKI_SESSION_SECRET: "your-secure-random-secret-here"
+  NGDPBASE_SESSION_SECRET: "your-secure-random-secret-here"
 ```
 
 Generate a secure secret:
@@ -128,10 +128,10 @@ Edit `configmap.yaml` to customize:
 
 ```json
 {
-  "amdwiki.server.host": "0.0.0.0",
-  "amdwiki.baseURL": "https://wiki.example.com",
-  "amdwiki.applicationName": "My Wiki",
-  "amdwiki.session.secure": true
+  "ngdpbase.server.host": "0.0.0.0",
+  "ngdpbase.baseURL": "https://wiki.example.com",
+  "ngdpbase.applicationName": "My Wiki",
+  "ngdpbase.session.secure": true
 }
 ```
 
@@ -152,7 +152,7 @@ spec:
 Create from command line:
 
 ```bash
-kubectl create secret generic amdwiki-secrets \
+kubectl create secret generic ngdpbase-secrets \
   --from-literal=session-secret=$(openssl rand -base64 32)
 ```
 
@@ -182,9 +182,9 @@ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main
 Check pod status:
 
 ```bash
-kubectl get pods -l app=amdwiki -n amdwiki
-kubectl logs -l app=amdwiki -n amdwiki
-kubectl describe pod -l app=amdwiki -n amdwiki
+kubectl get pods -l app=ngdpbase -n ngdpbase
+kubectl logs -l app=ngdpbase -n ngdpbase
+kubectl describe pod -l app=ngdpbase -n ngdpbase
 ```
 
 ## Scaling
@@ -208,20 +208,20 @@ spec:
 **Pod not starting:**
 
 ```bash
-kubectl describe pod -l app=amdwiki
-kubectl logs -l app=amdwiki --previous
+kubectl describe pod -l app=ngdpbase
+kubectl logs -l app=ngdpbase --previous
 ```
 
 **PVC not binding:**
 
 ```bash
 kubectl get pvc
-kubectl describe pvc amdwiki-data-pvc
+kubectl describe pvc ngdpbase-data-pvc
 ```
 
 **Ingress not working:**
 
 ```bash
 kubectl get ingress
-kubectl describe ingress amdwiki
+kubectl describe ingress ngdpbase
 ```

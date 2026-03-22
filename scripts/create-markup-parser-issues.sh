@@ -26,7 +26,7 @@ gh label create "testing" --description "Testing and quality assurance" --color 
 echo "🎯 Creating Epic issue..."
 EPIC_BODY='## 🎯 Epic Overview
 
-Implement a comprehensive MarkupParser to achieve 100% JSPWiki enhancement compatibility, transforming amdWiki from basic wiki functionality (47% compatibility) to full JSPWiki-compatible system.
+Implement a comprehensive MarkupParser to achieve 100% JSPWiki enhancement compatibility, transforming ngdpbase from basic wiki functionality (47% compatibility) to full JSPWiki-compatible system.
 
 ## 🔗 Related Documentation
 - [MarkupParser Architecture Design](docs/planning/MarkupParser-Architecture.md)

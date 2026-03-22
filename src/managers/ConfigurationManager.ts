@@ -326,12 +326,12 @@ class ConfigurationManager extends BaseManager {
     // Allows dynamic configuration without editing config files
     // Used especially for headless installation mode (HEADLESS_INSTALL=true)
     const envOverrides: { [key: string]: string | undefined } = {
-      'ngdpbase.baseURL': process.env.AMDWIKI_BASE_URL,
-      'ngdpbase.hostname': process.env.AMDWIKI_HOSTNAME,
-      'ngdpbase.server.host': process.env.AMDWIKI_HOST,
-      'ngdpbase.server.port': process.env.AMDWIKI_PORT,
-      'ngdpbase.session.secret': process.env.AMDWIKI_SESSION_SECRET,
-      'ngdpbase.applicationName': process.env.AMDWIKI_APP_NAME
+      'ngdpbase.baseURL': process.env.NGDPBASE_BASE_URL,
+      'ngdpbase.hostname': process.env.NGDPBASE_HOSTNAME,
+      'ngdpbase.server.host': process.env.NGDPBASE_HOST,
+      'ngdpbase.server.port': process.env.NGDPBASE_PORT,
+      'ngdpbase.session.secret': process.env.NGDPBASE_SESSION_SECRET,
+      'ngdpbase.applicationName': process.env.NGDPBASE_APP_NAME
     };
 
     if (envOverrides[key]) {

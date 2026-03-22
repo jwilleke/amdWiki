@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# amdWiki Docker Setup Helper Script
+# ngdpbase Docker Setup Helper Script
 # Automates the setup process for Docker deployment
 #
 # Usage: Run from project root or docker directory
@@ -16,7 +16,7 @@ if [ -f "docker-setup.sh" ]; then
     cd ..
 fi
 
-echo "🚀 amdWiki Docker Setup"
+echo "🚀 ngdpbase Docker Setup"
 echo "======================="
 echo ""
 echo "📍 Working directory: $(pwd)"
@@ -132,7 +132,7 @@ echo ""
 echo "🚀 Next steps:"
 echo "   1. (Optional) Edit docker/.env to change port or other settings"
 echo "   2. Build image: cd docker && bash build-image.sh"
-echo "   3. Start amdWiki: cd docker && docker-compose up -d"
+echo "   3. Start ngdpbase: cd docker && docker-compose up -d"
 echo "   4. Complete installation wizard at http://localhost:$(grep '^HOST_PORT=' docker/.env | cut -d= -f2)"
 echo "   5. (Optional) Customize data/config/app-custom-config.json after setup"
 echo "   6. View logs: cd docker && docker-compose logs -f"
