@@ -26,6 +26,8 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ## 2026-03-22-05
 
+/compact
+
 - Agent: Claude Sonnet 4.6
 - Subject: Core Theming System — all phases (#350, #352–#356)
 - Key Decisions:
@@ -10647,6 +10649,26 @@ Subject: AGENTS.md implementation and project_log.md creation
 - Commits:
   - 2907ed3 - fix: version.ts now updates app-default-config.json
   - 7097715 - docs: update CONTRIBUTING.md version management section
+
+## 2026-03-22-06
+
+### Platform Vision: amdWiki as a Base Platform
+
+- Explored and documented the architecture for using amdWiki as a "clone and extend" base platform
+- Analyzed two concrete use cases: Fairways Gen2 (condo association website) and Volcano Wiki (#357)
+- Referenced existing `jwilleke/fairways-gen2-website` and `jwilleke/volcano-lists` repos
+- Identified two core gaps blocking add-on development:
+  - #358: No `PluginManager.registerPlugin()` public method — add-ons cannot programmatically register plugins
+  - #359: Express `app` not attached to `engine` — add-ons cannot mount routes
+- Created full phased implementation plan (Phase 0–4)
+
+- Files Added:
+  - `docs/amdWiki-as-platform.md` — use-case analysis, extension architecture, gap table, recommended next steps
+  - `docs/platform-core-capabilities.md` — complete reference of what core provides out of the box for add-on developers
+
+- Issues Filed:
+  - #358 — feat: add `registerPlugin()` public method to PluginManager
+  - #359 — feat: attach Express app to WikiEngine so add-ons can mount routes
 
 ## 2026-02-06-04
 
