@@ -11,6 +11,19 @@
                 </a>
             </div>
 
+            <% if (successMessage) { %>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle"></i> <%= successMessage %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <% } %>
+            <% if (errorMessage) { %>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle"></i> <%= errorMessage %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <% } %>
+
             <!-- System Information -->
             <div class="card mb-4">
                 <div class="card-header">
@@ -49,8 +62,8 @@
                                     <td><%= Math.round(process.memoryUsage().heapUsed / 1024 / 1024) %> MB</td>
                                 </tr>
                                 <tr>
-                                    <td><strong>Current Theme:</strong></td>
-                                    <td><%= settings.theme %></td>
+                                    <td><strong>Active Theme:</strong></td>
+                                    <td><%= settings.activeTheme %><% if (settings.themeInfo) { %> &mdash; <em><%= settings.themeInfo.name %></em><% } %></td>
                                 </tr>
                                 <tr>
                                     <td><strong>Session Timeout:</strong></td>
@@ -95,9 +108,24 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="theme">Current Theme</label>
-                                    <input type="text" class="form-control" id="theme" 
-                                           value="<%= settings.theme %>" readonly>
+                                    <label for="themeSelect">Site Theme</label>
+                                    <form method="POST" action="/admin/settings/theme" class="d-flex gap-2 align-items-start flex-wrap">
+                                        <select class="form-control" id="themeSelect" name="theme" style="max-width: 200px;">
+                                            <% settings.availableThemes.forEach(function(t) { %>
+                                            <option value="<%= t %>" <%= t === settings.activeTheme ? 'selected' : '' %>><%= t %></option>
+                                            <% }); %>
+                                        </select>
+                                        <button type="submit" class="btn btn-primary btn-sm">Apply</button>
+                                    </form>
+                                    <small class="text-muted mt-1 d-block">
+                                        <i class="fas fa-exclamation-triangle text-warning"></i>
+                                        Changing the theme requires a server restart to take effect.
+                                    </small>
+                                    <% if (settings.themeInfo) { %>
+                                    <small class="text-muted d-block mt-1">
+                                        <strong><%= settings.themeInfo.name %></strong> v<%= settings.themeInfo.version %> &mdash; <%= settings.themeInfo.description %>
+                                    </small>
+                                    <% } %>
                                 </div>
                                 <div class="form-group">
                                     <label for="sessionTimeout">Session Timeout</label>

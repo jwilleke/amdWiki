@@ -18,6 +18,7 @@ import { Request, Response, Application } from 'express';
 import SchemaGenerator from '../utils/SchemaGenerator';
 import logger from '../utils/logger';
 import WikiContext from '../context/WikiContext';
+import { ThemeManager } from '../managers/ThemeManager';
 
 /** Helper to extract error message from unknown error */
 function getErrorMessage(error: unknown): string {
@@ -4514,25 +4515,65 @@ class WikiRoutes {
       }
 
       const commonData = await this.getCommonTemplateData(req);
+      const configManager = this.engine.getManager('ConfigurationManager');
 
-      // System configuration settings (you can expand this)
+      const activeTheme = configManager?.getProperty('amdwiki.theme.active', 'default') as string;
+      const themesDir = path.join(__dirname, '../../../themes');
+      const availableThemes = ThemeManager.listAvailable(themesDir);
+      const themeManager = new ThemeManager(activeTheme, themesDir);
+
       const settings = {
-        systemName: 'amdWiki',
-        version: '1.0.0',
-        theme: 'default',
-        maxFileSize: '10MB',
-        allowRegistration: true,
+        systemName: configManager?.getProperty('amdwiki.applicationName', 'amdWiki'),
+        version: configManager?.getProperty('amdwiki.version', ''),
+        activeTheme,
+        availableThemes,
+        themeInfo: themeManager.paths.themeInfo,
+        maxFileSize: configManager?.getProperty('amdwiki.attachment.maxsize', '10MB'),
+        allowRegistration: configManager?.getProperty('amdwiki.user.allowregistration', true),
         sessionTimeout: '24 hours'
       };
 
       return res.render('admin-settings', {
         ...commonData,
         title: 'System Settings',
-        settings: settings
+        settings,
+        successMessage: req.query.success || null,
+        errorMessage: req.query.error || null
       });
     } catch (err: unknown) {
       logger.error('Error loading admin settings:', err);
       return res.status(500).send('Error loading system settings');
+    }
+  }
+
+  async adminUpdateTheme(req: Request, res: Response) {
+    try {
+      const userManager = this.engine.getManager('UserManager');
+      const currentUser = req.userContext;
+
+      if (!currentUser || !(await userManager.hasPermission(currentUser.username, 'admin:system'))) {
+        return res.status(403).redirect('/admin/settings?error=Access+denied');
+      }
+
+      const { theme } = req.body as { theme: string };
+      if (!theme || typeof theme !== 'string') {
+        return res.redirect('/admin/settings?error=Invalid+theme+selection');
+      }
+
+      const themesDir = path.join(__dirname, '../../../themes');
+      const available = ThemeManager.listAvailable(themesDir);
+      if (!available.includes(theme)) {
+        return res.redirect('/admin/settings?error=Theme+not+found');
+      }
+
+      const configManager = this.engine.getManager('ConfigurationManager');
+      await configManager.setProperty('amdwiki.theme.active', theme);
+
+      logger.info(`Admin theme changed to "${theme}" by ${currentUser.username}`);
+      return res.redirect('/admin/settings?success=Theme+updated+to+' + encodeURIComponent(theme) + '+%E2%80%94+restart+required');
+    } catch (err: unknown) {
+      logger.error('Error updating theme:', err);
+      return res.redirect('/admin/settings?error=Failed+to+update+theme');
     }
   }
 
@@ -6192,6 +6233,7 @@ class WikiRoutes {
       this.adminDeleteRole(req, res)
     );
     app.get('/admin/settings', (req: Request, res: Response) => this.adminSettings(req, res));
+    app.post('/admin/settings/theme', (req: Request, res: Response) => this.adminUpdateTheme(req, res));
     app.get('/admin/logs', (req: Request, res: Response) => this.adminLogs(req, res));
     app.post('/admin/restart', (req: Request, res: Response) => this.adminRestart(req, res));
     app.post('/admin/reindex', (req: Request, res: Response) => this.adminReindex(req, res));
