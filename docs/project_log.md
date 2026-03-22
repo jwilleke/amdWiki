@@ -10650,6 +10650,18 @@ Subject: AGENTS.md implementation and project_log.md creation
   - 2907ed3 - fix: version.ts now updates app-default-config.json
   - 7097715 - docs: update CONTRIBUTING.md version management section
 
+## 2026-03-22-08
+
+### Fix: preserve password salt after rename
+
+- Bulk rename had changed hardcoded salt string `'amdwiki-salt'` → `'ngdpbase-salt'`, breaking all existing password hashes
+- Salt value is a cryptographic constant tied to stored hashes — must never change for existing deployments
+- Reverted salt value (not key) in `config/app-default-config.json` and `src/managers/UserManager.ts`
+- E2E tests: 47/47 passing after fix
+
+- Commits:
+  - f462a29 - fix: preserve amdwiki-salt password hash value after rename
+
 ## 2026-03-22-07
 
 ### Rename amdWiki to ngdpbase (#360)
