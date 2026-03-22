@@ -190,7 +190,7 @@ describe('LinkParser', () => {
       const link = new Link({ text: 'ExistingPage' });
       const html = linkParser.generateInternalLink(link, {});
 
-      expect(html).toContain('href="/wiki/ExistingPage"');
+      expect(html).toContain('href="/view/ExistingPage"');
       expect(html).toContain('class="wikipage"');
       expect(html).toContain('>ExistingPage</a>');
       expect(html).not.toContain('color: red');
@@ -210,7 +210,7 @@ describe('LinkParser', () => {
       const link = new Link({ text: 'Display Text', target: 'ExistingPage' });
       const html = linkParser.generateInternalLink(link, {});
 
-      expect(html).toContain('href="/wiki/ExistingPage"');
+      expect(html).toContain('href="/view/ExistingPage"');
       expect(html).toContain('>Display Text</a>');
     });
 
@@ -324,7 +324,7 @@ describe('LinkParser', () => {
       const result = linkParser.parseLinks(content, {});
 
       // Should contain various link types
-      expect(result).toContain('href="/wiki/ExistingPage"');
+      expect(result).toContain('href="/view/ExistingPage"');
       expect(result).toContain('href="/edit/Non-Existent%20Page"');
       expect(result).toContain('href="https://google.com"');
       expect(result).toContain('href="mailto:help@test.com"');

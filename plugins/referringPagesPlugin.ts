@@ -69,7 +69,7 @@ const ReferringPagesPlugin: SimplePlugin = {
     const limited = applyMax(referring, parseMaxParam(opts.max));
 
     const links: PageLink[] = limited.map(p => ({
-      href:     `/wiki/${encodeURIComponent(p)}`,
+      href:     `/view/${encodeURIComponent(p)}`,
       text:     p,
       cssClass: 'wikipage'
     }));

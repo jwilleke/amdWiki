@@ -188,7 +188,7 @@ const UndefinedPagesPlugin: SimplePlugin = {
           const anchor    = `<a class="${link.cssClass}" href="${link.href}" style="${link.style ?? ''}" title="${escapeHtml(link.title ?? '')}">${escapeHtml(link.text)}</a>`;
           if (showReferring && referrers.length > 0) {
             const referrerLinks = referrers
-              .map(r => `<a class="wikipage" href="/wiki/${encodeURIComponent(r)}">${escapeHtml(r)}</a>`)
+              .map(r => `<a class="wikipage" href="/view/${encodeURIComponent(r)}">${escapeHtml(r)}</a>`)
               .join(', ');
             return [anchor, referrerLinks];
           }
@@ -208,7 +208,7 @@ const UndefinedPagesPlugin: SimplePlugin = {
           const anchor    = `<a class="${link.cssClass}" href="${link.href}" style="${link.style ?? ''}" title="${escapeHtml(link.title ?? '')}">${escapeHtml(link.text)}</a>`;
           if (referrers.length === 0) return `<li>${anchor}</li>`;
           const subItems = referrers
-            .map(r => `<li><a class="wikipage" href="/wiki/${encodeURIComponent(r)}">${escapeHtml(r)}</a></li>`)
+            .map(r => `<li><a class="wikipage" href="/view/${encodeURIComponent(r)}">${escapeHtml(r)}</a></li>`)
             .join('\n');
           return `<li>${anchor}\n<ul class="referring-pages">\n${subItems}\n</ul>\n</li>`;
         }).join('\n');

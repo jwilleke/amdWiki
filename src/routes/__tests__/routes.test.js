@@ -478,11 +478,11 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
       test('should redirect to Welcome page', async () => {
         const response = await request(app).get('/');
         expect(response.status).toBe(302);
-        expect(response.headers.location).toBe('/wiki/Welcome');
+        expect(response.headers.location).toBe('/view/Welcome');
       });
     });
 
-    describe('GET /wiki/:page', () => {
+    describe('GET /view/:page', () => {
       test('should return 200 for existing page', async () => {
         mockPageManager.getPage.mockResolvedValue({
           content: '# Test Page\nThis is a test page.',
@@ -490,7 +490,7 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
         });
         mockACLManager.checkPagePermission.mockResolvedValue(true);
 
-        const response = await request(app).get('/wiki/TestPage');
+        const response = await request(app).get('/view/TestPage');
         expect(response.status).toBe(200);
       });
 
@@ -498,7 +498,7 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
         // viewPage uses getPageContent, not getPage
         mockPageManager.getPageContent.mockRejectedValue(new Error('Page "NonExistentPage" not found'));
 
-        const response = await request(app).get('/wiki/NonExistentPage');
+        const response = await request(app).get('/view/NonExistentPage');
         expect(response.status).toBe(404);
       });
     });
@@ -1257,7 +1257,7 @@ describe('WikiRoutes - Comprehensive Route Testing', () => {
         metadata: { title: 'PublicPage' }
       });
 
-      const response = await request(app).get('/wiki/PublicPage');
+      const response = await request(app).get('/view/PublicPage');
       expect(response.status).toBe(200);
     });
   });

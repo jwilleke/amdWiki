@@ -177,27 +177,27 @@ describe('formatPaginationLinks', () => {
   test('first page disables Prev, shows Next link', () => {
     const html = formatPaginationLinks(1, 3, 'MyPage');
     expect(html).toContain('class="disabled"');
-    expect(html).toContain('href="/wiki/MyPage?page=2"');
+    expect(html).toContain('href="/view/MyPage?page=2"');
     expect(html).toContain('Page 1 of 3');
   });
 
   test('last page shows Prev link, disables Next', () => {
     const html = formatPaginationLinks(3, 3, 'MyPage');
-    expect(html).toContain('href="/wiki/MyPage?page=2"');
+    expect(html).toContain('href="/view/MyPage?page=2"');
     expect(html).toContain('class="disabled"');
     expect(html).toContain('Page 3 of 3');
   });
 
   test('middle page shows both links', () => {
     const html = formatPaginationLinks(2, 5, 'MyPage');
-    expect(html).toContain('href="/wiki/MyPage?page=1"');
-    expect(html).toContain('href="/wiki/MyPage?page=3"');
+    expect(html).toContain('href="/view/MyPage?page=1"');
+    expect(html).toContain('href="/view/MyPage?page=3"');
     expect(html).not.toContain('class="disabled"');
   });
 
   test('encodes page name in URL', () => {
     const html = formatPaginationLinks(1, 2, 'My Page');
-    expect(html).toContain('/wiki/My%20Page?page=2');
+    expect(html).toContain('/view/My%20Page?page=2');
   });
 
   test('custom query param', () => {

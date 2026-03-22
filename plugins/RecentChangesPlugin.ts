@@ -152,7 +152,7 @@ function generateFullFormat(pages: PageWithDate[], since: number): string {
     const formattedDateStr = formatDate(page.mtime);
 
     html += '    <tr>\n';
-    html += `      <td><a class="wikipage" href="/wiki/${encodeURIComponent(page.title)}">${escapeHtml(page.title)}</a></td>\n`;
+    html += `      <td><a class="wikipage" href="/view/${encodeURIComponent(page.title)}">${escapeHtml(page.title)}</a></td>\n`;
     html += `      <td><span class="text-muted">${formattedDateStr}</span></td>\n`;
     html += `      <td><small>${escapeHtml(editor)}</small></td>\n`;
     html += `      <td><span class="badge bg-secondary">v${escapeHtml(String(version))}</span></td>\n`;
@@ -183,7 +183,7 @@ function generateCompactFormat(pages: PageWithDate[], since: number): string {
     const formattedDateStr = formatDateCompact(page.mtime);
 
     html += '  <li class="mb-1">\n';
-    html += `    <a class="wikipage" href="/wiki/${encodeURIComponent(page.title)}">${escapeHtml(page.title)}</a> `;
+    html += `    <a class="wikipage" href="/view/${encodeURIComponent(page.title)}">${escapeHtml(page.title)}</a> `;
     html += `<small class="text-muted">(${formattedDateStr})</small>\n`;
     html += '  </li>\n';
   }

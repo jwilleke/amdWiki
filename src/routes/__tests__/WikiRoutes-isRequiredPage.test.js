@@ -4,9 +4,8 @@
  * Tests the isRequiredPage() method that determines if a page
  * requires admin permission to edit (Issue #174).
  *
- * Protected pages include:
- * - Hardcoded required pages (backward compatibility)
- * - Pages with system-category: system or documentation
+ * Protected pages are determined solely by system-category metadata.
+ * Hardcoded page-name lists were removed in favour of config-driven category checks.
  *
  * @jest-environment node
  */
@@ -42,15 +41,17 @@ describe('WikiRoutes.isRequiredPage()', () => {
     wikiRoutes = new WikiRoutes(mockEngine);
   });
 
-  describe('Hardcoded Required Pages', () => {
-    test('should return true for "System Categories" (hardcoded)', async () => {
+  describe('Page Name Alone (no system-category)', () => {
+    test('should return false for "System Categories" without system-category metadata', async () => {
+      mockPageManager.getPageMetadata.mockResolvedValue({ title: 'System Categories' });
       const result = await wikiRoutes.isRequiredPage('System Categories');
-      expect(result).toBe(true);
+      expect(result).toBe(false);
     });
 
-    test('should return true for "Wiki Documentation" (hardcoded)', async () => {
-      const result = await wikiRoutes.isRequiredPage('Wiki Documentation');
-      expect(result).toBe(true);
+    test('should return false for "User Documentation" without system-category metadata', async () => {
+      mockPageManager.getPageMetadata.mockResolvedValue({ title: 'User Documentation' });
+      const result = await wikiRoutes.isRequiredPage('User Documentation');
+      expect(result).toBe(false);
     });
   });
 

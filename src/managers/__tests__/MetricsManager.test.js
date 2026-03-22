@@ -121,7 +121,7 @@ describe('MetricsManager', () => {
       expect(() => manager.recordLoginAttempt()).not.toThrow();
       expect(() => manager.recordEngineInit(90000)).not.toThrow();
       expect(() => manager.recordHttpRequest(15, {
-        method: 'GET', route: '/wiki/:page', status: '200'
+        method: 'GET', route: '/view/:page', status: '200'
       })).not.toThrow();
     });
 
@@ -215,7 +215,7 @@ describe('MetricsManager', () => {
 
     test('should record HTTP request metrics with attributes', async () => {
       await manager.initialize();
-      const attrs = { method: 'GET', route: '/wiki/:page', status: '200' };
+      const attrs = { method: 'GET', route: '/view/:page', status: '200' };
       manager.recordHttpRequest(25, attrs);
 
       expect(mockCounter.add).toHaveBeenCalledWith(1, attrs);

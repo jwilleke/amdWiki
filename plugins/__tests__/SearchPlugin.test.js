@@ -84,8 +84,8 @@ describe('SearchPlugin — format=table', () => {
 
     expect(html).toContain('2'); // count in summary
     expect(html).toContain('alpha');
-    expect(html).toContain('href="/wiki/Alpha"');
-    expect(html).toContain('href="/wiki/Beta"');
+    expect(html).toContain('href="/view/Alpha"');
+    expect(html).toContain('href="/view/Beta"');
     // Uses formatAsTable — should have plugin-table class
     expect(html).toContain('plugin-table');
   });
@@ -139,9 +139,9 @@ describe('SearchPlugin — format=titles', () => {
 
     // formatAsList produces <ul><li><a ...>
     expect(html).toContain('<ul>');
-    expect(html).toContain('href="/wiki/Alpha"');
+    expect(html).toContain('href="/view/Alpha"');
     expect(html).toContain('Alpha Page');
-    expect(html).toContain('href="/wiki/Beta"');
+    expect(html).toContain('href="/view/Beta"');
     expect(html).toContain('class="wikipage"');
   });
 
@@ -156,7 +156,7 @@ describe('SearchPlugin — format=titles', () => {
     const { context } = makeContext({ searchResults: results });
 
     const html = await SearchPlugin.execute(context, { query: 'my', format: 'titles' });
-    expect(html).toContain('href="/wiki/My%20Page"');
+    expect(html).toContain('href="/view/My%20Page"');
   });
 });
 
@@ -285,7 +285,7 @@ describe('SearchPlugin — author/editor result rendering', () => {
     const html = await SearchPlugin.execute(context, { author: 'jim', format: 'titles' });
     expect(html).toContain('Jim Page 1');
     expect(html).toContain('Jim Page 2');
-    expect(html).toContain('href="/wiki/JimPage1"');
+    expect(html).toContain('href="/view/JimPage1"');
   });
 
   test('count format returns correct number for author filter', async () => {

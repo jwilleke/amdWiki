@@ -290,7 +290,7 @@ checkAndCreatePidLock();
       const start = Date.now();
       res.on('finish', () => {
         const route = req.route?.path || req.path
-          .replace(/\/wiki\/[^/]+/, '/wiki/:page')
+          .replace(/\/view\/[^/]+/, '/view/:page')
           .replace(/\/edit\/[^/]+/, '/edit/:page');
         metricsManager.recordHttpRequest(Date.now() - start, {
           method: req.method,

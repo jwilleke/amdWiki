@@ -146,7 +146,7 @@ class ComprehensiveMockEngine {
             .replace(/^## (.+)$/gm, '<h2>$1</h2>')
             .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
             .replace(/\*(.+?)\*/g, '<em>$1</em>')
-            .replace(/\[([^\]]+)\]/g, '<a href="/wiki/$1">$1</a>');
+            .replace(/\[([^\]]+)\]/g, '<a href="/view/$1">$1</a>');
         }
       }
     };
@@ -333,7 +333,7 @@ Check out [Wikipedia:Wiki] and [JSPWiki:PluginDevelopment] for more info.
         { content: 'User: ${username}', expectation: 'User: TestUser' },
         
         // Wiki links (existing)
-        { content: '[ExistingPage]', expectation: 'href="/wiki/ExistingPage"' }
+        { content: '[ExistingPage]', expectation: 'href="/view/ExistingPage"' }
       ];
 
       const context = {
@@ -691,7 +691,7 @@ Security, spam, and validation filters active.
         'wikipedia.org',               // InterWiki
         'class="text-primary"',        // WikiStyles
         'TestUser',                    // Variables
-        'href="/wiki/ExistingPage"',   // Wiki Links
+        'href="/view/ExistingPage"',   // Wiki Links
         'ComprehensiveTest'            // Page context
       ];
 

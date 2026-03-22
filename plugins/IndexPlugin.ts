@@ -102,7 +102,7 @@ const IndexPlugin: SimplePlugin = {
         html += '<ul>\n';
 
         for (const page of groupedPages[letter]) {
-          html += `  <li><a class="wikipage" href="/wiki/${encodeURIComponent(page)}">${escapeHtml(page)}</a></li>\n`;
+          html += `  <li><a class="wikipage" href="/view/${encodeURIComponent(page)}">${escapeHtml(page)}</a></li>\n`;
         }
 
         html += '</ul>\n';

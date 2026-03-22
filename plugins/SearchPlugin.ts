@@ -136,7 +136,7 @@ function formatTitles(results: SearchResult[], options: FormatOptions): string {
   }
 
   const links: PageLink[] = results.map(result => ({
-    href: `/wiki/${encodeURIComponent(result.name || result.title || 'Unknown')}`,
+    href: `/view/${encodeURIComponent(result.name || result.title || 'Unknown')}`,
     text: result.title || result.name || 'Unknown',
     cssClass: 'wikipage'
   }));
@@ -204,7 +204,7 @@ function formatResultsTable(results: SearchResult[], options: FormatOptions): st
     const pageName = result.name || result.title || 'Unknown';
     const title = result.title || result.name || 'Unknown';
     const score = result.score ? result.score.toFixed(3) : '1.000';
-    let pageCell = `<a class="wikipage" href="/wiki/${encodeURIComponent(pageName)}">${escapeHtml(title)}</a>`;
+    let pageCell = `<a class="wikipage" href="/view/${encodeURIComponent(pageName)}">${escapeHtml(title)}</a>`;
     if (result.metadata?.systemCategory) {
       pageCell += ` <span class="badge badge-secondary">${escapeHtml(result.metadata.systemCategory)}</span>`;
     }

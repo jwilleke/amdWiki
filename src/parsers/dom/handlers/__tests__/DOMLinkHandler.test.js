@@ -105,7 +105,7 @@ describe('DOMLinkHandler', () => {
       await handler.processLinks(wikiDoc, { pageName: 'TestPage' });
 
       const html = wikiDoc.toHTML();
-      expect(html).toContain('href="/wiki/HomePage"');
+      expect(html).toContain('href="/view/HomePage"');
       expect(html).toContain('class="wiki-link wikipage"');
       expect(html).not.toContain('redlink');
     });
@@ -129,7 +129,7 @@ describe('DOMLinkHandler', () => {
 
       const html = wikiDoc.toHTML();
       expect(html).toContain('Go Home');
-      expect(html).toContain('href="/wiki/HomePage"');
+      expect(html).toContain('href="/view/HomePage"');
       expect(html).toContain('wikipage');
     });
 
@@ -322,7 +322,7 @@ describe('DOMLinkHandler', () => {
       const html = wikiDoc.toHTML();
       expect(html).toContain('Check out');
       expect(html).toContain('for more info');
-      expect(html).toContain('href="/wiki/HomePage"');
+      expect(html).toContain('href="/view/HomePage"');
     });
 
     test('links with other markup', async () => {
@@ -332,7 +332,7 @@ describe('DOMLinkHandler', () => {
 
       const html = wikiDoc.toHTML();
       expect(html).toContain('<strong');
-      expect(html).toContain('href="/wiki/HomePage"');
+      expect(html).toContain('href="/view/HomePage"');
     });
 
     test('multiple links in same paragraph', async () => {
@@ -341,8 +341,8 @@ describe('DOMLinkHandler', () => {
       await handler.processLinks(wikiDoc, { pageName: 'TestPage' });
 
       const html = wikiDoc.toHTML();
-      expect(html).toContain('href="/wiki/HomePage"');
-      expect(html).toContain('href="/wiki/WikiDocumentation"');
+      expect(html).toContain('href="/view/HomePage"');
+      expect(html).toContain('href="/view/WikiDocumentation"');
     });
   });
 
@@ -356,7 +356,7 @@ describe('DOMLinkHandler', () => {
       // Should contain the literal link syntax
       expect(html).toContain('[HomePage]');
       // Should NOT contain a processed link
-      expect(html).not.toContain('href="/wiki/HomePage"');
+      expect(html).not.toContain('href="/view/HomePage"');
     });
 
     test('processes links outside escaped content but not inside', async () => {
@@ -369,11 +369,11 @@ describe('DOMLinkHandler', () => {
 
       const html = wikiDoc.toHTML();
       // Outside escaped: processed
-      expect(html).toContain('href="/wiki/HomePage"');
+      expect(html).toContain('href="/view/HomePage"');
       // Inside escaped: NOT processed
       expect(html).toContain('[TestPage]');
       // Only one processed link
-      const linkCount = (html.match(/href="\/wiki\//g) || []).length;
+      const linkCount = (html.match(/href="\/view\//g) || []).length;
       expect(linkCount).toBe(1);
     });
   });
@@ -387,7 +387,7 @@ describe('DOMLinkHandler', () => {
 
       const html = wikiDoc.toHTML();
       // Should match HomePage (case-insensitive)
-      expect(html).toContain('href="/wiki/HomePage"');
+      expect(html).toContain('href="/view/HomePage"');
       expect(html).toContain('wikipage');
     });
 

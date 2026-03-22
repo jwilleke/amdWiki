@@ -218,7 +218,7 @@ describe('Maintenance Mode', () => {
     });
 
     test('should allow access to wiki pages', async () => {
-      const response = await request(app).get('/wiki/Welcome');
+      const response = await request(app).get('/view/Welcome');
       expect(response.status).toBe(200);
     });
 
