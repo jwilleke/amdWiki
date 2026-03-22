@@ -24,6 +24,24 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-22-02
+
+- Agent: Claude Sonnet 4.6
+- Subject: Security — fix npm audit vulnerabilities
+- Key Decision: `npm audit fix` resolved 18 of 19 alerts (removed 3 packages, updated 16). Remaining: `pm2` low-severity ReDoS — no fix available upstream.
+- Current Issue: N/A
+- Testing:
+  - npm test: 75 suites passed, 1917 tests passed
+  - E2E: 40 passed, 1 pre-existing flaky (location-plugin afterAll cleanup timeout)
+- Work Done:
+  - Fixed: multer (high ×3), minimatch (high ×4), flatted (high), hono (high/medium ×5), @hono/node-server (high), basic-ftp (critical), express-rate-limit (high), bn.js (medium), ajv (moderate), markdown-it (moderate)
+  - Unfixed: pm2 (low — no upstream fix)
+- Commits: 39367a0
+- Files Modified:
+  - package-lock.json
+
+---
+
 ## 2026-03-22-01
 
 - Agent: Claude Sonnet 4.6
