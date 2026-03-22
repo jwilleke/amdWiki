@@ -41,14 +41,17 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
   - Updated required-pages markdown files to reference `/view/` URLs
   - Updated E2E test files: `pages.spec.js`, `location-plugin.spec.js`, `helpers.js`
   - Created and closed GH issue #364
-- Commits: (this commit)
+- Commits: 10f7819, fc8b07c, 7e3e53a
 - Files Modified:
   - src/routes/WikiRoutes.ts
   - views/*.ejs (multiple)
   - src/**/*.ts (multiple)
+  - plugins/*.ts (IndexPlugin, RecentChangesPlugin, SearchPlugin, UndefinedPagesPlugin, referringPagesPlugin)
+  - app.js (metrics route pattern)
   - required-pages/*.md and versions
   - tests/e2e/pages.spec.js
   - tests/e2e/location-plugin.spec.js
+  - tests/unit (DOMLinkHandler, LinkParser, MarkupParser, MetricsManager, routes, maintenance-mode, WikiRoutes-isRequiredPage)
   - tests/e2e/fixtures/helpers.js
 
 ---
