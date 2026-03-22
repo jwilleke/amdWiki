@@ -24,6 +24,35 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-22-06
+
+- Agent: Claude Sonnet 4.6
+- Subject: Rename /wiki/ URL path to /view/ (#364)
+- Key Decision: Changed all internal `/wiki/` URL paths to `/view/` throughout the codebase. Added 301 backward-compatibility redirect from `/wiki/:page` to `/view/:page` so existing bookmarks and external links continue to work.
+- Current Issue: #364 (closed)
+- Testing:
+  - npm test: 75 suites passed, 1917 tests passed
+  - E2E: 47 passed
+- Work Done:
+  - Updated route registrations in `src/routes/WikiRoutes.ts`: `/wiki/:page` → `/view/:page`
+  - Added 301 redirect: `app.get('/wiki/:page')` → `/view/:page`
+  - Updated all EJS templates in `views/` to use `/view/` paths
+  - Updated all TypeScript source files in `src/` to use `/view/` paths
+  - Updated required-pages markdown files to reference `/view/` URLs
+  - Updated E2E test files: `pages.spec.js`, `location-plugin.spec.js`, `helpers.js`
+  - Created and closed GH issue #364
+- Commits: (this commit)
+- Files Modified:
+  - src/routes/WikiRoutes.ts
+  - views/*.ejs (multiple)
+  - src/**/*.ts (multiple)
+  - required-pages/*.md and versions
+  - tests/e2e/pages.spec.js
+  - tests/e2e/location-plugin.spec.js
+  - tests/e2e/fixtures/helpers.js
+
+---
+
 ## 2026-03-22-05
 
 /compact

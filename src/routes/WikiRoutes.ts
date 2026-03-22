@@ -1404,7 +1404,7 @@ class WikiRoutes {
             actions: [
               {
                 label: 'View Page',
-                url: `/wiki/${encodeURIComponent(pageName)}`,
+                url: `/view/${encodeURIComponent(pageName)}`,
                 class: 'btn-primary'
               },
               {
@@ -1729,7 +1729,7 @@ class WikiRoutes {
           actions: [
             {
               label: 'View Page',
-              url: `/wiki/${encodeURIComponent(pageName)}`,
+              url: `/view/${encodeURIComponent(pageName)}`,
               class: 'btn-primary'
             },
             {
@@ -1999,7 +1999,7 @@ class WikiRoutes {
       const redirectName = (metadata.title as string) || pageName;
       this.engine.getManager('MetricsManager')?.recordPageSave?.(Date.now() - _metricsStart);
       const warnParam = saveWarning ? `?warning=${encodeURIComponent('github-page')}` : '';
-      res.redirect(`/wiki/${encodeURIComponent(redirectName)}${warnParam}`);
+      res.redirect(`/view/${encodeURIComponent(redirectName)}${warnParam}`);
     } catch (err: unknown) {
       this.engine.getManager('MetricsManager')?.recordPageSave?.(Date.now() - _metricsStart);
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
@@ -2325,7 +2325,7 @@ class WikiRoutes {
    */
   homePage(_req: Request, res: Response) {
     // Redirect to Welcome page instead of rendering a separate home page
-    res.redirect('/wiki/Welcome');
+    res.redirect('/view/Welcome');
   }
 
   /**
@@ -6155,8 +6155,13 @@ class WikiRoutes {
 
     // Public routes
     app.get('/', (req: Request, res: Response) => this.homePage(req, res));
-    app.get('/wiki/:page', (req: Request, res: Response) => this.viewPage(req, res));
-    app.post('/wiki/:page', (req: Request, res: Response) => this.createWikiPage(req, res));
+    app.get('/view/:page', (req: Request, res: Response) => this.viewPage(req, res));
+    app.post('/view/:page', (req: Request, res: Response) => this.createWikiPage(req, res));
+    // Backward-compatible redirect: /wiki/:page → /view/:page
+    app.get('/wiki/:page', (req: Request, res: Response) => {
+      const target = '/view/' + req.params.page + (req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : '');
+      res.redirect(301, target);
+    });
     app.get('/edit/:page', (req: Request, res: Response) => this.editPage(req, res));
     app.post('/save/:page', (req: Request, res: Response) => this.savePage(req, res));
     app.get('/create', (req: Request, res: Response) => this.createPage(req, res));
@@ -7703,7 +7708,7 @@ ${trimmedDescription}
       const keywordConfig = userKeywordsConfig[keywordId];
       if (!keywordConfig) {
         return res.redirect(
-          '/wiki/User%20Keywords?error=' + encodeURIComponent('User-keyword not found')
+          '/view/User%20Keywords?error=' + encodeURIComponent('User-keyword not found')
         );
       }
 
@@ -7713,7 +7718,7 @@ ${trimmedDescription}
       // Check if page already exists
       const pageManager = this.engine.getManager('PageManager');
       if (pageManager.pageExists(label)) {
-        return res.redirect('/wiki/' + encodeURIComponent(label));
+        return res.redirect('/view/' + encodeURIComponent(label));
       }
 
       // Create the page
@@ -7748,7 +7753,7 @@ ${description}
     } catch (err: unknown) {
       logger.error('Error creating user-keyword page:', err);
       return res.redirect(
-        '/wiki/User%20Keywords?error=' + encodeURIComponent('Failed to create page')
+        '/view/User%20Keywords?error=' + encodeURIComponent('Failed to create page')
       );
     }
   }
@@ -7772,7 +7777,7 @@ ${description}
         return {
           id: key,
           hasPage,
-          pageUrl: hasPage ? `/wiki/${encodeURIComponent(label)}` : null,
+          pageUrl: hasPage ? `/view/${encodeURIComponent(label)}` : null,
           createPageUrl: !hasPage ? `/user-keywords/create-page/${encodeURIComponent(key)}` : null,
           ...config
         };
@@ -7848,7 +7853,7 @@ ${description}
           restrictEditing: config.restrictEditing === true,
           hasPage,
           usageCount,
-          pageUrl: hasPage ? `/wiki/${encodeURIComponent(label)}` : null
+          pageUrl: hasPage ? `/view/${encodeURIComponent(label)}` : null
         };
       }).sort((a, b) => a.label.localeCompare(b.label));
 

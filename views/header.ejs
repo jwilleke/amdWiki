@@ -90,7 +90,7 @@
                             </div>
                         </div>
                     <% } else { %>
-                        <a class="btn btn-outline-primary btn-sm mr-2" href="/login?redirect=<%= encodeURIComponent(typeof pageName !== 'undefined' && pageName ? `/wiki/${pageName}` : '/') %>">
+                        <a class="btn btn-outline-primary btn-sm mr-2" href="/login?redirect=<%= encodeURIComponent(typeof pageName !== 'undefined' && pageName ? `/view/${pageName}` : '/') %>">
                             <i class="fas fa-sign-in-alt"></i> Login
                         </a>
                         <a class="btn btn-primary btn-sm" href="/register">
@@ -148,7 +148,7 @@
                             <button type="button" class="btn btn-outline-success btn-sm me-2" onclick="saveEditForm()">
                                 <i class="fas fa-save"></i> Save Page
                             </button>
-                            <a href="/wiki/<%= encodeURIComponent(pageName) %>" class="btn btn-outline-secondary btn-sm me-2">
+                            <a href="/view/<%= encodeURIComponent(pageName) %>" class="btn btn-outline-secondary btn-sm me-2">
                                 <i class="fas fa-times"></i> Cancel
                             </a>
                             <button type="button" class="btn btn-outline-danger btn-sm me-2" onclick="deletePageFromNavbar()">
@@ -171,7 +171,7 @@
                                 <li><a class="dropdown-item" href="#" onclick="showPageSource()">
                                     <i class="fas fa-code"></i> View Page Source
                                 </a></li>
-                                <li><a class="dropdown-item" href="/wiki/Recent%20Changes">
+                                <li><a class="dropdown-item" href="/view/Recent%20Changes">
                                     <i class="fas fa-clock"></i> Recent Changes
                                 </a></li>
                             </ul>
@@ -205,7 +205,7 @@
                                     <li><hr class="dropdown-divider"></li>
                                 <% } %>
                                 <% if (typeof pageName !== 'undefined' && pageName) { %>
-                                    <li><a class="dropdown-item" href="/wiki/<%= encodeURIComponent(pageName) %>?view=reader">
+                                    <li><a class="dropdown-item" href="/view/<%= encodeURIComponent(pageName) %>?view=reader">
                                         <i class="fas fa-book-reader"></i> Show Reader View
                                     </a></li>
                                 <% } %>
@@ -305,7 +305,7 @@
             return;
         }
 
-        const currentPage = window.location.pathname.split('/wiki/')[1];
+        const currentPage = window.location.pathname.split('/view/')[1];
         if (!currentPage) {
             alert('No page selected for information');
             return;
@@ -762,7 +762,7 @@
     }
     
     function showPageHistory() {
-        const currentPage = window.location.pathname.split('/wiki/')[1] || window.location.pathname.split('/edit/')[1];
+        const currentPage = window.location.pathname.split('/view/')[1] || window.location.pathname.split('/edit/')[1];
         if (!currentPage) {
             alert('No page selected for history view');
             return;
@@ -776,7 +776,7 @@
     
     // View Page Source functionality
     function showPageSource() {
-        const currentPage = window.location.pathname.split('/wiki/')[1];
+        const currentPage = window.location.pathname.split('/view/')[1];
         if (!currentPage) {
             alert('No page selected for source view');
             return;
@@ -1285,7 +1285,7 @@ function updateTrailDropdown() {
     dropdown.innerHTML = '';
     
     // Get current page to exclude it from trail
-    const currentPage = window.location.pathname.split('/wiki/')[1];
+    const currentPage = window.location.pathname.split('/view/')[1];
     const currentPageDecoded = currentPage ? decodeURIComponent(currentPage) : null;
     
     // Show only trail items (excluding current page)
@@ -1302,7 +1302,7 @@ function updateTrailDropdown() {
         const li = document.createElement('li');
         const a = document.createElement('a');
         a.className = 'dropdown-item';
-        a.href = `/wiki/${encodeURIComponent(item.page)}`;
+        a.href = `/view/${encodeURIComponent(item.page)}`;
         
         // Use the page name from the URL, not a potentially generic title
         const displayName = item.page; // Always use the actual page name
@@ -1340,7 +1340,7 @@ function updateTrailDropdown() {
 
 // Initialize trail on page load
 function initializeTrail() {
-    const currentPage = window.location.pathname.split('/wiki/')[1];
+    const currentPage = window.location.pathname.split('/view/')[1];
     if (!currentPage) {
         updateTrailDropdown();
         return;
@@ -1450,7 +1450,7 @@ function openBrowseAttachments() {
 }
 
 function showUploadAttachment() {
-    const currentPage = window.location.pathname.split('/wiki/')[1];
+    const currentPage = window.location.pathname.split('/view/')[1];
     if (!currentPage) {
         alert('Please navigate to a page first before uploading attachments');
         return;
@@ -1588,7 +1588,7 @@ function initHeaderAutocomplete() {
             maxSuggestions: 10,
             onSelect: function(suggestion) {
                 // Navigate directly to the selected page
-                window.location.href = `/wiki/${encodeURIComponent(suggestion.name)}`;
+                window.location.href = `/view/${encodeURIComponent(suggestion.name)}`;
             }
         });
 

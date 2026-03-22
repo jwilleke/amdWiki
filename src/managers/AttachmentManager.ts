@@ -337,7 +337,7 @@ class AttachmentManager extends BaseManager {
     mentions.push({
       '@type': 'WebPage',
       name: pageName,
-      url: `/wiki/${encodeURIComponent(pageName)}`
+      url: `/view/${encodeURIComponent(pageName)}`
     });
 
     await this.attachmentProvider.updateAttachmentMetadata(attachmentId, { mentions });

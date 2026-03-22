@@ -32,7 +32,7 @@
                                     <p><strong>Email:</strong> <%= user.email %></p>
                                     <p><strong>Display Name:</strong> <%= user.displayName %></p>
                                     <% if (user.profilePage) { %>
-                                    <p><strong>Profile Page:</strong> <a href="/wiki/<%= encodeURIComponent(user.profilePage) %>"><%= user.profilePage %></a></p>
+                                    <p><strong>Profile Page:</strong> <a href="/view/<%= encodeURIComponent(user.profilePage) %>"><%= user.profilePage %></a></p>
                                     <% } %>
                                     <p><strong>Account Type:</strong> 
                                         <% if (user.isExternal) { %>

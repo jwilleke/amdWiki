@@ -124,7 +124,7 @@
                                 <span class="text-white-50 d-block">Keywords</span>
                                 <span>
                                     <% const kw = Array.isArray(item.metadata.keywords) ? item.metadata.keywords : [item.metadata.keywords]; %>
-                                    <% kw.forEach(function(k, i) { var exists = keywordPageExists && keywordPageExists[k]; var href = exists ? '/wiki/' + encodeURIComponent(k) : '/edit/' + encodeURIComponent(k); %><a href="<%= href %>" class="<%= exists ? 'text-info' : 'redlink' %>"<% if (!exists) { %> title="Create page: <%= k %>"<% } %>><%= k %></a> <a href="/media/keyword/<%= encodeURIComponent(k) %>" class="text-white-50 ms-1" title="View media album for: <%= k %>"><i class="fas fa-images" style="font-size:0.85em;"></i></a><% if (i < kw.length - 1) { %>, <% } %><% }); %>
+                                    <% kw.forEach(function(k, i) { var exists = keywordPageExists && keywordPageExists[k]; var href = exists ? '/view/' + encodeURIComponent(k) : '/edit/' + encodeURIComponent(k); %><a href="<%= href %>" class="<%= exists ? 'text-info' : 'redlink' %>"<% if (!exists) { %> title="Create page: <%= k %>"<% } %>><%= k %></a> <a href="/media/keyword/<%= encodeURIComponent(k) %>" class="text-white-50 ms-1" title="View media album for: <%= k %>"><i class="fas fa-images" style="font-size:0.85em;"></i></a><% if (i < kw.length - 1) { %>, <% } %><% }); %>
                                 </span>
                             </li>
                             <% } %>
@@ -138,7 +138,7 @@
                             <% if (item.linkedPageName) { %>
                             <li class="list-group-item bg-dark text-white border-secondary d-flex justify-content-between">
                                 <span class="text-white-50">Page</span>
-                                <a href="/wiki/<%= item.linkedPageName %>" class="text-info"><%= item.linkedPageName %></a>
+                                <a href="/view/<%= item.linkedPageName %>" class="text-info"><%= item.linkedPageName %></a>
                             </li>
                             <% } %>
                         </ul>

@@ -503,7 +503,7 @@ export class LinkParser {
     const targetPage = matchedPage || pageName;
 
     const href = exists
-      ? `/wiki/${encodeURIComponent(targetPage)}`
+      ? `/view/${encodeURIComponent(targetPage)}`
       : `/edit/${encodeURIComponent(pageName)}`;
 
     const baseClass = exists

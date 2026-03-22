@@ -62,7 +62,7 @@ test.describe('LocationPlugin', () => {
       // Submit create form
       const createButton = page.locator('button:has-text("Create Page"), form[action="/create"] button[type="submit"]');
       await Promise.all([
-        page.waitForURL(/\/(edit|wiki)\//, { timeout: 30000 }),
+        page.waitForURL(/\/(edit|view)\//, { timeout: 30000 }),
         createButton.first().click()
       ]);
 
@@ -78,7 +78,7 @@ test.describe('LocationPlugin', () => {
         // Save
         const saveButton = page.locator('button:has-text("Save"), button[type="submit"]:has-text("Save")');
         await Promise.all([
-          page.waitForURL(/\/wiki\//, { timeout: 30000 }),
+          page.waitForURL(/\/view\//, { timeout: 30000 }),
           saveButton.first().click()
         ]);
       }
@@ -117,7 +117,7 @@ test.describe('LocationPlugin', () => {
 
       const createButton = page.locator('button:has-text("Create Page"), form[action="/create"] button[type="submit"]');
       await Promise.all([
-        page.waitForURL(/\/(edit|wiki)\//, { timeout: 30000 }),
+        page.waitForURL(/\/(edit|view)\//, { timeout: 30000 }),
         createButton.first().click()
       ]);
 
@@ -130,7 +130,7 @@ test.describe('LocationPlugin', () => {
 
         const saveButton = page.locator('button:has-text("Save"), button[type="submit"]:has-text("Save")');
         await Promise.all([
-          page.waitForURL(/\/wiki\//, { timeout: 30000 }),
+          page.waitForURL(/\/view\//, { timeout: 30000 }),
           saveButton.first().click()
         ]);
       }
@@ -170,7 +170,7 @@ test.describe('LocationPlugin', () => {
 
       const createButton = page.locator('button:has-text("Create Page"), form[action="/create"] button[type="submit"]');
       await Promise.all([
-        page.waitForURL(/\/(edit|wiki)\//, { timeout: 30000 }),
+        page.waitForURL(/\/(edit|view)\//, { timeout: 30000 }),
         createButton.first().click()
       ]);
 
@@ -183,7 +183,7 @@ test.describe('LocationPlugin', () => {
 
         const saveButton = page.locator('button:has-text("Save"), button[type="submit"]:has-text("Save")');
         await Promise.all([
-          page.waitForURL(/\/wiki\//, { timeout: 30000 }),
+          page.waitForURL(/\/view\//, { timeout: 30000 }),
           saveButton.first().click()
         ]);
       }
@@ -217,7 +217,7 @@ test.describe('LocationPlugin', () => {
 
       const createButton = page.locator('button:has-text("Create Page"), form[action="/create"] button[type="submit"]');
       await Promise.all([
-        page.waitForURL(/\/(edit|wiki)\//, { timeout: 30000 }),
+        page.waitForURL(/\/(edit|view)\//, { timeout: 30000 }),
         createButton.first().click()
       ]);
 
@@ -230,7 +230,7 @@ test.describe('LocationPlugin', () => {
 
         const saveButton = page.locator('button:has-text("Save"), button[type="submit"]:has-text("Save")');
         await Promise.all([
-          page.waitForURL(/\/wiki\//, { timeout: 30000 }),
+          page.waitForURL(/\/view\//, { timeout: 30000 }),
           saveButton.first().click()
         ]);
       }
@@ -266,7 +266,7 @@ test.describe('LocationPlugin', () => {
 
       const createButton = page.locator('button:has-text("Create Page"), form[action="/create"] button[type="submit"]');
       await Promise.all([
-        page.waitForURL(/\/(edit|wiki)\//, { timeout: 30000 }),
+        page.waitForURL(/\/(edit|view)\//, { timeout: 30000 }),
         createButton.first().click()
       ]);
 
@@ -279,7 +279,7 @@ test.describe('LocationPlugin', () => {
 
         const saveButton = page.locator('button:has-text("Save"), button[type="submit"]:has-text("Save")');
         await Promise.all([
-          page.waitForURL(/\/wiki\//, { timeout: 30000 }),
+          page.waitForURL(/\/view\//, { timeout: 30000 }),
           saveButton.first().click()
         ]);
       }
@@ -317,7 +317,7 @@ test.describe('LocationPlugin', () => {
 
       const createButton = page.locator('button:has-text("Create Page"), form[action="/create"] button[type="submit"]');
       await Promise.all([
-        page.waitForURL(/\/(edit|wiki)\//, { timeout: 30000 }),
+        page.waitForURL(/\/(edit|view)\//, { timeout: 30000 }),
         createButton.first().click()
       ]);
 
@@ -330,7 +330,7 @@ test.describe('LocationPlugin', () => {
 
         const saveButton = page.locator('button:has-text("Save"), button[type="submit"]:has-text("Save")');
         await Promise.all([
-          page.waitForURL(/\/wiki\//, { timeout: 30000 }),
+          page.waitForURL(/\/view\//, { timeout: 30000 }),
           saveButton.first().click()
         ]);
       }
@@ -369,7 +369,7 @@ test.describe('LocationPlugin', () => {
 
       const createButton = page.locator('button:has-text("Create Page"), form[action="/create"] button[type="submit"]');
       await Promise.all([
-        page.waitForURL(/\/(edit|wiki)\//, { timeout: 30000 }),
+        page.waitForURL(/\/(edit|view)\//, { timeout: 30000 }),
         createButton.first().click()
       ]);
 
@@ -383,7 +383,7 @@ test.describe('LocationPlugin', () => {
 
         const saveButton = page.locator('button:has-text("Save"), button[type="submit"]:has-text("Save")');
         await Promise.all([
-          page.waitForURL(/\/wiki\//, { timeout: 30000 }),
+          page.waitForURL(/\/view\//, { timeout: 30000 }),
           saveButton.first().click()
         ]);
       }
@@ -420,7 +420,7 @@ test.describe('LocationPlugin', () => {
 
       const createButton = page.locator('button:has-text("Create Page"), form[action="/create"] button[type="submit"]');
       await Promise.all([
-        page.waitForURL(/\/(edit|wiki)\//, { timeout: 30000 }),
+        page.waitForURL(/\/(edit|view)\//, { timeout: 30000 }),
         createButton.first().click()
       ]);
 
@@ -434,7 +434,7 @@ test.describe('LocationPlugin', () => {
 
         const saveButton = page.locator('button:has-text("Save"), button[type="submit"]:has-text("Save")');
         await Promise.all([
-          page.waitForURL(/\/wiki\//, { timeout: 30000 }),
+          page.waitForURL(/\/view\//, { timeout: 30000 }),
           saveButton.first().click()
         ]);
       }
@@ -473,7 +473,7 @@ test.describe('LocationPlugin', () => {
 
       const createButton = page.locator('button:has-text("Create Page"), form[action="/create"] button[type="submit"]');
       await Promise.all([
-        page.waitForURL(/\/(edit|wiki)\//, { timeout: 30000 }),
+        page.waitForURL(/\/(edit|view)\//, { timeout: 30000 }),
         createButton.first().click()
       ]);
 
@@ -486,7 +486,7 @@ test.describe('LocationPlugin', () => {
 
         const saveButton = page.locator('button:has-text("Save"), button[type="submit"]:has-text("Save")');
         await Promise.all([
-          page.waitForURL(/\/wiki\//, { timeout: 30000 }),
+          page.waitForURL(/\/view\//, { timeout: 30000 }),
           saveButton.first().click()
         ]);
       }
@@ -521,7 +521,7 @@ test.describe('LocationPlugin', () => {
 
       const createButton = page.locator('button:has-text("Create Page"), form[action="/create"] button[type="submit"]');
       await Promise.all([
-        page.waitForURL(/\/(edit|wiki)\//, { timeout: 30000 }),
+        page.waitForURL(/\/(edit|view)\//, { timeout: 30000 }),
         createButton.first().click()
       ]);
 
@@ -534,7 +534,7 @@ test.describe('LocationPlugin', () => {
 
         const saveButton = page.locator('button:has-text("Save"), button[type="submit"]:has-text("Save")');
         await Promise.all([
-          page.waitForURL(/\/wiki\//, { timeout: 30000 }),
+          page.waitForURL(/\/view\//, { timeout: 30000 }),
           saveButton.first().click()
         ]);
       }

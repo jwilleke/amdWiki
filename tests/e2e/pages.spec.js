@@ -27,7 +27,7 @@ test.describe('Page Operations', () => {
     });
 
     test('should navigate to wiki pages', async ({ page }) => {
-      await page.goto('/wiki/Main');
+      await page.goto('/view/Main');
       await page.waitForLoadState('networkidle');
 
       // Should either show the page or a "create new page" option
@@ -77,13 +77,13 @@ test.describe('Page Operations', () => {
 
       // Click and wait for navigation (form submit causes redirect)
       await Promise.all([
-        page.waitForURL(/\/(edit|wiki)\//, { timeout: 15000 }),
+        page.waitForURL(/\/(edit|view)\//, { timeout: 15000 }),
         createButton.first().click()
       ]);
 
       // Verify page was created - should redirect to edit page for the new page or view page
       const currentUrl = page.url();
-      expect(currentUrl.includes('/edit/') || currentUrl.includes('/wiki/')).toBe(true);
+      expect(currentUrl.includes('/edit/') || currentUrl.includes('/view/')).toBe(true);
     });
   });
 
@@ -91,7 +91,7 @@ test.describe('Page Operations', () => {
     test('should be able to edit an existing page', async ({ page }) => {
       // Go to home or main page
       // Use Welcome — a required page that always exists
-      await page.goto('/wiki/Welcome');
+      await page.goto('/view/Welcome');
       await page.waitForLoadState('networkidle');
 
       // Find and click edit button/link (rendered when canEdit=true for authenticated user)
@@ -109,7 +109,7 @@ test.describe('Page Operations', () => {
 
   test.describe('Page Navigation', () => {
     test('should show breadcrumbs or navigation', async ({ page }) => {
-      await page.goto('/wiki/Main');
+      await page.goto('/view/Main');
       await page.waitForLoadState('networkidle');
 
       // Check for navigation elements
@@ -118,7 +118,7 @@ test.describe('Page Operations', () => {
     });
 
     test('should handle non-existent pages gracefully', async ({ page }) => {
-      await page.goto('/wiki/NonExistentPageXYZ123');
+      await page.goto('/view/NonExistentPageXYZ123');
       await page.waitForLoadState('networkidle');
 
       // Should either show 404, redirect, or offer to create
@@ -133,7 +133,7 @@ test.describe('Page Operations', () => {
   test.describe('Page History', () => {
     test('should show page version history', async ({ page }) => {
       // Use Welcome page which is a default required page
-      await page.goto('/wiki/Welcome');
+      await page.goto('/view/Welcome');
       await page.waitForLoadState('networkidle');
 
       // Check if page exists (not a 404)

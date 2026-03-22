@@ -118,7 +118,7 @@
 <body>
     <!-- Reader View Actions -->
     <div class="reader-actions">
-        <a href="/wiki/<%= encodeURIComponent(pageName) %>" class="btn btn-sm" style="background-color: var(--btn-outline-primary-bg); color: var(--btn-outline-primary-text); border-color: var(--btn-outline-primary-border);" title="Exit Reader View">
+        <a href="/view/<%= encodeURIComponent(pageName) %>" class="btn btn-sm" style="background-color: var(--btn-outline-primary-bg); color: var(--btn-outline-primary-text); border-color: var(--btn-outline-primary-border);" title="Exit Reader View">
             <i class="fas fa-times"></i>
         </a>
         <button onclick="window.print()" class="btn btn-sm" style="background-color: var(--btn-outline-secondary-bg); color: var(--btn-outline-secondary-text); border-color: var(--btn-outline-secondary-border);" title="Print">
@@ -174,7 +174,7 @@
         document.addEventListener('keydown', function(e) {
             // Escape key to exit reader view
             if (e.key === 'Escape') {
-                window.location.href = '/wiki/<%= encodeURIComponent(pageName) %>';
+                window.location.href = '/view/<%= encodeURIComponent(pageName) %>';
             }
             // Ctrl/Cmd + P to print
             if ((e.ctrlKey || e.metaKey) && e.key === 'p') {

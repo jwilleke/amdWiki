@@ -1027,7 +1027,7 @@ class RenderingManager extends BaseManager {
           const matchedPage = this.pageNameMatcher ? this.pageNameMatcher.findMatch(pageName, pageNames) : pageNames.includes(pageName) ? pageName : null;
 
           if (matchedPage) {
-            return `<a href="/wiki/${encodeURIComponent(matchedPage)}" class="wikipage"${linkAttributes}>${pageName}</a>`;
+            return `<a href="/view/${encodeURIComponent(matchedPage)}" class="wikipage"${linkAttributes}>${pageName}</a>`;
           }
           // Red link for non-existent pages
           return `<a href="/edit/${encodeURIComponent(pageName)}" style="color: red;" class="redlink"${linkAttributes}>${pageName}</a>`;
@@ -1048,7 +1048,7 @@ class RenderingManager extends BaseManager {
           const matchedPage = this.pageNameMatcher ? this.pageNameMatcher.findMatch(target, pageNames) : pageNames.includes(target) ? target : null;
 
           if (matchedPage) {
-            return `<a href="/wiki/${encodeURIComponent(matchedPage)}" class="wikipage"${linkAttributes}>${displayText}</a>`;
+            return `<a href="/view/${encodeURIComponent(matchedPage)}" class="wikipage"${linkAttributes}>${displayText}</a>`;
           }
           // Red link for non-existent page target
           return `<a href="/edit/${encodeURIComponent(target)}" style="color: red;" class="redlink"${linkAttributes}>${displayText}</a>`;

@@ -435,7 +435,7 @@ class DOMLinkHandler {
 
     // Set href
     const href = exists
-      ? `/wiki/${encodeURIComponent(targetPage)}`
+      ? `/view/${encodeURIComponent(targetPage)}`
       : `/edit/${encodeURIComponent(pageName)}`;
      
     linkElement.setAttribute('href', href);
@@ -587,12 +587,12 @@ class DOMLinkHandler {
    * @example
    * const element = { type: 'link', target: 'PageName', id: 0, ... };
    * const node = await handler.createNodeFromExtract(element, context, wikiDoc);
-   * // Returns: <a class="wiki-link wikipage" href="/wiki/PageName" data-jspwiki-id="0">PageName</a>
+   * // Returns: <a class="wiki-link wikipage" href="/view/PageName" data-jspwiki-id="0">PageName</a>
    *
    * @example
    * const element = { type: 'link', target: 'Click Here|PageName', id: 1, ... };
    * const node = await handler.createNodeFromExtract(element, context, wikiDoc);
-   * // Returns: <a class="wiki-link wikipage" href="/wiki/PageName" data-jspwiki-id="1">Click Here</a>
+   * // Returns: <a class="wiki-link wikipage" href="/view/PageName" data-jspwiki-id="1">Click Here</a>
    */
   // eslint-disable-next-line @typescript-eslint/require-await -- Implements DOM handler async interface
   async createNodeFromExtract(element: ExtractedLinkElement, _context: RenderContext, wikiDocument: WikiDocument): Promise<LinkedomElement> {
@@ -647,7 +647,7 @@ class DOMLinkHandler {
 
       // Set href
       const href = exists
-        ? `/wiki/${encodeURIComponent(targetPage)}`
+        ? `/view/${encodeURIComponent(targetPage)}`
         : `/edit/${encodeURIComponent(pageName)}`;
       node.setAttribute('href', href);
 
@@ -708,7 +708,7 @@ class DOMLinkHandler {
         } else {
           // Unknown InterWiki site - treat as internal link
           logger.warn(`⚠️  Unknown InterWiki site: ${wikiName}`);
-          node.setAttribute('href', `/wiki/${encodeURIComponent(linkTarget)}`);
+          node.setAttribute('href', `/view/${encodeURIComponent(linkTarget)}`);
           node.setAttribute('class', 'wiki-link redlink');
           node.setAttribute('style', 'color: red;');
           node.setAttribute('data-link-type', 'internal');
@@ -738,7 +738,7 @@ class DOMLinkHandler {
 
     default: {
       // Fallback to internal link
-      node.setAttribute('href', `/wiki/${encodeURIComponent(linkTarget)}`);
+      node.setAttribute('href', `/view/${encodeURIComponent(linkTarget)}`);
       node.setAttribute('class', 'wiki-link redlink');
       node.setAttribute('style', 'color: red;');
       node.setAttribute('data-link-type', 'internal');

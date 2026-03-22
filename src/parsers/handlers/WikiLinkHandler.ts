@@ -173,7 +173,7 @@ class WikiLinkHandler extends BaseSyntaxHandler {
     if (pageExists || this.cachedPageNames.length === 0) {
       // Create link to existing page (or assume exists if page list unavailable)
       const encodedTarget = encodeURIComponent(targetPage);
-      return `<a href="/wiki/${encodedTarget}"${linkAttributes}>${this.escapeHtml(linkText)}</a>`;
+      return `<a href="/view/${encodedTarget}"${linkAttributes}>${this.escapeHtml(linkText)}</a>`;
     } else {
       // Create red link for non-existent page
       const encodedTarget = encodeURIComponent(targetPage);

@@ -260,7 +260,7 @@ export function applyPagination<T>(items: T[], page: number, pageSize: number): 
  *
  * @param currentPage - The current page number (1-based)
  * @param totalPages  - Total number of pages
- * @param pageName    - Wiki page name used to build `/wiki/{pageName}?page=N`
+ * @param pageName    - Wiki page name used to build `/view/{pageName}?page=N`
  * @param queryParam  - Query string parameter name (default: 'page')
  */
 export function formatPaginationLinks(
@@ -271,7 +271,7 @@ export function formatPaginationLinks(
 ): string {
   if (totalPages <= 1) return '';
 
-  const base = `/wiki/${encodeURIComponent(pageName)}`;
+  const base = `/view/${encodeURIComponent(pageName)}`;
   const prev = currentPage > 1
     ? `<a href="${base}?${queryParam}=${currentPage - 1}">\u00ab Prev</a>`
     : '<span class="disabled">\u00ab Prev</span>';

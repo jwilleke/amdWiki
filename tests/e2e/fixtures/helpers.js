@@ -79,7 +79,7 @@ async function createPage(page, title, content) {
  * @param {string} pageName
  */
 async function navigateToPage(page, pageName) {
-  await page.goto(`/wiki/${encodeURIComponent(pageName)}`);
+  await page.goto(`/view/${encodeURIComponent(pageName)}`);
   await waitForPageReady(page);
 }
 
