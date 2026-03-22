@@ -210,3 +210,6 @@ xxx*/
 zzz*/
 ngdpbase.code-workspace
 amdWiki.code-workspace
+
+# Search index (generated at runtime)
+search-index/
