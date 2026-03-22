@@ -24,6 +24,30 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-22-12
+
+- Agent: Claude Sonnet 4.6
+- Subject: Release v2.0.0 + complete amdwiki → ngdpbase rename sweep
+- Key Decision: Created git tag and GitHub release v2.0.0 manually. Filed #365 to enhance version.ts to handle tagging/releasing automatically.
+- Current Issue: #365 (open)
+- Testing:
+  - npm test: 75 suites passed, 1917 tests passed
+  - E2E: 47 passed
+- Work Done:
+  - Renamed /wiki/ URL path to /view/ across all source, views, plugins, tests (#364)
+  - Renamed GitHub repo jwilleke/amdWiki → jwilleke/ngdpbase
+  - Full amdwiki → ngdpbase rename sweep (docs, docker, scripts, required-pages, MCP server, .env.example)
+  - Removed search-index/documents.json from git (generated artifact)
+  - Added test-results/ to .gitignore
+  - Renamed TEST_PAGE_PREFIX AMDWIKI-test → NGDPBASE-test
+  - Renamed .amdwikiignore → .ngdpbaseignore in docs
+  - Created git tag v2.0.0 and GitHub release
+  - Filed #365: version.ts should create git tag + GitHub release
+- Commits: 7e3e53a..f2a2d74
+- Issues: #364 (closed), #365 (open)
+
+---
+
 ## 2026-03-22-11
 
 - Agent: Claude Sonnet 4.6
