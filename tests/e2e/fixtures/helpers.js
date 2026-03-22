@@ -9,7 +9,7 @@ const { expect } = require('@playwright/test');
  * Prefix applied to every wiki page created by E2E tests.
  * Makes test-created pages easy to identify and bulk-delete.
  */
-const TEST_PAGE_PREFIX = 'AMDWIKI-test';
+const TEST_PAGE_PREFIX = 'NGDPBASE-test';
 
 /**
  * Delete a wiki page via the HTTP delete route (requires admin auth).
