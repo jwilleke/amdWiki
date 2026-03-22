@@ -1,6 +1,6 @@
 ---
 name: Bug Report
-about: Create a report to help us improve amdWiki
+about: Create a report to help us improve
 title: "[BUG] "
 labels: bug
 assignees: jwilleke
@@ -32,27 +32,16 @@ If applicable, add screenshots to help explain your problem.
 
 ## 🖥️ Environment
 
-- **OS**: Intel Mac OS X 10157
-- **Node.js Version**: v22.17.0
-- **amdWiki Version**: 1.3.2
-- **Browser** (if UI issue): [User Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10157) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36
+- **OS**:
+- **Node.js Version** (if applicable):
+- **Browser** (if UI issue):
+- **Other**:
 
 ## 📝 Additional Context
 
 - Error messages from console/logs
 - Any relevant configuration
 - Other context about the problem
-
-## 🏗️ Manager/Component Affected
-
-- [ ] PageManager
-- [ ] RenderingManager  
-- [ ] SearchManager
-- [ ] UserManager
-- [ ] PluginManager
-- [ ] UI/Templates
-- [ ] Authentication
-- [ ] Other: ___________
 
 ## 🔍 Error Details
 
