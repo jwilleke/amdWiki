@@ -1,0 +1,1557 @@
+/* =============================================================
+   Core structural CSS — shared across all themes.
+   Theme-specific CSS custom properties live in
+   themes/<theme-name>/css/variables.css
+   ============================================================= */
+
+/* Base theme application - GitHub-inspired */
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.2s ease, color 0.2s ease;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+  font-size: 14px;
+  line-height: 1.5;
+  word-wrap: break-word;
+}
+
+/* JSPWiki-inspired layout styles */
+
+/* JSPWiki Header Styles - GitHub-inspired */
+.jspwiki-header {
+    background-color: var(--navbar-bg) !important;
+    border-bottom: 1px solid var(--border-color);
+    padding: 0.75rem 0;
+    backdrop-filter: blur(10px);
+}
+
+.jspwiki-header .navbar-brand {
+    font-size: 1.25rem;
+    font-weight: 600;
+    text-decoration: none;
+    color: var(--text-primary);
+    transition: color 0.2s ease;
+}
+
+.jspwiki-header .navbar-brand:hover {
+    text-decoration: none;
+    color: var(--link-color);
+}
+
+/* JSPWiki Tabs Styles */
+.jspwiki-tabs {
+    background-color: var(--card-bg);
+    border-bottom: 1px solid var(--border-color);
+    padding: 0;
+}
+
+.jspwiki-tabs .nav-tabs {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.jspwiki-tabs .nav-tabs .nav-link {
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: var(--text-secondary);
+    font-weight: 500;
+    padding: 0.75rem 1.25rem;
+    transition: all 0.2s ease;
+}
+
+.jspwiki-tabs .nav-tabs .nav-link:hover {
+    border-bottom-color: var(--link-color);
+    color: var(--link-color);
+    background-color: var(--bg-secondary);
+}
+
+.jspwiki-tabs .nav-tabs .nav-link.active {
+    border-bottom-color: var(--link-color);
+    color: var(--link-color);
+    background-color: transparent;
+}
+
+/* JSPWiki Sidebar Styles - GitHub-inspired */
+.jspwiki-sidebar {
+    background-color: var(--bg-secondary) !important;
+    border-right: 1px solid var(--border-color);
+    min-height: calc(100vh - 120px);
+}
+
+.jspwiki-sidebar .sidebar-heading {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.jspwiki-sidebar .nav-link {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    margin: 0.125rem 0.5rem;
+    transition: all 0.15s ease;
+    font-weight: 500;
+}
+
+.jspwiki-sidebar .nav-link:hover {
+    color: var(--text-primary);
+    background-color: var(--bg-tertiary);
+    text-decoration: none;
+}
+
+.jspwiki-sidebar .nav-link i {
+    width: 16px;
+    margin-right: 8px;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+/* JSPWiki Content Area */
+.jspwiki-content {
+    padding-top: 1.5rem;
+    min-height: calc(100vh - 120px);
+    color: var(--text-content, #333);
+}
+
+/* JSPWiki-style Navigation - GitHub-inspired */
+.navigation {
+    background-color: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem 0;
+}
+
+.navigation .nav-section {
+    margin-bottom: 1rem;
+}
+
+.navigation .nav-heading {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+    padding-left: 0.5rem;
+}
+
+.navigation .nav-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+}
+
+.navigation .nav-links li {
+    margin: 0;
+}
+
+.navigation .nav-links a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    padding: 0.375rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.15s ease;
+    border: 1px solid transparent;
+}
+
+.navigation .nav-links a:hover {
+    color: var(--text-primary);
+    background-color: var(--bg-tertiary);
+    border-color: var(--border-color);
+    text-decoration: none;
+}
+
+.navigation .nav-actions {
+    text-align: right;
+}
+
+.navigation .action-buttons {
+    margin-bottom: 1rem;
+}
+
+.navigation .action-buttons .btn {
+    margin-left: 0.5rem;
+}
+
+.navigation .system-info {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 0.75rem;
+}
+
+.navigation .system-info .table {
+    margin-bottom: 0;
+    font-size: 0.8rem;
+}
+
+.navigation .system-info .table td {
+    padding: 0.25rem 0.5rem;
+    border: none;
+}
+
+.navigation .system-info .table td:first-child {
+    font-weight: 600;
+    color: #6c757d;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .jspwiki-header .col-md-6 form {
+        margin-top: 1rem;
+    }
+    
+    .jspwiki-header .col-md-3:last-child {
+        margin-top: 1rem;
+        text-align: center !important;
+    }
+    
+    .navigation .col-md-8,
+    .navigation .col-md-4 {
+        margin-bottom: 1rem;
+    }
+    
+    .navigation .nav-actions {
+        text-align: left;
+    }
+    
+    .navigation .nav-links {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    
+    .navigation .system-info {
+        margin-top: 1rem;
+    }
+}
+
+/* Navigation Title */
+.navigation-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    min-height: 38px; /* Match height of navigation buttons */
+}
+
+.navigation-title h5 {
+    color: var(--text-primary);
+    font-weight: 600;
+    max-width: 100%;
+    line-height: 1.2;
+}
+
+/* Responsive adjustments for navigation title */
+@media (max-width: 768px) {
+    .navigation-title {
+        padding: 0.25rem;
+        min-height: 32px;
+    }
+    
+    .navigation-title h5 {
+        font-size: 1rem;
+    }
+}
+
+/* Legacy sidebar styles - updated for JSPWiki layout */
+.sidebar-sticky {
+    position: relative;
+    top: 0;
+    height: auto;
+    padding-top: 0.5rem;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.sidebar-heading {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    color: #6c757d !important;
+    border-bottom: 1px solid #dee2e6;
+    padding-bottom: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Main content area adjustments for JSPWiki style */
+main[role="main"] {
+    min-height: calc(100vh - 56px);
+    background-color: var(--bg-primary);
+    transition: margin-left 0.3s ease; /* Smooth transition when sidebar toggles */
+}
+
+/* When sidebar is visible, add margin */
+main[role="main"].col-md-9 {
+    margin-left: 16.66667%; /* Match sidebar width when sidebar is visible */
+}
+
+/* When sidebar is hidden, remove margin */
+main[role="main"].col-12 {
+    margin-left: 0; /* Full width when sidebar is hidden */
+}
+
+/* Page content styling */
+.markdown-body {
+    line-height: 1.6;
+    color: var(--text-content, #333);
+}
+
+.markdown-body h1, 
+.markdown-body h2, 
+.markdown-body h3 {
+    color: var(--text-heading, #2c3e50);
+    border-bottom: 1px solid var(--border-color, #e9ecef);
+    padding-bottom: 0.3rem;
+}
+
+/* Page metadata cards - GitHub-inspired */
+.card {
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background-color: var(--card-bg);
+    box-shadow: none;
+    transition: border-color 0.15s ease;
+}
+
+.card:hover {
+    border-color: var(--border-color-strong);
+}
+
+.card-header {
+    background-color: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+}
+
+.card-header h5,
+.card-header h6 {
+    margin-bottom: 0;
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+/* More Information section styling */
+.card .list-unstyled li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.card .list-unstyled li:last-child {
+    border-bottom: none;
+}
+
+.card .list-unstyled a {
+    color: var(--link-color);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.card .list-unstyled a:hover {
+    color: var(--link-hover);
+    text-decoration: underline;
+}
+
+/* Button styling to match JSPWiki */
+.btn-toolbar .btn {
+    border-radius: 3px;
+    font-size: 0.875rem;
+    padding: 0.375rem 0.75rem;
+}
+
+.btn-outline-primary:hover {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+/* System info table styling */
+.table-sm td {
+    padding: 0.5rem;
+    vertical-align: top;
+}
+
+.table-sm td:first-child {
+    font-weight: 500;
+    color: var(--text-secondary);
+    width: 40%;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    main[role="main"] {
+        margin-left: 0;
+    }
+    
+    .sidebar {
+        display: none;
+    }
+}
+
+.sidebar .nav-link {
+    color: #333;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    margin: 0.25rem 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.sidebar .nav-link:hover {
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+}
+
+.sidebar hr {
+    margin: 0.5rem 1rem;
+    border-color: var(--border-color);
+}
+
+/* Main content adjustments - removed fixed margin, handled by Bootstrap classes */
+main[role="main"].legacy-layout {
+    margin-left: 16.66667%; /* Match sidebar width - only for legacy layout */
+    padding-top: 1rem;
+    min-height: calc(100vh - 56px); /* Full height minus navbar */
+    color: var(--text-content, #333);
+}
+
+/* Content headings and text */
+main h1, main h2, main h3, main h4, main h5, main h6 {
+    color: var(--text-heading, #2c3e50);
+}
+
+main p, main div, main span, main li {
+    color: var(--text-content, #333);
+}
+
+/* Container adjustments */
+.container-fluid {
+    padding-left: 0;
+    padding-right: 0;
+    margin-top: 0;
+}
+
+/* Navigation dropdown improvements */
+.navbar .dropdown-menu {
+    right: 0;
+    left: auto;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767.98px) {
+    .sidebar {
+        display: none !important; /* Hide sidebar on mobile */
+    }
+    
+    main[role="main"] {
+        margin-left: 0; /* No margin on mobile */
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+    
+    .container-fluid {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+}
+
+.markdown-body {
+    padding-top: 1rem;
+    color: var(--text-content, #333);
+}
+
+.markdown-body h1, .markdown-body h2, .markdown-body h3, .markdown-body h4, .markdown-body h5, .markdown-body h6 {
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--text-heading, #2c3e50);
+}
+
+.markdown-body p {
+    margin-bottom: 1rem;
+    color: var(--text-content, #333);
+}
+
+.markdown-body ul, .markdown-body ol {
+    margin-bottom: 1rem;
+    color: var(--text-content, #333);
+}
+
+.markdown-body pre {
+    padding: 1rem;
+    background-color: var(--code-bg, var(--bg-secondary));
+    border: 1px solid var(--code-border, #dee2e6);
+    border-radius: .25rem;
+    color: var(--text-primary);
+    white-space: pre;
+    overflow-x: auto;
+}
+
+/* Wiki image styles — constrain images to content area */
+.wiki-image {
+  max-width: 100%;
+  height: auto;
+}
+
+.image-plugin-container {
+  max-width: 100%;
+}
+
+/* Clear floats before headings so floated images don't overlap sections */
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5,
+.markdown-body h6,
+.jspwiki-content h1,
+.jspwiki-content h2,
+.jspwiki-content h3,
+.jspwiki-content h4,
+.jspwiki-content h5,
+.jspwiki-content h6 {
+  clear: both;
+}
+
+/* Wiki link styles */
+.wikipage {
+    color: #0056b3;
+    text-decoration: none;
+}
+
+.wikipage:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
+
+/* Red link styles for non-existent pages */
+.redlink {
+    color: #dc3545 !important;
+    text-decoration: none;
+}
+
+.redlink:hover {
+    color: #dc3545 !important;
+    text-decoration: underline;
+}
+
+/* External link styles */
+.external-link {
+    color: #6f42c1;
+    text-decoration: none;
+}
+
+.external-link:hover {
+    color: #6f42c1;
+    text-decoration: underline;
+}
+
+.external-link::after {
+    content: " ↗";
+    font-size: 0.8em;
+    color: #6c757d;
+}
+
+/* Search page improvements */
+.search-page .card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.search-page .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.search-page .list-group a.list-group-item-action {
+    border-left: 4px solid transparent;
+    transition: border-left-color 0.2s ease, background-color 0.2s ease;
+    background-color: var(--card-bg) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-color);
+    text-decoration: none;
+}
+
+.search-page .list-group a.list-group-item-action:hover,
+.search-page .list-group a.list-group-item-action:focus {
+    border-left-color: #007bff;
+    background-color: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+}
+
+.search-page .list-group a.list-group-item-action h6 {
+    color: var(--text-heading) !important;
+    font-weight: 600;
+}
+
+.search-page .list-group a.list-group-item-action p {
+    color: var(--text-content) !important;
+}
+
+.search-page .list-group a.list-group-item-action small.text-muted {
+    color: var(--text-muted) !important;
+}
+
+.search-page .list-group a.list-group-item-action mark {
+    background-color: #ffc107;
+    color: #000;
+    padding: 0.1em 0.2em;
+    border-radius: 2px;
+}
+
+.search-badge-group {
+    gap: 0.25rem;
+}
+
+.search-stats .badge {
+    font-size: 0.8em;
+}
+
+.search-tips code {
+    background-color: var(--bg-secondary);
+    color: var(--text-secondary);
+    padding: 0.125rem 0.25rem;
+    border-radius: 0.25rem;
+    font-size: 0.875em;
+}
+
+/* Browse buttons styling */
+.browse-buttons .btn {
+    margin: 0.25rem;
+    transition: all 0.2s ease;
+}
+
+.browse-buttons .btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Search result highlight animations */
+.search-result-enter {
+    animation: slideInUp 0.3s ease-out;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Improved gap utility for better browser support */
+.gap-2 {
+    gap: 0.5rem !important;
+}
+
+.me-1 {
+    margin-right: 0.25rem !important;
+}
+
+.me-2 {
+    margin-right: 0.5rem !important;
+}
+
+/* Footer Styles */
+.footer-content {
+    background-color: var(--bg-secondary);
+    border-top: 1px solid #dee2e6;
+    margin-top: 2rem;
+    padding: 1rem;
+}
+
+.footer-content .text-muted {
+    color: #6c757d !important;
+}
+
+.footer-content a {
+    color: #6c757d !important;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.footer-content a:hover {
+    color: #007bff !important;
+    text-decoration: underline;
+}
+
+.footer-content small {
+    font-size: 0.875rem;
+}
+
+/* Responsive footer adjustments */
+@media (max-width: 576px) {
+    .footer-content {
+        padding: 0.75rem;
+        font-size: 0.8rem;
+    }
+    
+    .footer-content small {
+        font-size: 0.75rem;
+    }
+}
+
+/* Left Menu Content Styles */
+.leftmenu-content {
+    font-size: 0.9rem;
+}
+
+.leftmenu-content h1,
+.leftmenu-content h2,
+.leftmenu-content h3 {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #6c757d;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.25rem;
+    border-bottom: 1px solid #dee2e6;
+    font-weight: 600;
+}
+
+.leftmenu-content h1:first-child,
+.leftmenu-content h2:first-child,
+.leftmenu-content h3:first-child {
+    margin-top: 0;
+}
+
+.leftmenu-content ul {
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 1rem;
+}
+
+.leftmenu-content ul li {
+    margin-bottom: 0.25rem;
+}
+
+.leftmenu-content ul li a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    padding: 0.3rem 0.5rem;
+    display: block;
+    border-radius: 0.25rem;
+    transition: all 0.2s ease;
+    font-size: 0.85rem;
+}
+
+.leftmenu-content ul li a:hover {
+    color: #007bff;
+    background-color: rgba(0, 123, 255, 0.1);
+    text-decoration: none;
+}
+
+.leftmenu-content ul li a:before {
+    content: "• ";
+    color: #6c757d;
+    margin-right: 0.5rem;
+}
+
+/* Style for plugin output in left menu */
+.leftmenu-content .plugin-output {
+    font-size: 0.75rem;
+    color: #6c757d;
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+    padding: 0.5rem;
+    margin: 0.5rem 0;
+    background-color: var(--bg-primary);
+}
+
+.leftmenu-content table {
+    font-size: 0.75rem;
+    width: 100%;
+    margin: 0.5rem 0;
+}
+
+.leftmenu-content table td {
+    padding: 0.125rem 0.25rem;
+    border: none;
+    color: #6c757d;
+}
+
+.leftmenu-content table td:first-child {
+    font-weight: 600;
+}
+
+/* JSPWiki-style Action Buttons */
+.navigation .btn-group {
+    margin-left: 0.5rem;
+}
+
+.navigation .btn-group .btn {
+    font-size: 0.875rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 0.25rem;
+}
+
+.navigation .dropdown-menu {
+    font-size: 0.875rem;
+    border-radius: 0.375rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.navigation .dropdown-item {
+    padding: 0.5rem 1rem;
+    transition: all 0.2s ease;
+}
+
+.navigation .dropdown-item:hover {
+    background-color: var(--bg-secondary);
+    color: #007bff;
+}
+
+.navigation .dropdown-item i {
+    width: 16px;
+    margin-right: 8px;
+    text-align: center;
+}
+
+/* Active navigation link styling */
+.navigation .nav-link.active {
+    background-color: #007bff;
+    color: white;
+    border-radius: 0.25rem;
+}
+
+/* Reader view modal styling */
+.modal-xl .modal-dialog {
+    max-width: 90%;
+}
+
+#sourceContent {
+    font-family: 'Courier New', Monaco, monospace;
+    font-size: 0.875rem;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+/* Copy button feedback */
+.btn-success {
+    transition: all 0.3s ease;
+}
+
+/* Responsive action buttons */
+@media (max-width: 768px) {
+    .navigation .btn-group {
+        margin-left: 0;
+        margin-top: 0.5rem;
+        width: 100%;
+    }
+    
+    .navigation .btn-group .btn {
+        flex: 1;
+        font-size: 0.8rem;
+        padding: 0.25rem 0.5rem;
+    }
+    
+    .navigation .col-8,
+    .navigation .col-4 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+}
+
+/* Keyword Dropdown Styles */
+.dropdown-item-checkbox {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.dropdown-item-checkbox:hover {
+    background-color: var(--bg-secondary);
+}
+
+.dropdown-item-checkbox.text-muted {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.dropdown-item-checkbox.text-muted:hover {
+    background-color: transparent;
+}
+
+.dropdown-item-checkbox .form-check {
+    margin-bottom: 0;
+}
+
+.dropdown-item-checkbox .form-check-input {
+    border-color: var(--text-secondary);
+    flex-shrink: 0;
+}
+
+.dropdown-item-checkbox .form-check-input:disabled {
+    opacity: 0.4;
+}
+
+.dropdown-item-checkbox .form-check-label {
+    cursor: pointer;
+    width: 100%;
+    margin-bottom: 0;
+}
+
+.dropdown-item-checkbox .form-check-label:hover {
+    color: #007bff;
+}
+
+#selectedKeywordsText {
+    font-weight: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 300px;
+}
+
+/* Dark Mode Theme Support for Bootstrap Components */
+
+/* Cards */
+.card {
+    background-color: var(--card-bg);
+    border-color: var(--card-border);
+    color: var(--text-primary);
+}
+
+.card-header {
+    background-color: var(--bg-secondary);
+    border-bottom-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+.card-body {
+    background-color: var(--card-bg);
+    color: var(--text-primary);
+}
+
+.bg-light {
+    background-color: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+}
+
+/* Forms - GitHub-inspired */
+.form-control {
+    background-color: var(--input-bg);
+    border: 1px solid var(--input-border);
+    color: var(--text-primary);
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-control:focus {
+    background-color: var(--input-bg);
+    border-color: var(--link-color);
+    color: var(--text-primary);
+    box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.3);
+    outline: none;
+}
+
+.form-control::placeholder {
+    color: var(--text-muted);
+    opacity: 0.8;
+}
+
+.form-select {
+    background-color: var(--input-bg);
+    border: 1px solid var(--input-border);
+    color: var(--text-primary);
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+}
+
+.form-select:focus {
+    background-color: var(--input-bg);
+    border-color: var(--link-color);
+    color: var(--text-primary);
+    box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.3);
+    outline: none;
+}
+
+.form-check-input {
+    background-color: var(--input-bg);
+    border-color: var(--input-border);
+}
+
+.form-check-input:checked {
+    background-color: var(--button-primary-bg);
+    border-color: var(--button-primary-bg);
+}
+
+.form-label {
+    color: var(--text-primary);
+}
+
+/* Buttons - GitHub-inspired */
+.btn-primary {
+    background-color: var(--button-primary-bg);
+    border: 1px solid var(--button-primary-bg);
+    color: #ffffff;
+    border-radius: 6px;
+    padding: 0.375rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.15s ease;
+}
+
+.btn-primary:hover {
+    background-color: var(--button-primary-hover);
+    border-color: var(--button-primary-hover);
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn-outline-primary {
+    color: var(--link-color);
+    border: 1px solid var(--border-color);
+    background-color: transparent;
+    border-radius: 6px;
+    padding: 0.375rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.15s ease;
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--bg-tertiary);
+    border-color: var(--border-color-strong);
+    color: var(--text-primary);
+}
+
+.btn-secondary {
+    background-color: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    border-radius: 6px;
+    padding: 0.375rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.15s ease;
+}
+
+.btn-secondary:hover {
+    background-color: var(--border-color-strong);
+    border-color: var(--border-color-strong);
+    color: var(--text-primary);
+}
+
+/* Alerts */
+.alert-success {
+    background-color: var(--alert-success-bg);
+    border-color: var(--alert-success-border);
+    color: var(--alert-success-text);
+}
+
+.alert-danger {
+    background-color: var(--alert-danger-bg);
+    border-color: var(--alert-danger-border);
+    color: var(--alert-danger-text);
+}
+
+.alert-info {
+    background-color: var(--alert-info-bg);
+    border-color: var(--alert-info-border);
+    color: var(--alert-info-text);
+}
+
+/* Tables */
+.table {
+    color: var(--text-primary);
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) > td,
+.table-striped > tbody > tr:nth-of-type(odd) > th {
+    background-color: var(--table-stripe);
+}
+
+.table-hover > tbody > tr:hover > td,
+.table-hover > tbody > tr:hover > th {
+    background-color: var(--table-hover);
+}
+
+/* Navigation */
+.nav-link {
+    color: var(--text-secondary);
+}
+
+.nav-link:hover {
+    color: var(--link-color);
+}
+
+.nav-link.active {
+    color: var(--link-color);
+}
+
+/* Navbar */
+.navbar {
+    background-color: var(--navbar-bg);
+}
+
+.navbar-nav .nav-link {
+    color: var(--text-primary);
+}
+
+.navbar-nav .nav-link:hover {
+    color: var(--link-color);
+}
+
+/* Dropdowns */
+.dropdown-menu {
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+}
+
+.dropdown-item {
+    color: var(--text-primary);
+}
+
+.dropdown-item:hover {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+/* Modals */
+.modal-content {
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+}
+
+.modal-header {
+    border-bottom-color: var(--border-color);
+}
+
+.modal-footer {
+    border-top-color: var(--border-color);
+}
+
+/* Links */
+a {
+    color: var(--link-color);
+}
+
+a:hover {
+    color: var(--link-hover);
+}
+
+/* Code blocks */
+pre, code {
+    background-color: var(--code-bg);
+    border-color: var(--code-border);
+    color: var(--text-primary);
+}
+
+/* Badges */
+.badge {
+    color: var(--text-primary);
+}
+
+.bg-primary {
+    background-color: var(--button-primary-bg) !important;
+}
+
+.bg-secondary {
+    background-color: var(--bg-tertiary) !important;
+}
+
+.bg-info {
+    background-color: #17a2b8 !important;
+}
+
+/* Text colors */
+.text-muted {
+    color: var(--text-muted) !important;
+}
+
+.text-primary {
+    color: var(--link-color) !important;
+}
+
+.text-success {
+    color: var(--alert-success-text) !important;
+}
+
+.text-danger {
+    color: var(--alert-danger-text) !important;
+}
+
+/* Borders */
+.border {
+    border-color: var(--border-color) !important;
+}
+
+/* Theme Toggle Button - GitHub-inspired */
+.theme-toggle {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 9999 !important;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    width: 36px;
+    height: 36px;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+}
+
+.theme-toggle:hover {
+    background: var(--bg-tertiary);
+    border-color: var(--border-color-strong);
+    transform: none;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+}
+
+.theme-toggle i {
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    transition: color 0.15s ease;
+}
+
+/* System preference media query */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme]) {
+        --bg-primary: #1a1a1a;
+        --bg-secondary: #2d2d2d;
+        --bg-tertiary: #404040;
+        --text-primary: #e9ecef;
+        --text-secondary: #ced4da;
+        --text-muted: #adb5bd;
+        --border-color: var(--text-secondary);
+        --border-color-strong: #6c757d;
+        --link-color: #66b3ff;
+        --link-hover: #4da6ff;
+        --card-bg: #2d2d2d;
+        --card-border: #495057;
+        --navbar-bg: #1a1a1a;
+        --navbar-border: #495057;
+        --input-bg: #404040;
+        --input-border: #6c757d;
+        --button-primary-bg: #0d6efd;
+        --button-primary-hover: #0b5ed7;
+        --alert-success-bg: #0f5132;
+        --alert-success-border: #1a6938;
+        --alert-success-text: #d1e7dd;
+        --alert-danger-bg: #842029;
+        --alert-danger-border: #a52834;
+        --alert-danger-text: #f8d7da;
+        --code-bg: #404040;
+        --code-border: #6c757d;
+        --table-stripe: #252525;
+        --table-hover: rgba(88, 166, 255, 0.15);
+
+        /* Zebra row colors for system dark mode */
+        --zebra-row-even: #252525;
+        --zebra-row-odd: transparent;
+        --zebra-row-hover: rgba(88, 166, 255, 0.15);
+    }
+}
+
+/* ==============================================
+   JSPWiki-Style Table Classes
+   ============================================== */
+
+/* Sortable tables - cursor indication */
+.sortable th {
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  padding-right: 20px;
+}
+
+.sortable th:hover {
+  background-color: var(--table-hover);
+}
+
+.sortable th::after {
+  content: ' ⇅';
+  opacity: 0.3;
+  font-size: 0.8em;
+}
+
+.sortable th.sort-asc::after {
+  content: ' ↑';
+  opacity: 1;
+}
+
+.sortable th.sort-desc::after {
+  content: ' ↓';
+  opacity: 1;
+}
+
+/* Zebra striping for tables */
+.zebra-table tr:nth-child(even),
+.table-striped tbody tr:nth-child(even) {
+  background-color: var(--table-stripe);
+}
+
+table.wikitable tbody tr.zebra-even,
+table.zebra tbody tr.zebra-even,
+table.zebra-table tbody tr.zebra-even,
+table[data-zebra] tbody tr.zebra-even,
+.table-striped tbody tr.zebra-even {
+  background-color: var(--zebra-row-even);
+}
+
+/* Use custom text color if provided (for custom zebra colors) */
+table.zebra-table tbody tr.zebra-even td,
+table.zebra-table tbody tr.zebra-even th {
+  color: var(--zebra-text-color, inherit);
+}
+
+/* Brighter text on striped rows in dark mode (only when NOT using custom colors) */
+[data-theme="dark"] .table-striped tbody tr.zebra-even td,
+[data-theme="dark"] .table-striped tbody tr.zebra-even th,
+[data-theme="dark"] .zebra-table:not([style*="--zebra-text-color"]) tbody tr.zebra-even td,
+[data-theme="dark"] .zebra-table:not([style*="--zebra-text-color"]) tbody tr.zebra-even th {
+  color: #f0f6fc;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .table-striped tbody tr.zebra-even td,
+  :root:not([data-theme]) .table-striped tbody tr.zebra-even th,
+  :root:not([data-theme]) .zebra-table:not([style*="--zebra-text-color"]) tbody tr.zebra-even td,
+  :root:not([data-theme]) .zebra-table:not([style*="--zebra-text-color"]) tbody tr.zebra-even th {
+    color: #f0f6fc;
+  }
+}
+
+table.wikitable tbody tr.zebra-odd,
+table.zebra tbody tr.zebra-odd,
+table.zebra-table tbody tr.zebra-odd,
+table[data-zebra] tbody tr.zebra-odd,
+.table-striped tbody tr.zebra-odd {
+  background-color: var(--zebra-row-odd);
+}
+
+table.wikitable tbody tr.zebra-hover,
+table.zebra tbody tr.zebra-hover,
+table.zebra-table tbody tr.zebra-hover,
+table[data-zebra] tbody tr.zebra-hover,
+.table-striped tbody tr.zebra-hover {
+  background-color: var(--zebra-row-hover);
+}
+
+/* Hover effect for tables */
+.table-hover tbody tr:hover {
+  background-color: var(--table-hover);
+}
+
+/* Brighter text on hover in dark mode */
+[data-theme="dark"] .table-hover tbody tr:hover td,
+[data-theme="dark"] .table-hover tbody tr:hover th {
+  color: #f0f6fc;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .table-hover tbody tr:hover td,
+  :root:not([data-theme]) .table-hover tbody tr:hover th {
+    color: #f0f6fc;
+  }
+}
+
+/* Fit table to content (auto width) */
+.table-fit {
+  width: auto !important;
+}
+
+/* Bordered tables */
+.table-bordered,
+.table-bordered th,
+.table-bordered td {
+  border: 1px solid var(--border-color);
+}
+
+/* Small/compact tables */
+.table-sm th,
+.table-sm td {
+  padding: 4px 8px;
+  font-size: 0.9em;
+}
+
+/* Responsive tables */
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Table filter functionality */
+.table-filter-container {
+  margin-bottom: 10px;
+}
+
+.table-filter-input {
+  width: 100%;
+  max-width: 300px;
+  padding: 6px 12px;
+  border: 1px solid var(--input-border);
+  border-radius: 4px;
+  background: var(--input-bg);
+  color: var(--text-primary);
+}
+
+/* ==============================================
+   JSPWiki-Style Block Classes
+   ============================================== */
+
+/* Information blocks */
+.information {
+  background-color: var(--alert-info-bg, #d1ecf1);
+  border: 1px solid var(--alert-info-border, #bee5eb);
+  color: var(--alert-info-text, #0c5460);
+  padding: 12px 20px;
+  border-radius: 4px;
+  margin: 10px 0;
+}
+
+.information::before {
+  content: 'ℹ️ ';
+  font-weight: bold;
+}
+
+/* Warning blocks */
+.warning {
+  background-color: var(--alert-warning-bg, #fff3cd);
+  border: 1px solid var(--alert-warning-border, #ffeeba);
+  color: var(--alert-warning-text, #856404);
+  padding: 12px 20px;
+  border-radius: 4px;
+  margin: 10px 0;
+}
+
+.warning::before {
+  content: '⚠️ ';
+  font-weight: bold;
+}
+
+/* Error blocks */
+.error {
+  background-color: var(--alert-danger-bg);
+  border: 1px solid var(--alert-danger-border);
+  color: var(--alert-danger-text);
+  padding: 12px 20px;
+  border-radius: 4px;
+  margin: 10px 0;
+}
+
+.error::before {
+  content: '❌ ';
+  font-weight: bold;
+}
+
+/* Quote blocks */
+.quote {
+  border-left: 4px solid var(--border-color-strong);
+  padding-left: 16px;
+  margin: 16px 0;
+  font-style: italic;
+  color: var(--text-secondary);
+}
+
+/* Center alignment */
+.center {
+  text-align: center;
+}
+
+/* Comment box (floating) */
+.commentbox {
+  float: right;
+  margin: 0 0 10px 10px;
+  padding: 10px;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  max-width: 300px;
+  font-size: 0.9em;
+}
+
+/* Collapsible sections */
+.collapse {
+  cursor: pointer;
+}
+
+.collapse::before {
+  content: '▶ ';
+  display: inline-block;
+  transition: transform 0.2s;
+}
+
+.collapse.expanded::before {
+  transform: rotate(90deg);
+}
+
+.collapsebox {
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  margin: 10px 0;
+}
+
+.collapsebox-header {
+  background-color: var(--bg-secondary);
+  padding: 10px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.collapsebox-content {
+  padding: 10px;
+  display: none;
+}
+
+.collapsebox.expanded .collapsebox-content {
+  display: block;
+}
+
+/* Multi-column layout */
+.columns {
+  column-count: 2;
+  column-gap: 20px;
+}
+
+/* Text direction */
+.ltr {
+  direction: ltr;
+}
+
+.rtl {
+  direction: rtl;
+}
+
+/* Small text */
+.small {
+  font-size: 0.875em;
+}
+
+/* Subscript and superscript */
+.sub {
+  vertical-align: sub;
+  font-size: 0.75em;
+}
+
+.sup {
+  vertical-align: super;
+  font-size: 0.75em;
+}
+
+/* Strikethrough */
+.strike {
+  text-decoration: line-through;
+}

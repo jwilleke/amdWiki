@@ -139,6 +139,12 @@ export interface WikiConfig {
   /** User storage directory */
   'amdwiki.user.provider.storagedir': string;
 
+  /** Active site theme — folder name under themes/ (e.g. "default") */
+  'amdwiki.theme.active': string;
+
+  /** Default light/dark mode for new users ("light" | "dark" | "system") */
+  'amdwiki.theme.defaults.mode': string;
+
   /** Cache provider */
   'amdwiki.cache.provider': string;
 

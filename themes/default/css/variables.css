@@ -1,0 +1,151 @@
+/* =============================================================
+   Default Theme — CSS Custom Properties (variables)
+   These override/define the visual palette for the default theme.
+   Structural/layout CSS lives in themes/core.css.
+   ============================================================= */
+
+/* Light mode (default) */
+:root {
+  /* Backgrounds */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --bg-tertiary: #e9ecef;
+
+  /* Text */
+  --text-primary: #212529;
+  --text-secondary: #495057;
+  --text-muted: #6c757d;
+  --text-heading: #212529;
+  --text-content: #333333;
+
+  /* Borders */
+  --border-color: #dee2e6;
+  --border-color-strong: #adb5bd;
+
+  /* Links */
+  --link-color: #007bff;
+  --link-hover: #0056b3;
+
+  /* Cards */
+  --card-bg: #ffffff;
+  --card-border: #dee2e6;
+
+  /* Navbar */
+  --navbar-bg: #f8f9fa;
+  --navbar-border: #dee2e6;
+
+  /* Form inputs */
+  --input-bg: #ffffff;
+  --input-border: #ced4da;
+
+  /* Buttons */
+  --button-primary-bg: #007bff;
+  --button-primary-hover: #0056b3;
+
+  /* Alerts */
+  --alert-success-bg: #d1e7dd;
+  --alert-success-border: #badbcc;
+  --alert-success-text: #0f5132;
+  --alert-danger-bg: #f8d7da;
+  --alert-danger-border: #f5c2c7;
+  --alert-danger-text: #842029;
+  --alert-info-bg: #d1ecf1;
+  --alert-info-border: #bee5eb;
+  --alert-info-text: #0c5460;
+
+  /* Code */
+  --code-bg: #f8f9fa;
+  --code-border: #e9ecef;
+
+  /* Tables */
+  --table-stripe: #f0f0f0;
+  --table-hover: #e8e8e8;
+  --zebra-row-even: rgba(2, 6, 19, 0.08);
+  --zebra-row-odd: rgba(2, 6, 19, 0);
+  --zebra-row-hover: rgba(88, 166, 255, 0.24);
+}
+
+/* Explicit dark mode (data-theme="dark" on <html>) — GitHub-inspired */
+[data-theme="dark"] {
+  --bg-primary: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-tertiary: #21262d;
+
+  --text-primary: #e6edf3;
+  --text-secondary: #7d8590;
+  --text-muted: #656d76;
+  --text-heading: #f0f6fc;
+  --text-content: #c9d1d9;
+
+  --border-color: #30363d;
+  --border-color-strong: #484f58;
+
+  --link-color: #58a6ff;
+  --link-hover: #79c0ff;
+
+  --card-bg: #161b22;
+  --card-border: #30363d;
+  --navbar-bg: #010409;
+  --navbar-border: #21262d;
+
+  --input-bg: #0d1117;
+  --input-border: #30363d;
+  --button-primary-bg: #238636;
+  --button-primary-hover: #2ea043;
+
+  --alert-success-bg: #0f2419;
+  --alert-success-border: #1a7f37;
+  --alert-success-text: #3fb950;
+  --alert-danger-bg: #282e33;
+  --alert-danger-border: #f85149;
+  --alert-danger-text: #f85149;
+  --alert-info-bg: #1c2c3a;
+  --alert-info-border: #388bfd;
+  --alert-info-text: #58a6ff;
+
+  --code-bg: #161b22;
+  --code-border: #30363d;
+
+  --table-stripe: #1a1a1a;
+  --table-hover: rgba(88, 166, 255, 0.15);
+  --zebra-row-even: #1a1a1a;
+  --zebra-row-odd: transparent;
+  --zebra-row-hover: rgba(88, 166, 255, 0.15);
+}
+
+/* System dark mode (no explicit data-theme set) */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #2d2d2d;
+    --bg-tertiary: #404040;
+    --text-primary: #e9ecef;
+    --text-secondary: #ced4da;
+    --text-muted: #adb5bd;
+    --border-color: #495057;
+    --border-color-strong: #6c757d;
+    --link-color: #66b3ff;
+    --link-hover: #4da6ff;
+    --card-bg: #2d2d2d;
+    --card-border: #495057;
+    --navbar-bg: #1a1a1a;
+    --navbar-border: #495057;
+    --input-bg: #404040;
+    --input-border: #6c757d;
+    --button-primary-bg: #0d6efd;
+    --button-primary-hover: #0b5ed7;
+    --alert-success-bg: #0f5132;
+    --alert-success-border: #1a6938;
+    --alert-success-text: #d1e7dd;
+    --alert-danger-bg: #842029;
+    --alert-danger-border: #a52834;
+    --alert-danger-text: #f8d7da;
+    --code-bg: #404040;
+    --code-border: #6c757d;
+    --table-stripe: #252525;
+    --table-hover: rgba(88, 166, 255, 0.15);
+    --zebra-row-even: #252525;
+    --zebra-row-odd: transparent;
+    --zebra-row-hover: rgba(88, 166, 255, 0.15);
+  }
+}

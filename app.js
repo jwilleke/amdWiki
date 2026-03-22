@@ -15,6 +15,7 @@ const logger = require('./dist/src/utils/logger').default;
 const WikiEngine = require('./dist/src/WikiEngine');
 const WikiRoutes = require('./dist/src/routes/WikiRoutes');
 const InstallRoutes = require('./dist/src/routes/InstallRoutes');
+const { ThemeManager } = require('./dist/src/managers/ThemeManager');
 
 // --- PID File Lock to Prevent Multiple Instances ---
 const PID_FILE = path.join(__dirname, '.amdwiki.pid');
@@ -106,6 +107,8 @@ checkAndCreatePidLock();
   app.set('view engine', 'ejs');
   app.set('view cache', false);
   app.use(express.static(path.join(__dirname, 'public')));
+  // Serve theme assets (CSS, images) under /themes/
+  app.use('/themes', express.static(path.join(__dirname, 'themes')));
 
   // 2. Initialization gate middleware - serves maintenance page while engine starts
   app.use((req, res, next) => {
@@ -113,8 +116,8 @@ checkAndCreatePidLock();
 
     // Allow static assets through
     if (req.path.startsWith('/css') || req.path.startsWith('/js') ||
-        req.path.startsWith('/images') || req.path === '/favicon.ico' ||
-        req.path === '/favicon.svg') {
+        req.path.startsWith('/images') || req.path.startsWith('/themes') ||
+        req.path === '/favicon.ico' || req.path === '/favicon.svg') {
       return next();
     }
 
@@ -209,6 +212,15 @@ checkAndCreatePidLock();
 
   // Setup express-session with file store
   const configManager = engine.getManager('ConfigurationManager');
+
+  // Initialise ThemeManager and inject theme paths into all template locals
+  const activeThemeName = configManager.getProperty('amdwiki.theme.active', 'default');
+  const themesDir = path.join(__dirname, 'themes');
+  const themeManager = new ThemeManager(activeThemeName, themesDir);
+  app.use((req, res, next) => {
+    Object.assign(res.locals, themeManager.paths);
+    next();
+  });
   const sessionPath = configManager.getResolvedDataPath('amdwiki.session.storagedir', './data/sessions');
   await fs.ensureDir(sessionPath);
 
