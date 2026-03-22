@@ -229,7 +229,7 @@ class UserManager extends BaseManager {
     }
 
     // Load configuration settings (for business logic)
-    this.passwordSalt = configManager.getProperty('ngdpbase.user.security.passwordsalt', 'ngdpbase-salt') as string;
+    this.passwordSalt = configManager.getProperty('ngdpbase.user.security.passwordsalt', 'amdwiki-salt') as string;
     this.defaultPassword = configManager.getProperty('ngdpbase.user.security.defaultpassword', 'admin123') as string;
 
     // Load role definitions from config
@@ -339,7 +339,7 @@ class UserManager extends BaseManager {
    * @returns {string} Hashed password
    */
   hashPassword(password: string): string {
-    const salt = this.passwordSalt || 'ngdpbase-salt';
+    const salt = this.passwordSalt || 'amdwiki-salt';
     return crypto
       .createHash('sha256')
       .update(password + salt)
