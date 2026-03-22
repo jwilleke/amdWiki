@@ -24,7 +24,7 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
-## 2026-03-22-06
+## 2026-03-22-10
 
 - Agent: Claude Sonnet 4.6
 - Subject: Rename /wiki/ URL path to /view/ (#364)
@@ -10688,8 +10688,8 @@ Subject: AGENTS.md implementation and project_log.md creation
 - Updated `TemplateManager.ts` documentation/category template descriptions: `'Wiki Documentation (Documentation and Hints for this Wiki)'` → `'User Documentation (Documentation and Hints for this Site)'`
 - Fixed `[Wiki Documentation]` links in 7 live data pages and 8 `required-pages/` source files
 - Root cause identified: `required-pages/` directory in repo is loaded at startup and overwrites `data/pages/` — edits to `data/pages/` alone are not sufficient
-- **IN PROGRESS**: two `required-pages/` files still need updating (`4c0c0fa8` title/heading, `4a266851` brand string); `required-pages/` files need committing and synced to live
-- **DEFERRED**: user requests — (1) LeftMenu editable by any admin role, not just system admin; (2) system-category page edits should warn user and offer keep-or-overwrite from GitHub
+- __IN PROGRESS__: two `required-pages/` files still need updating (`4c0c0fa8` title/heading, `4a266851` brand string); `required-pages/` files need committing and synced to live
+- __DEFERRED__: user requests — (1) LeftMenu editable by any admin role, not just system admin; (2) system-category page edits should warn user and offer keep-or-overwrite from GitHub
 
 - Files Modified:
   - `src/routes/WikiRoutes.ts`
