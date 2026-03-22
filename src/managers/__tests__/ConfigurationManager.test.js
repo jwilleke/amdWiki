@@ -91,7 +91,7 @@ describe('ConfigurationManager', () => {
     });
 
     test('should respect INSTANCE_DATA_FOLDER environment variable', async () => {
-      process.env.INSTANCE_DATA_FOLDER = '/var/lib/amdwiki/data';
+      process.env.INSTANCE_DATA_FOLDER = '/var/lib/ngdpbase/data';
 
       // Create new manager to pick up new env var
       const newConfigManager = new ConfigurationManager(mockEngine);
@@ -99,7 +99,7 @@ describe('ConfigurationManager', () => {
 
       const result = newConfigManager.getInstanceDataFolder();
 
-      expect(result).toBe('/var/lib/amdwiki/data');
+      expect(result).toBe('/var/lib/ngdpbase/data');
     });
 
     test('should resolve relative INSTANCE_DATA_FOLDER from cwd', async () => {
