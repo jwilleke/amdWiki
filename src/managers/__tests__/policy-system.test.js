@@ -65,7 +65,7 @@ describe('Policy System Integration', () => {
     // Create and initialize the WikiEngine with policies in config
     // Note: ConfigurationManager uses nested objects, not dot-notation keys
     engine = await WikiEngine.createDefault({
-      amdwiki: {
+      ngdpbase: {
         access: {
           policies: {
             enabled: true

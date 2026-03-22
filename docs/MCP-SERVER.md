@@ -665,7 +665,7 @@ Be aware that:
 
 1. Define tool schema in `ListToolsRequestSchema` handler
 2. Add case to `CallToolRequestSchema` handler
-3. Implement tool method in `AmdWikiMCPServer` class
+3. Implement tool method in `NgdpbaseMCPServer` class
 4. Update documentation
 
 Example:
