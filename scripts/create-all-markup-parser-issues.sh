@@ -6,7 +6,7 @@
 # 2. Authenticate: gh auth login
 # 3. Navigate to repository directory
 
-REPO="jwilleke/amdWiki"
+REPO="jwilleke/ngdpbase"
 
 echo "🚀 Creating Complete MarkupParser Implementation Issues..."
 

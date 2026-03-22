@@ -84,7 +84,7 @@ mkdir -p amdwiki
 cd amdwiki
 
 # 3. Clone the repository (note the trailing dot to clone into current dir)
-git clone https://github.com/jwilleke/amdWiki.git .
+git clone https://github.com/jwilleke/ngdpbase.git .
 
 # 4. Create runtime directories (NOT in repo, created on deployment)
 mkdir -p pages data logs sessions search-index work

@@ -32,7 +32,7 @@ The fastest way to run amdWiki is to pull the pre-built image from GitHub Contai
 
 ### Browse Available Versions
 
-View all published versions at: <https://github.com/jwilleke/amdWiki/pkgs/container/amdwiki>
+View all published versions at: <https://github.com/jwilleke/ngdpbase/pkgs/container/amdwiki>
 
 ### Pull and Run
 

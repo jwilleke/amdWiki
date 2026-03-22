@@ -14,7 +14,7 @@ Quick setup instructions for getting amdWiki running locally or in production.
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/jwilleke/amdWiki.git
+git clone https://github.com/jwilleke/ngdpbase.git
 cd amdWiki
 ```
 

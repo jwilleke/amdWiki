@@ -299,7 +299,7 @@ If text isn't wrapping around your image:
 
 ---
 
-*For developer documentation on extending or modifying the ImagePlugin, are located on [GitHub Developer Documentation|https://github.com/jwilleke/amdWiki/blob/master/docs/Developer-Documentation.md|target='_blank']
+*For developer documentation on extending or modifying the ImagePlugin, are located on [GitHub Developer Documentation|https://github.com/jwilleke/ngdpbase/blob/master/docs/Developer-Documentation.md|target='_blank']
 
 
 ## More Information

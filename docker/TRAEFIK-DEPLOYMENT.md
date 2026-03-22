@@ -341,6 +341,6 @@ tar -czf amdwiki-backup-$(date +%Y%m%d).tar.gz pages/ data/ logs/ config/
 
 For issues:
 
-- amdWiki: <https://github.com/jwilleke/amdWiki/issues>
+- amdWiki: <https://github.com/jwilleke/ngdpbase/issues>
 - Traefik: <https://doc.traefik.io/traefik/>
 - Authelia: <https://www.authelia.com/>
