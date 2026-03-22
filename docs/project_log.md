@@ -24,6 +24,24 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-22-03
+
+- Agent: Claude Sonnet 4.6
+- Subject: Fix E2E location-plugin afterAll timeout leaving orphaned test pages (#351)
+- Key Decision: Use `test.setTimeout(120000)` inside `afterAll` hook — Playwright's `afterAll` in this version doesn't accept a `{ timeout }` options arg. Can't parallelize deletions because concurrent index rebuilds on 14K pages would cause ~3GB memory spikes per rebuild.
+- Current Issue: #351 (related to #326)
+- Testing:
+  - npm test: 75 suites passed, 1917 tests passed
+  - E2E: 47 passed (0 failed — previously 1 flaky)
+- Work Done:
+  - Added `test.setTimeout(120000)` to `afterAll` in location-plugin.spec.js
+  - Created and closed GH issue #351
+- Commits: df4006f
+- Files Modified:
+  - tests/e2e/location-plugin.spec.js
+
+---
+
 ## 2026-03-22-02
 
 - Agent: Claude Sonnet 4.6
