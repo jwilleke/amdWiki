@@ -24,6 +24,32 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-22-05
+
+- Agent: Claude Sonnet 4.6
+- Subject: Core Theming System — all phases (#350, #352–#356)
+- Key Decisions:
+  - Config namespace: `amdwiki.theme.active` (site skin) + `amdwiki.theme.defaults.mode` (light/dark) replacing `amdwiki.user.defaults.theme`
+  - `themes/` at project root; `public/css/` assets moved into `themes/`
+  - JSPWiki-inspired split: `themes/core.css` (structural, shared) + `themes/<name>/css/variables.css` (CSS custom properties per theme)
+  - `themes/default/assets/` holds logo and favicon; `themes/plugins/location.css` (also fixes pre-existing bug — was never loaded)
+  - ThemeManager service injects paths into all templates via `res.locals` middleware
+  - header.ejs: separate `logoPath` from `faviconPath`; loads theme CSS in correct cascade order (variables before core)
+  - Admin UI: theme selector dropdown, `POST /admin/settings/theme` persists to instance config, restart-required notice
+  - Restart required to switch themes (no-restart out of scope)
+- Current Issue: #350 (epic, still open — Phase 5 was last subtask)
+- Testing:
+  - npm test: 75 suites passed, 1917 tests passed
+  - E2E: 47 passed
+- Commits: 1abef31 (phases 1-4), f52d8f7 (phase 5)
+- Files Modified:
+  - app.js, config/app-default-config.json, src/types/Config.ts
+  - src/managers/ThemeManager.ts (new), src/routes/WikiRoutes.ts
+  - views/header.ejs, views/admin-settings.ejs
+  - themes/ (new directory: core.css, plugins/location.css, default/)
+
+---
+
 ## 2026-03-22-04
 
 - Agent: Claude Sonnet 4.6
