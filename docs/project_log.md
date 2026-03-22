@@ -24,6 +24,23 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-22-04
+
+- Agent: Claude Sonnet 4.6
+- Subject: Delete orphaned E2E test pages from wiki (#326)
+- Key Decision: Deleted via `POST /delete/:page` API using Playwright auth cookie. Pages stored as UUID.md files so identification required grepping titles. 500 responses with "Page not found" body are a server quirk — pages were already gone.
+- Current Issue: #326 (already closed)
+- Testing:
+  - npm test: 75 suites passed, 1917 tests passed
+  - E2E: 47 passed
+- Work Done:
+  - Identified and deleted all 148+ orphaned test pages: `E2E-Test-Page-*`, `LocationTest-*`, `AMDWIKI-test-*`
+  - No code changes — data-only cleanup
+- Commits: N/A
+- Files Modified: N/A (wiki data only)
+
+---
+
 ## 2026-03-22-03
 
 - Agent: Claude Sonnet 4.6
