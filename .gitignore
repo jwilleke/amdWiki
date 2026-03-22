@@ -213,3 +213,6 @@ amdWiki.code-workspace
 
 # Search index (generated at runtime)
 search-index/
+
+# Test results (generated)
+test-results/
