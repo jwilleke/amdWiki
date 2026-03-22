@@ -27,6 +27,7 @@ test.describe('LocationPlugin', () => {
   const PAGE_SUFFIXES = ['-name', '-coords', '-google', '-geo', '-embed', '-noembed', '-error', '-invalid', '-attrs', '-icon'];
 
   test.afterAll(async ({ browser }) => {
+    test.setTimeout(120000);
     const context = await browser.newContext({ storageState: './tests/e2e/.auth/user.json' });
     const p = await context.newPage();
     for (const suffix of PAGE_SUFFIXES) {
