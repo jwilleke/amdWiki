@@ -58,15 +58,27 @@ export class ThemeManager {
   private buildPaths(): ThemePaths {
     const t = this.activeTheme;
     const themeInfo = this.loadThemeInfo();
+    const assetsDir = path.join(this.themesDir, t, 'assets');
     return {
       activeTheme: t,
       coreCssPath: '/themes/core.css',
       variablesCssPath: `/themes/${t}/css/variables.css`,
-      logoPath: `/themes/${t}/assets/favicon.png`,
+      logoPath: this.resolveLogoPath(assetsDir, t),
       faviconPath: `/themes/${t}/assets/favicon.png`,
       locationCssPath: '/themes/plugins/location.css',
       themeInfo
     };
+  }
+
+  /** Resolve logo path: prefer logo.svg → logo.png → favicon.svg → favicon.png */
+  private resolveLogoPath(assetsDir: string, t: string): string {
+    const candidates = ['logo.svg', 'logo.png', 'favicon.svg', 'favicon.png'];
+    for (const file of candidates) {
+      if (fs.existsSync(path.join(assetsDir, file))) {
+        return `/themes/${t}/assets/${file}`;
+      }
+    }
+    return `/themes/${t}/assets/favicon.png`;
   }
 
   get paths(): ThemePaths {
