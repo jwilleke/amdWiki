@@ -24,6 +24,27 @@ AI agent session tracking. See [CHANGELOG.md](./CHANGELOG.md) for version histor
 
 ---
 
+## 2026-03-22-11
+
+- Agent: Claude Sonnet 4.6
+- Subject: Rename GitHub repository from amdWiki to ngdpbase
+- Key Decision: Renamed GitHub repo `jwilleke/amdWiki` → `jwilleke/ngdpbase`. GitHub auto-redirects old URLs. Updated local git remote and all hardcoded repo URLs in docs, required-pages, scripts, and docker configs.
+- Current Issue: n/a
+- Testing: n/a (docs-only change)
+- Work Done:
+  - `gh repo rename ngdpbase`
+  - Updated git remote URL to `https://github.com/jwilleke/ngdpbase.git`
+  - Updated 15 files referencing `jwilleke/amdWiki` (SETUP.md, docker docs, required-pages, scripts, k8s configmap)
+  - Left `private/dev-notes.md` historical references unchanged
+- Commits: 17453f7
+- Files Modified:
+  - SETUP.md, docker/*.md, docker/k8s/configmap.yaml
+  - required-pages/*.md (7 files + versions)
+  - scripts/create-all-markup-parser-issues.sh
+  - scripts/create-markup-parser-issues.sh
+
+---
+
 ## 2026-03-22-10
 
 - Agent: Claude Sonnet 4.6
