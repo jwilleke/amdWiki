@@ -912,12 +912,6 @@ class WikiRoutes {
    * @returns {Promise<boolean>} True if page requires admin permission to edit
    */
   async isRequiredPage(pageName: string): Promise<boolean> {
-    // Hardcoded required pages (for backward compatibility)
-    const hardcodedRequiredPages = ['System Categories', 'Wiki Documentation'];
-    if (hardcodedRequiredPages.includes(pageName)) {
-      return true;
-    }
-
     // Check if page has a protected system-category
     try {
       const pageManager = this.engine.getManager('PageManager');
@@ -1909,10 +1903,7 @@ class WikiRoutes {
       }
 
       // Check if the new metadata will make this a required page
-      const hardcodedRequiredPages = ['System Categories', 'Wiki Documentation'];
-      const willBeRequired = hardcodedRequiredPages.includes(pageName) ||
-                            hardcodedRequiredPages.includes(metadata.title as string) ||
-                            this.getRequiredPageCategories().includes(
+      const willBeRequired = this.getRequiredPageCategories().includes(
                               ((metadata['system-category'] as string) || '').toLowerCase()
                             );
       if (isCurrentlyRequired || willBeRequired) {

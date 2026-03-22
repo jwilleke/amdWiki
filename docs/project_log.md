@@ -10650,6 +10650,24 @@ Subject: AGENTS.md implementation and project_log.md creation
   - 2907ed3 - fix: version.ts now updates app-default-config.json
   - 7097715 - docs: update CONTRIBUTING.md version management section
 
+## 2026-03-22-09
+
+### Fix: remove hardcoded page names, fix Wiki Documentation references (partial)
+
+- Removed hardcoded `['System Categories', 'Wiki Documentation']` from `WikiRoutes.ts` `isRequiredPage()` and save handler — protection now relies solely on `system-category` (config-driven, not name-driven)
+- Updated `LinkParserHandler.ts` debug test pages array: `'Wiki Documentation'` → `'User Documentation'`
+- Updated `TemplateManager.ts` documentation/category template descriptions: `'Wiki Documentation (Documentation and Hints for this Wiki)'` → `'User Documentation (Documentation and Hints for this Site)'`
+- Fixed `[Wiki Documentation]` links in 7 live data pages and 8 `required-pages/` source files
+- Root cause identified: `required-pages/` directory in repo is loaded at startup and overwrites `data/pages/` — edits to `data/pages/` alone are not sufficient
+- **IN PROGRESS**: two `required-pages/` files still need updating (`4c0c0fa8` title/heading, `4a266851` brand string); `required-pages/` files need committing and synced to live
+- **DEFERRED**: user requests — (1) LeftMenu editable by any admin role, not just system admin; (2) system-category page edits should warn user and offer keep-or-overwrite from GitHub
+
+- Files Modified:
+  - `src/routes/WikiRoutes.ts`
+  - `src/parsers/handlers/LinkParserHandler.ts`
+  - `src/managers/TemplateManager.ts`
+  - `required-pages/*.md` (8 files)
+
 ## 2026-03-22-08
 
 ### Fix: preserve password salt after rename

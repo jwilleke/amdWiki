@@ -322,7 +322,7 @@ class LinkParserHandler extends BaseSyntaxHandler {
         logger.info(`LinkParserHandler refreshed ${pageNames.length} page names`);
 
         // Debug: log some page names to see what we actually have
-        const testPages = ['PageIndex', 'SystemInfo', 'Everything We Know About You', 'Wiki Documentation'];
+        const testPages = ['PageIndex', 'SystemInfo', 'Everything We Know About You', 'User Documentation'];
         logger.debug('Debug - checking for specific pages:');
         testPages.forEach(testPage => {
           const exists = pageNames.includes(testPage);
